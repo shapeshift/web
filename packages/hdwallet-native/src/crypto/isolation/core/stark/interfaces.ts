@@ -1,5 +1,5 @@
-import { Revocable } from "..";
-import { ChainCode } from "../bip32";
+import type { Revocable } from '..'
+import type { ChainCode } from '../bip32'
 
 /**
  * Stark curve Node interface for Starknet
@@ -28,13 +28,13 @@ import { ChainCode } from "../bip32";
  * - SLIP-0010: https://github.com/satoshilabs/slips/blob/master/slip-0010.md
  */
 export interface Node extends Partial<Revocable> {
-  readonly explicitPath?: string;
+  readonly explicitPath?: string
   /** Get Stark public key (applies key grinding, returns hex string) */
-  getPublicKey(): Promise<string>;
+  getPublicKey(): Promise<string>
   /** Get BIP32 chain code for derivation */
-  getChainCode(): Promise<ChainCode>;
+  getChainCode(): Promise<ChainCode>
   /** Derive child key using BIP32 secp256k1 math (per industry standard) */
-  derive(index: number): Promise<this>;
+  derive(index: number): Promise<this>
   /** Sign transaction hash on STARK curve (returns padded 64-char hex r,s) */
-  sign(txHash: string): Promise<{ r: string; s: string }>;
+  sign(txHash: string): Promise<{ r: string; s: string }>
 }

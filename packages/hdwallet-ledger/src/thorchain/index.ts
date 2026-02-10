@@ -1,36 +1,55 @@
-import type { AccountData, AminoSignResponse, OfflineAminoSigner, StdSignDoc, StdTx } from "@cosmjs/amino";
-import { Secp256k1Signature } from "@cosmjs/crypto";
-import type { SignerData } from "@cosmjs/stargate";
-import * as core from "@shapeshiftoss/hdwallet-core";
-import { fromByteArray } from "base64-js";
-import PLazy from "p-lazy";
+import type {
+  AccountData,
+  AminoSignResponse,
+  OfflineAminoSigner,
+  StdSignDoc,
+  StdTx,
+} from '@cosmjs/amino'
+import { Secp256k1Signature } from '@cosmjs/crypto'
+import type { SignerData } from '@cosmjs/stargate'
+import type * as core from '@shapeshiftoss/hdwallet-core'
+import { fromByteArray } from 'base64-js'
+import PLazy from 'p-lazy'
 
-import { handleError, LedgerTransport, stringifyKeysInOrder } from "..";
-export * from "./common";
-export * from "./hw-app-thor";
+import type { LedgerTransport } from '..'
+import { handleError, stringifyKeysInOrder } from '..'
+export * from './common'
+export * from './hw-app-thor'
 
-const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
+const protoTxBuilder = PLazy.from(() => import('@shapeshiftoss/proto-tx-builder'))
 
 export const thorchainGetAddress = async (
   transport: LedgerTransport,
-  msg: core.ThorchainGetAddress
+  msg: core.ThorchainGetAddress,
 ): Promise<string> => {
-  const res = await transport.call("Thorchain", "getAddress", msg.addressNList, "thor", msg.showDisplay);
+  const res = await transport.call(
+    'Thorchain',
+    'getAddress',
+    msg.addressNList,
+    'thor',
+    msg.showDisplay,
+  )
 
-  handleError(res, transport, "Unable to obtain address and public key from device.");
+  handleError(res, transport, 'Unable to obtain address and public key from device.')
 
-  return res.payload.address;
-};
+  return res.payload.address
+}
 
 export const thorchainSignTx = async (
   transport: LedgerTransport,
-  msg: core.ThorchainSignTx
+  msg: core.ThorchainSignTx,
 ): Promise<core.ThorchainSignedTx> => {
-  const getAddressResponse = await transport.call("Thorchain", "getAddress", msg.addressNList, "thor", false);
+  const getAddressResponse = await transport.call(
+    'Thorchain',
+    'getAddress',
+    msg.addressNList,
+    'thor',
+    false,
+  )
 
-  handleError(getAddressResponse, transport, "Unable to obtain address and public key from device.");
+  handleError(getAddressResponse, transport, 'Unable to obtain address and public key from device.')
 
-  const { address, publicKey } = getAddressResponse.payload;
+  const { address, publicKey } = getAddressResponse.payload
 
   const unsignedTx = stringifyKeysInOrder({
     account_number: msg.account_number,
@@ -39,48 +58,48 @@ export const thorchainSignTx = async (
     memo: msg.tx.memo,
     msgs: msg.tx.msg,
     sequence: msg.sequence,
-  });
+  })
 
-  const signResponse = await transport.call("Thorchain", "sign", msg.addressNList, unsignedTx);
+  const signResponse = await transport.call('Thorchain', 'sign', msg.addressNList, unsignedTx)
 
-  handleError(signResponse, transport, "Unable to obtain signature from device.");
+  handleError(signResponse, transport, 'Unable to obtain signature from device.')
 
-  const signature = signResponse.payload.signature;
+  const signature = signResponse.payload.signature
 
-  if (!signature) throw new Error("No signature returned from device");
+  if (!signature) throw new Error('No signature returned from device')
 
   const offlineSigner: OfflineAminoSigner = {
     async getAccounts(): Promise<readonly AccountData[]> {
       return [
         {
           address,
-          algo: "secp256k1",
-          pubkey: Buffer.from(publicKey, "hex"),
+          algo: 'secp256k1',
+          pubkey: Buffer.from(publicKey, 'hex'),
         },
-      ];
+      ]
     },
 
     async signAmino(signerAddress: string, signDoc: StdSignDoc): Promise<AminoSignResponse> {
-      if (signerAddress !== address) throw new Error("expected signerAddress to match address");
+      if (signerAddress !== address) throw new Error('expected signerAddress to match address')
 
       return {
         signed: signDoc,
         signature: {
           pub_key: {
-            type: "tendermint/PubKeySecp256k1",
+            type: 'tendermint/PubKeySecp256k1',
             value: publicKey,
           },
           signature: fromByteArray(Secp256k1Signature.fromDer(signature).toFixedLength()),
         },
-      };
+      }
     },
-  };
+  }
 
   const signerData: SignerData = {
     sequence: Number(msg.sequence),
     accountNumber: Number(msg.account_number),
     chainId: msg.chain_id,
-  };
+  }
 
-  return (await protoTxBuilder).sign(address, msg.tx as StdTx, offlineSigner, signerData, "thor");
-};
+  return (await protoTxBuilder).sign(address, msg.tx as StdTx, offlineSigner, signerData, 'thor')
+}

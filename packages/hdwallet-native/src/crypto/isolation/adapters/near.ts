@@ -1,14 +1,14 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from '@shapeshiftoss/hdwallet-core'
 
-import { Isolation } from "../..";
+import type { Isolation } from '../..'
 
-const ED25519_PUBLIC_KEY_SIZE = 32;
+const ED25519_PUBLIC_KEY_SIZE = 32
 
 export class NearAdapter {
-  protected readonly nodeAdapter: Isolation.Adapters.Ed25519;
+  protected readonly nodeAdapter: Isolation.Adapters.Ed25519
 
   constructor(nodeAdapter: Isolation.Adapters.Ed25519) {
-    this.nodeAdapter = nodeAdapter;
+    this.nodeAdapter = nodeAdapter
   }
 
   /**
@@ -21,19 +21,21 @@ export class NearAdapter {
    * @see https://docs.near.org/integrations/implicit-accounts
    */
   async getAddress(addressNList: core.BIP32Path): Promise<string> {
-    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToHardenedBIP32(addressNList));
-    const publicKey = await nodeAdapter.getPublicKey();
+    const nodeAdapter = await this.nodeAdapter.derivePath(
+      core.addressNListToHardenedBIP32(addressNList),
+    )
+    const publicKey = await nodeAdapter.getPublicKey()
 
     if (publicKey.length !== ED25519_PUBLIC_KEY_SIZE) {
-      throw new Error(`Invalid Ed25519 public key size: ${publicKey.length}`);
+      throw new Error(`Invalid Ed25519 public key size: ${publicKey.length}`)
     }
 
     // NEAR implicit account = lowercase hex of the 32-byte Ed25519 public key
     const addressHex = Array.from(publicKey)
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('')
 
-    return addressHex;
+    return addressHex
   }
 
   /**
@@ -48,39 +50,43 @@ export class NearAdapter {
    * Note: The caller is responsible for Borsh serialization of the transaction
    */
   async signTransaction(txBytes: Uint8Array, addressNList: core.BIP32Path): Promise<string> {
-    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToHardenedBIP32(addressNList));
+    const nodeAdapter = await this.nodeAdapter.derivePath(
+      core.addressNListToHardenedBIP32(addressNList),
+    )
 
     // NEAR signs the SHA-256 hash of the Borsh-serialized transaction
     // The Ed25519 implementation will handle the actual signing
     // Note: Ed25519 in NEAR signs the raw SHA-256 hash (32 bytes)
-    const crypto = await import("crypto");
-    const messageHash = crypto.createHash("sha256").update(txBytes).digest();
+    const crypto = await import('crypto')
+    const messageHash = crypto.createHash('sha256').update(txBytes).digest()
 
     // Sign the hash with Ed25519
-    const signature = await nodeAdapter.node.sign(messageHash);
+    const signature = await nodeAdapter.node.sign(messageHash)
 
     // Convert signature to hex string
     const signatureHex = Array.from(signature)
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('')
 
-    return signatureHex;
+    return signatureHex
   }
 
   /**
    * Get public key as hex string. Caller converts to ed25519:base58 format if needed.
    */
   async getPublicKey(addressNList: core.BIP32Path): Promise<string> {
-    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToHardenedBIP32(addressNList));
-    const publicKey = await nodeAdapter.getPublicKey();
+    const nodeAdapter = await this.nodeAdapter.derivePath(
+      core.addressNListToHardenedBIP32(addressNList),
+    )
+    const publicKey = await nodeAdapter.getPublicKey()
 
     // Convert to hex string (we'll convert to base58 in the caller if needed)
     const publicKeyHex = Array.from(publicKey)
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('')
 
-    return publicKeyHex;
+    return publicKeyHex
   }
 }
 
-export default NearAdapter;
+export default NearAdapter

@@ -1,4 +1,4 @@
-import { Stark } from "../core";
+import { Stark } from '../core'
 
 /**
  * Stark curve adapter for Starknet
@@ -21,23 +21,23 @@ import { Stark } from "../core";
  * - @scure/starknet: https://github.com/paulmillr/scure-starknet
  */
 export class StarkAdapter {
-  readonly node: Stark.Node;
+  readonly node: Stark.Node
 
   constructor(node: Stark.Node) {
-    this.node = node;
+    this.node = node
   }
 
   async getPublicKey(): Promise<string> {
-    return this.node.getPublicKey();
+    return this.node.getPublicKey()
   }
 
   async derive(index: number): Promise<this> {
-    return new StarkAdapter(await this.node.derive(index)) as this;
+    return new StarkAdapter(await this.node.derive(index)) as this
   }
 
   async derivePath(path: string): Promise<StarkAdapter> {
-    return Stark.derivePath<StarkAdapter>(this, path);
+    return Stark.derivePath<StarkAdapter>(this, path)
   }
 }
 
-export default StarkAdapter;
+export default StarkAdapter

@@ -1,7 +1,7 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import type * as core from '@shapeshiftoss/hdwallet-core'
 
-import { osmosisTests as tests } from "./osmosis";
+import { osmosisTests as tests } from './osmosis'
 
 export function osmosisTests(get: () => { wallet: core.HDWallet; info: core.HDWalletInfo }): void {
-  tests(get);
+  tests(get)
 }

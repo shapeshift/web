@@ -1,21 +1,21 @@
-import * as eventemitter2 from "eventemitter2";
+import * as eventemitter2 from 'eventemitter2'
 
-import { Keyring } from "./keyring";
+import type { Keyring } from './keyring'
 
 export abstract class Transport extends eventemitter2.EventEmitter2 {
-  public keyring: Keyring;
+  public keyring: Keyring
 
   constructor(keyring: Keyring) {
-    super();
-    this.keyring = keyring;
+    super()
+    this.keyring = keyring
   }
 
-  public abstract getDeviceID(): Promise<string>;
+  public abstract getDeviceID(): Promise<string>
 
   /**
    * Must emit outgoing message events and communicate with underlying interface
    */
-  public abstract call(...args: any): Promise<unknown>;
+  public abstract call(...args: any): Promise<unknown>
 
   /**
    * Optional method to bootstrap connection to device

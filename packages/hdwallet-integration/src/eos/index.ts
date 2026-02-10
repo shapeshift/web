@@ -1,7 +1,7 @@
-import { HDWallet, HDWalletInfo } from "@shapeshiftoss/hdwallet-core";
+import type { HDWallet, HDWalletInfo } from '@shapeshiftoss/hdwallet-core'
 
-import { eosTests as tests } from "./eos";
+import { eosTests as tests } from './eos'
 
 export function eosTests(get: () => { wallet: HDWallet; info: HDWalletInfo }): void {
-  tests(get);
+  tests(get)
 }

@@ -1,17 +1,17 @@
-import { keccak256 } from "@ethersproject/keccak256";
-import * as core from "@shapeshiftoss/hdwallet-core";
-import bs58check from "bs58check";
+import { keccak256 } from '@ethersproject/keccak256'
+import * as core from '@shapeshiftoss/hdwallet-core'
+import bs58check from 'bs58check'
 
-import { Isolation } from "../..";
-import { SecP256K1 } from "../core";
+import type { Isolation } from '../..'
+import { SecP256K1 } from '../core'
 
-const TRON_ADDRESS_PREFIX = 0x41;
+const TRON_ADDRESS_PREFIX = 0x41
 
 export class TronAdapter {
-  protected readonly nodeAdapter: Isolation.Adapters.BIP32;
+  protected readonly nodeAdapter: Isolation.Adapters.BIP32
 
   constructor(nodeAdapter: Isolation.Adapters.BIP32) {
-    this.nodeAdapter = nodeAdapter;
+    this.nodeAdapter = nodeAdapter
   }
 
   /**
@@ -25,20 +25,23 @@ export class TronAdapter {
    * 6. Base58check encode
    */
   async getAddress(addressNList: core.BIP32Path): Promise<string> {
-    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
-    const publicKey = SecP256K1.UncompressedPoint.from(nodeAdapter.getPublicKey());
+    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList))
+    const publicKey = SecP256K1.UncompressedPoint.from(nodeAdapter.getPublicKey())
 
     // Remove the 0x04 prefix from uncompressed public key
-    const publicKeyBytes = publicKey.slice(1);
+    const publicKeyBytes = publicKey.slice(1)
 
     // Hash with Keccak256
-    const hash = keccak256("0x" + Buffer.from(publicKeyBytes).toString("hex"));
+    const hash = keccak256('0x' + Buffer.from(publicKeyBytes).toString('hex'))
 
     // Take last 20 bytes and prepend 0x41 (TRON prefix)
-    const addressBytes = Buffer.concat([Buffer.from([TRON_ADDRESS_PREFIX]), Buffer.from(hash.slice(-40), "hex")]);
+    const addressBytes = Buffer.concat([
+      Buffer.from([TRON_ADDRESS_PREFIX]),
+      Buffer.from(hash.slice(-40), 'hex'),
+    ])
 
     // Base58check encode
-    return bs58check.encode(addressBytes);
+    return bs58check.encode(addressBytes)
   }
 
   /**
@@ -50,20 +53,24 @@ export class TronAdapter {
    * 4. Return hex signature
    */
   async signTransaction(rawDataHex: string, addressNList: core.BIP32Path): Promise<string> {
-    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList));
-    const txBuf = Buffer.from(rawDataHex, "hex");
+    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToBIP32(addressNList))
+    const txBuf = Buffer.from(rawDataHex, 'hex')
 
     // TRON uses SHA256 for transaction signing
-    const recoverableSig = await SecP256K1.RecoverableSignature.signCanonically(nodeAdapter.node, "sha256", txBuf);
+    const recoverableSig = await SecP256K1.RecoverableSignature.signCanonically(
+      nodeAdapter.node,
+      'sha256',
+      txBuf,
+    )
 
-    const sig = SecP256K1.RecoverableSignature.sig(recoverableSig);
-    const recoveryParam = SecP256K1.RecoverableSignature.recoveryParam(recoverableSig);
+    const sig = SecP256K1.RecoverableSignature.sig(recoverableSig)
+    const recoveryParam = SecP256K1.RecoverableSignature.recoveryParam(recoverableSig)
 
     // Concatenate signature (64 bytes) + recovery param (1 byte)
-    const fullSig = core.compatibleBufferConcat([sig, Buffer.from([recoveryParam])]);
+    const fullSig = core.compatibleBufferConcat([sig, Buffer.from([recoveryParam])])
 
-    return fullSig.toString("hex");
+    return fullSig.toString('hex')
   }
 }
 
-export default TronAdapter;
+export default TronAdapter

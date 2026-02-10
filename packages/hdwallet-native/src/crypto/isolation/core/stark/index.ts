@@ -1,2 +1,2 @@
-export { derivePath } from "../bip32";
-export * from "./interfaces";
+export { derivePath } from '../bip32'
+export * from './interfaces'

@@ -1,14 +1,14 @@
 /*
  Copied from portis: packages/portis-crypto/src/models/encryptedObject.ts
  */
-import { CipherString } from "./cipherString";
-import { SymmetricCryptoKey } from "./symmetricCryptoKey";
+import { CipherString } from './cipherString'
+import type { SymmetricCryptoKey } from './symmetricCryptoKey'
 
 export class EncryptedObject {
-  key: SymmetricCryptoKey;
-  iv: ArrayBuffer;
-  data: ArrayBuffer;
-  mac: ArrayBuffer;
+  key: SymmetricCryptoKey
+  iv: ArrayBuffer
+  data: ArrayBuffer
+  mac: ArrayBuffer
 
   constructor({
     key,
@@ -16,18 +16,18 @@ export class EncryptedObject {
     data,
     mac,
   }: {
-    key: SymmetricCryptoKey;
-    iv: ArrayBuffer;
-    data: ArrayBuffer;
-    mac: ArrayBuffer;
+    key: SymmetricCryptoKey
+    iv: ArrayBuffer
+    data: ArrayBuffer
+    mac: ArrayBuffer
   }) {
-    this.key = key;
-    this.iv = iv;
-    this.data = data;
-    this.mac = mac;
+    this.key = key
+    this.iv = iv
+    this.data = data
+    this.mac = mac
   }
 
   toString() {
-    return new CipherString(this).encryptedString;
+    return new CipherString(this).encryptedString
   }
 }

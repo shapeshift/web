@@ -1,17 +1,17 @@
-import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
+import type * as bitcoin from '@shapeshiftoss/bitcoinjs-lib'
 
-import { BTCInputScriptType, BTCOutputScriptType } from "./bitcoin";
+import type { BTCInputScriptType, BTCOutputScriptType } from './bitcoin'
 
-export type BTCScriptType = BTCInputScriptType | BTCOutputScriptType;
+export type BTCScriptType = BTCInputScriptType | BTCOutputScriptType
 
 type BIP32 = {
   bip32: {
-    public: number;
-    private: number;
-  };
-};
+    public: number
+    private: number
+  }
+}
 
-type BIP32ByScriptType = Partial<Record<BTCOutputScriptType, BIP32>>;
+type BIP32ByScriptType = Partial<Record<BTCOutputScriptType, BIP32>>
 
 const bip32BTC: BIP32ByScriptType = {
   p2sh: {
@@ -26,7 +26,7 @@ const bip32BTC: BIP32ByScriptType = {
       private: 0x0488ade4,
     },
   },
-  "p2sh-p2wpkh": {
+  'p2sh-p2wpkh': {
     bip32: {
       public: 0x049d7cb2,
       private: 0x049d7878,
@@ -38,19 +38,19 @@ const bip32BTC: BIP32ByScriptType = {
       private: 0x04b2430c,
     },
   },
-};
+}
 
 type NetworkDescription = {
-  base: Omit<bitcoin.Network, "bip32">;
-} & BIP32ByScriptType;
+  base: Omit<bitcoin.Network, 'bip32'>
+} & BIP32ByScriptType
 
-type Networks = Record<string, NetworkDescription>;
+type Networks = Record<string, NetworkDescription>
 
 const networks: Networks = {
   bitcoin: {
     base: {
-      messagePrefix: "\x18Bitcoin Signed Message:\n",
-      bech32: "bc",
+      messagePrefix: '\x18Bitcoin Signed Message:\n',
+      bech32: 'bc',
       pubKeyHash: 0x00,
       scriptHash: 0x05,
       wif: 0x80,
@@ -59,8 +59,8 @@ const networks: Networks = {
   },
   dash: {
     base: {
-      messagePrefix: "unused",
-      bech32: "",
+      messagePrefix: 'unused',
+      bech32: '',
       pubKeyHash: 0x4c,
       scriptHash: 0x10,
       wif: 0xcc,
@@ -70,8 +70,8 @@ const networks: Networks = {
   },
   digibyte: {
     base: {
-      messagePrefix: "\x19Digibyte Signed Message:\n",
-      bech32: "dgb",
+      messagePrefix: '\x19Digibyte Signed Message:\n',
+      bech32: 'dgb',
       pubKeyHash: 0x1e,
       scriptHash: 0x3f,
       wif: 0x80,
@@ -80,8 +80,8 @@ const networks: Networks = {
   },
   dogecoin: {
     base: {
-      messagePrefix: "\x19Dogecoin Signed Message:\n",
-      bech32: "",
+      messagePrefix: '\x19Dogecoin Signed Message:\n',
+      bech32: '',
       pubKeyHash: 0x1e,
       scriptHash: 0x16,
       wif: 0x9e,
@@ -101,8 +101,8 @@ const networks: Networks = {
   },
   litecoin: {
     base: {
-      messagePrefix: "\x19Litecoin Signed Message:\n",
-      bech32: "ltc",
+      messagePrefix: '\x19Litecoin Signed Message:\n',
+      bech32: 'ltc',
       pubKeyHash: 0x30,
       scriptHash: 0x32,
       wif: 0xb0,
@@ -119,7 +119,7 @@ const networks: Networks = {
         private: 0x019d9cfe,
       },
     },
-    "p2sh-p2wpkh": {
+    'p2sh-p2wpkh': {
       bip32: {
         public: 0x01b26ef6,
         private: 0x01b26792,
@@ -129,8 +129,8 @@ const networks: Networks = {
   },
   zcash: {
     base: {
-      messagePrefix: "\x19Zcash Signed Message:\n",
-      bech32: "",
+      messagePrefix: '\x19Zcash Signed Message:\n',
+      bech32: '',
       pubKeyHash: 0x1cb8,
       scriptHash: 0x1cbd,
       wif: 0x80,
@@ -150,8 +150,8 @@ const networks: Networks = {
   },
   testnet: {
     base: {
-      messagePrefix: "\x18Bitcoin Signed Message:\n",
-      bech32: "tb",
+      messagePrefix: '\x18Bitcoin Signed Message:\n',
+      bech32: 'tb',
       pubKeyHash: 0x6f,
       scriptHash: 0xc4,
       wif: 0xef,
@@ -168,7 +168,7 @@ const networks: Networks = {
         private: 0x04358394,
       },
     },
-    "p2sh-p2wpkh": {
+    'p2sh-p2wpkh': {
       bip32: {
         public: 0x044a5262,
         private: 0x044a4e28,
@@ -181,36 +181,36 @@ const networks: Networks = {
       },
     },
   },
-};
+}
 
 //TODO: all below are missing network data
 for (const coin of [
-  "arkeo",
-  "binance",
-  "bitcoincash",
-  "cardano",
-  "cosmos",
-  "ethereum",
-  "kava",
-  "mayachain",
-  "osmosis",
-  "secret",
-  "terra",
-  "thorchain",
+  'arkeo',
+  'binance',
+  'bitcoincash',
+  'cardano',
+  'cosmos',
+  'ethereum',
+  'kava',
+  'mayachain',
+  'osmosis',
+  'secret',
+  'terra',
+  'thorchain',
 ])
-  networks[coin] = networks.bitcoin;
+  networks[coin] = networks.bitcoin
 
 export function getNetwork(coin: string, scriptType: BTCScriptType): bitcoin.Network {
-  coin = coin.toLowerCase();
+  coin = coin.toLowerCase()
 
-  if (!(coin in networks)) throw new Error(`${coin} network not supported`);
-  const network = networks[coin];
+  if (!(coin in networks)) throw new Error(`${coin} network not supported`)
+  const network = networks[coin]
 
-  const bip32 = network[scriptType as BTCOutputScriptType];
-  if (!bip32) throw new Error(`${scriptType} not supported for ${coin} network`);
+  const bip32 = network[scriptType as BTCOutputScriptType]
+  if (!bip32) throw new Error(`${scriptType} not supported for ${coin} network`)
 
   return {
     ...network.base,
     ...bip32,
-  };
+  }
 }

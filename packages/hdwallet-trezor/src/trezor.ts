@@ -1,100 +1,104 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-import isObject from "lodash/isObject";
+import * as core from '@shapeshiftoss/hdwallet-core'
+import isObject from 'lodash/isObject'
 
-import * as Btc from "./bitcoin";
-import * as Eth from "./ethereum";
-import * as Sol from "./solana";
-import { TrezorTransport } from "./transport";
-import { handleError } from "./utils";
+import * as Btc from './bitcoin'
+import * as Eth from './ethereum'
+import * as Sol from './solana'
+import type { TrezorTransport } from './transport'
+import { handleError } from './utils'
 
 export function isTrezor(wallet: core.HDWallet): wallet is TrezorHDWallet {
-  return isObject(wallet) && (wallet as any)._isTrezor;
+  return isObject(wallet) && (wallet as any)._isTrezor
 }
 
 function describeETHPath(path: core.BIP32Path): core.PathDescription {
-  const pathStr = core.addressNListToBIP32(path);
+  const pathStr = core.addressNListToBIP32(path)
   const unknown: core.PathDescription = {
     verbose: pathStr,
-    coin: "Ethereum",
+    coin: 'Ethereum',
     isKnown: false,
-  };
+  }
 
-  if (path.length != 5) return unknown;
+  if (path.length != 5) return unknown
 
-  if (path[0] != 0x80000000 + 44) return unknown;
+  if (path[0] != 0x80000000 + 44) return unknown
 
-  if (path[1] != 0x80000000 + core.slip44ByCoin("Ethereum")) return unknown;
+  if (path[1] != 0x80000000 + core.slip44ByCoin('Ethereum')) return unknown
 
-  if (path[2] !== 0x80000000) return unknown;
+  if (path[2] !== 0x80000000) return unknown
 
-  if (path[3] != 0) return unknown;
+  if (path[3] != 0) return unknown
 
-  if ((path[4] & 0x80000000) !== 0) return unknown;
+  if ((path[4] & 0x80000000) !== 0) return unknown
 
-  const accountIdx = path[4] & 0x7fffffff;
+  const accountIdx = path[4] & 0x7fffffff
   return {
     verbose: `Ethereum Account #${accountIdx}`,
-    coin: "Ethereum",
+    coin: 'Ethereum',
     accountIdx,
     wholeAccount: true,
     isKnown: true,
     isPrefork: false,
-  };
+  }
 }
 
-function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: core.BTCInputScriptType) {
-  const pathStr = core.addressNListToBIP32(path);
+function describeUTXOPath(
+  path: core.BIP32Path,
+  coin: core.Coin,
+  scriptType?: core.BTCInputScriptType,
+) {
+  const pathStr = core.addressNListToBIP32(path)
   const unknown: core.PathDescription = {
     verbose: pathStr,
     coin,
     scriptType,
     isKnown: false,
-  };
+  }
 
-  if (!Btc.btcSupportsCoin(coin)) return unknown;
+  if (!Btc.btcSupportsCoin(coin)) return unknown
 
-  if (!Btc.btcSupportsScriptType(coin, scriptType)) return unknown;
+  if (!Btc.btcSupportsScriptType(coin, scriptType)) return unknown
 
-  if (path.length !== 3 && path.length !== 5) return unknown;
+  if (path.length !== 3 && path.length !== 5) return unknown
 
-  if ((path[0] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
+  if ((path[0] & 0x80000000) >>> 0 !== 0x80000000) return unknown
 
-  const purpose = path[0] & 0x7fffffff;
+  const purpose = path[0] & 0x7fffffff
 
-  if (![44, 49, 84].includes(purpose)) return unknown;
+  if (![44, 49, 84].includes(purpose)) return unknown
 
-  if (purpose === 44 && scriptType !== core.BTCInputScriptType.SpendAddress) return unknown;
+  if (purpose === 44 && scriptType !== core.BTCInputScriptType.SpendAddress) return unknown
 
-  if (purpose === 49 && scriptType !== core.BTCInputScriptType.SpendP2SHWitness) return unknown;
+  if (purpose === 49 && scriptType !== core.BTCInputScriptType.SpendP2SHWitness) return unknown
 
-  if (purpose === 84 && scriptType !== core.BTCInputScriptType.SpendWitness) return unknown;
+  if (purpose === 84 && scriptType !== core.BTCInputScriptType.SpendWitness) return unknown
 
-  const slip44 = core.slip44ByCoin(coin);
-  if (slip44 == undefined || path[1] !== 0x80000000 + slip44) return unknown;
+  const slip44 = core.slip44ByCoin(coin)
+  if (slip44 == undefined || path[1] !== 0x80000000 + slip44) return unknown
 
-  const wholeAccount = path.length === 3;
+  const wholeAccount = path.length === 3
 
   let script = scriptType
     ? (
         {
-          [core.BTCInputScriptType.SpendAddress]: " (Legacy)",
-          [core.BTCInputScriptType.SpendP2SHWitness]: "",
-          [core.BTCInputScriptType.SpendWitness]: " (Segwit Native)",
+          [core.BTCInputScriptType.SpendAddress]: ' (Legacy)',
+          [core.BTCInputScriptType.SpendP2SHWitness]: '',
+          [core.BTCInputScriptType.SpendWitness]: ' (Segwit Native)',
         } as Partial<Record<core.BTCInputScriptType, string>>
-      )[scriptType] ?? ""
-    : "";
+      )[scriptType] ?? ''
+    : ''
 
   switch (coin) {
-    case "Bitcoin":
-    case "Litecoin":
-    case "BitcoinGold":
-    case "Testnet":
-      break;
+    case 'Bitcoin':
+    case 'Litecoin':
+    case 'BitcoinGold':
+    case 'Testnet':
+      break
     default:
-      script = "";
+      script = ''
   }
 
-  const accountIdx = path[2] & 0x7fffffff;
+  const accountIdx = path[2] & 0x7fffffff
 
   if (wholeAccount) {
     return {
@@ -105,10 +109,10 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
       wholeAccount: true,
       isKnown: true,
       isPrefork: false,
-    };
+    }
   } else {
-    const change = path[3] === 1 ? "Change " : "";
-    const addressIdx = path[4];
+    const change = path[3] === 1 ? 'Change ' : ''
+    const addressIdx = path[4]
     return {
       verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${script}`,
       coin,
@@ -119,280 +123,285 @@ function describeUTXOPath(path: core.BIP32Path, coin: core.Coin, scriptType?: co
       wholeAccount: false,
       isKnown: true,
       isPrefork: false,
-    };
+    }
   }
 }
 
 export class TrezorHDWalletInfo
   implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo, core.SolanaWalletInfo
 {
-  readonly _supportsBTCInfo = true;
-  readonly _supportsETHInfo = true;
-  readonly _supportsSolanaInfo = true;
+  readonly _supportsBTCInfo = true
+  readonly _supportsETHInfo = true
+  readonly _supportsSolanaInfo = true
 
   public getVendor(): string {
-    return "Trezor";
+    return 'Trezor'
   }
 
   public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-    return Btc.btcSupportsCoin(coin);
+    return Btc.btcSupportsCoin(coin)
   }
 
-  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
-    return Btc.btcSupportsScriptType(coin, scriptType);
+  public async btcSupportsScriptType(
+    coin: core.Coin,
+    scriptType: core.BTCInputScriptType,
+  ): Promise<boolean> {
+    return Btc.btcSupportsScriptType(coin, scriptType)
   }
 
   public async btcSupportsSecureTransfer(): Promise<boolean> {
-    return Btc.btcSupportsSecureTransfer();
+    return Btc.btcSupportsSecureTransfer()
   }
 
   public btcSupportsNativeShapeShift(): boolean {
-    return Btc.btcSupportsNativeShapeShift();
+    return Btc.btcSupportsNativeShapeShift()
   }
 
-  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
-    return Btc.btcGetAccountPaths(msg);
+  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): core.BTCAccountPath[] {
+    return Btc.btcGetAccountPaths(msg)
   }
 
   public async ethSupportsNetwork(chain_id: number): Promise<boolean> {
-    return Eth.ethSupportsNetwork(chain_id);
+    return Eth.ethSupportsNetwork(chain_id)
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
-    return Eth.ethSupportsSecureTransfer();
+    return Eth.ethSupportsSecureTransfer()
   }
 
   public ethSupportsNativeShapeShift(): boolean {
-    return Eth.ethSupportsNativeShapeShift();
+    return Eth.ethSupportsNativeShapeShift()
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
-    return await Eth.ethSupportsEIP1559();
+    return await Eth.ethSupportsEIP1559()
   }
 
-  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
-    return Eth.ethGetAccountPaths(msg);
+  public ethGetAccountPaths(msg: core.ETHGetAccountPath): core.ETHAccountPath[] {
+    return Eth.ethGetAccountPaths(msg)
   }
 
-  public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> {
-    return core.solanaGetAccountPaths(msg);
+  public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): core.SolanaAccountPath[] {
+    return core.solanaGetAccountPaths(msg)
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public solanaNextAccountPath(_msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
-    throw new Error("Method not implemented");
+    throw new Error('Method not implemented')
   }
 
   public hasOnDevicePinEntry(): boolean {
-    return true;
+    return true
   }
 
   public hasOnDevicePassphrase(): boolean {
-    return true;
+    return true
   }
 
   public hasOnDeviceDisplay(): boolean {
-    return true;
+    return true
   }
 
   public hasOnDeviceRecovery(): boolean {
     // Not really meaningful since TrezorConnect doesn't expose recovery yet
-    return true;
+    return true
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public hasNativeShapeShift(_srcCoin: core.Coin, _dstCoin: core.Coin): boolean {
-    return false;
+    return false
   }
 
   public supportsBip44Accounts(): boolean {
-    return true;
+    return true
   }
 
   public supportsOfflineSigning(): boolean {
-    return true;
+    return true
   }
 
   public supportsBroadcast(): boolean {
-    return false;
+    return false
   }
 
   public describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin) {
-      case "Ethereum":
-        return describeETHPath(msg.path);
+      case 'Ethereum':
+        return describeETHPath(msg.path)
       default:
-        return describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+        return describeUTXOPath(msg.path, msg.coin, msg.scriptType)
     }
   }
 
   public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    const description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType);
+    const description = describeUTXOPath(msg.addressNList, msg.coin, msg.scriptType)
     if (!description.isKnown) {
-      return undefined;
+      return undefined
     }
 
-    const addressNList = msg.addressNList;
+    const addressNList = msg.addressNList
 
     if (
       addressNList[0] === 0x80000000 + 44 ||
       addressNList[0] === 0x80000000 + 49 ||
       addressNList[0] === 0x80000000 + 84
     ) {
-      addressNList[2] += 1;
+      addressNList[2] += 1
       return {
         ...msg,
         addressNList,
-      };
+      }
     }
 
-    return undefined;
+    return undefined
   }
 
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
-    const addressNList = msg.hardenedPath.concat(msg.relPath);
-    const description = describeETHPath(addressNList);
+    const addressNList = msg.hardenedPath.concat(msg.relPath)
+    const description = describeETHPath(addressNList)
     if (!description.isKnown) {
-      return undefined;
+      return undefined
     }
 
     if (addressNList[0] === 0x80000000 + 44) {
-      addressNList[4] += 1;
+      addressNList[4] += 1
       return {
         ...msg,
         addressNList,
         hardenedPath: core.hardenedPath(addressNList),
         relPath: core.relativePath(addressNList),
-      };
+      }
     }
 
-    return undefined;
+    return undefined
   }
 }
 
-export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.SolanaWallet {
-  readonly _supportsETHInfo = true;
-  readonly _supportsBTCInfo = true;
-  readonly _supportsBTC = true;
-  readonly _supportsETH = true;
-  readonly _supportsEthSwitchChain = true;
-  readonly _supportsAvalanche = true;
-  readonly _supportsOptimism = true;
-  readonly _supportsBSC = true;
-  readonly _supportsPolygon = true;
-  readonly _supportsGnosis = true;
-  readonly _supportsArbitrum = true;
-  readonly _supportsArbitrumNova = true;
-  readonly _supportsBase = true;
-  readonly _supportsMonad = true;
-  readonly _supportsPlasma = true;
-  readonly _supportsKatana = true;
-  readonly _supportsHyperEvm = true;
-  readonly _supportsKavaInfo = true;
-  readonly _supportsTerraInfo = true;
-  readonly _supportsSolana = true;
-  readonly _supportsSolanaInfo = true;
-  readonly _isTrezor = true;
+export class TrezorHDWallet
+  implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.SolanaWallet
+{
+  readonly _supportsETHInfo = true
+  readonly _supportsBTCInfo = true
+  readonly _supportsBTC = true
+  readonly _supportsETH = true
+  readonly _supportsEthSwitchChain = true
+  readonly _supportsAvalanche = true
+  readonly _supportsOptimism = true
+  readonly _supportsBSC = true
+  readonly _supportsPolygon = true
+  readonly _supportsGnosis = true
+  readonly _supportsArbitrum = true
+  readonly _supportsArbitrumNova = true
+  readonly _supportsBase = true
+  readonly _supportsMonad = true
+  readonly _supportsPlasma = true
+  readonly _supportsKatana = true
+  readonly _supportsHyperEvm = true
+  readonly _supportsKavaInfo = true
+  readonly _supportsTerraInfo = true
+  readonly _supportsSolana = true
+  readonly _supportsSolanaInfo = true
+  readonly _isTrezor = true
 
-  transport: TrezorTransport;
-  featuresCache: any;
-  info: TrezorHDWalletInfo & core.HDWalletInfo;
+  transport: TrezorTransport
+  featuresCache: any
+  info: TrezorHDWalletInfo & core.HDWalletInfo
 
   constructor(transport: TrezorTransport) {
-    this.transport = transport;
-    this.info = new TrezorHDWalletInfo();
+    this.transport = transport
+    this.info = new TrezorHDWalletInfo()
   }
 
   public async initialize(): Promise<any> {
-    return;
+    return
   }
 
   public async isInitialized(): Promise<boolean> {
-    const features = await this.getFeatures(/*cached*/ true);
-    return features.initialized;
+    const features = await this.getFeatures(/*cached*/ true)
+    return features.initialized
   }
 
   public async getDeviceID(): Promise<string> {
     const {
       device: { deviceID: transportId },
-    } = this.transport as any;
-    if (transportId) return transportId;
+    } = this.transport as any
+    if (transportId) return transportId
 
-    const features = await this.getFeatures(/*cached*/ true);
-    return features.device_id;
+    const features = await this.getFeatures(/*cached*/ true)
+    return features.device_id
   }
 
   public async getFirmwareVersion(): Promise<string> {
-    const features = await this.getFeatures(/*cached*/ true);
-    return `v${features.major_version}.${features.minor_version}.${features.patch_version}`;
+    const features = await this.getFeatures(/*cached*/ true)
+    return `v${features.major_version}.${features.minor_version}.${features.patch_version}`
   }
 
   public getVendor(): string {
-    return "Trezor";
+    return 'Trezor'
   }
 
   public async getModel(): Promise<string> {
-    const features = await this.getFeatures(/*cached*/ true);
-    return "Trezor " + features.model;
+    const features = await this.getFeatures(/*cached*/ true)
+    return 'Trezor ' + features.model
   }
 
   public async getLabel(): Promise<string> {
-    const features = await this.getFeatures(/*cached*/ true);
-    return typeof features.label === "string" ? features.label : "";
+    const features = await this.getFeatures(/*cached*/ true)
+    return typeof features.label === 'string' ? features.label : ''
   }
 
   public async getFeatures(cached = false): Promise<any> {
-    if (cached && this.featuresCache) return this.featuresCache;
-    const res = await this.transport.call("getFeatures", {});
-    handleError(this.transport, res, "Could not get Trezor features");
-    this.cacheFeatures(res.payload);
-    return res.payload;
+    if (cached && this.featuresCache) return this.featuresCache
+    const res = await this.transport.call('getFeatures', {})
+    handleError(this.transport, res, 'Could not get Trezor features')
+    this.cacheFeatures(res.payload)
+    return res.payload
   }
 
   public cacheFeatures(features: any): void {
-    this.featuresCache = features;
+    this.featuresCache = features
   }
 
-  public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
-    if (!msg.length) return [];
-    const res = await this.transport.call("getPublicKey", {
-      bundle: msg.map((request) => {
+  public async getPublicKeys(msg: core.GetPublicKey[]): Promise<(core.PublicKey | null)[]> {
+    if (!msg.length) return []
+    const res = await this.transport.call('getPublicKey', {
+      bundle: msg.map(request => {
         return {
           path: request.addressNList,
-          coin: request.coin || "Bitcoin",
+          coin: request.coin || 'Bitcoin',
           crossChain: true,
-        };
+        }
       }),
-    });
-    handleError(this.transport, res, "Could not load xpubs from Trezor");
-    return (res.payload as Array<{ xpubSegwit?: string; xpub?: string }>).map((result, i) => {
-      const scriptType = msg[i].scriptType;
+    })
+    handleError(this.transport, res, 'Could not load xpubs from Trezor')
+    return (res.payload as { xpubSegwit?: string; xpub?: string }[]).map((result, i) => {
+      const scriptType = msg[i].scriptType
       switch (scriptType) {
         case core.BTCInputScriptType.SpendP2SHWitness:
         case core.BTCInputScriptType.SpendWitness: {
-          const xpub = result.xpubSegwit;
-          if (!xpub) throw new Error("unable to get public key");
+          const xpub = result.xpubSegwit
+          if (!xpub) throw new Error('unable to get public key')
           return {
             xpub,
-          };
+          }
         }
         case core.BTCInputScriptType.SpendAddress:
         default: {
-          const xpub = result.xpub;
-          if (!xpub) throw new Error("unable to get public key");
+          const xpub = result.xpub
+          if (!xpub) throw new Error('unable to get public key')
           return {
             xpub,
-          };
+          }
         }
       }
-    });
+    })
   }
 
   public async isLocked(): Promise<boolean> {
-    const features = await this.getFeatures(false);
-    if (features.pin_protection && !features.pin_cached) return true;
-    if (features.passphrase_protection && !features.passphrase_cached) return true;
-    return false;
+    const features = await this.getFeatures(false)
+    if (features.pin_protection && !features.pin_cached) return true
+    if (features.passphrase_protection && !features.passphrase_cached) return true
+    return false
   }
 
   public async clearSession(): Promise<void> {
@@ -400,230 +409,233 @@ export class TrezorHDWallet implements core.HDWallet, core.BTCWallet, core.ETHWa
   }
 
   public async sendPin(pin: string): Promise<void> {
-    await this.transport.call("uiResponse", {
-      type: "ui-receive_pin",
+    await this.transport.call('uiResponse', {
+      type: 'ui-receive_pin',
       payload: pin,
-    });
+    })
   }
 
   public async sendPassphrase(passphrase: string): Promise<void> {
-    await this.transport.call("uiResponse", {
-      type: "ui-receive_passphrase",
+    await this.transport.call('uiResponse', {
+      type: 'ui-receive_passphrase',
       payload: {
         value: passphrase,
         save: true,
       },
-    });
+    })
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendCharacter(_charater: string): Promise<void> {
-    throw new Error("Trezor does not suport chiphered recovery");
+    throw new Error('Trezor does not suport chiphered recovery')
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async sendWord(_word: string): Promise<void> {
-    throw new Error("Trezor does not yet support recoverDevice");
+    throw new Error('Trezor does not yet support recoverDevice')
   }
 
   public async ping(msg: core.Ping): Promise<core.Pong> {
     // TrezorConnect doesn't expose the device's normal 'Core.Ping' message, so we
     // have to fake it here:
-    return { msg: msg.msg };
+    return { msg: msg.msg }
   }
 
   public async wipe(): Promise<void> {
-    const res = await this.transport.call("wipeDevice", {});
-    handleError(this.transport, res, "Could not wipe Trezor");
+    const res = await this.transport.call('wipeDevice', {})
+    handleError(this.transport, res, 'Could not wipe Trezor')
   }
 
   public async reset(msg: core.ResetDevice): Promise<void> {
-    const res = await this.transport.call("resetDevice", {
+    const res = await this.transport.call('resetDevice', {
       strength: msg.entropy,
       label: msg.label,
       pinProtection: msg.pin,
       passphraseProtection: msg.passphrase,
-    });
-    handleError(this.transport, res, "Could not reset Trezor");
+    })
+    handleError(this.transport, res, 'Could not reset Trezor')
   }
 
   public async cancel(): Promise<void> {
-    await this.transport.cancel();
+    await this.transport.cancel()
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async recover(_msg: core.RecoverDevice): Promise<void> {
     // https://github.com/trezor/connect/pull/320
-    throw new Error("TrezorConnect does not expose Core.RecoverDevice... yet?");
+    throw new Error('TrezorConnect does not expose Core.RecoverDevice... yet?')
   }
 
   public async loadDevice(msg: core.LoadDevice): Promise<void> {
     // https://github.com/trezor/connect/issues/363
-    const res = await this.transport.call("loadDevice", {
+    const res = await this.transport.call('loadDevice', {
       mnemonic: msg.mnemonic,
       pin: msg.pin,
       passphraseProtection: msg.passphrase,
       label: msg.label,
-    });
-    handleError(this.transport, res, "Could not load seed into Trezor");
+    })
+    handleError(this.transport, res, 'Could not load seed into Trezor')
   }
 
   public hasOnDevicePinEntry(): boolean {
-    return this.transport.hasPopup;
+    return this.transport.hasPopup
   }
 
   public hasOnDevicePassphrase(): boolean {
-    return this.transport.hasPopup;
+    return this.transport.hasPopup
   }
 
   public hasOnDeviceDisplay(): boolean {
-    return true;
+    return true
   }
 
   public hasOnDeviceRecovery(): boolean {
     // Not really meaningful since TrezorConnect doesn't expose recovery yet
-    return this.transport.hasPopup;
+    return this.transport.hasPopup
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public hasNativeShapeShift(_srcCoin: core.Coin, _dstCoin: core.Coin): boolean {
-    return false;
+    return false
   }
 
   public supportsBip44Accounts(): boolean {
-    return this.info.supportsBip44Accounts();
+    return this.info.supportsBip44Accounts()
   }
 
   public supportsOfflineSigning(): boolean {
-    return true;
+    return true
   }
 
   public supportsBroadcast(): boolean {
-    return false;
+    return false
   }
 
   public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-    return this.info.btcSupportsCoin(coin);
+    return this.info.btcSupportsCoin(coin)
   }
 
-  public async btcSupportsScriptType(coin: core.Coin, scriptType: core.BTCInputScriptType): Promise<boolean> {
-    return this.info.btcSupportsScriptType(coin, scriptType);
+  public async btcSupportsScriptType(
+    coin: core.Coin,
+    scriptType: core.BTCInputScriptType,
+  ): Promise<boolean> {
+    return this.info.btcSupportsScriptType(coin, scriptType)
   }
 
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string> {
-    return Btc.btcGetAddress(this.transport, msg);
+    return Btc.btcGetAddress(this.transport, msg)
   }
 
   public async btcSignTx(msg: core.BTCSignTxTrezor): Promise<core.BTCSignedTx> {
-    return Btc.btcSignTx(this, this.transport, msg);
+    return Btc.btcSignTx(this, this.transport, msg)
   }
 
   public async btcSupportsSecureTransfer(): Promise<boolean> {
-    return this.info.btcSupportsSecureTransfer();
+    return this.info.btcSupportsSecureTransfer()
   }
 
   public btcSupportsNativeShapeShift(): boolean {
-    return this.info.btcSupportsNativeShapeShift();
+    return this.info.btcSupportsNativeShapeShift()
   }
 
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
-    return Btc.btcSignMessage(this.transport, msg);
+    return Btc.btcSignMessage(this.transport, msg)
   }
 
   public async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
-    return Btc.btcVerifyMessage(this.transport, msg);
+    return Btc.btcVerifyMessage(this.transport, msg)
   }
 
-  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
-    return Btc.btcGetAccountPaths(msg);
+  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): core.BTCAccountPath[] {
+    return Btc.btcGetAccountPaths(msg)
   }
 
   public async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx> {
-    return Eth.ethSignTx(this, this.transport, msg);
+    return Eth.ethSignTx(this, this.transport, msg)
   }
 
   public async ethGetAddress(msg: core.ETHGetAddress): Promise<core.Address> {
-    return Eth.ethGetAddress(this.transport, msg);
+    return Eth.ethGetAddress(this.transport, msg)
   }
 
   public async ethGetAddresses(msgs: core.ETHGetAddress[]): Promise<string[]> {
-    return Eth.ethGetAddresses(this.transport, msgs);
+    return Eth.ethGetAddresses(this.transport, msgs)
   }
 
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage> {
-    return Eth.ethSignMessage(this.transport, msg);
+    return Eth.ethSignMessage(this.transport, msg)
   }
 
   public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean> {
-    return Eth.ethVerifyMessage(this.transport, msg);
+    return Eth.ethVerifyMessage(this.transport, msg)
   }
 
   public async ethSignTypedData(msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData> {
-    return Eth.ethSignTypedData(this.transport, msg);
+    return Eth.ethSignTypedData(this.transport, msg)
   }
 
   public async ethSupportsNetwork(chain_id: number): Promise<boolean> {
-    return this.info.ethSupportsNetwork(chain_id);
+    return this.info.ethSupportsNetwork(chain_id)
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
-    return this.info.ethSupportsSecureTransfer();
+    return this.info.ethSupportsSecureTransfer()
   }
 
   public ethSupportsNativeShapeShift(): boolean {
-    return this.info.ethSupportsNativeShapeShift();
+    return this.info.ethSupportsNativeShapeShift()
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
-    return await this.info.ethSupportsEIP1559();
+    return await this.info.ethSupportsEIP1559()
   }
 
-  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
-    return this.info.ethGetAccountPaths(msg);
+  public ethGetAccountPaths(msg: core.ETHGetAccountPath): core.ETHAccountPath[] {
+    return this.info.ethGetAccountPaths(msg)
   }
 
   public describePath(msg: core.DescribePath): core.PathDescription {
-    return this.info.describePath(msg);
+    return this.info.describePath(msg)
   }
 
   public disconnect(): Promise<void> {
-    return this.transport.disconnect();
+    return this.transport.disconnect()
   }
 
   public btcNextAccountPath(msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    return this.info.btcNextAccountPath(msg);
+    return this.info.btcNextAccountPath(msg)
   }
 
   public ethNextAccountPath(msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
-    return this.info.ethNextAccountPath(msg);
+    return this.info.ethNextAccountPath(msg)
   }
 
   public async solanaGetAddress(msg: core.SolanaGetAddress): Promise<string | null> {
-    return Sol.solanaGetAddress(this.transport, msg);
+    return Sol.solanaGetAddress(this.transport, msg)
   }
 
   public async solanaGetAddresses(msgs: core.SolanaGetAddress[]): Promise<string[]> {
-    return Sol.solanaGetAddresses(this.transport, msgs);
+    return Sol.solanaGetAddresses(this.transport, msgs)
   }
 
   public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
-    return Sol.solanaSignTx(this.transport, msg);
+    return Sol.solanaSignTx(this.transport, msg)
   }
 
-  public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> {
-    return core.solanaGetAccountPaths(msg);
+  public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): core.SolanaAccountPath[] {
+    return core.solanaGetAccountPaths(msg)
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public solanaNextAccountPath(_msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
-    throw new Error("Method not implemented");
+    throw new Error('Method not implemented')
   }
 }
 
 export function info(): TrezorHDWalletInfo {
-  return new TrezorHDWalletInfo();
+  return new TrezorHDWalletInfo()
 }
 
 export function create(transport: TrezorTransport): TrezorHDWallet {
-  return new TrezorHDWallet(transport);
+  return new TrezorHDWallet(transport)
 }

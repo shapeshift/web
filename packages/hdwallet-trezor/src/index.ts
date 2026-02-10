@@ -1,2 +1,2 @@
-export * from "./transport";
-export * from "./trezor";
+export * from './transport'
+export * from './trezor'

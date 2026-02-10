@@ -1,111 +1,111 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-import * as bip39 from "bip39";
-import base58 from "bs58";
-import * as eventemitter2 from "eventemitter2";
-import isObject from "lodash/isObject";
+import * as core from '@shapeshiftoss/hdwallet-core'
+import * as bip39 from 'bip39'
+import base58 from 'bs58'
+import * as eventemitter2 from 'eventemitter2'
+import isObject from 'lodash/isObject'
 
-import type { NativeAdapterArgs } from "./adapter";
-import { MixinNativeArkeoWallet, MixinNativeArkeoWalletInfo } from "./arkeo";
-import { MixinNativeBinanceWallet, MixinNativeBinanceWalletInfo } from "./binance";
-import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from "./bitcoin";
-import { MixinNativeCosmosWallet, MixinNativeCosmosWalletInfo } from "./cosmos";
-import * as Isolation from "./crypto/isolation";
-import { MixinNativeETHWallet, MixinNativeETHWalletInfo } from "./ethereum";
-import { MixinNativeKavaWallet, MixinNativeKavaWalletInfo } from "./kava";
-import { MixinNativeMayachainWallet, MixinNativeMayachainWalletInfo } from "./mayachain";
-import { MixinNativeNearWallet, MixinNativeNearWalletInfo } from "./near";
-import { MixinNativeOsmosisWallet, MixinNativeOsmosisWalletInfo } from "./osmosis";
-import { MixinNativeSecretWallet, MixinNativeSecretWalletInfo } from "./secret";
-import { MixinNativeSolanaWallet, MixinNativeSolanaWalletInfo } from "./solana";
-import { MixinNativeStarknetWallet, MixinNativeStarknetWalletInfo } from "./starknet";
-import { MixinNativeSuiWallet, MixinNativeSuiWalletInfo } from "./sui";
-import { MixinNativeTerraWallet, MixinNativeTerraWalletInfo } from "./terra";
-import { MixinNativeThorchainWallet, MixinNativeThorchainWalletInfo } from "./thorchain";
-import { MixinNativeTonWallet, MixinNativeTonWalletInfo } from "./ton";
-import { MixinNativeTronWallet, MixinNativeTronWalletInfo } from "./tron";
+import type { NativeAdapterArgs } from './adapter'
+import { MixinNativeArkeoWallet, MixinNativeArkeoWalletInfo } from './arkeo'
+import { MixinNativeBinanceWallet, MixinNativeBinanceWalletInfo } from './binance'
+import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from './bitcoin'
+import { MixinNativeCosmosWallet, MixinNativeCosmosWalletInfo } from './cosmos'
+import * as Isolation from './crypto/isolation'
+import { MixinNativeETHWallet, MixinNativeETHWalletInfo } from './ethereum'
+import { MixinNativeKavaWallet, MixinNativeKavaWalletInfo } from './kava'
+import { MixinNativeMayachainWallet, MixinNativeMayachainWalletInfo } from './mayachain'
+import { MixinNativeNearWallet, MixinNativeNearWalletInfo } from './near'
+import { MixinNativeOsmosisWallet, MixinNativeOsmosisWalletInfo } from './osmosis'
+import { MixinNativeSecretWallet, MixinNativeSecretWalletInfo } from './secret'
+import { MixinNativeSolanaWallet, MixinNativeSolanaWalletInfo } from './solana'
+import { MixinNativeStarknetWallet, MixinNativeStarknetWalletInfo } from './starknet'
+import { MixinNativeSuiWallet, MixinNativeSuiWalletInfo } from './sui'
+import { MixinNativeTerraWallet, MixinNativeTerraWalletInfo } from './terra'
+import { MixinNativeThorchainWallet, MixinNativeThorchainWalletInfo } from './thorchain'
+import { MixinNativeTonWallet, MixinNativeTonWalletInfo } from './ton'
+import { MixinNativeTronWallet, MixinNativeTronWalletInfo } from './tron'
 
 export enum NativeEvents {
-  MNEMONIC_REQUIRED = "MNEMONIC_REQUIRED",
-  READY = "READY",
+  MNEMONIC_REQUIRED = 'MNEMONIC_REQUIRED',
+  READY = 'READY',
 }
 
 function isMnemonicInterface(x: unknown): x is Isolation.Core.BIP39.Mnemonic {
-  return core.isIndexable(x) && typeof x.toSeed === "function";
+  return core.isIndexable(x) && typeof x.toSeed === 'function'
 }
 
-type LoadDevice = Omit<core.LoadDevice, "mnemonic"> & {
+type LoadDevice = Omit<core.LoadDevice, 'mnemonic'> & {
   // Set this if your deviceId is dependent on the mnemonic
-  deviceId?: string;
+  deviceId?: string
 } & (
     | {
-        mnemonic: string | Isolation.Core.BIP39.Mnemonic;
-        secp256k1MasterKey?: never;
-        ed25519MasterKey?: never;
-        starkMasterKey?: never;
-        tonMasterKey?: never;
+        mnemonic: string | Isolation.Core.BIP39.Mnemonic
+        secp256k1MasterKey?: never
+        ed25519MasterKey?: never
+        starkMasterKey?: never
+        tonMasterKey?: never
       }
     | {
-        mnemonic?: never;
-        secp256k1MasterKey: Isolation.Core.BIP32.Node;
-        ed25519MasterKey: Isolation.Core.Ed25519.Node;
-        starkMasterKey: Isolation.Core.Stark.Node;
-        tonMasterKey?: Isolation.Core.Ed25519.Node;
+        mnemonic?: never
+        secp256k1MasterKey: Isolation.Core.BIP32.Node
+        ed25519MasterKey: Isolation.Core.Ed25519.Node
+        starkMasterKey: Isolation.Core.Stark.Node
+        tonMasterKey?: Isolation.Core.Ed25519.Node
       }
-  );
+  )
 
 export class NativeHDWalletInfoBase implements core.HDWalletInfo {
   getVendor(): string {
-    return "Native";
+    return 'Native'
   }
 
   hasOnDevicePinEntry(): boolean {
-    return false;
+    return false
   }
 
   hasOnDevicePassphrase(): boolean {
-    return false;
+    return false
   }
 
   hasOnDeviceDisplay(): boolean {
-    return false;
+    return false
   }
 
   hasOnDeviceRecovery(): boolean {
-    return false;
+    return false
   }
 
   hasNativeShapeShift(): boolean {
-    return false;
+    return false
   }
 
   public supportsBip44Accounts(): boolean {
-    return true;
+    return true
   }
 
   public supportsOfflineSigning(): boolean {
-    return true;
+    return true
   }
 
   public supportsBroadcast(): boolean {
-    return false;
+    return false
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   describePath(_msg: core.DescribePath): core.PathDescription {
-    throw new Error("unreachable");
+    throw new Error('unreachable')
   }
 }
 
 export class NativeHDWalletBase extends NativeHDWalletInfoBase {
-  readonly #events: eventemitter2.EventEmitter2;
+  readonly #events: eventemitter2.EventEmitter2
 
   constructor() {
-    super();
-    this.#events = new eventemitter2.EventEmitter2();
+    super()
+    this.#events = new eventemitter2.EventEmitter2()
   }
 
   get events() {
-    return this.#events;
+    return this.#events
   }
 
   /**
@@ -114,7 +114,7 @@ export class NativeHDWalletBase extends NativeHDWalletInfoBase {
    */
   needsMnemonic<T>(hasMnemonic: boolean, callback: () => T): T | null {
     if (hasMnemonic) {
-      return callback();
+      return callback()
     }
 
     this.#events.emit(
@@ -122,10 +122,10 @@ export class NativeHDWalletBase extends NativeHDWalletInfoBase {
       core.makeEvent({
         message_type: NativeEvents.MNEMONIC_REQUIRED,
         from_wallet: true,
-      })
-    );
+      }),
+    )
 
-    return null;
+    return null
   }
 }
 
@@ -145,21 +145,23 @@ class NativeHDWalletInfo
                           MixinNativeSecretWalletInfo(
                             MixinNativeTerraWalletInfo(
                               MixinNativeKavaWalletInfo(
-                                MixinNativeArkeoWalletInfo(MixinNativeOsmosisWalletInfo(NativeHDWalletBase))
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          )
-        )
-      )
-    )
+                                MixinNativeArkeoWalletInfo(
+                                  MixinNativeOsmosisWalletInfo(NativeHDWalletBase),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
   )
   implements
     core.HDWalletInfo,
@@ -183,64 +185,64 @@ class NativeHDWalletInfo
 {
   describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin.toLowerCase()) {
-      case "bitcoin":
-      case "bitcoincash":
-      case "dash":
-      case "digibyte":
-      case "dogecoin":
-      case "litecoin":
-      case "testnet": {
-        const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
+      case 'bitcoin':
+      case 'bitcoincash':
+      case 'dash':
+      case 'digibyte':
+      case 'dogecoin':
+      case 'litecoin':
+      case 'testnet': {
+        const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType)
 
-        if (!msg.scriptType) return unknown;
-        if (!super.btcSupportsCoinSync(msg.coin)) return unknown;
-        if (!super.btcSupportsScriptTypeSync(msg.coin, msg.scriptType)) return unknown;
+        if (!msg.scriptType) return unknown
+        if (!super.btcSupportsCoinSync(msg.coin)) return unknown
+        if (!super.btcSupportsScriptTypeSync(msg.coin, msg.scriptType)) return unknown
 
-        return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+        return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType)
       }
-      case "ethereum":
-        return core.describeETHPath(msg.path);
-      case "atom":
-        return core.cosmosDescribePath(msg.path);
-      case "rune":
-      case "thorchain":
-        return core.thorchainDescribePath(msg.path);
-      case "mayachain":
-        return core.mayachainDescribePath(msg.path);
-      case "solana":
-        return core.solanaDescribePath(msg.path);
-      case "sui":
-        return core.suiDescribePath(msg.path);
-      case "near":
-        return core.nearDescribePath(msg.path);
-      case "secret":
-      case "scrt":
-      case "tscrt":
-        return core.secretDescribePath(msg.path);
-      case "luna":
-      case "terra":
-      case "tluna":
-        return core.terraDescribePath(msg.path);
-      case "kava":
-      case "tkava":
-        return core.kavaDescribePath(msg.path);
-      case "binance":
-        return core.binanceDescribePath(msg.path);
-      case "osmosis":
-      case "osmo":
-        return core.osmosisDescribePath(msg.path);
-      case "arkeo":
-        return core.arkeoDescribePath(msg.path);
-      case "starknet":
-      case "strk":
-        return core.starknetDescribePath(msg.path);
-      case "tron":
-      case "trx":
-        return core.tronDescribePath(msg.path);
-      case "ton":
-        return core.tonDescribePath(msg.path);
+      case 'ethereum':
+        return core.describeETHPath(msg.path)
+      case 'atom':
+        return core.cosmosDescribePath(msg.path)
+      case 'rune':
+      case 'thorchain':
+        return core.thorchainDescribePath(msg.path)
+      case 'mayachain':
+        return core.mayachainDescribePath(msg.path)
+      case 'solana':
+        return core.solanaDescribePath(msg.path)
+      case 'sui':
+        return core.suiDescribePath(msg.path)
+      case 'near':
+        return core.nearDescribePath(msg.path)
+      case 'secret':
+      case 'scrt':
+      case 'tscrt':
+        return core.secretDescribePath(msg.path)
+      case 'luna':
+      case 'terra':
+      case 'tluna':
+        return core.terraDescribePath(msg.path)
+      case 'kava':
+      case 'tkava':
+        return core.kavaDescribePath(msg.path)
+      case 'binance':
+        return core.binanceDescribePath(msg.path)
+      case 'osmosis':
+      case 'osmo':
+        return core.osmosisDescribePath(msg.path)
+      case 'arkeo':
+        return core.arkeoDescribePath(msg.path)
+      case 'starknet':
+      case 'strk':
+        return core.starknetDescribePath(msg.path)
+      case 'tron':
+      case 'trx':
+        return core.tronDescribePath(msg.path)
+      case 'ton':
+        return core.tonDescribePath(msg.path)
       default:
-        throw new Error("Unsupported path");
+        throw new Error('Unsupported path')
     }
   }
 }
@@ -261,21 +263,23 @@ export class NativeHDWallet
                           MixinNativeSecretWallet(
                             MixinNativeTerraWallet(
                               MixinNativeKavaWallet(
-                                MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo))
-                              )
-                            )
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          )
-        )
-      )
-    )
+                                MixinNativeOsmosisWallet(
+                                  MixinNativeArkeoWallet(NativeHDWalletInfo),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
   )
   implements
     core.HDWallet,
@@ -297,14 +301,14 @@ export class NativeHDWallet
     core.OsmosisWallet,
     core.ArkeoWallet
 {
-  readonly _isNative = true;
+  readonly _isNative = true
 
-  #deviceId: string;
-  #initialized = false;
-  #secp256k1MasterKey: Promise<Isolation.Core.BIP32.Node> | undefined = undefined;
-  #ed25519MasterKey: Promise<Isolation.Core.Ed25519.Node> | undefined = undefined;
-  #starkMasterKey: Promise<Isolation.Core.Stark.Node> | undefined = undefined;
-  #tonMasterKey: Promise<Isolation.Core.Ed25519.Node> | undefined = undefined;
+  #deviceId: string
+  #initialized = false
+  #secp256k1MasterKey: Promise<Isolation.Core.BIP32.Node> | undefined = undefined
+  #ed25519MasterKey: Promise<Isolation.Core.Ed25519.Node> | undefined = undefined
+  #starkMasterKey: Promise<Isolation.Core.Stark.Node> | undefined = undefined
+  #tonMasterKey: Promise<Isolation.Core.Ed25519.Node> | undefined = undefined
 
   constructor({
     mnemonic,
@@ -314,110 +318,124 @@ export class NativeHDWallet
     starkMasterKey,
     tonMasterKey,
   }: NativeAdapterArgs) {
-    super();
+    super()
     if (mnemonic) {
       this.#secp256k1MasterKey = (async () => {
         const isolatedMnemonic =
-          typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
-        const seed = await isolatedMnemonic.toSeed();
-        return await seed.toSecp256k1MasterKey();
-      })();
+          typeof mnemonic === 'string'
+            ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic)
+            : mnemonic
+        const seed = await isolatedMnemonic.toSeed()
+        return await seed.toSecp256k1MasterKey()
+      })()
       this.#ed25519MasterKey = (async () => {
         const isolatedMnemonic =
-          typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
-        const seed = await isolatedMnemonic.toSeed();
-        return await seed.toEd25519MasterKey();
-      })();
+          typeof mnemonic === 'string'
+            ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic)
+            : mnemonic
+        const seed = await isolatedMnemonic.toSeed()
+        return await seed.toEd25519MasterKey()
+      })()
       this.#starkMasterKey = (async () => {
         const isolatedMnemonic =
-          typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
-        const seed = await isolatedMnemonic.toSeed();
-        return await seed.toStarkMasterKey();
-      })();
+          typeof mnemonic === 'string'
+            ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic)
+            : mnemonic
+        const seed = await isolatedMnemonic.toSeed()
+        return await seed.toStarkMasterKey()
+      })()
       this.#tonMasterKey = (async () => {
         const isolatedMnemonic =
-          typeof mnemonic === "string" ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic) : mnemonic;
-        const tonSeed = await isolatedMnemonic.toTonSeed!();
-        return await tonSeed.toTonMasterKey();
-      })();
+          typeof mnemonic === 'string'
+            ? await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic)
+            : mnemonic
+        const tonSeed = await isolatedMnemonic.toTonSeed!()
+        return await tonSeed.toTonMasterKey()
+      })()
     } else {
-      if (secp256k1MasterKey) this.#secp256k1MasterKey = Promise.resolve(secp256k1MasterKey);
-      if (ed25519MasterKey) this.#ed25519MasterKey = Promise.resolve(ed25519MasterKey);
-      if (starkMasterKey) this.#starkMasterKey = Promise.resolve(starkMasterKey);
-      if (tonMasterKey) this.#tonMasterKey = Promise.resolve(tonMasterKey);
+      if (secp256k1MasterKey) this.#secp256k1MasterKey = Promise.resolve(secp256k1MasterKey)
+      if (ed25519MasterKey) this.#ed25519MasterKey = Promise.resolve(ed25519MasterKey)
+      if (starkMasterKey) this.#starkMasterKey = Promise.resolve(starkMasterKey)
+      if (tonMasterKey) this.#tonMasterKey = Promise.resolve(tonMasterKey)
     }
-    this.#deviceId = deviceId;
+    this.#deviceId = deviceId
   }
 
   async getFeatures(): Promise<Record<string, any>> {
-    return {};
+    return {}
   }
 
   async getDeviceID(): Promise<string> {
-    return this.#deviceId;
+    return this.#deviceId
   }
 
   async getFirmwareVersion(): Promise<string> {
-    return "Software";
+    return 'Software'
   }
 
   async getModel(): Promise<string> {
-    return "Native";
+    return 'Native'
   }
 
   async getLabel(): Promise<string> {
-    return "Native";
+    return 'Native'
   }
 
   /*
    * @see: https://github.com/satoshilabs/slips/blob/master/slip-0132.md
    * to supports different styles of xpubs as can be defined by passing in a network to `fromSeed`
    */
-  async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<core.PublicKey[] | null> {
+  async getPublicKeys(msg: core.GetPublicKey[]): Promise<core.PublicKey[] | null> {
     return this.needsMnemonic(!!this.#secp256k1MasterKey && !!this.#ed25519MasterKey, async () => {
-      const secp256k1MasterKey = await this.#secp256k1MasterKey!;
-      const ed25519MasterKey = await this.#ed25519MasterKey!;
+      const secp256k1MasterKey = await this.#secp256k1MasterKey!
+      const ed25519MasterKey = await this.#ed25519MasterKey!
 
       return await Promise.all(
-        msg.map(async (getPublicKey) => {
-          const { addressNList, coin, curve, scriptType } = getPublicKey;
+        msg.map(async getPublicKey => {
+          const { addressNList, coin, curve, scriptType } = getPublicKey
 
           switch (curve.toLowerCase()) {
-            case "secp256k1": {
+            case 'secp256k1': {
               // TODO: return the xpub that's actually asked for, not the key of the hardened path
               // It's done this way for hilarious historical reasons and will break ETH if fixed
-              const hardenedPath = core.hardenedPath(addressNList);
-              const network = core.getNetwork(coin, scriptType ?? core.BTCOutputScriptType.PayToMultisig);
+              const hardenedPath = core.hardenedPath(addressNList)
+              const network = core.getNetwork(
+                coin,
+                scriptType ?? core.BTCOutputScriptType.PayToMultisig,
+              )
 
-              let node = await Isolation.Adapters.BIP32.create(secp256k1MasterKey, network);
-              if (hardenedPath.length > 0) node = await node.derivePath(core.addressNListToBIP32(hardenedPath));
+              let node = await Isolation.Adapters.BIP32.create(secp256k1MasterKey, network)
+              if (hardenedPath.length > 0)
+                node = await node.derivePath(core.addressNListToBIP32(hardenedPath))
 
-              const xpub = node.neutered().toBase58();
+              const xpub = node.neutered().toBase58()
 
-              return { xpub };
+              return { xpub }
             }
-            case "ed25519": {
-              const node = new Isolation.Adapters.Ed25519(ed25519MasterKey);
+            case 'ed25519': {
+              const node = new Isolation.Adapters.Ed25519(ed25519MasterKey)
               const publicKey = await (async () => {
-                if (!addressNList.length) return node.getPublicKey();
-                return (await node.derivePath(core.addressNListToHardenedBIP32(addressNList))).getPublicKey();
-              })();
-              return { xpub: base58.encode(publicKey) };
+                if (!addressNList.length) return node.getPublicKey()
+                return (
+                  await node.derivePath(core.addressNListToHardenedBIP32(addressNList))
+                ).getPublicKey()
+              })()
+              return { xpub: base58.encode(publicKey) }
             }
             default:
-              throw new Error(`Unsupported curve: ${curve}`);
+              throw new Error(`Unsupported curve: ${curve}`)
           }
-        })
-      );
-    });
+        }),
+      )
+    })
   }
 
   async isInitialized(): Promise<boolean> {
-    return !!this.#initialized;
+    return !!this.#initialized
   }
 
   async isLocked(): Promise<boolean> {
-    return false;
+    return false
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -428,9 +446,9 @@ export class NativeHDWallet
     return this.needsMnemonic(
       !!this.#secp256k1MasterKey && !!this.#ed25519MasterKey && !!this.#starkMasterKey,
       async () => {
-        const secp256k1MasterKey = await this.#secp256k1MasterKey!;
-        const ed25519MasterKey = await this.#ed25519MasterKey!;
-        const starkMasterKey = await this.#starkMasterKey!;
+        const secp256k1MasterKey = await this.#secp256k1MasterKey!
+        const ed25519MasterKey = await this.#ed25519MasterKey!
+        const starkMasterKey = await this.#starkMasterKey!
 
         try {
           const initPromises = [
@@ -450,29 +468,29 @@ export class NativeHDWallet
             super.solanaInitializeWallet(ed25519MasterKey),
             super.suiInitializeWallet(ed25519MasterKey),
             super.nearInitializeWallet(ed25519MasterKey),
-          ];
+          ]
 
           if (this.#tonMasterKey) {
-            const tonMasterKey = await this.#tonMasterKey;
-            initPromises.push(super.tonInitializeWallet(tonMasterKey));
+            const tonMasterKey = await this.#tonMasterKey
+            initPromises.push(super.tonInitializeWallet(tonMasterKey))
           }
 
-          await Promise.all(initPromises);
+          await Promise.all(initPromises)
 
-          this.#initialized = true;
+          this.#initialized = true
         } catch (e) {
-          console.error("NativeHDWallet:initialize:error", e);
-          this.#initialized = false;
-          await this.wipe();
+          console.error('NativeHDWallet:initialize:error', e)
+          this.#initialized = false
+          await this.wipe()
         }
 
-        return this.#initialized;
-      }
-    );
+        return this.#initialized
+      },
+    )
   }
 
   async ping(msg: core.Ping): Promise<core.Pong> {
-    return { msg: msg.msg };
+    return { msg: msg.msg }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -491,33 +509,32 @@ export class NativeHDWallet
   async cancel(): Promise<void> {}
 
   async wipe(): Promise<void> {
-    const oldSecp256k1MasterKey = this.#secp256k1MasterKey;
-    const oldEd25519MasterKey = this.#ed25519MasterKey;
+    const oldSecp256k1MasterKey = this.#secp256k1MasterKey
+    const oldEd25519MasterKey = this.#ed25519MasterKey
 
-    this.#initialized = false;
-    this.#secp256k1MasterKey = undefined;
-    this.#ed25519MasterKey = undefined;
+    this.#initialized = false
+    this.#secp256k1MasterKey = undefined
+    this.#ed25519MasterKey = undefined
 
-    super.solanaWipe();
-    super.suiWipe();
-    super.nearWipe();
-    super.tonWipe();
-    super.btcWipe();
-    super.ethWipe();
-    super.cosmosWipe();
-    super.osmosisWipe();
-    super.binanceWipe();
-    super.starknetWipe();
-    super.tronWipe();
-    super.thorchainWipe();
-    super.mayachainWipe();
-    super.secretWipe();
-    super.terraWipe();
-    super.kavaWipe();
-    super.arkeoWipe();
-
-    (await oldSecp256k1MasterKey)?.revoke?.();
-    (await oldEd25519MasterKey)?.revoke?.();
+    super.solanaWipe()
+    super.suiWipe()
+    super.nearWipe()
+    super.tonWipe()
+    super.btcWipe()
+    super.ethWipe()
+    super.cosmosWipe()
+    super.osmosisWipe()
+    super.binanceWipe()
+    super.starknetWipe()
+    super.tronWipe()
+    super.thorchainWipe()
+    super.mayachainWipe()
+    super.secretWipe()
+    super.terraWipe()
+    super.kavaWipe()
+    super.arkeoWipe()
+    ;(await oldSecp256k1MasterKey)?.revoke?.()
+    ;(await oldEd25519MasterKey)?.revoke?.()
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -530,96 +547,96 @@ export class NativeHDWallet
     this.#secp256k1MasterKey = Promise.resolve(
       await (async (mnemonic, secp256k1MasterKey) => {
         if (secp256k1MasterKey !== undefined) {
-          return secp256k1MasterKey;
+          return secp256k1MasterKey
         } else if (mnemonic !== undefined) {
           const isolatedMnemonic = await (async () => {
-            if (isMnemonicInterface(mnemonic)) return mnemonic;
-            if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
-              return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
+            if (isMnemonicInterface(mnemonic)) return mnemonic
+            if (typeof mnemonic === 'string' && bip39.validateMnemonic(mnemonic)) {
+              return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic)
             }
-            throw new Error("Required property [mnemonic] is invalid");
-          })();
-          const seed = await isolatedMnemonic.toSeed();
-          seed.addRevoker?.(() => isolatedMnemonic.revoke?.());
-          const out = await seed.toSecp256k1MasterKey();
-          out.addRevoker?.(() => seed.revoke?.());
-          return out;
+            throw new Error('Required property [mnemonic] is invalid')
+          })()
+          const seed = await isolatedMnemonic.toSeed()
+          seed.addRevoker?.(() => isolatedMnemonic.revoke?.())
+          const out = await seed.toSecp256k1MasterKey()
+          out.addRevoker?.(() => seed.revoke?.())
+          return out
         }
-        throw new Error("Either [mnemonic] or [secp256k1MasterKey] is required");
-      })(msg?.mnemonic, msg?.secp256k1MasterKey)
-    );
+        throw new Error('Either [mnemonic] or [secp256k1MasterKey] is required')
+      })(msg?.mnemonic, msg?.secp256k1MasterKey),
+    )
 
     this.#ed25519MasterKey = Promise.resolve(
       await (async (mnemonic, ed25519MasterKey) => {
         if (ed25519MasterKey !== undefined) {
-          return ed25519MasterKey;
+          return ed25519MasterKey
         } else if (mnemonic !== undefined) {
           const isolatedMnemonic = await (async () => {
-            if (isMnemonicInterface(mnemonic)) return mnemonic;
-            if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
-              return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
+            if (isMnemonicInterface(mnemonic)) return mnemonic
+            if (typeof mnemonic === 'string' && bip39.validateMnemonic(mnemonic)) {
+              return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic)
             }
-            throw new Error("Required property [mnemonic] is invalid");
-          })();
-          const seed = await isolatedMnemonic.toSeed();
-          seed.addRevoker?.(() => isolatedMnemonic.revoke?.());
-          const out = await seed.toEd25519MasterKey();
-          out.addRevoker?.(() => seed.revoke?.());
-          return out;
+            throw new Error('Required property [mnemonic] is invalid')
+          })()
+          const seed = await isolatedMnemonic.toSeed()
+          seed.addRevoker?.(() => isolatedMnemonic.revoke?.())
+          const out = await seed.toEd25519MasterKey()
+          out.addRevoker?.(() => seed.revoke?.())
+          return out
         }
-        throw new Error("Either [mnemonic] or [ed25519MasterKey] is required");
-      })(msg?.mnemonic, msg?.ed25519MasterKey)
-    );
+        throw new Error('Either [mnemonic] or [ed25519MasterKey] is required')
+      })(msg?.mnemonic, msg?.ed25519MasterKey),
+    )
 
     this.#starkMasterKey = Promise.resolve(
       await (async (mnemonic, starkMasterKey) => {
         if (starkMasterKey !== undefined) {
-          return starkMasterKey;
+          return starkMasterKey
         } else if (mnemonic !== undefined) {
           const isolatedMnemonic = await (async () => {
-            if (isMnemonicInterface(mnemonic)) return mnemonic;
-            if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
-              return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
+            if (isMnemonicInterface(mnemonic)) return mnemonic
+            if (typeof mnemonic === 'string' && bip39.validateMnemonic(mnemonic)) {
+              return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic)
             }
-            throw new Error("Required property [mnemonic] is invalid");
-          })();
-          const seed = await isolatedMnemonic.toSeed();
-          seed.addRevoker?.(() => isolatedMnemonic.revoke?.());
-          const out = await seed.toStarkMasterKey();
-          out.addRevoker?.(() => seed.revoke?.());
-          return out;
+            throw new Error('Required property [mnemonic] is invalid')
+          })()
+          const seed = await isolatedMnemonic.toSeed()
+          seed.addRevoker?.(() => isolatedMnemonic.revoke?.())
+          const out = await seed.toStarkMasterKey()
+          out.addRevoker?.(() => seed.revoke?.())
+          return out
         }
-        throw new Error("Either [mnemonic] or [starkMasterKey] is required");
-      })(msg?.mnemonic, msg?.starkMasterKey)
-    );
+        throw new Error('Either [mnemonic] or [starkMasterKey] is required')
+      })(msg?.mnemonic, msg?.starkMasterKey),
+    )
 
     const tonMasterKeyResult = await (async (mnemonic, tonMasterKey) => {
       if (tonMasterKey !== undefined) {
-        return tonMasterKey;
+        return tonMasterKey
       } else if (mnemonic !== undefined) {
         const isolatedMnemonic = await (async () => {
-          if (isMnemonicInterface(mnemonic)) return mnemonic;
-          if (typeof mnemonic === "string" && bip39.validateMnemonic(mnemonic)) {
-            return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic);
+          if (isMnemonicInterface(mnemonic)) return mnemonic
+          if (typeof mnemonic === 'string' && bip39.validateMnemonic(mnemonic)) {
+            return await Isolation.Engines.Default.BIP39.Mnemonic.create(mnemonic)
           }
-          throw new Error("Required property [mnemonic] is invalid");
-        })();
-        const tonSeed = await isolatedMnemonic.toTonSeed!();
-        tonSeed.addRevoker?.(() => isolatedMnemonic.revoke?.());
-        const out = await tonSeed.toTonMasterKey();
-        out.addRevoker?.(() => tonSeed.revoke?.());
-        return out;
+          throw new Error('Required property [mnemonic] is invalid')
+        })()
+        const tonSeed = await isolatedMnemonic.toTonSeed!()
+        tonSeed.addRevoker?.(() => isolatedMnemonic.revoke?.())
+        const out = await tonSeed.toTonMasterKey()
+        out.addRevoker?.(() => tonSeed.revoke?.())
+        return out
       }
-      return undefined;
-    })(msg?.mnemonic, msg?.tonMasterKey);
+      return undefined
+    })(msg?.mnemonic, msg?.tonMasterKey)
     if (tonMasterKeyResult) {
-      this.#tonMasterKey = Promise.resolve(tonMasterKeyResult);
+      this.#tonMasterKey = Promise.resolve(tonMasterKeyResult)
     }
 
-    if (typeof msg?.deviceId === "string") this.#deviceId = msg?.deviceId;
+    if (typeof msg?.deviceId === 'string') this.#deviceId = msg?.deviceId
 
-    this.#initialized = false;
-    await this.initialize();
+    this.#initialized = false
+    await this.initialize()
 
     // Once we've been seeded with a mnemonic we re-emit the connected event
     this.events.emit(
@@ -627,27 +644,27 @@ export class NativeHDWallet
       core.makeEvent({
         message_type: NativeEvents.READY,
         from_wallet: true,
-      })
-    );
+      }),
+    )
   }
 
   async disconnect(): Promise<void> {
-    await this.wipe();
+    await this.wipe()
   }
 }
 
 export function isNative(wallet: core.HDWallet): wallet is NativeHDWallet {
-  return isObject(wallet) && (wallet as any)._isNative;
+  return isObject(wallet) && (wallet as any)._isNative
 }
 
 export function info() {
-  return new NativeHDWalletInfo();
+  return new NativeHDWalletInfo()
 }
 
 export function create(args: NativeAdapterArgs): NativeHDWallet {
-  return new NativeHDWallet(args);
+  return new NativeHDWallet(args)
 }
 
 // This prevents any malicious code from overwriting the prototype
 // to potentially steal the mnemonic when calling "loadDevice"
-Object.freeze(Object.getPrototypeOf(NativeHDWallet));
+Object.freeze(Object.getPrototypeOf(NativeHDWallet))

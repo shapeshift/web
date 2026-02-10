@@ -1,9 +1,9 @@
-import { HDWallet } from "./wallet";
+import type { HDWallet } from './wallet'
 
 export interface DebugLinkWallet extends HDWallet {
-  readonly _supportsDebugLink: boolean;
+  readonly _supportsDebugLink: boolean
 
-  pressYes(): Promise<void>;
-  pressNo(): Promise<void>;
-  press(isYes: boolean): Promise<void>;
+  pressYes(): Promise<void>
+  pressNo(): Promise<void>
+  press(isYes: boolean): Promise<void>
 }

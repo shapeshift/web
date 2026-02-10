@@ -1,83 +1,89 @@
-import { StdTx } from "@cosmjs/amino";
-import { SignerData } from "@cosmjs/stargate";
-import { Keplr } from "@keplr-wallet/types";
-import { CHAIN_REFERENCE } from "@shapeshiftoss/caip";
-import * as core from "@shapeshiftoss/hdwallet-core";
-import {
+import type { StdTx } from '@cosmjs/amino'
+import type { SignerData } from '@cosmjs/stargate'
+import type { Keplr } from '@keplr-wallet/types'
+import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
+import type {
   CosmosAccountPath,
   CosmosGetAccountPaths,
   CosmosSignedTx,
   CosmosSignTx,
-  slip44ByCoin,
-} from "@shapeshiftoss/hdwallet-core";
-import { sign } from "@shapeshiftoss/proto-tx-builder";
+} from '@shapeshiftoss/hdwallet-core'
+import * as core from '@shapeshiftoss/hdwallet-core'
+import { slip44ByCoin } from '@shapeshiftoss/hdwallet-core'
+import { sign } from '@shapeshiftoss/proto-tx-builder'
 
 export function cosmosDescribePath(path: core.BIP32Path): core.PathDescription {
-  const pathStr = core.addressNListToBIP32(path);
+  const pathStr = core.addressNListToBIP32(path)
   const unknown: core.PathDescription = {
     verbose: pathStr,
-    coin: "Atom",
+    coin: 'Atom',
     isKnown: false,
-  };
+  }
 
   if (path.length != 5) {
-    return unknown;
+    return unknown
   }
 
   if (path[0] != 0x80000000 + 44) {
-    return unknown;
+    return unknown
   }
 
-  if (path[1] != 0x80000000 + slip44ByCoin("Atom")) {
-    return unknown;
+  if (path[1] != 0x80000000 + slip44ByCoin('Atom')) {
+    return unknown
   }
 
   if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
-    return unknown;
+    return unknown
   }
 
   if (path[3] !== 0 || path[4] !== 0) {
-    return unknown;
+    return unknown
   }
 
-  const index = path[2] & 0x7fffffff;
+  const index = path[2] & 0x7fffffff
   return {
     verbose: `Cosmos Account #${index}`,
     accountIdx: index,
     wholeAccount: true,
-    coin: "Atom",
+    coin: 'Atom',
     isKnown: true,
     isPrefork: false,
-  };
+  }
 }
 
-export function cosmosGetAccountPaths(msg: CosmosGetAccountPaths): Array<CosmosAccountPath> {
+export function cosmosGetAccountPaths(msg: CosmosGetAccountPaths): CosmosAccountPath[] {
   return [
     {
-      addressNList: [0x80000000 + 44, 0x80000000 + slip44ByCoin("Atom"), 0x80000000 + msg.accountIdx, 0, 0],
+      addressNList: [
+        0x80000000 + 44,
+        0x80000000 + slip44ByCoin('Atom'),
+        0x80000000 + msg.accountIdx,
+        0,
+        0,
+      ],
     },
-  ];
+  ]
 }
 
 export async function cosmosGetAddress(provider: Keplr): Promise<string | undefined> {
-  const offlineSigner = provider.getOfflineSigner(CHAIN_REFERENCE.CosmosHubMainnet);
-  const accounts = await offlineSigner.getAccounts();
-  return accounts[0].address;
+  const offlineSigner = provider.getOfflineSigner(CHAIN_REFERENCE.CosmosHubMainnet)
+  const accounts = await offlineSigner.getAccounts()
+  return accounts[0].address
 }
 
 export async function cosmosSignTx(provider: Keplr, msg: CosmosSignTx): Promise<CosmosSignedTx> {
-  const offlineSigner = provider.getOfflineSigner(CHAIN_REFERENCE.CosmosHubMainnet);
+  const offlineSigner = provider.getOfflineSigner(CHAIN_REFERENCE.CosmosHubMainnet)
 
-  const address = await cosmosGetAddress(provider);
-  if (!address) throw new Error("failed to get address");
+  const address = await cosmosGetAddress(provider)
+  if (!address) throw new Error('failed to get address')
 
   const signerData: SignerData = {
     sequence: Number(msg.sequence),
     accountNumber: Number(msg.account_number),
     chainId: msg.chain_id,
-  };
+  }
 
-  return await sign(address, msg.tx as StdTx, offlineSigner, signerData, "cosmos");
+  return await sign(address, msg.tx as StdTx, offlineSigner, signerData, 'cosmos')
 }
 
 /**

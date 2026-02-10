@@ -1,12 +1,13 @@
-import ecc from "@bitcoinerlab/secp256k1";
-import * as starknet from "@scure/starknet";
-import * as bip32crypto from "bip32/src/crypto";
+import ecc from '@bitcoinerlab/secp256k1'
+import * as starknet from '@scure/starknet'
+import * as bip32crypto from 'bip32/src/crypto'
 
-import { Core } from "../../../isolation";
-import { ByteArray, checkType, safeBufferFrom, Uint32 } from "../../types";
-import { Revocable, revocable } from "./revocable";
+import { Core } from '../../../isolation'
+import type { ByteArray } from '../../types'
+import { checkType, safeBufferFrom, Uint32 } from '../../types'
+import { Revocable, revocable } from './revocable'
 
-export * from "../../core/stark";
+export * from '../../core/stark'
 
 /**
  * Stark curve Node for Starknet
@@ -41,23 +42,28 @@ export * from "../../core/stark";
  * - Argent reference: https://github.com/argentlabs/argent-starknet-recover/blob/main/keyDerivation.ts
  */
 export class Node extends Revocable(class {}) implements Core.Stark.Node {
-  readonly #privateKey: Buffer & ByteArray<32>;
-  readonly chainCode: Buffer & Core.BIP32.ChainCode;
-  readonly explicitPath?: string;
+  readonly #privateKey: Buffer & ByteArray<32>
+  readonly chainCode: Buffer & Core.BIP32.ChainCode
+  readonly explicitPath?: string
 
   protected constructor(privateKey: Uint8Array, chainCode: Uint8Array, explicitPath?: string) {
-    super();
+    super()
     // We avoid handing the private key to any non-platform code -- including our type-checking machinery.
-    if (privateKey.length !== 32) throw new Error("bad private key length");
-    this.#privateKey = safeBufferFrom<undefined>(privateKey) as Buffer & ByteArray<32>;
-    this.addRevoker(() => this.#privateKey.fill(0));
-    this.chainCode = safeBufferFrom(checkType(Core.BIP32.ChainCode, chainCode)) as Buffer & Core.BIP32.ChainCode;
-    this.explicitPath = explicitPath;
+    if (privateKey.length !== 32) throw new Error('bad private key length')
+    this.#privateKey = safeBufferFrom<undefined>(privateKey) as Buffer & ByteArray<32>
+    this.addRevoker(() => this.#privateKey.fill(0))
+    this.chainCode = safeBufferFrom(checkType(Core.BIP32.ChainCode, chainCode)) as Buffer &
+      Core.BIP32.ChainCode
+    this.explicitPath = explicitPath
   }
 
-  static async create(privateKey: Uint8Array, chainCode: Uint8Array, explicitPath?: string): Promise<Core.Stark.Node> {
-    const obj = new Node(privateKey, chainCode, explicitPath);
-    return revocable(obj, (x) => obj.addRevoker(x));
+  static async create(
+    privateKey: Uint8Array,
+    chainCode: Uint8Array,
+    explicitPath?: string,
+  ): Promise<Core.Stark.Node> {
+    const obj = new Node(privateKey, chainCode, explicitPath)
+    return revocable(obj, x => obj.addRevoker(x))
   }
 
   /**
@@ -66,16 +72,16 @@ export class Node extends Revocable(class {}) implements Core.Stark.Node {
    * Returns zero-padded 64-character hex string (66 chars total with 0x prefix)
    */
   async getPublicKey(): Promise<string> {
-    const groundPrivateKey = starknet.grindKey(this.#privateKey);
-    const publicKey = starknet.getStarkKey(groundPrivateKey);
+    const groundPrivateKey = starknet.grindKey(this.#privateKey)
+    const publicKey = starknet.getStarkKey(groundPrivateKey)
     // Ensure proper zero-padding to 64 hex characters per Starknet address spec
-    return publicKey.startsWith("0x")
-      ? "0x" + publicKey.slice(2).padStart(64, "0")
-      : "0x" + publicKey.padStart(64, "0");
+    return publicKey.startsWith('0x')
+      ? '0x' + publicKey.slice(2).padStart(64, '0')
+      : '0x' + publicKey.padStart(64, '0')
   }
 
   async getChainCode() {
-    return this.chainCode;
+    return this.chainCode
   }
 
   /**
@@ -83,12 +89,12 @@ export class Node extends Revocable(class {}) implements Core.Stark.Node {
    * Applies key grinding and returns ECDSA signature with proper padding
    */
   async sign(txHash: string): Promise<{ r: string; s: string }> {
-    const groundPrivateKey = starknet.grindKey(this.#privateKey);
-    const signature = starknet.sign(txHash, groundPrivateKey);
+    const groundPrivateKey = starknet.grindKey(this.#privateKey)
+    const signature = starknet.sign(txHash, groundPrivateKey)
     return {
-      r: signature.r.toString(16).padStart(64, "0"),
-      s: signature.s.toString(16).padStart(64, "0"),
-    };
+      r: signature.r.toString(16).padStart(64, '0'),
+      s: signature.s.toString(16).padStart(64, '0'),
+    }
   }
 
   /**
@@ -99,34 +105,34 @@ export class Node extends Revocable(class {}) implements Core.Stark.Node {
    * The derived key is then ground for Stark operations in getPublicKey/sign methods.
    */
   async derive(index: Uint32): Promise<this> {
-    Uint32.assert(index);
+    Uint32.assert(index)
 
-    const serP = Buffer.alloc(37);
+    const serP = Buffer.alloc(37)
     if (index < 0x80000000) {
       // Non-hardened derivation uses public key
       // For Stark, we use secp256k1 public key for BIP32 derivation (industry standard)
       // The grinding + Stark operations happen only in final getPublicKey/sign
-      const secp256k1PubKey = ecc.pointFromScalar(this.#privateKey, true);
+      const secp256k1PubKey = ecc.pointFromScalar(this.#privateKey, true)
       if (secp256k1PubKey === null) {
-        throw new Error("Failed to generate public key from private key");
+        throw new Error('Failed to generate public key from private key')
       }
-      serP.set(secp256k1PubKey, 0);
+      serP.set(secp256k1PubKey, 0)
     } else {
       // Hardened derivation uses private key
-      serP.set(this.#privateKey, 1);
+      serP.set(this.#privateKey, 1)
     }
-    serP.writeUInt32BE(index, 33);
+    serP.writeUInt32BE(index, 33)
 
-    const I = bip32crypto.hmacSHA512(this.chainCode, serP);
-    const IL = I.slice(0, 32);
-    const IR = I.slice(32, 64);
+    const I = bip32crypto.hmacSHA512(this.chainCode, serP)
+    const IL = I.slice(0, 32)
+    const IR = I.slice(32, 64)
 
     // Use secp256k1 curve arithmetic for derivation (per SLIP-0010 / industry standard)
-    const ki = ecc.privateAdd(this.#privateKey, IL);
-    if (ki === null) throw new Error("ki is null; this should be cryptographically impossible");
+    const ki = ecc.privateAdd(this.#privateKey, IL)
+    if (ki === null) throw new Error('ki is null; this should be cryptographically impossible')
 
-    const out = await Node.create(ki, IR);
-    this.addRevoker(() => out.revoke?.());
-    return out as this;
+    const out = await Node.create(ki, IR)
+    this.addRevoker(() => out.revoke?.())
+    return out as this
   }
 }

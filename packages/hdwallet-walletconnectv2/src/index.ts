@@ -1,2 +1,2 @@
-export * from "./adapter";
-export * from "./walletconnectV2";
+export * from './adapter'
+export * from './walletconnectV2'

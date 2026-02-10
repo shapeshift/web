@@ -1,46 +1,50 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import * as core from '@shapeshiftoss/hdwallet-core'
 
-import { Isolation } from "./crypto";
-import { TronAdapter } from "./crypto/isolation/adapters/tron";
-import { NativeHDWalletBase } from "./native";
+import { Isolation } from './crypto'
+import { TronAdapter } from './crypto/isolation/adapters/tron'
+import type { NativeHDWalletBase } from './native'
 
-export function MixinNativeTronWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
+export function MixinNativeTronWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(
+  Base: TBase,
+) {
   // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeTronWalletInfo extends Base implements core.TronWalletInfo {
-    readonly _supportsTronInfo = true;
+    readonly _supportsTronInfo = true
 
-    tronGetAccountPaths(msg: core.TronGetAccountPaths): Array<core.TronAccountPath> {
-      return core.tronGetAccountPaths(msg);
+    tronGetAccountPaths(msg: core.TronGetAccountPaths): core.TronAccountPath[] {
+      return core.tronGetAccountPaths(msg)
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     tronNextAccountPath(_msg: core.TronAccountPath): core.TronAccountPath | undefined {
-      throw new Error("Method not implemented");
+      throw new Error('Method not implemented')
     }
-  };
+  }
 }
 
-export function MixinNativeTronWallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
+export function MixinNativeTronWallet<TBase extends core.Constructor<NativeHDWalletBase>>(
+  Base: TBase,
+) {
   // eslint-disable-next-line @typescript-eslint/no-shadow
   return class MixinNativeTronWallet extends Base {
-    readonly _supportsTron = true;
+    readonly _supportsTron = true
 
-    tronAdapter: TronAdapter | undefined;
+    tronAdapter: TronAdapter | undefined
 
     async tronInitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
-      const nodeAdapter = await Isolation.Adapters.BIP32.create(masterKey);
-      this.tronAdapter = new TronAdapter(nodeAdapter);
+      const nodeAdapter = await Isolation.Adapters.BIP32.create(masterKey)
+      this.tronAdapter = new TronAdapter(nodeAdapter)
     }
 
     tronWipe() {
-      this.tronAdapter = undefined;
+      this.tronAdapter = undefined
     }
 
     async tronGetAddress(msg: core.TronGetAddress): Promise<string | null> {
       return this.needsMnemonic(!!this.tronAdapter, () => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return this.tronAdapter!.getAddress(msg.addressNList);
-      });
+        return this.tronAdapter!.getAddress(msg.addressNList)
+      })
     }
 
     async tronSignTx(msg: core.TronSignTx): Promise<core.TronSignedTx | null> {
@@ -48,20 +52,20 @@ export function MixinNativeTronWallet<TBase extends core.Constructor<NativeHDWal
         const address = await this.tronGetAddress({
           addressNList: msg.addressNList,
           showDisplay: false,
-        });
+        })
 
-        if (!address) throw new Error("Failed to get TRON address");
+        if (!address) throw new Error('Failed to get TRON address')
 
-        const signature = await this.tronAdapter!.signTransaction(msg.rawDataHex, msg.addressNList);
+        const signature = await this.tronAdapter!.signTransaction(msg.rawDataHex, msg.addressNList)
 
         // Serialized transaction = rawDataHex + signature
-        const serialized = msg.rawDataHex + signature;
+        const serialized = msg.rawDataHex + signature
 
         return {
           serialized,
           signature,
-        };
-      });
+        }
+      })
     }
-  };
+  }
 }

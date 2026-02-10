@@ -1,1 +1,1 @@
-declare module "@trezor/connect-web";
+declare module '@trezor/connect-web'

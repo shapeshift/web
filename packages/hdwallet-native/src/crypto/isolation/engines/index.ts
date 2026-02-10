@@ -1,2 +1,2 @@
-export * as Default from "./default";
-export * as Dummy from "./dummy";
+export * as Default from './default'
+export * as Dummy from './dummy'

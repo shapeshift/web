@@ -1,2 +1,2 @@
-export * from "./adapter";
-export * from "./shapeshift-multichain";
+export * from './adapter'
+export * from './shapeshift-multichain'

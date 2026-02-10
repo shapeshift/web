@@ -1,141 +1,141 @@
-import { addressNListToBIP32, slip44ByCoin } from "./utils";
-import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
+import { addressNListToBIP32, slip44ByCoin } from './utils'
+import type { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from './wallet'
 
 export interface ThorchainGetAddress {
-  addressNList: BIP32Path;
-  showDisplay?: boolean;
-  testnet?: boolean;
+  addressNList: BIP32Path
+  showDisplay?: boolean
+  testnet?: boolean
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Thorchain {
   export interface Msg {
-    type: string;
-    value: any;
+    type: string
+    value: any
   }
 
-  export type Coins = Coin[];
+  export type Coins = Coin[]
 
   export interface Coin {
-    denom: string;
-    amount: string;
+    denom: string
+    amount: string
   }
 
   export interface StdFee {
-    amount: Coins;
-    gas: string;
+    amount: Coins
+    gas: string
   }
 
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace crypto {
     export interface PubKey {
-      type: string;
-      value: string;
+      type: string
+      value: string
     }
   }
 
   export interface StdSignature {
-    pub_key: crypto.PubKey;
-    signature: string;
+    pub_key: crypto.PubKey
+    signature: string
   }
 
   export interface StdTx {
-    fee: StdFee;
-    memo?: string;
-    msg: Msg[];
-    signatures: StdSignature[];
+    fee: StdFee
+    memo?: string
+    msg: Msg[]
+    signatures: StdSignature[]
   }
 }
 
 export interface ThorchainTx {
-  msg: Thorchain.Msg[];
-  fee: Thorchain.StdFee;
-  signatures: Thorchain.StdSignature[];
-  memo?: string;
+  msg: Thorchain.Msg[]
+  fee: Thorchain.StdFee
+  signatures: Thorchain.StdSignature[]
+  memo?: string
 }
 
 export interface ThorchainSignTx {
-  addressNList: BIP32Path;
-  tx: Thorchain.StdTx;
-  sequence: string;
-  account_number: string;
-  chain_id: string;
-  fee?: number;
-  testnet?: boolean;
+  addressNList: BIP32Path
+  tx: Thorchain.StdTx
+  sequence: string
+  account_number: string
+  chain_id: string
+  fee?: number
+  testnet?: boolean
 }
 
 export interface ThorchainSignedTx {
-  serialized: string;
-  body: string;
-  authInfoBytes: string;
-  signatures: string[];
+  serialized: string
+  body: string
+  authInfoBytes: string
+  signatures: string[]
 }
 
 export interface ThorchainGetAccountPaths {
-  accountIdx: number;
+  accountIdx: number
 }
 
 export interface ThorchainAccountPath {
-  addressNList: BIP32Path;
+  addressNList: BIP32Path
 }
 
 export interface ThorchainWalletInfo extends HDWalletInfo {
-  readonly _supportsThorchainInfo: boolean;
+  readonly _supportsThorchainInfo: boolean
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order
    * from most to least preferred.
    */
-  thorchainGetAccountPaths(msg: ThorchainGetAccountPaths): Array<ThorchainAccountPath>;
+  thorchainGetAccountPaths(msg: ThorchainGetAccountPaths): ThorchainAccountPath[]
 
   /**
    * Returns the "next" account path, if any.
    */
-  thorchainNextAccountPath(msg: ThorchainAccountPath): ThorchainAccountPath | undefined;
+  thorchainNextAccountPath(msg: ThorchainAccountPath): ThorchainAccountPath | undefined
 }
 
 export interface ThorchainWallet extends ThorchainWalletInfo, HDWallet {
-  readonly _supportsThorchain: boolean;
+  readonly _supportsThorchain: boolean
 
-  thorchainGetAddress(msg: ThorchainGetAddress): Promise<string | null>;
-  thorchainSignTx(msg: ThorchainSignTx): Promise<ThorchainSignedTx | null>;
+  thorchainGetAddress(msg: ThorchainGetAddress): Promise<string | null>
+  thorchainSignTx(msg: ThorchainSignTx): Promise<ThorchainSignedTx | null>
 }
 
 export function thorchainDescribePath(path: BIP32Path): PathDescription {
-  const pathStr = addressNListToBIP32(path);
+  const pathStr = addressNListToBIP32(path)
   const unknown: PathDescription = {
     verbose: pathStr,
-    coin: "Rune",
+    coin: 'Rune',
     isKnown: false,
-  };
+  }
 
   if (path.length != 5) {
-    return unknown;
+    return unknown
   }
 
   if (path[0] != 0x80000000 + 44) {
-    return unknown;
+    return unknown
   }
 
-  if (path[1] != 0x80000000 + slip44ByCoin("Rune")) {
-    return unknown;
+  if (path[1] != 0x80000000 + slip44ByCoin('Rune')) {
+    return unknown
   }
 
   if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) {
-    return unknown;
+    return unknown
   }
 
   if (path[3] !== 0 || path[4] !== 0) {
-    return unknown;
+    return unknown
   }
 
-  const index = path[2] & 0x7fffffff;
+  const index = path[2] & 0x7fffffff
   return {
     verbose: `Thorchain Account #${index}`,
     accountIdx: index,
     wholeAccount: true,
-    coin: "Thorchain",
+    coin: 'Thorchain',
     isKnown: true,
     isPrefork: false,
-  };
+  }
 }

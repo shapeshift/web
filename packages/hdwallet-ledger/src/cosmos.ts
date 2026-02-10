@@ -1,36 +1,51 @@
-import { AccountData, AminoSignResponse, OfflineAminoSigner, StdSignDoc, StdTx } from "@cosmjs/amino";
-import { Secp256k1Signature } from "@cosmjs/crypto";
-import type { SignerData } from "@cosmjs/stargate";
-import * as core from "@shapeshiftoss/hdwallet-core";
-import { fromByteArray } from "base64-js";
-import PLazy from "p-lazy";
+import type {
+  AccountData,
+  AminoSignResponse,
+  OfflineAminoSigner,
+  StdSignDoc,
+  StdTx,
+} from '@cosmjs/amino'
+import { Secp256k1Signature } from '@cosmjs/crypto'
+import type { SignerData } from '@cosmjs/stargate'
+import * as core from '@shapeshiftoss/hdwallet-core'
+import { fromByteArray } from 'base64-js'
+import PLazy from 'p-lazy'
 
-import { LedgerTransport } from "./transport";
-import { handleError, stringifyKeysInOrder } from "./utils";
+import type { LedgerTransport } from './transport'
+import { handleError, stringifyKeysInOrder } from './utils'
 
-const protoTxBuilder = PLazy.from(() => import("@shapeshiftoss/proto-tx-builder"));
+const protoTxBuilder = PLazy.from(() => import('@shapeshiftoss/proto-tx-builder'))
 
-const ATOM_CHAIN = "cosmoshub-4";
+const ATOM_CHAIN = 'cosmoshub-4'
 
-export const cosmosGetAddress = async (transport: LedgerTransport, msg: core.CosmosGetAddress): Promise<string> => {
-  const bip32path = core.addressNListToBIP32(msg.addressNList);
-  const res = await transport.call("Cosmos", "getAddress", bip32path, "cosmos", msg.showDisplay);
+export const cosmosGetAddress = async (
+  transport: LedgerTransport,
+  msg: core.CosmosGetAddress,
+): Promise<string> => {
+  const bip32path = core.addressNListToBIP32(msg.addressNList)
+  const res = await transport.call('Cosmos', 'getAddress', bip32path, 'cosmos', msg.showDisplay)
 
-  handleError(res, transport, "Unable to obtain address from device.");
+  handleError(res, transport, 'Unable to obtain address from device.')
 
-  return res.payload.address;
-};
+  return res.payload.address
+}
 
 export const cosmosSignTx = async (
   transport: LedgerTransport,
-  msg: core.CosmosSignTx
+  msg: core.CosmosSignTx,
 ): Promise<core.CosmosSignedTx> => {
-  const bip32path = core.addressNListToBIP32(msg.addressNList);
-  const getAddressResponse = await transport.call("Cosmos", "getAddress", bip32path, "cosmos", false);
+  const bip32path = core.addressNListToBIP32(msg.addressNList)
+  const getAddressResponse = await transport.call(
+    'Cosmos',
+    'getAddress',
+    bip32path,
+    'cosmos',
+    false,
+  )
 
-  handleError(getAddressResponse, transport, "Unable to obtain address and public key from device.");
+  handleError(getAddressResponse, transport, 'Unable to obtain address and public key from device.')
 
-  const { address, publicKey } = getAddressResponse.payload;
+  const { address, publicKey } = getAddressResponse.payload
 
   const unsignedTx = stringifyKeysInOrder({
     account_number: msg.account_number,
@@ -39,48 +54,48 @@ export const cosmosSignTx = async (
     memo: msg.tx.memo,
     msgs: msg.tx.msg,
     sequence: msg.sequence,
-  });
+  })
 
-  const signResponse = await transport.call("Cosmos", "sign", bip32path, unsignedTx);
+  const signResponse = await transport.call('Cosmos', 'sign', bip32path, unsignedTx)
 
-  handleError(signResponse, transport, "Unable to obtain signature from device.");
+  handleError(signResponse, transport, 'Unable to obtain signature from device.')
 
-  const signature = signResponse.payload.signature;
+  const signature = signResponse.payload.signature
 
-  if (!signature) throw new Error("No signature returned from device");
+  if (!signature) throw new Error('No signature returned from device')
 
   const offlineSigner: OfflineAminoSigner = {
     async getAccounts(): Promise<readonly AccountData[]> {
       return [
         {
           address,
-          algo: "secp256k1",
-          pubkey: Buffer.from(publicKey, "hex"),
+          algo: 'secp256k1',
+          pubkey: Buffer.from(publicKey, 'hex'),
         },
-      ];
+      ]
     },
 
     async signAmino(signerAddress: string, signDoc: StdSignDoc): Promise<AminoSignResponse> {
-      if (signerAddress !== address) throw new Error("expected signerAddress to match address");
+      if (signerAddress !== address) throw new Error('expected signerAddress to match address')
 
       return {
         signed: signDoc,
         signature: {
           pub_key: {
-            type: "tendermint/PubKeySecp256k1",
+            type: 'tendermint/PubKeySecp256k1',
             value: publicKey,
           },
           signature: fromByteArray(Secp256k1Signature.fromDer(signature).toFixedLength()),
         },
-      };
+      }
     },
-  };
+  }
 
   const signerData: SignerData = {
     sequence: Number(msg.sequence),
     accountNumber: Number(msg.account_number),
     chainId: msg.chain_id,
-  };
+  }
 
-  return (await protoTxBuilder).sign(address, msg.tx as StdTx, offlineSigner, signerData, "cosmos");
-};
+  return (await protoTxBuilder).sign(address, msg.tx as StdTx, offlineSigner, signerData, 'cosmos')
+}

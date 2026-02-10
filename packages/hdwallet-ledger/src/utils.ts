@@ -1,81 +1,82 @@
-import type { AddressFormat } from "@ledgerhq/hw-app-btc";
-import * as core from "@shapeshiftoss/hdwallet-core";
-import bs58check from "bs58check";
+import type { AddressFormat } from '@ledgerhq/hw-app-btc'
+import * as core from '@shapeshiftoss/hdwallet-core'
+import bs58check from 'bs58check'
 
-import { LedgerResponse } from ".";
-import { LedgerTransport } from "./transport";
+import type { LedgerResponse } from '.'
+import type { LedgerTransport } from './transport'
 
 export function handleError<T extends LedgerResponse<any, any>>(
   result: T,
   transport?: LedgerTransport,
-  message?: string
+  message?: string,
 ): asserts result is T & { success: true } {
-  if (result.success === true) return;
+  if (result.success === true) return
 
   if (result.payload && result.payload.error) {
     // No app selected
-    if (result.payload.error.includes("0x6700") || result.payload.error.includes("0x6982")) {
-      throw new core.SelectApp("Ledger", result.coin);
+    if (result.payload.error.includes('0x6700') || result.payload.error.includes('0x6982')) {
+      throw new core.SelectApp('Ledger', result.coin)
     }
 
     // Wrong app selected
-    if (result.payload.error.includes("0x6d00")) {
+    if (result.payload.error.includes('0x6d00')) {
       if (result.coin) {
-        throw new core.WrongApp("Ledger", result.coin);
+        throw new core.WrongApp('Ledger', result.coin)
       }
       // Navigate to Ledger Dashboard
-      throw new core.NavigateToDashboard("Ledger");
+      throw new core.NavigateToDashboard('Ledger')
     }
 
     // User selected x instead of ✓
-    if (result.payload.error.includes("0x6985")) {
-      throw new core.ActionCancelled();
+    if (result.payload.error.includes('0x6985')) {
+      throw new core.ActionCancelled()
     }
 
     // Device is on the lock screen
-    if (result.payload.error.includes("0x6f04")) {
-      throw new core.DeviceLocked();
+    if (result.payload.error.includes('0x6f04')) {
+      throw new core.DeviceLocked()
     }
 
     // Device disconnected during operation, typically due to app navigation
-    if (result.payload.error.includes("DisconnectedDeviceDuringOperation")) {
-      throw new core.DisconnectedDeviceDuringOperation();
+    if (result.payload.error.includes('DisconnectedDeviceDuringOperation')) {
+      throw new core.DisconnectedDeviceDuringOperation()
     }
 
     if (transport) {
       transport.emit(
         `ledger.${result.coin}.${result.method}.call`,
         core.makeEvent({
-          message_type: "ERROR",
+          message_type: 'ERROR',
           from_wallet: true,
           message,
-        })
-      );
+        }),
+      )
     }
 
-    throw new Error(`${message}: '${result.payload.error}'`);
+    throw new Error(`${message}: '${result.payload.error}'`)
   }
 }
 
 export function translateScriptType(scriptType: core.BTCInputScriptType): AddressFormat {
   const scriptTypeMap: Partial<Record<core.BTCInputScriptType, AddressFormat>> = {
-    [core.BTCInputScriptType.SpendAddress]: "legacy",
-    [core.BTCInputScriptType.CashAddr]: "cashaddr",
-    [core.BTCInputScriptType.SpendWitness]: "bech32",
-    [core.BTCInputScriptType.SpendP2SHWitness]: "p2sh",
-  };
-  return core.mustBeDefined(scriptTypeMap[scriptType]);
+    [core.BTCInputScriptType.SpendAddress]: 'legacy',
+    [core.BTCInputScriptType.CashAddr]: 'cashaddr',
+    [core.BTCInputScriptType.SpendWitness]: 'bech32',
+    [core.BTCInputScriptType.SpendP2SHWitness]: 'p2sh',
+  }
+  return core.mustBeDefined(scriptTypeMap[scriptType])
 }
 
 export const compressPublicKey = (publicKey: Uint8Array) => {
-  if ([0x02, 0x03].includes(publicKey[0]) && publicKey.length === 33) return Buffer.from(publicKey);
-  if (!(publicKey[0] === 0x04 && publicKey.length === 65)) throw new Error("Invalid public key format");
+  if ([0x02, 0x03].includes(publicKey[0]) && publicKey.length === 33) return Buffer.from(publicKey)
+  if (!(publicKey[0] === 0x04 && publicKey.length === 65))
+    throw new Error('Invalid public key format')
 
   return core.compatibleBufferConcat([
     Buffer.from([(publicKey[64] & 0x01) === 0x00 ? 0x02 : 0x03]),
     publicKey.slice(1, 33),
-  ]);
-};
+  ])
+}
 
 export const createXpub = (
   depth: number,
@@ -83,60 +84,62 @@ export const createXpub = (
   childNum: number,
   chainCode: Uint8Array,
   publicKey: Uint8Array,
-  network: number
+  network: number,
 ) => {
-  const header = new Uint8Array(4 + 1 + 4 + 4).buffer;
-  const headerView = new DataView(header);
-  headerView.setUint32(0, network);
-  headerView.setUint8(4, depth);
-  headerView.setUint32(5, parentFp);
-  headerView.setUint32(9, childNum);
-  return bs58check.encode(core.compatibleBufferConcat([new Uint8Array(header), chainCode, publicKey]));
-};
+  const header = new Uint8Array(4 + 1 + 4 + 4).buffer
+  const headerView = new DataView(header)
+  headerView.setUint32(0, network)
+  headerView.setUint8(4, depth)
+  headerView.setUint32(5, parentFp)
+  headerView.setUint32(9, childNum)
+  return bs58check.encode(
+    core.compatibleBufferConcat([new Uint8Array(header), chainCode, publicKey]),
+  )
+}
 
 type NetworkMagic = {
-  apiName: string;
-  unit: string;
-  name: string;
-  appName?: string;
-  satoshi?: number;
+  apiName: string
+  unit: string
+  name: string
+  appName?: string
+  satoshi?: number
   bitcoinjs: {
-    bech32?: string;
+    bech32?: string
     bip32: {
-      private?: number;
-      public: Partial<Record<core.BTCInputScriptType, number>>;
-    };
-    messagePrefix: string;
-    pubKeyHash?: number;
-    scriptHash?: number;
-    wif?: number;
-  };
-  sigHash?: number;
-  isSegwitSupported?: boolean;
-  handleFeePerByte?: boolean;
-  additionals?: string[];
-  areTransactionTimestamped?: boolean;
-};
+      private?: number
+      public: Partial<Record<core.BTCInputScriptType, number>>
+    }
+    messagePrefix: string
+    pubKeyHash?: number
+    scriptHash?: number
+    wif?: number
+  }
+  sigHash?: number
+  isSegwitSupported?: boolean
+  handleFeePerByte?: boolean
+  additionals?: string[]
+  areTransactionTimestamped?: boolean
+}
 
 export const networksUtil: Record<number, NetworkMagic> = {
   0: {
-    apiName: "btc",
-    unit: "BTC",
-    name: "bitcoin",
-    appName: "Bitcoin",
+    apiName: 'btc',
+    unit: 'BTC',
+    name: 'bitcoin',
+    appName: 'Bitcoin',
     satoshi: 8,
     bitcoinjs: {
-      bech32: "bc",
+      bech32: 'bc',
       bip32: {
         private: 76066276,
         public: {
           p2pkh: 76067358,
           p2sh: 77429938,
           p2wpkh: 78792518,
-          "p2sh-p2wpkh": 77429938,
+          'p2sh-p2wpkh': 77429938,
         },
       },
-      messagePrefix: "Bitcoin Signed Message:",
+      messagePrefix: 'Bitcoin Signed Message:',
       pubKeyHash: 0,
       scriptHash: 5,
       wif: 128,
@@ -145,22 +148,22 @@ export const networksUtil: Record<number, NetworkMagic> = {
     handleFeePerByte: true,
   },
   1: {
-    apiName: "btc_testnet",
-    unit: "BTC",
-    name: "btc testnet",
+    apiName: 'btc_testnet',
+    unit: 'BTC',
+    name: 'btc testnet',
     satoshi: 8,
     bitcoinjs: {
-      bech32: "bc",
+      bech32: 'bc',
       bip32: {
         private: 70615956,
         public: {
           p2pkh: 76067358,
           p2sh: 71979618,
           p2wpkh: 73342198,
-          "p2sh-p2wpkh": 71979618,
+          'p2sh-p2wpkh': 71979618,
         },
       },
-      messagePrefix: "Bitcoin Signed Message:",
+      messagePrefix: 'Bitcoin Signed Message:',
       pubKeyHash: 111,
       scriptHash: 196,
       wif: 239,
@@ -169,21 +172,21 @@ export const networksUtil: Record<number, NetworkMagic> = {
     handleFeePerByte: true,
   },
   2: {
-    name: "litecoin",
-    unit: "LTC",
-    apiName: "ltc",
-    appName: "Litecoin",
+    name: 'litecoin',
+    unit: 'LTC',
+    apiName: 'ltc',
+    appName: 'Litecoin',
     isSegwitSupported: true,
     satoshi: 8,
     bitcoinjs: {
-      bech32: "ltc",
+      bech32: 'ltc',
       bip32: {
         private: 0x019d9cfe,
         public: {
           p2pkh: 27108450,
         },
       },
-      messagePrefix: "Litecoin Signed Message:",
+      messagePrefix: 'Litecoin Signed Message:',
       pubKeyHash: 48,
       scriptHash: 50,
       wif: 0xb0,
@@ -191,20 +194,20 @@ export const networksUtil: Record<number, NetworkMagic> = {
     handleFeePerByte: false,
   },
   145: {
-    name: "bitcoin cash",
-    apiName: "abc",
-    appName: "Bitcoin Cash",
+    name: 'bitcoin cash',
+    apiName: 'abc',
+    appName: 'Bitcoin Cash',
     satoshi: 8,
-    unit: "BCH",
+    unit: 'BCH',
     bitcoinjs: {
-      bech32: "bc",
+      bech32: 'bc',
       bip32: {
         private: 76066276,
         public: {
           p2pkh: 76067358,
         },
       },
-      messagePrefix: "Bitcoin Signed Message:",
+      messagePrefix: 'Bitcoin Signed Message:',
       pubKeyHash: 0,
       scriptHash: 5,
       wif: 128,
@@ -212,13 +215,13 @@ export const networksUtil: Record<number, NetworkMagic> = {
     sigHash: 0x41,
     isSegwitSupported: true,
     handleFeePerByte: true,
-    additionals: ["abc"],
+    additionals: ['abc'],
   },
   128: {
-    apiName: "vtc",
-    unit: "VTC",
+    apiName: 'vtc',
+    unit: 'VTC',
     satoshi: 8,
-    name: "Vertcoin",
+    name: 'Vertcoin',
     bitcoinjs: {
       bip32: {
         public: {
@@ -227,7 +230,7 @@ export const networksUtil: Record<number, NetworkMagic> = {
         },
         private: 0x05358394,
       },
-      messagePrefix: "Vertcoin Signed Message:",
+      messagePrefix: 'Vertcoin Signed Message:',
       pubKeyHash: 71,
       scriptHash: 5,
       wif: 128,
@@ -236,13 +239,13 @@ export const networksUtil: Record<number, NetworkMagic> = {
     handleFeePerByte: false,
   },
   5: {
-    name: "dash",
+    name: 'dash',
     satoshi: 8,
-    unit: "DASH",
-    apiName: "dash",
-    appName: "Dash",
+    unit: 'DASH',
+    apiName: 'dash',
+    appName: 'Dash',
     bitcoinjs: {
-      messagePrefix: "Dash Signed Message:",
+      messagePrefix: 'Dash Signed Message:',
       bip32: {
         public: {
           p2pkh: 50221772,
@@ -258,12 +261,12 @@ export const networksUtil: Record<number, NetworkMagic> = {
     areTransactionTimestamped: undefined,
   },
   6: {
-    name: "peercoin",
+    name: 'peercoin',
     satoshi: 6,
-    unit: "PPC",
-    apiName: "ppc",
+    unit: 'PPC',
+    apiName: 'ppc',
     bitcoinjs: {
-      messagePrefix: "PPCoin Signed Message:",
+      messagePrefix: 'PPCoin Signed Message:',
       bip32: {
         public: {
           p2pkh: 3874023909,
@@ -279,12 +282,12 @@ export const networksUtil: Record<number, NetworkMagic> = {
     areTransactionTimestamped: true,
   },
   14: {
-    name: "viacoin",
+    name: 'viacoin',
     satoshi: 8,
-    unit: "VIA",
-    apiName: "via",
+    unit: 'VIA',
+    apiName: 'via',
     bitcoinjs: {
-      messagePrefix: "Viacoin Signed Message:",
+      messagePrefix: 'Viacoin Signed Message:',
       bip32: {
         public: {
           p2pkh: 76067358,
@@ -300,13 +303,13 @@ export const networksUtil: Record<number, NetworkMagic> = {
     areTransactionTimestamped: false,
   },
   20: {
-    name: "digibyte",
+    name: 'digibyte',
     satoshi: 8,
-    unit: "DGB",
-    apiName: "dgb",
-    appName: "Digibyte",
+    unit: 'DGB',
+    apiName: 'dgb',
+    appName: 'Digibyte',
     bitcoinjs: {
-      messagePrefix: "DigiByte Signed Message:",
+      messagePrefix: 'DigiByte Signed Message:',
       bip32: {
         public: {
           p2pkh: 76067358,
@@ -322,12 +325,12 @@ export const networksUtil: Record<number, NetworkMagic> = {
     areTransactionTimestamped: false,
   },
   47: {
-    name: "poswallet",
+    name: 'poswallet',
     satoshi: 8,
-    unit: "POSW",
-    apiName: "posw",
+    unit: 'POSW',
+    apiName: 'posw',
     bitcoinjs: {
-      messagePrefix: "PoSWallet Signed Message:",
+      messagePrefix: 'PoSWallet Signed Message:',
       bip32: {
         public: {
           p2pkh: 76067358,
@@ -343,26 +346,26 @@ export const networksUtil: Record<number, NetworkMagic> = {
     areTransactionTimestamped: true,
   },
   60: {
-    apiName: "eth",
-    unit: "ETH",
-    name: "ethereum",
-    appName: "Ethereum",
+    apiName: 'eth',
+    unit: 'ETH',
+    name: 'ethereum',
+    appName: 'Ethereum',
     bitcoinjs: {
       bip32: {
         public: {
           p2pkh: 76067358,
         },
       },
-      messagePrefix: "Ethereum Signed Message:",
+      messagePrefix: 'Ethereum Signed Message:',
     },
   },
   77: {
-    name: "pivx",
+    name: 'pivx',
     satoshi: 8,
-    unit: "PIV",
-    apiName: "pivx",
+    unit: 'PIV',
+    apiName: 'pivx',
     bitcoinjs: {
-      messagePrefix: "DarkNet Signed Message:",
+      messagePrefix: 'DarkNet Signed Message:',
       bip32: {
         public: {
           p2pkh: 36513075,
@@ -378,12 +381,12 @@ export const networksUtil: Record<number, NetworkMagic> = {
     areTransactionTimestamped: false,
   },
   79: {
-    name: "clubcoin",
+    name: 'clubcoin',
     satoshi: 8,
-    unit: "CLUB",
-    apiName: "club",
+    unit: 'CLUB',
+    apiName: 'club',
     bitcoinjs: {
-      messagePrefix: "ClubCoin Signed Message:",
+      messagePrefix: 'ClubCoin Signed Message:',
       bip32: {
         public: {
           p2pkh: 76067358,
@@ -399,12 +402,12 @@ export const networksUtil: Record<number, NetworkMagic> = {
     areTransactionTimestamped: true,
   },
   88: {
-    name: "qtum",
+    name: 'qtum',
     satoshi: 8,
-    unit: "QTUM",
-    apiName: "qtum",
+    unit: 'QTUM',
+    apiName: 'qtum',
     bitcoinjs: {
-      messagePrefix: "Qtum Signed Message:",
+      messagePrefix: 'Qtum Signed Message:',
       bip32: {
         public: {
           p2pkh: 76067358,
@@ -422,12 +425,12 @@ export const networksUtil: Record<number, NetworkMagic> = {
     areTransactionTimestamped: undefined,
   },
   105: {
-    name: "stratis",
+    name: 'stratis',
     satoshi: 8,
-    unit: "STRAT",
-    apiName: "strat",
+    unit: 'STRAT',
+    apiName: 'strat',
     bitcoinjs: {
-      messagePrefix: "Stratis Signed Message:",
+      messagePrefix: 'Stratis Signed Message:',
       bip32: {
         public: {
           p2pkh: 76071454,
@@ -443,12 +446,12 @@ export const networksUtil: Record<number, NetworkMagic> = {
     areTransactionTimestamped: true,
   },
   125: {
-    name: "stealthcoin",
+    name: 'stealthcoin',
     satoshi: 6,
-    unit: "XST",
-    apiName: "xst",
+    unit: 'XST',
+    apiName: 'xst',
     bitcoinjs: {
-      messagePrefix: "StealthCoin Signed Message:",
+      messagePrefix: 'StealthCoin Signed Message:',
       bip32: {
         public: {
           p2pkh: 2405583718,
@@ -464,13 +467,13 @@ export const networksUtil: Record<number, NetworkMagic> = {
     areTransactionTimestamped: true,
   },
   133: {
-    name: "zcash",
+    name: 'zcash',
     satoshi: 8,
-    unit: "ZEC",
-    apiName: "zec",
-    appName: "Zcash",
+    unit: 'ZEC',
+    apiName: 'zec',
+    appName: 'Zcash',
     bitcoinjs: {
-      messagePrefix: "Zcash Signed Message:",
+      messagePrefix: 'Zcash Signed Message:',
       bip32: {
         public: {
           p2pkh: 76067358,
@@ -484,15 +487,15 @@ export const networksUtil: Record<number, NetworkMagic> = {
     isSegwitSupported: true,
     handleFeePerByte: false,
     areTransactionTimestamped: true,
-    additionals: ["zcash", "sapling"],
+    additionals: ['zcash', 'sapling'],
   },
   141: {
-    name: "komodo",
+    name: 'komodo',
     satoshi: 8,
-    unit: "KMD",
-    apiName: "kmd",
+    unit: 'KMD',
+    apiName: 'kmd',
     bitcoinjs: {
-      messagePrefix: "Komodo Signed Message:",
+      messagePrefix: 'Komodo Signed Message:',
       bip32: {
         public: {
           p2pkh: 4193182861,
@@ -508,12 +511,12 @@ export const networksUtil: Record<number, NetworkMagic> = {
     areTransactionTimestamped: undefined,
   },
   156: {
-    name: "bitcoin gold",
+    name: 'bitcoin gold',
     satoshi: 8,
-    unit: "BTG",
-    apiName: "btg",
+    unit: 'BTG',
+    apiName: 'btg',
     bitcoinjs: {
-      messagePrefix: "Bitcoin gold Signed Message:",
+      messagePrefix: 'Bitcoin gold Signed Message:',
       bip32: {
         public: {
           p2pkh: 76067358,
@@ -529,15 +532,15 @@ export const networksUtil: Record<number, NetworkMagic> = {
     isSegwitSupported: true,
     handleFeePerByte: true,
     areTransactionTimestamped: undefined,
-    additionals: ["gold"],
+    additionals: ['gold'],
   },
   171: {
-    name: "hcash",
+    name: 'hcash',
     satoshi: 8,
-    unit: "HSR",
-    apiName: "hsr",
+    unit: 'HSR',
+    apiName: 'hsr',
     bitcoinjs: {
-      messagePrefix: "HShare Signed Message:",
+      messagePrefix: 'HShare Signed Message:',
       bip32: {
         public: {
           p2pkh: 76071454,
@@ -553,12 +556,12 @@ export const networksUtil: Record<number, NetworkMagic> = {
     areTransactionTimestamped: true,
   },
   121: {
-    name: "zencash",
+    name: 'zencash',
     satoshi: 8,
-    unit: "ZEN",
-    apiName: "zen",
+    unit: 'ZEN',
+    apiName: 'zen',
     bitcoinjs: {
-      messagePrefix: "Zencash Signed Message:",
+      messagePrefix: 'Zencash Signed Message:',
       bip32: {
         public: {
           p2pkh: 76067358,
@@ -571,13 +574,13 @@ export const networksUtil: Record<number, NetworkMagic> = {
     },
   },
   3: {
-    name: "dogecoin",
+    name: 'dogecoin',
     satoshi: 8,
-    unit: "Ð",
-    apiName: "doge",
-    appName: "Dogecoin",
+    unit: 'Ð',
+    apiName: 'doge',
+    appName: 'Dogecoin',
     bitcoinjs: {
-      messagePrefix: "Dogecoin Signed Message Much Wow:",
+      messagePrefix: 'Dogecoin Signed Message Much Wow:',
       bip32: {
         public: {
           p2pkh: 49990397,
@@ -589,28 +592,28 @@ export const networksUtil: Record<number, NetworkMagic> = {
       wif: 128,
     },
   },
-};
+}
 
 const appNameBySlip44: Record<number, string> = {
-  0: "Bitcoin",
-  2: "Litecoin",
-  3: "Dogecoin",
-  5: "Dash",
-  20: "Digibyte",
-  60: "Ethereum",
-  118: "Cosmos",
-  133: "Zcash",
-  145: "Bitcoin Cash",
-  195: "Tron",
-  397: "NEAR",
-  501: "Solana",
-  784: "Sui",
-  931: "THORChain",
-};
+  0: 'Bitcoin',
+  2: 'Litecoin',
+  3: 'Dogecoin',
+  5: 'Dash',
+  20: 'Digibyte',
+  60: 'Ethereum',
+  118: 'Cosmos',
+  133: 'Zcash',
+  145: 'Bitcoin Cash',
+  195: 'Tron',
+  397: 'NEAR',
+  501: 'Solana',
+  784: 'Sui',
+  931: 'THORChain',
+}
 
 export function coinToLedgerAppName(coin: core.Coin): string | undefined {
-  const slip44 = core.mustBeDefined(core.slip44ByCoin(coin));
-  return appNameBySlip44[slip44];
+  const slip44 = core.mustBeDefined(core.slip44ByCoin(coin))
+  return appNameBySlip44[slip44]
 }
 
 export const recursivelyOrderKeys = (unordered: any) => {
@@ -618,18 +621,18 @@ export const recursivelyOrderKeys = (unordered: any) => {
   // dictionary items within the array
   if (Array.isArray(unordered)) {
     unordered.forEach((item, index) => {
-      unordered[index] = recursivelyOrderKeys(item);
-    });
-    return unordered;
+      unordered[index] = recursivelyOrderKeys(item)
+    })
+    return unordered
   }
 
   // If it's an object - let's order the keys
-  if (typeof unordered !== "object") return unordered;
-  const ordered: any = {};
+  if (typeof unordered !== 'object') return unordered
+  const ordered: any = {}
   Object.keys(unordered)
     .sort()
-    .forEach((key) => (ordered[key] = recursivelyOrderKeys(unordered[key])));
-  return ordered;
-};
+    .forEach(key => (ordered[key] = recursivelyOrderKeys(unordered[key])))
+  return ordered
+}
 
-export const stringifyKeysInOrder = (data: any) => JSON.stringify(recursivelyOrderKeys(data));
+export const stringifyKeysInOrder = (data: any) => JSON.stringify(recursivelyOrderKeys(data))

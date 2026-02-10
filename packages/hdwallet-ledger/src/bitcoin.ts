@@ -1,35 +1,36 @@
-import ecc from "@bitcoinerlab/secp256k1";
-import { CreateTransactionArg } from "@ledgerhq/hw-app-btc/lib/createTransaction";
-import { Transaction } from "@ledgerhq/hw-app-btc/lib/types";
-import Transport from "@ledgerhq/hw-transport";
-import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
-import * as core from "@shapeshiftoss/hdwallet-core";
-import { BTCInputScriptType, convertXpubVersion, scriptTypeToAccountType } from "@shapeshiftoss/hdwallet-core";
-import Base64 from "base64-js";
-import * as bchAddr from "bchaddrjs";
-import * as bitcoinMsg from "bitcoinjs-message";
-import zip from "lodash/zip";
+import ecc from '@bitcoinerlab/secp256k1'
+import type { CreateTransactionArg } from '@ledgerhq/hw-app-btc/lib/createTransaction'
+import type { Transaction } from '@ledgerhq/hw-app-btc/lib/types'
+import type Transport from '@ledgerhq/hw-transport'
+import * as bitcoin from '@shapeshiftoss/bitcoinjs-lib'
+import type { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
+import * as core from '@shapeshiftoss/hdwallet-core'
+import { convertXpubVersion, scriptTypeToAccountType } from '@shapeshiftoss/hdwallet-core'
+import Base64 from 'base64-js'
+import * as bchAddr from 'bchaddrjs'
+import * as bitcoinMsg from 'bitcoinjs-message'
+import zip from 'lodash/zip'
 
-import { currencies } from "./currencies";
-import { LedgerTransport } from "./transport";
-import { handleError, networksUtil, translateScriptType } from "./utils";
+import { currencies } from './currencies'
+import type { LedgerTransport } from './transport'
+import { handleError, networksUtil, translateScriptType } from './utils'
 
 const ZCASH_VERSION_GROUP_ID: Record<number, number> = {
   4: 0x892f2085,
   5: 0x26a7270a,
-};
+}
 
-const ZCASH_CONSENSUS_BRANCH_ID = 0x4dec4df0;
+const ZCASH_CONSENSUS_BRANCH_ID = 0x4dec4df0
 
 type ZcashInput = core.BTCSignTxInputLedger & {
-  txid?: string;
-  blockHeight?: number;
-};
+  txid?: string
+  blockHeight?: number
+}
 
 type ZcashLedgerTransaction = Transaction & {
-  _customZcashTxId?: string;
-  _customZcashAmount?: string;
-};
+  _customZcashTxId?: string
+  _customZcashAmount?: string
+}
 
 // MONKEY PATCH: Fix Zcash v5 Trusted Input Hashing
 // @ledgerhq/hw-app-btc calculates SHA256d hash for trusted inputs, but Zcash v5 uses ZIP-244 tree hash.
@@ -41,57 +42,67 @@ type ZcashLedgerTransaction = Transaction & {
 // we must modify the CommonJS exports object directly.
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const getTrustedInputModule = require("@ledgerhq/hw-app-btc/lib/getTrustedInputBIP143");
-  const originGetTrustedInputBIP143 = getTrustedInputModule.getTrustedInputBIP143;
+  const getTrustedInputModule = require('@ledgerhq/hw-app-btc/lib/getTrustedInputBIP143')
+  const originGetTrustedInputBIP143 = getTrustedInputModule.getTrustedInputBIP143
 
   getTrustedInputModule.getTrustedInputBIP143 = function (
     transport: Transport,
     indexLookup: number,
     transaction: Transaction & { _customZcashTxId?: string; _customZcashAmount?: string },
-    additionals: Array<string>,
+    additionals: string[],
     ...args: any[]
   ) {
     if (
       additionals &&
-      additionals.includes("zcash") &&
+      additionals.includes('zcash') &&
       transaction._customZcashTxId &&
       transaction._customZcashAmount
     ) {
-      const txid = transaction._customZcashTxId;
-      const amount = transaction._customZcashAmount;
+      const txid = transaction._customZcashTxId
+      const amount = transaction._customZcashAmount
 
-      const hash = Buffer.from(txid, "hex").reverse();
-      const data = Buffer.alloc(4);
-      data.writeUInt32LE(indexLookup, 0);
-      const amountBuf = Buffer.alloc(8);
-      amountBuf.writeBigUInt64LE(BigInt(amount));
+      const hash = Buffer.from(txid, 'hex').reverse()
+      const data = Buffer.alloc(4)
+      data.writeUInt32LE(indexLookup, 0)
+      const amountBuf = Buffer.alloc(8)
+      amountBuf.writeBigUInt64LE(BigInt(amount))
 
-      return Buffer.concat([hash, data, amountBuf]).toString("hex");
+      return Buffer.concat([hash, data, amountBuf]).toString('hex')
     }
-    return originGetTrustedInputBIP143.call(this, transport, indexLookup, transaction, additionals, ...args);
-  };
+    return originGetTrustedInputBIP143.call(
+      this,
+      transport,
+      indexLookup,
+      transaction,
+      additionals,
+      ...args,
+    )
+  }
 } catch (e) {
-  console.error("[Zcash Ledger] Failed to patch getTrustedInputBIP143:", e);
+  console.error('[Zcash Ledger] Failed to patch getTrustedInputBIP143:', e)
 }
 
 export const supportedCoins = [
-  "Testnet",
-  "Bitcoin",
-  "BitcoinCash",
-  "Litecoin",
-  "Dash",
-  "DigiByte",
-  "Dogecoin",
-  "Zcash",
-];
+  'Testnet',
+  'Bitcoin',
+  'BitcoinCash',
+  'Litecoin',
+  'Dash',
+  'DigiByte',
+  'Dogecoin',
+  'Zcash',
+]
 
-const segwitCoins = ["Bitcoin", "DigiByte", "Litecoin", "BitcoinGold", "Testnet"];
+const segwitCoins = ['Bitcoin', 'DigiByte', 'Litecoin', 'BitcoinGold', 'Testnet']
 
 export async function btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-  return supportedCoins.includes(coin);
+  return supportedCoins.includes(coin)
 }
 
-export async function btcSupportsScriptType(coin: core.Coin, scriptType?: core.BTCInputScriptType): Promise<boolean> {
+export async function btcSupportsScriptType(
+  coin: core.Coin,
+  scriptType?: core.BTCInputScriptType,
+): Promise<boolean> {
   const supported = {
     Bitcoin: [
       core.BTCInputScriptType.SpendAddress,
@@ -100,55 +111,58 @@ export async function btcSupportsScriptType(coin: core.Coin, scriptType?: core.B
     ],
     BitcoinCash: [core.BTCInputScriptType.SpendAddress],
     Zcash: [core.BTCInputScriptType.SpendAddress],
-  } as Partial<Record<core.Coin, Array<core.BTCInputScriptType>>>;
+  } as Partial<Record<core.Coin, core.BTCInputScriptType[]>>
 
-  const scriptTypes = supported[coin];
-  return !!scriptTypes && !!scriptType && scriptTypes.includes(scriptType);
+  const scriptTypes = supported[coin]
+  return !!scriptTypes && !!scriptType && scriptTypes.includes(scriptType)
 }
 
-export async function btcGetAddress(transport: LedgerTransport, msg: core.BTCGetAddress): Promise<string> {
-  const bip32path = core.addressNListToBIP32(msg.addressNList);
+export async function btcGetAddress(
+  transport: LedgerTransport,
+  msg: core.BTCGetAddress,
+): Promise<string> {
+  const bip32path = core.addressNListToBIP32(msg.addressNList)
 
   const scriptTypeish = (() => {
-    if (msg.coin === "BitcoinCash") return core.BTCInputScriptType.CashAddr;
-    if (msg.scriptType) return msg.scriptType;
-    return core.BTCInputScriptType.SpendAddress;
-  })();
+    if (msg.coin === 'BitcoinCash') return core.BTCInputScriptType.CashAddr
+    if (msg.scriptType) return msg.scriptType
+    return core.BTCInputScriptType.SpendAddress
+  })()
 
   const opts = {
     verify: !!msg.showDisplay,
     format: translateScriptType(scriptTypeish),
-  };
+  }
 
-  const res = await transport.call("Btc", "getWalletPublicKey", bip32path, opts);
-  handleError(res, transport, "Unable to obtain BTC address from device");
+  const res = await transport.call('Btc', 'getWalletPublicKey', bip32path, opts)
+  handleError(res, transport, 'Unable to obtain BTC address from device')
 
-  const address = res.payload.bitcoinAddress;
-  return msg.coin.toLowerCase() === "bitcoincash" ? bchAddr.toCashAddress(address) : address;
+  const address = res.payload.bitcoinAddress
+  return msg.coin.toLowerCase() === 'bitcoincash' ? bchAddr.toCashAddress(address) : address
 }
 
 // Adapted from https://github.com/LedgerHQ/ledger-wallet-webtool
 export async function btcGetPublicKeys(
   transport: LedgerTransport,
-  msg: Array<core.GetPublicKey>
-): Promise<Array<core.PublicKey | null>> {
-  const xpubs: Array<core.PublicKey | null> = [];
+  msg: core.GetPublicKey[],
+): Promise<(core.PublicKey | null)[]> {
+  const xpubs: (core.PublicKey | null)[] = []
 
   for (const getPublicKey of msg) {
-    const { addressNList, coin } = getPublicKey;
+    const { addressNList, coin } = getPublicKey
 
-    if (!coin) throw new Error("coin is required");
-    if (!getPublicKey.scriptType) throw new Error("scriptType is required");
+    if (!coin) throw new Error('coin is required')
+    if (!getPublicKey.scriptType) throw new Error('scriptType is required')
 
-    const parentBip32path: string = core.addressNListToBIP32(addressNList);
+    const parentBip32path: string = core.addressNListToBIP32(addressNList)
 
-    const getWalletXpubResponse = await transport.call("Btc", "getWalletXpub", {
+    const getWalletXpubResponse = await transport.call('Btc', 'getWalletXpub', {
       path: parentBip32path,
       xpubVersion: currencies[getPublicKey.coin].xpubVersion,
-    });
-    handleError(getWalletXpubResponse, transport, "Unable to obtain public key from device.");
+    })
+    handleError(getWalletXpubResponse, transport, 'Unable to obtain public key from device.')
 
-    const { payload: _xpub } = getWalletXpubResponse;
+    const { payload: _xpub } = getWalletXpubResponse
 
     // Ledger returns
     // - LTC pubkeys in Ltub format for all scriptTypes.
@@ -156,14 +170,18 @@ export async function btcGetPublicKeys(
     // - Doge pubkeys in xpub format instead of dgub
     // They *are* the correct accounts, but not in the format we want.
     // We need to convert SegWit pubkeys to Mtubs/ypubs, and SegWit native to zpubs, and Doge xpubs to dgubs.
-    const xpub = convertXpubVersion(_xpub, scriptTypeToAccountType[getPublicKey.scriptType], getPublicKey.coin);
+    const xpub = convertXpubVersion(
+      _xpub,
+      scriptTypeToAccountType[getPublicKey.scriptType],
+      getPublicKey.coin,
+    )
 
     xpubs.push({
       xpub,
-    });
+    })
   }
 
-  return xpubs;
+  return xpubs
 }
 
 /*
@@ -210,149 +228,160 @@ Parameters
 export async function btcSignTx(
   wallet: core.BTCWallet,
   transport: LedgerTransport,
-  msg: core.BTCSignTxLedger
+  msg: core.BTCSignTxLedger,
 ): Promise<core.BTCSignedTx> {
-  const supportsSecureTransfer = await wallet.btcSupportsSecureTransfer();
-  const slip44 = core.mustBeDefined(core.slip44ByCoin(msg.coin));
+  const supportsSecureTransfer = await wallet.btcSupportsSecureTransfer()
+  const slip44 = core.mustBeDefined(core.slip44ByCoin(msg.coin))
   // instantiation of ecc lib required for taproot sends https://github.com/bitcoinjs/bitcoinjs-lib/issues/1889#issuecomment-1443792692
-  bitcoin.initEccLib(ecc);
+  bitcoin.initEccLib(ecc)
 
-  const forkCoin = msg.coin === "Zcash" ? "zec" : "none";
+  const forkCoin = msg.coin === 'Zcash' ? 'zec' : 'none'
   const psbt = new bitcoin.Psbt({
     network: networksUtil[slip44].bitcoinjs as bitcoin.Network,
     forkCoin,
-  });
+  })
 
-  const indexes: number[] = [];
-  const txs: Transaction[] = [];
-  const associatedKeysets: string[] = [];
-  const blockHeights: (number | undefined)[] = []; // For Zcash: blockHeight of each input
-  let segwit = false;
+  const indexes: number[] = []
+  const txs: Transaction[] = []
+  const associatedKeysets: string[] = []
+  const blockHeights: (number | undefined)[] = [] // For Zcash: blockHeight of each input
+  let segwit = false
 
   for (const output of msg.outputs) {
-    let outputAddress: string;
+    let outputAddress: string
     if (output.addressNList !== undefined && output.isChange) {
       const maybeOutputAddress = await wallet.btcGetAddress({
         addressNList: output.addressNList,
         scriptType: output.scriptType as unknown as BTCInputScriptType,
         coin: msg.coin,
-      });
-      if (!maybeOutputAddress) throw new Error("could not determine output address from addressNList");
-      outputAddress = maybeOutputAddress;
+      })
+      if (!maybeOutputAddress)
+        throw new Error('could not determine output address from addressNList')
+      outputAddress = maybeOutputAddress
     } else if (
       output.addressNList !== undefined &&
       output.addressType === core.BTCOutputAddressType.Transfer &&
       !supportsSecureTransfer
     ) {
-      throw new Error("Ledger does not support SecureTransfer");
+      throw new Error('Ledger does not support SecureTransfer')
     } else if (output.address !== undefined) {
-      outputAddress = output.address;
+      outputAddress = output.address
     } else {
-      throw new Error("could not determine output address");
+      throw new Error('could not determine output address')
     }
-    if (msg.coin === "BitcoinCash" && bchAddr.isCashAddress(outputAddress)) {
-      outputAddress = bchAddr.toLegacyAddress(outputAddress);
+    if (msg.coin === 'BitcoinCash' && bchAddr.isCashAddress(outputAddress)) {
+      outputAddress = bchAddr.toLegacyAddress(outputAddress)
     }
 
-    psbt.addOutput({ address: outputAddress, value: BigInt(output.amount) });
+    psbt.addOutput({ address: outputAddress, value: BigInt(output.amount) })
   }
 
   if (msg.opReturnData) {
     if (msg.opReturnData.length > 80) {
-      throw new Error("OP_RETURN data must be less than 80 chars.");
+      throw new Error('OP_RETURN data must be less than 80 chars.')
     }
-    const script = bitcoin.script.compile([bitcoin.opcodes.OP_RETURN, Buffer.from(msg.opReturnData)]);
+    const script = bitcoin.script.compile([
+      bitcoin.opcodes.OP_RETURN,
+      Buffer.from(msg.opReturnData),
+    ])
 
     // OP_RETURN_DATA outputs always have a value of 0
-    psbt.addOutput({ script: Buffer.from(script), value: BigInt(0) });
+    psbt.addOutput({ script: Buffer.from(script), value: BigInt(0) })
   }
 
   // For Zcash, set transaction version and Zcash-specific parameters
-  if (msg.coin === "Zcash") {
-    psbt.setVersion(5);
-    psbt.setVersionGroupId(ZCASH_VERSION_GROUP_ID[5]);
-    psbt.setConsensusBranchId(ZCASH_CONSENSUS_BRANCH_ID);
+  if (msg.coin === 'Zcash') {
+    psbt.setVersion(5)
+    psbt.setVersionGroupId(ZCASH_VERSION_GROUP_ID[5])
+    psbt.setConsensusBranchId(ZCASH_CONSENSUS_BRANCH_ID)
   }
 
-  const unsignedHex = Buffer.from(psbt.data.getTransaction()).toString("hex");
+  const unsignedHex = Buffer.from(psbt.data.getTransaction()).toString('hex')
 
   // For Zcash, pass the same parameters as we do for input transactions
   const splitTxRes =
-    msg.coin === "Zcash"
-      ? await transport.call("Btc", "splitTransaction", unsignedHex, true, true, ["zcash", "sapling"])
-      : await transport.call("Btc", "splitTransaction", unsignedHex);
-  handleError(splitTxRes, transport, "splitTransaction failed");
+    msg.coin === 'Zcash'
+      ? await transport.call('Btc', 'splitTransaction', unsignedHex, true, true, [
+          'zcash',
+          'sapling',
+        ])
+      : await transport.call('Btc', 'splitTransaction', unsignedHex)
+  handleError(splitTxRes, transport, 'splitTransaction failed')
 
-  const outputScriptRes = await transport.call("Btc", "serializeTransactionOutputs", splitTxRes.payload);
-  handleError(outputScriptRes, transport, "serializeTransactionOutputs failed");
-  const outputScriptHex = outputScriptRes.payload.toString("hex");
+  const outputScriptRes = await transport.call(
+    'Btc',
+    'serializeTransactionOutputs',
+    splitTxRes.payload,
+  )
+  handleError(outputScriptRes, transport, 'serializeTransactionOutputs failed')
+  const outputScriptHex = outputScriptRes.payload.toString('hex')
 
   for (let i = 0; i < msg.inputs.length; i++) {
     if (
       msg.inputs[i].scriptType === core.BTCInputScriptType.SpendWitness ||
       msg.inputs[i].scriptType === core.BTCInputScriptType.SpendP2SHWitness
     )
-      segwit = true;
+      segwit = true
 
-    const keySet = core.addressNListToBIP32(msg.inputs[i].addressNList).replace(/^m\//, "");
+    const keySet = core.addressNListToBIP32(msg.inputs[i].addressNList).replace(/^m\//, '')
 
-    const vout = msg.inputs[i].vout;
+    const vout = msg.inputs[i].vout
 
     const tx = await transport.call(
-      "Btc",
-      "splitTransaction",
+      'Btc',
+      'splitTransaction',
       msg.inputs[i].hex,
       networksUtil[slip44].isSegwitSupported,
       networksUtil[slip44].areTransactionTimestamped,
-      networksUtil[slip44].additionals || []
-    );
-    handleError(tx, transport, "splitTransaction failed");
+      networksUtil[slip44].additionals || [],
+    )
+    handleError(tx, transport, 'splitTransaction failed')
 
     // Collect blockHeight for this input to pass as 5th parameter for Zcash
-    const zcashInput = msg.inputs[i] as ZcashInput;
-    if (msg.coin === "Zcash" && zcashInput.blockHeight) {
-      blockHeights.push(zcashInput.blockHeight);
+    const zcashInput = msg.inputs[i] as ZcashInput
+    if (msg.coin === 'Zcash' && zcashInput.blockHeight) {
+      blockHeights.push(zcashInput.blockHeight)
     } else {
-      blockHeights.push(undefined);
+      blockHeights.push(undefined)
     }
 
-    indexes.push(vout);
-    txs.push(tx.payload);
-    associatedKeysets.push(keySet);
+    indexes.push(vout)
+    txs.push(tx.payload)
+    associatedKeysets.push(keySet)
   }
 
-  if (txs.length !== indexes.length) throw new Error("tx/index array length mismatch");
+  if (txs.length !== indexes.length) throw new Error('tx/index array length mismatch')
 
   // For all coins (including Zcash), use empty sequences array to let Ledger use DEFAULT_SEQUENCE (0xffffffff)
   // Setting sequence to 0 would enable RBF/locktime which causes issues
-  const sequences: number[] = [];
+  const sequences: number[] = []
 
   // Build inputs array with 5 parameters: [tx, index, redeemScript, sequence, blockHeight]
   // For Zcash, the blockHeight (5th param) is CRITICAL - Ledger uses it to calculate consensusBranchId
   // for each input's signature validation
   const inputs =
-    msg.coin === "Zcash"
+    msg.coin === 'Zcash'
       ? (Array.from({ length: txs.length }, (_, i) => [
           txs[i],
           indexes[i],
           undefined,
           undefined,
           blockHeights[i],
-        ]) as Array<[Transaction, number, undefined, undefined, number | undefined]>)
-      : (zip(txs, indexes, [], sequences) as Array<[Transaction, number, undefined, number | undefined]>);
+        ]) as [Transaction, number, undefined, undefined, number | undefined][])
+      : (zip(txs, indexes, [], sequences) as [Transaction, number, undefined, number | undefined][])
 
   // ZCASH MONKEY PATCH ACTIVATION:
   // We attach the correct TXID and Amount to the transaction object so our patched getTrustedInputBIP143 can find it.
-  if (msg.coin === "Zcash") {
+  if (msg.coin === 'Zcash') {
     inputs.forEach((input, i) => {
-      const tx = input[0] as ZcashLedgerTransaction;
-      const zcashInput = msg.inputs[i] as ZcashInput;
+      const tx = input[0] as ZcashLedgerTransaction
+      const zcashInput = msg.inputs[i] as ZcashInput
       if (tx && zcashInput) {
         // Access txid via casting since it's not in the shared Ledger interface anymore
-        tx._customZcashTxId = zcashInput.txid;
-        tx._customZcashAmount = zcashInput.amount;
+        tx._customZcashTxId = zcashInput.txid
+        tx._customZcashAmount = zcashInput.amount
       }
-    });
+    })
   }
 
   const txArgs: CreateTransactionArg = {
@@ -360,11 +389,12 @@ export async function btcSignTx(
     associatedKeysets,
     outputScriptHex,
     additionals: (() => {
-      if (msg.coin === "BitcoinCash") return ["abc"];
-      if (msg.coin === "Zcash") return ["zcash", "sapling"];
-      if (msg.inputs.some((input) => input.scriptType === core.BTCInputScriptType.SpendWitness)) return ["bech32"];
+      if (msg.coin === 'BitcoinCash') return ['abc']
+      if (msg.coin === 'Zcash') return ['zcash', 'sapling']
+      if (msg.inputs.some(input => input.scriptType === core.BTCInputScriptType.SpendWitness))
+        return ['bech32']
 
-      return [];
+      return []
     })(),
     segwit,
     useTrustedInputForSegwit: Boolean(segwit),
@@ -372,95 +402,103 @@ export async function btcSignTx(
     // Use the highest confirmed input blockHeight, or fallback to a height above NU6.1 activation (3146400).
     // This ensures correct consensus branch ID (0x4dec4df0) even when spending unconfirmed outputs.
     blockHeight:
-      msg.coin === "Zcash"
+      msg.coin === 'Zcash'
         ? Math.max(...blockHeights.filter((h): h is number => h !== undefined && h > 0), 3150000)
         : undefined,
-    expiryHeight: msg.coin === "Zcash" ? Buffer.alloc(4) : undefined,
-  };
+    expiryHeight: msg.coin === 'Zcash' ? Buffer.alloc(4) : undefined,
+  }
 
   // "invalid data received" error from Ledger if not done this way:
   if (networksUtil[slip44].sigHash) {
-    txArgs.sigHashType = networksUtil[slip44].sigHash;
+    txArgs.sigHashType = networksUtil[slip44].sigHash
   }
 
-  const signedTx = await transport.call("Btc", "createPaymentTransaction", txArgs);
-  handleError(signedTx, transport, "Could not sign transaction with device");
+  const signedTx = await transport.call('Btc', 'createPaymentTransaction', txArgs)
+  handleError(signedTx, transport, 'Could not sign transaction with device')
 
   return {
     serializedTx: signedTx.payload,
     signatures: [],
-  };
+  }
 }
 
 export async function btcSupportsSecureTransfer(): Promise<boolean> {
-  return false;
+  return false
 }
 
 export function btcSupportsNativeShapeShift(): boolean {
-  return false;
+  return false
 }
 
 export async function btcSignMessage(
   _wallet: core.BTCWallet,
   transport: LedgerTransport,
-  msg: core.BTCSignMessage
+  msg: core.BTCSignMessage,
 ): Promise<core.BTCSignedMessage> {
-  const bip32path = core.addressNListToBIP32(msg.addressNList);
+  const bip32path = core.addressNListToBIP32(msg.addressNList)
 
-  const res = await transport.call("Btc", "signMessage", bip32path, Buffer.from(msg.message).toString("hex"));
-  handleError(res, transport, "Could not sign message with device");
-  const v = res.payload["v"] + 27 + 4;
+  const res = await transport.call(
+    'Btc',
+    'signMessage',
+    bip32path,
+    Buffer.from(msg.message).toString('hex'),
+  )
+  handleError(res, transport, 'Could not sign message with device')
+  const v = res.payload['v'] + 27 + 4
 
-  const signature = Buffer.from(v.toString(16) + res.payload["r"] + res.payload["s"], "hex").toString("hex");
+  const signature = Buffer.from(
+    v.toString(16) + res.payload['r'] + res.payload['s'],
+    'hex',
+  ).toString('hex')
 
-  const coin = msg.coin;
-  if (!coin) throw new Error("could not determine type of coin");
+  const coin = msg.coin
+  if (!coin) throw new Error('could not determine type of coin')
   const address = await btcGetAddress(transport, {
     addressNList: msg.addressNList,
     coin,
     showDisplay: false,
     scriptType: msg.scriptType ?? core.BTCInputScriptType.SpendAddress,
-  });
+  })
 
   return {
     address,
     signature,
-  };
+  }
 }
 
 export async function btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean> {
-  const signature = Base64.fromByteArray(core.fromHexString(msg.signature));
-  return bitcoinMsg.verify(msg.message, msg.address, signature);
+  const signature = Base64.fromByteArray(core.fromHexString(msg.signature))
+  return bitcoinMsg.verify(msg.message, msg.address, signature)
 }
 
-export function btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
-  const slip44 = core.slip44ByCoin(msg.coin);
-  if (slip44 === undefined) return [];
+export function btcGetAccountPaths(msg: core.BTCGetAccountPaths): core.BTCAccountPath[] {
+  const slip44 = core.slip44ByCoin(msg.coin)
+  if (slip44 === undefined) return []
   const bip49 = {
     coin: msg.coin,
     scriptType: core.BTCInputScriptType.SpendP2SHWitness,
     addressNList: [0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
-  };
+  }
   const bip44 = {
     coin: msg.coin,
     scriptType: core.BTCInputScriptType.SpendAddress,
     addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
-  };
+  }
   const bip84 = {
     coin: msg.coin,
     scriptType: core.BTCInputScriptType.SpendWitness,
     addressNList: [0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
-  };
+  }
 
-  let paths: Array<core.BTCAccountPath>;
+  let paths: core.BTCAccountPath[]
 
-  if (segwitCoins.includes(msg.coin)) paths = [bip49, bip44, bip84];
-  else paths = [bip44];
+  if (segwitCoins.includes(msg.coin)) paths = [bip49, bip44, bip84]
+  else paths = [bip44]
 
   if (msg.scriptType !== undefined)
-    paths = paths.filter((path) => {
-      return path.scriptType === msg.scriptType;
-    });
+    paths = paths.filter(path => {
+      return path.scriptType === msg.scriptType
+    })
 
-  return paths;
+  return paths
 }

@@ -1,69 +1,79 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-import { Address, beginCell, Cell, internal, MessageRelaxed, SendMode, storeMessage } from "@ton/core";
-import { WalletContractV4 } from "@ton/ton";
+import * as core from '@shapeshiftoss/hdwallet-core'
+import type { MessageRelaxed } from '@ton/core'
+import { Address, beginCell, Cell, internal, SendMode, storeMessage } from '@ton/core'
+import { WalletContractV4 } from '@ton/ton'
 
-import { Isolation } from "../..";
+import type { Isolation } from '../..'
 
-const ED25519_PUBLIC_KEY_SIZE = 32;
+const ED25519_PUBLIC_KEY_SIZE = 32
 
 export interface TonTransactionParams {
-  from: string;
-  to: string;
-  value: string;
-  seqno: number;
-  expireAt: number;
-  memo?: string;
-  contractAddress?: string;
-  type?: "transfer" | "jetton_transfer";
+  from: string
+  to: string
+  value: string
+  seqno: number
+  expireAt: number
+  memo?: string
+  contractAddress?: string
+  type?: 'transfer' | 'jetton_transfer'
 }
 
 export class TonAdapter {
-  protected readonly nodeAdapter: Isolation.Adapters.Ed25519;
+  protected readonly nodeAdapter: Isolation.Adapters.Ed25519
 
   constructor(nodeAdapter: Isolation.Adapters.Ed25519) {
-    this.nodeAdapter = nodeAdapter;
+    this.nodeAdapter = nodeAdapter
   }
 
   async getAddress(addressNList: core.BIP32Path): Promise<string> {
-    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToHardenedBIP32(addressNList));
-    const publicKey = await nodeAdapter.getPublicKey();
+    const nodeAdapter = await this.nodeAdapter.derivePath(
+      core.addressNListToHardenedBIP32(addressNList),
+    )
+    const publicKey = await nodeAdapter.getPublicKey()
 
     if (publicKey.length !== ED25519_PUBLIC_KEY_SIZE) {
-      throw new Error(`Invalid Ed25519 public key size: ${publicKey.length}`);
+      throw new Error(`Invalid Ed25519 public key size: ${publicKey.length}`)
     }
 
     const wallet = WalletContractV4.create({
       workchain: 0,
       publicKey: Buffer.from(publicKey),
-    });
+    })
 
-    return wallet.address.toString({ bounceable: false });
+    return wallet.address.toString({ bounceable: false })
   }
 
   async getPublicKey(addressNList: core.BIP32Path): Promise<string> {
-    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToHardenedBIP32(addressNList));
-    const publicKey = await nodeAdapter.getPublicKey();
-    return Buffer.from(publicKey).toString("hex");
+    const nodeAdapter = await this.nodeAdapter.derivePath(
+      core.addressNListToHardenedBIP32(addressNList),
+    )
+    const publicKey = await nodeAdapter.getPublicKey()
+    return Buffer.from(publicKey).toString('hex')
   }
 
-  async createSignedTransferBoc(params: TonTransactionParams, addressNList: core.BIP32Path): Promise<string> {
-    const derivedNodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToHardenedBIP32(addressNList));
-    const publicKey = await derivedNodeAdapter.getPublicKey();
+  async createSignedTransferBoc(
+    params: TonTransactionParams,
+    addressNList: core.BIP32Path,
+  ): Promise<string> {
+    const derivedNodeAdapter = await this.nodeAdapter.derivePath(
+      core.addressNListToHardenedBIP32(addressNList),
+    )
+    const publicKey = await derivedNodeAdapter.getPublicKey()
 
     const wallet = WalletContractV4.create({
       workchain: 0,
       publicKey: Buffer.from(publicKey),
-    });
+    })
 
-    const destination = Address.parse(params.to);
+    const destination = Address.parse(params.to)
 
-    let internalMessage: MessageRelaxed;
+    let internalMessage: MessageRelaxed
 
-    if (params.type === "jetton_transfer" && params.contractAddress) {
-      const jettonWalletAddress = Address.parse(params.contractAddress);
+    if (params.type === 'jetton_transfer' && params.contractAddress) {
+      const jettonWalletAddress = Address.parse(params.contractAddress)
       const forwardPayload = params.memo
         ? beginCell().storeUint(0, 32).storeStringTail(params.memo).endCell()
-        : beginCell().endCell();
+        : beginCell().endCell()
 
       const jettonTransferBody = beginCell()
         .storeUint(0x0f8a7ea5, 32)
@@ -75,28 +85,30 @@ export class TonAdapter {
         .storeCoins(BigInt(1))
         .storeBit(true)
         .storeRef(forwardPayload)
-        .endCell();
+        .endCell()
 
       internalMessage = internal({
         to: jettonWalletAddress,
         value: BigInt(100000000),
         bounce: true,
         body: jettonTransferBody,
-      });
+      })
     } else {
       internalMessage = internal({
         to: destination,
         value: BigInt(params.value),
         bounce: false,
-        body: params.memo ? beginCell().storeUint(0, 32).storeStringTail(params.memo).endCell() : beginCell().endCell(),
-      });
+        body: params.memo
+          ? beginCell().storeUint(0, 32).storeStringTail(params.memo).endCell()
+          : beginCell().endCell(),
+      })
     }
 
     const signer = async (message: Cell): Promise<Buffer> => {
-      const hash = message.hash();
-      const signature = await derivedNodeAdapter.node.sign(hash);
-      return Buffer.from(signature);
-    };
+      const hash = message.hash()
+      const signature = await derivedNodeAdapter.node.sign(hash)
+      return Buffer.from(signature)
+    }
 
     const transfer = await wallet.createTransfer({
       seqno: params.seqno,
@@ -104,71 +116,75 @@ export class TonAdapter {
       messages: [internalMessage],
       sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
       timeout: params.expireAt,
-    });
+    })
 
     const externalMessage = beginCell()
       .store(
         storeMessage({
           info: {
-            type: "external-in",
+            type: 'external-in',
             dest: wallet.address,
             importFee: BigInt(0),
           },
           init: params.seqno === 0 ? wallet.init : null,
           body: transfer,
-        })
+        }),
       )
-      .endCell();
+      .endCell()
 
-    return externalMessage.toBoc().toString("base64");
+    return externalMessage.toBoc().toString('base64')
   }
 
   async signTransaction(message: Uint8Array, addressNList: core.BIP32Path): Promise<string> {
-    const nodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToHardenedBIP32(addressNList));
-    const signature = await nodeAdapter.node.sign(message);
-    return Buffer.from(signature).toString("hex");
+    const nodeAdapter = await this.nodeAdapter.derivePath(
+      core.addressNListToHardenedBIP32(addressNList),
+    )
+    const signature = await nodeAdapter.node.sign(message)
+    return Buffer.from(signature).toString('hex')
   }
 
   async createSignedRawTransferBoc(
     rawMessages: core.TonRawMessage[],
     seqno: number,
     expireAt: number,
-    addressNList: core.BIP32Path
+    addressNList: core.BIP32Path,
   ): Promise<string> {
-    const derivedNodeAdapter = await this.nodeAdapter.derivePath(core.addressNListToHardenedBIP32(addressNList));
-    const publicKey = await derivedNodeAdapter.getPublicKey();
+    const derivedNodeAdapter = await this.nodeAdapter.derivePath(
+      core.addressNListToHardenedBIP32(addressNList),
+    )
+    const publicKey = await derivedNodeAdapter.getPublicKey()
 
     const wallet = WalletContractV4.create({
       workchain: 0,
       publicKey: Buffer.from(publicKey),
-    });
+    })
 
-    const internalMessages: MessageRelaxed[] = rawMessages.map((msg) => {
-      const destination = Address.parse(msg.targetAddress);
-      const value = BigInt(msg.sendAmount);
+    const internalMessages: MessageRelaxed[] = rawMessages.map(msg => {
+      const destination = Address.parse(msg.targetAddress)
+      const value = BigInt(msg.sendAmount)
 
-      let body: Cell;
+      let body: Cell
       if (msg.payload && msg.payload.length > 0) {
-        const payloadBuffer = Buffer.from(msg.payload, "hex");
-        body = Cell.fromBoc(payloadBuffer)[0];
+        const payloadBuffer = Buffer.from(msg.payload, 'hex')
+        body = Cell.fromBoc(payloadBuffer)[0]
       } else {
-        body = beginCell().endCell();
+        body = beginCell().endCell()
       }
 
-      let init: { code: Cell; data: Cell } | undefined;
+      let init: { code: Cell; data: Cell } | undefined
       if (msg.stateInit && msg.stateInit.length > 0) {
-        const stateInitBuffer = Buffer.from(msg.stateInit, "hex");
-        const stateInitCell = Cell.fromBoc(stateInitBuffer)[0];
-        const stateInitSlice = stateInitCell.beginParse();
-        const hasCode = stateInitSlice.loadBit();
-        const hasData = stateInitSlice.loadBit();
+        const stateInitBuffer = Buffer.from(msg.stateInit, 'hex')
+        const stateInitCell = Cell.fromBoc(stateInitBuffer)[0]
+        const stateInitSlice = stateInitCell.beginParse()
+        const hasCode = stateInitSlice.loadBit()
+        const hasData = stateInitSlice.loadBit()
         if (hasCode && hasData) {
           init = {
             code: stateInitSlice.loadRef(),
             data: stateInitSlice.loadRef(),
-          };
+          }
         } else {
-          console.warn("TON stateInit provided but missing code or data - init will be ignored");
+          console.warn('TON stateInit provided but missing code or data - init will be ignored')
         }
       }
 
@@ -178,14 +194,14 @@ export class TonAdapter {
         bounce: true,
         body,
         init,
-      });
-    });
+      })
+    })
 
     const signer = async (message: Cell): Promise<Buffer> => {
-      const hash = message.hash();
-      const signature = await derivedNodeAdapter.node.sign(hash);
-      return Buffer.from(signature);
-    };
+      const hash = message.hash()
+      const signature = await derivedNodeAdapter.node.sign(hash)
+      return Buffer.from(signature)
+    }
 
     const transfer = await wallet.createTransfer({
       seqno,
@@ -193,24 +209,24 @@ export class TonAdapter {
       messages: internalMessages,
       sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
       timeout: expireAt,
-    });
+    })
 
     const externalMessage = beginCell()
       .store(
         storeMessage({
           info: {
-            type: "external-in",
+            type: 'external-in',
             dest: wallet.address,
             importFee: BigInt(0),
           },
           init: seqno === 0 ? wallet.init : null,
           body: transfer,
-        })
+        }),
       )
-      .endCell();
+      .endCell()
 
-    return externalMessage.toBoc().toString("base64");
+    return externalMessage.toBoc().toString('base64')
   }
 }
 
-export default TonAdapter;
+export default TonAdapter

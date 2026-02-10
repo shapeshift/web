@@ -1,185 +1,199 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-import { Address, BTCInputScriptType } from "@shapeshiftoss/hdwallet-core";
-import Base64 from "base64-js";
-import * as bitcoinMsg from "bitcoinjs-message";
-import { keccak256, recoverAddress } from "ethers/lib/utils.js";
-import isObject from "lodash/isObject";
+import type { Address } from '@shapeshiftoss/hdwallet-core'
+import * as core from '@shapeshiftoss/hdwallet-core'
+import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
+import Base64 from 'base64-js'
+import * as bitcoinMsg from 'bitcoinjs-message'
+import { keccak256, recoverAddress } from 'ethers/lib/utils.js'
+import isObject from 'lodash/isObject'
 
-import * as btc from "./bitcoin";
-import * as eth from "./ethereum";
-import { solanaSendTx, solanaSignTx } from "./solana";
-import * as sui from "./sui";
-import { PhantomEvmProvider, PhantomSolanaProvider, PhantomSuiProvider, PhantomUtxoProvider } from "./types";
+import * as btc from './bitcoin'
+import * as eth from './ethereum'
+import { solanaSendTx, solanaSignTx } from './solana'
+import * as sui from './sui'
+import type {
+  PhantomEvmProvider,
+  PhantomSolanaProvider,
+  PhantomSuiProvider,
+  PhantomUtxoProvider,
+} from './types'
 
 export function isPhantom(wallet: core.HDWallet): wallet is PhantomHDWallet {
-  return isObject(wallet) && (wallet as any)._isPhantom;
+  return isObject(wallet) && (wallet as any)._isPhantom
 }
 
 export class PhantomHDWalletInfo
-  implements core.HDWalletInfo, core.BTCWalletInfo, core.ETHWalletInfo, core.SolanaWalletInfo, core.SuiWalletInfo
+  implements
+    core.HDWalletInfo,
+    core.BTCWalletInfo,
+    core.ETHWalletInfo,
+    core.SolanaWalletInfo,
+    core.SuiWalletInfo
 {
-  readonly _supportsBTCInfo = true;
-  readonly _supportsETHInfo = true;
-  readonly _supportsSolanaInfo = true;
-  readonly _supportsSuiInfo = true;
+  readonly _supportsBTCInfo = true
+  readonly _supportsETHInfo = true
+  readonly _supportsSolanaInfo = true
+  readonly _supportsSuiInfo = true
 
-  evmProvider: PhantomEvmProvider;
+  evmProvider: PhantomEvmProvider
 
   constructor(evmProvider: PhantomEvmProvider) {
-    this.evmProvider = evmProvider;
+    this.evmProvider = evmProvider
   }
 
   public getVendor(): string {
-    return "Phantom";
+    return 'Phantom'
   }
 
   public hasOnDevicePinEntry(): boolean {
-    return false;
+    return false
   }
 
   public hasOnDevicePassphrase(): boolean {
-    return true;
+    return true
   }
 
   public hasOnDeviceDisplay(): boolean {
-    return true;
+    return true
   }
 
   public hasOnDeviceRecovery(): boolean {
-    return true;
+    return true
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public hasNativeShapeShift(_srcCoin: core.Coin, _dstCoin: core.Coin): boolean {
-    return false;
+    return false
   }
 
   public supportsBip44Accounts(): boolean {
-    return false;
+    return false
   }
 
   public supportsOfflineSigning(): boolean {
-    return false;
+    return false
   }
 
   public supportsBroadcast(): boolean {
-    return true;
+    return true
   }
 
   public describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin.toLowerCase()) {
-      case "bitcoin": {
-        const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType);
+      case 'bitcoin': {
+        const unknown = core.unknownUTXOPath(msg.path, msg.coin, msg.scriptType)
 
-        if (!msg.scriptType) return unknown;
-        if (!this.btcSupportsCoin(msg.coin)) return unknown;
-        if (!this.btcSupportsScriptType(msg.coin, msg.scriptType)) return unknown;
+        if (!msg.scriptType) return unknown
+        if (!this.btcSupportsCoin(msg.coin)) return unknown
+        if (!this.btcSupportsScriptType(msg.coin, msg.scriptType)) return unknown
 
-        return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType);
+        return core.describeUTXOPath(msg.path, msg.coin, msg.scriptType)
       }
-      case "ethereum":
-        return core.describeETHPath(msg.path);
-      case "solana":
-        return core.solanaDescribePath(msg.path);
+      case 'ethereum':
+        return core.describeETHPath(msg.path)
+      case 'solana':
+        return core.solanaDescribePath(msg.path)
       default:
-        throw new Error("Unsupported path");
+        throw new Error('Unsupported path')
     }
   }
 
   /** Ethereum */
 
   public async ethSupportsNetwork(chainId: number): Promise<boolean> {
-    return chainId === 1;
+    return chainId === 1
   }
 
   public async ethGetChainId(): Promise<number | null> {
     try {
-      if (!this.evmProvider.request) throw new Error("Provider does not support ethereum.request");
+      if (!this.evmProvider.request) throw new Error('Provider does not support ethereum.request')
       // chainId as hex string
-      const chainId: string = await this.evmProvider.request({ method: "eth_chainId" });
-      return parseInt(chainId, 16);
+      const chainId: string = await this.evmProvider.request({ method: 'eth_chainId' })
+      return parseInt(chainId, 16)
     } catch (e) {
-      console.error(e);
-      return null;
+      console.error(e)
+      return null
     }
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
-    return false;
+    return false
   }
 
   public ethSupportsNativeShapeShift(): boolean {
-    return false;
+    return false
   }
 
   public async ethSupportsEIP1559(): Promise<boolean> {
-    return true;
+    return true
   }
 
-  public ethGetAccountPaths(msg: core.ETHGetAccountPath): Array<core.ETHAccountPath> {
-    return eth.ethGetAccountPaths(msg);
+  public ethGetAccountPaths(msg: core.ETHGetAccountPath): core.ETHAccountPath[] {
+    return eth.ethGetAccountPaths(msg)
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public ethNextAccountPath(_msg: core.ETHAccountPath): core.ETHAccountPath | undefined {
-    console.error("Method not implemented");
-    return undefined;
+    console.error('Method not implemented')
+    return undefined
   }
 
   /** Bitcoin */
 
   public async btcSupportsCoin(coin: core.Coin): Promise<boolean> {
-    return coin.toLowerCase() === "bitcoin";
+    return coin.toLowerCase() === 'bitcoin'
   }
 
-  public async btcSupportsScriptType(coin: string, scriptType?: core.BTCInputScriptType | undefined): Promise<boolean> {
-    if (!this.btcSupportsCoin(coin)) return false;
+  public async btcSupportsScriptType(
+    coin: string,
+    scriptType?: core.BTCInputScriptType | undefined,
+  ): Promise<boolean> {
+    if (!this.btcSupportsCoin(coin)) return false
 
     switch (scriptType) {
       case core.BTCInputScriptType.SpendWitness:
-        return true;
+        return true
       default:
-        return false;
+        return false
     }
   }
 
   public async btcSupportsSecureTransfer(): Promise<boolean> {
-    return false;
+    return false
   }
 
   public btcSupportsNativeShapeShift(): boolean {
-    return false;
+    return false
   }
 
-  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): Array<core.BTCAccountPath> {
-    return btc.btcGetAccountPaths(msg);
+  public btcGetAccountPaths(msg: core.BTCGetAccountPaths): core.BTCAccountPath[] {
+    return btc.btcGetAccountPaths(msg)
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public btcNextAccountPath(_msg: core.BTCAccountPath): core.BTCAccountPath | undefined {
-    throw new Error("Method not implemented");
+    throw new Error('Method not implemented')
   }
 
   /** Solana */
 
-  public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): Array<core.SolanaAccountPath> {
-    return core.solanaGetAccountPaths(msg);
+  public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): core.SolanaAccountPath[] {
+    return core.solanaGetAccountPaths(msg)
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public solanaNextAccountPath(_msg: core.SolanaAccountPath): core.SolanaAccountPath | undefined {
-    throw new Error("Method not implemented");
+    throw new Error('Method not implemented')
   }
 
   /** Sui */
 
-  public suiGetAccountPaths(msg: core.SuiGetAccountPaths): Array<core.SuiAccountPath> {
-    return core.suiGetAccountPaths(msg);
+  public suiGetAccountPaths(msg: core.SuiGetAccountPaths): core.SuiAccountPath[] {
+    return core.suiGetAccountPaths(msg)
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public suiNextAccountPath(_msg: core.SuiAccountPath): core.SuiAccountPath | undefined {
-    return undefined;
+    return undefined
   }
 }
 
@@ -187,75 +201,75 @@ export class PhantomHDWallet
   extends PhantomHDWalletInfo
   implements core.HDWallet, core.BTCWallet, core.ETHWallet, core.SolanaWallet, core.SuiWallet
 {
-  readonly _supportsBTC = true;
-  readonly _supportsETH = true;
-  readonly _supportsEthSwitchChain = true;
-  readonly _supportsAvalanche = false;
-  readonly _supportsOptimism = false;
-  readonly _supportsPolygon = true;
-  readonly _supportsGnosis = false;
-  readonly _supportsArbitrum = false;
-  readonly _supportsArbitrumNova = false;
-  readonly _supportsBase = true;
-  readonly _supportsMonad = true;
-  readonly _supportsPlasma = false;
-  readonly _supportsKatana = false;
-  readonly _supportsHyperEvm = true;
-  readonly _supportsBSC = false;
-  readonly _supportsSolana = true;
-  readonly _supportsSui = true;
-  readonly _isPhantom = true;
+  readonly _supportsBTC = true
+  readonly _supportsETH = true
+  readonly _supportsEthSwitchChain = true
+  readonly _supportsAvalanche = false
+  readonly _supportsOptimism = false
+  readonly _supportsPolygon = true
+  readonly _supportsGnosis = false
+  readonly _supportsArbitrum = false
+  readonly _supportsArbitrumNova = false
+  readonly _supportsBase = true
+  readonly _supportsMonad = true
+  readonly _supportsPlasma = false
+  readonly _supportsKatana = false
+  readonly _supportsHyperEvm = true
+  readonly _supportsBSC = false
+  readonly _supportsSolana = true
+  readonly _supportsSui = true
+  readonly _isPhantom = true
 
-  evmProvider: PhantomEvmProvider;
-  bitcoinProvider: PhantomUtxoProvider;
-  solanaProvider: PhantomSolanaProvider;
-  suiProvider?: PhantomSuiProvider;
+  evmProvider: PhantomEvmProvider
+  bitcoinProvider: PhantomUtxoProvider
+  solanaProvider: PhantomSolanaProvider
+  suiProvider?: PhantomSuiProvider
 
-  ethAddress?: Address | null;
-  btcAddress?: string | null;
-  solanaAddress?: string | null;
-  suiAddress?: string | null;
+  ethAddress?: Address | null
+  btcAddress?: string | null
+  solanaAddress?: string | null
+  suiAddress?: string | null
 
   constructor(
     evmProvider: PhantomEvmProvider,
     bitcoinProvider: PhantomUtxoProvider,
     solanaProvider: PhantomSolanaProvider,
-    suiProvider?: PhantomSuiProvider
+    suiProvider?: PhantomSuiProvider,
   ) {
-    super(evmProvider);
+    super(evmProvider)
 
-    this.evmProvider = evmProvider;
-    this.bitcoinProvider = bitcoinProvider;
-    this.solanaProvider = solanaProvider;
-    this.suiProvider = suiProvider;
+    this.evmProvider = evmProvider
+    this.bitcoinProvider = bitcoinProvider
+    this.solanaProvider = solanaProvider
+    this.suiProvider = suiProvider
   }
 
   public async getDeviceID(): Promise<string> {
-    return "phantom:" + (await this.solanaGetAddress());
+    return 'phantom:' + (await this.solanaGetAddress())
   }
 
   async getFeatures(): Promise<Record<string, any>> {
-    return {};
+    return {}
   }
 
   public async getFirmwareVersion(): Promise<string> {
-    return "phantom";
+    return 'phantom'
   }
 
   public async getModel(): Promise<string> {
-    return "Phantom";
+    return 'Phantom'
   }
 
   public async getLabel(): Promise<string> {
-    return "Phantom";
+    return 'Phantom'
   }
 
   public async isInitialized(): Promise<boolean> {
-    return true;
+    return true
   }
 
   public async isLocked(): Promise<boolean> {
-    return !this.evmProvider._metamask.isUnlocked();
+    return !this.evmProvider._metamask.isUnlocked()
   }
 
   public async clearSession(): Promise<void> {}
@@ -263,7 +277,7 @@ export class PhantomHDWallet
   public async initialize(): Promise<void> {}
 
   public async ping(msg: core.Ping): Promise<core.Pong> {
-    return { msg: msg.msg };
+    return { msg: msg.msg }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -293,186 +307,186 @@ export class PhantomHDWallet
 
   public async disconnect(): Promise<void> {}
 
-  public async getPublicKeys(msg: Array<core.GetPublicKey>): Promise<Array<core.PublicKey | null>> {
+  public async getPublicKeys(msg: core.GetPublicKey[]): Promise<(core.PublicKey | null)[]> {
     return await Promise.all(
-      msg.map(async (getPublicKey) => {
-        const { coin, scriptType } = getPublicKey;
+      msg.map(async getPublicKey => {
+        const { coin, scriptType } = getPublicKey
 
         // Only p2wpkh effectively supported for now
-        if (coin === "Bitcoin" && scriptType === BTCInputScriptType.SpendWitness) {
+        if (coin === 'Bitcoin' && scriptType === BTCInputScriptType.SpendWitness) {
           // Note this is a pubKey, not an xpub, however phantom does not support utxo derivation,
           // so this functions as an account (xpub) for all intents and purposes
-          const pubKey = await this.btcGetAddress({ coin: "Bitcoin" } as core.BTCGetAddress);
-          return { xpub: pubKey } as core.PublicKey;
+          const pubKey = await this.btcGetAddress({ coin: 'Bitcoin' } as core.BTCGetAddress)
+          return { xpub: pubKey } as core.PublicKey
         }
 
-        return null;
-      })
-    );
+        return null
+      }),
+    )
   }
 
   /** Ethereum */
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async ethGetAddress(_msg: core.ETHGetAddress): Promise<core.Address | null> {
-    if (this.ethAddress) return this.ethAddress;
+    if (this.ethAddress) return this.ethAddress
 
-    const address = await eth.ethGetAddress(this.evmProvider);
+    const address = await eth.ethGetAddress(this.evmProvider)
 
     if (address) {
-      this.ethAddress = address;
-      return address;
+      this.ethAddress = address
+      return address
     }
 
-    this.ethAddress = null;
-    return null;
+    this.ethAddress = null
+    return null
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async ethSignTx(_msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
-    console.error("Method not implemented");
-    return null;
+    console.error('Method not implemented')
+    return null
   }
 
   public async ethSendTx(msg: core.ETHSignTx): Promise<core.ETHTxHash | null> {
-    const address = await this.ethGetAddress({ addressNList: [] });
-    return address ? eth.ethSendTx(msg, this.evmProvider, address) : null;
+    const address = await this.ethGetAddress({ addressNList: [] })
+    return address ? eth.ethSendTx(msg, this.evmProvider, address) : null
   }
 
   public async ethSignMessage(msg: core.ETHSignMessage): Promise<core.ETHSignedMessage | null> {
-    const address = await this.ethGetAddress({ addressNList: [] });
-    return address ? eth.ethSignMessage(msg, this.evmProvider, address) : null;
+    const address = await this.ethGetAddress({ addressNList: [] })
+    return address ? eth.ethSignMessage(msg, this.evmProvider, address) : null
   }
 
   async ethSignTypedData(msg: core.ETHSignTypedData): Promise<core.ETHSignedTypedData | null> {
-    const address = await this.ethGetAddress({ addressNList: [] });
-    return address ? eth.ethSignTypedData(msg, this.evmProvider, address) : null;
+    const address = await this.ethGetAddress({ addressNList: [] })
+    return address ? eth.ethSignTypedData(msg, this.evmProvider, address) : null
   }
 
   public async ethVerifyMessage(msg: core.ETHVerifyMessage): Promise<boolean | null> {
-    if (!msg.signature.startsWith("0x")) msg.signature = `0x${msg.signature}`;
-    const digest = keccak256(core.buildMessage(msg.message));
-    return recoverAddress(digest, msg.signature) === msg.address;
+    if (!msg.signature.startsWith('0x')) msg.signature = `0x${msg.signature}`
+    const digest = keccak256(core.buildMessage(msg.message))
+    return recoverAddress(digest, msg.signature) === msg.address
   }
 
   public async ethGetChainId(): Promise<number | null> {
     try {
-      const chainIdHex = await this.evmProvider.request({ method: "eth_chainId" });
-      return parseInt(chainIdHex, 16);
+      const chainIdHex = await this.evmProvider.request({ method: 'eth_chainId' })
+      return parseInt(chainIdHex, 16)
     } catch (error) {
-      console.error("Failed to get chain ID from Phantom:", error);
-      return null;
+      console.error('Failed to get chain ID from Phantom:', error)
+      return null
     }
   }
 
   public async ethSwitchChain(params: core.AddEthereumChainParameter): Promise<void> {
-    const parsedChainId = parseInt(params.chainId, 16);
-    const currentChainId = await this.ethGetChainId();
+    const parsedChainId = parseInt(params.chainId, 16)
+    const currentChainId = await this.ethGetChainId()
 
-    if (currentChainId === parsedChainId) return;
+    if (currentChainId === parsedChainId) return
 
     await this.evmProvider.request({
-      method: "wallet_switchEthereumChain",
+      method: 'wallet_switchEthereumChain',
       params: [{ chainId: params.chainId }],
-    });
+    })
   }
 
   /** Bitcoin */
 
   public async btcGetAddress(msg: core.BTCGetAddress): Promise<string | null> {
     // Use cached address if available to prevent rate limiting
-    if (this.btcAddress !== undefined) return this.btcAddress;
+    if (this.btcAddress !== undefined) return this.btcAddress
 
     const value = await (async () => {
       switch (msg.coin) {
-        case "Bitcoin": {
-          const accounts = await this.bitcoinProvider.requestAccounts();
-          const paymentAddress = accounts.find((account) => account.purpose === "payment")?.address;
+        case 'Bitcoin': {
+          const accounts = await this.bitcoinProvider.requestAccounts()
+          const paymentAddress = accounts.find(account => account.purpose === 'payment')?.address
 
-          return paymentAddress;
+          return paymentAddress
         }
         default:
-          return null;
+          return null
       }
-    })();
-    if (!value || typeof value !== "string") {
-      this.btcAddress = null;
-      return null;
+    })()
+    if (!value || typeof value !== 'string') {
+      this.btcAddress = null
+      return null
     }
 
-    this.btcAddress = value;
-    return value;
+    this.btcAddress = value
+    return value
   }
 
   public async btcSignTx(msg: core.BTCSignTx): Promise<core.BTCSignedTx | null> {
-    const { coin } = msg;
+    const { coin } = msg
     switch (coin) {
-      case "Bitcoin":
-        return btc.bitcoinSignTx(this, msg, this.bitcoinProvider);
+      case 'Bitcoin':
+        return btc.bitcoinSignTx(this, msg, this.bitcoinProvider)
       default:
-        return null;
+        return null
     }
   }
 
   public async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage | null> {
-    const { coin } = msg;
+    const { coin } = msg
     switch (coin) {
-      case "Bitcoin": {
-        const address = await this.btcGetAddress({ coin } as core.BTCGetAddress);
-        if (!address) throw new Error(`Could not get ${coin} address`);
-        const message = new TextEncoder().encode(msg.message);
+      case 'Bitcoin': {
+        const address = await this.btcGetAddress({ coin } as core.BTCGetAddress)
+        if (!address) throw new Error(`Could not get ${coin} address`)
+        const message = new TextEncoder().encode(msg.message)
 
-        const { signature } = await this.bitcoinProvider.signMessage(address, message);
-        return { signature: core.toHexString(signature), address };
+        const { signature } = await this.bitcoinProvider.signMessage(address, message)
+        return { signature: core.toHexString(signature), address }
       }
       default:
-        return null;
+        return null
     }
   }
 
   public async btcVerifyMessage(msg: core.BTCVerifyMessage): Promise<boolean | null> {
-    const signature = Base64.fromByteArray(core.fromHexString(msg.signature));
-    return bitcoinMsg.verify(msg.message, msg.address, signature);
+    const signature = Base64.fromByteArray(core.fromHexString(msg.signature))
+    return bitcoinMsg.verify(msg.message, msg.address, signature)
   }
 
   /** Solana */
 
   public async solanaGetAddress(): Promise<string | null> {
     // Use cached address if available to prevent rate limiting
-    if (this.solanaAddress !== undefined) return this.solanaAddress;
+    if (this.solanaAddress !== undefined) return this.solanaAddress
 
-    const { publicKey } = await this.solanaProvider.connect();
-    const address = publicKey.toString();
-    this.solanaAddress = address;
-    return address;
+    const { publicKey } = await this.solanaProvider.connect()
+    const address = publicKey.toString()
+    this.solanaAddress = address
+    return address
   }
 
   public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
-    const address = await this.solanaGetAddress();
-    return address ? solanaSignTx(msg, this.solanaProvider, address) : null;
+    const address = await this.solanaGetAddress()
+    return address ? solanaSignTx(msg, this.solanaProvider, address) : null
   }
 
   public async solanaSendTx(msg: core.SolanaSignTx): Promise<core.SolanaTxSignature | null> {
-    const address = await this.solanaGetAddress();
-    return address ? solanaSendTx(msg, this.solanaProvider, address) : null;
+    const address = await this.solanaGetAddress()
+    return address ? solanaSendTx(msg, this.solanaProvider, address) : null
   }
 
   /** Sui */
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async suiGetAddress(_msg: core.SuiGetAddress): Promise<string | null> {
-    if (!this.suiProvider) return null;
+    if (!this.suiProvider) return null
 
     // Use cached address if available to prevent rate limiting
-    if (this.suiAddress !== undefined) return this.suiAddress;
+    if (this.suiAddress !== undefined) return this.suiAddress
 
-    const address = await sui.suiGetAddress(this.suiProvider);
-    this.suiAddress = address;
-    return address;
+    const address = await sui.suiGetAddress(this.suiProvider)
+    this.suiAddress = address
+    return address
   }
 
   public async suiSignTx(msg: core.SuiSignTx): Promise<core.SuiSignedTx | null> {
-    if (!this.suiProvider) return null;
-    return sui.suiSignTx(msg, this.suiProvider);
+    if (!this.suiProvider) return null
+    return sui.suiSignTx(msg, this.suiProvider)
   }
 }

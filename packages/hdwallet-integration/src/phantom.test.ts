@@ -1,6 +1,6 @@
-import { integration } from "./integration";
-import * as Phantom from "./wallets/phantom";
+import { integration } from './integration'
+import * as Phantom from './wallets/phantom'
 
-vi.spyOn(console, "error").mockImplementation(() => {});
+vi.spyOn(console, 'error').mockImplementation(() => {})
 
-integration(Phantom);
+integration(Phantom)

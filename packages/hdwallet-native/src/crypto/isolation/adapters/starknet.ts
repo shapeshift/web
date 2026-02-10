@@ -1,7 +1,7 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
-import { CallData, hash } from "starknet";
+import * as core from '@shapeshiftoss/hdwallet-core'
+import { CallData, hash } from 'starknet'
 
-import { Isolation } from "../..";
+import type { Isolation } from '../..'
 
 /**
  * Starknet adapter using Stark curve engine
@@ -31,24 +31,25 @@ import { Isolation } from "../..";
  * - SLIP-044 Registry: https://github.com/satoshilabs/slips/blob/master/slip-0044.md
  */
 export class StarknetAdapter {
-  protected readonly nodeAdapter: Isolation.Adapters.Stark;
+  protected readonly nodeAdapter: Isolation.Adapters.Stark
 
   // OpenZeppelin account v0.15.0-rc.0 class hash (used by most wallets)
   // See: https://docs.openzeppelin.com/contracts-cairo/0.14.0/accounts
-  private readonly OZ_ACCOUNT_CLASS_HASH = "0x05b4b537eaa2399e3aa99c4e2e0208ebd6c71bc1467938cd52c798c601e43564";
+  private readonly OZ_ACCOUNT_CLASS_HASH =
+    '0x05b4b537eaa2399e3aa99c4e2e0208ebd6c71bc1467938cd52c798c601e43564'
 
   constructor(nodeAdapter: Isolation.Adapters.Stark) {
-    this.nodeAdapter = nodeAdapter;
+    this.nodeAdapter = nodeAdapter
   }
 
   /**
    * Get Starknet public key from BIP32 path
    */
   async getPublicKey(addressNList: core.BIP32Path): Promise<string> {
-    const bip32Path = core.addressNListToBIP32(addressNList);
-    const nodeAdapter = await this.nodeAdapter.derivePath(bip32Path);
-    const publicKey = await nodeAdapter.getPublicKey();
-    return publicKey;
+    const bip32Path = core.addressNListToBIP32(addressNList)
+    const nodeAdapter = await this.nodeAdapter.derivePath(bip32Path)
+    const publicKey = await nodeAdapter.getPublicKey()
+    return publicKey
   }
 
   /**
@@ -56,25 +57,25 @@ export class StarknetAdapter {
    * Computes the counterfactual contract address using OpenZeppelin account implementation
    */
   async getAddress(addressNList: core.BIP32Path): Promise<string> {
-    const bip32Path = core.addressNListToBIP32(addressNList);
-    const nodeAdapter = await this.nodeAdapter.derivePath(bip32Path);
-    const publicKey = await nodeAdapter.getPublicKey();
+    const bip32Path = core.addressNListToBIP32(addressNList)
+    const nodeAdapter = await this.nodeAdapter.derivePath(bip32Path)
+    const publicKey = await nodeAdapter.getPublicKey()
 
     // Compute actual contract address using OpenZeppelin account contract
-    const constructorCalldata = CallData.compile({ publicKey });
+    const constructorCalldata = CallData.compile({ publicKey })
     const contractAddress = hash.calculateContractAddressFromHash(
       publicKey,
       this.OZ_ACCOUNT_CLASS_HASH,
       constructorCalldata,
-      0
-    );
+      0,
+    )
 
     // Ensure contract address is zero-padded to 64 hex chars (Starknet spec)
-    const paddedAddress = contractAddress.startsWith("0x")
-      ? "0x" + contractAddress.slice(2).padStart(64, "0")
-      : "0x" + contractAddress.padStart(64, "0");
+    const paddedAddress = contractAddress.startsWith('0x')
+      ? '0x' + contractAddress.slice(2).padStart(64, '0')
+      : '0x' + contractAddress.padStart(64, '0')
 
-    return paddedAddress;
+    return paddedAddress
   }
 
   /**
@@ -82,11 +83,11 @@ export class StarknetAdapter {
    * Starknet uses ECDSA on the STARK curve for transaction signing
    */
   async signTransaction(txHash: string, addressNList: core.BIP32Path): Promise<string[]> {
-    const bip32Path = core.addressNListToBIP32(addressNList);
-    const nodeAdapter = await this.nodeAdapter.derivePath(bip32Path);
-    const signature = await nodeAdapter.node.sign(txHash);
-    return [signature.r, signature.s];
+    const bip32Path = core.addressNListToBIP32(addressNList)
+    const nodeAdapter = await this.nodeAdapter.derivePath(bip32Path)
+    const signature = await nodeAdapter.node.sign(txHash)
+    return [signature.r, signature.s]
   }
 }
 
-export default StarknetAdapter;
+export default StarknetAdapter

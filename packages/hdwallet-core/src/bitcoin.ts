@@ -1,213 +1,225 @@
-import * as bitcoin from "@shapeshiftoss/bitcoinjs-lib";
-import * as ta from "type-assertions";
+import * as bitcoin from '@shapeshiftoss/bitcoinjs-lib'
+import * as ta from 'type-assertions'
 
-import { BTCScriptType } from "./networks";
-import { addressNListToBIP32, slip44ByCoin } from "./utils";
-import { BIP32Path, Coin, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
+import type { BTCScriptType } from './networks'
+import { addressNListToBIP32, slip44ByCoin } from './utils'
+import type { BIP32Path, Coin, HDWallet, HDWalletInfo, PathDescription } from './wallet'
 
 // GuardedUnion<T> will ensure a static typechecking error if any properties are set that aren't supposed
 // to be present on the specific union member being passed in. (This also helps the compiler with type inference.)
-type MakeFalsy<T> = T extends boolean ? false : undefined;
-type DistributiveKeyOf<T> = T extends any ? keyof T : never;
-type DistributiveFalsyValueOf<T, U> = T extends any ? (U extends keyof T ? MakeFalsy<T[U]> : never) : never;
+type MakeFalsy<T> = T extends boolean ? false : undefined
+type DistributiveKeyOf<T> = T extends any ? keyof T : never
+type DistributiveFalsyValueOf<T, U> = T extends any
+  ? U extends keyof T
+    ? MakeFalsy<T[U]>
+    : never
+  : never
 type FalsyValuesOfUnion<T> = {
-  [Prop in DistributiveKeyOf<T>]?: DistributiveFalsyValueOf<T, Prop>;
-};
-type OnlyNecessaryProps<T, U> = T & Omit<FalsyValuesOfUnion<U>, keyof T>;
-type GuardedUnionInner<T, U> = T extends any ? OnlyNecessaryProps<T, U> : never;
-type GuardedUnion<T> = GuardedUnionInner<T, T>;
+  [Prop in DistributiveKeyOf<T>]?: DistributiveFalsyValueOf<T, Prop>
+}
+type OnlyNecessaryProps<T, U> = T & Omit<FalsyValuesOfUnion<U>, keyof T>
+type GuardedUnionInner<T, U> = T extends any ? OnlyNecessaryProps<T, U> : never
+type GuardedUnion<T> = GuardedUnionInner<T, T>
 
 export type BTCGetAddress = {
-  coin: Coin;
-  addressNList: BIP32Path;
-  scriptType?: BTCInputScriptType; // Defaults to BTCInputScriptType.SpendAddress
-  showDisplay?: boolean;
-};
+  coin: Coin
+  addressNList: BIP32Path
+  scriptType?: BTCInputScriptType // Defaults to BTCInputScriptType.SpendAddress
+  showDisplay?: boolean
+}
 
 export interface BitcoinScriptSig {
-  hex: string;
+  hex: string
 }
 
 /**
  * Deserialized representation of an already-signed input of a transaction.
  */
 interface BitcoinInputBase {
-  sequence: number;
+  sequence: number
 }
 export type BitcoinInput = GuardedUnion<
   | (BitcoinInputBase & { coinbase: string })
   | (BitcoinInputBase & { scriptSig: BitcoinScriptSig; txid: string; vout: number })
->;
+>
 
 /**
  * Deserialized representation of an already-signed output of a transaction.
  */
 export interface BitcoinOutput {
-  value: string; // UGH, Insight
-  scriptPubKey: BitcoinScriptSig;
+  value: string // UGH, Insight
+  scriptPubKey: BitcoinScriptSig
 }
 
 /**
  * De-serialized representation of an already-signed transaction.
  */
 export interface BitcoinTxBase {
-  version: number;
-  locktime: number;
-  vin: Array<BitcoinInput>;
-  vout: Array<BitcoinOutput>;
+  version: number
+  locktime: number
+  vin: BitcoinInput[]
+  vout: BitcoinOutput[]
 }
 
 type BitcoinTxDIP2 = BitcoinTxBase & {
-  type: number;
-  extraPayload: string;
-};
+  type: number
+  extraPayload: string
+}
 
-export type BitcoinTx = GuardedUnion<BitcoinTxBase | BitcoinTxDIP2>;
+export type BitcoinTx = GuardedUnion<BitcoinTxBase | BitcoinTxDIP2>
 
 /**
  * Input for a transaction we're about to sign.
  */
 type BTCSignTxInputBase = {
-  vout: number;
-  addressNList: BIP32Path;
-  amount?: string;
-};
+  vout: number
+  addressNList: BIP32Path
+  amount?: string
+}
 
 type BTCSignTxInputNativeBase = BTCSignTxInputBase & {
-  txid: string;
-};
+  txid: string
+}
 
 type BTCSignTxInputNativeSegwitBase = BTCSignTxInputNativeBase & {
-  scriptType: BTCInputScriptType.SpendWitness | BTCInputScriptType.SpendP2SHWitness;
-};
+  scriptType: BTCInputScriptType.SpendWitness | BTCInputScriptType.SpendP2SHWitness
+}
 
 type BTCSignTxInputNativeSegwitWithHex = BTCSignTxInputNativeSegwitBase & {
-  hex: string;
-};
+  hex: string
+}
 
 type BTCSignTxInputNativeSegwitWithTx = BTCSignTxInputNativeSegwitBase & {
-  tx: BitcoinTx;
-  vout: number;
-  amount: string;
-};
+  tx: BitcoinTx
+  vout: number
+  amount: string
+}
 
-type BTCSignTxInputNativeSegwit = BTCSignTxInputNativeSegwitWithHex | BTCSignTxInputNativeSegwitWithTx;
+type BTCSignTxInputNativeSegwit =
+  | BTCSignTxInputNativeSegwitWithHex
+  | BTCSignTxInputNativeSegwitWithTx
 
 type BTCSignTxInputNativeNonSegwit = BTCSignTxInputNativeBase & {
-  scriptType: Exclude<BTCInputScriptType, BTCSignTxInputNativeSegwit["scriptType"]>;
-  hex: string;
-};
+  scriptType: Exclude<BTCInputScriptType, BTCSignTxInputNativeSegwit['scriptType']>
+  hex: string
+}
 
-type BTCSignTxInputNativeUnguarded = BTCSignTxInputNativeSegwit | BTCSignTxInputNativeNonSegwit;
-export type BTCSignTxInputNative = GuardedUnion<BTCSignTxInputNativeUnguarded>;
+type BTCSignTxInputNativeUnguarded = BTCSignTxInputNativeSegwit | BTCSignTxInputNativeNonSegwit
+export type BTCSignTxInputNative = GuardedUnion<BTCSignTxInputNativeUnguarded>
 
 type BTCSignTxInputKKBase = BTCSignTxInputBase & {
-  txid: string;
-  amount: string;
-  sequence?: number;
-};
+  txid: string
+  amount: string
+  sequence?: number
+}
 
 type BTCSignTxInputKKSegwit = BTCSignTxInputKKBase & {
-  scriptType: BTCInputScriptType.SpendWitness | BTCInputScriptType.SpendP2SHWitness | BTCInputScriptType.External;
-  hex?: string;
-};
+  scriptType:
+    | BTCInputScriptType.SpendWitness
+    | BTCInputScriptType.SpendP2SHWitness
+    | BTCInputScriptType.External
+  hex?: string
+}
 
 type BTCSignTxInputKKNonSegwit = BTCSignTxInputKKBase & {
-  scriptType: Exclude<BTCInputScriptType, BTCSignTxInputKKSegwit["scriptType"]>;
+  scriptType: Exclude<BTCInputScriptType, BTCSignTxInputKKSegwit['scriptType']>
 } & (
     | {
-        tx: BitcoinTx;
+        tx: BitcoinTx
       }
     | {
-        hex: string;
+        hex: string
       }
-  );
+  )
 
-type BTCSignTxInputKKUnguarded = BTCSignTxInputKKNonSegwit | BTCSignTxInputKKSegwit;
-export type BTCSignTxInputKK = GuardedUnion<BTCSignTxInputKKUnguarded>;
+type BTCSignTxInputKKUnguarded = BTCSignTxInputKKNonSegwit | BTCSignTxInputKKSegwit
+export type BTCSignTxInputKK = GuardedUnion<BTCSignTxInputKKUnguarded>
 
 export type BTCSignTxInputTrezor = BTCSignTxInputBase & {
-  txid: string;
-  amount: string;
-  scriptType: BTCInputScriptType;
-};
+  txid: string
+  amount: string
+  scriptType: BTCInputScriptType
+}
 
 export type BTCSignTxInputLedger = BTCSignTxInputBase & {
-  addressNList: BIP32Path;
-  scriptType: BTCInputScriptType;
-  hex: string;
-};
+  addressNList: BIP32Path
+  scriptType: BTCInputScriptType
+  hex: string
+}
 
-export type BTCSignTxInput = BTCSignTxInputNative & BTCSignTxInputKK & BTCSignTxInputTrezor & BTCSignTxInputLedger;
+export type BTCSignTxInput = BTCSignTxInputNative &
+  BTCSignTxInputKK &
+  BTCSignTxInputTrezor &
+  BTCSignTxInputLedger
 export type BTCSignTxInputUnguarded = BTCSignTxInputNativeUnguarded &
   BTCSignTxInputKKUnguarded &
   BTCSignTxInputTrezor &
-  BTCSignTxInputLedger;
+  BTCSignTxInputLedger
 
 // Stick to this common subset of input fields to avoid type hell.
 export type BTCSignTxInputSafe = {
-  addressNList: BIP32Path;
-  scriptType: BTCInputScriptType;
-  hex: string;
-  txid: string;
-  amount: string;
-  vout: number;
-};
-ta.assert<ta.Extends<BTCSignTxInputSafe, BTCSignTxInput>>();
+  addressNList: BIP32Path
+  scriptType: BTCInputScriptType
+  hex: string
+  txid: string
+  amount: string
+  vout: number
+}
+ta.assert<ta.Extends<BTCSignTxInputSafe, BTCSignTxInput>>()
 
 /**
  * Output for a transaction we're about to sign.
  */
 export type BTCSignTxOutputSpend = {
-  addressType?: BTCOutputAddressType.Spend;
-  amount: string;
-  address: string;
-};
+  addressType?: BTCOutputAddressType.Spend
+  amount: string
+  address: string
+}
 
 // Will make address type more specific on TS version bump.
 export type BTCSignTxOutputSpendP2PKH = {
-  addressType?: BTCOutputAddressType.Spend;
-  amount: string;
-  address: string;
-  scriptType: BTCOutputScriptType.PayToAddress;
-};
+  addressType?: BTCOutputAddressType.Spend
+  amount: string
+  address: string
+  scriptType: BTCOutputScriptType.PayToAddress
+}
 
 export type BTCSignTxOutputSpendP2SH = {
-  addressType?: BTCOutputAddressType.Spend;
-  amount: string;
-  address: string;
-  scriptType: BTCOutputScriptType.PayToMultisig | BTCOutputScriptType.PayToP2SHWitness;
-};
+  addressType?: BTCOutputAddressType.Spend
+  amount: string
+  address: string
+  scriptType: BTCOutputScriptType.PayToMultisig | BTCOutputScriptType.PayToP2SHWitness
+}
 
 export type BTCSignTxOutputSpendP2WPKH = {
-  addressType?: BTCOutputAddressType.Spend;
-  amount: string;
-  address: string;
-  scriptType: BTCOutputScriptType.PayToWitness;
-};
+  addressType?: BTCOutputAddressType.Spend
+  amount: string
+  address: string
+  scriptType: BTCOutputScriptType.PayToWitness
+}
 
 export type BTCSignTxOutputTransfer = {
-  addressType: BTCOutputAddressType.Transfer;
-  amount: string;
+  addressType: BTCOutputAddressType.Transfer
+  amount: string
   /** bip32 path for destination (device must `btcSupportsSecureTransfer()`) */
-  addressNList: BIP32Path;
-  scriptType: BTCOutputScriptType;
-};
+  addressNList: BIP32Path
+  scriptType: BTCOutputScriptType
+}
 
 export type BTCSignTxOutputChange = {
-  addressType: BTCOutputAddressType.Change;
-  amount: string;
+  addressType: BTCOutputAddressType.Change
+  amount: string
   /** bip32 path for destination (device must `btcSupportsSecureTransfer()`) */
-  addressNList: BIP32Path;
-  scriptType: BTCOutputScriptType;
-  isChange: true;
-};
+  addressNList: BIP32Path
+  scriptType: BTCOutputScriptType
+  isChange: true
+}
 
 export type BTCSignTxOutputMemo = {
-  addressType?: BTCOutputAddressType.Spend;
-  amount?: "0";
-  opReturnData: string | Uint8Array;
-};
+  addressType?: BTCOutputAddressType.Spend
+  amount?: '0'
+  opReturnData: string | Uint8Array
+}
 
 export type BTCSignTxOutput = GuardedUnion<
   | BTCSignTxOutputSpend
@@ -217,110 +229,110 @@ export type BTCSignTxOutput = GuardedUnion<
   | BTCSignTxOutputTransfer
   | BTCSignTxOutputChange
   | BTCSignTxOutputMemo
->;
+>
 
 export interface BTCSignTx {
-  coin: string;
-  inputs: Array<BTCSignTxInput>;
-  outputs: Array<BTCSignTxOutput>;
-  version?: number;
-  locktime?: number;
-  opReturnData?: string; // TODO: dump this in favor of BTCSignTxOutputMemo above
-  vaultAddress?: string;
+  coin: string
+  inputs: BTCSignTxInput[]
+  outputs: BTCSignTxOutput[]
+  version?: number
+  locktime?: number
+  opReturnData?: string // TODO: dump this in favor of BTCSignTxOutputMemo above
+  vaultAddress?: string
 }
 
-export type BTCSignTxKK = Omit<BTCSignTx, "inputs"> & { inputs: Array<BTCSignTxInputKK> };
-export type BTCSignTxNative = Omit<BTCSignTx, "inputs"> & { inputs: Array<BTCSignTxInputNative> };
-export type BTCSignTxTrezor = Omit<BTCSignTx, "inputs"> & { inputs: Array<BTCSignTxInputTrezor> };
-export type BTCSignTxLedger = Omit<BTCSignTx, "inputs"> & { inputs: Array<BTCSignTxInputLedger> };
+export type BTCSignTxKK = Omit<BTCSignTx, 'inputs'> & { inputs: BTCSignTxInputKK[] }
+export type BTCSignTxNative = Omit<BTCSignTx, 'inputs'> & { inputs: BTCSignTxInputNative[] }
+export type BTCSignTxTrezor = Omit<BTCSignTx, 'inputs'> & { inputs: BTCSignTxInputTrezor[] }
+export type BTCSignTxLedger = Omit<BTCSignTx, 'inputs'> & { inputs: BTCSignTxInputLedger[] }
 
 export interface BTCSignedTx {
-  signatures: Array<string>;
+  signatures: string[]
 
   /** hex string representation of the raw, signed transaction */
-  serializedTx: string;
+  serializedTx: string
 }
 
 // Bech32 info https://en.bitcoin.it/wiki/BIP_0173
 export enum BTCInputScriptType {
-  CashAddr = "cashaddr", // for Bitcoin Cash
-  Bech32 = "bech32",
-  SpendAddress = "p2pkh",
-  SpendMultisig = "p2sh",
-  External = "external",
-  SpendWitness = "p2wpkh",
-  SpendP2SHWitness = "p2sh-p2wpkh",
+  CashAddr = 'cashaddr', // for Bitcoin Cash
+  Bech32 = 'bech32',
+  SpendAddress = 'p2pkh',
+  SpendMultisig = 'p2sh',
+  External = 'external',
+  SpendWitness = 'p2wpkh',
+  SpendP2SHWitness = 'p2sh-p2wpkh',
 }
 
 export enum BTCOutputScriptType {
-  PayToAddress = "p2pkh",
-  PayToMultisig = "p2sh",
-  Bech32 = "bech32",
-  PayToWitness = "p2wpkh",
-  PayToP2SHWitness = "p2sh-p2wpkh",
+  PayToAddress = 'p2pkh',
+  PayToMultisig = 'p2sh',
+  Bech32 = 'bech32',
+  PayToWitness = 'p2wpkh',
+  PayToP2SHWitness = 'p2sh-p2wpkh',
 }
 
 export enum BTCOutputAddressType {
-  Spend = "spend",
-  Transfer = "transfer",
-  Change = "change",
+  Spend = 'spend',
+  Transfer = 'transfer',
+  Change = 'change',
 }
 
 export interface BTCSignMessage {
-  addressNList: BIP32Path;
-  coin: Coin;
-  scriptType?: BTCInputScriptType;
-  message: string;
+  addressNList: BIP32Path
+  coin: Coin
+  scriptType?: BTCInputScriptType
+  message: string
 }
 
 export interface BTCSignedMessage {
-  address: string;
-  signature: string;
+  address: string
+  signature: string
 }
 
 export interface BTCVerifyMessage {
-  address: string;
-  message: string;
-  signature: string;
-  coin: Coin;
+  address: string
+  message: string
+  signature: string
+  coin: Coin
 }
 
 export interface BTCGetAccountPaths {
-  coin: Coin;
-  accountIdx: number;
-  scriptType?: BTCInputScriptType;
+  coin: Coin
+  accountIdx: number
+  scriptType?: BTCInputScriptType
 }
 
 export interface BTCAccountPath {
-  coin: Coin;
-  scriptType: BTCInputScriptType;
-  addressNList: BIP32Path;
+  coin: Coin
+  scriptType: BTCInputScriptType
+  addressNList: BIP32Path
 }
 
 export interface BTCWalletInfo extends HDWalletInfo {
-  readonly _supportsBTCInfo: boolean;
+  readonly _supportsBTCInfo: boolean
 
   /**
    * Does the device support the given UTXO coin?
    */
-  btcSupportsCoin(coin: Coin): Promise<boolean>;
+  btcSupportsCoin(coin: Coin): Promise<boolean>
 
   /**
    * Does the device support the given script type for the given coin?
    * Assumes that `btcSupportsCoin(coin)` for the given coin.
    */
-  btcSupportsScriptType(coin: Coin, scriptType?: BTCInputScriptType): Promise<boolean>;
+  btcSupportsScriptType(coin: Coin, scriptType?: BTCInputScriptType): Promise<boolean>
 
   /**
    * Does the device support internal transfers without the user needing to
    * confirm the destination address?
    */
-  btcSupportsSecureTransfer(): Promise<boolean>;
+  btcSupportsSecureTransfer(): Promise<boolean>
 
   /**
    * Does the device support `/sendamountProto2` style ShapeShift trades?
    */
-  btcSupportsNativeShapeShift(): boolean;
+  btcSupportsNativeShapeShift(): boolean
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order
@@ -340,99 +352,110 @@ export interface BTCWalletInfo extends HDWalletInfo {
       p2sh-p2wsh m/44'/0'/a'
    ```
    */
-  btcGetAccountPaths(msg: BTCGetAccountPaths): Array<BTCAccountPath>;
+  btcGetAccountPaths(msg: BTCGetAccountPaths): BTCAccountPath[]
 
   /**
    * Returns the "next" account path, if any.
    */
-  btcNextAccountPath(msg: BTCAccountPath): BTCAccountPath | undefined;
+  btcNextAccountPath(msg: BTCAccountPath): BTCAccountPath | undefined
 }
 
 export interface BTCWallet extends BTCWalletInfo, HDWallet {
-  readonly _supportsBTC: boolean;
+  readonly _supportsBTC: boolean
 
-  btcGetAddress(msg: BTCGetAddress): Promise<string | null>;
-  btcSignTx(msg: BTCSignTx): Promise<BTCSignedTx | null>;
-  btcSignMessage(msg: BTCSignMessage): Promise<BTCSignedMessage | null>;
-  btcVerifyMessage(msg: BTCVerifyMessage): Promise<boolean | null>;
+  btcGetAddress(msg: BTCGetAddress): Promise<string | null>
+  btcSignTx(msg: BTCSignTx): Promise<BTCSignedTx | null>
+  btcSignMessage(msg: BTCSignMessage): Promise<BTCSignedMessage | null>
+  btcVerifyMessage(msg: BTCVerifyMessage): Promise<boolean | null>
 }
 
-export function unknownUTXOPath(path: BIP32Path, coin: Coin, scriptType?: BTCInputScriptType): PathDescription {
+export function unknownUTXOPath(
+  path: BIP32Path,
+  coin: Coin,
+  scriptType?: BTCInputScriptType,
+): PathDescription {
   return {
     verbose: addressNListToBIP32(path),
     coin,
     scriptType,
     isKnown: false,
-  };
+  }
 }
 
-export function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInputScriptType): PathDescription {
-  const unknown = unknownUTXOPath(path, coin, scriptType);
+export function describeUTXOPath(
+  path: BIP32Path,
+  coin: Coin,
+  scriptType: BTCInputScriptType,
+): PathDescription {
+  const unknown = unknownUTXOPath(path, coin, scriptType)
 
-  if (path.length !== 3 && path.length !== 5) return unknown;
+  if (path.length !== 3 && path.length !== 5) return unknown
 
-  if ((path[0] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
+  if ((path[0] & 0x80000000) >>> 0 !== 0x80000000) return unknown
 
-  const purpose = path[0] & 0x7fffffff;
+  const purpose = path[0] & 0x7fffffff
 
-  if (![44, 49, 84].includes(purpose)) return unknown;
+  if (![44, 49, 84].includes(purpose)) return unknown
 
-  if (purpose === 44 && scriptType !== BTCInputScriptType.SpendAddress) return unknown;
+  if (purpose === 44 && scriptType !== BTCInputScriptType.SpendAddress) return unknown
 
-  if (purpose === 49 && scriptType !== BTCInputScriptType.SpendP2SHWitness) return unknown;
+  if (purpose === 49 && scriptType !== BTCInputScriptType.SpendP2SHWitness) return unknown
 
-  const wholeAccount = path.length === 3;
+  const wholeAccount = path.length === 3
 
   const script = (
     {
-      [BTCInputScriptType.SpendAddress]: ["Legacy"],
+      [BTCInputScriptType.SpendAddress]: ['Legacy'],
       [BTCInputScriptType.SpendP2SHWitness]: [],
-      [BTCInputScriptType.SpendWitness]: ["Segwit"],
-      [BTCInputScriptType.Bech32]: ["Segwit Native"],
+      [BTCInputScriptType.SpendWitness]: ['Segwit'],
+      [BTCInputScriptType.Bech32]: ['Segwit Native'],
     } as Partial<Record<BTCInputScriptType, string[]>>
-  )[scriptType];
+  )[scriptType]
 
-  let isPrefork = false;
-  const slip44 = slip44ByCoin(coin);
-  if (slip44 === undefined) return unknown;
+  let isPrefork = false
+  const slip44 = slip44ByCoin(coin)
+  if (slip44 === undefined) return unknown
   if (path[1] !== 0x80000000 + slip44) {
     switch (coin) {
-      case "BitcoinCash":
-      case "BitcoinGold": {
-        if (path[1] === 0x80000000 + slip44ByCoin("Bitcoin")) {
-          isPrefork = true;
-          break;
+      case 'BitcoinCash':
+      case 'BitcoinGold': {
+        if (path[1] === 0x80000000 + slip44ByCoin('Bitcoin')) {
+          isPrefork = true
+          break
         }
-        return unknown;
+        return unknown
       }
-      case "BitcoinSV": {
-        if (path[1] === 0x80000000 + slip44ByCoin("Bitcoin") || path[1] === 0x80000000 + slip44ByCoin("BitcoinCash")) {
-          isPrefork = true;
-          break;
+      case 'BitcoinSV': {
+        if (
+          path[1] === 0x80000000 + slip44ByCoin('Bitcoin') ||
+          path[1] === 0x80000000 + slip44ByCoin('BitcoinCash')
+        ) {
+          isPrefork = true
+          break
         }
-        return unknown;
+        return unknown
       }
       default:
-        return unknown;
+        return unknown
     }
   }
 
-  let attributes = isPrefork ? ["Prefork"] : [];
+  let attributes = isPrefork ? ['Prefork'] : []
   switch (coin) {
-    case "Bitcoin":
-    case "Litecoin":
-    case "BitcoinGold":
-    case "Testnet": {
-      if (script) attributes = attributes.concat(script);
-      break;
+    case 'Bitcoin':
+    case 'Litecoin':
+    case 'BitcoinGold':
+    case 'Testnet': {
+      if (script) attributes = attributes.concat(script)
+      break
     }
     default:
-      break;
+      break
   }
 
-  const attr = attributes.length ? ` (${attributes.join(", ")})` : "";
+  const attr = attributes.length ? ` (${attributes.join(', ')})` : ''
 
-  const accountIdx = path[2] & 0x7fffffff;
+  const accountIdx = path[2] & 0x7fffffff
 
   if (wholeAccount) {
     return {
@@ -443,10 +466,10 @@ export function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInp
       isKnown: true,
       scriptType,
       isPrefork,
-    };
+    }
   } else {
-    const change = path[3] === 1 ? "Change " : "";
-    const addressIdx = path[4];
+    const change = path[3] === 1 ? 'Change ' : ''
+    const addressIdx = path[4]
     return {
       coin,
       verbose: `${coin} Account #${accountIdx}, ${change}Address #${addressIdx}${attr}`,
@@ -457,7 +480,7 @@ export function describeUTXOPath(path: BIP32Path, coin: Coin, scriptType: BTCInp
       isChange: path[3] === 1,
       scriptType,
       isPrefork,
-    };
+    }
   }
 }
 
@@ -466,7 +489,7 @@ export function legacyAccount(coin: Coin, slip44: number, accountIdx: number): B
     coin,
     scriptType: BTCInputScriptType.SpendAddress,
     addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + accountIdx],
-  };
+  }
 }
 
 export function segwitAccount(coin: Coin, slip44: number, accountIdx: number): BTCAccountPath {
@@ -474,15 +497,19 @@ export function segwitAccount(coin: Coin, slip44: number, accountIdx: number): B
     coin,
     scriptType: BTCInputScriptType.SpendP2SHWitness,
     addressNList: [0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + accountIdx],
-  };
+  }
 }
 
-export function segwitNativeAccount(coin: Coin, slip44: number, accountIdx: number): BTCAccountPath {
+export function segwitNativeAccount(
+  coin: Coin,
+  slip44: number,
+  accountIdx: number,
+): BTCAccountPath {
   return {
     coin,
     scriptType: BTCInputScriptType.SpendWitness,
     addressNList: [0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + accountIdx],
-  };
+  }
 }
 
 export function validateVoutOrdering(msg: BTCSignTxNative, tx: bitcoin.Transaction): boolean {
@@ -505,49 +532,54 @@ export function validateVoutOrdering(msg: BTCSignTxNative, tx: bitcoin.Transacti
 
   // Check that vout:0 contains the vault address
   if (bitcoin.address.fromOutputScript(tx.outs[0].script) != msg.vaultAddress) {
-    console.error("Vout:0 does not contain vault address.");
-    return false;
+    console.error('Vout:0 does not contain vault address.')
+    return false
   }
 
   // TODO: Can we check and  make sure vout:1 is our address?
 
   // Check and make sure vout:2 exists
   if (tx.outs.length < 3) {
-    console.error("Not enough outputs found in transaction.", msg);
-    return false;
+    console.error('Not enough outputs found in transaction.', msg)
+    return false
   }
   // Check and make sure vout:2 has OP_RETURN data
-  const opcode = bitcoin.script.decompile(tx.outs[2].script)?.[0];
+  const opcode = bitcoin.script.decompile(tx.outs[2].script)?.[0]
   if (
-    Object.keys(bitcoin.script.OPS).find((k) => bitcoin.script.OPS[k as keyof typeof bitcoin.script.OPS] === opcode) !=
-    "OP_RETURN"
+    Object.keys(bitcoin.script.OPS).find(
+      k => bitcoin.script.OPS[k as keyof typeof bitcoin.script.OPS] === opcode,
+    ) != 'OP_RETURN'
   ) {
-    console.error("OP_RETURN output not found for transaction.");
-    return false;
+    console.error('OP_RETURN output not found for transaction.')
+    return false
   }
 
   // Make sure vout:3 does not exist
   if (tx.outs[3]) {
-    console.error("Illegal second op_return output found.");
-    return false;
+    console.error('Illegal second op_return output found.')
+    return false
   }
 
-  return true;
+  return true
 }
 
-export function createPayment(pubkey: Buffer, network: bitcoin.Network, scriptType: BTCScriptType): bitcoin.Payment {
+export function createPayment(
+  pubkey: Buffer,
+  network: bitcoin.Network,
+  scriptType: BTCScriptType,
+): bitcoin.Payment {
   switch (scriptType) {
-    case "p2pkh":
-      return bitcoin.payments.p2pkh({ pubkey, network });
-    case "p2wpkh":
-    case "bech32":
-      return bitcoin.payments.p2wpkh({ pubkey, network });
-    case "p2sh-p2wpkh":
+    case 'p2pkh':
+      return bitcoin.payments.p2pkh({ pubkey, network })
+    case 'p2wpkh':
+    case 'bech32':
+      return bitcoin.payments.p2wpkh({ pubkey, network })
+    case 'p2sh-p2wpkh':
       return bitcoin.payments.p2sh({
         redeem: bitcoin.payments.p2wpkh({ pubkey, network }),
         network,
-      });
+      })
     default:
-      throw new Error(`Unsupported script type: ${scriptType}`);
+      throw new Error(`Unsupported script type: ${scriptType}`)
   }
 }

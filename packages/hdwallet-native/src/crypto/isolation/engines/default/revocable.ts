@@ -1,8 +1,8 @@
-import * as core from "@shapeshiftoss/hdwallet-core";
+import type * as core from '@shapeshiftoss/hdwallet-core'
 
-const _Set = Set;
-const _freeze = Object.freeze.bind(Object);
-const _revocable = Proxy.revocable.bind(Proxy);
+const _Set = Set
+const _freeze = Object.freeze.bind(Object)
+const _revocable = Proxy.revocable.bind(Proxy)
 
 /*
 Proxy handler invariants (per MDN):
@@ -50,77 +50,79 @@ Proxy handler invariants (per MDN):
     If target is not extensible, the prototype parameter must be the same value as Object.getPrototypeOf(target). 
 */
 
-export const revocable = _freeze(<T extends object>(x: T, addRevoker: (revoke: () => void) => void) => {
-  const universalProxyHandler = (pseudoTarget: object) =>
-    new Proxy(
-      {},
-      {
-        get(_, p) {
-          return (_t: any, p2: any, r: any) => {
-            switch (p) {
-              case "get": {
-                const out = Reflect.get(pseudoTarget, p2, r);
-                if (typeof out === "function") return out.bind(x);
-                return out;
+export const revocable = _freeze(
+  <T extends object>(x: T, addRevoker: (revoke: () => void) => void) => {
+    const universalProxyHandler = (pseudoTarget: object) =>
+      new Proxy(
+        {},
+        {
+          get(_, p) {
+            return (_t: any, p2: any, r: any) => {
+              switch (p) {
+                case 'get': {
+                  const out = Reflect.get(pseudoTarget, p2, r)
+                  if (typeof out === 'function') return out.bind(x)
+                  return out
+                }
+                case 'getOwnPropertyDescriptor': {
+                  const out = Reflect.getOwnPropertyDescriptor(pseudoTarget, p2)
+                  if (out) out.configurable = true
+                  return out
+                }
+                case 'isExtensible':
+                  return true
+                case 'preventExtensions':
+                  return false
+                default:
+                  return (Reflect as any)[p](pseudoTarget, p2, r)
               }
-              case "getOwnPropertyDescriptor": {
-                const out = Reflect.getOwnPropertyDescriptor(pseudoTarget, p2);
-                if (out) out.configurable = true;
-                return out;
-              }
-              case "isExtensible":
-                return true;
-              case "preventExtensions":
-                return false;
-              default:
-                return (Reflect as any)[p](pseudoTarget, p2, r);
             }
-          };
+          },
         },
-      }
-    );
-  const { proxy, revoke } = _revocable({} as T, universalProxyHandler(x));
-  addRevoker(revoke);
-  return proxy;
-});
+      )
+    const { proxy, revoke } = _revocable({} as T, universalProxyHandler(x))
+    addRevoker(revoke)
+    return proxy
+  },
+)
 
 export interface Revocable {
-  revoke(): void;
-  addRevoker(x: () => void): void;
+  revoke(): void
+  addRevoker(x: () => void): void
 }
 
 export const Revocable = _freeze(<T extends core.Constructor>(x: T) => {
   const out = _freeze(
     // eslint-disable-next-line @typescript-eslint/no-shadow
     class Revocable extends x {
-      readonly #revokers: Set<() => void> = new _Set();
-      #revoked = false;
+      readonly #revokers: Set<() => void> = new _Set()
+      #revoked = false
 
       readonly revoke = () => {
-        this.#revoked = true;
-        this.#revokers.forEach((revoker) => {
+        this.#revoked = true
+        this.#revokers.forEach(revoker => {
           try {
-            revoker();
+            revoker()
           } catch {
             // revoker errors get swallowed.
           }
-        });
-        this.#revokers.clear();
-      };
+        })
+        this.#revokers.clear()
+      }
 
       readonly addRevoker = (revoker: () => void) => {
         if (this.#revoked) {
           try {
-            revoker();
+            revoker()
           } catch {
             // revoker errors get swallowed.
           }
         } else {
-          this.#revokers.add(revoker);
+          this.#revokers.add(revoker)
         }
-      };
-    }
-  );
-  _freeze(out.prototype);
-  return out;
-});
+      }
+    },
+  )
+  _freeze(out.prototype)
+  return out
+})

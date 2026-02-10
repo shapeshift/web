@@ -1,19 +1,19 @@
-import { Bytes } from "@ethersproject/bytes";
-import { TypedData } from "eip-712";
-import { ethers } from "ethers";
+import type { Bytes } from '@ethersproject/bytes'
+import type { TypedData } from 'eip-712'
+import { ethers } from 'ethers'
 
-import { addressNListToBIP32, slip44ByCoin } from "./utils";
-import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
+import { addressNListToBIP32, slip44ByCoin } from './utils'
+import type { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from './wallet'
 
 // https://github.com/MetaMask/eth-rpc-errors/blob/f917c2cfee9e6117a88be4178f2a877aff3acabe/src/classes.ts#L3-L7
 export interface SerializedEthereumRpcError {
-  code: number;
-  message: string;
-  stack?: string;
+  code: number
+  message: string
+  stack?: string
 }
 
-export type Address = `0x${string}`;
-export type Hex = `0x${string}`;
+export type Address = `0x${string}`
+export type Hex = `0x${string}`
 
 export enum ETHTransactionType {
   ETH_TX_TYPE_LEGACY = 0,
@@ -22,162 +22,162 @@ export enum ETHTransactionType {
 }
 
 export interface ETHGetAccountPath {
-  coin: string;
-  accountIdx: number;
+  coin: string
+  accountIdx: number
 }
 
 /**
  * Concat accountPath with relPath for the absolute path to the Ethereum address.
  */
 export interface ETHAccountPath {
-  addressNList: BIP32Path;
-  hardenedPath: BIP32Path;
-  relPath: BIP32Path;
-  description: string;
+  addressNList: BIP32Path
+  hardenedPath: BIP32Path
+  relPath: BIP32Path
+  description: string
 }
 
 export interface ETHAccountSuffix {
-  addressNList: BIP32Path;
+  addressNList: BIP32Path
 }
 
 export interface ETHGetAddress {
-  addressNList: BIP32Path;
-  showDisplay?: boolean;
+  addressNList: BIP32Path
+  showDisplay?: boolean
 }
 
 export type ETHSignTx = {
   /** bip32 path to sign the transaction from */
-  addressNList: BIP32Path;
+  addressNList: BIP32Path
   /** big-endian hex, prefixed with '0x' */
-  nonce: Hex;
+  nonce: Hex
   /** big-endian hex, prefixed with '0x' */
-  gasLimit: Hex;
+  gasLimit: Hex
   /** address, with '0x' prefix */
-  to: Address;
+  to: Address
   /** bip32 path for destination (device must `ethSupportsSecureTransfer()`) */
-  toAddressNList?: BIP32Path;
+  toAddressNList?: BIP32Path
   /** big-endian hex, prefixed with '0x' */
-  value: Hex;
+  value: Hex
   /** prefixed with '0x' */
-  data: Hex;
+  data: Hex
   /** mainnet: 1, ropsten: 3, kovan: 42 */
-  chainId: number;
+  chainId: number
   /**
    * Device must `ethSupportsNativeShapeShift()`
    */
 } & (
   | {
       /** big-endian hex, prefixed with '0x' */
-      gasPrice: Hex;
-      maxFeePerGas?: never;
-      maxPriorityFeePerGas?: never;
+      gasPrice: Hex
+      maxFeePerGas?: never
+      maxPriorityFeePerGas?: never
     }
   | {
-      gasPrice?: never;
+      gasPrice?: never
       /** EIP-1559 - The maximum total fee per gas the sender is willing to pay. <=256 bit unsigned big endian (in wei) */
-      maxFeePerGas?: Hex;
+      maxFeePerGas?: Hex
       /** EIP-1559 - Maximum fee per gas the sender is willing to pay to miners. <=256 bit unsigned big endian (in wei) */
-      maxPriorityFeePerGas?: Hex;
+      maxPriorityFeePerGas?: Hex
     }
-);
+)
 
 export interface ETHTxHash {
-  hash: string;
+  hash: string
 }
 
 export interface ETHSignedTx {
   /** uint32 */
-  v: number;
+  v: number
   /** big-endian hex, prefixed with '0x' */
-  r: string;
+  r: string
   /** big-endian hex, prefixed with '0x' */
-  s: string;
+  s: string
   /** big-endian hex, prefixed with '0x' */
-  serialized: string;
+  serialized: string
 }
 
 export interface ETHSignMessage {
-  addressNList: BIP32Path;
-  message: string;
+  addressNList: BIP32Path
+  message: string
 }
 
 export interface ETHSignedMessage {
-  address: string;
-  signature: string;
+  address: string
+  signature: string
 }
 
 export interface ETHSignTypedData {
-  addressNList: BIP32Path;
-  typedData: TypedData;
+  addressNList: BIP32Path
+  typedData: TypedData
 }
 
 export interface ETHSignedTypedData {
-  address: string;
-  signature: string;
+  address: string
+  signature: string
 }
 
 export interface ETHVerifyMessage {
-  address: string;
-  message: string | Bytes;
-  signature: string;
+  address: string
+  message: string | Bytes
+  signature: string
 }
 
 // https://docs.metamask.io/guide/rpc-api.html#wallet-addethereumchain
 export interface AddEthereumChainParameter {
-  chainId: string; // A 0x-prefixed hexadecimal string
-  chainName: string;
+  chainId: string // A 0x-prefixed hexadecimal string
+  chainName: string
   nativeCurrency: {
-    name: string;
-    symbol: string; // 2-6 characters long
-    decimals: 18;
-  };
-  rpcUrls: string[];
-  blockExplorerUrls?: string[];
-  iconUrls?: string[]; // Currently ignored.
+    name: string
+    symbol: string // 2-6 characters long
+    decimals: 18
+  }
+  rpcUrls: string[]
+  blockExplorerUrls?: string[]
+  iconUrls?: string[] // Currently ignored.
 }
 
 export interface ETHWalletInfo extends HDWalletInfo {
-  readonly _supportsETHInfo: boolean;
+  readonly _supportsETHInfo: boolean
 
   /**
    * Does the device support the Ethereum network with the given chain_id?
    */
-  ethSupportsNetwork(chain_id: number): Promise<boolean>;
+  ethSupportsNetwork(chain_id: number): Promise<boolean>
 
   /**
    * Get the current chainId from ethereum's JSON RPC
    * https://eips.ethereum.org/EIPS/eip-695
    */
-  ethGetChainId?(): Promise<number | null>;
+  ethGetChainId?(): Promise<number | null>
 
   /**
    * Switch the wallet's active Ethereum chain
    * https://eips.ethereum.org/EIPS/eip-3326
    */
-  ethSwitchChain?(params: AddEthereumChainParameter): Promise<void>;
+  ethSwitchChain?(params: AddEthereumChainParameter): Promise<void>
 
   /**
    * Add an Ethereum chain to user's wallet
    * https://eips.ethereum.org/EIPS/eip-3085
    * */
-  ethAddChain?(params: AddEthereumChainParameter): Promise<void>;
+  ethAddChain?(params: AddEthereumChainParameter): Promise<void>
 
   /**
    * Does the device support internal transfers without the user needing to
    * confirm the destination address?
    */
-  ethSupportsSecureTransfer(): Promise<boolean>;
+  ethSupportsSecureTransfer(): Promise<boolean>
 
   /**
    * Does the device support `/sendamountProto2` style ShapeShift trades?
    */
-  ethSupportsNativeShapeShift(): boolean;
+  ethSupportsNativeShapeShift(): boolean
 
   /**
    *
    * Does the device support transactions with EIP-1559 fee parameters?
    */
-  ethSupportsEIP1559(): Promise<boolean>;
+  ethSupportsEIP1559(): Promise<boolean>
 
   /**
    * Returns a list of bip32 paths for a given account index in preferred order
@@ -186,79 +186,79 @@ export interface ETHWalletInfo extends HDWalletInfo {
    * Note that this is the location of the ETH address in the tree, not the
    * location of its corresponding xpub.
    */
-  ethGetAccountPaths(msg: ETHGetAccountPath): Array<ETHAccountPath>;
+  ethGetAccountPaths(msg: ETHGetAccountPath): ETHAccountPath[]
 
   /**
    * Returns the "next" ETH account, if any.
    */
-  ethNextAccountPath(msg: ETHAccountPath): ETHAccountPath | undefined;
+  ethNextAccountPath(msg: ETHAccountPath): ETHAccountPath | undefined
 }
 
 export interface ETHWallet extends ETHWalletInfo, HDWallet {
-  readonly _supportsETH: boolean;
-  readonly _supportsEthSwitchChain: boolean;
-  readonly _supportsAvalanche: boolean;
-  readonly _supportsOptimism: boolean;
-  readonly _supportsPolygon: boolean;
-  readonly _supportsGnosis: boolean;
-  readonly _supportsArbitrum: boolean;
-  readonly _supportsArbitrumNova: boolean;
-  readonly _supportsBase: boolean;
-  readonly _supportsBSC: boolean;
-  readonly _supportsMonad: boolean;
-  readonly _supportsPlasma: boolean;
-  readonly _supportsKatana: boolean;
-  readonly _supportsHyperEvm: boolean;
+  readonly _supportsETH: boolean
+  readonly _supportsEthSwitchChain: boolean
+  readonly _supportsAvalanche: boolean
+  readonly _supportsOptimism: boolean
+  readonly _supportsPolygon: boolean
+  readonly _supportsGnosis: boolean
+  readonly _supportsArbitrum: boolean
+  readonly _supportsArbitrumNova: boolean
+  readonly _supportsBase: boolean
+  readonly _supportsBSC: boolean
+  readonly _supportsMonad: boolean
+  readonly _supportsPlasma: boolean
+  readonly _supportsKatana: boolean
+  readonly _supportsHyperEvm: boolean
 
-  ethGetAddress(msg: ETHGetAddress): Promise<Address | null>;
-  ethGetAddresses?(msgs: ETHGetAddress[]): Promise<string[]>;
-  ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx | null>;
-  ethSendTx?(msg: ETHSignTx): Promise<ETHTxHash | null>;
-  ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage | null>;
-  ethSignTypedData?(msg: ETHSignTypedData): Promise<ETHSignedTypedData | null>;
-  ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean | null>;
+  ethGetAddress(msg: ETHGetAddress): Promise<Address | null>
+  ethGetAddresses?(msgs: ETHGetAddress[]): Promise<string[]>
+  ethSignTx(msg: ETHSignTx): Promise<ETHSignedTx | null>
+  ethSendTx?(msg: ETHSignTx): Promise<ETHTxHash | null>
+  ethSignMessage(msg: ETHSignMessage): Promise<ETHSignedMessage | null>
+  ethSignTypedData?(msg: ETHSignTypedData): Promise<ETHSignedTypedData | null>
+  ethVerifyMessage(msg: ETHVerifyMessage): Promise<boolean | null>
 }
 
 export function describeETHPath(path: BIP32Path): PathDescription {
-  const pathStr = addressNListToBIP32(path);
+  const pathStr = addressNListToBIP32(path)
   const unknown: PathDescription = {
     verbose: pathStr,
-    coin: "Ethereum",
+    coin: 'Ethereum',
     isKnown: false,
-  };
+  }
 
-  if (path.length !== 5) return unknown;
+  if (path.length !== 5) return unknown
 
-  if (path[0] !== 0x80000000 + 44) return unknown;
+  if (path[0] !== 0x80000000 + 44) return unknown
 
-  if (path[1] !== 0x80000000 + slip44ByCoin("Ethereum")) return unknown;
+  if (path[1] !== 0x80000000 + slip44ByCoin('Ethereum')) return unknown
 
-  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) return unknown
 
-  if (path[3] !== 0) return unknown;
+  if (path[3] !== 0) return unknown
 
-  if (path[4] !== 0) return unknown;
+  if (path[4] !== 0) return unknown
 
-  const index = path[2] & 0x7fffffff;
+  const index = path[2] & 0x7fffffff
   return {
     verbose: `Ethereum Account #${index}`,
     accountIdx: index,
     wholeAccount: true,
-    coin: "Ethereum",
+    coin: 'Ethereum',
     isKnown: true,
     isPrefork: false,
-  };
+  }
 }
 
 export function buildMessage(message: ethers.utils.BytesLike): Uint8Array {
   const messageBytes =
-    typeof message === "string" && !ethers.utils.isHexString(message)
+    typeof message === 'string' && !ethers.utils.isHexString(message)
       ? ethers.utils.toUtf8Bytes(message)
-      : ethers.utils.arrayify(message);
+      : ethers.utils.arrayify(message)
 
   return ethers.utils.concat([
-    ethers.utils.toUtf8Bytes("\x19Ethereum Signed Message:\n"),
+    ethers.utils.toUtf8Bytes('\x19Ethereum Signed Message:\n'),
     ethers.utils.toUtf8Bytes(String(messageBytes.length)),
     messageBytes,
-  ]);
+  ])
 }

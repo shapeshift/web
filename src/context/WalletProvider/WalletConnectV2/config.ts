@@ -1,17 +1,7 @@
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { Chain } from 'viem/chains'
-import {
-  arbitrum,
-  arbitrumNova,
-  avalanche,
-  base,
-  bsc,
-  gnosis,
-  mainnet,
-  optimism,
-  polygon,
-} from 'viem/chains'
+import { arbitrum, avalanche, base, bsc, gnosis, mainnet, optimism, polygon } from 'viem/chains'
 
 import type { EthereumProviderOptions } from './constants'
 
@@ -57,7 +47,6 @@ export const walletConnectV2OptionalChains: AtLeastOneViemChain = (() => {
     polygon,
     avalanche,
     arbitrum,
-    arbitrumNova,
     base,
   ]
   if (optionalViemChains.length === 0) throw new Error('Array must contain at least one element.')
@@ -79,7 +68,6 @@ const {
   VITE_GNOSIS_NODE_URL,
   VITE_ETHEREUM_NODE_URL,
   VITE_ARBITRUM_NODE_URL,
-  VITE_ARBITRUM_NOVA_NODE_URL,
   VITE_BASE_NODE_URL,
 } = getConfig()
 
@@ -110,7 +98,6 @@ export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
     [CHAIN_REFERENCE.GnosisMainnet]: VITE_GNOSIS_NODE_URL,
     [CHAIN_REFERENCE.EthereumMainnet]: VITE_ETHEREUM_NODE_URL,
     [CHAIN_REFERENCE.ArbitrumMainnet]: VITE_ARBITRUM_NODE_URL,
-    [CHAIN_REFERENCE.ArbitrumNovaMainnet]: VITE_ARBITRUM_NOVA_NODE_URL,
     [CHAIN_REFERENCE.BaseMainnet]: VITE_BASE_NODE_URL,
   },
 }

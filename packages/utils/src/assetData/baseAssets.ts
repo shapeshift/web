@@ -283,24 +283,6 @@ export const arbitrum: Readonly<Asset> = Object.freeze({
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 
-export const arbitrumNova: Readonly<Asset> = Object.freeze({
-  assetId: caip.arbitrumNovaAssetId,
-  chainId: caip.arbitrumNovaChainId,
-  name: 'Ethereum',
-  networkName: 'Arbitrum Nova',
-  symbol: 'ETH',
-  precision: 18,
-  color: '#5C6BC0',
-  networkColor: '#E67408',
-  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
-  networkIcon:
-    'https://assets.coingecko.com/asset_platforms/images/93/large/AN_logomark.png?1695026131',
-  explorer: 'https://nova.arbiscan.io',
-  explorerAddressLink: 'https://nova.arbiscan.io/address/',
-  explorerTxLink: 'https://nova.arbiscan.io/tx/',
-  relatedAssetKey: 'eip155:1/slip44:60',
-})
-
 export const base: Readonly<Asset> = Object.freeze({
   assetId: caip.baseAssetId,
   chainId: caip.baseChainId,

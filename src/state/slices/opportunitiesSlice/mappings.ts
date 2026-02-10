@@ -182,7 +182,6 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
       defiType: DefiType.Staking,
     },
   ],
-  [KnownChainIds.ArbitrumNovaMainnet]: [],
   [KnownChainIds.BaseMainnet]: [],
   [KnownChainIds.SolanaMainnet]: [],
   [KnownChainIds.StarknetMainnet]: [],

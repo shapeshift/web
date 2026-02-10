@@ -7,8 +7,6 @@ import type { ChainId } from '../../chainId/chainId'
 import {
   arbitrumAssetId,
   arbitrumChainId,
-  arbitrumNovaAssetId,
-  arbitrumNovaChainId,
   ASSET_NAMESPACE,
   avalancheAssetId,
   avalancheChainId,
@@ -172,20 +170,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
             assetReference: platforms[CoingeckoAssetPlatform.Arbitrum],
           })
           prev[arbitrumChainId][assetId] = id
-        } catch (err) {
-          // unable to create assetId, skip token
-        }
-      }
-
-      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.ArbitrumNova)) {
-        try {
-          const assetId = toAssetId({
-            chainNamespace: CHAIN_NAMESPACE.Evm,
-            chainReference: CHAIN_REFERENCE.ArbitrumNovaMainnet,
-            assetNamespace: 'erc20',
-            assetReference: platforms[CoingeckoAssetPlatform.ArbitrumNova],
-          })
-          prev[arbitrumNovaChainId][assetId] = id
         } catch (err) {
           // unable to create assetId, skip token
         }
@@ -355,7 +339,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [polygonChainId]: { [polygonAssetId]: 'polygon-ecosystem-token' },
       [gnosisChainId]: { [gnosisAssetId]: 'xdai' },
       [arbitrumChainId]: { [arbitrumAssetId]: 'ethereum' },
-      [arbitrumNovaChainId]: { [arbitrumNovaAssetId]: 'ethereum' },
       [baseChainId]: { [baseAssetId]: 'ethereum' },
       [hyperEvmChainId]: { [hyperEvmAssetId]: 'hyperliquid' },
       [monadChainId]: { [monadAssetId]: 'monad' },

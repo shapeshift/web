@@ -14,6 +14,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
+import { useQuery as useReactQuery } from '@tanstack/react-query'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -33,7 +34,6 @@ import { SlideTransitionY } from '@/components/SlideTransitionY'
 import { RawText, Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { listWallets } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import type { RevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useQuery } from '@/hooks/useQuery/useQuery'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -67,16 +67,39 @@ const BodyText: React.FC<TextProps> = props => (
 export const MobileConnect = () => {
   const { dispatch, state } = useWallet()
   const translate = useTranslate()
-  const [wallets, setWallets] = useState<RevocableWallet[]>([])
-  const [error, setError] = useState<string | null>(null)
   const [hideWallets, setHideWallets] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
   const scaleFadeAnimation = `${scaleFade} 0.6s cubic-bezier(0.76, 0, 0.24, 1)`
   const hasWallet = Boolean(state.walletInfo?.deviceId)
   const navigate = useNavigate()
 
   const mobileWalletDialog = useModal('mobileWalletDialog')
   const [isWaitingForRedirection, setIsWaitingForRedirection] = useState<boolean>(false)
+
+  const {
+    isLoading,
+    data: wallets = [],
+    error: queryError,
+  } = useReactQuery({
+    queryKey: ['listWallets'],
+    staleTime: 0,
+    gcTime: 0,
+    retry: false,
+    refetchOnMount: true,
+    queryFn: listWallets,
+  })
+
+  const error = useMemo(() => {
+    if (queryError) {
+      if (queryError instanceof Error) {
+        console.error('Failed to fetch wallets:', queryError.message)
+      }
+      return 'walletProvider.shapeShift.load.error.fetchingWallets'
+    }
+    if (!wallets.length && !isLoading) {
+      return 'walletProvider.shapeShift.load.error.noWallet'
+    }
+    return null
+  }, [queryError, wallets.length, isLoading])
 
   const handleOpenCreateWallet = useCallback(() => {
     mobileWalletDialog.open({ defaultRoute: MobileWalletDialogRoutes.Create })
@@ -122,34 +145,13 @@ export const MobileConnect = () => {
     }
   }, [navigate, hasWallet, query, state, dispatch, setIsWaitingForRedirection])
 
-  useEffect(() => {
-    if (!wallets.length) {
-      setIsLoading(true) // Set loading state to true when fetching wallets
-      ;(async () => {
-        try {
-          const vaults = await listWallets()
-          if (!vaults.length) {
-            setError('walletProvider.shapeShift.load.error.noWallet')
-          } else {
-            setWallets(vaults)
-          }
-        } catch (e) {
-          console.log(e)
-          setError('An error occurred while fetching wallets.')
-        } finally {
-          setIsLoading(false) // Set loading state to false when fetching is done
-        }
-      })()
-    }
-  }, [wallets])
-
   const handleToggleWallets = useCallback(() => {
-    setHideWallets(!hideWallets) // allow users with saved wallets to toggle between saved and create/import
+    setHideWallets(!hideWallets)
   }, [hideWallets])
 
   useEffect(() => {
     if (!wallets.length && !isLoading) {
-      setHideWallets(true) // If they have no wallets, show the default create or import
+      setHideWallets(true)
     }
   }, [isLoading, wallets.length])
 

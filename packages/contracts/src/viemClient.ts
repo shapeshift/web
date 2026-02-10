@@ -5,7 +5,6 @@ import type { PublicClient } from 'viem'
 import { createPublicClient, fallback, http } from 'viem'
 import {
   arbitrum,
-  arbitrumNova,
   avalanche,
   base,
   bsc,
@@ -46,13 +45,6 @@ export const viemAvalancheClient = createPublicClient({
 export const viemArbitrumClient = createPublicClient({
   chain: arbitrum,
   transport: fallback([process.env.VITE_ARBITRUM_NODE_URL].filter(Boolean).map(url => http(url))),
-}) as PublicClient
-
-export const viemArbitrumNovaClient = createPublicClient({
-  chain: arbitrumNova,
-  transport: fallback(
-    [process.env.VITE_ARBITRUM_NOVA_NODE_URL].filter(Boolean).map(url => http(url)),
-  ),
 }) as PublicClient
 
 export const viemOptimismClient = createPublicClient({
@@ -104,7 +96,6 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.BnbSmartChainMainnet]: viemBscClient,
   [KnownChainIds.AvalancheMainnet]: viemAvalancheClient,
   [KnownChainIds.ArbitrumMainnet]: viemArbitrumClient,
-  [KnownChainIds.ArbitrumNovaMainnet]: viemArbitrumNovaClient,
   [KnownChainIds.GnosisMainnet]: viemGnosisClient,
   [KnownChainIds.PolygonMainnet]: viemPolygonClient,
   [KnownChainIds.OptimismMainnet]: viemOptimismClient,
@@ -120,7 +111,6 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.BnbSmartChainMainnet]: bsc.id,
   [KnownChainIds.AvalancheMainnet]: avalanche.id,
   [KnownChainIds.ArbitrumMainnet]: arbitrum.id,
-  [KnownChainIds.ArbitrumNovaMainnet]: arbitrumNova.id,
   [KnownChainIds.GnosisMainnet]: gnosis.id,
   [KnownChainIds.PolygonMainnet]: polygon.id,
   [KnownChainIds.OptimismMainnet]: optimism.id,
@@ -136,7 +126,6 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [bsc.id]: viemBscClient,
   [avalanche.id]: viemAvalancheClient,
   [arbitrum.id]: viemArbitrumClient,
-  [arbitrumNova.id]: viemArbitrumNovaClient,
   [gnosis.id]: viemGnosisClient,
   [polygon.id]: viemPolygonClient,
   [optimism.id]: viemOptimismClient,

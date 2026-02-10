@@ -3,7 +3,6 @@ import type { Provider as SolanaProvider } from '@reown/appkit-adapter-solana/re
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
-  arbitrumNovaChainId,
   avalancheChainId,
   baseChainId,
   bchChainId,
@@ -201,7 +200,6 @@ export const EVM_CHAIN_IDS = {
   avalanche: avalancheChainId,
   bsc: bscChainId,
   gnosis: gnosisChainId,
-  arbitrumNova: arbitrumNovaChainId,
   monad: monadChainId,
   hyperEvm: hyperEvmChainId,
   plasma: plasmaChainId,

@@ -17,9 +17,11 @@ type MessageFromMobileApp = {
   result: any
 }
 
+let messageCounter = 0
+
 const postMessage = <T>(msg: Message): Promise<T> => {
   return new Promise((resolve, reject) => {
-    const id = `${Date.now()}-${msg.cmd}`
+    const id = `${Date.now()}-${messageCounter++}-${msg.cmd}`
     const timeout = setTimeout(() => {
       window.removeEventListener('message', eventListener)
       reject(new Error(`Seeker message timeout: ${msg.cmd}`))

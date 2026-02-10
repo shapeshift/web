@@ -9,7 +9,6 @@ import type {
 } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsArbitrum,
-  supportsArbitrumNova,
   supportsAvalanche,
   supportsBase,
   supportsBSC,
@@ -82,7 +81,6 @@ export const evmChainIds = [
   KnownChainIds.PolygonMainnet,
   KnownChainIds.GnosisMainnet,
   KnownChainIds.ArbitrumMainnet,
-  KnownChainIds.ArbitrumNovaMainnet,
   KnownChainIds.BaseMainnet,
   KnownChainIds.MonadMainnet,
   KnownChainIds.HyperEvmMainnet,
@@ -180,8 +178,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsGnosis(wallet)
         case Number(fromChainId(KnownChainIds.ArbitrumMainnet).chainReference):
           return supportsArbitrum(wallet)
-        case Number(fromChainId(KnownChainIds.ArbitrumNovaMainnet).chainReference):
-          return supportsArbitrumNova(wallet)
         case Number(fromChainId(KnownChainIds.BaseMainnet).chainReference):
           return supportsBase(wallet)
         case Number(fromChainId(KnownChainIds.MonadMainnet).chainReference):
@@ -258,11 +254,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://arbiscan.io',
-      },
-      [KnownChainIds.ArbitrumNovaMainnet]: {
-        name: 'Ethereum',
-        symbol: 'ETH',
-        explorer: 'https://nova.arbiscan.io',
       },
       [KnownChainIds.BaseMainnet]: {
         name: 'Ethereum',

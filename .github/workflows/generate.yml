@@ -11,7 +11,28 @@ permissions:
   pull-requests: write
 
 jobs:
+  check-existing-pr:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.check_pr.outputs.skip }}
+    steps:
+      - name: Check for existing PR
+        id: check_pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          EXISTING_PR=$(gh pr list --repo "${{ github.repository }}" --head feat_regenerate_asset_data --base develop --state open --json number --jq '.[0].number')
+          if [ -n "$EXISTING_PR" ]; then
+            echo "Open PR #$EXISTING_PR already exists, skipping regeneration"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No existing PR found, proceeding with regeneration"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
   regenerate-and-create-pr:
+    needs: check-existing-pr
+    if: needs.check-existing-pr.outputs.skip == 'false'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout develop

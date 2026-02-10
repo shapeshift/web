@@ -1,7 +1,6 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
-  arbitrumNovaChainId,
   avalancheChainId,
   baseChainId,
   bchChainId,
@@ -32,7 +31,6 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsArbitrum,
-  supportsArbitrumNova,
   supportsAvalanche,
   supportsBase,
   supportsBSC,
@@ -147,7 +145,6 @@ export const walletSupportsChain = ({
   // We have no runtime support for the current ChainId - trying and checking for feature-capabilities flags is futile
   if (!hasRuntimeSupport) return false
 
-  const isArbitrumNovaEnabled = selectFeatureFlag(store.getState(), 'ArbitrumNova')
   const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
   const isKatanaEnabled = selectFeatureFlag(store.getState(), 'Katana')
   const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
@@ -196,8 +193,6 @@ export const walletSupportsChain = ({
       return supportsGnosis(wallet)
     case arbitrumChainId:
       return supportsArbitrum(wallet)
-    case arbitrumNovaChainId:
-      return isArbitrumNovaEnabled && supportsArbitrumNova(wallet)
     case baseChainId:
       return supportsBase(wallet)
     case monadChainId:

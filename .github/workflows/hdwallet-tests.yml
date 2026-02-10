@@ -12,7 +12,7 @@ on:
       - 'vitest.hdwallet.config.mts'
 
 jobs:
-  test:
+  unit:
     name: HDWallet Unit Tests
     runs-on: ubuntu-latest
     steps:
@@ -43,3 +43,53 @@ jobs:
 
       - name: Test HDWallet
         run: yarn hdwallet:test
+
+  integration:
+    name: HDWallet Integration Tests
+    runs-on: ubuntu-latest
+    services:
+      kkemu:
+        image: kktech/kkemu:latest
+        ports:
+          - 5000:5000
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+
+      - name: Yarn Install
+        run: yarn install --immutable
+
+      - name: Generate Unchained Client
+        run: yarn workspace @shapeshiftoss/unchained-client generate
+
+      - name: Build HDWallet Packages
+        run: yarn hdwallet:build
+
+      - name: Wait for KeepKey Emulator
+        run: |
+          echo "Waiting for KeepKey emulator on port 5000..."
+          for i in $(seq 1 30); do
+            if curl -s http://localhost:5000/exchange/device > /dev/null 2>&1; then
+              echo "Emulator ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Emulator failed to start"
+          exit 1
+
+      - name: Integration Tests
+        run: yarn hdwallet:test:integration

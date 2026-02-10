@@ -4,7 +4,7 @@ import merge from "lodash/merge";
 
 // TODO: clean this up
 // eslint-disable-next-line jest/no-mocks-import
-import mswMock from "../../../packages/hdwallet-native/__mocks__/mswMock";
+import mswMock from "../../../hdwallet-native/__mocks__/mswMock";
 
 const mnemonic = "all all all all all all all all all all all all";
 const deviceId = "native-test";

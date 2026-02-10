@@ -14,7 +14,7 @@ export function name(): string {
 }
 
 const ethereumProvider = {
-  request: jest.fn(({ method, params }: any) => {
+  request: vi.fn(({ method, params }: any) => {
     switch (method) {
       case "eth_accounts":
         return Promise.resolve(["0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"]);
@@ -36,7 +36,7 @@ const ethereumProvider = {
 
 const createUtxoProvider = (coin: string): VultisigUtxoProvider =>
   ({
-    request: jest.fn(({ method }: VultisigRequestPayload<keyof VultisigRequestParams>) => {
+    request: vi.fn(({ method }: VultisigRequestPayload<keyof VultisigRequestParams>) => {
       switch (method) {
         case "request_accounts":
           switch (coin.toLowerCase()) {
@@ -49,7 +49,7 @@ const createUtxoProvider = (coin: string): VultisigUtxoProvider =>
           throw new Error(`utxo: Unknown method ${method}`);
       }
     }),
-    signPSBT: jest.fn(
+    signPSBT: vi.fn(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       (psbt: Uint8Array, { inputsToSign }: { inputsToSign: { address: string; signingIndexes: number[] }[] }) => {
         return Promise.resolve(psbt);
@@ -59,15 +59,15 @@ const createUtxoProvider = (coin: string): VultisigUtxoProvider =>
 
 const solanaProvider = {
   publicKey: undefined,
-  connect: jest.fn(() => Promise.resolve({ address: "mock-solana-address" })),
-  signTransaction: jest.fn(() => Promise.resolve("mock-transaction")),
-  signAndSendTransaction: jest.fn(() => Promise.resolve({ signature: "mock-signature" })),
-  getAccounts: jest.fn(() => Promise.resolve([{ address: "mock-solana-address" }])),
+  connect: vi.fn(() => Promise.resolve({ address: "mock-solana-address" })),
+  signTransaction: vi.fn(() => Promise.resolve("mock-transaction")),
+  signAndSendTransaction: vi.fn(() => Promise.resolve({ signature: "mock-signature" })),
+  getAccounts: vi.fn(() => Promise.resolve([{ address: "mock-solana-address" }])),
 } as unknown as VultisigSolanaProvider;
 
 const cosmosProvider = {
-  getOfflineSigner: jest.fn(() => ({
-    getAccounts: jest.fn(() =>
+  getOfflineSigner: vi.fn(() => ({
+    getAccounts: vi.fn(() =>
       Promise.resolve([
         {
           address: "cosmos15cenya0tr7nm3tz2wn3h3zwkht2rxrq7q7h3dj",
@@ -75,7 +75,7 @@ const cosmosProvider = {
         },
       ])
     ),
-    getPubkey: jest.fn(() =>
+    getPubkey: vi.fn(() =>
       Promise.resolve(
         new Uint8Array([
           2, 136, 177, 245, 49, 184, 120, 113, 149, 190, 179, 162, 33, 113, 72, 195, 4, 9, 54, 131, 200, 139, 114, 190,
@@ -87,8 +87,8 @@ const cosmosProvider = {
 } as unknown as VultisigOfflineProvider;
 
 const thorchainProvider = {
-  getOfflineSigner: jest.fn(() => ({
-    getAccounts: jest.fn(() =>
+  getOfflineSigner: vi.fn(() => ({
+    getAccounts: vi.fn(() =>
       Promise.resolve([
         {
           address: "thor1ls33ayg26kmltw7jjy55p32ghjna09zp74t4az",
@@ -96,7 +96,7 @@ const thorchainProvider = {
         },
       ])
     ),
-    getPubkey: jest.fn(() =>
+    getPubkey: vi.fn(() =>
       Promise.resolve(
         new Uint8Array([
           2, 136, 177, 245, 49, 184, 120, 113, 149, 190, 179, 162, 33, 113, 72, 195, 4, 9, 54, 131, 200, 139, 114, 190,

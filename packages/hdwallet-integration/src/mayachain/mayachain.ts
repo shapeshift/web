@@ -69,7 +69,7 @@ export function mayachainTests(get: () => { wallet: core.HDWallet; info: core.HD
         });
 
         expect(out).toMatchInlineSnapshot(`
-          Object {
+          {
             "accountIdx": 0,
             "coin": "Mayachain",
             "isKnown": true,

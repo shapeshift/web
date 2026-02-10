@@ -153,7 +153,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
 
           // eslint-disable-next-line jest/no-conditional-expect
           expect(res).toMatchInlineSnapshot(`
-            Object {
+            {
               "hash": "txHash-0x12eC06288EDD7Ae2CC41A843fE089237fC7354F0",
             }
           `);
@@ -242,7 +242,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
 
           // eslint-disable-next-line jest/no-conditional-expect
           expect(res).toMatchInlineSnapshot(`
-            Object {
+            {
               "hash": "txHash-0x41e5560054824ea6b0732e656e3ad64e20e94e45",
             }
           `);
@@ -291,7 +291,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
 
           // eslint-disable-next-line jest/no-conditional-expect
           expect(res).toMatchInlineSnapshot(`
-            Object {
+            {
               "hash": "txHash-0xDAFEA492D9c6733ae3d56b7Ed1ADB60692c98Bc5",
             }
           `);
@@ -384,7 +384,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
 
           // eslint-disable-next-line jest/no-conditional-expect
           expect(res).toMatchInlineSnapshot(`
-            Object {
+            {
               "hash": "txHash-0xdef1c0ded9bec7f1a1670819833240f027b25eff",
             }
           `);

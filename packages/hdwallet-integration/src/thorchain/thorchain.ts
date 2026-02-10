@@ -71,7 +71,7 @@ export function thorchainTests(get: () => { wallet: core.HDWallet; info: core.HD
         });
 
         expect(out).toMatchInlineSnapshot(`
-          Object {
+          {
             "accountIdx": 0,
             "coin": "Thorchain",
             "isKnown": true,

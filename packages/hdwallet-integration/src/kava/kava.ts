@@ -50,7 +50,7 @@ export function kavaTests(get: () => { wallet: core.HDWallet; info: core.HDWalle
             coin: "Kava",
           })
         ).toMatchInlineSnapshot(`
-          Object {
+          {
             "accountIdx": 0,
             "coin": "Kava",
             "isKnown": true,

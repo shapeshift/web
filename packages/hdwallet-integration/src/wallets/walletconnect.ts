@@ -16,7 +16,7 @@ export async function createWallet(): Promise<core.HDWallet> {
     "0x4e8d2E3d5FDe8CB80A917e258548268734973f23",
   ];
   const provider = {
-    request: jest.fn(({ method, params }: any) => {
+    request: vi.fn(({ method, params }: any) => {
       switch (method) {
         case "eth_accounts":
           return accounts;
@@ -45,11 +45,11 @@ export async function createWallet(): Promise<core.HDWallet> {
     infuraId: "",
     http: null,
     wc: {
-      sendTransaction: jest.fn((msg) => {
+      sendTransaction: vi.fn((msg) => {
         const { to } = msg;
         return { hash: `txHash-${to}` };
       }),
-      signMessage: jest.fn().mockReturnValue({
+      signMessage: vi.fn().mockReturnValue({
         address: "0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8",
         signature:
           "0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b",
@@ -64,28 +64,28 @@ export async function createWallet(): Promise<core.HDWallet> {
       chainId: 1,
       accounts,
       connected: true,
-      on: jest.fn(),
+      on: vi.fn(),
     },
     walletMeta: {
       // wc.peerMeta
     },
     enable: async () => Promise.resolve(accounts),
-    send: jest.fn(),
-    onConnect: jest.fn(),
-    triggerConnect: jest.fn(),
-    disconnect: jest.fn(), // alias for close
-    close: jest.fn(),
-    handleRequest: jest.fn(),
-    handleOtherRequests: jest.fn(),
-    handleReadRequests: jest.fn(),
-    formatResponse: jest.fn(),
-    getWalletConnector: jest.fn(),
-    subscribeWalletConnector: jest.fn(),
-    onDisconnect: jest.fn(),
-    updateState: jest.fn(),
-    updateRpcUrl: jest.fn(),
-    updateHttpConnection: jest.fn(),
-    sendAsyncPromise: jest.fn(),
+    send: vi.fn(),
+    onConnect: vi.fn(),
+    triggerConnect: vi.fn(),
+    disconnect: vi.fn(), // alias for close
+    close: vi.fn(),
+    handleRequest: vi.fn(),
+    handleOtherRequests: vi.fn(),
+    handleReadRequests: vi.fn(),
+    formatResponse: vi.fn(),
+    getWalletConnector: vi.fn(),
+    subscribeWalletConnector: vi.fn(),
+    onDisconnect: vi.fn(),
+    updateState: vi.fn(),
+    updateRpcUrl: vi.fn(),
+    updateHttpConnection: vi.fn(),
+    sendAsyncPromise: vi.fn(),
   };
   const wallet = new walletconnect.WalletConnectHDWallet(provider as any);
   await wallet.initialize();

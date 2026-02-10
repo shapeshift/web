@@ -11,7 +11,7 @@ export function name(): string {
 }
 
 const ethereumProvider = {
-  request: jest.fn(({ method, params }: any) => {
+  request: vi.fn(({ method, params }: any) => {
     switch (method) {
       case "eth_accounts":
         return ["0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"];
@@ -35,7 +35,7 @@ const ethereumProvider = {
 } as unknown as PhantomEvmProvider;
 
 const utxoProvider = {
-  requestAccounts: jest.fn(() => {
+  requestAccounts: vi.fn(() => {
     return [
       {
         purpose: "payment",
@@ -44,7 +44,7 @@ const utxoProvider = {
     ];
   }),
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  signMessage: jest.fn((_address: string, _message: Uint8Array): Promise<{ signature: Uint8Array }> => {
+  signMessage: vi.fn((_address: string, _message: Uint8Array): Promise<{ signature: Uint8Array }> => {
     return Promise.resolve({
       signature: core.fromHexString(
         "20a037c911044cd6c851b6508317d8892067b0b62074b2cf1c0df9abd4aa053a3c243ffdc37f64d7af2c857128eafc81947c380995596615e5dcc313a15f512cdd"

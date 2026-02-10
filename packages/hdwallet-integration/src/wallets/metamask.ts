@@ -12,7 +12,7 @@ export function createInfo(): core.HDWalletInfo {
 
 export async function createWallet(): Promise<core.HDWallet> {
   const provider = {
-    request: jest.fn(({ method, params }: any) => {
+    request: vi.fn(({ method, params }: any) => {
       switch (method) {
         case "eth_accounts":
           return ["0x3f2329C9ADFbcCd9A84f52c906E936A42dA18CB8"];

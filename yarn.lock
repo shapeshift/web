@@ -13136,6 +13136,7 @@ __metadata:
     "@shapeshiftoss/hdwallet-vultisig": "workspace:^"
     fast-json-stable-stringify: ^2.1.0
     msw: ^0.27.1
+    vitest: 3.0.9
     whatwg-fetch: ^3.6.2
   languageName: unknown
   linkType: soft

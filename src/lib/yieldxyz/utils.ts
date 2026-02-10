@@ -113,37 +113,21 @@ export const getTransactionButtonText = (
   return 'Confirm'
 }
 
-const REBASING_PROVIDER_IDS = new Set(['lido'])
-
-/**
- * Determines whether a liquid staking yield uses a rebasing token model.
- * Rebasing tokens (e.g. Lido stETH) maintain a ~1:1 exchange rate with the underlying,
- * so displaying the receipt token symbol is accurate for amounts.
- * Non-rebasing/pricePerShare tokens (e.g. sAVAX, rETH, mETH) have divergent exchange rates,
- * so amounts must always be shown in the input/underlying token denomination.
- */
-export const isRebasingLiquidStaking = (yieldType: YieldType, providerId: string): boolean =>
-  yieldType === 'liquid-staking' && REBASING_PROVIDER_IDS.has(providerId)
-
 /**
  * Resolves the asset symbol to display in transaction step labels.
- * For rebasing tokens (stETH), uses the output/receipt token for non-WITHDRAW
- * exit actions since the user operates on stETH at the contract level.
- * For all other tokens (sAVAX, rETH, mETH — pricePerShare), always uses the input/underlying
- * token because the API returns amounts in that denomination and the exchange rate diverges.
+ * Approvals on exit always show the receipt/output token since native assets can't be approved.
+ * All other steps show the input/underlying token (which matches the API denomination).
  */
 export const resolveAssetSymbolForTx = (
   txType: string | undefined,
   action: 'enter' | 'exit' | 'manage',
   assetSymbol: string,
   outputTokenSymbol: string | undefined,
-  isRebasing: boolean,
 ): string => {
-  if (!isRebasing) return assetSymbol
   if (action !== 'exit' || !outputTokenSymbol || !txType) return assetSymbol
   const normalizedType = txType.toUpperCase()
-  if (normalizedType === 'WITHDRAW') return assetSymbol
-  return outputTokenSymbol
+  if (normalizedType === 'APPROVAL' || normalizedType === 'APPROVE') return outputTokenSymbol
+  return assetSymbol
 }
 
 export const formatYieldTxTitle = (

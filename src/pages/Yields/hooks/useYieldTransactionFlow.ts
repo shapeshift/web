@@ -30,7 +30,6 @@ import { ActionStatus as YieldActionStatus, TransactionStatus } from '@/lib/yiel
 import {
   formatYieldTxTitle,
   getDefaultValidatorForYield,
-  isRebasingLiquidStaking,
   resolveAssetSymbolForTx,
 } from '@/lib/yieldxyz/utils'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
@@ -191,16 +190,10 @@ export const useYieldTransactionFlow = ({
 
   const inputTokenAssetId = useMemo(() => yieldItem?.inputTokens?.[0]?.assetId, [yieldItem])
   const outputTokenSymbol = yieldItem?.outputToken?.symbol
-  const isRebasing = useMemo(
-    () =>
-      yieldItem ? isRebasingLiquidStaking(yieldItem.mechanics.type, yieldItem.providerId) : false,
-    [yieldItem],
-  )
 
   const resolveSymbolForTx = useCallback(
-    (txType?: string) =>
-      resolveAssetSymbolForTx(txType, action, assetSymbol, outputTokenSymbol, isRebasing),
-    [action, assetSymbol, outputTokenSymbol, isRebasing],
+    (txType?: string) => resolveAssetSymbolForTx(txType, action, assetSymbol, outputTokenSymbol),
+    [action, assetSymbol, outputTokenSymbol],
   )
 
   const yieldChainId = yieldItem?.chainId

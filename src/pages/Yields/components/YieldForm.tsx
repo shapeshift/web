@@ -41,7 +41,6 @@ import {
   getYieldActionLabelKeys,
   getYieldMinAmountKey,
   getYieldSuccessMessageKey,
-  isRebasingLiquidStaking,
   isStakingYieldType,
 } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
@@ -115,15 +114,7 @@ export const YieldForm = memo(
     const { chainId } = yieldItem
     const inputToken = yieldItem.inputTokens[0]
     const inputTokenAssetId = inputToken?.assetId
-    const outputTokenAssetId = yieldItem.outputToken?.assetId
-    const isStaking = isStakingYieldType(yieldItem.mechanics.type)
-    const isRebasing = isRebasingLiquidStaking(yieldItem.mechanics.type, yieldItem.providerId)
-    const isExitWithOutputToken =
-      action === 'exit' &&
-      isRebasing &&
-      isStaking &&
-      !!outputTokenAssetId &&
-      outputTokenAssetId !== inputTokenAssetId
+
     const claimableBalance = useMemo(() => balances?.byType[YieldBalanceType.Claimable], [balances])
     const withdrawableBalance = useMemo(
       () => balances?.byType[YieldBalanceType.Withdrawable],
@@ -203,6 +194,8 @@ export const YieldForm = memo(
 
     const { data: providers } = useYieldProviders()
 
+    const isStaking = isStakingYieldType(yieldItem.mechanics.type)
+
     const maybeSelectedValidatorMetadata = useMemo(() => {
       if (!shouldFetchValidators || !selectedValidatorAddress) return null
       const found = validators?.find(v => v.address === selectedValidatorAddress)
@@ -223,12 +216,6 @@ export const YieldForm = memo(
     }, [providers, yieldItem.providerId])
 
     const inputTokenAsset = useAppSelector(state => selectAssetById(state, inputTokenAssetId ?? ''))
-    const outputTokenAsset = useAppSelector(state =>
-      selectAssetById(state, outputTokenAssetId ?? ''),
-    )
-    const displayAsset = isExitWithOutputToken
-      ? outputTokenAsset ?? inputTokenAsset
-      : inputTokenAsset
 
     const inputTokenBalance = useAppSelector(state =>
       inputTokenAssetId && accountId
@@ -263,6 +250,8 @@ export const YieldForm = memo(
       return '0' // default fallback
     }, [action, inputTokenBalance, balances, isStaking, selectedValidatorAddress])
 
+    // Proceeding with inputTokenBalance for now to match YieldEnterModal logic structure, but aware this is a nuance for Exit.
+
     const marketData = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, inputTokenAssetId ?? ''),
     )
@@ -283,8 +272,7 @@ export const YieldForm = memo(
       return false
     }, [cryptoAmount, minDeposit, action, availableBalance])
 
-    const isLoading =
-      isValidatorsLoading || !inputTokenAsset || (isExitWithOutputToken && !outputTokenAsset)
+    const isLoading = isValidatorsLoading || !inputTokenAsset
 
     const fiatAmount = useMemo(
       () => bnOrZero(cryptoAmount).times(marketData?.price ?? 0),
@@ -477,7 +465,7 @@ export const YieldForm = memo(
         return `${translate(actionLabelKeys.enter)} ${inputTokenAsset?.symbol ?? ''}`
       }
       if (action === 'exit') {
-        return `${translate(actionLabelKeys.exit)} ${displayAsset?.symbol ?? ''}`
+        return `${translate(actionLabelKeys.exit)} ${inputTokenAsset?.symbol ?? ''}`
       }
       if (action === 'claim') {
         return `${translate('common.claim')} ${claimableToken?.symbol ?? ''}`
@@ -493,7 +481,6 @@ export const YieldForm = memo(
       quoteData,
       translate,
       inputTokenAsset?.symbol,
-      displayAsset?.symbol,
       action,
       yieldItem.mechanics.type,
       claimableToken?.symbol,
@@ -680,7 +667,7 @@ export const YieldForm = memo(
           >
             <Text fontSize='sm' color='text.subtle'>
               {isFiat ? (
-                <Amount.Crypto value={cryptoAmount || '0'} symbol={inputTokenAsset?.symbol ?? ''} />
+                <Amount.Crypto value={cryptoAmount || '0'} symbol={inputTokenAsset?.symbol} />
               ) : (
                 <Amount.Fiat value={fiatAmount.toFixed(2)} />
               )}
@@ -697,11 +684,12 @@ export const YieldForm = memo(
       claimableAmount,
       translate,
       inputTokenAssetId,
-      inputTokenAsset,
       isFiat,
+      inputTokenAsset?.precision,
       localeParts,
       displayValue,
       displayPlaceholder,
+      inputTokenAsset?.symbol,
       handleInputChange,
       toggleIsFiat,
       cryptoAmount,

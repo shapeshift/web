@@ -272,11 +272,6 @@ export type YieldDto = {
   tags: string[]
   tokens: YieldToken[]
   state?: {
-    pricePerShareState?: {
-      price: number
-      shareToken: YieldToken
-      quoteToken: YieldToken
-    }
     capacityState?: {
       current: string
       max: string

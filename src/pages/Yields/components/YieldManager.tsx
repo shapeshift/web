@@ -10,12 +10,7 @@ import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButt
 import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
-import {
-  getDefaultValidatorForYield,
-  getYieldActionLabelKeys,
-  isRebasingLiquidStaking,
-  isStakingYieldType,
-} from '@/lib/yieldxyz/utils'
+import { getDefaultValidatorForYield, getYieldActionLabelKeys } from '@/lib/yieldxyz/utils'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYield } from '@/react-queries/queries/yieldxyz/useYield'
@@ -42,19 +37,7 @@ export const YieldManager = () => {
   const balances = yieldItem?.id ? allBalancesData?.normalized[yieldItem.id] : undefined
 
   const inputTokenSymbol = yieldItem?.inputTokens[0]?.symbol
-  const outputTokenSymbol = yieldItem?.outputToken?.symbol
   const claimableTokenSymbol = balances?.byType[YieldBalanceType.Claimable]?.token?.symbol
-
-  const exitSymbol = useMemo(() => {
-    if (!yieldItem) return inputTokenSymbol
-    const isRebasing = isRebasingLiquidStaking(yieldItem.mechanics.type, yieldItem.providerId)
-    if (!isRebasing) return inputTokenSymbol
-    const isStaking = isStakingYieldType(yieldItem.mechanics.type)
-    if (isStaking && outputTokenSymbol && outputTokenSymbol !== inputTokenSymbol) {
-      return outputTokenSymbol
-    }
-    return inputTokenSymbol
-  }, [yieldItem, inputTokenSymbol, outputTokenSymbol])
 
   const title = useMemo(() => {
     if (!yieldItem) return translate('yieldXYZ.manage')
@@ -63,13 +46,13 @@ export const YieldManager = () => {
       return `${translate(actionLabelKeys.enter)} ${inputTokenSymbol ?? ''}`
     }
     if (action === 'exit') {
-      return `${translate(actionLabelKeys.exit)} ${exitSymbol ?? ''}`
+      return `${translate(actionLabelKeys.exit)} ${inputTokenSymbol ?? ''}`
     }
     if (action === 'claim') {
       return translate('yieldXYZ.claimSymbol', { symbol: claimableTokenSymbol ?? '' })
     }
     return translate('yieldXYZ.manage')
-  }, [action, yieldItem, translate, inputTokenSymbol, exitSymbol, claimableTokenSymbol])
+  }, [action, yieldItem, translate, inputTokenSymbol, claimableTokenSymbol])
 
   const handleClose = useCallback(() => {
     const newParams = new URLSearchParams(searchParams)

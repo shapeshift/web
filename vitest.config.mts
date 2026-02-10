@@ -8,14 +8,6 @@ export default defineConfig(() => {
     test: {
       setupFiles: ['src/setupVitest'],
       clearMocks: true,
-      poolOptions: {
-        threads: {
-          singleThread: true,
-        },
-        forks: {
-          isolate: false,
-        },
-      },
     },
   }
 })

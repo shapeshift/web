@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "vitest run",
+    "test:keepkey": "vitest run src/keepkey.test.ts",
     "clean": "rm -rf node_modules"
   },
   "dependencies": {

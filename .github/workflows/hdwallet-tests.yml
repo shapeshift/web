@@ -35,6 +35,9 @@ jobs:
       - name: Yarn Install
         run: yarn install --immutable
 
+      - name: Generate Unchained Client
+        run: yarn workspace @shapeshiftoss/unchained-client generate
+
       - name: Build HDWallet Packages
         run: yarn hdwallet:build
 

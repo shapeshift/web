@@ -51,12 +51,6 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Arbitrum,
       })
-      const ethOnArbitrumNova = toAssetId({
-        chainNamespace,
-        chainReference: CHAIN_REFERENCE.ArbitrumNovaMainnet,
-        assetNamespace: 'slip44',
-        assetReference: ASSET_REFERENCE.ArbitrumNova,
-      })
       const ethOnBase = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.BaseMainnet,
@@ -67,7 +61,6 @@ describe('adapters:coingecko', () => {
         ethOnEthereum,
         ethOnOptimism,
         ethOnArbitrum,
-        ethOnArbitrumNova,
         ethOnBase,
       ])
     })
@@ -237,12 +230,6 @@ describe('adapters:coingecko', () => {
         assetNamespace,
         assetReference: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
       })
-      const usdcOnArbitrumNovaBridged = toAssetId({
-        chainNamespace,
-        chainReference: CHAIN_REFERENCE.ArbitrumNovaMainnet,
-        assetNamespace,
-        assetReference: '0x750ba8b76187092B0D1E87E28daaf484d1b5273b',
-      })
       const usdcOnGnosisBridged = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.GnosisMainnet,
@@ -254,9 +241,6 @@ describe('adapters:coingecko', () => {
       ])
       expect(coingeckoToAssetIds('bridged-usdc-polygon-pos-bridge')).toEqual([usdcOnPolygonBridged])
       expect(coingeckoToAssetIds('gnosis-xdai-bridged-usdc-gnosis')).toEqual([usdcOnGnosisBridged])
-      expect(coingeckoToAssetIds('official-arbitrum-bridged-usdc-arbitrum-nova')).toEqual([
-        usdcOnArbitrumNovaBridged,
-      ])
     })
   })
 

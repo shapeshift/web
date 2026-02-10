@@ -38,8 +38,6 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.Gnosis
           case CHAIN_REFERENCE.ArbitrumMainnet:
             return ASSET_REFERENCE.Arbitrum
-          case CHAIN_REFERENCE.ArbitrumNovaMainnet:
-            return ASSET_REFERENCE.ArbitrumNova
           case CHAIN_REFERENCE.BaseMainnet:
             return ASSET_REFERENCE.Base
           case CHAIN_REFERENCE.MonadMainnet:

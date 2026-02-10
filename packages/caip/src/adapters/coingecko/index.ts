@@ -6,7 +6,6 @@ import type { ChainId } from '../../chainId/chainId'
 import { fromChainId, toChainId } from '../../chainId/chainId'
 import {
   arbitrumChainId,
-  arbitrumNovaChainId,
   avalancheChainId,
   baseChainId,
   bscChainId,
@@ -46,7 +45,6 @@ export enum CoingeckoAssetPlatform {
   Optimism = 'optimistic-ethereum',
   BnbSmartChain = 'binance-smart-chain',
   Arbitrum = 'arbitrum-one',
-  ArbitrumNova = 'arbitrum-nova',
   Base = 'base',
   Monad = 'monad',
   HyperEvm = 'hyperevm',
@@ -102,8 +100,6 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Gnosis
         case CHAIN_REFERENCE.ArbitrumMainnet:
           return CoingeckoAssetPlatform.Arbitrum
-        case CHAIN_REFERENCE.ArbitrumNovaMainnet:
-          return CoingeckoAssetPlatform.ArbitrumNova
         case CHAIN_REFERENCE.BaseMainnet:
           return CoingeckoAssetPlatform.Base
         case CHAIN_REFERENCE.MonadMainnet:
@@ -211,8 +207,6 @@ export const coingeckoAssetPlatformToChainId = (
       return gnosisChainId
     case CoingeckoAssetPlatform.Arbitrum:
       return arbitrumChainId
-    case CoingeckoAssetPlatform.ArbitrumNova:
-      return arbitrumNovaChainId
     case CoingeckoAssetPlatform.Base:
       return baseChainId
     case CoingeckoAssetPlatform.Monad:

@@ -1,8 +1,8 @@
 import * as EosMessages from '@keepkey/device-protocol/lib/messages-eos_pb'
 import * as core from '@shapeshiftoss/hdwallet-core'
 
-import * as tx01_unsigned from './tx01.unsigned.json'
-import * as tx02_unsigned from './tx02.unsigned.json'
+import tx01_unsigned from './tx01.unsigned.json'
+import tx02_unsigned from './tx02.unsigned.json'
 
 const MNEMONIC12_NOPIN_NOPASSPHRASE =
   'alcohol woman abuse must during monitor noble actual mixed trade anger aisle'

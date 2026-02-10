@@ -96,7 +96,6 @@ export const mockStore: ReduxState = {
       Polygon: false,
       Gnosis: false,
       Arbitrum: false,
-      ArbitrumNova: false,
       Solana: false,
       Starknet: false,
       Tron: false,

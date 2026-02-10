@@ -21,7 +21,6 @@ export enum KnownChainIds {
   PolygonMainnet = 'eip155:137',
   GnosisMainnet = 'eip155:100',
   ArbitrumMainnet = 'eip155:42161',
-  ArbitrumNovaMainnet = 'eip155:42170',
   BaseMainnet = 'eip155:8453',
   MonadMainnet = 'eip155:143',
   HyperEvmMainnet = 'eip155:999',
@@ -51,7 +50,6 @@ export type EvmChainId =
   | KnownChainIds.PolygonMainnet
   | KnownChainIds.GnosisMainnet
   | KnownChainIds.ArbitrumMainnet
-  | KnownChainIds.ArbitrumNovaMainnet
   | KnownChainIds.BaseMainnet
   | KnownChainIds.MonadMainnet
   | KnownChainIds.HyperEvmMainnet

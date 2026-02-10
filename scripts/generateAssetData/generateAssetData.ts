@@ -24,7 +24,6 @@ import orderBy from 'lodash/orderBy'
 import path from 'path'
 
 import * as arbitrum from './arbitrum'
-import * as arbitrumNova from './arbitrumNova'
 import * as avalanche from './avalanche'
 import * as base from './base'
 import * as bnbsmartchain from './bnbsmartchain'
@@ -67,7 +66,6 @@ const generateAssetData = async () => {
   const polygonAssets = await polygon.getAssets()
   const gnosisAssets = await gnosis.getAssets()
   const arbitrumAssets = await arbitrum.getAssets()
-  const arbitrumNovaAssets = await arbitrumNova.getAssets()
   const baseAssets = await base.getAssets()
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
@@ -100,7 +98,6 @@ const generateAssetData = async () => {
     ...polygonAssets,
     ...gnosisAssets,
     ...arbitrumAssets,
-    ...arbitrumNovaAssets,
     ...baseAssets,
     ...monadAssets,
     ...hyperevmAssets,

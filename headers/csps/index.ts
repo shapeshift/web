@@ -3,7 +3,6 @@ import { csp as trustwallet } from './assetService/trustwallet'
 import { csp as base } from './base'
 import { csp as chainflip } from './chainflip'
 import { csp as arbitrum } from './chains/arbitrum'
-import { csp as arbitrumNova } from './chains/arbitrumNova'
 import { csp as avalanche } from './chains/avalanche'
 import { csp as baseChain } from './chains/base'
 import { csp as bitcoin } from './chains/bitcoin'
@@ -99,7 +98,6 @@ export const csps = [
   tenderly,
   webflow,
   arbitrum,
-  arbitrumNova,
   avalanche,
   baseChain,
   bitcoin,

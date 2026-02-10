@@ -146,7 +146,7 @@
     "@walletconnect/core": "^2.20.2",
     "@walletconnect/utils": "^2.20.2",
     "alchemy-sdk": "^3.4.1",
-    "axios": "^1.13.0",
+    "axios": "^1.13.5",
     "axios-cache-interceptor": "^1.11.1",
     "bech32": "^2.0.0",
     "bignumber.js": "^9.3.1",

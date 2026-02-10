@@ -44,7 +44,7 @@
     "@solana/web3.js": "1.98.0",
     "@ton/core": "^0.62.1",
     "@ton/crypto": "^3.3.0",
-    "axios": "^1.13.0",
+    "axios": "^1.13.5",
     "bech32": "^2.0.0",
     "bignumber.js": "^9.3.1",
     "bs58check": "^2.1.2",

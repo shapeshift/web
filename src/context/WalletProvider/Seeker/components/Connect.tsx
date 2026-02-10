@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { ConnectModal } from '../../components/ConnectModal'
-import { SeekerConfig, SEEKER_DEFAULT_CLUSTER } from '../config'
+import { SEEKER_DEFAULT_CLUSTER, SeekerConfig } from '../config'
 import {
   checkSeekerAvailability,
   seekerAuthorize,
@@ -11,6 +11,7 @@ import {
   seekerGetPublicKey,
   seekerGetStatus,
   seekerSignAndSendTransaction,
+  seekerSignMessage,
   seekerSignTransaction,
 } from '../seekerMessageHandlers'
 
@@ -54,9 +55,10 @@ export const SeekerConnect = () => {
         signTransaction: seekerSignTransaction,
         signAndSendTransaction: seekerSignAndSendTransaction,
         getPublicKey: seekerGetPublicKey,
+        signMessage: seekerSignMessage,
       }
 
-      const deviceId = `seeker-${Date.now()}`
+      const deviceId = `seeker:${authResult.address}`
       const wallet = new SeekerHDWallet(deviceId, authResult.address, messageHandler)
 
       const { icon } = SeekerConfig

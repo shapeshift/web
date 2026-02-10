@@ -98,3 +98,14 @@ export const seekerGetPublicKey = (derivationPath: string): Promise<{ publicKey:
     derivationPath,
   })
 }
+
+export const seekerSignMessage = (
+  message: string,
+  derivationPath: string,
+): Promise<{ signature: string }> => {
+  return postMessage<{ signature: string }>({
+    cmd: 'seekerSignMessage',
+    message,
+    derivationPath,
+  })
+}

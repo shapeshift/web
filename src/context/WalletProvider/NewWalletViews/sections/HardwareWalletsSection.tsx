@@ -1,5 +1,5 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
-import { Box, Button, Flex, Stack, Text as CText, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Text as CText, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
 import { useCallback, useEffect, useState } from 'react'
 
 import { Text } from '@/components/Text'
@@ -9,8 +9,18 @@ import { KeepKeyConfig } from '@/context/WalletProvider/KeepKey/config'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { LedgerConfig } from '@/context/WalletProvider/Ledger/config'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
-import { SeekerConfig } from '@/context/WalletProvider/Seeker/config'
-import { checkSeekerAvailability } from '@/context/WalletProvider/Seeker/seekerMessageHandlers'
+import { SEEKER_DEFAULT_CLUSTER, SeekerConfig } from '@/context/WalletProvider/Seeker/config'
+import {
+  checkSeekerAvailability,
+  seekerAuthorize,
+  seekerDeauthorize,
+  seekerGetAddress,
+  seekerGetPublicKey,
+  seekerGetStatus,
+  seekerSignAndSendTransaction,
+  seekerSignMessage,
+  seekerSignTransaction,
+} from '@/context/WalletProvider/Seeker/seekerMessageHandlers'
 import { TrezorConfig } from '@/context/WalletProvider/Trezor/config'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -105,18 +115,6 @@ export const HardwareWalletsSection = ({
 
   const handleConnectSeeker = useCallback(async () => {
     try {
-      const { SEEKER_DEFAULT_CLUSTER } = await import('@/context/WalletProvider/Seeker/config')
-      const {
-        seekerAuthorize,
-        checkSeekerAvailability,
-        seekerDeauthorize,
-        seekerGetAddress,
-        seekerGetPublicKey,
-        seekerGetStatus,
-        seekerSignTransaction,
-        seekerSignAndSendTransaction,
-      } = await import('@/context/WalletProvider/Seeker/seekerMessageHandlers')
-
       const authResult = await seekerAuthorize(SEEKER_DEFAULT_CLUSTER)
 
       if (!authResult.success || !authResult.address) {
@@ -135,9 +133,10 @@ export const HardwareWalletsSection = ({
         signTransaction: seekerSignTransaction,
         signAndSendTransaction: seekerSignAndSendTransaction,
         getPublicKey: seekerGetPublicKey,
+        signMessage: seekerSignMessage,
       }
 
-      const deviceId = `seeker-${Date.now()}`
+      const deviceId = `seeker:${authResult.address}`
       const wallet = new SeekerHDWallet(deviceId, authResult.address, messageHandler)
 
       const { icon } = SeekerConfig

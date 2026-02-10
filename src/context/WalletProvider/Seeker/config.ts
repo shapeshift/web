@@ -1,14 +1,15 @@
-import type { SupportedWalletInfo } from '@/context/WalletProvider/config'
+import { SeekerHDWallet } from '@shapeshiftoss/hdwallet-seeker'
+
 import { SeekerIcon } from '@/components/Icons/SeekerIcon'
+import type { SupportedWalletInfo } from '@/context/WalletProvider/config'
 
 type SeekerConfigType = Omit<SupportedWalletInfo<any>, 'routes'>
 
 export const SeekerConfig: SeekerConfigType = {
   adapters: [
     {
-      loadAdapter: async () => {
-        const { SeekerHDWallet } = await import('@shapeshiftoss/hdwallet-seeker')
-        return SeekerHDWallet as any
+      loadAdapter: () => {
+        return new Promise(resolve => resolve(SeekerHDWallet))
       },
     },
   ],

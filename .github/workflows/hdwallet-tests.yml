@@ -1,0 +1,39 @@
+name: HDWallet Tests
+
+on:
+  push:
+    branches: [main, develop, release]
+    paths:
+      - 'packages/hdwallet-*/**'
+      - 'vitest.hdwallet.config.mts'
+  pull_request:
+    paths:
+      - 'packages/hdwallet-*/**'
+      - 'vitest.hdwallet.config.mts'
+
+jobs:
+  test:
+    name: HDWallet Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
+
+      - name: Yarn Install
+        run: yarn install --immutable
+
+      - name: Test HDWallet
+        run: yarn hdwallet:test

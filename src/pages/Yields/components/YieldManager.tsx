@@ -13,6 +13,7 @@ import { YieldBalanceType } from '@/lib/yieldxyz/types'
 import {
   getDefaultValidatorForYield,
   getYieldActionLabelKeys,
+  isRebasingLiquidStaking,
   isStakingYieldType,
 } from '@/lib/yieldxyz/utils'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
@@ -46,6 +47,8 @@ export const YieldManager = () => {
 
   const exitSymbol = useMemo(() => {
     if (!yieldItem) return inputTokenSymbol
+    const isRebasing = isRebasingLiquidStaking(yieldItem.mechanics.type, yieldItem.providerId)
+    if (!isRebasing) return inputTokenSymbol
     const isStaking = isStakingYieldType(yieldItem.mechanics.type)
     if (isStaking && outputTokenSymbol && outputTokenSymbol !== inputTokenSymbol) {
       return outputTokenSymbol

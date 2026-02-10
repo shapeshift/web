@@ -41,6 +41,7 @@ import {
   getYieldActionLabelKeys,
   getYieldMinAmountKey,
   getYieldSuccessMessageKey,
+  isRebasingLiquidStaking,
   isStakingYieldType,
 } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
@@ -115,14 +116,14 @@ export const YieldForm = memo(
     const inputToken = yieldItem.inputTokens[0]
     const inputTokenAssetId = inputToken?.assetId
     const outputTokenAssetId = yieldItem.outputToken?.assetId
-
     const isStaking = isStakingYieldType(yieldItem.mechanics.type)
+    const isRebasing = isRebasingLiquidStaking(yieldItem.mechanics.type, yieldItem.providerId)
     const isExitWithOutputToken =
       action === 'exit' &&
+      isRebasing &&
       isStaking &&
       !!outputTokenAssetId &&
       outputTokenAssetId !== inputTokenAssetId
-
     const claimableBalance = useMemo(() => balances?.byType[YieldBalanceType.Claimable], [balances])
     const withdrawableBalance = useMemo(
       () => balances?.byType[YieldBalanceType.Withdrawable],
@@ -282,7 +283,8 @@ export const YieldForm = memo(
       return false
     }, [cryptoAmount, minDeposit, action, availableBalance])
 
-    const isLoading = isValidatorsLoading || !inputTokenAsset
+    const isLoading =
+      isValidatorsLoading || !inputTokenAsset || (isExitWithOutputToken && !outputTokenAsset)
 
     const fiatAmount = useMemo(
       () => bnOrZero(cryptoAmount).times(marketData?.price ?? 0),
@@ -382,7 +384,7 @@ export const YieldForm = memo(
       yieldItem,
       action: flowAction,
       amount: isClaimAction ? claimableAmount : cryptoAmount,
-      assetSymbol: isClaimAction ? claimableToken?.symbol ?? '' : displayAsset?.symbol ?? '',
+      assetSymbol: isClaimAction ? claimableToken?.symbol ?? '' : inputTokenAsset?.symbol ?? '',
       onClose: handleFormDone,
       isOpen: true,
       validatorAddress: selectedValidatorAddress,

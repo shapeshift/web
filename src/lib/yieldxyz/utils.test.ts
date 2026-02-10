@@ -51,53 +51,46 @@ describe('getTransactionButtonText', () => {
 })
 
 describe('resolveAssetSymbolForTx', () => {
-  it('should return output token symbol for exit APPROVAL transactions', () => {
-    // Lido: approve stETH to withdrawal queue
-    expect(resolveAssetSymbolForTx('APPROVAL', 'exit', 'ETH', 'stETH')).toBe('stETH')
-    expect(resolveAssetSymbolForTx('APPROVE', 'exit', 'ETH', 'stETH')).toBe('stETH')
-    // Rocket Pool: approve rETH
-    expect(resolveAssetSymbolForTx('APPROVAL', 'exit', 'ETH', 'rETH')).toBe('rETH')
-    // AVAX: approve sAVAX
-    expect(resolveAssetSymbolForTx('APPROVAL', 'exit', 'AVAX', 'sAVAX')).toBe('sAVAX')
+  it('should return input token for non-rebasing tokens regardless of tx type', () => {
+    // sAVAX: not rebasing (pricePerShare), always show AVAX
+    expect(resolveAssetSymbolForTx('APPROVAL', 'exit', 'AVAX', 'sAVAX', false)).toBe('AVAX')
+    expect(resolveAssetSymbolForTx('UNSTAKE', 'exit', 'AVAX', 'sAVAX', false)).toBe('AVAX')
+    expect(resolveAssetSymbolForTx('WITHDRAW', 'exit', 'AVAX', 'sAVAX', false)).toBe('AVAX')
+    // rETH: not rebasing (pricePerShare)
+    expect(resolveAssetSymbolForTx('APPROVAL', 'exit', 'ETH', 'rETH', false)).toBe('ETH')
+    expect(resolveAssetSymbolForTx('SWAP', 'exit', 'ETH', 'rETH', false)).toBe('ETH')
   })
 
-  it('should return output token symbol for exit UNSTAKE transactions', () => {
-    // Lido: unstake stETH (you spend stETH, receive ETH later)
-    expect(resolveAssetSymbolForTx('UNSTAKE', 'exit', 'ETH', 'stETH')).toBe('stETH')
-    // Generic
-    expect(resolveAssetSymbolForTx('EXIT', 'exit', 'ETH', 'stETH')).toBe('stETH')
+  it('should return output token for rebasing exit non-WITHDRAW transactions', () => {
+    // stETH: rebasing, show stETH for approval/unstake
+    expect(resolveAssetSymbolForTx('APPROVAL', 'exit', 'ETH', 'stETH', true)).toBe('stETH')
+    expect(resolveAssetSymbolForTx('APPROVE', 'exit', 'ETH', 'stETH', true)).toBe('stETH')
+    expect(resolveAssetSymbolForTx('UNSTAKE', 'exit', 'ETH', 'stETH', true)).toBe('stETH')
+    expect(resolveAssetSymbolForTx('EXIT', 'exit', 'ETH', 'stETH', true)).toBe('stETH')
   })
 
-  it('should return output token symbol for exit SWAP transactions', () => {
-    // rETH: swap rETH → ETH via DEX
-    expect(resolveAssetSymbolForTx('SWAP', 'exit', 'ETH', 'rETH')).toBe('rETH')
+  it('should return input token for rebasing exit WITHDRAW transactions', () => {
+    expect(resolveAssetSymbolForTx('WITHDRAW', 'exit', 'ETH', 'stETH', true)).toBe('ETH')
   })
 
-  it('should return input token symbol for exit WITHDRAW transactions', () => {
-    // Compound: withdraw USDT (not cUSDTv3)
-    expect(resolveAssetSymbolForTx('WITHDRAW', 'exit', 'USDT', 'cUSDTv3')).toBe('USDT')
-    // Fluid: withdraw USDT (not fUSDT)
-    expect(resolveAssetSymbolForTx('WITHDRAW', 'exit', 'USDT', 'fUSDT')).toBe('USDT')
+  it('should return input token for enter actions', () => {
+    expect(resolveAssetSymbolForTx('APPROVAL', 'enter', 'USDT', 'cUSDTv3', false)).toBe('USDT')
+    expect(resolveAssetSymbolForTx('STAKE', 'enter', 'ETH', 'stETH', true)).toBe('ETH')
+    expect(resolveAssetSymbolForTx('DEPOSIT', 'enter', 'USDT', 'cUSDTv3', false)).toBe('USDT')
   })
 
-  it('should return input token symbol for enter actions', () => {
-    expect(resolveAssetSymbolForTx('APPROVAL', 'enter', 'USDT', 'cUSDTv3')).toBe('USDT')
-    expect(resolveAssetSymbolForTx('STAKE', 'enter', 'ETH', 'stETH')).toBe('ETH')
-    expect(resolveAssetSymbolForTx('DEPOSIT', 'enter', 'USDT', 'cUSDTv3')).toBe('USDT')
+  it('should return input token for manage actions', () => {
+    expect(resolveAssetSymbolForTx('CLAIM', 'manage', 'ETH', 'stETH', true)).toBe('ETH')
   })
 
-  it('should return input token symbol for manage actions', () => {
-    expect(resolveAssetSymbolForTx('CLAIM', 'manage', 'ETH', 'stETH')).toBe('ETH')
+  it('should fallback to input token when output token is undefined', () => {
+    expect(resolveAssetSymbolForTx('UNSTAKE', 'exit', 'ETH', undefined, true)).toBe('ETH')
+    expect(resolveAssetSymbolForTx('APPROVAL', 'exit', 'ETH', undefined, true)).toBe('ETH')
   })
 
-  it('should fallback to input token symbol when output token is undefined', () => {
-    expect(resolveAssetSymbolForTx('UNSTAKE', 'exit', 'ETH', undefined)).toBe('ETH')
-    expect(resolveAssetSymbolForTx('APPROVAL', 'exit', 'ETH', undefined)).toBe('ETH')
-  })
-
-  it('should fallback to input token symbol when tx type is undefined', () => {
-    expect(resolveAssetSymbolForTx(undefined, 'exit', 'ETH', 'stETH')).toBe('ETH')
-    expect(resolveAssetSymbolForTx(undefined, 'enter', 'ETH', 'stETH')).toBe('ETH')
+  it('should fallback to input token when tx type is undefined', () => {
+    expect(resolveAssetSymbolForTx(undefined, 'exit', 'ETH', 'stETH', true)).toBe('ETH')
+    expect(resolveAssetSymbolForTx(undefined, 'enter', 'ETH', 'stETH', true)).toBe('ETH')
   })
 })
 

@@ -35,5 +35,8 @@ jobs:
       - name: Yarn Install
         run: yarn install --immutable
 
+      - name: Build HDWallet Packages
+        run: yarn hdwallet:build
+
       - name: Test HDWallet
         run: yarn hdwallet:test

@@ -17,7 +17,6 @@
     "@shapeshiftoss/hdwallet-ledger": "workspace:^",
     "@shapeshiftoss/hdwallet-metamask-multichain": "workspace:^",
     "@shapeshiftoss/hdwallet-native": "workspace:^",
-    "@shapeshiftoss/hdwallet-portis": "workspace:^",
     "@shapeshiftoss/hdwallet-trezor": "workspace:^",
     "@shapeshiftoss/hdwallet-vultisig": "workspace:^",
     "fast-json-stable-stringify": "^2.1.0",

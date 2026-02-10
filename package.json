@@ -125,7 +125,6 @@
     "@shapeshiftoss/hdwallet-trezor": "workspace:^",
     "@shapeshiftoss/hdwallet-trezor-connect": "workspace:^",
     "@shapeshiftoss/hdwallet-vultisig": "workspace:^",
-    "@shapeshiftoss/hdwallet-walletconnect": "workspace:^",
     "@shapeshiftoss/hdwallet-walletconnectv2": "workspace:^",
     "@shapeshiftoss/swapper": "workspace:^",
     "@shapeshiftoss/types": "workspace:^",

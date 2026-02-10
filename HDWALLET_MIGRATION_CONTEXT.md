@@ -4,7 +4,7 @@ This document provides full context for an AI agent continuing work on this bran
 
 ## What this branch does
 
-Moves all 24 `@shapeshiftoss/hdwallet-*` packages from the separate `shapeshift/hdwallet` repo into the web monorepo as yarn workspace packages. The original repo lives at `/Users/gomes/Sites/shapeshiftHdWallet` for reference.
+Moves all 21 `@shapeshiftoss/hdwallet-*` packages from the separate `shapeshift/hdwallet` repo into the web monorepo as yarn workspace packages. The original repo lives at `/Users/gomes/Sites/shapeshiftHdWallet` for reference.
 
 **Branch:** `feat/hdwallet-workspace`
 **Worktree:** `/Users/gomes/Sites/shapeshiftWeb--feat-hdwallet-workspace`
@@ -22,14 +22,13 @@ All builds pass:
 - `yarn build:packages` — 0 errors
 - `yarn hdwallet:build` — 0 errors (~14s)
 
-## The 24 hdwallet packages
+## The 21 hdwallet packages
 
 ```
 hdwallet-core              hdwallet-coinbase          hdwallet-gridplus
 hdwallet-keepkey            hdwallet-keplr             hdwallet-ledger
 hdwallet-metamask-multichain hdwallet-native           hdwallet-phantom
-hdwallet-portis             hdwallet-trezor            hdwallet-vultisig
-hdwallet-walletconnect      hdwallet-walletconnectv2   hdwallet-keepkey-chromeusb
+hdwallet-trezor             hdwallet-vultisig          hdwallet-walletconnectv2
 hdwallet-keepkey-electron   hdwallet-keepkey-nodehid   hdwallet-keepkey-nodewebusb
 hdwallet-keepkey-tcp        hdwallet-keepkey-webusb     hdwallet-ledger-webhid
 hdwallet-ledger-webusb      hdwallet-native-vault      hdwallet-trezor-connect
@@ -96,9 +95,9 @@ See PR description checkboxes at https://github.com/shapeshift/web/pull/11811
 - Conditionally run hdwallet tests only when `packages/hdwallet-*` files change — no need on every web PR
 
 ### Dead wallet removal
-- Remove Portis, WalletConnect v1 (legacy), KeepKey Chrome USB
+~~Remove Portis, WalletConnect v1 (legacy), KeepKey Chrome USB~~
+**Done** -- removed `hdwallet-portis`, `hdwallet-walletconnect`, and `hdwallet-keepkey-chromeusb` packages and all references.
 - Reference: https://github.com/shapeshift/hdwallet/pull/746 by @kaladinlight
-- These packages are dead/unused but were copied over with the migration
 
 ### Code cleanup
 - Run prettier on hdwallet sources to match web conventions (printWidth 100, singleQuote true) — separate commit

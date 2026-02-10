@@ -1,6 +1,6 @@
 # hdwallet Workspace Migration Audit
 
-Deep audit of moving 24 hdwallet packages from separate repo into web monorepo as workspace packages.
+Deep audit of moving 21 hdwallet packages from separate repo into web monorepo as workspace packages.
 
 ## Critical — Must fix before merge
 
@@ -26,7 +26,7 @@ Monkey-patches Zcash BIP143 trusted input handling. Will fail silently in ESM (w
 - `packages/hdwallet-keepkey-nodehid/tsconfig.esm.json`
 - `packages/hdwallet-keepkey-nodehid/tsconfig.cjs.json`
 
-These packages reference only `hdwallet-keepkey` but are missing `hdwallet-core`. Other keepkey transport packages (tcp, nodewebusb, webusb, chromeusb) correctly have both references. Without the explicit reference, `tsc --build` won't properly rebuild when hdwallet-core changes.
+These packages reference only `hdwallet-keepkey` but are missing `hdwallet-core`. Other keepkey transport packages (tcp, nodewebusb, webusb) correctly have both references. Without the explicit reference, `tsc --build` won't properly rebuild when hdwallet-core changes.
 
 ---
 
@@ -40,7 +40,7 @@ Listed in both `dependencies` (`^1.0.4`) and `devDependencies` (`^1.0.6`) with d
 
 ### 4. Extra `ethers` dependencies added
 
-**Packages:** `hdwallet-coinbase`, `hdwallet-phantom`, `hdwallet-portis`, `hdwallet-vultisig`, `hdwallet-metamask-multichain`
+**Packages:** `hdwallet-coinbase`, `hdwallet-phantom`, `hdwallet-vultisig`, `hdwallet-metamask-multichain`
 
 These packages didn't have `ethers` in the original repo but the migration script added `"ethers": "5.7.2"`. They import from `ethers/lib/utils` which is handled by the Vite alias → `ethers5`. The explicit dep is harmless but unnecessary — could be removed for cleanliness.
 
@@ -54,11 +54,11 @@ Changed from exact pin `1.95.8` to caret `^1.98.0`. Could pull a breaking minor 
 
 **File:** `tsconfig.json` (lines 54-63)
 
-Only references 8 non-hdwallet packages. `tsconfig.packages.json` has all 24 — that's what `yarn build:packages` uses, so builds work. But IDE/editor type-checking via `tsconfig.json` may not see hdwallet project references for incremental builds.
+Only references 8 non-hdwallet packages. `tsconfig.packages.json` has all 21 — that's what `yarn build:packages` uses, so builds work. But IDE/editor type-checking via `tsconfig.json` may not see hdwallet project references for incremental builds.
 
 ### 7. `skipLibCheck: true` in all hdwallet tsconfigs
 
-All 48 `tsconfig.{esm,cjs}.json` files have `skipLibCheck: true`. This hides type errors in declaration files. Acceptable during migration but consider removing once stable.
+All 42 `tsconfig.{esm,cjs}.json` files have `skipLibCheck: true`. This hides type errors in declaration files. Acceptable during migration but consider removing once stable.
 
 ---
 
@@ -90,12 +90,12 @@ The monkey-patch in `hdwallet-ledger/src/bitcoin.ts` (Issue #1) works by replaci
 
 | Area | Status |
 |---|---|
-| All 24 packages copied completely | No missing source files |
+| All 21 packages copied completely | No missing source files |
 | All `workspace:^` conversions | Correct across root, chain-adapters, swapper |
 | Barrel exports (index.ts) | All match original hdwallet repo exactly |
 | No circular dependencies | Dependency graph is clean and acyclic |
 | No CJS patterns in source | No `module.exports` or `exports.` — all ESM |
-| Dynamic imports | 24 uses, all wrapped in `PLazy.from()` |
+| Dynamic imports | All wrapped in `PLazy.from()` |
 | Web app import paths | No deep imports — all use package index exports |
 | Buffer polyfills | `vite-plugin-node-polyfills` covers Buffer, global, process |
 | Crypto usage | Web Crypto API only — no Node.js `crypto` module |
@@ -105,7 +105,7 @@ The monkey-patch in `hdwallet-ledger/src/bitcoin.ts` (Issue #1) works by replaci
 | `yarn build:web` | 0 errors (263 valid files) |
 | Vite config | Plugin order, commonjsOptions, resolve aliases all correct |
 | Code splitting | Wallet-specific lazy imports preserved (same as before) |
-| `noUnusedLocals/noUnusedParameters` overrides | Removed from all 48 hdwallet tsconfigs |
+| `noUnusedLocals/noUnusedParameters` overrides | Removed from all 42 hdwallet tsconfigs |
 
 ---
 
@@ -115,7 +115,6 @@ The monkey-patch in `hdwallet-ledger/src/bitcoin.ts` (Issue #1) works by replaci
 |---|---|---|
 | hdwallet-coinbase | Added `ethers: 5.7.2` (not in original) | Low |
 | hdwallet-phantom | Added `ethers: 5.7.2` (not in original) | Low |
-| hdwallet-portis | Added `ethers: 5.7.2` (not in original) | Low |
 | hdwallet-vultisig | Added `ethers: 5.7.2` (not in original) | Low |
 | hdwallet-metamask-multichain | Added `ethers: 5.7.2` (not in original) | Low |
 | hdwallet-core | `@solana/web3.js` `1.95.8` → `^1.98.0` | Medium |
@@ -132,9 +131,9 @@ The monkey-patch in `hdwallet-ledger/src/bitcoin.ts` (Issue #1) works by replaci
 | Item | Status |
 |---|---|
 | Missing tsconfig refs (keepkey-electron, keepkey-nodehid) | Fixed — added `hdwallet-core` references to 4 tsconfig files |
-| Root `tsconfig.json` missing hdwallet references | Fixed — added all 24 packages |
+| Root `tsconfig.json` missing hdwallet references | Fixed — added all 21 packages |
 | `@solana/web3.js` version pinning | Fixed — pinned to exact `1.98.0` across all 9 packages |
-| `noUnusedLocals`/`noUnusedParameters` overrides | Fixed — removed from all 48 hdwallet tsconfigs, prefixed unused params with `_` |
+| `noUnusedLocals`/`noUnusedParameters` overrides | Fixed — removed from all 42 hdwallet tsconfigs, prefixed unused params with `_` |
 | Stale build artifacts in `src/` dirs | Fixed — deleted 67 stale `.d.ts`, `.d.ts.map`, `.js.map` files from hdwallet-native/src |
 | ethers v5/v6 coexistence | Fixed — Vite plugin conditionally resolves `ethers` → `ethers5` for hdwallet sources |
 
@@ -170,7 +169,6 @@ Sandbox is functional with MetaMask. The following wallet integrations should st
 - Keplr
 - Coinbase
 - Phantom
-- Portis
 
 ### Sandbox — Vite 6 polyfill workarounds
 `vite-plugin-node-polyfills` `globals` injection is broken in Vite 6 (self-referencing circular import in pre-bundled dep chunks). Workaround: `globals: false` + explicit `polyfills.ts` module imported first in `index.ts` sets up `Buffer`, `global`, and `process` on `globalThis`. If upgrading `vite-plugin-node-polyfills` later, test whether `globals: true` works again.
@@ -187,10 +185,10 @@ Standardized across monorepo during migration:
 - `@types/lodash`: `^4.14.178` (10 packages)
 - `crypto-js`: `^4.2.0` (keepkey, native)
 - `bitcoinjs-message`: `^2.1.0` (ledger, phantom, vultisig)
-- `bip32`: `^2.0.5` (portis, sandbox)
+- `bip32`: `^2.0.5` (sandbox)
 
 ### `patch-package` postinstall
 Original had `postinstall: "patch-package"` with a `jest-environment-jsdom` patch. Jest-specific — not relevant (Vitest). No action needed.
 
 ### `skipLibCheck: true` in hdwallet tsconfigs
-All 48 `tsconfig.{esm,cjs}.json` files have `skipLibCheck: true`. Hides type errors in declaration files. Acceptable during migration, consider removing once stable.
+All 42 `tsconfig.{esm,cjs}.json` files have `skipLibCheck: true`. Hides type errors in declaration files. Acceptable during migration, consider removing once stable.

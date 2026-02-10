@@ -343,7 +343,6 @@ Set `readonly _supports[ChainName] = false` on:
 - packages/hdwallet-keplr/src/keplr.ts
 - packages/hdwallet-phantom/src/phantom.ts
 - packages/hdwallet-vultisig/src/vultisig.ts
-- packages/hdwallet-walletconnect/src/walletconnect.ts (deprecated, use V2)
 
 **For non-EVM chains:**
 

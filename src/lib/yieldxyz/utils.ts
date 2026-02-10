@@ -110,6 +110,23 @@ export const getTransactionButtonText = (
   return 'Confirm'
 }
 
+/**
+ * For exit actions, the user operates on the output/receipt token (e.g., stETH, rETH, sAVAX),
+ * not the input token (e.g., ETH). WITHDRAW transactions are the exception - they operate on the
+ * underlying/input token (e.g., "Withdraw USDT" from Compound/vaults).
+ */
+export const resolveAssetSymbolForTx = (
+  txType: string | undefined,
+  action: 'enter' | 'exit' | 'manage',
+  assetSymbol: string,
+  outputTokenSymbol: string | undefined,
+): string => {
+  if (action !== 'exit' || !outputTokenSymbol || !txType) return assetSymbol
+  const normalizedType = txType.toUpperCase()
+  if (normalizedType === 'WITHDRAW') return assetSymbol
+  return outputTokenSymbol
+}
+
 export const formatYieldTxTitle = (
   title: string,
   assetSymbol: string,

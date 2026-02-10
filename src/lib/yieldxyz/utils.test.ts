@@ -11,6 +11,7 @@ import {
   getYieldActionLabelKeys,
   getYieldSuccessMessageKey,
   isStakingYieldType,
+  resolveAssetSymbolForTx,
   resolveYieldInputAssetIcon,
   searchValidators,
   searchYields,
@@ -46,6 +47,57 @@ describe('getTransactionButtonText', () => {
 
   it('should capitalize unknown types', () => {
     expect(getTransactionButtonText('CUSTOM_ACTION', undefined)).toBe('Custom_action')
+  })
+})
+
+describe('resolveAssetSymbolForTx', () => {
+  it('should return output token symbol for exit APPROVAL transactions', () => {
+    // Lido: approve stETH to withdrawal queue
+    expect(resolveAssetSymbolForTx('APPROVAL', 'exit', 'ETH', 'stETH')).toBe('stETH')
+    expect(resolveAssetSymbolForTx('APPROVE', 'exit', 'ETH', 'stETH')).toBe('stETH')
+    // Rocket Pool: approve rETH
+    expect(resolveAssetSymbolForTx('APPROVAL', 'exit', 'ETH', 'rETH')).toBe('rETH')
+    // AVAX: approve sAVAX
+    expect(resolveAssetSymbolForTx('APPROVAL', 'exit', 'AVAX', 'sAVAX')).toBe('sAVAX')
+  })
+
+  it('should return output token symbol for exit UNSTAKE transactions', () => {
+    // Lido: unstake stETH (you spend stETH, receive ETH later)
+    expect(resolveAssetSymbolForTx('UNSTAKE', 'exit', 'ETH', 'stETH')).toBe('stETH')
+    // Generic
+    expect(resolveAssetSymbolForTx('EXIT', 'exit', 'ETH', 'stETH')).toBe('stETH')
+  })
+
+  it('should return output token symbol for exit SWAP transactions', () => {
+    // rETH: swap rETH → ETH via DEX
+    expect(resolveAssetSymbolForTx('SWAP', 'exit', 'ETH', 'rETH')).toBe('rETH')
+  })
+
+  it('should return input token symbol for exit WITHDRAW transactions', () => {
+    // Compound: withdraw USDT (not cUSDTv3)
+    expect(resolveAssetSymbolForTx('WITHDRAW', 'exit', 'USDT', 'cUSDTv3')).toBe('USDT')
+    // Fluid: withdraw USDT (not fUSDT)
+    expect(resolveAssetSymbolForTx('WITHDRAW', 'exit', 'USDT', 'fUSDT')).toBe('USDT')
+  })
+
+  it('should return input token symbol for enter actions', () => {
+    expect(resolveAssetSymbolForTx('APPROVAL', 'enter', 'USDT', 'cUSDTv3')).toBe('USDT')
+    expect(resolveAssetSymbolForTx('STAKE', 'enter', 'ETH', 'stETH')).toBe('ETH')
+    expect(resolveAssetSymbolForTx('DEPOSIT', 'enter', 'USDT', 'cUSDTv3')).toBe('USDT')
+  })
+
+  it('should return input token symbol for manage actions', () => {
+    expect(resolveAssetSymbolForTx('CLAIM', 'manage', 'ETH', 'stETH')).toBe('ETH')
+  })
+
+  it('should fallback to input token symbol when output token is undefined', () => {
+    expect(resolveAssetSymbolForTx('UNSTAKE', 'exit', 'ETH', undefined)).toBe('ETH')
+    expect(resolveAssetSymbolForTx('APPROVAL', 'exit', 'ETH', undefined)).toBe('ETH')
+  })
+
+  it('should fallback to input token symbol when tx type is undefined', () => {
+    expect(resolveAssetSymbolForTx(undefined, 'exit', 'ETH', 'stETH')).toBe('ETH')
+    expect(resolveAssetSymbolForTx(undefined, 'enter', 'ETH', 'stETH')).toBe('ETH')
   })
 })
 

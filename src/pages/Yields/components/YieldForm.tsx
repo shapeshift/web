@@ -114,6 +114,15 @@ export const YieldForm = memo(
     const { chainId } = yieldItem
     const inputToken = yieldItem.inputTokens[0]
     const inputTokenAssetId = inputToken?.assetId
+    const outputTokenAssetId = yieldItem.outputToken?.assetId
+
+    const isStaking = isStakingYieldType(yieldItem.mechanics.type)
+    const isExitWithOutputToken =
+      action === 'exit' &&
+      isStaking &&
+      !!outputTokenAssetId &&
+      outputTokenAssetId !== inputTokenAssetId
+    const displayAssetId = isExitWithOutputToken ? outputTokenAssetId : inputTokenAssetId
 
     const claimableBalance = useMemo(() => balances?.byType[YieldBalanceType.Claimable], [balances])
     const withdrawableBalance = useMemo(
@@ -194,8 +203,6 @@ export const YieldForm = memo(
 
     const { data: providers } = useYieldProviders()
 
-    const isStaking = isStakingYieldType(yieldItem.mechanics.type)
-
     const maybeSelectedValidatorMetadata = useMemo(() => {
       if (!shouldFetchValidators || !selectedValidatorAddress) return null
       const found = validators?.find(v => v.address === selectedValidatorAddress)
@@ -216,6 +223,10 @@ export const YieldForm = memo(
     }, [providers, yieldItem.providerId])
 
     const inputTokenAsset = useAppSelector(state => selectAssetById(state, inputTokenAssetId ?? ''))
+    const outputTokenAsset = useAppSelector(state => selectAssetById(state, displayAssetId ?? ''))
+    const displayAsset = isExitWithOutputToken
+      ? outputTokenAsset ?? inputTokenAsset
+      : inputTokenAsset
 
     const inputTokenBalance = useAppSelector(state =>
       inputTokenAssetId && accountId
@@ -250,10 +261,8 @@ export const YieldForm = memo(
       return '0' // default fallback
     }, [action, inputTokenBalance, balances, isStaking, selectedValidatorAddress])
 
-    // Proceeding with inputTokenBalance for now to match YieldEnterModal logic structure, but aware this is a nuance for Exit.
-
     const marketData = useAppSelector(state =>
-      selectMarketDataByAssetIdUserCurrency(state, inputTokenAssetId ?? ''),
+      selectMarketDataByAssetIdUserCurrency(state, displayAssetId ?? ''),
     )
 
     const minDeposit = yieldItem.mechanics?.entryLimits?.minimum
@@ -272,7 +281,8 @@ export const YieldForm = memo(
       return false
     }, [cryptoAmount, minDeposit, action, availableBalance])
 
-    const isLoading = isValidatorsLoading || !inputTokenAsset
+    const isLoading =
+      isValidatorsLoading || !inputTokenAsset || (isExitWithOutputToken && !outputTokenAsset)
 
     const fiatAmount = useMemo(
       () => bnOrZero(cryptoAmount).times(marketData?.price ?? 0),
@@ -372,7 +382,7 @@ export const YieldForm = memo(
       yieldItem,
       action: flowAction,
       amount: isClaimAction ? claimableAmount : cryptoAmount,
-      assetSymbol: isClaimAction ? claimableToken?.symbol ?? '' : inputTokenAsset?.symbol ?? '',
+      assetSymbol: isClaimAction ? claimableToken?.symbol ?? '' : displayAsset?.symbol ?? '',
       onClose: handleFormDone,
       isOpen: true,
       validatorAddress: selectedValidatorAddress,
@@ -465,7 +475,7 @@ export const YieldForm = memo(
         return `${translate(actionLabelKeys.enter)} ${inputTokenAsset?.symbol ?? ''}`
       }
       if (action === 'exit') {
-        return `${translate(actionLabelKeys.exit)} ${inputTokenAsset?.symbol ?? ''}`
+        return `${translate(actionLabelKeys.exit)} ${displayAsset?.symbol ?? ''}`
       }
       if (action === 'claim') {
         return `${translate('common.claim')} ${claimableToken?.symbol ?? ''}`
@@ -481,6 +491,7 @@ export const YieldForm = memo(
       quoteData,
       translate,
       inputTokenAsset?.symbol,
+      displayAsset?.symbol,
       action,
       yieldItem.mechanics.type,
       claimableToken?.symbol,
@@ -633,11 +644,11 @@ export const YieldForm = memo(
 
       return (
         <Flex direction='column' align='center' py={6}>
-          {inputTokenAssetId && <AssetIcon assetId={inputTokenAssetId} size='md' mb={4} />}
+          {displayAssetId && <AssetIcon assetId={displayAssetId} size='md' mb={4} />}
           <NumericFormat
             customInput={CryptoAmountInput}
             valueIsNumericString={true}
-            decimalScale={isFiat ? 2 : inputTokenAsset?.precision}
+            decimalScale={isFiat ? 2 : displayAsset?.precision}
             inputMode='decimal'
             thousandSeparator={localeParts.group}
             decimalSeparator={localeParts.decimal}
@@ -647,7 +658,7 @@ export const YieldForm = memo(
             value={displayValue}
             placeholder={displayPlaceholder}
             prefix={isFiat ? localeParts.prefix : ''}
-            suffix={isFiat ? '' : ` ${inputTokenAsset?.symbol}`}
+            suffix={isFiat ? '' : ` ${displayAsset?.symbol}`}
             onValueChange={handleInputChange}
           />
           <HStack
@@ -667,7 +678,7 @@ export const YieldForm = memo(
           >
             <Text fontSize='sm' color='text.subtle'>
               {isFiat ? (
-                <Amount.Crypto value={cryptoAmount || '0'} symbol={inputTokenAsset?.symbol} />
+                <Amount.Crypto value={cryptoAmount || '0'} symbol={displayAsset?.symbol ?? ''} />
               ) : (
                 <Amount.Fiat value={fiatAmount.toFixed(2)} />
               )}
@@ -683,13 +694,12 @@ export const YieldForm = memo(
       claimableToken,
       claimableAmount,
       translate,
-      inputTokenAssetId,
+      displayAssetId,
+      displayAsset,
       isFiat,
-      inputTokenAsset?.precision,
       localeParts,
       displayValue,
       displayPlaceholder,
-      inputTokenAsset?.symbol,
       handleInputChange,
       toggleIsFiat,
       cryptoAmount,
@@ -719,7 +729,7 @@ export const YieldForm = memo(
       const successAmount = isClaimAction ? claimableAmount : cryptoAmount
       const successSymbol = isClaimAction
         ? claimableToken?.symbol ?? ''
-        : inputTokenAsset?.symbol ?? ''
+        : displayAsset?.symbol ?? ''
       const successMessageKey = getYieldSuccessMessageKey(
         yieldItem.mechanics.type,
         isClaimAction ? 'claim' : action,

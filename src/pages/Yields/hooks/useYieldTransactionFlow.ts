@@ -20,7 +20,11 @@ import type { CosmosStakeArgs } from '@/lib/yieldxyz/executeTransaction'
 import { executeTransaction } from '@/lib/yieldxyz/executeTransaction'
 import type { ActionDto, AugmentedYieldDto, TransactionDto } from '@/lib/yieldxyz/types'
 import { ActionStatus as YieldActionStatus, TransactionStatus } from '@/lib/yieldxyz/types'
-import { formatYieldTxTitle, getDefaultValidatorForYield } from '@/lib/yieldxyz/utils'
+import {
+  formatYieldTxTitle,
+  getDefaultValidatorForYield,
+  resolveAssetSymbolForTx,
+} from '@/lib/yieldxyz/utils'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import { reactQueries } from '@/react-queries'
 import { useAllowance } from '@/react-queries/hooks/useAllowance'
@@ -178,6 +182,12 @@ export const useYieldTransactionFlow = ({
   const submitHashMutation = useSubmitYieldTransactionHash()
 
   const inputTokenAssetId = useMemo(() => yieldItem?.inputTokens?.[0]?.assetId, [yieldItem])
+  const outputTokenSymbol = yieldItem?.outputToken?.symbol
+
+  const resolveSymbolForTx = useCallback(
+    (txType?: string) => resolveAssetSymbolForTx(txType, action, assetSymbol, outputTokenSymbol),
+    [action, assetSymbol, outputTokenSymbol],
+  )
 
   const yieldChainId = yieldItem?.chainId
   const { accountId: contextAccountId, accountNumber: contextAccountNumber } = useYieldAccount()
@@ -353,7 +363,7 @@ export const useYieldTransactionFlow = ({
           .map((tx, i) => ({
             title: formatYieldTxTitle(
               tx.title || `Transaction ${i + 1}`,
-              assetSymbol,
+              resolveSymbolForTx(tx.type),
               yieldItem?.mechanics.type,
               tx.type,
             ),
@@ -368,7 +378,7 @@ export const useYieldTransactionFlow = ({
   }, [
     transactionSteps,
     quoteData,
-    assetSymbol,
+    resolveSymbolForTx,
     yieldItem?.mechanics.type,
     isAllowanceCheckPending,
     isUsdtResetRequired,
@@ -450,7 +460,7 @@ export const useYieldTransactionFlow = ({
               typeMessagesMap[actionType] ??
               formatYieldTxTitle(
                 tx.title || 'Transaction',
-                assetSymbol,
+                resolveSymbolForTx(tx.type),
                 yieldItem.mechanics.type,
                 tx.type,
               ),
@@ -461,7 +471,7 @@ export const useYieldTransactionFlow = ({
         }),
       )
     },
-    [dispatch, yieldChainId, accountId, action, yieldItem, assetSymbol, amount],
+    [dispatch, yieldChainId, accountId, action, yieldItem, resolveSymbolForTx, amount],
   )
 
   const buildCosmosStakeArgs = useCallback((): CosmosStakeArgs | undefined => {
@@ -775,7 +785,7 @@ export const useYieldTransactionFlow = ({
         ...transactions.map((tx, i) => ({
           title: formatYieldTxTitle(
             tx.title || `Transaction ${i + 1}`,
-            assetSymbol,
+            resolveSymbolForTx(tx.type),
             yieldItem?.mechanics.type,
             tx.type,
           ),
@@ -818,7 +828,7 @@ export const useYieldTransactionFlow = ({
     amount,
     quoteError,
     quoteData,
-    assetSymbol,
+    resolveSymbolForTx,
     translate,
     showErrorToast,
     yieldItem?.mechanics.type,

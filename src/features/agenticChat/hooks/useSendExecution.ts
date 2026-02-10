@@ -2,6 +2,7 @@ import { CHAIN_NAMESPACE, fromChainId, toAccountId } from '@shapeshiftoss/caip'
 import type { DynamicToolUIPart } from 'ai'
 import { current } from 'immer'
 import { useEffect, useRef } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import { agenticChatSlice } from '../../../state/slices/agenticChatSlice/agenticChatSlice'
 import type { PersistedToolState } from '../../../state/slices/agenticChatSlice/types'
@@ -49,6 +50,7 @@ function sendStateToPersistedState(
   conversationId: string,
   state: SendState,
   sendOutput: SendOutput | null,
+  isTerminal?: boolean,
 ): PersistedToolState {
   return {
     toolCallId,
@@ -62,6 +64,7 @@ function sendStateToPersistedState(
       ...(state.failedStep !== undefined && { failedStep: state.failedStep }),
     },
     ...(sendOutput && { toolOutput: sendOutput }),
+    isTerminal,
   }
 }
 
@@ -92,6 +95,7 @@ export const useSendExecution = (
   sendData: SendData | null,
 ): UseSendExecutionResult => {
   const dispatch = useAppDispatch()
+  const translate = useTranslate()
   const toast = useNotificationToast()
   const hasHydratedRef = useRef(false)
   const lastToolCallIdRef = useRef<string | undefined>(undefined)
@@ -194,12 +198,13 @@ export const useSendExecution = (
           activeConversationId ?? '',
           finalState,
           data,
+          true,
         )
         dispatch(agenticChatSlice.actions.persistTransaction(persisted))
 
         toast({
-          title: 'Send Successful',
-          description: 'Your send transaction has been completed',
+          title: translate('agenticChat.agenticChatTools.send.success.title'),
+          description: translate('agenticChat.agenticChatTools.send.success.description'),
           status: 'success',
         })
       } catch (error) {

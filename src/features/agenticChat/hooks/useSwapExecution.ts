@@ -3,6 +3,7 @@ import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import type { DynamicToolUIPart } from 'ai'
 import { current } from 'immer'
 import { useEffect, useRef } from 'react'
+import { useTranslate } from 'react-polyglot'
 import type { Hash } from 'viem'
 
 import { agenticChatSlice } from '../../../state/slices/agenticChatSlice/agenticChatSlice'
@@ -56,6 +57,7 @@ function swapStateToPersistedState(
   conversationId: string,
   state: SwapState,
   swapOutput: SwapOutput | null,
+  isTerminal?: boolean,
 ): PersistedToolState {
   return {
     toolCallId,
@@ -70,6 +72,7 @@ function swapStateToPersistedState(
       ...(state.failedStep !== undefined && { failedStep: state.failedStep }),
     },
     ...(swapOutput && { toolOutput: swapOutput }),
+    isTerminal,
   }
 }
 
@@ -102,6 +105,7 @@ export const useSwapExecution = (
   swapData: SwapData | null,
 ): UseSwapExecutionResult => {
   const dispatch = useAppDispatch()
+  const translate = useTranslate()
   const toast = useNotificationToast()
   const hasHydratedRef = useRef(false)
   const lastToolCallIdRef = useRef<string | undefined>(undefined)
@@ -232,6 +236,7 @@ export const useSwapExecution = (
           activeConversationId ?? '',
           finalState,
           data,
+          true,
         )
         dispatch(agenticChatSlice.actions.persistTransaction(persisted))
 
@@ -246,8 +251,8 @@ export const useSwapExecution = (
         })
 
         toast({
-          title: 'Swap Successful',
-          description: 'Your swap transaction has been completed',
+          title: translate('agenticChat.agenticChatTools.swap.success.title'),
+          description: translate('agenticChat.agenticChatTools.swap.success.description'),
           status: 'success',
         })
       } catch (error) {

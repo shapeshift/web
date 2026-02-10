@@ -23,7 +23,7 @@ import { WalletImage } from './WalletImage'
 import { QRCodeIcon } from '@/components/Icons/QRCode'
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 import type { InitialState } from '@/context/WalletProvider/WalletProvider'
-import { generateConversationId } from '@/features/agenticChat/utils/conversationUtils'
+import { useNewConversation } from '@/features/agenticChat/hooks/useNewConversation'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useMipdProviders } from '@/lib/mipd'
 import { ProfileAvatar } from '@/pages/Dashboard/components/ProfileAvatar/ProfileAvatar'
@@ -102,14 +102,15 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
       dispatch(agenticChatSlice.actions.openChatHistory())
     }, [dispatch])
 
-    const handleNewChatClick = useCallback(() => {
-      const newConversationId = generateConversationId()
-      dispatch(
-        agenticChatSlice.actions.createConversation({
-          id: newConversationId,
-        }),
-      )
-    }, [dispatch])
+    const handleNewChatClick = useNewConversation()
+
+    const handleBackClick = useCallback(() => {
+      if (isChatHistoryOpen) {
+        dispatch(agenticChatSlice.actions.closeChatHistory())
+      } else {
+        onBackFromChat?.()
+      }
+    }, [isChatHistoryOpen, dispatch, onBackFromChat])
 
     const handleManageHiddenAssetsClick = useCallback(() => {
       navigate('/manage-hidden-assets')
@@ -137,11 +138,7 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
             <IconButton
               icon={<FiArrowLeft />}
               aria-label={translate('common.back')}
-              onClick={
-                isChatHistoryOpen
-                  ? () => dispatch(agenticChatSlice.actions.closeChatHistory())
-                  : onBackFromChat
-              }
+              onClick={handleBackClick}
               variant='ghost'
               size='sm'
             />
@@ -180,7 +177,7 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
             />
           )}
           <IconButton
-            aria-label='Settings'
+            aria-label={translate('common.settings')}
             isRound
             fontSize='lg'
             icon={settingsIcon}

@@ -8,6 +8,7 @@ import type { DynamicToolUIPart } from 'ai'
 import type { TypedData } from 'eip-712'
 import { current } from 'immer'
 import { useEffect, useRef } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import { agenticChatSlice } from '../../../state/slices/agenticChatSlice/agenticChatSlice'
 import type { PersistedToolState } from '../../../state/slices/agenticChatSlice/types'
@@ -59,6 +60,7 @@ function stateToPersistedState(
   conversationId: string,
   state: CancelLimitOrderState,
   toolOutput: CancelLimitOrderOutput | null,
+  isTerminal?: boolean,
 ): PersistedToolState {
   return {
     toolCallId,
@@ -72,6 +74,7 @@ function stateToPersistedState(
       ...(state.failedStep !== undefined && { failedStep: state.failedStep }),
     },
     ...(toolOutput && { toolOutput }),
+    isTerminal,
   }
 }
 
@@ -106,6 +109,7 @@ export const useCancelLimitOrderExecution = (
   data: CancelLimitOrderOutput | null,
 ): UseCancelLimitOrderExecutionResult => {
   const dispatch = useAppDispatch()
+  const translate = useTranslate()
   const toast = useNotificationToast()
   const hasHydratedRef = useRef(false)
   const lastToolCallIdRef = useRef<string | undefined>(undefined)
@@ -231,12 +235,15 @@ export const useCancelLimitOrderExecution = (
           activeConversationId ?? '',
           finalState,
           cancelData,
+          true,
         )
         dispatch(agenticChatSlice.actions.persistTransaction(persisted))
 
         toast({
-          title: 'Order Cancelled',
-          description: 'Your limit order has been successfully cancelled',
+          title: translate('agenticChat.agenticChatTools.cancelLimitOrder.success.title'),
+          description: translate(
+            'agenticChat.agenticChatTools.cancelLimitOrder.success.description',
+          ),
           status: 'success',
         })
       } catch (error) {

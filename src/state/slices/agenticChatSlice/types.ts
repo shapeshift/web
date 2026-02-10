@@ -1,3 +1,5 @@
+export const DEFAULT_CONVERSATION_TITLE = 'New Conversation'
+
 export type ToolType = 'swap' | 'send' | 'network_switch' | 'limit_order' | 'cancel_limit_order'
 
 export type PersistedToolState = {
@@ -9,6 +11,7 @@ export type PersistedToolState = {
   meta: Record<string, unknown>
   toolOutput?: unknown
   walletAddress?: string
+  isTerminal?: boolean
 }
 
 export type Conversation = {

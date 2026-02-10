@@ -226,7 +226,9 @@
           "accountNotFound": "Account not found"
         },
         "success": {
-          "transactionSent": "Transaction sent: %{txHash}"
+          "transactionSent": "Transaction sent: %{txHash}",
+          "title": "Send Successful",
+          "description": "Your send transaction has been completed"
         }
       },
       "swap": {
@@ -245,6 +247,10 @@
           "swapFailed": "Swap execution failed: %{error}",
           "noWallet": "No wallet connected",
           "accountNotFound": "Account not found"
+        },
+        "success": {
+          "title": "Swap Successful",
+          "description": "Your swap transaction has been completed"
         }
       },
       "cancelLimitOrder": {
@@ -260,6 +266,10 @@
           "submitFailed": "Failed to cancel order: %{error}",
           "noWallet": "No wallet connected",
           "accountNotFound": "Account not found"
+        },
+        "success": {
+          "title": "Order Cancelled",
+          "description": "Your limit order has been successfully cancelled"
         }
       },
       "createLimitOrder": {
@@ -278,6 +288,10 @@
           "submitFailed": "Failed to create order: %{error}",
           "noWallet": "No wallet connected",
           "accountNotFound": "Account not found"
+        },
+        "success": {
+          "title": "Limit Order Created",
+          "description": "Your limit order has been successfully created"
         }
       },
       "newCoins": {

@@ -23,10 +23,11 @@ import { FiSearch } from 'react-icons/fi'
 import { TbPlus, TbTrash } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
-import { deleteMessages } from '../utils/conversationStorage'
-import { generateConversationId } from '../utils/conversationUtils'
+import { useDeleteConversation } from '../hooks/useDeleteConversation'
+import { useNewConversation } from '../hooks/useNewConversation'
 
 import { useModalRegistration } from '@/context/ModalStackProvider/useModalRegistration'
+import { formatSmartDate } from '@/lib/utils/time'
 import { agenticChatSlice } from '@/state/slices/agenticChatSlice/agenticChatSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -79,15 +80,12 @@ export const DrawerChatHistory = memo(() => {
   const hoverBg = useColorModeValue('blackAlpha.50', 'whiteAlpha.50')
   const borderColor = useColorModeValue('gray.200', 'gray.600')
 
+  const createNewConversation = useNewConversation()
+
   const handleNewChat = useCallback(() => {
-    const newConversationId = generateConversationId()
-    dispatch(
-      agenticChatSlice.actions.createConversation({
-        id: newConversationId,
-      }),
-    )
+    createNewConversation()
     dispatch(agenticChatSlice.actions.closeChatHistory())
-  }, [dispatch])
+  }, [createNewConversation, dispatch])
 
   const handleSelectConversation = useCallback(
     (conversationId: string) => {
@@ -106,34 +104,20 @@ export const DrawerChatHistory = memo(() => {
     [handleOpenDeleteDialog],
   )
 
+  const deleteConversation = useDeleteConversation()
+
   const handleConfirmDelete = useCallback(() => {
     if (conversationToDelete) {
-      deleteMessages(conversationToDelete)
-      dispatch(agenticChatSlice.actions.deleteConversation(conversationToDelete))
+      deleteConversation(conversationToDelete)
       setConversationToDelete(null)
     }
     handleCloseDeleteDialog()
-  }, [conversationToDelete, dispatch, handleCloseDeleteDialog])
+  }, [conversationToDelete, deleteConversation, handleCloseDeleteDialog])
 
   const handleCancelDelete = useCallback(() => {
     setConversationToDelete(null)
     handleCloseDeleteDialog()
   }, [handleCloseDeleteDialog])
-
-  const formatDate = useCallback((dateString: string) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const diffMins = Math.floor(diffMs / 60000)
-    const diffHours = Math.floor(diffMs / 3600000)
-    const diffDays = Math.floor(diffMs / 86400000)
-
-    if (diffMins < 1) return 'Just now'
-    if (diffMins < 60) return `${diffMins}m ago`
-    if (diffHours < 24) return `${diffHours}h ago`
-    if (diffDays < 7) return `${diffDays}d ago`
-    return date.toLocaleDateString()
-  }, [])
 
   return (
     <>
@@ -190,7 +174,7 @@ export const DrawerChatHistory = memo(() => {
                         {conversation.title}
                       </Text>
                       <Text fontSize='xs' color='text.subtle' opacity={0.6}>
-                        {formatDate(conversation.updatedAt)}
+                        {formatSmartDate(conversation.updatedAt)}
                       </Text>
                     </Flex>
                     <Box className='delete-btn' opacity={0} transition='opacity 0.2s'>

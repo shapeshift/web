@@ -4,6 +4,7 @@ import type { DynamicToolUIPart } from 'ai'
 import type { TypedData } from 'eip-712'
 import { current } from 'immer'
 import { useEffect, useRef } from 'react'
+import { useTranslate } from 'react-polyglot'
 import type { Hash } from 'viem'
 import { getAddress } from 'viem'
 
@@ -63,6 +64,7 @@ function stateToPersistedState(
   conversationId: string,
   state: CreateLimitOrderState,
   toolOutput: CreateLimitOrderOutput | null,
+  isTerminal?: boolean,
 ): PersistedToolState {
   return {
     toolCallId,
@@ -78,6 +80,7 @@ function stateToPersistedState(
       ...(state.failedStep !== undefined && { failedStep: state.failedStep }),
     },
     ...(toolOutput && { toolOutput }),
+    isTerminal,
   }
 }
 
@@ -115,6 +118,7 @@ export const useCreateLimitOrderExecution = (
   data: CreateLimitOrderOutput | null,
 ): UseCreateLimitOrderExecutionResult => {
   const dispatch = useAppDispatch()
+  const translate = useTranslate()
   const toast = useNotificationToast()
   const hasHydratedRef = useRef(false)
   const lastToolCallIdRef = useRef<string | undefined>(undefined)
@@ -313,6 +317,7 @@ export const useCreateLimitOrderExecution = (
           activeConversationId ?? '',
           finalState,
           orderOutput,
+          true,
         )
         dispatch(agenticChatSlice.actions.persistTransaction(persisted))
 
@@ -327,8 +332,10 @@ export const useCreateLimitOrderExecution = (
         })
 
         toast({
-          title: 'Limit Order Created',
-          description: 'Your limit order has been successfully created',
+          title: translate('agenticChat.agenticChatTools.createLimitOrder.success.title'),
+          description: translate(
+            'agenticChat.agenticChatTools.createLimitOrder.success.description',
+          ),
           status: 'success',
         })
       } catch (error) {

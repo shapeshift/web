@@ -2,6 +2,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 
 import type { AgenticChatState, Conversation, PersistedToolState } from './types'
+import { DEFAULT_CONVERSATION_TITLE } from './types'
 
 const MAX_PERSISTED_TRANSACTIONS = 500
 
@@ -50,15 +51,7 @@ export const agenticChatSlice = createSlice({
 
       if (existingIndex >= 0) {
         const existing = state.persistedTransactions[existingIndex]
-        // Don't overwrite terminal states - they're immutable
-        // A state is terminal if it has a tx hash (swap) or signature (limit order) - the critical operation completed
-        const hasTxHash = existing.meta.swapTxHash || existing.meta.approvalTxHash
-        const hasSignature = existing.meta.signature || existing.meta.orderId
-
-        if (hasTxHash || hasSignature) {
-          // Terminal state - don't overwrite
-          return
-        }
+        if (existing.isTerminal) return
 
         state.persistedTransactions[existingIndex] = action.payload
       } else {
@@ -95,7 +88,7 @@ export const agenticChatSlice = createSlice({
       state,
       action: PayloadAction<{ id: string; title?: string; walletAddress?: string }>,
     ) => {
-      const { id, title = 'New Conversation', walletAddress } = action.payload
+      const { id, title = DEFAULT_CONVERSATION_TITLE, walletAddress } = action.payload
       const now = new Date().toISOString()
       state.conversations.push({
         id,

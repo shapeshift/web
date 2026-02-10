@@ -5,7 +5,7 @@ import type { UIMessage } from 'ai'
 import { DefaultChatTransport } from 'ai'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { deleteMessages, loadMessages, saveMessages } from '../utils/conversationStorage'
+import { loadMessages, saveMessages } from '../utils/conversationStorage'
 import {
   extractTitleFromMessages,
   extractToolIds,
@@ -145,21 +145,12 @@ export const useAgenticChat = () => {
     [input, chat],
   )
 
-  const handleDeleteConversation = useCallback(
-    (conversationId: string) => {
-      deleteMessages(conversationId)
-      dispatch(agenticChatSlice.actions.deleteConversation(conversationId))
-    },
-    [dispatch],
-  )
-
   return {
     ...chat,
     input,
     setInput,
     handleInputChange,
     handleSubmit,
-    handleDeleteConversation,
   }
 }
 

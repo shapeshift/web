@@ -1,6 +1,7 @@
 import type { UIMessage } from 'ai'
 
 import type { Conversation } from '@/state/slices/agenticChatSlice/types'
+import { DEFAULT_CONVERSATION_TITLE } from '@/state/slices/agenticChatSlice/types'
 
 export const generateConversationId = (): string => {
   const timestamp = Date.now()
@@ -12,22 +13,22 @@ export const extractTitleFromMessages = (
   messages: UIMessage[],
   existingConversation?: Conversation,
 ): string => {
-  if (existingConversation && existingConversation.title !== 'New Conversation') {
+  if (existingConversation && existingConversation.title !== DEFAULT_CONVERSATION_TITLE) {
     return existingConversation.title
   }
 
   const firstUserMessage = messages.find(m => m.role === 'user')
-  if (!firstUserMessage) return 'New Conversation'
+  if (!firstUserMessage) return DEFAULT_CONVERSATION_TITLE
 
   const textPart = firstUserMessage.parts?.find(p => p.type === 'text')
-  if (!textPart || textPart.type !== 'text') return 'New Conversation'
+  if (!textPart || textPart.type !== 'text') return DEFAULT_CONVERSATION_TITLE
 
   const text = textPart.text.trim()
   const maxLength = 50
   if (text.length > maxLength) {
     return `${text.substring(0, maxLength)}...`
   }
-  return text || 'New Conversation'
+  return text || DEFAULT_CONVERSATION_TITLE
 }
 
 export const extractToolIds = (messages: UIMessage[]): string[] => {

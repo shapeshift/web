@@ -1,26 +1,27 @@
-import { defineConfig, PluginOption } from "vite";
-import { nodePolyfills } from "vite-plugin-node-polyfills";
+import type { PluginOption } from 'vite'
+import { defineConfig } from 'vite'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 const resolveEthersV5ForHdwallet: PluginOption = {
-  name: "resolve-ethers-v5-hdwallet",
-  enforce: "pre",
+  name: 'resolve-ethers-v5-hdwallet',
+  enforce: 'pre',
   async resolveId(source, importer) {
     if (
-      (source === "ethers" || source.startsWith("ethers/")) &&
+      (source === 'ethers' || source.startsWith('ethers/')) &&
       importer &&
       /\/packages\/hdwallet-/.test(importer)
     ) {
-      const target = source === "ethers" ? "ethers5" : source.replace("ethers/", "ethers5/");
-      return this.resolve(target, importer, { skipSelf: true });
+      const target = source === 'ethers' ? 'ethers5' : source.replace('ethers/', 'ethers5/')
+      return this.resolve(target, importer, { skipSelf: true })
     }
   },
-};
+}
 
 export default defineConfig({
   optimizeDeps: {
-    include: ["@ethereumjs/tx", "gridplus-sdk > @ethereumjs/tx"],
+    include: ['@ethereumjs/tx', 'gridplus-sdk > @ethereumjs/tx'],
     esbuildOptions: {
-      target: "esnext",
+      target: 'esnext',
       supported: {
         bigint: true,
       },
@@ -43,6 +44,6 @@ export default defineConfig({
       include: [/node_modules/, /packages\/hdwallet-.+\/dist\/.*\.js$/],
       transformMixedEsModules: true,
     },
-    target: "esnext",
+    target: 'esnext',
   },
-});
+})

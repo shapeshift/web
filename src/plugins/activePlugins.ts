@@ -1,5 +1,4 @@
 import arbitrum from '@/plugins/arbitrum'
-import arbitrumNova from '@/plugins/arbitrumNova'
 import avalanche from '@/plugins/avalanche'
 import base from '@/plugins/base'
 import bitcoin from '@/plugins/bitcoin'
@@ -30,7 +29,6 @@ import zcash from '@/plugins/zcash'
 
 export const activePlugins = [
   arbitrum,
-  arbitrumNova,
   avalanche,
   base,
   bitcoin,

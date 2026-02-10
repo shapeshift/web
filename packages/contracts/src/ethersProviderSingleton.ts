@@ -22,8 +22,6 @@ export const rpcUrlByChainId = (chainId: EvmChainId): string => {
         return process.env.VITE_ETHEREUM_NODE_URL
       case KnownChainIds.ArbitrumMainnet:
         return process.env.VITE_ARBITRUM_NODE_URL
-      case KnownChainIds.ArbitrumNovaMainnet:
-        return process.env.VITE_ARBITRUM_NOVA_NODE_URL
       case KnownChainIds.BaseMainnet:
         return process.env.VITE_BASE_NODE_URL
       case KnownChainIds.MonadMainnet:

@@ -42,5 +42,6 @@
     "@cosmjs/stargate": "^0.28.13",
     "@keplr-wallet/types": "^0.12.35",
     "@types/lodash": "^4.14.178"
-  }
+  },
+  "sideEffects": false
 }

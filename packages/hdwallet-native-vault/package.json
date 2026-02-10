@@ -40,5 +40,6 @@
   },
   "devDependencies": {
     "fake-indexeddb": "^3.1.7"
-  }
+  },
+  "sideEffects": false
 }

@@ -11,6 +11,18 @@
       "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js",
       "types": "./dist/esm/index.d.ts"
+    },
+    "./wallet": {
+      "import": "./dist/esm/wallet.js",
+      "types": "./dist/esm/wallet.d.ts"
+    },
+    "./keyring": {
+      "import": "./dist/esm/keyring.js",
+      "types": "./dist/esm/keyring.d.ts"
+    },
+    "./event": {
+      "import": "./dist/esm/event.js",
+      "types": "./dist/esm/event.d.ts"
     }
   },
   "files": [
@@ -42,5 +54,6 @@
   "devDependencies": {
     "@types/google-protobuf": "^3.15.1",
     "@types/lodash": "^4.14.178"
-  }
+  },
+  "sideEffects": false
 }

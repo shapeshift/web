@@ -45,6 +45,7 @@
     "bip32": "^2.0.5",
     "bip39": "^3.0.2",
     "bnb-javascript-sdk-nobroadcast": "2.16.15",
+    "bs58": "^4.0.1",
     "bs58check": "^4.0.0",
     "crypto-js": "^4.2.0",
     "ecpair": "^3.0.0-rc.0",
@@ -73,8 +74,8 @@
     "@types/lodash": "^4.14.178",
     "@types/node-fetch": "^2.5.10",
     "@types/wif": "^2.0.2",
-    "bs58": "^4.0.1",
     "cosmjs-types": "^0.4.1",
     "msw": "^0.27.1"
-  }
+  },
+  "sideEffects": false
 }

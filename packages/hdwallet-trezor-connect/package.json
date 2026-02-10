@@ -31,5 +31,6 @@
     "@shapeshiftoss/hdwallet-core": "workspace:^",
     "@shapeshiftoss/hdwallet-trezor": "workspace:^",
     "@trezor/connect-web": "^9.6.4"
-  }
+  },
+  "sideEffects": false
 }

@@ -35,5 +35,6 @@
     "@shapeshiftoss/hdwallet-core": "workspace:^",
     "@shapeshiftoss/hdwallet-ledger": "workspace:^",
     "@types/w3c-web-hid": "^1.0.2"
-  }
+  },
+  "sideEffects": false
 }

@@ -159,7 +159,6 @@ export function selfTest(get: () => core.HDWallet): void {
     ])
   })
 
-
   it.skip('supports ethNextAccountPath', () => {
     if (!wallet) return
 
@@ -306,7 +305,6 @@ export function selfTest(get: () => core.HDWallet): void {
     })
   })
 
-
   it.skip('can describe prefork BitcoinCash', () => {
     expect(
       wallet.describePath({
@@ -327,7 +325,6 @@ export function selfTest(get: () => core.HDWallet): void {
     })
   })
 
-
   it.skip('can describe prefork Segwit Native BTG', () => {
     expect(
       wallet.describePath({
@@ -347,7 +344,6 @@ export function selfTest(get: () => core.HDWallet): void {
       isPrefork: true,
     })
   })
-
 
   it.skip('can describe prefork paths', () => {
     expect(

@@ -313,6 +313,22 @@ export function supportsDebugLink(wallet: HDWallet): wallet is DebugLinkWallet {
   return isObject(wallet) && (wallet as any)._supportsDebugLink
 }
 
+export function isMetaMask(wallet: HDWallet | null): boolean {
+  return isObject(wallet) && (wallet as any)._isMetaMask
+}
+
+export function isGridPlus(wallet: HDWallet | null): boolean {
+  return isObject(wallet) && (wallet as any)._isGridPlus
+}
+
+export function isPhantom(wallet: HDWallet | null): boolean {
+  return isObject(wallet) && (wallet as any)._isPhantom
+}
+
+export function isVultisig(wallet: HDWallet | null): boolean {
+  return isObject(wallet) && (wallet as any)._isVultisig
+}
+
 export interface HDWalletInfo {
   /**
    * Retrieve the wallet's vendor string.

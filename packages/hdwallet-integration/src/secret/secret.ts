@@ -42,7 +42,6 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
       TIMEOUT,
     )
 
-
     test.skip(
       'describePath() secret',
       async () => {

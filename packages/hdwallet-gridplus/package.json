@@ -42,7 +42,7 @@
     "lodash": "^4.17.23"
   },
   "devDependencies": {
-    "@types/crypto-js": "^4.2.2",
-    "typedoc": "^0.20.36"
-  }
+    "@types/crypto-js": "^4.2.2"
+  },
+  "sideEffects": false
 }

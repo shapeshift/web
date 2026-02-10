@@ -1,6 +1,6 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { GetTradeQuoteInput, GetTradeRateInput } from '@shapeshiftoss/swapper'
 import type {
   Asset,

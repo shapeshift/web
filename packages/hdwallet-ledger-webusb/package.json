@@ -41,5 +41,6 @@
   },
   "devDependencies": {
     "@types/w3c-web-usb": "^1.0.6"
-  }
+  },
+  "sideEffects": false
 }

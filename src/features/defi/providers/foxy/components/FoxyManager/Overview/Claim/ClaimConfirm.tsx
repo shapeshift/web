@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'

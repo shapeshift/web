@@ -19,6 +19,9 @@
     "moduleResolution": "node",
     "paths": {
       "@/*": ["src/*"],
+      "@shapeshiftoss/hdwallet-core/wallet": ["packages/hdwallet-core/src/wallet"],
+      "@shapeshiftoss/hdwallet-core/keyring": ["packages/hdwallet-core/src/keyring"],
+      "@shapeshiftoss/hdwallet-core/event": ["packages/hdwallet-core/src/event"],
       "@shapeshiftoss/*": ["packages/*/src"],
       "mswMock": ["packages/hdwallet-native/__mocks__/mswMock"],
       "untouchableMock": ["packages/hdwallet-native/__mocks__/untouchableMock"]

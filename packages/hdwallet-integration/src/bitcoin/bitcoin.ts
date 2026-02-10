@@ -495,7 +495,6 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         if (metamask.isMetaMask(wallet)) return
         expect(typeof (await wallet.btcSupportsSecureTransfer()) === typeof true).toBeTruthy()
         if (await wallet.btcSupportsSecureTransfer()) {
-
           expect(await info.btcSupportsSecureTransfer()).toBeTruthy()
         }
         // TODO: write a testcase that exercise secure transfer, if the wallet claims to support it.
@@ -511,7 +510,6 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
         if (metamask.isMetaMask(wallet)) return
         expect(typeof wallet.btcSupportsNativeShapeShift()).toBe('boolean')
         if (wallet.btcSupportsNativeShapeShift()) {
-
           expect(info.btcSupportsNativeShapeShift()).toBeTruthy()
         }
         // TODO: write a testcase that exercises native shapeshift, if the wallet claims to support it.
@@ -553,7 +551,6 @@ export function bitcoinTests(get: () => { wallet: core.HDWallet; info: core.HDWa
             })
             expect(paths.length > 0).toBeTruthy()
             if (scriptType !== undefined)
-    
               expect(
                 paths.filter(path => {
                   return path.scriptType !== scriptType

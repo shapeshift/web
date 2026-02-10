@@ -1,6 +1,13 @@
 import { useToast } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { cosmosChainId, ethChainId, fromAccountId, usdtAssetId } from '@shapeshiftoss/caip'
+import {
+  CHAIN_NAMESPACE,
+  cosmosChainId,
+  ethChainId,
+  fromAccountId,
+  fromChainId,
+  usdtAssetId,
+} from '@shapeshiftoss/caip'
 import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -623,6 +630,12 @@ export const useYieldTransactionFlow = ({
           queryClient.removeQueries({ queryKey: ['yieldxyz', 'quote'] })
           setStep(ModalStep.Success)
         } else {
+          const { chainNamespace } = fromChainId(yieldChainId)
+          if (chainNamespace === CHAIN_NAMESPACE.Evm) {
+            const publicClient = assertGetViemClient(yieldChainId)
+            await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
+          }
+
           const confirmedAction = await waitForTransactionConfirmation(actionId, tx.id)
           const nextTx = confirmedAction.transactions.find(
             t => t.status === TransactionStatus.Created && t.stepIndex === yieldTxIndex + 1,

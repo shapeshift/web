@@ -51,7 +51,6 @@ const preparedOnce = new Promise<void>(resolve => (prepareOnce = resolve)).then(
 
 // eslint-disable-next-line @typescript-eslint/no-shadow
 function testVaultImpl(name: string, Vault: ISealableVaultFactory<IVault>) {
-  // eslint-disable-next-line jest/valid-title
   describe(name, () => {
     beforeAll(async () => {
       prepareOnce()

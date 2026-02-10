@@ -3,7 +3,6 @@ import * as native from '@shapeshiftoss/hdwallet-native'
 import merge from 'lodash/merge'
 
 // TODO: clean this up
-// eslint-disable-next-line jest/no-mocks-import
 import mswMock from '../../../hdwallet-native/__mocks__/mswMock'
 
 const mnemonic = 'all all all all all all all all all all all all'
@@ -160,7 +159,7 @@ export function selfTest(get: () => core.HDWallet): void {
     ])
   })
 
-  // eslint-disable-next-line jest/no-disabled-tests
+
   it.skip('supports ethNextAccountPath', () => {
     if (!wallet) return
 
@@ -307,7 +306,7 @@ export function selfTest(get: () => core.HDWallet): void {
     })
   })
 
-  // eslint-disable-next-line jest/no-disabled-tests
+
   it.skip('can describe prefork BitcoinCash', () => {
     expect(
       wallet.describePath({
@@ -328,7 +327,7 @@ export function selfTest(get: () => core.HDWallet): void {
     })
   })
 
-  // eslint-disable-next-line jest/no-disabled-tests
+
   it.skip('can describe prefork Segwit Native BTG', () => {
     expect(
       wallet.describePath({
@@ -349,7 +348,7 @@ export function selfTest(get: () => core.HDWallet): void {
     })
   })
 
-  // eslint-disable-next-line jest/no-disabled-tests
+
   it.skip('can describe prefork paths', () => {
     expect(
       wallet.describePath({

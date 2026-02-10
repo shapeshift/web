@@ -42,7 +42,7 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
       TIMEOUT,
     )
 
-    // eslint-disable-next-line jest/no-disabled-tests
+
     test.skip(
       'describePath() secret',
       async () => {
@@ -90,7 +90,6 @@ export function secretTests(get: () => { wallet: core.HDWallet; info: core.HDWal
             //expect(res?.signatures?.[0].signature).toEqual(tx_signed.tx.signatures[0].signature_keepkey);
             break
           default:
-            // eslint-disable-next-line jest/no-conditional-expect
             expect(res?.signatures?.[0].signature).toEqual(tx_signed.signatures[0].signature)
             break
         }

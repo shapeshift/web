@@ -77,7 +77,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
           }
 
           const res = await wallet.ethSignTx(txToSign as ETHSignTx)
-          // eslint-disable-next-line jest/no-conditional-expect
+
           expect(res).toEqual({
             r: '0x2482a45ee0d2851d3ab76a693edd7a393e8bc99422f7857be78a883bc1d60a5b',
             s: '0x18d776bcfae586bf08ecc70f714c9bec8959695a20ef73ad0c28233fdaeb1bd2',
@@ -143,7 +143,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         if (wallet.supportsOfflineSigning()) {
           const res = await wallet.ethSignTx(txToSign as ETHSignTx)
 
-          // eslint-disable-next-line jest/no-conditional-expect
+
           expect(res).toEqual({
             r: '0x63db3dd3bf3e1fe7dde1969c0fc8850e34116d0b501c0483a0e08c0f77b8ce0a',
             s: '0x28297d012cccf389f6332415e96ee3fc0bbf8474d05f646e029cd281a031464b',
@@ -154,7 +154,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         } else if (wallet.supportsBroadcast() && wallet.ethSendTx) {
           const res = await wallet.ethSendTx(txToSign as ETHSignTx)
 
-          // eslint-disable-next-line jest/no-conditional-expect
+
           expect(res).toMatchInlineSnapshot(`
             {
               "hash": "txHash-0x12eC06288EDD7Ae2CC41A843fE089237fC7354F0",
@@ -232,7 +232,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         if (wallet.supportsOfflineSigning()) {
           const res = await wallet.ethSignTx(txToSign as ETHSignTx)
 
-          // eslint-disable-next-line jest/no-conditional-expect
+
           expect(res).toEqual({
             r: '0x1238fd332545415f09a01470350a5a20abc784dbf875cf58f7460560e66c597f',
             s: '0x10efa4dd6fdb381c317db8f815252c2ac0d2a883bd364901dee3dec5b7d3660a',
@@ -243,7 +243,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         } else if (wallet.supportsBroadcast() && wallet.ethSendTx) {
           const res = await wallet.ethSendTx(txToSign as ETHSignTx)
 
-          // eslint-disable-next-line jest/no-conditional-expect
+
           expect(res).toMatchInlineSnapshot(`
             {
               "hash": "txHash-0x41e5560054824ea6b0732e656e3ad64e20e94e45",
@@ -258,8 +258,6 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
       'ethSignTx() - AVAX',
       async () => {
         if (!wallet) return
-        // eslint-disable-next-line jest/no-jasmine-globals, jest/no-disabled-tests
-
         if (ledger.isLedger(wallet)) return // FIXME: just test kk and native for now
         if (trezor.isTrezor(wallet)) return // FIXME: just test kk and native for now
 
@@ -280,7 +278,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         if (wallet.supportsOfflineSigning()) {
           const res = await wallet.ethSignTx(txToSign as ETHSignTx)
 
-          // eslint-disable-next-line jest/no-conditional-expect
+
           expect(res).toEqual({
             r: '0x119c4c0d4b6301aaa363f738680a6c0836b9c7331faf34d8485f683541d63040',
             s: '0x6618ceebe49b2cb2789a9012b2bad6c1c291a15ea2fdfe060f73e7d42db786c5',
@@ -291,7 +289,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         } else if (wallet.supportsBroadcast() && wallet.ethSendTx) {
           const res = await wallet.ethSendTx(txToSign as ETHSignTx)
 
-          // eslint-disable-next-line jest/no-conditional-expect
+
           expect(res).toMatchInlineSnapshot(`
             {
               "hash": "txHash-0xDAFEA492D9c6733ae3d56b7Ed1ADB60692c98Bc5",
@@ -372,7 +370,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         if (wallet.supportsOfflineSigning()) {
           const res = await wallet.ethSignTx(txToSign as ETHSignTx)
 
-          // eslint-disable-next-line jest/no-conditional-expect
+
           expect(res).toEqual({
             r: '0x5ea245ddd00fdf3958d6223255e37dcb0c61fa62cfa9cfb25e507da16ec8d96a',
             s: '0x6c428730776958b80fd2b2201600420bb49059f9b34ee3b960cdcce45d4a1e09',
@@ -383,7 +381,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
         } else if (wallet.supportsBroadcast() && wallet.ethSendTx) {
           const res = await wallet.ethSendTx(txToSign as ETHSignTx)
 
-          // eslint-disable-next-line jest/no-conditional-expect
+
           expect(res).toMatchInlineSnapshot(`
             {
               "hash": "txHash-0xdef1c0ded9bec7f1a1670819833240f027b25eff",
@@ -424,7 +422,7 @@ export function ethereumTests(get: () => { wallet: core.HDWallet; info: core.HDW
               '0x29f7212ecc1c76cea81174af267b67506f754ea8c73f144afa900a0d85b24b21319621aeb062903e856352f38305710190869c3ce5a1425d65ef4fa558d0fc251b',
           })
 
-          // eslint-disable-next-line jest/no-conditional-expect
+
           expect(res).toBeTruthy()
         }
       },

@@ -355,6 +355,7 @@ export const useYieldTransactionFlow = ({
               tx.title || `Transaction ${i + 1}`,
               assetSymbol,
               yieldItem?.mechanics.type,
+              tx.type,
             ),
             originalTitle: tx.title || '',
             type: tx.type,
@@ -447,7 +448,12 @@ export const useYieldTransactionFlow = ({
             accountId,
             message:
               typeMessagesMap[actionType] ??
-              formatYieldTxTitle(tx.title || 'Transaction', assetSymbol, yieldItem.mechanics.type),
+              formatYieldTxTitle(
+                tx.title || 'Transaction',
+                assetSymbol,
+                yieldItem.mechanics.type,
+                tx.type,
+              ),
             amountCryptoPrecision: amount,
             contractName: yieldItem.metadata.name,
             chainName: yieldItem.network,
@@ -771,6 +777,7 @@ export const useYieldTransactionFlow = ({
             tx.title || `Transaction ${i + 1}`,
             assetSymbol,
             yieldItem?.mechanics.type,
+            tx.type,
           ),
           originalTitle: tx.title || '',
           type: tx.type,

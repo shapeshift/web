@@ -163,7 +163,7 @@ export const YieldHero = memo(
               <AssetIcon src={iconSource.src} size='xs' />
             )}
             <Text fontSize='md' fontWeight='semibold'>
-              {yieldItem.token.symbol}
+              {yieldItem.inputTokens[0]?.symbol ?? yieldItem.token.symbol}
             </Text>
           </HStack>
           {yieldItem.chainId && (

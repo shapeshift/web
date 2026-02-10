@@ -93,7 +93,6 @@ function persistedStateToState(persisted: PersistedToolState): CreateLimitOrderS
     signature: persisted.meta.signature as string | undefined,
     trackingUrl: persisted.meta.trackingUrl as string | undefined,
     error: hasError ? (persisted.meta.error as string) : undefined,
-    failedStep: persisted.meta.failedStep as CreateLimitOrderStep | undefined,
   }
 }
 
@@ -291,15 +290,7 @@ export const useCreateLimitOrderExecution = (
           throw new Error(`Failed to create order: ${errorText}`)
         }
 
-        setState(draft => {
-          draft.trackingUrl = orderOutput.trackingUrl
-          if (!draft.completedSteps.includes(CreateLimitOrderStep.SUBMIT)) {
-            draft.completedSteps.push(CreateLimitOrderStep.SUBMIT)
-          }
-          draft.currentStep = CreateLimitOrderStep.COMPLETE
-          draft.error = undefined
-        })
-
+        // Persist successful state immediately after order creation succeeds
         const finalState: CreateLimitOrderState = {
           currentStep: CreateLimitOrderStep.COMPLETE,
           completedSteps: [
@@ -324,6 +315,16 @@ export const useCreateLimitOrderExecution = (
           orderOutput,
         )
         dispatch(agenticChatSlice.actions.persistTransaction(persisted))
+
+        // Update runtime state
+        setState(draft => {
+          draft.trackingUrl = orderOutput.trackingUrl
+          if (!draft.completedSteps.includes(CreateLimitOrderStep.SUBMIT)) {
+            draft.completedSteps.push(CreateLimitOrderStep.SUBMIT)
+          }
+          draft.currentStep = CreateLimitOrderStep.COMPLETE
+          draft.error = undefined
+        })
 
         toast({
           title: 'Limit Order Created',

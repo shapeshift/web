@@ -14,7 +14,7 @@ import {
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import { FiArrowLeft } from 'react-icons/fi'
-import { TbDots, TbEyeOff, TbHistory, TbSettings } from 'react-icons/tb'
+import { TbDots, TbEdit, TbEyeOff, TbHistory, TbSettings } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
@@ -23,6 +23,7 @@ import { WalletImage } from './WalletImage'
 import { QRCodeIcon } from '@/components/Icons/QRCode'
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 import type { InitialState } from '@/context/WalletProvider/WalletProvider'
+import { generateConversationId } from '@/features/agenticChat/utils/conversationUtils'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useMipdProviders } from '@/lib/mipd'
 import { ProfileAvatar } from '@/pages/Dashboard/components/ProfileAvatar/ProfileAvatar'
@@ -36,6 +37,7 @@ const dotsIcon = <Icon as={TbDots} />
 const eyeOffIcon = <Icon as={TbEyeOff} />
 const qrCodeIcon = <QRCodeIcon />
 const historyIcon = <TbHistory />
+const newChatIcon = <TbEdit />
 
 type DrawerHeaderProps = {
   walletInfo: InitialState['walletInfo']
@@ -100,6 +102,15 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
       dispatch(agenticChatSlice.actions.openChatHistory())
     }, [dispatch])
 
+    const handleNewChatClick = useCallback(() => {
+      const newConversationId = generateConversationId()
+      dispatch(
+        agenticChatSlice.actions.createConversation({
+          id: newConversationId,
+        }),
+      )
+    }, [dispatch])
+
     const handleManageHiddenAssetsClick = useCallback(() => {
       navigate('/manage-hidden-assets')
     }, [navigate])
@@ -140,14 +151,24 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
         </Flex>
         <Flex gap={2}>
           {isChatOpen ? (
-            <IconButton
-              aria-label={translate('agenticChat.chatHistory')}
-              isRound
-              fontSize='lg'
-              icon={historyIcon}
-              size='md'
-              onClick={handleChatHistoryClick}
-            />
+            <>
+              <IconButton
+                aria-label={translate('agenticChat.newChat')}
+                isRound
+                fontSize='lg'
+                icon={newChatIcon}
+                size='md'
+                onClick={handleNewChatClick}
+              />
+              <IconButton
+                aria-label={translate('agenticChat.chatHistory')}
+                isRound
+                fontSize='lg'
+                icon={historyIcon}
+                size='md'
+                onClick={handleChatHistoryClick}
+              />
+            </>
           ) : (
             <IconButton
               aria-label={translate('modals.send.qrCode')}

@@ -74,13 +74,13 @@ function swapStateToPersistedState(
 }
 
 function persistedStateToSwapState(persisted: PersistedToolState): SwapState {
+  const hasError = persisted.phases.includes('error')
   return {
     currentStep: SwapStep.COMPLETE,
     completedSteps: SWAP_PHASES.fromPhases(persisted.phases),
     approvalTxHash: persisted.meta.approvalTxHash as string | undefined,
     swapTxHash: persisted.meta.swapTxHash as string | undefined,
-    error: persisted.meta.error as string | undefined,
-    failedStep: persisted.meta.failedStep as SwapStep | undefined,
+    error: hasError ? (persisted.meta.error as string) : undefined,
   }
 }
 
@@ -215,16 +215,7 @@ export const useSwapExecution = (
           throw new Error(`Unsupported chain: ${chainNamespace}`)
         }
 
-        setState(draft => {
-          draft.swapTxHash = swapTxHash
-          if (!draft.completedSteps.includes(SwapStep.SWAP)) {
-            draft.completedSteps.push(SwapStep.SWAP)
-          }
-          draft.currentStep = SwapStep.COMPLETE
-          draft.error = undefined
-        })
-
-        // Persist successful state
+        // Persist successful state immediately after getting tx hash
         const finalState: SwapState = {
           currentStep: SwapStep.COMPLETE,
           completedSteps: [
@@ -243,6 +234,16 @@ export const useSwapExecution = (
           data,
         )
         dispatch(agenticChatSlice.actions.persistTransaction(persisted))
+
+        // Update runtime state
+        setState(draft => {
+          draft.swapTxHash = swapTxHash
+          if (!draft.completedSteps.includes(SwapStep.SWAP)) {
+            draft.completedSteps.push(SwapStep.SWAP)
+          }
+          draft.currentStep = SwapStep.COMPLETE
+          draft.error = undefined
+        })
 
         toast({
           title: 'Swap Successful',

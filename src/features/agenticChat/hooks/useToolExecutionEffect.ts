@@ -26,6 +26,9 @@ export function useToolExecutionEffect<TData, TState>(
   })
 
   const hasRuntimeState = useAppSelector(state => toolCallId in state.agenticChat.runtimeToolStates)
+  const persistedTransaction = useAppSelector(state =>
+    agenticChatSlice.selectors.selectPersistedTransaction(state, toolCallId),
+  )
 
   const setState = useCallback(
     (updater: (draft: TState) => void) => {
@@ -43,6 +46,10 @@ export function useToolExecutionEffect<TData, TState>(
   setStateRef.current = setState
 
   useEffect(() => {
+    if (persistedTransaction) {
+      return
+    }
+
     if (!data) {
       return
     }
@@ -68,7 +75,7 @@ export function useToolExecutionEffect<TData, TState>(
 
     void executeWrapper()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [toolCallId, data, hasRuntimeState, dispatch])
+  }, [toolCallId, data, hasRuntimeState, dispatch, persistedTransaction])
 
   useEffect(() => {
     hasExecutedRef.current = false

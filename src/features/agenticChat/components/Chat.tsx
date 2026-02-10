@@ -38,6 +38,7 @@ const MessageItem = memo(({ message, userBg }: MessageItemProps) => {
   if (!hasContent) return null
 
   const isUser = message.role === 'user'
+  const hasToolInvocations = toolInvocations.length > 0
 
   const bubbleStyles = isUser
     ? {
@@ -49,7 +50,12 @@ const MessageItem = memo(({ message, userBg }: MessageItemProps) => {
     : {}
 
   return (
-    <Box alignSelf={isUser ? 'flex-end' : 'flex-start'} maxW='80%' {...bubbleStyles}>
+    <Box
+      alignSelf={isUser ? 'flex-end' : 'flex-start'}
+      maxW='80%'
+      w={!isUser && hasToolInvocations ? '80%' : undefined}
+      {...bubbleStyles}
+    >
       {toolInvocations.map(toolPart => (
         <ToolInvocationRenderer key={toolPart.toolCallId} toolPart={toolPart} />
       ))}

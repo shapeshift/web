@@ -49,6 +49,17 @@ export const agenticChatSlice = createSlice({
       )
 
       if (existingIndex >= 0) {
+        const existing = state.persistedTransactions[existingIndex]
+        // Don't overwrite terminal states - they're immutable
+        // A state is terminal if it has a tx hash (swap) or signature (limit order) - the critical operation completed
+        const hasTxHash = existing.meta.swapTxHash || existing.meta.approvalTxHash
+        const hasSignature = existing.meta.signature || existing.meta.orderId
+
+        if (hasTxHash || hasSignature) {
+          // Terminal state - don't overwrite
+          return
+        }
+
         state.persistedTransactions[existingIndex] = action.payload
       } else {
         state.persistedTransactions.push(action.payload)

@@ -270,7 +270,6 @@ export const getTradeQuote = async (
       gasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
       method: buildTx.method,
       args: buildTx.args,
-      serializedSolanaTransaction: sellAsset.chainId === solanaChainId ? buildTx.data : undefined,
     },
     ...(solanaTransactionMetadata && {
       solanaTransactionMetadata,

@@ -64,6 +64,7 @@ const PROXY_TON_CONTRACTS = new Set([
   'EQBnGWMCf3-FZZq1W4IWcWiGAc3PHuZ0_H-7sad2oY00o83S',
 ])
 
+const TRACE_LT_SEARCH_RANGE = 1000n
 const TON_HASH_HEX_LENGTH = 64
 export const isHexHash = (str: string): boolean => {
   return str.length === TON_HASH_HEX_LENGTH && /^[0-9a-f]+$/i.test(str)
@@ -1041,7 +1042,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       }
 
       const traceId = tx.trace_id ?? txHash
-      const endLt = (BigInt(tx.lt) + 1000n).toString()
+      const endLt = (BigInt(tx.lt) + TRACE_LT_SEARCH_RANGE).toString()
 
       const [traceTxResult, jettonData] = await Promise.all([
         this.httpApiRequest<TonApiTxResponse>(
@@ -1085,7 +1086,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
         for (const transfer of parsed.transfers) {
           if (hasJettonSends && transfer.type === TransferType.Send) continue
           if (hasJettonReceives && transfer.type === TransferType.Receive) continue
-          const key = `${transfer.from[0]}-${transfer.to[0]}-${transfer.value}-${transfer.type}`
+          const key = `${transfer.assetId}-${transfer.from[0]}-${transfer.to[0]}-${transfer.value}-${transfer.type}`
           if (seen.has(key)) continue
           seen.add(key)
           nativeTransfers.push(transfer)

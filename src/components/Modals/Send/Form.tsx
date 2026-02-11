@@ -322,8 +322,13 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
           // and we already have an asset from the page context on the same chain, keep it
           const resolvedAssetId = (() => {
             if (isAmbiguousAsset && initialAssetId) {
-              const { chainNamespace: contextChainNamespace } = fromAssetId(initialAssetId)
-              if (contextChainNamespace === chainNamespace) {
+              const { chainId: contextChainId, chainNamespace: contextChainNamespace } =
+                fromAssetId(initialAssetId)
+              const { chainId: qrChainId } = fromAssetId(maybeUrlResult.assetId)
+              const chainMatch = urlDirectResult
+                ? contextChainId === qrChainId
+                : contextChainNamespace === chainNamespace
+              if (chainMatch) {
                 return initialAssetId
               }
             }

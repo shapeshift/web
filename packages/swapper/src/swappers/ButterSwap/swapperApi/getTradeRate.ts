@@ -1,4 +1,4 @@
-import { btcAssetId, btcChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
+import { btcChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   bn,
@@ -48,16 +48,6 @@ export const getTradeRate = async (
     return Err(
       makeSwapErrorRight({
         message: `Unsupported chain`,
-        code: TradeQuoteError.UnsupportedChain,
-      }),
-    )
-  }
-
-  // Yes, this is supposed to be supported as per checks above, but currently, Butter doesn't yield any quotes for BTC sells
-  if (sellAsset.assetId === btcAssetId) {
-    return Err(
-      makeSwapErrorRight({
-        message: `BTC sells are currently unsupported`,
         code: TradeQuoteError.UnsupportedChain,
       }),
     )

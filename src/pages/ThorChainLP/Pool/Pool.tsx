@@ -18,6 +18,7 @@ import {
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { SwapperName, thorPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo } from 'react'
 import { FaPlus } from 'react-icons/fa6'
@@ -36,7 +37,6 @@ import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
-import { fromThorBaseUnit } from '@/lib/utils/thorchain'
 import {
   useIsLpChainHalted,
   useIsLpDepositEnabled,
@@ -123,12 +123,12 @@ export const Pool = () => {
 
   const runeTvlCryptoPrecision = useMemo(() => {
     if (!pool?.runeDepth) return
-    return fromThorBaseUnit(pool.runeDepth).toFixed()
+    return BigAmount.fromThorBaseUnit({ value: pool.runeDepth }).toFixed()
   }, [pool?.runeDepth])
 
   const assetTvlCryptoPrecision = useMemo(() => {
     if (!pool?.assetDepth) return
-    return fromThorBaseUnit(pool.assetDepth).toFixed()
+    return BigAmount.fromThorBaseUnit({ value: pool.assetDepth }).toFixed()
   }, [pool?.assetDepth])
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({

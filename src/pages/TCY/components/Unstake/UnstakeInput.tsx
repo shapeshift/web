@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/utils'
+import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
 import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -35,7 +35,6 @@ import { RawText } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
-import { fromThorBaseUnit } from '@/lib/utils/thorchain'
 import { BASE_BPS_POINTS, THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
@@ -106,7 +105,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAcc
   const { data: tcyStaker } = useTcyStaker(accountId)
 
   const stakedAmountCryptoPrecision = useMemo(
-    () => fromThorBaseUnit(tcyStaker?.amount ?? 0).toFixed(),
+    () => BigAmount.fromThorBaseUnit({ value: tcyStaker?.amount ?? 0 }).toFixed(),
     [tcyStaker?.amount],
   )
 

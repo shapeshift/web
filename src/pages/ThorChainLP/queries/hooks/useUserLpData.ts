@@ -2,12 +2,12 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { isSome } from '@/lib/utils'
-import { fromThorBaseUnit } from '@/lib/utils/thorchain'
 import { useThorchainMimirTimes } from '@/lib/utils/thorchain/hooks/useThorchainMimirTimes'
 import { getPoolShare } from '@/lib/utils/thorchain/lp'
 import type { Position, UserLpDataPosition } from '@/lib/utils/thorchain/lp/types'
@@ -64,8 +64,12 @@ export const getUserLpDataPosition = ({
     bnOrZero(position.liquidityUnits),
   )
 
-  const pendingAssetAmountCryptoPrecision = fromThorBaseUnit(position.assetPending)
-  const pendingRuneAmountCryptoPrecision = fromThorBaseUnit(position.runePending)
+  const pendingAssetAmountCryptoPrecision = BigAmount.fromThorBaseUnit({
+    value: position.assetPending,
+  })
+  const pendingRuneAmountCryptoPrecision = BigAmount.fromThorBaseUnit({
+    value: position.runePending,
+  })
   const pendingAssetAmountFiatUserCurrency = pendingAssetAmountCryptoPrecision.times(
     bnOrZero(assetPrice),
   )
@@ -73,8 +77,8 @@ export const getUserLpDataPosition = ({
     bnOrZero(runePrice),
   )
 
-  const assetShareCryptoPrecision = fromThorBaseUnit(assetShareThorBaseUnit)
-  const runeShareCryptoPrecision = fromThorBaseUnit(runeShareThorBaseUnit)
+  const assetShareCryptoPrecision = BigAmount.fromThorBaseUnit({ value: assetShareThorBaseUnit })
+  const runeShareCryptoPrecision = BigAmount.fromThorBaseUnit({ value: runeShareThorBaseUnit })
   const assetShareFiat = assetShareCryptoPrecision.times(bnOrZero(assetPrice))
   const runeShareFiat = runeShareCryptoPrecision.times(bnOrZero(runePrice))
 
@@ -83,14 +87,18 @@ export const getUserLpDataPosition = ({
     const assetPriceInRune = bnOrZero(pool.balance_rune).div(pool.balance_asset)
 
     if (!asym && bnOrZero(position.runePending).gt(0) && bnOrZero(position.assetPending).eq(0)) {
-      const amountCryptoBaseUnit = bnOrZero(position.runePending).div(assetPriceInRune)
-      const amountCryptoPrecision = fromThorBaseUnit(amountCryptoBaseUnit).toFixed()
+      const amountThorBaseUnit = bnOrZero(position.runePending).div(assetPriceInRune)
+      const amountCryptoPrecision = BigAmount.fromThorBaseUnit({
+        value: amountThorBaseUnit,
+      }).toFixed()
       return { isPending, isIncomplete: true, incomplete: { asset, amountCryptoPrecision } }
     }
 
     if (!asym && bnOrZero(position.assetPending).gt(0) && bnOrZero(position.runePending).eq(0)) {
-      const amountCryptoBaseUnit = bnOrZero(position.assetPending).times(assetPriceInRune).toFixed()
-      const amountCryptoPrecision = fromThorBaseUnit(amountCryptoBaseUnit).toFixed()
+      const amountThorBaseUnit = bnOrZero(position.assetPending).times(assetPriceInRune).toFixed()
+      const amountCryptoPrecision = BigAmount.fromThorBaseUnit({
+        value: amountThorBaseUnit,
+      }).toFixed()
       return { isPending, isIncomplete: true, incomplete: { asset: rune, amountCryptoPrecision } }
     }
 

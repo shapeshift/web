@@ -202,14 +202,16 @@ export const validateTradeQuote = (
   const walletSupportsIntermediaryAssetChain =
     !isMultiHopTrade || walletConnectedChainIds.includes(firstHop?.buyAsset.chainId ?? '')
 
-  const firstHopHasSufficientBalanceForGas = bnOrZero(firstHopFeeAssetBalancePrecision)
+  const firstHopHasSufficientBalanceForGas = bnOrZero(
+    firstHopFeeAssetBalancePrecision.toPrecision(),
+  )
     .minus(firstHopNetworkFeeCryptoPrecision ?? 0)
     .minus(firstHopTradeDeductionCryptoPrecision ?? 0)
     .gte(0)
 
   const secondHopHasSufficientBalanceForGas =
     !isMultiHopTrade ||
-    bnOrZero(secondHopFeeAssetBalancePrecision)
+    bnOrZero(secondHopFeeAssetBalancePrecision?.toPrecision())
       .minus(secondHopNetworkFeeCryptoPrecision ?? 0)
       .gte(0)
 
@@ -243,13 +245,13 @@ export const validateTradeQuote = (
               firstHop?.sellAsset.assetId === assetId &&
               swapperName === SwapperName.Jupiter
             ) {
-              return bnOrZero(balanceCryptoBaseUnit)
+              return bnOrZero(balanceCryptoBaseUnit.toBaseUnit())
                 .minus(bnOrZero(sellAmountCryptoBaseUnit))
                 .minus(protocolFee.amountCryptoBaseUnit)
                 .lt(0)
             }
 
-            return bnOrZero(balanceCryptoBaseUnit).lt(protocolFee.amountCryptoBaseUnit)
+            return bnOrZero(balanceCryptoBaseUnit.toBaseUnit()).lt(protocolFee.amountCryptoBaseUnit)
           })
           .map(([_assetId, protocolFee]: [AssetId, ProtocolFee]) => {
             return {

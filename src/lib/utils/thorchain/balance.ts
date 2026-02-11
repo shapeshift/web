@@ -94,7 +94,7 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
   const balanceCryptoBaseUnit = selectPortfolioCryptoBalanceByFilter(store.getState(), {
     assetId: asset.assetId,
     accountId,
-  })
+  }).toBaseUnit()
   const feeAsset = selectFeeAssetById(store.getState(), asset.assetId)
   const feeAssetMarketData = selectMarketDataByAssetIdUserCurrency(
     store.getState(),

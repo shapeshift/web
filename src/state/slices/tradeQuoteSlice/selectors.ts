@@ -152,7 +152,7 @@ export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
       isWalletConnected,
       walletConnectedChainIds,
       manualReceiveAddress,
-      sellAssetBalanceCryptoBaseUnit,
+      sellAssetBalanceCryptoBaseUnit: sellAssetBalanceCryptoBaseUnit.toBaseUnit(),
       sellAmountCryptoBaseUnit: inputSellAmountCryptoBaseUnit,
       sellAsset,
       buyAsset,

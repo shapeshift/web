@@ -31,5 +31,7 @@ export const canCoverTxFees = ({
     assetId: feeAsset.assetId,
   })
 
-  return bnOrZero(feeAssetBalanceCryptoHuman).minus(bnOrZero(estimatedGasCryptoPrecision)).gte(0)
+  return bnOrZero(feeAssetBalanceCryptoHuman.toPrecision())
+    .minus(bnOrZero(estimatedGasCryptoPrecision))
+    .gte(0)
 }

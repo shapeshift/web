@@ -485,13 +485,13 @@ describe('BigAmount', () => {
 
   describe('fromThorBaseUnit', () => {
     it('creates BigAmount from THOR 8-decimal base unit', () => {
-      const amount = BigAmount.fromThorBaseUnit({ value: '150000000' })
+      const amount = BigAmount.fromThorBaseUnit('150000000')
       expect(amount.toPrecision()).toBe('1.5')
       expect(amount.precision).toBe(8)
     })
 
     it('handles nullish as zero', () => {
-      expect(BigAmount.fromThorBaseUnit({ value: undefined }).isZero()).toBe(true)
+      expect(BigAmount.fromThorBaseUnit(undefined).isZero()).toBe(true)
     })
   })
 
@@ -537,12 +537,12 @@ describe('BigAmount', () => {
   describe('fromThorBaseUnit + toThorBaseUnit round-trip', () => {
     it('round-trips THOR base unit → human → THOR base unit', () => {
       const original = '150000000'
-      const result = BigAmount.fromThorBaseUnit({ value: original }).toThorBaseUnit()
+      const result = BigAmount.fromThorBaseUnit(original).toThorBaseUnit()
       expect(result).toBe(original)
     })
 
     it('round-trips with toBaseUnit (same as toThorBaseUnit for precision 8)', () => {
-      const original = BigAmount.fromThorBaseUnit({ value: '150000000' })
+      const original = BigAmount.fromThorBaseUnit('150000000')
       expect(original.toBaseUnit()).toBe('150000000')
       expect(original.toThorBaseUnit()).toBe('150000000')
     })

@@ -64,12 +64,8 @@ export const getUserLpDataPosition = ({
     bnOrZero(position.liquidityUnits),
   )
 
-  const pendingAssetAmountCryptoPrecision = BigAmount.fromThorBaseUnit({
-    value: position.assetPending,
-  })
-  const pendingRuneAmountCryptoPrecision = BigAmount.fromThorBaseUnit({
-    value: position.runePending,
-  })
+  const pendingAssetAmountCryptoPrecision = BigAmount.fromThorBaseUnit(position.assetPending)
+  const pendingRuneAmountCryptoPrecision = BigAmount.fromThorBaseUnit(position.runePending)
   const pendingAssetAmountFiatUserCurrency = pendingAssetAmountCryptoPrecision.times(
     bnOrZero(assetPrice),
   )
@@ -77,8 +73,8 @@ export const getUserLpDataPosition = ({
     bnOrZero(runePrice),
   )
 
-  const assetShareCryptoPrecision = BigAmount.fromThorBaseUnit({ value: assetShareThorBaseUnit })
-  const runeShareCryptoPrecision = BigAmount.fromThorBaseUnit({ value: runeShareThorBaseUnit })
+  const assetShareCryptoPrecision = BigAmount.fromThorBaseUnit(assetShareThorBaseUnit)
+  const runeShareCryptoPrecision = BigAmount.fromThorBaseUnit(runeShareThorBaseUnit)
   const assetShareFiat = assetShareCryptoPrecision.times(bnOrZero(assetPrice))
   const runeShareFiat = runeShareCryptoPrecision.times(bnOrZero(runePrice))
 
@@ -88,17 +84,13 @@ export const getUserLpDataPosition = ({
 
     if (!asym && bnOrZero(position.runePending).gt(0) && bnOrZero(position.assetPending).eq(0)) {
       const amountThorBaseUnit = bnOrZero(position.runePending).div(assetPriceInRune)
-      const amountCryptoPrecision = BigAmount.fromThorBaseUnit({
-        value: amountThorBaseUnit,
-      }).toFixed()
+      const amountCryptoPrecision = BigAmount.fromThorBaseUnit(amountThorBaseUnit).toFixed()
       return { isPending, isIncomplete: true, incomplete: { asset, amountCryptoPrecision } }
     }
 
     if (!asym && bnOrZero(position.assetPending).gt(0) && bnOrZero(position.runePending).eq(0)) {
       const amountThorBaseUnit = bnOrZero(position.assetPending).times(assetPriceInRune).toFixed()
-      const amountCryptoPrecision = BigAmount.fromThorBaseUnit({
-        value: amountThorBaseUnit,
-      }).toFixed()
+      const amountCryptoPrecision = BigAmount.fromThorBaseUnit(amountThorBaseUnit).toFixed()
       return { isPending, isIncomplete: true, incomplete: { asset: rune, amountCryptoPrecision } }
     }
 

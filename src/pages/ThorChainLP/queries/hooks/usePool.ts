@@ -74,7 +74,7 @@ export const getPool = (
     ...pool,
     assetId,
     name: `${asset.symbol}/${runeAsset.symbol}`,
-    tvlFiat: BigAmount.fromThorBaseUnit({ value: tvl }).times(bnOrZero(runePrice)).toFixed(),
+    tvlFiat: BigAmount.fromThorBaseUnit(tvl).times(bnOrZero(runePrice)).toFixed(),
   }
 }
 
@@ -118,7 +118,7 @@ export const getFeeStats = (swapsData: ReturnType<typeof selectSwapsData>, runeP
   const swaps24h = swapsData.intervals[swapsData.intervals.length - 1]
   const swapsPrev24h = swapsData.intervals[swapsData.intervals.length - 2]
 
-  const fees24hFiat = BigAmount.fromThorBaseUnit({ value: swaps24h.totalFees })
+  const fees24hFiat = BigAmount.fromThorBaseUnit(swaps24h.totalFees)
     .times(runePrice)
     .toFixed()
   const fees24hChange = bnOrZero(swaps24h.totalFees)
@@ -136,7 +136,7 @@ export const getTvlStats = (pool: Pool, tvl24hIntervals: string[], runePrice: st
   const tvl24h = bn(pool.assetDepth).times(pool.assetPrice).plus(pool.runeDepth)
   const tvlPrev24h = tvl24hIntervals[tvl24hIntervals.length - 2]
 
-  const tvl24hFiat = BigAmount.fromThorBaseUnit({ value: tvl24h }).times(runePrice).toFixed()
+  const tvl24hFiat = BigAmount.fromThorBaseUnit(tvl24h).times(runePrice).toFixed()
   const tvl24hChange = bnOrZero(tvl24h).minus(bnOrZero(tvlPrev24h)).div(tvlPrev24h).toNumber()
 
   return {
@@ -152,7 +152,7 @@ export const getVolumeStats = (
   const swaps24h = swapsData.intervals[swapsData.intervals.length - 1]
   const swapsPrev24h = swapsData.intervals[swapsData.intervals.length - 2]
 
-  const volume24hFiat = BigAmount.fromThorBaseUnit({ value: swaps24h.totalVolume })
+  const volume24hFiat = BigAmount.fromThorBaseUnit(swaps24h.totalVolume)
     .times(runePrice)
     .toFixed()
   const volume24hChange = bnOrZero(swaps24h.totalVolume)
@@ -160,7 +160,7 @@ export const getVolumeStats = (
     .div(swapsPrev24h.totalVolume)
     .toNumber()
 
-  const volume7dFiat = BigAmount.fromThorBaseUnit({ value: swapsData.meta.totalVolume })
+  const volume7dFiat = BigAmount.fromThorBaseUnit(swapsData.meta.totalVolume)
     .times(runePrice)
     .toFixed()
 
@@ -238,7 +238,7 @@ export const usePool = (poolAssetId: string) => {
     if (!swapsData.data) return
     if (!runeMarketData?.price) return
 
-    const volumeTotalFiat = BigAmount.fromThorBaseUnit({ value: poolStats.data.swapVolume ?? '0' })
+    const volumeTotalFiat = BigAmount.fromThorBaseUnit(poolStats.data.swapVolume ?? '0')
       .times(runeMarketData.price)
       .toFixed()
 

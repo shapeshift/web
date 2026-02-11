@@ -32,9 +32,7 @@ export const TcyClaimActionCard = ({ action }: TcyClaimActionCardProps) => {
 
   const message = useMemo(() => {
     if (!tcyAsset) return null
-    const amountCryptoHuman = BigAmount.fromThorBaseUnit({
-      value: action.tcyClaimActionMetadata.claim.amountThorBaseUnit,
-    }).toPrecision()
+    const amountCryptoHuman = BigAmount.fromThorBaseUnit(action.tcyClaimActionMetadata.claim.amountThorBaseUnit).toPrecision()
     switch (action.status) {
       case ActionStatus.ClaimAvailable:
         return translate('actionCenter.tcy.claimReady', {

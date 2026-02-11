@@ -21,9 +21,7 @@ const swapHistoryToChartData = (swapHistory: MidgardSwapHistoryResponse): Single
   const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
 
   return swapHistory.intervals.map(interval => {
-    const intervalVolumeFiatUserCurrency = BigAmount.fromThorBaseUnit({
-      value: interval.totalVolume,
-    })
+    const intervalVolumeFiatUserCurrency = BigAmount.fromThorBaseUnit(interval.totalVolume)
       .times(interval.runePriceUSD)
       .times(userCurrencyToUsdRate)
 
@@ -43,7 +41,7 @@ const tvlToChartData = (
     const poolDepth = interval.poolsDepth.find(pool => pool.pool === thorchainNotationAssetId)
     const poolTotalDepth = poolDepth?.totalDepth ?? '0'
 
-    const tvlFiat = BigAmount.fromThorBaseUnit({ value: poolTotalDepth })
+    const tvlFiat = BigAmount.fromThorBaseUnit(poolTotalDepth)
       .times(interval.runePriceUSD)
       .times(userCurrencyToUsdRate)
 

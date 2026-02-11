@@ -236,10 +236,10 @@ export class BigAmount {
   // THORChain uses 8-decimal base units for ALL amounts regardless of the
   // underlying asset's native precision.
   // Usage:
-  //   BigAmount.fromThorBaseUnit({ value: thorBaseUnit }).toPrecision()  // THOR base unit → human
+  //   BigAmount.fromThorBaseUnit(thorBaseUnit).toPrecision()  // THOR base unit → human
   //   BigAmount.fromBaseUnit({ value, precision: asset.precision }).toThorBaseUnit()  // native → THOR base unit
 
-  static fromThorBaseUnit({ value }: { value: BigNumber.Value | null | undefined }): BigAmount {
+  static fromThorBaseUnit(value: BigNumber.Value | null | undefined): BigAmount {
     return BigAmount.fromBaseUnit({ value, precision: THOR_PRECISION })
   }
 

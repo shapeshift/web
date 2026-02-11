@@ -169,7 +169,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [poolAssetFeeAsset, accountId])
   const poolAssetFeeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, poolAssetFeeAssetBalanceFilter),
-  )
+  ).toBaseUnit()
 
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const runeMarketData = useAppSelector(state =>
@@ -180,7 +180,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [runeAsset, positionRuneAccountId])
   const runeBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, runeBalanceFilter),
-  )
+  ).toBaseUnit()
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
     assetId,

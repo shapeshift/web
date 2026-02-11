@@ -419,7 +419,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const missingBalanceForGasCryptoPrecision = useMemo(() => {
     return fromBaseUnit(
-      bnOrZero(feeAssetBalanceCryptoBaseUnit)
+      bnOrZero(feeAssetBalanceCryptoBaseUnit.toBaseUnit())
         .minus(bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit))
         .minus(bnOrZero(dustAmountCryptoBaseUnit))
         .times(-1),

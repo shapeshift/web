@@ -170,7 +170,7 @@ export const Deposit: React.FC<DepositProps> = ({
   // user info
   const balanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
-  )
+  ).toBaseUnit()
 
   const { data: thorchainMimirTimes, isLoading: isThorchainMimirTimesLoading } =
     useThorchainMimirTimes()

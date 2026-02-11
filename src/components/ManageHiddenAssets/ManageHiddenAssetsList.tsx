@@ -25,10 +25,7 @@ import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectHiddenAssets } from '@/state/slices/preferencesSlice/selectors'
-import {
-  selectAssetById,
-  selectPortfolioCryptoBalanceByFilter,
-} from '@/state/slices/selectors'
+import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const dotsIcon = <TbDots />
@@ -50,7 +47,7 @@ const AssetRow = memo<AssetRowProps>(({ assetId, onClose, onToggleSpam, onNaviga
   const assetBalanceFilter = useMemo(() => ({ assetId }), [assetId])
   const cryptoBalance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, assetBalanceFilter),
-  )
+  ).toPrecision()
 
   const explorerHref = useMemo(() => {
     if (!asset) return

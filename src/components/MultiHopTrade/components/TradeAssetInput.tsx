@@ -57,7 +57,7 @@ const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = memo(props => {
     [accountId, assetId],
   )
   const balance = useAppSelector(state =>
-    isConnected ? selectPortfolioCryptoBalanceByFilter(state, filter) : '0',
+    isConnected ? selectPortfolioCryptoBalanceByFilter(state, filter).toPrecision() : '0',
   )
   const fiatBalance = bnOrZero(balance)
     .times(bnOrZero(marketData?.price))

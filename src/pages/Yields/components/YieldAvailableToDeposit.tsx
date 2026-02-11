@@ -54,7 +54,7 @@ export const YieldAvailableToDeposit = memo(
 
     const availableBalanceBaseUnit = useAppSelector(state =>
       selectPortfolioCryptoBalanceByFilter(state, { assetId: inputTokenAssetId }),
-    )
+    ).toBaseUnit()
 
     const availableBalance = useMemo(
       () =>

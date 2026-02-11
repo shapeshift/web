@@ -94,7 +94,7 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
   const feeAssetFilter = useMemo(() => ({ assetId: feeAsset?.assetId }), [feeAsset?.assetId])
   const feeAssetBalanceCryptoPrecision = useAppSelector(s =>
     selectPortfolioCryptoBalanceByFilter(s, feeAssetFilter),
-  )
+  ).toPrecision()
   const feeAssetBalanceUserCurrency = useAppSelector(
     state => selectPortfolioUserCurrencyBalanceByAssetId(state, feeAssetFilter) ?? '0',
   )

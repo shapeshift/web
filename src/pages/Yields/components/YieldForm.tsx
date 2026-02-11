@@ -223,7 +223,7 @@ export const YieldForm = memo(
         ? selectPortfolioCryptoBalanceByFilter(state, {
             assetId: inputTokenAssetId,
             accountId,
-          })
+          }).toPrecision()
         : '0',
     )
 

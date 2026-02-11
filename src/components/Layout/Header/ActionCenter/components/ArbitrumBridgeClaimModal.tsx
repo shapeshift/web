@@ -86,7 +86,7 @@ export const ArbitrumBridgeClaimModal = ({
 
   const destinationFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, destinationFeeAssetBalanceFilter),
-  )
+  ).toPrecision()
 
   const amountCryptoPrecision = useMemo(
     () => fromBaseUnit(action.arbitrumBridgeMetadata.amountCryptoBaseUnit, asset?.precision ?? 0),

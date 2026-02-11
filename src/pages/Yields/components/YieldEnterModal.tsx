@@ -214,7 +214,7 @@ export const YieldEnterModal = memo(
         ? selectPortfolioCryptoBalanceByFilter(state, {
             assetId: inputTokenAssetId,
             accountId,
-          })
+          }).toPrecision()
         : '0',
     )
 

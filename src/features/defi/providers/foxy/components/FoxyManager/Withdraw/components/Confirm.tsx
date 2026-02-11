@@ -140,7 +140,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
     poll,
   ])
 
-  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
+  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance.toPrecision())
     .minus(bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit).div(bn(10).pow(feeAsset.precision)))
     .gte(0)
 

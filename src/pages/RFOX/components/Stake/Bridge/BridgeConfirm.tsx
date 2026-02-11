@@ -75,7 +75,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
   )
   const feeAssetBalanceCryptoPrecision = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, feeAssetBalanceFilter),
-  )
+  ).toPrecision()
 
   const hasEnoughFeeBalance = useMemo(() => {
     // Fees loading, we don't know what we don't know

@@ -73,15 +73,13 @@ export const Deposit: React.FC<DepositProps> = ({
 
   // user info
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
-  const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, filter),
-  )
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
   // notify
   const toast = useNotificationToast({ desktopPosition: 'top-right' })
 
   const amountAvailableCryptoPrecision = useMemo(
-    () => bnOrZero(balance).div(`1e${asset.precision}`),
+    () => bnOrZero(balance.toBaseUnit()).div(`1e${asset.precision}`),
     [asset.precision, balance],
   )
   const fiatAmountAvailable = useMemo(
@@ -161,7 +159,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+      const crypto = bnOrZero(balance.toBaseUnit()).div(`1e+${asset.precision}`)
       const _value = bnOrZero(value)
       const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
       if (_value.isEqualTo(0)) return ''
@@ -172,7 +170,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+      const crypto = bnOrZero(balance.toBaseUnit()).div(`1e+${asset.precision}`)
       const fiat = crypto.times(bnOrZero(marketData?.price))
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)

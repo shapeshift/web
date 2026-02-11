@@ -77,7 +77,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   )
   const stakingAssetFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
-  )
+  ).toPrecision()
   const stakingAssetMarketDataUserCurrency = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, confirmedQuote.stakingAssetId),
   )

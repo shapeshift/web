@@ -193,7 +193,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
 
   const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, feeAssetBalanceFilter),
-  )
+  ).toBaseUnit()
 
   const requiredAmountCryptoBaseUnit = useMemo(
     () => bnOrZero(dustAmountCryptoBaseUnit).plus(estimatedFeesData?.txFeeCryptoBaseUnit ?? '0'),

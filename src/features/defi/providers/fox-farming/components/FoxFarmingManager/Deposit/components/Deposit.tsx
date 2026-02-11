@@ -222,7 +222,7 @@ export const Deposit: React.FC<DepositProps> = ({
   )
 
   const cryptoHumanAmountAvailable = useMemo(
-    () => fromBaseUnit(cryptoBalance, asset?.precision ?? 1),
+    () => fromBaseUnit(cryptoBalance.toBaseUnit(), asset?.precision ?? 1),
     [asset?.precision, cryptoBalance],
   )
   const fiatAmountAvailable = useMemo(
@@ -233,7 +233,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const validateCryptoAmount = useCallback(
     (value: string) => {
       if (!asset) return
-      const crypto = bn(fromBaseUnit(cryptoBalance, asset.precision))
+      const crypto = bn(fromBaseUnit(cryptoBalance.toBaseUnit(), asset.precision))
       const _value = bnOrZero(value)
       const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
       if (_value.isEqualTo(0)) return ''
@@ -245,7 +245,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const validateFiatAmount = useCallback(
     (value: string) => {
       if (!asset) return
-      const crypto = bn(fromBaseUnit(cryptoBalance, asset.precision))
+      const crypto = bn(fromBaseUnit(cryptoBalance.toBaseUnit(), asset.precision))
       const fiat = crypto.times(bnOrZero(marketData?.price))
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)

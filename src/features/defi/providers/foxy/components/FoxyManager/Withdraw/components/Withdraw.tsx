@@ -62,11 +62,9 @@ export const Withdraw: React.FC<
 
   // user info
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
-  const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, filter),
-  )
+  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
-  const cryptoAmountAvailable = bnOrZero(bn(balance).div(bn(10).pow(asset?.precision)))
+  const cryptoAmountAvailable = bnOrZero(bn(balance.toBaseUnit()).div(bn(10).pow(asset?.precision)))
   const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(bnOrZero(marketData?.price)))
 
   const handlePercentClick = useCallback(
@@ -231,7 +229,7 @@ export const Withdraw: React.FC<
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(bn(balance).div(bn(10).pow(asset.precision)))
+      const crypto = bnOrZero(bn(balance.toBaseUnit()).div(bn(10).pow(asset.precision)))
       const _value = bnOrZero(value)
       const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
       if (_value.isEqualTo(0)) return ''
@@ -242,7 +240,7 @@ export const Withdraw: React.FC<
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(bn(balance).div(bn(10).pow(asset.precision)))
+      const crypto = bnOrZero(bn(balance.toBaseUnit()).div(bn(10).pow(asset.precision)))
       const fiat = crypto.times(bnOrZero(marketData?.price))
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)

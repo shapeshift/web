@@ -22,10 +22,7 @@ import { getConfig } from '@/config'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { useAllowance } from '@/react-queries/hooks/useAllowance'
-import {
-  selectAssetById,
-  selectPortfolioCryptoBalanceByFilter,
-} from '@/state/slices/selectors'
+import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from '@/state/slices/selectors'
 import { useSelectorWithArgs } from '@/state/store'
 
 const getAdaptivePrecision = (value: string | number): number => {
@@ -130,7 +127,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   )
 
   const hasSufficientBalance = useMemo(() => {
-    return bnOrZero(sellAssetBalanceCryptoBaseUnit).gte(sellAmountCryptoBaseUnit)
+    return bnOrZero(sellAssetBalanceCryptoBaseUnit.toBaseUnit()).gte(sellAmountCryptoBaseUnit)
   }, [sellAmountCryptoBaseUnit, sellAssetBalanceCryptoBaseUnit])
 
   const from = useMemo(() => {

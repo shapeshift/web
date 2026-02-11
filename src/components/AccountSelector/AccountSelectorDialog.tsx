@@ -49,7 +49,9 @@ export const AccountSelectorDialog = ({
   const accountsWithDetails = useMemo(
     () =>
       accountIds.map(accountId => {
-        const cryptoBalance = bnOrZero(accountBalancesBaseUnit?.[accountId]?.[assetId] ?? 0)
+        const cryptoBalance = bnOrZero(
+          accountBalancesBaseUnit?.[accountId]?.[assetId]?.toBaseUnit() ?? 0,
+        )
         const fiatBalance = bnOrZero(fromBaseUnit(cryptoBalance, asset.precision ?? 0)).times(
           marketData?.price ?? 0,
         )

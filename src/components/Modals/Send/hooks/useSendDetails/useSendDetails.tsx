@@ -66,7 +66,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       assetId,
       accountId,
     }),
-  )
+  ).toPrecision()
 
   const userCurrencyBalance = bnOrZero(
     useAppSelector(state =>
@@ -76,7 +76,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const assetBalance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId }),
-  )
+  ).toPrecision()
 
   const nativeAssetBalance = bnOrZero(
     useAppSelector(state =>
@@ -84,7 +84,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         assetId: feeAsset?.assetId,
         accountId,
       }),
-    ),
+    ).toBaseUnit(),
   )
 
   const {

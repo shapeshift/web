@@ -125,7 +125,7 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
       return isLoading
     }
 
-    return bnOrZero(feeAssetBalance).gte(approvalNetworkFeeCryptoBaseUnit)
+    return bnOrZero(feeAssetBalance.toBaseUnit()).gte(approvalNetworkFeeCryptoBaseUnit)
   }, [approvalNetworkFeeCryptoBaseUnit, feeAssetBalance, isLoading])
 
   const approveAssetTranslation = useMemo(() => {

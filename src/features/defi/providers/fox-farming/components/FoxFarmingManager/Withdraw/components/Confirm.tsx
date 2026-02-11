@@ -112,7 +112,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const hasEnoughBalanceForGas = useMemo(
     () =>
-      bnOrZero(feeAssetBalance)
+      bnOrZero(feeAssetBalance.toPrecision())
         .minus(bnOrZero(state?.withdraw.estimatedGasCryptoPrecision))
         .gte(0),
     [feeAssetBalance, state?.withdraw.estimatedGasCryptoPrecision],

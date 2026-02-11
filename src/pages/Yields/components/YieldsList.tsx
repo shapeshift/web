@@ -209,7 +209,7 @@ export const YieldsList = memo(() => {
         if (minDeposit.gt(0)) {
           const asset = assets[assetId]
           if (!asset) return false
-          const baseBalance = bnOrZero(assetBalancesBaseUnit[assetId])
+          const baseBalance = bnOrZero(assetBalancesBaseUnit[assetId]?.toBaseUnit())
           const balanceHuman = bnOrZero(fromBaseUnit(baseBalance, asset.precision))
           if (balanceHuman.lt(minDeposit)) return false
         }

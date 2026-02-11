@@ -46,7 +46,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({ assetId, account
   const cryptoBalance =
     useAppSelector(state =>
       selectPortfolioCryptoBalanceByFilter(state, assetAccountFilter),
-    ) ?? '0'
+    )?.toPrecision() ?? '0'
 
   const userCurrencyBalance = useAppSelector(s =>
     selectUserCurrencyBalanceByFilter(s, assetAccountFilter),

@@ -102,7 +102,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   )
   const stakingAssetFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
-  )
+  ).toPrecision()
 
   const buyAssetSearch = useModal('buyAssetSearch')
 

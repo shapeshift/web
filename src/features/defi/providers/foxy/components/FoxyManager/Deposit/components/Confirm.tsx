@@ -152,7 +152,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
 
   if (!state || !dispatch) return null
 
-  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
+  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance.toPrecision())
     .minus(bnOrZero(state.deposit.estimatedGasCryptoBaseUnit).div(bn(10).pow(feeAsset.precision)))
     .gte(0)
 

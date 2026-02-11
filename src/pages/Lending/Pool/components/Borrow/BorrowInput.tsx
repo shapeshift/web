@@ -199,7 +199,7 @@ export const BorrowInput = ({
   )
   const balanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
-  )
+  ).toBaseUnit()
   const collateralFeeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))
   const borrowFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, borrowAsset?.assetId ?? ''),
@@ -211,7 +211,7 @@ export const BorrowInput = ({
   )
   const collateralFeeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, collateralFeeAssetBalanceFilter),
-  )
+  ).toBaseUnit()
 
   const amountAvailableCryptoPrecision = useMemo(
     () => fromBaseUnit(balanceCryptoBaseUnit, collateralAsset?.precision ?? 0),

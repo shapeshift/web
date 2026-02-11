@@ -134,7 +134,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   const balanceFilter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
   const balanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
-  )
+  ).toBaseUnit()
 
   const assetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, assetId),

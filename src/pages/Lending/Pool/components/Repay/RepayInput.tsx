@@ -206,14 +206,14 @@ export const RepayInput = ({
 
   const repaymentAssetAmountAvailableCryptoPrecision = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, repaymentAssetBalanceFilter),
-  )
+  ).toPrecision()
   const feeAssetBalanceFilter = useMemo(
     () => ({ assetId: repaymentFeeAsset?.assetId ?? '', accountId: repaymentAccountId ?? '' }),
     [repaymentFeeAsset?.assetId, repaymentAccountId],
   )
   const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, feeAssetBalanceFilter),
-  )
+  ).toBaseUnit()
 
   const serializedApprovalTxIndex = useMemo(() => {
     if (!(approvalTxHash && userAddress && repaymentAccountId)) return ''

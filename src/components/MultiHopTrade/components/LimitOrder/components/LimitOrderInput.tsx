@@ -382,7 +382,7 @@ export const LimitOrderInput = ({
       case !shouldShowTradeQuoteOrAwaitInput:
       case !hasUserEnteredAmount:
         return { quoteStatusTranslation: 'trade.previewTrade', isError: false }
-      case bnOrZero(sellAssetBalanceCryptoBaseUnit).isZero():
+      case bnOrZero(sellAssetBalanceCryptoBaseUnit.toBaseUnit()).isZero():
         return { quoteStatusTranslation: 'limitOrder.errors.zeroFunds', isError: true }
       case sellAsset.chainId !== buyAsset.chainId:
         return { quoteStatusTranslation: 'trade.errors.quoteCrossChainNotSupported', isError: true }

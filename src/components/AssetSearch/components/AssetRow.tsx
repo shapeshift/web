@@ -141,7 +141,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
     const filter = useMemo(() => ({ assetId }), [assetId])
     const isSupported = wallet && isAssetSupportedByWallet(assetId, wallet)
     const cryptoHumanBalance = useAppSelector(s =>
-      canDisplayBalances ? selectPortfolioCryptoBalanceByFilter(s, filter) : '0',
+      canDisplayBalances ? selectPortfolioCryptoBalanceByFilter(s, filter).toPrecision() : '0',
     )
     const userCurrencyBalance =
       useAppSelector(s =>

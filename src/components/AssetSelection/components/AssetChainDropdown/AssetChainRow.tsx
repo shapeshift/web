@@ -38,7 +38,7 @@ export const AssetChainRow: React.FC<AssetChainRowProps> = ({
   const filter = useMemo(() => ({ assetId }), [assetId])
   const cryptoHumanBalance = useAppSelector(s =>
     selectPortfolioCryptoBalanceByFilter(s, filter),
-  )
+  ).toPrecision()
 
   const userCurrencyBalance = useAppSelector(
     state => selectPortfolioUserCurrencyBalanceByAssetId(state, filter) ?? '0',

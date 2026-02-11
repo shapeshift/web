@@ -153,7 +153,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   )
   const selectedStakingAssetBalanceCryptoPrecision = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, selectedStakingAssetBalanceFilter),
-  )
+  ).toPrecision()
   const selectedStakingAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(selectedStakingAssetId).chainId),
   )
@@ -170,7 +170,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   )
   const stakingAssetFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
-  )
+  ).toPrecision()
 
   const [showWarning, setShowWarning] = useState(false)
   const [collapseIn, setCollapseIn] = useState(false)

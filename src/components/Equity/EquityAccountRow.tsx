@@ -41,7 +41,7 @@ export const EquityAccountRow = ({
   const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
   const cryptoHumanBalance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, filter),
-  )
+  ).toPrecision()
   const userCurrencyBalance = useAppSelector(state =>
     selectPortfolioUserCurrencyBalanceByFilter(state, filter),
   )

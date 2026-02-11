@@ -95,7 +95,7 @@ export const StakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAccou
 
   const balanceCryptoPrecision = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
-  )
+  ).toPrecision()
 
   const amountCryptoBaseUnit = useMemo(
     () => toBaseUnit(amountCryptoPrecision, THOR_PRECISION),

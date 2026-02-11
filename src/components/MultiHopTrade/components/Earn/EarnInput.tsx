@@ -269,7 +269,7 @@ export const EarnInput = memo(
       [sellAccountId, sellAsset?.assetId],
     )
     const sellAssetBalanceCryptoPrecision = useAppSelector(state =>
-      isConnected ? selectPortfolioCryptoBalanceByFilter(state, balanceFilter) : '0',
+      isConnected ? selectPortfolioCryptoBalanceByFilter(state, balanceFilter).toPrecision() : '0',
     )
 
     const minDeposit = useMemo(

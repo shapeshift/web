@@ -238,8 +238,12 @@ export const Form: React.FC<QrCodeFormProps> = ({ assetId: initialAssetId, accou
 
           if (isAmbiguousTransfer) {
             if (initialAssetId) {
-              const { chainNamespace: contextChainNamespace } = fromAssetId(initialAssetId)
-              const chainMatch = contextChainNamespace === chainNamespace
+              const { chainId: contextChainId, chainNamespace: contextChainNamespace } =
+                fromAssetId(initialAssetId)
+              const { chainId: qrChainId } = fromAssetId(maybeUrlResult.assetId)
+              const chainMatch = urlDirectResult
+                ? contextChainId === qrChainId
+                : contextChainNamespace === chainNamespace
               if (chainMatch) {
                 methods.setValue(SendFormFields.AssetId, initialAssetId)
                 if (initialAssetId !== maybeUrlResult.assetId) {

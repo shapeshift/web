@@ -650,7 +650,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       const minLt = lts.reduce((a, b) => (a < b ? a : b)).toString()
       const maxLt = lts.reduce((a, b) => (a > b ? a : b)).toString()
 
-      const fetchJettons = () => this.fetchJettonTransfers(pubkey, minLt, maxLt)
+      const bufferedMaxLt = (BigInt(maxLt) + TRACE_LT_SEARCH_RANGE).toString()
+      const fetchJettons = () => this.fetchJettonTransfers(pubkey, minLt, bufferedMaxLt)
       const jettonData = requestQueue ? await requestQueue.add(fetchJettons) : await fetchJettons()
 
       const jettonAddrBook = { ...addressBook, ...jettonData.address_book }

@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
+import { BigAmount, bn } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
 
 import { getStakingContract } from '../helpers'
@@ -63,19 +63,23 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
         stakingAssetPriceHistory.findLast(price => price.date <= latestEpoch.endTimestamp) ??
         stakingAssetPriceHistory[0]
 
-      const rewardDistributionUsd = BigAmount.fromBaseUnit({
-        value: latestEpoch.totalRevenue,
-        precision: runeAsset.precision,
-      })
-        .times(distributionRate)
-        .times(closestRunePrice.price)
+      const rewardDistributionUsd = bn(
+        BigAmount.fromBaseUnit({
+          value: latestEpoch.totalRevenue,
+          precision: runeAsset.precision,
+        })
+          .times(distributionRate)
+          .toPrecision(),
+      ).times(closestRunePrice.price)
 
-      const totalStakedUsd = BigAmount.fromBaseUnit({
-        value: totalStakedCryptoCurrencyQuery.data,
-        precision: stakingAsset.precision,
-      }).times(closestStakingAssetPrice.price)
+      const totalStakedUsd = bn(
+        BigAmount.fromBaseUnit({
+          value: totalStakedCryptoCurrencyQuery.data,
+          precision: stakingAsset.precision,
+        }).toPrecision(),
+      ).times(closestStakingAssetPrice.price)
 
-      return rewardDistributionUsd.div(totalStakedUsd.toFixed()).times(12).toFixed(4)
+      return rewardDistributionUsd.div(totalStakedUsd).times(12).toFixed(4)
     },
     [
       runePriceHistory,

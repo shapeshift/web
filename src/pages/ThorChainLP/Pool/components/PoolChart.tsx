@@ -1,5 +1,5 @@
 import { Button, ButtonGroup, Center, Flex, Stack } from '@chakra-ui/react'
-import { BigAmount } from '@shapeshiftoss/utils'
+import { BigAmount, bn } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import type { SingleValueData, UTCTimestamp } from 'lightweight-charts'
 import { useCallback, useMemo, useState } from 'react'
@@ -21,7 +21,9 @@ const swapHistoryToChartData = (swapHistory: MidgardSwapHistoryResponse): Single
   const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
 
   return swapHistory.intervals.map(interval => {
-    const intervalVolumeFiatUserCurrency = BigAmount.fromThorBaseUnit(interval.totalVolume)
+    const intervalVolumeFiatUserCurrency = bn(
+      BigAmount.fromThorBaseUnit(interval.totalVolume).toPrecision(),
+    )
       .times(interval.runePriceUSD)
       .times(userCurrencyToUsdRate)
 
@@ -41,7 +43,7 @@ const tvlToChartData = (
     const poolDepth = interval.poolsDepth.find(pool => pool.pool === thorchainNotationAssetId)
     const poolTotalDepth = poolDepth?.totalDepth ?? '0'
 
-    const tvlFiat = BigAmount.fromThorBaseUnit(poolTotalDepth)
+    const tvlFiat = bn(BigAmount.fromThorBaseUnit(poolTotalDepth).toPrecision())
       .times(interval.runePriceUSD)
       .times(userCurrencyToUsdRate)
 

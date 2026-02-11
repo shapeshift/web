@@ -5,47 +5,103 @@ import { bn, bnOrZero } from '../bignumber/bignumber'
 const TEN = bn(10)
 const THOR_PRECISION = 8
 
+type BigAmountConfig = {
+  resolvePrecision: (assetId: string) => number
+  resolvePrice: (assetId: string) => string
+  resolvePriceUsd: (assetId: string) => string
+}
+
+type FromBaseUnitWithPrecision = {
+  value: BigNumber.Value | null | undefined
+  precision: number
+  assetId?: string
+}
+
+type FromBaseUnitWithAssetId = {
+  value: BigNumber.Value | null | undefined
+  assetId: string
+}
+
+type FromBaseUnitArgs = FromBaseUnitWithPrecision | FromBaseUnitWithAssetId
+
+type FromPrecisionWithPrecision = {
+  value: BigNumber.Value | null | undefined
+  precision: number
+  assetId?: string
+}
+
+type FromPrecisionWithAssetId = {
+  value: BigNumber.Value | null | undefined
+  assetId: string
+}
+
+type FromPrecisionArgs = FromPrecisionWithPrecision | FromPrecisionWithAssetId
+
 export class BigAmount {
+  // Internal value is ALWAYS in base units (raw blockchain integer scale).
+  // e.g., 150000000 for 1.5 BTC, 1000000000000000000 for 1 ETH.
   private readonly value: BigNumber
   readonly precision: number
+  readonly assetId?: string
 
-  private constructor(value: BigNumber, precision: number) {
+  private static config?: BigAmountConfig
+
+  private constructor(value: BigNumber, precision: number, assetId?: string) {
     this.value = value
     this.precision = precision
+    this.assetId = assetId
+  }
+
+  // ── Configuration ───────────────────────────────
+
+  static configure(config: BigAmountConfig): void {
+    BigAmount.config = config
   }
 
   // ── Construction (all nullish-safe) ───────────────
 
-  static fromBaseUnit({
+  static fromBaseUnit(args: FromBaseUnitArgs): BigAmount {
+    const precision =
+      'precision' in args ? args.precision : BigAmount.resolveConfigPrecision(args.assetId)
+    const assetId = args.assetId
+    return new BigAmount(bnOrZero(args.value), precision, assetId)
+  }
+
+  static fromPrecision(args: FromPrecisionArgs): BigAmount {
+    const precision =
+      'precision' in args ? args.precision : BigAmount.resolveConfigPrecision(args.assetId)
+    const assetId = args.assetId
+    return new BigAmount(bnOrZero(args.value).times(TEN.pow(precision)), precision, assetId)
+  }
+
+  static zero({ precision, assetId }: { precision: number; assetId?: string }): BigAmount {
+    return new BigAmount(bn(0), precision, assetId)
+  }
+
+  static fromBN({
     value,
     precision,
+    assetId,
   }: {
-    value: BigNumber.Value | null | undefined
+    value: BigNumber
     precision: number
+    assetId?: string
   }): BigAmount {
-    return new BigAmount(bnOrZero(value).div(TEN.pow(precision)), precision)
+    // fromBN accepts precision-scale BigNumber (matches the old API contract)
+    const safeValue = value.isFinite() ? value : bn(0)
+    return new BigAmount(safeValue.times(TEN.pow(precision)), precision, assetId)
   }
 
-  static fromPrecision({
+  static fromJSON({
     value,
     precision,
+    assetId,
   }: {
-    value: BigNumber.Value | null | undefined
+    value: string
     precision: number
+    assetId?: string
   }): BigAmount {
-    return new BigAmount(bnOrZero(value), precision)
-  }
-
-  static zero({ precision }: { precision: number }): BigAmount {
-    return new BigAmount(bn(0), precision)
-  }
-
-  static fromBN({ value, precision }: { value: BigNumber; precision: number }): BigAmount {
-    return new BigAmount(value.isFinite() ? value : bn(0), precision)
-  }
-
-  static fromJSON({ value, precision }: { value: string; precision: number }): BigAmount {
-    return new BigAmount(bn(value), precision)
+    return new BigAmount(bn(value), precision, assetId)
   }
 
   static min(...amounts: BigAmount[]): BigAmount {
@@ -73,43 +129,58 @@ export class BigAmount {
   plus(other: BigAmount | BigNumber.Value): BigAmount {
     if (other instanceof BigAmount) {
       assertSamePrecision(this, other)
-      return new BigAmount(this.value.plus(other.value), this.precision)
+      return new BigAmount(this.value.plus(other.value), this.precision, this.assetId)
     }
-    return new BigAmount(this.value.plus(bnOrZero(other)), this.precision)
+    // Scalar is precision-scale → convert to base units
+    return new BigAmount(
+      this.value.plus(bnOrZero(other).times(TEN.pow(this.precision))),
+      this.precision,
+      this.assetId,
+    )
   }
 
   minus(other: BigAmount | BigNumber.Value): BigAmount {
     if (other instanceof BigAmount) {
       assertSamePrecision(this, other)
-      return new BigAmount(this.value.minus(other.value), this.precision)
+      return new BigAmount(this.value.minus(other.value), this.precision, this.assetId)
     }
-    return new BigAmount(this.value.minus(bnOrZero(other)), this.precision)
+    // Scalar is precision-scale → convert to base units
+    return new BigAmount(
+      this.value.minus(bnOrZero(other).times(TEN.pow(this.precision))),
+      this.precision,
+      this.assetId,
+    )
   }
 
   times(scalar: BigNumber.Value): BigAmount {
     assertNotBigAmount(scalar, 'times')
-    return new BigAmount(this.value.times(bnOrZero(scalar)), this.precision)
+    return new BigAmount(this.value.times(bnOrZero(scalar)), this.precision, this.assetId)
   }
 
   div(scalar: BigNumber.Value): BigAmount {
     assertNotBigAmount(scalar, 'div')
-    return new BigAmount(this.value.div(bnOrZero(scalar)), this.precision)
+    return new BigAmount(this.value.div(bnOrZero(scalar)), this.precision, this.assetId)
   }
 
   abs(): BigAmount {
-    return new BigAmount(this.value.abs(), this.precision)
+    return new BigAmount(this.value.abs(), this.precision, this.assetId)
   }
 
   negated(): BigAmount {
-    return new BigAmount(this.value.negated(), this.precision)
+    return new BigAmount(this.value.negated(), this.precision, this.assetId)
   }
 
   positiveOrZero(): BigAmount {
-    return this.value.isPositive() ? this : BigAmount.zero({ precision: this.precision })
+    return this.value.isPositive()
+      ? this
+      : BigAmount.zero({ precision: this.precision, assetId: this.assetId })
   }
 
   decimalPlaces(n: number, rm?: BigNumber.RoundingMode): BigAmount {
-    return new BigAmount(this.value.decimalPlaces(n, rm), this.precision)
+    // Operate on precision-scale, then convert back to base units
+    const precisionValue = this.value.div(TEN.pow(this.precision))
+    const truncated = precisionValue.decimalPlaces(n, rm)
+    return new BigAmount(truncated.times(TEN.pow(this.precision)), this.precision, this.assetId)
   }
 
   // ── Comparison (terminal → boolean) ───────────────
@@ -119,7 +190,7 @@ export class BigAmount {
       assertSamePrecision(this, other)
       return this.value.gt(other.value)
     }
-    return this.value.gt(bnOrZero(other))
+    return this.value.gt(bnOrZero(other).times(TEN.pow(this.precision)))
   }
 
   gte(other: BigAmount | BigNumber.Value): boolean {
@@ -127,7 +198,7 @@ export class BigAmount {
       assertSamePrecision(this, other)
       return this.value.gte(other.value)
     }
-    return this.value.gte(bnOrZero(other))
+    return this.value.gte(bnOrZero(other).times(TEN.pow(this.precision)))
   }
 
   lt(other: BigAmount | BigNumber.Value): boolean {
@@ -135,7 +206,7 @@ export class BigAmount {
       assertSamePrecision(this, other)
       return this.value.lt(other.value)
     }
-    return this.value.lt(bnOrZero(other))
+    return this.value.lt(bnOrZero(other).times(TEN.pow(this.precision)))
   }
 
   lte(other: BigAmount | BigNumber.Value): boolean {
@@ -143,7 +214,7 @@ export class BigAmount {
       assertSamePrecision(this, other)
       return this.value.lte(other.value)
     }
-    return this.value.lte(bnOrZero(other))
+    return this.value.lte(bnOrZero(other).times(TEN.pow(this.precision)))
   }
 
   eq(other: BigAmount | BigNumber.Value): boolean {
@@ -151,7 +222,7 @@ export class BigAmount {
       assertSamePrecision(this, other)
       return this.value.eq(other.value)
     }
-    return this.value.eq(bnOrZero(other))
+    return this.value.eq(bnOrZero(other).times(TEN.pow(this.precision)))
   }
 
   isZero(): boolean {
@@ -173,32 +244,34 @@ export class BigAmount {
   // ── Output ────────────────────────────────────────
 
   toBaseUnit(): string {
-    return this.value.times(TEN.pow(this.precision)).toFixed(0)
+    return this.value.toFixed(0)
   }
 
   toPrecision(): string {
-    return this.value.toFixed()
+    return this.value.div(TEN.pow(this.precision)).toFixed()
   }
 
   toFixed(decimals?: number): string {
+    const precisionValue = this.value.div(TEN.pow(this.precision))
     if (typeof decimals === 'number') {
-      return this.value.toFixed(decimals, 1) // BigNumber.ROUND_DOWN
+      return precisionValue.toFixed(decimals, 1) // BigNumber.ROUND_DOWN
     }
-    return this.value.toFixed()
+    return precisionValue.toFixed()
   }
 
   toString(): string {
-    return this.value.toFixed()
+    return this.value.div(TEN.pow(this.precision)).toFixed()
   }
 
   toNumber(): number {
-    return this.value.toNumber()
+    return this.value.div(TEN.pow(this.precision)).toNumber()
   }
 
   toSignificant(digits: number): string {
-    if (this.value.isZero()) return '0'
+    const precisionValue = this.value.div(TEN.pow(this.precision))
+    if (precisionValue.isZero()) return '0'
 
-    const fixed = this.value.toFixed()
+    const fixed = precisionValue.toFixed()
     const isNeg = fixed.startsWith('-')
     const abs = isNeg ? fixed.slice(1) : fixed
 
@@ -229,32 +302,45 @@ export class BigAmount {
     return (isNeg ? '-' : '') + result
   }
 
+  // ── Fiat conversion ────────────────────────────────
+
+  toUserCurrency(decimals = 2): string {
+    if (!this.assetId) throw new Error('BigAmount: toUserCurrency() requires assetId')
+    if (!BigAmount.config?.resolvePrice) throw new Error('BigAmount: not configured')
+    const price = BigAmount.config.resolvePrice(this.assetId)
+    return this.value.div(TEN.pow(this.precision)).times(bnOrZero(price)).toFixed(decimals)
+  }
+
+  toUSD(decimals = 2): string {
+    if (!this.assetId) throw new Error('BigAmount: toUSD() requires assetId')
+    if (!BigAmount.config?.resolvePriceUsd) throw new Error('BigAmount: not configured')
+    const priceUsd = BigAmount.config.resolvePriceUsd(this.assetId)
+    return this.value.div(TEN.pow(this.precision)).times(bnOrZero(priceUsd)).toFixed(decimals)
+  }
+
   // ── THORChain precision ──────────────────────────
-  // This is basically a convertPrecision of sorts accommodated for THOR precision
-  // conversion explicitly — i.e the ONLY reason we should ever convertPrecision
-  // vs. leveraging toPrecision() or toBaseUnit().
-  // THORChain uses 8-decimal base units for ALL amounts regardless of the
-  // underlying asset's native precision.
-  // Usage:
-  //   BigAmount.fromThorBaseUnit(thorBaseUnit).toPrecision()  // THOR base unit → human
-  //   BigAmount.fromBaseUnit({ value, precision: asset.precision }).toThorBaseUnit()  // native → THOR base unit
 
   static fromThorBaseUnit(value: BigNumber.Value | null | undefined): BigAmount {
     return BigAmount.fromBaseUnit({ value, precision: THOR_PRECISION })
   }
 
   toThorBaseUnit(): string {
-    return this.value.times(TEN.pow(THOR_PRECISION)).toFixed(0)
+    return this.value.times(TEN.pow(THOR_PRECISION)).div(TEN.pow(this.precision)).toFixed(0)
   }
 
   // ── Interop ───────────────────────────────────────
 
-  toBN(): BigNumber {
-    return this.value
+  toJSON(): { value: string; precision: number; assetId?: string } {
+    return { value: this.value.toFixed(0), precision: this.precision, assetId: this.assetId }
   }
 
-  toJSON(): { value: string; precision: number } {
-    return { value: this.value.toFixed(), precision: this.precision }
+  // ── Private helpers ────────────────────────────────
+
+  private static resolveConfigPrecision(assetId: string): number {
+    if (!BigAmount.config?.resolvePrecision) {
+      throw new Error('BigAmount: not configured — call BigAmount.configure() first')
+    }
+    return BigAmount.config.resolvePrecision(assetId)
   }
 }
 
@@ -269,7 +355,7 @@ function assertSamePrecision(a: BigAmount, b: BigAmount): void {
 function assertNotBigAmount(value: unknown, method: string): void {
   if (value instanceof BigAmount) {
     throw new TypeError(
-      `BigAmount.${method} does not accept BigAmount as argument (dimensionally invalid). Use .toBN() to unwrap first.`,
+      `BigAmount.${method} does not accept BigAmount as argument (dimensionally invalid). Use .toFixed() to extract the scalar first.`,
     )
   }
 }

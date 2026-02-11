@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
+import { BigAmount, bn } from '@shapeshiftoss/utils'
 import { useTranslate } from 'react-polyglot'
 
 import { StatItem } from './StatItem'
@@ -23,10 +23,12 @@ export const TotalStaked: React.FC<TotalStakedProps> = ({ stakingAssetId }) => {
   const totalStakedUserCurrencyQuery = useTotalStakedQuery<string>({
     stakingAssetId,
     select: (totalStaked: bigint) => {
-      return BigAmount.fromBaseUnit({
-        value: totalStaked.toString(),
-        precision: stakingAsset?.precision ?? 0,
-      })
+      return bn(
+        BigAmount.fromBaseUnit({
+          value: totalStaked.toString(),
+          precision: stakingAsset?.precision ?? 0,
+        }).toPrecision(),
+      )
         .times(stakingAssetMarketData?.price ?? 0)
         .toFixed(2)
     },

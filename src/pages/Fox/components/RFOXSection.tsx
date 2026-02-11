@@ -254,18 +254,19 @@ export const RFOXSection = () => {
       timeInPoolSeconds === 0n ? 'N/A' : formatSecondsToDuration(Number(timeInPoolSeconds)),
   })
 
-  const handleSelectAssetId = useCallback((filter: Filter) => {
-    if (filter.assetId === uniV2EthFoxArbitrumAssetId) {
-      setShowLpWarning(prev => {
-        const next = !prev
+  const handleSelectAssetId = useCallback(
+    (filter: Filter) => {
+      if (filter.assetId === uniV2EthFoxArbitrumAssetId) {
+        const next = !showLpWarning
+        setShowLpWarning(next)
         setStakingAssetId(next ? uniV2EthFoxArbitrumAssetId : foxOnArbitrumOneAssetId)
-        return next
-      })
-      return
-    }
-    setShowLpWarning(false)
-    setStakingAssetId(filter.assetId ?? foxOnArbitrumOneAssetId)
-  }, [])
+        return
+      }
+      setShowLpWarning(false)
+      setStakingAssetId(filter.assetId ?? foxOnArbitrumOneAssetId)
+    },
+    [showLpWarning],
+  )
 
   const isStakingDataLoading = isConnected && !stakingAssetAccountId
 
@@ -455,7 +456,7 @@ export const RFOXSection = () => {
               translation='RFOX.timeInPool'
               mb={1}
             />
-            <Skeleton isLoaded={!Boolean(isTimeInPoolLoading) && !isStakingDataLoading}>
+            <Skeleton isLoaded={!isTimeInPoolLoading && !isStakingDataLoading}>
               <CText fontSize='2xl'>{timeInPoolHuman ?? 'N/A'}</CText>
             </Skeleton>
           </Stack>

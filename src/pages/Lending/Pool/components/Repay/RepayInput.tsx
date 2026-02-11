@@ -19,6 +19,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { assertAndProcessMemo, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -42,7 +43,6 @@ import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/use
 import { useModal } from '@/hooks/useModal/useModal'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { toBaseUnit } from '@/lib/math'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -151,11 +151,11 @@ export const RepayInput = ({
     from: userAddress,
     amountCryptoBaseUnit:
       confirmedQuote?.repaymentAmountCryptoPrecision && repaymentAsset
-        ? toBaseUnit(
+        ? BigAmount.fromPrecision({
             // Add 5% buffer to the repayment allowance to avoid asset rates fluctuations ending up in more asset needed to repay
-            bnOrZero(confirmedQuote.repaymentAmountCryptoPrecision).times('1.05'),
-            repaymentAsset.precision,
-          )
+            value: bnOrZero(confirmedQuote.repaymentAmountCryptoPrecision).times('1.05'),
+            precision: repaymentAsset.precision,
+          }).toBaseUnit()
         : undefined,
     accountNumber: repaymentAccountNumber,
   })
@@ -412,10 +412,10 @@ export const RepayInput = ({
     {
       assetId: repaymentAsset?.assetId ?? '',
       accountId: repaymentAccountId,
-      amountCryptoBaseUnit: toBaseUnit(
-        confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
-        repaymentAsset?.precision ?? 0,
-      ),
+      amountCryptoBaseUnit: BigAmount.fromPrecision({
+        value: confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
+        precision: repaymentAsset?.precision ?? 0,
+      }).toBaseUnit(),
       memo,
       // no explicit from address required for repayments
       fromAddress: '',

@@ -11,9 +11,9 @@ import type {
   UtxoChainId,
 } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
-import { toBaseUnit } from '@/lib/math'
 import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
@@ -59,10 +59,10 @@ export const getTradeQuoteOrRateInput = async ({
   const tradeQuoteInputCommonArgs =
     quoteOrRate === 'quote' && receiveAddress && sellAccountNumber !== undefined
       ? {
-          sellAmountIncludingProtocolFeesCryptoBaseUnit: toBaseUnit(
-            sellAmountBeforeFeesCryptoPrecision,
-            sellAsset.precision,
-          ),
+          sellAmountIncludingProtocolFeesCryptoBaseUnit: BigAmount.fromPrecision({
+            value: sellAmountBeforeFeesCryptoPrecision,
+            precision: sellAsset.precision,
+          }).toBaseUnit(),
           sellAsset,
           buyAsset,
           receiveAddress,
@@ -73,10 +73,10 @@ export const getTradeQuoteOrRateInput = async ({
           quoteOrRate: 'quote',
         }
       : {
-          sellAmountIncludingProtocolFeesCryptoBaseUnit: toBaseUnit(
-            sellAmountBeforeFeesCryptoPrecision,
-            sellAsset.precision,
-          ),
+          sellAmountIncludingProtocolFeesCryptoBaseUnit: BigAmount.fromPrecision({
+            value: sellAmountBeforeFeesCryptoPrecision,
+            precision: sellAsset.precision,
+          }).toBaseUnit(),
           sellAsset,
           buyAsset,
           receiveAddress,

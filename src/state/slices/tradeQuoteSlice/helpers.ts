@@ -9,6 +9,7 @@ import type {
 } from '@shapeshiftoss/swapper'
 import { getHopByIndex } from '@shapeshiftoss/swapper'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 
 import { initialTradeExecutionState } from './constants'
 import type { ActiveQuoteMeta } from './types'
@@ -16,7 +17,6 @@ import { QuoteSortOption } from './types'
 
 import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import { selectFeeAssetById, selectMarketDataByFilter } from '@/state/slices/selectors'
@@ -32,7 +32,10 @@ export const getHopTotalNetworkFeeUserCurrency = (
   if (!networkFeeCryptoBaseUnit) return // network fee is unknown
 
   const networkFeeFiatPrecision = bnOrZero(
-    fromBaseUnit(networkFeeCryptoBaseUnit, feeAsset.precision),
+    BigAmount.fromBaseUnit({
+      value: networkFeeCryptoBaseUnit,
+      precision: feeAsset.precision,
+    }).toPrecision(),
   ).times(bnOrZero(feeAssetUserCurrencyRate))
 
   return networkFeeFiatPrecision
@@ -104,10 +107,10 @@ export const getBuyAmountAfterFeesCryptoPrecision = ({
 
   const netReceiveAmountCryptoBaseUnit = lastStep.buyAmountAfterFeesCryptoBaseUnit
 
-  const netReceiveAmountCryptoPrecision = fromBaseUnit(
-    netReceiveAmountCryptoBaseUnit,
-    lastStep.buyAsset.precision,
-  )
+  const netReceiveAmountCryptoPrecision = BigAmount.fromBaseUnit({
+    value: netReceiveAmountCryptoBaseUnit,
+    precision: lastStep.buyAsset.precision,
+  }).toPrecision()
 
   return netReceiveAmountCryptoPrecision.toString()
 }

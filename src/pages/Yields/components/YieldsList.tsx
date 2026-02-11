@@ -20,6 +20,7 @@ import {
   Text,
   useMediaQuery,
 } from '@chakra-ui/react'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 import { memo, useCallback, useMemo, useState } from 'react'
@@ -32,7 +33,6 @@ import { ChainIcon } from '@/components/ChainMenu'
 import { ResultsEmptyNoWallet } from '@/components/ResultsEmptyNoWallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { YIELD_NETWORK_TO_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
 import {
@@ -210,7 +210,12 @@ export const YieldsList = memo(() => {
           const asset = assets[assetId]
           if (!asset) return false
           const baseBalance = bnOrZero(assetBalancesBaseUnit[assetId]?.toBaseUnit())
-          const balanceHuman = bnOrZero(fromBaseUnit(baseBalance, asset.precision))
+          const balanceHuman = bnOrZero(
+            BigAmount.fromBaseUnit({
+              value: baseBalance,
+              precision: asset.precision,
+            }).toPrecision(),
+          )
           if (balanceHuman.lt(minDeposit)) return false
         }
         return true

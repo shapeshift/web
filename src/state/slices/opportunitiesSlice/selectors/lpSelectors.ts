@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import partition from 'lodash/partition'
 
 import { selectAssets } from '../../assetsSlice/selectors'
@@ -16,7 +17,6 @@ import type { LpEarnOpportunityType } from './../types'
 
 import type { AssetWithBalance } from '@/features/defi/components/Overview/Overview'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {
@@ -64,10 +64,10 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
           bnOrZero(lpAssetBalanceCryptoBaseUnit.toBaseUnit())
             // to LP asset base unit
             .times(
-              fromBaseUnit(
-                opportunityMetadata.underlyingAssetRatiosBaseUnit[i],
-                underlyingAsset.precision,
-              ),
+              BigAmount.fromBaseUnit({
+                value: opportunityMetadata.underlyingAssetRatiosBaseUnit[i],
+                precision: underlyingAsset.precision,
+              }).toPrecision(),
             )
             // to precision
             .div(bn(10).pow(lpAsset.precision))
@@ -271,8 +271,7 @@ export const selectAllEarnUserLpOpportunitiesByFilter = createDeepEqualOutputSel
         const marketDataPrice = marketDataUserCurrency[lpId as AssetId]?.price
         let opportunityBalance = portfolioAssetBalancesById[lpId]?.toBaseUnit() ?? '0'
         if (accountId) {
-          opportunityBalance =
-            portfolioAccountBalanceById[accountId]?.[lpId]?.toBaseUnit() ?? '0'
+          opportunityBalance = portfolioAccountBalanceById[accountId]?.[lpId]?.toBaseUnit() ?? '0'
         }
         if (bnOrZero(opportunityBalance).eq(0)) return opportunities
         if (

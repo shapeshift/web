@@ -1,6 +1,7 @@
 import { Alert, AlertDescription, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -24,7 +25,6 @@ import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommo
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -141,7 +141,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
           gas: gasLimit,
           fee: txFee,
         },
-        value: toBaseUnit(state.withdraw.cryptoAmount, asset.precision),
+        value: BigAmount.fromPrecision({
+          value: state.withdraw.cryptoAmount,
+          precision: asset.precision,
+        }).toBaseUnit(),
         action: StakingAction.Unstake,
       })
 
@@ -190,7 +193,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
 
   const estimatedGasCryptoPrecision = useMemo(() => {
     return bnOrZero(
-      fromBaseUnit(state?.withdraw.estimatedGasCryptoBaseUnit ?? 0, feeAsset.precision),
+      BigAmount.fromBaseUnit({
+        value: state?.withdraw.estimatedGasCryptoBaseUnit ?? 0,
+        precision: feeAsset.precision,
+      }).toPrecision(),
     )
   }, [state?.withdraw.estimatedGasCryptoBaseUnit, feeAsset])
 

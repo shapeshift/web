@@ -1,6 +1,7 @@
 import { Button, Link, Skeleton, SkeletonText, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -24,7 +25,6 @@ import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { StakingAction } from '@/plugins/cosmos/components/modals/Staking/StakingCommon'
@@ -130,7 +130,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           gas: gasLimit,
           fee: txFee,
         },
-        value: toBaseUnit(claimAmount, asset.precision),
+        value: BigAmount.fromPrecision({
+          value: claimAmount,
+          precision: asset.precision,
+        }).toBaseUnit(),
         action: StakingAction.Claim,
       })
       dispatch({ type: CosmosClaimActionType.SET_TXID, payload: broadcastTxId ?? null })
@@ -172,7 +175,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   ])
 
   const estimatedGasCryptoPrecision = useMemo(() => {
-    return bnOrZero(fromBaseUnit(state?.claim.estimatedGasCryptoBaseUnit ?? 0, feeAsset.precision))
+    return bnOrZero(
+      BigAmount.fromBaseUnit({
+        value: state?.claim.estimatedGasCryptoBaseUnit ?? 0,
+        precision: feeAsset.precision,
+      }).toPrecision(),
+    )
   }, [state?.claim.estimatedGasCryptoBaseUnit, feeAsset])
 
   if (!state || !dispatch || !asset) return null

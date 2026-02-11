@@ -1,5 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 
 import { isUtxoChainId } from '../utxo'
 import { fromThorBaseUnit } from '.'
@@ -10,7 +11,6 @@ import { fetchThorchainWithdrawQuote } from './hooks/useGetThorchainSaversWithdr
 
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import type { EstimatedFeesQueryKey } from '@/pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { queryFn as getEstimatedFeesQueryFn } from '@/pages/Lending/hooks/useGetEstimatedFeesQuery'
 import type { IsSweepNeededQueryKey } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
@@ -43,8 +43,8 @@ const getHasEnoughBalanceForTxPlusFees = ({
   if (balanceCryptoBaseUnitBn.isZero()) return false
 
   return bnOrZero(amountCryptoPrecision)
-    .plus(fromBaseUnit(txFeeCryptoBaseUnit, precision))
-    .lte(fromBaseUnit(balanceCryptoBaseUnitBn, precision))
+    .plus(BigAmount.fromBaseUnit({ value: txFeeCryptoBaseUnit, precision }).toPrecision())
+    .lte(BigAmount.fromBaseUnit({ value: balanceCryptoBaseUnitBn, precision }).toPrecision())
 }
 
 const getHasEnoughBalanceForTxPlusFeesPlusSweep = ({
@@ -65,13 +65,13 @@ const getHasEnoughBalanceForTxPlusFeesPlusSweep = ({
 
   return {
     hasEnoughBalance: bnOrZero(amountCryptoPrecision)
-      .plus(fromBaseUnit(txFeeCryptoBaseUnit, precision))
-      .plus(fromBaseUnit(sweepTxFeeCryptoBaseUnit, precision))
-      .lte(fromBaseUnit(balanceCryptoBaseUnitBn, precision)),
+      .plus(BigAmount.fromBaseUnit({ value: txFeeCryptoBaseUnit, precision }).toPrecision())
+      .plus(BigAmount.fromBaseUnit({ value: sweepTxFeeCryptoBaseUnit, precision }).toPrecision())
+      .lte(BigAmount.fromBaseUnit({ value: balanceCryptoBaseUnitBn, precision }).toPrecision()),
     missingFunds: bnOrZero(amountCryptoPrecision)
-      .plus(fromBaseUnit(txFeeCryptoBaseUnit, precision))
-      .plus(fromBaseUnit(sweepTxFeeCryptoBaseUnit, precision))
-      .minus(fromBaseUnit(balanceCryptoBaseUnitBn, precision)),
+      .plus(BigAmount.fromBaseUnit({ value: txFeeCryptoBaseUnit, precision }).toPrecision())
+      .plus(BigAmount.fromBaseUnit({ value: sweepTxFeeCryptoBaseUnit, precision }).toPrecision())
+      .minus(BigAmount.fromBaseUnit({ value: balanceCryptoBaseUnitBn, precision }).toPrecision()),
   }
 }
 
@@ -103,7 +103,10 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
   const quote = await (async () => {
     switch (type) {
       case 'withdraw': {
-        const withdrawAmountCryptoBaseUnit = toBaseUnit(_amountCryptoPrecision, asset.precision)
+        const withdrawAmountCryptoBaseUnit = BigAmount.fromPrecision({
+          value: _amountCryptoPrecision,
+          precision: asset.precision,
+        }).toBaseUnit()
 
         const thorchainSaversWithdrawQuoteQueryKey: GetThorchainSaversWithdrawQuoteQueryKey = [
           'thorchainSaversWithdrawQuote',
@@ -122,7 +125,10 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
         })
       }
       case 'deposit': {
-        const amountCryptoBaseUnit = toBaseUnit(_amountCryptoPrecision, asset.precision)
+        const amountCryptoBaseUnit = BigAmount.fromPrecision({
+          value: _amountCryptoPrecision,
+          precision: asset.precision,
+        }).toBaseUnit()
 
         const thorchainSaversDepositQuoteQueryKey: GetThorchainSaversDepositQuoteQueryKey = [
           'thorchainSaversDepositQuote',
@@ -147,10 +153,10 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
           (quote as ThorchainSaversWithdrawQuoteResponseSuccess).dust_amount,
         ).toFixed()
 
-  const amountCryptoBaseUnit = toBaseUnit(
-    amountCryptoPrecision,
-    type === 'deposit' ? asset.precision : feeAsset?.precision ?? 0,
-  )
+  const amountCryptoBaseUnit = BigAmount.fromPrecision({
+    value: amountCryptoPrecision,
+    precision: type === 'deposit' ? asset.precision : feeAsset?.precision ?? 0,
+  }).toBaseUnit()
 
   const estimatedFeesQueryArgs = {
     estimateFeesInput: {

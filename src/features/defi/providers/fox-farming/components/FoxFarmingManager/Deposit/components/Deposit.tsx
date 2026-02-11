@@ -1,5 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -22,7 +23,6 @@ import { useUniV2LiquidityPool } from '@/features/defi/providers/univ2/hooks/use
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { assertIsFoxEthStakingContractAddress } from '@/state/slices/opportunitiesSlice/constants'
@@ -138,7 +138,10 @@ export const Deposit: React.FC<DepositProps> = ({
         try {
           const fees = await getStakeFees(deposit.cryptoAmount)
           if (!fees) return
-          return fromBaseUnit(fees.networkFeeCryptoBaseUnit, feeAsset.precision)
+          return BigAmount.fromBaseUnit({
+            value: fees.networkFeeCryptoBaseUnit,
+            precision: feeAsset.precision,
+          }).toPrecision()
         } catch (error) {
           console.error(error)
           toast({
@@ -156,7 +159,12 @@ export const Deposit: React.FC<DepositProps> = ({
         if (!asset) return
         // Check if approval is required for user address
         const _allowance = await foxFarmingAllowance()
-        const allowance = bn(fromBaseUnit(bnOrZero(_allowance), asset.precision))
+        const allowance = bn(
+          BigAmount.fromBaseUnit({
+            value: bnOrZero(_allowance),
+            precision: asset.precision,
+          }).toPrecision(),
+        )
 
         // Skip approval step if user allowance is greater than or equal requested deposit amount
         if (allowance.gte(formValues.cryptoAmount)) {
@@ -185,10 +193,10 @@ export const Deposit: React.FC<DepositProps> = ({
           dispatch({
             type: FoxFarmingDepositActionType.SET_APPROVE,
             payload: {
-              estimatedGasCryptoPrecision: fromBaseUnit(
-                fees.networkFeeCryptoBaseUnit,
-                feeAsset.precision,
-              ),
+              estimatedGasCryptoPrecision: BigAmount.fromBaseUnit({
+                value: fees.networkFeeCryptoBaseUnit,
+                precision: feeAsset.precision,
+              }).toPrecision(),
             },
           })
           dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: false })
@@ -222,7 +230,11 @@ export const Deposit: React.FC<DepositProps> = ({
   )
 
   const cryptoHumanAmountAvailable = useMemo(
-    () => fromBaseUnit(cryptoBalance.toBaseUnit(), asset?.precision ?? 1),
+    () =>
+      BigAmount.fromBaseUnit({
+        value: cryptoBalance.toBaseUnit(),
+        precision: asset?.precision ?? 1,
+      }).toPrecision(),
     [asset?.precision, cryptoBalance],
   )
   const fiatAmountAvailable = useMemo(
@@ -233,7 +245,12 @@ export const Deposit: React.FC<DepositProps> = ({
   const validateCryptoAmount = useCallback(
     (value: string) => {
       if (!asset) return
-      const crypto = bn(fromBaseUnit(cryptoBalance.toBaseUnit(), asset.precision))
+      const crypto = bn(
+        BigAmount.fromBaseUnit({
+          value: cryptoBalance.toBaseUnit(),
+          precision: asset.precision,
+        }).toPrecision(),
+      )
       const _value = bnOrZero(value)
       const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
       if (_value.isEqualTo(0)) return ''
@@ -245,7 +262,12 @@ export const Deposit: React.FC<DepositProps> = ({
   const validateFiatAmount = useCallback(
     (value: string) => {
       if (!asset) return
-      const crypto = bn(fromBaseUnit(cryptoBalance.toBaseUnit(), asset.precision))
+      const crypto = bn(
+        BigAmount.fromBaseUnit({
+          value: cryptoBalance.toBaseUnit(),
+          precision: asset.precision,
+        }).toPrecision(),
+      )
       const fiat = crypto.times(bnOrZero(marketData?.price))
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)

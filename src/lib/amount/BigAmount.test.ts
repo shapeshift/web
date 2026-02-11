@@ -700,8 +700,9 @@ describe('BigAmount', () => {
     it('dimensionless scalar multiplication (rate, distribution, etc.)', () => {
       const cryptoBaseUnit = '500000000'
       const distributionRate = 0.5
-      const result = BigAmount.fromBaseUnit({ value: cryptoBaseUnit, precision: 8 })
-        .times(distributionRate)
+      const result = BigAmount.fromBaseUnit({ value: cryptoBaseUnit, precision: 8 }).times(
+        distributionRate,
+      )
       expect(result.toPrecision()).toBe('2.5')
       expect(result.toBaseUnit()).toBe('250000000')
     })

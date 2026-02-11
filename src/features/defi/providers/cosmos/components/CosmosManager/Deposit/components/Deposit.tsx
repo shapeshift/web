@@ -1,5 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import type { UseFormSetValue } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -21,7 +22,6 @@ import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommo
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { toBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { getFeeData } from '@/plugins/cosmos/utils'
@@ -98,10 +98,10 @@ export const Deposit: React.FC<DepositProps> = ({
         accountId,
         contractAddress: '',
       })
-      const amountAvailableCryptoBaseUnit = toBaseUnit(
-        amountAvailableCryptoPrecision,
-        asset.precision,
-      )
+      const amountAvailableCryptoBaseUnit = BigAmount.fromPrecision({
+        value: amountAvailableCryptoPrecision,
+        precision: asset.precision,
+      }).toBaseUnit()
       const cryptoAmountHuman = bnOrZero(amountAvailableCryptoBaseUnit)
         .minus(estimatedFees.average.txFee)
         .div(bn(10).pow(asset.precision))

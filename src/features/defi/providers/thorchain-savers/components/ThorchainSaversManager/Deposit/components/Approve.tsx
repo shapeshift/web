@@ -4,7 +4,7 @@ import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { assetIdToThorPoolAssetId } from '@shapeshiftoss/swapper'
-import { isToken } from '@shapeshiftoss/utils'
+import { BigAmount, isToken } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
@@ -26,7 +26,6 @@ import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { usePoll } from '@/hooks/usePoll/usePoll'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { toBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
@@ -105,13 +104,19 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
 
   const { data: thorchainSaversDepositQuote } = useGetThorchainSaversDepositQuoteQuery({
     asset,
-    amountCryptoBaseUnit: toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
+    amountCryptoBaseUnit: BigAmount.fromPrecision({
+      value: state?.deposit.cryptoAmount,
+      precision: asset.precision,
+    }).toBaseUnit(),
   })
 
   const { inboundAddress } = useSendThorTx({
     assetId,
     accountId: accountId ?? null,
-    amountCryptoBaseUnit: toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
+    amountCryptoBaseUnit: BigAmount.fromPrecision({
+      value: state?.deposit.cryptoAmount,
+      precision: asset.precision,
+    }).toBaseUnit(),
     memo: thorchainSaversDepositQuote?.memo ?? null,
     fromAddress: '',
     action: 'depositSavers',
@@ -135,7 +140,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
     try {
       const amountCryptoBaseUnitOrZero = isReset
         ? '0'
-        : toBaseUnit(state.deposit.cryptoAmount, asset.precision)
+        : BigAmount.fromPrecision({
+            value: state.deposit.cryptoAmount,
+            precision: asset.precision,
+          }).toBaseUnit()
 
       const poolId = assetIdToThorPoolAssetId({ assetId: asset.assetId })
 

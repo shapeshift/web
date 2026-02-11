@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { isToken } from '@shapeshiftoss/utils'
+import { BigAmount, isToken } from '@shapeshiftoss/utils'
 import partition from 'lodash/partition'
 import pickBy from 'lodash/pickBy'
 import uniqBy from 'lodash/uniqBy'
@@ -31,7 +31,6 @@ import {
 
 import type { AssetWithBalance } from '@/features/defi/components/Overview/Overview'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {
@@ -584,10 +583,10 @@ export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
               ...underlyingAssetIteratee,
               cryptoBalancePrecision: bnOrZero(userStakingOpportunity.stakedAmountCryptoBaseUnit)
                 .times(
-                  fromBaseUnit(
-                    userStakingOpportunity.underlyingAssetRatiosBaseUnit[i],
-                    underlyingAssetIteratee.precision,
-                  ) ?? '1',
+                  BigAmount.fromBaseUnit({
+                    value: userStakingOpportunity.underlyingAssetRatiosBaseUnit[i],
+                    precision: underlyingAssetIteratee.precision,
+                  }).toPrecision() ?? '1',
                 )
                 .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
                 .toFixed(),

@@ -2,7 +2,7 @@ import { Box, Flex, Stack, useMediaQuery } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { cosmosChainId, ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { isToken } from '@shapeshiftoss/utils'
+import { BigAmount, isToken } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import type { FormEvent } from 'react'
 import { memo, useCallback, useEffect, useMemo } from 'react'
@@ -24,7 +24,6 @@ import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatte
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero, positiveOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { enterYield } from '@/lib/yieldxyz/api'
 import { getDefaultValidatorForYield, isYieldDisabled } from '@/lib/yieldxyz/utils'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
@@ -127,7 +126,10 @@ export const EarnInput = memo(
     useEffect(() => {
       if (defaultSellAmountCryptoBaseUnit && defaultSellAsset && !sellAmountCryptoPrecision) {
         const precision = defaultSellAsset.precision ?? 18
-        const amountCryptoPrecision = fromBaseUnit(defaultSellAmountCryptoBaseUnit, precision)
+        const amountCryptoPrecision = BigAmount.fromBaseUnit({
+          value: defaultSellAmountCryptoBaseUnit,
+          precision,
+        }).toPrecision()
         dispatch(tradeEarnInput.actions.setSellAmountCryptoPrecision(amountCryptoPrecision))
       }
     }, [defaultSellAmountCryptoBaseUnit, defaultSellAsset, sellAmountCryptoPrecision, dispatch])

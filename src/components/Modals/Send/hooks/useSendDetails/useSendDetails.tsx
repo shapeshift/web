@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { solAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { ChainAdapterError, solana } from '@shapeshiftoss/chain-adapters'
-import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import { BigAmount, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -16,7 +16,6 @@ import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import {
   selectAssetById,
   selectFeeAssetById,
@@ -171,7 +170,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           // A slightly better, but still sad scenario - user has enough balance, but may not have enough fee asset balance to cover fees
           const canCoverFees = nativeAssetBalance
             .minus(
-              bn(toBaseUnit(sendMax ? 0 : amountCryptoPrecision, asset.precision)).decimalPlaces(0),
+              bn(
+                BigAmount.fromPrecision({
+                  value: sendMax ? 0 : amountCryptoPrecision,
+                  precision: asset.precision,
+                }).toBaseUnit(),
+              ).decimalPlaces(0),
             )
             .minus(estimatedFees.fast.txFee)
             .minus(assetId === solAssetId ? solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS : 0)
@@ -276,7 +280,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     const fastFee = sendMaxFees.fast.txFee
 
-    const networkFee = fromBaseUnit(fastFee, feeAsset?.precision ?? 0)
+    const networkFee = BigAmount.fromBaseUnit({
+      value: fastFee,
+      precision: feeAsset?.precision ?? 0,
+    }).toPrecision()
 
     const maxCrypto =
       feeAsset?.assetId !== assetId
@@ -285,10 +292,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
             .minus(networkFee)
             .minus(
               assetId === solAssetId
-                ? fromBaseUnit(
-                    solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS,
-                    feeAsset?.precision ?? 0,
-                  )
+                ? BigAmount.fromBaseUnit({
+                    value: solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS,
+                    precision: feeAsset?.precision ?? 0,
+                  }).toPrecision()
                 : 0,
             )
     const maxFiat = maxCrypto.times(bnOrZero(price))

@@ -1,7 +1,6 @@
 import {
   adapters,
   arbitrumChainId,
-  arbitrumNovaChainId,
   avalancheChainId,
   baseChainId,
   bchChainId,
@@ -212,7 +211,6 @@ export const getCoingeckoSupportedChainIds = () => {
     starknetChainId,
     dogeChainId,
     zecChainId,
-    ...(getConfig().VITE_FEATURE_ARBITRUM_NOVA ? [arbitrumNovaChainId] : []),
     ...(getConfig().VITE_FEATURE_KATANA ? [katanaChainId] : []),
   ]
 }

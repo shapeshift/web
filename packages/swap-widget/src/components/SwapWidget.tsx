@@ -8,7 +8,6 @@ import type { Chain, WalletClient } from 'viem'
 import { createPublicClient, encodeFunctionData, http } from 'viem'
 import {
   arbitrum,
-  arbitrumNova,
   avalanche,
   base,
   bsc,
@@ -49,7 +48,6 @@ const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
   8453: base,
   9745: plasma,
   42161: arbitrum,
-  42170: arbitrumNova,
   43114: avalanche,
   747474: katana,
 }

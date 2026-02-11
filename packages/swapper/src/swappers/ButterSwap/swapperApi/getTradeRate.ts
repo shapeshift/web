@@ -1,11 +1,11 @@
 import { btcChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
+  BigAmount,
   bn,
   bnOrZero,
   chainIdToFeeAssetId,
   convertDecimalPercentageToBasisPoints,
-  toBaseUnit,
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -80,10 +80,10 @@ export const getTradeRate = async (
 
   if (!isRouteSuccess(routeResponse)) {
     if (routeResponse.errno === ButterSwapErrorCode.InsufficientAmount) {
-      const minAmountCryptoBaseUnit = toBaseUnit(
-        (routeResponse as any).minAmount,
-        sellAsset.precision,
-      )
+      const minAmountCryptoBaseUnit = BigAmount.fromPrecision({
+        value: (routeResponse as any).minAmount,
+        precision: sellAsset.precision,
+      }).toBaseUnit()
       return Err(
         createTradeAmountTooSmallErr({
           minAmountCryptoBaseUnit,
@@ -115,7 +115,10 @@ export const getTradeRate = async (
 
   // TODO: affiliate fees not yet here, gut feel is that Butter won't do the swap output - fees logic for us here
   // Sanity check me when affiliates are implemented, and do the math ourselves if needed
-  const buyAmountAfterFeesCryptoBaseUnit = toBaseUnit(outputAmount, buyAsset.precision)
+  const buyAmountAfterFeesCryptoBaseUnit = BigAmount.fromPrecision({
+    value: outputAmount,
+    precision: buyAsset.precision,
+  }).toBaseUnit()
 
   const rate = getInputOutputRate({
     sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -136,13 +139,19 @@ export const getTradeRate = async (
 
   // Map gasFee.amount to networkFeeCryptoBaseUnit using fee asset precision
   const networkFeeCryptoBaseUnit = bnOrZero(route.gasFee?.amount).gt(0)
-    ? toBaseUnit(route.gasFee.amount, feeAsset.precision)
+    ? BigAmount.fromPrecision({
+        value: route.gasFee.amount,
+        precision: feeAsset.precision,
+      }).toBaseUnit()
     : '0'
 
   // Always a single step
   const step = {
     rate,
-    buyAmountBeforeFeesCryptoBaseUnit: toBaseUnit(outputAmount, buyAsset.precision),
+    buyAmountBeforeFeesCryptoBaseUnit: BigAmount.fromPrecision({
+      value: outputAmount,
+      precision: buyAsset.precision,
+    }).toBaseUnit(),
     buyAmountAfterFeesCryptoBaseUnit,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     feeData: {

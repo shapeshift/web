@@ -1,6 +1,7 @@
 import { Box, Button, Center, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { FaCheck, FaTimes } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -22,7 +23,7 @@ import type {
   DefiQueryParams,
 } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import {
@@ -73,9 +74,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   const rewardCryptoAmount = useMemo(
     () =>
-      bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0])
-        .div(bn(10).pow(asset.precision))
-        .toString(),
+      BigAmount.fromBaseUnit({
+        value: opportunity?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
+        precision: asset.precision,
+      }).toPrecision(),
     [asset.precision, opportunity?.rewardsCryptoBaseUnit],
   )
   const rewardFiatAmount = useMemo(

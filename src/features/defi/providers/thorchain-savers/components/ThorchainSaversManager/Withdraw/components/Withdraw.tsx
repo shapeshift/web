@@ -121,9 +121,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
   // user info
   const amountAvailableCryptoPrecision = useMemo(() => {
-    return bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
+    const totalBaseUnit = bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
       .plus(bnOrZero(opportunityData?.rewardsCryptoBaseUnit?.amounts[0])) // Savers rewards are denominated in a single asset
-      .div(bn(10).pow(asset.precision))
+      .toFixed(0)
+    return bnOrZero(
+      BigAmount.fromBaseUnit({
+        value: totalBaseUnit,
+        precision: asset.precision,
+      }).toPrecision(),
+    )
   }, [
     asset.precision,
     opportunityData?.rewardsCryptoBaseUnit,

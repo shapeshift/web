@@ -3,6 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { WithdrawType } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { TransactionReceipt, TransactionReceiptParams } from 'ethers'
 import isNil from 'lodash/isNil'
 import { useCallback, useContext, useMemo } from 'react'
@@ -94,9 +95,12 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
         userAddress: accountAddress,
         contractAddress,
         wallet: walletState.wallet,
-        amountDesired: bnOrZero(state.withdraw.cryptoAmount)
-          .times(bn(10).pow(underlyingAsset.precision))
-          .decimalPlaces(0),
+        amountDesired: bnOrZero(
+          BigAmount.fromPrecision({
+            value: state.withdraw.cryptoAmount ?? '0',
+            precision: underlyingAsset.precision,
+          }).toBaseUnit(),
+        ),
         type: state.withdraw.withdrawType,
         bip44Params,
       })
@@ -141,7 +145,14 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
   ])
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance.toPrecision())
-    .minus(bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit).div(bn(10).pow(feeAsset.precision)))
+    .minus(
+      bnOrZero(
+        BigAmount.fromBaseUnit({
+          value: state?.withdraw.estimatedGasCryptoBaseUnit ?? '0',
+          precision: feeAsset.precision,
+        }).toPrecision(),
+      ),
+    )
     .gte(0)
 
   const handleCancel = useCallback(() => onNext(DefiStep.Info), [onNext])
@@ -204,16 +215,23 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.withdraw.estimatedGasCryptoBaseUnit)
-                  .div(bn(10).pow(feeAsset.precision))
+                value={bnOrZero(
+                  BigAmount.fromBaseUnit({
+                    value: state.withdraw.estimatedGasCryptoBaseUnit ?? '0',
+                    precision: feeAsset.precision,
+                  }).toPrecision(),
+                )
                   .times(bnOrZero(feeMarketData?.price))
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='text.subtle'
-                value={bnOrZero(state.withdraw.estimatedGasCryptoBaseUnit)
-                  .div(bn(10).pow(feeAsset.precision))
-                  .toFixed(5)}
+                value={bnOrZero(
+                  BigAmount.fromBaseUnit({
+                    value: state.withdraw.estimatedGasCryptoBaseUnit ?? '0',
+                    precision: feeAsset.precision,
+                  }).toPrecision(),
+                ).toFixed(5)}
                 symbol={feeAsset.symbol}
               />
             </Box>

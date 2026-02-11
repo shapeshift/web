@@ -3,6 +3,7 @@ import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { TxStatus as TxStatusType } from '@shapeshiftoss/unchained-client'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -18,7 +19,7 @@ import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import { Summary } from '@/features/defi/components/Summary'
 import { TxStatus } from '@/features/defi/components/TxStatus/TxStatus'
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -203,16 +204,21 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.withdraw.protocolFeeCryptoBaseUnit)
-                  .div(bn(10).pow(asset.precision))
+                value={bnOrZero(
+                  BigAmount.fromBaseUnit({
+                    value: state.withdraw.protocolFeeCryptoBaseUnit ?? '0',
+                    precision: asset.precision,
+                  }).toPrecision(),
+                )
                   .times(bnOrZero(marketData?.price))
                   .toFixed()}
               />
               <Amount.Crypto
                 color='text.subtle'
-                value={bnOrZero(state.withdraw.protocolFeeCryptoBaseUnit)
-                  .div(bn(10).pow(asset.precision))
-                  .toFixed()}
+                value={BigAmount.fromBaseUnit({
+                  value: state.withdraw.protocolFeeCryptoBaseUnit ?? '0',
+                  precision: asset.precision,
+                }).toPrecision()}
                 symbol={asset.symbol}
               />
             </Box>
@@ -228,16 +234,21 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.withdraw.networkFeeCryptoBaseUnit)
-                  .div(bn(10).pow(feeAsset.precision))
+                value={bnOrZero(
+                  BigAmount.fromBaseUnit({
+                    value: state.withdraw.networkFeeCryptoBaseUnit ?? '0',
+                    precision: feeAsset.precision,
+                  }).toPrecision(),
+                )
                   .times(bnOrZero(feeMarketData?.price))
                   .toFixed()}
               />
               <Amount.Crypto
                 color='text.subtle'
-                value={bnOrZero(state.withdraw.networkFeeCryptoBaseUnit)
-                  .div(bn(10).pow(feeAsset.precision))
-                  .toFixed()}
+                value={BigAmount.fromBaseUnit({
+                  value: state.withdraw.networkFeeCryptoBaseUnit ?? '0',
+                  precision: feeAsset.precision,
+                }).toPrecision()}
                 symbol={feeAsset.symbol}
               />
             </Box>
@@ -254,16 +265,21 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Box textAlign='right'>
                 <Amount.Fiat
                   fontWeight='bold'
-                  value={bnOrZero(state.withdraw.dustAmountCryptoBaseUnit)
-                    .div(bn(10).pow(feeAsset.precision))
+                  value={bnOrZero(
+                    BigAmount.fromBaseUnit({
+                      value: state.withdraw.dustAmountCryptoBaseUnit ?? '0',
+                      precision: feeAsset.precision,
+                    }).toPrecision(),
+                  )
                     .times(bnOrZero(feeMarketData?.price))
                     .toFixed()}
                 />
                 <Amount.Crypto
                   color='text.subtle'
-                  value={bnOrZero(state.withdraw.dustAmountCryptoBaseUnit)
-                    .div(bn(10).pow(feeAsset.precision))
-                    .toFixed()}
+                  value={BigAmount.fromBaseUnit({
+                    value: state.withdraw.dustAmountCryptoBaseUnit ?? '0',
+                    precision: feeAsset.precision,
+                  }).toPrecision()}
                   symbol={feeAsset.symbol}
                 />
               </Box>

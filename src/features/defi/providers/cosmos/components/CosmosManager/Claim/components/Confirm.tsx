@@ -194,7 +194,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           <Amount.Crypto
             fontSize='3xl'
             fontWeight='medium'
-            value={bnOrZero(claimAmount).div(`1e+${asset.precision}`).toString()}
+            value={BigAmount.fromBaseUnit({
+              value: claimAmount,
+              precision: asset.precision,
+            }).toPrecision()}
             symbol={asset.symbol}
           />
         </Stack>

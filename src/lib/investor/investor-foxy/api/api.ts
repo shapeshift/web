@@ -16,6 +16,7 @@ import {
 } from '@shapeshiftoss/contracts'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds, WithdrawType } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import type { TransactionReceipt } from 'ethers'
 import { ethers } from 'ethers'
@@ -1032,7 +1033,7 @@ export class FoxyApi {
   }
 
   pricePerShare(): BigNumber {
-    return bn(1).times('1e+18')
+    return bn(BigAmount.fromPrecision({ value: '1', precision: 18 }).toBaseUnit())
   }
 
   // TODO: use tokemak's api to get apy when they build it

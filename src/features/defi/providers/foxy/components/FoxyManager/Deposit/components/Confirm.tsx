@@ -2,6 +2,7 @@ import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { TransactionReceipt, TransactionReceiptParams } from 'ethers'
 import isNil from 'lodash/isNil'
 import { useCallback, useContext, useMemo } from 'react'
@@ -23,7 +24,7 @@ import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyMana
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { usePoll } from '@/hooks/usePoll/usePoll'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import {
   selectBip44ParamsByAccountId,
@@ -87,9 +88,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         throw new Error(`handleDeposit: wallet does not support ethereum`)
 
       const txid = await foxyApi.deposit({
-        amountDesired: bnOrZero(state?.deposit.cryptoAmount)
-          .times(bn(10).pow(asset.precision))
-          .decimalPlaces(0),
+        amountDesired: bnOrZero(
+          BigAmount.fromPrecision({
+            value: state?.deposit.cryptoAmount ?? '0',
+            precision: asset.precision,
+          }).toBaseUnit(),
+        ),
         tokenContractAddress: assetReference,
         userAddress: accountAddress,
         contractAddress,
@@ -153,7 +157,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   if (!state || !dispatch) return null
 
   const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance.toPrecision())
-    .minus(bnOrZero(state.deposit.estimatedGasCryptoBaseUnit).div(bn(10).pow(feeAsset.precision)))
+    .minus(
+      bnOrZero(
+        BigAmount.fromBaseUnit({
+          value: state.deposit.estimatedGasCryptoBaseUnit ?? '0',
+          precision: feeAsset.precision,
+        }).toPrecision(),
+      ),
+    )
     .gte(0)
 
   return (
@@ -188,16 +199,23 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={bnOrZero(state.deposit.estimatedGasCryptoBaseUnit)
-                  .div(bn(10).pow(feeAsset.precision))
+                value={bnOrZero(
+                  BigAmount.fromBaseUnit({
+                    value: state.deposit.estimatedGasCryptoBaseUnit ?? '0',
+                    precision: feeAsset.precision,
+                  }).toPrecision(),
+                )
                   .times(bnOrZero(feeMarketData?.price))
                   .toFixed(2)}
               />
               <Amount.Crypto
                 color='text.subtle'
-                value={bnOrZero(state.deposit.estimatedGasCryptoBaseUnit)
-                  .div(bn(10).pow(feeAsset.precision))
-                  .toFixed(5)}
+                value={bnOrZero(
+                  BigAmount.fromBaseUnit({
+                    value: state.deposit.estimatedGasCryptoBaseUnit ?? '0',
+                    precision: feeAsset.precision,
+                  }).toPrecision(),
+                ).toFixed(5)}
                 symbol={feeAsset.symbol}
               />
             </Box>

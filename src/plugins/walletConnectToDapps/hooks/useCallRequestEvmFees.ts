@@ -1,9 +1,9 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
 import { useEffect, useMemo, useState } from 'react'
 
 import type { FeePrice } from '@/components/Modals/Send/views/Confirm'
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
@@ -62,9 +62,10 @@ export function useCallRequestEvmFees(state: WalletConnectState) {
       const result = (Object.keys(estimatedFees) as FeeDataKey[]).reduce<FeePrice>(
         (acc: FeePrice, key: FeeDataKey) => {
           if (!Object.values(FeeDataKey).includes(key)) return acc
-          const txFee = bnOrZero(estimatedFees[key].txFee)
-            .dividedBy(bn(10).pow(feeAsset?.precision))
-            .toPrecision()
+          const txFee = BigAmount.fromBaseUnit({
+            value: estimatedFees[key].txFee,
+            precision: feeAsset?.precision ?? 0,
+          }).toPrecision()
           const fiatFee = bnOrZero(txFee).times(feeAssetPrice).toPrecision()
           const gasPriceGwei = bnOrZero(estimatedFees[key].chainSpecific.gasPrice)
             .div(1e9)

@@ -12,6 +12,7 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -93,7 +94,13 @@ export const ClaimConfirm = ({
   const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountFilter))
 
   const cryptoHumanBalance = useMemo(
-    () => bnOrZero(claimAmount).div(`1e+${stakingAsset.precision}`),
+    () =>
+      bnOrZero(
+        BigAmount.fromBaseUnit({
+          value: claimAmount ?? '0',
+          precision: stakingAsset.precision,
+        }).toPrecision(),
+      ),
     [stakingAsset.precision, claimAmount],
   )
   // The highest level AssetId/OpportunityId, in this case of the single FOXy contract
@@ -279,14 +286,23 @@ export const ClaimConfirm = ({
               >
                 <Stack textAlign='right' spacing={0}>
                   <Amount.Fiat
-                    value={bnOrZero(estimatedGas)
-                      .div(`1e+${feeAsset.precision}`)
+                    value={bnOrZero(
+                      BigAmount.fromBaseUnit({
+                        value: estimatedGas ?? '0',
+                        precision: feeAsset.precision,
+                      }).toPrecision(),
+                    )
                       .times(bnOrZero(feeMarketData?.price))
                       .toFixed(2)}
                   />
                   <Amount.Crypto
                     color='text.subtle'
-                    value={bnOrZero(estimatedGas).div(`1e+${feeAsset.precision}`).toFixed(5)}
+                    value={bnOrZero(
+                      BigAmount.fromBaseUnit({
+                        value: estimatedGas ?? '0',
+                        precision: feeAsset.precision,
+                      }).toPrecision(),
+                    ).toFixed(5)}
                     symbol={feeAsset.symbol}
                   />
                 </Stack>

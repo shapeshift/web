@@ -1,5 +1,6 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { ethChainId, foxyAssetId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 
 import type {
@@ -17,7 +18,7 @@ import type {
   OpportunitiesUserDataResolverInput,
 } from '../types'
 
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { foxyApi } from '@/state/apis/foxy/foxyApi'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
@@ -65,8 +66,12 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
 
     if (!underlyingAsset) continue
 
-    const tvl = bnOrZero(opportunity.tvl)
-      .div(`1e+${underlyingAsset?.precision}`)
+    const tvl = bnOrZero(
+      BigAmount.fromBaseUnit({
+        value: opportunity.tvl?.toString() ?? '0',
+        precision: underlyingAsset?.precision ?? 0,
+      }).toPrecision(),
+    )
       .times(bnOrZero(marketData?.price))
       .toString()
 
@@ -82,7 +87,7 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
       underlyingAssetId: rewardTokenAssetId,
       underlyingAssetIds: [tokenAssetId],
       underlyingAssetRatiosBaseUnit: [
-        bn(1).times(bn(10).pow(underlyingAsset.precision)).toString(),
+        BigAmount.fromPrecision({ value: '1', precision: underlyingAsset.precision }).toBaseUnit(),
       ],
       name: underlyingAsset.symbol,
       rewardAssetIds: [],

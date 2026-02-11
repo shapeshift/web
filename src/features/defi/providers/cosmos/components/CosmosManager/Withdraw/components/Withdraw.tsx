@@ -1,6 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -20,7 +21,7 @@ import type {
 import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
-import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { BigNumber, bnOrZero } from '@/lib/bignumber/bignumber'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { getFeeData } from '@/plugins/cosmos/utils'
@@ -96,8 +97,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       ? selectEarnUserStakingOpportunityByUserStakingId(state, opportunityDataFilter)
       : undefined,
   )
-  const cryptoStakeBalanceHuman = bnOrZero(earnOpportunityData?.stakedAmountCryptoBaseUnit).div(
-    bn(10).pow(asset.precision),
+  const cryptoStakeBalanceHuman = bnOrZero(
+    BigAmount.fromBaseUnit({
+      value: earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
+      precision: asset.precision,
+    }).toPrecision(),
   )
 
   const fiatStakeAmountHuman = cryptoStakeBalanceHuman.times(bnOrZero(marketData?.price)).toString()
@@ -169,8 +173,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(earnOpportunityData?.stakedAmountCryptoBaseUnit).div(
-        bn(10).pow(asset.precision),
+      const crypto = bnOrZero(
+        BigAmount.fromBaseUnit({
+          value: earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
+          precision: asset.precision,
+        }).toPrecision(),
       )
       const _value = bnOrZero(value)
       const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
@@ -182,8 +189,11 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(earnOpportunityData?.stakedAmountCryptoBaseUnit).div(
-        bn(10).pow(asset.precision),
+      const crypto = bnOrZero(
+        BigAmount.fromBaseUnit({
+          value: earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
+          precision: asset.precision,
+        }).toPrecision(),
       )
       const fiat = crypto.times(bnOrZero(marketData?.price))
       const _value = bnOrZero(value)

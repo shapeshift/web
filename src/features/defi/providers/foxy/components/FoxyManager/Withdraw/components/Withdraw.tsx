@@ -1,6 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -64,7 +65,7 @@ export const Withdraw: React.FC<
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
-  const cryptoAmountAvailable = bnOrZero(bn(balance.toBaseUnit()).div(bn(10).pow(asset?.precision)))
+  const cryptoAmountAvailable = bnOrZero(balance.toPrecision())
   const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(bnOrZero(marketData?.price)))
 
   const handlePercentClick = useCallback(
@@ -127,8 +128,11 @@ export const Withdraw: React.FC<
             tokenContractAddress: rewardId,
             contractAddress,
             amountDesired: bnOrZero(
-              bn(withdraw.cryptoAmount).times(bn(10).pow(asset.precision)),
-            ).decimalPlaces(0),
+              BigAmount.fromPrecision({
+                value: withdraw.cryptoAmount ?? '0',
+                precision: asset.precision,
+              }).toBaseUnit(),
+            ),
             userAddress: accountAddress,
             type: withdraw.withdrawType,
             bip44Params,
@@ -170,7 +174,12 @@ export const Withdraw: React.FC<
           userAddress: accountAddress,
         })
 
-        const allowance = bnOrZero(bn(_allowance).div(bn(10).pow(asset.precision)))
+        const allowance = bnOrZero(
+          BigAmount.fromBaseUnit({
+            value: _allowance ?? '0',
+            precision: asset.precision,
+          }).toPrecision(),
+        )
 
         // Skip approval step if user allowance is greater than or equal requested withdraw amount
         if (allowance.gte(formValues.cryptoAmount)) {
@@ -229,25 +238,25 @@ export const Withdraw: React.FC<
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(bn(balance.toBaseUnit()).div(bn(10).pow(asset.precision)))
+      const crypto = bnOrZero(balance.toPrecision())
       const _value = bnOrZero(value)
       const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [asset.precision, balance],
+    [balance],
   )
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(bn(balance.toBaseUnit()).div(bn(10).pow(asset.precision)))
+      const crypto = bnOrZero(balance.toPrecision())
       const fiat = crypto.times(bnOrZero(marketData?.price))
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [asset.precision, balance, marketData?.price],
+    [balance, marketData?.price],
   )
 
   const fiatInputValidation = useMemo(

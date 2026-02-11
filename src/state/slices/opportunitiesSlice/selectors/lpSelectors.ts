@@ -293,14 +293,21 @@ export const selectAllEarnUserLpOpportunitiesByFilter = createDeepEqualOutputSel
             chainId: fromAssetId(lpId as AssetId).chainId,
             underlyingToken0AmountCryptoBaseUnit,
             underlyingToken1AmountCryptoBaseUnit,
-            cryptoAmountPrecision: bnOrZero(opportunityBalance)
-              .div(bn(10).pow(assets[lpId]?.precision ?? '0'))
-              .toString(),
+            cryptoAmountPrecision: bnOrZero(
+              BigAmount.fromBaseUnit({
+                value: opportunityBalance ?? '0',
+                precision: assets[lpId]?.precision ?? 0,
+              }).toPrecision(),
+            ).toString(),
             // TODO(gomes): use base unit as source of truth, conversions back and forth are unsafe
             cryptoAmountBaseUnit: opportunityBalance,
-            fiatAmount: bnOrZero(opportunityBalance)
+            fiatAmount: bnOrZero(
+              BigAmount.fromBaseUnit({
+                value: opportunityBalance ?? '0',
+                precision: assets[lpId]?.precision ?? 0,
+              }).toPrecision(),
+            )
               .times(marketDataPrice ?? '0')
-              .div(bn(10).pow(assets[lpId]?.precision ?? '0'))
               .toString(),
             icons: opportunityMetadata.underlyingAssetIds
               .map(assetId => assets[assetId]?.icon)

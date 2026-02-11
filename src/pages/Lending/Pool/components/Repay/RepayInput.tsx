@@ -438,8 +438,11 @@ export const RepayInput = ({
     if (repaymentFeeAsset.assetId === repaymentAsset.assetId)
       return bnOrZero(lendingQuoteCloseData?.repaymentAmountCryptoPrecision)
         .plus(
-          bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).div(
-            bn(10).pow(repaymentAsset.precision ?? '0'),
+          bnOrZero(
+            BigAmount.fromBaseUnit({
+              value: estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
+              precision: repaymentAsset.precision ?? 0,
+            }).toPrecision(),
           ),
         )
         .lte(repaymentAssetAmountAvailableCryptoPrecision)

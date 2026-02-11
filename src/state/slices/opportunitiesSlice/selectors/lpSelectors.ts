@@ -8,7 +8,6 @@ import {
   selectPortfolioAccountBalances,
   selectPortfolioAssetBalances,
   selectPortfolioCryptoBalanceByFilter,
-  selectPortfolioCryptoBalanceByFilter,
 } from '../../common-selectors'
 import { selectMarketDataUserCurrency } from '../../marketDataSlice/selectors'
 import { opportunities } from '../opportunitiesSlice'

@@ -22,7 +22,6 @@ import {
   selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceByFilter,
-  selectPortfolioCryptoBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'

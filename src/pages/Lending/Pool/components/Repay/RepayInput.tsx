@@ -60,7 +60,6 @@ import {
   selectAssets,
   selectFeeAssetById,
   selectPortfolioCryptoBalanceByFilter,
-  selectPortfolioCryptoBalanceByFilter,
   selectTxById,
 } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'

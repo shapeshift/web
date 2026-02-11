@@ -28,7 +28,6 @@ import {
   selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceByFilter,
-  selectPortfolioCryptoBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByFilter,
 } from '@/state/slices/selectors'
 import { ethereum as mockEthereum, rune as mockRune } from '@/test/mocks/assets'

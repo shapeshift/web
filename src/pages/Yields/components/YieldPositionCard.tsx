@@ -12,6 +12,7 @@ import {
   HStack,
   Skeleton,
   Text,
+  Tooltip,
   VStack,
 } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
@@ -105,17 +106,36 @@ export const YieldPositionCard = memo(
     const withdrawableBalance = balancesByType?.[YieldBalanceType.Withdrawable]
     const claimableBalance = balancesByType?.[YieldBalanceType.Claimable]
 
+    const hasActiveBalance = Boolean(
+      activeBalance && bnOrZero(activeBalance.aggregatedAmount).gt(0),
+    )
+
+    const isExitDisabled = !yieldItem.status.exit || !hasActiveBalance
+
+    const exitDisabledTitle = useMemo(() => {
+      if (!yieldItem.status.exit) return translate('yieldXYZ.withdrawalsDisabledDescription')
+      if (!hasActiveBalance) return translate('yieldXYZ.noActiveBalanceToExit')
+    }, [hasActiveBalance, translate, yieldItem.status.exit])
+
     const claimAction = useMemo(
       () =>
         claimableBalance?.pendingActions?.find(action =>
           action.type.toUpperCase().includes('CLAIM'),
+        ) ??
+        withdrawableBalance?.pendingActions?.find(action =>
+          action.type.toUpperCase().includes('CLAIM'),
         ),
-      [claimableBalance],
+      [claimableBalance, withdrawableBalance],
     )
 
     const canClaim = useMemo(
-      () => Boolean(claimAction && bnOrZero(claimableBalance?.aggregatedAmount).gt(0)),
-      [claimAction, claimableBalance?.aggregatedAmount],
+      () =>
+        Boolean(
+          claimAction &&
+            (bnOrZero(claimableBalance?.aggregatedAmount).gt(0) ||
+              bnOrZero(withdrawableBalance?.aggregatedAmount).gt(0)),
+        ),
+      [claimAction, claimableBalance?.aggregatedAmount, withdrawableBalance?.aggregatedAmount],
     )
 
     const formatBalance = useCallback((balance: AggregatedBalance | undefined) => {
@@ -276,6 +296,14 @@ export const YieldPositionCard = memo(
       })
     }, [hasExiting, exitingEntries, translate, pendingStatusKeys.exit])
 
+    const withdrawableClaimAction = useMemo(
+      () =>
+        withdrawableBalance?.pendingActions?.find(action =>
+          action.type.toUpperCase().includes('CLAIM'),
+        ),
+      [withdrawableBalance],
+    )
+
     const withdrawableSection = useMemo(() => {
       if (!hasWithdrawable) return null
       return (
@@ -289,13 +317,27 @@ export const YieldPositionCard = memo(
                 {formatBalance(withdrawableBalance)}
               </Text>
             </Box>
-            <Badge colorScheme='green' variant='solid' fontSize='xs'>
-              {translate('yieldXYZ.ready')}
-            </Badge>
+            <VStack spacing={1} alignItems='flex-end'>
+              <Badge colorScheme='green' variant='solid' fontSize='xs'>
+                {translate('yieldXYZ.ready')}
+              </Badge>
+              {withdrawableClaimAction && (
+                <Button size='xs' colorScheme='green' variant='solid' onClick={handleClaimClick}>
+                  {translate('common.claim')}
+                </Button>
+              )}
+            </VStack>
           </Flex>
         </Alert>
       )
-    }, [hasWithdrawable, translate, formatBalance, withdrawableBalance])
+    }, [
+      hasWithdrawable,
+      translate,
+      formatBalance,
+      withdrawableBalance,
+      withdrawableClaimAction,
+      handleClaimClick,
+    ])
 
     const claimableSection = useMemo(() => {
       if (!hasClaimable) return null
@@ -475,24 +517,21 @@ export const YieldPositionCard = memo(
                   {enterLabel}
                 </Button>
                 {hasAnyPosition && (
-                  <Button
-                    leftIcon={exitIcon}
-                    variant='outline'
-                    size='lg'
-                    height={12}
-                    borderRadius='xl'
-                    onClick={handleExit}
-                    flex={1}
-                    fontWeight='bold'
-                    isDisabled={!yieldItem.status.exit}
-                    title={
-                      !yieldItem.status.exit
-                        ? translate('yieldXYZ.withdrawalsDisabledDescription')
-                        : undefined
-                    }
-                  >
-                    {exitLabel}
-                  </Button>
+                  <Tooltip label={exitDisabledTitle} isDisabled={!isExitDisabled} hasArrow>
+                    <Button
+                      leftIcon={exitIcon}
+                      variant='outline'
+                      size='lg'
+                      height={12}
+                      borderRadius='xl'
+                      onClick={handleExit}
+                      flex={1}
+                      fontWeight='bold'
+                      isDisabled={isExitDisabled}
+                    >
+                      {exitLabel}
+                    </Button>
+                  </Tooltip>
                 )}
               </HStack>
             </Display.Desktop>

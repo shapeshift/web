@@ -1,4 +1,5 @@
 import { useMediaQuery } from '@chakra-ui/react'
+import { captureException } from '@sentry/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
@@ -6,6 +7,7 @@ import { isToken } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 
 import type { SendInput } from '../Send/Form'
@@ -19,10 +21,12 @@ import { SendAmountDetails } from '@/components/Modals/Send/views/SendAmountDeta
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { parseAddress, parseAddressInputWithChainId } from '@/lib/address/address'
 import { parseUrlDirect } from '@/lib/address/bip21'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/connect/Connect'
+import { isWalletConnectV2Uri } from '@/plugins/walletConnectToDapps/components/modals/connect/utils'
+import { useWalletConnectV2 } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
@@ -49,8 +53,10 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
   const [addressError, setAddressError] = useState<string | null>(null)
-  const { isOpen, close: handleClose } = useModal('qrCode')
-  const [walletConnectDappUrl, setWalletConnectDappUrl] = useState('')
+  const { close: handleClose } = useModal('qrCode')
+  const { pair } = useWalletConnectV2()
+  const translate = useTranslate()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
 
   const completeSendFlow = useCompleteSendFlow({ handleClose })
 
@@ -132,9 +138,42 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
     (decodedText: string) => {
       ;(async () => {
         try {
-          // If this is a WalletConnect dApp QR Code, skip the whole send logic and render the QR Code Modal instead.
+          // If this is a WalletConnect dApp QR Code, skip the whole send logic and auto-pair directly.
           // There's no need for any RFC-3986 decoding here since we don't really care about parsing and WC will do that for us
-          if (decodedText.startsWith('wc:')) return setWalletConnectDappUrl(decodedText)
+          if (decodedText.startsWith('wc:')) {
+            if (!isWalletConnectV2Uri(decodedText)) {
+              setAddressError(translate('plugins.walletConnectToDapps.modal.connect.invalidUri'))
+              return
+            }
+            try {
+              await pair?.({ uri: decodedText })
+              handleClose()
+            } catch (error: unknown) {
+              const errorMessage = error instanceof Error ? error.message : String(error)
+              if (errorMessage.includes('Pairing already exists')) {
+                toast({
+                  title: translate('plugins.walletConnectToDapps.errors.errorConnectingToDapp'),
+                  description: translate(
+                    'plugins.walletConnectToDapps.errors.pairingAlreadyExists',
+                  ),
+                  status: 'error',
+                  duration: 5000,
+                  isClosable: true,
+                })
+              } else {
+                captureException(error)
+                toast({
+                  title: translate('plugins.walletConnectToDapps.errors.errorConnectingToDapp'),
+                  description: errorMessage,
+                  status: 'error',
+                  duration: 5000,
+                  isClosable: true,
+                })
+              }
+              handleClose()
+            }
+            return
+          }
 
           // This should
           // - First attempt parsing as payment URI (BIP-21, ERC-681, Solana Pay) to extract address, amount, asset and chainId
@@ -224,7 +263,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
         }
       })()
     },
-    [methods, navigate],
+    [handleClose, methods, navigate, pair, toast, translate],
   )
 
   const selectAssetRouterElement = useMemo(
@@ -244,9 +283,6 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
     () => <Confirm handleSubmit={methods.handleSubmit(handleSubmit)} />,
     [methods, handleSubmit],
   )
-
-  if (walletConnectDappUrl)
-    return <ConnectModal initialUri={walletConnectDappUrl} isOpen={isOpen} onClose={handleClose} />
 
   return (
     <FormProvider {...methods}>

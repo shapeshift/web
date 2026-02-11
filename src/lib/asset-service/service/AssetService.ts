@@ -2,7 +2,6 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import {
   adapters,
   arbitrumChainId,
-  arbitrumNovaChainId,
   baseChainId,
   bscChainId,
   gnosisChainId,
@@ -115,7 +114,6 @@ class _AssetService {
       if (!config.VITE_FEATURE_POLYGON && asset.chainId === polygonChainId) return false
       if (!config.VITE_FEATURE_GNOSIS && asset.chainId === gnosisChainId) return false
       if (!config.VITE_FEATURE_ARBITRUM && asset.chainId === arbitrumChainId) return false
-      if (!config.VITE_FEATURE_ARBITRUM_NOVA && asset.chainId === arbitrumNovaChainId) return false
       if (!config.VITE_FEATURE_BASE && asset.chainId === baseChainId) return false
       if (!config.VITE_FEATURE_SOLANA && asset.chainId === solanaChainId) return false
       if (!config.VITE_FEATURE_SUI && asset.chainId === suiChainId) return false

@@ -4,7 +4,6 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_POLYGON: string
   readonly VITE_FEATURE_GNOSIS: string
   readonly VITE_FEATURE_ARBITRUM: string
-  readonly VITE_FEATURE_ARBITRUM_NOVA: string
   readonly VITE_FEATURE_SOLANA: string
   readonly VITE_FEATURE_TRON: string
   readonly VITE_FEATURE_BASE: string
@@ -142,8 +141,6 @@ interface ImportMetaEnv {
   readonly VITE_UNCHAINED_GNOSIS_WS_URL: string
   readonly VITE_UNCHAINED_ARBITRUM_HTTP_URL: string
   readonly VITE_UNCHAINED_ARBITRUM_WS_URL: string
-  readonly VITE_UNCHAINED_ARBITRUM_NOVA_HTTP_URL: string
-  readonly VITE_UNCHAINED_ARBITRUM_NOVA_WS_URL: string
   readonly VITE_UNCHAINED_BASE_HTTP_URL: string
   readonly VITE_UNCHAINED_BASE_WS_URL: string
   readonly VITE_UNCHAINED_BITCOIN_HTTP_URL: string
@@ -172,7 +169,6 @@ interface ImportMetaEnv {
   readonly VITE_POLYGON_NODE_URL: string
   readonly VITE_GNOSIS_NODE_URL: string
   readonly VITE_ARBITRUM_NODE_URL: string
-  readonly VITE_ARBITRUM_NOVA_NODE_URL: string
   readonly VITE_BASE_NODE_URL: string
   readonly VITE_THORCHAIN_NODE_URL: string
   readonly VITE_MAYACHAIN_NODE_URL: string

@@ -43,7 +43,6 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.PolygonMainnet]: evm.Account
     [KnownChainIds.GnosisMainnet]: evm.Account
     [KnownChainIds.ArbitrumMainnet]: evm.Account
-    [KnownChainIds.ArbitrumNovaMainnet]: evm.Account
     [KnownChainIds.BaseMainnet]: evm.Account
     [KnownChainIds.MonadMainnet]: evm.Account
     [KnownChainIds.HyperEvmMainnet]: evm.Account
@@ -95,7 +94,6 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.PolygonMainnet]: evm.FeeData
     [KnownChainIds.GnosisMainnet]: evm.FeeData
     [KnownChainIds.ArbitrumMainnet]: evm.FeeData
-    [KnownChainIds.ArbitrumNovaMainnet]: evm.FeeData
     [KnownChainIds.BaseMainnet]: evm.FeeData
     [KnownChainIds.MonadMainnet]: evm.FeeData
     [KnownChainIds.HyperEvmMainnet]: evm.FeeData
@@ -181,7 +179,6 @@ export type ChainSignTx = {
   [KnownChainIds.PolygonMainnet]: ETHSignTx
   [KnownChainIds.GnosisMainnet]: ETHSignTx
   [KnownChainIds.ArbitrumMainnet]: ETHSignTx
-  [KnownChainIds.ArbitrumNovaMainnet]: ETHSignTx
   [KnownChainIds.BaseMainnet]: ETHSignTx
   [KnownChainIds.MonadMainnet]: ETHSignTx
   [KnownChainIds.PlasmaMainnet]: ETHSignTx
@@ -237,7 +234,6 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.PolygonMainnet]: evm.BuildTxInput
     [KnownChainIds.GnosisMainnet]: evm.BuildTxInput
     [KnownChainIds.ArbitrumMainnet]: evm.BuildTxInput
-    [KnownChainIds.ArbitrumNovaMainnet]: evm.BuildTxInput
     [KnownChainIds.BaseMainnet]: evm.BuildTxInput
     [KnownChainIds.MonadMainnet]: evm.BuildTxInput
     [KnownChainIds.HyperEvmMainnet]: evm.BuildTxInput
@@ -344,7 +340,6 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.PolygonMainnet]: evm.GetFeeDataInput
     [KnownChainIds.GnosisMainnet]: evm.GetFeeDataInput
     [KnownChainIds.ArbitrumMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.ArbitrumNovaMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BaseMainnet]: evm.GetFeeDataInput
     [KnownChainIds.MonadMainnet]: evm.GetFeeDataInput
     [KnownChainIds.HyperEvmMainnet]: evm.GetFeeDataInput
@@ -416,7 +411,6 @@ export enum ChainAdapterDisplayName {
   Polygon = 'Polygon',
   Gnosis = 'Gnosis',
   Arbitrum = 'Arbitrum One',
-  ArbitrumNova = 'Arbitrum Nova',
   Base = 'Base',
   Monad = 'Monad',
   HyperEvm = 'HyperEVM',

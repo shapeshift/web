@@ -9,7 +9,6 @@ import bnbsmartchain from "./eip155_56/adapter.json";
 import polygon from "./eip155_137/adapter.json";
 import gnosis from "./eip155_100/adapter.json";
 import arbitrum from "./eip155_42161/adapter.json";
-import arbitrumNova from "./eip155_42170/adapter.json";
 import base from "./eip155_8453/adapter.json";
 import monad from "./eip155_143/adapter.json";
 import hyperevm from "./eip155_999/adapter.json";
@@ -38,7 +37,6 @@ export {
   polygon,
   gnosis,
   arbitrum,
-  arbitrumNova,
   base,
   monad,
   hyperevm,

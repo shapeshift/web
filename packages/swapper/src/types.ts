@@ -436,6 +436,7 @@ export type TradeQuoteStep = {
     gasLimit: string
     method?: string
     args?: { type: string; value: unknown }[]
+    memo?: string
   }
   sunioTransactionMetadata?: {
     route: {

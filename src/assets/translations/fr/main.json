@@ -2674,8 +2674,7 @@
   "yieldXYZ": {
     "pageTitle": "Rendements",
     "pageSubtitle": "Découvrez et gérez les opportunités de rendements sur plusieurs chaînes.",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Rendement",
     "apy": "APY",
     "apr": "APR",

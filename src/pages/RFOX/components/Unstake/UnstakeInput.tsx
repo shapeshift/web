@@ -2,7 +2,7 @@ import { CardBody, CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-u
 import { fromAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { isSome } from '@shapeshiftoss/utils'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -143,6 +143,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     formState: { errors },
     control,
     setValue,
+    reset,
   } = methods
 
   const amountCryptoPrecision = useWatch<UnstakeInputValues, 'amountCryptoPrecision'>({
@@ -176,6 +177,14 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   const [showWarning, setShowWarning] = useState(false)
   const percentOptions = useMemo(() => [], [])
   const [sliderValue, setSliderValue] = useState<number>(100)
+
+  const previousStakingAssetIdRef = useRef(stakingAssetId)
+  useEffect(() => {
+    if (previousStakingAssetIdRef.current === stakingAssetId) return
+    previousStakingAssetIdRef.current = stakingAssetId
+    reset(defaultFormValues)
+    setSliderValue(100)
+  }, [stakingAssetId, reset])
 
   const {
     isGetUnstakeFeesEnabled,

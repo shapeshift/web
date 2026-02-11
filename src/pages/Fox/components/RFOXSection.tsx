@@ -115,7 +115,7 @@ export const RFOXSection = () => {
   const translate = useTranslate()
   const isRFOXLPEnabled = useFeatureFlag('RFOX_LP')
   const { assetAccountNumber } = useFoxPageContext()
-  const { setStakingAssetAccountId } = useRFOXContext()
+  const { setStakingAssetAccountId, setStakingAssetId: setContextStakingAssetId } = useRFOXContext()
   const appDispatch = useAppDispatch()
   const location = useLocation()
   const selectedUnstakingRequest = location.state?.selectedUnstakingRequest as
@@ -123,6 +123,7 @@ export const RFOXSection = () => {
     | undefined
 
   const [stakingAssetId, setStakingAssetId] = useState(foxOnArbitrumOneAssetId)
+  const [showLpWarning, setShowLpWarning] = useState(false)
   const [isStakeModalOpen, setIsStakeModalOpen] = useState(false)
   const [isUnstakeModalOpen, setIsUnstakeModalOpen] = useState(false)
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(!!selectedUnstakingRequest)
@@ -254,8 +255,19 @@ export const RFOXSection = () => {
   })
 
   const handleSelectAssetId = useCallback((filter: Filter) => {
+    if (filter.assetId === uniV2EthFoxArbitrumAssetId) {
+      setShowLpWarning(prev => {
+        const next = !prev
+        setStakingAssetId(next ? uniV2EthFoxArbitrumAssetId : foxOnArbitrumOneAssetId)
+        return next
+      })
+      return
+    }
+    setShowLpWarning(false)
     setStakingAssetId(filter.assetId ?? foxOnArbitrumOneAssetId)
   }, [])
+
+  const isStakingDataLoading = isConnected && !stakingAssetAccountId
 
   const isTimeInPoolLoading = useMemo(() => {
     return isTimeInPoolQueryLoading || isTimeInPoolFetching
@@ -266,12 +278,14 @@ export const RFOXSection = () => {
   }, [])
 
   const handleUnstakeClick = useCallback(() => {
+    if (showLpWarning) setContextStakingAssetId(uniV2EthFoxArbitrumAssetId)
     setIsUnstakeModalOpen(true)
-  }, [])
+  }, [setContextStakingAssetId, showLpWarning])
 
   const handleClaimClick = useCallback(() => {
+    if (showLpWarning) setContextStakingAssetId(uniV2EthFoxArbitrumAssetId)
     setIsClaimModalOpen(true)
-  }, [])
+  }, [setContextStakingAssetId, showLpWarning])
 
   const handleCloseStakeModal = useCallback(() => {
     setIsStakeModalOpen(false)
@@ -318,21 +332,23 @@ export const RFOXSection = () => {
   return (
     <Box>
       <Divider mt={2} mb={6} />
-      <Card bg='yellow.500' borderColor='yellow.600' borderWidth={1} borderRadius='lg'>
-        <CardBody py={2} px={4}>
-          <Flex alignItems='center' gap={2}>
-            <Icon as={TbAlertTriangle} boxSize={6} color='black' />
-            <Box>
-              <CText fontWeight='bold' color='black'>
-                {translate('RFOX.lpSunsetWarningTitle')}
-              </CText>
-              <CText fontSize='sm' color='black'>
-                {translate('RFOX.lpSunsetWarningDescription')}
-              </CText>
-            </Box>
-          </Flex>
-        </CardBody>
-      </Card>
+      {showLpWarning && (
+        <Card bg='yellow.500' borderColor='yellow.600' borderWidth={1} borderRadius='lg'>
+          <CardBody py={2} px={4}>
+            <Flex alignItems='center' gap={2}>
+              <Icon as={TbAlertTriangle} boxSize={6} color='black' />
+              <Box>
+                <CText fontWeight='bold' color='black'>
+                  {translate('RFOX.lpSunsetWarningTitle')}
+                </CText>
+                <CText fontSize='sm' color='black'>
+                  {translate('RFOX.lpSunsetWarningDescription')}
+                </CText>
+              </Box>
+            </Flex>
+          </CardBody>
+        </Card>
+      )}
       <Box py={4} px={containerPaddingX} id='rfox'>
         <Flex sx={headerSx}>
           <Box mb={headerTitleMb}>
@@ -353,7 +369,11 @@ export const RFOXSection = () => {
                       key={filter.label}
                       onFilterClick={handleSelectAssetId}
                       filter={filter}
-                      isSelected={stakingAssetId === filter.assetId}
+                      isSelected={
+                        filter.assetId === uniV2EthFoxArbitrumAssetId
+                          ? showLpWarning
+                          : stakingAssetId === filter.assetId && !showLpWarning
+                      }
                       asset={filter.asset}
                     />
                   ))}
@@ -366,7 +386,7 @@ export const RFOXSection = () => {
             <CardBody py={4} px={4}>
               <Text fontSize='md' color='text.subtle' translation='RFOX.pendingRewardsBalance' />
 
-              <Skeleton isLoaded={!currentEpochRewardsQuery.isLoading}>
+              <Skeleton isLoaded={!currentEpochRewardsQuery.isLoading && !isStakingDataLoading}>
                 <Amount.Crypto
                   value={currentEpochRewardsCryptoPrecision}
                   symbol={usdcAsset.symbol ?? ''}
@@ -398,7 +418,9 @@ export const RFOXSection = () => {
                 translation='defi.stakingBalance'
                 mb={1}
               />
-              <Skeleton isLoaded={!stakingBalanceCryptoPrecisionQuery.isLoading}>
+              <Skeleton
+                isLoaded={!stakingBalanceCryptoPrecisionQuery.isLoading && !isStakingDataLoading}
+              >
                 <Amount.Crypto
                   fontSize='2xl'
                   value={stakingBalanceCryptoPrecisionQuery.data}
@@ -418,7 +440,9 @@ export const RFOXSection = () => {
               translation='RFOX.lifetimeRewards'
               mb={1}
             />
-            <Skeleton isLoaded={!lifetimeRewardsUserCurrencyQuery.isLoading}>
+            <Skeleton
+              isLoaded={!lifetimeRewardsUserCurrencyQuery.isLoading && !isStakingDataLoading}
+            >
               <Amount.Fiat fontSize='2xl' value={lifetimeRewardsUserCurrencyQuery.data} />
             </Skeleton>
           </Stack>
@@ -431,12 +455,12 @@ export const RFOXSection = () => {
               translation='RFOX.timeInPool'
               mb={1}
             />
-            <Skeleton isLoaded={!Boolean(isTimeInPoolLoading)}>
+            <Skeleton isLoaded={!Boolean(isTimeInPoolLoading) && !isStakingDataLoading}>
               <CText fontSize='2xl'>{timeInPoolHuman ?? 'N/A'}</CText>
             </Skeleton>
           </Stack>
         </SimpleGrid>
-        <RFOXSimulator stakingAssetId={stakingAssetId} />
+        {!showLpWarning && <RFOXSimulator stakingAssetId={stakingAssetId} />}
         <Box py={4}>
           <Stats />
         </Box>

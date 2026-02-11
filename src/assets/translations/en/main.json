@@ -2365,15 +2365,15 @@
       },
       "why": {
         "title": "Why stake your FOX?",
-        "body": "Staking your FOX allows you to earn regular RUNE payouts from the DAO's treasury, providing a steady stream of passive income in RUNE per epoch. Additionally, a portion of the RUNE received by the DAO is used to buy FOX from the open market and burn it, reducing the overall supply. Staking also supports the ShapeShift DAO's alignment with the THORChain ecosystem, contributing to their growth and success. The staking process requires a minimum 28-day unstaking period, encouraging commitment and stability within the community."
+        "body": "Staking your FOX allows you to earn regular USDC payouts from the DAO's treasury, providing a steady stream of passive income in USDC per epoch. Additionally, a portion of the revenue received by the DAO is used to buy FOX from the open market and burn it, reducing the overall supply. Staking also supports the ShapeShift DAO's alignment with the THORChain ecosystem, contributing to their growth and success. The staking process requires a minimum 28-day unstaking period, encouraging commitment and stability within the community."
       },
       "stake": {
         "title": "How do I stake my FOX?",
-        "body": "To stake your FOX, you use the staking interface to lock your FOX tokens into the staking contract. You will need to sign a message or transaction to assign the address where your RUNE rewards will be paid. Once staked, you start earning RUNE rewards per block as part of your staking benefits."
+        "body": "To stake your FOX, you use the staking interface to lock your FOX tokens into the staking contract.  Once staked, you start earning USDC rewards per block as part of your staking benefits."
       },
       "unstake": {
         "title": "What happens when I unstake?",
-        "body": "When you decide to unstake, there is a minimum 28-day unstaking period. During this time, your FOX remains locked, and you cease to receive RUNE emissions. After the unstaking period, you can unlock and retrieve your regular FOX tokens."
+        "body": "When you decide to unstake, there is a minimum 28-day unstaking period. During this time, your FOX remains locked, and you cease to receive USDC emissions. After the unstaking period, you can unlock and retrieve your regular FOX tokens."
       },
       "cooldown": {
         "title": "How long is the cooldown period?",
@@ -2385,7 +2385,7 @@
       },
       "connect": {
         "title": "How do total fees collected, total FOX staked, emissions pool, and FOX burn amount connect?",
-        "body": "The fees collected by the DAO are in native RUNE. A portion of this RUNE is distributed to FOX stakers as rewards, while another portion is used to buy FOX from the open market and burn it, reducing the overall FOX supply. The total FOX staked influences the distribution of RUNE rewards, as rewards are distributed pro-rata based on the amount of FOX staked. The emissions pool represents the amount of FOX available for staking rewards, and the FOX burn amount is the portion of FOX purchased and burned using the RUNE collected from fees."
+        "body": "The fees collected by the DAO are in native assets per swapper. A portion of this revenue is converted then distributed to FOX stakers as rewards, while another portion is used to buy FOX from the open market and burn it, reducing the overall FOX supply. The total FOX staked influences the distribution of rewards, as rewards are distributed pro-rata based on the amount of FOX staked. The emissions pool represents the amount of FOX available for staking rewards, and the FOX burn amount is the portion of FOX purchased and burned."
       }
     },
     "totals": "rFOX Totals",
@@ -2507,7 +2507,7 @@
   },
   "foxPage": {
     "title": "FOX Token Dashboard",
-    "description": "Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token gives you a share in revenues on THORChain, and enables you to influence the future of ShapeShift through your vote. Stake, swap, buy, supply, and manage your FOX holdings here.",
+    "description": "Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token gives you a share in revenues accross the platform, and enables you to influence the future of ShapeShift through your vote. Stake, swap, buy, supply, and manage your FOX holdings here.",
     "foxToken": "FOX Token",
     "24hrPriceChange": "24h Price Change",
     "rfox": {

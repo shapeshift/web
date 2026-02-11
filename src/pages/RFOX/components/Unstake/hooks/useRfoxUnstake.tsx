@@ -109,7 +109,10 @@ export const useRfoxUnstake = ({
   const amountCryptoPrecision = useMemo(
     () =>
       stakingAsset
-        ? BigAmount.fromBaseUnit(amountCryptoBaseUnit, stakingAsset.precision).toPrecision()
+        ? BigAmount.fromBaseUnit({
+            value: amountCryptoBaseUnit,
+            precision: stakingAsset.precision,
+          }).toPrecision()
         : undefined,
     [amountCryptoBaseUnit, stakingAsset],
   )

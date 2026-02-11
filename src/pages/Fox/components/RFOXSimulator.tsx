@@ -48,7 +48,10 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
   const totalStakedCryptoResult = useTotalStakedQuery<string>({
     stakingAssetId,
     select: (totalStaked: bigint) => {
-      return AmountLib.fromBaseUnit(totalStaked.toString(), stakingAsset?.precision ?? 0).toFixed(2)
+      return AmountLib.fromBaseUnit({
+        value: totalStaked.toString(),
+        precision: stakingAsset?.precision ?? 0,
+      }).toFixed(2)
     },
   })
 

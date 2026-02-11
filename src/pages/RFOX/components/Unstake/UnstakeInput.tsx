@@ -154,7 +154,11 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   })
 
   const amountCryptoBaseUnit = useMemo(
-    () => AmountLib.fromPrecision(amountCryptoPrecision, stakingAsset?.precision ?? 0).toBaseUnit(),
+    () =>
+      AmountLib.fromPrecision({
+        value: amountCryptoPrecision,
+        precision: stakingAsset?.precision ?? 0,
+      }).toBaseUnit(),
     [amountCryptoPrecision, stakingAsset?.precision],
   )
 
@@ -204,10 +208,10 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
 
   const userStakingBalanceCryptoPrecision = useMemo(() => {
     if (!(userStakingBalanceOfCryptoBaseUnit && stakingAsset)) return
-    return AmountLib.fromBaseUnit(
-      userStakingBalanceOfCryptoBaseUnit,
-      stakingAsset?.precision ?? 0,
-    ).toPrecision()
+    return AmountLib.fromBaseUnit({
+      value: userStakingBalanceOfCryptoBaseUnit,
+      precision: stakingAsset?.precision ?? 0,
+    }).toPrecision()
   }, [stakingAsset, userStakingBalanceOfCryptoBaseUnit])
 
   const userStakingBalanceUserCurrency = useMemo(() => {
@@ -287,10 +291,10 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     setConfirmedQuote({
       stakingAssetAccountId,
       stakingAssetId,
-      unstakingAmountCryptoBaseUnit: AmountLib.fromPrecision(
-        amountCryptoPrecision,
-        stakingAsset.precision,
-      ).toBaseUnit(),
+      unstakingAmountCryptoBaseUnit: AmountLib.fromPrecision({
+        value: amountCryptoPrecision,
+        precision: stakingAsset.precision,
+      }).toBaseUnit(),
       cooldownPeriod: cooldownPeriodData.cooldownPeriod,
     })
 
@@ -319,10 +323,10 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
       const fees = unstakeFees
 
       const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
-        AmountLib.fromPrecision(
-          stakingAssetFeeAssetBalanceCryptoPrecision,
-          stakingAssetFeeAsset?.precision ?? 0,
-        ).toBaseUnit(),
+        AmountLib.fromPrecision({
+          value: stakingAssetFeeAssetBalanceCryptoPrecision,
+          precision: stakingAssetFeeAsset?.precision ?? 0,
+        }).toBaseUnit(),
       )
 
       if (!hasEnoughFeeBalance) return false

@@ -114,7 +114,10 @@ export const useRfoxStake = ({
   const amountCryptoPrecision = useMemo(
     () =>
       stakingAsset
-        ? BigAmount.fromBaseUnit(amountCryptoBaseUnit, stakingAsset.precision).toPrecision()
+        ? BigAmount.fromBaseUnit({
+            value: amountCryptoBaseUnit,
+            precision: stakingAsset.precision,
+          }).toPrecision()
         : undefined,
     [amountCryptoBaseUnit, stakingAsset],
   )
@@ -156,10 +159,10 @@ export const useRfoxStake = ({
     if (!allowanceDataCryptoBaseUnit) return
     if (!stakingAssetFeeAsset) return
 
-    return BigAmount.fromBaseUnit(
-      allowanceDataCryptoBaseUnit,
-      stakingAssetFeeAsset.precision,
-    ).toPrecision()
+    return BigAmount.fromBaseUnit({
+      value: allowanceDataCryptoBaseUnit,
+      precision: stakingAssetFeeAsset.precision,
+    }).toPrecision()
   }, [allowanceQuery.data, stakingAssetFeeAsset])
 
   const isApprovalRequired = useMemo(
@@ -360,10 +363,10 @@ export const useRfoxStake = ({
 
       if (!stakingAsset || !stakingAssetAccountId) return
 
-      const amountCryptoPrecision = BigAmount.fromBaseUnit(
-        amountCryptoBaseUnit,
-        stakingAsset.precision,
-      ).toPrecision()
+      const amountCryptoPrecision = BigAmount.fromBaseUnit({
+        value: amountCryptoBaseUnit,
+        precision: stakingAsset.precision,
+      }).toPrecision()
 
       dispatch(
         actionSlice.actions.upsertAction({

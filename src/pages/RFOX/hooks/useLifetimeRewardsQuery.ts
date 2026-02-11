@@ -54,12 +54,18 @@ export const useLifetimeRewardsUserCurrencyQuery = ({
         const epochRewardUserCurrency = (() => {
           // rFOX v3 updated rewards from rune to usdc
           if (epoch.number > 17) {
-            return BigAmount.fromBaseUnit(distribution.amount, usdcAsset?.precision ?? 0)
+            return BigAmount.fromBaseUnit({
+              value: distribution.amount,
+              precision: usdcAsset?.precision ?? 0,
+            })
               .times(usdcMarketData.price)
               .toBN()
           }
 
-          return BigAmount.fromBaseUnit(distribution.amount, runeAsset?.precision ?? 0)
+          return BigAmount.fromBaseUnit({
+            value: distribution.amount,
+            precision: runeAsset?.precision ?? 0,
+          })
             .times(runeMarketData.price)
             .toBN()
         })()

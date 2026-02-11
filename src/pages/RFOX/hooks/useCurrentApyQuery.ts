@@ -63,17 +63,17 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
         stakingAssetPriceHistory.findLast(price => price.date <= latestEpoch.endTimestamp) ??
         stakingAssetPriceHistory[0]
 
-      const rewardDistributionUsd = BigAmount.fromBaseUnit(
-        latestEpoch.totalRevenue,
-        runeAsset.precision,
-      )
+      const rewardDistributionUsd = BigAmount.fromBaseUnit({
+        value: latestEpoch.totalRevenue,
+        precision: runeAsset.precision,
+      })
         .times(distributionRate)
         .times(closestRunePrice.price)
 
-      const totalStakedUsd = BigAmount.fromBaseUnit(
-        totalStakedCryptoCurrencyQuery.data,
-        stakingAsset.precision,
-      ).times(closestStakingAssetPrice.price)
+      const totalStakedUsd = BigAmount.fromBaseUnit({
+        value: totalStakedCryptoCurrencyQuery.data,
+        precision: stakingAsset.precision,
+      }).times(closestStakingAssetPrice.price)
 
       return rewardDistributionUsd.div(totalStakedUsd.toString()).times(12).toFixed(4)
     },

@@ -89,10 +89,10 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
 
   const stakingAmountCryptoPrecision = useMemo(
     () =>
-      AmountLib.fromBaseUnit(
-        confirmedQuote.stakingAmountCryptoBaseUnit,
-        stakingAsset?.precision ?? 0,
-      ).toPrecision(),
+      AmountLib.fromBaseUnit({
+        value: confirmedQuote.stakingAmountCryptoBaseUnit,
+        precision: stakingAsset?.precision ?? 0,
+      }).toPrecision(),
     [confirmedQuote.stakingAmountCryptoBaseUnit, stakingAsset?.precision],
   )
 
@@ -195,10 +195,10 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     const fees = approvalFees || stakeFees
 
     const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
-      AmountLib.fromPrecision(
-        stakingAssetFeeAssetBalanceCryptoPrecision,
-        stakingAssetFeeAsset.precision,
-      ).toBaseUnit(),
+      AmountLib.fromPrecision({
+        value: stakingAssetFeeAssetBalanceCryptoPrecision,
+        precision: stakingAssetFeeAsset.precision,
+      }).toBaseUnit(),
     )
 
     if (!hasEnoughFeeBalance) return false

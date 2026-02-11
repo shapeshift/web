@@ -52,10 +52,10 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
 
   const unstakingAmountCryptoPrecision = useMemo(
     () =>
-      AmountLib.fromBaseUnit(
-        confirmedQuote.unstakingAmountCryptoBaseUnit,
-        stakingAsset?.precision ?? 0,
-      ).toPrecision(),
+      AmountLib.fromBaseUnit({
+        value: confirmedQuote.unstakingAmountCryptoBaseUnit,
+        precision: stakingAsset?.precision ?? 0,
+      }).toPrecision(),
     [confirmedQuote.unstakingAmountCryptoBaseUnit, stakingAsset?.precision],
   )
 

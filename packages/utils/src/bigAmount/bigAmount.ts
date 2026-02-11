@@ -3,6 +3,7 @@ import type BigNumber from 'bignumber.js'
 import { bn, bnOrZero } from '../bignumber/bignumber'
 
 const TEN = bn(10)
+const THOR_PRECISION = 8
 
 export class BigAmount {
   private readonly value: BigNumber
@@ -15,24 +16,36 @@ export class BigAmount {
 
   // ── Construction (all nullish-safe) ───────────────
 
-  static fromBaseUnit(value: BigNumber.Value | null | undefined, precision: number): BigAmount {
+  static fromBaseUnit({
+    value,
+    precision,
+  }: {
+    value: BigNumber.Value | null | undefined
+    precision: number
+  }): BigAmount {
     return new BigAmount(bnOrZero(value).div(TEN.pow(precision)), precision)
   }
 
-  static fromPrecision(value: BigNumber.Value | null | undefined, precision: number): BigAmount {
+  static fromPrecision({
+    value,
+    precision,
+  }: {
+    value: BigNumber.Value | null | undefined
+    precision: number
+  }): BigAmount {
     return new BigAmount(bnOrZero(value), precision)
   }
 
-  static zero(precision: number): BigAmount {
+  static zero({ precision }: { precision: number }): BigAmount {
     return new BigAmount(bn(0), precision)
   }
 
-  static fromBN(value: BigNumber, precision: number): BigAmount {
+  static fromBN({ value, precision }: { value: BigNumber; precision: number }): BigAmount {
     return new BigAmount(value.isFinite() ? value : bn(0), precision)
   }
 
-  static fromJSON(json: { value: string; precision: number }): BigAmount {
-    return new BigAmount(bn(json.value), json.precision)
+  static fromJSON({ value, precision }: { value: string; precision: number }): BigAmount {
+    return new BigAmount(bn(value), precision)
   }
 
   static min(...amounts: BigAmount[]): BigAmount {
@@ -92,15 +105,11 @@ export class BigAmount {
   }
 
   positiveOrZero(): BigAmount {
-    return this.value.isPositive() ? this : BigAmount.zero(this.precision)
+    return this.value.isPositive() ? this : BigAmount.zero({ precision: this.precision })
   }
 
   decimalPlaces(n: number, rm?: BigNumber.RoundingMode): BigAmount {
     return new BigAmount(this.value.decimalPlaces(n, rm), this.precision)
-  }
-
-  withPrecision(newPrecision: number): BigAmount {
-    return new BigAmount(this.value, newPrecision)
   }
 
   // ── Comparison (terminal → boolean) ───────────────
@@ -218,6 +227,24 @@ export class BigAmount {
     const result = `0.${leadingZeros}${significantPart}`.replace(/0+$/, '')
 
     return (isNeg ? '-' : '') + result
+  }
+
+  // ── THORChain precision ──────────────────────────
+  // This is basically a convertPrecision of sorts accommodated for THOR precision
+  // conversion explicitly — i.e the ONLY reason we should ever convertPrecision
+  // vs. leveraging toPrecision() or toBaseUnit().
+  // THORChain uses 8-decimal base units for ALL amounts regardless of the
+  // underlying asset's native precision.
+  // Usage:
+  //   BigAmount.fromThorBaseUnit({ value: thorBaseUnit }).toPrecision()  // THOR base unit → human
+  //   BigAmount.fromBaseUnit({ value, precision: asset.precision }).toThorBaseUnit()  // native → THOR base unit
+
+  static fromThorBaseUnit({ value }: { value: BigNumber.Value | null | undefined }): BigAmount {
+    return BigAmount.fromBaseUnit({ value, precision: THOR_PRECISION })
+  }
+
+  toThorBaseUnit(): string {
+    return this.value.times(TEN.pow(THOR_PRECISION)).toFixed(0)
   }
 
   // ── Interop ───────────────────────────────────────

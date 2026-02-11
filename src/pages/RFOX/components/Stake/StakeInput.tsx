@@ -187,10 +187,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   const amountCryptoBaseUnit = useMemo(
     () =>
-      AmountLib.fromPrecision(
-        amountCryptoPrecision,
-        selectedStakingAsset?.precision ?? 0,
-      ).toBaseUnit(),
+      AmountLib.fromPrecision({
+        value: amountCryptoPrecision,
+        precision: selectedStakingAsset?.precision ?? 0,
+      }).toBaseUnit(),
     [amountCryptoPrecision, selectedStakingAsset?.precision],
   )
 
@@ -281,10 +281,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     const _confirmedQuote = {
       stakingAssetAccountId,
       stakingAssetId,
-      stakingAmountCryptoBaseUnit: AmountLib.fromPrecision(
-        amountCryptoPrecision,
-        selectedStakingAsset.precision,
-      ).toBaseUnit(),
+      stakingAmountCryptoBaseUnit: AmountLib.fromPrecision({
+        value: amountCryptoPrecision,
+        precision: selectedStakingAsset.precision,
+      }).toBaseUnit(),
     }
 
     setConfirmedQuote(_confirmedQuote)
@@ -293,10 +293,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       const bridgeQuote: RfoxBridgeQuote = {
         sellAssetId: selectedStakingAssetId,
         buyAssetId: stakingAssetId,
-        bridgeAmountCryptoBaseUnit: AmountLib.fromPrecision(
-          amountCryptoPrecision,
-          selectedStakingAsset.precision,
-        ).toBaseUnit(),
+        bridgeAmountCryptoBaseUnit: AmountLib.fromPrecision({
+          value: amountCryptoPrecision,
+          precision: selectedStakingAsset.precision,
+        }).toBaseUnit(),
         sellAssetAccountId: selectedAssetAccountId,
         buyAssetAccountId: stakingAssetAccountId,
       }
@@ -372,10 +372,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       const fees = approvalFees || stakeFees
 
       const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
-        AmountLib.fromPrecision(
-          stakingAssetFeeAssetBalanceCryptoPrecision,
-          stakingAssetFeeAsset.precision,
-        ).toBaseUnit(),
+        AmountLib.fromPrecision({
+          value: stakingAssetFeeAssetBalanceCryptoPrecision,
+          precision: stakingAssetFeeAsset.precision,
+        }).toBaseUnit(),
       )
 
       if (!hasEnoughFeeBalance) return false

@@ -23,7 +23,10 @@ export const TotalStaked: React.FC<TotalStakedProps> = ({ stakingAssetId }) => {
   const totalStakedUserCurrencyQuery = useTotalStakedQuery<string>({
     stakingAssetId,
     select: (totalStaked: bigint) => {
-      return BigAmount.fromBaseUnit(totalStaked.toString(), stakingAsset?.precision ?? 0)
+      return BigAmount.fromBaseUnit({
+        value: totalStaked.toString(),
+        precision: stakingAsset?.precision ?? 0,
+      })
         .times(stakingAssetMarketData?.price ?? 0)
         .toFixed(2)
     },

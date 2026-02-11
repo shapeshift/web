@@ -176,7 +176,7 @@ export const YieldActivePositions = memo(
         const params = new URLSearchParams()
         params.set('accountId', accountId)
         if (validatorAddress) params.set('validator', validatorAddress)
-        navigate(`/yields/${yieldId}?${params.toString()}`)
+        navigate(`/yield/${yieldId}?${params.toString()}`)
       },
       [navigate],
     )

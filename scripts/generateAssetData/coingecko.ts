@@ -2,7 +2,6 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import {
   adapters,
   arbitrumChainId,
-  arbitrumNovaChainId,
   ASSET_NAMESPACE,
   avalancheChainId,
   baseChainId,
@@ -26,7 +25,6 @@ import {
 import type { Asset } from '@shapeshiftoss/types'
 import {
   arbitrum,
-  arbitrumNova,
   avax,
   base,
   bnbsmartchain,
@@ -124,14 +122,6 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: arbitrum.explorer,
           explorerAddressLink: arbitrum.explorerAddressLink,
           explorerTxLink: arbitrum.explorerTxLink,
-        }
-      case arbitrumNovaChainId:
-        return {
-          assetNamespace: ASSET_NAMESPACE.erc20,
-          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
-          explorer: arbitrumNova.explorer,
-          explorerAddressLink: arbitrumNova.explorerAddressLink,
-          explorerTxLink: arbitrumNova.explorerTxLink,
         }
       case baseChainId:
         return {

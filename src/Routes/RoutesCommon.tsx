@@ -2,17 +2,15 @@ import { TimeIcon } from '@chakra-ui/icons'
 import { lazy } from 'react'
 import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
-import { TbGraph } from 'react-icons/tb'
+import { TbGraph, TbTrendingUp } from 'react-icons/tb'
 
 import type { Route } from './helpers'
 import { RouteCategory } from './helpers'
 
 import { ExploreIcon } from '@/components/Icons/Explore'
-import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { FoxPageIcon } from '@/components/Icons/FoxPageIcon'
 import { HomeIcon } from '@/components/Icons/Home'
 import { PoolsIcon } from '@/components/Icons/Pools'
-import { RFOXIcon } from '@/components/Icons/RFOX'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { TCYIcon } from '@/components/Icons/TCYIcon'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
@@ -23,9 +21,7 @@ import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { Accounts } from '@/pages/Accounts/Accounts'
 import { ExploreCategory } from '@/pages/Explore/ExploreCategory'
 import { FoxEcosystemPage } from '@/pages/Fox/FoxEcosystemPage'
-import { FoxPage } from '@/pages/Fox/FoxPage'
 import { History } from '@/pages/History/History'
-import { RFOX } from '@/pages/RFOX/RFOX'
 import { TCYNavIndicator } from '@/pages/TCY/components/TCYNavIndicator'
 import { TCY } from '@/pages/TCY/tcy'
 import { EarnTab } from '@/pages/Trade/tabs/EarnTab'
@@ -141,6 +137,16 @@ const YieldsPage = makeSuspenseful(
   true,
 )
 
+const YieldDetailPage = makeSuspenseful(
+  lazy(() =>
+    import('@/pages/Yields/YieldDetailPage').then(({ YieldDetailPage }) => ({
+      default: YieldDetailPage,
+    })),
+  ),
+  {},
+  true,
+)
+
 const WalletConnectDeepLink = makeSuspenseful(
   lazy(() =>
     import('@/pages/WalletConnectDeepLink/WalletConnectDeepLink').then(
@@ -185,13 +191,21 @@ export const routes: Route[] = [
     hide: true,
   },
   {
+    path: '/yields/*',
+    label: 'navBar.earn',
+    icon: <TbTrendingUp />,
+    mobileNav: true,
+    hideDesktop: true,
+    main: YieldsPage,
+    priority: 7,
+    disable: !getConfig().VITE_FEATURE_YIELD_XYZ || !getConfig().VITE_FEATURE_YIELDS_PAGE,
+  },
+  {
     path: '/history',
     label: 'navBar.history',
     icon: <TimeIcon />,
-    mobileNav: true,
-    hideDesktop: true,
     main: History,
-    priority: 7,
+    hide: true,
   },
   {
     path: '/trade/*',
@@ -240,6 +254,12 @@ export const routes: Route[] = [
     priority: 3,
     mobileNav: false,
     disable: !getConfig().VITE_FEATURE_MARKETS,
+  },
+  {
+    path: '/yield/:yieldId/*',
+    main: YieldDetailPage,
+    hide: true,
+    disable: !getConfig().VITE_FEATURE_YIELD_XYZ,
   },
   {
     path: '/yields/*',
@@ -316,33 +336,12 @@ export const routes: Route[] = [
     ],
   },
   {
-    path: '/rfox/*',
-    label: 'navBar.rFOX',
-    icon: <RFOXIcon />,
-    mobileNav: false,
-    priority: 1,
-    main: RFOX,
-    category: RouteCategory.Fox,
-    disable: !getConfig().VITE_FEATURE_RFOX || getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
-  },
-  {
-    path: '/fox',
-    label: 'navBar.foxEcosystem',
-    icon: <FoxIcon />,
-    main: FoxPage,
-    category: RouteCategory.Fox,
-    priority: 6,
-    mobileNav: false,
-    disable: !getConfig().VITE_FEATURE_FOX_PAGE || getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
-  },
-  {
     path: '/fox-ecosystem/*',
     label: 'navBar.foxEcosystem',
     icon: <FoxPageIcon />,
     main: FoxEcosystemPage,
     priority: 6,
     mobileNav: false,
-    disable: !getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
   },
   {
     path: '/tcy/*',

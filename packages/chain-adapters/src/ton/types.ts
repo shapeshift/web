@@ -46,6 +46,52 @@ export type TonSignTx = {
   expireAt?: number
 }
 
+export type TonTxMessage = {
+  source?: string
+  destination?: string
+  value?: string
+  message_content?: {
+    decoded?: {
+      '@type'?: string
+      ton_amount?: {
+        amount?: {
+          value?: string
+        }
+      }
+    }
+  }
+}
+
+export type TonTx = {
+  account: string
+  hash: string
+  lt: string
+  now: number
+  total_fees: string
+  trace_id?: string
+  description?: {
+    aborted?: boolean
+    action?: {
+      success?: boolean
+    }
+  }
+  in_msg?: TonTxMessage
+  out_msgs?: TonTxMessage[]
+}
+
+export type JettonTransferRecord = {
+  source?: string
+  destination?: string
+  amount?: string
+  jetton_master?: string
+  trace_id?: string
+}
+
+export type TonApiTxResponse = {
+  transactions?: TonTx[]
+  address_book?: Record<string, { user_friendly: string }>
+}
+
 export type Account = TonAccount
 export type FeeData = TonFeeData
 export type GetFeeDataInput = TonGetFeeDataInput

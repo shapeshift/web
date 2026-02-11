@@ -9,6 +9,8 @@ import {
 } from './constants'
 import type { AugmentedYieldDto, ValidatorDto, YieldIconSource, YieldType } from './types'
 
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+
 export const yieldNetworkToChainId = (network: string): ChainId | undefined => {
   if (!isSupportedYieldNetwork(network)) return undefined
   return YIELD_NETWORK_TO_CHAIN_ID[network]
@@ -59,12 +61,17 @@ const TX_TYPE_TO_LABELS: Record<string, TxTypeLabels> = {
   SWAP: { staking: 'Swap', vault: 'Swap' },
   CLAIM: { staking: 'Claim', vault: 'Claim' },
   CLAIM_REWARDS: { staking: 'Claim', vault: 'Claim' },
+  CLAIM_UNSTAKED: { staking: 'Claim', vault: 'Claim' },
   TRANSFER: { staking: 'Transfer', vault: 'Transfer' },
 }
 
 type TerminologyKey = 'staking' | 'vault'
 
-const isStakingType = (yieldType: YieldType): boolean => {
+const assertNever = (value: never): never => {
+  throw new Error(`Unhandled yield type: ${value}`)
+}
+
+export const isStakingYieldType = (yieldType: YieldType): boolean => {
   switch (yieldType) {
     case 'staking':
     case 'native-staking':
@@ -76,9 +83,7 @@ const isStakingType = (yieldType: YieldType): boolean => {
     case 'lending':
       return false
     default:
-      // This shouldn't happen but satisfies exhaustiveness check
-      assertNever(yieldType)
-      return false
+      return assertNever(yieldType)
   }
 }
 
@@ -91,7 +96,7 @@ export const getTransactionButtonText = (
   title: string | undefined,
   yieldType?: YieldType,
 ): string => {
-  const labelKey: TerminologyKey = yieldType && isStakingType(yieldType) ? 'staking' : 'vault'
+  const labelKey: TerminologyKey = yieldType && isStakingYieldType(yieldType) ? 'staking' : 'vault'
 
   if (type) {
     const normalized = type.toUpperCase().replace(/[_-]/g, '_')
@@ -108,12 +113,32 @@ export const getTransactionButtonText = (
   return 'Confirm'
 }
 
+const APPROVAL_TX_TYPES = new Set(['APPROVAL', 'APPROVE'])
+
+export const resolveAssetSymbolForTx = (
+  txType: string | undefined,
+  action: 'enter' | 'exit' | 'manage',
+  assetSymbol: string,
+  outputTokenSymbol: string | undefined,
+): string => {
+  if (action !== 'exit' || !outputTokenSymbol || !txType) return assetSymbol
+  if (APPROVAL_TX_TYPES.has(txType.toUpperCase())) return outputTokenSymbol
+  return assetSymbol
+}
+
 export const formatYieldTxTitle = (
   title: string,
   assetSymbol: string,
   yieldType?: YieldType,
+  txType?: string,
 ): string => {
-  const labelKey: TerminologyKey = yieldType && isStakingType(yieldType) ? 'staking' : 'vault'
+  const labelKey: TerminologyKey = yieldType && isStakingYieldType(yieldType) ? 'staking' : 'vault'
+
+  if (txType) {
+    const normalizedType = txType.toUpperCase().replace(/[_-]/g, '_')
+    const typeLabels = TX_TYPE_TO_LABELS[normalizedType]
+    if (typeLabels) return `${typeLabels[labelKey]} ${assetSymbol}`
+  }
 
   const normalized = title.replace(/ transaction$/i, '').toLowerCase()
   const match = TX_TITLE_PATTERNS.find(p => p.pattern.test(normalized))
@@ -206,10 +231,6 @@ export const ensureValidatorApr = (validator: ValidatorDto): ValidatorDto =>
 export type YieldActionLabelKeys = {
   enter: string
   exit: string
-}
-
-const assertNever = (value: never): never => {
-  throw new Error(`Unhandled yield type: ${value}`)
 }
 
 /**
@@ -314,10 +335,6 @@ export const getYieldMinAmountKey = (yieldType: YieldType): string => {
   }
 }
 
-export const isStakingYieldType = (yieldType: YieldType): boolean => {
-  return isStakingType(yieldType)
-}
-
 export type YieldSuccessMessageKey =
   | 'successStaked'
   | 'successUnstaked'
@@ -350,3 +367,13 @@ export const isYieldDisabled = (
   yieldItem: Pick<AugmentedYieldDto, 'status' | 'metadata'>,
 ): boolean =>
   !yieldItem.status.enter || yieldItem.metadata.underMaintenance || yieldItem.metadata.deprecated
+
+export const getBestActionableYield = (
+  yields: AugmentedYieldDto[],
+): AugmentedYieldDto | undefined => {
+  const actionable = yields.filter(y => !isYieldDisabled(y))
+  if (actionable.length === 0) return undefined
+  return actionable.reduce((best, current) =>
+    bnOrZero(current.rewardRate.total).gt(best.rewardRate.total) ? current : best,
+  )
+}

@@ -8,14 +8,13 @@ import {
   Flex,
   HStack,
   Icon,
-  Input,
   Skeleton,
   Text,
+  VStack,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
-import type { ChangeEvent } from 'react'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { TbSwitchVertical } from 'react-icons/tb'
 import type { NumberFormatValues } from 'react-number-format'
 import { NumericFormat } from 'react-number-format'
@@ -24,6 +23,7 @@ import { useTranslate } from 'react-polyglot'
 import { AccountSelector } from '@/components/AccountSelector/AccountSelector'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
+import { CryptoAmountInput } from '@/components/CryptoAmountInput/CryptoAmountInput'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
@@ -77,47 +77,6 @@ type YieldFormProps = {
 
 const PRESET_PERCENTAGES = [0.25, 0.5, 0.75, 1] as const
 
-const INPUT_LENGTH_BREAKPOINTS = {
-  FOR_XS_FONT: 22,
-  FOR_SM_FONT: 14,
-  FOR_MD_FONT: 10,
-} as const
-
-const getInputFontSize = (length: number): string => {
-  if (length >= INPUT_LENGTH_BREAKPOINTS.FOR_XS_FONT) return '24px'
-  if (length >= INPUT_LENGTH_BREAKPOINTS.FOR_SM_FONT) return '30px'
-  if (length >= INPUT_LENGTH_BREAKPOINTS.FOR_MD_FONT) return '38px'
-  return '48px'
-}
-
-type CryptoAmountInputProps = {
-  value?: string
-  onChange?: (e: ChangeEvent<HTMLInputElement>) => void
-  placeholder?: string
-  [key: string]: unknown
-}
-
-const CryptoAmountInput = (props: CryptoAmountInputProps) => {
-  const valueLength = useMemo(() => (props.value ? String(props.value).length : 0), [props.value])
-  const fontSize = useMemo(() => getInputFontSize(valueLength), [valueLength])
-
-  return (
-    <Input
-      size='lg'
-      fontSize={fontSize}
-      lineHeight={fontSize}
-      fontWeight='medium'
-      textAlign='center'
-      border='none'
-      borderRadius='lg'
-      bg='transparent'
-      variant='unstyled'
-      color={props.value ? 'text.base' : 'text.subtle'}
-      {...props}
-    />
-  )
-}
-
 const YieldFormSkeleton = memo(() => (
   <Flex direction='column' gap={4} align='center' py={8}>
     <Skeleton height='48px' width='200px' borderRadius='lg' />
@@ -158,14 +117,37 @@ export const YieldForm = memo(
     const inputTokenAssetId = inputToken?.assetId
 
     const claimableBalance = useMemo(() => balances?.byType[YieldBalanceType.Claimable], [balances])
-    const claimableToken = claimableBalance?.token
-    const claimableAmount = claimableBalance?.aggregatedAmount ?? '0'
+    const withdrawableBalance = useMemo(
+      () => balances?.byType[YieldBalanceType.Withdrawable],
+      [balances],
+    )
     const isClaimAction = action === 'claim'
 
-    const claimAction = useMemo(
+    const claimableClaimAction = useMemo(
       () => claimableBalance?.pendingActions?.find(a => a.type.toUpperCase().includes('CLAIM')),
       [claimableBalance],
     )
+
+    const claimAction = useMemo(
+      () =>
+        claimableClaimAction ??
+        withdrawableBalance?.pendingActions?.find(a => a.type.toUpperCase().includes('CLAIM')),
+      [claimableClaimAction, withdrawableBalance],
+    )
+
+    const isWithdrawableClaim = !claimableClaimAction && Boolean(claimAction)
+
+    const effectiveClaimBalance = useMemo(() => {
+      if (isWithdrawableClaim) return withdrawableBalance
+
+      const hasClaimableAmount = !bnOrZero(claimableBalance?.aggregatedAmount).isZero()
+      if (hasClaimableAmount) return claimableBalance
+
+      return withdrawableBalance
+    }, [isWithdrawableClaim, claimableBalance, withdrawableBalance])
+
+    const claimableToken = effectiveClaimBalance?.token
+    const claimableAmount = effectiveClaimBalance?.aggregatedAmount ?? '0'
 
     const accountIdFilter = useMemo(
       () => ({ assetId: inputTokenAssetId ?? '' }),
@@ -335,7 +317,7 @@ export const YieldForm = memo(
 
     const displayValue = useMemo(() => {
       if (isFiat) {
-        return fiatAmount.toFixed(2)
+        return fiatAmount.isZero() ? '' : fiatAmount.toFixed(2)
       }
       return cryptoAmount
     }, [isFiat, fiatAmount, cryptoAmount])
@@ -401,12 +383,6 @@ export const YieldForm = memo(
     })
 
     const isQuoteActive = isQuoteLoading || isAllowanceCheckPending
-
-    useEffect(() => {
-      if (step === ModalStep.Success) {
-        // Here we could auto-close or let YieldSuccess handle it
-      }
-    }, [step])
 
     const maybeSuccessProviderInfo = useMemo(() => {
       if (isStaking && maybeSelectedValidatorMetadata) {
@@ -540,23 +516,27 @@ export const YieldForm = memo(
 
     const statsContent = useMemo(
       () => (
-        <Box
+        <VStack
+          spacing={3}
+          align='stretch'
           bg='background.surface.raised.base'
           borderRadius='xl'
           p={4}
           borderWidth='1px'
           borderColor='border.base'
         >
-          <Flex justify='space-between' align='center'>
-            <Text fontSize='sm' color='text.subtle'>
-              {translate('yieldXYZ.currentApy')}
-            </Text>
-            <GradientApy fontSize='sm' fontWeight='bold'>
-              {apyDisplay}
-            </GradientApy>
-          </Flex>
-          {hasAmount && (
-            <Flex justify='space-between' align='center' mt={3}>
+          {action === 'enter' && (
+            <Flex justify='space-between' align='center'>
+              <Text fontSize='sm' color='text.subtle'>
+                {translate('yieldXYZ.currentApy')}
+              </Text>
+              <GradientApy fontSize='sm' fontWeight='bold'>
+                {apyDisplay}
+              </GradientApy>
+            </Flex>
+          )}
+          {action === 'enter' && hasAmount && (
+            <Flex justify='space-between' align='center'>
               <Text fontSize='sm' color='text.subtle'>
                 {translate('yieldXYZ.estYearlyEarnings')}
               </Text>
@@ -571,7 +551,7 @@ export const YieldForm = memo(
             </Flex>
           )}
           {isStaking && maybeSelectedValidatorMetadata && (
-            <Flex justify='space-between' align='center' mt={3}>
+            <Flex justify='space-between' align='center'>
               <Text fontSize='sm' color='text.subtle'>
                 {translate('yieldXYZ.validator')}
               </Text>
@@ -587,8 +567,8 @@ export const YieldForm = memo(
               </Flex>
             </Flex>
           )}
-          {!isStaking && maybeProviderMetadata && (
-            <Flex justify='space-between' align='center' mt={3}>
+          {(!isStaking || !maybeSelectedValidatorMetadata) && maybeProviderMetadata && (
+            <Flex justify='space-between' align='center'>
               <Text fontSize='sm' color='text.subtle'>
                 {translate('yieldXYZ.provider')}
               </Text>
@@ -605,7 +585,7 @@ export const YieldForm = memo(
             </Flex>
           )}
           {minDeposit && bnOrZero(minDeposit).gt(0) && action === 'enter' && (
-            <Flex justify='space-between' align='center' mt={3}>
+            <Flex justify='space-between' align='center'>
               <Text fontSize='sm' color='text.subtle'>
                 {translate(getYieldMinAmountKey(yieldItem.mechanics.type))}
               </Text>
@@ -618,7 +598,7 @@ export const YieldForm = memo(
               </Text>
             </Flex>
           )}
-        </Box>
+        </VStack>
       ),
       [
         translate,
@@ -648,7 +628,9 @@ export const YieldForm = memo(
               <Amount.Crypto value={claimableAmount} symbol={claimableToken.symbol} />
             </Text>
             <Text fontSize='sm' color='text.subtle' mt={2}>
-              {translate('yieldXYZ.claimableRewards')}
+              {translate(
+                isWithdrawableClaim ? 'yieldXYZ.readyToClaim' : 'yieldXYZ.claimableRewards',
+              )}
             </Text>
           </Flex>
         )
@@ -702,6 +684,7 @@ export const YieldForm = memo(
     }, [
       isLoading,
       isClaimAction,
+      isWithdrawableClaim,
       claimableToken,
       claimableAmount,
       translate,
@@ -779,7 +762,11 @@ export const YieldForm = memo(
           )}
           {!isClaimAction && statsContent}
           {!isClaimAction && (
-            <YieldExplainers selectedYield={yieldItem} sellAssetSymbol={inputTokenAsset?.symbol} />
+            <YieldExplainers
+              selectedYield={yieldItem}
+              sellAssetSymbol={inputTokenAsset?.symbol}
+              action={action}
+            />
           )}
           {stepsToShow.length > 0 && <TransactionStepsList steps={stepsToShow} />}
         </Flex>

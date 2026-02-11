@@ -5,11 +5,13 @@ import type { AugmentedYieldDto, ValidatorDto } from './types'
 import {
   ensureValidatorApr,
   formatYieldTxTitle,
+  getBestActionableYield,
   getDefaultValidatorForYield,
   getTransactionButtonText,
   getYieldActionLabelKeys,
   getYieldSuccessMessageKey,
   isStakingYieldType,
+  resolveAssetSymbolForTx,
   resolveYieldInputAssetIcon,
   searchValidators,
   searchYields,
@@ -45,6 +47,40 @@ describe('getTransactionButtonText', () => {
 
   it('should capitalize unknown types', () => {
     expect(getTransactionButtonText('CUSTOM_ACTION', undefined)).toBe('Custom_action')
+  })
+})
+
+describe('resolveAssetSymbolForTx', () => {
+  it('should return output token for exit APPROVAL', () => {
+    expect(resolveAssetSymbolForTx('APPROVAL', 'exit', 'AVAX', 'sAVAX')).toBe('sAVAX')
+    expect(resolveAssetSymbolForTx('APPROVE', 'exit', 'AVAX', 'sAVAX')).toBe('sAVAX')
+    expect(resolveAssetSymbolForTx('APPROVAL', 'exit', 'ETH', 'rETH')).toBe('rETH')
+    expect(resolveAssetSymbolForTx('APPROVAL', 'exit', 'ETH', 'stETH')).toBe('stETH')
+  })
+
+  it('should return input token for non-APPROVAL exit types', () => {
+    expect(resolveAssetSymbolForTx('UNSTAKE', 'exit', 'AVAX', 'sAVAX')).toBe('AVAX')
+    expect(resolveAssetSymbolForTx('WITHDRAW', 'exit', 'USDT', 'cUSDTv3')).toBe('USDT')
+    expect(resolveAssetSymbolForTx('SWAP', 'exit', 'ETH', 'rETH')).toBe('ETH')
+    expect(resolveAssetSymbolForTx('EXIT', 'exit', 'ETH', 'stETH')).toBe('ETH')
+  })
+
+  it('should return input token for enter actions', () => {
+    expect(resolveAssetSymbolForTx('APPROVAL', 'enter', 'USDT', 'cUSDTv3')).toBe('USDT')
+    expect(resolveAssetSymbolForTx('STAKE', 'enter', 'ETH', 'stETH')).toBe('ETH')
+    expect(resolveAssetSymbolForTx('DEPOSIT', 'enter', 'USDT', 'cUSDTv3')).toBe('USDT')
+  })
+
+  it('should return input token for manage actions', () => {
+    expect(resolveAssetSymbolForTx('CLAIM', 'manage', 'ETH', 'stETH')).toBe('ETH')
+  })
+
+  it('should fallback to input token when output token is undefined', () => {
+    expect(resolveAssetSymbolForTx('APPROVAL', 'exit', 'ETH', undefined)).toBe('ETH')
+  })
+
+  it('should fallback to input token when tx type is undefined', () => {
+    expect(resolveAssetSymbolForTx(undefined, 'exit', 'ETH', 'stETH')).toBe('ETH')
   })
 })
 
@@ -382,5 +418,83 @@ describe('getDefaultValidatorForYield', () => {
     expect(getDefaultValidatorForYield('ethereum-eth-lido-staking')).toBeUndefined()
     expect(getDefaultValidatorForYield('solana-sol-lido-staking')).toBeUndefined()
     expect(getDefaultValidatorForYield('some-random-yield')).toBeUndefined()
+  })
+})
+
+describe('getBestActionableYield', () => {
+  const createMockYield = (
+    id: string,
+    apy: number,
+    options: { enterDisabled?: boolean; underMaintenance?: boolean; deprecated?: boolean } = {},
+  ): AugmentedYieldDto =>
+    ({
+      id,
+      rewardRate: { total: apy, rateType: 'APY', components: [] },
+      status: { enter: !options.enterDisabled, exit: true },
+      metadata: {
+        name: `Yield ${id}`,
+        underMaintenance: options.underMaintenance ?? false,
+        deprecated: options.deprecated ?? false,
+      },
+    }) as unknown as AugmentedYieldDto
+
+  it('should return undefined for empty array', () => {
+    expect(getBestActionableYield([])).toBeUndefined()
+  })
+
+  it('should return undefined when all yields are disabled', () => {
+    const yields = [
+      createMockYield('a', 0.1, { enterDisabled: true }),
+      createMockYield('b', 0.2, { underMaintenance: true }),
+      createMockYield('c', 0.3, { deprecated: true }),
+    ]
+    expect(getBestActionableYield(yields)).toBeUndefined()
+  })
+
+  it('should return highest APY yield when multiple are actionable', () => {
+    const yields = [
+      createMockYield('low', 0.05),
+      createMockYield('high', 0.15),
+      createMockYield('mid', 0.1),
+    ]
+    const result = getBestActionableYield(yields)
+    expect(result?.id).toBe('high')
+  })
+
+  it('should filter out yields with enter disabled', () => {
+    const yields = [
+      createMockYield('disabled-high', 0.2, { enterDisabled: true }),
+      createMockYield('enabled-low', 0.05),
+    ]
+    const result = getBestActionableYield(yields)
+    expect(result?.id).toBe('enabled-low')
+  })
+
+  it('should filter out yields under maintenance', () => {
+    const yields = [
+      createMockYield('maintenance-high', 0.2, { underMaintenance: true }),
+      createMockYield('active-low', 0.05),
+    ]
+    const result = getBestActionableYield(yields)
+    expect(result?.id).toBe('active-low')
+  })
+
+  it('should filter out deprecated yields', () => {
+    const yields = [
+      createMockYield('deprecated-high', 0.2, { deprecated: true }),
+      createMockYield('active-low', 0.05),
+    ]
+    const result = getBestActionableYield(yields)
+    expect(result?.id).toBe('active-low')
+  })
+
+  it('should return the only actionable yield', () => {
+    const yields = [
+      createMockYield('disabled', 0.3, { enterDisabled: true }),
+      createMockYield('only-active', 0.1),
+      createMockYield('maintenance', 0.25, { underMaintenance: true }),
+    ]
+    const result = getBestActionableYield(yields)
+    expect(result?.id).toBe('only-active')
   })
 })

@@ -2,10 +2,11 @@ FROM node:20-slim AS builder
 
 WORKDIR /app
 
-COPY packages/swap-widget ./
+COPY . ./
 
-RUN npm install --legacy-peer-deps
-RUN npm run build
+RUN corepack enable
+RUN yarn install
+RUN yarn build
 
 FROM node:20-slim
 

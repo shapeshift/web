@@ -4,7 +4,6 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_POLYGON: string
   readonly VITE_FEATURE_GNOSIS: string
   readonly VITE_FEATURE_ARBITRUM: string
-  readonly VITE_FEATURE_ARBITRUM_NOVA: string
   readonly VITE_FEATURE_SOLANA: string
   readonly VITE_FEATURE_TRON: string
   readonly VITE_FEATURE_BASE: string
@@ -41,8 +40,6 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_RUNEPOOL_DEPOSIT: string
   readonly VITE_FEATURE_RUNEPOOL_WITHDRAW: string
   readonly VITE_FEATURE_MARKETS: string
-  readonly VITE_FEATURE_FOX_PAGE: string
-  readonly VITE_FEATURE_FOX_PAGE_RFOX: string
   readonly VITE_FEATURE_FOX_PAGE_FOX_SECTION: string
   readonly VITE_FEATURE_FOX_PAGE_FOX_FARMING_SECTION: string
   readonly VITE_FEATURE_FOX_PAGE_GOVERNANCE: string
@@ -126,6 +123,7 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_YIELD_MULTI_ACCOUNT: string
   readonly VITE_YIELD_XYZ_API_KEY: string
   readonly VITE_YIELD_XYZ_BASE_URL: string
+  readonly VITE_AFFILIATE_REVENUE_URL: string
 
   // Unchained URLs and node URLs - present in all envs (prod, development, private)
   // even though they're not present in base env
@@ -143,8 +141,6 @@ interface ImportMetaEnv {
   readonly VITE_UNCHAINED_GNOSIS_WS_URL: string
   readonly VITE_UNCHAINED_ARBITRUM_HTTP_URL: string
   readonly VITE_UNCHAINED_ARBITRUM_WS_URL: string
-  readonly VITE_UNCHAINED_ARBITRUM_NOVA_HTTP_URL: string
-  readonly VITE_UNCHAINED_ARBITRUM_NOVA_WS_URL: string
   readonly VITE_UNCHAINED_BASE_HTTP_URL: string
   readonly VITE_UNCHAINED_BASE_WS_URL: string
   readonly VITE_UNCHAINED_BITCOIN_HTTP_URL: string
@@ -173,7 +169,6 @@ interface ImportMetaEnv {
   readonly VITE_POLYGON_NODE_URL: string
   readonly VITE_GNOSIS_NODE_URL: string
   readonly VITE_ARBITRUM_NODE_URL: string
-  readonly VITE_ARBITRUM_NOVA_NODE_URL: string
   readonly VITE_BASE_NODE_URL: string
   readonly VITE_THORCHAIN_NODE_URL: string
   readonly VITE_MAYACHAIN_NODE_URL: string

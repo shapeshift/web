@@ -1,6 +1,5 @@
 import {
   arbitrum,
-  arbitrumNova,
   avalanche,
   base,
   bsc,
@@ -15,7 +14,6 @@ export const SUPPORTED_CHAINS = [
   mainnet,
   polygon,
   arbitrum,
-  arbitrumNova,
   optimism,
   base,
   avalanche,

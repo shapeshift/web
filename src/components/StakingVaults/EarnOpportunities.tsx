@@ -11,7 +11,6 @@ import { Text } from '@/components/Text'
 import { FoxEthProvider, useFoxEth } from '@/context/FoxEthProvider/FoxEthProvider'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import type { EarnOpportunityType } from '@/state/slices/opportunitiesSlice/types'
 import { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
@@ -38,7 +37,6 @@ export const EarnOpportunitiesContent = ({ assetId, accountId }: EarnOpportuniti
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
 
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
@@ -85,7 +83,7 @@ export const EarnOpportunitiesContent = ({ assetId, accountId }: EarnOpportuniti
       }
 
       if (provider === DefiProvider.rFOX) {
-        return navigate(isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/rfox')
+        return navigate('/fox-ecosystem')
       }
 
       // @ts-ignore that's incorrect according to types but is absolutely valid
@@ -106,7 +104,7 @@ export const EarnOpportunitiesContent = ({ assetId, accountId }: EarnOpportuniti
         state: { background: location },
       })
     },
-    [dispatch, isConnected, isRfoxFoxEcosystemPageEnabled, location, navigate],
+    [dispatch, isConnected, location, navigate],
   )
 
   if (!asset) return null

@@ -24,7 +24,6 @@ export type FeatureFlags = {
   Polygon: boolean
   Gnosis: boolean
   Arbitrum: boolean
-  ArbitrumNova: boolean
   Solana: boolean
   Starknet: boolean
   Tron: boolean
@@ -77,8 +76,6 @@ export type FeatureFlags = {
   RunePoolWithdraw: boolean
   Markets: boolean
   PhantomWallet: boolean
-  FoxPage: boolean
-  FoxPageRFOX: boolean
   FoxPageFoxSection: boolean
   FoxPageFoxFarmingSection: boolean
   FoxPageGovernance: boolean
@@ -104,7 +101,6 @@ export type FeatureFlags = {
   AvnuSwap: boolean
   StonfiSwap: boolean
   LazyTxHistory: boolean
-  RfoxFoxEcosystemPage: boolean
   LedgerReadOnly: boolean
   QuickBuy: boolean
   NewWalletManager: boolean
@@ -174,7 +170,6 @@ const initialState: Preferences = {
     Polygon: getConfig().VITE_FEATURE_POLYGON,
     Gnosis: getConfig().VITE_FEATURE_GNOSIS,
     Arbitrum: getConfig().VITE_FEATURE_ARBITRUM,
-    ArbitrumNova: getConfig().VITE_FEATURE_ARBITRUM_NOVA,
     Solana: getConfig().VITE_FEATURE_SOLANA,
     Starknet: getConfig().VITE_FEATURE_STARKNET,
     Tron: getConfig().VITE_FEATURE_TRON,
@@ -227,8 +222,6 @@ const initialState: Preferences = {
     RunePoolWithdraw: getConfig().VITE_FEATURE_RUNEPOOL_WITHDRAW,
     Markets: getConfig().VITE_FEATURE_MARKETS,
     PhantomWallet: getConfig().VITE_FEATURE_PHANTOM_WALLET,
-    FoxPage: getConfig().VITE_FEATURE_FOX_PAGE,
-    FoxPageRFOX: getConfig().VITE_FEATURE_FOX_PAGE_RFOX,
     FoxPageFoxSection: getConfig().VITE_FEATURE_FOX_PAGE_FOX_SECTION,
     FoxPageFoxFarmingSection: getConfig().VITE_FEATURE_FOX_PAGE_FOX_FARMING_SECTION,
     FoxPageGovernance: getConfig().VITE_FEATURE_FOX_PAGE_GOVERNANCE,
@@ -254,7 +247,6 @@ const initialState: Preferences = {
     AvnuSwap: getConfig().VITE_FEATURE_AVNU_SWAP,
     StonfiSwap: getConfig().VITE_FEATURE_STONFI_SWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
-    RfoxFoxEcosystemPage: getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
     LedgerReadOnly: getConfig().VITE_FEATURE_LEDGER_READ_ONLY,
     QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,
     NewWalletManager: getConfig().VITE_FEATURE_NEW_WALLET_MANAGER,

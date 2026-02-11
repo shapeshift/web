@@ -73,6 +73,7 @@ export const Header = memo(() => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const isYieldXyzEnabled = useFeatureFlag('YieldXyz')
+  const isYieldsPageEnabled = useFeatureFlag('YieldsPage')
 
   const navigate = useNavigate()
   const {
@@ -101,7 +102,6 @@ export const Header = memo(() => {
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
   const isNewWalletManagerEnabled = useFeatureFlag('NewWalletManager')
-  const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
   const isEarnTabEnabled = useFeatureFlag('EarnTab')
 
   const tradeSubMenuItems = useMemo(
@@ -116,14 +116,14 @@ export const Header = memo(() => {
   const hasWallet = Boolean(walletInfo?.deviceId)
   const earnSubMenuItems = useMemo(
     () => [
-      ...(isYieldXyzEnabled
+      ...(isYieldsPageEnabled
         ? [{ label: 'navBar.yields', path: '/yields', icon: TbTrendingUp, isNew: true }]
         : []),
       { label: 'navBar.tcy', path: '/tcy', icon: TCYIcon },
       { label: 'navBar.pools', path: '/pools', icon: TbPool },
       { label: 'navBar.lending', path: '/lending', icon: TbBuildingBank },
     ],
-    [isYieldXyzEnabled],
+    [isYieldsPageEnabled],
   )
 
   /**
@@ -183,11 +183,11 @@ export const Header = memo(() => {
               <NavigationDropdown
                 label='defi.earn'
                 items={earnSubMenuItems}
-                defaultPath={isYieldXyzEnabled ? '/yields' : '/tcy'}
+                defaultPath={isYieldXyzEnabled && isYieldsPageEnabled ? '/yields' : '/tcy'}
               />
               <Link
                 as={ReactRouterLink}
-                to={isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox'}
+                to={'/fox-ecosystem'}
                 fontWeight='medium'
                 color='text.subtle'
                 _hover={{ color: 'text.base', textDecoration: 'none' }}

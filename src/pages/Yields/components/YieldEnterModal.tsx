@@ -273,7 +273,7 @@ export const YieldEnterModal = memo(
 
     const displayValue = useMemo(() => {
       if (isFiat) {
-        return fiatAmount.toFixed(2)
+        return fiatAmount.isZero() ? '' : fiatAmount.toFixed(2)
       }
       return cryptoAmount
     }, [isFiat, fiatAmount, cryptoAmount])
@@ -489,7 +489,7 @@ export const YieldEnterModal = memo(
               </Flex>
             </Flex>
           )}
-          {!isStaking && providerMetadata && (
+          {(!isStaking || !selectedValidatorMetadata) && providerMetadata && (
             <Flex justify='space-between' align='center' mt={3}>
               <Text fontSize='sm' color='text.subtle'>
                 {translate('yieldXYZ.provider')}
@@ -665,6 +665,7 @@ export const YieldEnterModal = memo(
               <YieldExplainers
                 selectedYield={yieldItem}
                 sellAssetSymbol={inputTokenAsset?.symbol}
+                action='enter'
               />
               {stepsToShow.length > 0 && <TransactionStepsList steps={stepsToShow} />}
             </Flex>

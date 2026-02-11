@@ -1,7 +1,7 @@
 import { CardBody, CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import { fromAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigAmount as AmountLib, isSome } from '@shapeshiftoss/utils'
+import { BigAmount, isSome } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -155,7 +155,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
 
   const amountCryptoBaseUnit = useMemo(
     () =>
-      AmountLib.fromPrecision({
+      BigAmount.fromPrecision({
         value: amountCryptoPrecision,
         precision: stakingAsset?.precision ?? 0,
       }).toBaseUnit(),
@@ -208,7 +208,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
 
   const userStakingBalanceCryptoPrecision = useMemo(() => {
     if (!(userStakingBalanceOfCryptoBaseUnit && stakingAsset)) return
-    return AmountLib.fromBaseUnit({
+    return BigAmount.fromBaseUnit({
       value: userStakingBalanceOfCryptoBaseUnit,
       precision: stakingAsset?.precision ?? 0,
     }).toPrecision()
@@ -291,7 +291,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     setConfirmedQuote({
       stakingAssetAccountId,
       stakingAssetId,
-      unstakingAmountCryptoBaseUnit: AmountLib.fromPrecision({
+      unstakingAmountCryptoBaseUnit: BigAmount.fromPrecision({
         value: amountCryptoPrecision,
         precision: stakingAsset.precision,
       }).toBaseUnit(),
@@ -323,7 +323,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
       const fees = unstakeFees
 
       const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
-        AmountLib.fromPrecision({
+        BigAmount.fromPrecision({
           value: stakingAssetFeeAssetBalanceCryptoPrecision,
           precision: stakingAssetFeeAsset?.precision ?? 0,
         }).toBaseUnit(),

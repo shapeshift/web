@@ -157,13 +157,13 @@ export const useRfoxStake = ({
   const allowanceCryptoPrecision = useMemo(() => {
     const allowanceDataCryptoBaseUnit = allowanceQuery.data
     if (!allowanceDataCryptoBaseUnit) return
-    if (!stakingAssetFeeAsset) return
+    if (!stakingAsset) return
 
     return BigAmount.fromBaseUnit({
       value: allowanceDataCryptoBaseUnit,
-      precision: stakingAssetFeeAsset.precision,
+      precision: stakingAsset.precision,
     }).toPrecision()
-  }, [allowanceQuery.data, stakingAssetFeeAsset])
+  }, [allowanceQuery.data, stakingAsset])
 
   const isApprovalRequired = useMemo(
     () =>

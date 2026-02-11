@@ -23,6 +23,7 @@ import {
   uniV2EthFoxArbitrumAssetId,
   usdcOnArbitrumOneAssetId,
 } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { TbAlertTriangle, TbArrowDown, TbArrowUp } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
@@ -35,7 +36,6 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { formatSecondsToDuration } from '@/lib/utils/time'
 import type { Filter } from '@/pages/Fox/components/FoxTokenFilterButton'
 import { FoxTokenFilterButton } from '@/pages/Fox/components/FoxTokenFilterButton'
@@ -195,7 +195,10 @@ export const RFOXSection = () => {
   const selectStakingBalanceCryptoPrecision = useCallback(
     (abiStakingInfo: AbiStakingInfo) => {
       const stakingBalanceCryptoBaseUnit = selectStakingBalance(abiStakingInfo)
-      return fromBaseUnit(stakingBalanceCryptoBaseUnit.toString(), stakingAsset?.precision ?? 0)
+      return BigAmount.fromBaseUnit({
+        value: stakingBalanceCryptoBaseUnit.toString(),
+        precision: stakingAsset?.precision ?? 0,
+      }).toPrecision()
     },
     [stakingAsset],
   )
@@ -224,7 +227,11 @@ export const RFOXSection = () => {
   })
 
   const currentEpochRewardsCryptoPrecision = useMemo(
-    () => fromBaseUnit(currentEpochRewardsQuery.data?.toString(), usdcAsset?.precision ?? 0),
+    () =>
+      BigAmount.fromBaseUnit({
+        value: currentEpochRewardsQuery.data?.toString(),
+        precision: usdcAsset?.precision ?? 0,
+      }).toPrecision(),
     [currentEpochRewardsQuery.data, usdcAsset?.precision],
   )
 

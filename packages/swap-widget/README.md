@@ -403,7 +403,6 @@ import {
 const EVM_CHAIN_IDS = {
   ethereum: "eip155:1",
   arbitrum: "eip155:42161",
-  arbitrumNova: "eip155:42170",
   optimism: "eip155:10",
   polygon: "eip155:137",
   base: "eip155:8453",
@@ -456,7 +455,6 @@ import {
 | ----------------- | ----------------------------------------- | ------ |
 | Ethereum          | `eip155:1`                                | EVM    |
 | Arbitrum One      | `eip155:42161`                            | EVM    |
-| Arbitrum Nova     | `eip155:42170`                            | EVM    |
 | Optimism          | `eip155:10`                               | EVM    |
 | Polygon           | `eip155:137`                              | EVM    |
 | Base              | `eip155:8453`                             | EVM    |

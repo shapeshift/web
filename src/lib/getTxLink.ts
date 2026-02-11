@@ -32,7 +32,6 @@ export const safeChainShortNameByChainId: Partial<Record<KnownChainIds, string>>
   [KnownChainIds.PolygonMainnet]: 'matic',
   [KnownChainIds.GnosisMainnet]: 'gno',
   [KnownChainIds.ArbitrumMainnet]: 'arb1',
-  [KnownChainIds.ArbitrumNovaMainnet]: 'arb-nova',
   [KnownChainIds.BaseMainnet]: 'base',
 }
 type GetTxLink = GetTxBaseUrl &

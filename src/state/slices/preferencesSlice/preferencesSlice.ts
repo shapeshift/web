@@ -24,7 +24,6 @@ export type FeatureFlags = {
   Polygon: boolean
   Gnosis: boolean
   Arbitrum: boolean
-  ArbitrumNova: boolean
   Solana: boolean
   Starknet: boolean
   Tron: boolean
@@ -171,7 +170,6 @@ const initialState: Preferences = {
     Polygon: getConfig().VITE_FEATURE_POLYGON,
     Gnosis: getConfig().VITE_FEATURE_GNOSIS,
     Arbitrum: getConfig().VITE_FEATURE_ARBITRUM,
-    ArbitrumNova: getConfig().VITE_FEATURE_ARBITRUM_NOVA,
     Solana: getConfig().VITE_FEATURE_SOLANA,
     Starknet: getConfig().VITE_FEATURE_STARKNET,
     Tron: getConfig().VITE_FEATURE_TRON,

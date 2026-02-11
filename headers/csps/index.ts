@@ -68,6 +68,7 @@ import { csp as shapeshift } from './shapeshift'
 import { csp as snapshots } from './snapshots'
 import { csp as tenderly } from './tenderly'
 import { csp as trezor } from './trezor'
+import { csp as userback } from './userback'
 import { csp as coinbase } from './wallets/coinbase'
 import { csp as gridplus } from './wallets/gridplus'
 import { csp as keepkey } from './wallets/keepkey'
@@ -84,6 +85,7 @@ export const csps = [
   moralis,
   chainflip,
   chatwoot,
+  userback,
   customTokenImport,
   interFont,
   jupiter,

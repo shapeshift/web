@@ -21,7 +21,7 @@ import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { foxyApi } from '@/state/apis/foxy/foxyApi'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
-import { selectPortfolioCryptoBalanceBaseUnitByFilter } from '@/state/slices/common-selectors'
+import { selectPortfolioCryptoBalanceByFilter } from '@/state/slices/common-selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { selectBip44ParamsByAccountId } from '@/state/slices/portfolioSlice/selectors'
 
@@ -113,7 +113,7 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
 
   for (const stakingOpportunityId of opportunityIds) {
     const balanceFilter = { accountId, assetId: foxyAssetId }
-    const balance = selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter)
+    const balance = selectPortfolioCryptoBalanceByFilter(state, balanceFilter)
 
     const asset = selectAssetById(state, foxyAssetId)
     if (!asset) continue

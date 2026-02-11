@@ -46,7 +46,7 @@ import {
   selectAssetById,
   selectAssets,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -115,7 +115,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     [accountId, feeAsset?.assetId],
   )
   const feeAssetBalance = useAppSelector(s =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
+    selectPortfolioCryptoBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const hasEnoughBalanceForGas = useMemo(

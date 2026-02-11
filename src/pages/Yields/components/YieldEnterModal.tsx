@@ -51,7 +51,7 @@ import {
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetIdFilter,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -211,7 +211,7 @@ export const YieldEnterModal = memo(
 
     const inputTokenBalance = useAppSelector(state =>
       inputTokenAssetId && accountId
-        ? selectPortfolioCryptoPrecisionBalanceByFilter(state, {
+        ? selectPortfolioCryptoBalanceByFilter(state, {
             assetId: inputTokenAssetId,
             accountId,
           })

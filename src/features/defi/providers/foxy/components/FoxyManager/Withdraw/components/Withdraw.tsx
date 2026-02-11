@@ -22,7 +22,7 @@ import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import {
   selectBip44ParamsByAccountId,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -63,7 +63,7 @@ export const Withdraw: React.FC<
   // user info
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
   const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, filter),
+    selectPortfolioCryptoBalanceByFilter(state, filter),
   )
 
   const cryptoAmountAvailable = bnOrZero(bn(balance).div(bn(10).pow(asset?.precision)))

@@ -4,7 +4,7 @@ import { afterAll, describe, expect, it, vi } from 'vitest'
 
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
 import {
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
   selectPortfolioUserCurrencyBalancesByAccountId,
 } from '../common-selectors'
 import { marketData as marketDataSlice } from '../marketDataSlice/marketDataSlice'
@@ -535,7 +535,7 @@ describe('portfolioSlice', () => {
       })
     })
 
-    describe('selectPortfolioCryptoPrecisionBalanceByFilter', () => {
+    describe('selectPortfolioCryptoBalanceByFilter', () => {
       const store = createStore()
       const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockEthAndBtcAccounts({
         ethAccountObj: { balance: '1000009000000000000' },
@@ -590,13 +590,13 @@ describe('portfolioSlice', () => {
 
       it('should be able to filter by assetId', () => {
         const expected = '1.200009'
-        const result = selectPortfolioCryptoPrecisionBalanceByFilter(state, { assetId: ethAssetId })
+        const result = selectPortfolioCryptoBalanceByFilter(state, { assetId: ethAssetId })
         expect(result).toEqual(expected)
       })
 
       it('should be able to filter by accountId and assetId', () => {
         const expected = '0.2001'
-        const result = selectPortfolioCryptoPrecisionBalanceByFilter(state, {
+        const result = selectPortfolioCryptoBalanceByFilter(state, {
           accountId: ethAccount2Id,
           assetId: foxAssetId,
         })

@@ -30,7 +30,7 @@ import {
   selectAssetById,
   selectAssets,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectPortfolioCryptoBalanceByFilter,
   selectStakingOpportunityByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -74,7 +74,7 @@ export const Deposit: React.FC<DepositProps> = ({
   // user info
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
   const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, filter),
+    selectPortfolioCryptoBalanceByFilter(state, filter),
   )
 
   // notify

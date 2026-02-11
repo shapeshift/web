@@ -53,7 +53,7 @@ import {
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -258,7 +258,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
   )
 
   const feeAssetBalance = useAppSelector(s =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
+    selectPortfolioCryptoBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const hasEnoughBalanceForGas = useMemo(

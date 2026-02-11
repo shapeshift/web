@@ -21,8 +21,8 @@ import {
   selectAssetById,
   selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -63,7 +63,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   const balancesLoading = false
 
   const cryptoHumanBalance = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, {
+    selectPortfolioCryptoBalanceByFilter(state, {
       assetId,
       accountId,
     }),
@@ -76,12 +76,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   )
 
   const assetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId, accountId }),
+    selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId }),
   )
 
   const nativeAssetBalance = bnOrZero(
     useAppSelector(state =>
-      selectPortfolioCryptoBalanceBaseUnitByFilter(state, {
+      selectPortfolioCryptoBalanceByFilter(state, {
         assetId: feeAsset?.assetId,
         accountId,
       }),

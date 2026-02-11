@@ -37,7 +37,7 @@ import {
   selectAssets,
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -101,7 +101,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     [stakingAssetFeeAsset?.assetId, stakingAssetAccountId],
   )
   const stakingAssetFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
+    selectPortfolioCryptoBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
   )
 
   const buyAssetSearch = useModal('buyAssetSearch')

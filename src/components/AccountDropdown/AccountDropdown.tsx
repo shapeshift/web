@@ -43,7 +43,7 @@ import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectHighestUserCurrencyBalanceAccountByAssetId,
-  selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioAccountBalances,
   selectPortfolioAccountIdsByAssetIdFilter,
   selectPortfolioAccountMetadata,
 } from '@/state/slices/selectors'
@@ -85,7 +85,7 @@ const MenuOptions = ({
 }: MenuOptionsProps) => {
   const { assetId, chainId } = asset
   const translate = useTranslate()
-  const accountBalances = useSelector(selectPortfolioAccountBalancesBaseUnit)
+  const accountBalances = useSelector(selectPortfolioAccountBalances)
   const accountMetadata = useSelector(selectPortfolioAccountMetadata)
 
   const getAccountIdsSortedByUtxoAccountType = useCallback(

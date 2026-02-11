@@ -16,7 +16,7 @@ import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -48,7 +48,7 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   const asset = useAppSelector(s => selectAssetById(s, assetId))
   const cryptoBalanceFilter = useMemo(() => ({ accountId, assetId }), [accountId, assetId])
   const cryptoBalance = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, cryptoBalanceFilter),
+    selectPortfolioCryptoBalanceByFilter(state, cryptoBalanceFilter),
   )
   const userCurrencyBalanceFilter = useMemo(() => ({ accountId, assetId }), [accountId, assetId])
   const userCurrencyBalance = useAppSelector(state =>

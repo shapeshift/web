@@ -54,7 +54,7 @@ import {
   selectAssets,
   selectFeeAssetById,
   selectPortfolioAccountMetadataByAccountId,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
@@ -198,7 +198,7 @@ export const BorrowInput = ({
     [collateralAssetId, collateralAccountId],
   )
   const balanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
+    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
   )
   const collateralFeeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))
   const borrowFeeAsset = useAppSelector(state =>
@@ -210,7 +210,7 @@ export const BorrowInput = ({
     [collateralAccountId, collateralFeeAsset?.assetId],
   )
   const collateralFeeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, collateralFeeAssetBalanceFilter),
+    selectPortfolioCryptoBalanceByFilter(state, collateralFeeAssetBalanceFilter),
   )
 
   const amountAvailableCryptoPrecision = useMemo(

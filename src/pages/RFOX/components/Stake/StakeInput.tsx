@@ -46,7 +46,7 @@ import {
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataByFilter,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
@@ -152,7 +152,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     [selectedAssetAccountId, selectedStakingAssetId],
   )
   const selectedStakingAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, selectedStakingAssetBalanceFilter),
+    selectPortfolioCryptoBalanceByFilter(state, selectedStakingAssetBalanceFilter),
   )
   const selectedStakingAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(selectedStakingAssetId).chainId),
@@ -169,7 +169,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     [stakingAssetAccountId, stakingAssetFeeAsset?.assetId],
   )
   const stakingAssetFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
+    selectPortfolioCryptoBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
   )
 
   const [showWarning, setShowWarning] = useState(false)

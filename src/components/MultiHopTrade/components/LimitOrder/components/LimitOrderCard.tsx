@@ -24,7 +24,7 @@ import { assertGetChainAdapter } from '@/lib/utils'
 import { useAllowance } from '@/react-queries/hooks/useAllowance'
 import {
   selectAssetById,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useSelectorWithArgs } from '@/state/store'
 
@@ -125,7 +125,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   }, [accountId, sellAssetId])
 
   const sellAssetBalanceCryptoBaseUnit = useSelectorWithArgs(
-    selectPortfolioCryptoBalanceBaseUnitByFilter,
+    selectPortfolioCryptoBalanceByFilter,
     filter,
   )
 

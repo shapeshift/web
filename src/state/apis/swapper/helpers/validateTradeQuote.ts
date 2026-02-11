@@ -24,8 +24,8 @@ import { fromBaseUnit } from '@/lib/math'
 import { assertGetChainAdapter, assertUnreachable, isTruthy } from '@/lib/utils'
 import type { ReduxState } from '@/state/reducer'
 import {
-  selectPortfolioAccountBalancesBaseUnit,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioAccountBalances,
+  selectPortfolioCryptoBalanceByFilter,
   selectWalletConnectedChainIds,
   selectWalletId,
 } from '@/state/slices/common-selectors'
@@ -164,12 +164,12 @@ export const validateTradeQuote = (
   const firstHopSellAccountId = selectFirstHopSellAccountId(state)
   const secondHopSellAccountId = selectSecondHopSellAccountId(state)
 
-  const firstHopFeeAssetBalancePrecision = selectPortfolioCryptoPrecisionBalanceByFilter(state, {
+  const firstHopFeeAssetBalancePrecision = selectPortfolioCryptoBalanceByFilter(state, {
     assetId: firstHopSellFeeAsset?.assetId,
     accountId: firstHopSellAccountId ?? '',
   })
   const secondHopFeeAssetBalancePrecision = isMultiHopTrade
-    ? selectPortfolioCryptoPrecisionBalanceByFilter(state, {
+    ? selectPortfolioCryptoBalanceByFilter(state, {
         assetId: secondHopSellFeeAsset?.assetId,
         accountId: secondHopSellAccountId ?? '',
       })
@@ -218,7 +218,7 @@ export const validateTradeQuote = (
     bnOrZero(buyAmountCryptoBaseUnit).isLessThanOrEqualTo(0)
 
   const portfolioAccountIdByNumberByChainId = selectPortfolioAccountIdByNumberByChainId(state)
-  const portfolioAccountBalancesBaseUnit = selectPortfolioAccountBalancesBaseUnit(state)
+  const portfolioAccountBalancesBaseUnit = selectPortfolioAccountBalances(state)
   const sellAssetAccountNumber = firstHop?.accountNumber
   const totalProtocolFeesByAsset = firstHop ? getTotalProtocolFeeByAssetForStep(firstHop) : {}
 

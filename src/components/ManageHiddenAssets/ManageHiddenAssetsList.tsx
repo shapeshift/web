@@ -27,7 +27,7 @@ import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectHiddenAssets } from '@/state/slices/preferencesSlice/selectors'
 import {
   selectAssetById,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -49,7 +49,7 @@ const AssetRow = memo<AssetRowProps>(({ assetId, onClose, onToggleSpam, onNaviga
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const assetBalanceFilter = useMemo(() => ({ assetId }), [assetId])
   const cryptoBalance = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, assetBalanceFilter),
+    selectPortfolioCryptoBalanceByFilter(state, assetBalanceFilter),
   )
 
   const explorerHref = useMemo(() => {

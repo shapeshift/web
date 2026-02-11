@@ -29,7 +29,7 @@ import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { selectPortfolioCryptoPrecisionBalanceByFilter } from '@/state/slices/selectors'
+import { selectPortfolioCryptoBalanceByFilter } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type BridgeConfirmProps = {
@@ -74,7 +74,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
     [confirmedQuote.sellAssetAccountId, feeAsset?.assetId],
   )
   const feeAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, feeAssetBalanceFilter),
+    selectPortfolioCryptoBalanceByFilter(state, feeAssetBalanceFilter),
   )
 
   const hasEnoughFeeBalance = useMemo(() => {

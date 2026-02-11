@@ -11,7 +11,7 @@ import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -40,7 +40,7 @@ export const EquityAccountRow = ({
   const filter = useMemo(() => ({ assetId: rowAssetId ?? '', accountId }), [rowAssetId, accountId])
   const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
   const cryptoHumanBalance = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, filter),
+    selectPortfolioCryptoBalanceByFilter(state, filter),
   )
   const userCurrencyBalance = useAppSelector(state =>
     selectPortfolioUserCurrencyBalanceByFilter(state, filter),

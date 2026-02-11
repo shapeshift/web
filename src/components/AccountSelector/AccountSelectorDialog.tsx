@@ -17,7 +17,7 @@ import {
 } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { selectPortfolioAccountBalancesBaseUnit } from '@/state/slices/common-selectors'
+import { selectPortfolioAccountBalances } from '@/state/slices/common-selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -43,7 +43,7 @@ export const AccountSelectorDialog = ({
   onAccountSelect,
 }: AccountSelectorDialogProps) => {
   const translate = useTranslate()
-  const accountBalancesBaseUnit = useSelector(selectPortfolioAccountBalancesBaseUnit)
+  const accountBalancesBaseUnit = useSelector(selectPortfolioAccountBalances)
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   const accountsWithDetails = useMemo(

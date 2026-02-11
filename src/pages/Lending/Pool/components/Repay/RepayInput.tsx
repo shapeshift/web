@@ -59,8 +59,8 @@ import {
   selectAssetById,
   selectAssets,
   selectFeeAssetById,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
   selectTxById,
 } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
@@ -206,14 +206,14 @@ export const RepayInput = ({
   )
 
   const repaymentAssetAmountAvailableCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, repaymentAssetBalanceFilter),
+    selectPortfolioCryptoBalanceByFilter(state, repaymentAssetBalanceFilter),
   )
   const feeAssetBalanceFilter = useMemo(
     () => ({ assetId: repaymentFeeAsset?.assetId ?? '', accountId: repaymentAccountId ?? '' }),
     [repaymentFeeAsset?.assetId, repaymentAccountId],
   )
   const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
+    selectPortfolioCryptoBalanceByFilter(state, feeAssetBalanceFilter),
   )
 
   const serializedApprovalTxIndex = useMemo(() => {

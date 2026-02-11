@@ -23,8 +23,8 @@ import type { Row } from 'react-table'
 import { selectAssets } from '../assetsSlice/selectors'
 import {
   selectEnabledWalletAccountIds,
-  selectPortfolioAccountBalancesBaseUnit,
-  selectPortfolioAssetBalancesBaseUnit,
+  selectPortfolioAccountBalances,
+  selectPortfolioAssetBalances,
   selectPortfolioUserCurrencyBalances,
   selectPortfolioUserCurrencyBalancesByAccountId,
   selectRelatedAssetIdsByAssetIdInclusive,
@@ -102,7 +102,7 @@ export const selectIsAnyAccountIdEnabled = createCachedSelector(
 )((_s: ReduxState, accountIds) => JSON.stringify(accountIds))
 
 export const selectPortfolioAssetIds = createDeepEqualOutputSelector(
-  selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioAccountBalances,
   (accountBalancesById): AssetId[] => {
     return Array.from(new Set(Object.values(accountBalancesById).flatMap(Object.keys)))
   },
@@ -289,8 +289,8 @@ export const selectPortfolioAccountIdsByAssetId = createDeepEqualOutputSelector(
 export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
   createDeepEqualOutputSelector(
     selectAssets,
-    selectPortfolioAccountBalancesBaseUnit,
-    selectPortfolioAssetBalancesBaseUnit,
+    selectPortfolioAccountBalances,
+    selectPortfolioAssetBalances,
     selectMarketDataUserCurrency,
     preferences.selectors.selectBalanceThresholdUserCurrency,
     selectPortfolioAccounts,
@@ -444,7 +444,7 @@ export const selectPortfolioStakingCryptoBalances = createDeepEqualOutputSelecto
  */
 export const selectPortfolioAccountsHumanBalances = createDeepEqualOutputSelector(
   selectAssets,
-  selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioAccountBalances,
   (assets, portfolioAccountsCryptoBalances): PortfolioAccountBalancesById => {
     return Object.entries(portfolioAccountsCryptoBalances).reduce((acc, [accountId, account]) => {
       acc[accountId] = Object.entries(account).reduce((innerAcc, [assetId, cryptoBalance]) => {
@@ -460,7 +460,7 @@ export const selectPortfolioAccountsHumanBalances = createDeepEqualOutputSelecto
 export const selectPortfolioAccountsUserCurrencyBalances = createDeepEqualOutputSelector(
   selectAssets,
   selectMarketDataUserCurrency,
-  selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioAccountBalances,
   preferences.selectors.selectSpamMarkedAssetIds,
   (
     assets,
@@ -536,7 +536,7 @@ export const selectCryptoHumanBalanceFilter = createCachedSelector(
 export const selectPortfolioTotalChainIdBalanceUserCurrency = createDeepEqualOutputSelector(
   selectAssets,
   selectMarketDataUserCurrency,
-  selectPortfolioAssetBalancesBaseUnit,
+  selectPortfolioAssetBalances,
   selectChainIdParamFromFilter,
   (assetsById, marketData, balances, chainIdFilter) =>
     Object.entries(balances)
@@ -764,7 +764,7 @@ export type GroupedAssetBalance = {
 export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
   selectAssets,
   selectMarketDataUserCurrency,
-  selectPortfolioAssetBalancesBaseUnit,
+  selectPortfolioAssetBalances,
   selectPortfolioTotalUserCurrencyBalance,
   preferences.selectors.selectSpamMarkedAssetIds,
   (
@@ -814,7 +814,7 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
 
 // Intermediate memoized selector to precompute total balances by asset
 const selectTotalBalancesByAssetId = createDeepEqualOutputSelector(
-  selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioAccountBalances,
   selectAssets,
   (accountBalancesById, assets): Record<AssetId, string> => {
     const totalsByAssetId: Record<AssetId, string> = {}
@@ -1013,7 +1013,7 @@ export const selectPortfolioAnonymized = createDeepEqualOutputSelector(
   selectWalletId,
   selectWalletName,
   selectPortfolioUserCurrencyBalances,
-  selectPortfolioAssetBalancesBaseUnit,
+  selectPortfolioAssetBalances,
   (
     assetsById,
     walletId,
@@ -1120,7 +1120,7 @@ export const selectAccountIdsByAccountNumberAndChainId = createSelector(
 export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
   selectAccountIdsByAssetIdAboveBalanceThresholdByFilter,
   selectPortfolioUserCurrencyBalancesByAccountId,
-  selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioAccountBalances,
   selectAssets,
   selectAssetIdParamFromFilter,
   (

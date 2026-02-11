@@ -54,7 +54,7 @@ import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
 import {
   selectAssets,
   selectEnabledWalletAccountIds,
-  selectPortfolioAssetBalancesBaseUnit,
+  selectPortfolioAssetBalances,
   selectPortfolioUserCurrencyBalances,
   selectUserCurrencyToUsdRate,
 } from '@/state/slices/selectors'
@@ -113,7 +113,7 @@ export const YieldsList = memo(() => {
   } = useYieldFilters(isAvailableToEarnTab)
 
   const userCurrencyBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
-  const assetBalancesBaseUnit = useAppSelector(selectPortfolioAssetBalancesBaseUnit)
+  const assetBalancesBaseUnit = useAppSelector(selectPortfolioAssetBalances)
   const assets = useAppSelector(selectAssets)
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
 

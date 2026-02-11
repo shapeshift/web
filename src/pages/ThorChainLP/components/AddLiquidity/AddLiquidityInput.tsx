@@ -115,7 +115,7 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetId,
   selectPortfolioAccountMetadataByAccountId,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectPortfolioCryptoBalanceByFilter,
   selectTxById,
   selectUserCurrencyToUsdRate,
 } from '@/state/slices/selectors'
@@ -412,7 +412,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return { assetId, accountId: poolAssetAccountId }
   }, [assetId, poolAssetAccountId])
   const poolAssetBalanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, poolAssetBalanceFilter),
+    selectPortfolioCryptoBalanceByFilter(state, poolAssetBalanceFilter),
   )
   const poolAssetAccountNumberFilter = useMemo(() => {
     return { assetId: assetId ?? '', accountId: poolAssetAccountId ?? '' }
@@ -430,7 +430,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return { assetId: poolAssetFeeAsset?.assetId, accountId: poolAssetAccountId }
   }, [poolAssetFeeAsset, poolAssetAccountId])
   const poolAssetFeeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, poolAssetFeeAssetBalanceFilter),
+    selectPortfolioCryptoBalanceByFilter(state, poolAssetFeeAssetBalanceFilter),
   )
 
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
@@ -448,7 +448,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return { assetId: runeAsset?.assetId, accountId: runeAccountId }
   }, [runeAsset, runeAccountId])
   const runeBalanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, runeBalanceFilter),
+    selectPortfolioCryptoBalanceByFilter(state, runeBalanceFilter),
   )
 
   const walletSupportsRune = useMemo(() => {

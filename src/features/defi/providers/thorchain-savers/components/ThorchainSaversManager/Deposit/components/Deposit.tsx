@@ -66,7 +66,7 @@ import {
   selectFeeAssetById,
   selectHighestStakingBalanceAccountIdByStakingId,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -169,7 +169,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const balanceFilter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
   // user info
   const balanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
+    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
   )
 
   const { data: thorchainMimirTimes, isLoading: isThorchainMimirTimesLoading } =

@@ -18,7 +18,7 @@ import {
   getIsSweepNeeded,
   isGetSweepNeededInput,
 } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
-import { selectPortfolioCryptoBalanceBaseUnitByFilter } from '@/state/slices/common-selectors'
+import { selectPortfolioCryptoBalanceByFilter } from '@/state/slices/common-selectors'
 import type { ThorchainSaversWithdrawQuoteResponseSuccess } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/types'
 import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { store } from '@/state/store'
@@ -91,7 +91,7 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
   const isUtxoChain = isUtxoChainId(asset.chainId)
   const estimateFeesQueryEnabled = Boolean(fromAddress && accountId && isUtxoChain)
 
-  const balanceCryptoBaseUnit = selectPortfolioCryptoBalanceBaseUnitByFilter(store.getState(), {
+  const balanceCryptoBaseUnit = selectPortfolioCryptoBalanceByFilter(store.getState(), {
     assetId: asset.assetId,
     accountId,
   })

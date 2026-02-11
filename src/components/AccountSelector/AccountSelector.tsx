@@ -19,7 +19,7 @@ import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioAccountBalances,
   selectPortfolioAccountIdsByAssetIdFilter,
   selectPortfolioAccountMetadata,
 } from '@/state/slices/selectors'
@@ -51,7 +51,7 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
       selectPortfolioAccountIdsByAssetIdFilter(state, filter),
     )
     const asset = useAppSelector(state => selectAssetById(state, assetId))
-    const accountBalancesBaseUnit = useAppSelector(selectPortfolioAccountBalancesBaseUnit)
+    const accountBalancesBaseUnit = useAppSelector(selectPortfolioAccountBalances)
     const accountMetadata = useAppSelector(selectPortfolioAccountMetadata)
     const marketData = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, assetId),

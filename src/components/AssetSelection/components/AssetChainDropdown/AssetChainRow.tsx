@@ -10,7 +10,7 @@ import { firstNonZeroDecimal } from '@/lib/math'
 import {
   selectAssetById,
   selectFeeAssetById,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -37,7 +37,7 @@ export const AssetChainRow: React.FC<AssetChainRowProps> = ({
   const iconSrc = feeAsset?.networkIcon ?? feeAsset?.icon
   const filter = useMemo(() => ({ assetId }), [assetId])
   const cryptoHumanBalance = useAppSelector(s =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(s, filter),
+    selectPortfolioCryptoBalanceByFilter(s, filter),
   )
 
   const userCurrencyBalance = useAppSelector(

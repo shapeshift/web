@@ -41,7 +41,7 @@ import {
   selectAssets,
   selectBip44ParamsByAccountId,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
   selectStakingOpportunityByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -115,7 +115,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     [accountId, feeAsset?.assetId],
   )
   const feeAssetBalance = useAppSelector(s =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
+    selectPortfolioCryptoBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])

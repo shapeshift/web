@@ -20,7 +20,7 @@ import {
   selectAccountIdsByAssetId,
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -58,7 +58,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
 
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
   const cryptoBalance =
-    useAppSelector(state => selectPortfolioCryptoPrecisionBalanceByFilter(state, filter)) ?? '0'
+    useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter)) ?? '0'
 
   const formattedPrice = toFiat(marketData?.price ?? '0')
 

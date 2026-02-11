@@ -25,7 +25,7 @@ import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { OGIcon } from '@/components/Icons/OGIcon'
 import { ShapeShiftLogoText } from '@/components/Icons/ShapeShiftLogoText'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
-import { openUserbackWidget } from '@/components/UserbackWidget'
+import { openUserbackWidget } from '@/components/UserbackWidget/UserbackWidget'
 import { useHoverIntent } from '@/hooks/useHoverIntent'
 import { breakpoints } from '@/theme/theme'
 
@@ -130,7 +130,6 @@ export const ShapeShiftMenu = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const translate = useTranslate()
   const [isLargerThanXl] = useMediaQuery(`(min-width: ${breakpoints['xl']})`)
-
   const { handleMouseEnter, handleMouseLeave } = useHoverIntent(isOpen, onOpen, onClose)
 
   const handleFeedbackClick = useCallback((e: React.MouseEvent) => {

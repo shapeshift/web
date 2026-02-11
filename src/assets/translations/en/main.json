@@ -554,7 +554,8 @@
       "faq": "FAQ",
       "github": "GitHub",
       "discord": "Discord",
-      "twitter": "Twitter"
+      "twitter": "Twitter",
+      "feedback": "Feedback"
     }
   },
   "transactionRow": {
@@ -2802,6 +2803,7 @@
     "depositsDisabledDescription": "Deposits are temporarily unavailable for this yield opportunity.",
     "withdrawalsDisabled": "Withdrawals Disabled",
     "withdrawalsDisabledDescription": "Withdrawals are temporarily unavailable for this yield opportunity.",
+    "noActiveBalanceToExit": "No active balance available to unstake.",
     "noAvailableYields": "No yield opportunities available for your assets",
     "connectWalletAvailable": "Connect a wallet to see yields available for your assets",
     "aboutProvider": "About %{provider}",
@@ -2830,7 +2832,8 @@
     "potentialEarningsAmount": "%{amount}/yr at %{apy}% APY",
     "depositNow": "Deposit Now",
     "strategyInfo": "Strategy Info",
-    "overview": "Overview"
+    "overview": "Overview",
+    "readyToClaim": "Ready to claim"
   },
   "earn": {
     "enterFrom": "Enter from",

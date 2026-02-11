@@ -1,6 +1,13 @@
 import { useToast } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { cosmosChainId, ethChainId, fromAccountId, usdtAssetId } from '@shapeshiftoss/caip'
+import {
+  CHAIN_NAMESPACE,
+  cosmosChainId,
+  ethChainId,
+  fromAccountId,
+  fromChainId,
+  usdtAssetId,
+} from '@shapeshiftoss/caip'
 import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -20,7 +27,11 @@ import type { CosmosStakeArgs } from '@/lib/yieldxyz/executeTransaction'
 import { executeTransaction } from '@/lib/yieldxyz/executeTransaction'
 import type { ActionDto, AugmentedYieldDto, TransactionDto } from '@/lib/yieldxyz/types'
 import { ActionStatus as YieldActionStatus, TransactionStatus } from '@/lib/yieldxyz/types'
-import { formatYieldTxTitle, getDefaultValidatorForYield } from '@/lib/yieldxyz/utils'
+import {
+  formatYieldTxTitle,
+  getDefaultValidatorForYield,
+  resolveAssetSymbolForTx,
+} from '@/lib/yieldxyz/utils'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import { reactQueries } from '@/react-queries'
 import { useAllowance } from '@/react-queries/hooks/useAllowance'
@@ -178,6 +189,12 @@ export const useYieldTransactionFlow = ({
   const submitHashMutation = useSubmitYieldTransactionHash()
 
   const inputTokenAssetId = useMemo(() => yieldItem?.inputTokens?.[0]?.assetId, [yieldItem])
+  const outputTokenSymbol = yieldItem?.outputToken?.symbol
+
+  const resolveSymbolForTx = useCallback(
+    (txType?: string) => resolveAssetSymbolForTx(txType, action, assetSymbol, outputTokenSymbol),
+    [action, assetSymbol, outputTokenSymbol],
+  )
 
   const yieldChainId = yieldItem?.chainId
   const { accountId: contextAccountId, accountNumber: contextAccountNumber } = useYieldAccount()
@@ -353,8 +370,9 @@ export const useYieldTransactionFlow = ({
           .map((tx, i) => ({
             title: formatYieldTxTitle(
               tx.title || `Transaction ${i + 1}`,
-              assetSymbol,
+              resolveSymbolForTx(tx.type),
               yieldItem?.mechanics.type,
+              tx.type,
             ),
             originalTitle: tx.title || '',
             type: tx.type,
@@ -367,7 +385,7 @@ export const useYieldTransactionFlow = ({
   }, [
     transactionSteps,
     quoteData,
-    assetSymbol,
+    resolveSymbolForTx,
     yieldItem?.mechanics.type,
     isAllowanceCheckPending,
     isUsdtResetRequired,
@@ -447,7 +465,12 @@ export const useYieldTransactionFlow = ({
             accountId,
             message:
               typeMessagesMap[actionType] ??
-              formatYieldTxTitle(tx.title || 'Transaction', assetSymbol, yieldItem.mechanics.type),
+              formatYieldTxTitle(
+                tx.title || 'Transaction',
+                resolveSymbolForTx(tx.type),
+                yieldItem.mechanics.type,
+                tx.type,
+              ),
             amountCryptoPrecision: amount,
             contractName: yieldItem.metadata.name,
             chainName: yieldItem.network,
@@ -455,7 +478,7 @@ export const useYieldTransactionFlow = ({
         }),
       )
     },
-    [dispatch, yieldChainId, accountId, action, yieldItem, assetSymbol, amount],
+    [dispatch, yieldChainId, accountId, action, yieldItem, resolveSymbolForTx, amount],
   )
 
   const buildCosmosStakeArgs = useCallback((): CosmosStakeArgs | undefined => {
@@ -607,6 +630,12 @@ export const useYieldTransactionFlow = ({
           queryClient.removeQueries({ queryKey: ['yieldxyz', 'quote'] })
           setStep(ModalStep.Success)
         } else {
+          const { chainNamespace } = fromChainId(yieldChainId)
+          if (chainNamespace === CHAIN_NAMESPACE.Evm) {
+            const publicClient = assertGetViemClient(yieldChainId)
+            await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
+          }
+
           const confirmedAction = await waitForTransactionConfirmation(actionId, tx.id)
           const nextTx = confirmedAction.transactions.find(
             t => t.status === TransactionStatus.Created && t.stepIndex === yieldTxIndex + 1,
@@ -769,8 +798,9 @@ export const useYieldTransactionFlow = ({
         ...transactions.map((tx, i) => ({
           title: formatYieldTxTitle(
             tx.title || `Transaction ${i + 1}`,
-            assetSymbol,
+            resolveSymbolForTx(tx.type),
             yieldItem?.mechanics.type,
+            tx.type,
           ),
           originalTitle: tx.title || '',
           type: tx.type,
@@ -811,7 +841,7 @@ export const useYieldTransactionFlow = ({
     amount,
     quoteError,
     quoteData,
-    assetSymbol,
+    resolveSymbolForTx,
     translate,
     showErrorToast,
     yieldItem?.mechanics.type,

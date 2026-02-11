@@ -61,10 +61,15 @@ const TX_TYPE_TO_LABELS: Record<string, TxTypeLabels> = {
   SWAP: { staking: 'Swap', vault: 'Swap' },
   CLAIM: { staking: 'Claim', vault: 'Claim' },
   CLAIM_REWARDS: { staking: 'Claim', vault: 'Claim' },
+  CLAIM_UNSTAKED: { staking: 'Claim', vault: 'Claim' },
   TRANSFER: { staking: 'Transfer', vault: 'Transfer' },
 }
 
 type TerminologyKey = 'staking' | 'vault'
+
+const assertNever = (value: never): never => {
+  throw new Error(`Unhandled yield type: ${value}`)
+}
 
 export const isStakingYieldType = (yieldType: YieldType): boolean => {
   switch (yieldType) {
@@ -78,8 +83,7 @@ export const isStakingYieldType = (yieldType: YieldType): boolean => {
     case 'lending':
       return false
     default:
-      assertNever(yieldType)
-      return false
+      return assertNever(yieldType)
   }
 }
 
@@ -109,12 +113,32 @@ export const getTransactionButtonText = (
   return 'Confirm'
 }
 
+const APPROVAL_TX_TYPES = new Set(['APPROVAL', 'APPROVE'])
+
+export const resolveAssetSymbolForTx = (
+  txType: string | undefined,
+  action: 'enter' | 'exit' | 'manage',
+  assetSymbol: string,
+  outputTokenSymbol: string | undefined,
+): string => {
+  if (action !== 'exit' || !outputTokenSymbol || !txType) return assetSymbol
+  if (APPROVAL_TX_TYPES.has(txType.toUpperCase())) return outputTokenSymbol
+  return assetSymbol
+}
+
 export const formatYieldTxTitle = (
   title: string,
   assetSymbol: string,
   yieldType?: YieldType,
+  txType?: string,
 ): string => {
   const labelKey: TerminologyKey = yieldType && isStakingYieldType(yieldType) ? 'staking' : 'vault'
+
+  if (txType) {
+    const normalizedType = txType.toUpperCase().replace(/[_-]/g, '_')
+    const typeLabels = TX_TYPE_TO_LABELS[normalizedType]
+    if (typeLabels) return `${typeLabels[labelKey]} ${assetSymbol}`
+  }
 
   const normalized = title.replace(/ transaction$/i, '').toLowerCase()
   const match = TX_TITLE_PATTERNS.find(p => p.pattern.test(normalized))
@@ -207,10 +231,6 @@ export const ensureValidatorApr = (validator: ValidatorDto): ValidatorDto =>
 export type YieldActionLabelKeys = {
   enter: string
   exit: string
-}
-
-const assertNever = (value: never): never => {
-  throw new Error(`Unhandled yield type: ${value}`)
 }
 
 /**

@@ -3,6 +3,7 @@ import { ASSET_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { isNull, isUndefined } from 'lodash-es'
 
 export * from './assertUnreachable'
+export * from './encoding'
 export * from './assetData'
 export * from './baseUnits/baseUnits'
 export * from './basisPoints'

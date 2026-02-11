@@ -85,6 +85,66 @@ export const butterSwapApi: SwapperApi = {
       gasLimit: BigNumber.max(feeData.gasLimit, gasLimit).toFixed(),
     })
   },
+  getUnsignedUtxoTransaction: async ({
+    stepIndex,
+    tradeQuote,
+    xpub,
+    accountType,
+    assertGetUtxoChainAdapter,
+  }) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+    const { accountNumber, sellAsset, butterSwapTransactionMetadata } = step
+    if (!butterSwapTransactionMetadata) throw new Error('Transaction metadata is required')
+
+    const { to, memo } = butterSwapTransactionMetadata
+    if (!to) throw new Error('Missing deposit address')
+    if (!memo) throw new Error('Missing memo (opReturnData)')
+
+    const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
+
+    const { fast } = await adapter.getFeeData({
+      to,
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      chainSpecific: { pubkey: xpub, opReturnData: memo },
+      sendMax: false,
+    })
+
+    return adapter.buildSendApiTransaction({
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      xpub,
+      to,
+      accountNumber,
+      chainSpecific: {
+        accountType,
+        opReturnData: memo,
+        satoshiPerByte: fast.chainSpecific.satoshiPerByte,
+      },
+    })
+  },
+  getUtxoTransactionFees: async ({ stepIndex, tradeQuote, xpub, assertGetUtxoChainAdapter }) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+    const { sellAsset, butterSwapTransactionMetadata } = step
+    if (!butterSwapTransactionMetadata) throw new Error('Transaction metadata is required')
+
+    const { to, memo } = butterSwapTransactionMetadata
+    if (!to) throw new Error('Missing deposit address')
+    if (!memo) throw new Error('Missing memo (opReturnData)')
+
+    const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
+
+    const { fast } = await adapter.getFeeData({
+      to,
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      chainSpecific: { pubkey: xpub, opReturnData: memo },
+      sendMax: false,
+    })
+
+    return fast.txFee
+  },
   getUnsignedSolanaTransaction,
   getSolanaTransactionFees,
   getTronTransactionFees,

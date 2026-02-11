@@ -1,4 +1,4 @@
-import { btcAssetId, btcChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
+import { btcChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   bnOrZero,
@@ -64,16 +64,6 @@ export const getTradeQuote = async (
   }
 
   // TODO: Debug why same-chain Tron swaps revert (swapAndCall method works on EVM but 0 successful on Tron)
-
-  // Yes, this is supposed to be supported as per checks above, but currently, Butter doesn't yield any quotes for BTC sells
-  if (sellAsset.assetId === btcAssetId) {
-    return Err(
-      makeSwapErrorRight({
-        message: `BTC sells are currently unsupported`,
-        code: TradeQuoteError.UnsupportedChain,
-      }),
-    )
-  }
 
   if (!sendAddress) {
     return Err(
@@ -270,6 +260,7 @@ export const getTradeQuote = async (
       gasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
       method: buildTx.method,
       args: buildTx.args,
+      memo: buildTx.memo,
     },
     ...(solanaTransactionMetadata && {
       solanaTransactionMetadata,

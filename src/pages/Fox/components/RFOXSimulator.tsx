@@ -2,6 +2,7 @@ import type { FlexProps } from '@chakra-ui/react'
 import { Card, CardBody, Heading, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { usdcOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
+import { BigAmount as AmountLib } from '@shapeshiftoss/utils'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -10,7 +11,6 @@ import { RFOXSliders } from './RFOXSliders'
 import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { getStakingContract } from '@/pages/RFOX/helpers'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { useTotalStakedQuery } from '@/pages/RFOX/hooks/useGetTotalStaked'
@@ -48,7 +48,7 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
   const totalStakedCryptoResult = useTotalStakedQuery<string>({
     stakingAssetId,
     select: (totalStaked: bigint) => {
-      return bnOrZero(fromBaseUnit(totalStaked.toString(), stakingAsset?.precision ?? 0)).toFixed(2)
+      return AmountLib.fromBaseUnit(totalStaked.toString(), stakingAsset?.precision ?? 0).toFixed(2)
     },
   })
 

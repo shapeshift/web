@@ -1,6 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId, usdcOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
-import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
+import { BigAmount, bn } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
 import { getAddress } from 'viem'
 
@@ -54,14 +54,14 @@ export const useLifetimeRewardsUserCurrencyQuery = ({
         const epochRewardUserCurrency = (() => {
           // rFOX v3 updated rewards from rune to usdc
           if (epoch.number > 17) {
-            return bn(fromBaseUnit(distribution.amount, usdcAsset?.precision)).times(
-              usdcMarketData.price,
-            )
+            return BigAmount.fromBaseUnit(distribution.amount, usdcAsset?.precision ?? 0)
+              .times(usdcMarketData.price)
+              .toBN()
           }
 
-          return bn(fromBaseUnit(distribution.amount, runeAsset?.precision)).times(
-            runeMarketData.price,
-          )
+          return BigAmount.fromBaseUnit(distribution.amount, runeAsset?.precision ?? 0)
+            .times(runeMarketData.price)
+            .toBN()
         })()
 
         return acc.plus(epochRewardUserCurrency)

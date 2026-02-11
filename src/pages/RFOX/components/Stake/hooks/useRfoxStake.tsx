@@ -3,6 +3,7 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
@@ -18,7 +19,6 @@ import { useEvmFees } from '@/hooks/queries/useEvmFees'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
@@ -112,7 +112,10 @@ export const useRfoxStake = ({
   )
 
   const amountCryptoPrecision = useMemo(
-    () => (stakingAsset ? fromBaseUnit(amountCryptoBaseUnit, stakingAsset.precision) : undefined),
+    () =>
+      stakingAsset
+        ? BigAmount.fromBaseUnit(amountCryptoBaseUnit, stakingAsset.precision).toPrecision()
+        : undefined,
     [amountCryptoBaseUnit, stakingAsset],
   )
 
@@ -153,7 +156,10 @@ export const useRfoxStake = ({
     if (!allowanceDataCryptoBaseUnit) return
     if (!stakingAssetFeeAsset) return
 
-    return fromBaseUnit(allowanceDataCryptoBaseUnit, stakingAssetFeeAsset.precision)
+    return BigAmount.fromBaseUnit(
+      allowanceDataCryptoBaseUnit,
+      stakingAssetFeeAsset.precision,
+    ).toPrecision()
   }, [allowanceQuery.data, stakingAssetFeeAsset])
 
   const isApprovalRequired = useMemo(
@@ -354,7 +360,10 @@ export const useRfoxStake = ({
 
       if (!stakingAsset || !stakingAssetAccountId) return
 
-      const amountCryptoPrecision = fromBaseUnit(amountCryptoBaseUnit, stakingAsset.precision)
+      const amountCryptoPrecision = BigAmount.fromBaseUnit(
+        amountCryptoBaseUnit,
+        stakingAsset.precision,
+      ).toPrecision()
 
       dispatch(
         actionSlice.actions.upsertAction({

@@ -10,6 +10,7 @@ import {
   Skeleton,
   Stack,
 } from '@chakra-ui/react'
+import { BigAmount as AmountLib } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -25,7 +26,6 @@ import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -51,7 +51,11 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
   )
 
   const unstakingAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(confirmedQuote.unstakingAmountCryptoBaseUnit, stakingAsset?.precision ?? 0),
+    () =>
+      AmountLib.fromBaseUnit(
+        confirmedQuote.unstakingAmountCryptoBaseUnit,
+        stakingAsset?.precision ?? 0,
+      ).toPrecision(),
     [confirmedQuote.unstakingAmountCryptoBaseUnit, stakingAsset?.precision],
   )
 

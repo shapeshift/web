@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { bnOrZero } from '@shapeshiftoss/utils'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
 
 import { getStakingContract } from '../helpers'
@@ -10,7 +10,6 @@ import { useEpochHistoryQuery } from './useEpochHistoryQuery'
 import { useTotalStakedQuery } from './useGetTotalStaked'
 
 import { useFetchPriceHistories } from '@/hooks/useFetchPriceHistories/useFetchPriceHistories'
-import { fromBaseUnit } from '@/lib/math'
 import { selectAssetById, selectPriceHistoryByAssetTimeframe } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -64,17 +63,19 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
         stakingAssetPriceHistory.findLast(price => price.date <= latestEpoch.endTimestamp) ??
         stakingAssetPriceHistory[0]
 
-      const rewardDistributionUsd = bnOrZero(
-        fromBaseUnit(latestEpoch.totalRevenue, runeAsset.precision),
+      const rewardDistributionUsd = BigAmount.fromBaseUnit(
+        latestEpoch.totalRevenue,
+        runeAsset.precision,
       )
         .times(distributionRate)
         .times(closestRunePrice.price)
 
-      const totalStakedUsd = bnOrZero(
-        fromBaseUnit(totalStakedCryptoCurrencyQuery.data, stakingAsset.precision),
+      const totalStakedUsd = BigAmount.fromBaseUnit(
+        totalStakedCryptoCurrencyQuery.data,
+        stakingAsset.precision,
       ).times(closestStakingAssetPrice.price)
 
-      return rewardDistributionUsd.dividedBy(totalStakedUsd).times(12).toFixed(4)
+      return rewardDistributionUsd.div(totalStakedUsd.toString()).times(12).toFixed(4)
     },
     [
       runePriceHistory,

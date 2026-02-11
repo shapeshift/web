@@ -1,7 +1,7 @@
 import { VStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { fromBaseUnit } from '@shapeshiftoss/utils'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -52,9 +52,12 @@ export const AccountSelectorDialog = ({
         const cryptoBalance = bnOrZero(
           accountBalancesBaseUnit?.[accountId]?.[assetId]?.toBaseUnit() ?? 0,
         )
-        const fiatBalance = bnOrZero(fromBaseUnit(cryptoBalance, asset.precision ?? 0)).times(
-          marketData?.price ?? 0,
-        )
+        const fiatBalance = bnOrZero(
+          BigAmount.fromBaseUnit({
+            value: cryptoBalance,
+            precision: asset.precision ?? 0,
+          }).toPrecision(),
+        ).times(marketData?.price ?? 0)
 
         return {
           accountId,

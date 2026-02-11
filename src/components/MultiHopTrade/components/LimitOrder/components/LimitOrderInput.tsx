@@ -9,7 +9,7 @@ import {
   SwapperName,
 } from '@shapeshiftoss/swapper'
 import type { CowSwapError } from '@shapeshiftoss/types'
-import { BigNumber, bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
+import { BigAmount, BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -429,7 +429,10 @@ export const LimitOrderInput = ({
 
     const { feeAmount } = quoteResponse.quote
 
-    const feeAmountCryptoPrecision = fromBaseUnit(feeAmount, sellAsset.precision)
+    const feeAmountCryptoPrecision = BigAmount.fromBaseUnit({
+      value: feeAmount,
+      precision: sellAsset.precision,
+    }).toPrecision()
 
     return bn(feeAmountCryptoPrecision).div(sellAmountCryptoPrecision).toFixed(2)
   }, [

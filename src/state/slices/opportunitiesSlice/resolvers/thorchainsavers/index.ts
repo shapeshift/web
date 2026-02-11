@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
 import { thorPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
-import { isSome, toBaseUnit } from '@shapeshiftoss/utils'
+import { BigAmount, isSome } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
 import type {
@@ -222,7 +222,10 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
           return {
             underlyingAssetRatiosBaseUnit: [
               ...acc.underlyingAssetRatiosBaseUnit,
-              toBaseUnit(adjustedRatio.toFixed(), asset.precision),
+              BigAmount.fromPrecision({
+                value: adjustedRatio.toFixed(),
+                precision: asset.precision,
+              }).toBaseUnit(),
             ],
             underlyingAssetWeightPercentageDecimal: [
               ...acc.underlyingAssetWeightPercentageDecimal,

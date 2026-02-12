@@ -153,6 +153,14 @@
 - Memoize expensive computations with `useMemo`
 - Memoize callbacks with `useCallback`
 
+**BigAmount (Precision-Aware Numeric Type):**
+- See `docs/bigamount.md` for full API documentation
+- Use `BigAmount.fromBaseUnit({ value, precision })` for constructing from raw blockchain values (preferred, lossless)
+- Use `BigAmount.fromPrecision({ value, precision })` only when a precision-scale value is all that's available
+- Use `fromBaseUnit(bigAmount)` / `toBaseUnit(bigAmount)` from `@/lib/math` for string extraction in `src/`
+- Core selectors (`selectPortfolioCryptoBalanceByFilter`) return `BigAmount`
+- Never cast `as BigAmount` — fix types as needed
+
 **Wallet Integration:**
 - Wallets are managed via `WalletProvider` context
 - Each wallet has unique `walletId` (e.g., `metamask:0x123`, `ledger:ABC`)

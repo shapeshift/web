@@ -166,11 +166,11 @@ export const validateTradeQuote = (
   const firstHopSellAccountId = selectFirstHopSellAccountId(state)
   const secondHopSellAccountId = selectSecondHopSellAccountId(state)
 
-  const firstHopFeeAssetBalancePrecision = selectPortfolioCryptoBalanceByFilter(state, {
+  const firstHopFeeAssetBalance = selectPortfolioCryptoBalanceByFilter(state, {
     assetId: firstHopSellFeeAsset?.assetId,
     accountId: firstHopSellAccountId ?? '',
   })
-  const secondHopFeeAssetBalancePrecision = isMultiHopTrade
+  const secondHopFeeAssetBalance = isMultiHopTrade
     ? selectPortfolioCryptoBalanceByFilter(state, {
         assetId: secondHopSellFeeAsset?.assetId,
         accountId: secondHopSellAccountId ?? '',
@@ -204,16 +204,14 @@ export const validateTradeQuote = (
   const walletSupportsIntermediaryAssetChain =
     !isMultiHopTrade || walletConnectedChainIds.includes(firstHop?.buyAsset.chainId ?? '')
 
-  const firstHopHasSufficientBalanceForGas = bnOrZero(
-    firstHopFeeAssetBalancePrecision.toPrecision(),
-  )
+  const firstHopHasSufficientBalanceForGas = bnOrZero(firstHopFeeAssetBalance.toPrecision())
     .minus(firstHopNetworkFeeCryptoPrecision ?? 0)
     .minus(firstHopTradeDeductionCryptoPrecision ?? 0)
     .gte(0)
 
   const secondHopHasSufficientBalanceForGas =
     !isMultiHopTrade ||
-    bnOrZero(secondHopFeeAssetBalancePrecision?.toPrecision())
+    bnOrZero(secondHopFeeAssetBalance?.toPrecision())
       .minus(secondHopNetworkFeeCryptoPrecision ?? 0)
       .gte(0)
 

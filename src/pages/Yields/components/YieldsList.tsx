@@ -20,7 +20,6 @@ import {
   Text,
   useMediaQuery,
 } from '@chakra-ui/react'
-import { BigAmount } from '@shapeshiftoss/utils'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 import { memo, useCallback, useMemo, useState } from 'react'
@@ -209,13 +208,7 @@ export const YieldsList = memo(() => {
         if (minDeposit.gt(0)) {
           const asset = assets[assetId]
           if (!asset) return false
-          const baseBalance = bnOrZero(assetBalancesBaseUnit[assetId]?.toBaseUnit())
-          const balanceHuman = bnOrZero(
-            BigAmount.fromBaseUnit({
-              value: baseBalance,
-              precision: asset.precision,
-            }).toPrecision(),
-          )
+          const balanceHuman = bnOrZero(assetBalancesBaseUnit[assetId]?.toPrecision())
           if (balanceHuman.lt(minDeposit)) return false
         }
         return true

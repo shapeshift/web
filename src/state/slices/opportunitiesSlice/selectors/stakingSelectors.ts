@@ -594,15 +594,17 @@ export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
         return underlyingAssetIteratee
           ? {
               ...underlyingAssetIteratee,
-              cryptoBalancePrecision: bnOrZero(userStakingOpportunity.stakedAmountCryptoBaseUnit)
-                .times(
-                  BigAmount.fromBaseUnit({
-                    value: userStakingOpportunity.underlyingAssetRatiosBaseUnit[i],
-                    precision: underlyingAssetIteratee.precision,
-                  }).toPrecision() ?? '1',
-                )
-                .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
-                .toFixed(),
+              cryptoBalancePrecision: BigAmount.fromBaseUnit({
+                value: bnOrZero(userStakingOpportunity.stakedAmountCryptoBaseUnit)
+                  .times(
+                    BigAmount.fromBaseUnit({
+                      value: userStakingOpportunity.underlyingAssetRatiosBaseUnit[i],
+                      precision: underlyingAssetIteratee.precision,
+                    }).toPrecision() ?? '1',
+                  )
+                  .toFixed(0),
+                precision: asset?.precision ?? underlyingAsset?.precision ?? 1,
+              }).toPrecision(),
               icons: [underlyingAssetsIcons[i]],
               allocationPercentage:
                 userStakingOpportunity.underlyingAssetWeightPercentageDecimal?.[i] ??

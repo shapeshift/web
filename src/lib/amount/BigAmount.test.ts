@@ -1,5 +1,5 @@
 import { BigAmount, bn } from '@shapeshiftoss/utils'
-import { beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 describe('BigAmount', () => {
   // ── Construction ──────────────────────────────────
@@ -994,6 +994,112 @@ describe('BigAmount', () => {
     it('toUSD throws without assetId even when configured', () => {
       const amount = BigAmount.fromBaseUnit({ value: '100', precision: 8 })
       expect(() => amount.toUSD()).toThrow('requires assetId')
+    })
+  })
+
+  // ── div(0) behavior ───────────────────────────────
+
+  describe('div(0) behavior', () => {
+    it('produces non-finite result when dividing by zero', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '1000000000000000000', precision: 18 })
+      const result = amount.div(0)
+      expect(result.isFinite()).toBe(false)
+    })
+
+    it('produces non-finite result when dividing by empty string', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '1000000000000000000', precision: 18 })
+      const result = amount.div('')
+      expect(result.isFinite()).toBe(false)
+    })
+  })
+
+  // ── unconfigured state ────────────────────────────
+
+  describe('unconfigured state', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let savedConfig: any
+
+    beforeAll(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      savedConfig = (BigAmount as any).config
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(BigAmount as any).config = undefined
+    })
+
+    afterAll(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(BigAmount as any).config = savedConfig
+    })
+
+    it('throws when calling toUserCurrency without config', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const amount = BigAmount.fromBaseUnit({
+        value: '1000000',
+        precision: 6,
+        assetId: 'eip155:1/slip44:60' as any,
+      })
+      expect(() => amount.toUserCurrency()).toThrow('BigAmount: not configured')
+    })
+
+    it('throws when calling toUSD without config', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const amount = BigAmount.fromBaseUnit({
+        value: '1000000',
+        precision: 6,
+        assetId: 'eip155:1/slip44:60' as any,
+      })
+      expect(() => amount.toUSD()).toThrow('BigAmount: not configured')
+    })
+
+    it('throws when using assetId resolution without config', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(() =>
+        BigAmount.fromBaseUnit({ value: '1000000', assetId: 'eip155:1/slip44:60' as any }),
+      ).toThrow('BigAmount: not configured')
+    })
+
+    it('works fine with explicit precision when unconfigured', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '1000000', precision: 6 })
+      expect(amount.toPrecision()).toBe('1')
+    })
+  })
+
+  // ── negative precision ────────────────────────────
+
+  describe('negative precision', () => {
+    it('handles negative precision mathematically (multiplies instead of divides)', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '100', precision: -2 })
+      expect(amount.toPrecision()).toBe('10000')
+    })
+
+    it('round-trips with negative precision', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '100', precision: -2 })
+      expect(amount.toBaseUnit()).toBe('100')
+    })
+  })
+
+  // ── decimalPlaces edge cases ──────────────────────
+
+  describe('decimalPlaces edge cases', () => {
+    it('handles zero decimal places', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '1234567890', precision: 8 })
+      expect(amount.decimalPlaces(0).toPrecision()).toBe('12')
+    })
+
+    it('handles decimal places larger than precision', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '1234567890', precision: 8 })
+      expect(amount.decimalPlaces(20).toPrecision()).toBe('12.3456789')
+    })
+
+    it('handles dust amount with many leading zeros', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '1', precision: 18 })
+      expect(amount.decimalPlaces(18).toPrecision()).toBe('0.000000000000000001')
+      expect(amount.decimalPlaces(17).toPrecision()).toBe('0')
+    })
+
+    it('uses ROUND_HALF_UP by default', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '199999999', precision: 8 })
+      expect(amount.decimalPlaces(2).toPrecision()).toBe('2')
     })
   })
 })

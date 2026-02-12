@@ -35,7 +35,6 @@ import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { BigAmount, isToken } from '@shapeshiftoss/utils'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import BigNumber from 'bignumber.js'
 import type { JSX } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BiErrorCircle, BiSolidBoltCircle } from 'react-icons/bi'
@@ -629,9 +628,12 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
   const approvalAmountCryptoBaseUnit = useMemo(
     () =>
-      bnOrZero(isAllowanceResetRequired ? '0' : actualAssetDepositAmountCryptoPrecision)
-        .times(bn(10).pow(poolAsset?.precision ?? 0))
-        .toFixed(0, BigNumber.ROUND_UP),
+      BigAmount.fromPrecision({
+        value: bnOrZero(
+          isAllowanceResetRequired ? '0' : actualAssetDepositAmountCryptoPrecision,
+        ).toFixed(),
+        precision: poolAsset?.precision ?? 0,
+      }).toBaseUnit(),
     [actualAssetDepositAmountCryptoPrecision, isAllowanceResetRequired, poolAsset?.precision],
   )
 

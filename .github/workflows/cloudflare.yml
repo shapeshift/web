@@ -82,8 +82,6 @@ jobs:
       # a poor mans extension of cloudflare/pages-action@1 https://github.com/cloudflare/pages-action/blob/main/src/index.ts
       # passing more params directly to wrangler to control commit hash and message
       # https://developers.cloudflare.com/workers/wrangler/commands/#publish-1
-      - name: Remove sourcemaps before deploy
-        run: find build -name '*.map' -delete
       - name: Deploy
         run: npx -y wrangler@2 pages publish build --project-name="${{ env.PROJECT_NAME }}" --branch="${{ env.CURRENT_BRANCH_NAME }}" --commit-hash="${{ env.COMMIT_SHORT_HASH }}" --commit-message="${{ env.CURRENT_BRANCH_NAME }}-${{ env.COMMIT_SHORT_HASH }}"
       # deploy main branch to fleek.xyz alpha environment

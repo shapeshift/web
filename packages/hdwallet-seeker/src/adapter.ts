@@ -103,11 +103,22 @@ export class SeekerHDWallet implements HDWallet {
     return true
   }
 
-  describePath(_msg: DescribePath): PathDescription {
+  describePath(msg: DescribePath): PathDescription {
+    const coinType = msg.path && msg.path.length >= 2 ? msg.path[1] & 0x7fffffff : undefined
+
+    const chainMap: Record<number, { coin: string; verbose: string }> = {
+      501: { coin: 'Solana', verbose: 'Seeker Solana' },
+      397: { coin: 'NEAR', verbose: 'Seeker NEAR' },
+      784: { coin: 'SUI', verbose: 'Seeker SUI' },
+      607: { coin: 'TON', verbose: 'Seeker TON' },
+    }
+
+    const chain = coinType !== undefined ? chainMap[coinType] : undefined
+
     return {
       isKnown: false,
-      verbose: 'Seeker Solana',
-      coin: 'Solana',
+      verbose: chain?.verbose ?? 'Seeker',
+      coin: chain?.coin ?? 'Unknown',
     }
   }
 
@@ -293,20 +304,8 @@ export class SeekerHDWallet implements HDWallet {
     ]
   }
 
-  nearNextAccountPath(msg: NearAccountPath): NearAccountPath | undefined {
-    const addressNList = msg.addressNList
-    if (!addressNList || addressNList.length < 3) return undefined
-
-    const accountIdx = addressNList[2] & 0x7fffffff
-
-    if (accountIdx >= 0) {
-      return undefined
-    }
-
-    const nextAccountIdx = accountIdx + 1
-    return {
-      addressNList: [0x80000000 + 44, 0x80000000 + 397, 0x80000000 + nextAccountIdx],
-    }
+  nearNextAccountPath(_msg: NearAccountPath): NearAccountPath | undefined {
+    return undefined
   }
 
   async nearSignTx(msg: NearSignTx): Promise<NearSignedTx | null> {
@@ -314,6 +313,7 @@ export class SeekerHDWallet implements HDWallet {
     const txHashBase64 = txHash.toString('base64')
 
     const derivationPath = 'bip32:/' + nearAddressNListToBIP32(msg.addressNList)
+    const cacheKey = `${SeekerHDWallet.CACHE_VERSION}:${derivationPath}`
 
     const result = await this.messageHandler.signMessage(txHashBase64, derivationPath)
     if (!result.signature) {
@@ -323,11 +323,17 @@ export class SeekerHDWallet implements HDWallet {
     const signatureBytes = Buffer.from(result.signature, 'base64')
     const signature = signatureBytes.toString('hex')
 
-    const cachedPubkey = this.nearPubkeyCache.get(derivationPath) || this.pubkey
+    let nearPubkey = this.nearPubkeyCache.get(cacheKey)
+    if (!nearPubkey) {
+      const pubResult = await this.messageHandler.getPublicKey(derivationPath)
+      if (!pubResult.publicKey) throw new Error('Failed to get NEAR public key from Seed Vault')
+      nearPubkey = pubResult.publicKey
+      this.nearPubkeyCache.set(cacheKey, nearPubkey)
+    }
 
     return {
       signature,
-      publicKey: cachedPubkey,
+      publicKey: nearPubkey,
     }
   }
 
@@ -406,8 +412,14 @@ export class SeekerHDWallet implements HDWallet {
     const signature = signatureBytes.toString('hex')
 
     const cacheKey = `${SeekerHDWallet.CACHE_VERSION}:${derivationPath}`
-    const cachedPubkey = this.suiPubkeyCache.get(cacheKey) || this.pubkey
-    const publicKey = new SolanaPublicKey(cachedPubkey)
+    let suiPubkey = this.suiPubkeyCache.get(cacheKey)
+    if (!suiPubkey) {
+      const pubResult = await this.messageHandler.getPublicKey(derivationPath)
+      if (!pubResult.publicKey) throw new Error('Failed to get SUI public key from Seed Vault')
+      suiPubkey = pubResult.publicKey
+      this.suiPubkeyCache.set(cacheKey, suiPubkey)
+    }
+    const publicKey = new SolanaPublicKey(suiPubkey)
     const pubkeyBytes = publicKey.toBytes()
 
     if (pubkeyBytes.length !== 32) {
@@ -553,6 +565,11 @@ export class SeekerHDWallet implements HDWallet {
           const stateInitSlice = stateInitCell.beginParse()
           const hasCode = stateInitSlice.loadBit()
           const hasData = stateInitSlice.loadBit()
+          if (hasCode !== hasData) {
+            throw new Error(
+              `Malformed stateInit: hasCode=${hasCode}, hasData=${hasData} — expected both or neither`,
+            )
+          }
           if (hasCode && hasData) {
             init = {
               code: stateInitSlice.loadRef(),
@@ -576,7 +593,7 @@ export class SeekerHDWallet implements HDWallet {
         seqno,
         signer: seedVaultSigner,
         messages: internalMessages,
-        sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
+        sendMode: SendMode.PAY_GAS_SEPARATELY | SendMode.IGNORE_ERRORS,
         timeout: expireAt,
       })
 
@@ -686,7 +703,7 @@ export class SeekerHDWallet implements HDWallet {
       seqno,
       signer: seedVaultSigner,
       messages: [internalMessage],
-      sendMode: SendMode.PAY_GAS_SEPARATELY + SendMode.IGNORE_ERRORS,
+      sendMode: SendMode.PAY_GAS_SEPARATELY | SendMode.IGNORE_ERRORS,
       timeout: expireAt,
     })
 

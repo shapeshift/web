@@ -32,7 +32,6 @@
     "@shapeshiftoss/hdwallet-core": "workspace:^",
     "@solana/web3.js": "1.98.0",
     "@ton/core": "^0.62.1",
-    "@ton/crypto": "^3.3.0",
     "@ton/ton": "^16.1.0",
     "hash-wasm": "^4.11.0"
   }

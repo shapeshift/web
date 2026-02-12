@@ -87,7 +87,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
           chainSpecific: { gasPrice, gasLimit },
         } = feeDataEstimate.fast
 
-        const returVal = bnOrZero(bnOrZero(gasPrice).times(gasLimit)).toFixed(0)
+        const returVal = bnOrZero(gasPrice).times(gasLimit).toFixed(0)
         return returVal
       } catch (error) {
         console.error(error)

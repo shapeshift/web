@@ -44,7 +44,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   const withdrawalFee = useMemo(() => {
     return state?.withdraw.withdrawType === WithdrawType.INSTANT
-      ? bnOrZero(bn(state.withdraw.cryptoAmount).times(state.foxyFeePercentage)).toString()
+      ? bn(state.withdraw.cryptoAmount).times(state.foxyFeePercentage).toString()
       : '0'
   }, [state?.withdraw.withdrawType, state?.withdraw.cryptoAmount, state?.foxyFeePercentage])
 

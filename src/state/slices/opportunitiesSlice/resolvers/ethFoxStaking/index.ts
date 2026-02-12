@@ -78,8 +78,8 @@ export const ethFoxStakingMetadataResolver = async ({
   // Getting the ratio of the LP token for each asset
   const reserves = await uniV2LPContract.read.getReserves()
   const lpTotalSupply = (await uniV2LPContract.read.totalSupply()).toString()
-  const foxReserves = bnOrZero(bnOrZero(reserves[1].toString()).toString())
-  const ethReserves = bnOrZero(bnOrZero(reserves[0].toString()).toString())
+  const foxReserves = bnOrZero(reserves[1].toString())
+  const ethReserves = bnOrZero(reserves[0].toString())
   const ethPoolRatio = ethReserves.div(bnOrZero(lpTotalSupply)).toString()
   const foxPoolRatio = foxReserves.div(bnOrZero(lpTotalSupply)).toString()
 

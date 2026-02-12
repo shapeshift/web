@@ -109,7 +109,7 @@ export const Withdraw: React.FC<
             chainSpecific: { gasPrice, gasLimit },
           } = feeDataEstimate.fast
 
-          return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
+          return bn(gasPrice).times(gasLimit).toFixed(0)
         } catch (error) {
           console.error(error)
           toast({
@@ -142,7 +142,7 @@ export const Withdraw: React.FC<
             chainSpecific: { gasPrice, gasLimit },
           } = feeDataEstimate.fast
 
-          return bnOrZero(bn(gasPrice).times(gasLimit)).toFixed(0)
+          return bn(gasPrice).times(gasLimit).toFixed(0)
         } catch (error) {
           console.error(error)
           const fundsError =

@@ -700,7 +700,7 @@ export const selectAccountIdsByAssetIdAboveBalanceThreshold = createCachedSelect
         if (accounts.includes(accountId)) {
           const totalAccountUserCurrencyBalance = Object.values(balanceObj ?? {}).reduce(
             (totalBalance, currentBalance) => {
-              return bnOrZero(bn(totalBalance).plus(bnOrZero(currentBalance)))
+              return bn(totalBalance).plus(bnOrZero(currentBalance))
             },
             bnOrZero('0'),
           )

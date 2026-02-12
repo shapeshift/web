@@ -32,7 +32,7 @@ import { PercentOptionsButtonGroup } from '@/components/DeFi/components/PercentO
 import { Display } from '@/components/Display'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
@@ -219,7 +219,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     const setValue = methods?.setValue ?? _methods.setValue
 
     // Lower the decimal places when the integer is greater than 8 significant digits for better UI
-    const cryptoAmountIntegerCount = bnOrZero(bnOrZero(cryptoAmount).toFixed(0)).precision(true)
+    const cryptoAmountIntegerCount = bn(bnOrZero(cryptoAmount).toFixed(0)).precision(true)
     const formattedCryptoAmount = useMemo(
       () =>
         bnOrZero(cryptoAmountIntegerCount).isLessThanOrEqualTo(8)

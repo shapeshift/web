@@ -324,8 +324,9 @@ export type YieldSuccessMessageKey =
 
 export const getYieldSuccessMessageKey = (
   yieldType: YieldType,
-  action: 'enter' | 'exit' | 'claim' | 'manage',
+  action: 'enter' | 'exit' | 'claim' | 'manage' | 'withdraw',
 ): YieldSuccessMessageKey => {
+  if (action === 'withdraw') return 'successWithdrawn'
   if (action === 'claim' || action === 'manage') return 'successClaim'
 
   switch (yieldType) {

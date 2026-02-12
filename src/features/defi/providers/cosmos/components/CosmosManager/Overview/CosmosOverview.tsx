@@ -2,6 +2,7 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useEffect, useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -19,7 +20,6 @@ import type {
 import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { useGetAssetDescriptionQuery } from '@/state/slices/assetsSlice/assetsSlice'
 import {
   getDefaultValidatorAddressFromChainId,
@@ -135,7 +135,10 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
   )
   const cryptoAmountAvailable = bnOrZero(
-    fromBaseUnit(totalBondings.toFixed(0), stakingAsset.precision),
+    BigAmount.fromBaseUnit({
+      value: totalBondings.toFixed(0),
+      precision: stakingAsset.precision,
+    }).toPrecision(),
   )
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(bnOrZero(marketData?.price))
 

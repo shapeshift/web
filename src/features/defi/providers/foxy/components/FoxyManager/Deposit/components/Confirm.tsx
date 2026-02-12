@@ -25,7 +25,6 @@ import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { usePoll } from '@/hooks/usePoll/usePoll'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { toBaseUnit } from '@/lib/math'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import {
   selectBip44ParamsByAccountId,
@@ -89,7 +88,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         throw new Error(`handleDeposit: wallet does not support ethereum`)
 
       const txid = await foxyApi.deposit({
-        amountDesired: bnOrZero(toBaseUnit(state?.deposit.cryptoAmount ?? '0', asset.precision)),
+        amountDesired: bnOrZero(
+          BigAmount.fromPrecision({
+            value: state?.deposit.cryptoAmount ?? '0',
+            precision: asset.precision,
+          }).toBaseUnit(),
+        ),
         tokenContractAddress: assetReference,
         userAddress: accountAddress,
         contractAddress,

@@ -7,6 +7,7 @@ import type {
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { ethers } from 'ethers'
 
 import type { MarketService } from '../api'
@@ -14,7 +15,6 @@ import { CoinGeckoMarketService } from '../coingecko/coingecko'
 import type { ProviderUrls } from '../market-service-manager'
 
 import { foxyAddresses, FoxyApi } from '@/lib/investor/investor-foxy'
-import { fromBaseUnit } from '@/lib/math'
 
 export const FOXY_ASSET_ID = 'eip155:1/erc20:0xDc49108ce5C57bc3408c3A5E95F3d864eC386Ed3'
 const FOX_ASSET_ID = 'eip155:1/erc20:0xc770eefad204b5180df6a14ee197d99d808ee52d'
@@ -96,10 +96,16 @@ export class FoxyMarketService extends CoinGeckoMarketService implements MarketS
         changePercent24Hr: coinGeckoData.changePercent24Hr,
         volume: '0', // TODO: add volume once able to get foxy volume data
         supply: supply
-          ? fromBaseUnit(supply.toFixed(0), Number(FOXY_ASSET_PRECISION))
+          ? BigAmount.fromBaseUnit({
+              value: supply.toFixed(0),
+              precision: Number(FOXY_ASSET_PRECISION),
+            }).toPrecision()
           : undefined,
         maxSupply: foxyTotalSupply
-          ? fromBaseUnit(foxyTotalSupply.toFixed(0), Number(FOXY_ASSET_PRECISION))
+          ? BigAmount.fromBaseUnit({
+              value: foxyTotalSupply.toFixed(0),
+              precision: Number(FOXY_ASSET_PRECISION),
+            }).toPrecision()
           : undefined,
       }
     } catch (e) {

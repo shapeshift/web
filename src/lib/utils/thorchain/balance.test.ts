@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import {
+  getHasEnoughBalanceForTxPlusFees,
+  getHasEnoughBalanceForTxPlusFeesPlusSweep,
+} from './balance'
+
 vi.mock('@/context/QueryClientProvider/queryClient', () => ({ queryClient: {} }))
 vi.mock('@/pages/Lending/hooks/useGetEstimatedFeesQuery', () => ({ queryFn: vi.fn() }))
 vi.mock('@/pages/Lending/hooks/useIsSweepNeededQuery', () => ({
@@ -20,11 +25,6 @@ vi.mock('./hooks/useGetThorchainSaversDepositQuoteQuery', () => ({
 vi.mock('./hooks/useGetThorchainSaversWithdrawQuoteQuery', () => ({
   fetchThorchainWithdrawQuote: vi.fn(),
 }))
-
-import {
-  getHasEnoughBalanceForTxPlusFees,
-  getHasEnoughBalanceForTxPlusFeesPlusSweep,
-} from './balance'
 
 describe('getHasEnoughBalanceForTxPlusFees', () => {
   const precision = 8

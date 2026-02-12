@@ -4,10 +4,11 @@ import type { FC } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { BigAmount } from '@shapeshiftoss/utils'
+
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
-import { fromBaseUnit } from '@/lib/math'
 import type { TransactionParams } from '@/plugins/walletConnectToDapps/types'
 import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -33,7 +34,7 @@ export const SendTransactionContent: FC<SendTransactionContentProps> = ({
   const sendAmountCryptoPrecision = useMemo(() => {
     if (!transaction.value || !feeAsset) return '0'
 
-    return fromBaseUnit(transaction.value, feeAsset.precision)
+    return BigAmount.fromBaseUnit({ value: transaction.value, precision: feeAsset.precision }).toPrecision()
   }, [transaction.value, feeAsset])
 
   const isZeroValue = sendAmountCryptoPrecision === '0'

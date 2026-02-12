@@ -52,7 +52,6 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 import type { BigNumber, BN } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { isMobile } from '@/lib/globals'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import type { AnonymizedPortfolio } from '@/lib/mixpanel/types'
 import { hashCode, isSome } from '@/lib/utils'
@@ -311,7 +310,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
           const price = marketData[assetId]?.price
           const assetUserCurrencyBalance = balance.times(price)
           if (assetUserCurrencyBalance.lt(balanceThresholdUserCurrency)) return acc
-          acc[assetId] = toBaseUnit(balance)
+          acc[assetId] = balance.toBaseUnit()
           return acc
         },
         {},
@@ -441,7 +440,7 @@ export const selectPortfolioAccountsHumanBalances = createDeepEqualOutputSelecto
         acc[accountId] = Object.entries(account).reduce<AssetBalancesById>(
           (innerAcc, [assetId, balance]) => {
             const asset = assets[assetId]
-            if (asset) innerAcc[assetId] = fromBaseUnit(balance)
+            if (asset) innerAcc[assetId] = balance.toPrecision()
             return innerAcc
           },
           {},
@@ -1125,7 +1124,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
         portfolioUserCurrencyBalances?.[accountId]?.[assetId],
       ).toString()
       const balance = portfolioCryptoBalances[accountId]?.[assetId]
-      const amountCryptoPrecision = balance ? fromBaseUnit(balance) : '0'
+      const amountCryptoPrecision = balance ? balance.toPrecision() : '0'
       return {
         id: accountId,
         type: AssetEquityType.Account,

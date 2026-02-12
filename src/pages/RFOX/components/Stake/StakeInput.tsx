@@ -8,7 +8,7 @@ import {
   uniV2EthFoxArbitrumAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
-import { getChainShortName, isSome } from '@shapeshiftoss/utils'
+import { BigAmount, getChainShortName, isSome } from '@shapeshiftoss/utils'
 import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
@@ -37,7 +37,6 @@ import { useToggle } from '@/hooks/useToggle/useToggle'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
 import { supportedStakingAssetIds, useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
@@ -152,11 +151,9 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     }),
     [selectedAssetAccountId, selectedStakingAssetId],
   )
-  const selectedStakingAssetBalanceCryptoPrecision = fromBaseUnit(
-    useAppSelector(state =>
-      selectPortfolioCryptoBalanceByFilter(state, selectedStakingAssetBalanceFilter),
-    ),
-  )
+  const selectedStakingAssetBalanceCryptoPrecision = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, selectedStakingAssetBalanceFilter),
+  ).toPrecision()
   const selectedStakingAssetFeeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, fromAssetId(selectedStakingAssetId).chainId),
   )
@@ -190,7 +187,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   const amountCryptoBaseUnit = useMemo(
     () =>
-      toBaseUnit(amountCryptoPrecision, selectedStakingAsset?.precision ?? 0),
+      BigAmount.fromPrecision({
+        value: amountCryptoPrecision,
+        precision: selectedStakingAsset?.precision ?? 0,
+      }).toBaseUnit(),
     [amountCryptoPrecision, selectedStakingAsset?.precision],
   )
 
@@ -281,7 +281,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     const _confirmedQuote = {
       stakingAssetAccountId,
       stakingAssetId,
-      stakingAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, selectedStakingAsset.precision),
+      stakingAmountCryptoBaseUnit: BigAmount.fromPrecision({
+        value: amountCryptoPrecision,
+        precision: selectedStakingAsset.precision,
+      }).toBaseUnit(),
     }
 
     setConfirmedQuote(_confirmedQuote)
@@ -290,7 +293,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       const bridgeQuote: RfoxBridgeQuote = {
         sellAssetId: selectedStakingAssetId,
         buyAssetId: stakingAssetId,
-        bridgeAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, selectedStakingAsset.precision),
+        bridgeAmountCryptoBaseUnit: BigAmount.fromPrecision({
+          value: amountCryptoPrecision,
+          precision: selectedStakingAsset.precision,
+        }).toBaseUnit(),
         sellAssetAccountId: selectedAssetAccountId,
         buyAssetAccountId: stakingAssetAccountId,
       }
@@ -366,7 +372,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       const fees = approvalFees || stakeFees
 
       const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
-        toBaseUnit(stakingAssetFeeAssetBalance),
+        stakingAssetFeeAssetBalance.toBaseUnit(),
       )
 
       if (!hasEnoughFeeBalance) return false

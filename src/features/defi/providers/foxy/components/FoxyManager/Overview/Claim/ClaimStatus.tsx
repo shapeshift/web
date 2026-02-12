@@ -2,6 +2,7 @@ import { Box, Button, Center, Link, ModalBody, ModalFooter, Stack } from '@chakr
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { TransactionReceipt, TransactionReceiptParams } from 'ethers'
 import isNil from 'lodash/isNil'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -22,7 +23,6 @@ import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { usePoll } from '@/hooks/usePoll/usePoll'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import { opportunitiesApi } from '@/state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import { DefiProvider, DefiType } from '@/state/slices/opportunitiesSlice/types'
@@ -219,7 +219,10 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
             <Row.Label>{translate('defi.modals.claim.claimAmount')}</Row.Label>
             <Row.Value>
               <Amount.Crypto
-                value={fromBaseUnit(amount ?? '0', asset.precision)}
+                value={BigAmount.fromBaseUnit({
+                  value: amount ?? '0',
+                  precision: asset.precision,
+                }).toPrecision()}
                 symbol={asset?.symbol}
               />
             </Row.Value>
@@ -251,9 +254,13 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
                 <Amount.Fiat
                   fontWeight='bold'
                   value={bnOrZero(
-                    fromBaseUnit((state.txStatus === TxStatus.Pending
-                            ? estimatedGas
-                            : state.usedGasFeeCryptoBaseUnit) ?? '0', feeAsset.precision),
+                    BigAmount.fromBaseUnit({
+                      value:
+                        (state.txStatus === TxStatus.Pending
+                          ? estimatedGas
+                          : state.usedGasFeeCryptoBaseUnit) ?? '0',
+                      precision: feeAsset.precision,
+                    }).toPrecision(),
                   )
                     .times(bnOrZero(feeMarketData?.price))
                     .toFixed(2)}
@@ -261,9 +268,13 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({ accountId }) => {
                 <Amount.Crypto
                   color='text.subtle'
                   value={bnOrZero(
-                    fromBaseUnit((state.txStatus === TxStatus.Pending
-                            ? estimatedGas
-                            : state.usedGasFeeCryptoBaseUnit) ?? '0', feeAsset.precision),
+                    BigAmount.fromBaseUnit({
+                      value:
+                        (state.txStatus === TxStatus.Pending
+                          ? estimatedGas
+                          : state.usedGasFeeCryptoBaseUnit) ?? '0',
+                      precision: feeAsset.precision,
+                    }).toPrecision(),
                   ).toFixed(5)}
                   symbol='ETH'
                 />

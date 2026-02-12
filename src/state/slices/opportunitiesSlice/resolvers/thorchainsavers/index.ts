@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
 import { thorPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
-import { isSome } from '@shapeshiftoss/utils'
+import { BigAmount, isSome } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
 import type {
@@ -31,7 +31,6 @@ import { getMidgardPools, getThorchainSaversPosition } from './utils'
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { toBaseUnit } from '@/lib/math'
 import { fromThorBaseUnit } from '@/lib/utils/thorchain'
 import {
   selectLiquidityLockupTime,
@@ -131,7 +130,10 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       .times(bnOrZero(marketData?.price))
       .toFixed()
 
-    const underlyingAssetRatioBaseUnit = toBaseUnit('1', asset.precision)
+    const underlyingAssetRatioBaseUnit = BigAmount.fromPrecision({
+      value: '1',
+      precision: asset.precision,
+    }).toBaseUnit()
     stakingOpportunitiesById[opportunityId] = {
       apy,
       assetId,
@@ -223,7 +225,10 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
           return {
             underlyingAssetRatiosBaseUnit: [
               ...acc.underlyingAssetRatiosBaseUnit,
-              toBaseUnit(adjustedRatio.toFixed(), asset.precision),
+              BigAmount.fromPrecision({
+                value: adjustedRatio.toFixed(),
+                precision: asset.precision,
+              }).toBaseUnit(),
             ],
             underlyingAssetWeightPercentageDecimal: [
               ...acc.underlyingAssetWeightPercentageDecimal,
@@ -319,11 +324,17 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
       const { asset_deposit_value, asset_redeem_value, asset_address } = accountPosition
 
       const stakedAmountCryptoBaseUnit = bn(
-        toBaseUnit(fromThorBaseUnit(asset_deposit_value).toFixed(), asset.precision),
+        BigAmount.fromPrecision({
+          value: fromThorBaseUnit(asset_deposit_value).toFixed(),
+          precision: asset.precision,
+        }).toBaseUnit(),
       ) // to actual asset precision base unit
 
       const stakedAmountCryptoBaseUnitIncludeRewards = bn(
-        toBaseUnit(fromThorBaseUnit(asset_redeem_value).toFixed(), asset.precision),
+        BigAmount.fromPrecision({
+          value: fromThorBaseUnit(asset_redeem_value).toFixed(),
+          precision: asset.precision,
+        }).toBaseUnit(),
       ) // to actual asset precision base unit
 
       const rewardsAmountsCryptoBaseUnit: [string] = [

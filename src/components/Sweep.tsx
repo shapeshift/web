@@ -2,6 +2,7 @@ import { Box, Button, Divider, Flex, Skeleton, Stack, Text as CText } from '@cha
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -11,7 +12,6 @@ import { handleSend } from './Modals/Send/utils'
 
 import { Row } from '@/components/Row/Row'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { fromBaseUnit } from '@/lib/math'
 import { sleep } from '@/lib/poll/poll'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { useGetEstimatedFeesQuery } from '@/pages/Lending/hooks/useGetEstimatedFeesQuery'
@@ -200,7 +200,10 @@ export const Sweep = ({
                   <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
                   <Amount.Crypto
                     color='text.subtle'
-                    value={fromBaseUnit(estimatedFeesData?.txFeeCryptoBaseUnit ?? '0', asset.precision)}
+                    value={BigAmount.fromBaseUnit({
+                      value: estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
+                      precision: asset.precision,
+                    }).toPrecision()}
                     symbol={asset.symbol}
                   />
                 </Box>

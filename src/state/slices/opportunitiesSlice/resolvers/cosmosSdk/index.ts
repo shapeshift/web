@@ -17,7 +17,6 @@ import type {
 } from '../types'
 import { makeAccountUserData, makeUniqueValidatorAccountIds } from './utils'
 
-import { toBaseUnit } from '@/lib/math'
 import { isFulfilled, isRejected, isSome } from '@/lib/utils'
 import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
@@ -103,7 +102,10 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
         if (!asset) throw new Error(`No asset found for AssetId: ${assetId}`)
         const marketData = selectMarketDataByAssetIdUserCurrency(state, assetId)
 
-        const underlyingAssetRatioBaseUnit = toBaseUnit('1', asset.precision)
+        const underlyingAssetRatioBaseUnit = BigAmount.fromPrecision({
+          value: '1',
+          precision: asset.precision,
+        }).toBaseUnit()
 
         const cosmostationChainName = (() => {
           switch (chainId) {

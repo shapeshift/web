@@ -2,7 +2,6 @@ import { Button, Link, Skeleton, SkeletonText, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -131,7 +130,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           gas: gasLimit,
           fee: txFee,
         },
-        value: toBaseUnit(claimAmount, asset.precision),
+        value: BigAmount.fromPrecision({
+          value: claimAmount,
+          precision: asset.precision,
+        }).toBaseUnit(),
         action: StakingAction.Claim,
       })
       dispatch({ type: CosmosClaimActionType.SET_TXID, payload: broadcastTxId ?? null })
@@ -190,7 +192,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           <Amount.Crypto
             fontSize='3xl'
             fontWeight='medium'
-            value={fromBaseUnit(claimAmount, asset.precision)}
+            value={BigAmount.fromBaseUnit({
+              value: claimAmount,
+              precision: asset.precision,
+            }).toPrecision()}
             symbol={asset.symbol}
           />
         </Stack>

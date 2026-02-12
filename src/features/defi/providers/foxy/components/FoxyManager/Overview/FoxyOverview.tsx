@@ -2,6 +2,7 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import { useEffect, useMemo, useState } from 'react'
 import { FaGift } from 'react-icons/fa'
@@ -21,7 +22,6 @@ import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCom
 import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import { useGetAssetDescriptionQuery } from '@/state/slices/assetsSlice/assetsSlice'
 import type { StakingId } from '@/state/slices/opportunitiesSlice/types'
@@ -120,7 +120,10 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
     selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
   )
   const cryptoAmountAvailablePrecision = bnOrZero(
-    fromBaseUnit(foxyEarnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0', stakingAsset?.precision ?? 0),
+    BigAmount.fromBaseUnit({
+      value: foxyEarnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
+      precision: stakingAsset?.precision ?? 0,
+    }).toPrecision(),
   )
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailablePrecision).times(
     bnOrZero(marketData?.price),

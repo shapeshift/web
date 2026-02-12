@@ -15,11 +15,12 @@ import { useMemo } from 'react'
 import { excludeTransaction } from './cosmosUtils'
 import { CHART_ASSET_ID_BLACKLIST, makeBalanceChartData } from './utils'
 
+import { BigAmount } from '@shapeshiftoss/utils'
+
 import { useFetchPriceHistories } from '@/hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { priceAtDate } from '@/lib/charts'
 import type { SupportedFiatCurrencies } from '@/lib/market-service'
-import { fromBaseUnit } from '@/lib/math'
 import type { PriceHistoryData } from '@/state/slices/marketDataSlice/types'
 import type { AssetBalancesById } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -185,7 +186,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
     if (!assets[assetId]) continue
     const price = priceAtDate({ priceHistoryData, date })
     balanceAtBucket[assetId] = bnOrZero(
-      fromBaseUnit(assetCryptoBalance.toFixed(0), assets[assetId]?.precision ?? 0),
+      BigAmount.fromBaseUnit({ value: assetCryptoBalance.toFixed(0), precision: assets[assetId]?.precision ?? 0 }).toPrecision(),
     ).times(price)
     // dont unnecessarily multiply again
     if (!isUSD) balanceAtBucket[assetId] = balanceAtBucket[assetId].times(fiatToUsdRate)

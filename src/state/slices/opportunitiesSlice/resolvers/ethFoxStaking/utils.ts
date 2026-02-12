@@ -1,8 +1,8 @@
 import type { FoxEthStakingContract, FoxEthStakingContractAbi } from '@shapeshiftoss/contracts'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { memoize } from 'lodash'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { toBaseUnit } from '@/lib/math'
 
 export const makeTotalLpApr = (foxRewardRatePerToken: string, foxEquivalentPerLPToken: string) =>
   bnOrZero(foxRewardRatePerToken) // Fox Rewards per second for 1 staked LP token
@@ -38,7 +38,10 @@ export const rewardRatePerToken = memoize(
     try {
       const rewardRate = await getRewardsRate(farmingRewardsContract)
       const totalSupply = await getTotalLpSupply(farmingRewardsContract)
-      return toBaseUnit(bnOrZero(rewardRate.toString()).div(totalSupply).toFixed(), 18)
+      return BigAmount.fromPrecision({
+        value: bnOrZero(rewardRate.toString()).div(totalSupply).toFixed(),
+        precision: 18,
+      }).toBaseUnit()
     } catch (error) {
       console.error(error)
       const errorMsg = 'rewardRatePerToken error'

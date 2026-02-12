@@ -1,7 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
-import { fromBaseUnit } from '@/lib/math'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -139,7 +138,10 @@ export const Deposit: React.FC<DepositProps> = ({
         try {
           const fees = await getStakeFees(deposit.cryptoAmount)
           if (!fees) return
-          return fromBaseUnit(fees.networkFeeCryptoBaseUnit, feeAsset.precision)
+          return BigAmount.fromBaseUnit({
+            value: fees.networkFeeCryptoBaseUnit,
+            precision: feeAsset.precision,
+          }).toPrecision()
         } catch (error) {
           console.error(error)
           toast({
@@ -189,7 +191,10 @@ export const Deposit: React.FC<DepositProps> = ({
           dispatch({
             type: FoxFarmingDepositActionType.SET_APPROVE,
             payload: {
-              estimatedGasCryptoPrecision: fromBaseUnit(fees.networkFeeCryptoBaseUnit, feeAsset.precision),
+              estimatedGasCryptoPrecision: BigAmount.fromBaseUnit({
+                value: fees.networkFeeCryptoBaseUnit,
+                precision: feeAsset.precision,
+              }).toPrecision(),
             },
           })
           dispatch({ type: FoxFarmingDepositActionType.SET_LOADING, payload: false })

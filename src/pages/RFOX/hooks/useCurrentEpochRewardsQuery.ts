@@ -1,6 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, usdcOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
-import { bn } from '@shapeshiftoss/utils'
+import { BigAmount, bn } from '@shapeshiftoss/utils'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQueries } from '@tanstack/react-query'
 import { useCallback } from 'react'
@@ -16,7 +16,6 @@ import {
 import { getEarnedQueryFn, getEarnedQueryKey } from './useEarnedQuery'
 import { fetchEpochHistory, getEpochHistoryQueryKey } from './useEpochHistoryQuery'
 
-import { toBaseUnit } from '@/lib/math'
 import { mergeQueryOutputs } from '@/react-queries/helpers'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -85,7 +84,10 @@ export const useCurrentEpochRewardsQuery = ({
 
         const rewardUnits = currentEpochRewardUnits - previousEpochRewardUnits
 
-        const affiliateRevenueUsdcBaseUnit = toBaseUnit(bn(affiliateRevenueUsd).div(usdcMarketData.price), usdcAsset.precision)
+        const affiliateRevenueUsdcBaseUnit = BigAmount.fromPrecision({
+          value: bn(affiliateRevenueUsd).div(usdcMarketData.price),
+          precision: usdcAsset.precision,
+        }).toBaseUnit()
 
         return calcEpochRewardForAccountUsdcBaseUnit(
           rewardUnits,

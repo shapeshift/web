@@ -2,6 +2,7 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, ButtonGroup, HStack, Link, Progress, Stack } from '@chakra-ui/react'
 import type { Order } from '@shapeshiftoss/types'
 import { OrderStatus } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -13,7 +14,6 @@ import { RawText } from '@/components/Text'
 import { TransactionDate } from '@/components/TransactionHistoryRows/TransactionDate'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import type { LimitOrderAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
 
@@ -46,7 +46,10 @@ export const LimitOrderDetails = ({ order, action, onCancelOrder }: LimitOrderDe
   const executedBuyAmountCryptoPrecision = useMemo(
     () =>
       executedBuyAmountCryptoBaseUnit
-        ? fromBaseUnit(executedBuyAmountCryptoBaseUnit, buyAsset?.precision ?? 0)
+        ? BigAmount.fromBaseUnit({
+            value: executedBuyAmountCryptoBaseUnit,
+            precision: buyAsset?.precision ?? 0,
+          }).toPrecision()
         : '0',
     [executedBuyAmountCryptoBaseUnit, buyAsset?.precision],
   )
@@ -54,7 +57,10 @@ export const LimitOrderDetails = ({ order, action, onCancelOrder }: LimitOrderDe
   const executedSellAmountCryptoPrecision = useMemo(
     () =>
       executedSellAmountCryptoBaseUnit
-        ? fromBaseUnit(executedSellAmountCryptoBaseUnit, sellAsset?.precision ?? 0)
+        ? BigAmount.fromBaseUnit({
+            value: executedSellAmountCryptoBaseUnit,
+            precision: sellAsset?.precision ?? 0,
+          }).toPrecision()
         : '0',
     [executedSellAmountCryptoBaseUnit, sellAsset?.precision],
   )

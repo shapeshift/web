@@ -12,7 +12,6 @@ import { GasSelectionMenu } from './GasSelectionMenu'
 import { Amount } from '@/components/Amount/Amount'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
-import { fromBaseUnit } from '@/lib/math'
 import { useSimulateEvmTransaction } from '@/plugins/walletConnectToDapps/hooks/useSimulateEvmTransaction'
 import type { CustomTransactionData, TransactionParams } from '@/plugins/walletConnectToDapps/types'
 import {
@@ -38,11 +37,9 @@ const WalletConnectSigningWithSection: React.FC<WalletConnectSigningWithSectionP
   const feeAssetId = useAppSelector(state => selectFeeAssetByChainId(state, chainId)?.assetId)
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
 
-  const feeAssetBalanceCryptoPrecision = fromBaseUnit(
-    useAppSelector(state =>
-      selectPortfolioCryptoBalanceByFilter(state, { assetId: feeAssetId, accountId }),
-    ),
-  )
+  const feeAssetBalanceCryptoPrecision = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, { assetId: feeAssetId, accountId }),
+  ).toPrecision()
 
   const feeAssetBalanceUserCurrency = useAppSelector(state =>
     selectPortfolioUserCurrencyBalanceByFilter(state, { assetId: feeAssetId, accountId }),

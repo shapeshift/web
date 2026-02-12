@@ -1,215 +1,363 @@
-# Phase 3: Eliminate bnOrZero ceremony — widen BigAmount types & flow
+# Phase 4: Eliminate fromBaseUnit/toBaseUnit aliases, tests, JSDoc, vernacular, docs
 
-## Status: COMPLETE (safe tiers)
-
-Tiers 1, 2, and 3A completed. bnOrZero calls reduced from 1,330 → 1,221 (~109 removed).
-Remaining calls are legitimate BN chain starters on nullable values, contract BigInt
-conversions, or reduce accumulators in pure BN chains.
+## Status: NOT STARTED
 
 ## Context
 
-Phases 1-2 are complete. The codebase still has **1,330 `bnOrZero()` calls** across 275 files.
-After deep analysis, many are pure ceremony caused by BigAmount's type signatures being
-narrower than its runtime behavior. BigAmount methods already call `bnOrZero()` internally
-but their type signatures only accept `BigNumber.Value` (no `null | undefined`).
+Phases 1-3 are complete. The codebase has `fromBaseUnit`/`toBaseUnit` aliases in `src/lib/math.ts`
+with two overloads each (BigAmount and positional args). Decision: **eliminate both aliases entirely**.
+Callers use `.toPrecision()`/`.toBaseUnit()` directly on BigAmount. Push BigAmount upstream where
+natural, construct inline elsewhere.
 
-## Tier 1: Widen BigAmount scalar types (zero runtime change)
+**Call site counts:**
+- `fromBaseUnit` — 137 files, 435 calls (325 positional, 110 BigAmount)
+- `toBaseUnit` — 59 files, 224 calls (98 positional, 126 BigAmount)
+- Direct `.toPrecision()` — 65 calls, 32 files
+- Direct `.toBaseUnit()` — 13 calls, 8 files
+- Total to migrate: ~659 alias calls across ~167 files
 
-### What
+**Vernacular:** 82+ occurrences of "Human" in balance/amount naming (selectors, variables, types).
+51 are actually CryptoPrecision → rename. 30+ are genuine display-level → keep.
 
-Add a `NullableScalar` type alias and widen all scalar-accepting methods in
-`packages/utils/src/bigAmount/bigAmount.ts`.
+---
+
+## Phase 0: Safety Net — Package-level BigAmount tests + JSDoc
+
+### Tests
+
+Create `packages/utils/src/bigAmount/bigAmount.test.ts` with comprehensive coverage:
+
+- **Construction**: `fromBaseUnit`, `fromPrecision`, `fromBN`, `fromThorBaseUnit`, `fromJSON`, `zero`
+- **Output**: `.toPrecision()`, `.toBaseUnit()`, `.toFixed()`, `.toSignificant()`, `.toNumber()`, `.toBN()`, `.toJSON()`
+- **Fiat output**: `.toUserCurrency()`, `.toUSD()` (with configure mock)
+- **Arithmetic**: `.plus()`, `.minus()`, `.times()`, `.div()`, `.abs()`, `.negated()`, `.positiveOrZero()`, `.decimalPlaces()`
+- **Comparisons**: `.gt()`, `.lt()`, `.gte()`, `.lte()`, `.eq()`
+- **Boolean**: `.isZero()`, `.isPositive()`, `.isNegative()`, `.isFinite()`
+- **Static**: `BigAmount.min()`, `BigAmount.max()`, `BigAmount.isBigAmount()`
+- **Edge cases**: null/undefined scalars, cross-precision arithmetic errors, precision 0, large values, negative values
+- **NullableScalar**: verify `.times(null)`, `.div(undefined)`, `.plus(null)` all work
+
+Remove `src/lib/amount/BigAmount.test.ts` (move useful cases to package-level test).
+
+### JSDoc
+
+Add brief JSDoc to all public methods and static factories in `packages/utils/src/bigAmount/bigAmount.ts`:
 
 ```ts
-// New type alias at top of file
-type NullableScalar = BigNumber.Value | null | undefined
+/** Create from base-unit (raw blockchain) value. Preferred — lossless. */
+static fromBaseUnit(opts: FromBaseUnitWithPrecision | FromBaseUnitWithAssetId): BigAmount
 
-// Widen these method signatures (implementation unchanged):
-times(scalar: NullableScalar): BigAmount
-div(scalar: NullableScalar): BigAmount
-plus(other: BigAmount | NullableScalar): BigAmount
-minus(other: BigAmount | NullableScalar): BigAmount
-gt(other: BigAmount | NullableScalar): boolean
-gte(other: BigAmount | NullableScalar): boolean
-lt(other: BigAmount | NullableScalar): boolean
-lte(other: BigAmount | NullableScalar): boolean
-eq(other: BigAmount | NullableScalar): boolean
+/** Create from precision-scale (human-readable) value. Use only when base unit is unavailable. */
+static fromPrecision(opts: ...): BigAmount
+
+/** Precision-scale string (human-readable). E.g. "1.5" for 1500000000000000000 at precision 18. */
+toPrecision(): string
+
+/** Base-unit string (raw integer). E.g. "1500000000000000000" for 1.5 ETH. */
+toBaseUnit(): string
 ```
 
-### Why
-
-This is the foundation for all subsequent work. Once BigAmount accepts nullable scalars,
-callers can write `balance.times(marketData?.price)` instead of
-`balance.times(bnOrZero(marketData?.price))`.
+Keep JSDoc brief — one line per method, no `@param`/`@returns` unless non-obvious.
 
 ### Commit after this step
 
 ---
 
-## Tier 2: Strip bnOrZero from BigAmount scalar arguments
+## Phase 1: Double-conversion fixes
 
-### Patterns to transform
+Fix 12+ anti-patterns where BigAmount is extracted to string then re-wrapped in BN.
 
-**Pattern A: `.times(bnOrZero(x))` → `.times(x)` (~142 instances in 83 files)**
+### Pattern A: `bn(bigAmount.toBaseUnit())` → use BigAmount arithmetic
+
 ```ts
 // Before:
-balance.times(bnOrZero(marketData?.price))
-// After:
-balance.times(marketData?.price)
+bn(balanceCryptoBaseUnit.toBaseUnit()).minus(someOtherValue)
+// After (if other value is base-unit):
+balanceCryptoBaseUnit.minus(someOtherValue)
+// After (if need BN result):
+balanceCryptoBaseUnit.toBN()
 ```
 
-**Pattern B: `.div(bnOrZero(x))` → `.div(x)` (~37 instances in 28 files)**
+### Files to fix
+
+1. `src/state/apis/swapper/helpers/validateTradeQuote.ts` (lines 246, 252, 212)
+2. `src/state/slices/opportunitiesSlice/selectors/lpSelectors.ts` (lines 64, 107-108)
+3. `src/state/apis/swapper/helpers/getInputOutputRatioFromQuote.ts` (lines 32-39, 90-97)
+4. `src/state/slices/tradeQuoteSlice/helpers.ts` (lines 35-42)
+5. `src/features/defi/providers/thorchain-savers/.../Deposit/Confirm.tsx` (lines 222, 239, 249)
+6. `src/features/defi/providers/thorchain-savers/.../Withdraw/Confirm.tsx` (line 424)
+7. `src/pages/ThorChainLP/components/RemoveLiquidity/RemoveLiquidityInput.tsx` (line 494)
+
+### Rules
+- If the downstream needs a BN, use `.toBN()` instead of `bn(bigAmount.toPrecision())`
+- If the downstream does arithmetic, keep it in BigAmount
+- If the downstream needs a string, just call `.toPrecision()` or `.toBaseUnit()`
+- Run `yarn type-check && yarn lint --fix` after each sub-batch
+- Commit after all double-conversions are fixed
+
+---
+
+## Phase 2: Migrate fromBaseUnit callers (325 positional + 110 BigAmount calls)
+
+Eliminate ALL `fromBaseUnit()` calls from `src/`. Replace with direct BigAmount methods.
+
+### Positional args pattern
+
 ```ts
 // Before:
-someAmount.div(bnOrZero(rate))
+fromBaseUnit(someValue, precision)
 // After:
-someAmount.div(rate)
+BigAmount.fromBaseUnit({ value: someValue, precision }).toPrecision()
 ```
 
-**Pattern C: `.plus(bnOrZero(x))` / `.minus(bnOrZero(x))` / `.gt(bnOrZero(x))` etc**
+If `assetId` is available in scope and precision isn't, use the assetId overload:
+```ts
+BigAmount.fromBaseUnit({ value: someValue, assetId }).toPrecision()
+```
+
+### BigAmount overload pattern
+
 ```ts
 // Before:
-balance.minus(bnOrZero(estimatedGas)).gte(0)
+fromBaseUnit(someBigAmount)
 // After:
-balance.minus(estimatedGas).gte(0)
+someBigAmount.toPrecision()
 ```
 
-### Batches
+### Migration order (by directory)
 
-#### Batch 2A: State/selectors/lib
+#### Batch 2A: state/ (~73 calls)
 ```
 src/state/slices/common-selectors.ts
 src/state/slices/portfolioSlice/selectors.ts
-src/state/slices/opportunitiesSlice/selectors/*.ts
-src/state/slices/opportunitiesSlice/resolvers/**/*.ts
-src/state/slices/marketDataSlice/selectors.ts
-src/state/slices/limitOrderSlice/*.ts
-src/state/slices/tradeQuoteSlice/*.ts
-src/state/apis/swapper/helpers/*.ts
-src/react-queries/**/*.ts
-src/lib/**/*.ts
+src/state/slices/opportunitiesSlice/**
+src/state/slices/tradeQuoteSlice/**
+src/state/apis/**
+src/react-queries/**
 ```
 
-#### Batch 2B: Features/defi
+#### Batch 2B: features/ (~103 calls)
 ```
-src/features/defi/**/*.ts
-src/features/defi/**/*.tsx
+src/features/defi/providers/**
 ```
 
-#### Batch 2C: Pages
+#### Batch 2C: pages/ (~67 calls)
 ```
+src/pages/ThorChainLP/**
 src/pages/RFOX/**
 src/pages/TCY/**
-src/pages/ThorChainLP/**
 src/pages/Lending/**
 src/pages/Yields/**
 src/pages/Fox/**
-src/pages/Markets/**
-src/pages/Explore/**
+src/pages/Accounts/**
 ```
 
-#### Batch 2D: Components
+#### Batch 2D: components/ (~80 calls)
 ```
 src/components/MultiHopTrade/**
-src/components/Modals/**
+src/components/Modals/Send/**
+src/components/Amount/**
 src/components/Equity/**
 src/components/EarnDashboard/**
 src/components/AssetSearch/**
 src/components/AssetHeader/**
-src/components/StakingVaults/**
+src/components/AssetAccounts/**
 src/components/Layout/**
 src/components/TransactionHistoryRows/**
 ```
 
-### Rules for Tier 2
-- ONLY strip `bnOrZero()` when the value is passed as a scalar to a BigAmount method
-- DO NOT strip `bnOrZero()` when starting a BN chain: `bnOrZero(x).times(y)` where x is NOT BigAmount
-- DO NOT strip when the bnOrZero result feeds into BN-specific operations
-- If removing bnOrZero leaves an unused import, remove it
+#### Batch 2E: lib/ (~60 production calls)
+```
+src/lib/market-service/**
+src/lib/fees/**
+src/lib/swapper/**
+src/lib/utils/**
+```
+
+### Rules
+- Remove `fromBaseUnit` from import statements as files are migrated
+- If the import becomes empty, remove the entire import line
+- If `BigAmount` is not already imported, add `import { BigAmount } from '@shapeshiftoss/utils'`
 - Run `yarn type-check && yarn lint --fix` after each batch
 - Commit after each batch
 
 ---
 
-## Tier 3: Eliminate standalone bnOrZero chains where BigAmount can replace
+## Phase 3: Migrate toBaseUnit callers (98 positional + 126 BigAmount calls)
 
-### Category A: Double-wrapping anti-patterns (~5 instances)
+Eliminate ALL `toBaseUnit()` calls from `src/`. Replace with direct BigAmount methods.
+
+### Positional args pattern
 
 ```ts
 // Before:
-bnOrZero(bnOrZero(gasPrice).times(gasLimit)).toFixed(0)
+toBaseUnit(someValue, precision)
 // After:
-bnOrZero(gasPrice).times(gasLimit).toFixed(0)
+BigAmount.fromPrecision({ value: someValue, precision }).toBaseUnit()
+```
 
+### BigAmount overload pattern
+
+```ts
 // Before:
-bnOrZero(bnOrZero(reserves[1].toString()).toString())
+toBaseUnit(someBigAmount)
 // After:
-bnOrZero(reserves[1].toString())
+someBigAmount.toBaseUnit()
 ```
 
-### Category B: BN chains on values that have known precision (~50+ instances)
+### Migration order
 
-Where `bnOrZero(amountString).times(price).toFixed(2)` operates on a value with a known
-asset precision, replace with BigAmount:
+Same directory batches as Phase 2. Process in parallel where files overlap.
 
-```ts
-// Before:
-bnOrZero(cryptoAmount).times(bnOrZero(marketData?.price)).toFixed(2)
-// After (when precision is available):
-BigAmount.fromPrecision({ value: cryptoAmount, precision: asset.precision })
-  .times(marketData?.price).toFixed(2)
-```
-
-**Only do this when:**
-1. The precision (asset) is available in scope
-2. The entire chain produces a display value (.toFixed, .toString, .toNumber)
-3. There's no cross-precision mixing
-
-### Category C: bnOrZero(0) → BigAmount.zero (~58 instances)
-
-```ts
-// Before:
-const total = items.reduce((acc, item) => acc.plus(bnOrZero(item.amount)), bnOrZero(0))
-// After (when precision known):
-const total = items.reduce(
-  (acc, item) => acc.plus(item.amount),
-  BigAmount.zero({ precision: asset.precision })
-)
-```
-
-**Only do this when:**
-1. The reducer/accumulator feeds into BigAmount-compatible operations
-2. The precision is deterministic in scope
-
-### Category D: Selector return types — string → BigAmount (~20 selectors)
-
-Tighten selectors that always return numeric strings to either:
-1. Return `BigAmount` directly (for precision-aware values)
-2. Return `string` (not `string | undefined`) when the value is guaranteed
-
-Focus areas:
-- `selectPortfolioUserCurrencyBalances` — returns `Record<AssetId, string>`, could be tighter
-- Trade input selectors that return amounts with `?? '0'` defaults
-- Opportunity selectors that always produce numeric strings
-
-### Batches for Tier 3
-
-Process by file proximity — fix double-wrapping, then BN→BigAmount chains, then selectors.
-Each batch should type-check and lint before commit.
+### Rules
+- Same as Phase 2 rules
+- Commit after each batch
 
 ---
 
-## Rules (all tiers)
+## Phase 4: Remove aliases from src/lib/math.ts
 
-1. **Zero runtime behavior change** for Tier 1
-2. **Math equivalence** verified for each transform
-3. **Handle nullability** — BigAmount methods handle null/undefined scalars,
-   but BigAmount variables themselves need `?? BigAmount.zero({ precision })`
-4. **Don't break cross-precision arithmetic** — if different-precision values mix, keep BN
-5. **Don't touch `packages/utils/src/bignumber/`** — bnOrZero stays for package consumers
-6. **Run `yarn type-check && yarn lint --fix` after each batch**
-7. **Commit after each batch**
-8. **Never push**
+After all callers are migrated, `fromBaseUnit` and `toBaseUnit` should have zero importers.
+
+### Verify
+```bash
+cd /Users/gomes/Sites/shapeshiftWeb--improvement-audit-2
+rg "from '@/lib/math'" src/ --count-matches
+rg "from 'lib/math'" src/ --count-matches
+```
+
+### Transform src/lib/math.ts
+
+```ts
+// Before (current):
+import { BigAmount } from '@shapeshiftoss/utils'
+import type BigNumber from 'bignumber.js'
+import type { BN } from './bignumber/bignumber'
+
+export function fromBaseUnit(amount: BigAmount): string
+export function fromBaseUnit(value: BigNumber.Value | undefined, precision: number): string
+export function fromBaseUnit(...) { ... }
+
+export function toBaseUnit(amount: BigAmount): string
+export function toBaseUnit(value: BigNumber.Value | undefined, precision: number): string
+export function toBaseUnit(...) { ... }
+
+export const firstNonZeroDecimal = (number: BN) => { ... }
+
+// After:
+import type { BN } from './bignumber/bignumber'
+
+export const firstNonZeroDecimal = (number: BN) => {
+  return number.toFixed(10).match(/^-?\d*\.?0*\d{0,2}/)?.[0]
+}
+```
+
+### Delete test file
+- Delete `src/lib/math.test.ts` (tests `fromBaseUnit`/`toBaseUnit` which no longer exist)
+- `firstNonZeroDecimal` is tested in `src/lib/bignumber/bignumber.test.ts`
+
+### Commit
+
+---
+
+## Phase 5: Mixed-paradigm cleanup
+
+In the 15 files that use BOTH `bn()/bnOrZero()` AND BigAmount side by side, migrate
+remaining BN patterns to BigAmount where the value has known precision.
+
+### Rules
+- Only migrate where precision is available in scope
+- Don't migrate pure BN arithmetic that has no precision context (e.g. ratios, percentages)
+- Don't migrate `bnOrZero()` on values that are genuinely nullable scalars for BN chains
+- If migrating eliminates the last `bn`/`bnOrZero` import, remove the import
+- Run `yarn type-check && yarn lint --fix`
+- Commit
+
+---
+
+## Phase 6: Vernacular cleanup
+
+### Rename: CryptoHumanBalance → CryptoPrecisionBalance (51 occurrences)
+
+**Selectors to rename:**
+- `selectCryptoHumanBalanceFilter` → `selectCryptoPrecisionBalanceFilter`
+- `selectPortfolioAccountsHumanBalances` → `selectPortfolioAccountsCryptoPrecisionBalances`
+
+**Variables to rename:**
+- `cryptoHumanBalance` → `cryptoPrecisionBalance` (32 occurrences, 8 files)
+- `totalCryptoHumanBalance` → `totalCryptoPrecisionBalance` (2 occurrences)
+- `tcyCryptoHumanBalance` → `tcyCryptoPrecisionBalance` (2 occurrences)
+- `feeAssetBalanceCryptoHuman` → `feeAssetBalanceCryptoPrecision` (2 occurrences)
+
+### Rename: amountCryptoHuman → amountCryptoPrecision (31+ occurrences)
+
+- `amountCryptoHuman` in `src/lib/mixpanel/types.ts` type definition
+- All consumers in defi providers that pass `amountCryptoHuman` to mixpanel events
+- `cryptoHumanAmountAvailable` → `cryptoPrecisionAmountAvailable` (4 occurrences)
+- `humanAmount` → `precisionAmount` in lpSelectors.ts (2 occurrences)
+- `minAmountCryptoHuman` → `minAmountCryptoPrecision` in validateTradeQuote.ts (2 occurrences)
+
+### DO NOT rename (genuine display-level formatting)
+- `timeInPoolHuman`, `nextEpochHuman`, `cooldownPeriodHuman` — time formatting
+- `%{...Human}` translation key placeholders — i18n display
+- `humanReadableExplanationComponents` — UI component
+- `balanceHuman` in YieldsList.tsx — check context, may be display
+
+### Rules
+- Use find-and-replace with `replace_all` for each identifier
+- Update type definitions first, then consumers
+- Run `yarn type-check && yarn lint --fix`
+- Commit
+
+---
+
+## Phase 7: Documentation
+
+### Create docs/BIGAMOUNT.md
+
+Contents:
+- What BigAmount is and why it exists
+- Internal storage model (BigNumber in base units)
+- **Construction** — all factory methods with examples
+- **Configuration** — `BigAmount.configure()` for assetId resolution, configured in `src/state/store.ts`
+- **Output methods** — `.toPrecision()`, `.toBaseUnit()`, `.toFixed()`, `.toSignificant()`, etc.
+- **Arithmetic** — `.plus()`, `.minus()`, `.times()`, `.div()` with scalar rules
+- **Comparisons & booleans**
+- **Static helpers** — `min`, `max`, `isBigAmount`
+- **Naming conventions** — `CryptoBaseUnit` (raw) vs `CryptoPrecision` (human-readable)
+- **Rules** — prefer `fromBaseUnit` (lossless), never cast `as BigAmount`
+- **Test file location** — `packages/utils/src/bigAmount/bigAmount.test.ts`
+
+### Update CLAUDE.md
+
+Add under Project-Specific Rules:
+
+```markdown
+### BigAmount (Precision-Aware Numeric Type)
+- See `docs/BIGAMOUNT.md` for full API documentation
+- Use `BigAmount.fromBaseUnit({ value, precision })` for constructing from raw blockchain values (preferred, lossless)
+- Use `BigAmount.fromPrecision({ value, precision })` only when a precision-scale value is all that's available
+- Call `.toPrecision()` / `.toBaseUnit()` directly on BigAmount for string extraction — no wrapper aliases
+- Core selectors (`selectPortfolioCryptoBalanceByFilter`) return `BigAmount`
+- Never cast `as BigAmount` — fix types as needed
+- Naming: `CryptoBaseUnit` = raw integer, `CryptoPrecision` = human-readable (NOT "HumanBalance")
+```
+
+### Commit
+
+---
+
+## Global Rules (all phases)
+
+1. **Never push** — only commit locally
+2. **Run `yarn type-check && yarn lint --fix`** after each batch
+3. **Commit after each batch** with descriptive message
+4. **Don't touch `packages/utils/src/baseUnits/`** — those positional-args functions stay for external consumers
+5. **Don't rename `.toPrecision()`** — keep the method name as-is
+6. **Keep `firstNonZeroDecimal` behavior** exactly as origin/develop
+7. **Keep `div(0)` behavior** — returns zero
+8. **Keep `fromThorBaseUnit`/`toThorBaseUnit`** on BigAmount class
+9. **Preserve discriminated union** — `FromBaseUnitWithPrecision` vs `FromBaseUnitWithAssetId` stay mutually exclusive
 
 ## Verification
 
@@ -217,5 +365,8 @@ Each batch should type-check and lint before commit.
 cd /Users/gomes/Sites/shapeshiftWeb--improvement-audit-2
 yarn type-check
 yarn lint --fix
-npx vitest run src/lib/math.test.ts src/lib/amount/BigAmount.test.ts
+npx vitest run packages/utils/src/bigAmount/bigAmount.test.ts
+# After Phase 4:
+rg "fromBaseUnit|toBaseUnit" src/lib/math.ts  # should only show firstNonZeroDecimal
+rg "from '@/lib/math'" src/ -l               # should be zero or firstNonZeroDecimal-only imports
 ```

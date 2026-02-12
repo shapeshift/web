@@ -150,7 +150,9 @@ export const getVolumeStats = (
   const swaps24h = swapsData.intervals[swapsData.intervals.length - 1]
   const swapsPrev24h = swapsData.intervals[swapsData.intervals.length - 2]
 
-  const volume24hFiat = BigAmount.fromThorBaseUnit(swaps24h.totalVolume).times(runePrice).toPrecision()
+  const volume24hFiat = BigAmount.fromThorBaseUnit(swaps24h.totalVolume)
+    .times(runePrice)
+    .toPrecision()
   const volume24hChange = bnOrZero(swaps24h.totalVolume)
     .minus(bnOrZero(swapsPrev24h.totalVolume))
     .div(swapsPrev24h.totalVolume)

@@ -17,8 +17,7 @@ import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -113,7 +112,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     asset,
     amountCryptoBaseUnit: BigNumber.max(
       THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
-      toBaseUnit(1, asset?.precision ?? 0),
+      BigAmount.fromPrecision({ value: 1, precision: asset?.precision ?? 0 }).toBaseUnit(),
     ),
     enabled: !isRunePool,
   })
@@ -192,7 +191,10 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const underlyingAssetsFiatBalanceCryptoPrecision = useMemo(() => {
     if (!asset || !earnOpportunityData?.underlyingAssetId) return '0'
 
-    const cryptoAmount = fromBaseUnit(earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0', asset.precision)
+    const cryptoAmount = BigAmount.fromBaseUnit({
+      value: earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
+      precision: asset.precision,
+    }).toPrecision()
     const price = marketData?.price
     return bnOrZero(cryptoAmount).times(bnOrZero(price)).toString()
   }, [

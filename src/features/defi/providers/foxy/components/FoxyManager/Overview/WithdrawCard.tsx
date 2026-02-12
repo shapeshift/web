@@ -1,6 +1,7 @@
 import type { ResponsiveValue, StackDirection } from '@chakra-ui/react'
 import { Button, Skeleton, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { Property } from 'csstype'
 import dayjs from 'dayjs'
 import qs from 'qs'
@@ -21,7 +22,6 @@ import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCom
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import type { UserUndelegation } from '@/state/slices/opportunitiesSlice/resolvers/foxy/types'
 
 type WithdrawCardProps = {
@@ -131,7 +131,10 @@ export const WithdrawCard = ({ asset, undelegation, canClaimWithdraw }: Withdraw
           >
             <Amount.Crypto
               color={textColor}
-              value={fromBaseUnit(undelegation.undelegationAmountCryptoBaseUnit ?? '0', asset?.precision)}
+              value={BigAmount.fromBaseUnit({
+                value: undelegation.undelegationAmountCryptoBaseUnit ?? '0',
+                precision: asset?.precision,
+              }).toPrecision()}
               symbol={asset.symbol}
               maximumFractionDigits={4}
             />

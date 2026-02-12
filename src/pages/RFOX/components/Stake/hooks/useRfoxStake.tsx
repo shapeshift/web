@@ -3,6 +3,7 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
@@ -18,7 +19,6 @@ import { useEvmFees } from '@/hooks/queries/useEvmFees'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
@@ -114,7 +114,10 @@ export const useRfoxStake = ({
   const amountCryptoPrecision = useMemo(
     () =>
       stakingAsset
-        ? fromBaseUnit(amountCryptoBaseUnit, stakingAsset.precision)
+        ? BigAmount.fromBaseUnit({
+            value: amountCryptoBaseUnit,
+            precision: stakingAsset.precision,
+          }).toPrecision()
         : undefined,
     [amountCryptoBaseUnit, stakingAsset],
   )
@@ -156,7 +159,10 @@ export const useRfoxStake = ({
     if (!allowanceDataCryptoBaseUnit) return
     if (!stakingAsset) return
 
-    return fromBaseUnit(allowanceDataCryptoBaseUnit, stakingAsset.precision)
+    return BigAmount.fromBaseUnit({
+      value: allowanceDataCryptoBaseUnit,
+      precision: stakingAsset.precision,
+    }).toPrecision()
   }, [allowanceQuery.data, stakingAsset])
 
   const isApprovalRequired = useMemo(
@@ -357,7 +363,10 @@ export const useRfoxStake = ({
 
       if (!stakingAsset || !stakingAssetAccountId) return
 
-      const amountCryptoPrecision = fromBaseUnit(amountCryptoBaseUnit, stakingAsset.precision)
+      const amountCryptoPrecision = BigAmount.fromBaseUnit({
+        value: amountCryptoBaseUnit,
+        precision: stakingAsset.precision,
+      }).toPrecision()
 
       dispatch(
         actionSlice.actions.upsertAction({

@@ -39,7 +39,6 @@ import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeade
 import { Main } from '@/components/Layout/Main'
 import { RawText, Text } from '@/components/Text'
 import { BigNumber, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import type { LendingQuoteClose, LendingQuoteOpen } from '@/lib/utils/thorchain/lending/types'
 import { isLendingQuoteClose, isLendingQuoteOpen } from '@/lib/utils/thorchain/lending/types'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -101,7 +100,7 @@ const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column-rev
 // Since dynamic components react on the `value` property, this wrappers ensures the repayment lock
 // component accepts it as a prop, vs. <Skeleton /> being the outermost component if not using a wrapper
 const RepaymentLockComponentWithValue = ({ isLoaded, value }: AmountProps & SkeletonOptions) => {
-  const resolvedValue = BigAmount.isBigAmount(value) ? fromBaseUnit(value) : value
+  const resolvedValue = BigAmount.isBigAmount(value) ? value.toPrecision() : value
   const isRepaymentLocked = bnOrZero(resolvedValue).gt(0)
 
   const translate = useTranslate()

@@ -1,6 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -19,7 +20,6 @@ import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { usePoll } from '@/hooks/usePoll/usePoll'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
@@ -46,7 +46,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
   const estimatedGasCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(estimatedGasCryptoBaseUnit ?? '0', feeAsset?.precision ?? 0),
+      BigAmount.fromBaseUnit({
+        value: estimatedGasCryptoBaseUnit ?? '0',
+        precision: feeAsset?.precision ?? 0,
+      }).toPrecision(),
     [estimatedGasCryptoBaseUnit, feeAsset?.precision],
   )
 
@@ -68,7 +71,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
           tokenContractAddress: assetReference,
           contractAddress,
           amountDesired: bnOrZero(
-            toBaseUnit(deposit.cryptoAmount ?? '0', asset.precision),
+            BigAmount.fromPrecision({
+              value: deposit.cryptoAmount ?? '0',
+              precision: asset.precision,
+            }).toBaseUnit(),
           ),
           userAddress: accountAddress,
         })
@@ -114,7 +120,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         contractAddress,
         userAddress: accountAddress,
         wallet: walletState.wallet,
-        amount: toBaseUnit(state?.deposit.cryptoAmount ?? '0', asset.precision),
+        amount: BigAmount.fromPrecision({
+          value: state?.deposit.cryptoAmount ?? '0',
+          precision: asset.precision,
+        }).toBaseUnit(),
         bip44Params,
       })
       await poll({
@@ -126,7 +135,10 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
           }),
         validate: (result: string) => {
           const allowance = bnOrZero(
-            fromBaseUnit(result ?? '0', asset.precision),
+            BigAmount.fromBaseUnit({
+              value: result ?? '0',
+              precision: asset.precision,
+            }).toPrecision(),
           )
           return bnOrZero(allowance).gte(state?.deposit.cryptoAmount)
         },
@@ -214,11 +226,17 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       spenderName={DefiProvider.ShapeShift}
       feeAsset={feeAsset}
       estimatedGasFeeCryptoPrecision={bnOrZero(
-        fromBaseUnit(estimatedGasCryptoBaseUnit ?? '0', feeAsset.precision),
+        BigAmount.fromBaseUnit({
+          value: estimatedGasCryptoBaseUnit ?? '0',
+          precision: feeAsset.precision,
+        }).toPrecision(),
       ).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(
-        fromBaseUnit(estimatedGasCryptoBaseUnit ?? '0', feeAsset.precision),
+        BigAmount.fromBaseUnit({
+          value: estimatedGasCryptoBaseUnit ?? '0',
+          precision: feeAsset.precision,
+        }).toPrecision(),
       )
         .times(bnOrZero(feeMarketData?.price))
         .toFixed(2)}

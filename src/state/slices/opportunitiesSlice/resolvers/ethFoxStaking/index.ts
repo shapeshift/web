@@ -31,7 +31,6 @@ import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput
 import { makeTotalLpApr, rewardRatePerToken } from './utils'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { toBaseUnit } from '@/lib/math'
 import type { AssetsState } from '@/state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 
@@ -86,14 +85,17 @@ export const ethFoxStakingMetadataResolver = async ({
   const totalSupplyV2 = await uniV2LPContract.read.totalSupply()
 
   const token1PoolReservesEquivalent = bn(
-    toBaseUnit(bnOrZero(pair.reserve1.toFixed()).times(2).toFixed(), pair.token1.decimals),
+    BigAmount.fromPrecision({
+      value: bnOrZero(pair.reserve1.toFixed()).times(2).toFixed(),
+      precision: pair.token1.decimals,
+    }).toBaseUnit(),
   )
 
   const foxEquivalentPerLPToken = bn(
-    toBaseUnit(
-      token1PoolReservesEquivalent.div(bnOrZero(totalSupplyV2.toString())).toFixed(),
-      pair.token1.decimals,
-    ),
+    BigAmount.fromPrecision({
+      value: token1PoolReservesEquivalent.div(bnOrZero(totalSupplyV2.toString())).toFixed(),
+      precision: pair.token1.decimals,
+    }).toBaseUnit(),
   ).toString()
   const apy = bnOrZero(makeTotalLpApr(foxRewardRatePerTokenV7, foxEquivalentPerLPToken))
     .div(100)
@@ -115,8 +117,14 @@ export const ethFoxStakingMetadataResolver = async ({
         underlyingAssetId: foxEthLpAssetId,
         underlyingAssetIds: foxEthPair,
         underlyingAssetRatiosBaseUnit: [
-          toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]]?.precision ?? 0),
-          toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]]?.precision ?? 0),
+          BigAmount.fromPrecision({
+            value: ethPoolRatio.toString(),
+            precision: assets.byId[foxEthPair[0]]?.precision ?? 0,
+          }).toBaseUnit(),
+          BigAmount.fromPrecision({
+            value: foxPoolRatio.toString(),
+            precision: assets.byId[foxEthPair[1]]?.precision ?? 0,
+          }).toBaseUnit(),
         ] as const,
         expired,
         name: 'Fox Farming',

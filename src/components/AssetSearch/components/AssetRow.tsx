@@ -21,7 +21,7 @@ import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { firstNonZeroDecimal, fromBaseUnit } from '@/lib/math'
+import { firstNonZeroDecimal } from '@/lib/math'
 import { chainIdToChainDisplayName, middleEllipsis } from '@/lib/utils'
 import { vibrate } from '@/lib/vibrate'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
@@ -141,7 +141,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
     const filter = useMemo(() => ({ assetId }), [assetId])
     const isSupported = wallet && isAssetSupportedByWallet(assetId, wallet)
     const cryptoHumanBalance = useAppSelector(s =>
-      canDisplayBalances ? fromBaseUnit(selectPortfolioCryptoBalanceByFilter(s, filter)) : '0',
+      canDisplayBalances ? selectPortfolioCryptoBalanceByFilter(s, filter).toPrecision() : '0',
     )
     const userCurrencyBalance =
       useAppSelector(s =>

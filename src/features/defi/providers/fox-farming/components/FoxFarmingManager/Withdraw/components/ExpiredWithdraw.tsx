@@ -1,6 +1,7 @@
 import { Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
@@ -25,7 +26,6 @@ import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFo
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { assertIsFoxEthStakingContractAddress } from '@/state/slices/opportunitiesSlice/constants'
@@ -97,13 +97,19 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
   // user info
   const rewardAmountCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0]), assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 0),
+      BigAmount.fromBaseUnit({
+        value: bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0]),
+        precision: assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 0,
+      }).toPrecision(),
     [assets, opportunity?.rewardsCryptoBaseUnit, opportunity?.underlyingAssetId],
   )
 
   const amountAvailableCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(bnOrZero(opportunity?.cryptoAmountBaseUnit), asset?.precision ?? 18),
+      BigAmount.fromBaseUnit({
+        value: bnOrZero(opportunity?.cryptoAmountBaseUnit),
+        precision: asset?.precision ?? 18,
+      }).toPrecision(),
     [asset?.precision, opportunity?.cryptoAmountBaseUnit],
   )
   const totalFiatBalance = opportunity?.fiatAmount
@@ -112,7 +118,10 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
     try {
       const fees = await getUnstakeFees(amountAvailableCryptoPrecision, true)
       if (!fees) return
-      return fromBaseUnit(fees.networkFeeCryptoBaseUnit, feeAsset.precision)
+      return BigAmount.fromBaseUnit({
+        value: fees.networkFeeCryptoBaseUnit,
+        precision: feeAsset.precision,
+      }).toPrecision()
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
       console.error(error)

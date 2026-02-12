@@ -7,6 +7,7 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapperName, TransactionExecutionState } from '@shapeshiftoss/swapper'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import { TbArrowsSplit2 } from 'react-icons/tb'
@@ -31,7 +32,6 @@ import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { middleEllipsis } from '@/lib/utils'
 import { selectAssetById, selectFeeAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
@@ -69,7 +69,10 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   const quoteNetworkFeeCryptoBaseUnit = tradeQuoteStep.feeData.networkFeeCryptoBaseUnit
   const feeAsset = useSelectorWithArgs(selectFeeAssetById, tradeQuoteStep.sellAsset.assetId)
   const sellAsset = useSelectorWithArgs(selectAssetById, tradeQuoteStep.sellAsset.assetId)
-  const quoteNetworkFeeCryptoPrecision = fromBaseUnit(quoteNetworkFeeCryptoBaseUnit, feeAsset?.precision ?? 0)
+  const quoteNetworkFeeCryptoPrecision = BigAmount.fromBaseUnit({
+    value: quoteNetworkFeeCryptoBaseUnit,
+    precision: feeAsset?.precision ?? 0,
+  }).toPrecision()
   const feeAssetUserCurrencyRate = useSelectorWithArgs(
     selectMarketDataByAssetIdUserCurrency,
     feeAsset?.assetId ?? '',
@@ -163,7 +166,10 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   const networkFeeCryptoPrecision = useMemo(() => {
     if (!networkFeeCryptoBaseUnit) return quoteNetworkFeeCryptoPrecision
 
-    return fromBaseUnit(networkFeeCryptoBaseUnit, feeAsset?.precision ?? 0)
+    return BigAmount.fromBaseUnit({
+      value: networkFeeCryptoBaseUnit,
+      precision: feeAsset?.precision ?? 0,
+    }).toPrecision()
   }, [networkFeeCryptoBaseUnit, feeAsset?.precision, quoteNetworkFeeCryptoPrecision])
 
   const networkFeeUserCurrency = useMemo(() => {
@@ -172,13 +178,19 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
       .toFixed()
   }, [networkFeeCryptoPrecision, feeAssetUserCurrencyRate?.price])
 
-  const allowanceResetNetworkFeeCryptoPrecision = fromBaseUnit(allowanceResetNetworkFeeCryptoBaseUnit, sellChainFeeAsset?.precision ?? 0)
+  const allowanceResetNetworkFeeCryptoPrecision = BigAmount.fromBaseUnit({
+    value: allowanceResetNetworkFeeCryptoBaseUnit,
+    precision: sellChainFeeAsset?.precision ?? 0,
+  }).toPrecision()
 
   const allowanceResetNetworkFeeUserCurrency = bnOrZero(allowanceResetNetworkFeeCryptoPrecision)
     .times(bnOrZero(feeAssetUserCurrencyRate?.price))
     .toFixed()
 
-  const approvalNetworkFeeCryptoPrecision = fromBaseUnit(approvalNetworkFeeCryptoBaseUnit, sellChainFeeAsset?.precision ?? 0)
+  const approvalNetworkFeeCryptoPrecision = BigAmount.fromBaseUnit({
+    value: approvalNetworkFeeCryptoBaseUnit,
+    precision: sellChainFeeAsset?.precision ?? 0,
+  }).toPrecision()
 
   const approvalNetworkFeeUserCurrency = bnOrZero(approvalNetworkFeeCryptoPrecision)
     .times(bnOrZero(feeAssetUserCurrencyRate?.price))

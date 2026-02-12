@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router'
 
 import { ClaimActionCard } from './ClaimActionCard'
 
-import { fromBaseUnit } from '@/lib/math'
 import type { TcyClaimAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -33,9 +32,9 @@ export const TcyClaimActionCard = ({ action }: TcyClaimActionCardProps) => {
 
   const message = useMemo(() => {
     if (!tcyAsset) return null
-    const amountCryptoHuman = fromBaseUnit(
-      BigAmount.fromThorBaseUnit(action.tcyClaimActionMetadata.claim.amountThorBaseUnit),
-    )
+    const amountCryptoHuman = BigAmount.fromThorBaseUnit(
+      action.tcyClaimActionMetadata.claim.amountThorBaseUnit,
+    ).toPrecision()
     switch (action.status) {
       case ActionStatus.ClaimAvailable:
         return translate('actionCenter.tcy.claimReady', {

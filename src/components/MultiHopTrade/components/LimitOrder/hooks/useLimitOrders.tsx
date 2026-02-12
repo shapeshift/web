@@ -4,13 +4,13 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { cowSwapTokenToAssetId } from '@shapeshiftoss/swapper'
 import type { Order } from '@shapeshiftoss/types'
 import { OrderStatus } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { fromBaseUnit } from '@/lib/math'
 import { useGetLimitOrdersQuery } from '@/state/apis/limit-orders/limitOrderApi'
 import { selectPartitionedAccountIds } from '@/state/slices/common-selectors'
 import {
@@ -77,8 +77,14 @@ export const useLimitOrders = () => {
 
       if (!(sellAsset && buyAsset)) return
 
-      const sellAmountCryptoPrecision = fromBaseUnit(executedSellAmount, sellAsset.precision)
-      const buyAmountCryptoPrecision = fromBaseUnit(executedBuyAmount, buyAsset.precision)
+      const sellAmountCryptoPrecision = BigAmount.fromBaseUnit({
+        value: executedSellAmount,
+        precision: sellAsset.precision,
+      }).toPrecision()
+      const buyAmountCryptoPrecision = BigAmount.fromBaseUnit({
+        value: executedBuyAmount,
+        precision: buyAsset.precision,
+      }).toPrecision()
 
       const assetToAssetTranslation = translate(
         ...[

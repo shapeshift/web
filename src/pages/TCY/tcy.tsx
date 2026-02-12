@@ -2,6 +2,7 @@ import type { StackDirection } from '@chakra-ui/react'
 import { Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Activity } from './components/Activity/Activity'
@@ -19,7 +20,6 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useLocalStorage } from '@/hooks/useLocalStorage/useLocalStorage'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
@@ -101,11 +101,17 @@ export const TCY = () => {
     if (!currentAccountId || !currentStaker || !walletInfo) return
 
     const currentAmount = bnOrZero(
-      fromBaseUnit(currentStaker.amount ?? '0', THOR_PRECISION),
+      BigAmount.fromBaseUnit({
+        value: currentStaker.amount ?? '0',
+        precision: THOR_PRECISION,
+      }).toPrecision(),
     )
     const defaultAmount = defaultStaker
       ? bnOrZero(
-          fromBaseUnit(defaultStaker.amount ?? '0', THOR_PRECISION),
+          BigAmount.fromBaseUnit({
+            value: defaultStaker.amount ?? '0',
+            precision: THOR_PRECISION,
+          }).toPrecision(),
         )
       : undefined
 

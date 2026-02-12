@@ -13,7 +13,6 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 import {
@@ -71,7 +70,7 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
       if (!selectedAccountId || !asset) return null
 
       const cryptoBalance = accountBalancesBaseUnit?.[selectedAccountId]?.[assetId]
-        ? fromBaseUnit(accountBalancesBaseUnit[selectedAccountId][assetId])
+        ? accountBalancesBaseUnit[selectedAccountId][assetId].toPrecision()
         : '0'
       const fiatBalance = bnOrZero(cryptoBalance).times(marketDataPrice)
 

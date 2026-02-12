@@ -6,7 +6,7 @@ import { useMemo } from 'react'
 import { Amount } from '@/components/Amount/Amount'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { firstNonZeroDecimal, fromBaseUnit } from '@/lib/math'
+import { firstNonZeroDecimal } from '@/lib/math'
 import {
   selectAssetById,
   selectFeeAssetById,
@@ -36,9 +36,9 @@ export const AssetChainRow: React.FC<AssetChainRowProps> = ({
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const iconSrc = feeAsset?.networkIcon ?? feeAsset?.icon
   const filter = useMemo(() => ({ assetId }), [assetId])
-  const cryptoHumanBalance = fromBaseUnit(
-    useAppSelector(s => selectPortfolioCryptoBalanceByFilter(s, filter)),
-  )
+  const cryptoHumanBalance = useAppSelector(s =>
+    selectPortfolioCryptoBalanceByFilter(s, filter),
+  ).toPrecision()
 
   const userCurrencyBalance = useAppSelector(
     state => selectPortfolioUserCurrencyBalanceByAssetId(state, filter) ?? '0',

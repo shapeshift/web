@@ -20,7 +20,6 @@ import { TradeQuoteValidationError, TradeQuoteWarning } from '../types'
 
 import { isMultiHopTradeQuote, isMultiHopTradeRate } from '@/components/MultiHopTrade/utils'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { assertGetChainAdapter, assertUnreachable, isTruthy } from '@/lib/utils'
 import type { ReduxState } from '@/state/reducer'
 import {
@@ -110,7 +109,10 @@ export const validateTradeQuote = (
             }
           }
 
-          const minAmountCryptoHuman = fromBaseUnit(minAmountCryptoBaseUnit, asset.precision)
+          const minAmountCryptoHuman = BigAmount.fromBaseUnit({
+            value: minAmountCryptoBaseUnit,
+            precision: asset.precision,
+          }).toPrecision()
           const formattedAmount = bnOrZero(minAmountCryptoHuman).decimalPlaces(6)
           const minimumAmountUserMessage = `${formattedAmount} ${asset.symbol}`
 
@@ -180,18 +182,18 @@ export const validateTradeQuote = (
 
   const firstHopNetworkFeeCryptoPrecision =
     networkFeeRequiresBalance && firstHopSellFeeAsset
-      ? fromBaseUnit(
-          bnOrZero(firstHop?.feeData.networkFeeCryptoBaseUnit),
-          firstHopSellFeeAsset.precision,
-        )
+      ? BigAmount.fromBaseUnit({
+          value: bnOrZero(firstHop?.feeData.networkFeeCryptoBaseUnit),
+          precision: firstHopSellFeeAsset.precision,
+        }).toPrecision()
       : bn(0).toFixed()
 
   const secondHopNetworkFeeCryptoPrecision =
     networkFeeRequiresBalance && secondHopSellFeeAsset && secondHop
-      ? fromBaseUnit(
-          bnOrZero(secondHop.feeData.networkFeeCryptoBaseUnit),
-          secondHopSellFeeAsset.precision,
-        )
+      ? BigAmount.fromBaseUnit({
+          value: bnOrZero(secondHop.feeData.networkFeeCryptoBaseUnit),
+          precision: secondHopSellFeeAsset.precision,
+        }).toPrecision()
       : bn(0).toFixed()
 
   const firstHopTradeDeductionCryptoPrecision =
@@ -244,13 +246,27 @@ export const validateTradeQuote = (
               swapperName === SwapperName.Jupiter
             ) {
               return balanceCryptoBaseUnit
-                .minus(BigAmount.fromBaseUnit({ value: bnOrZero(sellAmountCryptoBaseUnit).toFixed(), precision: balanceCryptoBaseUnit.precision }))
-                .minus(BigAmount.fromBaseUnit({ value: protocolFee.amountCryptoBaseUnit, precision: balanceCryptoBaseUnit.precision }))
+                .minus(
+                  BigAmount.fromBaseUnit({
+                    value: bnOrZero(sellAmountCryptoBaseUnit).toFixed(),
+                    precision: balanceCryptoBaseUnit.precision,
+                  }),
+                )
+                .minus(
+                  BigAmount.fromBaseUnit({
+                    value: protocolFee.amountCryptoBaseUnit,
+                    precision: balanceCryptoBaseUnit.precision,
+                  }),
+                )
                 .isNegative()
             }
 
-            return balanceCryptoBaseUnit
-              .lt(BigAmount.fromBaseUnit({ value: protocolFee.amountCryptoBaseUnit, precision: balanceCryptoBaseUnit.precision }))
+            return balanceCryptoBaseUnit.lt(
+              BigAmount.fromBaseUnit({
+                value: protocolFee.amountCryptoBaseUnit,
+                precision: balanceCryptoBaseUnit.precision,
+              }),
+            )
           })
           .map(([_assetId, protocolFee]: [AssetId, ProtocolFee]) => {
             return {

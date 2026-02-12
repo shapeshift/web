@@ -15,7 +15,6 @@ import { DefiProvider, DefiType } from '../../types'
 import { serializeUserStakingId } from '../../utils'
 import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput } from '../types'
 
-import { toBaseUnit } from '@/lib/math'
 import { selectStakingBalance } from '@/pages/RFOX/helpers'
 import { getStakingInfoQueryFn } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
@@ -64,7 +63,10 @@ export const rFOXStakingMetadataResolver = async ({
         underlyingAssetId: opportunityId,
         underlyingAssetIds,
         underlyingAssetRatiosBaseUnit: [
-          toBaseUnit('1', stakingAsset?.precision ?? 0),
+          BigAmount.fromPrecision({
+            value: '1',
+            precision: stakingAsset?.precision ?? 0,
+          }).toBaseUnit(),
         ] as const,
         expired: false,
         name: 'rFOX',

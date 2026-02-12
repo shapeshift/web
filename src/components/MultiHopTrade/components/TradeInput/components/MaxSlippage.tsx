@@ -6,7 +6,11 @@ import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
 } from '@shapeshiftoss/swapper'
-import { convertDecimalPercentageToBasisPoints, subtractBasisPointAmount } from '@shapeshiftoss/utils'
+import {
+  BigAmount,
+  convertDecimalPercentageToBasisPoints,
+  subtractBasisPointAmount,
+} from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -16,7 +20,6 @@ import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
-import { fromBaseUnit } from '@/lib/math'
 import { selectUserSlippagePercentage } from '@/state/slices/tradeInputSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -94,7 +97,10 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
       .map(({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => ({
         symbol: asset.symbol,
         chainName: getChainAdapterManager().get(asset.chainId)?.getDisplayName(),
-        amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
+        amountCryptoPrecision: BigAmount.fromBaseUnit({
+          value: amountCryptoBaseUnit,
+          precision: asset.precision,
+        }).toPrecision(),
       }))
   }, [])
 

@@ -34,7 +34,6 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { isValidAccountNumber } from '@/lib/utils/accounts'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import type { ReduxState } from '@/state/reducer'
@@ -103,7 +102,7 @@ const MenuOptions = ({
         .sortBy(accountIds, accountId =>
           bnOrZero(
             accountBalances?.[accountId]?.[assetId]
-              ? toBaseUnit(accountBalances[accountId][assetId])
+              ? accountBalances[accountId][assetId].toBaseUnit()
               : 0,
           ).toNumber(),
         )
@@ -161,7 +160,7 @@ const MenuOptions = ({
                 title={makeTitle(iterAccountId)}
                 cryptoBalance={
                   accountBalances?.[iterAccountId]?.[assetId]
-                    ? fromBaseUnit(accountBalances[iterAccountId][assetId])
+                    ? accountBalances[iterAccountId][assetId].toPrecision()
                     : '0'
                 }
                 symbol={asset?.symbol ?? ''}

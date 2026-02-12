@@ -17,7 +17,6 @@ import { QuoteSortOption } from './types'
 
 import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import { selectFeeAssetById, selectMarketDataByFilter } from '@/state/slices/selectors'
@@ -108,7 +107,10 @@ export const getBuyAmountAfterFeesCryptoPrecision = ({
 
   const netReceiveAmountCryptoBaseUnit = lastStep.buyAmountAfterFeesCryptoBaseUnit
 
-  const netReceiveAmountCryptoPrecision = fromBaseUnit(netReceiveAmountCryptoBaseUnit, lastStep.buyAsset.precision)
+  const netReceiveAmountCryptoPrecision = BigAmount.fromBaseUnit({
+    value: netReceiveAmountCryptoBaseUnit,
+    precision: lastStep.buyAsset.precision,
+  }).toPrecision()
 
   return netReceiveAmountCryptoPrecision
 }

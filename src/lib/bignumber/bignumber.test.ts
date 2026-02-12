@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { BigNumber, bn, bnOrZero, positiveOrZero, convertPrecision } from './bignumber'
+import { BigNumber, bn, bnOrZero, convertPrecision, positiveOrZero } from './bignumber'
 
 describe('bignumber', () => {
   describe('bn', () => {

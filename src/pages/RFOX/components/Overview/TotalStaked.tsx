@@ -1,10 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { bn } from '@shapeshiftoss/utils'
+import { BigAmount, bn } from '@shapeshiftoss/utils'
 import { useTranslate } from 'react-polyglot'
 
 import { StatItem } from './StatItem'
 
-import { fromBaseUnit } from '@/lib/math'
 import { useTotalStakedQuery } from '@/pages/RFOX/hooks/useGetTotalStaked'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -25,7 +24,10 @@ export const TotalStaked: React.FC<TotalStakedProps> = ({ stakingAssetId }) => {
     stakingAssetId,
     select: (totalStaked: bigint) => {
       return bn(
-        fromBaseUnit(totalStaked.toString(), stakingAsset?.precision ?? 0),
+        BigAmount.fromBaseUnit({
+          value: totalStaked.toString(),
+          precision: stakingAsset?.precision ?? 0,
+        }).toPrecision(),
       )
         .times(stakingAssetMarketData?.price ?? 0)
         .toFixed(2)

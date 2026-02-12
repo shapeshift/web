@@ -13,7 +13,7 @@ import {
 import { fromAccountId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { getChainShortName } from '@shapeshiftoss/utils'
+import { BigAmount, getChainShortName } from '@shapeshiftoss/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -30,7 +30,6 @@ import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getStakingContract, selectStakingBalance } from '@/pages/RFOX/helpers'
 import { useStakingBalanceOfQuery } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
@@ -90,7 +89,10 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
 
   const stakingAmountCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(confirmedQuote.stakingAmountCryptoBaseUnit, stakingAsset?.precision ?? 0),
+      BigAmount.fromBaseUnit({
+        value: confirmedQuote.stakingAmountCryptoBaseUnit,
+        precision: stakingAsset?.precision ?? 0,
+      }).toPrecision(),
     [confirmedQuote.stakingAmountCryptoBaseUnit, stakingAsset?.precision],
   )
 
@@ -193,7 +195,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     const fees = approvalFees || stakeFees
 
     const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
-      toBaseUnit(stakingAssetFeeAssetBalance),
+      stakingAssetFeeAssetBalance.toBaseUnit(),
     )
 
     if (!hasEnoughFeeBalance) return false

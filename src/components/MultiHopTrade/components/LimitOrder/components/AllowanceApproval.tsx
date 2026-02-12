@@ -20,7 +20,6 @@ import { useIsAllowanceResetRequired } from '@/hooks/queries/useIsAllowanceReset
 import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { getTxLink } from '@/lib/getTxLink'
-import { fromBaseUnit } from '@/lib/math'
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import type { LimitOrderActiveQuote } from '@/state/slices/limitOrderSlice/types'
 import {
@@ -183,7 +182,10 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
               <Text translation='common.approvalFee' color='text.subtle' />
               {approvalNetworkFeeCryptoBaseUnit && feeAsset && (
                 <Amount.Crypto
-                  value={fromBaseUnit(approvalNetworkFeeCryptoBaseUnit, feeAsset?.precision)}
+                  value={BigAmount.fromBaseUnit({
+                    value: approvalNetworkFeeCryptoBaseUnit,
+                    precision: feeAsset?.precision ?? 0,
+                  }).toPrecision()}
                   symbol={feeAsset?.symbol ?? ''}
                 />
               )}

@@ -15,7 +15,6 @@ import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { fromBaseUnit } from '@/lib/math'
 import { middleEllipsis } from '@/lib/utils'
 import {
   selectAccountIdsByAssetId,
@@ -61,7 +60,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   const cryptoBalanceBigAmount = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, filter),
   )
-  const cryptoBalance = cryptoBalanceBigAmount ? fromBaseUnit(cryptoBalanceBigAmount) : '0'
+  const cryptoBalance = cryptoBalanceBigAmount ? cryptoBalanceBigAmount.toPrecision() : '0'
 
   const formattedPrice = toFiat(marketData?.price ?? '0')
 

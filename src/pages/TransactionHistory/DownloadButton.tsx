@@ -1,5 +1,6 @@
 import { Button, IconButton, useMediaQuery } from '@chakra-ui/react'
 import { TransferType } from '@shapeshiftoss/unchained-client'
+import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import fileDownload from 'js-file-download'
 import { useCallback, useMemo, useState } from 'react'
@@ -9,7 +10,6 @@ import { useTranslate } from 'react-polyglot'
 import { Text } from '@/components/Text'
 import { getTransfers, getTxType } from '@/hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { selectAssets, selectTxs } from '@/state/slices/selectors'
 import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from '@/state/store'
@@ -104,20 +104,29 @@ export const DownloadButton = ({
         minerFee:
           tx.fee && feeAsset
             ? bnOrZero(
-                fromBaseUnit(tx.fee.value, feeAsset.precision),
+                BigAmount.fromBaseUnit({
+                  value: tx.fee.value,
+                  precision: feeAsset.precision,
+                }).toPrecision(),
               ).toFixed()
             : '0',
         minerFeeCurrency: feeAsset?.symbol ?? '-',
         inputAmount: send
           ? bnOrZero(
-              fromBaseUnit(send.value, send.asset?.precision ?? 18),
+              BigAmount.fromBaseUnit({
+                value: send.value,
+                precision: send.asset?.precision ?? 18,
+              }).toPrecision(),
             ).toFixed()
           : '-',
         inputCurrency: send?.asset?.symbol ?? send?.assetId ?? '-',
         inputAddresses: send ? `"${send?.from.join('\n')}"` : '-',
         outputAmount: receive
           ? bnOrZero(
-              fromBaseUnit(receive.value, receive.asset?.precision ?? 18),
+              BigAmount.fromBaseUnit({
+                value: receive.value,
+                precision: receive.asset?.precision ?? 18,
+              }).toPrecision(),
             ).toFixed()
           : '-',
         outputCurrency: receive?.asset?.symbol ?? receive?.assetId ?? '-',

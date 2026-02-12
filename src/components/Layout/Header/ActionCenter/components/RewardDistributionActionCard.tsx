@@ -1,5 +1,6 @@
 import { Button, ButtonGroup, Link, useDisclosure } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -13,7 +14,6 @@ import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
 import { getTxLink } from '@/lib/getTxLink'
-import { fromBaseUnit } from '@/lib/math'
 import type { RewardDistributionAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -40,7 +40,10 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
     return {
       amountAndSymbol: (
         <Amount.Crypto
-          value={fromBaseUnit(distribution.amount.toString(), runeAsset.precision ?? 0)}
+          value={BigAmount.fromBaseUnit({
+            value: distribution.amount.toString(),
+            precision: runeAsset.precision ?? 0,
+          }).toPrecision()}
           symbol={runeAsset?.symbol}
           fontSize='sm'
           fontWeight='bold'

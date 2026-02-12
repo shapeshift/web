@@ -7,7 +7,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useCurrentHopIndex } from '../../MultiHopTrade/components/TradeConfirm/hooks/useCurrentHopIndex'
 import { useGetTradeRates } from '../../MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeRates'
 
-import { fromBaseUnit } from '@/lib/math'
 import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
@@ -93,9 +92,9 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
   )
 
   const feeAssetFilter = useMemo(() => ({ assetId: feeAsset?.assetId }), [feeAsset?.assetId])
-  const feeAssetBalanceCryptoPrecision = fromBaseUnit(
-    useAppSelector(s => selectPortfolioCryptoBalanceByFilter(s, feeAssetFilter)),
-  )
+  const feeAssetBalanceCryptoPrecision = useAppSelector(s =>
+    selectPortfolioCryptoBalanceByFilter(s, feeAssetFilter),
+  ).toPrecision()
   const feeAssetBalanceUserCurrency = useAppSelector(
     state => selectPortfolioUserCurrencyBalanceByAssetId(state, feeAssetFilter) ?? '0',
   )

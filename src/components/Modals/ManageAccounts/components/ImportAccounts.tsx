@@ -19,6 +19,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { Asset } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useInfiniteQuery, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -34,7 +35,6 @@ import {
 } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { fromBaseUnit } from '@/lib/math'
 import { fetchPortalsAccount } from '@/lib/portals/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { accountManagement } from '@/react-queries/queries/accountManagement'
@@ -101,7 +101,10 @@ const TableRowAccount = chakraForwardRef<TableRowAccountProps, 'div'>(
 
     const assetBalanceCryptoPrecision = useMemo(() => {
       if (!account) return '0'
-      return fromBaseUnit(account.balance, asset.precision)
+      return BigAmount.fromBaseUnit({
+        value: account.balance,
+        precision: asset.precision,
+      }).toPrecision()
     }, [account, asset.precision])
 
     const handleCopyClick = useCallback(

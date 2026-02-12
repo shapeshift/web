@@ -9,7 +9,6 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from '@/hooks/useModal/useModal'
-import { fromBaseUnit } from '@/lib/math'
 import { middleEllipsis } from '@/lib/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { selectPortfolioUserCurrencyBalanceByFilter } from '@/state/slices/portfolioSlice/selectors'
@@ -48,9 +47,9 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   const accountNumber = useAppSelector(s => selectAccountNumberByAccountId(s, filter))
   const asset = useAppSelector(s => selectAssetById(s, assetId))
   const cryptoBalanceFilter = useMemo(() => ({ accountId, assetId }), [accountId, assetId])
-  const cryptoBalance = fromBaseUnit(
-    useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, cryptoBalanceFilter)),
-  )
+  const cryptoBalance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, cryptoBalanceFilter),
+  ).toPrecision()
   const userCurrencyBalanceFilter = useMemo(() => ({ accountId, assetId }), [accountId, assetId])
   const userCurrencyBalance = useAppSelector(state =>
     selectPortfolioUserCurrencyBalanceByFilter(state, userCurrencyBalanceFilter),

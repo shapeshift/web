@@ -1,10 +1,8 @@
-import { bn, convertPrecision } from '@shapeshiftoss/utils'
+import { BigAmount, bn, convertPrecision } from '@shapeshiftoss/utils'
 import { createSelector } from 'reselect'
 
 import { createTradeInputBaseSelectors } from '../common/tradeInputBase/createTradeInputBaseSelectors'
 import type { LimitOrderInputState } from './limitOrderInputSlice'
-
-import { fromBaseUnit } from '@/lib/math'
 
 // Shared selectors from the base trade input slice that handle common functionality like input
 // assets, rates, and slippage preferences
@@ -80,7 +78,10 @@ export const selectBuyAmountCryptoPrecision = createSelector(
   selectBuyAmountCryptoBaseUnit,
   selectInputBuyAsset,
   (buyAmountCryptoBaseUnit, buyAsset) =>
-    fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset.precision),
+    BigAmount.fromBaseUnit({
+      value: buyAmountCryptoBaseUnit,
+      precision: buyAsset.precision,
+    }).toPrecision(),
 )
 
 export const selectBuyAmountUserCurrency = createSelector(

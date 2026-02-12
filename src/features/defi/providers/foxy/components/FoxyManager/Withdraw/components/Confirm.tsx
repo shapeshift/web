@@ -25,7 +25,6 @@ import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyMana
 import { usePoll } from '@/hooks/usePoll/usePoll'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { toBaseUnit } from '@/lib/math'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import {
   selectBip44ParamsByAccountId,
@@ -97,7 +96,10 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
         contractAddress,
         wallet: walletState.wallet,
         amountDesired: bnOrZero(
-          toBaseUnit(state.withdraw.cryptoAmount ?? '0', underlyingAsset.precision),
+          BigAmount.fromPrecision({
+            value: state.withdraw.cryptoAmount ?? '0',
+            precision: underlyingAsset.precision,
+          }).toBaseUnit(),
         ),
         type: state.withdraw.withdrawType,
         bip44Params,

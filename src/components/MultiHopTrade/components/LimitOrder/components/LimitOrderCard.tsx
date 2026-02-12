@@ -20,7 +20,6 @@ import { HoverTooltip } from '@/components/HoverTooltip/HoverTooltip'
 import { RawText } from '@/components/Text'
 import { getConfig } from '@/config'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
-import { fromBaseUnit } from '@/lib/math'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { useAllowance } from '@/react-queries/hooks/useAllowance'
 import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from '@/state/slices/selectors'
@@ -163,13 +162,19 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
 
   const sellAmountCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset?.precision ?? 0),
+      BigAmount.fromBaseUnit({
+        value: sellAmountCryptoBaseUnit,
+        precision: sellAsset?.precision ?? 0,
+      }).toPrecision(),
     [sellAmountCryptoBaseUnit, sellAsset?.precision],
   )
 
   const buyAmountCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset?.precision ?? 0),
+      BigAmount.fromBaseUnit({
+        value: buyAmountCryptoBaseUnit,
+        precision: buyAsset?.precision ?? 0,
+      }).toPrecision(),
     [buyAmountCryptoBaseUnit, buyAsset?.precision],
   )
 
@@ -186,7 +191,10 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   const executedBuyAmountCryptoPrecision = useMemo(
     () =>
       executedBuyAmountCryptoBaseUnit
-        ? fromBaseUnit(executedBuyAmountCryptoBaseUnit, buyAsset?.precision ?? 0)
+        ? BigAmount.fromBaseUnit({
+            value: executedBuyAmountCryptoBaseUnit,
+            precision: buyAsset?.precision ?? 0,
+          }).toPrecision()
         : '0',
     [executedBuyAmountCryptoBaseUnit, buyAsset?.precision],
   )
@@ -194,7 +202,10 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   const executedSellAmountCryptoPrecision = useMemo(
     () =>
       executedSellAmountCryptoBaseUnit
-        ? fromBaseUnit(executedSellAmountCryptoBaseUnit, sellAsset?.precision ?? 0)
+        ? BigAmount.fromBaseUnit({
+            value: executedSellAmountCryptoBaseUnit,
+            precision: sellAsset?.precision ?? 0,
+          }).toPrecision()
         : '0',
     [executedSellAmountCryptoBaseUnit, sellAsset?.precision],
   )

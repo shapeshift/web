@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -36,7 +37,6 @@ import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFo
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -233,7 +233,10 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
         const fees = await getClaimFees(accountAddress)
         if (!fees) throw new Error('failed to get claim fees')
 
-        const estimatedGasCrypto = fromBaseUnit(fees.networkFeeCryptoBaseUnit, feeAsset.precision)
+        const estimatedGasCrypto = BigAmount.fromBaseUnit({
+          value: fees.networkFeeCryptoBaseUnit,
+          precision: feeAsset.precision,
+        }).toPrecision()
 
         setCanClaim(true)
         setEstimatedGas(estimatedGasCrypto)

@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { bn, bnOrZero } from '@shapeshiftoss/utils'
+import { BigAmount, bn, bnOrZero } from '@shapeshiftoss/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { formatDistanceToNow } from 'date-fns'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -33,7 +33,6 @@ import { TransactionTypeIcon } from '@/components/TransactionHistory/Transaction
 import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { fromBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { useCancelLimitOrderMutation } from '@/state/apis/limit-orders/limitOrderApi'
@@ -67,12 +66,18 @@ export const CancelLimitOrder = ({ orderToCancel, onSetOrderToCancel }: CancelLi
 
   const buyAmountCryptoPrecision = useMemo(() => {
     if (!orderToCancel || !buyAsset) return '0'
-    return fromBaseUnit(orderToCancel.order.buyAmount, buyAsset.precision)
+    return BigAmount.fromBaseUnit({
+      value: orderToCancel.order.buyAmount,
+      precision: buyAsset.precision,
+    }).toPrecision()
   }, [buyAsset, orderToCancel])
 
   const sellAmountCryptoPrecision = useMemo(() => {
     if (!orderToCancel || !sellAsset) return '0'
-    return fromBaseUnit(orderToCancel.order.sellAmount, sellAsset.precision)
+    return BigAmount.fromBaseUnit({
+      value: orderToCancel.order.sellAmount,
+      precision: sellAsset.precision,
+    }).toPrecision()
   }, [orderToCancel, sellAsset])
 
   const handleClose = useCallback(() => {

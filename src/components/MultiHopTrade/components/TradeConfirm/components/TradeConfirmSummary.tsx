@@ -1,6 +1,6 @@
 import { Divider, HStack, Stack, Tooltip } from '@chakra-ui/react'
 import { getHopByIndex } from '@shapeshiftoss/swapper'
-import { bnOrZero } from '@shapeshiftoss/utils'
+import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -16,7 +16,6 @@ import { usePriceImpact } from '@/components/MultiHopTrade/hooks/quoteValidation
 import { ReceiveAddressRow } from '@/components/ReceiveAddressRow'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
-import { fromBaseUnit } from '@/lib/math'
 import { selectFeeAssetById } from '@/state/slices/selectors'
 import {
   selectInputBuyAsset,
@@ -71,12 +70,18 @@ export const TradeConfirmSummary = () => {
 
   const firstHopNetworkFeeCryptoPrecision = useMemo(() => {
     if (!firstHopNetworkFeeCryptoBaseUnit) return undefined
-    return fromBaseUnit(firstHopNetworkFeeCryptoBaseUnit, firstHopFeeAsset?.precision ?? 0)
+    return BigAmount.fromBaseUnit({
+      value: firstHopNetworkFeeCryptoBaseUnit,
+      precision: firstHopFeeAsset?.precision ?? 0,
+    }).toPrecision()
   }, [firstHopNetworkFeeCryptoBaseUnit, firstHopFeeAsset?.precision])
 
   const secondHopNetworkFeeCryptoPrecision = useMemo(() => {
     if (!secondHopNetworkFeeCryptoBaseUnit) return undefined
-    return fromBaseUnit(secondHopNetworkFeeCryptoBaseUnit, firstHopFeeAsset?.precision ?? 0)
+    return BigAmount.fromBaseUnit({
+      value: secondHopNetworkFeeCryptoBaseUnit,
+      precision: firstHopFeeAsset?.precision ?? 0,
+    }).toPrecision()
   }, [secondHopNetworkFeeCryptoBaseUnit, firstHopFeeAsset?.precision])
 
   const networkFeeTooltipBody = useCallback(

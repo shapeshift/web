@@ -29,7 +29,6 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_VALIDATOR_LOGO,
@@ -221,12 +220,10 @@ export const YieldForm = memo(
 
     const inputTokenBalance = useAppSelector(state =>
       inputTokenAssetId && accountId
-        ? fromBaseUnit(
-            selectPortfolioCryptoBalanceByFilter(state, {
-              assetId: inputTokenAssetId,
-              accountId,
-            }),
-          )
+        ? selectPortfolioCryptoBalanceByFilter(state, {
+            assetId: inputTokenAssetId,
+            accountId,
+          }).toPrecision()
         : '0',
     )
 

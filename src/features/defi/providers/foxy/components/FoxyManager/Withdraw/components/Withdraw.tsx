@@ -19,7 +19,6 @@ import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommo
 import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { toBaseUnit } from '@/lib/math'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import {
   selectBip44ParamsByAccountId,
@@ -128,7 +127,12 @@ export const Withdraw: React.FC<
           const feeDataEstimate = await foxyApi.estimateWithdrawFees({
             tokenContractAddress: rewardId,
             contractAddress,
-            amountDesired: bnOrZero(toBaseUnit(withdraw.cryptoAmount ?? '0', asset.precision)),
+            amountDesired: bnOrZero(
+              BigAmount.fromPrecision({
+                value: withdraw.cryptoAmount ?? '0',
+                precision: asset.precision,
+              }).toBaseUnit(),
+            ),
             userAddress: accountAddress,
             type: withdraw.withdrawType,
             bip44Params,

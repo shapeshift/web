@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { JSX, PropsWithChildren } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
@@ -25,7 +26,6 @@ import { Amount } from '@/components/Amount/Amount'
 import { WithBackButton } from '@/components/MultiHopTrade/components/WithBackButton'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
-import { fromBaseUnit } from '@/lib/math'
 import { selectAssetById, selectTxById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -62,7 +62,10 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
 
   const bridgeAmountCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(confirmedQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision ?? 0),
+      BigAmount.fromBaseUnit({
+        value: confirmedQuote.bridgeAmountCryptoBaseUnit,
+        precision: sellAsset?.precision ?? 0,
+      }).toPrecision(),
     [confirmedQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision],
   )
 

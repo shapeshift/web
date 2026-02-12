@@ -96,7 +96,12 @@ export const Deposit: React.FC<DepositProps> = ({
         contractAddress: '',
       })
       const cryptoAmountHuman = amountAvailableCryptoPrecision
-        .minus(BigAmount.fromBaseUnit({ value: estimatedFees.average.txFee, precision: asset.precision }))
+        .minus(
+          BigAmount.fromBaseUnit({
+            value: estimatedFees.average.txFee,
+            precision: asset.precision,
+          }),
+        )
         .toPrecision()
       const fiatAmount = bnOrZero(cryptoAmountHuman).times(bnOrZero(marketData?.price))
       setValue(Field.FiatAmount, fiatAmount.toString(), {

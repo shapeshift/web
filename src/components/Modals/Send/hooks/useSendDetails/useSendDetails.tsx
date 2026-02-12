@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { solAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { ChainAdapterError, solana } from '@shapeshiftoss/chain-adapters'
-import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import { BigAmount, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -16,7 +16,6 @@ import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import {
   selectAssetById,
   selectFeeAssetById,
@@ -61,14 +60,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const balancesLoading = false
 
-  const cryptoHumanBalance = fromBaseUnit(
-    useAppSelector(state =>
-      selectPortfolioCryptoBalanceByFilter(state, {
-        assetId,
-        accountId,
-      }),
-    ),
-  )
+  const cryptoHumanBalance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, {
+      assetId,
+      accountId,
+    }),
+  ).toPrecision()
 
   const userCurrencyBalance = bnOrZero(
     useAppSelector(state =>
@@ -76,19 +73,17 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     ),
   )
 
-  const assetBalance = fromBaseUnit(
-    useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId })),
-  )
+  const assetBalance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId }),
+  ).toPrecision()
 
   const nativeAssetBalance = bnOrZero(
-    toBaseUnit(
-      useAppSelector(state =>
-        selectPortfolioCryptoBalanceByFilter(state, {
-          assetId: feeAsset?.assetId,
-          accountId,
-        }),
-      ),
-    ),
+    useAppSelector(state =>
+      selectPortfolioCryptoBalanceByFilter(state, {
+        assetId: feeAsset?.assetId,
+        accountId,
+      }),
+    ).toBaseUnit(),
   )
 
   const {
@@ -176,7 +171,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           const canCoverFees = nativeAssetBalance
             .minus(
               bn(
-                toBaseUnit(sendMax ? 0 : amountCryptoPrecision, asset.precision),
+                BigAmount.fromPrecision({
+                  value: sendMax ? 0 : amountCryptoPrecision,
+                  precision: asset.precision,
+                }).toBaseUnit(),
               ).decimalPlaces(0),
             )
             .minus(estimatedFees.fast.txFee)
@@ -282,7 +280,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     const fastFee = sendMaxFees.fast.txFee
 
-    const networkFee = fromBaseUnit(fastFee, feeAsset?.precision ?? 0)
+    const networkFee = BigAmount.fromBaseUnit({
+      value: fastFee,
+      precision: feeAsset?.precision ?? 0,
+    }).toPrecision()
 
     const maxCrypto =
       feeAsset?.assetId !== assetId
@@ -291,7 +292,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
             .minus(networkFee)
             .minus(
               assetId === solAssetId
-                ? fromBaseUnit(solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS, feeAsset?.precision ?? 0)
+                ? BigAmount.fromBaseUnit({
+                    value: solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS,
+                    precision: feeAsset?.precision ?? 0,
+                  }).toPrecision()
                 : 0,
             )
     const maxFiat = maxCrypto.times(bnOrZero(price))

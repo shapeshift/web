@@ -70,7 +70,7 @@ import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { bn, bnOrZero, convertPrecision } from '@/lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero, convertPrecision } from '@/lib/bignumber/bignumber'
 import { DEFAULT_FEE_BPS } from '@/lib/fees/constant'
 import { calculateFeeUsd } from '@/lib/fees/utils'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
@@ -626,16 +626,16 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     return serializeTxIndex(poolAssetAccountId, approvalTxId, poolAssetAccountAddress)
   }, [approvalTxId, poolAssetAccountAddress, poolAssetAccountId])
 
-  const approvalAmountCryptoBaseUnit = useMemo(
-    () =>
-      BigAmount.fromPrecision({
-        value: bnOrZero(
-          isAllowanceResetRequired ? '0' : actualAssetDepositAmountCryptoPrecision,
-        ).toFixed(),
-        precision: poolAsset?.precision ?? 0,
-      }).toBaseUnit(),
-    [actualAssetDepositAmountCryptoPrecision, isAllowanceResetRequired, poolAsset?.precision],
-  )
+  const approvalAmountCryptoBaseUnit = useMemo(() => {
+    const value = bnOrZero(
+      isAllowanceResetRequired ? '0' : actualAssetDepositAmountCryptoPrecision,
+    )
+    const precision = poolAsset?.precision ?? 0
+    // Token approvals must round UP to ensure the approved amount is always >= the deposit amount.
+    // ROUND_HALF_UP (default in toBaseUnit) could round down for fractional base-unit values below .5,
+    // causing "transfer amount exceeds allowance" reverts.
+    return value.times(bn(10).pow(precision)).toFixed(0, BigNumber.ROUND_UP)
+  }, [actualAssetDepositAmountCryptoPrecision, isAllowanceResetRequired, poolAsset?.precision])
 
   const {
     mutate,

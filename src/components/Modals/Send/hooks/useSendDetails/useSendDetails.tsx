@@ -73,9 +73,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     ),
   )
 
-  const assetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId }),
-  ).toPrecision()
 
   const nativeAssetBalance = bnOrZero(
     useAppSelector(state =>
@@ -369,7 +366,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     // Clear existing amount errors.
     setValue(SendFormFields.AmountFieldError, '')
 
-    if (!(assetBalance && wallet)) return
+    if (!(cryptoPrecisionBalance && wallet)) return
 
     // This is a token send - the max is the absolute max. balance for that asset and no further magic is needed for fees deduction
     if (feeAsset?.assetId !== assetId) {
@@ -389,7 +386,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     // Whether this is a token send or not, refetch the sendMax fees
     await refetchSendMaxFees()
   }, [
-    assetBalance,
     assetId,
     cryptoPrecisionBalance,
     feeAsset?.assetId,

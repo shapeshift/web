@@ -1,5 +1,5 @@
 import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { supportsThorchain } from '@shapeshiftoss/hdwallet-core'
+import { supportsThorchain } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { ThornodePoolResponse, ThornodePoolStatuses } from '@shapeshiftoss/swapper'
 import { thorPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'

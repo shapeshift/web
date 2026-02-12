@@ -1,0 +1,47 @@
+{
+  "name": "@shapeshiftoss/hdwallet-keplr",
+  "version": "1.62.41",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/esm/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "yarn clean && yarn run -T tsc --build && yarn postbuild",
+    "clean": "rm -rf dist",
+    "dev": "yarn run -T tsc --build --watch",
+    "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",
+    "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
+    "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
+  },
+  "dependencies": {
+    "@cosmjs/amino": "^0.28.13",
+    "@cosmjs/stargate": "^0.28.13",
+    "@shapeshiftoss/caip": "workspace:^",
+    "@shapeshiftoss/hdwallet-core": "workspace:^",
+    "@shapeshiftoss/proto-tx-builder": "0.10.0",
+    "@shapeshiftoss/types": "workspace:^",
+    "base64-js": "^1.5.1",
+    "lodash": "^4.17.23"
+  },
+  "devDependencies": {
+    "@cosmjs/amino": "^0.28.13",
+    "@cosmjs/stargate": "^0.28.13",
+    "@keplr-wallet/types": "^0.12.35",
+    "@types/lodash": "^4.14.178"
+  },
+  "sideEffects": false
+}

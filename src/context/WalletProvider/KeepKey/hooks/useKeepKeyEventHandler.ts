@@ -1,5 +1,5 @@
 import type { Event } from '@shapeshiftoss/hdwallet-core'
-import { Events } from '@shapeshiftoss/hdwallet-core'
+import { Events } from '@shapeshiftoss/hdwallet-core/event'
 import type { Dispatch } from 'react'
 import { useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'

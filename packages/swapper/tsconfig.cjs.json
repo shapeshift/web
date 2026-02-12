@@ -11,6 +11,7 @@
   "references": [
     { "path": "../caip/tsconfig.cjs.json" },
     { "path": "../chain-adapters/tsconfig.cjs.json" },
+    { "path": "../hdwallet-core/tsconfig.cjs.json" },
     { "path": "../types/tsconfig.cjs.json" },
     { "path": "../utils/tsconfig.cjs.json" }
   ]

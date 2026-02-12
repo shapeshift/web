@@ -1,7 +1,7 @@
 import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { TransactionReceipt, TransactionReceiptParams } from 'ethers'
 import isNil from 'lodash/isNil'
 import { useCallback, useContext, useMemo } from 'react'

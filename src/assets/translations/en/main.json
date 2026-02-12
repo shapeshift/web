@@ -2366,7 +2366,7 @@
       },
       "why": {
         "title": "Why stake your FOX?",
-        "body": "Staking your FOX allows you to earn regular USDC payouts from the DAO's treasury, providing a steady stream of passive income in USDC per epoch. Additionally, a portion of the revenue received by the DAO is used to buy FOX from the open market and burn it, reducing the overall supply. Staking also supports the ShapeShift DAO's alignment with the THORChain ecosystem, contributing to their growth and success. The staking process requires a minimum 28-day unstaking period, encouraging commitment and stability within the community."
+        "body": "Staking your FOX allows you to earn regular USDC payouts from the DAO's treasury, providing a steady stream of passive income in USDC per epoch. Additionally, a portion of DAO revenue will be allocated toward reducing the overall FOX supply through token burns. The staking process requires a minimum 28-day unstaking period, encouraging commitment and stability within the community."
       },
       "stake": {
         "title": "How do I stake my FOX?",

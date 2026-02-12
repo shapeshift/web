@@ -34,6 +34,7 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { isValidAccountNumber } from '@/lib/utils/accounts'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import type { ReduxState } from '@/state/reducer'
@@ -100,7 +101,11 @@ const MenuOptions = ({
     (accountIds: AccountId[]): AccountId[] =>
       chain(accountIds)
         .sortBy(accountIds, accountId =>
-          bnOrZero(accountBalances?.[accountId]?.[assetId]?.toBaseUnit() ?? 0).toNumber(),
+          bnOrZero(
+            accountBalances?.[accountId]?.[assetId]
+              ? toBaseUnit(accountBalances[accountId][assetId])
+              : 0,
+          ).toNumber(),
         )
         .reverse()
         .value(),
@@ -154,7 +159,11 @@ const MenuOptions = ({
                 accountId={iterAccountId}
                 key={`${accountNumber}-${iterAccountId}-${index}`}
                 title={makeTitle(iterAccountId)}
-                cryptoBalance={accountBalances?.[iterAccountId]?.[assetId]?.toPrecision() ?? '0'}
+                cryptoBalance={
+                  accountBalances?.[iterAccountId]?.[assetId]
+                    ? fromBaseUnit(accountBalances[iterAccountId][assetId])
+                    : '0'
+                }
                 symbol={asset?.symbol ?? ''}
                 isChecked={selectedAccountId === iterAccountId}
                 onOptionClick={onClick}

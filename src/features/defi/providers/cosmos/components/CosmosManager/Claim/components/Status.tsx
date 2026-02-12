@@ -24,6 +24,7 @@ import type {
 } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import {
@@ -74,10 +75,12 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   const rewardCryptoAmount = useMemo(
     () =>
-      BigAmount.fromBaseUnit({
-        value: opportunity?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
-        precision: asset.precision,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: opportunity?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
+          precision: asset.precision,
+        }),
+      ),
     [asset.precision, opportunity?.rewardsCryptoBaseUnit],
   )
   const rewardFiatAmount = useMemo(

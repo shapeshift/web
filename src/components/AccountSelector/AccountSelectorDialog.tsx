@@ -16,6 +16,7 @@ import {
 } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { selectPortfolioAccountBalances } from '@/state/slices/common-selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -49,8 +50,10 @@ export const AccountSelectorDialog = ({
     () =>
       accountIds.map(accountId => {
         const balance = accountBalancesBaseUnit?.[accountId]?.[assetId]
-        const cryptoBalance = bnOrZero(balance?.toBaseUnit() ?? 0)
-        const fiatBalance = bnOrZero(balance?.toPrecision()).times(marketData?.price ?? 0)
+        const cryptoBalance = bnOrZero(balance ? toBaseUnit(balance) : 0)
+        const fiatBalance = bnOrZero(balance ? fromBaseUnit(balance) : 0).times(
+          marketData?.price ?? 0,
+        )
 
         return {
           accountId,

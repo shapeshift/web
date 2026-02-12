@@ -16,6 +16,7 @@ import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import {
   selectAssetById,
   selectFeeAssetById,
@@ -60,12 +61,14 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const balancesLoading = false
 
-  const cryptoHumanBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, {
-      assetId,
-      accountId,
-    }),
-  ).toPrecision()
+  const cryptoHumanBalance = fromBaseUnit(
+    useAppSelector(state =>
+      selectPortfolioCryptoBalanceByFilter(state, {
+        assetId,
+        accountId,
+      }),
+    ),
+  )
 
   const userCurrencyBalance = bnOrZero(
     useAppSelector(state =>
@@ -73,17 +76,19 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     ),
   )
 
-  const assetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId }),
-  ).toPrecision()
+  const assetBalance = fromBaseUnit(
+    useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId })),
+  )
 
   const nativeAssetBalance = bnOrZero(
-    useAppSelector(state =>
-      selectPortfolioCryptoBalanceByFilter(state, {
-        assetId: feeAsset?.assetId,
-        accountId,
-      }),
-    ).toBaseUnit(),
+    toBaseUnit(
+      useAppSelector(state =>
+        selectPortfolioCryptoBalanceByFilter(state, {
+          assetId: feeAsset?.assetId,
+          accountId,
+        }),
+      ),
+    ),
   )
 
   const {
@@ -171,10 +176,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           const canCoverFees = nativeAssetBalance
             .minus(
               bn(
-                BigAmount.fromPrecision({
-                  value: sendMax ? 0 : amountCryptoPrecision,
-                  precision: asset.precision,
-                }).toBaseUnit(),
+                toBaseUnit(
+                  BigAmount.fromPrecision({
+                    value: sendMax ? 0 : amountCryptoPrecision,
+                    precision: asset.precision,
+                  }),
+                ),
               ).decimalPlaces(0),
             )
             .minus(estimatedFees.fast.txFee)
@@ -280,10 +287,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     const fastFee = sendMaxFees.fast.txFee
 
-    const networkFee = BigAmount.fromBaseUnit({
-      value: fastFee,
-      precision: feeAsset?.precision ?? 0,
-    }).toPrecision()
+    const networkFee = fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: fastFee,
+        precision: feeAsset?.precision ?? 0,
+      }),
+    )
 
     const maxCrypto =
       feeAsset?.assetId !== assetId
@@ -292,10 +301,12 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
             .minus(networkFee)
             .minus(
               assetId === solAssetId
-                ? BigAmount.fromBaseUnit({
-                    value: solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS,
-                    precision: feeAsset?.precision ?? 0,
-                  }).toPrecision()
+                ? fromBaseUnit(
+                    BigAmount.fromBaseUnit({
+                      value: solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS,
+                      precision: feeAsset?.precision ?? 0,
+                    }),
+                  )
                 : 0,
             )
     const maxFiat = maxCrypto.times(bnOrZero(price))

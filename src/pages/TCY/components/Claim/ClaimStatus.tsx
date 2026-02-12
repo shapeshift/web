@@ -9,6 +9,7 @@ import type { Claim } from './types'
 
 import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { Text } from '@/components/Text'
+import { fromBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 
 type ClaimStatusProps = {
@@ -27,10 +28,12 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
   const navigate = useNavigate()
   const amountCryptoPrecision = useMemo(
     () =>
-      BigAmount.fromBaseUnit({
-        value: claim?.amountThorBaseUnit ?? '0',
-        precision: THOR_PRECISION,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: claim?.amountThorBaseUnit ?? '0',
+          precision: THOR_PRECISION,
+        }),
+      ),
     [claim?.amountThorBaseUnit],
   )
 

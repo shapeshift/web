@@ -20,6 +20,7 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { toBaseUnit } from '@/lib/math'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { selectPortfolioCryptoBalanceByFilter } from '@/state/slices/selectors'
@@ -52,9 +53,11 @@ export const YieldAvailableToDeposit = memo(
     const inputTokenAssetId = inputToken?.assetId ?? yieldItem.token.assetId ?? ''
     const inputTokenPrecision = inputToken?.decimals ?? yieldItem.token.decimals
 
-    const availableBalanceBaseUnit = useAppSelector(state =>
-      selectPortfolioCryptoBalanceByFilter(state, { assetId: inputTokenAssetId }),
-    ).toBaseUnit()
+    const availableBalanceBaseUnit = toBaseUnit(
+      useAppSelector(state =>
+        selectPortfolioCryptoBalanceByFilter(state, { assetId: inputTokenAssetId }),
+      ),
+    )
 
     const availableBalance = useMemo(
       () =>

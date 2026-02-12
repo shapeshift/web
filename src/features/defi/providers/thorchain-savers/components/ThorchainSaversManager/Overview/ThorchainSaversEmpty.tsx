@@ -24,6 +24,7 @@ import { DefiModalContent } from '@/features/defi/components/DefiModal/DefiModal
 import { EmptyOverview } from '@/features/defi/components/EmptyOverview/EmptyOverview'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { selectSupportsFiatRampByAssetId } from '@/state/apis/fiatRamps/selectors'
 import {
   selectAssetById,
@@ -48,7 +49,7 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
   const filter = useMemo(() => ({ assetId }), [assetId])
   const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
   const cryptoBalance =
-    useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))?.toPrecision() ??
+    fromBaseUnit(useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))) ??
     '0'
   const linkColor = useColorModeValue('blue.500', 'blue.200')
   const textShadow = useColorModeValue(

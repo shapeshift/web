@@ -33,6 +33,7 @@ import { TransactionTypeIcon } from '@/components/TransactionHistory/Transaction
 import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { fromBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { useCancelLimitOrderMutation } from '@/state/apis/limit-orders/limitOrderApi'
@@ -66,18 +67,22 @@ export const CancelLimitOrder = ({ orderToCancel, onSetOrderToCancel }: CancelLi
 
   const buyAmountCryptoPrecision = useMemo(() => {
     if (!orderToCancel || !buyAsset) return '0'
-    return BigAmount.fromBaseUnit({
-      value: orderToCancel.order.buyAmount,
-      precision: buyAsset.precision,
-    }).toPrecision()
+    return fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: orderToCancel.order.buyAmount,
+        precision: buyAsset.precision,
+      }),
+    )
   }, [buyAsset, orderToCancel])
 
   const sellAmountCryptoPrecision = useMemo(() => {
     if (!orderToCancel || !sellAsset) return '0'
-    return BigAmount.fromBaseUnit({
-      value: orderToCancel.order.sellAmount,
-      precision: sellAsset.precision,
-    }).toPrecision()
+    return fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: orderToCancel.order.sellAmount,
+        precision: sellAsset.precision,
+      }),
+    )
   }, [orderToCancel, sellAsset])
 
   const handleClose = useCallback(() => {

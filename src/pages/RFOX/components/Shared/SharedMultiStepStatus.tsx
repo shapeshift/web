@@ -26,6 +26,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { WithBackButton } from '@/components/MultiHopTrade/components/WithBackButton'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
+import { fromBaseUnit } from '@/lib/math'
 import { selectAssetById, selectTxById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -62,10 +63,12 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
 
   const bridgeAmountCryptoPrecision = useMemo(
     () =>
-      BigAmount.fromBaseUnit({
-        value: confirmedQuote.bridgeAmountCryptoBaseUnit,
-        precision: sellAsset?.precision ?? 0,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: confirmedQuote.bridgeAmountCryptoBaseUnit,
+          precision: sellAsset?.precision ?? 0,
+        }),
+      ),
     [confirmedQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision],
   )
 

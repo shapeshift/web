@@ -22,6 +22,7 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { useArbitrumClaimTx } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimTx'
 import { Row } from '@/components/Row/Row'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { middleEllipsis } from '@/lib/utils'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
@@ -83,16 +84,20 @@ export const ArbitrumBridgeClaimModal = ({
     [destinationAccountId, destinationFeeAsset],
   )
 
-  const destinationFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, destinationFeeAssetBalanceFilter),
-  ).toPrecision()
+  const destinationFeeAssetBalanceCryptoPrecision = fromBaseUnit(
+    useAppSelector(state =>
+      selectPortfolioCryptoBalanceByFilter(state, destinationFeeAssetBalanceFilter),
+    ),
+  )
 
   const amountCryptoPrecision = useMemo(
     () =>
-      BigAmount.fromBaseUnit({
-        value: action.arbitrumBridgeMetadata.amountCryptoBaseUnit,
-        precision: asset?.precision ?? 0,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: action.arbitrumBridgeMetadata.amountCryptoBaseUnit,
+          precision: asset?.precision ?? 0,
+        }),
+      ),
     [action.arbitrumBridgeMetadata.amountCryptoBaseUnit, asset],
   )
 
@@ -142,10 +147,12 @@ export const ArbitrumBridgeClaimModal = ({
     if (!evmFeesResult?.data?.networkFeeCryptoBaseUnit) return true
 
     return bnOrZero(evmFeesResult.data.networkFeeCryptoBaseUnit).lte(
-      BigAmount.fromPrecision({
-        value: destinationFeeAssetBalanceCryptoPrecision,
-        precision: destinationFeeAsset.precision,
-      }).toBaseUnit(),
+      toBaseUnit(
+        BigAmount.fromPrecision({
+          value: destinationFeeAssetBalanceCryptoPrecision,
+          precision: destinationFeeAsset.precision,
+        }),
+      ),
     )
   }, [destinationFeeAsset, destinationFeeAssetBalanceCryptoPrecision, evmFeesResult?.data])
 

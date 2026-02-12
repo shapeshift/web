@@ -20,6 +20,7 @@ import { TradeQuoteValidationError, TradeQuoteWarning } from '../types'
 
 import { isMultiHopTradeQuote, isMultiHopTradeRate } from '@/components/MultiHopTrade/utils'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { assertGetChainAdapter, assertUnreachable, isTruthy } from '@/lib/utils'
 import type { ReduxState } from '@/state/reducer'
 import {
@@ -109,10 +110,12 @@ export const validateTradeQuote = (
             }
           }
 
-          const minAmountCryptoHuman = BigAmount.fromBaseUnit({
-            value: minAmountCryptoBaseUnit,
-            precision: asset.precision,
-          }).toPrecision()
+          const minAmountCryptoHuman = fromBaseUnit(
+            BigAmount.fromBaseUnit({
+              value: minAmountCryptoBaseUnit,
+              precision: asset.precision,
+            }),
+          )
           const formattedAmount = bnOrZero(minAmountCryptoHuman).decimalPlaces(6)
           const minimumAmountUserMessage = `${formattedAmount} ${asset.symbol}`
 
@@ -182,18 +185,22 @@ export const validateTradeQuote = (
 
   const firstHopNetworkFeeCryptoPrecision =
     networkFeeRequiresBalance && firstHopSellFeeAsset
-      ? BigAmount.fromBaseUnit({
-          value: bnOrZero(firstHop?.feeData.networkFeeCryptoBaseUnit),
-          precision: firstHopSellFeeAsset.precision,
-        }).toPrecision()
+      ? fromBaseUnit(
+          BigAmount.fromBaseUnit({
+            value: bnOrZero(firstHop?.feeData.networkFeeCryptoBaseUnit),
+            precision: firstHopSellFeeAsset.precision,
+          }),
+        )
       : bn(0).toFixed()
 
   const secondHopNetworkFeeCryptoPrecision =
     networkFeeRequiresBalance && secondHopSellFeeAsset && secondHop
-      ? BigAmount.fromBaseUnit({
-          value: bnOrZero(secondHop.feeData.networkFeeCryptoBaseUnit),
-          precision: secondHopSellFeeAsset.precision,
-        }).toPrecision()
+      ? fromBaseUnit(
+          BigAmount.fromBaseUnit({
+            value: bnOrZero(secondHop.feeData.networkFeeCryptoBaseUnit),
+            precision: secondHopSellFeeAsset.precision,
+          }),
+        )
       : bn(0).toFixed()
 
   const firstHopTradeDeductionCryptoPrecision =

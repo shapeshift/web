@@ -11,6 +11,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetActions } from '@/components/AssetHeader/AssetActions'
 import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
+import { fromBaseUnit } from '@/lib/math'
 import {
   selectAssetById,
   selectCryptoHumanBalanceFilter,
@@ -44,9 +45,9 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({ assetId, account
   // const footerBg = useColorModeValue('white.100', 'rgba(255,255,255,.02)')
 
   const cryptoBalance =
-    useAppSelector(state =>
-      selectPortfolioCryptoBalanceByFilter(state, assetAccountFilter),
-    )?.toPrecision() ?? '0'
+    fromBaseUnit(
+      useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, assetAccountFilter)),
+    ) ?? '0'
 
   const userCurrencyBalance = useAppSelector(s =>
     selectUserCurrencyBalanceByFilter(s, assetAccountFilter),

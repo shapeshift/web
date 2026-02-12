@@ -21,6 +21,7 @@ import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { toBaseUnit } from '@/lib/math'
 import { enterYield, exitYield, fetchAction, manageYield } from '@/lib/yieldxyz/api'
 import { YIELD_MAX_POLL_ATTEMPTS, YIELD_POLL_INTERVAL_MS } from '@/lib/yieldxyz/constants'
 import type { CosmosStakeArgs } from '@/lib/yieldxyz/executeTransaction'
@@ -492,10 +493,12 @@ export const useYieldTransactionFlow = ({
 
     return {
       validator,
-      amountCryptoBaseUnit: BigAmount.fromPrecision({
-        value: amount,
-        precision: inputTokenDecimals,
-      }).toBaseUnit(),
+      amountCryptoBaseUnit: toBaseUnit(
+        BigAmount.fromPrecision({
+          value: amount,
+          precision: inputTokenDecimals,
+        }),
+      ),
       action: action === 'enter' ? 'stake' : action === 'exit' ? 'unstake' : 'claim',
     }
   }, [yieldChainId, validatorAddress, amount, yieldItem, action])

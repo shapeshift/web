@@ -30,6 +30,7 @@ import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getStakingContract, selectStakingBalance } from '@/pages/RFOX/helpers'
 import { useStakingBalanceOfQuery } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
@@ -89,10 +90,12 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
 
   const stakingAmountCryptoPrecision = useMemo(
     () =>
-      BigAmount.fromBaseUnit({
-        value: confirmedQuote.stakingAmountCryptoBaseUnit,
-        precision: stakingAsset?.precision ?? 0,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: confirmedQuote.stakingAmountCryptoBaseUnit,
+          precision: stakingAsset?.precision ?? 0,
+        }),
+      ),
     [confirmedQuote.stakingAmountCryptoBaseUnit, stakingAsset?.precision],
   )
 
@@ -188,14 +191,14 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     // Staking asset fee asset still loading, assume enough balance not to have a flash of error state on first render
     if (!stakingAssetFeeAsset) return true
     if (bnOrZero(stakingAmountCryptoPrecision).isZero()) return true
-    if (bnOrZero(stakingAssetFeeAssetBalance.toPrecision()).isZero()) return false
+    if (bnOrZero(fromBaseUnit(stakingAssetFeeAssetBalance)).isZero()) return false
 
     // Unfortunately, we can't get Tx fees if an approval is required, because getting Tx fees means simulating the Tx, and the Tx would revert on approval needed.
     // So bnOrZero(stakeFees?.totalNetworkFeeCryptoBaseUnit) would always evaluate to 0 in the expression above, if an approval is required.
     const fees = approvalFees || stakeFees
 
     const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
-      stakingAssetFeeAssetBalance.toBaseUnit(),
+      toBaseUnit(stakingAssetFeeAssetBalance),
     )
 
     if (!hasEnoughFeeBalance) return false

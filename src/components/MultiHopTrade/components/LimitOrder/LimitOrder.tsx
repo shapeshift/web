@@ -14,6 +14,7 @@ import { LimitOrderRoutePaths } from './types'
 
 import type { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { fromBaseUnit } from '@/lib/math'
 import { LIMIT_ORDER_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import type { LimitPriceMode, PriceDirection } from '@/state/slices/limitOrderInputSlice/constants'
@@ -105,10 +106,12 @@ export const LimitOrder = ({
     if (sellAmountCryptoBaseUnit && routeSellAsset) {
       dispatch(
         limitOrderInput.actions.setSellAmountCryptoPrecision(
-          BigAmount.fromBaseUnit({
-            value: sellAmountCryptoBaseUnit,
-            precision: routeSellAsset.precision,
-          }).toPrecision(),
+          fromBaseUnit(
+            BigAmount.fromBaseUnit({
+              value: sellAmountCryptoBaseUnit,
+              precision: routeSellAsset.precision,
+            }),
+          ),
         ),
       )
     }

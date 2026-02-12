@@ -30,6 +30,7 @@ import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommo
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from '@/lib/utils/thorchain/balance'
@@ -125,10 +126,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       .plus(bnOrZero(opportunityData?.rewardsCryptoBaseUnit?.amounts[0])) // Savers rewards are denominated in a single asset
       .toFixed(0)
     return bnOrZero(
-      BigAmount.fromBaseUnit({
-        value: totalBaseUnit,
-        precision: asset.precision,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: totalBaseUnit,
+          precision: asset.precision,
+        }),
+      ),
     )
   }, [
     asset.precision,
@@ -137,9 +140,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   ])
 
   const balanceFilter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
-  const balanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
-  ).toBaseUnit()
+  const balanceCryptoBaseUnit = toBaseUnit(
+    useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, balanceFilter)),
+  )
 
   const assetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, assetId),
@@ -179,12 +182,14 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
       return bnOrZero(amountCryptoPrecision)
         .plus(
-          BigAmount.fromBaseUnit({
-            value: txFeeCryptoBaseUnit,
-            precision: precision ?? 0,
-          }).toPrecision(),
+          fromBaseUnit(
+            BigAmount.fromBaseUnit({
+              value: txFeeCryptoBaseUnit,
+              precision: precision ?? 0,
+            }),
+          ),
         )
-        .lte(BigAmount.fromBaseUnit({ value: balanceCryptoBaseUnitBn, precision }).toPrecision())
+        .lte(fromBaseUnit(BigAmount.fromBaseUnit({ value: balanceCryptoBaseUnitBn, precision })))
     },
     [],
   )
@@ -197,10 +202,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     useGetThorchainSaversWithdrawQuoteQuery({
       asset,
       accountId,
-      amountCryptoBaseUnit: BigAmount.fromPrecision({
-        value: cryptoAmount,
-        precision: asset.precision,
-      }).toBaseUnit(),
+      amountCryptoBaseUnit: toBaseUnit(
+        BigAmount.fromPrecision({
+          value: cryptoAmount,
+          precision: asset.precision,
+        }),
+      ),
       enabled: hasEnoughStakingBalance && !isRunePool,
     })
 
@@ -252,10 +259,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
           getHasEnoughBalanceForTxPlusFees({
             precision: asset.precision,
             balanceCryptoBaseUnit,
-            amountCryptoPrecision: BigAmount.fromBaseUnit({
-              value: dustAmountCryptoBaseUnit,
-              precision: feeAsset.precision,
-            }).toPrecision(),
+            amountCryptoPrecision: fromBaseUnit(
+              BigAmount.fromBaseUnit({
+                value: dustAmountCryptoBaseUnit,
+                precision: feeAsset.precision,
+              }),
+            ),
             txFeeCryptoBaseUnit: estimatedFeesData.txFeeCryptoBaseUnit,
           }),
       ),
@@ -347,18 +356,22 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     if (!feeAsset) return bn(0)
     if (!outboundFeeCryptoBaseUnit) return bn(0)
 
-    const outboundFeeCryptoPrecision = BigAmount.fromBaseUnit({
-      value: outboundFeeCryptoBaseUnit,
-      precision: feeAsset.precision,
-    }).toPrecision()
+    const outboundFeeCryptoPrecision = fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: outboundFeeCryptoBaseUnit,
+        precision: feeAsset.precision,
+      }),
+    )
     const outboundFeeInAssetCryptoPrecision = bn(outboundFeeCryptoPrecision).div(
       assetPriceInFeeAsset,
     )
 
-    return BigAmount.fromPrecision({
-      value: outboundFeeInAssetCryptoPrecision,
-      precision: asset.precision,
-    }).toBaseUnit()
+    return toBaseUnit(
+      BigAmount.fromPrecision({
+        value: outboundFeeInAssetCryptoPrecision,
+        precision: asset.precision,
+      }),
+    )
   }, [outboundFeeCryptoBaseUnit, assetPriceInFeeAsset, asset, feeAsset])
 
   // https://gitlab.com/thorchain/thornode/-/blob/develop/x/thorchain/querier_quotes.go#L467
@@ -375,14 +388,18 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
       try {
         const withdrawAmountCryptoPrecision = bnOrZero(value)
-        const withdrawAmountCryptoBaseUnit = BigAmount.fromPrecision({
-          value,
-          precision: asset.precision,
-        }).toBaseUnit()
-        const amountCryptoBaseUnit = BigAmount.fromPrecision({
-          value: withdrawAmountCryptoPrecision,
-          precision: asset.precision,
-        }).toBaseUnit()
+        const withdrawAmountCryptoBaseUnit = toBaseUnit(
+          BigAmount.fromPrecision({
+            value,
+            precision: asset.precision,
+          }),
+        )
+        const amountCryptoBaseUnit = toBaseUnit(
+          BigAmount.fromPrecision({
+            value: withdrawAmountCryptoPrecision,
+            precision: asset.precision,
+          }),
+        )
 
         if (withdrawAmountCryptoPrecision.gt(amountAvailableCryptoPrecision))
           return 'common.insufficientFunds'
@@ -458,10 +475,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
           .lt(0)
 
         if (isBelowWithdrawThreshold) {
-          const minLimitCryptoPrecision = BigAmount.fromBaseUnit({
-            value: safeOutboundFeeInAssetCryptoBaseUnit,
-            precision: asset.precision,
-          }).toPrecision()
+          const minLimitCryptoPrecision = fromBaseUnit(
+            BigAmount.fromBaseUnit({
+              value: safeOutboundFeeInAssetCryptoBaseUnit,
+              precision: asset.precision,
+            }),
+          )
           const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
           return translate('trade.errors.amountTooSmall', {
             minLimit,

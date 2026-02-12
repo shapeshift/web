@@ -18,6 +18,7 @@ import {
 } from '../../portfolioSlice/utils'
 import type { TradeInputBaseState } from './createTradeInputBaseSlice'
 
+import { toBaseUnit } from '@/lib/math'
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 
@@ -176,10 +177,12 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
     selectInputSellAmountCryptoPrecision,
     selectInputSellAsset,
     (sellAmountCryptoPrecision, sellAsset) =>
-      BigAmount.fromPrecision({
-        value: sellAmountCryptoPrecision,
-        precision: sellAsset.precision,
-      }).toBaseUnit(),
+      toBaseUnit(
+        BigAmount.fromPrecision({
+          value: sellAmountCryptoPrecision,
+          precision: sellAsset.precision,
+        }),
+      ),
   )
 
   const selectManualReceiveAddress = createSelector(

@@ -7,6 +7,7 @@ import { useMemo } from 'react'
 import type { EstimateFeesInput } from '@/components/Modals/Send/utils'
 import { estimateFees } from '@/components/Modals/Send/utils'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -30,10 +31,12 @@ export const queryFn = async ({ queryKey }: { queryKey: EstimatedFeesQueryKey })
 
   const estimatedFees = await estimateFees(estimateFeesInput)
   const txFeeFiat = bn(
-    BigAmount.fromBaseUnit({
-      value: estimatedFees.fast.txFee,
-      precision: feeAsset.precision,
-    }).toPrecision(),
+    fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: estimatedFees.fast.txFee,
+        precision: feeAsset.precision,
+      }),
+    ),
   )
     .times(bnOrZero(feeAssetMarketData?.price))
     .toString()

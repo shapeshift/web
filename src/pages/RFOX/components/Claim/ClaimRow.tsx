@@ -7,6 +7,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { ClaimRow as ReusableClaimRow } from '@/components/ClaimRow/ClaimRow'
 import { ClaimStatus } from '@/components/ClaimRow/types'
+import { fromBaseUnit } from '@/lib/math'
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -34,10 +35,12 @@ export const ClaimRow: FC<ClaimRowProps> = ({
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
-  const amountCryptoPrecision = BigAmount.fromBaseUnit({
-    value: amountCryptoBaseUnit,
-    precision: stakingAsset?.precision ?? 0,
-  }).toPrecision()
+  const amountCryptoPrecision = fromBaseUnit(
+    BigAmount.fromBaseUnit({
+      value: amountCryptoBaseUnit,
+      precision: stakingAsset?.precision ?? 0,
+    }),
+  )
 
   const handleClaimClick = useMemo(() => {
     if (!stakingAssetAccountId || onClaimClick === undefined) return

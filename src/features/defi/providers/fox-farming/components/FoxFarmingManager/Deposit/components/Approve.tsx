@@ -22,6 +22,7 @@ import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { usePoll } from '@/hooks/usePoll/usePoll'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
@@ -100,7 +101,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
         fn: () => allowance(),
         validate: (result: string) => {
           const allowance = bn(
-            BigAmount.fromBaseUnit({ value: result, precision: asset.precision }).toPrecision(),
+            fromBaseUnit(BigAmount.fromBaseUnit({ value: result, precision: asset.precision })),
           )
           return allowance.gte(bnOrZero(state?.deposit.cryptoAmount))
         },
@@ -115,10 +116,12 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
       dispatch({
         type: FoxFarmingDepositActionType.SET_DEPOSIT,
         payload: {
-          estimatedGasCryptoPrecision: BigAmount.fromBaseUnit({
-            value: fees.networkFeeCryptoBaseUnit,
-            precision: feeAsset.precision,
-          }).toPrecision(),
+          estimatedGasCryptoPrecision: fromBaseUnit(
+            BigAmount.fromBaseUnit({
+              value: fees.networkFeeCryptoBaseUnit,
+              precision: feeAsset.precision,
+            }),
+          ),
         },
       })
 

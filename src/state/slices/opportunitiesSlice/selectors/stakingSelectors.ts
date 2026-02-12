@@ -31,6 +31,7 @@ import {
 
 import type { AssetWithBalance } from '@/features/defi/components/Overview/Overview'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {
@@ -594,17 +595,19 @@ export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
         return underlyingAssetIteratee
           ? {
               ...underlyingAssetIteratee,
-              cryptoBalancePrecision: BigAmount.fromBaseUnit({
-                value: bnOrZero(userStakingOpportunity.stakedAmountCryptoBaseUnit)
-                  .times(
-                    BigAmount.fromBaseUnit({
-                      value: userStakingOpportunity.underlyingAssetRatiosBaseUnit[i],
-                      precision: underlyingAssetIteratee.precision,
-                    }).toPrecision() ?? '1',
-                  )
-                  .toFixed(0),
-                precision: asset?.precision ?? underlyingAsset?.precision ?? 1,
-              }).toPrecision(),
+              cryptoBalancePrecision: fromBaseUnit(
+                BigAmount.fromBaseUnit({
+                  value: bnOrZero(userStakingOpportunity.stakedAmountCryptoBaseUnit)
+                    .times(
+                      BigAmount.fromBaseUnit({
+                        value: userStakingOpportunity.underlyingAssetRatiosBaseUnit[i],
+                        precision: underlyingAssetIteratee.precision,
+                      }).toPrecision() ?? '1',
+                    )
+                    .toFixed(0),
+                  precision: asset?.precision ?? underlyingAsset?.precision ?? 1,
+                }),
+              ),
               icons: [underlyingAssetsIcons[i]],
               allocationPercentage:
                 userStakingOpportunity.underlyingAssetWeightPercentageDecimal?.[i] ??

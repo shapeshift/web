@@ -4,6 +4,7 @@ import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
 import { useEffect, useMemo, useState } from 'react'
 
 import type { FeePrice } from '@/components/Modals/Send/views/Confirm'
+import { fromBaseUnit } from '@/lib/math'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
@@ -62,10 +63,12 @@ export function useCallRequestEvmFees(state: WalletConnectState) {
       const result = (Object.keys(estimatedFees) as FeeDataKey[]).reduce<FeePrice>(
         (acc: FeePrice, key: FeeDataKey) => {
           if (!Object.values(FeeDataKey).includes(key)) return acc
-          const txFee = BigAmount.fromBaseUnit({
-            value: estimatedFees[key].txFee,
-            precision: feeAsset?.precision ?? 0,
-          }).toPrecision()
+          const txFee = fromBaseUnit(
+            BigAmount.fromBaseUnit({
+              value: estimatedFees[key].txFee,
+              precision: feeAsset?.precision ?? 0,
+            }),
+          )
           const fiatFee = bnOrZero(txFee).times(feeAssetPrice).toPrecision()
           const gasPriceGwei = bnOrZero(estimatedFees[key].chainSpecific.gasPrice)
             .div(1e9)

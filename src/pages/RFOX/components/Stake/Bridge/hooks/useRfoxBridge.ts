@@ -22,6 +22,7 @@ import type { RfoxBridgeQuote } from '../types'
 import { getConfig } from '@/config'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { fromBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { fetchTradeStatus } from '@/lib/tradeExecution'
 import { assertGetChainAdapter } from '@/lib/utils'
@@ -119,10 +120,12 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
 
   const bridgeAmountCryptoPrecision = useMemo(
     () =>
-      BigAmount.fromBaseUnit({
-        value: confirmedQuote.bridgeAmountCryptoBaseUnit,
-        precision: sellAsset?.precision ?? 0,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: confirmedQuote.bridgeAmountCryptoBaseUnit,
+          precision: sellAsset?.precision ?? 0,
+        }),
+      ),
     [confirmedQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision],
   )
 
@@ -218,10 +221,12 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
 
   const networkFeeCryptoPrecision = useMemo(() => {
     if (!tradeQuoteQuery.data || tradeQuoteQuery.data.isErr()) return null
-    return BigAmount.fromBaseUnit({
-      value: tradeQuoteQuery.data.unwrap().steps[0].feeData.networkFeeCryptoBaseUnit,
-      precision: sellAsset?.precision ?? 0,
-    }).toPrecision()
+    return fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: tradeQuoteQuery.data.unwrap().steps[0].feeData.networkFeeCryptoBaseUnit,
+        precision: sellAsset?.precision ?? 0,
+      }),
+    )
   }, [sellAsset?.precision, tradeQuoteQuery.data])
 
   const networkFeeUserCurrency = useMemo(() => {

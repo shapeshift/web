@@ -4,6 +4,7 @@ import { isExecutableTradeQuote, isThorTradeQuote, isThorTradeRate } from '@shap
 import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
 
 import { calculateFeeUsd } from '@/lib/fees/utils'
+import { fromBaseUnit } from '@/lib/math'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { chainIdToChainDisplayName } from '@/lib/utils'
 import type { ReduxState } from '@/state/reducer'
@@ -95,10 +96,12 @@ export const parseAmountDisplayMeta = (items: AmountDisplayMeta[]): ProtocolFeeD
         // If we already have this asset+chain combination, add the amounts
         feeMap[key].amountCryptoPrecision = bnOrZero(feeMap[key].amountCryptoPrecision)
           .plus(
-            BigAmount.fromBaseUnit({
-              value: amountCryptoBaseUnit,
-              precision: asset.precision,
-            }).toPrecision(),
+            fromBaseUnit(
+              BigAmount.fromBaseUnit({
+                value: amountCryptoBaseUnit,
+                precision: asset.precision,
+              }),
+            ),
           )
           .toString()
       } else {
@@ -106,10 +109,12 @@ export const parseAmountDisplayMeta = (items: AmountDisplayMeta[]): ProtocolFeeD
         feeMap[key] = {
           assetId: asset.assetId,
           chainName: chainIdToChainDisplayName(asset.chainId),
-          amountCryptoPrecision: BigAmount.fromBaseUnit({
-            value: amountCryptoBaseUnit,
-            precision: asset.precision,
-          }).toPrecision(),
+          amountCryptoPrecision: fromBaseUnit(
+            BigAmount.fromBaseUnit({
+              value: amountCryptoBaseUnit,
+              precision: asset.precision,
+            }),
+          ),
           symbol: asset.symbol,
         }
       }

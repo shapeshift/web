@@ -22,6 +22,7 @@ import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommo
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { BigNumber, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { getFeeData } from '@/plugins/cosmos/utils'
@@ -98,10 +99,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       : undefined,
   )
   const cryptoStakeBalanceHuman = bnOrZero(
-    BigAmount.fromBaseUnit({
-      value: earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
-      precision: asset.precision,
-    }).toPrecision(),
+    fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
+        precision: asset.precision,
+      }),
+    ),
   )
 
   const fiatStakeAmountHuman = cryptoStakeBalanceHuman.times(bnOrZero(marketData?.price)).toString()
@@ -174,10 +177,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const validateCryptoAmount = useCallback(
     (value: string) => {
       const crypto = bnOrZero(
-        BigAmount.fromBaseUnit({
-          value: earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
-          precision: asset.precision,
-        }).toPrecision(),
+        fromBaseUnit(
+          BigAmount.fromBaseUnit({
+            value: earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
+            precision: asset.precision,
+          }),
+        ),
       )
       const _value = bnOrZero(value)
       const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
@@ -190,10 +195,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const validateFiatAmount = useCallback(
     (value: string) => {
       const crypto = bnOrZero(
-        BigAmount.fromBaseUnit({
-          value: earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
-          precision: asset.precision,
-        }).toPrecision(),
+        fromBaseUnit(
+          BigAmount.fromBaseUnit({
+            value: earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
+            precision: asset.precision,
+          }),
+        ),
       )
       const fiat = crypto.times(bnOrZero(marketData?.price))
       const _value = bnOrZero(value)

@@ -31,6 +31,7 @@ import type { OpportunityMetadataResolverInput, OpportunityUserDataResolverInput
 import { makeTotalLpApr, rewardRatePerToken } from './utils'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { toBaseUnit } from '@/lib/math'
 import type { AssetsState } from '@/state/slices/assetsSlice/assetsSlice'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 
@@ -119,14 +120,18 @@ export const ethFoxStakingMetadataResolver = async ({
         underlyingAssetId: foxEthLpAssetId,
         underlyingAssetIds: foxEthPair,
         underlyingAssetRatiosBaseUnit: [
-          BigAmount.fromPrecision({
-            value: ethPoolRatio.toString(),
-            precision: assets.byId[foxEthPair[0]]?.precision ?? 0,
-          }).toBaseUnit(),
-          BigAmount.fromPrecision({
-            value: foxPoolRatio.toString(),
-            precision: assets.byId[foxEthPair[1]]?.precision ?? 0,
-          }).toBaseUnit(),
+          toBaseUnit(
+            BigAmount.fromPrecision({
+              value: ethPoolRatio.toString(),
+              precision: assets.byId[foxEthPair[0]]?.precision ?? 0,
+            }),
+          ),
+          toBaseUnit(
+            BigAmount.fromPrecision({
+              value: foxPoolRatio.toString(),
+              precision: assets.byId[foxEthPair[1]]?.precision ?? 0,
+            }),
+          ),
         ] as const,
         expired,
         name: 'Fox Farming',

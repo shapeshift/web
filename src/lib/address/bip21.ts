@@ -24,6 +24,7 @@ import type { ParseUrlDirectResult } from './types'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { store } from '@/state/store'
 
@@ -210,10 +211,12 @@ export const parseEip681Url = (url: string): ParseUrlDirectResult => {
     if (!asset) throw new Error(DANGEROUS_ETH_URL_ERROR)
 
     const amountCryptoPrecision = parsedUrl.parameters.uint256
-      ? BigAmount.fromBaseUnit({
-          value: parsedUrl.parameters.uint256,
-          precision: asset.precision,
-        }).toPrecision()
+      ? fromBaseUnit(
+          BigAmount.fromBaseUnit({
+            value: parsedUrl.parameters.uint256,
+            precision: asset.precision,
+          }),
+        )
       : undefined
 
     return {
@@ -232,7 +235,7 @@ export const parseEip681Url = (url: string): ParseUrlDirectResult => {
   const asset = selectAssetById(store.getState(), assetId)
   const amountCryptoPrecision =
     rawAmount && asset
-      ? BigAmount.fromBaseUnit({ value: rawAmount, precision: asset.precision }).toPrecision()
+      ? fromBaseUnit(BigAmount.fromBaseUnit({ value: rawAmount, precision: asset.precision }))
       : undefined
 
   return {

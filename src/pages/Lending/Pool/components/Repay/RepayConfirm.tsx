@@ -43,6 +43,7 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { toBaseUnit } from '@/lib/math'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -261,10 +262,12 @@ export const RepayConfirm = ({
   } = useSendThorTx({
     assetId: repaymentAsset?.assetId ?? '',
     accountId: repaymentAccountId,
-    amountCryptoBaseUnit: BigAmount.fromPrecision({
-      value: confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
-      precision: repaymentAsset?.precision ?? 0,
-    }).toBaseUnit(),
+    amountCryptoBaseUnit: toBaseUnit(
+      BigAmount.fromPrecision({
+        value: confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
+        precision: repaymentAsset?.precision ?? 0,
+      }),
+    ),
     memo,
     // no explicit from address required for repayments
     fromAddress: '',

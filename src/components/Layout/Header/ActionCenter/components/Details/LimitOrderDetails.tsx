@@ -14,6 +14,7 @@ import { RawText } from '@/components/Text'
 import { TransactionDate } from '@/components/TransactionHistoryRows/TransactionDate'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import type { LimitOrderAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
 
@@ -46,10 +47,12 @@ export const LimitOrderDetails = ({ order, action, onCancelOrder }: LimitOrderDe
   const executedBuyAmountCryptoPrecision = useMemo(
     () =>
       executedBuyAmountCryptoBaseUnit
-        ? BigAmount.fromBaseUnit({
-            value: executedBuyAmountCryptoBaseUnit,
-            precision: buyAsset?.precision ?? 0,
-          }).toPrecision()
+        ? fromBaseUnit(
+            BigAmount.fromBaseUnit({
+              value: executedBuyAmountCryptoBaseUnit,
+              precision: buyAsset?.precision ?? 0,
+            }),
+          )
         : '0',
     [executedBuyAmountCryptoBaseUnit, buyAsset?.precision],
   )
@@ -57,10 +60,12 @@ export const LimitOrderDetails = ({ order, action, onCancelOrder }: LimitOrderDe
   const executedSellAmountCryptoPrecision = useMemo(
     () =>
       executedSellAmountCryptoBaseUnit
-        ? BigAmount.fromBaseUnit({
-            value: executedSellAmountCryptoBaseUnit,
-            precision: sellAsset?.precision ?? 0,
-          }).toPrecision()
+        ? fromBaseUnit(
+            BigAmount.fromBaseUnit({
+              value: executedSellAmountCryptoBaseUnit,
+              precision: sellAsset?.precision ?? 0,
+            }),
+          )
         : '0',
     [executedSellAmountCryptoBaseUnit, sellAsset?.precision],
   )

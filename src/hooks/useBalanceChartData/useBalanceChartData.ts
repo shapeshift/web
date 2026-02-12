@@ -20,6 +20,7 @@ import { useFetchPriceHistories } from '@/hooks/useFetchPriceHistories/useFetchP
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { priceAtDate } from '@/lib/charts'
 import type { SupportedFiatCurrencies } from '@/lib/market-service'
+import { fromBaseUnit } from '@/lib/math'
 import type { PriceHistoryData } from '@/state/slices/marketDataSlice/types'
 import type { AssetBalancesById } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -185,10 +186,12 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
     if (!assets[assetId]) continue
     const price = priceAtDate({ priceHistoryData, date })
     balanceAtBucket[assetId] = bnOrZero(
-      BigAmount.fromBaseUnit({
-        value: assetCryptoBalance.toFixed(0),
-        precision: assets[assetId]?.precision ?? 0,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: assetCryptoBalance.toFixed(0),
+          precision: assets[assetId]?.precision ?? 0,
+        }),
+      ),
     ).times(price)
     // dont unnecessarily multiply again
     if (!isUSD) balanceAtBucket[assetId] = balanceAtBucket[assetId].times(fiatToUsdRate)

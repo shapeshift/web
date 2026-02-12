@@ -31,6 +31,7 @@ import { getMidgardPools, getThorchainSaversPosition } from './utils'
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { toBaseUnit } from '@/lib/math'
 import { fromThorBaseUnit } from '@/lib/utils/thorchain'
 import {
   selectLiquidityLockupTime,
@@ -130,10 +131,12 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       .times(bnOrZero(marketData?.price))
       .toFixed()
 
-    const underlyingAssetRatioBaseUnit = BigAmount.fromPrecision({
-      value: '1',
-      precision: asset.precision,
-    }).toBaseUnit()
+    const underlyingAssetRatioBaseUnit = toBaseUnit(
+      BigAmount.fromPrecision({
+        value: '1',
+        precision: asset.precision,
+      }),
+    )
     stakingOpportunitiesById[opportunityId] = {
       apy,
       assetId,
@@ -225,10 +228,12 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
           return {
             underlyingAssetRatiosBaseUnit: [
               ...acc.underlyingAssetRatiosBaseUnit,
-              BigAmount.fromPrecision({
-                value: adjustedRatio.toFixed(),
-                precision: asset.precision,
-              }).toBaseUnit(),
+              toBaseUnit(
+                BigAmount.fromPrecision({
+                  value: adjustedRatio.toFixed(),
+                  precision: asset.precision,
+                }),
+              ),
             ],
             underlyingAssetWeightPercentageDecimal: [
               ...acc.underlyingAssetWeightPercentageDecimal,

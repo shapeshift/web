@@ -20,6 +20,7 @@ import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAsse
 import { Row } from '@/components/Row/Row'
 import { RawText } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
@@ -92,16 +93,18 @@ export const StakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAccou
 
   const balanceFilter = useMemo(() => ({ assetId: tcyAssetId, accountId }), [accountId])
 
-  const balanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
-  ).toPrecision()
+  const balanceCryptoPrecision = fromBaseUnit(
+    useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, balanceFilter)),
+  )
 
   const amountCryptoBaseUnit = useMemo(
     () =>
-      BigAmount.fromPrecision({
-        value: amountCryptoPrecision,
-        precision: THOR_PRECISION,
-      }).toBaseUnit(),
+      toBaseUnit(
+        BigAmount.fromPrecision({
+          value: amountCryptoPrecision,
+          precision: THOR_PRECISION,
+        }),
+      ),
     [amountCryptoPrecision],
   )
 

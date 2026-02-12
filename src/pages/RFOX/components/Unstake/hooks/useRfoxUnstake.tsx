@@ -19,6 +19,7 @@ import { useEvmFees } from '@/hooks/queries/useEvmFees'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
@@ -109,10 +110,12 @@ export const useRfoxUnstake = ({
   const amountCryptoPrecision = useMemo(
     () =>
       stakingAsset
-        ? BigAmount.fromBaseUnit({
-            value: amountCryptoBaseUnit,
-            precision: stakingAsset.precision,
-          }).toPrecision()
+        ? fromBaseUnit(
+            BigAmount.fromBaseUnit({
+              value: amountCryptoBaseUnit,
+              precision: stakingAsset.precision,
+            }),
+          )
         : undefined,
     [amountCryptoBaseUnit, stakingAsset],
   )

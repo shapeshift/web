@@ -23,6 +23,7 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from '@/hooks/useModal/useModal'
+import { fromBaseUnit } from '@/lib/math'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectHiddenAssets } from '@/state/slices/preferencesSlice/selectors'
 import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from '@/state/slices/selectors'
@@ -45,9 +46,9 @@ const AssetRow = memo<AssetRowProps>(({ assetId, onClose, onToggleSpam, onNaviga
   const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const assetBalanceFilter = useMemo(() => ({ assetId }), [assetId])
-  const cryptoBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, assetBalanceFilter),
-  ).toPrecision()
+  const cryptoBalance = fromBaseUnit(
+    useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, assetBalanceFilter)),
+  )
 
   const explorerHref = useMemo(() => {
     if (!asset) return

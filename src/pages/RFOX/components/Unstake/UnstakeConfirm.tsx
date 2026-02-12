@@ -26,6 +26,7 @@ import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -52,10 +53,12 @@ export const UnstakeConfirm: React.FC<UnstakeRouteProps & UnstakeConfirmProps> =
 
   const unstakingAmountCryptoPrecision = useMemo(
     () =>
-      BigAmount.fromBaseUnit({
-        value: confirmedQuote.unstakingAmountCryptoBaseUnit,
-        precision: stakingAsset?.precision ?? 0,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: confirmedQuote.unstakingAmountCryptoBaseUnit,
+          precision: stakingAsset?.precision ?? 0,
+        }),
+      ),
     [confirmedQuote.unstakingAmountCryptoBaseUnit, stakingAsset?.precision],
   )
 

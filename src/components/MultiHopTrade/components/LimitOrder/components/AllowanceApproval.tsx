@@ -20,6 +20,7 @@ import { useIsAllowanceResetRequired } from '@/hooks/queries/useIsAllowanceReset
 import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { getTxLink } from '@/lib/getTxLink'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import type { LimitOrderActiveQuote } from '@/state/slices/limitOrderSlice/types'
 import {
@@ -125,7 +126,7 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
       return isLoading
     }
 
-    return bnOrZero(feeAssetBalance.toBaseUnit()).gte(approvalNetworkFeeCryptoBaseUnit)
+    return bnOrZero(toBaseUnit(feeAssetBalance)).gte(approvalNetworkFeeCryptoBaseUnit)
   }, [approvalNetworkFeeCryptoBaseUnit, feeAssetBalance, isLoading])
 
   const approveAssetTranslation = useMemo(() => {
@@ -177,10 +178,12 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
               <Text translation='common.approvalFee' color='text.subtle' />
               {approvalNetworkFeeCryptoBaseUnit && feeAsset && (
                 <Amount.Crypto
-                  value={BigAmount.fromBaseUnit({
-                    value: approvalNetworkFeeCryptoBaseUnit,
-                    precision: feeAsset?.precision,
-                  }).toPrecision()}
+                  value={fromBaseUnit(
+                    BigAmount.fromBaseUnit({
+                      value: approvalNetworkFeeCryptoBaseUnit,
+                      precision: feeAsset?.precision,
+                    }),
+                  )}
                   symbol={feeAsset?.symbol ?? ''}
                 />
               )}

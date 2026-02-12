@@ -27,6 +27,7 @@ import { useHasFocus } from '@/hooks/useHasFocus'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { getAffiliateBps } from '@/lib/fees/utils'
+import { fromBaseUnit } from '@/lib/math'
 import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import {
   selectPortfolioAccountMetadataByAccountId,
@@ -300,10 +301,12 @@ export const useGetTradeQuotes = () => {
       swapSlice.actions.upsertSwap({
         ...activeSwap,
         expectedBuyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
-        expectedBuyAmountCryptoPrecision: BigAmount.fromBaseUnit({
-          value: lastStep.buyAmountAfterFeesCryptoBaseUnit,
-          precision: lastStep.buyAsset.precision,
-        }).toPrecision(),
+        expectedBuyAmountCryptoPrecision: fromBaseUnit(
+          BigAmount.fromBaseUnit({
+            value: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+            precision: lastStep.buyAsset.precision,
+          }),
+        ),
       }),
     )
   }, [

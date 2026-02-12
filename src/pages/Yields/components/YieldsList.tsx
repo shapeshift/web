@@ -32,6 +32,7 @@ import { ChainIcon } from '@/components/ChainMenu'
 import { ResultsEmptyNoWallet } from '@/components/ResultsEmptyNoWallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { YIELD_NETWORK_TO_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
 import {
@@ -208,7 +209,8 @@ export const YieldsList = memo(() => {
         if (minDeposit.gt(0)) {
           const asset = assets[assetId]
           if (!asset) return false
-          const balanceHuman = bnOrZero(assetBalancesBaseUnit[assetId]?.toPrecision())
+          const balance = assetBalancesBaseUnit[assetId]
+          const balanceHuman = bnOrZero(balance ? fromBaseUnit(balance) : undefined)
           if (balanceHuman.lt(minDeposit)) return false
         }
         return true

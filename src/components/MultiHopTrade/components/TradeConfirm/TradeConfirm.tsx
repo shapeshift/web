@@ -16,6 +16,7 @@ import { TradeConfirmFooter } from './TradeConfirmFooter'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { fromBaseUnit } from '@/lib/math'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecutionState,
@@ -127,14 +128,18 @@ export const TradeConfirm = ({ isCompact, isModal, onSuccess }: TradeConfirmProp
           summaryTranslation='trade.summary'
           sellAsset={activeQuote?.steps[0].sellAsset}
           buyAsset={tradeQuoteLastHop.buyAsset}
-          sellAmountCryptoPrecision={BigAmount.fromBaseUnit({
-            value: activeQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
-            precision: activeQuote.steps[0].sellAsset.precision,
-          }).toPrecision()}
-          quoteBuyAmountCryptoPrecision={BigAmount.fromBaseUnit({
-            value: tradeQuoteLastHop.buyAmountAfterFeesCryptoBaseUnit,
-            precision: tradeQuoteLastHop.buyAsset.precision,
-          }).toPrecision()}
+          sellAmountCryptoPrecision={fromBaseUnit(
+            BigAmount.fromBaseUnit({
+              value: activeQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
+              precision: activeQuote.steps[0].sellAsset.precision,
+            }),
+          )}
+          quoteBuyAmountCryptoPrecision={fromBaseUnit(
+            BigAmount.fromBaseUnit({
+              value: tradeQuoteLastHop.buyAmountAfterFeesCryptoBaseUnit,
+              precision: tradeQuoteLastHop.buyAsset.precision,
+            }),
+          )}
         >
           <Stepper index={-1} orientation='vertical' gap='0' my={6}>
             <ExpandableStepperSteps isExpanded />

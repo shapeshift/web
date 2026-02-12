@@ -20,6 +20,7 @@ import { RawText, Text } from '@/components/Text'
 import { Summary } from '@/features/defi/components/Summary'
 import { TxStatus } from '@/features/defi/components/TxStatus/TxStatus'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -208,20 +209,24 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(
-                  BigAmount.fromBaseUnit({
-                    value: state.deposit.protocolFeeCryptoBaseUnit ?? '0',
-                    precision: asset.precision,
-                  }).toPrecision(),
+                  fromBaseUnit(
+                    BigAmount.fromBaseUnit({
+                      value: state.deposit.protocolFeeCryptoBaseUnit ?? '0',
+                      precision: asset.precision,
+                    }),
+                  ),
                 )
                   .times(bnOrZero(marketData?.price))
                   .toFixed()}
               />
               <Amount.Crypto
                 color='text.subtle'
-                value={BigAmount.fromBaseUnit({
-                  value: state.deposit.protocolFeeCryptoBaseUnit ?? '0',
-                  precision: asset.precision,
-                }).toPrecision()}
+                value={fromBaseUnit(
+                  BigAmount.fromBaseUnit({
+                    value: state.deposit.protocolFeeCryptoBaseUnit ?? '0',
+                    precision: asset.precision,
+                  }),
+                )}
                 symbol={asset.symbol}
               />
             </Box>
@@ -238,20 +243,24 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(
-                  BigAmount.fromBaseUnit({
-                    value: state.deposit.networkFeeCryptoBaseUnit ?? '0',
-                    precision: feeAsset.precision,
-                  }).toPrecision(),
+                  fromBaseUnit(
+                    BigAmount.fromBaseUnit({
+                      value: state.deposit.networkFeeCryptoBaseUnit ?? '0',
+                      precision: feeAsset.precision,
+                    }),
+                  ),
                 )
                   .times(bnOrZero(feeMarketData?.price))
                   .toFixed()}
               />
               <Amount.Crypto
                 color='text.subtle'
-                value={BigAmount.fromBaseUnit({
-                  value: state.deposit.networkFeeCryptoBaseUnit ?? '0',
-                  precision: feeAsset.precision,
-                }).toPrecision()}
+                value={fromBaseUnit(
+                  BigAmount.fromBaseUnit({
+                    value: state.deposit.networkFeeCryptoBaseUnit ?? '0',
+                    precision: feeAsset.precision,
+                  }),
+                )}
                 symbol={feeAsset.symbol}
               />
             </Box>

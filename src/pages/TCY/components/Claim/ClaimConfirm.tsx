@@ -28,6 +28,7 @@ import { ReusableConfirm } from '@/components/ReusableConfirm/ReusableConfirm'
 import { RawText, Text } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
@@ -89,10 +90,12 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
 
   const amountCryptoPrecision = useMemo(
     () =>
-      BigAmount.fromBaseUnit({
-        value: claim.amountThorBaseUnit ?? '0',
-        precision: THOR_PRECISION,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: claim.amountThorBaseUnit ?? '0',
+          precision: THOR_PRECISION,
+        }),
+      ),
     [claim?.amountThorBaseUnit],
   )
 
@@ -188,19 +191,21 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     if (!dustAmountCryptoBaseUnit) return
     if (!feeAsset) return
 
-    const dustAmountCryptoPrecision = BigAmount.fromBaseUnit({
-      value: dustAmountCryptoBaseUnit,
-      precision: feeAsset.precision,
-    }).toPrecision()
+    const dustAmountCryptoPrecision = fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: dustAmountCryptoBaseUnit,
+        precision: feeAsset.precision,
+      }),
+    )
 
     return bn(dustAmountCryptoPrecision)
       .times(bnOrZero(feeAssetMarketData?.price))
       .toString()
   }, [dustAmountCryptoBaseUnit, feeAssetMarketData?.price, feeAsset])
 
-  const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, feeAssetBalanceFilter),
-  ).toBaseUnit()
+  const feeAssetBalanceCryptoBaseUnit = toBaseUnit(
+    useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, feeAssetBalanceFilter)),
+  )
 
   const requiredAmountCryptoBaseUnit = useMemo(
     () => bnOrZero(dustAmountCryptoBaseUnit).plus(estimatedFeesData?.txFeeCryptoBaseUnit ?? '0'),
@@ -211,10 +216,12 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     if (!estimatedFeesData?.txFeeCryptoBaseUnit || !dustAmountCryptoBaseUnit || !feeAsset)
       return '0'
 
-    return BigAmount.fromBaseUnit({
-      value: requiredAmountCryptoBaseUnit,
-      precision: feeAsset.precision,
-    }).toPrecision()
+    return fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: requiredAmountCryptoBaseUnit,
+        precision: feeAsset.precision,
+      }),
+    )
   }, [estimatedFeesData, dustAmountCryptoBaseUnit, feeAsset, requiredAmountCryptoBaseUnit])
 
   const hasEnoughBalanceForDustAndFees = useMemo(() => {

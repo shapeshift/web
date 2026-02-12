@@ -12,6 +12,7 @@ import { handleSend } from './Modals/Send/utils'
 
 import { Row } from '@/components/Row/Row'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { fromBaseUnit } from '@/lib/math'
 import { sleep } from '@/lib/poll/poll'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { useGetEstimatedFeesQuery } from '@/pages/Lending/hooks/useGetEstimatedFeesQuery'
@@ -200,10 +201,12 @@ export const Sweep = ({
                   <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
                   <Amount.Crypto
                     color='text.subtle'
-                    value={BigAmount.fromBaseUnit({
-                      value: estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
-                      precision: asset.precision,
-                    }).toPrecision()}
+                    value={fromBaseUnit(
+                      BigAmount.fromBaseUnit({
+                        value: estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
+                        precision: asset.precision,
+                      }),
+                    )}
                     symbol={asset.symbol}
                   />
                 </Box>

@@ -22,6 +22,7 @@ import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCom
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import type { UserUndelegation } from '@/state/slices/opportunitiesSlice/resolvers/foxy/types'
 
 type WithdrawCardProps = {
@@ -131,10 +132,12 @@ export const WithdrawCard = ({ asset, undelegation, canClaimWithdraw }: Withdraw
           >
             <Amount.Crypto
               color={textColor}
-              value={BigAmount.fromBaseUnit({
-                value: undelegation.undelegationAmountCryptoBaseUnit ?? '0',
-                precision: asset?.precision,
-              }).toPrecision()}
+              value={fromBaseUnit(
+                BigAmount.fromBaseUnit({
+                  value: undelegation.undelegationAmountCryptoBaseUnit ?? '0',
+                  precision: asset?.precision,
+                }),
+              )}
               symbol={asset.symbol}
               maximumFractionDigits={4}
             />

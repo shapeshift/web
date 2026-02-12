@@ -9,6 +9,7 @@ import type { Claim } from '../types'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
+import { fromBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -60,10 +61,12 @@ export const AssetClaimButton: React.FC<AssetClaimButtonProps> = ({ onClick, cla
           color='text.base'
           fontSize='lg'
           lineHeight={1}
-          value={BigAmount.fromBaseUnit({
-            value: claim.amountThorBaseUnit,
-            precision: THOR_PRECISION,
-          }).toPrecision()}
+          value={fromBaseUnit(
+            BigAmount.fromBaseUnit({
+              value: claim.amountThorBaseUnit,
+              precision: THOR_PRECISION,
+            }),
+          )}
           symbol={tcyAsset.symbol}
         />
         <RawText fontSize='sm' color={'green.500'} lineHeight={1}>

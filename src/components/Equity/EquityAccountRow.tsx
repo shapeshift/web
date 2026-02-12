@@ -7,6 +7,7 @@ import { generatePath, useNavigate } from 'react-router-dom'
 import { EquityRow } from './EquityRow'
 
 import { AccountsIcon } from '@/components/Icons/Accounts'
+import { fromBaseUnit } from '@/lib/math'
 import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
 import {
   selectAccountNumberByAccountId,
@@ -39,9 +40,9 @@ export const EquityAccountRow = ({
 
   const filter = useMemo(() => ({ assetId: rowAssetId ?? '', accountId }), [rowAssetId, accountId])
   const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
-  const cryptoHumanBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, filter),
-  ).toPrecision()
+  const cryptoHumanBalance = fromBaseUnit(
+    useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter)),
+  )
   const userCurrencyBalance = useAppSelector(state =>
     selectPortfolioUserCurrencyBalanceByFilter(state, filter),
   )

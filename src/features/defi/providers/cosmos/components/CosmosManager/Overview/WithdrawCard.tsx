@@ -14,6 +14,7 @@ import type {
   DefiQueryParams,
 } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { fromBaseUnit } from '@/lib/math'
 import {
   serializeUserStakingId,
   supportsUndelegations,
@@ -95,10 +96,12 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
           <Stack spacing={0} ml='auto' textAlign='right'>
             <Amount.Crypto
               color={textColor}
-              value={BigAmount.fromBaseUnit({
-                value: undelegationAmountCryptoBaseUnit ?? '0',
-                precision: asset.precision,
-              }).toPrecision()}
+              value={fromBaseUnit(
+                BigAmount.fromBaseUnit({
+                  value: undelegationAmountCryptoBaseUnit ?? '0',
+                  precision: asset.precision,
+                }),
+              )}
               symbol={asset.symbol}
               maximumFractionDigits={asset.precision}
             />

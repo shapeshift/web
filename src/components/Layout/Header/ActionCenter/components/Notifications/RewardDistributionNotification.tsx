@@ -9,6 +9,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { StandardToast } from '@/components/Toast/StandardToast'
+import { fromBaseUnit } from '@/lib/math'
 import type { RewardDistributionWithMetadata } from '@/pages/RFOX/hooks/useLifetimeRewardDistributionsQuery'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
@@ -49,10 +50,12 @@ export const RewardDistributionNotification = ({
     return {
       amountAndSymbol: (
         <Amount.Crypto
-          value={BigAmount.fromBaseUnit({
-            value: distribution.amount.toString(),
-            precision: runeAsset.precision ?? 0,
-          }).toPrecision()}
+          value={fromBaseUnit(
+            BigAmount.fromBaseUnit({
+              value: distribution.amount.toString(),
+              precision: runeAsset.precision ?? 0,
+            }),
+          )}
           symbol={runeAsset.symbol}
           fontSize='sm'
           fontWeight='bold'

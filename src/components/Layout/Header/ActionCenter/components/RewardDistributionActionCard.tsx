@@ -14,6 +14,7 @@ import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
 import { getTxLink } from '@/lib/getTxLink'
+import { fromBaseUnit } from '@/lib/math'
 import type { RewardDistributionAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -40,10 +41,12 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
     return {
       amountAndSymbol: (
         <Amount.Crypto
-          value={BigAmount.fromBaseUnit({
-            value: distribution.amount.toString(),
-            precision: runeAsset.precision ?? 0,
-          }).toPrecision()}
+          value={fromBaseUnit(
+            BigAmount.fromBaseUnit({
+              value: distribution.amount.toString(),
+              precision: runeAsset.precision ?? 0,
+            }),
+          )}
           symbol={runeAsset?.symbol}
           fontSize='sm'
           fontWeight='bold'

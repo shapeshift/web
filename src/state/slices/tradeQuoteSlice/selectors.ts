@@ -29,6 +29,7 @@ import type { ActiveQuoteMeta } from './types'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { calculateFeeUsd } from '@/lib/fees/utils'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { validateQuoteRequest } from '@/state/apis/swapper/helpers/validateQuoteRequest'
 import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
 import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from '@/state/apis/swapper/types'
@@ -152,7 +153,7 @@ export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
       isWalletConnected,
       walletConnectedChainIds,
       manualReceiveAddress,
-      sellAssetBalanceCryptoBaseUnit: sellAssetBalanceCryptoBaseUnit.toBaseUnit(),
+      sellAssetBalanceCryptoBaseUnit: toBaseUnit(sellAssetBalanceCryptoBaseUnit),
       sellAmountCryptoBaseUnit: inputSellAmountCryptoBaseUnit,
       sellAsset,
       buyAsset,
@@ -344,10 +345,12 @@ export const selectQuoteSellAmountCryptoPrecision: Selector<ReduxState, string |
     selectQuoteSellAmountCryptoBaseUnit,
     (firstHopSellAsset, sellAmountCryptoBaseUnit) =>
       firstHopSellAsset
-        ? BigAmount.fromBaseUnit({
-            value: bnOrZero(sellAmountCryptoBaseUnit),
-            precision: firstHopSellAsset?.precision,
-          }).toPrecision()
+        ? fromBaseUnit(
+            BigAmount.fromBaseUnit({
+              value: bnOrZero(sellAmountCryptoBaseUnit),
+              precision: firstHopSellAsset?.precision,
+            }),
+          )
         : undefined,
   )
 
@@ -478,10 +481,12 @@ export const selectQuoteSellAmountBeforeFeesCryptoPrecision = createSelector(
   selectFirstHopSellAsset,
   (sellAmountBeforeFeesCryptoBaseUnit, sellAsset) => {
     if (!sellAmountBeforeFeesCryptoBaseUnit || !sellAsset) return
-    return BigAmount.fromBaseUnit({
-      value: sellAmountBeforeFeesCryptoBaseUnit,
-      precision: sellAsset.precision,
-    }).toPrecision()
+    return fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: sellAmountBeforeFeesCryptoBaseUnit,
+        precision: sellAsset.precision,
+      }),
+    )
   },
 )
 
@@ -490,10 +495,12 @@ export const selectBuyAmountBeforeFeesCryptoPrecision = createSelector(
   selectLastHopBuyAsset,
   (buyAmountBeforeFeesCryptoBaseUnit, buyAsset) => {
     if (!buyAmountBeforeFeesCryptoBaseUnit || !buyAsset) return
-    return BigAmount.fromBaseUnit({
-      value: buyAmountBeforeFeesCryptoBaseUnit,
-      precision: buyAsset.precision,
-    }).toPrecision()
+    return fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: buyAmountBeforeFeesCryptoBaseUnit,
+        precision: buyAsset.precision,
+      }),
+    )
   },
 )
 

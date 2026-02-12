@@ -26,6 +26,7 @@ import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFo
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { assertIsFoxEthStakingContractAddress } from '@/state/slices/opportunitiesSlice/constants'
@@ -97,19 +98,23 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
   // user info
   const rewardAmountCryptoPrecision = useMemo(
     () =>
-      BigAmount.fromBaseUnit({
-        value: bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0]),
-        precision: assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 0,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0]),
+          precision: assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 0,
+        }),
+      ),
     [assets, opportunity?.rewardsCryptoBaseUnit, opportunity?.underlyingAssetId],
   )
 
   const amountAvailableCryptoPrecision = useMemo(
     () =>
-      BigAmount.fromBaseUnit({
-        value: bnOrZero(opportunity?.cryptoAmountBaseUnit),
-        precision: asset?.precision ?? 18,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: bnOrZero(opportunity?.cryptoAmountBaseUnit),
+          precision: asset?.precision ?? 18,
+        }),
+      ),
     [asset?.precision, opportunity?.cryptoAmountBaseUnit],
   )
   const totalFiatBalance = opportunity?.fiatAmount
@@ -118,10 +123,12 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
     try {
       const fees = await getUnstakeFees(amountAvailableCryptoPrecision, true)
       if (!fees) return
-      return BigAmount.fromBaseUnit({
-        value: fees.networkFeeCryptoBaseUnit,
-        precision: feeAsset.precision,
-      }).toPrecision()
+      return fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: fees.networkFeeCryptoBaseUnit,
+          precision: feeAsset.precision,
+        }),
+      )
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
       console.error(error)

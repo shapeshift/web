@@ -19,6 +19,7 @@ import { useEvmFees } from '@/hooks/queries/useEvmFees'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
@@ -114,10 +115,12 @@ export const useRfoxStake = ({
   const amountCryptoPrecision = useMemo(
     () =>
       stakingAsset
-        ? BigAmount.fromBaseUnit({
-            value: amountCryptoBaseUnit,
-            precision: stakingAsset.precision,
-          }).toPrecision()
+        ? fromBaseUnit(
+            BigAmount.fromBaseUnit({
+              value: amountCryptoBaseUnit,
+              precision: stakingAsset.precision,
+            }),
+          )
         : undefined,
     [amountCryptoBaseUnit, stakingAsset],
   )
@@ -159,10 +162,12 @@ export const useRfoxStake = ({
     if (!allowanceDataCryptoBaseUnit) return
     if (!stakingAsset) return
 
-    return BigAmount.fromBaseUnit({
-      value: allowanceDataCryptoBaseUnit,
-      precision: stakingAsset.precision,
-    }).toPrecision()
+    return fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: allowanceDataCryptoBaseUnit,
+        precision: stakingAsset.precision,
+      }),
+    )
   }, [allowanceQuery.data, stakingAsset])
 
   const isApprovalRequired = useMemo(
@@ -363,10 +368,12 @@ export const useRfoxStake = ({
 
       if (!stakingAsset || !stakingAssetAccountId) return
 
-      const amountCryptoPrecision = BigAmount.fromBaseUnit({
-        value: amountCryptoBaseUnit,
-        precision: stakingAsset.precision,
-      }).toPrecision()
+      const amountCryptoPrecision = fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: amountCryptoBaseUnit,
+          precision: stakingAsset.precision,
+        }),
+      )
 
       dispatch(
         actionSlice.actions.upsertAction({

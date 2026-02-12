@@ -11,6 +11,7 @@ import { useTradeExecution } from './useTradeExecution'
 
 import { useGetTradeQuotes } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { fromBaseUnit } from '@/lib/math'
 import { assertUnreachable } from '@/lib/utils'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import {
@@ -105,14 +106,18 @@ export const useTradeButtonProps = ({
       buyAsset: lastStep.buyAsset,
       sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       expectedBuyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
-      sellAmountCryptoPrecision: BigAmount.fromBaseUnit({
-        value: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        precision: firstStep.sellAsset.precision,
-      }).toPrecision(),
-      expectedBuyAmountCryptoPrecision: BigAmount.fromBaseUnit({
-        value: lastStep.buyAmountAfterFeesCryptoBaseUnit,
-        precision: lastStep.buyAsset.precision,
-      }).toPrecision(),
+      sellAmountCryptoPrecision: fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          precision: firstStep.sellAsset.precision,
+        }),
+      ),
+      expectedBuyAmountCryptoPrecision: fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+          precision: lastStep.buyAsset.precision,
+        }),
+      ),
       metadata: {
         chainflipSwapId: firstStep?.chainflipSpecific?.chainflipSwapId,
         nearIntentsSpecific: firstStep?.nearIntentsSpecific,

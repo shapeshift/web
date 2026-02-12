@@ -24,6 +24,7 @@ import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatte
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero, positiveOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { enterYield } from '@/lib/yieldxyz/api'
 import { getDefaultValidatorForYield, isYieldDisabled } from '@/lib/yieldxyz/utils'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
@@ -126,10 +127,12 @@ export const EarnInput = memo(
     useEffect(() => {
       if (defaultSellAmountCryptoBaseUnit && defaultSellAsset && !sellAmountCryptoPrecision) {
         const precision = defaultSellAsset.precision ?? 18
-        const amountCryptoPrecision = BigAmount.fromBaseUnit({
-          value: defaultSellAmountCryptoBaseUnit,
-          precision,
-        }).toPrecision()
+        const amountCryptoPrecision = fromBaseUnit(
+          BigAmount.fromBaseUnit({
+            value: defaultSellAmountCryptoBaseUnit,
+            precision,
+          }),
+        )
         dispatch(tradeEarnInput.actions.setSellAmountCryptoPrecision(amountCryptoPrecision))
       }
     }, [defaultSellAmountCryptoBaseUnit, defaultSellAsset, sellAmountCryptoPrecision, dispatch])
@@ -271,7 +274,7 @@ export const EarnInput = memo(
       [sellAccountId, sellAsset?.assetId],
     )
     const sellAssetBalanceCryptoPrecision = useAppSelector(state =>
-      isConnected ? selectPortfolioCryptoBalanceByFilter(state, balanceFilter).toPrecision() : '0',
+      isConnected ? fromBaseUnit(selectPortfolioCryptoBalanceByFilter(state, balanceFilter)) : '0',
     )
 
     const minDeposit = useMemo(

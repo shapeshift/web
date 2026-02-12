@@ -7,6 +7,7 @@ import { RawText } from '@/components/Text'
 import type { NumberFormatOptions } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 
 export type AmountProps = {
   value: number | string | BigAmount | undefined
@@ -33,7 +34,7 @@ export function Amount({
     number: { toString },
   } = useLocaleFormatter()
 
-  const resolvedValue = BigAmount.isBigAmount(value) ? value.toPrecision() : value
+  const resolvedValue = BigAmount.isBigAmount(value) ? fromBaseUnit(value) : value
 
   return (
     <RawText {...props}>
@@ -75,7 +76,7 @@ const Crypto = ({
     number: { toCrypto },
   } = useLocaleFormatter()
 
-  const resolvedValue = BigAmount.isBigAmount(value) ? value.toPrecision() : value
+  const resolvedValue = BigAmount.isBigAmount(value) ? fromBaseUnit(value) : value
   const crypto = toCrypto(bnOrZero(resolvedValue), symbol, {
     maximumFractionDigits,
     omitDecimalTrailingZeros,
@@ -107,7 +108,7 @@ const Fiat = ({
     number: { toFiat },
   } = useLocaleFormatter({ fiatType })
 
-  const resolvedValue = BigAmount.isBigAmount(value) ? value.toPrecision() : value
+  const resolvedValue = BigAmount.isBigAmount(value) ? fromBaseUnit(value) : value
   const fiat = toFiat(bnOrZero(resolvedValue).toFixed(), {
     fiatType,
     omitDecimalTrailingZeros,
@@ -128,7 +129,7 @@ const Percent = ({ value, autoColor, options, prefix, suffix, ...props }: Percen
   const {
     number: { toPercent },
   } = useLocaleFormatter()
-  const resolvedValue = BigAmount.isBigAmount(value) ? value.toPrecision() : value
+  const resolvedValue = BigAmount.isBigAmount(value) ? fromBaseUnit(value) : value
   const formattedNumber = toPercent(bnOrZero(resolvedValue).toFixed(), options)
   const red = useColorModeValue('red.800', 'red.500')
   const green = useColorModeValue('green.500', 'green.200')

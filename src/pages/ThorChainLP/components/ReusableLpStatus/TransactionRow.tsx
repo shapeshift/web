@@ -30,6 +30,7 @@ import { Row } from '@/components/Row/Row'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { getTxLink } from '@/lib/getTxLink'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { assertUnreachable } from '@/lib/utils'
@@ -341,10 +342,12 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   } = useSendThorTx({
     assetId: isRuneTx ? thorchainAssetId : poolAssetId,
     accountId: (isRuneTx ? runeAccountId : poolAssetAccountId) ?? null,
-    amountCryptoBaseUnit: BigAmount.fromPrecision({
-      value: amountCryptoPrecision,
-      precision: asset?.precision ?? 0,
-    }).toBaseUnit(),
+    amountCryptoBaseUnit: toBaseUnit(
+      BigAmount.fromPrecision({
+        value: amountCryptoPrecision,
+        precision: asset?.precision ?? 0,
+      }),
+    ),
     memo,
     fromAddress: fromAddress ?? null,
     action: isDeposit ? 'addLiquidity' : 'withdrawLiquidity',
@@ -442,10 +445,12 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     if (txId || isSubmitting) return
 
     setTxFeeCryptoPrecision(
-      BigAmount.fromBaseUnit({
-        value: estimatedFeesData.txFeeCryptoBaseUnit,
-        precision: feeAsset?.precision,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: estimatedFeesData.txFeeCryptoBaseUnit,
+          precision: feeAsset?.precision,
+        }),
+      ),
     )
   }, [estimatedFeesData, feeAsset, isSubmitting, txId])
 

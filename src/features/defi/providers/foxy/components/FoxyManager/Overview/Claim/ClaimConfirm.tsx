@@ -28,6 +28,7 @@ import { Text } from '@/components/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import type { StakingId } from '@/state/slices/opportunitiesSlice/types'
 import {
@@ -96,10 +97,12 @@ export const ClaimConfirm = ({
   const cryptoHumanBalance = useMemo(
     () =>
       bnOrZero(
-        BigAmount.fromBaseUnit({
-          value: claimAmount ?? '0',
-          precision: stakingAsset.precision,
-        }).toPrecision(),
+        fromBaseUnit(
+          BigAmount.fromBaseUnit({
+            value: claimAmount ?? '0',
+            precision: stakingAsset.precision,
+          }),
+        ),
       ),
     [stakingAsset.precision, claimAmount],
   )
@@ -287,10 +290,12 @@ export const ClaimConfirm = ({
                 <Stack textAlign='right' spacing={0}>
                   <Amount.Fiat
                     value={bnOrZero(
-                      BigAmount.fromBaseUnit({
-                        value: estimatedGas ?? '0',
-                        precision: feeAsset.precision,
-                      }).toPrecision(),
+                      fromBaseUnit(
+                        BigAmount.fromBaseUnit({
+                          value: estimatedGas ?? '0',
+                          precision: feeAsset.precision,
+                        }),
+                      ),
                     )
                       .times(bnOrZero(feeMarketData?.price))
                       .toFixed(2)}
@@ -298,10 +303,12 @@ export const ClaimConfirm = ({
                   <Amount.Crypto
                     color='text.subtle'
                     value={bnOrZero(
-                      BigAmount.fromBaseUnit({
-                        value: estimatedGas ?? '0',
-                        precision: feeAsset.precision,
-                      }).toPrecision(),
+                      fromBaseUnit(
+                        BigAmount.fromBaseUnit({
+                          value: estimatedGas ?? '0',
+                          precision: feeAsset.precision,
+                        }),
+                      ),
                     ).toFixed(5)}
                     symbol={feeAsset.symbol}
                   />

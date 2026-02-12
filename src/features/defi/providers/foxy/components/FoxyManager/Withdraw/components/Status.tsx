@@ -23,6 +23,7 @@ import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyMana
 import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { getTxLink } from '@/lib/getTxLink'
+import { fromBaseUnit } from '@/lib/math'
 
 type StatusProps = { accountId: AccountId | undefined }
 
@@ -135,19 +136,25 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   const usedGasOrEstimateCryptoPrecision = useMemo(() => {
     if (maybeSafeTx?.transaction?.gasUsed)
-      return BigAmount.fromBaseUnit({
-        value: maybeSafeTx.transaction.gasUsed,
-        precision: feeAsset.precision,
-      }).toPrecision()
+      return fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: maybeSafeTx.transaction.gasUsed,
+          precision: feeAsset.precision,
+        }),
+      )
     if (state?.withdraw.usedGasFeeCryptoBaseUnit)
-      return BigAmount.fromBaseUnit({
-        value: state.withdraw.usedGasFeeCryptoBaseUnit,
+      return fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: state.withdraw.usedGasFeeCryptoBaseUnit,
+          precision: feeAsset.precision,
+        }),
+      )
+    return fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: state?.withdraw.estimatedGasCryptoBaseUnit ?? '0',
         precision: feeAsset.precision,
-      }).toPrecision()
-    return BigAmount.fromBaseUnit({
-      value: state?.withdraw.estimatedGasCryptoBaseUnit ?? '0',
-      precision: feeAsset.precision,
-    }).toPrecision()
+      }),
+    )
   }, [
     feeAsset.precision,
     maybeSafeTx?.transaction?.gasUsed,

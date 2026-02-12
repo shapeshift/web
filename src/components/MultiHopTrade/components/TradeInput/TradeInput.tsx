@@ -37,6 +37,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { fromBaseUnit } from '@/lib/math'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { useGetTradeRatesQuery } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote } from '@/state/apis/swapper/types'
@@ -222,10 +223,12 @@ export const TradeInput = ({
     const recommendedMinimumCryptoBaseUnit = (activeQuote as ThorTradeQuote)
       ?.recommendedMinimumCryptoBaseUnit
     if (!recommendedMinimumCryptoBaseUnit) return translate('warningAcknowledgement.unsafeTrade')
-    const recommendedMinimumCryptoPrecision = BigAmount.fromBaseUnit({
-      value: recommendedMinimumCryptoBaseUnit,
-      precision: sellAsset.precision,
-    }).toPrecision()
+    const recommendedMinimumCryptoPrecision = fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: recommendedMinimumCryptoBaseUnit,
+        precision: sellAsset.precision,
+      }),
+    )
     const message = translate('trade.errors.unsafeQuote', {
       symbol: sellAsset.symbol,
       recommendedMin: recommendedMinimumCryptoPrecision,

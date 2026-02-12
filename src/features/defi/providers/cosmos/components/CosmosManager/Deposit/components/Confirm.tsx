@@ -26,6 +26,7 @@ import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -141,10 +142,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
           gas: gasLimit,
           fee: txFee,
         },
-        value: BigAmount.fromPrecision({
-          value: state.deposit.cryptoAmount,
-          precision: asset.precision,
-        }).toBaseUnit(),
+        value: toBaseUnit(
+          BigAmount.fromPrecision({
+            value: state.deposit.cryptoAmount,
+            precision: asset.precision,
+          }),
+        ),
         action: StakingAction.Stake,
       })
 
@@ -201,15 +204,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
 
   const estimatedGasCryptoPrecision = useMemo(() => {
     return bnOrZero(
-      BigAmount.fromBaseUnit({
-        value: state?.deposit.estimatedGasCryptoBaseUnit ?? 0,
-        precision: feeAsset.precision,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: state?.deposit.estimatedGasCryptoBaseUnit ?? 0,
+          precision: feeAsset.precision,
+        }),
+      ),
     )
   }, [state?.deposit.estimatedGasCryptoBaseUnit, feeAsset])
 
   const hasEnoughBalanceForGas = useMemo(() => {
-    return bnOrZero(feeAssetBalance.toPrecision()).gte(
+    return bnOrZero(fromBaseUnit(feeAssetBalance)).gte(
       bnOrZero(state?.deposit.cryptoAmount).plus(estimatedGasCryptoPrecision),
     )
   }, [state?.deposit.cryptoAmount, estimatedGasCryptoPrecision, feeAssetBalance])

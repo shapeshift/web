@@ -9,6 +9,7 @@ import { toHex } from 'viem'
 import type { EstimateFeesInput } from '@/components/Modals/Send/utils'
 import { estimateFees } from '@/components/Modals/Send/utils'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { getSupportedEvmChainIds } from '@/lib/utils/evm'
 import type { LendingQuoteClose, LendingQuoteOpen } from '@/lib/utils/thorchain/lending/types'
 import type {
@@ -146,10 +147,12 @@ export const useQuoteEstimatedFeesQuery = ({
         ? async () => {
             const estimatedFees = await estimateFees(estimateFeesArgs)
             const txFeeFiat = bnOrZero(
-              BigAmount.fromBaseUnit({
-                value: estimatedFees.fast.txFee ?? '0',
-                precision: feeAsset.precision,
-              }).toPrecision(),
+              fromBaseUnit(
+                BigAmount.fromBaseUnit({
+                  value: estimatedFees.fast.txFee ?? '0',
+                  precision: feeAsset.precision,
+                }),
+              ),
             )
               .times(bnOrZero(feeAssetMarketData?.price))
               .toString()

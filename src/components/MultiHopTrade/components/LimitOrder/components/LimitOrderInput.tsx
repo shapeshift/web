@@ -38,6 +38,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { DEFAULT_FEE_BPS } from '@/lib/fees/constant'
 import { calculateFeeUsd } from '@/lib/fees/utils'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getErc20Allowance } from '@/lib/utils/evm'
 import { useQuoteLimitOrderQuery } from '@/state/apis/limit-orders/limitOrderApi'
 import { LimitPriceMode, PriceDirection } from '@/state/slices/limitOrderInputSlice/constants'
@@ -382,7 +383,7 @@ export const LimitOrderInput = ({
       case !shouldShowTradeQuoteOrAwaitInput:
       case !hasUserEnteredAmount:
         return { quoteStatusTranslation: 'trade.previewTrade', isError: false }
-      case bnOrZero(sellAssetBalanceCryptoBaseUnit.toBaseUnit()).isZero():
+      case bnOrZero(toBaseUnit(sellAssetBalanceCryptoBaseUnit)).isZero():
         return { quoteStatusTranslation: 'limitOrder.errors.zeroFunds', isError: true }
       case sellAsset.chainId !== buyAsset.chainId:
         return { quoteStatusTranslation: 'trade.errors.quoteCrossChainNotSupported', isError: true }
@@ -429,10 +430,12 @@ export const LimitOrderInput = ({
 
     const { feeAmount } = quoteResponse.quote
 
-    const feeAmountCryptoPrecision = BigAmount.fromBaseUnit({
-      value: feeAmount,
-      precision: sellAsset.precision,
-    }).toPrecision()
+    const feeAmountCryptoPrecision = fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: feeAmount,
+        precision: sellAsset.precision,
+      }),
+    )
 
     return bn(feeAmountCryptoPrecision).div(sellAmountCryptoPrecision).toFixed(2)
   }, [

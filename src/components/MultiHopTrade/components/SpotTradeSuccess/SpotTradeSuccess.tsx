@@ -31,6 +31,7 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
 import { useTxDetails, useTxDetailsQuery } from '@/hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { selectLastHopBuyAccountId } from '@/state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
@@ -109,10 +110,12 @@ export const SpotTradeSuccess = ({
       transfer => transfer.type === TransferType.Receive && transfer.assetId === buyAsset.assetId,
     )
     return receiveTransfer?.value
-      ? BigAmount.fromBaseUnit({
-          value: receiveTransfer.value,
-          precision: buyAsset.precision,
-        }).toPrecision()
+      ? fromBaseUnit(
+          BigAmount.fromBaseUnit({
+            value: receiveTransfer.value,
+            precision: buyAsset.precision,
+          }),
+        )
       : undefined
   }, [transfers, buyAsset])
 
@@ -127,10 +130,12 @@ export const SpotTradeSuccess = ({
   const { buyAmountBeforeFeesCryptoPrecision } = useMemo(() => {
     const { buyAmountBeforeFeesCryptoBaseUnit } = lastHop ?? {}
 
-    const buyAmountBeforeFeesCryptoPrecision = BigAmount.fromBaseUnit({
-      value: buyAmountBeforeFeesCryptoBaseUnit,
-      precision: lastHop?.buyAsset.precision ?? 0,
-    }).toPrecision()
+    const buyAmountBeforeFeesCryptoPrecision = fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: buyAmountBeforeFeesCryptoBaseUnit,
+        precision: lastHop?.buyAsset.precision ?? 0,
+      }),
+    )
 
     return {
       buyAmountBeforeFeesCryptoPrecision,

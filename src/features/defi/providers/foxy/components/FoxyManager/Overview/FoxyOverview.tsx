@@ -22,6 +22,7 @@ import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCom
 import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import { useGetAssetDescriptionQuery } from '@/state/slices/assetsSlice/assetsSlice'
 import type { StakingId } from '@/state/slices/opportunitiesSlice/types'
@@ -120,10 +121,12 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
     selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
   )
   const cryptoAmountAvailablePrecision = bnOrZero(
-    BigAmount.fromBaseUnit({
-      value: foxyEarnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
-      precision: stakingAsset?.precision ?? 0,
-    }).toPrecision(),
+    fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: foxyEarnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
+        precision: stakingAsset?.precision ?? 0,
+      }),
+    ),
   )
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailablePrecision).times(
     bnOrZero(marketData?.price),

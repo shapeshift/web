@@ -15,6 +15,7 @@ import { getReceiveAddress } from '@/components/MultiHopTrade/hooks/useReceiveAd
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn } from '@/lib/bignumber/bignumber'
+import { toBaseUnit } from '@/lib/math'
 import { fromThorBaseUnit } from '@/lib/utils/thorchain'
 import { BASE_BPS_POINTS, THORCHAIN_AFFILIATE_NAME } from '@/lib/utils/thorchain/constants'
 import { getMaybeThorchainLendingOpenQuote } from '@/lib/utils/thorchain/lending'
@@ -247,10 +248,12 @@ export const useLendingQuoteOpenQuery = ({
       const position = await getMaybeThorchainLendingOpenQuote({
         receiveAssetId: borrowAssetId,
         collateralAssetId,
-        collateralAmountCryptoBaseUnit: BigAmount.fromPrecision({
-          value: depositAmountCryptoPrecision,
-          precision: collateralAsset?.precision ?? 0, // actually always defined at runtime, see "enabled" option
-        }).toBaseUnit(),
+        collateralAmountCryptoBaseUnit: toBaseUnit(
+          BigAmount.fromPrecision({
+            value: depositAmountCryptoPrecision,
+            precision: collateralAsset?.precision ?? 0, // actually always defined at runtime, see "enabled" option
+          }),
+        ),
         receiveAssetAddress: borrowAssetReceiveAddress ?? '', // actually always defined at runtime, see "enabled" option
       })
 

@@ -8,6 +8,7 @@ import { arbitrum } from 'viem/chains'
 
 import { getStakingContract } from '../../helpers'
 
+import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
 import { selectAssetById } from '@/state/slices/selectors'
 import { store } from '@/state/store'
@@ -77,10 +78,12 @@ export const getUnstakingRequestsQueryFn = ({
 
         return {
           amountCryptoBaseUnit,
-          amountCryptoPrecision: BigAmount.fromBaseUnit({
-            value: amountCryptoBaseUnit,
-            precision: stakingAsset.precision,
-          }).toPrecision(),
+          amountCryptoPrecision: fromBaseUnit(
+            BigAmount.fromBaseUnit({
+              value: amountCryptoBaseUnit,
+              precision: stakingAsset.precision,
+            }),
+          ),
           cooldownExpiry: result.cooldownExpiry.toString(),
           stakingAssetId,
           index,

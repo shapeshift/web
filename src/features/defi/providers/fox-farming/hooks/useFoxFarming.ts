@@ -12,6 +12,7 @@ import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
 
 import { useFoxEth } from '@/context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { toBaseUnit } from '@/lib/math'
 import { isValidAccountNumber } from '@/lib/utils/accounts'
 import {
   assertGetEvmChainAdapter,
@@ -75,10 +76,12 @@ export const useFoxFarming = (
           functionName: 'stake',
           args: [
             BigInt(
-              BigAmount.fromPrecision({
-                value: lpAmount,
-                precision: lpAsset.precision,
-              }).toBaseUnit(),
+              toBaseUnit(
+                BigAmount.fromPrecision({
+                  value: lpAmount,
+                  precision: lpAsset.precision,
+                }),
+              ),
             ),
           ],
         })
@@ -134,10 +137,12 @@ export const useFoxFarming = (
             : {
                 args: [
                   BigInt(
-                    BigAmount.fromPrecision({
-                      value: lpAmount,
-                      precision: lpAsset.precision,
-                    }).toBaseUnit(),
+                    toBaseUnit(
+                      BigAmount.fromPrecision({
+                        value: lpAmount,
+                        precision: lpAsset.precision,
+                      }),
+                    ),
                   ),
                 ],
               }),
@@ -218,7 +223,7 @@ export const useFoxFarming = (
         functionName: 'stake',
         args: [
           BigInt(
-            BigAmount.fromPrecision({ value: lpAmount, precision: lpAsset.precision }).toBaseUnit(),
+            toBaseUnit(BigAmount.fromPrecision({ value: lpAmount, precision: lpAsset.precision })),
           ),
         ],
       })
@@ -256,10 +261,12 @@ export const useFoxFarming = (
           : {
               args: [
                 BigInt(
-                  BigAmount.fromPrecision({
-                    value: lpAmount,
-                    precision: lpAsset.precision,
-                  }).toBaseUnit(),
+                  toBaseUnit(
+                    BigAmount.fromPrecision({
+                      value: lpAmount,
+                      precision: lpAsset.precision,
+                    }),
+                  ),
                 ),
               ],
             }),

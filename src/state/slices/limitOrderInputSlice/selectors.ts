@@ -4,6 +4,8 @@ import { createSelector } from 'reselect'
 import { createTradeInputBaseSelectors } from '../common/tradeInputBase/createTradeInputBaseSelectors'
 import type { LimitOrderInputState } from './limitOrderInputSlice'
 
+import { fromBaseUnit } from '@/lib/math'
+
 // Shared selectors from the base trade input slice that handle common functionality like input
 // assets, rates, and slippage preferences
 export const {
@@ -78,10 +80,12 @@ export const selectBuyAmountCryptoPrecision = createSelector(
   selectBuyAmountCryptoBaseUnit,
   selectInputBuyAsset,
   (buyAmountCryptoBaseUnit, buyAsset) =>
-    BigAmount.fromBaseUnit({
-      value: buyAmountCryptoBaseUnit,
-      precision: buyAsset.precision,
-    }).toPrecision(),
+    fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: buyAmountCryptoBaseUnit,
+        precision: buyAsset.precision,
+      }),
+    ),
 )
 
 export const selectBuyAmountUserCurrency = createSelector(

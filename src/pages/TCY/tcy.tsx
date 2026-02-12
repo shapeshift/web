@@ -20,6 +20,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useLocalStorage } from '@/hooks/useLocalStorage/useLocalStorage'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
@@ -101,17 +102,21 @@ export const TCY = () => {
     if (!currentAccountId || !currentStaker || !walletInfo) return
 
     const currentAmount = bnOrZero(
-      BigAmount.fromBaseUnit({
-        value: currentStaker.amount ?? '0',
-        precision: THOR_PRECISION,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: currentStaker.amount ?? '0',
+          precision: THOR_PRECISION,
+        }),
+      ),
     )
     const defaultAmount = defaultStaker
       ? bnOrZero(
-          BigAmount.fromBaseUnit({
-            value: defaultStaker.amount ?? '0',
-            precision: THOR_PRECISION,
-          }).toPrecision(),
+          fromBaseUnit(
+            BigAmount.fromBaseUnit({
+              value: defaultStaker.amount ?? '0',
+              precision: THOR_PRECISION,
+            }),
+          ),
         )
       : undefined
 

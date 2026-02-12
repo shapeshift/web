@@ -17,6 +17,7 @@ import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { Row } from '@/components/Row/Row'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getTxLink } from '@/lib/getTxLink'
+import { fromBaseUnit } from '@/lib/math'
 import { formatSecondsToDuration, formatSmartDate } from '@/lib/utils/time'
 import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
@@ -68,10 +69,12 @@ export const ArbitrumBridgeWithdrawActionCard = ({
 
   const buyAmountCryptoPrecision = useMemo(() => {
     if (!buyAsset) return '0'
-    const rawAmount = BigAmount.fromBaseUnit({
-      value: action.arbitrumBridgeMetadata.amountCryptoBaseUnit,
-      precision: buyAsset.precision,
-    }).toPrecision()
+    const rawAmount = fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: action.arbitrumBridgeMetadata.amountCryptoBaseUnit,
+        precision: buyAsset.precision,
+      }),
+    )
     return bnOrZero(rawAmount).decimalPlaces(8).toString()
   }, [action.arbitrumBridgeMetadata.amountCryptoBaseUnit, buyAsset])
 

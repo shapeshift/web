@@ -25,6 +25,7 @@ import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommo
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -141,10 +142,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
           gas: gasLimit,
           fee: txFee,
         },
-        value: BigAmount.fromPrecision({
-          value: state.withdraw.cryptoAmount,
-          precision: asset.precision,
-        }).toBaseUnit(),
+        value: toBaseUnit(
+          BigAmount.fromPrecision({
+            value: state.withdraw.cryptoAmount,
+            precision: asset.precision,
+          }),
+        ),
         action: StakingAction.Unstake,
       })
 
@@ -193,15 +196,17 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
 
   const estimatedGasCryptoPrecision = useMemo(() => {
     return bnOrZero(
-      BigAmount.fromBaseUnit({
-        value: state?.withdraw.estimatedGasCryptoBaseUnit ?? 0,
-        precision: feeAsset.precision,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: state?.withdraw.estimatedGasCryptoBaseUnit ?? 0,
+          precision: feeAsset.precision,
+        }),
+      ),
     )
   }, [state?.withdraw.estimatedGasCryptoBaseUnit, feeAsset])
 
   const hasEnoughBalanceForGas = useMemo(() => {
-    return bnOrZero(feeAssetBalance.toPrecision()).gte(bnOrZero(estimatedGasCryptoPrecision))
+    return bnOrZero(fromBaseUnit(feeAssetBalance)).gte(bnOrZero(estimatedGasCryptoPrecision))
   }, [estimatedGasCryptoPrecision, feeAssetBalance])
 
   useEffect(() => {

@@ -36,6 +36,7 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -197,9 +198,9 @@ export const BorrowInput = ({
     () => ({ assetId: collateralAssetId, accountId: collateralAccountId }),
     [collateralAssetId, collateralAccountId],
   )
-  const balanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
-  ).toBaseUnit()
+  const balanceCryptoBaseUnit = toBaseUnit(
+    useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, balanceFilter)),
+  )
   const collateralFeeAsset = useAppSelector(state => selectFeeAssetById(state, collateralAssetId))
   const borrowFeeAsset = useAppSelector(state =>
     selectFeeAssetById(state, borrowAsset?.assetId ?? ''),
@@ -209,16 +210,20 @@ export const BorrowInput = ({
     () => ({ assetId: collateralFeeAsset?.assetId ?? '', accountId: collateralAccountId }),
     [collateralAccountId, collateralFeeAsset?.assetId],
   )
-  const collateralFeeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, collateralFeeAssetBalanceFilter),
-  ).toBaseUnit()
+  const collateralFeeAssetBalanceCryptoBaseUnit = toBaseUnit(
+    useAppSelector(state =>
+      selectPortfolioCryptoBalanceByFilter(state, collateralFeeAssetBalanceFilter),
+    ),
+  )
 
   const amountAvailableCryptoPrecision = useMemo(
     () =>
-      BigAmount.fromBaseUnit({
-        value: balanceCryptoBaseUnit,
-        precision: collateralAsset?.precision ?? 0,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: balanceCryptoBaseUnit,
+          precision: collateralAsset?.precision ?? 0,
+        }),
+      ),
     [balanceCryptoBaseUnit, collateralAsset?.precision],
   )
 
@@ -234,10 +239,12 @@ export const BorrowInput = ({
     if (collateralFeeAsset.assetId === collateralAssetId)
       return bnOrZero(depositAmountCryptoPrecision)
         .plus(
-          BigAmount.fromBaseUnit({
-            value: estimatedFeesData.txFeeCryptoBaseUnit,
-            precision: collateralAsset?.precision ?? 0,
-          }).toPrecision(),
+          fromBaseUnit(
+            BigAmount.fromBaseUnit({
+              value: estimatedFeesData.txFeeCryptoBaseUnit,
+              precision: collateralAsset?.precision ?? 0,
+            }),
+          ),
         )
         .lte(amountAvailableCryptoPrecision)
 
@@ -260,10 +267,12 @@ export const BorrowInput = ({
     () => ({
       assetId: collateralAssetId,
       address: fromAddress,
-      amountCryptoBaseUnit: BigAmount.fromPrecision({
-        value: depositAmountCryptoPrecision ?? 0,
-        precision: collateralAsset?.precision ?? 0,
-      }).toBaseUnit(),
+      amountCryptoBaseUnit: toBaseUnit(
+        BigAmount.fromPrecision({
+          value: depositAmountCryptoPrecision ?? 0,
+          precision: collateralAsset?.precision ?? 0,
+        }),
+      ),
       txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       enabled: Boolean(
@@ -306,16 +315,20 @@ export const BorrowInput = ({
 
     return bnOrZero(depositAmountCryptoPrecision)
       .plus(
-        BigAmount.fromBaseUnit({
-          value: estimatedFeesData.txFeeCryptoBaseUnit,
-          precision: collateralAsset?.precision ?? 0,
-        }).toPrecision(),
+        fromBaseUnit(
+          BigAmount.fromBaseUnit({
+            value: estimatedFeesData.txFeeCryptoBaseUnit,
+            precision: collateralAsset?.precision ?? 0,
+          }),
+        ),
       )
       .plus(
-        BigAmount.fromBaseUnit({
-          value: estimatedSweepFeesData.txFeeCryptoBaseUnit,
-          precision: collateralAsset?.precision ?? 0,
-        }).toPrecision(),
+        fromBaseUnit(
+          BigAmount.fromBaseUnit({
+            value: estimatedSweepFeesData.txFeeCryptoBaseUnit,
+            precision: collateralAsset?.precision ?? 0,
+          }),
+        ),
       )
       .lte(amountAvailableCryptoPrecision)
   }, [

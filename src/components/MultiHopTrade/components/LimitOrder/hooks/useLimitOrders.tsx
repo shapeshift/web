@@ -11,6 +11,7 @@ import { useTranslate } from 'react-polyglot'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { fromBaseUnit } from '@/lib/math'
 import { useGetLimitOrdersQuery } from '@/state/apis/limit-orders/limitOrderApi'
 import { selectPartitionedAccountIds } from '@/state/slices/common-selectors'
 import {
@@ -77,14 +78,18 @@ export const useLimitOrders = () => {
 
       if (!(sellAsset && buyAsset)) return
 
-      const sellAmountCryptoPrecision = BigAmount.fromBaseUnit({
-        value: executedSellAmount,
-        precision: sellAsset.precision,
-      }).toPrecision()
-      const buyAmountCryptoPrecision = BigAmount.fromBaseUnit({
-        value: executedBuyAmount,
-        precision: buyAsset.precision,
-      }).toPrecision()
+      const sellAmountCryptoPrecision = fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: executedSellAmount,
+          precision: sellAsset.precision,
+        }),
+      )
+      const buyAmountCryptoPrecision = fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: executedBuyAmount,
+          precision: buyAsset.precision,
+        }),
+      )
 
       const assetToAssetTranslation = translate(
         ...[

@@ -25,6 +25,7 @@ import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyMana
 import { usePoll } from '@/hooks/usePoll/usePoll'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import {
   selectBip44ParamsByAccountId,
@@ -96,10 +97,12 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
         contractAddress,
         wallet: walletState.wallet,
         amountDesired: bnOrZero(
-          BigAmount.fromPrecision({
-            value: state.withdraw.cryptoAmount ?? '0',
-            precision: underlyingAsset.precision,
-          }).toBaseUnit(),
+          toBaseUnit(
+            BigAmount.fromPrecision({
+              value: state.withdraw.cryptoAmount ?? '0',
+              precision: underlyingAsset.precision,
+            }),
+          ),
         ),
         type: state.withdraw.withdrawType,
         bip44Params,
@@ -144,13 +147,15 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
     poll,
   ])
 
-  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance.toPrecision())
+  const hasEnoughBalanceForGas = bnOrZero(fromBaseUnit(feeAssetBalance))
     .minus(
       bnOrZero(
-        BigAmount.fromBaseUnit({
-          value: state?.withdraw.estimatedGasCryptoBaseUnit ?? '0',
-          precision: feeAsset.precision,
-        }).toPrecision(),
+        fromBaseUnit(
+          BigAmount.fromBaseUnit({
+            value: state?.withdraw.estimatedGasCryptoBaseUnit ?? '0',
+            precision: feeAsset.precision,
+          }),
+        ),
       ),
     )
     .gte(0)
@@ -216,10 +221,12 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(
-                  BigAmount.fromBaseUnit({
-                    value: state.withdraw.estimatedGasCryptoBaseUnit ?? '0',
-                    precision: feeAsset.precision,
-                  }).toPrecision(),
+                  fromBaseUnit(
+                    BigAmount.fromBaseUnit({
+                      value: state.withdraw.estimatedGasCryptoBaseUnit ?? '0',
+                      precision: feeAsset.precision,
+                    }),
+                  ),
                 )
                   .times(bnOrZero(feeMarketData?.price))
                   .toFixed(2)}
@@ -227,10 +234,12 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
               <Amount.Crypto
                 color='text.subtle'
                 value={bnOrZero(
-                  BigAmount.fromBaseUnit({
-                    value: state.withdraw.estimatedGasCryptoBaseUnit ?? '0',
-                    precision: feeAsset.precision,
-                  }).toPrecision(),
+                  fromBaseUnit(
+                    BigAmount.fromBaseUnit({
+                      value: state.withdraw.estimatedGasCryptoBaseUnit ?? '0',
+                      precision: feeAsset.precision,
+                    }),
+                  ),
                 ).toFixed(5)}
                 symbol={feeAsset.symbol}
               />

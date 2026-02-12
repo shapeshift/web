@@ -9,6 +9,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { Row } from '@/components/Row/Row'
 import { Text } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { toBaseUnit } from '@/lib/math'
 import { getStakingContract, selectStakingBalance } from '@/pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
 import { useStakingBalanceOfQuery } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
@@ -33,10 +34,12 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
   const translate = useTranslate()
   const stakingAmountCryptoBaseUnit = useMemo(
     () =>
-      BigAmount.fromPrecision({
-        value: stakingAmountCryptoPrecision,
-        precision: stakingAsset?.precision ?? 0,
-      }).toBaseUnit(),
+      toBaseUnit(
+        BigAmount.fromPrecision({
+          value: stakingAmountCryptoPrecision,
+          precision: stakingAsset?.precision ?? 0,
+        }),
+      ),
     [stakingAmountCryptoPrecision, stakingAsset?.precision],
   )
 

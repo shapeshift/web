@@ -8,6 +8,7 @@ import { getStakingContract } from '../helpers'
 import type { Epoch } from '../types'
 import { useEpochHistoryQuery } from './useEpochHistoryQuery'
 
+import { fromBaseUnit } from '@/lib/math'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -55,18 +56,22 @@ export const useLifetimeRewardsUserCurrencyQuery = ({
           // rFOX v3 updated rewards from rune to usdc
           if (epoch.number > 17) {
             return bn(
-              BigAmount.fromBaseUnit({
-                value: distribution.amount,
-                precision: usdcAsset?.precision ?? 0,
-              }).toPrecision(),
+              fromBaseUnit(
+                BigAmount.fromBaseUnit({
+                  value: distribution.amount,
+                  precision: usdcAsset?.precision ?? 0,
+                }),
+              ),
             ).times(usdcMarketData.price)
           }
 
           return bn(
-            BigAmount.fromBaseUnit({
-              value: distribution.amount,
-              precision: runeAsset?.precision ?? 0,
-            }).toPrecision(),
+            fromBaseUnit(
+              BigAmount.fromBaseUnit({
+                value: distribution.amount,
+                precision: runeAsset?.precision ?? 0,
+              }),
+            ),
           ).times(runeMarketData.price)
         })()
 

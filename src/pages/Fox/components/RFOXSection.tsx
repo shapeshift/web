@@ -36,6 +36,7 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { formatSecondsToDuration } from '@/lib/utils/time'
 import type { Filter } from '@/pages/Fox/components/FoxTokenFilterButton'
 import { FoxTokenFilterButton } from '@/pages/Fox/components/FoxTokenFilterButton'
@@ -195,10 +196,12 @@ export const RFOXSection = () => {
   const selectStakingBalanceCryptoPrecision = useCallback(
     (abiStakingInfo: AbiStakingInfo) => {
       const stakingBalanceCryptoBaseUnit = selectStakingBalance(abiStakingInfo)
-      return BigAmount.fromBaseUnit({
-        value: stakingBalanceCryptoBaseUnit.toString(),
-        precision: stakingAsset?.precision ?? 0,
-      }).toPrecision()
+      return fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: stakingBalanceCryptoBaseUnit.toString(),
+          precision: stakingAsset?.precision ?? 0,
+        }),
+      )
     },
     [stakingAsset],
   )
@@ -228,10 +231,12 @@ export const RFOXSection = () => {
 
   const currentEpochRewardsCryptoPrecision = useMemo(
     () =>
-      BigAmount.fromBaseUnit({
-        value: currentEpochRewardsQuery.data?.toString(),
-        precision: usdcAsset?.precision ?? 0,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: currentEpochRewardsQuery.data?.toString(),
+          precision: usdcAsset?.precision ?? 0,
+        }),
+      ),
     [currentEpochRewardsQuery.data, usdcAsset?.precision],
   )
 

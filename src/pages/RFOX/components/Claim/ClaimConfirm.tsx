@@ -35,6 +35,7 @@ import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
 import { useEvmFees } from '@/hooks/queries/useEvmFees'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { middleEllipsis } from '@/lib/utils'
 import {
   assertGetEvmChainAdapter,
@@ -109,10 +110,12 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
 
   const stakingAmountCryptoPrecision = useMemo(
     () =>
-      BigAmount.fromBaseUnit({
-        value: selectedUnstakingRequest.amountCryptoBaseUnit,
-        precision: stakingAsset?.precision ?? 0,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: selectedUnstakingRequest.amountCryptoBaseUnit,
+          precision: stakingAsset?.precision ?? 0,
+        }),
+      ),
     [selectedUnstakingRequest.amountCryptoBaseUnit, stakingAsset?.precision],
   )
 

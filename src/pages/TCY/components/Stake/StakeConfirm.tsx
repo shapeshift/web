@@ -14,6 +14,7 @@ import { GenericTransactionNotification } from '@/components/Layout/Header/Actio
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { ReusableConfirm } from '@/components/ReusableConfirm/ReusableConfirm'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
+import { toBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
@@ -54,10 +55,12 @@ export const StakeConfirm: React.FC = () => {
 
   const amountCryptoBaseUnit = useMemo(
     () =>
-      BigAmount.fromPrecision({
-        value: amountCryptoPrecision,
-        precision: THOR_PRECISION,
-      }).toBaseUnit(),
+      toBaseUnit(
+        BigAmount.fromPrecision({
+          value: amountCryptoPrecision,
+          precision: THOR_PRECISION,
+        }),
+      ),
     [amountCryptoPrecision],
   )
 

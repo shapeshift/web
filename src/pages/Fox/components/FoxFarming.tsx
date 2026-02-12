@@ -34,6 +34,7 @@ import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFo
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { foxEthLpAssetId } from '@/state/slices/opportunitiesSlice/constants'
@@ -271,10 +272,12 @@ export const FoxFarming = () => {
     if (!rewardAsset) return
     if (!userStakingOpportunity) return '0'
 
-    return BigAmount.fromBaseUnit({
-      value: userStakingOpportunity.rewardsCryptoBaseUnit?.amounts[0],
-      precision: rewardAsset?.precision ?? 0,
-    }).toPrecision()
+    return fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: userStakingOpportunity.rewardsCryptoBaseUnit?.amounts[0],
+        precision: rewardAsset?.precision ?? 0,
+      }),
+    )
   }, [isConnected, opportunity, userStakingOpportunity, rewardAsset])
 
   const totalStakingValue = useMemo(() => {
@@ -282,10 +285,12 @@ export const FoxFarming = () => {
     if (!opportunity) return
     if (!userStakingOpportunity) return '0'
 
-    return BigAmount.fromBaseUnit({
-      value: userStakingOpportunity?.stakedAmountCryptoBaseUnit,
-      precision: underlyingAsset?.precision ?? 0,
-    }).toPrecision()
+    return fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: userStakingOpportunity?.stakedAmountCryptoBaseUnit,
+        precision: underlyingAsset?.precision ?? 0,
+      }),
+    )
   }, [isConnected, opportunity, userStakingOpportunity, underlyingAsset?.precision])
 
   const apy = useMemo(() => {

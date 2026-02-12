@@ -7,6 +7,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { fromBaseUnit } from '@/lib/math'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { ProfileAvatar } from '@/pages/Dashboard/components/ProfileAvatar/ProfileAvatar'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
@@ -59,10 +60,12 @@ export const AccountSelectorOption = memo(
 
     const balanceCryptoPrecision = useMemo(
       () =>
-        BigAmount.fromBaseUnit({
-          value: cryptoBalance,
-          precision: asset?.precision ?? 0,
-        }).toPrecision(),
+        fromBaseUnit(
+          BigAmount.fromBaseUnit({
+            value: cryptoBalance,
+            precision: asset?.precision ?? 0,
+          }),
+        ),
       [cryptoBalance, asset?.precision],
     )
 

@@ -17,6 +17,7 @@ import { useEvmFees } from '@/hooks/queries/useEvmFees'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import type {
   GetFeesWithWalletEip1559SupportArgs,
   MaybeGetFeesWithWalletEip1559Args,
@@ -104,10 +105,12 @@ export const useRfoxBridgeApproval = ({
 
       if (!sellAsset || !confirmedQuote.sellAssetAccountId) return
 
-      const amountCryptoPrecision = BigAmount.fromBaseUnit({
-        value: confirmedQuote.bridgeAmountCryptoBaseUnit,
-        precision: sellAsset.precision,
-      }).toPrecision()
+      const amountCryptoPrecision = fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: confirmedQuote.bridgeAmountCryptoBaseUnit,
+          precision: sellAsset.precision,
+        }),
+      )
 
       dispatch(
         actionSlice.actions.upsertAction({

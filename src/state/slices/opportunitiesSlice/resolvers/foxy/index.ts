@@ -19,6 +19,7 @@ import type {
 } from '../types'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { toBaseUnit } from '@/lib/math'
 import { foxyApi } from '@/state/apis/foxy/foxyApi'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
@@ -87,7 +88,7 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
       underlyingAssetId: rewardTokenAssetId,
       underlyingAssetIds: [tokenAssetId],
       underlyingAssetRatiosBaseUnit: [
-        BigAmount.fromPrecision({ value: '1', precision: underlyingAsset.precision }).toBaseUnit(),
+        toBaseUnit(BigAmount.fromPrecision({ value: '1', precision: underlyingAsset.precision })),
       ],
       name: underlyingAsset.symbol,
       rewardAssetIds: [],
@@ -162,7 +163,7 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
       isLoaded: true,
       userStakingId,
-      stakedAmountCryptoBaseUnit: balance.toBaseUnit(),
+      stakedAmountCryptoBaseUnit: toBaseUnit(balance),
       rewardsCryptoBaseUnit: { amounts: rewardsAmountsCryptoBaseUnit, claimable: true },
       undelegations,
     }

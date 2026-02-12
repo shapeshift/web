@@ -4,6 +4,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { StatItem } from './StatItem'
 
+import { fromBaseUnit } from '@/lib/math'
 import { useTotalStakedQuery } from '@/pages/RFOX/hooks/useGetTotalStaked'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -24,10 +25,12 @@ export const TotalStaked: React.FC<TotalStakedProps> = ({ stakingAssetId }) => {
     stakingAssetId,
     select: (totalStaked: bigint) => {
       return bn(
-        BigAmount.fromBaseUnit({
-          value: totalStaked.toString(),
-          precision: stakingAsset?.precision ?? 0,
-        }).toPrecision(),
+        fromBaseUnit(
+          BigAmount.fromBaseUnit({
+            value: totalStaked.toString(),
+            precision: stakingAsset?.precision ?? 0,
+          }),
+        ),
       )
         .times(stakingAssetMarketData?.price ?? 0)
         .toFixed(2)

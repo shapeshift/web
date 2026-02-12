@@ -29,6 +29,7 @@ import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { selectPortfolioCryptoBalanceByFilter } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -80,7 +81,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
   const hasEnoughFeeBalance = useMemo(() => {
     // Fees loading, we don't know what we don't know
     if (isQuoteLoading || isGetApprovalFeesLoading) return true
-    if (bnOrZero(feeAssetBalance.toPrecision()).isZero()) return false
+    if (bnOrZero(fromBaseUnit(feeAssetBalance)).isZero()) return false
 
     const fees = (() => {
       if (approvalFees) return approvalFees
@@ -88,7 +89,7 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
     })()
 
     const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
-      feeAssetBalance.toBaseUnit(),
+      toBaseUnit(feeAssetBalance),
     )
 
     if (!hasEnoughFeeBalance) return false

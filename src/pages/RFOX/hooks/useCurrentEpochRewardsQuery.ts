@@ -16,6 +16,7 @@ import {
 import { getEarnedQueryFn, getEarnedQueryKey } from './useEarnedQuery'
 import { fetchEpochHistory, getEpochHistoryQueryKey } from './useEpochHistoryQuery'
 
+import { toBaseUnit } from '@/lib/math'
 import { mergeQueryOutputs } from '@/react-queries/helpers'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -84,10 +85,12 @@ export const useCurrentEpochRewardsQuery = ({
 
         const rewardUnits = currentEpochRewardUnits - previousEpochRewardUnits
 
-        const affiliateRevenueUsdcBaseUnit = BigAmount.fromPrecision({
-          value: bn(affiliateRevenueUsd).div(usdcMarketData.price),
-          precision: usdcAsset.precision,
-        }).toBaseUnit()
+        const affiliateRevenueUsdcBaseUnit = toBaseUnit(
+          BigAmount.fromPrecision({
+            value: bn(affiliateRevenueUsd).div(usdcMarketData.price),
+            precision: usdcAsset.precision,
+          }),
+        )
 
         return calcEpochRewardForAccountUsdcBaseUnit(
           rewardUnits,

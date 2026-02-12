@@ -52,6 +52,7 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 import type { BigNumber, BN } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { isMobile } from '@/lib/globals'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import type { AnonymizedPortfolio } from '@/lib/mixpanel/types'
 import { hashCode, isSome } from '@/lib/utils'
@@ -310,7 +311,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
           const price = marketData[assetId]?.price
           const assetUserCurrencyBalance = bn(balance.toPrecision()).times(bnOrZero(price))
           if (assetUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
-          acc[assetId] = balance.toBaseUnit()
+          acc[assetId] = toBaseUnit(balance)
           return acc
         },
         {},
@@ -440,7 +441,7 @@ export const selectPortfolioAccountsHumanBalances = createDeepEqualOutputSelecto
         acc[accountId] = Object.entries(account).reduce<AssetBalancesById>(
           (innerAcc, [assetId, balance]) => {
             const asset = assets[assetId]
-            if (asset) innerAcc[assetId] = balance.toPrecision()
+            if (asset) innerAcc[assetId] = fromBaseUnit(balance)
             return innerAcc
           },
           {},
@@ -774,7 +775,7 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
         if (spamAssetIdsSet.has(assetId)) return acc
         const { name, icon, symbol } = asset
         const price = marketData[assetId]?.price ?? '0'
-        const cryptoAmount = balance.toPrecision()
+        const cryptoAmount = fromBaseUnit(balance)
         const userCurrencyAmount = bn(cryptoAmount).times(bnOrZero(price))
         const allocation = bnOrZero(userCurrencyAmount.toFixed(2))
           .div(bnOrZero(totalPortfolioUserCurrencyBalance))
@@ -1127,7 +1128,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
         portfolioUserCurrencyBalances?.[accountId]?.[assetId],
       ).toString()
       const balance = portfolioCryptoBalancesBaseUnit[accountId]?.[assetId]
-      const amountCryptoPrecision = balance ? balance.toPrecision() : '0'
+      const amountCryptoPrecision = balance ? fromBaseUnit(balance) : '0'
       return {
         id: accountId,
         type: AssetEquityType.Account,

@@ -14,6 +14,7 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bn } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import {
   selectIsAssetWithoutMarketData,
   selectMarketDataUserCurrency,
@@ -47,10 +48,12 @@ export const AssetSummaryStep = ({
 
   const sellAmountCryptoPrecision = useMemo(
     () =>
-      BigAmount.fromBaseUnit({
-        value: amountCryptoBaseUnit,
-        precision: asset.precision,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: amountCryptoBaseUnit,
+          precision: asset.precision,
+        }),
+      ),
     [amountCryptoBaseUnit, asset.precision],
   )
 

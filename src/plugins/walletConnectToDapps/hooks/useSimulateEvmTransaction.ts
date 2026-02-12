@@ -11,6 +11,7 @@ import type { TransactionParams } from '../types'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { simulateTransaction } from '@/plugins/walletConnectToDapps/utils/tenderly'
 import {
   selectFeeAssetByChainId,
@@ -138,10 +139,12 @@ export const useSimulateEvmTransaction = ({
     })
 
     const txFeeCryptoPrecision = bnOrZero(
-      BigAmount.fromBaseUnit({
-        value: txFeeCryptoBaseUnit,
-        precision: feeAsset.precision,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: txFeeCryptoBaseUnit,
+          precision: feeAsset.precision,
+        }),
+      ),
     )
     const fiatFee = txFeeCryptoPrecision.times(bnOrZero(marketData.price))
 

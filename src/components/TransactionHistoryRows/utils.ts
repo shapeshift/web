@@ -8,6 +8,7 @@ import { maxUint256 } from 'viem'
 import type { Transfer } from '@/hooks/useTxDetails/useTxDetails'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { priceAtDate } from '@/lib/charts'
+import { fromBaseUnit } from '@/lib/math'
 import type { PriceHistoryData } from '@/state/slices/marketDataSlice/types'
 
 export const getTxMetadataWithAssetId = (txMetadata?: TxMetadata) => {
@@ -60,17 +61,21 @@ export const getTradeFees = memoize(
     if (bn(sellAssetPriceAtDate).isZero() || bn(buyAssetPriceAtDate).isZero()) return
 
     const sellAmountFiat = bnOrZero(
-      BigAmount.fromBaseUnit({
-        value: sell.value ?? '0',
-        precision: sell.asset.precision,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: sell.value ?? '0',
+          precision: sell.asset.precision,
+        }),
+      ),
     ).times(bnOrZero(sellAssetPriceAtDate))
 
     const buyAmountFiat = bnOrZero(
-      BigAmount.fromBaseUnit({
-        value: buy.value ?? '0',
-        precision: buy.asset.precision,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: buy.value ?? '0',
+          precision: buy.asset.precision,
+        }),
+      ),
     ).times(bnOrZero(buyAssetPriceAtDate))
 
     const sellTokenFee = sellAmountFiat.minus(buyAmountFiat).div(sellAssetPriceAtDate)
@@ -95,10 +100,12 @@ export const makeAmountOrDefault = (
   if (!approvedAsset || !approvedAssetMarketData)
     return `transactionRow.parser.${parser}.amountUnavailable`
 
-  const approvedAmount = BigAmount.fromBaseUnit({
-    value,
-    precision: approvedAsset.precision,
-  }).toPrecision()
+  const approvedAmount = fromBaseUnit(
+    BigAmount.fromBaseUnit({
+      value,
+      precision: approvedAsset.precision,
+    }),
+  )
 
   // If equal to max. Solidity uint256 value or greater than/equal to max supply, we can infer infinite approvals without market data
   if (

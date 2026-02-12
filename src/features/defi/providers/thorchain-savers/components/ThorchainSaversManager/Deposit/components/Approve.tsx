@@ -26,6 +26,7 @@ import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { usePoll } from '@/hooks/usePoll/usePoll'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { toBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
@@ -104,19 +105,23 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
 
   const { data: thorchainSaversDepositQuote } = useGetThorchainSaversDepositQuoteQuery({
     asset,
-    amountCryptoBaseUnit: BigAmount.fromPrecision({
-      value: state?.deposit.cryptoAmount,
-      precision: asset.precision,
-    }).toBaseUnit(),
+    amountCryptoBaseUnit: toBaseUnit(
+      BigAmount.fromPrecision({
+        value: state?.deposit.cryptoAmount,
+        precision: asset.precision,
+      }),
+    ),
   })
 
   const { inboundAddress } = useSendThorTx({
     assetId,
     accountId: accountId ?? null,
-    amountCryptoBaseUnit: BigAmount.fromPrecision({
-      value: state?.deposit.cryptoAmount,
-      precision: asset.precision,
-    }).toBaseUnit(),
+    amountCryptoBaseUnit: toBaseUnit(
+      BigAmount.fromPrecision({
+        value: state?.deposit.cryptoAmount,
+        precision: asset.precision,
+      }),
+    ),
     memo: thorchainSaversDepositQuote?.memo ?? null,
     fromAddress: '',
     action: 'depositSavers',
@@ -140,10 +145,12 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
     try {
       const amountCryptoBaseUnitOrZero = isReset
         ? '0'
-        : BigAmount.fromPrecision({
-            value: state.deposit.cryptoAmount,
-            precision: asset.precision,
-          }).toBaseUnit()
+        : toBaseUnit(
+            BigAmount.fromPrecision({
+              value: state.deposit.cryptoAmount,
+              precision: asset.precision,
+            }),
+          )
 
       const poolId = assetIdToThorPoolAssetId({ assetId: asset.assetId })
 

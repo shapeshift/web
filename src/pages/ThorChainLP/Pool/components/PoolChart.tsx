@@ -6,6 +6,7 @@ import { useCallback, useMemo, useState } from 'react'
 
 import { ChartSkeleton } from '@/components/SimpleChart/LoadingChart'
 import { SimpleChart } from '@/components/SimpleChart/SimpleChart'
+import { fromBaseUnit } from '@/lib/math'
 import type {
   MidgardSwapHistoryResponse,
   MidgardTvlHistoryResponse,
@@ -22,7 +23,7 @@ const swapHistoryToChartData = (swapHistory: MidgardSwapHistoryResponse): Single
 
   return swapHistory.intervals.map(interval => {
     const intervalVolumeFiatUserCurrency = bn(
-      BigAmount.fromThorBaseUnit(interval.totalVolume).toPrecision(),
+      fromBaseUnit(BigAmount.fromThorBaseUnit(interval.totalVolume)),
     )
       .times(interval.runePriceUSD)
       .times(userCurrencyToUsdRate)
@@ -43,7 +44,7 @@ const tvlToChartData = (
     const poolDepth = interval.poolsDepth.find(pool => pool.pool === thorchainNotationAssetId)
     const poolTotalDepth = poolDepth?.totalDepth ?? '0'
 
-    const tvlFiat = bn(BigAmount.fromThorBaseUnit(poolTotalDepth).toPrecision())
+    const tvlFiat = bn(fromBaseUnit(BigAmount.fromThorBaseUnit(poolTotalDepth)))
       .times(interval.runePriceUSD)
       .times(userCurrencyToUsdRate)
 

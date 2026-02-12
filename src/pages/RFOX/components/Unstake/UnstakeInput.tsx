@@ -28,6 +28,7 @@ import { useToggle } from '@/hooks/useToggle/useToggle'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { selectStakingBalance } from '@/pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
 import { supportedStakingAssetIds, useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
@@ -155,10 +156,12 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
 
   const amountCryptoBaseUnit = useMemo(
     () =>
-      BigAmount.fromPrecision({
-        value: amountCryptoPrecision,
-        precision: stakingAsset?.precision ?? 0,
-      }).toBaseUnit(),
+      toBaseUnit(
+        BigAmount.fromPrecision({
+          value: amountCryptoPrecision,
+          precision: stakingAsset?.precision ?? 0,
+        }),
+      ),
     [amountCryptoPrecision, stakingAsset?.precision],
   )
 
@@ -208,10 +211,12 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
 
   const userStakingBalanceCryptoPrecision = useMemo(() => {
     if (!(userStakingBalanceOfCryptoBaseUnit && stakingAsset)) return
-    return BigAmount.fromBaseUnit({
-      value: userStakingBalanceOfCryptoBaseUnit,
-      precision: stakingAsset?.precision ?? 0,
-    }).toPrecision()
+    return fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: userStakingBalanceOfCryptoBaseUnit,
+        precision: stakingAsset?.precision ?? 0,
+      }),
+    )
   }, [stakingAsset, userStakingBalanceOfCryptoBaseUnit])
 
   const userStakingBalanceUserCurrency = useMemo(() => {
@@ -291,10 +296,12 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     setConfirmedQuote({
       stakingAssetAccountId,
       stakingAssetId,
-      unstakingAmountCryptoBaseUnit: BigAmount.fromPrecision({
-        value: amountCryptoPrecision,
-        precision: stakingAsset.precision,
-      }).toBaseUnit(),
+      unstakingAmountCryptoBaseUnit: toBaseUnit(
+        BigAmount.fromPrecision({
+          value: amountCryptoPrecision,
+          precision: stakingAsset.precision,
+        }),
+      ),
       cooldownPeriod: cooldownPeriodData.cooldownPeriod,
     })
 
@@ -318,12 +325,12 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   const validateHasEnoughFeeBalance = useCallback(
     (input: string) => {
       if (bnOrZero(input).isZero()) return true
-      if (bnOrZero(stakingAssetFeeAssetBalance.toPrecision()).isZero()) return false
+      if (bnOrZero(fromBaseUnit(stakingAssetFeeAssetBalance)).isZero()) return false
 
       const fees = unstakeFees
 
       const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
-        stakingAssetFeeAssetBalance.toBaseUnit(),
+        toBaseUnit(stakingAssetFeeAssetBalance),
       )
 
       if (!hasEnoughFeeBalance) return false

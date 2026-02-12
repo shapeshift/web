@@ -18,6 +18,7 @@ import type {
 import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import type { UserStakingId } from '@/state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
 import {
@@ -77,10 +78,12 @@ export const Claim: React.FC<ClaimProps> = ({
 
   const rewardAmountCryptoPrecision = useMemo(
     () =>
-      BigAmount.fromBaseUnit({
-        value: bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0]),
-        precision: assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 0,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0]),
+          precision: assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 0,
+        }),
+      ),
     [assets, opportunity?.rewardsCryptoBaseUnit, opportunity?.underlyingAssetId],
   )
 

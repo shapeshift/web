@@ -23,6 +23,7 @@ import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useActions } from '@/hooks/useActions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { fromBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { limitOrderApi, usePlaceLimitOrderMutation } from '@/state/apis/limit-orders/limitOrderApi'
@@ -176,10 +177,12 @@ export const LimitOrderConfirm = () => {
   const detail = useMemo(() => {
     switch (orderSubmissionState) {
       case LimitOrderSubmissionState.AwaitingAllowanceApproval:
-        const allowanceApprovalNetworkFeeCryptoPrecision = BigAmount.fromBaseUnit({
-          value: approvalNetworkFeeCryptoBaseUnit ?? '0',
-          precision: feeAsset?.precision ?? 0,
-        }).toPrecision()
+        const allowanceApprovalNetworkFeeCryptoPrecision = fromBaseUnit(
+          BigAmount.fromBaseUnit({
+            value: approvalNetworkFeeCryptoBaseUnit ?? '0',
+            precision: feeAsset?.precision ?? 0,
+          }),
+        )
         const allowanceApprovalNetworkFeeUserCurrency = bn(
           allowanceApprovalNetworkFeeCryptoPrecision,
         )
@@ -212,10 +215,12 @@ export const LimitOrderConfirm = () => {
           </Stack>
         )
       case LimitOrderSubmissionState.AwaitingAllowanceReset:
-        const allowanceResetNetworkFeeCryptoPrecision = BigAmount.fromBaseUnit({
-          value: allowanceResetNetworkFeeCryptoBaseUnit ?? '0',
-          precision: feeAsset?.precision ?? 0,
-        }).toPrecision()
+        const allowanceResetNetworkFeeCryptoPrecision = fromBaseUnit(
+          BigAmount.fromBaseUnit({
+            value: allowanceResetNetworkFeeCryptoBaseUnit ?? '0',
+            precision: feeAsset?.precision ?? 0,
+          }),
+        )
         const allowanceResetNetworkFeeUserCurrency = bn(allowanceResetNetworkFeeCryptoPrecision)
           .times(feeAssetRateUserCurrency)
           .toFixed()

@@ -11,6 +11,7 @@ import { useNotificationToast } from '../useNotificationToast'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { LimitOrderNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/LimitOrderNotification'
 import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders'
+import { fromBaseUnit } from '@/lib/math'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import type { LimitOrderAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
@@ -112,14 +113,18 @@ export const useLimitOrderActionSubscriber = () => {
             cowSwapQuoteId: activeQuoteId,
             sellAmountCryptoBaseUnit,
             buyAmountCryptoBaseUnit,
-            sellAmountCryptoPrecision: BigAmount.fromBaseUnit({
-              value: sellAmountCryptoBaseUnit,
-              precision: sellAsset?.precision,
-            }).toPrecision(),
-            buyAmountCryptoPrecision: BigAmount.fromBaseUnit({
-              value: buyAmountCryptoBaseUnit,
-              precision: buyAsset?.precision,
-            }).toPrecision(),
+            sellAmountCryptoPrecision: fromBaseUnit(
+              BigAmount.fromBaseUnit({
+                value: sellAmountCryptoBaseUnit,
+                precision: sellAsset?.precision,
+              }),
+            ),
+            buyAmountCryptoPrecision: fromBaseUnit(
+              BigAmount.fromBaseUnit({
+                value: buyAmountCryptoBaseUnit,
+                precision: buyAsset?.precision,
+              }),
+            ),
             sellAsset,
             buyAsset,
             accountId,
@@ -270,14 +275,18 @@ export const useLimitOrderActionSubscriber = () => {
             ...action.limitOrderMetadata,
             executedBuyAmountCryptoBaseUnit: order.order.executedBuyAmount,
             executedSellAmountCryptoBaseUnit: order.order.executedSellAmount,
-            executedBuyAmountCryptoPrecision: BigAmount.fromBaseUnit({
-              value: order.order.executedBuyAmount,
-              precision: action.limitOrderMetadata.buyAsset.precision,
-            }).toPrecision(),
-            executedSellAmountCryptoPrecision: BigAmount.fromBaseUnit({
-              value: order.order.executedSellAmount,
-              precision: action.limitOrderMetadata.sellAsset.precision,
-            }).toPrecision(),
+            executedBuyAmountCryptoPrecision: fromBaseUnit(
+              BigAmount.fromBaseUnit({
+                value: order.order.executedBuyAmount,
+                precision: action.limitOrderMetadata.buyAsset.precision,
+              }),
+            ),
+            executedSellAmountCryptoPrecision: fromBaseUnit(
+              BigAmount.fromBaseUnit({
+                value: order.order.executedSellAmount,
+                precision: action.limitOrderMetadata.sellAsset.precision,
+              }),
+            ),
             filledDecimalPercentage: bnOrZero(order.order.executedSellAmount)
               .div(order.order.sellAmount)
               .toString(),

@@ -36,6 +36,7 @@ import { getConfig } from '@/config'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber, BN } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { poll } from '@/lib/poll/poll'
 import type { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
 import { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
@@ -133,10 +134,12 @@ export const waitForThorchainUpdate = ({
 
 export const fromThorBaseUnit = (valueThorBaseUnit: BigNumber.Value | null | undefined): BN =>
   bnOrZero(
-    BigAmount.fromBaseUnit({
-      value: bnOrZero(valueThorBaseUnit).toFixed(0),
-      precision: THOR_PRECISION,
-    }).toPrecision(),
+    fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: bnOrZero(valueThorBaseUnit).toFixed(0),
+        precision: THOR_PRECISION,
+      }),
+    ),
   )
 
 export const toThorBaseUnit = ({
@@ -148,16 +151,20 @@ export const toThorBaseUnit = ({
 }): BN => {
   if (!asset?.precision) return bn(0)
 
-  const valueCryptoPrecision = BigAmount.fromBaseUnit({
-    value: bnOrZero(valueCryptoBaseUnit).toFixed(0),
-    precision: asset.precision,
-  }).toPrecision()
+  const valueCryptoPrecision = fromBaseUnit(
+    BigAmount.fromBaseUnit({
+      value: bnOrZero(valueCryptoBaseUnit).toFixed(0),
+      precision: asset.precision,
+    }),
+  )
 
   return bn(
-    BigAmount.fromPrecision({
-      value: valueCryptoPrecision,
-      precision: THOR_PRECISION,
-    }).toBaseUnit(),
+    toBaseUnit(
+      BigAmount.fromPrecision({
+        value: valueCryptoPrecision,
+        precision: THOR_PRECISION,
+      }),
+    ),
   )
 }
 

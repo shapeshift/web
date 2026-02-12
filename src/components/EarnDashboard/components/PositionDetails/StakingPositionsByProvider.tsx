@@ -22,6 +22,7 @@ import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { RFOX_STAKING_ASSET_IDS } from '@/pages/RFOX/constants'
@@ -89,10 +90,12 @@ const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
     if (!asset) return sum
     const marketDataPrice = bnOrZero(marketDataUserCurrency[assetId]?.price)
     const cryptoAmountPrecision = bnOrZero(
-      BigAmount.fromBaseUnit({
-        value: rewardsCryptoBaseUnit?.amounts[index] ?? '0',
-        precision: asset?.precision ?? 0,
-      }).toPrecision(),
+      fromBaseUnit(
+        BigAmount.fromBaseUnit({
+          value: rewardsCryptoBaseUnit?.amounts[index] ?? '0',
+          precision: asset?.precision ?? 0,
+        }),
+      ),
     )
     sum = bnOrZero(cryptoAmountPrecision).times(marketDataPrice).plus(bnOrZero(sum)).toNumber()
     return sum

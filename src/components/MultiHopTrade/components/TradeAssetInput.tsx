@@ -8,6 +8,7 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import {
   selectMarketDataByAssetIdUserCurrency,
@@ -57,7 +58,7 @@ const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = memo(props => {
     [accountId, assetId],
   )
   const balance = useAppSelector(state =>
-    isConnected ? selectPortfolioCryptoBalanceByFilter(state, filter).toPrecision() : '0',
+    isConnected ? fromBaseUnit(selectPortfolioCryptoBalanceByFilter(state, filter)) : '0',
   )
   const fiatBalance = bnOrZero(balance)
     .times(bnOrZero(marketData?.price))

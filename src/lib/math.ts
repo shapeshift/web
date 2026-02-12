@@ -1,4 +1,4 @@
-import { BigAmount } from '@shapeshiftoss/utils'
+import type { BigAmount } from '@shapeshiftoss/utils'
 
 import type { BN } from './bignumber/bignumber'
 

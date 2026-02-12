@@ -8,6 +8,7 @@ import axios from 'axios'
 import type { MarketService } from '../api'
 
 import { getConfig } from '@/config'
+import { fromBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 
 const supportedAssetIds = [tcyAssetId, rujiAssetId]
@@ -52,10 +53,12 @@ export class ThorchainAssetsMarketService implements MarketService {
 
       return {
         // Both THORChain native assets we support so far use 8dp, and all others probably do too
-        price: BigAmount.fromBaseUnit({
-          value: data.asset_tor_price,
-          precision: THOR_PRECISION,
-        }).toPrecision(),
+        price: fromBaseUnit(
+          BigAmount.fromBaseUnit({
+            value: data.asset_tor_price,
+            precision: THOR_PRECISION,
+          }),
+        ),
         marketCap: '0',
         volume: '0',
         changePercent24Hr: 0,

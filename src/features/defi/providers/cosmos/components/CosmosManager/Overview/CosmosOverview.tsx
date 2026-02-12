@@ -20,6 +20,7 @@ import type {
 import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { useGetAssetDescriptionQuery } from '@/state/slices/assetsSlice/assetsSlice'
 import {
   getDefaultValidatorAddressFromChainId,
@@ -135,10 +136,12 @@ export const CosmosOverview: React.FC<CosmosOverviewProps> = ({
     selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
   )
   const cryptoAmountAvailable = bnOrZero(
-    BigAmount.fromBaseUnit({
-      value: totalBondings.toFixed(0),
-      precision: stakingAsset.precision,
-    }).toPrecision(),
+    fromBaseUnit(
+      BigAmount.fromBaseUnit({
+        value: totalBondings.toFixed(0),
+        precision: stakingAsset.precision,
+      }),
+    ),
   )
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(bnOrZero(marketData?.price))
 

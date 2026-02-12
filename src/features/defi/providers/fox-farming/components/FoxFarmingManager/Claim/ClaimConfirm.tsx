@@ -37,6 +37,7 @@ import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFo
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -233,10 +234,12 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
         const fees = await getClaimFees(accountAddress)
         if (!fees) throw new Error('failed to get claim fees')
 
-        const estimatedGasCrypto = BigAmount.fromBaseUnit({
-          value: fees.networkFeeCryptoBaseUnit,
-          precision: feeAsset.precision,
-        }).toPrecision()
+        const estimatedGasCrypto = fromBaseUnit(
+          BigAmount.fromBaseUnit({
+            value: fees.networkFeeCryptoBaseUnit,
+            precision: feeAsset.precision,
+          }),
+        )
 
         setCanClaim(true)
         setEstimatedGas(estimatedGasCrypto)
@@ -265,7 +268,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
   )
 
   const hasEnoughBalanceForGas = useMemo(
-    () => bnOrZero(feeAssetBalance.toPrecision()).minus(bnOrZero(estimatedGas)).gte(0),
+    () => bnOrZero(fromBaseUnit(feeAssetBalance)).minus(bnOrZero(estimatedGas)).gte(0),
     [feeAssetBalance, estimatedGas],
   )
 

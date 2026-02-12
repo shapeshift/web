@@ -15,6 +15,7 @@ import type { TradeCardProps } from './MultiHopTrade'
 import type { TradeInputTab } from './types'
 import { TradeRoutePaths } from './types'
 
+import { fromBaseUnit } from '@/lib/math'
 import { TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import {
@@ -122,10 +123,12 @@ export const StandaloneMultiHopTrade = memo(
       if (paramsSellAmountCryptoBaseUnit && routeSellAsset) {
         dispatch(
           tradeInput.actions.setSellAmountCryptoPrecision(
-            BigAmount.fromBaseUnit({
-              value: paramsSellAmountCryptoBaseUnit,
-              precision: routeSellAsset.precision,
-            }).toPrecision(),
+            fromBaseUnit(
+              BigAmount.fromBaseUnit({
+                value: paramsSellAmountCryptoBaseUnit,
+                precision: routeSellAsset.precision,
+              }),
+            ),
           ),
         )
       }

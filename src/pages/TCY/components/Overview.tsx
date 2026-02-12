@@ -26,7 +26,7 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import {
   selectAssetById,
-  selectCryptoHumanBalanceFilter,
+  selectCryptoPrecisionBalanceFilter,
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -142,7 +142,7 @@ export const Overview = ({ currentAccount }: OverviewProps) => {
 
   const filter = useMemo(() => ({ assetId: tcyAssetId, accountId }), [accountId])
 
-  const tcyCryptoHumanBalance = useAppSelector(s => selectCryptoHumanBalanceFilter(s, filter))
+  const tcyCryptoPrecisionBalance = useAppSelector(s => selectCryptoPrecisionBalanceFilter(s, filter))
 
   if (!tcyAsset) return null
 
@@ -151,7 +151,7 @@ export const Overview = ({ currentAccount }: OverviewProps) => {
       <CardHeader>
         <HStack>
           <AssetIcon assetId={tcyAssetId} />
-          <Amount.Crypto value={tcyCryptoHumanBalance} symbol={tcyAsset.symbol} fontSize='2xl' />
+          <Amount.Crypto value={tcyCryptoPrecisionBalance} symbol={tcyAsset.symbol} fontSize='2xl' />
         </HStack>
       </CardHeader>
       <CardBody pb={6}>

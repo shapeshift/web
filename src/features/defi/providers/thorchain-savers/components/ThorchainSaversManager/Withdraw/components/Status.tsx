@@ -123,7 +123,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         {
           opportunity,
           fiatAmounts: [state.withdraw.fiatAmount],
-          cryptoAmounts: [{ assetId, amountCryptoHuman: state.withdraw.cryptoAmount }],
+          cryptoAmounts: [{ assetId, amountCryptoPrecision: state.withdraw.cryptoAmount }],
         },
         assets,
       )

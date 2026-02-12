@@ -135,7 +135,7 @@ export const Deposit: React.FC<DepositProps> = ({
           {
             opportunity: opportunityMetadata,
             fiatAmounts: [formValues.fiatAmount],
-            cryptoAmounts: [{ assetId, amountCryptoHuman: formValues.cryptoAmount }],
+            cryptoAmounts: [{ assetId, amountCryptoPrecision: formValues.cryptoAmount }],
           },
           assets,
         )

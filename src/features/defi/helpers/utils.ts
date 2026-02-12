@@ -25,10 +25,10 @@ export const canCoverTxFees = ({
   accountId: AccountId
 }) => {
   const state = store.getState()
-  const feeAssetBalanceCryptoHuman = selectPortfolioCryptoBalanceByFilter(state, {
+  const feeAssetBalanceCryptoPrecision = selectPortfolioCryptoBalanceByFilter(state, {
     accountId,
     assetId: feeAsset.assetId,
   })
 
-  return feeAssetBalanceCryptoHuman.minus(estimatedGasCryptoPrecision).gte(0)
+  return feeAssetBalanceCryptoPrecision.minus(estimatedGasCryptoPrecision).gte(0)
 }

@@ -34,7 +34,7 @@ type UseSendDetailsReturnType = {
   handleSendMax(): Promise<void>
   isLoading: boolean
   toggleIsFiat(): void
-  cryptoHumanBalance: string
+  cryptoPrecisionBalance: string
   fiatBalance: BigNumber
 }
 
@@ -60,7 +60,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const balancesLoading = false
 
-  const cryptoHumanBalance = useAppSelector(state =>
+  const cryptoPrecisionBalance = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, {
       assetId,
       accountId,
@@ -136,7 +136,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       if (bnOrZero(amountCryptoPrecision).lte(0)) return null
       if (!asset || !accountId) return null
 
-      const hasValidBalance = bnOrZero(cryptoHumanBalance).gte(bnOrZero(amountCryptoPrecision))
+      const hasValidBalance = bnOrZero(cryptoPrecisionBalance).gte(bnOrZero(amountCryptoPrecision))
 
       // No point to estimate fees if it is guaranteed to fail due to insufficient balance
       if (!hasValidBalance) {
@@ -207,7 +207,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       accountId,
       asset,
       assetId,
-      cryptoHumanBalance,
+      cryptoPrecisionBalance,
       estimateFormFees,
       feeAsset?.assetId,
       feeAsset?.symbol,
@@ -229,8 +229,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   // No debouncing here, since there is no user input
   const estimateSendMaxFormFeesQueryKey = useMemo(
-    () => ['setEstimatedFormFees', { amountCryptoPrecision: cryptoHumanBalance, sendMax: true }],
-    [cryptoHumanBalance],
+    () => ['setEstimatedFormFees', { amountCryptoPrecision: cryptoPrecisionBalance, sendMax: true }],
+    [cryptoPrecisionBalance],
   ) as unknown as [string, { amountCryptoPrecision: string; sendMax: boolean }]
 
   const hasEnteredPositiveAmount = useMemo(() => {
@@ -287,8 +287,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     const maxCrypto =
       feeAsset?.assetId !== assetId
-        ? bnOrZero(cryptoHumanBalance)
-        : bnOrZero(cryptoHumanBalance)
+        ? bnOrZero(cryptoPrecisionBalance)
+        : bnOrZero(cryptoPrecisionBalance)
             .minus(networkFee)
             .minus(
               assetId === solAssetId
@@ -309,7 +309,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     assetId,
     feeAsset?.assetId,
     feeAsset?.precision,
-    cryptoHumanBalance,
+    cryptoPrecisionBalance,
     price,
     sendMax,
     sendMaxFees,
@@ -373,14 +373,14 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     // This is a token send - the max is the absolute max. balance for that asset and no further magic is needed for fees deduction
     if (feeAsset?.assetId !== assetId) {
-      const maxCrypto = bnOrZero(cryptoHumanBalance)
+      const maxCrypto = bnOrZero(cryptoPrecisionBalance)
       const maxFiat = maxCrypto.times(bnOrZero(price))
 
       setValue(SendFormFields.AmountCryptoPrecision, maxCrypto.toPrecision())
       setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
     }
     // There is no balance, hence we don't need to estimate fees, but still need to set to zero out the form values
-    else if (bnOrZero(cryptoHumanBalance).isZero()) {
+    else if (bnOrZero(cryptoPrecisionBalance).isZero()) {
       setValue(SendFormFields.AmountCryptoPrecision, '0')
       setValue(SendFormFields.FiatAmount, '0')
       return
@@ -391,7 +391,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   }, [
     assetBalance,
     assetId,
-    cryptoHumanBalance,
+    cryptoPrecisionBalance,
     feeAsset?.assetId,
     price,
     refetchSendMaxFees,
@@ -448,7 +448,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   return {
     balancesLoading,
     fieldName,
-    cryptoHumanBalance,
+    cryptoPrecisionBalance,
     fiatBalance: userCurrencyBalance,
     handleSendMax,
     handleInputChange,

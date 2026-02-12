@@ -157,7 +157,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
         cryptoAmounts: [
           {
             assetId: asset?.assetId,
-            amountCryptoHuman: amountAvailableCryptoPrecision,
+            amountCryptoPrecision: amountAvailableCryptoPrecision,
           },
         ],
       },

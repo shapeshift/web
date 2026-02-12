@@ -188,7 +188,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
         {
           opportunity,
           fiatAmounts: [claimFiatAmount],
-          cryptoAmounts: [{ assetId: asset.assetId, amountCryptoHuman: amount }],
+          cryptoAmounts: [{ assetId: asset.assetId, amountCryptoPrecision: amount }],
         },
         assets,
       )

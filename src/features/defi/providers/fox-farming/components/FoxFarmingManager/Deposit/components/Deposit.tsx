@@ -180,7 +180,7 @@ export const Deposit: React.FC<DepositProps> = ({
               opportunity: foxFarmingOpportunity,
               fiatAmounts: [formValues.fiatAmount],
               cryptoAmounts: [
-                { assetId: asset.assetId, amountCryptoHuman: formValues.cryptoAmount },
+                { assetId: asset.assetId, amountCryptoPrecision: formValues.cryptoAmount },
               ],
             },
             assets,
@@ -227,10 +227,10 @@ export const Deposit: React.FC<DepositProps> = ({
     ],
   )
 
-  const cryptoHumanAmountAvailable = useMemo(() => cryptoBalance.toPrecision(), [cryptoBalance])
+  const cryptoPrecisionAmountAvailable = useMemo(() => cryptoBalance.toPrecision(), [cryptoBalance])
   const fiatAmountAvailable = useMemo(
-    () => bnOrZero(cryptoHumanAmountAvailable).times(bnOrZero(marketData?.price)),
-    [cryptoHumanAmountAvailable, marketData?.price],
+    () => bnOrZero(cryptoPrecisionAmountAvailable).times(bnOrZero(marketData?.price)),
+    [cryptoPrecisionAmountAvailable, marketData?.price],
   )
 
   const validateCryptoAmount = useCallback(
@@ -283,7 +283,7 @@ export const Deposit: React.FC<DepositProps> = ({
       rewardAsset={rewardAsset}
       inputIcons={foxFarmingOpportunity?.icons}
       apy={String(foxFarmingOpportunity?.apy)}
-      cryptoAmountAvailable={cryptoHumanAmountAvailable}
+      cryptoAmountAvailable={cryptoPrecisionAmountAvailable}
       cryptoInputValidation={cryptoInputValidation}
       fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
       fiatInputValidation={fiatInputValidation}

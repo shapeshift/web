@@ -170,7 +170,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         {
           opportunity: opportunityMetadata,
           fiatAmounts: [fiatAmount],
-          cryptoAmounts: [{ assetId, amountCryptoHuman: state.withdraw.cryptoAmount }],
+          cryptoAmounts: [{ assetId, amountCryptoPrecision: state.withdraw.cryptoAmount }],
         },
         assets,
       )

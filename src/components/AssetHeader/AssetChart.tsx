@@ -28,7 +28,7 @@ import { vibrate } from '@/lib/vibrate'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
-  selectCryptoHumanBalanceFilter,
+  selectCryptoPrecisionBalanceFilter,
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -85,8 +85,8 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
 
   const opportunitiesFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
 
-  const cryptoHumanBalance = useAppSelector(s =>
-    selectCryptoHumanBalanceFilter(s, opportunitiesFilter),
+  const cryptoPrecisionBalance = useAppSelector(s =>
+    selectCryptoPrecisionBalanceFilter(s, opportunitiesFilter),
   )
 
   const priceContent = useMemo(() => {
@@ -164,7 +164,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
         <AssetActions
           assetId={assetId}
           accountId={accountId}
-          cryptoBalance={cryptoHumanBalance}
+          cryptoBalance={cryptoPrecisionBalance}
           isMobile
         />
       </Flex>

@@ -36,7 +36,7 @@ export const AssetChainRow: React.FC<AssetChainRowProps> = ({
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const iconSrc = feeAsset?.networkIcon ?? feeAsset?.icon
   const filter = useMemo(() => ({ assetId }), [assetId])
-  const cryptoHumanBalance = useAppSelector(s =>
+  const cryptoPrecisionBalance = useAppSelector(s =>
     selectPortfolioCryptoBalanceByFilter(s, filter),
   ).toPrecision()
 
@@ -44,7 +44,7 @@ export const AssetChainRow: React.FC<AssetChainRowProps> = ({
     state => selectPortfolioUserCurrencyBalanceByAssetId(state, filter) ?? '0',
   )
 
-  const hideAssetBalance = hideBalances || bnOrZero(cryptoHumanBalance).isZero()
+  const hideAssetBalance = hideBalances || bnOrZero(cryptoPrecisionBalance).isZero()
 
   if (!feeAsset || !asset || !mainImplementationAsset) return null
 
@@ -64,7 +64,7 @@ export const AssetChainRow: React.FC<AssetChainRowProps> = ({
             fontSize='sm'
             fontWeight='normal'
             color='text.subtle'
-            value={firstNonZeroDecimal(bnOrZero(cryptoHumanBalance)) ?? '0'}
+            value={firstNonZeroDecimal(bnOrZero(cryptoPrecisionBalance)) ?? '0'}
             symbol={asset?.symbol ?? ''}
           />
         </Flex>

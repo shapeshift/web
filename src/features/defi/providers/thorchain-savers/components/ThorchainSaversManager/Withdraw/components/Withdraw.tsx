@@ -304,7 +304,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
           {
             opportunity: opportunityData,
             fiatAmounts: [formValues.fiatAmount],
-            cryptoAmounts: [{ assetId, amountCryptoHuman: formValues.cryptoAmount }],
+            cryptoAmounts: [{ assetId, amountCryptoPrecision: formValues.cryptoAmount }],
           },
           assets,
         )

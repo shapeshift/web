@@ -431,7 +431,7 @@ export const selectPortfolioStakingCryptoBalances = createDeepEqualOutputSelecto
 /**
  * same PortfolioAccountBalancesById shape, but human crypto balances
  */
-export const selectPortfolioAccountsHumanBalances = createDeepEqualOutputSelector(
+export const selectPortfolioAccountsCryptoPrecisionBalances = createDeepEqualOutputSelector(
   selectAssets,
   selectPortfolioAccountBalances,
   (assets, portfolioAccountsCryptoBalances): PortfolioAccountBalancesById => {
@@ -517,8 +517,8 @@ export const selectUserCurrencyBalanceByFilter = createCachedSelector(
 )((_s: ReduxState, filter) => `${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`)
 
 // TODO(gomes): we probably don't need this
-export const selectCryptoHumanBalanceFilter = createCachedSelector(
-  selectPortfolioAccountsHumanBalances,
+export const selectCryptoPrecisionBalanceFilter = createCachedSelector(
+  selectPortfolioAccountsCryptoPrecisionBalances,
   selectAssetIdParamFromFilter,
   selectAccountIdParamFromFilter,
   genericBalanceByFilter,

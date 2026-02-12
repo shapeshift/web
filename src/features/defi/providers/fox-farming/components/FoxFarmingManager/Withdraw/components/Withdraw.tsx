@@ -144,7 +144,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           opportunity,
           fiatAmounts: [formValues.fiatAmount],
           cryptoAmounts: [
-            { assetId: underlyingAsset.assetId, amountCryptoHuman: formValues.cryptoAmount },
+            { assetId: underlyingAsset.assetId, amountCryptoPrecision: formValues.cryptoAmount },
           ],
         },
         assets,

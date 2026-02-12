@@ -192,7 +192,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
           cryptoAmounts: [
             {
               assetId: asset.assetId,
-              amountCryptoHuman: state.deposit.cryptoAmount,
+              amountCryptoPrecision: state.deposit.cryptoAmount,
             },
           ],
         },

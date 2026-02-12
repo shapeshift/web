@@ -109,11 +109,11 @@ export const validateTradeQuote = (
             }
           }
 
-          const minAmountCryptoHuman = BigAmount.fromBaseUnit({
+          const minAmountCryptoPrecision = BigAmount.fromBaseUnit({
             value: minAmountCryptoBaseUnit,
             precision: asset.precision,
           }).toPrecision()
-          const formattedAmount = bnOrZero(minAmountCryptoHuman).decimalPlaces(6)
+          const formattedAmount = bnOrZero(minAmountCryptoPrecision).decimalPlaces(6)
           const minimumAmountUserMessage = `${formattedAmount} ${asset.symbol}`
 
           return {

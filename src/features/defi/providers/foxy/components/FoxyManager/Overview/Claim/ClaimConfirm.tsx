@@ -93,7 +93,7 @@ export const ClaimConfirm = ({
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountFilter))
 
-  const cryptoHumanBalance = useMemo(
+  const cryptoPrecisionBalance = useMemo(
     () =>
       bnOrZero(
         BigAmount.fromBaseUnit({
@@ -240,12 +240,12 @@ export const ClaimConfirm = ({
             <Amount.Crypto
               fontSize='3xl'
               fontWeight='medium'
-              value={cryptoHumanBalance.toString()}
+              value={cryptoPrecisionBalance.toString()}
               symbol={stakingAsset?.symbol}
             />
           </Stack>
           <Amount.Fiat
-            value={cryptoHumanBalance.times(bnOrZero(assetMarketData?.price)).toString()}
+            value={cryptoPrecisionBalance.times(bnOrZero(assetMarketData?.price)).toString()}
             color='text.subtle'
             prefix='≈'
           />

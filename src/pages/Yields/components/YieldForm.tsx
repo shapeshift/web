@@ -172,7 +172,8 @@ export const YieldForm = memo(
       try {
         const decoded = JSON.parse(atob(withdrawAction.passthrough))
         return decoded?.args?.amount ?? withdrawableBalance?.aggregatedAmount ?? '0'
-      } catch {
+      } catch (e) {
+        console.error('Failed to decode withdraw passthrough', e)
         return withdrawableBalance?.aggregatedAmount ?? '0'
       }
     }, [withdrawAction?.passthrough, withdrawableBalance?.aggregatedAmount])

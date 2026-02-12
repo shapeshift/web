@@ -136,7 +136,8 @@ export const YieldPositionCard = memo(
           try {
             const decoded = JSON.parse(atob(a.passthrough))
             return { amount: decoded?.args?.amount as string | undefined, actionIndex: index }
-          } catch {
+          } catch (e) {
+            console.error('Failed to decode withdraw passthrough', e)
             return { amount: undefined, actionIndex: index }
           }
         })

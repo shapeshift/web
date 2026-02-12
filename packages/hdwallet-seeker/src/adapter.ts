@@ -323,17 +323,21 @@ export class SeekerHDWallet implements HDWallet {
     const signatureBytes = Buffer.from(result.signature, 'base64')
     const signature = signatureBytes.toString('hex')
 
-    let nearPubkey = this.nearPubkeyCache.get(cacheKey)
-    if (!nearPubkey) {
+    let nearPubkeyBase58 = this.nearPubkeyCache.get(cacheKey)
+    if (!nearPubkeyBase58) {
       const pubResult = await this.messageHandler.getPublicKey(derivationPath)
       if (!pubResult.publicKey) throw new Error('Failed to get NEAR public key from Seed Vault')
-      nearPubkey = pubResult.publicKey
-      this.nearPubkeyCache.set(cacheKey, nearPubkey)
+      nearPubkeyBase58 = pubResult.publicKey
+      this.nearPubkeyCache.set(cacheKey, nearPubkeyBase58)
     }
+
+    const nearPubkeyHex = Buffer.from(new SolanaPublicKey(nearPubkeyBase58).toBytes()).toString(
+      'hex',
+    )
 
     return {
       signature,
-      publicKey: nearPubkey,
+      publicKey: nearPubkeyHex,
     }
   }
 

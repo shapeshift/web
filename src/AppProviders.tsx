@@ -12,6 +12,7 @@ import { ScrollToTop } from './Routes/ScrollToTop'
 
 import { ChatwootWidget } from '@/components/ChatWoot'
 import { ActionCenterProvider } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { UserbackWidget } from '@/components/UserbackWidget/UserbackWidget'
 import { AppProvider } from '@/context/AppProvider/AppContext'
 import { BrowserRouterProvider } from '@/context/BrowserRouterProvider/BrowserRouterProvider'
 import { I18nProvider } from '@/context/I18nProvider/I18nProvider'
@@ -68,6 +69,7 @@ export function AppProviders({ children }: ProvidersProps) {
             <PluginProvider>
               <ColorModeScript storageKey='ss-theme' />
               <ChatwootWidget />
+              <UserbackWidget />
               <I18nProvider>
                 <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
                   <PersistGate loading={splashScreen} persistor={persistor}>

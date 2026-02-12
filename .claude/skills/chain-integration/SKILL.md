@@ -1,6 +1,6 @@
 ---
 name: chain-integration
-description: Integrate a new blockchain as a second-class citizen in ShapeShift Web and HDWallet. Covers everything from HDWallet native/Ledger support to Web chain adapter, asset generation, feature flags, and local testing via Verdaccio. Activates when user wants to add basic support for a new blockchain.
+description: Integrate a new blockchain as a second-class citizen in ShapeShift Web. HDWallet packages live in the monorepo under packages/hdwallet-*. Covers everything from HDWallet native/Ledger support to Web chain adapter, asset generation, and feature flags. Activates when user wants to add basic support for a new blockchain.
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 
@@ -39,12 +39,10 @@ Recent examples: **Monad** (EVM), **Tron** (UTXO-like), **Sui** (non-EVM)
 
 **ALWAYS follow this order:**
 
-1. **HDWallet Native Support** (hdwallet repo)
-2. **Local Verdaccio Publishing** (test hdwallet changes in web)
-3. **Web Basic Support** (web repo - poor man's chain adapter)
-4. **Web Plugin & Integration** (web repo - wire everything up)
-5. **Ledger Support** (hdwallet repo - if chain is supported by Ledger)
-6. **Clean Commits** (revert verdaccio bumps before PR)
+1. **HDWallet Native Support** (workspace packages under `packages/hdwallet-*`)
+2. **Web Basic Support** (poor man's chain adapter)
+3. **Web Plugin & Integration** (wire everything up)
+4. **Ledger Support** (`packages/hdwallet-ledger` - if chain is supported by Ledger)
 
 ## Phase 0: Deep Research & Information Gathering
 
@@ -220,7 +218,7 @@ After determining chain type (EVM or non-EVM), collect remaining details:
 
 ## Phase 1: HDWallet Native Support
 
-**Working Directory**: `/Users/alexandre.gomes/Sites/shapeshiftHdWallet`
+**Working Directory**: Same monorepo — hdwallet packages are at `packages/hdwallet-*`
 
 ### Step 1.0: Choose Implementation Strategy
 
@@ -241,7 +239,7 @@ For EVM-compatible chains (like Monad, HyperEVM, Base), you need **MINIMAL chang
 - ✅ Wallet support flags (`_supportsChainName: boolean`)
 - ✅ Support function (`supportsChainName()`)
 - ✅ Set flags on all wallet implementations (~14 files)
-- ✅ Version bump and Verdaccio publish
+- ✅ Build and verify with `yarn hdwallet:build`
 
 **Why?** Each wallet type (Native, Ledger, MetaMask, etc.) needs to explicitly declare support for the chain, even though the crypto is identical. This enables wallet-specific gating in the UI.
 
@@ -249,7 +247,7 @@ For EVM-compatible chains (like Monad, HyperEVM, Base), you need **MINIMAL chang
 - Monad hdwallet: <https://github.com/shapeshift/hdwallet/pull/753>
 - HyperEVM hdwallet: <https://github.com/shapeshift/hdwallet/pull/756>
 
-**Time estimate**: 30 minutes for hdwallet + Verdaccio (vs 1-2 days for non-EVM)
+**Time estimate**: 30 minutes for hdwallet changes (vs 1-2 days for non-EVM)
 
 ### Step 1.1: Research HDWallet Patterns (Non-EVM Only)
 
@@ -257,7 +255,7 @@ Examine existing implementations to understand patterns:
 
 **For non-EVM chains** (like Tron, Sui):
 ```bash
-# In hdwallet repo
+# In the monorepo
 cat packages/hdwallet-core/src/tron.ts
 cat packages/hdwallet-native/src/tron.ts
 cat packages/hdwallet-native/src/crypto/isolation/adapters/tron.ts
@@ -351,7 +349,7 @@ Set `readonly _supports[ChainName] = true` for Native only:
 
 Set `readonly _supports[ChainName] = false` on all other wallet types listed above.
 
-**Then**: Skip to Step 1.6 (Version Bump)
+**Then**: Skip to Step 1.6 (Build & Verify)
 
 ---
 
@@ -556,90 +554,21 @@ export function supports[Chain](wallet: HDWallet): wallet is [Chain]Wallet {
 }
 ```
 
-### Step 1.6: Version Bump & Test
+### Step 1.6: Build & Verify
 
 ```bash
-# In hdwallet repo
-cd packages/hdwallet-core
-npm version patch
+# Build hdwallet packages to verify
+yarn hdwallet:build
 
-cd ../hdwallet-native
-npm version patch
-
-# Run lerna to sync versions
-npx lerna version patch --no-git-tag-version --yes
-
-# Build to verify
-yarn build
+# Run hdwallet tests
+yarn hdwallet:test
 ```
+
+No version bumps or publishing needed — hdwallet packages are workspace packages (`workspace:^`).
 
 ---
 
-## Phase 2: Local Verdaccio Testing
-
-**Purpose**: Test hdwallet changes in web locally before publishing to npm.
-
-### Step 2.1: Start Verdaccio
-
-```bash
-# Terminal 1 - Start local npm registry
-npx verdaccio
-```
-
-### Step 2.2: Configure npm for Local Registry
-
-```bash
-# Set registry to localhost
-npm set registry http://localhost:4873
-yarn config set registry http://localhost:4873
-```
-
-### Step 2.3: Publish HDWallet Packages
-
-```bash
-# In hdwallet repo root
-yarn lerna publish --registry http://localhost:4873 --no-git-tag-version --no-push --force-publish --yes
-```
-
-**Commit this separately** (will revert later):
-```bash
-git add -A
-git commit -m "chore: bump hdwallet versions for local testing"
-```
-
-### Step 2.4: Update Web Dependencies
-
-```bash
-# In web repo
-cd /Users/alexandre.gomes/Sites/shapeshiftWeb
-
-# Update hdwallet packages
-yarn up @shapeshiftoss/hdwallet-core@latest
-yarn up @shapeshiftoss/hdwallet-native@latest
-# ... update other hdwallet packages as needed
-```
-
-**Commit this separately** (will revert later):
-```bash
-git add package.json yarn.lock
-git commit -m "chore: bump hdwallet deps for local testing"
-```
-
-### Step 2.5: Verify Installation
-
-```bash
-# In web repo
-yarn why @shapeshiftoss/hdwallet-core
-yarn why @shapeshiftoss/hdwallet-native
-
-# Should show local verdaccio versions
-```
-
----
-
-## Phase 3: Web Chain Adapter (Poor Man's Approach)
-
-**Working Directory**: `/Users/alexandre.gomes/Sites/shapeshiftWeb`
+## Phase 2: Web Chain Adapter (Poor Man's Approach)
 
 ### Step 3.1: Add Chain Constants
 
@@ -1739,7 +1668,6 @@ export const availableLedgerAppAssetIds = [
 ### Step 7.1: Type Check
 
 ```bash
-# In web repo
 yarn type-check
 
 # Fix any TypeScript errors
@@ -1783,67 +1711,16 @@ If Ledger supported:
 
 ## Phase 8: Clean Up & Commit
 
-### Step 8.1: Revert Verdaccio Commits
+### Step 8.1: Create Feature Commits
+
+Everything is in the same monorepo now — hdwallet packages are workspace packages under `packages/hdwallet-*`.
 
 ```bash
-# In web repo
-git log --oneline | head -20  # Find commit hashes
-
-# Revert the hdwallet bump commit
-git revert [commit-hash] --no-edit
-
-# Verify web is clean
-git status
-```
-
-```bash
-# In hdwallet repo
-git log --oneline | head -10
-
-# Revert the version bump commit
-git revert [commit-hash] --no-edit
-
-# Verify hdwallet is clean
-git status
-```
-
-### Step 8.2: Restore npm Registry
-
-```bash
-npm set registry https://registry.npmjs.org
-yarn config set registry https://registry.yarnpkg.com
-```
-
-### Step 8.3: Create Feature Commits
-
-**In HDWallet repo**:
-
-```bash
-# Commit native support
-git add packages/hdwallet-core packages/hdwallet-native
-git commit -m "feat: support [chainname] with native wallet
-
-- Add [ChainName] core interfaces (GetAddress, SignTx, Wallet)
-- Implement Native[Chain]Wallet mixin
-- Add [chain] crypto adapter for address derivation and signing
-- Register SLIP44 coin type [COINTYPE]
-- Follow BIP44 derivation path: m/44'/[COINTYPE]'/0'/0/0"
-```
-
-If Ledger:
-```bash
-# Commit ledger support separately
-git add packages/hdwallet-ledger
-git commit -m "feat: add ledger support for [chainname]"
-```
-
-**In Web repo**:
-
-```bash
-# Commit web integration
+# Commit everything together
 git add -A
 git commit -m "feat: implement [chainname]
 
+- Add [ChainName] hdwallet core interfaces and native wallet support
 - Add [ChainName] chain adapter with poor man's RPC
 - Support native asset sends/receives
 - Add account derivation
@@ -1851,26 +1728,13 @@ git commit -m "feat: implement [chainname]
 - Add asset generation for [chain] from CoinGecko
 - Wire transaction status polling
 - Add [chain] plugin with feature flag gating
-- Update hdwallet dependencies to include [chain] support
 
 Behind feature flag for now."
 ```
 
-### Step 8.4: Open PRs
+### Step 8.2: Open PR
 
-**HDWallet PR**:
 ```bash
-# In hdwallet repo
-git push origin HEAD
-
-# Open PR to main
-gh pr create --title "feat: support [chainname] with native wallet" \
-  --body "Adds [ChainName] support to hdwallet-core and hdwallet-native..."
-```
-
-**Web PR**:
-```bash
-# In web repo
 git push origin HEAD
 
 # Open PR to develop
@@ -2326,20 +2190,18 @@ case "Near": {
 
 This skill covers the COMPLETE process for adding a new blockchain as a second-class citizen:
 
-1. ✅ HDWallet native support
-2. ✅ Local Verdaccio testing workflow
-3. ✅ Web poor man's chain adapter
-4. ✅ Feature flags and configuration
-5. ✅ Asset generation
-6. ✅ Transaction status polling
-7. ✅ Ledger support (optional)
-8. ✅ Testing and validation
-9. ✅ Clean commit workflow
+1. ✅ HDWallet native support (workspace packages under `packages/hdwallet-*`)
+2. ✅ Web poor man's chain adapter
+3. ✅ Feature flags and configuration
+4. ✅ Asset generation
+5. ✅ Transaction status polling
+6. ✅ Ledger support (optional)
+7. ✅ Testing and validation
+8. ✅ Clean commit workflow
 
 **Key Principles:**
-- Always start with HDWallet native
-- Test locally with Verdaccio before publishing
-- Keep verdaccio bumps in separate revertable commits
+- HDWallet packages are in the monorepo — no separate repo, no Verdaccio, no version bumps
+- Always start with HDWallet native (`packages/hdwallet-core` + `packages/hdwallet-native`)
 - Follow existing patterns (Monad for EVM, Tron/Sui for non-EVM)
 - Poor man's approach: public RPC, no microservices, minimal features
 - Feature flag everything

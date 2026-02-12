@@ -1,8 +1,22 @@
 import { describe, expect, it } from 'vitest'
 
-import { BigNumber, bn, bnOrZero, convertPrecision } from './bignumber'
+import { BigNumber, bn, bnOrZero, positiveOrZero, convertPrecision } from './bignumber'
 
 describe('bignumber', () => {
+  describe('bn', () => {
+    it('creates BigNumber from number', () => {
+      expect(bn(42).toNumber()).toBe(42)
+    })
+
+    it('creates BigNumber from string', () => {
+      expect(bn('1.5').toNumber()).toBe(1.5)
+    })
+
+    it('supports base parameter', () => {
+      expect(bn('ff', 16).toNumber()).toBe(255)
+    })
+  })
+
   describe('bnOrZero', () => {
     it('returns an instance of bignumber', () => {
       const zero = bnOrZero(0)
@@ -17,6 +31,48 @@ describe('bignumber', () => {
       const empty = bnOrZero('')
       expect(empty).toBeInstanceOf(BigNumber)
       expect(empty.toString()).toBe('0')
+    })
+
+    it('returns zero for null', () => {
+      expect(bnOrZero(null).toString()).toBe('0')
+    })
+
+    it('returns zero for undefined', () => {
+      expect(bnOrZero(undefined).toString()).toBe('0')
+    })
+
+    it('returns zero for NaN', () => {
+      expect(bnOrZero(NaN).toString()).toBe('0')
+    })
+
+    it('returns zero for Infinity', () => {
+      expect(bnOrZero(Infinity).toString()).toBe('0')
+    })
+
+    it('preserves valid numeric strings', () => {
+      expect(bnOrZero('123.456').toString()).toBe('123.456')
+    })
+  })
+
+  describe('positiveOrZero', () => {
+    it('returns positive value as-is', () => {
+      expect(positiveOrZero('42').toString()).toBe('42')
+    })
+
+    it('returns zero for negative value', () => {
+      expect(positiveOrZero('-5').toString()).toBe('0')
+    })
+
+    it('returns zero for zero', () => {
+      expect(positiveOrZero('0').toString()).toBe('0')
+    })
+
+    it('returns zero for null', () => {
+      expect(positiveOrZero(null).toString()).toBe('0')
+    })
+
+    it('returns zero for undefined', () => {
+      expect(positiveOrZero(undefined).toString()).toBe('0')
     })
   })
 

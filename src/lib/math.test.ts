@@ -1,7 +1,8 @@
 import { BigAmount } from '@shapeshiftoss/utils'
 import { describe, expect, it } from 'vitest'
 
-import { fromBaseUnit, toBaseUnit } from './math'
+import { bn } from './bignumber/bignumber'
+import { firstNonZeroDecimal, fromBaseUnit, toBaseUnit } from './math'
 
 describe('@/lib/math', () => {
   describe('fromBaseUnit', () => {
@@ -87,6 +88,52 @@ describe('@/lib/math', () => {
       it('handles whole numbers', () => {
         expect(toBaseUnit('100', 8)).toBe('10000000000')
       })
+    })
+  })
+
+  describe('firstNonZeroDecimal', () => {
+    it('returns first significant digits for small decimal', () => {
+      expect(firstNonZeroDecimal(bn('0.00000123'))).toBe('0.0000012')
+    })
+
+    it('returns whole number with first decimals', () => {
+      expect(firstNonZeroDecimal(bn('1.23456'))).toBe('1.23')
+    })
+
+    it('handles negative values', () => {
+      expect(firstNonZeroDecimal(bn('-0.00045'))).toBe('-0.00045')
+    })
+
+    it('handles very small values', () => {
+      expect(firstNonZeroDecimal(bn('0.0000000001'))).toBe('0.0000000001')
+    })
+
+    it('captures leading zeros for amounts with no significant decimals', () => {
+      expect(firstNonZeroDecimal(bn('100'))).toBe('100.0000000000')
+      expect(firstNonZeroDecimal(bn('0'))).toBe('0.0000000000')
+    })
+  })
+
+  describe('edge cases', () => {
+    it('fromBaseUnit and toBaseUnit are inverse operations', () => {
+      const original = '12345678901234567890'
+      const precision = 18
+      const human = fromBaseUnit(original, precision)
+      const backToBase = toBaseUnit(human, precision)
+      expect(backToBase).toBe(original)
+    })
+
+    it('BigAmount overloads produce same results as positional args', () => {
+      const value = '1500000000'
+      const precision = 8
+      const fromPositional = fromBaseUnit(value, precision)
+      const fromBigAmount = fromBaseUnit(BigAmount.fromBaseUnit({ value, precision }))
+      expect(fromPositional).toBe(fromBigAmount)
+    })
+
+    it('handles precision 0 (no decimals)', () => {
+      expect(fromBaseUnit('42', 0)).toBe('42')
+      expect(toBaseUnit('42', 0)).toBe('42')
     })
   })
 })

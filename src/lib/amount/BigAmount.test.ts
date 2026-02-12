@@ -1027,12 +1027,12 @@ describe('BigAmount', () => {
     })
 
     describe('div accepts null/undefined', () => {
-      it('div(null) produces non-finite result', () => {
-        expect(amount.div(null).isFinite()).toBe(false)
+      it('div(null) returns zero (safe division)', () => {
+        expect(amount.div(null).isZero()).toBe(true)
       })
 
-      it('div(undefined) produces non-finite result', () => {
-        expect(amount.div(undefined).isFinite()).toBe(false)
+      it('div(undefined) returns zero (safe division)', () => {
+        expect(amount.div(undefined).isZero()).toBe(true)
       })
     })
 
@@ -1135,19 +1135,49 @@ describe('BigAmount', () => {
     })
   })
 
-  // ── div(0) behavior ───────────────────────────────
+  // ── div(0) safety ────────────────────────────────
 
-  describe('div(0) behavior', () => {
-    it('produces non-finite result when dividing by zero', () => {
+  describe('div safety', () => {
+    it('div(0) returns zero instead of Infinity', () => {
       const amount = BigAmount.fromBaseUnit({ value: '1000000000000000000', precision: 18 })
-      const result = amount.div(0)
-      expect(result.isFinite()).toBe(false)
+      expect(amount.div(0).isZero()).toBe(true)
+      expect(amount.div(0).isFinite()).toBe(true)
     })
 
-    it('produces non-finite result when dividing by empty string', () => {
+    it('div(null) returns zero', () => {
       const amount = BigAmount.fromBaseUnit({ value: '1000000000000000000', precision: 18 })
-      const result = amount.div('')
-      expect(result.isFinite()).toBe(false)
+      expect(amount.div(null).isZero()).toBe(true)
+    })
+
+    it('div(undefined) returns zero', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '1000000000000000000', precision: 18 })
+      expect(amount.div(undefined).isZero()).toBe(true)
+    })
+
+    it('div("") returns zero', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '1000000000000000000', precision: 18 })
+      expect(amount.div('').isZero()).toBe(true)
+    })
+
+    it('div("0") returns zero', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '1000000000000000000', precision: 18 })
+      expect(amount.div('0').isZero()).toBe(true)
+    })
+
+    it('div on zero amount by zero returns zero', () => {
+      expect(BigAmount.zero({ precision: 18 }).div(0).isZero()).toBe(true)
+    })
+
+    it('div by valid divisor still works', () => {
+      const amount = BigAmount.fromPrecision({ value: '10', precision: 8 })
+      expect(amount.div(2).toPrecision()).toBe('5')
+    })
+
+    it('preserves precision and assetId', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '100', precision: 8, assetId: 'test' })
+      const result = amount.div(0)
+      expect(result.precision).toBe(8)
+      expect(result.assetId).toBe('test')
     })
   })
 
@@ -1213,6 +1243,235 @@ describe('BigAmount', () => {
     it('round-trips with negative precision', () => {
       const amount = BigAmount.fromBaseUnit({ value: '100', precision: -2 })
       expect(amount.toBaseUnit()).toBe('100')
+    })
+  })
+
+  // ── toBN interop ────────────────────────────────
+
+  describe('toBN', () => {
+    it('returns precision-scale BigNumber', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
+      const result = amount.toBN()
+      expect(result.toString()).toBe('1.5')
+    })
+
+    it('can be used in BN arithmetic chains', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
+      expect(amount.toBN().times(60000).toFixed(2)).toBe('90000.00')
+    })
+
+    it('returns zero for zero amount', () => {
+      expect(BigAmount.zero({ precision: 8 }).toBN().isZero()).toBe(true)
+    })
+
+    it('handles negative values', () => {
+      const amount = BigAmount.fromPrecision({ value: '-1.5', precision: 8 })
+      expect(amount.toBN().toString()).toBe('-1.5')
+    })
+
+    it('avoids string round-trip vs manual conversion', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
+      const viaBN = amount.toBN()
+      const viaString = bn(amount.toPrecision())
+      expect(viaBN.eq(viaString)).toBe(true)
+    })
+  })
+
+  // ── toHuman / fromHuman canonical names ────────
+
+  describe('toHuman (canonical name for toPrecision)', () => {
+    it('returns human-readable string', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
+      expect(amount.toHuman()).toBe('1.5')
+    })
+
+    it('is identical to toPrecision (backward compat)', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '123456789', precision: 8 })
+      expect(amount.toHuman()).toBe(amount.toPrecision())
+    })
+
+    it('handles zero', () => {
+      expect(BigAmount.zero({ precision: 18 }).toHuman()).toBe('0')
+    })
+
+    it('handles dust', () => {
+      expect(BigAmount.fromBaseUnit({ value: '1', precision: 18 }).toHuman()).toBe(
+        '0.000000000000000001',
+      )
+    })
+  })
+
+  describe('fromHuman (canonical name for fromPrecision)', () => {
+    it('constructs from human-readable value', () => {
+      const amount = BigAmount.fromHuman({ value: '1.5', precision: 8 })
+      expect(amount.toHuman()).toBe('1.5')
+      expect(amount.toBaseUnit()).toBe('150000000')
+    })
+
+    it('is identical to fromPrecision', () => {
+      const a = BigAmount.fromHuman({ value: '1.5', precision: 8 })
+      const b = BigAmount.fromPrecision({ value: '1.5', precision: 8 })
+      expect(a.eq(b)).toBe(true)
+    })
+
+    it('accepts assetId variant', () => {
+      const amount = BigAmount.fromHuman({ value: '1.5', precision: 8, assetId: 'test' })
+      expect(amount.assetId).toBe('test')
+    })
+  })
+
+  // ── fromHumanBN canonical name ─────────────────
+
+  describe('fromHumanBN (canonical name for fromBN)', () => {
+    it('wraps a precision-scale BigNumber', () => {
+      const amount = BigAmount.fromHumanBN({ value: bn('1.5'), precision: 8 })
+      expect(amount.toPrecision()).toBe('1.5')
+    })
+
+    it('is identical to fromBN', () => {
+      const a = BigAmount.fromHumanBN({ value: bn('1.5'), precision: 8 })
+      const b = BigAmount.fromBN({ value: bn('1.5'), precision: 8 })
+      expect(a.eq(b)).toBe(true)
+    })
+
+    it('treats non-finite as zero', () => {
+      const amount = BigAmount.fromHumanBN({ value: bn(Infinity), precision: 8 })
+      expect(amount.isZero()).toBe(true)
+    })
+  })
+
+  // ── uint256-scale values ───────────────────────
+
+  describe('uint256-scale values', () => {
+    const maxUint256 =
+      '115792089237316195423570985008687907853269984665640564039457584007913129639935'
+
+    it('handles max uint256', () => {
+      const amount = BigAmount.fromBaseUnit({ value: maxUint256, precision: 18 })
+      expect(amount.toBaseUnit()).toBe(maxUint256)
+      expect(amount.isFinite()).toBe(true)
+      expect(amount.isZero()).toBe(false)
+    })
+
+    it('round-trips uint256 through toJSON/fromJSON', () => {
+      const amount = BigAmount.fromBaseUnit({ value: maxUint256, precision: 18 })
+      const restored = BigAmount.fromJSON(amount.toJSON())
+      expect(restored.toBaseUnit()).toBe(maxUint256)
+    })
+
+    it('arithmetic on uint256 values', () => {
+      const large = '100000000000000000000000000000000000000'
+      const amount = BigAmount.fromBaseUnit({ value: large, precision: 18 })
+      expect(amount.times(2).div(2).toBaseUnit()).toBe(large)
+    })
+  })
+
+  // ── precision 0 ────────────────────────────────
+
+  describe('precision 0', () => {
+    it('constructs with precision 0', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '100', precision: 0 })
+      expect(amount.toPrecision()).toBe('100')
+      expect(amount.toBaseUnit()).toBe('100')
+    })
+
+    it('round-trips with precision 0', () => {
+      expect(BigAmount.fromBaseUnit({ value: '42', precision: 0 }).toBaseUnit()).toBe('42')
+    })
+
+    it('zero with precision 0', () => {
+      const z = BigAmount.zero({ precision: 0 })
+      expect(z.isZero()).toBe(true)
+      expect(z.toBaseUnit()).toBe('0')
+      expect(z.toPrecision()).toBe('0')
+    })
+
+    it('arithmetic with precision 0', () => {
+      const a = BigAmount.fromBaseUnit({ value: '10', precision: 0 })
+      const b = BigAmount.fromBaseUnit({ value: '3', precision: 0 })
+      expect(a.plus(b).toBaseUnit()).toBe('13')
+    })
+
+    it('fromPrecision with precision 0 is same as fromBaseUnit', () => {
+      const a = BigAmount.fromBaseUnit({ value: '100', precision: 0 })
+      const b = BigAmount.fromPrecision({ value: '100', precision: 0 })
+      expect(a.eq(b)).toBe(true)
+    })
+  })
+
+  // ── negative values in fromBaseUnit ────────────
+
+  describe('negative values in fromBaseUnit', () => {
+    it('handles negative base unit values', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '-150000000', precision: 8 })
+      expect(amount.toPrecision()).toBe('-1.5')
+      expect(amount.isNegative()).toBe(true)
+      expect(amount.toBaseUnit()).toBe('-150000000')
+    })
+
+    it('round-trips negative values', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '-1000000000000000000', precision: 18 })
+      expect(amount.toBaseUnit()).toBe('-1000000000000000000')
+    })
+  })
+
+  // ── toBaseUnit rounding ────────────────────────
+
+  describe('toBaseUnit rounding', () => {
+    it('rounds correctly after fractional multiplication', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '100', precision: 8 })
+      expect(amount.times(0.333).toBaseUnit()).toBe('33')
+    })
+
+    it('rounds at .5 boundary (ROUND_HALF_UP)', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '100', precision: 8 })
+      expect(amount.times(0.005).toBaseUnit()).toBe('1')
+    })
+
+    it('rounds down below .5', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '100', precision: 8 })
+      // 100 * 0.004 = 0.4 → rounds to 0
+      expect(amount.times(0.004).toBaseUnit()).toBe('0')
+    })
+  })
+
+  // ── precision stability ────────────────────────
+
+  describe('precision stability over chained operations', () => {
+    it('maintains exact value through 20 times(2)/div(2) cycles', () => {
+      let amount = BigAmount.fromBaseUnit({ value: '1000000000000000000', precision: 18 })
+      for (let i = 0; i < 20; i++) {
+        amount = amount.times(2).div(2)
+      }
+      expect(amount.toBaseUnit()).toBe('1000000000000000000')
+    })
+
+    it('maintains value through plus/minus cycles', () => {
+      const original = BigAmount.fromPrecision({ value: '100', precision: 8 })
+      let amount = original
+      for (let i = 0; i < 10; i++) {
+        amount = amount.plus('50').minus('50')
+      }
+      expect(amount.eq(original)).toBe(true)
+    })
+  })
+
+  // ── toSignificant edge cases ───────────────────
+
+  describe('toSignificant edge cases', () => {
+    it('toSignificant(0) returns integer part only', () => {
+      const amount = BigAmount.fromPrecision({ value: '12.345', precision: 18 })
+      expect(amount.toSignificant(0)).toBe('12')
+    })
+
+    it('toSignificant(1) returns one significant digit after leading zeros', () => {
+      const amount = BigAmount.fromPrecision({ value: '0.00456', precision: 18 })
+      expect(amount.toSignificant(1)).toBe('0.004')
+    })
+
+    it('toSignificant(1) on value with integer part', () => {
+      const amount = BigAmount.fromPrecision({ value: '5.678', precision: 18 })
+      expect(amount.toSignificant(1)).toBe('5')
     })
   })
 

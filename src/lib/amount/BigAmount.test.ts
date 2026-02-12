@@ -208,9 +208,19 @@ describe('BigAmount', () => {
       expect(amount.times('2').toBaseUnit()).toBe('300000000')
     })
 
-    it('handles nullish scalar as zero', () => {
+    it('handles null scalar as zero', () => {
       const amount = BigAmount.fromPrecision({ value: '1.5', precision: 8 })
-      expect(amount.times('' as unknown as string).isZero()).toBe(true)
+      expect(amount.times(null).isZero()).toBe(true)
+    })
+
+    it('handles undefined scalar as zero', () => {
+      const amount = BigAmount.fromPrecision({ value: '1.5', precision: 8 })
+      expect(amount.times(undefined).isZero()).toBe(true)
+    })
+
+    it('handles empty string scalar as zero', () => {
+      const amount = BigAmount.fromPrecision({ value: '1.5', precision: 8 })
+      expect(amount.times('').isZero()).toBe(true)
     })
 
     it('throws if passed a BigAmount (dimensionally invalid)', () => {
@@ -994,6 +1004,134 @@ describe('BigAmount', () => {
     it('toUSD throws without assetId even when configured', () => {
       const amount = BigAmount.fromBaseUnit({ value: '100', precision: 8 })
       expect(() => amount.toUSD()).toThrow('requires assetId')
+    })
+  })
+
+  // ── NullableScalar: null/undefined accepted without bnOrZero ──
+
+  describe('NullableScalar widening', () => {
+    const amount = BigAmount.fromPrecision({ value: '10', precision: 8 })
+
+    describe('times accepts null/undefined', () => {
+      it('times(null) returns zero', () => {
+        expect(amount.times(null).isZero()).toBe(true)
+      })
+
+      it('times(undefined) returns zero', () => {
+        expect(amount.times(undefined).isZero()).toBe(true)
+      })
+
+      it('times(string) still works', () => {
+        expect(amount.times('2').toPrecision()).toBe('20')
+      })
+    })
+
+    describe('div accepts null/undefined', () => {
+      it('div(null) produces non-finite result', () => {
+        expect(amount.div(null).isFinite()).toBe(false)
+      })
+
+      it('div(undefined) produces non-finite result', () => {
+        expect(amount.div(undefined).isFinite()).toBe(false)
+      })
+    })
+
+    describe('plus accepts null/undefined scalar', () => {
+      it('plus(null) is identity', () => {
+        expect(amount.plus(null).eq(amount)).toBe(true)
+      })
+
+      it('plus(undefined) is identity', () => {
+        expect(amount.plus(undefined).eq(amount)).toBe(true)
+      })
+    })
+
+    describe('minus accepts null/undefined scalar', () => {
+      it('minus(null) is identity', () => {
+        expect(amount.minus(null).eq(amount)).toBe(true)
+      })
+
+      it('minus(undefined) is identity', () => {
+        expect(amount.minus(undefined).eq(amount)).toBe(true)
+      })
+    })
+
+    describe('comparison accepts null/undefined scalar', () => {
+      it('gt(null) — positive amount is greater than zero', () => {
+        expect(amount.gt(null)).toBe(true)
+      })
+
+      it('gt(undefined) — positive amount is greater than zero', () => {
+        expect(amount.gt(undefined)).toBe(true)
+      })
+
+      it('gte(null) — positive amount is gte zero', () => {
+        expect(amount.gte(null)).toBe(true)
+      })
+
+      it('gte(undefined) — positive amount is gte zero', () => {
+        expect(amount.gte(undefined)).toBe(true)
+      })
+
+      it('lt(null) — positive amount is NOT less than zero', () => {
+        expect(amount.lt(null)).toBe(false)
+      })
+
+      it('lt(undefined) — positive amount is NOT less than zero', () => {
+        expect(amount.lt(undefined)).toBe(false)
+      })
+
+      it('lte(null) — positive amount is NOT lte zero', () => {
+        expect(amount.lte(null)).toBe(false)
+      })
+
+      it('lte(undefined) — positive amount is NOT lte zero', () => {
+        expect(amount.lte(undefined)).toBe(false)
+      })
+
+      it('eq(null) — non-zero amount is NOT equal to zero', () => {
+        expect(amount.eq(null)).toBe(false)
+      })
+
+      it('eq(undefined) — non-zero amount is NOT equal to zero', () => {
+        expect(amount.eq(undefined)).toBe(false)
+      })
+
+      it('zero eq(null) — zero IS equal to null-as-zero', () => {
+        expect(BigAmount.zero({ precision: 8 }).eq(null)).toBe(true)
+      })
+
+      it('zero eq(undefined) — zero IS equal to undefined-as-zero', () => {
+        expect(BigAmount.zero({ precision: 8 }).eq(undefined)).toBe(true)
+      })
+    })
+
+    describe('real-world pattern: optional chaining without bnOrZero', () => {
+      it('balance.times(marketData?.price) where price is undefined', () => {
+        const balance = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
+        const marketData: { price?: string } = {}
+        const result = balance.times(marketData?.price)
+        expect(result.isZero()).toBe(true)
+      })
+
+      it('balance.times(marketData?.price) where price exists', () => {
+        const balance = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
+        const marketData: { price?: string } = { price: '60000' }
+        const result = balance.times(marketData?.price)
+        expect(result.toPrecision()).toBe('90000')
+      })
+
+      it('amount.gt(threshold) where threshold is undefined', () => {
+        const balance = BigAmount.fromPrecision({ value: '100', precision: 8 })
+        const threshold: string | undefined = undefined
+        expect(balance.gt(threshold)).toBe(true)
+      })
+
+      it('amount.lt(limit) where limit is null', () => {
+        const balance = BigAmount.fromPrecision({ value: '100', precision: 8 })
+        const limit: string | null = null
+        expect(balance.lt(limit)).toBe(false)
+      })
     })
   })
 

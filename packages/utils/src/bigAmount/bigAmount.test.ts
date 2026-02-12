@@ -1,6 +1,8 @@
-import type { BigAmountConfig } from '@shapeshiftoss/utils'
-import { BigAmount, bn } from '@shapeshiftoss/utils'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+
+import { bn } from '../bignumber/bignumber'
+import type { BigAmountConfig } from './bigAmount'
+import { BigAmount } from './bigAmount'
 
 describe('BigAmount', () => {
   // ── Construction ──────────────────────────────────

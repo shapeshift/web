@@ -5,6 +5,8 @@ import { bn, bnOrZero } from '../bignumber/bignumber'
 const TEN = bn(10)
 const THOR_PRECISION = 8
 
+type NullableScalar = BigNumber.Value | null | undefined
+
 type BigAmountConfig = {
   resolvePrecision: (assetId: string) => number
   resolvePrice: (assetId: string) => string
@@ -126,7 +128,7 @@ export class BigAmount {
 
   // ── Arithmetic (chainable → BigAmount) ────────────
 
-  plus(other: BigAmount | BigNumber.Value): BigAmount {
+  plus(other: BigAmount | NullableScalar): BigAmount {
     if (other instanceof BigAmount) {
       assertSamePrecision(this, other)
       return new BigAmount(this.value.plus(other.value), this.precision, this.assetId)
@@ -139,7 +141,7 @@ export class BigAmount {
     )
   }
 
-  minus(other: BigAmount | BigNumber.Value): BigAmount {
+  minus(other: BigAmount | NullableScalar): BigAmount {
     if (other instanceof BigAmount) {
       assertSamePrecision(this, other)
       return new BigAmount(this.value.minus(other.value), this.precision, this.assetId)
@@ -152,12 +154,12 @@ export class BigAmount {
     )
   }
 
-  times(scalar: BigNumber.Value): BigAmount {
+  times(scalar: NullableScalar): BigAmount {
     assertNotBigAmount(scalar, 'times')
     return new BigAmount(this.value.times(bnOrZero(scalar)), this.precision, this.assetId)
   }
 
-  div(scalar: BigNumber.Value): BigAmount {
+  div(scalar: NullableScalar): BigAmount {
     assertNotBigAmount(scalar, 'div')
     return new BigAmount(this.value.div(bnOrZero(scalar)), this.precision, this.assetId)
   }
@@ -185,7 +187,7 @@ export class BigAmount {
 
   // ── Comparison (terminal → boolean) ───────────────
 
-  gt(other: BigAmount | BigNumber.Value): boolean {
+  gt(other: BigAmount | NullableScalar): boolean {
     if (other instanceof BigAmount) {
       assertSamePrecision(this, other)
       return this.value.gt(other.value)
@@ -193,7 +195,7 @@ export class BigAmount {
     return this.value.gt(bnOrZero(other).times(TEN.pow(this.precision)))
   }
 
-  gte(other: BigAmount | BigNumber.Value): boolean {
+  gte(other: BigAmount | NullableScalar): boolean {
     if (other instanceof BigAmount) {
       assertSamePrecision(this, other)
       return this.value.gte(other.value)
@@ -201,7 +203,7 @@ export class BigAmount {
     return this.value.gte(bnOrZero(other).times(TEN.pow(this.precision)))
   }
 
-  lt(other: BigAmount | BigNumber.Value): boolean {
+  lt(other: BigAmount | NullableScalar): boolean {
     if (other instanceof BigAmount) {
       assertSamePrecision(this, other)
       return this.value.lt(other.value)
@@ -209,7 +211,7 @@ export class BigAmount {
     return this.value.lt(bnOrZero(other).times(TEN.pow(this.precision)))
   }
 
-  lte(other: BigAmount | BigNumber.Value): boolean {
+  lte(other: BigAmount | NullableScalar): boolean {
     if (other instanceof BigAmount) {
       assertSamePrecision(this, other)
       return this.value.lte(other.value)
@@ -217,7 +219,7 @@ export class BigAmount {
     return this.value.lte(bnOrZero(other).times(TEN.pow(this.precision)))
   }
 
-  eq(other: BigAmount | BigNumber.Value): boolean {
+  eq(other: BigAmount | NullableScalar): boolean {
     if (other instanceof BigAmount) {
       assertSamePrecision(this, other)
       return this.value.eq(other.value)

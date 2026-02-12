@@ -10,7 +10,6 @@ import { useEpochHistoryQuery } from './useEpochHistoryQuery'
 import { useTotalStakedQuery } from './useGetTotalStaked'
 
 import { useFetchPriceHistories } from '@/hooks/useFetchPriceHistories/useFetchPriceHistories'
-import { fromBaseUnit } from '@/lib/math'
 import { selectAssetById, selectPriceHistoryByAssetTimeframe } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -74,12 +73,10 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
       ).times(closestRunePrice.price)
 
       const totalStakedUsd = bn(
-        fromBaseUnit(
-          BigAmount.fromBaseUnit({
-            value: totalStakedCryptoCurrencyQuery.data,
-            precision: stakingAsset.precision,
-          }),
-        ),
+        BigAmount.fromBaseUnit({
+          value: totalStakedCryptoCurrencyQuery.data,
+          precision: stakingAsset.precision,
+        }).toPrecision(),
       ).times(closestStakingAssetPrice.price)
 
       return rewardDistributionUsd.div(totalStakedUsd).times(12).toFixed(4)

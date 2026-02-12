@@ -47,7 +47,7 @@ import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalle
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bn, bnOrZero, convertPrecision } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { toBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { assertUnreachable } from '@/lib/utils'
@@ -442,12 +442,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     if (!poolAssetFeeAsset || !poolAssetFeeAssetOutboundFeeCryptoBaseUnit) return bn(0)
     if (bnOrZero(actualAssetWithdrawAmountCryptoPrecision).eq(0)) return bn(0)
     return bnOrZero(
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: poolAssetFeeAssetOutboundFeeCryptoBaseUnit,
-          precision: poolAssetFeeAsset.precision,
-        }),
-      ),
+      BigAmount.fromBaseUnit({
+        value: poolAssetFeeAssetOutboundFeeCryptoBaseUnit,
+        precision: poolAssetFeeAsset.precision,
+      }).toPrecision(),
     )
   }, [
     poolAssetFeeAssetOutboundFeeCryptoBaseUnit,
@@ -463,12 +461,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const poolAssetTxFeeCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit ?? 0,
-          precision: poolAssetFeeAsset?.precision ?? 0,
-        }),
-      ),
+      BigAmount.fromBaseUnit({
+        value: estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit ?? 0,
+        precision: poolAssetFeeAsset?.precision ?? 0,
+      }).toPrecision(),
     [estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit, poolAssetFeeAsset?.precision],
   )
 
@@ -476,12 +472,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     if (!poolAssetFeeAsset) return bn(0)
     if (opportunityType !== AsymSide.Asset) return bn(0)
 
-    return fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: poolAssetFeeAssetDustAmountCryptoBaseUnit,
-        precision: poolAssetFeeAsset?.precision,
-      }),
-    )
+    return BigAmount.fromBaseUnit({
+      value: poolAssetFeeAssetDustAmountCryptoBaseUnit,
+      precision: poolAssetFeeAsset?.precision,
+    }).toPrecision()
   }, [poolAssetFeeAssetDustAmountCryptoBaseUnit, poolAssetFeeAsset, opportunityType])
 
   const poolAssetFeeAssetDustAmountFiatUserCurrency = useMemo(() => {
@@ -506,7 +500,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const runeProtocolFeeCryptoPrecision = useMemo(() => {
     if (bnOrZero(actualRuneWithdrawAmountCryptoPrecision).eq(0)) return bn(0)
-    return bn(fromBaseUnit(BigAmount.fromThorBaseUnit(runeOutboundFeeCryptoBaseUnit)))
+    return bn(BigAmount.fromThorBaseUnit(runeOutboundFeeCryptoBaseUnit).toPrecision())
   }, [actualRuneWithdrawAmountCryptoPrecision, runeOutboundFeeCryptoBaseUnit])
 
   const runeProtocolFeeFiatUserCurrency = useMemo(() => {
@@ -515,12 +509,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const runeTxFeeCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: estimatedRuneFeesData?.txFeeCryptoBaseUnit ?? 0,
-          precision: runeAsset?.precision ?? 0,
-        }),
-      ),
+      BigAmount.fromBaseUnit({
+        value: estimatedRuneFeesData?.txFeeCryptoBaseUnit ?? 0,
+        precision: runeAsset?.precision ?? 0,
+      }).toPrecision(),
     [estimatedRuneFeesData?.txFeeCryptoBaseUnit, runeAsset?.precision],
   )
 
@@ -890,12 +882,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     if (bnOrZero(actualAssetWithdrawAmountCryptoPrecision).isZero()) return true
     if (!poolAssetFeeAsset) return false
 
-    const poolAssetFeeAssetBalanceCryptoPrecision = fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: poolAssetFeeAssetBalanceCryptoBaseUnit,
-        precision: poolAssetFeeAsset?.precision,
-      }),
-    )
+    const poolAssetFeeAssetBalanceCryptoPrecision = BigAmount.fromBaseUnit({
+      value: poolAssetFeeAssetBalanceCryptoBaseUnit,
+      precision: poolAssetFeeAsset?.precision,
+    }).toPrecision()
 
     return bnOrZero(poolAssetTxFeeCryptoPrecision)
       .plus(poolAssetFeeAssetDustAmountCryptoPrecision)
@@ -914,18 +904,14 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     if (bnOrZero(actualRuneWithdrawAmountCryptoPrecision).isZero()) return true
     if (!runeAsset) return false
 
-    const runeBalanceCryptoPrecision = fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: runeBalanceCryptoBaseUnit,
-        precision: runeAsset?.precision,
-      }),
-    )
-    const runeDustAmountCryptoPrecision = fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: runeDustAmountCryptoBaseUnit,
-        precision: runeAsset?.precision,
-      }),
-    )
+    const runeBalanceCryptoPrecision = BigAmount.fromBaseUnit({
+      value: runeBalanceCryptoBaseUnit,
+      precision: runeAsset?.precision,
+    }).toPrecision()
+    const runeDustAmountCryptoPrecision = BigAmount.fromBaseUnit({
+      value: runeDustAmountCryptoBaseUnit,
+      precision: runeAsset?.precision,
+    }).toPrecision()
 
     return bnOrZero(runeTxFeeCryptoPrecision)
       .plus(runeDustAmountCryptoPrecision)

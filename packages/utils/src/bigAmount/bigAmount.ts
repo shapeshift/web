@@ -2,12 +2,15 @@ import type BigNumber from 'bignumber.js'
 
 import { bn, bnOrZero } from '../bignumber/bignumber'
 
+const ROUND_DOWN = 1 as BigNumber.RoundingMode
+const ROUND_HALF_UP = 4 as BigNumber.RoundingMode
+
 const TEN = bn(10)
 const THOR_PRECISION = 8
 
 type NullableScalar = BigNumber.Value | null | undefined
 
-type BigAmountConfig = {
+export type BigAmountConfig = {
   resolvePrecision: (assetId: string) => number
   resolvePrice: (assetId: string) => string
   resolvePriceUsd: (assetId: string) => string
@@ -16,12 +19,13 @@ type BigAmountConfig = {
 type FromBaseUnitWithPrecision = {
   value: BigNumber.Value | null | undefined
   precision: number
-  assetId?: string
+  assetId?: never
 }
 
 type FromBaseUnitWithAssetId = {
   value: BigNumber.Value | null | undefined
   assetId: string
+  precision?: never
 }
 
 type FromBaseUnitArgs = FromBaseUnitWithPrecision | FromBaseUnitWithAssetId
@@ -29,12 +33,13 @@ type FromBaseUnitArgs = FromBaseUnitWithPrecision | FromBaseUnitWithAssetId
 type FromPrecisionWithPrecision = {
   value: BigNumber.Value | null | undefined
   precision: number
-  assetId?: string
+  assetId?: never
 }
 
 type FromPrecisionWithAssetId = {
   value: BigNumber.Value | null | undefined
   assetId: string
+  precision?: never
 }
 
 type FromPrecisionArgs = FromPrecisionWithPrecision | FromPrecisionWithAssetId
@@ -60,20 +65,30 @@ export class BigAmount {
     BigAmount.config = config
   }
 
+  static getConfig(): BigAmountConfig | undefined {
+    return BigAmount.config
+  }
+
+  static resetConfig(): void {
+    BigAmount.config = undefined
+  }
+
   // ── Construction (all nullish-safe) ───────────────
 
   static fromBaseUnit(args: FromBaseUnitArgs): BigAmount {
-    const precision =
-      'precision' in args ? args.precision : BigAmount.resolveConfigPrecision(args.assetId)
-    const assetId = args.assetId
-    return new BigAmount(bnOrZero(args.value), precision, assetId)
+    if ('assetId' in args && args.assetId !== undefined) {
+      const precision = BigAmount.resolveConfigPrecision(args.assetId)
+      return new BigAmount(bnOrZero(args.value), precision, args.assetId)
+    }
+    return new BigAmount(bnOrZero(args.value), args.precision)
   }
 
   static fromPrecision(args: FromPrecisionArgs): BigAmount {
-    const precision =
-      'precision' in args ? args.precision : BigAmount.resolveConfigPrecision(args.assetId)
-    const assetId = args.assetId
-    return new BigAmount(bnOrZero(args.value).times(TEN.pow(precision)), precision, assetId)
+    if ('assetId' in args && args.assetId !== undefined) {
+      const precision = BigAmount.resolveConfigPrecision(args.assetId)
+      return new BigAmount(bnOrZero(args.value).times(TEN.pow(precision)), precision, args.assetId)
+    }
+    return new BigAmount(bnOrZero(args.value).times(TEN.pow(args.precision)), args.precision)
   }
 
   static zero({ precision, assetId }: { precision: number; assetId?: string }): BigAmount {
@@ -89,7 +104,6 @@ export class BigAmount {
     precision: number
     assetId?: string
   }): BigAmount {
-    // fromBN accepts precision-scale BigNumber (matches the old API contract)
     const safeValue = value.isFinite() ? value : bn(0)
     return new BigAmount(safeValue.times(TEN.pow(precision)), precision, assetId)
   }
@@ -161,7 +175,11 @@ export class BigAmount {
 
   div(scalar: NullableScalar): BigAmount {
     assertNotBigAmount(scalar, 'div')
-    return new BigAmount(this.value.div(bnOrZero(scalar)), this.precision, this.assetId)
+    const divisor = bnOrZero(scalar)
+    if (divisor.isZero()) {
+      return BigAmount.zero({ precision: this.precision, assetId: this.assetId })
+    }
+    return new BigAmount(this.value.div(divisor), this.precision, this.assetId)
   }
 
   abs(): BigAmount {
@@ -246,23 +264,27 @@ export class BigAmount {
   // ── Output ────────────────────────────────────────
 
   toBaseUnit(): string {
-    return this.value.toFixed(0)
+    return this.value.toFixed(0, ROUND_HALF_UP)
   }
 
   toPrecision(): string {
     return this.value.div(TEN.pow(this.precision)).toFixed()
   }
 
+  toBN(): BigNumber {
+    return this.value.div(TEN.pow(this.precision))
+  }
+
   toFixed(decimals?: number): string {
     const precisionValue = this.value.div(TEN.pow(this.precision))
     if (typeof decimals === 'number') {
-      return precisionValue.toFixed(decimals, 1) // BigNumber.ROUND_DOWN
+      return precisionValue.toFixed(decimals, ROUND_DOWN)
     }
     return precisionValue.toFixed()
   }
 
   toString(): string {
-    return this.value.div(TEN.pow(this.precision)).toFixed()
+    return this.toPrecision()
   }
 
   toNumber(): number {

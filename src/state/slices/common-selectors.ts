@@ -112,8 +112,7 @@ export const selectWalletConnectedChainIds = createDeepEqualOutputSelector(
 export const selectPortfolioAccountBalances = createDeepEqualOutputSelector(
   selectEnabledWalletAccountIds,
   portfolio.selectors.selectAccountBalancesById,
-  selectAssets,
-  (walletAccountIds, accountBalancesById, assets) => {
+  (walletAccountIds, accountBalancesById) => {
     const filtered = pickBy(accountBalancesById, (_balances, accountId: AccountId) =>
       walletAccountIds.includes(accountId),
     )
@@ -121,10 +120,8 @@ export const selectPortfolioAccountBalances = createDeepEqualOutputSelector(
     for (const [accountId, byAssetId] of Object.entries(filtered)) {
       const assetBalances: Record<AssetId, BigAmount> = {}
       for (const [assetId, balance] of Object.entries(byAssetId)) {
-        const precision = assets[assetId as AssetId]?.precision ?? 0
         assetBalances[assetId as AssetId] = BigAmount.fromBaseUnit({
           value: balance,
-          precision,
           assetId,
         })
       }

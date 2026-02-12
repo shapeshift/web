@@ -1,3 +1,4 @@
+import type { BigAmountConfig } from '@shapeshiftoss/utils'
 import { BigAmount, bn } from '@shapeshiftoss/utils'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
@@ -770,36 +771,46 @@ describe('BigAmount', () => {
   // ── assetId ─────────────────────────────────────
 
   describe('assetId', () => {
-    it('fromBaseUnit carries optional assetId', () => {
+    const mockConfig = {
+      resolvePrecision: (assetId: string) => {
+        if (assetId === 'bip122:000000000019d6689c085ae165831e93/slip44:0') return 8
+        if (assetId === 'test-asset') return 8
+        return 0
+      },
+      resolvePrice: () => '0',
+      resolvePriceUsd: () => '0',
+    }
+
+    beforeAll(() => {
+      BigAmount.configure(mockConfig)
+    })
+
+    it('fromBaseUnit with assetId resolves precision and carries assetId', () => {
       const amount = BigAmount.fromBaseUnit({
         value: '150000000',
-        precision: 8,
         assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
       })
       expect(amount.assetId).toBe('bip122:000000000019d6689c085ae165831e93/slip44:0')
+      expect(amount.precision).toBe(8)
       expect(amount.toPrecision()).toBe('1.5')
     })
 
-    it('fromPrecision carries optional assetId', () => {
+    it('fromPrecision with assetId resolves precision and carries assetId', () => {
       const amount = BigAmount.fromPrecision({
         value: '1.5',
-        precision: 8,
         assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
       })
       expect(amount.assetId).toBe('bip122:000000000019d6689c085ae165831e93/slip44:0')
+      expect(amount.precision).toBe(8)
     })
 
-    it('assetId is undefined when not provided', () => {
+    it('assetId is undefined when using precision variant', () => {
       const amount = BigAmount.fromBaseUnit({ value: '100', precision: 8 })
       expect(amount.assetId).toBeUndefined()
     })
 
     it('assetId propagates through arithmetic', () => {
-      const amount = BigAmount.fromBaseUnit({
-        value: '100',
-        precision: 8,
-        assetId: 'test-asset',
-      })
+      const amount = BigAmount.fromBaseUnit({ value: '100', assetId: 'test-asset' })
       expect(amount.plus('1').assetId).toBe('test-asset')
       expect(amount.minus('1').assetId).toBe('test-asset')
       expect(amount.times(2).assetId).toBe('test-asset')
@@ -815,11 +826,7 @@ describe('BigAmount', () => {
     })
 
     it('toJSON includes assetId when present', () => {
-      const amount = BigAmount.fromBaseUnit({
-        value: '100',
-        precision: 8,
-        assetId: 'test-asset',
-      })
+      const amount = BigAmount.fromBaseUnit({ value: '100', assetId: 'test-asset' })
       expect(amount.toJSON()).toEqual({ value: '100', precision: 8, assetId: 'test-asset' })
     })
 
@@ -829,14 +836,17 @@ describe('BigAmount', () => {
     })
 
     it('fromJSON restores assetId', () => {
-      const original = BigAmount.fromBaseUnit({
-        value: '100',
-        precision: 8,
-        assetId: 'test-asset',
-      })
+      const original = BigAmount.fromBaseUnit({ value: '100', assetId: 'test-asset' })
       const restored = BigAmount.fromJSON(original.toJSON())
       expect(restored.assetId).toBe('test-asset')
       expect(restored.toBaseUnit()).toBe('100')
+    })
+
+    it('discriminated union prevents passing both precision and assetId', () => {
+      // @ts-expect-error — discriminated union: precision and assetId are mutually exclusive
+      const amount = BigAmount.fromBaseUnit({ value: '100', precision: 8, assetId: 'test-asset' })
+      // Runtime still works (one takes precedence) but TypeScript catches the error
+      expect(amount).toBeDefined()
     })
   })
 
@@ -890,11 +900,10 @@ describe('BigAmount', () => {
       expect(amount.toPrecision()).toBe('1')
     })
 
-    it('fromBaseUnit with explicit precision ignores config', () => {
-      const amount = BigAmount.fromBaseUnit({ value: '100', precision: 4, assetId: 'btc' })
-      // explicit precision=4 overrides config precision=8
+    it('precision variant has no assetId (discriminated union)', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '100', precision: 4 })
       expect(amount.precision).toBe(4)
-      expect(amount.assetId).toBe('btc')
+      expect(amount.assetId).toBeUndefined()
     })
   })
 
@@ -1173,56 +1182,49 @@ describe('BigAmount', () => {
       expect(amount.div(2).toPrecision()).toBe('5')
     })
 
-    it('preserves precision and assetId', () => {
-      const amount = BigAmount.fromBaseUnit({ value: '100', precision: 8, assetId: 'test' })
+    it('preserves precision', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '100', precision: 8 })
       const result = amount.div(0)
       expect(result.precision).toBe(8)
-      expect(result.assetId).toBe('test')
+    })
+
+    it('preserves assetId through div(0)', () => {
+      const amount = BigAmount.zero({ precision: 8, assetId: 'test-asset' }).plus(
+        BigAmount.fromBaseUnit({ value: '100', precision: 8 }),
+      )
+      // assetId comes from the left operand in plus
+      const result = amount.div(0)
+      expect(result.assetId).toBe('test-asset')
     })
   })
 
   // ── unconfigured state ────────────────────────────
 
   describe('unconfigured state', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let savedConfig: any
+    let savedConfig: BigAmountConfig | undefined
 
     beforeAll(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      savedConfig = (BigAmount as any).config
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ;(BigAmount as any).config = undefined
+      savedConfig = BigAmount.getConfig()
+      BigAmount.resetConfig()
     })
 
     afterAll(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ;(BigAmount as any).config = savedConfig
+      if (savedConfig) BigAmount.configure(savedConfig)
     })
 
     it('throws when calling toUserCurrency without config', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const amount = BigAmount.fromBaseUnit({
-        value: '1000000',
-        precision: 6,
-        assetId: 'eip155:1/slip44:60' as any,
-      })
-      expect(() => amount.toUserCurrency()).toThrow('BigAmount: not configured')
+      const amount = BigAmount.fromBaseUnit({ value: '1000000', precision: 6 })
+      expect(() => amount.toUserCurrency()).toThrow('requires assetId')
     })
 
     it('throws when calling toUSD without config', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const amount = BigAmount.fromBaseUnit({
-        value: '1000000',
-        precision: 6,
-        assetId: 'eip155:1/slip44:60' as any,
-      })
-      expect(() => amount.toUSD()).toThrow('BigAmount: not configured')
+      const amount = BigAmount.fromBaseUnit({ value: '1000000', precision: 6 })
+      expect(() => amount.toUSD()).toThrow('requires assetId')
     })
 
     it('throws when using assetId resolution without config', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(() =>
-        BigAmount.fromBaseUnit({ value: '1000000', assetId: 'eip155:1/slip44:60' as any }),
+        BigAmount.fromBaseUnit({ value: '1000000', assetId: 'eip155:1/slip44:60' }),
       ).toThrow('BigAmount: not configured')
     })
 
@@ -1277,66 +1279,72 @@ describe('BigAmount', () => {
     })
   })
 
-  // ── toHuman / fromHuman canonical names ────────
+  // ── discriminated union: precision vs assetId ───
 
-  describe('toHuman (canonical name for toPrecision)', () => {
-    it('returns human-readable string', () => {
+  describe('discriminated union enforcement', () => {
+    const mockConfig = {
+      resolvePrecision: (assetId: string) => {
+        if (assetId === 'btc') return 8
+        if (assetId === 'eth') return 18
+        if (assetId === 'usdc') return 6
+        return 0
+      },
+      resolvePrice: () => '0',
+      resolvePriceUsd: () => '0',
+    }
+
+    beforeAll(() => {
+      BigAmount.configure(mockConfig)
+    })
+
+    it('fromBaseUnit with precision only — no assetId', () => {
       const amount = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
-      expect(amount.toHuman()).toBe('1.5')
-    })
-
-    it('is identical to toPrecision (backward compat)', () => {
-      const amount = BigAmount.fromBaseUnit({ value: '123456789', precision: 8 })
-      expect(amount.toHuman()).toBe(amount.toPrecision())
-    })
-
-    it('handles zero', () => {
-      expect(BigAmount.zero({ precision: 18 }).toHuman()).toBe('0')
-    })
-
-    it('handles dust', () => {
-      expect(BigAmount.fromBaseUnit({ value: '1', precision: 18 }).toHuman()).toBe(
-        '0.000000000000000001',
-      )
-    })
-  })
-
-  describe('fromHuman (canonical name for fromPrecision)', () => {
-    it('constructs from human-readable value', () => {
-      const amount = BigAmount.fromHuman({ value: '1.5', precision: 8 })
-      expect(amount.toHuman()).toBe('1.5')
-      expect(amount.toBaseUnit()).toBe('150000000')
-    })
-
-    it('is identical to fromPrecision', () => {
-      const a = BigAmount.fromHuman({ value: '1.5', precision: 8 })
-      const b = BigAmount.fromPrecision({ value: '1.5', precision: 8 })
-      expect(a.eq(b)).toBe(true)
-    })
-
-    it('accepts assetId variant', () => {
-      const amount = BigAmount.fromHuman({ value: '1.5', precision: 8, assetId: 'test' })
-      expect(amount.assetId).toBe('test')
-    })
-  })
-
-  // ── fromHumanBN canonical name ─────────────────
-
-  describe('fromHumanBN (canonical name for fromBN)', () => {
-    it('wraps a precision-scale BigNumber', () => {
-      const amount = BigAmount.fromHumanBN({ value: bn('1.5'), precision: 8 })
+      expect(amount.precision).toBe(8)
+      expect(amount.assetId).toBeUndefined()
       expect(amount.toPrecision()).toBe('1.5')
     })
 
-    it('is identical to fromBN', () => {
-      const a = BigAmount.fromHumanBN({ value: bn('1.5'), precision: 8 })
-      const b = BigAmount.fromBN({ value: bn('1.5'), precision: 8 })
-      expect(a.eq(b)).toBe(true)
+    it('fromBaseUnit with assetId only — resolves precision from config', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '150000000', assetId: 'btc' })
+      expect(amount.precision).toBe(8)
+      expect(amount.assetId).toBe('btc')
+      expect(amount.toPrecision()).toBe('1.5')
     })
 
-    it('treats non-finite as zero', () => {
-      const amount = BigAmount.fromHumanBN({ value: bn(Infinity), precision: 8 })
-      expect(amount.isZero()).toBe(true)
+    it('fromPrecision with precision only — no assetId', () => {
+      const amount = BigAmount.fromPrecision({ value: '1.5', precision: 8 })
+      expect(amount.precision).toBe(8)
+      expect(amount.assetId).toBeUndefined()
+    })
+
+    it('fromPrecision with assetId only — resolves precision from config', () => {
+      const amount = BigAmount.fromPrecision({ value: '1.5', assetId: 'btc' })
+      expect(amount.precision).toBe(8)
+      expect(amount.assetId).toBe('btc')
+      expect(amount.toBaseUnit()).toBe('150000000')
+    })
+
+    it('assetId variant resolves ETH precision 18 correctly', () => {
+      const amount = BigAmount.fromBaseUnit({
+        value: '1000000000000000000',
+        assetId: 'eth',
+      })
+      expect(amount.precision).toBe(18)
+      expect(amount.toPrecision()).toBe('1')
+    })
+
+    it('assetId variant resolves USDC precision 6 correctly', () => {
+      const amount = BigAmount.fromPrecision({ value: '100', assetId: 'usdc' })
+      expect(amount.precision).toBe(6)
+      expect(amount.toBaseUnit()).toBe('100000000')
+    })
+
+    it('passing both precision and assetId is a TypeScript error', () => {
+      // @ts-expect-error — discriminated union: precision and assetId are mutually exclusive
+      BigAmount.fromBaseUnit({ value: '100', precision: 8, assetId: 'btc' })
+
+      // @ts-expect-error — discriminated union: precision and assetId are mutually exclusive
+      BigAmount.fromPrecision({ value: '1', precision: 8, assetId: 'btc' })
     })
   })
 

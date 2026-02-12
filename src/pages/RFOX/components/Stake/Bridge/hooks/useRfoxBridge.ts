@@ -2,7 +2,7 @@ import type { HDWallet } from '@keepkey/hdwallet-core'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { getEthersV5Provider, viemClientByChainId } from '@shapeshiftoss/contracts'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
 import type {
   GetEvmTradeQuoteInputWithWallet,
   SwapErrorRight,

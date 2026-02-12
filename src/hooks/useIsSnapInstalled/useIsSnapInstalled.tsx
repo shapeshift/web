@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
+import { isMetaMask } from '@shapeshiftoss/hdwallet-core/wallet'
 import { useQuery } from '@tanstack/react-query'
 import pDebounce from 'p-debounce'
 import { useCallback } from 'react'
@@ -29,10 +29,10 @@ export const checkIsSnapInstalled = pDebounce.promise(
 )
 
 export const checkIsMetaMaskDesktop = (wallet: HDWallet | null): boolean => {
-  const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
+  const isMetaMaskMultichainWallet = isMetaMask(wallet)
   // We don't want to run this hook altogether if using any wallet other than MM
   if (!isMetaMaskMultichainWallet) return false
-  if (wallet.providerRdns !== METAMASK_RDNS) return false
+  if ((wallet as any).providerRdns !== METAMASK_RDNS) return false
   const isMetaMaskMobileWebView = checkIsMetaMaskMobileWebView()
   if (isMetaMaskMobileWebView) return false
 
@@ -94,7 +94,7 @@ export const canAddMetaMaskAccount = ({
   wallet: HDWallet
   isSnapInstalled: boolean
 }) => {
-  const isMetaMaskMultichainHdWallet = wallet instanceof MetaMaskMultiChainHDWallet
+  const isMetaMaskMultichainHdWallet = isMetaMask(wallet)
 
   if (!isMetaMaskMultichainHdWallet)
     throw new Error(

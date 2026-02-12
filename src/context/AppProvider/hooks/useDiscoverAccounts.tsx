@@ -1,6 +1,5 @@
-import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
+import { isGridPlus, isMetaMask } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useQueries } from '@tanstack/react-query'
@@ -45,7 +44,7 @@ export const useDiscoverAccounts = () => {
           chainId,
         ],
         queryFn: async () => {
-          const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
+          const isMetaMaskMultichainWallet = isMetaMask(wallet)
 
           if (
             !wallet ||

@@ -36,11 +36,11 @@ export const createProfiledStorage = (enableProfiling: boolean): ProfiledStorage
   }
 }
 
-const isLocalStorageAvailable = typeof localStorage !== 'undefined'
+const isLocalStorageAvailable = () => typeof localStorage !== 'undefined'
 
 const localStorageAdapter: ProfiledStorage = {
   getItem<T>(key: string): Promise<T | null> {
-    if (!isLocalStorageAvailable) return Promise.resolve(null)
+    if (!isLocalStorageAvailable()) return Promise.resolve(null)
     const start = performance.now()
     const item = localStorage.getItem(key)
     const duration = performance.now() - start
@@ -54,7 +54,7 @@ const localStorageAdapter: ProfiledStorage = {
   },
 
   setItem<T>(key: string, value: T): Promise<T> {
-    if (!isLocalStorageAvailable) return Promise.resolve(value)
+    if (!isLocalStorageAvailable()) return Promise.resolve(value)
     const start = performance.now()
     localStorage.setItem(key, JSON.stringify(value))
     const duration = performance.now() - start
@@ -63,7 +63,7 @@ const localStorageAdapter: ProfiledStorage = {
   },
 
   removeItem(key: string): Promise<void> {
-    if (!isLocalStorageAvailable) return Promise.resolve()
+    if (!isLocalStorageAvailable()) return Promise.resolve()
     localStorage.removeItem(key)
     return Promise.resolve()
   },
@@ -73,7 +73,7 @@ export const createLocalStorageAdapter = (enableProfiling: boolean): ProfiledSto
   if (!enableProfiling) {
     return {
       getItem<T>(key: string): Promise<T | null> {
-        if (!isLocalStorageAvailable) return Promise.resolve(null)
+        if (!isLocalStorageAvailable()) return Promise.resolve(null)
         const item = localStorage.getItem(key)
         if (item === null) return Promise.resolve(null)
         try {
@@ -83,12 +83,12 @@ export const createLocalStorageAdapter = (enableProfiling: boolean): ProfiledSto
         }
       },
       setItem<T>(key: string, value: T): Promise<T> {
-        if (!isLocalStorageAvailable) return Promise.resolve(value)
+        if (!isLocalStorageAvailable()) return Promise.resolve(value)
         localStorage.setItem(key, JSON.stringify(value))
         return Promise.resolve(value)
       },
       removeItem(key: string): Promise<void> {
-        if (!isLocalStorageAvailable) return Promise.resolve()
+        if (!isLocalStorageAvailable()) return Promise.resolve()
         localStorage.removeItem(key)
         return Promise.resolve()
       },

@@ -1,5 +1,11 @@
 # Phase 3: Eliminate bnOrZero ceremony — widen BigAmount types & flow
 
+## Status: COMPLETE (safe tiers)
+
+Tiers 1, 2, and 3A completed. bnOrZero calls reduced from 1,330 → 1,221 (~109 removed).
+Remaining calls are legitimate BN chain starters on nullable values, contract BigInt
+conversions, or reduce accumulators in pure BN chains.
+
 ## Context
 
 Phases 1-2 are complete. The codebase still has **1,330 `bnOrZero()` calls** across 275 files.

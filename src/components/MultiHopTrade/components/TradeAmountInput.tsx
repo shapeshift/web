@@ -309,6 +309,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                   ? ''
                   : bnOrZero(value)
                       .div(bnOrZero(assetMarketDataUserCurrency?.price))
+                      .decimalPlaces(asset?.precision ?? 18, 1)
                       .toString()
                 setValue('amountCryptoPrecision', _cryptoAmount)
               } else {

@@ -445,7 +445,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const handleAmountChange = useCallback(
     (value: string, isFiat: boolean | undefined) => {
       const amountCryptoPrecision = isFiat
-        ? bnOrZero(value).div(assetUserCurrencyRate).toFixed()
+        ? bnOrZero(value)
+            .div(assetUserCurrencyRate)
+            .decimalPlaces(selectedStakingAsset?.precision ?? 18, 1)
+            .toFixed()
         : value
       const amountUserCurrency = !isFiat
         ? bnOrZero(value).times(assetUserCurrencyRate).toFixed()
@@ -453,7 +456,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       setValue('amountCryptoPrecision', amountCryptoPrecision, { shouldValidate: true })
       setValue('amountUserCurrency', amountUserCurrency, { shouldValidate: true })
     },
-    [assetUserCurrencyRate, setValue],
+    [assetUserCurrencyRate, selectedStakingAsset?.precision, setValue],
   )
 
   const chainNotSupportedByWalletCopy = useMemo(() => {

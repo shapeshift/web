@@ -127,7 +127,10 @@ export const StakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAccou
       }
 
       const price = assetUserCurrencyRate ?? 0
-      const cryptoAmount = fieldName === 'fiatAmount' ? bnOrZero(inputValue).div(price) : inputValue
+      const cryptoAmount =
+        fieldName === 'fiatAmount'
+          ? bnOrZero(inputValue).div(price).decimalPlaces(THOR_PRECISION, 1)
+          : inputValue
       const fiatAmount =
         fieldName === 'fiatAmount' ? inputValue : bnOrZero(inputValue).times(bnOrZero(price))
 

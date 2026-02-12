@@ -979,12 +979,14 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
       return (value: string, isFiat?: boolean) => {
         if (!poolAsset) return
 
+        const precision = isRune ? THOR_PRECISION : poolAsset?.precision ?? 0
         const amountCryptoPrecision = (() => {
           if (!isFiat) return value
           if (!marketData) return
 
           return bnOrZero(value)
             .div(bn(marketData?.price))
+            .decimalPlaces(precision, 1)
             .toFixed()
         })()
 

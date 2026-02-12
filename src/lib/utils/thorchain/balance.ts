@@ -29,7 +29,7 @@ import { store } from '@/state/store'
 // but for consistency, we should for native EVM assets, and ensure this is a no-op for tokens
 // Note when implementing this, fee checks/deduction will need to either be done for *native* assets only
 // or handle different denoms for tokens/native assets and display insufficientFundsForProtocolFee copy
-const getHasEnoughBalanceForTxPlusFees = ({
+export const getHasEnoughBalanceForTxPlusFees = ({
   balanceCryptoBaseUnit,
   amountCryptoPrecision,
   txFeeCryptoBaseUnit,
@@ -49,7 +49,7 @@ const getHasEnoughBalanceForTxPlusFees = ({
   return amount.plus(txFee).lte(balance)
 }
 
-const getHasEnoughBalanceForTxPlusFeesPlusSweep = ({
+export const getHasEnoughBalanceForTxPlusFeesPlusSweep = ({
   balanceCryptoBaseUnit,
   amountCryptoPrecision,
   txFeeCryptoBaseUnit,

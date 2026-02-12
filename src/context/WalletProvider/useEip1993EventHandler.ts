@@ -1,7 +1,6 @@
+import { isMetaMask, isPhantom } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichain'
-import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
-import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { isMobile } from 'react-device-detect'
 
@@ -111,8 +110,8 @@ export const useEip1993EventHandler = ({
 
   // Register a MetaMask-like (EIP-1193) provider's event handlers on mipd provider change
   useEffect(() => {
-    const isMetaMaskMultichainWallet = state.wallet instanceof MetaMaskMultiChainHDWallet
-    const isPhantomHdWallet = state.wallet instanceof PhantomHDWallet
+    const isMetaMaskMultichainWallet = isMetaMask(state.wallet)
+    const isPhantomHdWallet = isPhantom(state.wallet)
     if (!(isMetaMaskMultichainWallet || isPhantomHdWallet)) return
     if (!providerRef.current) return
     try {

@@ -16,8 +16,8 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { isMetaMask } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { Asset } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useInfiniteQuery, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -239,10 +239,7 @@ export const ImportAccounts = forwardRef<ImportAccountsRef, ImportAccountsProps>
     } = useWallet()
     const { isSnapInstalled } = useIsSnapInstalled()
     const isLedgerWallet = useMemo(() => wallet && isLedger(wallet), [wallet])
-    const isMetaMaskMultichainWallet = useMemo(
-      () => wallet instanceof MetaMaskMultiChainHDWallet,
-      [wallet],
-    )
+    const isMetaMaskMultichainWallet = useMemo(() => isMetaMask(wallet), [wallet])
 
     const asset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
 

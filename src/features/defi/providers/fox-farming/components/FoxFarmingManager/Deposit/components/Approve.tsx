@@ -1,5 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'

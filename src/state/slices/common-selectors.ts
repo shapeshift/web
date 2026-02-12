@@ -190,8 +190,8 @@ export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector
       const precision = asset.precision
       if (precision === undefined) return acc
       const price = marketData[assetId]?.price
-      const assetUserCurrencyBalance = balance.times(bnOrZero(price))
-      if (assetUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
+      const assetUserCurrencyBalance = balance.times(price)
+      if (assetUserCurrencyBalance.lt(balanceThresholdUserCurrency)) return acc
       acc[assetId] = assetUserCurrencyBalance.toFixed(2)
       return acc
     }, {})
@@ -229,9 +229,9 @@ export const selectPortfolioAssetBalancesByAssetIdUserCurrency = createDeepEqual
       if (precision === undefined) return acc
       const price = marketData[assetId]?.price
 
-      const assetUserCurrencyBalance = balance.times(bnOrZero(price))
+      const assetUserCurrencyBalance = balance.times(price)
 
-      if (assetUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
+      if (assetUserCurrencyBalance.lt(balanceThresholdUserCurrency)) return acc
       acc[assetId] = assetUserCurrencyBalance.toFixed(2)
       return acc
     }, {}),

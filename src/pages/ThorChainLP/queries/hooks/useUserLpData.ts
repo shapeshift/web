@@ -66,17 +66,13 @@ export const getUserLpDataPosition = ({
 
   const pendingAssetAmountCryptoPrecision = BigAmount.fromThorBaseUnit(position.assetPending)
   const pendingRuneAmountCryptoPrecision = BigAmount.fromThorBaseUnit(position.runePending)
-  const pendingAssetAmountFiatUserCurrency = pendingAssetAmountCryptoPrecision.times(
-    bnOrZero(assetPrice),
-  )
-  const pendingRuneAmountFiatUserCurrency = pendingRuneAmountCryptoPrecision.times(
-    bnOrZero(runePrice),
-  )
+  const pendingAssetAmountFiatUserCurrency = pendingAssetAmountCryptoPrecision.times(assetPrice)
+  const pendingRuneAmountFiatUserCurrency = pendingRuneAmountCryptoPrecision.times(runePrice)
 
   const assetShareCryptoPrecision = BigAmount.fromThorBaseUnit(assetShareThorBaseUnit)
   const runeShareCryptoPrecision = BigAmount.fromThorBaseUnit(runeShareThorBaseUnit)
-  const assetShareFiat = assetShareCryptoPrecision.times(bnOrZero(assetPrice))
-  const runeShareFiat = runeShareCryptoPrecision.times(bnOrZero(runePrice))
+  const assetShareFiat = assetShareCryptoPrecision.times(assetPrice)
+  const runeShareFiat = runeShareCryptoPrecision.times(runePrice)
 
   const status = (() => {
     const isPending = bnOrZero(position.runePending).gt(0) || bnOrZero(position.assetPending).gt(0)

@@ -74,7 +74,7 @@ export const getPool = (
     ...pool,
     assetId,
     name: `${asset.symbol}/${runeAsset.symbol}`,
-    tvlFiat: BigAmount.fromThorBaseUnit(tvl).times(bnOrZero(runePrice)).toFixed(),
+    tvlFiat: BigAmount.fromThorBaseUnit(tvl).times(runePrice).toFixed(),
   }
 }
 

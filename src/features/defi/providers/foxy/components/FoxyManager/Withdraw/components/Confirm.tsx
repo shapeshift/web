@@ -217,7 +217,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
                   value: state.withdraw.estimatedGasCryptoBaseUnit ?? '0',
                   precision: feeAsset.precision,
                 })
-                  .times(bnOrZero(feeMarketData?.price))
+                  .times(feeMarketData?.price)
                   .toFixed(2)}
               />
               <Amount.Crypto

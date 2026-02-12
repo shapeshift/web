@@ -66,7 +66,7 @@ export const Withdraw: React.FC<
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
   const cryptoAmountAvailable = balance
-  const fiatAmountAvailable = cryptoAmountAvailable.times(bnOrZero(marketData?.price))
+  const fiatAmountAvailable = cryptoAmountAvailable.times(marketData?.price)
 
   const handlePercentClick = useCallback(
     (percent: number) => {
@@ -246,7 +246,7 @@ export const Withdraw: React.FC<
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      const fiat = balance.times(bnOrZero(marketData?.price))
+      const fiat = balance.times(marketData?.price)
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
       if (_value.isEqualTo(0)) return ''

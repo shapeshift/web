@@ -80,7 +80,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const amountAvailableCryptoPrecision = useMemo(() => balance, [balance])
   const fiatAmountAvailable = useMemo(
-    () => amountAvailableCryptoPrecision.times(bnOrZero(marketData?.price)),
+    () => amountAvailableCryptoPrecision.times(marketData?.price),
     [amountAvailableCryptoPrecision, marketData?.price],
   )
 
@@ -164,7 +164,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      const fiat = balance.times(bnOrZero(marketData?.price))
+      const fiat = balance.times(marketData?.price)
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
       if (_value.isEqualTo(0)) return ''

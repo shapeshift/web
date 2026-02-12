@@ -309,8 +309,8 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
           const asset = assetsById[assetId]
           if (!asset) return acc
           const price = marketData[assetId]?.price
-          const assetUserCurrencyBalance = balance.times(bnOrZero(price))
-          if (assetUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
+          const assetUserCurrencyBalance = balance.times(price)
+          if (assetUserCurrencyBalance.lt(balanceThresholdUserCurrency)) return acc
           acc[assetId] = toBaseUnit(balance)
           return acc
         },
@@ -540,7 +540,7 @@ export const selectPortfolioTotalChainIdBalanceUserCurrency = createDeepEqualOut
         if (!asset) return acc
 
         const price = marketData[assetId]?.price
-        const assetUserCurrencyBalance = balance.times(bnOrZero(price)).toPrecision()
+        const assetUserCurrencyBalance = balance.times(price).toPrecision()
 
         acc = acc.plus(assetUserCurrencyBalance)
         return acc
@@ -773,7 +773,7 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
         const { name, icon, symbol } = asset
         const price = marketData[assetId]?.price ?? '0'
         const cryptoAmount = balance.toPrecision()
-        const userCurrencyAmount = balance.times(bnOrZero(price))
+        const userCurrencyAmount = balance.times(price)
         const allocation = bnOrZero(userCurrencyAmount.toFixed(2))
           .div(bnOrZero(totalPortfolioUserCurrencyBalance))
           .times(100)

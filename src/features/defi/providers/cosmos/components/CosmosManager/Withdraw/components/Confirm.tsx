@@ -264,7 +264,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={estimatedGasCryptoPrecision.times(bnOrZero(feeMarketData?.price)).toFixed()}
+                value={estimatedGasCryptoPrecision.times(feeMarketData?.price).toFixed()}
               />
               <Amount.Crypto
                 color='text.subtle'

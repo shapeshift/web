@@ -540,7 +540,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                     value: quoteData?.protocolFeeCryptoBaseUnit ?? 0,
                     precision: asset.precision,
                   })
-                    .times(bnOrZero(marketData?.price))
+                    .times(marketData?.price)
                     .toFixed()}
                 />
                 <Amount.Crypto

@@ -151,7 +151,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   }, [assetMarketData?.price, feeAssetMarketData?.price])
 
   const fiatAmountAvailable = useMemo(
-    () => amountAvailableCryptoPrecision.times(bnOrZero(assetMarketData?.price)),
+    () => amountAvailableCryptoPrecision.times(assetMarketData?.price),
     [amountAvailableCryptoPrecision, assetMarketData?.price],
   )
 
@@ -188,7 +188,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   )
 
   const hasEnoughStakingBalance = useMemo(
-    () => amountAvailableCryptoPrecision.gte(bnOrZero(cryptoAmount)),
+    () => amountAvailableCryptoPrecision.gte(cryptoAmount),
     [amountAvailableCryptoPrecision, cryptoAmount],
   )
   const { data: thorchainSaversWithdrawQuote, isLoading: isThorchainSaversWithdrawQuoteLoading } =
@@ -334,7 +334,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   const handlePercentClick = useCallback(
     (percent: number) => {
       const cryptoAmount = amountAvailableCryptoPrecision.times(percent)
-      const fiatAmount = cryptoAmount.times(bnOrZero(assetMarketData?.price))
+      const fiatAmount = cryptoAmount.times(assetMarketData?.price)
 
       setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toFixed(asset.precision), { shouldValidate: true })
@@ -524,9 +524,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       setQuoteLoading(true)
       const withdrawAmountCryptoPrecision = bnOrZero(value).div(bnOrZero(assetMarketData?.price))
       try {
-        const amountAvailableFiat = amountAvailableCryptoPrecision.times(
-          bnOrZero(assetMarketData?.price),
-        )
+        const amountAvailableFiat = amountAvailableCryptoPrecision.times(assetMarketData?.price)
         const valueCryptoPrecision = bnOrZero(value)
 
         const hasValidStakingBalance =

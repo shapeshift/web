@@ -268,7 +268,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
   )
 
   const hasEnoughBalanceForGas = useMemo(
-    () => feeAssetBalance.minus(bnOrZero(estimatedGas)).gte(0),
+    () => feeAssetBalance.minus(estimatedGas).gte(0),
     [feeAssetBalance, estimatedGas],
   )
 

@@ -1,190 +1,215 @@
-# Phase 1: Migrate `src/` consumers to `fromBaseUnit`/`toBaseUnit` aliases
+# Phase 3: Eliminate bnOrZero ceremony — widen BigAmount types & flow
 
 ## Context
 
-`src/lib/math.ts` now exports:
+Phases 1-2 are complete. The codebase still has **1,330 `bnOrZero()` calls** across 275 files.
+After deep analysis, many are pure ceremony caused by BigAmount's type signatures being
+narrower than its runtime behavior. BigAmount methods already call `bnOrZero()` internally
+but their type signatures only accept `BigNumber.Value` (no `null | undefined`).
+
+## Tier 1: Widen BigAmount scalar types (zero runtime change)
+
+### What
+
+Add a `NullableScalar` type alias and widen all scalar-accepting methods in
+`packages/utils/src/bigAmount/bigAmount.ts`.
+
 ```ts
-export const fromBaseUnit = (amount: BigAmount): string => amount.toPrecision()
-export const toBaseUnit = (amount: BigAmount): string => amount.toBaseUnit()
+// New type alias at top of file
+type NullableScalar = BigNumber.Value | null | undefined
+
+// Widen these method signatures (implementation unchanged):
+times(scalar: NullableScalar): BigAmount
+div(scalar: NullableScalar): BigAmount
+plus(other: BigAmount | NullableScalar): BigAmount
+minus(other: BigAmount | NullableScalar): BigAmount
+gt(other: BigAmount | NullableScalar): boolean
+gte(other: BigAmount | NullableScalar): boolean
+lt(other: BigAmount | NullableScalar): boolean
+lte(other: BigAmount | NullableScalar): boolean
+eq(other: BigAmount | NullableScalar): boolean
 ```
 
-These are thin aliases over BigAmount methods. The goal is to migrate all `src/` consumers to use these aliases instead of calling `.toPrecision()` / `.toBaseUnit()` directly. This reduces diff noise vs. the pre-BigAmount codebase and keeps API familiar.
+### Why
 
-## Rules
+This is the foundation for all subsequent work. Once BigAmount accepts nullable scalars,
+callers can write `balance.times(marketData?.price)` instead of
+`balance.times(bnOrZero(marketData?.price))`.
 
-1. **Migrate**: `.toPrecision()` → `fromBaseUnit(x)`, `.toBaseUnit()` → `toBaseUnit(x)` — when the call is a terminal string extraction (not part of further BigAmount chaining)
-2. **DO NOT migrate**: `.toPrecision()` or `.toBaseUnit()` when chained after arithmetic (`.times().toPrecision()`), or when used with `.toFixed(n)`, `.toSignificant(n)`, `.toUserCurrency()`, `.toUSD()`, `.toNumber()`. Those stay as direct BigAmount methods.
-3. **DO NOT migrate**: `src/lib/math.ts` itself or `src/lib/amount/BigAmount.test.ts`
-4. **Import**: Add `import { fromBaseUnit, toBaseUnit } from '@/lib/math'` where needed. If `fromBaseUnit` or `toBaseUnit` is already imported, reuse.
-5. **Remove unused BigAmount import**: If a file no longer directly references `BigAmount` after migration, remove its import. But most files will still need it for construction (`BigAmount.fromBaseUnit({...})`).
-6. **Never cast `as BigAmount`**
-7. **Commit after each batch**, run `yarn type-check` and `yarn lint --fix` after each batch
-8. **Never push** — user pushes manually
+### Commit after this step
 
-## Batch Structure
+---
 
-Process in directory-based batches. Each batch = one commit.
+## Tier 2: Strip bnOrZero from BigAmount scalar arguments
 
-### Batch 1: State selectors & helpers (~15 files)
+### Patterns to transform
+
+**Pattern A: `.times(bnOrZero(x))` → `.times(x)` (~142 instances in 83 files)**
+```ts
+// Before:
+balance.times(bnOrZero(marketData?.price))
+// After:
+balance.times(marketData?.price)
+```
+
+**Pattern B: `.div(bnOrZero(x))` → `.div(x)` (~37 instances in 28 files)**
+```ts
+// Before:
+someAmount.div(bnOrZero(rate))
+// After:
+someAmount.div(rate)
+```
+
+**Pattern C: `.plus(bnOrZero(x))` / `.minus(bnOrZero(x))` / `.gt(bnOrZero(x))` etc**
+```ts
+// Before:
+balance.minus(bnOrZero(estimatedGas)).gte(0)
+// After:
+balance.minus(estimatedGas).gte(0)
+```
+
+### Batches
+
+#### Batch 2A: State/selectors/lib
 ```
 src/state/slices/common-selectors.ts
 src/state/slices/portfolioSlice/selectors.ts
-src/state/slices/opportunitiesSlice/selectors/lpSelectors.ts
-src/state/slices/opportunitiesSlice/selectors/stakingSelectors.ts
-src/state/slices/opportunitiesSlice/utils/index.ts
-src/state/slices/opportunitiesSlice/resolvers/cosmosSdk/index.ts
-src/state/slices/opportunitiesSlice/resolvers/cosmosSdk/utils.ts
-src/state/slices/opportunitiesSlice/resolvers/ethFoxStaking/index.ts
-src/state/slices/opportunitiesSlice/resolvers/ethFoxStaking/utils.ts
-src/state/slices/opportunitiesSlice/resolvers/foxy/index.ts
-src/state/slices/opportunitiesSlice/resolvers/rFOX/index.ts
-src/state/slices/opportunitiesSlice/resolvers/thorchainsavers/index.ts
-src/state/slices/tradeQuoteSlice/selectors.ts
-src/state/slices/tradeQuoteSlice/helpers.ts
-src/state/slices/tradeQuoteSlice/utils.test.ts
-src/state/slices/limitOrderInputSlice/selectors.ts
-src/state/slices/limitOrderSlice/selectors.ts
-src/state/slices/limitOrderSlice/helpers.ts
-src/state/slices/common/tradeInputBase/createTradeInputBaseSelectors.ts
-src/state/apis/swapper/helpers/validateTradeQuote.ts
-src/state/apis/swapper/helpers/getInputOutputRatioFromQuote.ts
-src/react-queries/selectors/index.ts
+src/state/slices/opportunitiesSlice/selectors/*.ts
+src/state/slices/opportunitiesSlice/resolvers/**/*.ts
+src/state/slices/marketDataSlice/selectors.ts
+src/state/slices/limitOrderSlice/*.ts
+src/state/slices/tradeQuoteSlice/*.ts
+src/state/apis/swapper/helpers/*.ts
+src/react-queries/**/*.ts
+src/lib/**/*.ts
 ```
 
-### Batch 2: Defi providers (~30 files)
+#### Batch 2B: Features/defi
 ```
-src/features/defi/helpers/utils.ts
-src/features/defi/providers/cosmos/components/CosmosManager/**/*.tsx
-src/features/defi/providers/foxy/components/FoxyManager/**/*.tsx
-src/features/defi/providers/fox-farming/components/FoxFarmingManager/**/*.tsx
-src/features/defi/providers/fox-farming/hooks/useFoxFarming.ts
-src/features/defi/providers/thorchain-savers/components/ThorchainSaversManager/**/*.tsx
-src/features/defi/providers/univ2/hooks/useUniV2LiquidityPool.ts
-src/features/defi/providers/univ2/utils.ts
+src/features/defi/**/*.ts
+src/features/defi/**/*.tsx
 ```
 
-### Batch 3: MultiHopTrade & LimitOrder (~20 files)
+#### Batch 2C: Pages
 ```
-src/components/MultiHopTrade/components/TradeAssetInput.tsx
-src/components/MultiHopTrade/components/Earn/EarnInput.tsx
-src/components/MultiHopTrade/components/LimitOrder/**/*.tsx
-src/components/MultiHopTrade/components/LimitOrderV2/LimitOrderConfirm.tsx
-src/components/MultiHopTrade/components/SharedConfirm/AssetSummaryStep.tsx
-src/components/MultiHopTrade/components/SpotTradeSuccess/SpotTradeSuccess.tsx
-src/components/MultiHopTrade/components/TradeConfirm/**/*.tsx
-src/components/MultiHopTrade/components/TradeInput/**/*.tsx
-src/components/MultiHopTrade/helpers.ts
-src/components/MultiHopTrade/hooks/**/*.ts
-src/components/MultiHopTrade/MultiHopTrade.tsx
-src/components/MultiHopTrade/StandaloneMultiHopTrade.tsx
-src/components/Modals/RateChanged/RateChanged.tsx
+src/pages/RFOX/**
+src/pages/TCY/**
+src/pages/ThorChainLP/**
+src/pages/Lending/**
+src/pages/Yields/**
+src/pages/Fox/**
+src/pages/Markets/**
+src/pages/Explore/**
 ```
 
-### Batch 4: Pages — RFOX, TCY, ThorChainLP (~25 files)
+#### Batch 2D: Components
 ```
-src/pages/RFOX/components/**/*.tsx
-src/pages/RFOX/hooks/**/*.ts
-src/pages/TCY/components/**/*.tsx
-src/pages/TCY/tcy.tsx
-src/pages/ThorChainLP/components/**/*.tsx
-src/pages/ThorChainLP/Pool/components/PoolChart.tsx
-src/pages/ThorChainLP/queries/hooks/*.ts
-```
-
-### Batch 5: Pages — Lending, Yields, Fox, Accounts (~15 files)
-```
-src/pages/Lending/**/*.tsx
-src/pages/Lending/hooks/*.ts
-src/pages/Yields/components/**/*.tsx
-src/pages/Yields/hooks/*.ts
-src/pages/Fox/components/*.tsx
-src/pages/Accounts/**/*.tsx
-src/pages/TransactionHistory/DownloadButton.tsx
+src/components/MultiHopTrade/**
+src/components/Modals/**
+src/components/Equity/**
+src/components/EarnDashboard/**
+src/components/AssetSearch/**
+src/components/AssetHeader/**
+src/components/StakingVaults/**
+src/components/Layout/**
+src/components/TransactionHistoryRows/**
 ```
 
-### Batch 6: Components & remaining (~25 files)
-```
-src/components/AccountDropdown/AccountDropdown.tsx
-src/components/AccountSelector/**/*.tsx
-src/components/Amount/Amount.tsx
-src/components/AssetHeader/**/*.ts
-src/components/AssetSearch/components/AssetRow.tsx
-src/components/AssetSelection/components/AssetChainDropdown/AssetChainRow.tsx
-src/components/EarnDashboard/components/PositionDetails/StakingPositionsByProvider.tsx
-src/components/Equity/EquityAccountRow.tsx
-src/components/Layout/Header/ActionCenter/components/**/*.tsx
-src/components/ManageHiddenAssets/ManageHiddenAssetsList.tsx
-src/components/Modals/ManageAccounts/components/ImportAccounts.tsx
-src/components/Modals/Send/hooks/**/*.tsx
-src/components/Sweep.tsx
-src/components/TransactionHistoryRows/**/*.tsx
-src/plugins/walletConnectToDapps/**/*.tsx
-src/hooks/*.ts
-src/react-queries/hooks/*.ts
-```
+### Rules for Tier 2
+- ONLY strip `bnOrZero()` when the value is passed as a scalar to a BigAmount method
+- DO NOT strip `bnOrZero()` when starting a BN chain: `bnOrZero(x).times(y)` where x is NOT BigAmount
+- DO NOT strip when the bnOrZero result feeds into BN-specific operations
+- If removing bnOrZero leaves an unused import, remove it
+- Run `yarn type-check && yarn lint --fix` after each batch
+- Commit after each batch
 
-### Batch 7: Lib & misc
-```
-src/lib/address/bip21.ts
-src/lib/address/generateReceiveQrText.ts
-src/lib/investor/investor-foxy/api/api.ts
-src/lib/market-service/foxy/foxy.ts
-src/lib/market-service/thorchainAssets/thorchainAssets.ts
-src/lib/utils/thorchain/balance.ts
-src/lib/utils/thorchain/hooks/useSendThorTx.tsx
-src/lib/utils/thorchain/index.ts
-src/lib/yieldxyz/executeTransaction.ts
-```
+---
 
-## Migration Examples
+## Tier 3: Eliminate standalone bnOrZero chains where BigAmount can replace
 
-### Terminal `.toPrecision()` → `fromBaseUnit()`
+### Category A: Double-wrapping anti-patterns (~5 instances)
+
 ```ts
 // Before:
-const amount = balance.toPrecision()
+bnOrZero(bnOrZero(gasPrice).times(gasLimit)).toFixed(0)
 // After:
-const amount = fromBaseUnit(balance)
+bnOrZero(gasPrice).times(gasLimit).toFixed(0)
 
 // Before:
-const cryptoAmount = BigAmount.fromBaseUnit({ value: baseUnitValue, precision: 18 }).toPrecision()
+bnOrZero(bnOrZero(reserves[1].toString()).toString())
 // After:
-const cryptoAmount = fromBaseUnit(BigAmount.fromBaseUnit({ value: baseUnitValue, precision: 18 }))
+bnOrZero(reserves[1].toString())
 ```
 
-### Terminal `.toBaseUnit()` → `toBaseUnit()`
+### Category B: BN chains on values that have known precision (~50+ instances)
+
+Where `bnOrZero(amountString).times(price).toFixed(2)` operates on a value with a known
+asset precision, replace with BigAmount:
+
 ```ts
 // Before:
-const raw = balance.toBaseUnit()
-// After:
-const raw = toBaseUnit(balance)
-
-// Before:
-const raw = BigAmount.fromPrecision({ value: amount, precision: 18 }).toBaseUnit()
-// After:
-const raw = toBaseUnit(BigAmount.fromPrecision({ value: amount, precision: 18 }))
+bnOrZero(cryptoAmount).times(bnOrZero(marketData?.price)).toFixed(2)
+// After (when precision is available):
+BigAmount.fromPrecision({ value: cryptoAmount, precision: asset.precision })
+  .times(marketData?.price).toFixed(2)
 ```
 
-### DO NOT migrate (arithmetic chains)
+**Only do this when:**
+1. The precision (asset) is available in scope
+2. The entire chain produces a display value (.toFixed, .toString, .toNumber)
+3. There's no cross-precision mixing
+
+### Category C: bnOrZero(0) → BigAmount.zero (~58 instances)
+
 ```ts
-// Keep as-is — .toPrecision() feeds into further math:
-bn(amount.toPrecision()).times(price).toFixed(2)
-
-// Keep as-is — .toFixed(n) is not the same as .toPrecision():
-amount.toFixed(8)
-
-// Keep as-is — method chaining:
-amount.times(2).toPrecision()
+// Before:
+const total = items.reduce((acc, item) => acc.plus(bnOrZero(item.amount)), bnOrZero(0))
+// After (when precision known):
+const total = items.reduce(
+  (acc, item) => acc.plus(item.amount),
+  BigAmount.zero({ precision: asset.precision })
+)
 ```
+
+**Only do this when:**
+1. The reducer/accumulator feeds into BigAmount-compatible operations
+2. The precision is deterministic in scope
+
+### Category D: Selector return types — string → BigAmount (~20 selectors)
+
+Tighten selectors that always return numeric strings to either:
+1. Return `BigAmount` directly (for precision-aware values)
+2. Return `string` (not `string | undefined`) when the value is guaranteed
+
+Focus areas:
+- `selectPortfolioUserCurrencyBalances` — returns `Record<AssetId, string>`, could be tighter
+- Trade input selectors that return amounts with `?? '0'` defaults
+- Opportunity selectors that always produce numeric strings
+
+### Batches for Tier 3
+
+Process by file proximity — fix double-wrapping, then BN→BigAmount chains, then selectors.
+Each batch should type-check and lint before commit.
+
+---
+
+## Rules (all tiers)
+
+1. **Zero runtime behavior change** for Tier 1
+2. **Math equivalence** verified for each transform
+3. **Handle nullability** — BigAmount methods handle null/undefined scalars,
+   but BigAmount variables themselves need `?? BigAmount.zero({ precision })`
+4. **Don't break cross-precision arithmetic** — if different-precision values mix, keep BN
+5. **Don't touch `packages/utils/src/bignumber/`** — bnOrZero stays for package consumers
+6. **Run `yarn type-check && yarn lint --fix` after each batch**
+7. **Commit after each batch**
+8. **Never push**
 
 ## Verification
 
-After all batches:
 ```bash
+cd /Users/gomes/Sites/shapeshiftWeb--improvement-audit-2
 yarn type-check
 yarn lint --fix
-npx vitest run src/lib/math.test.ts
+npx vitest run src/lib/math.test.ts src/lib/amount/BigAmount.test.ts
 ```
-
-Grep checks:
-- `rg '\.toPrecision\(\)' src/ --glob '*.{ts,tsx}' -l` — should only show files where `.toPrecision()` is part of a chain (arithmetic, `.toFixed()`, etc.)
-- All `src/` imports of `fromBaseUnit`/`toBaseUnit` come from `@/lib/math`

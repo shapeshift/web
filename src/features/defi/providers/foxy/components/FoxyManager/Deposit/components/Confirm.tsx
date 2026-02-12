@@ -201,7 +201,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
                   value: state.deposit.estimatedGasCryptoBaseUnit ?? '0',
                   precision: feeAsset.precision,
                 })
-                  .times(bnOrZero(feeMarketData?.price))
+                  .times(feeMarketData?.price)
                   .toFixed(2)}
               />
               <Amount.Crypto

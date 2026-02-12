@@ -2,7 +2,6 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { cosmosChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectPortfolioCryptoBalanceByFilter } from '@/state/slices/selectors'
 import { store } from '@/state/store'
 
@@ -31,5 +30,5 @@ export const canCoverTxFees = ({
     assetId: feeAsset.assetId,
   })
 
-  return feeAssetBalanceCryptoHuman.minus(bnOrZero(estimatedGasCryptoPrecision)).gte(0)
+  return feeAssetBalanceCryptoHuman.minus(estimatedGasCryptoPrecision).gte(0)
 }

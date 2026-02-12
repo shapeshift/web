@@ -100,7 +100,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
         fn: () => allowance(),
         validate: (result: string) => {
           const allowance = BigAmount.fromBaseUnit({ value: result, precision: asset.precision })
-          return allowance.gte(bnOrZero(state?.deposit.cryptoAmount))
+          return allowance.gte(state?.deposit.cryptoAmount)
         },
         interval: 15000,
         maxAttempts: 30,

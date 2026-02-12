@@ -329,17 +329,11 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
       const { asset_deposit_value, asset_redeem_value, asset_address } = accountPosition
 
       const stakedAmountCryptoBaseUnit = bn(
-        BigAmount.fromPrecision({
-          value: fromThorBaseUnit(asset_deposit_value).toFixed(),
-          precision: asset.precision,
-        }).toBaseUnit(),
+        toBaseUnit(fromThorBaseUnit(asset_deposit_value).toFixed(), asset.precision),
       ) // to actual asset precision base unit
 
       const stakedAmountCryptoBaseUnitIncludeRewards = bn(
-        BigAmount.fromPrecision({
-          value: fromThorBaseUnit(asset_redeem_value).toFixed(),
-          precision: asset.precision,
-        }).toBaseUnit(),
+        toBaseUnit(fromThorBaseUnit(asset_redeem_value).toFixed(), asset.precision),
       ) // to actual asset precision base unit
 
       const rewardsAmountsCryptoBaseUnit: [string] = [

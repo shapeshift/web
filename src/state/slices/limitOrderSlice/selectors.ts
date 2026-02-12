@@ -1,4 +1,5 @@
 import { BigAmount, bn, bnOrZero } from '@shapeshiftoss/utils'
+import { fromBaseUnit } from '@/lib/math'
 import { createSelector } from 'reselect'
 
 import { getFeeAssetByAssetId } from '../assetsSlice/utils'
@@ -80,10 +81,7 @@ export const selectActiveQuoteSellAmountCryptoPrecision = createSelector(
   (sellAmountCryptoBaseUnit, asset) => {
     if (!asset) return '0'
 
-    return BigAmount.fromBaseUnit({
-      value: sellAmountCryptoBaseUnit,
-      precision: asset.precision,
-    }).toPrecision()
+    return fromBaseUnit(sellAmountCryptoBaseUnit, asset.precision)
   },
 )
 
@@ -93,10 +91,7 @@ export const selectActiveQuoteBuyAmountCryptoPrecision = createSelector(
   (buyAmountCryptoBaseUnit, asset) => {
     if (!asset) return '0'
 
-    return BigAmount.fromBaseUnit({
-      value: buyAmountCryptoBaseUnit,
-      precision: asset.precision,
-    }).toPrecision()
+    return fromBaseUnit(buyAmountCryptoBaseUnit, asset.precision)
   },
 )
 

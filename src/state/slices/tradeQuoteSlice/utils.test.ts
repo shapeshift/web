@@ -1,7 +1,8 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { ProtocolFee } from '@shapeshiftoss/swapper'
 import { testData } from '@shapeshiftoss/swapper'
-import { BigAmount, subtractBasisPointAmount } from '@shapeshiftoss/utils'
+import { subtractBasisPointAmount } from '@shapeshiftoss/utils'
+import { fromBaseUnit } from '@/lib/math'
 import BigNumber from 'bignumber.js'
 import { describe, expect, it } from 'vitest'
 
@@ -94,14 +95,11 @@ describe('sumProtocolFeesToDenom', () => {
     })
 
     const btcAmountInUsd = bn(
-      BigAmount.fromBaseUnit({ value: '3000000', precision: BTC.precision }).toPrecision(),
+      fromBaseUnit('3000000', BTC.precision),
     ).times(marketDataByAssetIdUsd[BTC.assetId].price)
 
     const ethAmountInUsd = bn(
-      BigAmount.fromBaseUnit({
-        value: '500000000000000000',
-        precision: ETH.precision,
-      }).toPrecision(),
+      fromBaseUnit('500000000000000000', ETH.precision),
     ).times(marketDataByAssetIdUsd[ETH.assetId].price)
 
     const expectation = btcAmountInUsd.plus(ethAmountInUsd).toString()

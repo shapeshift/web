@@ -62,10 +62,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
         if (!underlyingAsset) return '0'
 
         const lpBalanceTimesRatio = bnOrZero(lpAssetBalanceCryptoBaseUnit.toBaseUnit()).times(
-          BigAmount.fromBaseUnit({
-            value: opportunityMetadata.underlyingAssetRatiosBaseUnit[i],
-            precision: underlyingAsset.precision,
-          }).toPrecision(),
+          fromBaseUnit(opportunityMetadata.underlyingAssetRatiosBaseUnit[i], underlyingAsset.precision),
         )
 
         const humanAmount = fromBaseUnit(
@@ -311,10 +308,7 @@ export const selectAllEarnUserLpOpportunitiesByFilter = createDeepEqualOutputSel
             chainId: fromAssetId(lpId as AssetId).chainId,
             underlyingToken0AmountCryptoBaseUnit,
             underlyingToken1AmountCryptoBaseUnit,
-            cryptoAmountPrecision: BigAmount.fromBaseUnit({
-              value: opportunityBalance ?? '0',
-              precision: assets[lpId]?.precision ?? 0,
-            }).toPrecision(),
+            cryptoAmountPrecision: fromBaseUnit(opportunityBalance ?? '0', assets[lpId]?.precision ?? 0),
             // TODO(gomes): use base unit as source of truth, conversions back and forth are unsafe
             cryptoAmountBaseUnit: opportunityBalance,
             fiatAmount: BigAmount.fromBaseUnit({

@@ -1,6 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import type { UseFormSetValue } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -22,6 +21,7 @@ import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommo
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { getFeeData } from '@/plugins/cosmos/utils'
@@ -95,12 +95,12 @@ export const Deposit: React.FC<DepositProps> = ({
         accountId,
         contractAddress: '',
       })
-      const cryptoAmountHuman = BigAmount.fromBaseUnit({
-        value: bnOrZero(amountAvailableCryptoPrecision.toBaseUnit())
+      const cryptoAmountHuman = fromBaseUnit(
+        bnOrZero(amountAvailableCryptoPrecision.toBaseUnit())
           .minus(estimatedFees.average.txFee)
           .toFixed(0),
-        precision: asset.precision,
-      }).toPrecision()
+        asset.precision,
+      )
       const fiatAmount = bnOrZero(cryptoAmountHuman).times(bnOrZero(marketData?.price))
       setValue(Field.FiatAmount, fiatAmount.toString(), {
         shouldValidate: true,

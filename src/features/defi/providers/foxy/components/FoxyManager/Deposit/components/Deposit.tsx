@@ -16,6 +16,7 @@ import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommo
 import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { toBaseUnit } from '@/lib/math'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import {
   selectMarketDataByAssetIdUserCurrency,
@@ -95,12 +96,7 @@ export const Deposit: React.FC<DepositProps> = ({
           const feeDataEstimate = await foxyApi.estimateDepositFees({
             tokenContractAddress: assetReference,
             contractAddress,
-            amountDesired: bnOrZero(
-              BigAmount.fromPrecision({
-                value: deposit.cryptoAmount ?? '0',
-                precision: asset.precision,
-              }).toBaseUnit(),
-            ),
+            amountDesired: bnOrZero(toBaseUnit(deposit.cryptoAmount ?? '0', asset.precision)),
             userAddress: accountAddress,
           })
 

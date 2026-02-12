@@ -5,7 +5,8 @@ import { ETH_FOX_POOL_CONTRACT, getOrCreateContractByAddress } from '@shapeshift
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
-import { BigAmount } from '@shapeshiftoss/utils'
+
+import { toBaseUnit } from '@/lib/math'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
@@ -75,10 +76,7 @@ export const useFoxFarming = (
           functionName: 'stake',
           args: [
             BigInt(
-              BigAmount.fromPrecision({
-                value: lpAmount,
-                precision: lpAsset.precision,
-              }).toBaseUnit(),
+              toBaseUnit(lpAmount, lpAsset.precision),
             ),
           ],
         })
@@ -134,10 +132,7 @@ export const useFoxFarming = (
             : {
                 args: [
                   BigInt(
-                    BigAmount.fromPrecision({
-                      value: lpAmount,
-                      precision: lpAsset.precision,
-                    }).toBaseUnit(),
+                    toBaseUnit(lpAmount, lpAsset.precision),
                   ),
                 ],
               }),
@@ -218,7 +213,7 @@ export const useFoxFarming = (
         functionName: 'stake',
         args: [
           BigInt(
-            BigAmount.fromPrecision({ value: lpAmount, precision: lpAsset.precision }).toBaseUnit(),
+            toBaseUnit(lpAmount, lpAsset.precision),
           ),
         ],
       })
@@ -256,10 +251,7 @@ export const useFoxFarming = (
           : {
               args: [
                 BigInt(
-                  BigAmount.fromPrecision({
-                    value: lpAmount,
-                    precision: lpAsset.precision,
-                  }).toBaseUnit(),
+                  toBaseUnit(lpAmount, lpAsset.precision),
                 ),
               ],
             }),

@@ -14,6 +14,7 @@ import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { BigAmount, isUtxoChainId } from '@shapeshiftoss/utils'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -120,10 +121,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const amountCryptoBaseUnit = useMemo(
     () =>
       bn(
-        BigAmount.fromPrecision({
-          value: state?.deposit.cryptoAmount,
-          precision: asset.precision,
-        }).toBaseUnit(),
+        toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
       ),
     [asset.precision, state?.deposit.cryptoAmount],
   )
@@ -144,10 +142,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         const thorchainFeeCryptoThorPrecision = fromThorBaseUnit(
           amountCryptoThorBaseUnit.minus(expectedAmountOutThorBaseUnit),
         )
-        return BigAmount.fromPrecision({
-          value: thorchainFeeCryptoThorPrecision,
-          precision: asset.precision,
-        }).toBaseUnit()
+        return toBaseUnit(thorchainFeeCryptoThorPrecision, asset.precision)
       })()
 
       const daysToBreakEven = opportunity
@@ -210,10 +205,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { isEstimatedFeesDataLoading, estimatedFeesData } = useSendThorTx({
     accountId: accountId ?? null,
     assetId,
-    amountCryptoBaseUnit: BigAmount.fromPrecision({
-      value: state?.deposit.cryptoAmount,
-      precision: asset.precision,
-    }).toBaseUnit(),
+    amountCryptoBaseUnit: toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
     action: isRunePool ? 'depositRunepool' : 'depositSavers',
     memo,
     fromAddress: fromAddress ?? null,
@@ -249,10 +241,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       )
       return {
         amountMinusFeesCryptoBaseUnit: baseUnitMinusFees,
-        amountMinusFeesCryptoPrecision: BigAmount.fromBaseUnit({
-          value: baseUnitMinusFees,
-          precision: asset.precision,
-        }).toPrecision(),
+        amountMinusFeesCryptoPrecision: fromBaseUnit(baseUnitMinusFees, asset.precision),
       }
     }
 
@@ -285,10 +274,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const estimatedGasCryptoPrecision = useMemo(() => {
     if (!estimatedFeesData) return
-    return BigAmount.fromBaseUnit({
-      value: estimatedFeesData.txFeeCryptoBaseUnit,
-      precision: feeAsset.precision,
-    }).toPrecision()
+    return fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, feeAsset.precision)
   }, [estimatedFeesData, feeAsset.precision])
 
   useEffect(() => {
@@ -545,10 +531,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                 />
                 <Amount.Crypto
                   color='text.subtle'
-                  value={BigAmount.fromBaseUnit({
-                    value: quoteData?.protocolFeeCryptoBaseUnit ?? 0,
-                    precision: asset.precision,
-                  }).toPrecision()}
+                  value={fromBaseUnit(quoteData?.protocolFeeCryptoBaseUnit ?? 0, asset.precision)}
                   symbol={asset.symbol}
                 />
               </Box>

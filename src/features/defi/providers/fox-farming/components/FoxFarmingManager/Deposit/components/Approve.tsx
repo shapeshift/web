@@ -1,6 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { BigAmount } from '@shapeshiftoss/utils'
+import { fromBaseUnit } from '@/lib/math'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -113,10 +114,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
       dispatch({
         type: FoxFarmingDepositActionType.SET_DEPOSIT,
         payload: {
-          estimatedGasCryptoPrecision: BigAmount.fromBaseUnit({
-            value: fees.networkFeeCryptoBaseUnit,
-            precision: feeAsset.precision,
-          }).toPrecision(),
+          estimatedGasCryptoPrecision: fromBaseUnit(fees.networkFeeCryptoBaseUnit, feeAsset.precision),
         },
       })
 

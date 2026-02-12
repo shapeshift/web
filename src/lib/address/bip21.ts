@@ -7,7 +7,8 @@ import {
   toAssetId,
   toChainId,
 } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
+
+import { fromBaseUnit } from '@/lib/math'
 import { parseURL as parseSolanaPayURL } from '@solana/pay'
 import bip21 from 'bip21'
 import { parse as parseEthUrl } from 'eth-url-parser'
@@ -210,10 +211,7 @@ export const parseEip681Url = (url: string): ParseUrlDirectResult => {
     if (!asset) throw new Error(DANGEROUS_ETH_URL_ERROR)
 
     const amountCryptoPrecision = parsedUrl.parameters.uint256
-      ? BigAmount.fromBaseUnit({
-          value: parsedUrl.parameters.uint256,
-          precision: asset.precision,
-        }).toPrecision()
+      ? fromBaseUnit(parsedUrl.parameters.uint256, asset.precision)
       : undefined
 
     return {
@@ -232,7 +230,7 @@ export const parseEip681Url = (url: string): ParseUrlDirectResult => {
   const asset = selectAssetById(store.getState(), assetId)
   const amountCryptoPrecision =
     rawAmount && asset
-      ? BigAmount.fromBaseUnit({ value: rawAmount, precision: asset.precision }).toPrecision()
+      ? fromBaseUnit(rawAmount, asset.precision)
       : undefined
 
   return {

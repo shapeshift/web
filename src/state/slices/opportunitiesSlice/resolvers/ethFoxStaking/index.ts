@@ -86,17 +86,14 @@ export const ethFoxStakingMetadataResolver = async ({
   const totalSupplyV2 = await uniV2LPContract.read.totalSupply()
 
   const token1PoolReservesEquivalent = bn(
-    BigAmount.fromPrecision({
-      value: bnOrZero(pair.reserve1.toFixed()).times(2).toFixed(),
-      precision: pair.token1.decimals,
-    }).toBaseUnit(),
+    toBaseUnit(bnOrZero(pair.reserve1.toFixed()).times(2).toFixed(), pair.token1.decimals),
   )
 
   const foxEquivalentPerLPToken = bn(
-    BigAmount.fromPrecision({
-      value: token1PoolReservesEquivalent.div(bnOrZero(totalSupplyV2.toString())).toFixed(),
-      precision: pair.token1.decimals,
-    }).toBaseUnit(),
+    toBaseUnit(
+      token1PoolReservesEquivalent.div(bnOrZero(totalSupplyV2.toString())).toFixed(),
+      pair.token1.decimals,
+    ),
   ).toString()
   const apy = bnOrZero(makeTotalLpApr(foxRewardRatePerTokenV7, foxEquivalentPerLPToken))
     .div(100)

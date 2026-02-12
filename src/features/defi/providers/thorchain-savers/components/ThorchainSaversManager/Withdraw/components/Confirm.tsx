@@ -14,6 +14,7 @@ import { bchChainId, fromAccountId, thorchainAssetId, toAssetId } from '@shapesh
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { BigAmount } from '@shapeshiftoss/utils'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import dayjs from 'dayjs'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -175,10 +176,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         if (dustAmountCryptoBaseUnit && protocolFeeCryptoBaseUnit && expiry) return
         setQuoteLoading(true)
 
-        const amountCryptoBaseUnit = BigAmount.fromPrecision({
-          value: state?.withdraw.cryptoAmount,
-          precision: asset.precision,
-        }).toBaseUnit()
+        const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
         if (bn(amountCryptoBaseUnit).isZero()) return
 
         const amountCryptoThorBaseUnit = toThorBaseUnit({
@@ -215,17 +213,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
         const protocolFeeCryptoThorBaseUnit = amountCryptoThorBaseUnit.minus(expected_amount_out)
         setProtocolFeeCryptoBaseUnit(
-          BigAmount.fromPrecision({
-            value: fromThorBaseUnit(protocolFeeCryptoThorBaseUnit),
-            precision: asset.precision,
-          }).toBaseUnit(),
+          toBaseUnit(fromThorBaseUnit(protocolFeeCryptoThorBaseUnit), asset.precision),
         )
         setDustAmountCryptoBaseUnit(
           bnOrZero(
-            BigAmount.fromPrecision({
-              value: fromThorBaseUnit(dust_amount),
-              precision: feeAsset.precision,
-            }).toBaseUnit(),
+            toBaseUnit(fromThorBaseUnit(dust_amount), feeAsset.precision),
           ).toFixed(),
         )
         const percentage = bnOrZero(slippage_bps).div(BASE_BPS_POINTS).times(100)
@@ -276,10 +268,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     if (quote?.memo) return quote.memo
 
     if (isRunePool && state && opportunityData?.stakedAmountCryptoBaseUnit) {
-      const amountCryptoBaseUnit = BigAmount.fromPrecision({
-        value: state?.withdraw.cryptoAmount,
-        precision: asset.precision,
-      }).toBaseUnit()
+      const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
       const withdrawBps = getWithdrawBps({
         withdrawAmountCryptoBaseUnit: amountCryptoBaseUnit,
         stakedAmountCryptoBaseUnit: opportunityData.stakedAmountCryptoBaseUnit,
@@ -305,10 +294,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const estimatedGasCryptoPrecision = useMemo(() => {
     if (!estimatedFeesData) return
-    return BigAmount.fromBaseUnit({
-      value: estimatedFeesData.txFeeCryptoBaseUnit,
-      precision: feeAsset.precision,
-    }).toPrecision()
+    return fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, feeAsset.precision)
   }, [estimatedFeesData, feeAsset.precision])
 
   useEffect(() => {
@@ -435,13 +421,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [onNext])
 
   const missingBalanceForGasCryptoPrecision = useMemo(() => {
-    return BigAmount.fromBaseUnit({
-      value: bnOrZero(feeAssetBalanceCryptoBaseUnit.toBaseUnit())
+    return fromBaseUnit(bnOrZero(feeAssetBalanceCryptoBaseUnit.toBaseUnit())
         .minus(bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit))
         .minus(bnOrZero(dustAmountCryptoBaseUnit))
-        .times(-1),
-      precision: feeAsset.precision,
-    }).toPrecision()
+        .times(-1), feeAsset.precision)
   }, [
     state?.withdraw.estimatedGasCryptoBaseUnit,
     dustAmountCryptoBaseUnit,
@@ -501,10 +484,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [_isSmartContractAddress, translate])
 
   const canWithdraw = useMemo(() => {
-    const amountCryptoBaseUnit = BigAmount.fromPrecision({
-      value: state?.withdraw.cryptoAmount,
-      precision: asset.precision,
-    }).toBaseUnit()
+    const amountCryptoBaseUnit = toBaseUnit(state?.withdraw.cryptoAmount, asset.precision)
 
     // RUNEPool withdraws occur no explicit protocol fees, see https://viewblock.io/thorchain/tx/8C8DA9D44AAE7C042F38393B8E42AEF6DB9BAFF09D3A702991C35CBA215AD576
     return bnOrZero(amountCryptoBaseUnit).gte(isRunePool ? 0 : protocolFeeCryptoBaseUnit)
@@ -572,10 +552,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                 />
                 <Amount.Crypto
                   color='text.subtle'
-                  value={BigAmount.fromBaseUnit({
-                    value: protocolFeeCryptoBaseUnit,
-                    precision: asset.precision,
-                  }).toPrecision()}
+                  value={fromBaseUnit(protocolFeeCryptoBaseUnit, asset.precision)}
                   symbol={asset.symbol}
                 />
               </Skeleton>
@@ -627,10 +604,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                   />
                   <Amount.Crypto
                     color='text.subtle'
-                    value={BigAmount.fromBaseUnit({
-                      value: dustAmountCryptoBaseUnit,
-                      precision: feeAsset.precision,
-                    }).toPrecision()}
+                    value={fromBaseUnit(dustAmountCryptoBaseUnit, feeAsset.precision)}
                     symbol={feeAsset.symbol}
                   />
                 </Skeleton>

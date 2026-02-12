@@ -4,6 +4,7 @@ import { fromAccountId, fromAssetId, thorchainAssetId, toAssetId } from '@shapes
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
 import { BigAmount, isToken } from '@shapeshiftoss/utils'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { useQueryClient } from '@tanstack/react-query'
 import debounce from 'lodash/debounce'
 import pDebounce from 'p-debounce'
@@ -182,10 +183,7 @@ export const Deposit: React.FC<DepositProps> = ({
     error: thorchainSaversDepositQuoteError,
   } = useGetThorchainSaversDepositQuoteQuery({
     asset,
-    amountCryptoBaseUnit: BigAmount.fromPrecision({
-      value: inputValues?.cryptoAmount,
-      precision: asset.precision,
-    }).toBaseUnit(),
+    amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount, asset.precision),
     enabled: !isRunePool,
   })
 
@@ -205,10 +203,7 @@ export const Deposit: React.FC<DepositProps> = ({
   } = useSendThorTx({
     assetId,
     accountId: accountId ?? null,
-    amountCryptoBaseUnit: BigAmount.fromPrecision({
-      value: inputValues?.cryptoAmount,
-      precision: asset?.precision ?? 0,
-    }).toBaseUnit(),
+    amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount, asset?.precision ?? 0),
     memo,
     fromAddress: fromAddress ?? null,
     action: isRunePool ? 'depositRunepool' : 'depositSavers',
@@ -218,10 +213,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const { isAllowanceApprovalRequired: _isApprovalRequired, isAllowanceResetRequired } =
     useAllowanceApprovalRequirements({
       assetId,
-      amountCryptoBaseUnit: BigAmount.fromPrecision({
-        value: inputValues?.cryptoAmount,
-        precision: asset?.precision ?? 0,
-      }).toBaseUnit(),
+      amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount, asset?.precision ?? 0),
       spender: inboundAddress,
       from: accountId ? fromAccountId(accountId).account : undefined,
     })
@@ -252,10 +244,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
       return bnOrZero(amountCryptoPrecision)
         .plus(
-          BigAmount.fromBaseUnit({
-            value: txFeeCryptoBaseUnit,
-            precision: precision ?? 0,
-          }).toPrecision(),
+          fromBaseUnit(txFeeCryptoBaseUnit, precision ?? 0),
         )
         .lte(BigAmount.fromBaseUnit({ value: balanceCryptoBaseUnitBn, precision }).toPrecision())
     },
@@ -266,10 +255,7 @@ export const Deposit: React.FC<DepositProps> = ({
     () => ({
       assetId,
       address: fromAddress,
-      amountCryptoBaseUnit: BigAmount.fromPrecision({
-        value: inputValues?.cryptoAmount ?? 0,
-        precision: feeAsset?.precision ?? 0,
-      }).toBaseUnit(),
+      amountCryptoBaseUnit: toBaseUnit(inputValues?.cryptoAmount ?? 0, feeAsset?.precision ?? 0),
       txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       enabled: Boolean(
@@ -317,10 +303,7 @@ export const Deposit: React.FC<DepositProps> = ({
           contextDispatch({
             type: ThorchainSaversDepositActionType.SET_DEPOSIT,
             payload: {
-              estimatedGasCryptoPrecision: BigAmount.fromBaseUnit({
-                value: estimatedFeesData.txFeeCryptoBaseUnit,
-                precision: feeAsset.precision,
-              }).toPrecision(),
+              estimatedGasCryptoPrecision: fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, feeAsset.precision),
               networkFeeCryptoBaseUnit: estimatedFeesData.txFeeCryptoBaseUnit,
             },
           })
@@ -363,10 +346,7 @@ export const Deposit: React.FC<DepositProps> = ({
           contextDispatch({
             type: ThorchainSaversDepositActionType.SET_APPROVE,
             payload: {
-              estimatedGasCryptoPrecision: BigAmount.fromBaseUnit({
-                value: approvalFees.networkFeeCryptoBaseUnit,
-                precision: feeAsset.precision,
-              }).toPrecision(),
+              estimatedGasCryptoPrecision: fromBaseUnit(approvalFees.networkFeeCryptoBaseUnit, feeAsset.precision),
             },
           })
 
@@ -428,18 +408,12 @@ export const Deposit: React.FC<DepositProps> = ({
     if (!feeAsset) return bn(0)
     if (!outboundFeeCryptoBaseUnit) return bn(0)
 
-    const outboundFeeCryptoPrecision = BigAmount.fromBaseUnit({
-      value: outboundFeeCryptoBaseUnit,
-      precision: feeAsset.precision,
-    }).toPrecision()
+    const outboundFeeCryptoPrecision = fromBaseUnit(outboundFeeCryptoBaseUnit, feeAsset.precision)
     const outboundFeeInAssetCryptoPrecision = bn(outboundFeeCryptoPrecision).div(
       assetPriceInFeeAsset,
     )
 
-    return BigAmount.fromPrecision({
-      value: outboundFeeInAssetCryptoPrecision,
-      precision: asset.precision,
-    }).toBaseUnit()
+    return toBaseUnit(outboundFeeInAssetCryptoPrecision, asset.precision)
   }, [outboundFeeCryptoBaseUnit, assetPriceInFeeAsset, asset, feeAsset])
 
   const _validateCryptoAmount = useCallback(
@@ -452,10 +426,7 @@ export const Deposit: React.FC<DepositProps> = ({
         precision: asset.precision,
       }).toBaseUnit()
       const balanceCryptoPrecision = bn(
-        BigAmount.fromBaseUnit({
-          value: balanceCryptoBaseUnit,
-          precision: asset.precision,
-        }).toPrecision(),
+        fromBaseUnit(balanceCryptoBaseUnit, asset.precision),
       )
 
       if (balanceCryptoPrecision.isZero() || balanceCryptoPrecision.lt(value))
@@ -469,14 +440,8 @@ export const Deposit: React.FC<DepositProps> = ({
         bn(outboundFeeInAssetCryptoBaseUnit).gt(0) &&
         bnOrZero(valueCryptoBaseUnit).lt(outboundFeeInAssetCryptoBaseUnit)
 
-      const minLimitCryptoPrecision = BigAmount.fromBaseUnit({
-        value: THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
-        precision: asset.precision,
-      }).toPrecision()
-      const outboundFeeCryptoPrecision = BigAmount.fromBaseUnit({
-        value: outboundFeeInAssetCryptoBaseUnit,
-        precision: asset.precision,
-      }).toPrecision()
+      const minLimitCryptoPrecision = fromBaseUnit(THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId], asset.precision)
+      const outboundFeeCryptoPrecision = fromBaseUnit(outboundFeeInAssetCryptoBaseUnit, asset.precision)
       const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
       const outboundFeeLimit = `${outboundFeeCryptoPrecision} ${asset.symbol}`
 
@@ -540,33 +505,21 @@ export const Deposit: React.FC<DepositProps> = ({
       if (state?.loading) return
       const valueCryptoPrecision = bnOrZero(value).div(bnOrZero(assetMarketData?.price))
       const balanceCryptoPrecision = bn(
-        BigAmount.fromBaseUnit({
-          value: balanceCryptoBaseUnit,
-          precision: asset.precision,
-        }).toPrecision(),
+        fromBaseUnit(balanceCryptoBaseUnit, asset.precision),
       )
 
       const fiatBalance = balanceCryptoPrecision.times(bnOrZero(assetMarketData?.price))
       if (fiatBalance.isZero() || fiatBalance.lt(value)) return 'common.insufficientFunds'
 
-      const valueCryptoBaseUnit = BigAmount.fromPrecision({
-        value: valueCryptoPrecision,
-        precision: asset.precision,
-      }).toBaseUnit()
+      const valueCryptoBaseUnit = toBaseUnit(valueCryptoPrecision, asset.precision)
 
       const isBelowMinSellAmount = !isAboveDepositDustThreshold({ valueCryptoBaseUnit, assetId })
       const isBelowOutboundFee =
         bn(outboundFeeInAssetCryptoBaseUnit).gt(0) &&
         bnOrZero(valueCryptoBaseUnit).lt(outboundFeeInAssetCryptoBaseUnit)
 
-      const minLimitCryptoPrecision = BigAmount.fromBaseUnit({
-        value: THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
-        precision: asset.precision,
-      }).toPrecision()
-      const outboundFeeCryptoPrecision = BigAmount.fromBaseUnit({
-        value: outboundFeeInAssetCryptoBaseUnit,
-        precision: asset.precision,
-      }).toPrecision()
+      const minLimitCryptoPrecision = fromBaseUnit(THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId], asset.precision)
+      const outboundFeeCryptoPrecision = fromBaseUnit(outboundFeeInAssetCryptoBaseUnit, asset.precision)
       const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
       const outboundFeeLimit = `${outboundFeeCryptoPrecision} ${asset.symbol}`
 
@@ -628,10 +581,7 @@ export const Deposit: React.FC<DepositProps> = ({
   const balanceCryptoPrecision = useMemo(
     () =>
       bn(
-        BigAmount.fromBaseUnit({
-          value: balanceCryptoBaseUnit,
-          precision: asset.precision,
-        }).toPrecision(),
+        fromBaseUnit(balanceCryptoBaseUnit, asset.precision),
       ),
     [balanceCryptoBaseUnit, asset?.precision],
   )
@@ -701,10 +651,7 @@ export const Deposit: React.FC<DepositProps> = ({
         // Assume 0 fees, so that sweep needed properly return true/false
         // The reason this works is because the final amount we're getting *is* fee-deducted, so we don't want to consider fees in this specific call
         txFeeCryptoBaseUnit: '0',
-        amountCryptoBaseUnit: BigAmount.fromPrecision({
-          value: _percentageCryptoAmountPrecisionBeforeTxFees,
-          precision: asset.precision,
-        }).toBaseUnit(),
+        amountCryptoBaseUnit: toBaseUnit(_percentageCryptoAmountPrecisionBeforeTxFees, asset.precision),
       }
 
       const isSweepNeededQueryKey: IsSweepNeededQueryKey = ['isSweepNeeded', isSweepNeededQueryArgs]
@@ -748,16 +695,10 @@ export const Deposit: React.FC<DepositProps> = ({
       const _percentageCryptoAmountPrecisionAfterTxFeesAndSweep =
         _percentageCryptoAmountPrecisionBeforeTxFees
           .minus(
-            BigAmount.fromBaseUnit({
-              value: _estimatedFeesData?.txFeeCryptoBaseUnit ?? 0,
-              precision: asset.precision,
-            }).toPrecision(),
+            fromBaseUnit(_estimatedFeesData?.txFeeCryptoBaseUnit ?? 0, asset.precision),
           )
           .minus(
-            BigAmount.fromBaseUnit({
-              value: _estimatedSweepFeesData?.txFeeCryptoBaseUnit ?? 0,
-              precision: asset.precision,
-            }).toPrecision(),
+            fromBaseUnit(_estimatedSweepFeesData?.txFeeCryptoBaseUnit ?? 0, asset.precision),
           )
 
       const _percentageFiatAmount = _percentageCryptoAmountPrecisionAfterTxFeesAndSweep.times(
@@ -790,10 +731,7 @@ export const Deposit: React.FC<DepositProps> = ({
     if (!opportunityData?.apy) return
     if (!(accountId && inputValues && asset && feeAsset)) return
     const { cryptoAmount } = inputValues
-    const amountCryptoBaseUnit = BigAmount.fromPrecision({
-      value: cryptoAmount,
-      precision: asset.precision,
-    }).toBaseUnit()
+    const amountCryptoBaseUnit = toBaseUnit(cryptoAmount, asset.precision)
 
     if (bn(amountCryptoBaseUnit).isZero()) return
 

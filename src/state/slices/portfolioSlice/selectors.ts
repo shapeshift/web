@@ -1113,7 +1113,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
   (
     accountIds,
     portfolioUserCurrencyBalances,
-    portfolioCryptoBalancesBaseUnit,
+    portfolioCryptoBalances,
     assets,
     assetId,
   ): AssetEquityItem[] => {
@@ -1124,7 +1124,7 @@ export const selectAssetEquityItemsByFilter = createDeepEqualOutputSelector(
       const amountUserCurrency = bnOrZero(
         portfolioUserCurrencyBalances?.[accountId]?.[assetId],
       ).toString()
-      const balance = portfolioCryptoBalancesBaseUnit[accountId]?.[assetId]
+      const balance = portfolioCryptoBalances[accountId]?.[assetId]
       const amountCryptoPrecision = balance ? fromBaseUnit(balance) : '0'
       return {
         id: accountId,

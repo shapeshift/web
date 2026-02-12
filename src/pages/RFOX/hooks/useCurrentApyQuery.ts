@@ -2,6 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { BigAmount, bn } from '@shapeshiftoss/utils'
+import { fromBaseUnit } from '@/lib/math'
 import { useCallback } from 'react'
 
 import { getStakingContract } from '../helpers'
@@ -73,10 +74,7 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
       ).times(closestRunePrice.price)
 
       const totalStakedUsd = bn(
-        BigAmount.fromBaseUnit({
-          value: totalStakedCryptoCurrencyQuery.data,
-          precision: stakingAsset.precision,
-        }).toPrecision(),
+        fromBaseUnit(totalStakedCryptoCurrencyQuery.data, stakingAsset.precision),
       ).times(closestStakingAssetPrice.price)
 
       return rewardDistributionUsd.div(totalStakedUsd).times(12).toFixed(4)

@@ -10,7 +10,8 @@ import {
 } from '@shapeshiftoss/contracts'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
+
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
 import type { Address } from 'viem'
@@ -156,10 +157,7 @@ export const useUniV2LiquidityPool = ({
           args: [
             otherAssetContractAddress,
             BigInt(
-              BigAmount.fromPrecision({
-                value: otherAssetAmount,
-                precision: otherAsset.precision,
-              }).toBaseUnit(),
+              toBaseUnit(otherAssetAmount, otherAsset.precision),
             ),
             BigInt(amountOtherAssetMin),
             BigInt(amountEthMin),
@@ -179,16 +177,10 @@ export const useUniV2LiquidityPool = ({
             asset0ContractAddress,
             asset1ContractAddress,
             BigInt(
-              BigAmount.fromPrecision({
-                value: token0Amount,
-                precision: asset0.precision,
-              }).toBaseUnit(),
+              toBaseUnit(token0Amount, asset0.precision),
             ),
             BigInt(
-              BigAmount.fromPrecision({
-                value: token1Amount,
-                precision: asset1.precision,
-              }).toBaseUnit(),
+              toBaseUnit(token1Amount, asset1.precision),
             ),
             BigInt(amountAsset0Min),
             BigInt(amountAsset1Min),
@@ -229,10 +221,7 @@ export const useUniV2LiquidityPool = ({
           adapter,
           data: makeAddLiquidityData({ token0Amount, token1Amount }),
           to: fromAssetId(uniswapV2Router02AssetId).assetReference,
-          value: BigAmount.fromPrecision({
-            value: maybeEthAmount,
-            precision: weth.precision,
-          }).toBaseUnit(),
+          value: toBaseUnit(maybeEthAmount, weth.precision),
           wallet,
           pubKey: isTrezor(wallet) && accountId ? fromAccountId(accountId).account : undefined,
         })
@@ -294,10 +283,7 @@ export const useUniV2LiquidityPool = ({
           args: [
             otherAssetContractAddress,
             BigInt(
-              BigAmount.fromPrecision({
-                value: lpAmount,
-                precision: lpAsset.precision,
-              }).toBaseUnit(),
+              toBaseUnit(lpAmount, lpAsset.precision),
             ),
             BigInt(calculateSlippageMargin(otherAssetAmount, otherAsset.precision)),
             BigInt(calculateSlippageMargin(ethAmount, weth.precision)),
@@ -316,7 +302,7 @@ export const useUniV2LiquidityPool = ({
           asset0ContractAddress,
           asset1ContractAddress,
           BigInt(
-            BigAmount.fromPrecision({ value: lpAmount, precision: lpAsset.precision }).toBaseUnit(),
+            toBaseUnit(lpAmount, lpAsset.precision),
           ),
           BigInt(calculateSlippageMargin(asset0Amount, asset0.precision)),
           BigInt(calculateSlippageMargin(asset1Amount, asset1.precision)),
@@ -411,16 +397,10 @@ export const useUniV2LiquidityPool = ({
 
     const userOwnershipOfPool = bnOrZero(balance.toString()).div(bnOrZero(totalSupply.toString()))
     const asset0Balance = userOwnershipOfPool.times(
-      BigAmount.fromBaseUnit({
-        value: reserves[0].toString(),
-        precision: asset0.precision,
-      }).toPrecision(),
+      fromBaseUnit(reserves[0].toString(), asset0.precision),
     )
     const asset1Balance = userOwnershipOfPool.times(
-      BigAmount.fromBaseUnit({
-        value: reserves[1].toString(),
-        precision: asset1.precision,
-      }).toPrecision(),
+      fromBaseUnit(reserves[1].toString(), asset1.precision),
     )
 
     return {
@@ -437,10 +417,7 @@ export const useUniV2LiquidityPool = ({
 
     // Amount of Eth in liquidity pool
     const ethInReserve = bn(
-      BigAmount.fromBaseUnit({
-        value: reserves?.[0]?.toString(),
-        precision: asset0.precision,
-      }).toPrecision(),
+      fromBaseUnit(reserves?.[0]?.toString(), asset0.precision),
     )
 
     // Total market cap of liquidity pool in usdc.
@@ -456,10 +433,7 @@ export const useUniV2LiquidityPool = ({
     const totalSupply = await uniV2LPContract.read.totalSupply()
 
     return bnOrZero(tvl).div(
-      BigAmount.fromBaseUnit({
-        value: totalSupply.toString(),
-        precision: lpAsset.precision,
-      }).toPrecision(),
+      fromBaseUnit(totalSupply.toString(), lpAsset.precision),
     )
   }, [skip, getLpTVL, lpAsset.precision, uniV2LPContract])
 
@@ -546,10 +520,7 @@ export const useUniV2LiquidityPool = ({
           args: [
             otherAssetContractAddress,
             BigInt(
-              BigAmount.fromPrecision({
-                value: otherAssetAmount,
-                precision: otherAsset.precision,
-              }).toBaseUnit(),
+              toBaseUnit(otherAssetAmount, otherAsset.precision),
             ),
             BigInt(amountOtherAssetMin),
             BigInt(amountEthMin),
@@ -563,10 +534,7 @@ export const useUniV2LiquidityPool = ({
           data,
           to: fromAssetId(uniswapV2Router02AssetId).assetReference,
           from: accountAddress,
-          value: BigAmount.fromPrecision({
-            value: ethAmount,
-            precision: weth.precision,
-          }).toBaseUnit(),
+          value: toBaseUnit(ethAmount, weth.precision),
           wallet,
         })
       } else {
@@ -580,16 +548,10 @@ export const useUniV2LiquidityPool = ({
             asset0ContractAddress,
             asset1ContractAddress,
             BigInt(
-              BigAmount.fromPrecision({
-                value: token0Amount,
-                precision: asset0.precision,
-              }).toBaseUnit(),
+              toBaseUnit(token0Amount, asset0.precision),
             ),
             BigInt(
-              BigAmount.fromPrecision({
-                value: token1Amount,
-                precision: asset1.precision,
-              }).toBaseUnit(),
+              toBaseUnit(token1Amount, asset1.precision),
             ),
             BigInt(amountAsset0Min),
             BigInt(amountAsset1Min),

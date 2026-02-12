@@ -109,19 +109,36 @@ All accept `BigAmount` (same precision enforced) or scalar (treated as precision
 
 ## Convenience Aliases (`src/lib/math.ts`)
 
-For app-level (`src/`) code, two aliases provide familiar naming:
+For app-level (`src/`) code, overloaded aliases support both BigAmount and positional args:
 
 ```ts
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 
-// fromBaseUnit: BigAmount → precision-scale string
+// Overload 1: BigAmount → precision-scale string
 const humanReadable = fromBaseUnit(balance) // same as balance.toPrecision()
+
+// Overload 2: positional args → precision-scale string (constructs BigAmount internally)
+const humanReadable2 = fromBaseUnit('1000000000000000000', 18) // '1'
 
 // toBaseUnit: BigAmount → base-unit string
 const rawValue = toBaseUnit(balance)        // same as balance.toBaseUnit()
+
+// toBaseUnit: positional args → base-unit string
+const rawValue2 = toBaseUnit('1.5', 18)     // '1500000000000000000'
 ```
 
 These are thin wrappers. `packages/` code uses BigAmount methods directly.
+
+## Discriminated Union (Constructor Args)
+
+`fromBaseUnit` and `fromPrecision` accept either `{ value, precision }` or `{ value, assetId }` — never both:
+
+```ts
+type FromBaseUnitWithPrecision = { value: NullableScalar; precision: number; assetId?: never }
+type FromBaseUnitWithAssetId = { value: NullableScalar; assetId: AssetId; precision?: never }
+```
+
+The `assetId` variant resolves precision via `BigAmount.configure({ resolvePrecision })`, wired in `src/state/store.ts`.
 
 ---
 

@@ -12,13 +12,40 @@ RUN apk add --no-cache python3 make g++ openjdk17-jre
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn ./.yarn
 
-# Copy all package.json files for workspace resolution (yarn requires all workspaces to be present)
-# Uses a temporary stage to preserve directory structure and auto-include new packages
-COPY packages/ /tmp/packages/
-RUN cd /tmp/packages && for dir in */; do \
-      mkdir -p /app/packages/"$dir" && \
-      cp "$dir"package.json /app/packages/"$dir"; \
-    done && rm -rf /tmp/packages
+# Copy all workspace package.json files for resolution (yarn requires all workspaces present)
+COPY packages/caip/package.json ./packages/caip/
+COPY packages/chain-adapters/package.json ./packages/chain-adapters/
+COPY packages/contracts/package.json ./packages/contracts/
+COPY packages/errors/package.json ./packages/errors/
+COPY packages/hdwallet-coinbase/package.json ./packages/hdwallet-coinbase/
+COPY packages/hdwallet-core/package.json ./packages/hdwallet-core/
+COPY packages/hdwallet-gridplus/package.json ./packages/hdwallet-gridplus/
+COPY packages/hdwallet-integration/package.json ./packages/hdwallet-integration/
+COPY packages/hdwallet-keepkey/package.json ./packages/hdwallet-keepkey/
+COPY packages/hdwallet-keepkey-electron/package.json ./packages/hdwallet-keepkey-electron/
+COPY packages/hdwallet-keepkey-nodehid/package.json ./packages/hdwallet-keepkey-nodehid/
+COPY packages/hdwallet-keepkey-nodewebusb/package.json ./packages/hdwallet-keepkey-nodewebusb/
+COPY packages/hdwallet-keepkey-tcp/package.json ./packages/hdwallet-keepkey-tcp/
+COPY packages/hdwallet-keepkey-webusb/package.json ./packages/hdwallet-keepkey-webusb/
+COPY packages/hdwallet-keplr/package.json ./packages/hdwallet-keplr/
+COPY packages/hdwallet-ledger/package.json ./packages/hdwallet-ledger/
+COPY packages/hdwallet-ledger-webhid/package.json ./packages/hdwallet-ledger-webhid/
+COPY packages/hdwallet-ledger-webusb/package.json ./packages/hdwallet-ledger-webusb/
+COPY packages/hdwallet-metamask-multichain/package.json ./packages/hdwallet-metamask-multichain/
+COPY packages/hdwallet-native/package.json ./packages/hdwallet-native/
+COPY packages/hdwallet-native-vault/package.json ./packages/hdwallet-native-vault/
+COPY packages/hdwallet-phantom/package.json ./packages/hdwallet-phantom/
+COPY packages/hdwallet-sandbox/package.json ./packages/hdwallet-sandbox/
+COPY packages/hdwallet-trezor/package.json ./packages/hdwallet-trezor/
+COPY packages/hdwallet-trezor-connect/package.json ./packages/hdwallet-trezor-connect/
+COPY packages/hdwallet-vultisig/package.json ./packages/hdwallet-vultisig/
+COPY packages/hdwallet-walletconnectv2/package.json ./packages/hdwallet-walletconnectv2/
+COPY packages/public-api/package.json ./packages/public-api/
+COPY packages/swapper/package.json ./packages/swapper/
+COPY packages/swap-widget/package.json ./packages/swap-widget/
+COPY packages/types/package.json ./packages/types/
+COPY packages/unchained-client/package.json ./packages/unchained-client/
+COPY packages/utils/package.json ./packages/utils/
 
 # Install dependencies (skip build/postinstall scripts that require git/cypress/etc)
 RUN --mount=type=cache,id=s/5fa4b228-de48-4bb3-90d6-807d0c6e7f1c-/root/.yarn/berry/cache,target=/root/.yarn/berry/cache \

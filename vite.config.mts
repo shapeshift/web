@@ -64,6 +64,41 @@ const resolveEthersV5ForHdwallet: PluginOption = {
   },
 }
 
+// hdwallet workspace packages depend on bech32 v1 (flat API: bech32.toWords, bech32.encode)
+// but Vite pre-bundles the root's bech32 v2 for bare 'bech32' imports.
+// v2 exports { bech32, bech32m } instead of flat functions, breaking hdwallet at runtime.
+// This plugin resolves 'bech32' to the 'bech32-v1' aliased package (npm:bech32@1.1.4) for hdwallet source files,
+// following the same pattern as resolveEthersV5ForHdwallet with ethers5.
+const resolveBech32V1ForHdwallet: PluginOption = {
+  name: 'resolve-bech32-v1-hdwallet',
+  enforce: 'pre',
+  async resolveId(source, importer) {
+    if (source === 'bech32' && importer && /\/packages\/hdwallet-/.test(importer)) {
+      return this.resolve('bech32-v1', importer, { skipSelf: true })
+    }
+  },
+}
+
+// hdwallet-ledger monkey-patches @ledgerhq/hw-app-btc via require() for Zcash v5 trusted input hashing.
+// As a workspace package, Vite serves its source as ESM where require() doesn't exist.
+// This transform guards the require() call so it doesn't produce a noisy console error in dev.
+// The monkey-patch still works in production builds where rollup handles CJS via transformMixedEsModules.
+const guardRequireForHdwallet: PluginOption = {
+  name: 'guard-require-hdwallet',
+  enforce: 'pre',
+  transform(code, id) {
+    if (id.includes('packages/hdwallet-ledger/src/bitcoin.ts') && code.includes('require(')) {
+      return {
+        code: code.replace(
+          /try\s*\{[^}]*require\('@ledgerhq\/hw-app-btc\/lib\/getTrustedInputBIP143'\)/s,
+          match => `if (typeof require !== 'undefined') ${match}`,
+        ),
+        map: null,
+      }
+    }
+  },
+}
+
 const defineGlobalThis: PluginOption = {
   name: 'define-global-this',
   enforce: 'pre',
@@ -130,6 +165,8 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       resolveEthersV5ForHdwallet,
+      resolveBech32V1ForHdwallet,
+      guardRequireForHdwallet,
       mode === 'development' && !process.env.DEPLOY && defineGlobalThis,
       nodePolyfills({
         globals: {

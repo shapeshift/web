@@ -527,7 +527,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
                     precision: asset.precision,
                   })
                     .times(marketData?.price)
-                    .toFixed()}
+                    .toPrecision()}
                 />
                 <Amount.Crypto
                   color='text.subtle'

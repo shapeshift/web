@@ -105,7 +105,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAcc
   const { data: tcyStaker } = useTcyStaker(accountId)
 
   const stakedAmountCryptoPrecision = useMemo(
-    () => BigAmount.fromThorBaseUnit(tcyStaker?.amount ?? 0).toFixed(),
+    () => BigAmount.fromThorBaseUnit(tcyStaker?.amount ?? 0).toPrecision(),
     [tcyStaker?.amount],
   )
 

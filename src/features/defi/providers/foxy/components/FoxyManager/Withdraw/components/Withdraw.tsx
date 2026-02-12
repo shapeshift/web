@@ -71,14 +71,14 @@ export const Withdraw: React.FC<
 
   const handlePercentClick = useCallback(
     (percent: number) => {
-      const cryptoAmount = bn(cryptoAmountAvailable.toPrecision())
+      const cryptoAmount = cryptoAmountAvailable
         .times(percent)
-        .dp(asset.precision, BigNumber.ROUND_DOWN)
-      const fiatAmount = bnOrZero(cryptoAmount).times(bnOrZero(marketData?.price))
-      setValue(Field.FiatAmount, fiatAmount.toString(), {
+        .decimalPlaces(asset.precision, BigNumber.ROUND_DOWN)
+      const fiatAmount = cryptoAmount.times(marketData?.price)
+      setValue(Field.FiatAmount, fiatAmount.toPrecision(), {
         shouldValidate: true,
       })
-      setValue(Field.CryptoAmount, cryptoAmount.toString(), {
+      setValue(Field.CryptoAmount, cryptoAmount.toPrecision(), {
         shouldValidate: true,
       })
     },

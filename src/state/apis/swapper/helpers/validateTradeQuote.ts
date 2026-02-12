@@ -202,7 +202,7 @@ export const validateTradeQuote = (
   const walletSupportsIntermediaryAssetChain =
     !isMultiHopTrade || walletConnectedChainIds.includes(firstHop?.buyAsset.chainId ?? '')
 
-  const firstHopHasSufficientBalanceForGas = bn(firstHopFeeAssetBalance.toPrecision())
+  const firstHopHasSufficientBalanceForGas = firstHopFeeAssetBalance
     .minus(firstHopNetworkFeeCryptoPrecision ?? 0)
     .minus(firstHopTradeDeductionCryptoPrecision ?? 0)
     .gte(0)

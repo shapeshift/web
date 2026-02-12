@@ -80,13 +80,13 @@ export const getUserLpDataPosition = ({
 
     if (!asym && bnOrZero(position.runePending).gt(0) && bnOrZero(position.assetPending).eq(0)) {
       const amountThorBaseUnit = bnOrZero(position.runePending).div(assetPriceInRune)
-      const amountCryptoPrecision = BigAmount.fromThorBaseUnit(amountThorBaseUnit).toFixed()
+      const amountCryptoPrecision = BigAmount.fromThorBaseUnit(amountThorBaseUnit).toPrecision()
       return { isPending, isIncomplete: true, incomplete: { asset, amountCryptoPrecision } }
     }
 
     if (!asym && bnOrZero(position.assetPending).gt(0) && bnOrZero(position.runePending).eq(0)) {
       const amountThorBaseUnit = bnOrZero(position.assetPending).times(assetPriceInRune).toFixed()
-      const amountCryptoPrecision = BigAmount.fromThorBaseUnit(amountThorBaseUnit).toFixed()
+      const amountCryptoPrecision = BigAmount.fromThorBaseUnit(amountThorBaseUnit).toPrecision()
       return { isPending, isIncomplete: true, incomplete: { asset: rune, amountCryptoPrecision } }
     }
 
@@ -105,15 +105,15 @@ export const getUserLpDataPosition = ({
     liquidityUnits: position.liquidityUnits,
     asym,
     status,
-    pendingAssetAmountCryptoPrecision: pendingAssetAmountCryptoPrecision.toFixed(),
-    pendingRuneAmountCryptoPrecision: pendingRuneAmountCryptoPrecision.toFixed(),
-    pendingAssetAmountFiatUserCurrency: pendingAssetAmountFiatUserCurrency.toFixed(),
-    pendingRuneAmountFiatUserCurrency: pendingRuneAmountFiatUserCurrency.toFixed(),
-    underlyingAssetAmountCryptoPrecision: assetShareCryptoPrecision.toFixed(),
-    underlyingRuneAmountCryptoPrecision: runeShareCryptoPrecision.toFixed(),
-    underlyingAssetAmountFiatUserCurrency: assetShareFiat.toFixed(),
-    underlyingRuneAmountFiatUserCurrency: runeShareFiat.toFixed(),
-    totalValueFiatUserCurrency: assetShareFiat.plus(runeShareFiat).toFixed(),
+    pendingAssetAmountCryptoPrecision: pendingAssetAmountCryptoPrecision.toPrecision(),
+    pendingRuneAmountCryptoPrecision: pendingRuneAmountCryptoPrecision.toPrecision(),
+    pendingAssetAmountFiatUserCurrency: pendingAssetAmountFiatUserCurrency.toPrecision(),
+    pendingRuneAmountFiatUserCurrency: pendingRuneAmountFiatUserCurrency.toPrecision(),
+    underlyingAssetAmountCryptoPrecision: assetShareCryptoPrecision.toPrecision(),
+    underlyingRuneAmountCryptoPrecision: runeShareCryptoPrecision.toPrecision(),
+    underlyingAssetAmountFiatUserCurrency: assetShareFiat.toPrecision(),
+    underlyingRuneAmountFiatUserCurrency: runeShareFiat.toPrecision(),
+    totalValueFiatUserCurrency: assetShareFiat.plus(runeShareFiat).toPrecision(),
     poolOwnershipPercentage: bn(poolShareDecimalPercent).times(100).toFixed(),
     opportunityId: `${assetId}*${asym?.side ?? 'sym'}`,
     poolShare: poolShareDecimalPercent,

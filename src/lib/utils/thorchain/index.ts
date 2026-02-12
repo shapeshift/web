@@ -134,7 +134,7 @@ export const waitForThorchainUpdate = ({
 export const fromThorBaseUnit = (valueThorBaseUnit: BigNumber.Value | null | undefined): BN =>
   bnOrZero(
     BigAmount.fromBaseUnit({
-      value: bnOrZero(valueThorBaseUnit).toFixed(0),
+      value: bnOrZero(valueThorBaseUnit).toFixed(),
       precision: THOR_PRECISION,
     }).toPrecision(),
   )
@@ -149,7 +149,7 @@ export const toThorBaseUnit = ({
   if (!asset?.precision) return bn(0)
 
   const valueCryptoPrecision = BigAmount.fromBaseUnit({
-    value: bnOrZero(valueCryptoBaseUnit).toFixed(0),
+    value: bnOrZero(valueCryptoBaseUnit).toFixed(),
     precision: asset.precision,
   }).toPrecision()
 

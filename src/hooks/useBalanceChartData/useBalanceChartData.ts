@@ -186,7 +186,7 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
     if (!assets[assetId]) continue
     const price = priceAtDate({ priceHistoryData, date })
     balanceAtBucket[assetId] = bnOrZero(
-      BigAmount.fromBaseUnit({ value: assetCryptoBalance.toFixed(0), precision: assets[assetId]?.precision ?? 0 }).toPrecision(),
+      BigAmount.fromBaseUnit({ value: assetCryptoBalance.toFixed(), precision: assets[assetId]?.precision ?? 0 }).toPrecision(),
     ).times(price)
     // dont unnecessarily multiply again
     if (!isUSD) balanceAtBucket[assetId] = balanceAtBucket[assetId].times(fiatToUsdRate)

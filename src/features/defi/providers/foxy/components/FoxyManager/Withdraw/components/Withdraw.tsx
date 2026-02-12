@@ -281,7 +281,7 @@ export const Withdraw: React.FC<
         asset={asset}
         cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
         cryptoInputValidation={cryptoInputValidation}
-        fiatAmountAvailable={fiatAmountAvailable.toPrecision()}
+        fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
         fiatInputValidation={fiatInputValidation}
         marketData={marketData}
         onCancel={handleCancel}

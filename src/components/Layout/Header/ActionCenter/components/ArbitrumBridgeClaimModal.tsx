@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { BigAmount, getChainShortName } from '@shapeshiftoss/utils'
+import { getChainShortName } from '@shapeshiftoss/utils'
 import { noop } from 'lodash'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -92,12 +92,7 @@ export const ArbitrumBridgeClaimModal = ({
 
   const amountCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: action.arbitrumBridgeMetadata.amountCryptoBaseUnit,
-          precision: asset?.precision ?? 0,
-        }),
-      ),
+      fromBaseUnit(action.arbitrumBridgeMetadata.amountCryptoBaseUnit, asset?.precision ?? 0),
     [action.arbitrumBridgeMetadata.amountCryptoBaseUnit, asset],
   )
 
@@ -147,12 +142,7 @@ export const ArbitrumBridgeClaimModal = ({
     if (!evmFeesResult?.data?.networkFeeCryptoBaseUnit) return true
 
     return bnOrZero(evmFeesResult.data.networkFeeCryptoBaseUnit).lte(
-      toBaseUnit(
-        BigAmount.fromPrecision({
-          value: destinationFeeAssetBalanceCryptoPrecision,
-          precision: destinationFeeAsset.precision,
-        }),
-      ),
+      toBaseUnit(destinationFeeAssetBalanceCryptoPrecision, destinationFeeAsset.precision),
     )
   }, [destinationFeeAsset, destinationFeeAssetBalanceCryptoPrecision, evmFeesResult?.data])
 

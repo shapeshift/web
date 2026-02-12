@@ -708,12 +708,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     () => ({
       assetId: poolAsset?.assetId,
       address: poolAssetAccountAddress,
-      amountCryptoBaseUnit: toBaseUnit(
-        BigAmount.fromPrecision({
-          value: actualAssetWithdrawAmountCryptoPrecision ?? 0,
-          precision: poolAsset?.precision ?? 0,
-        }),
-      ),
+      amountCryptoBaseUnit: toBaseUnit(actualAssetWithdrawAmountCryptoPrecision ?? 0, poolAsset?.precision ?? 0),
       txFeeCryptoBaseUnit: estimatedPoolAssetFeesData?.txFeeCryptoBaseUnit,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       // also, use that as balance checks instead of our current one, at least for the asset (not ROON)

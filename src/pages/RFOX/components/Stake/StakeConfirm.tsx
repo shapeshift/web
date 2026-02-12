@@ -13,7 +13,7 @@ import {
 import { fromAccountId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { BigAmount, getChainShortName } from '@shapeshiftoss/utils'
+import { getChainShortName } from '@shapeshiftoss/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -90,12 +90,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
 
   const stakingAmountCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: confirmedQuote.stakingAmountCryptoBaseUnit,
-          precision: stakingAsset?.precision ?? 0,
-        }),
-      ),
+      fromBaseUnit(confirmedQuote.stakingAmountCryptoBaseUnit, stakingAsset?.precision ?? 0),
     [confirmedQuote.stakingAmountCryptoBaseUnit, stakingAsset?.precision],
   )
 

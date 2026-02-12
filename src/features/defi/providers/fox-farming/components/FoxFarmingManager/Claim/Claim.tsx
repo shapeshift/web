@@ -1,6 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -78,12 +77,7 @@ export const Claim: React.FC<ClaimProps> = ({
 
   const rewardAmountCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0]),
-          precision: assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 0,
-        }),
-      ),
+      fromBaseUnit(bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0]), assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 0),
     [assets, opportunity?.rewardsCryptoBaseUnit, opportunity?.underlyingAssetId],
   )
 

@@ -1,7 +1,6 @@
 import type { StepProps } from '@chakra-ui/react'
 import { usePrevious } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import type { JSX } from 'react'
 import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -48,12 +47,7 @@ export const AssetSummaryStep = ({
 
   const sellAmountCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: amountCryptoBaseUnit,
-          precision: asset.precision,
-        }),
-      ),
+      fromBaseUnit(amountCryptoBaseUnit, asset.precision),
     [amountCryptoBaseUnit, asset.precision],
   )
 

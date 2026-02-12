@@ -183,12 +183,7 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
               <Text translation='common.approvalFee' color='text.subtle' />
               {approvalNetworkFeeCryptoBaseUnit && feeAsset && (
                 <Amount.Crypto
-                  value={fromBaseUnit(
-                    BigAmount.fromBaseUnit({
-                      value: approvalNetworkFeeCryptoBaseUnit,
-                      precision: feeAsset?.precision,
-                    }),
-                  )}
+                  value={fromBaseUnit(approvalNetworkFeeCryptoBaseUnit, feeAsset?.precision)}
                   symbol={feeAsset?.symbol ?? ''}
                 />
               )}

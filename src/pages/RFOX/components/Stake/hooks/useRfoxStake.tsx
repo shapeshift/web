@@ -3,7 +3,6 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
-import { BigAmount } from '@shapeshiftoss/utils'
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
@@ -115,12 +114,7 @@ export const useRfoxStake = ({
   const amountCryptoPrecision = useMemo(
     () =>
       stakingAsset
-        ? fromBaseUnit(
-            BigAmount.fromBaseUnit({
-              value: amountCryptoBaseUnit,
-              precision: stakingAsset.precision,
-            }),
-          )
+        ? fromBaseUnit(amountCryptoBaseUnit, stakingAsset.precision)
         : undefined,
     [amountCryptoBaseUnit, stakingAsset],
   )
@@ -162,12 +156,7 @@ export const useRfoxStake = ({
     if (!allowanceDataCryptoBaseUnit) return
     if (!stakingAsset) return
 
-    return fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: allowanceDataCryptoBaseUnit,
-        precision: stakingAsset.precision,
-      }),
-    )
+    return fromBaseUnit(allowanceDataCryptoBaseUnit, stakingAsset.precision)
   }, [allowanceQuery.data, stakingAsset])
 
   const isApprovalRequired = useMemo(
@@ -368,12 +357,7 @@ export const useRfoxStake = ({
 
       if (!stakingAsset || !stakingAssetAccountId) return
 
-      const amountCryptoPrecision = fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: amountCryptoBaseUnit,
-          precision: stakingAsset.precision,
-        }),
-      )
+      const amountCryptoPrecision = fromBaseUnit(amountCryptoBaseUnit, stakingAsset.precision)
 
       dispatch(
         actionSlice.actions.upsertAction({

@@ -2,7 +2,6 @@ import { rujiAssetId, tcyAssetId } from '@shapeshiftoss/caip'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
 import { assetIdToThorPoolAssetId } from '@shapeshiftoss/swapper'
 import type { MarketData, MarketDataArgs } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
 import type { MarketService } from '../api'
@@ -53,12 +52,7 @@ export class ThorchainAssetsMarketService implements MarketService {
 
       return {
         // Both THORChain native assets we support so far use 8dp, and all others probably do too
-        price: fromBaseUnit(
-          BigAmount.fromBaseUnit({
-            value: data.asset_tor_price,
-            precision: THOR_PRECISION,
-          }),
-        ),
+        price: fromBaseUnit(data.asset_tor_price, THOR_PRECISION),
         marketCap: '0',
         volume: '0',
         changePercent24Hr: 0,

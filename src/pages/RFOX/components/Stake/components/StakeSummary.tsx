@@ -1,7 +1,6 @@
 import { Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, toAccountId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -34,12 +33,7 @@ export const StakeSummary: React.FC<StakeSummaryProps> = ({
   const translate = useTranslate()
   const stakingAmountCryptoBaseUnit = useMemo(
     () =>
-      toBaseUnit(
-        BigAmount.fromPrecision({
-          value: stakingAmountCryptoPrecision,
-          precision: stakingAsset?.precision ?? 0,
-        }),
-      ),
+      toBaseUnit(stakingAmountCryptoPrecision, stakingAsset?.precision ?? 0),
     [stakingAmountCryptoPrecision, stakingAsset?.precision],
   )
 

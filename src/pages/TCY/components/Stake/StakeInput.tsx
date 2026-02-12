@@ -1,7 +1,7 @@
 import { CardFooter, FormControl, HStack, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -99,12 +99,7 @@ export const StakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAccou
 
   const amountCryptoBaseUnit = useMemo(
     () =>
-      toBaseUnit(
-        BigAmount.fromPrecision({
-          value: amountCryptoPrecision,
-          precision: THOR_PRECISION,
-        }),
-      ),
+      toBaseUnit(amountCryptoPrecision, THOR_PRECISION),
     [amountCryptoPrecision],
   )
 

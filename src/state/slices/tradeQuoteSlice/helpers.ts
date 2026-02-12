@@ -110,12 +110,7 @@ export const getBuyAmountAfterFeesCryptoPrecision = ({
 
   const netReceiveAmountCryptoBaseUnit = lastStep.buyAmountAfterFeesCryptoBaseUnit
 
-  const netReceiveAmountCryptoPrecision = fromBaseUnit(
-    BigAmount.fromBaseUnit({
-      value: netReceiveAmountCryptoBaseUnit,
-      precision: lastStep.buyAsset.precision,
-    }),
-  )
+  const netReceiveAmountCryptoPrecision = fromBaseUnit(netReceiveAmountCryptoBaseUnit, lastStep.buyAsset.precision)
 
   return netReceiveAmountCryptoPrecision
 }

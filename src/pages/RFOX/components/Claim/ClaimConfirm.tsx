@@ -14,7 +14,6 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useMutation } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -110,12 +109,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
 
   const stakingAmountCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: selectedUnstakingRequest.amountCryptoBaseUnit,
-          precision: stakingAsset?.precision ?? 0,
-        }),
-      ),
+      fromBaseUnit(selectedUnstakingRequest.amountCryptoBaseUnit, stakingAsset?.precision ?? 0),
     [selectedUnstakingRequest.amountCryptoBaseUnit, stakingAsset?.precision],
   )
 

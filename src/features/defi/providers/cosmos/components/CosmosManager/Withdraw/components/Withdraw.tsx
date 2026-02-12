@@ -1,7 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -99,12 +98,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       : undefined,
   )
   const cryptoStakeBalanceHuman = bnOrZero(
-    fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
-        precision: asset.precision,
-      }),
-    ),
+    fromBaseUnit(earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0', asset.precision),
   )
 
   const fiatStakeAmountHuman = cryptoStakeBalanceHuman.times(bnOrZero(marketData?.price)).toString()
@@ -177,12 +171,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const validateCryptoAmount = useCallback(
     (value: string) => {
       const crypto = bnOrZero(
-        fromBaseUnit(
-          BigAmount.fromBaseUnit({
-            value: earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
-            precision: asset.precision,
-          }),
-        ),
+        fromBaseUnit(earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0', asset.precision),
       )
       const _value = bnOrZero(value)
       const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
@@ -195,12 +184,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const validateFiatAmount = useCallback(
     (value: string) => {
       const crypto = bnOrZero(
-        fromBaseUnit(
-          BigAmount.fromBaseUnit({
-            value: earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
-            precision: asset.precision,
-          }),
-        ),
+        fromBaseUnit(earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0', asset.precision),
       )
       const fiat = crypto.times(bnOrZero(marketData?.price))
       const _value = bnOrZero(value)

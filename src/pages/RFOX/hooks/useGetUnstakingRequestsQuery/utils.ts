@@ -1,7 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { RFOX_ABI, viemClientByNetworkId } from '@shapeshiftoss/contracts'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { getAddress } from 'viem'
 import { multicall, readContract } from 'viem/actions'
 import { arbitrum } from 'viem/chains'
@@ -78,12 +77,7 @@ export const getUnstakingRequestsQueryFn = ({
 
         return {
           amountCryptoBaseUnit,
-          amountCryptoPrecision: fromBaseUnit(
-            BigAmount.fromBaseUnit({
-              value: amountCryptoBaseUnit,
-              precision: stakingAsset.precision,
-            }),
-          ),
+          amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, stakingAsset.precision),
           cooldownExpiry: result.cooldownExpiry.toString(),
           stakingAssetId,
           index,

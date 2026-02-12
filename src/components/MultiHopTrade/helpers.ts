@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { AmountDisplayMeta } from '@shapeshiftoss/swapper'
 import { isExecutableTradeQuote, isThorTradeQuote, isThorTradeRate } from '@shapeshiftoss/swapper'
-import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
+import { bnOrZero } from '@shapeshiftoss/utils'
 
 import { calculateFeeUsd } from '@/lib/fees/utils'
 import { fromBaseUnit } from '@/lib/math'
@@ -96,12 +96,7 @@ export const parseAmountDisplayMeta = (items: AmountDisplayMeta[]): ProtocolFeeD
         // If we already have this asset+chain combination, add the amounts
         feeMap[key].amountCryptoPrecision = bnOrZero(feeMap[key].amountCryptoPrecision)
           .plus(
-            fromBaseUnit(
-              BigAmount.fromBaseUnit({
-                value: amountCryptoBaseUnit,
-                precision: asset.precision,
-              }),
-            ),
+            fromBaseUnit(amountCryptoBaseUnit, asset.precision),
           )
           .toString()
       } else {
@@ -109,12 +104,7 @@ export const parseAmountDisplayMeta = (items: AmountDisplayMeta[]): ProtocolFeeD
         feeMap[key] = {
           assetId: asset.assetId,
           chainName: chainIdToChainDisplayName(asset.chainId),
-          amountCryptoPrecision: fromBaseUnit(
-            BigAmount.fromBaseUnit({
-              value: amountCryptoBaseUnit,
-              precision: asset.precision,
-            }),
-          ),
+          amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
           symbol: asset.symbol,
         }
       }

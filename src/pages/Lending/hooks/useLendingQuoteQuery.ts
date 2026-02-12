@@ -5,7 +5,6 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { assertAndProcessMemo } from '@shapeshiftoss/swapper'
 import type { MarketData } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import memoize from 'lodash/memoize'
@@ -248,12 +247,7 @@ export const useLendingQuoteOpenQuery = ({
       const position = await getMaybeThorchainLendingOpenQuote({
         receiveAssetId: borrowAssetId,
         collateralAssetId,
-        collateralAmountCryptoBaseUnit: toBaseUnit(
-          BigAmount.fromPrecision({
-            value: depositAmountCryptoPrecision,
-            precision: collateralAsset?.precision ?? 0, // actually always defined at runtime, see "enabled" option
-          }),
-        ),
+        collateralAmountCryptoBaseUnit: toBaseUnit(depositAmountCryptoPrecision, collateralAsset?.precision ?? 0),
         receiveAssetAddress: borrowAssetReceiveAddress ?? '', // actually always defined at runtime, see "enabled" option
       })
 

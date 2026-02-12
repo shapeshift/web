@@ -1,5 +1,4 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
@@ -91,12 +90,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
 
   const amountAvailableCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: bnOrZero(opportunity?.cryptoAmountBaseUnit),
-          precision: underlyingAsset.precision,
-        }),
-      ),
+      fromBaseUnit(bnOrZero(opportunity?.cryptoAmountBaseUnit), underlyingAsset.precision),
     [underlyingAsset.precision, opportunity?.cryptoAmountBaseUnit],
   )
 
@@ -105,12 +99,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       try {
         const fees = await getUnstakeFees(withdraw.cryptoAmount, isExiting)
         if (!fees) return
-        return fromBaseUnit(
-          BigAmount.fromBaseUnit({
-            value: fees.networkFeeCryptoBaseUnit,
-            precision: feeAsset.precision,
-          }),
-        )
+        return fromBaseUnit(fees.networkFeeCryptoBaseUnit, feeAsset.precision)
       } catch (error) {
         // TODO: handle client side errors maybe add a toast?
         console.error(error)

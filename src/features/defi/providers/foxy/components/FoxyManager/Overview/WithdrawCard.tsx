@@ -1,7 +1,6 @@
 import type { ResponsiveValue, StackDirection } from '@chakra-ui/react'
 import { Button, Skeleton, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import type { Property } from 'csstype'
 import dayjs from 'dayjs'
 import qs from 'qs'
@@ -132,12 +131,7 @@ export const WithdrawCard = ({ asset, undelegation, canClaimWithdraw }: Withdraw
           >
             <Amount.Crypto
               color={textColor}
-              value={fromBaseUnit(
-                BigAmount.fromBaseUnit({
-                  value: undelegation.undelegationAmountCryptoBaseUnit ?? '0',
-                  precision: asset?.precision,
-                }),
-              )}
+              value={fromBaseUnit(undelegation.undelegationAmountCryptoBaseUnit ?? '0', asset?.precision)}
               symbol={asset.symbol}
               maximumFractionDigits={4}
             />

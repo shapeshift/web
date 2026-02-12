@@ -1,6 +1,5 @@
 import { Button, Link, Stack, useDisclosure } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -69,12 +68,7 @@ export const ArbitrumBridgeWithdrawActionCard = ({
 
   const buyAmountCryptoPrecision = useMemo(() => {
     if (!buyAsset) return '0'
-    const rawAmount = fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: action.arbitrumBridgeMetadata.amountCryptoBaseUnit,
-        precision: buyAsset.precision,
-      }),
-    )
+    const rawAmount = fromBaseUnit(action.arbitrumBridgeMetadata.amountCryptoBaseUnit, buyAsset.precision)
     return bnOrZero(rawAmount).decimalPlaces(8).toString()
   }, [action.arbitrumBridgeMetadata.amountCryptoBaseUnit, buyAsset])
 

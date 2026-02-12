@@ -19,7 +19,6 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useInfiniteQuery, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -102,12 +101,7 @@ const TableRowAccount = chakraForwardRef<TableRowAccountProps, 'div'>(
 
     const assetBalanceCryptoPrecision = useMemo(() => {
       if (!account) return '0'
-      return fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: account.balance,
-          precision: asset.precision,
-        }),
-      )
+      return fromBaseUnit(account.balance, asset.precision)
     }, [account, asset.precision])
 
     const handleCopyClick = useCallback(

@@ -12,7 +12,6 @@ import {
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -218,12 +217,7 @@ export const BorrowInput = ({
 
   const amountAvailableCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: balanceCryptoBaseUnit,
-          precision: collateralAsset?.precision ?? 0,
-        }),
-      ),
+      fromBaseUnit(balanceCryptoBaseUnit, collateralAsset?.precision ?? 0),
     [balanceCryptoBaseUnit, collateralAsset?.precision],
   )
 
@@ -239,12 +233,7 @@ export const BorrowInput = ({
     if (collateralFeeAsset.assetId === collateralAssetId)
       return bnOrZero(depositAmountCryptoPrecision)
         .plus(
-          fromBaseUnit(
-            BigAmount.fromBaseUnit({
-              value: estimatedFeesData.txFeeCryptoBaseUnit,
-              precision: collateralAsset?.precision ?? 0,
-            }),
-          ),
+          fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, collateralAsset?.precision ?? 0),
         )
         .lte(amountAvailableCryptoPrecision)
 
@@ -267,12 +256,7 @@ export const BorrowInput = ({
     () => ({
       assetId: collateralAssetId,
       address: fromAddress,
-      amountCryptoBaseUnit: toBaseUnit(
-        BigAmount.fromPrecision({
-          value: depositAmountCryptoPrecision ?? 0,
-          precision: collateralAsset?.precision ?? 0,
-        }),
-      ),
+      amountCryptoBaseUnit: toBaseUnit(depositAmountCryptoPrecision ?? 0, collateralAsset?.precision ?? 0),
       txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too
       enabled: Boolean(
@@ -315,20 +299,10 @@ export const BorrowInput = ({
 
     return bnOrZero(depositAmountCryptoPrecision)
       .plus(
-        fromBaseUnit(
-          BigAmount.fromBaseUnit({
-            value: estimatedFeesData.txFeeCryptoBaseUnit,
-            precision: collateralAsset?.precision ?? 0,
-          }),
-        ),
+        fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, collateralAsset?.precision ?? 0),
       )
       .plus(
-        fromBaseUnit(
-          BigAmount.fromBaseUnit({
-            value: estimatedSweepFeesData.txFeeCryptoBaseUnit,
-            precision: collateralAsset?.precision ?? 0,
-          }),
-        ),
+        fromBaseUnit(estimatedSweepFeesData.txFeeCryptoBaseUnit, collateralAsset?.precision ?? 0),
       )
       .lte(amountAvailableCryptoPrecision)
   }, [

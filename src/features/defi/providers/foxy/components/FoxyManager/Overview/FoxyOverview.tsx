@@ -2,7 +2,6 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, fromAccountId, toAssetId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import { useEffect, useMemo, useState } from 'react'
 import { FaGift } from 'react-icons/fa'
@@ -121,12 +120,7 @@ export const FoxyOverview: React.FC<FoxyOverviewProps> = ({
     selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
   )
   const cryptoAmountAvailablePrecision = bnOrZero(
-    fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: foxyEarnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
-        precision: stakingAsset?.precision ?? 0,
-      }),
-    ),
+    fromBaseUnit(foxyEarnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0', stakingAsset?.precision ?? 0),
   )
   const fiatAmountAvailable = bnOrZero(cryptoAmountAvailablePrecision).times(
     bnOrZero(marketData?.price),

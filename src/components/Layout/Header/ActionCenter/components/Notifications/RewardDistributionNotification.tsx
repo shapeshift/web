@@ -1,6 +1,5 @@
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
 
 import { ActionIcon } from '../ActionIcon'
@@ -50,12 +49,7 @@ export const RewardDistributionNotification = ({
     return {
       amountAndSymbol: (
         <Amount.Crypto
-          value={fromBaseUnit(
-            BigAmount.fromBaseUnit({
-              value: distribution.amount.toString(),
-              precision: runeAsset.precision ?? 0,
-            }),
-          )}
+          value={fromBaseUnit(distribution.amount.toString(), runeAsset.precision ?? 0)}
           symbol={runeAsset.symbol}
           fontSize='sm'
           fontWeight='bold'

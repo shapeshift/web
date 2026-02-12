@@ -1,6 +1,5 @@
 import { Button, ButtonGroup, Link, useDisclosure } from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -41,12 +40,7 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
     return {
       amountAndSymbol: (
         <Amount.Crypto
-          value={fromBaseUnit(
-            BigAmount.fromBaseUnit({
-              value: distribution.amount.toString(),
-              precision: runeAsset.precision ?? 0,
-            }),
-          )}
+          value={fromBaseUnit(distribution.amount.toString(), runeAsset.precision ?? 0)}
           symbol={runeAsset?.symbol}
           fontSize='sm'
           fontWeight='bold'

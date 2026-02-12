@@ -21,7 +21,7 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { assertAndProcessMemo, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { BigAmount, isToken } from '@shapeshiftoss/utils'
+import { isToken } from '@shapeshiftoss/utils'
 import { useMutation, useMutationState, useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import prettyMilliseconds from 'pretty-ms'
@@ -262,12 +262,7 @@ export const RepayConfirm = ({
   } = useSendThorTx({
     assetId: repaymentAsset?.assetId ?? '',
     accountId: repaymentAccountId,
-    amountCryptoBaseUnit: toBaseUnit(
-      BigAmount.fromPrecision({
-        value: confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
-        precision: repaymentAsset?.precision ?? 0,
-      }),
-    ),
+    amountCryptoBaseUnit: toBaseUnit(confirmedQuote?.repaymentAmountCryptoPrecision ?? 0, repaymentAsset?.precision ?? 0),
     memo,
     // no explicit from address required for repayments
     fromAddress: '',

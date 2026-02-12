@@ -2,7 +2,7 @@ import { Box, Flex, Stack, useMediaQuery } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { cosmosChainId, ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigAmount, isToken } from '@shapeshiftoss/utils'
+import { isToken } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import type { FormEvent } from 'react'
 import { memo, useCallback, useEffect, useMemo } from 'react'
@@ -127,12 +127,7 @@ export const EarnInput = memo(
     useEffect(() => {
       if (defaultSellAmountCryptoBaseUnit && defaultSellAsset && !sellAmountCryptoPrecision) {
         const precision = defaultSellAsset.precision ?? 18
-        const amountCryptoPrecision = fromBaseUnit(
-          BigAmount.fromBaseUnit({
-            value: defaultSellAmountCryptoBaseUnit,
-            precision,
-          }),
-        )
+        const amountCryptoPrecision = fromBaseUnit(defaultSellAmountCryptoBaseUnit, precision)
         dispatch(tradeEarnInput.actions.setSellAmountCryptoPrecision(amountCryptoPrecision))
       }
     }, [defaultSellAmountCryptoBaseUnit, defaultSellAsset, sellAmountCryptoPrecision, dispatch])

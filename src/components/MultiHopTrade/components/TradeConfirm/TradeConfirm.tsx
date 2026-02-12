@@ -1,6 +1,5 @@
 import { Stepper, usePrevious } from '@chakra-ui/react'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 
@@ -128,18 +127,8 @@ export const TradeConfirm = ({ isCompact, isModal, onSuccess }: TradeConfirmProp
           summaryTranslation='trade.summary'
           sellAsset={activeQuote?.steps[0].sellAsset}
           buyAsset={tradeQuoteLastHop.buyAsset}
-          sellAmountCryptoPrecision={fromBaseUnit(
-            BigAmount.fromBaseUnit({
-              value: activeQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
-              precision: activeQuote.steps[0].sellAsset.precision,
-            }),
-          )}
-          quoteBuyAmountCryptoPrecision={fromBaseUnit(
-            BigAmount.fromBaseUnit({
-              value: tradeQuoteLastHop.buyAmountAfterFeesCryptoBaseUnit,
-              precision: tradeQuoteLastHop.buyAsset.precision,
-            }),
-          )}
+          sellAmountCryptoPrecision={fromBaseUnit(activeQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit, activeQuote.steps[0].sellAsset.precision)}
+          quoteBuyAmountCryptoPrecision={fromBaseUnit(tradeQuoteLastHop.buyAmountAfterFeesCryptoBaseUnit, tradeQuoteLastHop.buyAsset.precision)}
         >
           <Stepper index={-1} orientation='vertical' gap='0' my={6}>
             <ExpandableStepperSteps isExpanded />

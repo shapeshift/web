@@ -4,7 +4,7 @@ import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { assetIdToThorPoolAssetId } from '@shapeshiftoss/swapper'
-import { BigAmount, isToken } from '@shapeshiftoss/utils'
+import { isToken } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
@@ -105,23 +105,13 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
 
   const { data: thorchainSaversDepositQuote } = useGetThorchainSaversDepositQuoteQuery({
     asset,
-    amountCryptoBaseUnit: toBaseUnit(
-      BigAmount.fromPrecision({
-        value: state?.deposit.cryptoAmount,
-        precision: asset.precision,
-      }),
-    ),
+    amountCryptoBaseUnit: toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
   })
 
   const { inboundAddress } = useSendThorTx({
     assetId,
     accountId: accountId ?? null,
-    amountCryptoBaseUnit: toBaseUnit(
-      BigAmount.fromPrecision({
-        value: state?.deposit.cryptoAmount,
-        precision: asset.precision,
-      }),
-    ),
+    amountCryptoBaseUnit: toBaseUnit(state?.deposit.cryptoAmount, asset.precision),
     memo: thorchainSaversDepositQuote?.memo ?? null,
     fromAddress: '',
     action: 'depositSavers',
@@ -145,12 +135,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
     try {
       const amountCryptoBaseUnitOrZero = isReset
         ? '0'
-        : toBaseUnit(
-            BigAmount.fromPrecision({
-              value: state.deposit.cryptoAmount,
-              precision: asset.precision,
-            }),
-          )
+        : toBaseUnit(state.deposit.cryptoAmount, asset.precision)
 
       const poolId = assetIdToThorPoolAssetId({ assetId: asset.assetId })
 

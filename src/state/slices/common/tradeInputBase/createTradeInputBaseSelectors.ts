@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { BigAmount, bn, bnOrZero } from '@shapeshiftoss/utils'
+import { bn, bnOrZero } from '@shapeshiftoss/utils'
 
 import {
   selectEnabledWalletAccountIds,
@@ -177,12 +177,7 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
     selectInputSellAmountCryptoPrecision,
     selectInputSellAsset,
     (sellAmountCryptoPrecision, sellAsset) =>
-      toBaseUnit(
-        BigAmount.fromPrecision({
-          value: sellAmountCryptoPrecision,
-          precision: sellAsset.precision,
-        }),
-      ),
+      toBaseUnit(sellAmountCryptoPrecision, sellAsset.precision),
   )
 
   const selectManualReceiveAddress = createSelector(

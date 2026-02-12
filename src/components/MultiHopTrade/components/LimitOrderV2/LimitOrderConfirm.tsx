@@ -1,6 +1,6 @@
 import { Box, Button, HStack, Skeleton, Stack, usePrevious } from '@chakra-ui/react'
 import { TransactionExecutionState } from '@shapeshiftoss/swapper'
-import { BigAmount, bn } from '@shapeshiftoss/utils'
+import { bn } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
@@ -177,12 +177,7 @@ export const LimitOrderConfirm = () => {
   const detail = useMemo(() => {
     switch (orderSubmissionState) {
       case LimitOrderSubmissionState.AwaitingAllowanceApproval:
-        const allowanceApprovalNetworkFeeCryptoPrecision = fromBaseUnit(
-          BigAmount.fromBaseUnit({
-            value: approvalNetworkFeeCryptoBaseUnit ?? '0',
-            precision: feeAsset?.precision ?? 0,
-          }),
-        )
+        const allowanceApprovalNetworkFeeCryptoPrecision = fromBaseUnit(approvalNetworkFeeCryptoBaseUnit ?? '0', feeAsset?.precision ?? 0)
         const allowanceApprovalNetworkFeeUserCurrency = bn(
           allowanceApprovalNetworkFeeCryptoPrecision,
         )
@@ -215,12 +210,7 @@ export const LimitOrderConfirm = () => {
           </Stack>
         )
       case LimitOrderSubmissionState.AwaitingAllowanceReset:
-        const allowanceResetNetworkFeeCryptoPrecision = fromBaseUnit(
-          BigAmount.fromBaseUnit({
-            value: allowanceResetNetworkFeeCryptoBaseUnit ?? '0',
-            precision: feeAsset?.precision ?? 0,
-          }),
-        )
+        const allowanceResetNetworkFeeCryptoPrecision = fromBaseUnit(allowanceResetNetworkFeeCryptoBaseUnit ?? '0', feeAsset?.precision ?? 0)
         const allowanceResetNetworkFeeUserCurrency = bn(allowanceResetNetworkFeeCryptoPrecision)
           .times(feeAssetRateUserCurrency)
           .toFixed()

@@ -86,7 +86,7 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
       underlyingAssetId: rewardTokenAssetId,
       underlyingAssetIds: [tokenAssetId],
       underlyingAssetRatiosBaseUnit: [
-        toBaseUnit(BigAmount.fromPrecision({ value: '1', precision: underlyingAsset.precision })),
+        toBaseUnit('1', underlyingAsset.precision),
       ],
       name: underlyingAsset.symbol,
       rewardAssetIds: [],

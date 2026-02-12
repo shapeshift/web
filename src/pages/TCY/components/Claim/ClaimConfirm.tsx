@@ -8,7 +8,6 @@ import {
   ModalCloseButton,
 } from '@chakra-ui/react'
 import { fromAssetId, tcyAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useMutation } from '@tanstack/react-query'
 import noop from 'lodash/noop'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -90,12 +89,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
 
   const amountCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: claim.amountThorBaseUnit ?? '0',
-          precision: THOR_PRECISION,
-        }),
-      ),
+      fromBaseUnit(claim.amountThorBaseUnit ?? '0', THOR_PRECISION),
     [claim?.amountThorBaseUnit],
   )
 
@@ -191,12 +185,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     if (!dustAmountCryptoBaseUnit) return
     if (!feeAsset) return
 
-    const dustAmountCryptoPrecision = fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: dustAmountCryptoBaseUnit,
-        precision: feeAsset.precision,
-      }),
-    )
+    const dustAmountCryptoPrecision = fromBaseUnit(dustAmountCryptoBaseUnit, feeAsset.precision)
 
     return bn(dustAmountCryptoPrecision)
       .times(bnOrZero(feeAssetMarketData?.price))
@@ -216,12 +205,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     if (!estimatedFeesData?.txFeeCryptoBaseUnit || !dustAmountCryptoBaseUnit || !feeAsset)
       return '0'
 
-    return fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: requiredAmountCryptoBaseUnit,
-        precision: feeAsset.precision,
-      }),
-    )
+    return fromBaseUnit(requiredAmountCryptoBaseUnit, feeAsset.precision)
   }, [estimatedFeesData, dustAmountCryptoBaseUnit, feeAsset, requiredAmountCryptoBaseUnit])
 
   const hasEnoughBalanceForDustAndFees = useMemo(() => {

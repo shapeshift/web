@@ -3,7 +3,6 @@ import { Button, Flex, Tag, useMediaQuery } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -90,12 +89,7 @@ const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
     if (!asset) return sum
     const marketDataPrice = bnOrZero(marketDataUserCurrency[assetId]?.price)
     const cryptoAmountPrecision = bnOrZero(
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: rewardsCryptoBaseUnit?.amounts[index] ?? '0',
-          precision: asset?.precision ?? 0,
-        }),
-      ),
+      fromBaseUnit(rewardsCryptoBaseUnit?.amounts[index] ?? '0', asset?.precision ?? 0),
     )
     sum = bnOrZero(cryptoAmountPrecision).times(marketDataPrice).plus(bnOrZero(sum)).toNumber()
     return sum

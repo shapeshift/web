@@ -1,7 +1,6 @@
 import { Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
@@ -98,23 +97,13 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
   // user info
   const rewardAmountCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0]),
-          precision: assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 0,
-        }),
-      ),
+      fromBaseUnit(bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0]), assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 0),
     [assets, opportunity?.rewardsCryptoBaseUnit, opportunity?.underlyingAssetId],
   )
 
   const amountAvailableCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: bnOrZero(opportunity?.cryptoAmountBaseUnit),
-          precision: asset?.precision ?? 18,
-        }),
-      ),
+      fromBaseUnit(bnOrZero(opportunity?.cryptoAmountBaseUnit), asset?.precision ?? 18),
     [asset?.precision, opportunity?.cryptoAmountBaseUnit],
   )
   const totalFiatBalance = opportunity?.fiatAmount
@@ -123,12 +112,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
     try {
       const fees = await getUnstakeFees(amountAvailableCryptoPrecision, true)
       if (!fees) return
-      return fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: fees.networkFeeCryptoBaseUnit,
-          precision: feeAsset.precision,
-        }),
-      )
+      return fromBaseUnit(fees.networkFeeCryptoBaseUnit, feeAsset.precision)
     } catch (error) {
       // TODO: handle client side errors maybe add a toast?
       console.error(error)

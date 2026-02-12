@@ -7,7 +7,6 @@ import type {
   PriceHistoryArgs,
 } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
-import { BigAmount } from '@shapeshiftoss/utils'
 import type { ethers } from 'ethers'
 
 import type { MarketService } from '../api'
@@ -97,20 +96,10 @@ export class FoxyMarketService extends CoinGeckoMarketService implements MarketS
         changePercent24Hr: coinGeckoData.changePercent24Hr,
         volume: '0', // TODO: add volume once able to get foxy volume data
         supply: supply
-          ? fromBaseUnit(
-              BigAmount.fromBaseUnit({
-                value: supply.toFixed(0),
-                precision: Number(FOXY_ASSET_PRECISION),
-              }),
-            )
+          ? fromBaseUnit(supply.toFixed(0), Number(FOXY_ASSET_PRECISION))
           : undefined,
         maxSupply: foxyTotalSupply
-          ? fromBaseUnit(
-              BigAmount.fromBaseUnit({
-                value: foxyTotalSupply.toFixed(0),
-                precision: Number(FOXY_ASSET_PRECISION),
-              }),
-            )
+          ? fromBaseUnit(foxyTotalSupply.toFixed(0), Number(FOXY_ASSET_PRECISION))
           : undefined,
       }
     } catch (e) {

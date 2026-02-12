@@ -1,5 +1,5 @@
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -55,12 +55,7 @@ export const StakeConfirm: React.FC = () => {
 
   const amountCryptoBaseUnit = useMemo(
     () =>
-      toBaseUnit(
-        BigAmount.fromPrecision({
-          value: amountCryptoPrecision,
-          precision: THOR_PRECISION,
-        }),
-      ),
+      toBaseUnit(amountCryptoPrecision, THOR_PRECISION),
     [amountCryptoPrecision],
   )
 

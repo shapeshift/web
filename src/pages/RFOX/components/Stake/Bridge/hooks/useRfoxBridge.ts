@@ -11,7 +11,7 @@ import type {
 import { arbitrumBridgeApi, getTradeQuoteWithWallet } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useMutation, useQuery } from '@tanstack/react-query'
@@ -120,12 +120,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
 
   const bridgeAmountCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: confirmedQuote.bridgeAmountCryptoBaseUnit,
-          precision: sellAsset?.precision ?? 0,
-        }),
-      ),
+      fromBaseUnit(confirmedQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision ?? 0),
     [confirmedQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision],
   )
 
@@ -221,12 +216,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
 
   const networkFeeCryptoPrecision = useMemo(() => {
     if (!tradeQuoteQuery.data || tradeQuoteQuery.data.isErr()) return null
-    return fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: tradeQuoteQuery.data.unwrap().steps[0].feeData.networkFeeCryptoBaseUnit,
-        precision: sellAsset?.precision ?? 0,
-      }),
-    )
+    return fromBaseUnit(tradeQuoteQuery.data.unwrap().steps[0].feeData.networkFeeCryptoBaseUnit, sellAsset?.precision ?? 0)
   }, [sellAsset?.precision, tradeQuoteQuery.data])
 
   const networkFeeUserCurrency = useMemo(() => {

@@ -7,7 +7,6 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapperName, TransactionExecutionState } from '@shapeshiftoss/swapper'
-import { BigAmount } from '@shapeshiftoss/utils'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import { TbArrowsSplit2 } from 'react-icons/tb'
@@ -70,12 +69,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   const quoteNetworkFeeCryptoBaseUnit = tradeQuoteStep.feeData.networkFeeCryptoBaseUnit
   const feeAsset = useSelectorWithArgs(selectFeeAssetById, tradeQuoteStep.sellAsset.assetId)
   const sellAsset = useSelectorWithArgs(selectAssetById, tradeQuoteStep.sellAsset.assetId)
-  const quoteNetworkFeeCryptoPrecision = fromBaseUnit(
-    BigAmount.fromBaseUnit({
-      value: quoteNetworkFeeCryptoBaseUnit,
-      precision: feeAsset?.precision ?? 0,
-    }),
-  )
+  const quoteNetworkFeeCryptoPrecision = fromBaseUnit(quoteNetworkFeeCryptoBaseUnit, feeAsset?.precision ?? 0)
   const feeAssetUserCurrencyRate = useSelectorWithArgs(
     selectMarketDataByAssetIdUserCurrency,
     feeAsset?.assetId ?? '',
@@ -169,12 +163,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   const networkFeeCryptoPrecision = useMemo(() => {
     if (!networkFeeCryptoBaseUnit) return quoteNetworkFeeCryptoPrecision
 
-    return fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: networkFeeCryptoBaseUnit,
-        precision: feeAsset?.precision ?? 0,
-      }),
-    )
+    return fromBaseUnit(networkFeeCryptoBaseUnit, feeAsset?.precision ?? 0)
   }, [networkFeeCryptoBaseUnit, feeAsset?.precision, quoteNetworkFeeCryptoPrecision])
 
   const networkFeeUserCurrency = useMemo(() => {
@@ -183,23 +172,13 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
       .toFixed()
   }, [networkFeeCryptoPrecision, feeAssetUserCurrencyRate?.price])
 
-  const allowanceResetNetworkFeeCryptoPrecision = fromBaseUnit(
-    BigAmount.fromBaseUnit({
-      value: allowanceResetNetworkFeeCryptoBaseUnit,
-      precision: sellChainFeeAsset?.precision ?? 0,
-    }),
-  )
+  const allowanceResetNetworkFeeCryptoPrecision = fromBaseUnit(allowanceResetNetworkFeeCryptoBaseUnit, sellChainFeeAsset?.precision ?? 0)
 
   const allowanceResetNetworkFeeUserCurrency = bnOrZero(allowanceResetNetworkFeeCryptoPrecision)
     .times(bnOrZero(feeAssetUserCurrencyRate?.price))
     .toFixed()
 
-  const approvalNetworkFeeCryptoPrecision = fromBaseUnit(
-    BigAmount.fromBaseUnit({
-      value: approvalNetworkFeeCryptoBaseUnit,
-      precision: sellChainFeeAsset?.precision ?? 0,
-    }),
-  )
+  const approvalNetworkFeeCryptoPrecision = fromBaseUnit(approvalNetworkFeeCryptoBaseUnit, sellChainFeeAsset?.precision ?? 0)
 
   const approvalNetworkFeeUserCurrency = bnOrZero(approvalNetworkFeeCryptoPrecision)
     .times(bnOrZero(feeAssetUserCurrencyRate?.price))

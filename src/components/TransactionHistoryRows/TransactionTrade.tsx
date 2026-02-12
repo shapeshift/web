@@ -1,7 +1,6 @@
 import { ChevronRightIcon } from '@chakra-ui/icons'
 import { Center, Flex, HStack } from '@chakra-ui/react'
 import { TransferType } from '@shapeshiftoss/unchained-client'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -72,12 +71,7 @@ export const TransactionTrade = ({
   const topRight = useMemo(() => {
     if (!hasReceive || !hasSend) return undefined
     const precision = transfersByType.Send[0].asset.precision ?? 0
-    const amount = fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: transfersByType.Send[0].value,
-        precision,
-      }),
-    )
+    const amount = fromBaseUnit(transfersByType.Send[0].value, precision)
     return (
       <Amount.Crypto
         value={amount}
@@ -113,12 +107,7 @@ export const TransactionTrade = ({
       dataType = TransferType.Receive
     }
     const precision = transfersByType[dataType][0].asset.precision ?? 0
-    const amount = fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: transfersByType[dataType][0].value,
-        precision,
-      }),
-    )
+    const amount = fromBaseUnit(transfersByType[dataType][0].value, precision)
     return (
       <Amount.Crypto
         maximumFractionDigits={4}

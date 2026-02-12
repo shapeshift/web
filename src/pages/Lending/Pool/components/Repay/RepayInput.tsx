@@ -19,7 +19,6 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { assertAndProcessMemo, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -152,13 +151,7 @@ export const RepayInput = ({
     from: userAddress,
     amountCryptoBaseUnit:
       confirmedQuote?.repaymentAmountCryptoPrecision && repaymentAsset
-        ? toBaseUnit(
-            BigAmount.fromPrecision({
-              // Add 5% buffer to the repayment allowance to avoid asset rates fluctuations ending up in more asset needed to repay
-              value: bnOrZero(confirmedQuote.repaymentAmountCryptoPrecision).times('1.05'),
-              precision: repaymentAsset.precision,
-            }),
-          )
+        ? toBaseUnit(bnOrZero(confirmedQuote.repaymentAmountCryptoPrecision).times('1.05'), repaymentAsset.precision)
         : undefined,
     accountNumber: repaymentAccountNumber,
   })
@@ -417,12 +410,7 @@ export const RepayInput = ({
     {
       assetId: repaymentAsset?.assetId ?? '',
       accountId: repaymentAccountId,
-      amountCryptoBaseUnit: toBaseUnit(
-        BigAmount.fromPrecision({
-          value: confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
-          precision: repaymentAsset?.precision ?? 0,
-        }),
-      ),
+      amountCryptoBaseUnit: toBaseUnit(confirmedQuote?.repaymentAmountCryptoPrecision ?? 0, repaymentAsset?.precision ?? 0),
       memo,
       // no explicit from address required for repayments
       fromAddress: '',
@@ -446,12 +434,7 @@ export const RepayInput = ({
       return bnOrZero(lendingQuoteCloseData?.repaymentAmountCryptoPrecision)
         .plus(
           bnOrZero(
-            fromBaseUnit(
-              BigAmount.fromBaseUnit({
-                value: estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
-                precision: repaymentAsset.precision ?? 0,
-              }),
-            ),
+            fromBaseUnit(estimatedFeesData?.txFeeCryptoBaseUnit ?? '0', repaymentAsset.precision ?? 0),
           ),
         )
         .lte(repaymentAssetAmountAvailableCryptoPrecision)

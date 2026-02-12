@@ -2,7 +2,6 @@ import type { StackDirection } from '@chakra-ui/react'
 import { Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Activity } from './components/Activity/Activity'
@@ -102,21 +101,11 @@ export const TCY = () => {
     if (!currentAccountId || !currentStaker || !walletInfo) return
 
     const currentAmount = bnOrZero(
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: currentStaker.amount ?? '0',
-          precision: THOR_PRECISION,
-        }),
-      ),
+      fromBaseUnit(currentStaker.amount ?? '0', THOR_PRECISION),
     )
     const defaultAmount = defaultStaker
       ? bnOrZero(
-          fromBaseUnit(
-            BigAmount.fromBaseUnit({
-              value: defaultStaker.amount ?? '0',
-              precision: THOR_PRECISION,
-            }),
-          ),
+          fromBaseUnit(defaultStaker.amount ?? '0', THOR_PRECISION),
         )
       : undefined
 

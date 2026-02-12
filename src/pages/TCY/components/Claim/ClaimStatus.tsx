@@ -1,5 +1,4 @@
 import { ModalCloseButton, Stack } from '@chakra-ui/react'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router'
 
@@ -28,12 +27,7 @@ export const ClaimStatus: React.FC<ClaimStatusProps> = ({
   const navigate = useNavigate()
   const amountCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: claim?.amountThorBaseUnit ?? '0',
-          precision: THOR_PRECISION,
-        }),
-      ),
+      fromBaseUnit(claim?.amountThorBaseUnit ?? '0', THOR_PRECISION),
     [claim?.amountThorBaseUnit],
   )
 

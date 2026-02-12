@@ -12,7 +12,6 @@ import {
   Stack,
   Text as CText,
 } from '@chakra-ui/react'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -61,22 +60,12 @@ export const RateChangedModal = ({ prevAmountCryptoBaseUnit }: RateChangedModalP
 
   const prevAmountCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: prevAmountCryptoBaseUnit,
-          precision: buyAsset.precision,
-        }),
-      ),
+      fromBaseUnit(prevAmountCryptoBaseUnit, buyAsset.precision),
     [buyAsset.precision, prevAmountCryptoBaseUnit],
   )
   const amountCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: lastHop.buyAmountAfterFeesCryptoBaseUnit,
-          precision: buyAsset.precision,
-        }),
-      ),
+      fromBaseUnit(lastHop.buyAmountAfterFeesCryptoBaseUnit, buyAsset.precision),
     [buyAsset.precision, lastHop.buyAmountAfterFeesCryptoBaseUnit],
   )
 

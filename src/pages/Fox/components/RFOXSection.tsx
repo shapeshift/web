@@ -23,7 +23,6 @@ import {
   uniV2EthFoxArbitrumAssetId,
   usdcOnArbitrumOneAssetId,
 } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { TbAlertTriangle, TbArrowDown, TbArrowUp } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
@@ -196,12 +195,7 @@ export const RFOXSection = () => {
   const selectStakingBalanceCryptoPrecision = useCallback(
     (abiStakingInfo: AbiStakingInfo) => {
       const stakingBalanceCryptoBaseUnit = selectStakingBalance(abiStakingInfo)
-      return fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: stakingBalanceCryptoBaseUnit.toString(),
-          precision: stakingAsset?.precision ?? 0,
-        }),
-      )
+      return fromBaseUnit(stakingBalanceCryptoBaseUnit.toString(), stakingAsset?.precision ?? 0)
     },
     [stakingAsset],
   )
@@ -231,12 +225,7 @@ export const RFOXSection = () => {
 
   const currentEpochRewardsCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: currentEpochRewardsQuery.data?.toString(),
-          precision: usdcAsset?.precision ?? 0,
-        }),
-      ),
+      fromBaseUnit(currentEpochRewardsQuery.data?.toString(), usdcAsset?.precision ?? 0),
     [currentEpochRewardsQuery.data, usdcAsset?.precision],
   )
 

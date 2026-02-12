@@ -1,7 +1,6 @@
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { BigAmount } from '@shapeshiftoss/utils'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -105,12 +104,7 @@ export const useRfoxBridgeApproval = ({
 
       if (!sellAsset || !confirmedQuote.sellAssetAccountId) return
 
-      const amountCryptoPrecision = fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: confirmedQuote.bridgeAmountCryptoBaseUnit,
-          precision: sellAsset.precision,
-        }),
-      )
+      const amountCryptoPrecision = fromBaseUnit(confirmedQuote.bridgeAmountCryptoBaseUnit, sellAsset.precision)
 
       dispatch(
         actionSlice.actions.upsertAction({

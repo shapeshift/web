@@ -115,18 +115,8 @@ export const ethFoxStakingMetadataResolver = async ({
         underlyingAssetId: foxEthLpAssetId,
         underlyingAssetIds: foxEthPair,
         underlyingAssetRatiosBaseUnit: [
-          toBaseUnit(
-            BigAmount.fromPrecision({
-              value: ethPoolRatio.toString(),
-              precision: assets.byId[foxEthPair[0]]?.precision ?? 0,
-            }),
-          ),
-          toBaseUnit(
-            BigAmount.fromPrecision({
-              value: foxPoolRatio.toString(),
-              precision: assets.byId[foxEthPair[1]]?.precision ?? 0,
-            }),
-          ),
+          toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]]?.precision ?? 0),
+          toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]]?.precision ?? 0),
         ] as const,
         expired,
         name: 'Fox Farming',

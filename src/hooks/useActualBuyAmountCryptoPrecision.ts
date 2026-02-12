@@ -1,7 +1,6 @@
 import { fromAccountId, thorchainChainId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TransferType } from '@shapeshiftoss/unchained-client'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
@@ -65,21 +64,11 @@ export const useActualBuyAmountCryptoPrecision = (
 
   const actualBuyAmountCryptoPrecision = useMemo(() => {
     if (swap?.actualBuyAmountCryptoBaseUnit && swap?.buyAsset) {
-      return fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: swap.actualBuyAmountCryptoBaseUnit,
-          precision: swap.buyAsset.precision,
-        }),
-      )
+      return fromBaseUnit(swap.actualBuyAmountCryptoBaseUnit, swap.buyAsset.precision)
     }
 
     if (secondClassChainActualBuyAmount && swap?.buyAsset) {
-      return fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: secondClassChainActualBuyAmount,
-          precision: swap.buyAsset.precision,
-        }),
-      )
+      return fromBaseUnit(secondClassChainActualBuyAmount, swap.buyAsset.precision)
     }
 
     if (!tx?.transfers?.length || !swap?.buyAsset) return undefined
@@ -90,12 +79,7 @@ export const useActualBuyAmountCryptoPrecision = (
     )
 
     return receiveTransfer?.value
-      ? fromBaseUnit(
-          BigAmount.fromBaseUnit({
-            value: receiveTransfer.value,
-            precision: swap.buyAsset.precision,
-          }),
-        )
+      ? fromBaseUnit(receiveTransfer.value, swap.buyAsset.precision)
       : undefined
   }, [tx, swap, secondClassChainActualBuyAmount])
 

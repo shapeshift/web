@@ -1,6 +1,6 @@
 import { usePrevious } from '@chakra-ui/react'
 import { OrderStatus } from '@shapeshiftoss/types'
-import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { v4 as uuidv4 } from 'uuid'
@@ -113,18 +113,8 @@ export const useLimitOrderActionSubscriber = () => {
             cowSwapQuoteId: activeQuoteId,
             sellAmountCryptoBaseUnit,
             buyAmountCryptoBaseUnit,
-            sellAmountCryptoPrecision: fromBaseUnit(
-              BigAmount.fromBaseUnit({
-                value: sellAmountCryptoBaseUnit,
-                precision: sellAsset?.precision,
-              }),
-            ),
-            buyAmountCryptoPrecision: fromBaseUnit(
-              BigAmount.fromBaseUnit({
-                value: buyAmountCryptoBaseUnit,
-                precision: buyAsset?.precision,
-              }),
-            ),
+            sellAmountCryptoPrecision: fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset?.precision),
+            buyAmountCryptoPrecision: fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset?.precision),
             sellAsset,
             buyAsset,
             accountId,
@@ -275,18 +265,8 @@ export const useLimitOrderActionSubscriber = () => {
             ...action.limitOrderMetadata,
             executedBuyAmountCryptoBaseUnit: order.order.executedBuyAmount,
             executedSellAmountCryptoBaseUnit: order.order.executedSellAmount,
-            executedBuyAmountCryptoPrecision: fromBaseUnit(
-              BigAmount.fromBaseUnit({
-                value: order.order.executedBuyAmount,
-                precision: action.limitOrderMetadata.buyAsset.precision,
-              }),
-            ),
-            executedSellAmountCryptoPrecision: fromBaseUnit(
-              BigAmount.fromBaseUnit({
-                value: order.order.executedSellAmount,
-                precision: action.limitOrderMetadata.sellAsset.precision,
-              }),
-            ),
+            executedBuyAmountCryptoPrecision: fromBaseUnit(order.order.executedBuyAmount, action.limitOrderMetadata.buyAsset.precision),
+            executedSellAmountCryptoPrecision: fromBaseUnit(order.order.executedSellAmount, action.limitOrderMetadata.sellAsset.precision),
             filledDecimalPercentage: bnOrZero(order.order.executedSellAmount)
               .div(order.order.sellAmount)
               .toString(),

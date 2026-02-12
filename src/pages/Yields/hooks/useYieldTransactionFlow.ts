@@ -10,7 +10,6 @@ import {
 } from '@shapeshiftoss/caip'
 import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useMemo, useState } from 'react'
@@ -493,12 +492,7 @@ export const useYieldTransactionFlow = ({
 
     return {
       validator,
-      amountCryptoBaseUnit: toBaseUnit(
-        BigAmount.fromPrecision({
-          value: amount,
-          precision: inputTokenDecimals,
-        }),
-      ),
+      amountCryptoBaseUnit: toBaseUnit(amount, inputTokenDecimals),
       action: action === 'enter' ? 'stake' : action === 'exit' ? 'unstake' : 'claim',
     }
   }, [yieldChainId, validatorAddress, amount, yieldItem, action])

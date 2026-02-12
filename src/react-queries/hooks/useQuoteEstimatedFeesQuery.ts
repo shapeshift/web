@@ -1,7 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { toHex } from 'viem'
@@ -147,12 +146,7 @@ export const useQuoteEstimatedFeesQuery = ({
         ? async () => {
             const estimatedFees = await estimateFees(estimateFeesArgs)
             const txFeeFiat = bnOrZero(
-              fromBaseUnit(
-                BigAmount.fromBaseUnit({
-                  value: estimatedFees.fast.txFee ?? '0',
-                  precision: feeAsset.precision,
-                }),
-              ),
+              fromBaseUnit(estimatedFees.fast.txFee ?? '0', feeAsset.precision),
             )
               .times(bnOrZero(feeAssetMarketData?.price))
               .toString()

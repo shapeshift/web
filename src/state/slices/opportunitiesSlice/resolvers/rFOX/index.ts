@@ -64,12 +64,7 @@ export const rFOXStakingMetadataResolver = async ({
         underlyingAssetId: opportunityId,
         underlyingAssetIds,
         underlyingAssetRatiosBaseUnit: [
-          toBaseUnit(
-            BigAmount.fromPrecision({
-              value: '1',
-              precision: stakingAsset?.precision ?? 0,
-            }),
-          ),
+          toBaseUnit('1', stakingAsset?.precision ?? 0),
         ] as const,
         expired: false,
         name: 'rFOX',

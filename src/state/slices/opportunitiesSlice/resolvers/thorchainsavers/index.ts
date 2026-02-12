@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
 import { thorPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
-import { BigAmount, isSome } from '@shapeshiftoss/utils'
+import { isSome } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
 import type {
@@ -131,12 +131,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       .times(bnOrZero(marketData?.price))
       .toFixed()
 
-    const underlyingAssetRatioBaseUnit = toBaseUnit(
-      BigAmount.fromPrecision({
-        value: '1',
-        precision: asset.precision,
-      }),
-    )
+    const underlyingAssetRatioBaseUnit = toBaseUnit('1', asset.precision)
     stakingOpportunitiesById[opportunityId] = {
       apy,
       assetId,
@@ -228,12 +223,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
           return {
             underlyingAssetRatiosBaseUnit: [
               ...acc.underlyingAssetRatiosBaseUnit,
-              toBaseUnit(
-                BigAmount.fromPrecision({
-                  value: adjustedRatio.toFixed(),
-                  precision: asset.precision,
-                }),
-              ),
+              toBaseUnit(adjustedRatio.toFixed(), asset.precision),
             ],
             underlyingAssetWeightPercentageDecimal: [
               ...acc.underlyingAssetWeightPercentageDecimal,

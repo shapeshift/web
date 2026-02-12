@@ -3,7 +3,6 @@ import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import * as adapters from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
@@ -139,12 +138,7 @@ export const useSimulateEvmTransaction = ({
     })
 
     const txFeeCryptoPrecision = bnOrZero(
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: txFeeCryptoBaseUnit,
-          precision: feeAsset.precision,
-        }),
-      ),
+      fromBaseUnit(txFeeCryptoBaseUnit, feeAsset.precision),
     )
     const fiatFee = txFeeCryptoPrecision.times(bnOrZero(marketData.price))
 

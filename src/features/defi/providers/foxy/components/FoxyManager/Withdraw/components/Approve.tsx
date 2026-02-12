@@ -1,7 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -47,12 +46,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
   const estimatedGasCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: estimatedGasCryptoBaseUnit ?? '0',
-          precision: feeAsset?.precision ?? 0,
-        }),
-      ),
+      fromBaseUnit(estimatedGasCryptoBaseUnit ?? '0', feeAsset?.precision ?? 0),
     [estimatedGasCryptoBaseUnit, feeAsset?.precision],
   )
 
@@ -71,12 +65,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
           tokenContractAddress: rewardId,
           contractAddress,
           amountDesired: bnOrZero(
-            toBaseUnit(
-              BigAmount.fromPrecision({
-                value: withdraw.cryptoAmount ?? '0',
-                precision: asset.precision,
-              }),
-            ),
+            toBaseUnit(withdraw.cryptoAmount ?? '0', asset.precision),
           ),
           userAddress,
           type: state.withdraw.withdrawType,
@@ -152,12 +141,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
           }),
         validate: (result: string) => {
           const allowance = bnOrZero(
-            fromBaseUnit(
-              BigAmount.fromBaseUnit({
-                value: result ?? '0',
-                precision: asset.precision,
-              }),
-            ),
+            fromBaseUnit(result ?? '0', asset.precision),
           )
           return bnOrZero(allowance).gte(state.withdraw.cryptoAmount)
         },
@@ -235,21 +219,11 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       spenderName={DefiProvider.ShapeShift}
       feeAsset={feeAsset}
       estimatedGasFeeCryptoPrecision={bnOrZero(
-        fromBaseUnit(
-          BigAmount.fromBaseUnit({
-            value: estimatedGasCryptoBaseUnit ?? '0',
-            precision: feeAsset.precision,
-          }),
-        ),
+        fromBaseUnit(estimatedGasCryptoBaseUnit ?? '0', feeAsset.precision),
       ).toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
       fiatEstimatedGasFee={bnOrZero(
-        fromBaseUnit(
-          BigAmount.fromBaseUnit({
-            value: estimatedGasCryptoBaseUnit ?? '0',
-            precision: feeAsset.precision,
-          }),
-        ),
+        fromBaseUnit(estimatedGasCryptoBaseUnit ?? '0', feeAsset.precision),
       )
         .times(bnOrZero(feeMarketData?.price))
         .toFixed(2)}

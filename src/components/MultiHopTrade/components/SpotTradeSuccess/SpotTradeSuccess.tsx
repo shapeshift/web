@@ -15,7 +15,6 @@ import {
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { TransferType } from '@shapeshiftoss/unchained-client'
-import { BigAmount } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { JSX } from 'react'
 import { useCallback, useMemo } from 'react'
@@ -110,12 +109,7 @@ export const SpotTradeSuccess = ({
       transfer => transfer.type === TransferType.Receive && transfer.assetId === buyAsset.assetId,
     )
     return receiveTransfer?.value
-      ? fromBaseUnit(
-          BigAmount.fromBaseUnit({
-            value: receiveTransfer.value,
-            precision: buyAsset.precision,
-          }),
-        )
+      ? fromBaseUnit(receiveTransfer.value, buyAsset.precision)
       : undefined
   }, [transfers, buyAsset])
 
@@ -130,12 +124,7 @@ export const SpotTradeSuccess = ({
   const { buyAmountBeforeFeesCryptoPrecision } = useMemo(() => {
     const { buyAmountBeforeFeesCryptoBaseUnit } = lastHop ?? {}
 
-    const buyAmountBeforeFeesCryptoPrecision = fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: buyAmountBeforeFeesCryptoBaseUnit,
-        precision: lastHop?.buyAsset.precision ?? 0,
-      }),
-    )
+    const buyAmountBeforeFeesCryptoPrecision = fromBaseUnit(buyAmountBeforeFeesCryptoBaseUnit, lastHop?.buyAsset.precision ?? 0)
 
     return {
       buyAmountBeforeFeesCryptoPrecision,

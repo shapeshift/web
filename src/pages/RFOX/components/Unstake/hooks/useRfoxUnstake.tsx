@@ -3,7 +3,6 @@ import { fromAccountId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
-import { BigAmount } from '@shapeshiftoss/utils'
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import { useMemo } from 'react'
@@ -110,12 +109,7 @@ export const useRfoxUnstake = ({
   const amountCryptoPrecision = useMemo(
     () =>
       stakingAsset
-        ? fromBaseUnit(
-            BigAmount.fromBaseUnit({
-              value: amountCryptoBaseUnit,
-              precision: stakingAsset.precision,
-            }),
-          )
+        ? fromBaseUnit(amountCryptoBaseUnit, stakingAsset.precision)
         : undefined,
     [amountCryptoBaseUnit, stakingAsset],
   )

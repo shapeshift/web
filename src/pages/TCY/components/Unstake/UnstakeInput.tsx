@@ -116,18 +116,8 @@ export const UnstakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAcc
 
   const withdrawBps = useMemo(() => {
     if (!tcyStaker?.amount) return '0'
-    const amountThorBaseUnit = toBaseUnit(
-      BigAmount.fromPrecision({
-        value: amountCryptoPrecision,
-        precision: THOR_PRECISION,
-      }),
-    )
-    const stakedAmountCryptoBaseUnit = toBaseUnit(
-      BigAmount.fromPrecision({
-        value: tcyStaker.amount,
-        precision: THOR_PRECISION,
-      }),
-    )
+    const amountThorBaseUnit = toBaseUnit(amountCryptoPrecision, THOR_PRECISION)
+    const stakedAmountCryptoBaseUnit = toBaseUnit(tcyStaker.amount, THOR_PRECISION)
     const withdrawRatio = bnOrZero(amountThorBaseUnit).div(stakedAmountCryptoBaseUnit)
     return withdrawRatio.times(BASE_BPS_POINTS).toFixed(0)
   }, [tcyStaker?.amount, amountCryptoPrecision])
@@ -158,12 +148,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAcc
         setValue('fiatAmount', '0')
         return
       }
-      const stakedAmount = fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: tcyStaker.amount,
-          precision: THOR_PRECISION,
-        }),
-      )
+      const stakedAmount = fromBaseUnit(tcyStaker.amount, THOR_PRECISION)
       const unstakeAmount = bnOrZero(stakedAmount).times(value).div(100).toString()
       handleAmountChange(unstakeAmount)
     },
@@ -199,12 +184,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAcc
     validate: (value: string) => {
       if (
         bnOrZero(value).gt(
-          fromBaseUnit(
-            BigAmount.fromBaseUnit({
-              value: tcyStaker?.amount,
-              precision: THOR_PRECISION,
-            }),
-          ),
+          fromBaseUnit(tcyStaker?.amount, THOR_PRECISION),
         )
       ) {
         return translate('common.insufficientFunds')

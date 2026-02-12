@@ -13,7 +13,6 @@ import {
   SwapperName,
 } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { identity } from 'lodash'
 import type { Selector } from 'reselect'
 
@@ -345,12 +344,7 @@ export const selectQuoteSellAmountCryptoPrecision: Selector<ReduxState, string |
     selectQuoteSellAmountCryptoBaseUnit,
     (firstHopSellAsset, sellAmountCryptoBaseUnit) =>
       firstHopSellAsset
-        ? fromBaseUnit(
-            BigAmount.fromBaseUnit({
-              value: bnOrZero(sellAmountCryptoBaseUnit),
-              precision: firstHopSellAsset?.precision,
-            }),
-          )
+        ? fromBaseUnit(bnOrZero(sellAmountCryptoBaseUnit), firstHopSellAsset?.precision)
         : undefined,
   )
 
@@ -481,12 +475,7 @@ export const selectQuoteSellAmountBeforeFeesCryptoPrecision = createSelector(
   selectFirstHopSellAsset,
   (sellAmountBeforeFeesCryptoBaseUnit, sellAsset) => {
     if (!sellAmountBeforeFeesCryptoBaseUnit || !sellAsset) return
-    return fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: sellAmountBeforeFeesCryptoBaseUnit,
-        precision: sellAsset.precision,
-      }),
-    )
+    return fromBaseUnit(sellAmountBeforeFeesCryptoBaseUnit, sellAsset.precision)
   },
 )
 
@@ -495,12 +484,7 @@ export const selectBuyAmountBeforeFeesCryptoPrecision = createSelector(
   selectLastHopBuyAsset,
   (buyAmountBeforeFeesCryptoBaseUnit, buyAsset) => {
     if (!buyAmountBeforeFeesCryptoBaseUnit || !buyAsset) return
-    return fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: buyAmountBeforeFeesCryptoBaseUnit,
-        precision: buyAsset.precision,
-      }),
-    )
+    return fromBaseUnit(buyAmountBeforeFeesCryptoBaseUnit, buyAsset.precision)
   },
 )
 

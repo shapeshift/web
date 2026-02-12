@@ -8,7 +8,7 @@ import {
   uniV2EthFoxArbitrumAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
-import { BigAmount, getChainShortName, isSome } from '@shapeshiftoss/utils'
+import { getChainShortName, isSome } from '@shapeshiftoss/utils'
 import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
@@ -190,12 +190,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   const amountCryptoBaseUnit = useMemo(
     () =>
-      toBaseUnit(
-        BigAmount.fromPrecision({
-          value: amountCryptoPrecision,
-          precision: selectedStakingAsset?.precision ?? 0,
-        }),
-      ),
+      toBaseUnit(amountCryptoPrecision, selectedStakingAsset?.precision ?? 0),
     [amountCryptoPrecision, selectedStakingAsset?.precision],
   )
 
@@ -286,12 +281,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     const _confirmedQuote = {
       stakingAssetAccountId,
       stakingAssetId,
-      stakingAmountCryptoBaseUnit: toBaseUnit(
-        BigAmount.fromPrecision({
-          value: amountCryptoPrecision,
-          precision: selectedStakingAsset.precision,
-        }),
-      ),
+      stakingAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, selectedStakingAsset.precision),
     }
 
     setConfirmedQuote(_confirmedQuote)
@@ -300,12 +290,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       const bridgeQuote: RfoxBridgeQuote = {
         sellAssetId: selectedStakingAssetId,
         buyAssetId: stakingAssetId,
-        bridgeAmountCryptoBaseUnit: toBaseUnit(
-          BigAmount.fromPrecision({
-            value: amountCryptoPrecision,
-            precision: selectedStakingAsset.precision,
-          }),
-        ),
+        bridgeAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, selectedStakingAsset.precision),
         sellAssetAccountId: selectedAssetAccountId,
         buyAssetAccountId: stakingAssetAccountId,
       }

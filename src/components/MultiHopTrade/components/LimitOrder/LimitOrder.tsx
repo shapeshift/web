@@ -1,5 +1,4 @@
 import { Flex } from '@chakra-ui/react'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Route, Routes, useMatch, useNavigate } from 'react-router-dom'
 
@@ -106,12 +105,7 @@ export const LimitOrder = ({
     if (sellAmountCryptoBaseUnit && routeSellAsset) {
       dispatch(
         limitOrderInput.actions.setSellAmountCryptoPrecision(
-          fromBaseUnit(
-            BigAmount.fromBaseUnit({
-              value: sellAmountCryptoBaseUnit,
-              precision: routeSellAsset.precision,
-            }),
-          ),
+          fromBaseUnit(sellAmountCryptoBaseUnit, routeSellAsset.precision),
         ),
       )
     }

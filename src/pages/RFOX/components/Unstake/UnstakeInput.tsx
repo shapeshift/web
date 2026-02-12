@@ -1,7 +1,7 @@
 import { CardBody, CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import { fromAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigAmount, isSome } from '@shapeshiftoss/utils'
+import { isSome } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -156,12 +156,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
 
   const amountCryptoBaseUnit = useMemo(
     () =>
-      toBaseUnit(
-        BigAmount.fromPrecision({
-          value: amountCryptoPrecision,
-          precision: stakingAsset?.precision ?? 0,
-        }),
-      ),
+      toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0),
     [amountCryptoPrecision, stakingAsset?.precision],
   )
 
@@ -211,12 +206,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
 
   const userStakingBalanceCryptoPrecision = useMemo(() => {
     if (!(userStakingBalanceOfCryptoBaseUnit && stakingAsset)) return
-    return fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: userStakingBalanceOfCryptoBaseUnit,
-        precision: stakingAsset?.precision ?? 0,
-      }),
-    )
+    return fromBaseUnit(userStakingBalanceOfCryptoBaseUnit, stakingAsset?.precision ?? 0)
   }, [stakingAsset, userStakingBalanceOfCryptoBaseUnit])
 
   const userStakingBalanceUserCurrency = useMemo(() => {
@@ -296,12 +286,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     setConfirmedQuote({
       stakingAssetAccountId,
       stakingAssetId,
-      unstakingAmountCryptoBaseUnit: toBaseUnit(
-        BigAmount.fromPrecision({
-          value: amountCryptoPrecision,
-          precision: stakingAsset.precision,
-        }),
-      ),
+      unstakingAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, stakingAsset.precision),
       cooldownPeriod: cooldownPeriodData.cooldownPeriod,
     })
 

@@ -1,7 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { TransferType, TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { memoize } from 'lodash'
 import { maxUint256 } from 'viem'
 
@@ -61,21 +60,11 @@ export const getTradeFees = memoize(
     if (bn(sellAssetPriceAtDate).isZero() || bn(buyAssetPriceAtDate).isZero()) return
 
     const sellAmountFiat = bnOrZero(
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: sell.value ?? '0',
-          precision: sell.asset.precision,
-        }),
-      ),
+      fromBaseUnit(sell.value ?? '0', sell.asset.precision),
     ).times(bnOrZero(sellAssetPriceAtDate))
 
     const buyAmountFiat = bnOrZero(
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: buy.value ?? '0',
-          precision: buy.asset.precision,
-        }),
-      ),
+      fromBaseUnit(buy.value ?? '0', buy.asset.precision),
     ).times(bnOrZero(buyAssetPriceAtDate))
 
     const sellTokenFee = sellAmountFiat.minus(buyAmountFiat).div(sellAssetPriceAtDate)
@@ -100,12 +89,7 @@ export const makeAmountOrDefault = (
   if (!approvedAsset || !approvedAssetMarketData)
     return `transactionRow.parser.${parser}.amountUnavailable`
 
-  const approvedAmount = fromBaseUnit(
-    BigAmount.fromBaseUnit({
-      value,
-      precision: approvedAsset.precision,
-    }),
-  )
+  const approvedAmount = fromBaseUnit(value, approvedAsset.precision)
 
   // If equal to max. Solidity uint256 value or greater than/equal to max supply, we can infer infinite approvals without market data
   if (

@@ -12,7 +12,6 @@ import {
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { BigAmount } from '@shapeshiftoss/utils'
 import type { JSX, PropsWithChildren } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
@@ -63,12 +62,7 @@ export const SharedMultiStepStatus: React.FC<SharedMultiStepStatusProps> = ({
 
   const bridgeAmountCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: confirmedQuote.bridgeAmountCryptoBaseUnit,
-          precision: sellAsset?.precision ?? 0,
-        }),
-      ),
+      fromBaseUnit(confirmedQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision ?? 0),
     [confirmedQuote.bridgeAmountCryptoBaseUnit, sellAsset?.precision],
   )
 

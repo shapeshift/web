@@ -12,7 +12,6 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -97,12 +96,7 @@ export const ClaimConfirm = ({
   const cryptoHumanBalance = useMemo(
     () =>
       bnOrZero(
-        fromBaseUnit(
-          BigAmount.fromBaseUnit({
-            value: claimAmount ?? '0',
-            precision: stakingAsset.precision,
-          }),
-        ),
+        fromBaseUnit(claimAmount ?? '0', stakingAsset.precision),
       ),
     [stakingAsset.precision, claimAmount],
   )
@@ -290,12 +284,7 @@ export const ClaimConfirm = ({
                 <Stack textAlign='right' spacing={0}>
                   <Amount.Fiat
                     value={bnOrZero(
-                      fromBaseUnit(
-                        BigAmount.fromBaseUnit({
-                          value: estimatedGas ?? '0',
-                          precision: feeAsset.precision,
-                        }),
-                      ),
+                      fromBaseUnit(estimatedGas ?? '0', feeAsset.precision),
                     )
                       .times(bnOrZero(feeMarketData?.price))
                       .toFixed(2)}
@@ -303,12 +292,7 @@ export const ClaimConfirm = ({
                   <Amount.Crypto
                     color='text.subtle'
                     value={bnOrZero(
-                      fromBaseUnit(
-                        BigAmount.fromBaseUnit({
-                          value: estimatedGas ?? '0',
-                          precision: feeAsset.precision,
-                        }),
-                      ),
+                      fromBaseUnit(estimatedGas ?? '0', feeAsset.precision),
                     ).toFixed(5)}
                     symbol={feeAsset.symbol}
                   />

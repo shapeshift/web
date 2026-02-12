@@ -163,23 +163,13 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
 
   const sellAmountCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: sellAmountCryptoBaseUnit,
-          precision: sellAsset?.precision ?? 0,
-        }),
-      ),
+      fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset?.precision ?? 0),
     [sellAmountCryptoBaseUnit, sellAsset?.precision],
   )
 
   const buyAmountCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: buyAmountCryptoBaseUnit,
-          precision: buyAsset?.precision ?? 0,
-        }),
-      ),
+      fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset?.precision ?? 0),
     [buyAmountCryptoBaseUnit, buyAsset?.precision],
   )
 
@@ -196,12 +186,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   const executedBuyAmountCryptoPrecision = useMemo(
     () =>
       executedBuyAmountCryptoBaseUnit
-        ? fromBaseUnit(
-            BigAmount.fromBaseUnit({
-              value: executedBuyAmountCryptoBaseUnit,
-              precision: buyAsset?.precision ?? 0,
-            }),
-          )
+        ? fromBaseUnit(executedBuyAmountCryptoBaseUnit, buyAsset?.precision ?? 0)
         : '0',
     [executedBuyAmountCryptoBaseUnit, buyAsset?.precision],
   )
@@ -209,12 +194,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   const executedSellAmountCryptoPrecision = useMemo(
     () =>
       executedSellAmountCryptoBaseUnit
-        ? fromBaseUnit(
-            BigAmount.fromBaseUnit({
-              value: executedSellAmountCryptoBaseUnit,
-              precision: sellAsset?.precision ?? 0,
-            }),
-          )
+        ? fromBaseUnit(executedSellAmountCryptoBaseUnit, sellAsset?.precision ?? 0)
         : '0',
     [executedSellAmountCryptoBaseUnit, sellAsset?.precision],
   )

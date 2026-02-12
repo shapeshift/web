@@ -2,7 +2,6 @@ import { Box, Button, Divider, Flex, Skeleton, Stack, Text as CText } from '@cha
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -201,12 +200,7 @@ export const Sweep = ({
                   <Amount.Fiat value={estimatedFeesData?.txFeeFiat ?? '0'} />
                   <Amount.Crypto
                     color='text.subtle'
-                    value={fromBaseUnit(
-                      BigAmount.fromBaseUnit({
-                        value: estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
-                        precision: asset.precision,
-                      }),
-                    )}
+                    value={fromBaseUnit(estimatedFeesData?.txFeeCryptoBaseUnit ?? '0', asset.precision)}
                     symbol={asset.symbol}
                   />
                 </Box>

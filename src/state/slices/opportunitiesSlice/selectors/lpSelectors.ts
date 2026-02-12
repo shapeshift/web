@@ -65,19 +65,9 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
           fromBaseUnit(opportunityMetadata.underlyingAssetRatiosBaseUnit[i], underlyingAsset.precision),
         )
 
-        const humanAmount = fromBaseUnit(
-          BigAmount.fromBaseUnit({
-            value: lpBalanceTimesRatio.toFixed(0),
-            precision: lpAsset.precision,
-          }),
-        )
+        const humanAmount = fromBaseUnit(lpBalanceTimesRatio.toFixed(0), lpAsset.precision)
 
-        return toBaseUnit(
-          BigAmount.fromPrecision({
-            value: humanAmount,
-            precision: underlyingAsset.precision,
-          }),
-        )
+        return toBaseUnit(humanAmount, underlyingAsset.precision)
       })
 
     const opportunity = {
@@ -210,12 +200,7 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
           const raw = bnOrZero(aggregatedBalanceBaseUnit)
             .times(opportunityMetadata?.underlyingAssetRatiosBaseUnit[i])
             .toFixed(0)
-          return fromBaseUnit(
-            BigAmount.fromBaseUnit({
-              value: raw,
-              precision: assets[assetId]?.precision ?? 0,
-            }),
-          )
+          return fromBaseUnit(raw, assets[assetId]?.precision ?? 0)
         })
 
       /* Transform data into LpEarnOpportunityType */
@@ -294,12 +279,7 @@ export const selectAllEarnUserLpOpportunitiesByFilter = createDeepEqualOutputSel
               const raw = bnOrZero(opportunityBalance)
                 .times(opportunityMetadata?.underlyingAssetRatiosBaseUnit[i] ?? '0')
                 .toFixed(0)
-              return fromBaseUnit(
-                BigAmount.fromBaseUnit({
-                  value: raw,
-                  precision: assets[assetId]?.precision ?? 0,
-                }),
-              )
+              return fromBaseUnit(raw, assets[assetId]?.precision ?? 0)
             })
           /* Transform data into LpEarnOpportunityType */
           const opportunity: LpEarnOpportunityType = {

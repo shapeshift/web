@@ -1,7 +1,6 @@
 import { Box, HStack, Radio, Text, VStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -60,12 +59,7 @@ export const AccountSelectorOption = memo(
 
     const balanceCryptoPrecision = useMemo(
       () =>
-        fromBaseUnit(
-          BigAmount.fromBaseUnit({
-            value: cryptoBalance,
-            precision: asset?.precision ?? 0,
-          }),
-        ),
+        fromBaseUnit(cryptoBalance, asset?.precision ?? 0),
       [cryptoBalance, asset?.precision],
     )
 

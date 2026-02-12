@@ -1,6 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
@@ -31,12 +30,7 @@ export const queryFn = async ({ queryKey }: { queryKey: EstimatedFeesQueryKey })
 
   const estimatedFees = await estimateFees(estimateFeesInput)
   const txFeeFiat = bn(
-    fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: estimatedFees.fast.txFee,
-        precision: feeAsset.precision,
-      }),
-    ),
+    fromBaseUnit(estimatedFees.fast.txFee, feeAsset.precision),
   )
     .times(bnOrZero(feeAssetMarketData?.price))
     .toString()

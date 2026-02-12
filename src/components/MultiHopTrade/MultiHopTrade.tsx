@@ -1,5 +1,4 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { matchPath, Route, Routes, useLocation } from 'react-router-dom'
@@ -94,12 +93,7 @@ export const MultiHopTrade = memo(
       if (paramsSellAmountCryptoBaseUnit && sellAsset) {
         dispatch(
           tradeInput.actions.setSellAmountCryptoPrecision(
-            fromBaseUnit(
-              BigAmount.fromBaseUnit({
-                value: paramsSellAmountCryptoBaseUnit,
-                precision: sellAsset.precision,
-              }),
-            ),
+            fromBaseUnit(paramsSellAmountCryptoBaseUnit, sellAsset.precision),
           ),
         )
       }

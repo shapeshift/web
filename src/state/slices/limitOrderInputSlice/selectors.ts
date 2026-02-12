@@ -1,4 +1,4 @@
-import { BigAmount, bn, convertPrecision } from '@shapeshiftoss/utils'
+import { bn, convertPrecision } from '@shapeshiftoss/utils'
 import { createSelector } from 'reselect'
 
 import { createTradeInputBaseSelectors } from '../common/tradeInputBase/createTradeInputBaseSelectors'
@@ -80,12 +80,7 @@ export const selectBuyAmountCryptoPrecision = createSelector(
   selectBuyAmountCryptoBaseUnit,
   selectInputBuyAsset,
   (buyAmountCryptoBaseUnit, buyAsset) =>
-    fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: buyAmountCryptoBaseUnit,
-        precision: buyAsset.precision,
-      }),
-    ),
+    fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset.precision),
 )
 
 export const selectBuyAmountUserCurrency = createSelector(

@@ -1,6 +1,5 @@
 import { Button, IconButton, useMediaQuery } from '@chakra-ui/react'
 import { TransferType } from '@shapeshiftoss/unchained-client'
-import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import fileDownload from 'js-file-download'
 import { useCallback, useMemo, useState } from 'react'
@@ -105,35 +104,20 @@ export const DownloadButton = ({
         minerFee:
           tx.fee && feeAsset
             ? bnOrZero(
-                fromBaseUnit(
-                  BigAmount.fromBaseUnit({
-                    value: tx.fee.value,
-                    precision: feeAsset.precision,
-                  }),
-                ),
+                fromBaseUnit(tx.fee.value, feeAsset.precision),
               ).toFixed()
             : '0',
         minerFeeCurrency: feeAsset?.symbol ?? '-',
         inputAmount: send
           ? bnOrZero(
-              fromBaseUnit(
-                BigAmount.fromBaseUnit({
-                  value: send.value,
-                  precision: send.asset?.precision ?? 18,
-                }),
-              ),
+              fromBaseUnit(send.value, send.asset?.precision ?? 18),
             ).toFixed()
           : '-',
         inputCurrency: send?.asset?.symbol ?? send?.assetId ?? '-',
         inputAddresses: send ? `"${send?.from.join('\n')}"` : '-',
         outputAmount: receive
           ? bnOrZero(
-              fromBaseUnit(
-                BigAmount.fromBaseUnit({
-                  value: receive.value,
-                  precision: receive.asset?.precision ?? 18,
-                }),
-              ),
+              fromBaseUnit(receive.value, receive.asset?.precision ?? 18),
             ).toFixed()
           : '-',
         outputCurrency: receive?.asset?.symbol ?? receive?.assetId ?? '-',

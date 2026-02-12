@@ -6,11 +6,7 @@ import {
   THORCHAIN_LONGTAIL_STREAMING_SWAP_SOURCE,
   THORCHAIN_STREAM_SWAP_SOURCE,
 } from '@shapeshiftoss/swapper'
-import {
-  BigAmount,
-  convertDecimalPercentageToBasisPoints,
-  subtractBasisPointAmount,
-} from '@shapeshiftoss/utils'
+import { convertDecimalPercentageToBasisPoints, subtractBasisPointAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -98,12 +94,7 @@ export const MaxSlippage: React.FC<MaxSlippageProps> = ({
       .map(({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => ({
         symbol: asset.symbol,
         chainName: getChainAdapterManager().get(asset.chainId)?.getDisplayName(),
-        amountCryptoPrecision: fromBaseUnit(
-          BigAmount.fromBaseUnit({
-            value: amountCryptoBaseUnit,
-            precision: asset.precision,
-          }),
-        ),
+        amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
       }))
   }, [])
 

@@ -14,7 +14,6 @@ import {
   SwapperName,
   TransactionExecutionState,
 } from '@shapeshiftoss/swapper'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { skipToken as reactQuerySkipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 
@@ -301,12 +300,7 @@ export const useGetTradeQuotes = () => {
       swapSlice.actions.upsertSwap({
         ...activeSwap,
         expectedBuyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
-        expectedBuyAmountCryptoPrecision: fromBaseUnit(
-          BigAmount.fromBaseUnit({
-            value: lastStep.buyAmountAfterFeesCryptoBaseUnit,
-            precision: lastStep.buyAsset.precision,
-          }),
-        ),
+        expectedBuyAmountCryptoPrecision: fromBaseUnit(lastStep.buyAmountAfterFeesCryptoBaseUnit, lastStep.buyAsset.precision),
       }),
     )
   }, [

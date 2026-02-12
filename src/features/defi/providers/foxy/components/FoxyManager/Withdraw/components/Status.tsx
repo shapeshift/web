@@ -4,7 +4,6 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -136,25 +135,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   const usedGasOrEstimateCryptoPrecision = useMemo(() => {
     if (maybeSafeTx?.transaction?.gasUsed)
-      return fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: maybeSafeTx.transaction.gasUsed,
-          precision: feeAsset.precision,
-        }),
-      )
+      return fromBaseUnit(maybeSafeTx.transaction.gasUsed, feeAsset.precision)
     if (state?.withdraw.usedGasFeeCryptoBaseUnit)
-      return fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: state.withdraw.usedGasFeeCryptoBaseUnit,
-          precision: feeAsset.precision,
-        }),
-      )
-    return fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: state?.withdraw.estimatedGasCryptoBaseUnit ?? '0',
-        precision: feeAsset.precision,
-      }),
-    )
+      return fromBaseUnit(state.withdraw.usedGasFeeCryptoBaseUnit, feeAsset.precision)
+    return fromBaseUnit(state?.withdraw.estimatedGasCryptoBaseUnit ?? '0', feeAsset.precision)
   }, [
     feeAsset.precision,
     maybeSafeTx?.transaction?.gasUsed,

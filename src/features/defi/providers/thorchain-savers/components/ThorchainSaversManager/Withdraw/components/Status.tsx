@@ -3,7 +3,6 @@ import { Box, Button, Link, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { TxStatus as TxStatusType } from '@shapeshiftoss/unchained-client'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useEffect } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -206,24 +205,14 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(
-                  fromBaseUnit(
-                    BigAmount.fromBaseUnit({
-                      value: state.withdraw.protocolFeeCryptoBaseUnit ?? '0',
-                      precision: asset.precision,
-                    }),
-                  ),
+                  fromBaseUnit(state.withdraw.protocolFeeCryptoBaseUnit ?? '0', asset.precision),
                 )
                   .times(bnOrZero(marketData?.price))
                   .toFixed()}
               />
               <Amount.Crypto
                 color='text.subtle'
-                value={fromBaseUnit(
-                  BigAmount.fromBaseUnit({
-                    value: state.withdraw.protocolFeeCryptoBaseUnit ?? '0',
-                    precision: asset.precision,
-                  }),
-                )}
+                value={fromBaseUnit(state.withdraw.protocolFeeCryptoBaseUnit ?? '0', asset.precision)}
                 symbol={asset.symbol}
               />
             </Box>
@@ -240,24 +229,14 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
               <Amount.Fiat
                 fontWeight='bold'
                 value={bnOrZero(
-                  fromBaseUnit(
-                    BigAmount.fromBaseUnit({
-                      value: state.withdraw.networkFeeCryptoBaseUnit ?? '0',
-                      precision: feeAsset.precision,
-                    }),
-                  ),
+                  fromBaseUnit(state.withdraw.networkFeeCryptoBaseUnit ?? '0', feeAsset.precision),
                 )
                   .times(bnOrZero(feeMarketData?.price))
                   .toFixed()}
               />
               <Amount.Crypto
                 color='text.subtle'
-                value={fromBaseUnit(
-                  BigAmount.fromBaseUnit({
-                    value: state.withdraw.networkFeeCryptoBaseUnit ?? '0',
-                    precision: feeAsset.precision,
-                  }),
-                )}
+                value={fromBaseUnit(state.withdraw.networkFeeCryptoBaseUnit ?? '0', feeAsset.precision)}
                 symbol={feeAsset.symbol}
               />
             </Box>
@@ -275,24 +254,14 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
                 <Amount.Fiat
                   fontWeight='bold'
                   value={bnOrZero(
-                    fromBaseUnit(
-                      BigAmount.fromBaseUnit({
-                        value: state.withdraw.dustAmountCryptoBaseUnit ?? '0',
-                        precision: feeAsset.precision,
-                      }),
-                    ),
+                    fromBaseUnit(state.withdraw.dustAmountCryptoBaseUnit ?? '0', feeAsset.precision),
                   )
                     .times(bnOrZero(feeMarketData?.price))
                     .toFixed()}
                 />
                 <Amount.Crypto
                   color='text.subtle'
-                  value={fromBaseUnit(
-                    BigAmount.fromBaseUnit({
-                      value: state.withdraw.dustAmountCryptoBaseUnit ?? '0',
-                      precision: feeAsset.precision,
-                    }),
-                  )}
+                  value={fromBaseUnit(state.withdraw.dustAmountCryptoBaseUnit ?? '0', feeAsset.precision)}
                   symbol={feeAsset.symbol}
                 />
               </Box>

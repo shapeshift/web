@@ -1,6 +1,5 @@
 import { useMediaQuery } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -35,12 +34,7 @@ export const ClaimRow: FC<ClaimRowProps> = ({
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
-  const amountCryptoPrecision = fromBaseUnit(
-    BigAmount.fromBaseUnit({
-      value: amountCryptoBaseUnit,
-      precision: stakingAsset?.precision ?? 0,
-    }),
-  )
+  const amountCryptoPrecision = fromBaseUnit(amountCryptoBaseUnit, stakingAsset?.precision ?? 0)
 
   const handleClaimClick = useMemo(() => {
     if (!stakingAssetAccountId || onClaimClick === undefined) return

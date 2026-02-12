@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { solAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { ChainAdapterError, solana } from '@shapeshiftoss/chain-adapters'
-import { BigAmount, contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -176,12 +176,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
           const canCoverFees = nativeAssetBalance
             .minus(
               bn(
-                toBaseUnit(
-                  BigAmount.fromPrecision({
-                    value: sendMax ? 0 : amountCryptoPrecision,
-                    precision: asset.precision,
-                  }),
-                ),
+                toBaseUnit(sendMax ? 0 : amountCryptoPrecision, asset.precision),
               ).decimalPlaces(0),
             )
             .minus(estimatedFees.fast.txFee)
@@ -287,12 +282,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
     const fastFee = sendMaxFees.fast.txFee
 
-    const networkFee = fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: fastFee,
-        precision: feeAsset?.precision ?? 0,
-      }),
-    )
+    const networkFee = fromBaseUnit(fastFee, feeAsset?.precision ?? 0)
 
     const maxCrypto =
       feeAsset?.assetId !== assetId
@@ -301,12 +291,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
             .minus(networkFee)
             .minus(
               assetId === solAssetId
-                ? fromBaseUnit(
-                    BigAmount.fromBaseUnit({
-                      value: solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS,
-                      precision: feeAsset?.precision ?? 0,
-                    }),
-                  )
+                ? fromBaseUnit(solana.SOLANA_MINIMUM_RENT_EXEMPTION_LAMPORTS, feeAsset?.precision ?? 0)
                 : 0,
             )
     const maxFiat = maxCrypto.times(bnOrZero(price))

@@ -1,7 +1,7 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/react'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { Keyring } from '@shapeshiftoss/hdwallet-core'
+import { Keyring } from '@shapeshiftoss/hdwallet-core/keyring'
 import type { GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
 import type { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { EthereumProvider as EthereumProviderType } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'

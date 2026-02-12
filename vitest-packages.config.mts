@@ -9,6 +9,7 @@ export default defineConfig(configEnv =>
     defineConfig({
       test: {
         include: ['packages/**/*.test.ts'],
+        exclude: ['**/node_modules/**', 'packages/hdwallet-*/**'],
       },
     }),
   ),

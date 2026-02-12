@@ -4,7 +4,7 @@ import type { ContractInteraction, EvmChainAdapter, SignTx } from '@shapeshiftos
 import { evm, evmChainIds, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { EvmChainId, KnownChainIds } from '@shapeshiftoss/types'
 import { encodeFunctionData, getAddress } from 'viem'
 

@@ -50,6 +50,55 @@ for (const dirent of fs.readdirSync(publicPath, { withFileTypes: true })) {
 // For whatever reason, globalThis is not defined for the local esbuild environment while
 // using the vite-plugin-node-polyfills plugin. This plugin will appropriately define globalThis
 // to fix this scenario (may be resolved in a future release of vite-plugin-node-polyfills hopefully).
+// hdwallet workspace packages depend on ethers v5 (BigNumber, providers, etc.)
+// but Vite pre-bundles the root's ethers v6 for bare 'ethers' imports.
+// This plugin conditionally resolves 'ethers' to 'ethers5' (npm:ethers@5.7.2)
+// only when the importer is an hdwallet source file, preserving ethers v6 for the root app.
+const resolveEthersV5ForHdwallet: PluginOption = {
+  name: 'resolve-ethers-v5-hdwallet',
+  enforce: 'pre',
+  async resolveId(source, importer) {
+    if (source === 'ethers' && importer && /\/packages\/hdwallet-/.test(importer)) {
+      return this.resolve('ethers5', importer, { skipSelf: true })
+    }
+  },
+}
+
+// hdwallet workspace packages depend on bech32 v1 (flat API: bech32.toWords, bech32.encode)
+// but Vite pre-bundles the root's bech32 v2 for bare 'bech32' imports.
+// v2 exports { bech32, bech32m } instead of flat functions, breaking hdwallet at runtime.
+// This plugin resolves 'bech32' to the 'bech32-v1' aliased package (npm:bech32@1.1.4) for hdwallet source files,
+// following the same pattern as resolveEthersV5ForHdwallet with ethers5.
+const resolveBech32V1ForHdwallet: PluginOption = {
+  name: 'resolve-bech32-v1-hdwallet',
+  enforce: 'pre',
+  async resolveId(source, importer) {
+    if (source === 'bech32' && importer && /\/packages\/hdwallet-/.test(importer)) {
+      return this.resolve('bech32-v1', importer, { skipSelf: true })
+    }
+  },
+}
+
+// hdwallet-ledger monkey-patches @ledgerhq/hw-app-btc via require() for Zcash v5 trusted input hashing.
+// As a workspace package, Vite serves its source as ESM where require() doesn't exist.
+// This transform guards the require() call so it doesn't produce a noisy console error in dev.
+// The monkey-patch still works in production builds where rollup handles CJS via transformMixedEsModules.
+const guardRequireForHdwallet: PluginOption = {
+  name: 'guard-require-hdwallet',
+  enforce: 'pre',
+  transform(code, id) {
+    if (id.includes('packages/hdwallet-ledger/src/bitcoin.ts') && code.includes('require(')) {
+      return {
+        code: code.replace(
+          /try\s*\{[^}]*require\('@ledgerhq\/hw-app-btc\/lib\/getTrustedInputBIP143'\)/s,
+          match => `if (typeof require !== 'undefined') ${match}`,
+        ),
+        map: null,
+      }
+    }
+  },
+}
+
 const defineGlobalThis: PluginOption = {
   name: 'define-global-this',
   enforce: 'pre',
@@ -115,6 +164,9 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
+      resolveEthersV5ForHdwallet,
+      resolveBech32V1ForHdwallet,
+      guardRequireForHdwallet,
       mode === 'development' && !process.env.DEPLOY && defineGlobalThis,
       nodePolyfills({
         globals: {
@@ -200,6 +252,9 @@ export default defineConfig(({ mode }) => {
         'ethers/lib/utils': 'ethers5/lib/utils.js',
         'ethers/lib/utils.js': 'ethers5/lib/utils.js',
         'dayjs/locale': resolve(__dirname, 'node_modules/dayjs/locale'),
+        '@shapeshiftoss/hdwallet-native/nativeEvents': resolve(__dirname, './packages/hdwallet-native/src/nativeEvents.ts'),
+        '@shapeshiftoss/hdwallet-native/crypto/revocable': resolve(__dirname, './packages/hdwallet-native/src/crypto/isolation/engines/default/revocable.ts'),
+        '@shapeshiftoss/hdwallet-core': resolve(__dirname, './packages/hdwallet-core/src'),
         '@shapeshiftoss/caip': resolve(__dirname, './packages/caip/src'),
         '@shapeshiftoss/types': resolve(__dirname, './packages/types/src'),
       },
@@ -222,45 +277,21 @@ export default defineConfig(({ mode }) => {
               if (id.match(/(react-icons|@react-spring|react-datepicker|react-dom)/)) return 'react'
               if (id.match(/(dayjs|lodash|@formatjs)/)) return 'utils'
               if (id.match(/(@redux|@tanstack)/)) return 'state'
-              if (id.match(/(@metaplex-foundation|@solana)/)) return 'solana'
-              if (id.match(/(starknet|@avnu|@starknet-io)/)) return 'starknet'
               if (id.match(/(@sentry|mixpanel|@moralisweb3|moralis)/)) return 'sdk'
               if (id.match(/(embla-carousel)/)) return 'carousel'
               if (id.includes('lightweight-charts')) return 'charts'
               if (id.includes('html5-qrcode')) return 'qr-scanner'
               if (id.includes('react-scan')) return 'react-scan'
               if (id.includes('styled-components')) return 'styled-components'
-              if (id.includes('protobufjs')) return 'protobuf'
               if (id.includes('date-fns')) return 'date-fns'
-              // Group ledger with its crypto dependencies to avoid circular chunk deps
-              if (id.match(/(@ledgerhq|@noble|@scure|@bitgo)/)) return 'ledger'
-              if (id.includes('cosmjs-types')) return 'cosmjs-types'
-              if (id.includes('osmojs')) return 'osmojs'
-              if (id.includes('@arbitrum')) return '@arbitrum'
-              if (id.includes('@metamask')) return '@metamask'
-              if (id.includes('@walletconnect')) return '@walletconnect'
-              if (id.includes('@keepkey/keepkey-sdk')) return '@keepkey'
-              if (id.includes('bnb-javascript-sdk-nobroadcast')) return 'bnb-sdk'
-              if (id.includes('gridplus-sdk')) return 'gridplus-sdk'
-              if (id.includes('tronweb')) return 'tronweb'
-              if (id.includes('viem')) return 'viem'
-              if (id.includes('@mysten')) return '@mysten'
               if (id.includes('valibot')) return 'valibot'
               if (id.includes('@0noco/graphqllsp')) return 'graphqllsp'
-
-              // Those chunks should be imported last as they heavily rely on other chunks and default order doesnt work
-              if (id.includes('@cetusprotocol')) return 'z-@cetusprotocol'
-              if (id.includes('graphql')) return 'z-graphql'
 
               return null
             }
 
             if (id.includes('assets/translations')) return 'translations'
-            if (id.includes('packages/unchained-client')) return 'unchained-client'
             if (id.includes('localAssetData')) return 'local-asset-data'
-
-            // This chunk should be imported last as it heavily relies on other chunks and default order doesnt work
-            if (id.includes('packages/chain-adapters')) return 'z-chain-adapters'
 
             return null
           },

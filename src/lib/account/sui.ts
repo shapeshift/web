@@ -1,5 +1,5 @@
 import { suiChainId, toAccountId } from '@shapeshiftoss/caip'
-import { supportsSui } from '@shapeshiftoss/hdwallet-core'
+import { supportsSui } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 
 import type { DeriveAccountIdsAndMetadata } from './account'

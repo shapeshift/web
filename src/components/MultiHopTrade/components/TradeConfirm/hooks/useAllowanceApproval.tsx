@@ -1,6 +1,6 @@
 import { fromAccountId, tronChainId } from '@shapeshiftoss/caip'
 import { assertGetViemClient } from '@shapeshiftoss/contracts'
-import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
+import { isGridPlus } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useMutation } from '@tanstack/react-query'

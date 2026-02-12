@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { isUtxoChainId } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'

@@ -1,0 +1,46 @@
+{
+  "name": "@shapeshiftoss/hdwallet-ledger-webusb",
+  "version": "1.62.41",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/esm/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "yarn clean && yarn run -T tsc --build && yarn postbuild",
+    "clean": "rm -rf dist",
+    "dev": "yarn run -T tsc --build --watch",
+    "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",
+    "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
+    "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
+  },
+  "dependencies": {
+    "@ledgerhq/hw-app-btc": "10.13.0",
+    "@ledgerhq/hw-app-cosmos": "6.32.9",
+    "@ledgerhq/hw-app-eth": "7.0.0",
+    "@ledgerhq/hw-app-solana": "7.6.0",
+    "@ledgerhq/hw-transport": "6.31.13",
+    "@ledgerhq/hw-transport-webusb": "6.29.13",
+    "@shapeshiftoss/hdwallet-core": "workspace:^",
+    "@shapeshiftoss/hdwallet-ledger": "workspace:^",
+    "@types/w3c-web-usb": "^1.0.4",
+    "p-queue": "^7.4.1"
+  },
+  "devDependencies": {
+    "@types/w3c-web-usb": "^1.0.6"
+  },
+  "sideEffects": false
+}

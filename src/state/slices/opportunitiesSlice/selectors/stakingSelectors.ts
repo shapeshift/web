@@ -517,7 +517,7 @@ export const selectEarnUserStakingOpportunityByUserStakingId = createDeepEqualOu
       }).toPrecision(),
       fiatAmount: BigAmount.fromBaseUnit({
         value: userStakingOpportunity.stakedAmountCryptoBaseUnit ?? '0',
-        precision: asset?.precision ?? underlyingAsset?.precision ?? 0,
+        precision: asset?.precision ?? underlyingAsset?.precision ?? 1,
       })
         .times(marketDataPrice ?? '0')
         .toPrecision(),

@@ -483,7 +483,7 @@ export const selectPortfolioAccountsUserCurrencyBalances = createDeepEqualOutput
 
       const fiatAccountSorted = Object.fromEntries(
         entries
-          .sort(([, a], [, b]) => (a.toNumber() > b.toNumber() ? -1 : 1))
+          .sort(([, a], [, b]) => (a.gt(b) ? -1 : 1))
           .map(([assetId, fiatBalance]) => [assetId, fiatBalance.toFixed(2)]),
       )
       acc[accountId] = fiatAccountSorted

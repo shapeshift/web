@@ -424,7 +424,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       }
 
       const cryptoAmount =
-        fieldName === SendFormFields.FiatAmount ? bn(inputValue).div(bnOrZero(price)) : inputValue
+        fieldName === SendFormFields.FiatAmount
+          ? bn(inputValue).div(bnOrZero(price)).decimalPlaces(asset?.precision ?? 18, 1)
+          : inputValue
       const fiatAmount =
         fieldName === SendFormFields.FiatAmount ? inputValue : bn(inputValue).times(bnOrZero(price))
       const otherAmount =
@@ -434,7 +436,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       setValue(otherField, otherAmount)
     },
-    [fieldName, price, setValue],
+    [asset?.precision, fieldName, price, setValue],
   )
 
   const toggleIsFiat = useCallback(() => {

@@ -40,7 +40,6 @@ import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -121,12 +120,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const amountCryptoBaseUnit = useMemo(
     () =>
       bn(
-        toBaseUnit(
-          BigAmount.fromPrecision({
-            value: state?.deposit.cryptoAmount,
-            precision: asset.precision,
-          }),
-        ),
+        BigAmount.fromPrecision({
+          value: state?.deposit.cryptoAmount,
+          precision: asset.precision,
+        }).toBaseUnit(),
       ),
     [asset.precision, state?.deposit.cryptoAmount],
   )
@@ -147,12 +144,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
         const thorchainFeeCryptoThorPrecision = fromThorBaseUnit(
           amountCryptoThorBaseUnit.minus(expectedAmountOutThorBaseUnit),
         )
-        return toBaseUnit(
-          BigAmount.fromPrecision({
-            value: thorchainFeeCryptoThorPrecision,
-            precision: asset.precision,
-          }),
-        )
+        return BigAmount.fromPrecision({
+          value: thorchainFeeCryptoThorPrecision,
+          precision: asset.precision,
+        }).toBaseUnit()
       })()
 
       const daysToBreakEven = opportunity
@@ -215,28 +210,24 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { isEstimatedFeesDataLoading, estimatedFeesData } = useSendThorTx({
     accountId: accountId ?? null,
     assetId,
-    amountCryptoBaseUnit: toBaseUnit(
-      BigAmount.fromPrecision({
-        value: state?.deposit.cryptoAmount,
-        precision: asset.precision,
-      }),
-    ),
+    amountCryptoBaseUnit: BigAmount.fromPrecision({
+      value: state?.deposit.cryptoAmount,
+      precision: asset.precision,
+    }).toBaseUnit(),
     action: isRunePool ? 'depositRunepool' : 'depositSavers',
     memo,
     fromAddress: fromAddress ?? null,
   })
 
   const { amountMinusFeesCryptoBaseUnit, amountMinusFeesCryptoPrecision } = useMemo(() => {
+    const depositAmount = BigAmount.fromPrecision({
+      value: state?.deposit.cryptoAmount,
+      precision: asset.precision,
+    })
+
     if (isUtxoChainId(feeAsset.chainId)) {
       return {
-        amountMinusFeesCryptoBaseUnit: bn(
-          toBaseUnit(
-            BigAmount.fromPrecision({
-              value: state?.deposit.cryptoAmount,
-              precision: asset.precision,
-            }),
-          ),
-        ),
+        amountMinusFeesCryptoBaseUnit: bn(depositAmount.toBaseUnit()),
         amountMinusFeesCryptoPrecision: state?.deposit.cryptoAmount,
       }
     }
@@ -253,40 +244,20 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       !isUtxoChainId(feeAsset.chainId) &&
       feeAsset.assetId === asset.assetId
     ) {
+      const baseUnitMinusFees = bn(depositAmount.toBaseUnit()).minus(
+        estimatedFeesData.txFeeCryptoBaseUnit,
+      )
       return {
-        amountMinusFeesCryptoBaseUnit: bn(
-          toBaseUnit(
-            BigAmount.fromPrecision({
-              value: state?.deposit.cryptoAmount,
-              precision: asset.precision,
-            }),
-          ),
-        ).minus(estimatedFeesData.txFeeCryptoBaseUnit),
-        amountMinusFeesCryptoPrecision: fromBaseUnit(
-          BigAmount.fromBaseUnit({
-            value: bn(
-              toBaseUnit(
-                BigAmount.fromPrecision({
-                  value: state?.deposit.cryptoAmount,
-                  precision: asset.precision,
-                }),
-              ),
-            ).minus(estimatedFeesData.txFeeCryptoBaseUnit),
-            precision: asset.precision,
-          }),
-        ),
+        amountMinusFeesCryptoBaseUnit: baseUnitMinusFees,
+        amountMinusFeesCryptoPrecision: BigAmount.fromBaseUnit({
+          value: baseUnitMinusFees,
+          precision: asset.precision,
+        }).toPrecision(),
       }
     }
 
     return {
-      amountMinusFeesCryptoBaseUnit: bn(
-        toBaseUnit(
-          BigAmount.fromPrecision({
-            value: state?.deposit.cryptoAmount,
-            precision: asset.precision,
-          }),
-        ),
-      ),
+      amountMinusFeesCryptoBaseUnit: bn(depositAmount.toBaseUnit()),
       amountMinusFeesCryptoPrecision: state?.deposit.cryptoAmount,
     }
   }, [
@@ -314,12 +285,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const estimatedGasCryptoPrecision = useMemo(() => {
     if (!estimatedFeesData) return
-    return fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: estimatedFeesData.txFeeCryptoBaseUnit,
-        precision: feeAsset.precision,
-      }),
-    )
+    return BigAmount.fromBaseUnit({
+      value: estimatedFeesData.txFeeCryptoBaseUnit,
+      precision: feeAsset.precision,
+    }).toPrecision()
   }, [estimatedFeesData, feeAsset.precision])
 
   useEffect(() => {
@@ -437,14 +406,12 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
   const hasEnoughBalanceForGas = useMemo(
     () =>
-      bnOrZero(toBaseUnit(feeAssetBalanceCryptoBaseUnit))
+      feeAssetBalanceCryptoBaseUnit
         .minus(
-          toBaseUnit(
-            BigAmount.fromPrecision({
-              value: state?.deposit.estimatedGasCryptoPrecision ?? 0,
-              precision: feeAsset?.precision ?? 0,
-            }),
-          ),
+          BigAmount.fromPrecision({
+            value: state?.deposit.estimatedGasCryptoPrecision ?? 0,
+            precision: feeAsset?.precision ?? 0,
+          }),
         )
         .gte(0),
     [feeAssetBalanceCryptoBaseUnit, state?.deposit.estimatedGasCryptoPrecision, feeAsset],
@@ -569,25 +536,19 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
               <Box textAlign='right'>
                 <Amount.Fiat
                   fontWeight='bold'
-                  value={bn(
-                    fromBaseUnit(
-                      BigAmount.fromBaseUnit({
-                        value: quoteData?.protocolFeeCryptoBaseUnit ?? 0,
-                        precision: asset.precision,
-                      }),
-                    ),
-                  )
+                  value={BigAmount.fromBaseUnit({
+                    value: quoteData?.protocolFeeCryptoBaseUnit ?? 0,
+                    precision: asset.precision,
+                  })
                     .times(bnOrZero(marketData?.price))
                     .toFixed()}
                 />
                 <Amount.Crypto
                   color='text.subtle'
-                  value={fromBaseUnit(
-                    BigAmount.fromBaseUnit({
-                      value: quoteData?.protocolFeeCryptoBaseUnit ?? 0,
-                      precision: asset.precision,
-                    }),
-                  )}
+                  value={BigAmount.fromBaseUnit({
+                    value: quoteData?.protocolFeeCryptoBaseUnit ?? 0,
+                    precision: asset.precision,
+                  }).toPrecision()}
                   symbol={asset.symbol}
                 />
               </Box>

@@ -42,7 +42,6 @@ import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getThorchainFromAddress } from '@/lib/utils/thorchain'
 import { useGetThorchainSaversDepositQuoteQuery } from '@/lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import { formatSecondsToDuration } from '@/lib/utils/time'
@@ -113,7 +112,7 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
     asset,
     amountCryptoBaseUnit: BigNumber.max(
       THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
-      toBaseUnit(BigAmount.fromPrecision({ value: 1, precision: asset?.precision ?? 0 })),
+      BigAmount.fromPrecision({ value: 1, precision: asset?.precision ?? 0 }).toBaseUnit(),
     ),
     enabled: !isRunePool,
   })
@@ -192,12 +191,10 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const underlyingAssetsFiatBalanceCryptoPrecision = useMemo(() => {
     if (!asset || !earnOpportunityData?.underlyingAssetId) return '0'
 
-    const cryptoAmount = fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
-        precision: asset.precision,
-      }),
-    )
+    const cryptoAmount = BigAmount.fromBaseUnit({
+      value: earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
+      precision: asset.precision,
+    }).toPrecision()
     const price = marketData?.price
     return bnOrZero(cryptoAmount).times(bnOrZero(price)).toString()
   }, [

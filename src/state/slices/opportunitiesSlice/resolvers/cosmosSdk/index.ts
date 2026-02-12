@@ -17,7 +17,6 @@ import type {
 } from '../types'
 import { makeAccountUserData, makeUniqueValidatorAccountIds } from './utils'
 
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
 import { isFulfilled, isRejected, isSome } from '@/lib/utils'
 import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
@@ -125,14 +124,12 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
           id: validatorId,
           apy: data.apr,
           icon: `https://raw.githubusercontent.com/cosmostation/cosmostation_token_resource/master/moniker/${cosmostationChainName}/${validatorAddress}.png`,
-          tvl: bnOrZero(
-            BigAmount.fromBaseUnit({
-              value: data.tokens ?? '0',
-              precision: asset.precision,
-            }).toPrecision(),
-          )
-            .times(bnOrZero(marketData?.price))
-            .toString(),
+          tvl: BigAmount.fromBaseUnit({
+            value: data.tokens ?? '0',
+            precision: asset.precision,
+          })
+            .times(marketData?.price ?? '0')
+            .toPrecision(),
 
           name: data.moniker,
           type: DefiType.Staking,

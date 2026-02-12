@@ -13,7 +13,6 @@ import type { Asset, MarketData } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
 
 import type { EvmFees } from '@/hooks/queries/useEvmFees'
-import { bn } from '@/lib/bignumber/bignumber'
 import type { ThorchainMimir } from '@/lib/utils/thorchain/types'
 
 export const selectInboundAddressData = (
@@ -89,14 +88,12 @@ export const selectEvmFees = (
   feeAsset: Asset,
   feeAssetMarketData: MarketData,
 ): EvmFees => {
-  const txFeeFiat = bn(
-    BigAmount.fromBaseUnit({
-      value: fees.networkFeeCryptoBaseUnit,
-      precision: feeAsset.precision,
-    }).toPrecision(),
-  )
+  const txFeeFiat = BigAmount.fromBaseUnit({
+    value: fees.networkFeeCryptoBaseUnit,
+    precision: feeAsset.precision,
+  })
     .times(feeAssetMarketData.price)
-    .toString()
+    .toPrecision()
 
   const { networkFeeCryptoBaseUnit } = fees
   return { fees, txFeeFiat, networkFeeCryptoBaseUnit }

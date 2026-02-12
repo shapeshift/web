@@ -63,13 +63,11 @@ export const ethFoxStakingMetadataResolver = async ({
 
   // tvl
   const totalSupply = await foxFarmingContract.read.totalSupply()
-  const tvl = bnOrZero(
-    BigAmount.fromBaseUnit({
-      value: totalSupply.toString(),
-      precision: lpAssetPrecision,
-    }).toPrecision(),
-  )
-    .times(bnOrZero(lpTokenPrice))
+  const tvl = BigAmount.fromBaseUnit({
+    value: totalSupply.toString(),
+    precision: lpAssetPrecision,
+  })
+    .times(lpTokenPrice ?? '0')
     .toFixed(2)
 
   // apr

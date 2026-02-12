@@ -7,7 +7,6 @@ import type { UseQueryResult } from '@tanstack/react-query'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
 import { useThorchainMimirTimes } from '@/lib/utils/thorchain/hooks/useThorchainMimirTimes'
 import { getPoolShare } from '@/lib/utils/thorchain/lp'
@@ -67,17 +66,17 @@ export const getUserLpDataPosition = ({
 
   const pendingAssetAmountCryptoPrecision = BigAmount.fromThorBaseUnit(position.assetPending)
   const pendingRuneAmountCryptoPrecision = BigAmount.fromThorBaseUnit(position.runePending)
-  const pendingAssetAmountFiatUserCurrency = bn(
-    fromBaseUnit(pendingAssetAmountCryptoPrecision),
-  ).times(bnOrZero(assetPrice))
-  const pendingRuneAmountFiatUserCurrency = bn(
-    fromBaseUnit(pendingRuneAmountCryptoPrecision),
-  ).times(bnOrZero(runePrice))
+  const pendingAssetAmountFiatUserCurrency = pendingAssetAmountCryptoPrecision.times(
+    bnOrZero(assetPrice),
+  )
+  const pendingRuneAmountFiatUserCurrency = pendingRuneAmountCryptoPrecision.times(
+    bnOrZero(runePrice),
+  )
 
   const assetShareCryptoPrecision = BigAmount.fromThorBaseUnit(assetShareThorBaseUnit)
   const runeShareCryptoPrecision = BigAmount.fromThorBaseUnit(runeShareThorBaseUnit)
-  const assetShareFiat = bn(fromBaseUnit(assetShareCryptoPrecision)).times(bnOrZero(assetPrice))
-  const runeShareFiat = bn(fromBaseUnit(runeShareCryptoPrecision)).times(bnOrZero(runePrice))
+  const assetShareFiat = assetShareCryptoPrecision.times(bnOrZero(assetPrice))
+  const runeShareFiat = runeShareCryptoPrecision.times(bnOrZero(runePrice))
 
   const status = (() => {
     const isPending = bnOrZero(position.runePending).gt(0) || bnOrZero(position.assetPending).gt(0)

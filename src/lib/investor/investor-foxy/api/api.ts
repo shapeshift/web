@@ -50,9 +50,8 @@ import type {
   WithdrawInput,
 } from './foxy-types'
 
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { MAX_ALLOWANCE } from '@/lib/investor/constants/allowance'
-import { toBaseUnit } from '@/lib/math'
 import { DefiType } from '@/state/slices/opportunitiesSlice/types'
 
 export * from './foxy-types'
@@ -1033,8 +1032,8 @@ export class FoxyApi {
     }
   }
 
-  pricePerShare(): BigNumber {
-    return bn(toBaseUnit(BigAmount.fromPrecision({ value: '1', precision: 18 })))
+  pricePerShare(): BigAmount {
+    return BigAmount.fromPrecision({ value: '1', precision: 18 })
   }
 
   // TODO: use tokemak's api to get apy when they build it

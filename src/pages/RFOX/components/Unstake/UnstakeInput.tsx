@@ -325,7 +325,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   const validateHasEnoughFeeBalance = useCallback(
     (input: string) => {
       if (bnOrZero(input).isZero()) return true
-      if (bnOrZero(fromBaseUnit(stakingAssetFeeAssetBalance)).isZero()) return false
+      if (stakingAssetFeeAssetBalance.isZero()) return false
 
       const fees = unstakeFees
 

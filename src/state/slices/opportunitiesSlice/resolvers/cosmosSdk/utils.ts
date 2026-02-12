@@ -160,12 +160,14 @@ export const makeOpportunityTotalFiatBalance = ({
   const asset = assets[opportunity.assetId]
   const underlyingAsset = assets[opportunity.underlyingAssetId]
 
-  const stakedAmountFiatBalance = bnOrZero(
+  const stakedAmountFiatBalance = bn(
     BigAmount.fromBaseUnit({
       value: opportunity.stakedAmountCryptoBaseUnit ?? '0',
       precision: asset?.precision ?? underlyingAsset?.precision ?? 1,
-    }).toPrecision(),
-  ).times(marketData[asset?.assetId ?? underlyingAsset?.assetId ?? '']?.price ?? '0')
+    })
+      .times(marketData[asset?.assetId ?? underlyingAsset?.assetId ?? '']?.price ?? '0')
+      .toPrecision(),
+  )
 
   const rewardsAmountFiatBalance = [
     ...(opportunity.rewardsCryptoBaseUnit?.amounts ?? []),
@@ -173,23 +175,25 @@ export const makeOpportunityTotalFiatBalance = ({
     const rewardAssetId = opportunity?.rewardAssetIds?.[i] ?? ''
     const rewardAsset = assets[rewardAssetId]
     return acc.plus(
-      bnOrZero(
-        BigAmount.fromBaseUnit({
-          value: currentAmount ?? '0',
-          precision: rewardAsset?.precision ?? 1,
-        }).toPrecision(),
-      ).times(marketData[rewardAssetId]?.price ?? '0'),
+      BigAmount.fromBaseUnit({
+        value: currentAmount ?? '0',
+        precision: rewardAsset?.precision ?? 1,
+      })
+        .times(marketData[rewardAssetId]?.price ?? '0')
+        .toPrecision(),
     )
   }, bn(0))
 
-  const undelegationsFiatBalance = bnOrZero(
+  const undelegationsFiatBalance = bn(
     BigAmount.fromBaseUnit({
       value: makeTotalCosmosSdkUndelegationsCryptoBaseUnit([
         ...(supportsUndelegations(opportunity) ? opportunity.undelegations : []),
       ]).toFixed(0),
       precision: asset?.precision ?? 1,
-    }).toPrecision(),
-  ).times(marketData[opportunity.assetId]?.price ?? '0')
+    })
+      .times(marketData[opportunity.assetId]?.price ?? '0')
+      .toPrecision(),
+  )
 
   return stakedAmountFiatBalance.plus(rewardsAmountFiatBalance).plus(undelegationsFiatBalance)
 }

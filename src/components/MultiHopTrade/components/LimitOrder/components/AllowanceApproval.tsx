@@ -2,7 +2,7 @@ import { Button, Card, CardBody, CardFooter, CardHeader, Heading, Link } from '@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -20,7 +20,7 @@ import { useIsAllowanceResetRequired } from '@/hooks/queries/useIsAllowanceReset
 import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { getTxLink } from '@/lib/getTxLink'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { fromBaseUnit } from '@/lib/math'
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import type { LimitOrderActiveQuote } from '@/state/slices/limitOrderSlice/types'
 import {
@@ -126,7 +126,12 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
       return isLoading
     }
 
-    return bnOrZero(toBaseUnit(feeAssetBalance)).gte(approvalNetworkFeeCryptoBaseUnit)
+    return feeAssetBalance.gte(
+      BigAmount.fromBaseUnit({
+        value: approvalNetworkFeeCryptoBaseUnit,
+        precision: feeAssetBalance.precision,
+      }),
+    )
   }, [approvalNetworkFeeCryptoBaseUnit, feeAssetBalance, isLoading])
 
   const approveAssetTranslation = useMemo(() => {

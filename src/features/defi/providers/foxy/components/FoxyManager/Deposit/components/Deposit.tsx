@@ -16,7 +16,6 @@ import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommo
 import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { BigNumber, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import {
   selectMarketDataByAssetIdUserCurrency,
@@ -97,12 +96,10 @@ export const Deposit: React.FC<DepositProps> = ({
             tokenContractAddress: assetReference,
             contractAddress,
             amountDesired: bnOrZero(
-              toBaseUnit(
-                BigAmount.fromPrecision({
-                  value: deposit.cryptoAmount ?? '0',
-                  precision: asset.precision,
-                }),
-              ),
+              BigAmount.fromPrecision({
+                value: deposit.cryptoAmount ?? '0',
+                precision: asset.precision,
+              }).toBaseUnit(),
             ),
             userAddress: accountAddress,
           })
@@ -132,14 +129,10 @@ export const Deposit: React.FC<DepositProps> = ({
           contractAddress,
           userAddress: accountAddress,
         })
-        const allowance = bnOrZero(
-          fromBaseUnit(
-            BigAmount.fromBaseUnit({
-              value: _allowance ?? '0',
-              precision: asset.precision,
-            }),
-          ),
-        )
+        const allowance = BigAmount.fromBaseUnit({
+          value: _allowance ?? '0',
+          precision: asset.precision,
+        })
 
         // Skip approval step if user allowance is greater than or equal requested deposit amount
         if (allowance.gte(formValues.cryptoAmount)) {
@@ -189,7 +182,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(fromBaseUnit(balance))
+      const crypto = bnOrZero(balance.toPrecision())
       const _value = bnOrZero(value)
       const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
       if (_value.isEqualTo(0)) return ''
@@ -200,7 +193,7 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(fromBaseUnit(balance))
+      const crypto = bnOrZero(balance.toPrecision())
       const fiat = crypto.times(bnOrZero(marketData?.price))
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
@@ -226,8 +219,8 @@ export const Deposit: React.FC<DepositProps> = ({
     [validateFiatAmount],
   )
 
-  const cryptoAmountAvailable = bnOrZero(fromBaseUnit(balance))
-  const fiatAmountAvailable = bnOrZero(cryptoAmountAvailable).times(bnOrZero(marketData?.price))
+  const cryptoAmountAvailable = balance
+  const fiatAmountAvailable = cryptoAmountAvailable.times(bnOrZero(marketData?.price))
 
   if (!state || !dispatch) return null
 
@@ -240,7 +233,10 @@ export const Deposit: React.FC<DepositProps> = ({
       apy={String(opportunity?.apy)}
       cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
       cryptoInputValidation={cryptoInputValidation}
-      fiatAmountAvailable={fiatAmountAvailable.toFixed(2, BigNumber.ROUND_DOWN)}
+      fiatAmountAvailable={bnOrZero(fiatAmountAvailable.toPrecision()).toFixed(
+        2,
+        BigNumber.ROUND_DOWN,
+      )}
       fiatInputValidation={fiatInputValidation}
       marketData={marketData}
       onCancel={handleCancel}

@@ -33,19 +33,17 @@ export const calcLimitPriceTargetAsset = ({
   sellAsset: Asset
   buyAsset: Asset
 }): string => {
-  return bnOrZero(
-    BigAmount.fromBaseUnit({
-      value: buyAmountCryptoBaseUnit,
-      precision: buyAsset.precision,
-    }).toPrecision(),
-  )
-    .div(
-      BigAmount.fromBaseUnit({
-        value: sellAmountCryptoBaseUnit,
-        precision: sellAsset.precision,
-      }).toPrecision(),
-    )
-    .toFixed()
+  const buyAmountPrecision = BigAmount.fromBaseUnit({
+    value: buyAmountCryptoBaseUnit,
+    precision: buyAsset.precision,
+  }).toPrecision()
+
+  const sellAmountPrecision = BigAmount.fromBaseUnit({
+    value: sellAmountCryptoBaseUnit,
+    precision: sellAsset.precision,
+  }).toPrecision()
+
+  return bnOrZero(buyAmountPrecision).div(sellAmountPrecision).toFixed()
 }
 
 export const makeLimitInputOutputRatio = ({

@@ -190,7 +190,7 @@ export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector
       const precision = asset.precision
       if (precision === undefined) return acc
       const price = marketData[assetId]?.price
-      const assetUserCurrencyBalance = bn(balance.toPrecision()).times(bnOrZero(price))
+      const assetUserCurrencyBalance = balance.times(bnOrZero(price))
       if (assetUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
       acc[assetId] = assetUserCurrencyBalance.toFixed(2)
       return acc
@@ -229,7 +229,7 @@ export const selectPortfolioAssetBalancesByAssetIdUserCurrency = createDeepEqual
       if (precision === undefined) return acc
       const price = marketData[assetId]?.price
 
-      const assetUserCurrencyBalance = bn(balance.toPrecision()).times(bnOrZero(price))
+      const assetUserCurrencyBalance = balance.times(bnOrZero(price))
 
       if (assetUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
       acc[assetId] = assetUserCurrencyBalance.toFixed(2)
@@ -291,7 +291,7 @@ export const selectPortfolioUserCurrencyBalancesByAccountId = createDeepEqualOut
         const asset = assetsById[assetId]
         if (!asset) return balanceByAssetId
         const price = marketData[assetId]?.price ?? 0
-        const userCurrencyBalance = bn(balance.toPrecision()).times(price).toFixed(2)
+        const userCurrencyBalance = balance.times(price).toFixed(2)
         balanceByAssetId[assetId as AssetId] = userCurrencyBalance
 
         return balanceByAssetId
@@ -333,7 +333,7 @@ export const selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndN
     marketData.selectors.selectMarketDataUsd,
     (assets, portfolioBalances, portfolioBalancesUserCurrency, marketDataUsd) => {
       const getAssetBalanceCryptoPrecision = (asset: Asset) =>
-        bnOrZero(portfolioBalances[asset.assetId]?.toPrecision()).toNumber()
+        portfolioBalances[asset.assetId]?.toNumber() ?? 0
 
       const getAssetUserCurrencyBalance = (asset: Asset) =>
         bnOrZero(portfolioBalancesUserCurrency[asset.assetId]).toNumber()
@@ -370,8 +370,7 @@ export const selectPrimaryAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecis
       relatedAssetIdsById,
     ) => {
       const getAssetBalanceCryptoPrecision = (asset: Asset) => {
-        if (asset.isChainSpecific)
-          return bnOrZero(portfolioBalances[asset.assetId]?.toPrecision()).toNumber()
+        if (asset.isChainSpecific) return portfolioBalances[asset.assetId]?.toNumber() ?? 0
 
         const primaryAssetTotalCryptoBalance = relatedAssetIdsById[asset.assetId]?.reduce(
           (acc, relatedAssetId) => {

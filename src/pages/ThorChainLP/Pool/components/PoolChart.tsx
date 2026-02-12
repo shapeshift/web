@@ -1,12 +1,11 @@
 import { Button, ButtonGroup, Center, Flex, Stack } from '@chakra-ui/react'
-import { BigAmount, bn } from '@shapeshiftoss/utils'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import type { SingleValueData, UTCTimestamp } from 'lightweight-charts'
 import { useCallback, useMemo, useState } from 'react'
 
 import { ChartSkeleton } from '@/components/SimpleChart/LoadingChart'
 import { SimpleChart } from '@/components/SimpleChart/SimpleChart'
-import { fromBaseUnit } from '@/lib/math'
 import type {
   MidgardSwapHistoryResponse,
   MidgardTvlHistoryResponse,
@@ -22,9 +21,7 @@ const swapHistoryToChartData = (swapHistory: MidgardSwapHistoryResponse): Single
   const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
 
   return swapHistory.intervals.map(interval => {
-    const intervalVolumeFiatUserCurrency = bn(
-      fromBaseUnit(BigAmount.fromThorBaseUnit(interval.totalVolume)),
-    )
+    const intervalVolumeFiatUserCurrency = BigAmount.fromThorBaseUnit(interval.totalVolume)
       .times(interval.runePriceUSD)
       .times(userCurrencyToUsdRate)
 
@@ -44,7 +41,7 @@ const tvlToChartData = (
     const poolDepth = interval.poolsDepth.find(pool => pool.pool === thorchainNotationAssetId)
     const poolTotalDepth = poolDepth?.totalDepth ?? '0'
 
-    const tvlFiat = bn(fromBaseUnit(BigAmount.fromThorBaseUnit(poolTotalDepth)))
+    const tvlFiat = BigAmount.fromThorBaseUnit(poolTotalDepth)
       .times(interval.runePriceUSD)
       .times(userCurrencyToUsdRate)
 

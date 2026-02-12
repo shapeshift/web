@@ -19,7 +19,6 @@ import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommo
 import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import {
   selectBip44ParamsByAccountId,
@@ -66,12 +65,12 @@ export const Withdraw: React.FC<
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
   const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
 
-  const cryptoAmountAvailable = bnOrZero(fromBaseUnit(balance))
-  const fiatAmountAvailable = bnOrZero(bn(cryptoAmountAvailable).times(bnOrZero(marketData?.price)))
+  const cryptoAmountAvailable = balance
+  const fiatAmountAvailable = cryptoAmountAvailable.times(bnOrZero(marketData?.price))
 
   const handlePercentClick = useCallback(
     (percent: number) => {
-      const cryptoAmount = bnOrZero(cryptoAmountAvailable)
+      const cryptoAmount = bnOrZero(cryptoAmountAvailable.toPrecision())
         .times(percent)
         .dp(asset.precision, BigNumber.ROUND_DOWN)
       const fiatAmount = bnOrZero(cryptoAmount).times(bnOrZero(marketData?.price))
@@ -129,12 +128,10 @@ export const Withdraw: React.FC<
             tokenContractAddress: rewardId,
             contractAddress,
             amountDesired: bnOrZero(
-              toBaseUnit(
-                BigAmount.fromPrecision({
-                  value: withdraw.cryptoAmount ?? '0',
-                  precision: asset.precision,
-                }),
-              ),
+              BigAmount.fromPrecision({
+                value: withdraw.cryptoAmount ?? '0',
+                precision: asset.precision,
+              }).toBaseUnit(),
             ),
             userAddress: accountAddress,
             type: withdraw.withdrawType,
@@ -177,14 +174,10 @@ export const Withdraw: React.FC<
           userAddress: accountAddress,
         })
 
-        const allowance = bnOrZero(
-          fromBaseUnit(
-            BigAmount.fromBaseUnit({
-              value: _allowance ?? '0',
-              precision: asset.precision,
-            }),
-          ),
-        )
+        const allowance = BigAmount.fromBaseUnit({
+          value: _allowance ?? '0',
+          precision: asset.precision,
+        })
 
         // Skip approval step if user allowance is greater than or equal requested withdraw amount
         if (allowance.gte(formValues.cryptoAmount)) {
@@ -243,7 +236,7 @@ export const Withdraw: React.FC<
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(fromBaseUnit(balance))
+      const crypto = bnOrZero(balance.toPrecision())
       const _value = bnOrZero(value)
       const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
       if (_value.isEqualTo(0)) return ''
@@ -254,7 +247,7 @@ export const Withdraw: React.FC<
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(fromBaseUnit(balance))
+      const crypto = bnOrZero(balance.toPrecision())
       const fiat = crypto.times(bnOrZero(marketData?.price))
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
@@ -290,7 +283,7 @@ export const Withdraw: React.FC<
         asset={asset}
         cryptoAmountAvailable={cryptoAmountAvailable.toPrecision()}
         cryptoInputValidation={cryptoInputValidation}
-        fiatAmountAvailable={fiatAmountAvailable.toString()}
+        fiatAmountAvailable={fiatAmountAvailable.toPrecision()}
         fiatInputValidation={fiatInputValidation}
         marketData={marketData}
         onCancel={handleCancel}

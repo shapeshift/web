@@ -309,7 +309,7 @@ export const selectBalanceChartCryptoBalancesByAccountIdAboveThreshold =
           const asset = assetsById[assetId]
           if (!asset) return acc
           const price = marketData[assetId]?.price
-          const assetUserCurrencyBalance = bn(balance.toPrecision()).times(bnOrZero(price))
+          const assetUserCurrencyBalance = balance.times(bnOrZero(price))
           if (assetUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
           acc[assetId] = toBaseUnit(balance)
           return acc
@@ -467,17 +467,14 @@ export const selectPortfolioAccountsUserCurrencyBalances = createDeepEqualOutput
     const userCurrencyAccountEntries = Object.entries(portfolioAccountsCryptoBalances).reduce<{
       [k: AccountId]: { [k: AssetId]: string }
     }>((acc, [accountId, account]) => {
-      const entries: [AssetId, BigNumber][] = Object.entries(account).reduce(
-        (acc: [AssetId, BigNumber][], [assetId, balance]) => {
+      const entries: [AssetId, BigAmount][] = Object.entries(account).reduce(
+        (acc: [AssetId, BigAmount][], [assetId, balance]) => {
           const asset = assets?.[assetId]
           if (!asset) return acc
           if (spamMarkedAssetIds.includes(assetId)) return acc
 
           const price = marketData[assetId]?.price ?? 0
-          const calculatedValue: [AssetId, BigNumber] = [
-            assetId,
-            bn(balance.toPrecision()).times(price),
-          ]
+          const calculatedValue: [AssetId, BigAmount] = [assetId, balance.times(price)]
 
           acc.push(calculatedValue)
           return acc
@@ -543,7 +540,7 @@ export const selectPortfolioTotalChainIdBalanceUserCurrency = createDeepEqualOut
         if (!asset) return acc
 
         const price = marketData[assetId]?.price
-        const assetUserCurrencyBalance = bn(balance.toPrecision()).times(bnOrZero(price))
+        const assetUserCurrencyBalance = balance.times(bnOrZero(price)).toPrecision()
 
         acc = acc.plus(assetUserCurrencyBalance)
         return acc
@@ -775,8 +772,8 @@ export const selectPortfolioAccountRows = createDeepEqualOutputSelector(
         if (spamAssetIdsSet.has(assetId)) return acc
         const { name, icon, symbol } = asset
         const price = marketData[assetId]?.price ?? '0'
-        const cryptoAmount = fromBaseUnit(balance)
-        const userCurrencyAmount = bn(cryptoAmount).times(bnOrZero(price))
+        const cryptoAmount = balance.toPrecision()
+        const userCurrencyAmount = balance.times(bnOrZero(price))
         const allocation = bnOrZero(userCurrencyAmount.toFixed(2))
           .div(bnOrZero(totalPortfolioUserCurrencyBalance))
           .times(100)
@@ -862,7 +859,7 @@ export const selectPrimaryPortfolioAccountRowsSortedByBalance = createDeepEqualO
           const balance = totalBalancesByAssetId[relatedAssetId]
 
           if (balance && relatedAsset) {
-            totalCryptoBalance = totalCryptoBalance.plus(bn(balance.toPrecision()))
+            totalCryptoBalance = totalCryptoBalance.plus(balance.toPrecision())
           }
         })
 

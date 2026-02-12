@@ -376,7 +376,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       // Staking asset fee asset still loading, assume enough balance not to have a flash of error state on first render
       if (!stakingAssetFeeAsset) return true
       if (bnOrZero(input).isZero()) return true
-      if (bnOrZero(fromBaseUnit(stakingAssetFeeAssetBalance)).isZero()) return false
+      if (stakingAssetFeeAssetBalance.isZero()) return false
 
       const fees = approvalFees || stakeFees
 

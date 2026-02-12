@@ -8,7 +8,6 @@ import { useQueries } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import type {
   MidgardInterval,
   MidgardSwapHistoryResponse,
@@ -75,9 +74,7 @@ export const getPool = (
     ...pool,
     assetId,
     name: `${asset.symbol}/${runeAsset.symbol}`,
-    tvlFiat: bn(fromBaseUnit(BigAmount.fromThorBaseUnit(tvl)))
-      .times(bnOrZero(runePrice))
-      .toFixed(),
+    tvlFiat: BigAmount.fromThorBaseUnit(tvl).times(bnOrZero(runePrice)).toFixed(),
   }
 }
 
@@ -121,9 +118,7 @@ export const getFeeStats = (swapsData: ReturnType<typeof selectSwapsData>, runeP
   const swaps24h = swapsData.intervals[swapsData.intervals.length - 1]
   const swapsPrev24h = swapsData.intervals[swapsData.intervals.length - 2]
 
-  const fees24hFiat = bn(fromBaseUnit(BigAmount.fromThorBaseUnit(swaps24h.totalFees)))
-    .times(runePrice)
-    .toFixed()
+  const fees24hFiat = BigAmount.fromThorBaseUnit(swaps24h.totalFees).times(runePrice).toFixed()
   const fees24hChange = bnOrZero(swaps24h.totalFees)
     .minus(bnOrZero(swapsPrev24h.totalFees))
     .div(swapsPrev24h.totalFees)
@@ -139,9 +134,7 @@ export const getTvlStats = (pool: Pool, tvl24hIntervals: string[], runePrice: st
   const tvl24h = bn(pool.assetDepth).times(pool.assetPrice).plus(pool.runeDepth)
   const tvlPrev24h = tvl24hIntervals[tvl24hIntervals.length - 2]
 
-  const tvl24hFiat = bn(fromBaseUnit(BigAmount.fromThorBaseUnit(tvl24h)))
-    .times(runePrice)
-    .toFixed()
+  const tvl24hFiat = BigAmount.fromThorBaseUnit(tvl24h).times(runePrice).toFixed()
   const tvl24hChange = bnOrZero(tvl24h).minus(bnOrZero(tvlPrev24h)).div(tvlPrev24h).toNumber()
 
   return {
@@ -157,15 +150,13 @@ export const getVolumeStats = (
   const swaps24h = swapsData.intervals[swapsData.intervals.length - 1]
   const swapsPrev24h = swapsData.intervals[swapsData.intervals.length - 2]
 
-  const volume24hFiat = bn(fromBaseUnit(BigAmount.fromThorBaseUnit(swaps24h.totalVolume)))
-    .times(runePrice)
-    .toFixed()
+  const volume24hFiat = BigAmount.fromThorBaseUnit(swaps24h.totalVolume).times(runePrice).toFixed()
   const volume24hChange = bnOrZero(swaps24h.totalVolume)
     .minus(bnOrZero(swapsPrev24h.totalVolume))
     .div(swapsPrev24h.totalVolume)
     .toNumber()
 
-  const volume7dFiat = bn(fromBaseUnit(BigAmount.fromThorBaseUnit(swapsData.meta.totalVolume)))
+  const volume7dFiat = BigAmount.fromThorBaseUnit(swapsData.meta.totalVolume)
     .times(runePrice)
     .toFixed()
 
@@ -243,9 +234,7 @@ export const usePool = (poolAssetId: string) => {
     if (!swapsData.data) return
     if (!runeMarketData?.price) return
 
-    const volumeTotalFiat = bn(
-      fromBaseUnit(BigAmount.fromThorBaseUnit(poolStats.data.swapVolume ?? '0')),
-    )
+    const volumeTotalFiat = BigAmount.fromThorBaseUnit(poolStats.data.swapVolume ?? '0')
       .times(runeMarketData.price)
       .toFixed()
 

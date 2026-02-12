@@ -25,7 +25,6 @@ import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { StakingAction } from '@/plugins/cosmos/components/modals/Staking/StakingCommon'
@@ -131,12 +130,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           gas: gasLimit,
           fee: txFee,
         },
-        value: toBaseUnit(
-          BigAmount.fromPrecision({
-            value: claimAmount,
-            precision: asset.precision,
-          }),
-        ),
+        value: BigAmount.fromPrecision({
+          value: claimAmount,
+          precision: asset.precision,
+        }).toBaseUnit(),
         action: StakingAction.Claim,
       })
       dispatch({ type: CosmosClaimActionType.SET_TXID, payload: broadcastTxId ?? null })
@@ -178,14 +175,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   ])
 
   const estimatedGasCryptoPrecision = useMemo(() => {
-    return bnOrZero(
-      fromBaseUnit(
-        BigAmount.fromBaseUnit({
-          value: state?.claim.estimatedGasCryptoBaseUnit ?? 0,
-          precision: feeAsset.precision,
-        }),
-      ),
-    )
+    return BigAmount.fromBaseUnit({
+      value: state?.claim.estimatedGasCryptoBaseUnit ?? 0,
+      precision: feeAsset.precision,
+    })
   }, [state?.claim.estimatedGasCryptoBaseUnit, feeAsset])
 
   if (!state || !dispatch || !asset) return null
@@ -199,12 +192,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
           <Amount.Crypto
             fontSize='3xl'
             fontWeight='medium'
-            value={fromBaseUnit(
-              BigAmount.fromBaseUnit({
-                value: claimAmount,
-                precision: asset.precision,
-              }),
-            )}
+            value={BigAmount.fromBaseUnit({
+              value: claimAmount,
+              precision: asset.precision,
+            }).toPrecision()}
             symbol={asset.symbol}
           />
         </Stack>

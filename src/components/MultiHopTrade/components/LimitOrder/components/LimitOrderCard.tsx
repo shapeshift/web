@@ -20,7 +20,7 @@ import { HoverTooltip } from '@/components/HoverTooltip/HoverTooltip'
 import { RawText } from '@/components/Text'
 import { getConfig } from '@/config'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { fromBaseUnit } from '@/lib/math'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { useAllowance } from '@/react-queries/hooks/useAllowance'
 import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from '@/state/slices/selectors'
@@ -128,7 +128,12 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   )
 
   const hasSufficientBalance = useMemo(() => {
-    return bnOrZero(toBaseUnit(sellAssetBalanceCryptoBaseUnit)).gte(sellAmountCryptoBaseUnit)
+    return sellAssetBalanceCryptoBaseUnit.gte(
+      BigAmount.fromBaseUnit({
+        value: sellAmountCryptoBaseUnit,
+        precision: sellAssetBalanceCryptoBaseUnit.precision,
+      }),
+    )
   }, [sellAmountCryptoBaseUnit, sellAssetBalanceCryptoBaseUnit])
 
   const from = useMemo(() => {

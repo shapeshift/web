@@ -10,7 +10,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
 
 import type { BigNumber } from '@/lib/bignumber/bignumber'
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { bn } from '@/lib/bignumber/bignumber'
 import type { ReduxState } from '@/state/reducer'
 import { selectFeeAssetById } from '@/state/slices/assetsSlice/selectors'
 import { marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
@@ -29,12 +29,14 @@ const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   const feeAssetUserCurrencyRate = getFeeAssetRate(feeAsset.assetId)
 
   const networkFeeCryptoBaseUnit = tradeQuoteStep.feeData.networkFeeCryptoBaseUnit
-  const networkFeeFiatPrecision = bnOrZero(
+  const networkFeeFiatPrecision = bn(
     BigAmount.fromBaseUnit({
       value: networkFeeCryptoBaseUnit ?? '0',
       precision: feeAsset.precision,
-    }).toPrecision(),
-  ).times(feeAssetUserCurrencyRate)
+    })
+      .times(feeAssetUserCurrencyRate)
+      .toPrecision(),
+  )
 
   return networkFeeFiatPrecision
 }
@@ -85,12 +87,14 @@ const _convertCryptoBaseUnitToUsdPrecision = (
   const usdRate = selectUsdRateByAssetId(state, asset.assetId)
   // TODO(gomes): revert me once we have a Portals market-data provider, this allows us to get quotes despite missing market data
   // if (usdRate === undefined) throw Error(`missing usd rate for assetId ${asset.assetId}`)
-  return bnOrZero(
+  return bn(
     BigAmount.fromBaseUnit({
       value: amountCryptoBaseUnit,
       precision: asset.precision,
-    }).toPrecision(),
-  ).times(usdRate ?? '0')
+    })
+      .times(usdRate ?? '0')
+      .toPrecision(),
+  )
 }
 
 /*

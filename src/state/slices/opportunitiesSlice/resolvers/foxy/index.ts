@@ -67,14 +67,12 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
 
     if (!underlyingAsset) continue
 
-    const tvl = bnOrZero(
-      BigAmount.fromBaseUnit({
-        value: opportunity.tvl?.toString() ?? '0',
-        precision: underlyingAsset?.precision ?? 0,
-      }).toPrecision(),
-    )
-      .times(bnOrZero(marketData?.price))
-      .toString()
+    const tvl = BigAmount.fromBaseUnit({
+      value: opportunity.tvl?.toString() ?? '0',
+      precision: underlyingAsset?.precision ?? 0,
+    })
+      .times(marketData?.price ?? '0')
+      .toPrecision()
 
     const apy = foxyApr.data?.foxyApr ?? '0'
 

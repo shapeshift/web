@@ -11,6 +11,7 @@ import {
   getYieldActionLabelKeys,
   getYieldSuccessMessageKey,
   isStakingYieldType,
+  resolveAssetSymbolForTx,
   resolveYieldInputAssetIcon,
   searchValidators,
   searchYields,
@@ -46,6 +47,40 @@ describe('getTransactionButtonText', () => {
 
   it('should capitalize unknown types', () => {
     expect(getTransactionButtonText('CUSTOM_ACTION', undefined)).toBe('Custom_action')
+  })
+})
+
+describe('resolveAssetSymbolForTx', () => {
+  it('should return output token for exit APPROVAL', () => {
+    expect(resolveAssetSymbolForTx('APPROVAL', 'exit', 'AVAX', 'sAVAX')).toBe('sAVAX')
+    expect(resolveAssetSymbolForTx('APPROVE', 'exit', 'AVAX', 'sAVAX')).toBe('sAVAX')
+    expect(resolveAssetSymbolForTx('APPROVAL', 'exit', 'ETH', 'rETH')).toBe('rETH')
+    expect(resolveAssetSymbolForTx('APPROVAL', 'exit', 'ETH', 'stETH')).toBe('stETH')
+  })
+
+  it('should return input token for non-APPROVAL exit types', () => {
+    expect(resolveAssetSymbolForTx('UNSTAKE', 'exit', 'AVAX', 'sAVAX')).toBe('AVAX')
+    expect(resolveAssetSymbolForTx('WITHDRAW', 'exit', 'USDT', 'cUSDTv3')).toBe('USDT')
+    expect(resolveAssetSymbolForTx('SWAP', 'exit', 'ETH', 'rETH')).toBe('ETH')
+    expect(resolveAssetSymbolForTx('EXIT', 'exit', 'ETH', 'stETH')).toBe('ETH')
+  })
+
+  it('should return input token for enter actions', () => {
+    expect(resolveAssetSymbolForTx('APPROVAL', 'enter', 'USDT', 'cUSDTv3')).toBe('USDT')
+    expect(resolveAssetSymbolForTx('STAKE', 'enter', 'ETH', 'stETH')).toBe('ETH')
+    expect(resolveAssetSymbolForTx('DEPOSIT', 'enter', 'USDT', 'cUSDTv3')).toBe('USDT')
+  })
+
+  it('should return input token for manage actions', () => {
+    expect(resolveAssetSymbolForTx('CLAIM', 'manage', 'ETH', 'stETH')).toBe('ETH')
+  })
+
+  it('should fallback to input token when output token is undefined', () => {
+    expect(resolveAssetSymbolForTx('APPROVAL', 'exit', 'ETH', undefined)).toBe('ETH')
+  })
+
+  it('should fallback to input token when tx type is undefined', () => {
+    expect(resolveAssetSymbolForTx(undefined, 'exit', 'ETH', 'stETH')).toBe('ETH')
   })
 })
 

@@ -10,6 +10,7 @@ import {
   Icon,
   Skeleton,
   Text,
+  VStack,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
@@ -118,19 +119,38 @@ export const YieldForm = memo(
     const inputTokenAssetId = inputToken?.assetId
 
     const claimableBalance = useMemo(() => balances?.byType[YieldBalanceType.Claimable], [balances])
-    const claimableToken = claimableBalance?.token
-    const claimableAmount = claimableBalance?.aggregatedAmount ?? '0'
-    const isClaimAction = action === 'claim'
-
-    const claimAction = useMemo(
-      () => claimableBalance?.pendingActions?.find(a => a.type.toUpperCase().includes('CLAIM')),
-      [claimableBalance],
-    )
-
     const withdrawableBalance = useMemo(
       () => balances?.byType[YieldBalanceType.Withdrawable],
       [balances],
     )
+    const isClaimAction = action === 'claim'
+
+    const claimableClaimAction = useMemo(
+      () => claimableBalance?.pendingActions?.find(a => a.type.toUpperCase().includes('CLAIM')),
+      [claimableBalance],
+    )
+
+    const claimAction = useMemo(
+      () =>
+        claimableClaimAction ??
+        withdrawableBalance?.pendingActions?.find(a => a.type.toUpperCase().includes('CLAIM')),
+      [claimableClaimAction, withdrawableBalance],
+    )
+
+    const isWithdrawableClaim = !claimableClaimAction && Boolean(claimAction)
+
+    const effectiveClaimBalance = useMemo(() => {
+      if (isWithdrawableClaim) return withdrawableBalance
+
+      const hasClaimableAmount = !bnOrZero(claimableBalance?.aggregatedAmount).isZero()
+      if (hasClaimableAmount) return claimableBalance
+
+      return withdrawableBalance
+    }, [isWithdrawableClaim, claimableBalance, withdrawableBalance])
+
+    const claimableToken = effectiveClaimBalance?.token
+    const claimableAmount = effectiveClaimBalance?.aggregatedAmount ?? '0'
+
     const withdrawableToken = withdrawableBalance?.token
     const isWithdrawAction = action === 'withdraw'
 
@@ -576,23 +596,27 @@ export const YieldForm = memo(
 
     const statsContent = useMemo(
       () => (
-        <Box
+        <VStack
+          spacing={3}
+          align='stretch'
           bg='background.surface.raised.base'
           borderRadius='xl'
           p={4}
           borderWidth='1px'
           borderColor='border.base'
         >
-          <Flex justify='space-between' align='center'>
-            <Text fontSize='sm' color='text.subtle'>
-              {translate('yieldXYZ.currentApy')}
-            </Text>
-            <GradientApy fontSize='sm' fontWeight='bold'>
-              {apyDisplay}
-            </GradientApy>
-          </Flex>
-          {hasAmount && (
-            <Flex justify='space-between' align='center' mt={3}>
+          {action === 'enter' && (
+            <Flex justify='space-between' align='center'>
+              <Text fontSize='sm' color='text.subtle'>
+                {translate('yieldXYZ.currentApy')}
+              </Text>
+              <GradientApy fontSize='sm' fontWeight='bold'>
+                {apyDisplay}
+              </GradientApy>
+            </Flex>
+          )}
+          {action === 'enter' && hasAmount && (
+            <Flex justify='space-between' align='center'>
               <Text fontSize='sm' color='text.subtle'>
                 {translate('yieldXYZ.estYearlyEarnings')}
               </Text>
@@ -607,7 +631,7 @@ export const YieldForm = memo(
             </Flex>
           )}
           {isStaking && maybeSelectedValidatorMetadata && (
-            <Flex justify='space-between' align='center' mt={3}>
+            <Flex justify='space-between' align='center'>
               <Text fontSize='sm' color='text.subtle'>
                 {translate('yieldXYZ.validator')}
               </Text>
@@ -624,7 +648,7 @@ export const YieldForm = memo(
             </Flex>
           )}
           {(!isStaking || !maybeSelectedValidatorMetadata) && maybeProviderMetadata && (
-            <Flex justify='space-between' align='center' mt={3}>
+            <Flex justify='space-between' align='center'>
               <Text fontSize='sm' color='text.subtle'>
                 {translate('yieldXYZ.provider')}
               </Text>
@@ -641,7 +665,7 @@ export const YieldForm = memo(
             </Flex>
           )}
           {minDeposit && bnOrZero(minDeposit).gt(0) && action === 'enter' && (
-            <Flex justify='space-between' align='center' mt={3}>
+            <Flex justify='space-between' align='center'>
               <Text fontSize='sm' color='text.subtle'>
                 {translate(getYieldMinAmountKey(yieldItem.mechanics.type))}
               </Text>
@@ -654,7 +678,7 @@ export const YieldForm = memo(
               </Text>
             </Flex>
           )}
-        </Box>
+        </VStack>
       ),
       [
         translate,
@@ -684,7 +708,9 @@ export const YieldForm = memo(
               <Amount.Crypto value={claimableAmount} symbol={claimableToken.symbol} />
             </Text>
             <Text fontSize='sm' color='text.subtle' mt={2}>
-              {translate('yieldXYZ.claimableRewards')}
+              {translate(
+                isWithdrawableClaim ? 'yieldXYZ.readyToClaim' : 'yieldXYZ.claimableRewards',
+              )}
             </Text>
           </Flex>
         )
@@ -757,6 +783,7 @@ export const YieldForm = memo(
     }, [
       isLoading,
       isClaimAction,
+      isWithdrawableClaim,
       claimableToken,
       claimableAmount,
       isWithdrawAction,
@@ -835,7 +862,11 @@ export const YieldForm = memo(
           )}
           {!isManageAction && statsContent}
           {!isManageAction && (
-            <YieldExplainers selectedYield={yieldItem} sellAssetSymbol={inputTokenAsset?.symbol} />
+            <YieldExplainers
+              selectedYield={yieldItem}
+              sellAssetSymbol={inputTokenAsset?.symbol}
+              action={action}
+            />
           )}
           {stepsToShow.length > 0 && <TransactionStepsList steps={stepsToShow} />}
         </Flex>

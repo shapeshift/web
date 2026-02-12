@@ -15,6 +15,7 @@ const infoIcon = <InfoIcon color='text.subtle' />
 type ExplainerItem = {
   icon: ReactNode
   textKey: string
+  relevance: 'enter' | 'exit' | 'both'
 }
 
 const getYieldExplainers = (selectedYield: AugmentedYieldDto): ExplainerItem[] => {
@@ -29,31 +30,40 @@ const getYieldExplainers = (selectedYield: AugmentedYieldDto): ExplainerItem[] =
           textKey: outputTokenSymbol
             ? 'earn.explainers.liquidStakingReceive'
             : 'earn.explainers.liquidStakingTrade',
+          relevance: 'enter' as const,
         },
-        { icon: giftIcon, textKey: 'earn.explainers.rewardsSchedule' },
-        { icon: infoIcon, textKey: 'earn.explainers.liquidStakingWithdraw' },
+        { icon: giftIcon, textKey: 'earn.explainers.rewardsSchedule', relevance: 'enter' as const },
+        {
+          icon: infoIcon,
+          textKey: 'earn.explainers.liquidStakingWithdraw',
+          relevance: 'both' as const,
+        },
       ]
     case 'native-staking':
     case 'pooled-staking':
     case 'staking':
       return [
-        { icon: giftIcon, textKey: 'earn.explainers.rewardsSchedule' },
-        { icon: infoIcon, textKey: 'earn.explainers.stakingUnbonding' },
+        { icon: giftIcon, textKey: 'earn.explainers.rewardsSchedule', relevance: 'enter' as const },
+        { icon: infoIcon, textKey: 'earn.explainers.stakingUnbonding', relevance: 'both' as const },
       ]
     case 'restaking':
       return [
-        { icon: giftIcon, textKey: 'earn.explainers.restakingYield' },
-        { icon: infoIcon, textKey: 'earn.explainers.restakingWithdraw' },
+        { icon: giftIcon, textKey: 'earn.explainers.restakingYield', relevance: 'enter' as const },
+        {
+          icon: infoIcon,
+          textKey: 'earn.explainers.restakingWithdraw',
+          relevance: 'both' as const,
+        },
       ]
     case 'vault':
       return [
-        { icon: giftIcon, textKey: 'earn.explainers.vaultYield' },
-        { icon: infoIcon, textKey: 'earn.explainers.vaultWithdraw' },
+        { icon: giftIcon, textKey: 'earn.explainers.vaultYield', relevance: 'enter' as const },
+        { icon: infoIcon, textKey: 'earn.explainers.vaultWithdraw', relevance: 'both' as const },
       ]
     case 'lending':
       return [
-        { icon: giftIcon, textKey: 'earn.explainers.lendingYield' },
-        { icon: infoIcon, textKey: 'earn.explainers.lendingWithdraw' },
+        { icon: giftIcon, textKey: 'earn.explainers.lendingYield', relevance: 'enter' as const },
+        { icon: infoIcon, textKey: 'earn.explainers.lendingWithdraw', relevance: 'both' as const },
       ]
     default:
       return []
@@ -63,48 +73,58 @@ const getYieldExplainers = (selectedYield: AugmentedYieldDto): ExplainerItem[] =
 type YieldExplainersProps = {
   selectedYield: AugmentedYieldDto
   sellAssetSymbol?: string
+  action: 'enter' | 'exit' | 'claim'
 }
 
-export const YieldExplainers = memo(({ selectedYield, sellAssetSymbol }: YieldExplainersProps) => {
-  const translate = useTranslate()
+export const YieldExplainers = memo(
+  ({ selectedYield, sellAssetSymbol, action }: YieldExplainersProps) => {
+    const translate = useTranslate()
 
-  const explainers = useMemo(() => getYieldExplainers(selectedYield), [selectedYield])
+    const actionRelevance = action === 'enter' ? 'enter' : 'exit'
+    const explainers = useMemo(
+      () =>
+        getYieldExplainers(selectedYield).filter(
+          e => e.relevance === actionRelevance || e.relevance === 'both',
+        ),
+      [selectedYield, actionRelevance],
+    )
 
-  const rewardSchedule = selectedYield.mechanics.rewardSchedule
-  const outputSymbol = selectedYield.outputToken?.symbol
+    const rewardSchedule = selectedYield.mechanics.rewardSchedule
+    const outputSymbol = selectedYield.outputToken?.symbol
 
-  const cooldownDays = useMemo(() => {
-    const seconds = selectedYield.mechanics.cooldownPeriod?.seconds
-    if (!seconds) return undefined
-    return Math.ceil(seconds / 86400)
-  }, [selectedYield.mechanics.cooldownPeriod?.seconds])
+    const cooldownDays = useMemo(() => {
+      const seconds = selectedYield.mechanics.cooldownPeriod?.seconds
+      if (!seconds) return undefined
+      return Math.ceil(seconds / 86400)
+    }, [selectedYield.mechanics.cooldownPeriod?.seconds])
 
-  const symbol = outputSymbol ?? sellAssetSymbol ?? ''
+    const symbol = outputSymbol ?? sellAssetSymbol ?? ''
 
-  const translatedExplainers = useMemo(() => {
-    if (explainers.length === 0) return []
-    return explainers.map(explainer => ({
-      icon: explainer.icon,
-      text: translate(explainer.textKey, {
-        symbol,
-        schedule: rewardSchedule ?? '',
-        days: cooldownDays ?? '',
-      }),
-    }))
-  }, [explainers, translate, symbol, rewardSchedule, cooldownDays])
+    const translatedExplainers = useMemo(() => {
+      if (explainers.length === 0) return []
+      return explainers.map(explainer => ({
+        icon: explainer.icon,
+        text: translate(explainer.textKey, {
+          symbol,
+          schedule: rewardSchedule ?? '',
+          days: cooldownDays ?? '',
+        }),
+      }))
+    }, [explainers, translate, symbol, rewardSchedule, cooldownDays])
 
-  if (translatedExplainers.length === 0) return null
+    if (translatedExplainers.length === 0) return null
 
-  return (
-    <VStack spacing={3} align='stretch'>
-      {translatedExplainers.map((explainer, index) => (
-        <HStack key={index} spacing={3} align='flex-start'>
-          <Box mt={0.5}>{explainer.icon}</Box>
-          <Text fontSize='sm' color='text.subtle'>
-            {explainer.text}
-          </Text>
-        </HStack>
-      ))}
-    </VStack>
-  )
-})
+    return (
+      <VStack spacing={3} align='stretch'>
+        {translatedExplainers.map((explainer, index) => (
+          <HStack key={index} spacing={3} align='flex-start'>
+            <Box mt={0.5}>{explainer.icon}</Box>
+            <Text fontSize='sm' color='text.subtle'>
+              {explainer.text}
+            </Text>
+          </HStack>
+        ))}
+      </VStack>
+    )
+  },
+)

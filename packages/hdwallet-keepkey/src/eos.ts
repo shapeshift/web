@@ -1,6 +1,7 @@
 import * as Messages from '@keepkey/device-protocol/lib/messages_pb'
 import * as EosMessages from '@keepkey/device-protocol/lib/messages-eos_pb'
 import * as core from '@shapeshiftoss/hdwallet-core'
+import { BigAmount } from '@shapeshiftoss/utils'
 import bs58 from 'bs58'
 import createHash from 'create-hash'
 import Long from 'long'
@@ -83,35 +84,13 @@ function symbolFromString(p: number, name: string): number {
 }
 
 function assetToNumber(asset: string): [number, number] {
-  const assetSplit = asset.split(' ') // amount, symbol
+  const assetSplit = asset.split(' ')
   const amountStr = assetSplit[0] ?? ''
   const symbolStr = assetSplit[1] ?? ''
   const dot_pos = amountStr.indexOf('.')
-  let fract_part = 0
-  let int_part = 0
-  let precision_digit = 0
-
-  // parse symbol
-  if (dot_pos != -1) {
-    precision_digit = amountStr.length - dot_pos - 1
-  } else {
-    precision_digit = 0
-  }
-
+  const precision_digit = dot_pos !== -1 ? amountStr.length - dot_pos - 1 : 0
   const sym = symbolFromString(precision_digit, symbolStr)
-  //parse amount
-  if (dot_pos != -1) {
-    int_part = parseInt(amountStr.slice(0, dot_pos))
-    fract_part = parseInt(amountStr.slice(dot_pos + 1))
-    if (int_part < 0) {
-      fract_part *= -1
-    }
-  } else {
-    int_part = parseInt(amountStr)
-  }
-  let amount = int_part
-  amount *= Math.pow(10, sym & 0xff)
-  amount += fract_part
+  const amount = Number(BigAmount.fromPrecision({ value: amountStr, precision: precision_digit }).toBaseUnit())
   return [amount, sym]
 }
 

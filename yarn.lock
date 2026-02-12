@@ -13160,6 +13160,7 @@ __metadata:
   dependencies:
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
     "@shapeshiftoss/proto-tx-builder": 0.10.0
+    "@shapeshiftoss/utils": "workspace:*"
     "@solana/web3.js": 1.98.0
     "@types/google-protobuf": ^3.15.1
     "@types/lodash": ^4.14.178
@@ -13201,6 +13202,7 @@ __metadata:
     "@ethereumjs/tx": 5.4.0
     "@metamask/eth-sig-util": ^7.0.0
     "@shapeshiftoss/hdwallet-core": "workspace:^"
+    "@shapeshiftoss/utils": "workspace:*"
     "@types/crypto-js": ^4.2.2
     bech32: ^1.1.4
     bs58: ^5.0.0
@@ -13303,6 +13305,7 @@ __metadata:
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
     "@shapeshiftoss/hdwallet-core": "workspace:^"
     "@shapeshiftoss/proto-tx-builder": 0.10.0
+    "@shapeshiftoss/utils": "workspace:*"
     "@types/create-hash": ^1.2.2
     "@types/crypto-js": ^4.0.0
     "@types/google-protobuf": ^3.15.1
@@ -13456,6 +13459,7 @@ __metadata:
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
     "@shapeshiftoss/hdwallet-core": "workspace:^"
     "@shapeshiftoss/proto-tx-builder": 0.10.0
+    "@shapeshiftoss/utils": "workspace:*"
     "@solana/web3.js": 1.98.0
     "@ton/core": ^0.62.1
     "@ton/crypto": ^3.3.0
@@ -13861,7 +13865,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@shapeshiftoss/utils@^1.0.4, @shapeshiftoss/utils@npm:@shapeshiftoss/utils@1.0.5, @shapeshiftoss/utils@workspace:^, @shapeshiftoss/utils@workspace:packages/utils":
+"@shapeshiftoss/utils@^1.0.4, @shapeshiftoss/utils@npm:@shapeshiftoss/utils@1.0.5, @shapeshiftoss/utils@workspace:*, @shapeshiftoss/utils@workspace:^, @shapeshiftoss/utils@workspace:packages/utils":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/utils@workspace:packages/utils"
   dependencies:

@@ -1,37 +1,45 @@
+import { BigAmount } from '@shapeshiftoss/utils'
 import { describe, expect, it } from 'vitest'
 
-import { fromBaseUnit } from './math'
+import { fromBaseUnit, toBaseUnit } from './math'
 
 describe('@/lib/math', () => {
   describe('fromBaseUnit', () => {
-    it('should correctly convert and round down with given displayDecimals', () => {
-      const result = fromBaseUnit(123456789, 4, 2)
-      expect(result).toBe('12345.67')
+    it('should return precision-scale string from BigAmount', () => {
+      const ba = BigAmount.fromBaseUnit({ value: '1000000000000000000', precision: 18 })
+      expect(fromBaseUnit(ba)).toBe('1')
     })
 
-    it('should correctly convert without displayDecimals and return full precision', () => {
-      const result = fromBaseUnit(123456789, 4)
-      expect(result).toBe('12345.6789')
+    it('should handle high precision values', () => {
+      const ba = BigAmount.fromBaseUnit({ value: '182912819182912192', precision: 18 })
+      expect(fromBaseUnit(ba)).toBe('0.182912819182912192')
     })
 
-    it('should correctly convert and round down with given displayDecimals for another input', () => {
-      const result = fromBaseUnit(987654321, 6, 3)
-      expect(result).toBe('987.654')
+    it('should handle zero', () => {
+      const ba = BigAmount.fromBaseUnit({ value: '0', precision: 18 })
+      expect(fromBaseUnit(ba)).toBe('0')
     })
 
-    it('should correctly convert without displayDecimals and return full precision for another input', () => {
-      const result = fromBaseUnit(987654321, 6)
-      expect(result).toBe('987.654321')
+    it('should handle low precision assets', () => {
+      const ba = BigAmount.fromBaseUnit({ value: '123456789', precision: 4 })
+      expect(fromBaseUnit(ba)).toBe('12345.6789')
+    })
+  })
+
+  describe('toBaseUnit', () => {
+    it('should return base-unit string from BigAmount', () => {
+      const ba = BigAmount.fromPrecision({ value: '1.5', precision: 18 })
+      expect(toBaseUnit(ba)).toBe('1500000000000000000')
     })
 
-    it('should correctly convert and round down with given displayDecimals for high precision input', () => {
-      const result = fromBaseUnit('182912819182912192', 18, 8)
-      expect(result).toBe('0.18291281')
+    it('should handle whole numbers', () => {
+      const ba = BigAmount.fromPrecision({ value: '100', precision: 8 })
+      expect(toBaseUnit(ba)).toBe('10000000000')
     })
 
-    it('should correctly convert without displayDecimals and return full precision for high precision input', () => {
-      const result = fromBaseUnit('182912819182912192', 18)
-      expect(result).toBe('0.182912819182912192')
+    it('should handle zero', () => {
+      const ba = BigAmount.fromPrecision({ value: '0', precision: 18 })
+      expect(toBaseUnit(ba)).toBe('0')
     })
   })
 })

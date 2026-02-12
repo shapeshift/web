@@ -236,9 +236,8 @@ export const Withdraw: React.FC<
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(balance.toPrecision())
       const _value = bnOrZero(value)
-      const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
+      const hasValidBalance = balance.gt(0) && _value.gt(0) && balance.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
@@ -247,8 +246,7 @@ export const Withdraw: React.FC<
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      const crypto = bnOrZero(balance.toPrecision())
-      const fiat = crypto.times(bnOrZero(marketData?.price))
+      const fiat = balance.times(bnOrZero(marketData?.price))
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
       if (_value.isEqualTo(0)) return ''

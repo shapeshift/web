@@ -9,7 +9,6 @@ import { calcLimitPriceTargetAsset } from './helpers'
 import { limitOrderSlice } from './limitOrderSlice'
 import type { LimitOrderSubmissionMetadata } from './types'
 
-import { fromBaseUnit } from '@/lib/math'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import { selectCowSwapQuoteIdParamFromRequiredFilter } from '@/state/selectors'
 
@@ -81,12 +80,10 @@ export const selectActiveQuoteSellAmountCryptoPrecision = createSelector(
   (sellAmountCryptoBaseUnit, asset) => {
     if (!asset) return '0'
 
-    return fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: sellAmountCryptoBaseUnit,
-        precision: asset.precision,
-      }),
-    )
+    return BigAmount.fromBaseUnit({
+      value: sellAmountCryptoBaseUnit,
+      precision: asset.precision,
+    }).toPrecision()
   },
 )
 
@@ -96,12 +93,10 @@ export const selectActiveQuoteBuyAmountCryptoPrecision = createSelector(
   (buyAmountCryptoBaseUnit, asset) => {
     if (!asset) return '0'
 
-    return fromBaseUnit(
-      BigAmount.fromBaseUnit({
-        value: buyAmountCryptoBaseUnit,
-        precision: asset.precision,
-      }),
-    )
+    return BigAmount.fromBaseUnit({
+      value: buyAmountCryptoBaseUnit,
+      precision: asset.precision,
+    }).toPrecision()
   },
 )
 
@@ -114,7 +109,7 @@ export const selectActiveQuoteNetworkFeeCryptoPrecision = createSelector(
     // CoW does not cost a network fee to submit, but the calcs are implemented as though they did
     // in case we ever wire them in for a different protocol in the future.
     const networkFee = '0'
-    return fromBaseUnit(BigAmount.fromBaseUnit({ value: networkFee, precision }))
+    return BigAmount.fromBaseUnit({ value: networkFee, precision }).toPrecision()
   },
 )
 

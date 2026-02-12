@@ -11,7 +11,7 @@ import { fetchThorchainWithdrawQuote } from './hooks/useGetThorchainSaversWithdr
 
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
+import { toBaseUnit } from '@/lib/math'
 import type { EstimatedFeesQueryKey } from '@/pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { queryFn as getEstimatedFeesQueryFn } from '@/pages/Lending/hooks/useGetEstimatedFeesQuery'
 import type { IsSweepNeededQueryKey } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
@@ -44,8 +44,8 @@ const getHasEnoughBalanceForTxPlusFees = ({
   if (balanceCryptoBaseUnitBn.isZero()) return false
 
   return bnOrZero(amountCryptoPrecision)
-    .plus(fromBaseUnit(BigAmount.fromBaseUnit({ value: txFeeCryptoBaseUnit, precision })))
-    .lte(fromBaseUnit(BigAmount.fromBaseUnit({ value: balanceCryptoBaseUnitBn, precision })))
+    .plus(BigAmount.fromBaseUnit({ value: txFeeCryptoBaseUnit, precision }).toPrecision())
+    .lte(BigAmount.fromBaseUnit({ value: balanceCryptoBaseUnitBn, precision }).toPrecision())
 }
 
 const getHasEnoughBalanceForTxPlusFeesPlusSweep = ({
@@ -66,13 +66,13 @@ const getHasEnoughBalanceForTxPlusFeesPlusSweep = ({
 
   return {
     hasEnoughBalance: bnOrZero(amountCryptoPrecision)
-      .plus(fromBaseUnit(BigAmount.fromBaseUnit({ value: txFeeCryptoBaseUnit, precision })))
-      .plus(fromBaseUnit(BigAmount.fromBaseUnit({ value: sweepTxFeeCryptoBaseUnit, precision })))
-      .lte(fromBaseUnit(BigAmount.fromBaseUnit({ value: balanceCryptoBaseUnitBn, precision }))),
+      .plus(BigAmount.fromBaseUnit({ value: txFeeCryptoBaseUnit, precision }).toPrecision())
+      .plus(BigAmount.fromBaseUnit({ value: sweepTxFeeCryptoBaseUnit, precision }).toPrecision())
+      .lte(BigAmount.fromBaseUnit({ value: balanceCryptoBaseUnitBn, precision }).toPrecision()),
     missingFunds: bnOrZero(amountCryptoPrecision)
-      .plus(fromBaseUnit(BigAmount.fromBaseUnit({ value: txFeeCryptoBaseUnit, precision })))
-      .plus(fromBaseUnit(BigAmount.fromBaseUnit({ value: sweepTxFeeCryptoBaseUnit, precision })))
-      .minus(fromBaseUnit(BigAmount.fromBaseUnit({ value: balanceCryptoBaseUnitBn, precision }))),
+      .plus(BigAmount.fromBaseUnit({ value: txFeeCryptoBaseUnit, precision }).toPrecision())
+      .plus(BigAmount.fromBaseUnit({ value: sweepTxFeeCryptoBaseUnit, precision }).toPrecision())
+      .minus(BigAmount.fromBaseUnit({ value: balanceCryptoBaseUnitBn, precision }).toPrecision()),
   }
 }
 

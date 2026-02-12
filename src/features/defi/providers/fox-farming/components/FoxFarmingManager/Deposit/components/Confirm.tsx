@@ -30,7 +30,6 @@ import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -120,10 +119,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
   )
 
   const hasEnoughBalanceForGas = useMemo(
-    () =>
-      bnOrZero(fromBaseUnit(feeAssetBalance))
-        .minus(bnOrZero(state?.deposit.estimatedGasCryptoPrecision))
-        .gte(0),
+    () => feeAssetBalance.minus(bnOrZero(state?.deposit.estimatedGasCryptoPrecision)).gte(0),
     [feeAssetBalance, state?.deposit.estimatedGasCryptoPrecision],
   )
 

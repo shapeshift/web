@@ -303,7 +303,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     const maxCryptoOrZero = maxCrypto.isPositive() ? maxCrypto : bn(0)
     const maxFiatOrZero = maxFiat.isPositive() ? maxFiat : bn(0)
 
-    setValue(SendFormFields.AmountCryptoPrecision, maxCryptoOrZero.toPrecision())
+    setValue(SendFormFields.AmountCryptoPrecision, maxCryptoOrZero.toFixed())
     setValue(SendFormFields.FiatAmount, maxFiatOrZero.toFixed(2))
   }, [
     assetId,
@@ -376,7 +376,7 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       const maxCrypto = bnOrZero(cryptoPrecisionBalance)
       const maxFiat = maxCrypto.times(bnOrZero(price))
 
-      setValue(SendFormFields.AmountCryptoPrecision, maxCrypto.toPrecision())
+      setValue(SendFormFields.AmountCryptoPrecision, maxCrypto.toFixed())
       setValue(SendFormFields.FiatAmount, maxFiat.toFixed(2))
     }
     // There is no balance, hence we don't need to estimate fees, but still need to set to zero out the form values

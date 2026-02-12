@@ -63,7 +63,7 @@ export function useCallRequestEvmFees(state: WalletConnectState) {
         (acc: FeePrice, key: FeeDataKey) => {
           if (!Object.values(FeeDataKey).includes(key)) return acc
           const txFee = BigAmount.fromBaseUnit({ value: estimatedFees[key].txFee, precision: feeAsset?.precision ?? 0 }).toPrecision()
-          const fiatFee = bnOrZero(txFee).times(feeAssetPrice).toPrecision()
+          const fiatFee = bnOrZero(txFee).times(feeAssetPrice).toFixed()
           const gasPriceGwei = bnOrZero(estimatedFees[key].chainSpecific.gasPrice)
             .div(1e9)
             .toString()

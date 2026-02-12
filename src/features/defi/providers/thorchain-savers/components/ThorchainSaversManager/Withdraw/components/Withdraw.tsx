@@ -180,7 +180,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         .plus(
           fromBaseUnit(txFeeCryptoBaseUnit, precision ?? 0),
         )
-        .lte(BigAmount.fromBaseUnit({ value: balanceCryptoBaseUnitBn, precision }).toPrecision())
+        .lte(fromBaseUnit(balanceCryptoBaseUnitBn, precision ?? 0))
     },
     [],
   )
@@ -361,10 +361,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
       try {
         const withdrawAmountCryptoPrecision = bnOrZero(value)
-        const withdrawAmountCryptoBaseUnit = BigAmount.fromPrecision({
-          value,
-          precision: asset.precision,
-        }).toBaseUnit()
+        const withdrawAmountCryptoBaseUnit = toBaseUnit(value, asset.precision)
         const amountCryptoBaseUnit = toBaseUnit(withdrawAmountCryptoPrecision, asset.precision)
 
         if (amountAvailableCryptoPrecision.lt(withdrawAmountCryptoPrecision))
@@ -425,7 +422,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
               fromAddress,
             })
 
-          if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds.toFixed())
+          if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds)
 
           return (
             amountAvailableCryptoPrecision.gt(0) &&
@@ -523,7 +520,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
               fromAddress,
             })
 
-          if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds.toFixed())
+          if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds)
 
           return (
             amountAvailableFiat.gt(0) &&

@@ -10,7 +10,7 @@ import type { GetThorchainSaversWithdrawQuoteQueryKey } from './hooks/useGetThor
 import { fetchThorchainWithdrawQuote } from './hooks/useGetThorchainSaversWithdrawQuoteQuery'
 
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
 import type { EstimatedFeesQueryKey } from '@/pages/Lending/hooks/useGetEstimatedFeesQuery'
 import { queryFn as getEstimatedFeesQueryFn } from '@/pages/Lending/hooks/useGetEstimatedFeesQuery'
@@ -40,12 +40,13 @@ const getHasEnoughBalanceForTxPlusFees = ({
   txFeeCryptoBaseUnit: string
   precision: number
 }) => {
-  const balanceCryptoBaseUnitBn = bnOrZero(balanceCryptoBaseUnit)
-  if (balanceCryptoBaseUnitBn.isZero()) return false
+  const balance = BigAmount.fromBaseUnit({ value: balanceCryptoBaseUnit, precision })
+  if (balance.isZero()) return false
 
-  return bnOrZero(amountCryptoPrecision)
-    .plus(BigAmount.fromBaseUnit({ value: txFeeCryptoBaseUnit, precision }).toPrecision())
-    .lte(BigAmount.fromBaseUnit({ value: balanceCryptoBaseUnitBn, precision }).toPrecision())
+  const amount = BigAmount.fromPrecision({ value: amountCryptoPrecision, precision })
+  const txFee = BigAmount.fromBaseUnit({ value: txFeeCryptoBaseUnit, precision })
+
+  return amount.plus(txFee).lte(balance)
 }
 
 const getHasEnoughBalanceForTxPlusFeesPlusSweep = ({
@@ -61,18 +62,17 @@ const getHasEnoughBalanceForTxPlusFeesPlusSweep = ({
   precision: number
   sweepTxFeeCryptoBaseUnit: string
 }) => {
-  const balanceCryptoBaseUnitBn = bnOrZero(balanceCryptoBaseUnit)
-  if (balanceCryptoBaseUnitBn.isZero()) return { hasEnoughBalance: false, missingFunds: bn(0) }
+  const balance = BigAmount.fromBaseUnit({ value: balanceCryptoBaseUnit, precision })
+  if (balance.isZero()) return { hasEnoughBalance: false, missingFunds: '0' }
+
+  const amount = BigAmount.fromPrecision({ value: amountCryptoPrecision, precision })
+  const txFee = BigAmount.fromBaseUnit({ value: txFeeCryptoBaseUnit, precision })
+  const sweepFee = BigAmount.fromBaseUnit({ value: sweepTxFeeCryptoBaseUnit, precision })
+  const totalCost = amount.plus(txFee).plus(sweepFee)
 
   return {
-    hasEnoughBalance: bnOrZero(amountCryptoPrecision)
-      .plus(BigAmount.fromBaseUnit({ value: txFeeCryptoBaseUnit, precision }).toPrecision())
-      .plus(BigAmount.fromBaseUnit({ value: sweepTxFeeCryptoBaseUnit, precision }).toPrecision())
-      .lte(BigAmount.fromBaseUnit({ value: balanceCryptoBaseUnitBn, precision }).toPrecision()),
-    missingFunds: bnOrZero(amountCryptoPrecision)
-      .plus(BigAmount.fromBaseUnit({ value: txFeeCryptoBaseUnit, precision }).toPrecision())
-      .plus(BigAmount.fromBaseUnit({ value: sweepTxFeeCryptoBaseUnit, precision }).toPrecision())
-      .minus(BigAmount.fromBaseUnit({ value: balanceCryptoBaseUnitBn, precision }).toPrecision()),
+    hasEnoughBalance: totalCost.lte(balance),
+    missingFunds: totalCost.minus(balance).toPrecision(),
   }
 }
 
@@ -106,12 +106,7 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
   const quote = await (async () => {
     switch (type) {
       case 'withdraw': {
-        const withdrawAmountCryptoBaseUnit = toBaseUnit(
-          BigAmount.fromPrecision({
-            value: _amountCryptoPrecision,
-            precision: asset.precision,
-          }),
-        )
+        const withdrawAmountCryptoBaseUnit = toBaseUnit(_amountCryptoPrecision, asset.precision)
 
         const thorchainSaversWithdrawQuoteQueryKey: GetThorchainSaversWithdrawQuoteQueryKey = [
           'thorchainSaversWithdrawQuote',
@@ -130,12 +125,7 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
         })
       }
       case 'deposit': {
-        const amountCryptoBaseUnit = toBaseUnit(
-          BigAmount.fromPrecision({
-            value: _amountCryptoPrecision,
-            precision: asset.precision,
-          }),
-        )
+        const amountCryptoBaseUnit = toBaseUnit(_amountCryptoPrecision, asset.precision)
 
         const thorchainSaversDepositQuoteQueryKey: GetThorchainSaversDepositQuoteQueryKey = [
           'thorchainSaversDepositQuote',
@@ -161,10 +151,8 @@ export const fetchHasEnoughBalanceForTxPlusFeesPlusSweep = async ({
         ).toFixed()
 
   const amountCryptoBaseUnit = toBaseUnit(
-    BigAmount.fromPrecision({
-      value: amountCryptoPrecision,
-      precision: type === 'deposit' ? asset.precision : feeAsset?.precision ?? 0,
-    }),
+    amountCryptoPrecision,
+    type === 'deposit' ? asset.precision : feeAsset?.precision ?? 0,
   )
 
   const estimatedFeesQueryArgs = {

@@ -1,4 +1,4 @@
-import { BigAmount, bn, bnOrZero } from '@shapeshiftoss/utils'
+import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import { fromBaseUnit } from '@/lib/math'
 import { createSelector } from 'reselect'
 
@@ -104,7 +104,7 @@ export const selectActiveQuoteNetworkFeeCryptoPrecision = createSelector(
     // CoW does not cost a network fee to submit, but the calcs are implemented as though they did
     // in case we ever wire them in for a different protocol in the future.
     const networkFee = '0'
-    return BigAmount.fromBaseUnit({ value: networkFee, precision }).toPrecision()
+    return fromBaseUnit(networkFee, precision)
   },
 )
 

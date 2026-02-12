@@ -3,7 +3,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigAmount, isToken } from '@shapeshiftoss/utils'
+import { isToken } from '@shapeshiftoss/utils'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { useQueryClient } from '@tanstack/react-query'
 import debounce from 'lodash/debounce'
@@ -246,7 +246,7 @@ export const Deposit: React.FC<DepositProps> = ({
         .plus(
           fromBaseUnit(txFeeCryptoBaseUnit, precision ?? 0),
         )
-        .lte(BigAmount.fromBaseUnit({ value: balanceCryptoBaseUnitBn, precision }).toPrecision())
+        .lte(fromBaseUnit(balanceCryptoBaseUnitBn, precision ?? 0))
     },
     [],
   )
@@ -421,10 +421,7 @@ export const Deposit: React.FC<DepositProps> = ({
       if (!accountId) return
       if (state?.loading) return
 
-      const valueCryptoBaseUnit = BigAmount.fromPrecision({
-        value,
-        precision: asset.precision,
-      }).toBaseUnit()
+      const valueCryptoBaseUnit = toBaseUnit(value, asset.precision)
       const balanceCryptoPrecision = bn(
         fromBaseUnit(balanceCryptoBaseUnit, asset.precision),
       )

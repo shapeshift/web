@@ -81,7 +81,7 @@ export async function btcSignTx(
       (sum, output) => sum.plus(BigAmount.fromBaseUnit({ value: output.amount, precision: BTC_PRECISION })),
       BigAmount.zero({ precision: BTC_PRECISION }),
     )
-    const fee = inputTotal.minus(outputTotal).toNumber()
+    const fee = Number(inputTotal.minus(outputTotal).toBaseUnit())
 
     // GridPlus SDK requires changePath even when there's no change output.
     // Derive a valid dummy change path from the first input for validation.

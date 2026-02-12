@@ -236,7 +236,9 @@ export const validateTradeQuote = (
 
             const accountId =
               portfolioAccountIdByNumberByChainId[sellAssetAccountNumber][protocolFee.asset.chainId]
-            const balanceCryptoBaseUnit = portfolioAccountBalancesBaseUnit[accountId][assetId]
+            const balanceCryptoBaseUnit =
+              portfolioAccountBalancesBaseUnit[accountId]?.[assetId] ??
+              BigAmount.zero({ precision: protocolFee.asset.precision })
 
             // @TODO: seems like this condition should be applied for all the swappers, verify by smoke testing all of them
             // them kick the swapperName bit out of the condition

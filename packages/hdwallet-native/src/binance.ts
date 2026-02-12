@@ -1,6 +1,6 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
 import * as bech32 from 'bech32'
-import { BigAmount } from '@shapeshiftoss/utils'
+import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
 import type * as bnbSdkTypes from 'bnb-javascript-sdk-nobroadcast'
 import CryptoJS from 'crypto-js'
 import PLazy from 'p-lazy'
@@ -153,7 +153,9 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         }
 
         // The Binance SDK takes amounts as decimal strings (precision 8).
-        const amount = BigAmount.fromBaseUnit({ value: tx.msgs[0].inputs[0].coins[0].amount, precision: 8 })
+        const rawAmount = tx.msgs[0].inputs[0].coins[0].amount
+        if (!bnOrZero(rawAmount).isInteger()) throw new Error('amount must be an integer')
+        const amount = BigAmount.fromBaseUnit({ value: rawAmount, precision: 8 })
         const outputAmount = BigAmount.fromBaseUnit({ value: tx.msgs[0].outputs[0].coins[0].amount, precision: 8 })
         if (!amount.eq(outputAmount))
           throw new Error('amount in input and output must be equal')

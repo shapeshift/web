@@ -3,7 +3,7 @@
 `BigAmount` is a precision-aware wrapper around `BigNumber` that stores values internally in **base units** (raw blockchain integers — wei, satoshis, etc.). It encapsulates precision math so consumers never manually divide/multiply by `10^precision`.
 
 **Source**: `packages/utils/src/bigAmount/bigAmount.ts`
-**Tests**: `src/lib/amount/BigAmount.test.ts`
+**Tests**: `packages/utils/src/bigAmount/bigAmount.test.ts`
 **Exported from**: `@shapeshiftoss/utils`
 
 ---
@@ -56,6 +56,7 @@ Wired in `src/state/store.ts` after store creation. Enables:
 | `.toFixed(decimals?)` | `string` | Precision-scale with optional decimal places (ROUND_DOWN) |
 | `.toSignificant(digits)` | `string` | Significant digits display |
 | `.toNumber()` | `number` | JS number (precision loss for large values!) |
+| `.toBN()` | `BigNumber` | Precision-scale BigNumber for BN interop |
 | `.toString()` | `string` | Same as `.toPrecision()` |
 | `.toUserCurrency(decimals?)` | `string` | Fiat value in user's currency (requires configure + assetId) |
 | `.toUSD(decimals?)` | `string` | USD value (requires configure + assetId) |
@@ -72,11 +73,13 @@ All arithmetic returns a new `BigAmount` (immutable).
 | `.plus(other)` | `BigAmount` or scalar | BigAmount: same precision enforced. Scalar: treated as precision-scale. |
 | `.minus(other)` | `BigAmount` or scalar | Same as plus |
 | `.times(scalar)` | Scalar only | BigAmount×BigAmount is dimensionally invalid — throws |
-| `.div(scalar)` | Scalar only | Same as times. **Note**: div(0) produces Infinity silently. |
+| `.div(scalar)` | Scalar only | Same as times. **div(0) returns zero** (safe default). |
 | `.abs()` | — | Absolute value |
 | `.negated()` | — | Negate |
 | `.positiveOrZero()` | — | Clamp to ≥ 0 |
-| `.decimalPlaces(n, rm?)` | — | Truncate decimal places |
+| `.decimalPlaces(n, rm?)` | — | Round precision-scale value to n decimal places |
+
+**NullableScalar**: `times`/`div`/`plus`/`minus` all accept `null`/`undefined` — treated as 0.
 
 ---
 
@@ -107,35 +110,13 @@ All accept `BigAmount` (same precision enforced) or scalar (treated as precision
 
 ---
 
-## Convenience Aliases (`src/lib/math.ts`)
-
-For app-level (`src/`) code, overloaded aliases support both BigAmount and positional args:
-
-```ts
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
-
-// Overload 1: BigAmount → precision-scale string
-const humanReadable = fromBaseUnit(balance) // same as balance.toPrecision()
-
-// Overload 2: positional args → precision-scale string (constructs BigAmount internally)
-const humanReadable2 = fromBaseUnit('1000000000000000000', 18) // '1'
-
-// toBaseUnit: BigAmount → base-unit string
-const rawValue = toBaseUnit(balance)        // same as balance.toBaseUnit()
-
-// toBaseUnit: positional args → base-unit string
-const rawValue2 = toBaseUnit('1.5', 18)     // '1500000000000000000'
-```
-
-These are thin wrappers. `packages/` code uses BigAmount methods directly.
-
 ## Discriminated Union (Constructor Args)
 
 `fromBaseUnit` and `fromPrecision` accept either `{ value, precision }` or `{ value, assetId }` — never both:
 
 ```ts
 type FromBaseUnitWithPrecision = { value: NullableScalar; precision: number; assetId?: never }
-type FromBaseUnitWithAssetId = { value: NullableScalar; assetId: AssetId; precision?: never }
+type FromBaseUnitWithAssetId = { value: NullableScalar; assetId: string; precision?: never }
 ```
 
 The `assetId` variant resolves precision via `BigAmount.configure({ resolvePrecision })`, wired in `src/state/store.ts`.
@@ -149,7 +130,18 @@ Core portfolio selectors return `BigAmount`:
 - `selectPortfolioAccountBalances` → `Record<AccountId, Record<AssetId, BigAmount>>`
 - `selectPortfolioAssetBalances` → `Record<AssetId, BigAmount>`
 
-Consumers extract strings via `fromBaseUnit(balance)` or `toBaseUnit(balance)`.
+Consumers call `.toPrecision()` or `.toBaseUnit()` directly on the returned BigAmount.
+
+---
+
+## Naming Conventions
+
+| Suffix | Meaning | Example |
+|--------|---------|---------|
+| `CryptoBaseUnit` | Raw blockchain integer | `amountCryptoBaseUnit = "1500000000000000000"` |
+| `CryptoPrecision` | Human-readable decimal | `amountCryptoPrecision = "1.5"` |
+
+**Never use "Human"** for precision-scale values — use `CryptoPrecision`. The `Human` suffix is reserved for genuinely display-level formatting (e.g., `timeInPoolHuman`).
 
 ---
 
@@ -157,5 +149,6 @@ Consumers extract strings via `fromBaseUnit(balance)` or `toBaseUnit(balance)`.
 
 1. **Prefer `BigAmount.fromBaseUnit`** as source of truth — it's lossless (base units are integers)
 2. **Use `BigAmount.fromPrecision`** only when you ONLY have a human-readable value
-3. **Never cast `as BigAmount`** — fix types as needed
-4. **Construction is separate from extraction** — construct with `BigAmount.fromBaseUnit({...})`, extract with `fromBaseUnit(ba)` / `toBaseUnit(ba)`
+3. **Call `.toPrecision()` / `.toBaseUnit()` directly** on BigAmount for string extraction — no wrapper aliases
+4. **Never cast `as BigAmount`** — fix types as needed
+5. **Same-precision enforcement** — arithmetic between two BigAmounts requires matching precision

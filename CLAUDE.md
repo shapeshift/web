@@ -157,9 +157,10 @@
 - See `docs/bigamount.md` for full API documentation
 - Use `BigAmount.fromBaseUnit({ value, precision })` for constructing from raw blockchain values (preferred, lossless)
 - Use `BigAmount.fromPrecision({ value, precision })` only when a precision-scale value is all that's available
-- Use `fromBaseUnit(bigAmount)` / `toBaseUnit(bigAmount)` from `@/lib/math` for string extraction in `src/`
+- Call `.toPrecision()` / `.toBaseUnit()` directly on BigAmount for string extraction — no wrapper aliases
 - Core selectors (`selectPortfolioCryptoBalanceByFilter`) return `BigAmount`
 - Never cast `as BigAmount` — fix types as needed
+- Naming: `CryptoBaseUnit` = raw integer, `CryptoPrecision` = human-readable (NOT "HumanBalance")
 
 **Wallet Integration:**
 - Wallets are managed via `WalletProvider` context

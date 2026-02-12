@@ -11,8 +11,9 @@ export const unstakeEvent = getAbiItem({ abi: RFOX_ABI, name: 'Unstake' })
 
 export const IPFS_GATEWAY = 'https://gateway.pinata.cloud/ipfs'
 
-export const CURRENT_EPOCH_IPFS_HASH = 'bafkreidwawtp6luapulgga67cicthy6saycxpzfeqomajxiosmlhkwgoyy'
+export const CURRENT_EPOCH_IPFS_HASH = 'bafkreifsyavfxkj73pk5xy2gzqd4yh6njj2d6i6yfadv7xxd4xtqrmx32u'
 export const STUB_RUNE_ADDRESS = 'thor1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqn8p0r8'
+export const RFOX_V3_UPGRADE_EPOCH = 18
 
 export const RFOX_STAKING_ASSET_IDS = [foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId]
 

@@ -243,13 +243,13 @@ export const validateTradeQuote = (
               firstHop?.sellAsset.assetId === assetId &&
               swapperName === SwapperName.Jupiter
             ) {
-              return bnOrZero(balanceCryptoBaseUnit.toBaseUnit())
+              return bn(balanceCryptoBaseUnit.toBaseUnit())
                 .minus(bnOrZero(sellAmountCryptoBaseUnit))
                 .minus(protocolFee.amountCryptoBaseUnit)
                 .lt(0)
             }
 
-            return bnOrZero(balanceCryptoBaseUnit.toBaseUnit()).lt(protocolFee.amountCryptoBaseUnit)
+            return bn(balanceCryptoBaseUnit.toBaseUnit()).lt(protocolFee.amountCryptoBaseUnit)
           })
           .map(([_assetId, protocolFee]: [AssetId, ProtocolFee]) => {
             return {

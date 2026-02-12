@@ -20,7 +20,7 @@ import type {
 import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -96,7 +96,7 @@ export const Deposit: React.FC<DepositProps> = ({
         contractAddress: '',
       })
       const cryptoAmountHuman = fromBaseUnit(
-        bnOrZero(amountAvailableCryptoPrecision.toBaseUnit())
+        bn(amountAvailableCryptoPrecision.toBaseUnit())
           .minus(estimatedFees.average.txFee)
           .toFixed(0),
         asset.precision,

@@ -71,7 +71,7 @@ export const Withdraw: React.FC<
 
   const handlePercentClick = useCallback(
     (percent: number) => {
-      const cryptoAmount = bnOrZero(cryptoAmountAvailable.toPrecision())
+      const cryptoAmount = bn(cryptoAmountAvailable.toPrecision())
         .times(percent)
         .dp(asset.precision, BigNumber.ROUND_DOWN)
       const fiatAmount = bnOrZero(cryptoAmount).times(bnOrZero(marketData?.price))

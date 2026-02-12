@@ -25,7 +25,7 @@ import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommo
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
@@ -205,7 +205,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   }, [state?.deposit.estimatedGasCryptoBaseUnit, feeAsset])
 
   const hasEnoughBalanceForGas = useMemo(() => {
-    return bnOrZero(feeAssetBalance.toPrecision()).gte(
+    return bn(feeAssetBalance.toPrecision()).gte(
       bnOrZero(state?.deposit.cryptoAmount).plus(estimatedGasCryptoPrecision.toPrecision()),
     )
   }, [state?.deposit.cryptoAmount, estimatedGasCryptoPrecision, feeAssetBalance])

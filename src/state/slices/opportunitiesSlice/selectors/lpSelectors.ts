@@ -16,7 +16,7 @@ import { getUnderlyingAssetIdsBalances } from '../utils'
 import type { LpEarnOpportunityType } from './../types'
 
 import type { AssetWithBalance } from '@/features/defi/components/Overview/Overview'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
@@ -61,7 +61,7 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
 
         if (!underlyingAsset) return '0'
 
-        const lpBalanceTimesRatio = bnOrZero(lpAssetBalanceCryptoBaseUnit.toBaseUnit()).times(
+        const lpBalanceTimesRatio = bn(lpAssetBalanceCryptoBaseUnit.toBaseUnit()).times(
           fromBaseUnit(opportunityMetadata.underlyingAssetRatiosBaseUnit[i], underlyingAsset.precision),
         )
 

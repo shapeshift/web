@@ -13,7 +13,7 @@ import {
   TradeQuoteError as SwapperTradeQuoteError,
 } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { getChainShortName } from '@shapeshiftoss/utils'
+import { BigAmount, getChainShortName } from '@shapeshiftoss/utils'
 
 import type { ErrorWithMeta, TradeQuoteError } from '../types'
 import { TradeQuoteValidationError, TradeQuoteWarning } from '../types'
@@ -209,7 +209,7 @@ export const validateTradeQuote = (
 
   const secondHopHasSufficientBalanceForGas =
     !isMultiHopTrade ||
-    bnOrZero(secondHopFeeAssetBalance?.toPrecision())
+    (secondHopFeeAssetBalance?.toBN() ?? bn(0))
       .minus(secondHopNetworkFeeCryptoPrecision ?? 0)
       .gte(0)
 
@@ -243,13 +243,14 @@ export const validateTradeQuote = (
               firstHop?.sellAsset.assetId === assetId &&
               swapperName === SwapperName.Jupiter
             ) {
-              return bn(balanceCryptoBaseUnit.toBaseUnit())
-                .minus(bnOrZero(sellAmountCryptoBaseUnit))
-                .minus(protocolFee.amountCryptoBaseUnit)
-                .lt(0)
+              return balanceCryptoBaseUnit
+                .minus(BigAmount.fromBaseUnit({ value: bnOrZero(sellAmountCryptoBaseUnit).toFixed(), precision: balanceCryptoBaseUnit.precision }))
+                .minus(BigAmount.fromBaseUnit({ value: protocolFee.amountCryptoBaseUnit, precision: balanceCryptoBaseUnit.precision }))
+                .isNegative()
             }
 
-            return bn(balanceCryptoBaseUnit.toBaseUnit()).lt(protocolFee.amountCryptoBaseUnit)
+            return balanceCryptoBaseUnit
+              .lt(BigAmount.fromBaseUnit({ value: protocolFee.amountCryptoBaseUnit, precision: balanceCryptoBaseUnit.precision }))
           })
           .map(([_assetId, protocolFee]: [AssetId, ProtocolFee]) => {
             return {

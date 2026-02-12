@@ -61,13 +61,11 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
 
         if (!underlyingAsset) return '0'
 
-        const lpBalanceTimesRatio = bn(lpAssetBalanceCryptoBaseUnit.toBaseUnit()).times(
-          fromBaseUnit(opportunityMetadata.underlyingAssetRatiosBaseUnit[i], underlyingAsset.precision),
-        )
+        const underlyingAmountCryptoPrecision = lpAssetBalanceCryptoBaseUnit
+          .times(fromBaseUnit(opportunityMetadata.underlyingAssetRatiosBaseUnit[i], underlyingAsset.precision))
+          .toPrecision()
 
-        const humanAmount = fromBaseUnit(lpBalanceTimesRatio.toFixed(0), lpAsset.precision)
-
-        return toBaseUnit(humanAmount, underlyingAsset.precision)
+        return toBaseUnit(underlyingAmountCryptoPrecision, underlyingAsset.precision)
       })
 
     const opportunity = {
@@ -104,8 +102,8 @@ export const selectHighestBalanceAccountIdByLpId = createSelector(
         // Note that this may not hold true for the concept of "LPing" on other chains, hence the type assertion
         // In case we get an LpId that's not an AssetId, we'll have to implement custom logic for it
         // This is NOT a full LP abstraction, and for all intents and purposes is assuming the LP as token i.e an AssetId in portfolio, not an IOU
-        bnOrZero(b[lpId as AssetId]?.toBaseUnit())
-          .minus(bnOrZero(a[lpId as AssetId]?.toBaseUnit()))
+        (b[lpId as AssetId]?.toBN() ?? bn(0))
+          .minus(a[lpId as AssetId]?.toBN() ?? bn(0))
           .toNumber(),
       )[0]
 

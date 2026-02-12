@@ -491,7 +491,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const runeProtocolFeeCryptoPrecision = useMemo(() => {
     if (bnOrZero(actualRuneWithdrawAmountCryptoPrecision).eq(0)) return bn(0)
-    return bn(BigAmount.fromThorBaseUnit(runeOutboundFeeCryptoBaseUnit).toPrecision())
+    return BigAmount.fromThorBaseUnit(runeOutboundFeeCryptoBaseUnit).toBN()
   }, [actualRuneWithdrawAmountCryptoPrecision, runeOutboundFeeCryptoBaseUnit])
 
   const runeProtocolFeeFiatUserCurrency = useMemo(() => {

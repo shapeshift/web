@@ -32,14 +32,12 @@ export const getHopTotalNetworkFeeUserCurrency = (
 
   if (!networkFeeCryptoBaseUnit) return // network fee is unknown
 
-  const networkFeeFiatPrecision = bn(
-    BigAmount.fromBaseUnit({
-      value: networkFeeCryptoBaseUnit,
-      precision: feeAsset.precision,
-    })
-      .times(feeAssetUserCurrencyRate ?? '0')
-      .toPrecision(),
-  )
+  const networkFeeFiatPrecision = BigAmount.fromBaseUnit({
+    value: networkFeeCryptoBaseUnit,
+    precision: feeAsset.precision,
+  })
+    .times(feeAssetUserCurrencyRate ?? '0')
+    .toBN()
 
   return networkFeeFiatPrecision
 }

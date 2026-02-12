@@ -219,7 +219,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
     if (isUtxoChainId(feeAsset.chainId)) {
       return {
-        amountMinusFeesCryptoBaseUnit: bn(depositAmount.toBaseUnit()),
+        amountMinusFeesCryptoBaseUnit: depositAmount,
         amountMinusFeesCryptoPrecision: state?.deposit.cryptoAmount,
       }
     }
@@ -236,17 +236,20 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
       !isUtxoChainId(feeAsset.chainId) &&
       feeAsset.assetId === asset.assetId
     ) {
-      const baseUnitMinusFees = bn(depositAmount.toBaseUnit()).minus(
-        estimatedFeesData.txFeeCryptoBaseUnit,
+      const amountMinusFees = depositAmount.minus(
+        BigAmount.fromBaseUnit({
+          value: estimatedFeesData.txFeeCryptoBaseUnit,
+          precision: asset.precision,
+        }),
       )
       return {
-        amountMinusFeesCryptoBaseUnit: baseUnitMinusFees,
-        amountMinusFeesCryptoPrecision: fromBaseUnit(baseUnitMinusFees, asset.precision),
+        amountMinusFeesCryptoBaseUnit: amountMinusFees,
+        amountMinusFeesCryptoPrecision: amountMinusFees.toPrecision(),
       }
     }
 
     return {
-      amountMinusFeesCryptoBaseUnit: bn(depositAmount.toBaseUnit()),
+      amountMinusFeesCryptoBaseUnit: depositAmount,
       amountMinusFeesCryptoPrecision: state?.deposit.cryptoAmount,
     }
   }, [
@@ -261,7 +264,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   const { executeTransaction } = useSendThorTx({
     accountId: accountId ?? null,
     assetId,
-    amountCryptoBaseUnit: amountMinusFeesCryptoBaseUnit?.toFixed() ?? null,
+    amountCryptoBaseUnit: amountMinusFeesCryptoBaseUnit?.toBaseUnit() ?? null,
     action: isRunePool ? 'depositRunepool' : 'depositSavers',
     memo,
     fromAddress: fromAddress ?? null,

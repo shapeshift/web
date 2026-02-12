@@ -29,14 +29,12 @@ const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   const feeAssetUserCurrencyRate = getFeeAssetRate(feeAsset.assetId)
 
   const networkFeeCryptoBaseUnit = tradeQuoteStep.feeData.networkFeeCryptoBaseUnit
-  const networkFeeFiatPrecision = bn(
-    BigAmount.fromBaseUnit({
-      value: networkFeeCryptoBaseUnit ?? '0',
-      precision: feeAsset.precision,
-    })
-      .times(feeAssetUserCurrencyRate)
-      .toPrecision(),
-  )
+  const networkFeeFiatPrecision = BigAmount.fromBaseUnit({
+    value: networkFeeCryptoBaseUnit ?? '0',
+    precision: feeAsset.precision,
+  })
+    .times(feeAssetUserCurrencyRate)
+    .toBN()
 
   return networkFeeFiatPrecision
 }
@@ -87,14 +85,12 @@ const _convertCryptoBaseUnitToUsdPrecision = (
   const usdRate = selectUsdRateByAssetId(state, asset.assetId)
   // TODO(gomes): revert me once we have a Portals market-data provider, this allows us to get quotes despite missing market data
   // if (usdRate === undefined) throw Error(`missing usd rate for assetId ${asset.assetId}`)
-  return bn(
-    BigAmount.fromBaseUnit({
-      value: amountCryptoBaseUnit,
-      precision: asset.precision,
-    })
-      .times(usdRate ?? '0')
-      .toPrecision(),
-  )
+  return BigAmount.fromBaseUnit({
+    value: amountCryptoBaseUnit,
+    precision: asset.precision,
+  })
+    .times(usdRate ?? '0')
+    .toBN()
 }
 
 /*

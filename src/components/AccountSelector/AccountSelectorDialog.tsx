@@ -42,13 +42,13 @@ export const AccountSelectorDialog = ({
   onAccountSelect,
 }: AccountSelectorDialogProps) => {
   const translate = useTranslate()
-  const accountBalancesBaseUnit = useSelector(selectPortfolioAccountBalances)
+  const accountBalances = useSelector(selectPortfolioAccountBalances)
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   const accountsWithDetails = useMemo(
     () =>
       accountIds.map(accountId => {
-        const balance = accountBalancesBaseUnit?.[accountId]?.[assetId]
+        const balance = accountBalances?.[accountId]?.[assetId]
         const cryptoBalance = bnOrZero(balance ? balance.toBaseUnit() : 0)
         const fiatBalance = bnOrZero(balance ? balance.toPrecision() : 0).times(
           marketData?.price ?? 0,
@@ -60,7 +60,7 @@ export const AccountSelectorDialog = ({
           fiatBalance: fiatBalance.toFixed(2),
         }
       }),
-    [accountIds, accountBalancesBaseUnit, assetId, marketData],
+    [accountIds, accountBalances, assetId, marketData],
   )
 
   return (

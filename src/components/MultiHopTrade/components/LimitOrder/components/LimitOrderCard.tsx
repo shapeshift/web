@@ -121,19 +121,19 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     }
   }, [accountId, sellAssetId])
 
-  const sellAssetBalanceCryptoBaseUnit = useSelectorWithArgs(
+  const sellAssetBalance = useSelectorWithArgs(
     selectPortfolioCryptoBalanceByFilter,
     filter,
   )
 
   const hasSufficientBalance = useMemo(() => {
-    return sellAssetBalanceCryptoBaseUnit.gte(
+    return sellAssetBalance.gte(
       BigAmount.fromBaseUnit({
         value: sellAmountCryptoBaseUnit,
-        precision: sellAssetBalanceCryptoBaseUnit.precision,
+        precision: sellAssetBalance.precision,
       }),
     )
-  }, [sellAmountCryptoBaseUnit, sellAssetBalanceCryptoBaseUnit])
+  }, [sellAmountCryptoBaseUnit, sellAssetBalance])
 
   const from = useMemo(() => {
     return fromAccountId(accountId).account

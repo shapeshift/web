@@ -221,13 +221,13 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
     },
   )
 
-  const selectSellAssetBalanceCryptoBaseUnit = createSelector(
+  const selectSellAssetBalance = createSelector(
     (state: ReduxState) =>
       selectPortfolioCryptoBalanceByFilter(state, {
         accountId: selectSellAccountId(state),
         assetId: selectInputSellAsset(state).assetId,
       }),
-    sellAssetBalanceCryptoBaseUnit => sellAssetBalanceCryptoBaseUnit,
+    sellAssetBalance => sellAssetBalance,
   )
 
   const selectIsInputtingFiatSellAmount = createSelector(
@@ -257,7 +257,7 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
     selectIsManualReceiveAddressValid,
     selectInputSellAmountUsd,
     selectInputSellAmountUserCurrency,
-    selectSellAssetBalanceCryptoBaseUnit,
+    selectSellAssetBalance,
     selectIsInputtingFiatSellAmount,
     selectHasUserEnteredAmount,
     selectInputSellAmountCryptoPrecision,

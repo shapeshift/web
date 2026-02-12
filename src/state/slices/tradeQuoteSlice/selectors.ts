@@ -53,7 +53,7 @@ import {
   selectInputSellAssetUserCurrencyRate,
   selectManualReceiveAddress,
   selectSecondHopSellAccountId,
-  selectSellAssetBalanceCryptoBaseUnit,
+  selectSellAssetBalance,
   selectUserSlippagePercentageDecimal,
 } from '@/state/slices/tradeInputSlice/selectors'
 import {
@@ -133,7 +133,7 @@ export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
   portfolio.selectors.selectIsWalletConnected,
   selectWalletConnectedChainIds,
   selectManualReceiveAddress,
-  selectSellAssetBalanceCryptoBaseUnit,
+  selectSellAssetBalance,
   selectInputSellAsset,
   selectInputBuyAsset,
   (
@@ -141,7 +141,7 @@ export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
     isWalletConnected,
     walletConnectedChainIds,
     manualReceiveAddress,
-    sellAssetBalanceCryptoBaseUnit,
+    sellAssetBalance,
     sellAsset,
     buyAsset,
   ) => {
@@ -152,7 +152,7 @@ export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
       isWalletConnected,
       walletConnectedChainIds,
       manualReceiveAddress,
-      sellAssetBalanceCryptoBaseUnit: sellAssetBalanceCryptoBaseUnit.toBaseUnit(),
+      sellAssetBalanceCryptoBaseUnit: sellAssetBalance.toBaseUnit(),
       sellAmountCryptoBaseUnit: inputSellAmountCryptoBaseUnit,
       sellAsset,
       buyAsset,

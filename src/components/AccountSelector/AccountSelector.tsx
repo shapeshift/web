@@ -50,7 +50,7 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
       selectPortfolioAccountIdsByAssetIdFilter(state, filter),
     )
     const asset = useAppSelector(state => selectAssetById(state, assetId))
-    const accountBalancesBaseUnit = useAppSelector(selectPortfolioAccountBalances)
+    const accountBalances = useAppSelector(selectPortfolioAccountBalances)
     const accountMetadata = useAppSelector(selectPortfolioAccountMetadata)
     const marketData = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, assetId),
@@ -69,8 +69,8 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
     const selectedAccountDetails = useMemo(() => {
       if (!selectedAccountId || !asset) return null
 
-      const cryptoBalance = accountBalancesBaseUnit?.[selectedAccountId]?.[assetId]
-        ? accountBalancesBaseUnit[selectedAccountId][assetId].toPrecision()
+      const cryptoBalance = accountBalances?.[selectedAccountId]?.[assetId]
+        ? accountBalances[selectedAccountId][assetId].toPrecision()
         : '0'
       const fiatBalance = bnOrZero(cryptoBalance).times(marketDataPrice)
 
@@ -79,7 +79,7 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
         fiatBalance,
         label: isUtxoAccountId(selectedAccountId) ? accountIdToLabel(selectedAccountId) : undefined,
       }
-    }, [selectedAccountId, asset, accountBalancesBaseUnit, assetId, marketDataPrice])
+    }, [selectedAccountId, asset, accountBalances, assetId, marketDataPrice])
 
     const handleAccountSelect = useCallback(
       (accountId: AccountId) => {

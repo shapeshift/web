@@ -159,7 +159,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
     [accountId, feeAsset?.assetId],
   )
   //
-  const feeAssetBalanceCryptoBaseUnit = useAppSelector(s =>
+  const feeAssetBalance = useAppSelector(s =>
     selectPortfolioCryptoBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
@@ -435,7 +435,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [onNext])
 
   const missingBalanceForGasCryptoPrecision = useMemo(() => {
-    return feeAssetBalanceCryptoBaseUnit
+    return feeAssetBalance
       .minus(
         BigAmount.fromBaseUnit({
           value: bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit).toFixed(),
@@ -453,7 +453,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
   }, [
     state?.withdraw.estimatedGasCryptoBaseUnit,
     dustAmountCryptoBaseUnit,
-    feeAssetBalanceCryptoBaseUnit,
+    feeAssetBalance,
     feeAsset.precision,
   ])
 

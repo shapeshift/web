@@ -61,7 +61,7 @@ import {
   selectSelectedBuyAssetChainId,
   selectSelectedSellAssetChainId,
   selectSellAccountId,
-  selectSellAssetBalanceCryptoBaseUnit,
+  selectSellAssetBalance,
 } from '@/state/slices/limitOrderInputSlice/selectors'
 import { makeLimitInputOutputRatio } from '@/state/slices/limitOrderSlice/helpers'
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
@@ -117,7 +117,7 @@ export const LimitOrderInput = ({
   const userCurrencyRate = useAppSelector(selectUserCurrencyToUsdRate)
   const networkFeeUserCurrency = useAppSelector(selectActiveQuoteNetworkFeeUserCurrency)
   const expiry = useAppSelector(selectExpiry)
-  const sellAssetBalanceCryptoBaseUnit = useAppSelector(selectSellAssetBalanceCryptoBaseUnit)
+  const sellAssetBalance = useAppSelector(selectSellAssetBalance)
   const limitPriceMode = useAppSelector(selectLimitPriceMode)
   const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
   const buyAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, buyAsset.assetId))
@@ -382,7 +382,7 @@ export const LimitOrderInput = ({
       case !shouldShowTradeQuoteOrAwaitInput:
       case !hasUserEnteredAmount:
         return { quoteStatusTranslation: 'trade.previewTrade', isError: false }
-      case sellAssetBalanceCryptoBaseUnit.isZero():
+      case sellAssetBalance.isZero():
         return { quoteStatusTranslation: 'limitOrder.errors.zeroFunds', isError: true }
       case sellAsset.chainId !== buyAsset.chainId:
         return { quoteStatusTranslation: 'trade.errors.quoteCrossChainNotSupported', isError: true }
@@ -418,7 +418,7 @@ export const LimitOrderInput = ({
     sellAccountId,
     sellAsset.assetId,
     sellAsset.chainId,
-    sellAssetBalanceCryptoBaseUnit,
+    sellAssetBalance,
     shouldShowTradeQuoteOrAwaitInput,
   ])
 

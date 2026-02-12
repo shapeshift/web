@@ -173,6 +173,8 @@ const validators = {
   VITE_CHATWOOT_TOKEN: str(),
   VITE_CHATWOOT_URL: str(),
   VITE_FEATURE_CHATWOOT: bool({ default: false }),
+  VITE_USERBACK_TOKEN: str({ default: '' }),
+  VITE_FEATURE_USERBACK: bool({ default: false }),
   VITE_FEATURE_ADVANCED_SLIPPAGE: bool({ default: false }),
   VITE_EXPERIMENTAL_CUSTOM_SEND_NONCE: bool({ default: false }),
   VITE_SNAP_ID: str(),

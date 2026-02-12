@@ -119,11 +119,8 @@ export const UnstakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAcc
       value: amountCryptoPrecision,
       precision: THOR_PRECISION,
     }).toBaseUnit()
-    const stakedAmountCryptoBaseUnit = BigAmount.fromPrecision({
-      value: tcyStaker.amount,
-      precision: THOR_PRECISION,
-    }).toBaseUnit()
-    const withdrawRatio = bnOrZero(amountThorBaseUnit).div(stakedAmountCryptoBaseUnit)
+    // tcyStaker.amount is already in THOR base units from the API
+    const withdrawRatio = bnOrZero(amountThorBaseUnit).div(tcyStaker.amount)
     return withdrawRatio.times(BASE_BPS_POINTS).toFixed(0)
   }, [tcyStaker?.amount, amountCryptoPrecision])
 

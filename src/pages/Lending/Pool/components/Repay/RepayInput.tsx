@@ -42,7 +42,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useToggle } from '@/hooks/useToggle/useToggle'
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -151,10 +151,10 @@ export const RepayInput = ({
     from: userAddress,
     amountCryptoBaseUnit:
       confirmedQuote?.repaymentAmountCryptoPrecision && repaymentAsset
-        ? BigAmount.fromPrecision({
-            value: bnOrZero(confirmedQuote.repaymentAmountCryptoPrecision).times('1.05'),
-            precision: repaymentAsset.precision,
-          }).toBaseUnit()
+        ? bnOrZero(confirmedQuote.repaymentAmountCryptoPrecision)
+            .times('1.05')
+            .times(bn(10).pow(repaymentAsset.precision))
+            .toFixed(0, BigNumber.ROUND_UP)
         : undefined,
     accountNumber: repaymentAccountNumber,
   })

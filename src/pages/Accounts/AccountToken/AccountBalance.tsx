@@ -43,10 +43,9 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({ assetId, account
   // Add back in once we add the performance stuff in
   // const footerBg = useColorModeValue('white.100', 'rgba(255,255,255,.02)')
 
-  const cryptoBalance =
-    useAppSelector(state =>
-      selectPortfolioCryptoBalanceByFilter(state, assetAccountFilter),
-    ).toPrecision() ?? '0'
+  const cryptoBalance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, assetAccountFilter),
+  ).toPrecision()
 
   const userCurrencyBalance = useAppSelector(s =>
     selectUserCurrencyBalanceByFilter(s, assetAccountFilter),

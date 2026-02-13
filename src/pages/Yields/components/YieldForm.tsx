@@ -757,6 +757,7 @@ export const YieldForm = memo(
                 accountId={accountId}
                 onChange={handleAccountChange}
                 disabled={isAccountSelectorDisabled || isSubmitting}
+                cryptoBalanceOverride={action === 'exit' ? availableBalance : undefined}
               />
             </Flex>
           )}

@@ -245,6 +245,7 @@ const validators = {
   VITE_NOTIFICATIONS_SERVER_URL: url({ default: '' }),
   VITE_FEATURE_ADDRESS_BOOK: bool({ default: false }),
   VITE_FEATURE_APP_RATING: bool({ default: false }),
+  VITE_FEATURE_REFERRAL: bool({ default: false }),
   VITE_FEATURE_YIELD_XYZ: bool({ default: false }),
   VITE_FEATURE_YIELDS_PAGE: bool({ default: false }),
   VITE_FEATURE_EARN_TAB: bool({ default: false }),

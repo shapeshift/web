@@ -388,9 +388,7 @@ const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
         </div>
       </main>
 
-      <footer className='demo-footer'>
-        <p>Built by ShapeShift DAO</p>
-      </footer>
+
     </div>
   )
 }

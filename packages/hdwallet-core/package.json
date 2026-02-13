@@ -42,6 +42,7 @@
   "dependencies": {
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
     "@shapeshiftoss/proto-tx-builder": "0.10.0",
+    "@shapeshiftoss/utils": "workspace:*",
     "@solana/web3.js": "1.98.0",
     "bs58check": "^4.0.0",
     "eip-712": "^1.0.0",

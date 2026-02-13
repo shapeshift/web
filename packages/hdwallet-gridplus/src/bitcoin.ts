@@ -1,5 +1,6 @@
 import * as bitcoin from '@shapeshiftoss/bitcoinjs-lib'
 import * as core from '@shapeshiftoss/hdwallet-core'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { toCashAddress, toLegacyAddress } from 'bchaddrjs'
 import type { Client } from 'gridplus-sdk'
 import { Constants } from 'gridplus-sdk'
@@ -71,9 +72,18 @@ export async function btcSignTx(
       throw new Error('Invalid output (no address or addressNList specified).')
     })()
 
-    const fee =
-      msg.inputs.reduce((sum, input) => sum + Number(input.amount), 0) -
-      msg.outputs.reduce((sum, output) => sum + Number(output.amount), 0)
+    const BTC_PRECISION = 8
+    const inputTotal = msg.inputs.reduce(
+      (sum, input) =>
+        sum.plus(BigAmount.fromBaseUnit({ value: input.amount, precision: BTC_PRECISION })),
+      BigAmount.zero({ precision: BTC_PRECISION }),
+    )
+    const outputTotal = msg.outputs.reduce(
+      (sum, output) =>
+        sum.plus(BigAmount.fromBaseUnit({ value: output.amount, precision: BTC_PRECISION })),
+      BigAmount.zero({ precision: BTC_PRECISION }),
+    )
+    const fee = Number(inputTotal.minus(outputTotal).toBaseUnit())
 
     // GridPlus SDK requires changePath even when there's no change output.
     // Derive a valid dummy change path from the first input for validation.

@@ -118,9 +118,7 @@ export const getFeeStats = (swapsData: ReturnType<typeof selectSwapsData>, runeP
   const swaps24h = swapsData.intervals[swapsData.intervals.length - 1]
   const swapsPrev24h = swapsData.intervals[swapsData.intervals.length - 2]
 
-  const fees24hFiat = BigAmount.fromThorBaseUnit(swaps24h.totalFees)
-    .times(runePrice)
-    .toFixed()
+  const fees24hFiat = BigAmount.fromThorBaseUnit(swaps24h.totalFees).times(runePrice).toFixed()
   const fees24hChange = bnOrZero(swaps24h.totalFees)
     .minus(bnOrZero(swapsPrev24h.totalFees))
     .div(swapsPrev24h.totalFees)
@@ -152,9 +150,7 @@ export const getVolumeStats = (
   const swaps24h = swapsData.intervals[swapsData.intervals.length - 1]
   const swapsPrev24h = swapsData.intervals[swapsData.intervals.length - 2]
 
-  const volume24hFiat = BigAmount.fromThorBaseUnit(swaps24h.totalVolume)
-    .times(runePrice)
-    .toFixed()
+  const volume24hFiat = BigAmount.fromThorBaseUnit(swaps24h.totalVolume).times(runePrice).toFixed()
   const volume24hChange = bnOrZero(swaps24h.totalVolume)
     .minus(bnOrZero(swapsPrev24h.totalVolume))
     .div(swapsPrev24h.totalVolume)

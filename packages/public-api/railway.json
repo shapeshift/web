@@ -1,0 +1,27 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "packages/public-api/Dockerfile",
+    "watchPatterns": [
+      "packages/public-api/**",
+      "packages/swapper/**",
+      "packages/caip/**",
+      "packages/types/**",
+      "packages/utils/**",
+      "packages/unchained-client/**",
+      "packages/chain-adapters/**",
+      "packages/contracts/**",
+      "packages/errors/**",
+      "packages/hdwallet-core/**",
+      "packages/hdwallet-ledger/**",
+      "public/generated/generatedAssetData.json",
+      "yarn.lock"
+    ]
+  },
+  "deploy": {
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 30,
+    "restartPolicyType": "ALWAYS"
+  }
+}

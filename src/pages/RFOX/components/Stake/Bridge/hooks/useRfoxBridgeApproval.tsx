@@ -1,6 +1,7 @@
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -16,7 +17,6 @@ import { useEvmFees } from '@/hooks/queries/useEvmFees'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import type {
   GetFeesWithWalletEip1559SupportArgs,
   MaybeGetFeesWithWalletEip1559Args,
@@ -104,10 +104,10 @@ export const useRfoxBridgeApproval = ({
 
       if (!sellAsset || !confirmedQuote.sellAssetAccountId) return
 
-      const amountCryptoPrecision = fromBaseUnit(
-        confirmedQuote.bridgeAmountCryptoBaseUnit,
-        sellAsset.precision,
-      )
+      const amountCryptoPrecision = BigAmount.fromBaseUnit({
+        value: confirmedQuote.bridgeAmountCryptoBaseUnit,
+        precision: sellAsset.precision,
+      }).toPrecision()
 
       dispatch(
         actionSlice.actions.upsertAction({

@@ -1,3 +1,4 @@
+import { arbitrumChainId, toAccountId } from '@shapeshiftoss/caip'
 import type { Swap } from '@shapeshiftoss/swapper'
 
 import { selectEnabledWalletAccountIds } from '../common-selectors'
@@ -18,6 +19,7 @@ import {
   isLimitOrderAction,
   isPendingSendAction,
   isPendingSwapAction,
+  isRewardDistributionAction,
   isRfoxClaimAction,
   isSwapAction,
   isTcyClaimAction,
@@ -67,6 +69,15 @@ export const selectWalletActions = createDeepEqualOutputSelector(
 
       if (isTcyClaimAction(action)) {
         return enabledWalletAccountIds.includes(action.tcyClaimActionMetadata.claim.accountId)
+      }
+
+      if (isRewardDistributionAction(action)) {
+        const stakingAccountId = toAccountId({
+          chainId: arbitrumChainId,
+          account: action.rewardDistributionMetadata.distribution.stakingAddress,
+        })
+
+        return enabledWalletAccountIds.includes(stakingAccountId)
       }
 
       return action

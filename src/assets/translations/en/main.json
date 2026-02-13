@@ -676,6 +676,16 @@
         "withdraw": "Remove Liquidity",
         "join_pool": "Join Pool",
         "exit_pool": "Exit Pool"
+      },
+      "yieldxyz": {
+        "deposit": "Yield Deposit",
+        "withdraw": "Yield Withdraw",
+        "approve": "Yield Approve",
+        "approveSymbol": "Yield Approve %{symbol}",
+        "stake": "Yield Stake",
+        "unstake": "Yield Unstake",
+        "unstakeRequest": "Yield Unstake Request",
+        "yieldClaim": "Yield Claim"
       }
     }
   },

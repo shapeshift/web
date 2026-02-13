@@ -2386,7 +2386,7 @@
       },
       "connect": {
         "title": "How do total fees collected, total FOX staked, emissions pool, and FOX burn amount connect?",
-        "body": "The fees collected by the DAO are in native assets per swapper. A portion of this revenue is converted then distributed to FOX stakers as rewards, while another portion is used to buy FOX from the open market and burn it, reducing the overall FOX supply. The total FOX staked influences the distribution of RUNE rewards, as rewards are distributed pro-rata based on the amount of FOX staked. The emissions pool represents the amount of FOX available for staking rewards, and the FOX burn amount is the portion of FOX purchased and burned."
+        "body": "The fees collected by the DAO are in native assets per swapper. A portion of this revenue is converted and distributed to FOX stakers as rewards, while another portion is allocated toward reducing the overall FOX supply through token burns. The total FOX staked influences the distribution of rewards, as rewards are distributed pro-rata based on the amount of FOX staked. The emissions pool represents the amount of FOX available for staking rewards, and the FOX burn amount is the portion of FOX purchased and burned."
       }
     },
     "totals": "rFOX Totals",

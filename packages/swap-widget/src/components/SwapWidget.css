@@ -511,3 +511,106 @@
 .ssw-spinner {
   animation: ssw-spin 1s linear infinite;
 }
+
+/* Step Screens — shared layout for all non-input steps */
+.ssw-step-container {
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+}
+
+.ssw-step-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 32px;
+  flex: 1;
+  text-align: center;
+}
+
+.ssw-step-icon-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-width: 2px;
+  border-style: solid;
+  flex-shrink: 0;
+}
+
+.ssw-step-icon-circle.ssw-ic-accent {
+  background: var(--ssw-accent-light);
+  border-color: var(--ssw-accent);
+  color: var(--ssw-accent);
+}
+
+.ssw-step-icon-circle.ssw-ic-success {
+  background: rgba(0, 211, 149, 0.1);
+  border-color: var(--ssw-success);
+  color: var(--ssw-success);
+}
+
+.ssw-step-icon-circle.ssw-ic-error {
+  background: rgba(244, 67, 54, 0.1);
+  border-color: var(--ssw-error);
+  color: var(--ssw-error);
+}
+
+.ssw-step-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ssw-text-primary);
+  margin-top: 20px;
+}
+
+.ssw-step-subtitle {
+  font-size: 14px;
+  color: var(--ssw-text-secondary);
+  margin-top: 8px;
+  max-width: 280px;
+  line-height: 1.5;
+}
+
+.ssw-step-explorer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--ssw-accent);
+  text-decoration: none;
+  margin-top: 16px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: var(--ssw-accent-light);
+  transition: opacity 0.15s ease;
+}
+
+.ssw-step-explorer-link:hover {
+  opacity: 0.8;
+}
+
+.ssw-step-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 24px;
+  width: 100%;
+  max-width: 280px;
+}
+
+.ssw-step-actions .ssw-action-btn {
+  flex: 1;
+}
+
+.ssw-step-actions .ssw-secondary {
+  background: var(--ssw-bg-tertiary);
+  border: 1px solid var(--ssw-border);
+  color: var(--ssw-text-secondary);
+}
+
+.ssw-step-actions .ssw-secondary:hover {
+  border-color: var(--ssw-border-hover);
+  color: var(--ssw-text-primary);
+}

@@ -39,7 +39,6 @@ import { AddressInputModal } from './AddressInputModal'
 import { ApprovalStep } from './ApprovalStep'
 import { ExecutionStep } from './ExecutionStep'
 import { InputStep } from './InputStep'
-import { QuoteStep } from './QuoteStep'
 import { SettingsModal } from './SettingsModal'
 import { StatusStep } from './StatusStep'
 import { TokenSelectModal } from './TokenSelectModal'
@@ -890,66 +889,69 @@ const SwapWidgetCore = ({
         </div>
       </div>
 
-      {(state.matches('idle') || state.matches('input')) && (
-        <InputStep
-          context={state.context}
-          send={send}
-          rates={rates ?? []}
-          isLoadingRates={isLoadingRates}
-          ratesError={ratesError}
-          sellAssetBalance={sellAssetBalance}
-          buyAssetBalance={buyAssetBalance}
-          isSellBalanceLoading={isSellBalanceLoading}
-          isBuyBalanceLoading={isBuyBalanceLoading}
-          sellUsdValue={sellUsdValue}
-          buyUsdValue={buyUsdValue}
-          sellChainInfo={sellChainInfo}
-          buyChainInfo={buyChainInfo}
-          displayRate={displayRate}
-          walletAddress={walletAddress}
-          bitcoinAddress={bitcoinAddress}
-          solanaAddress={solanaAddress}
-          defaultReceiveAddress={defaultReceiveAddress}
-          buyAssetUsdPrice={buyAssetUsdPrice}
-          onOpenTokenModal={setTokenModalType}
-          onOpenAddressModal={openAddressModal}
-          enableWalletConnection={enableWalletConnection}
-          onConnectWallet={onConnectWallet}
-          bitcoinState={bitcoinState}
-          solanaState={solanaState}
-          isExecuting={false}
-          effectiveReceiveAddress={effectiveReceiveAddress}
-          isCustomAddress={isCustomAddress}
-          sellAmount={state.context.sellAmount}
-          onSellAmountChange={handleSellAmountChange}
-          onSwapTokens={handleSwapTokens}
-          onSelectRate={handleSelectRate}
-          onButtonClick={handleButtonClick}
-          sellAmountBaseUnit={state.context.sellAmountBaseUnit}
-        />
-      )}
+      <div className='ssw-step-container'>
+        {(state.matches('idle') || state.matches('input') || state.matches('quoting')) && (
+          <InputStep
+            context={state.context}
+            send={send}
+            rates={rates ?? []}
+            isLoadingRates={isLoadingRates}
+            ratesError={ratesError}
+            sellAssetBalance={sellAssetBalance}
+            buyAssetBalance={buyAssetBalance}
+            isSellBalanceLoading={isSellBalanceLoading}
+            isBuyBalanceLoading={isBuyBalanceLoading}
+            sellUsdValue={sellUsdValue}
+            buyUsdValue={buyUsdValue}
+            sellChainInfo={sellChainInfo}
+            buyChainInfo={buyChainInfo}
+            displayRate={displayRate}
+            walletAddress={walletAddress}
+            bitcoinAddress={bitcoinAddress}
+            solanaAddress={solanaAddress}
+            defaultReceiveAddress={defaultReceiveAddress}
+            buyAssetUsdPrice={buyAssetUsdPrice}
+            onOpenTokenModal={setTokenModalType}
+            onOpenAddressModal={openAddressModal}
+            enableWalletConnection={enableWalletConnection}
+            onConnectWallet={onConnectWallet}
+            bitcoinState={bitcoinState}
+            solanaState={solanaState}
+            isQuoting={state.matches('quoting')}
+            isExecuting={false}
+            effectiveReceiveAddress={effectiveReceiveAddress}
+            isCustomAddress={isCustomAddress}
+            sellAmount={state.context.sellAmount}
+            onSellAmountChange={handleSellAmountChange}
+            onSwapTokens={handleSwapTokens}
+            onSelectRate={handleSelectRate}
+            onButtonClick={handleButtonClick}
+            sellAmountBaseUnit={state.context.sellAmountBaseUnit}
+          />
+        )}
 
-      {state.matches('quoting') && <QuoteStep context={state.context} send={send} />}
+        {(state.matches('approval_needed') || state.matches('approving')) && (
+          <ApprovalStep
+            context={state.context}
+            send={send}
+            isApproving={state.matches('approving')}
+          />
+        )}
 
-      {(state.matches('approval_needed') || state.matches('approving')) && (
-        <ApprovalStep
-          context={state.context}
-          send={send}
-          isApproving={state.matches('approving')}
-        />
-      )}
+        {state.matches('executing') && <ExecutionStep context={state.context} send={send} />}
 
-      {state.matches('executing') && <ExecutionStep context={state.context} send={send} />}
-
-      {(state.matches('polling_status') || state.matches('complete') || state.matches('error')) && (
-        <StatusStep
-          context={state.context}
-          send={send}
-          isPolling={state.matches('polling_status')}
-          isComplete={state.matches('complete')}
-          isError={state.matches('error')}
-        />
-      )}
+        {(state.matches('polling_status') ||
+          state.matches('complete') ||
+          state.matches('error')) && (
+          <StatusStep
+            context={state.context}
+            send={send}
+            isPolling={state.matches('polling_status')}
+            isComplete={state.matches('complete')}
+            isError={state.matches('error')}
+          />
+        )}
+      </div>
 
       {showPoweredBy && (
         <div className='ssw-powered-by'>

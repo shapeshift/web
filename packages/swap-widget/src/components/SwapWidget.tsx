@@ -1,40 +1,23 @@
 import './SwapWidget.css'
 
-import { ethChainId, usdcAssetId } from '@shapeshiftoss/caip'
-import { ethereum } from '@shapeshiftoss/utils'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useMachine } from '@xstate/react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { Chain, WalletClient } from 'viem'
-import { createPublicClient, encodeFunctionData, http } from 'viem'
-import {
-  arbitrum,
-  avalanche,
-  base,
-  bsc,
-  gnosis,
-  hyperEvm,
-  katana,
-  mainnet,
-  monad,
-  optimism,
-  plasma,
-  polygon,
-} from 'viem/chains'
+import type { WalletClient } from 'viem'
 
 import { createApiClient } from '../api/client'
-import { getBaseAsset } from '../constants/chains'
-import { useChainInfo } from '../hooks/useAssets'
-import { useMultiChainBalance } from '../hooks/useBalances'
+import { DEFAULT_BUY_ASSET, DEFAULT_SELL_ASSET } from '../constants/defaults'
 import { useBitcoinSigning } from '../hooks/useBitcoinSigning'
-import { formatUsdValue, useMarketData } from '../hooks/useMarketData'
 import { useSolanaSigning } from '../hooks/useSolanaSigning'
-import { useSwapRates } from '../hooks/useSwapRates'
+import { useStatusPolling } from '../hooks/useStatusPolling'
+import { useSwapApproval } from '../hooks/useSwapApproval'
+import { useSwapDisplayValues } from '../hooks/useSwapDisplayValues'
+import { useSwapExecution } from '../hooks/useSwapExecution'
+import { useSwapHandlers } from '../hooks/useSwapHandlers'
+import { useSwapQuoting } from '../hooks/useSwapQuoting'
 import { swapMachine } from '../machines/swapMachine'
-import type { CheckStatusParams } from '../services/transactionStatus'
-import { checkTransactionStatus } from '../services/transactionStatus'
-import type { Asset, SwapWidgetProps, ThemeMode, TradeRate } from '../types'
-import { formatAmount, getChainType, getEvmNetworkId, parseAmount } from '../types'
+import type { SwapWidgetProps, ThemeMode } from '../types'
+import { getChainType } from '../types'
 import { AddressInputModal } from './AddressInputModal'
 import { ApprovalStep } from './ApprovalStep'
 import { ExecutionStep } from './ExecutionStep'
@@ -43,82 +26,6 @@ import { SettingsModal } from './SettingsModal'
 import { StatusStep } from './StatusStep'
 import { TokenSelectModal } from './TokenSelectModal'
 import { ConnectWalletButton, InternalWalletProvider } from './WalletProvider'
-
-const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
-  1: mainnet,
-  10: optimism,
-  56: bsc,
-  100: gnosis,
-  137: polygon,
-  143: monad,
-  999: hyperEvm,
-  8453: base,
-  9745: plasma,
-  42161: arbitrum,
-  43114: avalanche,
-  747474: katana,
-}
-
-const addChainToWallet = async (client: WalletClient, chain: Chain): Promise<void> => {
-  const { id, name, nativeCurrency, rpcUrls, blockExplorers } = chain
-
-  await client.request({
-    method: 'wallet_addEthereumChain',
-    params: [
-      {
-        chainId: `0x${id.toString(16)}`,
-        chainName: name,
-        nativeCurrency,
-        rpcUrls: rpcUrls.default.http,
-        blockExplorerUrls: blockExplorers?.default ? [blockExplorers.default.url] : undefined,
-      },
-    ],
-  })
-}
-
-const switchOrAddChain = async (client: WalletClient, chainId: number): Promise<void> => {
-  const chain = VIEM_CHAINS_BY_ID[chainId]
-
-  try {
-    await client.switchChain({ id: chainId })
-  } catch (error) {
-    const switchError = error as { code?: number; message?: string }
-    const isChainNotAddedError =
-      switchError.code === 4902 ||
-      switchError.message?.toLowerCase().includes('unrecognized chain') ||
-      switchError.message?.toLowerCase().includes('chain not added') ||
-      switchError.message?.toLowerCase().includes('try adding the chain')
-
-    if (isChainNotAddedError && chain) {
-      await addChainToWallet(client, chain)
-      await client.switchChain({ id: chainId })
-    } else {
-      throw error
-    }
-  }
-}
-
-const DEFAULT_SELL_ASSET: Asset = {
-  assetId: ethereum.assetId,
-  chainId: ethereum.chainId,
-  symbol: ethereum.symbol,
-  name: ethereum.name,
-  precision: ethereum.precision,
-  icon: ethereum.icon,
-  networkName: ethereum.networkName,
-  explorer: ethereum.explorer,
-  explorerTxLink: ethereum.explorerTxLink,
-  explorerAddressLink: ethereum.explorerAddressLink,
-}
-
-const DEFAULT_BUY_ASSET: Asset = {
-  assetId: usdcAssetId,
-  chainId: ethChainId,
-  symbol: 'USDC',
-  name: 'USD Coin',
-  precision: 6,
-  icon: 'https://assets.coingecko.com/coins/images/6319/standard/usdc.png',
-}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -136,8 +43,6 @@ type SwapWidgetInnerProps = SwapWidgetProps & {
 type SwapWidgetCoreProps = SwapWidgetInnerProps & {
   enableWalletConnection?: boolean
 }
-
-const POLL_INTERVAL_MS = 5000
 
 const SwapWidgetCore = ({
   defaultSellAsset = DEFAULT_SELL_ASSET,
@@ -232,631 +137,108 @@ const SwapWidgetCore = ({
   }, [effectiveReceiveAddress, send])
 
   const {
-    data: rates,
-    isLoading: isLoadingRates,
-    error: ratesError,
-  } = useSwapRates(apiClient, {
-    sellAssetId: state.context.sellAsset.assetId,
-    buyAssetId: state.context.buyAsset.assetId,
-    sellAmountCryptoBaseUnit: state.context.sellAmountBaseUnit,
-    enabled:
-      !!state.context.sellAmountBaseUnit &&
-      state.context.sellAmountBaseUnit !== '0' &&
-      (state.context.isSellAssetEvm ||
-        state.context.isSellAssetUtxo ||
-        state.context.isSellAssetSolana),
-  })
-
-  const {
-    data: sellAssetBalance,
-    isLoading: isSellBalanceLoading,
-    refetch: refetchSellBalance,
-  } = useMultiChainBalance(
+    rates,
+    isLoadingRates,
+    ratesError,
+    sellAssetBalance,
+    isSellBalanceLoading,
+    refetchSellBalance,
+    buyAssetBalance,
+    isBuyBalanceLoading,
+    refetchBuyBalance,
+    sellChainInfo,
+    buyChainInfo,
+    displayRate,
+    networkFeeDisplay,
+    sellUsdValue,
+    buyUsdValue,
+    buyAssetUsdPrice,
+  } = useSwapDisplayValues({
+    apiClient,
+    sellAsset: state.context.sellAsset,
+    buyAsset: state.context.buyAsset,
+    sellAmountBaseUnit: state.context.sellAmountBaseUnit,
+    isSellAssetEvm: state.context.isSellAssetEvm,
+    isSellAssetUtxo: state.context.isSellAssetUtxo,
+    isSellAssetSolana: state.context.isSellAssetSolana,
+    selectedRate: state.context.selectedRate,
     walletAddress,
     bitcoinAddress,
     solanaAddress,
-    state.context.sellAsset.assetId,
-    state.context.sellAsset.precision,
-  )
-
-  const buyAssetAddressForBalance = useMemo(() => {
-    if (buyChainType === 'evm') return effectiveReceiveAddress || walletAddress
-    if (buyChainType === 'utxo') return effectiveReceiveAddress || bitcoinAddress
-    if (buyChainType === 'solana') return effectiveReceiveAddress || solanaAddress
-    return effectiveReceiveAddress
-  }, [buyChainType, effectiveReceiveAddress, walletAddress, bitcoinAddress, solanaAddress])
+    effectiveReceiveAddress,
+  })
 
   const {
-    data: buyAssetBalance,
-    isLoading: isBuyBalanceLoading,
-    refetch: refetchBuyBalance,
-  } = useMultiChainBalance(
-    buyChainType === 'evm' ? buyAssetAddressForBalance : walletAddress,
-    buyChainType === 'utxo' ? buyAssetAddressForBalance : bitcoinAddress,
-    buyChainType === 'solana' ? buyAssetAddressForBalance : solanaAddress,
-    state.context.buyAsset.assetId,
-    state.context.buyAsset.precision,
-  )
-
-  const { data: sellChainInfo } = useChainInfo(state.context.sellAsset.chainId)
-  const { data: buyChainInfo } = useChainInfo(state.context.buyAsset.chainId)
-  const displayRate = useMemo(
-    () => state.context.selectedRate ?? rates?.[0],
-    [state.context.selectedRate, rates],
-  )
-  const buyAmount = displayRate?.buyAmountCryptoBaseUnit
-
-  const sellChainNativeAsset = useMemo(
-    () => getBaseAsset(state.context.sellAsset.chainId),
-    [state.context.sellAsset.chainId],
-  )
-
-  const assetIdsForPrices = useMemo(() => {
-    const ids = [state.context.sellAsset.assetId, state.context.buyAsset.assetId]
-    if (sellChainNativeAsset && sellChainNativeAsset.assetId !== state.context.sellAsset.assetId) {
-      ids.push(sellChainNativeAsset.assetId)
-    }
-    return ids
-  }, [state.context.sellAsset.assetId, state.context.buyAsset.assetId, sellChainNativeAsset])
-  const { data: marketData } = useMarketData(assetIdsForPrices)
-  const sellAssetUsdPrice = marketData?.[state.context.sellAsset.assetId]?.price
-  const buyAssetUsdPrice = marketData?.[state.context.buyAsset.assetId]?.price
-  const nativeAssetUsdPrice = sellChainNativeAsset
-    ? marketData?.[sellChainNativeAsset.assetId]?.price
-    : undefined
-
-  const networkFeeDisplay = useMemo(() => {
-    const feeBaseUnit = displayRate?.networkFeeCryptoBaseUnit
-    if (!feeBaseUnit || feeBaseUnit === '0' || !sellChainNativeAsset) return undefined
-    const formatted = formatAmount(feeBaseUnit, sellChainNativeAsset.precision, 6)
-    const cryptoPart = `${formatted} ${sellChainNativeAsset.symbol}`
-    if (!nativeAssetUsdPrice) return cryptoPart
-    const fiatValue = formatUsdValue(
-      feeBaseUnit,
-      sellChainNativeAsset.precision,
-      nativeAssetUsdPrice,
-    )
-    return `${cryptoPart} (${fiatValue})`
-  }, [displayRate?.networkFeeCryptoBaseUnit, sellChainNativeAsset, nativeAssetUsdPrice])
-
-  const sellUsdValue = useMemo(() => {
-    if (!state.context.sellAmountBaseUnit || !sellAssetUsdPrice) return '$0.00'
-    return formatUsdValue(
-      state.context.sellAmountBaseUnit,
-      state.context.sellAsset.precision,
-      sellAssetUsdPrice,
-    )
-  }, [state.context.sellAmountBaseUnit, state.context.sellAsset.precision, sellAssetUsdPrice])
-
-  const buyUsdValue = useMemo(() => {
-    if (!buyAmount || !buyAssetUsdPrice) return '$0.00'
-    return formatUsdValue(buyAmount, state.context.buyAsset.precision, buyAssetUsdPrice)
-  }, [buyAmount, state.context.buyAsset.precision, buyAssetUsdPrice])
-
-  const handleSwapTokens = useCallback(() => {
-    const tempSell = state.context.sellAsset
-    const tempBuy = state.context.buyAsset
-    send({ type: 'SET_SELL_ASSET', asset: tempBuy })
-    send({ type: 'SET_BUY_ASSET', asset: tempSell })
-    send({ type: 'SET_SELL_AMOUNT', amount: '', amountBaseUnit: undefined })
-  }, [state.context.sellAsset, state.context.buyAsset, send])
-
-  const handleSellAssetSelect = useCallback(
-    (asset: Asset) => {
-      send({ type: 'SET_SELL_ASSET', asset })
-      onAssetSelect?.('sell', asset)
-    },
-    [send, onAssetSelect],
-  )
-
-  const handleBuyAssetSelect = useCallback(
-    (asset: Asset) => {
-      send({ type: 'SET_BUY_ASSET', asset })
-      onAssetSelect?.('buy', asset)
-    },
-    [send, onAssetSelect],
-  )
-
-  const handleSellAmountChange = useCallback(
-    (value: string) => {
-      const baseUnit = value ? parseAmount(value, state.context.sellAsset.precision) : undefined
-      send({ type: 'SET_SELL_AMOUNT', amount: value, amountBaseUnit: baseUnit })
-    },
-    [send, state.context.sellAsset.precision],
-  )
-
-  const handleSelectRate = useCallback(
-    (rate: TradeRate) => {
-      send({ type: 'SELECT_RATE', rate })
-    },
-    [send],
-  )
-
-  const handleSlippageChange = useCallback(
-    (value: string) => {
-      send({ type: 'SET_SLIPPAGE', slippage: value })
-    },
-    [send],
-  )
-
-  const redirectToShapeShift = useCallback(() => {
-    const params = new URLSearchParams({
-      sellAssetId: state.context.sellAsset.assetId,
-      buyAssetId: state.context.buyAsset.assetId,
-      sellAmount: state.context.sellAmount,
-    })
-    window.open(
-      `https://app.shapeshift.com/trade?${params.toString()}`,
-      '_blank',
-      'noopener,noreferrer',
-    )
-  }, [state.context.sellAsset.assetId, state.context.buyAsset.assetId, state.context.sellAmount])
-
-  const handleButtonClick = useCallback(() => {
-    if (state.context.isSellAssetUtxo && !isBitcoinConnected) {
-      return
-    }
-    if (state.context.isSellAssetSolana && !isSolanaConnected) {
-      return
-    }
-    if (!walletClient && state.context.isSellAssetEvm && onConnectWallet) {
-      onConnectWallet()
-      return
-    }
-    if (
-      !state.context.isSellAssetEvm &&
-      !state.context.isSellAssetUtxo &&
-      !state.context.isSellAssetSolana
-    ) {
-      redirectToShapeShift()
-      return
-    }
-    send({ type: 'FETCH_QUOTE' })
-  }, [
-    state.context.isSellAssetUtxo,
-    state.context.isSellAssetSolana,
-    state.context.isSellAssetEvm,
+    handleSwapTokens,
+    handleSellAssetSelect,
+    handleBuyAssetSelect,
+    handleSellAmountChange,
+    handleSelectRate,
+    handleSlippageChange,
+    handleButtonClick,
+  } = useSwapHandlers({
+    context: state.context,
+    send,
+    walletClient,
     isBitcoinConnected,
     isSolanaConnected,
-    walletClient,
     onConnectWallet,
-    redirectToShapeShift,
+    onAssetSelect,
+  })
+
+  useSwapQuoting({
+    stateValue: state.value,
+    stateMatches: state.matches,
+    context: state.context,
     send,
-  ])
-
-  const quotingRef = useRef(false)
-  useEffect(() => {
-    if (!state.matches('quoting') || quotingRef.current) return
-    quotingRef.current = true
-
-    const fetchQuote = async () => {
-      try {
-        if (sellAssetBalance?.balance && state.context.sellAmountBaseUnit) {
-          const balanceBigInt = BigInt(sellAssetBalance.balance)
-          const amountBigInt = BigInt(state.context.sellAmountBaseUnit)
-          if (amountBigInt > balanceBigInt) {
-            send({ type: 'QUOTE_ERROR', error: 'Insufficient balance' })
-            return
-          }
-        }
-
-        const slippageDecimal = (parseFloat(state.context.slippage) / 100).toString()
-        const rateToUse = state.context.selectedRate ?? rates?.[0]
-        if (!rateToUse || !state.context.sellAmountBaseUnit) {
-          send({ type: 'QUOTE_ERROR', error: 'No rate or amount available' })
-          return
-        }
-
-        const sendAddress = state.context.isSellAssetEvm
-          ? walletAddress
-          : state.context.isSellAssetUtxo
-          ? bitcoinAddress
-          : solanaAddress
-
-        if (!sendAddress) {
-          send({ type: 'QUOTE_ERROR', error: 'No wallet address available' })
-          return
-        }
-
-        const receiveAddr = effectiveReceiveAddress || sendAddress
-
-        const response = await apiClient.getQuote({
-          sellAssetId: state.context.sellAsset.assetId,
-          buyAssetId: state.context.buyAsset.assetId,
-          sellAmountCryptoBaseUnit: state.context.sellAmountBaseUnit,
-          sendAddress,
-          receiveAddress: receiveAddr,
-          swapperName: rateToUse.swapperName,
-          slippageTolerancePercentageDecimal: slippageDecimal,
-        })
-
-        send({ type: 'QUOTE_SUCCESS', quote: response })
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to get quote'
-        send({ type: 'QUOTE_ERROR', error: errorMessage })
-      } finally {
-        quotingRef.current = false
-      }
-    }
-
-    fetchQuote()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.value])
-
-  const approvingRef = useRef(false)
-  useEffect(() => {
-    if (!state.matches('approving') || approvingRef.current) return
-    approvingRef.current = true
-
-    const executeApproval = async () => {
-      try {
-        if (!walletClient || !walletAddress) {
-          send({ type: 'APPROVAL_ERROR', error: 'No wallet connected' })
-          return
-        }
-
-        const quote = state.context.quote
-        if (!quote?.approval?.spender) {
-          send({ type: 'APPROVAL_ERROR', error: 'No approval data in quote' })
-          return
-        }
-
-        const sellAssetAddress = state.context.sellAsset.assetId.split('/')[1]?.split(':')[1]
-        if (!sellAssetAddress) {
-          send({ type: 'APPROVAL_ERROR', error: 'Could not extract token address' })
-          return
-        }
-
-        const requiredChainId = getEvmNetworkId(state.context.sellAsset.chainId)
-        const client = walletClient as WalletClient
-
-        const currentChainId = await client.getChainId()
-        if (currentChainId !== requiredChainId) {
-          await switchOrAddChain(client, requiredChainId)
-        }
-
-        const baseAsset = getBaseAsset(state.context.sellAsset.chainId)
-        const nativeCurrency = baseAsset
-          ? { name: baseAsset.name, symbol: baseAsset.symbol, decimals: baseAsset.precision }
-          : { name: 'ETH', symbol: 'ETH', decimals: 18 }
-
-        const viemChain = VIEM_CHAINS_BY_ID[requiredChainId]
-        const chain = viemChain ?? {
-          id: requiredChainId,
-          name: baseAsset?.networkName ?? baseAsset?.name ?? 'Chain',
-          nativeCurrency,
-          rpcUrls: { default: { http: [] } },
-        }
-
-        const approvalData = encodeFunctionData({
-          abi: [
-            {
-              name: 'approve',
-              type: 'function',
-              inputs: [
-                { name: 'spender', type: 'address' },
-                { name: 'amount', type: 'uint256' },
-              ],
-              outputs: [{ name: '', type: 'bool' }],
-            },
-          ],
-          functionName: 'approve',
-          args: [
-            quote.approval.spender as `0x${string}`,
-            BigInt(state.context.sellAmountBaseUnit ?? '0'),
-          ],
-        })
-
-        const approvalHash = await client.sendTransaction({
-          to: sellAssetAddress as `0x${string}`,
-          data: approvalData,
-          value: BigInt(0),
-          chain,
-          account: walletAddress as `0x${string}`,
-        })
-
-        const publicClient = createPublicClient({ chain, transport: http() })
-        await publicClient.waitForTransactionReceipt({ hash: approvalHash })
-
-        send({ type: 'APPROVAL_SUCCESS', txHash: approvalHash })
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Approval failed'
-        send({ type: 'APPROVAL_ERROR', error: errorMessage })
-      } finally {
-        approvingRef.current = false
-      }
-    }
-
-    executeApproval()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.value])
-
-  const executingRef = useRef(false)
-  useEffect(() => {
-    if (!state.matches('executing') || executingRef.current) return
-    executingRef.current = true
-
-    const executeSwap = async () => {
-      try {
-        const quote = state.context.quote
-        if (!quote) {
-          send({ type: 'EXECUTE_ERROR', error: 'No quote available' })
-          return
-        }
-
-        if (state.context.isSellAssetEvm) {
-          if (!walletClient || !walletAddress) {
-            send({ type: 'EXECUTE_ERROR', error: 'No wallet connected' })
-            return
-          }
-
-          const requiredChainId = getEvmNetworkId(state.context.sellAsset.chainId)
-          const client = walletClient as WalletClient
-
-          const currentChainId = await client.getChainId()
-          if (currentChainId !== requiredChainId) {
-            await switchOrAddChain(client, requiredChainId)
-          }
-
-          const baseAsset = getBaseAsset(state.context.sellAsset.chainId)
-          const nativeCurrency = baseAsset
-            ? { name: baseAsset.name, symbol: baseAsset.symbol, decimals: baseAsset.precision }
-            : { name: 'ETH', symbol: 'ETH', decimals: 18 }
-
-          const viemChain = VIEM_CHAINS_BY_ID[requiredChainId]
-          const chain = viemChain ?? {
-            id: requiredChainId,
-            name: baseAsset?.networkName ?? baseAsset?.name ?? 'Chain',
-            nativeCurrency,
-            rpcUrls: { default: { http: [] } },
-          }
-
-          const outerStep = quote.steps?.[0]
-          const innerStep = quote.quote?.steps?.[0]
-
-          const transactionData =
-            quote.transactionData ??
-            outerStep?.transactionData ??
-            outerStep?.relayTransactionMetadata ??
-            outerStep?.butterSwapTransactionMetadata ??
-            innerStep?.transactionData ??
-            innerStep?.relayTransactionMetadata ??
-            innerStep?.butterSwapTransactionMetadata
-
-          if (!transactionData) {
-            throw new Error(
-              `No transaction data returned. Response keys: ${Object.keys(quote).join(', ')}`,
-            )
-          }
-
-          const to = transactionData.to as string
-          const data = transactionData.data as string
-          const value = transactionData.value ?? '0'
-          const gasLimit = transactionData.gasLimit as string | undefined
-
-          const txHash = await client.sendTransaction({
-            to: to as `0x${string}`,
-            data: data as `0x${string}`,
-            value: BigInt(value),
-            gas: gasLimit ? BigInt(gasLimit) : undefined,
-            chain,
-            account: walletAddress as `0x${string}`,
-          })
-
-          send({ type: 'EXECUTE_SUCCESS', txHash })
-        } else if (state.context.isSellAssetUtxo) {
-          if (!isBitcoinConnected || !bitcoinAddress) {
-            send({ type: 'EXECUTE_ERROR', error: 'Bitcoin wallet not connected' })
-            return
-          }
-
-          resetBitcoinState()
-
-          const outerStep = quote.steps?.[0]
-          const innerStep = quote.quote?.steps?.[0]
-          const transactionData =
-            quote.transactionData ?? outerStep?.transactionData ?? innerStep?.transactionData
-
-          if (!transactionData) {
-            throw new Error(
-              `No transaction data returned. Response keys: ${Object.keys(quote).join(', ')}`,
-            )
-          }
-
-          const psbt = (transactionData as { psbt?: string }).psbt
-          const recipientAddress = transactionData.to
-          const value = transactionData.value ?? state.context.sellAmountBaseUnit
-
-          let txid: string
-
-          if (psbt) {
-            txid = await signPsbt({ psbt, signInputs: {}, broadcast: true })
-          } else if (recipientAddress) {
-            txid = await sendBitcoinTransfer({ recipientAddress, amount: value ?? '' })
-          } else {
-            throw new Error('No PSBT or recipient address in transaction data')
-          }
-
-          send({ type: 'EXECUTE_SUCCESS', txHash: txid })
-        } else if (state.context.isSellAssetSolana) {
-          if (!isSolanaConnected || !solanaAddress || !solanaConnection) {
-            send({ type: 'EXECUTE_ERROR', error: 'Solana wallet not connected' })
-            return
-          }
-
-          resetSolanaState()
-
-          const innerStep = quote.quote?.steps?.[0]
-          const solanaTransactionMetadata = (innerStep as Record<string, unknown> | undefined)
-            ?.solanaTransactionMetadata as
-            | {
-                instructions: {
-                  programId: string
-                  keys: { pubkey: string; isSigner: boolean; isWritable: boolean }[]
-                  data: { data: number[] }
-                }[]
-              }
-            | undefined
-
-          if (!solanaTransactionMetadata?.instructions) {
-            throw new Error(
-              `No Solana transaction metadata returned. Response keys: ${Object.keys(quote).join(
-                ', ',
-              )}`,
-            )
-          }
-
-          const { Transaction, PublicKey, TransactionInstruction } = await import('@solana/web3.js')
-
-          const instructions = solanaTransactionMetadata.instructions.map(
-            (ix: {
-              programId: string
-              keys: { pubkey: string; isSigner: boolean; isWritable: boolean }[]
-              data: { data: number[] }
-            }) => {
-              const keys = ix.keys.map(
-                (key: { pubkey: string; isSigner: boolean; isWritable: boolean }) => ({
-                  pubkey: new PublicKey(key.pubkey),
-                  isSigner: key.isSigner,
-                  isWritable: key.isWritable,
-                }),
-              )
-
-              if (!ix.data?.data) {
-                throw new Error(`Invalid instruction data for programId: ${ix.programId}`)
-              }
-              const data = Buffer.from(ix.data.data)
-
-              return new TransactionInstruction({
-                keys,
-                programId: new PublicKey(ix.programId),
-                data,
-              })
-            },
-          )
-
-          const transaction = new Transaction().add(...instructions)
-          const { blockhash } = await solanaConnection.getLatestBlockhash('confirmed')
-          transaction.recentBlockhash = blockhash
-          transaction.feePayer = new PublicKey(solanaAddress)
-
-          const signature = await sendSolanaTransaction({ transaction })
-          send({ type: 'EXECUTE_SUCCESS', txHash: signature })
-        } else {
-          send({ type: 'EXECUTE_ERROR', error: 'Unsupported chain type' })
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Transaction failed'
-        send({ type: 'EXECUTE_ERROR', error: errorMessage })
-      } finally {
-        executingRef.current = false
-      }
-    }
-
-    executeSwap()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.value])
-
-  const pollingRef = useRef(false)
-  useEffect(() => {
-    if (!state.matches('polling_status')) {
-      pollingRef.current = false
-      return
-    }
-    if (pollingRef.current) return
-    pollingRef.current = true
-
-    let stopped = false
-
-    const poll = async () => {
-      if (stopped || !state.context.txHash) return
-
-      try {
-        let statusParams: CheckStatusParams
-
-        if (state.context.isSellAssetEvm) {
-          statusParams = {
-            txHash: state.context.txHash,
-            chainType: 'evm',
-            chainId: getEvmNetworkId(state.context.sellAsset.chainId),
-          }
-        } else if (state.context.isSellAssetUtxo) {
-          statusParams = {
-            txHash: state.context.txHash,
-            chainType: 'utxo',
-          }
-        } else if (state.context.isSellAssetSolana) {
-          statusParams = {
-            txHash: state.context.txHash,
-            chainType: 'solana',
-            connection: solanaConnection as CheckStatusParams['connection'],
-          }
-        } else {
-          send({ type: 'STATUS_CONFIRMED' })
-          return
-        }
-
-        const result = await checkTransactionStatus(statusParams)
-
-        if (stopped) return
-
-        if (result.status === 'confirmed') {
-          send({ type: 'STATUS_CONFIRMED' })
-          return
-        }
-
-        if (result.status === 'failed') {
-          send({ type: 'STATUS_FAILED', error: result.error ?? 'Transaction failed' })
-          return
-        }
-
-        setTimeout(poll, POLL_INTERVAL_MS)
-      } catch (err) {
-        if (stopped) return
-        const errorMessage = err instanceof Error ? err.message : 'Unknown polling error'
-        send({ type: 'STATUS_FAILED', error: errorMessage })
-      }
-    }
-
-    poll()
-
-    return () => {
-      stopped = true
-      pollingRef.current = false
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.value])
-
-  const completionRef = useRef(false)
-  useEffect(() => {
-    if (!state.matches('complete')) {
-      completionRef.current = false
-      return
-    }
-    if (completionRef.current) return
-    completionRef.current = true
-
-    if (state.context.txHash) {
-      onSwapSuccess?.(state.context.txHash)
-    }
-
-    refetchSellBalance?.()
-    refetchBuyBalance?.()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.value])
-
-  const errorRef = useRef(false)
-  useEffect(() => {
-    if (!state.matches('error')) {
-      errorRef.current = false
-      return
-    }
-    if (errorRef.current) return
-    errorRef.current = true
-
-    onSwapError?.(new Error(state.context.error ?? 'Unknown error'))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.value])
+    apiClient,
+    rates,
+    sellAssetBalance,
+    walletAddress,
+    bitcoinAddress,
+    solanaAddress,
+    effectiveReceiveAddress,
+  })
+
+  useSwapApproval({
+    stateValue: state.value,
+    stateMatches: state.matches,
+    context: state.context,
+    send,
+    walletClient,
+    walletAddress,
+  })
+
+  useSwapExecution({
+    stateValue: state.value,
+    stateMatches: state.matches,
+    context: state.context,
+    send,
+    walletClient,
+    walletAddress,
+    isBitcoinConnected,
+    bitcoinAddress,
+    resetBitcoinState,
+    signPsbt,
+    sendBitcoinTransfer,
+    isSolanaConnected,
+    solanaAddress,
+    solanaConnection,
+    sendSolanaTransaction,
+    resetSolanaState,
+  })
+
+  useStatusPolling({
+    stateValue: state.value,
+    stateMatches: state.matches,
+    context: state.context,
+    send,
+    solanaConnection,
+    onSwapSuccess,
+    onSwapError,
+    refetchSellBalance,
+    refetchBuyBalance,
+  })
 
   const widgetStyle = useMemo(() => {
     if (!themeConfig) return undefined

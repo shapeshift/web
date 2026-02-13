@@ -63,3 +63,16 @@ export enum SwapStep {
   Complete = 'complete',
   Error = 'error',
 }
+
+export type SwapStateValue =
+  | 'idle'
+  | 'input'
+  | 'quoting'
+  | 'approval_needed'
+  | 'approving'
+  | 'executing'
+  | 'polling_status'
+  | 'complete'
+  | 'error'
+
+export type SwapStateMatches = (value: SwapStateValue) => boolean

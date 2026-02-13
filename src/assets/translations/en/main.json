@@ -676,6 +676,16 @@
         "withdraw": "Remove Liquidity",
         "join_pool": "Join Pool",
         "exit_pool": "Exit Pool"
+      },
+      "yieldxyz": {
+        "deposit": "Yield Deposit",
+        "withdraw": "Yield Withdraw",
+        "approve": "Yield Approve",
+        "approveSymbol": "Yield Approve %{symbol}",
+        "stake": "Yield Stake",
+        "unstake": "Yield Unstake",
+        "unstakeRequest": "Yield Unstake Request",
+        "yieldClaim": "Yield Claim"
       }
     }
   },
@@ -2738,6 +2748,7 @@
     "depositSymbol": "Deposit %{symbol}",
     "withdrawSymbol": "Withdraw %{symbol}",
     "claimableRewards": "Claimable rewards",
+    "withdrawableFunds": "Withdrawable funds",
     "noActivePositions": "You do not have any active yield positions.",
     "connectWalletPositions": "Connect a wallet to view your active yield positions.",
     "view": "View",

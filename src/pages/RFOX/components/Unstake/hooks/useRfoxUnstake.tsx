@@ -3,6 +3,7 @@ import { fromAccountId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import { useMemo } from 'react'
@@ -18,7 +19,6 @@ import { useEvmFees } from '@/hooks/queries/useEvmFees'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
@@ -107,7 +107,13 @@ export const useRfoxUnstake = ({
   )
 
   const amountCryptoPrecision = useMemo(
-    () => (stakingAsset ? fromBaseUnit(amountCryptoBaseUnit, stakingAsset.precision) : undefined),
+    () =>
+      stakingAsset
+        ? BigAmount.fromBaseUnit({
+            value: amountCryptoBaseUnit,
+            precision: stakingAsset.precision,
+          }).toPrecision()
+        : undefined,
     [amountCryptoBaseUnit, stakingAsset],
   )
 
@@ -125,9 +131,9 @@ export const useRfoxUnstake = ({
     return encodeFunctionData({
       abi: RFOX_ABI,
       functionName: 'unstake',
-      args: [BigInt(toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0))],
+      args: [BigInt(amountCryptoBaseUnit)],
     })
-  }, [amountCryptoPrecision, hasEnteredValue, stakingAsset?.precision])
+  }, [amountCryptoBaseUnit, hasEnteredValue])
 
   const unstakeFeesQueryInput = useMemo(
     () => ({

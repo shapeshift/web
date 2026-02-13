@@ -368,7 +368,10 @@ export class BigAmount {
     if (!this.assetId) throw new Error('BigAmount: toUserCurrency() requires assetId')
     if (!BigAmount.config?.resolvePrice) throw new Error('BigAmount: not configured')
     const price = BigAmount.config.resolvePrice(this.assetId)
-    return this.value.div(TEN.pow(this.precision)).times(bnOrZero(price)).toFixed(decimals, ROUND_HALF_UP)
+    return this.value
+      .div(TEN.pow(this.precision))
+      .times(bnOrZero(price))
+      .toFixed(decimals, ROUND_HALF_UP)
   }
 
   /** Convert to USD string. Requires assetId and configure(). */
@@ -376,7 +379,10 @@ export class BigAmount {
     if (!this.assetId) throw new Error('BigAmount: toUSD() requires assetId')
     if (!BigAmount.config?.resolvePriceUsd) throw new Error('BigAmount: not configured')
     const priceUsd = BigAmount.config.resolvePriceUsd(this.assetId)
-    return this.value.div(TEN.pow(this.precision)).times(bnOrZero(priceUsd)).toFixed(decimals, ROUND_HALF_UP)
+    return this.value
+      .div(TEN.pow(this.precision))
+      .times(bnOrZero(priceUsd))
+      .toFixed(decimals, ROUND_HALF_UP)
   }
 
   // ── THORChain precision ──────────────────────────
@@ -388,14 +394,21 @@ export class BigAmount {
 
   /** Convert to THORChain base unit string (precision 8). */
   toThorBaseUnit(): string {
-    return this.value.times(TEN.pow(THOR_PRECISION)).div(TEN.pow(this.precision)).toFixed(0, ROUND_HALF_UP)
+    return this.value
+      .times(TEN.pow(THOR_PRECISION))
+      .div(TEN.pow(this.precision))
+      .toFixed(0, ROUND_HALF_UP)
   }
 
   // ── Interop ───────────────────────────────────────
 
   /** Serialize to { value, precision, assetId? }. Value is base-unit integer string. */
   toJSON(): { value: string; precision: number; assetId?: string } {
-    return { value: this.value.toFixed(0, ROUND_HALF_UP), precision: this.precision, assetId: this.assetId }
+    return {
+      value: this.value.toFixed(0, ROUND_HALF_UP),
+      precision: this.precision,
+      assetId: this.assetId,
+    }
   }
 
   // ── Private helpers ────────────────────────────────

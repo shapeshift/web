@@ -27,4 +27,5 @@ cypress/
 **/*.spec.ts
 
 # Other large/unnecessary directories
+src/
 .playwright-mcp/

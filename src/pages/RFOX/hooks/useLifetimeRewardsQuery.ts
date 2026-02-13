@@ -4,6 +4,7 @@ import { BigAmount, bn } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
 import { getAddress } from 'viem'
 
+import { RFOX_V3_UPGRADE_EPOCH } from '../constants'
 import { getStakingContract } from '../helpers'
 import type { Epoch } from '../types'
 import { useEpochHistoryQuery } from './useEpochHistoryQuery'
@@ -53,7 +54,7 @@ export const useLifetimeRewardsUserCurrencyQuery = ({
 
         const epochRewardUserCurrency = (() => {
           // rFOX v3 updated rewards from rune to usdc
-          if (epoch.number > 17) {
+          if (epoch.number >= RFOX_V3_UPGRADE_EPOCH) {
             return BigAmount.fromBaseUnit({
               value: distribution.amount,
               precision: usdcAsset?.precision ?? 0,

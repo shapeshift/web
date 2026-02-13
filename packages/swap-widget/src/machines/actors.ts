@@ -3,9 +3,9 @@ import { encodeFunctionData, erc20Abi } from 'viem'
 import { fromCallback, fromPromise } from 'xstate'
 
 import type { ApiClient } from '../api/client'
-import type { QuoteResponse } from '../types'
 import type { CheckStatusParams } from '../services/transactionStatus'
 import { checkTransactionStatus } from '../services/transactionStatus'
+import type { QuoteResponse } from '../types'
 
 export type FetchQuoteInput = {
   apiClient: ApiClient
@@ -43,46 +43,42 @@ export type PollStatusInput = {
   connection?: CheckStatusParams['connection']
 }
 
-export const fetchQuoteActor = fromPromise<QuoteResponse, FetchQuoteInput>(
-  async ({ input }) => {
-    const response = await input.apiClient.getQuote({
-      sellAssetId: input.sellAssetId,
-      buyAssetId: input.buyAssetId,
-      sellAmountCryptoBaseUnit: input.sellAmountCryptoBaseUnit,
-      sendAddress: input.sendAddress,
-      receiveAddress: input.receiveAddress,
-      swapperName: input.swapperName,
-      slippageTolerancePercentageDecimal: input.slippageTolerancePercentageDecimal,
-    })
-    return response
-  },
-)
+export const fetchQuoteActor = fromPromise<QuoteResponse, FetchQuoteInput>(async ({ input }) => {
+  const response = await input.apiClient.getQuote({
+    sellAssetId: input.sellAssetId,
+    buyAssetId: input.buyAssetId,
+    sellAmountCryptoBaseUnit: input.sellAmountCryptoBaseUnit,
+    sendAddress: input.sendAddress,
+    receiveAddress: input.receiveAddress,
+    swapperName: input.swapperName,
+    slippageTolerancePercentageDecimal: input.slippageTolerancePercentageDecimal,
+  })
+  return response
+})
 
-export const executeApprovalActor = fromPromise<string, ExecuteApprovalInput>(
-  async ({ input }) => {
-    const { walletClient, spender, sellAssetAddress, sellAmountBaseUnit, chain } = input
+export const executeApprovalActor = fromPromise<string, ExecuteApprovalInput>(async ({ input }) => {
+  const { walletClient, spender, sellAssetAddress, sellAmountBaseUnit, chain } = input
 
-    const data = encodeFunctionData({
-      abi: erc20Abi,
-      functionName: 'approve',
-      args: [spender as `0x${string}`, BigInt(sellAmountBaseUnit)],
-    })
+  const data = encodeFunctionData({
+    abi: erc20Abi,
+    functionName: 'approve',
+    args: [spender as `0x${string}`, BigInt(sellAmountBaseUnit)],
+  })
 
-    const [account] = await walletClient.getAddresses()
-    const txHash = await walletClient.sendTransaction({
-      account,
-      to: sellAssetAddress as `0x${string}`,
-      data,
-      chain,
-    })
+  const [account] = await walletClient.getAddresses()
+  const txHash = await walletClient.sendTransaction({
+    account,
+    to: sellAssetAddress as `0x${string}`,
+    data,
+    chain,
+  })
 
-    const { createPublicClient, http } = await import('viem')
-    const publicClient = createPublicClient({ chain, transport: http() })
-    await publicClient.waitForTransactionReceipt({ hash: txHash })
+  const { createPublicClient, http } = await import('viem')
+  const publicClient = createPublicClient({ chain, transport: http() })
+  await publicClient.waitForTransactionReceipt({ hash: txHash })
 
-    return txHash
-  },
-)
+  return txHash
+})
 
 export const executeSwapActor = fromPromise<string, ExecuteSwapInput>(async ({ input }) => {
   const { walletClient, to, data, value, gasLimit, chain, walletAddress } = input

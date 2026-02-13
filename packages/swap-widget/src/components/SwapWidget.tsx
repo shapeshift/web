@@ -3,6 +3,7 @@ import './SwapWidget.css'
 import { ethChainId, usdcAssetId } from '@shapeshiftoss/caip'
 import { ethereum } from '@shapeshiftoss/utils'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useMachine } from '@xstate/react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Chain, WalletClient } from 'viem'
 import { createPublicClient, encodeFunctionData, http } from 'viem'
@@ -20,7 +21,6 @@ import {
   plasma,
   polygon,
 } from 'viem/chains'
-import { useMachine } from '@xstate/react'
 
 import { createApiClient } from '../api/client'
 import { getBaseAsset } from '../constants/chains'
@@ -663,15 +663,14 @@ const SwapWidgetCore = ({
           resetSolanaState()
 
           const innerStep = quote.quote?.steps?.[0]
-          const solanaTransactionMetadata = (
-            innerStep as Record<string, unknown> | undefined
-          )?.solanaTransactionMetadata as
+          const solanaTransactionMetadata = (innerStep as Record<string, unknown> | undefined)
+            ?.solanaTransactionMetadata as
             | {
-                instructions: Array<{
+                instructions: {
                   programId: string
-                  keys: Array<{ pubkey: string; isSigner: boolean; isWritable: boolean }>
+                  keys: { pubkey: string; isSigner: boolean; isWritable: boolean }[]
                   data: { data: number[] }
-                }>
+                }[]
               }
             | undefined
 
@@ -683,14 +682,12 @@ const SwapWidgetCore = ({
             )
           }
 
-          const { Transaction, PublicKey, TransactionInstruction } = await import(
-            '@solana/web3.js'
-          )
+          const { Transaction, PublicKey, TransactionInstruction } = await import('@solana/web3.js')
 
           const instructions = solanaTransactionMetadata.instructions.map(
             (ix: {
               programId: string
-              keys: Array<{ pubkey: string; isSigner: boolean; isWritable: boolean }>
+              keys: { pubkey: string; isSigner: boolean; isWritable: boolean }[]
               data: { data: number[] }
             }) => {
               const keys = ix.keys.map(

@@ -51,11 +51,7 @@ export const ApprovalStep = ({ context, send, isApproving }: ApprovalStepProps) 
         </span>
       </div>
       <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-        <button
-          className='ssw-action-btn'
-          onClick={() => send({ type: 'APPROVE' })}
-          type='button'
-        >
+        <button className='ssw-action-btn' onClick={() => send({ type: 'APPROVE' })} type='button'>
           Approve {sellAsset.symbol}
         </button>
         <button

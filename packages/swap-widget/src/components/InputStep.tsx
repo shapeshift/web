@@ -306,11 +306,7 @@ export const InputStep = ({
               value={buyAmount ? formatAmount(buyAmount, buyAsset.precision) : ''}
               readOnly
             />
-            <button
-              className='ssw-token-btn'
-              onClick={() => onOpenTokenModal('buy')}
-              type='button'
-            >
+            <button className='ssw-token-btn' onClick={() => onOpenTokenModal('buy')} type='button'>
               {buyAsset.icon ? (
                 <img src={buyAsset.icon} alt={buyAsset.symbol} className='ssw-token-icon' />
               ) : (

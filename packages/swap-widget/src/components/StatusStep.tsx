@@ -105,26 +105,16 @@ export const StatusStep = ({ context, send, isPolling, isComplete, isError }: St
             )}
           </>
         )}
-        {isError && (
-          <span className='ssw-tx-status-message'>{error ?? 'Transaction failed'}</span>
-        )}
+        {isError && <span className='ssw-tx-status-message'>{error ?? 'Transaction failed'}</span>}
       </div>
       <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
         {isComplete && (
-          <button
-            className='ssw-action-btn'
-            onClick={() => send({ type: 'RESET' })}
-            type='button'
-          >
+          <button className='ssw-action-btn' onClick={() => send({ type: 'RESET' })} type='button'>
             New Swap
           </button>
         )}
         {isError && retryCount < 3 && (
-          <button
-            className='ssw-action-btn'
-            onClick={() => send({ type: 'RETRY' })}
-            type='button'
-          >
+          <button className='ssw-action-btn' onClick={() => send({ type: 'RETRY' })} type='button'>
             Retry
           </button>
         )}

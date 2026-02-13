@@ -10,8 +10,7 @@ import { useMemo } from 'react'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
 import { getTxLink } from '@/lib/getTxLink'
-import type { YieldType } from '@/lib/yieldxyz/types'
-import { isStakingYieldType } from '@/lib/yieldxyz/utils'
+import { isStakingYieldType, isValidYieldType } from '@/lib/yieldxyz/utils'
 import type { ReduxState } from '@/state/reducer'
 import { selectYieldActionsByTxHash } from '@/state/slices/actionSlice/selectors'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
@@ -30,7 +29,7 @@ export type TxType = unchained.TransferType | unchained.TradeType | 'method' | '
 
 export type YieldTxData = {
   parser: 'yieldxyz'
-  method: string
+  method: Method
   contractName?: string
 }
 
@@ -96,7 +95,7 @@ export interface TxDetails {
 
 export const yieldActionToMethod = (action: GenericTransactionAction): Method => {
   const { yieldType, cooldownPeriodSeconds } = action.transactionMetadata
-  const isStaking = yieldType ? isStakingYieldType(yieldType as YieldType) : false
+  const isStaking = yieldType && isValidYieldType(yieldType) ? isStakingYieldType(yieldType) : false
   const hasCooldown = (cooldownPeriodSeconds ?? 0) > 0
 
   switch (action.type) {

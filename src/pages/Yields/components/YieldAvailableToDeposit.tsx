@@ -22,7 +22,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
-import { selectPortfolioCryptoBalanceBaseUnitByFilter } from '@/state/slices/selectors'
+import { selectPortfolioCryptoBalanceByFilter } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type YieldAvailableToDepositProps = {
@@ -53,7 +53,7 @@ export const YieldAvailableToDeposit = memo(
     const inputTokenPrecision = inputToken?.decimals ?? yieldItem.token.decimals
 
     const availableBalanceBaseUnit = useAppSelector(state =>
-      selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId: inputTokenAssetId }),
+      selectPortfolioCryptoBalanceByFilter(state, { assetId: inputTokenAssetId }).toBaseUnit(),
     )
 
     const availableBalance = useMemo(

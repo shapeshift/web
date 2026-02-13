@@ -1,16 +1,17 @@
-import { describe, it, expect } from 'vitest'
-import type { SwapMachineContext } from '../types'
+import { describe, expect, it } from 'vitest'
+
 import {
-  hasValidInput,
-  hasQuote,
-  isApprovalRequired,
   canRetry,
-  isEvmChain,
-  isUtxoChain,
-  isSolanaChain,
-  hasWallet,
+  hasQuote,
   hasReceiveAddress,
+  hasValidInput,
+  hasWallet,
+  isApprovalRequired,
+  isEvmChain,
+  isSolanaChain,
+  isUtxoChain,
 } from '../guards'
+import type { SwapMachineContext } from '../types'
 
 const createTestContext = (overrides?: Partial<SwapMachineContext>): SwapMachineContext => ({
   sellAsset: {

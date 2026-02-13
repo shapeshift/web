@@ -387,8 +387,6 @@ const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
           </div>
         </div>
       </main>
-
-
     </div>
   )
 }

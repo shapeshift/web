@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react'
 
 import type { ApiClient } from '../api/client'
-import type { SwapMachineContext, SwapMachineEvent, SwapStateMatches } from '../machines/types'
+import { useSwapWallet } from '../contexts/SwapWalletContext'
+import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { TradeRate } from '../types'
 
 type BalanceData =
@@ -12,36 +13,25 @@ type BalanceData =
   | undefined
 
 type UseSwapQuotingParams = {
-  stateValue: unknown
-  stateMatches: SwapStateMatches
-  context: SwapMachineContext
-  send: (event: SwapMachineEvent) => void
   apiClient: ApiClient
   rates: TradeRate[] | undefined
   sellAssetBalance: BalanceData
-  walletAddress: string | undefined
-  bitcoinAddress: string | undefined
-  solanaAddress: string | undefined
-  effectiveReceiveAddress: string
 }
 
-export const useSwapQuoting = ({
-  stateValue,
-  stateMatches,
-  context,
-  send,
-  apiClient,
-  rates,
-  sellAssetBalance,
-  walletAddress,
-  bitcoinAddress,
-  solanaAddress,
-  effectiveReceiveAddress,
-}: UseSwapQuotingParams) => {
+export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQuotingParams) => {
+  const stateValue = SwapMachineCtx.useSelector(s => s.value)
+  const context = SwapMachineCtx.useSelector(s => s.context)
+  const actorRef = SwapMachineCtx.useActorRef()
+
+  const { walletAddress, effectiveReceiveAddress, bitcoin, solana } = useSwapWallet()
+  const bitcoinAddress = bitcoin.address
+  const solanaAddress = solana.address
+
   const quotingRef = useRef(false)
 
   useEffect(() => {
-    if (!stateMatches('quoting') || quotingRef.current) return
+    const snap = actorRef.getSnapshot()
+    if (!snap.matches('quoting') || quotingRef.current) return
     quotingRef.current = true
 
     const fetchQuote = async () => {
@@ -50,7 +40,7 @@ export const useSwapQuoting = ({
           const balanceBigInt = BigInt(sellAssetBalance.balance)
           const amountBigInt = BigInt(context.sellAmountBaseUnit)
           if (amountBigInt > balanceBigInt) {
-            send({ type: 'QUOTE_ERROR', error: 'Insufficient balance' })
+            actorRef.send({ type: 'QUOTE_ERROR', error: 'Insufficient balance' })
             return
           }
         }
@@ -58,7 +48,7 @@ export const useSwapQuoting = ({
         const slippageDecimal = (parseFloat(context.slippage) / 100).toString()
         const rateToUse = context.selectedRate ?? rates?.[0]
         if (!rateToUse || !context.sellAmountBaseUnit) {
-          send({ type: 'QUOTE_ERROR', error: 'No rate or amount available' })
+          actorRef.send({ type: 'QUOTE_ERROR', error: 'No rate or amount available' })
           return
         }
 
@@ -69,7 +59,7 @@ export const useSwapQuoting = ({
           : solanaAddress
 
         if (!sendAddress) {
-          send({ type: 'QUOTE_ERROR', error: 'No wallet address available' })
+          actorRef.send({ type: 'QUOTE_ERROR', error: 'No wallet address available' })
           return
         }
 
@@ -85,10 +75,10 @@ export const useSwapQuoting = ({
           slippageTolerancePercentageDecimal: slippageDecimal,
         })
 
-        send({ type: 'QUOTE_SUCCESS', quote: response })
+        actorRef.send({ type: 'QUOTE_SUCCESS', quote: response })
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Failed to get quote'
-        send({ type: 'QUOTE_ERROR', error: errorMessage })
+        actorRef.send({ type: 'QUOTE_ERROR', error: errorMessage })
       } finally {
         quotingRef.current = false
       }

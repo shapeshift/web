@@ -4,48 +4,40 @@ import { createPublicClient, encodeFunctionData, http } from 'viem'
 
 import { getBaseAsset } from '../constants/chains'
 import { switchOrAddChain, VIEM_CHAINS_BY_ID } from '../constants/viemChains'
-import type { SwapMachineContext, SwapMachineEvent, SwapStateMatches } from '../machines/types'
+import { useSwapWallet } from '../contexts/SwapWalletContext'
+import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import { getEvmNetworkId } from '../types'
 
-type UseSwapApprovalParams = {
-  stateValue: unknown
-  stateMatches: SwapStateMatches
-  context: SwapMachineContext
-  send: (event: SwapMachineEvent) => void
-  walletClient: unknown
-  walletAddress: string | undefined
-}
+export const useSwapApproval = () => {
+  const stateValue = SwapMachineCtx.useSelector(s => s.value)
+  const context = SwapMachineCtx.useSelector(s => s.context)
+  const actorRef = SwapMachineCtx.useActorRef()
 
-export const useSwapApproval = ({
-  stateValue,
-  stateMatches,
-  context,
-  send,
-  walletClient,
-  walletAddress,
-}: UseSwapApprovalParams) => {
+  const { walletClient, walletAddress } = useSwapWallet()
+
   const approvingRef = useRef(false)
 
   useEffect(() => {
-    if (!stateMatches('approving') || approvingRef.current) return
+    const snap = actorRef.getSnapshot()
+    if (!snap.matches('approving') || approvingRef.current) return
     approvingRef.current = true
 
     const executeApproval = async () => {
       try {
         if (!walletClient || !walletAddress) {
-          send({ type: 'APPROVAL_ERROR', error: 'No wallet connected' })
+          actorRef.send({ type: 'APPROVAL_ERROR', error: 'No wallet connected' })
           return
         }
 
         const quote = context.quote
         if (!quote?.approval?.spender) {
-          send({ type: 'APPROVAL_ERROR', error: 'No approval data in quote' })
+          actorRef.send({ type: 'APPROVAL_ERROR', error: 'No approval data in quote' })
           return
         }
 
         const sellAssetAddress = context.sellAsset.assetId.split('/')[1]?.split(':')[1]
         if (!sellAssetAddress) {
-          send({ type: 'APPROVAL_ERROR', error: 'Could not extract token address' })
+          actorRef.send({ type: 'APPROVAL_ERROR', error: 'Could not extract token address' })
           return
         }
 
@@ -100,10 +92,10 @@ export const useSwapApproval = ({
         const publicClient = createPublicClient({ chain, transport: http() })
         await publicClient.waitForTransactionReceipt({ hash: approvalHash })
 
-        send({ type: 'APPROVAL_SUCCESS', txHash: approvalHash })
+        actorRef.send({ type: 'APPROVAL_SUCCESS', txHash: approvalHash })
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Approval failed'
-        send({ type: 'APPROVAL_ERROR', error: errorMessage })
+        actorRef.send({ type: 'APPROVAL_ERROR', error: errorMessage })
       } finally {
         approvingRef.current = false
       }

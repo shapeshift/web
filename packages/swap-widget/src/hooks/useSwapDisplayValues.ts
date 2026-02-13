@@ -2,7 +2,8 @@ import { useMemo } from 'react'
 
 import type { ApiClient } from '../api/client'
 import { getBaseAsset } from '../constants/chains'
-import type { Asset, TradeRate } from '../types'
+import { useSwapWallet } from '../contexts/SwapWalletContext'
+import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import { formatAmount, getChainType } from '../types'
 import { useChainInfo } from './useAssets'
 import { useMultiChainBalance } from './useBalances'
@@ -11,33 +12,21 @@ import { useSwapRates } from './useSwapRates'
 
 type UseSwapDisplayValuesParams = {
   apiClient: ApiClient
-  sellAsset: Asset
-  buyAsset: Asset
-  sellAmountBaseUnit: string | undefined
-  isSellAssetEvm: boolean
-  isSellAssetUtxo: boolean
-  isSellAssetSolana: boolean
-  selectedRate: TradeRate | null
-  walletAddress: string | undefined
-  bitcoinAddress: string | undefined
-  solanaAddress: string | undefined
-  effectiveReceiveAddress: string
 }
 
-export const useSwapDisplayValues = ({
-  apiClient,
-  sellAsset,
-  buyAsset,
-  sellAmountBaseUnit,
-  isSellAssetEvm,
-  isSellAssetUtxo,
-  isSellAssetSolana,
-  selectedRate,
-  walletAddress,
-  bitcoinAddress,
-  solanaAddress,
-  effectiveReceiveAddress,
-}: UseSwapDisplayValuesParams) => {
+export const useSwapDisplayValues = ({ apiClient }: UseSwapDisplayValuesParams) => {
+  const sellAsset = SwapMachineCtx.useSelector(s => s.context.sellAsset)
+  const buyAsset = SwapMachineCtx.useSelector(s => s.context.buyAsset)
+  const sellAmountBaseUnit = SwapMachineCtx.useSelector(s => s.context.sellAmountBaseUnit)
+  const isSellAssetEvm = SwapMachineCtx.useSelector(s => s.context.isSellAssetEvm)
+  const isSellAssetUtxo = SwapMachineCtx.useSelector(s => s.context.isSellAssetUtxo)
+  const isSellAssetSolana = SwapMachineCtx.useSelector(s => s.context.isSellAssetSolana)
+  const selectedRate = SwapMachineCtx.useSelector(s => s.context.selectedRate)
+
+  const { walletAddress, effectiveReceiveAddress, bitcoin, solana } = useSwapWallet()
+  const bitcoinAddress = bitcoin.address
+  const solanaAddress = solana.address
+
   const buyChainType = getChainType(buyAsset.chainId)
 
   const {

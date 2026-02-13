@@ -1,114 +1,110 @@
 import { useCallback } from 'react'
 
-import type { SwapMachineContext, SwapMachineEvent } from '../machines/types'
+import { useSwapWallet } from '../contexts/SwapWalletContext'
+import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { Asset, TradeRate } from '../types'
 import { parseAmount } from '../types'
 
 type UseSwapHandlersParams = {
-  context: SwapMachineContext
-  send: (event: SwapMachineEvent) => void
-  walletClient: unknown
-  isBitcoinConnected: boolean
-  isSolanaConnected: boolean
   onConnectWallet?: () => void
   onAssetSelect?: (type: 'sell' | 'buy', asset: Asset) => void
 }
 
-export const useSwapHandlers = ({
-  context,
-  send,
-  walletClient,
-  isBitcoinConnected,
-  isSolanaConnected,
-  onConnectWallet,
-  onAssetSelect,
-}: UseSwapHandlersParams) => {
+export const useSwapHandlers = ({ onConnectWallet, onAssetSelect }: UseSwapHandlersParams) => {
+  const actorRef = SwapMachineCtx.useActorRef()
+  const { walletClient, bitcoin, solana } = useSwapWallet()
+
   const handleSwapTokens = useCallback(() => {
-    const tempSell = context.sellAsset
-    const tempBuy = context.buyAsset
-    send({ type: 'SET_SELL_ASSET', asset: tempBuy })
-    send({ type: 'SET_BUY_ASSET', asset: tempSell })
-    send({ type: 'SET_SELL_AMOUNT', amount: '', amountBaseUnit: undefined })
-  }, [context.sellAsset, context.buyAsset, send])
+    const snap = actorRef.getSnapshot()
+    actorRef.send({ type: 'SET_SELL_ASSET', asset: snap.context.buyAsset })
+    actorRef.send({ type: 'SET_BUY_ASSET', asset: snap.context.sellAsset })
+    actorRef.send({ type: 'SET_SELL_AMOUNT', amount: '', amountBaseUnit: undefined })
+  }, [actorRef])
 
   const handleSellAssetSelect = useCallback(
     (asset: Asset) => {
-      send({ type: 'SET_SELL_ASSET', asset })
+      actorRef.send({ type: 'SET_SELL_ASSET', asset })
       onAssetSelect?.('sell', asset)
     },
-    [send, onAssetSelect],
+    [actorRef, onAssetSelect],
   )
 
   const handleBuyAssetSelect = useCallback(
     (asset: Asset) => {
-      send({ type: 'SET_BUY_ASSET', asset })
+      actorRef.send({ type: 'SET_BUY_ASSET', asset })
       onAssetSelect?.('buy', asset)
     },
-    [send, onAssetSelect],
+    [actorRef, onAssetSelect],
   )
 
   const handleSellAmountChange = useCallback(
     (value: string) => {
-      const baseUnit = value ? parseAmount(value, context.sellAsset.precision) : undefined
-      send({ type: 'SET_SELL_AMOUNT', amount: value, amountBaseUnit: baseUnit })
+      const snap = actorRef.getSnapshot()
+      const baseUnit = value ? parseAmount(value, snap.context.sellAsset.precision) : undefined
+      actorRef.send({ type: 'SET_SELL_AMOUNT', amount: value, amountBaseUnit: baseUnit })
     },
-    [send, context.sellAsset.precision],
+    [actorRef],
   )
 
   const handleSelectRate = useCallback(
     (rate: TradeRate) => {
-      send({ type: 'SELECT_RATE', rate })
+      actorRef.send({ type: 'SELECT_RATE', rate })
     },
-    [send],
+    [actorRef],
   )
 
   const handleSlippageChange = useCallback(
     (value: string) => {
-      send({ type: 'SET_SLIPPAGE', slippage: value })
+      actorRef.send({ type: 'SET_SLIPPAGE', slippage: value })
     },
-    [send],
+    [actorRef],
   )
 
   const redirectToShapeShift = useCallback(() => {
+    const snap = actorRef.getSnapshot()
     const params = new URLSearchParams({
-      sellAssetId: context.sellAsset.assetId,
-      buyAssetId: context.buyAsset.assetId,
-      sellAmount: context.sellAmount,
+      sellAssetId: snap.context.sellAsset.assetId,
+      buyAssetId: snap.context.buyAsset.assetId,
+      sellAmount: snap.context.sellAmount,
     })
     window.open(
       `https://app.shapeshift.com/trade?${params.toString()}`,
       '_blank',
       'noopener,noreferrer',
     )
-  }, [context.sellAsset.assetId, context.buyAsset.assetId, context.sellAmount])
+  }, [actorRef])
 
   const handleButtonClick = useCallback(() => {
-    if (context.isSellAssetUtxo && !isBitcoinConnected) {
+    const snap = actorRef.getSnapshot()
+    if (snap.context.isSellAssetUtxo && !bitcoin.isConnected) {
       return
     }
-    if (context.isSellAssetSolana && !isSolanaConnected) {
+    if (snap.context.isSellAssetSolana && !solana.isConnected) {
       return
     }
-    if (!walletClient && context.isSellAssetEvm && onConnectWallet) {
+    if (!walletClient && snap.context.isSellAssetEvm && onConnectWallet) {
       onConnectWallet()
       return
     }
-    if (!context.isSellAssetEvm && !context.isSellAssetUtxo && !context.isSellAssetSolana) {
-      redirectToShapeShift()
+    if (
+      !snap.context.isSellAssetEvm &&
+      !snap.context.isSellAssetUtxo &&
+      !snap.context.isSellAssetSolana
+    ) {
+      const params = new URLSearchParams({
+        sellAssetId: snap.context.sellAsset.assetId,
+        buyAssetId: snap.context.buyAsset.assetId,
+        sellAmount: snap.context.sellAmount,
+      })
+      window.open(
+        `https://app.shapeshift.com/trade?${params.toString()}`,
+        '_blank',
+        'noopener,noreferrer',
+      )
       return
     }
-    send({ type: 'FETCH_QUOTE' })
-  }, [
-    context.isSellAssetUtxo,
-    context.isSellAssetSolana,
-    context.isSellAssetEvm,
-    isBitcoinConnected,
-    isSolanaConnected,
-    walletClient,
-    onConnectWallet,
-    redirectToShapeShift,
-    send,
-  ])
+    actorRef.send({ type: 'FETCH_QUOTE' })
+  }, [actorRef, bitcoin.isConnected, solana.isConnected, walletClient, onConnectWallet])
 
   return {
     handleSwapTokens,

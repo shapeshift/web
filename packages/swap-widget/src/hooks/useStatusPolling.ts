@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 
-import type { SwapMachineContext, SwapMachineEvent, SwapStateMatches } from '../machines/types'
+import { useSwapWallet } from '../contexts/SwapWalletContext'
+import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { CheckStatusParams } from '../services/transactionStatus'
 import { checkTransactionStatus } from '../services/transactionStatus'
 import { getEvmNetworkId } from '../types'
@@ -8,11 +9,6 @@ import { getEvmNetworkId } from '../types'
 const POLL_INTERVAL_MS = 5000
 
 type UseStatusPollingParams = {
-  stateValue: unknown
-  stateMatches: SwapStateMatches
-  context: SwapMachineContext
-  send: (event: SwapMachineEvent) => void
-  solanaConnection: unknown
   onSwapSuccess?: (txHash: string) => void
   onSwapError?: (error: Error) => void
   refetchSellBalance?: () => void
@@ -20,19 +16,22 @@ type UseStatusPollingParams = {
 }
 
 export const useStatusPolling = ({
-  stateValue,
-  stateMatches,
-  context,
-  send,
-  solanaConnection,
   onSwapSuccess,
   onSwapError,
   refetchSellBalance,
   refetchBuyBalance,
 }: UseStatusPollingParams) => {
+  const stateValue = SwapMachineCtx.useSelector(s => s.value)
+  const context = SwapMachineCtx.useSelector(s => s.context)
+  const actorRef = SwapMachineCtx.useActorRef()
+
+  const { solana } = useSwapWallet()
+  const solanaConnection = solana.connection
+
   const pollingRef = useRef(false)
   useEffect(() => {
-    if (!stateMatches('polling_status')) {
+    const snap = actorRef.getSnapshot()
+    if (!snap.matches('polling_status')) {
       pollingRef.current = false
       return
     }
@@ -65,7 +64,7 @@ export const useStatusPolling = ({
             connection: solanaConnection as CheckStatusParams['connection'],
           }
         } else {
-          send({ type: 'STATUS_CONFIRMED' })
+          actorRef.send({ type: 'STATUS_CONFIRMED' })
           return
         }
 
@@ -74,12 +73,12 @@ export const useStatusPolling = ({
         if (stopped) return
 
         if (result.status === 'confirmed') {
-          send({ type: 'STATUS_CONFIRMED' })
+          actorRef.send({ type: 'STATUS_CONFIRMED' })
           return
         }
 
         if (result.status === 'failed') {
-          send({ type: 'STATUS_FAILED', error: result.error ?? 'Transaction failed' })
+          actorRef.send({ type: 'STATUS_FAILED', error: result.error ?? 'Transaction failed' })
           return
         }
 
@@ -87,7 +86,7 @@ export const useStatusPolling = ({
       } catch (err) {
         if (stopped) return
         const errorMessage = err instanceof Error ? err.message : 'Unknown polling error'
-        send({ type: 'STATUS_FAILED', error: errorMessage })
+        actorRef.send({ type: 'STATUS_FAILED', error: errorMessage })
       }
     }
 
@@ -102,7 +101,8 @@ export const useStatusPolling = ({
 
   const completionRef = useRef(false)
   useEffect(() => {
-    if (!stateMatches('complete')) {
+    const snap = actorRef.getSnapshot()
+    if (!snap.matches('complete')) {
       completionRef.current = false
       return
     }
@@ -120,7 +120,8 @@ export const useStatusPolling = ({
 
   const errorRef = useRef(false)
   useEffect(() => {
-    if (!stateMatches('error')) {
+    const snap = actorRef.getSnapshot()
+    if (!snap.matches('error')) {
       errorRef.current = false
       return
     }

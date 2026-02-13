@@ -1,7 +1,8 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+
+import type { SwapperName } from '../../types'
 import type { SwapMachineContext, SwapMachineEvent } from '../types'
 import { SwapStep } from '../types'
-import type { SwapperName } from '../../types'
 
 describe('SwapMachine Types', () => {
   it('SwapStep enum has all expected values', () => {
@@ -130,7 +131,13 @@ describe('SwapMachine Types', () => {
   })
 
   it('chainType supports all chain types', () => {
-    const chainTypes: SwapMachineContext['chainType'][] = ['evm', 'utxo', 'solana', 'cosmos', 'other']
+    const chainTypes: SwapMachineContext['chainType'][] = [
+      'evm',
+      'utxo',
+      'solana',
+      'cosmos',
+      'other',
+    ]
     expect(chainTypes).toHaveLength(5)
   })
 })

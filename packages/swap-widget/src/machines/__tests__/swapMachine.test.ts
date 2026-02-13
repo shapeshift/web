@@ -1,7 +1,8 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { createActor } from 'xstate'
-import { swapMachine, createInitialContext } from '../swapMachine'
+
 import type { Asset, QuoteResponse, TradeRate } from '../../types'
+import { createInitialContext, swapMachine } from '../swapMachine'
 
 const TEST_ETH: Asset = {
   assetId: 'eip155:1/slip44:60',

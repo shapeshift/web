@@ -3,65 +3,35 @@ import type { WalletClient } from 'viem'
 
 import { getBaseAsset } from '../constants/chains'
 import { switchOrAddChain, VIEM_CHAINS_BY_ID } from '../constants/viemChains'
-import type { SwapMachineContext, SwapMachineEvent, SwapStateMatches } from '../machines/types'
+import { useSwapWallet } from '../contexts/SwapWalletContext'
+import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import { getEvmNetworkId } from '../types'
-import type { SendTransferParams, SignPsbtParams } from './useBitcoinSigning'
-import type { SendTransactionParams } from './useSolanaSigning'
 
-type UseSwapExecutionParams = {
-  stateValue: unknown
-  stateMatches: SwapStateMatches
-  context: SwapMachineContext
-  send: (event: SwapMachineEvent) => void
-  walletClient: unknown
-  walletAddress: string | undefined
-  isBitcoinConnected: boolean
-  bitcoinAddress: string | undefined
-  resetBitcoinState: () => void
-  signPsbt: (params: SignPsbtParams) => Promise<string>
-  sendBitcoinTransfer: (params: SendTransferParams) => Promise<string>
-  isSolanaConnected: boolean
-  solanaAddress: string | undefined
-  solanaConnection: unknown
-  sendSolanaTransaction: (params: SendTransactionParams) => Promise<string>
-  resetSolanaState: () => void
-}
+export const useSwapExecution = () => {
+  const stateValue = SwapMachineCtx.useSelector(s => s.value)
+  const context = SwapMachineCtx.useSelector(s => s.context)
+  const actorRef = SwapMachineCtx.useActorRef()
 
-export const useSwapExecution = ({
-  stateValue,
-  stateMatches,
-  context,
-  send,
-  walletClient,
-  walletAddress,
-  isBitcoinConnected,
-  bitcoinAddress,
-  resetBitcoinState,
-  signPsbt,
-  sendBitcoinTransfer,
-  isSolanaConnected,
-  solanaAddress,
-  solanaConnection,
-  sendSolanaTransaction,
-  resetSolanaState,
-}: UseSwapExecutionParams) => {
+  const { walletClient, walletAddress, bitcoin, solana } = useSwapWallet()
+
   const executingRef = useRef(false)
 
   useEffect(() => {
-    if (!stateMatches('executing') || executingRef.current) return
+    const snap = actorRef.getSnapshot()
+    if (!snap.matches('executing') || executingRef.current) return
     executingRef.current = true
 
     const executeSwap = async () => {
       try {
         const quote = context.quote
         if (!quote) {
-          send({ type: 'EXECUTE_ERROR', error: 'No quote available' })
+          actorRef.send({ type: 'EXECUTE_ERROR', error: 'No quote available' })
           return
         }
 
         if (context.isSellAssetEvm) {
           if (!walletClient || !walletAddress) {
-            send({ type: 'EXECUTE_ERROR', error: 'No wallet connected' })
+            actorRef.send({ type: 'EXECUTE_ERROR', error: 'No wallet connected' })
             return
           }
 
@@ -118,14 +88,14 @@ export const useSwapExecution = ({
             account: walletAddress as `0x${string}`,
           })
 
-          send({ type: 'EXECUTE_SUCCESS', txHash })
+          actorRef.send({ type: 'EXECUTE_SUCCESS', txHash })
         } else if (context.isSellAssetUtxo) {
-          if (!isBitcoinConnected || !bitcoinAddress) {
-            send({ type: 'EXECUTE_ERROR', error: 'Bitcoin wallet not connected' })
+          if (!bitcoin.isConnected || !bitcoin.address) {
+            actorRef.send({ type: 'EXECUTE_ERROR', error: 'Bitcoin wallet not connected' })
             return
           }
 
-          resetBitcoinState()
+          bitcoin.reset()
 
           const outerStep = quote.steps?.[0]
           const innerStep = quote.quote?.steps?.[0]
@@ -145,21 +115,21 @@ export const useSwapExecution = ({
           let txid: string
 
           if (psbt) {
-            txid = await signPsbt({ psbt, signInputs: {}, broadcast: true })
+            txid = await bitcoin.signPsbt({ psbt, signInputs: {}, broadcast: true })
           } else if (recipientAddress) {
-            txid = await sendBitcoinTransfer({ recipientAddress, amount: value ?? '' })
+            txid = await bitcoin.sendTransfer({ recipientAddress, amount: value ?? '' })
           } else {
             throw new Error('No PSBT or recipient address in transaction data')
           }
 
-          send({ type: 'EXECUTE_SUCCESS', txHash: txid })
+          actorRef.send({ type: 'EXECUTE_SUCCESS', txHash: txid })
         } else if (context.isSellAssetSolana) {
-          if (!isSolanaConnected || !solanaAddress || !solanaConnection) {
-            send({ type: 'EXECUTE_ERROR', error: 'Solana wallet not connected' })
+          if (!solana.isConnected || !solana.address || !solana.connection) {
+            actorRef.send({ type: 'EXECUTE_ERROR', error: 'Solana wallet not connected' })
             return
           }
 
-          resetSolanaState()
+          solana.reset()
 
           const innerStep = quote.quote?.steps?.[0]
           const solanaTransactionMetadata = (innerStep as Record<string, unknown> | undefined)
@@ -211,21 +181,21 @@ export const useSwapExecution = ({
           )
 
           const transaction = new Transaction().add(...instructions)
-          const conn = solanaConnection as {
+          const conn = solana.connection as {
             getLatestBlockhash: (commitment: string) => Promise<{ blockhash: string }>
           }
           const { blockhash } = await conn.getLatestBlockhash('confirmed')
           transaction.recentBlockhash = blockhash
-          transaction.feePayer = new PublicKey(solanaAddress)
+          transaction.feePayer = new PublicKey(solana.address)
 
-          const signature = await sendSolanaTransaction({ transaction })
-          send({ type: 'EXECUTE_SUCCESS', txHash: signature })
+          const signature = await solana.sendTransaction({ transaction })
+          actorRef.send({ type: 'EXECUTE_SUCCESS', txHash: signature })
         } else {
-          send({ type: 'EXECUTE_ERROR', error: 'Unsupported chain type' })
+          actorRef.send({ type: 'EXECUTE_ERROR', error: 'Unsupported chain type' })
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Transaction failed'
-        send({ type: 'EXECUTE_ERROR', error: errorMessage })
+        actorRef.send({ type: 'EXECUTE_ERROR', error: errorMessage })
       } finally {
         executingRef.current = false
       }

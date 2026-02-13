@@ -2,6 +2,7 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, isNft } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
 import createCachedSelector from 're-reselect'
@@ -166,6 +167,72 @@ export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelecto
     return fromBaseUnit(bnOrZero(assetBalances[assetId]), precision)
   },
 )((_s: ReduxState, filter) => `${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`)
+
+// ── BigAmount-returning selectors ────────────────
+// New selectors that return BigAmount instead of strings.
+// Existing string-returning selectors above are kept for backward compatibility.
+
+export const selectPortfolioAccountBalances = createDeepEqualOutputSelector(
+  selectEnabledWalletAccountIds,
+  portfolio.selectors.selectAccountBalancesById,
+  (walletAccountIds, accountBalancesById): Record<AccountId, Record<AssetId, BigAmount>> => {
+    const filtered = pickBy(accountBalancesById, (_balances, accountId: AccountId) =>
+      walletAccountIds.includes(accountId),
+    )
+    return Object.fromEntries(
+      Object.entries(filtered).map(([accountId, byAssetId]) => [
+        accountId,
+        Object.fromEntries(
+          Object.entries(byAssetId).map(([assetId, balance]) => [
+            assetId,
+            BigAmount.fromBaseUnit({ value: balance, assetId }),
+          ]),
+        ),
+      ]),
+    ) as Record<AccountId, Record<AssetId, BigAmount>>
+  },
+)
+
+export const selectPortfolioAssetBalances = createDeepEqualOutputSelector(
+  selectPortfolioAccountBalancesBaseUnit,
+  (accountBalancesById): Record<AssetId, BigAmount> => {
+    const aggregated = Object.values(accountBalancesById).reduce<Record<AssetId, string>>(
+      (acc, byAssetId) => {
+        Object.entries(byAssetId).forEach(([assetId, balance]) => {
+          acc[assetId] = bnOrZero(acc[assetId]).plus(bnOrZero(balance)).toFixed()
+        })
+        return acc
+      },
+      {},
+    )
+    return Object.fromEntries(
+      Object.entries(aggregated)
+        .filter(([_, balance]) => !bnOrZero(balance).isZero())
+        .map(([assetId, balance]) => [
+          assetId,
+          BigAmount.fromBaseUnit({ value: balance, assetId }),
+        ]),
+    ) as Record<AssetId, BigAmount>
+  },
+)
+
+export const selectPortfolioCryptoBalanceByFilter = createCachedSelector(
+  selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioAssetBalancesBaseUnit,
+  selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
+  (accountBalances, assetBalances, accountId, assetId): BigAmount => {
+    if (!assetId) return BigAmount.zero({ precision: 0 })
+    const rawBalance =
+      accountId && assetId
+        ? accountBalances?.[accountId]?.[assetId] ?? '0'
+        : assetBalances[assetId] ?? '0'
+    return BigAmount.fromBaseUnit({ value: rawBalance, assetId })
+  },
+)(
+  (_s: ReduxState, filter) =>
+    `bigAmount-${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`,
+)
 
 export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector(
   selectAssets,

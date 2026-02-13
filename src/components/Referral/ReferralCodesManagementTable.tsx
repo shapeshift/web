@@ -104,7 +104,7 @@ export const ReferralCodesManagementTable = ({
               <Box width='120px'>
                 <HStack spacing={2} justify='flex-end'>
                   <IconButton
-                    aria-label='Share on X'
+                    aria-label={translate('common.shareOnX')}
                     icon={<FaXTwitter />}
                     size='sm'
                     colorScheme='twitter'
@@ -112,7 +112,7 @@ export const ReferralCodesManagementTable = ({
                     onClick={() => onShareOnX(code.code)}
                   />
                   <IconButton
-                    aria-label='Copy link'
+                    aria-label={translate('common.copy')}
                     icon={<FaCopy />}
                     size='sm'
                     variant='ghost'

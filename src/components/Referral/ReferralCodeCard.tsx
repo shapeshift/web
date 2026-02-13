@@ -57,7 +57,7 @@ export const ReferralCodeCard = ({
           {code && (
             <Flex alignItems='center' gap={2}>
               <IconButton
-                aria-label='Share on X'
+                aria-label={translate('common.shareOnX')}
                 icon={<FaXTwitter />}
                 size='md'
                 colorScheme='whiteAlpha'
@@ -66,7 +66,7 @@ export const ReferralCodeCard = ({
                 onClick={() => onShareOnX(code)}
               />
               <IconButton
-                aria-label='Copy link'
+                aria-label={translate('common.copy')}
                 icon={<FaCopy />}
                 size='md'
                 colorScheme='whiteAlpha'

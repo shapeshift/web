@@ -8,6 +8,16 @@
   justify-content: center;
   z-index: 1000;
   padding: 16px;
+  animation: ssw-fade-in 0.15s ease;
+}
+
+@keyframes ssw-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .ssw-modal {
@@ -20,6 +30,18 @@
   flex-direction: column;
   overflow: hidden;
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+  animation: ssw-slide-up 0.2s ease;
+}
+
+@keyframes ssw-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .ssw-modal-header {
@@ -234,6 +256,18 @@
   cursor: pointer;
   transition: background 0.15s ease;
   text-align: left;
+  animation: ssw-token-fade-in 0.2s ease backwards;
+}
+
+@keyframes ssw-token-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .ssw-token-item:hover {

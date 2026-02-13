@@ -299,12 +299,16 @@
   justify-content: center;
   cursor: pointer;
   color: var(--ssw-text-secondary);
-  transition: all 0.15s ease;
+  transition: color 0.15s ease, background 0.15s ease, transform 0.3s ease;
 }
 
 .ssw-swap-btn:hover {
   color: var(--ssw-text-primary);
   background: var(--ssw-bg-hover);
+}
+
+.ssw-swap-btn:active {
+  transform: rotate(180deg);
 }
 
 .ssw-receive-address-btn {
@@ -547,6 +551,18 @@
   padding: 40px 32px;
   flex: 1;
   text-align: center;
+  animation: ssw-step-enter 0.25s ease;
+}
+
+@keyframes ssw-step-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .ssw-step-icon-circle {

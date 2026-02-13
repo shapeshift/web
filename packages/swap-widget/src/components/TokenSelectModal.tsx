@@ -139,7 +139,7 @@ export const TokenSelectModal = ({
       .map(item => item.asset)
   }, [allAssets, selectedChainId, searchQuery, disabledAssetIds, disabledChainIds, allowedChainIds])
 
-  const visibleAssets = useMemo(() => {
+  const visibleRangeAssets = useMemo(() => {
     const start = Math.max(0, visibleRange.startIndex - VISIBLE_BUFFER)
     const end = Math.min(filteredAssets.length, visibleRange.endIndex + VISIBLE_BUFFER)
     return filteredAssets.slice(start, end)
@@ -147,13 +147,13 @@ export const TokenSelectModal = ({
 
   const assetPrecisions = useMemo(() => {
     const precisions: Record<AssetId, number> = {}
-    for (const asset of visibleAssets) {
+    for (const asset of visibleRangeAssets) {
       precisions[asset.assetId] = asset.precision
     }
     return precisions
-  }, [visibleAssets])
+  }, [visibleRangeAssets])
 
-  const assetIds = useMemo(() => visibleAssets.map(a => a.assetId), [visibleAssets])
+  const assetIds = useMemo(() => visibleRangeAssets.map(a => a.assetId), [visibleRangeAssets])
 
   const { address: bitcoinAddress } = useBitcoinSigning()
   const { address: solanaAddress } = useSolanaSigning()
@@ -171,6 +171,33 @@ export const TokenSelectModal = ({
   }, [isOpen, currentAssetIds, refetchSpecific])
 
   const { data: marketData } = useAllMarketData()
+
+  const sortedAssets = useMemo(() => {
+    if (!balances || Object.keys(balances).length === 0) return filteredAssets
+
+    const withBalance: { asset: Asset; fiatValue: number }[] = []
+    const withoutBalance: Asset[] = []
+
+    for (const asset of filteredAssets) {
+      const balance = balances[asset.assetId]
+      if (balance && balance.balance !== '0') {
+        const price = marketData?.[asset.assetId]?.price
+        const fiatValue = price
+          ? bnOrZero(balance.balance)
+              .div(bnOrZero(10).pow(asset.precision))
+              .times(bnOrZero(price))
+              .toNumber()
+          : 0
+        withBalance.push({ asset, fiatValue })
+      } else {
+        withoutBalance.push(asset)
+      }
+    }
+
+    withBalance.sort((a, b) => b.fiatValue - a.fiatValue)
+
+    return [...withBalance.map(w => w.asset), ...withoutBalance]
+  }, [filteredAssets, balances, marketData])
 
   const handleAssetSelect = useCallback(
     (asset: Asset) => {
@@ -319,11 +346,11 @@ export const TokenSelectModal = ({
                   <div className='ssw-spinner' />
                   <span>Loading assets...</span>
                 </div>
-              ) : filteredAssets.length === 0 ? (
+              ) : sortedAssets.length === 0 ? (
                 <div className='ssw-empty'>No tokens found</div>
               ) : (
                 <Virtuoso
-                  data={filteredAssets}
+                  data={sortedAssets}
                   rangeChanged={setVisibleRange}
                   overscan={200}
                   itemContent={(_, asset) => {

@@ -41,6 +41,7 @@ type InputStepProps = {
   onSelectRate: (rate: TradeRate) => void
   onButtonClick: () => void
   sellAmountBaseUnit: string | undefined
+  networkFeeDisplay: string | undefined
 }
 
 export const InputStep = ({
@@ -79,6 +80,7 @@ export const InputStep = ({
   onSelectRate,
   onButtonClick,
   sellAmountBaseUnit,
+  networkFeeDisplay,
 }: InputStepProps) => {
   const { sellAsset, buyAsset, selectedRate, isSellAssetEvm, isSellAssetUtxo, isSellAssetSolana } =
     context
@@ -86,6 +88,7 @@ export const InputStep = ({
   const canExecuteDirectly = isSellAssetEvm
   const canExecuteUtxo = isSellAssetUtxo
   const canExecuteSolana = isSellAssetSolana
+  const isUnsupportedChain = !isSellAssetEvm && !isSellAssetUtxo && !isSellAssetSolana
 
   const isBitcoinConnected = !!bitcoinAddress
   const isSolanaConnected = !!solanaAddress
@@ -144,6 +147,8 @@ export const InputStep = ({
   ])
 
   const isButtonDisabled = useMemo(() => {
+    if (isUnsupportedChain) return false
+
     if (!sellAmount || isLoadingRates || ratesError || !rates?.length || isExecuting) {
       return true
     }
@@ -160,13 +165,9 @@ export const InputStep = ({
       return !isSolanaConnected || solanaState.isLoading
     }
 
-    if (!isSellAssetEvm) {
-      return false
-    }
-
     return false
   }, [
-    isSellAssetEvm,
+    isUnsupportedChain,
     isSellAssetUtxo,
     isSellAssetSolana,
     canExecuteUtxo,
@@ -357,6 +358,13 @@ export const InputStep = ({
             isLoading={isLoadingRates}
             buyAssetUsdPrice={buyAssetUsdPrice}
           />
+        </div>
+      )}
+
+      {networkFeeDisplay && (
+        <div className='ssw-network-fee'>
+          <span className='ssw-network-fee-label'>Est. network fee</span>
+          <span className='ssw-network-fee-value'>{networkFeeDisplay}</span>
         </div>
       )}
 

@@ -34,7 +34,7 @@ import { swapMachine } from '../machines/swapMachine'
 import type { CheckStatusParams } from '../services/transactionStatus'
 import { checkTransactionStatus } from '../services/transactionStatus'
 import type { Asset, SwapWidgetProps, ThemeMode, TradeRate } from '../types'
-import { getChainType, getEvmNetworkId, parseAmount } from '../types'
+import { formatAmount, getChainType, getEvmNetworkId, parseAmount } from '../types'
 import { AddressInputModal } from './AddressInputModal'
 import { ApprovalStep } from './ApprovalStep'
 import { ExecutionStep } from './ExecutionStep'
@@ -285,6 +285,15 @@ const SwapWidgetCore = ({
     [state.context.selectedRate, rates],
   )
   const buyAmount = displayRate?.buyAmountCryptoBaseUnit
+
+  const networkFeeDisplay = useMemo(() => {
+    const feeBaseUnit = displayRate?.networkFeeCryptoBaseUnit
+    if (!feeBaseUnit || feeBaseUnit === '0') return undefined
+    const nativeAsset = getBaseAsset(state.context.sellAsset.chainId)
+    if (!nativeAsset) return undefined
+    const formatted = formatAmount(feeBaseUnit, nativeAsset.precision, 6)
+    return `${formatted} ${nativeAsset.symbol}`
+  }, [displayRate?.networkFeeCryptoBaseUnit, state.context.sellAsset.chainId])
 
   const assetIdsForPrices = useMemo(
     () => [state.context.sellAsset.assetId, state.context.buyAsset.assetId],
@@ -927,6 +936,7 @@ const SwapWidgetCore = ({
             onSelectRate={handleSelectRate}
             onButtonClick={handleButtonClick}
             sellAmountBaseUnit={state.context.sellAmountBaseUnit}
+            networkFeeDisplay={networkFeeDisplay}
           />
         )}
 

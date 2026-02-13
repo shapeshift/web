@@ -348,6 +348,25 @@
   padding: 0 16px 16px;
 }
 
+.ssw-network-fee {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  margin-bottom: 8px;
+}
+
+.ssw-network-fee-label {
+  font-size: 13px;
+  color: var(--ssw-text-muted);
+}
+
+.ssw-network-fee-value {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ssw-text-secondary);
+}
+
 .ssw-action-btn {
   width: calc(100% - 32px);
   margin: 0 16px 16px;

@@ -25,6 +25,10 @@ import { updateWindowStoreMiddleware } from './windowMiddleware'
 
 import { getConfig } from '@/config'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+import {
+  selectMarketDataByAssetIdUserCurrency,
+  selectUsdRateByAssetId,
+} from '@/state/slices/marketDataSlice/selectors'
 // reselect pls stfu
 // We should probably revisit this at some point and re-enable, but for the time being, this silences things
 // https://github.com/reduxjs/reselect/discussions/662#discussioncomment-7870416
@@ -151,6 +155,13 @@ BigAmount.configure({
       )
     }
     return asset?.precision ?? 0
+  },
+  resolvePrice: (assetId: string) => {
+    const marketData = selectMarketDataByAssetIdUserCurrency(store.getState(), assetId as AssetId)
+    return marketData?.price ?? '0'
+  },
+  resolvePriceUsd: (assetId: string) => {
+    return selectUsdRateByAssetId(store.getState(), assetId as AssetId) ?? '0'
   },
 })
 

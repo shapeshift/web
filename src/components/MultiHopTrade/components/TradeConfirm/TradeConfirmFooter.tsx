@@ -1,7 +1,7 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { HStack, Icon, Link, Skeleton, Stack, Switch } from '@chakra-ui/react'
 import { mayachainChainId, thorchainChainId } from '@shapeshiftoss/caip'
-import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
+import { isGridPlus } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'

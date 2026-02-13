@@ -12,17 +12,40 @@ RUN apk add --no-cache python3 make g++ openjdk17-jre
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn ./.yarn
 
-# Copy ALL package.json files for workspace resolution (yarn requires all workspaces to be present)
-COPY packages/public-api/package.json ./packages/public-api/
+# Copy all workspace package.json files for resolution (yarn requires all workspaces present)
 COPY packages/caip/package.json ./packages/caip/
-COPY packages/types/package.json ./packages/types/
-COPY packages/utils/package.json ./packages/utils/
-COPY packages/swapper/package.json ./packages/swapper/
 COPY packages/chain-adapters/package.json ./packages/chain-adapters/
-COPY packages/unchained-client/package.json ./packages/unchained-client/
 COPY packages/contracts/package.json ./packages/contracts/
 COPY packages/errors/package.json ./packages/errors/
+COPY packages/hdwallet-coinbase/package.json ./packages/hdwallet-coinbase/
+COPY packages/hdwallet-core/package.json ./packages/hdwallet-core/
+COPY packages/hdwallet-gridplus/package.json ./packages/hdwallet-gridplus/
+COPY packages/hdwallet-integration/package.json ./packages/hdwallet-integration/
+COPY packages/hdwallet-keepkey/package.json ./packages/hdwallet-keepkey/
+COPY packages/hdwallet-keepkey-electron/package.json ./packages/hdwallet-keepkey-electron/
+COPY packages/hdwallet-keepkey-nodehid/package.json ./packages/hdwallet-keepkey-nodehid/
+COPY packages/hdwallet-keepkey-nodewebusb/package.json ./packages/hdwallet-keepkey-nodewebusb/
+COPY packages/hdwallet-keepkey-tcp/package.json ./packages/hdwallet-keepkey-tcp/
+COPY packages/hdwallet-keepkey-webusb/package.json ./packages/hdwallet-keepkey-webusb/
+COPY packages/hdwallet-keplr/package.json ./packages/hdwallet-keplr/
+COPY packages/hdwallet-ledger/package.json ./packages/hdwallet-ledger/
+COPY packages/hdwallet-ledger-webhid/package.json ./packages/hdwallet-ledger-webhid/
+COPY packages/hdwallet-ledger-webusb/package.json ./packages/hdwallet-ledger-webusb/
+COPY packages/hdwallet-metamask-multichain/package.json ./packages/hdwallet-metamask-multichain/
+COPY packages/hdwallet-native/package.json ./packages/hdwallet-native/
+COPY packages/hdwallet-native-vault/package.json ./packages/hdwallet-native-vault/
+COPY packages/hdwallet-phantom/package.json ./packages/hdwallet-phantom/
+COPY packages/hdwallet-sandbox/package.json ./packages/hdwallet-sandbox/
+COPY packages/hdwallet-trezor/package.json ./packages/hdwallet-trezor/
+COPY packages/hdwallet-trezor-connect/package.json ./packages/hdwallet-trezor-connect/
+COPY packages/hdwallet-vultisig/package.json ./packages/hdwallet-vultisig/
+COPY packages/hdwallet-walletconnectv2/package.json ./packages/hdwallet-walletconnectv2/
+COPY packages/public-api/package.json ./packages/public-api/
+COPY packages/swapper/package.json ./packages/swapper/
 COPY packages/swap-widget/package.json ./packages/swap-widget/
+COPY packages/types/package.json ./packages/types/
+COPY packages/unchained-client/package.json ./packages/unchained-client/
+COPY packages/utils/package.json ./packages/utils/
 
 # Install dependencies with Railway cache mount (skip build/postinstall scripts that require git/cypress/etc)
 RUN --mount=type=cache,id=s/5fa4b228-de48-4bb3-90d6-807d0c6e7f1c-/root/.yarn/berry/cache,target=/root/.yarn/berry/cache \
@@ -43,8 +66,7 @@ COPY public/generated/generatedAssetData.json ./public/generated/
 COPY tsconfig.json tsconfig.packages.json ./
 
 # Build all packages using parallel tsc with project references
-RUN yarn run -T tsc --build tsconfig.packages.json && \
-    yarn workspaces foreach -ptiv --include '@shapeshiftoss/{errors,types,contracts,caip,utils,unchained-client,chain-adapters,swapper,public-api}' run postbuild
+RUN yarn run -T tsc --build tsconfig.packages.json && yarn postbuild:packages
 
 # Build the public-api bundle
 WORKDIR /app/packages/public-api
@@ -66,13 +88,5 @@ COPY --from=builder /app/public/generated/generatedAssetData.json ./public/gener
 # Set environment
 ENV NODE_ENV=production
 ENV ASSET_DATA_PATH=/app/public/generated/generatedAssetData.json
-ENV PORT=3001
-ENV HOST=0.0.0.0
-
-EXPOSE 3001
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3001/health || exit 1
 
 CMD ["node", "server.cjs"]

@@ -7,8 +7,7 @@ import type {
   StarknetSignTx,
   SuiSignTx,
 } from '@shapeshiftoss/hdwallet-core'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
+import { isGridPlus, supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/swapper'
 import {

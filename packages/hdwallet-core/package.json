@@ -1,0 +1,59 @@
+{
+  "name": "@shapeshiftoss/hdwallet-core",
+  "version": "1.62.41",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./wallet": {
+      "types": "./dist/esm/wallet.d.ts",
+      "import": "./dist/esm/wallet.js"
+    },
+    "./keyring": {
+      "types": "./dist/esm/keyring.d.ts",
+      "import": "./dist/esm/keyring.js"
+    },
+    "./event": {
+      "types": "./dist/esm/event.d.ts",
+      "import": "./dist/esm/event.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "yarn clean && yarn run -T tsc --build && yarn postbuild",
+    "clean": "rm -rf dist",
+    "dev": "yarn run -T tsc --build --watch",
+    "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",
+    "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
+    "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
+  },
+  "dependencies": {
+    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
+    "@shapeshiftoss/proto-tx-builder": "0.10.0",
+    "@solana/web3.js": "1.98.0",
+    "bs58check": "^4.0.0",
+    "eip-712": "^1.0.0",
+    "ethers": "5.7.2",
+    "eventemitter2": "^5.0.1",
+    "lodash": "^4.17.23",
+    "rxjs": "^6.4.0",
+    "type-assertions": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/google-protobuf": "^3.15.1",
+    "@types/lodash": "^4.14.178"
+  },
+  "sideEffects": false
+}

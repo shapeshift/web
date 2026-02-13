@@ -1,0 +1,62 @@
+{
+  "name": "@shapeshiftoss/hdwallet-ledger",
+  "version": "1.62.41",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "yarn clean && yarn run -T tsc --build && yarn postbuild",
+    "clean": "rm -rf dist",
+    "dev": "yarn run -T tsc --build --watch",
+    "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",
+    "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
+    "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
+  },
+  "dependencies": {
+    "@ethereumjs/common": "3.2.0",
+    "@ethereumjs/tx": "4.2.0",
+    "@ledgerhq/device-core": "0.6.9",
+    "@ledgerhq/hw-app-btc": "10.13.0",
+    "@ledgerhq/hw-app-cosmos": "6.32.9",
+    "@ledgerhq/hw-app-eth": "7.0.0",
+    "@ledgerhq/hw-app-near": "6.31.10",
+    "@ledgerhq/hw-app-solana": "7.6.0",
+    "@ledgerhq/hw-app-trx": "6.31.9",
+    "@ledgerhq/hw-transport": "6.31.13",
+    "@ledgerhq/logs": "6.13.0",
+    "@mysten/ledgerjs-hw-app-sui": "^0.7.0",
+    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
+    "@shapeshiftoss/hdwallet-core": "workspace:^",
+    "@solana/web3.js": "1.98.0",
+    "base64-js": "^1.5.1",
+    "bchaddrjs": "^0.4.4",
+    "bitcoinjs-message": "^2.1.0",
+    "bs58check": "^4.0.0",
+    "ethereumjs-tx": "1.3.7",
+    "ethereumjs-util": "^6.1.0",
+    "ethers": "5.7.2",
+    "lodash": "^4.17.23"
+  },
+  "devDependencies": {
+    "@types/bchaddrjs": "^0.4.0",
+    "@types/ethereumjs-tx": "1.0.1",
+    "@types/ethereumjs-util": "^6.1.0",
+    "@types/ripemd160": "^2.0.2"
+  },
+  "sideEffects": false
+}

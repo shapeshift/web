@@ -13545,7 +13545,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@shapeshiftoss/hdwallet-seeker@workspace:packages/hdwallet-seeker":
+"@shapeshiftoss/hdwallet-seeker@workspace:^, @shapeshiftoss/hdwallet-seeker@workspace:packages/hdwallet-seeker":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/hdwallet-seeker@workspace:packages/hdwallet-seeker"
   dependencies:
@@ -13943,6 +13943,7 @@ __metadata:
     "@shapeshiftoss/hdwallet-native": "workspace:^"
     "@shapeshiftoss/hdwallet-native-vault": "workspace:^"
     "@shapeshiftoss/hdwallet-phantom": "workspace:^"
+    "@shapeshiftoss/hdwallet-seeker": "workspace:^"
     "@shapeshiftoss/hdwallet-trezor": "workspace:^"
     "@shapeshiftoss/hdwallet-trezor-connect": "workspace:^"
     "@shapeshiftoss/hdwallet-vultisig": "workspace:^"

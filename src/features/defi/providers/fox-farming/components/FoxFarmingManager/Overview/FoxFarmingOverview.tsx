@@ -171,17 +171,25 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
   if (!rewardAsset) throw new Error(`Asset not found for AssetId ${rewardId}`)
 
-  const cryptoAmountAvailable = bn(
-    BigAmount.fromBaseUnit({
-      value: bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit),
-      precision: stakingAsset.precision,
-    }).toPrecision(),
+  const cryptoAmountAvailable = useMemo(
+    () =>
+      bn(
+        BigAmount.fromBaseUnit({
+          value: bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit),
+          precision: stakingAsset.precision,
+        }).toPrecision(),
+      ),
+    [opportunityData?.stakedAmountCryptoBaseUnit, stakingAsset.precision],
   )
-  const rewardAmountAvailable = bn(
-    BigAmount.fromBaseUnit({
-      value: bnOrZero(opportunityData?.rewardsCryptoBaseUnit.amounts[0]),
-      precision: rewardAsset.precision,
-    }).toPrecision(),
+  const rewardAmountAvailable = useMemo(
+    () =>
+      bn(
+        BigAmount.fromBaseUnit({
+          value: bnOrZero(opportunityData?.rewardsCryptoBaseUnit.amounts[0]),
+          precision: rewardAsset.precision,
+        }).toPrecision(),
+      ),
+    [opportunityData?.rewardsCryptoBaseUnit.amounts, rewardAsset.precision],
   )
   const hasClaim = rewardAmountAvailable.gt(0)
 

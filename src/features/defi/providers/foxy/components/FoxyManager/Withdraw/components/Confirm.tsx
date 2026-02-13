@@ -144,14 +144,16 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
     poll,
   ])
 
-  const hasEnoughBalanceForGas = feeAssetBalance
-    .minus(
+  const estimatedGasBigAmount = useMemo(
+    () =>
       BigAmount.fromBaseUnit({
         value: state?.withdraw.estimatedGasCryptoBaseUnit ?? '0',
         precision: feeAsset.precision,
       }),
-    )
-    .gte(0)
+    [state?.withdraw.estimatedGasCryptoBaseUnit, feeAsset.precision],
+  )
+
+  const hasEnoughBalanceForGas = feeAssetBalance.minus(estimatedGasBigAmount).gte(0)
 
   const handleCancel = useCallback(() => onNext(DefiStep.Info), [onNext])
   const notEnoughGasTranslation: TextPropTypes['translation'] = useMemo(
@@ -213,19 +215,11 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={BigAmount.fromBaseUnit({
-                  value: state.withdraw.estimatedGasCryptoBaseUnit ?? '0',
-                  precision: feeAsset.precision,
-                })
-                  .times(feeMarketData?.price)
-                  .toFixed(2)}
+                value={estimatedGasBigAmount.times(feeMarketData?.price).toFixed(2)}
               />
               <Amount.Crypto
                 color='text.subtle'
-                value={BigAmount.fromBaseUnit({
-                  value: state.withdraw.estimatedGasCryptoBaseUnit ?? '0',
-                  precision: feeAsset.precision,
-                }).toFixed(5)}
+                value={estimatedGasBigAmount.toFixed(5)}
                 symbol={feeAsset.symbol}
               />
             </Box>

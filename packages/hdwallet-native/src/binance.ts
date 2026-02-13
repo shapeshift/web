@@ -1,6 +1,6 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
-import * as bech32 from 'bech32'
 import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
+import * as bech32 from 'bech32'
 import type * as bnbSdkTypes from 'bnb-javascript-sdk-nobroadcast'
 import CryptoJS from 'crypto-js'
 import PLazy from 'p-lazy'
@@ -156,9 +156,11 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         const rawAmount = tx.msgs[0].inputs[0].coins[0].amount
         if (!bnOrZero(rawAmount).isInteger()) throw new Error('amount must be an integer')
         const amount = BigAmount.fromBaseUnit({ value: rawAmount, precision: 8 })
-        const outputAmount = BigAmount.fromBaseUnit({ value: tx.msgs[0].outputs[0].coins[0].amount, precision: 8 })
-        if (!amount.eq(outputAmount))
-          throw new Error('amount in input and output must be equal')
+        const outputAmount = BigAmount.fromBaseUnit({
+          value: tx.msgs[0].outputs[0].coins[0].amount,
+          precision: 8,
+        })
+        if (!amount.eq(outputAmount)) throw new Error('amount in input and output must be equal')
         const asset = tx.msgs[0].inputs[0].coins[0].denom
         if (asset !== tx.msgs[0].outputs[0].coins[0].denom)
           throw new Error('denomination in input and output must be the same')

@@ -154,16 +154,18 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     [feeAsset.symbol],
   )
 
-  if (!state || !dispatch) return null
-
-  const hasEnoughBalanceForGas = feeAssetBalance
-    .minus(
+  const estimatedGasBigAmount = useMemo(
+    () =>
       BigAmount.fromBaseUnit({
-        value: state.deposit.estimatedGasCryptoBaseUnit ?? '0',
+        value: state?.deposit.estimatedGasCryptoBaseUnit ?? '0',
         precision: feeAsset.precision,
       }),
-    )
-    .gte(0)
+    [state?.deposit.estimatedGasCryptoBaseUnit, feeAsset.precision],
+  )
+
+  if (!state || !dispatch) return null
+
+  const hasEnoughBalanceForGas = feeAssetBalance.minus(estimatedGasBigAmount).gte(0)
 
   return (
     <ReusableConfirm
@@ -197,19 +199,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={BigAmount.fromBaseUnit({
-                  value: state.deposit.estimatedGasCryptoBaseUnit ?? '0',
-                  precision: feeAsset.precision,
-                })
-                  .times(feeMarketData?.price)
-                  .toFixed(2)}
+                value={estimatedGasBigAmount.times(feeMarketData?.price).toFixed(2)}
               />
               <Amount.Crypto
                 color='text.subtle'
-                value={BigAmount.fromBaseUnit({
-                  value: state.deposit.estimatedGasCryptoBaseUnit ?? '0',
-                  precision: feeAsset.precision,
-                }).toFixed(5)}
+                value={estimatedGasBigAmount.toFixed(5)}
                 symbol={feeAsset.symbol}
               />
             </Box>

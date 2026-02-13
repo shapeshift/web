@@ -3,6 +3,7 @@ import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { AssetsByIdPartial, HistoryData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import head from 'lodash/head'
 import intersection from 'lodash/intersection'
@@ -14,8 +15,6 @@ import { useMemo } from 'react'
 
 import { excludeTransaction } from './cosmosUtils'
 import { CHART_ASSET_ID_BLACKLIST, makeBalanceChartData } from './utils'
-
-import { BigAmount } from '@shapeshiftoss/utils'
 
 import { useFetchPriceHistories } from '@/hooks/useFetchPriceHistories/useFetchPriceHistories'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -186,7 +185,10 @@ const fiatBalanceAtBucket: FiatBalanceAtBucket = ({
     if (!assets[assetId]) continue
     const price = priceAtDate({ priceHistoryData, date })
     balanceAtBucket[assetId] = bnOrZero(
-      BigAmount.fromBaseUnit({ value: assetCryptoBalance.toFixed(), precision: assets[assetId]?.precision ?? 0 }).toPrecision(),
+      BigAmount.fromBaseUnit({
+        value: assetCryptoBalance.toFixed(),
+        precision: assets[assetId]?.precision ?? 0,
+      }).toPrecision(),
     ).times(price)
     // dont unnecessarily multiply again
     if (!isUSD) balanceAtBucket[assetId] = balanceAtBucket[assetId].times(fiatToUsdRate)

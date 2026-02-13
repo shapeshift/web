@@ -52,16 +52,13 @@ export const YieldAvailableToDeposit = memo(
     const inputTokenAssetId = inputToken?.assetId ?? yieldItem.token.assetId ?? ''
     const inputTokenPrecision = inputToken?.decimals ?? yieldItem.token.decimals
 
-    const availableBalanceBaseUnit = useAppSelector(state =>
+    const availableBalanceBigAmount = useAppSelector(state =>
       selectPortfolioCryptoBalanceByFilter(state, { assetId: inputTokenAssetId }),
-    ).toBaseUnit()
+    )
 
     const availableBalance = useMemo(
-      () =>
-        inputTokenPrecision
-          ? bnOrZero(availableBalanceBaseUnit).shiftedBy(-inputTokenPrecision)
-          : bnOrZero(0),
-      [availableBalanceBaseUnit, inputTokenPrecision],
+      () => availableBalanceBigAmount.toBN(),
+      [availableBalanceBigAmount],
     )
 
     const availableBalanceFiat = useMemo(
@@ -158,7 +155,7 @@ export const YieldAvailableToDeposit = memo(
 
             <Box>
               <Text fontSize='2xl' fontWeight='800' lineHeight='1'>
-                <Amount.Fiat value={availableBalanceFiat.toFixed()} />
+                <Amount.Fiat value={availableBalanceFiat.toFixed(2)} />
               </Text>
               <Text fontSize='sm' color='text.subtle' mt={1}>
                 <Amount.Crypto
@@ -178,7 +175,7 @@ export const YieldAvailableToDeposit = memo(
                   fontSize='sm'
                   fontWeight='semibold'
                   color='text.success'
-                  value={potentialYearlyEarningsFiat.toFixed()}
+                  value={potentialYearlyEarningsFiat.toFixed(2)}
                   suffix={translate('yieldXYZ.perYear')}
                 />
               </Flex>

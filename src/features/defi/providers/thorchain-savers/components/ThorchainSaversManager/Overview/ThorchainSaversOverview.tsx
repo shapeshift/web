@@ -108,12 +108,18 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
   const isRunePool = assetId === thorchainAssetId
 
+  const mockDepositAmountCryptoBaseUnit = useMemo(
+    () =>
+      BigNumber.max(
+        THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
+        BigAmount.fromPrecision({ value: 1, precision: asset?.precision ?? 0 }).toBaseUnit(),
+      ),
+    [assetId, asset?.precision],
+  )
+
   const { isLoading: isMockDepositQuoteLoading, error } = useGetThorchainSaversDepositQuoteQuery({
     asset,
-    amountCryptoBaseUnit: BigNumber.max(
-      THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
-      BigAmount.fromPrecision({ value: 1, precision: asset?.precision ?? 0 }).toBaseUnit(),
-    ),
+    amountCryptoBaseUnit: mockDepositAmountCryptoBaseUnit,
     enabled: !isRunePool,
   })
 

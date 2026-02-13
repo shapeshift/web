@@ -627,9 +627,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [approvalTxId, poolAssetAccountAddress, poolAssetAccountId])
 
   const approvalAmountCryptoBaseUnit = useMemo(() => {
-    const value = bnOrZero(
-      isAllowanceResetRequired ? '0' : actualAssetDepositAmountCryptoPrecision,
-    )
+    const value = bnOrZero(isAllowanceResetRequired ? '0' : actualAssetDepositAmountCryptoPrecision)
     const precision = poolAsset?.precision ?? 0
     // Token approvals must round UP to ensure the approved amount is always >= the deposit amount.
     // ROUND_HALF_UP (default in toBaseUnit) could round down for fractional base-unit values below .5,

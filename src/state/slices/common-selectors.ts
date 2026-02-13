@@ -151,6 +151,8 @@ export const selectPortfolioAssetBalances = createDeepEqualOutputSelector(
   },
 )
 
+const ZERO_AMOUNT = BigAmount.zero({ precision: 0 })
+
 export const selectPortfolioCryptoBalanceByFilter = createCachedSelector(
   selectAssets,
   selectPortfolioAccountBalances,
@@ -158,9 +160,9 @@ export const selectPortfolioCryptoBalanceByFilter = createCachedSelector(
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
   (assets, accountBalances, assetBalances, accountId, assetId): BigAmount => {
-    if (!assetId) return BigAmount.zero({ precision: 0 })
+    if (!assetId) return ZERO_AMOUNT
     const asset = assets?.[assetId]
-    if (!asset) return BigAmount.zero({ precision: 0 })
+    if (!asset) return ZERO_AMOUNT
 
     const balance = accountId ? accountBalances?.[accountId]?.[assetId] : assetBalances[assetId]
 

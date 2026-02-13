@@ -10,7 +10,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { BigAmount, getChainShortName } from '@shapeshiftoss/utils'
+import { getChainShortName } from '@shapeshiftoss/utils'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'

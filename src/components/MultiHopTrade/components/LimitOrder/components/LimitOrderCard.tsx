@@ -121,10 +121,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     }
   }, [accountId, sellAssetId])
 
-  const sellAssetBalance = useSelectorWithArgs(
-    selectPortfolioCryptoBalanceByFilter,
-    filter,
-  )
+  const sellAssetBalance = useSelectorWithArgs(selectPortfolioCryptoBalanceByFilter, filter)
 
   const hasSufficientBalance = useMemo(() => {
     return sellAssetBalance.gte(

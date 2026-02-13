@@ -15,7 +15,6 @@ import {
   DialogHeaderMiddle,
 } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectPortfolioAccountBalances } from '@/state/slices/common-selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -49,15 +48,11 @@ export const AccountSelectorDialog = ({
     () =>
       accountIds.map(accountId => {
         const balance = accountBalances?.[accountId]?.[assetId]
-        const cryptoBalance = bnOrZero(balance ? balance.toBaseUnit() : 0)
-        const fiatBalance = bnOrZero(balance ? balance.toPrecision() : 0).times(
-          marketData?.price ?? 0,
-        )
 
         return {
           accountId,
-          cryptoBalance: cryptoBalance.toFixed(),
-          fiatBalance: fiatBalance.toFixed(2),
+          cryptoBalancePrecision: balance ? balance.toPrecision() : '0',
+          fiatBalance: balance ? balance.times(marketData?.price ?? 0).toFixed(2) : '0',
         }
       }),
     [accountIds, accountBalances, assetId, marketData],
@@ -75,15 +70,14 @@ export const AccountSelectorDialog = ({
       </DialogHeader>
       <DialogBody maxH='80vh' overflowY='auto'>
         <VStack spacing={2} align='stretch'>
-          {accountsWithDetails.map(({ accountId, cryptoBalance, fiatBalance }) => {
+          {accountsWithDetails.map(({ accountId, cryptoBalancePrecision, fiatBalance }) => {
             const isSelected = selectedAccountId === accountId
             return (
               <AccountSelectorOption
                 key={accountId}
                 accountId={accountId}
-                cryptoBalance={cryptoBalance}
+                cryptoBalancePrecision={cryptoBalancePrecision}
                 fiatBalance={fiatBalance}
-                assetId={assetId}
                 symbol={asset.symbol}
                 isSelected={isSelected}
                 disabled={disabled}

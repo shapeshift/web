@@ -73,7 +73,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
     ),
   )
 
-
   const nativeAssetBalance = bnOrZero(
     useAppSelector(state =>
       selectPortfolioCryptoBalanceByFilter(state, {
@@ -226,7 +225,10 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   // No debouncing here, since there is no user input
   const estimateSendMaxFormFeesQueryKey = useMemo(
-    () => ['setEstimatedFormFees', { amountCryptoPrecision: cryptoPrecisionBalance, sendMax: true }],
+    () => [
+      'setEstimatedFormFees',
+      { amountCryptoPrecision: cryptoPrecisionBalance, sendMax: true },
+    ],
     [cryptoPrecisionBalance],
   ) as unknown as [string, { amountCryptoPrecision: string; sendMax: boolean }]
 
@@ -421,7 +423,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
       const cryptoAmount =
         fieldName === SendFormFields.FiatAmount
-          ? bn(inputValue).div(bnOrZero(price)).decimalPlaces(asset?.precision ?? 18, 1)
+          ? bn(inputValue)
+              .div(bnOrZero(price))
+              .decimalPlaces(asset?.precision ?? 18, 1)
           : inputValue
       const fiatAmount =
         fieldName === SendFormFields.FiatAmount ? inputValue : bn(inputValue).times(bnOrZero(price))

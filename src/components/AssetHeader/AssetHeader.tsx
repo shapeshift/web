@@ -60,7 +60,7 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   const cryptoBalanceBigAmount = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, filter),
   )
-  const cryptoBalance = cryptoBalanceBigAmount ? cryptoBalanceBigAmount.toPrecision() : '0'
+  const cryptoBalance = cryptoBalanceBigAmount.toPrecision()
 
   const formattedPrice = toFiat(marketData?.price ?? '0')
 

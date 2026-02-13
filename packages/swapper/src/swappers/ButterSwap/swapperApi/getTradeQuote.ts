@@ -82,7 +82,7 @@ export const getTradeQuote = async (
   const routeResult = await getButterRoute({
     sellAsset,
     buyAsset,
-    sellAmountCryptoBaseUnit: BigAmount.fromBaseUnit({
+    sellAmountCryptoPrecision: BigAmount.fromBaseUnit({
       value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       precision: sellAsset.precision,
     }).toPrecision(),

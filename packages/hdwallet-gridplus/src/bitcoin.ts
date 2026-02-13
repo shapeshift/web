@@ -74,11 +74,13 @@ export async function btcSignTx(
 
     const BTC_PRECISION = 8
     const inputTotal = msg.inputs.reduce(
-      (sum, input) => sum.plus(BigAmount.fromBaseUnit({ value: input.amount, precision: BTC_PRECISION })),
+      (sum, input) =>
+        sum.plus(BigAmount.fromBaseUnit({ value: input.amount, precision: BTC_PRECISION })),
       BigAmount.zero({ precision: BTC_PRECISION }),
     )
     const outputTotal = msg.outputs.reduce(
-      (sum, output) => sum.plus(BigAmount.fromBaseUnit({ value: output.amount, precision: BTC_PRECISION })),
+      (sum, output) =>
+        sum.plus(BigAmount.fromBaseUnit({ value: output.amount, precision: BTC_PRECISION })),
       BigAmount.zero({ precision: BTC_PRECISION }),
     )
     const fee = Number(inputTotal.minus(outputTotal).toBaseUnit())

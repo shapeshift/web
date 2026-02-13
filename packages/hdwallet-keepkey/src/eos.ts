@@ -90,7 +90,9 @@ function assetToNumber(asset: string): [number, number] {
   const dot_pos = amountStr.indexOf('.')
   const precision_digit = dot_pos !== -1 ? amountStr.length - dot_pos - 1 : 0
   const sym = symbolFromString(precision_digit, symbolStr)
-  const amount = Number(BigAmount.fromPrecision({ value: amountStr, precision: precision_digit }).toBaseUnit())
+  const amount = Number(
+    BigAmount.fromPrecision({ value: amountStr, precision: precision_digit }).toBaseUnit(),
+  )
   return [amount, sym]
 }
 

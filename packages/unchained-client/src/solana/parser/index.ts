@@ -119,7 +119,10 @@ export class TransactionParser<T extends Tx> {
           },
           transfers: parsedTx.transfers,
           type,
-          value: BigAmount.fromPrecision({ value: tokenAmount, precision: token.decimals }).toBaseUnit(),
+          value: BigAmount.fromPrecision({
+            value: tokenAmount,
+            precision: token.decimals,
+          }).toBaseUnit(),
         })
 
         // token send amount

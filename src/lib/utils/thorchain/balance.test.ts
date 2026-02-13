@@ -150,8 +150,8 @@ describe('getHasEnoughBalanceForTxPlusFeesPlusSweep', () => {
     expect(result.missingFunds).toBe('0.00015')
   })
 
-  it('returns negative missingFunds when balance exceeds total cost', () => {
-    // balance: 1 BTC, total needed: 50015000 sats, surplus: -0.49985 BTC
+  it('returns zero missingFunds when balance exceeds total cost', () => {
+    // balance: 1 BTC, total needed: 50015000 sats, surplus clamped to 0 by positiveOrZero
     const result = getHasEnoughBalanceForTxPlusFeesPlusSweep({
       balanceCryptoBaseUnit: '100000000',
       amountCryptoPrecision: '0.5',
@@ -160,7 +160,7 @@ describe('getHasEnoughBalanceForTxPlusFeesPlusSweep', () => {
       sweepTxFeeCryptoBaseUnit: '5000',
     })
     expect(result.hasEnoughBalance).toBe(true)
-    expect(result.missingFunds).toBe('-0.49985')
+    expect(result.missingFunds).toBe('0')
   })
 
   it('handles zero sweep fee', () => {
@@ -185,7 +185,7 @@ describe('getHasEnoughBalanceForTxPlusFeesPlusSweep', () => {
       sweepTxFeeCryptoBaseUnit: '5000000000000000',
     })
     expect(result.hasEnoughBalance).toBe(true)
-    expect(result.missingFunds).toBe('-0.085')
+    expect(result.missingFunds).toBe('0')
   })
 
   it('handles empty fee strings as zero', () => {

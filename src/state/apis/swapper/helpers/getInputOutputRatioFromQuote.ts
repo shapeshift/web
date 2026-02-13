@@ -139,7 +139,7 @@ export const getInputOutputRatioFromQuote = ({
     ? _convertCryptoBaseUnitToUsdPrecision(state, buyAsset, buySideNetworkFeeCryptoBaseUnit)
     : bn(0)
 
-  const sellAmountCryptoBaseUnit =
+  const sellAmountUsdPrecision =
     sellAsset && sellAmountIncludingProtocolFeesCryptoBaseUnit
       ? _convertCryptoBaseUnitToUsdPrecision(
           state,
@@ -154,7 +154,7 @@ export const getInputOutputRatioFromQuote = ({
     buySideNetworkFeeUsdPrecision,
   )
 
-  const netSendAmountUsdPrecision = sellAmountCryptoBaseUnit.plus(sellSideNetworkFeeUsdPrecision)
+  const netSendAmountUsdPrecision = sellAmountUsdPrecision.plus(sellSideNetworkFeeUsdPrecision)
 
   return netReceiveAmountUsdPrecision.div(netSendAmountUsdPrecision).toNumber()
 }

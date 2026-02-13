@@ -2,7 +2,6 @@ import { btcChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   BigAmount,
-  bn,
   bnOrZero,
   chainIdToFeeAssetId,
   convertDecimalPercentageToBasisPoints,
@@ -53,9 +52,10 @@ export const getTradeRate = async (
     )
   }
 
-  const amount = bn(sellAmountIncludingProtocolFeesCryptoBaseUnit)
-    .shiftedBy(-sellAsset.precision)
-    .toString()
+  const amount = BigAmount.fromBaseUnit({
+    value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    precision: sellAsset.precision,
+  }).toPrecision()
 
   const feeAssetId = chainIdToFeeAssetId(sellAsset.chainId)
 
@@ -69,7 +69,7 @@ export const getTradeRate = async (
   const result = await getButterRoute({
     sellAsset,
     buyAsset,
-    sellAmountCryptoBaseUnit: amount,
+    sellAmountCryptoPrecision: amount,
     slippage,
     affiliate: makeButterSwapAffiliate(affiliateBps),
   })

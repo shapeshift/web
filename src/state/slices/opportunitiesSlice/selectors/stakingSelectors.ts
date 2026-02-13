@@ -305,6 +305,10 @@ export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepE
 
     const asset = assets[opportunity.assetId]
     const underlyingAsset = assets[opportunity.underlyingAssetId]
+    const stakedAmount = BigAmount.fromBaseUnit({
+      value: opportunity.stakedAmountCryptoBaseUnit ?? '0',
+      precision: asset?.precision ?? underlyingAsset?.precision ?? 1,
+    })
 
     const aggregatedEarnUserStakingOpportunity: StakingEarnOpportunityType = Object.assign(
       {},
@@ -318,14 +322,8 @@ export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepE
       {
         chainId: fromAssetId(opportunity.assetId).chainId,
         cryptoAmountBaseUnit: opportunity.stakedAmountCryptoBaseUnit,
-        cryptoAmountPrecision: BigAmount.fromBaseUnit({
-          value: opportunity.stakedAmountCryptoBaseUnit ?? '0',
-          precision: asset?.precision ?? underlyingAsset?.precision ?? 1,
-        }).toPrecision(),
-        fiatAmount: BigAmount.fromBaseUnit({
-          value: opportunity.stakedAmountCryptoBaseUnit ?? '0',
-          precision: asset?.precision ?? underlyingAsset?.precision ?? 1,
-        })
+        cryptoAmountPrecision: stakedAmount.toPrecision(),
+        fiatAmount: stakedAmount
           .times(marketData[opportunity.underlyingAssetId as AssetId]?.price ?? '0')
           .toPrecision(),
         isLoaded: true,
@@ -508,22 +506,18 @@ export const selectEarnUserStakingOpportunityByUserStakingId = createDeepEqualOu
     const underlyingAsset = assets[userStakingOpportunity.underlyingAssetId]
 
     const marketDataPrice = marketData[asset?.assetId ?? underlyingAsset?.assetId ?? '']?.price
+    const stakedAmount = BigAmount.fromBaseUnit({
+      value: userStakingOpportunity.stakedAmountCryptoBaseUnit ?? '0',
+      precision: asset?.precision ?? underlyingAsset?.precision ?? 1,
+    })
 
     const earnUserStakingOpportunity: StakingEarnOpportunityType = {
       ...userStakingOpportunity,
       isLoaded: userStakingOpportunity.isLoaded,
       chainId: fromAssetId(userStakingOpportunity.assetId).chainId,
       cryptoAmountBaseUnit: userStakingOpportunity.stakedAmountCryptoBaseUnit ?? '0',
-      cryptoAmountPrecision: BigAmount.fromBaseUnit({
-        value: userStakingOpportunity.stakedAmountCryptoBaseUnit ?? '0',
-        precision: asset?.precision ?? underlyingAsset?.precision ?? 1,
-      }).toPrecision(),
-      fiatAmount: BigAmount.fromBaseUnit({
-        value: userStakingOpportunity.stakedAmountCryptoBaseUnit ?? '0',
-        precision: asset?.precision ?? underlyingAsset?.precision ?? 1,
-      })
-        .times(marketDataPrice ?? '0')
-        .toPrecision(),
+      cryptoAmountPrecision: stakedAmount.toPrecision(),
+      fiatAmount: stakedAmount.times(marketDataPrice ?? '0').toPrecision(),
       stakedAmountCryptoBaseUnit: userStakingOpportunity.stakedAmountCryptoBaseUnit ?? '0',
       opportunityName: userStakingOpportunity.name,
       icons: makeOpportunityIcons({ opportunity: userStakingOpportunity, assets }),
@@ -595,7 +589,7 @@ export const selectUnderlyingStakingAssetsWithBalancesAndIcons = createSelector(
                     BigAmount.fromBaseUnit({
                       value: userStakingOpportunity.underlyingAssetRatiosBaseUnit[i],
                       precision: underlyingAssetIteratee.precision,
-                    }).toPrecision() ?? '1',
+                    }).toPrecision(),
                   )
                   .toFixed(0),
                 precision: asset?.precision ?? underlyingAsset?.precision ?? 1,

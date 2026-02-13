@@ -627,7 +627,7 @@ export const YieldForm = memo(
                   {estimatedYearlyEarnings.decimalPlaces(4).toString()} {inputTokenAsset?.symbol}
                 </GradientApy>
                 <Text fontSize='xs' color='text.subtle'>
-                  <Amount.Fiat value={estimatedYearlyEarningsFiat.toString()} />
+                  <Amount.Fiat value={estimatedYearlyEarningsFiat.toFixed(2)} />
                 </Text>
               </Flex>
             </Flex>

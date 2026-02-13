@@ -236,7 +236,7 @@ export const BorrowInput = ({
         .plus(
           BigAmount.fromBaseUnit({
             value: estimatedFeesData.txFeeCryptoBaseUnit,
-            precision: collateralAsset?.precision ?? 0,
+            precision: collateralFeeAsset?.precision ?? 0,
           }).toPrecision(),
         )
         .lte(amountAvailableCryptoPrecision)
@@ -247,7 +247,6 @@ export const BorrowInput = ({
     )
   }, [
     amountAvailableCryptoPrecision,
-    collateralAsset?.precision,
     collateralAssetId,
     depositAmountCryptoPrecision,
     estimatedFeesData?.txFeeCryptoBaseUnit,
@@ -308,19 +307,19 @@ export const BorrowInput = ({
       .plus(
         BigAmount.fromBaseUnit({
           value: estimatedFeesData.txFeeCryptoBaseUnit,
-          precision: collateralAsset?.precision ?? 0,
+          precision: collateralFeeAsset?.precision ?? 0,
         }).toPrecision(),
       )
       .plus(
         BigAmount.fromBaseUnit({
           value: estimatedSweepFeesData.txFeeCryptoBaseUnit,
-          precision: collateralAsset?.precision ?? 0,
+          precision: collateralFeeAsset?.precision ?? 0,
         }).toPrecision(),
       )
       .lte(amountAvailableCryptoPrecision)
   }, [
     amountAvailableCryptoPrecision,
-    collateralAsset?.precision,
+    collateralFeeAsset,
     depositAmountCryptoPrecision,
     estimatedFeesData?.txFeeCryptoBaseUnit,
     estimatedSweepFeesData,

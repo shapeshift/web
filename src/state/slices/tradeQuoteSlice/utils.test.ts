@@ -93,13 +93,16 @@ describe('sumProtocolFeesToDenom', () => {
       protocolFees,
     })
 
-    const btcAmountInUsd = bn(BigAmount.fromBaseUnit({ value: '3000000', precision: BTC.precision }).toPrecision()).times(
-      marketDataByAssetIdUsd[BTC.assetId].price,
-    )
+    const btcAmountInUsd = bn(
+      BigAmount.fromBaseUnit({ value: '3000000', precision: BTC.precision }).toPrecision(),
+    ).times(marketDataByAssetIdUsd[BTC.assetId].price)
 
-    const ethAmountInUsd = bn(BigAmount.fromBaseUnit({ value: '500000000000000000', precision: ETH.precision }).toPrecision()).times(
-      marketDataByAssetIdUsd[ETH.assetId].price,
-    )
+    const ethAmountInUsd = bn(
+      BigAmount.fromBaseUnit({
+        value: '500000000000000000',
+        precision: ETH.precision,
+      }).toPrecision(),
+    ).times(marketDataByAssetIdUsd[ETH.assetId].price)
 
     const expectation = btcAmountInUsd.plus(ethAmountInUsd).toString()
 

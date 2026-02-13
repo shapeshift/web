@@ -112,8 +112,14 @@ export const useLimitOrderActionSubscriber = () => {
             cowSwapQuoteId: activeQuoteId,
             sellAmountCryptoBaseUnit,
             buyAmountCryptoBaseUnit,
-            sellAmountCryptoPrecision: BigAmount.fromBaseUnit({ value: sellAmountCryptoBaseUnit, precision: sellAsset.precision }).toPrecision(),
-            buyAmountCryptoPrecision: BigAmount.fromBaseUnit({ value: buyAmountCryptoBaseUnit, precision: buyAsset.precision }).toPrecision(),
+            sellAmountCryptoPrecision: BigAmount.fromBaseUnit({
+              value: sellAmountCryptoBaseUnit,
+              precision: sellAsset.precision,
+            }).toPrecision(),
+            buyAmountCryptoPrecision: BigAmount.fromBaseUnit({
+              value: buyAmountCryptoBaseUnit,
+              precision: buyAsset.precision,
+            }).toPrecision(),
             sellAsset,
             buyAsset,
             accountId,
@@ -264,8 +270,14 @@ export const useLimitOrderActionSubscriber = () => {
             ...action.limitOrderMetadata,
             executedBuyAmountCryptoBaseUnit: order.order.executedBuyAmount,
             executedSellAmountCryptoBaseUnit: order.order.executedSellAmount,
-            executedBuyAmountCryptoPrecision: BigAmount.fromBaseUnit({ value: order.order.executedBuyAmount, precision: action.limitOrderMetadata.buyAsset.precision }).toPrecision(),
-            executedSellAmountCryptoPrecision: BigAmount.fromBaseUnit({ value: order.order.executedSellAmount, precision: action.limitOrderMetadata.sellAsset.precision }).toPrecision(),
+            executedBuyAmountCryptoPrecision: BigAmount.fromBaseUnit({
+              value: order.order.executedBuyAmount,
+              precision: action.limitOrderMetadata.buyAsset.precision,
+            }).toPrecision(),
+            executedSellAmountCryptoPrecision: BigAmount.fromBaseUnit({
+              value: order.order.executedSellAmount,
+              precision: action.limitOrderMetadata.sellAsset.precision,
+            }).toPrecision(),
             filledDecimalPercentage: bnOrZero(order.order.executedSellAmount)
               .div(order.order.sellAmount)
               .toString(),

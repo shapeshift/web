@@ -71,7 +71,7 @@ export const getHasEnoughBalanceForTxPlusFeesPlusSweep = ({
 
   return {
     hasEnoughBalance: totalCost.lte(balance),
-    missingFunds: totalCost.minus(balance).toPrecision(),
+    missingFunds: totalCost.minus(balance).positiveOrZero().toPrecision(),
   }
 }
 

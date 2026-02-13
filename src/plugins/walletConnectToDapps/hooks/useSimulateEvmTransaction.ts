@@ -2,8 +2,8 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import * as adapters from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
@@ -137,7 +137,10 @@ export const useSimulateEvmTransaction = ({
       supportsEIP1559: true,
     })
 
-    const txFeeCryptoPrecision = bnOrZero(BigAmount.fromBaseUnit({ value: txFeeCryptoBaseUnit, precision: feeAsset.precision }).toPrecision())
+    const txFeeCryptoPrecision = BigAmount.fromBaseUnit({
+      value: txFeeCryptoBaseUnit,
+      precision: feeAsset.precision,
+    }).toBN()
     const fiatFee = txFeeCryptoPrecision.times(bnOrZero(marketData.price))
 
     return {

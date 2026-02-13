@@ -1,10 +1,9 @@
 import { Card, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-
-import { BigAmount } from '@shapeshiftoss/utils'
 
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
@@ -34,7 +33,10 @@ export const SendTransactionContent: FC<SendTransactionContentProps> = ({
   const sendAmountCryptoPrecision = useMemo(() => {
     if (!transaction.value || !feeAsset) return '0'
 
-    return BigAmount.fromBaseUnit({ value: transaction.value, precision: feeAsset.precision }).toPrecision()
+    return BigAmount.fromBaseUnit({
+      value: transaction.value,
+      precision: feeAsset.precision,
+    }).toPrecision()
   }, [transaction.value, feeAsset])
 
   const isZeroValue = sendAmountCryptoPrecision === '0'

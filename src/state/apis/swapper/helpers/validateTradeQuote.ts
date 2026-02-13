@@ -211,7 +211,7 @@ export const validateTradeQuote = (
 
   const secondHopHasSufficientBalanceForGas =
     !isMultiHopTrade ||
-    (secondHopFeeAssetBalance?.toBN() ?? bn(0))
+    (secondHopFeeAssetBalance ?? BigAmount.zero({ precision: 0 }))
       .minus(secondHopNetworkFeeCryptoPrecision ?? 0)
       .gte(0)
 
@@ -220,7 +220,7 @@ export const validateTradeQuote = (
     bnOrZero(buyAmountCryptoBaseUnit).isLessThanOrEqualTo(0)
 
   const portfolioAccountIdByNumberByChainId = selectPortfolioAccountIdByNumberByChainId(state)
-  const portfolioAccountBalancesBaseUnit = selectPortfolioAccountBalances(state)
+  const portfolioAccountBalances = selectPortfolioAccountBalances(state)
   const sellAssetAccountNumber = firstHop?.accountNumber
   const totalProtocolFeesByAsset = firstHop ? getTotalProtocolFeeByAssetForStep(firstHop) : {}
 
@@ -236,8 +236,8 @@ export const validateTradeQuote = (
 
             const accountId =
               portfolioAccountIdByNumberByChainId[sellAssetAccountNumber][protocolFee.asset.chainId]
-            const balanceCryptoBaseUnit =
-              portfolioAccountBalancesBaseUnit[accountId]?.[assetId] ??
+            const balance =
+              portfolioAccountBalances[accountId]?.[assetId] ??
               BigAmount.zero({ precision: protocolFee.asset.precision })
 
             // @TODO: seems like this condition should be applied for all the swappers, verify by smoke testing all of them
@@ -247,26 +247,26 @@ export const validateTradeQuote = (
               firstHop?.sellAsset.assetId === assetId &&
               swapperName === SwapperName.Jupiter
             ) {
-              return balanceCryptoBaseUnit
+              return balance
                 .minus(
                   BigAmount.fromBaseUnit({
                     value: bnOrZero(sellAmountCryptoBaseUnit).toFixed(),
-                    precision: balanceCryptoBaseUnit.precision,
+                    precision: balance.precision,
                   }),
                 )
                 .minus(
                   BigAmount.fromBaseUnit({
                     value: protocolFee.amountCryptoBaseUnit,
-                    precision: balanceCryptoBaseUnit.precision,
+                    precision: balance.precision,
                   }),
                 )
                 .isNegative()
             }
 
-            return balanceCryptoBaseUnit.lt(
+            return balance.lt(
               BigAmount.fromBaseUnit({
                 value: protocolFee.amountCryptoBaseUnit,
-                precision: balanceCryptoBaseUnit.precision,
+                precision: balance.precision,
               }),
             )
           })

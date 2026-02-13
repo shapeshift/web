@@ -112,7 +112,7 @@ export const YieldsList = memo(() => {
   } = useYieldFilters(isAvailableToEarnTab)
 
   const userCurrencyBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
-  const assetBalancesBaseUnit = useAppSelector(selectPortfolioAssetBalances)
+  const assetBalances = useAppSelector(selectPortfolioAssetBalances)
   const assets = useAppSelector(selectAssets)
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
 
@@ -191,7 +191,7 @@ export const YieldsList = memo(() => {
   }, [yields?.unfiltered])
 
   const unfilteredAvailableYields = useMemo(() => {
-    if (!isConnected || !userCurrencyBalances || !assetBalancesBaseUnit) return []
+    if (!isConnected || !userCurrencyBalances) return []
 
     const available: AugmentedYieldDto[] = []
 
@@ -208,7 +208,7 @@ export const YieldsList = memo(() => {
         if (minDeposit.gt(0)) {
           const asset = assets[assetId]
           if (!asset) return false
-          const balance = assetBalancesBaseUnit[assetId]
+          const balance = assetBalances[assetId]
           const balanceHuman = bnOrZero(balance ? balance.toPrecision() : undefined)
           if (balanceHuman.lt(minDeposit)) return false
         }
@@ -219,7 +219,7 @@ export const YieldsList = memo(() => {
     }
 
     return available
-  }, [isConnected, unfilteredByInputAssetId, userCurrencyBalances, assetBalancesBaseUnit, assets])
+  }, [isConnected, unfilteredByInputAssetId, userCurrencyBalances, assetBalances, assets])
 
   const filterSourceYields = useMemo(
     () =>

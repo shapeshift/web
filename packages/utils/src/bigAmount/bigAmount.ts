@@ -368,7 +368,7 @@ export class BigAmount {
     if (!this.assetId) throw new Error('BigAmount: toUserCurrency() requires assetId')
     if (!BigAmount.config?.resolvePrice) throw new Error('BigAmount: not configured')
     const price = BigAmount.config.resolvePrice(this.assetId)
-    return this.value.div(TEN.pow(this.precision)).times(bnOrZero(price)).toFixed(decimals)
+    return this.value.div(TEN.pow(this.precision)).times(bnOrZero(price)).toFixed(decimals, ROUND_HALF_UP)
   }
 
   /** Convert to USD string. Requires assetId and configure(). */
@@ -376,7 +376,7 @@ export class BigAmount {
     if (!this.assetId) throw new Error('BigAmount: toUSD() requires assetId')
     if (!BigAmount.config?.resolvePriceUsd) throw new Error('BigAmount: not configured')
     const priceUsd = BigAmount.config.resolvePriceUsd(this.assetId)
-    return this.value.div(TEN.pow(this.precision)).times(bnOrZero(priceUsd)).toFixed(decimals)
+    return this.value.div(TEN.pow(this.precision)).times(bnOrZero(priceUsd)).toFixed(decimals, ROUND_HALF_UP)
   }
 
   // ── THORChain precision ──────────────────────────
@@ -388,14 +388,14 @@ export class BigAmount {
 
   /** Convert to THORChain base unit string (precision 8). */
   toThorBaseUnit(): string {
-    return this.value.times(TEN.pow(THOR_PRECISION)).div(TEN.pow(this.precision)).toFixed(0)
+    return this.value.times(TEN.pow(THOR_PRECISION)).div(TEN.pow(this.precision)).toFixed(0, ROUND_HALF_UP)
   }
 
   // ── Interop ───────────────────────────────────────
 
   /** Serialize to { value, precision, assetId? }. Value is base-unit integer string. */
   toJSON(): { value: string; precision: number; assetId?: string } {
-    return { value: this.value.toFixed(0), precision: this.precision, assetId: this.assetId }
+    return { value: this.value.toFixed(0, ROUND_HALF_UP), precision: this.precision, assetId: this.assetId }
   }
 
   // ── Private helpers ────────────────────────────────
@@ -419,7 +419,7 @@ function assertSamePrecision(a: BigAmount, b: BigAmount): void {
 function assertNotBigAmount(value: unknown, method: string): void {
   if (value instanceof BigAmount) {
     throw new TypeError(
-      `BigAmount.${method} does not accept BigAmount as argument (dimensionally invalid). Use .toFixed() to extract the scalar first.`,
+      `BigAmount.${method} does not accept BigAmount as argument (dimensionally invalid). Use .toPrecision() or .toBaseUnit() to extract the scalar first.`,
     )
   }
 }

@@ -31,7 +31,7 @@ import {
   selectAssetById,
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -85,7 +85,7 @@ export const ArbitrumBridgeClaimModal = ({
   )
 
   const destinationFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, destinationFeeAssetBalanceFilter),
+    selectPortfolioCryptoBalanceByFilter(state, destinationFeeAssetBalanceFilter).toPrecision(),
   )
 
   const amountCryptoPrecision = useMemo(

@@ -14108,6 +14108,7 @@ __metadata:
     "@types/react": ^19.0.0
     "@types/react-dom": ^19.0.0
     "@vitejs/plugin-react": ^4.2.0
+    "@xstate/react": ^5.0.5
     bech32: ^2.0.0
     jsdom: ^28.0.0
     p-queue: ^8.0.1
@@ -14120,6 +14121,7 @@ __metadata:
     vite-plugin-node-polyfills: ^0.23.0
     vitest: ^4.0.18
     wagmi: 3.3.2
+    xstate: ^5.28.0
   peerDependencies:
     react: ">=18.0.0"
     react-dom: ">=18.0.0"
@@ -21669,6 +21671,22 @@ __metadata:
   version: 1.6.5
   resolution: "@xstate/fsm@npm:1.6.5"
   checksum: da24fa4f40479223da34714640cea64ec894bbfeb2281a0a870af68882ae1d6fb6d724d6e5c0d4e6929728c699b92858f7389ef7d6a5d00ac66ba8cde3934eed
+  languageName: node
+  linkType: hard
+
+"@xstate/react@npm:^5.0.5":
+  version: 5.0.5
+  resolution: "@xstate/react@npm:5.0.5"
+  dependencies:
+    use-isomorphic-layout-effect: ^1.1.2
+    use-sync-external-store: ^1.2.0
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    xstate: ^5.19.4
+  peerDependenciesMeta:
+    xstate:
+      optional: true
+  checksum: 76987604dd1b0eae6184744537a48a8789aa2b973275c98a4de7b3eda02fdefd0f24533aa8beb04f718e7de632d8809e40670b95134ed793b388abd9cfc1b082
   languageName: node
   linkType: hard
 
@@ -42705,6 +42723,18 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
+"use-isomorphic-layout-effect@npm:^1.1.2":
+  version: 1.2.1
+  resolution: "use-isomorphic-layout-effect@npm:1.2.1"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: a52155ffa7d67a5107ef2033ae2c63f5290c3e3b198de30d4d4f78cd7921e1ab1ea31eeec387defb67ef61adb672d3b8d25b54b7dcc089bacc4f885abde96e9d
+  languageName: node
+  linkType: hard
+
 "use-latest@npm:^1.2.1":
   version: 1.3.0
   resolution: "use-latest@npm:1.3.0"
@@ -42768,6 +42798,15 @@ pvutils@latest:
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
   checksum: 5e639c9273200adb6985b512c96a3a02c458bc8ca1a72e91da9cdc6426144fc6538dca434b0f99b28fb1baabc82e1c383ba7900b25ccdcb43758fb058dc66c34
+  languageName: node
+  linkType: hard
+
+"use-sync-external-store@npm:^1.2.0":
+  version: 1.6.0
+  resolution: "use-sync-external-store@npm:1.6.0"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 61a62e910713adfaf91bdb72ff2cd30e5ba83687accaf3b6e75a903b45bf635f5722e3694af30d83a03e92cb533c0a5c699298d2fef639a03ffc86b469f4eee2
   languageName: node
   linkType: hard
 
@@ -44816,6 +44855,13 @@ pvutils@latest:
     ripple-binary-codec: ^2.5.0
     ripple-keypairs: ^2.0.0
   checksum: 8555c156461108b4d80f39eb25724ed121fb29ae53693c5bb5c1d96df85b03546dde0d70129432b1e04b21365ade3237882c108391f9f3b8b2bd896add7fe40e
+  languageName: node
+  linkType: hard
+
+"xstate@npm:^5.28.0":
+  version: 5.28.0
+  resolution: "xstate@npm:5.28.0"
+  checksum: 7aaa62f2d4ed07d51c2d760af238bcf0b3fdb2fe4725c6730480644442e2ea1260c34e13f35fa633808f231f98945b386ce774c4ebe9e3ae3a7ebb11c68cedab
   languageName: node
   linkType: hard
 

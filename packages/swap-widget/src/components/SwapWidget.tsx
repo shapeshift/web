@@ -286,22 +286,38 @@ const SwapWidgetCore = ({
   )
   const buyAmount = displayRate?.buyAmountCryptoBaseUnit
 
-  const networkFeeDisplay = useMemo(() => {
-    const feeBaseUnit = displayRate?.networkFeeCryptoBaseUnit
-    if (!feeBaseUnit || feeBaseUnit === '0') return undefined
-    const nativeAsset = getBaseAsset(state.context.sellAsset.chainId)
-    if (!nativeAsset) return undefined
-    const formatted = formatAmount(feeBaseUnit, nativeAsset.precision, 6)
-    return `${formatted} ${nativeAsset.symbol}`
-  }, [displayRate?.networkFeeCryptoBaseUnit, state.context.sellAsset.chainId])
-
-  const assetIdsForPrices = useMemo(
-    () => [state.context.sellAsset.assetId, state.context.buyAsset.assetId],
-    [state.context.sellAsset.assetId, state.context.buyAsset.assetId],
+  const sellChainNativeAsset = useMemo(
+    () => getBaseAsset(state.context.sellAsset.chainId),
+    [state.context.sellAsset.chainId],
   )
+
+  const assetIdsForPrices = useMemo(() => {
+    const ids = [state.context.sellAsset.assetId, state.context.buyAsset.assetId]
+    if (sellChainNativeAsset && sellChainNativeAsset.assetId !== state.context.sellAsset.assetId) {
+      ids.push(sellChainNativeAsset.assetId)
+    }
+    return ids
+  }, [state.context.sellAsset.assetId, state.context.buyAsset.assetId, sellChainNativeAsset])
   const { data: marketData } = useMarketData(assetIdsForPrices)
   const sellAssetUsdPrice = marketData?.[state.context.sellAsset.assetId]?.price
   const buyAssetUsdPrice = marketData?.[state.context.buyAsset.assetId]?.price
+  const nativeAssetUsdPrice = sellChainNativeAsset
+    ? marketData?.[sellChainNativeAsset.assetId]?.price
+    : undefined
+
+  const networkFeeDisplay = useMemo(() => {
+    const feeBaseUnit = displayRate?.networkFeeCryptoBaseUnit
+    if (!feeBaseUnit || feeBaseUnit === '0' || !sellChainNativeAsset) return undefined
+    const formatted = formatAmount(feeBaseUnit, sellChainNativeAsset.precision, 6)
+    const cryptoPart = `${formatted} ${sellChainNativeAsset.symbol}`
+    if (!nativeAssetUsdPrice) return cryptoPart
+    const fiatValue = formatUsdValue(
+      feeBaseUnit,
+      sellChainNativeAsset.precision,
+      nativeAssetUsdPrice,
+    )
+    return `${cryptoPart} (${fiatValue})`
+  }, [displayRate?.networkFeeCryptoBaseUnit, sellChainNativeAsset, nativeAssetUsdPrice])
 
   const sellUsdValue = useMemo(() => {
     if (!state.context.sellAmountBaseUnit || !sellAssetUsdPrice) return '$0.00'

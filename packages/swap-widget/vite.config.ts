@@ -1,4 +1,5 @@
 import react from '@vitejs/plugin-react'
+import path from 'path'
 import type { PluginOption } from 'vite'
 import { defineConfig } from 'vite'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
@@ -48,6 +49,18 @@ export default defineConfig({
     : [defineGlobalThis, react()],
   define: {
     'process.env': {},
+  },
+  resolve: {
+    alias: {
+      '@reown/appkit/core': path.resolve(
+        __dirname,
+        '../../node_modules/@reown/appkit/dist/esm/exports/core.js',
+      ),
+      '@reown/appkit/networks': path.resolve(
+        __dirname,
+        '../../node_modules/@reown/appkit/dist/esm/exports/networks.js',
+      ),
+    },
   },
   optimizeDeps: {
     esbuildOptions: {

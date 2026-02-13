@@ -38,7 +38,7 @@ import {
   selectAssetById,
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
   selectTxById,
 } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
@@ -76,7 +76,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     [confirmedQuote.stakingAssetAccountId, stakingAssetFeeAsset?.assetId],
   )
   const stakingAssetFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
+    selectPortfolioCryptoBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter).toPrecision(),
   )
   const stakingAssetMarketDataUserCurrency = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, confirmedQuote.stakingAssetId),

@@ -39,7 +39,7 @@ import {
   selectAssetById,
   selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -192,7 +192,7 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   }, [dustAmountCryptoBaseUnit, feeAssetMarketData?.price, feeAsset])
 
   const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, feeAssetBalanceFilter),
+    selectPortfolioCryptoBalanceByFilter(state, feeAssetBalanceFilter).toBaseUnit(),
   )
 
   const requiredAmountCryptoBaseUnit = useMemo(

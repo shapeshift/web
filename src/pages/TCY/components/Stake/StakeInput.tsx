@@ -25,7 +25,7 @@ import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
-import { selectPortfolioCryptoPrecisionBalanceByFilter } from '@/state/slices/common-selectors'
+import { selectPortfolioCryptoBalanceByFilter } from '@/state/slices/common-selectors'
 import { selectMarketDataByFilter } from '@/state/slices/marketDataSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -94,7 +94,7 @@ export const StakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAccou
   const balanceFilter = useMemo(() => ({ assetId: tcyAssetId, accountId }), [accountId])
 
   const balanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, balanceFilter),
+    selectPortfolioCryptoBalanceByFilter(state, balanceFilter).toPrecision(),
   )
 
   const amountCryptoBaseUnit = useMemo(

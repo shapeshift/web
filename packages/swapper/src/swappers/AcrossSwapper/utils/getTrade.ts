@@ -1,8 +1,19 @@
-import { fromAssetId, isAssetReference, solanaChainId } from '@shapeshiftoss/caip'
+import {
+  fromAssetId,
+  isAssetReference,
+  solanaChainId,
+  usdcOnSolanaAssetId,
+} from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { isTreasuryChainId } from '@shapeshiftoss/utils'
+import { chainIdToFeeAssetId, isTreasuryChainId } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import {
+  AddressLookupTableAccount,
+  PublicKey,
+  TransactionMessage,
+  VersionedTransaction,
+} from '@solana/web3.js'
 import axios from 'axios'
 import { zeroAddress } from 'viem'
 
@@ -19,6 +30,7 @@ import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import {
   ACROSS_SOLANA_TOKEN_ADDRESS,
+  acrossChainIdToChainId,
   acrossErrorCodeToTradeQuoteError,
   chainIdToAcrossChainId,
   DEFAULT_ACROSS_EVM_TOKEN_ADDRESS,
@@ -67,7 +79,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     return Err(
       makeSwapErrorRight({
         message: 'Across does not support same-chain swaps',
-        code: TradeQuoteError.CrossChainNotSupported,
+        code: TradeQuoteError.UnsupportedTradePair,
       }),
     )
   }
@@ -93,6 +105,16 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     )
   }
 
+  // Across only supports USDC as the bridgeable token on Solana destinations
+  if (buyAsset.chainId === solanaChainId && buyAsset.assetId !== usdcOnSolanaAssetId) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Across only supports USDC as destination token on Solana',
+        code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
+  }
+
   const depositor = (() => {
     if (input.quoteOrRate === 'rate') {
       if (input.sendAddress) return input.sendAddress
@@ -109,7 +131,10 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     return input.receiveAddress
   })()
 
+  const isSolanaRoute = sellAsset.chainId === solanaChainId || buyAsset.chainId === solanaChainId
+
   const appFee = (() => {
+    if (isSolanaRoute) return undefined
     if (!isTreasuryChainId(buyAsset.chainId)) return undefined
     const bps = Number(affiliateBps)
     if (bps <= 0) return undefined
@@ -119,8 +144,12 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   const appFeeRecipient = (() => {
     if (appFee === undefined) return undefined
     try {
-      return getTreasuryAddressFromChainId(buyAsset.chainId)
-    } catch {
+      return getTreasuryAddressFromChainId(buyAsset.chainId).toLowerCase()
+    } catch (e) {
+      console.error(
+        `[getTrade] Failed to get treasury address for chainId ${buyAsset.chainId}, affiliate fee will not be applied`,
+        e,
+      )
       return undefined
     }
   })()
@@ -211,7 +240,66 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     quoteId: quote.id,
   }
 
-  const accountNumber = input.quoteOrRate === 'quote' ? input.accountNumber : undefined
+  // For SVM transactions, decompile the pre-built base64 blob into instructions
+  // so getUnsignedSolanaTransaction can rebuild it at execution time
+  const solanaTransactionMetadata = await (async () => {
+    if (quote.swapTx.ecosystem !== 'svm') return undefined
+
+    const versionedTransaction = VersionedTransaction.deserialize(
+      new Uint8Array(Buffer.from(quote.swapTx.data, 'base64')),
+    )
+
+    const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+
+    const addressLookupTableAccountKeys = versionedTransaction.message.addressTableLookups.map(
+      lookup => lookup.accountKey.toString(),
+    )
+
+    const addressLookupTableAccountsInfos = await adapter.getAddressLookupTableAccounts(
+      addressLookupTableAccountKeys,
+    )
+
+    const addressLookupTableAccounts = addressLookupTableAccountsInfos.map(
+      info =>
+        new AddressLookupTableAccount({
+          key: new PublicKey(info.key),
+          state: AddressLookupTableAccount.deserialize(new Uint8Array(info.data)),
+        }),
+    )
+
+    const instructions = TransactionMessage.decompile(versionedTransaction.message, {
+      addressLookupTableAccounts,
+    }).instructions
+
+    return {
+      instructions,
+      addressLookupTableAddresses: addressLookupTableAccountKeys,
+    }
+  })()
+
+  // Build protocol fee asset ID — Across returns its own numeric chain IDs, convert to CAIP
+  const bridgeFeeAssetCaipChainId = acrossChainIdToChainId[bridgeFeeAsset.chainId.toString()]
+
+  const bridgeFeeAssetId = (() => {
+    if (!bridgeFeeAssetCaipChainId) return undefined
+
+    const isNativeFeeAsset = (() => {
+      if (bridgeFeeAssetCaipChainId === solanaChainId) {
+        return (
+          bridgeFeeAsset.address === 'So11111111111111111111111111111111111111112' ||
+          bridgeFeeAsset.address === zeroAddress
+        )
+      }
+      return bridgeFeeAsset.address === zeroAddress
+    })()
+
+    if (isNativeFeeAsset) return chainIdToFeeAssetId(bridgeFeeAssetCaipChainId)
+
+    const tokenStandard = bridgeFeeAssetCaipChainId.startsWith('solana') ? 'token' : 'erc20'
+    return `${bridgeFeeAssetCaipChainId}/${tokenStandard}:${bridgeFeeAsset.address}`
+  })()
+
+  const accountNumber = input.accountNumber
 
   const step: TradeQuoteStep | TradeRateStep = {
     allowanceContract,
@@ -224,25 +312,24 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     accountNumber,
     feeData: {
       networkFeeCryptoBaseUnit,
-      protocolFees: {
-        [bridgeFeeAsset.address !== zeroAddress
-          ? `eip155:${bridgeFeeAsset.chainId}/${
-              bridgeFeeAsset.address.startsWith('0x') ? 'erc20' : 'token'
-            }:${bridgeFeeAsset.address}`
-          : `eip155:${bridgeFeeAsset.chainId}/slip44:60`]: {
-          amountCryptoBaseUnit: bridgeFeeAmount,
-          asset: {
-            symbol: bridgeFeeAsset.symbol,
-            chainId: `eip155:${bridgeFeeAsset.chainId}`,
-            precision: bridgeFeeAsset.decimals,
-          },
-          requiresBalance: false,
-        },
-      },
+      protocolFees: bridgeFeeAssetId
+        ? {
+            [bridgeFeeAssetId]: {
+              amountCryptoBaseUnit: bridgeFeeAmount,
+              asset: {
+                symbol: bridgeFeeAsset.symbol,
+                chainId: bridgeFeeAssetCaipChainId,
+                precision: bridgeFeeAsset.decimals,
+              },
+              requiresBalance: false,
+            },
+          }
+        : {},
     },
     source: SwapperName.Across,
     estimatedExecutionTimeMs: quote.expectedFillTime * 1000,
     acrossTransactionMetadata,
+    solanaTransactionMetadata,
   }
 
   const baseQuoteOrRate = {

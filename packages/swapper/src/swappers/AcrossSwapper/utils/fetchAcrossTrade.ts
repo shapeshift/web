@@ -35,9 +35,10 @@ export const fetchAcrossTrade = (
   searchParams.set('depositor', params.depositor)
 
   if (params.recipient) searchParams.set('recipient', params.recipient)
-  if (params.appFee !== undefined && params.appFee > 0)
+  if (params.appFee !== undefined && params.appFee > 0 && params.appFeeRecipient) {
     searchParams.set('appFee', params.appFee.toString())
-  if (params.appFeeRecipient) searchParams.set('appFeeRecipient', params.appFeeRecipient)
+    searchParams.set('appFeeRecipient', params.appFeeRecipient)
+  }
   if (params.integratorId) searchParams.set('integratorId', params.integratorId)
   if (params.slippage) searchParams.set('slippage', params.slippage)
 

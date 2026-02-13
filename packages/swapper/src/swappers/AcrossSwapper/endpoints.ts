@@ -1,8 +1,12 @@
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { bnOrZero } from '@shapeshiftoss/utils'
+import { ComputeBudgetProgram } from '@solana/web3.js'
 import BigNumber from 'bignumber.js'
 
-import type { SwapperApi } from '../../types'
+import { COMPUTE_UNIT_MARGIN_MULTIPLIER } from '../../swappers/JupiterSwapper'
+import type { GetUnsignedSolanaTransactionArgs, SwapperApi } from '../../types'
 import {
   checkSafeTransactionStatus,
   getExecutableTradeStep,
@@ -146,5 +150,57 @@ export const acrossApi: SwapperApi = {
       buyTxHash,
       message,
     }
+  },
+  getUnsignedSolanaTransaction: async ({
+    stepIndex,
+    tradeQuote,
+    from,
+    assertGetSolanaChainAdapter,
+  }: GetUnsignedSolanaTransactionArgs): Promise<SolanaSignTx> => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+    const { accountNumber, solanaTransactionMetadata, sellAsset } = step
+
+    const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
+
+    // Across pre-built transactions already include ComputeBudget instructions.
+    // The standard pipeline (buildSendApiTransaction → solanaBuildTransaction) adds its own,
+    // causing duplicates. Strip them from the decompiled instructions so the pipeline
+    // can add fresh ones based on simulation.
+    const COMPUTE_BUDGET_PROGRAM_ID = ComputeBudgetProgram.programId.toString()
+
+    const instructionsWithoutComputeBudget = solanaTransactionMetadata?.instructions?.filter(
+      ix => ix.programId.toString() !== COMPUTE_BUDGET_PROGRAM_ID,
+    )
+
+    const { fast } = await adapter.getFeeData({
+      to: '',
+      value: '0',
+      chainSpecific: {
+        from,
+        addressLookupTableAccounts: solanaTransactionMetadata?.addressLookupTableAddresses,
+        instructions: instructionsWithoutComputeBudget,
+      },
+    })
+
+    const solanaInstructions = instructionsWithoutComputeBudget?.map(instruction =>
+      adapter.convertInstruction(instruction),
+    )
+
+    return adapter.buildSendApiTransaction({
+      from,
+      to: '',
+      value: '0',
+      accountNumber,
+      chainSpecific: {
+        addressLookupTableAccounts: solanaTransactionMetadata?.addressLookupTableAddresses,
+        instructions: solanaInstructions,
+        computeUnitLimit: bnOrZero(fast.chainSpecific.computeUnits)
+          .times(COMPUTE_UNIT_MARGIN_MULTIPLIER)
+          .toFixed(0),
+        computeUnitPrice: fast.chainSpecific.priorityFee,
+      },
+    })
   },
 }

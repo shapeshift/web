@@ -25,7 +25,7 @@ import type { LimitOrderActiveQuote } from '@/state/slices/limitOrderSlice/types
 import {
   selectAssetById,
   selectFeeAssetById,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
@@ -47,7 +47,7 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
     }),
     [activeQuote.params.accountId, feeAsset?.assetId],
   )
-  const feeAssetBalance = useSelectorWithArgs(selectPortfolioCryptoBalanceBaseUnitByFilter, filter)
+  const feeAssetBalance = useSelectorWithArgs(selectPortfolioCryptoBalanceByFilter, filter)
 
   const onMutate = useCallback(() => {
     setTxStatus(TxStatus.Pending)
@@ -125,7 +125,7 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
       return isLoading
     }
 
-    return bnOrZero(feeAssetBalance).gte(approvalNetworkFeeCryptoBaseUnit)
+    return bnOrZero(feeAssetBalance.toBaseUnit()).gte(approvalNetworkFeeCryptoBaseUnit)
   }, [approvalNetworkFeeCryptoBaseUnit, feeAssetBalance, isLoading])
 
   const approveAssetTranslation = useMemo(() => {

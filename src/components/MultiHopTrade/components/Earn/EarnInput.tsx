@@ -35,7 +35,7 @@ import {
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectMarketDataByFilter,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import {
   selectHasUserEnteredAmount,
@@ -269,7 +269,7 @@ export const EarnInput = memo(
       [sellAccountId, sellAsset?.assetId],
     )
     const sellAssetBalanceCryptoPrecision = useAppSelector(state =>
-      isConnected ? selectPortfolioCryptoPrecisionBalanceByFilter(state, balanceFilter) : '0',
+      isConnected ? selectPortfolioCryptoBalanceByFilter(state, balanceFilter).toPrecision() : '0',
     )
 
     const minDeposit = useMemo(

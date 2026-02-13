@@ -24,8 +24,8 @@ import { fromBaseUnit } from '@/lib/math'
 import { assertGetChainAdapter, assertUnreachable, isTruthy } from '@/lib/utils'
 import type { ReduxState } from '@/state/reducer'
 import {
-  selectPortfolioAccountBalancesBaseUnit,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioAccountBalances,
+  selectPortfolioCryptoBalanceByFilter,
   selectWalletConnectedChainIds,
   selectWalletId,
 } from '@/state/slices/common-selectors'
@@ -164,15 +164,15 @@ export const validateTradeQuote = (
   const firstHopSellAccountId = selectFirstHopSellAccountId(state)
   const secondHopSellAccountId = selectSecondHopSellAccountId(state)
 
-  const firstHopFeeAssetBalancePrecision = selectPortfolioCryptoPrecisionBalanceByFilter(state, {
+  const firstHopFeeAssetBalancePrecision = selectPortfolioCryptoBalanceByFilter(state, {
     assetId: firstHopSellFeeAsset?.assetId,
     accountId: firstHopSellAccountId ?? '',
-  })
+  }).toPrecision()
   const secondHopFeeAssetBalancePrecision = isMultiHopTrade
-    ? selectPortfolioCryptoPrecisionBalanceByFilter(state, {
+    ? selectPortfolioCryptoBalanceByFilter(state, {
         assetId: secondHopSellFeeAsset?.assetId,
         accountId: secondHopSellAccountId ?? '',
-      })
+      }).toPrecision()
     : undefined
 
   // Technically does for cow swap too, but we deduct it off the sell amount in that case
@@ -218,7 +218,7 @@ export const validateTradeQuote = (
     bnOrZero(buyAmountCryptoBaseUnit).isLessThanOrEqualTo(0)
 
   const portfolioAccountIdByNumberByChainId = selectPortfolioAccountIdByNumberByChainId(state)
-  const portfolioAccountBalancesBaseUnit = selectPortfolioAccountBalancesBaseUnit(state)
+  const portfolioAccountBalances = selectPortfolioAccountBalances(state)
   const sellAssetAccountNumber = firstHop?.accountNumber
   const totalProtocolFeesByAsset = firstHop ? getTotalProtocolFeeByAssetForStep(firstHop) : {}
 
@@ -234,7 +234,8 @@ export const validateTradeQuote = (
 
             const accountId =
               portfolioAccountIdByNumberByChainId[sellAssetAccountNumber][protocolFee.asset.chainId]
-            const balanceCryptoBaseUnit = portfolioAccountBalancesBaseUnit[accountId][assetId]
+            const balanceCryptoBaseUnit =
+              portfolioAccountBalances[accountId]?.[assetId]?.toBaseUnit() ?? '0'
 
             // @TODO: seems like this condition should be applied for all the swappers, verify by smoke testing all of them
             // them kick the swapperName bit out of the condition

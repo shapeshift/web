@@ -3,7 +3,7 @@ import { bn, bnOrZero, toBaseUnit } from '@shapeshiftoss/utils'
 
 import {
   selectEnabledWalletAccountIds,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '../../common-selectors'
 import { marketData } from '../../marketDataSlice/marketDataSlice'
 import { selectUserCurrencyToUsdRate } from '../../marketDataSlice/selectors'
@@ -220,10 +220,10 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
 
   const selectSellAssetBalanceCryptoBaseUnit = createSelector(
     (state: ReduxState) =>
-      selectPortfolioCryptoBalanceBaseUnitByFilter(state, {
+      selectPortfolioCryptoBalanceByFilter(state, {
         accountId: selectSellAccountId(state),
         assetId: selectInputSellAsset(state).assetId,
-      }),
+      }).toBaseUnit(),
     sellAssetBalanceCryptoBaseUnit => sellAssetBalanceCryptoBaseUnit,
   )
 

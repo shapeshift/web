@@ -128,6 +128,25 @@ export const YieldPositionCard = memo(
       [claimableBalance, withdrawableBalance],
     )
 
+    const withdrawableEntries = useMemo(() => {
+      if (!withdrawableBalance?.pendingActions) return []
+      return withdrawableBalance.pendingActions
+        .filter(a => a.type.toUpperCase().includes('WITHDRAW'))
+        .map((a, index) => {
+          try {
+            const decoded = JSON.parse(atob(a.passthrough))
+            return { amount: decoded?.args?.amount as string | undefined, actionIndex: index }
+          } catch (e) {
+            console.error('Failed to decode withdraw passthrough', e)
+            return { amount: undefined, actionIndex: index }
+          }
+        })
+        .filter(
+          (entry): entry is { amount: string; actionIndex: number } =>
+            Boolean(entry.amount) && bnOrZero(entry.amount).gt(0),
+        )
+    }, [withdrawableBalance?.pendingActions])
+
     const canClaim = useMemo(
       () =>
         Boolean(
@@ -158,9 +177,7 @@ export const YieldPositionCard = memo(
     }, [balances?.raw, selectedValidatorAddress])
 
     const hasExiting = exitingEntries.length > 0
-    const hasWithdrawable = Boolean(
-      withdrawableBalance && bnOrZero(withdrawableBalance.aggregatedAmount).gt(0),
-    )
+    const hasWithdrawable = withdrawableEntries.length > 0
     const hasClaimable = Boolean(
       claimableBalance && bnOrZero(claimableBalance.aggregatedAmount).gt(0),
     )
@@ -211,7 +228,7 @@ export const YieldPositionCard = memo(
     const totalAmountFixed = totalAmount.toFixed()
 
     const navigateToAction = useCallback(
-      (action: 'claim' | 'enter' | 'exit') => {
+      (action: 'claim' | 'enter' | 'exit' | 'withdraw') => {
         navigate({
           pathname: location.pathname,
           search: qs.stringify({
@@ -225,6 +242,20 @@ export const YieldPositionCard = memo(
     )
 
     const handleClaimClick = useCallback(() => navigateToAction('claim'), [navigateToAction])
+    const handleWithdrawClick = useCallback(
+      (pendingActionIndex: number) => {
+        navigate({
+          pathname: location.pathname,
+          search: qs.stringify({
+            action: 'withdraw',
+            modal: 'yield',
+            pendingActionIndex,
+            ...(selectedValidatorAddress ? { validator: selectedValidatorAddress } : {}),
+          }),
+        })
+      },
+      [navigate, location.pathname, selectedValidatorAddress],
+    )
     const handleEnter = useCallback(() => navigateToAction('enter'), [navigateToAction])
     const handleExit = useCallback(() => navigateToAction('exit'), [navigateToAction])
 
@@ -296,47 +327,52 @@ export const YieldPositionCard = memo(
       })
     }, [hasExiting, exitingEntries, translate, pendingStatusKeys.exit])
 
-    const withdrawableClaimAction = useMemo(
-      () =>
-        withdrawableBalance?.pendingActions?.find(action =>
-          action.type.toUpperCase().includes('CLAIM'),
-        ),
-      [withdrawableBalance],
-    )
-
     const withdrawableSection = useMemo(() => {
       if (!hasWithdrawable) return null
-      return (
-        <Alert status='success' variant='subtle' borderRadius='lg' p={3}>
+
+      return withdrawableEntries.map((entry, index) => (
+        <Alert
+          key={`withdrawable-${index}`}
+          status='success'
+          variant='subtle'
+          borderRadius='lg'
+          p={3}
+        >
           <Flex justify='space-between' align='center' width='full'>
             <Box>
               <Text fontSize='xs' fontWeight='bold' textTransform='uppercase'>
                 {translate('yieldXYZ.withdrawable')}
               </Text>
               <Text fontSize='sm' fontWeight='bold'>
-                {formatBalance(withdrawableBalance)}
+                <Amount.Crypto
+                  value={entry.amount}
+                  symbol={withdrawableBalance?.token.symbol ?? ''}
+                  abbreviated
+                />
               </Text>
             </Box>
             <VStack spacing={1} alignItems='flex-end'>
               <Badge colorScheme='green' variant='solid' fontSize='xs'>
                 {translate('yieldXYZ.ready')}
               </Badge>
-              {withdrawableClaimAction && (
-                <Button size='xs' colorScheme='green' variant='solid' onClick={handleClaimClick}>
-                  {translate('common.claim')}
-                </Button>
-              )}
+              <Button
+                size='xs'
+                colorScheme='green'
+                variant='solid'
+                onClick={() => handleWithdrawClick(entry.actionIndex)}
+              >
+                {translate('common.withdraw')}
+              </Button>
             </VStack>
           </Flex>
         </Alert>
-      )
+      ))
     }, [
       hasWithdrawable,
+      withdrawableEntries,
       translate,
-      formatBalance,
-      withdrawableBalance,
-      withdrawableClaimAction,
-      handleClaimClick,
+      withdrawableBalance?.token.symbol,
+      handleWithdrawClick,
     ])
 
     const claimableSection = useMemo(() => {

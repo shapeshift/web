@@ -1,6 +1,6 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import { supportsTron } from '@shapeshiftoss/hdwallet-core'
+import { supportsTron } from '@shapeshiftoss/hdwallet-core/wallet'
 import { TronWeb } from 'tronweb'
 
 import { assertGetTronChainAdapter } from '..'

@@ -2738,6 +2738,7 @@
     "depositSymbol": "Deposit %{symbol}",
     "withdrawSymbol": "Withdraw %{symbol}",
     "claimableRewards": "Claimable rewards",
+    "withdrawableFunds": "Withdrawable funds",
     "noActivePositions": "You do not have any active yield positions.",
     "connectWalletPositions": "Connect a wallet to view your active yield positions.",
     "view": "View",

@@ -1,5 +1,5 @@
 import { fromAccountId, fromAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
+import { isMetaMask } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isRune, thorPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
 import { isUtxoChainId } from '@shapeshiftoss/utils'
 import { useSuspenseQueries } from '@tanstack/react-query'
@@ -62,7 +62,7 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
             if (!isUtxoChainId(fromAccountId(accountId).chainId))
               return [fromAccountId(accountId).account]
 
-            const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
+            const isMetaMaskMultichainWallet = isMetaMask(wallet)
 
             // Metamask snap might be uninstalled but UTXO accounts not cleared yet because of reactivity
             if (isMetaMaskMultichainWallet && !isSnapInstalled) return []

@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react'
 import { ethChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { ETH_FOX_STAKING_EVERGREEN_CONTRACT } from '@shapeshiftoss/contracts'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import qs from 'qs'
@@ -33,7 +34,6 @@ import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFo
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { foxEthLpAssetId } from '@/state/slices/opportunitiesSlice/constants'
@@ -271,10 +271,10 @@ export const FoxFarming = () => {
     if (!rewardAsset) return
     if (!userStakingOpportunity) return '0'
 
-    return fromBaseUnit(
-      userStakingOpportunity.rewardsCryptoBaseUnit?.amounts[0],
-      rewardAsset?.precision ?? 0,
-    )
+    return BigAmount.fromBaseUnit({
+      value: userStakingOpportunity.rewardsCryptoBaseUnit?.amounts[0],
+      precision: rewardAsset?.precision ?? 0,
+    }).toPrecision()
   }, [isConnected, opportunity, userStakingOpportunity, rewardAsset])
 
   const totalStakingValue = useMemo(() => {
@@ -282,10 +282,10 @@ export const FoxFarming = () => {
     if (!opportunity) return
     if (!userStakingOpportunity) return '0'
 
-    return fromBaseUnit(
-      userStakingOpportunity?.stakedAmountCryptoBaseUnit,
-      underlyingAsset?.precision ?? 0,
-    )
+    return BigAmount.fromBaseUnit({
+      value: userStakingOpportunity?.stakedAmountCryptoBaseUnit,
+      precision: underlyingAsset?.precision ?? 0,
+    }).toPrecision()
   }, [isConnected, opportunity, userStakingOpportunity, underlyingAsset?.precision])
 
   const apy = useMemo(() => {

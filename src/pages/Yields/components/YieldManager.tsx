@@ -21,8 +21,14 @@ export const YieldManager = () => {
   const { yieldId } = useParams<{ yieldId: string }>()
   const [searchParams] = useSearchParams()
 
-  const action = searchParams.get('action') as 'enter' | 'exit' | 'claim' | undefined
+  const action = searchParams.get('action') as 'enter' | 'exit' | 'claim' | 'withdraw' | undefined
   const validatorParam = searchParams.get('validator') ?? undefined
+  const pendingActionIndex = useMemo(() => {
+    const raw = searchParams.get('pendingActionIndex')
+    if (raw === null) return undefined
+    const parsed = parseInt(raw, 10)
+    return Number.isFinite(parsed) ? parsed : undefined
+  }, [searchParams])
 
   const { data: yieldItem } = useYield(yieldId ?? '')
 
@@ -38,6 +44,7 @@ export const YieldManager = () => {
 
   const inputTokenSymbol = yieldItem?.inputTokens[0]?.symbol
   const claimableTokenSymbol = balances?.byType[YieldBalanceType.Claimable]?.token?.symbol
+  const withdrawableTokenSymbol = balances?.byType[YieldBalanceType.Withdrawable]?.token?.symbol
 
   const title = useMemo(() => {
     if (!yieldItem) return translate('yieldXYZ.manage')
@@ -51,13 +58,24 @@ export const YieldManager = () => {
     if (action === 'claim') {
       return translate('yieldXYZ.claimSymbol', { symbol: claimableTokenSymbol ?? '' })
     }
+    if (action === 'withdraw') {
+      return translate('yieldXYZ.withdrawSymbol', { symbol: withdrawableTokenSymbol ?? '' })
+    }
     return translate('yieldXYZ.manage')
-  }, [action, yieldItem, translate, inputTokenSymbol, claimableTokenSymbol])
+  }, [
+    action,
+    yieldItem,
+    translate,
+    inputTokenSymbol,
+    claimableTokenSymbol,
+    withdrawableTokenSymbol,
+  ])
 
   const handleClose = useCallback(() => {
     const newParams = new URLSearchParams(searchParams)
     newParams.delete('modal')
     newParams.delete('action')
+    newParams.delete('pendingActionIndex')
     navigate({ search: newParams.toString() }, { replace: true })
   }, [navigate, searchParams])
 
@@ -82,6 +100,7 @@ export const YieldManager = () => {
           validatorAddress={validatorAddress}
           accountId={accountId}
           accountNumber={accountNumber}
+          pendingActionIndex={pendingActionIndex}
           onClose={handleClose}
           onDone={handleClose}
         />

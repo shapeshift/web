@@ -1,5 +1,5 @@
 import { starknetChainId, toAccountId } from '@shapeshiftoss/caip'
-import { supportsStarknet } from '@shapeshiftoss/hdwallet-core'
+import { supportsStarknet } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 
 import type { DeriveAccountIdsAndMetadata } from './account'

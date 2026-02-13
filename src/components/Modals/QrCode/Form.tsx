@@ -46,7 +46,7 @@ const scanRedirect = <Navigate to={SendRoutes.Scan} replace />
 
 const formStyle = { height: '100%' }
 
-export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
+export const Form: React.FC<QrCodeFormProps> = ({ assetId: initialAssetId, accountId }) => {
   const navigate = useNavigate()
   const { handleFormSend } = useFormSend()
   const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
@@ -66,7 +66,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
       accountId,
       to: '',
       vanityAddress: '',
-      assetId: '',
+      assetId: initialAssetId ?? '',
       feeType: FeeDataKey.Average,
       amountCryptoPrecision: '',
       fiatAmount: '',
@@ -194,7 +194,6 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
               }
             return parseAddress({ address: decodedText })
           })()
-
           if (!maybeUrlResult.assetId) return
 
           const { address, vanityAddress } = urlDirectResult
@@ -243,15 +242,35 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             chainNamespace === CHAIN_NAMESPACE.Evm || chainNamespace === CHAIN_NAMESPACE.Solana
           // Most wallets do not specify target_address on purpose for ERC-20 or Solana token transfers, as it's inherently unsafe
           // (although we have heuristics to make it safe)
-          // For the purpose of being spec compliant, we assume that if there was an `amount` field, that means native amount (which it should, according to the spec)
-          // And we then assume native asset transfer as a result - users can always change asset in the amount screen if that was wrong
-          // However, if not asset AND no amount are specific, we don't assume anything, and let em select the asset manually
-          const isAmbiguousTransfer =
-            supportsErc681 &&
-            !isToken(maybeUrlResult.assetId) &&
-            !maybeUrlResult.amountCryptoPrecision
+          // Without an explicit token in the QR code, the resolved asset defaults to the native fee asset (e.g ETH),
+          // which is ambiguous - the user may have intended to send a token on the same chain.
+          // If we have page context (initialAssetId) on the same chain, use that; otherwise show the asset selector.
+          const isAmbiguousTransfer = supportsErc681 && !isToken(maybeUrlResult.assetId)
 
           if (isAmbiguousTransfer) {
+            if (initialAssetId) {
+              const { chainId: contextChainId, chainNamespace: contextChainNamespace } =
+                fromAssetId(initialAssetId)
+              const { chainId: qrChainId } = fromAssetId(maybeUrlResult.assetId)
+              const chainMatch = urlDirectResult
+                ? contextChainId === qrChainId
+                : contextChainNamespace === chainNamespace
+              if (chainMatch) {
+                methods.setValue(SendFormFields.AssetId, initialAssetId)
+                if (initialAssetId !== maybeUrlResult.assetId) {
+                  methods.setValue(SendFormFields.AmountCryptoPrecision, '')
+                  methods.setValue(SendFormFields.FiatAmount, '')
+                }
+                const state = store.getState()
+                const contextAccountIds = selectPortfolioAccountIdsByAssetIdFilter(state, {
+                  assetId: initialAssetId,
+                })
+                if (contextAccountIds[0]) {
+                  methods.setValue(SendFormFields.AccountId, contextAccountIds[0])
+                }
+                return navigate(SendRoutes.AmountDetails, { state: { isFromQrCode: true } })
+              }
+            }
             requestAnimationFrame(() => navigate(SendRoutes.Select))
             return
           }
@@ -263,7 +282,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
         }
       })()
     },
-    [handleClose, methods, navigate, pair, toast, translate],
+    [handleClose, initialAssetId, methods, navigate, pair, toast, translate],
   )
 
   const selectAssetRouterElement = useMemo(

@@ -14,6 +14,7 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useMutation } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -34,7 +35,6 @@ import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
 import { useEvmFees } from '@/hooks/queries/useEvmFees'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { middleEllipsis } from '@/lib/utils'
 import {
   assertGetEvmChainAdapter,
@@ -108,7 +108,11 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   )
 
   const stakingAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(selectedUnstakingRequest.amountCryptoBaseUnit, stakingAsset?.precision ?? 0),
+    () =>
+      BigAmount.fromBaseUnit({
+        value: selectedUnstakingRequest.amountCryptoBaseUnit,
+        precision: stakingAsset?.precision ?? 0,
+      }).toPrecision(),
     [selectedUnstakingRequest.amountCryptoBaseUnit, stakingAsset?.precision],
   )
 

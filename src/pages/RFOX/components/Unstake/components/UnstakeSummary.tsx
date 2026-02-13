@@ -1,6 +1,7 @@
 import { Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, toAccountId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -8,7 +9,6 @@ import { Amount } from '@/components/Amount/Amount'
 import { Row } from '@/components/Row/Row'
 import { Text } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { toBaseUnit } from '@/lib/math'
 import { getStakingContract, selectStakingBalance } from '@/pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
 import { useStakingBalanceOfQuery } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
@@ -32,7 +32,11 @@ export const UnstakeSummary: React.FC<UnstakeSummaryProps> = ({
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const translate = useTranslate()
   const amountCryptoBaseUnit = useMemo(
-    () => toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0),
+    () =>
+      BigAmount.fromPrecision({
+        value: amountCryptoPrecision,
+        precision: stakingAsset?.precision ?? 0,
+      }).toBaseUnit(),
     [amountCryptoPrecision, stakingAsset?.precision],
   )
 

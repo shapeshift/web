@@ -52,7 +52,7 @@ import {
   selectFeeAssetById,
   selectHighestStakingBalanceAccountIdByStakingId,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -133,7 +133,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
   const balanceFilter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
   const balanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
+    selectPortfolioCryptoBalanceByFilter(state, balanceFilter).toBaseUnit(),
   )
 
   const assetMarketData = useAppSelector(state =>

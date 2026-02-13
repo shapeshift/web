@@ -18,7 +18,7 @@ import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import {
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -56,7 +56,7 @@ export const Deposit: React.FC<DepositProps> = ({
   )
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
   const balance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceBaseUnitByFilter(state, filter),
+    selectPortfolioCryptoBalanceByFilter(state, filter).toBaseUnit(),
   )
 
   // notify

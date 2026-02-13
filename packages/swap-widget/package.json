@@ -12,7 +12,9 @@
     "preview": "vite preview",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@reown/appkit": "^1.8.17",
@@ -24,21 +26,27 @@
     "@solana/wallet-adapter-wallets": "^0.19.32",
     "@solana/web3.js": "1.98.0",
     "@tanstack/react-query": "^5.69.0",
+    "@xstate/react": "^5.0.5",
     "bech32": "^2.0.0",
     "p-queue": "^8.0.1",
     "react-virtuoso": "^4.7.11",
     "viem": "2.40.3",
-    "wagmi": "3.3.2"
+    "wagmi": "3.3.2",
+    "xstate": "^5.28.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.2.0",
+    "jsdom": "^28.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "typescript": "~5.2.2",
     "vite": "^5.0.0",
-    "vite-plugin-node-polyfills": "^0.23.0"
+    "vite-plugin-node-polyfills": "^0.23.0",
+    "vitest": "^4.0.18"
   },
   "peerDependencies": {
     "react": ">=18.0.0",

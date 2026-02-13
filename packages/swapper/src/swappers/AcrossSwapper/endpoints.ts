@@ -1,0 +1,150 @@
+import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import BigNumber from 'bignumber.js'
+
+import type { SwapperApi } from '../../types'
+import {
+  checkSafeTransactionStatus,
+  getExecutableTradeStep,
+  isExecutableTradeQuote,
+} from '../../utils'
+import { getTradeQuote } from './getTradeQuote/getTradeQuote'
+import { getTradeRate } from './getTradeRate/getTradeRate'
+import { acrossService } from './utils/acrossService'
+import type { AcrossDepositStatus } from './utils/types'
+
+export const acrossApi: SwapperApi = {
+  getTradeQuote: (input, deps) => getTradeQuote(input, deps),
+  getTradeRate: (input, deps) => getTradeRate(input, deps),
+  getEvmTransactionFees: async ({
+    from,
+    stepIndex,
+    tradeQuote,
+    supportsEIP1559,
+    assertGetEvmChainAdapter,
+  }) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+
+    const { acrossTransactionMetadata, sellAsset } = step
+    if (!acrossTransactionMetadata) throw new Error('Missing Across transaction metadata')
+
+    const { to, value, data } = acrossTransactionMetadata
+
+    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
+
+    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
+
+    return feeData.networkFeeCryptoBaseUnit
+  },
+  getUnsignedEvmTransaction: async ({
+    from,
+    stepIndex,
+    tradeQuote,
+    supportsEIP1559,
+    assertGetEvmChainAdapter,
+  }) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+
+    const { accountNumber, acrossTransactionMetadata, sellAsset } = step
+    if (!acrossTransactionMetadata) throw new Error('Missing Across transaction metadata')
+
+    const { to, value, data, gasLimit: gasLimitFromApi } = acrossTransactionMetadata
+
+    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
+
+    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
+
+    const unsignedTx = await adapter.buildCustomApiTx({
+      accountNumber,
+      data,
+      from,
+      to,
+      value,
+      ...feeData,
+      gasLimit: BigNumber.max(gasLimitFromApi ?? '0', feeData.gasLimit).toFixed(),
+    })
+
+    return unsignedTx
+  },
+  checkTradeStatus: async ({
+    txHash,
+    chainId,
+    address,
+    config,
+    fetchIsSmartContractAddressQuery,
+    assertGetEvmChainAdapter,
+  }) => {
+    if (isEvmChainId(chainId)) {
+      const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
+        txHash,
+        chainId,
+        assertGetEvmChainAdapter,
+        address,
+        fetchIsSmartContractAddressQuery,
+      })
+
+      if (maybeSafeTransactionStatus) {
+        if (!maybeSafeTransactionStatus.buyTxHash) return maybeSafeTransactionStatus
+        txHash = maybeSafeTransactionStatus.buyTxHash
+      }
+    }
+
+    const maybeStatusResponse = await acrossService.get<AcrossDepositStatus>(
+      `${config.VITE_ACROSS_API_URL}/deposit/status?depositTxnRef=${txHash}`,
+    )
+
+    if (maybeStatusResponse.isErr()) {
+      return {
+        buyTxHash: undefined,
+        status: TxStatus.Unknown,
+        message: undefined,
+      }
+    }
+
+    const { data: statusResponse } = maybeStatusResponse.unwrap()
+
+    const status = (() => {
+      switch (statusResponse.status) {
+        case 'filled':
+          return TxStatus.Confirmed
+        case 'pending':
+          return TxStatus.Pending
+        case 'slowFillRequested':
+          return TxStatus.Pending
+        case 'expired':
+          return TxStatus.Failed
+        case 'refunded':
+          return TxStatus.Failed
+        default:
+          return TxStatus.Unknown
+      }
+    })()
+
+    const message = (() => {
+      switch (statusResponse.status) {
+        case 'pending':
+          return 'Deposit detected, processing...'
+        case 'slowFillRequested':
+          return 'Taking longer than usual, waiting for fill...'
+        case 'expired':
+          return 'Deposit expired'
+        case 'refunded':
+          return 'Deposit refunded on origin chain'
+        default:
+          return undefined
+      }
+    })()
+
+    const buyTxHash = statusResponse.fillTxnRef
+
+    return {
+      status,
+      buyTxHash,
+      message,
+    }
+  },
+}

@@ -79,7 +79,7 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
         }).toPrecision(),
       ).times(closestStakingAssetPrice.price)
 
-      return rewardDistributionUsd.dividedBy(totalStakedUsd).times(12).toFixed(4)
+      return rewardDistributionUsd.div(totalStakedUsd.toFixed()).times(12).toFixed(4)
     },
     [
       runePriceHistory,

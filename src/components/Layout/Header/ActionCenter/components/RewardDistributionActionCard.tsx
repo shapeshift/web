@@ -1,19 +1,24 @@
 import { Button, ButtonGroup, Link, useDisclosure } from '@chakra-ui/react'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
+import {
+  thorchainAssetId,
+  uniV2EthFoxArbitrumAssetId,
+  usdcOnArbitrumOneAssetId,
+} from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { ActionCard } from './ActionCard'
-import { ActionStatusIcon } from './ActionStatusIcon'
+import { ActionIcon } from './ActionIcon'
 import { ActionStatusTag } from './ActionStatusTag'
 
 import { Amount } from '@/components/Amount/Amount'
-import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
 import { getTxLink } from '@/lib/getTxLink'
+import { RFOX_V3_UPGRADE_EPOCH } from '@/pages/RFOX/constants'
+import { getStakingContract } from '@/pages/RFOX/helpers'
 import type { RewardDistributionAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -27,6 +32,7 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
   const translate = useTranslate()
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true })
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+  const usdcAsset = useAppSelector(state => selectAssetById(state, usdcOnArbitrumOneAssetId))
 
   const { distribution } = action.rewardDistributionMetadata
 
@@ -34,17 +40,25 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
     return dayjs(action.updatedAt).fromNow()
   }, [action.updatedAt])
 
+  const isRuneReward = useMemo(() => {
+    return (
+      distribution.stakingContract === getStakingContract(uniV2EthFoxArbitrumAssetId) ||
+      distribution.epoch < RFOX_V3_UPGRADE_EPOCH
+    )
+  }, [distribution.epoch, distribution.stakingContract])
+
   const rewardDistributionTranslationComponents: TextPropTypes['components'] = useMemo(() => {
-    if (!runeAsset) return
+    const asset = isRuneReward ? runeAsset : usdcAsset
+    if (!asset) return
 
     return {
       amountAndSymbol: (
         <Amount.Crypto
           value={BigAmount.fromBaseUnit({
             value: distribution.amount.toString(),
-            precision: runeAsset.precision ?? 0,
+            precision: asset.precision ?? 0,
           }).toPrecision()}
-          symbol={runeAsset?.symbol}
+          symbol={asset?.symbol}
           fontSize='sm'
           fontWeight='bold'
           maximumFractionDigits={6}
@@ -53,7 +67,7 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
         />
       ),
     }
-  }, [distribution.amount, runeAsset])
+  }, [distribution.amount, isRuneReward, runeAsset, usdcAsset])
 
   const description = useMemo(() => {
     const translationKey =
@@ -71,25 +85,24 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
   }, [rewardDistributionTranslationComponents, action.status])
 
   const icon = useMemo(() => {
-    return (
-      <AssetIconWithBadge assetId={thorchainAssetId} size='md'>
-        <ActionStatusIcon status={action.status} />
-      </AssetIconWithBadge>
-    )
-  }, [action.status])
+    const assetId = isRuneReward ? thorchainAssetId : usdcOnArbitrumOneAssetId
+    return <ActionIcon assetId={assetId} status={action.status} />
+  }, [action.status, isRuneReward])
 
   const txLink = useMemo(() => {
-    if (!runeAsset) return
     if (!distribution.txId || distribution.txId === '') return
+
+    const asset = isRuneReward ? runeAsset : usdcAsset
+    if (!asset) return
 
     return getTxLink({
       txId: distribution.txId,
-      chainId: runeAsset.chainId,
-      defaultExplorerBaseUrl: runeAsset.explorerTxLink,
+      chainId: asset.chainId,
+      defaultExplorerBaseUrl: asset.explorerTxLink,
       address: undefined,
       maybeSafeTx: undefined,
     })
-  }, [runeAsset, distribution.txId])
+  }, [runeAsset, usdcAsset, distribution.txId, isRuneReward])
 
   const footer = useMemo(() => {
     return <ActionStatusTag status={action.status} />

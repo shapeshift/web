@@ -31,6 +31,7 @@ export type AccountSelectorProps = {
   disabled?: boolean
   buttonProps?: ButtonProps
   boxProps?: BoxProps
+  cryptoBalanceOverride?: string
 }
 
 const chevronIconSx = {
@@ -38,7 +39,15 @@ const chevronIconSx = {
 }
 
 export const AccountSelector: FC<AccountSelectorProps> = memo(
-  ({ assetId, accountId: selectedAccountId, onChange, disabled, buttonProps, boxProps }) => {
+  ({
+    assetId,
+    accountId: selectedAccountId,
+    onChange,
+    disabled,
+    buttonProps,
+    boxProps,
+    cryptoBalanceOverride,
+  }) => {
     const translate = useTranslate()
     const { isOpen, onOpen, onClose } = useDisclosure()
     const {
@@ -69,9 +78,11 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
     const selectedAccountDetails = useMemo(() => {
       if (!selectedAccountId || !asset) return null
 
-      const cryptoBalance = accountBalances?.[selectedAccountId]?.[assetId]
-        ? accountBalances[selectedAccountId][assetId].toPrecision()
-        : '0'
+      const cryptoBalance =
+        cryptoBalanceOverride ??
+        (accountBalances?.[selectedAccountId]?.[assetId]
+          ? accountBalances[selectedAccountId][assetId].toPrecision()
+          : '0')
       const fiatBalance = bnOrZero(cryptoBalance).times(marketDataPrice)
 
       return {
@@ -79,7 +90,7 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
         fiatBalance,
         label: isUtxoAccountId(selectedAccountId) ? accountIdToLabel(selectedAccountId) : undefined,
       }
-    }, [selectedAccountId, asset, accountBalances, assetId, marketDataPrice])
+    }, [selectedAccountId, asset, cryptoBalanceOverride, accountBalances, assetId, marketDataPrice])
 
     const handleAccountSelect = useCallback(
       (accountId: AccountId) => {

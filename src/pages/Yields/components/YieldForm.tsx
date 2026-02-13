@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
-import { memo, useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import { TbSwitchVertical } from 'react-icons/tb'
 import type { NumberFormatValues } from 'react-number-format'
 import { NumericFormat } from 'react-number-format'
@@ -66,10 +66,11 @@ import { useAppSelector } from '@/state/store'
 type YieldFormProps = {
   yieldItem: AugmentedYieldDto
   balances?: NormalizedYieldBalances
-  action: 'enter' | 'exit' | 'claim'
+  action: 'enter' | 'exit' | 'claim' | 'withdraw'
   validatorAddress?: string
   accountId?: AccountId
   accountNumber?: number
+  pendingActionIndex?: number
   onClose: () => void
   onDone?: () => void
   isSubmitting?: boolean // Optional, if handled externally or to override
@@ -95,6 +96,7 @@ export const YieldForm = memo(
     validatorAddress,
     accountId: accountIdProp,
     accountNumber,
+    pendingActionIndex,
     onClose,
     onDone,
   }: YieldFormProps) => {
@@ -148,6 +150,37 @@ export const YieldForm = memo(
 
     const claimableToken = effectiveClaimBalance?.token
     const claimableAmount = effectiveClaimBalance?.aggregatedAmount ?? '0'
+
+    const withdrawableToken = withdrawableBalance?.token
+    const isWithdrawAction = action === 'withdraw'
+
+    const withdrawActions = useMemo(
+      () =>
+        withdrawableBalance?.pendingActions?.filter(a =>
+          a.type.toUpperCase().includes('WITHDRAW'),
+        ) ?? [],
+      [withdrawableBalance],
+    )
+
+    const withdrawAction = useMemo(() => {
+      if (pendingActionIndex !== undefined) return withdrawActions[pendingActionIndex]
+      return withdrawActions[0]
+    }, [withdrawActions, pendingActionIndex])
+
+    const withdrawableAmountFromPassthrough = useMemo(() => {
+      if (!withdrawAction?.passthrough) return withdrawableBalance?.aggregatedAmount ?? '0'
+      try {
+        const decoded = JSON.parse(atob(withdrawAction.passthrough))
+        return decoded?.args?.amount ?? withdrawableBalance?.aggregatedAmount ?? '0'
+      } catch (e) {
+        console.error('Failed to decode withdraw passthrough', e)
+        return withdrawableBalance?.aggregatedAmount ?? '0'
+      }
+    }, [withdrawAction?.passthrough, withdrawableBalance?.aggregatedAmount])
+
+    const withdrawableAmountRef = useRef(withdrawableAmountFromPassthrough)
+
+    const isManageAction = isClaimAction || isWithdrawAction
 
     const accountIdFilter = useMemo(
       () => ({ assetId: inputTokenAssetId ?? '' }),
@@ -344,8 +377,8 @@ export const YieldForm = memo(
       setSelectedPercent(null)
       setIsFiat(false)
       setSelectedAccountId(undefined)
-      // Clear queries?
       queryClient.removeQueries({ queryKey: ['yieldxyz', 'quote', action, yieldItem.id] })
+      queryClient.removeQueries({ queryKey: ['yieldxyz', 'allBalances'] })
       if (onDone) onDone()
       else onClose()
     }, [onClose, onDone, queryClient, yieldItem.id, action])
@@ -356,8 +389,37 @@ export const YieldForm = memo(
       setSelectedPercent(null)
     }, [])
 
-    // Map 'claim' -> 'manage' for useYieldTransactionFlow
-    const flowAction = action === 'claim' ? 'manage' : action
+    const activeManageAction = useMemo(() => {
+      if (isClaimAction) return claimAction
+      if (isWithdrawAction) return withdrawAction
+      return undefined
+    }, [isClaimAction, claimAction, isWithdrawAction, withdrawAction])
+
+    const activeManageAmount = useMemo(() => {
+      if (isClaimAction) return claimableAmount
+      if (isWithdrawAction) return withdrawableAmountFromPassthrough
+      return cryptoAmount
+    }, [
+      isClaimAction,
+      claimableAmount,
+      isWithdrawAction,
+      withdrawableAmountFromPassthrough,
+      cryptoAmount,
+    ])
+
+    const activeManageSymbol = useMemo(() => {
+      if (isClaimAction) return claimableToken?.symbol ?? ''
+      if (isWithdrawAction) return withdrawableToken?.symbol ?? ''
+      return inputTokenAsset?.symbol ?? ''
+    }, [
+      isClaimAction,
+      claimableToken?.symbol,
+      isWithdrawAction,
+      withdrawableToken?.symbol,
+      inputTokenAsset?.symbol,
+    ])
+
+    const flowAction = isManageAction ? 'manage' : action
 
     const {
       step,
@@ -373,15 +435,20 @@ export const YieldForm = memo(
     } = useYieldTransactionFlow({
       yieldItem,
       action: flowAction,
-      amount: isClaimAction ? claimableAmount : cryptoAmount,
-      assetSymbol: isClaimAction ? claimableToken?.symbol ?? '' : inputTokenAsset?.symbol ?? '',
+      amount: activeManageAmount,
+      assetSymbol: activeManageSymbol,
       onClose: handleFormDone,
       isOpen: true,
       validatorAddress: selectedValidatorAddress,
       accountId,
-      passthrough: claimAction?.passthrough,
-      manageActionType: claimAction?.type,
+      passthrough: activeManageAction?.passthrough,
+      manageActionType: activeManageAction?.type,
     })
+
+    if (!isSubmitting && step !== ModalStep.Success) {
+      withdrawableAmountRef.current = withdrawableAmountFromPassthrough
+    }
+    const withdrawableAmount = withdrawableAmountRef.current
 
     const isQuoteActive = isQuoteLoading || isAllowanceCheckPending
 
@@ -414,6 +481,13 @@ export const YieldForm = memo(
       if (isClaimAction) {
         return !claimAction || !claimableAmount || bnOrZero(claimableAmount).lte(0)
       }
+      if (isWithdrawAction) {
+        return (
+          !withdrawAction ||
+          !withdrawableAmountFromPassthrough ||
+          bnOrZero(withdrawableAmountFromPassthrough).lte(0)
+        )
+      }
       return !cryptoAmount || isBelowMinimum || !quoteData
     }, [
       isConnected,
@@ -422,6 +496,9 @@ export const YieldForm = memo(
       isClaimAction,
       claimAction,
       claimableAmount,
+      isWithdrawAction,
+      withdrawAction,
+      withdrawableAmountFromPassthrough,
       cryptoAmount,
       isBelowMinimum,
       quoteData,
@@ -472,6 +549,9 @@ export const YieldForm = memo(
       if (action === 'claim') {
         return `${translate('common.claim')} ${claimableToken?.symbol ?? ''}`
       }
+      if (action === 'withdraw') {
+        return `${translate('common.withdraw')} ${withdrawableToken?.symbol ?? ''}`
+      }
       return translate('common.continue')
     }, [
       isConnected,
@@ -486,6 +566,7 @@ export const YieldForm = memo(
       action,
       yieldItem.mechanics.type,
       claimableToken?.symbol,
+      withdrawableToken?.symbol,
     ])
 
     const percentButtons = useMemo(
@@ -637,6 +718,25 @@ export const YieldForm = memo(
         )
       }
 
+      if (isWithdrawAction && withdrawableToken) {
+        return (
+          <Flex direction='column' align='center' py={6}>
+            <Avatar
+              src={withdrawableToken.logoURI}
+              name={withdrawableToken.symbol}
+              size='md'
+              mb={4}
+            />
+            <Text fontSize='3xl' fontWeight='bold' lineHeight='1'>
+              <Amount.Crypto value={withdrawableAmount} symbol={withdrawableToken.symbol} />
+            </Text>
+            <Text fontSize='sm' color='text.subtle' mt={2}>
+              {translate('yieldXYZ.withdrawableFunds')}
+            </Text>
+          </Flex>
+        )
+      }
+
       return (
         <Flex direction='column' align='center' py={6}>
           {inputTokenAssetId && <AssetIcon assetId={inputTokenAssetId} size='md' mb={4} />}
@@ -688,6 +788,9 @@ export const YieldForm = memo(
       isWithdrawableClaim,
       claimableToken,
       claimableAmount,
+      isWithdrawAction,
+      withdrawableToken,
+      withdrawableAmount,
       translate,
       inputTokenAssetId,
       isFiat,
@@ -722,19 +825,17 @@ export const YieldForm = memo(
 
     // If Success, render YieldSuccess
     if (isSuccess) {
-      const successAmount = isClaimAction ? claimableAmount : cryptoAmount
-      const successSymbol = isClaimAction
-        ? claimableToken?.symbol ?? ''
-        : inputTokenAsset?.symbol ?? ''
-      const successMessageKey = getYieldSuccessMessageKey(
-        yieldItem.mechanics.type,
-        isClaimAction ? 'claim' : action,
-      )
+      const successAmount = (() => {
+        if (isWithdrawAction) return withdrawableAmount
+        if (isClaimAction) return claimableAmount
+        return cryptoAmount
+      })()
+      const successMessageKey = getYieldSuccessMessageKey(yieldItem.mechanics.type, action)
 
       return (
         <YieldSuccess
           amount={successAmount}
-          symbol={successSymbol}
+          symbol={activeManageSymbol}
           providerInfo={maybeSuccessProviderInfo}
           transactionSteps={transactionSteps}
           yieldId={yieldItem.id}
@@ -750,19 +851,20 @@ export const YieldForm = memo(
         <Flex direction='column' gap={4} flex={1} overflowY='auto'>
           {maybeActionDisabledAlert}
           {inputContent}
-          {!isClaimAction && percentButtons}
-          {!isClaimAction && inputTokenAssetId && accountId && (
+          {!isManageAction && percentButtons}
+          {!isManageAction && inputTokenAssetId && accountId && (
             <Flex justify='center'>
               <AccountSelector
                 assetId={inputTokenAssetId}
                 accountId={accountId}
                 onChange={handleAccountChange}
                 disabled={isAccountSelectorDisabled || isSubmitting}
+                cryptoBalanceOverride={action === 'exit' ? availableBalance : undefined}
               />
             </Flex>
           )}
-          {!isClaimAction && statsContent}
-          {!isClaimAction && (
+          {!isManageAction && statsContent}
+          {!isManageAction && (
             <YieldExplainers
               selectedYield={yieldItem}
               sellAssetSymbol={inputTokenAsset?.symbol}

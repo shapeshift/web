@@ -1,10 +1,11 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { bn, bnOrZero, fromBaseUnit, isToken } from '@shapeshiftoss/utils'
+import { BigAmount, bn, bnOrZero, isToken } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
+import BigNumber from 'bignumber.js'
 
 import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
@@ -73,22 +74,22 @@ export const calculateChainflipMinPrice = ({
   sellAsset: Asset
   buyAsset: Asset
 }): string => {
-  const sellAmountCryptoPrecision = fromBaseUnit(
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    sellAsset.precision,
-  )
+  const sellAmountCryptoPrecision = BigAmount.fromBaseUnit({
+    value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    precision: sellAsset.precision,
+  }).toPrecision()
 
-  const buyAmountCryptoPrecision = fromBaseUnit(
-    buyAmountAfterFeesCryptoBaseUnit,
-    buyAsset.precision,
-  )
+  const buyAmountCryptoPrecision = BigAmount.fromBaseUnit({
+    value: buyAmountAfterFeesCryptoBaseUnit,
+    precision: buyAsset.precision,
+  }).toPrecision()
 
   const estimatedPrice = bn(buyAmountCryptoPrecision).div(sellAmountCryptoPrecision)
 
   // This is called minimumPrice upstream but this really is a rate, let's not honour confusing terminology
   const minimumRate = estimatedPrice
     .times(bn(1).minus(bnOrZero(slippageTolerancePercentageDecimal)))
-    .toFixed(buyAsset.precision)
+    .toFixed(buyAsset.precision, BigNumber.ROUND_DOWN)
 
   return minimumRate
 }

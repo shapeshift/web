@@ -2,14 +2,15 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset, OrderQuoteResponse } from '@shapeshiftoss/types'
 import {
+  BigAmount,
   bn,
   bnOrZero,
   convertBasisPointsToDecimalPercentage,
   convertPrecision,
-  fromBaseUnit,
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import BigNumber from 'bignumber.js'
 
 import type { SwapErrorRight } from '../../../../types'
 import { TradeQuoteError } from '../../../../types'
@@ -109,7 +110,9 @@ export const deductSlippageFromAmount = ({
   amount: string
   slippageTolerancePercentageDecimal: string
 }) => {
-  return bn(amount).minus(bn(amount).times(slippageTolerancePercentageDecimal)).toFixed(0)
+  return bn(amount)
+    .minus(bn(amount).times(slippageTolerancePercentageDecimal))
+    .toFixed(0, BigNumber.ROUND_DOWN)
 }
 
 export const getValuesFromQuoteResponse = ({
@@ -138,15 +141,15 @@ export const getValuesFromQuoteResponse = ({
     slippageTolerancePercentageDecimal,
   })
 
-  const buyAmountAfterAffiliateFeesCryptoPrecision = fromBaseUnit(
-    buyAmountAfterAffiliateFeesCryptoBaseUnit,
-    buyAsset.precision,
-  )
+  const buyAmountAfterAffiliateFeesCryptoPrecision = BigAmount.fromBaseUnit({
+    value: buyAmountAfterAffiliateFeesCryptoBaseUnit,
+    precision: buyAsset.precision,
+  }).toPrecision()
 
-  const sellAmountCryptoPrecision = fromBaseUnit(
-    sellAmountAfterFeesCryptoBaseUnit,
-    sellAsset.precision,
-  )
+  const sellAmountCryptoPrecision = BigAmount.fromBaseUnit({
+    value: sellAmountAfterFeesCryptoBaseUnit,
+    precision: sellAsset.precision,
+  }).toPrecision()
 
   const rate = bnOrZero(buyAmountAfterAffiliateFeesCryptoPrecision)
     .div(sellAmountCryptoPrecision)

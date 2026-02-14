@@ -48,8 +48,8 @@ export const ThorchainSaversEmpty = ({ assetId, onClick }: ThorchainSaversEmptyP
   const filter = useMemo(() => ({ assetId }), [assetId])
   const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
   const cryptoBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, filter).toPrecision(),
-  )
+    selectPortfolioCryptoBalanceByFilter(state, filter),
+  ).toPrecision()
   const linkColor = useColorModeValue('blue.500', 'blue.200')
   const textShadow = useColorModeValue(
     '--chakra-colors-blackAlpha-50',

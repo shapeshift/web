@@ -115,14 +115,11 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     [accountId, feeAsset?.assetId],
   )
   const feeAssetBalance = useAppSelector(s =>
-    selectPortfolioCryptoBalanceByFilter(s, feeAssetBalanceFilter).toPrecision(),
+    selectPortfolioCryptoBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const hasEnoughBalanceForGas = useMemo(
-    () =>
-      bnOrZero(feeAssetBalance)
-        .minus(bnOrZero(state?.deposit.estimatedGasCryptoPrecision))
-        .gte(0),
+    () => feeAssetBalance.minus(state?.deposit.estimatedGasCryptoPrecision).gte(0),
     [feeAssetBalance, state?.deposit.estimatedGasCryptoPrecision],
   )
 
@@ -195,7 +192,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
           cryptoAmounts: [
             {
               assetId: asset.assetId,
-              amountCryptoHuman: state.deposit.cryptoAmount,
+              amountCryptoPrecision: state.deposit.cryptoAmount,
             },
           ],
         },

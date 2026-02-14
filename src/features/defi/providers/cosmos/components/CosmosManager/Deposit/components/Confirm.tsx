@@ -1,6 +1,7 @@
 import { Alert, AlertDescription, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -25,7 +26,6 @@ import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -108,7 +108,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     [feeAsset?.assetId, accountId],
   )
   const feeAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, filter).toPrecision(),
+    selectPortfolioCryptoBalanceByFilter(state, filter),
   )
 
   const { handleStakingAction } = useStakingAction()
@@ -141,7 +141,10 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
           gas: gasLimit,
           fee: txFee,
         },
-        value: toBaseUnit(state.deposit.cryptoAmount, asset.precision),
+        value: BigAmount.fromPrecision({
+          value: state.deposit.cryptoAmount,
+          precision: asset.precision,
+        }).toBaseUnit(),
         action: StakingAction.Stake,
       })
 
@@ -172,7 +175,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         {
           opportunity: opportunityData,
           fiatAmounts: [fiatAmount],
-          cryptoAmounts: [{ assetId, amountCryptoHuman: cryptoAmount }],
+          cryptoAmounts: [{ assetId, amountCryptoPrecision: cryptoAmount }],
         },
         assets,
       )
@@ -197,15 +200,14 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   ])
 
   const estimatedGasCryptoPrecision = useMemo(() => {
-    return bnOrZero(
-      fromBaseUnit(state?.deposit.estimatedGasCryptoBaseUnit ?? 0, feeAsset.precision),
-    )
+    return BigAmount.fromBaseUnit({
+      value: state?.deposit.estimatedGasCryptoBaseUnit ?? 0,
+      precision: feeAsset.precision,
+    })
   }, [state?.deposit.estimatedGasCryptoBaseUnit, feeAsset])
 
   const hasEnoughBalanceForGas = useMemo(() => {
-    return bnOrZero(feeAssetBalance).gte(
-      bnOrZero(state?.deposit.cryptoAmount).plus(estimatedGasCryptoPrecision),
-    )
+    return feeAssetBalance.gte(estimatedGasCryptoPrecision.plus(state?.deposit.cryptoAmount ?? 0))
   }, [state?.deposit.cryptoAmount, estimatedGasCryptoPrecision, feeAssetBalance])
 
   useEffect(() => {
@@ -255,7 +257,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={estimatedGasCryptoPrecision.times(bnOrZero(feeMarketData?.price)).toFixed()}
+                value={estimatedGasCryptoPrecision.times(feeMarketData?.price).toFixed()}
               />
               <Amount.Crypto
                 color='text.subtle'

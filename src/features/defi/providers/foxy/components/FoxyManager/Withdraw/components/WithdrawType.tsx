@@ -46,7 +46,7 @@ export const WithdrawTypeField: React.FC<WithdrawTypeProps> = ({
 
   const withdrawalFee = useMemo(() => {
     return withdrawType.value === WithdrawType.INSTANT
-      ? bnOrZero(bn(cryptoAmount).times(feePercentage)).toString()
+      ? bn(cryptoAmount).times(feePercentage).toString()
       : '0'
   }, [cryptoAmount, feePercentage, withdrawType.value])
 

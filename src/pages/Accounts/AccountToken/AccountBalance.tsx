@@ -15,7 +15,7 @@ import {
   selectAssetById,
   selectCryptoHumanBalanceFilter,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
   selectUserCurrencyBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -45,8 +45,8 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({ assetId, account
 
   const cryptoBalance =
     useAppSelector(state =>
-      selectPortfolioCryptoPrecisionBalanceByFilter(state, assetAccountFilter),
-    ) ?? '0'
+      selectPortfolioCryptoBalanceByFilter(state, assetAccountFilter),
+    )?.toPrecision() ?? '0'
 
   const userCurrencyBalance = useAppSelector(s =>
     selectUserCurrencyBalanceByFilter(s, assetAccountFilter),

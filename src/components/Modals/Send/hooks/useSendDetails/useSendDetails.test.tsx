@@ -5,6 +5,7 @@ import type {
   UtxoChainAdapter,
 } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import type { PropsWithChildren } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
@@ -19,7 +20,6 @@ import type { IWalletContext } from '@/context/WalletProvider/WalletContext'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { ensLookup } from '@/lib/address/ens'
 import type { ResolveVanityAddressReturn } from '@/lib/address/types'
-import { fromBaseUnit } from '@/lib/math'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
@@ -119,10 +119,9 @@ const setup = ({
     return fakeMarketData[assetId]
   })
   vi.mocked(selectFeeAssetById).mockReturnValue(mockEthereum)
-  vi.mocked(selectPortfolioCryptoBalanceByFilter).mockReturnValue({
-    toPrecision: () => fromBaseUnit(assetBalance, asset.precision),
-    toBaseUnit: () => assetBalance,
-  } as any)
+  vi.mocked(selectPortfolioCryptoBalanceByFilter).mockReturnValue(
+    BigAmount.fromBaseUnit({ value: assetBalance, precision: asset.precision }),
+  )
   vi.mocked(selectPortfolioUserCurrencyBalanceByFilter).mockReturnValue(runeFiatAmount)
   vi.mocked(useFormContext).mockImplementation(
     () =>

@@ -13,10 +13,9 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
 import {
   selectAssetById,
-  selectCryptoHumanBalanceFilter,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceByFilter,
-  selectUserCurrencyBalanceByFilter,
+  selectPortfolioUserCurrencyBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -43,17 +42,16 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({ assetId, account
   // Add back in once we add the performance stuff in
   // const footerBg = useColorModeValue('white.100', 'rgba(255,255,255,.02)')
 
-  const cryptoBalance =
-    useAppSelector(state =>
-      selectPortfolioCryptoBalanceByFilter(state, assetAccountFilter),
-    )?.toPrecision() ?? '0'
+  const cryptoBalance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, assetAccountFilter),
+  ).toPrecision()
 
   const userCurrencyBalance = useAppSelector(s =>
-    selectUserCurrencyBalanceByFilter(s, assetAccountFilter),
+    selectPortfolioUserCurrencyBalanceByFilter(s, assetAccountFilter),
   )
-  const cryptoHumanBalance = useAppSelector(s =>
-    selectCryptoHumanBalanceFilter(s, assetAccountFilter),
-  )
+  const cryptoPrecisionBalance = useAppSelector(s =>
+    selectPortfolioCryptoBalanceByFilter(s, assetAccountFilter),
+  ).toPrecision()
   const handleClick = useCallback(() => navigate(-1), [navigate])
   const balanceContent = useMemo(() => {
     if (!marketData)
@@ -96,7 +94,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({ assetId, account
           <Amount.Crypto
             color='text.subtle'
             fontWeight='normal'
-            value={cryptoHumanBalance}
+            value={cryptoPrecisionBalance}
             symbol={asset.symbol}
             lineHeight='shorter'
           />

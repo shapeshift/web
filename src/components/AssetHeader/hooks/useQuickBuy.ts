@@ -92,9 +92,9 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
   )
 
   const feeAssetFilter = useMemo(() => ({ assetId: feeAsset?.assetId }), [feeAsset?.assetId])
-  const feeAssetBalanceCryptoPrecision = useAppSelector(
-    s => selectPortfolioCryptoBalanceByFilter(s, feeAssetFilter)?.toPrecision() ?? '0',
-  )
+  const feeAssetBalanceCryptoPrecision = useAppSelector(s =>
+    selectPortfolioCryptoBalanceByFilter(s, feeAssetFilter),
+  ).toPrecision()
   const feeAssetBalanceUserCurrency = useAppSelector(
     state => selectPortfolioUserCurrencyBalanceByAssetId(state, feeAssetFilter) ?? '0',
   )
@@ -126,9 +126,11 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
     if ((status !== 'confirming' && status !== 'executing') || !assetMarketData?.price) {
       return null
     }
-    const tokenAmountInUserCurrency = bn(amount).dividedBy(bn(assetMarketData.price))
-    return tokenAmountInUserCurrency.toString()
-  }, [quickBuyState, assetMarketData?.price])
+    const estimatedCryptoAmount = bn(amount)
+      .dividedBy(bn(assetMarketData.price))
+      .decimalPlaces(asset?.precision ?? 18, 1)
+    return estimatedCryptoAmount.toString()
+  }, [quickBuyState, asset?.precision, assetMarketData?.price])
 
   const resetTrade = useCallback(() => {
     hasInitializedTradeRef.current = false
@@ -173,6 +175,7 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
 
       const estimatedSellAmountCryptoPrecision = bn(amount)
         .dividedBy(bn(feeAssetMarketData.price))
+        .decimalPlaces(feeAsset?.precision ?? 18, 1)
         .toString()
 
       dispatch(

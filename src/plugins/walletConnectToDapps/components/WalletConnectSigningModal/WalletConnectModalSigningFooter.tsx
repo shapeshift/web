@@ -38,8 +38,8 @@ const WalletConnectSigningWithSection: React.FC<WalletConnectSigningWithSectionP
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
 
   const feeAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, { assetId: feeAssetId, accountId }).toPrecision(),
-  )
+    selectPortfolioCryptoBalanceByFilter(state, { assetId: feeAssetId, accountId }),
+  ).toPrecision()
 
   const feeAssetBalanceUserCurrency = useAppSelector(state =>
     selectPortfolioUserCurrencyBalanceByFilter(state, { assetId: feeAssetId, accountId }),

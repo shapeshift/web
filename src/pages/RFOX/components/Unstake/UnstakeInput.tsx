@@ -100,8 +100,8 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     }),
     [stakingAssetFeeAsset?.assetId, stakingAssetAccountId],
   )
-  const stakingAssetFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter).toPrecision(),
+  const stakingAssetFeeAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
   )
 
   const buyAssetSearch = useModal('buyAssetSearch')
@@ -318,22 +318,19 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   const validateHasEnoughFeeBalance = useCallback(
     (input: string) => {
       if (bnOrZero(input).isZero()) return true
-      if (bnOrZero(stakingAssetFeeAssetBalanceCryptoPrecision).isZero()) return false
+      if (stakingAssetFeeAssetBalance.isZero()) return false
 
       const fees = unstakeFees
 
       const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
-        BigAmount.fromPrecision({
-          value: stakingAssetFeeAssetBalanceCryptoPrecision,
-          precision: stakingAssetFeeAsset?.precision ?? 0,
-        }).toBaseUnit(),
+        stakingAssetFeeAssetBalance.toBaseUnit(),
       )
 
       if (!hasEnoughFeeBalance) return false
 
       return true
     },
-    [stakingAssetFeeAsset?.precision, stakingAssetFeeAssetBalanceCryptoPrecision, unstakeFees],
+    [stakingAssetFeeAssetBalance, unstakeFees],
   )
 
   // Trigger re-validation since react-hook-form validation methods are fired onChange and not in a component-reactive manner
@@ -342,7 +339,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   }, [
     stakingAssetFeeAsset?.precision,
     stakingAssetFeeAsset?.symbol,
-    stakingAssetFeeAssetBalanceCryptoPrecision,
+    stakingAssetFeeAssetBalance,
     amountCryptoPrecision,
     amountUserCurrency,
     unstakeFees,

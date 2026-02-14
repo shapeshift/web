@@ -149,11 +149,6 @@ export const persistor = persistStore(store)
 BigAmount.configure({
   resolvePrecision: (assetId: string) => {
     const asset = selectAssetById(store.getState(), assetId as AssetId)
-    if (!asset) {
-      console.warn(
-        `BigAmount.resolvePrecision: asset not found for ${assetId}, defaulting to precision 0`,
-      )
-    }
     return asset?.precision ?? 0
   },
   resolvePrice: (assetId: string) => {

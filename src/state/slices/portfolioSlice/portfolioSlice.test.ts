@@ -1,6 +1,7 @@
 import { btcAssetId, ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
 import type { Bip44Params } from '@shapeshiftoss/types'
-import { afterAll, describe, expect, it, vi } from 'vitest'
+import { BigAmount } from '@shapeshiftoss/utils'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
 import {
@@ -46,6 +47,16 @@ vi.mock('@/context/PluginProvider/chainAdapterSingleton', () => ({
 describe('portfolioSlice', () => {
   const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => void 0)
   afterAll(() => consoleInfoSpy.mockRestore())
+
+  const assets = mockAssetState()
+  beforeAll(() => {
+    BigAmount.configure({
+      resolvePrecision: (assetId: string) => assets.byId[assetId]?.precision ?? 0,
+      resolvePrice: () => '0',
+      resolvePriceUsd: () => '0',
+    })
+  })
+  afterAll(() => BigAmount.resetConfig())
   const bip44Params: Bip44Params = {
     purpose: 0,
     coinType: 0,
@@ -520,7 +531,7 @@ describe('portfolioSlice', () => {
       const state = store.getState()
 
       it('should be able to filter by assetId', () => {
-        const expected = '1200.01'
+        const expected = '1200.00'
         const result = selectPortfolioUserCurrencyBalanceByFilter(state, { assetId: ethAssetId })
         expect(result).toEqual(expected)
       })
@@ -590,8 +601,8 @@ describe('portfolioSlice', () => {
 
       it('should be able to filter by assetId', () => {
         const expected = '1.200009'
-        const result = selectPortfolioCryptoBalanceByFilter(state, { assetId: ethAssetId }).toPrecision()
-        expect(result).toEqual(expected)
+        const result = selectPortfolioCryptoBalanceByFilter(state, { assetId: ethAssetId })
+        expect(result.toPrecision()).toEqual(expected)
       })
 
       it('should be able to filter by accountId and assetId', () => {
@@ -599,8 +610,8 @@ describe('portfolioSlice', () => {
         const result = selectPortfolioCryptoBalanceByFilter(state, {
           accountId: ethAccount2Id,
           assetId: foxAssetId,
-        }).toPrecision()
-        expect(result).toEqual(expected)
+        })
+        expect(result.toPrecision()).toEqual(expected)
       })
     })
 

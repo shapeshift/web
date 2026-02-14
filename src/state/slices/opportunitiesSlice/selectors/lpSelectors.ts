@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import partition from 'lodash/partition'
 
 import { selectAssets } from '../../assetsSlice/selectors'
@@ -16,7 +17,6 @@ import type { LpEarnOpportunityType } from './../types'
 
 import type { AssetWithBalance } from '@/features/defi/components/Overview/Overview'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {
@@ -54,47 +54,15 @@ export const selectEarnUserLpOpportunity = createDeepEqualOutputSelector(
     )
       return
 
-    const lpAssetBalanceCryptoBaseUnit = lpAssetBalance.toBaseUnit()
-
-    const [underlyingToken0AmountCryptoBaseUnit, underlyingToken1AmountCryptoBaseUnit] =
-      opportunityMetadata.underlyingAssetIds.map((underlyingAssetId, i) => {
-        const underlyingAsset = assets[underlyingAssetId]
-
-        if (!underlyingAsset) return '0'
-
-        return (
-          bnOrZero(lpAssetBalanceCryptoBaseUnit)
-            // to LP asset base unit
-            .times(
-              fromBaseUnit(
-                opportunityMetadata.underlyingAssetRatiosBaseUnit[i],
-                underlyingAsset.precision,
-              ),
-            )
-            // to precision
-            .div(bn(10).pow(lpAsset.precision))
-            // to underlying asset base unit
-            .times(bn(10).pow(underlyingAsset.precision))
-            .toFixed()
-        )
-      })
-
     const opportunity = {
       ...opportunityMetadata,
       opportunityName: opportunityMetadata.name,
       isLoaded: true,
       contractAddress: fromAssetId(lpId as AssetId).assetReference,
       chainId: fromAssetId(lpId as AssetId).chainId,
-      underlyingToken0AmountCryptoBaseUnit,
-      underlyingToken1AmountCryptoBaseUnit,
-      cryptoAmountBaseUnit: lpAssetBalanceCryptoBaseUnit,
-      cryptoAmountPrecision: bnOrZero(lpAssetBalanceCryptoBaseUnit)
-        .div(bn(10).pow(bnOrZero(assets[opportunityMetadata?.assetId]?.precision)))
-        .toFixed(),
-      fiatAmount: bnOrZero(lpAssetBalanceCryptoBaseUnit)
-        .div(bn(10).pow(bnOrZero(assets[opportunityMetadata?.assetId]?.precision)))
-        .times(marketDataPrice ?? '0')
-        .toString(),
+      cryptoAmountBaseUnit: lpAssetBalance.toBaseUnit(),
+      cryptoAmountPrecision: lpAssetBalance.toPrecision(),
+      fiatAmount: lpAssetBalance.times(marketDataPrice ?? '0').toPrecision(),
       icons: opportunityMetadata.underlyingAssetIds
         .map(assetId => assets[assetId]?.icon)
         .map(icon => icon ?? ''),
@@ -118,9 +86,7 @@ export const selectHighestBalanceAccountIdByLpId = createSelector(
         // Note that this may not hold true for the concept of "LPing" on other chains, hence the type assertion
         // In case we get an LpId that's not an AssetId, we'll have to implement custom logic for it
         // This is NOT a full LP abstraction, and for all intents and purposes is assuming the LP as token i.e an AssetId in portfolio, not an IOU
-        bnOrZero(b[lpId as AssetId]?.toBaseUnit())
-          .minus(bnOrZero(a[lpId as AssetId]?.toBaseUnit()))
-          .toNumber(),
+        (b[lpId as AssetId]?.toBN() ?? bn(0)).minus(a[lpId as AssetId]?.toBN() ?? bn(0)).toNumber(),
       )[0]
 
     // Chainable methods that produce an iterable screw the narrowed type back to string
@@ -191,8 +157,6 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
   ): LpEarnOpportunityType[] => {
     const opportunities: LpEarnOpportunityType[] = []
 
-    if (!portfolioAssetBalancesById) return opportunities
-
     for (const opportunityMetadata of Object.values(lpOpportunitiesById)) {
       if (!opportunityMetadata) continue
       const underlyingAssetId = opportunityMetadata.underlyingAssetId
@@ -202,36 +166,24 @@ export const selectAggregatedEarnUserLpOpportunities = createDeepEqualOutputSele
       if (!lpAsset) continue
 
       const marketDataPrice = marketDataUserCurrency[underlyingAssetId]?.price
-      const aggregatedLpAssetBalanceBaseUnit =
-        portfolioAssetBalancesById[underlyingAssetId]?.toBaseUnit() ?? '0'
+      const aggregatedLpAssetBalance = portfolioAssetBalancesById[underlyingAssetId]
 
-      /* Get amounts of each underlying token (in base units, eg. wei) */
-      /* TODO:(pastaghost) Generalize this (and LpEarnOpportunityType) so that number of underlying assets is not assumed to be 2. */
-      const [underlyingToken0AmountCryptoBaseUnit, underlyingToken1AmountCryptoBaseUnit] =
-        opportunityMetadata.underlyingAssetIds.map((assetId, i) =>
-          bnOrZero(aggregatedLpAssetBalanceBaseUnit)
-            .times(opportunityMetadata?.underlyingAssetRatiosBaseUnit[i])
-            .div(bn(10).pow(bnOrZero(assets[assetId]?.precision)))
-            .toFixed()
-            .toString(),
-        )
+      const aggregatedBalanceBaseUnit = aggregatedLpAssetBalance
+        ? aggregatedLpAssetBalance.toBaseUnit()
+        : '0'
 
       /* Transform data into LpEarnOpportunityType */
       const opportunity: LpEarnOpportunityType = {
         ...opportunityMetadata,
         isLoaded: true,
         chainId: fromAssetId(underlyingAssetId).chainId,
-        underlyingToken0AmountCryptoBaseUnit,
-        underlyingToken1AmountCryptoBaseUnit,
-        cryptoAmountPrecision: bnOrZero(aggregatedLpAssetBalanceBaseUnit)
-          .div(bn(10).pow(lpAsset.precision))
-          .toString(),
-        // TODO(gomes): use base unit as source of truth, conversions back and forth are unsafe
-        cryptoAmountBaseUnit: aggregatedLpAssetBalanceBaseUnit,
-        fiatAmount: bnOrZero(aggregatedLpAssetBalanceBaseUnit)
-          .times(marketDataPrice ?? '0')
-          .div(bn(10).pow(lpAsset.precision))
-          .toString(),
+        cryptoAmountPrecision: aggregatedLpAssetBalance
+          ? aggregatedLpAssetBalance.toPrecision()
+          : '0',
+        cryptoAmountBaseUnit: aggregatedBalanceBaseUnit,
+        fiatAmount: aggregatedLpAssetBalance
+          ? aggregatedLpAssetBalance.times(marketDataPrice ?? '0').toPrecision()
+          : '0',
         icons: opportunityMetadata.underlyingAssetIds
           .map(assetId => assets[assetId]?.icon)
           .map(icon => icon ?? ''),
@@ -278,40 +230,34 @@ export const selectAllEarnUserLpOpportunitiesByFilter = createDeepEqualOutputSel
       (opportunities: LpEarnOpportunityType[], [lpId, opportunityMetadata]) => {
         if (!opportunityMetadata) return opportunities
         const marketDataPrice = marketDataUserCurrency[lpId as AssetId]?.price
-        let opportunityBalance = portfolioAssetBalancesById[lpId]?.toBaseUnit() ?? '0'
+        const lpBalance = portfolioAssetBalancesById[lpId]
+        let opportunityBalance = lpBalance ? lpBalance.toBaseUnit() : '0'
         if (accountId) {
-          opportunityBalance =
-            portfolioAccountBalanceById[accountId]?.[lpId]?.toBaseUnit() ?? '0'
+          const accountLpBalance = portfolioAccountBalanceById[accountId]?.[lpId]
+          opportunityBalance = accountLpBalance ? accountLpBalance.toBaseUnit() : '0'
         }
         if (bnOrZero(opportunityBalance).eq(0)) return opportunities
         if (
           opportunityMetadata?.underlyingAssetIds.length &&
           opportunityMetadata.underlyingAssetIds.includes(assetId)
         ) {
-          const [underlyingToken0AmountCryptoBaseUnit, underlyingToken1AmountCryptoBaseUnit] =
-            opportunityMetadata.underlyingAssetIds.map((assetId, i) =>
-              bnOrZero(opportunityBalance)
-                .times(opportunityMetadata?.underlyingAssetRatiosBaseUnit[i] ?? '0')
-                .div(bn(10).pow(bnOrZero(assets[assetId]?.precision)))
-                .toFixed(6)
-                .toString(),
-            )
           /* Transform data into LpEarnOpportunityType */
           const opportunity: LpEarnOpportunityType = {
             ...opportunityMetadata,
             isLoaded: true,
             chainId: fromAssetId(lpId as AssetId).chainId,
-            underlyingToken0AmountCryptoBaseUnit,
-            underlyingToken1AmountCryptoBaseUnit,
-            cryptoAmountPrecision: bnOrZero(opportunityBalance)
-              .div(bn(10).pow(assets[lpId]?.precision ?? '0'))
-              .toString(),
+            cryptoAmountPrecision: BigAmount.fromBaseUnit({
+              value: opportunityBalance ?? '0',
+              precision: assets[lpId]?.precision ?? 0,
+            }).toPrecision(),
             // TODO(gomes): use base unit as source of truth, conversions back and forth are unsafe
             cryptoAmountBaseUnit: opportunityBalance,
-            fiatAmount: bnOrZero(opportunityBalance)
+            fiatAmount: BigAmount.fromBaseUnit({
+              value: opportunityBalance ?? '0',
+              precision: assets[lpId]?.precision ?? 0,
+            })
               .times(marketDataPrice ?? '0')
-              .div(bn(10).pow(assets[lpId]?.precision ?? '0'))
-              .toString(),
+              .toPrecision(),
             icons: opportunityMetadata.underlyingAssetIds
               .map(assetId => assets[assetId]?.icon)
               .map(icon => icon ?? ''),

@@ -137,7 +137,7 @@ export const useGenericTransactionSubscriber = () => {
   useEffect(() => {
     // Cleanup intervals for actions that are no longer pending
     pollingIntervalsRef.current.forEach((_, key) => {
-      const actionId = key.replace('yield_', '')
+      const actionId = key.replace(/^(?:yield|claim)_/, '')
       const stillPending = pendingGenericTransactionActions.some(a => a.id === actionId)
       if (!stillPending) clearPollingInterval(key)
     })
@@ -154,13 +154,56 @@ export const useGenericTransactionSubscriber = () => {
           GenericTransactionDisplayType.FoxFarm,
           GenericTransactionDisplayType.Approve,
           GenericTransactionDisplayType.Yield,
+          GenericTransactionDisplayType.Claim,
         ].includes(action.transactionMetadata.displayType)
       ) {
         return
       }
 
-      const { accountId, txHash, thorMemo, queryId, assetId, yieldActionId, chainId } =
-        action.transactionMetadata
+      const {
+        accountId,
+        txHash,
+        thorMemo,
+        queryId,
+        assetId,
+        yieldActionId,
+        chainId,
+        cooldownExpiryTimestamp,
+      } = action.transactionMetadata
+
+      // Yield claim actions with cooldown → check if cooldown has expired
+      if (
+        action.transactionMetadata.displayType === GenericTransactionDisplayType.Claim &&
+        cooldownExpiryTimestamp
+      ) {
+        const pollingKey = `claim_${action.id}`
+        if (pollingIntervalsRef.current.has(pollingKey)) return
+
+        const checkCooldownExpiry = () => {
+          if (Date.now() >= cooldownExpiryTimestamp) {
+            dispatch(
+              actionSlice.actions.upsertAction({
+                ...action,
+                status: ActionStatus.ClaimAvailable,
+                updatedAt: Date.now(),
+                transactionMetadata: {
+                  ...action.transactionMetadata,
+                  message: 'actionCenter.yield.unstakeReady',
+                },
+              }),
+            )
+
+            fireSuccessToast(action)
+            clearPollingInterval(pollingKey)
+          }
+        }
+
+        checkCooldownExpiry()
+        if (pollingIntervalsRef.current.has(pollingKey)) return
+        const intervalId = setInterval(checkCooldownExpiry, 60_000)
+        pollingIntervalsRef.current.set(pollingKey, intervalId)
+        return
+      }
 
       // Yield actions with yieldActionId → poll yield.xyz API (unified, all chains)
       if (

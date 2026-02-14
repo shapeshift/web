@@ -654,6 +654,35 @@ export const useYieldTransactionFlow = ({
             status: ActionStatus.Complete,
             id: yieldActionUuid,
           })
+
+          // After completing an exit with an unbonding period, dispatch a Pending claim action
+          const cooldownSeconds = yieldItem?.mechanics.cooldownPeriod?.seconds
+          if (action === 'exit' && cooldownSeconds && yieldChainId && accountId && yieldItem) {
+            dispatch(
+              actionSlice.actions.upsertAction({
+                id: uuidv4(),
+                type: ActionType.Claim,
+                status: ActionStatus.Pending,
+                createdAt: Date.now(),
+                updatedAt: Date.now(),
+                transactionMetadata: {
+                  displayType: GenericTransactionDisplayType.Claim,
+                  txHash,
+                  chainId: yieldChainId,
+                  assetId: yieldItem.token.assetId as AssetId,
+                  accountId,
+                  message: 'actionCenter.yield.unstakeAvailableIn',
+                  amountCryptoPrecision: amount,
+                  cooldownExpiryTimestamp: Date.now() + cooldownSeconds * 1000,
+                  yieldId: yieldItem.id,
+                  contractName: yieldItem.metadata.name,
+                  chainName: yieldItem.network,
+                  yieldType: yieldItem.mechanics.type,
+                },
+              }),
+            )
+          }
+
           updateStepStatus(uiStepIndex, { status: 'success', loadingMessage: undefined })
           queryClient.removeQueries({ queryKey: ['yieldxyz', 'quote'] })
           setStep(ModalStep.Success)
@@ -700,6 +729,8 @@ export const useYieldTransactionFlow = ({
       accountMetadata?.bip44Params,
       feeAsset,
       yieldItem,
+      action,
+      amount,
       translate,
       updateStepStatus,
       buildCosmosStakeArgs,

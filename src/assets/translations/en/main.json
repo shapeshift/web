@@ -2636,6 +2636,11 @@
       "pending": "Your claim of %{amount} %{symbol} is being processed.",
       "complete": "Your claim of %{amount} %{symbol} is complete."
     },
+    "yield": {
+      "unstakeAvailableIn": "Your %{symbol} unstake will be available in %{duration}.",
+      "unstakeReady": "Your %{symbol} unstake is ready to claim.",
+      "unstakeClaimed": "Your %{symbol} unstake was claimed."
+    },
     "bridge": {
       "processing": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is being processed.",
       "complete": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is complete.",

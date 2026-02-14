@@ -1,17 +1,20 @@
 import { Button, ButtonGroup, Link, Stack, useDisclosure } from '@chakra-ui/react'
+import { btcChainId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { ActionCard } from './ActionCard'
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
+import { SpeedUpModal } from './SpeedUpModal'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { getTxLink } from '@/lib/getTxLink'
 import { middleEllipsis } from '@/lib/utils'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
+import { ActionStatus } from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/assetsSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -53,7 +56,20 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
     })
   }, [action.transactionMetadata.txHash, action.transactionMetadata.chainId, feeAsset])
 
-  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false })
+  const isRbfEligible =
+    action.status === ActionStatus.Pending &&
+    action.transactionMetadata.chainId === btcChainId &&
+    action.transactionMetadata.replacedByTxHash === undefined
+
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: isRbfEligible })
+
+  const [isSpeedUpModalOpen, setIsSpeedUpModalOpen] = useState(false)
+  const handleCloseSpeedUpModal = useCallback(() => setIsSpeedUpModalOpen(false), [])
+  const handleSpeedUpClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsSpeedUpModalOpen(true)
+  }, [])
 
   const icon = useMemo(() => {
     return (
@@ -68,29 +84,49 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
   }, [action.status])
 
   return (
-    <ActionCard
-      formattedDate={formattedDate}
-      isCollapsable={!!txLink}
-      isOpen={isOpen}
-      type={action.type}
-      displayType={action.transactionMetadata.displayType}
-      description={translate(action.transactionMetadata.message, {
-        ...action.transactionMetadata,
-        amount: action.transactionMetadata.amountCryptoPrecision,
-        symbol: asset?.symbol,
-        newAddress: middleEllipsis(action.transactionMetadata.newAddress ?? ''),
-      })}
-      icon={icon}
-      footer={footer}
-      onToggle={onToggle}
-    >
-      <Stack gap={4}>
-        <ButtonGroup width='full' size='sm'>
-          <Button width='full' as={Link} isExternal href={txLink}>
-            {translate('actionCenter.viewTransaction')}
-          </Button>
-        </ButtonGroup>
-      </Stack>
-    </ActionCard>
+    <>
+      <ActionCard
+        formattedDate={formattedDate}
+        isCollapsable={!!txLink || isRbfEligible}
+        isOpen={isOpen}
+        type={action.type}
+        displayType={action.transactionMetadata.displayType}
+        description={translate(action.transactionMetadata.message, {
+          ...action.transactionMetadata,
+          amount: action.transactionMetadata.amountCryptoPrecision,
+          symbol: asset?.symbol,
+          newAddress: middleEllipsis(action.transactionMetadata.newAddress ?? ''),
+        })}
+        icon={icon}
+        footer={footer}
+        onToggle={onToggle}
+      >
+        <Stack gap={4}>
+          <ButtonGroup width='full' size='sm'>
+            {txLink && (
+              <Button width='full' as={Link} isExternal href={txLink}>
+                {translate('actionCenter.viewTransaction')}
+              </Button>
+            )}
+            {isRbfEligible && (
+              <Button width='full' colorScheme='blue' onClick={handleSpeedUpClick}>
+                {translate('transactionHistory.speedUp')}
+              </Button>
+            )}
+          </ButtonGroup>
+        </Stack>
+      </ActionCard>
+      {isSpeedUpModalOpen && (
+        <SpeedUpModal
+          txHash={action.transactionMetadata.txHash}
+          accountId={action.transactionMetadata.accountId}
+          assetId={action.transactionMetadata.assetId}
+          amountCryptoPrecision={action.transactionMetadata.amountCryptoPrecision}
+          accountIdsToRefetch={action.transactionMetadata.accountIdsToRefetch}
+          isOpen={isSpeedUpModalOpen}
+          onClose={handleCloseSpeedUpModal}
+        />
+      )}
+    </>
   )
 }

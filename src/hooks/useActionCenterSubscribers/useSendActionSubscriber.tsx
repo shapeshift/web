@@ -22,7 +22,7 @@ import { getTonTransactionStatus } from '@/lib/utils/ton'
 import { getTronTransactionStatus } from '@/lib/utils/tron'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingWalletSendActions } from '@/state/slices/actionSlice/selectors'
-import { ActionStatus } from '@/state/slices/actionSlice/types'
+import { ActionStatus, isGenericTransactionAction } from '@/state/slices/actionSlice/types'
 import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectTxs } from '@/state/slices/selectors'
 import { txHistory } from '@/state/slices/txHistorySlice/txHistorySlice'
@@ -41,6 +41,8 @@ export const useSendActionSubscriber = () => {
 
   const pollingIntervalsRef = useRef<Map<string, NodeJS.Timeout>>(new Map())
 
+  const allActions = useAppSelector(actionSlice.selectors.selectActionsById)
+
   const completeAction = useCallback(
     (action: ReturnType<typeof selectPendingWalletSendActions>[number]) => {
       const { txHash, accountId, accountIdsToRefetch } = action.transactionMetadata
@@ -56,6 +58,28 @@ export const useSendActionSubscriber = () => {
           },
         }),
       )
+
+      if (action.transactionMetadata.replacesTxHash) {
+        const originalAction = allActions[action.transactionMetadata.replacesTxHash]
+        if (
+          originalAction &&
+          originalAction.status === ActionStatus.Pending &&
+          isGenericTransactionAction(originalAction)
+        ) {
+          dispatch(
+            actionSlice.actions.upsertAction({
+              ...originalAction,
+              status: ActionStatus.Complete,
+              updatedAt: Date.now(),
+              transactionMetadata: {
+                ...originalAction.transactionMetadata,
+                message: 'transactionHistory.replaced',
+                replacedByTxHash: txHash,
+              },
+            }),
+          )
+        }
+      }
 
       const chainId = fromAccountId(accountId).chainId
       const isSecondClassChain = SECOND_CLASS_CHAINS.includes(chainId as KnownChainIds)
@@ -99,7 +123,7 @@ export const useSendActionSubscriber = () => {
         },
       })
     },
-    [dispatch, toast, isDrawerOpen, openActionCenter],
+    [allActions, dispatch, toast, isDrawerOpen, openActionCenter],
   )
 
   const failAction = useCallback(

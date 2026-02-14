@@ -1377,6 +1377,27 @@
       },
       "status": {
         "pendingBody": "Sending %{amount} %{symbol}"
+      },
+      "speedUp": {
+        "title": "Speed Up Transaction",
+        "description": "Increase the fee to speed up your pending Bitcoin transaction.",
+        "currentFee": "Current Fee",
+        "currentFeeRate": "Current Fee Rate",
+        "newFee": "New Fee",
+        "newFeeRate": "New Fee Rate",
+        "feeDifference": "Additional Fee",
+        "confirm": "Confirm Speed Up",
+        "cancel": "Cancel Transaction Instead",
+        "cancelDescription": "Send the funds back to yourself with a higher fee, effectively canceling the original transaction.",
+        "confirmCancel": "Confirm Cancellation",
+        "insufficientFunds": "Insufficient funds to bump fee",
+        "selectFeeRate": "Select a higher fee rate",
+        "pendingTransaction": "Pending Transaction",
+        "speedingUp": "Speeding up transaction...",
+        "canceling": "Canceling transaction...",
+        "fetchError": "Failed to fetch transaction data",
+        "feesTooLow": "Current fees are already at network rates",
+        "speedUpFailed": "Failed to speed up transaction"
       }
     },
     "receive": {
@@ -2165,7 +2186,12 @@
     "today": "Today",
     "yesterday": "Yesterday",
     "thisWeek": "This Week",
-    "thisMonth": "This Month"
+    "thisMonth": "This Month",
+    "speedUp": "Speed Up",
+    "cancelTransaction": "Cancel Transaction",
+    "replaced": "Replaced",
+    "replacedBy": "Replaced by %{txHash}",
+    "replaces": "Replaces %{txHash}"
   },
   "plugins": {
     "foxPage": {

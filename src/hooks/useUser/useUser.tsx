@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { getExpoToken } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { getStoredReferralCode } from '@/hooks/useReferralCapture/useReferralCapture'
 import { isMobile } from '@/lib/globals'
 import { getOrCreateUser, getOrRegisterDevice } from '@/lib/user/api'
 import type { User } from '@/lib/user/types'
@@ -46,7 +47,13 @@ export const useUser = (): UseUserData => {
     queryKey: ['user', walletEnabledAccountIds],
     queryFn:
       walletEnabledAccountIds.length > 0 && isWebServicesEnabled
-        ? () => getOrCreateUser({ accountIds: walletEnabledAccountIds })
+        ? () => {
+            const referralCode = getStoredReferralCode()
+            return getOrCreateUser({
+              accountIds: walletEnabledAccountIds,
+              ...(referralCode && { referralCode }),
+            })
+          }
         : skipToken,
     staleTime: Infinity,
     gcTime: Infinity,

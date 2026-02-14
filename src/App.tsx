@@ -17,6 +17,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useHasAppUpdated } from '@/hooks/useHasAppUpdated/useHasAppUpdated'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
+import { useReferralCapture } from '@/hooks/useReferralCapture/useReferralCapture'
 import { isMobile as isMobileApp } from '@/lib/globals'
 import { AppRoutes } from '@/Routes/Routes'
 
@@ -35,6 +36,7 @@ export const App = () => {
 
   useAddAccountsGuard()
   useAppleSearchAdsAttribution()
+  useReferralCapture()
 
   useEffect(() => {
     if (hasUpdated && !toast.isActive(updateId) && !isActionCenterEnabled) {

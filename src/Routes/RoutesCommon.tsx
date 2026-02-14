@@ -1,6 +1,6 @@
 import { TimeIcon } from '@chakra-ui/icons'
 import { lazy } from 'react'
-import { FaCreditCard, FaFlag } from 'react-icons/fa'
+import { FaCreditCard, FaFlag, FaUsers } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { TbGraph, TbTrendingUp } from 'react-icons/tb'
 
@@ -147,6 +147,16 @@ const YieldDetailPage = makeSuspenseful(
   true,
 )
 
+const Referral = makeSuspenseful(
+  lazy(() =>
+    import('@/pages/Referral/Referral').then(({ Referral }) => ({
+      default: Referral,
+    })),
+  ),
+  {},
+  true,
+)
+
 const WalletConnectDeepLink = makeSuspenseful(
   lazy(() =>
     import('@/pages/WalletConnectDeepLink/WalletConnectDeepLink').then(
@@ -270,6 +280,16 @@ export const routes: Route[] = [
     priority: 3,
     mobileNav: false,
     disable: !getConfig().VITE_FEATURE_YIELD_XYZ || !getConfig().VITE_FEATURE_YIELDS_PAGE,
+  },
+  {
+    path: '/referral',
+    label: 'navBar.referral',
+    icon: <FaUsers />,
+    main: Referral,
+    category: RouteCategory.Featured,
+    mobileNav: false,
+    priority: 4,
+    disable: !getConfig().VITE_FEATURE_REFERRAL,
   },
   {
     path: '/ramp/*',

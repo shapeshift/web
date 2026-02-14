@@ -9,18 +9,17 @@ import {
   usdtAssetId,
 } from '@shapeshiftoss/caip'
 import { assertGetViemClient } from '@shapeshiftoss/contracts'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Hash } from 'viem'
 
-import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
+import { parseAndUpsertSecondClassChainTx } from '@/lib/utils/secondClassChainTx'
 import { enterYield, exitYield, fetchAction, manageYield } from '@/lib/yieldxyz/api'
 import { YIELD_MAX_POLL_ATTEMPTS, YIELD_POLL_INTERVAL_MS } from '@/lib/yieldxyz/constants'
 import type { CosmosStakeArgs } from '@/lib/yieldxyz/executeTransaction'
@@ -42,7 +41,6 @@ import {
   ActionType,
   GenericTransactionDisplayType,
 } from '@/state/slices/actionSlice/types'
-import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
 import {
   selectAccountIdByAccountNumberAndChainId,
@@ -410,12 +408,23 @@ export const useYieldTransactionFlow = ({
   )
 
   const dispatchNotification = useCallback(
-    (tx: TransactionDto, txHash: string) => {
+    (
+      tx: TransactionDto,
+      txHash: string,
+      options?: {
+        status?: ActionStatus
+        id?: string
+        yieldActionId?: string
+      },
+    ) => {
       if (!yieldChainId || !accountId || !yieldItem) return
       if (!yieldItem.token.assetId) {
         console.warn('[useYieldTransactionFlow] Cannot dispatch notification: missing assetId')
         return
       }
+
+      const status = options?.status ?? ActionStatus.Complete
+      const id = options?.id ?? uuidv4()
 
       const isApproval = tx.title?.toLowerCase().includes('approv')
 
@@ -440,18 +449,26 @@ export const useYieldTransactionFlow = ({
       }
       const displayType = getDisplayType()
 
-      const typeMessagesMap: Partial<Record<ActionType, string>> = {
+      const pendingMessagesMap: Partial<Record<ActionType, string>> = {
+        [ActionType.Deposit]: 'actionCenter.deposit.pending',
+        [ActionType.Withdraw]: 'actionCenter.withdrawal.pending',
+        [ActionType.Claim]: 'actionCenter.claim.pending',
+      }
+
+      const completeMessagesMap: Partial<Record<ActionType, string>> = {
         [ActionType.Deposit]: 'actionCenter.deposit.complete',
         [ActionType.Withdraw]: 'actionCenter.withdrawal.complete',
         [ActionType.Approve]: 'actionCenter.approve.approvalTxComplete',
         [ActionType.Claim]: 'actionCenter.claim.complete',
       }
 
+      const messagesMap = status === ActionStatus.Pending ? pendingMessagesMap : completeMessagesMap
+
       dispatch(
         actionSlice.actions.upsertAction({
-          id: uuidv4(),
+          id,
           type: actionType,
-          status: ActionStatus.Complete,
+          status,
           createdAt: Date.now(),
           updatedAt: Date.now(),
           transactionMetadata: {
@@ -461,7 +478,7 @@ export const useYieldTransactionFlow = ({
             assetId: yieldItem.token.assetId as AssetId,
             accountId,
             message:
-              typeMessagesMap[actionType] ??
+              messagesMap[actionType] ??
               formatYieldTxTitle(
                 tx.title || 'Transaction',
                 resolveSymbolForTx(tx.type),
@@ -473,6 +490,7 @@ export const useYieldTransactionFlow = ({
             chainName: yieldItem.network,
             yieldType: yieldItem.mechanics.type,
             cooldownPeriodSeconds: yieldItem.mechanics.cooldownPeriod?.seconds,
+            yieldActionId: options?.yieldActionId,
           },
         }),
       )
@@ -608,26 +626,41 @@ export const useYieldTransactionFlow = ({
 
         const isLastTransaction = yieldTxIndex + 1 >= allTransactions.length
 
-        if (isLastTransaction) {
+        const completeLastYieldTransaction = async () => {
+          const yieldActionUuid = uuidv4()
+
+          dispatchNotification(tx, txHash, {
+            status: ActionStatus.Pending,
+            id: yieldActionUuid,
+            yieldActionId: actionId,
+          })
+
           await waitForActionCompletion(actionId)
           await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'allBalances'] })
           await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'yields'] })
-          if (
-            yieldChainId &&
-            accountId &&
-            SECOND_CLASS_CHAINS.includes(yieldChainId as KnownChainIds)
-          ) {
-            dispatch(
-              portfolioApi.endpoints.getAccount.initiate(
-                { accountId, upsertOnFetch: true },
-                { forceRefetch: true },
-              ),
-            )
+
+          try {
+            await parseAndUpsertSecondClassChainTx({
+              chainId: yieldChainId,
+              txHash,
+              accountId,
+              dispatch,
+            })
+          } catch (e) {
+            console.error('Failed to parse yield Tx:', e)
           }
-          dispatchNotification(tx, txHash)
+
+          dispatchNotification(tx, txHash, {
+            status: ActionStatus.Complete,
+            id: yieldActionUuid,
+          })
           updateStepStatus(uiStepIndex, { status: 'success', loadingMessage: undefined })
           queryClient.removeQueries({ queryKey: ['yieldxyz', 'quote'] })
           setStep(ModalStep.Success)
+        }
+
+        if (isLastTransaction) {
+          await completeLastYieldTransaction()
         } else {
           const { chainNamespace } = fromChainId(yieldChainId)
           if (chainNamespace === CHAIN_NAMESPACE.Evm) {
@@ -645,25 +678,7 @@ export const useYieldTransactionFlow = ({
             setRawTransactions(prev => prev.map((t, i) => (i === yieldTxIndex + 1 ? nextTx : t)))
             setActiveStepIndex(uiStepIndex + 1)
           } else {
-            await waitForActionCompletion(actionId)
-            await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'allBalances'] })
-            await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'yields'] })
-            if (
-              yieldChainId &&
-              accountId &&
-              SECOND_CLASS_CHAINS.includes(yieldChainId as KnownChainIds)
-            ) {
-              dispatch(
-                portfolioApi.endpoints.getAccount.initiate(
-                  { accountId, upsertOnFetch: true },
-                  { forceRefetch: true },
-                ),
-              )
-            }
-            dispatchNotification(tx, txHash)
-            updateStepStatus(uiStepIndex, { status: 'success', loadingMessage: undefined })
-            queryClient.removeQueries({ queryKey: ['yieldxyz', 'quote'] })
-            setStep(ModalStep.Success)
+            await completeLastYieldTransaction()
           }
         }
       } catch (error) {

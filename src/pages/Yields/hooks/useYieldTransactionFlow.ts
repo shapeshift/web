@@ -40,13 +40,14 @@ import {
   ActionStatus,
   ActionType,
   GenericTransactionDisplayType,
+  isGenericTransactionAction,
 } from '@/state/slices/actionSlice/types'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectFeeAssetByChainId,
 } from '@/state/slices/selectors'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 export enum ModalStep {
   InProgress = 'in_progress',
@@ -654,6 +655,35 @@ export const useYieldTransactionFlow = ({
             status: ActionStatus.Complete,
             id: yieldActionUuid,
           })
+
+          // After completing a claim (manage), transition existing ClaimAvailable actions to Claimed
+          if (action === 'manage' && yieldItem?.id) {
+            const state = store.getState()
+            const actionsById = actionSlice.selectors.selectActionsById(state)
+            const actionIds = actionSlice.selectors.selectActionIds(state)
+            for (const actionId of actionIds) {
+              const existingAction = actionsById[actionId]
+              if (
+                isGenericTransactionAction(existingAction) &&
+                existingAction.status === ActionStatus.ClaimAvailable &&
+                existingAction.transactionMetadata.displayType ===
+                  GenericTransactionDisplayType.Claim &&
+                existingAction.transactionMetadata.yieldId === yieldItem.id
+              ) {
+                dispatch(
+                  actionSlice.actions.upsertAction({
+                    ...existingAction,
+                    status: ActionStatus.Claimed,
+                    updatedAt: Date.now(),
+                    transactionMetadata: {
+                      ...existingAction.transactionMetadata,
+                      message: 'actionCenter.yield.unstakeClaimed',
+                    },
+                  }),
+                )
+              }
+            }
+          }
 
           // After completing an exit with an unbonding period, dispatch a Pending claim action
           const cooldownSeconds = yieldItem?.mechanics.cooldownPeriod?.seconds

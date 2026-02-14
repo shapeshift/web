@@ -25,7 +25,7 @@ import {
   solanaChainId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
-import { fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { WalletClient } from 'viem'
 import { erc20Abi } from 'viem'
 
@@ -251,7 +251,9 @@ export const getChainType = (chainId: string): 'evm' | 'utxo' | 'cosmos' | 'sola
 
 export const formatAmount = (amount: string, decimals: number, maxDecimals?: number): string => {
   const effectiveMaxDecimals = maxDecimals ?? Math.min(decimals, 8)
-  const result = fromBaseUnit(amount, decimals, effectiveMaxDecimals)
+  const result = BigAmount.fromBaseUnit({ value: amount, precision: decimals }).toFixed(
+    effectiveMaxDecimals,
+  )
   const num = Number(result)
   if (num === 0) return '0'
 
@@ -267,7 +269,7 @@ export const formatAmount = (amount: string, decimals: number, maxDecimals?: num
 }
 
 export const parseAmount = (amount: string, decimals: number): string => {
-  return toBaseUnit(amount, decimals)
+  return BigAmount.fromPrecision({ value: amount, precision: decimals }).toBaseUnit()
 }
 
 export const truncateAddress = (address: string, chars = 4): string => {

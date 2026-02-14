@@ -34,7 +34,6 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { isValidAccountNumber } from '@/lib/utils/accounts'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import type { ReduxState } from '@/state/reducer'
@@ -43,7 +42,7 @@ import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectHighestUserCurrencyBalanceAccountByAssetId,
-  selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioAccountBalances,
   selectPortfolioAccountIdsByAssetIdFilter,
   selectPortfolioAccountMetadata,
 } from '@/state/slices/selectors'
@@ -85,7 +84,7 @@ const MenuOptions = ({
 }: MenuOptionsProps) => {
   const { assetId, chainId } = asset
   const translate = useTranslate()
-  const accountBalances = useSelector(selectPortfolioAccountBalancesBaseUnit)
+  const accountBalances = useSelector(selectPortfolioAccountBalances)
   const accountMetadata = useSelector(selectPortfolioAccountMetadata)
 
   const getAccountIdsSortedByUtxoAccountType = useCallback(
@@ -101,7 +100,11 @@ const MenuOptions = ({
     (accountIds: AccountId[]): AccountId[] =>
       chain(accountIds)
         .sortBy(accountIds, accountId =>
-          bnOrZero(accountBalances?.[accountId]?.[assetId] ?? 0).toNumber(),
+          bnOrZero(
+            accountBalances?.[accountId]?.[assetId]
+              ? accountBalances[accountId][assetId].toBaseUnit()
+              : 0,
+          ).toNumber(),
         )
         .reverse()
         .value(),
@@ -155,10 +158,11 @@ const MenuOptions = ({
                 accountId={iterAccountId}
                 key={`${accountNumber}-${iterAccountId}-${index}`}
                 title={makeTitle(iterAccountId)}
-                cryptoBalance={fromBaseUnit(
-                  accountBalances?.[iterAccountId]?.[assetId] ?? 0,
-                  asset?.precision ?? 0,
-                )}
+                cryptoBalance={
+                  accountBalances?.[iterAccountId]?.[assetId]
+                    ? accountBalances[iterAccountId][assetId].toPrecision()
+                    : '0'
+                }
                 symbol={asset?.symbol ?? ''}
                 isChecked={selectedAccountId === iterAccountId}
                 onOptionClick={onClick}

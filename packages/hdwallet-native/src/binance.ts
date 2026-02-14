@@ -1,6 +1,6 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
+import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
 import * as bech32 from 'bech32'
-import BigNumber from 'bignumber.js'
 import type * as bnbSdkTypes from 'bnb-javascript-sdk-nobroadcast'
 import CryptoJS from 'crypto-js'
 import PLazy from 'p-lazy'
@@ -152,11 +152,15 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
           tx.account_number = result.account_number.toString()
         }
 
-        // The Binance SDK takes amounts as decimal strings.
-        const amount = new BigNumber(tx.msgs[0].inputs[0].coins[0].amount)
-        if (!amount.isInteger()) throw new Error('amount must be an integer')
-        if (!amount.isEqualTo(tx.msgs[0].outputs[0].coins[0].amount))
-          throw new Error('amount in input and output must be equal')
+        // The Binance SDK takes amounts as decimal strings (precision 8).
+        const rawAmount = tx.msgs[0].inputs[0].coins[0].amount
+        if (!bnOrZero(rawAmount).isInteger()) throw new Error('amount must be an integer')
+        const amount = BigAmount.fromBaseUnit({ value: rawAmount, precision: 8 })
+        const outputAmount = BigAmount.fromBaseUnit({
+          value: tx.msgs[0].outputs[0].coins[0].amount,
+          precision: 8,
+        })
+        if (!amount.eq(outputAmount)) throw new Error('amount in input and output must be equal')
         const asset = tx.msgs[0].inputs[0].coins[0].denom
         if (asset !== tx.msgs[0].outputs[0].coins[0].denom)
           throw new Error('denomination in input and output must be the same')
@@ -164,7 +168,7 @@ export function MixinNativeBinanceWallet<TBase extends core.Constructor<NativeHD
         const result = (await client.transfer(
           addressFrom,
           addressTo,
-          amount.shiftedBy(-8).toString(),
+          amount.toPrecision(),
           asset,
           tx.memo,
           Number(tx.sequence) ?? null,

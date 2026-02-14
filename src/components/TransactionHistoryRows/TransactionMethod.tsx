@@ -31,7 +31,7 @@ export const TransactionMethod = ({
 }: TransactionRowProps) => {
   const translate = useTranslate()
   const txMetadata = useMemo(() => txDetails.tx.data, [txDetails.tx.data])
-  const { method, parser } = txMetadata ?? {}
+  const { method, parser } = txDetails.yieldData ?? txMetadata ?? {}
   const txMetadataWithAssetId = useMemo(() => getTxMetadataWithAssetId(txMetadata), [txMetadata])
 
   const asset = useAppSelector(state =>
@@ -49,23 +49,16 @@ export const TransactionMethod = ({
 
   const title = useMemo(() => {
     const symbol = asset?.symbol
-    const titlePrefix = (() => {
-      switch (true) {
-        case method !== undefined && parser !== undefined:
-          return `transactionRow.parser.${parser}.${method}`
-        default:
-          return 'transactionRow.common'
-      }
-    })()
+    const titlePrefix =
+      method !== undefined && parser !== undefined
+        ? `transactionRow.parser.${parser}.${method}`
+        : 'transactionRow.common'
 
-    switch (method) {
-      case 'approve':
-      case 'revoke':
-        // add symbol if available
-        return symbol ? translate(`${titlePrefix}Symbol`, { symbol }) : translate(titlePrefix)
-      default:
-        return translate(titlePrefix)
+    if ((method === 'approve' || method === 'revoke') && symbol) {
+      return translate(`${titlePrefix}Symbol`, { symbol })
     }
+
+    return translate(titlePrefix)
   }, [asset?.symbol, method, parser, translate])
 
   const type = useMemo(() => {
@@ -79,6 +72,7 @@ export const TransactionMethod = ({
       case Method.LoanRepayment:
       case Method.Stake:
       case Method.Transfer:
+      case Method.UnstakeRequest:
       case Method.Withdraw:
         return TransferType.Send
       case Method.BeginUnbonding:
@@ -102,6 +96,7 @@ export const TransactionMethod = ({
       case Method.Unstake:
       case Method.WithdrawDelegatorReward:
       case Method.WithdrawOut:
+      case Method.YieldClaim:
         return TransferType.Receive
       case Method.Approve:
       case Method.Revoke:
@@ -118,7 +113,7 @@ export const TransactionMethod = ({
     }
   }, [transfersByType, method])
 
-  if (!txMetadata) return null
+  if (!txMetadata && !txDetails.yieldData) return null
 
   return (
     <>
@@ -140,7 +135,8 @@ export const TransactionMethod = ({
       />
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
         <Transfers compactMode={compactMode} transfers={txDetails.transfers} />
-        {(txMetadata.method === 'approve' || txMetadata.method === 'revoke') &&
+        {txMetadata &&
+          (txMetadata.method === 'approve' || txMetadata.method === 'revoke') &&
           txMetadataWithAssetId?.assetId &&
           txMetadataWithAssetId?.value && (
             <ApprovalDetails

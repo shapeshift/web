@@ -117,18 +117,18 @@ export const CreateLimitOrderUI = ({ toolPart }: ToolUIProps<'createLimitOrderTo
         )}: ${error}`,
       }
     }
+    if (trackingUrl) {
+      return {
+        type: 'success' as const,
+        text: translate('agenticChat.agenticChatTools.createLimitOrder.orderCreatedSuccessfully'),
+      }
+    }
     if (approvalTxHash) {
       return {
         type: 'info' as const,
         text: `${translate(
           'agenticChat.agenticChatTools.createLimitOrder.approvalTx',
         )}: ${middleEllipsis(approvalTxHash)}`,
-      }
-    }
-    if (trackingUrl) {
-      return {
-        type: 'success' as const,
-        text: translate('agenticChat.agenticChatTools.createLimitOrder.orderCreatedSuccessfully'),
       }
     }
     return null

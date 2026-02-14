@@ -5,7 +5,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { assertGetCowNetwork, COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftoss/swapper'
 import type { Trade } from '@shapeshiftoss/types'
 import { OrderStatus } from '@shapeshiftoss/types'
-import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
+import { BigAmount, bn, bnOrZero } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { formatDistanceToNow } from 'date-fns'
@@ -121,14 +121,16 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     }
   }, [accountId, sellAssetId])
 
-  const sellAssetBalanceCryptoBaseUnit = useSelectorWithArgs(
-    selectPortfolioCryptoBalanceByFilter,
-    filter,
-  )
+  const sellAssetBalance = useSelectorWithArgs(selectPortfolioCryptoBalanceByFilter, filter)
 
   const hasSufficientBalance = useMemo(() => {
-    return bnOrZero(sellAssetBalanceCryptoBaseUnit.toBaseUnit()).gte(sellAmountCryptoBaseUnit)
-  }, [sellAmountCryptoBaseUnit, sellAssetBalanceCryptoBaseUnit])
+    return sellAssetBalance.gte(
+      BigAmount.fromBaseUnit({
+        value: sellAmountCryptoBaseUnit,
+        precision: sellAssetBalance.precision,
+      }),
+    )
+  }, [sellAmountCryptoBaseUnit, sellAssetBalance])
 
   const from = useMemo(() => {
     return fromAccountId(accountId).account
@@ -156,12 +158,20 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   }, [onCancelClick, uid])
 
   const sellAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset?.precision ?? 0),
+    () =>
+      BigAmount.fromBaseUnit({
+        value: sellAmountCryptoBaseUnit,
+        precision: sellAsset?.precision ?? 0,
+      }).toPrecision(),
     [sellAmountCryptoBaseUnit, sellAsset?.precision],
   )
 
   const buyAmountCryptoPrecision = useMemo(
-    () => fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset?.precision ?? 0),
+    () =>
+      BigAmount.fromBaseUnit({
+        value: buyAmountCryptoBaseUnit,
+        precision: buyAsset?.precision ?? 0,
+      }).toPrecision(),
     [buyAmountCryptoBaseUnit, buyAsset?.precision],
   )
 
@@ -178,7 +188,10 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   const executedBuyAmountCryptoPrecision = useMemo(
     () =>
       executedBuyAmountCryptoBaseUnit
-        ? fromBaseUnit(executedBuyAmountCryptoBaseUnit, buyAsset?.precision ?? 0)
+        ? BigAmount.fromBaseUnit({
+            value: executedBuyAmountCryptoBaseUnit,
+            precision: buyAsset?.precision ?? 0,
+          }).toPrecision()
         : '0',
     [executedBuyAmountCryptoBaseUnit, buyAsset?.precision],
   )
@@ -186,7 +199,10 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   const executedSellAmountCryptoPrecision = useMemo(
     () =>
       executedSellAmountCryptoBaseUnit
-        ? fromBaseUnit(executedSellAmountCryptoBaseUnit, sellAsset?.precision ?? 0)
+        ? BigAmount.fromBaseUnit({
+            value: executedSellAmountCryptoBaseUnit,
+            precision: sellAsset?.precision ?? 0,
+          }).toPrecision()
         : '0',
     [executedSellAmountCryptoBaseUnit, sellAsset?.precision],
   )

@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { bn, bnOrZero, toBaseUnit } from '@shapeshiftoss/utils'
+import { BigAmount, bn, bnOrZero } from '@shapeshiftoss/utils'
 
 import {
   selectEnabledWalletAccountIds,
@@ -176,7 +176,10 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
     selectInputSellAmountCryptoPrecision,
     selectInputSellAsset,
     (sellAmountCryptoPrecision, sellAsset) =>
-      toBaseUnit(sellAmountCryptoPrecision, sellAsset.precision),
+      BigAmount.fromPrecision({
+        value: sellAmountCryptoPrecision,
+        precision: sellAsset.precision,
+      }).toBaseUnit(),
   )
 
   const selectManualReceiveAddress = createSelector(
@@ -218,13 +221,13 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
     },
   )
 
-  const selectSellAssetBalanceCryptoBaseUnit = createSelector(
+  const selectSellAssetBalance = createSelector(
     (state: ReduxState) =>
       selectPortfolioCryptoBalanceByFilter(state, {
         accountId: selectSellAccountId(state),
         assetId: selectInputSellAsset(state).assetId,
-      }).toBaseUnit(),
-    sellAssetBalanceCryptoBaseUnit => sellAssetBalanceCryptoBaseUnit,
+      }),
+    sellAssetBalance => sellAssetBalance,
   )
 
   const selectIsInputtingFiatSellAmount = createSelector(
@@ -254,7 +257,7 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
     selectIsManualReceiveAddressValid,
     selectInputSellAmountUsd,
     selectInputSellAmountUserCurrency,
-    selectSellAssetBalanceCryptoBaseUnit,
+    selectSellAssetBalance,
     selectIsInputtingFiatSellAmount,
     selectHasUserEnteredAmount,
     selectInputSellAmountCryptoPrecision,

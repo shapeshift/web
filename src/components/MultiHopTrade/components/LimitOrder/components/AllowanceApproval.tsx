@@ -2,7 +2,7 @@ import { Button, Card, CardBody, CardFooter, CardHeader, Heading, Link } from '@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -125,7 +125,12 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
       return isLoading
     }
 
-    return bnOrZero(feeAssetBalance.toBaseUnit()).gte(approvalNetworkFeeCryptoBaseUnit)
+    return feeAssetBalance.gte(
+      BigAmount.fromBaseUnit({
+        value: approvalNetworkFeeCryptoBaseUnit,
+        precision: feeAssetBalance.precision,
+      }),
+    )
   }, [approvalNetworkFeeCryptoBaseUnit, feeAssetBalance, isLoading])
 
   const approveAssetTranslation = useMemo(() => {
@@ -177,7 +182,10 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
               <Text translation='common.approvalFee' color='text.subtle' />
               {approvalNetworkFeeCryptoBaseUnit && feeAsset && (
                 <Amount.Crypto
-                  value={fromBaseUnit(approvalNetworkFeeCryptoBaseUnit, feeAsset?.precision)}
+                  value={BigAmount.fromBaseUnit({
+                    value: approvalNetworkFeeCryptoBaseUnit,
+                    precision: feeAsset?.precision ?? 0,
+                  }).toPrecision()}
                   symbol={feeAsset?.symbol ?? ''}
                 />
               )}

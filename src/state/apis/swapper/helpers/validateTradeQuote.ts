@@ -13,14 +13,13 @@ import {
   TradeQuoteError as SwapperTradeQuoteError,
 } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { getChainShortName } from '@shapeshiftoss/utils'
+import { BigAmount, getChainShortName } from '@shapeshiftoss/utils'
 
 import type { ErrorWithMeta, TradeQuoteError } from '../types'
 import { TradeQuoteValidationError, TradeQuoteWarning } from '../types'
 
 import { isMultiHopTradeQuote, isMultiHopTradeRate } from '@/components/MultiHopTrade/utils'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { assertGetChainAdapter, assertUnreachable, isTruthy } from '@/lib/utils'
 import type { ReduxState } from '@/state/reducer'
 import {
@@ -110,8 +109,11 @@ export const validateTradeQuote = (
             }
           }
 
-          const minAmountCryptoHuman = fromBaseUnit(minAmountCryptoBaseUnit, asset.precision)
-          const formattedAmount = bnOrZero(minAmountCryptoHuman).decimalPlaces(6)
+          const minAmountCryptoPrecision = BigAmount.fromBaseUnit({
+            value: minAmountCryptoBaseUnit,
+            precision: asset.precision,
+          }).toPrecision()
+          const formattedAmount = bnOrZero(minAmountCryptoPrecision).decimalPlaces(6)
           const minimumAmountUserMessage = `${formattedAmount} ${asset.symbol}`
 
           return {
@@ -164,15 +166,15 @@ export const validateTradeQuote = (
   const firstHopSellAccountId = selectFirstHopSellAccountId(state)
   const secondHopSellAccountId = selectSecondHopSellAccountId(state)
 
-  const firstHopFeeAssetBalancePrecision = selectPortfolioCryptoBalanceByFilter(state, {
+  const firstHopFeeAssetBalance = selectPortfolioCryptoBalanceByFilter(state, {
     assetId: firstHopSellFeeAsset?.assetId,
     accountId: firstHopSellAccountId ?? '',
-  }).toPrecision()
-  const secondHopFeeAssetBalancePrecision = isMultiHopTrade
+  })
+  const secondHopFeeAssetBalance = isMultiHopTrade
     ? selectPortfolioCryptoBalanceByFilter(state, {
         assetId: secondHopSellFeeAsset?.assetId,
         accountId: secondHopSellAccountId ?? '',
-      }).toPrecision()
+      })
     : undefined
 
   // Technically does for cow swap too, but we deduct it off the sell amount in that case
@@ -180,18 +182,18 @@ export const validateTradeQuote = (
 
   const firstHopNetworkFeeCryptoPrecision =
     networkFeeRequiresBalance && firstHopSellFeeAsset
-      ? fromBaseUnit(
-          bnOrZero(firstHop?.feeData.networkFeeCryptoBaseUnit),
-          firstHopSellFeeAsset.precision,
-        )
+      ? BigAmount.fromBaseUnit({
+          value: bnOrZero(firstHop?.feeData.networkFeeCryptoBaseUnit),
+          precision: firstHopSellFeeAsset.precision,
+        }).toPrecision()
       : bn(0).toFixed()
 
   const secondHopNetworkFeeCryptoPrecision =
     networkFeeRequiresBalance && secondHopSellFeeAsset && secondHop
-      ? fromBaseUnit(
-          bnOrZero(secondHop.feeData.networkFeeCryptoBaseUnit),
-          secondHopSellFeeAsset.precision,
-        )
+      ? BigAmount.fromBaseUnit({
+          value: bnOrZero(secondHop.feeData.networkFeeCryptoBaseUnit),
+          precision: secondHopSellFeeAsset.precision,
+        }).toPrecision()
       : bn(0).toFixed()
 
   const firstHopTradeDeductionCryptoPrecision =
@@ -202,14 +204,14 @@ export const validateTradeQuote = (
   const walletSupportsIntermediaryAssetChain =
     !isMultiHopTrade || walletConnectedChainIds.includes(firstHop?.buyAsset.chainId ?? '')
 
-  const firstHopHasSufficientBalanceForGas = bnOrZero(firstHopFeeAssetBalancePrecision)
+  const firstHopHasSufficientBalanceForGas = firstHopFeeAssetBalance
     .minus(firstHopNetworkFeeCryptoPrecision ?? 0)
     .minus(firstHopTradeDeductionCryptoPrecision ?? 0)
     .gte(0)
 
   const secondHopHasSufficientBalanceForGas =
     !isMultiHopTrade ||
-    bnOrZero(secondHopFeeAssetBalancePrecision)
+    (secondHopFeeAssetBalance ?? BigAmount.zero({ precision: 0 }))
       .minus(secondHopNetworkFeeCryptoPrecision ?? 0)
       .gte(0)
 
@@ -234,8 +236,9 @@ export const validateTradeQuote = (
 
             const accountId =
               portfolioAccountIdByNumberByChainId[sellAssetAccountNumber][protocolFee.asset.chainId]
-            const balanceCryptoBaseUnit =
-              portfolioAccountBalances[accountId]?.[assetId]?.toBaseUnit() ?? '0'
+            const balance =
+              portfolioAccountBalances[accountId]?.[assetId] ??
+              BigAmount.zero({ precision: protocolFee.asset.precision })
 
             // @TODO: seems like this condition should be applied for all the swappers, verify by smoke testing all of them
             // them kick the swapperName bit out of the condition
@@ -244,13 +247,28 @@ export const validateTradeQuote = (
               firstHop?.sellAsset.assetId === assetId &&
               swapperName === SwapperName.Jupiter
             ) {
-              return bnOrZero(balanceCryptoBaseUnit)
-                .minus(bnOrZero(sellAmountCryptoBaseUnit))
-                .minus(protocolFee.amountCryptoBaseUnit)
-                .lt(0)
+              return balance
+                .minus(
+                  BigAmount.fromBaseUnit({
+                    value: bnOrZero(sellAmountCryptoBaseUnit).toFixed(),
+                    precision: balance.precision,
+                  }),
+                )
+                .minus(
+                  BigAmount.fromBaseUnit({
+                    value: protocolFee.amountCryptoBaseUnit,
+                    precision: balance.precision,
+                  }),
+                )
+                .isNegative()
             }
 
-            return bnOrZero(balanceCryptoBaseUnit).lt(protocolFee.amountCryptoBaseUnit)
+            return balance.lt(
+              BigAmount.fromBaseUnit({
+                value: protocolFee.amountCryptoBaseUnit,
+                precision: balance.precision,
+              }),
+            )
           })
           .map(([_assetId, protocolFee]: [AssetId, ProtocolFee]) => {
             return {

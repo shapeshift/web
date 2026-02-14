@@ -19,6 +19,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { assertAndProcessMemo, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import prettyMilliseconds from 'pretty-ms'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -41,8 +42,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSmartContractAddress } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useToggle } from '@/hooks/useToggle/useToggle'
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { toBaseUnit } from '@/lib/math'
+import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -151,11 +151,10 @@ export const RepayInput = ({
     from: userAddress,
     amountCryptoBaseUnit:
       confirmedQuote?.repaymentAmountCryptoPrecision && repaymentAsset
-        ? toBaseUnit(
-            // Add 5% buffer to the repayment allowance to avoid asset rates fluctuations ending up in more asset needed to repay
-            bnOrZero(confirmedQuote.repaymentAmountCryptoPrecision).times('1.05'),
-            repaymentAsset.precision,
-          )
+        ? bnOrZero(confirmedQuote.repaymentAmountCryptoPrecision)
+            .times('1.05')
+            .times(bn(10).pow(repaymentAsset.precision))
+            .toFixed(0, BigNumber.ROUND_UP)
         : undefined,
     accountNumber: repaymentAccountNumber,
   })
@@ -205,15 +204,15 @@ export const RepayInput = ({
   )
 
   const repaymentAssetAmountAvailableCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, repaymentAssetBalanceFilter).toPrecision(),
-  )
+    selectPortfolioCryptoBalanceByFilter(state, repaymentAssetBalanceFilter),
+  ).toPrecision()
   const feeAssetBalanceFilter = useMemo(
     () => ({ assetId: repaymentFeeAsset?.assetId ?? '', accountId: repaymentAccountId ?? '' }),
     [repaymentFeeAsset?.assetId, repaymentAccountId],
   )
   const feeAssetBalanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, feeAssetBalanceFilter).toBaseUnit(),
-  )
+    selectPortfolioCryptoBalanceByFilter(state, feeAssetBalanceFilter),
+  ).toBaseUnit()
 
   const serializedApprovalTxIndex = useMemo(() => {
     if (!(approvalTxHash && userAddress && repaymentAccountId)) return ''
@@ -412,10 +411,10 @@ export const RepayInput = ({
     {
       assetId: repaymentAsset?.assetId ?? '',
       accountId: repaymentAccountId,
-      amountCryptoBaseUnit: toBaseUnit(
-        confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
-        repaymentAsset?.precision ?? 0,
-      ),
+      amountCryptoBaseUnit: BigAmount.fromPrecision({
+        value: confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
+        precision: repaymentAsset?.precision ?? 0,
+      }).toBaseUnit(),
       memo,
       // no explicit from address required for repayments
       fromAddress: '',
@@ -438,8 +437,11 @@ export const RepayInput = ({
     if (repaymentFeeAsset.assetId === repaymentAsset.assetId)
       return bnOrZero(lendingQuoteCloseData?.repaymentAmountCryptoPrecision)
         .plus(
-          bnOrZero(estimatedFeesData?.txFeeCryptoBaseUnit).div(
-            bn(10).pow(repaymentAsset.precision ?? '0'),
+          bnOrZero(
+            BigAmount.fromBaseUnit({
+              value: estimatedFeesData?.txFeeCryptoBaseUnit ?? '0',
+              precision: repaymentAsset.precision ?? 0,
+            }).toPrecision(),
           ),
         )
         .lte(repaymentAssetAmountAvailableCryptoPrecision)

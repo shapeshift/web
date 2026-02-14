@@ -262,13 +262,14 @@ export const YieldEnterModal = memo(
         if (isFiat) {
           const crypto = bnOrZero(values.value)
             .div(marketData?.price || 1)
+            .decimalPlaces(inputTokenAsset?.precision ?? 18, 1)
             .toFixed()
           setCryptoAmount(crypto)
         } else {
           setCryptoAmount(values.value)
         }
       },
-      [isFiat, marketData?.price],
+      [isFiat, inputTokenAsset?.precision, marketData?.price],
     )
 
     const displayValue = useMemo(() => {

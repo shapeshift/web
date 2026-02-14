@@ -121,6 +121,8 @@ type ActionGenericTransactionMetadata = {
   confirmedQuote?: LpConfirmedWithdrawalQuote | LpConfirmedDepositQuote
   assetAmountsAndSymbols?: string
   poolName?: string
+  replacedByTxHash?: string
+  replacesTxHash?: string
 }
 
 export type BaseAction = {

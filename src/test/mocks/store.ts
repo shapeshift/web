@@ -433,5 +433,6 @@ export const mockStore: ReduxState = {
     conversations: [],
     activeConversationId: null,
     isChatHistoryOpen: false,
+    messagesByConversation: {},
   },
 }

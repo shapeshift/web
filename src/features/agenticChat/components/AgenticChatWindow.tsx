@@ -76,6 +76,8 @@ export const AgenticChatWindow = ({ isOpen, onClose }: AgenticChatWindowProps) =
   )
 
   if (isLargerThanMd) {
+    if (!isOpen) return null
+
     return (
       <Box
         position='fixed'
@@ -89,7 +91,7 @@ export const AgenticChatWindow = ({ isOpen, onClose }: AgenticChatWindowProps) =
         border='1px solid'
         borderColor={borderColor}
         zIndex='modal'
-        display={isOpen ? 'flex' : 'none'}
+        display='flex'
         flexDirection='column'
         overflow='hidden'
       >

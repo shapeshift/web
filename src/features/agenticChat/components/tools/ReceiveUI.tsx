@@ -1,21 +1,20 @@
 import { Box, Button, Flex, Icon, Text, useColorModeValue, useToast } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
-import { FaCopy, FaDownload } from 'react-icons/fa'
+import { FaCheck, FaCopy, FaDownload } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
 import type { ToolUIProps } from '../../types/toolInvocation'
-import type { ReceiveOutput } from '../../types/toolOutput'
 import { DisplayToolCard } from './DisplayToolCard'
 
 import { LogoQRCode } from '@/components/LogoQRCode/LogoQRCode'
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-export const ReceiveUI = ({ toolPart }: ToolUIProps) => {
+export const ReceiveUI = ({ toolPart }: ToolUIProps<'receiveTool'>) => {
   const translate = useTranslate()
   const toast = useToast()
-  const { state, output } = toolPart
-  const toolOutput = output as ReceiveOutput | undefined
+  const { state, output: toolOutput } = toolPart
 
   const mutedColor = useColorModeValue('gray.600', 'gray.400')
   const warningBg = useColorModeValue('orange.50', 'orange.900')
@@ -26,22 +25,24 @@ export const ReceiveUI = ({ toolPart }: ToolUIProps) => {
     toolOutput?.asset.assetId ? selectAssetById(state, toolOutput.asset.assetId) : undefined,
   )
 
+  const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
+
   const handleCopyAddress = useCallback(() => {
     if (!toolOutput) return
-    navigator.clipboard.writeText(toolOutput.address)
+    copyToClipboard(toolOutput.address)
     toast({
       title: translate('agenticChat.agenticChatTools.receive.copied'),
       status: 'success',
       duration: 2000,
       isClosable: true,
     })
-  }, [toolOutput, translate, toast])
+  }, [toolOutput, translate, toast, copyToClipboard])
 
   const receiveTitle = useMemo(() => {
     if (!toolOutput) return ''
     return translate('agenticChat.agenticChatTools.receive.receiveOn', {
       symbol: toolOutput.asset.symbol,
-      network: toolOutput.chainName,
+      network: toolOutput.chainName || toolOutput.network,
     })
   }, [toolOutput, translate])
 
@@ -49,7 +50,7 @@ export const ReceiveUI = ({ toolPart }: ToolUIProps) => {
     return null
   }
 
-  const { address, chainName } = toolOutput
+  const { address, chainName, network } = toolOutput
 
   return (
     <DisplayToolCard.Root>
@@ -88,7 +89,8 @@ export const ReceiveUI = ({ toolPart }: ToolUIProps) => {
               <Button
                 size='sm'
                 onClick={handleCopyAddress}
-                leftIcon={<Icon as={FaCopy} />}
+                leftIcon={<Icon as={isCopied ? FaCheck : FaCopy} />}
+                colorScheme={isCopied ? 'green' : undefined}
                 flexShrink={0}
               >
                 {translate('agenticChat.agenticChatTools.receive.copyAddress')}
@@ -98,7 +100,9 @@ export const ReceiveUI = ({ toolPart }: ToolUIProps) => {
 
           <Box w='full' bg={warningBg} p={3} borderRadius='md'>
             <Text fontSize='xs' color={warningColor} textAlign='center'>
-              {translate('agenticChat.agenticChatTools.receive.warning', { network: chainName })}
+              {translate('agenticChat.agenticChatTools.receive.warning', {
+                network: chainName ?? network,
+              })}
             </Text>
           </Box>
         </Flex>

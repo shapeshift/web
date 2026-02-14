@@ -3,14 +3,12 @@ import { FaFire } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
 import type { ToolUIProps } from '../../types/toolInvocation'
-import type { TrendingTokensOutput } from '../../types/toolOutput'
 import { AssetListItem } from '../shared/AssetListItem'
 import { DisplayToolCard } from './DisplayToolCard'
 
-export const TrendingTokensUI = ({ toolPart }: ToolUIProps) => {
+export const TrendingTokensUI = ({ toolPart }: ToolUIProps<'getTrendingTokensTool'>) => {
   const translate = useTranslate()
-  const { state, output } = toolPart
-  const toolOutput = output as TrendingTokensOutput | undefined
+  const { state, output: toolOutput } = toolPart
 
   const borderColor = useColorModeValue('gray.200', 'gray.600')
 

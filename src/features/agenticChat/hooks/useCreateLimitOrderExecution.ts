@@ -45,7 +45,7 @@ const CREATE_LIMIT_ORDER_PHASES = createStepPhaseMap<CreateLimitOrderStep>({
   [CreateLimitOrderStep.SUBMIT]: 'submit_complete',
 })
 
-type CreateLimitOrderState = {
+export type CreateLimitOrderState = {
   currentStep: CreateLimitOrderStep
   completedSteps: CreateLimitOrderStep[]
   approvalTxHash?: string
@@ -60,7 +60,7 @@ const initialCreateLimitOrderState: CreateLimitOrderState = {
   completedSteps: [],
 }
 
-function stateToPersistedState(
+export function stateToPersistedState(
   toolCallId: string,
   conversationId: string,
   state: CreateLimitOrderState,
@@ -85,7 +85,7 @@ function stateToPersistedState(
   }
 }
 
-function persistedStateToState(persisted: PersistedToolState): CreateLimitOrderState {
+export function persistedStateToState(persisted: PersistedToolState): CreateLimitOrderState {
   const completedSteps = CREATE_LIMIT_ORDER_PHASES.fromPhases(persisted.phases)
   const hasError = persisted.phases.includes('error')
   return {
@@ -97,6 +97,7 @@ function persistedStateToState(persisted: PersistedToolState): CreateLimitOrderS
     signature: persisted.meta.signature as string | undefined,
     trackingUrl: persisted.meta.trackingUrl as string | undefined,
     error: hasError ? (persisted.meta.error as string) : undefined,
+    failedStep: persisted.meta.failedStep as CreateLimitOrderStep | undefined,
   }
 }
 
@@ -133,12 +134,16 @@ export const useCreateLimitOrderExecution = (
     agenticChatSlice.selectors.selectPersistedTransaction(state, toolCallId),
   )
 
-  const accountId = data?.orderParams
-    ? toAccountId({
-        chainId: `eip155:${data.orderParams.chainId}`,
-        account: data.orderParams.receiver,
-      })
-    : undefined
+  const accountId = (() => {
+    if (!data?.orderParams) return undefined
+    if (!data.orderParams.chainId) return undefined
+    if (!data.orderParams.receiver || typeof data.orderParams.receiver !== 'string')
+      return undefined
+    return toAccountId({
+      chainId: `eip155:${data.orderParams.chainId}`,
+      account: data.orderParams.receiver,
+    })
+  })()
   const accountMetadata = useAppSelector(state =>
     accountId ? selectPortfolioAccountMetadataByAccountId(state, { accountId }) : undefined,
   )
@@ -167,6 +172,7 @@ export const useCreateLimitOrderExecution = (
       let signature: string | undefined
 
       try {
+        // Data shape guaranteed by server-side Zod validation and deterministic output construction
         const {
           wallet,
           accountId: validAccountId,
@@ -214,7 +220,6 @@ export const useCreateLimitOrderExecution = (
 
         const chainId = `eip155:${orderParams.chainId}`
 
-        // Ensure all addresses are checksummed for HDWallet compatibility
         const rawSigningData = signingData as TypedData
 
         const checksummedMessage = {
@@ -296,6 +301,15 @@ export const useCreateLimitOrderExecution = (
         if (!response.ok) {
           const errorText = await response.text()
           throw new Error(`Failed to create order: ${errorText}`)
+        }
+
+        const orderIdResponse = await response.text()
+        if (
+          !orderIdResponse ||
+          typeof orderIdResponse !== 'string' ||
+          orderIdResponse.length === 0
+        ) {
+          throw new Error('Invalid CowSwap response: expected a valid order ID string')
         }
 
         // Persist successful state immediately after order creation succeeds

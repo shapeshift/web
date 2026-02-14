@@ -1,5 +1,6 @@
 import { Box, Text, useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import {
   CancelLimitOrderStep,
@@ -7,12 +8,11 @@ import {
   useCancelLimitOrderExecution,
 } from '../../hooks/useCancelLimitOrderExecution'
 import type { ToolUIProps } from '../../types/toolInvocation'
-import type { CancelLimitOrderOutput } from '../../types/toolOutput'
 import { TxStepCard } from './TxStepCard'
 
-export const CancelLimitOrderUI = ({ toolPart }: ToolUIProps) => {
-  const { state, output, toolCallId } = toolPart
-  const cancelOutput = output as CancelLimitOrderOutput | undefined
+export const CancelLimitOrderUI = ({ toolPart }: ToolUIProps<'cancelLimitOrderTool'>) => {
+  const { state, output: cancelOutput, toolCallId } = toolPart
+  const translate = useTranslate()
 
   const cancelData = state === 'output-available' && cancelOutput ? cancelOutput : null
   const { error, steps } = useCancelLimitOrderExecution(toolCallId, state, cancelData)
@@ -36,13 +36,24 @@ export const CancelLimitOrderUI = ({ toolPart }: ToolUIProps) => {
 
   const footerMessage = (() => {
     if (toolPart.state === 'output-error') {
-      return { type: 'error' as const, text: 'Failed to prepare cancellation' }
+      return {
+        type: 'error' as const,
+        text: translate('agenticChat.agenticChatTools.cancelLimitOrder.errors.prepareFailed'),
+      }
     }
     if (error) {
-      return { type: 'error' as const, text: `Cancellation failed: ${error}` }
+      return {
+        type: 'error' as const,
+        text: `${translate(
+          'agenticChat.agenticChatTools.cancelLimitOrder.cancellationFailed',
+        )}: ${error}`,
+      }
     }
     if (submitStep.status === StepStatus.COMPLETE) {
-      return { type: 'success' as const, text: 'Order cancelled successfully' }
+      return {
+        type: 'success' as const,
+        text: translate('agenticChat.agenticChatTools.cancelLimitOrder.orderCancelledSuccessfully'),
+      }
     }
     return null
   })()
@@ -52,16 +63,18 @@ export const CancelLimitOrderUI = ({ toolPart }: ToolUIProps) => {
       <TxStepCard.Header>
         <TxStepCard.HeaderRow>
           <Text fontSize='lg' fontWeight='semibold'>
-            Cancel Limit Order
+            {translate('agenticChat.agenticChatTools.cancelLimitOrder.title')}
           </Text>
         </TxStepCard.HeaderRow>
         {cancelData && (
           <Box mt={2}>
             <Text fontSize='sm' color={mutedColor}>
-              Network: {cancelData.network}
+              {translate('agenticChat.agenticChatTools.cancelLimitOrder.networkLabel')}:{' '}
+              {cancelData.network}
             </Text>
             <Text fontSize='xs' color={mutedColor} fontFamily='mono'>
-              Order: {cancelData.orderId.slice(0, 10)}...{cancelData.orderId.slice(-8)}
+              {translate('agenticChat.agenticChatTools.cancelLimitOrder.orderLabel')}:{' '}
+              {cancelData.orderId.slice(0, 10)}...{cancelData.orderId.slice(-8)}
             </Text>
           </Box>
         )}
@@ -70,13 +83,13 @@ export const CancelLimitOrderUI = ({ toolPart }: ToolUIProps) => {
       <TxStepCard.Content>
         <TxStepCard.Stepper completedCount={completedCount} totalCount={3}>
           <TxStepCard.Step status={preparationStep.status} connectorBottom>
-            Preparing cancellation
+            {translate('agenticChat.agenticChatTools.cancelLimitOrder.steps.prepare')}
           </TxStepCard.Step>
           <TxStepCard.Step status={signStep.status} connectorTop connectorBottom>
-            Sign cancellation
+            {translate('agenticChat.agenticChatTools.cancelLimitOrder.steps.sign')}
           </TxStepCard.Step>
           <TxStepCard.Step status={submitStep.status} connectorTop>
-            Submit cancellation
+            {translate('agenticChat.agenticChatTools.cancelLimitOrder.steps.submit')}
           </TxStepCard.Step>
           {footerMessage && (
             <Box mt={4}>

@@ -1,10 +1,15 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
+import type { UIMessage } from 'ai'
+import { castDraft } from 'immer'
 
 import type { AgenticChatState, Conversation, PersistedToolState } from './types'
 import { DEFAULT_CONVERSATION_TITLE } from './types'
 
+const EMPTY_MESSAGES: UIMessage[] = []
+
 const MAX_PERSISTED_TRANSACTIONS = 500
+const MAX_MESSAGES_PER_CONVERSATION = 500
 
 const initialState: AgenticChatState = {
   historicalToolIds: [],
@@ -15,6 +20,7 @@ const initialState: AgenticChatState = {
   conversations: [],
   activeConversationId: null,
   isChatHistoryOpen: false,
+  messagesByConversation: {},
 }
 
 export const agenticChatSlice = createSlice({
@@ -84,6 +90,18 @@ export const agenticChatSlice = createSlice({
     closeChatHistory: state => {
       state.isChatHistoryOpen = false
     },
+    setMessages: (
+      state,
+      action: PayloadAction<{ conversationId: string; messages: UIMessage[] }>,
+    ) => {
+      const { conversationId, messages } = action.payload
+      state.messagesByConversation[conversationId] = castDraft(
+        messages.slice(-MAX_MESSAGES_PER_CONVERSATION),
+      )
+    },
+    deleteConversationMessages: (state, action: PayloadAction<string>) => {
+      delete state.messagesByConversation[action.payload]
+    },
     createConversation: (
       state,
       action: PayloadAction<{ id: string; title?: string; walletAddress?: string }>,
@@ -116,6 +134,7 @@ export const agenticChatSlice = createSlice({
       state.persistedTransactions = state.persistedTransactions.filter(
         tx => tx.conversationId !== conversationId,
       )
+      delete state.messagesByConversation[conversationId]
       if (state.activeConversationId === conversationId) {
         const sortedConversations = state.conversations
           .slice()
@@ -139,6 +158,7 @@ export const agenticChatSlice = createSlice({
       state.conversations = []
       state.activeConversationId = null
       state.isChatHistoryOpen = false
+      state.messagesByConversation = {}
     },
   },
   selectors: {
@@ -157,5 +177,8 @@ export const agenticChatSlice = createSlice({
     selectIsChatHistoryOpen: state => state.isChatHistoryOpen,
     selectActiveConversation: state =>
       state.conversations.find(c => c.id === state.activeConversationId),
+    selectMessagesByConversation: state => state.messagesByConversation,
+    selectConversationMessages: (state, conversationId: string) =>
+      state.messagesByConversation[conversationId] ?? EMPTY_MESSAGES,
   },
 })

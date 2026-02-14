@@ -4,15 +4,13 @@ import { useTranslate } from 'react-polyglot'
 
 import { StepStatus, useSwapExecution } from '../../hooks/useSwapExecution'
 import type { ToolUIProps } from '../../types/toolInvocation'
-import type { SwapOutput } from '../../types/toolOutput'
 import { TxStepCard } from './TxStepCard'
 
 import { Amount } from '@/components/Amount/Amount'
 import { middleEllipsis } from '@/lib/utils'
 
-export const SwapUI = ({ toolPart }: ToolUIProps) => {
-  const { state, output, toolCallId } = toolPart
-  const swapOutput = output as SwapOutput | undefined
+export const SwapUI = ({ toolPart }: ToolUIProps<'initiateSwapTool' | 'initiateSwapUsdTool'>) => {
+  const { state, output: swapOutput, toolCallId } = toolPart
   const translate = useTranslate()
 
   const swapData = state === 'output-available' && swapOutput ? swapOutput : null

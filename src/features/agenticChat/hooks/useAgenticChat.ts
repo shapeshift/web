@@ -5,7 +5,6 @@ import type { UIMessage } from 'ai'
 import { DefaultChatTransport } from 'ai'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { loadMessages, saveMessages } from '../utils/conversationStorage'
 import {
   extractTitleFromMessages,
   extractToolIds,
@@ -15,7 +14,7 @@ import {
 import { getConfig } from '@/config'
 import { agenticChatSlice } from '@/state/slices/agenticChatSlice/agenticChatSlice'
 import { selectEnabledWalletAccountIds } from '@/state/slices/common-selectors'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
 export const useAgenticChat = () => {
   const dispatch = useAppDispatch()
@@ -90,7 +89,12 @@ export const useAgenticChat = () => {
           )
         }
 
-        saveMessages(activeConversationId, messages)
+        dispatch(
+          agenticChatSlice.actions.setMessages({
+            conversationId: activeConversationId,
+            messages,
+          }),
+        )
       },
       [activeConversationId, activeConversation, dispatch],
     ),
@@ -98,6 +102,10 @@ export const useAgenticChat = () => {
 
   const { setMessages } = chat
   const lastLoadedIdRef = useRef<string | undefined>(undefined)
+  const storedMessages = useSelectorWithArgs(
+    agenticChatSlice.selectors.selectConversationMessages,
+    activeConversationId ?? '',
+  )
 
   useEffect(() => {
     if (!isChatOpen) return
@@ -111,13 +119,12 @@ export const useAgenticChat = () => {
     }
 
     if (activeConversationId !== lastLoadedIdRef.current) {
-      const messages = loadMessages(activeConversationId)
-      setMessages(messages)
+      setMessages(storedMessages)
 
       dispatch(agenticChatSlice.actions.clearHistoricalTools())
 
-      if (messages.length > 0) {
-        const toolIds = extractToolIds(messages)
+      if (storedMessages.length > 0) {
+        const toolIds = extractToolIds(storedMessages)
         if (toolIds.length > 0) {
           dispatch(agenticChatSlice.actions.markAsHistorical(toolIds))
         }
@@ -125,7 +132,7 @@ export const useAgenticChat = () => {
 
       lastLoadedIdRef.current = activeConversationId
     }
-  }, [activeConversationId, isChatOpen, dispatch, setMessages])
+  }, [activeConversationId, isChatOpen, dispatch, setMessages, storedMessages])
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value)
@@ -137,10 +144,14 @@ export const useAgenticChat = () => {
       const trimmedInput = input.trim()
       if (!trimmedInput) return
       setInput('')
-      await chat.sendMessage({
-        role: 'user',
-        parts: [{ type: 'text', text: trimmedInput }],
-      })
+      try {
+        await chat.sendMessage({
+          role: 'user',
+          parts: [{ type: 'text', text: trimmedInput }],
+        })
+      } catch (error) {
+        console.error('Failed to send message:', error)
+      }
     },
     [input, chat],
   )

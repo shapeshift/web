@@ -1,3 +1,5 @@
+import type { UIMessage } from 'ai'
+
 export const DEFAULT_CONVERSATION_TITLE = 'New Conversation'
 
 export type ToolType = 'swap' | 'send' | 'network_switch' | 'limit_order' | 'cancel_limit_order'
@@ -31,4 +33,5 @@ export type AgenticChatState = {
   conversations: Conversation[]
   activeConversationId: string | null
   isChatHistoryOpen: boolean
+  messagesByConversation: Record<string, UIMessage[]>
 }

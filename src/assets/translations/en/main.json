@@ -270,7 +270,11 @@
         "success": {
           "title": "Order Cancelled",
           "description": "Your limit order has been successfully cancelled"
-        }
+        },
+        "networkLabel": "Network",
+        "orderLabel": "Order",
+        "cancellationFailed": "Cancellation failed",
+        "orderCancelledSuccessfully": "Order cancelled successfully"
       },
       "createLimitOrder": {
         "title": "Create Limit Order",
@@ -292,7 +296,12 @@
         "success": {
           "title": "Limit Order Created",
           "description": "Your limit order has been successfully created"
-        }
+        },
+        "expires": "Expires",
+        "viewOrder": "View order →",
+        "approvalTx": "Approval tx",
+        "orderCreationFailed": "Order creation failed",
+        "orderCreatedSuccessfully": "Order created successfully"
       },
       "newCoins": {
         "title": "Recently Added",
@@ -318,7 +327,26 @@
         "balance": "Balance",
         "value": "Value",
         "network": "Network",
-        "emptyState": "No assets found"
+        "emptyState": "No assets found",
+        "24h": "24h",
+        "volume": "Volume",
+        "marketCap": "Market Cap",
+        "fdv": "FDV",
+        "showLess": "Show less",
+        "more": "More...",
+        "coinInfo": "Coin Info",
+        "circulatingSupply": "Circulating Supply",
+        "totalSupply": "Total Supply",
+        "maxSupply": "Max Supply",
+        "unlimited": "Unlimited",
+        "sentiment": "Sentiment",
+        "bullish": "Bullish",
+        "bearish": "Bearish",
+        "marketCapRank": "Market Cap Rank",
+        "volume24h": "24h Volume",
+        "volMcap": "Vol/MCap",
+        "about": "About",
+        "noDescription": "No description available for this asset."
       },
       "receive": {
         "title": "Receive",
@@ -340,7 +368,9 @@
         },
         "sellLabel": "Sell",
         "buyLabel": "Buy",
-        "expiresLabel": "Expires"
+        "expiresLabel": "Expires",
+        "view": "View",
+        "filledLabel": "Filled"
       },
       "getTransactionHistory": {
         "title": "Recent Transactions",
@@ -355,7 +385,14 @@
           "success": "Confirmed",
           "failed": "Failed",
           "pending": "Pending"
-        }
+        },
+        "txid": "Txid",
+        "from": "From",
+        "to": "To",
+        "value": "Value",
+        "fee": "Fee",
+        "network": "Network",
+        "tokens": "Tokens"
       }
     },
     "chatHistory": "Chat History",

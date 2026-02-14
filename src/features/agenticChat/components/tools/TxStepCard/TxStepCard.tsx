@@ -9,7 +9,6 @@ import { Amount } from '@/components/Amount/Amount'
 
 type TxStepCardRootProps = {
   children: ReactNode
-  defaultOpen?: boolean
 }
 
 const TxStepCardRoot = ({ children }: TxStepCardRootProps) => {

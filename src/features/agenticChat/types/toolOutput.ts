@@ -290,3 +290,19 @@ export type GetTransactionHistoryOutput = {
     }[]
   }[]
 }
+
+export type ToolOutputMap = {
+  sendTool: SendOutput
+  initiateSwapTool: SwapOutput
+  initiateSwapUsdTool: SwapOutput
+  cancelLimitOrderTool: CancelLimitOrderOutput
+  createLimitOrderTool: CreateLimitOrderOutput
+  getLimitOrdersTool: GetLimitOrdersOutput
+  getAssetsTool: GetAssetsOutput
+  transactionHistoryTool: GetTransactionHistoryOutput
+  getNewCoinsTool: NewCoinsOutput
+  receiveTool: ReceiveOutput
+  getTopGainersLosersTool: TopGainersLosersOutput
+  getTrendingTokensTool: TrendingTokensOutput
+  mathCalculatorTool: never
+}

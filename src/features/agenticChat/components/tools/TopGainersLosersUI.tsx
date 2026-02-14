@@ -3,7 +3,6 @@ import { FaArrowDown, FaArrowUp } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
 import type { ToolUIProps } from '../../types/toolInvocation'
-import type { TopGainersLosersOutput } from '../../types/toolOutput'
 import { AssetListItem } from '../shared/AssetListItem'
 import { DisplayToolCard } from './DisplayToolCard'
 
@@ -70,10 +69,9 @@ const GainerLoserCard = ({
   )
 }
 
-export const TopGainersLosersUI = ({ toolPart }: ToolUIProps) => {
+export const TopGainersLosersUI = ({ toolPart }: ToolUIProps<'getTopGainersLosersTool'>) => {
   const translate = useTranslate()
-  const { state, output } = toolPart
-  const toolOutput = output as TopGainersLosersOutput | undefined
+  const { state, output: toolOutput } = toolPart
 
   if (state === 'output-error' || !toolOutput) {
     return null

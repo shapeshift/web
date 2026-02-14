@@ -12,7 +12,6 @@ import {
 import { useTranslate } from 'react-polyglot'
 
 import type { ToolUIProps } from '../../types/toolInvocation'
-import type { GetLimitOrdersOutput } from '../../types/toolOutput'
 import { DisplayToolCard } from './DisplayToolCard'
 
 type OrderStatus = 'open' | 'fulfilled' | 'cancelled' | 'expired' | 'presignaturePending'
@@ -25,10 +24,9 @@ const STATUS_CONFIG: Record<OrderStatus, { icon: IconType; color: string }> = {
   presignaturePending: { icon: FaClock, color: 'yellow.500' },
 }
 
-export const GetLimitOrdersUI = ({ toolPart }: ToolUIProps) => {
+export const GetLimitOrdersUI = ({ toolPart }: ToolUIProps<'getLimitOrdersTool'>) => {
   const translate = useTranslate()
-  const { state, output } = toolPart
-  const toolOutput = output as GetLimitOrdersOutput | undefined
+  const { state, output: toolOutput } = toolPart
 
   const borderColor = useColorModeValue('gray.200', 'gray.600')
   const mutedColor = useColorModeValue('gray.600', 'gray.400')
@@ -99,7 +97,7 @@ export const GetLimitOrdersUI = ({ toolPart }: ToolUIProps) => {
                     </Flex>
                     <Link href={order.trackingUrl} isExternal fontSize='xs' color='blue.500'>
                       <Flex alignItems='center' gap={1}>
-                        <Text>View</Text>
+                        <Text>{translate('agenticChat.agenticChatTools.getLimitOrders.view')}</Text>
                         <Icon as={FaExternalLinkAlt} boxSize={3} />
                       </Flex>
                     </Link>
@@ -123,7 +121,9 @@ export const GetLimitOrdersUI = ({ toolPart }: ToolUIProps) => {
                     </Flex>
                     {order.filledPercent > 0 && (
                       <Flex justifyContent='space-between'>
-                        <Text>Filled:</Text>
+                        <Text>
+                          {translate('agenticChat.agenticChatTools.getLimitOrders.filledLabel')}:
+                        </Text>
                         <Text fontFamily='mono'>{order.filledPercent.toFixed(1)}%</Text>
                       </Flex>
                     )}

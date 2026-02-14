@@ -32,7 +32,7 @@ const SEND_PHASES = createStepPhaseMap<SendStep>({
   [SendStep.SEND]: 'send_complete',
 })
 
-type SendState = {
+export type SendState = {
   currentStep: SendStep
   completedSteps: SendStep[]
   sendTxHash?: string
@@ -45,7 +45,7 @@ const initialSendState: SendState = {
   completedSteps: [],
 }
 
-function sendStateToPersistedState(
+export function sendStateToPersistedState(
   toolCallId: string,
   conversationId: string,
   state: SendState,
@@ -68,7 +68,7 @@ function sendStateToPersistedState(
   }
 }
 
-function persistedStateToSendState(persisted: PersistedToolState): SendState {
+export function persistedStateToSendState(persisted: PersistedToolState): SendState {
   const completedSteps = SEND_PHASES.fromPhases(persisted.phases)
   const hasError = persisted.phases.includes('error')
   return {
@@ -111,9 +111,12 @@ export const useSendExecution = (
     agenticChatSlice.selectors.selectPersistedTransaction(state, toolCallId),
   )
 
-  const accountId = sendData
-    ? toAccountId({ chainId: sendData.tx.chainId, account: sendData.tx.from })
-    : undefined
+  const accountId = (() => {
+    if (!sendData) return undefined
+    if (!sendData.tx.chainId || typeof sendData.tx.chainId !== 'string') return undefined
+    if (!sendData.tx.from || typeof sendData.tx.from !== 'string') return undefined
+    return toAccountId({ chainId: sendData.tx.chainId, account: sendData.tx.from })
+  })()
   const accountMetadata = useAppSelector(state =>
     accountId ? selectPortfolioAccountMetadataByAccountId(state, { accountId }) : undefined,
   )
@@ -142,6 +145,7 @@ export const useSendExecution = (
       let sendTxHash: string | undefined
 
       try {
+        // Data shape guaranteed by server-side Zod validation and deterministic output construction
         const {
           wallet,
           accountId: validAccountId,

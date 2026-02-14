@@ -1,9 +1,9 @@
 import { Box, Button, Flex, Icon, Text, useColorModeValue } from '@chakra-ui/react'
 import { useCallback, useMemo, useState } from 'react'
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 
 import type { ToolUIProps } from '../../types/toolInvocation'
-import type { GetAssetsOutput } from '../../types/toolOutput'
 import { DisplayToolCard } from './DisplayToolCard'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -24,13 +24,14 @@ const StatMetric = ({ label, value }: { label: string; value: string }) => {
   )
 }
 
-export const GetAssetsUI = ({ toolPart }: ToolUIProps) => {
-  const { state, output } = toolPart
-  const toolOutput = output as GetAssetsOutput | undefined
+export const GetAssetsUI = ({ toolPart }: ToolUIProps<'getAssetsTool'>) => {
+  const { state, output: toolOutput } = toolPart
   const { number } = useLocaleFormatter()
+  const translate = useTranslate()
 
   const borderColor = useColorModeValue('gray.200', 'gray.600')
   const mutedColor = useColorModeValue('gray.600', 'gray.400')
+  const sentimentBg = useColorModeValue('gray.200', 'gray.700')
 
   const [descriptionExpanded, setDescriptionExpanded] = useState(false)
 
@@ -69,7 +70,8 @@ export const GetAssetsUI = ({ toolPart }: ToolUIProps) => {
     return null
   }
 
-  const description = asset.description || 'No description available for this asset.'
+  const description =
+    asset.description || translate('agenticChat.agenticChatTools.getAssets.noDescription')
   const shouldTruncate = description.length > 200
   const displayDescription =
     descriptionExpanded || !shouldTruncate ? description : `${description.slice(0, 200)}...`
@@ -106,7 +108,7 @@ export const GetAssetsUI = ({ toolPart }: ToolUIProps) => {
                     </Text>
                   </Flex>
                   <Text fontSize='xs' color={mutedColor} fontWeight='normal'>
-                    24h
+                    {translate('agenticChat.agenticChatTools.getAssets.24h')}
                   </Text>
                 </Flex>
               )}
@@ -118,15 +120,25 @@ export const GetAssetsUI = ({ toolPart }: ToolUIProps) => {
       <DisplayToolCard.Content>
         <Flex direction='column' gap={4}>
           <Flex gap={4} flexWrap='wrap'>
-            <StatMetric label='Volume' value={`$${formatCompactNumber(asset.volume24h)}`} />
-            <StatMetric label='Market Cap' value={`$${formatCompactNumber(asset.marketCap)}`} />
-            <StatMetric label='FDV' value={`$${formatCompactNumber(asset.fdv)}`} />
+            <StatMetric
+              label={translate('agenticChat.agenticChatTools.getAssets.volume')}
+              value={`$${formatCompactNumber(asset.volume24h)}`}
+            />
+            <StatMetric
+              label={translate('agenticChat.agenticChatTools.getAssets.marketCap')}
+              value={`$${formatCompactNumber(asset.marketCap)}`}
+            />
+            <StatMetric
+              label={translate('agenticChat.agenticChatTools.getAssets.fdv')}
+              value={`$${formatCompactNumber(asset.fdv)}`}
+            />
           </Flex>
 
           {description && (
             <Box borderTopWidth={1} borderColor={borderColor} pt={4}>
               <Text fontSize='sm' fontWeight='medium' mb={2}>
-                About {asset.symbol.toUpperCase()}
+                {translate('agenticChat.agenticChatTools.getAssets.about')}{' '}
+                {asset.symbol.toUpperCase()}
               </Text>
               <Text
                 fontSize='sm'
@@ -145,7 +157,9 @@ export const GetAssetsUI = ({ toolPart }: ToolUIProps) => {
                   onClick={() => setDescriptionExpanded(!descriptionExpanded)}
                   mt={2}
                 >
-                  {descriptionExpanded ? 'Show less' : 'More...'}
+                  {descriptionExpanded
+                    ? translate('agenticChat.agenticChatTools.getAssets.showLess')
+                    : translate('agenticChat.agenticChatTools.getAssets.more')}
                 </Button>
               )}
             </Box>
@@ -154,24 +168,28 @@ export const GetAssetsUI = ({ toolPart }: ToolUIProps) => {
           {(asset.circulatingSupply || asset.totalSupply || asset.maxSupply) && (
             <Box borderTopWidth={1} borderColor={borderColor} pt={4}>
               <Text fontSize='sm' fontWeight='medium' mb={3}>
-                Coin Info
+                {translate('agenticChat.agenticChatTools.getAssets.coinInfo')}
               </Text>
               <Flex direction='column' gap={2}>
                 {asset.circulatingSupply && (
                   <DisplayToolCard.DetailItem
-                    label='Circulating Supply'
+                    label={translate('agenticChat.agenticChatTools.getAssets.circulatingSupply')}
                     value={formatCompactNumber(asset.circulatingSupply)}
                   />
                 )}
                 {asset.totalSupply && (
                   <DisplayToolCard.DetailItem
-                    label='Total Supply'
+                    label={translate('agenticChat.agenticChatTools.getAssets.totalSupply')}
                     value={formatCompactNumber(asset.totalSupply)}
                   />
                 )}
                 <DisplayToolCard.DetailItem
-                  label='Max Supply'
-                  value={asset.maxSupply ? formatCompactNumber(asset.maxSupply) : 'Unlimited'}
+                  label={translate('agenticChat.agenticChatTools.getAssets.maxSupply')}
+                  value={
+                    asset.maxSupply
+                      ? formatCompactNumber(asset.maxSupply)
+                      : translate('agenticChat.agenticChatTools.getAssets.unlimited')
+                  }
                 />
               </Flex>
             </Box>
@@ -180,22 +198,24 @@ export const GetAssetsUI = ({ toolPart }: ToolUIProps) => {
           {hasSentiment && (
             <Box borderTopWidth={1} borderColor={borderColor} pt={4}>
               <Text fontSize='sm' fontWeight='medium' mb={3}>
-                Sentiment
+                {translate('agenticChat.agenticChatTools.getAssets.sentiment')}
               </Text>
               <Flex direction='column' gap={2}>
                 {asset.sentimentVotesUpPercentage !== null &&
                   asset.sentimentVotesDownPercentage !== null && (
                     <>
-                      <Flex gap={2} h={2} borderRadius='full' overflow='hidden' bg='gray.200'>
+                      <Flex gap={2} h={2} borderRadius='full' overflow='hidden' bg={sentimentBg}>
                         <Box bg='green.500' w={`${asset.sentimentVotesUpPercentage}%`} h='full' />
                         <Box bg='red.500' w={`${asset.sentimentVotesDownPercentage}%`} h='full' />
                       </Flex>
                       <Flex justifyContent='space-between' fontSize='sm'>
                         <Text color='green.500' fontWeight='medium'>
-                          <Amount.Percent value={asset.sentimentVotesUpPercentage} /> Bullish
+                          <Amount.Percent value={asset.sentimentVotesUpPercentage} />{' '}
+                          {translate('agenticChat.agenticChatTools.getAssets.bullish')}
                         </Text>
                         <Text color='red.500' fontWeight='medium'>
-                          <Amount.Percent value={asset.sentimentVotesDownPercentage} /> Bearish
+                          <Amount.Percent value={asset.sentimentVotesDownPercentage} />{' '}
+                          {translate('agenticChat.agenticChatTools.getAssets.bearish')}
                         </Text>
                       </Flex>
                     </>
@@ -207,10 +227,19 @@ export const GetAssetsUI = ({ toolPart }: ToolUIProps) => {
           <Box borderTopWidth={1} borderColor={borderColor} pt={4}>
             <Flex gap={4} flexWrap='wrap'>
               {asset.marketCapRank && (
-                <StatMetric label='Market Cap Rank' value={`#${asset.marketCapRank}`} />
+                <StatMetric
+                  label={translate('agenticChat.agenticChatTools.getAssets.marketCapRank')}
+                  value={`#${asset.marketCapRank}`}
+                />
               )}
-              <StatMetric label='24h Volume' value={`$${formatCompactNumber(asset.volume24h)}`} />
-              <StatMetric label='Vol/MCap' value={volMcapRatio ? `${volMcapRatio}%` : 'N/A'} />
+              <StatMetric
+                label={translate('agenticChat.agenticChatTools.getAssets.volume24h')}
+                value={`$${formatCompactNumber(asset.volume24h)}`}
+              />
+              <StatMetric
+                label={translate('agenticChat.agenticChatTools.getAssets.volMcap')}
+                value={volMcapRatio ? `${volMcapRatio}%` : 'N/A'}
+              />
             </Flex>
           </Box>
         </Flex>

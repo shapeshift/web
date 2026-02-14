@@ -5,7 +5,6 @@ import { FaHistory } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
 import type { ToolUIProps } from '../../types/toolInvocation'
-import type { GetTransactionHistoryOutput } from '../../types/toolOutput'
 import { DisplayToolCard } from './DisplayToolCard'
 
 import { TransactionTypeIcon } from '@/components/TransactionHistory/TransactionTypeIcon'
@@ -39,10 +38,9 @@ const mapTxStatus = (status: string): TxStatus => {
   }
 }
 
-export const GetTransactionHistoryUI = ({ toolPart }: ToolUIProps) => {
+export const GetTransactionHistoryUI = ({ toolPart }: ToolUIProps<'transactionHistoryTool'>) => {
   const translate = useTranslate()
-  const { state, output, input } = toolPart
-  const toolOutput = output as GetTransactionHistoryOutput | undefined
+  const { state, output: toolOutput, input } = toolPart
   const toolInput = input as Partial<Record<string, unknown>> | undefined
 
   const borderColor = useColorModeValue('gray.200', 'gray.600')
@@ -150,43 +148,55 @@ export const GetTransactionHistoryUI = ({ toolPart }: ToolUIProps) => {
 
                   <Flex direction='column' gap={1} fontSize='xs' color={mutedColor}>
                     <Flex justifyContent='space-between'>
-                      <Text>Txid:</Text>
+                      <Text>
+                        {translate('agenticChat.agenticChatTools.getTransactionHistory.txid')}:
+                      </Text>
                       <Text fontFamily='mono'>{middleEllipsis(tx.txid)}</Text>
                     </Flex>
                     {tx.from && (
                       <Flex justifyContent='space-between'>
-                        <Text>From:</Text>
+                        <Text>
+                          {translate('agenticChat.agenticChatTools.getTransactionHistory.from')}:
+                        </Text>
                         <Text fontFamily='mono'>{middleEllipsis(tx.from)}</Text>
                       </Flex>
                     )}
                     {tx.to && (
                       <Flex justifyContent='space-between'>
-                        <Text>To:</Text>
+                        <Text>
+                          {translate('agenticChat.agenticChatTools.getTransactionHistory.to')}:
+                        </Text>
                         <Text fontFamily='mono'>{middleEllipsis(tx.to)}</Text>
                       </Flex>
                     )}
                     {tx.value && (
                       <Flex justifyContent='space-between'>
-                        <Text>Value:</Text>
+                        <Text>
+                          {translate('agenticChat.agenticChatTools.getTransactionHistory.value')}:
+                        </Text>
                         <Text fontFamily='mono'>{tx.value}</Text>
                       </Flex>
                     )}
                     {tx.fee && (
                       <Flex justifyContent='space-between'>
-                        <Text>Fee:</Text>
+                        <Text>
+                          {translate('agenticChat.agenticChatTools.getTransactionHistory.fee')}:
+                        </Text>
                         <Text fontFamily='mono'>{tx.fee}</Text>
                       </Flex>
                     )}
                     {tx.network && (
                       <Flex justifyContent='space-between'>
-                        <Text>Network:</Text>
+                        <Text>
+                          {translate('agenticChat.agenticChatTools.getTransactionHistory.network')}:
+                        </Text>
                         <Text>{tx.network}</Text>
                       </Flex>
                     )}
                     {tx.tokenTransfers && tx.tokenTransfers.length > 0 && (
                       <Box mt={1}>
                         <Text fontWeight='medium' mb={1}>
-                          Tokens:
+                          {translate('agenticChat.agenticChatTools.getTransactionHistory.tokens')}:
                         </Text>
                         {tx.tokenTransfers.map((transfer, i) => (
                           <Flex key={i} justifyContent='space-between' pl={2}>

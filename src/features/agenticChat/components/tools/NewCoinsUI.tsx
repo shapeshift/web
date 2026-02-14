@@ -3,14 +3,12 @@ import { FaStar } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
 import type { ToolUIProps } from '../../types/toolInvocation'
-import type { NewCoinsOutput } from '../../types/toolOutput'
 import { AssetListItem } from '../shared/AssetListItem'
 import { DisplayToolCard } from './DisplayToolCard'
 
-export const NewCoinsUI = ({ toolPart }: ToolUIProps) => {
+export const NewCoinsUI = ({ toolPart }: ToolUIProps<'getNewCoinsTool'>) => {
   const translate = useTranslate()
-  const { state, output } = toolPart
-  const toolOutput = output as NewCoinsOutput | undefined
+  const { state, output: toolOutput } = toolPart
 
   const borderColor = useColorModeValue('gray.200', 'gray.600')
 

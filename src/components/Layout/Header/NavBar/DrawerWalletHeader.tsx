@@ -129,6 +129,42 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
       [walletInfo, maybeMipdProvider?.info],
     )
 
+    const actionButtons = useMemo(() => {
+      if (isChatOpen) {
+        return (
+          <>
+            <IconButton
+              aria-label={translate('agenticChat.newChat')}
+              isRound
+              fontSize='lg'
+              icon={newChatIcon}
+              size='md'
+              onClick={handleNewChatClick}
+            />
+            <IconButton
+              aria-label={translate('agenticChat.chatHistory')}
+              isRound
+              fontSize='lg'
+              icon={historyIcon}
+              size='md'
+              onClick={handleChatHistoryClick}
+            />
+          </>
+        )
+      }
+
+      return (
+        <IconButton
+          aria-label={translate('modals.send.qrCode')}
+          isRound
+          fontSize='lg'
+          icon={qrCodeIcon}
+          size='md'
+          onClick={handleQrCodeClick}
+        />
+      )
+    }, [isChatOpen, translate, handleNewChatClick, handleChatHistoryClick, handleQrCodeClick])
+
     if (!isConnected || isLocked || !walletInfo) return null
 
     return (
@@ -147,35 +183,7 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
           <Text fontWeight='medium'>{label}</Text>
         </Flex>
         <Flex gap={2}>
-          {isChatOpen ? (
-            <>
-              <IconButton
-                aria-label={translate('agenticChat.newChat')}
-                isRound
-                fontSize='lg'
-                icon={newChatIcon}
-                size='md'
-                onClick={handleNewChatClick}
-              />
-              <IconButton
-                aria-label={translate('agenticChat.chatHistory')}
-                isRound
-                fontSize='lg'
-                icon={historyIcon}
-                size='md'
-                onClick={handleChatHistoryClick}
-              />
-            </>
-          ) : (
-            <IconButton
-              aria-label={translate('modals.send.qrCode')}
-              isRound
-              fontSize='lg'
-              icon={qrCodeIcon}
-              size='md'
-              onClick={handleQrCodeClick}
-            />
-          )}
+          {actionButtons}
           <IconButton
             aria-label={translate('common.settings')}
             isRound

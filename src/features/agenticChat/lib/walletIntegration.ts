@@ -22,6 +22,16 @@ type ExecuteEvmTransactionParams = {
 export async function executeEvmTransaction(params: ExecuteEvmTransactionParams): Promise<string> {
   const { tx, wallet, accountId, accountMetadata } = params
 
+  if (!tx.to || typeof tx.to !== 'string') {
+    throw new Error('Invalid EVM transaction: missing or invalid "to" address')
+  }
+  if (!tx.chainId || typeof tx.chainId !== 'string') {
+    throw new Error('Invalid EVM transaction: missing or invalid "chainId"')
+  }
+  if (tx.value === undefined || tx.value === null || typeof tx.value !== 'string') {
+    throw new Error('Invalid EVM transaction: missing or invalid "value"')
+  }
+
   const adapter = assertGetEvmChainAdapter(tx.chainId)
 
   const { accountNumber } = accountMetadata.bip44Params
@@ -70,6 +80,13 @@ export async function executeSolanaTransaction(
 ): Promise<string> {
   const { tx, wallet, accountId, accountMetadata } = params
 
+  if (!tx.data || typeof tx.data !== 'string') {
+    throw new Error('Invalid Solana transaction: missing or invalid "data"')
+  }
+  if (!tx.chainId || typeof tx.chainId !== 'string') {
+    throw new Error('Invalid Solana transaction: missing or invalid "chainId"')
+  }
+
   const adapter = assertGetSolanaChainAdapter(tx.chainId)
 
   const { accountNumber } = accountMetadata.bip44Params
@@ -80,21 +97,29 @@ export async function executeSolanaTransaction(
     pubKey: fromAccountId(accountId).account,
   })
 
-  const txData = JSON.parse(tx.data)
-  const rawInstructions = txData.instructions ?? []
-
-  // Convert hex data strings back to Buffers for Solana SDK
-  const instructions = rawInstructions.map(
-    (ix: {
+  let txData: {
+    instructions?: {
       programId: string
       keys: { pubkey: string; isSigner: boolean; isWritable: boolean }[]
       data: string
-    }) => ({
-      programId: ix.programId,
-      keys: ix.keys,
-      data: Buffer.from(ix.data, 'hex'),
-    }),
-  )
+    }[]
+    computeUnitLimit?: number
+    computeUnitPrice?: number
+    addressLookupTableAccounts?: string[]
+  }
+  try {
+    txData = JSON.parse(tx.data)
+  } catch {
+    throw new Error('Invalid Solana transaction data: expected valid JSON')
+  }
+  const rawInstructions = txData.instructions ?? []
+
+  // Convert hex data strings back to Buffers for Solana SDK
+  const instructions = rawInstructions.map(ix => ({
+    programId: ix.programId,
+    keys: ix.keys,
+    data: Buffer.from(ix.data, 'hex'),
+  }))
 
   const { txToSign } = await adapter.buildCustomTx({
     wallet,

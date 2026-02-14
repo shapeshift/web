@@ -42,7 +42,7 @@ const CANCEL_LIMIT_ORDER_PHASES = createStepPhaseMap<CancelLimitOrderStep>({
   [CancelLimitOrderStep.SUBMIT]: 'submit_complete',
 })
 
-type CancelLimitOrderState = {
+export type CancelLimitOrderState = {
   currentStep: CancelLimitOrderStep
   completedSteps: CancelLimitOrderStep[]
   signature?: string
@@ -55,7 +55,7 @@ const initialCancelLimitOrderState: CancelLimitOrderState = {
   completedSteps: [],
 }
 
-function stateToPersistedState(
+export function stateToPersistedState(
   toolCallId: string,
   conversationId: string,
   state: CancelLimitOrderState,
@@ -78,7 +78,7 @@ function stateToPersistedState(
   }
 }
 
-function persistedStateToState(persisted: PersistedToolState): CancelLimitOrderState {
+export function persistedStateToState(persisted: PersistedToolState): CancelLimitOrderState {
   const completedSteps = CANCEL_LIMIT_ORDER_PHASES.fromPhases(persisted.phases)
   const hasError = persisted.phases.includes('error')
   return {
@@ -154,6 +154,7 @@ export const useCancelLimitOrderExecution = (
       let signature: string | undefined
 
       try {
+        // Data shape guaranteed by server-side Zod validation and deterministic output construction
         const { wallet, accountMetadata: validAccountMetadata } = validateExecutionContext(
           walletState,
           accountId,

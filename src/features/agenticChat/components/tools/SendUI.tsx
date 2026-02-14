@@ -4,14 +4,12 @@ import { useTranslate } from 'react-polyglot'
 
 import { SendStep, StepStatus, useSendExecution } from '../../hooks/useSendExecution'
 import type { ToolUIProps } from '../../types/toolInvocation'
-import type { SendOutput } from '../../types/toolOutput'
 import { TxStepCard } from './TxStepCard'
 
 import { middleEllipsis } from '@/lib/utils'
 
-export const SendUI = ({ toolPart }: ToolUIProps) => {
-  const { state, output, toolCallId } = toolPart
-  const sendOutput = output as SendOutput | undefined
+export const SendUI = ({ toolPart }: ToolUIProps<'sendTool'>) => {
+  const { state, output: sendOutput, toolCallId } = toolPart
   const translate = useTranslate()
 
   const sendData = state === 'output-available' && sendOutput ? sendOutput : null

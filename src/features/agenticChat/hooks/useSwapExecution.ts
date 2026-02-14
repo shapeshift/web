@@ -38,7 +38,7 @@ const SWAP_PHASES = createStepPhaseMap<SwapStep>({
   [SwapStep.SWAP]: 'swap_complete',
 })
 
-type SwapState = {
+export type SwapState = {
   currentStep: SwapStep
   completedSteps: SwapStep[]
   approvalTxHash?: string
@@ -52,7 +52,7 @@ const initialSwapState: SwapState = {
   completedSteps: [],
 }
 
-function swapStateToPersistedState(
+export function swapStateToPersistedState(
   toolCallId: string,
   conversationId: string,
   state: SwapState,
@@ -76,7 +76,7 @@ function swapStateToPersistedState(
   }
 }
 
-function persistedStateToSwapState(persisted: PersistedToolState): SwapState {
+export function persistedStateToSwapState(persisted: PersistedToolState): SwapState {
   const completedSteps = SWAP_PHASES.fromPhases(persisted.phases)
   const hasError = persisted.phases.includes('error')
   return {
@@ -121,9 +121,12 @@ export const useSwapExecution = (
     agenticChatSlice.selectors.selectPersistedTransaction(state, toolCallId),
   )
 
-  const accountId = swapData
-    ? toAccountId({ chainId: swapData.swapTx.chainId, account: swapData.swapTx.from })
-    : undefined
+  const accountId = (() => {
+    if (!swapData) return undefined
+    if (!swapData.swapTx.chainId || typeof swapData.swapTx.chainId !== 'string') return undefined
+    if (!swapData.swapTx.from || typeof swapData.swapTx.from !== 'string') return undefined
+    return toAccountId({ chainId: swapData.swapTx.chainId, account: swapData.swapTx.from })
+  })()
   const accountMetadata = useAppSelector(state =>
     accountId ? selectPortfolioAccountMetadataByAccountId(state, { accountId }) : undefined,
   )
@@ -153,6 +156,7 @@ export const useSwapExecution = (
       let swapTxHash: string | undefined
 
       try {
+        // Data shape guaranteed by server-side Zod validation and deterministic output construction
         const {
           wallet,
           accountId: validAccountId,

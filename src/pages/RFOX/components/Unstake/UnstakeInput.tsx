@@ -1,7 +1,7 @@
 import { CardBody, CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import { fromAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { isSome } from '@shapeshiftoss/utils'
+import { BigAmount, isSome } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -28,7 +28,6 @@ import { useToggle } from '@/hooks/useToggle/useToggle'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { selectStakingBalance } from '@/pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
 import { supportedStakingAssetIds, useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
@@ -155,7 +154,11 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   })
 
   const amountCryptoBaseUnit = useMemo(
-    () => toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0),
+    () =>
+      BigAmount.fromPrecision({
+        value: amountCryptoPrecision,
+        precision: stakingAsset?.precision ?? 0,
+      }).toBaseUnit(),
     [amountCryptoPrecision, stakingAsset?.precision],
   )
 
@@ -205,7 +208,10 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
 
   const userStakingBalanceCryptoPrecision = useMemo(() => {
     if (!(userStakingBalanceOfCryptoBaseUnit && stakingAsset)) return
-    return fromBaseUnit(userStakingBalanceOfCryptoBaseUnit, stakingAsset?.precision)
+    return BigAmount.fromBaseUnit({
+      value: userStakingBalanceOfCryptoBaseUnit,
+      precision: stakingAsset?.precision ?? 0,
+    }).toPrecision()
   }, [stakingAsset, userStakingBalanceOfCryptoBaseUnit])
 
   const userStakingBalanceUserCurrency = useMemo(() => {
@@ -285,7 +291,10 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     setConfirmedQuote({
       stakingAssetAccountId,
       stakingAssetId,
-      unstakingAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, stakingAsset.precision),
+      unstakingAmountCryptoBaseUnit: BigAmount.fromPrecision({
+        value: amountCryptoPrecision,
+        precision: stakingAsset.precision,
+      }).toBaseUnit(),
       cooldownPeriod: cooldownPeriodData.cooldownPeriod,
     })
 
@@ -314,10 +323,10 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
       const fees = unstakeFees
 
       const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
-        toBaseUnit(
-          stakingAssetFeeAssetBalanceCryptoPrecision,
-          stakingAssetFeeAsset?.precision ?? 0,
-        ),
+        BigAmount.fromPrecision({
+          value: stakingAssetFeeAssetBalanceCryptoPrecision,
+          precision: stakingAssetFeeAsset?.precision ?? 0,
+        }).toBaseUnit(),
       )
 
       if (!hasEnoughFeeBalance) return false

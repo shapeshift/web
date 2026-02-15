@@ -148,8 +148,8 @@ export class SeekerHDWallet implements HDWallet {
   getPublicKeys(msg: GetPublicKey[]): Promise<(PublicKey | null)[] | null> {
     return Promise.resolve(
       msg.map(getPublicKey => {
-        if (getPublicKey.curve !== 'ed25519') return null
-        if (getPublicKey.coin !== 'Solana') return null
+        if (getPublicKey.curve.toLowerCase() !== 'ed25519') return null
+        if (getPublicKey.coin.toLowerCase() !== 'solana') return null
 
         return { xpub: this.pubkey }
       }),

@@ -50,7 +50,7 @@ export const useFetchOpportunities = () => {
     enabled:
       !isConnected || Boolean(portfolioLoadingStatus !== 'loading' && requestedAccountIds.length),
     staleTime: Infinity,
-    // Note the default gcTime of react-query below. Doesn't need to be explicit, but given how bug-prone this is, leaving  here as explicit so it
+    // Note the default gcTime of react-query below. Doesn't need to be explicit, but given how bug-prone this is, leaving here as explicit so it
     // can be easily updated if needed
     gcTime: 60 * 1000 * 5,
   })

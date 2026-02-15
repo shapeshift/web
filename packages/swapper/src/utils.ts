@@ -100,7 +100,7 @@ export const AsyncResultOf = async <T>(promise: Promise<T>): Promise<Result<T, E
 
 // https://github.com/microsoft/TypeScript/issues/20846#issuecomment-353412767
 // "new Proxy" is typed as `new <T extends object>(target: T, handler: ProxyHandler<T>): T;`
-// i.e same return type as the target object being trapped, but we're akschually returning a monadic flavor of the target object
+// i.e same return type as the target object being trapped, but we're actually returning a monadic flavor of the target object
 interface ProxyHandler<T extends object, TOut extends object> {
   get?<K extends keyof TOut>(target: T, p: K, receiver: TOut): TOut[K]
   set?<K extends keyof TOut>(target: T, p: K, value: TOut[K], receiver: TOut): boolean

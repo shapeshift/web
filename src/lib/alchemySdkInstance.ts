@@ -22,7 +22,7 @@ export const ALCHEMY_SDK_SUPPORTED_CHAIN_IDS = [
 
 export const getAlchemyInstanceByChainId = (chainId: ChainId): Alchemy => {
   // Note, make sure to not unify this guy and `instance` below.
-  // This is a set, not an array, calling .set() will not automagically update `maybeInstance` to the new reference
+  // This is a set, not an array, calling .set() will not automatically update `maybeInstance` to the new reference
   // This should probably be an Array for dev QoL but cba to change it as part of this eslint PR
   const maybeInstance = alchemyInstanceMap.get(chainId)
   if (maybeInstance) return maybeInstance

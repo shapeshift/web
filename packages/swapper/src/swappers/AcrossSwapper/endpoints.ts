@@ -162,6 +162,8 @@ export const acrossApi: SwapperApi = {
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
     const { accountNumber, solanaTransactionMetadata, sellAsset } = step
 
+    if (!solanaTransactionMetadata) throw new Error('Missing Solana transaction metadata')
+
     const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
 
     // Across pre-built transactions already include ComputeBudget instructions.
@@ -170,7 +172,7 @@ export const acrossApi: SwapperApi = {
     // can add fresh ones based on simulation.
     const COMPUTE_BUDGET_PROGRAM_ID = ComputeBudgetProgram.programId.toString()
 
-    const instructionsWithoutComputeBudget = solanaTransactionMetadata?.instructions?.filter(
+    const instructionsWithoutComputeBudget = solanaTransactionMetadata.instructions.filter(
       ix => ix.programId.toString() !== COMPUTE_BUDGET_PROGRAM_ID,
     )
 
@@ -179,12 +181,12 @@ export const acrossApi: SwapperApi = {
       value: '0',
       chainSpecific: {
         from,
-        addressLookupTableAccounts: solanaTransactionMetadata?.addressLookupTableAddresses,
+        addressLookupTableAccounts: solanaTransactionMetadata.addressLookupTableAddresses,
         instructions: instructionsWithoutComputeBudget,
       },
     })
 
-    const solanaInstructions = instructionsWithoutComputeBudget?.map(instruction =>
+    const solanaInstructions = instructionsWithoutComputeBudget.map(instruction =>
       adapter.convertInstruction(instruction),
     )
 
@@ -194,7 +196,7 @@ export const acrossApi: SwapperApi = {
       value: '0',
       accountNumber,
       chainSpecific: {
-        addressLookupTableAccounts: solanaTransactionMetadata?.addressLookupTableAddresses,
+        addressLookupTableAccounts: solanaTransactionMetadata.addressLookupTableAddresses,
         instructions: solanaInstructions,
         computeUnitLimit: bnOrZero(fast.chainSpecific.computeUnits)
           .times(COMPUTE_UNIT_MARGIN_MULTIPLIER)

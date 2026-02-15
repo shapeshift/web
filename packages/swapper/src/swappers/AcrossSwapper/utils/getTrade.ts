@@ -137,7 +137,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     if (isSolanaRoute) return undefined
     if (!isTreasuryChainId(buyAsset.chainId)) return undefined
     const bps = Number(affiliateBps)
-    if (bps <= 0) return undefined
+    if (!Number.isFinite(bps) || bps <= 0) return undefined
     return bps / 10000
   })()
 
@@ -242,40 +242,53 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   // For SVM transactions, decompile the pre-built base64 blob into instructions
   // so getUnsignedSolanaTransaction can rebuild it at execution time
-  const solanaTransactionMetadata = await (async () => {
-    if (quote.swapTx.ecosystem !== 'svm') return undefined
+  const maybeSolanaTransactionMetadata = await (async () => {
+    if (quote.swapTx.ecosystem !== 'svm') return Ok(undefined)
 
-    const versionedTransaction = VersionedTransaction.deserialize(
-      new Uint8Array(Buffer.from(quote.swapTx.data, 'base64')),
-    )
+    try {
+      const versionedTransaction = VersionedTransaction.deserialize(
+        new Uint8Array(Buffer.from(quote.swapTx.data, 'base64')),
+      )
 
-    const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+      const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
 
-    const addressLookupTableAccountKeys = versionedTransaction.message.addressTableLookups.map(
-      lookup => lookup.accountKey.toString(),
-    )
+      const addressLookupTableAccountKeys = versionedTransaction.message.addressTableLookups.map(
+        lookup => lookup.accountKey.toString(),
+      )
 
-    const addressLookupTableAccountsInfos = await adapter.getAddressLookupTableAccounts(
-      addressLookupTableAccountKeys,
-    )
+      const addressLookupTableAccountsInfos = await adapter.getAddressLookupTableAccounts(
+        addressLookupTableAccountKeys,
+      )
 
-    const addressLookupTableAccounts = addressLookupTableAccountsInfos.map(
-      info =>
-        new AddressLookupTableAccount({
-          key: new PublicKey(info.key),
-          state: AddressLookupTableAccount.deserialize(new Uint8Array(info.data)),
+      const addressLookupTableAccounts = addressLookupTableAccountsInfos.map(
+        info =>
+          new AddressLookupTableAccount({
+            key: new PublicKey(info.key),
+            state: AddressLookupTableAccount.deserialize(new Uint8Array(info.data)),
+          }),
+      )
+
+      const instructions = TransactionMessage.decompile(versionedTransaction.message, {
+        addressLookupTableAccounts,
+      }).instructions
+
+      return Ok({
+        instructions,
+        addressLookupTableAddresses: addressLookupTableAccountKeys,
+      })
+    } catch (e) {
+      return Err(
+        makeSwapErrorRight({
+          message: `[getTrade] Failed to decompile Solana transaction: ${e}`,
+          code: TradeQuoteError.UnknownError,
         }),
-    )
-
-    const instructions = TransactionMessage.decompile(versionedTransaction.message, {
-      addressLookupTableAccounts,
-    }).instructions
-
-    return {
-      instructions,
-      addressLookupTableAddresses: addressLookupTableAccountKeys,
+      )
     }
   })()
+
+  if (maybeSolanaTransactionMetadata.isErr()) return Err(maybeSolanaTransactionMetadata.unwrapErr())
+
+  const solanaTransactionMetadata = maybeSolanaTransactionMetadata.unwrap()
 
   // Build protocol fee asset ID — Across returns its own numeric chain IDs, convert to CAIP
   const bridgeFeeAssetCaipChainId = acrossChainIdToChainId[bridgeFeeAsset.chainId.toString()]
@@ -345,6 +358,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       return Err(
         makeSwapErrorRight({
           message: 'Receive address is required for quote',
+          code: TradeQuoteError.InternalError,
         }),
       )
     }

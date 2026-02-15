@@ -38,8 +38,7 @@ import { PublicKey as SolanaPublicKey } from '@solana/web3.js'
 import type { MessageRelaxed } from '@ton/core'
 import { Address, beginCell, Cell, internal, SendMode, storeMessage } from '@ton/core'
 import { WalletContractV4 } from '@ton/ton'
-import crypto from 'crypto'
-import { createBLAKE2b } from 'hash-wasm'
+import { createBLAKE2b, sha256 } from 'hash-wasm'
 
 import type { SeekerMessageHandler } from './types'
 
@@ -316,8 +315,8 @@ export class SeekerHDWallet implements HDWallet {
   }
 
   async nearSignTx(msg: NearSignTx): Promise<NearSignedTx | null> {
-    const txHash = crypto.createHash('sha256').update(Buffer.from(msg.txBytes)).digest()
-    const txHashBase64 = txHash.toString('base64')
+    const txHashHex = await sha256(Buffer.from(msg.txBytes))
+    const txHashBase64 = Buffer.from(txHashHex, 'hex').toString('base64')
 
     const derivationPath = 'bip32:/' + nearAddressNListToBIP32(msg.addressNList)
     const cacheKey = `${SeekerHDWallet.CACHE_VERSION}:${derivationPath}`

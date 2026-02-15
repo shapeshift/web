@@ -30,6 +30,7 @@ export type FeatureFlags = {
   Sui: boolean
   Ton: boolean
   Near: boolean
+  AgenticChat: boolean
   Base: boolean
   Mayachain: boolean
   Monad: boolean
@@ -177,6 +178,7 @@ const initialState: Preferences = {
     Sui: getConfig().VITE_FEATURE_SUI,
     Ton: getConfig().VITE_FEATURE_TON,
     Near: getConfig().VITE_FEATURE_NEAR,
+    AgenticChat: getConfig().VITE_FEATURE_AGENTIC_CHAT,
     Base: getConfig().VITE_FEATURE_BASE,
     Mayachain: getConfig().VITE_FEATURE_MAYACHAIN,
     Monad: getConfig().VITE_FEATURE_MONAD,

@@ -186,6 +186,7 @@ export const mockStore: ReduxState = {
       YieldsPage: false,
       YieldMultiAccount: false,
       EarnTab: false,
+      AgenticChat: false,
     },
     showTopAssetsCarousel: true,
     quickBuyAmounts: [10, 50, 100],
@@ -419,5 +420,20 @@ export const mockStore: ReduxState = {
       rehydrated: false,
     },
     byAccountId: {},
+  },
+  agenticChat: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
+    historicalToolIds: [],
+    runtimeToolStates: {},
+    persistedTransactions: [],
+    isChatOpen: false,
+    pendingMessage: null,
+    conversations: [],
+    activeConversationId: null,
+    isChatHistoryOpen: false,
+    messagesByConversation: {},
   },
 }

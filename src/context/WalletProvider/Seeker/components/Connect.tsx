@@ -41,7 +41,8 @@ export const SeekerConnect = () => {
 
       if (!authResult.success || !authResult.address) {
         setErrorLoading('walletProvider.errors.walletNotFound')
-        throw new Error('Seeker authorization failed or returned no address')
+        navigate('/seeker/failure')
+        return
       }
 
       const { SeekerHDWallet } = await import('@shapeshiftoss/hdwallet-seeker')
@@ -74,11 +75,11 @@ export const SeekerConnect = () => {
         payload: true,
       })
       dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
-      localWallet.setLocalWallet({ type: KeyManager.Seeker, deviceId })
+      localWallet.setLocalWallet({ type: KeyManager.Seeker, deviceId, rdns: null })
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error(e, 'Seeker Connect: There was an error initializing the wallet')
-      setErrorLoading(e.message)
+      setErrorLoading(e instanceof Error ? e.message : 'walletProvider.errors.walletNotFound')
       navigate('/seeker/failure')
     }
 

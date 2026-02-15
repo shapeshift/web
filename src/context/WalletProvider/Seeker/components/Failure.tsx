@@ -1,4 +1,5 @@
 import { ModalBody, ModalHeader } from '@chakra-ui/react'
+
 import { Text } from '@/components/Text'
 
 export const SeekerFailure = () => {

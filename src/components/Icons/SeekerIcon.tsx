@@ -1,4 +1,5 @@
-import { Icon, type IconProps } from '@chakra-ui/react'
+import type { IconProps } from '@chakra-ui/react'
+import { Icon } from '@chakra-ui/react'
 
 export const SeekerIcon = ({ boxSize = '1em', ...props }: IconProps) => {
   return (

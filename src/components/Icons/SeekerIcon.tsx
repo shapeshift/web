@@ -1,6 +1,6 @@
-import { Image } from '@chakra-ui/react'
+import { Image, type ImageProps } from '@chakra-ui/react'
 
-export const SeekerIcon = ({ boxSize = '1em', ...props }: any) => {
+export const SeekerIcon = ({ boxSize = '1em', ...props }: ImageProps) => {
   return (
     <Image
       src='/images/skr-logo.png'

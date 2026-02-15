@@ -4,7 +4,6 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Keyring } from '@shapeshiftoss/hdwallet-core/keyring'
 import type { GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
 import type { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
-import { SeekerHDWallet } from '@shapeshiftoss/hdwallet-seeker'
 import type { EthereumProvider as EthereumProviderType } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
@@ -33,7 +32,7 @@ import { useKeepKeyEventHandler } from '@/context/WalletProvider/KeepKey/hooks/u
 import { MobileConfig } from '@/context/WalletProvider/MobileWallet/config'
 import { getWallet } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from '@/context/WalletProvider/routes'
-import { SeekerConfig } from '@/context/WalletProvider/Seeker/config'
+import { SEEKER_DEFAULT_CLUSTER, SeekerConfig } from '@/context/WalletProvider/Seeker/config'
 import {
   checkSeekerAvailability,
   seekerAuthorize,
@@ -928,9 +927,11 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
           }
           case KeyManager.Seeker: {
             try {
-              const authResult = await seekerAuthorize()
+              const authResult = await seekerAuthorize(SEEKER_DEFAULT_CLUSTER)
 
               if (authResult.success && authResult.address) {
+                const { SeekerHDWallet } = await import('@shapeshiftoss/hdwallet-seeker')
+
                 const messageHandler = {
                   checkAvailability: checkSeekerAvailability,
                   authorize: seekerAuthorize,

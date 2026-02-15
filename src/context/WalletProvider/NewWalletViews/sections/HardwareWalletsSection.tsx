@@ -149,7 +149,7 @@ export const HardwareWalletsSection = ({
         payload: true,
       })
       dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
-      localWallet.setLocalWallet({ type: KeyManager.Seeker, deviceId })
+      localWallet.setLocalWallet({ type: KeyManager.Seeker, deviceId, rdns: null })
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     } catch (error) {
       console.error('Error connecting to Seeker:', error)

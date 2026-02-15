@@ -146,8 +146,15 @@ export class SeekerHDWallet implements HDWallet {
     return Promise.resolve('Seeker Wallet')
   }
 
-  getPublicKeys(_msg: GetPublicKey[]): Promise<(PublicKey | null)[] | null> {
-    return Promise.resolve([{ xpub: this.pubkey }])
+  getPublicKeys(msg: GetPublicKey[]): Promise<(PublicKey | null)[] | null> {
+    return Promise.resolve(
+      msg.map(getPublicKey => {
+        if (getPublicKey.curve !== 'ed25519') return null
+        if (getPublicKey.coin !== 'Solana') return null
+
+        return { xpub: this.pubkey }
+      }),
+    )
   }
 
   isInitialized(): Promise<boolean> {

@@ -60,6 +60,7 @@ export const clearState = () => {
   store.dispatch(slices.limitOrder.actions.clear())
   store.dispatch(slices.gridplus.actions.clear())
   store.dispatch(slices.addressBook.actions.clear())
+  store.dispatch(slices.agenticChat.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
   store.dispatch(apiSlices.marketApi.util.resetApiState())

@@ -143,7 +143,7 @@ export const useGenericTransactionSubscriber = () => {
     })
 
     pendingGenericTransactionActions.forEach(action => {
-      if (action.status !== ActionStatus.Pending) return
+      if (action.status !== ActionStatus.Pending && action.status !== ActionStatus.Initiated) return
 
       // Approvals, RFOX and TCY TODO: handle more
       if (

@@ -651,18 +651,18 @@ export const useYieldTransactionFlow = ({
             console.error('Failed to parse yield Tx:', e)
           }
 
-          dispatchNotification(tx, txHash, {
-            status: ActionStatus.Complete,
-            id: yieldActionUuid,
-          })
-
           // After completing a claim (manage), transition existing ClaimAvailable actions to Claimed
           if (action === 'manage' && yieldItem?.id) {
+            dispatchNotification(tx, txHash, {
+              status: ActionStatus.Complete,
+              id: yieldActionUuid,
+            })
+
             const state = store.getState()
             const actionsById = actionSlice.selectors.selectActionsById(state)
             const actionIds = actionSlice.selectors.selectActionIds(state)
-            for (const actionId of actionIds) {
-              const existingAction = actionsById[actionId]
+            for (const storeActionId of actionIds) {
+              const existingAction = actionsById[storeActionId]
               if (
                 isGenericTransactionAction(existingAction) &&
                 existingAction.status === ActionStatus.ClaimAvailable &&
@@ -685,14 +685,16 @@ export const useYieldTransactionFlow = ({
             }
           }
 
-          // After completing an exit with an unbonding period, dispatch a Pending claim action
+          // After completing an exit with an unbonding period, reuse the same action as
+          // the cooldown tracker — transition from Pending directly to Initiated (green checkmark
+          // + blue "Initiated" tag, same UX as Arbitrum bridge withdrawals)
           const cooldownSeconds = yieldItem?.mechanics.cooldownPeriod?.seconds
           if (action === 'exit' && cooldownSeconds && yieldChainId && accountId && yieldItem) {
             dispatch(
               actionSlice.actions.upsertAction({
-                id: uuidv4(),
+                id: yieldActionUuid,
                 type: ActionType.Claim,
-                status: ActionStatus.Pending,
+                status: ActionStatus.Initiated,
                 createdAt: Date.now(),
                 updatedAt: Date.now(),
                 transactionMetadata: {
@@ -711,6 +713,14 @@ export const useYieldTransactionFlow = ({
                 },
               }),
             )
+          }
+
+          // Non-cooldown exits and deposits: dispatch Complete normally
+          if (action !== 'manage' && !(action === 'exit' && cooldownSeconds)) {
+            dispatchNotification(tx, txHash, {
+              status: ActionStatus.Complete,
+              id: yieldActionUuid,
+            })
           }
 
           updateStepStatus(uiStepIndex, { status: 'success', loadingMessage: undefined })

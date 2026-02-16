@@ -229,27 +229,49 @@ export const useGenericTransactionSubscriber = () => {
                 console.error('Failed to parse yield Tx:', e)
               }
 
-              const typeMessagesMap = displayTypeMessagesMap[action.type]
-              const message =
-                typeMessagesMap?.[action.transactionMetadata.displayType] ??
-                action.transactionMetadata.message
+              const { cooldownPeriodSeconds } = action.transactionMetadata
+              const isExitWithCooldown =
+                action.type === ActionType.Withdraw && cooldownPeriodSeconds
 
-              dispatch(
-                actionSlice.actions.upsertAction({
-                  ...action,
-                  status: ActionStatus.Complete,
-                  updatedAt: Date.now(),
-                  transactionMetadata: {
-                    ...action.transactionMetadata,
-                    message,
-                  },
-                }),
-              )
+              if (isExitWithCooldown) {
+                dispatch(
+                  actionSlice.actions.upsertAction({
+                    ...action,
+                    type: ActionType.Claim,
+                    status: ActionStatus.Initiated,
+                    updatedAt: Date.now(),
+                    transactionMetadata: {
+                      ...action.transactionMetadata,
+                      displayType: GenericTransactionDisplayType.Claim,
+                      message: 'actionCenter.yield.unstakeAvailableIn',
+                      cooldownExpiryTimestamp: Date.now() + cooldownPeriodSeconds * 1000,
+                    },
+                  }),
+                )
+              } else {
+                const typeMessagesMap = displayTypeMessagesMap[action.type]
+                const message =
+                  typeMessagesMap?.[action.transactionMetadata.displayType] ??
+                  action.transactionMetadata.message
+
+                dispatch(
+                  actionSlice.actions.upsertAction({
+                    ...action,
+                    status: ActionStatus.Complete,
+                    updatedAt: Date.now(),
+                    transactionMetadata: {
+                      ...action.transactionMetadata,
+                      message,
+                    },
+                  }),
+                )
+
+                fireSuccessToast(action)
+              }
 
               queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'allBalances'] })
               queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'yields'] })
 
-              fireSuccessToast(action)
               clearPollingInterval(pollingKey)
             } else if (
               yieldAction.status === YieldActionStatus.Failed ||

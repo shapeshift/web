@@ -492,6 +492,7 @@ export const useYieldTransactionFlow = ({
             yieldType: yieldItem.mechanics.type,
             cooldownPeriodSeconds: yieldItem.mechanics.cooldownPeriod?.seconds,
             yieldActionId: options?.yieldActionId,
+            yieldId: yieldItem.id,
           },
         }),
       )

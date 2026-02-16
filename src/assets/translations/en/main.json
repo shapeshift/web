@@ -2985,6 +2985,7 @@
     "providers": "Providers",
     "successStaked": "You successfully staked %{amount} %{symbol}",
     "successUnstaked": "You successfully unstaked %{amount} %{symbol}",
+    "cooldownNotice": "Your withdrawal will be available in %{cooldownDuration}.",
     "successDeposited": "You successfully deposited %{amount} %{symbol}",
     "successWithdrawn": "You successfully withdrew %{amount} %{symbol}",
     "successClaim": "You successfully claimed %{amount} %{symbol}",

@@ -440,14 +440,11 @@ export const useYieldTransactionFlow = ({
       }
       const displayType = getDisplayType()
 
-      // TODO(gomes): handle claim notifications - there's more logic TBD here (e.g. unbonding periods).
-      // For now, KISS and simply don't handle claims in action center.
-      if (action === 'manage') return
-
       const typeMessagesMap: Partial<Record<ActionType, string>> = {
         [ActionType.Deposit]: 'actionCenter.deposit.complete',
         [ActionType.Withdraw]: 'actionCenter.withdrawal.complete',
         [ActionType.Approve]: 'actionCenter.approve.approvalTxComplete',
+        [ActionType.Claim]: 'actionCenter.claim.complete',
       }
 
       dispatch(
@@ -474,6 +471,8 @@ export const useYieldTransactionFlow = ({
             amountCryptoPrecision: amount,
             contractName: yieldItem.metadata.name,
             chainName: yieldItem.network,
+            yieldType: yieldItem.mechanics.type,
+            cooldownPeriodSeconds: yieldItem.mechanics.cooldownPeriod?.seconds,
           },
         }),
       )

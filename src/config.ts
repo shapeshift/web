@@ -252,6 +252,10 @@ const validators = {
   VITE_YIELD_XYZ_BASE_URL: url({ default: 'https://api.yield.xyz/v1' }),
   VITE_FEATURE_YIELD_MULTI_ACCOUNT: bool({ default: false }),
   VITE_FEATURE_PERFORMANCE_PROFILER: bool({ default: false }),
+  VITE_FEATURE_AGENTIC_CHAT: bool({ default: false }),
+  VITE_AGENTIC_SERVER_BASE_URL: url({
+    default: 'https://shapeshiftossagentic-server-production.up.railway.app',
+  }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

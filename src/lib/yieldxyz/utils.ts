@@ -71,6 +71,19 @@ const assertNever = (value: never): never => {
   throw new Error(`Unhandled yield type: ${value}`)
 }
 
+const YIELD_TYPES: YieldType[] = [
+  'staking',
+  'native-staking',
+  'pooled-staking',
+  'liquid-staking',
+  'restaking',
+  'vault',
+  'lending',
+]
+
+export const isValidYieldType = (value: string): value is YieldType =>
+  YIELD_TYPES.includes(value as YieldType)
+
 export const isStakingYieldType = (yieldType: YieldType): boolean => {
   switch (yieldType) {
     case 'staking':
@@ -344,8 +357,9 @@ export type YieldSuccessMessageKey =
 
 export const getYieldSuccessMessageKey = (
   yieldType: YieldType,
-  action: 'enter' | 'exit' | 'claim' | 'manage',
+  action: 'enter' | 'exit' | 'claim' | 'manage' | 'withdraw',
 ): YieldSuccessMessageKey => {
+  if (action === 'withdraw') return 'successWithdrawn'
   if (action === 'claim' || action === 'manage') return 'successClaim'
 
   switch (yieldType) {

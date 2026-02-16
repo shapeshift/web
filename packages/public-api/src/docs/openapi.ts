@@ -41,7 +41,68 @@ const AssetSchema = registry.register(
   }),
 )
 
-// Quote Response Step
+const EvmTransactionDataSchema = z.object({
+  type: z.literal('evm').openapi({ example: 'evm' }),
+  chainId: z.number().openapi({ example: 1 }),
+  to: z.string().openapi({ example: '0xdef1c0ded9bec7f1a1670819833240f027b25eff' }),
+  data: z.string().openapi({ example: '0x...' }),
+  value: z.string().openapi({ example: '1000000000000000000' }),
+  gasLimit: z.string().optional().openapi({ example: '300000' }),
+  signatureRequired: z
+    .object({
+      type: z.literal('permit2'),
+      eip712: z.record(z.unknown()),
+    })
+    .optional(),
+})
+
+const SolanaTransactionDataSchema = z.object({
+  type: z.literal('solana').openapi({ example: 'solana' }),
+  instructions: z.array(
+    z.object({
+      programId: z.string(),
+      keys: z.array(
+        z.object({
+          pubkey: z.string(),
+          isSigner: z.boolean(),
+          isWritable: z.boolean(),
+        }),
+      ),
+      data: z.string(),
+    }),
+  ),
+  addressLookupTableAddresses: z.array(z.string()),
+})
+
+const UtxoPsbtTransactionDataSchema = z.object({
+  type: z.literal('utxo_psbt').openapi({ example: 'utxo_psbt' }),
+  psbt: z.string(),
+  opReturnData: z.string().optional(),
+})
+
+const UtxoDepositTransactionDataSchema = z.object({
+  type: z.literal('utxo_deposit').openapi({ example: 'utxo_deposit' }),
+  depositAddress: z.string(),
+  memo: z.string(),
+  value: z.string(),
+})
+
+const CosmosTransactionDataSchema = z.object({
+  type: z.literal('cosmos').openapi({ example: 'cosmos' }),
+  chainId: z.string(),
+  to: z.string(),
+  value: z.string(),
+  memo: z.string().optional(),
+})
+
+const TransactionDataSchema = z.discriminatedUnion('type', [
+  EvmTransactionDataSchema,
+  SolanaTransactionDataSchema,
+  UtxoPsbtTransactionDataSchema,
+  UtxoDepositTransactionDataSchema,
+  CosmosTransactionDataSchema,
+])
+
 const QuoteStepSchema = registry.register(
   'QuoteStep',
   z.object({
@@ -54,14 +115,7 @@ const QuoteStepSchema = registry.register(
       .openapi({ example: '0xdef1c0ded9bec7f1a1670819833240f027b25eff' }),
     estimatedExecutionTimeMs: z.number().optional().openapi({ example: 60000 }),
     source: z.string().openapi({ example: '0x' }),
-    transactionData: z
-      .object({
-        to: z.string(),
-        data: z.string(),
-        value: z.string(),
-        gasLimit: z.string().optional(),
-      })
-      .optional(),
+    transactionData: TransactionDataSchema.optional(),
   }),
 )
 

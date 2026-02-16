@@ -182,16 +182,17 @@ export const useGenericTransactionSubscriber = () => {
           }
         }
 
-        checkCooldownExpiry()
-        if (pollingIntervalsRef.current.has(pollingKey)) return
         const intervalId = setInterval(checkCooldownExpiry, 60_000)
         pollingIntervalsRef.current.set(pollingKey, intervalId)
+        checkCooldownExpiry()
         return
       }
 
       // Yield actions with yieldActionId → poll yield.xyz API (unified, all chains)
+      // Includes both Yield (deposit/withdraw) and Claim (manage) display types
       if (
-        action.transactionMetadata.displayType === GenericTransactionDisplayType.Yield &&
+        (action.transactionMetadata.displayType === GenericTransactionDisplayType.Yield ||
+          action.transactionMetadata.displayType === GenericTransactionDisplayType.Claim) &&
         yieldActionId
       ) {
         const pollingKey = `yield_${action.id}`

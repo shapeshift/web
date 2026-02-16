@@ -1,5 +1,6 @@
 import { getProvidersExcluding } from '@cetusprotocol/aggregator-sdk'
 import { Transaction } from '@mysten/sui/transactions'
+import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
@@ -102,13 +103,7 @@ export const cetusApi: SwapperApi = {
 
     const bip44Params = adapter.getBip44Params({ accountNumber })
 
-    const addressNList = [
-      bip44Params.purpose,
-      bip44Params.coinType,
-      bip44Params.accountNumber,
-      ...(bip44Params.isChange !== undefined ? [bip44Params.isChange ? 1 : 0] : []),
-      ...(bip44Params.addressIndex !== undefined ? [bip44Params.addressIndex] : []),
-    ]
+    const addressNList = toAddressNList(bip44Params)
 
     return {
       addressNList,

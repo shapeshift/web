@@ -201,6 +201,209 @@
   "accountSelector": {
     "chooseAccount": "Choose Account"
   },
+  "agenticChat": {
+    "title": "ShapeShift Agent",
+    "aiChat": "AI Chat",
+    "openChat": "Open chat",
+    "closeChat": "Close chat",
+    "emptyState": "How can I help you today?",
+    "placeholder": "Type a message...",
+    "stop": "Stop",
+    "send": "Send",
+    "txStepProgress": "%{completedCount} of %{totalCount} complete",
+    "agenticChatTools": {
+      "send": {
+        "title": "Send Crypto",
+        "receivedFrom": "Received from %{address}",
+        "steps": {
+          "preparation": "Preparing send transaction",
+          "send": "Sign and send transaction"
+        },
+        "errors": {
+          "prepareFailed": "Failed to prepare send transaction",
+          "sendFailed": "Send failed: %{error}",
+          "noWallet": "No wallet connected",
+          "accountNotFound": "Account not found"
+        },
+        "success": {
+          "transactionSent": "Transaction sent: %{txHash}",
+          "title": "Send Successful",
+          "description": "Your send transaction has been completed"
+        }
+      },
+      "swap": {
+        "title": "Swap",
+        "receivedFrom": "Received from %{address}",
+        "steps": {
+          "quote": "Getting swap quote",
+          "networkSwitch": "Switch to %{network}",
+          "networkSwitchGeneric": "Switch network",
+          "approval": "Approve token spending",
+          "approvalConfirmation": "Confirming approval",
+          "swap": "Sign swap transaction"
+        },
+        "errors": {
+          "quoteFailed": "Failed to get swap quote",
+          "swapFailed": "Swap execution failed: %{error}",
+          "noWallet": "No wallet connected",
+          "accountNotFound": "Account not found"
+        },
+        "success": {
+          "title": "Swap Successful",
+          "description": "Your swap transaction has been completed"
+        }
+      },
+      "cancelLimitOrder": {
+        "title": "Cancel Limit Order",
+        "steps": {
+          "prepare": "Preparing cancellation",
+          "sign": "Sign cancellation",
+          "submit": "Submitting cancellation"
+        },
+        "errors": {
+          "prepareFailed": "Failed to prepare cancellation",
+          "signFailed": "Failed to sign cancellation",
+          "submitFailed": "Failed to cancel order: %{error}",
+          "noWallet": "No wallet connected",
+          "accountNotFound": "Account not found"
+        },
+        "success": {
+          "title": "Order Cancelled",
+          "description": "Your limit order has been successfully cancelled"
+        },
+        "networkLabel": "Network",
+        "orderLabel": "Order",
+        "cancellationFailed": "Cancellation failed",
+        "orderCancelledSuccessfully": "Order cancelled successfully"
+      },
+      "createLimitOrder": {
+        "title": "Create Limit Order",
+        "steps": {
+          "prepare": "Preparing order",
+          "approval": "Approve token spending",
+          "approvalConfirmation": "Confirming approval",
+          "sign": "Sign order",
+          "submit": "Submitting order"
+        },
+        "errors": {
+          "prepareFailed": "Failed to prepare order",
+          "approvalFailed": "Token approval failed",
+          "signFailed": "Failed to sign order",
+          "submitFailed": "Failed to create order: %{error}",
+          "noWallet": "No wallet connected",
+          "accountNotFound": "Account not found"
+        },
+        "success": {
+          "title": "Limit Order Created",
+          "description": "Your limit order has been successfully created"
+        },
+        "expires": "Expires",
+        "viewOrder": "View order →",
+        "approvalTx": "Approval tx",
+        "orderCreationFailed": "Order creation failed",
+        "orderCreatedSuccessfully": "Order created successfully"
+      },
+      "newCoins": {
+        "title": "Recently Added",
+        "subtitle": "New coins on CoinGecko"
+      },
+      "trendingTokens": {
+        "title": "Trending on CoinGecko",
+        "subtitle": "24h trending tokens"
+      },
+      "topGainersLosers": {
+        "gainersTitle": "Top Gainers (%{duration})",
+        "losersTitle": "Top Losers (%{duration})"
+      },
+      "portfolio": {
+        "title": "Portfolio",
+        "totalValue": "Total Value",
+        "accountLabel": "Account",
+        "networkLabel": "Network",
+        "emptyState": "No assets in portfolio"
+      },
+      "getAssets": {
+        "title": "Assets",
+        "balance": "Balance",
+        "value": "Value",
+        "network": "Network",
+        "emptyState": "No assets found",
+        "24h": "24h",
+        "volume": "Volume",
+        "marketCap": "Market Cap",
+        "fdv": "FDV",
+        "showLess": "Show less",
+        "more": "More...",
+        "coinInfo": "Coin Info",
+        "circulatingSupply": "Circulating Supply",
+        "totalSupply": "Total Supply",
+        "maxSupply": "Max Supply",
+        "unlimited": "Unlimited",
+        "sentiment": "Sentiment",
+        "bullish": "Bullish",
+        "bearish": "Bearish",
+        "marketCapRank": "Market Cap Rank",
+        "volume24h": "24h Volume",
+        "volMcap": "Vol/MCap",
+        "about": "About",
+        "noDescription": "No description available for this asset."
+      },
+      "receive": {
+        "title": "Receive",
+        "receiveOn": "Receive %{symbol} on %{network}",
+        "copyAddress": "Copy address",
+        "copied": "Copied!",
+        "warning": "Only send %{network}-compatible tokens to this address"
+      },
+      "getLimitOrders": {
+        "title": "Limit Orders",
+        "openOrders": "%{count} open",
+        "noOrders": "No limit orders found",
+        "status": {
+          "open": "Open",
+          "fulfilled": "Filled",
+          "cancelled": "Cancelled",
+          "expired": "Expired",
+          "presignaturePending": "Pending"
+        },
+        "sellLabel": "Sell",
+        "buyLabel": "Buy",
+        "expiresLabel": "Expires",
+        "view": "View",
+        "filledLabel": "Filled"
+      },
+      "getTransactionHistory": {
+        "title": "Recent Transactions",
+        "noTransactions": "No transactions found",
+        "type": {
+          "send": "Send",
+          "receive": "Receive",
+          "swap": "Swap",
+          "contract": "Contract"
+        },
+        "status": {
+          "success": "Confirmed",
+          "failed": "Failed",
+          "pending": "Pending"
+        },
+        "txid": "Txid",
+        "from": "From",
+        "to": "To",
+        "value": "Value",
+        "fee": "Fee",
+        "network": "Network",
+        "tokens": "Tokens"
+      }
+    },
+    "chatHistory": "Chat History",
+    "newChat": "New Chat",
+    "deleteConversation": "Delete Conversation",
+    "deleteConfirmation": "Are you sure you want to delete this conversation?",
+    "noConversations": "No conversations yet",
+    "newConversation": "New Conversation",
+    "searchChats": "Search your chats...",
+    "noMatchingConversations": "No matching conversations"
+  },
   "quickBuy": {
     "title": "Quick Buy %{assetOnChain}",
     "nativeNotAvailable": "Quick Buy not available on native assets",
@@ -1810,6 +2013,17 @@
         "header": "Pair Vultisig",
         "body": "Click Pair and login to Vultisig from the popup window",
         "button": "Pair"
+      }
+    },
+    "seeker": {
+      "connect": {
+        "header": "Connect Seeker",
+        "body": "Authorize ShapeShift to connect with your Seeker wallet",
+        "button": "Connect"
+      },
+      "failure": {
+        "header": "Connection Failed",
+        "body": "Unable to connect to Seeker wallet. Please ensure the Seeker app is available and try again."
       }
     }
   },

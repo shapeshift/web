@@ -30,6 +30,7 @@ export type FeatureFlags = {
   Sui: boolean
   Ton: boolean
   Near: boolean
+  AgenticChat: boolean
   Base: boolean
   Mayachain: boolean
   Monad: boolean
@@ -100,6 +101,7 @@ export type FeatureFlags = {
   SunioSwap: boolean
   AvnuSwap: boolean
   StonfiSwap: boolean
+  AcrossSwap: boolean
   LazyTxHistory: boolean
   LedgerReadOnly: boolean
   QuickBuy: boolean
@@ -176,6 +178,7 @@ const initialState: Preferences = {
     Sui: getConfig().VITE_FEATURE_SUI,
     Ton: getConfig().VITE_FEATURE_TON,
     Near: getConfig().VITE_FEATURE_NEAR,
+    AgenticChat: getConfig().VITE_FEATURE_AGENTIC_CHAT,
     Base: getConfig().VITE_FEATURE_BASE,
     Mayachain: getConfig().VITE_FEATURE_MAYACHAIN,
     Monad: getConfig().VITE_FEATURE_MONAD,
@@ -246,6 +249,7 @@ const initialState: Preferences = {
     SunioSwap: getConfig().VITE_FEATURE_SUNIO_SWAP,
     AvnuSwap: getConfig().VITE_FEATURE_AVNU_SWAP,
     StonfiSwap: getConfig().VITE_FEATURE_STONFI_SWAP,
+    AcrossSwap: getConfig().VITE_FEATURE_ACROSS_SWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
     LedgerReadOnly: getConfig().VITE_FEATURE_LEDGER_READ_ONLY,
     QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,

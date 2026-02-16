@@ -121,6 +121,26 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     }
   }
 
+  async getTransactionStatus(txHash: string): Promise<TxStatus> {
+    try {
+      const receipt = await this.provider.getTransactionReceipt(txHash)
+
+      if (!receipt) return TxStatus.Pending
+
+      switch (receipt.status) {
+        case 1:
+          return TxStatus.Confirmed
+        case 0:
+          return TxStatus.Failed
+        default:
+          return TxStatus.Unknown
+      }
+    } catch (error) {
+      console.error(`[${this.getName()}] Error getting transaction status:`, error)
+      return TxStatus.Unknown
+    }
+  }
+
   private async getTokenBalancesMulticall(
     pubkey: string,
     tokens: TokenInfo[],

@@ -35,7 +35,7 @@ export const EmissionsPool: React.FC<EmissionsPoolProps> = ({ stakingAssetId }) 
     const distributionRate =
       currentEpochMetadataQuery.data.distributionRateByStakingContract[
         getStakingContract(stakingAssetId)
-      ]
+      ] ?? 0
 
     return bn(affiliateRevenueUsdQuery.data)
       .times(userCurrencyToUsdRate)

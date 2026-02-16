@@ -1,3 +1,4 @@
+import { arbitrumChainId, toAccountId } from '@shapeshiftoss/caip'
 import type { Swap } from '@shapeshiftoss/swapper'
 
 import { selectEnabledWalletAccountIds } from '../common-selectors'
@@ -12,11 +13,13 @@ import type {
 import {
   ActionStatus,
   ActionType,
+  GenericTransactionDisplayType,
   isArbitrumBridgeWithdrawAction,
   isGenericTransactionAction,
   isLimitOrderAction,
   isPendingSendAction,
   isPendingSwapAction,
+  isRewardDistributionAction,
   isRfoxClaimAction,
   isSwapAction,
   isTcyClaimAction,
@@ -66,6 +69,15 @@ export const selectWalletActions = createDeepEqualOutputSelector(
 
       if (isTcyClaimAction(action)) {
         return enabledWalletAccountIds.includes(action.tcyClaimActionMetadata.claim.accountId)
+      }
+
+      if (isRewardDistributionAction(action)) {
+        const stakingAccountId = toAccountId({
+          chainId: arbitrumChainId,
+          account: action.rewardDistributionMetadata.distribution.stakingAddress,
+        })
+
+        return enabledWalletAccountIds.includes(stakingAccountId)
       }
 
       return action
@@ -276,5 +288,30 @@ export const selectPendingArbitrumBridgeWithdrawActions = createDeepEqualOutputS
         action.status !== ActionStatus.Claimed &&
         action.status !== ActionStatus.Failed,
     )
+  },
+)
+
+const isYieldAction = (action: GenericTransactionAction): boolean => {
+  const { displayType, yieldType } = action.transactionMetadata
+  if (yieldType) return true
+  return displayType === GenericTransactionDisplayType.Yield
+}
+
+export const selectYieldActionsByTxHash = createDeepEqualOutputSelector(
+  actionSlice.selectors.selectActionsById,
+  actionSlice.selectors.selectActionIds,
+  (actionsById, actionIds): Record<string, GenericTransactionAction> => {
+    const result: Record<string, GenericTransactionAction> = {}
+    for (const id of actionIds) {
+      const action = actionsById[id]
+      if (
+        isGenericTransactionAction(action) &&
+        isYieldAction(action) &&
+        action.transactionMetadata.txHash
+      ) {
+        result[action.transactionMetadata.txHash] = action
+      }
+    }
+    return result
   },
 )

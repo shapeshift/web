@@ -10,7 +10,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { getChainShortName } from '@shapeshiftoss/utils'
+import { BigAmount, getChainShortName } from '@shapeshiftoss/utils'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -29,7 +29,6 @@ import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { toBaseUnit } from '@/lib/math'
 import { selectPortfolioCryptoPrecisionBalanceByFilter } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -89,7 +88,10 @@ export const BridgeConfirm: FC<BridgeRouteProps & BridgeConfirmProps> = ({ confi
     })()
 
     const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
-      toBaseUnit(feeAssetBalanceCryptoPrecision, feeAsset?.precision ?? 0),
+      BigAmount.fromPrecision({
+        value: feeAssetBalanceCryptoPrecision,
+        precision: feeAsset?.precision ?? 0,
+      }).toBaseUnit(),
     )
 
     if (!hasEnoughFeeBalance) return false

@@ -171,11 +171,13 @@ const normalizeBalances = (
     const enteringBalance = balancesByType[YieldBalanceTypeEnum.Entering]
     const exitingBalance = balancesByType[YieldBalanceTypeEnum.Exiting]
     const claimableBalance = balancesByType[YieldBalanceTypeEnum.Claimable]
+    const withdrawableBalance = balancesByType[YieldBalanceTypeEnum.Withdrawable]
 
     const hasActive = bnOrZero(activeBalance?.aggregatedAmount).gt(0)
     const hasEntering = bnOrZero(enteringBalance?.aggregatedAmount).gt(0)
     const hasExiting = bnOrZero(exitingBalance?.aggregatedAmount).gt(0)
     const hasClaimable = bnOrZero(claimableBalance?.aggregatedAmount).gt(0)
+    const hasWithdrawable = bnOrZero(withdrawableBalance?.aggregatedAmount).gt(0)
 
     const validatorTotalUsd = Object.values(balancesByType).reduce(
       (acc, b) => acc.plus(bnOrZero(b?.aggregatedAmountUsd)),
@@ -185,7 +187,7 @@ const normalizeBalances = (
     const claimAction = claimableBalance?.pendingActions?.find(a =>
       a.type.toUpperCase().includes('CLAIM'),
     )
-    const hasAnyPosition = hasActive || hasEntering || hasExiting || hasClaimable
+    const hasAnyPosition = hasActive || hasEntering || hasExiting || hasClaimable || hasWithdrawable
     if (!hasAnyPosition) continue
 
     totalUsdAccumulator = totalUsdAccumulator.plus(validatorTotalUsd)

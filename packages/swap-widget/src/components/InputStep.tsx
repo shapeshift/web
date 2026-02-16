@@ -383,7 +383,7 @@ export const InputStep = ({
       )}
 
       <button
-        className={`ssw-action-btn ${!canExecuteDirectly ? 'ssw-secondary' : ''}`}
+        className={`ssw-action-btn ${isUnsupportedChain ? 'ssw-secondary' : ''}`}
         disabled={isButtonDisabled || isQuoting}
         onClick={onButtonClick}
         type='button'

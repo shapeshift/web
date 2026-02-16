@@ -37,14 +37,14 @@ const TEST_RATE: TradeRate = {
   affiliateBps: '0',
 }
 
-const TEST_QUOTE_NO_APPROVAL: QuoteResponse = {
+const TEST_QUOTE_NO_APPROVAL = {
   transactionData: { to: '0xRouter', data: '0xSwapData', value: '1000000000000000000' },
-}
+} as QuoteResponse
 
-const TEST_QUOTE_WITH_APPROVAL: QuoteResponse = {
+const TEST_QUOTE_WITH_APPROVAL = {
   transactionData: { to: '0xRouter', data: '0xSwapData', value: '1000000000000000000' },
   approval: { isRequired: true, spender: '0xSpender' },
-}
+} as QuoteResponse
 
 describe('swapMachine', () => {
   describe('initial state', () => {

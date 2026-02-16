@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import type { QuoteResponse } from '../../types'
 import {
   canRetry,
   hasQuote,
@@ -72,14 +73,14 @@ describe('guards', () => {
     })
 
     it('returns true when quote is present', () => {
-      expect(hasQuote(createTestContext({ quote: {} }))).toBe(true)
+      expect(hasQuote(createTestContext({ quote: {} as QuoteResponse }))).toBe(true)
     })
 
     it('returns true when quote has approval data', () => {
       expect(
         hasQuote(
           createTestContext({
-            quote: { approval: { isRequired: true, spender: '0xSpender' } },
+            quote: { approval: { isRequired: true, spender: '0xSpender' } } as QuoteResponse,
           }),
         ),
       ).toBe(true)
@@ -95,7 +96,7 @@ describe('guards', () => {
       expect(
         isApprovalRequired(
           createTestContext({
-            quote: { approval: { isRequired: false, spender: '0xSpender' } },
+            quote: { approval: { isRequired: false, spender: '0xSpender' } } as QuoteResponse,
           }),
         ),
       ).toBe(false)
@@ -113,7 +114,7 @@ describe('guards', () => {
               precision: 6,
             },
             chainType: 'evm',
-            quote: { approval: { isRequired: true, spender: '0xSpender' } },
+            quote: { approval: { isRequired: true, spender: '0xSpender' } } as QuoteResponse,
           }),
         ),
       ).toBe(true)
@@ -124,7 +125,7 @@ describe('guards', () => {
         isApprovalRequired(
           createTestContext({
             chainType: 'evm',
-            quote: { approval: { isRequired: true, spender: '0xSpender' } },
+            quote: { approval: { isRequired: true, spender: '0xSpender' } } as QuoteResponse,
           }),
         ),
       ).toBe(false)
@@ -135,7 +136,7 @@ describe('guards', () => {
         isApprovalRequired(
           createTestContext({
             chainType: 'utxo',
-            quote: { approval: { isRequired: true, spender: '0xSpender' } },
+            quote: { approval: { isRequired: true, spender: '0xSpender' } } as QuoteResponse,
           }),
         ),
       ).toBe(false)
@@ -145,7 +146,7 @@ describe('guards', () => {
       expect(
         isApprovalRequired(
           createTestContext({
-            quote: {},
+            quote: {} as QuoteResponse,
           }),
         ),
       ).toBe(false)

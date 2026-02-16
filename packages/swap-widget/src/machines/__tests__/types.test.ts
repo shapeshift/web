@@ -1,27 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
-import type { SwapperName } from '../../types'
+import type { QuoteResponse, SwapperName } from '../../types'
 import type { SwapMachineContext, SwapMachineEvent } from '../types'
-import { SwapStep } from '../types'
 
 describe('SwapMachine Types', () => {
-  it('SwapStep enum has all expected values', () => {
-    expect(SwapStep.Idle).toBe('idle')
-    expect(SwapStep.Input).toBe('input')
-    expect(SwapStep.Quoting).toBe('quoting')
-    expect(SwapStep.ApprovalNeeded).toBe('approval_needed')
-    expect(SwapStep.Approving).toBe('approving')
-    expect(SwapStep.Executing).toBe('executing')
-    expect(SwapStep.PollingStatus).toBe('polling_status')
-    expect(SwapStep.Complete).toBe('complete')
-    expect(SwapStep.Error).toBe('error')
-  })
-
-  it('SwapStep enum has exactly 9 states', () => {
-    const stepValues = Object.values(SwapStep)
-    expect(stepValues).toHaveLength(9)
-  })
-
   it('SwapMachineContext type is structurally valid', () => {
     const context: SwapMachineContext = {
       sellAsset: {
@@ -97,14 +79,12 @@ describe('SwapMachine Types', () => {
           affiliateBps: '0',
         },
       },
-      { type: 'SWAP_TOKENS' },
       { type: 'FETCH_QUOTE' },
-      { type: 'QUOTE_SUCCESS', quote: {} },
+      { type: 'QUOTE_SUCCESS', quote: {} as QuoteResponse },
       { type: 'QUOTE_ERROR', error: 'No quotes available' },
       { type: 'APPROVE' },
       { type: 'APPROVAL_SUCCESS', txHash: '0xabc' },
       { type: 'APPROVAL_ERROR', error: 'Approval failed' },
-      { type: 'EXECUTE' },
       { type: 'EXECUTE_SUCCESS', txHash: '0xdef' },
       { type: 'EXECUTE_ERROR', error: 'Execution failed' },
       { type: 'STATUS_CONFIRMED' },
@@ -123,7 +103,7 @@ describe('SwapMachine Types', () => {
       },
     ]
 
-    expect(events).toHaveLength(22)
+    expect(events).toHaveLength(20)
     const eventTypes = events.map(e => e.type)
     expect(eventTypes).toContain('SET_SELL_ASSET')
     expect(eventTypes).toContain('RESET')

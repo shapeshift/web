@@ -178,6 +178,15 @@ export type ApiQuoteStep = {
   estimatedExecutionTimeMs: number | undefined
   source: string
   transactionData?: TransactionData
+  relayTransactionMetadata?: TransactionData
+  butterSwapTransactionMetadata?: TransactionData
+  solanaTransactionMetadata?: {
+    instructions: {
+      programId: string
+      keys: { pubkey: string; isSigner: boolean; isWritable: boolean }[]
+      data: { data: number[] }
+    }[]
+  }
 }
 
 export type ApprovalInfo = {
@@ -205,6 +214,10 @@ export type QuoteResponse = {
   steps: ApiQuoteStep[]
   approval: ApprovalInfo
   expiresAt: number
+  transactionData?: TransactionData
+  quote?: {
+    steps?: ApiQuoteStep[]
+  }
 }
 
 export { erc20Abi as ERC20_ABI }

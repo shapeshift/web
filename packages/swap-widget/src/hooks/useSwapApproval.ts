@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import type { WalletClient } from 'viem'
-import { createPublicClient, encodeFunctionData, http } from 'viem'
+import { createPublicClient, encodeFunctionData, erc20Abi, http } from 'viem'
 
 import { getBaseAsset } from '../constants/chains'
 import { switchOrAddChain, VIEM_CHAINS_BY_ID } from '../constants/viemChains'
@@ -66,17 +66,7 @@ export const useSwapApproval = () => {
         }
 
         const approvalData = encodeFunctionData({
-          abi: [
-            {
-              name: 'approve',
-              type: 'function',
-              inputs: [
-                { name: 'spender', type: 'address' },
-                { name: 'amount', type: 'uint256' },
-              ],
-              outputs: [{ name: '', type: 'bool' }],
-            },
-          ],
+          abi: erc20Abi,
           functionName: 'approve',
           args: [
             quote.approval.spender as `0x${string}`,

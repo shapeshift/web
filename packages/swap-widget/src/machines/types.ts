@@ -27,14 +27,12 @@ export type SwapMachineEvent =
   | { type: 'SET_SELL_AMOUNT'; amount: string; amountBaseUnit: string | undefined }
   | { type: 'SET_SLIPPAGE'; slippage: string }
   | { type: 'SELECT_RATE'; rate: TradeRate }
-  | { type: 'SWAP_TOKENS' }
   | { type: 'FETCH_QUOTE' }
   | { type: 'QUOTE_SUCCESS'; quote: QuoteResponse }
   | { type: 'QUOTE_ERROR'; error: string }
   | { type: 'APPROVE' }
   | { type: 'APPROVAL_SUCCESS'; txHash: string }
   | { type: 'APPROVAL_ERROR'; error: string }
-  | { type: 'EXECUTE' }
   | { type: 'EXECUTE_SUCCESS'; txHash: string }
   | { type: 'EXECUTE_ERROR'; error: string }
   | { type: 'STATUS_CONFIRMED' }
@@ -51,15 +49,3 @@ export type SwapMachineEvent =
       isSellAssetSolana: boolean
       isBuyAssetEvm: boolean
     }
-
-export enum SwapStep {
-  Idle = 'idle',
-  Input = 'input',
-  Quoting = 'quoting',
-  ApprovalNeeded = 'approval_needed',
-  Approving = 'approving',
-  Executing = 'executing',
-  PollingStatus = 'polling_status',
-  Complete = 'complete',
-  Error = 'error',
-}

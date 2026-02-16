@@ -1,31 +1,10 @@
 import { assign, setup } from 'xstate'
 
+import { DEFAULT_BUY_ASSET, DEFAULT_SELL_ASSET } from '../constants/defaults'
 import type { Asset, QuoteResponse, TradeRate } from '../types'
-import { getChainTypeFromChainId } from './chainUtils'
+import { getChainType } from '../types'
 import * as guardFns from './guards'
 import type { SwapMachineContext, SwapMachineEvent } from './types'
-
-const DEFAULT_SELL_ASSET: Asset = {
-  assetId: 'eip155:1/slip44:60',
-  chainId: 'eip155:1',
-  symbol: 'ETH',
-  name: 'Ethereum',
-  precision: 18,
-  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
-  networkName: 'Ethereum',
-  explorer: 'https://etherscan.io',
-  explorerTxLink: 'https://etherscan.io/tx/',
-  explorerAddressLink: 'https://etherscan.io/address/',
-}
-
-const DEFAULT_BUY_ASSET: Asset = {
-  assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  chainId: 'eip155:1',
-  symbol: 'USDC',
-  name: 'USD Coin',
-  precision: 6,
-  icon: 'https://assets.coingecko.com/coins/images/6319/standard/usdc.png',
-}
 
 export const createInitialContext = (input?: {
   sellAsset?: Asset
@@ -34,8 +13,8 @@ export const createInitialContext = (input?: {
 }): SwapMachineContext => {
   const sellAsset = input?.sellAsset ?? DEFAULT_SELL_ASSET
   const buyAsset = input?.buyAsset ?? DEFAULT_BUY_ASSET
-  const sellChainType = getChainTypeFromChainId(sellAsset.chainId)
-  const buyChainType = getChainTypeFromChainId(buyAsset.chainId)
+  const sellChainType = getChainType(sellAsset.chainId)
+  const buyChainType = getChainType(buyAsset.chainId)
 
   return {
     sellAsset,
@@ -83,7 +62,7 @@ export const swapMachine = setup({
   actions: {
     assignSellAsset: assign(({ event }) => {
       const { asset } = event as { type: 'SET_SELL_ASSET'; asset: Asset }
-      const chainType = getChainTypeFromChainId(asset.chainId)
+      const chainType = getChainType(asset.chainId)
       return {
         sellAsset: asset,
         chainType,
@@ -96,7 +75,7 @@ export const swapMachine = setup({
     }),
     assignBuyAsset: assign(({ event }) => {
       const { asset } = event as { type: 'SET_BUY_ASSET'; asset: Asset }
-      const buyChainType = getChainTypeFromChainId(asset.chainId)
+      const buyChainType = getChainType(asset.chainId)
       return {
         buyAsset: asset,
         isBuyAssetEvm: buyChainType === 'evm',
@@ -195,7 +174,6 @@ export const swapMachine = setup({
         SET_WALLET_ADDRESS: { actions: 'assignWalletAddress' },
         SET_RECEIVE_ADDRESS: { actions: 'assignReceiveAddress' },
         UPDATE_CHAIN_INFO: { actions: 'assignChainInfo' },
-        SWAP_TOKENS: {},
         FETCH_QUOTE: {
           target: 'quoting',
           guard: 'hasValidInput',

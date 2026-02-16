@@ -1,6 +1,6 @@
-import { useAppKitProvider } from '@reown/appkit/react'
+import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import type { BitcoinConnector } from '@reown/appkit-adapter-bitcoin'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { checkBitcoinStatus } from '../services/transactionStatus'
 
@@ -8,16 +8,17 @@ type AccountAddress = string | { address?: string; purpose?: string | number }
 
 type AccountAddressArray = AccountAddress[]
 
+type SignInput = {
+  address: string
+  index: number
+  sighashTypes?: number[]
+}
+
 type BitcoinConnectorExtended = BitcoinConnector & {
   getAccountAddresses?: () => Promise<AccountAddressArray> | AccountAddressArray
-  sendTransfer?: (params: {
-    recipientAddress: string
-    amount: string
-    memo?: string
-  }) => Promise<string | { txid?: string; hash?: string }>
   signPSBT?: (params: {
     psbt: string
-    signInputs: Record<string, number[]>
+    signInputs: SignInput[]
     broadcast?: boolean
   }) => Promise<string | { txid?: string; psbt?: string }>
   signMessage?: (params: {
@@ -34,7 +35,7 @@ export type SendTransferParams = {
 
 export type SignPsbtParams = {
   psbt: string
-  signInputs: Record<string, number[]>
+  signInputs: SignInput[]
   broadcast?: boolean
 }
 
@@ -69,61 +70,16 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
     txid: undefined,
   })
 
-  const [address, setAddress] = useState<string | undefined>(undefined)
+  const {
+    address: appKitBtcAddress,
+    allAccounts: btcAccounts,
+    isConnected: isBtcConnected,
+  } = useAppKitAccount({ namespace: 'bip122' })
 
-  useEffect(() => {
-    if (!provider) {
-      setAddress(undefined)
-      return
-    }
-
-    const fetchAddress = async () => {
-      try {
-        const accountsResult = provider.getAccountAddresses?.()
-
-        const accounts: AccountAddressArray | undefined =
-          accountsResult instanceof Promise
-            ? await accountsResult
-            : (accountsResult as AccountAddressArray | undefined)
-
-        if (accounts && Array.isArray(accounts) && accounts.length > 0) {
-          const taprootByPurpose = accounts.find(
-            (account: AccountAddress) =>
-              typeof account !== 'string' && (account.purpose === '86' || account.purpose === 86),
-          )
-
-          const taprootByPrefix = accounts.find((account: AccountAddress) => {
-            const addr = typeof account === 'string' ? account : account?.address
-            return addr?.startsWith('bc1p')
-          })
-
-          const nativeSegwitAccount = accounts.find(
-            (account: AccountAddress) =>
-              typeof account !== 'string' && (account.purpose === '84' || account.purpose === 84),
-          )
-          const paymentAccount = accounts.find(
-            (account: AccountAddress) =>
-              typeof account !== 'string' && account.purpose === 'payment',
-          )
-
-          const accountToUse =
-            taprootByPurpose ??
-            taprootByPrefix ??
-            nativeSegwitAccount ??
-            paymentAccount ??
-            accounts[0]
-          const addr = typeof accountToUse === 'string' ? accountToUse : accountToUse?.address
-          setAddress(addr)
-        } else {
-          setAddress(undefined)
-        }
-      } catch {
-        setAddress(undefined)
-      }
-    }
-
-    fetchAddress()
-  }, [provider])
+  const address = useMemo(() => {
+    if (!provider || !isBtcConnected) return undefined
+    return appKitBtcAddress ?? btcAccounts[0]?.address
+  }, [provider, isBtcConnected, appKitBtcAddress, btcAccounts])
 
   const sendTransfer = useCallback(
     async (params: SendTransferParams): Promise<string> => {
@@ -134,13 +90,10 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
       setState(prev => ({ ...prev, isLoading: true, error: undefined, txid: undefined }))
 
       try {
-        const result = await provider.sendTransfer({
-          recipientAddress: params.recipientAddress,
+        const txid = await provider.sendTransfer({
+          recipient: params.recipientAddress,
           amount: params.amount,
-          ...(params.memo && { memo: params.memo }),
         })
-
-        const txid = typeof result === 'string' ? result : result?.txid ?? result?.hash ?? ''
 
         if (!txid) {
           throw new Error('Transaction submitted but no txid returned')

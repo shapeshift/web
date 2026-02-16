@@ -74,16 +74,18 @@ export const useSwapExecution = () => {
             )
           }
 
-          const to = transactionData.to as string
-          const data = transactionData.data as string
-          const value = transactionData.value ?? '0'
-          const gasLimit = transactionData.gasLimit as string | undefined
+          const txData = transactionData as {
+            to: string
+            data: string
+            value?: string
+            gasLimit?: string
+          }
 
           const txHash = await client.sendTransaction({
-            to: to as `0x${string}`,
-            data: data as `0x${string}`,
-            value: BigInt(value),
-            gas: gasLimit ? BigInt(gasLimit) : undefined,
+            to: txData.to as `0x${string}`,
+            data: txData.data as `0x${string}`,
+            value: BigInt(txData.value ?? '0'),
+            gas: txData.gasLimit ? BigInt(txData.gasLimit) : undefined,
             chain,
             account: walletAddress as `0x${string}`,
           })
@@ -108,18 +110,51 @@ export const useSwapExecution = () => {
             )
           }
 
-          const psbt = (transactionData as { psbt?: string }).psbt
-          const recipientAddress = transactionData.to
-          const value = transactionData.value ?? context.sellAmountBaseUnit
-
           let txid: string
 
-          if (psbt) {
-            txid = await bitcoin.signPsbt({ psbt, signInputs: {}, broadcast: true })
-          } else if (recipientAddress) {
-            txid = await bitcoin.sendTransfer({ recipientAddress, amount: value ?? '' })
+          if (transactionData.type === 'utxo_psbt') {
+            try {
+              const isHex = /^[0-9a-fA-F]+$/.test(transactionData.psbt)
+              const psbtBase64 = isHex
+                ? Buffer.from(transactionData.psbt, 'hex').toString('base64')
+                : transactionData.psbt
+
+              txid = await bitcoin.signPsbt({
+                psbt: psbtBase64,
+                signInputs: [],
+                broadcast: true,
+              })
+            } catch (psbtError) {
+              const msg =
+                psbtError instanceof Error ? psbtError.message.toLowerCase() : String(psbtError)
+              const isUserRejection =
+                msg.includes('rejected') ||
+                msg.includes('denied') ||
+                msg.includes('cancelled') ||
+                msg.includes('user refused')
+
+              if (isUserRejection) throw psbtError
+
+              if (!transactionData.depositAddress) throw psbtError
+
+              const step = outerStep ?? innerStep
+              txid = await bitcoin.sendTransfer({
+                recipientAddress: transactionData.depositAddress,
+                amount:
+                  transactionData.value ??
+                  step?.sellAmountCryptoBaseUnit ??
+                  quote.sellAmountCryptoBaseUnit,
+                ...(transactionData.opReturnData && { memo: transactionData.opReturnData }),
+              })
+            }
+          } else if (transactionData.type === 'utxo_deposit') {
+            txid = await bitcoin.sendTransfer({
+              recipientAddress: transactionData.depositAddress,
+              amount: transactionData.value,
+              memo: transactionData.memo,
+            })
           } else {
-            throw new Error('No PSBT or recipient address in transaction data')
+            throw new Error(`Unsupported UTXO transaction type: ${transactionData.type}`)
           }
 
           actorRef.send({ type: 'EXECUTE_SUCCESS', txHash: txid })
@@ -131,19 +166,12 @@ export const useSwapExecution = () => {
 
           solana.reset()
 
+          const outerStep = quote.steps?.[0]
           const innerStep = quote.quote?.steps?.[0]
-          const solanaTransactionMetadata = (innerStep as Record<string, unknown> | undefined)
-            ?.solanaTransactionMetadata as
-            | {
-                instructions: {
-                  programId: string
-                  keys: { pubkey: string; isSigner: boolean; isWritable: boolean }[]
-                  data: { data: number[] }
-                }[]
-              }
-            | undefined
 
-          if (!solanaTransactionMetadata?.instructions) {
+          const txData = outerStep?.transactionData ?? innerStep?.transactionData
+
+          if (!txData || txData.type !== 'solana') {
             throw new Error(
               `No Solana transaction metadata returned. Response keys: ${Object.keys(quote).join(
                 ', ',
@@ -153,32 +181,19 @@ export const useSwapExecution = () => {
 
           const { Transaction, PublicKey, TransactionInstruction } = await import('@solana/web3.js')
 
-          const instructions = solanaTransactionMetadata.instructions.map(
-            (ix: {
-              programId: string
-              keys: { pubkey: string; isSigner: boolean; isWritable: boolean }[]
-              data: { data: number[] }
-            }) => {
-              const keys = ix.keys.map(
-                (key: { pubkey: string; isSigner: boolean; isWritable: boolean }) => ({
-                  pubkey: new PublicKey(key.pubkey),
-                  isSigner: key.isSigner,
-                  isWritable: key.isWritable,
-                }),
-              )
+          const instructions = txData.instructions.map(ix => {
+            const keys = ix.keys.map(key => ({
+              pubkey: new PublicKey(key.pubkey),
+              isSigner: key.isSigner,
+              isWritable: key.isWritable,
+            }))
 
-              if (!ix.data?.data) {
-                throw new Error(`Invalid instruction data for programId: ${ix.programId}`)
-              }
-              const data = Buffer.from(ix.data.data)
-
-              return new TransactionInstruction({
-                keys,
-                programId: new PublicKey(ix.programId),
-                data,
-              })
-            },
-          )
+            return new TransactionInstruction({
+              keys,
+              programId: new PublicKey(ix.programId),
+              data: Buffer.from(ix.data, 'base64'),
+            })
+          })
 
           const transaction = new Transaction().add(...instructions)
           const conn = solana.connection as {
@@ -194,7 +209,12 @@ export const useSwapExecution = () => {
           actorRef.send({ type: 'EXECUTE_ERROR', error: 'Unsupported chain type' })
         }
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Transaction failed'
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : typeof error === 'string'
+            ? error
+            : JSON.stringify(error) ?? 'Transaction failed'
         actorRef.send({ type: 'EXECUTE_ERROR', error: errorMessage })
       } finally {
         executingRef.current = false

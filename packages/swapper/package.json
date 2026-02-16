@@ -10,9 +10,9 @@
   "types": "dist/esm/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/esm/index.d.ts",
       "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/esm/index.d.ts"
+      "require": "./dist/cjs/index.js"
     }
   },
   "files": [
@@ -41,12 +41,12 @@
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/chain-adapters": "workspace:^",
     "@shapeshiftoss/contracts": "workspace:^",
-    "@shapeshiftoss/hdwallet-core": "^1.62.41",
+    "@shapeshiftoss/hdwallet-core": "workspace:^",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^",
     "@sniptt/monads": "^0.5.10",
-    "@solana/web3.js": "^1.98.0",
+    "@solana/web3.js": "1.98.0",
     "@ston-fi/omniston-sdk": "^0.7.8",
     "@uniswap/sdk-core": "^5.3.1",
     "@uniswap/v3-sdk": "^3.13.1",
@@ -60,7 +60,7 @@
     "mixpanel-browser": "^2.67.0",
     "node-polyglot": "^2.4.0",
     "pretty-ms": "7.0.1",
-    "qs": "^6.14.1",
+    "qs": "^6.14.2",
     "retry-axios": "^2.6.0",
     "uuid": "^9.0.0",
     "viem": "^2.40.3"

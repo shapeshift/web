@@ -18,7 +18,6 @@ The crew operates with the following agent hierarchy:
 - Coordinates all work across the crew
 - Writes master documentation (`{CHAIN}_CHAIN_INTEGRATION_MASTER.md`)
 - Performs final sanity checks
-- Runs verdaccio publish pipeline for hdwallet changes
 - Handles final lint, type-check, test, commit, push
 
 ### Research Agent (Phase 1 - Always First)
@@ -75,12 +74,7 @@ Before any implementation begins, spawn a research agent to:
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│                    PHASE 3: VERDACCIO                           │
-│  Master Agent runs hdwallet-verdaccio-local-publish-pipeline    │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                    PHASE 4: WEB INTEGRATION                     │
+│                    PHASE 3: WEB INTEGRATION                     │
 │  ┌──────────────────┐  ┌──────────────────┐                    │
 │  │ Chain Integration│  │ Swapper Integration│  (parallel)      │
 │  │      Agent       │  │      Agent        │                   │
@@ -165,15 +159,13 @@ Skill(skill="swapper-integration")
 1. **Research First**: Always run research phase before any implementation
 2. **Native Before Hardware**: Native wallet must work before Ledger/Trezor
 3. **Parallel Where Possible**: Ledger and Trezor can run in parallel
-4. **Verdaccio Required**: hdwallet changes must go through verdaccio pipeline
+4. **HDWallet is in the monorepo**: packages live under `packages/hdwallet-*` — no separate repo, no publishing
 5. **Documentation**: Each agent should contribute to the master doc
 6. **Sanity Checks**: Master agent validates all work at the end
 
 ## Prerequisites
 
-- User must have run Claude with `--add-dir` pointing to hdwallet repo
-- Verdaccio must be running on `http://127.0.0.1:4873`
-- Both repos must be on feature branches
+- Must be on a feature branch
 
 ## Example Usage
 
@@ -189,8 +181,7 @@ User: Let's go with the crew!
 Claude: 🚀 Initiating Chain Integration Crew for Monad...
 
 [Phase 1: Research Agent investigates Monad specs]
-[Phase 2: Native/Ledger/Trezor agents work on hdwallet]
-[Phase 3: Verdaccio publish pipeline]
-[Phase 4: Chain/Swapper integration on web]
-[Phase 5: Final sanity check and commit]
+[Phase 2: Native/Ledger/Trezor agents work on hdwallet packages]
+[Phase 3: Chain/Swapper integration on web]
+[Phase 4: Final sanity check and commit]
 ```

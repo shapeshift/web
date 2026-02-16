@@ -24,7 +24,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId, thorchainChainId, toAccountId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
-import { convertPercentageToBasisPoints } from '@shapeshiftoss/utils'
+import { BigAmount, convertPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import type { JSX } from 'react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
@@ -51,7 +51,7 @@ import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { assertUnreachable } from '@/lib/utils'
-import { fromThorBaseUnit, getThorchainFromAddress } from '@/lib/utils/thorchain'
+import { getThorchainFromAddress } from '@/lib/utils/thorchain'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useIsLpWithdrawEnabled } from '@/lib/utils/thorchain/hooks/useIsThorchainLpDepositEnabled'
@@ -492,7 +492,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
 
   const runeProtocolFeeCryptoPrecision = useMemo(() => {
     if (bnOrZero(actualRuneWithdrawAmountCryptoPrecision).eq(0)) return bn(0)
-    return fromThorBaseUnit(runeOutboundFeeCryptoBaseUnit)
+    return BigAmount.fromThorBaseUnit(runeOutboundFeeCryptoBaseUnit).toBN()
   }, [actualRuneWithdrawAmountCryptoPrecision, runeOutboundFeeCryptoBaseUnit])
 
   const runeProtocolFeeFiatUserCurrency = useMemo(() => {

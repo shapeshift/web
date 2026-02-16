@@ -1,5 +1,17 @@
 import * as esbuild from 'esbuild'
 
+const ethersCompatPlugin = {
+  name: 'ethers-compat',
+  setup(build) {
+    build.onResolve({ filter: /^ethers\/lib\/utils$/ }, args => {
+      // hdwallet packages have their own ethers v5 where ethers/lib/utils exists natively
+      if (args.resolveDir.includes('hdwallet-')) return undefined
+      // Other packages (e.g. @cowprotocol/app-data) use ethers v6 which re-exports utils at the top level
+      return build.resolve('ethers', { resolveDir: args.resolveDir, kind: args.kind })
+    })
+  },
+}
+
 const result = await esbuild.build({
   entryPoints: ['src/index.ts'],
   bundle: true,
@@ -12,10 +24,7 @@ const result = await esbuild.build({
     // Keep native modules external
     'fsevents',
   ],
-  alias: {
-    // Alias ethers/lib/utils to ethers which has the utils re-exported
-    'ethers/lib/utils': 'ethers',
-  },
+  plugins: [ethersCompatPlugin],
   define: {
     'process.env.NODE_ENV': '"production"',
   },

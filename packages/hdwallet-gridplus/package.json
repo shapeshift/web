@@ -1,0 +1,48 @@
+{
+  "name": "@shapeshiftoss/hdwallet-gridplus",
+  "version": "1.62.41",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "yarn clean && yarn run -T tsc --build && yarn postbuild",
+    "clean": "rm -rf dist",
+    "dev": "yarn run -T tsc --build --watch",
+    "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",
+    "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
+    "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
+  },
+  "dependencies": {
+    "@bitcoinerlab/secp256k1": "^1.1.1",
+    "@ethereumjs/common": "4.4.0",
+    "@ethereumjs/rlp": "5.0.2",
+    "@ethereumjs/tx": "5.4.0",
+    "@metamask/eth-sig-util": "^7.0.0",
+    "@shapeshiftoss/hdwallet-core": "workspace:^",
+    "bech32": "^1.1.4",
+    "bs58": "^5.0.0",
+    "bs58check": "^4.0.0",
+    "crypto-js": "^4.2.0",
+    "gridplus-sdk": "^3.2.0",
+    "lodash": "^4.17.23"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "^4.2.2"
+  },
+  "sideEffects": false
+}

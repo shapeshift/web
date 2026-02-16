@@ -30,6 +30,10 @@ import {
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
+  isGridPlus,
+  isMetaMask,
+  isPhantom,
+  isVultisig,
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
@@ -50,11 +54,7 @@ import {
   supportsSui,
   supportsThorchain,
   supportsTron,
-} from '@shapeshiftoss/hdwallet-core'
-import { GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
-import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
-import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
-import { VultisigHDWallet } from '@shapeshiftoss/hdwallet-vultisig'
+} from '@shapeshiftoss/hdwallet-core/wallet'
 import { useMemo } from 'react'
 
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
@@ -90,7 +90,7 @@ const checkWalletHasRuntimeSupport = ({
     isMetaMask(wallet) &&
     // snap installation checks may take a render or two too many to kick in after switching from MM with snaps to another mipd wallet
     // however, we get a new wallet ref instantly, so this ensures we don't wrongly derive non-EVM accounts for another EIP1193 wallet
-    (!isSnapInstalled || wallet.providerRdns !== METAMASK_RDNS) &&
+    (!isSnapInstalled || (wallet as any).providerRdns !== METAMASK_RDNS) &&
     !isEvmChainId(chainId)
   )
     return false
@@ -157,23 +157,11 @@ export const walletSupportsChain = ({
     case btcChainId:
       return supportsBTC(wallet)
     case bchChainId:
-      return (
-        supportsBTC(wallet) &&
-        !(wallet instanceof PhantomHDWallet) &&
-        !(wallet instanceof GridPlusHDWallet)
-      )
+      return supportsBTC(wallet) && !isPhantom(wallet) && !isGridPlus(wallet)
     case dogeChainId:
-      return (
-        supportsBTC(wallet) &&
-        !(wallet instanceof PhantomHDWallet) &&
-        !(wallet instanceof GridPlusHDWallet)
-      )
+      return supportsBTC(wallet) && !isPhantom(wallet) && !isGridPlus(wallet)
     case ltcChainId:
-      return (
-        supportsBTC(wallet) &&
-        !(wallet instanceof PhantomHDWallet) &&
-        !(wallet instanceof GridPlusHDWallet)
-      )
+      return supportsBTC(wallet) && !isPhantom(wallet) && !isGridPlus(wallet)
     case zecChainId:
       return (
         supportsBTC(wallet) &&
@@ -210,7 +198,7 @@ export const walletSupportsChain = ({
     case mayachainChainId:
       return supportsMayachain(wallet)
     case solanaChainId:
-      return supportsSolana(wallet) && !(wallet instanceof VultisigHDWallet)
+      return supportsSolana(wallet) && !isVultisig(wallet)
     case tronChainId:
       return supportsTron(wallet)
     case suiChainId:

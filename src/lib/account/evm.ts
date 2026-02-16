@@ -17,6 +17,7 @@ import {
 } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
+  isMetaMask,
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
@@ -29,8 +30,7 @@ import {
   supportsOptimism,
   supportsPlasma,
   supportsPolygon,
-} from '@shapeshiftoss/hdwallet-core'
-import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
+} from '@shapeshiftoss/hdwallet-core/wallet'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
@@ -125,7 +125,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === plasmaChainId && !supportsPlasma(wallet)) continue
     if (chainId === katanaChainId && !supportsKatana(wallet)) continue
     if (
-      wallet instanceof MetaMaskMultiChainHDWallet &&
+      isMetaMask(wallet) &&
       !canAddMetaMaskAccount({ accountNumber, chainId, wallet, isSnapInstalled })
     ) {
       continue

@@ -25,6 +25,7 @@ import {
   solanaChainId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
+import type { TransactionData } from '@shapeshiftoss/types'
 import { fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
 import type { WalletClient } from 'viem'
 import { erc20Abi } from 'viem'
@@ -167,8 +168,6 @@ export type {
   UtxoPsbtTransactionData,
   UtxoTransactionData,
 } from '@shapeshiftoss/types'
-
-import type { TransactionData } from '@shapeshiftoss/types'
 
 export type ApiQuoteStep = {
   sellAsset: Asset

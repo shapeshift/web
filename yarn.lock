@@ -13018,7 +13018,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/caip@^8.15.0, @shapeshiftoss/caip@^8.16.5, @shapeshiftoss/caip@npm:@shapeshiftoss/caip@8.16.7, @shapeshiftoss/caip@workspace:^, @shapeshiftoss/caip@workspace:packages/caip":
+"@shapeshiftoss/caip@^8.15.0, @shapeshiftoss/caip@^8.16.5, @shapeshiftoss/caip@workspace:^, @shapeshiftoss/caip@workspace:packages/caip":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/caip@workspace:packages/caip"
   dependencies:
@@ -13705,9 +13705,9 @@ __metadata:
     "@reown/appkit-adapter-bitcoin": ^1.8.17
     "@reown/appkit-adapter-solana": ^1.8.17
     "@reown/appkit-adapter-wagmi": ^1.8.17
-    "@shapeshiftoss/caip": "npm:@shapeshiftoss/caip@8.16.7"
+    "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
-    "@shapeshiftoss/utils": "npm:@shapeshiftoss/utils@1.0.5"
+    "@shapeshiftoss/utils": "workspace:^"
     "@solana/wallet-adapter-wallets": ^0.19.32
     "@solana/web3.js": 1.98.0
     "@tanstack/react-query": ^5.69.0
@@ -13840,7 +13840,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@shapeshiftoss/utils@^1.0.4, @shapeshiftoss/utils@npm:@shapeshiftoss/utils@1.0.5, @shapeshiftoss/utils@workspace:^, @shapeshiftoss/utils@workspace:packages/utils":
+"@shapeshiftoss/utils@^1.0.4, @shapeshiftoss/utils@workspace:^, @shapeshiftoss/utils@workspace:packages/utils":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/utils@workspace:packages/utils"
   dependencies:

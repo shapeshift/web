@@ -745,6 +745,23 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     }
   }
 
+  async getJettonWalletAddress(jettonMaster: string, ownerAddress: string): Promise<string> {
+    const response = await this.httpApiRequest<{
+      jetton_wallets?: { address: string }[]
+      address_book?: Record<string, { user_friendly: string }>
+    }>(
+      `/api/v3/jetton/wallets?owner_address=${encodeURIComponent(ownerAddress)}&jetton_address=${encodeURIComponent(jettonMaster)}&limit=1`,
+    )
+
+    const wallet = response.jetton_wallets?.[0]
+    if (!wallet) {
+      throw new Error(`No jetton wallet found for master ${jettonMaster} and owner ${ownerAddress}`)
+    }
+
+    const addressBook = response.address_book ?? {}
+    return addressBook[wallet.address]?.user_friendly ?? wallet.address
+  }
+
   async buildSendApiTransaction(
     input: BuildSendApiTxInput<KnownChainIds.TonMainnet>,
   ): Promise<TonSignTx> {
@@ -752,6 +769,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       const { from, accountNumber, to, value, chainSpecific } = input
       const memo = chainSpecific?.memo
       const contractAddress = chainSpecific?.contractAddress
+
+      const jettonWalletAddress = contractAddress
+        ? await this.getJettonWalletAddress(contractAddress, from)
+        : undefined
 
       const seqno = await this.getSeqno(from)
 
@@ -763,7 +784,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
         seqno,
         expireAt: Math.floor(Date.now() / 1000) + 60,
         ...(memo ? { memo } : {}),
-        ...(contractAddress ? { contractAddress } : {}),
+        ...(jettonWalletAddress ? { contractAddress: jettonWalletAddress } : {}),
       }
 
       const messageBytes = new TextEncoder().encode(JSON.stringify(messageData))

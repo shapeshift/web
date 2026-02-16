@@ -356,7 +356,6 @@ export class SeekerHDWallet implements HDWallet {
           0x80000000 + slip44,
           0x80000000 + msg.accountIdx,
           0x80000000 + 0,
-          0x80000000 + 0,
         ],
       },
     ]

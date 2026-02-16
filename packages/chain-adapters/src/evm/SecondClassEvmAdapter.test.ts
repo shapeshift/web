@@ -13,24 +13,15 @@ vi.mock('ethers', () => {
     getFeeData = vi.fn()
     broadcastTransaction = vi.fn()
     send = vi.fn()
-    constructor() {
-      return this
-    }
   }
 
   class Contract {
     aggregate3 = vi.fn()
-    constructor() {
-      return this
-    }
   }
 
   class Interface {
     encodeFunctionData = vi.fn()
     decodeFunctionResult = vi.fn()
-    constructor() {
-      return this
-    }
   }
 
   return {

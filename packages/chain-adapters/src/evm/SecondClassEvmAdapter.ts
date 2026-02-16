@@ -123,7 +123,7 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
 
   async getTransactionStatus(txHash: string): Promise<TxStatus> {
     try {
-      const receipt = await this.provider.getTransactionReceipt(txHash)
+      const receipt = await this.requestQueue.add(() => this.provider.getTransactionReceipt(txHash))
 
       if (!receipt) return TxStatus.Pending
 

@@ -59,7 +59,6 @@ describe('parseAndUpsertSecondClassChainTx', () => {
         accountId: mockAccountId,
       }),
     )
-    // portfolioApi.endpoints.getAccount.initiate returns a thunk, so we verify dispatch was called twice
     expect(mockDispatch).toHaveBeenCalledTimes(2)
   })
 

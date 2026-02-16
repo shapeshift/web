@@ -49,7 +49,7 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
       e.stopPropagation()
       closeDrawer()
       if (action.transactionMetadata.yieldId) {
-        navigate(`/yields/${action.transactionMetadata.yieldId}`)
+        navigate(`/yield/${action.transactionMetadata.yieldId}`)
       }
     },
     [closeDrawer, navigate, action.transactionMetadata.yieldId],

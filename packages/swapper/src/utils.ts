@@ -299,6 +299,24 @@ export const checkEvmSwapStatus = async ({
   fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
 }): Promise<TradeStatus> => {
   try {
+    type TransactionStatusAdapter = EvmChainAdapter & {
+      getTransactionStatus: (txHash: string) => Promise<TxStatus>
+    }
+
+    const adapter = assertGetEvmChainAdapter(chainId)
+    const hasTransactionStatus = (
+      maybeAdapter: EvmChainAdapter,
+    ): maybeAdapter is TransactionStatusAdapter => 'getTransactionStatus' in maybeAdapter
+
+    if (hasTransactionStatus(adapter)) {
+      const status = await adapter.getTransactionStatus(txHash)
+      return {
+        status,
+        buyTxHash: txHash,
+        message: undefined,
+      }
+    }
+
     const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
       address,
       txHash,
@@ -308,7 +326,6 @@ export const checkEvmSwapStatus = async ({
     })
     if (maybeSafeTransactionStatus) return maybeSafeTransactionStatus
 
-    const adapter = assertGetEvmChainAdapter(chainId)
     const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
     const status = evm.getTxStatus(tx)
 

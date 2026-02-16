@@ -1,4 +1,5 @@
 import { usePrevious } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -8,14 +9,9 @@ import { useNotificationToast } from '../useNotificationToast'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
-import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
-import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
-import { getKatanaTransactionStatus } from '@/lib/utils/katana'
-import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getNearTransactionStatus } from '@/lib/utils/near'
-import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
 import { getStarknetTransactionStatus, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
 import { getTonTransactionStatus } from '@/lib/utils/ton'
@@ -28,6 +24,16 @@ import { selectTxs } from '@/state/slices/selectors'
 import { txHistory } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from '@/state/store'
+
+type TransactionStatusAdapter = {
+  getTransactionStatus: (txHash: string) => Promise<TxStatus>
+}
+
+const getSecondClassEvmTxStatus = (chainId: ChainId, txHash: string) => {
+  const adapter = getChainAdapterManager().get(chainId)
+  if (!adapter || !('getTransactionStatus' in adapter)) return
+  return (adapter as TransactionStatusAdapter).getTransactionStatus(txHash)
+}
 
 export const useSendActionSubscriber = () => {
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
@@ -180,33 +186,13 @@ export const useSendActionSubscriber = () => {
                     suiTxStatus === TxStatus.Confirmed || suiTxStatus === TxStatus.Failed
                   break
                 }
-                case KnownChainIds.MonadMainnet: {
-                  const monadTxStatus = await getMonadTransactionStatus(txHash)
-                  isConfirmed =
-                    monadTxStatus === TxStatus.Confirmed || monadTxStatus === TxStatus.Failed
-                  break
-                }
-                case KnownChainIds.PlasmaMainnet: {
-                  const plasmaTxStatus = await getPlasmaTransactionStatus(txHash)
-                  isConfirmed =
-                    plasmaTxStatus === TxStatus.Confirmed || plasmaTxStatus === TxStatus.Failed
-                  break
-                }
-                case KnownChainIds.HyperEvmMainnet: {
-                  const hyperEvmNodeUrl = getConfig().VITE_HYPEREVM_NODE_URL
-                  const hyperEvmTxStatus = await getHyperEvmTransactionStatus(
-                    txHash,
-                    hyperEvmNodeUrl,
-                  )
-                  isConfirmed =
-                    hyperEvmTxStatus === TxStatus.Confirmed || hyperEvmTxStatus === TxStatus.Failed
-                  break
-                }
+                case KnownChainIds.MonadMainnet:
+                case KnownChainIds.PlasmaMainnet:
+                case KnownChainIds.HyperEvmMainnet:
                 case KnownChainIds.KatanaMainnet: {
-                  const katanaNodeUrl = getConfig().VITE_KATANA_NODE_URL
-                  const katanaTxStatus = await getKatanaTransactionStatus(txHash, katanaNodeUrl)
-                  isConfirmed =
-                    katanaTxStatus === TxStatus.Confirmed || katanaTxStatus === TxStatus.Failed
+                  const txStatus = await getSecondClassEvmTxStatus(chainId, txHash)
+                  if (!txStatus) return
+                  isConfirmed = txStatus === TxStatus.Confirmed || txStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.NearMainnet: {

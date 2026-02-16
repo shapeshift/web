@@ -115,8 +115,17 @@ export class SeekerHDWallet implements HDWallet {
 
     const chain = coinType !== undefined ? chainMap[coinType] : undefined
 
+    const isKnown =
+      coinType !== undefined &&
+      chain !== undefined &&
+      msg.path.length === 4 &&
+      msg.path[0] === 0x80000000 + 44 &&
+      msg.path[1] === 0x80000000 + coinType &&
+      ((msg.path[2] & 0x80000000) >>> 0) === 0x80000000 &&
+      msg.path[3] === 0x80000000 + 0
+
     return {
-      isKnown: false,
+      isKnown,
       verbose: chain?.verbose ?? 'Seeker',
       coin: chain?.coin ?? 'Unknown',
     }

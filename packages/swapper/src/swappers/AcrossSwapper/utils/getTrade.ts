@@ -228,7 +228,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     value: buyAmountAfterFeesCryptoBaseUnit,
     precision: buyAsset.precision,
   })
-    .plus(BigAmount.fromBaseUnit({ value: bridgeFeeAmount, precision: buyAsset.precision }))
+    .plus(BigAmount.fromBaseUnit({ value: bridgeFeeAmount, precision: bridgeFeeAsset.decimals }))
     .toBaseUnit()
 
   const allowanceContract = isEvmChainId(sellAsset.chainId) ? quote.checks.allowance.spender : ''

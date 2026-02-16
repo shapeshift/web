@@ -107,17 +107,11 @@ class _AssetService {
 
     const config = getConfig()
 
-    const totalMegaethAssets = sortedAssetIds.filter((id: AssetId) => localAssetData[id]?.chainId === megaethChainId).length
-    console.log('[AssetService] Total megaeth assets in raw assetData:', totalMegaethAssets)
-
     // Filter asset data while preserving sorting
   const filteredAssetIds = sortedAssetIds.filter((assetId: AssetId) => {
     const asset = localAssetData[assetId]
 
-    if (!config.VITE_FEATURE_MEGAETH && asset.chainId === megaethChainId) {
-        console.log('[AssetService] Filtering out megaeth - config.VITE_FEATURE_MEGAETH:', config.VITE_FEATURE_MEGAETH, 'chainId:', asset.chainId)
-        return false
-      }
+    if (!config.VITE_FEATURE_MEGAETH && asset.chainId === megaethChainId) return false
       if (!config.VITE_FEATURE_KATANA && asset.chainId === katanaChainId) return false
       if (!config.VITE_FEATURE_MAYACHAIN && asset.chainId === mayachainChainId) return false
       if (!config.VITE_FEATURE_NEAR && asset.chainId === nearChainId) return false

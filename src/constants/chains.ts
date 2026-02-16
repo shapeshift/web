@@ -5,9 +5,6 @@ import { store } from '@/state/store'
 
 const enabledFlags = preferences.selectors.selectFeatureFlags(store.getState())
 
-console.log('[chains.ts] enabledFlags at module load:', enabledFlags)
-console.log('[chains.ts] enabledFlags.MegaEth:', enabledFlags.MegaEth)
-
 export const SECOND_CLASS_CHAINS: readonly KnownChainIds[] = [
   KnownChainIds.TronMainnet,
   KnownChainIds.SuiMainnet,

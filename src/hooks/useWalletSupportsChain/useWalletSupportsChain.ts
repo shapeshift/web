@@ -150,7 +150,6 @@ export const walletSupportsChain = ({
   const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
   const isKatanaEnabled = selectFeatureFlag(store.getState(), 'Katana')
   const isMegaEthEnabled = selectFeatureFlag(store.getState(), 'MegaEth')
-  console.log('[useWalletSupportsChain] isMegaEthEnabled:', isMegaEthEnabled, 'chainId:', chainId)
   const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
   const isNearEnabled = selectFeatureFlag(store.getState(), 'Near')
   const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')

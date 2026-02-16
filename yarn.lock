@@ -13900,14 +13900,14 @@ __metadata:
     "@solana/wallet-adapter-wallets": ^0.19.32
     "@solana/web3.js": 1.98.0
     "@tanstack/react-query": ^5.69.0
-    "@testing-library/jest-dom": ^6.9.1
-    "@testing-library/react": ^16.3.2
+    "@testing-library/jest-dom": 6.9.1
+    "@testing-library/react": 16.3.2
     "@types/react": ^19.0.0
     "@types/react-dom": ^19.0.0
     "@vitejs/plugin-react": ^4.2.0
-    "@xstate/react": ^5.0.5
+    "@xstate/react": 5.0.5
     bech32: ^2.0.0
-    jsdom: ^28.0.0
+    jsdom: 28.0.0
     p-queue: ^8.0.1
     react: ^19.0.0
     react-dom: ^19.0.0
@@ -13915,10 +13915,10 @@ __metadata:
     typescript: ~5.2.2
     viem: 2.40.3
     vite: ^5.0.0
-    vite-plugin-node-polyfills: ^0.23.0
-    vitest: ^4.0.18
+    vite-plugin-node-polyfills: 0.23.0
+    vitest: 4.0.18
     wagmi: 3.3.2
-    xstate: ^5.28.0
+    xstate: 5.28.0
   peerDependencies:
     react: ">=18.0.0"
     react-dom: ">=18.0.0"
@@ -16939,7 +16939,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/jest-dom@npm:^6.9.1":
+"@testing-library/jest-dom@npm:6.9.1":
   version: 6.9.1
   resolution: "@testing-library/jest-dom@npm:6.9.1"
   dependencies:
@@ -16953,21 +16953,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react@npm:^13.3.0":
-  version: 13.3.0
-  resolution: "@testing-library/react@npm:13.3.0"
-  dependencies:
-    "@babel/runtime": ^7.12.5
-    "@testing-library/dom": ^8.5.0
-    "@types/react-dom": ^18.0.0
-  peerDependencies:
-    react: ^18.0.0
-    react-dom: ^18.0.0
-  checksum: 98fd8616a7cae0ecfcbe97b5b3c5b91fbafccf449c04875395ccc0e3f0b139e53b3261b9536ec2169a5e2883a1be2098907209064061fe0c2ff21dfbc785dd40
-  languageName: node
-  linkType: hard
-
-"@testing-library/react@npm:^16.3.2":
+"@testing-library/react@npm:16.3.2":
   version: 16.3.2
   resolution: "@testing-library/react@npm:16.3.2"
   dependencies:
@@ -16984,6 +16970,20 @@ __metadata:
     "@types/react-dom":
       optional: true
   checksum: 1f6f4d8374aab54214229eecdd429d5e878e902c6136a48e187a24d4917014bf91ab9aa7fab18c17f6bf05f226fac228ba9a5c1803657129173dd8a062139c17
+  languageName: node
+  linkType: hard
+
+"@testing-library/react@npm:^13.3.0":
+  version: 13.3.0
+  resolution: "@testing-library/react@npm:13.3.0"
+  dependencies:
+    "@babel/runtime": ^7.12.5
+    "@testing-library/dom": ^8.5.0
+    "@types/react-dom": ^18.0.0
+  peerDependencies:
+    react: ^18.0.0
+    react-dom: ^18.0.0
+  checksum: 98fd8616a7cae0ecfcbe97b5b3c5b91fbafccf449c04875395ccc0e3f0b139e53b3261b9536ec2169a5e2883a1be2098907209064061fe0c2ff21dfbc785dd40
   languageName: node
   linkType: hard
 
@@ -21543,7 +21543,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xstate/react@npm:^5.0.5":
+"@xstate/react@npm:5.0.5":
   version: 5.0.5
   resolution: "@xstate/react@npm:5.0.5"
   dependencies:
@@ -32889,7 +32889,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jsdom@npm:^28.0.0":
+"jsdom@npm:28.0.0, jsdom@npm:^28.0.0":
   version: 28.0.0
   resolution: "jsdom@npm:28.0.0"
   dependencies:
@@ -44127,7 +44127,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"vite-plugin-node-polyfills@npm:^0.23.0":
+"vite-plugin-node-polyfills@npm:0.23.0, vite-plugin-node-polyfills@npm:^0.23.0":
   version: 0.23.0
   resolution: "vite-plugin-node-polyfills@npm:0.23.0"
   dependencies:
@@ -44413,7 +44413,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"vitest@npm:^4.0.18":
+"vitest@npm:4.0.18":
   version: 4.0.18
   resolution: "vitest@npm:4.0.18"
   dependencies:
@@ -45647,7 +45647,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"xstate@npm:^5.28.0":
+"xstate@npm:5.28.0":
   version: 5.28.0
   resolution: "xstate@npm:5.28.0"
   checksum: 7aaa62f2d4ed07d51c2d760af238bcf0b3fdb2fe4725c6730480644442e2ea1260c34e13f35fa633808f231f98945b386ce774c4ebe9e3ae3a7ebb11c68cedab

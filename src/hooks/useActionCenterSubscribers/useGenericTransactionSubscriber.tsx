@@ -57,6 +57,18 @@ const displayTypeMessagesMap: Partial<Record<ActionType, DisplayTypeMessageMap>>
   },
 }
 
+const displayTypeFailedMessagesMap: Partial<Record<ActionType, DisplayTypeMessageMap>> = {
+  [ActionType.Deposit]: {
+    [GenericTransactionDisplayType.Yield]: 'actionCenter.deposit.failed',
+  },
+  [ActionType.Withdraw]: {
+    [GenericTransactionDisplayType.Yield]: 'actionCenter.withdrawal.failed',
+  },
+  [ActionType.Claim]: {
+    [GenericTransactionDisplayType.Yield]: 'actionCenter.claim.failed',
+  },
+}
+
 const YIELD_POLL_INTERVAL_MS = 5000
 
 export const useGenericTransactionSubscriber = () => {
@@ -279,11 +291,20 @@ export const useGenericTransactionSubscriber = () => {
               yieldAction.status === YieldActionStatus.Failed ||
               yieldAction.status === YieldActionStatus.Canceled
             ) {
+              const failedMessagesMap = displayTypeFailedMessagesMap[action.type]
+              const failedMessage =
+                failedMessagesMap?.[action.transactionMetadata.displayType] ??
+                action.transactionMetadata.message
+
               dispatch(
                 actionSlice.actions.upsertAction({
                   ...action,
                   status: ActionStatus.Failed,
                   updatedAt: Date.now(),
+                  transactionMetadata: {
+                    ...action.transactionMetadata,
+                    message: failedMessage,
+                  },
                 }),
               )
 

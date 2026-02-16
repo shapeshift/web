@@ -50,6 +50,13 @@ export const TransactionTag: React.FC<TransactionTagProps> = ({ txDetails, trans
       </Tag>
     )
   }
+  if (txDetails.yieldData) {
+    return (
+      <Tag size='sm' colorScheme='purple' variant='subtle' lineHeight={1}>
+        {txDetails.yieldData.contractName || 'Yield'}
+      </Tag>
+    )
+  }
   if (txData && txData.parser === 'thorchain' && txData.liquidity) {
     return (
       <Tag size='sm' colorScheme='green' variant='subtle' lineHeight={1}>

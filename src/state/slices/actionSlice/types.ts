@@ -117,6 +117,7 @@ type ActionGenericTransactionMetadata = {
   chainName?: string
   cooldownPeriod?: string
   cooldownPeriodSeconds?: number
+  yieldType?: string
   thorMemo?: string | null
   confirmedQuote?: LpConfirmedWithdrawalQuote | LpConfirmedDepositQuote
   assetAmountsAndSymbols?: string

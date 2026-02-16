@@ -63,6 +63,7 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
+    exclude: ['@shapeshiftoss/caip', '@shapeshiftoss/utils'],
     esbuildOptions: {
       define: {
         global: 'globalThis',

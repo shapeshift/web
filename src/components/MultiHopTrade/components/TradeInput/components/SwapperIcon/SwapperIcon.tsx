@@ -3,6 +3,7 @@ import { SwapperName } from '@shapeshiftoss/swapper'
 import { useMemo } from 'react'
 
 import ZrxIcon from './0x-icon.png'
+import AcrossIcon from './across-icon.svg'
 import ArbitrumBridgeIcon from './arbitrum-bridge-icon.png'
 import AvnuIcon from './avnu-icon.jpg'
 import BebopIcon from './bebop-icon.png'
@@ -63,6 +64,8 @@ export const SwapperIcon = ({
         return AvnuIcon
       case SwapperName.Stonfi:
         return StonfiIcon
+      case SwapperName.Across:
+        return AcrossIcon
       case SwapperName.Test:
         return ''
       default:

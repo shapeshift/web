@@ -4,7 +4,7 @@ import {
   solanaChainId,
   usdcOnSolanaAssetId,
 } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { BigAmount, bnOrZero, chainIdToFeeAssetId, isTreasuryChainId } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -311,6 +311,36 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       })
       return fast.txFee
     }
+
+    if (isEvmChainId(sellAsset.chainId)) {
+      const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+      const { average } = await adapter.getGasFeeData()
+      const supportsEIP1559 = 'maxFeePerGas' in average
+
+      if (bnOrZero(acrossTransactionMetadata.gasLimit).gt(0)) {
+        return evm.calcNetworkFeeCryptoBaseUnit({
+          ...average,
+          supportsEIP1559,
+          gasLimit: acrossTransactionMetadata.gasLimit ?? '0',
+        })
+      }
+
+      try {
+        const feeData = await evm.getFees({
+          adapter,
+          data: acrossTransactionMetadata.data,
+          to: acrossTransactionMetadata.to,
+          value: acrossTransactionMetadata.value,
+          from: depositor,
+          supportsEIP1559,
+        })
+
+        return feeData.networkFeeCryptoBaseUnit
+      } catch {
+        return quote.fees.originGas.amount
+      }
+    }
+
     return quote.fees.originGas.amount
   })()
 

@@ -29,7 +29,16 @@ import { useBitcoinSigning } from '../hooks/useBitcoinSigning'
 import { formatUsdValue, useMarketData } from '../hooks/useMarketData'
 import { useSolanaSigning } from '../hooks/useSolanaSigning'
 import { useSwapRates } from '../hooks/useSwapRates'
-import type { Asset, EvmTransactionData, SwapWidgetProps, ThemeMode, TradeRate } from '../types'
+import type {
+  Asset,
+  EvmTransactionData,
+  SolanaTransactionData,
+  SwapWidgetProps,
+  ThemeMode,
+  TradeRate,
+  UtxoDepositTransactionData,
+  UtxoPsbtTransactionData,
+} from '../types'
 import { formatAmount, getChainType, getEvmNetworkId, parseAmount, truncateAddress } from '../types'
 import { AddressInputModal } from './AddressInputModal'
 import { QuoteSelector } from './QuoteSelector'
@@ -329,10 +338,7 @@ const SwapWidgetCore = ({
         slippageTolerancePercentageDecimal: slippageDecimal,
       })
 
-      const outerStep = quoteResponse.steps?.[0]
-      const innerStep = quoteResponse.quote?.steps?.[0]
-      const transactionData =
-        quoteResponse.transactionData ?? outerStep?.transactionData ?? innerStep?.transactionData
+      const transactionData = quoteResponse.steps?.[0]?.transactionData
 
       if (!transactionData) {
         throw new Error(
@@ -340,20 +346,23 @@ const SwapWidgetCore = ({
         )
       }
 
-      setTxStatus({ status: 'pending', message: 'Waiting for wallet confirmation...' })
+      if (transactionData.type !== 'utxo_psbt' && transactionData.type !== 'utxo_deposit') {
+        throw new Error(`Unexpected transaction type for UTXO swap: ${transactionData.type}`)
+      }
 
-      const psbt = (transactionData as { psbt?: string }).psbt
-      const recipientAddress = transactionData.to
-      const value = transactionData.value ?? sellAmountBaseUnit
+      setTxStatus({ status: 'pending', message: 'Waiting for wallet confirmation...' })
 
       let txid: string
 
-      if (psbt) {
-        txid = await signPsbt({ psbt, signInputs: {}, broadcast: true })
-      } else if (recipientAddress) {
-        txid = await sendBitcoinTransfer({ recipientAddress, amount: value })
+      if (transactionData.type === 'utxo_psbt') {
+        const psbtData = transactionData as UtxoPsbtTransactionData
+        txid = await signPsbt({ psbt: psbtData.psbt, signInputs: {}, broadcast: true })
       } else {
-        throw new Error('No PSBT or recipient address in transaction data')
+        const depositData = transactionData as UtxoDepositTransactionData
+        txid = await sendBitcoinTransfer({
+          recipientAddress: depositData.depositAddress,
+          amount: depositData.value,
+        })
       }
 
       setTxStatus({
@@ -430,16 +439,17 @@ const SwapWidgetCore = ({
         slippageTolerancePercentageDecimal: slippageDecimal,
       })
 
-      const innerStep = quoteResponse.quote?.steps?.[0]
-      const solanaTransactionMetadata = (innerStep as any)?.solanaTransactionMetadata
+      const transactionData = quoteResponse.steps?.[0]?.transactionData
 
-      if (!solanaTransactionMetadata?.instructions) {
+      if (!transactionData || transactionData.type !== 'solana') {
         throw new Error(
-          `No Solana transaction metadata returned. Response keys: ${Object.keys(
-            quoteResponse,
-          ).join(', ')}`,
+          `No Solana transaction data returned. Response keys: ${Object.keys(quoteResponse).join(
+            ', ',
+          )}`,
         )
       }
+
+      const solanaData = transactionData as SolanaTransactionData
 
       setTxStatus({ status: 'pending', message: 'Waiting for wallet confirmation...' })
 
@@ -449,17 +459,14 @@ const SwapWidgetCore = ({
 
       const { Transaction, PublicKey, TransactionInstruction } = await import('@solana/web3.js')
 
-      const instructions = solanaTransactionMetadata.instructions.map((ix: any) => {
-        const keys = ix.keys.map((key: any) => ({
+      const instructions = solanaData.instructions.map(ix => {
+        const keys = ix.keys.map(key => ({
           pubkey: new PublicKey(key.pubkey),
           isSigner: key.isSigner,
           isWritable: key.isWritable,
         }))
 
-        if (!ix.data?.data) {
-          throw new Error(`Invalid instruction data for programId: ${ix.programId}`)
-        }
-        const data = Buffer.from(ix.data.data)
+        const data = Buffer.from(ix.data, 'base64')
 
         return new TransactionInstruction({
           keys,

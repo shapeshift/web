@@ -14096,6 +14096,9 @@ __metadata:
     wouter: ^3.6.0
   peerDependencies:
     lit-html: ^2.6.1
+  dependenciesMeta:
+    utf-8-validate:
+      built: false
   languageName: unknown
   linkType: soft
 

@@ -224,11 +224,16 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   const bridgeFeeAmount = quote.fees.total.amount
   const bridgeFeeAsset = quote.fees.total.token
 
+  const bridgeFeeInBuyAssetPrecision = BigAmount.fromBaseUnit({
+    value: BigAmount.fromBaseUnit({ value: bridgeFeeAmount, precision: bridgeFeeAsset.decimals }).toBaseUnit(),
+    precision: buyAsset.precision,
+  })
+
   const buyAmountBeforeFeesCryptoBaseUnit = BigAmount.fromBaseUnit({
     value: buyAmountAfterFeesCryptoBaseUnit,
     precision: buyAsset.precision,
   })
-    .plus(BigAmount.fromBaseUnit({ value: bridgeFeeAmount, precision: bridgeFeeAsset.decimals }))
+    .plus(bridgeFeeInBuyAssetPrecision)
     .toBaseUnit()
 
   const allowanceContract = isEvmChainId(sellAsset.chainId) ? quote.checks.allowance.spender : ''

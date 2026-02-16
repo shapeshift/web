@@ -5,11 +5,12 @@ import {
   usdcOnSolanaAssetId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { chainIdToFeeAssetId, isTreasuryChainId } from '@shapeshiftoss/utils'
+import { BigAmount, bnOrZero, chainIdToFeeAssetId, isTreasuryChainId } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import {
   AddressLookupTableAccount,
+  ComputeBudgetProgram,
   PublicKey,
   TransactionMessage,
   VersionedTransaction,
@@ -136,9 +137,9 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   const appFee = (() => {
     if (isSolanaRoute) return undefined
     if (!isTreasuryChainId(buyAsset.chainId)) return undefined
-    const bps = Number(affiliateBps)
-    if (!Number.isFinite(bps) || bps <= 0) return undefined
-    return bps / 10000
+    const bps = bnOrZero(affiliateBps)
+    if (!bps.isFinite() || bps.lte(0)) return undefined
+    return bps.div(10000).toNumber()
   })()
 
   const appFeeRecipient = (() => {
@@ -223,9 +224,12 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   const bridgeFeeAmount = quote.fees.total.amount
   const bridgeFeeAsset = quote.fees.total.token
 
-  const buyAmountBeforeFeesCryptoBaseUnit = (
-    BigInt(buyAmountAfterFeesCryptoBaseUnit) + BigInt(bridgeFeeAmount)
-  ).toString()
+  const buyAmountBeforeFeesCryptoBaseUnit = BigAmount.fromBaseUnit({
+    value: buyAmountAfterFeesCryptoBaseUnit,
+    precision: buyAsset.precision,
+  })
+    .plus(BigAmount.fromBaseUnit({ value: bridgeFeeAmount, precision: buyAsset.precision }))
+    .toBaseUnit()
 
   const networkFeeCryptoBaseUnit = quote.fees.originGas.amount
 
@@ -272,8 +276,13 @@ export async function getTrade<T extends 'quote' | 'rate'>({
         addressLookupTableAccounts,
       }).instructions
 
+      const computeBudgetProgramId = ComputeBudgetProgram.programId.toString()
+      const instructionsWithoutComputeBudget = instructions.filter(
+        instruction => instruction.programId.toString() !== computeBudgetProgramId,
+      )
+
       return Ok({
-        instructions,
+        instructions: instructionsWithoutComputeBudget,
         addressLookupTableAddresses: addressLookupTableAccountKeys,
       })
     } catch (e) {

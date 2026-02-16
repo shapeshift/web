@@ -90,14 +90,14 @@ export const useGenericTransactionSubscriber = () => {
     }
   }, [])
 
-  const fireSuccessToast = useCallback(
-    (action: (typeof pendingGenericTransactionActions)[number]) => {
+  const fireToast = useCallback(
+    (action: (typeof pendingGenericTransactionActions)[number], status: 'success' | 'error') => {
       if (toast.isActive(action.transactionMetadata.txHash)) return
 
       toast({
         id: action.transactionMetadata.txHash,
-        duration: isDrawerOpen ? 5000 : null,
-        status: 'success',
+        duration: status === 'success' && !isDrawerOpen ? null : 5000,
+        status,
         render: ({ onClose, ...props }) => {
           const handleClick = () => {
             onClose()
@@ -116,34 +116,6 @@ export const useGenericTransactionSubscriber = () => {
       })
     },
     [isDrawerOpen, openActionCenter, toast],
-  )
-
-  const fireErrorToast = useCallback(
-    (action: (typeof pendingGenericTransactionActions)[number]) => {
-      if (toast.isActive(action.transactionMetadata.txHash)) return
-
-      toast({
-        id: action.transactionMetadata.txHash,
-        duration: 5000,
-        status: 'error',
-        render: ({ onClose, ...props }) => {
-          const handleClick = () => {
-            onClose()
-            openActionCenter()
-          }
-
-          return (
-            <GenericTransactionNotification
-              handleClick={handleClick}
-              actionId={action.id}
-              onClose={onClose}
-              {...props}
-            />
-          )
-        },
-      })
-    },
-    [openActionCenter, toast],
   )
 
   useEffect(() => {
@@ -205,7 +177,7 @@ export const useGenericTransactionSubscriber = () => {
               }),
             )
 
-            fireSuccessToast(action)
+            fireToast(action, 'success')
             clearPollingInterval(pollingKey)
           }
         }
@@ -261,7 +233,7 @@ export const useGenericTransactionSubscriber = () => {
                   }),
                 )
 
-                fireSuccessToast(action)
+                fireToast(action, 'success')
               } else {
                 const typeMessagesMap = displayTypeMessagesMap[action.type]
                 const message =
@@ -280,7 +252,7 @@ export const useGenericTransactionSubscriber = () => {
                   }),
                 )
 
-                fireSuccessToast(action)
+                fireToast(action, 'success')
               }
 
               queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'allBalances'] })
@@ -308,7 +280,7 @@ export const useGenericTransactionSubscriber = () => {
                 }),
               )
 
-              fireErrorToast(action)
+              fireToast(action, 'error')
               clearPollingInterval(pollingKey)
             }
           } catch (e) {
@@ -405,14 +377,13 @@ export const useGenericTransactionSubscriber = () => {
         queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'yields'] })
       }
 
-      fireSuccessToast(action)
+      fireToast(action, 'success')
     })
   }, [
     pendingGenericTransactionActions,
     dispatch,
     txs,
-    fireSuccessToast,
-    fireErrorToast,
+    fireToast,
     clearPollingInterval,
     currentEpochMetadataQuery.data?.epochEndTimestamp,
     currentEpochMetadataQuery.data?.epochStartTimestamp,

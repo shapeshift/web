@@ -37,9 +37,12 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
     selectAssetById(state, action.transactionMetadata.assetId ?? ''),
   )
 
-  const isYieldClaim =
-    action.transactionMetadata.displayType === GenericTransactionDisplayType.Claim &&
-    !!action.transactionMetadata.yieldId
+  const isYieldClaim = useMemo(
+    () =>
+      action.transactionMetadata.displayType === GenericTransactionDisplayType.Claim &&
+      !!action.transactionMetadata.yieldId,
+    [action.transactionMetadata.displayType, action.transactionMetadata.yieldId],
+  )
 
   const handleClaimClick = useCallback(
     (e: React.MouseEvent) => {
@@ -89,13 +92,13 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
     return <ActionStatusTag status={action.status} />
   }, [action.status])
 
+  const cooldownExpiryTimestamp = action.transactionMetadata.cooldownExpiryTimestamp
   const cooldownDuration = useMemo(() => {
-    const { cooldownExpiryTimestamp } = action.transactionMetadata
     if (!cooldownExpiryTimestamp) return undefined
     const remaining = cooldownExpiryTimestamp - Date.now()
     if (remaining <= 0) return undefined
     return dayjs.duration(remaining).humanize()
-  }, [action.transactionMetadata])
+  }, [cooldownExpiryTimestamp])
 
   const description = useMemo(
     () =>

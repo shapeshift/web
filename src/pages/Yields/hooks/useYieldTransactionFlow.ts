@@ -690,7 +690,7 @@ export const useYieldTransactionFlow = ({
           // the cooldown tracker — transition from Pending directly to Initiated (green checkmark
           // + blue "Initiated" tag, same UX as Arbitrum bridge withdrawals)
           const cooldownSeconds = yieldItem?.mechanics.cooldownPeriod?.seconds
-          if (action === 'exit' && cooldownSeconds && yieldChainId && accountId && yieldItem) {
+          if (action === 'exit' && cooldownSeconds && yieldItem) {
             dispatch(
               actionSlice.actions.upsertAction({
                 id: yieldActionUuid,

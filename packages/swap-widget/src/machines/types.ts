@@ -1,5 +1,7 @@
 import type { Asset, QuoteResponse, TradeRate } from '../types'
 
+export type ErrorSource = 'QUOTE_ERROR' | 'APPROVAL_ERROR' | 'EXECUTE_ERROR' | 'STATUS_FAILED'
+
 export type SwapMachineContext = {
   sellAsset: Asset
   buyAsset: Asset
@@ -10,6 +12,7 @@ export type SwapMachineContext = {
   txHash: string | null
   approvalTxHash: string | null
   error: string | null
+  errorSource: ErrorSource | null
   retryCount: number
   chainType: 'evm' | 'utxo' | 'solana' | 'cosmos' | 'other'
   slippage: string

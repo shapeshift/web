@@ -27,6 +27,7 @@ describe('SwapMachine Types', () => {
       txHash: null,
       approvalTxHash: null,
       error: null,
+      errorSource: null,
       retryCount: 0,
       chainType: 'evm',
       slippage: '0.5',

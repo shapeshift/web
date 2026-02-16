@@ -64,6 +64,9 @@ export const useStatusPolling = ({
             connection: solanaConnection as CheckStatusParams['connection'],
           }
         } else {
+          console.warn(
+            `[swap-widget] Status polling not implemented for chainType "${context.chainType}". Auto-confirming.`,
+          )
           actorRef.send({ type: 'STATUS_CONFIRMED' })
           return
         }
@@ -96,7 +99,7 @@ export const useStatusPolling = ({
       stopped = true
       pollingRef.current = false
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- stateValue is the sole trigger; other deps are stable refs or read from snapshot
   }, [stateValue])
 
   const completionRef = useRef(false)
@@ -115,7 +118,7 @@ export const useStatusPolling = ({
 
     refetchSellBalance?.()
     refetchBuyBalance?.()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- stateValue is the sole trigger; callbacks are stable
   }, [stateValue])
 
   const errorRef = useRef(false)
@@ -129,6 +132,6 @@ export const useStatusPolling = ({
     errorRef.current = true
 
     onSwapError?.(new Error(context.error ?? 'Unknown error'))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- stateValue is the sole trigger; callbacks are stable
   }, [stateValue])
 }

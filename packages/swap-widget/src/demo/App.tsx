@@ -376,7 +376,6 @@ const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
             <div className='demo-widget-container'>
               <SwapWidget
                 apiKey='test-api-key-123'
-                apiBaseUrl='http://0.0.0.0:3001'
                 theme={themeConfig}
                 onSwapSuccess={handleSwapSuccess}
                 onSwapError={handleSwapError}

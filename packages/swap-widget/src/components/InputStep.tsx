@@ -212,7 +212,10 @@ export const InputStep = ({
               placeholder='0'
               value={sellAmount}
               onChange={e => {
-                onSellAmountChange(e.target.value.replace(/[^0-9.]/g, ''))
+                const raw = e.target.value.replace(/[^0-9.]/g, '')
+                const parts = raw.split('.')
+                const sanitized = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : raw
+                onSellAmountChange(sanitized)
               }}
             />
             <button

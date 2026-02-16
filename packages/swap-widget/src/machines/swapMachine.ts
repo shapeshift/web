@@ -26,6 +26,7 @@ export const createInitialContext = (input?: {
     txHash: null,
     approvalTxHash: null,
     error: null,
+    errorSource: null,
     retryCount: 0,
     chainType: sellChainType,
     slippage: input?.slippage ?? '0.5',
@@ -52,6 +53,9 @@ export const swapMachine = setup({
       return namespace === 'erc20'
     },
     canRetry: ({ context }) => guardFns.canRetry(context),
+    isQuoteError: ({ context }) => context.errorSource === 'QUOTE_ERROR',
+    isApprovalError: ({ context }) => context.errorSource === 'APPROVAL_ERROR',
+    isExecuteError: ({ context }) => context.errorSource === 'EXECUTE_ERROR',
     hasQuote: ({ context }) => guardFns.hasQuote(context),
     isEvmChain: ({ context }) => guardFns.isEvmChain(context),
     isUtxoChain: ({ context }) => guardFns.isUtxoChain(context),
@@ -105,21 +109,25 @@ export const swapMachine = setup({
     })),
     assignQuoteError: assign(({ event }) => ({
       error: (event as { type: 'QUOTE_ERROR'; error: string }).error,
+      errorSource: 'QUOTE_ERROR' as const,
     })),
     assignApprovalTxHash: assign(({ event }) => ({
       approvalTxHash: (event as { type: 'APPROVAL_SUCCESS'; txHash: string }).txHash,
     })),
     assignApprovalError: assign(({ event }) => ({
       error: (event as { type: 'APPROVAL_ERROR'; error: string }).error,
+      errorSource: 'APPROVAL_ERROR' as const,
     })),
     assignTxHash: assign(({ event }) => ({
       txHash: (event as { type: 'EXECUTE_SUCCESS'; txHash: string }).txHash,
     })),
     assignExecuteError: assign(({ event }) => ({
       error: (event as { type: 'EXECUTE_ERROR'; error: string }).error,
+      errorSource: 'EXECUTE_ERROR' as const,
     })),
     assignStatusFailed: assign(({ event }) => ({
       error: (event as { type: 'STATUS_FAILED'; error: string }).error,
+      errorSource: 'STATUS_FAILED' as const,
     })),
     assignWalletAddress: assign(({ event }) => ({
       walletAddress: (event as { type: 'SET_WALLET_ADDRESS'; address: string | undefined }).address,
@@ -140,12 +148,14 @@ export const swapMachine = setup({
     incrementRetryCount: assign(({ context }) => ({
       retryCount: context.retryCount + 1,
       error: null,
+      errorSource: null,
     })),
     resetSwapState: assign(({ context }) => ({
       quote: null,
       txHash: null,
       approvalTxHash: null,
       error: null,
+      errorSource: null,
       retryCount: 0,
       sellAsset: context.sellAsset,
       buyAsset: context.buyAsset,
@@ -245,11 +255,23 @@ export const swapMachine = setup({
     },
     error: {
       on: {
-        RETRY: {
-          target: 'executing',
-          guard: 'canRetry',
-          actions: 'incrementRetryCount',
-        },
+        RETRY: [
+          {
+            target: 'quoting',
+            guard: { type: 'isQuoteError' },
+            actions: 'incrementRetryCount',
+          },
+          {
+            target: 'approving',
+            guard: { type: 'isApprovalError' },
+            actions: 'incrementRetryCount',
+          },
+          {
+            target: 'executing',
+            guard: { type: 'canRetry' },
+            actions: 'incrementRetryCount',
+          },
+        ],
         RESET: { target: 'input', actions: 'resetSwapState' },
       },
     },

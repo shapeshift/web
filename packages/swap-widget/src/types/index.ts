@@ -211,6 +211,7 @@ export type QuoteResponse = {
   affiliateBps: string
   slippageTolerancePercentageDecimal: string | undefined
   networkFeeCryptoBaseUnit: string | undefined
+  /** @deprecated Use `quote.steps` instead. Top-level `steps` is kept for backward compatibility. */
   steps: ApiQuoteStep[]
   approval: ApprovalInfo
   expiresAt: number

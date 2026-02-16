@@ -392,7 +392,8 @@ const SwapWidgetCore = ({
     actorRef.send({ type: 'SET_SELL_ASSET', asset: defaultSellAsset })
     actorRef.send({ type: 'SET_BUY_ASSET', asset: defaultBuyAsset })
     actorRef.send({ type: 'SET_SLIPPAGE', slippage: defaultSlippage })
-  }, [defaultSellAsset, defaultBuyAsset, defaultSlippage, actorRef])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- defaults are initial-only, ref guard ensures single execution
+  }, [actorRef])
 
   useEffect(() => {
     actorRef.send({ type: 'SET_WALLET_ADDRESS', address: walletAddress })

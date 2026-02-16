@@ -65,13 +65,15 @@ export const useSwapApproval = () => {
           rpcUrls: { default: { http: [] } },
         }
 
+        if (!context.sellAmountBaseUnit || context.sellAmountBaseUnit === '0') {
+          actorRef.send({ type: 'APPROVAL_ERROR', error: 'No sell amount specified' })
+          return
+        }
+
         const approvalData = encodeFunctionData({
           abi: erc20Abi,
           functionName: 'approve',
-          args: [
-            quote.approval.spender as `0x${string}`,
-            BigInt(context.sellAmountBaseUnit ?? '0'),
-          ],
+          args: [quote.approval.spender as `0x${string}`, BigInt(context.sellAmountBaseUnit)],
         })
 
         const approvalHash = await client.sendTransaction({
@@ -82,7 +84,11 @@ export const useSwapApproval = () => {
           account: walletAddress as `0x${string}`,
         })
 
-        const publicClient = createPublicClient({ chain, transport: http() })
+        const rpcUrl = chain.rpcUrls?.default?.http?.[0]
+        const publicClient = createPublicClient({
+          chain,
+          transport: rpcUrl ? http(rpcUrl) : http(),
+        })
         await publicClient.waitForTransactionReceipt({ hash: approvalHash })
 
         actorRef.send({ type: 'APPROVAL_SUCCESS', txHash: approvalHash })
@@ -95,6 +101,6 @@ export const useSwapApproval = () => {
     }
 
     executeApproval()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- stateValue is the sole trigger; other deps are stable refs read from snapshot
   }, [stateValue])
 }

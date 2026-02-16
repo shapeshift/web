@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react'
 import type { WalletClient } from 'viem'
 
-import { getBaseAsset } from '../constants/chains'
 import { switchOrAddChain, VIEM_CHAINS_BY_ID } from '../constants/viemChains'
 import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
@@ -43,18 +42,13 @@ export const useSwapExecution = () => {
             await switchOrAddChain(client, requiredChainId)
           }
 
-          const baseAsset = getBaseAsset(context.sellAsset.chainId)
-          const nativeCurrency = baseAsset
-            ? { name: baseAsset.name, symbol: baseAsset.symbol, decimals: baseAsset.precision }
-            : { name: 'ETH', symbol: 'ETH', decimals: 18 }
-
           const viemChain = VIEM_CHAINS_BY_ID[requiredChainId]
-          const chain = viemChain ?? {
-            id: requiredChainId,
-            name: baseAsset?.networkName ?? baseAsset?.name ?? 'Chain',
-            nativeCurrency,
-            rpcUrls: { default: { http: [] } },
+          if (!viemChain) {
+            throw new Error(
+              `Unsupported EVM chain ID ${requiredChainId}. No RPC configuration available.`,
+            )
           }
+          const chain = viemChain
 
           const outerStep = quote.steps?.[0]
           const innerStep = quote.quote?.steps?.[0]
@@ -222,6 +216,6 @@ export const useSwapExecution = () => {
     }
 
     executeSwap()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- stateValue is the sole trigger; other deps are stable refs read from snapshot
   }, [stateValue])
 }

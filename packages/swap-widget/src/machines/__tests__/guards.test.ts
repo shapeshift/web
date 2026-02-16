@@ -36,6 +36,7 @@ const createTestContext = (overrides?: Partial<SwapMachineContext>): SwapMachine
   txHash: null,
   approvalTxHash: null,
   error: null,
+  errorSource: null,
   retryCount: 0,
   chainType: 'evm',
   slippage: '0.5',

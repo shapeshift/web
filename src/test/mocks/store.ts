@@ -173,6 +173,7 @@ export const mockStore: ReduxState = {
       SunioSwap: false,
       AvnuSwap: false,
       StonfiSwap: false,
+      AcrossSwap: false,
       LazyTxHistory: false,
       QuickBuy: false,
       NewWalletManager: false,

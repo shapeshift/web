@@ -1,3 +1,5 @@
+import { csp as across } from './across'
+import { csp as agenticChat } from './agenticChat'
 import { csp as alchemy } from './alchemy'
 import { csp as trustwallet } from './assetService/trustwallet'
 import { csp as base } from './base'
@@ -79,7 +81,9 @@ import { csp as webflow } from './webflow'
 import { csp as yieldxyz } from './yieldxyz'
 
 export const csps = [
+  across,
   base,
+  agenticChat,
   hypelab,
   alchemy,
   moralis,

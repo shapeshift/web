@@ -48,6 +48,8 @@ export const getServerConfig = (): SwapperConfig => ({
   VITE_TENDERLY_ACCOUNT_SLUG: process.env.TENDERLY_ACCOUNT_SLUG || '',
   VITE_TENDERLY_PROJECT_SLUG: process.env.TENDERLY_PROJECT_SLUG || '',
   VITE_SUI_NODE_URL: process.env.SUI_NODE_URL || 'https://fullnode.mainnet.sui.io',
+  VITE_ACROSS_API_URL: process.env.ACROSS_API_URL || 'https://app.across.to/api',
+  VITE_ACROSS_INTEGRATOR_ID: process.env.ACROSS_INTEGRATOR_ID || '',
 })
 
 // Default affiliate fee in basis points

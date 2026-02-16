@@ -231,8 +231,6 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     .plus(BigAmount.fromBaseUnit({ value: bridgeFeeAmount, precision: buyAsset.precision }))
     .toBaseUnit()
 
-  const networkFeeCryptoBaseUnit = quote.fees.originGas.amount
-
   const allowanceContract = isEvmChainId(sellAsset.chainId) ? quote.checks.allowance.spender : ''
 
   const acrossTransactionMetadata: AcrossTransactionMetadata = {
@@ -298,6 +296,23 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   if (maybeSolanaTransactionMetadata.isErr()) return Err(maybeSolanaTransactionMetadata.unwrapErr())
 
   const solanaTransactionMetadata = maybeSolanaTransactionMetadata.unwrap()
+
+  const networkFeeCryptoBaseUnit = await (async () => {
+    if (solanaTransactionMetadata) {
+      const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+      const { fast } = await adapter.getFeeData({
+        to: '',
+        value: '0',
+        chainSpecific: {
+          from: depositor,
+          addressLookupTableAccounts: solanaTransactionMetadata.addressLookupTableAddresses,
+          instructions: solanaTransactionMetadata.instructions,
+        },
+      })
+      return fast.txFee
+    }
+    return quote.fees.originGas.amount
+  })()
 
   // Build protocol fee asset ID — Across returns its own numeric chain IDs, convert to CAIP
   const bridgeFeeAssetCaipChainId = acrossChainIdToChainId[bridgeFeeAsset.chainId.toString()]

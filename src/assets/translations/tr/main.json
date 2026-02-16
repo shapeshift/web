@@ -2364,16 +2364,13 @@
         "body": "rFOX, FOX tokenlarınızı Arbitrum'da stake ettiğinizde elde ettiğiniz avantajları ve ödülleri tanımlamak için kullanılan bir terimdir. Şu anda, emisyonları stake etmek için vanilya FOX (Arbitrum'da) tokenlerini kilitliyor ve kilidini açıyorsunuz."
       },
       "why": {
-        "title": "Neden FOX'unuzu stake etmelisiniz?",
-        "body": "FOX'unuzu stake etmek, DAO'nun hazinesinden düzenli RUNE ödemeleri kazanmanıza olanak tanır ve dönem başına RUNE cinsinden istikrarlı bir pasif gelir akışı sağlar. Ek olarak, DAO tarafından alınan RUNE'un bir kısmı FOX'u açık piyasadan satın almak ve yakmak için kullanılıyor ve bu da genel arzı azaltıyor. Staking ayrıca ShapeShift DAO'nun THORChain ekosistemiyle uyumunu destekleyerek büyümelerine ve başarılarına katkıda bulunur. Staking süreci, topluluk içinde kararlılığı ve istikrarı teşvik edecek şekilde minimum 28 günlük bir stake etme süresi gerektirir."
+        "title": "Neden FOX'unuzu stake etmelisiniz?"
       },
       "stake": {
-        "title": "FOX'umu nasıl stake ederim?",
-        "body": "FOX'unuzu stake etmek için, FOX tokenlarınızı stake etme sözleşmesine kilitlemek amacıyla stake etme arayüzünü kullanırsınız. RUNE ödüllerinizin ödeneceği adresi atamak için bir mesaj veya işlem imzalamanız gerekecektir. Stake etme avantajlarınızın bir parçası olarak blok başına RUNE ödülleri kazanmaya başlarsınız."
+        "title": "FOX'umu nasıl stake ederim?"
       },
       "unstake": {
-        "title": "Stake kaldırdığımda ne olur?",
-        "body": "Stake etmeye karar verdiğinizde minimum 28 günlük bir stake kaldırma süresi vardır. Bu süre zarfında FOX'unuz kilitli kalır ve RUNE emisyonlarını almayı bırakırsınız. Stake kaldırma süresinin ardından normal FOX tokenlarınızın kilidini açabilir ve geri alabilirsiniz."
+        "title": "Stake kaldırdığımda ne olur?"
       },
       "cooldown": {
         "title": "Soğuma süresi ne kadardır?",
@@ -2384,8 +2381,7 @@
         "body": "Evet, birden fazla stake etme tutarınız olabilir. Her bir stake kaldırma eyleminin kendine ait 28 günlük bekleme süresi olacaktır."
       },
       "connect": {
-        "title": "Toplanan toplam ücretler, toplam FOX stake miktarı, emisyon havuzu ve FOX yakma miktarı nasıl birbirine bağlanır?",
-        "body": "DAO tarafından toplanan ücretler yerel RUNE cinsindendir. Bu RUNE'un bir kısmı FOX stakerlarına ödül olarak dağıtılırken, bir kısmı da FOX'u açık piyasadan satın almak ve yakmak için kullanılıyor ve bu da genel FOX arzını azaltıyor. Ödüller, yatırılan FOX miktarına göre orantılı olarak dağıtıldığından, toplam FOX stake miktarı RUNE ödüllerinin dağıtımını etkiler. Emisyon havuzu, staking ödülleri için mevcut FOX miktarını temsil eder ve FOX yakma miktarı, ücretlerden toplanan RUNE kullanılarak satın alınan ve yakılan FOX'un kısmıdır."
+        "title": "Toplanan toplam ücretler, toplam FOX stake miktarı, emisyon havuzu ve FOX yakma miktarı nasıl birbirine bağlanır?"
       }
     },
     "totals": "rFOX Toplamı",
@@ -2507,7 +2503,6 @@
   },
   "foxPage": {
     "title": "FOX Token Panosu",
-    "description": "2019'dan beri, şekil değiştiren FOX Token'ımız kullanıcılara sürekli genişleyen bir fayda ve avantaj dünyası sunuyor. Bugün, ERC-20 yönetim token'ımız size THORChain'deki gelirlerden bir pay veriyor ve oyunuzla ShapeShift'in geleceğini etkilemenizi sağlıyor. FOX varlıklarınızı burada stake edin, takas edin, satın alın, tedarik edin ve yönetin.",
     "foxToken": "FOX Token",
     "24hrPriceChange": "24sa Fiyat Değişimi",
     "rfox": {
@@ -2674,8 +2669,7 @@
   "yieldXYZ": {
     "pageTitle": "Getiriler",
     "pageSubtitle": "Birden fazla zincirde getiri fırsatlarını keşfedin ve yönetin.",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Getiri",
     "apy": "APY",
     "apr": "APR",

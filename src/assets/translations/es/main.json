@@ -2364,16 +2364,13 @@
         "body": "rFOX término utilizado para describir beneficios y recompensas que recibe al hacer Staking de sus FOX en Arbitrum. Actualmente, bloquea y desbloquea tokens vanilla FOX (en Arbitrum) para emisiones Staking."
       },
       "why": {
-        "title": "¿Por qué hacer Staking de FOX?",
-        "body": "Staking FOX le permite obtener pagos regulares RUNE de la tesorería del DAO, lo que proporciona un flujo constante de ingresos pasivos en RUNE por época. Además, una parte del RUNE recibido se utiliza para comprar FOX en el mercado abierto y quemarlo, lo que reduce la oferta general. Staking también respalda la alineación de ShapeShift DAO con el ecosistema THORChain, contribuyendo a su crecimiento y éxito. El proceso de staking requiere un período mínimo de 28 días, lo que fomenta compromiso y estabilidad dentro de la comunidad."
+        "title": "¿Por qué hacer Staking de FOX?"
       },
       "stake": {
-        "title": "¿Cómo hago Staking FOX?",
-        "body": "Para hacer Staking de FOX, utiliza la interfaz Staking bloqueando FOX en el contrato. Deberá firmar mensaje o transacción para asignar dirección donde se pagarán recompensas RUNE. Una vez iniciado, comenzará a ganar recompensas RUNE por bloque como parte de tus beneficios."
+        "title": "¿Cómo hago Staking FOX?"
       },
       "unstake": {
-        "title": "¿Qué pasa cuando dejo de hacer Staking?",
-        "body": "Cuando decide retirar Staking, existe un período mínimo de 28 días. Durante este tiempo, tus FOX permanecen bloqueados y dejan de recibir emisiones RUNE. Después del período, puedes desbloquear y recuperar tus tokens FOX."
+        "title": "¿Qué pasa cuando dejo de hacer Staking?"
       },
       "cooldown": {
         "title": "¿Cuánto dura el período de recuperación?",
@@ -2384,8 +2381,7 @@
         "body": "Sí, puedes tener múltiples cantidades en recuperación. Cada acción tendrá su propio período de 28 días."
       },
       "connect": {
-        "title": "¿Cómo se relacionan las tarifas totales recaudadas, total Staking FOX, emisiones y cantidad quemado?",
-        "body": "Las tarifas cobradas por la DAO están en RUNE nativo. Una parte se distribuye a los Staking FOX como recompensa, otra parte se utiliza para comprar FOX en el mercado abierto y quemarlo, lo que reduce suministro general FOX. El total de FOX Staking influye en distribución de recompensas RUNE, ya que las recompensas se distribuyen pro-rata en función de la cantidad de FOX Staking. El grupo de emisiones representa la cantidad de FOX disponible para recompensas, y cantidad de FOX quemado es la porción de FOX comprada y quemada utilizando RUNE recaudado de tarifas."
+        "title": "¿Cómo se relacionan las tarifas totales recaudadas, total Staking FOX, emisiones y cantidad quemado?"
       }
     },
     "totals": "rFOX Totales",
@@ -2507,7 +2503,6 @@
   },
   "foxPage": {
     "title": "Panel de control token FOX",
-    "description": "Desde 2019, nuestro cambiante token FOX, ofrece a sus usuarios un mundo en constante expansión de utilidades y ventajas. Hoy, nuestro token de gobernanza ERC-20 otorga una participación en los ingresos THORChain y permite influir en el futuro de ShapeShift con tu voto. Stake, intercambia, compra, suministra y gestiona tus activos FOX aquí.",
     "foxToken": "Token FOX",
     "24hrPriceChange": "Cambio de precio 24 horas",
     "rfox": {
@@ -2674,8 +2669,7 @@
   "yieldXYZ": {
     "pageTitle": "Rendimientos",
     "pageSubtitle": "Descubra y gestione oportunidades de rendimiento en múltiples cadenas",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Rendimiento",
     "apy": "APY",
     "apr": "APR",

@@ -2364,16 +2364,13 @@
         "body": "rFOX é um termo usado para descrever os benefícios e recompensas que você recebe ao fazer stake dos seus tokens FOX no Arbitrum. Atualmente, você os trava e desbloqueia tokens vanilla FOX (no Arbitrum) para emissões de staking."
       },
       "why": {
-        "title": "Por que fazer o stake de FOX?",
-        "body": "Realizar o stake do seu FOX permite que você receba pagamentos regulares de RUNE do tesouro do DAO, proporcionando um fluxo constante de renda passiva em RUNE por época. Além disso, uma parte do RUNE recebido pela DAO é usada para comprar FOX no mercado aberto e queimá-la, reduzindo a oferta geral. O staking também apoia o alinhamento do ShapeShift DAO com o ecossistema THORChain, contribuindo para o seu crescimento e sucesso. O processo de piquetagem requer um período mínimo de 28 dias, incentivando o comprometimento e a estabilidade na comunidade."
+        "title": "Por que fazer o stake de FOX?"
       },
       "stake": {
-        "title": "Como faço para realizar stake de FOX?",
-        "body": "Para fazer stake do seu FOX, você usa a interface de staking para bloquear seus tokens FOX no contrato. Você precisará assinar uma mensagem ou transação para atribuir o endereço onde suas recompensas RUNE serão pagas. Depois do staking, você começa a ganhar recompensas RUNE por bloco como parte dos benefícios."
+        "title": "Como faço para realizar stake de FOX?"
       },
       "unstake": {
-        "title": "O que acontece quando realizo o unstake?",
-        "body": "Quando você decide fazer o unstake, há um período mínimo de saque de 28 dias. Durante esse período, seus tokens FOX permanecerão bloqueados e você deixará de receber emissões de RUNE. Após o período de retirada, você pode desbloquear e recuperar seus tokens FOX normais."
+        "title": "O que acontece quando realizo o unstake?"
       },
       "cooldown": {
         "title": "Quanto tempo dura o período de espera?",
@@ -2384,8 +2381,7 @@
         "body": "Sim, você pode ter vários valores em unstaking. Cada ação terá seu próprio período de espera de 28 dias."
       },
       "connect": {
-        "title": "Como o total de taxas cobradas, o total de FOX em stake, a pool de emissões e o valor queimado da FOX se conectam?",
-        "body": "As taxas cobradas pela DAO estão em RUNE nativo. Uma parte desta RUNE é distribuída aos stakers da FOX como recompensa, enquanto outra parte é usada para comprar a FOX no mercado aberto e queimá-la, reduzindo a oferta geral da FOX. O total FOX em stake influencia a distribuição das recompensas RUNE, uma vez que as recompensas são distribuídas proporcionalmente com base na quantidade de FOX apostada. A pool de emissões representa a quantidade de FOX disponível para recompensas destinados ao staking, e o valor de queima de FOX é a parte de FOX comprada e queimada usando o RUNE coletado das taxas."
+        "title": "Como o total de taxas cobradas, o total de FOX em stake, a pool de emissões e o valor queimado da FOX se conectam?"
       }
     },
     "totals": "Totais de rFOX",
@@ -2507,7 +2503,6 @@
   },
   "foxPage": {
     "title": "Painel de Tokens FOX",
-    "description": "Desde 2019, nosso token FOX, oferece aos usuários um mundo de cada vez mais utilidades e vantagens. Hoje, nosso token de governança garante uma participação nos lucros da THORChain e permite que você influencie o futuro do ShapeShift por meio do seu voto. Faça stake, troque, compre, forneça liquidez e gerencie seus FOX aqui.",
     "foxToken": "Token FOX",
     "24hrPriceChange": "Alteração de preço 24h",
     "rfox": {
@@ -2674,8 +2669,7 @@
   "yieldXYZ": {
     "pageTitle": "Yields",
     "pageSubtitle": "Descubra e gerencie oportunidades de rendimento em várias redes.",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Yield",
     "apy": "APY",
     "apr": "APR",

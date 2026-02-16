@@ -2364,16 +2364,13 @@
         "body": "rFOX ist ein Begriff, der die Vorteile und Belohnungen beschreibt, die Sie erhalten, wenn Sie Ihre FOX-Token auf Arbitrum einsetzen. Derzeit sperren und entsperren Sie Vanilla-FOX-Token (auf Arbitrum) für das Einsetzen von Emissionen."
       },
       "why": {
-        "title": "Warum sollten Sie Ihren FOX staken?",
-        "body": "Durch das Staking Ihres FOX können Sie regelmäßige RUNE-Auszahlungen aus der DAO-Schatzkammer erhalten, was Ihnen einen stetigen Strom passiven Einkommens in RUNE pro Epoche verschafft. Darüber hinaus wird ein Teil der von der DAO erhaltenen RUNE verwendet, um FOX auf dem freien Markt zu kaufen und zu verbrennen, wodurch das Gesamtangebot reduziert wird. Das Staking unterstützt auch die Ausrichtung der ShapeShift DAO auf das THORChain-Ökosystem und trägt zu deren Wachstum und Erfolg bei. Der Staking-Prozess erfordert eine Mindest-Destaking-Periode von 28 Tagen, was Engagement und Stabilität innerhalb der Community fördert."
+        "title": "Warum sollten Sie Ihren FOX staken?"
       },
       "stake": {
-        "title": "Wie stake ich meinen FOX?",
-        "body": "Um Ihren FOX zu staken, verwenden Sie die Staking-Schnittstelle, um Ihre FOX-Token in den Staking-Vertrag einzubinden. Sie müssen eine Nachricht oder Transaktion unterzeichnen, um die Adresse zuzuweisen, an die Ihre RUNE-Belohnungen ausgezahlt werden. Sobald Sie eingesetzt haben, beginnen Sie, RUNE-Belohnungen pro Block als Teil Ihrer Staking-Vorteile zu verdienen."
+        "title": "Wie stake ich meinen FOX?"
       },
       "unstake": {
-        "title": "Was passiert, wenn ich mein Staking zurücknehme?",
-        "body": "Wenn Sie sich für die Aufhebung des Stakings entscheiden, gibt es eine Mindestaufhebungsfrist von 28 Tagen. Während dieser Zeit bleiben Ihre FOX gesperrt und Sie erhalten keine RUNE-Emissionen mehr. Nach der Aufhebungsfrist können Sie Ihre regulären FOX-Token entsperren und abrufen."
+        "title": "Was passiert, wenn ich mein Staking zurücknehme?"
       },
       "cooldown": {
         "title": "Wie lange ist die Abkühlungsphase?",
@@ -2384,8 +2381,7 @@
         "body": "Ja, Sie können mehrere Beträge aufheben. Für jede Aufhebungsaktion gilt eine Abkühlungsphase von 28 Tagen."
       },
       "connect": {
-        "title": "Welcher Zusammenhang besteht zwischen den insgesamt erhobenen Gebühren, dem gesamten FOX-Einsatz, dem Emissionspool und der FOX-Verbrennungsmenge?",
-        "body": "Die von der DAO erhobenen Gebühren erfolgen in nativem RUNE. Ein Teil dieser RUNE wird als Belohnung an FOX-Staker verteilt, während ein anderer Teil verwendet wird, um FOX auf dem freien Markt zu kaufen und zu verbrennen, wodurch das gesamte FOX-Angebot reduziert wird. Die Gesamtmenge an eingesetzten FOX beeinflusst die Verteilung der RUNE-Belohnungen, da die Belohnungen anteilig basierend auf der Menge an eingesetzten FOX verteilt werden. Der Emissionspool stellt die Menge an FOX dar, die für Einsatzbelohnungen verfügbar ist, und die FOX-Verbrennungsmenge ist der Teil an FOX, der mit den aus den Gebühren eingenommenen RUNE gekauft und verbrannt wird."
+        "title": "Welcher Zusammenhang besteht zwischen den insgesamt erhobenen Gebühren, dem gesamten FOX-Einsatz, dem Emissionspool und der FOX-Verbrennungsmenge?"
       }
     },
     "totals": "rFOX Summen",
@@ -2507,7 +2503,6 @@
   },
   "foxPage": {
     "title": "FOX-Token-Dashboard",
-    "description": "Seit 2019 bietet unser Shapeshifting FOX Token Nutzern eine stetig wachsende Welt voller Nutzen und Vorteile. Heute ermöglicht Ihnen unser ERC20 Governance Token eine Beteiligung an den Einnahmen von THORChain und ermöglicht Ihnen, die Zukunft von ShapeShift durch Ihre Stimme zu beeinflussen. Hier können Sie Ihre FOX-Bestände einsetzen, tauschen, kaufen, bereitstellen und verwalten.",
     "foxToken": "FOX Token",
     "24hrPriceChange": "24h Preisänderung",
     "rfox": {
@@ -2674,8 +2669,7 @@
   "yieldXYZ": {
     "pageTitle": "Erträge",
     "pageSubtitle": "Ertragspotenziale über mehrere Ketten hinweg erkennen und nutzen",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Ertrag",
     "apy": "APY",
     "apr": "APR",

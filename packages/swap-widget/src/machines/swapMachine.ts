@@ -68,7 +68,9 @@ export const swapMachine = setup({
     hasValidInput: ({ context }) => guardFns.hasValidInput(context),
     isApprovalRequired: ({ context, event }) => {
       const quote = (event as { type: 'QUOTE_SUCCESS'; quote: QuoteResponse }).quote
-      return quote?.approval?.isRequired === true && context.chainType === 'evm'
+      if (quote?.approval?.isRequired !== true || context.chainType !== 'evm') return false
+      const namespace = context.sellAsset.assetId.split('/')[1]?.split(':')[0]
+      return namespace === 'erc20'
     },
     canRetry: ({ context }) => guardFns.canRetry(context),
     hasQuote: ({ context }) => guardFns.hasQuote(context),

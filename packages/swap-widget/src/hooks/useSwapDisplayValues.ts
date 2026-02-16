@@ -121,6 +121,16 @@ export const useSwapDisplayValues = ({ apiClient }: UseSwapDisplayValuesParams) 
     return formatUsdValue(buyAmount, buyAsset.precision, buyAssetUsdPrice)
   }, [buyAmount, buyAsset.precision, buyAssetUsdPrice])
 
+  const sellBalanceFiatValue = useMemo(() => {
+    if (!sellAssetBalance?.balance || !sellAssetUsdPrice) return undefined
+    return formatUsdValue(sellAssetBalance.balance, sellAsset.precision, sellAssetUsdPrice)
+  }, [sellAssetBalance?.balance, sellAsset.precision, sellAssetUsdPrice])
+
+  const buyBalanceFiatValue = useMemo(() => {
+    if (!buyAssetBalance?.balance || !buyAssetUsdPrice) return undefined
+    return formatUsdValue(buyAssetBalance.balance, buyAsset.precision, buyAssetUsdPrice)
+  }, [buyAssetBalance?.balance, buyAsset.precision, buyAssetUsdPrice])
+
   return {
     rates,
     isLoadingRates,
@@ -141,5 +151,7 @@ export const useSwapDisplayValues = ({ apiClient }: UseSwapDisplayValuesParams) 
     buyUsdValue,
     sellAssetUsdPrice,
     buyAssetUsdPrice,
+    sellBalanceFiatValue,
+    buyBalanceFiatValue,
   }
 }

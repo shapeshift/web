@@ -20,6 +20,14 @@ const TEST_BTC: Asset = {
   precision: 8,
 }
 
+const TEST_USDC: Asset = {
+  assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  chainId: 'eip155:1',
+  symbol: 'USDC',
+  name: 'USD Coin',
+  precision: 6,
+}
+
 const TEST_RATE: TradeRate = {
   swapperName: 'THORChain' as TradeRate['swapperName'],
   rate: '1500',
@@ -200,14 +208,25 @@ describe('swapMachine', () => {
       actor.stop()
     })
 
-    it('QUOTE_SUCCESS transitions to approval_needed when approval required on evm', () => {
+    it('QUOTE_SUCCESS transitions to approval_needed when approval required on evm with ERC20', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({ type: 'SET_SELL_ASSET', asset: TEST_USDC })
+      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000' })
+      actor.send({ type: 'FETCH_QUOTE' })
+      actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_WITH_APPROVAL })
+      expect(actor.getSnapshot().value).toBe('approval_needed')
+      expect(actor.getSnapshot().context.quote).toEqual(TEST_QUOTE_WITH_APPROVAL)
+      actor.stop()
+    })
+
+    it('QUOTE_SUCCESS skips approval for native assets even when API says required', () => {
       const actor = createActor(swapMachine)
       actor.start()
       actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000000000000000' })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_WITH_APPROVAL })
-      expect(actor.getSnapshot().value).toBe('approval_needed')
-      expect(actor.getSnapshot().context.quote).toEqual(TEST_QUOTE_WITH_APPROVAL)
+      expect(actor.getSnapshot().value).toBe('executing')
       actor.stop()
     })
 
@@ -238,7 +257,8 @@ describe('swapMachine', () => {
     it('APPROVE transitions to approving', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000000000000000' })
+      actor.send({ type: 'SET_SELL_ASSET', asset: TEST_USDC })
+      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000' })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_WITH_APPROVAL })
       expect(actor.getSnapshot().value).toBe('approval_needed')
@@ -250,7 +270,8 @@ describe('swapMachine', () => {
     it('RESET from approval_needed goes to input', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000000000000000' })
+      actor.send({ type: 'SET_SELL_ASSET', asset: TEST_USDC })
+      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000' })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_WITH_APPROVAL })
       actor.send({ type: 'RESET' })
@@ -263,7 +284,8 @@ describe('swapMachine', () => {
     it('APPROVAL_SUCCESS transitions to executing with approvalTxHash', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000000000000000' })
+      actor.send({ type: 'SET_SELL_ASSET', asset: TEST_USDC })
+      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000' })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_WITH_APPROVAL })
       actor.send({ type: 'APPROVE' })
@@ -276,7 +298,8 @@ describe('swapMachine', () => {
     it('APPROVAL_ERROR transitions to error', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000000000000000' })
+      actor.send({ type: 'SET_SELL_ASSET', asset: TEST_USDC })
+      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000' })
       actor.send({ type: 'FETCH_QUOTE' })
       actor.send({ type: 'QUOTE_SUCCESS', quote: TEST_QUOTE_WITH_APPROVAL })
       actor.send({ type: 'APPROVE' })
@@ -475,7 +498,8 @@ describe('swapMachine', () => {
       actor.start()
       expect(actor.getSnapshot().value).toBe('input')
 
-      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000000000000000' })
+      actor.send({ type: 'SET_SELL_ASSET', asset: TEST_USDC })
+      actor.send({ type: 'SET_SELL_AMOUNT', amount: '1', amountBaseUnit: '1000000' })
       actor.send({ type: 'FETCH_QUOTE' })
       expect(actor.getSnapshot().value).toBe('quoting')
 

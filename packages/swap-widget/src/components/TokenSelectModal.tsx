@@ -1,7 +1,7 @@
 import './TokenSelectModal.css'
 
 import { bnOrZero } from '@shapeshiftoss/utils'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Virtuoso } from 'react-virtuoso'
 
 import type { ChainInfo } from '../hooks/useAssets'
@@ -172,8 +172,25 @@ export const TokenSelectModal = ({
 
   const { data: marketData } = useAllMarketData()
 
+  const balanceSortDoneRef = useRef(false)
+  const sortedAssetsRef = useRef<Asset[]>(filteredAssets)
+  const prevFilteredRef = useRef(filteredAssets)
+
   const sortedAssets = useMemo(() => {
-    if (!balances || Object.keys(balances).length === 0) return filteredAssets
+    const filterChanged = filteredAssets !== prevFilteredRef.current
+    if (filterChanged) {
+      prevFilteredRef.current = filteredAssets
+      balanceSortDoneRef.current = false
+    }
+
+    if (balanceSortDoneRef.current) {
+      return sortedAssetsRef.current
+    }
+
+    if (!balances || Object.keys(balances).length === 0) {
+      sortedAssetsRef.current = filteredAssets
+      return filteredAssets
+    }
 
     const withBalance: { asset: Asset; fiatValue: number }[] = []
     const withoutBalance: Asset[] = []
@@ -196,7 +213,10 @@ export const TokenSelectModal = ({
 
     withBalance.sort((a, b) => b.fiatValue - a.fiatValue)
 
-    return [...withBalance.map(w => w.asset), ...withoutBalance]
+    const result = [...withBalance.map(w => w.asset), ...withoutBalance]
+    balanceSortDoneRef.current = true
+    sortedAssetsRef.current = result
+    return result
   }, [filteredAssets, balances, marketData])
 
   const handleAssetSelect = useCallback(
@@ -285,9 +305,6 @@ export const TokenSelectModal = ({
                 onClick={() => handleChainSelect(null)}
                 type='button'
               >
-                <div className='ssw-chain-icon-multi'>
-                  <span>🔗</span>
-                </div>
                 <span className='ssw-chain-name'>All Chains</span>
               </button>
 

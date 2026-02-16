@@ -36,8 +36,11 @@ export const useSwapApproval = () => {
         }
 
         const sellAssetAddress = context.sellAsset.assetId.split('/')[1]?.split(':')[1]
-        if (!sellAssetAddress) {
-          actorRef.send({ type: 'APPROVAL_ERROR', error: 'Could not extract token address' })
+        if (!sellAssetAddress || !/^0x[a-fA-F0-9]{40}$/.test(sellAssetAddress)) {
+          actorRef.send({
+            type: 'APPROVAL_ERROR',
+            error: 'Approval not applicable for native assets',
+          })
           return
         }
 

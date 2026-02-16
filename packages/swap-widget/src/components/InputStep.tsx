@@ -42,6 +42,8 @@ type InputStepProps = {
   onButtonClick: () => void
   sellAmountBaseUnit: string | undefined
   networkFeeDisplay: string | undefined
+  sellBalanceFiatValue: string | undefined
+  buyBalanceFiatValue: string | undefined
 }
 
 export const InputStep = ({
@@ -81,6 +83,8 @@ export const InputStep = ({
   onButtonClick,
   sellAmountBaseUnit,
   networkFeeDisplay,
+  sellBalanceFiatValue,
+  buyBalanceFiatValue,
 }: InputStepProps) => {
   const { sellAsset, buyAsset, selectedRate, isSellAssetEvm, isSellAssetUtxo, isSellAssetSolana } =
     context
@@ -246,7 +250,12 @@ export const InputStep = ({
               (isSellBalanceLoading ? (
                 <span className='ssw-balance-skeleton' />
               ) : sellAssetBalance ? (
-                <span className='ssw-balance'>Balance: {sellAssetBalance.balanceFormatted}</span>
+                <span className='ssw-balance'>
+                  Balance: {sellAssetBalance.balanceFormatted}
+                  {sellBalanceFiatValue && (
+                    <span className='ssw-balance-fiat'> ({sellBalanceFiatValue})</span>
+                  )}
+                </span>
               ) : null)}
           </div>
         </div>
@@ -340,7 +349,12 @@ export const InputStep = ({
               (isBuyBalanceLoading ? (
                 <span className='ssw-balance-skeleton' />
               ) : buyAssetBalance ? (
-                <span className='ssw-balance'>Balance: {buyAssetBalance.balanceFormatted}</span>
+                <span className='ssw-balance'>
+                  Balance: {buyAssetBalance.balanceFormatted}
+                  {buyBalanceFiatValue && (
+                    <span className='ssw-balance-fiat'> ({buyBalanceFiatValue})</span>
+                  )}
+                </span>
               ) : null)}
           </div>
         </div>

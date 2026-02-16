@@ -8,7 +8,7 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
   width: 100%;
-  min-width: 360px;
+  min-width: 380px;
   max-width: 420px;
   border-radius: 20px;
   overflow: hidden;
@@ -638,6 +638,9 @@
 
 .ssw-step-actions .ssw-action-btn {
   flex: 1;
+  width: auto;
+  margin: 0;
+  white-space: nowrap;
 }
 
 .ssw-step-actions .ssw-secondary {

@@ -105,6 +105,8 @@ const SwapWidgetContent = ({
     sellUsdValue,
     buyUsdValue,
     buyAssetUsdPrice,
+    sellBalanceFiatValue,
+    buyBalanceFiatValue,
   } = useSwapDisplayValues({ apiClient })
 
   const {
@@ -220,6 +222,8 @@ const SwapWidgetContent = ({
             onButtonClick={handleButtonClick}
             sellAmountBaseUnit={state.context.sellAmountBaseUnit}
             networkFeeDisplay={networkFeeDisplay}
+            sellBalanceFiatValue={sellBalanceFiatValue}
+            buyBalanceFiatValue={buyBalanceFiatValue}
           />
         )}
 

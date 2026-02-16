@@ -101,7 +101,25 @@ describe('guards', () => {
       ).toBe(false)
     })
 
-    it('returns true when approval is required on EVM chain', () => {
+    it('returns true when approval is required for ERC20 on EVM chain', () => {
+      expect(
+        isApprovalRequired(
+          createTestContext({
+            sellAsset: {
+              assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+              chainId: 'eip155:1',
+              symbol: 'USDC',
+              name: 'USD Coin',
+              precision: 6,
+            },
+            chainType: 'evm',
+            quote: { approval: { isRequired: true, spender: '0xSpender' } },
+          }),
+        ),
+      ).toBe(true)
+    })
+
+    it('returns false when approval is required but sell asset is native (slip44)', () => {
       expect(
         isApprovalRequired(
           createTestContext({
@@ -109,7 +127,7 @@ describe('guards', () => {
             quote: { approval: { isRequired: true, spender: '0xSpender' } },
           }),
         ),
-      ).toBe(true)
+      ).toBe(false)
     })
 
     it('returns false when approval is required but chain is not EVM', () => {

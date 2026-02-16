@@ -12,7 +12,10 @@ export const hasValidInput = (context: SwapMachineContext): boolean => {
 export const hasQuote = (context: SwapMachineContext): boolean => context.quote !== null
 
 export const isApprovalRequired = (context: SwapMachineContext): boolean => {
-  return context.quote?.approval?.isRequired === true && context.chainType === 'evm'
+  if (context.quote?.approval?.isRequired !== true || context.chainType !== 'evm') return false
+  const assetIdParts = context.sellAsset.assetId.split('/')
+  const namespace = assetIdParts[1]?.split(':')[0]
+  return namespace === 'erc20'
 }
 
 export const canRetry = (context: SwapMachineContext): boolean => context.retryCount < 3

@@ -36,7 +36,8 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import { PublicKey as SolanaPublicKey } from '@solana/web3.js'
 import type { MessageRelaxed } from '@ton/core'
-import { Address, beginCell, Cell, internal, SendMode, storeMessage } from '@ton/core'
+import type { StateInit } from '@ton/core'
+import { Address, beginCell, Cell, internal, loadStateInit, SendMode, storeMessage } from '@ton/core'
 import { WalletContractV4 } from '@ton/ton'
 import { createBLAKE2b, sha256 } from 'hash-wasm'
 
@@ -568,24 +569,11 @@ export class SeekerHDWallet implements HDWallet {
           body = beginCell().endCell()
         }
 
-        let init: { code: Cell; data: Cell } | undefined
+        let init: StateInit | undefined
         if (rawMsg.stateInit && rawMsg.stateInit.length > 0) {
           const stateInitBuffer = Buffer.from(rawMsg.stateInit, 'hex')
           const stateInitCell = Cell.fromBoc(stateInitBuffer)[0]
-          const stateInitSlice = stateInitCell.beginParse()
-          const hasCode = stateInitSlice.loadBit()
-          const hasData = stateInitSlice.loadBit()
-          if (hasCode !== hasData) {
-            throw new Error(
-              `Malformed stateInit: hasCode=${hasCode}, hasData=${hasData} — expected both or neither`,
-            )
-          }
-          if (hasCode && hasData) {
-            init = {
-              code: stateInitSlice.loadRef(),
-              data: stateInitSlice.loadRef(),
-            }
-          }
+          init = loadStateInit(stateInitCell.beginParse())
         }
 
         return internal({

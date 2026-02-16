@@ -750,7 +750,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       jetton_wallets?: { address: string }[]
       address_book?: Record<string, { user_friendly: string }>
     }>(
-      `/api/v3/jetton/wallets?owner_address=${encodeURIComponent(ownerAddress)}&jetton_address=${encodeURIComponent(jettonMaster)}&limit=1`,
+      `/api/v3/jetton/wallets?owner_address=${encodeURIComponent(
+        ownerAddress,
+      )}&jetton_address=${encodeURIComponent(jettonMaster)}&limit=1`,
     )
 
     const wallet = response.jetton_wallets?.[0]

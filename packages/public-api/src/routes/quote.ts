@@ -52,6 +52,10 @@ const fetchInboundAddress = async (
     return result.unwrap().address
   }
 
+  console.error(
+    `Failed to fetch inbound address for ${assetId} (${swapperName}):`,
+    result.unwrapErr(),
+  )
   return undefined
 }
 
@@ -84,89 +88,92 @@ const getEvmChainIdNumber = (chainId: string): number => {
 const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | undefined => {
   const chainId = getEvmChainIdNumber(step.sellAsset.chainId)
 
-  if (step.zrxTransactionMetadata) {
-    const txData: EvmTransactionData = {
-      type: 'evm',
-      chainId,
-      to: step.zrxTransactionMetadata.to,
-      data: step.zrxTransactionMetadata.data,
-      value: step.zrxTransactionMetadata.value,
-      gasLimit: step.zrxTransactionMetadata.gas,
-    }
-    if (step.permit2Eip712) {
-      txData.signatureRequired = {
-        type: 'permit2',
-        eip712: step.permit2Eip712,
+  const txData: EvmTransactionData | undefined = (() => {
+    if (step.zrxTransactionMetadata) {
+      return {
+        type: 'evm' as const,
+        chainId,
+        to: step.zrxTransactionMetadata.to,
+        data: step.zrxTransactionMetadata.data,
+        value: step.zrxTransactionMetadata.value,
+        gasLimit: step.zrxTransactionMetadata.gas,
       }
     }
-    return txData
-  }
 
-  if (step.portalsTransactionMetadata) {
-    return {
-      type: 'evm',
-      chainId,
-      to: step.portalsTransactionMetadata.to,
-      data: step.portalsTransactionMetadata.data,
-      value: step.portalsTransactionMetadata.value,
-      gasLimit: step.portalsTransactionMetadata.gasLimit,
+    if (step.portalsTransactionMetadata) {
+      return {
+        type: 'evm' as const,
+        chainId,
+        to: step.portalsTransactionMetadata.to,
+        data: step.portalsTransactionMetadata.data,
+        value: step.portalsTransactionMetadata.value,
+        gasLimit: step.portalsTransactionMetadata.gasLimit,
+      }
     }
-  }
 
-  if (step.bebopTransactionMetadata) {
-    return {
-      type: 'evm',
-      chainId,
-      to: step.bebopTransactionMetadata.to,
-      data: step.bebopTransactionMetadata.data,
-      value: step.bebopTransactionMetadata.value,
-      gasLimit: step.bebopTransactionMetadata.gas,
+    if (step.bebopTransactionMetadata) {
+      return {
+        type: 'evm' as const,
+        chainId,
+        to: step.bebopTransactionMetadata.to,
+        data: step.bebopTransactionMetadata.data,
+        value: step.bebopTransactionMetadata.value,
+        gasLimit: step.bebopTransactionMetadata.gas,
+      }
     }
-  }
 
-  if (step.butterSwapTransactionMetadata) {
-    return {
-      type: 'evm',
-      chainId,
-      to: step.butterSwapTransactionMetadata.to,
-      data: step.butterSwapTransactionMetadata.data,
-      value: step.butterSwapTransactionMetadata.value,
-      gasLimit: step.butterSwapTransactionMetadata.gasLimit,
+    if (step.butterSwapTransactionMetadata) {
+      return {
+        type: 'evm' as const,
+        chainId,
+        to: step.butterSwapTransactionMetadata.to,
+        data: step.butterSwapTransactionMetadata.data,
+        value: step.butterSwapTransactionMetadata.value,
+        gasLimit: step.butterSwapTransactionMetadata.gasLimit,
+      }
     }
-  }
 
-  if (step.relayTransactionMetadata?.to && step.relayTransactionMetadata?.data) {
-    return {
-      type: 'evm',
-      chainId,
-      to: step.relayTransactionMetadata.to,
-      data: step.relayTransactionMetadata.data,
-      value: step.relayTransactionMetadata.value ?? '0',
-      gasLimit: step.relayTransactionMetadata.gasLimit,
+    if (step.relayTransactionMetadata?.to && step.relayTransactionMetadata?.data) {
+      return {
+        type: 'evm' as const,
+        chainId,
+        to: step.relayTransactionMetadata.to,
+        data: step.relayTransactionMetadata.data,
+        value: step.relayTransactionMetadata.value ?? '0',
+        gasLimit: step.relayTransactionMetadata.gasLimit,
+      }
     }
-  }
 
-  if (step.chainflipSpecific?.chainflipDepositAddress) {
-    return {
-      type: 'evm',
-      chainId,
-      to: step.chainflipSpecific.chainflipDepositAddress,
-      data: '0x',
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    if (step.chainflipSpecific?.chainflipDepositAddress) {
+      return {
+        type: 'evm' as const,
+        chainId,
+        to: step.chainflipSpecific.chainflipDepositAddress,
+        data: '0x',
+        value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      }
     }
-  }
 
-  if (step.nearIntentsSpecific?.depositAddress) {
-    return {
-      type: 'evm',
-      chainId,
-      to: step.nearIntentsSpecific.depositAddress,
-      data: '0x',
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    if (step.nearIntentsSpecific?.depositAddress) {
+      return {
+        type: 'evm' as const,
+        chainId,
+        to: step.nearIntentsSpecific.depositAddress,
+        data: '0x',
+        value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      }
     }
+
+    return undefined
+  })()
+
+  if (!txData) return undefined
+
+  if (step.permit2Eip712 && !txData.signatureRequired) {
+    return { ...txData, signatureRequired: { type: 'permit2', eip712: step.permit2Eip712 } }
   }
 
-  return undefined
+  return txData
 }
 
 const extractSolanaTransactionData = (step: TradeQuoteStep): SolanaTransactionData | undefined => {
@@ -307,6 +314,36 @@ const transformQuoteStep = (
   transactionData: extractTransactionData(step, context),
 })
 
+type DepositContextResult =
+  | { ok: true; context: DepositExtractionContext }
+  | { ok: false; error: ErrorResponse; statusCode: number }
+
+const resolveDepositContext = async (
+  quote: TradeQuote,
+  firstStep: TradeQuoteStep,
+  swapperName: SwapperName,
+): Promise<DepositContextResult> => {
+  const thorLikeQuote = quote as ThorLikeQuote
+  if (!thorLikeQuote.memo) return { ok: true, context: {} }
+
+  const { chainNamespace } = fromChainId(firstStep.sellAsset.chainId)
+  if (chainNamespace !== 'bip122' && chainNamespace !== 'cosmos') return { ok: true, context: {} }
+
+  const depositAddress = await fetchInboundAddress(firstStep.sellAsset.assetId, swapperName)
+  if (!depositAddress) {
+    return {
+      ok: false,
+      statusCode: 503,
+      error: {
+        error: 'Failed to fetch deposit address for this swap',
+        code: 'DEPOSIT_ADDRESS_UNAVAILABLE',
+      },
+    }
+  }
+
+  return { ok: true, context: { memo: thorLikeQuote.memo, depositAddress } }
+}
+
 export const getQuote = async (req: Request, res: Response): Promise<void> => {
   try {
     // Parse and validate request
@@ -437,29 +474,12 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     const quoteId = uuidv4()
     const now = Date.now()
 
-    const thorLikeQuote = quote as ThorLikeQuote
-    let depositContext: DepositExtractionContext = {}
-
-    if (thorLikeQuote.memo) {
-      const { chainNamespace } = fromChainId(firstStep.sellAsset.chainId)
-      if (chainNamespace === 'bip122' || chainNamespace === 'cosmos') {
-        const depositAddress = await fetchInboundAddress(
-          firstStep.sellAsset.assetId,
-          validSwapperName,
-        )
-        if (!depositAddress) {
-          res.status(503).json({
-            error: 'Failed to fetch deposit address for this swap',
-            code: 'DEPOSIT_ADDRESS_UNAVAILABLE',
-          } as ErrorResponse)
-          return
-        }
-        depositContext = {
-          memo: thorLikeQuote.memo,
-          depositAddress,
-        }
-      }
+    const depositContextResult = await resolveDepositContext(quote, firstStep, validSwapperName)
+    if (!depositContextResult.ok) {
+      res.status(depositContextResult.statusCode).json(depositContextResult.error)
+      return
     }
+    const { context: depositContext } = depositContextResult
 
     const response: QuoteResponse = {
       quoteId,
@@ -473,7 +493,9 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       affiliateBps: quote.affiliateBps,
       slippageTolerancePercentageDecimal: quote.slippageTolerancePercentageDecimal,
       networkFeeCryptoBaseUnit: firstStep.feeData.networkFeeCryptoBaseUnit,
-      steps: quote.steps.map(step => transformQuoteStep(step, depositContext)),
+      steps: quote.steps.map((step, index) =>
+        transformQuoteStep(step, index === 0 ? depositContext : {}),
+      ),
       approval: buildApprovalInfo(firstStep),
       expiresAt: now + 60_000,
     }

@@ -95,22 +95,12 @@ const CosmosTransactionDataSchema = z.object({
   memo: z.string().optional(),
 })
 
-const CowswapOrderDataSchema = z.object({
-  type: z.literal('cowswap').openapi({ example: 'cowswap' }),
-  order: z.record(z.unknown()),
-  signatureRequired: z.object({
-    type: z.literal('eip712'),
-    eip712: z.record(z.unknown()),
-  }),
-})
-
 const TransactionDataSchema = z.discriminatedUnion('type', [
   EvmTransactionDataSchema,
   SolanaTransactionDataSchema,
   UtxoPsbtTransactionDataSchema,
   UtxoDepositTransactionDataSchema,
   CosmosTransactionDataSchema,
-  CowswapOrderDataSchema,
 ])
 
 const QuoteStepSchema = registry.register(

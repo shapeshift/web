@@ -203,21 +203,11 @@ export type CosmosTransactionData = {
   memo?: string
 }
 
-export type CowswapOrderData = {
-  type: 'cowswap'
-  order: unknown
-  signatureRequired: {
-    type: 'eip712'
-    eip712: Record<string, unknown>
-  }
-}
-
 export type TransactionData =
   | EvmTransactionData
   | SolanaTransactionData
   | UtxoTransactionData
   | CosmosTransactionData
-  | CowswapOrderData
 
 export type ApiQuoteStep = {
   sellAsset: Asset

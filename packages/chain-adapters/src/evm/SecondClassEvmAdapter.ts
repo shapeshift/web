@@ -47,6 +47,10 @@ export type SecondClassEvmAdapterArgs<T extends EvmChainId> = {
   getKnownTokens: () => TokenInfo[]
 }
 
+export const isSecondClassEvmAdapter = (
+  adapter: unknown,
+): adapter is SecondClassEvmAdapter<EvmChainId> => adapter instanceof SecondClassEvmAdapter
+
 export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBaseAdapter<T> {
   protected provider: JsonRpcProvider
   protected multicall: Contract

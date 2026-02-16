@@ -37,15 +37,8 @@ const makeAdapter = () =>
     getKnownTokens: () => [],
   })
 
-type TransactionStatusAdapter = {
-  getTransactionStatus: (txHash: string) => Promise<TxStatus>
-}
-
 const getProvider = (adapter: monad.ChainAdapter) =>
   (adapter as unknown as { provider: JsonRpcProvider }).provider
-
-const getTransactionStatus = (adapter: monad.ChainAdapter, txHash: string) =>
-  (adapter as unknown as TransactionStatusAdapter).getTransactionStatus(txHash)
 
 describe('SecondClassEvmAdapter', () => {
   afterEach(() => {
@@ -60,7 +53,7 @@ describe('SecondClassEvmAdapter', () => {
       status: 1,
     } as unknown as Awaited<ReturnType<JsonRpcProvider['getTransactionReceipt']>>)
 
-    await expect(getTransactionStatus(adapter, '0xabc')).resolves.toBe(TxStatus.Confirmed)
+    await expect(adapter.getTransactionStatus('0xabc')).resolves.toBe(TxStatus.Confirmed)
   })
 
   it('returns failed when receipt status is 0', async () => {
@@ -71,7 +64,7 @@ describe('SecondClassEvmAdapter', () => {
       status: 0,
     } as unknown as Awaited<ReturnType<JsonRpcProvider['getTransactionReceipt']>>)
 
-    await expect(getTransactionStatus(adapter, '0xdef')).resolves.toBe(TxStatus.Failed)
+    await expect(adapter.getTransactionStatus('0xdef')).resolves.toBe(TxStatus.Failed)
   })
 
   it('returns pending when receipt is null', async () => {
@@ -80,7 +73,7 @@ describe('SecondClassEvmAdapter', () => {
 
     vi.spyOn(provider, 'getTransactionReceipt').mockResolvedValue(null)
 
-    await expect(getTransactionStatus(adapter, '0x123')).resolves.toBe(TxStatus.Pending)
+    await expect(adapter.getTransactionStatus('0x123')).resolves.toBe(TxStatus.Pending)
   })
 
   it('returns unknown when receipt status is null', async () => {
@@ -91,7 +84,7 @@ describe('SecondClassEvmAdapter', () => {
       status: null,
     } as unknown as Awaited<ReturnType<JsonRpcProvider['getTransactionReceipt']>>)
 
-    await expect(getTransactionStatus(adapter, '0x456')).resolves.toBe(TxStatus.Unknown)
+    await expect(adapter.getTransactionStatus('0x456')).resolves.toBe(TxStatus.Unknown)
   })
 
   it('returns unknown when provider throws', async () => {
@@ -100,6 +93,6 @@ describe('SecondClassEvmAdapter', () => {
 
     vi.spyOn(provider, 'getTransactionReceipt').mockRejectedValue(new Error('boom'))
 
-    await expect(getTransactionStatus(adapter, '0x789')).resolves.toBe(TxStatus.Unknown)
+    await expect(adapter.getTransactionStatus('0x789')).resolves.toBe(TxStatus.Unknown)
   })
 })

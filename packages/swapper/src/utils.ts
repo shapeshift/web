@@ -9,6 +9,7 @@ import type {
   sui,
   ton,
 } from '@shapeshiftoss/chain-adapters'
+import { isSecondClassEvmAdapter } from '@shapeshiftoss/chain-adapters'
 import type { TronSignTx } from '@shapeshiftoss/chain-adapters/src/tron/types'
 import type { SolanaSignTx, StarknetSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Asset, EvmChainId } from '@shapeshiftoss/types'
@@ -299,16 +300,9 @@ export const checkEvmSwapStatus = async ({
   fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
 }): Promise<TradeStatus> => {
   try {
-    type TransactionStatusAdapter = EvmChainAdapter & {
-      getTransactionStatus: (txHash: string) => Promise<TxStatus>
-    }
-
     const adapter = assertGetEvmChainAdapter(chainId)
-    const hasTransactionStatus = (
-      maybeAdapter: EvmChainAdapter,
-    ): maybeAdapter is TransactionStatusAdapter => 'getTransactionStatus' in maybeAdapter
 
-    if (hasTransactionStatus(adapter)) {
+    if (isSecondClassEvmAdapter(adapter)) {
       const status = await adapter.getTransactionStatus(txHash)
       return {
         status,

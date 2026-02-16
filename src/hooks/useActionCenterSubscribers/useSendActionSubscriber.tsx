@@ -1,6 +1,7 @@
 import { usePrevious } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { isSecondClassEvmAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useRef } from 'react'
@@ -25,14 +26,10 @@ import { txHistory } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-type TransactionStatusAdapter = {
-  getTransactionStatus: (txHash: string) => Promise<TxStatus>
-}
-
 const getSecondClassEvmTxStatus = (chainId: ChainId, txHash: string) => {
   const adapter = getChainAdapterManager().get(chainId)
-  if (!adapter || !('getTransactionStatus' in adapter)) return
-  return (adapter as TransactionStatusAdapter).getTransactionStatus(txHash)
+  if (!isSecondClassEvmAdapter(adapter)) return
+  return adapter.getTransactionStatus(txHash)
 }
 
 export const useSendActionSubscriber = () => {

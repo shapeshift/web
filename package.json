@@ -339,5 +339,10 @@
     "gridplus-sdk/bs58check": "2.1.2",
     "@rainbow-me/rainbowkit": "2.1.7",
     "zod": "3.25.76"
+  },
+  "dependenciesMeta": {
+    "utf-8-validate": {
+      "built": false
+    }
   }
 }

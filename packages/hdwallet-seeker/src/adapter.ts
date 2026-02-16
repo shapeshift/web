@@ -35,9 +35,16 @@ import {
   solanaBuildTransaction,
 } from '@shapeshiftoss/hdwallet-core'
 import { PublicKey as SolanaPublicKey } from '@solana/web3.js'
-import type { MessageRelaxed } from '@ton/core'
-import type { StateInit } from '@ton/core'
-import { Address, beginCell, Cell, internal, loadStateInit, SendMode, storeMessage } from '@ton/core'
+import type { MessageRelaxed, StateInit } from '@ton/core'
+import {
+  Address,
+  beginCell,
+  Cell,
+  internal,
+  loadStateInit,
+  SendMode,
+  storeMessage,
+} from '@ton/core'
 import { WalletContractV4 } from '@ton/ton'
 import { createBLAKE2b, sha256 } from 'hash-wasm'
 
@@ -121,7 +128,7 @@ export class SeekerHDWallet implements HDWallet {
       msg.path.length === 4 &&
       msg.path[0] === 0x80000000 + 44 &&
       msg.path[1] === 0x80000000 + coinType &&
-      ((msg.path[2] & 0x80000000) >>> 0) === 0x80000000 &&
+      (msg.path[2] & 0x80000000) >>> 0 === 0x80000000 &&
       msg.path[3] === 0x80000000 + 0
 
     return {

@@ -248,6 +248,8 @@ export const useGenericTransactionSubscriber = () => {
                     },
                   }),
                 )
+
+                fireSuccessToast(action)
               } else {
                 const typeMessagesMap = displayTypeMessagesMap[action.type]
                 const message =

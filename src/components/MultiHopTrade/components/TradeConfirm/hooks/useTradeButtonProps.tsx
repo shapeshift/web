@@ -1,6 +1,6 @@
 import type { SupportedTradeQuoteStepIndex, Swap, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapStatus, TransactionExecutionState } from '@shapeshiftoss/swapper'
-import { fromBaseUnit } from '@shapeshiftoss/utils'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { v4 as uuid } from 'uuid'
@@ -92,6 +92,15 @@ export const useTradeButtonProps = ({
     const firstStep = activeQuote.steps[0]
     const lastStep = activeQuote.steps[activeQuote.steps.length - 1]
 
+    const sellAmountCrypto = BigAmount.fromBaseUnit({
+      value: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      precision: firstStep.sellAsset.precision,
+    })
+    const expectedBuyAmountCrypto = BigAmount.fromBaseUnit({
+      value: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+      precision: lastStep.buyAsset.precision,
+    })
+
     const swap: Swap = {
       id: uuid(),
       createdAt: Date.now(),
@@ -105,14 +114,8 @@ export const useTradeButtonProps = ({
       buyAsset: lastStep.buyAsset,
       sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       expectedBuyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
-      sellAmountCryptoPrecision: fromBaseUnit(
-        firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        firstStep.sellAsset.precision,
-      ),
-      expectedBuyAmountCryptoPrecision: fromBaseUnit(
-        lastStep.buyAmountAfterFeesCryptoBaseUnit,
-        lastStep.buyAsset.precision,
-      ),
+      sellAmountCryptoPrecision: sellAmountCrypto.toPrecision(),
+      expectedBuyAmountCryptoPrecision: expectedBuyAmountCrypto.toPrecision(),
       metadata: {
         chainflipSwapId: firstStep?.chainflipSpecific?.chainflipSwapId,
         nearIntentsSpecific: firstStep?.nearIntentsSpecific,

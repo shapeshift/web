@@ -43,6 +43,7 @@ import type Polyglot from 'node-polyglot'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { Address, Hex } from 'viem'
 
+import type { AcrossTransactionMetadata } from './swappers/AcrossSwapper/utils/types'
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
@@ -81,6 +82,8 @@ export type SwapperConfig = {
   VITE_TENDERLY_ACCOUNT_SLUG: string
   VITE_TENDERLY_PROJECT_SLUG: string
   VITE_SUI_NODE_URL: string
+  VITE_ACROSS_API_URL: string
+  VITE_ACROSS_INTEGRATOR_ID: string
 }
 
 export enum SwapperName {
@@ -101,6 +104,7 @@ export enum SwapperName {
   Sunio = 'Sun.io',
   Avnu = 'AVNU',
   Stonfi = 'STON.fi',
+  Across = 'Across',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -477,6 +481,7 @@ export type TradeQuoteStep = {
     estimatedGasConsumption: string
     params?: unknown
   }
+  acrossTransactionMetadata?: AcrossTransactionMetadata
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & {
@@ -537,6 +542,7 @@ export type SwapperSpecificMetadata = {
     deadline: string
   }
   relayTransactionMetadata: RelayTransactionMetadata | undefined
+  acrossTransactionMetadata: AcrossTransactionMetadata | undefined
   relayerExplorerTxLink: string | undefined
   relayerTxHash: string | undefined
   stepIndex: SupportedTradeQuoteStepIndex

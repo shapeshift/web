@@ -13712,6 +13712,19 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@shapeshiftoss/hdwallet-seeker@workspace:^, @shapeshiftoss/hdwallet-seeker@workspace:packages/hdwallet-seeker":
+  version: 0.0.0-use.local
+  resolution: "@shapeshiftoss/hdwallet-seeker@workspace:packages/hdwallet-seeker"
+  dependencies:
+    "@mysten/sui": 1.45.0
+    "@shapeshiftoss/hdwallet-core": "workspace:^"
+    "@solana/web3.js": 1.98.0
+    "@ton/core": ^0.62.1
+    "@ton/ton": ^16.1.0
+    hash-wasm: ^4.11.0
+  languageName: unknown
+  linkType: soft
+
 "@shapeshiftoss/hdwallet-trezor-connect@workspace:^, @shapeshiftoss/hdwallet-trezor-connect@workspace:packages/hdwallet-trezor-connect":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/hdwallet-trezor-connect@workspace:packages/hdwallet-trezor-connect"
@@ -14106,6 +14119,7 @@ __metadata:
     "@shapeshiftoss/hdwallet-native": "workspace:^"
     "@shapeshiftoss/hdwallet-native-vault": "workspace:^"
     "@shapeshiftoss/hdwallet-phantom": "workspace:^"
+    "@shapeshiftoss/hdwallet-seeker": "workspace:^"
     "@shapeshiftoss/hdwallet-trezor": "workspace:^"
     "@shapeshiftoss/hdwallet-trezor-connect": "workspace:^"
     "@shapeshiftoss/hdwallet-vultisig": "workspace:^"

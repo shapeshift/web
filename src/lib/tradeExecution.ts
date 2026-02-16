@@ -198,38 +198,42 @@ export class TradeExecution {
       const isWebServicesEnabled = getConfig().VITE_FEATURE_NOTIFICATIONS_WEBSERVICES
 
       if (isWebServicesEnabled) {
-        const walletEnabledAccountIds = selectWalletEnabledAccountIds(store.getState())
-        const userData = await queryClient.fetchQuery<{ id: string }>({
-          queryKey: ['user', walletEnabledAccountIds],
-          queryFn: () => getOrCreateUser({ accountIds: walletEnabledAccountIds }),
-        })
-
-        if (userData) {
-          queryClient.fetchQuery({
-            queryKey: ['createSwap', swap.id],
-            queryFn: () => {
-              return axios.post(`${import.meta.env.VITE_SWAPS_SERVER_URL}/swaps`, {
-                swapId: swap.id,
-                sellTxHash,
-                userId: userData?.id,
-                sellAsset: updatedSwap.sellAsset,
-                buyAsset: updatedSwap.buyAsset,
-                sellAmountCryptoBaseUnit: updatedSwap.sellAmountCryptoBaseUnit,
-                expectedBuyAmountCryptoBaseUnit: updatedSwap.expectedBuyAmountCryptoBaseUnit,
-                sellAmountCryptoPrecision: updatedSwap.sellAmountCryptoPrecision,
-                expectedBuyAmountCryptoPrecision: updatedSwap.expectedBuyAmountCryptoPrecision,
-                source: updatedSwap.source,
-                swapperName: updatedSwap.swapperName,
-                sellAccountId: accountId,
-                buyAccountId: accountId,
-                receiveAddress: updatedSwap.receiveAddress,
-                isStreaming: updatedSwap.isStreaming,
-                metadata: updatedSwap.metadata,
-              })
-            },
-            staleTime: 0,
-            gcTime: 0,
+        try {
+          const walletEnabledAccountIds = selectWalletEnabledAccountIds(store.getState())
+          const userData = await queryClient.fetchQuery<{ id: string }>({
+            queryKey: ['user', walletEnabledAccountIds],
+            queryFn: () => getOrCreateUser({ accountIds: walletEnabledAccountIds }),
           })
+
+          if (userData) {
+            queryClient.fetchQuery({
+              queryKey: ['createSwap', swap.id],
+              queryFn: () => {
+                return axios.post(`${import.meta.env.VITE_SWAPS_SERVER_URL}/swaps`, {
+                  swapId: swap.id,
+                  sellTxHash,
+                  userId: userData?.id,
+                  sellAsset: updatedSwap.sellAsset,
+                  buyAsset: updatedSwap.buyAsset,
+                  sellAmountCryptoBaseUnit: updatedSwap.sellAmountCryptoBaseUnit,
+                  expectedBuyAmountCryptoBaseUnit: updatedSwap.expectedBuyAmountCryptoBaseUnit,
+                  sellAmountCryptoPrecision: updatedSwap.sellAmountCryptoPrecision,
+                  expectedBuyAmountCryptoPrecision: updatedSwap.expectedBuyAmountCryptoPrecision,
+                  source: updatedSwap.source,
+                  swapperName: updatedSwap.swapperName,
+                  sellAccountId: accountId,
+                  buyAccountId: accountId,
+                  receiveAddress: updatedSwap.receiveAddress,
+                  isStreaming: updatedSwap.isStreaming,
+                  metadata: updatedSwap.metadata,
+                })
+              },
+              staleTime: 0,
+              gcTime: 0,
+            })
+          }
+        } catch (e) {
+          console.error('Failed to notify swap webservice, chain might not be supported yet', e)
         }
       }
 

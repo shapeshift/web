@@ -2014,6 +2014,17 @@
         "body": "Click Pair and login to Vultisig from the popup window",
         "button": "Pair"
       }
+    },
+    "seeker": {
+      "connect": {
+        "header": "Connect Seeker",
+        "body": "Authorize ShapeShift to connect with your Seeker wallet",
+        "button": "Connect"
+      },
+      "failure": {
+        "header": "Connection Failed",
+        "body": "Unable to connect to Seeker wallet. Please ensure the Seeker app is available and try again."
+      }
     }
   },
   "graph": {

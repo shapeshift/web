@@ -940,23 +940,54 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
 
   async getTransactionStatus(msgHash: string): Promise<TxStatus> {
     try {
+      const apiHash = isHexHash(msgHash) ? hexToBase64(msgHash) : msgHash
+
       const result = await this.httpApiRequest<{
         messages?: {
           hash: string
           in_msg_tx_hash?: string
         }[]
-      }>(`/api/v3/messages?hash=${encodeURIComponent(msgHash)}`)
+      }>(`/api/v3/messages?hash=${encodeURIComponent(apiHash)}`)
 
       if (!result.messages || result.messages.length === 0) {
         return TxStatus.Pending
       }
 
       const msg = result.messages[0]
-      if (msg.in_msg_tx_hash) {
-        return TxStatus.Confirmed
+      if (!msg.in_msg_tx_hash) {
+        return TxStatus.Pending
       }
 
-      return TxStatus.Pending
+      const txResult = await this.httpApiRequest<TonApiTxResponse>(
+        `/api/v3/transactions?hash=${encodeURIComponent(msg.in_msg_tx_hash)}&limit=1`,
+      )
+
+      const tx = txResult.transactions?.[0]
+      if (!tx) {
+        return TxStatus.Pending
+      }
+
+      const traceId = tx.trace_id ?? msg.in_msg_tx_hash
+      const endLt = (BigInt(tx.lt) + TRACE_LT_SEARCH_RANGE).toString()
+
+      const traceTxResult = await this.httpApiRequest<TonApiTxResponse>(
+        `/api/v3/transactions?account=${encodeURIComponent(tx.account)}&start_lt=${
+          tx.lt
+        }&end_lt=${endLt}&sort=asc&limit=20`,
+      )
+
+      const traceTxs = (traceTxResult.transactions ?? []).filter(
+        t => (t.trace_id ?? t.hash) === traceId,
+      )
+
+      const anyAborted = traceTxs.some(t => t.description?.aborted === true)
+      const anyActionFailed = traceTxs.some(t => t.description?.action?.success === false)
+
+      if (anyAborted || anyActionFailed) {
+        return TxStatus.Failed
+      }
+
+      return TxStatus.Confirmed
     } catch {
       return TxStatus.Pending
     }
@@ -1094,10 +1125,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       }
 
       const allTransfers = [...nativeTransfers, ...jettonTransfers]
-      const normalizedPrimary = resolveAddresses(primaryTx, addressBook)
-      const isAborted = normalizedPrimary.description?.aborted ?? false
-      const actionSuccess = normalizedPrimary.description?.action?.success ?? true
-      const status = isAborted || !actionSuccess ? TxStatus.Failed : TxStatus.Confirmed
+      const anyAborted = txsToProcess.some(t => t.description?.aborted === true)
+      const anyActionFailed = txsToProcess.some(t => t.description?.action?.success === false)
+      const status = anyAborted || anyActionFailed ? TxStatus.Failed : TxStatus.Confirmed
       const isSend = allTransfers.some(transfer => transfer.type === TransferType.Send)
 
       return {

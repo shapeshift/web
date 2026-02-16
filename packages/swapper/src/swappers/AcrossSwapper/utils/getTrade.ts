@@ -5,7 +5,13 @@ import {
   usdcOnSolanaAssetId,
 } from '@shapeshiftoss/caip'
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { BigAmount, bnOrZero, chainIdToFeeAssetId, isTreasuryChainId } from '@shapeshiftoss/utils'
+import {
+  BigAmount,
+  bnOrZero,
+  chainIdToFeeAssetId,
+  convertPrecision,
+  isTreasuryChainId,
+} from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import {
@@ -223,18 +229,32 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   const bridgeFeeAmount = quote.fees.total.amount
   const bridgeFeeAsset = quote.fees.total.token
+  const buyAssetAcrossAddress = getAcrossAssetAddress(buyAsset.assetId)
+  const isBridgeFeeInBuyAsset =
+    bridgeFeeAsset.chainId === buyAcrossChainId &&
+    (bridgeFeeAsset.address === buyAssetAcrossAddress ||
+      (isEvmChainId(buyAsset.chainId) &&
+        bridgeFeeAsset.address.toLowerCase() === buyAssetAcrossAddress.toLowerCase()))
 
-  const bridgeFeeInBuyAssetPrecision = BigAmount.fromBaseUnit({
-    value: BigAmount.fromBaseUnit({ value: bridgeFeeAmount, precision: bridgeFeeAsset.decimals }).toBaseUnit(),
-    precision: buyAsset.precision,
-  })
+  const buyAmountBeforeFeesCryptoBaseUnit = (() => {
+    if (!isBridgeFeeInBuyAsset) return buyAmountAfterFeesCryptoBaseUnit
 
-  const buyAmountBeforeFeesCryptoBaseUnit = BigAmount.fromBaseUnit({
-    value: buyAmountAfterFeesCryptoBaseUnit,
-    precision: buyAsset.precision,
-  })
-    .plus(bridgeFeeInBuyAssetPrecision)
-    .toBaseUnit()
+    const bridgeFeeInBuyAssetPrecision = BigAmount.fromBaseUnit({
+      value: convertPrecision({
+        value: bridgeFeeAmount,
+        inputExponent: bridgeFeeAsset.decimals,
+        outputExponent: buyAsset.precision,
+      }).toFixed(0),
+      precision: buyAsset.precision,
+    })
+
+    return BigAmount.fromBaseUnit({
+      value: buyAmountAfterFeesCryptoBaseUnit,
+      precision: buyAsset.precision,
+    })
+      .plus(bridgeFeeInBuyAssetPrecision)
+      .toBaseUnit()
+  })()
 
   const allowanceContract = isEvmChainId(sellAsset.chainId) ? quote.checks.allowance.spender : ''
 

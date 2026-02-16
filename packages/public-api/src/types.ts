@@ -1,65 +1,27 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { SwapperName, TradeQuoteError } from '@shapeshiftoss/swapper'
-import type { Asset } from '@shapeshiftoss/types'
-import type { TypedData } from 'eip-712'
+import type {
+  Asset,
+  CosmosTransactionData,
+  EvmTransactionData,
+  Permit2SignatureRequired,
+  SolanaTransactionData,
+  TransactionData,
+  UtxoDepositTransactionData,
+  UtxoPsbtTransactionData,
+  UtxoTransactionData,
+} from '@shapeshiftoss/types'
 
-export type Permit2SignatureRequired = {
-  type: 'permit2'
-  eip712: TypedData
+export type {
+  CosmosTransactionData,
+  EvmTransactionData,
+  Permit2SignatureRequired,
+  SolanaTransactionData,
+  TransactionData,
+  UtxoDepositTransactionData,
+  UtxoPsbtTransactionData,
+  UtxoTransactionData,
 }
-
-export type EvmTransactionData = {
-  type: 'evm'
-  chainId: number
-  to: string
-  data: string
-  value: string
-  gasLimit?: string
-  signatureRequired?: Permit2SignatureRequired
-}
-
-export type SolanaTransactionData = {
-  type: 'solana'
-  instructions: {
-    programId: string
-    keys: {
-      pubkey: string
-      isSigner: boolean
-      isWritable: boolean
-    }[]
-    data: string
-  }[]
-  addressLookupTableAddresses: string[]
-}
-
-export type UtxoPsbtTransactionData = {
-  type: 'utxo_psbt'
-  psbt: string
-  opReturnData?: string
-}
-
-export type UtxoDepositTransactionData = {
-  type: 'utxo_deposit'
-  depositAddress: string
-  memo: string
-  value: string
-}
-
-export type UtxoTransactionData = UtxoPsbtTransactionData | UtxoDepositTransactionData
-
-export type CosmosTransactionData = {
-  type: 'cosmos'
-  chainId: string
-  to: string
-  value: string
-  memo?: string
-}
-
-export type TransactionData =
-  | EvmTransactionData
-  | SolanaTransactionData
-  | UtxoTransactionData
-  | CosmosTransactionData
 
 export type PartnerConfig = {
   id: string

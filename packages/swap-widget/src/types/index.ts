@@ -157,57 +157,18 @@ export type RatesResponse = {
   rates: TradeRate[]
 }
 
-export type EvmTransactionData = {
-  type: 'evm'
-  chainId: number
-  to: string
-  data: string
-  value: string
-  gasLimit?: string
-}
+export type {
+  CosmosTransactionData,
+  EvmTransactionData,
+  Permit2SignatureRequired,
+  SolanaTransactionData,
+  TransactionData,
+  UtxoDepositTransactionData,
+  UtxoPsbtTransactionData,
+  UtxoTransactionData,
+} from '@shapeshiftoss/types'
 
-export type SolanaTransactionData = {
-  type: 'solana'
-  instructions: {
-    programId: string
-    keys: {
-      pubkey: string
-      isSigner: boolean
-      isWritable: boolean
-    }[]
-    data: string
-  }[]
-  addressLookupTableAddresses: string[]
-}
-
-export type UtxoPsbtTransactionData = {
-  type: 'utxo_psbt'
-  psbt: string
-  opReturnData?: string
-}
-
-export type UtxoDepositTransactionData = {
-  type: 'utxo_deposit'
-  depositAddress: string
-  memo: string
-  value: string
-}
-
-export type UtxoTransactionData = UtxoPsbtTransactionData | UtxoDepositTransactionData
-
-export type CosmosTransactionData = {
-  type: 'cosmos'
-  chainId: string
-  to: string
-  value: string
-  memo?: string
-}
-
-export type TransactionData =
-  | EvmTransactionData
-  | SolanaTransactionData
-  | UtxoTransactionData
-  | CosmosTransactionData
+import type { TransactionData } from '@shapeshiftoss/types'
 
 export type ApiQuoteStep = {
   sellAsset: Asset

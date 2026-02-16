@@ -13706,6 +13706,7 @@ __metadata:
     "@reown/appkit-adapter-solana": ^1.8.17
     "@reown/appkit-adapter-wagmi": ^1.8.17
     "@shapeshiftoss/caip": "npm:@shapeshiftoss/caip@8.16.7"
+    "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/utils": "npm:@shapeshiftoss/utils@1.0.5"
     "@solana/wallet-adapter-wallets": ^0.19.32
     "@solana/web3.js": 1.98.0

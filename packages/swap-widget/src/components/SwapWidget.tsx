@@ -29,16 +29,7 @@ import { useBitcoinSigning } from '../hooks/useBitcoinSigning'
 import { formatUsdValue, useMarketData } from '../hooks/useMarketData'
 import { useSolanaSigning } from '../hooks/useSolanaSigning'
 import { useSwapRates } from '../hooks/useSwapRates'
-import type {
-  Asset,
-  EvmTransactionData,
-  SolanaTransactionData,
-  SwapWidgetProps,
-  ThemeMode,
-  TradeRate,
-  UtxoDepositTransactionData,
-  UtxoPsbtTransactionData,
-} from '../types'
+import type { Asset, SwapWidgetProps, ThemeMode, TradeRate } from '../types'
 import { formatAmount, getChainType, getEvmNetworkId, parseAmount, truncateAddress } from '../types'
 import { AddressInputModal } from './AddressInputModal'
 import { QuoteSelector } from './QuoteSelector'
@@ -355,13 +346,11 @@ const SwapWidgetCore = ({
       let txid: string
 
       if (transactionData.type === 'utxo_psbt') {
-        const psbtData = transactionData as UtxoPsbtTransactionData
-        txid = await signPsbt({ psbt: psbtData.psbt, signInputs: {}, broadcast: true })
+        txid = await signPsbt({ psbt: transactionData.psbt, signInputs: {}, broadcast: true })
       } else {
-        const depositData = transactionData as UtxoDepositTransactionData
         txid = await sendBitcoinTransfer({
-          recipientAddress: depositData.depositAddress,
-          amount: depositData.value,
+          recipientAddress: transactionData.depositAddress,
+          amount: transactionData.value,
         })
       }
 
@@ -449,17 +438,21 @@ const SwapWidgetCore = ({
         )
       }
 
-      const solanaData = transactionData as SolanaTransactionData
-
       setTxStatus({ status: 'pending', message: 'Waiting for wallet confirmation...' })
 
       if (!solanaConnection) {
         throw new Error('Solana connection not available')
       }
 
-      const { Transaction, PublicKey, TransactionInstruction } = await import('@solana/web3.js')
+      const {
+        AddressLookupTableAccount,
+        PublicKey,
+        TransactionInstruction,
+        TransactionMessage,
+        VersionedTransaction,
+      } = await import('@solana/web3.js')
 
-      const instructions = solanaData.instructions.map(ix => {
+      const instructions = transactionData.instructions.map(ix => {
         const keys = ix.keys.map(key => ({
           pubkey: new PublicKey(key.pubkey),
           isSigner: key.isSigner,
@@ -475,12 +468,38 @@ const SwapWidgetCore = ({
         })
       })
 
-      const transaction = new Transaction().add(...instructions)
-
       const { blockhash } = await solanaConnection.getLatestBlockhash('confirmed')
 
-      transaction.recentBlockhash = blockhash
-      transaction.feePayer = new PublicKey(solanaAddress)
+      let addressLookupTableAccounts: InstanceType<typeof AddressLookupTableAccount>[] = []
+
+      if (transactionData.addressLookupTableAddresses.length > 0) {
+        const altAddresses = transactionData.addressLookupTableAddresses.map(
+          addr => new PublicKey(addr),
+        )
+        const altAccountInfos = await solanaConnection.getMultipleAccountsInfo(altAddresses)
+
+        addressLookupTableAccounts = altAccountInfos.reduce<
+          InstanceType<typeof AddressLookupTableAccount>[]
+        >((acc, accountInfo, index) => {
+          if (accountInfo) {
+            acc.push(
+              new AddressLookupTableAccount({
+                key: altAddresses[index],
+                state: AddressLookupTableAccount.deserialize(accountInfo.data),
+              }),
+            )
+          }
+          return acc
+        }, [])
+      }
+
+      const messageV0 = new TransactionMessage({
+        payerKey: new PublicKey(solanaAddress),
+        recentBlockhash: blockhash,
+        instructions,
+      }).compileToV0Message(addressLookupTableAccounts)
+
+      const transaction = new VersionedTransaction(messageV0)
 
       const signature = await sendSolanaTransaction({ transaction })
 
@@ -637,11 +656,7 @@ const SwapWidgetCore = ({
         )
       }
 
-      const evmTxData: EvmTransactionData = transactionData
-      const to = evmTxData.to
-      const data = evmTxData.data
-      const value = evmTxData.value
-      const gasLimit = evmTxData.gasLimit
+      const { to, data, value, gasLimit } = transactionData
 
       setTxStatus({ status: 'pending', message: 'Waiting for confirmation...' })
 

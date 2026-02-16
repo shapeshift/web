@@ -1,1 +1,1 @@
-{"eip155:4326/slip44:60":"ethereum"}
+{"eip155:4326/slip44:60":"ethereum","eip155:4326/erc20:0x4200000000000000000000000000000000000006":"l2-standard-bridged-weth-megaeth","eip155:4326/erc20:0xfafddbb3fc7688494971a79cc65dca3ef82079e7":"megausd","eip155:4326/erc20:0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb":"usdt0"}

@@ -107,21 +107,17 @@ class _AssetService {
 
     const config = getConfig()
 
+    const totalMegaethAssets = sortedAssetIds.filter((id: AssetId) => localAssetData[id]?.chainId === megaethChainId).length
+    console.log('[AssetService] Total megaeth assets in raw assetData:', totalMegaethAssets)
+
     // Filter asset data while preserving sorting
-    const filteredAssetIds = sortedAssetIds.filter((assetId: AssetId) => {
-      const asset = localAssetData[assetId]
-      if (!config.VITE_FEATURE_OPTIMISM && asset.chainId === optimismChainId) return false
-      if (!config.VITE_FEATURE_BNBSMARTCHAIN && asset.chainId === bscChainId) return false
-      if (!config.VITE_FEATURE_POLYGON && asset.chainId === polygonChainId) return false
-      if (!config.VITE_FEATURE_GNOSIS && asset.chainId === gnosisChainId) return false
-      if (!config.VITE_FEATURE_ARBITRUM && asset.chainId === arbitrumChainId) return false
-      if (!config.VITE_FEATURE_BASE && asset.chainId === baseChainId) return false
-      if (!config.VITE_FEATURE_SOLANA && asset.chainId === solanaChainId) return false
-      if (!config.VITE_FEATURE_SUI && asset.chainId === suiChainId) return false
-      if (!config.VITE_FEATURE_TRON && asset.chainId === tronChainId) return false
-      if (!config.VITE_FEATURE_MONAD && asset.chainId === monadChainId) return false
-      if (!config.VITE_FEATURE_HYPEREVM && asset.chainId === hyperEvmChainId) return false
-      if (!config.VITE_FEATURE_MEGAETH && asset.chainId === megaethChainId) return false
+  const filteredAssetIds = sortedAssetIds.filter((assetId: AssetId) => {
+    const asset = localAssetData[assetId]
+
+    if (!config.VITE_FEATURE_MEGAETH && asset.chainId === megaethChainId) {
+        console.log('[AssetService] Filtering out megaeth - config.VITE_FEATURE_MEGAETH:', config.VITE_FEATURE_MEGAETH, 'chainId:', asset.chainId)
+        return false
+      }
       if (!config.VITE_FEATURE_KATANA && asset.chainId === katanaChainId) return false
       if (!config.VITE_FEATURE_MAYACHAIN && asset.chainId === mayachainChainId) return false
       if (!config.VITE_FEATURE_NEAR && asset.chainId === nearChainId) return false

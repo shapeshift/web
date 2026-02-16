@@ -114,7 +114,15 @@ export const TradeConfirm = ({ isCompact, isModal, onSuccess }: TradeConfirmProp
   }, [activeQuote])
 
   const body = useMemo(() => {
-    if (isTradeComplete && activeQuote && tradeQuoteLastHop)
+    if (isTradeComplete && activeQuote && tradeQuoteLastHop) {
+      const sellAmountCrypto = BigAmount.fromBaseUnit({
+        value: activeQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        precision: activeQuote.steps[0].sellAsset.precision,
+      })
+      const quoteBuyAmountCrypto = BigAmount.fromBaseUnit({
+        value: tradeQuoteLastHop.buyAmountAfterFeesCryptoBaseUnit,
+        precision: tradeQuoteLastHop.buyAsset.precision,
+      })
       return (
         <SpotTradeSuccess
           handleBack={handleBack}
@@ -127,20 +135,15 @@ export const TradeConfirm = ({ isCompact, isModal, onSuccess }: TradeConfirmProp
           summaryTranslation='trade.summary'
           sellAsset={activeQuote?.steps[0].sellAsset}
           buyAsset={tradeQuoteLastHop.buyAsset}
-          sellAmountCryptoPrecision={BigAmount.fromBaseUnit({
-            value: activeQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
-            precision: activeQuote.steps[0].sellAsset.precision,
-          }).toPrecision()}
-          quoteBuyAmountCryptoPrecision={BigAmount.fromBaseUnit({
-            value: tradeQuoteLastHop.buyAmountAfterFeesCryptoBaseUnit,
-            precision: tradeQuoteLastHop.buyAsset.precision,
-          }).toPrecision()}
+          sellAmountCryptoPrecision={sellAmountCrypto.toPrecision()}
+          quoteBuyAmountCryptoPrecision={quoteBuyAmountCrypto.toPrecision()}
         >
           <Stepper index={-1} orientation='vertical' gap='0' my={6}>
             <ExpandableStepperSteps isExpanded />
           </Stepper>
         </SpotTradeSuccess>
       )
+    }
 
     return <TradeConfirmBody />
   }, [activeQuote, handleBack, isArbitrumBridgeWithdraw, isTradeComplete, tradeQuoteLastHop])

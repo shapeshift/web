@@ -123,14 +123,27 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
 
   const sellAssetBalance = useSelectorWithArgs(selectPortfolioCryptoBalanceByFilter, filter)
 
-  const hasSufficientBalance = useMemo(() => {
-    return sellAssetBalance.gte(
+  const sellAmountCrypto = useMemo(
+    () =>
       BigAmount.fromBaseUnit({
         value: sellAmountCryptoBaseUnit,
-        precision: sellAssetBalance.precision,
+        precision: sellAsset?.precision ?? 0,
       }),
-    )
-  }, [sellAmountCryptoBaseUnit, sellAssetBalance])
+    [sellAmountCryptoBaseUnit, sellAsset?.precision],
+  )
+
+  const buyAmountCrypto = useMemo(
+    () =>
+      BigAmount.fromBaseUnit({
+        value: buyAmountCryptoBaseUnit,
+        precision: buyAsset?.precision ?? 0,
+      }),
+    [buyAmountCryptoBaseUnit, buyAsset?.precision],
+  )
+
+  const hasSufficientBalance = useMemo(() => {
+    return sellAssetBalance.gte(sellAmountCrypto)
+  }, [sellAmountCrypto, sellAssetBalance])
 
   const from = useMemo(() => {
     return fromAccountId(accountId).account
@@ -158,22 +171,11 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
   }, [onCancelClick, uid])
 
   const sellAmountCryptoPrecision = useMemo(
-    () =>
-      BigAmount.fromBaseUnit({
-        value: sellAmountCryptoBaseUnit,
-        precision: sellAsset?.precision ?? 0,
-      }).toPrecision(),
-    [sellAmountCryptoBaseUnit, sellAsset?.precision],
+    () => sellAmountCrypto.toPrecision(),
+    [sellAmountCrypto],
   )
 
-  const buyAmountCryptoPrecision = useMemo(
-    () =>
-      BigAmount.fromBaseUnit({
-        value: buyAmountCryptoBaseUnit,
-        precision: buyAsset?.precision ?? 0,
-      }).toPrecision(),
-    [buyAmountCryptoBaseUnit, buyAsset?.precision],
-  )
+  const buyAmountCryptoPrecision = useMemo(() => buyAmountCrypto.toPrecision(), [buyAmountCrypto])
 
   const sellAmountCryptoFormatted = useMemo(
     () => toCrypto(sellAmountCryptoPrecision, sellAsset?.symbol ?? ''),
@@ -185,26 +187,36 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     [buyAmountCryptoPrecision, toCrypto, buyAsset],
   )
 
-  const executedBuyAmountCryptoPrecision = useMemo(
+  const executedBuyAmountCrypto = useMemo(
     () =>
       executedBuyAmountCryptoBaseUnit
         ? BigAmount.fromBaseUnit({
             value: executedBuyAmountCryptoBaseUnit,
             precision: buyAsset?.precision ?? 0,
-          }).toPrecision()
-        : '0',
+          })
+        : BigAmount.zero({ precision: buyAsset?.precision ?? 0 }),
     [executedBuyAmountCryptoBaseUnit, buyAsset?.precision],
   )
 
-  const executedSellAmountCryptoPrecision = useMemo(
+  const executedBuyAmountCryptoPrecision = useMemo(
+    () => executedBuyAmountCrypto.toPrecision(),
+    [executedBuyAmountCrypto],
+  )
+
+  const executedSellAmountCrypto = useMemo(
     () =>
       executedSellAmountCryptoBaseUnit
         ? BigAmount.fromBaseUnit({
             value: executedSellAmountCryptoBaseUnit,
             precision: sellAsset?.precision ?? 0,
-          }).toPrecision()
-        : '0',
+          })
+        : BigAmount.zero({ precision: sellAsset?.precision ?? 0 }),
     [executedSellAmountCryptoBaseUnit, sellAsset?.precision],
+  )
+
+  const executedSellAmountCryptoPrecision = useMemo(
+    () => executedSellAmountCrypto.toPrecision(),
+    [executedSellAmountCrypto],
   )
 
   const limitPrice = useMemo(() => {

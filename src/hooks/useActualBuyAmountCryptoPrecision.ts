@@ -64,17 +64,19 @@ export const useActualBuyAmountCryptoPrecision = (
 
   const actualBuyAmountCryptoPrecision = useMemo(() => {
     if (swap?.actualBuyAmountCryptoBaseUnit && swap?.buyAsset) {
-      return BigAmount.fromBaseUnit({
+      const actualBuyAmountCrypto = BigAmount.fromBaseUnit({
         value: swap.actualBuyAmountCryptoBaseUnit,
         precision: swap.buyAsset.precision,
-      }).toPrecision()
+      })
+      return actualBuyAmountCrypto.toPrecision()
     }
 
     if (secondClassChainActualBuyAmount && swap?.buyAsset) {
-      return BigAmount.fromBaseUnit({
+      const secondClassBuyAmountCrypto = BigAmount.fromBaseUnit({
         value: secondClassChainActualBuyAmount,
         precision: swap.buyAsset.precision,
-      }).toPrecision()
+      })
+      return secondClassBuyAmountCrypto.toPrecision()
     }
 
     if (!tx?.transfers?.length || !swap?.buyAsset) return undefined
@@ -83,13 +85,13 @@ export const useActualBuyAmountCryptoPrecision = (
       transfer =>
         transfer.type === TransferType.Receive && transfer.assetId === swap.buyAsset.assetId,
     )
+    if (!receiveTransfer?.value) return undefined
 
-    return receiveTransfer?.value
-      ? BigAmount.fromBaseUnit({
-          value: receiveTransfer.value,
-          precision: swap.buyAsset.precision,
-        }).toPrecision()
-      : undefined
+    const receivedBuyAmountCrypto = BigAmount.fromBaseUnit({
+      value: receiveTransfer.value,
+      precision: swap.buyAsset.precision,
+    })
+    return receivedBuyAmountCrypto.toPrecision()
   }, [tx, swap, secondClassChainActualBuyAmount])
 
   return actualBuyAmountCryptoPrecision

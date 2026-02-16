@@ -101,6 +101,15 @@ export const useLimitOrderActionSubscriber = () => {
 
       if (action) return
 
+      const sellAmountCrypto = BigAmount.fromBaseUnit({
+        value: sellAmountCryptoBaseUnit,
+        precision: sellAsset.precision,
+      })
+      const buyAmountCrypto = BigAmount.fromBaseUnit({
+        value: buyAmountCryptoBaseUnit,
+        precision: buyAsset.precision,
+      })
+
       dispatch(
         actionSlice.actions.upsertAction({
           id: uuidv4(),
@@ -112,14 +121,8 @@ export const useLimitOrderActionSubscriber = () => {
             cowSwapQuoteId: activeQuoteId,
             sellAmountCryptoBaseUnit,
             buyAmountCryptoBaseUnit,
-            sellAmountCryptoPrecision: BigAmount.fromBaseUnit({
-              value: sellAmountCryptoBaseUnit,
-              precision: sellAsset.precision,
-            }).toPrecision(),
-            buyAmountCryptoPrecision: BigAmount.fromBaseUnit({
-              value: buyAmountCryptoBaseUnit,
-              precision: buyAsset.precision,
-            }).toPrecision(),
+            sellAmountCryptoPrecision: sellAmountCrypto.toPrecision(),
+            buyAmountCryptoPrecision: buyAmountCrypto.toPrecision(),
             sellAsset,
             buyAsset,
             accountId,
@@ -264,20 +267,23 @@ export const useLimitOrderActionSubscriber = () => {
       }
 
       if (order.order.status === OrderStatus.FULFILLED && action.status !== ActionStatus.Complete) {
+        const executedBuyAmountCrypto = BigAmount.fromBaseUnit({
+          value: order.order.executedBuyAmount,
+          precision: action.limitOrderMetadata.buyAsset.precision,
+        })
+        const executedSellAmountCrypto = BigAmount.fromBaseUnit({
+          value: order.order.executedSellAmount,
+          precision: action.limitOrderMetadata.sellAsset.precision,
+        })
+
         const updatedAction: LimitOrderAction = {
           ...action,
           limitOrderMetadata: {
             ...action.limitOrderMetadata,
             executedBuyAmountCryptoBaseUnit: order.order.executedBuyAmount,
             executedSellAmountCryptoBaseUnit: order.order.executedSellAmount,
-            executedBuyAmountCryptoPrecision: BigAmount.fromBaseUnit({
-              value: order.order.executedBuyAmount,
-              precision: action.limitOrderMetadata.buyAsset.precision,
-            }).toPrecision(),
-            executedSellAmountCryptoPrecision: BigAmount.fromBaseUnit({
-              value: order.order.executedSellAmount,
-              precision: action.limitOrderMetadata.sellAsset.precision,
-            }).toPrecision(),
+            executedBuyAmountCryptoPrecision: executedBuyAmountCrypto.toPrecision(),
+            executedSellAmountCryptoPrecision: executedSellAmountCrypto.toPrecision(),
             filledDecimalPercentage: bnOrZero(order.order.executedSellAmount)
               .div(order.order.sellAmount)
               .toString(),

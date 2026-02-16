@@ -108,12 +108,13 @@ export const SpotTradeSuccess = ({
     const receiveTransfer = transfers.find(
       transfer => transfer.type === TransferType.Receive && transfer.assetId === buyAsset.assetId,
     )
-    return receiveTransfer?.value
-      ? BigAmount.fromBaseUnit({
-          value: receiveTransfer.value,
-          precision: buyAsset.precision,
-        }).toPrecision()
-      : undefined
+    if (!receiveTransfer?.value) return undefined
+
+    const receivedBuyAmountCrypto = BigAmount.fromBaseUnit({
+      value: receiveTransfer.value,
+      precision: buyAsset.precision,
+    })
+    return receivedBuyAmountCrypto.toPrecision()
   }, [transfers, buyAsset])
 
   const maybeExtraDeltaCryptoPrecision = useMemo(() => {

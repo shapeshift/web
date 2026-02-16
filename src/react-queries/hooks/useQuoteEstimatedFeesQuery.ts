@@ -145,12 +145,11 @@ export const useQuoteEstimatedFeesQuery = ({
       enabled && feeAsset
         ? async () => {
             const estimatedFees = await estimateFees(estimateFeesArgs)
-            const txFeeFiat = bnOrZero(
-              BigAmount.fromBaseUnit({
-                value: estimatedFees.fast.txFee ?? '0',
-                precision: feeAsset.precision,
-              }).toPrecision(),
-            )
+            const txFeeCrypto = BigAmount.fromBaseUnit({
+              value: estimatedFees.fast.txFee ?? '0',
+              precision: feeAsset.precision,
+            })
+            const txFeeFiat = bnOrZero(txFeeCrypto.toPrecision())
               .times(bnOrZero(feeAssetMarketData?.price))
               .toString()
             return { estimatedFees, txFeeFiat, txFeeCryptoBaseUnit: estimatedFees.fast.txFee }

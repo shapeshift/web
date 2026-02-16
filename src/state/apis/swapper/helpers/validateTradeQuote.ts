@@ -180,21 +180,25 @@ export const validateTradeQuote = (
   // Technically does for cow swap too, but we deduct it off the sell amount in that case
   const networkFeeRequiresBalance = swapperName !== SwapperName.CowSwap
 
-  const firstHopNetworkFeeCryptoPrecision =
+  const firstHopNetworkFeeCrypto =
     networkFeeRequiresBalance && firstHopSellFeeAsset
       ? BigAmount.fromBaseUnit({
           value: bnOrZero(firstHop?.feeData.networkFeeCryptoBaseUnit),
           precision: firstHopSellFeeAsset.precision,
-        }).toPrecision()
-      : bn(0).toFixed()
+        })
+      : undefined
+  const firstHopNetworkFeeCryptoPrecision =
+    firstHopNetworkFeeCrypto?.toPrecision() ?? bn(0).toFixed()
 
-  const secondHopNetworkFeeCryptoPrecision =
+  const secondHopNetworkFeeCrypto =
     networkFeeRequiresBalance && secondHopSellFeeAsset && secondHop
       ? BigAmount.fromBaseUnit({
           value: bnOrZero(secondHop.feeData.networkFeeCryptoBaseUnit),
           precision: secondHopSellFeeAsset.precision,
-        }).toPrecision()
-      : bn(0).toFixed()
+        })
+      : undefined
+  const secondHopNetworkFeeCryptoPrecision =
+    secondHopNetworkFeeCrypto?.toPrecision() ?? bn(0).toFixed()
 
   const firstHopTradeDeductionCryptoPrecision =
     firstHopSellFeeAsset?.assetId === firstHop?.sellAsset.assetId
@@ -242,33 +246,24 @@ export const validateTradeQuote = (
 
             // @TODO: seems like this condition should be applied for all the swappers, verify by smoke testing all of them
             // them kick the swapperName bit out of the condition
+            const protocolFeeAmount = BigAmount.fromBaseUnit({
+              value: protocolFee.amountCryptoBaseUnit,
+              precision: balance.precision,
+            })
+
             if (
               firstHopSellFeeAsset?.assetId === assetId &&
               firstHop?.sellAsset.assetId === assetId &&
               swapperName === SwapperName.Jupiter
             ) {
-              return balance
-                .minus(
-                  BigAmount.fromBaseUnit({
-                    value: bnOrZero(sellAmountCryptoBaseUnit).toFixed(),
-                    precision: balance.precision,
-                  }),
-                )
-                .minus(
-                  BigAmount.fromBaseUnit({
-                    value: protocolFee.amountCryptoBaseUnit,
-                    precision: balance.precision,
-                  }),
-                )
-                .isNegative()
+              const sellAmount = BigAmount.fromBaseUnit({
+                value: bnOrZero(sellAmountCryptoBaseUnit).toFixed(),
+                precision: balance.precision,
+              })
+              return balance.minus(sellAmount).minus(protocolFeeAmount).isNegative()
             }
 
-            return balance.lt(
-              BigAmount.fromBaseUnit({
-                value: protocolFee.amountCryptoBaseUnit,
-                precision: balance.precision,
-              }),
-            )
+            return balance.lt(protocolFeeAmount)
           })
           .map(([_assetId, protocolFee]: [AssetId, ProtocolFee]) => {
             return {

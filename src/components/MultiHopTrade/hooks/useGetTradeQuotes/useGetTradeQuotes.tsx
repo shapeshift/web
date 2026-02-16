@@ -296,14 +296,16 @@ export const useGetTradeQuotes = () => {
     const activeSwap = swapsById[activeSwapId]
     if (!activeSwap) return
 
+    const expectedBuyAmountCrypto = BigAmount.fromBaseUnit({
+      value: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+      precision: lastStep.buyAsset.precision,
+    })
+
     dispatch(
       swapSlice.actions.upsertSwap({
         ...activeSwap,
         expectedBuyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
-        expectedBuyAmountCryptoPrecision: BigAmount.fromBaseUnit({
-          value: lastStep.buyAmountAfterFeesCryptoBaseUnit,
-          precision: lastStep.buyAsset.precision,
-        }).toPrecision(),
+        expectedBuyAmountCryptoPrecision: expectedBuyAmountCrypto.toPrecision(),
       }),
     )
   }, [

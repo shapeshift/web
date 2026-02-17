@@ -2,6 +2,13 @@ import type {
   AddEthereumChainParameter,
   Address,
   Coin,
+  CosmosAccountPath,
+  CosmosGetAccountPaths,
+  CosmosGetAddress,
+  CosmosSignedTx,
+  CosmosSignTx,
+  CosmosWallet,
+  CosmosWalletInfo,
   DescribePath,
   ETHAccountPath,
   ETHGetAccountPath,
@@ -26,6 +33,13 @@ import type EthereumProvider from '@walletconnect/ethereum-provider'
 import isObject from 'lodash/isObject'
 
 import {
+  cosmosGetAccountPaths,
+  cosmosGetAddress,
+  cosmosNextAccountPath,
+  cosmosSignTx,
+  describeCosmosPath,
+} from './cosmos'
+import {
   describeETHPath,
   ethGetAddress,
   ethSendTx,
@@ -34,6 +48,12 @@ import {
   ethSignTypedData,
   ethVerifyMessage,
 } from './ethereum'
+
+const COSMOS_OPTIONAL_NAMESPACE = {
+  chains: ['cosmos:cosmoshub-4'],
+  methods: ['cosmos_getAccounts', 'cosmos_signAmino', 'cosmos_signDirect'],
+  events: [],
+}
 
 export function isWalletConnectV2(wallet: HDWallet): wallet is WalletConnectV2HDWallet {
   return isObject(wallet) && (wallet as any)._isWalletConnectV2
@@ -51,9 +71,10 @@ export function isWalletConnectV2(wallet: HDWallet): wallet is WalletConnectV2HD
  * - eth_sendRawTransaction
  * @see https://specs.walletconnect.com/2.0/blockchain-rpc/ethereum-rpc
  */
-export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo {
+export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, CosmosWalletInfo {
   readonly _supportsETHInfo = true
   readonly _supportsBTCInfo = false
+  readonly _supportsCosmosInfo = true
   public getVendor(): string {
     return 'WalletConnectV2'
   }
@@ -94,6 +115,8 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo {
     switch (msg.coin) {
       case 'Ethereum':
         return describeETHPath(msg.path)
+      case 'Atom':
+        return describeCosmosPath(msg.path)
       default:
         throw new Error('Unsupported path')
     }
@@ -131,13 +154,22 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo {
       },
     ]
   }
+
+  public cosmosGetAccountPaths(msg: CosmosGetAccountPaths): CosmosAccountPath[] {
+    return cosmosGetAccountPaths(msg)
+  }
+
+  public cosmosNextAccountPath(_msg: CosmosAccountPath): CosmosAccountPath | undefined {
+    return cosmosNextAccountPath(_msg)
+  }
 }
 
-export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
+export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWallet {
   readonly _supportsETH = true
   readonly _supportsETHInfo = true
   readonly _supportsBTCInfo = false
   readonly _supportsBTC = false
+  readonly _supportsCosmosInfo = true
   readonly _isWalletConnectV2 = true
   readonly _supportsEthSwitchChain = true
   readonly _supportsAvalanche = true
@@ -160,10 +192,30 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
   chainId: number | undefined
   accounts: string[] = []
   ethAddress: Address | undefined
+  cosmosAddress: string | undefined
+
+  get _supportsCosmos(): boolean {
+    return !!this.provider.session?.namespaces?.cosmos
+  }
 
   constructor(provider: EthereumProvider) {
     this.provider = provider
     this.info = new WalletConnectV2WalletInfo()
+    this.patchSignerForNonEvmNamespaces()
+  }
+
+  private patchSignerForNonEvmNamespaces(): void {
+    const signer = this.provider.signer
+    const originalConnect = signer.connect.bind(signer)
+    signer.connect = async (params: Parameters<typeof signer.connect>[0]) => {
+      return originalConnect({
+        ...params,
+        optionalNamespaces: {
+          ...params.optionalNamespaces,
+          cosmos: COSMOS_OPTIONAL_NAMESPACE,
+        },
+      })
+    }
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -405,5 +457,31 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
     })
 
     this.chainId = parsedChainId
+  }
+
+  // -- Cosmos Methods --
+
+  public cosmosGetAccountPaths(msg: CosmosGetAccountPaths): CosmosAccountPath[] {
+    return this.info.cosmosGetAccountPaths(msg)
+  }
+
+  public cosmosNextAccountPath(msg: CosmosAccountPath): CosmosAccountPath | undefined {
+    return this.info.cosmosNextAccountPath(msg)
+  }
+
+  public async cosmosGetAddress(msg: CosmosGetAddress): Promise<string | null> {
+    if (this.cosmosAddress) {
+      return this.cosmosAddress
+    }
+    const address = await cosmosGetAddress(this.provider, msg)
+    if (address) {
+      this.cosmosAddress = address
+      return address
+    }
+    return null
+  }
+
+  public async cosmosSignTx(msg: CosmosSignTx): Promise<CosmosSignedTx | null> {
+    return cosmosSignTx(this.provider, msg)
   }
 }

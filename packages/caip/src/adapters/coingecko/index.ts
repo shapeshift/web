@@ -52,7 +52,7 @@ export enum CoingeckoAssetPlatform {
   HyperEvm = 'hyperevm',
   Plasma = 'plasma',
   Katana = 'katana',
-  Sonic = 'sonic',
+  Sonic = 'sonic-3',
   MegaEth = 'megaeth',
   Solana = 'solana',
   Starknet = 'starknet',

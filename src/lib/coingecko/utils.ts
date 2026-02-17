@@ -12,6 +12,7 @@ import {
   gnosisChainId,
   katanaChainId,
   ltcChainId,
+  mantleChainId,
   mayachainChainId,
   optimismChainId,
   polygonChainId,
@@ -213,6 +214,7 @@ export const getCoingeckoSupportedChainIds = () => {
     dogeChainId,
     zecChainId,
     ...(getConfig().VITE_FEATURE_KATANA ? [katanaChainId] : []),
+    ...(getConfig().VITE_FEATURE_MANTLE ? [mantleChainId] : []),
     ...(getConfig().VITE_FEATURE_TON ? [tonChainId] : []),
   ]
 }

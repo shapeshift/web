@@ -26,6 +26,7 @@ import { KeepKeyRoutes } from './routes/KeepKeyRoutes'
 import { LedgerRoutes } from './routes/LedgerRoutes'
 import { MipdRoutes } from './routes/MipdRoutes'
 import { NativeRoutes } from './routes/NativeRoutes'
+import { SeekerRoutes } from './routes/SeekerRoutes'
 import { TrezorRoutes } from './routes/TrezorRoutes'
 import { WalletConnectV2Routes } from './routes/WalletConnectV2Routes'
 import { HardwareWalletsSection } from './sections/HardwareWalletsSection'
@@ -88,6 +89,7 @@ const RightPanelContent = ({ isLoading, setIsLoading, error, setError }: RightPa
   if (location.pathname.startsWith('/trezor')) return <TrezorRoutes />
   if (location.pathname.startsWith('/keepkey')) return <KeepKeyRoutes />
   if (location.pathname.startsWith('/gridplus')) return <GridPlusRoutes />
+  if (location.pathname.startsWith('/seeker')) return <SeekerRoutes />
 
   if (shouldDisplayIntro) return <NativeIntro />
 
@@ -258,7 +260,14 @@ export const NewWalletViewsSwitch = () => {
       return (
         <MobileWebSelect isOpen={modal} onClose={onClose}>
           {isMobile ? (
-            <MobileWalletsSection showHeader={false} />
+            <>
+              <MobileWalletsSection showHeader={false} />
+              <HardwareWalletsSection
+                selectedWalletId={selectedWalletId}
+                onWalletSelect={handleWalletSelect}
+                isLoading={isLoading}
+              />
+            </>
           ) : (
             <SavedWalletsSection
               selectedWalletId={selectedWalletId}

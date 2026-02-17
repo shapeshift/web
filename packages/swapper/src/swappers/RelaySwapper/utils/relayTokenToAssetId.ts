@@ -141,6 +141,11 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
           assetReference: ASSET_REFERENCE.MegaEth,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
+      case CHAIN_REFERENCE.BerachainMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Berachain,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       case CHAIN_REFERENCE.KatanaMainnet:
         return {
           assetReference: ASSET_REFERENCE.Katana,

@@ -11,6 +11,7 @@ import { GenericTransactionNotification } from '@/components/Layout/Header/Actio
 import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { getBerachainTransactionStatus } from '@/lib/utils/berachain'
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getKatanaTransactionStatus } from '@/lib/utils/katana'
 import { getMegaEthTransactionStatus } from '@/lib/utils/megaeth'
@@ -207,6 +208,13 @@ export const useSendActionSubscriber = () => {
                   const megaEthTxStatus = await getMegaEthTransactionStatus(txHash)
                   isConfirmed =
                     megaEthTxStatus === TxStatus.Confirmed || megaEthTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.BerachainMainnet: {
+                  const berachainTxStatus = await getBerachainTransactionStatus(txHash)
+                  isConfirmed =
+                    berachainTxStatus === TxStatus.Confirmed ||
+                    berachainTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.KatanaMainnet: {

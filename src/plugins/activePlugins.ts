@@ -1,6 +1,7 @@
 import arbitrum from '@/plugins/arbitrum'
 import avalanche from '@/plugins/avalanche'
 import base from '@/plugins/base'
+import berachain from '@/plugins/berachain'
 import bitcoin from '@/plugins/bitcoin'
 import bitcoincash from '@/plugins/bitcoincash'
 import bnbsmartchain from '@/plugins/bnbsmartchain'
@@ -32,6 +33,7 @@ export const activePlugins = [
   arbitrum,
   avalanche,
   base,
+  berachain,
   bitcoin,
   bitcoincash,
   bnbsmartchain,

@@ -37,6 +37,7 @@ export type FeatureFlags = {
   HyperEvm: boolean
   Plasma: boolean
   MegaEth: boolean
+  Berachain: boolean
   Katana: boolean
   Zcash: boolean
   ThorSwap: boolean
@@ -186,6 +187,7 @@ const initialState: Preferences = {
     HyperEvm: getConfig().VITE_FEATURE_HYPEREVM,
     Plasma: getConfig().VITE_FEATURE_PLASMA,
     MegaEth: getConfig().VITE_FEATURE_MEGAETH,
+    Berachain: getConfig().VITE_FEATURE_BERACHAIN,
     Katana: getConfig().VITE_FEATURE_KATANA,
     Zcash: getConfig().VITE_FEATURE_ZCASH,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,

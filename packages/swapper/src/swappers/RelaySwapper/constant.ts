@@ -2,6 +2,7 @@ import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
+  berachainChainId,
   bscChainId,
   btcChainId,
   ethChainId,
@@ -22,6 +23,7 @@ import {
   arbitrum,
   avalanche,
   base,
+  berachain,
   bsc,
   gnosis,
   hyperEvm,
@@ -55,6 +57,7 @@ export const chainIdToRelayChainId = {
   [megaethChainId]: 4326,
   [plasmaChainId]: plasma.id,
   [katanaChainId]: katana.id,
+  [berachainChainId]: berachain.id,
 }
 
 export enum RelayStatusMessage {

@@ -50,6 +50,8 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'XPL'
     case KnownChainIds.MegaEthMainnet:
       return 'MEGA'
+    case KnownChainIds.BerachainMainnet:
+      return 'BERA'
     case KnownChainIds.KatanaMainnet:
       return 'KAT'
     case KnownChainIds.ZcashMainnet:

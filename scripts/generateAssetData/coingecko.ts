@@ -5,6 +5,7 @@ import {
   ASSET_NAMESPACE,
   avalancheChainId,
   baseChainId,
+  berachainChainId,
   bscChainId,
   ethChainId,
   gnosisChainId,
@@ -28,6 +29,7 @@ import {
   arbitrum,
   avax,
   base,
+  berachain,
   bnbsmartchain,
   ethereum,
   gnosis,
@@ -172,6 +174,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: katana.explorer,
           explorerAddressLink: katana.explorerAddressLink,
           explorerTxLink: katana.explorerTxLink,
+        }
+      case berachainChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: berachain.explorer,
+          explorerAddressLink: berachain.explorerAddressLink,
+          explorerTxLink: berachain.explorerTxLink,
         }
       case solanaChainId:
         return {

@@ -194,26 +194,14 @@ export const selectPortfolioAccountBalances = createDeepEqualOutputSelector(
 )
 
 export const selectPortfolioAssetBalances = createDeepEqualOutputSelector(
-  selectPortfolioAccountBalancesBaseUnit,
-  (accountBalancesById): Record<AssetId, BigAmount> => {
-    const aggregated = Object.values(accountBalancesById).reduce<Record<AssetId, string>>(
-      (acc, byAssetId) => {
-        Object.entries(byAssetId).forEach(([assetId, balance]) => {
-          acc[assetId] = bnOrZero(acc[assetId]).plus(bnOrZero(balance)).toFixed()
-        })
-        return acc
-      },
-      {},
-    )
-    return Object.fromEntries(
-      Object.entries(aggregated)
-        .filter(([_, balance]) => !bnOrZero(balance).isZero())
-        .map(([assetId, balance]) => [
-          assetId,
-          BigAmount.fromBaseUnit({ value: balance, assetId }),
-        ]),
-    ) as Record<AssetId, BigAmount>
-  },
+  selectPortfolioAssetBalancesBaseUnit,
+  (assetBalancesById): Record<AssetId, BigAmount> =>
+    Object.fromEntries(
+      Object.entries(assetBalancesById).map(([assetId, balance]) => [
+        assetId,
+        BigAmount.fromBaseUnit({ value: balance, assetId }),
+      ]),
+    ) as Record<AssetId, BigAmount>,
 )
 
 export const selectPortfolioCryptoBalanceByFilter = createCachedSelector(

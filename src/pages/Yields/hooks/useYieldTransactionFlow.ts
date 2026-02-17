@@ -12,7 +12,7 @@ import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Hash } from 'viem'
 
@@ -261,6 +261,17 @@ export const useYieldTransactionFlow = ({
 
     return args
   }, [yieldItem, action, amount, userAddress, yieldChainId, validatorAddress])
+
+  useEffect(() => {
+    if (isSubmitting) return
+    if (activeStepIndex < 0) return
+    setRawTransactions([])
+    setTransactionSteps([])
+    setActiveStepIndex(-1)
+    setCurrentActionId(null)
+    setResetTxHash(null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [txArguments])
 
   const {
     data: quoteData,

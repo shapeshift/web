@@ -12,6 +12,7 @@ import {
   megaethAssetId,
   optimismAssetId,
   starknetAssetId,
+  unichainAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { createThrottle, isToken } from '@shapeshiftoss/utils'
@@ -47,7 +48,14 @@ if (!ZERION_API_KEY) throw new Error('Missing Zerion API key - see readme for in
 const REGEN_ALL = process.env.REGEN_ALL === 'true'
 
 const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
-  [ethAssetId]: [optimismAssetId, arbitrumAssetId, baseAssetId, katanaAssetId, megaethAssetId],
+  [ethAssetId]: [
+    optimismAssetId,
+    arbitrumAssetId,
+    baseAssetId,
+    katanaAssetId,
+    megaethAssetId,
+    unichainAssetId,
+  ],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
   [starknetAssetId]: [
     'eip155:1/erc20:0xca14007eff0db1f8135f4c25b34de49ab0d42766',

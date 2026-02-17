@@ -46,6 +46,7 @@ import * as starknet from './starknet'
 import * as sui from './sui'
 import * as tonModule from './ton'
 import * as tronModule from './tron'
+import * as unichain from './unichain'
 import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
 
 import { getAssetService } from '@/lib/asset-service'
@@ -71,6 +72,7 @@ const generateAssetData = async () => {
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
+  const unichainAssets = await unichain.getAssets()
   const megaethAssets = await megaeth.getAssets()
   const plasmaAssets = await plasma.getAssets()
   const solanaAssets = await solana.getAssets()
@@ -104,6 +106,7 @@ const generateAssetData = async () => {
     ...monadAssets,
     ...hyperevmAssets,
     ...katanaAssets,
+    ...unichainAssets,
     ...megaethAssets,
     ...plasmaAssets,
     ...solanaAssets,

@@ -30,6 +30,7 @@ import { csp as sui } from './chains/sui'
 import { csp as thorchain } from './chains/thorchain'
 import { csp as ton } from './chains/ton'
 import { csp as tron } from './chains/tron'
+import { csp as unichain } from './chains/unichain'
 import { csp as zcash } from './chains/zcash'
 import { csp as chatwoot } from './chatwoot'
 import { csp as customTokenImport } from './customTokenImport'
@@ -116,6 +117,7 @@ export const csps = [
   gnosis,
   hyperevm,
   katana,
+  unichain,
   litecoin,
   megaeth,
   optimism,

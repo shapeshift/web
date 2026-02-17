@@ -26,6 +26,7 @@ import {
   thorchainAssetId,
   tonAssetId,
   tronAssetId,
+  unichainAssetId,
   zecAssetId,
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -83,6 +84,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return megaethAssetId
     case KnownChainIds.KatanaMainnet:
       return katanaAssetId
+    case KnownChainIds.UnichainMainnet:
+      return unichainAssetId
     case KnownChainIds.ZcashMainnet:
       return zecAssetId
     case KnownChainIds.NearMainnet:

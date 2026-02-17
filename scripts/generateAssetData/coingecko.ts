@@ -22,6 +22,7 @@ import {
   toAssetId,
   tonChainId,
   tronChainId,
+  unichainChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import {
@@ -43,6 +44,7 @@ import {
   sui,
   ton,
   tron,
+  unichainChain,
 } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
@@ -172,6 +174,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: katana.explorer,
           explorerAddressLink: katana.explorerAddressLink,
           explorerTxLink: katana.explorerTxLink,
+        }
+      case unichainChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: unichainChain.explorer,
+          explorerAddressLink: unichainChain.explorerAddressLink,
+          explorerTxLink: unichainChain.explorerTxLink,
         }
       case solanaChainId:
         return {

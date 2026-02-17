@@ -72,7 +72,7 @@ app.get('/v1/swap/rates', apiKeyAuth, (req, res) => {
       steps: 1,
       estimatedExecutionTimeMs: 600000,
       priceImpactPercentageDecimal: '0.001',
-      affiliateBps: '55',
+      affiliateBps: '60',
       networkFeeCryptoBaseUnit: '5000000000000000',
     },
     {
@@ -83,7 +83,7 @@ app.get('/v1/swap/rates', apiKeyAuth, (req, res) => {
       steps: 1,
       estimatedExecutionTimeMs: 30000,
       priceImpactPercentageDecimal: '0.002',
-      affiliateBps: '55',
+      affiliateBps: '60',
       networkFeeCryptoBaseUnit: '3000000000000000',
     },
     {
@@ -94,7 +94,7 @@ app.get('/v1/swap/rates', apiKeyAuth, (req, res) => {
       steps: 1,
       estimatedExecutionTimeMs: 120000,
       priceImpactPercentageDecimal: '0.0015',
-      affiliateBps: '55',
+      affiliateBps: '60',
       networkFeeCryptoBaseUnit: '2000000000000000',
     },
   ]
@@ -143,7 +143,7 @@ app.post('/v1/swap/quote', apiKeyAuth, (req, res) => {
     sellAmountCryptoBaseUnit,
     buyAmountBeforeFeesCryptoBaseUnit: '3505000000',
     buyAmountAfterFeesCryptoBaseUnit: '3500000000',
-    affiliateBps: '55',
+    affiliateBps: '60',
     slippageTolerancePercentageDecimal: '0.01',
     networkFeeCryptoBaseUnit: '5000000000000000',
     steps: [

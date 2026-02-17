@@ -13,6 +13,7 @@ import {
   katanaChainId,
   ltcChainId,
   mayachainChainId,
+  modeChainId,
   optimismChainId,
   polygonChainId,
   solanaChainId,
@@ -213,6 +214,7 @@ export const getCoingeckoSupportedChainIds = () => {
     dogeChainId,
     zecChainId,
     ...(getConfig().VITE_FEATURE_KATANA ? [katanaChainId] : []),
+    ...(getConfig().VITE_FEATURE_MODE ? [modeChainId] : []),
     ...(getConfig().VITE_FEATURE_TON ? [tonChainId] : []),
   ]
 }

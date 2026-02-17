@@ -35,6 +35,7 @@ import * as gnosis from './gnosis'
 import * as hyperevm from './hyperevm'
 import * as katana from './katana'
 import * as megaeth from './megaeth'
+import * as mode from './mode'
 import * as monad from './monad'
 import * as near from './near'
 import * as optimism from './optimism'
@@ -72,6 +73,7 @@ const generateAssetData = async () => {
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
   const megaethAssets = await megaeth.getAssets()
+  const modeAssets = await mode.getAssets()
   const plasmaAssets = await plasma.getAssets()
   const solanaAssets = await solana.getAssets()
   const starknetAssets = await starknet.getAssets()
@@ -105,6 +107,7 @@ const generateAssetData = async () => {
     ...hyperevmAssets,
     ...katanaAssets,
     ...megaethAssets,
+    ...modeAssets,
     ...plasmaAssets,
     ...solanaAssets,
     ...starknetAssets,

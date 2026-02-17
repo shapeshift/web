@@ -15,6 +15,7 @@ import {
   ltcAssetId,
   mayachainAssetId,
   megaethAssetId,
+  modeAssetId,
   monadAssetId,
   nearAssetId,
   optimismAssetId,
@@ -83,6 +84,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return megaethAssetId
     case KnownChainIds.KatanaMainnet:
       return katanaAssetId
+    case KnownChainIds.ModeMainnet:
+      return modeAssetId
     case KnownChainIds.ZcashMainnet:
       return zecAssetId
     case KnownChainIds.NearMainnet:

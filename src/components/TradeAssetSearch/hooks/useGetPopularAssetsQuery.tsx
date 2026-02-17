@@ -4,6 +4,7 @@ import {
   katanaAssetId,
   mayachainAssetId,
   megaethAssetId,
+  modeAssetId,
   monadAssetId,
   nearAssetId,
   plasmaAssetId,
@@ -44,6 +45,7 @@ export const queryFn = async () => {
   if (enabledFlags.Plasma) assetIds.push(plasmaAssetId)
   if (enabledFlags.MegaEth) assetIds.push(megaethAssetId)
   if (enabledFlags.Katana) assetIds.push(katanaAssetId)
+  if (enabledFlags.Mode) assetIds.push(modeAssetId)
   if (enabledFlags.Starknet) assetIds.push(starknetAssetId)
   if (enabledFlags.Tron) assetIds.push(tronAssetId)
   if (enabledFlags.Sui) assetIds.push(suiAssetId)

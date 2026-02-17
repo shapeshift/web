@@ -9,6 +9,7 @@ import {
   hyperEvmChainId,
   katanaChainId,
   megaethChainId,
+  modeChainId,
   monadChainId,
   optimismChainId,
   plasmaChainId,
@@ -27,6 +28,7 @@ import {
   hyperEvm,
   katana,
   mainnet as ethereum,
+  mode,
   monad,
   optimism,
   plasma,
@@ -55,6 +57,7 @@ export const chainIdToRelayChainId = {
   [megaethChainId]: 4326,
   [plasmaChainId]: plasma.id,
   [katanaChainId]: katana.id,
+  [modeChainId]: mode.id,
 }
 
 export enum RelayStatusMessage {

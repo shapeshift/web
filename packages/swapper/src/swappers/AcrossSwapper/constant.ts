@@ -4,6 +4,7 @@ import {
   bscChainId,
   ethChainId,
   hyperEvmChainId,
+  modeChainId,
   monadChainId,
   optimismChainId,
   plasmaChainId,
@@ -18,6 +19,7 @@ import {
   bsc,
   hyperEvm,
   mainnet as ethereum,
+  mode,
   monad,
   optimism,
   plasma,
@@ -36,6 +38,7 @@ export const chainIdToAcrossChainId: Record<string, number> = {
   [bscChainId]: bsc.id,
   [monadChainId]: monad.id,
   [hyperEvmChainId]: hyperEvm.id,
+  [modeChainId]: mode.id,
   [plasmaChainId]: plasma.id,
   // Across uses a custom Solana chain ID
   [solanaChainId]: 34268394551451,

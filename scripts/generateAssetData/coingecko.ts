@@ -11,6 +11,7 @@ import {
   hyperEvmChainId,
   katanaChainId,
   megaethChainId,
+  modeChainId,
   monadChainId,
   nearChainId,
   optimismChainId,
@@ -34,6 +35,7 @@ import {
   hyperevm,
   katana,
   megaeth,
+  modeChain,
   monad,
   near,
   optimism,
@@ -172,6 +174,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: katana.explorer,
           explorerAddressLink: katana.explorerAddressLink,
           explorerTxLink: katana.explorerTxLink,
+        }
+      case modeChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: modeChain.explorer,
+          explorerAddressLink: modeChain.explorerAddressLink,
+          explorerTxLink: modeChain.explorerTxLink,
         }
       case solanaChainId:
         return {

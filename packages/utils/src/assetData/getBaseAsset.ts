@@ -19,6 +19,7 @@ import {
   litecoin,
   mayachain,
   megaeth,
+  modeChain,
   monad,
   near,
   optimism,
@@ -84,6 +85,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return megaeth
     case KnownChainIds.KatanaMainnet:
       return katana
+    case KnownChainIds.ModeMainnet:
+      return modeChain
     case KnownChainIds.NearMainnet:
       return near
     case KnownChainIds.ZcashMainnet:

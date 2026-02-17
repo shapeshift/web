@@ -14,6 +14,16 @@ import type EthereumProvider from '@walletconnect/ethereum-provider'
 
 const COSMOS_MAINNET_CAIP2 = 'cosmos:cosmoshub-4'
 
+function getCosmosAddressFromSession(provider: EthereumProvider): string | null {
+  const cosmosAccounts = provider.session?.namespaces?.cosmos?.accounts
+  if (!cosmosAccounts || cosmosAccounts.length === 0) return null
+
+  const caip10 = cosmosAccounts[0]
+  const lastColonIndex = caip10.lastIndexOf(':')
+  if (lastColonIndex === -1) return null
+  return caip10.substring(lastColonIndex + 1) || null
+}
+
 export function describeCosmosPath(path: number[]): PathDescription {
   return cosmosDescribePath(path)
 }
@@ -36,81 +46,55 @@ export async function cosmosGetAddress(
   provider: EthereumProvider,
   _msg: CosmosGetAddress,
 ): Promise<string | null> {
-  try {
-    const session = provider.session
-    if (!session) return null
-
-    const cosmosAccounts = session.namespaces?.cosmos?.accounts
-    if (!cosmosAccounts || cosmosAccounts.length === 0) return null
-
-    // CAIP-10 format: cosmos:cosmoshub-4:cosmos1abc...
-    const parts = cosmosAccounts[0].split(':')
-    return parts[2] ?? null
-  } catch (error) {
-    console.error(error)
-    return null
-  }
+  return getCosmosAddressFromSession(provider)
 }
 
 export async function cosmosSignTx(
   provider: EthereumProvider,
   msg: CosmosSignTx,
 ): Promise<CosmosSignedTx | null> {
-  try {
-    const session = provider.session
-    if (!session) return null
+  const signerAddress = getCosmosAddressFromSession(provider)
+  if (!signerAddress) return null
 
-    const cosmosAccounts = session.namespaces?.cosmos?.accounts
-    if (!cosmosAccounts || cosmosAccounts.length === 0) return null
+  const wcAccounts = await provider.signer.request<
+    {
+      algo: string
+      address: string
+      pubkey: string
+    }[]
+  >(
+    {
+      method: 'cosmos_getAccounts',
+      params: {},
+    },
+    COSMOS_MAINNET_CAIP2,
+  )
 
-    const signerAddress = cosmosAccounts[0].split(':')[2]
-    if (!signerAddress) return null
+  if (!wcAccounts?.length) throw new Error('No cosmos accounts from WalletConnect')
 
-    // Get accounts from WC to obtain the pubkey (needed for proto-tx-builder)
-    const wcAccounts = await provider.signer.request<
-      {
-        algo: string
-        address: string
-        pubkey: string
-      }[]
-    >(
-      {
-        method: 'cosmos_getAccounts',
-        params: {},
-      },
-      COSMOS_MAINNET_CAIP2,
-    )
+  const { pubkey: pubkeyBase64, algo } = wcAccounts[0]
+  const pubkey = new Uint8Array(Buffer.from(pubkeyBase64, 'base64'))
 
-    if (!wcAccounts?.length) throw new Error('No cosmos accounts from WalletConnect')
-
-    const { pubkey: pubkeyBase64, algo } = wcAccounts[0]
-    const pubkey = new Uint8Array(Buffer.from(pubkeyBase64, 'base64'))
-
-    // Create an OfflineAminoSigner backed by WalletConnect
-    const offlineSigner: OfflineAminoSigner = {
-      async getAccounts() {
-        return [{ address: signerAddress, algo: algo as 'secp256k1', pubkey }]
-      },
-      async signAmino(_signerAddress, signDoc) {
-        return provider.signer.request(
-          {
-            method: 'cosmos_signAmino',
-            params: { signerAddress: _signerAddress, signDoc },
-          },
-          COSMOS_MAINNET_CAIP2,
-        )
-      },
-    }
-
-    const signerData: SignerData = {
-      sequence: Number(msg.sequence),
-      accountNumber: Number(msg.account_number),
-      chainId: msg.chain_id,
-    }
-
-    return await sign(signerAddress, msg.tx as StdTx, offlineSigner, signerData, 'cosmos')
-  } catch (error) {
-    console.error(error)
-    return null
+  const offlineSigner: OfflineAminoSigner = {
+    async getAccounts() {
+      return [{ address: signerAddress, algo: algo as 'secp256k1', pubkey }]
+    },
+    async signAmino(address, signDoc) {
+      return provider.signer.request(
+        {
+          method: 'cosmos_signAmino',
+          params: { signerAddress: address, signDoc },
+        },
+        COSMOS_MAINNET_CAIP2,
+      )
+    },
   }
+
+  const signerData: SignerData = {
+    sequence: Number(msg.sequence),
+    accountNumber: Number(msg.account_number),
+    chainId: msg.chain_id,
+  }
+
+  return sign(signerAddress, msg.tx as StdTx, offlineSigner, signerData, 'cosmos')
 }

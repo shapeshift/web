@@ -389,6 +389,23 @@ export const katana: Readonly<Asset> = Object.freeze({
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 
+export const linea: Readonly<Asset> = Object.freeze({
+  assetId: caip.lineaAssetId,
+  chainId: caip.lineaChainId,
+  name: 'Ethereum',
+  networkName: 'Linea',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#5C6BC0',
+  networkColor: '#121212',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.coingecko.com/coins/images/32428/small/Linea.jpg',
+  explorer: 'https://lineascan.build',
+  explorerAddressLink: 'https://lineascan.build/address/',
+  explorerTxLink: 'https://lineascan.build/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
 export const solana: Readonly<Asset> = Object.freeze({
   assetId: caip.solAssetId,
   chainId: caip.solanaChainId,

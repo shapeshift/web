@@ -329,10 +329,7 @@ const SwapWidgetCore = ({
         slippageTolerancePercentageDecimal: slippageDecimal,
       })
 
-      const outerStep = quoteResponse.steps?.[0]
-      const innerStep = quoteResponse.quote?.steps?.[0]
-      const transactionData =
-        quoteResponse.transactionData ?? outerStep?.transactionData ?? innerStep?.transactionData
+      const transactionData = quoteResponse.steps?.[0]?.transactionData
 
       if (!transactionData) {
         throw new Error(
@@ -340,20 +337,21 @@ const SwapWidgetCore = ({
         )
       }
 
-      setTxStatus({ status: 'pending', message: 'Waiting for wallet confirmation...' })
+      if (transactionData.type !== 'utxo_psbt' && transactionData.type !== 'utxo_deposit') {
+        throw new Error(`Unexpected transaction type for UTXO swap: ${transactionData.type}`)
+      }
 
-      const psbt = (transactionData as { psbt?: string }).psbt
-      const recipientAddress = transactionData.to
-      const value = transactionData.value ?? sellAmountBaseUnit
+      setTxStatus({ status: 'pending', message: 'Waiting for wallet confirmation...' })
 
       let txid: string
 
-      if (psbt) {
-        txid = await signPsbt({ psbt, signInputs: {}, broadcast: true })
-      } else if (recipientAddress) {
-        txid = await sendBitcoinTransfer({ recipientAddress, amount: value })
+      if (transactionData.type === 'utxo_psbt') {
+        txid = await signPsbt({ psbt: transactionData.psbt, signInputs: {}, broadcast: true })
       } else {
-        throw new Error('No PSBT or recipient address in transaction data')
+        txid = await sendBitcoinTransfer({
+          recipientAddress: transactionData.depositAddress,
+          amount: transactionData.value,
+        })
       }
 
       setTxStatus({
@@ -430,14 +428,13 @@ const SwapWidgetCore = ({
         slippageTolerancePercentageDecimal: slippageDecimal,
       })
 
-      const innerStep = quoteResponse.quote?.steps?.[0]
-      const solanaTransactionMetadata = (innerStep as any)?.solanaTransactionMetadata
+      const transactionData = quoteResponse.steps?.[0]?.transactionData
 
-      if (!solanaTransactionMetadata?.instructions) {
+      if (!transactionData || transactionData.type !== 'solana') {
         throw new Error(
-          `No Solana transaction metadata returned. Response keys: ${Object.keys(
-            quoteResponse,
-          ).join(', ')}`,
+          `No Solana transaction data returned. Response keys: ${Object.keys(quoteResponse).join(
+            ', ',
+          )}`,
         )
       }
 
@@ -447,19 +444,22 @@ const SwapWidgetCore = ({
         throw new Error('Solana connection not available')
       }
 
-      const { Transaction, PublicKey, TransactionInstruction } = await import('@solana/web3.js')
+      const {
+        AddressLookupTableAccount,
+        PublicKey,
+        TransactionInstruction,
+        TransactionMessage,
+        VersionedTransaction,
+      } = await import('@solana/web3.js')
 
-      const instructions = solanaTransactionMetadata.instructions.map((ix: any) => {
-        const keys = ix.keys.map((key: any) => ({
+      const instructions = transactionData.instructions.map(ix => {
+        const keys = ix.keys.map(key => ({
           pubkey: new PublicKey(key.pubkey),
           isSigner: key.isSigner,
           isWritable: key.isWritable,
         }))
 
-        if (!ix.data?.data) {
-          throw new Error(`Invalid instruction data for programId: ${ix.programId}`)
-        }
-        const data = Buffer.from(ix.data.data)
+        const data = Buffer.from(ix.data, 'base64')
 
         return new TransactionInstruction({
           keys,
@@ -468,12 +468,38 @@ const SwapWidgetCore = ({
         })
       })
 
-      const transaction = new Transaction().add(...instructions)
-
       const { blockhash } = await solanaConnection.getLatestBlockhash('confirmed')
 
-      transaction.recentBlockhash = blockhash
-      transaction.feePayer = new PublicKey(solanaAddress)
+      let addressLookupTableAccounts: InstanceType<typeof AddressLookupTableAccount>[] = []
+
+      if (transactionData.addressLookupTableAddresses.length > 0) {
+        const altAddresses = transactionData.addressLookupTableAddresses.map(
+          addr => new PublicKey(addr),
+        )
+        const altAccountInfos = await solanaConnection.getMultipleAccountsInfo(altAddresses)
+
+        addressLookupTableAccounts = altAccountInfos.reduce<
+          InstanceType<typeof AddressLookupTableAccount>[]
+        >((acc, accountInfo, index) => {
+          if (accountInfo) {
+            acc.push(
+              new AddressLookupTableAccount({
+                key: altAddresses[index],
+                state: AddressLookupTableAccount.deserialize(accountInfo.data),
+              }),
+            )
+          }
+          return acc
+        }, [])
+      }
+
+      const messageV0 = new TransactionMessage({
+        payerKey: new PublicKey(solanaAddress),
+        recentBlockhash: blockhash,
+        instructions,
+      }).compileToV0Message(addressLookupTableAccounts)
+
+      const transaction = new VersionedTransaction(messageV0)
 
       const signature = await sendSolanaTransaction({ transaction })
 
@@ -616,17 +642,7 @@ const SwapWidgetCore = ({
         }
       }
 
-      const outerStep = quoteResponse.steps?.[0]
-      const innerStep = quoteResponse.quote?.steps?.[0]
-
-      const transactionData =
-        quoteResponse.transactionData ??
-        outerStep?.transactionData ??
-        outerStep?.relayTransactionMetadata ??
-        outerStep?.butterSwapTransactionMetadata ??
-        innerStep?.transactionData ??
-        innerStep?.relayTransactionMetadata ??
-        innerStep?.butterSwapTransactionMetadata
+      const transactionData = quoteResponse.steps?.[0]?.transactionData
 
       if (!transactionData) {
         throw new Error(
@@ -634,10 +650,13 @@ const SwapWidgetCore = ({
         )
       }
 
-      const to = transactionData.to as string
-      const data = transactionData.data as string
-      const value = transactionData.value ?? '0'
-      const gasLimit = transactionData.gasLimit as string | undefined
+      if (transactionData.type !== 'evm') {
+        throw new Error(
+          `Unsupported transaction type: ${transactionData.type}. Only EVM transactions are supported.`,
+        )
+      }
+
+      const { to, data, value, gasLimit } = transactionData
 
       setTxStatus({ status: 'pending', message: 'Waiting for confirmation...' })
 

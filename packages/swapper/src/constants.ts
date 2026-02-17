@@ -1,5 +1,7 @@
 import { assertUnreachable } from '@shapeshiftoss/utils'
 
+import { acrossSwapper } from './swappers/AcrossSwapper'
+import { acrossApi } from './swappers/AcrossSwapper/endpoints'
 import { arbitrumBridgeSwapper } from './swappers/ArbitrumBridgeSwapper/ArbitrumBridgeSwapper'
 import { arbitrumBridgeApi } from './swappers/ArbitrumBridgeSwapper/endpoints'
 import { avnuSwapper } from './swappers/AvnuSwapper/AvnuSwapper'
@@ -110,6 +112,10 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
     ...stonfiSwapper,
     ...stonfiApi,
   },
+  [SwapperName.Across]: {
+    ...acrossSwapper,
+    ...acrossApi,
+  },
   [SwapperName.Test]: undefined,
 }
 
@@ -153,6 +159,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       throw new Error('Default slippage not supported by Jupiter')
     case SwapperName.Relay:
       throw new Error('Default slippage not supported by Relay')
+    case SwapperName.Across:
+      throw new Error('Default slippage not supported by Across')
     case SwapperName.ButterSwap:
       return DEFAULT_BUTTERSWAP_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.NearIntents:
@@ -175,6 +183,7 @@ export const isAutoSlippageSupportedBySwapper = (swapperName: SwapperName): bool
     case SwapperName.Jupiter:
       return true
     case SwapperName.Relay:
+    case SwapperName.Across:
       return true
     default:
       return false

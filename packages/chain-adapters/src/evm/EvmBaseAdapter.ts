@@ -288,6 +288,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         symbol: 'ETH',
         explorer: 'https://megaeth.blockscout.com',
       },
+      [KnownChainIds.CronosMainnet]: {
+        name: 'Cronos',
+        symbol: 'CRO',
+        explorer: 'https://cronoscan.com',
+      },
       [KnownChainIds.KatanaMainnet]: {
         name: 'Ethereum',
         symbol: 'ETH',

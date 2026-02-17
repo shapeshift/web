@@ -11,6 +11,13 @@ import type EthereumProvider from '@walletconnect/ethereum-provider'
 
 const TRON_MAINNET_CAIP2 = 'tron:0x2b6653dc'
 
+function getTronSignerAddress(provider: EthereumProvider): string | null {
+  const tronAccounts = provider.session?.namespaces?.tron?.accounts
+  if (!tronAccounts || tronAccounts.length === 0) return null
+  // CAIP-10 format: tron:0x2b6653dc:T...
+  return tronAccounts[0].split(':')[2] ?? null
+}
+
 export function describeTronPath(path: number[]): PathDescription {
   return tronDescribePath(path)
 }
@@ -34,15 +41,7 @@ export async function tronGetAddress(
   _msg: TronGetAddress,
 ): Promise<string | null> {
   try {
-    const session = provider.session
-    if (!session) return null
-
-    const tronAccounts = session.namespaces?.tron?.accounts
-    if (!tronAccounts || tronAccounts.length === 0) return null
-
-    // CAIP-10 format: tron:0x2b6653dc:T...
-    const parts = tronAccounts[0].split(':')
-    return parts[2] ?? null
+    return getTronSignerAddress(provider)
   } catch (error) {
     console.error(error)
     return null
@@ -54,13 +53,7 @@ export async function tronSignTx(
   msg: TronSignTx,
 ): Promise<TronSignedTx | null> {
   try {
-    const session = provider.session
-    if (!session) return null
-
-    const tronAccounts = session.namespaces?.tron?.accounts
-    if (!tronAccounts || tronAccounts.length === 0) return null
-
-    const signerAddress = tronAccounts[0].split(':')[2]
+    const signerAddress = getTronSignerAddress(provider)
     if (!signerAddress) return null
 
     const result = await provider.signer.request<{ signature: string }>(

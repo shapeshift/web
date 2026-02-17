@@ -17,6 +17,7 @@ import {
   plasmaChainId,
   polygonChainId,
   solanaChainId,
+  sonicChainId,
   starknetChainId,
   suiChainId,
   toAssetId,
@@ -40,6 +41,7 @@ import {
   plasma,
   polygon,
   solana,
+  sonic,
   sui,
   ton,
   tron,
@@ -172,6 +174,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: katana.explorer,
           explorerAddressLink: katana.explorerAddressLink,
           explorerTxLink: katana.explorerTxLink,
+        }
+      case sonicChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: sonic.explorer,
+          explorerAddressLink: sonic.explorerAddressLink,
+          explorerTxLink: sonic.explorerTxLink,
         }
       case solanaChainId:
         return {

@@ -25,6 +25,7 @@ import { csp as optimism } from './chains/optimism'
 import { csp as plasma } from './chains/plasma'
 import { csp as polygon } from './chains/polygon'
 import { csp as solana } from './chains/solana'
+import { csp as sonic } from './chains/sonic'
 import { csp as starknet } from './chains/starknet'
 import { csp as sui } from './chains/sui'
 import { csp as thorchain } from './chains/thorchain'
@@ -131,6 +132,7 @@ export const csps = [
   monad,
   near,
   plasma,
+  sonic,
   trustwallet,
   coincap,
   coingecko,

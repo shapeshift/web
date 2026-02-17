@@ -389,6 +389,23 @@ export const katana: Readonly<Asset> = Object.freeze({
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 
+export const sonic: Readonly<Asset> = Object.freeze({
+  assetId: caip.sonicAssetId,
+  chainId: caip.sonicChainId,
+  name: 'Sonic',
+  networkName: 'Sonic',
+  symbol: 'S',
+  precision: 18,
+  color: '#1B1464',
+  networkColor: '#1B1464',
+  icon: 'https://assets.coingecko.com/coins/images/38051/large/sonic-3.png',
+  networkIcon: 'https://assets.coingecko.com/coins/images/38051/small/sonic-3.png',
+  explorer: 'https://sonicscan.org',
+  explorerAddressLink: 'https://sonicscan.org/address/',
+  explorerTxLink: 'https://sonicscan.org/tx/',
+  relatedAssetKey: null,
+})
+
 export const solana: Readonly<Asset> = Object.freeze({
   assetId: caip.solAssetId,
   chainId: caip.solanaChainId,

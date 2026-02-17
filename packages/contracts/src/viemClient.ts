@@ -8,6 +8,7 @@ import {
   avalanche,
   base,
   bsc,
+  cronos,
   gnosis,
   hyperEvm,
   katana,
@@ -112,6 +113,11 @@ export const viemMegaEthClient = createPublicClient({
   transport: fallback([process.env.VITE_MEGAETH_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemCronosClient = createPublicClient({
+  chain: cronos,
+  transport: fallback([process.env.VITE_CRONOS_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemKatanaClient = createPublicClient({
   chain: katana,
   transport: fallback([process.env.VITE_KATANA_NODE_URL].filter(Boolean).map(url => http(url))),
@@ -130,6 +136,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.HyperEvmMainnet]: viemHyperEvmClient,
   [KnownChainIds.PlasmaMainnet]: viemPlasmaClient,
   [KnownChainIds.MegaEthMainnet]: viemMegaEthClient,
+  [KnownChainIds.CronosMainnet]: viemCronosClient,
   [KnownChainIds.KatanaMainnet]: viemKatanaClient,
 }
 
@@ -146,6 +153,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.HyperEvmMainnet]: hyperEvm.id,
   [KnownChainIds.PlasmaMainnet]: plasma.id,
   [KnownChainIds.MegaEthMainnet]: megaeth.id,
+  [KnownChainIds.CronosMainnet]: cronos.id,
   [KnownChainIds.KatanaMainnet]: katana.id,
 }
 
@@ -162,6 +170,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [hyperEvm.id]: viemHyperEvmClient,
   [plasma.id]: viemPlasmaClient,
   [megaeth.id]: viemMegaEthClient,
+  [cronos.id]: viemCronosClient,
   [katana.id]: viemKatanaClient,
 }
 

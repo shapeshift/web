@@ -48,6 +48,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.HyperEvmMainnet]: evm.Account
     [KnownChainIds.PlasmaMainnet]: evm.Account
     [KnownChainIds.MegaEthMainnet]: evm.Account
+    [KnownChainIds.CronosMainnet]: evm.Account
     [KnownChainIds.KatanaMainnet]: evm.Account
     [KnownChainIds.BitcoinMainnet]: utxo.Account
     [KnownChainIds.BitcoinCashMainnet]: utxo.Account
@@ -100,6 +101,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.HyperEvmMainnet]: evm.FeeData
     [KnownChainIds.PlasmaMainnet]: evm.FeeData
     [KnownChainIds.MegaEthMainnet]: evm.FeeData
+    [KnownChainIds.CronosMainnet]: evm.FeeData
     [KnownChainIds.KatanaMainnet]: evm.FeeData
     [KnownChainIds.BitcoinMainnet]: utxo.FeeData
     [KnownChainIds.BitcoinCashMainnet]: utxo.FeeData
@@ -185,6 +187,7 @@ export type ChainSignTx = {
   [KnownChainIds.MonadMainnet]: ETHSignTx
   [KnownChainIds.PlasmaMainnet]: ETHSignTx
   [KnownChainIds.MegaEthMainnet]: ETHSignTx
+  [KnownChainIds.CronosMainnet]: ETHSignTx
   [KnownChainIds.KatanaMainnet]: ETHSignTx
   [KnownChainIds.BitcoinMainnet]: BTCSignTx
   [KnownChainIds.BitcoinCashMainnet]: BTCSignTx
@@ -242,6 +245,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.HyperEvmMainnet]: evm.BuildTxInput
     [KnownChainIds.PlasmaMainnet]: evm.BuildTxInput
     [KnownChainIds.MegaEthMainnet]: evm.BuildTxInput
+    [KnownChainIds.CronosMainnet]: evm.BuildTxInput
     [KnownChainIds.KatanaMainnet]: evm.BuildTxInput
     [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.BuildTxInput
@@ -349,6 +353,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.HyperEvmMainnet]: evm.GetFeeDataInput
     [KnownChainIds.PlasmaMainnet]: evm.GetFeeDataInput
     [KnownChainIds.MegaEthMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.CronosMainnet]: evm.GetFeeDataInput
     [KnownChainIds.KatanaMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BitcoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.GetFeeDataInput
@@ -421,6 +426,7 @@ export enum ChainAdapterDisplayName {
   HyperEvm = 'HyperEVM',
   Plasma = 'Plasma',
   MegaEth = 'MegaETH',
+  Cronos = 'Cronos',
   Katana = 'Katana',
   Cosmos = 'Cosmos',
   Bitcoin = 'Bitcoin',

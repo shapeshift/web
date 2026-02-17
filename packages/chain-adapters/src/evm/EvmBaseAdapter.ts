@@ -12,6 +12,7 @@ import {
   supportsAvalanche,
   supportsBase,
   supportsBSC,
+  supportsCronos,
   supportsETH,
   supportsGnosis,
   supportsHyperEvm,
@@ -87,6 +88,7 @@ export const evmChainIds = [
   KnownChainIds.HyperEvmMainnet,
   KnownChainIds.PlasmaMainnet,
   KnownChainIds.MegaEthMainnet,
+  KnownChainIds.CronosMainnet,
   KnownChainIds.KatanaMainnet,
 ] as const
 
@@ -190,6 +192,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsPlasma(wallet)
         case Number(fromChainId(KnownChainIds.MegaEthMainnet).chainReference):
           return supportsMegaEth(wallet)
+        case Number(fromChainId(KnownChainIds.CronosMainnet).chainReference):
+          return supportsCronos(wallet)
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
         default:

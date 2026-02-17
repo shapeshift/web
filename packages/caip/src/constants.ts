@@ -19,6 +19,7 @@ export const monadAssetId: AssetId = 'eip155:143/slip44:60'
 export const hyperEvmAssetId: AssetId = 'eip155:999/slip44:60'
 export const plasmaAssetId: AssetId = 'eip155:9745/slip44:60'
 export const megaethAssetId: AssetId = 'eip155:4326/slip44:60'
+export const cronosAssetId: AssetId = 'eip155:25/slip44:60'
 export const katanaAssetId: AssetId = 'eip155:747474/slip44:60'
 export const solAssetId: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501'
 export const wrappedSolAssetId: AssetId =
@@ -80,6 +81,7 @@ export const monadChainId: ChainId = 'eip155:143'
 export const hyperEvmChainId: ChainId = 'eip155:999'
 export const plasmaChainId: ChainId = 'eip155:9745'
 export const megaethChainId: ChainId = 'eip155:4326'
+export const cronosChainId: ChainId = 'eip155:25'
 export const katanaChainId: ChainId = 'eip155:747474'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
@@ -132,6 +134,7 @@ export const CHAIN_REFERENCE = {
   HyperEvmMainnet: '999', // https://chainlist.org/chain/999
   PlasmaMainnet: '9745', // https://chainlist.org/chain/9745
   MegaEthMainnet: '4326',
+  CronosMainnet: '25',
   KatanaMainnet: '747474', // https://docs.katana.network
   SolanaMainnet: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', // https://namespaces.chainagnostic.org/solana/caip2
   TronMainnet: '0x2b6653dc', // https://developers.tron.network/docs/networks
@@ -177,6 +180,7 @@ export const ASSET_REFERENCE = {
   HyperEvm: '60', // evm chain which uses ethereum derivation path as common practice
   Plasma: '60', // evm chain which uses ethereum derivation path as common practice
   MegaEth: '60', // evm chain which uses ethereum derivation path as common practice
+  Cronos: '60', // evm chain which uses ethereum derivation path as common practice
   Katana: '60', // evm chain which uses ethereum derivation path as common practice
   Solana: '501',
   Tron: '195',
@@ -207,6 +211,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.HyperEvmMainnet,
     CHAIN_REFERENCE.PlasmaMainnet,
     CHAIN_REFERENCE.MegaEthMainnet,
+    CHAIN_REFERENCE.CronosMainnet,
     CHAIN_REFERENCE.KatanaMainnet,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
@@ -263,6 +268,7 @@ export const FEE_ASSET_IDS = [
   baseAssetId,
   monadAssetId,
   megaethAssetId,
+  cronosAssetId,
   solAssetId,
   tronAssetId,
   suiAssetId,

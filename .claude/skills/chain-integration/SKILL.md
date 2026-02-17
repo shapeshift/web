@@ -1226,16 +1226,42 @@ export enum CoingeckoAssetPlatform {
 }
 ```
 
-**File**: `packages/caip/src/adapters/coingecko/utils.ts`
+**File**: `packages/caip/src/adapters/coingecko/index.ts` (3 touchpoints — enum + 2 switch statements)
 
-Add chain ID to platform mapping in the `chainIdToCoingeckoAssetPlatform` function:
+CRITICAL: This file has 3 separate places to update. Missing any causes runtime failures.
 
+Touchpoint 1 — Already shown above: `CoingeckoAssetPlatform` enum entry.
+
+Touchpoint 2 — `chainIdToCoingeckoAssetPlatform()` forward mapping (CHAIN_REFERENCE → platform):
 ```typescript
-// For EVM chains, add to the EVM switch statement
+// For EVM chains, add to the EVM switch (inside chainNamespace Evm case)
 case CHAIN_REFERENCE.[ChainName]Mainnet:
   return CoingeckoAssetPlatform.[ChainName]
+```
 
-// For non-EVM chains, add separate case in outer switch
+Touchpoint 3 — `coingeckoAssetPlatformToChainId()` reverse mapping (platform → chainId):
+```typescript
+case CoingeckoAssetPlatform.[ChainName]:
+  return [chainLower]ChainId
+```
+NOTE: This reverse mapping requires importing `[chainLower]ChainId` from `../../constants`. Only import what is used — `chainIdToCoingeckoAssetPlatform` uses `CHAIN_REFERENCE` not chainId constants.
+
+**File**: `packages/caip/src/adapters/coingecko/utils.ts` (2 touchpoints)
+
+Touchpoint 4 — Add chainId to `buildByChainId` loop in `COINGECKO_ASSET_PLATFORM_TO_CHAIN_ID_MAP` (~line 280-310):
+```typescript
+// Import chainId + assetId from constants at top of file
+import { [chainLower]AssetId, [chainLower]ChainId, ... } from '../../constants'
+
+// Add to the switch/if chain inside the buildByChainId loop
+prev[[chainLower]ChainId][assetId] = id
+```
+
+Touchpoint 5 — Add native asset to `COINGECKO_NATIVE_ASSET_PLATFORM_TO_CHAIN_ID_MAP` (~line 370-390):
+```typescript
+[[chainLower]ChainId]: { [[chainLower]AssetId]: '[coingecko-native-coin-id]' },
+// e.g., for Cronos: [cronosChainId]: { [cronosAssetId]: 'crypto-com-chain' }
+// e.g., for ETH-native chains: [scrollChainId]: { [scrollAssetId]: 'ethereum' }
 ```
 
 **File**: `packages/caip/src/adapters/coingecko/utils.test.ts`

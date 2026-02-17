@@ -19,6 +19,8 @@ import {
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
   cosmosChainId,
+  cronosAssetId,
+  cronosChainId,
   dogeChainId,
   ethAssetId,
   ethChainId,
@@ -289,6 +291,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Cronos)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.CronosMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Cronos],
+          })
+          prev[cronosChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Katana)) {
         try {
           const assetId = toAssetId({
@@ -360,6 +376,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [monadChainId]: { [monadAssetId]: 'monad' },
       [plasmaChainId]: { [plasmaAssetId]: 'plasma' },
       [megaethChainId]: { [megaethAssetId]: 'ethereum' },
+      [cronosChainId]: { [cronosAssetId]: 'crypto-com-chain' },
       [katanaChainId]: { [katanaAssetId]: 'katana' },
       [solanaChainId]: { [solAssetId]: 'solana' },
       [starknetChainId]: { [starknetAssetId]: 'starknet' },

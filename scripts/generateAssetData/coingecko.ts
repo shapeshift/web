@@ -6,6 +6,7 @@ import {
   avalancheChainId,
   baseChainId,
   bscChainId,
+  cronosChainId,
   ethChainId,
   gnosisChainId,
   hyperEvmChainId,
@@ -29,6 +30,7 @@ import {
   avax,
   base,
   bnbsmartchain,
+  cronos,
   ethereum,
   gnosis,
   hyperevm,
@@ -164,6 +166,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: megaeth.explorer,
           explorerAddressLink: megaeth.explorerAddressLink,
           explorerTxLink: megaeth.explorerTxLink,
+        }
+      case cronosChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: cronos.explorer,
+          explorerAddressLink: cronos.explorerAddressLink,
+          explorerTxLink: cronos.explorerTxLink,
         }
       case katanaChainId:
         return {

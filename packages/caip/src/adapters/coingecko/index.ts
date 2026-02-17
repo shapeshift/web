@@ -12,6 +12,7 @@ import {
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
   cosmosChainId,
+  cronosChainId,
   ethChainId,
   gnosisChainId,
   hyperEvmChainId,
@@ -52,6 +53,7 @@ export enum CoingeckoAssetPlatform {
   Plasma = 'plasma',
   Katana = 'katana',
   MegaEth = 'megaeth',
+  Cronos = 'cronos',
   Solana = 'solana',
   Starknet = 'starknet',
   Tron = 'tron',
@@ -114,6 +116,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Katana
         case CHAIN_REFERENCE.MegaEthMainnet:
           return CoingeckoAssetPlatform.MegaEth
+        case CHAIN_REFERENCE.CronosMainnet:
+          return CoingeckoAssetPlatform.Cronos
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
@@ -223,6 +227,8 @@ export const coingeckoAssetPlatformToChainId = (
       return katanaChainId
     case CoingeckoAssetPlatform.MegaEth:
       return megaethChainId
+    case CoingeckoAssetPlatform.Cronos:
+      return cronosChainId
     case CoingeckoAssetPlatform.Cosmos:
       return cosmosChainId
     case CoingeckoAssetPlatform.Thorchain:

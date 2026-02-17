@@ -7,6 +7,7 @@ import {
   bscAssetId,
   btcAssetId,
   cosmosAssetId,
+  cronosAssetId,
   dogeAssetId,
   ethAssetId,
   gnosisAssetId,
@@ -81,6 +82,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return plasmaAssetId
     case KnownChainIds.MegaEthMainnet:
       return megaethAssetId
+    case KnownChainIds.CronosMainnet:
+      return cronosAssetId
     case KnownChainIds.KatanaMainnet:
       return katanaAssetId
     case KnownChainIds.ZcashMainnet:

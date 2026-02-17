@@ -29,6 +29,7 @@ import * as base from './base'
 import * as bnbsmartchain from './bnbsmartchain'
 import { compressGeneratedAssets } from './compressAssets'
 import { ASSET_DATA_PATH, GENERATED_DIR, RELATED_ASSET_INDEX_PATH } from './constants'
+import * as cronos from './cronos'
 import * as ethereum from './ethereum'
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
 import * as gnosis from './gnosis'
@@ -71,6 +72,7 @@ const generateAssetData = async () => {
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
+  const cronosAssets = await cronos.getAssets()
   const megaethAssets = await megaeth.getAssets()
   const plasmaAssets = await plasma.getAssets()
   const solanaAssets = await solana.getAssets()
@@ -104,6 +106,7 @@ const generateAssetData = async () => {
     ...monadAssets,
     ...hyperevmAssets,
     ...katanaAssets,
+    ...cronosAssets,
     ...megaethAssets,
     ...plasmaAssets,
     ...solanaAssets,

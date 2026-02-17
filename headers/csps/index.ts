@@ -11,6 +11,7 @@ import { csp as bitcoin } from './chains/bitcoin'
 import { csp as bitcoincash } from './chains/bitcoincash'
 import { csp as bnbsmartchain } from './chains/bnbsmartchain'
 import { csp as cosmos } from './chains/cosmos'
+import { csp as cronos } from './chains/cronos'
 import { csp as dogecoin } from './chains/dogecoin'
 import { csp as ethereum } from './chains/ethereum'
 import { csp as gnosis } from './chains/gnosis'
@@ -115,6 +116,7 @@ export const csps = [
   ethereum,
   gnosis,
   hyperevm,
+  cronos,
   katana,
   litecoin,
   megaeth,

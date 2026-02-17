@@ -14,6 +14,9 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
+import dayjs from 'dayjs'
+import dayjsDuration from 'dayjs/plugin/duration'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import { TbSwitchVertical } from 'react-icons/tb'
 import type { NumberFormatValues } from 'react-number-format'
@@ -84,6 +87,9 @@ const YieldFormSkeleton = memo(() => (
     <Skeleton height='20px' width='100px' borderRadius='lg' />
   </Flex>
 ))
+
+dayjs.extend(dayjsDuration)
+dayjs.extend(relativeTime)
 
 const selectedHoverSx = { bg: 'blue.600' }
 const unselectedHoverSx = { bg: 'background.surface.raised.hover' }
@@ -830,6 +836,13 @@ export const YieldForm = memo(
         return cryptoAmount
       })()
       const successMessageKey = getYieldSuccessMessageKey(yieldItem.mechanics.type, action)
+      const cooldownSeconds = yieldItem.mechanics.cooldownPeriod?.seconds
+      const cooldownMessage =
+        action === 'exit' && cooldownSeconds
+          ? translate('yieldXYZ.cooldownNotice', {
+              cooldownDuration: dayjs.duration(cooldownSeconds, 'seconds').humanize(),
+            })
+          : undefined
 
       return (
         <YieldSuccess
@@ -841,6 +854,7 @@ export const YieldForm = memo(
           accountId={accountId}
           onDone={handleFormDone}
           successMessageKey={successMessageKey}
+          cooldownMessage={cooldownMessage}
         />
       )
     }

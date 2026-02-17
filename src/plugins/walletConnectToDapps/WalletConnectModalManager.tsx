@@ -13,6 +13,7 @@ import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { CosmosSignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/CosmosSignMessageConfirmation'
+import { TronSignConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/TronSignConfirmation'
 import { EIP155SignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignMessageConfirmation'
 import { EIP155SignTypedDataConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignTypedDataConfirmation'
 import { EIP155TransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155TransactionConfirmation'
@@ -32,6 +33,8 @@ import type {
   EthSignTransactionCallRequest,
   EthSignTypedDataCallRequest,
   SessionProposalRef,
+  TronSignMessageCallRequest,
+  TronSignTransactionCallRequest,
   WalletConnectAction,
   WalletConnectContextType,
   WalletConnectState,
@@ -39,6 +42,7 @@ import type {
 import { WalletConnectActionType, WalletConnectModal } from '@/plugins/walletConnectToDapps/types'
 import { approveCosmosRequest } from '@/plugins/walletConnectToDapps/utils/CosmosRequestHandlerUtil'
 import { approveEIP155Request } from '@/plugins/walletConnectToDapps/utils/EIP155RequestHandlerUtil'
+import { approveTronRequest } from '@/plugins/walletConnectToDapps/utils/TronRequestHandlerUtil'
 import { approveSessionAuthRequest } from '@/plugins/walletConnectToDapps/utils/SessionAuthRequestHandlerUtil'
 import { selectPortfolioAccountMetadata } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
@@ -150,6 +154,24 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     [accountId, accountMetadata, chainId, handleClose, requestEvent, topic, wallet, web3wallet],
   )
 
+  const handleConfirmTronRequest = useCallback(async () => {
+    if (!requestEvent || !chainId || !wallet || !web3wallet || !topic) {
+      return
+    }
+
+    const response = await approveTronRequest({
+      wallet,
+      requestEvent,
+      accountMetadata,
+      accountId,
+    })
+    await web3wallet.respondSessionRequest({
+      topic,
+      response,
+    })
+    handleClose()
+  }, [accountId, accountMetadata, chainId, handleClose, requestEvent, topic, wallet, web3wallet])
+
   const handleRejectRequest = useCallback(async () => {
     if (!requestEvent || !web3wallet || !topic) return
 
@@ -222,6 +244,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       case WalletConnectModal.SignEIP155TransactionConfirmation:
       case WalletConnectModal.SendEIP155TransactionConfirmation:
       case WalletConnectModal.SendCosmosTransactionConfirmation:
+      case WalletConnectModal.SendTronTransactionConfirmation:
         await handleRejectRequest()
         break
       case WalletConnectModal.NoAccountsForChain:
@@ -325,6 +348,20 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
             topic={topic}
           />
         )
+      case WalletConnectModal.SendTronTransactionConfirmation:
+        if (!topic) return null
+        return (
+          <TronSignConfirmationModal
+            onConfirm={handleConfirmTronRequest}
+            onReject={handleRejectRequestAndClose}
+            state={
+              state as Required<
+                WalletConnectState<TronSignTransactionCallRequest | TronSignMessageCallRequest>
+              >
+            }
+            topic={topic}
+          />
+        )
       case WalletConnectModal.NoAccountsForChain:
         return <NoAccountsForChainModal onClose={handleClose} dispatch={dispatch} state={state} />
       default:
@@ -337,6 +374,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     handleConfirmSessionAuth,
     handleConfirmCosmosRequest,
     handleConfirmEIP155Request,
+    handleConfirmTronRequest,
     handleRejectRequestAndClose,
     state,
     topic,

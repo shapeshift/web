@@ -28,7 +28,12 @@ export enum CosmosSigningMethod {
   COSMOS_SIGN_AMINO = 'cosmos_signAmino',
 }
 
-export type KnownSigningMethod = EIP155_SigningMethod | CosmosSigningMethod
+export enum TronSigningMethod {
+  TRON_SIGN_TRANSACTION = 'tron_signTransaction',
+  TRON_SIGN_MESSAGE = 'tron_signMessage',
+}
+
+export type KnownSigningMethod = EIP155_SigningMethod | CosmosSigningMethod | TronSigningMethod
 
 export interface ModalData<T = WalletConnectRequest> {
   proposal?: WalletKitTypes.EventArguments['session_proposal']
@@ -105,6 +110,7 @@ export enum WalletConnectModal {
   SignEIP155TransactionConfirmation = 'signEIP155TransactionConfirmation',
   SendEIP155TransactionConfirmation = 'sendEIP155TransactionConfirmation',
   SendCosmosTransactionConfirmation = 'sendCosmosTransactionConfirmation',
+  SendTronTransactionConfirmation = 'sendTronTransactionConfirmation',
   NoAccountsForChain = 'noAccountsForChain',
 }
 
@@ -233,6 +239,24 @@ export type EthSignTypedDataCallRequest = {
   params: EthSignTypedDataCallRequestParams
 }
 
+export type TronSignTransactionCallRequestParams = {
+  transaction: Record<string, unknown>
+}
+
+export type TronSignTransactionCallRequest = {
+  method: TronSigningMethod.TRON_SIGN_TRANSACTION
+  params: TronSignTransactionCallRequestParams
+}
+
+export type TronSignMessageCallRequestParams = {
+  message: string
+}
+
+export type TronSignMessageCallRequest = {
+  method: TronSigningMethod.TRON_SIGN_MESSAGE
+  params: TronSignMessageCallRequestParams
+}
+
 export type WalletConnectRequest =
   | WalletSwitchEthereumChainCallRequest
   | WalletAddEthereumChainCallRequest
@@ -243,6 +267,8 @@ export type WalletConnectRequest =
   | EthSendTransactionCallRequest
   | CosmosSignDirectCallRequest
   | CosmosSignAminoCallRequest
+  | TronSignTransactionCallRequest
+  | TronSignMessageCallRequest
 
 export type EthSignParams =
   | EthSignCallRequest
@@ -256,6 +282,8 @@ export type RequestParams =
   | EthSignParams
   | CosmosSignDirectCallRequestParams
   | CosmosSignAminoCallRequestParams
+  | TronSignTransactionCallRequestParams
+  | TronSignMessageCallRequestParams
 
 export type ConfirmData = {
   nonce?: string

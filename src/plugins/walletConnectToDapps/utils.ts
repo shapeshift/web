@@ -140,6 +140,15 @@ export const getWalletAddressFromEthSignParams = (
   const paramsString = params ? JSON.stringify(params).toLowerCase() : undefined
   return addresses.find(address => paramsString?.includes(address.toLowerCase())) || ''
 }
+export const getWalletAccountFromTronParams = (
+  accountIds: AccountId[],
+  chainId: ChainId,
+): AccountId => {
+  return (
+    accountIds.find(accountId => fromAccountId(accountId).chainId === chainId) || ''
+  )
+}
+
 export const getChainIdFromDomain = (message: string): ChainId | undefined => {
   try {
     const parsed = JSON.parse(message)

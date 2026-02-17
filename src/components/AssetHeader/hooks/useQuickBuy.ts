@@ -14,7 +14,7 @@ import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
   selectFeeAssetById,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,
 } from '@/state/slices/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
@@ -92,8 +92,8 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
   )
 
   const feeAssetFilter = useMemo(() => ({ assetId: feeAsset?.assetId }), [feeAsset?.assetId])
-  const feeAssetBalanceCryptoPrecision = useAppSelector(s =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetFilter),
+  const feeAssetBalanceCryptoPrecision = useAppSelector(
+    s => selectPortfolioCryptoBalanceByFilter(s, feeAssetFilter)?.toPrecision() ?? '0',
   )
   const feeAssetBalanceUserCurrency = useAppSelector(
     state => selectPortfolioUserCurrencyBalanceByAssetId(state, feeAssetFilter) ?? '0',

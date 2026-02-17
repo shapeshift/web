@@ -80,9 +80,9 @@ export const TradeConfirmSummary = () => {
     if (!secondHopNetworkFeeCryptoBaseUnit) return undefined
     return BigAmount.fromBaseUnit({
       value: secondHopNetworkFeeCryptoBaseUnit,
-      precision: firstHopFeeAsset?.precision ?? 0,
+      precision: secondHopFeeAsset?.precision ?? 0,
     }).toPrecision()
-  }, [secondHopNetworkFeeCryptoBaseUnit, firstHopFeeAsset?.precision])
+  }, [secondHopNetworkFeeCryptoBaseUnit, secondHopFeeAsset?.precision])
 
   const networkFeeTooltipBody = useCallback(
     () => <RawText>{translate('trade.tooltip.minerFee')}</RawText>,

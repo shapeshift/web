@@ -1,5 +1,5 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
@@ -24,6 +24,9 @@ import {
   selectWalletConnectedChainIdsSorted,
 } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
+
+const isWcSupportedChainId = (chainId: string): boolean =>
+  isEvmChainId(chainId) || chainId.startsWith(`${CHAIN_NAMESPACE.Solana}:`)
 
 export const entries = Object.values(SessionProposalRoutes)
 
@@ -104,9 +107,11 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         return
       }
 
-      const evmChainIds = Object.keys(selectedAccountNumberAccountIdsByChainId).filter(isEvmChainId)
+      const supportedChainIds = Object.keys(selectedAccountNumberAccountIdsByChainId).filter(
+        isWcSupportedChainId,
+      )
       const orderedAccountIds = orderAccountIdsByBalance(
-        evmChainIds,
+        supportedChainIds,
         selectedAccountNumberAccountIdsByChainId,
       )
 
@@ -131,9 +136,9 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       (chainIds: ChainId[]) => {
         if (!selectedAccountNumberAccountIdsByChainId) return
 
-        const evmChainIds = chainIds.filter(isEvmChainId)
+        const supportedChainIds = chainIds.filter(isWcSupportedChainId)
         const orderedAccountIds = orderAccountIdsByBalance(
-          evmChainIds,
+          supportedChainIds,
           selectedAccountNumberAccountIdsByChainId,
         )
         setSelectedAccountIds(orderedAccountIds)

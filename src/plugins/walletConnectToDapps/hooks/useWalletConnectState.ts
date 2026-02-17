@@ -12,6 +12,7 @@ import {
   getSignParamsMessage,
   getWalletAccountFromCosmosParams,
   getWalletAccountFromEthParams,
+  getWalletAccountFromSolanaParams,
   getWalletAddressFromEthSignParams,
 } from '@/plugins/walletConnectToDapps/utils'
 import { selectPortfolioAccountMetadata } from '@/state/slices/portfolioSlice/selectors'
@@ -38,7 +39,8 @@ export const useWalletConnectState = (state: WalletConnectState) => {
       return getWalletAddressFromEthSignParams(connectedAccounts, requestParams)
     if (requestParams && isTransactionParamsArray(requestParams)) return requestParams[0].from
     if (requestParams && 'signerAddress' in requestParams) return requestParams.signerAddress
-    else return undefined
+    if (requestParams && 'pubkey' in requestParams) return requestParams.pubkey
+    return undefined
   }, [connectedAccounts, requestParams])
 
   const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
@@ -53,7 +55,9 @@ export const useWalletConnectState = (state: WalletConnectState) => {
       return getWalletAccountFromEthParams(connectedAccounts, requestParams, chainId)
     if (requestParams && 'signerAddress' in requestParams)
       return getWalletAccountFromCosmosParams(connectedAccounts, requestParams)
-    else return undefined
+    if (requestParams && 'pubkey' in requestParams)
+      return getWalletAccountFromSolanaParams(connectedAccounts, requestParams, chainId)
+    return undefined
   }, [connectedAccounts, requestParams, chainId])
 
   const accountMetadata = accountId ? accountMetadataById[accountId] : undefined

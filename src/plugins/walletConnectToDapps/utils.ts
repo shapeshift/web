@@ -19,6 +19,7 @@ import type {
   CosmosSignDirectCallRequestParams,
   CustomTransactionData,
   EthSignParams,
+  SolanaSignMessageCallRequestParams,
   TransactionParams,
   WalletConnectState,
 } from '@/plugins/walletConnectToDapps/types'
@@ -126,6 +127,27 @@ export const getWalletAccountFromCosmosParams = (
       accountId => paramsString?.includes(fromAccountId(accountId).account.toLowerCase()),
     ) || ''
   )
+}
+
+export const getWalletAccountFromSolanaParams = (
+  accountIds: AccountId[],
+  params: SolanaSignMessageCallRequestParams | { transaction: string },
+  chainId: ChainId,
+): AccountId => {
+  const pubkey = 'pubkey' in params ? params.pubkey : undefined
+
+  if (pubkey) {
+    const match = accountIds.find(accountId => {
+      const { account, chainId: acctChainId } = fromAccountId(accountId)
+      return account === pubkey && acctChainId === chainId
+    })
+    if (match) return match
+  }
+
+  const matchForChain = accountIds.find(
+    accountId => fromAccountId(accountId).chainId === chainId,
+  )
+  return matchForChain ?? ''
 }
 
 /**

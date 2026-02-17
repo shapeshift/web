@@ -14,6 +14,7 @@ import type {
 import {
   CosmosSigningMethod,
   EIP155_SigningMethod,
+  SolanaSigningMethod,
   WalletConnectActionType,
   WalletConnectModal,
 } from '@/plugins/walletConnectToDapps/types'
@@ -154,6 +155,17 @@ export const useWalletConnectEventsHandler = (
             type: WalletConnectActionType.SET_MODAL,
             payload: {
               modal: WalletConnectModal.SendCosmosTransactionConfirmation,
+              data: { requestEvent, requestSession: getRequestSession() },
+            },
+          })
+
+        case SolanaSigningMethod.SOLANA_SIGN_TRANSACTION:
+        case SolanaSigningMethod.SOLANA_SIGN_AND_SEND_TRANSACTION:
+        case SolanaSigningMethod.SOLANA_SIGN_MESSAGE:
+          return dispatch({
+            type: WalletConnectActionType.SET_MODAL,
+            payload: {
+              modal: WalletConnectModal.SendSolanaTransactionConfirmation,
               data: { requestEvent, requestSession: getRequestSession() },
             },
           })

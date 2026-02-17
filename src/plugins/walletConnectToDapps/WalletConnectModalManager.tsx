@@ -159,16 +159,27 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       return
     }
 
-    const response = await approveTronRequest({
-      wallet,
-      requestEvent,
-      accountMetadata,
-      accountId,
-    })
-    await web3wallet.respondSessionRequest({
-      topic,
-      response,
-    })
+    try {
+      const response = await approveTronRequest({
+        wallet,
+        requestEvent,
+        accountMetadata,
+        accountId,
+      })
+      await web3wallet.respondSessionRequest({
+        topic,
+        response,
+      })
+    } catch (e) {
+      console.error('Tron WC request failed:', e)
+      await web3wallet.respondSessionRequest({
+        topic,
+        response: formatJsonRpcError(
+          requestEvent.id,
+          (e as Error).message ?? 'Unknown error',
+        ),
+      })
+    }
     handleClose()
   }, [accountId, accountMetadata, chainId, handleClose, requestEvent, topic, wallet, web3wallet])
 

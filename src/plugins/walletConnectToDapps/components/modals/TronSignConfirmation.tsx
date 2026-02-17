@@ -40,15 +40,21 @@ export const TronSignConfirmationModal: FC<
   const request = state.modalData.requestEvent?.params.request
 
   const handleConfirm = useCallback(async () => {
-    setIsLoading(true)
-    await onConfirm()
-    setIsLoading(false)
+    try {
+      setIsLoading(true)
+      await onConfirm()
+    } finally {
+      setIsLoading(false)
+    }
   }, [onConfirm])
 
   const handleReject = useCallback(async () => {
-    setIsLoading(true)
-    await onReject()
-    setIsLoading(false)
+    try {
+      setIsLoading(true)
+      await onReject()
+    } finally {
+      setIsLoading(false)
+    }
   }, [onReject])
 
   const methodSpecificContent: JSX.Element | null = useMemo(() => {

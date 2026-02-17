@@ -389,6 +389,23 @@ export const katana: Readonly<Asset> = Object.freeze({
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 
+export const bobChain: Readonly<Asset> = Object.freeze({
+  assetId: caip.bobAssetId,
+  chainId: caip.bobChainId,
+  name: 'Ethereum',
+  networkName: 'BOB',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#5C6BC0',
+  networkColor: '#F25D00',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.coingecko.com/asset_platforms/images/203/small/bob.jpeg',
+  explorer: 'https://explorer.gobob.xyz',
+  explorerAddressLink: 'https://explorer.gobob.xyz/address/',
+  explorerTxLink: 'https://explorer.gobob.xyz/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
 export const solana: Readonly<Asset> = Object.freeze({
   assetId: caip.solAssetId,
   chainId: caip.solanaChainId,

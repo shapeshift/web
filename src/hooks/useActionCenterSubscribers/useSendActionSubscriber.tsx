@@ -11,6 +11,7 @@ import { GenericTransactionNotification } from '@/components/Layout/Header/Actio
 import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { getBobTransactionStatus } from '@/lib/utils/bob'
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getKatanaTransactionStatus } from '@/lib/utils/katana'
 import { getMegaEthTransactionStatus } from '@/lib/utils/megaeth'
@@ -214,6 +215,13 @@ export const useSendActionSubscriber = () => {
                   const katanaTxStatus = await getKatanaTransactionStatus(txHash, katanaNodeUrl)
                   isConfirmed =
                     katanaTxStatus === TxStatus.Confirmed || katanaTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.BobMainnet: {
+                  const bobNodeUrl = getConfig().VITE_BOB_NODE_URL
+                  const bobTxStatus = await getBobTransactionStatus(txHash, bobNodeUrl)
+                  isConfirmed =
+                    bobTxStatus === TxStatus.Confirmed || bobTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.NearMainnet: {

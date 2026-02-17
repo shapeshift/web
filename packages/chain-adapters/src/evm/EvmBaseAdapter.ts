@@ -11,6 +11,7 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
+  supportsBob,
   supportsBSC,
   supportsETH,
   supportsGnosis,
@@ -88,6 +89,7 @@ export const evmChainIds = [
   KnownChainIds.PlasmaMainnet,
   KnownChainIds.MegaEthMainnet,
   KnownChainIds.KatanaMainnet,
+  KnownChainIds.BobMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -192,6 +194,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsMegaEth(wallet)
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
+        case Number(fromChainId(KnownChainIds.BobMainnet).chainReference):
+          return supportsBob(wallet)
         default:
           return false
       }
@@ -288,6 +292,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://katanascan.com',
+      },
+      [KnownChainIds.BobMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://explorer.gobob.xyz',
       },
     }[this.chainId]
 

@@ -28,8 +28,8 @@ export const CosmosSignMessageConfirmationModal: FC<
   const { address, chainId } = useWalletConnectState(state)
   const peerMetadata = state.sessionsByTopic[topic]?.peer.metadata
 
-  const connectedAccountFeeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, chainId ?? ''),
+  const connectedAccountFeeAsset = useAppSelector(s =>
+    selectFeeAssetByChainId(s, chainId ?? ''),
   )
 
   const translate = useTranslate()

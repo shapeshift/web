@@ -150,6 +150,9 @@ export const useWalletConnectEventsHandler = (
         }
         case CosmosSigningMethod.COSMOS_GET_ACCOUNTS: {
           const cosmosAccounts = session?.namespaces?.cosmos?.accounts ?? []
+          // Best-effort: pubkey should be a base64-encoded secp256k1 public key, but we
+          // only have the bech32 address here. Falls back to address which is semantically
+          // wrong but allows dApps that don't strictly validate the pubkey field to work.
           const accounts = cosmosAccounts.map(caip10 => {
             const { account } = fromAccountId(caip10)
             return { address: account, algo: 'secp256k1', pubkey: account }

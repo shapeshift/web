@@ -56,6 +56,9 @@ export const approveCosmosRequest = async ({
         return null
       })()
 
+      // Best-effort: pubkey should be a base64-encoded secp256k1 public key, but not all
+      // wallets expose it. Falls back to bech32 address which is semantically wrong but
+      // allows dApps that don't strictly validate the pubkey field to still work.
       return formatJsonRpcResult(id, [
         {
           address,
@@ -94,7 +97,7 @@ export const approveCosmosRequest = async ({
     }
 
     case CosmosSigningMethod.COSMOS_SIGN_DIRECT: {
-      throw new Error('cosmos_signDirect is not yet supported')
+      throw new Error('cosmos_signDirect is not yet supported - use cosmos_signAmino instead')
     }
 
     default:

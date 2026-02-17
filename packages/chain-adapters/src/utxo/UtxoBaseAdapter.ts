@@ -377,8 +377,8 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
           vout: input.vout,
           txid: input.txid,
           hex: data.hex,
-          // BIP-125: Opt-in RBF for Bitcoin transactions (sequence < 0xffffffff signals replaceability)
-          ...(this.chainId === KnownChainIds.BitcoinMainnet && { sequence: 0xfffffffe }),
+          // BIP-125: Opt-in RBF for Bitcoin transactions (sequence < 0xfffffffe signals replaceability)
+          ...(this.chainId === KnownChainIds.BitcoinMainnet && { sequence: 0xfffffffd }),
           // For Zcash, we need to pass the blockHeight and txid of each input transaction
           // so Ledger can add them to the PSBT and determine the correct consensus branch ID.
           // Only pass blockHeight if it's a valid positive number (mempool txs have blockHeight: -1)

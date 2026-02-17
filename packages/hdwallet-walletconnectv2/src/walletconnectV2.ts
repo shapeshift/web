@@ -36,7 +36,11 @@ import type {
   SolanaWallet,
   SolanaWalletInfo,
 } from '@shapeshiftoss/hdwallet-core'
-import { slip44ByCoin } from '@shapeshiftoss/hdwallet-core'
+import {
+  slip44ByCoin,
+  solanaDescribePath,
+  solanaGetAccountPaths,
+} from '@shapeshiftoss/hdwallet-core'
 import type EthereumProvider from '@walletconnect/ethereum-provider'
 import isObject from 'lodash/isObject'
 
@@ -56,14 +60,7 @@ import {
   ethSignTypedData,
   ethVerifyMessage,
 } from './ethereum'
-import {
-  describeSolanaPath,
-  solanaGetAddress,
-  solanaNextAccountPath,
-  solanaSendTx,
-  solanaSignTx,
-  solanaWcGetAccountPaths,
-} from './solana'
+import { solanaGetAddress, solanaSendTx, solanaSignTx } from './solana'
 
 const COSMOS_OPTIONAL_NAMESPACE = {
   chains: ['cosmos:cosmoshub-4'],
@@ -148,7 +145,7 @@ export class WalletConnectV2WalletInfo
       case 'Atom':
         return describeCosmosPath(msg.path)
       case 'Solana':
-        return describeSolanaPath(msg.path)
+        return solanaDescribePath(msg.path)
       default:
         throw new Error('Unsupported path')
     }
@@ -196,11 +193,11 @@ export class WalletConnectV2WalletInfo
   }
 
   public solanaGetAccountPaths(msg: SolanaGetAccountPaths): SolanaAccountPath[] {
-    return solanaWcGetAccountPaths(msg)
+    return solanaGetAccountPaths(msg)
   }
 
   public solanaNextAccountPath(_msg: SolanaAccountPath): SolanaAccountPath | undefined {
-    return solanaNextAccountPath(_msg)
+    return undefined
   }
 }
 
@@ -555,14 +552,12 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
   }
 
   public async solanaSignTx(msg: SolanaSignTx): Promise<SolanaSignedTx | null> {
-    const address = this.solanaAddress ?? (await solanaGetAddress(this.provider, msg))
-    if (!address) throw new Error('No solana address')
-    return solanaSignTx(this.provider, msg, address)
+    if (!this.solanaAddress) throw new Error('No solana address')
+    return solanaSignTx(this.provider, msg, this.solanaAddress)
   }
 
   public async solanaSendTx(msg: SolanaSignTx): Promise<SolanaTxSignature | null> {
-    const address = this.solanaAddress ?? (await solanaGetAddress(this.provider, msg))
-    if (!address) throw new Error('No solana address')
-    return solanaSendTx(this.provider, msg, address)
+    if (!this.solanaAddress) throw new Error('No solana address')
+    return solanaSendTx(this.provider, msg, this.solanaAddress)
   }
 }

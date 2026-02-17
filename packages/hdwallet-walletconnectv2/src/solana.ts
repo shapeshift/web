@@ -1,31 +1,18 @@
 import type {
-  PathDescription,
-  SolanaAccountPath,
-  SolanaGetAccountPaths,
   SolanaGetAddress,
   SolanaSignedTx,
   SolanaSignTx,
   SolanaTxSignature,
 } from '@shapeshiftoss/hdwallet-core'
-import {
-  solanaBuildTransaction,
-  solanaDescribePath,
-  solanaGetAccountPaths,
-} from '@shapeshiftoss/hdwallet-core'
+import { solanaBuildTransaction } from '@shapeshiftoss/hdwallet-core'
+import { VersionedTransaction } from '@solana/web3.js'
 import type EthereumProvider from '@walletconnect/ethereum-provider'
 
 const SOLANA_MAINNET_CAIP2 = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'
 
-export function describeSolanaPath(path: number[]): PathDescription {
-  return solanaDescribePath(path)
-}
-
-export function solanaWcGetAccountPaths(msg: SolanaGetAccountPaths): SolanaAccountPath[] {
-  return solanaGetAccountPaths(msg)
-}
-
-export function solanaNextAccountPath(_msg: SolanaAccountPath): SolanaAccountPath | undefined {
-  return undefined
+function buildSerializedTransaction(msg: SolanaSignTx, address: string): string {
+  const transaction = solanaBuildTransaction(msg, address)
+  return Buffer.from(transaction.serialize()).toString('base64')
 }
 
 export async function solanaGetAddress(
@@ -54,8 +41,7 @@ export async function solanaSignTx(
   address: string,
 ): Promise<SolanaSignedTx | null> {
   try {
-    const transaction = solanaBuildTransaction(msg, address)
-    const serializedTx = Buffer.from(transaction.serialize()).toString('base64')
+    const serializedTx = buildSerializedTransaction(msg, address)
 
     const result = await provider.signer.request<{ transaction: string }>(
       {
@@ -67,9 +53,6 @@ export async function solanaSignTx(
 
     if (!result?.transaction) return null
 
-    // The WC wallet returns the fully signed transaction as base64
-    // We need to deserialize it to extract signatures
-    const { VersionedTransaction } = await import('@solana/web3.js')
     const signedTx = VersionedTransaction.deserialize(Buffer.from(result.transaction, 'base64'))
 
     return {
@@ -88,8 +71,7 @@ export async function solanaSendTx(
   address: string,
 ): Promise<SolanaTxSignature | null> {
   try {
-    const transaction = solanaBuildTransaction(msg, address)
-    const serializedTx = Buffer.from(transaction.serialize()).toString('base64')
+    const serializedTx = buildSerializedTransaction(msg, address)
 
     const result = await provider.signer.request<{ signature: string }>(
       {

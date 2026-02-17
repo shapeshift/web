@@ -27,6 +27,14 @@ import type {
   Ping,
   Pong,
   PublicKey,
+  SolanaAccountPath,
+  SolanaGetAccountPaths,
+  SolanaGetAddress,
+  SolanaSignedTx,
+  SolanaSignTx,
+  SolanaTxSignature,
+  SolanaWallet,
+  SolanaWalletInfo,
 } from '@shapeshiftoss/hdwallet-core'
 import { slip44ByCoin } from '@shapeshiftoss/hdwallet-core'
 import type EthereumProvider from '@walletconnect/ethereum-provider'
@@ -48,10 +56,29 @@ import {
   ethSignTypedData,
   ethVerifyMessage,
 } from './ethereum'
+import {
+  describeSolanaPath,
+  solanaGetAddress,
+  solanaNextAccountPath,
+  solanaSendTx,
+  solanaSignTx,
+  solanaWcGetAccountPaths,
+} from './solana'
 
 const COSMOS_OPTIONAL_NAMESPACE = {
   chains: ['cosmos:cosmoshub-4'],
   methods: ['cosmos_getAccounts', 'cosmos_signAmino', 'cosmos_signDirect'],
+  events: [],
+}
+
+const SOLANA_OPTIONAL_NAMESPACE = {
+  chains: ['solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'],
+  methods: [
+    'solana_signTransaction',
+    'solana_signAndSendTransaction',
+    'solana_signMessage',
+    'solana_signAllTransactions',
+  ],
   events: [],
 }
 
@@ -71,10 +98,13 @@ export function isWalletConnectV2(wallet: HDWallet): wallet is WalletConnectV2HD
  * - eth_sendRawTransaction
  * @see https://specs.walletconnect.com/2.0/blockchain-rpc/ethereum-rpc
  */
-export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, CosmosWalletInfo {
+export class WalletConnectV2WalletInfo
+  implements HDWalletInfo, ETHWalletInfo, CosmosWalletInfo, SolanaWalletInfo
+{
   readonly _supportsETHInfo = true
   readonly _supportsBTCInfo = false
   readonly _supportsCosmosInfo = true
+  readonly _supportsSolanaInfo = true
   public getVendor(): string {
     return 'WalletConnectV2'
   }
@@ -117,6 +147,8 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, C
         return describeETHPath(msg.path)
       case 'Atom':
         return describeCosmosPath(msg.path)
+      case 'Solana':
+        return describeSolanaPath(msg.path)
       default:
         throw new Error('Unsupported path')
     }
@@ -162,14 +194,23 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, C
   public cosmosNextAccountPath(_msg: CosmosAccountPath): CosmosAccountPath | undefined {
     return cosmosNextAccountPath(_msg)
   }
+
+  public solanaGetAccountPaths(msg: SolanaGetAccountPaths): SolanaAccountPath[] {
+    return solanaWcGetAccountPaths(msg)
+  }
+
+  public solanaNextAccountPath(_msg: SolanaAccountPath): SolanaAccountPath | undefined {
+    return solanaNextAccountPath(_msg)
+  }
 }
 
-export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWallet {
+export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWallet, SolanaWallet {
   readonly _supportsETH = true
   readonly _supportsETHInfo = true
   readonly _supportsBTCInfo = false
   readonly _supportsBTC = false
   readonly _supportsCosmosInfo = true
+  readonly _supportsSolanaInfo = true
   readonly _isWalletConnectV2 = true
   readonly _supportsEthSwitchChain = true
   readonly _supportsAvalanche = true
@@ -193,9 +234,14 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
   accounts: string[] = []
   ethAddress: Address | undefined
   cosmosAddress: string | undefined
+  solanaAddress: string | undefined
 
   get _supportsCosmos(): boolean {
     return !!this.provider.session?.namespaces?.cosmos
+  }
+
+  get _supportsSolana(): boolean {
+    return !!this.provider.session?.namespaces?.solana
   }
 
   constructor(provider: EthereumProvider) {
@@ -213,6 +259,7 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
         optionalNamespaces: {
           ...params.optionalNamespaces,
           cosmos: COSMOS_OPTIONAL_NAMESPACE,
+          solana: SOLANA_OPTIONAL_NAMESPACE,
         },
       })
     }
@@ -483,5 +530,39 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
 
   public async cosmosSignTx(msg: CosmosSignTx): Promise<CosmosSignedTx | null> {
     return cosmosSignTx(this.provider, msg)
+  }
+
+  // -- Solana Methods --
+
+  public solanaGetAccountPaths(msg: SolanaGetAccountPaths): SolanaAccountPath[] {
+    return this.info.solanaGetAccountPaths(msg)
+  }
+
+  public solanaNextAccountPath(msg: SolanaAccountPath): SolanaAccountPath | undefined {
+    return this.info.solanaNextAccountPath(msg)
+  }
+
+  public async solanaGetAddress(msg: SolanaGetAddress): Promise<string | null> {
+    if (this.solanaAddress) {
+      return this.solanaAddress
+    }
+    const address = await solanaGetAddress(this.provider, msg)
+    if (address) {
+      this.solanaAddress = address
+      return address
+    }
+    return null
+  }
+
+  public async solanaSignTx(msg: SolanaSignTx): Promise<SolanaSignedTx | null> {
+    const address = this.solanaAddress ?? (await solanaGetAddress(this.provider, msg))
+    if (!address) throw new Error('No solana address')
+    return solanaSignTx(this.provider, msg, address)
+  }
+
+  public async solanaSendTx(msg: SolanaSignTx): Promise<SolanaTxSignature | null> {
+    const address = this.solanaAddress ?? (await solanaGetAddress(this.provider, msg))
+    if (!address) throw new Error('No solana address')
+    return solanaSendTx(this.provider, msg, address)
   }
 }

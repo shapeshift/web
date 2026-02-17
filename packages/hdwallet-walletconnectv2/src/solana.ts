@@ -7,7 +7,11 @@ import type {
   SolanaSignTx,
   SolanaTxSignature,
 } from '@shapeshiftoss/hdwallet-core'
-import { solanaBuildTransaction, solanaDescribePath, solanaGetAccountPaths } from '@shapeshiftoss/hdwallet-core'
+import {
+  solanaBuildTransaction,
+  solanaDescribePath,
+  solanaGetAccountPaths,
+} from '@shapeshiftoss/hdwallet-core'
 import type EthereumProvider from '@walletconnect/ethereum-provider'
 
 const SOLANA_MAINNET_CAIP2 = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'

@@ -345,7 +345,7 @@
         "marketCapRank": "Market Cap Rank",
         "volume24h": "24h Volume",
         "volMcap": "Vol/MCap",
-        "about": "About",
+        "about":  "About %{symbol}",
         "noDescription": "No description available for this asset."
       },
       "receive": {

@@ -13583,7 +13583,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/hdwallet-walletconnectv2@workspace:packages/hdwallet-walletconnectv2"
   dependencies:
+    "@cosmjs/amino": ^0.28.13
+    "@cosmjs/stargate": ^0.28.13
     "@shapeshiftoss/hdwallet-core": "workspace:^"
+    "@shapeshiftoss/proto-tx-builder": 0.10.0
     "@walletconnect/ethereum-provider": ^2.20.2
     "@walletconnect/modal": ^2.6.2
     ethers: ^5.6.5

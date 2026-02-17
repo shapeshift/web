@@ -13,8 +13,7 @@ const DEFAULT_EIP155_METHODS = Object.values(EIP155_SigningMethod).filter(
 const DEFAULT_BIP122_METHODS = Object.values(BIP122SigningMethod)
 const DEFAULT_BIP122_EVENTS: string[] = []
 
-const isBip122ChainId = (chainId: string): boolean =>
-  chainId.startsWith(`${CHAIN_NAMESPACE.Utxo}:`)
+const isBip122ChainId = (chainId: string): boolean => chainId.startsWith(`${CHAIN_NAMESPACE.Utxo}:`)
 
 const getDefaultMethods = (key: string): string[] => {
   switch (key) {

@@ -57,21 +57,6 @@ export const approveBIP122Request = async ({
       throw new Error('sendTransfer is not yet fully supported')
     }
 
-    case BIP122SigningMethod.BIP122_GET_ACCOUNT_ADDRESSES: {
-      const address = await wallet.btcGetAddress({
-        addressNList: DEFAULT_BTC_ADDRESS_N_LIST,
-        coin: 'Bitcoin',
-        scriptType: BTCInputScriptType.SpendWitness,
-        showDisplay: false,
-      })
-
-      if (!address) {
-        throw new Error('Failed to get Bitcoin address')
-      }
-
-      return formatJsonRpcResult(id, [{ address }])
-    }
-
     default:
       throw new Error(getSdkError('INVALID_METHOD').message)
   }

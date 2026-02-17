@@ -107,8 +107,9 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         return
       }
 
-      const supportedChainIds =
-        Object.keys(selectedAccountNumberAccountIdsByChainId).filter(isWcSupportedChainId)
+      const supportedChainIds = Object.keys(selectedAccountNumberAccountIdsByChainId).filter(
+        isWcSupportedChainId,
+      )
       const orderedAccountIds = orderAccountIdsByBalance(
         supportedChainIds,
         selectedAccountNumberAccountIdsByChainId,

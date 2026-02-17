@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 
 import {
+  isBip122AccountParams,
   isEthSignParams,
   isSignRequest,
   isSignTypedRequest,
@@ -39,9 +40,8 @@ export const useWalletConnectState = (state: WalletConnectState) => {
       return getWalletAddressFromEthSignParams(connectedAccounts, requestParams)
     if (requestParams && isTransactionParamsArray(requestParams)) return requestParams[0].from
     if (requestParams && 'signerAddress' in requestParams) return requestParams.signerAddress
-    if (requestParams && 'account' in requestParams) {
-      const account = (requestParams as { account: string }).account
-      return account
+    if (requestParams && isBip122AccountParams(requestParams)) {
+      return requestParams.account
     }
     return undefined
   }, [connectedAccounts, requestParams])
@@ -58,11 +58,8 @@ export const useWalletConnectState = (state: WalletConnectState) => {
       return getWalletAccountFromEthParams(connectedAccounts, requestParams, chainId)
     if (requestParams && 'signerAddress' in requestParams)
       return getWalletAccountFromCosmosParams(connectedAccounts, requestParams)
-    if (requestParams && 'account' in requestParams)
-      return getWalletAccountFromBip122Params(
-        connectedAccounts,
-        requestParams as { account: string },
-      )
+    if (requestParams && isBip122AccountParams(requestParams))
+      return getWalletAccountFromBip122Params(connectedAccounts, requestParams)
     return undefined
   }, [connectedAccounts, requestParams, chainId])
 

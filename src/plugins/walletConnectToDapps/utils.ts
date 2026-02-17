@@ -134,9 +134,7 @@ export const getWalletAccountFromBip122Params = (
 ): AccountId => {
   const paramsAccount = params.account
   return (
-    accountIds.find(
-      accountId => paramsAccount?.includes(fromAccountId(accountId).account),
-    ) || ''
+    accountIds.find(accountId => paramsAccount?.includes(fromAccountId(accountId).account)) || ''
   )
 }
 

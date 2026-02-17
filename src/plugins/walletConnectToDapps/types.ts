@@ -267,9 +267,13 @@ export type BIP122SignMessageCallRequest = {
   params: BIP122SignMessageCallRequestParams
 }
 
+export type BIP122GetAccountAddressesCallRequestParams = {
+  account: string
+}
+
 export type BIP122GetAccountAddressesCallRequest = {
   method: BIP122SigningMethod.BIP122_GET_ACCOUNT_ADDRESSES
-  params: { account: string }
+  params: BIP122GetAccountAddressesCallRequestParams
 }
 
 type EthSignTypedDataCallRequestParams = [account: string, message: string]
@@ -311,6 +315,7 @@ export type RequestParams =
   | BIP122SendTransferCallRequestParams
   | BIP122SignPsbtCallRequestParams
   | BIP122SignMessageCallRequestParams
+  | BIP122GetAccountAddressesCallRequestParams
 
 export type ConfirmData = {
   nonce?: string

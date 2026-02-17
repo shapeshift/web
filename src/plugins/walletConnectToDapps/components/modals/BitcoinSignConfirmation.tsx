@@ -34,9 +34,7 @@ export const BitcoinSignConfirmationModal: FC<
   const { address, chainId } = useWalletConnectState(state)
   const peerMetadata = state.sessionsByTopic[topic]?.peer.metadata
 
-  const connectedAccountFeeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, chainId ?? ''),
-  )
+  const connectedAccountFeeAsset = useAppSelector(s => selectFeeAssetByChainId(s, chainId ?? ''))
 
   const translate = useTranslate()
   const walletInfo = useWallet().state.walletInfo
@@ -74,7 +72,8 @@ export const BitcoinSignConfirmationModal: FC<
           </RawText>
         </Box>
       )
-    } else if (request?.method === BIP122SigningMethod.BIP122_SEND_TRANSFER) {
+    }
+    if (request?.method === BIP122SigningMethod.BIP122_SEND_TRANSFER) {
       const { recipientAddress, amount, memo } =
         request.params as BIP122SendTransferCallRequestParams
       return (
@@ -111,7 +110,8 @@ export const BitcoinSignConfirmationModal: FC<
           )}
         </Box>
       )
-    } else if (request?.method === BIP122SigningMethod.BIP122_SIGN_PSBT) {
+    }
+    if (request?.method === BIP122SigningMethod.BIP122_SIGN_PSBT) {
       const { psbt, broadcast } = request.params as BIP122SignPsbtCallRequestParams
       const truncatedPsbt = psbt.length > 100 ? `${psbt.slice(0, 100)}...` : psbt
       return (
@@ -130,7 +130,8 @@ export const BitcoinSignConfirmationModal: FC<
           </RawText>
         </Box>
       )
-    } else return null
+    }
+    return null
   }, [request?.method, request?.params, translate])
 
   if (!peerMetadata) return null

@@ -12,6 +12,7 @@ import type {
   WalletSwitchEthereumChainParams,
 } from '@/plugins/walletConnectToDapps/types'
 import {
+  BIP122SigningMethod,
   CosmosSigningMethod,
   EIP155_SigningMethod,
   WalletConnectActionType,
@@ -157,6 +158,29 @@ export const useWalletConnectEventsHandler = (
               data: { requestEvent, requestSession: getRequestSession() },
             },
           })
+
+        case BIP122SigningMethod.BIP122_SEND_TRANSFER:
+        case BIP122SigningMethod.BIP122_SIGN_PSBT:
+        case BIP122SigningMethod.BIP122_SIGN_MESSAGE:
+          return dispatch({
+            type: WalletConnectActionType.SET_MODAL,
+            payload: {
+              modal: WalletConnectModal.SendBitcoinTransactionConfirmation,
+              data: { requestEvent, requestSession: getRequestSession() },
+            },
+          })
+
+        case BIP122SigningMethod.BIP122_GET_ACCOUNT_ADDRESSES: {
+          const bip122Accounts = session?.namespaces?.bip122?.accounts ?? []
+          const addresses = bip122Accounts.map(caip10 => {
+            const { account } = fromAccountId(caip10)
+            return { address: account }
+          })
+          return web3wallet?.respondSessionRequest({
+            topic,
+            response: formatJsonRpcResult(requestEvent.id, addresses),
+          })
+        }
 
         default:
           return

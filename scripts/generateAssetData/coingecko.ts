@@ -8,6 +8,7 @@ import {
   bscChainId,
   ethChainId,
   gnosisChainId,
+  hemiChainId,
   hyperEvmChainId,
   katanaChainId,
   megaethChainId,
@@ -31,6 +32,7 @@ import {
   bnbsmartchain,
   ethereum,
   gnosis,
+  hemi,
   hyperevm,
   katana,
   megaeth,
@@ -172,6 +174,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: katana.explorer,
           explorerAddressLink: katana.explorerAddressLink,
           explorerTxLink: katana.explorerTxLink,
+        }
+      case hemiChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: hemi.explorer,
+          explorerAddressLink: hemi.explorerAddressLink,
+          explorerTxLink: hemi.explorerTxLink,
         }
       case solanaChainId:
         return {

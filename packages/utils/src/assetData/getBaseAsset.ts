@@ -14,6 +14,7 @@ import {
   dogecoin,
   ethereum,
   gnosis,
+  hemi,
   hyperevm,
   katana,
   litecoin,
@@ -84,6 +85,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return megaeth
     case KnownChainIds.KatanaMainnet:
       return katana
+    case KnownChainIds.HemiMainnet:
+      return hemi
     case KnownChainIds.NearMainnet:
       return near
     case KnownChainIds.ZcashMainnet:

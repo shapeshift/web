@@ -389,6 +389,23 @@ export const katana: Readonly<Asset> = Object.freeze({
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 
+export const hemi: Readonly<Asset> = Object.freeze({
+  assetId: caip.hemiAssetId,
+  chainId: caip.hemiChainId,
+  name: 'Ethereum',
+  networkName: 'Hemi',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#FF6B35',
+  networkColor: '#FF6B35',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.relay.link/icons/43111/light.png',
+  explorer: 'https://explorer.hemi.xyz',
+  explorerAddressLink: 'https://explorer.hemi.xyz/address/',
+  explorerTxLink: 'https://explorer.hemi.xyz/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
 export const solana: Readonly<Asset> = Object.freeze({
   assetId: caip.solAssetId,
   chainId: caip.solanaChainId,

@@ -8,6 +8,7 @@ import cosmos from '@/plugins/cosmos'
 import dogecoin from '@/plugins/dogecoin'
 import ethereum from '@/plugins/ethereum'
 import gnosis from '@/plugins/gnosis'
+import hemi from '@/plugins/hemi'
 import hyperevm from '@/plugins/hyperevm'
 import katana from '@/plugins/katana'
 import litecoin from '@/plugins/litecoin'
@@ -39,6 +40,7 @@ export const activePlugins = [
   dogecoin,
   ethereum,
   gnosis,
+  hemi,
   hyperevm,
   katana,
   litecoin,

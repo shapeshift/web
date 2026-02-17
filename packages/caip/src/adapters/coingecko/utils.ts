@@ -24,6 +24,8 @@ import {
   ethChainId,
   gnosisAssetId,
   gnosisChainId,
+  hemiAssetId,
+  hemiChainId,
   hyperEvmAssetId,
   hyperEvmChainId,
   katanaAssetId,
@@ -303,6 +305,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Hemi)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.HemiMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Hemi],
+          })
+          prev[hemiChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Starknet)) {
         try {
           const assetId = toAssetId({
@@ -361,6 +377,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [plasmaChainId]: { [plasmaAssetId]: 'plasma' },
       [megaethChainId]: { [megaethAssetId]: 'ethereum' },
       [katanaChainId]: { [katanaAssetId]: 'katana' },
+      [hemiChainId]: { [hemiAssetId]: 'ethereum' },
       [solanaChainId]: { [solAssetId]: 'solana' },
       [starknetChainId]: { [starknetAssetId]: 'starknet' },
       [tronChainId]: { [tronAssetId]: 'tron' },

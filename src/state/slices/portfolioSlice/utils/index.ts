@@ -15,6 +15,7 @@ import {
   fromAssetId,
   fromChainId,
   gnosisChainId,
+  hemiChainId,
   hyperEvmChainId,
   isNft,
   katanaChainId,
@@ -50,6 +51,7 @@ import {
   supportsCosmos,
   supportsETH,
   supportsGnosis,
+  supportsHemi,
   supportsHyperEvm,
   supportsKatana,
   supportsMayachain,
@@ -101,6 +103,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case bscChainId:
     case arbitrumChainId:
     case baseChainId:
+    case hemiChainId:
     case hyperEvmChainId:
     case megaethChainId:
     case katanaChainId:
@@ -513,6 +516,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsPlasma(wallet)
     case katanaChainId:
       return supportsKatana(wallet)
+    case hemiChainId:
+      return supportsHemi(wallet)
     case tronChainId:
       return supportsTron(wallet)
     case nearChainId:

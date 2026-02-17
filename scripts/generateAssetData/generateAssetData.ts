@@ -32,6 +32,7 @@ import { ASSET_DATA_PATH, GENERATED_DIR, RELATED_ASSET_INDEX_PATH } from './cons
 import * as ethereum from './ethereum'
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
 import * as gnosis from './gnosis'
+import * as hemi from './hemi'
 import * as hyperevm from './hyperevm'
 import * as katana from './katana'
 import * as megaeth from './megaeth'
@@ -71,6 +72,7 @@ const generateAssetData = async () => {
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
+  const hemiAssets = await hemi.getAssets()
   const megaethAssets = await megaeth.getAssets()
   const plasmaAssets = await plasma.getAssets()
   const solanaAssets = await solana.getAssets()
@@ -104,6 +106,7 @@ const generateAssetData = async () => {
     ...monadAssets,
     ...hyperevmAssets,
     ...katanaAssets,
+    ...hemiAssets,
     ...megaethAssets,
     ...plasmaAssets,
     ...solanaAssets,

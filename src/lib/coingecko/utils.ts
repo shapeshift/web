@@ -10,6 +10,7 @@ import {
   dogeChainId,
   ethChainId,
   gnosisChainId,
+  hemiChainId,
   katanaChainId,
   ltcChainId,
   mayachainChainId,
@@ -213,6 +214,7 @@ export const getCoingeckoSupportedChainIds = () => {
     dogeChainId,
     zecChainId,
     ...(getConfig().VITE_FEATURE_KATANA ? [katanaChainId] : []),
+    ...(getConfig().VITE_FEATURE_HEMI ? [hemiChainId] : []),
     ...(getConfig().VITE_FEATURE_TON ? [tonChainId] : []),
   ]
 }

@@ -1,6 +1,17 @@
 import type {
   AddEthereumChainParameter,
   Address,
+  BTCAccountPath,
+  BTCGetAccountPaths,
+  BTCGetAddress,
+  BTCInputScriptType,
+  BTCSignedMessage,
+  BTCSignedTx,
+  BTCSignMessage,
+  BTCSignTx,
+  BTCVerifyMessage,
+  BTCWallet,
+  BTCWalletInfo,
   Coin,
   DescribePath,
   ETHAccountPath,
@@ -26,6 +37,15 @@ import type EthereumProvider from '@walletconnect/ethereum-provider'
 import isObject from 'lodash/isObject'
 
 import {
+  btcGetAccountPaths,
+  btcGetAddress,
+  btcNextAccountPath,
+  btcSignMessage,
+  btcSignTx,
+  btcVerifyMessage,
+  describeBTCPath,
+} from './bitcoin'
+import {
   describeETHPath,
   ethGetAddress,
   ethSendTx,
@@ -34,6 +54,12 @@ import {
   ethSignTypedData,
   ethVerifyMessage,
 } from './ethereum'
+
+const BIP122_OPTIONAL_NAMESPACE = {
+  chains: ['bip122:000000000019d6689c085ae165831e93'],
+  methods: ['sendTransfer', 'signPsbt', 'signMessage', 'getAccountAddresses'],
+  events: ['bip122_addressesChanged'],
+}
 
 export function isWalletConnectV2(wallet: HDWallet): wallet is WalletConnectV2HDWallet {
   return isObject(wallet) && (wallet as any)._isWalletConnectV2
@@ -51,9 +77,9 @@ export function isWalletConnectV2(wallet: HDWallet): wallet is WalletConnectV2HD
  * - eth_sendRawTransaction
  * @see https://specs.walletconnect.com/2.0/blockchain-rpc/ethereum-rpc
  */
-export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo {
+export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalletInfo {
   readonly _supportsETHInfo = true
-  readonly _supportsBTCInfo = false
+  readonly _supportsBTCInfo = true
   public getVendor(): string {
     return 'WalletConnectV2'
   }
@@ -94,6 +120,12 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo {
     switch (msg.coin) {
       case 'Ethereum':
         return describeETHPath(msg.path)
+      case 'Bitcoin':
+        return describeBTCPath(
+          msg.path,
+          msg.coin,
+          msg.scriptType ?? ('p2wpkh' as BTCInputScriptType),
+        )
       default:
         throw new Error('Unsupported path')
     }
@@ -131,13 +163,41 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo {
       },
     ]
   }
+
+  public async btcSupportsCoin(coin: Coin): Promise<boolean> {
+    return coin === 'Bitcoin'
+  }
+
+  public async btcSupportsScriptType(
+    coin: Coin,
+    scriptType?: BTCInputScriptType,
+  ): Promise<boolean> {
+    if (coin !== 'Bitcoin') return false
+    if (!scriptType) return true
+    return ['p2wpkh', 'p2sh-p2wpkh', 'p2pkh'].includes(scriptType)
+  }
+
+  public async btcSupportsSecureTransfer(): Promise<boolean> {
+    return false
+  }
+
+  public btcSupportsNativeShapeShift(): boolean {
+    return false
+  }
+
+  public btcGetAccountPaths(msg: BTCGetAccountPaths): BTCAccountPath[] {
+    return btcGetAccountPaths(msg)
+  }
+
+  public btcNextAccountPath(msg: BTCAccountPath): BTCAccountPath | undefined {
+    return btcNextAccountPath(msg)
+  }
 }
 
-export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
+export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, BTCWallet {
   readonly _supportsETH = true
   readonly _supportsETHInfo = true
-  readonly _supportsBTCInfo = false
-  readonly _supportsBTC = false
+  readonly _supportsBTCInfo = true
   readonly _isWalletConnectV2 = true
   readonly _supportsEthSwitchChain = true
   readonly _supportsAvalanche = true
@@ -160,10 +220,30 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
   chainId: number | undefined
   accounts: string[] = []
   ethAddress: Address | undefined
+  btcAddress: string | undefined
+
+  get _supportsBTC(): boolean {
+    return !!this.provider.session?.namespaces?.bip122
+  }
 
   constructor(provider: EthereumProvider) {
     this.provider = provider
     this.info = new WalletConnectV2WalletInfo()
+    this.patchSignerForNonEvmNamespaces()
+  }
+
+  private patchSignerForNonEvmNamespaces(): void {
+    const signer = this.provider.signer
+    const originalConnect = signer.connect.bind(signer)
+    signer.connect = async (params: Parameters<typeof signer.connect>[0]) => {
+      return originalConnect({
+        ...params,
+        optionalNamespaces: {
+          ...params.optionalNamespaces,
+          bip122: BIP122_OPTIONAL_NAMESPACE,
+        },
+      })
+    }
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -279,7 +359,6 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
   }
 
   public async getPublicKeys(): Promise<(PublicKey | null)[]> {
-    // Ethereum public keys are not exposed by the RPC API
     return []
   }
 
@@ -405,5 +484,58 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
     })
 
     this.chainId = parsedChainId
+  }
+
+  // -- BTC Methods --
+
+  public async btcSupportsCoin(coin: Coin): Promise<boolean> {
+    return this.info.btcSupportsCoin(coin)
+  }
+
+  public async btcSupportsScriptType(
+    coin: Coin,
+    scriptType?: BTCInputScriptType,
+  ): Promise<boolean> {
+    return this.info.btcSupportsScriptType(coin, scriptType)
+  }
+
+  public async btcSupportsSecureTransfer(): Promise<boolean> {
+    return this.info.btcSupportsSecureTransfer()
+  }
+
+  public btcSupportsNativeShapeShift(): boolean {
+    return this.info.btcSupportsNativeShapeShift()
+  }
+
+  public btcGetAccountPaths(msg: BTCGetAccountPaths): BTCAccountPath[] {
+    return this.info.btcGetAccountPaths(msg)
+  }
+
+  public btcNextAccountPath(msg: BTCAccountPath): BTCAccountPath | undefined {
+    return this.info.btcNextAccountPath(msg)
+  }
+
+  public async btcGetAddress(msg: BTCGetAddress): Promise<string | null> {
+    if (this.btcAddress) {
+      return this.btcAddress
+    }
+    const address = await btcGetAddress(this.provider, msg)
+    if (address) {
+      this.btcAddress = address
+      return address
+    }
+    return null
+  }
+
+  public async btcSignTx(msg: BTCSignTx): Promise<BTCSignedTx | null> {
+    return btcSignTx(this.provider, msg)
+  }
+
+  public async btcSignMessage(msg: BTCSignMessage): Promise<BTCSignedMessage | null> {
+    return btcSignMessage(this.provider, msg)
+  }
+
+  public async btcVerifyMessage(msg: BTCVerifyMessage): Promise<boolean | null> {
+    return btcVerifyMessage(this.provider, msg)
   }
 }

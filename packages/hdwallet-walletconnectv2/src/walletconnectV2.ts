@@ -27,6 +27,13 @@ import type {
   Ping,
   Pong,
   PublicKey,
+  TronAccountPath,
+  TronGetAccountPaths,
+  TronGetAddress,
+  TronSignedTx,
+  TronSignTx,
+  TronWallet,
+  TronWalletInfo,
 } from '@shapeshiftoss/hdwallet-core'
 import { slip44ByCoin } from '@shapeshiftoss/hdwallet-core'
 import type EthereumProvider from '@walletconnect/ethereum-provider'
@@ -48,10 +55,23 @@ import {
   ethSignTypedData,
   ethVerifyMessage,
 } from './ethereum'
+import {
+  describeTronPath,
+  tronGetAddress,
+  tronNextAccountPath,
+  tronSignTx,
+  tronWcGetAccountPaths,
+} from './tron'
 
 const COSMOS_OPTIONAL_NAMESPACE = {
   chains: ['cosmos:cosmoshub-4'],
   methods: ['cosmos_getAccounts', 'cosmos_signAmino', 'cosmos_signDirect'],
+  events: [],
+}
+
+const TRON_OPTIONAL_NAMESPACE = {
+  chains: ['tron:0x2b6653dc'],
+  methods: ['tron_signTransaction', 'tron_signMessage'],
   events: [],
 }
 
@@ -71,10 +91,13 @@ export function isWalletConnectV2(wallet: HDWallet): wallet is WalletConnectV2HD
  * - eth_sendRawTransaction
  * @see https://specs.walletconnect.com/2.0/blockchain-rpc/ethereum-rpc
  */
-export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, CosmosWalletInfo {
+export class WalletConnectV2WalletInfo
+  implements HDWalletInfo, ETHWalletInfo, CosmosWalletInfo, TronWalletInfo
+{
   readonly _supportsETHInfo = true
   readonly _supportsBTCInfo = false
   readonly _supportsCosmosInfo = true
+  readonly _supportsTronInfo = true
   public getVendor(): string {
     return 'WalletConnectV2'
   }
@@ -117,6 +140,8 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, C
         return describeETHPath(msg.path)
       case 'Atom':
         return describeCosmosPath(msg.path)
+      case 'Tron':
+        return describeTronPath(msg.path)
       default:
         throw new Error('Unsupported path')
     }
@@ -162,14 +187,23 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, C
   public cosmosNextAccountPath(_msg: CosmosAccountPath): CosmosAccountPath | undefined {
     return cosmosNextAccountPath(_msg)
   }
+
+  public tronGetAccountPaths(msg: TronGetAccountPaths): TronAccountPath[] {
+    return tronWcGetAccountPaths(msg)
+  }
+
+  public tronNextAccountPath(_msg: TronAccountPath): TronAccountPath | undefined {
+    return tronNextAccountPath(_msg)
+  }
 }
 
-export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWallet {
+export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWallet, TronWallet {
   readonly _supportsETH = true
   readonly _supportsETHInfo = true
   readonly _supportsBTCInfo = false
   readonly _supportsBTC = false
   readonly _supportsCosmosInfo = true
+  readonly _supportsTronInfo = true
   readonly _isWalletConnectV2 = true
   readonly _supportsEthSwitchChain = true
   readonly _supportsAvalanche = true
@@ -193,9 +227,14 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
   accounts: string[] = []
   ethAddress: Address | undefined
   cosmosAddress: string | undefined
+  tronAddress: string | undefined
 
   get _supportsCosmos(): boolean {
     return !!this.provider.session?.namespaces?.cosmos
+  }
+
+  get _supportsTron(): boolean {
+    return !!this.provider.session?.namespaces?.tron
   }
 
   constructor(provider: EthereumProvider) {
@@ -213,6 +252,7 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
         optionalNamespaces: {
           ...params.optionalNamespaces,
           cosmos: COSMOS_OPTIONAL_NAMESPACE,
+          tron: TRON_OPTIONAL_NAMESPACE,
         },
       })
     }
@@ -483,5 +523,31 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
 
   public async cosmosSignTx(msg: CosmosSignTx): Promise<CosmosSignedTx | null> {
     return cosmosSignTx(this.provider, msg)
+  }
+
+  // -- Tron Methods --
+
+  public tronGetAccountPaths(msg: TronGetAccountPaths): TronAccountPath[] {
+    return this.info.tronGetAccountPaths(msg)
+  }
+
+  public tronNextAccountPath(msg: TronAccountPath): TronAccountPath | undefined {
+    return this.info.tronNextAccountPath(msg)
+  }
+
+  public async tronGetAddress(msg: TronGetAddress): Promise<string | null> {
+    if (this.tronAddress) {
+      return this.tronAddress
+    }
+    const address = await tronGetAddress(this.provider, msg)
+    if (address) {
+      this.tronAddress = address
+      return address
+    }
+    return null
+  }
+
+  public async tronSignTx(msg: TronSignTx): Promise<TronSignedTx | null> {
+    return tronSignTx(this.provider, msg)
   }
 }

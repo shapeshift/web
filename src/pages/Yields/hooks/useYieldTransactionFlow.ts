@@ -12,7 +12,7 @@ import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Hash } from 'viem'
 
@@ -184,6 +184,7 @@ export const useYieldTransactionFlow = ({
   const [activeStepIndex, setActiveStepIndex] = useState(-1)
   const [currentActionId, setCurrentActionId] = useState<string | null>(null)
   const [resetTxHash, setResetTxHash] = useState<string | null>(null)
+  const committedAmountRef = useRef('')
 
   const isUsdtApprovalResetEnabled = useFeatureFlag('UsdtApprovalReset')
   const submitHashMutation = useSubmitYieldTransactionHash()
@@ -705,6 +706,7 @@ export const useYieldTransactionFlow = ({
     setActiveStepIndex(-1)
     setCurrentActionId(null)
     setResetTxHash(null)
+    committedAmountRef.current = ''
     onClose()
   }, [isSubmitting, onClose, queryClient])
 
@@ -724,7 +726,7 @@ export const useYieldTransactionFlow = ({
 
     // If we're in the middle of a multi-step flow, execute the next step
     if (yieldStepIndex >= 0 && rawTransactions[yieldStepIndex] && currentActionId) {
-      if (currentActionId === quoteData?.id) {
+      if (bnOrZero(committedAmountRef.current).eq(amount)) {
         await executeSingleTransaction(
           rawTransactions[yieldStepIndex],
           yieldStepIndex,
@@ -734,12 +736,13 @@ export const useYieldTransactionFlow = ({
         )
         return
       }
-      // Quote has changed (user changed amount) - reset stale multi-step state
+      // Amount changed since these transactions were created - reset stale state
       setRawTransactions([])
       setTransactionSteps([])
       setActiveStepIndex(-1)
       setCurrentActionId(null)
       setResetTxHash(null)
+      committedAmountRef.current = ''
     }
 
     if (!yieldChainId) {
@@ -790,6 +793,7 @@ export const useYieldTransactionFlow = ({
 
       setCurrentActionId(quoteData.id)
       setRawTransactions(transactions)
+      committedAmountRef.current = amount
 
       // Build transaction steps with reset step if needed
       const steps: TransactionStep[] = []

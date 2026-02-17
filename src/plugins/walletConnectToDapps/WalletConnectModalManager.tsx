@@ -133,18 +133,29 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
 
       const chainAdapter = assertGetCosmosSdkChainAdapter(chainId)
 
-      const response = await approveCosmosRequest({
-        wallet,
-        requestEvent,
-        chainAdapter,
-        accountMetadata,
-        customTransactionData,
-        accountId,
-      })
-      await web3wallet.respondSessionRequest({
-        topic,
-        response,
-      })
+      try {
+        const response = await approveCosmosRequest({
+          wallet,
+          requestEvent,
+          chainAdapter,
+          accountMetadata,
+          customTransactionData,
+          accountId,
+        })
+        await web3wallet.respondSessionRequest({
+          topic,
+          response,
+        })
+      } catch (e) {
+        console.error('Cosmos WC request failed:', e)
+        await web3wallet.respondSessionRequest({
+          topic,
+          response: formatJsonRpcError(
+            requestEvent.id,
+            (e as Error).message ?? 'Unknown error',
+          ),
+        })
+      }
       handleClose()
     },
     [accountId, accountMetadata, chainId, handleClose, requestEvent, topic, wallet, web3wallet],

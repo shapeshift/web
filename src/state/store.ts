@@ -1,4 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { TypedUseSelectorHook } from 'react-redux'
 import { useDispatch, useSelector } from 'react-redux'
 import { persistStore } from 'redux-persist'
@@ -22,6 +24,11 @@ import { createSubscriptionMiddleware } from './subscriptionMiddleware'
 import { updateWindowStoreMiddleware } from './windowMiddleware'
 
 import { getConfig } from '@/config'
+import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+import {
+  selectMarketDataByAssetIdUserCurrency,
+  selectUsdRateByAssetId,
+} from '@/state/slices/marketDataSlice/selectors'
 // reselect pls stfu
 // We should probably revisit this at some point and re-enable, but for the time being, this silences things
 // https://github.com/reduxjs/reselect/discussions/662#discussioncomment-7870416
@@ -57,6 +64,7 @@ export const clearState = () => {
   store.dispatch(slices.limitOrder.actions.clear())
   store.dispatch(slices.gridplus.actions.clear())
   store.dispatch(slices.addressBook.actions.clear())
+  store.dispatch(slices.agenticChat.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
   store.dispatch(apiSlices.marketApi.util.resetApiState())
@@ -138,6 +146,25 @@ export const createStore = () =>
 
 export const store = createStore()
 export const persistor = persistStore(store)
+
+BigAmount.configure({
+  resolvePrecision: (assetId: string) => {
+    const asset = selectAssetById(store.getState(), assetId as AssetId)
+    if (!asset) {
+      console.warn(
+        `BigAmount.resolvePrecision: asset not found for ${assetId}, defaulting to precision 0`,
+      )
+    }
+    return asset?.precision ?? 0
+  },
+  resolvePrice: (assetId: string) => {
+    const marketData = selectMarketDataByAssetIdUserCurrency(store.getState(), assetId as AssetId)
+    return marketData?.price ?? '0'
+  },
+  resolvePriceUsd: (assetId: string) => {
+    return selectUsdRateByAssetId(store.getState(), assetId as AssetId) ?? '0'
+  },
+})
 
 // dev QoL to access the store in the console
 if (window && getConfig().VITE_REDUX_WINDOW) window.store = store

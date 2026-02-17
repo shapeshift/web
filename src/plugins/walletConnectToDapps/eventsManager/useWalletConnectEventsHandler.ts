@@ -148,6 +148,17 @@ export const useWalletConnectEventsHandler = (
           })
           return
         }
+        case CosmosSigningMethod.COSMOS_GET_ACCOUNTS: {
+          const cosmosAccounts = session?.namespaces?.cosmos?.accounts ?? []
+          const accounts = cosmosAccounts.map(caip10 => {
+            const { account } = fromAccountId(caip10)
+            return { address: account, algo: 'secp256k1', pubkey: account }
+          })
+          return web3wallet?.respondSessionRequest({
+            topic,
+            response: formatJsonRpcResult(requestEvent.id, accounts),
+          })
+        }
         case CosmosSigningMethod.COSMOS_SIGN_DIRECT:
         case CosmosSigningMethod.COSMOS_SIGN_AMINO:
           return dispatch({

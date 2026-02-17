@@ -9,6 +9,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ProposalTypes } from '@walletconnect/types'
 import { partition, uniq } from 'lodash'
@@ -33,6 +34,9 @@ import {
 } from '@/state/slices/portfolioSlice/selectors'
 import { selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+
+const isWcSupportedChainId = (chainId: string): boolean =>
+  isEvmChainId(chainId) || chainId.startsWith(`${CHAIN_NAMESPACE.CosmosSdk}:`)
 
 const checkboxSx = {
   '& .chakra-checkbox__label': {
@@ -103,20 +107,15 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
   const chainIdsSortedByBalance = useAppSelector(selectWalletConnectedChainIdsSorted)
 
   const availableChainIds = useMemo(() => {
-    // Use all EVM chains available for the selected account number as a source of truth
-    // Do *not* honor wc optional namespaces, the app is the source of truth, and the app may or may not handle additional one at their discretion
-    // This is to keep things simple for users and not display less chains than they have accounts for, for a given account number
     const accountNumberChainIds = Object.entries(
       accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {},
     )
-      .filter(([chainId]) => isEvmChainId(chainId))
+      .filter(([chainId]) => isWcSupportedChainId(chainId))
       .map(([chainId]) => chainId)
 
-    // Add any required chains from the dApp even if user doesn't have account/s at the current accountNumber for it/them - we'll handle that state ourselves
-    // Rationale being, they should definitely be able to see the required chains when going to network selection regardless of whether or not they have an account for it
     const requiredFromNamespaces = Object.values(requiredNamespaces)
       .flatMap(namespace => namespace.chains ?? [])
-      .filter(isEvmChainId)
+      .filter(isWcSupportedChainId)
 
     const allChainIds = uniq([...accountNumberChainIds, ...requiredFromNamespaces])
 
@@ -148,7 +147,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
   const optionalChainIds = useMemo(() => {
     const userChainIds = Object.keys(
       accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {},
-    ).filter(isEvmChainId)
+    ).filter(isWcSupportedChainId)
 
     return userChainIds.filter(chainId => !requiredChainIds.includes(chainId as ChainId))
   }, [selectedAccountNumber, accountIdsByAccountNumberAndChainId, requiredChainIds])
@@ -167,7 +166,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
     } else {
       const userChainIds = Object.keys(
         accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {},
-      ).filter(isEvmChainId)
+      ).filter(isWcSupportedChainId)
       onSelectedChainIdsChange(userChainIds as ChainId[])
     }
   }, [

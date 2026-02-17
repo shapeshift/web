@@ -172,11 +172,11 @@ export const CosmosSignMessageConfirmationModal: FC<
           colorScheme='blue'
           type='submit'
           onClick={handleConfirm}
-          isDisabled={true} // coming soon
+          isDisabled={isLoading}
           _disabled={disabledProp}
           isLoading={isLoading}
         >
-          {translate('plugins.walletConnectToDapps.modal.signMessage.comingSoon')}
+          {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
         </Button>
         <Button
           size='lg'

@@ -28,9 +28,7 @@ export const TronSignConfirmationModal: FC<
   const { address, chainId } = useWalletConnectState(state)
   const peerMetadata = state.sessionsByTopic[topic]?.peer.metadata
 
-  const connectedAccountFeeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, chainId ?? ''),
-  )
+  const connectedAccountFeeAsset = useAppSelector(s => selectFeeAssetByChainId(s, chainId ?? ''))
 
   const translate = useTranslate()
   const walletInfo = useWallet().state.walletInfo
@@ -68,7 +66,9 @@ export const TronSignConfirmationModal: FC<
           </RawText>
         </Box>
       )
-    } else if (request?.method === TronSigningMethod.TRON_SIGN_MESSAGE) {
+    }
+
+    if (request?.method === TronSigningMethod.TRON_SIGN_MESSAGE) {
       return (
         <Box p={4}>
           <Text
@@ -81,7 +81,9 @@ export const TronSignConfirmationModal: FC<
           </RawText>
         </Box>
       )
-    } else return null
+    }
+
+    return null
   }, [request?.method, request?.params])
 
   if (!peerMetadata) return null

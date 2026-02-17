@@ -13,7 +13,6 @@ import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { CosmosSignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/CosmosSignMessageConfirmation'
-import { TronSignConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/TronSignConfirmation'
 import { EIP155SignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignMessageConfirmation'
 import { EIP155SignTypedDataConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignTypedDataConfirmation'
 import { EIP155TransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155TransactionConfirmation'
@@ -23,6 +22,7 @@ import { SessionAuthenticateConfirmation } from '@/plugins/walletConnectToDapps/
 import { SessionAuthRoutes } from '@/plugins/walletConnectToDapps/components/modals/SessionAuthRoutes'
 import { SessionProposalModal } from '@/plugins/walletConnectToDapps/components/modals/SessionProposal'
 import { SessionProposalRoutes } from '@/plugins/walletConnectToDapps/components/modals/SessionProposalRoutes'
+import { TronSignConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/TronSignConfirmation'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
   CosmosSignAminoCallRequest,
@@ -42,8 +42,8 @@ import type {
 import { WalletConnectActionType, WalletConnectModal } from '@/plugins/walletConnectToDapps/types'
 import { approveCosmosRequest } from '@/plugins/walletConnectToDapps/utils/CosmosRequestHandlerUtil'
 import { approveEIP155Request } from '@/plugins/walletConnectToDapps/utils/EIP155RequestHandlerUtil'
-import { approveTronRequest } from '@/plugins/walletConnectToDapps/utils/TronRequestHandlerUtil'
 import { approveSessionAuthRequest } from '@/plugins/walletConnectToDapps/utils/SessionAuthRequestHandlerUtil'
+import { approveTronRequest } from '@/plugins/walletConnectToDapps/utils/TronRequestHandlerUtil'
 import { selectPortfolioAccountMetadata } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
 

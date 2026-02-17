@@ -36,21 +36,21 @@ export const useWalletConnectState = (state: WalletConnectState) => {
 
   const connectedAccounts = extractAllConnectedAccounts(sessionsByTopic)
 
-  const isTronMethod = Object.values(TronSigningMethod).includes(
-    request?.method as TronSigningMethod,
-  )
-
   const address = useMemo(() => {
     if (requestParams && isEthSignParams(requestParams))
       return getWalletAddressFromEthSignParams(connectedAccounts, requestParams)
     if (requestParams && isTransactionParamsArray(requestParams)) return requestParams[0].from
     if (requestParams && 'signerAddress' in requestParams) return requestParams.signerAddress
+
+    const isTronMethod = Object.values(TronSigningMethod).includes(
+      request?.method as TronSigningMethod,
+    )
     if (isTronMethod && chainId) {
       const tronAccountId = getWalletAccountFromTronParams(connectedAccounts, chainId)
       return tronAccountId ? fromAccountId(tronAccountId).account : undefined
     }
     return undefined
-  }, [connectedAccounts, requestParams, isTronMethod, chainId])
+  }, [connectedAccounts, requestParams, request?.method, chainId])
 
   const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
 
@@ -64,10 +64,13 @@ export const useWalletConnectState = (state: WalletConnectState) => {
       return getWalletAccountFromEthParams(connectedAccounts, requestParams, chainId)
     if (requestParams && 'signerAddress' in requestParams)
       return getWalletAccountFromCosmosParams(connectedAccounts, requestParams)
-    if (isTronMethod)
-      return getWalletAccountFromTronParams(connectedAccounts, chainId)
+
+    const isTronMethod = Object.values(TronSigningMethod).includes(
+      request?.method as TronSigningMethod,
+    )
+    if (isTronMethod) return getWalletAccountFromTronParams(connectedAccounts, chainId)
     return undefined
-  }, [connectedAccounts, requestParams, chainId, isTronMethod])
+  }, [connectedAccounts, requestParams, chainId, request?.method])
 
   const accountMetadata = accountId ? accountMetadataById[accountId] : undefined
 

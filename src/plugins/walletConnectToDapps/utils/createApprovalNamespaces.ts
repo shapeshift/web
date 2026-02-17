@@ -25,8 +25,7 @@ const DEFAULT_TRON_EVENTS: string[] = []
 const isCosmosSdkChainId = (chainId: string): boolean =>
   chainId.startsWith(`${CHAIN_NAMESPACE.CosmosSdk}:`)
 
-const isTronChainId = (chainId: string): boolean =>
-  chainId.startsWith(`${CHAIN_NAMESPACE.Tron}:`)
+const isTronChainId = (chainId: string): boolean => chainId.startsWith(`${CHAIN_NAMESPACE.Tron}:`)
 
 export const createApprovalNamespaces = (
   requiredNamespaces: ProposalTypes.RequiredNamespaces,

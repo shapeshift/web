@@ -43,7 +43,7 @@ export const approveTronRequest = async ({
       const { bip44Params } = accountMetadata
       const addressNList = toAddressNList(bip44Params)
 
-      const transaction = request.params.transaction as Record<string, unknown>
+      const { transaction } = request.params
       const rawDataHex = transaction.raw_data_hex as string
 
       if (!rawDataHex) {
@@ -63,6 +63,8 @@ export const approveTronRequest = async ({
     }
 
     case TronSigningMethod.TRON_SIGN_MESSAGE: {
+      // hdwallet doesn't have a dedicated tronSignMessage method, so we convert the message
+      // to hex and pass it as rawDataHex to tronSignTx as a workaround
       assertIsDefined(accountMetadata)
       assertIsDefined(accountId)
 

@@ -144,9 +144,7 @@ export const getWalletAccountFromTronParams = (
   accountIds: AccountId[],
   chainId: ChainId,
 ): AccountId => {
-  return (
-    accountIds.find(accountId => fromAccountId(accountId).chainId === chainId) || ''
-  )
+  return accountIds.find(accountId => fromAccountId(accountId).chainId === chainId) || ''
 }
 
 export const getChainIdFromDomain = (message: string): ChainId | undefined => {

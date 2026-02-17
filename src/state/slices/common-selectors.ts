@@ -169,8 +169,6 @@ export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelecto
 )((_s: ReduxState, filter) => `${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`)
 
 // ── BigAmount-returning selectors ────────────────
-// New selectors that return BigAmount instead of strings.
-// Existing string-returning selectors above are kept for backward compatibility.
 
 export const selectPortfolioAccountBalances = createDeepEqualOutputSelector(
   selectEnabledWalletAccountIds,

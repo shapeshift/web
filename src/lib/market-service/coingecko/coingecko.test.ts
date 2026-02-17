@@ -221,8 +221,15 @@ describe('CoinGecko market service', () => {
       const result = await coinGeckoMarketService.findAll()
       const btcAssetId = adapters.coingeckoToAssetIds('bitcoin')
       const ethAssetId = adapters.coingeckoToAssetIds('ethereum')
-      const [btcKey, ethKey, ethOptimismKey, ethOnArbitrumKey, ethOnBaseKey, ethOnMegaEthKey, ethOnLineaKey] =
-        Object.keys(result)
+      const [
+        btcKey,
+        ethKey,
+        ethOptimismKey,
+        ethOnArbitrumKey,
+        ethOnBaseKey,
+        ethOnMegaEthKey,
+        ethOnLineaKey,
+      ] = Object.keys(result)
       expect(btcAssetId).toEqual([btcKey])
       expect(ethAssetId).toEqual([
         ethKey,

@@ -10,11 +10,11 @@ import {
   hyperEvmChainId,
   katanaChainId,
   megaethChainId,
-  sonicChainId,
   monadChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  sonicChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -29,11 +29,11 @@ import {
   supportsHyperEvm,
   supportsKatana,
   supportsMegaEth,
-  supportsSonic,
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
   supportsPolygon,
+  supportsSonic,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 

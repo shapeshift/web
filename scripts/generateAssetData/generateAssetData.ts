@@ -34,6 +34,7 @@ import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateR
 import * as gnosis from './gnosis'
 import * as hyperevm from './hyperevm'
 import * as katana from './katana'
+import * as mantle from './mantle'
 import * as megaeth from './megaeth'
 import * as monad from './monad'
 import * as near from './near'
@@ -71,6 +72,7 @@ const generateAssetData = async () => {
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
+  const mantleAssets = await mantle.getAssets()
   const megaethAssets = await megaeth.getAssets()
   const plasmaAssets = await plasma.getAssets()
   const solanaAssets = await solana.getAssets()
@@ -104,6 +106,7 @@ const generateAssetData = async () => {
     ...monadAssets,
     ...hyperevmAssets,
     ...katanaAssets,
+    ...mantleAssets,
     ...megaethAssets,
     ...plasmaAssets,
     ...solanaAssets,

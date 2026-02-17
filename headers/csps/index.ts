@@ -17,6 +17,7 @@ import { csp as gnosis } from './chains/gnosis'
 import { csp as hyperevm } from './chains/hyperevm'
 import { csp as katana } from './chains/katana'
 import { csp as litecoin } from './chains/litecoin'
+import { csp as mantle } from './chains/mantle'
 import { csp as mayachain } from './chains/mayachain'
 import { csp as megaeth } from './chains/megaeth'
 import { csp as monad } from './chains/monad'
@@ -117,6 +118,7 @@ export const csps = [
   hyperevm,
   katana,
   litecoin,
+  mantle,
   megaeth,
   optimism,
   polygon,

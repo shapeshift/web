@@ -13,6 +13,7 @@ export const SECOND_CLASS_CHAINS: readonly KnownChainIds[] = [
   KnownChainIds.HyperEvmMainnet,
   KnownChainIds.PlasmaMainnet,
   KnownChainIds.KatanaMainnet,
+  KnownChainIds.MantleMainnet,
   KnownChainIds.MegaEthMainnet,
   KnownChainIds.NearMainnet,
   KnownChainIds.StarknetMainnet,
@@ -33,6 +34,7 @@ export const knownChainIds = Object.values(KnownChainIds).filter(chainId => {
   if (chainId === KnownChainIds.HyperEvmMainnet && !enabledFlags.HyperEvm) return false
   if (chainId === KnownChainIds.PlasmaMainnet && !enabledFlags.Plasma) return false
   if (chainId === KnownChainIds.KatanaMainnet && !enabledFlags.Katana) return false
+  if (chainId === KnownChainIds.MantleMainnet && !enabledFlags.Mantle) return false
   if (chainId === KnownChainIds.MegaEthMainnet && !enabledFlags.MegaEth) return false
   if (chainId === KnownChainIds.NearMainnet && !enabledFlags.Near) return false
   if (chainId === KnownChainIds.StarknetMainnet && !enabledFlags.Starknet) return false

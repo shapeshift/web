@@ -354,6 +354,21 @@ export const plasma: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const mantle: Readonly<Asset> = Object.freeze({
+  assetId: caip.mantleAssetId,
+  chainId: caip.mantleChainId,
+  symbol: 'MNT',
+  name: 'Mantle',
+  networkName: 'Mantle',
+  precision: 18,
+  color: '#000000',
+  icon: 'https://assets.relay.link/icons/5000/light.png',
+  explorer: 'https://mantlescan.xyz',
+  explorerAddressLink: 'https://mantlescan.xyz/address/',
+  explorerTxLink: 'https://mantlescan.xyz/tx/',
+  relatedAssetKey: null,
+})
+
 export const megaeth: Readonly<Asset> = Object.freeze({
   assetId: caip.megaethAssetId,
   chainId: caip.megaethChainId,

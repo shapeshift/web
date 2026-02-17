@@ -11,6 +11,7 @@ import gnosis from '@/plugins/gnosis'
 import hyperevm from '@/plugins/hyperevm'
 import katana from '@/plugins/katana'
 import litecoin from '@/plugins/litecoin'
+import mantle from '@/plugins/mantle'
 import mayachain from '@/plugins/mayachain'
 import megaeth from '@/plugins/megaeth'
 import mobile from '@/plugins/mobile'
@@ -42,6 +43,7 @@ export const activePlugins = [
   hyperevm,
   katana,
   litecoin,
+  mantle,
   mayachain,
   megaeth,
   mobile,

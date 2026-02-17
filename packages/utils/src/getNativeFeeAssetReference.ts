@@ -46,6 +46,8 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.HyperEvm
           case CHAIN_REFERENCE.PlasmaMainnet:
             return ASSET_REFERENCE.Plasma
+          case CHAIN_REFERENCE.MantleMainnet:
+            return ASSET_REFERENCE.Mantle
           case CHAIN_REFERENCE.MegaEthMainnet:
             return ASSET_REFERENCE.MegaEth
           case CHAIN_REFERENCE.KatanaMainnet:

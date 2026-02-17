@@ -2,6 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import {
   hyperEvmAssetId,
   katanaAssetId,
+  mantleAssetId,
   mayachainAssetId,
   megaethAssetId,
   monadAssetId,
@@ -42,6 +43,7 @@ export const queryFn = async () => {
   if (enabledFlags.Monad) assetIds.push(monadAssetId)
   if (enabledFlags.Near) assetIds.push(nearAssetId)
   if (enabledFlags.Plasma) assetIds.push(plasmaAssetId)
+  if (enabledFlags.Mantle) assetIds.push(mantleAssetId)
   if (enabledFlags.MegaEth) assetIds.push(megaethAssetId)
   if (enabledFlags.Katana) assetIds.push(katanaAssetId)
   if (enabledFlags.Starknet) assetIds.push(starknetAssetId)

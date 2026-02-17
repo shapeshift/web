@@ -36,6 +36,7 @@ export type FeatureFlags = {
   Monad: boolean
   HyperEvm: boolean
   Plasma: boolean
+  Mantle: boolean
   MegaEth: boolean
   Katana: boolean
   Zcash: boolean
@@ -185,6 +186,7 @@ const initialState: Preferences = {
     Monad: getConfig().VITE_FEATURE_MONAD,
     HyperEvm: getConfig().VITE_FEATURE_HYPEREVM,
     Plasma: getConfig().VITE_FEATURE_PLASMA,
+    Mantle: getConfig().VITE_FEATURE_MANTLE,
     MegaEth: getConfig().VITE_FEATURE_MEGAETH,
     Katana: getConfig().VITE_FEATURE_KATANA,
     Zcash: getConfig().VITE_FEATURE_ZCASH,

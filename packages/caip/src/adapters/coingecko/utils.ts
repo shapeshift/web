@@ -29,6 +29,8 @@ import {
   katanaAssetId,
   katanaChainId,
   ltcChainId,
+  mantleAssetId,
+  mantleChainId,
   mayachainChainId,
   megaethAssetId,
   megaethChainId,
@@ -275,6 +277,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Mantle)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.MantleMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Mantle],
+          })
+          prev[mantleChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.MegaEth)) {
         try {
           const assetId = toAssetId({
@@ -359,6 +375,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [hyperEvmChainId]: { [hyperEvmAssetId]: 'hyperliquid' },
       [monadChainId]: { [monadAssetId]: 'monad' },
       [plasmaChainId]: { [plasmaAssetId]: 'plasma' },
+      [mantleChainId]: { [mantleAssetId]: 'mantle' },
       [megaethChainId]: { [megaethAssetId]: 'ethereum' },
       [katanaChainId]: { [katanaAssetId]: 'katana' },
       [solanaChainId]: { [solAssetId]: 'solana' },

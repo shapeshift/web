@@ -12,6 +12,7 @@ import {
   hyperEvm,
   katana,
   mainnet,
+  mantle,
   monad,
   optimism,
   plasma,
@@ -107,6 +108,11 @@ export const viemPlasmaClient = createPublicClient({
   transport: fallback([process.env.VITE_PLASMA_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemMantleClient = createPublicClient({
+  chain: mantle,
+  transport: fallback([process.env.VITE_MANTLE_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemMegaEthClient = createPublicClient({
   chain: megaeth,
   transport: fallback([process.env.VITE_MEGAETH_NODE_URL].filter(Boolean).map(url => http(url))),
@@ -129,6 +135,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.MonadMainnet]: viemMonadClient,
   [KnownChainIds.HyperEvmMainnet]: viemHyperEvmClient,
   [KnownChainIds.PlasmaMainnet]: viemPlasmaClient,
+  [KnownChainIds.MantleMainnet]: viemMantleClient,
   [KnownChainIds.MegaEthMainnet]: viemMegaEthClient,
   [KnownChainIds.KatanaMainnet]: viemKatanaClient,
 }
@@ -145,6 +152,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.MonadMainnet]: monad.id,
   [KnownChainIds.HyperEvmMainnet]: hyperEvm.id,
   [KnownChainIds.PlasmaMainnet]: plasma.id,
+  [KnownChainIds.MantleMainnet]: mantle.id,
   [KnownChainIds.MegaEthMainnet]: megaeth.id,
   [KnownChainIds.KatanaMainnet]: katana.id,
 }
@@ -161,6 +169,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [monad.id]: viemMonadClient,
   [hyperEvm.id]: viemHyperEvmClient,
   [plasma.id]: viemPlasmaClient,
+  [mantle.id]: viemMantleClient,
   [megaeth.id]: viemMegaEthClient,
   [katana.id]: viemKatanaClient,
 }

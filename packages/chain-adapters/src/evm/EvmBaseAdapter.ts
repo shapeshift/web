@@ -16,6 +16,7 @@ import {
   supportsGnosis,
   supportsHyperEvm,
   supportsKatana,
+  supportsMegaEth,
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
@@ -85,6 +86,7 @@ export const evmChainIds = [
   KnownChainIds.MonadMainnet,
   KnownChainIds.HyperEvmMainnet,
   KnownChainIds.PlasmaMainnet,
+  KnownChainIds.MegaEthMainnet,
   KnownChainIds.KatanaMainnet,
 ] as const
 
@@ -186,6 +188,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsHyperEvm(wallet)
         case Number(fromChainId(KnownChainIds.PlasmaMainnet).chainReference):
           return supportsPlasma(wallet)
+        case Number(fromChainId(KnownChainIds.MegaEthMainnet).chainReference):
+          return supportsMegaEth(wallet)
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
         default:
@@ -274,6 +278,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Plasma',
         symbol: 'XPL',
         explorer: 'https://plasmascan.to',
+      },
+      [KnownChainIds.MegaEthMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://megaeth.blockscout.com',
       },
       [KnownChainIds.KatanaMainnet]: {
         name: 'Ethereum',

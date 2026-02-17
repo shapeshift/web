@@ -354,6 +354,24 @@ export const plasma: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const megaeth: Readonly<Asset> = Object.freeze({
+  assetId: caip.megaethAssetId,
+  chainId: caip.megaethChainId,
+  name: 'Ether',
+  networkName: 'MegaETH',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#FF6B35',
+  networkColor: '#FF6B35',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon:
+    'https://coin-images.coingecko.com/asset_platforms/images/32266/small/megaeth.jpg?1762329010',
+  explorer: 'https://megaeth.blockscout.com',
+  explorerAddressLink: 'https://megaeth.blockscout.com/address/',
+  explorerTxLink: 'https://megaeth.blockscout.com/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
 export const katana: Readonly<Asset> = Object.freeze({
   assetId: caip.katanaAssetId,
   chainId: caip.katanaChainId,

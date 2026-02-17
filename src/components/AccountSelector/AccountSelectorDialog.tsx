@@ -1,10 +1,8 @@
 import { VStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 
 import { AccountSelectorOption } from '@/components/AccountSelector/AccountSelectorOption'
 import { Dialog } from '@/components/Modal/components/Dialog'
@@ -16,8 +14,7 @@ import {
   DialogHeaderMiddle,
 } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { selectPortfolioAccountBalancesBaseUnit } from '@/state/slices/common-selectors'
+import { selectPortfolioAccountBalances } from '@/state/slices/common-selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -43,24 +40,27 @@ export const AccountSelectorDialog = ({
   onAccountSelect,
 }: AccountSelectorDialogProps) => {
   const translate = useTranslate()
-  const accountBalancesBaseUnit = useSelector(selectPortfolioAccountBalancesBaseUnit)
+  const accountBalances = useAppSelector(selectPortfolioAccountBalances)
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   const accountsWithDetails = useMemo(
     () =>
       accountIds.map(accountId => {
-        const cryptoBalance = bnOrZero(accountBalancesBaseUnit?.[accountId]?.[assetId] ?? 0)
-        const fiatBalance = bnOrZero(fromBaseUnit(cryptoBalance, asset.precision ?? 0)).times(
-          marketData?.price ?? 0,
-        )
+        const balance = accountBalances?.[accountId]?.[assetId]
+        const fiatBalance = balance
+          ? balance
+              .toBN()
+              .times(marketData?.price ?? 0)
+              .toFixed(2)
+          : '0.00'
 
         return {
           accountId,
-          cryptoBalance: cryptoBalance.toFixed(),
-          fiatBalance: fiatBalance.toFixed(2),
+          cryptoBalance: balance?.toBaseUnit() ?? '0',
+          fiatBalance,
         }
       }),
-    [accountIds, accountBalancesBaseUnit, assetId, marketData, asset.precision],
+    [accountIds, accountBalances, assetId, marketData],
   )
 
   return (

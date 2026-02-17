@@ -128,6 +128,18 @@ export const getWalletAccountFromCosmosParams = (
   )
 }
 
+export const getWalletAccountFromBip122Params = (
+  accountIds: AccountId[],
+  params: { account: string },
+): AccountId => {
+  const paramsAccount = params.account
+  return (
+    accountIds.find(
+      accountId => paramsAccount?.includes(fromAccountId(accountId).account),
+    ) || ''
+  )
+}
+
 /**
  * Get our address from params checking if params string contains one
  * of our wallet addresses

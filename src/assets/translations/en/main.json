@@ -2249,7 +2249,10 @@
               "placeholder": "Gas Limit...",
               "tooltip": "The gas limit refers to the maximum amount of gas a user can consume to conduct a transaction."
             }
-          }
+          },
+          "recipientAddress": "Recipient Address",
+          "amount": "Amount",
+          "broadcast": "Broadcast"
         },
         "connect": {
           "title": "Connect your wallet to a dApp via WalletConnect and trigger transactions",

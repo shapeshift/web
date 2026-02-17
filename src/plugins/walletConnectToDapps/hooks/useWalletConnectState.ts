@@ -10,6 +10,7 @@ import type { KnownSigningMethod, WalletConnectState } from '@/plugins/walletCon
 import {
   extractAllConnectedAccounts,
   getSignParamsMessage,
+  getWalletAccountFromBip122Params,
   getWalletAccountFromCosmosParams,
   getWalletAccountFromEthParams,
   getWalletAddressFromEthSignParams,
@@ -38,7 +39,11 @@ export const useWalletConnectState = (state: WalletConnectState) => {
       return getWalletAddressFromEthSignParams(connectedAccounts, requestParams)
     if (requestParams && isTransactionParamsArray(requestParams)) return requestParams[0].from
     if (requestParams && 'signerAddress' in requestParams) return requestParams.signerAddress
-    else return undefined
+    if (requestParams && 'account' in requestParams) {
+      const account = (requestParams as { account: string }).account
+      return account
+    }
+    return undefined
   }, [connectedAccounts, requestParams])
 
   const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
@@ -53,7 +58,12 @@ export const useWalletConnectState = (state: WalletConnectState) => {
       return getWalletAccountFromEthParams(connectedAccounts, requestParams, chainId)
     if (requestParams && 'signerAddress' in requestParams)
       return getWalletAccountFromCosmosParams(connectedAccounts, requestParams)
-    else return undefined
+    if (requestParams && 'account' in requestParams)
+      return getWalletAccountFromBip122Params(
+        connectedAccounts,
+        requestParams as { account: string },
+      )
+    return undefined
   }, [connectedAccounts, requestParams, chainId])
 
   const accountMetadata = accountId ? accountMetadataById[accountId] : undefined

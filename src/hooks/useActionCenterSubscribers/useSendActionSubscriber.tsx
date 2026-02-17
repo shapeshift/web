@@ -13,6 +13,7 @@ import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getKatanaTransactionStatus } from '@/lib/utils/katana'
+import { getMantleTransactionStatus } from '@/lib/utils/mantle'
 import { getMegaEthTransactionStatus } from '@/lib/utils/megaeth'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getNearTransactionStatus } from '@/lib/utils/near'
@@ -201,6 +202,12 @@ export const useSendActionSubscriber = () => {
                   )
                   isConfirmed =
                     hyperEvmTxStatus === TxStatus.Confirmed || hyperEvmTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.MantleMainnet: {
+                  const mantleTxStatus = await getMantleTransactionStatus(txHash)
+                  isConfirmed =
+                    mantleTxStatus === TxStatus.Confirmed || mantleTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.MegaEthMainnet: {

@@ -1,4 +1,7 @@
 import { Avatar, Box, Button, Flex, Text } from '@chakra-ui/react'
+import dayjs from 'dayjs'
+import dayjsDuration from 'dayjs/plugin/duration'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -36,6 +39,9 @@ import {
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+
+dayjs.extend(dayjsDuration)
+dayjs.extend(relativeTime)
 
 type YieldActionModalProps = {
   isOpen: boolean
@@ -357,6 +363,14 @@ export const YieldActionModal = memo(function YieldActionModal({
     [yieldItem.mechanics.type, action],
   )
 
+  const cooldownMessage = useMemo(() => {
+    if (action !== 'exit') return undefined
+    const cooldownSeconds = yieldItem.mechanics.cooldownPeriod?.seconds
+    if (!cooldownSeconds) return undefined
+    const cooldownDuration = dayjs.duration(cooldownSeconds, 'seconds').humanize()
+    return translate('yieldXYZ.cooldownNotice', { cooldownDuration })
+  }, [action, yieldItem.mechanics.cooldownPeriod?.seconds, translate])
+
   const successProviderInfo = useMemo(
     () => (vaultMetadata ? { name: vaultMetadata.name, logoURI: vaultMetadata.logoURI } : null),
     [vaultMetadata],
@@ -373,6 +387,7 @@ export const YieldActionModal = memo(function YieldActionModal({
         accountId={accountId}
         onDone={handleClose}
         successMessageKey={successMessageKey}
+        cooldownMessage={cooldownMessage}
       />
     ),
     [
@@ -384,6 +399,7 @@ export const YieldActionModal = memo(function YieldActionModal({
       accountId,
       handleClose,
       successMessageKey,
+      cooldownMessage,
     ],
   )
 

@@ -13,6 +13,7 @@ import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getKatanaTransactionStatus } from '@/lib/utils/katana'
+import { getLineaTransactionStatus } from '@/lib/utils/linea'
 import { getMegaEthTransactionStatus } from '@/lib/utils/megaeth'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getNearTransactionStatus } from '@/lib/utils/near'
@@ -214,6 +215,12 @@ export const useSendActionSubscriber = () => {
                   const katanaTxStatus = await getKatanaTransactionStatus(txHash, katanaNodeUrl)
                   isConfirmed =
                     katanaTxStatus === TxStatus.Confirmed || katanaTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.LineaMainnet: {
+                  const lineaTxStatus = await getLineaTransactionStatus(txHash)
+                  isConfirmed =
+                    lineaTxStatus === TxStatus.Confirmed || lineaTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.NearMainnet: {

@@ -33,8 +33,8 @@ export const SolanaSignMessageConfirmationModal: FC<
   const { address, chainId } = useWalletConnectState(state)
   const peerMetadata = state.sessionsByTopic[topic]?.peer.metadata
 
-  const connectedAccountFeeAsset = useAppSelector(state =>
-    selectFeeAssetByChainId(state, chainId ?? ''),
+  const connectedAccountFeeAsset = useAppSelector(reduxState =>
+    selectFeeAssetByChainId(reduxState, chainId ?? ''),
   )
 
   const translate = useTranslate()
@@ -47,15 +47,21 @@ export const SolanaSignMessageConfirmationModal: FC<
   const request = state.modalData.requestEvent?.params.request
 
   const handleConfirm = useCallback(async () => {
-    setIsLoading(true)
-    await onConfirm()
-    setIsLoading(false)
+    try {
+      setIsLoading(true)
+      await onConfirm()
+    } finally {
+      setIsLoading(false)
+    }
   }, [onConfirm])
 
   const handleReject = useCallback(async () => {
-    setIsLoading(true)
-    await onReject()
-    setIsLoading(false)
+    try {
+      setIsLoading(true)
+      await onReject()
+    } finally {
+      setIsLoading(false)
+    }
   }, [onReject])
 
   const methodSpecificContent = useMemo(() => {

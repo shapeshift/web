@@ -1,19 +1,12 @@
 import type { JsonRpcResult } from '@json-rpc-tools/utils'
-import { formatJsonRpcResult } from '@json-rpc-tools/utils'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import type { solana } from '@shapeshiftoss/chain-adapters'
-import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsSolana } from '@shapeshiftoss/hdwallet-core'
 import type { AccountMetadata } from '@shapeshiftoss/types'
 import { getSdkError } from '@walletconnect/utils'
 
-import { assertIsDefined } from '@/lib/utils'
-import type {
-  CustomTransactionData,
-  SupportedSessionRequest,
-} from '@/plugins/walletConnectToDapps/types'
+import type { SupportedSessionRequest } from '@/plugins/walletConnectToDapps/types'
 import { SolanaSigningMethod } from '@/plugins/walletConnectToDapps/types'
 
 type ApproveSolanaRequestArgs = {
@@ -21,18 +14,14 @@ type ApproveSolanaRequestArgs = {
   wallet: HDWallet
   chainAdapter: solana.ChainAdapter
   accountMetadata?: AccountMetadata
-  customTransactionData?: CustomTransactionData
   accountId?: AccountId
 }
 
 export const approveSolanaRequest = async ({
   requestEvent,
   wallet,
-  chainAdapter,
-  accountMetadata,
-  accountId,
 }: ApproveSolanaRequestArgs): Promise<JsonRpcResult<unknown>> => {
-  const { params, id } = requestEvent
+  const { params } = requestEvent
   const { request } = params
 
   if (!supportsSolana(wallet)) {
@@ -40,74 +29,32 @@ export const approveSolanaRequest = async ({
   }
 
   switch (request.method) {
-    case SolanaSigningMethod.SOLANA_SIGN_TRANSACTION: {
-      assertIsDefined(accountMetadata)
+    // WC dApps send pre-built serialized transactions as base64 strings.
+    // hdwallet's solanaSignTx only supports building transactions from structured params
+    // (to, value, instructions, etc.) via solanaBuildTransaction - it cannot sign pre-built
+    // serialized transactions. A solanaSignRawTransaction method is needed in hdwallet-core
+    // to support this flow.
+    case SolanaSigningMethod.SOLANA_SIGN_TRANSACTION:
+      throw new Error(
+        'solana_signTransaction is not yet supported: hdwallet cannot sign pre-built serialized transactions',
+      )
 
-      const { bip44Params } = accountMetadata
-      const addressNList = toAddressNList(chainAdapter.getBip44Params(bip44Params))
-      const address = accountId ? fromAccountId(accountId).account : undefined
+    case SolanaSigningMethod.SOLANA_SIGN_AND_SEND_TRANSACTION:
+      throw new Error(
+        'solana_signAndSendTransaction is not yet supported: hdwallet cannot sign pre-built serialized transactions',
+      )
 
-      const signedTx = await wallet.solanaSignTx({
-        addressNList,
-        to: '',
-        value: '0',
-        blockHash: '',
-        pubKey: address,
-        instructions: [],
-      })
+    case SolanaSigningMethod.SOLANA_SIGN_ALL_TRANSACTIONS:
+      throw new Error(
+        'solana_signAllTransactions is not yet supported: hdwallet cannot sign pre-built serialized transactions',
+      )
 
-      if (!signedTx?.serialized) throw new Error('Failed to sign Solana transaction')
-
-      return formatJsonRpcResult(id, { signature: signedTx.serialized })
-    }
-
-    case SolanaSigningMethod.SOLANA_SIGN_AND_SEND_TRANSACTION: {
-      assertIsDefined(accountMetadata)
-
-      const { bip44Params } = accountMetadata
-      const addressNList = toAddressNList(chainAdapter.getBip44Params(bip44Params))
-      const address = accountId ? fromAccountId(accountId).account : undefined
-
-      const signedTx = await wallet.solanaSignTx({
-        addressNList,
-        to: '',
-        value: '0',
-        blockHash: '',
-        pubKey: address,
-        instructions: [],
-      })
-
-      if (!signedTx?.serialized) throw new Error('Failed to sign Solana transaction')
-
-      const txHash = await chainAdapter.broadcastTransaction({
-        senderAddress: address ?? '',
-        receiverAddress: '',
-        hex: signedTx.serialized,
-      })
-
-      return formatJsonRpcResult(id, { signature: txHash })
-    }
-
-    case SolanaSigningMethod.SOLANA_SIGN_MESSAGE: {
-      assertIsDefined(accountMetadata)
-
-      const { bip44Params } = accountMetadata
-      const addressNList = toAddressNList(chainAdapter.getBip44Params(bip44Params))
-      const address = accountId ? fromAccountId(accountId).account : undefined
-
-      const signedTx = await wallet.solanaSignTx({
-        addressNList,
-        to: '',
-        value: '0',
-        blockHash: '',
-        pubKey: address,
-        instructions: [],
-      })
-
-      if (!signedTx?.signatures?.[0]) throw new Error('Failed to sign Solana message')
-
-      return formatJsonRpcResult(id, { signature: signedTx.signatures[0] })
-    }
+    // hdwallet-core has no solanaSignMessage method - only solanaSignTx which builds
+    // and signs transactions, not arbitrary messages
+    case SolanaSigningMethod.SOLANA_SIGN_MESSAGE:
+      throw new Error(
+        'solana_signMessage is not yet supported: hdwallet has no solanaSignMessage method',
+      )
 
     default:
       throw new Error(getSdkError('INVALID_METHOD').message)

@@ -163,17 +163,28 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
 
     const chainAdapter = assertGetSolanaChainAdapter(chainId)
 
-    const response = await approveSolanaRequest({
-      wallet,
-      requestEvent,
-      chainAdapter,
-      accountMetadata,
-      accountId,
-    })
-    await web3wallet.respondSessionRequest({
-      topic,
-      response,
-    })
+    try {
+      const response = await approveSolanaRequest({
+        wallet,
+        requestEvent,
+        chainAdapter,
+        accountMetadata,
+        accountId,
+      })
+      await web3wallet.respondSessionRequest({
+        topic,
+        response,
+      })
+    } catch (e) {
+      console.error('Solana WC request failed:', e)
+      await web3wallet.respondSessionRequest({
+        topic,
+        response: formatJsonRpcError(
+          requestEvent.id,
+          (e as Error).message ?? 'Unknown error',
+        ),
+      })
+    }
     handleClose()
   }, [accountId, accountMetadata, chainId, handleClose, requestEvent, topic, wallet, web3wallet])
 

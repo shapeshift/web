@@ -162,6 +162,7 @@ export const useWalletConnectEventsHandler = (
         case SolanaSigningMethod.SOLANA_SIGN_TRANSACTION:
         case SolanaSigningMethod.SOLANA_SIGN_AND_SEND_TRANSACTION:
         case SolanaSigningMethod.SOLANA_SIGN_MESSAGE:
+        case SolanaSigningMethod.SOLANA_SIGN_ALL_TRANSACTIONS:
           return dispatch({
             type: WalletConnectActionType.SET_MODAL,
             payload: {

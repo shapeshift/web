@@ -160,14 +160,25 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       return
     }
 
-    const response = await approveBIP122Request({
-      wallet,
-      requestEvent,
-    })
-    await web3wallet.respondSessionRequest({
-      topic,
-      response,
-    })
+    try {
+      const response = await approveBIP122Request({
+        wallet,
+        requestEvent,
+      })
+      await web3wallet.respondSessionRequest({
+        topic,
+        response,
+      })
+    } catch (e) {
+      console.error('BIP122 WC request failed:', e)
+      await web3wallet.respondSessionRequest({
+        topic,
+        response: formatJsonRpcError(
+          requestEvent.id,
+          (e as Error).message ?? 'Unknown error',
+        ),
+      })
+    }
     handleClose()
   }, [handleClose, requestEvent, topic, wallet, web3wallet])
 

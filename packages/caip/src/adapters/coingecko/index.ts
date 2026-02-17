@@ -16,6 +16,7 @@ import {
   gnosisChainId,
   hyperEvmChainId,
   katanaChainId,
+  mayachainChainId,
   megaethChainId,
   monadChainId,
   nearChainId,

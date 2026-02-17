@@ -7,6 +7,7 @@ import {
   bscChainId,
   btcChainId,
   cosmosChainId,
+  cronosChainId,
   dogeChainId,
   ethChainId,
   gnosisChainId,
@@ -212,6 +213,7 @@ export const getCoingeckoSupportedChainIds = () => {
     starknetChainId,
     dogeChainId,
     zecChainId,
+    ...(getConfig().VITE_FEATURE_CRONOS ? [cronosChainId] : []),
     ...(getConfig().VITE_FEATURE_KATANA ? [katanaChainId] : []),
     ...(getConfig().VITE_FEATURE_TON ? [tonChainId] : []),
   ]

@@ -24,6 +24,7 @@ import { csp as near } from './chains/near'
 import { csp as optimism } from './chains/optimism'
 import { csp as plasma } from './chains/plasma'
 import { csp as polygon } from './chains/polygon'
+import { csp as sei } from './chains/sei'
 import { csp as solana } from './chains/solana'
 import { csp as starknet } from './chains/starknet'
 import { csp as sui } from './chains/sui'
@@ -131,6 +132,7 @@ export const csps = [
   monad,
   near,
   plasma,
+  sei,
   trustwallet,
   coincap,
   coingecko,

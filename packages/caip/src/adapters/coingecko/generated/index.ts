@@ -14,6 +14,7 @@ import monad from "./eip155_143/adapter.json";
 import hyperevm from "./eip155_999/adapter.json";
 import plasma from "./eip155_9745/adapter.json";
 import katana from "./eip155_747474/adapter.json";
+import sei from "./eip155_1329/adapter.json";
 import megaeth from "./eip155_4326/adapter.json";
 import cosmos from "./cosmos_cosmoshub-4/adapter.json";
 import thorchain from "./cosmos_thorchain-1/adapter.json";
@@ -43,6 +44,7 @@ export {
   hyperevm,
   plasma,
   katana,
+  sei,
   megaeth,
   cosmos,
   thorchain,

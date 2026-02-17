@@ -12,7 +12,7 @@ import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Hash } from 'viem'
 
@@ -261,17 +261,6 @@ export const useYieldTransactionFlow = ({
 
     return args
   }, [yieldItem, action, amount, userAddress, yieldChainId, validatorAddress])
-
-  useEffect(() => {
-    if (isSubmitting) return
-    if (activeStepIndex < 0) return
-    setRawTransactions([])
-    setTransactionSteps([])
-    setActiveStepIndex(-1)
-    setCurrentActionId(null)
-    setResetTxHash(null)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [txArguments])
 
   const {
     data: quoteData,
@@ -735,14 +724,22 @@ export const useYieldTransactionFlow = ({
 
     // If we're in the middle of a multi-step flow, execute the next step
     if (yieldStepIndex >= 0 && rawTransactions[yieldStepIndex] && currentActionId) {
-      await executeSingleTransaction(
-        rawTransactions[yieldStepIndex],
-        yieldStepIndex,
-        activeStepIndex,
-        rawTransactions,
-        currentActionId,
-      )
-      return
+      if (currentActionId === quoteData?.id) {
+        await executeSingleTransaction(
+          rawTransactions[yieldStepIndex],
+          yieldStepIndex,
+          activeStepIndex,
+          rawTransactions,
+          currentActionId,
+        )
+        return
+      }
+      // Quote has changed (user changed amount) - reset stale multi-step state
+      setRawTransactions([])
+      setTransactionSteps([])
+      setActiveStepIndex(-1)
+      setCurrentActionId(null)
+      setResetTxHash(null)
     }
 
     if (!yieldChainId) {

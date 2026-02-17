@@ -10,6 +10,7 @@ import ethereum from '@/plugins/ethereum'
 import gnosis from '@/plugins/gnosis'
 import hyperevm from '@/plugins/hyperevm'
 import katana from '@/plugins/katana'
+import linea from '@/plugins/linea'
 import litecoin from '@/plugins/litecoin'
 import mayachain from '@/plugins/mayachain'
 import megaeth from '@/plugins/megaeth'
@@ -41,6 +42,7 @@ export const activePlugins = [
   gnosis,
   hyperevm,
   katana,
+  linea,
   litecoin,
   mayachain,
   megaeth,

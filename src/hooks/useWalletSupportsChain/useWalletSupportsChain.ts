@@ -12,6 +12,7 @@ import {
   gnosisChainId,
   hyperEvmChainId,
   katanaChainId,
+  lineaChainId,
   ltcChainId,
   mayachainChainId,
   megaethChainId,
@@ -45,6 +46,7 @@ import {
   supportsGnosis,
   supportsHyperEvm,
   supportsKatana,
+  supportsLinea,
   supportsMayachain,
   supportsMegaEth,
   supportsMonad,
@@ -196,6 +198,8 @@ export const walletSupportsChain = ({
       return isPlasmaEnabled && supportsPlasma(wallet)
     case katanaChainId:
       return isKatanaEnabled && supportsKatana(wallet)
+    case lineaChainId:
+      return supportsLinea(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

@@ -60,6 +60,7 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_SWAPPER_RELAY: string
   readonly VITE_FEATURE_MAYA_SWAP: string
   readonly VITE_FEATURE_BUTTERSWAP: string
+  readonly VITE_FEATURE_LINEA: string
   readonly VITE_FEATURE_SWAPPER_FIAT_RAMPS: string
 
   // URLs and API keys from base .env (always defined)
@@ -172,6 +173,7 @@ interface ImportMetaEnv {
   readonly VITE_BASE_NODE_URL: string
   readonly VITE_THORCHAIN_NODE_URL: string
   readonly VITE_MAYACHAIN_NODE_URL: string
+  readonly VITE_LINEA_NODE_URL: string
   readonly VITE_SOLANA_NODE_URL: string
   readonly VITE_THORCHAIN_MIDGARD_URL: string
   readonly VITE_MAYACHAIN_MIDGARD_URL: string

@@ -28,6 +28,8 @@ import {
   hyperEvmChainId,
   katanaAssetId,
   katanaChainId,
+  lineaAssetId,
+  lineaChainId,
   ltcChainId,
   mayachainChainId,
   megaethAssetId,
@@ -289,6 +291,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Linea)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.LineaMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Linea],
+          })
+          prev[lineaChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Katana)) {
         try {
           const assetId = toAssetId({
@@ -360,6 +376,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [monadChainId]: { [monadAssetId]: 'monad' },
       [plasmaChainId]: { [plasmaAssetId]: 'plasma' },
       [megaethChainId]: { [megaethAssetId]: 'ethereum' },
+      [lineaChainId]: { [lineaAssetId]: 'ethereum' },
       [katanaChainId]: { [katanaAssetId]: 'katana' },
       [solanaChainId]: { [solAssetId]: 'solana' },
       [starknetChainId]: { [starknetAssetId]: 'starknet' },

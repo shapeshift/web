@@ -83,6 +83,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   const isPlasmaEnabled = useAppSelector(state => selectFeatureFlag(state, 'Plasma'))
   const isHyperEvmEnabled = useAppSelector(state => selectFeatureFlag(state, 'HyperEvm'))
   const isMegaEthEnabled = useAppSelector(state => selectFeatureFlag(state, 'MegaEth'))
+  const isLineaEnabled = useAppSelector(state => selectFeatureFlag(state, 'Linea'))
   const isKatanaEnabled = useAppSelector(state => selectFeatureFlag(state, 'Katana'))
   const [isSmallerThanLg] = useMediaQuery(`(max-width: ${breakpoints.lg})`)
 
@@ -94,6 +95,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
       if (!isPlasmaEnabled && chainId === KnownChainIds.PlasmaMainnet) return false
       if (!isHyperEvmEnabled && chainId === KnownChainIds.HyperEvmMainnet) return false
       if (!isMegaEthEnabled && chainId === KnownChainIds.MegaEthMainnet) return false
+      if (!isLineaEnabled && chainId === KnownChainIds.LineaMainnet) return false
       if (!isKatanaEnabled && chainId === KnownChainIds.KatanaMainnet) return false
       return true
     })
@@ -103,6 +105,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
     isPlasmaEnabled,
     isHyperEvmEnabled,
     isMegaEthEnabled,
+    isLineaEnabled,
     isKatanaEnabled,
   ])
 

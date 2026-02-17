@@ -2,7 +2,6 @@ import type {
   BTCAccountPath,
   BTCGetAccountPaths,
   BTCGetAddress,
-  BTCInputScriptType,
   BTCSignedMessage,
   BTCSignedTx,
   BTCSignMessage,
@@ -10,7 +9,7 @@ import type {
   BTCVerifyMessage,
   PathDescription,
 } from '@shapeshiftoss/hdwallet-core'
-import { describeUTXOPath, slip44ByCoin } from '@shapeshiftoss/hdwallet-core'
+import { BTCInputScriptType, describeUTXOPath, slip44ByCoin } from '@shapeshiftoss/hdwallet-core'
 import type EthereumProvider from '@walletconnect/ethereum-provider'
 
 const BIP122_BITCOIN_MAINNET_CAIP2 = 'bip122:000000000019d6689c085ae165831e93'
@@ -28,29 +27,29 @@ export function btcGetAccountPaths(msg: BTCGetAccountPaths): BTCAccountPath[] {
   if (slip44 === undefined) return []
   const bip44 = {
     coin: msg.coin,
-    scriptType: 'p2pkh' as BTCInputScriptType,
+    scriptType: BTCInputScriptType.SpendAddress,
     addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
   }
   const bip49 = {
     coin: msg.coin,
-    scriptType: 'p2sh-p2wpkh' as BTCInputScriptType,
+    scriptType: BTCInputScriptType.SpendP2SHWitness,
     addressNList: [0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
   }
   const bip84 = {
     coin: msg.coin,
-    scriptType: 'p2wpkh' as BTCInputScriptType,
+    scriptType: BTCInputScriptType.SpendWitness,
     addressNList: [0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
   }
 
   const paths: BTCAccountPath[] = []
 
-  if (!msg.scriptType || msg.scriptType === ('p2wpkh' as BTCInputScriptType)) {
+  if (!msg.scriptType || msg.scriptType === BTCInputScriptType.SpendWitness) {
     paths.push(bip84)
   }
-  if (!msg.scriptType || msg.scriptType === ('p2sh-p2wpkh' as BTCInputScriptType)) {
+  if (!msg.scriptType || msg.scriptType === BTCInputScriptType.SpendP2SHWitness) {
     paths.push(bip49)
   }
-  if (!msg.scriptType || msg.scriptType === ('p2pkh' as BTCInputScriptType)) {
+  if (!msg.scriptType || msg.scriptType === BTCInputScriptType.SpendAddress) {
     paths.push(bip44)
   }
 
@@ -58,9 +57,14 @@ export function btcGetAccountPaths(msg: BTCGetAccountPaths): BTCAccountPath[] {
 }
 
 export function btcNextAccountPath(msg: BTCAccountPath): BTCAccountPath | undefined {
-  const dominated: Record<string, string> = {
-    p2wpkh: 'p2sh-p2wpkh',
-    'p2sh-p2wpkh': 'p2pkh',
+  const dominated: Record<BTCInputScriptType, BTCInputScriptType | undefined> = {
+    [BTCInputScriptType.SpendWitness]: BTCInputScriptType.SpendP2SHWitness,
+    [BTCInputScriptType.SpendP2SHWitness]: BTCInputScriptType.SpendAddress,
+    [BTCInputScriptType.SpendAddress]: undefined,
+    [BTCInputScriptType.SpendMultisig]: undefined,
+    [BTCInputScriptType.CashAddr]: undefined,
+    [BTCInputScriptType.Bech32]: undefined,
+    [BTCInputScriptType.External]: undefined,
   }
   const next = dominated[msg.scriptType]
   if (!next) return undefined
@@ -68,12 +72,24 @@ export function btcNextAccountPath(msg: BTCAccountPath): BTCAccountPath | undefi
   const slip44 = slip44ByCoin(msg.coin)
   if (slip44 === undefined) return undefined
 
-  const purpose = next === 'p2pkh' ? 44 : next === 'p2sh-p2wpkh' ? 49 : 84
+  let purpose: number
+  switch (next) {
+    case BTCInputScriptType.SpendAddress:
+      purpose = 44
+      break
+    case BTCInputScriptType.SpendP2SHWitness:
+      purpose = 49
+      break
+    default:
+      purpose = 84
+      break
+  }
+
   const accountIdx = msg.addressNList[2] & 0x7fffffff
 
   return {
     coin: msg.coin,
-    scriptType: next as BTCInputScriptType,
+    scriptType: next,
     addressNList: [0x80000000 + purpose, 0x80000000 + slip44, 0x80000000 + accountIdx],
   }
 }

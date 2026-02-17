@@ -4,7 +4,6 @@ import type {
   BTCAccountPath,
   BTCGetAccountPaths,
   BTCGetAddress,
-  BTCInputScriptType,
   BTCSignedMessage,
   BTCSignedTx,
   BTCSignMessage,
@@ -32,7 +31,7 @@ import type {
   Pong,
   PublicKey,
 } from '@shapeshiftoss/hdwallet-core'
-import { slip44ByCoin } from '@shapeshiftoss/hdwallet-core'
+import { BTCInputScriptType, slip44ByCoin } from '@shapeshiftoss/hdwallet-core'
 import type EthereumProvider from '@walletconnect/ethereum-provider'
 import isObject from 'lodash/isObject'
 
@@ -124,7 +123,7 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, B
         return describeBTCPath(
           msg.path,
           msg.coin,
-          msg.scriptType ?? ('p2wpkh' as BTCInputScriptType),
+          msg.scriptType ?? BTCInputScriptType.SpendWitness,
         )
       default:
         throw new Error('Unsupported path')
@@ -174,7 +173,13 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, B
   ): Promise<boolean> {
     if (coin !== 'Bitcoin') return false
     if (!scriptType) return true
-    return ['p2wpkh', 'p2sh-p2wpkh', 'p2pkh'].includes(scriptType)
+    return (
+      [
+        BTCInputScriptType.SpendWitness,
+        BTCInputScriptType.SpendP2SHWitness,
+        BTCInputScriptType.SpendAddress,
+      ] as BTCInputScriptType[]
+    ).includes(scriptType)
   }
 
   public async btcSupportsSecureTransfer(): Promise<boolean> {
@@ -359,6 +364,7 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 
   public async getPublicKeys(): Promise<(PublicKey | null)[]> {
+    // Public keys are not exposed by WalletConnect's RPC API
     return []
   }
 

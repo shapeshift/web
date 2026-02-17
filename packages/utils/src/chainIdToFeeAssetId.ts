@@ -21,6 +21,7 @@ import {
   plasmaAssetId,
   polygonAssetId,
   solAssetId,
+  soneiumAssetId,
   starknetAssetId,
   suiAssetId,
   thorchainAssetId,
@@ -83,6 +84,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return megaethAssetId
     case KnownChainIds.KatanaMainnet:
       return katanaAssetId
+    case KnownChainIds.SoneiumMainnet:
+      return soneiumAssetId
     case KnownChainIds.ZcashMainnet:
       return zecAssetId
     case KnownChainIds.NearMainnet:

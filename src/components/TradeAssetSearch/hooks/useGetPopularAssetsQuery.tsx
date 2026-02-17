@@ -7,6 +7,7 @@ import {
   monadAssetId,
   nearAssetId,
   plasmaAssetId,
+  soneiumAssetId,
   starknetAssetId,
   suiAssetId,
   thorchainAssetId,
@@ -44,6 +45,7 @@ export const queryFn = async () => {
   if (enabledFlags.Plasma) assetIds.push(plasmaAssetId)
   if (enabledFlags.MegaEth) assetIds.push(megaethAssetId)
   if (enabledFlags.Katana) assetIds.push(katanaAssetId)
+  if (enabledFlags.Soneium) assetIds.push(soneiumAssetId)
   if (enabledFlags.Starknet) assetIds.push(starknetAssetId)
   if (enabledFlags.Tron) assetIds.push(tronAssetId)
   if (enabledFlags.Sui) assetIds.push(suiAssetId)

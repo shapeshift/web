@@ -42,6 +42,7 @@ import { overrideAssets } from './overrides'
 import * as plasma from './plasma'
 import * as polygon from './polygon'
 import * as solana from './solana'
+import * as soneium from './soneium'
 import * as starknet from './starknet'
 import * as sui from './sui'
 import * as tonModule from './ton'
@@ -73,6 +74,7 @@ const generateAssetData = async () => {
   const katanaAssets = await katana.getAssets()
   const megaethAssets = await megaeth.getAssets()
   const plasmaAssets = await plasma.getAssets()
+  const soneiumAssets = await soneium.getAssets()
   const solanaAssets = await solana.getAssets()
   const starknetAssets = await starknet.getAssets()
   const tronAssets = await tronModule.getAssets()
@@ -106,6 +108,7 @@ const generateAssetData = async () => {
     ...katanaAssets,
     ...megaethAssets,
     ...plasmaAssets,
+    ...soneiumAssets,
     ...solanaAssets,
     ...starknetAssets,
     ...tronAssets,

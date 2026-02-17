@@ -4,6 +4,7 @@ import {
   avalancheChainId,
   baseChainId,
   bchChainId,
+  berachainChainId,
   bscChainId,
   btcChainId,
   cosmosChainId,
@@ -212,6 +213,7 @@ export const getCoingeckoSupportedChainIds = () => {
     starknetChainId,
     dogeChainId,
     zecChainId,
+    ...(getConfig().VITE_FEATURE_BERACHAIN ? [berachainChainId] : []),
     ...(getConfig().VITE_FEATURE_KATANA ? [katanaChainId] : []),
     ...(getConfig().VITE_FEATURE_TON ? [tonChainId] : []),
   ]

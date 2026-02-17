@@ -1,10 +1,10 @@
 import type {
+  PathDescription,
   TronAccountPath,
   TronGetAccountPaths,
   TronGetAddress,
   TronSignedTx,
   TronSignTx,
-  PathDescription,
 } from '@shapeshiftoss/hdwallet-core'
 import { slip44ByCoin, tronDescribePath } from '@shapeshiftoss/hdwallet-core'
 import type EthereumProvider from '@walletconnect/ethereum-provider'

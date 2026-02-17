@@ -3,6 +3,7 @@ import {
   hyperEvmAssetId,
   katanaAssetId,
   mayachainAssetId,
+  megaethAssetId,
   monadAssetId,
   nearAssetId,
   plasmaAssetId,
@@ -41,6 +42,7 @@ export const queryFn = async () => {
   if (enabledFlags.Monad) assetIds.push(monadAssetId)
   if (enabledFlags.Near) assetIds.push(nearAssetId)
   if (enabledFlags.Plasma) assetIds.push(plasmaAssetId)
+  if (enabledFlags.MegaEth) assetIds.push(megaethAssetId)
   if (enabledFlags.Katana) assetIds.push(katanaAssetId)
   if (enabledFlags.Starknet) assetIds.push(starknetAssetId)
   if (enabledFlags.Tron) assetIds.push(tronAssetId)

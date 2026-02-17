@@ -15,6 +15,7 @@ import hyperevm from "./eip155_999/adapter.json";
 import plasma from "./eip155_9745/adapter.json";
 import katana from "./eip155_747474/adapter.json";
 import megaeth from "./eip155_4326/adapter.json";
+import mantle from "./eip155_5000/adapter.json";
 import cosmos from "./cosmos_cosmoshub-4/adapter.json";
 import thorchain from "./cosmos_thorchain-1/adapter.json";
 import mayachain from "./cosmos_mayachain-mainnet-v1/adapter.json";
@@ -44,6 +45,7 @@ export {
   plasma,
   katana,
   megaeth,
+  mantle,
   cosmos,
   thorchain,
   mayachain,

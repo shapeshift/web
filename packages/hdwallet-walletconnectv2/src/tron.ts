@@ -56,24 +56,25 @@ export async function tronSignTx(
     const signerAddress = getTronSignerAddress(provider)
     if (!signerAddress) return null
 
-    const result = await provider.signer.request<{ signature: string }>(
+    const transaction = msg.transaction ?? { raw_data_hex: msg.rawDataHex }
+
+    const result = await provider.signer.request<{ signature: string[] }>(
       {
         method: 'tron_signTransaction',
         params: {
           address: signerAddress,
-          transaction: {
-            rawDataHex: msg.rawDataHex,
-          },
+          transaction,
         },
       },
       TRON_MAINNET_CAIP2,
     )
 
-    if (!result?.signature) return null
+    const signature = result?.signature?.[0]
+    if (!signature) return null
 
     return {
-      serialized: msg.rawDataHex + result.signature,
-      signature: result.signature,
+      serialized: msg.rawDataHex + signature,
+      signature,
     }
   } catch (error) {
     console.error(error)

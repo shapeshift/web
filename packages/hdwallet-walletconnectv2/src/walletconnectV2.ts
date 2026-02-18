@@ -202,7 +202,6 @@ export class WalletConnectV2WalletInfo
 }
 
 export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWallet, SolanaWallet {
-  readonly _supportsETH = true
   readonly _supportsETHInfo = true
   readonly _supportsBTCInfo = false
   readonly _supportsBTC = false
@@ -232,6 +231,10 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
   ethAddress: Address | undefined
   cosmosAddress: string | undefined
   solanaAddress: string | undefined
+
+  get _supportsETH(): boolean {
+    return !!this.provider.session?.namespaces?.eip155
+  }
 
   get _supportsCosmos(): boolean {
     return !!this.provider.session?.namespaces?.cosmos

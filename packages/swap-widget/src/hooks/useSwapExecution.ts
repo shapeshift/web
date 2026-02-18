@@ -83,9 +83,7 @@ export const useSwapExecution = () => {
           }
 
           if (!txData.to || !txData.data) {
-            throw new Error(
-              `Invalid EVM transaction data: missing 'to' or 'data' fields.`,
-            )
+            throw new Error(`Invalid EVM transaction data: missing 'to' or 'data' fields.`)
           }
 
           const txHash = await client.sendTransaction({

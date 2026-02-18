@@ -11,6 +11,7 @@ import { GenericTransactionNotification } from '@/components/Layout/Header/Actio
 import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { getCeloTransactionStatus } from '@/lib/utils/celo'
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getKatanaTransactionStatus } from '@/lib/utils/katana'
 import { getMegaEthTransactionStatus } from '@/lib/utils/megaeth'
@@ -214,6 +215,12 @@ export const useSendActionSubscriber = () => {
                   const katanaTxStatus = await getKatanaTransactionStatus(txHash, katanaNodeUrl)
                   isConfirmed =
                     katanaTxStatus === TxStatus.Confirmed || katanaTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.CeloMainnet: {
+                  const celoTxStatus = await getCeloTransactionStatus(txHash)
+                  isConfirmed =
+                    celoTxStatus === TxStatus.Confirmed || celoTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.NearMainnet: {

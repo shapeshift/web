@@ -8,6 +8,7 @@ import {
   avalanche,
   base,
   bsc,
+  celo,
   gnosis,
   hyperEvm,
   katana,
@@ -117,6 +118,11 @@ export const viemKatanaClient = createPublicClient({
   transport: fallback([process.env.VITE_KATANA_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemCeloClient = createPublicClient({
+  chain: celo,
+  transport: fallback([process.env.VITE_CELO_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,
   [KnownChainIds.BnbSmartChainMainnet]: viemBscClient,
@@ -131,6 +137,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.PlasmaMainnet]: viemPlasmaClient,
   [KnownChainIds.MegaEthMainnet]: viemMegaEthClient,
   [KnownChainIds.KatanaMainnet]: viemKatanaClient,
+  [KnownChainIds.CeloMainnet]: viemCeloClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -147,6 +154,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.PlasmaMainnet]: plasma.id,
   [KnownChainIds.MegaEthMainnet]: megaeth.id,
   [KnownChainIds.KatanaMainnet]: katana.id,
+  [KnownChainIds.CeloMainnet]: celo.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -163,6 +171,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [plasma.id]: viemPlasmaClient,
   [megaeth.id]: viemMegaEthClient,
   [katana.id]: viemKatanaClient,
+  [celo.id]: viemCeloClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

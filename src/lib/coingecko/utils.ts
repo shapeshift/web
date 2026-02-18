@@ -6,6 +6,7 @@ import {
   bchChainId,
   bscChainId,
   btcChainId,
+  celoChainId,
   cosmosChainId,
   dogeChainId,
   ethChainId,
@@ -213,6 +214,7 @@ export const getCoingeckoSupportedChainIds = () => {
     dogeChainId,
     zecChainId,
     ...(getConfig().VITE_FEATURE_KATANA ? [katanaChainId] : []),
+    ...(getConfig().VITE_FEATURE_CELO ? [celoChainId] : []),
     ...(getConfig().VITE_FEATURE_TON ? [tonChainId] : []),
   ]
 }

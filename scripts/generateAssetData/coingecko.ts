@@ -6,6 +6,7 @@ import {
   avalancheChainId,
   baseChainId,
   bscChainId,
+  celoChainId,
   ethChainId,
   gnosisChainId,
   hyperEvmChainId,
@@ -29,6 +30,7 @@ import {
   avax,
   base,
   bnbsmartchain,
+  celo,
   ethereum,
   gnosis,
   hyperevm,
@@ -172,6 +174,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: katana.explorer,
           explorerAddressLink: katana.explorerAddressLink,
           explorerTxLink: katana.explorerTxLink,
+        }
+      case celoChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: celo.explorer,
+          explorerAddressLink: celo.explorerAddressLink,
+          explorerTxLink: celo.explorerTxLink,
         }
       case solanaChainId:
         return {

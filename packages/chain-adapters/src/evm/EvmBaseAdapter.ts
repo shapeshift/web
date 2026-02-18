@@ -12,6 +12,7 @@ import {
   supportsAvalanche,
   supportsBase,
   supportsBSC,
+  supportsCelo,
   supportsETH,
   supportsGnosis,
   supportsHyperEvm,
@@ -88,6 +89,7 @@ export const evmChainIds = [
   KnownChainIds.PlasmaMainnet,
   KnownChainIds.MegaEthMainnet,
   KnownChainIds.KatanaMainnet,
+  KnownChainIds.CeloMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -192,6 +194,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsMegaEth(wallet)
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
+        case Number(fromChainId(KnownChainIds.CeloMainnet).chainReference):
+          return supportsCelo(wallet)
         default:
           return false
       }
@@ -288,6 +292,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://katanascan.com',
+      },
+      [KnownChainIds.CeloMainnet]: {
+        name: 'Celo',
+        symbol: 'CELO',
+        explorer: 'https://celoscan.io',
       },
     }[this.chainId]
 

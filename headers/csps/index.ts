@@ -10,6 +10,7 @@ import { csp as baseChain } from './chains/base'
 import { csp as bitcoin } from './chains/bitcoin'
 import { csp as bitcoincash } from './chains/bitcoincash'
 import { csp as bnbsmartchain } from './chains/bnbsmartchain'
+import { csp as celo } from './chains/celo'
 import { csp as cosmos } from './chains/cosmos'
 import { csp as dogecoin } from './chains/dogecoin'
 import { csp as ethereum } from './chains/ethereum'
@@ -131,6 +132,7 @@ export const csps = [
   monad,
   near,
   plasma,
+  celo,
   trustwallet,
   coincap,
   coingecko,

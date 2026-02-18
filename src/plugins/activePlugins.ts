@@ -4,6 +4,7 @@ import base from '@/plugins/base'
 import bitcoin from '@/plugins/bitcoin'
 import bitcoincash from '@/plugins/bitcoincash'
 import bnbsmartchain from '@/plugins/bnbsmartchain'
+import celo from '@/plugins/celo'
 import cosmos from '@/plugins/cosmos'
 import dogecoin from '@/plugins/dogecoin'
 import ethereum from '@/plugins/ethereum'
@@ -50,6 +51,7 @@ export const activePlugins = [
   optimism,
   plasma,
   polygon,
+  celo,
   solana,
   starknet,
   sui,

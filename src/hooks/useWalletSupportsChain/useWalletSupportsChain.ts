@@ -6,6 +6,7 @@ import {
   bchChainId,
   bscChainId,
   btcChainId,
+  celoChainId,
   cosmosChainId,
   dogeChainId,
   ethChainId,
@@ -40,6 +41,7 @@ import {
   supportsBase,
   supportsBSC,
   supportsBTC,
+  supportsCelo,
   supportsCosmos,
   supportsETH,
   supportsGnosis,
@@ -149,6 +151,7 @@ export const walletSupportsChain = ({
 
   const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
   const isKatanaEnabled = selectFeatureFlag(store.getState(), 'Katana')
+  const isCeloEnabled = selectFeatureFlag(store.getState(), 'Celo')
   const isMegaEthEnabled = selectFeatureFlag(store.getState(), 'MegaEth')
   const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
   const isNearEnabled = selectFeatureFlag(store.getState(), 'Near')
@@ -196,6 +199,8 @@ export const walletSupportsChain = ({
       return isPlasmaEnabled && supportsPlasma(wallet)
     case katanaChainId:
       return isKatanaEnabled && supportsKatana(wallet)
+    case celoChainId:
+      return isCeloEnabled && supportsCelo(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

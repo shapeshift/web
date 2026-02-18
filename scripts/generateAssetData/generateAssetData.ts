@@ -27,6 +27,7 @@ import * as arbitrum from './arbitrum'
 import * as avalanche from './avalanche'
 import * as base from './base'
 import * as bnbsmartchain from './bnbsmartchain'
+import * as celo from './celo'
 import { compressGeneratedAssets } from './compressAssets'
 import { ASSET_DATA_PATH, GENERATED_DIR, RELATED_ASSET_INDEX_PATH } from './constants'
 import * as ethereum from './ethereum'
@@ -73,6 +74,7 @@ const generateAssetData = async () => {
   const katanaAssets = await katana.getAssets()
   const megaethAssets = await megaeth.getAssets()
   const plasmaAssets = await plasma.getAssets()
+  const celoAssets = await celo.getAssets()
   const solanaAssets = await solana.getAssets()
   const starknetAssets = await starknet.getAssets()
   const tronAssets = await tronModule.getAssets()
@@ -106,6 +108,7 @@ const generateAssetData = async () => {
     ...katanaAssets,
     ...megaethAssets,
     ...plasmaAssets,
+    ...celoAssets,
     ...solanaAssets,
     ...starknetAssets,
     ...tronAssets,

@@ -363,6 +363,7 @@ export class GridPlusHDWallet
   readonly _supportsMonad = true
   readonly _supportsPlasma = true
   readonly _supportsKatana = false
+  readonly _supportsEthereal = false
   readonly _supportsHyperEvm = true
   readonly _supportsMegaEth = true
   readonly _supportsCosmos = true

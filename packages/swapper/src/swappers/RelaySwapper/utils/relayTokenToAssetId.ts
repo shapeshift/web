@@ -146,6 +146,11 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
           assetReference: ASSET_REFERENCE.Katana,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
+      case CHAIN_REFERENCE.EtherealMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Ethereal,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       default:
         throw Error(`chainId '${relayToken.chainId}' not supported`)
     }

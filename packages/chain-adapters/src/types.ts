@@ -49,6 +49,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.PlasmaMainnet]: evm.Account
     [KnownChainIds.MegaEthMainnet]: evm.Account
     [KnownChainIds.KatanaMainnet]: evm.Account
+    [KnownChainIds.EtherealMainnet]: evm.Account
     [KnownChainIds.BitcoinMainnet]: utxo.Account
     [KnownChainIds.BitcoinCashMainnet]: utxo.Account
     [KnownChainIds.DogecoinMainnet]: utxo.Account
@@ -101,6 +102,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.PlasmaMainnet]: evm.FeeData
     [KnownChainIds.MegaEthMainnet]: evm.FeeData
     [KnownChainIds.KatanaMainnet]: evm.FeeData
+    [KnownChainIds.EtherealMainnet]: evm.FeeData
     [KnownChainIds.BitcoinMainnet]: utxo.FeeData
     [KnownChainIds.BitcoinCashMainnet]: utxo.FeeData
     [KnownChainIds.DogecoinMainnet]: utxo.FeeData
@@ -243,6 +245,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.PlasmaMainnet]: evm.BuildTxInput
     [KnownChainIds.MegaEthMainnet]: evm.BuildTxInput
     [KnownChainIds.KatanaMainnet]: evm.BuildTxInput
+    [KnownChainIds.EtherealMainnet]: evm.BuildTxInput
     [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.BuildTxInput
     [KnownChainIds.DogecoinMainnet]: utxo.BuildTxInput
@@ -350,6 +353,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.PlasmaMainnet]: evm.GetFeeDataInput
     [KnownChainIds.MegaEthMainnet]: evm.GetFeeDataInput
     [KnownChainIds.KatanaMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.EtherealMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BitcoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.DogecoinMainnet]: utxo.GetFeeDataInput
@@ -422,6 +426,7 @@ export enum ChainAdapterDisplayName {
   Plasma = 'Plasma',
   MegaEth = 'MegaETH',
   Katana = 'Katana',
+  Ethereal = 'Ethereal',
   Cosmos = 'Cosmos',
   Bitcoin = 'Bitcoin',
   BitcoinCash = 'Bitcoin Cash',

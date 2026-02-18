@@ -11,6 +11,7 @@ import { GenericTransactionNotification } from '@/components/Layout/Header/Actio
 import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { getEtherealTransactionStatus } from '@/lib/utils/ethereal'
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getKatanaTransactionStatus } from '@/lib/utils/katana'
 import { getMegaEthTransactionStatus } from '@/lib/utils/megaeth'
@@ -214,6 +215,12 @@ export const useSendActionSubscriber = () => {
                   const katanaTxStatus = await getKatanaTransactionStatus(txHash, katanaNodeUrl)
                   isConfirmed =
                     katanaTxStatus === TxStatus.Confirmed || katanaTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.EtherealMainnet: {
+                  const etherealTxStatus = await getEtherealTransactionStatus(txHash)
+                  isConfirmed =
+                    etherealTxStatus === TxStatus.Confirmed || etherealTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.NearMainnet: {

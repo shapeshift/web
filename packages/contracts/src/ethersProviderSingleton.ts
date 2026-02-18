@@ -34,6 +34,8 @@ export const rpcUrlByChainId = (chainId: EvmChainId): string => {
         return process.env.VITE_MEGAETH_NODE_URL
       case KnownChainIds.KatanaMainnet:
         return process.env.VITE_KATANA_NODE_URL
+      case KnownChainIds.EtherealMainnet:
+        return process.env.VITE_ETHEREAL_NODE_URL
       default:
         return assertUnreachable(chainId)
     }

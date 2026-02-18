@@ -389,6 +389,23 @@ export const katana: Readonly<Asset> = Object.freeze({
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 
+export const ethereal: Readonly<Asset> = Object.freeze({
+  assetId: caip.etherealAssetId,
+  chainId: caip.etherealChainId,
+  name: 'USDe',
+  networkName: 'Ethereal',
+  symbol: 'USDe',
+  precision: 18,
+  color: '#6E56CF',
+  networkColor: '#6E56CF',
+  icon: 'https://assets.coingecko.com/coins/images/33613/large/USDE.png',
+  networkIcon: 'https://assets.coingecko.com/coins/images/33613/large/USDE.png',
+  explorer: 'https://explorer.ethereal.global',
+  explorerAddressLink: 'https://explorer.ethereal.global/address/',
+  explorerTxLink: 'https://explorer.ethereal.global/tx/',
+  relatedAssetKey: null,
+})
+
 export const solana: Readonly<Asset> = Object.freeze({
   assetId: caip.solAssetId,
   chainId: caip.solanaChainId,

@@ -5,6 +5,7 @@ import {
   bscChainId,
   btcChainId,
   ethChainId,
+  etherealChainId,
   gnosisChainId,
   hyperEvmChainId,
   katanaChainId,
@@ -55,6 +56,7 @@ export const chainIdToRelayChainId = {
   [megaethChainId]: 4326,
   [plasmaChainId]: plasma.id,
   [katanaChainId]: katana.id,
+  [etherealChainId]: 5064014,
 }
 
 export enum RelayStatusMessage {

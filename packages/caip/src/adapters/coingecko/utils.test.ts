@@ -184,6 +184,7 @@ describe('adapters:coingecko:utils', () => {
         },
         'eip155:42220': {
           'eip155:42220/slip44:60': 'celo',
+          'eip155:42220/erc20:0x471ece3750da237f93b8e339c536989b8978a438': 'celo',
         },
         'near:mainnet': {
           'near:mainnet/slip44:397': 'near',

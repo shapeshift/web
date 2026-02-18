@@ -24,6 +24,7 @@ import type {
   ETHVerifyMessage,
   ETHWallet,
   ETHWalletInfo,
+  GetPublicKey,
   HDWallet,
   HDWalletInfo,
   PathDescription,
@@ -363,9 +364,19 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, BTCWallet {
     return this.info.describePath(msg)
   }
 
-  public async getPublicKeys(): Promise<(PublicKey | null)[]> {
-    // Public keys are not exposed by WalletConnect's RPC API
-    return []
+  public async getPublicKeys(msg: GetPublicKey[]): Promise<(PublicKey | null)[]> {
+    return await Promise.all(
+      msg.map(async getPublicKey => {
+        const { coin, scriptType } = getPublicKey
+
+        if (coin === 'Bitcoin' && scriptType === BTCInputScriptType.SpendWitness) {
+          const address = await this.btcGetAddress({ coin: 'Bitcoin' } as BTCGetAddress)
+          return { xpub: address } as PublicKey
+        }
+
+        return null
+      }),
+    )
   }
 
   public async isInitialized(): Promise<boolean> {
@@ -467,7 +478,13 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 
   public async getDeviceID(): Promise<string> {
-    return 'wc:' + (await this.ethGetAddress())
+    const ethAddr = await this.ethGetAddress()
+    if (ethAddr) return 'wc:' + ethAddr
+
+    const btcAddr = await this.btcGetAddress({ coin: 'Bitcoin' } as BTCGetAddress)
+    if (btcAddr) return 'wc:' + btcAddr
+
+    return 'wc:unknown'
   }
 
   public async getFirmwareVersion(): Promise<string> {
@@ -534,7 +551,7 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, BTCWallet {
   }
 
   public async btcSignTx(msg: BTCSignTx): Promise<BTCSignedTx | null> {
-    return btcSignTx(this.provider, msg)
+    return btcSignTx(this, this.provider, msg)
   }
 
   public async btcSignMessage(msg: BTCSignMessage): Promise<BTCSignedMessage | null> {

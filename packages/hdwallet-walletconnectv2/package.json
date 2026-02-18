@@ -28,6 +28,8 @@
     "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   },
   "dependencies": {
+    "@bitcoinerlab/secp256k1": "^1.2.0",
+    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
     "@shapeshiftoss/hdwallet-core": "workspace:^",
     "@walletconnect/ethereum-provider": "^2.20.2",
     "@walletconnect/modal": "^2.6.2",

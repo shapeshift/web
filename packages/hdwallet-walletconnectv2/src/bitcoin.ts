@@ -1,3 +1,5 @@
+import ecc from '@bitcoinerlab/secp256k1'
+import * as bitcoin from '@shapeshiftoss/bitcoinjs-lib'
 import type {
   BTCAccountPath,
   BTCGetAccountPaths,
@@ -7,12 +9,18 @@ import type {
   BTCSignMessage,
   BTCSignTx,
   BTCVerifyMessage,
+  BTCWallet,
   PathDescription,
 } from '@shapeshiftoss/hdwallet-core'
 import { BTCInputScriptType, describeUTXOPath, slip44ByCoin } from '@shapeshiftoss/hdwallet-core'
 import type EthereumProvider from '@walletconnect/ethereum-provider'
 
 const BIP122_BITCOIN_MAINNET_CAIP2 = 'bip122:000000000019d6689c085ae165831e93'
+
+function extractAddressFromCaip10(caip10Account: string): string {
+  const parts = caip10Account.split(':')
+  return parts[parts.length - 1]
+}
 
 export function describeBTCPath(
   path: number[],
@@ -105,50 +113,137 @@ export async function btcGetAddress(
     const bip122Accounts = session.namespaces?.bip122?.accounts
     if (!bip122Accounts || bip122Accounts.length === 0) return null
 
-    // CAIP-10 format: bip122:000000000019d6689c085ae165831e93:bc1q...
-    const parts = bip122Accounts[0].split(':')
-    return parts[2] ?? null
+    return extractAddressFromCaip10(bip122Accounts[0])
   } catch (error) {
     console.error(error)
     return null
   }
 }
 
+function getNetwork(coin: string): bitcoin.networks.Network {
+  switch (coin.toLowerCase()) {
+    case 'bitcoin':
+      return bitcoin.networks.bitcoin
+    default:
+      throw new Error(`Unsupported coin: ${coin}`)
+  }
+}
+
+async function addInput(psbt: bitcoin.Psbt, input: BTCSignTx['inputs'][number]): Promise<void> {
+  switch (input.scriptType) {
+    case BTCInputScriptType.SpendWitness: {
+      psbt.addInput({
+        hash: input.txid,
+        index: input.vout,
+        nonWitnessUtxo: Buffer.from(input.hex, 'hex'),
+        ...(input.sequence !== undefined && { sequence: input.sequence }),
+      })
+      break
+    }
+    default:
+      throw new Error(`Unsupported script type: ${input.scriptType}`)
+  }
+}
+
+async function addOutput(
+  wallet: BTCWallet,
+  psbt: bitcoin.Psbt,
+  output: BTCSignTx['outputs'][number],
+  coin: string,
+): Promise<void> {
+  if (!output.amount) throw new Error('Invalid output - missing amount.')
+
+  const address = await (async () => {
+    if (output.address) return output.address
+
+    if (output.addressNList) {
+      const outputAddress = await wallet.btcGetAddress({
+        addressNList: output.addressNList,
+        coin,
+        showDisplay: false,
+      })
+      if (!outputAddress) throw new Error('Could not get address from wallet')
+      return outputAddress
+    }
+  })()
+
+  if (!address) throw new Error('Invalid output - no address')
+
+  psbt.addOutput({ address, value: BigInt(output.amount) })
+}
+
 export async function btcSignTx(
+  wallet: BTCWallet,
   provider: EthereumProvider,
   msg: BTCSignTx,
 ): Promise<BTCSignedTx | null> {
   try {
+    bitcoin.initEccLib(ecc)
+
     const session = provider.session
     if (!session) return null
 
     const bip122Accounts = session.namespaces?.bip122?.accounts
     if (!bip122Accounts || bip122Accounts.length === 0) return null
 
-    const account = bip122Accounts[0]
+    const address = extractAddressFromCaip10(bip122Accounts[0])
 
-    // WC Bitcoin wallets use PSBT signing, not raw tx signing.
-    // If the msg contains a psbt field, sign it directly. Otherwise, we can't
-    // support raw inputs/outputs signing via WC - wallets expect PSBT format.
-    const psbt = (msg as BTCSignTx & { psbt?: string }).psbt
-    if (!psbt) return null
+    const network = getNetwork(msg.coin)
+    const psbt = new bitcoin.Psbt({ network })
+
+    psbt.setVersion(msg.version ?? 2)
+    if (msg.locktime) {
+      psbt.setLocktime(msg.locktime)
+    }
+
+    for (const input of msg.inputs) {
+      await addInput(psbt, input)
+    }
+
+    for (const output of msg.outputs) {
+      await addOutput(wallet, psbt, output, msg.coin)
+    }
+
+    if (msg.opReturnData) {
+      const data = Buffer.from(msg.opReturnData, 'utf-8')
+      const embed = bitcoin.payments.embed({ data: [data] })
+      const script = embed.output
+      if (!script) throw new Error('unable to build OP_RETURN script')
+      psbt.addOutput({ script, value: BigInt(0) })
+    }
+
+    const psbtBase64 = psbt.toBase64()
+
+    const signInputs = msg.inputs.map((_input, index) => ({
+      address,
+      index,
+      sighashTypes: [bitcoin.Transaction.SIGHASH_ALL],
+    }))
 
     const result = await provider.signer.request<{ psbt: string; txid?: string }>(
       {
         method: 'signPsbt',
         params: {
-          account,
-          psbt,
-          signInputs: {},
-          broadcast: true,
+          account: address,
+          psbt: psbtBase64,
+          signInputs,
+          broadcast: false,
         },
       },
       BIP122_BITCOIN_MAINNET_CAIP2,
     )
 
+    const signedPsbt = bitcoin.Psbt.fromBase64(result.psbt, { network })
+    signedPsbt.finalizeAllInputs()
+    const tx = signedPsbt.extractTransaction()
+
+    const signatures = signedPsbt.data.inputs.map(input =>
+      input.partialSig ? Buffer.from(input.partialSig[0].signature).toString('hex') : '',
+    )
+
     return {
-      signatures: [],
-      serializedTx: result.psbt,
+      signatures,
+      serializedTx: tx.toHex(),
     }
   } catch (error) {
     console.error(error)
@@ -167,13 +262,13 @@ export async function btcSignMessage(
     const bip122Accounts = session.namespaces?.bip122?.accounts
     if (!bip122Accounts || bip122Accounts.length === 0) return null
 
-    const account = bip122Accounts[0]
+    const address = extractAddressFromCaip10(bip122Accounts[0])
 
     const result = await provider.signer.request<{ signature: string; address: string }>(
       {
         method: 'signMessage',
         params: {
-          account,
+          account: address,
           message: msg.message,
         },
       },

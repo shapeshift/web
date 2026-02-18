@@ -34,6 +34,7 @@ import { csp as tron } from './chains/tron'
 import { csp as zcash } from './chains/zcash'
 import { csp as chatwoot } from './chatwoot'
 import { csp as customTokenImport } from './customTokenImport'
+import { csp as debridge } from './debridge'
 import { csp as foxy } from './defi/foxy'
 import { csp as idle } from './defi/idle'
 import { csp as mtpelerin } from './defi/mtpelerin'
@@ -163,6 +164,7 @@ export const csps = [
   walletConnect,
   walletMigration,
   relay,
+  debridge,
   railway,
   discord,
   yieldxyz,

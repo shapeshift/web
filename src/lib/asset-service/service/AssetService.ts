@@ -3,6 +3,7 @@ import {
   adapters,
   arbitrumChainId,
   baseChainId,
+  blastChainId,
   bscChainId,
   gnosisChainId,
   hyperEvmChainId,
@@ -122,6 +123,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_MONAD && asset.chainId === monadChainId) return false
       if (!config.VITE_FEATURE_HYPEREVM && asset.chainId === hyperEvmChainId) return false
       if (!config.VITE_FEATURE_KATANA && asset.chainId === katanaChainId) return false
+      if (!config.VITE_FEATURE_BLAST && asset.chainId === blastChainId) return false
       if (!config.VITE_FEATURE_MEGAETH && asset.chainId === megaethChainId) return false
       if (!config.VITE_FEATURE_MAYACHAIN && asset.chainId === mayachainChainId) return false
       if (!config.VITE_FEATURE_NEAR && asset.chainId === nearChainId) return false

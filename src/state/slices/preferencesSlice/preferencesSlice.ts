@@ -38,6 +38,7 @@ export type FeatureFlags = {
   Plasma: boolean
   MegaEth: boolean
   Katana: boolean
+  Blast: boolean
   Zcash: boolean
   ThorSwap: boolean
   WalletConnectToDapps: boolean
@@ -187,6 +188,7 @@ const initialState: Preferences = {
     Plasma: getConfig().VITE_FEATURE_PLASMA,
     MegaEth: getConfig().VITE_FEATURE_MEGAETH,
     Katana: getConfig().VITE_FEATURE_KATANA,
+    Blast: getConfig().VITE_FEATURE_BLAST,
     Zcash: getConfig().VITE_FEATURE_ZCASH,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,
     WalletConnectToDappsV2: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,

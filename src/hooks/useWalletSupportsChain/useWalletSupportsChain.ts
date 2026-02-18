@@ -4,6 +4,7 @@ import {
   avalancheChainId,
   baseChainId,
   bchChainId,
+  blastChainId,
   bscChainId,
   btcChainId,
   cosmosChainId,
@@ -38,6 +39,7 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
+  supportsBlast,
   supportsBSC,
   supportsBTC,
   supportsCosmos,
@@ -147,6 +149,7 @@ export const walletSupportsChain = ({
   // We have no runtime support for the current ChainId - trying and checking for feature-capabilities flags is futile
   if (!hasRuntimeSupport) return false
 
+  const isBlastEnabled = selectFeatureFlag(store.getState(), 'Blast')
   const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
   const isKatanaEnabled = selectFeatureFlag(store.getState(), 'Katana')
   const isMegaEthEnabled = selectFeatureFlag(store.getState(), 'MegaEth')
@@ -196,6 +199,8 @@ export const walletSupportsChain = ({
       return isPlasmaEnabled && supportsPlasma(wallet)
     case katanaChainId:
       return isKatanaEnabled && supportsKatana(wallet)
+    case blastChainId:
+      return isBlastEnabled && supportsBlast(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

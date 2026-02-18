@@ -3,6 +3,7 @@ import avalanche from '@/plugins/avalanche'
 import base from '@/plugins/base'
 import bitcoin from '@/plugins/bitcoin'
 import bitcoincash from '@/plugins/bitcoincash'
+import blast from '@/plugins/blast'
 import bnbsmartchain from '@/plugins/bnbsmartchain'
 import cosmos from '@/plugins/cosmos'
 import dogecoin from '@/plugins/dogecoin'
@@ -34,6 +35,7 @@ export const activePlugins = [
   base,
   bitcoin,
   bitcoincash,
+  blast,
   bnbsmartchain,
   cosmos,
   dogecoin,

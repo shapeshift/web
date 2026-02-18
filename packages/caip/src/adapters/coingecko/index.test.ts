@@ -63,12 +63,19 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.MegaEth,
       })
+      const ethOnBlast = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.BlastMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Blast,
+      })
       expect(coingeckoToAssetIds('ethereum')).toEqual([
         ethOnEthereum,
         ethOnOptimism,
         ethOnArbitrum,
         ethOnBase,
         ethOnMegaEth,
+        ethOnBlast,
       ])
     })
 

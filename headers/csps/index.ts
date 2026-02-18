@@ -9,6 +9,7 @@ import { csp as avalanche } from './chains/avalanche'
 import { csp as baseChain } from './chains/base'
 import { csp as bitcoin } from './chains/bitcoin'
 import { csp as bitcoincash } from './chains/bitcoincash'
+import { csp as blast } from './chains/blast'
 import { csp as bnbsmartchain } from './chains/bnbsmartchain'
 import { csp as cosmos } from './chains/cosmos'
 import { csp as dogecoin } from './chains/dogecoin'
@@ -109,6 +110,7 @@ export const csps = [
   baseChain,
   bitcoin,
   bitcoincash,
+  blast,
   bnbsmartchain,
   cosmos,
   dogecoin,

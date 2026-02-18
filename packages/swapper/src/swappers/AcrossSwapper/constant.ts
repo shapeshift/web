@@ -1,6 +1,7 @@
 import {
   arbitrumChainId,
   baseChainId,
+  blastChainId,
   bscChainId,
   ethChainId,
   hyperEvmChainId,
@@ -15,6 +16,7 @@ import { zeroAddress } from 'viem'
 import {
   arbitrum,
   base,
+  blast,
   bsc,
   hyperEvm,
   mainnet as ethereum,
@@ -37,6 +39,7 @@ export const chainIdToAcrossChainId: Record<string, number> = {
   [monadChainId]: monad.id,
   [hyperEvmChainId]: hyperEvm.id,
   [plasmaChainId]: plasma.id,
+  [blastChainId]: blast.id,
   // Across uses a custom Solana chain ID
   [solanaChainId]: 34268394551451,
 }

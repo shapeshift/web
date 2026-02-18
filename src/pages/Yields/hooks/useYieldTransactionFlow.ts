@@ -858,6 +858,11 @@ export const useYieldTransactionFlow = ({
     yieldItem?.mechanics.type,
   ])
 
+  const isAmountLocked = useMemo(
+    () => transactionSteps.some(step => Boolean(step.txHash)),
+    [transactionSteps],
+  )
+
   return useMemo(
     () => ({
       step,
@@ -872,6 +877,7 @@ export const useYieldTransactionFlow = ({
       quoteData,
       isAllowanceCheckPending,
       isUsdtResetRequired,
+      isAmountLocked,
     }),
     [
       step,
@@ -886,6 +892,7 @@ export const useYieldTransactionFlow = ({
       quoteData,
       isAllowanceCheckPending,
       isUsdtResetRequired,
+      isAmountLocked,
     ],
   )
 }

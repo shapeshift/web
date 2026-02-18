@@ -321,6 +321,7 @@ export const YieldEnterModal = memo(
       quoteData,
       isAllowanceCheckPending,
       isUsdtResetRequired,
+      isAmountLocked,
     } = useYieldTransactionFlow({
       yieldItem,
       action: 'enter',
@@ -413,6 +414,8 @@ export const YieldEnterModal = memo(
       return translate(headingKeys.enter, { symbol: inputTokenAsset?.symbol })
     }, [translate, inputTokenAsset?.symbol, step, headingKeys.enter])
 
+    const isInputDisabled = isSubmitting || isAmountLocked
+
     const percentButtons = useMemo(
       () => (
         <HStack spacing={2} justify='center' width='full'>
@@ -430,6 +433,7 @@ export const YieldEnterModal = memo(
                 borderRadius='full'
                 px={4}
                 fontWeight='medium'
+                isDisabled={isInputDisabled}
               >
                 {percent === 1 ? translate('modals.send.sendForm.max') : `${percent * 100}%`}
               </Button>
@@ -437,7 +441,7 @@ export const YieldEnterModal = memo(
           })}
         </HStack>
       ),
-      [selectedPercent, handlePercentClick, translate],
+      [selectedPercent, handlePercentClick, translate, isInputDisabled],
     )
 
     const statsContent = useMemo(
@@ -555,6 +559,7 @@ export const YieldEnterModal = memo(
             prefix={isFiat ? localeParts.prefix : ''}
             suffix={isFiat ? '' : ` ${inputTokenAsset?.symbol}`}
             onValueChange={handleInputChange}
+            isDisabled={isInputDisabled}
           />
           <HStack
             spacing={2}
@@ -592,6 +597,7 @@ export const YieldEnterModal = memo(
       displayPlaceholder,
       inputTokenAsset?.symbol,
       handleInputChange,
+      isInputDisabled,
       toggleIsFiat,
       cryptoAmount,
       fiatAmount,

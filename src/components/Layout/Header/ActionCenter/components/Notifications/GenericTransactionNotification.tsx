@@ -1,4 +1,7 @@
 import type { RenderProps } from '@chakra-ui/react/dist/types/toast/toast.types'
+import dayjs from 'dayjs'
+import dayjsDuration from 'dayjs/plugin/duration'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import { useMemo } from 'react'
 
 import { ActionIcon } from '../ActionIcon'
@@ -13,6 +16,9 @@ import {
   selectWalletGenericTransactionActionsSorted,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+
+dayjs.extend(dayjsDuration)
+dayjs.extend(relativeTime)
 
 export type GenericTransactionNotificationProps = {
   handleClick: () => void
@@ -67,9 +73,16 @@ export const GenericTransactionNotification = ({
         // Spread all serializable metadata fields first to ensure all values are available for interpolation
         ...serializableMetadata,
         // Then override with computed/transformed values
-        amount: action.transactionMetadata.amountCryptoPrecision, // Map to 'amount' for translation strings
-        symbol: asset.symbol, // Symbol comes from asset, not metadata
-        newAddress: middleEllipsis(action.transactionMetadata.newAddress ?? ''), // Formatted version
+        amount: action.transactionMetadata.amountCryptoPrecision,
+        symbol: asset.symbol,
+        newAddress: middleEllipsis(action.transactionMetadata.newAddress ?? ''),
+        duration: (() => {
+          const { cooldownExpiryTimestamp } = action.transactionMetadata
+          if (!cooldownExpiryTimestamp) return undefined
+          const remaining = cooldownExpiryTimestamp - Date.now()
+          if (remaining <= 0) return undefined
+          return dayjs.duration(remaining).humanize()
+        })(),
       },
     ] as [string, Record<string, string | number | undefined>]
   }, [action, asset])

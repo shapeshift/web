@@ -8,6 +8,7 @@ import {
   gnosisChainId,
   hyperEvmChainId,
   katanaChainId,
+  megaethChainId,
   monadChainId,
   optimismChainId,
   plasmaChainId,
@@ -51,6 +52,7 @@ export const chainIdToRelayChainId = {
   [tronChainId]: 728126428,
   [monadChainId]: monad.id,
   [hyperEvmChainId]: hyperEvm.id,
+  [megaethChainId]: 4326,
   [plasmaChainId]: plasma.id,
   [katanaChainId]: katana.id,
 }

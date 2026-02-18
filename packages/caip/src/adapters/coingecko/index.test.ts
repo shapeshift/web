@@ -74,8 +74,8 @@ describe('adapters:coingecko', () => {
         ethOnOptimism,
         ethOnArbitrum,
         ethOnBase,
-        ethOnMegaEth,
         ethOnBlast,
+        ethOnMegaEth,
       ])
     })
 

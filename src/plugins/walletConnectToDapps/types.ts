@@ -244,10 +244,16 @@ export type BIP122SendTransferCallRequest = {
   params: BIP122SendTransferCallRequestParams
 }
 
+export type BIP122SignPsbtSignInput = {
+  address: string
+  index: number
+  sighashTypes?: number[]
+}
+
 export type BIP122SignPsbtCallRequestParams = {
   account: string
   psbt: string
-  signInputs: Record<string, number[]>
+  signInputs: BIP122SignPsbtSignInput[]
   broadcast?: boolean
 }
 

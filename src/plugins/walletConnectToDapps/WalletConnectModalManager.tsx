@@ -12,6 +12,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
+import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { BitcoinSignConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/BitcoinSignConfirmation'
 import { CosmosSignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/CosmosSignMessageConfirmation'
 import { EIP155SignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignMessageConfirmation'
@@ -164,15 +165,24 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       method: requestEvent?.params?.request?.method,
       params: requestEvent?.params?.request?.params,
     })
-    if (!requestEvent || !wallet || !web3wallet || !topic) {
+    if (!requestEvent || !wallet || !web3wallet || !topic || !chainId) {
       console.log('[WC BIP122] Missing required data, returning early')
       return
     }
 
     try {
+      const utxoChainAdapter = (() => {
+        try {
+          return assertGetUtxoChainAdapter(chainId)
+        } catch {
+          return undefined
+        }
+      })()
+
       const response = await approveBIP122Request({
         wallet,
         requestEvent,
+        chainAdapter: utxoChainAdapter,
       })
       console.log('[WC BIP122] approveBIP122Request response:', response)
       await web3wallet.respondSessionRequest({
@@ -187,7 +197,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       })
     }
     handleClose()
-  }, [handleClose, requestEvent, topic, wallet, web3wallet])
+  }, [chainId, handleClose, requestEvent, topic, wallet, web3wallet])
 
   const handleRejectRequest = useCallback(async () => {
     if (!requestEvent || !web3wallet || !topic) return

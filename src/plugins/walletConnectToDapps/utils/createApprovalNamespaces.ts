@@ -1,6 +1,6 @@
 import { payments } from '@shapeshiftoss/bitcoinjs-lib'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAccountId, toAccountId } from '@shapeshiftoss/caip'
+import { btcChainId, CHAIN_NAMESPACE, fromAccountId, toAccountId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ProposalTypes, SessionTypes } from '@walletconnect/types'
 import * as bip32 from 'bip32'
@@ -83,7 +83,7 @@ export const deriveAddressFromExtPubKey = (extPubKey: string): string => {
 
 const utxoAccountIdToWcAccount = (accountId: AccountId): string => {
   const { chainId, account } = fromAccountId(accountId)
-  if (!isExtPubKey(account)) return accountId
+  if (chainId !== btcChainId || !isExtPubKey(account)) return accountId
   const address = deriveAddressFromExtPubKey(account)
   return toAccountId({ chainId, account: address })
 }

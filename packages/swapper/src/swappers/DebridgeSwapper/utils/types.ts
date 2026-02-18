@@ -20,7 +20,8 @@ export type DebridgeTransactionMetadata = {
   data: string
   value: string
   gasLimit?: string
-  orderId: string
+  orderId?: string
+  isSameChainSwap?: boolean
 }
 
 export type DebridgeTokenInfo = {
@@ -95,8 +96,60 @@ export type DebridgeOrderStatus = {
     | 'ClaimedOrderCancel'
 }
 
+export type DebridgeOrderId = {
+  bytesValue: string
+  bytesArrayValue: string
+  stringValue: string
+}
+
 export type DebridgeOrderIdsResponse = {
-  orderIds: string[]
+  orderIds: DebridgeOrderId[]
+}
+
+export type DebridgeSingleChainTokenInfo = {
+  address: string
+  name: string
+  symbol: string
+  decimals: number
+  amount: string
+  approximateUsdValue?: number
+}
+
+export type DebridgeSingleChainTokenOut = DebridgeSingleChainTokenInfo & {
+  minAmount: string
+}
+
+export type DebridgeSingleChainCostDetail = {
+  chain: string
+  tokenIn: string
+  tokenOut: string
+  amountIn: string
+  amountOut: string
+  type: string
+  payload: {
+    feeAmount?: string
+    feeBps?: string
+    amountOutBeforeCorrection?: string
+    estimatedVolatilityBps?: string
+    actualFeeAmount?: string
+    actualFeeBps?: string
+    subsidyAmount?: string
+    feeApproximateUsdValue?: string
+  }
+}
+
+export type DebridgeSingleChainTransactionResponse = {
+  tokenIn: DebridgeSingleChainTokenInfo
+  tokenOut: DebridgeSingleChainTokenOut
+  slippage: number
+  recommendedSlippage: number
+  protocolFee?: string
+  costsDetails: DebridgeSingleChainCostDetail[]
+  tx: {
+    to: string
+    data: string
+    value: string
+  }
 }
 
 export type DebridgeError = {

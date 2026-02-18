@@ -72,9 +72,20 @@ export const debridgeApi: SwapperApi = {
     txHash,
     chainId,
     address,
+    swap,
     fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
   }) => {
+    const isSameChainSwap = swap?.metadata.debridgeTransactionMetadata?.isSameChainSwap === true
+
+    if (isSameChainSwap) {
+      return {
+        buyTxHash: txHash,
+        status: TxStatus.Confirmed,
+        message: undefined,
+      }
+    }
+
     if (isEvmChainId(chainId)) {
       const sourceTxStatus = await checkEvmSwapStatus({
         txHash,
@@ -111,7 +122,7 @@ export const debridgeApi: SwapperApi = {
       }
     }
 
-    const orderId = orderIdsResponse.orderIds[0]
+    const orderId = orderIdsResponse.orderIds[0].stringValue
 
     const maybeStatusResponse = await debridgeService.get<DebridgeOrderStatus>(
       `https://dln.debridge.finance/v1.0/dln/order/${orderId}/status`,

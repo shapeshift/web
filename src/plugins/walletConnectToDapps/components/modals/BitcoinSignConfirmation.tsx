@@ -99,7 +99,9 @@ export const BitcoinSignConfirmationModal: FC<
             mt={2}
           />
           <RawText fontWeight='medium' color='text.subtle'>
-            {amount} sats
+            {translate('plugins.walletConnectToDapps.modal.sendTransaction.amountSats', {
+              amount,
+            })}
           </RawText>
           {memo && (
             <>
@@ -122,9 +124,11 @@ export const BitcoinSignConfirmationModal: FC<
       const truncatedPsbt = psbt.length > 100 ? `${psbt.slice(0, 100)}...` : psbt
       return (
         <Box p={4}>
-          <RawText fontWeight='medium' mb={1}>
-            PSBT
-          </RawText>
+          <Text
+            translation='plugins.walletConnectToDapps.modal.sendTransaction.psbt'
+            fontWeight='medium'
+            mb={1}
+          />
           <RawText fontWeight='medium' color='text.subtle' wordBreak='break-all'>
             {truncatedPsbt}
           </RawText>
@@ -132,7 +136,7 @@ export const BitcoinSignConfirmationModal: FC<
             {translate('plugins.walletConnectToDapps.modal.sendTransaction.broadcast')}
           </RawText>
           <RawText fontWeight='medium' color='text.subtle'>
-            {broadcast ? 'true' : 'false'}
+            {translate(broadcast ? 'common.yes' : 'common.no')}
           </RawText>
         </Box>
       )
@@ -154,7 +158,7 @@ export const BitcoinSignConfirmationModal: FC<
       <ModalSection title='plugins.walletConnectToDapps.modal.signMessage.requestFrom'>
         <Card borderRadius='md'>
           <HStack align='center' p={4}>
-            <Image borderRadius='full' boxSize='24px' src={peerMetadata.icons?.[0]} />
+            <Image borderRadius='full' boxSize='24px' src={peerMetadata.icons?.[0]} alt='' />
             <RawText fontWeight='semibold' flex={1}>
               {peerMetadata.name}
             </RawText>

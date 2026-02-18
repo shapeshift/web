@@ -178,6 +178,7 @@
       "expandRow": "Expand Row"
     },
     "featureDisabled": "This feature is temporarily disabled.",
+    "no": "No",
     "yes": "Yes",
     "activeAccount": "Active Account",
     "selectAccount": "Select Account",
@@ -2252,6 +2253,8 @@
           },
           "recipientAddress": "Recipient Address",
           "amount": "Amount",
+          "amountSats": "%{amount} sats",
+          "psbt": "PSBT",
           "broadcast": "Broadcast"
         },
         "connect": {

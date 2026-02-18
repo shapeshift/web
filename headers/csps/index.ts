@@ -30,6 +30,7 @@ import { csp as sui } from './chains/sui'
 import { csp as thorchain } from './chains/thorchain'
 import { csp as ton } from './chains/ton'
 import { csp as tron } from './chains/tron'
+import { csp as worldchain } from './chains/worldchain'
 import { csp as zcash } from './chains/zcash'
 import { csp as chatwoot } from './chatwoot'
 import { csp as customTokenImport } from './customTokenImport'
@@ -131,6 +132,7 @@ export const csps = [
   monad,
   near,
   plasma,
+  worldchain,
   trustwallet,
   coincap,
   coingecko,

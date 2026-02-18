@@ -354,6 +354,23 @@ export const plasma: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const worldchain: Readonly<Asset> = Object.freeze({
+  assetId: caip.worldChainAssetId,
+  chainId: caip.worldChainChainId,
+  name: 'Ethereum',
+  networkName: 'World Chain',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#000000',
+  networkColor: '#000000',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.relay.link/icons/480/light.png',
+  explorer: 'https://worldscan.org',
+  explorerAddressLink: 'https://worldscan.org/address/',
+  explorerTxLink: 'https://worldscan.org/tx/',
+  relatedAssetKey: null,
+})
+
 export const megaeth: Readonly<Asset> = Object.freeze({
   assetId: caip.megaethAssetId,
   chainId: caip.megaethChainId,

@@ -47,6 +47,7 @@ import * as sui from './sui'
 import * as tonModule from './ton'
 import * as tronModule from './tron'
 import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
+import * as worldchainModule from './worldchain'
 
 import { getAssetService } from '@/lib/asset-service'
 
@@ -73,6 +74,7 @@ const generateAssetData = async () => {
   const katanaAssets = await katana.getAssets()
   const megaethAssets = await megaeth.getAssets()
   const plasmaAssets = await plasma.getAssets()
+  const worldchainAssets = await worldchainModule.getAssets()
   const solanaAssets = await solana.getAssets()
   const starknetAssets = await starknet.getAssets()
   const tronAssets = await tronModule.getAssets()
@@ -106,6 +108,7 @@ const generateAssetData = async () => {
     ...katanaAssets,
     ...megaethAssets,
     ...plasmaAssets,
+    ...worldchainAssets,
     ...solanaAssets,
     ...starknetAssets,
     ...tronAssets,

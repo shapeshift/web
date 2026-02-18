@@ -26,6 +26,7 @@ import {
   thorchainChainId,
   tonChainId,
   tronChainId,
+  worldChainChainId,
   zecChainId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -56,6 +57,7 @@ import {
   supportsSui,
   supportsThorchain,
   supportsTron,
+  supportsWorldChain,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import { useMemo } from 'react'
 
@@ -154,6 +156,7 @@ export const walletSupportsChain = ({
   const isNearEnabled = selectFeatureFlag(store.getState(), 'Near')
   const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')
   const isStarknetEnabled = selectFeatureFlag(store.getState(), 'Starknet')
+  const isWorldChainEnabled = selectFeatureFlag(store.getState(), 'WorldChain')
   const isTonEnabled = selectFeatureFlag(store.getState(), 'Ton')
 
   switch (chainId) {
@@ -196,6 +199,8 @@ export const walletSupportsChain = ({
       return isPlasmaEnabled && supportsPlasma(wallet)
     case katanaChainId:
       return isKatanaEnabled && supportsKatana(wallet)
+    case worldChainChainId:
+      return isWorldChainEnabled && supportsWorldChain(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

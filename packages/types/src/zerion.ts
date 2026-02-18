@@ -14,6 +14,7 @@ import {
   solanaChainId,
   suiChainId,
   tronChainId,
+  worldChainChainId,
 } from '@shapeshiftoss/caip'
 
 export const ZERION_CHAINS = [
@@ -31,6 +32,7 @@ export const ZERION_CHAINS = [
   'monad',
   'sui',
   'plasma',
+  'world-chain',
   'katana',
   // not yet
   // 'aurora',
@@ -53,6 +55,7 @@ export const ZERION_CHAINS_MAP: Record<ZerionChainId, ChainId> = {
   monad: monadChainId,
   sui: suiChainId,
   plasma: plasmaChainId,
+  'world-chain': worldChainChainId,
   katana: katanaChainId,
 }
 

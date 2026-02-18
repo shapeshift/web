@@ -153,6 +153,7 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
   readonly _supportsKatana = true
   readonly _supportsHyperEvm = true
   readonly _supportsMegaEth = true
+  readonly _supportsWorldChain = true
 
   info: WalletConnectV2WalletInfo & HDWalletInfo
   provider: EthereumProvider

@@ -26,6 +26,7 @@ import thorchain from '@/plugins/thorchain'
 import ton from '@/plugins/ton'
 import tron from '@/plugins/tron'
 import walletConnectToDapps from '@/plugins/walletConnectToDapps'
+import worldchain from '@/plugins/worldchain'
 import zcash from '@/plugins/zcash'
 
 export const activePlugins = [
@@ -57,5 +58,6 @@ export const activePlugins = [
   ton,
   tron,
   walletConnectToDapps,
+  worldchain,
   zcash,
 ]

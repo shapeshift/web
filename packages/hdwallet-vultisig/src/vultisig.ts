@@ -228,6 +228,7 @@ export class VultisigHDWallet
   readonly _supportsKatana = false
   readonly _supportsHyperEvm = false
   readonly _supportsMegaEth = false
+  readonly _supportsWorldChain = false
   readonly _supportsBSC = true
   readonly _supportsSolana = true
   readonly _supportsThorchain = true

@@ -50,6 +50,8 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.MegaEth
           case CHAIN_REFERENCE.KatanaMainnet:
             return ASSET_REFERENCE.Katana
+          case CHAIN_REFERENCE.WorldChainMainnet:
+            return ASSET_REFERENCE.WorldChain
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

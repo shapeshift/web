@@ -52,6 +52,8 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'MEGA'
     case KnownChainIds.KatanaMainnet:
       return 'KAT'
+    case KnownChainIds.WorldChainMainnet:
+      return 'WLD'
     case KnownChainIds.ZcashMainnet:
       return 'ZEC'
     case KnownChainIds.NearMainnet:

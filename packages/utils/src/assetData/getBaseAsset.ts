@@ -30,6 +30,7 @@ import {
   thorchain,
   ton,
   tron,
+  worldchain,
   zcash,
 } from './baseAssets'
 
@@ -84,6 +85,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return megaeth
     case KnownChainIds.KatanaMainnet:
       return katana
+    case KnownChainIds.WorldChainMainnet:
+      return worldchain
     case KnownChainIds.NearMainnet:
       return near
     case KnownChainIds.ZcashMainnet:

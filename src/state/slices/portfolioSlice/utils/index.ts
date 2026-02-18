@@ -34,6 +34,7 @@ import {
   toAssetId,
   tonChainId,
   tronChainId,
+  worldChainChainId,
   zecChainId,
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
@@ -63,6 +64,7 @@ import {
   supportsSui,
   supportsThorchain,
   supportsTron,
+  supportsWorldChain,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { Asset, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
@@ -104,6 +106,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case hyperEvmChainId:
     case megaethChainId:
     case katanaChainId:
+    case worldChainChainId:
     case monadChainId:
     case plasmaChainId:
     case thorchainChainId:
@@ -513,6 +516,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsPlasma(wallet)
     case katanaChainId:
       return supportsKatana(wallet)
+    case worldChainChainId:
+      return supportsWorldChain(wallet)
     case tronChainId:
       return supportsTron(wallet)
     case nearChainId:

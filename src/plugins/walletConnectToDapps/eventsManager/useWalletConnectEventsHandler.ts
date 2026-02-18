@@ -179,9 +179,7 @@ export const useWalletConnectEventsHandler = (
           const addresses = bip122Accounts.map(caip10 => {
             const { account } = fromAccountId(caip10)
             try {
-              const address = isExtPubKey(account)
-                ? deriveAddressFromExtPubKey(account)
-                : account
+              const address = isExtPubKey(account) ? deriveAddressFromExtPubKey(account) : account
               return { address }
             } catch {
               return { address: account }

@@ -156,7 +156,16 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
   )
 
   const handleConfirmBIP122Request = useCallback(async () => {
+    console.log('[WC BIP122] handleConfirmBIP122Request', {
+      hasRequestEvent: !!requestEvent,
+      hasWallet: !!wallet,
+      hasWeb3wallet: !!web3wallet,
+      topic,
+      method: requestEvent?.params?.request?.method,
+      params: requestEvent?.params?.request?.params,
+    })
     if (!requestEvent || !wallet || !web3wallet || !topic) {
+      console.log('[WC BIP122] Missing required data, returning early')
       return
     }
 
@@ -165,6 +174,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         wallet,
         requestEvent,
       })
+      console.log('[WC BIP122] approveBIP122Request response:', response)
       await web3wallet.respondSessionRequest({
         topic,
         response,

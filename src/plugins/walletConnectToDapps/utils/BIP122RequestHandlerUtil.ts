@@ -28,9 +28,16 @@ export const approveBIP122Request = async ({
     throw new Error('Wallet does not support Bitcoin')
   }
 
+  console.log('[WC BIP122] approveBIP122Request', {
+    method: request.method,
+    params: request.params,
+    supportsBTC: supportsBTC(wallet),
+  })
+
   switch (request.method) {
     case BIP122SigningMethod.BIP122_SIGN_MESSAGE: {
       const { message } = request.params as BIP122SignMessageCallRequestParams
+      console.log('[WC BIP122] signMessage - message:', message)
 
       const signedMessage = await wallet.btcSignMessage({
         addressNList: DEFAULT_BTC_ADDRESS_N_LIST,

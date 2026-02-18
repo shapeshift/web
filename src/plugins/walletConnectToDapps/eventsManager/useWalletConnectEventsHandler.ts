@@ -18,6 +18,7 @@ import {
   WalletConnectActionType,
   WalletConnectModal,
 } from '@/plugins/walletConnectToDapps/types'
+import { deriveAddressFromExtPubKey } from '@/plugins/walletConnectToDapps/utils/createApprovalNamespaces'
 
 export const useWalletConnectEventsHandler = (
   dispatch: WalletConnectContextType['dispatch'],
@@ -65,6 +66,13 @@ export const useWalletConnectEventsHandler = (
       }
 
       const session = getRequestSession()
+
+      console.log('[WC] session_request received', {
+        method: request.method,
+        params: request.params,
+        chainId: params.chainId,
+        topic,
+      })
 
       switch (request.method) {
         case EIP155_SigningMethod.ETH_SIGN:
@@ -162,6 +170,7 @@ export const useWalletConnectEventsHandler = (
         case BIP122SigningMethod.BIP122_SEND_TRANSFER:
         case BIP122SigningMethod.BIP122_SIGN_PSBT:
         case BIP122SigningMethod.BIP122_SIGN_MESSAGE:
+          console.log('[WC BIP122] Opening confirmation modal for', request.method)
           return dispatch({
             type: WalletConnectActionType.SET_MODAL,
             payload: {
@@ -174,7 +183,17 @@ export const useWalletConnectEventsHandler = (
           const bip122Accounts = session?.namespaces?.bip122?.accounts ?? []
           const addresses = bip122Accounts.map(caip10 => {
             const { account } = fromAccountId(caip10)
-            return { address: account }
+            try {
+              const address =
+                account.startsWith('xpub') ||
+                account.startsWith('ypub') ||
+                account.startsWith('zpub')
+                  ? deriveAddressFromExtPubKey(account)
+                  : account
+              return { address }
+            } catch {
+              return { address: account }
+            }
           })
           return web3wallet?.respondSessionRequest({
             topic,

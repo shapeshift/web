@@ -29,6 +29,7 @@ import {
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
+  supportsPlume,
   supportsPolygon,
   supportsScroll,
   supportsSoneium,
@@ -102,6 +103,7 @@ export const evmChainIds = [
   KnownChainIds.MonadMainnet,
   KnownChainIds.HyperEvmMainnet,
   KnownChainIds.PlasmaMainnet,
+  KnownChainIds.PlumeMainnet,
   KnownChainIds.MantleMainnet,
   KnownChainIds.InkMainnet,
   KnownChainIds.MegaEthMainnet,
@@ -220,6 +222,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsHyperEvm(wallet)
         case Number(fromChainId(KnownChainIds.PlasmaMainnet).chainReference):
           return supportsPlasma(wallet)
+        case Number(fromChainId(KnownChainIds.PlumeMainnet).chainReference):
+          return supportsPlume(wallet)
         case Number(fromChainId(KnownChainIds.MantleMainnet).chainReference):
           return supportsMantle(wallet)
         case Number(fromChainId(KnownChainIds.InkMainnet).chainReference):
@@ -342,6 +346,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Plasma',
         symbol: 'XPL',
         explorer: 'https://plasmascan.to',
+      },
+      [KnownChainIds.PlumeMainnet]: {
+        name: 'PLUME',
+        symbol: 'PLUME',
+        explorer: 'https://explorer.plume.org',
       },
       [KnownChainIds.MantleMainnet]: {
         name: 'Mantle',

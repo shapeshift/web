@@ -21,6 +21,7 @@ import {
   monadChainId,
   nearChainId,
   optimismChainId,
+  plumeChainId,
   polygonChainId,
   scrollChainId,
   solanaChainId,
@@ -139,6 +140,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_HYPEREVM && asset.chainId === hyperEvmChainId) return false
       if (!config.VITE_FEATURE_KATANA && asset.chainId === katanaChainId) return false
       if (!config.VITE_FEATURE_STORY && asset.chainId === storyChainId) return false
+      if (!config.VITE_FEATURE_PLUME && asset.chainId === plumeChainId) return false
       if (!config.VITE_FEATURE_ZK_SYNC_ERA && asset.chainId === zkSyncEraChainId) return false
       if (!config.VITE_FEATURE_BLAST && asset.chainId === blastChainId) return false
       if (!config.VITE_FEATURE_WORLDCHAIN && asset.chainId === worldChainChainId) return false

@@ -177,6 +177,10 @@ export function supportsPlasma(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsPlasma
 }
 
+export function supportsPlume(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsPlume
+}
+
 export function supportsKatana(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsKatana
 }

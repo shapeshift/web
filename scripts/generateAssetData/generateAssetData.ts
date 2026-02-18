@@ -49,6 +49,7 @@ import * as near from './near'
 import * as optimism from './optimism'
 import { overrideAssets } from './overrides'
 import * as plasma from './plasma'
+import * as plume from './plume'
 import * as polygon from './polygon'
 import * as scroll from './scroll'
 import * as solana from './solana'
@@ -101,6 +102,7 @@ const generateAssetData = async () => {
   const scrollAssets = await scroll.getAssets()
   const modeAssets = await mode.getAssets()
   const plasmaAssets = await plasma.getAssets()
+  const plumeAssets = await plume.getAssets()
   const storyAssets = await story.getAssets()
   const worldchainAssets = await worldchainModule.getAssets()
   const sonicAssets = await sonic.getAssets()
@@ -150,6 +152,7 @@ const generateAssetData = async () => {
     ...scrollAssets,
     ...modeAssets,
     ...plasmaAssets,
+    ...plumeAssets,
     ...storyAssets,
     ...worldchainAssets,
     ...sonicAssets,

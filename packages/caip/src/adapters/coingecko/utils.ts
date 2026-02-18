@@ -58,6 +58,8 @@ import {
   optimismChainId,
   plasmaAssetId,
   plasmaChainId,
+  plumeAssetId,
+  plumeChainId,
   polygonAssetId,
   polygonChainId,
   scrollAssetId,
@@ -302,6 +304,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
             assetReference: platforms[CoingeckoAssetPlatform.Plasma],
           })
           prev[plasmaChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Plume)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.PlumeMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Plume],
+          })
+          prev[plumeChainId][assetId] = id
         } catch {
           // unable to create assetId, skip token
         }
@@ -615,6 +631,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [hyperEvmChainId]: { [hyperEvmAssetId]: 'hyperliquid' },
       [monadChainId]: { [monadAssetId]: 'monad' },
       [plasmaChainId]: { [plasmaAssetId]: 'plasma' },
+      [plumeChainId]: { [plumeAssetId]: 'plume' },
       [mantleChainId]: { [mantleAssetId]: 'mantle' },
       [inkChainId]: { [inkAssetId]: 'ethereum' },
       [megaethChainId]: { [megaethAssetId]: 'ethereum' },

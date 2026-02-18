@@ -31,6 +31,7 @@ import {
   nearChainId,
   optimismChainId,
   plasmaChainId,
+  plumeChainId,
   polygonChainId,
   scrollChainId,
   solanaChainId,
@@ -66,6 +67,7 @@ export enum CoingeckoAssetPlatform {
   Monad = 'monad',
   HyperEvm = 'hyperevm',
   Plasma = 'plasma',
+  Plume = 'plume-network',
   Ink = 'ink',
   Katana = 'katana',
   Story = 'story',
@@ -142,6 +144,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.HyperEvm
         case CHAIN_REFERENCE.PlasmaMainnet:
           return CoingeckoAssetPlatform.Plasma
+        case CHAIN_REFERENCE.PlumeMainnet:
+          return CoingeckoAssetPlatform.Plume
         case CHAIN_REFERENCE.KatanaMainnet:
           return CoingeckoAssetPlatform.Katana
         case CHAIN_REFERENCE.StoryMainnet:
@@ -283,6 +287,8 @@ export const coingeckoAssetPlatformToChainId = (
       return hyperEvmChainId
     case CoingeckoAssetPlatform.Plasma:
       return plasmaChainId
+    case CoingeckoAssetPlatform.Plume:
+      return plumeChainId
     case CoingeckoAssetPlatform.WorldChain:
       return worldChainChainId
     case CoingeckoAssetPlatform.Katana:

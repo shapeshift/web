@@ -32,6 +32,7 @@ import {
   near,
   optimism,
   plasma,
+  plume,
   polygon,
   scroll,
   solana,
@@ -96,6 +97,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return hyperevm
     case KnownChainIds.PlasmaMainnet:
       return plasma
+    case KnownChainIds.PlumeMainnet:
+      return plume
     case KnownChainIds.MantleMainnet:
       return mantle
     case KnownChainIds.InkMainnet:

@@ -31,6 +31,7 @@ import {
   ton,
   tron,
   zcash,
+  zkSyncEra,
 } from './baseAssets'
 
 export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
@@ -84,6 +85,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return megaeth
     case KnownChainIds.KatanaMainnet:
       return katana
+    case KnownChainIds.ZkSyncEraMainnet:
+      return zkSyncEra
     case KnownChainIds.NearMainnet:
       return near
     case KnownChainIds.ZcashMainnet:

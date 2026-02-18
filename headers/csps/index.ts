@@ -31,6 +31,7 @@ import { csp as thorchain } from './chains/thorchain'
 import { csp as ton } from './chains/ton'
 import { csp as tron } from './chains/tron'
 import { csp as zcash } from './chains/zcash'
+import { csp as zksyncera } from './chains/zksyncera'
 import { csp as chatwoot } from './chatwoot'
 import { csp as customTokenImport } from './customTokenImport'
 import { csp as foxy } from './defi/foxy'
@@ -118,6 +119,7 @@ export const csps = [
   katana,
   litecoin,
   megaeth,
+  zksyncera,
   optimism,
   polygon,
   solana,

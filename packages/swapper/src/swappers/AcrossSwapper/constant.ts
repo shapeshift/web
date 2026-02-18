@@ -9,6 +9,7 @@ import {
   plasmaChainId,
   polygonChainId,
   solanaChainId,
+  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
@@ -22,6 +23,7 @@ import {
   optimism,
   plasma,
   polygon,
+  zksync,
 } from 'viem/chains'
 
 import { TradeQuoteError } from '../../types'
@@ -37,6 +39,7 @@ export const chainIdToAcrossChainId: Record<string, number> = {
   [monadChainId]: monad.id,
   [hyperEvmChainId]: hyperEvm.id,
   [plasmaChainId]: plasma.id,
+  [zkSyncEraChainId]: zksync.id,
   // Across uses a custom Solana chain ID
   [solanaChainId]: 34268394551451,
 }

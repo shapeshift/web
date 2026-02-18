@@ -47,6 +47,7 @@ import * as sui from './sui'
 import * as tonModule from './ton'
 import * as tronModule from './tron'
 import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
+import * as zksyncera from './zksyncera'
 
 import { getAssetService } from '@/lib/asset-service'
 
@@ -71,6 +72,7 @@ const generateAssetData = async () => {
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
+  const zksyncEraAssets = await zksyncera.getAssets()
   const megaethAssets = await megaeth.getAssets()
   const plasmaAssets = await plasma.getAssets()
   const solanaAssets = await solana.getAssets()
@@ -104,6 +106,7 @@ const generateAssetData = async () => {
     ...monadAssets,
     ...hyperevmAssets,
     ...katanaAssets,
+    ...zksyncEraAssets,
     ...megaethAssets,
     ...plasmaAssets,
     ...solanaAssets,

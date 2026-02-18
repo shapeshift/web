@@ -11,6 +11,7 @@ import {
   suiAssetId,
   thorchainAssetId,
   tronAssetId,
+  zkSyncEraAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
@@ -44,6 +45,7 @@ export const queryFn = async () => {
   if (enabledFlags.Plasma) assetIds.push(plasmaAssetId)
   if (enabledFlags.MegaEth) assetIds.push(megaethAssetId)
   if (enabledFlags.Katana) assetIds.push(katanaAssetId)
+  if (enabledFlags.ZkSyncEra) assetIds.push(zkSyncEraAssetId)
   if (enabledFlags.Starknet) assetIds.push(starknetAssetId)
   if (enabledFlags.Tron) assetIds.push(tronAssetId)
   if (enabledFlags.Sui) assetIds.push(suiAssetId)

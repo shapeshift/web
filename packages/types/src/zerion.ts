@@ -14,6 +14,7 @@ import {
   solanaChainId,
   suiChainId,
   tronChainId,
+  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 
 export const ZERION_CHAINS = [
@@ -32,6 +33,7 @@ export const ZERION_CHAINS = [
   'sui',
   'plasma',
   'katana',
+  'zksync-era',
   // not yet
   // 'aurora',
   // 'fantom',
@@ -54,6 +56,7 @@ export const ZERION_CHAINS_MAP: Record<ZerionChainId, ChainId> = {
   sui: suiChainId,
   plasma: plasmaChainId,
   katana: katanaChainId,
+  'zksync-era': zkSyncEraChainId,
 }
 
 export const zerionChainIdToChainId = (chainId: ZerionChainId): ChainId | undefined =>

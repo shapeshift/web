@@ -38,6 +38,11 @@ import { useAppSelector } from '@/state/store'
 const isWcSupportedChainId = (chainId: string): boolean =>
   isEvmChainId(chainId) || chainId.startsWith(`${CHAIN_NAMESPACE.Solana}:`)
 
+const isChainInProposedNamespaces = (chainId: string, proposedKeys: Set<string>): boolean => {
+  const chainNamespace = chainId.split(':')[0]
+  return proposedKeys.has(chainNamespace)
+}
+
 const checkboxSx = {
   '& .chakra-checkbox__label': {
     marginLeft: 0,
@@ -85,6 +90,7 @@ type NetworkSelectionProps = {
   requiredChainIds: ChainId[]
   selectedAccountNumber: number
   requiredNamespaces: ProposalTypes.RequiredNamespaces
+  optionalNamespaces: ProposalTypes.OptionalNamespaces
   onSelectedChainIdsChange: (chainIds: ChainId[]) => void
   onBack: () => void
   onDone: () => void
@@ -95,6 +101,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
   requiredChainIds,
   selectedAccountNumber,
   requiredNamespaces,
+  optionalNamespaces,
   onSelectedChainIdsChange,
   onBack,
   onDone,
@@ -106,14 +113,20 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
   )
   const chainIdsSortedByBalance = useAppSelector(selectWalletConnectedChainIdsSorted)
 
+  const proposedNamespaceKeys = useMemo(
+    () => new Set([...Object.keys(requiredNamespaces), ...Object.keys(optionalNamespaces)]),
+    [requiredNamespaces, optionalNamespaces],
+  )
+
   const availableChainIds = useMemo(() => {
-    // Use all EVM chains available for the selected account number as a source of truth
-    // Do *not* honor wc optional namespaces, the app is the source of truth, and the app may or may not handle additional one at their discretion
-    // This is to keep things simple for users and not display less chains than they have accounts for, for a given account number
+    // Show all user chains within the proposed namespaces
+    // e.g. if dApp proposes eip155, show all EVM chains; if solana, show only Solana chains
+    // Within a namespace, show all user chains (not just the specific ones the dApp requested)
     const accountNumberChainIds = Object.entries(
       accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {},
     )
       .filter(([chainId]) => isWcSupportedChainId(chainId))
+      .filter(([chainId]) => isChainInProposedNamespaces(chainId, proposedNamespaceKeys))
       .map(([chainId]) => chainId)
 
     const requiredFromNamespaces = Object.values(requiredNamespaces)
@@ -140,6 +153,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
     requiredNamespaces,
     requiredChainIds,
     chainIdsSortedByBalance,
+    proposedNamespaceKeys,
   ])
 
   const handleChainIdsChange = useCallback(
@@ -150,10 +164,12 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
   const optionalChainIds = useMemo(() => {
     const userChainIds = Object.keys(
       accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {},
-    ).filter(isWcSupportedChainId)
+    )
+      .filter(isWcSupportedChainId)
+      .filter(chainId => isChainInProposedNamespaces(chainId, proposedNamespaceKeys))
 
     return userChainIds.filter(chainId => !requiredChainIds.includes(chainId as ChainId))
-  }, [selectedAccountNumber, accountIdsByAccountNumberAndChainId, requiredChainIds])
+  }, [selectedAccountNumber, accountIdsByAccountNumberAndChainId, requiredChainIds, proposedNamespaceKeys])
 
   const isAllOptionalChainsSelected = useMemo(() => {
     if (optionalChainIds.length === 0) return false
@@ -169,7 +185,9 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
     } else {
       const userChainIds = Object.keys(
         accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {},
-      ).filter(isWcSupportedChainId)
+      )
+        .filter(isWcSupportedChainId)
+        .filter(chainId => isChainInProposedNamespaces(chainId, proposedNamespaceKeys))
       onSelectedChainIdsChange(userChainIds as ChainId[])
     }
   }, [
@@ -179,6 +197,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
     requiredChainIds,
     accountIdsByAccountNumberAndChainId,
     onSelectedChainIdsChange,
+    proposedNamespaceKeys,
   ])
 
   const networkRows = useMemo(() => {

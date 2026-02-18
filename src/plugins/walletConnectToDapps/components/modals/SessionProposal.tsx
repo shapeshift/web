@@ -28,6 +28,11 @@ import { useAppSelector } from '@/state/store'
 const isWcSupportedChainId = (chainId: string): boolean =>
   isEvmChainId(chainId) || chainId.startsWith(`${CHAIN_NAMESPACE.Solana}:`)
 
+const isChainInProposedNamespaces = (chainId: string, proposedKeys: Set<string>): boolean => {
+  const chainNamespace = chainId.split(':')[0]
+  return proposedKeys.has(chainNamespace)
+}
+
 export const entries = Object.values(SessionProposalRoutes)
 
 const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModalProps>(
@@ -50,6 +55,11 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
 
     const { id, params } = proposal
     const { proposer, requiredNamespaces, optionalNamespaces } = params
+
+    const proposedNamespaceKeys = useMemo(
+      () => new Set([...Object.keys(requiredNamespaces), ...Object.keys(optionalNamespaces)]),
+      [requiredNamespaces, optionalNamespaces],
+    )
 
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [selectedAccountIds, setSelectedAccountIds] = useState<AccountId[]>([])
@@ -107,16 +117,16 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         return
       }
 
-      const supportedChainIds = Object.keys(selectedAccountNumberAccountIdsByChainId).filter(
-        isWcSupportedChainId,
-      )
+      const supportedChainIds = Object.keys(selectedAccountNumberAccountIdsByChainId)
+        .filter(isWcSupportedChainId)
+        .filter(chainId => isChainInProposedNamespaces(chainId, proposedNamespaceKeys))
       const orderedAccountIds = orderAccountIdsByBalance(
         supportedChainIds,
         selectedAccountNumberAccountIdsByChainId,
       )
 
       setSelectedAccountIds(orderedAccountIds)
-    }, [selectedAccountNumberAccountIdsByChainId, orderAccountIdsByBalance])
+    }, [selectedAccountNumberAccountIdsByChainId, orderAccountIdsByBalance, proposedNamespaceKeys])
 
     const handleAccountClick = useCallback(() => {
       navigate(SessionProposalRoutes.ChooseAccount)
@@ -136,14 +146,16 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       (chainIds: ChainId[]) => {
         if (!selectedAccountNumberAccountIdsByChainId) return
 
-        const supportedChainIds = chainIds.filter(isWcSupportedChainId)
+        const supportedChainIds = chainIds
+          .filter(isWcSupportedChainId)
+          .filter(chainId => isChainInProposedNamespaces(chainId, proposedNamespaceKeys))
         const orderedAccountIds = orderAccountIdsByBalance(
           supportedChainIds,
           selectedAccountNumberAccountIdsByChainId,
         )
         setSelectedAccountIds(orderedAccountIds)
       },
-      [selectedAccountNumberAccountIdsByChainId, orderAccountIdsByBalance],
+      [selectedAccountNumberAccountIdsByChainId, orderAccountIdsByBalance, proposedNamespaceKeys],
     )
 
     /*
@@ -288,6 +300,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
             requiredChainIds={requiredChainIds}
             selectedAccountNumber={selectedAccountNumber}
             requiredNamespaces={requiredNamespaces}
+            optionalNamespaces={optionalNamespaces}
             onSelectedChainIdsChange={handleChainIdsChange}
             onBack={handleBack}
             onDone={handleBack}

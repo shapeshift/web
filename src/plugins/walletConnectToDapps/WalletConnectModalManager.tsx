@@ -157,18 +157,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
   )
 
   const handleConfirmBIP122Request = useCallback(async () => {
-    console.log('[WC BIP122] handleConfirmBIP122Request', {
-      hasRequestEvent: !!requestEvent,
-      hasWallet: !!wallet,
-      hasWeb3wallet: !!web3wallet,
-      topic,
-      method: requestEvent?.params?.request?.method,
-      params: requestEvent?.params?.request?.params,
-    })
-    if (!requestEvent || !wallet || !web3wallet || !topic || !chainId) {
-      console.log('[WC BIP122] Missing required data, returning early')
-      return
-    }
+    if (!requestEvent || !wallet || !web3wallet || !topic || !chainId) return
 
     try {
       const utxoChainAdapter = (() => {
@@ -184,13 +173,12 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         requestEvent,
         chainAdapter: utxoChainAdapter,
       })
-      console.log('[WC BIP122] approveBIP122Request response:', response)
       await web3wallet.respondSessionRequest({
         topic,
         response,
       })
     } catch (e) {
-      console.error('BIP122 WC request failed:', e)
+      console.error('[WC BIP122] request failed:', e)
       await web3wallet.respondSessionRequest({
         topic,
         response: formatJsonRpcError(requestEvent.id, (e as Error).message ?? 'Unknown error'),

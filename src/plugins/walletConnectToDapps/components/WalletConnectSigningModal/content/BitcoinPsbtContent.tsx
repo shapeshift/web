@@ -1,6 +1,5 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { Box, Button, Card, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
-import { Psbt } from '@shapeshiftoss/bitcoinjs-lib'
 import { btcChainId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useMemo } from 'react'
@@ -12,6 +11,7 @@ import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { fromBaseUnit } from '@/lib/math'
+import { parsePsbt } from '@/plugins/walletConnectToDapps/utils/parsePsbt'
 import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -33,13 +33,29 @@ export const BitcoinPsbtContent: FC<BitcoinPsbtContentProps> = ({ psbt, broadcas
   const precision = feeAsset?.precision ?? 8
   const symbol = feeAsset?.symbol ?? 'BTC'
 
-  const parsed = useMemo(() => {
-    try {
-      return Psbt.fromBase64(psbt)
-    } catch {
-      return null
-    }
-  }, [psbt])
+  const parsed = useMemo(() => parsePsbt(psbt), [psbt])
+
+  const transactionDataJson = useMemo(() => {
+    if (!parsed) return null
+    return JSON.stringify(
+      {
+        version: parsed.version,
+        locktime: parsed.locktime,
+        inputs: parsed.inputs.map(input => ({
+          txid: input.txid,
+          vout: input.vout,
+          address: input.address,
+          value: input.value,
+        })),
+        outputs: parsed.outputs.map(output => ({
+          address: output.address,
+          value: output.value,
+        })),
+      },
+      null,
+      2,
+    )
+  }, [parsed])
 
   const hoverStyle = useMemo(() => ({ bg: 'transparent' }), [])
 
@@ -77,25 +93,38 @@ export const BitcoinPsbtContent: FC<BitcoinPsbtContentProps> = ({ psbt, broadcas
           </HStack>
         )}
 
-        <HStack justify='space-between' align='center' py={1}>
-          <RawText fontSize='sm' color='text.subtle'>
-            Inputs
-          </RawText>
-          <RawText fontSize='sm' fontWeight='bold'>
-            {parsed.txInputs.length}
-          </RawText>
-        </HStack>
+        <RawText fontSize='sm' color='text.subtle' pt={1}>
+          {translate('plugins.walletConnectToDapps.modal.sendTransaction.inputs', {
+            count: parsed.inputs.length,
+          })}
+        </RawText>
+        {parsed.inputs.map((input, i) => (
+          <HStack key={i} justify='space-between' align='center' py={1} pl={2}>
+            {input.address ? (
+              <InlineCopyButton value={input.address}>
+                <MiddleEllipsis value={input.address} fontSize='xs' py={0} />
+              </InlineCopyButton>
+            ) : (
+              <RawText fontSize='xs' color='text.subtle' fontFamily='mono'>
+                {`${input.txid.substring(0, 8)}...:${input.vout}`}
+              </RawText>
+            )}
+            <Amount.Crypto
+              value={fromBaseUnit(input.value, precision)}
+              symbol={symbol}
+              fontSize='xs'
+              fontWeight='bold'
+              whiteSpace='nowrap'
+            />
+          </HStack>
+        ))}
 
-        <HStack justify='space-between' align='center' py={1}>
-          <RawText fontSize='sm' color='text.subtle'>
-            Outputs
-          </RawText>
-          <RawText fontSize='sm' fontWeight='bold'>
-            {parsed.txOutputs.length}
-          </RawText>
-        </HStack>
-
-        {parsed.txOutputs.map((output, i) => (
+        <RawText fontSize='sm' color='text.subtle' pt={1}>
+          {translate('plugins.walletConnectToDapps.modal.sendTransaction.outputs', {
+            count: parsed.outputs.length,
+          })}
+        </RawText>
+        {parsed.outputs.map((output, i) => (
           <HStack key={i} justify='space-between' align='center' py={1} pl={2}>
             {output.address ? (
               <InlineCopyButton value={output.address}>
@@ -103,11 +132,11 @@ export const BitcoinPsbtContent: FC<BitcoinPsbtContentProps> = ({ psbt, broadcas
               </InlineCopyButton>
             ) : (
               <RawText fontSize='xs' color='text.subtle' fontFamily='mono'>
-                {`Output ${i}`}
+                OP_RETURN
               </RawText>
             )}
             <Amount.Crypto
-              value={fromBaseUnit(output.value.toString(), precision)}
+              value={fromBaseUnit(output.value, precision)}
               symbol={symbol}
               fontSize='xs'
               fontWeight='bold'
@@ -141,13 +170,19 @@ export const BitcoinPsbtContent: FC<BitcoinPsbtContentProps> = ({ psbt, broadcas
             mb={isDetailExpanded ? 3 : 0}
           >
             <RawText fontSize='sm' fontWeight='medium' color='text.subtle'>
-              Raw PSBT
+              {translate('plugins.walletConnectToDapps.modal.transactionData')}
             </RawText>
             {isDetailExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
           </Button>
-          {isDetailExpanded && (
-            <RawText fontSize='xs' fontFamily='mono' color='text.subtle' wordBreak='break-all'>
-              {psbt}
+          {isDetailExpanded && transactionDataJson && (
+            <RawText
+              fontSize='xs'
+              fontFamily='mono'
+              color='text.subtle'
+              wordBreak='break-all'
+              whiteSpace='pre-wrap'
+            >
+              {transactionDataJson}
             </RawText>
           )}
         </Box>

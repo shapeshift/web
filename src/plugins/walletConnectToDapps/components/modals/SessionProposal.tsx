@@ -1,6 +1,5 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type { SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
 import { uniq } from 'lodash'
@@ -16,7 +15,10 @@ import { SessionProposalRoutes } from '@/plugins/walletConnectToDapps/components
 import { PeerMeta } from '@/plugins/walletConnectToDapps/components/PeerMeta'
 import type { SessionProposalRef } from '@/plugins/walletConnectToDapps/types'
 import { WalletConnectActionType } from '@/plugins/walletConnectToDapps/types'
-import { createApprovalNamespaces } from '@/plugins/walletConnectToDapps/utils/createApprovalNamespaces'
+import {
+  createApprovalNamespaces,
+  isWcSupportedChainId,
+} from '@/plugins/walletConnectToDapps/utils/createApprovalNamespaces'
 import type { WalletConnectSessionModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
 import {
   selectAccountIdsByAccountNumberAndChainId,
@@ -24,9 +26,6 @@ import {
   selectWalletConnectedChainIdsSorted,
 } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
-
-const isWcSupportedChainId = (chainId: string): boolean =>
-  isEvmChainId(chainId) || chainId.startsWith(`${CHAIN_NAMESPACE.Utxo}:`)
 
 export const entries = Object.values(SessionProposalRoutes)
 

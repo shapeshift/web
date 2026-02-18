@@ -2255,7 +2255,9 @@
           "amount": "Amount",
           "amountSats": "%{amount} sats",
           "psbt": "PSBT",
-          "broadcast": "Broadcast"
+          "broadcast": "Broadcast",
+          "inputs": "Inputs (%{count})",
+          "outputs": "Outputs (%{count})"
         },
         "connect": {
           "title": "Connect your wallet to a dApp via WalletConnect and trigger transactions",

@@ -15,7 +15,10 @@ const DEFAULT_EIP155_METHODS = Object.values(EIP155_SigningMethod).filter(
 const DEFAULT_BIP122_METHODS = Object.values(BIP122SigningMethod)
 const DEFAULT_BIP122_EVENTS: string[] = []
 
-const isBip122ChainId = (chainId: string): boolean => chainId.startsWith(`${CHAIN_NAMESPACE.Utxo}:`)
+const isBip122ChainId = (chainId: string): boolean => chainId === btcChainId
+
+export const isWcSupportedChainId = (chainId: string): boolean =>
+  isEvmChainId(chainId) || isBip122ChainId(chainId)
 
 // BIP122 CAIP-10 requires derived addresses (bc1q..., 3...), not extended public keys (zpub/ypub/xpub)
 // See: https://namespaces.chainagnostic.org/bip122/caip10

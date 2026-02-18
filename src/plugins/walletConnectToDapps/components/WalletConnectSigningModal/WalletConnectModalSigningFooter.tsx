@@ -1,6 +1,7 @@
 import { Button, HStack, Image, VStack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { btcChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { useQuery } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
@@ -12,11 +13,15 @@ import { GasSelectionMenu } from './GasSelectionMenu'
 import { Amount } from '@/components/Amount/Amount'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { useSimulateEvmTransaction } from '@/plugins/walletConnectToDapps/hooks/useSimulateEvmTransaction'
 import type { CustomTransactionData, TransactionParams } from '@/plugins/walletConnectToDapps/types'
 import {
   selectAssetById,
   selectFeeAssetByChainId,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByFilter,
 } from '@/state/slices/selectors'
@@ -45,6 +50,42 @@ const WalletConnectSigningWithSection: React.FC<WalletConnectSigningWithSectionP
     selectPortfolioUserCurrencyBalanceByFilter(state, { assetId: feeAssetId, accountId }),
   )
 
+  const isBtcWcAccount = chainId === btcChainId
+
+  const { data: btcAddressBalance } = useQuery({
+    queryKey: ['btcWcAddressBalance', userAddress],
+    queryFn: async () => {
+      const adapter = getChainAdapterManager().get(btcChainId)
+      if (!adapter) return '0'
+      const account = await adapter.getAccount(userAddress)
+      return account.balance
+    },
+    enabled: isBtcWcAccount,
+    staleTime: 30_000,
+  })
+
+  const btcMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, feeAssetId ?? ''),
+  )
+
+  const displayBalanceCryptoPrecision = useMemo(() => {
+    if (!isBtcWcAccount) return feeAssetBalanceCryptoPrecision
+    return fromBaseUnit(btcAddressBalance ?? '0', feeAsset?.precision ?? 8)
+  }, [isBtcWcAccount, feeAssetBalanceCryptoPrecision, btcAddressBalance, feeAsset?.precision])
+
+  const displayBalanceUserCurrency = useMemo(() => {
+    if (!isBtcWcAccount) return feeAssetBalanceUserCurrency
+    return bnOrZero(fromBaseUnit(btcAddressBalance ?? '0', feeAsset?.precision ?? 8))
+      .times(bnOrZero(btcMarketData?.price))
+      .toFixed(2)
+  }, [
+    isBtcWcAccount,
+    feeAssetBalanceUserCurrency,
+    btcAddressBalance,
+    feeAsset?.precision,
+    btcMarketData?.price,
+  ])
+
   const networkIcon = useMemo(() => {
     return feeAsset?.networkIcon ?? feeAsset?.icon
   }, [feeAsset?.networkIcon, feeAsset?.icon])
@@ -64,13 +105,13 @@ const WalletConnectSigningWithSection: React.FC<WalletConnectSigningWithSectionP
       </HStack>
       <VStack align='flex-end' spacing={0} justify='center'>
         <Amount.Fiat
-          value={feeAssetBalanceUserCurrency}
+          value={displayBalanceUserCurrency}
           fontSize='md'
           fontWeight='medium'
           lineHeight='1.2'
         />
         <Amount.Crypto
-          value={feeAssetBalanceCryptoPrecision}
+          value={displayBalanceCryptoPrecision}
           symbol={feeAsset.symbol}
           fontSize='sm'
           color='text.subtle'

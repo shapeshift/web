@@ -170,7 +170,6 @@ export const useWalletConnectEventsHandler = (
         case BIP122SigningMethod.BIP122_SEND_TRANSFER:
         case BIP122SigningMethod.BIP122_SIGN_PSBT:
         case BIP122SigningMethod.BIP122_SIGN_MESSAGE:
-          console.log('[WC BIP122] Opening confirmation modal for', request.method)
           return dispatch({
             type: WalletConnectActionType.SET_MODAL,
             payload: {

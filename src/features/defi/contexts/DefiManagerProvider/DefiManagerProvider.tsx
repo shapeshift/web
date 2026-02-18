@@ -7,10 +7,6 @@ import { getDefiProviderModulesResolvers } from './utils'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
 
-/*
-Cosmos modals are not part of this provider, those can be found under plugins/cosmos/components/modals.
-Cosmos modals are opened via AllEarnOpportunities component (TODO : refactor the modals in order to use them in this file)
-*/
 export const DefiManagerProvider = memo(({ children }: DefiManagerProviderProps) => {
   'use no memo'
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()

@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { foxAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { isToken } from '@shapeshiftoss/utils'
 import partition from 'lodash/partition'
 import pickBy from 'lodash/pickBy'
@@ -10,8 +10,7 @@ import { selectAssets } from '../../assetsSlice/selectors'
 import { selectEnabledWalletAccountIds } from '../../common-selectors'
 import { selectMarketDataUserCurrency } from '../../marketDataSlice/selectors'
 import { opportunities } from '../opportunitiesSlice'
-import type { CosmosSdkStakingSpecificUserStakingOpportunity } from '../resolvers/cosmosSdk/types'
-import { makeOpportunityTotalFiatBalance } from '../resolvers/cosmosSdk/utils'
+import type { FoxySpecificUserStakingOpportunity } from '../resolvers/foxy/types'
 import type {
   OpportunityMetadata,
   StakingEarnOpportunityType,
@@ -20,12 +19,12 @@ import type {
   UserStakingOpportunity,
   UserStakingOpportunityWithMetadata,
 } from '../types'
-import { DefiProvider } from '../types'
 import {
   deserializeUserStakingId,
   filterUserStakingIdByStakingIdCompareFn,
   isFoxEthStakingAssetId,
   makeOpportunityIcons,
+  makeOpportunityTotalFiatBalance,
   supportsUndelegations,
 } from '../utils'
 
@@ -269,7 +268,7 @@ const getAggregatedUserStakingOpportunityByStakingId = (
         ...(supportsUndelegations(userStakingOpportunity)
           ? userStakingOpportunity.undelegations
           : []),
-        ...((acc as CosmosSdkStakingSpecificUserStakingOpportunity)?.undelegations ?? []),
+        ...((acc as FoxySpecificUserStakingOpportunity)?.undelegations ?? []),
       ]
 
       return {
@@ -360,10 +359,6 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
       const aggregatedEarnUserStakingOpportunity: StakingEarnOpportunityType = Object.assign(
         {},
         (() => {
-          if (opportunity.provider === DefiProvider.CosmosSdk && opportunity.id) {
-            return { contractAddress: fromAccountId(opportunity.id).account }
-          }
-
           if (isFoxEthStakingAssetId(opportunity.assetId))
             return {
               contractAddress: fromAssetId(opportunity.assetId).assetReference,
@@ -414,9 +409,6 @@ export const selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty =
           const earnOpportunity = Object.assign(
             {},
             (() => {
-              if (opportunity.provider === DefiProvider.CosmosSdk)
-                return { contractAddress: fromAccountId(opportunity.id).account }
-
               if (isFoxEthStakingAssetId(opportunity.assetId))
                 return {
                   rewardAddress: fromAssetId(foxAssetId).assetReference,

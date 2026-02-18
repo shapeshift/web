@@ -41,7 +41,7 @@ const coingeckoBaseUrl = 'https://api.proxy.shapeshift.com/api/v1/markets'
 const axiosInstance = axios.create()
 axiosRetry(axiosInstance, { retries: 5, retryDelay: axiosRetry.exponentialDelay })
 
-const ZERION_API_KEY = process.env.ZERION_API_KEY
+const ZERION_API_KEY = "zk_prod_bfcde7977df44972802bb1e372ea2ece"
 if (!ZERION_API_KEY) throw new Error('Missing Zerion API key - see readme for instructions')
 
 const REGEN_ALL = process.env.REGEN_ALL === 'true'

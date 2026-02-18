@@ -4,47 +4,30 @@ import {
   avalancheChainId,
   baseChainId,
   bchChainId,
-  berachainChainId,
-  blastChainId,
-  bobChainId,
   bscChainId,
   btcChainId,
+  celoChainId,
   cosmosChainId,
-  cronosChainId,
   dogeChainId,
   ethChainId,
-  flowEvmChainId,
   gnosisChainId,
-  hemiChainId,
   hyperEvmChainId,
-  inkChainId,
   katanaChainId,
-  lineaChainId,
   ltcChainId,
-  mantleChainId,
   mayachainChainId,
   megaethChainId,
-  modeChainId,
   monadChainId,
   nearChainId,
   optimismChainId,
   plasmaChainId,
-  plumeChainId,
   polygonChainId,
-  scrollChainId,
   solanaChainId,
-  soneiumChainId,
-  sonicChainId,
   starknetChainId,
-  storyChainId,
   suiChainId,
   thorchainChainId,
   tonChainId,
   tronChainId,
-  unichainChainId,
-  worldChainChainId,
   zecChainId,
-  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -56,42 +39,25 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
-  supportsBerachain,
-  supportsBlast,
-  supportsBob,
   supportsBSC,
   supportsBTC,
+  supportsCelo,
   supportsCosmos,
-  supportsCronos,
   supportsETH,
-  supportsFlowEvm,
   supportsGnosis,
-  supportsHemi,
   supportsHyperEvm,
-  supportsInk,
   supportsKatana,
-  supportsLinea,
-  supportsMantle,
   supportsMayachain,
   supportsMegaEth,
-  supportsMode,
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
-  supportsPlume,
   supportsPolygon,
-  supportsScroll,
   supportsSolana,
-  supportsSoneium,
-  supportsSonic,
   supportsStarknet,
-  supportsStory,
   supportsSui,
   supportsThorchain,
   supportsTron,
-  supportsUnichain,
-  supportsWorldChain,
-  supportsZkSyncEra,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import { useMemo } from 'react'
 
@@ -183,31 +149,14 @@ export const walletSupportsChain = ({
   // We have no runtime support for the current ChainId - trying and checking for feature-capabilities flags is futile
   if (!hasRuntimeSupport) return false
 
-  const isZkSyncEraEnabled = selectFeatureFlag(store.getState(), 'ZkSyncEra')
-  const isBlastEnabled = selectFeatureFlag(store.getState(), 'Blast')
-  const isHemiEnabled = selectFeatureFlag(store.getState(), 'Hemi')
   const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
-  const isInkEnabled = selectFeatureFlag(store.getState(), 'Ink')
-  const isBobEnabled = selectFeatureFlag(store.getState(), 'Bob')
   const isKatanaEnabled = selectFeatureFlag(store.getState(), 'Katana')
-  const isFlowEvmEnabled = selectFeatureFlag(store.getState(), 'FlowEvm')
-  const isStoryEnabled = selectFeatureFlag(store.getState(), 'Story')
-  const isMantleEnabled = selectFeatureFlag(store.getState(), 'Mantle')
-  const isLineaEnabled = selectFeatureFlag(store.getState(), 'Linea')
-  const isCronosEnabled = selectFeatureFlag(store.getState(), 'Cronos')
-  const isSonicEnabled = selectFeatureFlag(store.getState(), 'Sonic')
-  const isUnichainEnabled = selectFeatureFlag(store.getState(), 'Unichain')
-  const isSoneiumEnabled = selectFeatureFlag(store.getState(), 'Soneium')
+  const isCeloEnabled = selectFeatureFlag(store.getState(), 'Celo')
   const isMegaEthEnabled = selectFeatureFlag(store.getState(), 'MegaEth')
-  const isBerachainEnabled = selectFeatureFlag(store.getState(), 'Berachain')
-  const isModeEnabled = selectFeatureFlag(store.getState(), 'Mode')
   const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
   const isNearEnabled = selectFeatureFlag(store.getState(), 'Near')
   const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')
-  const isPlumeEnabled = selectFeatureFlag(store.getState(), 'Plume')
-  const isScrollEnabled = selectFeatureFlag(store.getState(), 'Scroll')
   const isStarknetEnabled = selectFeatureFlag(store.getState(), 'Starknet')
-  const isWorldChainEnabled = selectFeatureFlag(store.getState(), 'WorldChain')
   const isTonEnabled = selectFeatureFlag(store.getState(), 'Ton')
 
   switch (chainId) {
@@ -244,48 +193,14 @@ export const walletSupportsChain = ({
       return isMonadEnabled && supportsMonad(wallet)
     case hyperEvmChainId:
       return isHyperEvmEnabled && supportsHyperEvm(wallet)
-    case mantleChainId:
-      return isMantleEnabled && supportsMantle(wallet)
-    case inkChainId:
-      return isInkEnabled && supportsInk(wallet)
     case megaethChainId:
       return isMegaEthEnabled && supportsMegaEth(wallet)
-    case berachainChainId:
-      return isBerachainEnabled && supportsBerachain(wallet)
     case plasmaChainId:
       return isPlasmaEnabled && supportsPlasma(wallet)
-    case plumeChainId:
-      return isPlumeEnabled && supportsPlume(wallet)
     case katanaChainId:
       return isKatanaEnabled && supportsKatana(wallet)
-    case flowEvmChainId:
-      return isFlowEvmEnabled && supportsFlowEvm(wallet)
-    case storyChainId:
-      return isStoryEnabled && supportsStory(wallet)
-    case zkSyncEraChainId:
-      return isZkSyncEraEnabled && supportsZkSyncEra(wallet)
-    case blastChainId:
-      return isBlastEnabled && supportsBlast(wallet)
-    case worldChainChainId:
-      return isWorldChainEnabled && supportsWorldChain(wallet)
-    case hemiChainId:
-      return isHemiEnabled && supportsHemi(wallet)
-    case lineaChainId:
-      return isLineaEnabled && supportsLinea(wallet)
-    case scrollChainId:
-      return isScrollEnabled && supportsScroll(wallet)
-    case cronosChainId:
-      return isCronosEnabled && supportsCronos(wallet)
-    case sonicChainId:
-      return isSonicEnabled && supportsSonic(wallet)
-    case unichainChainId:
-      return isUnichainEnabled && supportsUnichain(wallet)
-    case bobChainId:
-      return isBobEnabled && supportsBob(wallet)
-    case modeChainId:
-      return isModeEnabled && supportsMode(wallet)
-    case soneiumChainId:
-      return isSoneiumEnabled && supportsSoneium(wallet)
+    case celoChainId:
+      return isCeloEnabled && supportsCelo(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

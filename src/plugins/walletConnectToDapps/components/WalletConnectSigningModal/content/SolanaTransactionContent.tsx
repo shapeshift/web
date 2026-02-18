@@ -5,6 +5,8 @@ import type { FC } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { SolanaTransactionSimulation } from './SolanaTransactionSimulation'
+
 import { RawText } from '@/components/Text'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { ExpandableCell } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/StructuredMessage/ExpandableCell'
@@ -21,7 +23,10 @@ type SolanaTransactionContentMultiProps = {
   transactions: string[]
 }
 
-const SolanaTransactionCard: FC<{ parsed: ParsedSolanaTransaction }> = ({ parsed }) => {
+const SolanaTransactionCard: FC<{ parsed: ParsedSolanaTransaction; transaction: string }> = ({
+  parsed,
+  transaction,
+}) => {
   const translate = useTranslate()
   const sectionBorderColor = useColorModeValue('gray.100', 'whiteAlpha.100')
   const [isDetailExpanded, toggleIsDetailExpanded] = useToggle(false)
@@ -47,6 +52,8 @@ const SolanaTransactionCard: FC<{ parsed: ParsedSolanaTransaction }> = ({ parsed
             </HStack>
           </HStack>
         )}
+
+        <SolanaTransactionSimulation transaction={transaction} />
 
         {parsed.primaryProgram && (
           <HStack justify='space-between' align='center' py={1}>
@@ -146,7 +153,7 @@ export const SolanaTransactionContent: FC<SolanaTransactionContentProps> = ({ tr
 
   if (!parsed) return <FallbackDisplay raw={transaction} />
 
-  return <SolanaTransactionCard parsed={parsed} />
+  return <SolanaTransactionCard parsed={parsed} transaction={transaction} />
 }
 
 export const SolanaMultiTransactionContent: FC<SolanaTransactionContentMultiProps> = ({
@@ -164,7 +171,7 @@ export const SolanaMultiTransactionContent: FC<SolanaTransactionContentMultiProp
       {transactions.map((tx, i) => {
         const parsed = parseSolanaTransaction(tx)
         if (!parsed) return <FallbackDisplay key={i} raw={tx} />
-        return <SolanaTransactionCard key={i} parsed={parsed} />
+        return <SolanaTransactionCard key={i} parsed={parsed} transaction={tx} />
       })}
     </VStack>
   )

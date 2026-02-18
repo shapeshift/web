@@ -1,0 +1,337 @@
+import { fromAssetId, isAssetReference } from '@shapeshiftoss/caip'
+import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import {
+  BigAmount,
+  bnOrZero,
+  chainIdToFeeAssetId,
+  convertPrecision,
+  isTreasuryChainId,
+} from '@shapeshiftoss/utils'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
+import axios from 'axios'
+import { zeroAddress } from 'viem'
+
+import type {
+  SwapErrorRight,
+  SwapperDeps,
+  TradeQuote,
+  TradeQuoteStep,
+  TradeRate,
+  TradeRateStep,
+} from '../../../types'
+import { SwapperName, TradeQuoteError } from '../../../types'
+import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
+import {
+  chainIdToDebridgeChainId,
+  debridgeChainIdToChainId,
+  DEFAULT_DEBRIDGE_TOKEN_ADDRESS,
+  DEFAULT_DEBRIDGE_USER_ADDRESS,
+} from '../constant'
+import { fetchDebridgeTrade } from './fetchDebridgeTrade'
+import type { DebridgeTradeInputParams, DebridgeTransactionMetadata } from './types'
+import { isDebridgeError } from './types'
+
+const getDebridgeAssetAddress = (assetId: string): string => {
+  if (isNativeEvmAsset(assetId)) return DEFAULT_DEBRIDGE_TOKEN_ADDRESS
+
+  const { assetReference } = fromAssetId(assetId)
+  return isAssetReference(assetReference) ? zeroAddress : assetReference
+}
+
+export async function getTrade(args: {
+  input: DebridgeTradeInputParams<'quote'>
+  deps: SwapperDeps
+}): Promise<Result<TradeQuote[], SwapErrorRight>>
+
+export async function getTrade(args: {
+  input: DebridgeTradeInputParams<'rate'>
+  deps: SwapperDeps
+}): Promise<Result<TradeRate[], SwapErrorRight>>
+
+export async function getTrade<T extends 'quote' | 'rate'>({
+  input,
+  deps,
+}: {
+  input: DebridgeTradeInputParams<T>
+  deps: SwapperDeps
+}): Promise<Result<TradeQuote[] | TradeRate[], SwapErrorRight>> {
+  const { sellAsset, buyAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit, affiliateBps } = input
+
+  if (sellAsset.chainId === buyAsset.chainId) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'deBridge does not support same-chain swaps',
+        code: TradeQuoteError.UnsupportedTradePair,
+      }),
+    )
+  }
+
+  const sellDebridgeChainId = chainIdToDebridgeChainId[sellAsset.chainId]
+  const buyDebridgeChainId = chainIdToDebridgeChainId[buyAsset.chainId]
+
+  if (sellDebridgeChainId === undefined) {
+    return Err(
+      makeSwapErrorRight({
+        message: `Sell asset chain '${sellAsset.chainId}' not supported by deBridge`,
+        code: TradeQuoteError.UnsupportedChain,
+      }),
+    )
+  }
+
+  if (buyDebridgeChainId === undefined) {
+    return Err(
+      makeSwapErrorRight({
+        message: `Buy asset chain '${buyAsset.chainId}' not supported by deBridge`,
+        code: TradeQuoteError.UnsupportedChain,
+      }),
+    )
+  }
+
+  const senderAddress = (() => {
+    if (input.quoteOrRate === 'rate') {
+      if (input.sendAddress) return input.sendAddress
+      return DEFAULT_DEBRIDGE_USER_ADDRESS
+    }
+    return input.sendAddress ?? DEFAULT_DEBRIDGE_USER_ADDRESS
+  })()
+
+  const recipientAddress = (() => {
+    if (input.quoteOrRate === 'rate') {
+      if (input.receiveAddress) return input.receiveAddress
+      return DEFAULT_DEBRIDGE_USER_ADDRESS
+    }
+    return input.receiveAddress
+  })()
+
+  const affiliateFeePercent = (() => {
+    if (!isTreasuryChainId(buyAsset.chainId)) return undefined
+    const bps = bnOrZero(affiliateBps)
+    if (!bps.isFinite() || bps.lte(0)) return undefined
+    return bps.div(100).toFixed()
+  })()
+
+  const affiliateFeeRecipient = (() => {
+    if (affiliateFeePercent === undefined) return undefined
+    try {
+      return getTreasuryAddressFromChainId(buyAsset.chainId).toLowerCase()
+    } catch (e) {
+      console.error(
+        `[getTrade] Failed to get treasury address for chainId ${buyAsset.chainId}, affiliate fee will not be applied`,
+        e,
+      )
+      return undefined
+    }
+  })()
+
+  const maybeQuote = await fetchDebridgeTrade(
+    {
+      srcChainId: sellDebridgeChainId,
+      srcChainTokenIn: getDebridgeAssetAddress(sellAsset.assetId),
+      srcChainTokenInAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      dstChainId: buyDebridgeChainId,
+      dstChainTokenOut: getDebridgeAssetAddress(buyAsset.assetId),
+      dstChainTokenOutAmount: 'auto',
+      dstChainTokenOutRecipient: recipientAddress,
+      srcChainOrderAuthorityAddress: senderAddress,
+      dstChainOrderAuthorityAddress: recipientAddress,
+      senderAddress,
+      prependOperatingExpenses: 'true',
+      affiliateFeePercent,
+      affiliateFeeRecipient,
+    },
+    deps.config,
+  )
+
+  if (maybeQuote.isErr()) {
+    const error = maybeQuote.unwrapErr()
+
+    if (!axios.isAxiosError(error.cause)) {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Unknown error',
+          code: TradeQuoteError.UnknownError,
+        }),
+      )
+    }
+
+    const debridgeError = error.cause?.response?.data
+
+    if (!isDebridgeError(debridgeError)) {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Unknown error',
+          code: TradeQuoteError.UnknownError,
+        }),
+      )
+    }
+
+    const errorMessage = debridgeError.errorMessage ?? debridgeError.message ?? 'Unknown error'
+
+    return Err(
+      makeSwapErrorRight({
+        message: errorMessage,
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
+  }
+
+  const { data: quote } = maybeQuote.unwrap()
+
+  const buyAmountAfterFeesCryptoBaseUnit = quote.estimation.dstChainTokenOut.recommendedAmount
+
+  const rate = getInputOutputRate({
+    sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+    sellAsset,
+    buyAsset,
+  })
+
+  const protocolFeeAmount = (() => {
+    const dlnFee = quote.estimation.costsDetails.find(c => c.type === 'DlnProtocolFee')
+    if (!dlnFee) return '0'
+    return dlnFee.payload.feeAmount
+  })()
+
+  const protocolFeeAssetId = chainIdToFeeAssetId(sellAsset.chainId)
+
+  const sellChainFeeAssetDecimals = (() => {
+    if (!protocolFeeAssetId) return 18
+    const feeAsset = deps.assetsById[protocolFeeAssetId]
+    return feeAsset?.precision ?? 18
+  })()
+
+  const buyAmountBeforeFeesCryptoBaseUnit = (() => {
+    const dlnFeeInSellAsset = quote.estimation.costsDetails.find(c => c.type === 'DlnProtocolFee')
+    if (!dlnFeeInSellAsset) return buyAmountAfterFeesCryptoBaseUnit
+
+    const feeInBuyAssetPrecision = convertPrecision({
+      value: protocolFeeAmount,
+      inputExponent: sellChainFeeAssetDecimals,
+      outputExponent: buyAsset.precision,
+    })
+
+    return BigAmount.fromBaseUnit({
+      value: buyAmountAfterFeesCryptoBaseUnit,
+      precision: buyAsset.precision,
+    })
+      .plus(
+        BigAmount.fromBaseUnit({
+          value: feeInBuyAssetPrecision.toFixed(0),
+          precision: buyAsset.precision,
+        }),
+      )
+      .toBaseUnit()
+  })()
+
+  const allowanceContract = isEvmChainId(sellAsset.chainId) ? quote.tx.to : ''
+
+  const debridgeTransactionMetadata: DebridgeTransactionMetadata = {
+    to: quote.tx.to,
+    data: quote.tx.data,
+    value: quote.tx.value,
+    orderId: quote.orderId,
+  }
+
+  const networkFeeCryptoBaseUnit = await (async () => {
+    if (isEvmChainId(sellAsset.chainId)) {
+      const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+      const { average } = await adapter.getGasFeeData()
+      const supportsEIP1559 = 'maxFeePerGas' in average
+
+      try {
+        const feeData = await evm.getFees({
+          adapter,
+          data: debridgeTransactionMetadata.data,
+          to: debridgeTransactionMetadata.to,
+          value: debridgeTransactionMetadata.value,
+          from: senderAddress,
+          supportsEIP1559,
+        })
+
+        return feeData.networkFeeCryptoBaseUnit
+      } catch {
+        return undefined
+      }
+    }
+
+    return undefined
+  })()
+
+  const protocolFeeAssetCaipChainId = debridgeChainIdToChainId[sellDebridgeChainId.toString()]
+
+  const protocolFeeAssetIdForFees = (() => {
+    if (!protocolFeeAssetCaipChainId) return undefined
+    return chainIdToFeeAssetId(protocolFeeAssetCaipChainId)
+  })()
+
+  const accountNumber = input.accountNumber
+
+  const step: TradeQuoteStep | TradeRateStep = {
+    allowanceContract,
+    rate,
+    buyAmountBeforeFeesCryptoBaseUnit,
+    buyAmountAfterFeesCryptoBaseUnit,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    buyAsset,
+    sellAsset,
+    accountNumber,
+    feeData: {
+      networkFeeCryptoBaseUnit,
+      protocolFees: protocolFeeAssetIdForFees
+        ? {
+            [protocolFeeAssetIdForFees]: {
+              amountCryptoBaseUnit: protocolFeeAmount,
+              asset: {
+                symbol: quote.estimation.srcChainTokenIn.symbol,
+                chainId: sellAsset.chainId,
+                precision: quote.estimation.srcChainTokenIn.decimals,
+              },
+              requiresBalance: false,
+            },
+          }
+        : {},
+    },
+    source: SwapperName.Debridge,
+    estimatedExecutionTimeMs: quote.order.approximateFulfillmentDelay * 1000,
+    debridgeTransactionMetadata,
+  }
+
+  const baseQuoteOrRate = {
+    id: quote.orderId,
+    rate,
+    swapperName: SwapperName.Debridge,
+    affiliateBps,
+    slippageTolerancePercentageDecimal: input.slippageTolerancePercentageDecimal,
+  }
+
+  if (input.quoteOrRate === 'quote') {
+    if (!input.receiveAddress) {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Receive address is required for quote',
+          code: TradeQuoteError.InternalError,
+        }),
+      )
+    }
+
+    const tradeQuote: TradeQuote = {
+      ...baseQuoteOrRate,
+      steps: [step as TradeQuoteStep],
+      receiveAddress: input.receiveAddress,
+      quoteOrRate: 'quote' as const,
+    }
+
+    return Ok([tradeQuote])
+  }
+
+  const tradeRate: TradeRate = {
+    ...baseQuoteOrRate,
+    steps: [step as TradeRateStep],
+    receiveAddress: recipientAddress,
+    quoteOrRate: 'rate' as const,
+  }
+
+  return Ok([tradeRate])
+}

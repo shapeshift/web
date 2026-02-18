@@ -14,6 +14,7 @@ import {
   plasmaChainId,
   polygonChainId,
   solanaChainId,
+  storyChainId,
   tronChainId,
 } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
@@ -31,6 +32,7 @@ import {
   optimism,
   plasma,
   polygon,
+  story,
 } from 'viem/chains'
 
 import { TradeQuoteError } from '../../types'
@@ -55,6 +57,7 @@ export const chainIdToRelayChainId = {
   [megaethChainId]: 4326,
   [plasmaChainId]: plasma.id,
   [katanaChainId]: katana.id,
+  [storyChainId]: story.id,
 }
 
 export enum RelayStatusMessage {

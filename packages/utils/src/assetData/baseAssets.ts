@@ -389,6 +389,23 @@ export const katana: Readonly<Asset> = Object.freeze({
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 
+export const story: Readonly<Asset> = Object.freeze({
+  assetId: caip.storyAssetId,
+  chainId: caip.storyChainId,
+  name: 'Story',
+  networkName: 'Story',
+  symbol: 'IP',
+  precision: 18,
+  color: '#EA580C',
+  networkColor: '#EA580C',
+  icon: 'https://assets.coingecko.com/coins/images/51994/large/story-2.png',
+  networkIcon: 'https://assets.coingecko.com/coins/images/51994/small/story-2.png',
+  explorer: 'https://storyscan.xyz',
+  explorerAddressLink: 'https://storyscan.xyz/address/',
+  explorerTxLink: 'https://storyscan.xyz/tx/',
+  relatedAssetKey: null,
+})
+
 export const solana: Readonly<Asset> = Object.freeze({
   assetId: caip.solAssetId,
   chainId: caip.solanaChainId,

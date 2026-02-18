@@ -21,6 +21,7 @@ import plasma from '@/plugins/plasma'
 import polygon from '@/plugins/polygon'
 import solana from '@/plugins/solana'
 import starknet from '@/plugins/starknet'
+import story from '@/plugins/story'
 import sui from '@/plugins/sui'
 import thorchain from '@/plugins/thorchain'
 import ton from '@/plugins/ton'
@@ -52,6 +53,7 @@ export const activePlugins = [
   polygon,
   solana,
   starknet,
+  story,
   sui,
   thorchain,
   ton,

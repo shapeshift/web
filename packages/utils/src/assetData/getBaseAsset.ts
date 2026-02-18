@@ -26,6 +26,7 @@ import {
   polygon,
   solana,
   starknet,
+  story,
   sui,
   thorchain,
   ton,
@@ -84,6 +85,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return megaeth
     case KnownChainIds.KatanaMainnet:
       return katana
+    case KnownChainIds.StoryMainnet:
+      return story
     case KnownChainIds.NearMainnet:
       return near
     case KnownChainIds.ZcashMainnet:

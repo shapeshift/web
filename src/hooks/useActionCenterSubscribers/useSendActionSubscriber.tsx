@@ -18,6 +18,7 @@ import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getNearTransactionStatus } from '@/lib/utils/near'
 import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
 import { getStarknetTransactionStatus, isStarknetChainAdapter } from '@/lib/utils/starknet'
+import { getStoryTransactionStatus } from '@/lib/utils/story'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
 import { getTonTransactionStatus } from '@/lib/utils/ton'
 import { getTronTransactionStatus } from '@/lib/utils/tron'
@@ -214,6 +215,12 @@ export const useSendActionSubscriber = () => {
                   const katanaTxStatus = await getKatanaTransactionStatus(txHash, katanaNodeUrl)
                   isConfirmed =
                     katanaTxStatus === TxStatus.Confirmed || katanaTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.StoryMainnet: {
+                  const storyTxStatus = await getStoryTransactionStatus(txHash)
+                  isConfirmed =
+                    storyTxStatus === TxStatus.Confirmed || storyTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.NearMainnet: {

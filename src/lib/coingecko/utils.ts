@@ -17,6 +17,7 @@ import {
   polygonChainId,
   solanaChainId,
   starknetChainId,
+  storyChainId,
   suiChainId,
   thorchainChainId,
   toAssetId,
@@ -213,6 +214,7 @@ export const getCoingeckoSupportedChainIds = () => {
     dogeChainId,
     zecChainId,
     ...(getConfig().VITE_FEATURE_KATANA ? [katanaChainId] : []),
+    ...(getConfig().VITE_FEATURE_STORY ? [storyChainId] : []),
     ...(getConfig().VITE_FEATURE_TON ? [tonChainId] : []),
   ]
 }

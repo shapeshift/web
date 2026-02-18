@@ -245,20 +245,86 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
     this.provider = provider
     this.info = new WalletConnectV2WalletInfo()
     this.patchSignerForNonEvmNamespaces()
+    this.patchProviderConnectForMultiNamespace()
   }
 
   private patchSignerForNonEvmNamespaces(): void {
     const signer = this.provider.signer
     const originalConnect = signer.connect.bind(signer)
     signer.connect = async (params: Parameters<typeof signer.connect>[0]) => {
+      const requiredEvm = params.namespaces?.eip155
+      const optionalEvm = params.optionalNamespaces?.eip155
+
+      const mergedEvmChains = [
+        ...new Set([...(requiredEvm?.chains ?? []), ...(optionalEvm?.chains ?? [])]),
+      ]
+      const mergedEvmMethods = [
+        ...new Set([...(requiredEvm?.methods ?? []), ...(optionalEvm?.methods ?? [])]),
+      ]
+      const mergedEvmEvents = [
+        ...new Set([...(requiredEvm?.events ?? []), ...(optionalEvm?.events ?? [])]),
+      ]
+
       return originalConnect({
         ...params,
+        namespaces: {},
         optionalNamespaces: {
-          ...params.optionalNamespaces,
+          eip155: {
+            chains: mergedEvmChains,
+            methods: mergedEvmMethods,
+            events: mergedEvmEvents,
+            rpcMap: {
+              ...(requiredEvm as any)?.rpcMap,
+              ...(optionalEvm as any)?.rpcMap,
+            },
+          },
           cosmos: COSMOS_OPTIONAL_NAMESPACE,
           solana: SOLANA_OPTIONAL_NAMESPACE,
         },
       })
+    }
+  }
+
+  /**
+   * Two patches for multi-namespace (EVM + Solana/Cosmos) session support:
+   *
+   * 1. connect(): The AppKit modal's subscribeState callback aborts pairing
+   *    when the modal closes before signer.session is set. Temporarily no-op
+   *    subscribeState to prevent premature abort.
+   *
+   * 2. enable(): After connect(), EthereumProvider calls eth_requestAccounts
+   *    which fails for Solana-only wallets (no eip155 namespace in session).
+   *    Catch this error so the session is still usable for non-EVM chains.
+   */
+  private patchProviderConnectForMultiNamespace(): void {
+    const provider = this.provider as any
+
+    const originalConnect = provider.connect.bind(provider)
+    provider.connect = async (opts?: any) => {
+      const modal = provider.modal
+      const originalSubscribeState = modal?.subscribeState?.bind(modal)
+
+      if (modal) {
+        modal.subscribeState = () => {}
+      }
+
+      try {
+        await originalConnect(opts)
+      } finally {
+        if (modal && originalSubscribeState) {
+          modal.subscribeState = originalSubscribeState
+        }
+      }
+    }
+
+    const originalEnable = provider.enable.bind(provider)
+    provider.enable = async () => {
+      try {
+        return await originalEnable()
+      } catch (e: unknown) {
+        if (provider.signer?.session) return []
+        throw e
+      }
     }
   }
 
@@ -478,7 +544,17 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
   }
 
   public async getDeviceID(): Promise<string> {
-    return 'wc:' + (await this.ethGetAddress())
+    const ethAddr = await this.ethGetAddress()
+    if (ethAddr) return 'wc:' + ethAddr
+
+    const session = this.provider.session
+    const solanaAccounts = session?.namespaces?.solana?.accounts
+    if (solanaAccounts?.[0]) return 'wc:' + solanaAccounts[0].split(':')[2]
+
+    const cosmosAccounts = session?.namespaces?.cosmos?.accounts
+    if (cosmosAccounts?.[0]) return 'wc:' + cosmosAccounts[0].split(':')[2]
+
+    return 'wc:unknown'
   }
 
   public async getFirmwareVersion(): Promise<string> {

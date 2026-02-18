@@ -746,6 +746,8 @@ describe('BigAmount', () => {
         if (assetId === 'test-asset') return 8
         return 0
       },
+      resolvePrice: () => '0',
+      resolvePriceUsd: () => '0',
     }
 
     beforeAll(() => {
@@ -792,9 +794,14 @@ describe('BigAmount', () => {
       expect(amount.isZero()).toBe(true)
     })
 
-    it('toJSON does not include assetId', () => {
+    it('toJSON includes assetId when present', () => {
       const amount = BigAmount.fromBaseUnit({ value: '100', assetId: 'test-asset' })
-      expect(amount.toJSON()).toEqual({ value: '100', precision: 8 })
+      expect(amount.toJSON()).toEqual({ value: '100', precision: 8, assetId: 'test-asset' })
+    })
+
+    it('toJSON omits assetId when not present', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '100', precision: 8 })
+      expect(amount.toJSON()).toEqual({ value: '100', precision: 8, assetId: undefined })
     })
 
     it('fromJSON round-trips value and precision', () => {
@@ -819,6 +826,8 @@ describe('BigAmount', () => {
         if (assetId === 'usdc') return 6
         return 0
       },
+      resolvePrice: () => '0',
+      resolvePriceUsd: () => '0',
     }
 
     beforeAll(() => {
@@ -1104,6 +1113,8 @@ describe('BigAmount', () => {
         if (assetId === 'usdc') return 6
         return 0
       },
+      resolvePrice: () => '0',
+      resolvePriceUsd: () => '0',
     }
 
     beforeAll(() => {
@@ -1304,6 +1315,127 @@ describe('BigAmount', () => {
     it('uses ROUND_HALF_UP by default', () => {
       const amount = BigAmount.fromBaseUnit({ value: '199999999', precision: 8 })
       expect(amount.decimalPlaces(2).toPrecision()).toBe('2')
+    })
+  })
+
+  describe('toUserCurrency', () => {
+    beforeAll(() => {
+      BigAmount.configure({
+        resolvePrecision: () => 8,
+        resolvePrice: (assetId: string) => {
+          if (assetId === 'btc') return '50000'
+          return '0'
+        },
+        resolvePriceUsd: (assetId: string) => {
+          if (assetId === 'btc') return '50000'
+          return '0'
+        },
+      })
+    })
+
+    afterAll(() => {
+      BigAmount.resetConfig()
+    })
+
+    it('converts to user currency with default 2 decimals', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '150000000', assetId: 'btc' })
+      expect(amount.toUserCurrency()).toBe('75000.00')
+    })
+
+    it('converts to user currency with custom decimals', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '150000000', assetId: 'btc' })
+      expect(amount.toUserCurrency(4)).toBe('75000.0000')
+    })
+
+    it('throws without assetId', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
+      expect(() => amount.toUserCurrency()).toThrow('requires assetId')
+    })
+
+    it('throws without config', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '150000000', assetId: 'btc' })
+      BigAmount.resetConfig()
+      expect(() => amount.toUserCurrency()).toThrow('not configured')
+    })
+  })
+
+  describe('toUSD', () => {
+    beforeAll(() => {
+      BigAmount.configure({
+        resolvePrecision: () => 8,
+        resolvePrice: () => '0',
+        resolvePriceUsd: (assetId: string) => {
+          if (assetId === 'btc') return '50000'
+          return '0'
+        },
+      })
+    })
+
+    afterAll(() => {
+      BigAmount.resetConfig()
+    })
+
+    it('converts to USD with default 2 decimals', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '150000000', assetId: 'btc' })
+      expect(amount.toUSD()).toBe('75000.00')
+    })
+
+    it('converts to USD with custom decimals', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '150000000', assetId: 'btc' })
+      expect(amount.toUSD(0)).toBe('75000')
+    })
+
+    it('throws without assetId', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
+      expect(() => amount.toUSD()).toThrow('requires assetId')
+    })
+  })
+
+  describe('fromBN with assetId', () => {
+    beforeAll(() => {
+      BigAmount.configure({
+        resolvePrecision: () => 8,
+        resolvePrice: () => '0',
+        resolvePriceUsd: () => '0',
+      })
+    })
+
+    afterAll(() => {
+      BigAmount.resetConfig()
+    })
+
+    it('carries assetId through fromBN', () => {
+      const amount = BigAmount.fromBN({ value: bn('1.5'), precision: 8, assetId: 'btc' })
+      expect(amount.assetId).toBe('btc')
+      expect(amount.toPrecision()).toBe('1.5')
+    })
+  })
+
+  describe('toJSON/fromJSON with assetId', () => {
+    it('round-trips assetId through JSON', () => {
+      const original = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
+      const json = original.toJSON()
+      expect(json.assetId).toBeUndefined()
+
+      const restored = BigAmount.fromJSON(json)
+      expect(restored.toPrecision()).toBe('1.5')
+      expect(restored.assetId).toBeUndefined()
+    })
+
+    it('round-trips assetId when present', () => {
+      BigAmount.configure({
+        resolvePrecision: () => 8,
+        resolvePrice: () => '0',
+        resolvePriceUsd: () => '0',
+      })
+      const original = BigAmount.fromBaseUnit({ value: '150000000', assetId: 'btc' })
+      const json = original.toJSON()
+      expect(json.assetId).toBe('btc')
+
+      const restored = BigAmount.fromJSON(json)
+      expect(restored.toPrecision()).toBe('1.5')
+      expect(restored.assetId).toBe('btc')
+      BigAmount.resetConfig()
     })
   })
 })

@@ -12,6 +12,7 @@ import hyperevm from '@/plugins/hyperevm'
 import katana from '@/plugins/katana'
 import litecoin from '@/plugins/litecoin'
 import mayachain from '@/plugins/mayachain'
+import megaeth from '@/plugins/megaeth'
 import mobile from '@/plugins/mobile'
 import monad from '@/plugins/monad'
 import near from '@/plugins/near'
@@ -42,6 +43,7 @@ export const activePlugins = [
   katana,
   litecoin,
   mayachain,
+  megaeth,
   mobile,
   monad,
   near,

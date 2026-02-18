@@ -18,7 +18,10 @@ import {
   WalletConnectActionType,
   WalletConnectModal,
 } from '@/plugins/walletConnectToDapps/types'
-import { deriveAddressFromExtPubKey } from '@/plugins/walletConnectToDapps/utils/createApprovalNamespaces'
+import {
+  deriveAddressFromExtPubKey,
+  isExtPubKey,
+} from '@/plugins/walletConnectToDapps/utils/createApprovalNamespaces'
 
 export const useWalletConnectEventsHandler = (
   dispatch: WalletConnectContextType['dispatch'],
@@ -66,13 +69,6 @@ export const useWalletConnectEventsHandler = (
       }
 
       const session = getRequestSession()
-
-      console.log('[WC] session_request received', {
-        method: request.method,
-        params: request.params,
-        chainId: params.chainId,
-        topic,
-      })
 
       switch (request.method) {
         case EIP155_SigningMethod.ETH_SIGN:
@@ -183,12 +179,9 @@ export const useWalletConnectEventsHandler = (
           const addresses = bip122Accounts.map(caip10 => {
             const { account } = fromAccountId(caip10)
             try {
-              const address =
-                account.startsWith('xpub') ||
-                account.startsWith('ypub') ||
-                account.startsWith('zpub')
-                  ? deriveAddressFromExtPubKey(account)
-                  : account
+              const address = isExtPubKey(account)
+                ? deriveAddressFromExtPubKey(account)
+                : account
               return { address }
             } catch {
               return { address: account }

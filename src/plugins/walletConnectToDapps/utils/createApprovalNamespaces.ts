@@ -49,7 +49,7 @@ const XPUB_NETWORK = {
   wif: 0x80,
 }
 
-const isExtPubKey = (account: string): boolean =>
+export const isExtPubKey = (account: string): boolean =>
   ['xpub', 'ypub', 'zpub', 'tpub', 'upub', 'vpub', 'Ypub', 'Zpub', 'dgub', 'Mtub', 'Ltub'].some(
     prefix => account.startsWith(prefix),
   )

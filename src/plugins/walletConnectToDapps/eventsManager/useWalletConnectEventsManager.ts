@@ -53,10 +53,7 @@ export const useWalletConnectEventsManager = (
         })
       }
 
-      if (!isSupportedSessionRequest(request)) {
-        console.log('[WC] Unsupported method:', request.params.request.method)
-        return
-      }
+      if (!isSupportedSessionRequest(request)) return
       handleSessionRequest(request)
     },
     [handleSessionRequest, state.web3wallet],

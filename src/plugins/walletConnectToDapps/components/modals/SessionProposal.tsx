@@ -162,18 +162,11 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
           return
         }
 
-        console.log('[WC] Session approval - selectedAccountIds:', _selectedAccountIds)
-        console.log('[WC] Session approval - selectedChainIds:', selectedChainIds)
-
         const approvalNamespaces: SessionTypes.Namespaces = createApprovalNamespaces(
           requiredNamespaces,
           optionalNamespaces,
           _selectedAccountIds,
           selectedChainIds,
-        )
-        console.log(
-          '[WC] Session approval - approvalNamespaces:',
-          JSON.stringify(approvalNamespaces, null, 2),
         )
 
         setIsLoading(true)

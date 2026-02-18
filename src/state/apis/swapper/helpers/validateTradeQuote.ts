@@ -215,7 +215,10 @@ export const validateTradeQuote = (
 
   const secondHopHasSufficientBalanceForGas =
     !isMultiHopTrade ||
-    (secondHopFeeAssetBalance ?? BigAmount.zero({ precision: 0 }))
+    (
+      secondHopFeeAssetBalance ??
+      BigAmount.zero({ precision: secondHopSellFeeAsset?.precision ?? 0 })
+    )
       .minus(secondHopNetworkFeeCryptoPrecision ?? 0)
       .gte(0)
 

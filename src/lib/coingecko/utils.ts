@@ -20,6 +20,7 @@ import {
   suiChainId,
   thorchainChainId,
   toAssetId,
+  tonChainId,
   zecChainId,
 } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -212,5 +213,6 @@ export const getCoingeckoSupportedChainIds = () => {
     dogeChainId,
     zecChainId,
     ...(getConfig().VITE_FEATURE_KATANA ? [katanaChainId] : []),
+    ...(getConfig().VITE_FEATURE_TON ? [tonChainId] : []),
   ]
 }

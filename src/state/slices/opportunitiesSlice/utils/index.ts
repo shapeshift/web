@@ -3,11 +3,7 @@ import { fromAccountId, fromAssetId, toAccountId, toAssetId } from '@shapeshifto
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 
 import { foxEthAssetIds, STAKING_ID_DELIMITER } from '../constants'
-import type {
-  CosmosSdkStakingSpecificUserStakingOpportunity,
-  UserUndelegation,
-} from '../resolvers/cosmosSdk/types'
-import type { FoxySpecificUserStakingOpportunity } from '../resolvers/foxy/types'
+import type { FoxySpecificUserStakingOpportunity, UserUndelegation } from '../resolvers/foxy/types'
 import type {
   OpportunityId,
   OpportunityMetadataBase,
@@ -21,6 +17,7 @@ import type {
 } from '../types'
 import { DefiProvider, DefiType } from '../types'
 
+import type { BN } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 
@@ -127,9 +124,8 @@ export const toValidatorId = (...[args]: Parameters<typeof toAccountId>) =>
 
 export const supportsUndelegations = (
   userStakingOpportunity: Partial<UserStakingOpportunity>,
-): userStakingOpportunity is
-  | CosmosSdkStakingSpecificUserStakingOpportunity
-  | FoxySpecificUserStakingOpportunity => 'undelegations' in userStakingOpportunity
+): userStakingOpportunity is FoxySpecificUserStakingOpportunity =>
+  'undelegations' in userStakingOpportunity
 
 export const makeTotalUndelegationsCryptoBaseUnit = (undelegations: UserUndelegation[]) =>
   undelegations.reduce((a, { undelegationAmountCryptoBaseUnit: b }) => a.plus(b), bn(0))
@@ -172,16 +168,8 @@ type MakeDefiProviderDisplayNameArgs = {
 
 type MakeDefiProviderDisplayName = (args: MakeDefiProviderDisplayNameArgs) => string
 
-export const makeDefiProviderDisplayName: MakeDefiProviderDisplayName = ({
-  provider,
-  assetName,
-}) => {
-  switch (provider) {
-    case DefiProvider.CosmosSdk:
-      return assetName
-    default:
-      return provider
-  }
+export const makeDefiProviderDisplayName: MakeDefiProviderDisplayName = ({ provider }) => {
+  return provider
 }
 type GetOpportunityAccessorArgs = { provider: string; type: DefiType }
 type GetOpportunityAccessorReturn = 'underlyingAssetId' | 'underlyingAssetIds'
@@ -200,4 +188,41 @@ export const isSaversUserStakingOpportunity = (
   opportunity: StakingEarnOpportunityType | undefined,
 ): opportunity is StakingEarnOpportunityType & SaversUserStakingOpportunity => {
   return Boolean(opportunity && opportunity.provider === DefiProvider.ThorchainSavers)
+}
+
+export const makeOpportunityTotalFiatBalance = ({
+  opportunity,
+  marketData,
+  assets,
+}: {
+  opportunity: StakingEarnOpportunityType | UserStakingOpportunityWithMetadata
+  marketData: Partial<Record<AssetId, MarketData>>
+  assets: Partial<Record<AssetId, Asset>>
+}): BN => {
+  const asset = assets[opportunity.assetId]
+  const underlyingAsset = assets[opportunity.underlyingAssetId]
+
+  const stakedAmountFiatBalance = bnOrZero(opportunity.stakedAmountCryptoBaseUnit)
+    .times(marketData[asset?.assetId ?? underlyingAsset?.assetId ?? '']?.price ?? '0')
+    .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
+
+  const rewardsAmountFiatBalance = [
+    ...(opportunity.rewardsCryptoBaseUnit?.amounts ?? []),
+  ].reduce<BN>((acc, currentAmount, i) => {
+    const rewardAssetId = opportunity?.rewardAssetIds?.[i] ?? ''
+    const rewardAsset = assets[rewardAssetId]
+    return acc.plus(
+      bnOrZero(currentAmount)
+        .times(marketData[rewardAssetId]?.price ?? '0')
+        .div(bn(10).pow(rewardAsset?.precision ?? 1)),
+    )
+  }, bn(0))
+
+  const undelegationsFiatBalance = makeTotalUndelegationsCryptoBaseUnit([
+    ...(supportsUndelegations(opportunity) ? opportunity.undelegations : []),
+  ])
+    .times(marketData[opportunity.assetId]?.price ?? '0')
+    .div(bn(10).pow(asset?.precision ?? 1))
+
+  return stakedAmountFiatBalance.plus(rewardsAmountFiatBalance).plus(undelegationsFiatBalance)
 }

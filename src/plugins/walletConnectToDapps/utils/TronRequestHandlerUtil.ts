@@ -59,7 +59,11 @@ export const approveTronRequest = async ({
         throw new Error('Failed to sign Tron transaction')
       }
 
-      return formatJsonRpcResult(id, { signature: signedTx.signature })
+      const signedTransaction = {
+        ...transaction,
+        signature: [signedTx.signature],
+      }
+      return formatJsonRpcResult(id, signedTransaction)
     }
 
     case TronSigningMethod.TRON_SIGN_MESSAGE: {

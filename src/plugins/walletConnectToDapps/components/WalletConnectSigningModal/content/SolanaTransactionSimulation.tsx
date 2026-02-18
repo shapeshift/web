@@ -28,7 +28,7 @@ export const SolanaTransactionSimulation: FC<SolanaTransactionSimulationProps> =
     [simulationQuery.data],
   )
 
-  const sendChangeRows = useMemo(
+  const sendChangeRow = useMemo(
     () =>
       sendChanges.map((change, index) => (
         <HStack key={`send-${index}`} justify='space-between' align='center' py={1}>
@@ -54,7 +54,7 @@ export const SolanaTransactionSimulation: FC<SolanaTransactionSimulationProps> =
     [sendChanges, translate],
   )
 
-  const receiveChangeRows = useMemo(
+  const receiveChangeRow = useMemo(
     () =>
       receiveChanges.map((change, index) => (
         <HStack key={`receive-${index}`} justify='space-between' align='center' py={1}>
@@ -106,8 +106,8 @@ export const SolanaTransactionSimulation: FC<SolanaTransactionSimulationProps> =
 
   return (
     <VStack spacing={2} align='stretch'>
-      {sendChangeRows}
-      {receiveChangeRows}
+      {sendChangeRow}
+      {receiveChangeRow}
     </VStack>
   )
 }

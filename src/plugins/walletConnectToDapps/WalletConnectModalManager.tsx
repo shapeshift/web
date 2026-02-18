@@ -170,7 +170,6 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         requestEvent,
         chainAdapter,
         accountMetadata,
-        accountId,
       })
       await web3wallet.respondSessionRequest({
         topic,
@@ -184,7 +183,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       })
     }
     handleClose()
-  }, [accountId, accountMetadata, chainId, handleClose, requestEvent, topic, wallet, web3wallet])
+  }, [accountMetadata, chainId, handleClose, requestEvent, topic, wallet, web3wallet])
 
   const handleRejectRequest = useCallback(async () => {
     if (!requestEvent || !web3wallet || !topic) return

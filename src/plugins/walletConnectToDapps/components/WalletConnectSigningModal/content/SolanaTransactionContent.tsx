@@ -161,6 +161,11 @@ export const SolanaMultiTransactionContent: FC<SolanaTransactionContentMultiProp
 }) => {
   const translate = useTranslate()
 
+  const parsedTransactions = useMemo(
+    () => transactions.map(tx => ({ tx, parsed: parseSolanaTransaction(tx) })),
+    [transactions],
+  )
+
   return (
     <VStack spacing={3} align='stretch'>
       <RawText fontSize='sm' fontWeight='bold' color='text.subtle'>
@@ -168,8 +173,7 @@ export const SolanaMultiTransactionContent: FC<SolanaTransactionContentMultiProp
           count: transactions.length,
         })}
       </RawText>
-      {transactions.map((tx, i) => {
-        const parsed = parseSolanaTransaction(tx)
+      {parsedTransactions.map(({ tx, parsed }, i) => {
         if (!parsed) return <FallbackDisplay key={i} raw={tx} />
         return <SolanaTransactionCard key={i} parsed={parsed} transaction={tx} />
       })}

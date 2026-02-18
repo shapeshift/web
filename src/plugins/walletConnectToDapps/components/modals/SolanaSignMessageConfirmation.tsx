@@ -56,9 +56,7 @@ export const SolanaSignMessageConfirmationModal: FC<
   const request = state.modalData.requestEvent?.params.request
 
   const handleFormSubmit = useCallback(
-    async (formData?: CustomTransactionData) => {
-      await onConfirm(formData)
-    },
+    (formData?: CustomTransactionData) => onConfirm(formData),
     [onConfirm],
   )
 

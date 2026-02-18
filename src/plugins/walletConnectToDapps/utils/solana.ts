@@ -52,21 +52,17 @@ export const parseSolanaTransaction = (base64: string): ParsedSolanaTransaction 
       }
     })
 
-    const primaryInstruction = instructions.find(
-      ix => ix.programName && !INFRA_PROGRAMS.has(ix.programName),
-    )
+    const primaryInstruction =
+      instructions.find(ix => ix.programName && !INFRA_PROGRAMS.has(ix.programName)) ??
+      instructions.find(ix => !INFRA_PROGRAMS.has(ix.programName ?? ''))
 
     return {
       version: tx.version === 'legacy' ? 'legacy' : 0,
       feePayer,
       recentBlockhash,
       instructions,
-      primaryProgram:
-        primaryInstruction?.programName ??
-        instructions.find(ix => !INFRA_PROGRAMS.has(ix.programName ?? ''))?.programName,
-      primaryProgramId:
-        primaryInstruction?.programId ??
-        instructions.find(ix => !INFRA_PROGRAMS.has(ix.programName ?? ''))?.programId,
+      primaryProgram: primaryInstruction?.programName,
+      primaryProgramId: primaryInstruction?.programId,
     }
   } catch {
     return null

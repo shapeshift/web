@@ -1,6 +1,5 @@
 import type { JsonRpcResult } from '@json-rpc-tools/utils'
 import { formatJsonRpcResult } from '@json-rpc-tools/utils'
-import type { AccountId } from '@shapeshiftoss/caip'
 import type { solana } from '@shapeshiftoss/chain-adapters'
 import { CONTRACT_INTERACTION, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -17,7 +16,6 @@ type ApproveSolanaRequestArgs = {
   wallet: HDWallet
   chainAdapter: solana.ChainAdapter
   accountMetadata?: AccountMetadata
-  accountId?: AccountId
 }
 
 export const approveSolanaRequest = async ({

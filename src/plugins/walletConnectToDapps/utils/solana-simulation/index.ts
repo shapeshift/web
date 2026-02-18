@@ -11,9 +11,11 @@ import { store } from '@/state/store'
 
 const TOKEN_PROGRAM_IDS = new Set([TOKEN_PROGRAM_ID.toBase58(), TOKEN_2022_PROGRAM_ID.toBase58()])
 
-const isTokenAccount = (ownerProgram: string): boolean => TOKEN_PROGRAM_IDS.has(ownerProgram)
+function isTokenAccount(ownerProgram: string): boolean {
+  return TOKEN_PROGRAM_IDS.has(ownerProgram)
+}
 
-const getTokenInfoFromStore = (mint: string): SolanaTokenInfo | undefined => {
+function getTokenInfoFromStore(mint: string): SolanaTokenInfo | undefined {
   const assetId = toAssetId({
     chainId: solanaChainId,
     assetNamespace: ASSET_NAMESPACE.splToken,
@@ -31,7 +33,7 @@ const getTokenInfoFromStore = (mint: string): SolanaTokenInfo | undefined => {
   }
 }
 
-const getNativeTokenInfo = (): SolanaTokenInfo => {
+function getNativeTokenInfo(): SolanaTokenInfo {
   const asset = selectAssetById(store.getState(), solAssetId)
 
   return {
@@ -51,20 +53,21 @@ type AccountState = {
   tokenAmount?: bigint
 }
 
-const parseAccountState = (data: Buffer | null, lamports: number, owner: string): AccountState => {
-  const state: AccountState = {
+function parseAccountState(data: Buffer | null, lamports: number, owner: string): AccountState {
+  const base: AccountState = {
     lamports: BigInt(lamports),
     owner,
   }
 
-  if (isTokenAccount(owner) && data && data.length >= AccountLayout.span) {
-    const decoded = AccountLayout.decode(data)
-    state.tokenMint = new PublicKey(decoded.mint).toBase58()
-    state.tokenOwner = new PublicKey(decoded.owner).toBase58()
-    state.tokenAmount = decoded.amount
-  }
+  if (!isTokenAccount(owner) || !data || data.length < AccountLayout.span) return base
 
-  return state
+  const decoded = AccountLayout.decode(data)
+  return {
+    ...base,
+    tokenMint: new PublicKey(decoded.mint).toBase58(),
+    tokenOwner: new PublicKey(decoded.owner).toBase58(),
+    tokenAmount: decoded.amount,
+  }
 }
 
 export const simulateSolanaTransaction = async (
@@ -123,7 +126,6 @@ export const simulateSolanaTransaction = async (
       const postData = Array.isArray(postInfo.data) ? Buffer.from(postInfo.data[0], 'base64') : null
       const postState = parseAccountState(postData, postInfo.lamports, postInfo.owner)
 
-      // SOL balance change for fee payer
       if (address === feePayer) {
         const preLamports = BigInt(preInfo?.lamports ?? 0)
         const diff = postState.lamports - preLamports
@@ -140,7 +142,6 @@ export const simulateSolanaTransaction = async (
         }
       }
 
-      // SPL token balance changes for accounts owned by the fee payer
       if (postState.tokenOwner === feePayer && postState.tokenMint) {
         const preData = preInfo?.data ? Buffer.from(preInfo.data) : null
         const preState = parseAccountState(
@@ -175,7 +176,6 @@ export const simulateSolanaTransaction = async (
       }
     }
 
-    // Convert native SOL amount from lamports to SOL
     const nativeChange = balanceChanges.find(c => c.isNativeAsset)
     if (nativeChange) {
       nativeChange.amount = bnOrZero(nativeChange.amount)

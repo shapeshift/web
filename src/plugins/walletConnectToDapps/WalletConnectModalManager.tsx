@@ -14,7 +14,6 @@ import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { CosmosSignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/CosmosSignMessageConfirmation'
-import { SolanaSignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/SolanaSignMessageConfirmation'
 import { EIP155SignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignMessageConfirmation'
 import { EIP155SignTypedDataConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignTypedDataConfirmation'
 import { EIP155TransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155TransactionConfirmation'
@@ -24,6 +23,7 @@ import { SessionAuthenticateConfirmation } from '@/plugins/walletConnectToDapps/
 import { SessionAuthRoutes } from '@/plugins/walletConnectToDapps/components/modals/SessionAuthRoutes'
 import { SessionProposalModal } from '@/plugins/walletConnectToDapps/components/modals/SessionProposal'
 import { SessionProposalRoutes } from '@/plugins/walletConnectToDapps/components/modals/SessionProposalRoutes'
+import { SolanaSignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/SolanaSignMessageConfirmation'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
   CosmosSignAminoCallRequest,
@@ -34,6 +34,7 @@ import type {
   EthSignTransactionCallRequest,
   EthSignTypedDataCallRequest,
   SessionProposalRef,
+  SolanaSignAllTransactionsCallRequest,
   SolanaSignAndSendTransactionCallRequest,
   SolanaSignMessageCallRequest,
   SolanaSignTransactionCallRequest,
@@ -44,8 +45,8 @@ import type {
 import { WalletConnectActionType, WalletConnectModal } from '@/plugins/walletConnectToDapps/types'
 import { approveCosmosRequest } from '@/plugins/walletConnectToDapps/utils/CosmosRequestHandlerUtil'
 import { approveEIP155Request } from '@/plugins/walletConnectToDapps/utils/EIP155RequestHandlerUtil'
-import { approveSolanaRequest } from '@/plugins/walletConnectToDapps/utils/SolanaRequestHandlerUtil'
 import { approveSessionAuthRequest } from '@/plugins/walletConnectToDapps/utils/SessionAuthRequestHandlerUtil'
+import { approveSolanaRequest } from '@/plugins/walletConnectToDapps/utils/SolanaRequestHandlerUtil'
 import { selectPortfolioAccountMetadata } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -179,10 +180,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       console.error('Solana WC request failed:', e)
       await web3wallet.respondSessionRequest({
         topic,
-        response: formatJsonRpcError(
-          requestEvent.id,
-          (e as Error).message ?? 'Unknown error',
-        ),
+        response: formatJsonRpcError(requestEvent.id, (e as Error).message ?? 'Unknown error'),
       })
     }
     handleClose()
@@ -375,6 +373,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
                 WalletConnectState<
                   | SolanaSignTransactionCallRequest
                   | SolanaSignAndSendTransactionCallRequest
+                  | SolanaSignAllTransactionsCallRequest
                   | SolanaSignMessageCallRequest
                 >
               >

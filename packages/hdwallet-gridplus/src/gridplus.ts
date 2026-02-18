@@ -624,6 +624,26 @@ export class GridPlusHDWallet
     return solana.solanaSignTx(this.client, msg)
   }
 
+  async solanaSignRawTransaction(
+    msg: core.SolanaSignRawTx,
+  ): Promise<core.SolanaSignedTx | null> {
+    this.assertSolanaFwSupport()
+    if (!this.expectedActiveWalletId) throw new Error('Expected SafeCard ID not set')
+
+    await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType)
+    return solana.solanaSignRawTransaction(this.client, msg)
+  }
+
+  async solanaSignMessage(
+    msg: core.SolanaSignMessage,
+  ): Promise<core.SolanaSignedMessage | null> {
+    this.assertSolanaFwSupport()
+    if (!this.expectedActiveWalletId) throw new Error('Expected SafeCard ID not set')
+
+    await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType)
+    return solana.solanaSignMessage(this.client, msg)
+  }
+
   async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string | null> {
     if (!this.client) throw new Error('Device not connected')
     return cosmos.cosmosGetAddress(this.client, msg)

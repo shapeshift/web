@@ -677,6 +677,20 @@ export class LedgerHDWallet
     return solana.solanaSignTx(this.transport, msg)
   }
 
+  public async solanaSignRawTransaction(
+    msg: core.SolanaSignRawTx,
+  ): Promise<core.SolanaSignedTx | null> {
+    await this.validateCurrentApp('Solana')
+    return solana.solanaSignRawTransaction(this.transport, msg)
+  }
+
+  public async solanaSignMessage(
+    msg: core.SolanaSignMessage,
+  ): Promise<core.SolanaSignedMessage | null> {
+    await this.validateCurrentApp('Solana')
+    return solana.solanaSignMessage(this.transport, msg)
+  }
+
   public async suiGetAddress(msg: core.SuiGetAddress): Promise<string> {
     await this.validateCurrentApp('Sui')
     return sui.suiGetAddress(this.transport, msg)

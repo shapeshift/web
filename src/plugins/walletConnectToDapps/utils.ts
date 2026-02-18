@@ -6,6 +6,7 @@ import type {
   FeeDataKey,
   GetFeeDataInput,
 } from '@shapeshiftoss/chain-adapters'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import type { SessionTypes } from '@walletconnect/types'
 import type { Hex } from 'viem'
@@ -147,9 +148,7 @@ export const getWalletAccountFromSolanaParams = (
     if (match) return match
   }
 
-  const matchForChain = accountIds.find(
-    accountId => fromAccountId(accountId).chainId === chainId,
-  )
+  const matchForChain = accountIds.find(accountId => fromAccountId(accountId).chainId === chainId)
   return matchForChain ?? ''
 }
 
@@ -179,4 +178,15 @@ export const getChainIdFromDomain = (message: string): ChainId | undefined => {
   } catch {
     return undefined
   }
+}
+
+export const isWcSupportedChainId = (chainId: string): boolean =>
+  isEvmChainId(chainId) || chainId.startsWith(`${CHAIN_NAMESPACE.Solana}:`)
+
+export const isChainInProposedNamespaces = (
+  chainId: string,
+  proposedNamespaceKeys: Set<string>,
+): boolean => {
+  const chainNamespace = chainId.split(':')[0] as string
+  return proposedNamespaceKeys.has(chainNamespace)
 }

@@ -255,6 +255,15 @@ export type SolanaSignAndSendTransactionCallRequest = {
   params: SolanaSignAndSendTransactionCallRequestParams
 }
 
+export type SolanaSignAllTransactionsCallRequestParams = {
+  transactions: string[]
+}
+
+export type SolanaSignAllTransactionsCallRequest = {
+  method: SolanaSigningMethod.SOLANA_SIGN_ALL_TRANSACTIONS
+  params: SolanaSignAllTransactionsCallRequestParams
+}
+
 export type SolanaSignMessageCallRequestParams = {
   message: string
   pubkey: string
@@ -286,6 +295,7 @@ export type WalletConnectRequest =
   | CosmosSignAminoCallRequest
   | SolanaSignTransactionCallRequest
   | SolanaSignAndSendTransactionCallRequest
+  | SolanaSignAllTransactionsCallRequest
   | SolanaSignMessageCallRequest
 
 export type EthSignParams =
@@ -302,6 +312,7 @@ export type RequestParams =
   | CosmosSignAminoCallRequestParams
   | SolanaSignTransactionCallRequestParams
   | SolanaSignAndSendTransactionCallRequestParams
+  | SolanaSignAllTransactionsCallRequestParams
   | SolanaSignMessageCallRequestParams
 
 export type ConfirmData = {

@@ -12,6 +12,7 @@ import type {
 import {
   CosmosSigningMethod,
   EIP155_SigningMethod,
+  SolanaSigningMethod,
   WalletConnectActionType,
 } from '@/plugins/walletConnectToDapps/types'
 
@@ -24,6 +25,7 @@ export const isSupportedSessionRequest = (
   const supportedMethods = [
     ...Object.values(EIP155_SigningMethod),
     ...Object.values(CosmosSigningMethod),
+    ...Object.values(SolanaSigningMethod),
   ]
   return supportedMethods.some(value => value === request.params.request.method)
 }

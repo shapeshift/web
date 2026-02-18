@@ -56,6 +56,7 @@ export const swapMachine = setup({
     isQuoteError: ({ context }) => context.errorSource === 'QUOTE_ERROR',
     isApprovalError: ({ context }) => context.errorSource === 'APPROVAL_ERROR',
     isExecuteError: ({ context }) => context.errorSource === 'EXECUTE_ERROR',
+    isStatusFailed: ({ context }) => context.errorSource === 'STATUS_FAILED',
     hasQuote: ({ context }) => guardFns.hasQuote(context),
     isEvmChain: ({ context }) => guardFns.isEvmChain(context),
     isUtxoChain: ({ context }) => guardFns.isUtxoChain(context),
@@ -264,6 +265,11 @@ export const swapMachine = setup({
           {
             target: 'approving',
             guard: { type: 'isApprovalError' },
+            actions: 'incrementRetryCount',
+          },
+          {
+            target: 'quoting',
+            guard: { type: 'isStatusFailed' },
             actions: 'incrementRetryCount',
           },
           {

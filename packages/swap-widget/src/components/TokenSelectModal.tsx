@@ -139,30 +139,33 @@ export const TokenSelectModal = ({
       .map(item => item.asset)
   }, [allAssets, selectedChainId, searchQuery, disabledAssetIds, disabledChainIds, allowedChainIds])
 
-  const visibleRangeAssets = useMemo(() => {
-    const start = Math.max(0, visibleRange.startIndex - VISIBLE_BUFFER)
-    const end = Math.min(filteredAssets.length, visibleRange.endIndex + VISIBLE_BUFFER)
-    return filteredAssets.slice(start, end)
-  }, [filteredAssets, visibleRange])
+  const { address: bitcoinAddress } = useBitcoinSigning()
+  const { address: solanaAddress } = useSolanaSigning()
 
-  const assetPrecisions = useMemo(() => {
+  const initialAssetPrecisions = useMemo(() => {
     const precisions: Record<AssetId, number> = {}
-    for (const asset of visibleRangeAssets) {
+    for (const asset of filteredAssets.slice(0, 30)) {
       precisions[asset.assetId] = asset.precision
     }
     return precisions
-  }, [visibleRangeAssets])
+  }, [filteredAssets])
 
-  const assetIds = useMemo(() => visibleRangeAssets.map(a => a.assetId), [visibleRangeAssets])
-
-  const { address: bitcoinAddress } = useBitcoinSigning()
-  const { address: solanaAddress } = useSolanaSigning()
+  const initialAssetIds = useMemo(
+    () => filteredAssets.slice(0, 30).map(a => a.assetId),
+    [filteredAssets],
+  )
 
   const {
     data: balances,
     loadingAssetIds,
     refetchSpecific,
-  } = useMultiChainBalances(walletAddress, bitcoinAddress, solanaAddress, assetIds, assetPrecisions)
+  } = useMultiChainBalances(
+    walletAddress,
+    bitcoinAddress,
+    solanaAddress,
+    initialAssetIds,
+    initialAssetPrecisions,
+  )
 
   useEffect(() => {
     if (isOpen && currentAssetIds.length > 0) {
@@ -218,6 +221,18 @@ export const TokenSelectModal = ({
     sortedAssetsRef.current = result
     return result
   }, [filteredAssets, balances, marketData])
+
+  const visibleRangeAssetIds = useMemo(() => {
+    const start = Math.max(0, visibleRange.startIndex - VISIBLE_BUFFER)
+    const end = Math.min(sortedAssets.length, visibleRange.endIndex + VISIBLE_BUFFER)
+    return sortedAssets.slice(start, end).map(a => a.assetId)
+  }, [sortedAssets, visibleRange])
+
+  useEffect(() => {
+    if (visibleRangeAssetIds.length > 0) {
+      refetchSpecific?.(visibleRangeAssetIds)
+    }
+  }, [visibleRangeAssetIds, refetchSpecific])
 
   const handleAssetSelect = useCallback(
     (asset: Asset) => {

@@ -56,7 +56,9 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
           ? walletAddress
           : context.isSellAssetUtxo
           ? bitcoinAddress
-          : solanaAddress
+          : context.isSellAssetSolana
+          ? solanaAddress
+          : undefined
 
         if (!sendAddress) {
           actorRef.send({ type: 'QUOTE_ERROR', error: 'No wallet address available' })

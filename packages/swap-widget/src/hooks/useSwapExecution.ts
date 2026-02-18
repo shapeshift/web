@@ -69,10 +69,23 @@ export const useSwapExecution = () => {
           }
 
           const txData = transactionData as {
+            type?: string
             to: string
             data: string
             value?: string
             gasLimit?: string
+          }
+
+          if (txData.type && txData.type !== 'evm') {
+            throw new Error(
+              `Expected EVM transaction data but got type '${txData.type}'. Check swapper configuration.`,
+            )
+          }
+
+          if (!txData.to || !txData.data) {
+            throw new Error(
+              `Invalid EVM transaction data: missing 'to' or 'data' fields.`,
+            )
           }
 
           const txHash = await client.sendTransaction({
@@ -106,49 +119,16 @@ export const useSwapExecution = () => {
 
           let txid: string
 
-          if (transactionData.type === 'utxo_psbt') {
-            try {
-              const isHex = /^[0-9a-fA-F]+$/.test(transactionData.psbt)
-              const psbtBase64 = isHex
-                ? Buffer.from(transactionData.psbt, 'hex').toString('base64')
-                : transactionData.psbt
-
-              txid = await bitcoin.signPsbt({
-                psbt: psbtBase64,
-                signInputs: [],
-                broadcast: true,
-              })
-            } catch (psbtError) {
-              const msg =
-                psbtError instanceof Error ? psbtError.message.toLowerCase() : String(psbtError)
-              const isUserRejection =
-                msg.includes('rejected') ||
-                msg.includes('denied') ||
-                msg.includes('cancelled') ||
-                msg.includes('user refused')
-
-              if (isUserRejection) throw psbtError
-
-              if (!transactionData.depositAddress) throw psbtError
-
-              const step = outerStep ?? innerStep
-              txid = await bitcoin.sendTransfer({
-                recipientAddress: transactionData.depositAddress,
-                amount:
-                  transactionData.value ??
-                  step?.sellAmountCryptoBaseUnit ??
-                  quote.sellAmountCryptoBaseUnit,
-                ...(transactionData.opReturnData && { memo: transactionData.opReturnData }),
-              })
-            }
-          } else if (transactionData.type === 'utxo_deposit') {
+          if (transactionData.type === 'utxo_deposit') {
             txid = await bitcoin.sendTransfer({
               recipientAddress: transactionData.depositAddress,
               amount: transactionData.value,
               memo: transactionData.memo,
             })
           } else {
-            throw new Error(`Unsupported UTXO transaction type: ${transactionData.type}`)
+            throw new Error(
+              `Unsupported UTXO transaction type: ${transactionData.type}. Only utxo_deposit is supported.`,
+            )
           }
 
           actorRef.send({ type: 'EXECUTE_SUCCESS', txHash: txid })

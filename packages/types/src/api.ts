@@ -31,8 +31,6 @@ export type UtxoPsbtTransactionData = {
   type: 'utxo_psbt'
   psbt: string
   opReturnData?: string
-  depositAddress?: string
-  value?: string
 }
 
 export type UtxoDepositTransactionData = {

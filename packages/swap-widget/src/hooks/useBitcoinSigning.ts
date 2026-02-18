@@ -93,6 +93,7 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
         const txid = await provider.sendTransfer({
           recipient: params.recipientAddress,
           amount: params.amount,
+          ...(params.memo && { memo: params.memo }),
         })
 
         if (!txid) {

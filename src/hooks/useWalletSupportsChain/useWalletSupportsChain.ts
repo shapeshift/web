@@ -9,6 +9,7 @@ import {
   cosmosChainId,
   dogeChainId,
   ethChainId,
+  flowEvmChainId,
   gnosisChainId,
   hyperEvmChainId,
   katanaChainId,
@@ -42,6 +43,7 @@ import {
   supportsBTC,
   supportsCosmos,
   supportsETH,
+  supportsFlowEvm,
   supportsGnosis,
   supportsHyperEvm,
   supportsKatana,
@@ -147,6 +149,7 @@ export const walletSupportsChain = ({
   // We have no runtime support for the current ChainId - trying and checking for feature-capabilities flags is futile
   if (!hasRuntimeSupport) return false
 
+  const isFlowEvmEnabled = selectFeatureFlag(store.getState(), 'FlowEvm')
   const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
   const isKatanaEnabled = selectFeatureFlag(store.getState(), 'Katana')
   const isMegaEthEnabled = selectFeatureFlag(store.getState(), 'MegaEth')
@@ -196,6 +199,8 @@ export const walletSupportsChain = ({
       return isPlasmaEnabled && supportsPlasma(wallet)
     case katanaChainId:
       return isKatanaEnabled && supportsKatana(wallet)
+    case flowEvmChainId:
+      return isFlowEvmEnabled && supportsFlowEvm(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

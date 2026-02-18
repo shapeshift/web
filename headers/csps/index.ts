@@ -13,6 +13,7 @@ import { csp as bnbsmartchain } from './chains/bnbsmartchain'
 import { csp as cosmos } from './chains/cosmos'
 import { csp as dogecoin } from './chains/dogecoin'
 import { csp as ethereum } from './chains/ethereum'
+import { csp as flowEvm } from './chains/flowEvm'
 import { csp as gnosis } from './chains/gnosis'
 import { csp as hyperevm } from './chains/hyperevm'
 import { csp as katana } from './chains/katana'
@@ -131,6 +132,7 @@ export const csps = [
   monad,
   near,
   plasma,
+  flowEvm,
   trustwallet,
   coincap,
   coingecko,

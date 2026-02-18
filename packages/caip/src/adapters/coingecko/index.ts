@@ -13,6 +13,7 @@ import {
   CHAIN_REFERENCE,
   cosmosChainId,
   ethChainId,
+  flowEvmChainId,
   gnosisChainId,
   hyperEvmChainId,
   katanaChainId,
@@ -51,6 +52,7 @@ export enum CoingeckoAssetPlatform {
   HyperEvm = 'hyperevm',
   Plasma = 'plasma',
   Katana = 'katana',
+  FlowEvm = 'flow-evm',
   MegaEth = 'megaeth',
   Solana = 'solana',
   Starknet = 'starknet',
@@ -112,6 +114,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Plasma
         case CHAIN_REFERENCE.KatanaMainnet:
           return CoingeckoAssetPlatform.Katana
+        case CHAIN_REFERENCE.FlowEvmMainnet:
+          return CoingeckoAssetPlatform.FlowEvm
         case CHAIN_REFERENCE.MegaEthMainnet:
           return CoingeckoAssetPlatform.MegaEth
         default:
@@ -221,6 +225,8 @@ export const coingeckoAssetPlatformToChainId = (
       return plasmaChainId
     case CoingeckoAssetPlatform.Katana:
       return katanaChainId
+    case CoingeckoAssetPlatform.FlowEvm:
+      return flowEvmChainId
     case CoingeckoAssetPlatform.MegaEth:
       return megaethChainId
     case CoingeckoAssetPlatform.Cosmos:

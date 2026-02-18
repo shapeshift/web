@@ -9,6 +9,7 @@ import {
   cosmosChainId,
   dogeChainId,
   ethChainId,
+  flowEvmChainId,
   gnosisChainId,
   katanaChainId,
   ltcChainId,
@@ -213,6 +214,7 @@ export const getCoingeckoSupportedChainIds = () => {
     dogeChainId,
     zecChainId,
     ...(getConfig().VITE_FEATURE_KATANA ? [katanaChainId] : []),
+    ...(getConfig().VITE_FEATURE_FLOW_EVM ? [flowEvmChainId] : []),
     ...(getConfig().VITE_FEATURE_TON ? [tonChainId] : []),
   ]
 }

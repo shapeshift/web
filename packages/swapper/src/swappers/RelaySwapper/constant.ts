@@ -5,6 +5,7 @@ import {
   bscChainId,
   btcChainId,
   ethChainId,
+  flowEvmChainId,
   gnosisChainId,
   hyperEvmChainId,
   katanaChainId,
@@ -23,6 +24,7 @@ import {
   avalanche,
   base,
   bsc,
+  flowMainnet,
   gnosis,
   hyperEvm,
   katana,
@@ -55,6 +57,7 @@ export const chainIdToRelayChainId = {
   [megaethChainId]: 4326,
   [plasmaChainId]: plasma.id,
   [katanaChainId]: katana.id,
+  [flowEvmChainId]: flowMainnet.id,
 }
 
 export enum RelayStatusMessage {

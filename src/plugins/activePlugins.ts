@@ -7,6 +7,7 @@ import bnbsmartchain from '@/plugins/bnbsmartchain'
 import cosmos from '@/plugins/cosmos'
 import dogecoin from '@/plugins/dogecoin'
 import ethereum from '@/plugins/ethereum'
+import flowEvm from '@/plugins/flowEvm'
 import gnosis from '@/plugins/gnosis'
 import hyperevm from '@/plugins/hyperevm'
 import katana from '@/plugins/katana'
@@ -38,6 +39,7 @@ export const activePlugins = [
   cosmos,
   dogecoin,
   ethereum,
+  flowEvm,
   gnosis,
   hyperevm,
   katana,

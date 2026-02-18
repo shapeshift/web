@@ -40,6 +40,7 @@ COPY packages/hdwallet-trezor/package.json ./packages/hdwallet-trezor/
 COPY packages/hdwallet-trezor-connect/package.json ./packages/hdwallet-trezor-connect/
 COPY packages/hdwallet-vultisig/package.json ./packages/hdwallet-vultisig/
 COPY packages/hdwallet-walletconnectv2/package.json ./packages/hdwallet-walletconnectv2/
+COPY packages/hdwallet-seeker/package.json ./packages/hdwallet-seeker/
 COPY packages/public-api/package.json ./packages/public-api/
 COPY packages/swapper/package.json ./packages/swapper/
 COPY packages/swap-widget/package.json ./packages/swap-widget/

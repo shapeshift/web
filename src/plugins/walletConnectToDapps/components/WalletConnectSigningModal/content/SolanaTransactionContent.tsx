@@ -48,7 +48,7 @@ const SolanaTransactionCard: FC<{ parsed: ParsedSolanaTransaction; transaction: 
               <RawText fontSize='sm' fontWeight='bold'>
                 {feeAsset.networkName || feeAsset.name}
               </RawText>
-              {networkIcon && <Image boxSize='20px' src={networkIcon} borderRadius='full' />}
+              {networkIcon && <Image boxSize='20px' src={networkIcon} alt='' borderRadius='full' />}
             </HStack>
           </HStack>
         )}
@@ -119,7 +119,10 @@ const SolanaTransactionCard: FC<{ parsed: ParsedSolanaTransaction; transaction: 
                     {ix.programName ?? ix.programId.substring(0, 12) + '...'}
                   </RawText>
                   <RawText fontSize='xs' color='text.subtle'>
-                    {ix.accountCount} accounts, {ix.dataLength} bytes
+                    {translate('plugins.walletConnectToDapps.modal.instructionDetail', {
+                      accountCount: ix.accountCount,
+                      dataLength: ix.dataLength,
+                    })}
                   </RawText>
                 </HStack>
               ))}

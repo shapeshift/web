@@ -64,8 +64,9 @@ export const approveSolanaRequest = async ({
       if (!result) throw new Error('Failed to sign Solana transaction')
 
       const address = await wallet.solanaGetAddress({ addressNList })
+      if (!address) throw new Error('Failed to get Solana address for broadcast')
       const txHash = await chainAdapter.broadcastTransaction({
-        senderAddress: address ?? '',
+        senderAddress: address,
         receiverAddress: CONTRACT_INTERACTION,
         hex: result.serialized,
       })
@@ -100,7 +101,7 @@ export const approveSolanaRequest = async ({
       }
 
       const { message } = request.params as { message: string }
-      const messageBytes = new TextEncoder().encode(message)
+      const messageBytes = bs58.decode(message)
       const result = await wallet.solanaSignMessage({ addressNList, message: messageBytes })
       if (!result) throw new Error('Failed to sign Solana message')
 

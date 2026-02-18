@@ -2213,6 +2213,7 @@
         "nInstructions": "%{count} instructions",
         "nTransactions": "%{count} transactions",
         "transactionData": "Transaction Data",
+        "instructionDetail": "%{accountCount} accounts, %{dataLength} bytes",
         "method": "Method",
         "signingWith": "Signing With",
         "connectWith": "Connect With",

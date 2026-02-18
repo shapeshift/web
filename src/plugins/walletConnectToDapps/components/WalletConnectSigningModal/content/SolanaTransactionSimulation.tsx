@@ -46,7 +46,7 @@ export const SolanaTransactionSimulation: FC<SolanaTransactionSimulationProps> =
               prefix='-'
             />
             {change.tokenInfo.icon && (
-              <Image boxSize='20px' src={change.tokenInfo.icon} borderRadius='full' />
+              <Image boxSize='20px' src={change.tokenInfo.icon} alt='' borderRadius='full' />
             )}
           </HStack>
         </HStack>
@@ -63,7 +63,7 @@ export const SolanaTransactionSimulation: FC<SolanaTransactionSimulationProps> =
           </RawText>
           <HStack spacing={2}>
             <Amount.Crypto
-              value={change.amount}
+              value={bnOrZero(change.amount).abs().toString()}
               symbol={change.tokenInfo.symbol}
               omitDecimalTrailingZeros
               fontSize='sm'
@@ -72,7 +72,7 @@ export const SolanaTransactionSimulation: FC<SolanaTransactionSimulationProps> =
               prefix='+'
             />
             {change.tokenInfo.icon && (
-              <Image boxSize='20px' src={change.tokenInfo.icon} borderRadius='full' />
+              <Image boxSize='20px' src={change.tokenInfo.icon} alt='' borderRadius='full' />
             )}
           </HStack>
         </HStack>

@@ -238,6 +238,8 @@ const validators = {
   VITE_FEATURE_ACROSS_SWAP: bool({ default: false }),
   VITE_ACROSS_API_URL: url({ default: 'https://app.across.to/api' }),
   VITE_ACROSS_INTEGRATOR_ID: str({ default: '' }),
+  VITE_FEATURE_DEBRIDGE_SWAP: bool({ default: false }),
+  VITE_DEBRIDGE_API_URL: url({ default: 'https://dln.debridge.finance/v1.0' }),
   VITE_FEATURE_TX_HISTORY_BYE_BYE: bool({ default: false }),
   VITE_AFFILIATE_REVENUE_URL: url(),
   VITE_FEATURE_LEDGER_READ_ONLY: bool({ default: false }),

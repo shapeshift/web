@@ -14,6 +14,7 @@ import {
   ltcChainId,
   mayachainChainId,
   optimismChainId,
+  plumeChainId,
   polygonChainId,
   solanaChainId,
   starknetChainId,
@@ -213,6 +214,7 @@ export const getCoingeckoSupportedChainIds = () => {
     dogeChainId,
     zecChainId,
     ...(getConfig().VITE_FEATURE_KATANA ? [katanaChainId] : []),
+    ...(getConfig().VITE_FEATURE_PLUME ? [plumeChainId] : []),
     ...(getConfig().VITE_FEATURE_TON ? [tonChainId] : []),
   ]
 }

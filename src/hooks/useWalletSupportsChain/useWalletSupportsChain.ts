@@ -19,6 +19,7 @@ import {
   nearChainId,
   optimismChainId,
   plasmaChainId,
+  plumeChainId,
   polygonChainId,
   solanaChainId,
   starknetChainId,
@@ -50,6 +51,7 @@ import {
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
+  supportsPlume,
   supportsPolygon,
   supportsSolana,
   supportsStarknet,
@@ -153,6 +155,7 @@ export const walletSupportsChain = ({
   const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
   const isNearEnabled = selectFeatureFlag(store.getState(), 'Near')
   const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')
+  const isPlumeEnabled = selectFeatureFlag(store.getState(), 'Plume')
   const isStarknetEnabled = selectFeatureFlag(store.getState(), 'Starknet')
   const isTonEnabled = selectFeatureFlag(store.getState(), 'Ton')
 
@@ -196,6 +199,8 @@ export const walletSupportsChain = ({
       return isPlasmaEnabled && supportsPlasma(wallet)
     case katanaChainId:
       return isKatanaEnabled && supportsKatana(wallet)
+    case plumeChainId:
+      return isPlumeEnabled && supportsPlume(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

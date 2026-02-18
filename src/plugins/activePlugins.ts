@@ -18,6 +18,7 @@ import monad from '@/plugins/monad'
 import near from '@/plugins/near'
 import optimism from '@/plugins/optimism'
 import plasma from '@/plugins/plasma'
+import plume from '@/plugins/plume'
 import polygon from '@/plugins/polygon'
 import solana from '@/plugins/solana'
 import starknet from '@/plugins/starknet'
@@ -49,6 +50,7 @@ export const activePlugins = [
   near,
   optimism,
   plasma,
+  plume,
   polygon,
   solana,
   starknet,

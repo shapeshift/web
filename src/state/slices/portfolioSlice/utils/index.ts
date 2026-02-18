@@ -25,6 +25,7 @@ import {
   nearChainId,
   optimismChainId,
   plasmaChainId,
+  plumeChainId,
   polygonChainId,
   solanaChainId,
   starknetChainId,
@@ -57,6 +58,7 @@ import {
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
+  supportsPlume,
   supportsPolygon,
   supportsSolana,
   supportsStarknet,
@@ -513,6 +515,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsPlasma(wallet)
     case katanaChainId:
       return supportsKatana(wallet)
+    case plumeChainId:
+      return supportsPlume(wallet)
     case tronChainId:
       return supportsTron(wallet)
     case nearChainId:

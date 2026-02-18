@@ -12,6 +12,7 @@ import {
   monadChainId,
   optimismChainId,
   plasmaChainId,
+  plumeChainId,
   polygonChainId,
   solanaChainId,
   tronChainId,
@@ -30,6 +31,7 @@ import {
   monad,
   optimism,
   plasma,
+  plumeMainnet,
   polygon,
 } from 'viem/chains'
 
@@ -55,6 +57,7 @@ export const chainIdToRelayChainId = {
   [megaethChainId]: 4326,
   [plasmaChainId]: plasma.id,
   [katanaChainId]: katana.id,
+  [plumeChainId]: plumeMainnet.id,
 }
 
 export enum RelayStatusMessage {

@@ -84,6 +84,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   const isHyperEvmEnabled = useAppSelector(state => selectFeatureFlag(state, 'HyperEvm'))
   const isMegaEthEnabled = useAppSelector(state => selectFeatureFlag(state, 'MegaEth'))
   const isKatanaEnabled = useAppSelector(state => selectFeatureFlag(state, 'Katana'))
+  const isPlumeEnabled = useAppSelector(state => selectFeatureFlag(state, 'Plume'))
   const [isSmallerThanLg] = useMediaQuery(`(max-width: ${breakpoints.lg})`)
 
   const chainIds = useMemo(() => {
@@ -95,12 +96,14 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
       if (!isHyperEvmEnabled && chainId === KnownChainIds.HyperEvmMainnet) return false
       if (!isMegaEthEnabled && chainId === KnownChainIds.MegaEthMainnet) return false
       if (!isKatanaEnabled && chainId === KnownChainIds.KatanaMainnet) return false
+      if (!isPlumeEnabled && chainId === KnownChainIds.PlumeMainnet) return false
       return true
     })
   }, [
     supportedChainIds,
     isSuiEnabled,
     isPlasmaEnabled,
+    isPlumeEnabled,
     isHyperEvmEnabled,
     isMegaEthEnabled,
     isKatanaEnabled,

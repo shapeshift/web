@@ -389,6 +389,23 @@ export const katana: Readonly<Asset> = Object.freeze({
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 
+export const plume: Readonly<Asset> = Object.freeze({
+  assetId: caip.plumeAssetId,
+  chainId: caip.plumeChainId,
+  name: 'Plume',
+  networkName: 'Plume',
+  symbol: 'PLUME',
+  precision: 18,
+  color: '#8B5CF6',
+  networkColor: '#8B5CF6',
+  icon: 'https://assets.coingecko.com/coins/images/49459/large/plume.jpg',
+  networkIcon: 'https://assets.coingecko.com/coins/images/49459/small/plume.jpg',
+  explorer: 'https://explorer.plumenetwork.xyz',
+  explorerAddressLink: 'https://explorer.plumenetwork.xyz/address/',
+  explorerTxLink: 'https://explorer.plumenetwork.xyz/tx/',
+  relatedAssetKey: null,
+})
+
 export const solana: Readonly<Asset> = Object.freeze({
   assetId: caip.solAssetId,
   chainId: caip.solanaChainId,

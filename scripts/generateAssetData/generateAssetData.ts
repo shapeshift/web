@@ -40,6 +40,7 @@ import * as near from './near'
 import * as optimism from './optimism'
 import { overrideAssets } from './overrides'
 import * as plasma from './plasma'
+import * as plume from './plume'
 import * as polygon from './polygon'
 import * as solana from './solana'
 import * as starknet from './starknet'
@@ -73,6 +74,7 @@ const generateAssetData = async () => {
   const katanaAssets = await katana.getAssets()
   const megaethAssets = await megaeth.getAssets()
   const plasmaAssets = await plasma.getAssets()
+  const plumeAssets = await plume.getAssets()
   const solanaAssets = await solana.getAssets()
   const starknetAssets = await starknet.getAssets()
   const tronAssets = await tronModule.getAssets()
@@ -106,6 +108,7 @@ const generateAssetData = async () => {
     ...katanaAssets,
     ...megaethAssets,
     ...plasmaAssets,
+    ...plumeAssets,
     ...solanaAssets,
     ...starknetAssets,
     ...tronAssets,

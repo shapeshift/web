@@ -10,27 +10,26 @@ import { AddressSummaryCard } from '@/plugins/walletConnectToDapps/components/mo
 import { ExternalLinkButton } from '@/plugins/walletConnectToDapps/components/modals/ExternalLinkButtons'
 import { ModalSection } from '@/plugins/walletConnectToDapps/components/modals/ModalSection'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
-import type {
-  CosmosSignAminoCallRequest,
-  CosmosSignDirectCallRequest,
-} from '@/plugins/walletConnectToDapps/types'
+import type { CosmosSignAminoCallRequest } from '@/plugins/walletConnectToDapps/types'
 import { CosmosSigningMethod } from '@/plugins/walletConnectToDapps/types'
 import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
 import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
+const disabledProp = {
+  opacity: 0.5,
+  cursor: 'not-allowed',
+  userSelect: 'none',
+}
 
 export const CosmosSignMessageConfirmationModal: FC<
-  WalletConnectRequestModalProps<CosmosSignDirectCallRequest | CosmosSignAminoCallRequest>
+  WalletConnectRequestModalProps<CosmosSignAminoCallRequest>
 > = ({ onConfirm, onReject, state, topic }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const { address, chainId } = useWalletConnectState(state)
   const peerMetadata = state.sessionsByTopic[topic]?.peer.metadata
 
-  const connectedAccountFeeAsset = useAppSelector(s =>
-    selectFeeAssetByChainId(s, chainId ?? ''),
-  )
+  const connectedAccountFeeAsset = useAppSelector(s => selectFeeAssetByChainId(s, chainId ?? ''))
 
   const translate = useTranslate()
   const walletInfo = useWallet().state.walletInfo
@@ -60,86 +59,62 @@ export const CosmosSignMessageConfirmationModal: FC<
   }, [onReject])
 
   const methodSpecificContent: JSX.Element | null = useMemo(() => {
-    if (request?.method === CosmosSigningMethod.COSMOS_SIGN_AMINO) {
-      const {
-        memo,
-        sequence,
-        msgs: messages,
-        account_number: accountNumber,
-        chain_id: chainId,
-      } = request.params.signDoc
+    if (request?.method !== CosmosSigningMethod.COSMOS_SIGN_AMINO) return null
 
-      return (
-        <Box p={4}>
-          <Text
-            translation='plugins.walletConnectToDapps.modal.signMessage.memo'
-            fontWeight='medium'
-            mb={1}
-          />
-          <RawText fontWeight='medium' color='text.subtle'>
-            {memo}
-          </RawText>
-          <Text
-            translation='plugins.walletConnectToDapps.modal.signMessage.messages'
-            fontWeight='medium'
-            mb={1}
-          />
-          <RawText fontWeight='medium' color='text.subtle'>
-            {messages.length > 0
-              ? messages
-              : translate('plugins.walletConnectToDapps.modal.signMessage.noMessages')}
-          </RawText>
-          <Text
-            translation='plugins.walletConnectToDapps.modal.signMessage.sequence'
-            fontWeight='medium'
-            mb={1}
-          />
-          <RawText fontWeight='medium' color='text.subtle'>
-            {sequence}
-          </RawText>
-          <Text
-            translation='plugins.walletConnectToDapps.modal.signMessage.accountNumber'
-            fontWeight='medium'
-            mb={1}
-          />
-          <RawText fontWeight='medium' color='text.subtle'>
-            {accountNumber}
-          </RawText>
-          <Text
-            translation='plugins.walletConnectToDapps.modal.signMessage.chainId'
-            fontWeight='medium'
-            mb={1}
-          />
-          <RawText fontWeight='medium' color='text.subtle'>
-            {chainId}
-          </RawText>
-        </Box>
-      )
-    } else if (request?.method === CosmosSigningMethod.COSMOS_SIGN_DIRECT) {
-      const authInfo = request.params.signDoc.authInfoBytes
-      const body = request.params.signDoc.bodyBytes
+    const {
+      memo,
+      sequence,
+      msgs: messages,
+      account_number: accountNumber,
+      chain_id: chainId,
+    } = request.params.signDoc
 
-      return (
-        <Box p={4}>
-          <Text
-            translation='plugins.walletConnectToDapps.modal.signMessage.authInfo'
-            fontWeight='medium'
-            mb={1}
-          />
-          <RawText fontWeight='medium' color='text.subtle'>
-            {authInfo}
-          </RawText>
-          <Text
-            translation='plugins.walletConnectToDapps.modal.signMessage.body'
-            fontWeight='medium'
-            mb={1}
-          />
-          <RawText fontWeight='medium' color='text.subtle'>
-            {body}
-          </RawText>
-        </Box>
-      )
-    } else return null
+    return (
+      <Box p={4}>
+        <Text
+          translation='plugins.walletConnectToDapps.modal.signMessage.memo'
+          fontWeight='medium'
+          mb={1}
+        />
+        <RawText fontWeight='medium' color='text.subtle'>
+          {memo}
+        </RawText>
+        <Text
+          translation='plugins.walletConnectToDapps.modal.signMessage.messages'
+          fontWeight='medium'
+          mb={1}
+        />
+        <RawText fontWeight='medium' color='text.subtle'>
+          {messages.length > 0
+            ? messages
+            : translate('plugins.walletConnectToDapps.modal.signMessage.noMessages')}
+        </RawText>
+        <Text
+          translation='plugins.walletConnectToDapps.modal.signMessage.sequence'
+          fontWeight='medium'
+          mb={1}
+        />
+        <RawText fontWeight='medium' color='text.subtle'>
+          {sequence}
+        </RawText>
+        <Text
+          translation='plugins.walletConnectToDapps.modal.signMessage.accountNumber'
+          fontWeight='medium'
+          mb={1}
+        />
+        <RawText fontWeight='medium' color='text.subtle'>
+          {accountNumber}
+        </RawText>
+        <Text
+          translation='plugins.walletConnectToDapps.modal.signMessage.chainId'
+          fontWeight='medium'
+          mb={1}
+        />
+        <RawText fontWeight='medium' color='text.subtle'>
+          {chainId}
+        </RawText>
+      </Box>
+    )
   }, [request?.method, request?.params.signDoc, translate])
 
   if (!peerMetadata) return null

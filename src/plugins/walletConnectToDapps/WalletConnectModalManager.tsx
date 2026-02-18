@@ -25,7 +25,6 @@ import { SessionProposalRoutes } from '@/plugins/walletConnectToDapps/components
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
   CosmosSignAminoCallRequest,
-  CosmosSignDirectCallRequest,
   CustomTransactionData,
   EthSendTransactionCallRequest,
   EthSignCallRequest,
@@ -140,7 +139,6 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
           chainAdapter,
           accountMetadata,
           customTransactionData,
-          accountId,
         })
         await web3wallet.respondSessionRequest({
           topic,
@@ -150,15 +148,12 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         console.error('Cosmos WC request failed:', e)
         await web3wallet.respondSessionRequest({
           topic,
-          response: formatJsonRpcError(
-            requestEvent.id,
-            (e as Error).message ?? 'Unknown error',
-          ),
+          response: formatJsonRpcError(requestEvent.id, (e as Error).message ?? 'Unknown error'),
         })
       }
       handleClose()
     },
-    [accountId, accountMetadata, chainId, handleClose, requestEvent, topic, wallet, web3wallet],
+    [accountMetadata, chainId, handleClose, requestEvent, topic, wallet, web3wallet],
   )
 
   const handleRejectRequest = useCallback(async () => {
@@ -328,11 +323,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
             onConfirm={handleConfirmCosmosRequest}
             onReject={handleRejectRequestAndClose}
             dispatch={dispatch}
-            state={
-              state as Required<
-                WalletConnectState<CosmosSignDirectCallRequest | CosmosSignAminoCallRequest>
-              >
-            }
+            state={state as Required<WalletConnectState<CosmosSignAminoCallRequest>>}
             topic={topic}
           />
         )

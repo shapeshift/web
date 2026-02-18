@@ -1,11 +1,8 @@
 import type { JsonRpcResult } from '@json-rpc-tools/utils'
 import { formatJsonRpcResult } from '@json-rpc-tools/utils'
-import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { Cosmos, CosmosSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { supportsCosmos } from '@shapeshiftoss/hdwallet-core'
 import type { AccountMetadata, CosmosSdkChainId } from '@shapeshiftoss/types'
 import { getSdkError } from '@walletconnect/utils'
 
@@ -22,7 +19,6 @@ type ApproveCosmosRequestArgs = {
   chainAdapter: ChainAdapter<CosmosSdkChainId>
   accountMetadata?: AccountMetadata
   customTransactionData?: CustomTransactionData
-  accountId?: AccountId
 }
 
 export const approveCosmosRequest = async ({
@@ -30,44 +26,11 @@ export const approveCosmosRequest = async ({
   wallet,
   chainAdapter,
   accountMetadata,
-  accountId,
 }: ApproveCosmosRequestArgs): Promise<JsonRpcResult<unknown>> => {
   const { params, id } = requestEvent
   const { request } = params
 
   switch (request.method) {
-    case CosmosSigningMethod.COSMOS_GET_ACCOUNTS: {
-      assertIsDefined(accountMetadata)
-      assertIsDefined(accountId)
-
-      if (!supportsCosmos(wallet)) {
-        throw new Error('Wallet does not support Cosmos')
-      }
-
-      const { bip44Params } = accountMetadata
-      const addressNList = toAddressNList(chainAdapter.getBip44Params(bip44Params))
-      const address = fromAccountId(accountId).account
-
-      const pubKeyBytes = await (async () => {
-        try {
-          const addr = await wallet.cosmosGetAddress({ addressNList })
-          if (addr) return addr
-        } catch {}
-        return null
-      })()
-
-      // Best-effort: pubkey should be a base64-encoded secp256k1 public key, but not all
-      // wallets expose it. Falls back to bech32 address which is semantically wrong but
-      // allows dApps that don't strictly validate the pubkey field to still work.
-      return formatJsonRpcResult(id, [
-        {
-          address,
-          algo: 'secp256k1',
-          pubkey: pubKeyBytes ?? address,
-        },
-      ])
-    }
-
     case CosmosSigningMethod.COSMOS_SIGN_AMINO: {
       assertIsDefined(accountMetadata)
 

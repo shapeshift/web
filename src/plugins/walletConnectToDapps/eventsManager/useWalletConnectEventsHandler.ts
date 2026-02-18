@@ -1,4 +1,4 @@
-import { formatJsonRpcResult } from '@json-rpc-tools/utils'
+import { formatJsonRpcError, formatJsonRpcResult } from '@json-rpc-tools/utils'
 import type { WalletKitTypes } from '@reown/walletkit'
 import type { ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId, toChainId } from '@shapeshiftoss/caip'
@@ -27,7 +27,10 @@ export const useWalletConnectEventsHandler = (
     (proposal: WalletKitTypes.EventArguments['session_proposal']) => {
       dispatch({
         type: WalletConnectActionType.SET_MODAL,
-        payload: { modal: WalletConnectModal.SessionProposal, data: { proposal } },
+        payload: {
+          modal: WalletConnectModal.SessionProposal,
+          data: { proposal },
+        },
       })
     },
     [dispatch],
@@ -163,6 +166,13 @@ export const useWalletConnectEventsHandler = (
           })
         }
         case CosmosSigningMethod.COSMOS_SIGN_DIRECT:
+          return web3wallet?.respondSessionRequest({
+            topic,
+            response: formatJsonRpcError(
+              requestEvent.id,
+              'cosmos_signDirect is not supported - use cosmos_signAmino instead',
+            ),
+          })
         case CosmosSigningMethod.COSMOS_SIGN_AMINO:
           return dispatch({
             type: WalletConnectActionType.SET_MODAL,
@@ -179,5 +189,9 @@ export const useWalletConnectEventsHandler = (
     [dispatch, web3wallet],
   )
 
-  return { handleSessionProposal, handleSessionAuthRequest, handleSessionRequest }
+  return {
+    handleSessionProposal,
+    handleSessionAuthRequest,
+    handleSessionRequest,
+  }
 }

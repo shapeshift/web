@@ -9,7 +9,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { FormField } from '@/components/DeFi/components/FormField'
 import { Row } from '@/components/Row/Row'
 import { RawText } from '@/components/Text'
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 type WithdrawTypeProps = {
   asset: Asset
@@ -46,7 +46,7 @@ export const WithdrawTypeField: React.FC<WithdrawTypeProps> = ({
 
   const withdrawalFee = useMemo(() => {
     return withdrawType.value === WithdrawType.INSTANT
-      ? bn(cryptoAmount).times(feePercentage).toString()
+      ? bnOrZero(cryptoAmount).times(feePercentage).toString()
       : '0'
   }, [cryptoAmount, feePercentage, withdrawType.value])
 

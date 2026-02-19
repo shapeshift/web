@@ -341,7 +341,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       const cryptoAmount = amountAvailableCryptoPrecision.times(percent)
       const fiatAmount = cryptoAmount.times(assetMarketData?.price)
 
-      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
+      setValue(Field.FiatAmount, fiatAmount.toPrecision(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toFixed(asset.precision), { shouldValidate: true })
     },
     [amountAvailableCryptoPrecision, asset.precision, assetMarketData?.price, setValue],
@@ -620,7 +620,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         asset={asset}
         cryptoAmountAvailable={amountAvailableCryptoPrecision.toPrecision()}
         cryptoInputValidation={cryptoInputValidation}
-        fiatAmountAvailable={fiatAmountAvailable.toString()}
+        fiatAmountAvailable={fiatAmountAvailable.toPrecision()}
         fiatInputValidation={fiatInputValidation}
         marketData={
           assetMarketData ?? {

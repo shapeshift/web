@@ -10,7 +10,6 @@ import { MemoryRouter } from 'react-router-dom'
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertUnreachable } from '@/lib/utils'
-import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { CosmosSignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/CosmosSignMessageConfirmation'
 import { EIP155SignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignMessageConfirmation'
@@ -124,37 +123,30 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     [accountId, accountMetadata, chainId, handleClose, requestEvent, topic, wallet, web3wallet],
   )
 
-  const handleConfirmCosmosRequest = useCallback(
-    async (customTransactionData?: CustomTransactionData) => {
-      if (!requestEvent || !chainId || !wallet || !web3wallet || !topic) {
-        return
-      }
+  const handleConfirmCosmosRequest = useCallback(async () => {
+    if (!requestEvent || !wallet || !web3wallet || !topic) {
+      return
+    }
 
-      const chainAdapter = assertGetCosmosSdkChainAdapter(chainId)
-
-      try {
-        const response = await approveCosmosRequest({
-          wallet,
-          requestEvent,
-          chainAdapter,
-          accountMetadata,
-          customTransactionData,
-        })
-        await web3wallet.respondSessionRequest({
-          topic,
-          response,
-        })
-      } catch (e) {
-        console.error('Cosmos WC request failed:', e)
-        await web3wallet.respondSessionRequest({
-          topic,
-          response: formatJsonRpcError(requestEvent.id, (e as Error).message ?? 'Unknown error'),
-        })
-      }
-      handleClose()
-    },
-    [accountMetadata, chainId, handleClose, requestEvent, topic, wallet, web3wallet],
-  )
+    try {
+      const response = await approveCosmosRequest({
+        wallet,
+        requestEvent,
+        accountMetadata,
+      })
+      await web3wallet.respondSessionRequest({
+        topic,
+        response,
+      })
+    } catch (e) {
+      console.error('Cosmos WC request failed:', e)
+      await web3wallet.respondSessionRequest({
+        topic,
+        response: formatJsonRpcError(requestEvent.id, (e as Error).message ?? 'Unknown error'),
+      })
+    }
+    handleClose()
+  }, [accountMetadata, handleClose, requestEvent, topic, wallet, web3wallet])
 
   const handleRejectRequest = useCallback(async () => {
     if (!requestEvent || !web3wallet || !topic) return

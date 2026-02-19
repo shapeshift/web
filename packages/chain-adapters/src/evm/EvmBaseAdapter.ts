@@ -22,6 +22,7 @@ import {
   supportsOptimism,
   supportsPlasma,
   supportsPolygon,
+  supportsScroll,
 } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -90,6 +91,7 @@ export const evmChainIds = [
   KnownChainIds.InkMainnet,
   KnownChainIds.MegaEthMainnet,
   KnownChainIds.KatanaMainnet,
+  KnownChainIds.ScrollMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -196,6 +198,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsMegaEth(wallet)
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
+        case Number(fromChainId(KnownChainIds.ScrollMainnet).chainReference):
+          return supportsScroll(wallet)
         default:
           return false
       }
@@ -297,6 +301,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://katanascan.com',
+      },
+      [KnownChainIds.ScrollMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://scrollscan.com',
       },
     }[this.chainId]
 

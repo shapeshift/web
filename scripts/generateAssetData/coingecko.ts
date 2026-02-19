@@ -17,6 +17,7 @@ import {
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  scrollChainId,
   solanaChainId,
   starknetChainId,
   suiChainId,
@@ -41,6 +42,7 @@ import {
   optimism,
   plasma,
   polygon,
+  scroll,
   solana,
   sui,
   ton,
@@ -174,6 +176,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: megaeth.explorer,
           explorerAddressLink: megaeth.explorerAddressLink,
           explorerTxLink: megaeth.explorerTxLink,
+        }
+      case scrollChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: scroll.explorer,
+          explorerAddressLink: scroll.explorerAddressLink,
+          explorerTxLink: scroll.explorerTxLink,
         }
       case katanaChainId:
         return {

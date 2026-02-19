@@ -7,17 +7,13 @@
  */
 
 import cors from 'cors'
-import crypto from 'crypto'
 import express from 'express'
 import { v4 as uuidv4 } from 'uuid'
 
 const API_PORT = parseInt(process.env.PORT || '3001', 10)
 const API_HOST = process.env.HOST || '0.0.0.0'
 
-// Static API keys for testing
-const STATIC_API_KEYS: Record<string, { name: string; feeSharePercentage: number }> = {
-  'test-api-key-123': { name: 'Test Partner', feeSharePercentage: 50 },
-}
+const EVM_ADDRESS_REGEX = /^0x[0-9a-fA-F]{40}$/
 
 const app = express()
 
@@ -25,24 +21,26 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-// API key auth middleware
-const apiKeyAuth = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const apiKey = req.header('X-API-Key')
+const affiliateAddress = (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction,
+) => {
+  const address = req.header('X-Affiliate-Address')
 
-  if (!apiKey) {
-    return res.status(401).json({ error: 'API key required', code: 'MISSING_API_KEY' })
+  if (!address) {
+    return next()
   }
 
-  const partnerInfo = STATIC_API_KEYS[apiKey]
-  if (!partnerInfo) {
-    return res.status(401).json({ error: 'Invalid API key', code: 'INVALID_API_KEY' })
+  if (!EVM_ADDRESS_REGEX.test(address)) {
+    return res.status(400).json({
+      error:
+        'Invalid affiliate address format. Must be a valid EVM address (0x followed by 40 hex characters).',
+      code: 'INVALID_AFFILIATE_ADDRESS',
+    })
   }
 
-  ;(req as any).partner = {
-    id: crypto.createHash('sha256').update(apiKey).digest('hex').substring(0, 16),
-    name: partnerInfo.name,
-    feeSharePercentage: partnerInfo.feeSharePercentage,
-  }
+  ;(req as any).affiliateInfo = { affiliateAddress: address }
 
   next()
 }
@@ -53,7 +51,7 @@ app.get('/health', (_req, res) => {
 })
 
 // Mock rates endpoint
-app.get('/v1/swap/rates', apiKeyAuth, (req, res) => {
+app.get('/v1/swap/rates', affiliateAddress, (req, res) => {
   const { sellAssetId, buyAssetId, sellAmountCryptoBaseUnit } = req.query
 
   if (!sellAssetId || !buyAssetId || !sellAmountCryptoBaseUnit) {
@@ -108,7 +106,7 @@ app.get('/v1/swap/rates', apiKeyAuth, (req, res) => {
 })
 
 // Mock quote endpoint
-app.post('/v1/swap/quote', apiKeyAuth, (req, res) => {
+app.post('/v1/swap/quote', affiliateAddress, (req, res) => {
   const { sellAssetId, buyAssetId, sellAmountCryptoBaseUnit, receiveAddress, swapperName } =
     req.body
 
@@ -222,21 +220,21 @@ Endpoints:
   POST /v1/swap/quote           - Get executable quote with tx data
   GET  /v1/assets               - List supported assets
 
-Authentication:
-  Include 'X-API-Key' header for /v1/swap/* endpoints
-  Test key: test-api-key-123
+Affiliate Tracking (optional):
+  Include 'X-Affiliate-Address' header with your Arbitrum address for fee attribution.
+  The API works without it — no authentication required.
 
 Example requests:
 
   # Health check
   curl http://localhost:${API_PORT}/health
 
-  # Get rates
-  curl -H "X-API-Key: test-api-key-123" \\
+  # Get rates (with affiliate address)
+  curl -H "X-Affiliate-Address: 0x0000000000000000000000000000000000000001" \\
     "http://localhost:${API_PORT}/v1/swap/rates?sellAssetId=eip155:1/slip44:60&buyAssetId=eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&sellAmountCryptoBaseUnit=1000000000000000000"
 
-  # Get quote
-  curl -X POST -H "X-API-Key: test-api-key-123" -H "Content-Type: application/json" \\
+  # Get quote (with affiliate address)
+  curl -X POST -H "X-Affiliate-Address: 0x0000000000000000000000000000000000000001" -H "Content-Type: application/json" \\
     -d '{"sellAssetId":"eip155:1/slip44:60","buyAssetId":"eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","sellAmountCryptoBaseUnit":"1000000000000000000","receiveAddress":"0x742d35Cc6634C0532925a3b844Bc9e7595f4EdC3","swapperName":"THORChain"}' \\
     http://localhost:${API_PORT}/v1/swap/quote
 

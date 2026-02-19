@@ -6,6 +6,7 @@ const DEFAULT_API_BASE_URL =
 export type ApiClientConfig = {
   baseUrl?: string
   apiKey?: string
+  affiliateAddress?: string
 }
 
 export const createApiClient = (config: ApiClientConfig = {}) => {
@@ -21,7 +22,9 @@ export const createApiClient = (config: ApiClientConfig = {}) => {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     }
-    if (config.apiKey) {
+    if (config.affiliateAddress) {
+      headers['x-affiliate-address'] = config.affiliateAddress
+    } else if (config.apiKey) {
       headers['x-api-key'] = config.apiKey
     }
 

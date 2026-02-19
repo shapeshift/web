@@ -44,7 +44,7 @@ import { SwapWidget } from "@shapeshiftoss/swap-widget";
 function App() {
   return (
     <SwapWidget
-      apiKey="your-api-key"
+      affiliateAddress="0xYourArbitrumAddress"
       theme="dark"
       onSwapSuccess={(txHash) => console.log("Success:", txHash)}
       onSwapError={(error) => console.error("Error:", error)}
@@ -59,7 +59,8 @@ function App() {
 
 | Prop                     | Type                                            | Default          | Description                                                                                                |
 | ------------------------ | ----------------------------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------- |
-| `apiKey`                 | `string`                                        | -                | ShapeShift API key for fetching swap rates. Required for production use.                                   |
+| `apiKey`                 | `string`                                        | -                | **Deprecated.** Use `affiliateAddress` instead. Will be removed in a future version.                       |
+| `affiliateAddress`       | `string`                                        | -                | Your Arbitrum address for affiliate fee attribution. Optional — the widget works without it.               |
 | `apiBaseUrl`             | `string`                                        | -                | Custom API base URL. Useful for testing or custom deployments.                                             |
 | `defaultSellAsset`       | `Asset`                                         | ETH on Ethereum  | Initial asset to sell.                                                                                     |
 | `defaultBuyAsset`        | `Asset`                                         | USDC on Ethereum | Initial asset to buy.                                                                                      |
@@ -132,7 +133,7 @@ function App() {
 import { SwapWidget } from "@shapeshiftoss/swap-widget";
 
 function App() {
-  return <SwapWidget apiKey="your-api-key" theme="dark" />;
+  return <SwapWidget affiliateAddress="0xYourArbitrumAddress" theme="dark" />;
 }
 ```
 
@@ -149,7 +150,7 @@ function App() {
 
   return (
     <SwapWidget
-      apiKey="your-api-key"
+      affiliateAddress="0xYourArbitrumAddress"
       walletClient={walletClient}
       onConnectWallet={() => {
         // Your custom wallet connection logic
@@ -198,7 +199,7 @@ const defaultBuyAsset: Asset = {
 function App() {
   return (
     <SwapWidget
-      apiKey="your-api-key"
+      affiliateAddress="0xYourArbitrumAddress"
       defaultSellAsset={defaultSellAsset}
       defaultBuyAsset={defaultBuyAsset}
       theme="dark"
@@ -217,7 +218,7 @@ import { SwapWidget, EVM_CHAIN_IDS } from "@shapeshiftoss/swap-widget";
 function App() {
   return (
     <SwapWidget
-      apiKey="your-api-key"
+      affiliateAddress="0xYourArbitrumAddress"
       allowedChainIds={[
         EVM_CHAIN_IDS.ethereum,
         EVM_CHAIN_IDS.polygon,
@@ -242,7 +243,7 @@ import { SwapWidget } from "@shapeshiftoss/swap-widget";
 function App() {
   return (
     <SwapWidget
-      apiKey="your-api-key"
+      affiliateAddress="0xYourArbitrumAddress"
       enableWalletConnection={true}
       walletConnectProjectId="your-walletconnect-project-id"
       theme="dark"
@@ -267,7 +268,7 @@ import { SwapWidget } from "@shapeshiftoss/swap-widget";
 function App() {
   return (
     <SwapWidget
-      apiKey="your-api-key"
+      affiliateAddress="0xYourArbitrumAddress"
       defaultReceiveAddress="0x1234567890abcdef1234567890abcdef12345678"
       theme="dark"
     />
@@ -481,9 +482,9 @@ The widget supports swaps across multiple blockchain types:
 - **Solana swaps** - Solana transactions can be signed via Phantom, Solflare, or other Solana wallets when using the built-in wallet connection.
 - **Unsupported chains** - Swaps involving chains without wallet support will redirect to [app.shapeshift.com](https://app.shapeshift.com) to complete the transaction.
 
-### API Key
+### Affiliate Address
 
-An API key is required for fetching swap rates in production. Contact ShapeShift for API access.
+An affiliate address is optional. Pass your Arbitrum address via the `affiliateAddress` prop to attribute swaps for affiliate fee tracking. The widget works without it — no registration or approval required.
 
 ### Internal QueryClient
 

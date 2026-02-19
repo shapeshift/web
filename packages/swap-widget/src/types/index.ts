@@ -131,7 +131,9 @@ export type ThemeConfig = {
 }
 
 export type SwapWidgetProps = {
+  /** @deprecated Use `affiliateAddress` instead. Will be removed in a future version. */
   apiKey?: string
+  affiliateAddress?: string
   apiBaseUrl?: string
   defaultSellAsset?: Asset
   defaultBuyAsset?: Asset

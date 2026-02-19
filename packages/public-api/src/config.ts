@@ -58,8 +58,3 @@ export const DEFAULT_AFFILIATE_BPS = '60'
 // API server config
 export const API_PORT = parseInt(process.env.PORT || '3001', 10)
 export const API_HOST = process.env.HOST || '0.0.0.0'
-
-// Static API keys for testing (in production these would come from a database)
-export const STATIC_API_KEYS: Record<string, { name: string; feeSharePercentage: number }> = {
-  'test-api-key-123': { name: 'Test Partner', feeSharePercentage: 50 },
-}

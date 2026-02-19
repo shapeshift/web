@@ -1,7 +1,17 @@
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { Chain } from 'viem/chains'
-import { arbitrum, avalanche, base, bsc, gnosis, ink, mainnet, optimism, polygon } from 'viem/chains'
+import {
+  arbitrum,
+  avalanche,
+  base,
+  bsc,
+  gnosis,
+  ink,
+  mainnet,
+  optimism,
+  polygon,
+} from 'viem/chains'
 
 import type { EthereumProviderOptions } from './constants'
 

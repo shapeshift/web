@@ -674,9 +674,13 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     if (!currentAccountIdByChainId) return
 
     setConfirmedQuote({
-      assetWithdrawAmountCryptoPrecision: actualAssetWithdrawAmountCryptoPrecision,
+      assetWithdrawAmountCryptoPrecision: bnOrZero(
+        actualAssetWithdrawAmountCryptoPrecision,
+      ).toFixed(),
       assetWithdrawAmountFiatUserCurrency: actualAssetWithdrawAmountFiatUserCurrency,
-      runeWithdrawAmountCryptoPrecision: actualRuneWithdrawAmountCryptoPrecision,
+      runeWithdrawAmountCryptoPrecision: bnOrZero(
+        actualRuneWithdrawAmountCryptoPrecision,
+      ).toFixed(),
       runeWithdrawAmountFiatUserCurrency: actualRuneWithdrawAmountFiatUserCurrency,
       shareOfPoolDecimalPercent,
       slippageFiatUserCurrency,

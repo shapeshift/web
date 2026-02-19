@@ -9,7 +9,6 @@ import {
   usdtAssetId,
 } from '@shapeshiftoss/caip'
 import { assertGetViemClient } from '@shapeshiftoss/contracts'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'

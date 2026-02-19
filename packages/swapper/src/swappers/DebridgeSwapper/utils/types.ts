@@ -138,6 +138,17 @@ export type DebridgeSingleChainCostDetail = {
   }
 }
 
+export type DebridgeSingleChainEstimatedTransactionFee = {
+  total: string
+  details: {
+    gasLimit: string
+    baseFee?: string
+    maxFeePerGas?: string
+    maxPriorityFeePerGas?: string
+  }
+  approximateUsdValue?: number
+}
+
 export type DebridgeSingleChainTransactionResponse = {
   tokenIn: DebridgeSingleChainTokenInfo
   tokenOut: DebridgeSingleChainTokenOut
@@ -145,6 +156,7 @@ export type DebridgeSingleChainTransactionResponse = {
   recommendedSlippage: number
   protocolFee?: string
   costsDetails: DebridgeSingleChainCostDetail[]
+  estimatedTransactionFee?: DebridgeSingleChainEstimatedTransactionFee
   tx: {
     to: string
     data: string

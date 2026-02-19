@@ -13,6 +13,7 @@ import axios from 'axios'
 import { v4 as uuid } from 'uuid'
 import { zeroAddress } from 'viem'
 
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
   SwapErrorRight,
   SwapperDeps,
@@ -368,7 +369,14 @@ async function getNetworkFee({
 
     return feeData.networkFeeCryptoBaseUnit
   } catch {
-    return undefined
+    const gasLimitFromApi = debridgeTransactionMetadata.gasLimit
+    if (!gasLimitFromApi) return undefined
+
+    return evm.calcNetworkFeeCryptoBaseUnit({
+      ...average,
+      gasLimit: gasLimitFromApi,
+      supportsEIP1559,
+    })
   }
 }
 
@@ -391,6 +399,15 @@ async function getSameChainTrade<T extends 'quote' | 'rate'>({
 }): Promise<Result<TradeQuote[] | TradeRate[], SwapErrorRight>> {
   const { sellAsset, buyAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit, affiliateBps } = input
 
+  const slippage = (() => {
+    const slippageDecimal =
+      input.slippageTolerancePercentageDecimal ??
+      getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Debridge)
+    const slippagePercent = bnOrZero(slippageDecimal).times(100)
+    if (!slippagePercent.isFinite() || slippagePercent.lte(0)) return 'auto'
+    return slippagePercent.toFixed()
+  })()
+
   const maybeQuote = await fetchDebridgeSingleChainTrade(
     {
       chainId: sellDebridgeChainId,
@@ -399,6 +416,7 @@ async function getSameChainTrade<T extends 'quote' | 'rate'>({
       tokenOut: getDebridgeAssetAddress(buyAsset.assetId),
       tokenOutRecipient: recipientAddress,
       senderAddress,
+      slippage,
       affiliateFeePercent,
       affiliateFeeRecipient,
     },
@@ -457,6 +475,7 @@ async function getSameChainTrade<T extends 'quote' | 'rate'>({
     to: quote.tx.to,
     data: quote.tx.data,
     value: quote.tx.value,
+    gasLimit: quote.estimatedTransactionFee?.details.gasLimit,
     isSameChainSwap: true,
   }
 

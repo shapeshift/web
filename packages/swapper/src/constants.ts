@@ -139,6 +139,8 @@ const DEFAULT_SUNIO_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005'
 // Starknet swaps can have more latency, so use higher default slippage
 const DEFAULT_AVNU_SLIPPAGE_DECIMAL_PERCENTAGE = '0.02'
 const DEFAULT_STONFI_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01'
+// deBridge API off-chain simulation overestimates output on some chains (e.g. SEI ~2.4%), so auto slippage (1%) is insufficient
+const DEFAULT_DEBRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0.03'
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
   swapperName: SwapperName | undefined,
@@ -168,7 +170,7 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
     case SwapperName.Across:
       throw new Error('Default slippage not supported by Across')
     case SwapperName.Debridge:
-      throw new Error('Default slippage not supported by deBridge')
+      return DEFAULT_DEBRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.ButterSwap:
       return DEFAULT_BUTTERSWAP_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.NearIntents:

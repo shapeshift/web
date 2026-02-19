@@ -1,6 +1,7 @@
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import BigNumber from 'bignumber.js'
+import type { Hex } from 'viem'
 
 import type { SwapperApi } from '../../types'
 import { checkEvmSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
@@ -50,7 +51,7 @@ export const debridgeApi: SwapperApi = {
     const { accountNumber, debridgeTransactionMetadata, sellAsset } = step
     if (!debridgeTransactionMetadata) throw new Error('Missing deBridge transaction metadata')
 
-    const { to, value, data, gasLimit: gasLimitFromApi } = debridgeTransactionMetadata
+    const { to, value, data } = debridgeTransactionMetadata
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
@@ -63,7 +64,6 @@ export const debridgeApi: SwapperApi = {
       to,
       value,
       ...feeData,
-      gasLimit: BigNumber.max(gasLimitFromApi ?? '0', feeData.gasLimit).toFixed(),
     })
 
     return unsignedTx
@@ -79,10 +79,18 @@ export const debridgeApi: SwapperApi = {
     const isSameChainSwap = swap?.metadata.debridgeTransactionMetadata?.isSameChainSwap === true
 
     if (isSameChainSwap) {
-      return {
-        buyTxHash: txHash,
-        status: TxStatus.Confirmed,
-        message: undefined,
+      try {
+        const viemClient = viemClientByChainId[chainId]
+        if (!viemClient) {
+          return { buyTxHash: txHash, status: TxStatus.Unknown, message: undefined }
+        }
+
+        const receipt = await viemClient.getTransactionReceipt({ hash: txHash as Hex })
+        const status = receipt.status === 'success' ? TxStatus.Confirmed : TxStatus.Failed
+
+        return { buyTxHash: txHash, status, message: undefined }
+      } catch {
+        return { buyTxHash: txHash, status: TxStatus.Pending, message: undefined }
       }
     }
 

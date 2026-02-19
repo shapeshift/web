@@ -30,6 +30,8 @@ import {
   katanaChainId,
   ltcChainId,
   mayachainChainId,
+  megaethAssetId,
+  megaethChainId,
   monadAssetId,
   monadChainId,
   nearAssetId,
@@ -40,6 +42,8 @@ import {
   plasmaChainId,
   polygonAssetId,
   polygonChainId,
+  scrollAssetId,
+  scrollChainId,
   solanaChainId,
   solAssetId,
   starknetAssetId,
@@ -273,6 +277,32 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.MegaEth)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.MegaEthMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.MegaEth],
+          })
+          prev[megaethChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Scroll)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.ScrollMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Scroll],
+          })
+          prev[scrollChainId][assetId] = id
+        } catch {}
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Katana)) {
         try {
           const assetId = toAssetId({
@@ -343,7 +373,9 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [hyperEvmChainId]: { [hyperEvmAssetId]: 'hyperliquid' },
       [monadChainId]: { [monadAssetId]: 'monad' },
       [plasmaChainId]: { [plasmaAssetId]: 'plasma' },
+      [megaethChainId]: { [megaethAssetId]: 'ethereum' },
       [katanaChainId]: { [katanaAssetId]: 'katana' },
+      [scrollChainId]: { [scrollAssetId]: 'ethereum' },
       [solanaChainId]: { [solAssetId]: 'solana' },
       [starknetChainId]: { [starknetAssetId]: 'starknet' },
       [tronChainId]: { [tronAssetId]: 'tron' },

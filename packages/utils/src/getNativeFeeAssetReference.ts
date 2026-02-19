@@ -46,8 +46,12 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.HyperEvm
           case CHAIN_REFERENCE.PlasmaMainnet:
             return ASSET_REFERENCE.Plasma
+          case CHAIN_REFERENCE.MegaEthMainnet:
+            return ASSET_REFERENCE.MegaEth
           case CHAIN_REFERENCE.KatanaMainnet:
             return ASSET_REFERENCE.Katana
+          case CHAIN_REFERENCE.ScrollMainnet:
+            return ASSET_REFERENCE.Scroll
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

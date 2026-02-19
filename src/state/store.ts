@@ -64,6 +64,7 @@ export const clearState = () => {
   store.dispatch(slices.limitOrder.actions.clear())
   store.dispatch(slices.gridplus.actions.clear())
   store.dispatch(slices.addressBook.actions.clear())
+  store.dispatch(slices.agenticChat.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
   store.dispatch(apiSlices.marketApi.util.resetApiState())
@@ -149,6 +150,11 @@ export const persistor = persistStore(store)
 BigAmount.configure({
   resolvePrecision: (assetId: string) => {
     const asset = selectAssetById(store.getState(), assetId as AssetId)
+    if (!asset) {
+      console.warn(
+        `BigAmount.resolvePrecision: asset not found for ${assetId}, defaulting to precision 0`,
+      )
+    }
     return asset?.precision ?? 0
   },
   resolvePrice: (assetId: string) => {

@@ -6,6 +6,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { assets as assetsSlice } from '../assetsSlice/assetsSlice'
 import {
   selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalancesByAccountId,
 } from '../common-selectors'
 import { marketData as marketDataSlice } from '../marketDataSlice/marketDataSlice'
@@ -612,6 +613,79 @@ describe('portfolioSlice', () => {
           assetId: foxAssetId,
         })
         expect(result.toPrecision()).toEqual(expected)
+      })
+    })
+
+    describe('selectPortfolioCryptoBalanceByFilter', () => {
+      const store = createStore()
+      const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockEthAndBtcAccounts({
+        ethAccountObj: { balance: '1000009000000000000' },
+        ethAccount2Obj: {
+          balance: '200000000000000000',
+          chainSpecific: {
+            tokens: [mockEthToken({ balance: '200100000000000000' })],
+          },
+        },
+      })
+
+      store.dispatch(
+        portfolioSlice.actions.setWalletMeta({
+          walletId: 'fakeWalletId',
+          walletName: 'fakeWalletName',
+        }),
+      )
+      store.dispatch(
+        portfolioSlice.actions.upsertAccountMetadata({
+          walletId: 'fakeWalletId',
+          accountMetadataByAccountId: {
+            [ethAccountId]: { bip44Params },
+            [ethAccount2Id]: { bip44Params },
+          },
+        }),
+      )
+
+      const portfolio = mockUpsertPortfolio([ethAccount, ethAccount2], assetIds)
+      store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
+      for (const accountId of portfolio.accounts.ids) {
+        store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
+      }
+
+      store.dispatch(
+        marketDataSlice.actions.setCryptoMarketData({
+          [ethAssetId]: mockMarketData({ price: '1000' }),
+          [foxAssetId]: mockMarketData({ price: '10' }),
+          [usdcAssetId]: mockMarketData({ price: '1' }),
+        }),
+      )
+
+      const assetData = mockAssetState()
+      store.dispatch(assetsSlice.actions.upsertAssets(assetData))
+      const state = store.getState()
+
+      it('should return BigAmount for a known asset filtered by assetId', () => {
+        const result = selectPortfolioCryptoBalanceByFilter(state, { assetId: ethAssetId })
+        expect(result.toBaseUnit()).toEqual('1200009000000000000')
+      })
+
+      it('should return BigAmount for a known asset filtered by accountId and assetId', () => {
+        const result = selectPortfolioCryptoBalanceByFilter(state, {
+          accountId: ethAccount2Id,
+          assetId: foxAssetId,
+        })
+        expect(result.toBaseUnit()).toEqual('200100000000000000')
+      })
+
+      it('should return BigAmount.zero when assetId is not provided', () => {
+        const result = selectPortfolioCryptoBalanceByFilter(state, {})
+        expect(result.toBaseUnit()).toEqual('0')
+      })
+
+      it('should return BigAmount.zero for an unknown asset to prevent phantom balances', () => {
+        const result = selectPortfolioCryptoBalanceByFilter(state, {
+          assetId: unknown1AssetId,
+        })
+        expect(result.toBaseUnit()).toEqual('0')
+        expect(result.toPrecision()).toEqual('0')
       })
     })
 

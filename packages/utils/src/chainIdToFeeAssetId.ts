@@ -14,11 +14,13 @@ import {
   katanaAssetId,
   ltcAssetId,
   mayachainAssetId,
+  megaethAssetId,
   monadAssetId,
   nearAssetId,
   optimismAssetId,
   plasmaAssetId,
   polygonAssetId,
+  scrollAssetId,
   solAssetId,
   starknetAssetId,
   suiAssetId,
@@ -78,8 +80,12 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return hyperEvmAssetId
     case KnownChainIds.PlasmaMainnet:
       return plasmaAssetId
+    case KnownChainIds.MegaEthMainnet:
+      return megaethAssetId
     case KnownChainIds.KatanaMainnet:
       return katanaAssetId
+    case KnownChainIds.ScrollMainnet:
+      return scrollAssetId
     case KnownChainIds.ZcashMainnet:
       return zecAssetId
     case KnownChainIds.NearMainnet:

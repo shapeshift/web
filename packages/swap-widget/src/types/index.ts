@@ -25,6 +25,7 @@ import {
   solanaChainId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
+import type { TransactionData } from '@shapeshiftoss/types'
 import { fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
 import type { WalletClient } from 'viem'
 import { erc20Abi } from 'viem'
@@ -157,31 +158,53 @@ export type RatesResponse = {
   rates: TradeRate[]
 }
 
-type TransactionData = {
-  to: string
-  data: string
-  value?: string
-  gasLimit?: string
-  chainId?: number
-  relayId?: string
+export type {
+  CosmosTransactionData,
+  EvmTransactionData,
+  Permit2SignatureRequired,
+  SolanaTransactionData,
+  TransactionData,
+  UtxoDepositTransactionData,
+  UtxoPsbtTransactionData,
+  UtxoTransactionData,
+} from '@shapeshiftoss/types'
+
+export type ApiQuoteStep = {
+  sellAsset: Asset
+  buyAsset: Asset
+  sellAmountCryptoBaseUnit: string
+  buyAmountAfterFeesCryptoBaseUnit: string
+  allowanceContract: string
+  estimatedExecutionTimeMs: number | undefined
+  source: string
+  transactionData?: TransactionData
 }
 
-type QuoteStep = {
-  transactionData?: TransactionData
-  relayTransactionMetadata?: TransactionData
-  butterSwapTransactionMetadata?: TransactionData
+export type ApprovalInfo = {
+  isRequired: boolean
+  spender: string
+  approvalTx?: {
+    to: string
+    data: string
+    value: string
+  }
 }
 
 export type QuoteResponse = {
-  quote?: {
-    steps?: QuoteStep[]
-  }
-  transactionData?: TransactionData
-  steps?: QuoteStep[]
-  approval?: {
-    isRequired: boolean
-    spender: string
-  }
+  quoteId: string
+  swapperName: SwapperName
+  rate: string
+  sellAsset: Asset
+  buyAsset: Asset
+  sellAmountCryptoBaseUnit: string
+  buyAmountBeforeFeesCryptoBaseUnit: string
+  buyAmountAfterFeesCryptoBaseUnit: string
+  affiliateBps: string
+  slippageTolerancePercentageDecimal: string | undefined
+  networkFeeCryptoBaseUnit: string | undefined
+  steps: ApiQuoteStep[]
+  approval: ApprovalInfo
+  expiresAt: number
 }
 
 export { erc20Abi as ERC20_ABI }

@@ -1,5 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# Local issue tracking
+.beads/
+
 # no zero installs
 .pnp.*
 .yarn/*

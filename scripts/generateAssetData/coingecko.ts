@@ -10,11 +10,13 @@ import {
   gnosisChainId,
   hyperEvmChainId,
   katanaChainId,
+  megaethChainId,
   monadChainId,
   nearChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  scrollChainId,
   solanaChainId,
   starknetChainId,
   suiChainId,
@@ -32,11 +34,13 @@ import {
   gnosis,
   hyperevm,
   katana,
+  megaeth,
   monad,
   near,
   optimism,
   plasma,
   polygon,
+  scroll,
   solana,
   sui,
   ton,
@@ -154,6 +158,22 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: plasma.explorer,
           explorerAddressLink: plasma.explorerAddressLink,
           explorerTxLink: plasma.explorerTxLink,
+        }
+      case megaethChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: megaeth.explorer,
+          explorerAddressLink: megaeth.explorerAddressLink,
+          explorerTxLink: megaeth.explorerTxLink,
+        }
+      case scrollChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: scroll.explorer,
+          explorerAddressLink: scroll.explorerAddressLink,
+          explorerTxLink: scroll.explorerTxLink,
         }
       case katanaChainId:
         return {

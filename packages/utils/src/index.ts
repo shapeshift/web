@@ -38,6 +38,7 @@ export const isToken = (assetId: AssetId) => {
     case ASSET_NAMESPACE.suiCoin:
     case ASSET_NAMESPACE.starknetToken:
     case ASSET_NAMESPACE.nep141:
+    case ASSET_NAMESPACE.jetton:
       return true
     default:
       return false

@@ -123,12 +123,12 @@ export const Pool = () => {
 
   const runeTvlCryptoPrecision = useMemo(() => {
     if (!pool?.runeDepth) return
-    return BigAmount.fromThorBaseUnit(pool.runeDepth).toFixed()
+    return BigAmount.fromThorBaseUnit(pool.runeDepth).toPrecision()
   }, [pool?.runeDepth])
 
   const assetTvlCryptoPrecision = useMemo(() => {
     if (!pool?.assetDepth) return
-    return BigAmount.fromThorBaseUnit(pool.assetDepth).toFixed()
+    return BigAmount.fromThorBaseUnit(pool.assetDepth).toPrecision()
   }, [pool?.assetDepth])
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({

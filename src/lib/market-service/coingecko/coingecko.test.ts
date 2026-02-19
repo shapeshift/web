@@ -229,7 +229,10 @@ describe('CoinGecko market service', () => {
         ethOnBaseKey,
         ethOnMegaEthKey,
 <<<<<<< HEAD
+<<<<<<< HEAD
         ethOnInkKey,
+=======
+>>>>>>> origin/develop
 =======
 >>>>>>> origin/develop
         ethOnScrollKey,
@@ -242,7 +245,10 @@ describe('CoinGecko market service', () => {
         ethOnBaseKey,
         ethOnMegaEthKey,
 <<<<<<< HEAD
+<<<<<<< HEAD
         ethOnInkKey,
+=======
+>>>>>>> origin/develop
 =======
 >>>>>>> origin/develop
         ethOnScrollKey,

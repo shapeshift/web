@@ -54,7 +54,10 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     arbitrumAssetId,
     baseAssetId,
 <<<<<<< HEAD
+<<<<<<< HEAD
     inkAssetId,
+=======
+>>>>>>> origin/develop
 =======
 >>>>>>> origin/develop
     katanaAssetId,

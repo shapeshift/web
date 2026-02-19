@@ -46,7 +46,10 @@ export const queryFn = async () => {
   if (enabledFlags.Plasma) assetIds.push(plasmaAssetId)
   if (enabledFlags.MegaEth) assetIds.push(megaethAssetId)
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (enabledFlags.Ink) assetIds.push(inkAssetId)
+=======
+>>>>>>> origin/develop
 =======
 >>>>>>> origin/develop
   if (enabledFlags.Scroll) assetIds.push(scrollAssetId)

@@ -192,7 +192,10 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   [KnownChainIds.PlasmaMainnet]: [],
   [KnownChainIds.MegaEthMainnet]: [],
 <<<<<<< HEAD
+<<<<<<< HEAD
   [KnownChainIds.InkMainnet]: [],
+=======
+>>>>>>> origin/develop
 =======
 >>>>>>> origin/develop
   [KnownChainIds.ScrollMainnet]: [],

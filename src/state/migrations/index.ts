@@ -338,8 +338,11 @@ export const clearAssetsMigrations = {
   291: clearAssets,
   292: clearAssets,
 <<<<<<< HEAD
+<<<<<<< HEAD
   293: clearAssets,
   294: clearAssets,
+=======
+>>>>>>> origin/develop
 =======
 >>>>>>> origin/develop
 } as unknown as Omit<MigrationManifest, '_persist'>

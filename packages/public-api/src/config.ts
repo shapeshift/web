@@ -54,7 +54,7 @@ export const getServerConfig = (): SwapperConfig => ({
 })
 
 // Default affiliate fee in basis points
-export const DEFAULT_AFFILIATE_BPS = '55'
+export const DEFAULT_AFFILIATE_BPS = '60'
 
 // API server config
 export const API_PORT = parseInt(process.env.PORT || '3001', 10)

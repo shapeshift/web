@@ -10,6 +10,7 @@ import {
 } from '@shapeshiftoss/caip'
 import { ChainAdapterError } from '@shapeshiftoss/chain-adapters'
 import { assertGetViemClient } from '@shapeshiftoss/contracts'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useMemo, useState } from 'react'
@@ -19,7 +20,6 @@ import type { Hash } from 'viem'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { toBaseUnit } from '@/lib/math'
 import { parseAndUpsertSecondClassChainTx } from '@/lib/utils/secondClassChainTx'
 import { enterYield, exitYield, fetchAction, manageYield } from '@/lib/yieldxyz/api'
 import { YIELD_MAX_POLL_ATTEMPTS, YIELD_POLL_INTERVAL_MS } from '@/lib/yieldxyz/constants'
@@ -512,7 +512,10 @@ export const useYieldTransactionFlow = ({
 
     return {
       validator,
-      amountCryptoBaseUnit: toBaseUnit(amount, inputTokenDecimals),
+      amountCryptoBaseUnit: BigAmount.fromPrecision({
+        value: amount,
+        precision: inputTokenDecimals,
+      }).toBaseUnit(),
       action: action === 'enter' ? 'stake' : action === 'exit' ? 'unstake' : 'claim',
     }
   }, [yieldChainId, validatorAddress, amount, yieldItem, action])

@@ -3,14 +3,14 @@ import type { SignerData } from '@cosmjs/stargate'
 import type {
   CosmosAccountPath,
   CosmosGetAccountPaths,
-  CosmosGetAddress,
   CosmosSignedTx,
   CosmosSignTx,
-  PathDescription,
 } from '@shapeshiftoss/hdwallet-core'
-import { cosmosDescribePath, slip44ByCoin } from '@shapeshiftoss/hdwallet-core'
+import { slip44ByCoin } from '@shapeshiftoss/hdwallet-core'
 import { sign } from '@shapeshiftoss/proto-tx-builder'
 import type EthereumProvider from '@walletconnect/ethereum-provider'
+
+export { cosmosDescribePath } from '@shapeshiftoss/hdwallet-core'
 
 const COSMOS_MAINNET_CAIP2 = 'cosmos:cosmoshub-4'
 
@@ -24,10 +24,6 @@ function getCosmosAddressFromSession(provider: EthereumProvider): string | null 
   return caip10.substring(lastColonIndex + 1) || null
 }
 
-export function describeCosmosPath(path: number[]): PathDescription {
-  return cosmosDescribePath(path)
-}
-
 export function cosmosGetAccountPaths(msg: CosmosGetAccountPaths): CosmosAccountPath[] {
   const slip44 = slip44ByCoin('Atom')
   if (slip44 === undefined) return []
@@ -38,14 +34,11 @@ export function cosmosGetAccountPaths(msg: CosmosGetAccountPaths): CosmosAccount
   ]
 }
 
-export function cosmosNextAccountPath(_msg: CosmosAccountPath): CosmosAccountPath | undefined {
+export function cosmosNextAccountPath(): CosmosAccountPath | undefined {
   return undefined
 }
 
-export async function cosmosGetAddress(
-  provider: EthereumProvider,
-  _msg: CosmosGetAddress,
-): Promise<string | null> {
+export async function cosmosGetAddress(provider: EthereumProvider): Promise<string | null> {
   return getCosmosAddressFromSession(provider)
 }
 

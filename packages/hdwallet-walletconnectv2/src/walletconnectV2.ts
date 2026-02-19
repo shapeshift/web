@@ -4,7 +4,6 @@ import type {
   Coin,
   CosmosAccountPath,
   CosmosGetAccountPaths,
-  CosmosGetAddress,
   CosmosSignedTx,
   CosmosSignTx,
   CosmosWallet,
@@ -33,11 +32,11 @@ import type EthereumProvider from '@walletconnect/ethereum-provider'
 import isObject from 'lodash/isObject'
 
 import {
+  cosmosDescribePath,
   cosmosGetAccountPaths,
   cosmosGetAddress,
   cosmosNextAccountPath,
   cosmosSignTx,
-  describeCosmosPath,
 } from './cosmos'
 import {
   describeETHPath,
@@ -116,7 +115,7 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, C
       case 'Ethereum':
         return describeETHPath(msg.path)
       case 'Atom':
-        return describeCosmosPath(msg.path)
+        return cosmosDescribePath(msg.path)
       default:
         throw new Error('Unsupported path')
     }
@@ -159,8 +158,8 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, C
     return cosmosGetAccountPaths(msg)
   }
 
-  public cosmosNextAccountPath(_msg: CosmosAccountPath): CosmosAccountPath | undefined {
-    return cosmosNextAccountPath(_msg)
+  public cosmosNextAccountPath(): CosmosAccountPath | undefined {
+    return cosmosNextAccountPath()
   }
 }
 
@@ -465,15 +464,15 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
     return this.info.cosmosGetAccountPaths(msg)
   }
 
-  public cosmosNextAccountPath(msg: CosmosAccountPath): CosmosAccountPath | undefined {
-    return this.info.cosmosNextAccountPath(msg)
+  public cosmosNextAccountPath(): CosmosAccountPath | undefined {
+    return this.info.cosmosNextAccountPath()
   }
 
-  public async cosmosGetAddress(msg: CosmosGetAddress): Promise<string | null> {
+  public async cosmosGetAddress(): Promise<string | null> {
     if (this.cosmosAddress) {
       return this.cosmosAddress
     }
-    const address = await cosmosGetAddress(this.provider, msg)
+    const address = await cosmosGetAddress(this.provider)
     if (address) {
       this.cosmosAddress = address
       return address

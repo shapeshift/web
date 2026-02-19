@@ -261,7 +261,7 @@ export const BorrowInput = ({
       address: fromAddress,
       amountCryptoBaseUnit: BigAmount.fromPrecision({
         value: depositAmountCryptoPrecision ?? 0,
-        precision: collateralAsset?.precision ?? 0,
+        precision: collateralAsset?.precision ?? 0, // actually always defined at runtime, see "enabled" option
       }).toBaseUnit(),
       txFeeCryptoBaseUnit: estimatedFeesData?.txFeeCryptoBaseUnit,
       // Don't fetch sweep needed if there isn't enough balance for the tx + fees, since adding in a sweep Tx would obviously fail too

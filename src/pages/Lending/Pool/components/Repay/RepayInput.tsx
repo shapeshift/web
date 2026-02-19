@@ -151,7 +151,8 @@ export const RepayInput = ({
     from: userAddress,
     amountCryptoBaseUnit:
       confirmedQuote?.repaymentAmountCryptoPrecision && repaymentAsset
-        ? bnOrZero(confirmedQuote.repaymentAmountCryptoPrecision)
+        ? // Add 5% buffer to the repayment allowance to avoid asset rates fluctuations ending up in more asset needed to repay
+          bnOrZero(confirmedQuote.repaymentAmountCryptoPrecision)
             .times('1.05')
             .times(bn(10).pow(repaymentAsset.precision))
             .toFixed(0, BigNumber.ROUND_UP)

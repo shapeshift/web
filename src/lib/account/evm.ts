@@ -14,6 +14,7 @@ import {
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  scrollChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -32,6 +33,7 @@ import {
   supportsOptimism,
   supportsPlasma,
   supportsPolygon,
+  supportsScroll,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 
@@ -126,6 +128,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === monadChainId && !supportsMonad(wallet)) continue
     if (chainId === plasmaChainId && !supportsPlasma(wallet)) continue
     if (chainId === megaethChainId && !supportsMegaEth(wallet)) continue
+    if (chainId === scrollChainId && !supportsScroll(wallet)) continue
     if (chainId === katanaChainId && !supportsKatana(wallet)) continue
     if (
       isMetaMask(wallet) &&

@@ -139,7 +139,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         response,
       })
     } catch (e) {
-      console.error('Cosmos WC request failed:', e)
+      console.error('[WC Cosmos] request failed:', e)
       await web3wallet.respondSessionRequest({
         topic,
         response: formatJsonRpcError(requestEvent.id, (e as Error).message ?? 'Unknown error'),

@@ -332,6 +332,11 @@ export const ImportAccounts = forwardRef<ImportAccountsRef, ImportAccountsProps>
     useEffect(() => {
       if (isAccountsFetching || !isAutoDiscovering || !accounts || !queryEnabled) return
 
+      if (!supportsMultiAccount && accounts.pages.length > 0) {
+        setIsAutoDiscovering(false)
+        return
+      }
+
       // Check if the most recently fetched account has activity
       const isLastAccountActive = accounts.pages[
         accounts.pages.length - 1
@@ -355,6 +360,7 @@ export const ImportAccounts = forwardRef<ImportAccountsRef, ImportAccountsProps>
       isAccountsFetching,
       queryEnabled,
       existingAccountIdsForChain,
+      supportsMultiAccount,
     ])
 
     const handleLoadMore = useCallback(() => {

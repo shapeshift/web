@@ -78,11 +78,8 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
     const selectedAccountDetails = useMemo(() => {
       if (!selectedAccountId || !asset) return null
 
-      const cryptoBalance =
-        cryptoBalanceOverride ??
-        (accountBalances?.[selectedAccountId]?.[assetId]
-          ? accountBalances[selectedAccountId][assetId].toPrecision()
-          : '0')
+      const balance = accountBalances?.[selectedAccountId]?.[assetId]
+      const cryptoBalance = cryptoBalanceOverride ?? balance?.toPrecision() ?? '0'
       const fiatBalance = bnOrZero(cryptoBalance).times(marketDataPrice)
 
       return {

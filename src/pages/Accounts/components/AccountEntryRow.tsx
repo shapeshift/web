@@ -47,9 +47,9 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   const accountNumber = useAppSelector(s => selectAccountNumberByAccountId(s, filter))
   const asset = useAppSelector(s => selectAssetById(s, assetId))
   const cryptoBalanceFilter = useMemo(() => ({ accountId, assetId }), [accountId, assetId])
-  const cryptoBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, cryptoBalanceFilter),
-  ).toPrecision()
+  const cryptoBalance = useAppSelector(
+    state => selectPortfolioCryptoBalanceByFilter(state, cryptoBalanceFilter)?.toPrecision() ?? '0',
+  )
   const userCurrencyBalanceFilter = useMemo(() => ({ accountId, assetId }), [accountId, assetId])
   const userCurrencyBalance = useAppSelector(state =>
     selectPortfolioUserCurrencyBalanceByFilter(state, userCurrencyBalanceFilter),

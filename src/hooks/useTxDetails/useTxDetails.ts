@@ -10,7 +10,11 @@ import { useMemo } from 'react'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useSafeTxQuery } from '@/hooks/queries/useSafeTx'
 import { getTxLink } from '@/lib/getTxLink'
+import { isStakingYieldType, isValidYieldType } from '@/lib/yieldxyz/utils'
 import type { ReduxState } from '@/state/reducer'
+import { selectYieldActionsByTxHash } from '@/state/slices/actionSlice/selectors'
+import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
+import { ActionType } from '@/state/slices/actionSlice/types'
 import { assets as assetsSlice, defaultAsset } from '@/state/slices/assetsSlice/assetsSlice'
 import { selectAssets, selectFeeAssetByChainId, selectTxById } from '@/state/slices/selectors'
 import type { Tx } from '@/state/slices/txHistorySlice/txHistorySlice'
@@ -22,6 +26,12 @@ export type Transfer = TxTransfer & { asset: Asset }
 export type Fee = unchained.Fee & { asset: Asset }
 
 export type TxType = unchained.TransferType | unchained.TradeType | 'method' | 'common'
+
+export type YieldTxData = {
+  parser: 'yieldxyz'
+  method: Method
+  contractName?: string
+}
 
 // Adding a new supported method?
 // Also update transactionRow.parser translations and TransactionMethod.tsx
@@ -67,6 +77,7 @@ export enum Method {
   Unstake = 'unstake',
   UnstakeRequest = 'unstakeRequest',
   Withdraw = 'withdraw',
+  YieldClaim = 'yieldClaim',
   WithdrawNative = 'withdrawNative',
   WithdrawDelegatorReward = 'withdraw_delegator_reward',
   WithdrawOut = 'withdrawOut',
@@ -79,6 +90,27 @@ export interface TxDetails {
   fee?: Fee
   type: TxType
   txLink: string
+  yieldData?: YieldTxData
+}
+
+export const yieldActionToMethod = (action: GenericTransactionAction): Method => {
+  const { yieldType, cooldownPeriodSeconds } = action.transactionMetadata
+  const isStaking = yieldType && isValidYieldType(yieldType) ? isStakingYieldType(yieldType) : false
+  const hasCooldown = (cooldownPeriodSeconds ?? 0) > 0
+
+  switch (action.type) {
+    case ActionType.Deposit:
+      return isStaking ? Method.Stake : Method.Deposit
+    case ActionType.Withdraw:
+      if (isStaking && hasCooldown) return Method.UnstakeRequest
+      return isStaking ? Method.Unstake : Method.Withdraw
+    case ActionType.Approve:
+      return Method.Approve
+    case ActionType.Claim:
+      return Method.YieldClaim
+    default:
+      return Method.Deposit
+  }
 }
 
 export const isSupportedMethod = (tx: Tx) =>
@@ -133,11 +165,25 @@ export const useTxDetails = (txId: string | undefined): TxDetails | undefined =>
 
   const tx = useAppSelector((state: ReduxState) => selectTxById(state, txId ?? ''))
   const assets = useAppSelector(selectAssets)
+  const yieldActionsByTxHash = useAppSelector(selectYieldActionsByTxHash)
 
   const accountId = useMemo(() => {
     if (!txId || !tx) return ''
     return deserializeTxIndex(txId).accountId
   }, [txId, tx])
+
+  const yieldData = useMemo((): YieldTxData | undefined => {
+    if (!tx || tx.data) return undefined
+
+    const yieldAction = yieldActionsByTxHash[tx.txid]
+    if (!yieldAction) return undefined
+
+    return {
+      parser: 'yieldxyz',
+      method: yieldActionToMethod(yieldAction),
+      contractName: yieldAction.transactionMetadata.contractName,
+    }
+  }, [tx, yieldActionsByTxHash])
 
   const { data: maybeSafeTx } = useSafeTxQuery({
     maybeSafeTxHash: txId,
@@ -171,14 +217,21 @@ export const useTxDetails = (txId: string | undefined): TxDetails | undefined =>
     })
   }, [tx, feeAsset?.explorerTxLink, maybeSafeTx, accountId])
 
+  const type = useMemo((): TxType => {
+    if (!tx) return 'common'
+    if (yieldData) return 'method'
+    return getTxType(tx, transfers)
+  }, [tx, yieldData, transfers])
+
   if (!tx || !txLink) return
 
   return {
     tx,
     fee,
     transfers,
-    type: getTxType(tx, transfers),
+    type,
     txLink,
+    yieldData,
   }
 }
 

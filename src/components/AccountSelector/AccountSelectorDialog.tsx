@@ -3,7 +3,6 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 
 import { AccountSelectorOption } from '@/components/AccountSelector/AccountSelectorOption'
 import { Dialog } from '@/components/Modal/components/Dialog'
@@ -41,7 +40,7 @@ export const AccountSelectorDialog = ({
   onAccountSelect,
 }: AccountSelectorDialogProps) => {
   const translate = useTranslate()
-  const accountBalances = useSelector(selectPortfolioAccountBalances)
+  const accountBalances = useAppSelector(selectPortfolioAccountBalances)
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   const accountsWithDetails = useMemo(

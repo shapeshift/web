@@ -15,7 +15,10 @@ import hyperevm from "./eip155_999/adapter.json";
 import plasma from "./eip155_9745/adapter.json";
 import katana from "./eip155_747474/adapter.json";
 import megaeth from "./eip155_4326/adapter.json";
+<<<<<<< HEAD
 import ink from "./eip155_57073/adapter.json";
+=======
+>>>>>>> origin/develop
 import scroll from "./eip155_534352/adapter.json";
 import cosmos from "./cosmos_cosmoshub-4/adapter.json";
 import thorchain from "./cosmos_thorchain-1/adapter.json";
@@ -46,7 +49,10 @@ export {
   plasma,
   katana,
   megaeth,
+<<<<<<< HEAD
   ink,
+=======
+>>>>>>> origin/develop
   scroll,
   cosmos,
   thorchain,

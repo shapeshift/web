@@ -45,7 +45,10 @@ export const queryFn = async () => {
   if (enabledFlags.Near) assetIds.push(nearAssetId)
   if (enabledFlags.Plasma) assetIds.push(plasmaAssetId)
   if (enabledFlags.MegaEth) assetIds.push(megaethAssetId)
+<<<<<<< HEAD
   if (enabledFlags.Ink) assetIds.push(inkAssetId)
+=======
+>>>>>>> origin/develop
   if (enabledFlags.Scroll) assetIds.push(scrollAssetId)
   if (enabledFlags.Katana) assetIds.push(katanaAssetId)
   if (enabledFlags.Starknet) assetIds.push(starknetAssetId)

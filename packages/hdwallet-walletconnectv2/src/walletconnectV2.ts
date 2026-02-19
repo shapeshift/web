@@ -214,14 +214,8 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
       const requiredEvm = params.namespaces?.eip155
       const optionalEvm = params.optionalNamespaces?.eip155
 
-      const mergedEvmChains = [
-        ...new Set([...(requiredEvm?.chains ?? []), ...(optionalEvm?.chains ?? [])]),
-      ]
-      const mergedEvmMethods = [
-        ...new Set([...(requiredEvm?.methods ?? []), ...(optionalEvm?.methods ?? [])]),
-      ]
-      const mergedEvmEvents = [
-        ...new Set([...(requiredEvm?.events ?? []), ...(optionalEvm?.events ?? [])]),
+      const mergeUnique = (...arrays: (string[] | undefined)[]): string[] => [
+        ...new Set(arrays.flatMap(a => a ?? [])),
       ]
 
       return originalConnect({
@@ -229,9 +223,9 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
         namespaces: {},
         optionalNamespaces: {
           eip155: {
-            chains: mergedEvmChains,
-            methods: mergedEvmMethods,
-            events: mergedEvmEvents,
+            chains: mergeUnique(requiredEvm?.chains, optionalEvm?.chains),
+            methods: mergeUnique(requiredEvm?.methods, optionalEvm?.methods),
+            events: mergeUnique(requiredEvm?.events, optionalEvm?.events),
             rpcMap: {
               ...(requiredEvm as any)?.rpcMap,
               ...(optionalEvm as any)?.rpcMap,
@@ -425,17 +419,10 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
   }
 
   public async ethGetAddress(): Promise<Address | null> {
-    if (this.ethAddress) {
-      return this.ethAddress
-    }
+    if (this.ethAddress) return this.ethAddress
     const address = await ethGetAddress(this.provider)
-    if (address) {
-      this.ethAddress = address
-      return address
-    } else {
-      this.ethAddress = undefined
-      return null
-    }
+    if (address) this.ethAddress = address
+    return address
   }
 
   /**
@@ -494,8 +481,8 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
     const ethAddr = await this.ethGetAddress()
     if (ethAddr) return 'wc:' + ethAddr
 
-    const cosmosAccounts = this.provider.session?.namespaces?.cosmos?.accounts
-    if (cosmosAccounts?.[0]) return 'wc:' + cosmosAccounts[0].split(':')[2]
+    const cosmosAddr = await this.cosmosGetAddress()
+    if (cosmosAddr) return 'wc:' + cosmosAddr
 
     return 'wc:unknown'
   }
@@ -533,15 +520,10 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
   }
 
   public async cosmosGetAddress(): Promise<string | null> {
-    if (this.cosmosAddress) {
-      return this.cosmosAddress
-    }
-    const address = await cosmosGetAddress(this.provider)
-    if (address) {
-      this.cosmosAddress = address
-      return address
-    }
-    return null
+    if (this.cosmosAddress) return this.cosmosAddress
+    const address = cosmosGetAddress(this.provider)
+    if (address) this.cosmosAddress = address
+    return address
   }
 
   public async cosmosSignTx(msg: CosmosSignTx): Promise<CosmosSignedTx | null> {

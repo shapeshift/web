@@ -14,14 +14,17 @@ export { cosmosDescribePath } from '@shapeshiftoss/hdwallet-core'
 
 const COSMOS_MAINNET_CAIP2 = 'cosmos:cosmoshub-4'
 
-function getCosmosAddressFromSession(provider: EthereumProvider): string | null {
-  const cosmosAccounts = provider.session?.namespaces?.cosmos?.accounts
-  if (!cosmosAccounts || cosmosAccounts.length === 0) return null
+type WcCosmosAccount = {
+  algo: string
+  address: string
+  pubkey: string
+}
 
-  const caip10 = cosmosAccounts[0]
-  const lastColonIndex = caip10.lastIndexOf(':')
-  if (lastColonIndex === -1) return null
-  return caip10.substring(lastColonIndex + 1) || null
+function getCosmosAddressFromSession(provider: EthereumProvider): string | null {
+  const caip10 = provider.session?.namespaces?.cosmos?.accounts?.[0]
+  if (!caip10) return null
+  // CAIP-10 format: cosmos:cosmoshub-4:<address>
+  return caip10.split(':').pop() || null
 }
 
 export function cosmosGetAccountPaths(msg: CosmosGetAccountPaths): CosmosAccountPath[] {
@@ -38,7 +41,7 @@ export function cosmosNextAccountPath(): CosmosAccountPath | undefined {
   return undefined
 }
 
-export async function cosmosGetAddress(provider: EthereumProvider): Promise<string | null> {
+export function cosmosGetAddress(provider: EthereumProvider): string | null {
   return getCosmosAddressFromSession(provider)
 }
 
@@ -49,13 +52,7 @@ export async function cosmosSignTx(
   const signerAddress = getCosmosAddressFromSession(provider)
   if (!signerAddress) return null
 
-  const wcAccounts = await provider.signer.request<
-    {
-      algo: string
-      address: string
-      pubkey: string
-    }[]
-  >(
+  const wcAccounts = await provider.signer.request<WcCosmosAccount[]>(
     {
       method: 'cosmos_getAccounts',
       params: {},

@@ -19,6 +19,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { isGridPlus, supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
+import { isWalletConnectV2 } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { CosmosSdkChainId, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
@@ -218,8 +219,10 @@ export const handleSend = async ({
     !wallet.supportsOfflineSigning() &&
     // MM only supports snap things... if the snap is installed
     // Vultisig signs directly via extension
+    // WalletConnect V2 delegates signing to the connected mobile wallet
     (!isMetaMaskDesktop || (isMetaMaskDesktop && !(await checkIsSnapInstalled()))) &&
-    !isVultisig
+    !isVultisig &&
+    !isWalletConnectV2(wallet)
   ) {
     throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
   }

@@ -228,7 +228,10 @@ describe('CoinGecko market service', () => {
         ethOnArbitrumKey,
         ethOnBaseKey,
         ethOnMegaEthKey,
+<<<<<<< HEAD
         ethOnInkKey,
+=======
+>>>>>>> origin/develop
         ethOnScrollKey,
       ] = Object.keys(result)
       expect(btcAssetId).toEqual([btcKey])
@@ -238,7 +241,10 @@ describe('CoinGecko market service', () => {
         ethOnArbitrumKey,
         ethOnBaseKey,
         ethOnMegaEthKey,
+<<<<<<< HEAD
         ethOnInkKey,
+=======
+>>>>>>> origin/develop
         ethOnScrollKey,
       ])
     })

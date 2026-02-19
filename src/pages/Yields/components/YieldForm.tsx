@@ -62,7 +62,7 @@ import {
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetIdFilter,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -259,10 +259,10 @@ export const YieldForm = memo(
 
     const inputTokenBalance = useAppSelector(state =>
       inputTokenAssetId && accountId
-        ? selectPortfolioCryptoPrecisionBalanceByFilter(state, {
+        ? selectPortfolioCryptoBalanceByFilter(state, {
             assetId: inputTokenAssetId,
             accountId,
-          })
+          }).toPrecision()
         : '0',
     )
 
@@ -345,13 +345,14 @@ export const YieldForm = memo(
         if (isFiat) {
           const crypto = bnOrZero(values.value)
             .div(marketData?.price || 1)
+            .decimalPlaces(inputTokenAsset?.precision ?? 18, 1)
             .toFixed()
           setCryptoAmount(crypto)
         } else {
           setCryptoAmount(values.value)
         }
       },
-      [isFiat, marketData?.price],
+      [isFiat, inputTokenAsset?.precision, marketData?.price],
     )
 
     const displayValue = useMemo(() => {
@@ -636,7 +637,7 @@ export const YieldForm = memo(
                   {estimatedYearlyEarnings.decimalPlaces(4).toString()} {inputTokenAsset?.symbol}
                 </GradientApy>
                 <Text fontSize='xs' color='text.subtle'>
-                  <Amount.Fiat value={estimatedYearlyEarningsFiat.toString()} />
+                  <Amount.Fiat value={estimatedYearlyEarningsFiat.toFixed(2)} />
                 </Text>
               </Flex>
             </Flex>

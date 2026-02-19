@@ -314,7 +314,6 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
           <CosmosSignMessageConfirmationModal
             onConfirm={handleConfirmCosmosRequest}
             onReject={handleRejectRequestAndClose}
-            dispatch={dispatch}
             state={state as Required<WalletConnectState<CosmosSignAminoCallRequest>>}
             topic={topic}
           />

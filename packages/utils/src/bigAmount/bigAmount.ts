@@ -20,6 +20,8 @@ type FactoryArgs = WithPrecision | WithAssetId
 
 export type BigAmountConfig = {
   resolvePrecision: (assetId: string) => number
+  resolvePrice: (assetId: string) => string
+  resolvePriceUsd: (assetId: string) => string
 }
 
 export class BigAmount {
@@ -72,13 +74,29 @@ export class BigAmount {
     return new BigAmount(bn(0), precision, assetId)
   }
 
-  static fromBN({ value, precision }: { value: BigNumber; precision: number }): BigAmount {
+  static fromBN({
+    value,
+    precision,
+    assetId,
+  }: {
+    value: BigNumber
+    precision: number
+    assetId?: string
+  }): BigAmount {
     const safeValue = value.isFinite() ? value : bn(0)
-    return new BigAmount(safeValue.times(TEN.pow(precision)), precision)
+    return new BigAmount(safeValue.times(TEN.pow(precision)), precision, assetId)
   }
 
-  static fromJSON({ value, precision }: { value: string; precision: number }): BigAmount {
-    return new BigAmount(bn(value), precision)
+  static fromJSON({
+    value,
+    precision,
+    assetId,
+  }: {
+    value: string
+    precision: number
+    assetId?: string
+  }): BigAmount {
+    return new BigAmount(bn(value), precision, assetId)
   }
 
   static min(...amounts: BigAmount[]): BigAmount {
@@ -284,9 +302,29 @@ export class BigAmount {
     return (isNeg ? '-' : '') + result
   }
 
+  // ── Fiat conversion ────────────────────────────────
+
+  toUserCurrency(decimals = 2): string {
+    if (!this.assetId) throw new Error('BigAmount: toUserCurrency() requires assetId')
+    if (!BigAmount.config?.resolvePrice) throw new Error('BigAmount: not configured')
+    const price = BigAmount.config.resolvePrice(this.assetId)
+    return this.value
+      .div(TEN.pow(this.precision))
+      .times(bnOrZero(price))
+      .toFixed(decimals, ROUND_HALF_UP)
+  }
+
+  toUSD(decimals = 2): string {
+    if (!this.assetId) throw new Error('BigAmount: toUSD() requires assetId')
+    if (!BigAmount.config?.resolvePriceUsd) throw new Error('BigAmount: not configured')
+    const priceUsd = BigAmount.config.resolvePriceUsd(this.assetId)
+    return this.value
+      .div(TEN.pow(this.precision))
+      .times(bnOrZero(priceUsd))
+      .toFixed(decimals, ROUND_HALF_UP)
+  }
+
   // ── THORChain precision ──────────────────────────
-  // THORChain uses 8-decimal base units for ALL amounts regardless of the
-  // underlying asset's native precision.
 
   static fromThorBaseUnit(value: BigNumber.Value | null | undefined): BigAmount {
     return BigAmount.fromBaseUnit({ value, precision: THOR_PRECISION })
@@ -301,8 +339,12 @@ export class BigAmount {
 
   // ── Interop ───────────────────────────────────────
 
-  toJSON(): { value: string; precision: number } {
-    return { value: this.value.toFixed(0, ROUND_HALF_UP), precision: this.precision }
+  toJSON(): { value: string; precision: number; assetId?: string } {
+    return {
+      value: this.value.toFixed(0, ROUND_HALF_UP),
+      precision: this.precision,
+      assetId: this.assetId,
+    }
   }
 
   // ── Private helpers ────────────────────────────────

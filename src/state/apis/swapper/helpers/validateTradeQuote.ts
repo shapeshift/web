@@ -13,19 +13,18 @@ import {
   TradeQuoteError as SwapperTradeQuoteError,
 } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { getChainShortName } from '@shapeshiftoss/utils'
+import { BigAmount, getChainShortName } from '@shapeshiftoss/utils'
 
 import type { ErrorWithMeta, TradeQuoteError } from '../types'
 import { TradeQuoteValidationError, TradeQuoteWarning } from '../types'
 
 import { isMultiHopTradeQuote, isMultiHopTradeRate } from '@/components/MultiHopTrade/utils'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { assertGetChainAdapter, assertUnreachable, isTruthy } from '@/lib/utils'
 import type { ReduxState } from '@/state/reducer'
 import {
-  selectPortfolioAccountBalancesBaseUnit,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioAccountBalances,
+  selectPortfolioCryptoBalanceByFilter,
   selectWalletConnectedChainIds,
   selectWalletId,
 } from '@/state/slices/common-selectors'
@@ -110,8 +109,11 @@ export const validateTradeQuote = (
             }
           }
 
-          const minAmountCryptoHuman = fromBaseUnit(minAmountCryptoBaseUnit, asset.precision)
-          const formattedAmount = bnOrZero(minAmountCryptoHuman).decimalPlaces(6)
+          const minAmountCryptoPrecision = BigAmount.fromBaseUnit({
+            value: minAmountCryptoBaseUnit,
+            precision: asset.precision,
+          }).toPrecision()
+          const formattedAmount = bnOrZero(minAmountCryptoPrecision).decimalPlaces(6)
           const minimumAmountUserMessage = `${formattedAmount} ${asset.symbol}`
 
           return {
@@ -164,12 +166,12 @@ export const validateTradeQuote = (
   const firstHopSellAccountId = selectFirstHopSellAccountId(state)
   const secondHopSellAccountId = selectSecondHopSellAccountId(state)
 
-  const firstHopFeeAssetBalancePrecision = selectPortfolioCryptoPrecisionBalanceByFilter(state, {
+  const firstHopFeeAssetBalance = selectPortfolioCryptoBalanceByFilter(state, {
     assetId: firstHopSellFeeAsset?.assetId,
     accountId: firstHopSellAccountId ?? '',
   })
-  const secondHopFeeAssetBalancePrecision = isMultiHopTrade
-    ? selectPortfolioCryptoPrecisionBalanceByFilter(state, {
+  const secondHopFeeAssetBalance = isMultiHopTrade
+    ? selectPortfolioCryptoBalanceByFilter(state, {
         assetId: secondHopSellFeeAsset?.assetId,
         accountId: secondHopSellAccountId ?? '',
       })
@@ -178,21 +180,25 @@ export const validateTradeQuote = (
   // Technically does for cow swap too, but we deduct it off the sell amount in that case
   const networkFeeRequiresBalance = swapperName !== SwapperName.CowSwap
 
-  const firstHopNetworkFeeCryptoPrecision =
+  const firstHopNetworkFeeCrypto =
     networkFeeRequiresBalance && firstHopSellFeeAsset
-      ? fromBaseUnit(
-          bnOrZero(firstHop?.feeData.networkFeeCryptoBaseUnit),
-          firstHopSellFeeAsset.precision,
-        )
-      : bn(0).toFixed()
+      ? BigAmount.fromBaseUnit({
+          value: bnOrZero(firstHop?.feeData.networkFeeCryptoBaseUnit),
+          precision: firstHopSellFeeAsset.precision,
+        })
+      : undefined
+  const firstHopNetworkFeeCryptoPrecision =
+    firstHopNetworkFeeCrypto?.toPrecision() ?? bn(0).toFixed()
 
-  const secondHopNetworkFeeCryptoPrecision =
+  const secondHopNetworkFeeCrypto =
     networkFeeRequiresBalance && secondHopSellFeeAsset && secondHop
-      ? fromBaseUnit(
-          bnOrZero(secondHop.feeData.networkFeeCryptoBaseUnit),
-          secondHopSellFeeAsset.precision,
-        )
-      : bn(0).toFixed()
+      ? BigAmount.fromBaseUnit({
+          value: bnOrZero(secondHop.feeData.networkFeeCryptoBaseUnit),
+          precision: secondHopSellFeeAsset.precision,
+        })
+      : undefined
+  const secondHopNetworkFeeCryptoPrecision =
+    secondHopNetworkFeeCrypto?.toPrecision() ?? bn(0).toFixed()
 
   const firstHopTradeDeductionCryptoPrecision =
     firstHopSellFeeAsset?.assetId === firstHop?.sellAsset.assetId
@@ -202,14 +208,17 @@ export const validateTradeQuote = (
   const walletSupportsIntermediaryAssetChain =
     !isMultiHopTrade || walletConnectedChainIds.includes(firstHop?.buyAsset.chainId ?? '')
 
-  const firstHopHasSufficientBalanceForGas = bnOrZero(firstHopFeeAssetBalancePrecision)
+  const firstHopHasSufficientBalanceForGas = firstHopFeeAssetBalance
     .minus(firstHopNetworkFeeCryptoPrecision ?? 0)
     .minus(firstHopTradeDeductionCryptoPrecision ?? 0)
     .gte(0)
 
   const secondHopHasSufficientBalanceForGas =
     !isMultiHopTrade ||
-    bnOrZero(secondHopFeeAssetBalancePrecision)
+    (
+      secondHopFeeAssetBalance ??
+      BigAmount.zero({ precision: secondHopSellFeeAsset?.precision ?? 0 })
+    )
       .minus(secondHopNetworkFeeCryptoPrecision ?? 0)
       .gte(0)
 
@@ -218,7 +227,7 @@ export const validateTradeQuote = (
     bnOrZero(buyAmountCryptoBaseUnit).isLessThanOrEqualTo(0)
 
   const portfolioAccountIdByNumberByChainId = selectPortfolioAccountIdByNumberByChainId(state)
-  const portfolioAccountBalancesBaseUnit = selectPortfolioAccountBalancesBaseUnit(state)
+  const portfolioAccountBalances = selectPortfolioAccountBalances(state)
   const sellAssetAccountNumber = firstHop?.accountNumber
   const totalProtocolFeesByAsset = firstHop ? getTotalProtocolFeeByAssetForStep(firstHop) : {}
 
@@ -234,22 +243,30 @@ export const validateTradeQuote = (
 
             const accountId =
               portfolioAccountIdByNumberByChainId[sellAssetAccountNumber][protocolFee.asset.chainId]
-            const balanceCryptoBaseUnit = portfolioAccountBalancesBaseUnit[accountId][assetId]
+            const balance =
+              portfolioAccountBalances[accountId]?.[assetId] ??
+              BigAmount.zero({ precision: protocolFee.asset.precision })
 
             // @TODO: seems like this condition should be applied for all the swappers, verify by smoke testing all of them
             // them kick the swapperName bit out of the condition
+            const protocolFeeAmount = BigAmount.fromBaseUnit({
+              value: protocolFee.amountCryptoBaseUnit,
+              precision: balance.precision,
+            })
+
             if (
               firstHopSellFeeAsset?.assetId === assetId &&
               firstHop?.sellAsset.assetId === assetId &&
               swapperName === SwapperName.Jupiter
             ) {
-              return bnOrZero(balanceCryptoBaseUnit)
-                .minus(bnOrZero(sellAmountCryptoBaseUnit))
-                .minus(protocolFee.amountCryptoBaseUnit)
-                .lt(0)
+              const sellAmount = BigAmount.fromBaseUnit({
+                value: bnOrZero(sellAmountCryptoBaseUnit).toFixed(),
+                precision: balance.precision,
+              })
+              return balance.minus(sellAmount).minus(protocolFeeAmount).isNegative()
             }
 
-            return bnOrZero(balanceCryptoBaseUnit).lt(protocolFee.amountCryptoBaseUnit)
+            return balance.lt(protocolFeeAmount)
           })
           .map(([_assetId, protocolFee]: [AssetId, ProtocolFee]) => {
             return {

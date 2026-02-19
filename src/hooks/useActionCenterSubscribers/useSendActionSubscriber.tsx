@@ -12,10 +12,11 @@ import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+
 import { getNearTransactionStatus } from '@/lib/utils/near'
 import { getStarknetTransactionStatus, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
-import { getTonTransactionStatus } from '@/lib/utils/ton'
+import { getTonTransactionStatus, isTonChainAdapter } from '@/lib/utils/ton'
 import { getTronTransactionStatus } from '@/lib/utils/tron'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingWalletSendActions } from '@/state/slices/actionSlice/selectors'
@@ -186,6 +187,7 @@ export const useSendActionSubscriber = () => {
                 case KnownChainIds.MonadMainnet:
                 case KnownChainIds.PlasmaMainnet:
                 case KnownChainIds.HyperEvmMainnet:
+                case KnownChainIds.MegaEthMainnet:
                 case KnownChainIds.KatanaMainnet: {
                   const txStatus = await getSecondClassEvmTxStatus(chainId, txHash)
                   if (!txStatus) return
@@ -200,8 +202,36 @@ export const useSendActionSubscriber = () => {
                 }
                 case KnownChainIds.TonMainnet: {
                   const tonTxStatus = await getTonTransactionStatus(txHash)
-                  isConfirmed =
-                    tonTxStatus === TxStatus.Confirmed || tonTxStatus === TxStatus.Failed
+
+                  if (tonTxStatus === TxStatus.Failed) {
+                    const adapter = getChainAdapterManager().get(chainId)
+                    if (isTonChainAdapter(adapter)) {
+                      try {
+                        if (adapter?.parseTx) {
+                          const parsedTx = await adapter.parseTx(txHash, accountAddress)
+                          dispatch(
+                            txHistory.actions.onMessage({
+                              message: parsedTx,
+                              accountId,
+                            }),
+                          )
+                        }
+                      } catch (error) {
+                        console.error('Failed to parse failed TON Tx:', error)
+                      }
+                    }
+
+                    failAction(action)
+
+                    const intervalId = pollingIntervalsRef.current.get(pollingKey)
+                    if (intervalId) {
+                      clearInterval(intervalId)
+                      pollingIntervalsRef.current.delete(pollingKey)
+                    }
+                    return
+                  }
+
+                  isConfirmed = tonTxStatus === TxStatus.Confirmed
                   break
                 }
                 case KnownChainIds.StarknetMainnet: {

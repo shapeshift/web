@@ -53,13 +53,7 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     optimismAssetId,
     arbitrumAssetId,
     baseAssetId,
-<<<<<<< HEAD
-<<<<<<< HEAD
     inkAssetId,
-=======
->>>>>>> origin/develop
-=======
->>>>>>> origin/develop
     katanaAssetId,
     megaethAssetId,
     scrollAssetId,

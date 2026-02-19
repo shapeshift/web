@@ -118,14 +118,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Katana
         case CHAIN_REFERENCE.MegaEthMainnet:
           return CoingeckoAssetPlatform.MegaEth
-<<<<<<< HEAD
-<<<<<<< HEAD
         case CHAIN_REFERENCE.InkMainnet:
           return CoingeckoAssetPlatform.Ink
-=======
->>>>>>> origin/develop
-=======
->>>>>>> origin/develop
         case CHAIN_REFERENCE.ScrollMainnet:
           return CoingeckoAssetPlatform.Scroll
         default:
@@ -237,14 +231,8 @@ export const coingeckoAssetPlatformToChainId = (
       return katanaChainId
     case CoingeckoAssetPlatform.MegaEth:
       return megaethChainId
-<<<<<<< HEAD
-<<<<<<< HEAD
     case CoingeckoAssetPlatform.Ink:
       return inkChainId
-=======
->>>>>>> origin/develop
-=======
->>>>>>> origin/develop
     case CoingeckoAssetPlatform.Scroll:
       return scrollChainId
     case CoingeckoAssetPlatform.Cosmos:

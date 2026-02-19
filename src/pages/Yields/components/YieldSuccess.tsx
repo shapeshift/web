@@ -28,6 +28,7 @@ type YieldSuccessProps = {
   showConfetti?: boolean
   successMessageKey?: YieldSuccessMessageKey
   showButtons?: boolean
+  cooldownMessage?: string
 }
 
 export const YieldSuccess = memo(
@@ -42,6 +43,7 @@ export const YieldSuccess = memo(
     showConfetti = true,
     successMessageKey = 'successStaked',
     showButtons = true,
+    cooldownMessage,
   }: YieldSuccessProps) => {
     const translate = useTranslate()
     const navigate = useNavigate()
@@ -98,6 +100,11 @@ export const YieldSuccess = memo(
             <Text color='text.subtle' fontSize='md'>
               {translate(`yieldXYZ.${successMessageKey}`, { amount, symbol })}
             </Text>
+            {cooldownMessage && (
+              <Text color='text.subtle' fontSize='sm' mt={1}>
+                {cooldownMessage}
+              </Text>
+            )}
           </Box>
 
           {providerInfo && (

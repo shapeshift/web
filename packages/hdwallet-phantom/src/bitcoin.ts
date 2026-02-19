@@ -61,6 +61,7 @@ async function addInput(psbt: bitcoin.Psbt, input: core.BTCSignTxInput): Promise
         hash: input.txid,
         index: input.vout,
         nonWitnessUtxo: Buffer.from(input.hex, 'hex'),
+        ...(input.sequence !== undefined && { sequence: input.sequence }),
       })
 
       break

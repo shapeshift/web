@@ -16,6 +16,7 @@ import {
   optimism,
   plasma,
   polygon,
+  scroll,
 } from 'viem/chains'
 
 const megaeth = defineChain({
@@ -112,6 +113,11 @@ export const viemMegaEthClient = createPublicClient({
   transport: fallback([process.env.VITE_MEGAETH_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemScrollClient = createPublicClient({
+  chain: scroll,
+  transport: fallback([process.env.VITE_SCROLL_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemKatanaClient = createPublicClient({
   chain: katana,
   transport: fallback([process.env.VITE_KATANA_NODE_URL].filter(Boolean).map(url => http(url))),
@@ -131,6 +137,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.PlasmaMainnet]: viemPlasmaClient,
   [KnownChainIds.MegaEthMainnet]: viemMegaEthClient,
   [KnownChainIds.KatanaMainnet]: viemKatanaClient,
+  [KnownChainIds.ScrollMainnet]: viemScrollClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -147,6 +154,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.PlasmaMainnet]: plasma.id,
   [KnownChainIds.MegaEthMainnet]: megaeth.id,
   [KnownChainIds.KatanaMainnet]: katana.id,
+  [KnownChainIds.ScrollMainnet]: scroll.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -163,6 +171,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [plasma.id]: viemPlasmaClient,
   [megaeth.id]: viemMegaEthClient,
   [katana.id]: viemKatanaClient,
+  [scroll.id]: viemScrollClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

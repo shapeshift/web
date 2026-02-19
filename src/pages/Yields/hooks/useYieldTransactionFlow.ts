@@ -8,6 +8,7 @@ import {
   fromChainId,
   usdtAssetId,
 } from '@shapeshiftoss/caip'
+import { ChainAdapterError } from '@shapeshiftoss/chain-adapters'
 import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
@@ -552,12 +553,15 @@ export const useYieldTransactionFlow = ({
       setActiveStepIndex(1)
     } catch (error) {
       console.error('Reset allowance failed:', error)
+      const description =
+        error instanceof ChainAdapterError
+          ? translate(error.metadata.translation, error.metadata.options)
+          : error instanceof Error
+          ? error.message
+          : translate('yieldXYZ.errors.transactionFailedDescription')
       toast({
         title: translate('yieldXYZ.errors.transactionFailedTitle'),
-        description:
-          error instanceof Error
-            ? error.message
-            : translate('yieldXYZ.errors.transactionFailedDescription'),
+        description,
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -753,10 +757,20 @@ export const useYieldTransactionFlow = ({
         }
       } catch (error) {
         console.error('Transaction execution failed:', error)
-        showErrorToast(
-          'yieldXYZ.errors.transactionFailedTitle',
-          'yieldXYZ.errors.transactionFailedDescription',
-        )
+        if (error instanceof ChainAdapterError) {
+          toast({
+            title: translate('yieldXYZ.errors.transactionFailedTitle'),
+            description: translate(error.metadata.translation, error.metadata.options),
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          })
+        } else {
+          showErrorToast(
+            'yieldXYZ.errors.transactionFailedTitle',
+            'yieldXYZ.errors.transactionFailedDescription',
+          )
+        }
         updateStepStatus(uiStepIndex, { status: 'failed', loadingMessage: undefined })
       } finally {
         setIsSubmitting(false)
@@ -772,6 +786,7 @@ export const useYieldTransactionFlow = ({
       yieldItem,
       action,
       amount,
+      toast,
       translate,
       updateStepStatus,
       buildCosmosStakeArgs,
@@ -905,10 +920,20 @@ export const useYieldTransactionFlow = ({
       }
     } catch (error) {
       console.error('Failed to initiate action:', error)
-      showErrorToast(
-        'yieldXYZ.errors.initiateFailedTitle',
-        'yieldXYZ.errors.initiateFailedDescription',
-      )
+      if (error instanceof ChainAdapterError) {
+        toast({
+          title: translate('yieldXYZ.errors.initiateFailedTitle'),
+          description: translate(error.metadata.translation, error.metadata.options),
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        })
+      } else {
+        showErrorToast(
+          'yieldXYZ.errors.initiateFailedTitle',
+          'yieldXYZ.errors.initiateFailedDescription',
+        )
+      }
       setIsSubmitting(false)
       setTransactionSteps([])
     }
@@ -928,6 +953,7 @@ export const useYieldTransactionFlow = ({
     quoteError,
     quoteData,
     resolveSymbolForTx,
+    toast,
     translate,
     showErrorToast,
     yieldItem?.mechanics.type,

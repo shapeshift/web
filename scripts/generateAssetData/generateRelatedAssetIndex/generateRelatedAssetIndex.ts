@@ -12,6 +12,7 @@ import {
   katanaAssetId,
   megaethAssetId,
   optimismAssetId,
+  scrollAssetId,
   starknetAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
@@ -55,6 +56,7 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     inkAssetId,
     katanaAssetId,
     megaethAssetId,
+    scrollAssetId,
   ],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
   [starknetAssetId]: [

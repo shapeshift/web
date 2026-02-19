@@ -44,6 +44,8 @@ import {
   plasmaChainId,
   polygonAssetId,
   polygonChainId,
+  scrollAssetId,
+  scrollChainId,
   solanaChainId,
   solAssetId,
   starknetAssetId,
@@ -305,6 +307,18 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Scroll)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.ScrollMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Scroll],
+          })
+          prev[scrollChainId][assetId] = id
+        } catch {}
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Katana)) {
         try {
           const assetId = toAssetId({
@@ -378,6 +392,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [inkChainId]: { [inkAssetId]: 'ethereum' },
       [megaethChainId]: { [megaethAssetId]: 'ethereum' },
       [katanaChainId]: { [katanaAssetId]: 'katana' },
+      [scrollChainId]: { [scrollAssetId]: 'ethereum' },
       [solanaChainId]: { [solAssetId]: 'solana' },
       [starknetChainId]: { [starknetAssetId]: 'starknet' },
       [tronChainId]: { [tronAssetId]: 'tron' },

@@ -229,6 +229,7 @@ describe('CoinGecko market service', () => {
         ethOnBaseKey,
         ethOnMegaEthKey,
         ethOnInkKey,
+        ethOnScrollKey,
       ] = Object.keys(result)
       expect(btcAssetId).toEqual([btcKey])
       expect(ethAssetId).toEqual([
@@ -238,6 +239,7 @@ describe('CoinGecko market service', () => {
         ethOnBaseKey,
         ethOnMegaEthKey,
         ethOnInkKey,
+        ethOnScrollKey,
       ])
     })
 

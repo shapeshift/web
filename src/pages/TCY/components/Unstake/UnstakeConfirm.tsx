@@ -65,10 +65,11 @@ export const UnstakeConfirm: React.FC = () => {
   )
 
   const withdrawBps = useMemo(() => {
-    if (!tcyStaker?.amount || !amountThorBaseUnit) return '0'
+    if (!tcyStaker?.amount || bnOrZero(tcyStaker.amount).isZero() || !amountThorBaseUnit) return '0'
     const stakedAmountThorBaseUnit = tcyStaker.amount
     const withdrawRatio = bnOrZero(amountThorBaseUnit).div(stakedAmountThorBaseUnit)
-    return withdrawRatio.times(BASE_BPS_POINTS).toFixed(0)
+    const bps = withdrawRatio.times(BASE_BPS_POINTS).toFixed(0)
+    return bnOrZero(bps).gt(BASE_BPS_POINTS) ? BASE_BPS_POINTS : bps
   }, [tcyStaker?.amount, amountThorBaseUnit])
 
   const {
@@ -135,8 +136,12 @@ export const UnstakeConfirm: React.FC = () => {
   })
 
   const handleConfirm = useCallback(async () => {
-    await handleUnstake()
-    navigate(TCYUnstakeRoute.Input)
+    try {
+      await handleUnstake()
+      navigate(TCYUnstakeRoute.Input)
+    } catch (e) {
+      console.error(e)
+    }
   }, [handleUnstake, navigate])
 
   const handleCancel = useCallback(() => {

@@ -126,8 +126,12 @@ export const StakeConfirm: React.FC = () => {
   })
 
   const handleConfirm = useCallback(async () => {
-    await handleStake()
-    navigate(TCYStakeRoute.Input)
+    try {
+      await handleStake()
+      navigate(TCYStakeRoute.Input)
+    } catch (e) {
+      console.error(e)
+    }
   }, [handleStake, navigate])
 
   const handleCancel = useCallback(() => {

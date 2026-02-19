@@ -114,14 +114,14 @@ export const UnstakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAcc
   )
 
   const withdrawBps = useMemo(() => {
-    if (!tcyStaker?.amount) return '0'
+    if (!tcyStaker?.amount || bnOrZero(tcyStaker.amount).isZero()) return '0'
     const amountThorBaseUnit = BigAmount.fromPrecision({
       value: amountCryptoPrecision,
       precision: THOR_PRECISION,
     }).toBaseUnit()
-    // tcyStaker.amount is already in THOR base units from the API
     const withdrawRatio = bnOrZero(amountThorBaseUnit).div(tcyStaker.amount)
-    return withdrawRatio.times(BASE_BPS_POINTS).toFixed(0)
+    const bps = withdrawRatio.times(BASE_BPS_POINTS).toFixed(0)
+    return bnOrZero(bps).gt(BASE_BPS_POINTS) ? BASE_BPS_POINTS : bps
   }, [tcyStaker?.amount, amountCryptoPrecision])
 
   const handleAmountChange = useCallback(
@@ -145,7 +145,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAcc
   const handleUnstakePercentChange = useCallback(
     (value: number) => {
       setUnstakePercent(value)
-      if (!tcyStaker?.amount) {
+      if (!tcyStaker?.amount || bnOrZero(tcyStaker.amount).isZero()) {
         setValue('amountCryptoPrecision', '0')
         setValue('fiatAmount', '0')
         return

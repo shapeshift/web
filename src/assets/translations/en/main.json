@@ -345,7 +345,7 @@
         "marketCapRank": "Market Cap Rank",
         "volume24h": "24h Volume",
         "volMcap": "Vol/MCap",
-        "about": "About",
+        "about": "About %{symbol}",
         "noDescription": "No description available for this asset."
       },
       "receive": {
@@ -2840,15 +2840,23 @@
     },
     "deposit": {
       "pending": "Your deposit of %{amount} %{symbol} is being processed.",
-      "complete": "Your deposit of %{amount} %{symbol} is complete."
+      "complete": "Your deposit of %{amount} %{symbol} is complete.",
+      "failed": "Your deposit of %{amount} %{symbol} has failed."
     },
     "withdrawal": {
       "pending": "Your withdrawal of %{amount} %{symbol} is being processed.",
-      "complete": "Your withdrawal of %{amount} %{symbol} is complete."
+      "complete": "Your withdrawal of %{amount} %{symbol} is complete.",
+      "failed": "Your withdrawal of %{amount} %{symbol} has failed."
     },
     "claim": {
       "pending": "Your claim of %{amount} %{symbol} is being processed.",
-      "complete": "Your claim of %{amount} %{symbol} is complete."
+      "complete": "Your claim of %{amount} %{symbol} is complete.",
+      "failed": "Your claim of %{amount} %{symbol} has failed."
+    },
+    "yield": {
+      "unstakeAvailableIn": "Your %{symbol} unstake will be available in %{duration}.",
+      "unstakeReady": "Your %{symbol} unstake is ready to claim.",
+      "unstakeClaimed": "Your %{symbol} unstake was claimed."
     },
     "bridge": {
       "processing": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is being processed.",
@@ -2991,6 +2999,7 @@
     "providers": "Providers",
     "successStaked": "You successfully staked %{amount} %{symbol}",
     "successUnstaked": "You successfully unstaked %{amount} %{symbol}",
+    "cooldownNotice": "Your withdrawal will be available in %{cooldownDuration}.",
     "successDeposited": "You successfully deposited %{amount} %{symbol}",
     "successWithdrawn": "You successfully withdrew %{amount} %{symbol}",
     "successClaim": "You successfully claimed %{amount} %{symbol}",

@@ -14,6 +14,9 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
+import dayjs from 'dayjs'
+import dayjsDuration from 'dayjs/plugin/duration'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import { TbSwitchVertical } from 'react-icons/tb'
 import type { NumberFormatValues } from 'react-number-format'
@@ -59,7 +62,7 @@ import {
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetIdFilter,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -84,6 +87,9 @@ const YieldFormSkeleton = memo(() => (
     <Skeleton height='20px' width='100px' borderRadius='lg' />
   </Flex>
 ))
+
+dayjs.extend(dayjsDuration)
+dayjs.extend(relativeTime)
 
 const selectedHoverSx = { bg: 'blue.600' }
 const unselectedHoverSx = { bg: 'background.surface.raised.hover' }
@@ -253,10 +259,10 @@ export const YieldForm = memo(
 
     const inputTokenBalance = useAppSelector(state =>
       inputTokenAssetId && accountId
-        ? selectPortfolioCryptoPrecisionBalanceByFilter(state, {
+        ? selectPortfolioCryptoBalanceByFilter(state, {
             assetId: inputTokenAssetId,
             accountId,
-          })
+          }).toPrecision()
         : '0',
     )
 
@@ -339,13 +345,14 @@ export const YieldForm = memo(
         if (isFiat) {
           const crypto = bnOrZero(values.value)
             .div(marketData?.price || 1)
+            .decimalPlaces(inputTokenAsset?.precision ?? 18, 1)
             .toFixed()
           setCryptoAmount(crypto)
         } else {
           setCryptoAmount(values.value)
         }
       },
-      [isFiat, marketData?.price],
+      [isFiat, inputTokenAsset?.precision, marketData?.price],
     )
 
     const displayValue = useMemo(() => {
@@ -626,7 +633,7 @@ export const YieldForm = memo(
                   {estimatedYearlyEarnings.decimalPlaces(4).toString()} {inputTokenAsset?.symbol}
                 </GradientApy>
                 <Text fontSize='xs' color='text.subtle'>
-                  <Amount.Fiat value={estimatedYearlyEarningsFiat.toString()} />
+                  <Amount.Fiat value={estimatedYearlyEarningsFiat.toFixed(2)} />
                 </Text>
               </Flex>
             </Flex>
@@ -830,6 +837,13 @@ export const YieldForm = memo(
         return cryptoAmount
       })()
       const successMessageKey = getYieldSuccessMessageKey(yieldItem.mechanics.type, action)
+      const cooldownSeconds = yieldItem.mechanics.cooldownPeriod?.seconds
+      const cooldownMessage =
+        action === 'exit' && cooldownSeconds
+          ? translate('yieldXYZ.cooldownNotice', {
+              cooldownDuration: dayjs.duration(cooldownSeconds, 'seconds').humanize(),
+            })
+          : undefined
 
       return (
         <YieldSuccess
@@ -841,6 +855,7 @@ export const YieldForm = memo(
           accountId={accountId}
           onDone={handleFormDone}
           successMessageKey={successMessageKey}
+          cooldownMessage={cooldownMessage}
         />
       )
     }

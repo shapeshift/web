@@ -164,7 +164,6 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, C
 }
 
 export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWallet {
-  readonly _supportsETH = true
   readonly _supportsETHInfo = true
   readonly _supportsBTCInfo = false
   readonly _supportsBTC = false
@@ -193,6 +192,10 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
   ethAddress: Address | undefined
   cosmosAddress: string | undefined
 
+  get _supportsETH(): boolean {
+    return !!this.provider.session?.namespaces?.eip155
+  }
+
   get _supportsCosmos(): boolean {
     return !!this.provider.session?.namespaces?.cosmos
   }
@@ -201,19 +204,74 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
     this.provider = provider
     this.info = new WalletConnectV2WalletInfo()
     this.patchSignerForNonEvmNamespaces()
+    this.patchProviderConnectForMultiNamespace()
   }
 
   private patchSignerForNonEvmNamespaces(): void {
     const signer = this.provider.signer
     const originalConnect = signer.connect.bind(signer)
     signer.connect = async (params: Parameters<typeof signer.connect>[0]) => {
+      const requiredEvm = params.namespaces?.eip155
+      const optionalEvm = params.optionalNamespaces?.eip155
+
+      const mergedEvmChains = [
+        ...new Set([...(requiredEvm?.chains ?? []), ...(optionalEvm?.chains ?? [])]),
+      ]
+      const mergedEvmMethods = [
+        ...new Set([...(requiredEvm?.methods ?? []), ...(optionalEvm?.methods ?? [])]),
+      ]
+      const mergedEvmEvents = [
+        ...new Set([...(requiredEvm?.events ?? []), ...(optionalEvm?.events ?? [])]),
+      ]
+
       return originalConnect({
         ...params,
+        namespaces: {},
         optionalNamespaces: {
-          ...params.optionalNamespaces,
+          eip155: {
+            chains: mergedEvmChains,
+            methods: mergedEvmMethods,
+            events: mergedEvmEvents,
+            rpcMap: {
+              ...(requiredEvm as any)?.rpcMap,
+              ...(optionalEvm as any)?.rpcMap,
+            },
+          },
           cosmos: COSMOS_OPTIONAL_NAMESPACE,
         },
       })
+    }
+  }
+
+  private patchProviderConnectForMultiNamespace(): void {
+    const provider = this.provider as any
+
+    const originalConnect = provider.connect.bind(provider)
+    provider.connect = async (opts?: any) => {
+      const modal = provider.modal
+      const originalSubscribeState = modal?.subscribeState?.bind(modal)
+
+      if (modal) {
+        modal.subscribeState = () => {}
+      }
+
+      try {
+        await originalConnect(opts)
+      } finally {
+        if (modal && originalSubscribeState) {
+          modal.subscribeState = originalSubscribeState
+        }
+      }
+    }
+
+    const originalEnable = provider.enable.bind(provider)
+    provider.enable = async () => {
+      try {
+        return await originalEnable()
+      } catch (e: unknown) {
+        if (provider.signer?.session) return []
+        throw e
+      }
     }
   }
 
@@ -433,7 +491,13 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
   }
 
   public async getDeviceID(): Promise<string> {
-    return 'wc:' + (await this.ethGetAddress())
+    const ethAddr = await this.ethGetAddress()
+    if (ethAddr) return 'wc:' + ethAddr
+
+    const cosmosAccounts = this.provider.session?.namespaces?.cosmos?.accounts
+    if (cosmosAccounts?.[0]) return 'wc:' + cosmosAccounts[0].split(':')[2]
+
+    return 'wc:unknown'
   }
 
   public async getFirmwareVersion(): Promise<string> {

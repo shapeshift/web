@@ -531,7 +531,7 @@ describe('portfolioSlice', () => {
       const state = store.getState()
 
       it('should be able to filter by assetId', () => {
-        const expected = '1200.00'
+        const expected = '1200.01'
         const result = selectPortfolioUserCurrencyBalanceByFilter(state, { assetId: ethAssetId })
         expect(result).toEqual(expected)
       })
@@ -543,75 +543,6 @@ describe('portfolioSlice', () => {
           assetId: foxAssetId,
         })
         expect(result).toEqual(expected)
-      })
-    })
-
-    describe('selectPortfolioCryptoBalanceByFilter', () => {
-      const store = createStore()
-      const { ethAccount, ethAccount2, ethAccountId, ethAccount2Id } = mockEthAndBtcAccounts({
-        ethAccountObj: { balance: '1000009000000000000' },
-        ethAccount2Obj: {
-          balance: '200000000000000000',
-          chainSpecific: {
-            tokens: [mockEthToken({ balance: '200100000000000000' })],
-          },
-        },
-      })
-
-      store.dispatch(
-        portfolioSlice.actions.setWalletMeta({
-          walletId: 'fakeWalletId',
-          walletName: 'fakeWalletName',
-        }),
-      )
-      store.dispatch(
-        portfolioSlice.actions.upsertAccountMetadata({
-          walletId: 'fakeWalletId',
-          accountMetadataByAccountId: {
-            [ethAccountId]: { bip44Params },
-            [ethAccount2Id]: { bip44Params },
-          },
-        }),
-      )
-
-      // dispatch portfolio data
-      const portfolio = mockUpsertPortfolio([ethAccount, ethAccount2], assetIds)
-      store.dispatch(portfolioSlice.actions.upsertPortfolio(portfolio))
-      for (const accountId of portfolio.accounts.ids) {
-        store.dispatch(portfolioSlice.actions.enableAccountId(accountId))
-      }
-
-      // dispatch market data
-      const ethMarketData = mockMarketData({ price: '1000' })
-      const foxMarketData = mockMarketData({ price: '10' })
-      const usdcMarketData = mockMarketData({ price: '1' })
-
-      store.dispatch(
-        marketDataSlice.actions.setCryptoMarketData({
-          [ethAssetId]: ethMarketData,
-          [foxAssetId]: foxMarketData,
-          [usdcAssetId]: usdcMarketData,
-        }),
-      )
-
-      // dispatch asset data
-      const assetData = mockAssetState()
-      store.dispatch(assetsSlice.actions.upsertAssets(assetData))
-      const state = store.getState()
-
-      it('should be able to filter by assetId', () => {
-        const expected = '1.200009'
-        const result = selectPortfolioCryptoBalanceByFilter(state, { assetId: ethAssetId })
-        expect(result.toPrecision()).toEqual(expected)
-      })
-
-      it('should be able to filter by accountId and assetId', () => {
-        const expected = '0.2001'
-        const result = selectPortfolioCryptoBalanceByFilter(state, {
-          accountId: ethAccount2Id,
-          assetId: foxAssetId,
-        })
-        expect(result.toPrecision()).toEqual(expected)
       })
     })
 
@@ -664,6 +595,7 @@ describe('portfolioSlice', () => {
       it('should return BigAmount for a known asset filtered by assetId', () => {
         const result = selectPortfolioCryptoBalanceByFilter(state, { assetId: ethAssetId })
         expect(result.toBaseUnit()).toEqual('1200009000000000000')
+        expect(result.toPrecision()).toEqual('1.200009')
       })
 
       it('should return BigAmount for a known asset filtered by accountId and assetId', () => {
@@ -672,6 +604,7 @@ describe('portfolioSlice', () => {
           assetId: foxAssetId,
         })
         expect(result.toBaseUnit()).toEqual('200100000000000000')
+        expect(result.toPrecision()).toEqual('0.2001')
       })
 
       it('should return BigAmount.zero when assetId is not provided', () => {

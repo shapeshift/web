@@ -3,6 +3,10 @@ import BigNumber from 'bignumber.js'
 import type { BN } from './bignumber/bignumber'
 import { bn, bnOrZero } from './bignumber/bignumber'
 
+// Converts from base unit to a precision/ish number
+// - If no displayDecimals are provided, it will use the full precision of the number being converted
+// - If displayDecimals are provided, it will use that precision, to return e.g a human, precision, or number stripped to any arbitrary decimal places
+// and use the ROUND_DOWN rounding mode
 export const fromBaseUnit = (
   value: BigNumber.Value | undefined,
   precision: number,

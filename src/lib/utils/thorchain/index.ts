@@ -35,7 +35,7 @@ import { getThorchainLendingPosition } from './lending'
 import { getConfig } from '@/config'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber, BN } from '@/lib/bignumber/bignumber'
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { bn } from '@/lib/bignumber/bignumber'
 import { poll } from '@/lib/poll/poll'
 import type { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
 import { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
@@ -132,12 +132,7 @@ export const waitForThorchainUpdate = ({
 }
 
 export const fromThorBaseUnit = (valueThorBaseUnit: BigNumber.Value | null | undefined): BN =>
-  bnOrZero(
-    BigAmount.fromBaseUnit({
-      value: bnOrZero(valueThorBaseUnit).toFixed(),
-      precision: THOR_PRECISION,
-    }).toPrecision(),
-  )
+  BigAmount.fromBaseUnit({ value: valueThorBaseUnit, precision: THOR_PRECISION }).toBN()
 
 export const toThorBaseUnit = ({
   valueCryptoBaseUnit,
@@ -148,17 +143,13 @@ export const toThorBaseUnit = ({
 }): BN => {
   if (!asset?.precision) return bn(0)
 
-  const valueCryptoPrecision = BigAmount.fromBaseUnit({
-    value: bnOrZero(valueCryptoBaseUnit).toFixed(),
+  return BigAmount.fromBaseUnit({
+    value: valueCryptoBaseUnit,
     precision: asset.precision,
-  }).toPrecision()
-
-  return bn(
-    BigAmount.fromPrecision({
-      value: valueCryptoPrecision,
-      precision: THOR_PRECISION,
-    }).toBaseUnit(),
-  )
+  })
+    .toBN()
+    .times(bn(10).pow(THOR_PRECISION))
+    .decimalPlaces(0)
 }
 
 export const getThorchainFromAddress = async ({

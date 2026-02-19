@@ -438,12 +438,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const poolAssetFeeAssetProtocolFeeCryptoPrecision = useMemo(() => {
     if (!poolAssetFeeAsset || !poolAssetFeeAssetOutboundFeeCryptoBaseUnit) return bn(0)
     if (bnOrZero(actualAssetWithdrawAmountCryptoPrecision).eq(0)) return bn(0)
-    return bnOrZero(
-      BigAmount.fromBaseUnit({
-        value: poolAssetFeeAssetOutboundFeeCryptoBaseUnit,
-        precision: poolAssetFeeAsset.precision,
-      }).toPrecision(),
-    )
+    return BigAmount.fromBaseUnit({
+      value: poolAssetFeeAssetOutboundFeeCryptoBaseUnit,
+      precision: poolAssetFeeAsset.precision,
+    }).toBN()
   }, [
     poolAssetFeeAssetOutboundFeeCryptoBaseUnit,
     actualAssetWithdrawAmountCryptoPrecision,
@@ -466,8 +464,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   )
 
   const poolAssetFeeAssetDustAmountCryptoPrecision = useMemo(() => {
-    if (!poolAssetFeeAsset) return bn(0)
-    if (opportunityType !== AsymSide.Asset) return bn(0)
+    if (!poolAssetFeeAsset) return '0'
+    if (opportunityType !== AsymSide.Asset) return '0'
 
     return BigAmount.fromBaseUnit({
       value: poolAssetFeeAssetDustAmountCryptoBaseUnit,

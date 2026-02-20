@@ -11,15 +11,18 @@ import { GenericTransactionNotification } from '@/components/Layout/Header/Actio
 import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { getBerachainTransactionStatus } from '@/lib/utils/berachain'
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
+import { getInkTransactionStatus } from '@/lib/utils/ink'
 import { getKatanaTransactionStatus } from '@/lib/utils/katana'
+import { getLineaTransactionStatus } from '@/lib/utils/linea'
 import { getMegaEthTransactionStatus } from '@/lib/utils/megaeth'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getNearTransactionStatus } from '@/lib/utils/near'
 import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
 import { getStarknetTransactionStatus, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
-import { getTonTransactionStatus } from '@/lib/utils/ton'
+import { getTonTransactionStatus, isTonChainAdapter } from '@/lib/utils/ton'
 import { getTronTransactionStatus } from '@/lib/utils/tron'
 import { getUnichainTransactionStatus } from '@/lib/utils/unichain'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
@@ -210,11 +213,30 @@ export const useSendActionSubscriber = () => {
                     megaEthTxStatus === TxStatus.Confirmed || megaEthTxStatus === TxStatus.Failed
                   break
                 }
+                case KnownChainIds.BerachainMainnet: {
+                  const berachainTxStatus = await getBerachainTransactionStatus(txHash)
+                  isConfirmed =
+                    berachainTxStatus === TxStatus.Confirmed ||
+                    berachainTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.InkMainnet: {
+                  const inkTxStatus = await getInkTransactionStatus(txHash)
+                  isConfirmed =
+                    inkTxStatus === TxStatus.Confirmed || inkTxStatus === TxStatus.Failed
+                  break
+                }
                 case KnownChainIds.KatanaMainnet: {
                   const katanaNodeUrl = getConfig().VITE_KATANA_NODE_URL
                   const katanaTxStatus = await getKatanaTransactionStatus(txHash, katanaNodeUrl)
                   isConfirmed =
                     katanaTxStatus === TxStatus.Confirmed || katanaTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.LineaMainnet: {
+                  const lineaTxStatus = await getLineaTransactionStatus(txHash)
+                  isConfirmed =
+                    lineaTxStatus === TxStatus.Confirmed || lineaTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.UnichainMainnet: {
@@ -235,8 +257,36 @@ export const useSendActionSubscriber = () => {
                 }
                 case KnownChainIds.TonMainnet: {
                   const tonTxStatus = await getTonTransactionStatus(txHash)
-                  isConfirmed =
-                    tonTxStatus === TxStatus.Confirmed || tonTxStatus === TxStatus.Failed
+
+                  if (tonTxStatus === TxStatus.Failed) {
+                    const adapter = getChainAdapterManager().get(chainId)
+                    if (isTonChainAdapter(adapter)) {
+                      try {
+                        if (adapter?.parseTx) {
+                          const parsedTx = await adapter.parseTx(txHash, accountAddress)
+                          dispatch(
+                            txHistory.actions.onMessage({
+                              message: parsedTx,
+                              accountId,
+                            }),
+                          )
+                        }
+                      } catch (error) {
+                        console.error('Failed to parse failed TON Tx:', error)
+                      }
+                    }
+
+                    failAction(action)
+
+                    const intervalId = pollingIntervalsRef.current.get(pollingKey)
+                    if (intervalId) {
+                      clearInterval(intervalId)
+                      pollingIntervalsRef.current.delete(pollingKey)
+                    }
+                    return
+                  }
+
+                  isConfirmed = tonTxStatus === TxStatus.Confirmed
                   break
                 }
                 case KnownChainIds.StarknetMainnet: {

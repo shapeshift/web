@@ -9,7 +9,11 @@ import orderBy from 'lodash/orderBy'
 import path from 'path'
 
 import { compressGeneratedAssets } from './generateAssetData/compressAssets'
-import { ASSET_DATA_PATH, GENERATED_DIR, RELATED_ASSET_INDEX_PATH } from './generateAssetData/constants'
+import {
+  ASSET_DATA_PATH,
+  GENERATED_DIR,
+  RELATED_ASSET_INDEX_PATH,
+} from './generateAssetData/constants'
 import { overrideAssets } from './generateAssetData/overrides'
 import { filterOutBlacklistedAssets } from './generateAssetData/utils'
 
@@ -29,9 +33,7 @@ const resolveChainModule = async (
   const dirs = fs
     .readdirSync(GENERATE_ASSET_DATA_DIR, { withFileTypes: true })
     .filter(
-      d =>
-        d.isDirectory() &&
-        fs.existsSync(path.join(GENERATE_ASSET_DATA_DIR, d.name, 'index.ts')),
+      d => d.isDirectory() && fs.existsSync(path.join(GENERATE_ASSET_DATA_DIR, d.name, 'index.ts')),
     )
 
   // Parse chainId constant name from module source to avoid importing everything.
@@ -84,8 +86,7 @@ const main = async () => {
       .readdirSync(GENERATE_ASSET_DATA_DIR, { withFileTypes: true })
       .filter(
         d =>
-          d.isDirectory() &&
-          fs.existsSync(path.join(GENERATE_ASSET_DATA_DIR, d.name, 'index.ts')),
+          d.isDirectory() && fs.existsSync(path.join(GENERATE_ASSET_DATA_DIR, d.name, 'index.ts')),
       )
       .map(d => d.name)
       .sort()

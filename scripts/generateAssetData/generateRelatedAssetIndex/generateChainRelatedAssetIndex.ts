@@ -1,9 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import {
-  adapters,
-  FEE_ASSET_IDS,
-  fromAssetId,
-} from '@shapeshiftoss/caip'
+import { adapters, FEE_ASSET_IDS, fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { createThrottle, isToken } from '@shapeshiftoss/utils'
 import axios from 'axios'
@@ -13,11 +9,11 @@ import { isNull } from 'lodash'
 import isUndefined from 'lodash/isUndefined'
 
 import { ASSET_DATA_PATH, RELATED_ASSET_INDEX_PATH } from '../constants'
+import { getManualRelatedAssetIds } from './generateRelatedAssetIndex'
 import {
   coingeckoPlatformDetailsToMaybeAssetId,
   zerionImplementationToMaybeAssetId,
 } from './mapping'
-import { getManualRelatedAssetIds } from './generateRelatedAssetIndex'
 import { zerionFungiblesSchema } from './validators/fungible'
 
 import type { CoingeckoAssetDetails } from '@/lib/coingecko/types'
@@ -366,7 +362,9 @@ export const generateChainRelatedAssetIndex = async (chainId: ChainId) => {
   for (let i = 0; i < chainAssetIds.length; i += BATCH_SIZE) {
     const batch = chainAssetIds.slice(i, i + BATCH_SIZE)
     console.log(
-      `[generate:chain] related index chunk ${Math.floor(i / BATCH_SIZE) + 1} of ${Math.ceil(chainAssetIds.length / BATCH_SIZE)}`,
+      `[generate:chain] related index chunk ${Math.floor(i / BATCH_SIZE) + 1} of ${Math.ceil(
+        chainAssetIds.length / BATCH_SIZE,
+      )}`,
     )
     await Promise.all(
       batch.map(assetId =>

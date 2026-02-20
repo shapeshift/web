@@ -201,6 +201,209 @@
   "accountSelector": {
     "chooseAccount": "选择帐户"
   },
+  "agenticChat": {
+    "title": "ShapeShift 代理",
+    "aiChat": "AI 聊天",
+    "openChat": "打开聊天",
+    "closeChat": "关闭聊天",
+    "emptyState": "有什么我可以帮您的？",
+    "placeholder": "输入消息...",
+    "stop": "停止",
+    "send": "发送",
+    "txStepProgress": "%{completedCount}/%{totalCount} complete",
+    "agenticChatTools": {
+      "send": {
+        "title": "发送加密货币",
+        "receivedFrom": "从 %{address} 接收",
+        "steps": {
+          "preparation": "准备发送交易中",
+          "send": "签署并发送交易"
+        },
+        "errors": {
+          "prepareFailed": "无法准备发送交易",
+          "sendFailed": "发送失败: %{error}",
+          "noWallet": "未连接钱包",
+          "accountNotFound": "未找到帐户"
+        },
+        "success": {
+          "transactionSent": "交易已发送: %{txHash}",
+          "title": "发送成功",
+          "description": "您的发送交易已完成"
+        }
+      },
+      "swap": {
+        "title": "交换",
+        "receivedFrom": "从 %{address} 接收",
+        "steps": {
+          "quote": "获取交换报价中",
+          "networkSwitch": "切换到 %{network}",
+          "networkSwitchGeneric": "切换网络",
+          "approval": "授权花费代币",
+          "approvalConfirmation": "确认授权中",
+          "swap": "签署交换交易"
+        },
+        "errors": {
+          "quoteFailed": "获取交换报价失败",
+          "swapFailed": "交换执行失败：%{error}",
+          "noWallet": "未连接钱包",
+          "accountNotFound": "未找到帐户"
+        },
+        "success": {
+          "title": "交换成功",
+          "description": "您的交换交易已完成"
+        }
+      },
+      "cancelLimitOrder": {
+        "title": "取消限价订单",
+        "steps": {
+          "prepare": "准备取消中",
+          "sign": "签署取消",
+          "submit": "提交取消"
+        },
+        "errors": {
+          "prepareFailed": "准备取消失败",
+          "signFailed": "签署取消失败",
+          "submitFailed": "取消订单失败：%{error}",
+          "noWallet": "未连接钱包",
+          "accountNotFound": "未找到帐户"
+        },
+        "success": {
+          "title": "订单已取消",
+          "description": "您的限价订单已成功取消"
+        },
+        "networkLabel": "网络",
+        "orderLabel": "订单",
+        "cancellationFailed": "取消失败",
+        "orderCancelledSuccessfully": "订单已成功取消"
+      },
+      "createLimitOrder": {
+        "title": "创建限价订单",
+        "steps": {
+          "prepare": "准备订单中",
+          "approval": "授权花费代币",
+          "approvalConfirmation": "确认授权",
+          "sign": "签署订单",
+          "submit": "提交交易中"
+        },
+        "errors": {
+          "prepareFailed": "订单准备失败",
+          "approvalFailed": "代币授权失败",
+          "signFailed": "签署订单失败",
+          "submitFailed": "创建订单失败：%{error}",
+          "noWallet": "未连接钱包",
+          "accountNotFound": "未找到帐户"
+        },
+        "success": {
+          "title": "限价订单已创建",
+          "description": "您的限价订单已成功创建"
+        },
+        "expires": "过期",
+        "viewOrder": "查看订单 →",
+        "approvalTx": "授权交易",
+        "orderCreationFailed": "订单创建失败",
+        "orderCreatedSuccessfully": "订单已成功创建"
+      },
+      "newCoins": {
+        "title": "最近新增",
+        "subtitle": "CoinGecko 新增加密货币"
+      },
+      "trendingTokens": {
+        "title": "CoinGecko 热门代币",
+        "subtitle": "24 小时热门代币"
+      },
+      "topGainersLosers": {
+        "gainersTitle": "涨幅榜（%{duration}）",
+        "losersTitle": "跌幅榜（%{duration}）"
+      },
+      "portfolio": {
+        "title": "投资组合",
+        "totalValue": "总价值",
+        "accountLabel": "帐户",
+        "networkLabel": "网络",
+        "emptyState": "投资组合中没有资产"
+      },
+      "getAssets": {
+        "title": "资产",
+        "balance": "余额",
+        "value": "价值",
+        "network": "网络",
+        "emptyState": "未找到资产",
+        "24h": "24 小时",
+        "volume": "交易量",
+        "marketCap": "市值",
+        "fdv": "FDV",
+        "showLess": "收起",
+        "more": "展开…",
+        "coinInfo": "代币信息",
+        "circulatingSupply": "流通量",
+        "totalSupply": "总供应量",
+        "maxSupply": "最大供应量",
+        "unlimited": "无限",
+        "sentiment": "市场情绪",
+        "bullish": "看涨",
+        "bearish": "看跌",
+        "marketCapRank": "市值排名",
+        "volume24h": "24 小时交易量",
+        "volMcap": "交易量/市值",
+        "about": "关于",
+        "noDescription": "此资产暂无描述。"
+      },
+      "receive": {
+        "title": "接收",
+        "receiveOn": "在 %{network} 上接收 %{symbol}",
+        "copyAddress": "复制地址",
+        "copied": "已复制！",
+        "warning": "仅向此地址发送与 %{network} 兼容的代币"
+      },
+      "getLimitOrders": {
+        "title": "限价订单",
+        "openOrders": "%{count} 个待成交",
+        "noOrders": "未找到限价订单",
+        "status": {
+          "open": "待成交",
+          "fulfilled": "已成交",
+          "cancelled": "已取消",
+          "expired": "已过期",
+          "presignaturePending": "待处理"
+        },
+        "sellLabel": "出售",
+        "buyLabel": "购买",
+        "expiresLabel": "过期",
+        "view": "查看",
+        "filledLabel": "已成交"
+      },
+      "getTransactionHistory": {
+        "title": "近期交易",
+        "noTransactions": "未找到交易",
+        "type": {
+          "send": "发送",
+          "receive": "接收",
+          "swap": "交换",
+          "contract": "合约"
+        },
+        "status": {
+          "success": "已确认",
+          "failed": "已失败",
+          "pending": "待处理"
+        },
+        "txid": "交易 id",
+        "from": "从",
+        "to": "到",
+        "value": "价值",
+        "fee": "费用",
+        "network": "网络",
+        "tokens": "代币"
+      }
+    },
+    "chatHistory": "聊天记录",
+    "newChat": "新聊天",
+    "deleteConversation": "删除对话",
+    "deleteConfirmation": "您确定要删除此对话吗？",
+    "noConversations": "暂无对话",
+    "newConversation": "新对话",
+    "searchChats": "搜索您的聊天记录……",
+    "noMatchingConversations": "没有匹配的对话"
+  },
   "quickBuy": {
     "title": "快速购买 %{assetOnChain}",
     "nativeNotAvailable": "快速购买不适用于原生资产",
@@ -554,7 +757,8 @@
       "faq": "常见问题",
       "github": "GitHub",
       "discord": "Discord",
-      "twitter": "Twitter"
+      "twitter": "Twitter",
+      "feedback": "反馈"
     }
   },
   "transactionRow": {
@@ -675,6 +879,16 @@
         "withdraw": "移除流动性",
         "join_pool": "加入池子",
         "exit_pool": "退出池子"
+      },
+      "yieldxyz": {
+        "deposit": "收益充值",
+        "withdraw": "收益提现",
+        "approve": "收益授权",
+        "approveSymbol": "收益授权 %{symbol}",
+        "stake": "收益质押",
+        "unstake": "收益取消质押",
+        "unstakeRequest": "收益取消质押请求",
+        "yieldClaim": "收益领取"
       }
     }
   },
@@ -1800,6 +2014,17 @@
         "body": "点击配对，然后在弹出的窗口中登录 Vultisig",
         "button": "配对"
       }
+    },
+    "seeker": {
+      "connect": {
+        "header": "连接 Seeker",
+        "body": "授权 ShapeShift 连接到您的 Seeker 钱包",
+        "button": "连接"
+      },
+      "failure": {
+        "header": "连接失败",
+        "body": "无法连接到 Seeker 钱包。请确保 Seeker 应用已打开并重试。"
+      }
     }
   },
   "graph": {
@@ -2503,6 +2728,7 @@
   },
   "foxPage": {
     "title": "FOX 代币仪表板",
+    "description": "自 2019 年以来，我们不断演变的 FOX 代币为用户提供了日益丰富的实用功能和优势。如今，​​作为我们的 ERC-20 治理代币，FOX 代币让您能够分享平台收益，并通过投票影响 ShapeShift 的未来发展。您可以在这里质押、交换、购买、供应和管理您的 FOX 代币。",
     "foxToken": "FOX 代币",
     "24hrPriceChange": "24小时价格变化",
     "rfox": {
@@ -2669,7 +2895,8 @@
   "yieldXYZ": {
     "pageTitle": "收益",
     "pageSubtitle": "发现并管理跨多条链的收益机会",
-    "actions": {},
+    "actions": {
+    },
     "yield": "收益",
     "apy": "APY",
     "apr": "APR",
@@ -2732,6 +2959,7 @@
     "depositSymbol": "充值 %{symbol}",
     "withdrawSymbol": "提现 %{symbol}",
     "claimableRewards": "可领取奖励",
+    "withdrawableFunds": "可提现资金",
     "noActivePositions": "您目前没有任何活跃的收益仓位。",
     "connectWalletPositions": "连接钱包以查看您活跃的收益仓位。",
     "view": "查看",
@@ -2797,6 +3025,7 @@
     "depositsDisabledDescription": "该收益机会的充值暂时不可用。",
     "withdrawalsDisabled": "提现已禁用",
     "withdrawalsDisabledDescription": "该收益机会的提现暂时不可用。",
+    "noActiveBalanceToExit": "没有可用于取消质押的有效余额。",
     "noAvailableYields": "您的资产目前没有收益机会",
     "connectWalletAvailable": "连接钱包已查看您的资产可用的收益",
     "aboutProvider": "关于 %{provider}",
@@ -2825,7 +3054,8 @@
     "potentialEarningsAmount": "%{amount}/年 (%{apy}% APY)",
     "depositNow": "立即充值",
     "strategyInfo": "策略信息",
-    "overview": "概述"
+    "overview": "概述",
+    "readyToClaim": "可领取"
   },
   "earn": {
     "enterFrom": "输入发送者地址",

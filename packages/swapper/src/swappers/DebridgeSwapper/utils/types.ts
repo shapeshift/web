@@ -81,6 +81,7 @@ export type DebridgeCreateTxResponse = {
   order: DebridgeOrder
   fixFee: string
   prependedOperatingExpenseCost?: string
+  estimatedTransactionFee?: DebridgeSingleChainEstimatedTransactionFee
 }
 
 export type DebridgeOrderStatus = {

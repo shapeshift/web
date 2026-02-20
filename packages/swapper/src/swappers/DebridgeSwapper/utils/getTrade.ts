@@ -223,6 +223,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     data: quote.tx.data,
     value: quote.tx.value,
     orderId: quote.orderId,
+    gasLimit: quote.estimatedTransactionFee?.details.gasLimit,
   }
 
   const networkFeeCryptoBaseUnit = await getNetworkFee({

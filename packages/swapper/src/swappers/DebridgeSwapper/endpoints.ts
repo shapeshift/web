@@ -1,6 +1,7 @@
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import BigNumber from 'bignumber.js'
 import type { Hex } from 'viem'
 
 import type { SwapperApi } from '../../types'
@@ -29,13 +30,22 @@ export const debridgeApi: SwapperApi = {
     const { debridgeTransactionMetadata, sellAsset } = step
     if (!debridgeTransactionMetadata) throw new Error('Missing deBridge transaction metadata')
 
-    const { to, value, data } = debridgeTransactionMetadata
+    const { to, value, data, gasLimit: gasLimitFromApi } = debridgeTransactionMetadata
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
-
-    return feeData.networkFeeCryptoBaseUnit
+    try {
+      const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
+      return feeData.networkFeeCryptoBaseUnit
+    } catch {
+      if (!gasLimitFromApi) throw new Error('Gas estimation failed and no API gas limit fallback')
+      const { average } = await adapter.getGasFeeData()
+      return evm.calcNetworkFeeCryptoBaseUnit({
+        ...average,
+        supportsEIP1559,
+        gasLimit: gasLimitFromApi,
+      })
+    }
   },
   getUnsignedEvmTransaction: async ({
     from,
@@ -51,11 +61,32 @@ export const debridgeApi: SwapperApi = {
     const { accountNumber, debridgeTransactionMetadata, sellAsset } = step
     if (!debridgeTransactionMetadata) throw new Error('Missing deBridge transaction metadata')
 
-    const { to, value, data } = debridgeTransactionMetadata
+    const { to, value, data, gasLimit: gasLimitFromApi } = debridgeTransactionMetadata
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
+    const feeData = await (async () => {
+      try {
+        const fees = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
+        return {
+          ...fees,
+          gasLimit: BigNumber.max(gasLimitFromApi ?? '0', fees.gasLimit).toFixed(),
+        }
+      } catch {
+        if (!gasLimitFromApi) throw new Error('Gas estimation failed and no API gas limit fallback')
+        const { average } = await adapter.getGasFeeData()
+        const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
+          ...average,
+          supportsEIP1559,
+          gasLimit: gasLimitFromApi,
+        })
+        const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = average
+        if (supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas) {
+          return { networkFeeCryptoBaseUnit, gasLimit: gasLimitFromApi, maxFeePerGas, maxPriorityFeePerGas }
+        }
+        return { networkFeeCryptoBaseUnit, gasLimit: gasLimitFromApi, gasPrice }
+      }
+    })()
 
     const unsignedTx = await adapter.buildCustomApiTx({
       accountNumber,

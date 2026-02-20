@@ -23,6 +23,7 @@ import {
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  scrollChainId,
   seiChainId,
   solanaChainId,
   starknetChainId,
@@ -52,8 +53,9 @@ export enum CoingeckoAssetPlatform {
   HyperEvm = 'hyperevm',
   Plasma = 'plasma',
   Katana = 'katana',
-  Sei = 'sei-v2',
   MegaEth = 'megaeth',
+  Scroll = 'scroll',
+  Sei = 'sei-v2',
   Solana = 'solana',
   Starknet = 'starknet',
   Tron = 'tron',
@@ -114,10 +116,12 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Plasma
         case CHAIN_REFERENCE.KatanaMainnet:
           return CoingeckoAssetPlatform.Katana
-        case CHAIN_REFERENCE.SeiMainnet:
-          return CoingeckoAssetPlatform.Sei
         case CHAIN_REFERENCE.MegaEthMainnet:
           return CoingeckoAssetPlatform.MegaEth
+        case CHAIN_REFERENCE.ScrollMainnet:
+          return CoingeckoAssetPlatform.Scroll
+        case CHAIN_REFERENCE.SeiMainnet:
+          return CoingeckoAssetPlatform.Sei
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
@@ -225,10 +229,12 @@ export const coingeckoAssetPlatformToChainId = (
       return plasmaChainId
     case CoingeckoAssetPlatform.Katana:
       return katanaChainId
-    case CoingeckoAssetPlatform.Sei:
-      return seiChainId
     case CoingeckoAssetPlatform.MegaEth:
       return megaethChainId
+    case CoingeckoAssetPlatform.Scroll:
+      return scrollChainId
+    case CoingeckoAssetPlatform.Sei:
+      return seiChainId
     case CoingeckoAssetPlatform.Cosmos:
       return cosmosChainId
     case CoingeckoAssetPlatform.Thorchain:

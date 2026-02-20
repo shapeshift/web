@@ -17,6 +17,7 @@ import { getMegaEthTransactionStatus } from '@/lib/utils/megaeth'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getNearTransactionStatus } from '@/lib/utils/near'
 import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
+import { getSeiTransactionStatus } from '@/lib/utils/sei'
 import { getStarknetTransactionStatus, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
 import { getTonTransactionStatus, isTonChainAdapter } from '@/lib/utils/ton'
@@ -220,6 +221,12 @@ export const useSendActionSubscriber = () => {
                   const nearTxStatus = await getNearTransactionStatus(txHash)
                   isConfirmed =
                     nearTxStatus === TxStatus.Confirmed || nearTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.SeiMainnet: {
+                  const seiTxStatus = await getSeiTransactionStatus(txHash)
+                  isConfirmed =
+                    seiTxStatus === TxStatus.Confirmed || seiTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.TonMainnet: {

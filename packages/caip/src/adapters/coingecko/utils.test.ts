@@ -176,14 +176,57 @@ describe('adapters:coingecko:utils', () => {
         'eip155:9745': {
           'eip155:9745/slip44:60': 'plasma',
         },
+        'eip155:480': {
+          'eip155:480/slip44:60': 'ethereum',
+        },
         'eip155:4326': {
           'eip155:4326/slip44:60': 'ethereum',
+        },
+        'eip155:59144': {
+          'eip155:59144/slip44:60': 'ethereum',
+        },
+        'eip155:534352': {
+          'eip155:534352/slip44:60': 'ethereum',
         },
         'eip155:747474': {
           'eip155:747474/slip44:60': 'katana',
         },
         'eip155:98866': {
           'eip155:98866/slip44:60': 'plume',
+        'eip155:1514': {
+          'eip155:1514/slip44:60': 'story-2',
+        'eip155:324': {
+          'eip155:324/slip44:60': 'ethereum',
+        'eip155:81457': {
+          'eip155:81457/slip44:60': 'ethereum',
+        'eip155:43111': {
+          'eip155:43111/slip44:60': 'ethereum',
+        'eip155:5000': {
+          'eip155:5000/slip44:60': 'mantle',
+        },
+        'eip155:80094': {
+          'eip155:80094/slip44:60': 'berachain-bera',
+        },
+        'eip155:57073': {
+          'eip155:57073/slip44:60': 'ethereum',
+        },
+        'eip155:60808': {
+          'eip155:60808/slip44:60': 'ethereum',
+        },
+        'eip155:25': {
+          'eip155:25/slip44:60': 'crypto-com-chain',
+        },
+        'eip155:146': {
+          'eip155:146/slip44:60': 'sonic-3',
+        },
+        'eip155:130': {
+          'eip155:130/slip44:60': 'ethereum',
+        },
+        'eip155:34443': {
+          'eip155:34443/slip44:60': 'ethereum',
+        },
+        'eip155:1868': {
+          'eip155:1868/slip44:60': 'ethereum',
         },
         'near:mainnet': {
           'near:mainnet/slip44:397': 'near',

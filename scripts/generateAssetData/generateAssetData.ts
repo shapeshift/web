@@ -26,15 +26,24 @@ import path from 'path'
 import * as arbitrum from './arbitrum'
 import * as avalanche from './avalanche'
 import * as base from './base'
+import * as blast from './blast'
+import * as berachain from './berachain'
 import * as bnbsmartchain from './bnbsmartchain'
+import * as bob from './bob'
 import { compressGeneratedAssets } from './compressAssets'
 import { ASSET_DATA_PATH, GENERATED_DIR, RELATED_ASSET_INDEX_PATH } from './constants'
+import * as cronos from './cronos'
 import * as ethereum from './ethereum'
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
 import * as gnosis from './gnosis'
+import * as hemi from './hemi'
 import * as hyperevm from './hyperevm'
+import * as ink from './ink'
 import * as katana from './katana'
+import * as linea from './linea'
+import * as mantle from './mantle'
 import * as megaeth from './megaeth'
+import * as mode from './mode'
 import * as monad from './monad'
 import * as near from './near'
 import * as optimism from './optimism'
@@ -42,12 +51,19 @@ import { overrideAssets } from './overrides'
 import * as plasma from './plasma'
 import * as plume from './plume'
 import * as polygon from './polygon'
+import * as scroll from './scroll'
 import * as solana from './solana'
+import * as soneium from './soneium'
+import * as sonic from './sonic'
 import * as starknet from './starknet'
+import * as story from './story'
 import * as sui from './sui'
 import * as tonModule from './ton'
 import * as tronModule from './tron'
+import * as unichain from './unichain'
 import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
+import * as zksyncera from './zksyncera'
+import * as worldchainModule from './worldchain'
 
 import { getAssetService } from '@/lib/asset-service'
 
@@ -72,9 +88,25 @@ const generateAssetData = async () => {
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
+  const zksyncEraAssets = await zksyncera.getAssets()
+  const blastAssets = await blast.getAssets()
+  const hemiAssets = await hemi.getAssets()
+  const mantleAssets = await mantle.getAssets()
+  const inkAssets = await ink.getAssets()
+  const lineaAssets = await linea.getAssets()
+  const cronosAssets = await cronos.getAssets()
+  const unichainAssets = await unichain.getAssets()
+  const bobAssets = await bob.getAssets()
   const megaethAssets = await megaeth.getAssets()
+  const berachainAssets = await berachain.getAssets()
+  const scrollAssets = await scroll.getAssets()
+  const modeAssets = await mode.getAssets()
   const plasmaAssets = await plasma.getAssets()
   const plumeAssets = await plume.getAssets()
+  const storyAssets = await story.getAssets()
+  const worldchainAssets = await worldchainModule.getAssets()
+  const sonicAssets = await sonic.getAssets()
+  const soneiumAssets = await soneium.getAssets()
   const solanaAssets = await solana.getAssets()
   const starknetAssets = await starknet.getAssets()
   const tronAssets = await tronModule.getAssets()
@@ -106,9 +138,25 @@ const generateAssetData = async () => {
     ...monadAssets,
     ...hyperevmAssets,
     ...katanaAssets,
+    ...zksyncEraAssets,
+    ...blastAssets,
+    ...hemiAssets,
+    ...mantleAssets,
+    ...inkAssets,
+    ...lineaAssets,
+    ...cronosAssets,
+    ...unichainAssets,
+    ...bobAssets,
     ...megaethAssets,
+    ...berachainAssets,
+    ...scrollAssets,
+    ...modeAssets,
     ...plasmaAssets,
     ...plumeAssets,
+    ...storyAssets,
+    ...worldchainAssets,
+    ...sonicAssets,
+    ...soneiumAssets,
     ...solanaAssets,
     ...starknetAssets,
     ...tronAssets,

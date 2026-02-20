@@ -367,6 +367,8 @@ export const mantle: Readonly<Asset> = Object.freeze({
   explorerAddressLink: 'https://mantlescan.xyz/address/',
   explorerTxLink: 'https://mantlescan.xyz/tx/',
   relatedAssetKey: null,
+})
+
 export const ink: Readonly<Asset> = Object.freeze({
   assetId: caip.inkAssetId,
   chainId: caip.inkChainId,

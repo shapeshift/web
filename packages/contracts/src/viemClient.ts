@@ -115,6 +115,8 @@ export const viemPlasmaClient = createPublicClient({
 export const viemMantleClient = createPublicClient({
   chain: mantle,
   transport: fallback([process.env.VITE_MANTLE_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemInkClient = createPublicClient({
   chain: ink,
   transport: fallback([process.env.VITE_INK_NODE_URL].filter(Boolean).map(url => http(url))),

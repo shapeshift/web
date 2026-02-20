@@ -139,6 +139,8 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
       case CHAIN_REFERENCE.MantleMainnet:
         return {
           assetReference: ASSET_REFERENCE.Mantle,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       case CHAIN_REFERENCE.InkMainnet:
         return {
           assetReference: ASSET_REFERENCE.Ink,

@@ -12,8 +12,8 @@ import {
   hyperEvmChainId,
   inkChainId,
   katanaChainId,
-  mantleChainId,
   lineaChainId,
+  mantleChainId,
   megaethChainId,
   monadChainId,
   nearChainId,
@@ -40,8 +40,8 @@ import {
   hyperevm,
   ink,
   katana,
-  mantle,
   linea,
+  mantle,
   megaeth,
   monad,
   near,
@@ -174,6 +174,7 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: mantle.explorer,
           explorerAddressLink: mantle.explorerAddressLink,
           explorerTxLink: mantle.explorerTxLink,
+        }
       case inkChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.erc20,

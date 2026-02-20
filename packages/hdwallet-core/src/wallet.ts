@@ -187,6 +187,8 @@ export function supportsHyperEvm(wallet: HDWallet): wallet is ETHWallet {
 
 export function supportsMantle(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsMantle
+}
+
 export function supportsInk(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsInk
 }

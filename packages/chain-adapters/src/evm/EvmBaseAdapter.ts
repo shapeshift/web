@@ -18,8 +18,8 @@ import {
   supportsHyperEvm,
   supportsInk,
   supportsKatana,
-  supportsMantle,
   supportsLinea,
+  supportsMantle,
   supportsMegaEth,
   supportsMonad,
   supportsOptimism,
@@ -303,6 +303,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Mantle',
         symbol: 'MNT',
         explorer: 'https://mantlescan.xyz',
+      },
       [KnownChainIds.InkMainnet]: {
         name: 'Ether',
         symbol: 'ETH',

@@ -1,5 +1,21 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { adapters, FEE_ASSET_IDS, fromAssetId } from '@shapeshiftoss/caip'
+import {
+  adapters,
+  arbitrumAssetId,
+  baseAssetId,
+  ethAssetId,
+  FEE_ASSET_IDS,
+  foxAssetId,
+  foxOnArbitrumOneAssetId,
+  fromAssetId,
+  inkAssetId,
+  katanaAssetId,
+  lineaAssetId,
+  megaethAssetId,
+  optimismAssetId,
+  scrollAssetId,
+  starknetAssetId,
+} from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { createThrottle, isToken } from '@shapeshiftoss/utils'
 import axios from 'axios'
@@ -9,7 +25,6 @@ import { isNull } from 'lodash'
 import isUndefined from 'lodash/isUndefined'
 
 import { ASSET_DATA_PATH, RELATED_ASSET_INDEX_PATH } from '../constants'
-import { getManualRelatedAssetIds } from './generateRelatedAssetIndex'
 import {
   coingeckoPlatformDetailsToMaybeAssetId,
   zerionImplementationToMaybeAssetId,
@@ -33,6 +48,46 @@ const BRIDGED_CATEGORY_MAPPINGS: Record<string, AssetId> = {
   'bridged-wbtc': 'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
   'bridged-dai': 'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f',
   'bridged-wsteth': 'eip155:1/erc20:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
+}
+
+const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
+  [ethAssetId]: [
+    optimismAssetId,
+    arbitrumAssetId,
+    baseAssetId,
+    inkAssetId,
+    katanaAssetId,
+    lineaAssetId,
+    megaethAssetId,
+    scrollAssetId,
+  ],
+  [foxAssetId]: [foxOnArbitrumOneAssetId],
+  [starknetAssetId]: [
+    'eip155:1/erc20:0xca14007eff0db1f8135f4c25b34de49ab0d42766',
+    'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:HsRpHQn6VbyMs5b5j5SV6xQ2VvpvvCCzu19GjytVSCoz',
+  ],
+}
+
+const getManualRelatedAssetIds = (
+  assetId: AssetId,
+): { relatedAssetIds: AssetId[]; relatedAssetKey: AssetId } | undefined => {
+  if (manualRelatedAssetIndex[assetId]) {
+    return {
+      relatedAssetIds: manualRelatedAssetIndex[assetId],
+      relatedAssetKey: assetId,
+    }
+  }
+
+  for (const [relatedAssetKey, relatedAssetIds] of Object.entries(manualRelatedAssetIndex)) {
+    if (relatedAssetIds.includes(assetId)) {
+      return {
+        relatedAssetIds,
+        relatedAssetKey,
+      }
+    }
+  }
+
+  return undefined
 }
 
 const isSome = <T>(option: T | null | undefined): option is T =>

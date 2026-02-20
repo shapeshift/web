@@ -465,7 +465,7 @@ export const linea: Readonly<Asset> = Object.freeze({
   color: '#5C6BC0',
   networkColor: '#121212',
   icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
-  networkIcon: 'https://assets.coingecko.com/coins/images/32428/small/Linea.jpg',
+  networkIcon: 'https://assets.relay.link/icons/59144/light.png',
   explorer: 'https://lineascan.build',
   explorerAddressLink: 'https://lineascan.build/address/',
   explorerTxLink: 'https://lineascan.build/tx/',

@@ -1,6 +1,7 @@
 import arbitrum from '@/plugins/arbitrum'
 import avalanche from '@/plugins/avalanche'
 import base from '@/plugins/base'
+import berachain from '@/plugins/berachain'
 import bitcoin from '@/plugins/bitcoin'
 import bitcoincash from '@/plugins/bitcoincash'
 import bnbsmartchain from '@/plugins/bnbsmartchain'
@@ -9,8 +10,11 @@ import dogecoin from '@/plugins/dogecoin'
 import ethereum from '@/plugins/ethereum'
 import gnosis from '@/plugins/gnosis'
 import hyperevm from '@/plugins/hyperevm'
+import ink from '@/plugins/ink'
 import katana from '@/plugins/katana'
+import linea from '@/plugins/linea'
 import litecoin from '@/plugins/litecoin'
+import mantle from '@/plugins/mantle'
 import mayachain from '@/plugins/mayachain'
 import megaeth from '@/plugins/megaeth'
 import mobile from '@/plugins/mobile'
@@ -19,6 +23,7 @@ import near from '@/plugins/near'
 import optimism from '@/plugins/optimism'
 import plasma from '@/plugins/plasma'
 import polygon from '@/plugins/polygon'
+import scroll from '@/plugins/scroll'
 import solana from '@/plugins/solana'
 import starknet from '@/plugins/starknet'
 import sui from '@/plugins/sui'
@@ -32,6 +37,7 @@ export const activePlugins = [
   arbitrum,
   avalanche,
   base,
+  berachain,
   bitcoin,
   bitcoincash,
   bnbsmartchain,
@@ -40,8 +46,11 @@ export const activePlugins = [
   ethereum,
   gnosis,
   hyperevm,
+  ink,
   katana,
+  linea,
   litecoin,
+  mantle,
   mayachain,
   megaeth,
   mobile,
@@ -50,6 +59,7 @@ export const activePlugins = [
   optimism,
   plasma,
   polygon,
+  scroll,
   solana,
   starknet,
   sui,

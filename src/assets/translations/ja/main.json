@@ -201,6 +201,209 @@
   "accountSelector": {
     "chooseAccount": "アカウントを選択"
   },
+  "agenticChat": {
+    "title": "ShapeShiftエージェント",
+    "aiChat": "AIチャット",
+    "openChat": "チャットを開く",
+    "closeChat": "チャットを閉じる",
+    "emptyState": "本日はどのようなご用件でしょうか？",
+    "placeholder": "メッセージを入力してください...",
+    "stop": "停止",
+    "send": "送信",
+    "txStepProgress": "%{completedCount} / %{totalCount} 完了",
+    "agenticChatTools": {
+      "send": {
+        "title": "暗号通貨を送信",
+        "receivedFrom": "%{address}から受信",
+        "steps": {
+          "preparation": "送信トランザクションの準備",
+          "send": "署名してトランザクションを送信する"
+        },
+        "errors": {
+          "prepareFailed": "送信トランザクションの準備に失敗しました",
+          "sendFailed": "送信に失敗しました: %{error}",
+          "noWallet": "ウォレットが接続されていません",
+          "accountNotFound": "アカウントが見つかりません"
+        },
+        "success": {
+          "transactionSent": "送信されたトランザクション: %{txHash}",
+          "title": "送信成功",
+          "description": "送信取引が完了しました"
+        }
+      },
+      "swap": {
+        "title": "スワップ",
+        "receivedFrom": "%{address}から受信",
+        "steps": {
+          "quote": "スワップ見積もりを取得中",
+          "networkSwitch": "%{network}に切り替える",
+          "networkSwitchGeneric": "ネットワークを切り替える",
+          "approval": "トークン支出を承認する",
+          "approvalConfirmation": "承認の確認",
+          "swap": "スワップ取引に署名"
+        },
+        "errors": {
+          "quoteFailed": "スワップ見積もりを取得できませんでした",
+          "swapFailed": "スワップ実行に失敗しました: %{error}",
+          "noWallet": "ウォレットが接続されていません",
+          "accountNotFound": "アカウントが見つかりません"
+        },
+        "success": {
+          "title": "スワップ成功",
+          "description": "スワップ取引が完了しました"
+        }
+      },
+      "cancelLimitOrder": {
+        "title": "指値注文をキャンセル",
+        "steps": {
+          "prepare": "キャンセルの準備中",
+          "sign": "キャンセルに署名",
+          "submit": "キャンセルを送信しています"
+        },
+        "errors": {
+          "prepareFailed": "キャンセルの準備に失敗しました",
+          "signFailed": "キャンセルに署名できませんでした",
+          "submitFailed": "注文のキャンセルに失敗しました: %{error}",
+          "noWallet": "ウォレットが接続されていません",
+          "accountNotFound": "アカウントが見つかりません"
+        },
+        "success": {
+          "title": "注文はキャンセルされました",
+          "description": "指値注文はキャンセルされました"
+        },
+        "networkLabel": "ネットワーク",
+        "orderLabel": "注文",
+        "cancellationFailed": "キャンセルに失敗しました",
+        "orderCancelledSuccessfully": "注文はキャンセルされました"
+      },
+      "createLimitOrder": {
+        "title": "指値注文を作成する",
+        "steps": {
+          "prepare": "注文を準備中",
+          "approval": "トークン支出を承認する",
+          "approvalConfirmation": "承認の確認",
+          "sign": "注文に署名",
+          "submit": "注文を送信しています"
+        },
+        "errors": {
+          "prepareFailed": "注文の準備に失敗しました",
+          "approvalFailed": "トークンの承認に失敗しました",
+          "signFailed": "注文に署名できませんでした",
+          "submitFailed": "注文の作成に失敗しました: %{error}",
+          "noWallet": "ウォレットが接続されていません",
+          "accountNotFound": "アカウントが見つかりません"
+        },
+        "success": {
+          "title": "指値注文を作成しました",
+          "description": "指値注文が正常に作成されました"
+        },
+        "expires": "有効期限",
+        "viewOrder": "注文を見る→",
+        "approvalTx": "承認取引",
+        "orderCreationFailed": "注文の作成に失敗しました",
+        "orderCreatedSuccessfully": "注文が正常に作成されました"
+      },
+      "newCoins": {
+        "title": "最近追加されたもの",
+        "subtitle": "CoinGeckoの新しいコイン"
+      },
+      "trendingTokens": {
+        "title": "CoinGeckoでトレンド",
+        "subtitle": "24時間トレンドトークン"
+      },
+      "topGainersLosers": {
+        "gainersTitle": "値上がり率上位（%{duration}）",
+        "losersTitle": "値下がり率上位（%{duration}）"
+      },
+      "portfolio": {
+        "title": "ポートフォリオ",
+        "totalValue": "合計金額",
+        "accountLabel": "アカウント",
+        "networkLabel": "ネットワーク",
+        "emptyState": "ポートフォリオに資産がありません"
+      },
+      "getAssets": {
+        "title": "資産",
+        "balance": "残高",
+        "value": "価値",
+        "network": "ネットワーク",
+        "emptyState": "資産が見つかりません",
+        "24h": "24時間",
+        "volume": "出来高",
+        "marketCap": "時価総額",
+        "fdv": "FDV",
+        "showLess": "表示を減らす",
+        "more": "もっと...",
+        "coinInfo": "コイン情報",
+        "circulatingSupply": "循環供給",
+        "totalSupply": "総供給量",
+        "maxSupply": "最大供給",
+        "unlimited": "無制限",
+        "sentiment": "センチメント",
+        "bullish": "強気",
+        "bearish": "弱気",
+        "marketCapRank": "時価総額ランキング",
+        "volume24h": "24時間ボリューム",
+        "volMcap": "出来高/時価総額",
+        "about": "について",
+        "noDescription": "このアセットの説明はありません。"
+      },
+      "receive": {
+        "title": "受け取る",
+        "receiveOn": "%{network} で %{symbol} を受信",
+        "copyAddress": "アドレスをコピー",
+        "copied": "コピーしました！",
+        "warning": "このアドレスには %{network} 互換トークンのみを送信してください"
+      },
+      "getLimitOrders": {
+        "title": "指値注文",
+        "openOrders": "%{count} オープン",
+        "noOrders": "指値注文が見つかりません",
+        "status": {
+          "open": "Open",
+          "fulfilled": "約定済み",
+          "cancelled": "キャンセル",
+          "expired": "期限切れ",
+          "presignaturePending": "保留中"
+        },
+        "sellLabel": "売る",
+        "buyLabel": "買う",
+        "expiresLabel": "有効期限",
+        "view": "表示",
+        "filledLabel": "約定"
+      },
+      "getTransactionHistory": {
+        "title": "最近の取引",
+        "noTransactions": "取引が見つかりません",
+        "type": {
+          "send": "送信",
+          "receive": "受け取る",
+          "swap": "スワップ",
+          "contract": "契約"
+        },
+        "status": {
+          "success": "確認済み",
+          "failed": "失敗した",
+          "pending": "保留中"
+        },
+        "txid": "TxID",
+        "from": "から",
+        "to": "宛先",
+        "value": "価値",
+        "fee": "手数料",
+        "network": "ネットワーク",
+        "tokens": "トークン"
+      }
+    },
+    "chatHistory": "チャット履歴",
+    "newChat": "新しいチャット",
+    "deleteConversation": "会話を削除",
+    "deleteConfirmation": "この会話を削除してもよろしいですか?",
+    "noConversations": "まだ会話はありません",
+    "newConversation": "新しい会話",
+    "searchChats": "チャットを検索...",
+    "noMatchingConversations": "一致する会話はありません"
+  },
   "quickBuy": {
     "title": "クイック購入 %{assetOnChain}",
     "nativeNotAvailable": "ネイティブアセットではクイックバイは利用できません",
@@ -554,7 +757,8 @@
       "faq": "よくある質問",
       "github": "GitHub",
       "discord": "Discord",
-      "twitter": "ツイッター"
+      "twitter": "ツイッター",
+      "feedback": "フィードバック"
     }
   },
   "transactionRow": {
@@ -675,6 +879,16 @@
         "withdraw": "流動性を取り除く",
         "join_pool": "プールに参加",
         "exit_pool": "プールから退出"
+      },
+      "yieldxyz": {
+        "deposit": "利回り預金",
+        "withdraw": "利回り引き出し",
+        "approve": "利回り承認",
+        "approveSymbol": "利回り承認%{symbol}",
+        "stake": "利回りステーク",
+        "unstake": "利回りアンステーク",
+        "unstakeRequest": "イールドアンステークリクエスト",
+        "yieldClaim": "利回り請求"
       }
     }
   },
@@ -1800,6 +2014,17 @@
         "body": "ペアリングをクリックし、ポップアップウィンドウからVultisigにログインします。",
         "button": "接続"
       }
+    },
+    "seeker": {
+      "connect": {
+        "header": "Seekerを接続",
+        "body": "ShapeShiftがSeekerウォレットに接続することを承認する",
+        "button": "接続する"
+      },
+      "failure": {
+        "header": "接続に失敗しました",
+        "body": "Seekerウォレットに接続できません。Seekerアプリが利用可能であることを確認して、もう一度お試しください。"
+      }
     }
   },
   "graph": {
@@ -2503,6 +2728,7 @@
   },
   "foxPage": {
     "title": "FOXトークン ダッシュボード",
+    "description": "2019年以来、ShapeShiftのFOXトークンは、ユーザーにますます広がるユーティリティとメリットの世界を提供してきました。本日、ERC-20ガバナンストークンにより、プラットフォーム全体の収益の一部を獲得できるようになり、投票を通じてShapeShiftの未来に影響を与えることができます。FOXトークンのステーキング、スワップ、購入、供給、そして保有資産の管理は、こちらでどうぞ。",
     "foxToken": "FOXトークン",
     "24hrPriceChange": "24時間の価格変動",
     "rfox": {
@@ -2669,7 +2895,8 @@
   "yieldXYZ": {
     "pageTitle": "利回り",
     "pageSubtitle": "複数のチェーンにわたる収益機会の発見と管理",
-    "actions": {},
+    "actions": {
+    },
     "yield": "利回り",
     "apy": "年利",
     "apr": "APR",
@@ -2732,6 +2959,7 @@
     "depositSymbol": "%{symbol}を入金する",
     "withdrawSymbol": "%{symbol} を引き出す",
     "claimableRewards": "請求可能な報酬",
+    "withdrawableFunds": "引き出し可能な資金",
     "noActivePositions": "アクティブな利回りポジションはありません。",
     "connectWalletPositions": "アクティブな利回りポジションを表示するにはウォレットを接続します。",
     "view": "表示",
@@ -2797,6 +3025,7 @@
     "depositsDisabledDescription": "この利回り機会では、預金は一時的に利用できません。",
     "withdrawalsDisabled": "引き出しが無効",
     "withdrawalsDisabledDescription": "この利回り機会では引き出しは一時的に利用できません。",
+    "noActiveBalanceToExit": "ステーク解除できるアクティブな残高がありません。",
     "noAvailableYields": "あなたの資産には収益機会がありません",
     "connectWalletAvailable": "ウォレットを接続すると、資産の利用可能な利回りを確認できます",
     "aboutProvider": "%{provider}について",
@@ -2825,7 +3054,8 @@
     "potentialEarningsAmount": "%{amount}/年、%{apy}% APY",
     "depositNow": "今すぐ入金",
     "strategyInfo": "戦略情報",
-    "overview": "概要"
+    "overview": "概要",
+    "readyToClaim": "請求準備完了"
   },
   "earn": {
     "enterFrom": "入力元",

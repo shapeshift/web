@@ -251,6 +251,8 @@ export const useSendActionSubscriber = () => {
                   const lineaTxStatus = await getLineaTransactionStatus(txHash)
                   isConfirmed =
                     lineaTxStatus === TxStatus.Confirmed || lineaTxStatus === TxStatus.Failed
+                  break
+                }
                 case KnownChainIds.SonicMainnet: {
                   const sonicTxStatus = await getSonicTransactionStatus(txHash)
                   isConfirmed =

@@ -5,7 +5,11 @@ import { sonic, unfreeze } from '@shapeshiftoss/utils'
 import * as coingecko from '../coingecko'
 
 export const getAssets = async (): Promise<Asset[]> => {
-  const assets = await coingecko.getAssets(sonicChainId)
-
-  return [...assets, unfreeze(sonic)]
+  try {
+    const assets = await coingecko.getAssets(sonicChainId)
+    return [...assets, unfreeze(sonic)]
+  } catch (err) {
+    console.warn(`[sonic] CoinGecko token list unavailable, using native asset only`)
+    return [unfreeze(sonic)]
+  }
 }

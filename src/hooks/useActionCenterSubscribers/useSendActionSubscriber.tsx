@@ -12,6 +12,7 @@ import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
+import { getInkTransactionStatus } from '@/lib/utils/ink'
 import { getKatanaTransactionStatus } from '@/lib/utils/katana'
 import { getMegaEthTransactionStatus } from '@/lib/utils/megaeth'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
@@ -208,6 +209,12 @@ export const useSendActionSubscriber = () => {
                   const megaEthTxStatus = await getMegaEthTransactionStatus(txHash)
                   isConfirmed =
                     megaEthTxStatus === TxStatus.Confirmed || megaEthTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.InkMainnet: {
+                  const inkTxStatus = await getInkTransactionStatus(txHash)
+                  isConfirmed =
+                    inkTxStatus === TxStatus.Confirmed || inkTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.KatanaMainnet: {

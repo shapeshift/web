@@ -354,6 +354,23 @@ export const plasma: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const ink: Readonly<Asset> = Object.freeze({
+  assetId: caip.inkAssetId,
+  chainId: caip.inkChainId,
+  name: 'Ether',
+  networkName: 'Ink',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#5A5AFF',
+  networkColor: '#5A5AFF',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.relay.link/icons/57073/light.png',
+  explorer: 'https://explorer.inkonchain.com',
+  explorerAddressLink: 'https://explorer.inkonchain.com/address/',
+  explorerTxLink: 'https://explorer.inkonchain.com/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
 export const megaeth: Readonly<Asset> = Object.freeze({
   assetId: caip.megaethAssetId,
   chainId: caip.megaethChainId,

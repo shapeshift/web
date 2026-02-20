@@ -25,6 +25,7 @@ export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNames
     case KnownChainIds.MonadMainnet:
     case KnownChainIds.HyperEvmMainnet:
     case KnownChainIds.PlasmaMainnet:
+    case KnownChainIds.InkMainnet:
     case KnownChainIds.MegaEthMainnet:
     case KnownChainIds.KatanaMainnet:
     case KnownChainIds.SeiMainnet:

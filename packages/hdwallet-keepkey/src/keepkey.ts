@@ -554,6 +554,7 @@ export class KeepKeyHDWallet
   readonly _supportsKatana = false
   readonly _supportsSei = false
   readonly _supportsHyperEvm = false
+  readonly _supportsInk = false
   readonly _supportsMegaEth = false
   readonly _supportsScroll = false
   readonly _supportsBTC = true

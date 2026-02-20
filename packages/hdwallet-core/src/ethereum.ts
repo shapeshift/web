@@ -210,6 +210,7 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
   readonly _supportsKatana: boolean
   readonly _supportsSei: boolean
   readonly _supportsHyperEvm: boolean
+  readonly _supportsInk: boolean
   readonly _supportsMegaEth: boolean
   readonly _supportsScroll: boolean
 

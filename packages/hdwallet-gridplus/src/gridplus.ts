@@ -365,6 +365,7 @@ export class GridPlusHDWallet
   readonly _supportsKatana = false
   readonly _supportsSei = false
   readonly _supportsHyperEvm = true
+  readonly _supportsInk = true
   readonly _supportsMegaEth = true
   readonly _supportsScroll = true
   readonly _supportsCosmos = true

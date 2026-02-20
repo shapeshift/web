@@ -33,6 +33,7 @@ import * as ethereum from './ethereum'
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
 import * as gnosis from './gnosis'
 import * as hyperevm from './hyperevm'
+import * as ink from './ink'
 import * as katana from './katana'
 import * as megaeth from './megaeth'
 import * as monad from './monad'
@@ -73,6 +74,7 @@ const generateAssetData = async () => {
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
+  const inkAssets = await ink.getAssets()
   const megaethAssets = await megaeth.getAssets()
   const scrollAssets = await scroll.getAssets()
   const plasmaAssets = await plasma.getAssets()
@@ -108,6 +110,7 @@ const generateAssetData = async () => {
     ...monadAssets,
     ...hyperevmAssets,
     ...katanaAssets,
+    ...inkAssets,
     ...megaethAssets,
     ...scrollAssets,
     ...plasmaAssets,

@@ -11,6 +11,7 @@ import {
   ethAssetId,
   gnosisAssetId,
   hyperEvmAssetId,
+  inkAssetId,
   katanaAssetId,
   ltcAssetId,
   mayachainAssetId,
@@ -81,6 +82,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return hyperEvmAssetId
     case KnownChainIds.PlasmaMainnet:
       return plasmaAssetId
+    case KnownChainIds.InkMainnet:
+      return inkAssetId
     case KnownChainIds.MegaEthMainnet:
       return megaethAssetId
     case KnownChainIds.KatanaMainnet:

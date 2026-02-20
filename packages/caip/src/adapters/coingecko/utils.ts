@@ -26,6 +26,8 @@ import {
   gnosisChainId,
   hyperEvmAssetId,
   hyperEvmChainId,
+  inkAssetId,
+  inkChainId,
   katanaAssetId,
   katanaChainId,
   ltcChainId,
@@ -44,8 +46,6 @@ import {
   polygonChainId,
   scrollAssetId,
   scrollChainId,
-  seiAssetId,
-  seiChainId,
   solanaChainId,
   solAssetId,
   starknetAssetId,
@@ -279,6 +279,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Ink)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.InkMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Ink],
+          })
+          prev[inkChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.MegaEth)) {
         try {
           const assetId = toAssetId({
@@ -302,18 +316,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
             assetReference: platforms[CoingeckoAssetPlatform.Scroll],
           })
           prev[scrollChainId][assetId] = id
-        } catch {}
-      }
-
-      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Sei)) {
-        try {
-          const assetId = toAssetId({
-            chainNamespace: CHAIN_NAMESPACE.Evm,
-            chainReference: CHAIN_REFERENCE.SeiMainnet,
-            assetNamespace: 'erc20',
-            assetReference: platforms[CoingeckoAssetPlatform.Sei],
-          })
-          prev[seiChainId][assetId] = id
         } catch {}
       }
 
@@ -387,10 +389,10 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [hyperEvmChainId]: { [hyperEvmAssetId]: 'hyperliquid' },
       [monadChainId]: { [monadAssetId]: 'monad' },
       [plasmaChainId]: { [plasmaAssetId]: 'plasma' },
+      [inkChainId]: { [inkAssetId]: 'ethereum' },
       [megaethChainId]: { [megaethAssetId]: 'ethereum' },
       [katanaChainId]: { [katanaAssetId]: 'katana' },
       [scrollChainId]: { [scrollAssetId]: 'ethereum' },
-      [seiChainId]: { [seiAssetId]: 'sei-network' },
       [solanaChainId]: { [solAssetId]: 'solana' },
       [starknetChainId]: { [starknetAssetId]: 'starknet' },
       [tronChainId]: { [tronAssetId]: 'tron' },

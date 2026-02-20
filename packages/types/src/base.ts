@@ -25,12 +25,15 @@ export enum KnownChainIds {
   MonadMainnet = 'eip155:143',
   HyperEvmMainnet = 'eip155:999',
   PlasmaMainnet = 'eip155:9745',
+  MantleMainnet = 'eip155:5000',
   InkMainnet = 'eip155:57073',
   MegaEthMainnet = 'eip155:4326',
   BerachainMainnet = 'eip155:80094',
+  CronosMainnet = 'eip155:25',
   KatanaMainnet = 'eip155:747474',
   LineaMainnet = 'eip155:59144',
   ScrollMainnet = 'eip155:534352',
+  SonicMainnet = 'eip155:146',
   UnichainMainnet = 'eip155:130',
   BitcoinMainnet = 'bip122:000000000019d6689c085ae165831e93',
   BitcoinCashMainnet = 'bip122:000000000000000000651ef99cb9fcbe',
@@ -60,12 +63,15 @@ export type EvmChainId =
   | KnownChainIds.MonadMainnet
   | KnownChainIds.HyperEvmMainnet
   | KnownChainIds.PlasmaMainnet
+  | KnownChainIds.MantleMainnet
   | KnownChainIds.InkMainnet
   | KnownChainIds.MegaEthMainnet
   | KnownChainIds.BerachainMainnet
+  | KnownChainIds.CronosMainnet
   | KnownChainIds.KatanaMainnet
   | KnownChainIds.LineaMainnet
   | KnownChainIds.ScrollMainnet
+  | KnownChainIds.SonicMainnet
   | KnownChainIds.UnichainMainnet
 
 export type CosmosSdkChainId =

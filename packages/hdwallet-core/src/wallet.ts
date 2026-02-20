@@ -181,8 +181,16 @@ export function supportsKatana(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsKatana
 }
 
+export function supportsSonic(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsSonic
+}
+
 export function supportsHyperEvm(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsHyperEvm
+}
+
+export function supportsMantle(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsMantle
 }
 
 export function supportsInk(wallet: HDWallet): wallet is ETHWallet {
@@ -205,6 +213,8 @@ export function supportsScroll(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsScroll
 }
 
+export function supportsCronos(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsCronos
 export function supportsUnichain(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsUnichain
 }

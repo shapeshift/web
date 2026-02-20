@@ -5,6 +5,7 @@ import {
   baseChainId,
   berachainChainId,
   bscChainId,
+  cronosChainId,
   ethChainId,
   fromAccountId,
   gnosisChainId,
@@ -12,12 +13,14 @@ import {
   inkChainId,
   katanaChainId,
   lineaChainId,
+  mantleChainId,
   megaethChainId,
   monadChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
   scrollChainId,
+  sonicChainId,
   toAccountId,
   unichainChainId,
 } from '@shapeshiftoss/caip'
@@ -29,18 +32,21 @@ import {
   supportsBase,
   supportsBerachain,
   supportsBSC,
+  supportsCronos,
   supportsETH,
   supportsGnosis,
   supportsHyperEvm,
   supportsInk,
   supportsKatana,
   supportsLinea,
+  supportsMantle,
   supportsMegaEth,
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
   supportsPolygon,
   supportsScroll,
+  supportsSonic,
   supportsUnichain,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
@@ -135,12 +141,15 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === hyperEvmChainId && !supportsHyperEvm(wallet)) continue
     if (chainId === monadChainId && !supportsMonad(wallet)) continue
     if (chainId === plasmaChainId && !supportsPlasma(wallet)) continue
+    if (chainId === mantleChainId && !supportsMantle(wallet)) continue
     if (chainId === inkChainId && !supportsInk(wallet)) continue
     if (chainId === megaethChainId && !supportsMegaEth(wallet)) continue
     if (chainId === berachainChainId && !supportsBerachain(wallet)) continue
     if (chainId === scrollChainId && !supportsScroll(wallet)) continue
+    if (chainId === cronosChainId && !supportsCronos(wallet)) continue
     if (chainId === katanaChainId && !supportsKatana(wallet)) continue
     if (chainId === lineaChainId && !supportsLinea(wallet)) continue
+    if (chainId === sonicChainId && !supportsSonic(wallet)) continue
     if (chainId === unichainChainId && !supportsUnichain(wallet)) continue
     if (
       isMetaMask(wallet) &&

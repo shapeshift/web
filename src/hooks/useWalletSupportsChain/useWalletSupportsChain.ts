@@ -8,6 +8,7 @@ import {
   bscChainId,
   btcChainId,
   cosmosChainId,
+  cronosChainId,
   dogeChainId,
   ethChainId,
   gnosisChainId,
@@ -16,6 +17,7 @@ import {
   katanaChainId,
   lineaChainId,
   ltcChainId,
+  mantleChainId,
   mayachainChainId,
   megaethChainId,
   monadChainId,
@@ -25,6 +27,7 @@ import {
   polygonChainId,
   scrollChainId,
   solanaChainId,
+  sonicChainId,
   starknetChainId,
   suiChainId,
   thorchainChainId,
@@ -47,12 +50,14 @@ import {
   supportsBSC,
   supportsBTC,
   supportsCosmos,
+  supportsCronos,
   supportsETH,
   supportsGnosis,
   supportsHyperEvm,
   supportsInk,
   supportsKatana,
   supportsLinea,
+  supportsMantle,
   supportsMayachain,
   supportsMegaEth,
   supportsMonad,
@@ -61,6 +66,7 @@ import {
   supportsPolygon,
   supportsScroll,
   supportsSolana,
+  supportsSonic,
   supportsStarknet,
   supportsSui,
   supportsThorchain,
@@ -160,7 +166,10 @@ export const walletSupportsChain = ({
   const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
   const isInkEnabled = selectFeatureFlag(store.getState(), 'Ink')
   const isKatanaEnabled = selectFeatureFlag(store.getState(), 'Katana')
+  const isMantleEnabled = selectFeatureFlag(store.getState(), 'Mantle')
   const isLineaEnabled = selectFeatureFlag(store.getState(), 'Linea')
+  const isCronosEnabled = selectFeatureFlag(store.getState(), 'Cronos')
+  const isSonicEnabled = selectFeatureFlag(store.getState(), 'Sonic')
   const isUnichainEnabled = selectFeatureFlag(store.getState(), 'Unichain')
   const isMegaEthEnabled = selectFeatureFlag(store.getState(), 'MegaEth')
   const isBerachainEnabled = selectFeatureFlag(store.getState(), 'Berachain')
@@ -205,6 +214,8 @@ export const walletSupportsChain = ({
       return isMonadEnabled && supportsMonad(wallet)
     case hyperEvmChainId:
       return isHyperEvmEnabled && supportsHyperEvm(wallet)
+    case mantleChainId:
+      return isMantleEnabled && supportsMantle(wallet)
     case inkChainId:
       return isInkEnabled && supportsInk(wallet)
     case megaethChainId:
@@ -219,6 +230,10 @@ export const walletSupportsChain = ({
       return isLineaEnabled && supportsLinea(wallet)
     case scrollChainId:
       return isScrollEnabled && supportsScroll(wallet)
+    case cronosChainId:
+      return isCronosEnabled && supportsCronos(wallet)
+    case sonicChainId:
+      return isSonicEnabled && supportsSonic(wallet)
     case unichainChainId:
       return isUnichainEnabled && supportsUnichain(wallet)
     case cosmosChainId:

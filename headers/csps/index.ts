@@ -12,6 +12,7 @@ import { csp as bitcoin } from './chains/bitcoin'
 import { csp as bitcoincash } from './chains/bitcoincash'
 import { csp as bnbsmartchain } from './chains/bnbsmartchain'
 import { csp as cosmos } from './chains/cosmos'
+import { csp as cronos } from './chains/cronos'
 import { csp as dogecoin } from './chains/dogecoin'
 import { csp as ethereum } from './chains/ethereum'
 import { csp as gnosis } from './chains/gnosis'
@@ -20,6 +21,7 @@ import { csp as ink } from './chains/ink'
 import { csp as katana } from './chains/katana'
 import { csp as linea } from './chains/linea'
 import { csp as litecoin } from './chains/litecoin'
+import { csp as mantle } from './chains/mantle'
 import { csp as mayachain } from './chains/mayachain'
 import { csp as megaeth } from './chains/megaeth'
 import { csp as monad } from './chains/monad'
@@ -29,6 +31,7 @@ import { csp as plasma } from './chains/plasma'
 import { csp as polygon } from './chains/polygon'
 import { csp as scroll } from './chains/scroll'
 import { csp as solana } from './chains/solana'
+import { csp as sonic } from './chains/sonic'
 import { csp as starknet } from './chains/starknet'
 import { csp as sui } from './chains/sui'
 import { csp as thorchain } from './chains/thorchain'
@@ -122,10 +125,12 @@ export const csps = [
   berachain,
   hyperevm,
   ink,
+  cronos,
   katana,
   linea,
   unichain,
   litecoin,
+  mantle,
   megaeth,
   optimism,
   polygon,
@@ -141,6 +146,7 @@ export const csps = [
   monad,
   near,
   plasma,
+  sonic,
   trustwallet,
   coincap,
   coingecko,

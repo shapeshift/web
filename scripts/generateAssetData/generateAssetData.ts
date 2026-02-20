@@ -30,6 +30,7 @@ import * as berachain from './berachain'
 import * as bnbsmartchain from './bnbsmartchain'
 import { compressGeneratedAssets } from './compressAssets'
 import { ASSET_DATA_PATH, GENERATED_DIR, RELATED_ASSET_INDEX_PATH } from './constants'
+import * as cronos from './cronos'
 import * as ethereum from './ethereum'
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
 import * as gnosis from './gnosis'
@@ -37,6 +38,7 @@ import * as hyperevm from './hyperevm'
 import * as ink from './ink'
 import * as katana from './katana'
 import * as linea from './linea'
+import * as mantle from './mantle'
 import * as megaeth from './megaeth'
 import * as monad from './monad'
 import * as near from './near'
@@ -46,6 +48,7 @@ import * as plasma from './plasma'
 import * as polygon from './polygon'
 import * as scroll from './scroll'
 import * as solana from './solana'
+import * as sonic from './sonic'
 import * as starknet from './starknet'
 import * as sui from './sui'
 import * as tonModule from './ton'
@@ -76,13 +79,16 @@ const generateAssetData = async () => {
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
+  const mantleAssets = await mantle.getAssets()
   const inkAssets = await ink.getAssets()
   const lineaAssets = await linea.getAssets()
+  const cronosAssets = await cronos.getAssets()
   const unichainAssets = await unichain.getAssets()
   const megaethAssets = await megaeth.getAssets()
   const berachainAssets = await berachain.getAssets()
   const scrollAssets = await scroll.getAssets()
   const plasmaAssets = await plasma.getAssets()
+  const sonicAssets = await sonic.getAssets()
   const solanaAssets = await solana.getAssets()
   const starknetAssets = await starknet.getAssets()
   const tronAssets = await tronModule.getAssets()
@@ -114,13 +120,16 @@ const generateAssetData = async () => {
     ...monadAssets,
     ...hyperevmAssets,
     ...katanaAssets,
+    ...mantleAssets,
     ...inkAssets,
     ...lineaAssets,
+    ...cronosAssets,
     ...unichainAssets,
     ...megaethAssets,
     ...berachainAssets,
     ...scrollAssets,
     ...plasmaAssets,
+    ...sonicAssets,
     ...solanaAssets,
     ...starknetAssets,
     ...tronAssets,

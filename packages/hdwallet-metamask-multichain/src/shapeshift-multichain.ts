@@ -279,12 +279,15 @@ export class MetaMaskMultiChainHDWallet
   readonly _supportsMonad = true
   readonly _supportsPlasma = true
   readonly _supportsKatana = true
+  readonly _supportsSonic = true
   readonly _supportsHyperEvm = true
+  readonly _supportsMantle = true
   readonly _supportsInk = true
   readonly _supportsMegaEth = true
   readonly _supportsBerachain = true
   readonly _supportsLinea = true
   readonly _supportsScroll = true
+  readonly _supportsCronos = true
   readonly _supportsUnichain = true
   readonly _supportsOsmosisInfo = true
   readonly _supportsOsmosis = true

@@ -201,6 +201,209 @@
   "accountSelector": {
     "chooseAccount": "Konto auswählen"
   },
+  "agenticChat": {
+    "title": "ShapeShift Agent",
+    "aiChat": "AI Chat",
+    "openChat": "Chat öffnen",
+    "closeChat": "Chat schließen",
+    "emptyState": "Wie kann ich Ihnen heute helfen?",
+    "placeholder": "Geben Sie eine Nachricht ein...",
+    "stop": "Anhalten",
+    "send": "Senden",
+    "txStepProgress": "%{completedCount} von %{totalCount} abgeschlossen",
+    "agenticChatTools": {
+      "send": {
+        "title": "Kryptowährung senden",
+        "receivedFrom": "Empfangen von %{address}",
+        "steps": {
+          "preparation": "Transaktion wird vorbereitet",
+          "send": "Transaktion unterschreiben und absenden"
+        },
+        "errors": {
+          "prepareFailed": "Fehler beim Vorbereiten der Transaktion",
+          "sendFailed": "Senden fehlgeschlagen: %{error}",
+          "noWallet": "Keine Wallet verbunden",
+          "accountNotFound": "Konto nicht gefunden"
+        },
+        "success": {
+          "transactionSent": "Transaktion gesendet: %{txHash}",
+          "title": "Erfolgreich gesendet",
+          "description": "Ihre Transaktion wurde abgeschlossen."
+        }
+      },
+      "swap": {
+        "title": "Tauschen",
+        "receivedFrom": "Empfangen von %{address}",
+        "steps": {
+          "quote": "Tauschangebot einholen",
+          "networkSwitch": "Wechseln Sie zu %{network}",
+          "networkSwitchGeneric": "Netzwerk wechseln",
+          "approval": "Token Ausgabe genehmigen",
+          "approvalConfirmation": "Bestätigung der Genehmigung",
+          "swap": "Tauschtransaktion unterzeichnen"
+        },
+        "errors": {
+          "quoteFailed": "Fehler beim Einholen eines Tauschangebots",
+          "swapFailed": "Fehler beim Swap Vorgang: %{error}",
+          "noWallet": "Keine Wallet verbunden",
+          "accountNotFound": "Konto nicht gefunden"
+        },
+        "success": {
+          "title": "Tausch erfolgreich",
+          "description": "Ihre Tauschtransaktion wurde abgeschlossen"
+        }
+      },
+      "cancelLimitOrder": {
+        "title": "Limit Auftrag stornieren",
+        "steps": {
+          "prepare": "Stornierung vorbereiten",
+          "sign": "Unterzeichnung stornieren",
+          "submit": "Stornierung einreichen"
+        },
+        "errors": {
+          "prepareFailed": "Stornierung konnte nicht vorbereitet werden",
+          "signFailed": "Stornierung unterzeichnen fehlgeschlagen",
+          "submitFailed": "Auftrag konnte nicht storniert werden: %{error}",
+          "noWallet": "Keine Wallet verbunden",
+          "accountNotFound": "Konto nicht gefunden"
+        },
+        "success": {
+          "title": "Bestellung storniert",
+          "description": "Ihre Limit Order wurde erfolgreich storniert"
+        },
+        "networkLabel": "Netzwerk",
+        "orderLabel": "Auftrag",
+        "cancellationFailed": "Stornierung fehlgeschlagen",
+        "orderCancelledSuccessfully": "Auftrag erfolgreich storniert"
+      },
+      "createLimitOrder": {
+        "title": "Limit Auftrag erstellen",
+        "steps": {
+          "prepare": "Auftrag wird vorbereitet",
+          "approval": "Token Ausgabe genehmigen",
+          "approvalConfirmation": "Bestätigung der Genehmigung",
+          "sign": "Auftrag unterzeichnen",
+          "submit": "Auftrag einreichen"
+        },
+        "errors": {
+          "prepareFailed": "Auftrag konnte nicht vorbereitet werden",
+          "approvalFailed": "Token Genehmigung fehlgeschlagen",
+          "signFailed": "Auftrag unterzeichnen fehlgeschlagen",
+          "submitFailed": "Auftrag konnte nicht erstellt werden: %{error}",
+          "noWallet": "Keine Wallet verbunden",
+          "accountNotFound": "Konto nicht gefunden"
+        },
+        "success": {
+          "title": "Limit Auftrag erstellt",
+          "description": "Ihr Limit Auftrag wurde erfolgreich erstellt"
+        },
+        "expires": "Läuft ab",
+        "viewOrder": "Auftrag ansehen →",
+        "approvalTx": "Genehmigungs tx",
+        "orderCreationFailed": "Auftragserstellung fehlgeschlagen",
+        "orderCreatedSuccessfully": "Auftrag erfolgreich erstellt"
+      },
+      "newCoins": {
+        "title": "Kürzlich hinzugefügt",
+        "subtitle": "Neue Coins auf CoinGecko"
+      },
+      "trendingTokens": {
+        "title": "Beliebt auf CoinGecko",
+        "subtitle": "24h beliebte Token"
+      },
+      "topGainersLosers": {
+        "gainersTitle": "Top Gewinner (%{duration})",
+        "losersTitle": "Top Verlierer (%{duration})"
+      },
+      "portfolio": {
+        "title": "Portfolio",
+        "totalValue": "Gesamtwert",
+        "accountLabel": "Konto",
+        "networkLabel": "Netzwerk",
+        "emptyState": "Keine Vermögenswerte im Portfolio"
+      },
+      "getAssets": {
+        "title": "Vermögenswerte",
+        "balance": "Guthaben",
+        "value": "Wert",
+        "network": "Netzwerk",
+        "emptyState": "Keine Vermögenswerte gefunden",
+        "24h": "24h",
+        "volume": "Volumen",
+        "marketCap": "Marktkapitalisierung",
+        "fdv": "FDV",
+        "showLess": "Weniger anzeigen",
+        "more": "Mehr...",
+        "coinInfo": "Coin Info",
+        "circulatingSupply": "Umlaufangebot",
+        "totalSupply": "Gesamtangebot",
+        "maxSupply": "Maximale Anzahl",
+        "unlimited": "Unbegrenzt",
+        "sentiment": "Stimmung",
+        "bullish": "Bullish",
+        "bearish": "Bearish",
+        "marketCapRank": "Rangliste der Marktkapitalisierung",
+        "volume24h": "24h Volumen",
+        "volMcap": "Vol/Marktkap.",
+        "about": "Über",
+        "noDescription": "Für diese Wertanlage ist keine Beschreibung verfügbar."
+      },
+      "receive": {
+        "title": "Erhalten",
+        "receiveOn": "Empfange %{symbol} auf %{network}",
+        "copyAddress": "Kopiere Adresse",
+        "copied": "Kopiert!",
+        "warning": "Senden Sie an diese Adresse nur %{network} kompatible Token."
+      },
+      "getLimitOrders": {
+        "title": "Limit Auftrag",
+        "openOrders": "%{count} offen",
+        "noOrders": "Es wurden keine Limit Aufträge gefunden.",
+        "status": {
+          "open": "Offen",
+          "fulfilled": "Erfüllt",
+          "cancelled": "Abgebrochen",
+          "expired": "Abgelaufen",
+          "presignaturePending": "Ausstehend"
+        },
+        "sellLabel": "Verkaufen",
+        "buyLabel": "Kaufen",
+        "expiresLabel": "Läuft ab",
+        "view": "Anzeigen",
+        "filledLabel": "Erfüllt"
+      },
+      "getTransactionHistory": {
+        "title": "Aktuelle Transaktionen",
+        "noTransactions": "Keine Transaktionen gefunden",
+        "type": {
+          "send": "Gesendet",
+          "receive": "Erhalten",
+          "swap": "Tausch",
+          "contract": "Vertrag"
+        },
+        "status": {
+          "success": "Bestätigt",
+          "failed": "Fehlgeschlagen",
+          "pending": "Ausstehend"
+        },
+        "txid": "Txid",
+        "from": "Von",
+        "to": "Bis",
+        "value": "Anzahl",
+        "fee": "Gebühr",
+        "network": "Netzwerk",
+        "tokens": "Tokens"
+      }
+    },
+    "chatHistory": "Chatverlauf",
+    "newChat": "Neuer Chat",
+    "deleteConversation": "Konversation löschen",
+    "deleteConfirmation": "Möchtest du diese Konversation wirklich löschen?",
+    "noConversations": "Bisher keine Konversationen",
+    "newConversation": "Neue Konversation",
+    "searchChats": "Durchsuche deine Chats...",
+    "noMatchingConversations": "Keine passenden Konversationen"
+  },
   "quickBuy": {
     "title": "Schnellkauf %{assetOnChain}",
     "nativeNotAvailable": "Schnellkauf ist für native Assets nicht verfügbar",
@@ -554,7 +757,8 @@
       "faq": "Häufig gestellte Fragen",
       "github": "GitHub",
       "discord": "Discord",
-      "twitter": "Twitter/X"
+      "twitter": "Twitter/X",
+      "feedback": "Feedback"
     }
   },
   "transactionRow": {
@@ -675,6 +879,16 @@
         "withdraw": "Liquidität entfernen",
         "join_pool": "Pool beitreten",
         "exit_pool": "Pool verlassen"
+      },
+      "yieldxyz": {
+        "deposit": "Ertrag Anlegen",
+        "withdraw": "Ertrag Abheben",
+        "approve": "Ertrag genehmigen",
+        "approveSymbol": "Ertrag genehmigen %{symbol}",
+        "stake": "Ertrag Staken",
+        "unstake": "Ertrag Unstaken",
+        "unstakeRequest": "Ertrags Unstake Anfrage",
+        "yieldClaim": "Ertragsanspruch"
       }
     }
   },
@@ -1800,6 +2014,17 @@
         "body": "Klicken Sie auf „Koppeln“ und melden Sie sich im Popup Fenster bei Vultisig an",
         "button": "Koppeln"
       }
+    },
+    "seeker": {
+      "connect": {
+        "header": "Verbinde Seeker",
+        "body": "Ermächtigen Sie ShapeShift, sich mit Ihrer Seeker Wallet zu verbinden.",
+        "button": "Verbinden"
+      },
+      "failure": {
+        "header": "Verbindung fehlgeschlagen",
+        "body": "Es konnte keine Verbindung zu Ihrer Seeker Wallet hergestellt werden. Bitte stellen Sie sicher, dass die Seeker App verfügbar ist, und versuchen Sie es erneut."
+      }
     }
   },
   "graph": {
@@ -2503,6 +2728,7 @@
   },
   "foxPage": {
     "title": "FOX-Token-Dashboard",
+    "description": "Seit 2019 bietet unser flexibler FOXToken Nutzern immer mehr Möglichkeiten und Vorteile. Mit unserem ERC20 Governance Token erhalten Sie einen Anteil an den Einnahmen der Plattform und können die Zukunft von ShapeShift durch Ihre Stimme mitgestalten. Hier können Sie Ihre FOX Bestände staken, tauschen, kaufen, anbieten und verwalten.",
     "foxToken": "FOX Token",
     "24hrPriceChange": "24h Preisänderung",
     "rfox": {
@@ -2669,7 +2895,8 @@
   "yieldXYZ": {
     "pageTitle": "Erträge",
     "pageSubtitle": "Ertragspotenziale über mehrere Ketten hinweg erkennen und nutzen",
-    "actions": {},
+    "actions": {
+    },
     "yield": "Ertrag",
     "apy": "APY",
     "apr": "APR",
@@ -2732,6 +2959,7 @@
     "depositSymbol": "Einzahlung %{symbol}",
     "withdrawSymbol": "Abheben %{symbol}",
     "claimableRewards": "Einlösbare Prämien",
+    "withdrawableFunds": "Abhebbares Guthaben",
     "noActivePositions": "Sie haben keine aktiven Renditepositionen.",
     "connectWalletPositions": "Verbinden Sie eine Wallet, um Ihre aktiven Renditepositionen anzuzeigen.",
     "view": "Ansicht",
@@ -2797,6 +3025,7 @@
     "depositsDisabledDescription": "Für diese Renditechance sind vorübergehend keine Einlagen möglich.",
     "withdrawalsDisabled": "Abhebungen deaktiviert",
     "withdrawalsDisabledDescription": "Auszahlungen sind für diese Renditechance vorübergehend nicht möglich.",
+    "noActiveBalanceToExit": "Es ist kein Guthaben für Unstaken  verfügbar.",
     "noAvailableYields": "Für Ihre Vermögenswerte sind keine Renditemöglichkeiten verfügbar.",
     "connectWalletAvailable": "Verbinden Sie eine Wallet, um die für Ihre Vermögenswerte verfügbaren Renditen zu sehen.",
     "aboutProvider": "Über %{provider}",
@@ -2825,7 +3054,8 @@
     "potentialEarningsAmount": "%{amount}/yr bei %{apy}% APY",
     "depositNow": "Jetzt einzahlen",
     "strategyInfo": "Strategieinformationen",
-    "overview": "Übersicht"
+    "overview": "Übersicht",
+    "readyToClaim": "Bereit zum Beanspruchen"
   },
   "earn": {
     "enterFrom": "Eingeben von",

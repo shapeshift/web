@@ -7,6 +7,7 @@ import {
   hyperEvmChainId,
   mantleChainId,
   modeChainId,
+  soneiumChainId,
   sonicChainId,
   toAssetId,
   unichainChainId,
@@ -54,6 +55,7 @@ const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [unichainChainId]: '0x4200000000000000000000000000000000000006',
   [bobChainId]: '0x4200000000000000000000000000000000000006',
   [modeChainId]: '0x4200000000000000000000000000000000000006',
+  [soneiumChainId]: '0x4200000000000000000000000000000000000006',
 }
 const BATCH_SIZE = 500
 

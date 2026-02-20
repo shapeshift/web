@@ -22,8 +22,8 @@ import {
   plasmaChainId,
   polygonChainId,
   scrollChainId,
-  sonicChainId,
   soneiumChainId,
+  sonicChainId,
   toAccountId,
   unichainChainId,
 } from '@shapeshiftoss/caip'
@@ -51,9 +51,9 @@ import {
   supportsPlasma,
   supportsPolygon,
   supportsScroll,
+  supportsSoneium,
   supportsSonic,
   supportsUnichain,
-  supportsSoneium,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 

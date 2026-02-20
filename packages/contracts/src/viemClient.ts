@@ -24,9 +24,9 @@ import {
   plasma,
   polygon,
   scroll,
+  soneium,
   sonic,
   unichain,
-  soneium,
 } from 'viem/chains'
 
 const megaeth = defineChain({

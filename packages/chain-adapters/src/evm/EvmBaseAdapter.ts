@@ -29,9 +29,9 @@ import {
   supportsPlasma,
   supportsPolygon,
   supportsScroll,
+  supportsSoneium,
   supportsSonic,
   supportsUnichain,
-  supportsSoneium,
 } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'

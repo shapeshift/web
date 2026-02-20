@@ -22,8 +22,8 @@ import {
   polygonChainId,
   scrollChainId,
   solanaChainId,
-  sonicChainId,
   soneiumChainId,
+  sonicChainId,
   tronChainId,
   unichainChainId,
 } from '@shapeshiftoss/caip'
@@ -50,9 +50,9 @@ import {
   plasma,
   polygon,
   scroll,
+  soneium,
   sonic,
   unichain,
-  soneium,
 } from 'viem/chains'
 
 import { TradeQuoteError } from '../../types'

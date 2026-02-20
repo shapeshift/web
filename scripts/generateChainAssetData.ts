@@ -15,16 +15,17 @@ import { filterOutBlacklistedAssets } from './generateAssetData/utils'
 
 const GENERATE_ASSET_DATA_DIR = path.join(__dirname, 'generateAssetData')
 
-const resolveChainModule = (
+const resolveChainModule = async (
   input: string,
-): { dirName: string; modulePath: string } | undefined => {
+): Promise<{ dirName: string; modulePath: string } | undefined> => {
   // First, try direct directory match (e.g., "linea")
   const directPath = path.join(GENERATE_ASSET_DATA_DIR, input)
   if (fs.existsSync(path.join(directPath, 'index.ts'))) {
     return { dirName: input, modulePath: directPath }
   }
 
-  // Otherwise, treat as chainId (e.g., "eip155:59144") and scan modules
+  // Otherwise, treat as chainId (e.g., "eip155:59144") and scan modules.
+  // Import each module and call getAssets() with a single asset to check the chainId.
   const dirs = fs
     .readdirSync(GENERATE_ASSET_DATA_DIR, { withFileTypes: true })
     .filter(
@@ -33,15 +34,22 @@ const resolveChainModule = (
         fs.existsSync(path.join(GENERATE_ASSET_DATA_DIR, d.name, 'index.ts')),
     )
 
+  // Parse chainId constant name from module source to avoid importing everything.
+  // Chain modules import e.g. `lineaChainId` from '@shapeshiftoss/caip'.
+  // We resolve the constant to its value and match against the input.
+  const caip = await import('@shapeshiftoss/caip')
+
   for (const dir of dirs) {
-    const modulePath = path.join(GENERATE_ASSET_DATA_DIR, dir.name, 'index.ts')
-    const content = fs.readFileSync(modulePath, 'utf8')
-    // Match chainId imports like: import { lineaChainId } from '@shapeshiftoss/caip'
-    // Then check if the file uses a chainId constant that maps to our input
-    // We check for the CAIP chain reference (e.g., "59144" from "eip155:59144")
-    const chainRef = input.split(':')[1]
-    if (chainRef && content.includes(chainRef)) {
-      return { dirName: dir.name, modulePath: path.join(GENERATE_ASSET_DATA_DIR, dir.name) }
+    const moduleSrc = fs.readFileSync(
+      path.join(GENERATE_ASSET_DATA_DIR, dir.name, 'index.ts'),
+      'utf8',
+    )
+    const match = moduleSrc.match(/(\w+ChainId)/)
+    if (match) {
+      const chainIdValue = (caip as Record<string, unknown>)[match[1]]
+      if (chainIdValue === input) {
+        return { dirName: dir.name, modulePath: path.join(GENERATE_ASSET_DATA_DIR, dir.name) }
+      }
     }
   }
 
@@ -88,7 +96,7 @@ const main = async () => {
     process.exit(1)
   }
 
-  const resolved = resolveChainModule(input)
+  const resolved = await resolveChainModule(input)
   if (!resolved) {
     console.error(`Could not resolve chain module for "${input}"`)
     console.error('Pass a chainId (e.g., eip155:59144) or directory name (e.g., linea)')
@@ -149,15 +157,11 @@ const main = async () => {
 
   await fs.promises.writeFile(ASSET_DATA_PATH, JSON.stringify(existingData, null, 2))
 
-  if (process.env.ZERION_API_KEY) {
-    console.info('[generate:chain] running incremental related asset index...')
-    const { generateRelatedAssetIndex } = await import(
-      './generateAssetData/generateRelatedAssetIndex/generateRelatedAssetIndex'
-    )
-    await generateRelatedAssetIndex()
-  } else {
-    console.info('[generate:chain] skipping related asset index (no ZERION_API_KEY)')
-  }
+  // Generate related asset index for ONLY this chain's assets
+  const { generateChainRelatedAssetIndex } = await import(
+    './generateAssetData/generateRelatedAssetIndex/generateChainRelatedAssetIndex'
+  )
+  await generateChainRelatedAssetIndex(chainId)
 
   console.info('[generate:chain] generating manifest + compressing...')
   await generateManifest()

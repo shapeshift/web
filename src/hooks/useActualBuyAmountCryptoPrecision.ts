@@ -31,13 +31,13 @@ export const useActualBuyAmountCryptoPrecision = (
   const { data: secondClassChainActualBuyAmount } = useQuery({
     queryKey: ['secondClassChainExecutionPrice', swap?.buyTxHash, swap?.buyAsset?.chainId],
     queryFn: async () => {
-      if (!swap?.buyTxHash || !swap?.buyAsset || !swap?.buyAccountId) return undefined
+      if (!swap?.buyTxHash || !swap?.buyAsset || !swap?.buyAccountId) return null
 
       try {
         const chainAdapterManager = getChainAdapterManager()
         const adapter = chainAdapterManager.get(swap.buyAsset.chainId)
 
-        if (!adapter) return undefined
+        if (!adapter) return null
 
         const { account: address } = fromAccountId(swap.buyAccountId)
         const parsedTx = await adapter.parseTx(swap.buyTxHash, address)
@@ -47,9 +47,9 @@ export const useActualBuyAmountCryptoPrecision = (
             transfer.type === TransferType.Receive && transfer.assetId === swap.buyAsset.assetId,
         )
 
-        return receiveTransfer?.value
+        return receiveTransfer?.value ?? null
       } catch (error) {
-        return undefined
+        return null
       }
     },
     enabled: Boolean(
@@ -64,19 +64,17 @@ export const useActualBuyAmountCryptoPrecision = (
 
   const actualBuyAmountCryptoPrecision = useMemo(() => {
     if (swap?.actualBuyAmountCryptoBaseUnit && swap?.buyAsset) {
-      const actualBuyAmountCrypto = BigAmount.fromBaseUnit({
+      return BigAmount.fromBaseUnit({
         value: swap.actualBuyAmountCryptoBaseUnit,
         precision: swap.buyAsset.precision,
-      })
-      return actualBuyAmountCrypto.toPrecision()
+      }).toPrecision()
     }
 
     if (secondClassChainActualBuyAmount && swap?.buyAsset) {
-      const secondClassBuyAmountCrypto = BigAmount.fromBaseUnit({
+      return BigAmount.fromBaseUnit({
         value: secondClassChainActualBuyAmount,
         precision: swap.buyAsset.precision,
-      })
-      return secondClassBuyAmountCrypto.toPrecision()
+      }).toPrecision()
     }
 
     if (!tx?.transfers?.length || !swap?.buyAsset) return undefined
@@ -87,11 +85,10 @@ export const useActualBuyAmountCryptoPrecision = (
     )
     if (!receiveTransfer?.value) return undefined
 
-    const receivedBuyAmountCrypto = BigAmount.fromBaseUnit({
+    return BigAmount.fromBaseUnit({
       value: receiveTransfer.value,
       precision: swap.buyAsset.precision,
-    })
-    return receivedBuyAmountCrypto.toPrecision()
+    }).toPrecision()
   }, [tx, swap, secondClassChainActualBuyAmount])
 
   return actualBuyAmountCryptoPrecision

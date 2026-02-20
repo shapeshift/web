@@ -8,6 +8,7 @@ import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
+  berachainChainId,
   bscChainId,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
@@ -55,6 +56,7 @@ export enum CoingeckoAssetPlatform {
   Ink = 'ink',
   Katana = 'katana',
   MegaEth = 'megaeth',
+  Berachain = 'berachain',
   Scroll = 'scroll',
   Solana = 'solana',
   Starknet = 'starknet',
@@ -118,6 +120,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Katana
         case CHAIN_REFERENCE.MegaEthMainnet:
           return CoingeckoAssetPlatform.MegaEth
+        case CHAIN_REFERENCE.BerachainMainnet:
+          return CoingeckoAssetPlatform.Berachain
         case CHAIN_REFERENCE.InkMainnet:
           return CoingeckoAssetPlatform.Ink
         case CHAIN_REFERENCE.ScrollMainnet:
@@ -231,6 +235,8 @@ export const coingeckoAssetPlatformToChainId = (
       return katanaChainId
     case CoingeckoAssetPlatform.MegaEth:
       return megaethChainId
+    case CoingeckoAssetPlatform.Berachain:
+      return berachainChainId
     case CoingeckoAssetPlatform.Ink:
       return inkChainId
     case CoingeckoAssetPlatform.Scroll:

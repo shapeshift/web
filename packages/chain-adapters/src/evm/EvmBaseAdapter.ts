@@ -11,6 +11,7 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
+  supportsBerachain,
   supportsBSC,
   supportsETH,
   supportsGnosis,
@@ -90,6 +91,7 @@ export const evmChainIds = [
   KnownChainIds.PlasmaMainnet,
   KnownChainIds.InkMainnet,
   KnownChainIds.MegaEthMainnet,
+  KnownChainIds.BerachainMainnet,
   KnownChainIds.KatanaMainnet,
   KnownChainIds.ScrollMainnet,
 ] as const
@@ -196,6 +198,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsInk(wallet)
         case Number(fromChainId(KnownChainIds.MegaEthMainnet).chainReference):
           return supportsMegaEth(wallet)
+        case Number(fromChainId(KnownChainIds.BerachainMainnet).chainReference):
+          return supportsBerachain(wallet)
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
         case Number(fromChainId(KnownChainIds.ScrollMainnet).chainReference):
@@ -296,6 +300,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ether',
         symbol: 'ETH',
         explorer: 'https://megaeth.blockscout.com',
+      },
+      [KnownChainIds.BerachainMainnet]: {
+        name: 'Berachain',
+        symbol: 'BERA',
+        explorer: 'https://berascan.com',
       },
       [KnownChainIds.KatanaMainnet]: {
         name: 'Ethereum',

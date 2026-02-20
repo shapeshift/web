@@ -214,7 +214,7 @@ export const SharedTradeInputHeader = ({
         <Grid templateColumns='1fr auto 1fr' alignItems='center' justifyContent='space-between'>
           <Box></Box>
           <Heading as='h5' fontSize='lg' textAlign='center'>
-            {translate('transactionRow.swap')}
+            {translate('common.trade')}
           </Heading>
           <Flex gap={2} alignItems='center' height={6} justifyContent='flex-end'>
             {rightContent}

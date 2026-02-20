@@ -136,9 +136,24 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
           assetReference: ASSET_REFERENCE.Plasma,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
+      case CHAIN_REFERENCE.MantleMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Mantle,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.InkMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Ink,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       case CHAIN_REFERENCE.MegaEthMainnet:
         return {
           assetReference: ASSET_REFERENCE.MegaEth,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.BerachainMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Berachain,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
       case CHAIN_REFERENCE.KatanaMainnet:
@@ -149,6 +164,47 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
       case CHAIN_REFERENCE.WorldChainMainnet:
         return {
           assetReference: ASSET_REFERENCE.WorldChain,
+      case CHAIN_REFERENCE.HemiMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Hemi,
+      case CHAIN_REFERENCE.LineaMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Linea,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.ScrollMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Scroll,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.CronosMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Cronos,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.SonicMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Sonic,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.UnichainMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Unichain,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.BobMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Bob,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.ModeMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Mode,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.SoneiumMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Soneium,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
       default:

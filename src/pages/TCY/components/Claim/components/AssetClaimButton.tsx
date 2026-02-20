@@ -1,6 +1,6 @@
 import { Button, HStack, Stack } from '@chakra-ui/react'
 import { tcyAssetId } from '@shapeshiftoss/caip'
-import { fromBaseUnit } from '@shapeshiftoss/utils'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -60,7 +60,10 @@ export const AssetClaimButton: React.FC<AssetClaimButtonProps> = ({ onClick, cla
           color='text.base'
           fontSize='lg'
           lineHeight={1}
-          value={fromBaseUnit(claim.amountThorBaseUnit, THOR_PRECISION)}
+          value={BigAmount.fromBaseUnit({
+            value: claim.amountThorBaseUnit,
+            precision: THOR_PRECISION,
+          }).toPrecision()}
           symbol={tcyAsset.symbol}
         />
         <RawText fontSize='sm' color={'green.500'} lineHeight={1}>

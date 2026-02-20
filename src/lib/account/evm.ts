@@ -14,8 +14,8 @@ import {
   optimismChainId,
   plasmaChainId,
   polygonChainId,
-  seiChainId,
   scrollChainId,
+  seiChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -34,8 +34,8 @@ import {
   supportsOptimism,
   supportsPlasma,
   supportsPolygon,
-  supportsSei,
   supportsScroll,
+  supportsSei,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 

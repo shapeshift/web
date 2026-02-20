@@ -5998,7 +5998,8 @@
     "ton:mainnet/jetton:EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728",
     "tron:0x2b6653dc/trc20:TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8",
     "eip155:534352/erc20:0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4",
-    "eip155:534352/erc20:0xeb466342c4d449bc9f53a865d5cb90586f405215"
+    "eip155:534352/erc20:0xeb466342c4d449bc9f53a865d5cb90586f405215",
+    "eip155:1329/erc20:0xe15fc38f6d8c56af07bbcbe3baf5708a2bf42392"
   ],
   "eip155:8453/erc20:0x9c632e6aaa3ea73f91554f8a3cb2ed2f29605e0c": [
     "eip155:56/erc20:0x7324c7c0d95cebc73eea7e85cbaac0dbdf88a05b",
@@ -8250,7 +8251,8 @@
     "sui:35834a8a/coin:0x375f70cf2ae4c00bf37117d0c85a2c71545e6ee05c4a5c7d282cd66a4504b068::usdt::USDT",
     "ton:mainnet/jetton:EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs",
     "tron:0x2b6653dc/trc20:TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
-    "eip155:534352/erc20:0xf55bec9cafdbe8730f096aa55dad6d22d44099df"
+    "eip155:534352/erc20:0xf55bec9cafdbe8730f096aa55dad6d22d44099df",
+    "eip155:1329/erc20:0x9151434b16b9763660705744891fa906f660ecc5"
   ],
   "eip155:1/erc20:0xdb9783ca04bbd64fe2c6d7b9503a979b3de30729": [
     "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:XsAsZLF4MmsvS1sDxRMrUz7REjHfwbC9UAMXSRBqgEB",

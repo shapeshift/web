@@ -82,7 +82,12 @@ export const debridgeApi: SwapperApi = {
         })
         const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = average
         if (supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas) {
-          return { networkFeeCryptoBaseUnit, gasLimit: gasLimitFromApi, maxFeePerGas, maxPriorityFeePerGas }
+          return {
+            networkFeeCryptoBaseUnit,
+            gasLimit: gasLimitFromApi,
+            maxFeePerGas,
+            maxPriorityFeePerGas,
+          }
         }
         return { networkFeeCryptoBaseUnit, gasLimit: gasLimitFromApi, gasPrice }
       }

@@ -9,6 +9,7 @@ import {
   ethChainId,
   gnosisChainId,
   hyperEvmChainId,
+  inkChainId,
   katanaChainId,
   megaethChainId,
   monadChainId,
@@ -33,6 +34,7 @@ import {
   ethereum,
   gnosis,
   hyperevm,
+  ink,
   katana,
   megaeth,
   monad,
@@ -158,6 +160,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: plasma.explorer,
           explorerAddressLink: plasma.explorerAddressLink,
           explorerTxLink: plasma.explorerTxLink,
+        }
+      case inkChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: ink.explorer,
+          explorerAddressLink: ink.explorerAddressLink,
+          explorerTxLink: ink.explorerTxLink,
         }
       case megaethChainId:
         return {

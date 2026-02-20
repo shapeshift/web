@@ -8,6 +8,7 @@ import {
   fromAccountId,
   gnosisChainId,
   hyperEvmChainId,
+  inkChainId,
   katanaChainId,
   megaethChainId,
   monadChainId,
@@ -27,6 +28,7 @@ import {
   supportsETH,
   supportsGnosis,
   supportsHyperEvm,
+  supportsInk,
   supportsKatana,
   supportsMegaEth,
   supportsMonad,
@@ -127,6 +129,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === hyperEvmChainId && !supportsHyperEvm(wallet)) continue
     if (chainId === monadChainId && !supportsMonad(wallet)) continue
     if (chainId === plasmaChainId && !supportsPlasma(wallet)) continue
+    if (chainId === inkChainId && !supportsInk(wallet)) continue
     if (chainId === megaethChainId && !supportsMegaEth(wallet)) continue
     if (chainId === scrollChainId && !supportsScroll(wallet)) continue
     if (chainId === katanaChainId && !supportsKatana(wallet)) continue

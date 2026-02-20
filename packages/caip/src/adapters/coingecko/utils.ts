@@ -26,6 +26,8 @@ import {
   gnosisChainId,
   hyperEvmAssetId,
   hyperEvmChainId,
+  inkAssetId,
+  inkChainId,
   katanaAssetId,
   katanaChainId,
   ltcChainId,
@@ -277,6 +279,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Ink)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.InkMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Ink],
+          })
+          prev[inkChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.MegaEth)) {
         try {
           const assetId = toAssetId({
@@ -373,6 +389,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [hyperEvmChainId]: { [hyperEvmAssetId]: 'hyperliquid' },
       [monadChainId]: { [monadAssetId]: 'monad' },
       [plasmaChainId]: { [plasmaAssetId]: 'plasma' },
+      [inkChainId]: { [inkAssetId]: 'ethereum' },
       [megaethChainId]: { [megaethAssetId]: 'ethereum' },
       [katanaChainId]: { [katanaAssetId]: 'katana' },
       [scrollChainId]: { [scrollAssetId]: 'ethereum' },

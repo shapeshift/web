@@ -15,6 +15,7 @@ import {
   ethChainId,
   gnosisChainId,
   hyperEvmChainId,
+  inkChainId,
   katanaChainId,
   mayachainChainId,
   megaethChainId,
@@ -51,6 +52,7 @@ export enum CoingeckoAssetPlatform {
   Monad = 'monad',
   HyperEvm = 'hyperevm',
   Plasma = 'plasma',
+  Ink = 'ink',
   Katana = 'katana',
   MegaEth = 'megaeth',
   Scroll = 'scroll',
@@ -116,6 +118,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Katana
         case CHAIN_REFERENCE.MegaEthMainnet:
           return CoingeckoAssetPlatform.MegaEth
+        case CHAIN_REFERENCE.InkMainnet:
+          return CoingeckoAssetPlatform.Ink
         case CHAIN_REFERENCE.ScrollMainnet:
           return CoingeckoAssetPlatform.Scroll
         default:
@@ -227,6 +231,8 @@ export const coingeckoAssetPlatformToChainId = (
       return katanaChainId
     case CoingeckoAssetPlatform.MegaEth:
       return megaethChainId
+    case CoingeckoAssetPlatform.Ink:
+      return inkChainId
     case CoingeckoAssetPlatform.Scroll:
       return scrollChainId
     case CoingeckoAssetPlatform.Cosmos:

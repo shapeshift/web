@@ -37,6 +37,7 @@ import * as gnosis from './gnosis'
 import * as hyperevm from './hyperevm'
 import * as ink from './ink'
 import * as katana from './katana'
+import * as mantle from './mantle'
 import * as linea from './linea'
 import * as megaeth from './megaeth'
 import * as monad from './monad'
@@ -76,6 +77,7 @@ const generateAssetData = async () => {
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
+  const mantleAssets = await mantle.getAssets()
   const inkAssets = await ink.getAssets()
   const lineaAssets = await linea.getAssets()
   const cronosAssets = await cronos.getAssets()
@@ -114,6 +116,7 @@ const generateAssetData = async () => {
     ...monadAssets,
     ...hyperevmAssets,
     ...katanaAssets,
+    ...mantleAssets,
     ...inkAssets,
     ...lineaAssets,
     ...cronosAssets,

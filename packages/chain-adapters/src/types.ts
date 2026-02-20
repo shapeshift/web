@@ -47,6 +47,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.MonadMainnet]: evm.Account
     [KnownChainIds.HyperEvmMainnet]: evm.Account
     [KnownChainIds.PlasmaMainnet]: evm.Account
+    [KnownChainIds.MantleMainnet]: evm.Account
     [KnownChainIds.InkMainnet]: evm.Account
     [KnownChainIds.MegaEthMainnet]: evm.Account
     [KnownChainIds.BerachainMainnet]: evm.Account
@@ -104,6 +105,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.MonadMainnet]: evm.FeeData
     [KnownChainIds.HyperEvmMainnet]: evm.FeeData
     [KnownChainIds.PlasmaMainnet]: evm.FeeData
+    [KnownChainIds.MantleMainnet]: evm.FeeData
     [KnownChainIds.InkMainnet]: evm.FeeData
     [KnownChainIds.MegaEthMainnet]: evm.FeeData
     [KnownChainIds.BerachainMainnet]: evm.FeeData
@@ -194,6 +196,7 @@ export type ChainSignTx = {
   [KnownChainIds.BaseMainnet]: ETHSignTx
   [KnownChainIds.MonadMainnet]: ETHSignTx
   [KnownChainIds.PlasmaMainnet]: ETHSignTx
+  [KnownChainIds.MantleMainnet]: ETHSignTx
   [KnownChainIds.InkMainnet]: ETHSignTx
   [KnownChainIds.MegaEthMainnet]: ETHSignTx
   [KnownChainIds.BerachainMainnet]: ETHSignTx
@@ -256,6 +259,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.MonadMainnet]: evm.BuildTxInput
     [KnownChainIds.HyperEvmMainnet]: evm.BuildTxInput
     [KnownChainIds.PlasmaMainnet]: evm.BuildTxInput
+    [KnownChainIds.MantleMainnet]: evm.BuildTxInput
     [KnownChainIds.InkMainnet]: evm.BuildTxInput
     [KnownChainIds.MegaEthMainnet]: evm.BuildTxInput
     [KnownChainIds.BerachainMainnet]: evm.BuildTxInput
@@ -368,6 +372,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.MonadMainnet]: evm.GetFeeDataInput
     [KnownChainIds.HyperEvmMainnet]: evm.GetFeeDataInput
     [KnownChainIds.PlasmaMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.MantleMainnet]: evm.GetFeeDataInput
     [KnownChainIds.InkMainnet]: evm.GetFeeDataInput
     [KnownChainIds.MegaEthMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BerachainMainnet]: evm.GetFeeDataInput
@@ -445,6 +450,7 @@ export enum ChainAdapterDisplayName {
   Monad = 'Monad',
   HyperEvm = 'HyperEVM',
   Plasma = 'Plasma',
+  Mantle = 'Mantle',
   Ink = 'Ink',
   MegaEth = 'MegaETH',
   Berachain = 'Berachain',

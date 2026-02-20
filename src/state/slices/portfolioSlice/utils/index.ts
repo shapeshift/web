@@ -23,6 +23,7 @@ import {
   katanaChainId,
   lineaChainId,
   ltcChainId,
+  mantleChainId,
   mayachainChainId,
   megaethChainId,
   monadChainId,
@@ -60,6 +61,7 @@ import {
   supportsHyperEvm,
   supportsInk,
   supportsKatana,
+  supportsMantle,
   supportsLinea,
   supportsMayachain,
   supportsMegaEth,
@@ -111,6 +113,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case arbitrumChainId:
     case baseChainId:
     case hyperEvmChainId:
+    case mantleChainId:
     case inkChainId:
     case megaethChainId:
     case berachainChainId:
@@ -521,6 +524,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsMonad(wallet)
     case hyperEvmChainId:
       return supportsHyperEvm(wallet)
+    case mantleChainId:
+      return supportsMantle(wallet)
     case inkChainId:
       return supportsInk(wallet)
     case megaethChainId:

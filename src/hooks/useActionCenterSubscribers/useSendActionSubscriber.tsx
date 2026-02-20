@@ -16,6 +16,7 @@ import { getCronosTransactionStatus } from '@/lib/utils/cronos'
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getInkTransactionStatus } from '@/lib/utils/ink'
 import { getKatanaTransactionStatus } from '@/lib/utils/katana'
+import { getMantleTransactionStatus } from '@/lib/utils/mantle'
 import { getLineaTransactionStatus } from '@/lib/utils/linea'
 import { getMegaEthTransactionStatus } from '@/lib/utils/megaeth'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
@@ -205,6 +206,12 @@ export const useSendActionSubscriber = () => {
                   )
                   isConfirmed =
                     hyperEvmTxStatus === TxStatus.Confirmed || hyperEvmTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.MantleMainnet: {
+                  const mantleTxStatus = await getMantleTransactionStatus(txHash)
+                  isConfirmed =
+                    mantleTxStatus === TxStatus.Confirmed || mantleTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.CronosMainnet: {

@@ -62,6 +62,8 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_BUTTERSWAP: string
   readonly VITE_FEATURE_LINEA: string
   readonly VITE_FEATURE_SWAPPER_FIAT_RAMPS: string
+  readonly VITE_FEATURE_MANTLE: string
+  readonly VITE_MANTLE_NODE_URL: string
   readonly VITE_FEATURE_INK: string
   readonly VITE_INK_NODE_URL: string
 

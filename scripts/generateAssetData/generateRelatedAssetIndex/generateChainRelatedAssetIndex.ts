@@ -271,6 +271,15 @@ const processRelatedAssetIds = async (
       return
     }
 
+    // Group absent from index but asset has a relatedAssetKey - recover by creating the group
+    if (!group) {
+      console.log(
+        `Recovering orphaned relatedAssetKey for ${assetId}: creating group ${existingRelatedAssetKey}`,
+      )
+      relatedAssetIndex[existingRelatedAssetKey] = [assetId]
+      return
+    }
+
     return
   }
 

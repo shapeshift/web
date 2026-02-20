@@ -21,7 +21,7 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { assertAndProcessMemo, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { isToken } from '@shapeshiftoss/utils'
+import { BigAmount, isToken } from '@shapeshiftoss/utils'
 import { useMutation, useMutationState, useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import prettyMilliseconds from 'pretty-ms'
@@ -43,7 +43,6 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { toBaseUnit } from '@/lib/math'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -262,10 +261,10 @@ export const RepayConfirm = ({
   } = useSendThorTx({
     assetId: repaymentAsset?.assetId ?? '',
     accountId: repaymentAccountId,
-    amountCryptoBaseUnit: toBaseUnit(
-      confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
-      repaymentAsset?.precision ?? 0,
-    ),
+    amountCryptoBaseUnit: BigAmount.fromPrecision({
+      value: confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
+      precision: repaymentAsset?.precision ?? 0,
+    }).toBaseUnit(),
     memo,
     // no explicit from address required for repayments
     fromAddress: '',

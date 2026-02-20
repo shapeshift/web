@@ -2,6 +2,7 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
   berachainChainId,
+  cronosChainId,
   hyperEvmChainId,
   mantleChainId,
   toAssetId,
@@ -44,6 +45,7 @@ const ERC20_ABI = ['function balanceOf(address) view returns (uint256)']
 const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [berachainChainId]: '0x6969696969696969696969696969696969696969',
   [mantleChainId]: '0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8',
+  [cronosChainId]: '0x5C7F8A570d578ED84E63fdFA7b1eE72dEae1AE23',
 }
 const BATCH_SIZE = 500
 

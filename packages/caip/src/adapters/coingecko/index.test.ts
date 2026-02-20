@@ -81,6 +81,24 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Scroll,
       })
+      const ethOnUnichain = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.UnichainMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Unichain,
+      })
+      const ethOnBob = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.BobMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Bob,
+      })
+      const ethOnMode = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.ModeMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Mode,
+      })
       const ethOnSoneium = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.SoneiumMainnet,
@@ -93,9 +111,12 @@ describe('adapters:coingecko', () => {
         ethOnArbitrum,
         ethOnBase,
         ethOnLinea,
+        ethOnBob,
+        ethOnMode,
         ethOnMegaEth,
         ethOnInk,
         ethOnScroll,
+        ethOnUnichain,
         ethOnSoneium,
       ])
     })

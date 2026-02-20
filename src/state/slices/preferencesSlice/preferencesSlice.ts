@@ -36,12 +36,18 @@ export type FeatureFlags = {
   Monad: boolean
   HyperEvm: boolean
   Plasma: boolean
+  Mantle: boolean
   Ink: boolean
   MegaEth: boolean
   Berachain: boolean
+  Cronos: boolean
   Katana: boolean
   Linea: boolean
   Scroll: boolean
+  Sonic: boolean
+  Unichain: boolean
+  Bob: boolean
+  Mode: boolean
   Soneium: boolean
   Zcash: boolean
   ThorSwap: boolean
@@ -190,12 +196,18 @@ const initialState: Preferences = {
     Monad: getConfig().VITE_FEATURE_MONAD,
     HyperEvm: getConfig().VITE_FEATURE_HYPEREVM,
     Plasma: getConfig().VITE_FEATURE_PLASMA,
+    Mantle: getConfig().VITE_FEATURE_MANTLE,
     Ink: getConfig().VITE_FEATURE_INK,
     MegaEth: getConfig().VITE_FEATURE_MEGAETH,
     Berachain: getConfig().VITE_FEATURE_BERACHAIN,
+    Cronos: getConfig().VITE_FEATURE_CRONOS,
     Katana: getConfig().VITE_FEATURE_KATANA,
     Linea: getConfig().VITE_FEATURE_LINEA,
     Scroll: getConfig().VITE_FEATURE_SCROLL,
+    Sonic: getConfig().VITE_FEATURE_SONIC,
+    Unichain: getConfig().VITE_FEATURE_UNICHAIN,
+    Bob: getConfig().VITE_FEATURE_BOB,
+    Mode: getConfig().VITE_FEATURE_MODE,
     Soneium: getConfig().VITE_FEATURE_SONEIUM,
     Zcash: getConfig().VITE_FEATURE_ZCASH,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,

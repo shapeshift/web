@@ -12,18 +12,24 @@ import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { getBerachainTransactionStatus } from '@/lib/utils/berachain'
+import { getBobTransactionStatus } from '@/lib/utils/bob'
+import { getCronosTransactionStatus } from '@/lib/utils/cronos'
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getInkTransactionStatus } from '@/lib/utils/ink'
 import { getKatanaTransactionStatus } from '@/lib/utils/katana'
 import { getLineaTransactionStatus } from '@/lib/utils/linea'
+import { getMantleTransactionStatus } from '@/lib/utils/mantle'
 import { getMegaEthTransactionStatus } from '@/lib/utils/megaeth'
+import { getModeTransactionStatus } from '@/lib/utils/mode'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getNearTransactionStatus } from '@/lib/utils/near'
 import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
+import { getSonicTransactionStatus } from '@/lib/utils/sonic'
 import { getStarknetTransactionStatus, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
 import { getTonTransactionStatus, isTonChainAdapter } from '@/lib/utils/ton'
 import { getTronTransactionStatus } from '@/lib/utils/tron'
+import { getUnichainTransactionStatus } from '@/lib/utils/unichain'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingWalletSendActions } from '@/state/slices/actionSlice/selectors'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
@@ -206,6 +212,18 @@ export const useSendActionSubscriber = () => {
                     hyperEvmTxStatus === TxStatus.Confirmed || hyperEvmTxStatus === TxStatus.Failed
                   break
                 }
+                case KnownChainIds.MantleMainnet: {
+                  const mantleTxStatus = await getMantleTransactionStatus(txHash)
+                  isConfirmed =
+                    mantleTxStatus === TxStatus.Confirmed || mantleTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.CronosMainnet: {
+                  const cronosTxStatus = await getCronosTransactionStatus(txHash)
+                  isConfirmed =
+                    cronosTxStatus === TxStatus.Confirmed || cronosTxStatus === TxStatus.Failed
+                  break
+                }
                 case KnownChainIds.MegaEthMainnet: {
                   const megaEthTxStatus = await getMegaEthTransactionStatus(txHash)
                   isConfirmed =
@@ -236,6 +254,36 @@ export const useSendActionSubscriber = () => {
                   const lineaTxStatus = await getLineaTransactionStatus(txHash)
                   isConfirmed =
                     lineaTxStatus === TxStatus.Confirmed || lineaTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.SonicMainnet: {
+                  const sonicTxStatus = await getSonicTransactionStatus(txHash)
+                  isConfirmed =
+                    sonicTxStatus === TxStatus.Confirmed || sonicTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.UnichainMainnet: {
+                  const unichainNodeUrl = getConfig().VITE_UNICHAIN_NODE_URL
+                  const unichainTxStatus = await getUnichainTransactionStatus(
+                    txHash,
+                    unichainNodeUrl,
+                  )
+                  isConfirmed =
+                    unichainTxStatus === TxStatus.Confirmed || unichainTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.BobMainnet: {
+                  const bobNodeUrl = getConfig().VITE_BOB_NODE_URL
+                  const bobTxStatus = await getBobTransactionStatus(txHash, bobNodeUrl)
+                  isConfirmed =
+                    bobTxStatus === TxStatus.Confirmed || bobTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.ModeMainnet: {
+                  const modeNodeUrl = getConfig().VITE_MODE_NODE_URL
+                  const modeTxStatus = await getModeTransactionStatus(txHash, modeNodeUrl)
+                  isConfirmed =
+                    modeTxStatus === TxStatus.Confirmed || modeTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.NearMainnet: {

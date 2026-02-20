@@ -7,6 +7,7 @@ import { csp as chainflip } from './chainflip'
 import { csp as arbitrum } from './chains/arbitrum'
 import { csp as avalanche } from './chains/avalanche'
 import { csp as baseChain } from './chains/base'
+import { csp as berachain } from './chains/berachain'
 import { csp as bitcoin } from './chains/bitcoin'
 import { csp as bitcoincash } from './chains/bitcoincash'
 import { csp as bnbsmartchain } from './chains/bnbsmartchain'
@@ -15,7 +16,9 @@ import { csp as dogecoin } from './chains/dogecoin'
 import { csp as ethereum } from './chains/ethereum'
 import { csp as gnosis } from './chains/gnosis'
 import { csp as hyperevm } from './chains/hyperevm'
+import { csp as ink } from './chains/ink'
 import { csp as katana } from './chains/katana'
+import { csp as linea } from './chains/linea'
 import { csp as litecoin } from './chains/litecoin'
 import { csp as mayachain } from './chains/mayachain'
 import { csp as megaeth } from './chains/megaeth'
@@ -24,6 +27,7 @@ import { csp as near } from './chains/near'
 import { csp as optimism } from './chains/optimism'
 import { csp as plasma } from './chains/plasma'
 import { csp as polygon } from './chains/polygon'
+import { csp as scroll } from './chains/scroll'
 import { csp as solana } from './chains/solana'
 import { csp as sonic } from './chains/sonic'
 import { csp as starknet } from './chains/starknet'
@@ -115,12 +119,16 @@ export const csps = [
   dogecoin,
   ethereum,
   gnosis,
+  berachain,
   hyperevm,
+  ink,
   katana,
+  linea,
   litecoin,
   megaeth,
   optimism,
   polygon,
+  scroll,
   solana,
   starknet,
   sui,

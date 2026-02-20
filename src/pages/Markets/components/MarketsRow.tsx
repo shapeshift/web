@@ -82,7 +82,11 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   const isSuiEnabled = useAppSelector(state => selectFeatureFlag(state, 'Sui'))
   const isPlasmaEnabled = useAppSelector(state => selectFeatureFlag(state, 'Plasma'))
   const isHyperEvmEnabled = useAppSelector(state => selectFeatureFlag(state, 'HyperEvm'))
+  const isInkEnabled = useAppSelector(state => selectFeatureFlag(state, 'Ink'))
   const isMegaEthEnabled = useAppSelector(state => selectFeatureFlag(state, 'MegaEth'))
+  const isBerachainEnabled = useAppSelector(state => selectFeatureFlag(state, 'Berachain'))
+  const isLineaEnabled = useAppSelector(state => selectFeatureFlag(state, 'Linea'))
+  const isScrollEnabled = useAppSelector(state => selectFeatureFlag(state, 'Scroll'))
   const isKatanaEnabled = useAppSelector(state => selectFeatureFlag(state, 'Katana'))
   const isSonicEnabled = useAppSelector(state => selectFeatureFlag(state, 'Sonic'))
   const [isSmallerThanLg] = useMediaQuery(`(max-width: ${breakpoints.lg})`)
@@ -94,8 +98,12 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
       if (!isSuiEnabled && chainId === KnownChainIds.SuiMainnet) return false
       if (!isPlasmaEnabled && chainId === KnownChainIds.PlasmaMainnet) return false
       if (!isHyperEvmEnabled && chainId === KnownChainIds.HyperEvmMainnet) return false
+      if (!isInkEnabled && chainId === KnownChainIds.InkMainnet) return false
       if (!isMegaEthEnabled && chainId === KnownChainIds.MegaEthMainnet) return false
+      if (!isLineaEnabled && chainId === KnownChainIds.LineaMainnet) return false
+      if (!isScrollEnabled && chainId === KnownChainIds.ScrollMainnet) return false
       if (!isKatanaEnabled && chainId === KnownChainIds.KatanaMainnet) return false
+      if (!isBerachainEnabled && chainId === KnownChainIds.BerachainMainnet) return false
       if (!isSonicEnabled && chainId === KnownChainIds.SonicMainnet) return false
       return true
     })
@@ -104,7 +112,11 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
     isSuiEnabled,
     isPlasmaEnabled,
     isHyperEvmEnabled,
+    isInkEnabled,
     isMegaEthEnabled,
+    isBerachainEnabled,
+    isLineaEnabled,
+    isScrollEnabled,
     isKatanaEnabled,
     isSonicEnabled,
   ])

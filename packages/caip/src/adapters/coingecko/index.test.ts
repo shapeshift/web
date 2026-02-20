@@ -88,6 +88,7 @@ describe('adapters:coingecko', () => {
         ethOnBase,
         ethOnLinea,
         ethOnMegaEth,
+        ethOnInk,
         ethOnScroll,
       ])
     })

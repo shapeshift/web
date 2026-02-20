@@ -10,6 +10,7 @@ import {
   hyperEvmChainId,
   inkChainId,
   katanaChainId,
+  lineaChainId,
   megaethChainId,
   monadChainId,
   optimismChainId,
@@ -31,6 +32,7 @@ import {
   hyperEvm,
   ink,
   katana,
+  linea,
   mainnet as ethereum,
   monad,
   optimism,
@@ -62,6 +64,7 @@ export const chainIdToRelayChainId = {
   [megaethChainId]: 4326,
   [plasmaChainId]: plasma.id,
   [katanaChainId]: katana.id,
+  [lineaChainId]: linea.id,
   [berachainChainId]: berachain.id,
   [scrollChainId]: scroll.id,
 }

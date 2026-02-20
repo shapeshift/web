@@ -300,6 +300,7 @@ export class TrezorHDWallet
   readonly _supportsInk = true
   readonly _supportsMegaEth = true
   readonly _supportsBerachain = true
+  readonly _supportsLinea = true
   readonly _supportsScroll = true
   readonly _supportsKavaInfo = true
   readonly _supportsTerraInfo = true

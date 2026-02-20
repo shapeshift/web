@@ -9,6 +9,7 @@ import {
   hyperEvmChainId,
   inkChainId,
   katanaChainId,
+  lineaChainId,
   mayachainChainId,
   megaethChainId,
   monadChainId,
@@ -127,6 +128,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_KATANA && asset.chainId === katanaChainId) return false
       if (!config.VITE_FEATURE_INK && asset.chainId === inkChainId) return false
       if (!config.VITE_FEATURE_MEGAETH && asset.chainId === megaethChainId) return false
+      if (!config.VITE_FEATURE_LINEA && asset.chainId === lineaChainId) return false
       if (!config.VITE_FEATURE_BERACHAIN && asset.chainId === berachainChainId) return false
       if (!config.VITE_FEATURE_SCROLL && asset.chainId === scrollChainId) return false
       if (!config.VITE_FEATURE_MAYACHAIN && asset.chainId === mayachainChainId) return false

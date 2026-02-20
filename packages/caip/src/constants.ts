@@ -22,6 +22,7 @@ export const inkAssetId: AssetId = 'eip155:57073/slip44:60'
 export const megaethAssetId: AssetId = 'eip155:4326/slip44:60'
 export const berachainAssetId: AssetId = 'eip155:80094/slip44:60'
 export const katanaAssetId: AssetId = 'eip155:747474/slip44:60'
+export const lineaAssetId: AssetId = 'eip155:59144/slip44:60'
 export const scrollAssetId: AssetId = 'eip155:534352/slip44:60'
 export const solAssetId: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501'
 export const wrappedSolAssetId: AssetId =
@@ -86,6 +87,7 @@ export const inkChainId: ChainId = 'eip155:57073'
 export const megaethChainId: ChainId = 'eip155:4326'
 export const berachainChainId: ChainId = 'eip155:80094'
 export const katanaChainId: ChainId = 'eip155:747474'
+export const lineaChainId: ChainId = 'eip155:59144'
 export const scrollChainId: ChainId = 'eip155:534352'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
@@ -141,6 +143,7 @@ export const CHAIN_REFERENCE = {
   MegaEthMainnet: '4326',
   BerachainMainnet: '80094',
   KatanaMainnet: '747474', // https://docs.katana.network
+  LineaMainnet: '59144', // https://docs.linea.build
   ScrollMainnet: '534352', // https://scrollscan.com
   SolanaMainnet: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', // https://namespaces.chainagnostic.org/solana/caip2
   TronMainnet: '0x2b6653dc', // https://developers.tron.network/docs/networks
@@ -189,6 +192,7 @@ export const ASSET_REFERENCE = {
   MegaEth: '60', // evm chain which uses ethereum derivation path as common practice
   Berachain: '60', // evm chain which uses ethereum derivation path as common practice
   Katana: '60', // evm chain which uses ethereum derivation path as common practice
+  Linea: '60', // evm chain which uses ethereum derivation path as common practice
   Scroll: '60', // evm chain which uses ethereum derivation path as common practice
   Solana: '501',
   Tron: '195',
@@ -222,6 +226,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.MegaEthMainnet,
     CHAIN_REFERENCE.BerachainMainnet,
     CHAIN_REFERENCE.KatanaMainnet,
+    CHAIN_REFERENCE.LineaMainnet,
     CHAIN_REFERENCE.ScrollMainnet,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
@@ -279,6 +284,7 @@ export const FEE_ASSET_IDS = [
   monadAssetId,
   inkAssetId,
   megaethAssetId,
+  lineaAssetId,
   berachainAssetId,
   scrollAssetId,
   solAssetId,

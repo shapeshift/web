@@ -12,6 +12,7 @@ import {
   hyperEvmChainId,
   inkChainId,
   katanaChainId,
+  lineaChainId,
   megaethChainId,
   monadChainId,
   nearChainId,
@@ -38,6 +39,7 @@ import {
   hyperevm,
   ink,
   katana,
+  linea,
   megaeth,
   monad,
   near,
@@ -178,6 +180,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: megaeth.explorer,
           explorerAddressLink: megaeth.explorerAddressLink,
           explorerTxLink: megaeth.explorerTxLink,
+        }
+      case lineaChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: linea.explorer,
+          explorerAddressLink: linea.explorerAddressLink,
+          explorerTxLink: linea.explorerTxLink,
         }
       case scrollChainId:
         return {

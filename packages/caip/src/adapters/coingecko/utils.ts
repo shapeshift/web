@@ -32,6 +32,8 @@ import {
   inkChainId,
   katanaAssetId,
   katanaChainId,
+  lineaAssetId,
+  lineaChainId,
   ltcChainId,
   mayachainChainId,
   megaethAssetId,
@@ -309,6 +311,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Linea)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.LineaMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Linea],
+          })
+          prev[lineaChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Berachain)) {
         try {
           const assetId = toAssetId({
@@ -332,7 +348,9 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
             assetReference: platforms[CoingeckoAssetPlatform.Scroll],
           })
           prev[scrollChainId][assetId] = id
-        } catch {}
+        } catch {
+          // unable to create assetId, skip token
+        }
       }
 
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Katana)) {
@@ -407,6 +425,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [plasmaChainId]: { [plasmaAssetId]: 'plasma' },
       [inkChainId]: { [inkAssetId]: 'ethereum' },
       [megaethChainId]: { [megaethAssetId]: 'ethereum' },
+      [lineaChainId]: { [lineaAssetId]: 'ethereum' },
       [berachainChainId]: { [berachainAssetId]: 'berachain-bera' },
       [katanaChainId]: { [katanaAssetId]: 'katana' },
       [scrollChainId]: { [scrollAssetId]: 'ethereum' },

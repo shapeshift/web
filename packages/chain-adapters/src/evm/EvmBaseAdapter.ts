@@ -18,6 +18,7 @@ import {
   supportsHyperEvm,
   supportsInk,
   supportsKatana,
+  supportsLinea,
   supportsMegaEth,
   supportsMonad,
   supportsOptimism,
@@ -93,6 +94,7 @@ export const evmChainIds = [
   KnownChainIds.MegaEthMainnet,
   KnownChainIds.BerachainMainnet,
   KnownChainIds.KatanaMainnet,
+  KnownChainIds.LineaMainnet,
   KnownChainIds.ScrollMainnet,
 ] as const
 
@@ -202,6 +204,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsBerachain(wallet)
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
+        case Number(fromChainId(KnownChainIds.LineaMainnet).chainReference):
+          return supportsLinea(wallet)
         case Number(fromChainId(KnownChainIds.ScrollMainnet).chainReference):
           return supportsScroll(wallet)
         default:
@@ -310,6 +314,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://katanascan.com',
+      },
+      [KnownChainIds.LineaMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://lineascan.build',
       },
       [KnownChainIds.ScrollMainnet]: {
         name: 'Ether',

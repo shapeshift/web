@@ -40,6 +40,7 @@ export type FeatureFlags = {
   MegaEth: boolean
   Berachain: boolean
   Katana: boolean
+  Linea: boolean
   Scroll: boolean
   Zcash: boolean
   ThorSwap: boolean
@@ -192,6 +193,7 @@ const initialState: Preferences = {
     MegaEth: getConfig().VITE_FEATURE_MEGAETH,
     Berachain: getConfig().VITE_FEATURE_BERACHAIN,
     Katana: getConfig().VITE_FEATURE_KATANA,
+    Linea: getConfig().VITE_FEATURE_LINEA,
     Scroll: getConfig().VITE_FEATURE_SCROLL,
     Zcash: getConfig().VITE_FEATURE_ZCASH,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,

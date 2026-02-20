@@ -1,17 +1,31 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
+  blastAssetId,
+  hemiAssetId,
+  berachainAssetId,
+  bobAssetId,
+  cronosAssetId,
   hyperEvmAssetId,
+  inkAssetId,
   katanaAssetId,
+  lineaAssetId,
+  mantleAssetId,
   mayachainAssetId,
   megaethAssetId,
+  modeAssetId,
   monadAssetId,
   nearAssetId,
   plasmaAssetId,
+  scrollAssetId,
+  soneiumAssetId,
+  sonicAssetId,
   starknetAssetId,
   suiAssetId,
   thorchainAssetId,
   tronAssetId,
   zkSyncEraAssetId,
+  worldChainAssetId,
+  unichainAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
@@ -43,11 +57,25 @@ export const queryFn = async () => {
   if (enabledFlags.Monad) assetIds.push(monadAssetId)
   if (enabledFlags.Near) assetIds.push(nearAssetId)
   if (enabledFlags.Plasma) assetIds.push(plasmaAssetId)
+  if (enabledFlags.Mantle) assetIds.push(mantleAssetId)
   if (enabledFlags.MegaEth) assetIds.push(megaethAssetId)
+  if (enabledFlags.Ink) assetIds.push(inkAssetId)
+  if (enabledFlags.Scroll) assetIds.push(scrollAssetId)
   if (enabledFlags.Katana) assetIds.push(katanaAssetId)
   if (enabledFlags.ZkSyncEra) assetIds.push(zkSyncEraAssetId)
+  if (enabledFlags.Blast) assetIds.push(blastAssetId)
+  if (enabledFlags.WorldChain) assetIds.push(worldChainAssetId)
+  if (enabledFlags.Hemi) assetIds.push(hemiAssetId)
+  if (enabledFlags.Linea) assetIds.push(lineaAssetId)
+  if (enabledFlags.Cronos) assetIds.push(cronosAssetId)
+  if (enabledFlags.Sonic) assetIds.push(sonicAssetId)
+  if (enabledFlags.Unichain) assetIds.push(unichainAssetId)
+  if (enabledFlags.Bob) assetIds.push(bobAssetId)
+  if (enabledFlags.Mode) assetIds.push(modeAssetId)
+  if (enabledFlags.Soneium) assetIds.push(soneiumAssetId)
   if (enabledFlags.Starknet) assetIds.push(starknetAssetId)
   if (enabledFlags.Tron) assetIds.push(tronAssetId)
+  if (enabledFlags.Berachain) assetIds.push(berachainAssetId)
   if (enabledFlags.Sui) assetIds.push(suiAssetId)
 
   for (const assetId of [...new Set(assetIds)]) {

@@ -19,6 +19,7 @@ import {
   optimism,
   plasma,
   polygon,
+  worldchain,
 } from 'viem/chains'
 
 import { createApiClient } from '../api/client'
@@ -47,6 +48,7 @@ const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
   999: hyperEvm,
   8453: base,
   9745: plasma,
+  480: worldchain,
   42161: arbitrum,
   43114: avalanche,
   747474: katana,

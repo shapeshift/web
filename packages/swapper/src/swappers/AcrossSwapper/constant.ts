@@ -1,29 +1,43 @@
 import {
   arbitrumChainId,
   baseChainId,
+  blastChainId,
   bscChainId,
   ethChainId,
   hyperEvmChainId,
+  inkChainId,
+  lineaChainId,
+  modeChainId,
   monadChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
   solanaChainId,
   zkSyncEraChainId,
+  worldChainChainId,
+  soneiumChainId,
+  unichainChainId,
 } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
 import {
   arbitrum,
   base,
+  blast,
   bsc,
   hyperEvm,
+  ink,
+  linea,
   mainnet as ethereum,
+  mode,
   monad,
   optimism,
   plasma,
   polygon,
   zksync,
+  worldchain,
+  soneium,
+  unichain,
 } from 'viem/chains'
 
 import { TradeQuoteError } from '../../types'
@@ -38,8 +52,15 @@ export const chainIdToAcrossChainId: Record<string, number> = {
   [bscChainId]: bsc.id,
   [monadChainId]: monad.id,
   [hyperEvmChainId]: hyperEvm.id,
+  [inkChainId]: ink.id,
+  [lineaChainId]: linea.id,
+  [modeChainId]: mode.id,
   [plasmaChainId]: plasma.id,
   [zkSyncEraChainId]: zksync.id,
+  [blastChainId]: blast.id,
+  [worldChainChainId]: worldchain.id,
+  [unichainChainId]: unichain.id,
+  [soneiumChainId]: soneium.id,
   // Across uses a custom Solana chain ID
   [solanaChainId]: 34268394551451,
 }

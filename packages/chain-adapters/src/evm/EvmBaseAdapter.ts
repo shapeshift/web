@@ -11,17 +11,31 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
+  supportsBlast,
+  supportsBerachain,
+  supportsBob,
   supportsBSC,
+  supportsCronos,
   supportsETH,
   supportsGnosis,
+  supportsHemi,
   supportsHyperEvm,
+  supportsInk,
   supportsKatana,
+  supportsLinea,
+  supportsMantle,
   supportsMegaEth,
+  supportsMode,
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
   supportsPolygon,
   supportsZkSyncEra,
+  supportsWorldChain,
+  supportsScroll,
+  supportsSoneium,
+  supportsSonic,
+  supportsUnichain,
 } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -87,9 +101,23 @@ export const evmChainIds = [
   KnownChainIds.MonadMainnet,
   KnownChainIds.HyperEvmMainnet,
   KnownChainIds.PlasmaMainnet,
+  KnownChainIds.MantleMainnet,
+  KnownChainIds.InkMainnet,
   KnownChainIds.MegaEthMainnet,
+  KnownChainIds.BerachainMainnet,
+  KnownChainIds.CronosMainnet,
   KnownChainIds.KatanaMainnet,
   KnownChainIds.ZkSyncEraMainnet,
+  KnownChainIds.BlastMainnet,
+  KnownChainIds.WorldChainMainnet,
+  KnownChainIds.HemiMainnet,
+  KnownChainIds.LineaMainnet,
+  KnownChainIds.ScrollMainnet,
+  KnownChainIds.SonicMainnet,
+  KnownChainIds.UnichainMainnet,
+  KnownChainIds.BobMainnet,
+  KnownChainIds.ModeMainnet,
+  KnownChainIds.SoneiumMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -190,12 +218,40 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsHyperEvm(wallet)
         case Number(fromChainId(KnownChainIds.PlasmaMainnet).chainReference):
           return supportsPlasma(wallet)
+        case Number(fromChainId(KnownChainIds.MantleMainnet).chainReference):
+          return supportsMantle(wallet)
+        case Number(fromChainId(KnownChainIds.InkMainnet).chainReference):
+          return supportsInk(wallet)
         case Number(fromChainId(KnownChainIds.MegaEthMainnet).chainReference):
           return supportsMegaEth(wallet)
+        case Number(fromChainId(KnownChainIds.BerachainMainnet).chainReference):
+          return supportsBerachain(wallet)
+        case Number(fromChainId(KnownChainIds.CronosMainnet).chainReference):
+          return supportsCronos(wallet)
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
         case Number(fromChainId(KnownChainIds.ZkSyncEraMainnet).chainReference):
           return supportsZkSyncEra(wallet)
+        case Number(fromChainId(KnownChainIds.BlastMainnet).chainReference):
+          return supportsBlast(wallet)
+        case Number(fromChainId(KnownChainIds.WorldChainMainnet).chainReference):
+          return supportsWorldChain(wallet)
+        case Number(fromChainId(KnownChainIds.HemiMainnet).chainReference):
+          return supportsHemi(wallet)
+        case Number(fromChainId(KnownChainIds.LineaMainnet).chainReference):
+          return supportsLinea(wallet)
+        case Number(fromChainId(KnownChainIds.ScrollMainnet).chainReference):
+          return supportsScroll(wallet)
+        case Number(fromChainId(KnownChainIds.SonicMainnet).chainReference):
+          return supportsSonic(wallet)
+        case Number(fromChainId(KnownChainIds.UnichainMainnet).chainReference):
+          return supportsUnichain(wallet)
+        case Number(fromChainId(KnownChainIds.BobMainnet).chainReference):
+          return supportsBob(wallet)
+        case Number(fromChainId(KnownChainIds.ModeMainnet).chainReference):
+          return supportsMode(wallet)
+        case Number(fromChainId(KnownChainIds.SoneiumMainnet).chainReference):
+          return supportsSoneium(wallet)
         default:
           return false
       }
@@ -283,10 +339,30 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         symbol: 'XPL',
         explorer: 'https://plasmascan.to',
       },
+      [KnownChainIds.MantleMainnet]: {
+        name: 'Mantle',
+        symbol: 'MNT',
+        explorer: 'https://mantlescan.xyz',
+      },
+      [KnownChainIds.InkMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://explorer.inkonchain.com',
+      },
       [KnownChainIds.MegaEthMainnet]: {
         name: 'Ether',
         symbol: 'ETH',
         explorer: 'https://megaeth.blockscout.com',
+      },
+      [KnownChainIds.BerachainMainnet]: {
+        name: 'Berachain',
+        symbol: 'BERA',
+        explorer: 'https://berascan.com',
+      },
+      [KnownChainIds.CronosMainnet]: {
+        name: 'Cronos',
+        symbol: 'CRO',
+        explorer: 'https://cronoscan.com',
       },
       [KnownChainIds.KatanaMainnet]: {
         name: 'Ethereum',
@@ -297,6 +373,52 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ether',
         symbol: 'ETH',
         explorer: 'https://explorer.zksync.io',
+      [KnownChainIds.BlastMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://blastscan.io',
+      [KnownChainIds.WorldChainMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://worldscan.org',
+      [KnownChainIds.HemiMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://explorer.hemi.xyz',
+      [KnownChainIds.LineaMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://lineascan.build',
+      },
+      [KnownChainIds.ScrollMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://scrollscan.com',
+      },
+      [KnownChainIds.SonicMainnet]: {
+        name: 'Sonic',
+        symbol: 'S',
+        explorer: 'https://sonicscan.org',
+      },
+      [KnownChainIds.UnichainMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://uniscan.xyz',
+      },
+      [KnownChainIds.BobMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://explorer.gobob.xyz',
+      },
+      [KnownChainIds.ModeMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://modescan.io',
+      },
+      [KnownChainIds.SoneiumMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://soneium.blockscout.com',
       },
     }[this.chainId]
 

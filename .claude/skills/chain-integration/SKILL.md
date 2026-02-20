@@ -4,6 +4,12 @@ description: Integrate a new blockchain as a second-class citizen in ShapeShift 
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 
+**Second-class EVM chain?** If this is a second-class EVM chain integration,
+disregard the rest of this skill. Load and follow the contract at
+`.claude/contracts/second-class-evm-chain.md` instead - it contains the
+complete, authoritative checklist of every integration point required.
+Use the contract as your build todo list, checking off items as you go.
+
 # Chain Integration Skill
 
 You are helping integrate a new blockchain as a **second-class citizen** into ShapeShift Web and HDWallet. This means basic support (native asset send/receive, account derivation, swaps to/from the chain) using the "poor man's" approach similar to Monad, Tron, and Sui - public RPC, no microservices, minimal features.

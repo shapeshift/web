@@ -49,6 +49,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.PlasmaMainnet]: evm.Account
     [KnownChainIds.InkMainnet]: evm.Account
     [KnownChainIds.MegaEthMainnet]: evm.Account
+    [KnownChainIds.BerachainMainnet]: evm.Account
     [KnownChainIds.KatanaMainnet]: evm.Account
     [KnownChainIds.ScrollMainnet]: evm.Account
     [KnownChainIds.SeiMainnet]: evm.Account
@@ -104,6 +105,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.PlasmaMainnet]: evm.FeeData
     [KnownChainIds.InkMainnet]: evm.FeeData
     [KnownChainIds.MegaEthMainnet]: evm.FeeData
+    [KnownChainIds.BerachainMainnet]: evm.FeeData
     [KnownChainIds.KatanaMainnet]: evm.FeeData
     [KnownChainIds.ScrollMainnet]: evm.FeeData
     [KnownChainIds.SeiMainnet]: evm.FeeData
@@ -192,6 +194,7 @@ export type ChainSignTx = {
   [KnownChainIds.PlasmaMainnet]: ETHSignTx
   [KnownChainIds.InkMainnet]: ETHSignTx
   [KnownChainIds.MegaEthMainnet]: ETHSignTx
+  [KnownChainIds.BerachainMainnet]: ETHSignTx
   [KnownChainIds.KatanaMainnet]: ETHSignTx
   [KnownChainIds.ScrollMainnet]: ETHSignTx
   [KnownChainIds.SeiMainnet]: ETHSignTx
@@ -252,6 +255,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.PlasmaMainnet]: evm.BuildTxInput
     [KnownChainIds.InkMainnet]: evm.BuildTxInput
     [KnownChainIds.MegaEthMainnet]: evm.BuildTxInput
+    [KnownChainIds.BerachainMainnet]: evm.BuildTxInput
     [KnownChainIds.KatanaMainnet]: evm.BuildTxInput
     [KnownChainIds.ScrollMainnet]: evm.BuildTxInput
     [KnownChainIds.SeiMainnet]: evm.BuildTxInput
@@ -362,6 +366,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.PlasmaMainnet]: evm.GetFeeDataInput
     [KnownChainIds.InkMainnet]: evm.GetFeeDataInput
     [KnownChainIds.MegaEthMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.BerachainMainnet]: evm.GetFeeDataInput
     [KnownChainIds.KatanaMainnet]: evm.GetFeeDataInput
     [KnownChainIds.ScrollMainnet]: evm.GetFeeDataInput
     [KnownChainIds.SeiMainnet]: evm.GetFeeDataInput
@@ -437,6 +442,7 @@ export enum ChainAdapterDisplayName {
   Plasma = 'Plasma',
   Ink = 'Ink',
   MegaEth = 'MegaETH',
+  Berachain = 'Berachain',
   Katana = 'Katana',
   Scroll = 'Scroll',
   Sei = 'Sei',

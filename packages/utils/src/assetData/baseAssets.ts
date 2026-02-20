@@ -389,6 +389,23 @@ export const megaeth: Readonly<Asset> = Object.freeze({
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 
+export const berachain: Readonly<Asset> = Object.freeze({
+  assetId: caip.berachainAssetId,
+  chainId: caip.berachainChainId,
+  name: 'Berachain',
+  networkName: 'Berachain',
+  symbol: 'BERA',
+  precision: 18,
+  color: '#6B4226',
+  networkColor: '#6B4226',
+  icon: 'https://assets.relay.link/icons/80094/light.png',
+  networkIcon: 'https://assets.relay.link/icons/80094/light.png',
+  explorer: 'https://berascan.com',
+  explorerAddressLink: 'https://berascan.com/address/',
+  explorerTxLink: 'https://berascan.com/tx/',
+  relatedAssetKey: null,
+})
+
 export const katana: Readonly<Asset> = Object.freeze({
   assetId: caip.katanaAssetId,
   chainId: caip.katanaChainId,

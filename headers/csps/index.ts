@@ -7,6 +7,7 @@ import { csp as chainflip } from './chainflip'
 import { csp as arbitrum } from './chains/arbitrum'
 import { csp as avalanche } from './chains/avalanche'
 import { csp as baseChain } from './chains/base'
+import { csp as berachain } from './chains/berachain'
 import { csp as bitcoin } from './chains/bitcoin'
 import { csp as bitcoincash } from './chains/bitcoincash'
 import { csp as bnbsmartchain } from './chains/bnbsmartchain'
@@ -118,6 +119,7 @@ export const csps = [
   dogecoin,
   ethereum,
   gnosis,
+  berachain,
   hyperevm,
   ink,
   katana,

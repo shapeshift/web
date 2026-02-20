@@ -27,6 +27,7 @@ export enum KnownChainIds {
   PlasmaMainnet = 'eip155:9745',
   InkMainnet = 'eip155:57073',
   MegaEthMainnet = 'eip155:4326',
+  BerachainMainnet = 'eip155:80094',
   KatanaMainnet = 'eip155:747474',
   SeiMainnet = 'eip155:1329',
   ScrollMainnet = 'eip155:534352',
@@ -60,6 +61,7 @@ export type EvmChainId =
   | KnownChainIds.PlasmaMainnet
   | KnownChainIds.InkMainnet
   | KnownChainIds.MegaEthMainnet
+  | KnownChainIds.BerachainMainnet
   | KnownChainIds.KatanaMainnet
   | KnownChainIds.SeiMainnet
   | KnownChainIds.ScrollMainnet

@@ -26,6 +26,7 @@ import path from 'path'
 import * as arbitrum from './arbitrum'
 import * as avalanche from './avalanche'
 import * as base from './base'
+import * as berachain from './berachain'
 import * as bnbsmartchain from './bnbsmartchain'
 import { compressGeneratedAssets } from './compressAssets'
 import { ASSET_DATA_PATH, GENERATED_DIR, RELATED_ASSET_INDEX_PATH } from './constants'
@@ -76,6 +77,7 @@ const generateAssetData = async () => {
   const katanaAssets = await katana.getAssets()
   const inkAssets = await ink.getAssets()
   const megaethAssets = await megaeth.getAssets()
+  const berachainAssets = await berachain.getAssets()
   const scrollAssets = await scroll.getAssets()
   const plasmaAssets = await plasma.getAssets()
   const seiAssets = await sei.getAssets()
@@ -112,6 +114,7 @@ const generateAssetData = async () => {
     ...katanaAssets,
     ...inkAssets,
     ...megaethAssets,
+    ...berachainAssets,
     ...scrollAssets,
     ...plasmaAssets,
     ...seiAssets,

@@ -212,6 +212,7 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
   readonly _supportsHyperEvm: boolean
   readonly _supportsInk: boolean
   readonly _supportsMegaEth: boolean
+  readonly _supportsBerachain: boolean
   readonly _supportsScroll: boolean
 
   ethGetAddress(msg: ETHGetAddress): Promise<Address | null>

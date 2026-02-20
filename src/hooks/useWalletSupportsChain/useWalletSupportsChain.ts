@@ -4,6 +4,7 @@ import {
   avalancheChainId,
   baseChainId,
   bchChainId,
+  berachainChainId,
   bscChainId,
   btcChainId,
   cosmosChainId,
@@ -41,6 +42,7 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
+  supportsBerachain,
   supportsBSC,
   supportsBTC,
   supportsCosmos,
@@ -157,6 +159,7 @@ export const walletSupportsChain = ({
   const isInkEnabled = selectFeatureFlag(store.getState(), 'Ink')
   const isKatanaEnabled = selectFeatureFlag(store.getState(), 'Katana')
   const isMegaEthEnabled = selectFeatureFlag(store.getState(), 'MegaEth')
+  const isBerachainEnabled = selectFeatureFlag(store.getState(), 'Berachain')
   const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
   const isNearEnabled = selectFeatureFlag(store.getState(), 'Near')
   const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')
@@ -203,6 +206,8 @@ export const walletSupportsChain = ({
       return isInkEnabled && supportsInk(wallet)
     case megaethChainId:
       return isMegaEthEnabled && supportsMegaEth(wallet)
+    case berachainChainId:
+      return isBerachainEnabled && supportsBerachain(wallet)
     case plasmaChainId:
       return isPlasmaEnabled && supportsPlasma(wallet)
     case katanaChainId:

@@ -8,6 +8,7 @@ import {
   atom,
   avax,
   base,
+  berachain,
   bitcoin,
   bitcoincash,
   bnbsmartchain,
@@ -87,6 +88,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return ink
     case KnownChainIds.MegaEthMainnet:
       return megaeth
+    case KnownChainIds.BerachainMainnet:
+      return berachain
     case KnownChainIds.KatanaMainnet:
       return katana
     case KnownChainIds.SeiMainnet:

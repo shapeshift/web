@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { AmountDisplayMeta } from '@shapeshiftoss/swapper'
 import { isExecutableTradeQuote, isThorTradeQuote, isThorTradeRate } from '@shapeshiftoss/swapper'
-import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
+import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
 
 import { calculateFeeUsd } from '@/lib/fees/utils'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
@@ -91,17 +91,21 @@ export const parseAmountDisplayMeta = (items: AmountDisplayMeta[]): ProtocolFeeD
     .forEach(({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => {
       if (!asset.assetId) return
       const key = asset.assetId
+      const amountCrypto = BigAmount.fromBaseUnit({
+        value: amountCryptoBaseUnit,
+        precision: asset.precision,
+      })
       if (feeMap[key]) {
         // If we already have this asset+chain combination, add the amounts
         feeMap[key].amountCryptoPrecision = bnOrZero(feeMap[key].amountCryptoPrecision)
-          .plus(fromBaseUnit(amountCryptoBaseUnit, asset.precision))
+          .plus(amountCrypto.toPrecision())
           .toString()
       } else {
         // First time seeing this asset+chain combination
         feeMap[key] = {
           assetId: asset.assetId,
           chainName: chainIdToChainDisplayName(asset.chainId),
-          amountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
+          amountCryptoPrecision: amountCrypto.toPrecision(),
           symbol: asset.symbol,
         }
       }

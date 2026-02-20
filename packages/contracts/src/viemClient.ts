@@ -7,16 +7,20 @@ import {
   arbitrum,
   avalanche,
   base,
+  berachain,
   bob,
   bsc,
   gnosis,
   hyperEvm,
+  ink,
   katana,
+  linea,
   mainnet,
   monad,
   optimism,
   plasma,
   polygon,
+  scroll,
 } from 'viem/chains'
 
 const megaeth = defineChain({
@@ -108,14 +112,34 @@ export const viemPlasmaClient = createPublicClient({
   transport: fallback([process.env.VITE_PLASMA_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemInkClient = createPublicClient({
+  chain: ink,
+  transport: fallback([process.env.VITE_INK_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemMegaEthClient = createPublicClient({
   chain: megaeth,
   transport: fallback([process.env.VITE_MEGAETH_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemBerachainClient = createPublicClient({
+  chain: berachain,
+  transport: fallback([process.env.VITE_BERACHAIN_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
+export const viemScrollClient = createPublicClient({
+  chain: scroll,
+  transport: fallback([process.env.VITE_SCROLL_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemKatanaClient = createPublicClient({
   chain: katana,
   transport: fallback([process.env.VITE_KATANA_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
+export const viemLineaClient = createPublicClient({
+  chain: linea,
+  transport: fallback([process.env.VITE_LINEA_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
 export const viemBobClient = createPublicClient({
@@ -135,8 +159,12 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.MonadMainnet]: viemMonadClient,
   [KnownChainIds.HyperEvmMainnet]: viemHyperEvmClient,
   [KnownChainIds.PlasmaMainnet]: viemPlasmaClient,
+  [KnownChainIds.InkMainnet]: viemInkClient,
   [KnownChainIds.MegaEthMainnet]: viemMegaEthClient,
+  [KnownChainIds.BerachainMainnet]: viemBerachainClient,
   [KnownChainIds.KatanaMainnet]: viemKatanaClient,
+  [KnownChainIds.LineaMainnet]: viemLineaClient,
+  [KnownChainIds.ScrollMainnet]: viemScrollClient,
   [KnownChainIds.BobMainnet]: viemBobClient,
 }
 
@@ -152,8 +180,12 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.MonadMainnet]: monad.id,
   [KnownChainIds.HyperEvmMainnet]: hyperEvm.id,
   [KnownChainIds.PlasmaMainnet]: plasma.id,
+  [KnownChainIds.InkMainnet]: ink.id,
   [KnownChainIds.MegaEthMainnet]: megaeth.id,
+  [KnownChainIds.BerachainMainnet]: berachain.id,
   [KnownChainIds.KatanaMainnet]: katana.id,
+  [KnownChainIds.LineaMainnet]: linea.id,
+  [KnownChainIds.ScrollMainnet]: scroll.id,
   [KnownChainIds.BobMainnet]: bob.id,
 }
 
@@ -169,8 +201,12 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [monad.id]: viemMonadClient,
   [hyperEvm.id]: viemHyperEvmClient,
   [plasma.id]: viemPlasmaClient,
+  [ink.id]: viemInkClient,
   [megaeth.id]: viemMegaEthClient,
+  [berachain.id]: viemBerachainClient,
   [katana.id]: viemKatanaClient,
+  [linea.id]: viemLineaClient,
+  [scroll.id]: viemScrollClient,
   [bob.id]: viemBobClient,
 }
 

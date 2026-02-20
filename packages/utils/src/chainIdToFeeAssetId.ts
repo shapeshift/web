@@ -4,6 +4,7 @@ import {
   avalancheAssetId,
   baseAssetId,
   bchAssetId,
+  berachainAssetId,
   bobAssetId,
   bscAssetId,
   btcAssetId,
@@ -12,7 +13,9 @@ import {
   ethAssetId,
   gnosisAssetId,
   hyperEvmAssetId,
+  inkAssetId,
   katanaAssetId,
+  lineaAssetId,
   ltcAssetId,
   mayachainAssetId,
   megaethAssetId,
@@ -21,6 +24,7 @@ import {
   optimismAssetId,
   plasmaAssetId,
   polygonAssetId,
+  scrollAssetId,
   solAssetId,
   starknetAssetId,
   suiAssetId,
@@ -80,10 +84,18 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return hyperEvmAssetId
     case KnownChainIds.PlasmaMainnet:
       return plasmaAssetId
+    case KnownChainIds.InkMainnet:
+      return inkAssetId
     case KnownChainIds.MegaEthMainnet:
       return megaethAssetId
+    case KnownChainIds.BerachainMainnet:
+      return berachainAssetId
     case KnownChainIds.KatanaMainnet:
       return katanaAssetId
+    case KnownChainIds.LineaMainnet:
+      return lineaAssetId
+    case KnownChainIds.ScrollMainnet:
+      return scrollAssetId
     case KnownChainIds.BobMainnet:
       return bobAssetId
     case KnownChainIds.ZcashMainnet:

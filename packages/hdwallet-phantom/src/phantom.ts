@@ -216,7 +216,11 @@ export class PhantomHDWallet
   readonly _supportsKatana = false
   readonly _supportsBob = false
   readonly _supportsHyperEvm = true
+  readonly _supportsInk = false
   readonly _supportsMegaEth = false
+  readonly _supportsBerachain = false
+  readonly _supportsLinea = false
+  readonly _supportsScroll = false
   readonly _supportsBSC = false
   readonly _supportsSolana = true
   readonly _supportsSui = true

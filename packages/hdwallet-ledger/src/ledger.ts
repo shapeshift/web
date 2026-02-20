@@ -431,7 +431,11 @@ export class LedgerHDWallet
   readonly _supportsKatana = true
   readonly _supportsBob = true
   readonly _supportsHyperEvm = true
+  readonly _supportsInk = true
   readonly _supportsMegaEth = true
+  readonly _supportsBerachain = true
+  readonly _supportsLinea = true
+  readonly _supportsScroll = true
   readonly _supportsThorchain = true
   readonly _supportsMayachain = true
   readonly _supportsCosmos = true

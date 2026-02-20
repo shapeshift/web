@@ -123,7 +123,11 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.Katana && chainId === KnownChainIds.KatanaMainnet) return false
       if (!featureFlags.Bob && chainId === KnownChainIds.BobMainnet) return false
       if (!featureFlags.Plasma && chainId === KnownChainIds.PlasmaMainnet) return false
+      if (!featureFlags.Ink && chainId === KnownChainIds.InkMainnet) return false
       if (!featureFlags.MegaEth && chainId === KnownChainIds.MegaEthMainnet) return false
+      if (!featureFlags.Linea && chainId === KnownChainIds.LineaMainnet) return false
+      if (!featureFlags.Scroll && chainId === KnownChainIds.ScrollMainnet) return false
+      if (!featureFlags.Berachain && chainId === KnownChainIds.BerachainMainnet) return false
       if (!featureFlags.BnbSmartChain && chainId === KnownChainIds.BnbSmartChainMainnet)
         return false
       if (!featureFlags.Tron && chainId === KnownChainIds.TronMainnet) return false

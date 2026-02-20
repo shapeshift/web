@@ -1,5 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -16,8 +17,6 @@ import type {
 } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import type { UserStakingId } from '@/state/slices/opportunitiesSlice/types'
 import { serializeUserStakingId, toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
 import {
@@ -77,10 +76,10 @@ export const Claim: React.FC<ClaimProps> = ({
 
   const rewardAmountCryptoPrecision = useMemo(
     () =>
-      fromBaseUnit(
-        bnOrZero(opportunity?.rewardsCryptoBaseUnit?.amounts[0]),
-        assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 0,
-      ),
+      BigAmount.fromBaseUnit({
+        value: opportunity?.rewardsCryptoBaseUnit?.amounts[0] ?? '0',
+        precision: assets[opportunity?.underlyingAssetId ?? '']?.precision ?? 0,
+      }).toPrecision(),
     [assets, opportunity?.rewardsCryptoBaseUnit, opportunity?.underlyingAssetId],
   )
 

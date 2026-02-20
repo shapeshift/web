@@ -1,5 +1,4 @@
 import { bn } from '@shapeshiftoss/utils'
-import BigNumber from 'bignumber.js'
 
 import type { SunioRoute } from '../types'
 
@@ -38,7 +37,7 @@ export const buildSwapRouteParameters = (
 
   const amountOutWithSlippage = bn(minBuyAmountCryptoBaseUnit)
     .times(bn(1).minus(slippageTolerancePercentageDecimal))
-    .toFixed(0, BigNumber.ROUND_DOWN)
+    .toFixed(0)
 
   const swapData = {
     amountIn: sellAmountCryptoBaseUnit,

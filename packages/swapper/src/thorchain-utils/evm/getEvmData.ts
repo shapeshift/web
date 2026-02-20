@@ -63,7 +63,7 @@ export const getEvmData = async ({ config, step, tradeQuote, swapperName }: GetE
       const amountOutMin = BigInt(
         bnOrZero(expectedAmountOut)
           .times(bn(1).minus(slippageTolerancePercentageDecimal ?? 0))
-          .toFixed(0, BigNumber.ROUND_DOWN),
+          .toFixed(0, BigNumber.ROUND_UP),
       )
 
       // Paranoia: ensure we have this to prevent sandwich attacks on the first step of a LongtailToL1 trade.

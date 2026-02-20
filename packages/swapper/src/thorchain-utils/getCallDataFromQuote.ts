@@ -47,7 +47,7 @@ export const getCallDataFromQuote = async ({
       const amountOutMin = BigInt(
         bnOrZero(expectedAmountOut)
           .times(bn(1).minus(slippageTolerancePercentageDecimal ?? 0))
-          .toFixed(0, BigNumber.ROUND_DOWN),
+          .toFixed(0, BigNumber.ROUND_UP),
       )
       const swapInAbiItem = parseAbiItem(
         'function swapIn(address tcRouter, address tcVault, string tcMemo, address token, uint256 amount, uint256 amountOutMin, uint256 deadline)',

@@ -2,6 +2,7 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
   berachainChainId,
+  bobChainId,
   cronosChainId,
   hyperEvmChainId,
   mantleChainId,
@@ -50,6 +51,7 @@ const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [cronosChainId]: '0x5C7F8A570d578ED84E63fdFA7b1eE72dEae1AE23',
   [sonicChainId]: '0x039e2fB66102314Ce7b64Ce5Ce3E5183bc94aD38',
   [unichainChainId]: '0x4200000000000000000000000000000000000006',
+  [bobChainId]: '0x4200000000000000000000000000000000000006',
 }
 const BATCH_SIZE = 500
 

@@ -10,7 +10,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { JSX } from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { LuChevronsUpDown } from 'react-icons/lu'
 import { useTranslate } from 'react-polyglot'
 
@@ -20,6 +20,30 @@ import { Display } from '@/components/Display'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 
 const selectorIcon = <LuChevronsUpDown fontSize='1em' />
+
+type ToggleSwitcherProps = {
+  label: string
+  onClick: () => void
+}
+
+const ToggleSwitcher: React.FC<ToggleSwitcherProps> = ({ label, onClick }) => (
+  <Flex alignItems='center' mt={4}>
+    <Divider borderColor='border.subtle' />
+    <Button
+      variant='outline'
+      size='sm'
+      borderRadius='full'
+      px={4}
+      flexShrink={0}
+      rightIcon={selectorIcon}
+      fontWeight='medium'
+      onClick={onClick}
+    >
+      {label}
+    </Button>
+    <Divider borderColor='border.subtle' />
+  </Flex>
+)
 
 type SharedTradeInputHeaderProps = {
   initialTab: TradeInputTab
@@ -166,40 +190,10 @@ export const SharedTradeInputHeader = ({
           </Flex>
         </Flex>
         {showOrderTypeSwitcher && (
-          <Flex alignItems='center' mt={4}>
-            <Divider borderColor='border.subtle' />
-            <Button
-              variant='outline'
-              size='sm'
-              borderRadius='full'
-              px={4}
-              flexShrink={0}
-              rightIcon={selectorIcon}
-              fontWeight='medium'
-              onClick={handleToggleOrderType}
-            >
-              {orderTypeLabel}
-            </Button>
-            <Divider borderColor='border.subtle' />
-          </Flex>
+          <ToggleSwitcher label={orderTypeLabel} onClick={handleToggleOrderType} />
         )}
         {showBuySellSwitcher && (
-          <Flex alignItems='center' mt={4}>
-            <Divider borderColor='border.subtle' />
-            <Button
-              variant='outline'
-              size='sm'
-              borderRadius='full'
-              px={4}
-              flexShrink={0}
-              rightIcon={selectorIcon}
-              fontWeight='medium'
-              onClick={handleToggleBuySell}
-            >
-              {buySellLabel}
-            </Button>
-            <Divider borderColor='border.subtle' />
-          </Flex>
+          <ToggleSwitcher label={buySellLabel} onClick={handleToggleBuySell} />
         )}
       </Display.Desktop>
       <Display.Mobile>
@@ -265,40 +259,10 @@ export const SharedTradeInputHeader = ({
           </Flex>
         </Flex>
         {showOrderTypeSwitcher && (
-          <Flex alignItems='center' mt={4}>
-            <Divider borderColor='border.subtle' />
-            <Button
-              variant='outline'
-              size='sm'
-              borderRadius='full'
-              px={4}
-              flexShrink={0}
-              rightIcon={selectorIcon}
-              fontWeight='medium'
-              onClick={handleToggleOrderType}
-            >
-              {orderTypeLabel}
-            </Button>
-            <Divider borderColor='border.subtle' />
-          </Flex>
+          <ToggleSwitcher label={orderTypeLabel} onClick={handleToggleOrderType} />
         )}
         {showBuySellSwitcher && (
-          <Flex alignItems='center' mt={4}>
-            <Divider borderColor='border.subtle' />
-            <Button
-              variant='outline'
-              size='sm'
-              borderRadius='full'
-              px={4}
-              flexShrink={0}
-              rightIcon={selectorIcon}
-              fontWeight='medium'
-              onClick={handleToggleBuySell}
-            >
-              {buySellLabel}
-            </Button>
-            <Divider borderColor='border.subtle' />
-          </Flex>
+          <ToggleSwitcher label={buySellLabel} onClick={handleToggleBuySell} />
         )}
       </Display.Mobile>
     </CardHeader>

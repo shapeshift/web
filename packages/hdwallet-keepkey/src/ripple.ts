@@ -26,15 +26,15 @@ export async function rippleSignTx(
   return transport.lockDuring(async () => {
     const signTx = new RippleMessages.RippleSignTx()
     signTx.setAddressNList(msg.addressNList)
-    signTx.setFee(Number(msg.tx.value.fee.amount[0].amount))
-    signTx.setSequence(Number(msg.sequence))
-    signTx.setLastLedgerSequence(Number(msg.lastLedgerSequence))
+    signTx.setFee(parseInt(msg.tx.value.fee.amount[0].amount))
+    signTx.setSequence(parseInt(msg.sequence))
+    signTx.setLastLedgerSequence(parseInt(msg.lastLedgerSequence))
 
     const payment = new RippleMessages.RipplePayment()
-    payment.setAmount(Number(msg.payment.amount))
+    payment.setAmount(parseInt(msg.payment.amount))
     payment.setDestination(msg.payment.destination)
     if (msg.payment.destinationTag !== undefined)
-      payment.setDestinationTag(Number(msg.payment.destinationTag))
+      payment.setDestinationTag(parseInt(msg.payment.destinationTag))
     signTx.setPayment(payment)
 
     const resp = await transport.call(Messages.MessageType.MESSAGETYPE_RIPPLESIGNTX, signTx, {

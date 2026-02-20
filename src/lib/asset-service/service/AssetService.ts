@@ -4,12 +4,15 @@ import {
   arbitrumChainId,
   baseChainId,
   berachainChainId,
+  bobChainId,
   bscChainId,
+  cronosChainId,
   gnosisChainId,
   hyperEvmChainId,
   inkChainId,
   katanaChainId,
   lineaChainId,
+  mantleChainId,
   mayachainChainId,
   megaethChainId,
   modeChainId,
@@ -19,10 +22,12 @@ import {
   polygonChainId,
   scrollChainId,
   solanaChainId,
+  sonicChainId,
   starknetChainId,
   suiChainId,
   tonChainId,
   tronChainId,
+  unichainChainId,
   zecChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
@@ -127,12 +132,17 @@ class _AssetService {
       if (!config.VITE_FEATURE_MONAD && asset.chainId === monadChainId) return false
       if (!config.VITE_FEATURE_HYPEREVM && asset.chainId === hyperEvmChainId) return false
       if (!config.VITE_FEATURE_KATANA && asset.chainId === katanaChainId) return false
+      if (!config.VITE_FEATURE_MANTLE && asset.chainId === mantleChainId) return false
       if (!config.VITE_FEATURE_INK && asset.chainId === inkChainId) return false
+      if (!config.VITE_FEATURE_SONIC && asset.chainId === sonicChainId) return false
+      if (!config.VITE_FEATURE_UNICHAIN && asset.chainId === unichainChainId) return false
+      if (!config.VITE_FEATURE_BOB && asset.chainId === bobChainId) return false
       if (!config.VITE_FEATURE_MODE && asset.chainId === modeChainId) return false
       if (!config.VITE_FEATURE_MEGAETH && asset.chainId === megaethChainId) return false
       if (!config.VITE_FEATURE_LINEA && asset.chainId === lineaChainId) return false
       if (!config.VITE_FEATURE_BERACHAIN && asset.chainId === berachainChainId) return false
       if (!config.VITE_FEATURE_SCROLL && asset.chainId === scrollChainId) return false
+      if (!config.VITE_FEATURE_CRONOS && asset.chainId === cronosChainId) return false
       if (!config.VITE_FEATURE_MAYACHAIN && asset.chainId === mayachainChainId) return false
       if (!config.VITE_FEATURE_NEAR && asset.chainId === nearChainId) return false
       if (!config.VITE_FEATURE_ZCASH && asset.chainId === zecChainId) return false

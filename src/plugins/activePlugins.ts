@@ -5,7 +5,9 @@ import berachain from '@/plugins/berachain'
 import bitcoin from '@/plugins/bitcoin'
 import bitcoincash from '@/plugins/bitcoincash'
 import bnbsmartchain from '@/plugins/bnbsmartchain'
+import bob from '@/plugins/bob'
 import cosmos from '@/plugins/cosmos'
+import cronos from '@/plugins/cronos'
 import dogecoin from '@/plugins/dogecoin'
 import ethereum from '@/plugins/ethereum'
 import gnosis from '@/plugins/gnosis'
@@ -14,6 +16,7 @@ import ink from '@/plugins/ink'
 import katana from '@/plugins/katana'
 import linea from '@/plugins/linea'
 import litecoin from '@/plugins/litecoin'
+import mantle from '@/plugins/mantle'
 import mayachain from '@/plugins/mayachain'
 import megaeth from '@/plugins/megaeth'
 import mobile from '@/plugins/mobile'
@@ -25,11 +28,13 @@ import plasma from '@/plugins/plasma'
 import polygon from '@/plugins/polygon'
 import scroll from '@/plugins/scroll'
 import solana from '@/plugins/solana'
+import sonic from '@/plugins/sonic'
 import starknet from '@/plugins/starknet'
 import sui from '@/plugins/sui'
 import thorchain from '@/plugins/thorchain'
 import ton from '@/plugins/ton'
 import tron from '@/plugins/tron'
+import unichain from '@/plugins/unichain'
 import walletConnectToDapps from '@/plugins/walletConnectToDapps'
 import zcash from '@/plugins/zcash'
 
@@ -41,7 +46,9 @@ export const activePlugins = [
   bitcoin,
   bitcoincash,
   bnbsmartchain,
+  bob,
   cosmos,
+  cronos,
   dogecoin,
   ethereum,
   gnosis,
@@ -49,7 +56,9 @@ export const activePlugins = [
   ink,
   katana,
   linea,
+  unichain,
   litecoin,
+  mantle,
   mode,
   mayachain,
   megaeth,
@@ -61,6 +70,7 @@ export const activePlugins = [
   polygon,
   scroll,
   solana,
+  sonic,
   starknet,
   sui,
   thorchain,

@@ -6,10 +6,12 @@ import {
   baseChainId,
   bchChainId,
   berachainChainId,
+  bobChainId,
   bscChainId,
   btcChainId,
   CHAIN_NAMESPACE,
   cosmosChainId,
+  cronosChainId,
   dogeChainId,
   ethChainId,
   fromAccountId,
@@ -22,6 +24,7 @@ import {
   katanaChainId,
   lineaChainId,
   ltcChainId,
+  mantleChainId,
   mayachainChainId,
   megaethChainId,
   modeChainId,
@@ -32,6 +35,7 @@ import {
   polygonChainId,
   scrollChainId,
   solanaChainId,
+  sonicChainId,
   starknetChainId,
   suiChainId,
   thorchainChainId,
@@ -39,6 +43,7 @@ import {
   toAssetId,
   tonChainId,
   tronChainId,
+  unichainChainId,
   zecChainId,
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
@@ -51,15 +56,18 @@ import {
   supportsAvalanche,
   supportsBase,
   supportsBerachain,
+  supportsBob,
   supportsBSC,
   supportsBTC,
   supportsCosmos,
+  supportsCronos,
   supportsETH,
   supportsGnosis,
   supportsHyperEvm,
   supportsInk,
   supportsKatana,
   supportsLinea,
+  supportsMantle,
   supportsMayachain,
   supportsMegaEth,
   supportsMode,
@@ -69,10 +77,12 @@ import {
   supportsPolygon,
   supportsScroll,
   supportsSolana,
+  supportsSonic,
   supportsStarknet,
   supportsSui,
   supportsThorchain,
   supportsTron,
+  supportsUnichain,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { Asset, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
@@ -111,12 +121,17 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case arbitrumChainId:
     case baseChainId:
     case hyperEvmChainId:
+    case mantleChainId:
     case inkChainId:
     case megaethChainId:
     case berachainChainId:
     case lineaChainId:
+    case cronosChainId:
     case katanaChainId:
     case scrollChainId:
+    case sonicChainId:
+    case unichainChainId:
+    case bobChainId:
     case modeChainId:
     case monadChainId:
     case plasmaChainId:
@@ -521,6 +536,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsMonad(wallet)
     case hyperEvmChainId:
       return supportsHyperEvm(wallet)
+    case mantleChainId:
+      return supportsMantle(wallet)
     case inkChainId:
       return supportsInk(wallet)
     case megaethChainId:
@@ -535,6 +552,14 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsLinea(wallet)
     case scrollChainId:
       return supportsScroll(wallet)
+    case cronosChainId:
+      return supportsCronos(wallet)
+    case sonicChainId:
+      return supportsSonic(wallet)
+    case unichainChainId:
+      return supportsUnichain(wallet)
+    case bobChainId:
+      return supportsBob(wallet)
     case modeChainId:
       return supportsMode(wallet)
     case tronChainId:

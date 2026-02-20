@@ -5,9 +5,11 @@ import {
   baseAssetId,
   bchAssetId,
   berachainAssetId,
+  bobAssetId,
   bscAssetId,
   btcAssetId,
   cosmosAssetId,
+  cronosAssetId,
   dogeAssetId,
   ethAssetId,
   gnosisAssetId,
@@ -16,6 +18,7 @@ import {
   katanaAssetId,
   lineaAssetId,
   ltcAssetId,
+  mantleAssetId,
   mayachainAssetId,
   megaethAssetId,
   modeAssetId,
@@ -26,11 +29,13 @@ import {
   polygonAssetId,
   scrollAssetId,
   solAssetId,
+  sonicAssetId,
   starknetAssetId,
   suiAssetId,
   thorchainAssetId,
   tonAssetId,
   tronAssetId,
+  unichainAssetId,
   zecAssetId,
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -84,18 +89,28 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return hyperEvmAssetId
     case KnownChainIds.PlasmaMainnet:
       return plasmaAssetId
+    case KnownChainIds.MantleMainnet:
+      return mantleAssetId
     case KnownChainIds.InkMainnet:
       return inkAssetId
     case KnownChainIds.MegaEthMainnet:
       return megaethAssetId
     case KnownChainIds.BerachainMainnet:
       return berachainAssetId
+    case KnownChainIds.CronosMainnet:
+      return cronosAssetId
     case KnownChainIds.KatanaMainnet:
       return katanaAssetId
     case KnownChainIds.LineaMainnet:
       return lineaAssetId
     case KnownChainIds.ScrollMainnet:
       return scrollAssetId
+    case KnownChainIds.SonicMainnet:
+      return sonicAssetId
+    case KnownChainIds.UnichainMainnet:
+      return unichainAssetId
+    case KnownChainIds.BobMainnet:
+      return bobAssetId
     case KnownChainIds.ModeMainnet:
       return modeAssetId
     case KnownChainIds.ZcashMainnet:

@@ -9,16 +9,19 @@ import {
   avalancheChainId,
   baseChainId,
   berachainChainId,
+  bobChainId,
   bscChainId,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
   cosmosChainId,
+  cronosChainId,
   ethChainId,
   gnosisChainId,
   hyperEvmChainId,
   inkChainId,
   katanaChainId,
   lineaChainId,
+  mantleChainId,
   mayachainChainId,
   megaethChainId,
   modeChainId,
@@ -29,11 +32,13 @@ import {
   polygonChainId,
   scrollChainId,
   solanaChainId,
+  sonicChainId,
   starknetChainId,
   suiChainId,
   thorchainChainId,
   tonChainId,
   tronChainId,
+  unichainChainId,
 } from '../../constants'
 import * as adapters from './generated'
 
@@ -57,11 +62,16 @@ export enum CoingeckoAssetPlatform {
   Plasma = 'plasma',
   Ink = 'ink',
   Katana = 'katana',
+  Mantle = 'mantle',
   Linea = 'linea',
+  Sonic = 'sonic-3',
+  Unichain = 'unichain',
+  Bob = 'bob-network',
   Mode = 'mode',
   MegaEth = 'megaeth',
   Berachain = 'berachain',
   Scroll = 'scroll',
+  Cronos = 'cronos',
   Solana = 'solana',
   Starknet = 'starknet',
   Tron = 'tron',
@@ -122,6 +132,14 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Plasma
         case CHAIN_REFERENCE.KatanaMainnet:
           return CoingeckoAssetPlatform.Katana
+        case CHAIN_REFERENCE.MantleMainnet:
+          return CoingeckoAssetPlatform.Mantle
+        case CHAIN_REFERENCE.SonicMainnet:
+          return CoingeckoAssetPlatform.Sonic
+        case CHAIN_REFERENCE.UnichainMainnet:
+          return CoingeckoAssetPlatform.Unichain
+        case CHAIN_REFERENCE.BobMainnet:
+          return CoingeckoAssetPlatform.Bob
         case CHAIN_REFERENCE.ModeMainnet:
           return CoingeckoAssetPlatform.Mode
         case CHAIN_REFERENCE.MegaEthMainnet:
@@ -134,6 +152,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Ink
         case CHAIN_REFERENCE.ScrollMainnet:
           return CoingeckoAssetPlatform.Scroll
+        case CHAIN_REFERENCE.CronosMainnet:
+          return CoingeckoAssetPlatform.Cronos
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
@@ -241,6 +261,14 @@ export const coingeckoAssetPlatformToChainId = (
       return plasmaChainId
     case CoingeckoAssetPlatform.Katana:
       return katanaChainId
+    case CoingeckoAssetPlatform.Mantle:
+      return mantleChainId
+    case CoingeckoAssetPlatform.Sonic:
+      return sonicChainId
+    case CoingeckoAssetPlatform.Unichain:
+      return unichainChainId
+    case CoingeckoAssetPlatform.Bob:
+      return bobChainId
     case CoingeckoAssetPlatform.Mode:
       return modeChainId
     case CoingeckoAssetPlatform.MegaEth:
@@ -253,6 +281,8 @@ export const coingeckoAssetPlatformToChainId = (
       return inkChainId
     case CoingeckoAssetPlatform.Scroll:
       return scrollChainId
+    case CoingeckoAssetPlatform.Cronos:
+      return cronosChainId
     case CoingeckoAssetPlatform.Cosmos:
       return cosmosChainId
     case CoingeckoAssetPlatform.Thorchain:

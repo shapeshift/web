@@ -5,9 +5,11 @@ import {
   baseChainId,
   bchChainId,
   berachainChainId,
+  bobChainId,
   bscChainId,
   btcChainId,
   cosmosChainId,
+  cronosChainId,
   dogeChainId,
   ethChainId,
   gnosisChainId,
@@ -16,6 +18,7 @@ import {
   katanaChainId,
   lineaChainId,
   ltcChainId,
+  mantleChainId,
   mayachainChainId,
   megaethChainId,
   modeChainId,
@@ -26,11 +29,13 @@ import {
   polygonChainId,
   scrollChainId,
   solanaChainId,
+  sonicChainId,
   starknetChainId,
   suiChainId,
   thorchainChainId,
   tonChainId,
   tronChainId,
+  unichainChainId,
   zecChainId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -44,15 +49,18 @@ import {
   supportsAvalanche,
   supportsBase,
   supportsBerachain,
+  supportsBob,
   supportsBSC,
   supportsBTC,
   supportsCosmos,
+  supportsCronos,
   supportsETH,
   supportsGnosis,
   supportsHyperEvm,
   supportsInk,
   supportsKatana,
   supportsLinea,
+  supportsMantle,
   supportsMayachain,
   supportsMegaEth,
   supportsMode,
@@ -62,10 +70,12 @@ import {
   supportsPolygon,
   supportsScroll,
   supportsSolana,
+  supportsSonic,
   supportsStarknet,
   supportsSui,
   supportsThorchain,
   supportsTron,
+  supportsUnichain,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import { useMemo } from 'react'
 
@@ -159,8 +169,13 @@ export const walletSupportsChain = ({
 
   const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
   const isInkEnabled = selectFeatureFlag(store.getState(), 'Ink')
+  const isBobEnabled = selectFeatureFlag(store.getState(), 'Bob')
   const isKatanaEnabled = selectFeatureFlag(store.getState(), 'Katana')
+  const isMantleEnabled = selectFeatureFlag(store.getState(), 'Mantle')
   const isLineaEnabled = selectFeatureFlag(store.getState(), 'Linea')
+  const isCronosEnabled = selectFeatureFlag(store.getState(), 'Cronos')
+  const isSonicEnabled = selectFeatureFlag(store.getState(), 'Sonic')
+  const isUnichainEnabled = selectFeatureFlag(store.getState(), 'Unichain')
   const isMegaEthEnabled = selectFeatureFlag(store.getState(), 'MegaEth')
   const isBerachainEnabled = selectFeatureFlag(store.getState(), 'Berachain')
   const isModeEnabled = selectFeatureFlag(store.getState(), 'Mode')
@@ -205,6 +220,8 @@ export const walletSupportsChain = ({
       return isMonadEnabled && supportsMonad(wallet)
     case hyperEvmChainId:
       return isHyperEvmEnabled && supportsHyperEvm(wallet)
+    case mantleChainId:
+      return isMantleEnabled && supportsMantle(wallet)
     case inkChainId:
       return isInkEnabled && supportsInk(wallet)
     case megaethChainId:
@@ -219,6 +236,14 @@ export const walletSupportsChain = ({
       return isLineaEnabled && supportsLinea(wallet)
     case scrollChainId:
       return isScrollEnabled && supportsScroll(wallet)
+    case cronosChainId:
+      return isCronosEnabled && supportsCronos(wallet)
+    case sonicChainId:
+      return isSonicEnabled && supportsSonic(wallet)
+    case unichainChainId:
+      return isUnichainEnabled && supportsUnichain(wallet)
+    case bobChainId:
+      return isBobEnabled && supportsBob(wallet)
     case modeChainId:
       return isModeEnabled && supportsMode(wallet)
     case cosmosChainId:

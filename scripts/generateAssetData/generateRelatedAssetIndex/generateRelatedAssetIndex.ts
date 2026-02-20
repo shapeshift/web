@@ -3,6 +3,7 @@ import {
   adapters,
   arbitrumAssetId,
   baseAssetId,
+  bobAssetId,
   ethAssetId,
   FEE_ASSET_IDS,
   foxAssetId,
@@ -16,6 +17,7 @@ import {
   optimismAssetId,
   scrollAssetId,
   starknetAssetId,
+  unichainAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { createThrottle, isToken } from '@shapeshiftoss/utils'
@@ -62,6 +64,8 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     scrollAssetId,
     katanaAssetId,
     megaethAssetId,
+    unichainAssetId,
+    bobAssetId,
     modeAssetId,
   ],
   [foxAssetId]: [foxOnArbitrumOneAssetId],

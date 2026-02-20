@@ -174,12 +174,25 @@ For cross-chain swaps where the destination is native (e.g., ETH→MNT via Relay
     - The detection logic is already generalized: it parses `Transfer` burn events (to zero address) on the wrapped contract to synthesize internal Txs
     - To find the wrapped native address: search `W<SYMBOL>` on the chain's block explorer or check the Relay Tx from the user's review comment
 
+## Phase 3.6: Native Token ERC20 Duplicate Blacklisting
+
+Some chains have an ERC20 contract that represents the native token (e.g., Mantle's `0xDeaD...0000` for MNT, Polygon's `0x...1010` for MATIC). CoinGecko returns these as separate tokens, which causes:
+- **Duplicate assets in "My Assets"** - native and ERC20 wrapper both appear with different icons
+- **Relay swap failures** - the swap picker may select the ERC20 wrapper, which Relay doesn't recognize as native (expects `0x0000...0000`)
+- **Incorrect balance display** - double-counting the same balance
+
+44. **Blacklist native ERC20 wrapper** - `scripts/generateAssetData/blacklist.json`
+    - If the chain has a special ERC20 contract representing the native token, add it to the blacklist
+    - Known patterns: Mantle `eip155:5000/erc20:0xdeaddeaddeaddeaddeaddeaddeaddeaddead0000`, Polygon `eip155:137/erc20:0x0000000000000000000000000000000000001010`
+    - To detect: after `yarn generate:chain`, check if there are two entries with the same symbol as the native asset (one `slip44:60`, one `erc20:0x...`)
+    - After adding to blacklist, re-run `yarn generate:chain` to apply
+
 ## Phase 4: Consistency Checks
 
 35. **Trailing slashes** on RPC URLs - all `*_NODE_URL` entries should be consistent (no trailing slash)
 36. **Chain ID correctness** - verify against the chain's official docs
 37. **Explorer URLs** - verify they're the official block explorer
-38. **Asset icon URLs** - verify they resolve (HTTP 200, not 403/404). Prefer `assets.relay.link/icons/<chainId>/light.png` for networkIcon over CoinGecko URLs which often return 403.
+38. **Asset icon URLs** - verify they resolve (HTTP 200, not 403/404). Prefer `assets.relay.link/icons/<chainId>/light.png` for networkIcon over CoinGecko URLs which often return 403. **After changing `networkIcon` in `baseAssets.ts`, you MUST re-run `yarn generate:chain` for that chain** - the generated JSON caches the old URL and won't pick up the fix until regenerated.
 39. **Generated data** - verify asset-manifest.json, generatedAssetData.json, relatedAssetIndex.json are regenerated
 
 40. **Related Asset Index** - `public/generated/relatedAssetIndex.json` + `scripts/generateAssetData/generateRelatedAssetIndex/generateRelatedAssetIndex.ts`
@@ -187,6 +200,7 @@ For cross-chain swaps where the destination is native (e.g., ETH→MNT via Relay
     - Verify `relatedAssetIndex.json` has been regenerated and contains entries for the new chain's tokens
     - Check `generatedAssetData.json` - the chain's ERC20 tokens should have `relatedAssetKey` values linking them to mainnet counterparts
     - Without this, tokens won't appear in the trade modal "Popular Assets" section
+    - **Manual stablecoin mappings**: Look up the chain's native USDC, USDT, and DAI contract addresses (NOT bridged variants - CoinGecko auto-discovers those). Add them to `manualRelatedAssetIndex` in BOTH `generateRelatedAssetIndex.ts` AND `generateChainRelatedAssetIndex.ts`, keyed by the Ethereum canonical token's AssetId. Without this, popular stablecoins won't show for the chain in the trade modal.
 
 41. **Trade modal "Popular Assets" verification** - after enabling the feature flag, open the trade modal "To" asset selector and filter by the new chain
     - Popular tokens (USDC, USDT, LINK, etc.) should appear WITHOUT needing to search
@@ -219,3 +233,4 @@ When adding a new chain to lists, switch/case blocks, arrays, or object entries,
 - Verify cross-chain swap TO native asset shows execution price (wrapped native detection)
 - Verify chain icon and network icon load without perma-loading spinner
 - Verify brand chain icon in chain selector is correct and displays properly
+- Verify native asset does NOT appear twice in "My Assets" (once as slip44, once as ERC20 wrapper) - if it does, blacklist the ERC20 wrapper in `scripts/generateAssetData/blacklist.json` and regen

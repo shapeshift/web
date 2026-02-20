@@ -8,6 +8,7 @@ import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
+  berachainChainId,
   bscChainId,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
@@ -16,7 +17,9 @@ import {
   ethChainId,
   gnosisChainId,
   hyperEvmChainId,
+  inkChainId,
   katanaChainId,
+  lineaChainId,
   mayachainChainId,
   megaethChainId,
   monadChainId,
@@ -24,6 +27,7 @@ import {
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  scrollChainId,
   solanaChainId,
   starknetChainId,
   suiChainId,
@@ -51,8 +55,12 @@ export enum CoingeckoAssetPlatform {
   Monad = 'monad',
   HyperEvm = 'hyperevm',
   Plasma = 'plasma',
+  Ink = 'ink',
   Katana = 'katana',
+  Linea = 'linea',
   MegaEth = 'megaeth',
+  Berachain = 'berachain',
+  Scroll = 'scroll',
   Cronos = 'cronos',
   Solana = 'solana',
   Starknet = 'starknet',
@@ -116,6 +124,14 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Katana
         case CHAIN_REFERENCE.MegaEthMainnet:
           return CoingeckoAssetPlatform.MegaEth
+        case CHAIN_REFERENCE.LineaMainnet:
+          return CoingeckoAssetPlatform.Linea
+        case CHAIN_REFERENCE.BerachainMainnet:
+          return CoingeckoAssetPlatform.Berachain
+        case CHAIN_REFERENCE.InkMainnet:
+          return CoingeckoAssetPlatform.Ink
+        case CHAIN_REFERENCE.ScrollMainnet:
+          return CoingeckoAssetPlatform.Scroll
         case CHAIN_REFERENCE.CronosMainnet:
           return CoingeckoAssetPlatform.Cronos
         default:
@@ -227,6 +243,14 @@ export const coingeckoAssetPlatformToChainId = (
       return katanaChainId
     case CoingeckoAssetPlatform.MegaEth:
       return megaethChainId
+    case CoingeckoAssetPlatform.Linea:
+      return lineaChainId
+    case CoingeckoAssetPlatform.Berachain:
+      return berachainChainId
+    case CoingeckoAssetPlatform.Ink:
+      return inkChainId
+    case CoingeckoAssetPlatform.Scroll:
+      return scrollChainId
     case CoingeckoAssetPlatform.Cronos:
       return cronosChainId
     case CoingeckoAssetPlatform.Cosmos:

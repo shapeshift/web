@@ -1,3 +1,4 @@
+import { BigAmount } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { matchPath, useLocation, useNavigate } from 'react-router-dom'
@@ -14,7 +15,6 @@ import type { TradeCardProps } from './MultiHopTrade'
 import type { TradeInputTab } from './types'
 import { TradeRoutePaths } from './types'
 
-import { fromBaseUnit } from '@/lib/math'
 import { TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import {
@@ -120,11 +120,11 @@ export const StandaloneMultiHopTrade = memo(
       }
 
       if (paramsSellAmountCryptoBaseUnit && routeSellAsset) {
-        dispatch(
-          tradeInput.actions.setSellAmountCryptoPrecision(
-            fromBaseUnit(paramsSellAmountCryptoBaseUnit, routeSellAsset.precision),
-          ),
-        )
+        const sellAmountCrypto = BigAmount.fromBaseUnit({
+          value: paramsSellAmountCryptoBaseUnit,
+          precision: routeSellAsset.precision,
+        })
+        dispatch(tradeInput.actions.setSellAmountCryptoPrecision(sellAmountCrypto.toPrecision()))
       }
 
       setIsInitialized(true)

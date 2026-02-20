@@ -225,24 +225,9 @@ const generateReleaseSummary = async (
   }
 }
 
-const createDraftRegularPR = async (): Promise<void> => {
-  const { messages } = await getCommits('release')
+const createDraftRegularPR = async (prBody: string): Promise<void> => {
   const nextVersion = await getNextReleaseVersion('minor')
   const title = `chore: release ${nextVersion}`
-
-  console.log(chalk.green('Generating release summary...'))
-  const prNumbers = extractPrNumbers(messages)
-  console.log(chalk.green(`Found ${prNumbers.length} PR references, fetching context...`))
-
-  const prBodies = prNumbers.length > 0 ? await fetchPrBodies(prNumbers) : new Map()
-  console.log(chalk.green(`Fetched ${prBodies.size}/${prNumbers.length} PR descriptions.`))
-
-  const summary = await generateReleaseSummary(nextVersion, messages, prBodies)
-  const prBody = summary ?? messages.join('\n')
-
-  if (summary) {
-    console.log(chalk.green('AI summary generated successfully.'))
-  }
 
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shapeshift-release-body-'))
   const bodyPath = path.join(tmpDir, 'body.md')
@@ -309,20 +294,45 @@ const assertCommitsToRelease = (total: number) => {
 const doRegularRelease = async () => {
   const { messages, total } = await getCommits('develop')
   assertCommitsToRelease(total)
-  await inquireProceedWithCommits(messages, 'create')
+
+  const nextVersion = await getNextReleaseVersion('minor')
+
+  console.log(chalk.green('Generating AI release summary...'))
+  const prNumbers = extractPrNumbers(messages)
+  console.log(chalk.green(`Found ${prNumbers.length} PR references, fetching context...`))
+
+  const prBodies = prNumbers.length > 0 ? await fetchPrBodies(prNumbers) : new Map()
+  console.log(chalk.green(`Fetched ${prBodies.size}/${prNumbers.length} PR descriptions.`))
+
+  const summary = await generateReleaseSummary(nextVersion, messages, prBodies)
+  const prBody = summary ?? messages.join('\n')
+
+  if (summary) {
+    console.log(chalk.green('AI summary generated successfully.\n'))
+  }
+
+  console.log(chalk.blue(['', prBody, ''].join('\n')))
+
+  const { shouldProceed } = await inquirer.prompt<{ shouldProceed: boolean }>([
+    {
+      type: 'confirm',
+      default: 'y',
+      name: 'shouldProceed',
+      message: 'Do you want to create a release with this PR body?',
+      choices: ['y', 'n'],
+    },
+  ])
+  if (!shouldProceed) exit('Release cancelled.')
+
   console.log(chalk.green('Checking out develop...'))
   await git().checkout(['develop'])
   console.log(chalk.green('Pulling develop...'))
   await git().pull()
   console.log(chalk.green('Resetting release to develop...'))
-  // **note** - most devs are familiar with lowercase -b to check out a new branch
-  // capital -B will checkout and reset the branch to the current HEAD
-  // so we can reuse the release branch, and force push over it
-  // this is required as the fleek environment is pointed at this specific branch
   await git().checkout(['-B', 'release'])
   console.log(chalk.green('Force pushing release branch...'))
   await git().push(['--force', 'origin', 'release'])
-  await createDraftRegularPR()
+  await createDraftRegularPR(prBody)
   exit()
 }
 

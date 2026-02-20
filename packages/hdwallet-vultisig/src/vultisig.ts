@@ -228,11 +228,13 @@ export class VultisigHDWallet
   readonly _supportsKatana = false
   readonly _supportsSonic = false
   readonly _supportsHyperEvm = false
+  readonly _supportsMantle = false
   readonly _supportsInk = false
   readonly _supportsMegaEth = false
   readonly _supportsBerachain = false
   readonly _supportsLinea = false
   readonly _supportsScroll = false
+  readonly _supportsCronos = false
   readonly _supportsBSC = true
   readonly _supportsSolana = true
   readonly _supportsThorchain = true

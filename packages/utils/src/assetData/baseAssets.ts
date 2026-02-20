@@ -354,6 +354,21 @@ export const plasma: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const mantle: Readonly<Asset> = Object.freeze({
+  assetId: caip.mantleAssetId,
+  chainId: caip.mantleChainId,
+  symbol: 'MNT',
+  name: 'Mantle',
+  networkName: 'Mantle',
+  precision: 18,
+  color: '#000000',
+  icon: 'https://assets.relay.link/icons/5000/light.png',
+  explorer: 'https://mantlescan.xyz',
+  explorerAddressLink: 'https://mantlescan.xyz/address/',
+  explorerTxLink: 'https://mantlescan.xyz/tx/',
+  relatedAssetKey: null,
+})
+
 export const ink: Readonly<Asset> = Object.freeze({
   assetId: caip.inkAssetId,
   chainId: caip.inkChainId,
@@ -369,6 +384,23 @@ export const ink: Readonly<Asset> = Object.freeze({
   explorerAddressLink: 'https://explorer.inkonchain.com/address/',
   explorerTxLink: 'https://explorer.inkonchain.com/tx/',
   relatedAssetKey: 'eip155:1/slip44:60',
+})
+
+export const cronos: Readonly<Asset> = Object.freeze({
+  assetId: caip.cronosAssetId,
+  chainId: caip.cronosChainId,
+  name: 'Cronos',
+  networkName: 'Cronos',
+  symbol: 'CRO',
+  precision: 18,
+  color: '#002D74',
+  networkColor: '#002D74',
+  icon: 'https://assets.relay.link/icons/25/light.png',
+  networkIcon: 'https://assets.relay.link/icons/25/light.png',
+  explorer: 'https://explorer.cronos.org',
+  explorerAddressLink: 'https://explorer.cronos.org/address/',
+  explorerTxLink: 'https://explorer.cronos.org/tx/',
+  relatedAssetKey: null,
 })
 
 export const megaeth: Readonly<Asset> = Object.freeze({

@@ -6,6 +6,7 @@ import bitcoin from '@/plugins/bitcoin'
 import bitcoincash from '@/plugins/bitcoincash'
 import bnbsmartchain from '@/plugins/bnbsmartchain'
 import cosmos from '@/plugins/cosmos'
+import cronos from '@/plugins/cronos'
 import dogecoin from '@/plugins/dogecoin'
 import ethereum from '@/plugins/ethereum'
 import gnosis from '@/plugins/gnosis'
@@ -14,6 +15,7 @@ import ink from '@/plugins/ink'
 import katana from '@/plugins/katana'
 import linea from '@/plugins/linea'
 import litecoin from '@/plugins/litecoin'
+import mantle from '@/plugins/mantle'
 import mayachain from '@/plugins/mayachain'
 import megaeth from '@/plugins/megaeth'
 import mobile from '@/plugins/mobile'
@@ -42,6 +44,7 @@ export const activePlugins = [
   bitcoincash,
   bnbsmartchain,
   cosmos,
+  cronos,
   dogecoin,
   ethereum,
   gnosis,
@@ -50,6 +53,7 @@ export const activePlugins = [
   katana,
   linea,
   litecoin,
+  mantle,
   mayachain,
   megaeth,
   mobile,

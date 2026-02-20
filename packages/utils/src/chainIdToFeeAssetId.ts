@@ -8,6 +8,7 @@ import {
   bscAssetId,
   btcAssetId,
   cosmosAssetId,
+  cronosAssetId,
   dogeAssetId,
   ethAssetId,
   gnosisAssetId,
@@ -16,6 +17,7 @@ import {
   katanaAssetId,
   lineaAssetId,
   ltcAssetId,
+  mantleAssetId,
   mayachainAssetId,
   megaethAssetId,
   monadAssetId,
@@ -84,12 +86,16 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return hyperEvmAssetId
     case KnownChainIds.PlasmaMainnet:
       return plasmaAssetId
+    case KnownChainIds.MantleMainnet:
+      return mantleAssetId
     case KnownChainIds.InkMainnet:
       return inkAssetId
     case KnownChainIds.MegaEthMainnet:
       return megaethAssetId
     case KnownChainIds.BerachainMainnet:
       return berachainAssetId
+    case KnownChainIds.CronosMainnet:
+      return cronosAssetId
     case KnownChainIds.KatanaMainnet:
       return katanaAssetId
     case KnownChainIds.LineaMainnet:

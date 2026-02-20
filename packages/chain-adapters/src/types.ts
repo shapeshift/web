@@ -47,9 +47,11 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.MonadMainnet]: evm.Account
     [KnownChainIds.HyperEvmMainnet]: evm.Account
     [KnownChainIds.PlasmaMainnet]: evm.Account
+    [KnownChainIds.MantleMainnet]: evm.Account
     [KnownChainIds.InkMainnet]: evm.Account
     [KnownChainIds.MegaEthMainnet]: evm.Account
     [KnownChainIds.BerachainMainnet]: evm.Account
+    [KnownChainIds.CronosMainnet]: evm.Account
     [KnownChainIds.KatanaMainnet]: evm.Account
     [KnownChainIds.LineaMainnet]: evm.Account
     [KnownChainIds.ScrollMainnet]: evm.Account
@@ -104,9 +106,11 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.MonadMainnet]: evm.FeeData
     [KnownChainIds.HyperEvmMainnet]: evm.FeeData
     [KnownChainIds.PlasmaMainnet]: evm.FeeData
+    [KnownChainIds.MantleMainnet]: evm.FeeData
     [KnownChainIds.InkMainnet]: evm.FeeData
     [KnownChainIds.MegaEthMainnet]: evm.FeeData
     [KnownChainIds.BerachainMainnet]: evm.FeeData
+    [KnownChainIds.CronosMainnet]: evm.FeeData
     [KnownChainIds.KatanaMainnet]: evm.FeeData
     [KnownChainIds.LineaMainnet]: evm.FeeData
     [KnownChainIds.ScrollMainnet]: evm.FeeData
@@ -194,9 +198,11 @@ export type ChainSignTx = {
   [KnownChainIds.BaseMainnet]: ETHSignTx
   [KnownChainIds.MonadMainnet]: ETHSignTx
   [KnownChainIds.PlasmaMainnet]: ETHSignTx
+  [KnownChainIds.MantleMainnet]: ETHSignTx
   [KnownChainIds.InkMainnet]: ETHSignTx
   [KnownChainIds.MegaEthMainnet]: ETHSignTx
   [KnownChainIds.BerachainMainnet]: ETHSignTx
+  [KnownChainIds.CronosMainnet]: ETHSignTx
   [KnownChainIds.KatanaMainnet]: ETHSignTx
   [KnownChainIds.LineaMainnet]: ETHSignTx
   [KnownChainIds.ScrollMainnet]: ETHSignTx
@@ -256,9 +262,11 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.MonadMainnet]: evm.BuildTxInput
     [KnownChainIds.HyperEvmMainnet]: evm.BuildTxInput
     [KnownChainIds.PlasmaMainnet]: evm.BuildTxInput
+    [KnownChainIds.MantleMainnet]: evm.BuildTxInput
     [KnownChainIds.InkMainnet]: evm.BuildTxInput
     [KnownChainIds.MegaEthMainnet]: evm.BuildTxInput
     [KnownChainIds.BerachainMainnet]: evm.BuildTxInput
+    [KnownChainIds.CronosMainnet]: evm.BuildTxInput
     [KnownChainIds.KatanaMainnet]: evm.BuildTxInput
     [KnownChainIds.LineaMainnet]: evm.BuildTxInput
     [KnownChainIds.ScrollMainnet]: evm.BuildTxInput
@@ -368,9 +376,11 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.MonadMainnet]: evm.GetFeeDataInput
     [KnownChainIds.HyperEvmMainnet]: evm.GetFeeDataInput
     [KnownChainIds.PlasmaMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.MantleMainnet]: evm.GetFeeDataInput
     [KnownChainIds.InkMainnet]: evm.GetFeeDataInput
     [KnownChainIds.MegaEthMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BerachainMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.CronosMainnet]: evm.GetFeeDataInput
     [KnownChainIds.KatanaMainnet]: evm.GetFeeDataInput
     [KnownChainIds.LineaMainnet]: evm.GetFeeDataInput
     [KnownChainIds.ScrollMainnet]: evm.GetFeeDataInput
@@ -445,9 +455,11 @@ export enum ChainAdapterDisplayName {
   Monad = 'Monad',
   HyperEvm = 'HyperEVM',
   Plasma = 'Plasma',
+  Mantle = 'Mantle',
   Ink = 'Ink',
   MegaEth = 'MegaETH',
   Berachain = 'Berachain',
+  Cronos = 'Cronos',
   Katana = 'Katana',
   Linea = 'Linea',
   Scroll = 'Scroll',

@@ -13,12 +13,14 @@ import {
   supportsBase,
   supportsBerachain,
   supportsBSC,
+  supportsCronos,
   supportsETH,
   supportsGnosis,
   supportsHyperEvm,
   supportsInk,
   supportsKatana,
   supportsLinea,
+  supportsMantle,
   supportsMegaEth,
   supportsMonad,
   supportsOptimism,
@@ -91,9 +93,11 @@ export const evmChainIds = [
   KnownChainIds.MonadMainnet,
   KnownChainIds.HyperEvmMainnet,
   KnownChainIds.PlasmaMainnet,
+  KnownChainIds.MantleMainnet,
   KnownChainIds.InkMainnet,
   KnownChainIds.MegaEthMainnet,
   KnownChainIds.BerachainMainnet,
+  KnownChainIds.CronosMainnet,
   KnownChainIds.KatanaMainnet,
   KnownChainIds.LineaMainnet,
   KnownChainIds.ScrollMainnet,
@@ -198,12 +202,16 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsHyperEvm(wallet)
         case Number(fromChainId(KnownChainIds.PlasmaMainnet).chainReference):
           return supportsPlasma(wallet)
+        case Number(fromChainId(KnownChainIds.MantleMainnet).chainReference):
+          return supportsMantle(wallet)
         case Number(fromChainId(KnownChainIds.InkMainnet).chainReference):
           return supportsInk(wallet)
         case Number(fromChainId(KnownChainIds.MegaEthMainnet).chainReference):
           return supportsMegaEth(wallet)
         case Number(fromChainId(KnownChainIds.BerachainMainnet).chainReference):
           return supportsBerachain(wallet)
+        case Number(fromChainId(KnownChainIds.CronosMainnet).chainReference):
+          return supportsCronos(wallet)
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
         case Number(fromChainId(KnownChainIds.LineaMainnet).chainReference):
@@ -299,6 +307,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         symbol: 'XPL',
         explorer: 'https://plasmascan.to',
       },
+      [KnownChainIds.MantleMainnet]: {
+        name: 'Mantle',
+        symbol: 'MNT',
+        explorer: 'https://mantlescan.xyz',
+      },
       [KnownChainIds.InkMainnet]: {
         name: 'Ether',
         symbol: 'ETH',
@@ -313,6 +326,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Berachain',
         symbol: 'BERA',
         explorer: 'https://berascan.com',
+      },
+      [KnownChainIds.CronosMainnet]: {
+        name: 'Cronos',
+        symbol: 'CRO',
+        explorer: 'https://cronoscan.com',
       },
       [KnownChainIds.KatanaMainnet]: {
         name: 'Ethereum',

@@ -189,6 +189,10 @@ export function supportsHyperEvm(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsHyperEvm
 }
 
+export function supportsMantle(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsMantle
+}
+
 export function supportsInk(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsInk
 }
@@ -207,6 +211,10 @@ export function supportsLinea(wallet: HDWallet): wallet is ETHWallet {
 
 export function supportsScroll(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsScroll
+}
+
+export function supportsCronos(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsCronos
 }
 
 export function infoCosmos(info: HDWalletInfo): info is CosmosWalletInfo {

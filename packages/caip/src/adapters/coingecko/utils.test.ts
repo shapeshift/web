@@ -188,11 +188,17 @@ describe('adapters:coingecko:utils', () => {
         'eip155:747474': {
           'eip155:747474/slip44:60': 'katana',
         },
+        'eip155:5000': {
+          'eip155:5000/slip44:60': 'mantle',
+        },
         'eip155:80094': {
           'eip155:80094/slip44:60': 'berachain-bera',
         },
         'eip155:57073': {
           'eip155:57073/slip44:60': 'ethereum',
+        },
+        'eip155:25': {
+          'eip155:25/slip44:60': 'crypto-com-chain',
         },
         'eip155:146': {
           'eip155:146/slip44:60': 'sonic-3',

@@ -12,10 +12,12 @@ import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { getBerachainTransactionStatus } from '@/lib/utils/berachain'
+import { getCronosTransactionStatus } from '@/lib/utils/cronos'
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getInkTransactionStatus } from '@/lib/utils/ink'
 import { getKatanaTransactionStatus } from '@/lib/utils/katana'
 import { getLineaTransactionStatus } from '@/lib/utils/linea'
+import { getMantleTransactionStatus } from '@/lib/utils/mantle'
 import { getMegaEthTransactionStatus } from '@/lib/utils/megaeth'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getNearTransactionStatus } from '@/lib/utils/near'
@@ -205,6 +207,18 @@ export const useSendActionSubscriber = () => {
                   )
                   isConfirmed =
                     hyperEvmTxStatus === TxStatus.Confirmed || hyperEvmTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.MantleMainnet: {
+                  const mantleTxStatus = await getMantleTransactionStatus(txHash)
+                  isConfirmed =
+                    mantleTxStatus === TxStatus.Confirmed || mantleTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.CronosMainnet: {
+                  const cronosTxStatus = await getCronosTransactionStatus(txHash)
+                  isConfirmed =
+                    cronosTxStatus === TxStatus.Confirmed || cronosTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.MegaEthMainnet: {

@@ -12,6 +12,7 @@ import {
   bitcoin,
   bitcoincash,
   bnbsmartchain,
+  cronos,
   dogecoin,
   ethereum,
   gnosis,
@@ -20,6 +21,7 @@ import {
   katana,
   linea,
   litecoin,
+  mantle,
   mayachain,
   megaeth,
   monad,
@@ -85,12 +87,16 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return hyperevm
     case KnownChainIds.PlasmaMainnet:
       return plasma
+    case KnownChainIds.MantleMainnet:
+      return mantle
     case KnownChainIds.InkMainnet:
       return ink
     case KnownChainIds.MegaEthMainnet:
       return megaeth
     case KnownChainIds.BerachainMainnet:
       return berachain
+    case KnownChainIds.CronosMainnet:
+      return cronos
     case KnownChainIds.KatanaMainnet:
       return katana
     case KnownChainIds.LineaMainnet:

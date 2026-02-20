@@ -3,11 +3,14 @@ import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
+  berachainChainId,
   bscChainId,
   ethChainId,
   gnosisChainId,
+  inkChainId,
   katanaChainId,
   mantleChainId,
+  lineaChainId,
   monadChainId,
   optimismChainId,
   plasmaChainId,
@@ -34,6 +37,9 @@ export const ZERION_CHAINS = [
   'plasma',
   'katana',
   'mantle',
+  'linea',
+  'berachain',
+  'ink',
   // not yet
   // 'aurora',
   // 'fantom',
@@ -57,6 +63,9 @@ export const ZERION_CHAINS_MAP: Record<ZerionChainId, ChainId> = {
   plasma: plasmaChainId,
   katana: katanaChainId,
   mantle: mantleChainId,
+  linea: lineaChainId,
+  berachain: berachainChainId,
+  ink: inkChainId,
 }
 
 export const zerionChainIdToChainId = (chainId: ZerionChainId): ChainId | undefined =>

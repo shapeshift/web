@@ -1441,6 +1441,13 @@ API uses marker address `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` for native 
 
 ---
 
+## Contract Enforcement
+
+**After implementation**, verify your work against the contract at
+`.claude/contracts/swapper-integration.md`. The contract contains the
+authoritative registration, testing, and completion checklists that must
+all pass before the integration is complete.
+
 ## Critical Success Factors
 
 1. **Research First**: Understand API thoroughly BEFORE coding

@@ -14,7 +14,11 @@ export const SECOND_CLASS_CHAINS: readonly KnownChainIds[] = [
   KnownChainIds.PlasmaMainnet,
   KnownChainIds.KatanaMainnet,
   KnownChainIds.MantleMainnet,
+  KnownChainIds.InkMainnet,
+  KnownChainIds.LineaMainnet,
   KnownChainIds.MegaEthMainnet,
+  KnownChainIds.BerachainMainnet,
+  KnownChainIds.ScrollMainnet,
   KnownChainIds.NearMainnet,
   KnownChainIds.StarknetMainnet,
 ]
@@ -35,7 +39,11 @@ export const knownChainIds = Object.values(KnownChainIds).filter(chainId => {
   if (chainId === KnownChainIds.PlasmaMainnet && !enabledFlags.Plasma) return false
   if (chainId === KnownChainIds.KatanaMainnet && !enabledFlags.Katana) return false
   if (chainId === KnownChainIds.MantleMainnet && !enabledFlags.Mantle) return false
+  if (chainId === KnownChainIds.InkMainnet && !enabledFlags.Ink) return false
+  if (chainId === KnownChainIds.LineaMainnet && !enabledFlags.Linea) return false
   if (chainId === KnownChainIds.MegaEthMainnet && !enabledFlags.MegaEth) return false
+  if (chainId === KnownChainIds.BerachainMainnet && !enabledFlags.Berachain) return false
+  if (chainId === KnownChainIds.ScrollMainnet && !enabledFlags.Scroll) return false
   if (chainId === KnownChainIds.NearMainnet && !enabledFlags.Near) return false
   if (chainId === KnownChainIds.StarknetMainnet && !enabledFlags.Starknet) return false
   if (chainId === KnownChainIds.TonMainnet && !enabledFlags.Ton) return false

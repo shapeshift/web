@@ -478,7 +478,7 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
       const confirmationsCount = blockNumber > 0 ? Number(currentBlockNumber) - blockNumber + 1 : 0
       const status = receipt.status === 'success' ? 1 : 0
       const fee = bnOrZero(receipt.gasUsed.toString())
-        .times(receipt.effectiveGasPrice?.toString())
+        .times(bnOrZero(receipt.effectiveGasPrice?.toString()))
         .toFixed(0)
 
       const parsedTx: evm.Tx = {

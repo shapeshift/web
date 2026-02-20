@@ -66,7 +66,7 @@ const validators = {
   VITE_INK_NODE_URL: url(),
   VITE_MEGAETH_NODE_URL: url(),
   VITE_BERACHAIN_NODE_URL: url(),
-  VITE_CRONOS_NODE_URL: str(),
+  VITE_CRONOS_NODE_URL: url(),
   VITE_KATANA_NODE_URL: url(),
   VITE_LINEA_NODE_URL: url(),
   VITE_SCROLL_NODE_URL: url(),

@@ -3,10 +3,13 @@ import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
+  berachainChainId,
   bscChainId,
   ethChainId,
   gnosisChainId,
+  inkChainId,
   katanaChainId,
+  lineaChainId,
   modeChainId,
   monadChainId,
   optimismChainId,
@@ -33,6 +36,9 @@ export const ZERION_CHAINS = [
   'sui',
   'plasma',
   'katana',
+  'linea',
+  'berachain',
+  'ink',
   'mode',
   // not yet
   // 'aurora',
@@ -56,6 +62,9 @@ export const ZERION_CHAINS_MAP: Record<ZerionChainId, ChainId> = {
   sui: suiChainId,
   plasma: plasmaChainId,
   katana: katanaChainId,
+  linea: lineaChainId,
+  berachain: berachainChainId,
+  ink: inkChainId,
   mode: modeChainId,
 }
 

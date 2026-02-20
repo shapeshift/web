@@ -20,6 +20,7 @@ import optimism from '@/plugins/optimism'
 import plasma from '@/plugins/plasma'
 import polygon from '@/plugins/polygon'
 import sei from '@/plugins/sei'
+import scroll from '@/plugins/scroll'
 import solana from '@/plugins/solana'
 import starknet from '@/plugins/starknet'
 import sui from '@/plugins/sui'
@@ -52,6 +53,7 @@ export const activePlugins = [
   plasma,
   polygon,
   sei,
+  scroll,
   solana,
   starknet,
   sui,

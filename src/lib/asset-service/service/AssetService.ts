@@ -14,6 +14,7 @@ import {
   optimismChainId,
   polygonChainId,
   seiChainId,
+  scrollChainId,
   solanaChainId,
   starknetChainId,
   suiChainId,
@@ -125,6 +126,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_KATANA && asset.chainId === katanaChainId) return false
       if (!config.VITE_FEATURE_MEGAETH && asset.chainId === megaethChainId) return false
       if (!config.VITE_FEATURE_SEI && asset.chainId === seiChainId) return false
+      if (!config.VITE_FEATURE_SCROLL && asset.chainId === scrollChainId) return false
       if (!config.VITE_FEATURE_MAYACHAIN && asset.chainId === mayachainChainId) return false
       if (!config.VITE_FEATURE_NEAR && asset.chainId === nearChainId) return false
       if (!config.VITE_FEATURE_ZCASH && asset.chainId === zecChainId) return false

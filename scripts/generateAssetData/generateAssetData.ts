@@ -42,6 +42,7 @@ import { overrideAssets } from './overrides'
 import * as plasma from './plasma'
 import * as polygon from './polygon'
 import * as sei from './sei'
+import * as scroll from './scroll'
 import * as solana from './solana'
 import * as starknet from './starknet'
 import * as sui from './sui'
@@ -73,6 +74,7 @@ const generateAssetData = async () => {
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
   const megaethAssets = await megaeth.getAssets()
+  const scrollAssets = await scroll.getAssets()
   const plasmaAssets = await plasma.getAssets()
   const seiAssets = await sei.getAssets()
   const solanaAssets = await solana.getAssets()
@@ -107,6 +109,7 @@ const generateAssetData = async () => {
     ...hyperevmAssets,
     ...katanaAssets,
     ...megaethAssets,
+    ...scrollAssets,
     ...plasmaAssets,
     ...seiAssets,
     ...solanaAssets,

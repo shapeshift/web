@@ -39,6 +39,7 @@ export type FeatureFlags = {
   MegaEth: boolean
   Katana: boolean
   Sei: boolean
+  Scroll: boolean
   Zcash: boolean
   ThorSwap: boolean
   WalletConnectToDapps: boolean
@@ -190,6 +191,7 @@ const initialState: Preferences = {
     MegaEth: getConfig().VITE_FEATURE_MEGAETH,
     Katana: getConfig().VITE_FEATURE_KATANA,
     Sei: getConfig().VITE_FEATURE_SEI,
+    Scroll: getConfig().VITE_FEATURE_SCROLL,
     Zcash: getConfig().VITE_FEATURE_ZCASH,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,
     WalletConnectToDappsV2: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,

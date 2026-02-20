@@ -28,6 +28,7 @@ export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNames
     case KnownChainIds.MegaEthMainnet:
     case KnownChainIds.KatanaMainnet:
     case KnownChainIds.SeiMainnet:
+    case KnownChainIds.ScrollMainnet:
       return ASSET_NAMESPACE.erc20
     case KnownChainIds.StarknetMainnet:
       return ASSET_NAMESPACE.starknetToken

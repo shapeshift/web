@@ -27,6 +27,7 @@ import {
   plasmaChainId,
   polygonChainId,
   seiChainId,
+  scrollChainId,
   solanaChainId,
   starknetChainId,
   suiChainId,
@@ -60,6 +61,7 @@ import {
   supportsPlasma,
   supportsPolygon,
   supportsSei,
+  supportsScroll,
   supportsSolana,
   supportsStarknet,
   supportsSui,
@@ -107,6 +109,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case megaethChainId:
     case katanaChainId:
     case seiChainId:
+    case scrollChainId:
     case monadChainId:
     case plasmaChainId:
     case thorchainChainId:
@@ -518,6 +521,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsKatana(wallet)
     case seiChainId:
       return supportsSei(wallet)
+    case scrollChainId:
+      return supportsScroll(wallet)
     case tronChainId:
       return supportsTron(wallet)
     case nearChainId:

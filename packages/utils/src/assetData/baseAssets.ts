@@ -406,6 +406,23 @@ export const seiChain: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const scroll: Readonly<Asset> = Object.freeze({
+  assetId: caip.scrollAssetId,
+  chainId: caip.scrollChainId,
+  name: 'Ether',
+  networkName: 'Scroll',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#FFEEDA',
+  networkColor: '#FFEEDA',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://scroll-tech.github.io/token-list/scroll.png',
+  explorer: 'https://scrollscan.com',
+  explorerAddressLink: 'https://scrollscan.com/address/',
+  explorerTxLink: 'https://scrollscan.com/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
 export const solana: Readonly<Asset> = Object.freeze({
   assetId: caip.solAssetId,
   chainId: caip.solanaChainId,

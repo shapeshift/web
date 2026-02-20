@@ -13,6 +13,7 @@ import {
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  scrollChainId,
   seiChainId,
   solanaChainId,
   tronChainId,
@@ -32,6 +33,7 @@ import {
   optimism,
   plasma,
   polygon,
+  scroll,
   sei,
 } from 'viem/chains'
 
@@ -57,6 +59,7 @@ export const chainIdToRelayChainId = {
   [megaethChainId]: 4326,
   [plasmaChainId]: plasma.id,
   [katanaChainId]: katana.id,
+  [scrollChainId]: scroll.id,
   [seiChainId]: sei.id,
 }
 

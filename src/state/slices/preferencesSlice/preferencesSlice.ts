@@ -41,6 +41,7 @@ export type FeatureFlags = {
   Berachain: boolean
   Katana: boolean
   Sei: boolean
+  Linea: boolean
   Scroll: boolean
   Zcash: boolean
   ThorSwap: boolean
@@ -195,6 +196,7 @@ const initialState: Preferences = {
     Berachain: getConfig().VITE_FEATURE_BERACHAIN,
     Katana: getConfig().VITE_FEATURE_KATANA,
     Sei: getConfig().VITE_FEATURE_SEI,
+    Linea: getConfig().VITE_FEATURE_LINEA,
     Scroll: getConfig().VITE_FEATURE_SCROLL,
     Zcash: getConfig().VITE_FEATURE_ZCASH,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,

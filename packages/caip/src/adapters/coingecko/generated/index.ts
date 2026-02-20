@@ -14,6 +14,7 @@ import monad from "./eip155_143/adapter.json";
 import hyperevm from "./eip155_999/adapter.json";
 import plasma from "./eip155_9745/adapter.json";
 import katana from "./eip155_747474/adapter.json";
+import linea from "./eip155_59144/adapter.json";
 import megaeth from "./eip155_4326/adapter.json";
 import berachain from "./eip155_80094/adapter.json";
 import scroll from "./eip155_534352/adapter.json";
@@ -47,6 +48,7 @@ export {
   hyperevm,
   plasma,
   katana,
+  linea,
   megaeth,
   berachain,
   scroll,

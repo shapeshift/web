@@ -18,6 +18,7 @@ import {
   hyperevm,
   ink,
   katana,
+  linea,
   litecoin,
   mayachain,
   megaeth,
@@ -94,6 +95,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return katana
     case KnownChainIds.SeiMainnet:
       return seiChain
+    case KnownChainIds.LineaMainnet:
+      return linea
     case KnownChainIds.ScrollMainnet:
       return scroll
     case KnownChainIds.NearMainnet:

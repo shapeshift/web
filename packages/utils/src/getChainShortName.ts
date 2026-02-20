@@ -58,6 +58,8 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'KAT'
     case KnownChainIds.SeiMainnet:
       return 'SEI'
+    case KnownChainIds.LineaMainnet:
+      return 'LIN'
     case KnownChainIds.ScrollMainnet:
       return 'SCR'
     case KnownChainIds.ZcashMainnet:

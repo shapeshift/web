@@ -201,6 +201,10 @@ export function supportsBerachain(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsBerachain
 }
 
+export function supportsLinea(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsLinea
+}
+
 export function supportsScroll(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsScroll
 }

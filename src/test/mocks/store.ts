@@ -114,6 +114,7 @@ export const mockStore: ReduxState = {
       Berachain: false,
       Katana: false,
       Sei: false,
+      Linea: false,
       Scroll: false,
       Zcash: false,
       ZrxSwap: false,

@@ -14,6 +14,7 @@ import {
   hyperEvmAssetId,
   inkAssetId,
   katanaAssetId,
+  lineaAssetId,
   ltcAssetId,
   mayachainAssetId,
   megaethAssetId,
@@ -93,6 +94,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return katanaAssetId
     case KnownChainIds.SeiMainnet:
       return seiAssetId
+    case KnownChainIds.LineaMainnet:
+      return lineaAssetId
     case KnownChainIds.ScrollMainnet:
       return scrollAssetId
     case KnownChainIds.ZcashMainnet:

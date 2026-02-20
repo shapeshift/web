@@ -85,6 +85,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   const isInkEnabled = useAppSelector(state => selectFeatureFlag(state, 'Ink'))
   const isMegaEthEnabled = useAppSelector(state => selectFeatureFlag(state, 'MegaEth'))
   const isBerachainEnabled = useAppSelector(state => selectFeatureFlag(state, 'Berachain'))
+  const isLineaEnabled = useAppSelector(state => selectFeatureFlag(state, 'Linea'))
   const isScrollEnabled = useAppSelector(state => selectFeatureFlag(state, 'Scroll'))
   const isKatanaEnabled = useAppSelector(state => selectFeatureFlag(state, 'Katana'))
   const isSeiEnabled = useAppSelector(state => selectFeatureFlag(state, 'Sei'))
@@ -99,6 +100,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
       if (!isHyperEvmEnabled && chainId === KnownChainIds.HyperEvmMainnet) return false
       if (!isInkEnabled && chainId === KnownChainIds.InkMainnet) return false
       if (!isMegaEthEnabled && chainId === KnownChainIds.MegaEthMainnet) return false
+      if (!isLineaEnabled && chainId === KnownChainIds.LineaMainnet) return false
       if (!isScrollEnabled && chainId === KnownChainIds.ScrollMainnet) return false
       if (!isKatanaEnabled && chainId === KnownChainIds.KatanaMainnet) return false
       if (!isSeiEnabled && chainId === KnownChainIds.SeiMainnet) return false
@@ -113,6 +115,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
     isInkEnabled,
     isMegaEthEnabled,
     isBerachainEnabled,
+    isLineaEnabled,
     isScrollEnabled,
     isKatanaEnabled,
     isSeiEnabled,

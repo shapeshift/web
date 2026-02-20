@@ -30,6 +30,7 @@ export enum KnownChainIds {
   BerachainMainnet = 'eip155:80094',
   KatanaMainnet = 'eip155:747474',
   SeiMainnet = 'eip155:1329',
+  LineaMainnet = 'eip155:59144',
   ScrollMainnet = 'eip155:534352',
   BitcoinMainnet = 'bip122:000000000019d6689c085ae165831e93',
   BitcoinCashMainnet = 'bip122:000000000000000000651ef99cb9fcbe',
@@ -64,6 +65,7 @@ export type EvmChainId =
   | KnownChainIds.BerachainMainnet
   | KnownChainIds.KatanaMainnet
   | KnownChainIds.SeiMainnet
+  | KnownChainIds.LineaMainnet
   | KnownChainIds.ScrollMainnet
 
 export type CosmosSdkChainId =

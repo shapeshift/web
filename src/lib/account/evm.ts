@@ -11,6 +11,7 @@ import {
   hyperEvmChainId,
   inkChainId,
   katanaChainId,
+  lineaChainId,
   megaethChainId,
   monadChainId,
   optimismChainId,
@@ -33,6 +34,7 @@ import {
   supportsHyperEvm,
   supportsInk,
   supportsKatana,
+  supportsLinea,
   supportsMegaEth,
   supportsMonad,
   supportsOptimism,
@@ -139,6 +141,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === scrollChainId && !supportsScroll(wallet)) continue
     if (chainId === katanaChainId && !supportsKatana(wallet)) continue
     if (chainId === seiChainId && !supportsSei(wallet)) continue
+    if (chainId === lineaChainId && !supportsLinea(wallet)) continue
     if (
       isMetaMask(wallet) &&
       !canAddMetaMaskAccount({ accountNumber, chainId, wallet, isSnapInstalled })

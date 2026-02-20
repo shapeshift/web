@@ -56,6 +56,8 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.Katana
           case CHAIN_REFERENCE.SeiMainnet:
             return ASSET_REFERENCE.Sei
+          case CHAIN_REFERENCE.LineaMainnet:
+            return ASSET_REFERENCE.Linea
           case CHAIN_REFERENCE.ScrollMainnet:
             return ASSET_REFERENCE.Scroll
           default:

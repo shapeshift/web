@@ -72,6 +72,7 @@ All integration points required when adding a new second-class EVM chain to Shap
     - Native asset included
     - Registered in `scripts/generateAssetData/generateAssetData.ts`
     - **Shared coingecko script** - `scripts/generateAssetData/coingecko.ts` must import and use the new chain's `chainId` constant
+    - **Per-chain generation**: after wiring, run `source ~/.zshrc && ZERION_API_KEY=$ZERION_API_KEY yarn generate:chain <chainId>` (e.g., `eip155:59144`) to regenerate only this chain's assets (~30s vs 30min for full `generate:all`). Also accepts directory name (e.g., `linea`).
 
 15. **Coingecko Integration** - `packages/caip/src/adapters/coingecko/`
     - Enum value in `CoingeckoAssetPlatform`

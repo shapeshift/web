@@ -63,12 +63,26 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.MegaEth,
       })
+      const ethOnInk = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.InkMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Ink,
+      })
+      const ethOnScroll = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.ScrollMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Scroll,
+      })
       expect(coingeckoToAssetIds('ethereum')).toEqual([
         ethOnEthereum,
         ethOnOptimism,
         ethOnArbitrum,
         ethOnBase,
         ethOnMegaEth,
+        ethOnInk,
+        ethOnScroll,
       ])
     })
 
@@ -200,6 +214,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'token',
         assetReference: '0x33068f6539f8e6e6b131e6b2b814e6c34a5224bc66947c47dab9dfee93b35fb',
       })
+      const usdcOnInk = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.InkMainnet,
+        assetNamespace: 'erc20',
+        assetReference: '0x2d270e6886d130d724215a266106e6832161eaed',
+      })
       const usdcOnNear = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Near,
         chainReference: CHAIN_REFERENCE.NearMainnet,
@@ -215,6 +235,7 @@ describe('adapters:coingecko', () => {
         usdcOnBase,
         usdcOnMonad,
         usdcOnHyperEvm,
+        usdcOnInk,
         usdcOnSolana,
         usdcOnStarknet,
         usdcOnSui,

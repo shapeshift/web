@@ -122,7 +122,9 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.HyperEvm && chainId === KnownChainIds.HyperEvmMainnet) return false
       if (!featureFlags.Katana && chainId === KnownChainIds.KatanaMainnet) return false
       if (!featureFlags.Plasma && chainId === KnownChainIds.PlasmaMainnet) return false
+      if (!featureFlags.Ink && chainId === KnownChainIds.InkMainnet) return false
       if (!featureFlags.MegaEth && chainId === KnownChainIds.MegaEthMainnet) return false
+      if (!featureFlags.Scroll && chainId === KnownChainIds.ScrollMainnet) return false
       if (!featureFlags.BnbSmartChain && chainId === KnownChainIds.BnbSmartChainMainnet)
         return false
       if (!featureFlags.Tron && chainId === KnownChainIds.TronMainnet) return false

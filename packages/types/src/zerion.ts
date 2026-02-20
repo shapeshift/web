@@ -7,6 +7,7 @@ import {
   bscChainId,
   ethChainId,
   gnosisChainId,
+  inkChainId,
   katanaChainId,
   monadChainId,
   optimismChainId,
@@ -34,6 +35,7 @@ export const ZERION_CHAINS = [
   'plasma',
   'katana',
   'berachain',
+  'ink',
   // not yet
   // 'aurora',
   // 'fantom',
@@ -57,6 +59,7 @@ export const ZERION_CHAINS_MAP: Record<ZerionChainId, ChainId> = {
   plasma: plasmaChainId,
   katana: katanaChainId,
   berachain: berachainChainId,
+  ink: inkChainId,
 }
 
 export const zerionChainIdToChainId = (chainId: ZerionChainId): ChainId | undefined =>

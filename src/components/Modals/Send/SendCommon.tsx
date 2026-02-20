@@ -1,7 +1,6 @@
 export enum SendRoutes {
   AmountDetails = '/send/amount-details',
   Confirm = '/send/confirm',
-  Status = '/send/status',
   Scan = '/send/scan',
   Select = '/send/select',
   Address = '/send/address',
@@ -10,7 +9,6 @@ export enum SendRoutes {
 
 export const initialEntries = [
   SendRoutes.Confirm,
-  SendRoutes.Status,
   SendRoutes.Scan,
   SendRoutes.Select,
   SendRoutes.AmountDetails,
@@ -33,6 +31,5 @@ export enum SendFormFields {
   AmountFieldError = 'amountFieldError',
   SendMax = 'sendMax',
   CustomNonce = 'customNonce',
-  TxHash = 'txHash',
   ChangeAddress = 'changeAddress',
 }

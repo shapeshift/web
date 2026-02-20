@@ -201,6 +201,209 @@
   "accountSelector": {
     "chooseAccount": "Choose Account"
   },
+  "agenticChat": {
+    "title": "ShapeShift Agent",
+    "aiChat": "AI Chat",
+    "openChat": "Open chat",
+    "closeChat": "Close chat",
+    "emptyState": "How can I help you today?",
+    "placeholder": "Type a message...",
+    "stop": "Stop",
+    "send": "Send",
+    "txStepProgress": "%{completedCount} of %{totalCount} complete",
+    "agenticChatTools": {
+      "send": {
+        "title": "Send Crypto",
+        "receivedFrom": "Received from %{address}",
+        "steps": {
+          "preparation": "Preparing send transaction",
+          "send": "Sign and send transaction"
+        },
+        "errors": {
+          "prepareFailed": "Failed to prepare send transaction",
+          "sendFailed": "Send failed: %{error}",
+          "noWallet": "No wallet connected",
+          "accountNotFound": "Account not found"
+        },
+        "success": {
+          "transactionSent": "Transaction sent: %{txHash}",
+          "title": "Send Successful",
+          "description": "Your send transaction has been completed"
+        }
+      },
+      "swap": {
+        "title": "Swap",
+        "receivedFrom": "Received from %{address}",
+        "steps": {
+          "quote": "Getting swap quote",
+          "networkSwitch": "Switch to %{network}",
+          "networkSwitchGeneric": "Switch network",
+          "approval": "Approve token spending",
+          "approvalConfirmation": "Confirming approval",
+          "swap": "Sign swap transaction"
+        },
+        "errors": {
+          "quoteFailed": "Failed to get swap quote",
+          "swapFailed": "Swap execution failed: %{error}",
+          "noWallet": "No wallet connected",
+          "accountNotFound": "Account not found"
+        },
+        "success": {
+          "title": "Swap Successful",
+          "description": "Your swap transaction has been completed"
+        }
+      },
+      "cancelLimitOrder": {
+        "title": "Cancel Limit Order",
+        "steps": {
+          "prepare": "Preparing cancellation",
+          "sign": "Sign cancellation",
+          "submit": "Submitting cancellation"
+        },
+        "errors": {
+          "prepareFailed": "Failed to prepare cancellation",
+          "signFailed": "Failed to sign cancellation",
+          "submitFailed": "Failed to cancel order: %{error}",
+          "noWallet": "No wallet connected",
+          "accountNotFound": "Account not found"
+        },
+        "success": {
+          "title": "Order Cancelled",
+          "description": "Your limit order has been successfully cancelled"
+        },
+        "networkLabel": "Network",
+        "orderLabel": "Order",
+        "cancellationFailed": "Cancellation failed",
+        "orderCancelledSuccessfully": "Order cancelled successfully"
+      },
+      "createLimitOrder": {
+        "title": "Create Limit Order",
+        "steps": {
+          "prepare": "Preparing order",
+          "approval": "Approve token spending",
+          "approvalConfirmation": "Confirming approval",
+          "sign": "Sign order",
+          "submit": "Submitting order"
+        },
+        "errors": {
+          "prepareFailed": "Failed to prepare order",
+          "approvalFailed": "Token approval failed",
+          "signFailed": "Failed to sign order",
+          "submitFailed": "Failed to create order: %{error}",
+          "noWallet": "No wallet connected",
+          "accountNotFound": "Account not found"
+        },
+        "success": {
+          "title": "Limit Order Created",
+          "description": "Your limit order has been successfully created"
+        },
+        "expires": "Expires",
+        "viewOrder": "View order →",
+        "approvalTx": "Approval tx",
+        "orderCreationFailed": "Order creation failed",
+        "orderCreatedSuccessfully": "Order created successfully"
+      },
+      "newCoins": {
+        "title": "Recently Added",
+        "subtitle": "New coins on CoinGecko"
+      },
+      "trendingTokens": {
+        "title": "Trending on CoinGecko",
+        "subtitle": "24h trending tokens"
+      },
+      "topGainersLosers": {
+        "gainersTitle": "Top Gainers (%{duration})",
+        "losersTitle": "Top Losers (%{duration})"
+      },
+      "portfolio": {
+        "title": "Portfolio",
+        "totalValue": "Total Value",
+        "accountLabel": "Account",
+        "networkLabel": "Network",
+        "emptyState": "No assets in portfolio"
+      },
+      "getAssets": {
+        "title": "Assets",
+        "balance": "Balance",
+        "value": "Value",
+        "network": "Network",
+        "emptyState": "No assets found",
+        "24h": "24h",
+        "volume": "Volume",
+        "marketCap": "Market Cap",
+        "fdv": "FDV",
+        "showLess": "Show less",
+        "more": "More...",
+        "coinInfo": "Coin Info",
+        "circulatingSupply": "Circulating Supply",
+        "totalSupply": "Total Supply",
+        "maxSupply": "Max Supply",
+        "unlimited": "Unlimited",
+        "sentiment": "Sentiment",
+        "bullish": "Bullish",
+        "bearish": "Bearish",
+        "marketCapRank": "Market Cap Rank",
+        "volume24h": "24h Volume",
+        "volMcap": "Vol/MCap",
+        "about": "About %{symbol}",
+        "noDescription": "No description available for this asset."
+      },
+      "receive": {
+        "title": "Receive",
+        "receiveOn": "Receive %{symbol} on %{network}",
+        "copyAddress": "Copy address",
+        "copied": "Copied!",
+        "warning": "Only send %{network}-compatible tokens to this address"
+      },
+      "getLimitOrders": {
+        "title": "Limit Orders",
+        "openOrders": "%{count} open",
+        "noOrders": "No limit orders found",
+        "status": {
+          "open": "Open",
+          "fulfilled": "Filled",
+          "cancelled": "Cancelled",
+          "expired": "Expired",
+          "presignaturePending": "Pending"
+        },
+        "sellLabel": "Sell",
+        "buyLabel": "Buy",
+        "expiresLabel": "Expires",
+        "view": "View",
+        "filledLabel": "Filled"
+      },
+      "getTransactionHistory": {
+        "title": "Recent Transactions",
+        "noTransactions": "No transactions found",
+        "type": {
+          "send": "Send",
+          "receive": "Receive",
+          "swap": "Swap",
+          "contract": "Contract"
+        },
+        "status": {
+          "success": "Confirmed",
+          "failed": "Failed",
+          "pending": "Pending"
+        },
+        "txid": "Txid",
+        "from": "From",
+        "to": "To",
+        "value": "Value",
+        "fee": "Fee",
+        "network": "Network",
+        "tokens": "Tokens"
+      }
+    },
+    "chatHistory": "Chat History",
+    "newChat": "New Chat",
+    "deleteConversation": "Delete Conversation",
+    "deleteConfirmation": "Are you sure you want to delete this conversation?",
+    "noConversations": "No conversations yet",
+    "newConversation": "New Conversation",
+    "searchChats": "Search your chats...",
+    "noMatchingConversations": "No matching conversations"
+  },
   "quickBuy": {
     "title": "Quick Buy %{assetOnChain}",
     "nativeNotAvailable": "Quick Buy not available on native assets",
@@ -1811,6 +2014,17 @@
         "body": "Click Pair and login to Vultisig from the popup window",
         "button": "Pair"
       }
+    },
+    "seeker": {
+      "connect": {
+        "header": "Connect Seeker",
+        "body": "Authorize ShapeShift to connect with your Seeker wallet",
+        "button": "Connect"
+      },
+      "failure": {
+        "header": "Connection Failed",
+        "body": "Unable to connect to Seeker wallet. Please ensure the Seeker app is available and try again."
+      }
     }
   },
   "graph": {
@@ -2376,15 +2590,15 @@
       },
       "why": {
         "title": "Why stake your FOX?",
-        "body": "Staking your FOX allows you to earn regular RUNE payouts from the DAO's treasury, providing a steady stream of passive income in RUNE per epoch. Additionally, a portion of the RUNE received by the DAO is used to buy FOX from the open market and burn it, reducing the overall supply. Staking also supports the ShapeShift DAO's alignment with the THORChain ecosystem, contributing to their growth and success. The staking process requires a minimum 28-day unstaking period, encouraging commitment and stability within the community."
+        "body": "Staking your FOX allows you to earn regular USDC payouts from the DAO's treasury, providing a steady stream of passive income in USDC per epoch. Additionally, a portion of DAO revenue will be allocated toward reducing the overall FOX supply through token burns. The staking process requires a minimum 28-day unstaking period, encouraging commitment and stability within the community."
       },
       "stake": {
         "title": "How do I stake my FOX?",
-        "body": "To stake your FOX, you use the staking interface to lock your FOX tokens into the staking contract. You will need to sign a message or transaction to assign the address where your RUNE rewards will be paid. Once staked, you start earning RUNE rewards per block as part of your staking benefits."
+        "body": "To stake your FOX, you use the staking interface to lock your FOX tokens into the staking contract. Once staked, you start earning USDC rewards per block as part of your staking benefits."
       },
       "unstake": {
         "title": "What happens when I unstake?",
-        "body": "When you decide to unstake, there is a minimum 28-day unstaking period. During this time, your FOX remains locked, and you cease to receive RUNE emissions. After the unstaking period, you can unlock and retrieve your regular FOX tokens."
+        "body": "When you decide to unstake, there is a minimum 28-day unstaking period. During this time, your FOX remains locked, and you cease to receive USDC emissions. After the unstaking period, you can unlock and retrieve your regular FOX tokens."
       },
       "cooldown": {
         "title": "How long is the cooldown period?",
@@ -2396,7 +2610,7 @@
       },
       "connect": {
         "title": "How do total fees collected, total FOX staked, emissions pool, and FOX burn amount connect?",
-        "body": "The fees collected by the DAO are in native RUNE. A portion of this RUNE is distributed to FOX stakers as rewards, while another portion is used to buy FOX from the open market and burn it, reducing the overall FOX supply. The total FOX staked influences the distribution of RUNE rewards, as rewards are distributed pro-rata based on the amount of FOX staked. The emissions pool represents the amount of FOX available for staking rewards, and the FOX burn amount is the portion of FOX purchased and burned using the RUNE collected from fees."
+        "body": "The fees collected by the DAO are in native assets per swapper. A portion of this revenue is converted and distributed to FOX stakers as rewards, while another portion is allocated toward reducing the overall FOX supply through token burns. The total FOX staked influences the distribution of rewards, as rewards are distributed pro-rata based on the amount of FOX staked. The emissions pool represents the amount of FOX available for staking rewards, and the FOX burn amount is the portion of FOX purchased and burned."
       }
     },
     "totals": "rFOX Totals",
@@ -2518,7 +2732,7 @@
   },
   "foxPage": {
     "title": "FOX Token Dashboard",
-    "description": "Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token gives you a share in revenues on THORChain, and enables you to influence the future of ShapeShift through your vote. Stake, swap, buy, supply, and manage your FOX holdings here.",
+    "description": "Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token gives you a share in revenues across the platform, and enables you to influence the future of ShapeShift through your vote. Stake, swap, buy, supply, and manage your FOX holdings here.",
     "foxToken": "FOX Token",
     "24hrPriceChange": "24h Price Change",
     "rfox": {
@@ -2626,15 +2840,23 @@
     },
     "deposit": {
       "pending": "Your deposit of %{amount} %{symbol} is being processed.",
-      "complete": "Your deposit of %{amount} %{symbol} is complete."
+      "complete": "Your deposit of %{amount} %{symbol} is complete.",
+      "failed": "Your deposit of %{amount} %{symbol} has failed."
     },
     "withdrawal": {
       "pending": "Your withdrawal of %{amount} %{symbol} is being processed.",
-      "complete": "Your withdrawal of %{amount} %{symbol} is complete."
+      "complete": "Your withdrawal of %{amount} %{symbol} is complete.",
+      "failed": "Your withdrawal of %{amount} %{symbol} has failed."
     },
     "claim": {
       "pending": "Your claim of %{amount} %{symbol} is being processed.",
-      "complete": "Your claim of %{amount} %{symbol} is complete."
+      "complete": "Your claim of %{amount} %{symbol} is complete.",
+      "failed": "Your claim of %{amount} %{symbol} has failed."
+    },
+    "yield": {
+      "unstakeAvailableIn": "Your %{symbol} unstake will be available in %{duration}.",
+      "unstakeReady": "Your %{symbol} unstake is ready to claim.",
+      "unstakeClaimed": "Your %{symbol} unstake was claimed."
     },
     "bridge": {
       "processing": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is being processed.",
@@ -2777,6 +2999,7 @@
     "providers": "Providers",
     "successStaked": "You successfully staked %{amount} %{symbol}",
     "successUnstaked": "You successfully unstaked %{amount} %{symbol}",
+    "cooldownNotice": "Your withdrawal will be available in %{cooldownDuration}.",
     "successDeposited": "You successfully deposited %{amount} %{symbol}",
     "successWithdrawn": "You successfully withdrew %{amount} %{symbol}",
     "successClaim": "You successfully claimed %{amount} %{symbol}",

@@ -16,6 +16,9 @@ export const treasuryChainIds = [
   KnownChainIds.SolanaMainnet,
   KnownChainIds.BitcoinMainnet,
   KnownChainIds.StarknetMainnet,
+  KnownChainIds.TonMainnet,
+  KnownChainIds.MonadMainnet,
+  KnownChainIds.HyperEvmMainnet,
 ] as const
 
 export type TreasuryChainId = (typeof treasuryChainIds)[number]
@@ -38,3 +41,6 @@ export const DAO_TREASURY_BITCOIN = 'bc1qr2whxtd0gvqnctcxlynwejp6fvntv0mtxkv0dlv
 export const DAO_TREASURY_NEAR = 'f471d0b0f90593d85125f38aaf5458748d6f23fd5b437b844d293d8e87557070'
 export const DAO_TREASURY_STARKNET =
   '0x052a1132ea4db81Bde863AFb18a4d4CE5de9d3efdfda6b3DaA6484e26425D467'
+export const DAO_TREASURY_TON = 'UQBGXUskbTDkLXJO_Q6cQFVbbkgvXKplcIhijiO5oDcB5qkI'
+export const DAO_TREASURY_MONAD = '0x35339070f178dC4119732982C23F5a8d88D3f8a3'
+export const DAO_TREASURY_HYPEREVM = '0x35339070f178dC4119732982C23F5a8d88D3f8a3'

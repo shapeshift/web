@@ -134,6 +134,23 @@
   4. Add persist config if needed
   5. Export selectors from slice using `selectors` property
 
+### Contracts (Enforceable Integration Specs)
+
+Contracts live in `.claude/contracts/` (project) and `~/.claude/contracts/` (global, fallback).
+They define the authoritative checklist of integration points for a feature type.
+
+**When building:** If a contract exists for the feature type being implemented, load it
+and use it as your todo list. Every item must be addressed.
+
+**When reviewing:** If a contract exists for the feature type being reviewed, load it
+and perform gap analysis against the PR diff. Flag missing items with severity prefixes.
+
+**Discovery:** Check `.claude/contracts/` first, then `~/.claude/contracts/`.
+
+Current contracts:
+- `second-class-evm-chain.md` - All integration points for adding a new second-class EVM chain
+- `swapper-integration.md` - Registration, testing, and completion checklist for new swappers
+
 ### Type Definitions
 - Prefer `type` over `interface` for type definitions
 - Use strict typing - avoid `any`
@@ -152,6 +169,14 @@
 - Use `useAppDispatch` for Redux actions
 - Memoize expensive computations with `useMemo`
 - Memoize callbacks with `useCallback`
+
+**BigAmount (Precision-Aware Numeric Type):**
+- See `docs/bigamount.md` for full API documentation
+- Use `BigAmount.fromBaseUnit({ value, precision })` for constructing from raw blockchain values (preferred, lossless)
+- Use `BigAmount.fromPrecision({ value, precision })` only when a precision-scale value is all that's available
+- Call `.toPrecision()` / `.toBaseUnit()` directly on BigAmount for string extraction — no wrapper aliases
+- Never cast `as BigAmount` — fix types as needed
+- Naming: `CryptoBaseUnit` = raw integer, `CryptoPrecision` = human-readable (NOT "HumanBalance")
 
 **Wallet Integration:**
 - Wallets are managed via `WalletProvider` context

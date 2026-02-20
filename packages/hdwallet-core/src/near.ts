@@ -56,10 +56,18 @@ export function nearDescribePath(path: BIP32Path): PathDescription {
     isKnown: false,
   }
 
-  if (path.length != 3) return unknown
   if (path[0] != 0x80000000 + 44) return unknown
   if (path[1] != 0x80000000 + slip44ByCoin('Near')) return unknown
   if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) return unknown
+
+  // 3-level: m/44'/397'/<account>' (native/software wallets)
+  // 5-level: m/44'/397'/<account>'/0'/0' (Ledger)
+  if (path.length === 5) {
+    if ((path[3] & 0x80000000) >>> 0 !== 0x80000000) return unknown
+    if ((path[4] & 0x80000000) >>> 0 !== 0x80000000) return unknown
+  } else if (path.length !== 3) {
+    return unknown
+  }
 
   const index = path[2] & 0x7fffffff
   return {

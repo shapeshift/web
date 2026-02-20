@@ -1,4 +1,5 @@
 import { cosmosChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 
 import type {
   GetOpportunityIdsOutput,
@@ -16,7 +17,6 @@ import type {
 } from '../types'
 import { makeAccountUserData, makeUniqueValidatorAccountIds } from './utils'
 
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { isFulfilled, isRejected, isSome } from '@/lib/utils'
 import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
@@ -102,7 +102,10 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
         if (!asset) throw new Error(`No asset found for AssetId: ${assetId}`)
         const marketData = selectMarketDataByAssetIdUserCurrency(state, assetId)
 
-        const underlyingAssetRatioBaseUnit = bn(1).times(bn(10).pow(asset.precision)).toString()
+        const underlyingAssetRatioBaseUnit = BigAmount.fromPrecision({
+          value: '1',
+          precision: asset.precision,
+        }).toBaseUnit()
 
         const cosmostationChainName = (() => {
           switch (chainId) {
@@ -118,10 +121,12 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
           id: validatorId,
           apy: data.apr,
           icon: `https://raw.githubusercontent.com/cosmostation/cosmostation_token_resource/master/moniker/${cosmostationChainName}/${validatorAddress}.png`,
-          tvl: bnOrZero(data.tokens)
-            .div(bn(10).pow(asset.precision))
-            .times(bnOrZero(marketData?.price))
-            .toString(),
+          tvl: BigAmount.fromBaseUnit({
+            value: data.tokens ?? '0',
+            precision: asset.precision,
+          })
+            .times(marketData?.price ?? '0')
+            .toPrecision(),
 
           name: data.moniker,
           type: DefiType.Staking,

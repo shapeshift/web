@@ -164,12 +164,22 @@ For each of these, RESEARCH whether the service actually supports the new chain 
 34. **Treasury** - `packages/utils/src/treasury.ts`
     - Add if DAO treasury exists on the chain
 
+## Phase 3.5: Wrapped Native Asset Detection
+
+For cross-chain swaps where the destination is native (e.g., ETH→MNT via Relay), the receiving Tx often involves an unwrap of the wrapped native token (e.g., WMNT→MNT). Since second-class chains lack `debug_traceTransaction` support, this unwrap is invisible to the Tx parser and causes missing execution prices / incomplete Tx history.
+
+42. **Wrapped Native Contract** - `packages/chain-adapters/src/evm/SecondClassEvmAdapter.ts`
+    - Add the chain's wrapped native token address to `WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID` mapping
+    - Common addresses: WBERA `0x6969...`, WMNT `0x78c1b0C9...`, WETH varies by chain
+    - The detection logic is already generalized: it parses `Transfer` burn events (to zero address) on the wrapped contract to synthesize internal Txs
+    - To find the wrapped native address: search `W<SYMBOL>` on the chain's block explorer or check the Relay Tx from the user's review comment
+
 ## Phase 4: Consistency Checks
 
 35. **Trailing slashes** on RPC URLs - all `*_NODE_URL` entries should be consistent (no trailing slash)
 36. **Chain ID correctness** - verify against the chain's official docs
 37. **Explorer URLs** - verify they're the official block explorer
-38. **Asset icon URLs** - verify they resolve
+38. **Asset icon URLs** - verify they resolve (HTTP 200, not 403/404). Prefer `assets.relay.link/icons/<chainId>/light.png` for networkIcon over CoinGecko URLs which often return 403.
 39. **Generated data** - verify asset-manifest.json, generatedAssetData.json, relatedAssetIndex.json are regenerated
 
 40. **Related Asset Index** - `public/generated/relatedAssetIndex.json` + `scripts/generateAssetData/generateRelatedAssetIndex/generateRelatedAssetIndex.ts`
@@ -181,6 +191,18 @@ For each of these, RESEARCH whether the service actually supports the new chain 
 41. **Trade modal "Popular Assets" verification** - after enabling the feature flag, open the trade modal "To" asset selector and filter by the new chain
     - Popular tokens (USDC, USDT, LINK, etc.) should appear WITHOUT needing to search
     - If only the native asset and a handful show, the related asset index likely wasn't regenerated
+
+## Phase 4.5: Append-Only Convention
+
+When adding a new chain to lists, switch/case blocks, arrays, or object entries, the new chain's entry MUST go LAST (append-only). This prevents merge conflict resolution from breaking closing syntax (missing `}`, `},`, `})`, `break`, etc.) between entries.
+
+43. **All additions are append-only** - new chain entries go at the END of:
+    - Switch/case blocks (e.g., `EvmBaseAdapter.ts`, `coingecko.ts`, `useSendActionSubscriber.tsx`)
+    - Object literals (e.g., `baseAssets.ts`, `utils.test.ts`)
+    - Arrays (e.g., `SECOND_CLASS_CHAINS`, `VALID_CHAIN_IDS`)
+    - Import lists
+    - `.env` / `.env.development` variable groups
+    - This prevents a class of merge conflict resolution bugs where auto-resolvers lose closing syntax between adjacent entries
 
 ## Phase 5: Runtime Testing
 
@@ -194,3 +216,6 @@ For each of these, RESEARCH whether the service actually supports the new chain 
 - Verify markets page shows chain's assets
 - Verify trade modal "Popular Assets" section shows popular tokens for the chain without searching
 - Verify ETH on the chain appears as a related asset of mainnet ETH (if applicable)
+- Verify cross-chain swap TO native asset shows execution price (wrapped native detection)
+- Verify chain icon and network icon load without perma-loading spinner
+- Verify brand chain icon in chain selector is correct and displays properly

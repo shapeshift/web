@@ -13,6 +13,8 @@ import {
   baseAssetId,
   baseChainId,
   bchChainId,
+  berachainAssetId,
+  berachainChainId,
   bscAssetId,
   bscChainId,
   btcChainId,
@@ -307,6 +309,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Berachain)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.BerachainMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Berachain],
+          })
+          prev[berachainChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Scroll)) {
         try {
           const assetId = toAssetId({
@@ -391,6 +407,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [plasmaChainId]: { [plasmaAssetId]: 'plasma' },
       [inkChainId]: { [inkAssetId]: 'ethereum' },
       [megaethChainId]: { [megaethAssetId]: 'ethereum' },
+      [berachainChainId]: { [berachainAssetId]: 'berachain-bera' },
       [katanaChainId]: { [katanaAssetId]: 'katana' },
       [scrollChainId]: { [scrollAssetId]: 'ethereum' },
       [solanaChainId]: { [solAssetId]: 'solana' },

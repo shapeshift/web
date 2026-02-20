@@ -38,6 +38,7 @@ export type FeatureFlags = {
   Plasma: boolean
   Ink: boolean
   MegaEth: boolean
+  Berachain: boolean
   Katana: boolean
   Scroll: boolean
   Zcash: boolean
@@ -189,6 +190,7 @@ const initialState: Preferences = {
     Plasma: getConfig().VITE_FEATURE_PLASMA,
     Ink: getConfig().VITE_FEATURE_INK,
     MegaEth: getConfig().VITE_FEATURE_MEGAETH,
+    Berachain: getConfig().VITE_FEATURE_BERACHAIN,
     Katana: getConfig().VITE_FEATURE_KATANA,
     Scroll: getConfig().VITE_FEATURE_SCROLL,
     Zcash: getConfig().VITE_FEATURE_ZCASH,

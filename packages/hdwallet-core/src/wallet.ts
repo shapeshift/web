@@ -193,6 +193,10 @@ export function supportsMegaEth(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsMegaEth
 }
 
+export function supportsBerachain(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsBerachain
+}
+
 export function supportsScroll(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsScroll
 }

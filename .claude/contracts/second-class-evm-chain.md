@@ -200,6 +200,7 @@ Some chains have an ERC20 contract that represents the native token (e.g., Mantl
     - Verify `relatedAssetIndex.json` has been regenerated and contains entries for the new chain's tokens
     - Check `generatedAssetData.json` - the chain's ERC20 tokens should have `relatedAssetKey` values linking them to mainnet counterparts
     - Without this, tokens won't appear in the trade modal "Popular Assets" section
+    - **Manual stablecoin mappings**: Look up the chain's native USDC, USDT, and DAI contract addresses (NOT bridged variants - CoinGecko auto-discovers those). Add them to `manualRelatedAssetIndex` in BOTH `generateRelatedAssetIndex.ts` AND `generateChainRelatedAssetIndex.ts`, keyed by the Ethereum canonical token's AssetId. Without this, popular stablecoins won't show for the chain in the trade modal.
 
 41. **Trade modal "Popular Assets" verification** - after enabling the feature flag, open the trade modal "To" asset selector and filter by the new chain
     - Popular tokens (USDC, USDT, LINK, etc.) should appear WITHOUT needing to search

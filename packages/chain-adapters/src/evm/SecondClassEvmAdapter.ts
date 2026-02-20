@@ -1,5 +1,14 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, berachainChainId, hyperEvmChainId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  berachainChainId,
+  cronosChainId,
+  hyperEvmChainId,
+  mantleChainId,
+  sonicChainId,
+  toAssetId,
+  unichainChainId,
+} from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
 import { MULTICALL3_CONTRACT, viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
@@ -35,7 +44,13 @@ import { EvmBaseAdapter } from './EvmBaseAdapter'
 import type { GasFeeDataEstimate } from './types'
 
 const ERC20_ABI = ['function balanceOf(address) view returns (uint256)']
-const WBERA_CONTRACT = '0x6969696969696969696969696969696969696969'
+const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
+  [berachainChainId]: '0x6969696969696969696969696969696969696969',
+  [mantleChainId]: '0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8',
+  [cronosChainId]: '0x5C7F8A570d578ED84E63fdFA7b1eE72dEae1AE23',
+  [sonicChainId]: '0x039e2fB66102314Ce7b64Ce5Ce3E5183bc94aD38',
+  [unichainChainId]: '0x4200000000000000000000000000000000000006',
+}
 const BATCH_SIZE = 500
 
 export type TokenInfo = {
@@ -408,24 +423,21 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
         throw new Error(`Transaction not found: ${hash}`)
       }
 
-      // Berachain: when debug_traceTransaction is unavailable (public RPC), detect native BERA
-      // receives by parsing WBERA burn events as a fallback for internal tx tracing.
-      // WBERA burns (Transfer to zero address) represent unwraps where native BERA is delivered
-      // via internal calls — e.g. cross-chain fills from Relay.
-      if (this.chainId === berachainChainId && internalTxs.length === 0) {
-        const wberaBurnLogs = parseEventLogs({
+      const wrappedNativeContract = WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID[this.chainId]
+      if (wrappedNativeContract && internalTxs.length === 0) {
+        const wrappedNativeBurnLogs = parseEventLogs({
           abi: erc20Abi,
           logs: receipt.logs,
           eventName: 'Transfer',
         }).filter(
           log =>
-            isAddressEqual(getAddress(log.address), getAddress(WBERA_CONTRACT)) &&
+            isAddressEqual(getAddress(log.address), getAddress(wrappedNativeContract)) &&
             isAddressEqual(log.args.to, zeroAddress),
         )
 
-        for (const log of wberaBurnLogs) {
+        for (const log of wrappedNativeBurnLogs) {
           internalTxs.push({
-            from: WBERA_CONTRACT,
+            from: wrappedNativeContract,
             to: getAddress(pubkey),
             value: log.args.value.toString(),
           })

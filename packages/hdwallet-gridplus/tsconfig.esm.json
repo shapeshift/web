@@ -21,9 +21,6 @@
     },
     {
       "path": "../types/tsconfig.esm.json"
-    },
-    {
-      "path": "../utils/tsconfig.esm.json"
     }
   ]
 }

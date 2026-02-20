@@ -192,6 +192,7 @@ export type ChainSignTx = {
   [KnownChainIds.PlasmaMainnet]: ETHSignTx
   [KnownChainIds.InkMainnet]: ETHSignTx
   [KnownChainIds.MegaEthMainnet]: ETHSignTx
+  [KnownChainIds.BerachainMainnet]: ETHSignTx
   [KnownChainIds.KatanaMainnet]: ETHSignTx
   [KnownChainIds.ScrollMainnet]: ETHSignTx
   [KnownChainIds.BitcoinMainnet]: BTCSignTx

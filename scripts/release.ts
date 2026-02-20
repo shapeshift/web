@@ -154,6 +154,7 @@ ${commitList}`
 const runClaude = (promptPath: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const promptStream = fs.createReadStream(promptPath)
+    promptStream.on('error', err => reject(new Error(`Failed to read prompt file: ${err.message}`)))
     const env = { ...process.env }
     delete env.CLAUDECODE
     delete env.CLAUDE_CODE_ENTRYPOINT
@@ -301,7 +302,7 @@ const doRegularRelease = async () => {
   const prNumbers = extractPrNumbers(messages)
   console.log(chalk.green(`Found ${prNumbers.length} PR references, fetching context...`))
 
-  const prBodies = prNumbers.length > 0 ? await fetchPrBodies(prNumbers) : new Map()
+  const prBodies = prNumbers.length > 0 ? await fetchPrBodies(prNumbers) : new Map<number, string>()
   console.log(chalk.green(`Fetched ${prBodies.size}/${prNumbers.length} PR descriptions.`))
 
   const summary = await generateReleaseSummary(nextVersion, messages, prBodies)
@@ -329,6 +330,10 @@ const doRegularRelease = async () => {
   console.log(chalk.green('Pulling develop...'))
   await git().pull()
   console.log(chalk.green('Resetting release to develop...'))
+  // **note** - most devs are familiar with lowercase -b to check out a new branch
+  // capital -B will checkout and reset the branch to the current HEAD
+  // so we can reuse the release branch, and force push over it
+  // this is required as the fleek environment is pointed at this specific branch
   await git().checkout(['-B', 'release'])
   console.log(chalk.green('Force pushing release branch...'))
   await git().push(['--force', 'origin', 'release'])

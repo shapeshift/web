@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, hyperEvmChainId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, berachainChainId, hyperEvmChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
 import { MULTICALL3_CONTRACT, viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
@@ -7,7 +7,14 @@ import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { Contract, Interface, JsonRpcProvider } from 'ethers'
 import PQueue from 'p-queue'
 import type { Hex } from 'viem'
-import { erc20Abi, getAddress, isAddressEqual, multicall3Abi, parseEventLogs } from 'viem'
+import {
+  erc20Abi,
+  getAddress,
+  isAddressEqual,
+  multicall3Abi,
+  parseEventLogs,
+  zeroAddress,
+} from 'viem'
 
 import { ErrorHandler } from '../error/ErrorHandler'
 import type {
@@ -28,6 +35,7 @@ import { EvmBaseAdapter } from './EvmBaseAdapter'
 import type { GasFeeDataEstimate } from './types'
 
 const ERC20_ABI = ['function balanceOf(address) view returns (uint256)']
+const WBERA_CONTRACT = '0x6969696969696969696969696969696969696969'
 const BATCH_SIZE = 500
 
 export type TokenInfo = {
@@ -398,6 +406,30 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
 
       if (!transaction || !receipt) {
         throw new Error(`Transaction not found: ${hash}`)
+      }
+
+      // Berachain: when debug_traceTransaction is unavailable (public RPC), detect native BERA
+      // receives by parsing WBERA burn events as a fallback for internal tx tracing.
+      // WBERA burns (Transfer to zero address) represent unwraps where native BERA is delivered
+      // via internal calls — e.g. cross-chain fills from Relay.
+      if (this.chainId === berachainChainId && internalTxs.length === 0) {
+        const wberaBurnLogs = parseEventLogs({
+          abi: erc20Abi,
+          logs: receipt.logs,
+          eventName: 'Transfer',
+        }).filter(
+          log =>
+            isAddressEqual(getAddress(log.address), getAddress(WBERA_CONTRACT)) &&
+            isAddressEqual(log.args.to, zeroAddress),
+        )
+
+        for (const log of wberaBurnLogs) {
+          internalTxs.push({
+            from: WBERA_CONTRACT,
+            to: getAddress(pubkey),
+            value: log.args.value.toString(),
+          })
+        }
       }
 
       const block = receipt.blockHash

@@ -2,11 +2,13 @@ import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
+  berachainChainId,
   bscChainId,
   btcChainId,
   ethChainId,
   gnosisChainId,
   hyperEvmChainId,
+  inkChainId,
   katanaChainId,
   lineaChainId,
   megaethChainId,
@@ -14,6 +16,7 @@ import {
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  scrollChainId,
   solanaChainId,
   tronChainId,
 } from '@shapeshiftoss/caip'
@@ -23,9 +26,11 @@ import {
   arbitrum,
   avalanche,
   base,
+  berachain,
   bsc,
   gnosis,
   hyperEvm,
+  ink,
   katana,
   linea,
   mainnet as ethereum,
@@ -33,6 +38,7 @@ import {
   optimism,
   plasma,
   polygon,
+  scroll,
 } from 'viem/chains'
 
 import { TradeQuoteError } from '../../types'
@@ -54,10 +60,13 @@ export const chainIdToRelayChainId = {
   [tronChainId]: 728126428,
   [monadChainId]: monad.id,
   [hyperEvmChainId]: hyperEvm.id,
+  [inkChainId]: ink.id,
   [megaethChainId]: 4326,
   [plasmaChainId]: plasma.id,
   [katanaChainId]: katana.id,
   [lineaChainId]: linea.id,
+  [berachainChainId]: berachain.id,
+  [scrollChainId]: scroll.id,
 }
 
 export enum RelayStatusMessage {

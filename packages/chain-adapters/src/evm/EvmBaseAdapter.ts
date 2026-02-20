@@ -11,10 +11,12 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
+  supportsBerachain,
   supportsBSC,
   supportsETH,
   supportsGnosis,
   supportsHyperEvm,
+  supportsInk,
   supportsKatana,
   supportsLinea,
   supportsMegaEth,
@@ -22,6 +24,7 @@ import {
   supportsOptimism,
   supportsPlasma,
   supportsPolygon,
+  supportsScroll,
 } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -87,9 +90,12 @@ export const evmChainIds = [
   KnownChainIds.MonadMainnet,
   KnownChainIds.HyperEvmMainnet,
   KnownChainIds.PlasmaMainnet,
+  KnownChainIds.InkMainnet,
   KnownChainIds.MegaEthMainnet,
+  KnownChainIds.BerachainMainnet,
   KnownChainIds.KatanaMainnet,
   KnownChainIds.LineaMainnet,
+  KnownChainIds.ScrollMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -190,12 +196,18 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsHyperEvm(wallet)
         case Number(fromChainId(KnownChainIds.PlasmaMainnet).chainReference):
           return supportsPlasma(wallet)
+        case Number(fromChainId(KnownChainIds.InkMainnet).chainReference):
+          return supportsInk(wallet)
         case Number(fromChainId(KnownChainIds.MegaEthMainnet).chainReference):
           return supportsMegaEth(wallet)
+        case Number(fromChainId(KnownChainIds.BerachainMainnet).chainReference):
+          return supportsBerachain(wallet)
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
         case Number(fromChainId(KnownChainIds.LineaMainnet).chainReference):
           return supportsLinea(wallet)
+        case Number(fromChainId(KnownChainIds.ScrollMainnet).chainReference):
+          return supportsScroll(wallet)
         default:
           return false
       }
@@ -283,10 +295,20 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         symbol: 'XPL',
         explorer: 'https://plasmascan.to',
       },
+      [KnownChainIds.InkMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://explorer.inkonchain.com',
+      },
       [KnownChainIds.MegaEthMainnet]: {
         name: 'Ether',
         symbol: 'ETH',
         explorer: 'https://megaeth.blockscout.com',
+      },
+      [KnownChainIds.BerachainMainnet]: {
+        name: 'Berachain',
+        symbol: 'BERA',
+        explorer: 'https://berascan.com',
       },
       [KnownChainIds.KatanaMainnet]: {
         name: 'Ethereum',
@@ -297,6 +319,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://lineascan.build',
+      },
+      [KnownChainIds.ScrollMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://scrollscan.com',
       },
     }[this.chainId]
 

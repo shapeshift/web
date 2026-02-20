@@ -354,6 +354,23 @@ export const plasma: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const ink: Readonly<Asset> = Object.freeze({
+  assetId: caip.inkAssetId,
+  chainId: caip.inkChainId,
+  name: 'Ether',
+  networkName: 'Ink',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#5A5AFF',
+  networkColor: '#5A5AFF',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.relay.link/icons/57073/light.png',
+  explorer: 'https://explorer.inkonchain.com',
+  explorerAddressLink: 'https://explorer.inkonchain.com/address/',
+  explorerTxLink: 'https://explorer.inkonchain.com/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
 export const megaeth: Readonly<Asset> = Object.freeze({
   assetId: caip.megaethAssetId,
   chainId: caip.megaethChainId,
@@ -370,6 +387,23 @@ export const megaeth: Readonly<Asset> = Object.freeze({
   explorerAddressLink: 'https://megaeth.blockscout.com/address/',
   explorerTxLink: 'https://megaeth.blockscout.com/tx/',
   relatedAssetKey: 'eip155:1/slip44:60',
+})
+
+export const berachain: Readonly<Asset> = Object.freeze({
+  assetId: caip.berachainAssetId,
+  chainId: caip.berachainChainId,
+  name: 'Berachain',
+  networkName: 'Berachain',
+  symbol: 'BERA',
+  precision: 18,
+  color: '#6B4226',
+  networkColor: '#6B4226',
+  icon: 'https://assets.relay.link/icons/80094/light.png',
+  networkIcon: 'https://assets.relay.link/icons/80094/light.png',
+  explorer: 'https://berascan.com',
+  explorerAddressLink: 'https://berascan.com/address/',
+  explorerTxLink: 'https://berascan.com/tx/',
+  relatedAssetKey: null,
 })
 
 export const katana: Readonly<Asset> = Object.freeze({
@@ -403,6 +437,23 @@ export const linea: Readonly<Asset> = Object.freeze({
   explorer: 'https://lineascan.build',
   explorerAddressLink: 'https://lineascan.build/address/',
   explorerTxLink: 'https://lineascan.build/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
+export const scroll: Readonly<Asset> = Object.freeze({
+  assetId: caip.scrollAssetId,
+  chainId: caip.scrollChainId,
+  name: 'Ether',
+  networkName: 'Scroll',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#FFEEDA',
+  networkColor: '#FFEEDA',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://scroll-tech.github.io/token-list/scroll.png',
+  explorer: 'https://scrollscan.com',
+  explorerAddressLink: 'https://scrollscan.com/address/',
+  explorerTxLink: 'https://scrollscan.com/tx/',
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 

@@ -136,9 +136,19 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
           assetReference: ASSET_REFERENCE.Plasma,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
+      case CHAIN_REFERENCE.InkMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Ink,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       case CHAIN_REFERENCE.MegaEthMainnet:
         return {
           assetReference: ASSET_REFERENCE.MegaEth,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.BerachainMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Berachain,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
       case CHAIN_REFERENCE.KatanaMainnet:
@@ -149,6 +159,11 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
       case CHAIN_REFERENCE.LineaMainnet:
         return {
           assetReference: ASSET_REFERENCE.Linea,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.ScrollMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Scroll,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
       default:

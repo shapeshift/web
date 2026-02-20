@@ -2,7 +2,7 @@ import { Button, Card, CardBody, CardFooter, CardHeader, Heading, Link } from '@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { COW_SWAP_VAULT_RELAYER_ADDRESS } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -25,7 +25,7 @@ import type { LimitOrderActiveQuote } from '@/state/slices/limitOrderSlice/types
 import {
   selectAssetById,
   selectFeeAssetById,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
 
@@ -47,7 +47,7 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
     }),
     [activeQuote.params.accountId, feeAsset?.assetId],
   )
-  const feeAssetBalance = useSelectorWithArgs(selectPortfolioCryptoBalanceBaseUnitByFilter, filter)
+  const feeAssetBalance = useSelectorWithArgs(selectPortfolioCryptoBalanceByFilter, filter)
 
   const onMutate = useCallback(() => {
     setTxStatus(TxStatus.Pending)
@@ -120,13 +120,21 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
     })
   }, [activeQuote.params.accountId, feeAsset, maybeSafeTx, txHash])
 
-  const hasSufficientBalanceForGas = useMemo(() => {
-    if (approvalNetworkFeeCryptoBaseUnit === undefined) {
-      return isLoading
-    }
+  const approvalNetworkFeeCrypto = useMemo(
+    () =>
+      approvalNetworkFeeCryptoBaseUnit !== undefined
+        ? BigAmount.fromBaseUnit({
+            value: approvalNetworkFeeCryptoBaseUnit,
+            precision: feeAsset?.precision ?? 0,
+          })
+        : undefined,
+    [approvalNetworkFeeCryptoBaseUnit, feeAsset?.precision],
+  )
 
-    return bnOrZero(feeAssetBalance).gte(approvalNetworkFeeCryptoBaseUnit)
-  }, [approvalNetworkFeeCryptoBaseUnit, feeAssetBalance, isLoading])
+  const hasSufficientBalanceForGas = useMemo(() => {
+    if (!approvalNetworkFeeCrypto) return isLoading
+    return feeAssetBalance.gte(approvalNetworkFeeCrypto)
+  }, [approvalNetworkFeeCrypto, feeAssetBalance, isLoading])
 
   const approveAssetTranslation = useMemo(() => {
     return [
@@ -175,9 +183,9 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
           {!isAllowanceResetRequired && txStatus === TxStatus.Unknown && (
             <>
               <Text translation='common.approvalFee' color='text.subtle' />
-              {approvalNetworkFeeCryptoBaseUnit && feeAsset && (
+              {approvalNetworkFeeCrypto && feeAsset && (
                 <Amount.Crypto
-                  value={fromBaseUnit(approvalNetworkFeeCryptoBaseUnit, feeAsset?.precision)}
+                  value={approvalNetworkFeeCrypto.toPrecision()}
                   symbol={feeAsset?.symbol ?? ''}
                 />
               )}
@@ -193,7 +201,7 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
     )
   }, [
     isAllowanceResetRequired,
-    approvalNetworkFeeCryptoBaseUnit,
+    approvalNetworkFeeCrypto,
     approveAssetTranslation,
     feeAsset,
     translate,

@@ -13436,7 +13436,6 @@ __metadata:
     "@ton/crypto": ^3.3.0
     "@ton/ton": ^16.1.0
     "@types/bchaddrjs": ^0.4.0
-    "@types/big.js": ^6.0.2
     "@types/bs58": ^4.0.1
     "@types/crypto-js": ^4.0.0
     "@types/elliptic": ^6.4.12
@@ -13446,10 +13445,8 @@ __metadata:
     "@zxing/text-encoding": ^0.9.0
     bchaddrjs: ^0.4.9
     bech32: ^1.1.4
-    bignumber.js: ^9.0.1
     bip32: ^2.0.5
     bip39: ^3.0.2
-    bnb-javascript-sdk-nobroadcast: 2.16.15
     bs58: ^4.0.1
     bs58check: ^4.0.0
     cosmjs-types: ^0.4.1
@@ -17674,13 +17671,6 @@ __metadata:
   version: 0.4.3
   resolution: "@types/bchaddrjs@npm:0.4.3"
   checksum: ebffc96914a95b3251ca5ce023105a4977a02032a994a2765f8620ffe43c55a283753f50347b592f8b89726e14d15be884563e723bdadf7689f43fd9b868fdff
-  languageName: node
-  linkType: hard
-
-"@types/big.js@npm:^6.0.2":
-  version: 6.2.2
-  resolution: "@types/big.js@npm:6.2.2"
-  checksum: 6aeff1b763e71b79bb796c9f395ebecdd5a6aeb997b1c9b9acb2e14aa2f88eec620f26a6aedeba120ec7a881a0834d0b8e9869da864c60bba623f92d6de6f848
   languageName: node
   linkType: hard
 

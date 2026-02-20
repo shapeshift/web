@@ -80,6 +80,7 @@ describe('adapters:coingecko', () => {
         chainReference: CHAIN_REFERENCE.ScrollMainnet,
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Scroll,
+      })
       const ethOnUnichain = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Evm,
         chainReference: CHAIN_REFERENCE.UnichainMainnet,

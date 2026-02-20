@@ -1,8 +1,8 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
   berachainAssetId,
-  cronosAssetId,
   bobAssetId,
+  cronosAssetId,
   hyperEvmAssetId,
   inkAssetId,
   katanaAssetId,

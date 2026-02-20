@@ -8,6 +8,7 @@ import {
   atom,
   avax,
   base,
+  berachain,
   bitcoin,
   bitcoincash,
   bnbsmartchain,
@@ -15,14 +16,17 @@ import {
   ethereum,
   gnosis,
   hyperevm,
+  ink,
   katana,
   litecoin,
   mayachain,
+  megaeth,
   monad,
   near,
   optimism,
   plasma,
   polygon,
+  scroll,
   solana,
   starknet,
   sui,
@@ -79,8 +83,16 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return hyperevm
     case KnownChainIds.PlasmaMainnet:
       return plasma
+    case KnownChainIds.InkMainnet:
+      return ink
+    case KnownChainIds.MegaEthMainnet:
+      return megaeth
+    case KnownChainIds.BerachainMainnet:
+      return berachain
     case KnownChainIds.KatanaMainnet:
       return katana
+    case KnownChainIds.ScrollMainnet:
+      return scroll
     case KnownChainIds.NearMainnet:
       return near
     case KnownChainIds.ZcashMainnet:

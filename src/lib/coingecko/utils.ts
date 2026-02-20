@@ -4,12 +4,14 @@ import {
   avalancheChainId,
   baseChainId,
   bchChainId,
+  berachainChainId,
   bscChainId,
   btcChainId,
   cosmosChainId,
   dogeChainId,
   ethChainId,
   gnosisChainId,
+  inkChainId,
   katanaChainId,
   ltcChainId,
   mayachainChainId,
@@ -20,6 +22,7 @@ import {
   suiChainId,
   thorchainChainId,
   toAssetId,
+  tonChainId,
   zecChainId,
 } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -211,6 +214,9 @@ export const getCoingeckoSupportedChainIds = () => {
     starknetChainId,
     dogeChainId,
     zecChainId,
+    ...(getConfig().VITE_FEATURE_BERACHAIN ? [berachainChainId] : []),
+    ...(getConfig().VITE_FEATURE_INK ? [inkChainId] : []),
     ...(getConfig().VITE_FEATURE_KATANA ? [katanaChainId] : []),
+    ...(getConfig().VITE_FEATURE_TON ? [tonChainId] : []),
   ]
 }

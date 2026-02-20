@@ -5,6 +5,7 @@ import {
   avalancheChainId,
   baseChainId,
   bchChainId,
+  berachainChainId,
   bscChainId,
   btcChainId,
   CHAIN_NAMESPACE,
@@ -16,15 +17,18 @@ import {
   fromChainId,
   gnosisChainId,
   hyperEvmChainId,
+  inkChainId,
   isNft,
   katanaChainId,
   ltcChainId,
   mayachainChainId,
+  megaethChainId,
   monadChainId,
   nearChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  scrollChainId,
   solanaChainId,
   starknetChainId,
   suiChainId,
@@ -44,18 +48,22 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
+  supportsBerachain,
   supportsBSC,
   supportsBTC,
   supportsCosmos,
   supportsETH,
   supportsGnosis,
   supportsHyperEvm,
+  supportsInk,
   supportsKatana,
   supportsMayachain,
+  supportsMegaEth,
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
   supportsPolygon,
+  supportsScroll,
   supportsSolana,
   supportsStarknet,
   supportsSui,
@@ -77,8 +85,7 @@ import type {
 import { initialState } from '../portfolioSliceCommon'
 
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
-import type { BigNumber } from '@/lib/bignumber/bignumber'
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from '@/lib/portals/utils'
 import { assertUnreachable, isNativeHDWallet, isTrezorHDWallet, middleEllipsis } from '@/lib/utils'
 import { supportsNear } from '@/lib/utils/near'
@@ -100,7 +107,11 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case arbitrumChainId:
     case baseChainId:
     case hyperEvmChainId:
+    case inkChainId:
+    case megaethChainId:
+    case berachainChainId:
     case katanaChainId:
+    case scrollChainId:
     case monadChainId:
     case plasmaChainId:
     case thorchainChainId:
@@ -504,10 +515,18 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsMonad(wallet)
     case hyperEvmChainId:
       return supportsHyperEvm(wallet)
+    case inkChainId:
+      return supportsInk(wallet)
+    case megaethChainId:
+      return supportsMegaEth(wallet)
+    case berachainChainId:
+      return supportsBerachain(wallet)
     case plasmaChainId:
       return supportsPlasma(wallet)
     case katanaChainId:
       return supportsKatana(wallet)
+    case scrollChainId:
+      return supportsScroll(wallet)
     case tronChainId:
       return supportsTron(wallet)
     case nearChainId:
@@ -517,25 +536,6 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     default:
       return false
   }
-}
-
-export const genericBalanceByFilter = (
-  accountBalances: PortfolioAccountBalancesById,
-  assetId: AssetId | undefined,
-  accountId: AccountId | undefined,
-): string => {
-  const totalByAccountId = Object.entries(accountBalances)
-    .filter(([acctId]) => (accountId ? acctId === accountId : true)) // if no accountId filter, return all
-    .reduce<Record<AccountId, BigNumber>>((acc, [accountId, byAssetId]) => {
-      const accountTotal = Object.entries(byAssetId)
-        .filter(([id, _assetBalance]) => (assetId ? id === assetId : true)) // if no assetId filter, return all
-        .reduce((innerAcc, [_id, assetBalance]) => innerAcc.plus(bnOrZero(assetBalance)), bn(0))
-      acc[accountId] = accountTotal
-      return acc
-    }, {})
-  return Object.values(totalByAccountId)
-    .reduce((acc, accountBalance) => acc.plus(accountBalance), bn(0))
-    .toFixed()
 }
 
 export const getHighestUserCurrencyBalanceAccountByAssetId = (

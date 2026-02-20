@@ -30,12 +30,17 @@ export type FeatureFlags = {
   Sui: boolean
   Ton: boolean
   Near: boolean
+  AgenticChat: boolean
   Base: boolean
   Mayachain: boolean
   Monad: boolean
   HyperEvm: boolean
   Plasma: boolean
+  Ink: boolean
+  MegaEth: boolean
+  Berachain: boolean
   Katana: boolean
+  Scroll: boolean
   Zcash: boolean
   ThorSwap: boolean
   WalletConnectToDapps: boolean
@@ -100,6 +105,7 @@ export type FeatureFlags = {
   SunioSwap: boolean
   AvnuSwap: boolean
   StonfiSwap: boolean
+  AcrossSwap: boolean
   LazyTxHistory: boolean
   LedgerReadOnly: boolean
   QuickBuy: boolean
@@ -176,12 +182,17 @@ const initialState: Preferences = {
     Sui: getConfig().VITE_FEATURE_SUI,
     Ton: getConfig().VITE_FEATURE_TON,
     Near: getConfig().VITE_FEATURE_NEAR,
+    AgenticChat: getConfig().VITE_FEATURE_AGENTIC_CHAT,
     Base: getConfig().VITE_FEATURE_BASE,
     Mayachain: getConfig().VITE_FEATURE_MAYACHAIN,
     Monad: getConfig().VITE_FEATURE_MONAD,
     HyperEvm: getConfig().VITE_FEATURE_HYPEREVM,
     Plasma: getConfig().VITE_FEATURE_PLASMA,
+    Ink: getConfig().VITE_FEATURE_INK,
+    MegaEth: getConfig().VITE_FEATURE_MEGAETH,
+    Berachain: getConfig().VITE_FEATURE_BERACHAIN,
     Katana: getConfig().VITE_FEATURE_KATANA,
+    Scroll: getConfig().VITE_FEATURE_SCROLL,
     Zcash: getConfig().VITE_FEATURE_ZCASH,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,
     WalletConnectToDappsV2: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,
@@ -246,6 +257,7 @@ const initialState: Preferences = {
     SunioSwap: getConfig().VITE_FEATURE_SUNIO_SWAP,
     AvnuSwap: getConfig().VITE_FEATURE_AVNU_SWAP,
     StonfiSwap: getConfig().VITE_FEATURE_STONFI_SWAP,
+    AcrossSwap: getConfig().VITE_FEATURE_ACROSS_SWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
     LedgerReadOnly: getConfig().VITE_FEATURE_LEDGER_READ_ONLY,
     QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,

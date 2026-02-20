@@ -22,7 +22,7 @@ import { IconCircle } from '@/components/IconCircle'
 import { GridIcon } from '@/components/Icons/GridIcon'
 import { useModalChildZIndex } from '@/context/ModalStackProvider'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { selectPortfolioTotalBalanceByChainIdIncludeStaking } from '@/state/slices/selectors'
+import { selectPortfolioUserCurrencyTotalBalancesByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const menuListMaxHeight = { base: 'clamp(120px, 45vh, 450px)', md: '350px' }
@@ -50,7 +50,7 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
   ...menuProps
 }) => {
   const modalChildZIndex = useModalChildZIndex()
-  const fiatBalanceByChainId = useAppSelector(selectPortfolioTotalBalanceByChainIdIncludeStaking)
+  const fiatBalanceByChainId = useAppSelector(selectPortfolioUserCurrencyTotalBalancesByChainId)
 
   const translate = useTranslate()
 

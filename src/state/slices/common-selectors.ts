@@ -169,8 +169,6 @@ export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelecto
 )((_s: ReduxState, filter) => `${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`)
 
 // ── BigAmount-returning selectors ────────────────
-// New selectors that return BigAmount instead of strings.
-// Existing string-returning selectors above are kept for backward compatibility.
 
 export const selectPortfolioAccountBalances = createDeepEqualOutputSelector(
   selectEnabledWalletAccountIds,
@@ -194,39 +192,30 @@ export const selectPortfolioAccountBalances = createDeepEqualOutputSelector(
 )
 
 export const selectPortfolioAssetBalances = createDeepEqualOutputSelector(
-  selectPortfolioAccountBalancesBaseUnit,
-  (accountBalancesById): Record<AssetId, BigAmount> => {
-    const aggregated = Object.values(accountBalancesById).reduce<Record<AssetId, string>>(
-      (acc, byAssetId) => {
-        Object.entries(byAssetId).forEach(([assetId, balance]) => {
-          acc[assetId] = bnOrZero(acc[assetId]).plus(bnOrZero(balance)).toFixed()
-        })
-        return acc
-      },
-      {},
-    )
-    return Object.fromEntries(
-      Object.entries(aggregated)
-        .filter(([_, balance]) => !bnOrZero(balance).isZero())
-        .map(([assetId, balance]) => [
-          assetId,
-          BigAmount.fromBaseUnit({ value: balance, assetId }),
-        ]),
-    ) as Record<AssetId, BigAmount>
-  },
+  selectPortfolioAssetBalancesBaseUnit,
+  (assetBalancesById): Record<AssetId, BigAmount> =>
+    Object.fromEntries(
+      Object.entries(assetBalancesById).map(([assetId, balance]) => [
+        assetId,
+        BigAmount.fromBaseUnit({ value: balance, assetId }),
+      ]),
+    ) as Record<AssetId, BigAmount>,
 )
 
 export const selectPortfolioCryptoBalanceByFilter = createCachedSelector(
+  selectAssets,
   selectPortfolioAccountBalancesBaseUnit,
   selectPortfolioAssetBalancesBaseUnit,
   selectAccountIdParamFromFilter,
   selectAssetIdParamFromFilter,
-  (accountBalances, assetBalances, accountId, assetId): BigAmount => {
+  (assets, accountBalances, assetBalances, accountId, assetId): BigAmount => {
     if (!assetId) return BigAmount.zero({ precision: 0 })
-    const rawBalance =
-      accountId && assetId
-        ? accountBalances?.[accountId]?.[assetId] ?? '0'
-        : assetBalances[assetId] ?? '0'
+    // to avoid megabillion phantom balances, return zero rather than base unit value
+    // if we don't have a precision for the asset
+    if (assets[assetId]?.precision === undefined) return BigAmount.zero({ precision: 0 })
+    const rawBalance = accountId
+      ? accountBalances?.[accountId]?.[assetId] ?? '0'
+      : assetBalances[assetId] ?? '0'
     return BigAmount.fromBaseUnit({ value: rawBalance, assetId })
   },
 )(

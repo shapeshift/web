@@ -11,12 +11,23 @@ import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
 
 import { getAsset, getAssetsById } from '../assets'
-import { DEFAULT_AFFILIATE_BPS } from '../config'
+import { DEFAULT_AFFILIATE_BPS, getServerConfig } from '../config'
 import { booleanFromString } from '../lib/zod'
 import { createServerSwapperDeps } from '../swapperDeps'
-import type { ApiQuoteStep, ApprovalInfo, ErrorResponse, QuoteResponse } from '../types'
+import type {
+  ApiQuoteStep,
+  ApprovalInfo,
+  CosmosTransactionData,
+  ErrorResponse,
+  EvmTransactionData,
+  QuoteResponse,
+  SolanaTransactionData,
+  TransactionData,
+  UtxoTransactionData,
+} from '../types'
 
-// Lazy load swapper to avoid import issues at module load time
+type ThorLikeQuote = TradeQuote & { memo?: string }
+
 let swapperModule: Awaited<ReturnType<typeof importSwapperModule>> | null = null
 const importSwapperModule = () => import('@shapeshiftoss/swapper')
 const getSwapperModule = async () => {
@@ -24,6 +35,28 @@ const getSwapperModule = async () => {
     swapperModule = await importSwapperModule()
   }
   return swapperModule
+}
+
+const fetchInboundAddress = async (
+  assetId: string,
+  swapperName: SwapperName,
+): Promise<string | undefined> => {
+  const { getInboundAddressDataForChain, getDaemonUrl } = await getSwapperModule()
+
+  const config = getServerConfig()
+  const daemonUrl = getDaemonUrl(config, swapperName)
+
+  const result = await getInboundAddressDataForChain(daemonUrl, assetId, false, swapperName)
+
+  if (result.isOk()) {
+    return result.unwrap().address
+  }
+
+  console.error(
+    `Failed to fetch inbound address for ${assetId} (${swapperName}):`,
+    result.unwrapErr(),
+  )
+  return undefined
 }
 
 // Request validation schema - swapperName is string, validated later
@@ -47,51 +80,205 @@ export const QuoteRequestSchema = z.object({
   accountNumber: z.coerce.number().optional().default(0).openapi({ example: 0 }),
 })
 
-// Helper to extract transaction data from quote step
-const extractTransactionData = (step: TradeQuoteStep): ApiQuoteStep['transactionData'] => {
-  // Check for various swapper-specific transaction metadata
-  if (step.zrxTransactionMetadata) {
+const getEvmChainIdNumber = (chainId: string): number => {
+  const { chainReference } = fromChainId(chainId)
+  return parseInt(chainReference, 10)
+}
+
+const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | undefined => {
+  const chainId = getEvmChainIdNumber(step.sellAsset.chainId)
+
+  const txData: EvmTransactionData | undefined = (() => {
+    if (step.zrxTransactionMetadata) {
+      return {
+        type: 'evm' as const,
+        chainId,
+        to: step.zrxTransactionMetadata.to,
+        data: step.zrxTransactionMetadata.data,
+        value: step.zrxTransactionMetadata.value,
+        gasLimit: step.zrxTransactionMetadata.gas,
+      }
+    }
+
+    if (step.portalsTransactionMetadata) {
+      return {
+        type: 'evm' as const,
+        chainId,
+        to: step.portalsTransactionMetadata.to,
+        data: step.portalsTransactionMetadata.data,
+        value: step.portalsTransactionMetadata.value,
+        gasLimit: step.portalsTransactionMetadata.gasLimit,
+      }
+    }
+
+    if (step.bebopTransactionMetadata) {
+      return {
+        type: 'evm' as const,
+        chainId,
+        to: step.bebopTransactionMetadata.to,
+        data: step.bebopTransactionMetadata.data,
+        value: step.bebopTransactionMetadata.value,
+        gasLimit: step.bebopTransactionMetadata.gas,
+      }
+    }
+
+    if (step.butterSwapTransactionMetadata) {
+      return {
+        type: 'evm' as const,
+        chainId,
+        to: step.butterSwapTransactionMetadata.to,
+        data: step.butterSwapTransactionMetadata.data,
+        value: step.butterSwapTransactionMetadata.value,
+        gasLimit: step.butterSwapTransactionMetadata.gasLimit,
+      }
+    }
+
+    if (step.relayTransactionMetadata?.to && step.relayTransactionMetadata?.data) {
+      return {
+        type: 'evm' as const,
+        chainId,
+        to: step.relayTransactionMetadata.to,
+        data: step.relayTransactionMetadata.data,
+        value: step.relayTransactionMetadata.value ?? '0',
+        gasLimit: step.relayTransactionMetadata.gasLimit,
+      }
+    }
+
+    if (step.chainflipSpecific?.chainflipDepositAddress) {
+      return {
+        type: 'evm' as const,
+        chainId,
+        to: step.chainflipSpecific.chainflipDepositAddress,
+        data: '0x',
+        value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      }
+    }
+
+    if (step.nearIntentsSpecific?.depositAddress) {
+      return {
+        type: 'evm' as const,
+        chainId,
+        to: step.nearIntentsSpecific.depositAddress,
+        data: '0x',
+        value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      }
+    }
+
+    return undefined
+  })()
+
+  if (!txData) return undefined
+
+  if (step.permit2Eip712 && !txData.signatureRequired) {
+    return { ...txData, signatureRequired: { type: 'permit2', eip712: step.permit2Eip712 } }
+  }
+
+  return txData
+}
+
+const extractSolanaTransactionData = (step: TradeQuoteStep): SolanaTransactionData | undefined => {
+  if (!step.solanaTransactionMetadata?.instructions) {
+    return undefined
+  }
+
+  const instructions = step.solanaTransactionMetadata.instructions.map(ix => ({
+    programId: ix.programId.toBase58(),
+    keys: ix.keys.map(key => ({
+      pubkey: key.pubkey.toBase58(),
+      isSigner: key.isSigner,
+      isWritable: key.isWritable,
+    })),
+    data: Buffer.from(ix.data).toString('base64'),
+  }))
+
+  return {
+    type: 'solana',
+    instructions,
+    addressLookupTableAddresses: step.solanaTransactionMetadata.addressLookupTableAddresses,
+  }
+}
+
+type DepositExtractionContext = {
+  memo?: string
+  depositAddress?: string
+}
+
+const extractUtxoTransactionData = (
+  step: TradeQuoteStep,
+  context: DepositExtractionContext = {},
+): UtxoTransactionData | undefined => {
+  if (step.relayTransactionMetadata?.psbt) {
     return {
-      to: step.zrxTransactionMetadata.to,
-      data: step.zrxTransactionMetadata.data,
-      value: step.zrxTransactionMetadata.value,
-      gasLimit: step.zrxTransactionMetadata.gas,
+      type: 'utxo_psbt',
+      psbt: step.relayTransactionMetadata.psbt,
+      opReturnData: step.relayTransactionMetadata.opReturnData,
     }
   }
 
-  if (step.portalsTransactionMetadata) {
+  if (step.chainflipSpecific?.chainflipDepositAddress) {
     return {
-      to: step.portalsTransactionMetadata.to,
-      data: step.portalsTransactionMetadata.data,
-      value: step.portalsTransactionMetadata.value,
-      gasLimit: step.portalsTransactionMetadata.gasLimit,
+      type: 'utxo_deposit',
+      depositAddress: step.chainflipSpecific.chainflipDepositAddress,
+      memo: '',
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
     }
   }
 
-  if (step.bebopTransactionMetadata) {
+  if (context.depositAddress && context.memo !== undefined) {
     return {
-      to: step.bebopTransactionMetadata.to,
-      data: step.bebopTransactionMetadata.data,
-      value: step.bebopTransactionMetadata.value,
-      gasLimit: step.bebopTransactionMetadata.gas,
+      type: 'utxo_deposit',
+      depositAddress: context.depositAddress,
+      memo: context.memo,
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
     }
   }
 
-  if (step.butterSwapTransactionMetadata) {
-    return {
-      to: step.butterSwapTransactionMetadata.to,
-      data: step.butterSwapTransactionMetadata.data,
-      value: step.butterSwapTransactionMetadata.value,
-      gasLimit: step.butterSwapTransactionMetadata.gasLimit,
-    }
-  }
-
-  // For THORChain/MAYAChain and other swappers, transaction is built differently
-  // The consumer will need to use the quote data to build the transaction
   return undefined
 }
 
-const buildApprovalInfo = (step: TradeQuoteStep, _sellAssetId: string): ApprovalInfo => {
+const extractCosmosTransactionData = (
+  step: TradeQuoteStep,
+  context: DepositExtractionContext = {},
+): CosmosTransactionData | undefined => {
+  if (context.depositAddress && context.memo !== undefined) {
+    return {
+      type: 'cosmos',
+      chainId: step.sellAsset.chainId,
+      to: context.depositAddress,
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      memo: context.memo,
+    }
+  }
+
+  return undefined
+}
+
+const extractTransactionData = (
+  step: TradeQuoteStep,
+  context: DepositExtractionContext = {},
+): TransactionData | undefined => {
+  const { chainNamespace } = fromChainId(step.sellAsset.chainId)
+
+  if (chainNamespace === 'eip155') {
+    return extractEvmTransactionData(step)
+  }
+
+  if (chainNamespace === 'solana') {
+    return extractSolanaTransactionData(step)
+  }
+
+  if (chainNamespace === 'bip122') {
+    return extractUtxoTransactionData(step, context)
+  }
+
+  if (chainNamespace === 'cosmos') {
+    return extractCosmosTransactionData(step, context)
+  }
+
+  return undefined
+}
+
+const buildApprovalInfo = (step: TradeQuoteStep): ApprovalInfo => {
   const { chainNamespace } = fromChainId(step.sellAsset.chainId)
 
   if (chainNamespace !== 'eip155') {
@@ -113,7 +300,10 @@ const buildApprovalInfo = (step: TradeQuoteStep, _sellAssetId: string): Approval
 }
 
 // Transform quote step to API format
-const transformQuoteStep = (step: TradeQuoteStep): ApiQuoteStep => ({
+const transformQuoteStep = (
+  step: TradeQuoteStep,
+  context: DepositExtractionContext = {},
+): ApiQuoteStep => ({
   sellAsset: step.sellAsset,
   buyAsset: step.buyAsset,
   sellAmountCryptoBaseUnit: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -121,8 +311,38 @@ const transformQuoteStep = (step: TradeQuoteStep): ApiQuoteStep => ({
   allowanceContract: step.allowanceContract,
   estimatedExecutionTimeMs: step.estimatedExecutionTimeMs,
   source: step.source,
-  transactionData: extractTransactionData(step),
+  transactionData: extractTransactionData(step, context),
 })
+
+type DepositContextResult =
+  | { ok: true; context: DepositExtractionContext }
+  | { ok: false; error: ErrorResponse; statusCode: number }
+
+const resolveDepositContext = async (
+  quote: TradeQuote,
+  firstStep: TradeQuoteStep,
+  swapperName: SwapperName,
+): Promise<DepositContextResult> => {
+  const thorLikeQuote = quote as ThorLikeQuote
+  if (!thorLikeQuote.memo) return { ok: true, context: {} }
+
+  const { chainNamespace } = fromChainId(firstStep.sellAsset.chainId)
+  if (chainNamespace !== 'bip122' && chainNamespace !== 'cosmos') return { ok: true, context: {} }
+
+  const depositAddress = await fetchInboundAddress(firstStep.sellAsset.assetId, swapperName)
+  if (!depositAddress) {
+    return {
+      ok: false,
+      statusCode: 503,
+      error: {
+        error: 'Failed to fetch deposit address for this swap',
+        code: 'DEPOSIT_ADDRESS_UNAVAILABLE',
+      },
+    }
+  }
+
+  return { ok: true, context: { memo: thorLikeQuote.memo, depositAddress } }
+}
 
 export const getQuote = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -251,9 +471,15 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     // Calculate total buy amount (sum of all steps for multi-hop)
     const lastStep = quote.steps[quote.steps.length - 1]
 
-    // Build response
     const quoteId = uuidv4()
     const now = Date.now()
+
+    const depositContextResult = await resolveDepositContext(quote, firstStep, validSwapperName)
+    if (!depositContextResult.ok) {
+      res.status(depositContextResult.statusCode).json(depositContextResult.error)
+      return
+    }
+    const { context: depositContext } = depositContextResult
 
     const response: QuoteResponse = {
       quoteId,
@@ -267,10 +493,11 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       affiliateBps: quote.affiliateBps,
       slippageTolerancePercentageDecimal: quote.slippageTolerancePercentageDecimal,
       networkFeeCryptoBaseUnit: firstStep.feeData.networkFeeCryptoBaseUnit,
-      steps: quote.steps.map(transformQuoteStep),
-      approval: buildApprovalInfo(firstStep, sellAssetId),
-      expiresAt: now + 60_000, // 60 second expiry
-      quote, // Include full quote for advanced consumers
+      steps: quote.steps.map((step, index) =>
+        transformQuoteStep(step, index === 0 ? depositContext : {}),
+      ),
+      approval: buildApprovalInfo(firstStep),
+      expiresAt: now + 60_000,
     }
 
     res.json(response)

@@ -8,30 +8,49 @@ import {
   atom,
   avax,
   base,
+  berachain,
   bitcoin,
   bitcoincash,
+  blast,
   bnbsmartchain,
+  celo,
+  bobChain,
+  cronos,
   dogecoin,
   ethereal,
   ethereum,
+  flowEvm,
   gnosis,
+  hemi,
   hyperevm,
+  ink,
   katana,
+  linea,
   litecoin,
+  mantle,
   mayachain,
   megaeth,
+  modeChain,
   monad,
   near,
   optimism,
   plasma,
+  plume,
   polygon,
+  scroll,
   solana,
+  soneium,
+  sonic,
   starknet,
+  story,
   sui,
   thorchain,
   ton,
   tron,
+  worldchain,
+  unichainChain,
   zcash,
+  zkSyncEra,
 } from './baseAssets'
 
 export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
@@ -81,12 +100,50 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return hyperevm
     case KnownChainIds.PlasmaMainnet:
       return plasma
+    case KnownChainIds.MantleMainnet:
+      return mantle
+    case KnownChainIds.InkMainnet:
+      return ink
     case KnownChainIds.MegaEthMainnet:
       return megaeth
+    case KnownChainIds.BerachainMainnet:
+      return berachain
+    case KnownChainIds.CronosMainnet:
+      return cronos
     case KnownChainIds.KatanaMainnet:
       return katana
     case KnownChainIds.EtherealMainnet:
       return ethereal
+    case KnownChainIds.CeloMainnet:
+      return celo
+    case KnownChainIds.FlowEvmMainnet:
+      return flowEvm
+    case KnownChainIds.PlumeMainnet:
+      return plume
+    case KnownChainIds.StoryMainnet:
+      return story
+    case KnownChainIds.ZkSyncEraMainnet:
+      return zkSyncEra
+    case KnownChainIds.BlastMainnet:
+      return blast
+    case KnownChainIds.WorldChainMainnet:
+      return worldchain
+    case KnownChainIds.HemiMainnet:
+      return hemi
+    case KnownChainIds.LineaMainnet:
+      return linea
+    case KnownChainIds.ScrollMainnet:
+      return scroll
+    case KnownChainIds.SonicMainnet:
+      return sonic
+    case KnownChainIds.UnichainMainnet:
+      return unichainChain
+    case KnownChainIds.BobMainnet:
+      return bobChain
+    case KnownChainIds.ModeMainnet:
+      return modeChain
+    case KnownChainIds.SoneiumMainnet:
+      return soneium
     case KnownChainIds.NearMainnet:
       return near
     case KnownChainIds.ZcashMainnet:

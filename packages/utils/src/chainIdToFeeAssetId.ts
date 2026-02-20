@@ -4,30 +4,49 @@ import {
   avalancheAssetId,
   baseAssetId,
   bchAssetId,
+  blastAssetId,
+  berachainAssetId,
+  bobAssetId,
   bscAssetId,
   btcAssetId,
+  celoAssetId,
   cosmosAssetId,
+  cronosAssetId,
   dogeAssetId,
   ethAssetId,
   etherealAssetId,
+  flowEvmAssetId,
   gnosisAssetId,
+  hemiAssetId,
   hyperEvmAssetId,
+  inkAssetId,
   katanaAssetId,
+  lineaAssetId,
   ltcAssetId,
+  mantleAssetId,
   mayachainAssetId,
   megaethAssetId,
+  modeAssetId,
   monadAssetId,
   nearAssetId,
   optimismAssetId,
   plasmaAssetId,
+  plumeAssetId,
   polygonAssetId,
+  scrollAssetId,
   solAssetId,
+  soneiumAssetId,
+  sonicAssetId,
   starknetAssetId,
+  storyAssetId,
   suiAssetId,
   thorchainAssetId,
   tonAssetId,
   tronAssetId,
+  worldChainAssetId,
+  unichainAssetId,
   zecAssetId,
+  zkSyncEraAssetId,
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
@@ -80,12 +99,50 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return hyperEvmAssetId
     case KnownChainIds.PlasmaMainnet:
       return plasmaAssetId
+    case KnownChainIds.MantleMainnet:
+      return mantleAssetId
+    case KnownChainIds.InkMainnet:
+      return inkAssetId
     case KnownChainIds.MegaEthMainnet:
       return megaethAssetId
+    case KnownChainIds.BerachainMainnet:
+      return berachainAssetId
+    case KnownChainIds.CronosMainnet:
+      return cronosAssetId
     case KnownChainIds.KatanaMainnet:
       return katanaAssetId
     case KnownChainIds.EtherealMainnet:
       return etherealAssetId
+    case KnownChainIds.CeloMainnet:
+      return celoAssetId
+    case KnownChainIds.FlowEvmMainnet:
+      return flowEvmAssetId
+    case KnownChainIds.PlumeMainnet:
+      return plumeAssetId
+    case KnownChainIds.StoryMainnet:
+      return storyAssetId
+    case KnownChainIds.ZkSyncEraMainnet:
+      return zkSyncEraAssetId
+    case KnownChainIds.BlastMainnet:
+      return blastAssetId
+    case KnownChainIds.WorldChainMainnet:
+      return worldChainAssetId
+    case KnownChainIds.HemiMainnet:
+      return hemiAssetId
+    case KnownChainIds.LineaMainnet:
+      return lineaAssetId
+    case KnownChainIds.ScrollMainnet:
+      return scrollAssetId
+    case KnownChainIds.SonicMainnet:
+      return sonicAssetId
+    case KnownChainIds.UnichainMainnet:
+      return unichainAssetId
+    case KnownChainIds.BobMainnet:
+      return bobAssetId
+    case KnownChainIds.ModeMainnet:
+      return modeAssetId
+    case KnownChainIds.SoneiumMainnet:
+      return soneiumAssetId
     case KnownChainIds.ZcashMainnet:
       return zecAssetId
     case KnownChainIds.NearMainnet:

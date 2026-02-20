@@ -61,6 +61,8 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_MAYA_SWAP: string
   readonly VITE_FEATURE_BUTTERSWAP: string
   readonly VITE_FEATURE_SWAPPER_FIAT_RAMPS: string
+  readonly VITE_FEATURE_INK: string
+  readonly VITE_INK_NODE_URL: string
 
   // URLs and API keys from base .env (always defined)
   readonly VITE_ABSOLUTE_URL_PREFIX: string
@@ -178,6 +180,8 @@ interface ImportMetaEnv {
   readonly VITE_SWAPS_SERVER_URL: string
   readonly VITE_NOTIFICATIONS_SERVER_URL: string
   readonly VITE_USER_SERVER_URL: string
+  readonly VITE_SCROLL_NODE_URL: string
+  readonly VITE_FEATURE_SCROLL: string
   readonly VITE_FEATURE_NOTIFICATIONS_WEBSERVICES: string
 
   // Only present in *some* envs

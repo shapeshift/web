@@ -1,11 +1,14 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
   hyperEvmAssetId,
+  inkAssetId,
   katanaAssetId,
   mayachainAssetId,
+  megaethAssetId,
   monadAssetId,
   nearAssetId,
   plasmaAssetId,
+  scrollAssetId,
   starknetAssetId,
   suiAssetId,
   thorchainAssetId,
@@ -41,6 +44,9 @@ export const queryFn = async () => {
   if (enabledFlags.Monad) assetIds.push(monadAssetId)
   if (enabledFlags.Near) assetIds.push(nearAssetId)
   if (enabledFlags.Plasma) assetIds.push(plasmaAssetId)
+  if (enabledFlags.MegaEth) assetIds.push(megaethAssetId)
+  if (enabledFlags.Ink) assetIds.push(inkAssetId)
+  if (enabledFlags.Scroll) assetIds.push(scrollAssetId)
   if (enabledFlags.Katana) assetIds.push(katanaAssetId)
   if (enabledFlags.Starknet) assetIds.push(starknetAssetId)
   if (enabledFlags.Tron) assetIds.push(tronAssetId)

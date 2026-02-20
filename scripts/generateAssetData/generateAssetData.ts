@@ -33,13 +33,16 @@ import * as ethereum from './ethereum'
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
 import * as gnosis from './gnosis'
 import * as hyperevm from './hyperevm'
+import * as ink from './ink'
 import * as katana from './katana'
+import * as megaeth from './megaeth'
 import * as monad from './monad'
 import * as near from './near'
 import * as optimism from './optimism'
 import { overrideAssets } from './overrides'
 import * as plasma from './plasma'
 import * as polygon from './polygon'
+import * as scroll from './scroll'
 import * as solana from './solana'
 import * as starknet from './starknet'
 import * as sui from './sui'
@@ -70,6 +73,9 @@ const generateAssetData = async () => {
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
+  const inkAssets = await ink.getAssets()
+  const megaethAssets = await megaeth.getAssets()
+  const scrollAssets = await scroll.getAssets()
   const plasmaAssets = await plasma.getAssets()
   const solanaAssets = await solana.getAssets()
   const starknetAssets = await starknet.getAssets()
@@ -102,6 +108,9 @@ const generateAssetData = async () => {
     ...monadAssets,
     ...hyperevmAssets,
     ...katanaAssets,
+    ...inkAssets,
+    ...megaethAssets,
+    ...scrollAssets,
     ...plasmaAssets,
     ...solanaAssets,
     ...starknetAssets,

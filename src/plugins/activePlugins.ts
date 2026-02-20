@@ -9,15 +9,18 @@ import dogecoin from '@/plugins/dogecoin'
 import ethereum from '@/plugins/ethereum'
 import gnosis from '@/plugins/gnosis'
 import hyperevm from '@/plugins/hyperevm'
+import ink from '@/plugins/ink'
 import katana from '@/plugins/katana'
 import litecoin from '@/plugins/litecoin'
 import mayachain from '@/plugins/mayachain'
+import megaeth from '@/plugins/megaeth'
 import mobile from '@/plugins/mobile'
 import monad from '@/plugins/monad'
 import near from '@/plugins/near'
 import optimism from '@/plugins/optimism'
 import plasma from '@/plugins/plasma'
 import polygon from '@/plugins/polygon'
+import scroll from '@/plugins/scroll'
 import solana from '@/plugins/solana'
 import starknet from '@/plugins/starknet'
 import sui from '@/plugins/sui'
@@ -39,15 +42,18 @@ export const activePlugins = [
   ethereum,
   gnosis,
   hyperevm,
+  ink,
   katana,
   litecoin,
   mayachain,
+  megaeth,
   mobile,
   monad,
   near,
   optimism,
   plasma,
   polygon,
+  scroll,
   solana,
   starknet,
   sui,

@@ -25,8 +25,13 @@ import { AccountsListContent } from '@/components/Accounts/AccountsListContent'
 import { SendIcon } from '@/components/Icons/SendIcon'
 import { WalletBalanceChange } from '@/components/WalletBalanceChange/WalletBalanceChange'
 import { WalletActions } from '@/context/WalletProvider/actions'
+import { DrawerChatButton } from '@/features/agenticChat/components/DrawerChatButton'
+import { DrawerChatContent } from '@/features/agenticChat/components/DrawerChatContent'
+import { DrawerChatHistory } from '@/features/agenticChat/components/DrawerChatHistory'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { agenticChatSlice } from '@/state/slices/agenticChatSlice/agenticChatSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const tabSpinnerStyle = { height: '200px' }
@@ -123,8 +128,11 @@ type DrawerWalletDashboardProps = {
 export const DrawerWalletDashboard: FC<DrawerWalletDashboardProps> = memo(
   ({ onClose, onSettingsClick, isOpen }) => {
     const translate = useTranslate()
+    const reduxDispatch = useAppDispatch()
     const send = useModal('send')
     const receive = useModal('receive')
+    const isChatOpen = useAppSelector(agenticChatSlice.selectors.selectIsChatOpen)
+    const isChatHistoryOpen = useAppSelector(agenticChatSlice.selectors.selectIsChatHistoryOpen)
 
     const [activeTabIndex, setActiveTabIndex] = useState(0)
     const [loadedTabs, setLoadedTabs] = useState(new Set<number>())
@@ -171,6 +179,99 @@ export const DrawerWalletDashboard: FC<DrawerWalletDashboardProps> = memo(
       onClose()
     }, [disconnect, onClose])
 
+    const handleBackFromChat = useCallback(() => {
+      reduxDispatch(agenticChatSlice.actions.endChat())
+    }, [reduxDispatch])
+
+    const dashboardContent = useMemo(() => {
+      if (isChatOpen && isChatHistoryOpen) return <DrawerChatHistory />
+      if (isChatOpen) return <DrawerChatContent />
+
+      return (
+        <>
+          <Box pt={6} pb={8}>
+            <Suspense fallback={<Skeleton height='36px' width='100px' mx='auto' />}>
+              <WalletBalanceChange showErroredAccounts={false} />
+            </Suspense>
+          </Box>
+
+          <Flex width='100%' pb={4} gap={2} px={4}>
+            <ActionButton
+              icon={sendIcon}
+              label={translate('common.send')}
+              onClick={handleSendClick}
+              isDisabled={!isConnected}
+            />
+            <ActionButton
+              icon={receiveIcon}
+              label={translate('common.receive')}
+              onClick={handleReceiveClick}
+              isDisabled={!isConnected}
+            />
+            <DrawerChatButton />
+          </Flex>
+
+          <Box flex='1' overflow='hidden' display='flex' flexDirection='column'>
+            <Tabs
+              index={activeTabIndex}
+              onChange={handleTabChange}
+              variant='soft-rounded'
+              size='sm'
+              isLazy
+              display='flex'
+              flexDirection='column'
+              height='100%'
+            >
+              <TabList bg='transparent' borderWidth={0} pt={2} pb={0} px={4} gap={2} flexShrink={0}>
+                <Tab>{translate('dashboard.portfolio.myCrypto')} </Tab>
+                <Tab>{translate('accounts.accounts')}</Tab>
+                <Tab>{translate('watchlist.title')}</Tab>
+                <Tab>{translate('navBar.defi')}</Tab>
+                <Tab>{translate('common.activity')}</Tab>
+              </TabList>
+              <TabPanels flex='1' overflow='auto' maxHeight={'100%'}>
+                <TabPanel px={2} pb={4} height='100%'>
+                  {loadedTabs.has(0) ? (
+                    <Suspense fallback={accountTableSkeletonFallback}>
+                      <Box height='100%'>
+                        <AccountTable forceCompactView />
+                      </Box>
+                    </Suspense>
+                  ) : (
+                    accountTableSkeletonFallback
+                  )}
+                </TabPanel>
+                <TabPanel px={2} pb={4}>
+                  {loadedTabs.has(1) && <AccountsListContent onClose={onClose} isSimpleMenu />}
+                </TabPanel>
+                <TabPanel px={2} py={4}>
+                  {loadedTabs.has(2) && <WatchlistTable />}
+                </TabPanel>
+                <TabPanel px={2} py={4}>
+                  {loadedTabs.has(3) && <DeFiEarn forceCompactView />}
+                </TabPanel>
+                <TabPanel px={0} py={4}>
+                  {loadedTabs.has(4) && <TransactionHistoryContent isCompact />}
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+          </Box>
+        </>
+      )
+    }, [
+      isChatOpen,
+      isChatHistoryOpen,
+      translate,
+      handleSendClick,
+      handleReceiveClick,
+      isConnected,
+      activeTabIndex,
+      handleTabChange,
+      accountTableSkeletonFallback,
+      loadedTabs,
+      onClose,
+    ])
+
     return (
       <>
         <DrawerWalletHeader
@@ -182,73 +283,11 @@ export const DrawerWalletDashboard: FC<DrawerWalletDashboardProps> = memo(
           onSwitchProvider={handleSwitchProvider}
           onClose={onClose}
           onSettingsClick={onSettingsClick}
+          isChatOpen={isChatOpen}
+          onBackFromChat={handleBackFromChat}
         />
-        <Box pt={6} pb={8}>
-          <Suspense fallback={<Skeleton height='36px' width='100px' mx='auto' />}>
-            <WalletBalanceChange showErroredAccounts={false} />
-          </Suspense>
-        </Box>
 
-        <Flex width='100%' pb={4} gap={2} px={4}>
-          <ActionButton
-            icon={sendIcon}
-            label={translate('common.send')}
-            onClick={handleSendClick}
-            isDisabled={!isConnected}
-          />
-          <ActionButton
-            icon={receiveIcon}
-            label={translate('common.receive')}
-            onClick={handleReceiveClick}
-            isDisabled={!isConnected}
-          />
-        </Flex>
-
-        <Box flex='1' overflow='hidden' display='flex' flexDirection='column'>
-          <Tabs
-            index={activeTabIndex}
-            onChange={handleTabChange}
-            variant='soft-rounded'
-            size='sm'
-            isLazy
-            display='flex'
-            flexDirection='column'
-            height='100%'
-          >
-            <TabList bg='transparent' borderWidth={0} pt={2} pb={0} px={4} gap={2} flexShrink={0}>
-              <Tab>{translate('dashboard.portfolio.myCrypto')} </Tab>
-              <Tab>{translate('accounts.accounts')}</Tab>
-              <Tab>{translate('watchlist.title')}</Tab>
-              <Tab>{translate('navBar.defi')}</Tab>
-              <Tab>{translate('common.activity')}</Tab>
-            </TabList>
-            <TabPanels flex='1' overflow='auto' maxHeight={'100%'}>
-              <TabPanel px={2} pb={4} height='100%'>
-                {loadedTabs.has(0) ? (
-                  <Suspense fallback={accountTableSkeletonFallback}>
-                    <Box height='100%'>
-                      <AccountTable forceCompactView />
-                    </Box>
-                  </Suspense>
-                ) : (
-                  accountTableSkeletonFallback
-                )}
-              </TabPanel>
-              <TabPanel px={2} pb={4}>
-                {loadedTabs.has(1) && <AccountsListContent onClose={onClose} isSimpleMenu />}
-              </TabPanel>
-              <TabPanel px={2} py={4}>
-                {loadedTabs.has(2) && <WatchlistTable />}
-              </TabPanel>
-              <TabPanel px={2} py={4}>
-                {loadedTabs.has(3) && <DeFiEarn forceCompactView />}
-              </TabPanel>
-              <TabPanel px={0} py={4}>
-                {loadedTabs.has(4) && <TransactionHistoryContent isCompact />}
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
-        </Box>
+        {dashboardContent}
       </>
     )
   },

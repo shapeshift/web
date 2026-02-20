@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import assert from 'assert'
 import type { PublicClient } from 'viem'
-import { createPublicClient, fallback, http } from 'viem'
+import { createPublicClient, defineChain, fallback, http } from 'viem'
 import {
   arbitrum,
   avalanche,
@@ -10,13 +10,36 @@ import {
   bsc,
   gnosis,
   hyperEvm,
+  ink,
   katana,
   mainnet,
   monad,
   optimism,
   plasma,
   polygon,
+  scroll,
 } from 'viem/chains'
+
+const megaeth = defineChain({
+  id: 4326,
+  name: 'MegaETH',
+  nativeCurrency: {
+    name: 'Ether',
+    symbol: 'ETH',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://mainnet.megaeth.com/rpc'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'MegaETH Explorer',
+      url: 'https://megaeth.blockscout.com',
+    },
+  },
+})
 
 export const viemEthMainnetClient = createPublicClient({
   chain: mainnet,
@@ -86,6 +109,21 @@ export const viemPlasmaClient = createPublicClient({
   transport: fallback([process.env.VITE_PLASMA_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemInkClient = createPublicClient({
+  chain: ink,
+  transport: fallback([process.env.VITE_INK_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
+export const viemMegaEthClient = createPublicClient({
+  chain: megaeth,
+  transport: fallback([process.env.VITE_MEGAETH_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
+export const viemScrollClient = createPublicClient({
+  chain: scroll,
+  transport: fallback([process.env.VITE_SCROLL_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemKatanaClient = createPublicClient({
   chain: katana,
   transport: fallback([process.env.VITE_KATANA_NODE_URL].filter(Boolean).map(url => http(url))),
@@ -103,7 +141,10 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.MonadMainnet]: viemMonadClient,
   [KnownChainIds.HyperEvmMainnet]: viemHyperEvmClient,
   [KnownChainIds.PlasmaMainnet]: viemPlasmaClient,
+  [KnownChainIds.InkMainnet]: viemInkClient,
+  [KnownChainIds.MegaEthMainnet]: viemMegaEthClient,
   [KnownChainIds.KatanaMainnet]: viemKatanaClient,
+  [KnownChainIds.ScrollMainnet]: viemScrollClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -118,7 +159,10 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.MonadMainnet]: monad.id,
   [KnownChainIds.HyperEvmMainnet]: hyperEvm.id,
   [KnownChainIds.PlasmaMainnet]: plasma.id,
+  [KnownChainIds.InkMainnet]: ink.id,
+  [KnownChainIds.MegaEthMainnet]: megaeth.id,
   [KnownChainIds.KatanaMainnet]: katana.id,
+  [KnownChainIds.ScrollMainnet]: scroll.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -133,7 +177,10 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [monad.id]: viemMonadClient,
   [hyperEvm.id]: viemHyperEvmClient,
   [plasma.id]: viemPlasmaClient,
+  [ink.id]: viemInkClient,
+  [megaeth.id]: viemMegaEthClient,
   [katana.id]: viemKatanaClient,
+  [scroll.id]: viemScrollClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

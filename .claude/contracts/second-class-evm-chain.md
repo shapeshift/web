@@ -82,6 +82,7 @@ All integration points required when adding a new second-class EVM chain to Shap
     - Generated adapter JSON in `generated/eip155_<chainId>/`
     - Index export
     - Test coverage
+    - **Update multi-chain token test assertions** - `index.test.ts` assertions for tokens that exist across many chains (e.g. `coingeckoToAssetIds('usd-coin')`) must include the new chain's token address
 
 16. **Transaction Status Utility** - `src/lib/utils/<chain>.ts`
     - `is<Chain>ChainAdapter()` type guard

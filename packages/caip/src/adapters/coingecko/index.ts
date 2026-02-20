@@ -8,6 +8,7 @@ import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
+  berachainChainId,
   bscChainId,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
@@ -15,7 +16,10 @@ import {
   ethChainId,
   gnosisChainId,
   hyperEvmChainId,
+  inkChainId,
   katanaChainId,
+  lineaChainId,
+  mantleChainId,
   mayachainChainId,
   megaethChainId,
   monadChainId,
@@ -23,6 +27,7 @@ import {
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  scrollChainId,
   solanaChainId,
   starknetChainId,
   suiChainId,
@@ -50,8 +55,13 @@ export enum CoingeckoAssetPlatform {
   Monad = 'monad',
   HyperEvm = 'hyperevm',
   Plasma = 'plasma',
+  Ink = 'ink',
   Katana = 'katana',
+  Mantle = 'mantle',
+  Linea = 'linea',
   MegaEth = 'megaeth',
+  Berachain = 'berachain',
+  Scroll = 'scroll',
   Solana = 'solana',
   Starknet = 'starknet',
   Tron = 'tron',
@@ -112,8 +122,18 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Plasma
         case CHAIN_REFERENCE.KatanaMainnet:
           return CoingeckoAssetPlatform.Katana
+        case CHAIN_REFERENCE.MantleMainnet:
+          return CoingeckoAssetPlatform.Mantle
         case CHAIN_REFERENCE.MegaEthMainnet:
           return CoingeckoAssetPlatform.MegaEth
+        case CHAIN_REFERENCE.LineaMainnet:
+          return CoingeckoAssetPlatform.Linea
+        case CHAIN_REFERENCE.BerachainMainnet:
+          return CoingeckoAssetPlatform.Berachain
+        case CHAIN_REFERENCE.InkMainnet:
+          return CoingeckoAssetPlatform.Ink
+        case CHAIN_REFERENCE.ScrollMainnet:
+          return CoingeckoAssetPlatform.Scroll
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
@@ -221,8 +241,18 @@ export const coingeckoAssetPlatformToChainId = (
       return plasmaChainId
     case CoingeckoAssetPlatform.Katana:
       return katanaChainId
+    case CoingeckoAssetPlatform.Mantle:
+      return mantleChainId
     case CoingeckoAssetPlatform.MegaEth:
       return megaethChainId
+    case CoingeckoAssetPlatform.Linea:
+      return lineaChainId
+    case CoingeckoAssetPlatform.Berachain:
+      return berachainChainId
+    case CoingeckoAssetPlatform.Ink:
+      return inkChainId
+    case CoingeckoAssetPlatform.Scroll:
+      return scrollChainId
     case CoingeckoAssetPlatform.Cosmos:
       return cosmosChainId
     case CoingeckoAssetPlatform.Thorchain:

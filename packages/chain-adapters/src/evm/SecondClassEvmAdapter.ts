@@ -1,5 +1,11 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, hyperEvmChainId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  berachainChainId,
+  hyperEvmChainId,
+  mantleChainId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
 import { MULTICALL3_CONTRACT, viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
@@ -7,7 +13,14 @@ import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { Contract, Interface, JsonRpcProvider } from 'ethers'
 import PQueue from 'p-queue'
 import type { Hex } from 'viem'
-import { erc20Abi, getAddress, isAddressEqual, multicall3Abi, parseEventLogs } from 'viem'
+import {
+  erc20Abi,
+  getAddress,
+  isAddressEqual,
+  multicall3Abi,
+  parseEventLogs,
+  zeroAddress,
+} from 'viem'
 
 import { ErrorHandler } from '../error/ErrorHandler'
 import type {
@@ -28,6 +41,10 @@ import { EvmBaseAdapter } from './EvmBaseAdapter'
 import type { GasFeeDataEstimate } from './types'
 
 const ERC20_ABI = ['function balanceOf(address) view returns (uint256)']
+const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
+  [berachainChainId]: '0x6969696969696969696969696969696969696969',
+  [mantleChainId]: '0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8',
+}
 const BATCH_SIZE = 500
 
 export type TokenInfo = {
@@ -398,6 +415,27 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
 
       if (!transaction || !receipt) {
         throw new Error(`Transaction not found: ${hash}`)
+      }
+
+      const wrappedNativeContract = WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID[this.chainId]
+      if (wrappedNativeContract && internalTxs.length === 0) {
+        const wrappedNativeBurnLogs = parseEventLogs({
+          abi: erc20Abi,
+          logs: receipt.logs,
+          eventName: 'Transfer',
+        }).filter(
+          log =>
+            isAddressEqual(getAddress(log.address), getAddress(wrappedNativeContract)) &&
+            isAddressEqual(log.args.to, zeroAddress),
+        )
+
+        for (const log of wrappedNativeBurnLogs) {
+          internalTxs.push({
+            from: wrappedNativeContract,
+            to: getAddress(pubkey),
+            value: log.args.value.toString(),
+          })
+        }
       }
 
       const block = receipt.blockHash

@@ -111,6 +111,7 @@ export class CoinbaseHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsPlasma = false
   readonly _supportsKatana = false
   readonly _supportsHyperEvm = false
+  readonly _supportsMantle = false
   readonly _supportsInk = false
   readonly _supportsMegaEth = false
   readonly _supportsBerachain = false

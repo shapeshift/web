@@ -297,6 +297,7 @@ export class TrezorHDWallet
   readonly _supportsPlasma = true
   readonly _supportsKatana = true
   readonly _supportsHyperEvm = true
+  readonly _supportsMantle = true
   readonly _supportsInk = true
   readonly _supportsMegaEth = true
   readonly _supportsBerachain = true

@@ -20,6 +20,7 @@ import {
   katana,
   linea,
   litecoin,
+  mantle,
   mayachain,
   megaeth,
   monad,
@@ -84,6 +85,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return hyperevm
     case KnownChainIds.PlasmaMainnet:
       return plasma
+    case KnownChainIds.MantleMainnet:
+      return mantle
     case KnownChainIds.InkMainnet:
       return ink
     case KnownChainIds.MegaEthMainnet:

@@ -5,6 +5,7 @@ import {
   inkAssetId,
   katanaAssetId,
   lineaAssetId,
+  mantleAssetId,
   mayachainAssetId,
   megaethAssetId,
   monadAssetId,
@@ -46,6 +47,7 @@ export const queryFn = async () => {
   if (enabledFlags.Monad) assetIds.push(monadAssetId)
   if (enabledFlags.Near) assetIds.push(nearAssetId)
   if (enabledFlags.Plasma) assetIds.push(plasmaAssetId)
+  if (enabledFlags.Mantle) assetIds.push(mantleAssetId)
   if (enabledFlags.MegaEth) assetIds.push(megaethAssetId)
   if (enabledFlags.Ink) assetIds.push(inkAssetId)
   if (enabledFlags.Scroll) assetIds.push(scrollAssetId)

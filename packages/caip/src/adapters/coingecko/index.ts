@@ -19,6 +19,7 @@ import {
   inkChainId,
   katanaChainId,
   lineaChainId,
+  mantleChainId,
   mayachainChainId,
   megaethChainId,
   monadChainId,
@@ -56,6 +57,7 @@ export enum CoingeckoAssetPlatform {
   Plasma = 'plasma',
   Ink = 'ink',
   Katana = 'katana',
+  Mantle = 'mantle',
   Linea = 'linea',
   MegaEth = 'megaeth',
   Berachain = 'berachain',
@@ -120,6 +122,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Plasma
         case CHAIN_REFERENCE.KatanaMainnet:
           return CoingeckoAssetPlatform.Katana
+        case CHAIN_REFERENCE.MantleMainnet:
+          return CoingeckoAssetPlatform.Mantle
         case CHAIN_REFERENCE.MegaEthMainnet:
           return CoingeckoAssetPlatform.MegaEth
         case CHAIN_REFERENCE.LineaMainnet:
@@ -237,6 +241,8 @@ export const coingeckoAssetPlatformToChainId = (
       return plasmaChainId
     case CoingeckoAssetPlatform.Katana:
       return katanaChainId
+    case CoingeckoAssetPlatform.Mantle:
+      return mantleChainId
     case CoingeckoAssetPlatform.MegaEth:
       return megaethChainId
     case CoingeckoAssetPlatform.Linea:

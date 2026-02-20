@@ -18,6 +18,7 @@ export const baseAssetId: AssetId = 'eip155:8453/slip44:60'
 export const monadAssetId: AssetId = 'eip155:143/slip44:60'
 export const hyperEvmAssetId: AssetId = 'eip155:999/slip44:60'
 export const plasmaAssetId: AssetId = 'eip155:9745/slip44:60'
+export const mantleAssetId: AssetId = 'eip155:5000/slip44:60'
 export const inkAssetId: AssetId = 'eip155:57073/slip44:60'
 export const megaethAssetId: AssetId = 'eip155:4326/slip44:60'
 export const berachainAssetId: AssetId = 'eip155:80094/slip44:60'
@@ -83,6 +84,7 @@ export const baseChainId: ChainId = 'eip155:8453'
 export const monadChainId: ChainId = 'eip155:143'
 export const hyperEvmChainId: ChainId = 'eip155:999'
 export const plasmaChainId: ChainId = 'eip155:9745'
+export const mantleChainId: ChainId = 'eip155:5000'
 export const inkChainId: ChainId = 'eip155:57073'
 export const megaethChainId: ChainId = 'eip155:4326'
 export const berachainChainId: ChainId = 'eip155:80094'
@@ -139,6 +141,7 @@ export const CHAIN_REFERENCE = {
   MonadMainnet: '143', // https://docs.monad.xyz/developer-essentials/network-information
   HyperEvmMainnet: '999', // https://chainlist.org/chain/999
   PlasmaMainnet: '9745', // https://chainlist.org/chain/9745
+  MantleMainnet: '5000', // https://chainlist.org/chain/5000
   InkMainnet: '57073',
   MegaEthMainnet: '4326',
   BerachainMainnet: '80094',
@@ -188,6 +191,7 @@ export const ASSET_REFERENCE = {
   Monad: '60', // evm chain which uses ethereum derivation path as common practice
   HyperEvm: '60', // evm chain which uses ethereum derivation path as common practice
   Plasma: '60', // evm chain which uses ethereum derivation path as common practice
+  Mantle: '60', // evm chain which uses ethereum derivation path as common practice
   Ink: '60', // evm chain which uses ethereum derivation path as common practice
   MegaEth: '60', // evm chain which uses ethereum derivation path as common practice
   Berachain: '60', // evm chain which uses ethereum derivation path as common practice
@@ -222,6 +226,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.MonadMainnet,
     CHAIN_REFERENCE.HyperEvmMainnet,
     CHAIN_REFERENCE.PlasmaMainnet,
+    CHAIN_REFERENCE.MantleMainnet,
     CHAIN_REFERENCE.InkMainnet,
     CHAIN_REFERENCE.MegaEthMainnet,
     CHAIN_REFERENCE.BerachainMainnet,
@@ -282,6 +287,7 @@ export const FEE_ASSET_IDS = [
   arbitrumAssetId,
   baseAssetId,
   monadAssetId,
+  mantleAssetId,
   inkAssetId,
   megaethAssetId,
   lineaAssetId,

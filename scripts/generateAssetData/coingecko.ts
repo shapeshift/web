@@ -13,6 +13,7 @@ import {
   inkChainId,
   katanaChainId,
   lineaChainId,
+  mantleChainId,
   megaethChainId,
   monadChainId,
   nearChainId,
@@ -40,6 +41,7 @@ import {
   ink,
   katana,
   linea,
+  mantle,
   megaeth,
   monad,
   near,
@@ -164,6 +166,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: plasma.explorer,
           explorerAddressLink: plasma.explorerAddressLink,
           explorerTxLink: plasma.explorerTxLink,
+        }
+      case mantleChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: mantle.explorer,
+          explorerAddressLink: mantle.explorerAddressLink,
+          explorerTxLink: mantle.explorerTxLink,
         }
       case inkChainId:
         return {

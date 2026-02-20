@@ -190,6 +190,7 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   [KnownChainIds.MonadMainnet]: [],
   [KnownChainIds.HyperEvmMainnet]: [],
   [KnownChainIds.PlasmaMainnet]: [],
+  [KnownChainIds.MantleMainnet]: [],
   [KnownChainIds.MegaEthMainnet]: [],
   [KnownChainIds.BerachainMainnet]: [],
   [KnownChainIds.InkMainnet]: [],

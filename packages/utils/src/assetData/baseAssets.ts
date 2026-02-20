@@ -354,6 +354,21 @@ export const plasma: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const mantle: Readonly<Asset> = Object.freeze({
+  assetId: caip.mantleAssetId,
+  chainId: caip.mantleChainId,
+  symbol: 'MNT',
+  name: 'Mantle',
+  networkName: 'Mantle',
+  precision: 18,
+  color: '#000000',
+  icon: 'https://assets.relay.link/icons/5000/light.png',
+  explorer: 'https://mantlescan.xyz',
+  explorerAddressLink: 'https://mantlescan.xyz/address/',
+  explorerTxLink: 'https://mantlescan.xyz/tx/',
+  relatedAssetKey: null,
+})
+
 export const ink: Readonly<Asset> = Object.freeze({
   assetId: caip.inkAssetId,
   chainId: caip.inkChainId,
@@ -433,7 +448,7 @@ export const linea: Readonly<Asset> = Object.freeze({
   color: '#5C6BC0',
   networkColor: '#121212',
   icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
-  networkIcon: 'https://assets.coingecko.com/coins/images/32428/small/Linea.jpg',
+  networkIcon: 'https://assets.relay.link/icons/59144/light.png',
   explorer: 'https://lineascan.build',
   explorerAddressLink: 'https://lineascan.build/address/',
   explorerTxLink: 'https://lineascan.build/tx/',

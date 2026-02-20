@@ -14,6 +14,7 @@ import ink from '@/plugins/ink'
 import katana from '@/plugins/katana'
 import linea from '@/plugins/linea'
 import litecoin from '@/plugins/litecoin'
+import mantle from '@/plugins/mantle'
 import mayachain from '@/plugins/mayachain'
 import megaeth from '@/plugins/megaeth'
 import mobile from '@/plugins/mobile'
@@ -49,6 +50,7 @@ export const activePlugins = [
   katana,
   linea,
   litecoin,
+  mantle,
   mayachain,
   megaeth,
   mobile,

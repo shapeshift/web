@@ -17,9 +17,13 @@ import katana from "./eip155_747474/adapter.json";
 import linea from "./eip155_59144/adapter.json";
 import bob from "./eip155_60808/adapter.json";
 import megaeth from "./eip155_4326/adapter.json";
+import mantle from "./eip155_5000/adapter.json";
 import berachain from "./eip155_80094/adapter.json";
 import ink from "./eip155_57073/adapter.json";
 import scroll from "./eip155_534352/adapter.json";
+import cronos from "./eip155_25/adapter.json";
+import sonic from "./eip155_146/adapter.json";
+import unichain from "./eip155_130/adapter.json";
 import cosmos from "./cosmos_cosmoshub-4/adapter.json";
 import thorchain from "./cosmos_thorchain-1/adapter.json";
 import mayachain from "./cosmos_mayachain-mainnet-v1/adapter.json";
@@ -51,9 +55,13 @@ export {
   katana,
   linea,
   megaeth,
+  mantle,
   berachain,
   ink,
   scroll,
+  cronos,
+  sonic,
+  unichain,
   cosmos,
   thorchain,
   mayachain,

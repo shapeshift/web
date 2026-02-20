@@ -208,13 +208,17 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
   readonly _supportsMonad: boolean
   readonly _supportsPlasma: boolean
   readonly _supportsKatana: boolean
+  readonly _supportsSonic: boolean
   readonly _supportsBob: boolean
   readonly _supportsHyperEvm: boolean
+  readonly _supportsMantle: boolean
   readonly _supportsInk: boolean
   readonly _supportsMegaEth: boolean
   readonly _supportsBerachain: boolean
   readonly _supportsLinea: boolean
   readonly _supportsScroll: boolean
+  readonly _supportsCronos: boolean
+  readonly _supportsUnichain: boolean
 
   ethGetAddress(msg: ETHGetAddress): Promise<Address | null>
   ethGetAddresses?(msgs: ETHGetAddress[]): Promise<string[]>

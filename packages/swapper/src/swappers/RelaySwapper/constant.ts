@@ -6,12 +6,14 @@ import {
   bobChainId,
   bscChainId,
   btcChainId,
+  cronosChainId,
   ethChainId,
   gnosisChainId,
   hyperEvmChainId,
   inkChainId,
   katanaChainId,
   lineaChainId,
+  mantleChainId,
   megaethChainId,
   monadChainId,
   optimismChainId,
@@ -19,7 +21,9 @@ import {
   polygonChainId,
   scrollChainId,
   solanaChainId,
+  sonicChainId,
   tronChainId,
+  unichainChainId,
 } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
@@ -30,17 +34,21 @@ import {
   berachain,
   bob,
   bsc,
+  cronos,
   gnosis,
   hyperEvm,
   ink,
   katana,
   linea,
   mainnet as ethereum,
+  mantle,
   monad,
   optimism,
   plasma,
   polygon,
   scroll,
+  sonic,
+  unichain,
 } from 'viem/chains'
 
 import { TradeQuoteError } from '../../types'
@@ -62,6 +70,7 @@ export const chainIdToRelayChainId = {
   [tronChainId]: 728126428,
   [monadChainId]: monad.id,
   [hyperEvmChainId]: hyperEvm.id,
+  [mantleChainId]: mantle.id,
   [inkChainId]: ink.id,
   [megaethChainId]: 4326,
   [plasmaChainId]: plasma.id,
@@ -69,6 +78,9 @@ export const chainIdToRelayChainId = {
   [lineaChainId]: linea.id,
   [berachainChainId]: berachain.id,
   [scrollChainId]: scroll.id,
+  [cronosChainId]: cronos.id,
+  [sonicChainId]: sonic.id,
+  [unichainChainId]: unichain.id,
   [bobChainId]: bob.id,
 }
 

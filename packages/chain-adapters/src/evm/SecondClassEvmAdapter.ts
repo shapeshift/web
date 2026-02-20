@@ -1,5 +1,17 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, hyperEvmChainId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  berachainChainId,
+  bobChainId,
+  cronosChainId,
+  hyperEvmChainId,
+  mantleChainId,
+  modeChainId,
+  soneiumChainId,
+  sonicChainId,
+  toAssetId,
+  unichainChainId,
+} from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
 import { MULTICALL3_CONTRACT, viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
@@ -7,7 +19,14 @@ import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { Contract, Interface, JsonRpcProvider } from 'ethers'
 import PQueue from 'p-queue'
 import type { Hex } from 'viem'
-import { erc20Abi, getAddress, isAddressEqual, multicall3Abi, parseEventLogs } from 'viem'
+import {
+  erc20Abi,
+  getAddress,
+  isAddressEqual,
+  multicall3Abi,
+  parseEventLogs,
+  zeroAddress,
+} from 'viem'
 
 import { ErrorHandler } from '../error/ErrorHandler'
 import type {
@@ -28,6 +47,16 @@ import { EvmBaseAdapter } from './EvmBaseAdapter'
 import type { GasFeeDataEstimate } from './types'
 
 const ERC20_ABI = ['function balanceOf(address) view returns (uint256)']
+const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
+  [berachainChainId]: '0x6969696969696969696969696969696969696969',
+  [mantleChainId]: '0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8',
+  [cronosChainId]: '0x5C7F8A570d578ED84E63fdFA7b1eE72dEae1AE23',
+  [sonicChainId]: '0x039e2fB66102314Ce7b64Ce5Ce3E5183bc94aD38',
+  [unichainChainId]: '0x4200000000000000000000000000000000000006',
+  [bobChainId]: '0x4200000000000000000000000000000000000006',
+  [modeChainId]: '0x4200000000000000000000000000000000000006',
+  [soneiumChainId]: '0x4200000000000000000000000000000000000006',
+}
 const BATCH_SIZE = 500
 
 export type TokenInfo = {
@@ -400,6 +429,27 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
         throw new Error(`Transaction not found: ${hash}`)
       }
 
+      const wrappedNativeContract = WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID[this.chainId]
+      if (wrappedNativeContract && internalTxs.length === 0) {
+        const wrappedNativeBurnLogs = parseEventLogs({
+          abi: erc20Abi,
+          logs: receipt.logs,
+          eventName: 'Transfer',
+        }).filter(
+          log =>
+            isAddressEqual(getAddress(log.address), getAddress(wrappedNativeContract)) &&
+            isAddressEqual(log.args.to, zeroAddress),
+        )
+
+        for (const log of wrappedNativeBurnLogs) {
+          internalTxs.push({
+            from: wrappedNativeContract,
+            to: getAddress(pubkey),
+            value: log.args.value.toString(),
+          })
+        }
+      }
+
       const block = receipt.blockHash
         ? await viemClient.getBlock({ blockHash: receipt.blockHash }).catch(() => null)
         : null
@@ -438,7 +488,7 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
       const confirmationsCount = blockNumber > 0 ? Number(currentBlockNumber) - blockNumber + 1 : 0
       const status = receipt.status === 'success' ? 1 : 0
       const fee = bnOrZero(receipt.gasUsed.toString())
-        .times(receipt.effectiveGasPrice.toString())
+        .times(receipt.effectiveGasPrice?.toString())
         .toFixed(0)
 
       const parsedTx: evm.Tx = {
@@ -454,7 +504,7 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
         fee,
         gasLimit: transaction.gas.toString(),
         gasUsed: receipt.gasUsed.toString(),
-        gasPrice: receipt.effectiveGasPrice.toString(),
+        gasPrice: receipt.effectiveGasPrice?.toString(),
         inputData: transaction.input,
         tokenTransfers,
         internalTxs: internalTxs.length > 0 ? internalTxs : undefined,

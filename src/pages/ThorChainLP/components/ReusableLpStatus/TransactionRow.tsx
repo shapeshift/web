@@ -14,6 +14,7 @@ import { fromAssetId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/
 import { assetIdToThorPoolAssetId, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaCheck } from 'react-icons/fa'
@@ -29,7 +30,6 @@ import { Row } from '@/components/Row/Row'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { getTxLink } from '@/lib/getTxLink'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { assertUnreachable } from '@/lib/utils'
@@ -341,7 +341,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
   } = useSendThorTx({
     assetId: isRuneTx ? thorchainAssetId : poolAssetId,
     accountId: (isRuneTx ? runeAccountId : poolAssetAccountId) ?? null,
-    amountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, asset?.precision ?? 0),
+    amountCryptoBaseUnit: BigAmount.fromPrecision({
+      value: amountCryptoPrecision,
+      precision: asset?.precision ?? 0,
+    }).toBaseUnit(),
     memo,
     fromAddress: fromAddress ?? null,
     action: isDeposit ? 'addLiquidity' : 'withdrawLiquidity',
@@ -439,7 +442,10 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     if (txId || isSubmitting) return
 
     setTxFeeCryptoPrecision(
-      fromBaseUnit(estimatedFeesData.txFeeCryptoBaseUnit, feeAsset?.precision),
+      BigAmount.fromBaseUnit({
+        value: estimatedFeesData.txFeeCryptoBaseUnit,
+        precision: feeAsset?.precision,
+      }).toPrecision(),
     )
   }, [estimatedFeesData, feeAsset, isSubmitting, txId])
 

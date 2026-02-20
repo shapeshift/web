@@ -354,6 +354,55 @@ export const plasma: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const mantle: Readonly<Asset> = Object.freeze({
+  assetId: caip.mantleAssetId,
+  chainId: caip.mantleChainId,
+  symbol: 'MNT',
+  name: 'Mantle',
+  networkName: 'Mantle',
+  precision: 18,
+  color: '#000000',
+  icon: 'https://assets.relay.link/icons/5000/light.png',
+  explorer: 'https://mantlescan.xyz',
+  explorerAddressLink: 'https://mantlescan.xyz/address/',
+  explorerTxLink: 'https://mantlescan.xyz/tx/',
+  relatedAssetKey: null,
+})
+
+export const ink: Readonly<Asset> = Object.freeze({
+  assetId: caip.inkAssetId,
+  chainId: caip.inkChainId,
+  name: 'Ether',
+  networkName: 'Ink',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#5A5AFF',
+  networkColor: '#5A5AFF',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.relay.link/icons/57073/light.png',
+  explorer: 'https://explorer.inkonchain.com',
+  explorerAddressLink: 'https://explorer.inkonchain.com/address/',
+  explorerTxLink: 'https://explorer.inkonchain.com/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
+export const cronos: Readonly<Asset> = Object.freeze({
+  assetId: caip.cronosAssetId,
+  chainId: caip.cronosChainId,
+  name: 'Cronos',
+  networkName: 'Cronos',
+  symbol: 'CRO',
+  precision: 18,
+  color: '#002D74',
+  networkColor: '#002D74',
+  icon: 'https://assets.relay.link/icons/25/light.png',
+  networkIcon: 'https://assets.relay.link/icons/25/light.png',
+  explorer: 'https://explorer.cronos.org',
+  explorerAddressLink: 'https://explorer.cronos.org/address/',
+  explorerTxLink: 'https://explorer.cronos.org/tx/',
+  relatedAssetKey: null,
+})
+
 export const megaeth: Readonly<Asset> = Object.freeze({
   assetId: caip.megaethAssetId,
   chainId: caip.megaethChainId,
@@ -370,6 +419,23 @@ export const megaeth: Readonly<Asset> = Object.freeze({
   explorerAddressLink: 'https://megaeth.blockscout.com/address/',
   explorerTxLink: 'https://megaeth.blockscout.com/tx/',
   relatedAssetKey: 'eip155:1/slip44:60',
+})
+
+export const berachain: Readonly<Asset> = Object.freeze({
+  assetId: caip.berachainAssetId,
+  chainId: caip.berachainChainId,
+  name: 'Berachain',
+  networkName: 'Berachain',
+  symbol: 'BERA',
+  precision: 18,
+  color: '#6B4226',
+  networkColor: '#6B4226',
+  icon: 'https://assets.relay.link/icons/80094/light.png',
+  networkIcon: 'https://assets.relay.link/icons/80094/light.png',
+  explorer: 'https://berascan.com',
+  explorerAddressLink: 'https://berascan.com/address/',
+  explorerTxLink: 'https://berascan.com/tx/',
+  relatedAssetKey: null,
 })
 
 export const katana: Readonly<Asset> = Object.freeze({
@@ -403,6 +469,122 @@ export const hemi: Readonly<Asset> = Object.freeze({
   explorer: 'https://explorer.hemi.xyz',
   explorerAddressLink: 'https://explorer.hemi.xyz/address/',
   explorerTxLink: 'https://explorer.hemi.xyz/tx/',
+export const linea: Readonly<Asset> = Object.freeze({
+  assetId: caip.lineaAssetId,
+  chainId: caip.lineaChainId,
+  name: 'Ethereum',
+  networkName: 'Linea',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#5C6BC0',
+  networkColor: '#121212',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.relay.link/icons/59144/light.png',
+  explorer: 'https://lineascan.build',
+  explorerAddressLink: 'https://lineascan.build/address/',
+  explorerTxLink: 'https://lineascan.build/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
+export const scroll: Readonly<Asset> = Object.freeze({
+  assetId: caip.scrollAssetId,
+  chainId: caip.scrollChainId,
+  name: 'Ether',
+  networkName: 'Scroll',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#FFEEDA',
+  networkColor: '#FFEEDA',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://scroll-tech.github.io/token-list/scroll.png',
+  explorer: 'https://scrollscan.com',
+  explorerAddressLink: 'https://scrollscan.com/address/',
+  explorerTxLink: 'https://scrollscan.com/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
+export const sonic: Readonly<Asset> = Object.freeze({
+  assetId: caip.sonicAssetId,
+  chainId: caip.sonicChainId,
+  name: 'Sonic',
+  networkName: 'Sonic',
+  symbol: 'S',
+  precision: 18,
+  color: '#1B1464',
+  networkColor: '#1B1464',
+  icon: 'https://assets.coingecko.com/coins/images/38051/large/sonic-3.png',
+  networkIcon: 'https://assets.coingecko.com/coins/images/38051/small/sonic-3.png',
+  explorer: 'https://sonicscan.org',
+  explorerAddressLink: 'https://sonicscan.org/address/',
+  explorerTxLink: 'https://sonicscan.org/tx/',
+  relatedAssetKey: null,
+})
+
+export const unichainChain: Readonly<Asset> = Object.freeze({
+  assetId: caip.unichainAssetId,
+  chainId: caip.unichainChainId,
+  name: 'Ether',
+  networkName: 'Unichain',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#5C6BC0',
+  networkColor: '#F50DB4',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.coingecko.com/asset_platforms/images/305/small/unichain-logo.png',
+  explorer: 'https://uniscan.xyz',
+  explorerAddressLink: 'https://uniscan.xyz/address/',
+  explorerTxLink: 'https://uniscan.xyz/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
+export const bobChain: Readonly<Asset> = Object.freeze({
+  assetId: caip.bobAssetId,
+  chainId: caip.bobChainId,
+  name: 'Ethereum',
+  networkName: 'BOB',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#5C6BC0',
+  networkColor: '#F25D00',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.coingecko.com/asset_platforms/images/203/small/bob.jpeg',
+  explorer: 'https://explorer.gobob.xyz',
+  explorerAddressLink: 'https://explorer.gobob.xyz/address/',
+  explorerTxLink: 'https://explorer.gobob.xyz/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
+export const modeChain: Readonly<Asset> = Object.freeze({
+  assetId: caip.modeAssetId,
+  chainId: caip.modeChainId,
+  name: 'Ethereum',
+  networkName: 'Mode',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#5C6BC0',
+  networkColor: '#DFFE00',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.coingecko.com/asset_platforms/images/180/small/mode.jpeg',
+  explorer: 'https://modescan.io',
+  explorerAddressLink: 'https://modescan.io/address/',
+  explorerTxLink: 'https://modescan.io/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
+export const soneium: Readonly<Asset> = Object.freeze({
+  assetId: caip.soneiumAssetId,
+  chainId: caip.soneiumChainId,
+  name: 'Ethereum',
+  networkName: 'Soneium',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#627EEA',
+  networkColor: '#1A1A2E',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.relay.link/icons/1868/light.png',
+  explorer: 'https://soneium.blockscout.com',
+  explorerAddressLink: 'https://soneium.blockscout.com/address/',
+  explorerTxLink: 'https://soneium.blockscout.com/tx/',
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 

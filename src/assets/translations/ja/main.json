@@ -304,6 +304,7 @@
         "orderCreatedSuccessfully": "注文が正常に作成されました"
       },
       "newCoins": {
+        "title": "最近追加されたもの",
         "subtitle": "CoinGeckoの新しいコイン"
       },
       "trendingTokens": {

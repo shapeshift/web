@@ -90,10 +90,6 @@ export const SharedTradeInputHeader = ({
     handleChangeTab(TradeInputTab.Trade)
   }, [handleChangeTab])
 
-  const handleClickLimitOrder = useCallback(() => {
-    handleChangeTab(TradeInputTab.LimitOrder)
-  }, [handleChangeTab])
-
   const handleToggleOrderType = useCallback(() => {
     if (selectedTab === TradeInputTab.LimitOrder) {
       handleChangeTab(TradeInputTab.Trade)
@@ -104,10 +100,6 @@ export const SharedTradeInputHeader = ({
 
   const handleClickBuyFiat = useCallback(() => {
     handleChangeTab(TradeInputTab.BuyFiat)
-  }, [handleChangeTab])
-
-  const handleClickSellFiat = useCallback(() => {
-    handleChangeTab(TradeInputTab.SellFiat)
   }, [handleChangeTab])
 
   const handleToggleBuySell = useCallback(() => {
@@ -227,8 +219,8 @@ export const SharedTradeInputHeader = ({
               px={6}
               py={2}
               borderRadius='full'
-              bg={selectedTab === TradeInputTab.Trade ? activeBgColor : 'none'}
-              color={selectedTab === TradeInputTab.Trade ? activeTextColor : 'text.subtle'}
+              bg={isSwapOrLimit ? activeBgColor : 'none'}
+              color={isSwapOrLimit ? activeTextColor : 'text.subtle'}
               fontWeight='bold'
               fontSize='sm'
               onClick={handleClickTrade}
@@ -236,55 +228,21 @@ export const SharedTradeInputHeader = ({
             >
               {translate('navBar.swap')}
             </Box>
-            {enableLimitOrders && !isStandalone && (
-              <Box
-                as='button'
-                px={6}
-                py={2}
-                borderRadius='full'
-                bg={selectedTab === TradeInputTab.LimitOrder ? activeBgColor : 'none'}
-                color={selectedTab === TradeInputTab.LimitOrder ? activeTextColor : 'text.subtle'}
-                fontWeight='bold'
-                fontSize='sm'
-                ml={-2}
-                onClick={handleClickLimitOrder}
-                type='button'
-              >
-                {translate('limitOrder.heading')}
-              </Box>
-            )}
             {enableSwapperFiatRamps && !isStandalone && (
               <Box
                 as='button'
                 px={6}
                 py={2}
                 borderRadius='full'
-                bg={selectedTab === TradeInputTab.BuyFiat ? activeBgColor : 'none'}
-                color={selectedTab === TradeInputTab.BuyFiat ? activeTextColor : 'text.subtle'}
+                bg={isBuyOrSell ? activeBgColor : 'none'}
+                color={isBuyOrSell ? activeTextColor : 'text.subtle'}
                 fontWeight='bold'
                 fontSize='sm'
                 ml={-2}
                 onClick={handleClickBuyFiat}
                 type='button'
               >
-                {translate('fiatRamps.buy')}
-              </Box>
-            )}
-            {enableSwapperFiatRamps && !isStandalone && (
-              <Box
-                as='button'
-                px={6}
-                py={2}
-                borderRadius='full'
-                bg={selectedTab === TradeInputTab.SellFiat ? activeBgColor : 'none'}
-                color={selectedTab === TradeInputTab.SellFiat ? activeTextColor : 'text.subtle'}
-                fontWeight='bold'
-                fontSize='sm'
-                ml={-2}
-                onClick={handleClickSellFiat}
-                type='button'
-              >
-                {translate('fiatRamps.sell')}
+                {translate('navBar.buyCryptoShort')}
               </Box>
             )}
             {enableEarnTab && !isStandalone && (
@@ -306,6 +264,42 @@ export const SharedTradeInputHeader = ({
             )}
           </Flex>
         </Flex>
+        {showOrderTypeSwitcher && (
+          <Flex alignItems='center' mt={4}>
+            <Divider borderColor='border.subtle' />
+            <Button
+              variant='outline'
+              size='sm'
+              borderRadius='full'
+              px={4}
+              flexShrink={0}
+              rightIcon={selectorIcon}
+              fontWeight='medium'
+              onClick={handleToggleOrderType}
+            >
+              {orderTypeLabel}
+            </Button>
+            <Divider borderColor='border.subtle' />
+          </Flex>
+        )}
+        {showBuySellSwitcher && (
+          <Flex alignItems='center' mt={4}>
+            <Divider borderColor='border.subtle' />
+            <Button
+              variant='outline'
+              size='sm'
+              borderRadius='full'
+              px={4}
+              flexShrink={0}
+              rightIcon={selectorIcon}
+              fontWeight='medium'
+              onClick={handleToggleBuySell}
+            >
+              {buySellLabel}
+            </Button>
+            <Divider borderColor='border.subtle' />
+          </Flex>
+        )}
       </Display.Mobile>
     </CardHeader>
   )

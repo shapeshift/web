@@ -88,8 +88,8 @@ describe('adapters:coingecko', () => {
         ethOnBase,
         ethOnLinea,
         ethOnMegaEth,
-        ethOnInk,
         ethOnScroll,
+        ethOnInk,
       ])
     })
 
@@ -221,6 +221,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'erc20',
         assetReference: '0xe15fc38f6d8c56af07bbcbe3baf5708a2bf42392',
       })
+      const usdcOnInk = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.InkMainnet,
+        assetNamespace: 'erc20',
+        assetReference: '0x2d270e6886d130d724215a266106e6832161eaed',
+      })
       const usdcOnStarknet = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Starknet,
         chainReference: CHAIN_REFERENCE.StarknetMainnet,
@@ -243,6 +249,7 @@ describe('adapters:coingecko', () => {
         usdcOnMonad,
         usdcOnHyperEvm,
         usdcOnSei,
+        usdcOnInk,
         usdcOnSolana,
         usdcOnStarknet,
         usdcOnSui,

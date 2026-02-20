@@ -11,6 +11,7 @@ import {
   ethChainId,
   gnosisChainId,
   hyperEvmChainId,
+  inkChainId,
   katanaChainId,
   ltcChainId,
   mayachainChainId,
@@ -45,6 +46,7 @@ import {
   supportsETH,
   supportsGnosis,
   supportsHyperEvm,
+  supportsInk,
   supportsKatana,
   supportsMayachain,
   supportsMegaEth,
@@ -150,6 +152,7 @@ export const walletSupportsChain = ({
   if (!hasRuntimeSupport) return false
 
   const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
+  const isInkEnabled = selectFeatureFlag(store.getState(), 'Ink')
   const isKatanaEnabled = selectFeatureFlag(store.getState(), 'Katana')
   const isMegaEthEnabled = selectFeatureFlag(store.getState(), 'MegaEth')
   const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
@@ -193,6 +196,8 @@ export const walletSupportsChain = ({
       return isMonadEnabled && supportsMonad(wallet)
     case hyperEvmChainId:
       return isHyperEvmEnabled && supportsHyperEvm(wallet)
+    case inkChainId:
+      return isInkEnabled && supportsInk(wallet)
     case megaethChainId:
       return isMegaEthEnabled && supportsMegaEth(wallet)
     case plasmaChainId:

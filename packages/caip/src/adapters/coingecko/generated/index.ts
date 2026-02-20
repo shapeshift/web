@@ -15,6 +15,7 @@ import hyperevm from "./eip155_999/adapter.json";
 import plasma from "./eip155_9745/adapter.json";
 import katana from "./eip155_747474/adapter.json";
 import megaeth from "./eip155_4326/adapter.json";
+import ink from "./eip155_57073/adapter.json";
 import scroll from "./eip155_534352/adapter.json";
 import cosmos from "./cosmos_cosmoshub-4/adapter.json";
 import thorchain from "./cosmos_thorchain-1/adapter.json";
@@ -45,6 +46,7 @@ export {
   plasma,
   katana,
   megaeth,
+  ink,
   scroll,
   cosmos,
   thorchain,

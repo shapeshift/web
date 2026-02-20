@@ -61,7 +61,7 @@ export enum CoingeckoAssetPlatform {
   Katana = 'katana',
   Mantle = 'mantle',
   Linea = 'linea',
-  Sonic = 'sonic-3',
+  Sonic = 'sonic',
   MegaEth = 'megaeth',
   Berachain = 'berachain',
   Scroll = 'scroll',

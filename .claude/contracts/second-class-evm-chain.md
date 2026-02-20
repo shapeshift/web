@@ -75,7 +75,7 @@ All integration points required when adding a new second-class EVM chain to Shap
     - **Per-chain generation**: after wiring, run `source ~/.zshrc && ZERION_API_KEY=$ZERION_API_KEY yarn generate:chain <chainId>` (e.g., `eip155:59144`) to regenerate only this chain's assets (~30s vs 30min for full `generate:all`). Also accepts directory name (e.g., `linea`).
 
 15. **Coingecko Integration** - `packages/caip/src/adapters/coingecko/`
-    - Enum value in `CoingeckoAssetPlatform`
+    - Enum value in `CoingeckoAssetPlatform` - **IMPORTANT**: The enum value must be the CoinGecko **platform ID** (e.g., `'sonic'`), NOT the coin ID (e.g., `'sonic-3'`). Verify at `https://api.coingecko.com/api/v3/asset_platforms` - look for the entry with `chain_identifier` matching the chain's EVM chain ID. Wrong platform ID = zero ERC20 tokens discovered.
     - `chainIdToCoingeckoAssetPlatform()` switch case
     - `coingeckoAssetPlatformToChainId()` switch case
     - `parseData()` in `utils.ts` - platform check for ERC20 token discovery

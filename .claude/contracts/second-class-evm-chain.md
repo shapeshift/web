@@ -94,7 +94,7 @@ All integration points required when adding a new second-class EVM chain to Shap
     - Without this, existing users with persisted state won't see the new chain's assets until they manually clear cache
 
 16c. **Market Service Test** - `src/lib/market-service/coingecko/coingecko.test.ts`
-    - Expected result count in `findAll` flattening test needs incrementing (one more chain = one more result)
+    - Expected result counts in both `can flatten multiple responses` and `can return some results if partially rate limited` tests need incrementing (one more chain = one more result in each)
 
 ## Phase 2: State & UI Integration
 

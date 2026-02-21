@@ -22,6 +22,7 @@ import {
   polygonChainId,
   scrollChainId,
   solanaChainId,
+  soneiumChainId,
   sonicChainId,
   tronChainId,
   unichainChainId,
@@ -49,6 +50,7 @@ import {
   plasma,
   polygon,
   scroll,
+  soneium,
   sonic,
   unichain,
 } from 'viem/chains'
@@ -85,6 +87,7 @@ export const chainIdToRelayChainId = {
   [unichainChainId]: unichain.id,
   [bobChainId]: bob.id,
   [modeChainId]: mode.id,
+  [soneiumChainId]: soneium.id,
 }
 
 export enum RelayStatusMessage {

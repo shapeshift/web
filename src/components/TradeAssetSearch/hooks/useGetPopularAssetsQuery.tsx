@@ -15,6 +15,7 @@ import {
   nearAssetId,
   plasmaAssetId,
   scrollAssetId,
+  soneiumAssetId,
   sonicAssetId,
   starknetAssetId,
   suiAssetId,
@@ -63,6 +64,7 @@ export const queryFn = async () => {
   if (enabledFlags.Unichain) assetIds.push(unichainAssetId)
   if (enabledFlags.Bob) assetIds.push(bobAssetId)
   if (enabledFlags.Mode) assetIds.push(modeAssetId)
+  if (enabledFlags.Soneium) assetIds.push(soneiumAssetId)
   if (enabledFlags.Starknet) assetIds.push(starknetAssetId)
   if (enabledFlags.Tron) assetIds.push(tronAssetId)
   if (enabledFlags.Berachain) assetIds.push(berachainAssetId)

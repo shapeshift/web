@@ -32,6 +32,7 @@ import {
   polygonChainId,
   scrollChainId,
   solanaChainId,
+  soneiumChainId,
   sonicChainId,
   starknetChainId,
   suiChainId,
@@ -72,6 +73,7 @@ export enum CoingeckoAssetPlatform {
   Berachain = 'berachain',
   Scroll = 'scroll',
   Cronos = 'cronos',
+  Soneium = 'soneium',
   Solana = 'solana',
   Starknet = 'starknet',
   Tron = 'tron',
@@ -154,6 +156,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Scroll
         case CHAIN_REFERENCE.CronosMainnet:
           return CoingeckoAssetPlatform.Cronos
+        case CHAIN_REFERENCE.SoneiumMainnet:
+          return CoingeckoAssetPlatform.Soneium
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
@@ -283,6 +287,8 @@ export const coingeckoAssetPlatformToChainId = (
       return scrollChainId
     case CoingeckoAssetPlatform.Cronos:
       return cronosChainId
+    case CoingeckoAssetPlatform.Soneium:
+      return soneiumChainId
     case CoingeckoAssetPlatform.Cosmos:
       return cosmosChainId
     case CoingeckoAssetPlatform.Thorchain:

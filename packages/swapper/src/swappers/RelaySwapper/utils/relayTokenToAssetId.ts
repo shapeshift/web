@@ -196,6 +196,11 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
           assetReference: ASSET_REFERENCE.Mode,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
+      case CHAIN_REFERENCE.SoneiumMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Soneium,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       default:
         throw Error(`chainId '${relayToken.chainId}' not supported`)
     }

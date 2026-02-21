@@ -30,6 +30,7 @@ export const sonicAssetId: AssetId = 'eip155:146/slip44:60'
 export const unichainAssetId: AssetId = 'eip155:130/slip44:60'
 export const bobAssetId: AssetId = 'eip155:60808/slip44:60'
 export const modeAssetId: AssetId = 'eip155:34443/slip44:60'
+export const soneiumAssetId: AssetId = 'eip155:1868/slip44:60'
 export const solAssetId: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501'
 export const wrappedSolAssetId: AssetId =
   'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:So11111111111111111111111111111111111111112'
@@ -101,6 +102,7 @@ export const sonicChainId: ChainId = 'eip155:146'
 export const unichainChainId: ChainId = 'eip155:130'
 export const bobChainId: ChainId = 'eip155:60808'
 export const modeChainId: ChainId = 'eip155:34443'
+export const soneiumChainId: ChainId = 'eip155:1868'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
 export const thorchainChainId: ChainId = 'cosmos:thorchain-1'
@@ -163,6 +165,7 @@ export const CHAIN_REFERENCE = {
   UnichainMainnet: '130', // https://docs.unichain.org
   BobMainnet: '60808', // https://docs.gobob.xyz
   ModeMainnet: '34443', // https://docs.mode.network
+  SoneiumMainnet: '1868', // https://soneium.org
   SolanaMainnet: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', // https://namespaces.chainagnostic.org/solana/caip2
   TronMainnet: '0x2b6653dc', // https://developers.tron.network/docs/networks
   SuiMainnet: '35834a8a', // First 8 chars of SUI mainnet genesis hash
@@ -218,6 +221,7 @@ export const ASSET_REFERENCE = {
   Unichain: '60', // evm chain which uses ethereum derivation path as common practice
   Bob: '60', // evm chain which uses ethereum derivation path as common practice
   Mode: '60', // evm chain which uses ethereum derivation path as common practice
+  Soneium: '60', // evm chain which uses ethereum derivation path as common practice
   Solana: '501',
   Tron: '195',
   Sui: '784',
@@ -258,6 +262,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.UnichainMainnet,
     CHAIN_REFERENCE.BobMainnet,
     CHAIN_REFERENCE.ModeMainnet,
+    CHAIN_REFERENCE.SoneiumMainnet,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
     CHAIN_REFERENCE.CosmosHubMainnet,
@@ -321,6 +326,7 @@ export const FEE_ASSET_IDS = [
   cronosAssetId,
   sonicAssetId,
   unichainAssetId,
+  soneiumAssetId,
   solAssetId,
   tronAssetId,
   suiAssetId,

@@ -308,6 +308,7 @@ export class TrezorHDWallet
   readonly _supportsScroll = true
   readonly _supportsCronos = true
   readonly _supportsUnichain = true
+  readonly _supportsSoneium = true
   readonly _supportsKavaInfo = true
   readonly _supportsTerraInfo = true
   readonly _supportsSolana = true

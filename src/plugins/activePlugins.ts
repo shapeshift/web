@@ -28,6 +28,7 @@ import plasma from '@/plugins/plasma'
 import polygon from '@/plugins/polygon'
 import scroll from '@/plugins/scroll'
 import solana from '@/plugins/solana'
+import soneium from '@/plugins/soneium'
 import sonic from '@/plugins/sonic'
 import starknet from '@/plugins/starknet'
 import sui from '@/plugins/sui'
@@ -69,6 +70,7 @@ export const activePlugins = [
   plasma,
   polygon,
   scroll,
+  soneium,
   solana,
   sonic,
   starknet,

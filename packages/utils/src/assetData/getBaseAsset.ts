@@ -33,6 +33,7 @@ import {
   polygon,
   scroll,
   solana,
+  soneium,
   sonic,
   starknet,
   sui,
@@ -114,6 +115,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return bobChain
     case KnownChainIds.ModeMainnet:
       return modeChain
+    case KnownChainIds.SoneiumMainnet:
+      return soneium
     case KnownChainIds.NearMainnet:
       return near
     case KnownChainIds.ZcashMainnet:

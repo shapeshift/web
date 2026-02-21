@@ -198,6 +198,8 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_BOB: string
   readonly VITE_MODE_NODE_URL: string
   readonly VITE_FEATURE_MODE: string
+  readonly VITE_SONEIUM_NODE_URL: string
+  readonly VITE_FEATURE_SONEIUM: string
   readonly VITE_FEATURE_NOTIFICATIONS_WEBSERVICES: string
 
   // Only present in *some* envs

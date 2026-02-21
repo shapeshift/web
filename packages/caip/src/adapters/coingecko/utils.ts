@@ -60,6 +60,8 @@ import {
   scrollChainId,
   solanaChainId,
   solAssetId,
+  soneiumAssetId,
+  soneiumChainId,
   sonicAssetId,
   sonicChainId,
   starknetAssetId,
@@ -463,6 +465,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Soneium)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.SoneiumMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Soneium],
+          })
+          prev[soneiumChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Starknet)) {
         try {
           const assetId = toAssetId({
@@ -531,6 +547,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [unichainChainId]: { [unichainAssetId]: 'ethereum' },
       [bobChainId]: { [bobAssetId]: 'ethereum' },
       [modeChainId]: { [modeAssetId]: 'ethereum' },
+      [soneiumChainId]: { [soneiumAssetId]: 'ethereum' },
       [solanaChainId]: { [solAssetId]: 'solana' },
       [starknetChainId]: { [starknetAssetId]: 'starknet' },
       [tronChainId]: { [tronAssetId]: 'tron' },

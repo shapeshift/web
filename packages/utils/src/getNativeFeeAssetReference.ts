@@ -70,6 +70,8 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.Bob
           case CHAIN_REFERENCE.ModeMainnet:
             return ASSET_REFERENCE.Mode
+          case CHAIN_REFERENCE.SoneiumMainnet:
+            return ASSET_REFERENCE.Soneium
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

@@ -24,6 +24,7 @@ import {
   plasma,
   polygon,
   scroll,
+  soneium,
   sonic,
   unichain,
 } from 'viem/chains'
@@ -177,6 +178,11 @@ export const viemModeClient = createPublicClient({
   transport: fallback([process.env.VITE_MODE_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemSoneiumClient = createPublicClient({
+  chain: soneium,
+  transport: fallback([process.env.VITE_SONEIUM_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,
   [KnownChainIds.BnbSmartChainMainnet]: viemBscClient,
@@ -201,6 +207,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.UnichainMainnet]: viemUnichainClient,
   [KnownChainIds.BobMainnet]: viemBobClient,
   [KnownChainIds.ModeMainnet]: viemModeClient,
+  [KnownChainIds.SoneiumMainnet]: viemSoneiumClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -227,6 +234,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.UnichainMainnet]: unichain.id,
   [KnownChainIds.BobMainnet]: bob.id,
   [KnownChainIds.ModeMainnet]: mode.id,
+  [KnownChainIds.SoneiumMainnet]: soneium.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -253,6 +261,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [unichain.id]: viemUnichainClient,
   [bob.id]: viemBobClient,
   [mode.id]: viemModeClient,
+  [soneium.id]: viemSoneiumClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

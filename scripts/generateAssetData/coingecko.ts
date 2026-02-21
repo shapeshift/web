@@ -25,6 +25,7 @@ import {
   polygonChainId,
   scrollChainId,
   solanaChainId,
+  soneiumChainId,
   sonicChainId,
   starknetChainId,
   suiChainId,
@@ -58,6 +59,7 @@ import {
   polygon,
   scroll,
   solana,
+  soneium,
   sonic,
   sui,
   ton,
@@ -272,6 +274,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: modeChain.explorer,
           explorerAddressLink: modeChain.explorerAddressLink,
           explorerTxLink: modeChain.explorerTxLink,
+        }
+      case soneiumChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: soneium.explorer,
+          explorerAddressLink: soneium.explorerAddressLink,
+          explorerTxLink: soneium.explorerTxLink,
         }
       case solanaChainId:
         return {

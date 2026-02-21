@@ -22,6 +22,7 @@ import {
   polygonChainId,
   scrollChainId,
   solanaChainId,
+  soneiumChainId,
   sonicChainId,
   starknetChainId,
   suiChainId,
@@ -143,6 +144,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_BERACHAIN && asset.chainId === berachainChainId) return false
       if (!config.VITE_FEATURE_SCROLL && asset.chainId === scrollChainId) return false
       if (!config.VITE_FEATURE_CRONOS && asset.chainId === cronosChainId) return false
+      if (!config.VITE_FEATURE_SONEIUM && asset.chainId === soneiumChainId) return false
       if (!config.VITE_FEATURE_MAYACHAIN && asset.chainId === mayachainChainId) return false
       if (!config.VITE_FEATURE_NEAR && asset.chainId === nearChainId) return false
       if (!config.VITE_FEATURE_ZCASH && asset.chainId === zecChainId) return false

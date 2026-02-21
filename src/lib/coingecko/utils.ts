@@ -23,6 +23,7 @@ import {
   optimismChainId,
   polygonChainId,
   solanaChainId,
+  soneiumChainId,
   sonicChainId,
   starknetChainId,
   suiChainId,
@@ -231,6 +232,7 @@ export const getCoingeckoSupportedChainIds = () => {
     ...(getConfig().VITE_FEATURE_UNICHAIN ? [unichainChainId] : []),
     ...(getConfig().VITE_FEATURE_BOB ? [bobChainId] : []),
     ...(getConfig().VITE_FEATURE_MODE ? [modeChainId] : []),
+    ...(getConfig().VITE_FEATURE_SONEIUM ? [soneiumChainId] : []),
     ...(getConfig().VITE_FEATURE_TON ? [tonChainId] : []),
   ]
 }

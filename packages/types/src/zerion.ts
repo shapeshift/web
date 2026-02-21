@@ -19,6 +19,7 @@ import {
   plasmaChainId,
   polygonChainId,
   solanaChainId,
+  soneiumChainId,
   sonicChainId,
   suiChainId,
   tronChainId,
@@ -50,6 +51,7 @@ export const ZERION_CHAINS = [
   'unichain',
   'bob',
   'mode',
+  'soneium',
   // not yet
   // 'aurora',
   // 'fantom',
@@ -81,6 +83,7 @@ export const ZERION_CHAINS_MAP: Record<ZerionChainId, ChainId> = {
   unichain: unichainChainId,
   bob: bobChainId,
   mode: modeChainId,
+  soneium: soneiumChainId,
 }
 
 export const zerionChainIdToChainId = (chainId: ZerionChainId): ChainId | undefined =>

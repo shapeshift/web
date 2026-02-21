@@ -29,6 +29,7 @@ import {
   supportsPlasma,
   supportsPolygon,
   supportsScroll,
+  supportsSoneium,
   supportsSonic,
   supportsUnichain,
 } from '@shapeshiftoss/hdwallet-core'
@@ -108,6 +109,7 @@ export const evmChainIds = [
   KnownChainIds.UnichainMainnet,
   KnownChainIds.BobMainnet,
   KnownChainIds.ModeMainnet,
+  KnownChainIds.SoneiumMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -232,6 +234,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsBob(wallet)
         case Number(fromChainId(KnownChainIds.ModeMainnet).chainReference):
           return supportsMode(wallet)
+        case Number(fromChainId(KnownChainIds.SoneiumMainnet).chainReference):
+          return supportsSoneium(wallet)
         default:
           return false
       }
@@ -378,6 +382,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ether',
         symbol: 'ETH',
         explorer: 'https://modescan.io',
+      },
+      [KnownChainIds.SoneiumMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://soneium.blockscout.com',
       },
     }[this.chainId]
 

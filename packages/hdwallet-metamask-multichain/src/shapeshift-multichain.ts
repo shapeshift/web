@@ -291,6 +291,7 @@ export class MetaMaskMultiChainHDWallet
   readonly _supportsScroll = true
   readonly _supportsCronos = true
   readonly _supportsUnichain = true
+  readonly _supportsSoneium = true
   readonly _supportsOsmosisInfo = true
   readonly _supportsOsmosis = true
   readonly _supportsBinanceInfo = false

@@ -99,6 +99,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Mode,
       })
+      const ethOnSoneium = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.SoneiumMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Soneium,
+      })
       expect(coingeckoToAssetIds('ethereum')).toEqual([
         ethOnEthereum,
         ethOnOptimism,
@@ -111,6 +117,7 @@ describe('adapters:coingecko', () => {
         ethOnInk,
         ethOnScroll,
         ethOnUnichain,
+        ethOnSoneium,
       ])
     })
 

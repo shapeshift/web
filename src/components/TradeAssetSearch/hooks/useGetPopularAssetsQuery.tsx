@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
   berachainAssetId,
+  bobAssetId,
   cronosAssetId,
   hyperEvmAssetId,
   inkAssetId,
@@ -9,6 +10,7 @@ import {
   mantleAssetId,
   mayachainAssetId,
   megaethAssetId,
+  modeAssetId,
   monadAssetId,
   nearAssetId,
   plasmaAssetId,
@@ -59,6 +61,8 @@ export const queryFn = async () => {
   if (enabledFlags.Cronos) assetIds.push(cronosAssetId)
   if (enabledFlags.Sonic) assetIds.push(sonicAssetId)
   if (enabledFlags.Unichain) assetIds.push(unichainAssetId)
+  if (enabledFlags.Bob) assetIds.push(bobAssetId)
+  if (enabledFlags.Mode) assetIds.push(modeAssetId)
   if (enabledFlags.Starknet) assetIds.push(starknetAssetId)
   if (enabledFlags.Tron) assetIds.push(tronAssetId)
   if (enabledFlags.Berachain) assetIds.push(berachainAssetId)

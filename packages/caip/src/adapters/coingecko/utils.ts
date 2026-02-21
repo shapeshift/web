@@ -15,6 +15,8 @@ import {
   bchChainId,
   berachainAssetId,
   berachainChainId,
+  bobAssetId,
+  bobChainId,
   bscAssetId,
   bscChainId,
   btcChainId,
@@ -42,6 +44,8 @@ import {
   mayachainChainId,
   megaethAssetId,
   megaethChainId,
+  modeAssetId,
+  modeChainId,
   monadAssetId,
   monadChainId,
   nearAssetId,
@@ -431,6 +435,34 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Bob)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.BobMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Bob],
+          })
+          prev[bobChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Mode)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.ModeMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Mode],
+          })
+          prev[modeChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Starknet)) {
         try {
           const assetId = toAssetId({
@@ -497,6 +529,8 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [scrollChainId]: { [scrollAssetId]: 'ethereum' },
       [sonicChainId]: { [sonicAssetId]: 'sonic-3' },
       [unichainChainId]: { [unichainAssetId]: 'ethereum' },
+      [bobChainId]: { [bobAssetId]: 'ethereum' },
+      [modeChainId]: { [modeAssetId]: 'ethereum' },
       [solanaChainId]: { [solAssetId]: 'solana' },
       [starknetChainId]: { [starknetAssetId]: 'starknet' },
       [tronChainId]: { [tronAssetId]: 'tron' },

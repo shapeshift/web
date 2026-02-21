@@ -11,6 +11,7 @@ import { csp as berachain } from './chains/berachain'
 import { csp as bitcoin } from './chains/bitcoin'
 import { csp as bitcoincash } from './chains/bitcoincash'
 import { csp as bnbsmartchain } from './chains/bnbsmartchain'
+import { csp as bob } from './chains/bob'
 import { csp as cosmos } from './chains/cosmos'
 import { csp as cronos } from './chains/cronos'
 import { csp as dogecoin } from './chains/dogecoin'
@@ -24,6 +25,7 @@ import { csp as litecoin } from './chains/litecoin'
 import { csp as mantle } from './chains/mantle'
 import { csp as mayachain } from './chains/mayachain'
 import { csp as megaeth } from './chains/megaeth'
+import { csp as mode } from './chains/mode'
 import { csp as monad } from './chains/monad'
 import { csp as near } from './chains/near'
 import { csp as optimism } from './chains/optimism'
@@ -121,6 +123,7 @@ export const csps = [
   cosmos,
   dogecoin,
   ethereum,
+  bob,
   gnosis,
   berachain,
   hyperevm,
@@ -131,6 +134,7 @@ export const csps = [
   unichain,
   litecoin,
   mantle,
+  mode,
   megaeth,
   optimism,
   polygon,

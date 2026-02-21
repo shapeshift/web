@@ -200,6 +200,8 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   [KnownChainIds.KatanaMainnet]: [],
   [KnownChainIds.SonicMainnet]: [],
   [KnownChainIds.UnichainMainnet]: [],
+  [KnownChainIds.BobMainnet]: [],
+  [KnownChainIds.ModeMainnet]: [],
   [KnownChainIds.ZcashMainnet]: [],
   [KnownChainIds.NearMainnet]: [],
   [KnownChainIds.TonMainnet]: [],

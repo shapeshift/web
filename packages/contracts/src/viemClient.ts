@@ -8,6 +8,7 @@ import {
   avalanche,
   base,
   berachain,
+  bob,
   bsc,
   cronos,
   gnosis,
@@ -17,6 +18,7 @@ import {
   linea,
   mainnet,
   mantle,
+  mode,
   monad,
   optimism,
   plasma,
@@ -165,6 +167,16 @@ export const viemUnichainClient = createPublicClient({
   transport: fallback([process.env.VITE_UNICHAIN_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemBobClient = createPublicClient({
+  chain: bob,
+  transport: fallback([process.env.VITE_BOB_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
+export const viemModeClient = createPublicClient({
+  chain: mode,
+  transport: fallback([process.env.VITE_MODE_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,
   [KnownChainIds.BnbSmartChainMainnet]: viemBscClient,
@@ -187,6 +199,8 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.ScrollMainnet]: viemScrollClient,
   [KnownChainIds.SonicMainnet]: viemSonicClient,
   [KnownChainIds.UnichainMainnet]: viemUnichainClient,
+  [KnownChainIds.BobMainnet]: viemBobClient,
+  [KnownChainIds.ModeMainnet]: viemModeClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -211,6 +225,8 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.ScrollMainnet]: scroll.id,
   [KnownChainIds.SonicMainnet]: sonic.id,
   [KnownChainIds.UnichainMainnet]: unichain.id,
+  [KnownChainIds.BobMainnet]: bob.id,
+  [KnownChainIds.ModeMainnet]: mode.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -235,6 +251,8 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [scroll.id]: viemScrollClient,
   [sonic.id]: viemSonicClient,
   [unichain.id]: viemUnichainClient,
+  [bob.id]: viemBobClient,
+  [mode.id]: viemModeClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

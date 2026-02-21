@@ -28,6 +28,8 @@ export const lineaAssetId: AssetId = 'eip155:59144/slip44:60'
 export const scrollAssetId: AssetId = 'eip155:534352/slip44:60'
 export const sonicAssetId: AssetId = 'eip155:146/slip44:60'
 export const unichainAssetId: AssetId = 'eip155:130/slip44:60'
+export const bobAssetId: AssetId = 'eip155:60808/slip44:60'
+export const modeAssetId: AssetId = 'eip155:34443/slip44:60'
 export const solAssetId: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501'
 export const wrappedSolAssetId: AssetId =
   'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:So11111111111111111111111111111111111111112'
@@ -97,6 +99,8 @@ export const lineaChainId: ChainId = 'eip155:59144'
 export const scrollChainId: ChainId = 'eip155:534352'
 export const sonicChainId: ChainId = 'eip155:146'
 export const unichainChainId: ChainId = 'eip155:130'
+export const bobChainId: ChainId = 'eip155:60808'
+export const modeChainId: ChainId = 'eip155:34443'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
 export const thorchainChainId: ChainId = 'cosmos:thorchain-1'
@@ -157,6 +161,8 @@ export const CHAIN_REFERENCE = {
   ScrollMainnet: '534352', // https://scrollscan.com
   SonicMainnet: '146', // https://docs.soniclabs.com
   UnichainMainnet: '130', // https://docs.unichain.org
+  BobMainnet: '60808', // https://docs.gobob.xyz
+  ModeMainnet: '34443', // https://docs.mode.network
   SolanaMainnet: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', // https://namespaces.chainagnostic.org/solana/caip2
   TronMainnet: '0x2b6653dc', // https://developers.tron.network/docs/networks
   SuiMainnet: '35834a8a', // First 8 chars of SUI mainnet genesis hash
@@ -210,6 +216,8 @@ export const ASSET_REFERENCE = {
   Scroll: '60', // evm chain which uses ethereum derivation path as common practice
   Sonic: '60', // evm chain which uses ethereum derivation path as common practice
   Unichain: '60', // evm chain which uses ethereum derivation path as common practice
+  Bob: '60', // evm chain which uses ethereum derivation path as common practice
+  Mode: '60', // evm chain which uses ethereum derivation path as common practice
   Solana: '501',
   Tron: '195',
   Sui: '784',
@@ -248,6 +256,8 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.ScrollMainnet,
     CHAIN_REFERENCE.SonicMainnet,
     CHAIN_REFERENCE.UnichainMainnet,
+    CHAIN_REFERENCE.BobMainnet,
+    CHAIN_REFERENCE.ModeMainnet,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
     CHAIN_REFERENCE.CosmosHubMainnet,

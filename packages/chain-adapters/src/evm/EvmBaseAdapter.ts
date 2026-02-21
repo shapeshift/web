@@ -12,6 +12,7 @@ import {
   supportsAvalanche,
   supportsBase,
   supportsBerachain,
+  supportsBob,
   supportsBSC,
   supportsCronos,
   supportsETH,
@@ -22,6 +23,7 @@ import {
   supportsLinea,
   supportsMantle,
   supportsMegaEth,
+  supportsMode,
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
@@ -104,6 +106,8 @@ export const evmChainIds = [
   KnownChainIds.ScrollMainnet,
   KnownChainIds.SonicMainnet,
   KnownChainIds.UnichainMainnet,
+  KnownChainIds.BobMainnet,
+  KnownChainIds.ModeMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -224,6 +228,10 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsSonic(wallet)
         case Number(fromChainId(KnownChainIds.UnichainMainnet).chainReference):
           return supportsUnichain(wallet)
+        case Number(fromChainId(KnownChainIds.BobMainnet).chainReference):
+          return supportsBob(wallet)
+        case Number(fromChainId(KnownChainIds.ModeMainnet).chainReference):
+          return supportsMode(wallet)
         default:
           return false
       }
@@ -360,6 +368,16 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ether',
         symbol: 'ETH',
         explorer: 'https://uniscan.xyz',
+      },
+      [KnownChainIds.BobMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://explorer.gobob.xyz',
+      },
+      [KnownChainIds.ModeMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://modescan.io',
       },
     }[this.chainId]
 

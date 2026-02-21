@@ -186,6 +186,16 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
           assetReference: ASSET_REFERENCE.Unichain,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
+      case CHAIN_REFERENCE.BobMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Bob,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.ModeMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Mode,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       default:
         throw Error(`chainId '${relayToken.chainId}' not supported`)
     }

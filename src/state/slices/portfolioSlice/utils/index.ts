@@ -6,6 +6,7 @@ import {
   baseChainId,
   bchChainId,
   berachainChainId,
+  bobChainId,
   bscChainId,
   btcChainId,
   CHAIN_NAMESPACE,
@@ -26,6 +27,7 @@ import {
   mantleChainId,
   mayachainChainId,
   megaethChainId,
+  modeChainId,
   monadChainId,
   nearChainId,
   optimismChainId,
@@ -54,6 +56,7 @@ import {
   supportsAvalanche,
   supportsBase,
   supportsBerachain,
+  supportsBob,
   supportsBSC,
   supportsBTC,
   supportsCosmos,
@@ -67,6 +70,7 @@ import {
   supportsMantle,
   supportsMayachain,
   supportsMegaEth,
+  supportsMode,
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
@@ -127,6 +131,8 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case scrollChainId:
     case sonicChainId:
     case unichainChainId:
+    case bobChainId:
+    case modeChainId:
     case monadChainId:
     case plasmaChainId:
     case thorchainChainId:
@@ -552,6 +558,10 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsSonic(wallet)
     case unichainChainId:
       return supportsUnichain(wallet)
+    case bobChainId:
+      return supportsBob(wallet)
+    case modeChainId:
+      return supportsMode(wallet)
     case tronChainId:
       return supportsTron(wallet)
     case nearChainId:

@@ -15,6 +15,8 @@ import hyperevm from "./eip155_999/adapter.json";
 import plasma from "./eip155_9745/adapter.json";
 import katana from "./eip155_747474/adapter.json";
 import linea from "./eip155_59144/adapter.json";
+import bob from "./eip155_60808/adapter.json";
+import mode from "./eip155_34443/adapter.json";
 import megaeth from "./eip155_4326/adapter.json";
 import mantle from "./eip155_5000/adapter.json";
 import berachain from "./eip155_80094/adapter.json";
@@ -47,11 +49,13 @@ export {
   gnosis,
   arbitrum,
   base,
+  bob,
   monad,
   hyperevm,
   plasma,
   katana,
   linea,
+  mode,
   megaeth,
   mantle,
   berachain,

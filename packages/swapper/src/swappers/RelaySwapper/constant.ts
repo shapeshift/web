@@ -3,6 +3,7 @@ import {
   avalancheChainId,
   baseChainId,
   berachainChainId,
+  bobChainId,
   bscChainId,
   btcChainId,
   cronosChainId,
@@ -14,6 +15,7 @@ import {
   lineaChainId,
   mantleChainId,
   megaethChainId,
+  modeChainId,
   monadChainId,
   optimismChainId,
   plasmaChainId,
@@ -31,6 +33,7 @@ import {
   avalanche,
   base,
   berachain,
+  bob,
   bsc,
   cronos,
   gnosis,
@@ -40,6 +43,7 @@ import {
   linea,
   mainnet as ethereum,
   mantle,
+  mode,
   monad,
   optimism,
   plasma,
@@ -79,6 +83,8 @@ export const chainIdToRelayChainId = {
   [cronosChainId]: cronos.id,
   [sonicChainId]: sonic.id,
   [unichainChainId]: unichain.id,
+  [bobChainId]: bob.id,
+  [modeChainId]: mode.id,
 }
 
 export enum RelayStatusMessage {

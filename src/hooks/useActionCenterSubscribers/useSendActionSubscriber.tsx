@@ -12,6 +12,7 @@ import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { getBerachainTransactionStatus } from '@/lib/utils/berachain'
+import { getBobTransactionStatus } from '@/lib/utils/bob'
 import { getCronosTransactionStatus } from '@/lib/utils/cronos'
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getInkTransactionStatus } from '@/lib/utils/ink'
@@ -19,6 +20,7 @@ import { getKatanaTransactionStatus } from '@/lib/utils/katana'
 import { getLineaTransactionStatus } from '@/lib/utils/linea'
 import { getMantleTransactionStatus } from '@/lib/utils/mantle'
 import { getMegaEthTransactionStatus } from '@/lib/utils/megaeth'
+import { getModeTransactionStatus } from '@/lib/utils/mode'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getNearTransactionStatus } from '@/lib/utils/near'
 import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
@@ -268,6 +270,20 @@ export const useSendActionSubscriber = () => {
                   )
                   isConfirmed =
                     unichainTxStatus === TxStatus.Confirmed || unichainTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.BobMainnet: {
+                  const bobNodeUrl = getConfig().VITE_BOB_NODE_URL
+                  const bobTxStatus = await getBobTransactionStatus(txHash, bobNodeUrl)
+                  isConfirmed =
+                    bobTxStatus === TxStatus.Confirmed || bobTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.ModeMainnet: {
+                  const modeNodeUrl = getConfig().VITE_MODE_NODE_URL
+                  const modeTxStatus = await getModeTransactionStatus(txHash, modeNodeUrl)
+                  isConfirmed =
+                    modeTxStatus === TxStatus.Confirmed || modeTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.NearMainnet: {

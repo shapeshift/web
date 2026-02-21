@@ -9,6 +9,7 @@ import {
   avalancheChainId,
   baseChainId,
   berachainChainId,
+  bobChainId,
   bscChainId,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
@@ -23,6 +24,7 @@ import {
   mantleChainId,
   mayachainChainId,
   megaethChainId,
+  modeChainId,
   monadChainId,
   nearChainId,
   optimismChainId,
@@ -63,6 +65,8 @@ export enum CoingeckoAssetPlatform {
   Mantle = 'mantle',
   Linea = 'linea',
   Unichain = 'unichain',
+  Bob = 'bob-network',
+  Mode = 'mode',
   Sonic = 'sonic',
   MegaEth = 'megaeth',
   Berachain = 'berachain',
@@ -134,6 +138,10 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Sonic
         case CHAIN_REFERENCE.UnichainMainnet:
           return CoingeckoAssetPlatform.Unichain
+        case CHAIN_REFERENCE.BobMainnet:
+          return CoingeckoAssetPlatform.Bob
+        case CHAIN_REFERENCE.ModeMainnet:
+          return CoingeckoAssetPlatform.Mode
         case CHAIN_REFERENCE.MegaEthMainnet:
           return CoingeckoAssetPlatform.MegaEth
         case CHAIN_REFERENCE.LineaMainnet:
@@ -259,6 +267,10 @@ export const coingeckoAssetPlatformToChainId = (
       return sonicChainId
     case CoingeckoAssetPlatform.Unichain:
       return unichainChainId
+    case CoingeckoAssetPlatform.Bob:
+      return bobChainId
+    case CoingeckoAssetPlatform.Mode:
+      return modeChainId
     case CoingeckoAssetPlatform.MegaEth:
       return megaethChainId
     case CoingeckoAssetPlatform.Linea:

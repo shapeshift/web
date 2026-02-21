@@ -5,6 +5,7 @@ import berachain from '@/plugins/berachain'
 import bitcoin from '@/plugins/bitcoin'
 import bitcoincash from '@/plugins/bitcoincash'
 import bnbsmartchain from '@/plugins/bnbsmartchain'
+import bob from '@/plugins/bob'
 import cosmos from '@/plugins/cosmos'
 import cronos from '@/plugins/cronos'
 import dogecoin from '@/plugins/dogecoin'
@@ -19,6 +20,7 @@ import mantle from '@/plugins/mantle'
 import mayachain from '@/plugins/mayachain'
 import megaeth from '@/plugins/megaeth'
 import mobile from '@/plugins/mobile'
+import mode from '@/plugins/mode'
 import monad from '@/plugins/monad'
 import near from '@/plugins/near'
 import optimism from '@/plugins/optimism'
@@ -44,6 +46,7 @@ export const activePlugins = [
   bitcoin,
   bitcoincash,
   bnbsmartchain,
+  bob,
   cosmos,
   cronos,
   dogecoin,
@@ -56,6 +59,7 @@ export const activePlugins = [
   unichain,
   litecoin,
   mantle,
+  mode,
   mayachain,
   megaeth,
   mobile,

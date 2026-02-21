@@ -66,6 +66,10 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.Sonic
           case CHAIN_REFERENCE.UnichainMainnet:
             return ASSET_REFERENCE.Unichain
+          case CHAIN_REFERENCE.BobMainnet:
+            return ASSET_REFERENCE.Bob
+          case CHAIN_REFERENCE.ModeMainnet:
+            return ASSET_REFERENCE.Mode
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

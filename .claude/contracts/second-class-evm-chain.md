@@ -34,7 +34,7 @@ All integration points required when adding a new second-class EVM chain to Shap
 
 7. **Feature Flag** - Multiple files:
    - `src/state/slices/preferencesSlice/preferencesSlice.ts` - FeatureFlags type + initial state
-   - `src/config.ts` - `VITE_FEATURE_<CHAIN>` validation + `VITE_<CHAIN>_NODE_URL` validation
+   - `src/config.ts` - `VITE_FEATURE_<CHAIN>` validation (`bool({ default: false })`) + `VITE_<CHAIN>_NODE_URL` validation (must use `url()`, NOT `str()`)
    - `src/test/mocks/store.ts` - Mock default
    - `src/vite-env.d.ts` - Type declarations
    - `.env` - Production default (usually `false`)
@@ -75,7 +75,7 @@ All integration points required when adding a new second-class EVM chain to Shap
     - **Per-chain generation**: after wiring, run `source ~/.zshrc && ZERION_API_KEY=$ZERION_API_KEY yarn generate:chain <chainId>` (e.g., `eip155:59144`) to regenerate only this chain's assets (~30s vs 30min for full `generate:all`). Also accepts directory name (e.g., `linea`).
 
 15. **Coingecko Integration** - `packages/caip/src/adapters/coingecko/`
-    - Enum value in `CoingeckoAssetPlatform` - **IMPORTANT**: The enum value must be the CoinGecko **platform ID** (e.g., `'sonic'`), NOT the coin ID (e.g., `'sonic-3'`). Verify at `https://api.coingecko.com/api/v3/asset_platforms` - look for the entry with `chain_identifier` matching the chain's EVM chain ID. Wrong platform ID = zero ERC20 tokens discovered.
+    - Enum value in `CoingeckoAssetPlatform`
     - `chainIdToCoingeckoAssetPlatform()` switch case
     - `coingeckoAssetPlatformToChainId()` switch case
     - `parseData()` in `utils.ts` - platform check for ERC20 token discovery
@@ -197,7 +197,7 @@ Some chains have an ERC20 contract that represents the native token (e.g., Mantl
 
 40. **Related Asset Index** - `public/generated/relatedAssetIndex.json` + `scripts/generateAssetData/generateRelatedAssetIndex/generateRelatedAssetIndex.ts`
     - If the native asset is ETH: verify it's in `manualRelatedAssetIndex[ethAssetId]` array
-    - **If the native asset is NOT ETH** (e.g., CRO, MNT): research whether the same token exists on Ethereum mainnet as an ERC20 (e.g., CRO has `eip155:1/erc20:0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b`). If it does, add a manual mapping in `manualRelatedAssetIndex` linking the Ethereum ERC20 to the chain's native `slip44:60`. Use a research agent to check CoinGecko/block explorer if unsure. Without this, the chain's native token won't show as a "Popular Asset" when filtering by the chain.
+    - **If the native asset is NOT ETH** (e.g., CRO, MNT): research whether the same token exists on Ethereum mainnet as an ERC20 (e.g., CRO has `eip155:1/erc20:0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b`). If it does, add a manual mapping in `manualRelatedAssetIndex` in BOTH `generateRelatedAssetIndex.ts` AND `generateChainRelatedAssetIndex.ts`, linking the Ethereum ERC20 to the chain's native `slip44:60`. Use a research agent to check CoinGecko/block explorer if unsure. Without this, the chain's native token won't show as a "Popular Asset" when filtering by the chain.
     - Verify `relatedAssetIndex.json` has been regenerated and contains entries for the new chain's tokens
     - Check `generatedAssetData.json` - the chain's ERC20 tokens should have `relatedAssetKey` values linking them to mainnet counterparts
     - Without this, tokens won't appear in the trade modal "Popular Assets" section

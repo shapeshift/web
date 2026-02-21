@@ -2,21 +2,47 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import assert from 'assert'
 import type { PublicClient } from 'viem'
-import { createPublicClient, fallback, http } from 'viem'
+import { createPublicClient, defineChain, fallback, http } from 'viem'
 import {
   arbitrum,
   avalanche,
   base,
+  berachain,
   bsc,
   gnosis,
   hyperEvm,
+  ink,
   katana,
+  linea,
   mainnet,
+  mantle,
   monad,
   optimism,
   plasma,
   polygon,
+  scroll,
 } from 'viem/chains'
+
+const megaeth = defineChain({
+  id: 4326,
+  name: 'MegaETH',
+  nativeCurrency: {
+    name: 'Ether',
+    symbol: 'ETH',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://mainnet.megaeth.com/rpc'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'MegaETH Explorer',
+      url: 'https://megaeth.blockscout.com',
+    },
+  },
+})
 
 export const viemEthMainnetClient = createPublicClient({
   chain: mainnet,
@@ -86,9 +112,39 @@ export const viemPlasmaClient = createPublicClient({
   transport: fallback([process.env.VITE_PLASMA_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemMantleClient = createPublicClient({
+  chain: mantle,
+  transport: fallback([process.env.VITE_MANTLE_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
+export const viemInkClient = createPublicClient({
+  chain: ink,
+  transport: fallback([process.env.VITE_INK_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
+export const viemMegaEthClient = createPublicClient({
+  chain: megaeth,
+  transport: fallback([process.env.VITE_MEGAETH_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
+export const viemBerachainClient = createPublicClient({
+  chain: berachain,
+  transport: fallback([process.env.VITE_BERACHAIN_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
+export const viemScrollClient = createPublicClient({
+  chain: scroll,
+  transport: fallback([process.env.VITE_SCROLL_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemKatanaClient = createPublicClient({
   chain: katana,
   transport: fallback([process.env.VITE_KATANA_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
+export const viemLineaClient = createPublicClient({
+  chain: linea,
+  transport: fallback([process.env.VITE_LINEA_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
 export const viemClientByChainId: Record<ChainId, PublicClient> = {
@@ -103,7 +159,13 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.MonadMainnet]: viemMonadClient,
   [KnownChainIds.HyperEvmMainnet]: viemHyperEvmClient,
   [KnownChainIds.PlasmaMainnet]: viemPlasmaClient,
+  [KnownChainIds.MantleMainnet]: viemMantleClient,
+  [KnownChainIds.InkMainnet]: viemInkClient,
+  [KnownChainIds.MegaEthMainnet]: viemMegaEthClient,
+  [KnownChainIds.BerachainMainnet]: viemBerachainClient,
   [KnownChainIds.KatanaMainnet]: viemKatanaClient,
+  [KnownChainIds.LineaMainnet]: viemLineaClient,
+  [KnownChainIds.ScrollMainnet]: viemScrollClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -118,7 +180,13 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.MonadMainnet]: monad.id,
   [KnownChainIds.HyperEvmMainnet]: hyperEvm.id,
   [KnownChainIds.PlasmaMainnet]: plasma.id,
+  [KnownChainIds.MantleMainnet]: mantle.id,
+  [KnownChainIds.InkMainnet]: ink.id,
+  [KnownChainIds.MegaEthMainnet]: megaeth.id,
+  [KnownChainIds.BerachainMainnet]: berachain.id,
   [KnownChainIds.KatanaMainnet]: katana.id,
+  [KnownChainIds.LineaMainnet]: linea.id,
+  [KnownChainIds.ScrollMainnet]: scroll.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -133,7 +201,13 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [monad.id]: viemMonadClient,
   [hyperEvm.id]: viemHyperEvmClient,
   [plasma.id]: viemPlasmaClient,
+  [mantle.id]: viemMantleClient,
+  [ink.id]: viemInkClient,
+  [megaeth.id]: viemMegaEthClient,
+  [berachain.id]: viemBerachainClient,
   [katana.id]: viemKatanaClient,
+  [linea.id]: viemLineaClient,
+  [scroll.id]: viemScrollClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

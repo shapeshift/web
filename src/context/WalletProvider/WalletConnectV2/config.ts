@@ -8,6 +8,7 @@ import {
   bsc,
   gnosis,
   hyperEvm,
+  ink,
   katana,
   mainnet,
   monad,
@@ -63,6 +64,7 @@ export const walletConnectV2OptionalChains: AtLeastOneViemChain = (() => {
     avalanche,
     arbitrum,
     base,
+    ink,
   ]
 
   if (config.VITE_FEATURE_MONAD) {
@@ -101,6 +103,7 @@ const {
   VITE_ETHEREUM_NODE_URL,
   VITE_ARBITRUM_NODE_URL,
   VITE_BASE_NODE_URL,
+  VITE_INK_NODE_URL,
   VITE_MONAD_NODE_URL,
   VITE_HYPEREVM_NODE_URL,
   VITE_PLASMA_NODE_URL,
@@ -116,6 +119,7 @@ const walletConnectV2RpcMap: Record<number, string> = {
   [CHAIN_REFERENCE.EthereumMainnet]: VITE_ETHEREUM_NODE_URL,
   [CHAIN_REFERENCE.ArbitrumMainnet]: VITE_ARBITRUM_NODE_URL,
   [CHAIN_REFERENCE.BaseMainnet]: VITE_BASE_NODE_URL,
+  [CHAIN_REFERENCE.InkMainnet]: VITE_INK_NODE_URL,
 }
 
 if (config.VITE_FEATURE_MONAD) {

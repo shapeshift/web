@@ -67,15 +67,18 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
         value: latestEpoch.totalRevenue,
         precision: runeAsset.precision,
       })
+        .toBN()
         .times(distributionRate)
         .times(closestRunePrice.price)
 
       const totalStakedUsd = BigAmount.fromBaseUnit({
         value: totalStakedCryptoCurrencyQuery.data,
         precision: stakingAsset.precision,
-      }).times(closestStakingAssetPrice.price)
+      })
+        .toBN()
+        .times(closestStakingAssetPrice.price)
 
-      return rewardDistributionUsd.div(totalStakedUsd.toFixed()).times(12).toFixed(4)
+      return rewardDistributionUsd.div(totalStakedUsd).times(12).toFixed(4)
     },
     [
       runePriceHistory,

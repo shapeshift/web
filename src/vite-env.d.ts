@@ -60,7 +60,12 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_SWAPPER_RELAY: string
   readonly VITE_FEATURE_MAYA_SWAP: string
   readonly VITE_FEATURE_BUTTERSWAP: string
+  readonly VITE_FEATURE_LINEA: string
   readonly VITE_FEATURE_SWAPPER_FIAT_RAMPS: string
+  readonly VITE_FEATURE_MANTLE: string
+  readonly VITE_MANTLE_NODE_URL: string
+  readonly VITE_FEATURE_INK: string
+  readonly VITE_INK_NODE_URL: string
 
   // URLs and API keys from base .env (always defined)
   readonly VITE_ABSOLUTE_URL_PREFIX: string
@@ -114,6 +119,8 @@ interface ImportMetaEnv {
   readonly VITE_CHAINFLIP_API_URL: string
   readonly VITE_NEAR_INTENTS_API_KEY: string
   readonly VITE_FEATURE_NEAR_INTENTS_SWAP: string
+  readonly VITE_BERACHAIN_NODE_URL: string
+  readonly VITE_FEATURE_BERACHAIN: string
   readonly VITE_RELAY_API_URL: string
   readonly VITE_TENDERLY_ACCOUNT_SLUG: string
   readonly VITE_TENDERLY_PROJECT_SLUG: string
@@ -172,12 +179,15 @@ interface ImportMetaEnv {
   readonly VITE_BASE_NODE_URL: string
   readonly VITE_THORCHAIN_NODE_URL: string
   readonly VITE_MAYACHAIN_NODE_URL: string
+  readonly VITE_LINEA_NODE_URL: string
   readonly VITE_SOLANA_NODE_URL: string
   readonly VITE_THORCHAIN_MIDGARD_URL: string
   readonly VITE_MAYACHAIN_MIDGARD_URL: string
   readonly VITE_SWAPS_SERVER_URL: string
   readonly VITE_NOTIFICATIONS_SERVER_URL: string
   readonly VITE_USER_SERVER_URL: string
+  readonly VITE_SCROLL_NODE_URL: string
+  readonly VITE_FEATURE_SCROLL: string
   readonly VITE_FEATURE_NOTIFICATIONS_WEBSERVICES: string
 
   // Only present in *some* envs

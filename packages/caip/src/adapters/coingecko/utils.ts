@@ -13,6 +13,8 @@ import {
   baseAssetId,
   baseChainId,
   bchChainId,
+  berachainAssetId,
+  berachainChainId,
   bscAssetId,
   bscChainId,
   btcChainId,
@@ -26,10 +28,18 @@ import {
   gnosisChainId,
   hyperEvmAssetId,
   hyperEvmChainId,
+  inkAssetId,
+  inkChainId,
   katanaAssetId,
   katanaChainId,
+  lineaAssetId,
+  lineaChainId,
   ltcChainId,
+  mantleAssetId,
+  mantleChainId,
   mayachainChainId,
+  megaethAssetId,
+  megaethChainId,
   monadAssetId,
   monadChainId,
   nearAssetId,
@@ -40,6 +50,8 @@ import {
   plasmaChainId,
   polygonAssetId,
   polygonChainId,
+  scrollAssetId,
+  scrollChainId,
   solanaChainId,
   solAssetId,
   starknetAssetId,
@@ -273,6 +285,90 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Mantle)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.MantleMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Mantle],
+          })
+          prev[mantleChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Ink)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.InkMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Ink],
+          })
+          prev[inkChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.MegaEth)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.MegaEthMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.MegaEth],
+          })
+          prev[megaethChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Linea)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.LineaMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Linea],
+          })
+          prev[lineaChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Berachain)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.BerachainMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Berachain],
+          })
+          prev[berachainChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Scroll)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.ScrollMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Scroll],
+          })
+          prev[scrollChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Katana)) {
         try {
           const assetId = toAssetId({
@@ -343,7 +439,13 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [hyperEvmChainId]: { [hyperEvmAssetId]: 'hyperliquid' },
       [monadChainId]: { [monadAssetId]: 'monad' },
       [plasmaChainId]: { [plasmaAssetId]: 'plasma' },
+      [mantleChainId]: { [mantleAssetId]: 'mantle' },
+      [inkChainId]: { [inkAssetId]: 'ethereum' },
+      [megaethChainId]: { [megaethAssetId]: 'ethereum' },
+      [lineaChainId]: { [lineaAssetId]: 'ethereum' },
+      [berachainChainId]: { [berachainAssetId]: 'berachain-bera' },
       [katanaChainId]: { [katanaAssetId]: 'katana' },
+      [scrollChainId]: { [scrollAssetId]: 'ethereum' },
       [solanaChainId]: { [solAssetId]: 'solana' },
       [starknetChainId]: { [starknetAssetId]: 'starknet' },
       [tronChainId]: { [tronAssetId]: 'tron' },

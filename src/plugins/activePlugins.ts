@@ -32,6 +32,7 @@ import sui from '@/plugins/sui'
 import thorchain from '@/plugins/thorchain'
 import ton from '@/plugins/ton'
 import tron from '@/plugins/tron'
+import unichain from '@/plugins/unichain'
 import walletConnectToDapps from '@/plugins/walletConnectToDapps'
 import zcash from '@/plugins/zcash'
 
@@ -52,6 +53,7 @@ export const activePlugins = [
   ink,
   katana,
   linea,
+  unichain,
   litecoin,
   mantle,
   mayachain,

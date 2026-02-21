@@ -16,6 +16,7 @@ import {
   scrollAssetId,
   sonicAssetId,
   starknetAssetId,
+  unichainAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { createThrottle, isToken } from '@shapeshiftoss/utils'
@@ -61,6 +62,7 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     lineaAssetId,
     megaethAssetId,
     scrollAssetId,
+    unichainAssetId,
   ],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
   [starknetAssetId]: [

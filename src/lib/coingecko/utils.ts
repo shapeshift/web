@@ -27,6 +27,7 @@ import {
   thorchainChainId,
   toAssetId,
   tonChainId,
+  unichainChainId,
   zecChainId,
 } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -225,6 +226,7 @@ export const getCoingeckoSupportedChainIds = () => {
     ...(getConfig().VITE_FEATURE_MANTLE ? [mantleChainId] : []),
     ...(getConfig().VITE_FEATURE_LINEA ? [lineaChainId] : []),
     ...(getConfig().VITE_FEATURE_SONIC ? [sonicChainId] : []),
+    ...(getConfig().VITE_FEATURE_UNICHAIN ? [unichainChainId] : []),
     ...(getConfig().VITE_FEATURE_TON ? [tonChainId] : []),
   ]
 }

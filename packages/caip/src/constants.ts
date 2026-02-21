@@ -27,6 +27,7 @@ export const katanaAssetId: AssetId = 'eip155:747474/slip44:60'
 export const lineaAssetId: AssetId = 'eip155:59144/slip44:60'
 export const scrollAssetId: AssetId = 'eip155:534352/slip44:60'
 export const sonicAssetId: AssetId = 'eip155:146/slip44:60'
+export const unichainAssetId: AssetId = 'eip155:130/slip44:60'
 export const solAssetId: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501'
 export const wrappedSolAssetId: AssetId =
   'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:So11111111111111111111111111111111111111112'
@@ -95,6 +96,7 @@ export const katanaChainId: ChainId = 'eip155:747474'
 export const lineaChainId: ChainId = 'eip155:59144'
 export const scrollChainId: ChainId = 'eip155:534352'
 export const sonicChainId: ChainId = 'eip155:146'
+export const unichainChainId: ChainId = 'eip155:130'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
 export const thorchainChainId: ChainId = 'cosmos:thorchain-1'
@@ -154,6 +156,7 @@ export const CHAIN_REFERENCE = {
   LineaMainnet: '59144', // https://docs.linea.build
   ScrollMainnet: '534352', // https://scrollscan.com
   SonicMainnet: '146', // https://docs.soniclabs.com
+  UnichainMainnet: '130', // https://docs.unichain.org
   SolanaMainnet: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', // https://namespaces.chainagnostic.org/solana/caip2
   TronMainnet: '0x2b6653dc', // https://developers.tron.network/docs/networks
   SuiMainnet: '35834a8a', // First 8 chars of SUI mainnet genesis hash
@@ -206,6 +209,7 @@ export const ASSET_REFERENCE = {
   Linea: '60', // evm chain which uses ethereum derivation path as common practice
   Scroll: '60', // evm chain which uses ethereum derivation path as common practice
   Sonic: '60', // evm chain which uses ethereum derivation path as common practice
+  Unichain: '60', // evm chain which uses ethereum derivation path as common practice
   Solana: '501',
   Tron: '195',
   Sui: '784',
@@ -243,6 +247,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.LineaMainnet,
     CHAIN_REFERENCE.ScrollMainnet,
     CHAIN_REFERENCE.SonicMainnet,
+    CHAIN_REFERENCE.UnichainMainnet,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
     CHAIN_REFERENCE.CosmosHubMainnet,
@@ -305,6 +310,7 @@ export const FEE_ASSET_IDS = [
   scrollAssetId,
   cronosAssetId,
   sonicAssetId,
+  unichainAssetId,
   solAssetId,
   tronAssetId,
   suiAssetId,

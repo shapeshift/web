@@ -37,6 +37,7 @@ import {
   thorchain,
   ton,
   tron,
+  unichainChain,
   zcash,
 } from './baseAssets'
 
@@ -105,6 +106,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return scroll
     case KnownChainIds.SonicMainnet:
       return sonic
+    case KnownChainIds.UnichainMainnet:
+      return unichainChain
     case KnownChainIds.NearMainnet:
       return near
     case KnownChainIds.ZcashMainnet:

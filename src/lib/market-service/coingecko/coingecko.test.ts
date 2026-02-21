@@ -169,7 +169,7 @@ describe('CoinGecko market service', () => {
     it('can flatten multiple responses', async () => {
       mocks.get.mockResolvedValueOnce({ data: [eth] }).mockResolvedValue({ data: [btc] })
       const result = await coinGeckoMarketService.findAll()
-      expect(Object.keys(result).length).toEqual(9)
+      expect(Object.keys(result).length).toEqual(10)
     })
 
     it('can sort by market cap', async () => {
@@ -193,7 +193,7 @@ describe('CoinGecko market service', () => {
     it('can return some results if partially rate limited', async () => {
       mocks.get.mockResolvedValueOnce({ status: 429 }).mockResolvedValue({ data: [eth] })
       const result = await coinGeckoMarketService.findAll()
-      expect(Object.keys(result).length).toEqual(8)
+      expect(Object.keys(result).length).toEqual(9)
     })
 
     it('can use default args', async () => {
@@ -231,6 +231,7 @@ describe('CoinGecko market service', () => {
         ethOnMegaEthKey,
         ethOnInkKey,
         ethOnScrollKey,
+        ethOnUnichainKey,
       ] = Object.keys(result)
       expect(btcAssetId).toEqual([btcKey])
       expect(ethAssetId).toEqual([
@@ -242,6 +243,7 @@ describe('CoinGecko market service', () => {
         ethOnMegaEthKey,
         ethOnInkKey,
         ethOnScrollKey,
+        ethOnUnichainKey,
       ])
     })
 

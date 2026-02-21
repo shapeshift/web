@@ -18,6 +18,7 @@ import {
   suiAssetId,
   thorchainAssetId,
   tronAssetId,
+  unichainAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
@@ -57,6 +58,7 @@ export const queryFn = async () => {
   if (enabledFlags.Linea) assetIds.push(lineaAssetId)
   if (enabledFlags.Cronos) assetIds.push(cronosAssetId)
   if (enabledFlags.Sonic) assetIds.push(sonicAssetId)
+  if (enabledFlags.Unichain) assetIds.push(unichainAssetId)
   if (enabledFlags.Starknet) assetIds.push(starknetAssetId)
   if (enabledFlags.Tron) assetIds.push(tronAssetId)
   if (enabledFlags.Berachain) assetIds.push(berachainAssetId)

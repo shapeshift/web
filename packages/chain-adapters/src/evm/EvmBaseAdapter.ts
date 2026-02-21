@@ -13,6 +13,7 @@ import {
   supportsBase,
   supportsBerachain,
   supportsBSC,
+  supportsCronos,
   supportsETH,
   supportsGnosis,
   supportsHyperEvm,
@@ -95,6 +96,7 @@ export const evmChainIds = [
   KnownChainIds.InkMainnet,
   KnownChainIds.MegaEthMainnet,
   KnownChainIds.BerachainMainnet,
+  KnownChainIds.CronosMainnet,
   KnownChainIds.KatanaMainnet,
   KnownChainIds.LineaMainnet,
   KnownChainIds.ScrollMainnet,
@@ -206,6 +208,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsMegaEth(wallet)
         case Number(fromChainId(KnownChainIds.BerachainMainnet).chainReference):
           return supportsBerachain(wallet)
+        case Number(fromChainId(KnownChainIds.CronosMainnet).chainReference):
+          return supportsCronos(wallet)
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
         case Number(fromChainId(KnownChainIds.LineaMainnet).chainReference):
@@ -318,6 +322,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Berachain',
         symbol: 'BERA',
         explorer: 'https://berascan.com',
+      },
+      [KnownChainIds.CronosMainnet]: {
+        name: 'Cronos',
+        symbol: 'CRO',
+        explorer: 'https://cronoscan.com',
       },
       [KnownChainIds.KatanaMainnet]: {
         name: 'Ethereum',

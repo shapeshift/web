@@ -12,6 +12,7 @@ import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { getBerachainTransactionStatus } from '@/lib/utils/berachain'
+import { getCronosTransactionStatus } from '@/lib/utils/cronos'
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getInkTransactionStatus } from '@/lib/utils/ink'
 import { getKatanaTransactionStatus } from '@/lib/utils/katana'
@@ -211,6 +212,12 @@ export const useSendActionSubscriber = () => {
                   const mantleTxStatus = await getMantleTransactionStatus(txHash)
                   isConfirmed =
                     mantleTxStatus === TxStatus.Confirmed || mantleTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.CronosMainnet: {
+                  const cronosTxStatus = await getCronosTransactionStatus(txHash)
+                  isConfirmed =
+                    cronosTxStatus === TxStatus.Confirmed || cronosTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.MegaEthMainnet: {

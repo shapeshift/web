@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
   berachainAssetId,
+  cronosAssetId,
   hyperEvmAssetId,
   inkAssetId,
   katanaAssetId,
@@ -53,6 +54,7 @@ export const queryFn = async () => {
   if (enabledFlags.Scroll) assetIds.push(scrollAssetId)
   if (enabledFlags.Katana) assetIds.push(katanaAssetId)
   if (enabledFlags.Linea) assetIds.push(lineaAssetId)
+  if (enabledFlags.Cronos) assetIds.push(cronosAssetId)
   if (enabledFlags.Starknet) assetIds.push(starknetAssetId)
   if (enabledFlags.Tron) assetIds.push(tronAssetId)
   if (enabledFlags.Berachain) assetIds.push(berachainAssetId)

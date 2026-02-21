@@ -215,6 +215,7 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
   readonly _supportsBerachain: boolean
   readonly _supportsLinea: boolean
   readonly _supportsScroll: boolean
+  readonly _supportsCronos: boolean
 
   ethGetAddress(msg: ETHGetAddress): Promise<Address | null>
   ethGetAddresses?(msgs: ETHGetAddress[]): Promise<string[]>

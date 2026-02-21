@@ -196,6 +196,7 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   [KnownChainIds.InkMainnet]: [],
   [KnownChainIds.LineaMainnet]: [],
   [KnownChainIds.ScrollMainnet]: [],
+  [KnownChainIds.CronosMainnet]: [],
   [KnownChainIds.KatanaMainnet]: [],
   [KnownChainIds.ZcashMainnet]: [],
   [KnownChainIds.NearMainnet]: [],

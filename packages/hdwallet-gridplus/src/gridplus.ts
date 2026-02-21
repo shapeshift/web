@@ -370,6 +370,7 @@ export class GridPlusHDWallet
   readonly _supportsBerachain = true
   readonly _supportsLinea = true
   readonly _supportsScroll = true
+  readonly _supportsCronos = true
   readonly _supportsCosmos = true
   readonly _supportsETH = true
   readonly _supportsEthSwitchChain = false

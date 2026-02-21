@@ -3,6 +3,7 @@ import {
   adapters,
   arbitrumAssetId,
   baseAssetId,
+  bobAssetId,
   ethAssetId,
   FEE_ASSET_IDS,
   foxAssetId,
@@ -16,7 +17,6 @@ import {
   scrollAssetId,
   sonicAssetId,
   starknetAssetId,
-  bobAssetId,
   unichainAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'

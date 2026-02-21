@@ -17,6 +17,7 @@ import {
   optimism,
   plasma,
   polygon,
+  unichain,
 } from 'viem/chains'
 
 import type { EthereumProviderOptions } from './constants'
@@ -87,6 +88,10 @@ export const walletConnectV2OptionalChains: AtLeastOneViemChain = (() => {
     optionalViemChains.push(katana)
   }
 
+  if (config.VITE_FEATURE_UNICHAIN) {
+    optionalViemChains.push(unichain)
+  }
+
   if (optionalViemChains.length === 0) throw new Error('Array must contain at least one element.')
   return optionalViemChains as AtLeastOneViemChain
 })()
@@ -112,8 +117,7 @@ const {
   VITE_HYPEREVM_NODE_URL,
   VITE_PLASMA_NODE_URL,
   VITE_KATANA_NODE_URL,
-  ,
-  ,
+  VITE_UNICHAIN_NODE_URL,
 } = config
 
 const walletConnectV2RpcMap: Record<number, string> = {
@@ -144,6 +148,10 @@ if (config.VITE_FEATURE_PLASMA) {
 
 if (config.VITE_FEATURE_KATANA) {
   walletConnectV2RpcMap[CHAIN_REFERENCE.KatanaMainnet] = VITE_KATANA_NODE_URL
+}
+
+if (config.VITE_FEATURE_UNICHAIN) {
+  walletConnectV2RpcMap[CHAIN_REFERENCE.UnichainMainnet] = VITE_UNICHAIN_NODE_URL
 }
 
 export const walletConnectV2ProviderConfig: EthereumProviderOptions = {

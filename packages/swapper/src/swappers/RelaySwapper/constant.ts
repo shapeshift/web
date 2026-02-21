@@ -20,6 +20,7 @@ import {
   polygonChainId,
   scrollChainId,
   solanaChainId,
+  sonicChainId,
   tronChainId,
 } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
@@ -43,6 +44,7 @@ import {
   plasma,
   polygon,
   scroll,
+  sonic,
 } from 'viem/chains'
 
 import { TradeQuoteError } from '../../types'
@@ -73,6 +75,7 @@ export const chainIdToRelayChainId = {
   [berachainChainId]: berachain.id,
   [scrollChainId]: scroll.id,
   [cronosChainId]: cronos.id,
+  [sonicChainId]: sonic.id,
 }
 
 export enum RelayStatusMessage {

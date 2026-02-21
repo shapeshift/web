@@ -27,6 +27,7 @@ import {
   polygonChainId,
   scrollChainId,
   solanaChainId,
+  sonicChainId,
   starknetChainId,
   suiChainId,
   thorchainChainId,
@@ -64,6 +65,7 @@ import {
   supportsPolygon,
   supportsScroll,
   supportsSolana,
+  supportsSonic,
   supportsStarknet,
   supportsSui,
   supportsThorchain,
@@ -165,6 +167,7 @@ export const walletSupportsChain = ({
   const isMantleEnabled = selectFeatureFlag(store.getState(), 'Mantle')
   const isLineaEnabled = selectFeatureFlag(store.getState(), 'Linea')
   const isCronosEnabled = selectFeatureFlag(store.getState(), 'Cronos')
+  const isSonicEnabled = selectFeatureFlag(store.getState(), 'Sonic')
   const isMegaEthEnabled = selectFeatureFlag(store.getState(), 'MegaEth')
   const isBerachainEnabled = selectFeatureFlag(store.getState(), 'Berachain')
   const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
@@ -226,6 +229,8 @@ export const walletSupportsChain = ({
       return isScrollEnabled && supportsScroll(wallet)
     case cronosChainId:
       return isCronosEnabled && supportsCronos(wallet)
+    case sonicChainId:
+      return isSonicEnabled && supportsSonic(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

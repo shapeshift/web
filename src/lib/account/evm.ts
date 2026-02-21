@@ -20,6 +20,7 @@ import {
   plasmaChainId,
   polygonChainId,
   scrollChainId,
+  sonicChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -44,6 +45,7 @@ import {
   supportsPlasma,
   supportsPolygon,
   supportsScroll,
+  supportsSonic,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 
@@ -145,6 +147,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === cronosChainId && !supportsCronos(wallet)) continue
     if (chainId === katanaChainId && !supportsKatana(wallet)) continue
     if (chainId === lineaChainId && !supportsLinea(wallet)) continue
+    if (chainId === sonicChainId && !supportsSonic(wallet)) continue
     if (
       isMetaMask(wallet) &&
       !canAddMetaMaskAccount({ accountNumber, chainId, wallet, isSnapInstalled })

@@ -13,6 +13,7 @@ import {
   nearAssetId,
   plasmaAssetId,
   scrollAssetId,
+  sonicAssetId,
   starknetAssetId,
   suiAssetId,
   thorchainAssetId,
@@ -55,6 +56,7 @@ export const queryFn = async () => {
   if (enabledFlags.Katana) assetIds.push(katanaAssetId)
   if (enabledFlags.Linea) assetIds.push(lineaAssetId)
   if (enabledFlags.Cronos) assetIds.push(cronosAssetId)
+  if (enabledFlags.Sonic) assetIds.push(sonicAssetId)
   if (enabledFlags.Starknet) assetIds.push(starknetAssetId)
   if (enabledFlags.Tron) assetIds.push(tronAssetId)
   if (enabledFlags.Berachain) assetIds.push(berachainAssetId)

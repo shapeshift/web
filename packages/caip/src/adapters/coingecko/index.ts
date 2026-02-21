@@ -30,6 +30,7 @@ import {
   polygonChainId,
   scrollChainId,
   solanaChainId,
+  sonicChainId,
   starknetChainId,
   suiChainId,
   thorchainChainId,
@@ -60,6 +61,7 @@ export enum CoingeckoAssetPlatform {
   Katana = 'katana',
   Mantle = 'mantle',
   Linea = 'linea',
+  Sonic = 'sonic',
   MegaEth = 'megaeth',
   Berachain = 'berachain',
   Scroll = 'scroll',
@@ -126,6 +128,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Katana
         case CHAIN_REFERENCE.MantleMainnet:
           return CoingeckoAssetPlatform.Mantle
+        case CHAIN_REFERENCE.SonicMainnet:
+          return CoingeckoAssetPlatform.Sonic
         case CHAIN_REFERENCE.MegaEthMainnet:
           return CoingeckoAssetPlatform.MegaEth
         case CHAIN_REFERENCE.LineaMainnet:
@@ -247,6 +251,8 @@ export const coingeckoAssetPlatformToChainId = (
       return katanaChainId
     case CoingeckoAssetPlatform.Mantle:
       return mantleChainId
+    case CoingeckoAssetPlatform.Sonic:
+      return sonicChainId
     case CoingeckoAssetPlatform.MegaEth:
       return megaethChainId
     case CoingeckoAssetPlatform.Linea:

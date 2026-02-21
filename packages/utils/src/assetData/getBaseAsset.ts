@@ -31,6 +31,7 @@ import {
   polygon,
   scroll,
   solana,
+  sonic,
   starknet,
   sui,
   thorchain,
@@ -102,6 +103,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return linea
     case KnownChainIds.ScrollMainnet:
       return scroll
+    case KnownChainIds.SonicMainnet:
+      return sonic
     case KnownChainIds.NearMainnet:
       return near
     case KnownChainIds.ZcashMainnet:

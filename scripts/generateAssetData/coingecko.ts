@@ -23,6 +23,7 @@ import {
   polygonChainId,
   scrollChainId,
   solanaChainId,
+  sonicChainId,
   starknetChainId,
   suiChainId,
   toAssetId,
@@ -52,6 +53,7 @@ import {
   polygon,
   scroll,
   solana,
+  sonic,
   sui,
   ton,
   tron,
@@ -232,6 +234,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: berachain.explorer,
           explorerAddressLink: berachain.explorerAddressLink,
           explorerTxLink: berachain.explorerTxLink,
+        }
+      case sonicChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: sonic.explorer,
+          explorerAddressLink: sonic.explorerAddressLink,
+          explorerTxLink: sonic.explorerTxLink,
         }
       case solanaChainId:
         return {

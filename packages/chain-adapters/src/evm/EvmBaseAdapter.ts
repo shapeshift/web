@@ -27,6 +27,7 @@ import {
   supportsPlasma,
   supportsPolygon,
   supportsScroll,
+  supportsSonic,
 } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -100,6 +101,7 @@ export const evmChainIds = [
   KnownChainIds.KatanaMainnet,
   KnownChainIds.LineaMainnet,
   KnownChainIds.ScrollMainnet,
+  KnownChainIds.SonicMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -216,6 +218,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsLinea(wallet)
         case Number(fromChainId(KnownChainIds.ScrollMainnet).chainReference):
           return supportsScroll(wallet)
+        case Number(fromChainId(KnownChainIds.SonicMainnet).chainReference):
+          return supportsSonic(wallet)
         default:
           return false
       }
@@ -342,6 +346,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ether',
         symbol: 'ETH',
         explorer: 'https://scrollscan.com',
+      },
+      [KnownChainIds.SonicMainnet]: {
+        name: 'Sonic',
+        symbol: 'S',
+        explorer: 'https://sonicscan.org',
       },
     }[this.chainId]
 

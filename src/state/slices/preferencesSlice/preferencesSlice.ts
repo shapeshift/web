@@ -44,6 +44,7 @@ export type FeatureFlags = {
   Katana: boolean
   Linea: boolean
   Scroll: boolean
+  Sonic: boolean
   Zcash: boolean
   ThorSwap: boolean
   WalletConnectToDapps: boolean
@@ -199,6 +200,7 @@ const initialState: Preferences = {
     Katana: getConfig().VITE_FEATURE_KATANA,
     Linea: getConfig().VITE_FEATURE_LINEA,
     Scroll: getConfig().VITE_FEATURE_SCROLL,
+    Sonic: getConfig().VITE_FEATURE_SONIC,
     Zcash: getConfig().VITE_FEATURE_ZCASH,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,
     WalletConnectToDappsV2: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,

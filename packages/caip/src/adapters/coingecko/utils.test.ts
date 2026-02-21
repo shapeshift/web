@@ -200,6 +200,9 @@ describe('adapters:coingecko:utils', () => {
         'eip155:25': {
           'eip155:25/slip44:60': 'crypto-com-chain',
         },
+        'eip155:146': {
+          'eip155:146/slip44:60': 'sonic-3',
+        },
         'near:mainnet': {
           'near:mainnet/slip44:397': 'near',
         },

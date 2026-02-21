@@ -28,6 +28,7 @@ import {
   supportsPolygon,
   supportsScroll,
   supportsSonic,
+  supportsUnichain,
 } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -102,6 +103,7 @@ export const evmChainIds = [
   KnownChainIds.LineaMainnet,
   KnownChainIds.ScrollMainnet,
   KnownChainIds.SonicMainnet,
+  KnownChainIds.UnichainMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -220,6 +222,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsScroll(wallet)
         case Number(fromChainId(KnownChainIds.SonicMainnet).chainReference):
           return supportsSonic(wallet)
+        case Number(fromChainId(KnownChainIds.UnichainMainnet).chainReference):
+          return supportsUnichain(wallet)
         default:
           return false
       }
@@ -351,6 +355,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Sonic',
         symbol: 'S',
         explorer: 'https://sonicscan.org',
+      },
+      [KnownChainIds.UnichainMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://uniscan.xyz',
       },
     }[this.chainId]
 

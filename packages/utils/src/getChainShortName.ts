@@ -66,6 +66,8 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'SCR'
     case KnownChainIds.SonicMainnet:
       return 'S'
+    case KnownChainIds.UnichainMainnet:
+      return 'UNI'
     case KnownChainIds.ZcashMainnet:
       return 'ZEC'
     case KnownChainIds.NearMainnet:

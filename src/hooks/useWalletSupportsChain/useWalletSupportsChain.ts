@@ -33,6 +33,7 @@ import {
   thorchainChainId,
   tonChainId,
   tronChainId,
+  unichainChainId,
   zecChainId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -70,6 +71,7 @@ import {
   supportsSui,
   supportsThorchain,
   supportsTron,
+  supportsUnichain,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import { useMemo } from 'react'
 
@@ -168,6 +170,7 @@ export const walletSupportsChain = ({
   const isLineaEnabled = selectFeatureFlag(store.getState(), 'Linea')
   const isCronosEnabled = selectFeatureFlag(store.getState(), 'Cronos')
   const isSonicEnabled = selectFeatureFlag(store.getState(), 'Sonic')
+  const isUnichainEnabled = selectFeatureFlag(store.getState(), 'Unichain')
   const isMegaEthEnabled = selectFeatureFlag(store.getState(), 'MegaEth')
   const isBerachainEnabled = selectFeatureFlag(store.getState(), 'Berachain')
   const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
@@ -231,6 +234,8 @@ export const walletSupportsChain = ({
       return isCronosEnabled && supportsCronos(wallet)
     case sonicChainId:
       return isSonicEnabled && supportsSonic(wallet)
+    case unichainChainId:
+      return isUnichainEnabled && supportsUnichain(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

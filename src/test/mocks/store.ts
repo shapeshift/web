@@ -118,6 +118,7 @@ export const mockStore: ReduxState = {
       Linea: false,
       Scroll: false,
       Sonic: false,
+      Unichain: false,
       Zcash: false,
       ZrxSwap: false,
       ThorSwap: false,

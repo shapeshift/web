@@ -506,6 +506,23 @@ export const sonic: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const unichainChain: Readonly<Asset> = Object.freeze({
+  assetId: caip.unichainAssetId,
+  chainId: caip.unichainChainId,
+  name: 'Ether',
+  networkName: 'Unichain',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#5C6BC0',
+  networkColor: '#F50DB4',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.coingecko.com/asset_platforms/images/305/small/unichain-logo.png',
+  explorer: 'https://uniscan.xyz',
+  explorerAddressLink: 'https://uniscan.xyz/address/',
+  explorerTxLink: 'https://uniscan.xyz/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
 export const solana: Readonly<Asset> = Object.freeze({
   assetId: caip.solAssetId,
   chainId: caip.solanaChainId,

@@ -203,6 +203,9 @@ describe('adapters:coingecko:utils', () => {
         'eip155:146': {
           'eip155:146/slip44:60': 'sonic-3',
         },
+        'eip155:130': {
+          'eip155:130/slip44:60': 'ethereum',
+        },
         'near:mainnet': {
           'near:mainnet/slip44:397': 'near',
         },

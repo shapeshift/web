@@ -27,6 +27,7 @@ import { getStarknetTransactionStatus, isStarknetChainAdapter } from '@/lib/util
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
 import { getTonTransactionStatus, isTonChainAdapter } from '@/lib/utils/ton'
 import { getTronTransactionStatus } from '@/lib/utils/tron'
+import { getUnichainTransactionStatus } from '@/lib/utils/unichain'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingWalletSendActions } from '@/state/slices/actionSlice/selectors'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
@@ -257,6 +258,16 @@ export const useSendActionSubscriber = () => {
                   const sonicTxStatus = await getSonicTransactionStatus(txHash)
                   isConfirmed =
                     sonicTxStatus === TxStatus.Confirmed || sonicTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.UnichainMainnet: {
+                  const unichainNodeUrl = getConfig().VITE_UNICHAIN_NODE_URL
+                  const unichainTxStatus = await getUnichainTransactionStatus(
+                    txHash,
+                    unichainNodeUrl,
+                  )
+                  isConfirmed =
+                    unichainTxStatus === TxStatus.Confirmed || unichainTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.NearMainnet: {

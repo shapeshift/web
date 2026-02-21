@@ -95,7 +95,14 @@ All integration points required when adding a new second-class EVM chain to Shap
     - Without this, existing users with persisted state won't see the new chain's assets until they manually clear cache
 
 16c. **Market Service Test** - `src/lib/market-service/coingecko/coingecko.test.ts`
-    - Expected result counts in both `can flatten multiple responses` and `can return some results if partially rate limited` tests need incrementing (one more chain = one more result in each)
+    - **ONLY for ETH-native chains** (where CoinGecko maps the native asset to `'ethereum'`):
+    - Expected result counts in both `can flatten multiple responses` and `can return some results if partially rate limited` tests need incrementing (one more ETH-native chain = one more result in each)
+    - "flatten" count = number of ETH-native chains + 1 (for BTC), "rate limited" count = number of ETH-native chains
+    - Chains with their own native token (CRO, S, MON, etc.) do NOT increment these counts
+
+16d. **Vite Environment Type Declarations** - `src/vite-env.d.ts`
+    - Add `readonly VITE_<CHAIN>_NODE_URL: string` and `readonly VITE_FEATURE_<CHAIN>: string`
+    - Without this, TypeScript won't know about the env vars (though runtime still works via config.ts validation)
 
 ## Phase 2: State & UI Integration
 

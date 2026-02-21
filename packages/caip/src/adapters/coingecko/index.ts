@@ -36,6 +36,7 @@ import {
   thorchainChainId,
   tonChainId,
   tronChainId,
+  unichainChainId,
 } from '../../constants'
 import * as adapters from './generated'
 
@@ -61,6 +62,7 @@ export enum CoingeckoAssetPlatform {
   Katana = 'katana',
   Mantle = 'mantle',
   Linea = 'linea',
+  Unichain = 'unichain',
   Sonic = 'sonic',
   MegaEth = 'megaeth',
   Berachain = 'berachain',
@@ -130,6 +132,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Mantle
         case CHAIN_REFERENCE.SonicMainnet:
           return CoingeckoAssetPlatform.Sonic
+        case CHAIN_REFERENCE.UnichainMainnet:
+          return CoingeckoAssetPlatform.Unichain
         case CHAIN_REFERENCE.MegaEthMainnet:
           return CoingeckoAssetPlatform.MegaEth
         case CHAIN_REFERENCE.LineaMainnet:
@@ -253,6 +257,8 @@ export const coingeckoAssetPlatformToChainId = (
       return mantleChainId
     case CoingeckoAssetPlatform.Sonic:
       return sonicChainId
+    case CoingeckoAssetPlatform.Unichain:
+      return unichainChainId
     case CoingeckoAssetPlatform.MegaEth:
       return megaethChainId
     case CoingeckoAssetPlatform.Linea:

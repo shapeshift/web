@@ -476,7 +476,8 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
         // Fallback: WETH9 Withdrawal(address indexed src, uint256 wad) event
         // On OP Stack L2s and other chains, WETH.withdraw() emits Withdrawal instead of Transfer-to-zero
         if (internalTxs.length === 0) {
-          const WITHDRAWAL_TOPIC = '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65'
+          const WITHDRAWAL_TOPIC =
+            '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65'
           const withdrawalLogs = receipt.logs.filter(
             log =>
               log.address &&

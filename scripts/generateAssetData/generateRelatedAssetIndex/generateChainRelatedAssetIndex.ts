@@ -4,6 +4,7 @@ import {
   arbitrumAssetId,
   baseAssetId,
   bobAssetId,
+  cronosAssetId,
   ethAssetId,
   FEE_ASSET_IDS,
   foxAssetId,
@@ -89,10 +90,9 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f': [
     'eip155:59144/erc20:0x4af15ec2a0bd43db75dd04e62faa3b8ef36b00d5',
   ],
-  // CRO on Ethereum <-> CRO native on Cronos
-  'eip155:1/erc20:0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b': ['eip155:25/slip44:60'],
-  // FTM on Ethereum <-> S native on Sonic
-  'eip155:1/erc20:0x4e15361fd6b4bb609fa63c81a2be19d873717870': [sonicAssetId],
+  // Native chain tokens as keys (isPrimary=true) with their Ethereum ERC20 counterparts as values
+  [sonicAssetId]: ['eip155:1/erc20:0x4e15361fd6b4bb609fa63c81a2be19d873717870'],
+  [cronosAssetId]: ['eip155:1/erc20:0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b'],
 }
 
 const getManualRelatedAssetIds = (

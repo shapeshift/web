@@ -3,6 +3,7 @@ import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconne
 import type { Chain } from 'viem/chains'
 import {
   arbitrum,
+  [2026-02-21 11:17:23]   WARNING: viem chain 'cronos' not found in codebase imports. Checking viem exports...,
   avalanche,
   base,
   bsc,
@@ -65,6 +66,7 @@ export const walletConnectV2OptionalChains: AtLeastOneViemChain = (() => {
     arbitrum,
     base,
     ink,
+    [2026-02-21 11:17:23]   WARNING: viem chain 'cronos' not found in codebase imports. Checking viem exports...,
   ]
 
   if (config.VITE_FEATURE_MONAD) {
@@ -108,6 +110,7 @@ const {
   VITE_HYPEREVM_NODE_URL,
   VITE_PLASMA_NODE_URL,
   VITE_KATANA_NODE_URL,
+  ,
 } = config
 
 const walletConnectV2RpcMap: Record<number, string> = {
@@ -120,6 +123,7 @@ const walletConnectV2RpcMap: Record<number, string> = {
   [CHAIN_REFERENCE.ArbitrumMainnet]: VITE_ARBITRUM_NODE_URL,
   [CHAIN_REFERENCE.BaseMainnet]: VITE_BASE_NODE_URL,
   [CHAIN_REFERENCE.InkMainnet]: VITE_INK_NODE_URL,
+  []: ,
 }
 
 if (config.VITE_FEATURE_MONAD) {

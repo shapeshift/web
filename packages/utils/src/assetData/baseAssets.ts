@@ -469,6 +469,9 @@ export const hemi: Readonly<Asset> = Object.freeze({
   explorer: 'https://explorer.hemi.xyz',
   explorerAddressLink: 'https://explorer.hemi.xyz/address/',
   explorerTxLink: 'https://explorer.hemi.xyz/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
 export const linea: Readonly<Asset> = Object.freeze({
   assetId: caip.lineaAssetId,
   chainId: caip.lineaChainId,

@@ -68,6 +68,7 @@ describe('adapters:coingecko', () => {
         chainReference: CHAIN_REFERENCE.HemiMainnet,
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Hemi,
+      })
       const ethOnLinea = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.LineaMainnet,
@@ -115,9 +116,9 @@ describe('adapters:coingecko', () => {
         ethOnOptimism,
         ethOnArbitrum,
         ethOnBase,
+        ethOnBob,
         ethOnHemi,
         ethOnLinea,
-        ethOnBob,
         ethOnMode,
         ethOnMegaEth,
         ethOnInk,

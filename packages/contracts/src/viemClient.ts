@@ -157,6 +157,8 @@ export const viemKatanaClient = createPublicClient({
 export const viemHemiClient = createPublicClient({
   chain: hemi,
   transport: fallback([process.env.VITE_HEMI_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemLineaClient = createPublicClient({
   chain: linea,
   transport: fallback([process.env.VITE_LINEA_NODE_URL].filter(Boolean).map(url => http(url))),

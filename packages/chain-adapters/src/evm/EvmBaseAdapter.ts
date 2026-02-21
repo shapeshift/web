@@ -361,6 +361,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ether',
         symbol: 'ETH',
         explorer: 'https://explorer.hemi.xyz',
+      },
       [KnownChainIds.LineaMainnet]: {
         name: 'Ethereum',
         symbol: 'ETH',

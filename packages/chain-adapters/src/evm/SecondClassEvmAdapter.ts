@@ -4,6 +4,7 @@ import {
   berachainChainId,
   bobChainId,
   cronosChainId,
+  hemiChainId,
   hyperEvmChainId,
   mantleChainId,
   modeChainId,
@@ -56,6 +57,7 @@ const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [bobChainId]: '0x4200000000000000000000000000000000000006',
   [modeChainId]: '0x4200000000000000000000000000000000000006',
   [soneiumChainId]: '0x4200000000000000000000000000000000000006',
+  [hemiChainId]: '0x4200000000000000000000000000000000000006',
 }
 const BATCH_SIZE = 500
 

@@ -244,6 +244,7 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: hemi.explorer,
           explorerAddressLink: hemi.explorerAddressLink,
           explorerTxLink: hemi.explorerTxLink,
+        }
       case berachainChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.erc20,

@@ -4,27 +4,38 @@ import {
   avalancheChainId,
   baseChainId,
   bchChainId,
+  berachainChainId,
+  bobChainId,
   bscChainId,
   btcChainId,
   cosmosChainId,
+  cronosChainId,
   dogeChainId,
   ethChainId,
   gnosisChainId,
   hyperEvmChainId,
+  inkChainId,
   katanaChainId,
+  lineaChainId,
   ltcChainId,
+  mantleChainId,
   mayachainChainId,
+  megaethChainId,
+  modeChainId,
   monadChainId,
   nearChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  scrollChainId,
   solanaChainId,
+  sonicChainId,
   starknetChainId,
   suiChainId,
   thorchainChainId,
   tonChainId,
   tronChainId,
+  unichainChainId,
   zecChainId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -37,23 +48,34 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
+  supportsBerachain,
+  supportsBob,
   supportsBSC,
   supportsBTC,
   supportsCosmos,
+  supportsCronos,
   supportsETH,
   supportsGnosis,
   supportsHyperEvm,
+  supportsInk,
   supportsKatana,
+  supportsLinea,
+  supportsMantle,
   supportsMayachain,
+  supportsMegaEth,
+  supportsMode,
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
   supportsPolygon,
+  supportsScroll,
   supportsSolana,
+  supportsSonic,
   supportsStarknet,
   supportsSui,
   supportsThorchain,
   supportsTron,
+  supportsUnichain,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import { useMemo } from 'react'
 
@@ -146,10 +168,21 @@ export const walletSupportsChain = ({
   if (!hasRuntimeSupport) return false
 
   const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
+  const isInkEnabled = selectFeatureFlag(store.getState(), 'Ink')
+  const isBobEnabled = selectFeatureFlag(store.getState(), 'Bob')
   const isKatanaEnabled = selectFeatureFlag(store.getState(), 'Katana')
+  const isMantleEnabled = selectFeatureFlag(store.getState(), 'Mantle')
+  const isLineaEnabled = selectFeatureFlag(store.getState(), 'Linea')
+  const isCronosEnabled = selectFeatureFlag(store.getState(), 'Cronos')
+  const isSonicEnabled = selectFeatureFlag(store.getState(), 'Sonic')
+  const isUnichainEnabled = selectFeatureFlag(store.getState(), 'Unichain')
+  const isMegaEthEnabled = selectFeatureFlag(store.getState(), 'MegaEth')
+  const isBerachainEnabled = selectFeatureFlag(store.getState(), 'Berachain')
+  const isModeEnabled = selectFeatureFlag(store.getState(), 'Mode')
   const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
   const isNearEnabled = selectFeatureFlag(store.getState(), 'Near')
   const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')
+  const isScrollEnabled = selectFeatureFlag(store.getState(), 'Scroll')
   const isStarknetEnabled = selectFeatureFlag(store.getState(), 'Starknet')
   const isTonEnabled = selectFeatureFlag(store.getState(), 'Ton')
 
@@ -187,10 +220,32 @@ export const walletSupportsChain = ({
       return isMonadEnabled && supportsMonad(wallet)
     case hyperEvmChainId:
       return isHyperEvmEnabled && supportsHyperEvm(wallet)
+    case mantleChainId:
+      return isMantleEnabled && supportsMantle(wallet)
+    case inkChainId:
+      return isInkEnabled && supportsInk(wallet)
+    case megaethChainId:
+      return isMegaEthEnabled && supportsMegaEth(wallet)
+    case berachainChainId:
+      return isBerachainEnabled && supportsBerachain(wallet)
     case plasmaChainId:
       return isPlasmaEnabled && supportsPlasma(wallet)
     case katanaChainId:
       return isKatanaEnabled && supportsKatana(wallet)
+    case lineaChainId:
+      return isLineaEnabled && supportsLinea(wallet)
+    case scrollChainId:
+      return isScrollEnabled && supportsScroll(wallet)
+    case cronosChainId:
+      return isCronosEnabled && supportsCronos(wallet)
+    case sonicChainId:
+      return isSonicEnabled && supportsSonic(wallet)
+    case unichainChainId:
+      return isUnichainEnabled && supportsUnichain(wallet)
+    case bobChainId:
+      return isBobEnabled && supportsBob(wallet)
+    case modeChainId:
+      return isModeEnabled && supportsMode(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

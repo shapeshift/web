@@ -441,6 +441,7 @@ export type TradeQuoteStep = {
     method?: string
     args?: { type: string; value: unknown }[]
     memo?: string
+    serializedSolanaTransaction?: string
   }
   sunioTransactionMetadata?: {
     route: {

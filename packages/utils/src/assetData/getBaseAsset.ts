@@ -8,27 +8,38 @@ import {
   atom,
   avax,
   base,
+  berachain,
   bitcoin,
   bitcoincash,
   bnbsmartchain,
+  bobChain,
+  cronos,
   dogecoin,
   ethereum,
   gnosis,
   hyperevm,
+  ink,
   katana,
+  linea,
   litecoin,
+  mantle,
   mayachain,
+  megaeth,
+  modeChain,
   monad,
   near,
   optimism,
   plasma,
   polygon,
+  scroll,
   solana,
+  sonic,
   starknet,
   sui,
   thorchain,
   ton,
   tron,
+  unichainChain,
   zcash,
 } from './baseAssets'
 
@@ -79,8 +90,30 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return hyperevm
     case KnownChainIds.PlasmaMainnet:
       return plasma
+    case KnownChainIds.MantleMainnet:
+      return mantle
+    case KnownChainIds.InkMainnet:
+      return ink
+    case KnownChainIds.MegaEthMainnet:
+      return megaeth
+    case KnownChainIds.BerachainMainnet:
+      return berachain
+    case KnownChainIds.CronosMainnet:
+      return cronos
     case KnownChainIds.KatanaMainnet:
       return katana
+    case KnownChainIds.LineaMainnet:
+      return linea
+    case KnownChainIds.ScrollMainnet:
+      return scroll
+    case KnownChainIds.SonicMainnet:
+      return sonic
+    case KnownChainIds.UnichainMainnet:
+      return unichainChain
+    case KnownChainIds.BobMainnet:
+      return bobChain
+    case KnownChainIds.ModeMainnet:
+      return modeChain
     case KnownChainIds.NearMainnet:
       return near
     case KnownChainIds.ZcashMainnet:

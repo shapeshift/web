@@ -20,6 +20,7 @@ import mantle from '@/plugins/mantle'
 import mayachain from '@/plugins/mayachain'
 import megaeth from '@/plugins/megaeth'
 import mobile from '@/plugins/mobile'
+import mode from '@/plugins/mode'
 import monad from '@/plugins/monad'
 import near from '@/plugins/near'
 import optimism from '@/plugins/optimism'
@@ -58,6 +59,7 @@ export const activePlugins = [
   unichain,
   litecoin,
   mantle,
+  mode,
   mayachain,
   megaeth,
   mobile,

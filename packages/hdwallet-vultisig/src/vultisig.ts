@@ -228,6 +228,7 @@ export class VultisigHDWallet
   readonly _supportsKatana = false
   readonly _supportsSonic = false
   readonly _supportsBob = false
+  readonly _supportsMode = false
   readonly _supportsHyperEvm = false
   readonly _supportsMantle = false
   readonly _supportsInk = false

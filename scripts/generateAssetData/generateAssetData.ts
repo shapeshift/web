@@ -41,6 +41,7 @@ import * as katana from './katana'
 import * as linea from './linea'
 import * as mantle from './mantle'
 import * as megaeth from './megaeth'
+import * as mode from './mode'
 import * as monad from './monad'
 import * as near from './near'
 import * as optimism from './optimism'
@@ -89,6 +90,7 @@ const generateAssetData = async () => {
   const megaethAssets = await megaeth.getAssets()
   const berachainAssets = await berachain.getAssets()
   const scrollAssets = await scroll.getAssets()
+  const modeAssets = await mode.getAssets()
   const plasmaAssets = await plasma.getAssets()
   const sonicAssets = await sonic.getAssets()
   const solanaAssets = await solana.getAssets()
@@ -131,6 +133,7 @@ const generateAssetData = async () => {
     ...megaethAssets,
     ...berachainAssets,
     ...scrollAssets,
+    ...modeAssets,
     ...plasmaAssets,
     ...sonicAssets,
     ...solanaAssets,

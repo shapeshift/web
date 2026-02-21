@@ -20,6 +20,7 @@ import { getKatanaTransactionStatus } from '@/lib/utils/katana'
 import { getLineaTransactionStatus } from '@/lib/utils/linea'
 import { getMantleTransactionStatus } from '@/lib/utils/mantle'
 import { getMegaEthTransactionStatus } from '@/lib/utils/megaeth'
+import { getModeTransactionStatus } from '@/lib/utils/mode'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getNearTransactionStatus } from '@/lib/utils/near'
 import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
@@ -276,6 +277,13 @@ export const useSendActionSubscriber = () => {
                   const bobTxStatus = await getBobTransactionStatus(txHash, bobNodeUrl)
                   isConfirmed =
                     bobTxStatus === TxStatus.Confirmed || bobTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.ModeMainnet: {
+                  const modeNodeUrl = getConfig().VITE_MODE_NODE_URL
+                  const modeTxStatus = await getModeTransactionStatus(txHash, modeNodeUrl)
+                  isConfirmed =
+                    modeTxStatus === TxStatus.Confirmed || modeTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.NearMainnet: {

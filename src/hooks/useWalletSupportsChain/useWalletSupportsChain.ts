@@ -21,6 +21,7 @@ import {
   mantleChainId,
   mayachainChainId,
   megaethChainId,
+  modeChainId,
   monadChainId,
   nearChainId,
   optimismChainId,
@@ -62,6 +63,7 @@ import {
   supportsMantle,
   supportsMayachain,
   supportsMegaEth,
+  supportsMode,
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
@@ -176,6 +178,7 @@ export const walletSupportsChain = ({
   const isUnichainEnabled = selectFeatureFlag(store.getState(), 'Unichain')
   const isMegaEthEnabled = selectFeatureFlag(store.getState(), 'MegaEth')
   const isBerachainEnabled = selectFeatureFlag(store.getState(), 'Berachain')
+  const isModeEnabled = selectFeatureFlag(store.getState(), 'Mode')
   const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
   const isNearEnabled = selectFeatureFlag(store.getState(), 'Near')
   const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')
@@ -241,6 +244,8 @@ export const walletSupportsChain = ({
       return isUnichainEnabled && supportsUnichain(wallet)
     case bobChainId:
       return isBobEnabled && supportsBob(wallet)
+    case modeChainId:
+      return isModeEnabled && supportsMode(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

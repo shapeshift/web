@@ -17,6 +17,7 @@ import {
   lineaChainId,
   mantleChainId,
   megaethChainId,
+  modeChainId,
   monadChainId,
   nearChainId,
   optimismChainId,
@@ -49,6 +50,7 @@ import {
   linea,
   mantle,
   megaeth,
+  modeChain,
   monad,
   near,
   optimism,
@@ -262,6 +264,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: bobChain.explorer,
           explorerAddressLink: bobChain.explorerAddressLink,
           explorerTxLink: bobChain.explorerTxLink,
+        }
+      case modeChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: modeChain.explorer,
+          explorerAddressLink: modeChain.explorerAddressLink,
+          explorerTxLink: modeChain.explorerTxLink,
         }
       case solanaChainId:
         return {

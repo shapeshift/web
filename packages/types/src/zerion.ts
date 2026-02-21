@@ -13,6 +13,7 @@ import {
   katanaChainId,
   lineaChainId,
   mantleChainId,
+  modeChainId,
   monadChainId,
   optimismChainId,
   plasmaChainId,
@@ -48,6 +49,7 @@ export const ZERION_CHAINS = [
   'sonic',
   'unichain',
   'bob',
+  'mode',
   // not yet
   // 'aurora',
   // 'fantom',
@@ -78,6 +80,7 @@ export const ZERION_CHAINS_MAP: Record<ZerionChainId, ChainId> = {
   sonic: sonicChainId,
   unichain: unichainChainId,
   bob: bobChainId,
+  mode: modeChainId,
 }
 
 export const zerionChainIdToChainId = (chainId: ZerionChainId): ChainId | undefined =>

@@ -47,6 +47,7 @@ export type FeatureFlags = {
   Sonic: boolean
   Unichain: boolean
   Bob: boolean
+  Mode: boolean
   Zcash: boolean
   ThorSwap: boolean
   WalletConnectToDapps: boolean
@@ -205,6 +206,7 @@ const initialState: Preferences = {
     Sonic: getConfig().VITE_FEATURE_SONIC,
     Unichain: getConfig().VITE_FEATURE_UNICHAIN,
     Bob: getConfig().VITE_FEATURE_BOB,
+    Mode: getConfig().VITE_FEATURE_MODE,
     Zcash: getConfig().VITE_FEATURE_ZCASH,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,
     WalletConnectToDappsV2: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,

@@ -25,6 +25,7 @@ import {
   mantle,
   mayachain,
   megaeth,
+  modeChain,
   monad,
   near,
   optimism,
@@ -111,6 +112,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return unichainChain
     case KnownChainIds.BobMainnet:
       return bobChain
+    case KnownChainIds.ModeMainnet:
+      return modeChain
     case KnownChainIds.NearMainnet:
       return near
     case KnownChainIds.ZcashMainnet:

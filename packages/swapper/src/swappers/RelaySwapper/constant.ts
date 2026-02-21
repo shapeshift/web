@@ -15,6 +15,7 @@ import {
   lineaChainId,
   mantleChainId,
   megaethChainId,
+  modeChainId,
   monadChainId,
   optimismChainId,
   plasmaChainId,
@@ -42,6 +43,7 @@ import {
   linea,
   mainnet as ethereum,
   mantle,
+  mode,
   monad,
   optimism,
   plasma,
@@ -82,6 +84,7 @@ export const chainIdToRelayChainId = {
   [sonicChainId]: sonic.id,
   [unichainChainId]: unichain.id,
   [bobChainId]: bob.id,
+  [modeChainId]: mode.id,
 }
 
 export enum RelayStatusMessage {

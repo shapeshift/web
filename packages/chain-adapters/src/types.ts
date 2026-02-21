@@ -58,6 +58,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.SonicMainnet]: evm.Account
     [KnownChainIds.UnichainMainnet]: evm.Account
     [KnownChainIds.BobMainnet]: evm.Account
+    [KnownChainIds.ModeMainnet]: evm.Account
     [KnownChainIds.BitcoinMainnet]: utxo.Account
     [KnownChainIds.BitcoinCashMainnet]: utxo.Account
     [KnownChainIds.DogecoinMainnet]: utxo.Account
@@ -119,6 +120,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.SonicMainnet]: evm.FeeData
     [KnownChainIds.UnichainMainnet]: evm.FeeData
     [KnownChainIds.BobMainnet]: evm.FeeData
+    [KnownChainIds.ModeMainnet]: evm.FeeData
     [KnownChainIds.BitcoinMainnet]: utxo.FeeData
     [KnownChainIds.BitcoinCashMainnet]: utxo.FeeData
     [KnownChainIds.DogecoinMainnet]: utxo.FeeData
@@ -213,6 +215,7 @@ export type ChainSignTx = {
   [KnownChainIds.SonicMainnet]: ETHSignTx
   [KnownChainIds.UnichainMainnet]: ETHSignTx
   [KnownChainIds.BobMainnet]: ETHSignTx
+  [KnownChainIds.ModeMainnet]: ETHSignTx
   [KnownChainIds.BitcoinMainnet]: BTCSignTx
   [KnownChainIds.BitcoinCashMainnet]: BTCSignTx
   [KnownChainIds.DogecoinMainnet]: BTCSignTx
@@ -279,6 +282,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.SonicMainnet]: evm.BuildTxInput
     [KnownChainIds.UnichainMainnet]: evm.BuildTxInput
     [KnownChainIds.BobMainnet]: evm.BuildTxInput
+    [KnownChainIds.ModeMainnet]: evm.BuildTxInput
     [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.BuildTxInput
     [KnownChainIds.DogecoinMainnet]: utxo.BuildTxInput
@@ -395,6 +399,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.SonicMainnet]: evm.GetFeeDataInput
     [KnownChainIds.UnichainMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BobMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.ModeMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BitcoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.DogecoinMainnet]: utxo.GetFeeDataInput
@@ -476,6 +481,7 @@ export enum ChainAdapterDisplayName {
   Sonic = 'Sonic',
   Unichain = 'Unichain',
   Bob = 'BOB',
+  Mode = 'Mode',
   Cosmos = 'Cosmos',
   Bitcoin = 'Bitcoin',
   BitcoinCash = 'Bitcoin Cash',

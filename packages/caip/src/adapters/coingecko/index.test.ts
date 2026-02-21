@@ -93,6 +93,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Bob,
       })
+      const ethOnMode = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.ModeMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Mode,
+      })
       expect(coingeckoToAssetIds('ethereum')).toEqual([
         ethOnEthereum,
         ethOnOptimism,
@@ -100,6 +106,7 @@ describe('adapters:coingecko', () => {
         ethOnBase,
         ethOnBob,
         ethOnLinea,
+        ethOnMode,
         ethOnMegaEth,
         ethOnInk,
         ethOnScroll,

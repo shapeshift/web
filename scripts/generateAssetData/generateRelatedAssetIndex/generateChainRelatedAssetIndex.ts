@@ -13,6 +13,7 @@ import {
   katanaAssetId,
   lineaAssetId,
   megaethAssetId,
+  modeAssetId,
   optimismAssetId,
   scrollAssetId,
   sonicAssetId,
@@ -65,6 +66,7 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     scrollAssetId,
     unichainAssetId,
     bobAssetId,
+    modeAssetId,
   ],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
   [starknetAssetId]: [

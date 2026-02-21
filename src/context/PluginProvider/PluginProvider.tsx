@@ -124,6 +124,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.Sonic && chainId === KnownChainIds.SonicMainnet) return false
       if (!featureFlags.Unichain && chainId === KnownChainIds.UnichainMainnet) return false
       if (!featureFlags.Bob && chainId === KnownChainIds.BobMainnet) return false
+      if (!featureFlags.Mode && chainId === KnownChainIds.ModeMainnet) return false
       if (!featureFlags.Plasma && chainId === KnownChainIds.PlasmaMainnet) return false
       if (!featureFlags.Ink && chainId === KnownChainIds.InkMainnet) return false
       if (!featureFlags.MegaEth && chainId === KnownChainIds.MegaEthMainnet) return false

@@ -52,6 +52,8 @@ export const rpcUrlByChainId = (chainId: EvmChainId): string => {
         return process.env.VITE_UNICHAIN_NODE_URL
       case KnownChainIds.BobMainnet:
         return process.env.VITE_BOB_NODE_URL
+      case KnownChainIds.ModeMainnet:
+        return process.env.VITE_MODE_NODE_URL
       default:
         return assertUnreachable(chainId)
     }

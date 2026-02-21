@@ -40,6 +40,7 @@ export type FeatureFlags = {
   Ink: boolean
   MegaEth: boolean
   Berachain: boolean
+  Cronos: boolean
   Katana: boolean
   Linea: boolean
   Scroll: boolean
@@ -194,6 +195,7 @@ const initialState: Preferences = {
     Ink: getConfig().VITE_FEATURE_INK,
     MegaEth: getConfig().VITE_FEATURE_MEGAETH,
     Berachain: getConfig().VITE_FEATURE_BERACHAIN,
+    Cronos: getConfig().VITE_FEATURE_CRONOS,
     Katana: getConfig().VITE_FEATURE_KATANA,
     Linea: getConfig().VITE_FEATURE_LINEA,
     Scroll: getConfig().VITE_FEATURE_SCROLL,

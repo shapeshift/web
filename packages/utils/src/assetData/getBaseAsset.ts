@@ -12,6 +12,7 @@ import {
   bitcoin,
   bitcoincash,
   bnbsmartchain,
+  cronos,
   dogecoin,
   ethereum,
   gnosis,
@@ -93,6 +94,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return megaeth
     case KnownChainIds.BerachainMainnet:
       return berachain
+    case KnownChainIds.CronosMainnet:
+      return cronos
     case KnownChainIds.KatanaMainnet:
       return katana
     case KnownChainIds.LineaMainnet:

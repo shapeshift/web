@@ -20,6 +20,7 @@ import mantle from "./eip155_5000/adapter.json";
 import berachain from "./eip155_80094/adapter.json";
 import ink from "./eip155_57073/adapter.json";
 import scroll from "./eip155_534352/adapter.json";
+import cronos from "./eip155_25/adapter.json";
 import cosmos from "./cosmos_cosmoshub-4/adapter.json";
 import thorchain from "./cosmos_thorchain-1/adapter.json";
 import mayachain from "./cosmos_mayachain-mainnet-v1/adapter.json";
@@ -54,6 +55,7 @@ export {
   berachain,
   ink,
   scroll,
+  cronos,
   cosmos,
   thorchain,
   mayachain,

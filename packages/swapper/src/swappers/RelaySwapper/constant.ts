@@ -5,6 +5,7 @@ import {
   berachainChainId,
   bscChainId,
   btcChainId,
+  cronosChainId,
   ethChainId,
   gnosisChainId,
   hyperEvmChainId,
@@ -29,6 +30,7 @@ import {
   base,
   berachain,
   bsc,
+  cronos,
   gnosis,
   hyperEvm,
   ink,
@@ -70,6 +72,7 @@ export const chainIdToRelayChainId = {
   [lineaChainId]: linea.id,
   [berachainChainId]: berachain.id,
   [scrollChainId]: scroll.id,
+  [cronosChainId]: cronos.id,
 }
 
 export enum RelayStatusMessage {

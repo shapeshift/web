@@ -34,7 +34,7 @@ All integration points required when adding a new second-class EVM chain to Shap
 
 7. **Feature Flag** - Multiple files:
    - `src/state/slices/preferencesSlice/preferencesSlice.ts` - FeatureFlags type + initial state
-   - `src/config.ts` - `VITE_FEATURE_<CHAIN>` validation + `VITE_<CHAIN>_NODE_URL` validation
+   - `src/config.ts` - `VITE_FEATURE_<CHAIN>` validation (`bool({ default: false })`) + `VITE_<CHAIN>_NODE_URL` validation (must use `url()`, NOT `str()`)
    - `src/test/mocks/store.ts` - Mock default
    - `src/vite-env.d.ts` - Type declarations
    - `.env` - Production default (usually `false`)
@@ -197,6 +197,7 @@ Some chains have an ERC20 contract that represents the native token (e.g., Mantl
 
 40. **Related Asset Index** - `public/generated/relatedAssetIndex.json` + `scripts/generateAssetData/generateRelatedAssetIndex/generateRelatedAssetIndex.ts`
     - If the native asset is ETH: verify it's in `manualRelatedAssetIndex[ethAssetId]` array
+    - **If the native asset is NOT ETH** (e.g., CRO, MNT): research whether the same token exists on Ethereum mainnet as an ERC20 (e.g., CRO has `eip155:1/erc20:0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b`). If it does, add a manual mapping in `manualRelatedAssetIndex` in BOTH `generateRelatedAssetIndex.ts` AND `generateChainRelatedAssetIndex.ts`, linking the Ethereum ERC20 to the chain's native `slip44:60`. Use a research agent to check CoinGecko/block explorer if unsure. Without this, the chain's native token won't show as a "Popular Asset" when filtering by the chain.
     - Verify `relatedAssetIndex.json` has been regenerated and contains entries for the new chain's tokens
     - Check `generatedAssetData.json` - the chain's ERC20 tokens should have `relatedAssetKey` values linking them to mainnet counterparts
     - Without this, tokens won't appear in the trade modal "Popular Assets" section

@@ -197,6 +197,9 @@ describe('adapters:coingecko:utils', () => {
         'eip155:57073': {
           'eip155:57073/slip44:60': 'ethereum',
         },
+        'eip155:25': {
+          'eip155:25/slip44:60': 'crypto-com-chain',
+        },
         'near:mainnet': {
           'near:mainnet/slip44:397': 'near',
         },

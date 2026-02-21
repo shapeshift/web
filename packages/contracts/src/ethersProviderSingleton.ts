@@ -38,6 +38,8 @@ export const rpcUrlByChainId = (chainId: EvmChainId): string => {
         return process.env.VITE_MEGAETH_NODE_URL
       case KnownChainIds.BerachainMainnet:
         return process.env.VITE_BERACHAIN_NODE_URL
+      case KnownChainIds.CronosMainnet:
+        return process.env.VITE_CRONOS_NODE_URL
       case KnownChainIds.KatanaMainnet:
         return process.env.VITE_KATANA_NODE_URL
       case KnownChainIds.LineaMainnet:

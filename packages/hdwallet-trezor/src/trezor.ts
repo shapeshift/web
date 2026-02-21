@@ -303,6 +303,7 @@ export class TrezorHDWallet
   readonly _supportsBerachain = true
   readonly _supportsLinea = true
   readonly _supportsScroll = true
+  readonly _supportsCronos = true
   readonly _supportsKavaInfo = true
   readonly _supportsTerraInfo = true
   readonly _supportsSolana = true

@@ -30,6 +30,7 @@ import * as berachain from './berachain'
 import * as bnbsmartchain from './bnbsmartchain'
 import { compressGeneratedAssets } from './compressAssets'
 import { ASSET_DATA_PATH, GENERATED_DIR, RELATED_ASSET_INDEX_PATH } from './constants'
+import * as cronos from './cronos'
 import * as ethereum from './ethereum'
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
 import * as gnosis from './gnosis'
@@ -79,6 +80,7 @@ const generateAssetData = async () => {
   const mantleAssets = await mantle.getAssets()
   const inkAssets = await ink.getAssets()
   const lineaAssets = await linea.getAssets()
+  const cronosAssets = await cronos.getAssets()
   const megaethAssets = await megaeth.getAssets()
   const berachainAssets = await berachain.getAssets()
   const scrollAssets = await scroll.getAssets()
@@ -117,6 +119,7 @@ const generateAssetData = async () => {
     ...mantleAssets,
     ...inkAssets,
     ...lineaAssets,
+    ...cronosAssets,
     ...megaethAssets,
     ...berachainAssets,
     ...scrollAssets,

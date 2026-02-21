@@ -113,6 +113,7 @@ export const mockStore: ReduxState = {
       Ink: false,
       MegaEth: false,
       Berachain: false,
+      Cronos: false,
       Katana: false,
       Linea: false,
       Scroll: false,

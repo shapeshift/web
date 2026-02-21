@@ -9,6 +9,7 @@ import {
   base,
   berachain,
   bsc,
+  cronos,
   gnosis,
   hyperEvm,
   ink,
@@ -137,6 +138,11 @@ export const viemScrollClient = createPublicClient({
   transport: fallback([process.env.VITE_SCROLL_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemCronosClient = createPublicClient({
+  chain: cronos,
+  transport: fallback([process.env.VITE_CRONOS_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemKatanaClient = createPublicClient({
   chain: katana,
   transport: fallback([process.env.VITE_KATANA_NODE_URL].filter(Boolean).map(url => http(url))),
@@ -163,6 +169,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.InkMainnet]: viemInkClient,
   [KnownChainIds.MegaEthMainnet]: viemMegaEthClient,
   [KnownChainIds.BerachainMainnet]: viemBerachainClient,
+  [KnownChainIds.CronosMainnet]: viemCronosClient,
   [KnownChainIds.KatanaMainnet]: viemKatanaClient,
   [KnownChainIds.LineaMainnet]: viemLineaClient,
   [KnownChainIds.ScrollMainnet]: viemScrollClient,
@@ -184,6 +191,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.InkMainnet]: ink.id,
   [KnownChainIds.MegaEthMainnet]: megaeth.id,
   [KnownChainIds.BerachainMainnet]: berachain.id,
+  [KnownChainIds.CronosMainnet]: cronos.id,
   [KnownChainIds.KatanaMainnet]: katana.id,
   [KnownChainIds.LineaMainnet]: linea.id,
   [KnownChainIds.ScrollMainnet]: scroll.id,
@@ -205,6 +213,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [ink.id]: viemInkClient,
   [megaeth.id]: viemMegaEthClient,
   [berachain.id]: viemBerachainClient,
+  [cronos.id]: viemCronosClient,
   [katana.id]: viemKatanaClient,
   [linea.id]: viemLineaClient,
   [scroll.id]: viemScrollClient,

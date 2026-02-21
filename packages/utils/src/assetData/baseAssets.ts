@@ -386,6 +386,23 @@ export const ink: Readonly<Asset> = Object.freeze({
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 
+export const cronos: Readonly<Asset> = Object.freeze({
+  assetId: caip.cronosAssetId,
+  chainId: caip.cronosChainId,
+  name: 'Cronos',
+  networkName: 'Cronos',
+  symbol: 'CRO',
+  precision: 18,
+  color: '#002D74',
+  networkColor: '#002D74',
+  icon: 'https://assets.relay.link/icons/25/light.png',
+  networkIcon: 'https://assets.relay.link/icons/25/light.png',
+  explorer: 'https://explorer.cronos.org',
+  explorerAddressLink: 'https://explorer.cronos.org/address/',
+  explorerTxLink: 'https://explorer.cronos.org/tx/',
+  relatedAssetKey: null,
+})
+
 export const megaeth: Readonly<Asset> = Object.freeze({
   assetId: caip.megaethAssetId,
   chainId: caip.megaethChainId,

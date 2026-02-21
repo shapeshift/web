@@ -22,6 +22,7 @@ export const mantleAssetId: AssetId = 'eip155:5000/slip44:60'
 export const inkAssetId: AssetId = 'eip155:57073/slip44:60'
 export const megaethAssetId: AssetId = 'eip155:4326/slip44:60'
 export const berachainAssetId: AssetId = 'eip155:80094/slip44:60'
+export const cronosAssetId: AssetId = 'eip155:25/slip44:60'
 export const katanaAssetId: AssetId = 'eip155:747474/slip44:60'
 export const lineaAssetId: AssetId = 'eip155:59144/slip44:60'
 export const scrollAssetId: AssetId = 'eip155:534352/slip44:60'
@@ -88,6 +89,7 @@ export const mantleChainId: ChainId = 'eip155:5000'
 export const inkChainId: ChainId = 'eip155:57073'
 export const megaethChainId: ChainId = 'eip155:4326'
 export const berachainChainId: ChainId = 'eip155:80094'
+export const cronosChainId: ChainId = 'eip155:25'
 export const katanaChainId: ChainId = 'eip155:747474'
 export const lineaChainId: ChainId = 'eip155:59144'
 export const scrollChainId: ChainId = 'eip155:534352'
@@ -145,6 +147,7 @@ export const CHAIN_REFERENCE = {
   InkMainnet: '57073',
   MegaEthMainnet: '4326',
   BerachainMainnet: '80094',
+  CronosMainnet: '25',
   KatanaMainnet: '747474', // https://docs.katana.network
   LineaMainnet: '59144', // https://docs.linea.build
   ScrollMainnet: '534352', // https://scrollscan.com
@@ -195,6 +198,7 @@ export const ASSET_REFERENCE = {
   Ink: '60', // evm chain which uses ethereum derivation path as common practice
   MegaEth: '60', // evm chain which uses ethereum derivation path as common practice
   Berachain: '60', // evm chain which uses ethereum derivation path as common practice
+  Cronos: '60', // evm chain which uses ethereum derivation path as common practice
   Katana: '60', // evm chain which uses ethereum derivation path as common practice
   Linea: '60', // evm chain which uses ethereum derivation path as common practice
   Scroll: '60', // evm chain which uses ethereum derivation path as common practice
@@ -230,6 +234,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.InkMainnet,
     CHAIN_REFERENCE.MegaEthMainnet,
     CHAIN_REFERENCE.BerachainMainnet,
+    CHAIN_REFERENCE.CronosMainnet,
     CHAIN_REFERENCE.KatanaMainnet,
     CHAIN_REFERENCE.LineaMainnet,
     CHAIN_REFERENCE.ScrollMainnet,
@@ -293,6 +298,7 @@ export const FEE_ASSET_IDS = [
   lineaAssetId,
   berachainAssetId,
   scrollAssetId,
+  cronosAssetId,
   solAssetId,
   tronAssetId,
   suiAssetId,

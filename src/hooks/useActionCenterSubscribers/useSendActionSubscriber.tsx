@@ -183,25 +183,6 @@ export const useSendActionSubscriber = () => {
                     suiTxStatus === TxStatus.Confirmed || suiTxStatus === TxStatus.Failed
                   break
                 }
-                case KnownChainIds.MonadMainnet:
-                case KnownChainIds.PlasmaMainnet:
-                case KnownChainIds.HyperEvmMainnet:
-                case KnownChainIds.MantleMainnet:
-                case KnownChainIds.CronosMainnet:
-                case KnownChainIds.MegaEthMainnet:
-                case KnownChainIds.BerachainMainnet:
-                case KnownChainIds.InkMainnet:
-                case KnownChainIds.KatanaMainnet:
-                case KnownChainIds.LineaMainnet:
-                case KnownChainIds.SonicMainnet:
-                case KnownChainIds.UnichainMainnet:
-                case KnownChainIds.BobMainnet:
-                case KnownChainIds.ModeMainnet: {
-                  const txStatus = await getSecondClassEvmTxStatus(chainId, txHash)
-                  if (!txStatus) return
-                  isConfirmed = txStatus === TxStatus.Confirmed || txStatus === TxStatus.Failed
-                  break
-                }
                 case KnownChainIds.NearMainnet: {
                   const nearTxStatus = await getNearTransactionStatus(txHash)
                   isConfirmed =
@@ -278,9 +259,16 @@ export const useSendActionSubscriber = () => {
                   }
                   break
                 }
-                default:
+                default: {
+                  // All second-class EVM chains are handled generically via adapter.getTransactionStatus()
+                  const txStatus = await getSecondClassEvmTxStatus(chainId, txHash)
+                  if (txStatus) {
+                    isConfirmed = txStatus === TxStatus.Confirmed || txStatus === TxStatus.Failed
+                    break
+                  }
                   console.error(`Unsupported second-class chain: ${chainId}`)
                   return
+                }
               }
 
               if (isConfirmed) {

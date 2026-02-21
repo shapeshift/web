@@ -118,6 +118,26 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     })
   }
 
+  async getTransactionStatus(txHash: string): Promise<TxStatus> {
+    try {
+      const receipt = await this.requestQueue.add(() => this.provider.getTransactionReceipt(txHash))
+
+      if (!receipt) return TxStatus.Pending
+
+      switch (receipt.status) {
+        case 1:
+          return TxStatus.Confirmed
+        case 0:
+          return TxStatus.Failed
+        default:
+          return TxStatus.Unknown
+      }
+    } catch (error) {
+      console.error(`[${this.getName()}] Error getting transaction status:`, error)
+      return TxStatus.Unknown
+    }
+  }
+
   async getAccount(pubkey: string): Promise<Account<T>> {
     try {
       const [balance, nonce] = await Promise.all([
@@ -151,26 +171,6 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
       } as Account<T>
     } catch (err) {
       throw new Error(`Failed to get account: ${err}`)
-    }
-  }
-
-  async getTransactionStatus(txHash: string): Promise<TxStatus> {
-    try {
-      const receipt = await this.requestQueue.add(() => this.provider.getTransactionReceipt(txHash))
-
-      if (!receipt) return TxStatus.Pending
-
-      switch (receipt.status) {
-        case 1:
-          return TxStatus.Confirmed
-        case 0:
-          return TxStatus.Failed
-        default:
-          return TxStatus.Unknown
-      }
-    } catch (error) {
-      console.error(`[${this.getName()}] Error getting transaction status:`, error)
-      return TxStatus.Unknown
     }
   }
 
@@ -471,6 +471,26 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
             to: getAddress(pubkey),
             value: log.args.value.toString(),
           })
+        }
+
+        // Fallback: WETH9 Withdrawal(address indexed src, uint256 wad) event
+        // On OP Stack L2s and other chains, WETH.withdraw() emits Withdrawal instead of Transfer-to-zero
+        if (internalTxs.length === 0) {
+          const WITHDRAWAL_TOPIC = '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65'
+          const withdrawalLogs = receipt.logs.filter(
+            log =>
+              log.address &&
+              isAddressEqual(getAddress(log.address), getAddress(wrappedNativeContract)) &&
+              log.topics[0] === WITHDRAWAL_TOPIC,
+          )
+
+          for (const log of withdrawalLogs) {
+            internalTxs.push({
+              from: wrappedNativeContract,
+              to: getAddress(pubkey),
+              value: BigInt(log.data).toString(),
+            })
+          }
         }
       }
 

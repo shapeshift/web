@@ -27,6 +27,7 @@ import {
   polygonAssetId,
   scrollAssetId,
   solAssetId,
+  sonicAssetId,
   starknetAssetId,
   suiAssetId,
   thorchainAssetId,
@@ -101,6 +102,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return lineaAssetId
     case KnownChainIds.ScrollMainnet:
       return scrollAssetId
+    case KnownChainIds.SonicMainnet:
+      return sonicAssetId
     case KnownChainIds.ZcashMainnet:
       return zecAssetId
     case KnownChainIds.NearMainnet:

@@ -33,6 +33,7 @@ export enum KnownChainIds {
   KatanaMainnet = 'eip155:747474',
   LineaMainnet = 'eip155:59144',
   ScrollMainnet = 'eip155:534352',
+  SonicMainnet = 'eip155:146',
   BitcoinMainnet = 'bip122:000000000019d6689c085ae165831e93',
   BitcoinCashMainnet = 'bip122:000000000000000000651ef99cb9fcbe',
   DogecoinMainnet = 'bip122:00000000001a91e3dace36e2be3bf030',
@@ -69,6 +70,7 @@ export type EvmChainId =
   | KnownChainIds.KatanaMainnet
   | KnownChainIds.LineaMainnet
   | KnownChainIds.ScrollMainnet
+  | KnownChainIds.SonicMainnet
 
 export type CosmosSdkChainId =
   | KnownChainIds.CosmosMainnet

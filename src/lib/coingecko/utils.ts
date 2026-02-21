@@ -21,6 +21,7 @@ import {
   optimismChainId,
   polygonChainId,
   solanaChainId,
+  sonicChainId,
   starknetChainId,
   suiChainId,
   thorchainChainId,
@@ -223,6 +224,7 @@ export const getCoingeckoSupportedChainIds = () => {
     ...(getConfig().VITE_FEATURE_KATANA ? [katanaChainId] : []),
     ...(getConfig().VITE_FEATURE_MANTLE ? [mantleChainId] : []),
     ...(getConfig().VITE_FEATURE_LINEA ? [lineaChainId] : []),
+    ...(getConfig().VITE_FEATURE_SONIC ? [sonicChainId] : []),
     ...(getConfig().VITE_FEATURE_TON ? [tonChainId] : []),
   ]
 }

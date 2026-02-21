@@ -22,6 +22,7 @@ import { getMegaEthTransactionStatus } from '@/lib/utils/megaeth'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getNearTransactionStatus } from '@/lib/utils/near'
 import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
+import { getSonicTransactionStatus } from '@/lib/utils/sonic'
 import { getStarknetTransactionStatus, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
 import { getTonTransactionStatus, isTonChainAdapter } from '@/lib/utils/ton'
@@ -250,6 +251,12 @@ export const useSendActionSubscriber = () => {
                   const lineaTxStatus = await getLineaTransactionStatus(txHash)
                   isConfirmed =
                     lineaTxStatus === TxStatus.Confirmed || lineaTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.SonicMainnet: {
+                  const sonicTxStatus = await getSonicTransactionStatus(txHash)
+                  isConfirmed =
+                    sonicTxStatus === TxStatus.Confirmed || sonicTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.NearMainnet: {

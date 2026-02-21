@@ -68,6 +68,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     readonly _supportsMonad = true
     readonly _supportsPlasma = true
     readonly _supportsKatana = true
+    readonly _supportsSonic = true
     readonly _supportsHyperEvm = true
     readonly _supportsMantle = true
     readonly _supportsInk = true

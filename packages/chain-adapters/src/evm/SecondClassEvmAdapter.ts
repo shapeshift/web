@@ -5,6 +5,7 @@ import {
   cronosChainId,
   hyperEvmChainId,
   mantleChainId,
+  sonicChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
@@ -46,6 +47,7 @@ const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [berachainChainId]: '0x6969696969696969696969696969696969696969',
   [mantleChainId]: '0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8',
   [cronosChainId]: '0x5C7F8A570d578ED84E63fdFA7b1eE72dEae1AE23',
+  [sonicChainId]: '0x039e2fB66102314Ce7b64Ce5Ce3E5183bc94aD38',
 }
 const BATCH_SIZE = 500
 
@@ -478,7 +480,7 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
       const confirmationsCount = blockNumber > 0 ? Number(currentBlockNumber) - blockNumber + 1 : 0
       const status = receipt.status === 'success' ? 1 : 0
       const fee = bnOrZero(receipt.gasUsed.toString())
-        .times(bnOrZero(receipt.effectiveGasPrice?.toString()))
+        .times(receipt.effectiveGasPrice?.toString())
         .toFixed(0)
 
       const parsedTx: evm.Tx = {

@@ -12,6 +12,7 @@ import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { getBerachainTransactionStatus } from '@/lib/utils/berachain'
+import { getBobTransactionStatus } from '@/lib/utils/bob'
 import { getCronosTransactionStatus } from '@/lib/utils/cronos'
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getInkTransactionStatus } from '@/lib/utils/ink'
@@ -268,6 +269,13 @@ export const useSendActionSubscriber = () => {
                   )
                   isConfirmed =
                     unichainTxStatus === TxStatus.Confirmed || unichainTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.BobMainnet: {
+                  const bobNodeUrl = getConfig().VITE_BOB_NODE_URL
+                  const bobTxStatus = await getBobTransactionStatus(txHash, bobNodeUrl)
+                  isConfirmed =
+                    bobTxStatus === TxStatus.Confirmed || bobTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.NearMainnet: {

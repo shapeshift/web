@@ -6,6 +6,7 @@ import {
   avalancheChainId,
   baseChainId,
   berachainChainId,
+  bobChainId,
   bscChainId,
   cronosChainId,
   ethChainId,
@@ -38,6 +39,7 @@ import {
   base,
   berachain,
   bnbsmartchain,
+  bobChain,
   cronos,
   ethereum,
   gnosis,
@@ -252,6 +254,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: unichainChain.explorer,
           explorerAddressLink: unichainChain.explorerAddressLink,
           explorerTxLink: unichainChain.explorerTxLink,
+        }
+      case bobChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: bobChain.explorer,
+          explorerAddressLink: bobChain.explorerAddressLink,
+          explorerTxLink: bobChain.explorerTxLink,
         }
       case solanaChainId:
         return {

@@ -18,6 +18,7 @@ export const SECOND_CLASS_CHAINS: readonly KnownChainIds[] = [
   KnownChainIds.LineaMainnet,
   KnownChainIds.SonicMainnet,
   KnownChainIds.UnichainMainnet,
+  KnownChainIds.BobMainnet,
   KnownChainIds.MegaEthMainnet,
   KnownChainIds.BerachainMainnet,
   KnownChainIds.ScrollMainnet,
@@ -46,6 +47,7 @@ export const knownChainIds = Object.values(KnownChainIds).filter(chainId => {
   if (chainId === KnownChainIds.LineaMainnet && !enabledFlags.Linea) return false
   if (chainId === KnownChainIds.SonicMainnet && !enabledFlags.Sonic) return false
   if (chainId === KnownChainIds.UnichainMainnet && !enabledFlags.Unichain) return false
+  if (chainId === KnownChainIds.BobMainnet && !enabledFlags.Bob) return false
   if (chainId === KnownChainIds.MegaEthMainnet && !enabledFlags.MegaEth) return false
   if (chainId === KnownChainIds.BerachainMainnet && !enabledFlags.Berachain) return false
   if (chainId === KnownChainIds.ScrollMainnet && !enabledFlags.Scroll) return false

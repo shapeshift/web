@@ -5,6 +5,7 @@ import {
   baseChainId,
   bchChainId,
   berachainChainId,
+  bobChainId,
   bscChainId,
   btcChainId,
   cosmosChainId,
@@ -227,6 +228,7 @@ export const getCoingeckoSupportedChainIds = () => {
     ...(getConfig().VITE_FEATURE_LINEA ? [lineaChainId] : []),
     ...(getConfig().VITE_FEATURE_SONIC ? [sonicChainId] : []),
     ...(getConfig().VITE_FEATURE_UNICHAIN ? [unichainChainId] : []),
+    ...(getConfig().VITE_FEATURE_BOB ? [bobChainId] : []),
     ...(getConfig().VITE_FEATURE_TON ? [tonChainId] : []),
   ]
 }

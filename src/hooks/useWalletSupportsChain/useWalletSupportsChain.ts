@@ -5,6 +5,7 @@ import {
   baseChainId,
   bchChainId,
   berachainChainId,
+  bobChainId,
   bscChainId,
   btcChainId,
   cosmosChainId,
@@ -47,6 +48,7 @@ import {
   supportsAvalanche,
   supportsBase,
   supportsBerachain,
+  supportsBob,
   supportsBSC,
   supportsBTC,
   supportsCosmos,
@@ -165,6 +167,7 @@ export const walletSupportsChain = ({
 
   const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
   const isInkEnabled = selectFeatureFlag(store.getState(), 'Ink')
+  const isBobEnabled = selectFeatureFlag(store.getState(), 'Bob')
   const isKatanaEnabled = selectFeatureFlag(store.getState(), 'Katana')
   const isMantleEnabled = selectFeatureFlag(store.getState(), 'Mantle')
   const isLineaEnabled = selectFeatureFlag(store.getState(), 'Linea')
@@ -236,6 +239,8 @@ export const walletSupportsChain = ({
       return isSonicEnabled && supportsSonic(wallet)
     case unichainChainId:
       return isUnichainEnabled && supportsUnichain(wallet)
+    case bobChainId:
+      return isBobEnabled && supportsBob(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

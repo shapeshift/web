@@ -28,6 +28,7 @@ import * as avalanche from './avalanche'
 import * as base from './base'
 import * as berachain from './berachain'
 import * as bnbsmartchain from './bnbsmartchain'
+import * as bob from './bob'
 import { compressGeneratedAssets } from './compressAssets'
 import { ASSET_DATA_PATH, GENERATED_DIR, RELATED_ASSET_INDEX_PATH } from './constants'
 import * as cronos from './cronos'
@@ -84,6 +85,7 @@ const generateAssetData = async () => {
   const lineaAssets = await linea.getAssets()
   const cronosAssets = await cronos.getAssets()
   const unichainAssets = await unichain.getAssets()
+  const bobAssets = await bob.getAssets()
   const megaethAssets = await megaeth.getAssets()
   const berachainAssets = await berachain.getAssets()
   const scrollAssets = await scroll.getAssets()
@@ -125,6 +127,7 @@ const generateAssetData = async () => {
     ...lineaAssets,
     ...cronosAssets,
     ...unichainAssets,
+    ...bobAssets,
     ...megaethAssets,
     ...berachainAssets,
     ...scrollAssets,

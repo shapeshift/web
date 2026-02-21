@@ -3,6 +3,7 @@ import {
   avalancheChainId,
   baseChainId,
   berachainChainId,
+  bobChainId,
   bscChainId,
   btcChainId,
   cronosChainId,
@@ -31,6 +32,7 @@ import {
   avalanche,
   base,
   berachain,
+  bob,
   bsc,
   cronos,
   gnosis,
@@ -79,6 +81,7 @@ export const chainIdToRelayChainId = {
   [cronosChainId]: cronos.id,
   [sonicChainId]: sonic.id,
   [unichainChainId]: unichain.id,
+  [bobChainId]: bob.id,
 }
 
 export enum RelayStatusMessage {

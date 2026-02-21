@@ -4,6 +4,7 @@ import {
   arbitrumChainId,
   baseChainId,
   berachainChainId,
+  bobChainId,
   bscChainId,
   cronosChainId,
   gnosisChainId,
@@ -134,6 +135,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_INK && asset.chainId === inkChainId) return false
       if (!config.VITE_FEATURE_SONIC && asset.chainId === sonicChainId) return false
       if (!config.VITE_FEATURE_UNICHAIN && asset.chainId === unichainChainId) return false
+      if (!config.VITE_FEATURE_BOB && asset.chainId === bobChainId) return false
       if (!config.VITE_FEATURE_MEGAETH && asset.chainId === megaethChainId) return false
       if (!config.VITE_FEATURE_LINEA && asset.chainId === lineaChainId) return false
       if (!config.VITE_FEATURE_BERACHAIN && asset.chainId === berachainChainId) return false

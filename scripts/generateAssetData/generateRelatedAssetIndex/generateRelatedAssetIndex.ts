@@ -3,6 +3,7 @@ import {
   adapters,
   arbitrumAssetId,
   baseAssetId,
+  bobAssetId,
   ethAssetId,
   FEE_ASSET_IDS,
   foxAssetId,
@@ -62,6 +63,7 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     megaethAssetId,
     scrollAssetId,
     unichainAssetId,
+    bobAssetId,
   ],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
   [starknetAssetId]: [

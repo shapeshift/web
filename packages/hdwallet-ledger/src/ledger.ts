@@ -430,6 +430,7 @@ export class LedgerHDWallet
   readonly _supportsPlasma = true
   readonly _supportsKatana = true
   readonly _supportsSonic = true
+  readonly _supportsBob = true
   readonly _supportsHyperEvm = true
   readonly _supportsMantle = true
   readonly _supportsInk = true

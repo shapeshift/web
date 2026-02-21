@@ -12,6 +12,7 @@ import {
   bitcoin,
   bitcoincash,
   bnbsmartchain,
+  bobChain,
   cronos,
   dogecoin,
   ethereum,
@@ -108,6 +109,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return sonic
     case KnownChainIds.UnichainMainnet:
       return unichainChain
+    case KnownChainIds.BobMainnet:
+      return bobChain
     case KnownChainIds.NearMainnet:
       return near
     case KnownChainIds.ZcashMainnet:

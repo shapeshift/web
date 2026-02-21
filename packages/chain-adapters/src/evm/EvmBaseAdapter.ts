@@ -12,6 +12,7 @@ import {
   supportsAvalanche,
   supportsBase,
   supportsBerachain,
+  supportsBob,
   supportsBSC,
   supportsCronos,
   supportsETH,
@@ -104,6 +105,7 @@ export const evmChainIds = [
   KnownChainIds.ScrollMainnet,
   KnownChainIds.SonicMainnet,
   KnownChainIds.UnichainMainnet,
+  KnownChainIds.BobMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -224,6 +226,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsSonic(wallet)
         case Number(fromChainId(KnownChainIds.UnichainMainnet).chainReference):
           return supportsUnichain(wallet)
+        case Number(fromChainId(KnownChainIds.BobMainnet).chainReference):
+          return supportsBob(wallet)
         default:
           return false
       }
@@ -360,6 +364,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ether',
         symbol: 'ETH',
         explorer: 'https://uniscan.xyz',
+      },
+      [KnownChainIds.BobMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://explorer.gobob.xyz',
       },
     }[this.chainId]
 

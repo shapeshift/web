@@ -92,6 +92,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   const isCronosEnabled = useAppSelector(state => selectFeatureFlag(state, 'Cronos'))
   const isSonicEnabled = useAppSelector(state => selectFeatureFlag(state, 'Sonic'))
   const isUnichainEnabled = useAppSelector(state => selectFeatureFlag(state, 'Unichain'))
+  const isBobEnabled = useAppSelector(state => selectFeatureFlag(state, 'Bob'))
   const [isSmallerThanLg] = useMediaQuery(`(max-width: ${breakpoints.lg})`)
 
   const chainIds = useMemo(() => {
@@ -111,6 +112,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
       if (!isCronosEnabled && chainId === KnownChainIds.CronosMainnet) return false
       if (!isSonicEnabled && chainId === KnownChainIds.SonicMainnet) return false
       if (!isUnichainEnabled && chainId === KnownChainIds.UnichainMainnet) return false
+      if (!isBobEnabled && chainId === KnownChainIds.BobMainnet) return false
       return true
     })
   }, [
@@ -128,6 +130,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
     isCronosEnabled,
     isSonicEnabled,
     isUnichainEnabled,
+    isBobEnabled,
   ])
 
   const Title = useMemo(() => {

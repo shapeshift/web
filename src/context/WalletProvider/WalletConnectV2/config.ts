@@ -3,16 +3,16 @@ import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconne
 import type { Chain } from 'viem/chains'
 import {
   arbitrum,
-  [2026-02-21 11:17:23]   WARNING: viem chain 'cronos' not found in codebase imports. Checking viem exports...,
-  [2026-02-21 11:47:34]   WARNING: viem chain 'sonic' not found in codebase imports. Checking viem exports...,
   avalanche,
   base,
+  bob,
   bsc,
   gnosis,
   hyperEvm,
   ink,
   katana,
   mainnet,
+  mode,
   monad,
   optimism,
   plasma,
@@ -68,8 +68,6 @@ export const walletConnectV2OptionalChains: AtLeastOneViemChain = (() => {
     arbitrum,
     base,
     ink,
-    [2026-02-21 11:17:23]   WARNING: viem chain 'cronos' not found in codebase imports. Checking viem exports...,
-    [2026-02-21 11:47:34]   WARNING: viem chain 'sonic' not found in codebase imports. Checking viem exports...,
   ]
 
   if (config.VITE_FEATURE_MONAD) {
@@ -90,6 +88,14 @@ export const walletConnectV2OptionalChains: AtLeastOneViemChain = (() => {
 
   if (config.VITE_FEATURE_UNICHAIN) {
     optionalViemChains.push(unichain)
+  }
+
+  if (config.VITE_FEATURE_BOB) {
+    optionalViemChains.push(bob)
+  }
+
+  if (config.VITE_FEATURE_MODE) {
+    optionalViemChains.push(mode)
   }
 
   if (optionalViemChains.length === 0) throw new Error('Array must contain at least one element.')
@@ -118,6 +124,8 @@ const {
   VITE_PLASMA_NODE_URL,
   VITE_KATANA_NODE_URL,
   VITE_UNICHAIN_NODE_URL,
+  VITE_BOB_NODE_URL,
+  VITE_MODE_NODE_URL,
 } = config
 
 const walletConnectV2RpcMap: Record<number, string> = {
@@ -130,8 +138,6 @@ const walletConnectV2RpcMap: Record<number, string> = {
   [CHAIN_REFERENCE.ArbitrumMainnet]: VITE_ARBITRUM_NODE_URL,
   [CHAIN_REFERENCE.BaseMainnet]: VITE_BASE_NODE_URL,
   [CHAIN_REFERENCE.InkMainnet]: VITE_INK_NODE_URL,
-  []: ,
-  []: ,
 }
 
 if (config.VITE_FEATURE_MONAD) {
@@ -152,6 +158,14 @@ if (config.VITE_FEATURE_KATANA) {
 
 if (config.VITE_FEATURE_UNICHAIN) {
   walletConnectV2RpcMap[CHAIN_REFERENCE.UnichainMainnet] = VITE_UNICHAIN_NODE_URL
+}
+
+if (config.VITE_FEATURE_BOB) {
+  walletConnectV2RpcMap[CHAIN_REFERENCE.BobMainnet] = VITE_BOB_NODE_URL
+}
+
+if (config.VITE_FEATURE_MODE) {
+  walletConnectV2RpcMap[CHAIN_REFERENCE.ModeMainnet] = VITE_MODE_NODE_URL
 }
 
 export const walletConnectV2ProviderConfig: EthereumProviderOptions = {

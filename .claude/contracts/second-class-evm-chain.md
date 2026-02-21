@@ -80,8 +80,8 @@ All integration points required when adding a new second-class EVM chain to Shap
     - `coingeckoAssetPlatformToChainId()` switch case
     - `parseData()` in `utils.ts` - platform check for ERC20 token discovery
     - Default asset mapping
-    - Generated adapter JSON in `generated/eip155_<chainId>/`
-    - Index export
+    - Generated adapter JSON in `generated/eip155_<chainId>/adapter.json`
+    - **Generated index** - `packages/caip/src/adapters/coingecko/generated/index.ts` must import and re-export the new chain's adapter JSON. Without this, `coingeckoToAssetIds()` won't return the chain's assets and the CoinGecko test will fail.
     - Test coverage
     - **Update multi-chain token test assertions** - `index.test.ts` assertions for tokens that exist across many chains (e.g. `coingeckoToAssetIds('usd-coin')`) must include the new chain's token address
 

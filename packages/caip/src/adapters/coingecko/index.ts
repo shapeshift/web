@@ -67,7 +67,7 @@ export enum CoingeckoAssetPlatform {
   Hemi = 'hemi',
   Mantle = 'mantle',
   Linea = 'linea',
-  Sonic = 'sonic-3',
+  Sonic = 'sonic',
   Unichain = 'unichain',
   Bob = 'bob-network',
   Mode = 'mode',

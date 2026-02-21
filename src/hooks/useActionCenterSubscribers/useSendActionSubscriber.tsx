@@ -1,5 +1,7 @@
 import { usePrevious } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { isSecondClassEvmAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useRef } from 'react'
@@ -8,7 +10,6 @@ import { useNotificationToast } from '../useNotificationToast'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
-import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { getBerachainTransactionStatus } from '@/lib/utils/berachain'
@@ -38,6 +39,12 @@ import { selectTxs } from '@/state/slices/selectors'
 import { txHistory } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from '@/state/store'
+
+const getSecondClassEvmTxStatus = (chainId: ChainId, txHash: string) => {
+  const adapter = getChainAdapterManager().get(chainId)
+  if (!isSecondClassEvmAdapter(adapter)) return
+  return adapter.getTransactionStatus(txHash)
+}
 
 export const useSendActionSubscriber = () => {
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
@@ -362,9 +369,16 @@ export const useSendActionSubscriber = () => {
                   }
                   break
                 }
-                default:
+                default: {
+                  // All second-class EVM chains are handled generically via adapter.getTransactionStatus()
+                  const txStatus = await getSecondClassEvmTxStatus(chainId, txHash)
+                  if (txStatus) {
+                    isConfirmed = txStatus === TxStatus.Confirmed || txStatus === TxStatus.Failed
+                    break
+                  }
                   console.error(`Unsupported second-class chain: ${chainId}`)
                   return
+                }
               }
 
               if (isConfirmed) {

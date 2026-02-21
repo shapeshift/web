@@ -498,8 +498,6 @@ export const sonic: Readonly<Asset> = Object.freeze({
   precision: 18,
   color: '#1B1464',
   networkColor: '#1B1464',
-  icon: 'https://assets.coingecko.com/coins/images/38051/large/sonic-3.png',
-  networkIcon: 'https://assets.coingecko.com/coins/images/38051/small/sonic-3.png',
   icon: 'https://assets.coingecko.com/coins/images/38108/standard/200x200_Sonic_Logo.png',
   networkIcon: 'https://assets.coingecko.com/coins/images/38108/standard/200x200_Sonic_Logo.png',
   explorer: 'https://sonicscan.org',

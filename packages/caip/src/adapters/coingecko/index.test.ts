@@ -68,21 +68,25 @@ describe('adapters:coingecko', () => {
         chainReference: CHAIN_REFERENCE.ZkSyncEraMainnet,
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.ZkSyncEra,
+      })
       const ethOnBlast = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.BlastMainnet,
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Blast,
+      })
       const ethOnWorldChain = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.WorldChainMainnet,
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.WorldChain,
+      })
       const ethOnHemi = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.HemiMainnet,
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Hemi,
+      })
       const ethOnLinea = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.LineaMainnet,
@@ -131,11 +135,11 @@ describe('adapters:coingecko', () => {
         ethOnArbitrum,
         ethOnBase,
         ethOnZkSyncEra,
+        ethOnBob,
         ethOnBlast,
         ethOnWorldChain,
         ethOnHemi,
         ethOnLinea,
-        ethOnBob,
         ethOnMode,
         ethOnMegaEth,
         ethOnInk,

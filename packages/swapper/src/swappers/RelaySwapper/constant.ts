@@ -2,8 +2,8 @@ import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
-  blastChainId,
   berachainChainId,
+  blastChainId,
   bobChainId,
   bscChainId,
   btcChainId,
@@ -27,9 +27,9 @@ import {
   soneiumChainId,
   sonicChainId,
   tronChainId,
-  zkSyncEraChainId,
-  worldChainChainId,
   unichainChainId,
+  worldChainChainId,
+  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
@@ -37,8 +37,8 @@ import {
   arbitrum,
   avalanche,
   base,
-  blast,
   berachain,
+  blast,
   bob,
   bsc,
   cronos,
@@ -55,12 +55,12 @@ import {
   optimism,
   plasma,
   polygon,
-  zksync,
-  worldchain,
   scroll,
   soneium,
   sonic,
   unichain,
+  worldchain,
+  zksync,
 } from 'viem/chains'
 
 import { TradeQuoteError } from '../../types'

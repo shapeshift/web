@@ -3,8 +3,8 @@ import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
-  blastChainId,
   berachainChainId,
+  blastChainId,
   bobChainId,
   bscChainId,
   cronosChainId,
@@ -27,9 +27,9 @@ import {
   soneiumChainId,
   sonicChainId,
   toAccountId,
-  zkSyncEraChainId,
-  worldChainChainId,
   unichainChainId,
+  worldChainChainId,
+  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
@@ -37,8 +37,8 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
-  supportsBlast,
   supportsBerachain,
+  supportsBlast,
   supportsBob,
   supportsBSC,
   supportsCronos,
@@ -56,12 +56,12 @@ import {
   supportsOptimism,
   supportsPlasma,
   supportsPolygon,
-  supportsZkSyncEra,
-  supportsWorldChain,
   supportsScroll,
   supportsSoneium,
   supportsSonic,
   supportsUnichain,
+  supportsWorldChain,
+  supportsZkSyncEra,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 

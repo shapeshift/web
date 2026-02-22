@@ -7,8 +7,8 @@ import {
   arbitrum,
   avalanche,
   base,
-  blast,
   berachain,
+  blast,
   bob,
   bsc,
   cronos,
@@ -160,15 +160,24 @@ export const viemKatanaClient = createPublicClient({
 export const viemZkSyncEraClient = createPublicClient({
   chain: zksync,
   transport: fallback([process.env.VITE_ZKSYNC_ERA_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemBlastClient = createPublicClient({
   chain: blast,
   transport: fallback([process.env.VITE_BLAST_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemWorldChainClient = createPublicClient({
   chain: worldchain,
   transport: fallback([process.env.VITE_WORLDCHAIN_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemHemiClient = createPublicClient({
   chain: hemi,
   transport: fallback([process.env.VITE_HEMI_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
+
 export const viemLineaClient = createPublicClient({
   chain: linea,
   transport: fallback([process.env.VITE_LINEA_NODE_URL].filter(Boolean).map(url => http(url))),

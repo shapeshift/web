@@ -11,8 +11,8 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
-  supportsBlast,
   supportsBerachain,
+  supportsBlast,
   supportsBob,
   supportsBSC,
   supportsCronos,
@@ -373,18 +373,22 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ether',
         symbol: 'ETH',
         explorer: 'https://explorer.zksync.io',
+      },
       [KnownChainIds.BlastMainnet]: {
         name: 'Ether',
         symbol: 'ETH',
         explorer: 'https://blastscan.io',
+      },
       [KnownChainIds.WorldChainMainnet]: {
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://worldscan.org',
+      },
       [KnownChainIds.HemiMainnet]: {
         name: 'Ether',
         symbol: 'ETH',
         explorer: 'https://explorer.hemi.xyz',
+      },
       [KnownChainIds.LineaMainnet]: {
         name: 'Ethereum',
         symbol: 'ETH',

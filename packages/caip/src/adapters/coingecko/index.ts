@@ -8,8 +8,8 @@ import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
-  blastChainId,
   berachainChainId,
+  blastChainId,
   bobChainId,
   bscChainId,
   CHAIN_NAMESPACE,
@@ -41,9 +41,9 @@ import {
   thorchainChainId,
   tonChainId,
   tronChainId,
-  zkSyncEraChainId,
-  worldChainChainId,
   unichainChainId,
+  worldChainChainId,
+  zkSyncEraChainId,
 } from '../../constants'
 import * as adapters from './generated'
 
@@ -73,7 +73,7 @@ export enum CoingeckoAssetPlatform {
   Hemi = 'hemi',
   Mantle = 'mantle',
   Linea = 'linea',
-  Sonic = 'sonic-3',
+  Sonic = 'sonic',
   Unichain = 'unichain',
   Bob = 'bob-network',
   Mode = 'mode',

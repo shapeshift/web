@@ -5,8 +5,8 @@ import {
   avalancheChainId,
   baseChainId,
   bchChainId,
-  blastChainId,
   berachainChainId,
+  blastChainId,
   bobChainId,
   bscChainId,
   btcChainId,
@@ -46,8 +46,8 @@ import {
   toAssetId,
   tonChainId,
   tronChainId,
-  worldChainChainId,
   unichainChainId,
+  worldChainChainId,
   zecChainId,
   zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
@@ -60,8 +60,8 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
-  supportsBlast,
   supportsBerachain,
+  supportsBlast,
   supportsBob,
   supportsBSC,
   supportsBTC,
@@ -90,9 +90,9 @@ import {
   supportsSui,
   supportsThorchain,
   supportsTron,
-  supportsZkSyncEra,
-  supportsWorldChain,
   supportsUnichain,
+  supportsWorldChain,
+  supportsZkSyncEra,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { Asset, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'

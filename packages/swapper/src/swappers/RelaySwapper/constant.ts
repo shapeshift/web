@@ -26,8 +26,8 @@ import {
   soneiumChainId,
   sonicChainId,
   tronChainId,
-  worldChainChainId,
   unichainChainId,
+  worldChainChainId,
 } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
@@ -52,11 +52,11 @@ import {
   optimism,
   plasma,
   polygon,
-  worldchain,
   scroll,
   soneium,
   sonic,
   unichain,
+  worldchain,
 } from 'viem/chains'
 
 import { TradeQuoteError } from '../../types'

@@ -368,6 +368,9 @@ export const worldchain: Readonly<Asset> = Object.freeze({
   explorer: 'https://worldscan.org',
   explorerAddressLink: 'https://worldscan.org/address/',
   explorerTxLink: 'https://worldscan.org/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
 export const mantle: Readonly<Asset> = Object.freeze({
   assetId: caip.mantleAssetId,
   chainId: caip.mantleChainId,
@@ -483,6 +486,9 @@ export const hemi: Readonly<Asset> = Object.freeze({
   explorer: 'https://explorer.hemi.xyz',
   explorerAddressLink: 'https://explorer.hemi.xyz/address/',
   explorerTxLink: 'https://explorer.hemi.xyz/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
 export const linea: Readonly<Asset> = Object.freeze({
   assetId: caip.lineaAssetId,
   chainId: caip.lineaChainId,
@@ -520,14 +526,14 @@ export const scroll: Readonly<Asset> = Object.freeze({
 export const sonic: Readonly<Asset> = Object.freeze({
   assetId: caip.sonicAssetId,
   chainId: caip.sonicChainId,
-  name: 'Sonic',
+  name: 'Sonic (S)',
   networkName: 'Sonic',
   symbol: 'S',
   precision: 18,
   color: '#1B1464',
   networkColor: '#1B1464',
-  icon: 'https://assets.coingecko.com/coins/images/38051/large/sonic-3.png',
-  networkIcon: 'https://assets.coingecko.com/coins/images/38051/small/sonic-3.png',
+  icon: 'https://assets.coingecko.com/coins/images/38108/standard/200x200_Sonic_Logo.png',
+  networkIcon: 'https://assets.coingecko.com/coins/images/38108/standard/200x200_Sonic_Logo.png',
   explorer: 'https://sonicscan.org',
   explorerAddressLink: 'https://sonicscan.org/address/',
   explorerTxLink: 'https://sonicscan.org/tx/',
@@ -545,6 +551,7 @@ export const unichainChain: Readonly<Asset> = Object.freeze({
   networkColor: '#F50DB4',
   icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
   networkIcon: 'https://assets.coingecko.com/asset_platforms/images/305/small/unichain-logo.png',
+  networkIcon: 'https://assets.coingecko.com/asset_platforms/images/22206/small/unichain.png',
   explorer: 'https://uniscan.xyz',
   explorerAddressLink: 'https://uniscan.xyz/address/',
   explorerTxLink: 'https://uniscan.xyz/tx/',
@@ -562,6 +569,7 @@ export const bobChain: Readonly<Asset> = Object.freeze({
   networkColor: '#F25D00',
   icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
   networkIcon: 'https://assets.coingecko.com/asset_platforms/images/203/small/bob.jpeg',
+  networkIcon: 'https://assets.coingecko.com/asset_platforms/images/255/small/bob.jpeg',
   explorer: 'https://explorer.gobob.xyz',
   explorerAddressLink: 'https://explorer.gobob.xyz/address/',
   explorerTxLink: 'https://explorer.gobob.xyz/tx/',
@@ -579,6 +587,7 @@ export const modeChain: Readonly<Asset> = Object.freeze({
   networkColor: '#DFFE00',
   icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
   networkIcon: 'https://assets.coingecko.com/asset_platforms/images/180/small/mode.jpeg',
+  networkIcon: 'https://assets.relay.link/icons/34443/light.png',
   explorer: 'https://modescan.io',
   explorerAddressLink: 'https://modescan.io/address/',
   explorerTxLink: 'https://modescan.io/tx/',

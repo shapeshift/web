@@ -31,8 +31,8 @@ import {
   thorchainChainId,
   toAssetId,
   tonChainId,
-  worldChainChainId,
   unichainChainId,
+  worldChainChainId,
   zecChainId,
 } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'

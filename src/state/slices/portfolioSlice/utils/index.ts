@@ -45,8 +45,8 @@ import {
   toAssetId,
   tonChainId,
   tronChainId,
-  worldChainChainId,
   unichainChainId,
+  worldChainChainId,
   zecChainId,
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
@@ -87,8 +87,8 @@ import {
   supportsSui,
   supportsThorchain,
   supportsTron,
-  supportsWorldChain,
   supportsUnichain,
+  supportsWorldChain,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { Asset, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'

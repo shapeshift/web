@@ -24,8 +24,8 @@ import {
   sonicChainId,
   suiChainId,
   tronChainId,
-  worldChainChainId,
   unichainChainId,
+  worldChainChainId,
 } from '@shapeshiftoss/caip'
 
 export const ZERION_CHAINS = [

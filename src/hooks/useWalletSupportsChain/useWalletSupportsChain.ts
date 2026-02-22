@@ -37,8 +37,8 @@ import {
   thorchainChainId,
   tonChainId,
   tronChainId,
-  worldChainChainId,
   unichainChainId,
+  worldChainChainId,
   zecChainId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -80,8 +80,8 @@ import {
   supportsSui,
   supportsThorchain,
   supportsTron,
-  supportsWorldChain,
   supportsUnichain,
+  supportsWorldChain,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import { useMemo } from 'react'
 

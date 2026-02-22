@@ -29,8 +29,8 @@ import {
   suiChainId,
   tonChainId,
   tronChainId,
-  worldChainChainId,
   unichainChainId,
+  worldChainChainId,
   zecChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'

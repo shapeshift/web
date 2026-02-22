@@ -75,10 +75,10 @@ import {
   tonChainId,
   tronAssetId,
   tronChainId,
-  worldChainAssetId,
-  worldChainChainId,
   unichainAssetId,
   unichainChainId,
+  worldChainAssetId,
+  worldChainChainId,
   zecChainId,
 } from '../../constants'
 import {
@@ -310,6 +310,11 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
             assetReference: platforms[CoingeckoAssetPlatform.WorldChain],
           })
           prev[worldChainChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Mantle)) {
         try {
           const assetId = toAssetId({
@@ -431,6 +436,11 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
             assetReference: platforms[CoingeckoAssetPlatform.Hemi],
           })
           prev[hemiChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Sonic)) {
         try {
           const assetId = toAssetId({

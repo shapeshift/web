@@ -211,8 +211,12 @@ export function supportsMegaEth(wallet: HDWallet): wallet is ETHWallet {
 
 export function supportsWorldChain(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsWorldChain
+}
+
 export function supportsHemi(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsHemi
+}
+
 export function supportsBerachain(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsBerachain
 }

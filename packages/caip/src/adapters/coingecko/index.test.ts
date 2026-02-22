@@ -68,11 +68,13 @@ describe('adapters:coingecko', () => {
         chainReference: CHAIN_REFERENCE.WorldChainMainnet,
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.WorldChain,
+      })
       const ethOnHemi = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.HemiMainnet,
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Hemi,
+      })
       const ethOnLinea = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.LineaMainnet,

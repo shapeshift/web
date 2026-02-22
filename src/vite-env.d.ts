@@ -190,6 +190,18 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_SCROLL: string
   readonly VITE_CRONOS_NODE_URL: string
   readonly VITE_FEATURE_CRONOS: string
+  readonly VITE_HEMI_NODE_URL: string
+  readonly VITE_FEATURE_HEMI: string
+  readonly VITE_SONIC_NODE_URL: string
+  readonly VITE_FEATURE_SONIC: string
+  readonly VITE_UNICHAIN_NODE_URL: string
+  readonly VITE_FEATURE_UNICHAIN: string
+  readonly VITE_BOB_NODE_URL: string
+  readonly VITE_FEATURE_BOB: string
+  readonly VITE_MODE_NODE_URL: string
+  readonly VITE_FEATURE_MODE: string
+  readonly VITE_SONEIUM_NODE_URL: string
+  readonly VITE_FEATURE_SONEIUM: string
   readonly VITE_FEATURE_NOTIFICATIONS_WEBSERVICES: string
 
   // Only present in *some* envs

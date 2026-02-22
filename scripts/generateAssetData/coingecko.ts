@@ -33,8 +33,8 @@ import {
   toAssetId,
   tonChainId,
   tronChainId,
-  worldChainChainId,
   unichainChainId,
+  worldChainChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import {
@@ -67,8 +67,8 @@ import {
   sui,
   ton,
   tron,
-  worldchain,
   unichainChain,
+  worldchain,
 } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
@@ -214,6 +214,7 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: worldchain.explorer,
           explorerAddressLink: worldchain.explorerAddressLink,
           explorerTxLink: worldchain.explorerTxLink,
+        }
       case lineaChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.erc20,
@@ -253,6 +254,7 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: hemi.explorer,
           explorerAddressLink: hemi.explorerAddressLink,
           explorerTxLink: hemi.explorerTxLink,
+        }
       case berachainChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.erc20,

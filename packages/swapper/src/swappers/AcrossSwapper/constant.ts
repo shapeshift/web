@@ -12,9 +12,9 @@ import {
   plasmaChainId,
   polygonChainId,
   solanaChainId,
-  worldChainChainId,
   soneiumChainId,
   unichainChainId,
+  worldChainChainId,
 } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
@@ -31,9 +31,9 @@ import {
   optimism,
   plasma,
   polygon,
-  worldchain,
   soneium,
   unichain,
+  worldchain,
 } from 'viem/chains'
 
 import { TradeQuoteError } from '../../types'

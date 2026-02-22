@@ -41,8 +41,8 @@ import {
   thorchain,
   ton,
   tron,
-  worldchain,
   unichainChain,
+  worldchain,
   zcash,
 } from './baseAssets'
 

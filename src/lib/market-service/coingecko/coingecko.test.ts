@@ -171,6 +171,7 @@ describe('CoinGecko market service', () => {
       const result = await coinGeckoMarketService.findAll()
       expect(Object.keys(result).length).toEqual(7)
       expect(Object.keys(result).length).toEqual(13)
+      expect(Object.keys(result).length).toEqual(14)
     })
 
     it('can sort by market cap', async () => {
@@ -196,6 +197,7 @@ describe('CoinGecko market service', () => {
       const result = await coinGeckoMarketService.findAll()
       expect(Object.keys(result).length).toEqual(6)
       expect(Object.keys(result).length).toEqual(12)
+      expect(Object.keys(result).length).toEqual(13)
     })
 
     it('can use default args', async () => {
@@ -235,6 +237,9 @@ describe('CoinGecko market service', () => {
         ethOnMegaEthKey,
         ethOnLineaKey,
         ethOnBobKey,
+        ethOnBobKey,
+        ethOnHemiKey,
+        ethOnLineaKey,
         ethOnModeKey,
         ethOnMegaEthKey,
         ethOnInkKey,
@@ -252,6 +257,9 @@ describe('CoinGecko market service', () => {
         ethOnHemiKey,
         ethOnLineaKey,
         ethOnBobKey,
+        ethOnBobKey,
+        ethOnHemiKey,
+        ethOnLineaKey,
         ethOnModeKey,
         ethOnMegaEthKey,
         ethOnInkKey,

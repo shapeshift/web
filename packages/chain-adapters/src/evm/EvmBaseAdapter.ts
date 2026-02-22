@@ -29,11 +29,11 @@ import {
   supportsOptimism,
   supportsPlasma,
   supportsPolygon,
-  supportsWorldChain,
   supportsScroll,
   supportsSoneium,
   supportsSonic,
   supportsUnichain,
+  supportsWorldChain,
 } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -365,10 +365,12 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://worldscan.org',
+      },
       [KnownChainIds.HemiMainnet]: {
         name: 'Ether',
         symbol: 'ETH',
         explorer: 'https://explorer.hemi.xyz',
+      },
       [KnownChainIds.LineaMainnet]: {
         name: 'Ethereum',
         symbol: 'ETH',

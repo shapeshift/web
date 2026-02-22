@@ -26,8 +26,8 @@ import {
   soneiumChainId,
   sonicChainId,
   toAccountId,
-  worldChainChainId,
   unichainChainId,
+  worldChainChainId,
 } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
@@ -53,11 +53,11 @@ import {
   supportsOptimism,
   supportsPlasma,
   supportsPolygon,
-  supportsWorldChain,
   supportsScroll,
   supportsSoneium,
   supportsSonic,
   supportsUnichain,
+  supportsWorldChain,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 

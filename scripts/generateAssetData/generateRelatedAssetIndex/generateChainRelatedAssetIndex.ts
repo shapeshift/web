@@ -24,6 +24,7 @@ import {
   starknetAssetId,
   unichainAssetId,
   worldChainAssetId,
+  zkSyncEraAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { createThrottle, isToken } from '@shapeshiftoss/utils'
@@ -76,6 +77,7 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     soneiumAssetId,
     worldChainAssetId,
     blastAssetId,
+    zkSyncEraAssetId,
   ],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
   [starknetAssetId]: [

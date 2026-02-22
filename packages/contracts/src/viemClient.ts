@@ -25,12 +25,12 @@ import {
   optimism,
   plasma,
   polygon,
-  zksync,
-  worldchain,
   scroll,
   soneium,
   sonic,
   unichain,
+  worldchain,
+  zksync,
 } from 'viem/chains'
 
 const megaeth = defineChain({
@@ -176,7 +176,6 @@ export const viemHemiClient = createPublicClient({
   chain: hemi,
   transport: fallback([process.env.VITE_HEMI_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
-
 
 export const viemLineaClient = createPublicClient({
   chain: linea,

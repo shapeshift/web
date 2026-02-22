@@ -30,12 +30,12 @@ import {
   supportsOptimism,
   supportsPlasma,
   supportsPolygon,
-  supportsZkSyncEra,
-  supportsWorldChain,
   supportsScroll,
   supportsSoneium,
   supportsSonic,
   supportsUnichain,
+  supportsWorldChain,
+  supportsZkSyncEra,
 } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'

@@ -60,8 +60,8 @@ import * as tonModule from './ton'
 import * as tronModule from './tron'
 import * as unichain from './unichain'
 import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
-import * as zksyncera from './zksyncera'
 import * as worldchainModule from './worldchain'
+import * as zksyncera from './zksyncera'
 
 import { getAssetService } from '@/lib/asset-service'
 

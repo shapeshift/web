@@ -225,7 +225,6 @@ export function supportsHemi(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsHemi
 }
 
-
 export function supportsBerachain(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsBerachain
 }

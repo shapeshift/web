@@ -75,6 +75,35 @@ if (fewShotPath && fs.existsSync(fewShotPath)) {
   fewShot = JSON.parse(fs.readFileSync(fewShotPath, 'utf8'));
 }
 
+const batchArray = Array.isArray(batches) ? batches : [batches];
+const tagKeys = batchArray.flatMap(batch => Object.keys(batch).filter(k => k.includes('.tags.')));
+
+function filterGlossaryForBatch(batch) {
+  const batchText = Object.values(batch).join(' ').toLowerCase();
+
+  const relevantNeverTranslate = neverTranslate.filter(term =>
+    batchText.includes(term.toLowerCase())
+  );
+
+  const relevantApprovedTerms = {};
+  for (const [term, translation] of Object.entries(approvedTerms)) {
+    if (batchText.includes(term.toLowerCase())) {
+      relevantApprovedTerms[term] = translation;
+    }
+  }
+
+  return { relevantNeverTranslate, relevantApprovedTerms };
+}
+
+const batchesWithGlossary = batchArray.map(batch => {
+  const { relevantNeverTranslate, relevantApprovedTerms } = filterGlossaryForBatch(batch);
+  return {
+    strings: batch,
+    relevantNeverTranslate,
+    relevantApprovedTerms,
+  };
+});
+
 const bundle = {
   locale,
   language: meta.language,
@@ -84,7 +113,8 @@ const bundle = {
   approvedTerms,
   termContext,
   fewShot,
-  batches: Array.isArray(batches) ? batches : [batches],
+  tagKeys,
+  batches: batchesWithGlossary,
 };
 
 fs.writeFileSync(outputPath, JSON.stringify(bundle, null, 2) + '\n');

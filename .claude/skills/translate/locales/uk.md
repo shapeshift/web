@@ -8,3 +8,4 @@
 - "seed phrase" = "сiд-фраза" — NEVER literal "фраза-насiння" (= phrase of seeds, meaningless)
 - Verify morphological correctness — Ukrainian agglutination rules differ from Russian; incorrect suffixes produce meaningless words
 - "liquidity pool" = "пул лiквiдностi" — standard transliteration matching Russian pattern
+- "dust" (in crypto context, meaning tiny leftover amounts) must stay in English — do NOT translate as "пил"

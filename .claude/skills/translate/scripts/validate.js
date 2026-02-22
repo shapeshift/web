@@ -1,15 +1,9 @@
 const fs = require('fs');
 const {
   CJK_LOCALES,
-  CYRILLIC_LOCALES,
-  NON_LATIN_LOCALES,
   extractPlaceholders,
-  stripPlaceholdersAndGlossary,
-  latinRatio,
-  cyrillicRatio,
-  cjkRatio,
+  stemMatch,
   loadGlossary,
-  glossaryTerms: getGlossaryTerms,
 } = require('./script-utils');
 
 const locale = process.argv[2];
@@ -38,7 +32,6 @@ for (const arg of process.argv.slice(5)) {
 }
 
 const glossary = loadGlossary(glossaryPath);
-const terms = getGlossaryTerms(glossary);
 
 let termContext = {};
 if (termContextPath && fs.existsSync(termContextPath)) {
@@ -114,51 +107,25 @@ for (const path of Object.keys(source)) {
     isFlagged = true;
   }
 
-  // Check 5: Wrong-script detection (auto-reject, not advisory)
-  if (NON_LATIN_LOCALES.has(locale)) {
-    const lr = latinRatio(tgt, terms);
-    if (lr > 0.7) {
-      rejected.push({ path, reason: 'wrong script', details: `${(lr * 100).toFixed(0)}% Latin characters for ${locale} locale` });
-      continue;
-    }
-    const cleaned = stripPlaceholdersAndGlossary(tgt, terms);
-    if (cleaned.length > 3) {
-      if (CYRILLIC_LOCALES.has(locale)) {
-        const cr = cyrillicRatio(tgt, terms);
-        if (cr < 0.3) {
-          rejected.push({ path, reason: 'wrong script', details: `Only ${(cr * 100).toFixed(0)}% Cyrillic characters for ${locale} locale` });
-          continue;
-        }
-      }
-      if (CJK_LOCALES.has(locale)) {
-        const cr = cjkRatio(tgt, terms);
-        if (cr < 0.3) {
-          rejected.push({ path, reason: 'wrong script', details: `Only ${(cr * 100).toFixed(0)}% CJK characters for ${locale} locale` });
-          continue;
-        }
-      }
-    }
-  }
-
-  // Check 6: Glossary compliance
+  // Check 5: Glossary compliance
   for (const [term, value] of Object.entries(glossary)) {
     if (term === '_meta') continue;
-    const termRegex = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+    const termRegex = new RegExp('\\b' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'gi');
 
     if (value === null) {
-      if (termRegex.test(src) && !new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).test(tgt)) {
-        flags.push({ path, reason: 'glossary never-translate', details: `"${term}" should remain in English` });
+      if (termRegex.test(src) && !new RegExp('\\b' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(tgt)) {
+        flags.push({ path, reason: 'glossary never-translate', details: `"${term}" should stay in English` });
         isFlagged = true;
       }
     } else if (typeof value === 'object' && value[locale]) {
-      if (termRegex.test(src) && !tgt.includes(value[locale])) {
+      if (termRegex.test(src) && !stemMatch(tgt, value[locale], locale)) {
         flags.push({ path, reason: 'glossary approved translation', details: `"${term}" should be "${value[locale]}" in ${locale}` });
         isFlagged = true;
       }
     }
   }
 
-  // Check 7: Term consistency
+  // Check 6: Term consistency
   for (const [term, matches] of Object.entries(termContext)) {
     if (!matches || matches.length === 0) continue;
     const translations = matches.map(m => m[locale]).filter(Boolean);

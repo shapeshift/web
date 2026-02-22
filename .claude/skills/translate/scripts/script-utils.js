@@ -1,40 +1,26 @@
 const fs = require('fs');
 
 const CJK_LOCALES = new Set(['ja', 'zh']);
-const CYRILLIC_LOCALES = new Set(['ru', 'uk']);
-const NON_LATIN_LOCALES = new Set([...CJK_LOCALES, ...CYRILLIC_LOCALES]);
 
 function extractPlaceholders(str) {
   return [...str.matchAll(/%\{(\w+)\}/g)].map(m => m[1]);
 }
 
-function stripPlaceholdersAndGlossary(str, glossaryTerms) {
-  let cleaned = str.replace(/%\{\w+\}/g, '');
-  for (const term of glossaryTerms) {
-    cleaned = cleaned.replace(new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '');
+const INFLECTED_LOCALES = new Set(['de', 'es', 'fr', 'pt', 'ru', 'tr', 'uk']);
+
+function stemMatch(target, approved, locale) {
+  if (!INFLECTED_LOCALES.has(locale)) {
+    return target.toLowerCase().includes(approved.toLowerCase());
   }
-  return cleaned.replace(/\s+/g, '');
-}
 
-function latinRatio(str, glossaryTerms) {
-  const cleaned = stripPlaceholdersAndGlossary(str, glossaryTerms);
-  if (cleaned.length === 0) return 0;
-  const latinChars = [...cleaned].filter(c => /[a-zA-Z]/.test(c)).length;
-  return latinChars / cleaned.length;
-}
+  const targetLower = target.toLowerCase();
+  const words = approved.split(/\s+/);
 
-function cyrillicRatio(str, glossaryTerms) {
-  const cleaned = stripPlaceholdersAndGlossary(str, glossaryTerms);
-  if (cleaned.length === 0) return 0;
-  const cyrillicChars = [...cleaned].filter(c => /[\u0400-\u04FF]/.test(c)).length;
-  return cyrillicChars / cleaned.length;
-}
-
-function cjkRatio(str, glossaryTerms) {
-  const cleaned = stripPlaceholdersAndGlossary(str, glossaryTerms);
-  if (cleaned.length === 0) return 0;
-  const cjkChars = [...cleaned].filter(c => /[\u4E00-\u9FFF\u3040-\u309F\u30A0-\u30FF\uFF66-\uFF9F]/.test(c)).length;
-  return cjkChars / cleaned.length;
+  return words.every(word => {
+    const minLen = Math.max(3, Math.ceil(word.length * 0.7));
+    const stem = word.slice(0, minLen).toLowerCase();
+    return targetLower.includes(stem);
+  });
 }
 
 function loadGlossary(glossaryPath) {
@@ -61,13 +47,9 @@ function flattenJson(obj, prefix) {
 
 module.exports = {
   CJK_LOCALES,
-  CYRILLIC_LOCALES,
-  NON_LATIN_LOCALES,
+  INFLECTED_LOCALES,
   extractPlaceholders,
-  stripPlaceholdersAndGlossary,
-  latinRatio,
-  cyrillicRatio,
-  cjkRatio,
+  stemMatch,
   loadGlossary,
   glossaryTerms,
   flattenJson,

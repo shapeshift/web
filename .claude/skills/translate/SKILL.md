@@ -182,7 +182,10 @@ Read `/tmp/translate-{LOCALE_CODE}.json`. It contains:
 - `approvedTerms` — terms with mandatory translations for your locale
 - `termContext` — how key terms have been translated elsewhere in this project
 - `fewShot` — reference translations for tone/style
-- `batches` — array of batch objects to translate (each batch is `{ "dotted.path": "english value" }`)
+- `batches` — array of batch objects, each containing:
+  - `strings` — the key-value pairs to translate (`{ "dotted.path": "english value" }`)
+  - `relevantNeverTranslate` — never-translate terms that appear in this batch's strings
+  - `relevantApprovedTerms` — approved translations relevant to this batch
 
 ## Per-Batch Pipeline (process batches sequentially, 0-indexed)
 
@@ -190,25 +193,31 @@ For each batch in the `batches` array:
 
 ### 1. Translate
 
-Translate all strings in the batch from English to {LANGUAGE_NAME}.
+Translate all strings in `batch.strings` from English to {LANGUAGE_NAME}.
+
+GLOSSARY REMINDER for this batch:
+- Never translate these terms (keep in English): {batch.relevantNeverTranslate}
+- Use these approved translations: {batch.relevantApprovedTerms}
 
 RULES:
 1. INTERPOLATION: Preserve all %{variableName} placeholders exactly as-is. Do not translate variable names inside %{}.
 2. TERMINOLOGY:
-   - NEVER TRANSLATE terms in `neverTranslate` (keep in English)
-   - USE APPROVED TRANSLATIONS from `approvedTerms` for your locale
+   - NEVER TRANSLATE terms in `relevantNeverTranslate` for this batch (keep in English)
+   - USE APPROVED TRANSLATIONS from `relevantApprovedTerms` for this batch
+   - Also reference the full `neverTranslate` and `approvedTerms` in the bundle as fallback
    - When a term in `termContext` has an established translation, use it unless the context clearly demands a different meaning
 3. Keep translations concise — UI space is limited. Match the approximate length of the English source.
 4. FORMAT: Preserve HTML entities and markdown. If a string is a single word that's also a UI label (like "Done", "Cancel"), translate it as a UI action.
 5. SOURCE FAITHFULNESS: Do not add information not present in the English source.
 6. CONCISENESS: Prefer shorter synonyms or abbreviations common in {LANGUAGE_NAME} UI conventions.
 7. KEY INTEGRITY: Output keys must EXACTLY match input keys. No additions, removals, or modifications to key names.
+8. TAG KEYS: If the key path contains `.tags.`, the value is likely a short label or abbreviation. Preserve abbreviations as-is without expanding them. Check the `tagKeys` array in the bundle to identify these keys.
 
 Use the `fewShot` examples from the bundle as tone/style reference.
 
 ### 2. Validate
 
-Write the source batch to `/tmp/batch-{LOCALE_CODE}-{BATCH_IDX}-source.json` and your translation to `/tmp/batch-{LOCALE_CODE}-{BATCH_IDX}-target.json`, then run:
+Write the source batch (`batch.strings`) to `/tmp/batch-{LOCALE_CODE}-{BATCH_IDX}-source.json` and your translation to `/tmp/batch-{LOCALE_CODE}-{BATCH_IDX}-target.json`, then run:
 
 ```bash
 node .claude/skills/translate/scripts/validate.js {LOCALE_CODE} /tmp/batch-{LOCALE_CODE}-{BATCH_IDX}-source.json /tmp/batch-{LOCALE_CODE}-{BATCH_IDX}-target.json

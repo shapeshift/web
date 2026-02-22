@@ -168,7 +168,7 @@
     "uk": "непостійні втрати",
     "zh": "无常损失"
   },
-  "claim (DeFi rewards)": {
+  "claim": {
     "de": "Einfordern",
     "es": "reclamar",
     "fr": "réclamer",
@@ -179,8 +179,8 @@
     "uk": "отримати",
     "zh": "领取"
   },
-  "dust (crypto)": null,
-  "trade (action)": {
+  "dust": null,
+  "trade": {
     "de": "Handeln",
     "es": "intercambiar",
     "fr": "échanger",
@@ -202,7 +202,7 @@
     "uk": "співвідношення кредиту до вартості",
     "zh": "贷款价值比"
   },
-  "approve (on-chain)": {
+  "approve": {
     "de": "Genehmigen",
     "es": "aprobar",
     "fr": "approuver",
@@ -213,7 +213,7 @@
     "uk": "схвалити",
     "zh": "授权"
   },
-  "revert (transaction)": {
+  "revert": {
     "de": "rückgängig machen",
     "es": "revertir",
     "fr": "annuler",
@@ -224,7 +224,7 @@
     "uk": "скасувати",
     "zh": "回滚"
   },
-  "deposit (funds)": {
+  "deposit": {
     "de": "Einzahlen",
     "es": "depositar",
     "fr": "déposer",

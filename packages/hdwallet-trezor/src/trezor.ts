@@ -304,7 +304,6 @@ export class TrezorHDWallet
   readonly _supportsMantle = true
   readonly _supportsInk = true
   readonly _supportsMegaEth = true
-  readonly _supportsPlume = true
   readonly _supportsZkSyncEra = true
   readonly _supportsBlast = true
   readonly _supportsWorldChain = true

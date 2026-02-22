@@ -3,8 +3,8 @@ import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
-  blastChainId,
   berachainChainId,
+  blastChainId,
   bobChainId,
   bscChainId,
   cronosChainId,
@@ -22,16 +22,15 @@ import {
   monadChainId,
   optimismChainId,
   plasmaChainId,
-  plumeChainId,
   polygonChainId,
-  storyChainId,
   scrollChainId,
   soneiumChainId,
   sonicChainId,
+  storyChainId,
   toAccountId,
-  zkSyncEraChainId,
-  worldChainChainId,
   unichainChainId,
+  worldChainChainId,
+  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
@@ -39,8 +38,8 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
-  supportsBlast,
   supportsBerachain,
+  supportsBlast,
   supportsBob,
   supportsBSC,
   supportsCronos,
@@ -57,15 +56,14 @@ import {
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
-  supportsPlume,
   supportsPolygon,
-  supportsStory,
-  supportsZkSyncEra,
-  supportsWorldChain,
   supportsScroll,
   supportsSoneium,
   supportsSonic,
+  supportsStory,
   supportsUnichain,
+  supportsWorldChain,
+  supportsZkSyncEra,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 
@@ -166,7 +164,6 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === scrollChainId && !supportsScroll(wallet)) continue
     if (chainId === cronosChainId && !supportsCronos(wallet)) continue
     if (chainId === katanaChainId && !supportsKatana(wallet)) continue
-    if (chainId === plumeChainId && !supportsPlume(wallet)) continue
     if (chainId === storyChainId && !supportsStory(wallet)) continue
     if (chainId === zkSyncEraChainId && !supportsZkSyncEra(wallet)) continue
     if (chainId === blastChainId && !supportsBlast(wallet)) continue

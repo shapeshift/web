@@ -34,9 +34,10 @@ All integration points required when adding a new second-class EVM chain to Shap
 
 7. **Feature Flag** - Multiple files:
    - `src/state/slices/preferencesSlice/preferencesSlice.ts` - FeatureFlags type + initial state
-   - `src/config.ts` - `VITE_FEATURE_<CHAIN>` validation + `VITE_<CHAIN>_NODE_URL` validation
+   - `src/config.ts` - `VITE_FEATURE_<CHAIN>` validation (`bool({ default: false })`) + `VITE_<CHAIN>_NODE_URL` validation (must use `url()`, NOT `str()`)
    - `src/test/mocks/store.ts` - Mock default
    - `src/vite-env.d.ts` - Type declarations
+   - **RPC URL research**: Check https://chainlist.org/chain/<chainId> for public RPC endpoints as a fallback when official docs don't provide one. Always verify the endpoint works with `curl -s -X POST <url> -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'` before committing. Avoid endpoints requiring API keys in `.env.development`.
    - `.env` - Production default (usually `false`)
    - `.env.development` - Dev default (usually `true`)
 
@@ -80,14 +81,14 @@ All integration points required when adding a new second-class EVM chain to Shap
     - `coingeckoAssetPlatformToChainId()` switch case
     - `parseData()` in `utils.ts` - platform check for ERC20 token discovery
     - Default asset mapping
-    - Generated adapter JSON in `generated/eip155_<chainId>/`
-    - Index export
+    - Generated adapter JSON in `generated/eip155_<chainId>/adapter.json`
+    - **Generated index** - `packages/caip/src/adapters/coingecko/generated/index.ts` must import and re-export the new chain's adapter JSON. Without this, `coingeckoToAssetIds()` won't return the chain's assets and the CoinGecko test will fail.
     - Test coverage
     - **Update multi-chain token test assertions** - `index.test.ts` assertions for tokens that exist across many chains (e.g. `coingeckoToAssetIds('usd-coin')`) must include the new chain's token address
 
-16. **Transaction Status Utility** - `src/lib/utils/<chain>.ts`
-    - `is<Chain>ChainAdapter()` type guard
-    - `get<Chain>TransactionStatus()` - RPC-based tx receipt polling
+16. **Transaction Status** - handled generically by `SecondClassEvmAdapter.getTransactionStatus()`
+    - NO per-chain tx status util file needed (the `default` case in `useSendActionSubscriber.tsx` uses `getSecondClassEvmTxStatus()` which detects any `SecondClassEvmAdapter` via `isSecondClassEvmAdapter` type guard)
+    - Only non-EVM chains (Tron, Sui, Near, Ton, Starknet) have individual cases
 
 16b. **State Migration** - `src/state/migrations/index.ts`
     - A new `clearAssets` migration entry is REQUIRED when adding a chain
@@ -95,7 +96,14 @@ All integration points required when adding a new second-class EVM chain to Shap
     - Without this, existing users with persisted state won't see the new chain's assets until they manually clear cache
 
 16c. **Market Service Test** - `src/lib/market-service/coingecko/coingecko.test.ts`
-    - Expected result counts in both `can flatten multiple responses` and `can return some results if partially rate limited` tests need incrementing (one more chain = one more result in each)
+    - **ONLY for ETH-native chains** (where CoinGecko maps the native asset to `'ethereum'`):
+    - Expected result counts in both `can flatten multiple responses` and `can return some results if partially rate limited` tests need incrementing (one more ETH-native chain = one more result in each)
+    - "flatten" count = number of ETH-native chains + 1 (for BTC), "rate limited" count = number of ETH-native chains
+    - Chains with their own native token (CRO, S, MON, etc.) do NOT increment these counts
+
+16d. **Vite Environment Type Declarations** - `src/vite-env.d.ts`
+    - Add `readonly VITE_<CHAIN>_NODE_URL: string` and `readonly VITE_FEATURE_<CHAIN>: string`
+    - Without this, TypeScript won't know about the env vars (though runtime still works via config.ts validation)
 
 ## Phase 2: State & UI Integration
 
@@ -127,7 +135,8 @@ All integration points required when adding a new second-class EVM chain to Shap
     - Empty array entry for new chain
 
 26. **Action Center Subscriber** - `src/hooks/useActionCenterSubscribers/useSendActionSubscriber.tsx`
-    - Transaction status checking for new chain (usually handled by SECOND_CLASS_CHAINS constant)
+    - NO per-chain case needed - the `default` handler auto-detects any `SecondClassEvmAdapter` via `isSecondClassEvmAdapter` and calls `getTransactionStatus()` on it
+    - Only add a case if the chain needs non-standard tx status logic (unlikely for EVM chains)
 
 ## Phase 3: Swapper & Data Provider Integration
 
@@ -171,8 +180,12 @@ For cross-chain swaps where the destination is native (e.g., ETH→MNT via Relay
 42. **Wrapped Native Contract** - `packages/chain-adapters/src/evm/SecondClassEvmAdapter.ts`
     - Add the chain's wrapped native token address to `WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID` mapping
     - Common addresses: WBERA `0x6969...`, WMNT `0x78c1b0C9...`, WETH varies by chain
-    - The detection logic is already generalized: it parses `Transfer` burn events (to zero address) on the wrapped contract to synthesize internal Txs
-    - To find the wrapped native address: search `W<SYMBOL>` on the chain's block explorer or check the Relay Tx from the user's review comment
+    - The detection logic is already generalized with THREE fallback strategies in order:
+      1. `debug_traceTransaction` for internal txs (not supported on all RPCs)
+      2. ERC20 `Transfer` burn events (to zero address) on the wrapped contract
+      3. WETH9 `Withdrawal(address indexed src, uint256 wad)` event - used by Across on OP Stack L2s where `withdraw()` emits Withdrawal instead of Transfer-to-zero
+    - All three fallbacks are in `SecondClassEvmAdapter.parseTx()` and apply to ALL chains automatically
+    - To find the wrapped native address: search `W<SYMBOL>` on the chain's block explorer or check the Relay/Across Tx from the user's review comment
 
 ## Phase 3.6: Native Token ERC20 Duplicate Blacklisting
 
@@ -197,10 +210,11 @@ Some chains have an ERC20 contract that represents the native token (e.g., Mantl
 
 40. **Related Asset Index** - `public/generated/relatedAssetIndex.json` + `scripts/generateAssetData/generateRelatedAssetIndex/generateRelatedAssetIndex.ts`
     - If the native asset is ETH: verify it's in `manualRelatedAssetIndex[ethAssetId]` array
-    - **If the native asset is NOT ETH** (e.g., CRO, MNT): research whether the same token exists on Ethereum mainnet as an ERC20 (e.g., CRO has `eip155:1/erc20:0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b`). If it does, add a manual mapping in `manualRelatedAssetIndex` linking the Ethereum ERC20 to the chain's native `slip44:60`. Use a research agent to check CoinGecko/block explorer if unsure. Without this, the chain's native token won't show as a "Popular Asset" when filtering by the chain.
+    - **If the native asset is NOT ETH** (e.g., CRO, S, MNT): research whether the same token exists on Ethereum mainnet as an ERC20. If it does, add a manual mapping in `manualRelatedAssetIndex` in BOTH `generateRelatedAssetIndex.ts` AND `generateChainRelatedAssetIndex.ts`.
+    - **CRITICAL: The native chain token MUST be the KEY, not a value.** Use `[chainAssetId]: ['eip155:1/erc20:0x...']` (native = key, ETH ERC20 = value). If the ETH ERC20 is the key and the native is a value, the native asset gets `relatedAssetKey` pointing to ETH ERC20, making `isPrimary=false`, which causes it to be excluded from `selectPrimaryAssets` and missing from "Popular Assets". This is because `isPrimary = relatedAssetKey === null || relatedAssetKey === assetId` in AssetService.
     - Verify `relatedAssetIndex.json` has been regenerated and contains entries for the new chain's tokens
-    - Check `generatedAssetData.json` - the chain's ERC20 tokens should have `relatedAssetKey` values linking them to mainnet counterparts
-    - Without this, tokens won't appear in the trade modal "Popular Assets" section
+    - Check `generatedAssetData.json` - the chain's native asset should have `relatedAssetKey` pointing to ITSELF (self-referencing), NOT to an ETH ERC20
+    - Without this, the native token won't appear in the trade modal "Popular Assets" section
     - **Manual stablecoin mappings**: Look up the chain's native USDC, USDT, and DAI contract addresses (NOT bridged variants - CoinGecko auto-discovers those). Add them to `manualRelatedAssetIndex` in BOTH `generateRelatedAssetIndex.ts` AND `generateChainRelatedAssetIndex.ts`, keyed by the Ethereum canonical token's AssetId. Without this, popular stablecoins won't show for the chain in the trade modal.
 
 41. **Trade modal "Popular Assets" verification** - after enabling the feature flag, open the trade modal "To" asset selector and filter by the new chain

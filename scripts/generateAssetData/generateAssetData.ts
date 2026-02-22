@@ -26,8 +26,8 @@ import path from 'path'
 import * as arbitrum from './arbitrum'
 import * as avalanche from './avalanche'
 import * as base from './base'
-import * as blast from './blast'
 import * as berachain from './berachain'
+import * as blast from './blast'
 import * as bnbsmartchain from './bnbsmartchain'
 import * as bob from './bob'
 import { compressGeneratedAssets } from './compressAssets'
@@ -49,7 +49,6 @@ import * as near from './near'
 import * as optimism from './optimism'
 import { overrideAssets } from './overrides'
 import * as plasma from './plasma'
-import * as plume from './plume'
 import * as polygon from './polygon'
 import * as scroll from './scroll'
 import * as solana from './solana'
@@ -62,8 +61,8 @@ import * as tonModule from './ton'
 import * as tronModule from './tron'
 import * as unichain from './unichain'
 import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
-import * as zksyncera from './zksyncera'
 import * as worldchainModule from './worldchain'
+import * as zksyncera from './zksyncera'
 
 import { getAssetService } from '@/lib/asset-service'
 
@@ -102,7 +101,6 @@ const generateAssetData = async () => {
   const scrollAssets = await scroll.getAssets()
   const modeAssets = await mode.getAssets()
   const plasmaAssets = await plasma.getAssets()
-  const plumeAssets = await plume.getAssets()
   const storyAssets = await story.getAssets()
   const worldchainAssets = await worldchainModule.getAssets()
   const sonicAssets = await sonic.getAssets()
@@ -152,7 +150,6 @@ const generateAssetData = async () => {
     ...scrollAssets,
     ...modeAssets,
     ...plasmaAssets,
-    ...plumeAssets,
     ...storyAssets,
     ...worldchainAssets,
     ...sonicAssets,

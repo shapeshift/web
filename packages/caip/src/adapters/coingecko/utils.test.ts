@@ -191,16 +191,18 @@ describe('adapters:coingecko:utils', () => {
         'eip155:747474': {
           'eip155:747474/slip44:60': 'katana',
         },
-        'eip155:98866': {
-          'eip155:98866/slip44:60': 'plume',
         'eip155:1514': {
           'eip155:1514/slip44:60': 'story-2',
+        },
         'eip155:324': {
           'eip155:324/slip44:60': 'ethereum',
+        },
         'eip155:81457': {
           'eip155:81457/slip44:60': 'ethereum',
+        },
         'eip155:43111': {
           'eip155:43111/slip44:60': 'ethereum',
+        },
         'eip155:5000': {
           'eip155:5000/slip44:60': 'mantle',
         },

@@ -1,10 +1,10 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
-  blastAssetId,
-  hemiAssetId,
   berachainAssetId,
+  blastAssetId,
   bobAssetId,
   cronosAssetId,
+  hemiAssetId,
   hyperEvmAssetId,
   inkAssetId,
   katanaAssetId,
@@ -16,7 +16,6 @@ import {
   monadAssetId,
   nearAssetId,
   plasmaAssetId,
-  plumeAssetId,
   scrollAssetId,
   soneiumAssetId,
   sonicAssetId,
@@ -25,9 +24,9 @@ import {
   suiAssetId,
   thorchainAssetId,
   tronAssetId,
-  zkSyncEraAssetId,
-  worldChainAssetId,
   unichainAssetId,
+  worldChainAssetId,
+  zkSyncEraAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
@@ -64,7 +63,6 @@ export const queryFn = async () => {
   if (enabledFlags.Ink) assetIds.push(inkAssetId)
   if (enabledFlags.Scroll) assetIds.push(scrollAssetId)
   if (enabledFlags.Katana) assetIds.push(katanaAssetId)
-  if (enabledFlags.Plume) assetIds.push(plumeAssetId)
   if (enabledFlags.Story) assetIds.push(storyAssetId)
   if (enabledFlags.ZkSyncEra) assetIds.push(zkSyncEraAssetId)
   if (enabledFlags.Blast) assetIds.push(blastAssetId)

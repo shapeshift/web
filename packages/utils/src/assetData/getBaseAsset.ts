@@ -32,7 +32,6 @@ import {
   near,
   optimism,
   plasma,
-  plume,
   polygon,
   scroll,
   solana,
@@ -44,8 +43,8 @@ import {
   thorchain,
   ton,
   tron,
-  worldchain,
   unichainChain,
+  worldchain,
   zcash,
   zkSyncEra,
 } from './baseAssets'
@@ -109,8 +108,6 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return cronos
     case KnownChainIds.KatanaMainnet:
       return katana
-    case KnownChainIds.PlumeMainnet:
-      return plume
     case KnownChainIds.StoryMainnet:
       return story
     case KnownChainIds.ZkSyncEraMainnet:

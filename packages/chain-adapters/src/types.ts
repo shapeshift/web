@@ -53,7 +53,6 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.BerachainMainnet]: evm.Account
     [KnownChainIds.CronosMainnet]: evm.Account
     [KnownChainIds.KatanaMainnet]: evm.Account
-    [KnownChainIds.PlumeMainnet]: evm.Account
     [KnownChainIds.StoryMainnet]: evm.Account
     [KnownChainIds.ZkSyncEraMainnet]: evm.Account
     [KnownChainIds.BlastMainnet]: evm.Account
@@ -122,7 +121,6 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.BerachainMainnet]: evm.FeeData
     [KnownChainIds.CronosMainnet]: evm.FeeData
     [KnownChainIds.KatanaMainnet]: evm.FeeData
-    [KnownChainIds.PlumeMainnet]: evm.FeeData
     [KnownChainIds.StoryMainnet]: evm.FeeData
     [KnownChainIds.ZkSyncEraMainnet]: evm.FeeData
     [KnownChainIds.BlastMainnet]: evm.FeeData
@@ -224,7 +222,6 @@ export type ChainSignTx = {
   [KnownChainIds.BerachainMainnet]: ETHSignTx
   [KnownChainIds.CronosMainnet]: ETHSignTx
   [KnownChainIds.KatanaMainnet]: ETHSignTx
-  [KnownChainIds.PlumeMainnet]: ETHSignTx
   [KnownChainIds.StoryMainnet]: ETHSignTx
   [KnownChainIds.ZkSyncEraMainnet]: ETHSignTx
   [KnownChainIds.BlastMainnet]: ETHSignTx
@@ -298,7 +295,6 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.BerachainMainnet]: evm.BuildTxInput
     [KnownChainIds.CronosMainnet]: evm.BuildTxInput
     [KnownChainIds.KatanaMainnet]: evm.BuildTxInput
-    [KnownChainIds.PlumeMainnet]: evm.BuildTxInput
     [KnownChainIds.StoryMainnet]: evm.BuildTxInput
     [KnownChainIds.ZkSyncEraMainnet]: evm.BuildTxInput
     [KnownChainIds.BlastMainnet]: evm.BuildTxInput
@@ -422,7 +418,6 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.BerachainMainnet]: evm.GetFeeDataInput
     [KnownChainIds.CronosMainnet]: evm.GetFeeDataInput
     [KnownChainIds.KatanaMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.PlumeMainnet]: evm.GetFeeDataInput
     [KnownChainIds.StoryMainnet]: evm.GetFeeDataInput
     [KnownChainIds.ZkSyncEraMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BlastMainnet]: evm.GetFeeDataInput
@@ -511,7 +506,6 @@ export enum ChainAdapterDisplayName {
   Berachain = 'Berachain',
   Cronos = 'Cronos',
   Katana = 'Katana',
-  Plume = 'Plume',
   Story = 'Story',
   ZkSyncEra = 'zkSync Era',
   Blast = 'Blast',

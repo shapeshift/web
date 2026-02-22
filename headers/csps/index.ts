@@ -32,7 +32,6 @@ import { csp as monad } from './chains/monad'
 import { csp as near } from './chains/near'
 import { csp as optimism } from './chains/optimism'
 import { csp as plasma } from './chains/plasma'
-import { csp as plume } from './chains/plume'
 import { csp as polygon } from './chains/polygon'
 import { csp as scroll } from './chains/scroll'
 import { csp as solana } from './chains/solana'
@@ -44,8 +43,8 @@ import { csp as sui } from './chains/sui'
 import { csp as thorchain } from './chains/thorchain'
 import { csp as ton } from './chains/ton'
 import { csp as tron } from './chains/tron'
-import { csp as worldchain } from './chains/worldchain'
 import { csp as unichain } from './chains/unichain'
+import { csp as worldchain } from './chains/worldchain'
 import { csp as zcash } from './chains/zcash'
 import { csp as zksyncera } from './chains/zksyncera'
 import { csp as chatwoot } from './chatwoot'
@@ -147,7 +146,6 @@ export const csps = [
   megaeth,
   zksyncera,
   optimism,
-  plume,
   polygon,
   scroll,
   soneium,

@@ -89,7 +89,6 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   const isLineaEnabled = useAppSelector(state => selectFeatureFlag(state, 'Linea'))
   const isScrollEnabled = useAppSelector(state => selectFeatureFlag(state, 'Scroll'))
   const isKatanaEnabled = useAppSelector(state => selectFeatureFlag(state, 'Katana'))
-  const isPlumeEnabled = useAppSelector(state => selectFeatureFlag(state, 'Plume'))
   const isStoryEnabled = useAppSelector(state => selectFeatureFlag(state, 'Story'))
   const isZkSyncEraEnabled = useAppSelector(state => selectFeatureFlag(state, 'ZkSyncEra'))
   const isBlastEnabled = useAppSelector(state => selectFeatureFlag(state, 'Blast'))
@@ -116,7 +115,6 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
       if (!isLineaEnabled && chainId === KnownChainIds.LineaMainnet) return false
       if (!isScrollEnabled && chainId === KnownChainIds.ScrollMainnet) return false
       if (!isKatanaEnabled && chainId === KnownChainIds.KatanaMainnet) return false
-      if (!isPlumeEnabled && chainId === KnownChainIds.PlumeMainnet) return false
       if (!isStoryEnabled && chainId === KnownChainIds.StoryMainnet) return false
       if (!isZkSyncEraEnabled && chainId === KnownChainIds.ZkSyncEraMainnet) return false
       if (!isBlastEnabled && chainId === KnownChainIds.BlastMainnet) return false
@@ -135,7 +133,6 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
     supportedChainIds,
     isSuiEnabled,
     isPlasmaEnabled,
-    isPlumeEnabled,
     isHyperEvmEnabled,
     isMantleEnabled,
     isInkEnabled,

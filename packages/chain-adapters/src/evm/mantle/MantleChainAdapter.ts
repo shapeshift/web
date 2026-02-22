@@ -15,6 +15,10 @@ export type ChainAdapterArgs = {
   getKnownTokens: () => TokenInfo[]
 }
 
+export const isMantleChainAdapter = (adapter: unknown): adapter is ChainAdapter => {
+  return (adapter as ChainAdapter).getType() === KnownChainIds.MantleMainnet
+}
+
 export class ChainAdapter extends SecondClassEvmAdapter<KnownChainIds.MantleMainnet> {
   public static readonly rootBip44Params: RootBip44Params = {
     purpose: 44,

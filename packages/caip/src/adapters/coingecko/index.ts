@@ -8,8 +8,8 @@ import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
-  blastChainId,
   berachainChainId,
+  blastChainId,
   bobChainId,
   bscChainId,
   CHAIN_NAMESPACE,
@@ -31,7 +31,6 @@ import {
   nearChainId,
   optimismChainId,
   plasmaChainId,
-  plumeChainId,
   polygonChainId,
   scrollChainId,
   solanaChainId,
@@ -43,9 +42,9 @@ import {
   thorchainChainId,
   tonChainId,
   tronChainId,
-  zkSyncEraChainId,
-  worldChainChainId,
   unichainChainId,
+  worldChainChainId,
+  zkSyncEraChainId,
 } from '../../constants'
 import * as adapters from './generated'
 
@@ -69,7 +68,6 @@ export enum CoingeckoAssetPlatform {
   Plasma = 'plasma',
   Ink = 'ink',
   Katana = 'katana',
-  Plume = 'plume-network',
   Story = 'story',
   ZkSyncEra = 'zksync',
   Blast = 'blast',
@@ -77,7 +75,7 @@ export enum CoingeckoAssetPlatform {
   Hemi = 'hemi',
   Mantle = 'mantle',
   Linea = 'linea',
-  Sonic = 'sonic-3',
+  Sonic = 'sonic',
   Unichain = 'unichain',
   Bob = 'bob-network',
   Mode = 'mode',
@@ -289,8 +287,6 @@ export const coingeckoAssetPlatformToChainId = (
       return worldChainChainId
     case CoingeckoAssetPlatform.Katana:
       return katanaChainId
-    case CoingeckoAssetPlatform.Plume:
-      return plumeChainId
     case CoingeckoAssetPlatform.Story:
       return storyChainId
     case CoingeckoAssetPlatform.Mantle:

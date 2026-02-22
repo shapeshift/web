@@ -4,8 +4,8 @@ import {
   avalancheChainId,
   baseChainId,
   bchChainId,
-  blastChainId,
   berachainChainId,
+  blastChainId,
   bobChainId,
   bscChainId,
   btcChainId,
@@ -28,7 +28,6 @@ import {
   nearChainId,
   optimismChainId,
   plasmaChainId,
-  plumeChainId,
   polygonChainId,
   scrollChainId,
   solanaChainId,
@@ -40,8 +39,8 @@ import {
   thorchainChainId,
   tonChainId,
   tronChainId,
-  worldChainChainId,
   unichainChainId,
+  worldChainChainId,
   zecChainId,
   zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
@@ -55,8 +54,8 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
-  supportsBlast,
   supportsBerachain,
+  supportsBlast,
   supportsBob,
   supportsBSC,
   supportsBTC,
@@ -76,7 +75,6 @@ import {
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
-  supportsPlume,
   supportsPolygon,
   supportsScroll,
   supportsSolana,
@@ -87,9 +85,9 @@ import {
   supportsSui,
   supportsThorchain,
   supportsTron,
-  supportsZkSyncEra,
-  supportsWorldChain,
   supportsUnichain,
+  supportsWorldChain,
+  supportsZkSyncEra,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import { useMemo } from 'react'
 
@@ -201,7 +199,6 @@ export const walletSupportsChain = ({
   const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
   const isNearEnabled = selectFeatureFlag(store.getState(), 'Near')
   const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')
-  const isPlumeEnabled = selectFeatureFlag(store.getState(), 'Plume')
   const isScrollEnabled = selectFeatureFlag(store.getState(), 'Scroll')
   const isStarknetEnabled = selectFeatureFlag(store.getState(), 'Starknet')
   const isWorldChainEnabled = selectFeatureFlag(store.getState(), 'WorldChain')
@@ -253,8 +250,6 @@ export const walletSupportsChain = ({
       return isPlasmaEnabled && supportsPlasma(wallet)
     case katanaChainId:
       return isKatanaEnabled && supportsKatana(wallet)
-    case plumeChainId:
-      return isPlumeEnabled && supportsPlume(wallet)
     case storyChainId:
       return isStoryEnabled && supportsStory(wallet)
     case zkSyncEraChainId:

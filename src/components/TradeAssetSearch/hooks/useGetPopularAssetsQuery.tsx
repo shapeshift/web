@@ -23,6 +23,7 @@ import {
   thorchainAssetId,
   tronAssetId,
   unichainAssetId,
+  worldChainAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
@@ -59,6 +60,7 @@ export const queryFn = async () => {
   if (enabledFlags.Ink) assetIds.push(inkAssetId)
   if (enabledFlags.Scroll) assetIds.push(scrollAssetId)
   if (enabledFlags.Katana) assetIds.push(katanaAssetId)
+  if (enabledFlags.WorldChain) assetIds.push(worldChainAssetId)
   if (enabledFlags.Hemi) assetIds.push(hemiAssetId)
   if (enabledFlags.Linea) assetIds.push(lineaAssetId)
   if (enabledFlags.Cronos) assetIds.push(cronosAssetId)

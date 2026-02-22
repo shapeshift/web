@@ -115,6 +115,7 @@ export const mockStore: ReduxState = {
       Berachain: false,
       Cronos: false,
       Katana: false,
+      WorldChain: false,
       Hemi: false,
       Linea: false,
       Scroll: false,

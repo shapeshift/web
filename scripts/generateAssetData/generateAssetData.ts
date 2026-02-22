@@ -59,6 +59,7 @@ import * as tonModule from './ton'
 import * as tronModule from './tron'
 import * as unichain from './unichain'
 import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
+import * as worldchainModule from './worldchain'
 
 import { getAssetService } from '@/lib/asset-service'
 
@@ -95,6 +96,7 @@ const generateAssetData = async () => {
   const scrollAssets = await scroll.getAssets()
   const modeAssets = await mode.getAssets()
   const plasmaAssets = await plasma.getAssets()
+  const worldchainAssets = await worldchainModule.getAssets()
   const sonicAssets = await sonic.getAssets()
   const soneiumAssets = await soneium.getAssets()
   const solanaAssets = await solana.getAssets()
@@ -140,6 +142,7 @@ const generateAssetData = async () => {
     ...scrollAssets,
     ...modeAssets,
     ...plasmaAssets,
+    ...worldchainAssets,
     ...sonicAssets,
     ...soneiumAssets,
     ...solanaAssets,

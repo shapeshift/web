@@ -24,6 +24,7 @@ import {
   polygonChainId,
   solanaChainId,
   thorchainChainId,
+  worldChainChainId,
 } from '@shapeshiftoss/caip'
 import type { TransactionData } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
@@ -226,6 +227,7 @@ export const EVM_CHAIN_IDS = {
   monad: monadChainId,
   hyperEvm: hyperEvmChainId,
   plasma: plasmaChainId,
+  worldChain: worldChainChainId,
   katana: katanaChainId,
 } as const
 

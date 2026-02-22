@@ -53,6 +53,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.BerachainMainnet]: evm.Account
     [KnownChainIds.CronosMainnet]: evm.Account
     [KnownChainIds.KatanaMainnet]: evm.Account
+    [KnownChainIds.WorldChainMainnet]: evm.Account
     [KnownChainIds.HemiMainnet]: evm.Account
     [KnownChainIds.LineaMainnet]: evm.Account
     [KnownChainIds.ScrollMainnet]: evm.Account
@@ -117,6 +118,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.BerachainMainnet]: evm.FeeData
     [KnownChainIds.CronosMainnet]: evm.FeeData
     [KnownChainIds.KatanaMainnet]: evm.FeeData
+    [KnownChainIds.WorldChainMainnet]: evm.FeeData
     [KnownChainIds.HemiMainnet]: evm.FeeData
     [KnownChainIds.LineaMainnet]: evm.FeeData
     [KnownChainIds.ScrollMainnet]: evm.FeeData
@@ -214,6 +216,7 @@ export type ChainSignTx = {
   [KnownChainIds.BerachainMainnet]: ETHSignTx
   [KnownChainIds.CronosMainnet]: ETHSignTx
   [KnownChainIds.KatanaMainnet]: ETHSignTx
+  [KnownChainIds.WorldChainMainnet]: ETHSignTx
   [KnownChainIds.HemiMainnet]: ETHSignTx
   [KnownChainIds.LineaMainnet]: ETHSignTx
   [KnownChainIds.ScrollMainnet]: ETHSignTx
@@ -283,6 +286,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.BerachainMainnet]: evm.BuildTxInput
     [KnownChainIds.CronosMainnet]: evm.BuildTxInput
     [KnownChainIds.KatanaMainnet]: evm.BuildTxInput
+    [KnownChainIds.WorldChainMainnet]: evm.BuildTxInput
     [KnownChainIds.HemiMainnet]: evm.BuildTxInput
     [KnownChainIds.LineaMainnet]: evm.BuildTxInput
     [KnownChainIds.ScrollMainnet]: evm.BuildTxInput
@@ -402,6 +406,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.BerachainMainnet]: evm.GetFeeDataInput
     [KnownChainIds.CronosMainnet]: evm.GetFeeDataInput
     [KnownChainIds.KatanaMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.WorldChainMainnet]: evm.GetFeeDataInput
     [KnownChainIds.HemiMainnet]: evm.GetFeeDataInput
     [KnownChainIds.LineaMainnet]: evm.GetFeeDataInput
     [KnownChainIds.ScrollMainnet]: evm.GetFeeDataInput
@@ -486,6 +491,7 @@ export enum ChainAdapterDisplayName {
   Berachain = 'Berachain',
   Cronos = 'Cronos',
   Katana = 'Katana',
+  WorldChain = 'World Chain',
   Hemi = 'Hemi',
   Linea = 'Linea',
   Scroll = 'Scroll',

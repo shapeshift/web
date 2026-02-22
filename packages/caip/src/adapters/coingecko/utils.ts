@@ -77,6 +77,8 @@ import {
   tronChainId,
   unichainAssetId,
   unichainChainId,
+  worldChainAssetId,
+  worldChainChainId,
   zecChainId,
 } from '../../constants'
 import {
@@ -294,6 +296,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
             assetReference: platforms[CoingeckoAssetPlatform.Plasma],
           })
           prev[plasmaChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.WorldChain)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.WorldChainMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.WorldChain],
+          })
+          prev[worldChainChainId][assetId] = id
         } catch {
           // unable to create assetId, skip token
         }
@@ -558,6 +574,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [berachainChainId]: { [berachainAssetId]: 'berachain-bera' },
       [cronosChainId]: { [cronosAssetId]: 'crypto-com-chain' },
       [katanaChainId]: { [katanaAssetId]: 'katana' },
+      [worldChainChainId]: { [worldChainAssetId]: 'ethereum' },
       [hemiChainId]: { [hemiAssetId]: 'ethereum' },
       [scrollChainId]: { [scrollAssetId]: 'ethereum' },
       [sonicChainId]: { [sonicAssetId]: 'sonic-3' },

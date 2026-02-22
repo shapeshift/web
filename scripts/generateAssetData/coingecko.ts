@@ -34,6 +34,7 @@ import {
   tonChainId,
   tronChainId,
   unichainChainId,
+  worldChainChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import {
@@ -67,6 +68,7 @@ import {
   ton,
   tron,
   unichainChain,
+  worldchain,
 } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
@@ -204,6 +206,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: megaeth.explorer,
           explorerAddressLink: megaeth.explorerAddressLink,
           explorerTxLink: megaeth.explorerTxLink,
+        }
+      case worldChainChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: worldchain.explorer,
+          explorerAddressLink: worldchain.explorerAddressLink,
+          explorerTxLink: worldchain.explorerTxLink,
         }
       case lineaChainId:
         return {

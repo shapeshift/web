@@ -33,6 +33,7 @@ import {
   supportsSoneium,
   supportsSonic,
   supportsUnichain,
+  supportsWorldChain,
 } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -104,6 +105,7 @@ export const evmChainIds = [
   KnownChainIds.BerachainMainnet,
   KnownChainIds.CronosMainnet,
   KnownChainIds.KatanaMainnet,
+  KnownChainIds.WorldChainMainnet,
   KnownChainIds.HemiMainnet,
   KnownChainIds.LineaMainnet,
   KnownChainIds.ScrollMainnet,
@@ -224,6 +226,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsCronos(wallet)
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
+        case Number(fromChainId(KnownChainIds.WorldChainMainnet).chainReference):
+          return supportsWorldChain(wallet)
         case Number(fromChainId(KnownChainIds.HemiMainnet).chainReference):
           return supportsHemi(wallet)
         case Number(fromChainId(KnownChainIds.LineaMainnet).chainReference):
@@ -356,6 +360,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://katanascan.com',
+      },
+      [KnownChainIds.WorldChainMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://worldscan.org',
       },
       [KnownChainIds.HemiMainnet]: {
         name: 'Ether',

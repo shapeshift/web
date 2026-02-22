@@ -42,6 +42,7 @@ import {
   ton,
   tron,
   unichainChain,
+  worldchain,
   zcash,
 } from './baseAssets'
 
@@ -104,6 +105,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return cronos
     case KnownChainIds.KatanaMainnet:
       return katana
+    case KnownChainIds.WorldChainMainnet:
+      return worldchain
     case KnownChainIds.HemiMainnet:
       return hemi
     case KnownChainIds.LineaMainnet:

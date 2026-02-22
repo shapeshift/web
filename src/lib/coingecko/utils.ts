@@ -32,6 +32,7 @@ import {
   toAssetId,
   tonChainId,
   unichainChainId,
+  worldChainChainId,
   zecChainId,
 } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -227,6 +228,7 @@ export const getCoingeckoSupportedChainIds = () => {
     ...(getConfig().VITE_FEATURE_INK ? [inkChainId] : []),
     ...(getConfig().VITE_FEATURE_CRONOS ? [cronosChainId] : []),
     ...(getConfig().VITE_FEATURE_KATANA ? [katanaChainId] : []),
+    ...(getConfig().VITE_FEATURE_WORLDCHAIN ? [worldChainChainId] : []),
     ...(getConfig().VITE_FEATURE_HEMI ? [hemiChainId] : []),
     ...(getConfig().VITE_FEATURE_MANTLE ? [mantleChainId] : []),
     ...(getConfig().VITE_FEATURE_LINEA ? [lineaChainId] : []),

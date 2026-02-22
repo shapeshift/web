@@ -14,6 +14,7 @@ import {
   solanaChainId,
   soneiumChainId,
   unichainChainId,
+  worldChainChainId,
 } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
@@ -32,6 +33,7 @@ import {
   polygon,
   soneium,
   unichain,
+  worldchain,
 } from 'viem/chains'
 
 import { TradeQuoteError } from '../../types'
@@ -50,6 +52,7 @@ export const chainIdToAcrossChainId: Record<string, number> = {
   [lineaChainId]: linea.id,
   [modeChainId]: mode.id,
   [plasmaChainId]: plasma.id,
+  [worldChainChainId]: worldchain.id,
   [unichainChainId]: unichain.id,
   [soneiumChainId]: soneium.id,
   // Across uses a custom Solana chain ID

@@ -30,6 +30,7 @@ import {
   tonChainId,
   tronChainId,
   unichainChainId,
+  worldChainChainId,
   zecChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
@@ -134,6 +135,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_MONAD && asset.chainId === monadChainId) return false
       if (!config.VITE_FEATURE_HYPEREVM && asset.chainId === hyperEvmChainId) return false
       if (!config.VITE_FEATURE_KATANA && asset.chainId === katanaChainId) return false
+      if (!config.VITE_FEATURE_WORLDCHAIN && asset.chainId === worldChainChainId) return false
       if (!config.VITE_FEATURE_HEMI && asset.chainId === hemiChainId) return false
       if (!config.VITE_FEATURE_MANTLE && asset.chainId === mantleChainId) return false
       if (!config.VITE_FEATURE_INK && asset.chainId === inkChainId) return false

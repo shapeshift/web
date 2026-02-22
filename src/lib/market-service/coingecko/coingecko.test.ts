@@ -21,6 +21,7 @@ vi.mock('axios', () => {
       })),
     },
   }
+
   return {
     default: {
       ...mockAxios.default.create(),
@@ -276,6 +277,7 @@ describe('CoinGecko market service', () => {
         supply: '18840237',
         maxSupply: '21000000',
       }
+
       const ethResult = {
         price: '3459.72',
         marketCap: '407989270877',

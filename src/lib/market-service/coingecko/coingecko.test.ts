@@ -69,6 +69,7 @@ describe('CoinGecko market service', () => {
       roi: null,
       last_updated: '2021-10-10T22:16:39.866Z',
     }
+
     const eth: CoinGeckoMarketCap = {
       id: 'ethereum',
       symbol: 'eth',
@@ -101,6 +102,7 @@ describe('CoinGecko market service', () => {
       },
       last_updated: '2021-10-10T22:16:22.950Z',
     }
+
     const fox: CoinGeckoMarketCap = {
       id: 'shapeshift-fox-token',
       symbol: 'fox',
@@ -133,6 +135,7 @@ describe('CoinGecko market service', () => {
       },
       last_updated: '2021-10-10T22:16:22.950Z',
     }
+
     const usdc: CoinGeckoMarketCap = {
       ath: 1.17,
       ath_change_percentage: -14.79969,
@@ -165,8 +168,6 @@ describe('CoinGecko market service', () => {
     it('can flatten multiple responses', async () => {
       mocks.get.mockResolvedValueOnce({ data: [eth] }).mockResolvedValue({ data: [btc] })
       const result = await coinGeckoMarketService.findAll()
-      expect(Object.keys(result).length).toEqual(7)
-      expect(Object.keys(result).length).toEqual(13)
       expect(Object.keys(result).length).toEqual(17)
     })
 
@@ -191,8 +192,6 @@ describe('CoinGecko market service', () => {
     it('can return some results if partially rate limited', async () => {
       mocks.get.mockResolvedValueOnce({ status: 429 }).mockResolvedValue({ data: [eth] })
       const result = await coinGeckoMarketService.findAll()
-      expect(Object.keys(result).length).toEqual(6)
-      expect(Object.keys(result).length).toEqual(12)
       expect(Object.keys(result).length).toEqual(16)
     })
 

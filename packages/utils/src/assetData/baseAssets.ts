@@ -370,6 +370,7 @@ export const worldchain: Readonly<Asset> = Object.freeze({
   explorerTxLink: 'https://worldscan.org/tx/',
   relatedAssetKey: 'eip155:1/slip44:60',
 })
+
 export const mantle: Readonly<Asset> = Object.freeze({
   assetId: caip.mantleAssetId,
   chainId: caip.mantleChainId,
@@ -487,6 +488,7 @@ export const story: Readonly<Asset> = Object.freeze({
   explorerTxLink: 'https://storyscan.xyz/tx/',
   relatedAssetKey: null,
 })
+
 export const zkSyncEra: Readonly<Asset> = Object.freeze({
   assetId: caip.zkSyncEraAssetId,
   chainId: caip.zkSyncEraChainId,
@@ -503,6 +505,7 @@ export const zkSyncEra: Readonly<Asset> = Object.freeze({
   explorerTxLink: 'https://explorer.zksync.io/tx/',
   relatedAssetKey: 'eip155:1/slip44:60',
 })
+
 export const blast: Readonly<Asset> = Object.freeze({
   assetId: caip.blastAssetId,
   chainId: caip.blastChainId,
@@ -519,6 +522,7 @@ export const blast: Readonly<Asset> = Object.freeze({
   explorerTxLink: 'https://blastscan.io/tx/',
   relatedAssetKey: 'eip155:1/slip44:60',
 })
+
 export const hemi: Readonly<Asset> = Object.freeze({
   assetId: caip.hemiAssetId,
   chainId: caip.hemiChainId,
@@ -535,6 +539,7 @@ export const hemi: Readonly<Asset> = Object.freeze({
   explorerTxLink: 'https://explorer.hemi.xyz/tx/',
   relatedAssetKey: 'eip155:1/slip44:60',
 })
+
 export const linea: Readonly<Asset> = Object.freeze({
   assetId: caip.lineaAssetId,
   chainId: caip.lineaChainId,

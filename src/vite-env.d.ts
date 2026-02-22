@@ -70,6 +70,7 @@ interface ImportMetaEnv {
   readonly VITE_STORY_NODE_URL: string
   readonly VITE_FEATURE_ZK_SYNC_ERA: string
   readonly VITE_ZKSYNC_ERA_NODE_URL: string
+
   // URLs and API keys from base .env (always defined)
   readonly VITE_ABSOLUTE_URL_PREFIX: string
   readonly VITE_CHATWOOT_TOKEN: string

@@ -124,6 +124,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Avalanche)) {
         try {
           const assetId = toAssetId({
@@ -137,6 +138,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Optimism)) {
         try {
           const assetId = toAssetId({
@@ -150,6 +152,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.BnbSmartChain)) {
         try {
           const assetId = toAssetId({
@@ -163,6 +166,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Polygon)) {
         try {
           const assetId = toAssetId({
@@ -176,6 +180,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Gnosis)) {
         try {
           const assetId = toAssetId({
@@ -189,6 +194,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Arbitrum)) {
         try {
           const assetId = toAssetId({
@@ -202,6 +208,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Base)) {
         try {
           const assetId = toAssetId({
@@ -215,6 +222,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.HyperEvm)) {
         try {
           const assetId = toAssetId({
@@ -228,6 +236,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Solana)) {
         try {
           const assetId = toAssetId({
@@ -241,6 +250,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Tron)) {
         try {
           const assetId = toAssetId({
@@ -254,6 +264,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Sui)) {
         try {
           const assetId = toAssetId({
@@ -267,6 +278,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Monad)) {
         try {
           const assetId = toAssetId({
@@ -280,6 +292,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Plasma)) {
         try {
           const assetId = toAssetId({
@@ -293,6 +306,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.WorldChain)) {
         try {
           const assetId = toAssetId({
@@ -306,6 +320,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Mantle)) {
         try {
           const assetId = toAssetId({
@@ -319,6 +334,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Ink)) {
         try {
           const assetId = toAssetId({
@@ -332,6 +348,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.MegaEth)) {
         try {
           const assetId = toAssetId({
@@ -345,6 +362,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Linea)) {
         try {
           const assetId = toAssetId({
@@ -358,6 +376,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Berachain)) {
         try {
           const assetId = toAssetId({
@@ -371,6 +390,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Scroll)) {
         try {
           const assetId = toAssetId({
@@ -384,6 +404,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Cronos)) {
         try {
           const assetId = toAssetId({
@@ -397,6 +418,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Katana)) {
         try {
           const assetId = toAssetId({
@@ -410,6 +432,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Story)) {
         try {
           const assetId = toAssetId({
@@ -423,6 +446,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.ZkSyncEra)) {
         try {
           const assetId = toAssetId({
@@ -436,6 +460,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Blast)) {
         try {
           const assetId = toAssetId({
@@ -449,6 +474,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Hemi)) {
         try {
           const assetId = toAssetId({
@@ -462,6 +488,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Sonic)) {
         try {
           const assetId = toAssetId({
@@ -475,6 +502,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Unichain)) {
         try {
           const assetId = toAssetId({
@@ -488,6 +516,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Bob)) {
         try {
           const assetId = toAssetId({
@@ -501,6 +530,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Mode)) {
         try {
           const assetId = toAssetId({
@@ -514,6 +544,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Soneium)) {
         try {
           const assetId = toAssetId({
@@ -527,6 +558,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Starknet)) {
         try {
           const assetId = toAssetId({
@@ -540,6 +572,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Near)) {
         try {
           const assetId = toAssetId({
@@ -553,6 +586,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Ton)) {
         try {
           const assetId = toAssetId({
@@ -566,6 +600,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
+
       return prev
     },
     {

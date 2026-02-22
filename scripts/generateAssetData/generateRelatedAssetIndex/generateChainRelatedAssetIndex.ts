@@ -84,7 +84,7 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     'eip155:1/erc20:0xca14007eff0db1f8135f4c25b34de49ab0d42766',
     'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:HsRpHQn6VbyMs5b5j5SV6xQ2VvpvvCCzu19GjytVSCoz',
   ],
-  // Native stablecoins on Linea + Mantle + Sonic - CoinGecko doesn't tag these as bridged categories
+  // Native stablecoins on Linea + Mantle - CoinGecko doesn't tag these as bridged categories
   'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': [
     'eip155:59144/erc20:0x176211869ca2b568f2a7d4ee941e073a821ee1ff',
     'eip155:5000/erc20:0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9',

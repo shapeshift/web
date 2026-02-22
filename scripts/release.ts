@@ -225,15 +225,12 @@ const generateReleaseSummary = async (
   }
 }
 
-const createDraftRegularPR = async (prBody: string, nextVersion: string): Promise<void> => {
-  const title = `chore: release ${nextVersion}`
-
+const createDraftPR = async (title: string, body: string): Promise<void> => {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shapeshift-release-body-'))
   const bodyPath = path.join(tmpDir, 'body.md')
 
   try {
-    fs.writeFileSync(bodyPath, prBody, 'utf-8')
-    console.log(chalk.green('Creating draft PR...'))
+    fs.writeFileSync(bodyPath, body, 'utf-8')
     await pify(execFile)('gh', [
       'pr',
       'create',
@@ -245,7 +242,6 @@ const createDraftRegularPR = async (prBody: string, nextVersion: string): Promis
       '--body-file',
       bodyPath,
     ])
-    console.log(chalk.green('Draft PR created.'))
   } finally {
     try {
       fs.rmSync(tmpDir, { recursive: true, force: true })
@@ -253,7 +249,12 @@ const createDraftRegularPR = async (prBody: string, nextVersion: string): Promis
       // best-effort cleanup
     }
   }
+}
 
+const createDraftRegularPR = async (prBody: string, nextVersion: string): Promise<void> => {
+  console.log(chalk.green('Creating draft PR...'))
+  await createDraftPR(`chore: release ${nextVersion}`, prBody)
+  console.log(chalk.green('Draft PR created.'))
   exit(chalk.green(`Release ${nextVersion} created.`))
 }
 
@@ -262,34 +263,9 @@ const createDraftHotfixPR = async (): Promise<void> => {
   const { messages } = await getCommits(currentBranch as GetCommitMessagesArgs)
   // TODO(0xdef1cafe): parse version bump from commit messages
   const nextVersion = await getNextReleaseVersion('minor')
-  const title = `chore: hotfix release ${nextVersion}`
-
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shapeshift-release-body-'))
-  const bodyPath = path.join(tmpDir, 'body.md')
-
-  try {
-    fs.writeFileSync(bodyPath, messages.join('\n'), 'utf-8')
-    console.log(chalk.green('Creating draft hotfix PR...'))
-    await pify(execFile)('gh', [
-      'pr',
-      'create',
-      '--draft',
-      '--base',
-      'main',
-      '--title',
-      title,
-      '--body-file',
-      bodyPath,
-    ])
-    console.log(chalk.green('Draft hotfix PR created.'))
-  } finally {
-    try {
-      fs.rmSync(tmpDir, { recursive: true, force: true })
-    } catch {
-      // best-effort cleanup
-    }
-  }
-
+  console.log(chalk.green('Creating draft hotfix PR...'))
+  await createDraftPR(`chore: hotfix release ${nextVersion}`, messages.join('\n'))
+  console.log(chalk.green('Draft hotfix PR created.'))
   exit(chalk.green(`Hotfix release ${nextVersion} created.`))
 }
 

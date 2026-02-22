@@ -5,7 +5,11 @@ import {
   berachainAssetId,
   bobAssetId,
   cronosAssetId,
-  hyperEvmAssetId,
+  berachainAssetId,
+  blastAssetId,
+  bobAssetId,
+  cronosAssetId,
+  hemiAssetId,  hyperEvmAssetId,
   inkAssetId,
   katanaAssetId,
   lineaAssetId,
@@ -27,7 +31,9 @@ import {
   zkSyncEraAssetId,
   worldChainAssetId,
   unichainAssetId,
-} from '@shapeshiftoss/caip'
+  unichainAssetId,
+  worldChainAssetId,
+  zkSyncEraAssetId,} from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 
@@ -63,8 +69,7 @@ export const queryFn = async () => {
   if (enabledFlags.Ink) assetIds.push(inkAssetId)
   if (enabledFlags.Scroll) assetIds.push(scrollAssetId)
   if (enabledFlags.Katana) assetIds.push(katanaAssetId)
-  if (enabledFlags.Story) assetIds.push(storyAssetId)
-  if (enabledFlags.ZkSyncEra) assetIds.push(zkSyncEraAssetId)
+  if (enabledFlags.Story) assetIds.push(storyAssetId)  if (enabledFlags.ZkSyncEra) assetIds.push(zkSyncEraAssetId)
   if (enabledFlags.Blast) assetIds.push(blastAssetId)
   if (enabledFlags.WorldChain) assetIds.push(worldChainAssetId)
   if (enabledFlags.Hemi) assetIds.push(hemiAssetId)

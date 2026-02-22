@@ -5,7 +5,8 @@ import {
   baseChainId,
   blastChainId,
   berachainChainId,
-  bobChainId,
+  berachainChainId,
+  blastChainId,  bobChainId,
   bscChainId,
   cronosChainId,
   ethChainId,
@@ -23,15 +24,16 @@ import {
   optimismChainId,
   plasmaChainId,
   polygonChainId,
-  storyChainId,
-  scrollChainId,
+  storyChainId,  scrollChainId,
   soneiumChainId,
   sonicChainId,
   toAccountId,
   zkSyncEraChainId,
   worldChainChainId,
   unichainChainId,
-} from '@shapeshiftoss/caip'
+  unichainChainId,
+  worldChainChainId,
+  zkSyncEraChainId,} from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   isMetaMask,
@@ -40,7 +42,8 @@ import {
   supportsBase,
   supportsBlast,
   supportsBerachain,
-  supportsBob,
+  supportsBerachain,
+  supportsBlast,  supportsBob,
   supportsBSC,
   supportsCronos,
   supportsETH,
@@ -59,12 +62,12 @@ import {
   supportsPolygon,
   supportsStory,
   supportsZkSyncEra,
-  supportsWorldChain,
-  supportsScroll,
+  supportsWorldChain,  supportsScroll,
   supportsSoneium,
   supportsSonic,
   supportsUnichain,
-} from '@shapeshiftoss/hdwallet-core/wallet'
+  supportsWorldChain,
+  supportsZkSyncEra,} from '@shapeshiftoss/hdwallet-core/wallet'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
@@ -164,8 +167,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === scrollChainId && !supportsScroll(wallet)) continue
     if (chainId === cronosChainId && !supportsCronos(wallet)) continue
     if (chainId === katanaChainId && !supportsKatana(wallet)) continue
-    if (chainId === storyChainId && !supportsStory(wallet)) continue
-    if (chainId === zkSyncEraChainId && !supportsZkSyncEra(wallet)) continue
+    if (chainId === storyChainId && !supportsStory(wallet)) continue    if (chainId === zkSyncEraChainId && !supportsZkSyncEra(wallet)) continue
     if (chainId === blastChainId && !supportsBlast(wallet)) continue
     if (chainId === worldChainChainId && !supportsWorldChain(wallet)) continue
     if (chainId === hemiChainId && !supportsHemi(wallet)) continue

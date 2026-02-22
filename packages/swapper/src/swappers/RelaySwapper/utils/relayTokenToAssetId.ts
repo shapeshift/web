@@ -176,7 +176,26 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
       case CHAIN_REFERENCE.HemiMainnet:
         return {
           assetReference: ASSET_REFERENCE.Hemi,
-      case CHAIN_REFERENCE.LineaMainnet:
+      case CHAIN_REFERENCE.ZkSyncEraMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.ZkSyncEra,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.BlastMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Blast,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.WorldChainMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.WorldChain,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.HemiMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Hemi,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }      case CHAIN_REFERENCE.LineaMainnet:
         return {
           assetReference: ASSET_REFERENCE.Linea,
           assetNamespace: ASSET_NAMESPACE.slip44,

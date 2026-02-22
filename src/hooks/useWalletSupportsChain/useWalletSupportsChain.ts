@@ -6,7 +6,8 @@ import {
   bchChainId,
   blastChainId,
   berachainChainId,
-  bobChainId,
+  berachainChainId,
+  blastChainId,  bobChainId,
   bscChainId,
   btcChainId,
   cosmosChainId,
@@ -41,7 +42,8 @@ import {
   tronChainId,
   worldChainChainId,
   unichainChainId,
-  zecChainId,
+  unichainChainId,
+  worldChainChainId,  zecChainId,
   zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -56,7 +58,8 @@ import {
   supportsBase,
   supportsBlast,
   supportsBerachain,
-  supportsBob,
+  supportsBerachain,
+  supportsBlast,  supportsBob,
   supportsBSC,
   supportsBTC,
   supportsCosmos,
@@ -88,7 +91,9 @@ import {
   supportsZkSyncEra,
   supportsWorldChain,
   supportsUnichain,
-} from '@shapeshiftoss/hdwallet-core/wallet'
+  supportsUnichain,
+  supportsWorldChain,
+  supportsZkSyncEra,} from '@shapeshiftoss/hdwallet-core/wallet'
 import { useMemo } from 'react'
 
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
@@ -186,8 +191,7 @@ export const walletSupportsChain = ({
   const isInkEnabled = selectFeatureFlag(store.getState(), 'Ink')
   const isBobEnabled = selectFeatureFlag(store.getState(), 'Bob')
   const isKatanaEnabled = selectFeatureFlag(store.getState(), 'Katana')
-  const isStoryEnabled = selectFeatureFlag(store.getState(), 'Story')
-  const isMantleEnabled = selectFeatureFlag(store.getState(), 'Mantle')
+  const isStoryEnabled = selectFeatureFlag(store.getState(), 'Story')  const isMantleEnabled = selectFeatureFlag(store.getState(), 'Mantle')
   const isLineaEnabled = selectFeatureFlag(store.getState(), 'Linea')
   const isCronosEnabled = selectFeatureFlag(store.getState(), 'Cronos')
   const isSonicEnabled = selectFeatureFlag(store.getState(), 'Sonic')
@@ -251,8 +255,7 @@ export const walletSupportsChain = ({
     case katanaChainId:
       return isKatanaEnabled && supportsKatana(wallet)
     case storyChainId:
-      return isStoryEnabled && supportsStory(wallet)
-    case zkSyncEraChainId:
+      return isStoryEnabled && supportsStory(wallet)    case zkSyncEraChainId:
       return isZkSyncEraEnabled && supportsZkSyncEra(wallet)
     case blastChainId:
       return isBlastEnabled && supportsBlast(wallet)

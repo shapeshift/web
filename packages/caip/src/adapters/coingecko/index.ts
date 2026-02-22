@@ -10,7 +10,8 @@ import {
   baseChainId,
   blastChainId,
   berachainChainId,
-  bobChainId,
+  berachainChainId,
+  blastChainId,  bobChainId,
   bscChainId,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
@@ -45,7 +46,9 @@ import {
   zkSyncEraChainId,
   worldChainChainId,
   unichainChainId,
-} from '../../constants'
+  unichainChainId,
+  worldChainChainId,
+  zkSyncEraChainId,} from '../../constants'
 import * as adapters from './generated'
 
 export { fetchData as fetchCoingeckoData, parseData as parseCoingeckoData } from './utils'
@@ -68,15 +71,14 @@ export enum CoingeckoAssetPlatform {
   Plasma = 'plasma',
   Ink = 'ink',
   Katana = 'katana',
-  Story = 'story',
-  ZkSyncEra = 'zksync',
+  Story = 'story',  ZkSyncEra = 'zksync',
   Blast = 'blast',
   WorldChain = 'world-chain',
   Hemi = 'hemi',
   Mantle = 'mantle',
   Linea = 'linea',
   Sonic = 'sonic-3',
-  Unichain = 'unichain',
+  Sonic = 'sonic',  Unichain = 'unichain',
   Bob = 'bob-network',
   Mode = 'mode',
   MegaEth = 'megaeth',
@@ -145,8 +147,7 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
         case CHAIN_REFERENCE.KatanaMainnet:
           return CoingeckoAssetPlatform.Katana
         case CHAIN_REFERENCE.StoryMainnet:
-          return CoingeckoAssetPlatform.Story
-        case CHAIN_REFERENCE.ZkSyncEraMainnet:
+          return CoingeckoAssetPlatform.Story        case CHAIN_REFERENCE.ZkSyncEraMainnet:
           return CoingeckoAssetPlatform.ZkSyncEra
         case CHAIN_REFERENCE.BlastMainnet:
           return CoingeckoAssetPlatform.Blast
@@ -288,8 +289,7 @@ export const coingeckoAssetPlatformToChainId = (
     case CoingeckoAssetPlatform.Katana:
       return katanaChainId
     case CoingeckoAssetPlatform.Story:
-      return storyChainId
-    case CoingeckoAssetPlatform.Mantle:
+      return storyChainId    case CoingeckoAssetPlatform.Mantle:
       return mantleChainId
     case CoingeckoAssetPlatform.Sonic:
       return sonicChainId

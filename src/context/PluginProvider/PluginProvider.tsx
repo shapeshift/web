@@ -121,8 +121,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.Monad && chainId === KnownChainIds.MonadMainnet) return false
       if (!featureFlags.HyperEvm && chainId === KnownChainIds.HyperEvmMainnet) return false
       if (!featureFlags.Katana && chainId === KnownChainIds.KatanaMainnet) return false
-      if (!featureFlags.Story && chainId === KnownChainIds.StoryMainnet) return false
-      if (!featureFlags.WorldChain && chainId === KnownChainIds.WorldChainMainnet) return false
+      if (!featureFlags.Story && chainId === KnownChainIds.StoryMainnet) return false      if (!featureFlags.WorldChain && chainId === KnownChainIds.WorldChainMainnet) return false
       if (!featureFlags.Sonic && chainId === KnownChainIds.SonicMainnet) return false
       if (!featureFlags.Unichain && chainId === KnownChainIds.UnichainMainnet) return false
       if (!featureFlags.Bob && chainId === KnownChainIds.BobMainnet) return false

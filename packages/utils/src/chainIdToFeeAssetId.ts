@@ -6,7 +6,8 @@ import {
   bchAssetId,
   blastAssetId,
   berachainAssetId,
-  bobAssetId,
+  berachainAssetId,
+  blastAssetId,  bobAssetId,
   bscAssetId,
   btcAssetId,
   cosmosAssetId,
@@ -41,7 +42,8 @@ import {
   tronAssetId,
   worldChainAssetId,
   unichainAssetId,
-  zecAssetId,
+  unichainAssetId,
+  worldChainAssetId,  zecAssetId,
   zkSyncEraAssetId,
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -108,8 +110,7 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
     case KnownChainIds.KatanaMainnet:
       return katanaAssetId
     case KnownChainIds.StoryMainnet:
-      return storyAssetId
-    case KnownChainIds.ZkSyncEraMainnet:
+      return storyAssetId    case KnownChainIds.ZkSyncEraMainnet:
       return zkSyncEraAssetId
     case KnownChainIds.BlastMainnet:
       return blastAssetId

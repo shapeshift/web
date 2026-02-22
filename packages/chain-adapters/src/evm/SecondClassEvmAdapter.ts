@@ -4,14 +4,18 @@ import {
   berachainChainId,
   bobChainId,
   cronosChainId,
-  hyperEvmChainId,
+  blastChainId,
+  bobChainId,
+  cronosChainId,
+  hemiChainId,  hyperEvmChainId,
   mantleChainId,
   modeChainId,
   soneiumChainId,
   sonicChainId,
   toAssetId,
   unichainChainId,
-} from '@shapeshiftoss/caip'
+  worldChainChainId,
+  zkSyncEraChainId,} from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
 import { MULTICALL3_CONTRACT, viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
@@ -56,7 +60,10 @@ const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [bobChainId]: '0x4200000000000000000000000000000000000006',
   [modeChainId]: '0x4200000000000000000000000000000000000006',
   [soneiumChainId]: '0x4200000000000000000000000000000000000006',
-}
+  [hemiChainId]: '0x4200000000000000000000000000000000000006',
+  [worldChainChainId]: '0x4200000000000000000000000000000000000006',
+  [blastChainId]: '0x4300000000000000000000000000000000000004',
+  [zkSyncEraChainId]: '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91',}
 const BATCH_SIZE = 500
 
 export type TokenInfo = {
@@ -75,6 +82,10 @@ export type SecondClassEvmAdapterArgs<T extends EvmChainId> = {
   rpcUrl: string
   getKnownTokens: () => TokenInfo[]
 }
+
+export const isSecondClassEvmAdapter = (
+  adapter: unknown,
+): adapter is SecondClassEvmAdapter<EvmChainId> => adapter instanceof SecondClassEvmAdapter
 
 export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBaseAdapter<T> {
   protected provider: JsonRpcProvider
@@ -112,6 +123,26 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
       interval: 50,
       concurrency: 1,
     })
+  }
+
+  async getTransactionStatus(txHash: string): Promise<TxStatus> {
+    try {
+      const receipt = await this.requestQueue.add(() => this.provider.getTransactionReceipt(txHash))
+
+      if (!receipt) return TxStatus.Pending
+
+      switch (receipt.status) {
+        case 1:
+          return TxStatus.Confirmed
+        case 0:
+          return TxStatus.Failed
+        default:
+          return TxStatus.Unknown
+      }
+    } catch (error) {
+      console.error(`[${this.getName()}] Error getting transaction status:`, error)
+      return TxStatus.Unknown
+    }
   }
 
   async getAccount(pubkey: string): Promise<Account<T>> {
@@ -373,7 +404,11 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
   private async fetchInternalTransactions(
     txHash: string,
   ): Promise<{ from: string; to: string; value: string }[]> {
-    if (this.chainId === hyperEvmChainId) {
+    if (
+      this.chainId === hyperEvmChainId ||
+      this.chainId === blastChainId ||
+      this.chainId === zkSyncEraChainId
+    ) {
       return []
     }
 
@@ -448,7 +483,26 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
             value: log.args.value.toString(),
           })
         }
-      }
+        // Fallback: WETH9 Withdrawal(address indexed src, uint256 wad) event
+        // On OP Stack L2s and other chains, WETH.withdraw() emits Withdrawal instead of Transfer-to-zero
+        if (internalTxs.length === 0) {
+          const WITHDRAWAL_TOPIC =
+            '0x7fcf532c15f0a6db0bd6d0e038bea71d30d808c7d98cb3bf7268a95bf5081b65'
+          const withdrawalLogs = receipt.logs.filter(
+            log =>
+              log.address &&
+              isAddressEqual(getAddress(log.address), getAddress(wrappedNativeContract)) &&
+              log.topics[0] === WITHDRAWAL_TOPIC,
+          )
+
+          for (const log of withdrawalLogs) {
+            internalTxs.push({
+              from: wrappedNativeContract,
+              to: getAddress(pubkey),
+              value: BigInt(log.data).toString(),
+            })
+          }
+        }      }
 
       const block = receipt.blockHash
         ? await viemClient.getBlock({ blockHash: receipt.blockHash }).catch(() => null)

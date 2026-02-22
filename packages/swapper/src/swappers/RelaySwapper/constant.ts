@@ -4,7 +4,8 @@ import {
   baseChainId,
   blastChainId,
   berachainChainId,
-  bobChainId,
+  berachainChainId,
+  blastChainId,  bobChainId,
   bscChainId,
   btcChainId,
   cronosChainId,
@@ -31,7 +32,12 @@ import {
   zkSyncEraChainId,
   worldChainChainId,
   unichainChainId,
-} from '@shapeshiftoss/caip'
+  soneiumChainId,
+  sonicChainId,
+  tronChainId,
+  unichainChainId,
+  worldChainChainId,
+  zkSyncEraChainId,} from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
 import {
@@ -40,7 +46,8 @@ import {
   base,
   blast,
   berachain,
-  bob,
+  berachain,
+  blast,  bob,
   bsc,
   cronos,
   gnosis,
@@ -58,12 +65,12 @@ import {
   polygon,
   story,
   zksync,
-  worldchain,
-  scroll,
+  worldchain,  scroll,
   soneium,
   sonic,
   unichain,
-} from 'viem/chains'
+  worldchain,
+  zksync,} from 'viem/chains'
 
 import { TradeQuoteError } from '../../types'
 import { RelayErrorCode } from './utils/types'
@@ -89,8 +96,7 @@ export const chainIdToRelayChainId = {
   [megaethChainId]: 4326,
   [plasmaChainId]: plasma.id,
   [katanaChainId]: katana.id,
-  [storyChainId]: story.id,
-  [zkSyncEraChainId]: zksync.id,
+  [storyChainId]: story.id,  [zkSyncEraChainId]: zksync.id,
   [blastChainId]: blast.id,
   [worldChainChainId]: worldchain.id,
   [hemiChainId]: hemi.id,

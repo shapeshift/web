@@ -66,7 +66,8 @@ interface ImportMetaEnv {
   readonly VITE_MANTLE_NODE_URL: string
   readonly VITE_FEATURE_INK: string
   readonly VITE_INK_NODE_URL: string
-
+  readonly VITE_FEATURE_ZK_SYNC_ERA: string
+  readonly VITE_ZKSYNC_ERA_NODE_URL: string
   // URLs and API keys from base .env (always defined)
   readonly VITE_ABSOLUTE_URL_PREFIX: string
   readonly VITE_CHATWOOT_TOKEN: string
@@ -190,7 +191,22 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_SCROLL: string
   readonly VITE_CRONOS_NODE_URL: string
   readonly VITE_FEATURE_CRONOS: string
-  readonly VITE_FEATURE_NOTIFICATIONS_WEBSERVICES: string
+  readonly VITE_HEMI_NODE_URL: string
+  readonly VITE_FEATURE_HEMI: string
+  readonly VITE_SONIC_NODE_URL: string
+  readonly VITE_FEATURE_SONIC: string
+  readonly VITE_UNICHAIN_NODE_URL: string
+  readonly VITE_FEATURE_UNICHAIN: string
+  readonly VITE_BOB_NODE_URL: string
+  readonly VITE_FEATURE_BOB: string
+  readonly VITE_MODE_NODE_URL: string
+  readonly VITE_FEATURE_MODE: string
+  readonly VITE_SONEIUM_NODE_URL: string
+  readonly VITE_FEATURE_SONEIUM: string
+  readonly VITE_WORLDCHAIN_NODE_URL: string
+  readonly VITE_FEATURE_WORLDCHAIN: string
+  readonly VITE_BLAST_NODE_URL: string
+  readonly VITE_FEATURE_BLAST: string  readonly VITE_FEATURE_NOTIFICATIONS_WEBSERVICES: string
 
   // Only present in *some* envs
   readonly VITE_MIXPANEL_TOKEN?: string

@@ -17,7 +17,10 @@ import {
   worldChainChainId,
   soneiumChainId,
   unichainChainId,
-} from '@shapeshiftoss/caip'
+  soneiumChainId,
+  unichainChainId,
+  worldChainChainId,
+  zkSyncEraChainId,} from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
 import {
@@ -38,7 +41,10 @@ import {
   worldchain,
   soneium,
   unichain,
-} from 'viem/chains'
+  soneium,
+  unichain,
+  worldchain,
+  zksync,} from 'viem/chains'
 
 import { TradeQuoteError } from '../../types'
 import { AcrossErrorCode } from './utils/types'

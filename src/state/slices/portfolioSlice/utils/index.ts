@@ -7,7 +7,8 @@ import {
   bchChainId,
   blastChainId,
   berachainChainId,
-  bobChainId,
+  berachainChainId,
+  blastChainId,  bobChainId,
   bscChainId,
   btcChainId,
   CHAIN_NAMESPACE,
@@ -49,7 +50,8 @@ import {
   tronChainId,
   worldChainChainId,
   unichainChainId,
-  zecChainId,
+  unichainChainId,
+  worldChainChainId,  zecChainId,
   zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
@@ -63,7 +65,8 @@ import {
   supportsBase,
   supportsBlast,
   supportsBerachain,
-  supportsBob,
+  supportsBerachain,
+  supportsBlast,  supportsBob,
   supportsBSC,
   supportsBTC,
   supportsCosmos,
@@ -95,7 +98,9 @@ import {
   supportsZkSyncEra,
   supportsWorldChain,
   supportsUnichain,
-} from '@shapeshiftoss/hdwallet-core/wallet'
+  supportsUnichain,
+  supportsWorldChain,
+  supportsZkSyncEra,} from '@shapeshiftoss/hdwallet-core/wallet'
 import type { Asset, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
 import { makeAsset } from '@shapeshiftoss/utils'
@@ -143,8 +148,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case lineaChainId:
     case cronosChainId:
     case katanaChainId:
-    case storyChainId:
-    case worldChainChainId:
+    case storyChainId:    case worldChainChainId:
     case scrollChainId:
     case sonicChainId:
     case unichainChainId:
@@ -567,8 +571,7 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     case katanaChainId:
       return supportsKatana(wallet)
     case storyChainId:
-      return supportsStory(wallet)
-    case zkSyncEraChainId:
+      return supportsStory(wallet)    case zkSyncEraChainId:
       return supportsZkSyncEra(wallet)
     case blastChainId:
       return supportsBlast(wallet)

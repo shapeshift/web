@@ -7,7 +7,8 @@ import {
   baseChainId,
   blastChainId,
   berachainChainId,
-  bobChainId,
+  berachainChainId,
+  blastChainId,  bobChainId,
   bscChainId,
   cronosChainId,
   ethChainId,
@@ -38,7 +39,9 @@ import {
   zkSyncEraChainId,
   worldChainChainId,
   unichainChainId,
-} from '@shapeshiftoss/caip'
+  unichainChainId,
+  worldChainChainId,
+  zkSyncEraChainId,} from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import {
   arbitrum,
@@ -46,7 +49,8 @@ import {
   base,
   blast,
   berachain,
-  bnbsmartchain,
+  berachain,
+  blast,  bnbsmartchain,
   bobChain,
   cronos,
   ethereum,
@@ -66,8 +70,7 @@ import {
   polygon,
   scroll,
   solana,
-  story,
-  soneium,
+  story,  soneium,
   sonic,
   sui,
   ton,
@@ -75,7 +78,9 @@ import {
   zkSyncEra,
   worldchain,
   unichainChain,
-} from '@shapeshiftoss/utils'
+  unichainChain,
+  worldchain,
+  zkSyncEra,} from '@shapeshiftoss/utils'
 import axios from 'axios'
 
 import colormap from './color-map.json'
@@ -220,7 +225,7 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: worldchain.explorer,
           explorerAddressLink: worldchain.explorerAddressLink,
           explorerTxLink: worldchain.explorerTxLink,
-      case lineaChainId:
+        }      case lineaChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.erc20,
           category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
@@ -258,29 +263,28 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
           explorer: story.explorer,
           explorerAddressLink: story.explorerAddressLink,
-          explorerTxLink: story.explorerTxLink,
-      case zkSyncEraChainId:
+          explorerTxLink: story.explorerTxLink,      case zkSyncEraChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.erc20,
           category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
           explorer: zkSyncEra.explorer,
           explorerAddressLink: zkSyncEra.explorerAddressLink,
           explorerTxLink: zkSyncEra.explorerTxLink,
-      case blastChainId:
+        }      case blastChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.erc20,
           category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
           explorer: blast.explorer,
           explorerAddressLink: blast.explorerAddressLink,
           explorerTxLink: blast.explorerTxLink,
-      case hemiChainId:
+        }      case hemiChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.erc20,
           category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
           explorer: hemi.explorer,
           explorerAddressLink: hemi.explorerAddressLink,
           explorerTxLink: hemi.explorerTxLink,
-      case berachainChainId:
+        }      case berachainChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.erc20,
           category: adapters.chainIdToCoingeckoAssetPlatform(chainId),

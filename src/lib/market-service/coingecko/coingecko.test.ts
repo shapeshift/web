@@ -171,7 +171,7 @@ describe('CoinGecko market service', () => {
       const result = await coinGeckoMarketService.findAll()
       expect(Object.keys(result).length).toEqual(7)
       expect(Object.keys(result).length).toEqual(13)
-    })
+      expect(Object.keys(result).length).toEqual(17)    })
 
     it('can sort by market cap', async () => {
       mocks.get.mockResolvedValueOnce({ data: [btc] }).mockResolvedValue({ data: [eth] })
@@ -196,7 +196,7 @@ describe('CoinGecko market service', () => {
       const result = await coinGeckoMarketService.findAll()
       expect(Object.keys(result).length).toEqual(6)
       expect(Object.keys(result).length).toEqual(12)
-    })
+      expect(Object.keys(result).length).toEqual(16)    })
 
     it('can use default args', async () => {
       const spy = mocks.get.mockResolvedValue({ data: [btc] })
@@ -239,13 +239,17 @@ describe('CoinGecko market service', () => {
         ethOnMegaEthKey,
         ethOnLineaKey,
         ethOnBobKey,
-        ethOnModeKey,
+        ethOnBobKey,
+        ethOnBlastKey,
+        ethOnWorldChainKey,
+        ethOnHemiKey,
+        ethOnLineaKey,        ethOnModeKey,
         ethOnMegaEthKey,
         ethOnInkKey,
         ethOnScrollKey,
         ethOnUnichainKey,
         ethOnSoneiumKey,
-      ] = Object.keys(result)
+        ethOnZkSyncEraKey,      ] = Object.keys(result)
       expect(btcAssetId).toEqual([btcKey])
       expect(ethAssetId).toEqual([
         ethKey,
@@ -253,18 +257,17 @@ describe('CoinGecko market service', () => {
         ethOnArbitrumKey,
         ethOnBaseKey,
         ethOnZkSyncEraKey,
-        ethOnBlastKey,
+        ethOnBobKey,        ethOnBlastKey,
         ethOnWorldChainKey,
         ethOnHemiKey,
         ethOnLineaKey,
-        ethOnBobKey,
-        ethOnModeKey,
+        ethOnBobKey,        ethOnModeKey,
         ethOnMegaEthKey,
         ethOnInkKey,
         ethOnScrollKey,
         ethOnUnichainKey,
         ethOnSoneiumKey,
-      ])
+        ethOnZkSyncEraKey,      ])
     })
 
     it('can map CoinGecko id to multiple assetIds', async () => {

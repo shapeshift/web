@@ -45,7 +45,8 @@ import {
   tron,
   worldchain,
   unichainChain,
-  zcash,
+  unichainChain,
+  worldchain,  zcash,
   zkSyncEra,
 } from './baseAssets'
 
@@ -109,8 +110,7 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
     case KnownChainIds.KatanaMainnet:
       return katana
     case KnownChainIds.StoryMainnet:
-      return story
-    case KnownChainIds.ZkSyncEraMainnet:
+      return story    case KnownChainIds.ZkSyncEraMainnet:
       return zkSyncEra
     case KnownChainIds.BlastMainnet:
       return blast

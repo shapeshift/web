@@ -37,6 +37,7 @@ All integration points required when adding a new second-class EVM chain to Shap
    - `src/config.ts` - `VITE_FEATURE_<CHAIN>` validation (`bool({ default: false })`) + `VITE_<CHAIN>_NODE_URL` validation (must use `url()`, NOT `str()`)
    - `src/test/mocks/store.ts` - Mock default
    - `src/vite-env.d.ts` - Type declarations
+   - **RPC URL research**: Check https://chainlist.org/chain/<chainId> for public RPC endpoints as a fallback when official docs don't provide one. Always verify the endpoint works with `curl -s -X POST <url> -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}'` before committing. Avoid endpoints requiring API keys in `.env.development`.
    - `.env` - Production default (usually `false`)
    - `.env.development` - Dev default (usually `true`)
 

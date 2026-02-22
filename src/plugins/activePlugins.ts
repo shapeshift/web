@@ -41,6 +41,7 @@ import unichain from '@/plugins/unichain'
 import walletConnectToDapps from '@/plugins/walletConnectToDapps'
 import worldchain from '@/plugins/worldchain'
 import zcash from '@/plugins/zcash'
+import zksyncera from '@/plugins/zksyncera'
 
 export const activePlugins = [
   arbitrum,
@@ -86,4 +87,5 @@ export const activePlugins = [
   walletConnectToDapps,
   worldchain,
   zcash,
+  zksyncera,
 ]

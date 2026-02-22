@@ -472,6 +472,23 @@ export const katana: Readonly<Asset> = Object.freeze({
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 
+export const zkSyncEra: Readonly<Asset> = Object.freeze({
+  assetId: caip.zkSyncEraAssetId,
+  chainId: caip.zkSyncEraChainId,
+  name: 'Ethereum',
+  networkName: 'zkSync Era',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#8C8DFC',
+  networkColor: '#8C8DFC',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.relay.link/icons/324/light.png',
+  explorer: 'https://explorer.zksync.io',
+  explorerAddressLink: 'https://explorer.zksync.io/address/',
+  explorerTxLink: 'https://explorer.zksync.io/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
 export const blast: Readonly<Asset> = Object.freeze({
   assetId: caip.blastAssetId,
   chainId: caip.blastChainId,

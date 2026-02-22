@@ -14,6 +14,7 @@ import {
   toAssetId,
   unichainChainId,
   worldChainChainId,
+  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
 import { MULTICALL3_CONTRACT, viemClientByChainId } from '@shapeshiftoss/contracts'
@@ -62,6 +63,7 @@ const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [hemiChainId]: '0x4200000000000000000000000000000000000006',
   [worldChainChainId]: '0x4200000000000000000000000000000000000006',
   [blastChainId]: '0x4300000000000000000000000000000000000004',
+  [zkSyncEraChainId]: '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91',
 }
 const BATCH_SIZE = 500
 
@@ -403,7 +405,11 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
   private async fetchInternalTransactions(
     txHash: string,
   ): Promise<{ from: string; to: string; value: string }[]> {
-    if (this.chainId === hyperEvmChainId) {
+    if (
+      this.chainId === hyperEvmChainId ||
+      this.chainId === blastChainId ||
+      this.chainId === zkSyncEraChainId
+    ) {
       return []
     }
 

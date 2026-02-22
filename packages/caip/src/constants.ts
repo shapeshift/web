@@ -25,6 +25,7 @@ export const worldChainAssetId: AssetId = 'eip155:480/slip44:60'
 export const berachainAssetId: AssetId = 'eip155:80094/slip44:60'
 export const cronosAssetId: AssetId = 'eip155:25/slip44:60'
 export const katanaAssetId: AssetId = 'eip155:747474/slip44:60'
+export const zkSyncEraAssetId: AssetId = 'eip155:324/slip44:60'
 export const blastAssetId: AssetId = 'eip155:81457/slip44:60'
 export const hemiAssetId: AssetId = 'eip155:43111/slip44:60'
 export const lineaAssetId: AssetId = 'eip155:59144/slip44:60'
@@ -100,6 +101,7 @@ export const worldChainChainId: ChainId = 'eip155:480'
 export const berachainChainId: ChainId = 'eip155:80094'
 export const cronosChainId: ChainId = 'eip155:25'
 export const katanaChainId: ChainId = 'eip155:747474'
+export const zkSyncEraChainId: ChainId = 'eip155:324'
 export const blastChainId: ChainId = 'eip155:81457'
 export const hemiChainId: ChainId = 'eip155:43111'
 export const lineaChainId: ChainId = 'eip155:59144'
@@ -166,6 +168,7 @@ export const CHAIN_REFERENCE = {
   BerachainMainnet: '80094',
   CronosMainnet: '25',
   KatanaMainnet: '747474', // https://docs.katana.network
+  ZkSyncEraMainnet: '324', // https://docs.zksync.io
   BlastMainnet: '81457', // https://docs.blast.io
   HemiMainnet: '43111', // https://docs.hemi.xyz
   LineaMainnet: '59144', // https://docs.linea.build
@@ -224,6 +227,7 @@ export const ASSET_REFERENCE = {
   Berachain: '60', // evm chain which uses ethereum derivation path as common practice
   Cronos: '60', // evm chain which uses ethereum derivation path as common practice
   Katana: '60', // evm chain which uses ethereum derivation path as common practice
+  ZkSyncEra: '60', // evm chain which uses ethereum derivation path as common practice
   Blast: '60', // evm chain which uses ethereum derivation path as common practice
   WorldChain: '60', // evm chain which uses ethereum derivation path as common practice
   Hemi: '60', // evm chain which uses ethereum derivation path as common practice
@@ -268,6 +272,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.BerachainMainnet,
     CHAIN_REFERENCE.CronosMainnet,
     CHAIN_REFERENCE.KatanaMainnet,
+    CHAIN_REFERENCE.ZkSyncEraMainnet,
     CHAIN_REFERENCE.BlastMainnet,
     CHAIN_REFERENCE.WorldChainMainnet,
     CHAIN_REFERENCE.HemiMainnet,
@@ -335,6 +340,7 @@ export const FEE_ASSET_IDS = [
   mantleAssetId,
   inkAssetId,
   megaethAssetId,
+  zkSyncEraAssetId,
   blastAssetId,
   hemiAssetId,
   lineaAssetId,

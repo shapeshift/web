@@ -35,6 +35,7 @@ import {
   supportsSonic,
   supportsUnichain,
   supportsWorldChain,
+  supportsZkSyncEra,
 } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -106,6 +107,7 @@ export const evmChainIds = [
   KnownChainIds.BerachainMainnet,
   KnownChainIds.CronosMainnet,
   KnownChainIds.KatanaMainnet,
+  KnownChainIds.ZkSyncEraMainnet,
   KnownChainIds.BlastMainnet,
   KnownChainIds.WorldChainMainnet,
   KnownChainIds.HemiMainnet,
@@ -228,6 +230,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsCronos(wallet)
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
+        case Number(fromChainId(KnownChainIds.ZkSyncEraMainnet).chainReference):
+          return supportsZkSyncEra(wallet)
         case Number(fromChainId(KnownChainIds.BlastMainnet).chainReference):
           return supportsBlast(wallet)
         case Number(fromChainId(KnownChainIds.WorldChainMainnet).chainReference):
@@ -364,6 +368,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://katanascan.com',
+      },
+      [KnownChainIds.ZkSyncEraMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://explorer.zksync.io',
       },
       [KnownChainIds.BlastMainnet]: {
         name: 'Ether',

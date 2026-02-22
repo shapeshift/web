@@ -45,6 +45,7 @@ import { csp as tron } from './chains/tron'
 import { csp as unichain } from './chains/unichain'
 import { csp as worldchain } from './chains/worldchain'
 import { csp as zcash } from './chains/zcash'
+import { csp as zksyncera } from './chains/zksyncera'
 import { csp as chatwoot } from './chatwoot'
 import { csp as customTokenImport } from './customTokenImport'
 import { csp as foxy } from './defi/foxy'
@@ -142,6 +143,7 @@ export const csps = [
   mantle,
   mode,
   megaeth,
+  zksyncera,
   optimism,
   polygon,
   scroll,

@@ -41,6 +41,7 @@ import {
   unichainChainId,
   worldChainChainId,
   zecChainId,
+  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -84,6 +85,7 @@ import {
   supportsTron,
   supportsUnichain,
   supportsWorldChain,
+  supportsZkSyncEra,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import { useMemo } from 'react'
 
@@ -175,6 +177,7 @@ export const walletSupportsChain = ({
   // We have no runtime support for the current ChainId - trying and checking for feature-capabilities flags is futile
   if (!hasRuntimeSupport) return false
 
+  const isZkSyncEraEnabled = selectFeatureFlag(store.getState(), 'ZkSyncEra')
   const isBlastEnabled = selectFeatureFlag(store.getState(), 'Blast')
   const isHemiEnabled = selectFeatureFlag(store.getState(), 'Hemi')
   const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
@@ -244,6 +247,8 @@ export const walletSupportsChain = ({
       return isPlasmaEnabled && supportsPlasma(wallet)
     case katanaChainId:
       return isKatanaEnabled && supportsKatana(wallet)
+    case zkSyncEraChainId:
+      return isZkSyncEraEnabled && supportsZkSyncEra(wallet)
     case blastChainId:
       return isBlastEnabled && supportsBlast(wallet)
     case worldChainChainId:

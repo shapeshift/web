@@ -82,6 +82,8 @@ import {
   worldChainAssetId,
   worldChainChainId,
   zecChainId,
+  zkSyncEraAssetId,
+  zkSyncEraChainId,
 } from '../../constants'
 import {
   bitcoinAssetMap,
@@ -429,6 +431,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.ZkSyncEra)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.ZkSyncEraMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.ZkSyncEra],
+          })
+          prev[zkSyncEraChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Blast)) {
         try {
           const assetId = toAssetId({
@@ -590,6 +606,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [berachainChainId]: { [berachainAssetId]: 'berachain-bera' },
       [cronosChainId]: { [cronosAssetId]: 'crypto-com-chain' },
       [katanaChainId]: { [katanaAssetId]: 'katana' },
+      [zkSyncEraChainId]: { [zkSyncEraAssetId]: 'ethereum' },
       [blastChainId]: { [blastAssetId]: 'ethereum' },
       [worldChainChainId]: { [worldChainAssetId]: 'ethereum' },
       [hemiChainId]: { [hemiAssetId]: 'ethereum' },

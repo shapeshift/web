@@ -29,6 +29,7 @@ import {
   toAccountId,
   unichainChainId,
   worldChainChainId,
+  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
@@ -60,6 +61,7 @@ import {
   supportsSonic,
   supportsUnichain,
   supportsWorldChain,
+  supportsZkSyncEra,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 
@@ -160,6 +162,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === scrollChainId && !supportsScroll(wallet)) continue
     if (chainId === cronosChainId && !supportsCronos(wallet)) continue
     if (chainId === katanaChainId && !supportsKatana(wallet)) continue
+    if (chainId === zkSyncEraChainId && !supportsZkSyncEra(wallet)) continue
     if (chainId === blastChainId && !supportsBlast(wallet)) continue
     if (chainId === worldChainChainId && !supportsWorldChain(wallet)) continue
     if (chainId === hemiChainId && !supportsHemi(wallet)) continue

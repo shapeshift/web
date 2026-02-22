@@ -161,6 +161,11 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
           assetReference: ASSET_REFERENCE.Katana,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
+      case CHAIN_REFERENCE.ZkSyncEraMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.ZkSyncEra,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       case CHAIN_REFERENCE.BlastMainnet:
         return {
           assetReference: ASSET_REFERENCE.Blast,

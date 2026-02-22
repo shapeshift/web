@@ -16,6 +16,7 @@ import {
   soneiumChainId,
   unichainChainId,
   worldChainChainId,
+  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
@@ -36,6 +37,7 @@ import {
   soneium,
   unichain,
   worldchain,
+  zksync,
 } from 'viem/chains'
 
 import { TradeQuoteError } from '../../types'
@@ -54,6 +56,7 @@ export const chainIdToAcrossChainId: Record<string, number> = {
   [lineaChainId]: linea.id,
   [modeChainId]: mode.id,
   [plasmaChainId]: plasma.id,
+  [zkSyncEraChainId]: zksync.id,
   [blastChainId]: blast.id,
   [worldChainChainId]: worldchain.id,
   [unichainChainId]: unichain.id,

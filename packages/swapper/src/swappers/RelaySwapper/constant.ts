@@ -29,6 +29,7 @@ import {
   tronChainId,
   unichainChainId,
   worldChainChainId,
+  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
@@ -59,6 +60,7 @@ import {
   sonic,
   unichain,
   worldchain,
+  zksync,
 } from 'viem/chains'
 
 import { TradeQuoteError } from '../../types'
@@ -85,6 +87,7 @@ export const chainIdToRelayChainId = {
   [megaethChainId]: 4326,
   [plasmaChainId]: plasma.id,
   [katanaChainId]: katana.id,
+  [zkSyncEraChainId]: zksync.id,
   [blastChainId]: blast.id,
   [worldChainChainId]: worldchain.id,
   [hemiChainId]: hemi.id,

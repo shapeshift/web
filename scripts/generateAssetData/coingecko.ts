@@ -36,6 +36,7 @@ import {
   tronChainId,
   unichainChainId,
   worldChainChainId,
+  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import {
@@ -71,6 +72,7 @@ import {
   tron,
   unichainChain,
   worldchain,
+  zkSyncEra,
 } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
@@ -248,6 +250,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: katana.explorer,
           explorerAddressLink: katana.explorerAddressLink,
           explorerTxLink: katana.explorerTxLink,
+        }
+      case zkSyncEraChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: zkSyncEra.explorer,
+          explorerAddressLink: zkSyncEra.explorerAddressLink,
+          explorerTxLink: zkSyncEra.explorerTxLink,
         }
       case blastChainId:
         return {

@@ -61,6 +61,7 @@ import * as tronModule from './tron'
 import * as unichain from './unichain'
 import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
 import * as worldchainModule from './worldchain'
+import * as zksyncera from './zksyncera'
 
 import { getAssetService } from '@/lib/asset-service'
 
@@ -85,6 +86,7 @@ const generateAssetData = async () => {
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
+  const zksyncEraAssets = await zksyncera.getAssets()
   const blastAssets = await blast.getAssets()
   const hemiAssets = await hemi.getAssets()
   const mantleAssets = await mantle.getAssets()
@@ -132,6 +134,7 @@ const generateAssetData = async () => {
     ...monadAssets,
     ...hyperevmAssets,
     ...katanaAssets,
+    ...zksyncEraAssets,
     ...blastAssets,
     ...hemiAssets,
     ...mantleAssets,

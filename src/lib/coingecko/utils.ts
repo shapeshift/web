@@ -35,6 +35,7 @@ import {
   unichainChainId,
   worldChainChainId,
   zecChainId,
+  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getAssetNamespaceFromChainId } from '@shapeshiftoss/utils'
@@ -229,6 +230,7 @@ export const getCoingeckoSupportedChainIds = () => {
     ...(getConfig().VITE_FEATURE_INK ? [inkChainId] : []),
     ...(getConfig().VITE_FEATURE_CRONOS ? [cronosChainId] : []),
     ...(getConfig().VITE_FEATURE_KATANA ? [katanaChainId] : []),
+    ...(getConfig().VITE_FEATURE_ZK_SYNC_ERA ? [zkSyncEraChainId] : []),
     ...(getConfig().VITE_FEATURE_BLAST ? [blastChainId] : []),
     ...(getConfig().VITE_FEATURE_WORLDCHAIN ? [worldChainChainId] : []),
     ...(getConfig().VITE_FEATURE_HEMI ? [hemiChainId] : []),

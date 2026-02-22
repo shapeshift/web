@@ -45,6 +45,7 @@ import {
   unichainChain,
   worldchain,
   zcash,
+  zkSyncEra,
 } from './baseAssets'
 
 export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
@@ -106,6 +107,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return cronos
     case KnownChainIds.KatanaMainnet:
       return katana
+    case KnownChainIds.ZkSyncEraMainnet:
+      return zkSyncEra
     case KnownChainIds.BlastMainnet:
       return blast
     case KnownChainIds.WorldChainMainnet:

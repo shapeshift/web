@@ -135,6 +135,7 @@ describe('adapters:coingecko', () => {
         ethOnArbitrum,
         ethOnBase,
         ethOnBob,
+        ethOnZkSyncEra,
         ethOnBlast,
         ethOnWorldChain,
         ethOnHemi,
@@ -145,7 +146,6 @@ describe('adapters:coingecko', () => {
         ethOnScroll,
         ethOnUnichain,
         ethOnSoneium,
-        ethOnZkSyncEra,
       ])
     })
 

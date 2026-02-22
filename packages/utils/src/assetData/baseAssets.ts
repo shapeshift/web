@@ -354,6 +354,23 @@ export const plasma: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const plume: Readonly<Asset> = Object.freeze({
+  assetId: caip.plumeAssetId,
+  chainId: caip.plumeChainId,
+  name: 'Plume',
+  networkName: 'Plume',
+  symbol: 'PLUME',
+  precision: 18,
+  color: '#6C5DD3',
+  networkColor: '#6C5DD3',
+  icon: 'https://assets.coingecko.com/coins/images/49459/large/plume.jpg',
+  networkIcon: 'https://assets.coingecko.com/coins/images/49459/small/plume.jpg',
+  explorer: 'https://explorer.plume.org',
+  explorerAddressLink: 'https://explorer.plume.org/address/',
+  explorerTxLink: 'https://explorer.plume.org/tx/',
+  relatedAssetKey: null,
+})
+
 export const worldchain: Readonly<Asset> = Object.freeze({
   assetId: caip.worldChainAssetId,
   chainId: caip.worldChainChainId,

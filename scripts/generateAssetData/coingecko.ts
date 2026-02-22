@@ -24,6 +24,7 @@ import {
   nearChainId,
   optimismChainId,
   plasmaChainId,
+  plumeChainId,
   polygonChainId,
   scrollChainId,
   solanaChainId,
@@ -63,6 +64,7 @@ import {
   near,
   optimism,
   plasma,
+  plume,
   polygon,
   scroll,
   solana,
@@ -252,6 +254,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: katana.explorer,
           explorerAddressLink: katana.explorerAddressLink,
           explorerTxLink: katana.explorerTxLink,
+        }
+      case plumeChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: plume.explorer,
+          explorerAddressLink: plume.explorerAddressLink,
+          explorerTxLink: plume.explorerTxLink,
         }
       case storyChainId:
         return {

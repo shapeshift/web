@@ -551,6 +551,7 @@ export class KeepKeyHDWallet
   readonly _supportsBase = true
   readonly _supportsMonad = false
   readonly _supportsPlasma = false
+  readonly _supportsPlume = false
   readonly _supportsKatana = false
   readonly _supportsStory = false
   readonly _supportsSonic = false

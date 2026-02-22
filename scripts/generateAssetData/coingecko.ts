@@ -11,6 +11,7 @@ import {
   cronosChainId,
   ethChainId,
   gnosisChainId,
+  hemiChainId,
   hyperEvmChainId,
   inkChainId,
   katanaChainId,
@@ -45,6 +46,7 @@ import {
   cronos,
   ethereum,
   gnosis,
+  hemi,
   hyperevm,
   ink,
   katana,
@@ -234,6 +236,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: katana.explorer,
           explorerAddressLink: katana.explorerAddressLink,
           explorerTxLink: katana.explorerTxLink,
+        }
+      case hemiChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: hemi.explorer,
+          explorerAddressLink: hemi.explorerAddressLink,
+          explorerTxLink: hemi.explorerTxLink,
         }
       case berachainChainId:
         return {

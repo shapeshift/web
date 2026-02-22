@@ -3,6 +3,7 @@ import {
   berachainAssetId,
   bobAssetId,
   cronosAssetId,
+  hemiAssetId,
   hyperEvmAssetId,
   inkAssetId,
   katanaAssetId,
@@ -58,6 +59,7 @@ export const queryFn = async () => {
   if (enabledFlags.Ink) assetIds.push(inkAssetId)
   if (enabledFlags.Scroll) assetIds.push(scrollAssetId)
   if (enabledFlags.Katana) assetIds.push(katanaAssetId)
+  if (enabledFlags.Hemi) assetIds.push(hemiAssetId)
   if (enabledFlags.Linea) assetIds.push(lineaAssetId)
   if (enabledFlags.Cronos) assetIds.push(cronosAssetId)
   if (enabledFlags.Sonic) assetIds.push(sonicAssetId)

@@ -42,6 +42,7 @@ export type FeatureFlags = {
   Berachain: boolean
   Cronos: boolean
   Katana: boolean
+  Hemi: boolean
   Linea: boolean
   Scroll: boolean
   Sonic: boolean
@@ -202,6 +203,7 @@ const initialState: Preferences = {
     Berachain: getConfig().VITE_FEATURE_BERACHAIN,
     Cronos: getConfig().VITE_FEATURE_CRONOS,
     Katana: getConfig().VITE_FEATURE_KATANA,
+    Hemi: getConfig().VITE_FEATURE_HEMI,
     Linea: getConfig().VITE_FEATURE_LINEA,
     Scroll: getConfig().VITE_FEATURE_SCROLL,
     Sonic: getConfig().VITE_FEATURE_SONIC,

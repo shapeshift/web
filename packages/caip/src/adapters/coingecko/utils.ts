@@ -30,6 +30,8 @@ import {
   ethChainId,
   gnosisAssetId,
   gnosisChainId,
+  hemiAssetId,
+  hemiChainId,
   hyperEvmAssetId,
   hyperEvmChainId,
   inkAssetId,
@@ -409,6 +411,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Hemi)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.HemiMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Hemi],
+          })
+          prev[hemiChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Sonic)) {
         try {
           const assetId = toAssetId({
@@ -542,6 +558,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [berachainChainId]: { [berachainAssetId]: 'berachain-bera' },
       [cronosChainId]: { [cronosAssetId]: 'crypto-com-chain' },
       [katanaChainId]: { [katanaAssetId]: 'katana' },
+      [hemiChainId]: { [hemiAssetId]: 'ethereum' },
       [scrollChainId]: { [scrollAssetId]: 'ethereum' },
       [sonicChainId]: { [sonicAssetId]: 'sonic-3' },
       [unichainChainId]: { [unichainAssetId]: 'ethereum' },

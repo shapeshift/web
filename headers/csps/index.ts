@@ -17,6 +17,7 @@ import { csp as cronos } from './chains/cronos'
 import { csp as dogecoin } from './chains/dogecoin'
 import { csp as ethereum } from './chains/ethereum'
 import { csp as gnosis } from './chains/gnosis'
+import { csp as hemi } from './chains/hemi'
 import { csp as hyperevm } from './chains/hyperevm'
 import { csp as ink } from './chains/ink'
 import { csp as katana } from './chains/katana'
@@ -126,6 +127,7 @@ export const csps = [
   ethereum,
   bob,
   gnosis,
+  hemi,
   berachain,
   hyperevm,
   ink,

@@ -31,6 +31,7 @@ export enum KnownChainIds {
   BerachainMainnet = 'eip155:80094',
   CronosMainnet = 'eip155:25',
   KatanaMainnet = 'eip155:747474',
+  HemiMainnet = 'eip155:43111',
   LineaMainnet = 'eip155:59144',
   ScrollMainnet = 'eip155:534352',
   SonicMainnet = 'eip155:146',
@@ -72,6 +73,7 @@ export type EvmChainId =
   | KnownChainIds.BerachainMainnet
   | KnownChainIds.CronosMainnet
   | KnownChainIds.KatanaMainnet
+  | KnownChainIds.HemiMainnet
   | KnownChainIds.LineaMainnet
   | KnownChainIds.ScrollMainnet
   | KnownChainIds.SonicMainnet

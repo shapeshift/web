@@ -14,6 +14,7 @@ import monad from "./eip155_143/adapter.json";
 import hyperevm from "./eip155_999/adapter.json";
 import plasma from "./eip155_9745/adapter.json";
 import katana from "./eip155_747474/adapter.json";
+import hemi from "./eip155_43111/adapter.json";
 import linea from "./eip155_59144/adapter.json";
 import bob from "./eip155_60808/adapter.json";
 import mode from "./eip155_34443/adapter.json";
@@ -55,6 +56,7 @@ export {
   hyperevm,
   plasma,
   katana,
+  hemi,
   linea,
   mode,
   megaeth,

@@ -11,6 +11,7 @@ import cronos from '@/plugins/cronos'
 import dogecoin from '@/plugins/dogecoin'
 import ethereum from '@/plugins/ethereum'
 import gnosis from '@/plugins/gnosis'
+import hemi from '@/plugins/hemi'
 import hyperevm from '@/plugins/hyperevm'
 import ink from '@/plugins/ink'
 import katana from '@/plugins/katana'
@@ -53,6 +54,7 @@ export const activePlugins = [
   dogecoin,
   ethereum,
   gnosis,
+  hemi,
   hyperevm,
   ink,
   katana,

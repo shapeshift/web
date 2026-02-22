@@ -35,6 +35,7 @@ import * as cronos from './cronos'
 import * as ethereum from './ethereum'
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
 import * as gnosis from './gnosis'
+import * as hemi from './hemi'
 import * as hyperevm from './hyperevm'
 import * as ink from './ink'
 import * as katana from './katana'
@@ -82,6 +83,7 @@ const generateAssetData = async () => {
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
+  const hemiAssets = await hemi.getAssets()
   const mantleAssets = await mantle.getAssets()
   const inkAssets = await ink.getAssets()
   const lineaAssets = await linea.getAssets()
@@ -126,6 +128,7 @@ const generateAssetData = async () => {
     ...monadAssets,
     ...hyperevmAssets,
     ...katanaAssets,
+    ...hemiAssets,
     ...mantleAssets,
     ...inkAssets,
     ...lineaAssets,

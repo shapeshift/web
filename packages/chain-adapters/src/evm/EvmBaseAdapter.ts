@@ -17,6 +17,7 @@ import {
   supportsCronos,
   supportsETH,
   supportsGnosis,
+  supportsHemi,
   supportsHyperEvm,
   supportsInk,
   supportsKatana,
@@ -103,6 +104,7 @@ export const evmChainIds = [
   KnownChainIds.BerachainMainnet,
   KnownChainIds.CronosMainnet,
   KnownChainIds.KatanaMainnet,
+  KnownChainIds.HemiMainnet,
   KnownChainIds.LineaMainnet,
   KnownChainIds.ScrollMainnet,
   KnownChainIds.SonicMainnet,
@@ -222,6 +224,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsCronos(wallet)
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
+        case Number(fromChainId(KnownChainIds.HemiMainnet).chainReference):
+          return supportsHemi(wallet)
         case Number(fromChainId(KnownChainIds.LineaMainnet).chainReference):
           return supportsLinea(wallet)
         case Number(fromChainId(KnownChainIds.ScrollMainnet).chainReference):
@@ -352,6 +356,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://katanascan.com',
+      },
+      [KnownChainIds.HemiMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://explorer.hemi.xyz',
       },
       [KnownChainIds.LineaMainnet]: {
         name: 'Ethereum',

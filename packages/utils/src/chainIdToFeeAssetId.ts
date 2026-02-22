@@ -13,6 +13,7 @@ import {
   dogeAssetId,
   ethAssetId,
   gnosisAssetId,
+  hemiAssetId,
   hyperEvmAssetId,
   inkAssetId,
   katanaAssetId,
@@ -102,6 +103,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return cronosAssetId
     case KnownChainIds.KatanaMainnet:
       return katanaAssetId
+    case KnownChainIds.HemiMainnet:
+      return hemiAssetId
     case KnownChainIds.LineaMainnet:
       return lineaAssetId
     case KnownChainIds.ScrollMainnet:

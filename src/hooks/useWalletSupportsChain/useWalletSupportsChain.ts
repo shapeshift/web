@@ -13,6 +13,7 @@ import {
   dogeChainId,
   ethChainId,
   gnosisChainId,
+  hemiChainId,
   hyperEvmChainId,
   inkChainId,
   katanaChainId,
@@ -57,6 +58,7 @@ import {
   supportsCronos,
   supportsETH,
   supportsGnosis,
+  supportsHemi,
   supportsHyperEvm,
   supportsInk,
   supportsKatana,
@@ -169,6 +171,7 @@ export const walletSupportsChain = ({
   // We have no runtime support for the current ChainId - trying and checking for feature-capabilities flags is futile
   if (!hasRuntimeSupport) return false
 
+  const isHemiEnabled = selectFeatureFlag(store.getState(), 'Hemi')
   const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
   const isInkEnabled = selectFeatureFlag(store.getState(), 'Ink')
   const isBobEnabled = selectFeatureFlag(store.getState(), 'Bob')
@@ -235,6 +238,8 @@ export const walletSupportsChain = ({
       return isPlasmaEnabled && supportsPlasma(wallet)
     case katanaChainId:
       return isKatanaEnabled && supportsKatana(wallet)
+    case hemiChainId:
+      return isHemiEnabled && supportsHemi(wallet)
     case lineaChainId:
       return isLineaEnabled && supportsLinea(wallet)
     case scrollChainId:

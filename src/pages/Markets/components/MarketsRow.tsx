@@ -89,6 +89,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   const isLineaEnabled = useAppSelector(state => selectFeatureFlag(state, 'Linea'))
   const isScrollEnabled = useAppSelector(state => selectFeatureFlag(state, 'Scroll'))
   const isKatanaEnabled = useAppSelector(state => selectFeatureFlag(state, 'Katana'))
+  const isHemiEnabled = useAppSelector(state => selectFeatureFlag(state, 'Hemi'))
   const isCronosEnabled = useAppSelector(state => selectFeatureFlag(state, 'Cronos'))
   const isSonicEnabled = useAppSelector(state => selectFeatureFlag(state, 'Sonic'))
   const isUnichainEnabled = useAppSelector(state => selectFeatureFlag(state, 'Unichain'))
@@ -110,6 +111,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
       if (!isLineaEnabled && chainId === KnownChainIds.LineaMainnet) return false
       if (!isScrollEnabled && chainId === KnownChainIds.ScrollMainnet) return false
       if (!isKatanaEnabled && chainId === KnownChainIds.KatanaMainnet) return false
+      if (!isHemiEnabled && chainId === KnownChainIds.HemiMainnet) return false
       if (!isBerachainEnabled && chainId === KnownChainIds.BerachainMainnet) return false
       if (!isCronosEnabled && chainId === KnownChainIds.CronosMainnet) return false
       if (!isSonicEnabled && chainId === KnownChainIds.SonicMainnet) return false
@@ -131,6 +133,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
     isLineaEnabled,
     isScrollEnabled,
     isKatanaEnabled,
+    isHemiEnabled,
     isCronosEnabled,
     isSonicEnabled,
     isUnichainEnabled,

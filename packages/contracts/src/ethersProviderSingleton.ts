@@ -42,6 +42,8 @@ export const rpcUrlByChainId = (chainId: EvmChainId): string => {
         return process.env.VITE_CRONOS_NODE_URL
       case KnownChainIds.KatanaMainnet:
         return process.env.VITE_KATANA_NODE_URL
+      case KnownChainIds.HemiMainnet:
+        return process.env.VITE_HEMI_NODE_URL
       case KnownChainIds.LineaMainnet:
         return process.env.VITE_LINEA_NODE_URL
       case KnownChainIds.ScrollMainnet:

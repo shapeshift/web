@@ -21,8 +21,8 @@ import {
   soneiumAssetId,
   sonicAssetId,
   starknetAssetId,
-  starknetAssetId,
   unichainAssetId,
+  worldChainAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { createThrottle, isToken } from '@shapeshiftoss/utils'
@@ -73,6 +73,7 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     bobAssetId,
     modeAssetId,
     soneiumAssetId,
+    worldChainAssetId,
   ],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
   [starknetAssetId]: [

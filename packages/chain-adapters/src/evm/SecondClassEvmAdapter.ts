@@ -12,6 +12,7 @@ import {
   sonicChainId,
   toAssetId,
   unichainChainId,
+  worldChainChainId,
 } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
 import { MULTICALL3_CONTRACT, viemClientByChainId } from '@shapeshiftoss/contracts'
@@ -58,6 +59,7 @@ const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [modeChainId]: '0x4200000000000000000000000000000000000006',
   [soneiumChainId]: '0x4200000000000000000000000000000000000006',
   [hemiChainId]: '0x4200000000000000000000000000000000000006',
+  [worldChainChainId]: '0x4200000000000000000000000000000000000006',
 }
 const BATCH_SIZE = 500
 

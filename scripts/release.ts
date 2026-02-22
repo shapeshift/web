@@ -1,7 +1,7 @@
 // CLI dev tool, we need dat console
 /* eslint-disable no-console */
 import chalk from 'chalk'
-import { exec, spawn } from 'child_process'
+import { exec, execFile, spawn } from 'child_process'
 import fs from 'fs'
 import inquirer from 'inquirer' // do not upgrade to v9, as it does not support commonjs
 import os from 'os'
@@ -73,12 +73,12 @@ const inquireProceedWithCommits = async (commits: string[], action: 'create' | '
 }
 
 const CLAUDE_TIMEOUT_MS = 120_000
+const PR_NUMBER_REGEX = /\(#(\d+)\)\s*$/
 
 const extractPrNumbers = (messages: string[]): number[] => {
   const prNumbers: number[] = []
-  const prRegex = /\(#(\d+)\)\s*$/
   for (const msg of messages) {
-    const match = msg.match(prRegex)
+    const match = msg.match(PR_NUMBER_REGEX)
     if (match) prNumbers.push(Number(match[1]))
   }
   return Array.from(new Set(prNumbers))
@@ -116,10 +116,9 @@ const buildReleasePrompt = (
   messages: string[],
   prBodies: Map<number, string>,
 ): string => {
-  const prRegex = /\(#(\d+)\)\s*$/
   const commitList = messages
     .map(msg => {
-      const match = msg.match(prRegex)
+      const match = msg.match(PR_NUMBER_REGEX)
       const prNum = match ? Number(match[1]) : null
       const body = prNum ? prBodies.get(prNum) : undefined
       const description = body ? extractDescription(body) : undefined
@@ -160,7 +159,7 @@ const runClaude = (promptPath: string): Promise<string> => {
     delete env.CLAUDE_CODE_ENTRYPOINT
     delete env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS
 
-    const child = spawn('claude', ['-p', '--model', 'opus'], {
+    const child = spawn('claude', ['-p', '--model', 'opus', '--max-turns', '1'], {
       stdio: ['pipe', 'pipe', 'pipe'],
       env,
     })
@@ -226,8 +225,7 @@ const generateReleaseSummary = async (
   }
 }
 
-const createDraftRegularPR = async (prBody: string): Promise<void> => {
-  const nextVersion = await getNextReleaseVersion('minor')
+const createDraftRegularPR = async (prBody: string, nextVersion: string): Promise<void> => {
   const title = `chore: release ${nextVersion}`
 
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shapeshift-release-body-'))
@@ -235,9 +233,18 @@ const createDraftRegularPR = async (prBody: string): Promise<void> => {
 
   try {
     fs.writeFileSync(bodyPath, prBody, 'utf-8')
-    const command = `gh pr create --draft --base "main" --title "${title}" --body-file "${bodyPath}"`
     console.log(chalk.green('Creating draft PR...'))
-    await pify(exec)(command)
+    await pify(execFile)('gh', [
+      'pr',
+      'create',
+      '--draft',
+      '--base',
+      'main',
+      '--title',
+      title,
+      '--body-file',
+      bodyPath,
+    ])
     console.log(chalk.green('Draft PR created.'))
   } finally {
     try {
@@ -254,13 +261,35 @@ const createDraftHotfixPR = async (): Promise<void> => {
   const currentBranch = await git().revparse(['--abbrev-ref', 'HEAD'])
   const { messages } = await getCommits(currentBranch as GetCommitMessagesArgs)
   // TODO(0xdef1cafe): parse version bump from commit messages
-  const formattedMessages = messages.map(m => m.replace(/"/g, '\\"'))
   const nextVersion = await getNextReleaseVersion('minor')
   const title = `chore: hotfix release ${nextVersion}`
-  const command = `gh pr create --draft --base "main" --title "${title}" --body "${formattedMessages}"`
-  console.log(chalk.green('Creating draft hotfix PR...'))
-  await pify(exec)(command)
-  console.log(chalk.green('Draft hotfix PR created.'))
+
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shapeshift-release-body-'))
+  const bodyPath = path.join(tmpDir, 'body.md')
+
+  try {
+    fs.writeFileSync(bodyPath, messages.join('\n'), 'utf-8')
+    console.log(chalk.green('Creating draft hotfix PR...'))
+    await pify(execFile)('gh', [
+      'pr',
+      'create',
+      '--draft',
+      '--base',
+      'main',
+      '--title',
+      title,
+      '--body-file',
+      bodyPath,
+    ])
+    console.log(chalk.green('Draft hotfix PR created.'))
+  } finally {
+    try {
+      fs.rmSync(tmpDir, { recursive: true, force: true })
+    } catch {
+      // best-effort cleanup
+    }
+  }
+
   exit(chalk.green(`Hotfix release ${nextVersion} created.`))
 }
 
@@ -337,7 +366,7 @@ const doRegularRelease = async () => {
   await git().checkout(['-B', 'release'])
   console.log(chalk.green('Force pushing release branch...'))
   await git().push(['--force', 'origin', 'release'])
-  await createDraftRegularPR(prBody)
+  await createDraftRegularPR(prBody, nextVersion)
   exit()
 }
 

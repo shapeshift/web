@@ -8,6 +8,7 @@ import {
   avalanche,
   base,
   berachain,
+  blast,
   bob,
   bsc,
   cronos,
@@ -155,6 +156,11 @@ export const viemKatanaClient = createPublicClient({
   transport: fallback([process.env.VITE_KATANA_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemBlastClient = createPublicClient({
+  chain: blast,
+  transport: fallback([process.env.VITE_BLAST_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemWorldChainClient = createPublicClient({
   chain: worldchain,
   transport: fallback([process.env.VITE_WORLDCHAIN_NODE_URL].filter(Boolean).map(url => http(url))),
@@ -213,6 +219,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.BerachainMainnet]: viemBerachainClient,
   [KnownChainIds.CronosMainnet]: viemCronosClient,
   [KnownChainIds.KatanaMainnet]: viemKatanaClient,
+  [KnownChainIds.BlastMainnet]: viemBlastClient,
   [KnownChainIds.WorldChainMainnet]: viemWorldChainClient,
   [KnownChainIds.HemiMainnet]: viemHemiClient,
   [KnownChainIds.LineaMainnet]: viemLineaClient,
@@ -242,6 +249,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.BerachainMainnet]: berachain.id,
   [KnownChainIds.CronosMainnet]: cronos.id,
   [KnownChainIds.KatanaMainnet]: katana.id,
+  [KnownChainIds.BlastMainnet]: blast.id,
   [KnownChainIds.WorldChainMainnet]: worldchain.id,
   [KnownChainIds.HemiMainnet]: hemi.id,
   [KnownChainIds.LineaMainnet]: linea.id,
@@ -271,6 +279,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [berachain.id]: viemBerachainClient,
   [cronos.id]: viemCronosClient,
   [katana.id]: viemKatanaClient,
+  [blast.id]: viemBlastClient,
   [worldchain.id]: viemWorldChainClient,
   [hemi.id]: viemHemiClient,
   [linea.id]: viemLineaClient,

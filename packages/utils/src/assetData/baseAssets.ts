@@ -472,6 +472,23 @@ export const katana: Readonly<Asset> = Object.freeze({
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 
+export const blast: Readonly<Asset> = Object.freeze({
+  assetId: caip.blastAssetId,
+  chainId: caip.blastChainId,
+  name: 'Ethereum',
+  networkName: 'Blast',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#FCFC03',
+  networkColor: '#FCFC03',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.relay.link/icons/81457/light.png',
+  explorer: 'https://blastscan.io',
+  explorerAddressLink: 'https://blastscan.io/address/',
+  explorerTxLink: 'https://blastscan.io/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
 export const hemi: Readonly<Asset> = Object.freeze({
   assetId: caip.hemiAssetId,
   chainId: caip.hemiChainId,

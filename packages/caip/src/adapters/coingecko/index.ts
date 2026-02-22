@@ -9,6 +9,7 @@ import {
   avalancheChainId,
   baseChainId,
   berachainChainId,
+  blastChainId,
   bobChainId,
   bscChainId,
   CHAIN_NAMESPACE,
@@ -65,6 +66,7 @@ export enum CoingeckoAssetPlatform {
   Plasma = 'plasma',
   Ink = 'ink',
   Katana = 'katana',
+  Blast = 'blast',
   WorldChain = 'world-chain',
   Hemi = 'hemi',
   Mantle = 'mantle',
@@ -138,6 +140,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Plasma
         case CHAIN_REFERENCE.KatanaMainnet:
           return CoingeckoAssetPlatform.Katana
+        case CHAIN_REFERENCE.BlastMainnet:
+          return CoingeckoAssetPlatform.Blast
         case CHAIN_REFERENCE.WorldChainMainnet:
           return CoingeckoAssetPlatform.WorldChain
         case CHAIN_REFERENCE.HemiMainnet:
@@ -287,6 +291,8 @@ export const coingeckoAssetPlatformToChainId = (
       return modeChainId
     case CoingeckoAssetPlatform.MegaEth:
       return megaethChainId
+    case CoingeckoAssetPlatform.Blast:
+      return blastChainId
     case CoingeckoAssetPlatform.Hemi:
       return hemiChainId
     case CoingeckoAssetPlatform.Linea:

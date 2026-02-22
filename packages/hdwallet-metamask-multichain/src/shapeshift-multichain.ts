@@ -286,6 +286,7 @@ export class MetaMaskMultiChainHDWallet
   readonly _supportsMantle = true
   readonly _supportsInk = true
   readonly _supportsMegaEth = true
+  readonly _supportsBlast = true
   readonly _supportsWorldChain = true
   readonly _supportsHemi = true
   readonly _supportsBerachain = true

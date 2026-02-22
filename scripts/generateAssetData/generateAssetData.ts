@@ -27,6 +27,7 @@ import * as arbitrum from './arbitrum'
 import * as avalanche from './avalanche'
 import * as base from './base'
 import * as berachain from './berachain'
+import * as blast from './blast'
 import * as bnbsmartchain from './bnbsmartchain'
 import * as bob from './bob'
 import { compressGeneratedAssets } from './compressAssets'
@@ -84,6 +85,7 @@ const generateAssetData = async () => {
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
+  const blastAssets = await blast.getAssets()
   const hemiAssets = await hemi.getAssets()
   const mantleAssets = await mantle.getAssets()
   const inkAssets = await ink.getAssets()
@@ -130,6 +132,7 @@ const generateAssetData = async () => {
     ...monadAssets,
     ...hyperevmAssets,
     ...katanaAssets,
+    ...blastAssets,
     ...hemiAssets,
     ...mantleAssets,
     ...inkAssets,

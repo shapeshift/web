@@ -3,6 +3,7 @@ import {
   adapters,
   arbitrumAssetId,
   baseAssetId,
+  blastAssetId,
   bobAssetId,
   cronosAssetId,
   ethAssetId,
@@ -74,6 +75,7 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     modeAssetId,
     soneiumAssetId,
     worldChainAssetId,
+    blastAssetId,
   ],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
   [starknetAssetId]: [

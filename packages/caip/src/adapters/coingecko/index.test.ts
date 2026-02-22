@@ -63,6 +63,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.MegaEth,
       })
+      const ethOnBlast = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.BlastMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Blast,
+      })
       const ethOnWorldChain = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.WorldChainMainnet,
@@ -123,6 +129,7 @@ describe('adapters:coingecko', () => {
         ethOnArbitrum,
         ethOnBase,
         ethOnBob,
+        ethOnBlast,
         ethOnWorldChain,
         ethOnHemi,
         ethOnLinea,

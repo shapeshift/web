@@ -4,6 +4,7 @@ import {
   arbitrumChainId,
   baseChainId,
   berachainChainId,
+  blastChainId,
   bobChainId,
   bscChainId,
   cronosChainId,
@@ -135,6 +136,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_MONAD && asset.chainId === monadChainId) return false
       if (!config.VITE_FEATURE_HYPEREVM && asset.chainId === hyperEvmChainId) return false
       if (!config.VITE_FEATURE_KATANA && asset.chainId === katanaChainId) return false
+      if (!config.VITE_FEATURE_BLAST && asset.chainId === blastChainId) return false
       if (!config.VITE_FEATURE_WORLDCHAIN && asset.chainId === worldChainChainId) return false
       if (!config.VITE_FEATURE_HEMI && asset.chainId === hemiChainId) return false
       if (!config.VITE_FEATURE_MANTLE && asset.chainId === mantleChainId) return false

@@ -11,6 +11,7 @@ import {
   berachain,
   bitcoin,
   bitcoincash,
+  blast,
   bnbsmartchain,
   bobChain,
   cronos,
@@ -105,6 +106,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return cronos
     case KnownChainIds.KatanaMainnet:
       return katana
+    case KnownChainIds.BlastMainnet:
+      return blast
     case KnownChainIds.WorldChainMainnet:
       return worldchain
     case KnownChainIds.HemiMainnet:

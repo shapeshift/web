@@ -1,6 +1,6 @@
 export type { EvmChainAdapter } from './EvmBaseAdapter'
 export { isEvmChainId, evmChainIds, EvmBaseAdapter } from './EvmBaseAdapter'
-export { SecondClassEvmAdapter } from './SecondClassEvmAdapter'
+export { isSecondClassEvmAdapter, SecondClassEvmAdapter } from './SecondClassEvmAdapter'
 export type { SecondClassEvmAdapterArgs, TokenInfo } from './SecondClassEvmAdapter'
 
 export * as evm from './evm'

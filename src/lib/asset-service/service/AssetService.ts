@@ -3,8 +3,8 @@ import {
   adapters,
   arbitrumChainId,
   baseChainId,
-  blastChainId,
   berachainChainId,
+  blastChainId,
   bobChainId,
   bscChainId,
   cronosChainId,
@@ -32,8 +32,8 @@ import {
   suiChainId,
   tonChainId,
   tronChainId,
-  worldChainChainId,
   unichainChainId,
+  worldChainChainId,
   zecChainId,
   zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
@@ -140,6 +140,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_HYPEREVM && asset.chainId === hyperEvmChainId) return false
       if (!config.VITE_FEATURE_KATANA && asset.chainId === katanaChainId) return false
       if (!config.VITE_FEATURE_STORY && asset.chainId === storyChainId) return false
+      if (!config.VITE_FEATURE_PLUME && asset.chainId === plumeChainId) return false
       if (!config.VITE_FEATURE_ZK_SYNC_ERA && asset.chainId === zkSyncEraChainId) return false
       if (!config.VITE_FEATURE_BLAST && asset.chainId === blastChainId) return false
       if (!config.VITE_FEATURE_WORLDCHAIN && asset.chainId === worldChainChainId) return false
@@ -151,7 +152,6 @@ class _AssetService {
       if (!config.VITE_FEATURE_BOB && asset.chainId === bobChainId) return false
       if (!config.VITE_FEATURE_MODE && asset.chainId === modeChainId) return false
       if (!config.VITE_FEATURE_MEGAETH && asset.chainId === megaethChainId) return false
-      if (!config.VITE_FEATURE_PLUME && asset.chainId === plumeChainId) return false
       if (!config.VITE_FEATURE_LINEA && asset.chainId === lineaChainId) return false
       if (!config.VITE_FEATURE_BERACHAIN && asset.chainId === berachainChainId) return false
       if (!config.VITE_FEATURE_SCROLL && asset.chainId === scrollChainId) return false

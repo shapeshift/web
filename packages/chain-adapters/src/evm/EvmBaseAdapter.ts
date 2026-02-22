@@ -11,8 +11,8 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
-  supportsBlast,
   supportsBerachain,
+  supportsBlast,
   supportsBob,
   supportsBSC,
   supportsCronos,
@@ -31,13 +31,13 @@ import {
   supportsPlasma,
   supportsPlume,
   supportsPolygon,
-  supportsStory,
-  supportsZkSyncEra,
-  supportsWorldChain,
   supportsScroll,
   supportsSoneium,
   supportsSonic,
+  supportsStory,
   supportsUnichain,
+  supportsWorldChain,
+  supportsZkSyncEra,
 } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -103,13 +103,13 @@ export const evmChainIds = [
   KnownChainIds.MonadMainnet,
   KnownChainIds.HyperEvmMainnet,
   KnownChainIds.PlasmaMainnet,
+  KnownChainIds.PlumeMainnet,
   KnownChainIds.MantleMainnet,
   KnownChainIds.InkMainnet,
   KnownChainIds.MegaEthMainnet,
   KnownChainIds.BerachainMainnet,
   KnownChainIds.CronosMainnet,
   KnownChainIds.KatanaMainnet,
-  KnownChainIds.PlumeMainnet,
   KnownChainIds.StoryMainnet,
   KnownChainIds.ZkSyncEraMainnet,
   KnownChainIds.BlastMainnet,
@@ -222,6 +222,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsHyperEvm(wallet)
         case Number(fromChainId(KnownChainIds.PlasmaMainnet).chainReference):
           return supportsPlasma(wallet)
+        case Number(fromChainId(KnownChainIds.PlumeMainnet).chainReference):
+          return supportsPlume(wallet)
         case Number(fromChainId(KnownChainIds.MantleMainnet).chainReference):
           return supportsMantle(wallet)
         case Number(fromChainId(KnownChainIds.InkMainnet).chainReference):
@@ -234,8 +236,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsCronos(wallet)
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
-        case Number(fromChainId(KnownChainIds.PlumeMainnet).chainReference):
-          return supportsPlume(wallet)
         case Number(fromChainId(KnownChainIds.StoryMainnet).chainReference):
           return supportsStory(wallet)
         case Number(fromChainId(KnownChainIds.ZkSyncEraMainnet).chainReference):
@@ -347,6 +347,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         symbol: 'XPL',
         explorer: 'https://plasmascan.to',
       },
+      [KnownChainIds.PlumeMainnet]: {
+        name: 'PLUME',
+        symbol: 'PLUME',
+        explorer: 'https://explorer.plume.org',
+      },
       [KnownChainIds.MantleMainnet]: {
         name: 'Mantle',
         symbol: 'MNT',
@@ -377,30 +382,31 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         symbol: 'ETH',
         explorer: 'https://katanascan.com',
       },
-      [KnownChainIds.PlumeMainnet]: {
-        name: 'PLUME',
-        symbol: 'PLUME',
-        explorer: 'https://explorer.plumenetwork.xyz',
       [KnownChainIds.StoryMainnet]: {
         name: 'Story',
         symbol: 'IP',
         explorer: 'https://storyscan.xyz',
+      },
       [KnownChainIds.ZkSyncEraMainnet]: {
         name: 'Ether',
         symbol: 'ETH',
         explorer: 'https://explorer.zksync.io',
+      },
       [KnownChainIds.BlastMainnet]: {
         name: 'Ether',
         symbol: 'ETH',
         explorer: 'https://blastscan.io',
+      },
       [KnownChainIds.WorldChainMainnet]: {
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://worldscan.org',
+      },
       [KnownChainIds.HemiMainnet]: {
         name: 'Ether',
         symbol: 'ETH',
         explorer: 'https://explorer.hemi.xyz',
+      },
       [KnownChainIds.LineaMainnet]: {
         name: 'Ethereum',
         symbol: 'ETH',

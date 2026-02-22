@@ -109,6 +109,7 @@ export class CoinbaseHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsBase = true
   readonly _supportsMonad = false
   readonly _supportsPlasma = false
+  readonly _supportsPlume = false
   readonly _supportsKatana = false
   readonly _supportsStory = false
   readonly _supportsSonic = false
@@ -118,7 +119,6 @@ export class CoinbaseHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsMantle = false
   readonly _supportsInk = false
   readonly _supportsMegaEth = false
-  readonly _supportsPlume = false
   readonly _supportsZkSyncEra = false
   readonly _supportsBlast = false
   readonly _supportsWorldChain = false

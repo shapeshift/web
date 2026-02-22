@@ -7,8 +7,8 @@ import {
   arbitrum,
   avalanche,
   base,
-  blast,
   berachain,
+  blast,
   bob,
   bsc,
   cronos,
@@ -26,13 +26,13 @@ import {
   plasma,
   plumeMainnet,
   polygon,
-  story,
-  zksync,
-  worldchain,
   scroll,
   soneium,
   sonic,
+  story,
   unichain,
+  worldchain,
+  zksync,
 } from 'viem/chains'
 
 const megaeth = defineChain({
@@ -124,6 +124,11 @@ export const viemPlasmaClient = createPublicClient({
   transport: fallback([process.env.VITE_PLASMA_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemPlumeClient = createPublicClient({
+  chain: plumeMainnet,
+  transport: fallback([process.env.VITE_PLUME_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemMantleClient = createPublicClient({
   chain: mantle,
   transport: fallback([process.env.VITE_MANTLE_NODE_URL].filter(Boolean).map(url => http(url))),
@@ -159,24 +164,31 @@ export const viemKatanaClient = createPublicClient({
   transport: fallback([process.env.VITE_KATANA_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
-export const viemPlumeClient = createPublicClient({
-  chain: plumeMainnet,
-  transport: fallback([process.env.VITE_PLUME_NODE_URL].filter(Boolean).map(url => http(url))),
 export const viemStoryClient = createPublicClient({
   chain: story,
   transport: fallback([process.env.VITE_STORY_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemZkSyncEraClient = createPublicClient({
   chain: zksync,
   transport: fallback([process.env.VITE_ZKSYNC_ERA_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemBlastClient = createPublicClient({
   chain: blast,
   transport: fallback([process.env.VITE_BLAST_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemWorldChainClient = createPublicClient({
   chain: worldchain,
   transport: fallback([process.env.VITE_WORLDCHAIN_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemHemiClient = createPublicClient({
   chain: hemi,
   transport: fallback([process.env.VITE_HEMI_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemLineaClient = createPublicClient({
   chain: linea,
   transport: fallback([process.env.VITE_LINEA_NODE_URL].filter(Boolean).map(url => http(url))),
@@ -219,13 +231,13 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.MonadMainnet]: viemMonadClient,
   [KnownChainIds.HyperEvmMainnet]: viemHyperEvmClient,
   [KnownChainIds.PlasmaMainnet]: viemPlasmaClient,
+  [KnownChainIds.PlumeMainnet]: viemPlumeClient,
   [KnownChainIds.MantleMainnet]: viemMantleClient,
   [KnownChainIds.InkMainnet]: viemInkClient,
   [KnownChainIds.MegaEthMainnet]: viemMegaEthClient,
   [KnownChainIds.BerachainMainnet]: viemBerachainClient,
   [KnownChainIds.CronosMainnet]: viemCronosClient,
   [KnownChainIds.KatanaMainnet]: viemKatanaClient,
-  [KnownChainIds.PlumeMainnet]: viemPlumeClient,
   [KnownChainIds.StoryMainnet]: viemStoryClient,
   [KnownChainIds.ZkSyncEraMainnet]: viemZkSyncEraClient,
   [KnownChainIds.BlastMainnet]: viemBlastClient,
@@ -252,13 +264,13 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.MonadMainnet]: monad.id,
   [KnownChainIds.HyperEvmMainnet]: hyperEvm.id,
   [KnownChainIds.PlasmaMainnet]: plasma.id,
+  [KnownChainIds.PlumeMainnet]: plumeMainnet.id,
   [KnownChainIds.MantleMainnet]: mantle.id,
   [KnownChainIds.InkMainnet]: ink.id,
   [KnownChainIds.MegaEthMainnet]: megaeth.id,
   [KnownChainIds.BerachainMainnet]: berachain.id,
   [KnownChainIds.CronosMainnet]: cronos.id,
   [KnownChainIds.KatanaMainnet]: katana.id,
-  [KnownChainIds.PlumeMainnet]: plumeMainnet.id,
   [KnownChainIds.StoryMainnet]: story.id,
   [KnownChainIds.ZkSyncEraMainnet]: zksync.id,
   [KnownChainIds.BlastMainnet]: blast.id,
@@ -285,13 +297,13 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [monad.id]: viemMonadClient,
   [hyperEvm.id]: viemHyperEvmClient,
   [plasma.id]: viemPlasmaClient,
+  [plumeMainnet.id]: viemPlumeClient,
   [mantle.id]: viemMantleClient,
   [ink.id]: viemInkClient,
   [megaeth.id]: viemMegaEthClient,
   [berachain.id]: viemBerachainClient,
   [cronos.id]: viemCronosClient,
   [katana.id]: viemKatanaClient,
-  [plumeMainnet.id]: viemPlumeClient,
   [story.id]: viemStoryClient,
   [zksync.id]: viemZkSyncEraClient,
   [blast.id]: viemBlastClient,

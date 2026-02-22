@@ -5,6 +5,7 @@ import {
   baseAssetId,
   blastAssetId,
   bobAssetId,
+  cronosAssetId,
   ethAssetId,
   FEE_ASSET_IDS,
   foxAssetId,
@@ -19,10 +20,11 @@ import {
   optimismAssetId,
   scrollAssetId,
   soneiumAssetId,
+  sonicAssetId,
   starknetAssetId,
-  zkSyncEraAssetId,
-  worldChainAssetId,
   unichainAssetId,
+  worldChainAssetId,
+  zkSyncEraAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { createThrottle, isToken } from '@shapeshiftoss/utils'
@@ -69,12 +71,8 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     worldChainAssetId,
     hemiAssetId,
     inkAssetId,
-    katanaAssetId,
     lineaAssetId,
-    megaethAssetId,
     scrollAssetId,
-    katanaAssetId,
-    megaethAssetId,
     unichainAssetId,
     bobAssetId,
     modeAssetId,
@@ -84,6 +82,14 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   [starknetAssetId]: [
     'eip155:1/erc20:0xca14007eff0db1f8135f4c25b34de49ab0d42766',
     'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:HsRpHQn6VbyMs5b5j5SV6xQ2VvpvvCCzu19GjytVSCoz',
+  ],
+  [sonicAssetId]: ['eip155:1/erc20:0x4e15361fd6b4bb609fa63c81a2be19d873717870'],
+  [cronosAssetId]: ['eip155:1/erc20:0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b'],
+  'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': [
+    'eip155:146/erc20:0x29219dd400f2bf60e5a23d13be72b486d4038894',
+  ],
+  'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7': [
+    'eip155:146/erc20:0x6047828dc181963ba44974801ff68e538da5eaf9',
   ],
 }
 

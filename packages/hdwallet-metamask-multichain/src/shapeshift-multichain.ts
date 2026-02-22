@@ -91,14 +91,11 @@ export class MetaMaskMultiChainHDWalletInfo implements core.HDWalletInfo, core.E
 
       case 'Atom':
         return core.cosmosDescribePath(msg.path)
-
       case 'Ethereum':
         return core.describeETHPath(msg.path)
-
       case 'Rune':
       case 'Thorchain':
         return core.thorchainDescribePath(msg.path)
-
       default:
         throw new Error('Unsupported path')
     }
@@ -278,6 +275,7 @@ export class MetaMaskMultiChainHDWallet
   readonly _supportsBase = true
   readonly _supportsMonad = true
   readonly _supportsPlasma = true
+  readonly _supportsPlume = true
   readonly _supportsKatana = true
   readonly _supportsStory = true
   readonly _supportsSonic = true
@@ -287,7 +285,6 @@ export class MetaMaskMultiChainHDWallet
   readonly _supportsMantle = true
   readonly _supportsInk = true
   readonly _supportsMegaEth = true
-  readonly _supportsPlume = true
   readonly _supportsZkSyncEra = true
   readonly _supportsBlast = true
   readonly _supportsWorldChain = true

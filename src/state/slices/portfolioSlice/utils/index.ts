@@ -5,8 +5,8 @@ import {
   avalancheChainId,
   baseChainId,
   bchChainId,
-  berachainChainId,
   blastChainId,
+  berachainChainId,
   bobChainId,
   bscChainId,
   btcChainId,
@@ -34,6 +34,7 @@ import {
   nearChainId,
   optimismChainId,
   plasmaChainId,
+  plumeChainId,
   polygonChainId,
   scrollChainId,
   solanaChainId,
@@ -47,8 +48,8 @@ import {
   toAssetId,
   tonChainId,
   tronChainId,
-  unichainChainId,
   worldChainChainId,
+  unichainChainId,
   zecChainId,
   zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
@@ -61,8 +62,8 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
-  supportsBerachain,
   supportsBlast,
+  supportsBerachain,
   supportsBob,
   supportsBSC,
   supportsBTC,
@@ -82,6 +83,7 @@ import {
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
+  supportsPlume,
   supportsPolygon,
   supportsScroll,
   supportsSolana,
@@ -92,9 +94,9 @@ import {
   supportsSui,
   supportsThorchain,
   supportsTron,
-  supportsUnichain,
-  supportsWorldChain,
   supportsZkSyncEra,
+  supportsWorldChain,
+  supportsUnichain,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { Asset, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
@@ -566,6 +568,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsPlasma(wallet)
     case katanaChainId:
       return supportsKatana(wallet)
+    case plumeChainId:
+      return supportsPlume(wallet)
     case storyChainId:
       return supportsStory(wallet)
     case zkSyncEraChainId:

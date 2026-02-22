@@ -8,8 +8,8 @@ import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
-  berachainChainId,
   blastChainId,
+  berachainChainId,
   bobChainId,
   bscChainId,
   CHAIN_NAMESPACE,
@@ -43,9 +43,9 @@ import {
   thorchainChainId,
   tonChainId,
   tronChainId,
-  unichainChainId,
-  worldChainChainId,
   zkSyncEraChainId,
+  worldChainChainId,
+  unichainChainId,
 } from '../../constants'
 import * as adapters from './generated'
 
@@ -67,9 +67,9 @@ export enum CoingeckoAssetPlatform {
   Monad = 'monad',
   HyperEvm = 'hyperevm',
   Plasma = 'plasma',
-  Plume = 'plume-network',
   Ink = 'ink',
   Katana = 'katana',
+  Plume = 'plume-network',
   Story = 'story',
   ZkSyncEra = 'zksync',
   Blast = 'blast',
@@ -77,7 +77,7 @@ export enum CoingeckoAssetPlatform {
   Hemi = 'hemi',
   Mantle = 'mantle',
   Linea = 'linea',
-  Sonic = 'sonic',
+  Sonic = 'sonic-3',
   Unichain = 'unichain',
   Bob = 'bob-network',
   Mode = 'mode',
@@ -144,8 +144,6 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.HyperEvm
         case CHAIN_REFERENCE.PlasmaMainnet:
           return CoingeckoAssetPlatform.Plasma
-        case CHAIN_REFERENCE.PlumeMainnet:
-          return CoingeckoAssetPlatform.Plume
         case CHAIN_REFERENCE.KatanaMainnet:
           return CoingeckoAssetPlatform.Katana
         case CHAIN_REFERENCE.StoryMainnet:
@@ -287,12 +285,12 @@ export const coingeckoAssetPlatformToChainId = (
       return hyperEvmChainId
     case CoingeckoAssetPlatform.Plasma:
       return plasmaChainId
-    case CoingeckoAssetPlatform.Plume:
-      return plumeChainId
     case CoingeckoAssetPlatform.WorldChain:
       return worldChainChainId
     case CoingeckoAssetPlatform.Katana:
       return katanaChainId
+    case CoingeckoAssetPlatform.Plume:
+      return plumeChainId
     case CoingeckoAssetPlatform.Story:
       return storyChainId
     case CoingeckoAssetPlatform.Mantle:

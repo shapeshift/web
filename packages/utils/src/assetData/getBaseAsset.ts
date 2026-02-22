@@ -44,8 +44,8 @@ import {
   thorchain,
   ton,
   tron,
-  unichainChain,
   worldchain,
+  unichainChain,
   zcash,
   zkSyncEra,
 } from './baseAssets'
@@ -97,8 +97,6 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return hyperevm
     case KnownChainIds.PlasmaMainnet:
       return plasma
-    case KnownChainIds.PlumeMainnet:
-      return plume
     case KnownChainIds.MantleMainnet:
       return mantle
     case KnownChainIds.InkMainnet:
@@ -111,6 +109,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return cronos
     case KnownChainIds.KatanaMainnet:
       return katana
+    case KnownChainIds.PlumeMainnet:
+      return plume
     case KnownChainIds.StoryMainnet:
       return story
     case KnownChainIds.ZkSyncEraMainnet:

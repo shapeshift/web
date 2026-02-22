@@ -207,7 +207,6 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
   readonly _supportsBSC: boolean
   readonly _supportsMonad: boolean
   readonly _supportsPlasma: boolean
-  readonly _supportsPlume: boolean
   readonly _supportsKatana: boolean
   readonly _supportsStory: boolean
   readonly _supportsSonic: boolean
@@ -217,6 +216,7 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
   readonly _supportsMantle: boolean
   readonly _supportsInk: boolean
   readonly _supportsMegaEth: boolean
+  readonly _supportsPlume: boolean
   readonly _supportsZkSyncEra: boolean
   readonly _supportsBlast: boolean
   readonly _supportsWorldChain: boolean

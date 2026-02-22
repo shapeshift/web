@@ -4,8 +4,8 @@ import {
   avalancheChainId,
   baseChainId,
   bchChainId,
-  berachainChainId,
   blastChainId,
+  berachainChainId,
   bobChainId,
   bscChainId,
   btcChainId,
@@ -40,8 +40,8 @@ import {
   thorchainChainId,
   tonChainId,
   tronChainId,
-  unichainChainId,
   worldChainChainId,
+  unichainChainId,
   zecChainId,
   zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
@@ -55,8 +55,8 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
-  supportsBerachain,
   supportsBlast,
+  supportsBerachain,
   supportsBob,
   supportsBSC,
   supportsBTC,
@@ -87,9 +87,9 @@ import {
   supportsSui,
   supportsThorchain,
   supportsTron,
-  supportsUnichain,
-  supportsWorldChain,
   supportsZkSyncEra,
+  supportsWorldChain,
+  supportsUnichain,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import { useMemo } from 'react'
 
@@ -251,10 +251,10 @@ export const walletSupportsChain = ({
       return isBerachainEnabled && supportsBerachain(wallet)
     case plasmaChainId:
       return isPlasmaEnabled && supportsPlasma(wallet)
-    case plumeChainId:
-      return isPlumeEnabled && supportsPlume(wallet)
     case katanaChainId:
       return isKatanaEnabled && supportsKatana(wallet)
+    case plumeChainId:
+      return isPlumeEnabled && supportsPlume(wallet)
     case storyChainId:
       return isStoryEnabled && supportsStory(wallet)
     case zkSyncEraChainId:

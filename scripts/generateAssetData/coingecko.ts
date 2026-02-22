@@ -5,8 +5,8 @@ import {
   ASSET_NAMESPACE,
   avalancheChainId,
   baseChainId,
-  berachainChainId,
   blastChainId,
+  berachainChainId,
   bobChainId,
   bscChainId,
   cronosChainId,
@@ -36,17 +36,17 @@ import {
   toAssetId,
   tonChainId,
   tronChainId,
-  unichainChainId,
-  worldChainChainId,
   zkSyncEraChainId,
+  worldChainChainId,
+  unichainChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import {
   arbitrum,
   avax,
   base,
-  berachain,
   blast,
+  berachain,
   bnbsmartchain,
   bobChain,
   cronos,
@@ -68,15 +68,15 @@ import {
   polygon,
   scroll,
   solana,
+  story,
   soneium,
   sonic,
-  story,
   sui,
   ton,
   tron,
-  unichainChain,
-  worldchain,
   zkSyncEra,
+  worldchain,
+  unichainChain,
 } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
@@ -222,7 +222,6 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: worldchain.explorer,
           explorerAddressLink: worldchain.explorerAddressLink,
           explorerTxLink: worldchain.explorerTxLink,
-        }
       case lineaChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.erc20,
@@ -262,7 +261,6 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: plume.explorer,
           explorerAddressLink: plume.explorerAddressLink,
           explorerTxLink: plume.explorerTxLink,
-        }
       case storyChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.erc20,
@@ -270,7 +268,6 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: story.explorer,
           explorerAddressLink: story.explorerAddressLink,
           explorerTxLink: story.explorerTxLink,
-        }
       case zkSyncEraChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.erc20,
@@ -278,7 +275,6 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: zkSyncEra.explorer,
           explorerAddressLink: zkSyncEra.explorerAddressLink,
           explorerTxLink: zkSyncEra.explorerTxLink,
-        }
       case blastChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.erc20,
@@ -286,7 +282,6 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: blast.explorer,
           explorerAddressLink: blast.explorerAddressLink,
           explorerTxLink: blast.explorerTxLink,
-        }
       case hemiChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.erc20,
@@ -294,7 +289,6 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: hemi.explorer,
           explorerAddressLink: hemi.explorerAddressLink,
           explorerTxLink: hemi.explorerTxLink,
-        }
       case berachainChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.erc20,

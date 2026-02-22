@@ -4,8 +4,8 @@ import {
   avalancheAssetId,
   baseAssetId,
   bchAssetId,
-  berachainAssetId,
   blastAssetId,
+  berachainAssetId,
   bobAssetId,
   bscAssetId,
   btcAssetId,
@@ -40,8 +40,8 @@ import {
   thorchainAssetId,
   tonAssetId,
   tronAssetId,
-  unichainAssetId,
   worldChainAssetId,
+  unichainAssetId,
   zecAssetId,
   zkSyncEraAssetId,
 } from '@shapeshiftoss/caip'
@@ -96,8 +96,6 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return hyperEvmAssetId
     case KnownChainIds.PlasmaMainnet:
       return plasmaAssetId
-    case KnownChainIds.PlumeMainnet:
-      return plumeAssetId
     case KnownChainIds.MantleMainnet:
       return mantleAssetId
     case KnownChainIds.InkMainnet:
@@ -110,6 +108,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return cronosAssetId
     case KnownChainIds.KatanaMainnet:
       return katanaAssetId
+    case KnownChainIds.PlumeMainnet:
+      return plumeAssetId
     case KnownChainIds.StoryMainnet:
       return storyAssetId
     case KnownChainIds.ZkSyncEraMainnet:

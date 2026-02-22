@@ -11,7 +11,12 @@ if (translationsArg && fs.existsSync(translationsArg)) {
   newTranslations = JSON.parse(translationsArg);
 }
 
-const existing = JSON.parse(fs.readFileSync('src/assets/translations/' + locale + '/main.json', 'utf8'));
+const localeFilePath = 'src/assets/translations/' + locale + '/main.json';
+const existing = JSON.parse(fs.readFileSync(localeFilePath, 'utf8'));
+
+// Pre-merge backup for rollback support
+const backupPath = `/tmp/pre-merge-${locale}.json`;
+fs.writeFileSync(backupPath, JSON.stringify(existing, null, 2) + '\n');
 
 function setByPath(obj, path, value) {
   const parts = path.split('.');
@@ -48,5 +53,5 @@ for (const [path, value] of Object.entries(newTranslations)) {
 }
 
 const ordered = orderLike(enKeys, existing);
-fs.writeFileSync('src/assets/translations/' + locale + '/main.json', JSON.stringify(ordered, null, 2) + '\n');
-console.log('Merged ' + Object.keys(newTranslations).length + ' translations into ' + locale);
+fs.writeFileSync(localeFilePath, JSON.stringify(ordered, null, 2) + '\n');
+console.log('Merged ' + Object.keys(newTranslations).length + ' translations into ' + locale + ' (backup: ' + backupPath + ')');

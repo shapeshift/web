@@ -158,219 +158,213 @@ node .claude/skills/translate/scripts/prepare-locale.js LOCALE --batches=BATCHES
 
 Output: `/tmp/translate-{locale}.json` containing locale rules, glossary, term context, few-shot examples, and all batches in a single file.
 
-## Step 5: Translation Pipeline (per language, per batch)
+## Step 5: Spawn Self-Contained Language Agents
 
-### 5a. Translator Sub-Agent
+Launch **9 Task sub-agents in parallel** (one per language) using the **Task tool** with `model: "sonnet"`. Each language agent owns its entire lifecycle: translate → validate → retry → review → refine → merge → verify.
 
-Use the **Task tool** with `model: "sonnet"` to translate each batch.
+The orchestrator's only job after spawning is to read status files and compile the report (Step 6).
 
-Prompt template for the translator:
+### Language Agent Prompt
+
+For each locale, spawn a Task with the following prompt (substituting `{LOCALE_CODE}` and `{LANGUAGE_NAME}`):
 
 ```
-You are a professional UI translator for a cryptocurrency/DeFi application.
-Translate the following English UI strings into {LANGUAGE_NAME} ({LOCALE_CODE}).
+You are a self-contained translation agent for {LANGUAGE_NAME} ({LOCALE_CODE}) in a cryptocurrency/DeFi application.
 
-Do NOT read any other files from the codebase. All context you need is provided below.
+You own the full translation lifecycle for your locale. Do NOT read any codebase source files — all context is in the locale bundle.
 
-Read the locale bundle from /tmp/translate-{LOCALE_CODE}.json and use batch index {BATCH_INDEX} (0-based) as the input to translate.
+## Your Locale Bundle
 
-LOCALE RULES:
-{LOCALE_RULES}
+Read `/tmp/translate-{LOCALE_CODE}.json`. It contains:
+- `locale`, `language`, `register` — your target locale metadata
+- `localeRules` — locale-specific translation rules (follow these precisely)
+- `neverTranslate` — terms that must remain in English
+- `approvedTerms` — terms with mandatory translations for your locale
+- `termContext` — how key terms have been translated elsewhere in this project
+- `fewShot` — reference translations for tone/style
+- `batches` — array of batch objects to translate (each batch is `{ "dotted.path": "english value" }`)
+
+## Per-Batch Pipeline (process batches sequentially, 0-indexed)
+
+For each batch in the `batches` array:
+
+### 1. Translate
+
+Translate all strings in the batch from English to {LANGUAGE_NAME}.
 
 RULES:
 1. INTERPOLATION: Preserve all %{variableName} placeholders exactly as-is. Do not translate variable names inside %{}.
 2. TERMINOLOGY:
-   - NEVER TRANSLATE these terms (keep in English): {NEVER_TRANSLATE_LIST}
-   - USE APPROVED TRANSLATIONS: {APPROVED_TRANSLATIONS_FOR_THIS_LOCALE}
-   - When a term below has an established translation in this project, use that same translation unless the context clearly demands a different meaning.
-3. Keep translations concise - UI space is limited. Match the approximate length of the English source.
-4. Do not add explanations or notes. Return ONLY a JSON object.
-5. FORMAT: Preserve HTML entities and markdown in source strings. If a string is a single word that's also a UI label (like "Done", "Cancel"), translate it as a UI action.
-6. SOURCE FAITHFULNESS: Do not add information, words, or context not present in the English source. The translation must convey exactly what the English says — nothing more, nothing less.
-7. CONCISENESS: UI labels must be short. If the locale naturally produces longer text, prefer shorter synonyms or abbreviations common in that locale's UI conventions.
-8. KEY INTEGRITY: Your output keys must EXACTLY match the input keys. Do not rename, rewrite, or substitute any key paths. The output JSON must contain the same set of dotted paths as the input — no additions, no removals, no modifications to key names.
+   - NEVER TRANSLATE terms in `neverTranslate` (keep in English)
+   - USE APPROVED TRANSLATIONS from `approvedTerms` for your locale
+   - When a term in `termContext` has an established translation, use it unless the context clearly demands a different meaning
+3. Keep translations concise — UI space is limited. Match the approximate length of the English source.
+4. FORMAT: Preserve HTML entities and markdown. If a string is a single word that's also a UI label (like "Done", "Cancel"), translate it as a UI action.
+5. SOURCE FAITHFULNESS: Do not add information not present in the English source.
+6. CONCISENESS: Prefer shorter synonyms or abbreviations common in {LANGUAGE_NAME} UI conventions.
+7. KEY INTEGRITY: Output keys must EXACTLY match input keys. No additions, removals, or modifications to key names.
 
-TERM CONTEXT (how key terms in these strings have been translated elsewhere in this project):
-{TERM_CONTEXT}
+Use the `fewShot` examples from the bundle as tone/style reference.
 
-REFERENCE TRANSLATIONS (existing translations from this project for tone/style reference):
-{EXISTING_TRANSLATIONS_SAMPLE}
+### 2. Validate
 
-INPUT (JSON object with dotted paths as keys and English strings as values):
-{BATCH_JSON}
-
-OUTPUT: Return a single JSON object with the SAME keys and translated values. Nothing else.
-```
-
-Where `{LOCALE_RULES}` is loaded from the locale bundle (or `.claude/skills/translate/locales/{locale}.md`). The `{BATCH_INDEX}` is the 0-based index into the `batches` array in the locale bundle file.
-
-Parse the returned JSON. If it doesn't parse, retry once with "Return ONLY valid JSON, no markdown fences."
-
-### 5b. Programmatic Validation
-
-After receiving translator output, run the validation script:
+Write the source batch to `/tmp/batch-{LOCALE_CODE}-{BATCH_IDX}-source.json` and your translation to `/tmp/batch-{LOCALE_CODE}-{BATCH_IDX}-target.json`, then run:
 
 ```bash
-node .claude/skills/translate/scripts/validate.js LOCALE SOURCE_JSON TARGET_JSON --term-context=TERM_CONTEXT_FILE
+node .claude/skills/translate/scripts/validate.js {LOCALE_CODE} /tmp/batch-{LOCALE_CODE}-{BATCH_IDX}-source.json /tmp/batch-{LOCALE_CODE}-{BATCH_IDX}-target.json
 ```
 
-The script checks:
+This outputs `{ rejected, flagged, passed }`.
 
-0. **Key integrity**: Verify the output key set exactly matches the input key set. Reject any key in the output that doesn't exist in the input ("unexpected key" — translator hallucinated a different key path). Reject any input key missing from the output ("missing key"). Already-rejected keys are skipped by subsequent checks.
+### 3. Retry Rejected Strings
 
-1. **Placeholder integrity**: Extract all `%{...}` tokens from source and target. They must be identical sets (reject if mismatch). Additionally, flag if placeholders appear in different order (grammar may require reordering — flag, not reject).
+For any strings in `rejected`: re-translate them incorporating the rejection reason as feedback. Run validation again. Retry up to 2 times total. Strings that still fail after 2 retries become "manual review" items.
 
-2. **Length ratio**: Flag if `target.length / source.length > 3.0` or `< 0.25` (for CJK locales `ja` and `zh`: `> 4.0` and `< 0.15`).
+### 4. Review (spawn fresh sub-agent)
 
-3. **Empty/whitespace**: Reject if translated value is empty or whitespace-only.
-
-4. **Untranslated detection**: Flag if target === source AND the source has more than 3 words (single-word labels and brand names are expected to stay the same).
-
-5. **Wrong-script detection**: For locales `ja`, `zh` — flag strings where >70% of non-whitespace, non-placeholder, non-glossary characters are Latin. For `ru`, `uk` — same threshold.
-
-6. **Glossary compliance**: Check that "never translate" terms appear unchanged. Check that terms with approved translations use the approved form.
-
-7. **Term consistency** (if term-context available): For each term where all existing matches agree on a single translation, flag if the new translation uses a different word.
-
-Output: `{ "rejected": [...], "flagged": [...], "passed": [...] }`
-
-- **Auto-reject** (send back to translator with error): key integrity mismatch (unexpected/missing keys), empty/whitespace, JSON parse failure, placeholder set mismatch.
-- **Flag for reviewer** (pass to reviewer with note): length ratio, untranslated suspicion, wrong-script, glossary violations, term consistency deviations, placeholder reorder.
-
-### 5c. Reviewer Sub-Agent
-
-Use the **Task tool** with `model: "sonnet"` for review.
-
-Invoke the reviewer for **flagged strings plus a 10% random sample of passed strings** as a spot-check. If no strings are flagged and the passed sample is clean, skip the reviewer for this batch.
-
-Prompt template for the reviewer:
+Collect flagged strings plus a 10% random sample of passed strings. If there are any strings to review, spawn a **separate reviewer sub-agent** using the Task tool (model: sonnet) with this prompt:
 
 ```
 You are a senior localization reviewer for a cryptocurrency/DeFi application ({LANGUAGE_NAME}).
-
 Do NOT read any other files from the codebase. All context you need is provided below.
 
 Review these translations for quality. For each string, respond with either "approved" or a specific issue description.
 
 LOCALE RULES:
-{LOCALE_RULES}
+{LOCALE_RULES_FROM_BUNDLE}
 
-FOCUS ON (things programmatic validation cannot catch):
+FOCUS ON:
 1. Naturalness - does it sound natural to a native {LANGUAGE_NAME} speaker?
 2. Semantic accuracy - does the translation accurately convey the English meaning?
 3. Cultural appropriateness - are there any culturally awkward or inappropriate phrasings?
 4. UI appropriateness - translations should be concise enough for UI elements
 5. Source faithfulness - verify translation doesn't add information not in the English source
 
-TERM CONTEXT (how key terms have been translated elsewhere — flag inconsistencies):
-{TERM_CONTEXT}
+TERM CONTEXT:
+{TERM_CONTEXT_FROM_BUNDLE}
 
-VALIDATION FLAGS (pay special attention to these):
-{VALIDATION_FLAGS_IF_ANY}
+VALIDATION FLAGS:
+{FLAGS_FOR_FLAGGED_STRINGS_OR_NONE}
 
-STRINGS TO REVIEW:
-{STRINGS_WITH_SOURCE_AND_TRANSLATION}
+STRINGS TO REVIEW (JSON: { "path": { "en": "source", "translation": "target" } }):
+{STRINGS_TO_REVIEW}
 
-OUTPUT: JSON object with dotted paths as keys. Value is either `"approved"` or `"Issue: [one-sentence description]"`. Always prefix issues with "Issue:" for parseability.
+OUTPUT: JSON object with dotted paths as keys. Value is either "approved" or "Issue: [one-sentence description]".
 ```
 
-When populating `{VALIDATION_FLAGS_IF_ANY}`: if no flags exist for this batch, insert "(No validation flags for this batch — review all strings normally.)"
+### 5. Refine (spawn fresh sub-agent, conditional)
 
-If >80% of strings are approved, only the flagged strings proceed to refinement.
-
-### 5d. Refiner Sub-Agent (conditional)
-
-Use the **Task tool** with `model: "sonnet"` only for strings the reviewer flagged.
-
-Prompt template:
+If the reviewer flagged any strings, spawn a **separate refiner sub-agent** using the Task tool (model: sonnet):
 
 ```
 You are a professional UI translator for a cryptocurrency/DeFi application.
 Do NOT read any other files from the codebase. All context you need is provided below.
 Fix the following {LANGUAGE_NAME} translations based on reviewer feedback.
 
-For each string below, you have: the English source, the rejected translation, and the reviewer's feedback.
-Produce a corrected translation that addresses the feedback.
-
 LOCALE RULES:
-{LOCALE_RULES}
+{LOCALE_RULES_FROM_BUNDLE}
 
-RULES: Same as translator rules (interpolation, terminology, conciseness, format, source faithfulness).
+RULES: Preserve %{placeholders}, use approved terminology, be concise, be faithful to source.
 
-INPUT FORMAT:
-{ "dotted.path": { "en": "English source", "translation": "Current translation", "feedback": "Issue: ..." } }
+INPUT: { "dotted.path": { "en": "source", "translation": "current", "feedback": "Issue: ..." } }
 
 STRINGS TO FIX:
 {STRINGS_WITH_FEEDBACK}
 
-OUTPUT: JSON object with dotted paths as keys and corrected translations as values. Nothing else.
+OUTPUT: JSON object with dotted paths as keys and corrected translations as values.
 ```
 
-Re-validate the refined output programmatically. If it still fails validation after 1 retry, skip it and include in the final report as "needs manual review".
+Re-validate refined output. If it still fails after 1 retry, mark as "manual review".
+
+### 6. Accumulate
+
+After processing all batches, combine all passing translations into a single object.
+
+## Post-Batch: Merge & Verify
+
+After all batches are complete:
+
+1. Write accumulated translations to `/tmp/translations-{LOCALE_CODE}-final.json`
+
+2. Run merge (which creates a pre-merge backup automatically):
+   ```bash
+   node .claude/skills/translate/scripts/merge.js {LOCALE_CODE} /tmp/translations-{LOCALE_CODE}-final.json
+   ```
+
+3. Run post-merge validation:
+   ```bash
+   node .claude/skills/translate/scripts/validate-file.js {LOCALE_CODE} --pre-merge=/tmp/pre-merge-{LOCALE_CODE}.json
+   ```
+
+4. If validate-file reports `valid: false`:
+   - Restore the pre-merge backup: copy `/tmp/pre-merge-{LOCALE_CODE}.json` back to `src/assets/translations/{LOCALE_CODE}/main.json`
+   - Mark locale as "failed" in status
+
+5. Write status to `/tmp/translate-status-{LOCALE_CODE}.json`:
+   ```json
+   {
+     "locale": "{LOCALE_CODE}",
+     "status": "success" | "failed",
+     "translated": <count>,
+     "manualReview": [{ "path": "...", "reason": "..." }],
+     "errors": ["..."]
+   }
+   ```
 
 ## Error Handling
 
-- **JSON parse failure** (translator/refiner): Retry once with "Return ONLY valid JSON, no markdown fences." If retry fails, skip batch, log to summary as "needs manual review."
-- **Empty batch after filtering**: Skip without invoking sub-agents.
-- **Sub-agent timeout**: Log as "needs manual review", continue with next language/batch.
-- **Glossary file missing/malformed**: Log error and exit with clear message.
-
-## Step 6: Parallel Execution Strategy
-
-Launch **9 Task sub-agents in parallel** (one per language). Within each language, process batches **sequentially** to maintain terminology consistency across namespaces.
-
-For each language, the full pipeline is: translate batch → validate → review (if needed) → refine (if needed) → next batch.
-
-## Step 7: Merge Results
-
-After all languages complete, merge translations into the existing files.
-
-For each locale:
-
-1. Read `src/assets/translations/{locale}/main.json`
-2. Deep-merge the new translations into the existing nested structure
-3. **Preserve key ordering from the English file** — use the English file as the structural template to determine key order
-4. Write back with `JSON.stringify(data, null, 2) + '\n'` (2-space indent, trailing newline — matches existing format per `scripts/translations/utils.ts` `saveJSONFile`)
-
-Run the merge script:
-
-```bash
-node .claude/skills/translate/scripts/merge.js LOCALE TRANSLATIONS_JSON_OR_FILE
+- **JSON parse failure** from your own translation: retry once with stricter instructions
+- **Empty batch**: skip without processing
+- **Sub-agent (reviewer/refiner) failure**: log as "manual review", continue with next batch
+- Strings that fail all retries: include in `manualReview` array in status file
 ```
 
-Replace `LOCALE` with the locale code and pass either a stringified JSON of `{ dottedPath: translatedValue }` pairs or a path to a temp file containing the JSON. For large payloads, prefer the temp file approach.
+### Temp File Conventions
 
-## Step 8: Update Marker & Report
+All files are namespaced by locale — zero overlap between parallel agents:
 
-After all merges are complete:
+| File | Writer | Reader |
+|------|--------|--------|
+| `/tmp/translate-{locale}.json` | orchestrator | language agent |
+| `/tmp/batch-{locale}-{idx}-source.json` | language agent | validate.js |
+| `/tmp/batch-{locale}-{idx}-target.json` | language agent | validate.js |
+| `/tmp/translations-{locale}-final.json` | language agent | merge.js |
+| `/tmp/pre-merge-{locale}.json` | merge.js | language agent (rollback), validate-file.js |
+| `/tmp/translate-status-{locale}.json` | language agent | orchestrator |
 
-1. **Write marker file**:
+## Step 6: Update Marker & Report
+
+After all 9 language agents complete, read their status files and compile results.
+
+1. **Read status files**: Read `/tmp/translate-status-{locale}.json` for each locale. If a status file is missing, report that locale as "no response" (agent may have crashed — locale file is unchanged).
+
+2. **Write marker file** (only if at least one locale succeeded):
    ```bash
    git rev-parse HEAD > src/assets/translations/.last-translation-sha
    ```
 
-2. **Update glossary timestamp** (if glossary was modified during this run):
+3. **Update glossary timestamp** (if glossary was modified during this run):
    Update `_meta.lastUpdated` in `src/assets/translations/glossary.json` to today's date.
 
-3. **Print summary report**:
+4. **Print summary report**:
    ```
    === Translation Summary ===
    SHA marker: <sha>
 
    Strings translated: <count> across <locale_count> languages
    Strings skipped (manual review needed): <count>
-   New glossary terms added: <count>
+   Locales failed (rolled back): <count>
 
    Per-language breakdown:
-     de: <count> translated, <count> skipped
-     es: <count> translated, <count> skipped
+     de: <count> translated, <count> skipped [success|failed|no response]
+     es: <count> translated, <count> skipped [success|failed|no response]
      ...
 
    Skipped strings (need manual review):
      - <dottedPath> (<locale>): <reason>
    ```
 
-## Step 9: Glossary Update (conditional)
+## Step 7: Glossary Update (conditional)
 
 After all translations complete, scan for English terms that appear untranslated (kept as-is) in **7 or more locales**. These are candidates for the glossary never-translate list.
 

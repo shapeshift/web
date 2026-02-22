@@ -1,4 +1,16 @@
 const fs = require('fs');
+const {
+  CJK_LOCALES,
+  CYRILLIC_LOCALES,
+  NON_LATIN_LOCALES,
+  extractPlaceholders,
+  stripPlaceholdersAndGlossary,
+  latinRatio,
+  cyrillicRatio,
+  cjkRatio,
+  loadGlossary,
+  glossaryTerms: getGlossaryTerms,
+} = require('./script-utils');
 
 const locale = process.argv[2];
 const sourceArg = process.argv[3];
@@ -25,43 +37,17 @@ for (const arg of process.argv.slice(5)) {
   if (arg.startsWith('--glossary=')) glossaryPath = arg.slice('--glossary='.length);
 }
 
-let glossary = {};
-if (fs.existsSync(glossaryPath)) {
-  glossary = JSON.parse(fs.readFileSync(glossaryPath, 'utf8'));
-}
+const glossary = loadGlossary(glossaryPath);
+const terms = getGlossaryTerms(glossary);
 
 let termContext = {};
 if (termContextPath && fs.existsSync(termContextPath)) {
   termContext = JSON.parse(fs.readFileSync(termContextPath, 'utf8'));
 }
 
-const CJK_LOCALES = new Set(['ja', 'zh']);
-const CYRILLIC_LOCALES = new Set(['ru', 'uk']);
-const NON_LATIN_LOCALES = new Set([...CJK_LOCALES, ...CYRILLIC_LOCALES]);
-
 const rejected = [];
 const flagged = [];
 const passed = [];
-
-function extractPlaceholders(str) {
-  return [...str.matchAll(/%\{(\w+)\}/g)].map(m => m[1]);
-}
-
-function stripPlaceholdersAndGlossary(str) {
-  let cleaned = str.replace(/%\{\w+\}/g, '');
-  for (const term of Object.keys(glossary)) {
-    if (term === '_meta') continue;
-    cleaned = cleaned.replace(new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '');
-  }
-  return cleaned.replace(/\s+/g, '');
-}
-
-function latinRatio(str) {
-  const cleaned = stripPlaceholdersAndGlossary(str);
-  if (cleaned.length === 0) return 0;
-  const latinChars = [...cleaned].filter(c => /[a-zA-Z]/.test(c)).length;
-  return latinChars / cleaned.length;
-}
 
 // Check 0: Key set validation
 const sourceKeys = new Set(Object.keys(source));
@@ -128,12 +114,29 @@ for (const path of Object.keys(source)) {
     isFlagged = true;
   }
 
-  // Check 5: Wrong-script detection
+  // Check 5: Wrong-script detection (auto-reject, not advisory)
   if (NON_LATIN_LOCALES.has(locale)) {
-    const lr = latinRatio(tgt);
+    const lr = latinRatio(tgt, terms);
     if (lr > 0.7) {
-      flags.push({ path, reason: 'wrong script', details: `${(lr * 100).toFixed(0)}% Latin characters for ${locale} locale` });
-      isFlagged = true;
+      rejected.push({ path, reason: 'wrong script', details: `${(lr * 100).toFixed(0)}% Latin characters for ${locale} locale` });
+      continue;
+    }
+    const cleaned = stripPlaceholdersAndGlossary(tgt, terms);
+    if (cleaned.length > 3) {
+      if (CYRILLIC_LOCALES.has(locale)) {
+        const cr = cyrillicRatio(tgt, terms);
+        if (cr < 0.3) {
+          rejected.push({ path, reason: 'wrong script', details: `Only ${(cr * 100).toFixed(0)}% Cyrillic characters for ${locale} locale` });
+          continue;
+        }
+      }
+      if (CJK_LOCALES.has(locale)) {
+        const cr = cjkRatio(tgt, terms);
+        if (cr < 0.3) {
+          rejected.push({ path, reason: 'wrong script', details: `Only ${(cr * 100).toFixed(0)}% CJK characters for ${locale} locale` });
+          continue;
+        }
+      }
     }
   }
 
@@ -143,13 +146,11 @@ for (const path of Object.keys(source)) {
     const termRegex = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
 
     if (value === null) {
-      // Never-translate term: must appear unchanged if present in source
       if (termRegex.test(src) && !new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).test(tgt)) {
         flags.push({ path, reason: 'glossary never-translate', details: `"${term}" should remain in English` });
         isFlagged = true;
       }
     } else if (typeof value === 'object' && value[locale]) {
-      // Approved translation: check it's used
       if (termRegex.test(src) && !tgt.includes(value[locale])) {
         flags.push({ path, reason: 'glossary approved translation', details: `"${term}" should be "${value[locale]}" in ${locale}` });
         isFlagged = true;
@@ -163,7 +164,6 @@ for (const path of Object.keys(source)) {
     const translations = matches.map(m => m[locale]).filter(Boolean);
     if (translations.length === 0) continue;
 
-    // Only flag if all existing uses agree on a single translation for the term
     const unique = [...new Set(translations)];
     if (unique.length !== 1) continue;
 

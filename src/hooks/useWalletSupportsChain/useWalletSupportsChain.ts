@@ -4,10 +4,9 @@ import {
   avalancheChainId,
   baseChainId,
   bchChainId,
+  berachainChainId,
   blastChainId,
-  berachainChainId,
-  berachainChainId,
-  blastChainId,  bobChainId,
+  bobChainId,
   bscChainId,
   btcChainId,
   cosmosChainId,
@@ -40,10 +39,9 @@ import {
   thorchainChainId,
   tonChainId,
   tronChainId,
+  unichainChainId,
   worldChainChainId,
-  unichainChainId,
-  unichainChainId,
-  worldChainChainId,  zecChainId,
+  zecChainId,
   zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
@@ -56,10 +54,9 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
+  supportsBerachain,
   supportsBlast,
-  supportsBerachain,
-  supportsBerachain,
-  supportsBlast,  supportsBob,
+  supportsBob,
   supportsBSC,
   supportsBTC,
   supportsCosmos,
@@ -88,12 +85,10 @@ import {
   supportsSui,
   supportsThorchain,
   supportsTron,
+  supportsUnichain,
+  supportsWorldChain,
   supportsZkSyncEra,
-  supportsWorldChain,
-  supportsUnichain,
-  supportsUnichain,
-  supportsWorldChain,
-  supportsZkSyncEra,} from '@shapeshiftoss/hdwallet-core/wallet'
+} from '@shapeshiftoss/hdwallet-core/wallet'
 import { useMemo } from 'react'
 
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
@@ -191,7 +186,8 @@ export const walletSupportsChain = ({
   const isInkEnabled = selectFeatureFlag(store.getState(), 'Ink')
   const isBobEnabled = selectFeatureFlag(store.getState(), 'Bob')
   const isKatanaEnabled = selectFeatureFlag(store.getState(), 'Katana')
-  const isStoryEnabled = selectFeatureFlag(store.getState(), 'Story')  const isMantleEnabled = selectFeatureFlag(store.getState(), 'Mantle')
+  const isStoryEnabled = selectFeatureFlag(store.getState(), 'Story')
+  const isMantleEnabled = selectFeatureFlag(store.getState(), 'Mantle')
   const isLineaEnabled = selectFeatureFlag(store.getState(), 'Linea')
   const isCronosEnabled = selectFeatureFlag(store.getState(), 'Cronos')
   const isSonicEnabled = selectFeatureFlag(store.getState(), 'Sonic')
@@ -255,7 +251,8 @@ export const walletSupportsChain = ({
     case katanaChainId:
       return isKatanaEnabled && supportsKatana(wallet)
     case storyChainId:
-      return isStoryEnabled && supportsStory(wallet)    case zkSyncEraChainId:
+      return isStoryEnabled && supportsStory(wallet)
+    case zkSyncEraChainId:
       return isZkSyncEraEnabled && supportsZkSyncEra(wallet)
     case blastChainId:
       return isBlastEnabled && supportsBlast(wallet)

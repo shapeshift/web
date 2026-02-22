@@ -11,10 +11,9 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
+  supportsBerachain,
   supportsBlast,
-  supportsBerachain,
-  supportsBerachain,
-  supportsBlast,  supportsBob,
+  supportsBob,
   supportsBSC,
   supportsCronos,
   supportsETH,
@@ -31,14 +30,14 @@ import {
   supportsOptimism,
   supportsPlasma,
   supportsPolygon,
-  supportsStory,
-  supportsZkSyncEra,
-  supportsWorldChain,  supportsScroll,
+  supportsScroll,
   supportsSoneium,
   supportsSonic,
+  supportsStory,
   supportsUnichain,
   supportsWorldChain,
-  supportsZkSyncEra,} from '@shapeshiftoss/hdwallet-core'
+  supportsZkSyncEra,
+} from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
@@ -109,7 +108,8 @@ export const evmChainIds = [
   KnownChainIds.BerachainMainnet,
   KnownChainIds.CronosMainnet,
   KnownChainIds.KatanaMainnet,
-  KnownChainIds.StoryMainnet,  KnownChainIds.ZkSyncEraMainnet,
+  KnownChainIds.StoryMainnet,
+  KnownChainIds.ZkSyncEraMainnet,
   KnownChainIds.BlastMainnet,
   KnownChainIds.WorldChainMainnet,
   KnownChainIds.HemiMainnet,
@@ -233,7 +233,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
         case Number(fromChainId(KnownChainIds.StoryMainnet).chainReference):
-          return supportsStory(wallet)        case Number(fromChainId(KnownChainIds.ZkSyncEraMainnet).chainReference):
+          return supportsStory(wallet)
+        case Number(fromChainId(KnownChainIds.ZkSyncEraMainnet).chainReference):
           return supportsZkSyncEra(wallet)
         case Number(fromChainId(KnownChainIds.BlastMainnet).chainReference):
           return supportsBlast(wallet)
@@ -375,23 +376,29 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       [KnownChainIds.StoryMainnet]: {
         name: 'Story',
         symbol: 'IP',
-        explorer: 'https://storyscan.xyz',      [KnownChainIds.ZkSyncEraMainnet]: {
+        explorer: 'https://storyscan.xyz',
+      },
+      [KnownChainIds.ZkSyncEraMainnet]: {
         name: 'Ether',
         symbol: 'ETH',
         explorer: 'https://explorer.zksync.io',
-      },      [KnownChainIds.BlastMainnet]: {
+      },
+      [KnownChainIds.BlastMainnet]: {
         name: 'Ether',
         symbol: 'ETH',
         explorer: 'https://blastscan.io',
-      },      [KnownChainIds.WorldChainMainnet]: {
+      },
+      [KnownChainIds.WorldChainMainnet]: {
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://worldscan.org',
-      },      [KnownChainIds.HemiMainnet]: {
+      },
+      [KnownChainIds.HemiMainnet]: {
         name: 'Ether',
         symbol: 'ETH',
         explorer: 'https://explorer.hemi.xyz',
-      },      [KnownChainIds.LineaMainnet]: {
+      },
+      [KnownChainIds.LineaMainnet]: {
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://lineascan.build',

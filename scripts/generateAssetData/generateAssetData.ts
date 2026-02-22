@@ -26,10 +26,9 @@ import path from 'path'
 import * as arbitrum from './arbitrum'
 import * as avalanche from './avalanche'
 import * as base from './base'
+import * as berachain from './berachain'
 import * as blast from './blast'
-import * as berachain from './berachain'
-import * as berachain from './berachain'
-import * as blast from './blast'import * as bnbsmartchain from './bnbsmartchain'
+import * as bnbsmartchain from './bnbsmartchain'
 import * as bob from './bob'
 import { compressGeneratedAssets } from './compressAssets'
 import { ASSET_DATA_PATH, GENERATED_DIR, RELATED_ASSET_INDEX_PATH } from './constants'
@@ -62,10 +61,9 @@ import * as tonModule from './ton'
 import * as tronModule from './tron'
 import * as unichain from './unichain'
 import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
-import * as zksyncera from './zksyncera'
-import * as worldchainModule from './worldchain'
 import * as worldchainModule from './worldchain'
 import * as zksyncera from './zksyncera'
+
 import { getAssetService } from '@/lib/asset-service'
 
 // To regenerate all relatedAssetKey values, run: REGEN_ALL=true yarn generate:asset-data
@@ -103,7 +101,8 @@ const generateAssetData = async () => {
   const scrollAssets = await scroll.getAssets()
   const modeAssets = await mode.getAssets()
   const plasmaAssets = await plasma.getAssets()
-  const storyAssets = await story.getAssets()  const worldchainAssets = await worldchainModule.getAssets()
+  const storyAssets = await story.getAssets()
+  const worldchainAssets = await worldchainModule.getAssets()
   const sonicAssets = await sonic.getAssets()
   const soneiumAssets = await soneium.getAssets()
   const solanaAssets = await solana.getAssets()
@@ -151,7 +150,8 @@ const generateAssetData = async () => {
     ...scrollAssets,
     ...modeAssets,
     ...plasmaAssets,
-    ...storyAssets,    ...worldchainAssets,
+    ...storyAssets,
+    ...worldchainAssets,
     ...sonicAssets,
     ...soneiumAssets,
     ...solanaAssets,

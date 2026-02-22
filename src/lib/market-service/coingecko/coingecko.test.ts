@@ -21,7 +21,6 @@ vi.mock('axios', () => {
       })),
     },
   }
-
   return {
     default: {
       ...mockAxios.default.create(),
@@ -70,7 +69,6 @@ describe('CoinGecko market service', () => {
       roi: null,
       last_updated: '2021-10-10T22:16:39.866Z',
     }
-
     const eth: CoinGeckoMarketCap = {
       id: 'ethereum',
       symbol: 'eth',
@@ -103,7 +101,6 @@ describe('CoinGecko market service', () => {
       },
       last_updated: '2021-10-10T22:16:22.950Z',
     }
-
     const fox: CoinGeckoMarketCap = {
       id: 'shapeshift-fox-token',
       symbol: 'fox',
@@ -136,7 +133,6 @@ describe('CoinGecko market service', () => {
       },
       last_updated: '2021-10-10T22:16:22.950Z',
     }
-
     const usdc: CoinGeckoMarketCap = {
       ath: 1.17,
       ath_change_percentage: -14.79969,
@@ -171,7 +167,8 @@ describe('CoinGecko market service', () => {
       const result = await coinGeckoMarketService.findAll()
       expect(Object.keys(result).length).toEqual(7)
       expect(Object.keys(result).length).toEqual(13)
-      expect(Object.keys(result).length).toEqual(17)    })
+      expect(Object.keys(result).length).toEqual(17)
+    })
 
     it('can sort by market cap', async () => {
       mocks.get.mockResolvedValueOnce({ data: [btc] }).mockResolvedValue({ data: [eth] })
@@ -196,7 +193,8 @@ describe('CoinGecko market service', () => {
       const result = await coinGeckoMarketService.findAll()
       expect(Object.keys(result).length).toEqual(6)
       expect(Object.keys(result).length).toEqual(12)
-      expect(Object.keys(result).length).toEqual(16)    })
+      expect(Object.keys(result).length).toEqual(16)
+    })
 
     it('can use default args', async () => {
       const spy = mocks.get.mockResolvedValue({ data: [btc] })
@@ -229,45 +227,38 @@ describe('CoinGecko market service', () => {
         ethOptimismKey,
         ethOnArbitrumKey,
         ethOnBaseKey,
-        ethOnZkSyncEraKey,
-        ethOnMegaEthKey,
+        ethOnBobKey,
         ethOnBlastKey,
-        ethOnMegaEthKey,
         ethOnWorldChainKey,
-        ethOnMegaEthKey,
         ethOnHemiKey,
-        ethOnMegaEthKey,
         ethOnLineaKey,
-        ethOnBobKey,
-        ethOnBobKey,
-        ethOnBlastKey,
-        ethOnWorldChainKey,
-        ethOnHemiKey,
-        ethOnLineaKey,        ethOnModeKey,
+        ethOnModeKey,
         ethOnMegaEthKey,
         ethOnInkKey,
         ethOnScrollKey,
         ethOnUnichainKey,
         ethOnSoneiumKey,
-        ethOnZkSyncEraKey,      ] = Object.keys(result)
+        ethOnZkSyncEraKey,
+      ] = Object.keys(result)
       expect(btcAssetId).toEqual([btcKey])
       expect(ethAssetId).toEqual([
         ethKey,
         ethOptimismKey,
         ethOnArbitrumKey,
         ethOnBaseKey,
-        ethOnZkSyncEraKey,
-        ethOnBobKey,        ethOnBlastKey,
+        ethOnBobKey,
+        ethOnBlastKey,
         ethOnWorldChainKey,
         ethOnHemiKey,
         ethOnLineaKey,
-        ethOnBobKey,        ethOnModeKey,
+        ethOnModeKey,
         ethOnMegaEthKey,
         ethOnInkKey,
         ethOnScrollKey,
         ethOnUnichainKey,
         ethOnSoneiumKey,
-        ethOnZkSyncEraKey,      ])
+        ethOnZkSyncEraKey,
+      ])
     })
 
     it('can map CoinGecko id to multiple assetIds', async () => {
@@ -286,7 +277,6 @@ describe('CoinGecko market service', () => {
         supply: '18840237',
         maxSupply: '21000000',
       }
-
       const ethResult = {
         price: '3459.72',
         marketCap: '407989270877',

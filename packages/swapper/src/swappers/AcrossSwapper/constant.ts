@@ -13,14 +13,11 @@ import {
   plasmaChainId,
   polygonChainId,
   solanaChainId,
+  soneiumChainId,
+  unichainChainId,
+  worldChainChainId,
   zkSyncEraChainId,
-  worldChainChainId,
-  soneiumChainId,
-  unichainChainId,
-  soneiumChainId,
-  unichainChainId,
-  worldChainChainId,
-  zkSyncEraChainId,} from '@shapeshiftoss/caip'
+} from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
 import {
@@ -37,14 +34,11 @@ import {
   optimism,
   plasma,
   polygon,
+  soneium,
+  unichain,
+  worldchain,
   zksync,
-  worldchain,
-  soneium,
-  unichain,
-  soneium,
-  unichain,
-  worldchain,
-  zksync,} from 'viem/chains'
+} from 'viem/chains'
 
 import { TradeQuoteError } from '../../types'
 import { AcrossErrorCode } from './utils/types'

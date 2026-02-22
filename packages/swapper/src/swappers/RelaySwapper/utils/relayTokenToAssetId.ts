@@ -164,18 +164,8 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
       case CHAIN_REFERENCE.StoryMainnet:
         return {
           assetReference: ASSET_REFERENCE.Story,
-      case CHAIN_REFERENCE.ZkSyncEraMainnet:
-        return {
-          assetReference: ASSET_REFERENCE.ZkSyncEra,
-      case CHAIN_REFERENCE.BlastMainnet:
-        return {
-          assetReference: ASSET_REFERENCE.Blast,
-      case CHAIN_REFERENCE.WorldChainMainnet:
-        return {
-          assetReference: ASSET_REFERENCE.WorldChain,
-      case CHAIN_REFERENCE.HemiMainnet:
-        return {
-          assetReference: ASSET_REFERENCE.Hemi,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       case CHAIN_REFERENCE.ZkSyncEraMainnet:
         return {
           assetReference: ASSET_REFERENCE.ZkSyncEra,
@@ -195,7 +185,8 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
         return {
           assetReference: ASSET_REFERENCE.Hemi,
           assetNamespace: ASSET_NAMESPACE.slip44,
-        }      case CHAIN_REFERENCE.LineaMainnet:
+        }
+      case CHAIN_REFERENCE.LineaMainnet:
         return {
           assetReference: ASSET_REFERENCE.Linea,
           assetNamespace: ASSET_NAMESPACE.slip44,

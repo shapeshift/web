@@ -3,10 +3,9 @@ import {
   adapters,
   arbitrumChainId,
   baseChainId,
+  berachainChainId,
   blastChainId,
-  berachainChainId,
-  berachainChainId,
-  blastChainId,  bobChainId,
+  bobChainId,
   bscChainId,
   cronosChainId,
   gnosisChainId,
@@ -32,10 +31,9 @@ import {
   suiChainId,
   tonChainId,
   tronChainId,
+  unichainChainId,
   worldChainChainId,
-  unichainChainId,
-  unichainChainId,
-  worldChainChainId,  zecChainId,
+  zecChainId,
   zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
@@ -140,7 +138,8 @@ class _AssetService {
       if (!config.VITE_FEATURE_MONAD && asset.chainId === monadChainId) return false
       if (!config.VITE_FEATURE_HYPEREVM && asset.chainId === hyperEvmChainId) return false
       if (!config.VITE_FEATURE_KATANA && asset.chainId === katanaChainId) return false
-      if (!config.VITE_FEATURE_STORY && asset.chainId === storyChainId) return false      if (!config.VITE_FEATURE_ZK_SYNC_ERA && asset.chainId === zkSyncEraChainId) return false
+      if (!config.VITE_FEATURE_STORY && asset.chainId === storyChainId) return false
+      if (!config.VITE_FEATURE_ZK_SYNC_ERA && asset.chainId === zkSyncEraChainId) return false
       if (!config.VITE_FEATURE_BLAST && asset.chainId === blastChainId) return false
       if (!config.VITE_FEATURE_WORLDCHAIN && asset.chainId === worldChainChainId) return false
       if (!config.VITE_FEATURE_HEMI && asset.chainId === hemiChainId) return false

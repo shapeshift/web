@@ -1,15 +1,11 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
+  berachainAssetId,
   blastAssetId,
+  bobAssetId,
+  cronosAssetId,
   hemiAssetId,
-  berachainAssetId,
-  bobAssetId,
-  cronosAssetId,
-  berachainAssetId,
-  blastAssetId,
-  bobAssetId,
-  cronosAssetId,
-  hemiAssetId,  hyperEvmAssetId,
+  hyperEvmAssetId,
   inkAssetId,
   katanaAssetId,
   lineaAssetId,
@@ -28,12 +24,10 @@ import {
   suiAssetId,
   thorchainAssetId,
   tronAssetId,
+  unichainAssetId,
+  worldChainAssetId,
   zkSyncEraAssetId,
-  worldChainAssetId,
-  unichainAssetId,
-  unichainAssetId,
-  worldChainAssetId,
-  zkSyncEraAssetId,} from '@shapeshiftoss/caip'
+} from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 
@@ -69,7 +63,8 @@ export const queryFn = async () => {
   if (enabledFlags.Ink) assetIds.push(inkAssetId)
   if (enabledFlags.Scroll) assetIds.push(scrollAssetId)
   if (enabledFlags.Katana) assetIds.push(katanaAssetId)
-  if (enabledFlags.Story) assetIds.push(storyAssetId)  if (enabledFlags.ZkSyncEra) assetIds.push(zkSyncEraAssetId)
+  if (enabledFlags.Story) assetIds.push(storyAssetId)
+  if (enabledFlags.ZkSyncEra) assetIds.push(zkSyncEraAssetId)
   if (enabledFlags.Blast) assetIds.push(blastAssetId)
   if (enabledFlags.WorldChain) assetIds.push(worldChainAssetId)
   if (enabledFlags.Hemi) assetIds.push(hemiAssetId)

@@ -5,18 +5,17 @@ import {
   baseAssetId,
   blastAssetId,
   bobAssetId,
-  cronosAssetId,  ethAssetId,
+  cronosAssetId,
+  ethAssetId,
   FEE_ASSET_IDS,
   foxAssetId,
   foxOnArbitrumOneAssetId,
   fromAssetId,
-  hemiAssetId,  inkAssetId,
+  hemiAssetId,
+  inkAssetId,
   katanaAssetId,
   lineaAssetId,
   megaethAssetId,
-  optimismAssetId,
-  scrollAssetId,
-  starknetAssetId,
   modeAssetId,
   optimismAssetId,
   scrollAssetId,
@@ -25,7 +24,8 @@ import {
   starknetAssetId,
   unichainAssetId,
   worldChainAssetId,
-  zkSyncEraAssetId,} from '@shapeshiftoss/caip'
+  zkSyncEraAssetId,
+} from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { createThrottle, isToken } from '@shapeshiftoss/utils'
 import axios from 'axios'
@@ -65,7 +65,8 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     optimismAssetId,
     arbitrumAssetId,
     baseAssetId,
-    hemiAssetId,    inkAssetId,
+    hemiAssetId,
+    inkAssetId,
     katanaAssetId,
     lineaAssetId,
     megaethAssetId,
@@ -76,36 +77,33 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     soneiumAssetId,
     worldChainAssetId,
     blastAssetId,
-    zkSyncEraAssetId,  ],
+    zkSyncEraAssetId,
+  ],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
   [starknetAssetId]: [
     'eip155:1/erc20:0xca14007eff0db1f8135f4c25b34de49ab0d42766',
     'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:HsRpHQn6VbyMs5b5j5SV6xQ2VvpvvCCzu19GjytVSCoz',
   ],
-  // Native stablecoins on Linea + Mantle - CoinGecko doesn't tag these as bridged categories
+  // Native stablecoins on Linea + Mantle + Sonic - CoinGecko doesn't tag these as bridged categories
   'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': [
     'eip155:59144/erc20:0x176211869ca2b568f2a7d4ee941e073a821ee1ff',
     'eip155:5000/erc20:0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9',
-  // Native stablecoins not tagged as bridged by CoinGecko
-  'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': [
-    'eip155:59144/erc20:0x176211869ca2b568f2a7d4ee941e073a821ee1ff',
-    'eip155:5000/erc20:0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9',
-    'eip155:146/erc20:0x29219dd400f2bf60e5a23d13be72b486d4038894',  ],
+    'eip155:146/erc20:0x29219dd400f2bf60e5a23d13be72b486d4038894',
+  ],
   'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7': [
     'eip155:59144/erc20:0xa219439258ca9da29e9cc4ce5596924745e12b93',
     'eip155:5000/erc20:0x201eba5cc46d216ce6dc03f6a759e8e766e956ae',
-    'eip155:146/erc20:0x6047828dc181963ba44974801ff68e538da5eaf9',  ],
+    'eip155:146/erc20:0x6047828dc181963ba44974801ff68e538da5eaf9',
+  ],
   'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f': [
     'eip155:59144/erc20:0x4af15ec2a0bd43db75dd04e62faa3b8ef36b00d5',
   ],
   // CRO on Ethereum <-> CRO native on Cronos
-  'eip155:1/erc20:0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b': [
-    'eip155:25/slip44:60',
-  ],
   'eip155:1/erc20:0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b': ['eip155:25/slip44:60'],
   // Native chain tokens as keys (isPrimary=true) with their Ethereum ERC20 counterparts as values
   [sonicAssetId]: ['eip155:1/erc20:0x4e15361fd6b4bb609fa63c81a2be19d873717870'],
-  [cronosAssetId]: ['eip155:1/erc20:0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b'],}
+  [cronosAssetId]: ['eip155:1/erc20:0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b'],
+}
 
 const getManualRelatedAssetIds = (
   assetId: AssetId,

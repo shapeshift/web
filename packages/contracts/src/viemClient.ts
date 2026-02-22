@@ -7,10 +7,9 @@ import {
   arbitrum,
   avalanche,
   base,
+  berachain,
   blast,
-  berachain,
-  berachain,
-  blast,  bob,
+  bob,
   bsc,
   cronos,
   gnosis,
@@ -26,14 +25,14 @@ import {
   optimism,
   plasma,
   polygon,
-  story,
-  zksync,
-  worldchain,  scroll,
+  scroll,
   soneium,
   sonic,
+  story,
   unichain,
   worldchain,
-  zksync,} from 'viem/chains'
+  zksync,
+} from 'viem/chains'
 
 const megaeth = defineChain({
   id: 4326,
@@ -162,18 +161,8 @@ export const viemKatanaClient = createPublicClient({
 export const viemStoryClient = createPublicClient({
   chain: story,
   transport: fallback([process.env.VITE_STORY_NODE_URL].filter(Boolean).map(url => http(url))),
-export const viemZkSyncEraClient = createPublicClient({
-  chain: zksync,
-  transport: fallback([process.env.VITE_ZKSYNC_ERA_NODE_URL].filter(Boolean).map(url => http(url))),
-export const viemBlastClient = createPublicClient({
-  chain: blast,
-  transport: fallback([process.env.VITE_BLAST_NODE_URL].filter(Boolean).map(url => http(url))),
-export const viemWorldChainClient = createPublicClient({
-  chain: worldchain,
-  transport: fallback([process.env.VITE_WORLDCHAIN_NODE_URL].filter(Boolean).map(url => http(url))),
-export const viemHemiClient = createPublicClient({
-  chain: hemi,
-  transport: fallback([process.env.VITE_HEMI_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemZkSyncEraClient = createPublicClient({
   chain: zksync,
   transport: fallback([process.env.VITE_ZKSYNC_ERA_NODE_URL].filter(Boolean).map(url => http(url))),
@@ -192,7 +181,9 @@ export const viemWorldChainClient = createPublicClient({
 export const viemHemiClient = createPublicClient({
   chain: hemi,
   transport: fallback([process.env.VITE_HEMI_NODE_URL].filter(Boolean).map(url => http(url))),
-}) as PublicClientexport const viemLineaClient = createPublicClient({
+}) as PublicClient
+
+export const viemLineaClient = createPublicClient({
   chain: linea,
   transport: fallback([process.env.VITE_LINEA_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
@@ -240,7 +231,8 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.BerachainMainnet]: viemBerachainClient,
   [KnownChainIds.CronosMainnet]: viemCronosClient,
   [KnownChainIds.KatanaMainnet]: viemKatanaClient,
-  [KnownChainIds.StoryMainnet]: viemStoryClient,  [KnownChainIds.ZkSyncEraMainnet]: viemZkSyncEraClient,
+  [KnownChainIds.StoryMainnet]: viemStoryClient,
+  [KnownChainIds.ZkSyncEraMainnet]: viemZkSyncEraClient,
   [KnownChainIds.BlastMainnet]: viemBlastClient,
   [KnownChainIds.WorldChainMainnet]: viemWorldChainClient,
   [KnownChainIds.HemiMainnet]: viemHemiClient,
@@ -271,7 +263,8 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.BerachainMainnet]: berachain.id,
   [KnownChainIds.CronosMainnet]: cronos.id,
   [KnownChainIds.KatanaMainnet]: katana.id,
-  [KnownChainIds.StoryMainnet]: story.id,  [KnownChainIds.ZkSyncEraMainnet]: zksync.id,
+  [KnownChainIds.StoryMainnet]: story.id,
+  [KnownChainIds.ZkSyncEraMainnet]: zksync.id,
   [KnownChainIds.BlastMainnet]: blast.id,
   [KnownChainIds.WorldChainMainnet]: worldchain.id,
   [KnownChainIds.HemiMainnet]: hemi.id,
@@ -302,7 +295,8 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [berachain.id]: viemBerachainClient,
   [cronos.id]: viemCronosClient,
   [katana.id]: viemKatanaClient,
-  [story.id]: viemStoryClient,  [zksync.id]: viemZkSyncEraClient,
+  [story.id]: viemStoryClient,
+  [zksync.id]: viemZkSyncEraClient,
   [blast.id]: viemBlastClient,
   [worldchain.id]: viemWorldChainClient,
   [hemi.id]: viemHemiClient,

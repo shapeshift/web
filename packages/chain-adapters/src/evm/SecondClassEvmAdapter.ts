@@ -2,20 +2,21 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
   berachainChainId,
-  bobChainId,
-  cronosChainId,
   blastChainId,
   bobChainId,
   cronosChainId,
-  hemiChainId,  hyperEvmChainId,
+  hemiChainId,
+  hyperEvmChainId,
   mantleChainId,
   modeChainId,
   soneiumChainId,
   sonicChainId,
+  storyChainId,
   toAssetId,
   unichainChainId,
   worldChainChainId,
-  zkSyncEraChainId,} from '@shapeshiftoss/caip'
+  zkSyncEraChainId,
+} from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
 import { MULTICALL3_CONTRACT, viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
@@ -63,7 +64,9 @@ const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [hemiChainId]: '0x4200000000000000000000000000000000000006',
   [worldChainChainId]: '0x4200000000000000000000000000000000000006',
   [blastChainId]: '0x4300000000000000000000000000000000000004',
-  [zkSyncEraChainId]: '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91',}
+  [zkSyncEraChainId]: '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91',
+  [storyChainId]: '0x1514000000000000000000000000000000000000',
+}
 const BATCH_SIZE = 500
 
 export type TokenInfo = {
@@ -502,7 +505,8 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
               value: BigInt(log.data).toString(),
             })
           }
-        }      }
+        }
+      }
 
       const block = receipt.blockHash
         ? await viemClient.getBlock({ blockHash: receipt.blockHash }).catch(() => null)

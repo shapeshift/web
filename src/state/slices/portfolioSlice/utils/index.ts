@@ -5,10 +5,9 @@ import {
   avalancheChainId,
   baseChainId,
   bchChainId,
+  berachainChainId,
   blastChainId,
-  berachainChainId,
-  berachainChainId,
-  blastChainId,  bobChainId,
+  bobChainId,
   bscChainId,
   btcChainId,
   CHAIN_NAMESPACE,
@@ -48,10 +47,9 @@ import {
   toAssetId,
   tonChainId,
   tronChainId,
+  unichainChainId,
   worldChainChainId,
-  unichainChainId,
-  unichainChainId,
-  worldChainChainId,  zecChainId,
+  zecChainId,
   zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
@@ -63,10 +61,9 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
+  supportsBerachain,
   supportsBlast,
-  supportsBerachain,
-  supportsBerachain,
-  supportsBlast,  supportsBob,
+  supportsBob,
   supportsBSC,
   supportsBTC,
   supportsCosmos,
@@ -95,12 +92,10 @@ import {
   supportsSui,
   supportsThorchain,
   supportsTron,
+  supportsUnichain,
+  supportsWorldChain,
   supportsZkSyncEra,
-  supportsWorldChain,
-  supportsUnichain,
-  supportsUnichain,
-  supportsWorldChain,
-  supportsZkSyncEra,} from '@shapeshiftoss/hdwallet-core/wallet'
+} from '@shapeshiftoss/hdwallet-core/wallet'
 import type { Asset, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
 import { makeAsset } from '@shapeshiftoss/utils'
@@ -148,7 +143,8 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case lineaChainId:
     case cronosChainId:
     case katanaChainId:
-    case storyChainId:    case worldChainChainId:
+    case storyChainId:
+    case worldChainChainId:
     case scrollChainId:
     case sonicChainId:
     case unichainChainId:
@@ -571,7 +567,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     case katanaChainId:
       return supportsKatana(wallet)
     case storyChainId:
-      return supportsStory(wallet)    case zkSyncEraChainId:
+      return supportsStory(wallet)
+    case zkSyncEraChainId:
       return supportsZkSyncEra(wallet)
     case blastChainId:
       return supportsBlast(wallet)

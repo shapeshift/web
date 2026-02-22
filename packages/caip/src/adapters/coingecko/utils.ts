@@ -13,14 +13,11 @@ import {
   baseAssetId,
   baseChainId,
   bchChainId,
+  berachainAssetId,
+  berachainChainId,
   blastAssetId,
   blastChainId,
-  berachainAssetId,
-  berachainChainId,
-  berachainAssetId,
-  berachainChainId,
-  blastAssetId,
-  blastChainId,  bobAssetId,
+  bobAssetId,
   bobChainId,
   bscAssetId,
   bscChainId,
@@ -82,14 +79,11 @@ import {
   tonChainId,
   tronAssetId,
   tronChainId,
+  unichainAssetId,
+  unichainChainId,
   worldChainAssetId,
   worldChainChainId,
-  unichainAssetId,
-  unichainChainId,
-  unichainAssetId,
-  unichainChainId,
-  worldChainAssetId,
-  worldChainChainId,  zecChainId,
+  zecChainId,
   zkSyncEraAssetId,
   zkSyncEraChainId,
 } from '../../constants'
@@ -130,7 +124,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Avalanche)) {
         try {
           const assetId = toAssetId({
@@ -144,7 +137,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Optimism)) {
         try {
           const assetId = toAssetId({
@@ -158,7 +150,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.BnbSmartChain)) {
         try {
           const assetId = toAssetId({
@@ -172,7 +163,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Polygon)) {
         try {
           const assetId = toAssetId({
@@ -186,7 +176,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Gnosis)) {
         try {
           const assetId = toAssetId({
@@ -200,7 +189,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Arbitrum)) {
         try {
           const assetId = toAssetId({
@@ -214,7 +202,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Base)) {
         try {
           const assetId = toAssetId({
@@ -228,7 +215,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.HyperEvm)) {
         try {
           const assetId = toAssetId({
@@ -242,7 +228,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Solana)) {
         try {
           const assetId = toAssetId({
@@ -256,7 +241,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Tron)) {
         try {
           const assetId = toAssetId({
@@ -270,7 +254,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Sui)) {
         try {
           const assetId = toAssetId({
@@ -284,7 +267,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Monad)) {
         try {
           const assetId = toAssetId({
@@ -298,7 +280,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Plasma)) {
         try {
           const assetId = toAssetId({
@@ -312,7 +293,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.WorldChain)) {
         try {
           const assetId = toAssetId({
@@ -325,7 +305,8 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         } catch {
           // unable to create assetId, skip token
         }
-      }      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Mantle)) {
+      }
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Mantle)) {
         try {
           const assetId = toAssetId({
             chainNamespace: CHAIN_NAMESPACE.Evm,
@@ -338,7 +319,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Ink)) {
         try {
           const assetId = toAssetId({
@@ -352,7 +332,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.MegaEth)) {
         try {
           const assetId = toAssetId({
@@ -366,7 +345,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Linea)) {
         try {
           const assetId = toAssetId({
@@ -380,7 +358,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Berachain)) {
         try {
           const assetId = toAssetId({
@@ -394,7 +371,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Scroll)) {
         try {
           const assetId = toAssetId({
@@ -408,7 +384,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Cronos)) {
         try {
           const assetId = toAssetId({
@@ -422,7 +397,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Katana)) {
         try {
           const assetId = toAssetId({
@@ -436,7 +410,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Story)) {
         try {
           const assetId = toAssetId({
@@ -445,7 +418,12 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
             assetNamespace: 'erc20',
             assetReference: platforms[CoingeckoAssetPlatform.Story],
           })
-          prev[storyChainId][assetId] = id      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.ZkSyncEra)) {
+          prev[storyChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.ZkSyncEra)) {
         try {
           const assetId = toAssetId({
             chainNamespace: CHAIN_NAMESPACE.Evm,
@@ -457,7 +435,8 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         } catch {
           // unable to create assetId, skip token
         }
-      }      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Blast)) {
+      }
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Blast)) {
         try {
           const assetId = toAssetId({
             chainNamespace: CHAIN_NAMESPACE.Evm,
@@ -469,7 +448,8 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         } catch {
           // unable to create assetId, skip token
         }
-      }      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Hemi)) {
+      }
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Hemi)) {
         try {
           const assetId = toAssetId({
             chainNamespace: CHAIN_NAMESPACE.Evm,
@@ -481,7 +461,8 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         } catch {
           // unable to create assetId, skip token
         }
-      }      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Sonic)) {
+      }
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Sonic)) {
         try {
           const assetId = toAssetId({
             chainNamespace: CHAIN_NAMESPACE.Evm,
@@ -494,7 +475,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Unichain)) {
         try {
           const assetId = toAssetId({
@@ -508,7 +488,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Bob)) {
         try {
           const assetId = toAssetId({
@@ -522,7 +501,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Mode)) {
         try {
           const assetId = toAssetId({
@@ -536,7 +514,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Soneium)) {
         try {
           const assetId = toAssetId({
@@ -550,7 +527,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Starknet)) {
         try {
           const assetId = toAssetId({
@@ -564,7 +540,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Near)) {
         try {
           const assetId = toAssetId({
@@ -578,7 +553,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Ton)) {
         try {
           const assetId = toAssetId({
@@ -592,7 +566,6 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           // unable to create assetId, skip token
         }
       }
-
       return prev
     },
     {
@@ -614,7 +587,8 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [berachainChainId]: { [berachainAssetId]: 'berachain-bera' },
       [cronosChainId]: { [cronosAssetId]: 'crypto-com-chain' },
       [katanaChainId]: { [katanaAssetId]: 'katana' },
-      [storyChainId]: { [storyAssetId]: 'story-2' },      [zkSyncEraChainId]: { [zkSyncEraAssetId]: 'ethereum' },
+      [storyChainId]: { [storyAssetId]: 'story-2' },
+      [zkSyncEraChainId]: { [zkSyncEraAssetId]: 'ethereum' },
       [blastChainId]: { [blastAssetId]: 'ethereum' },
       [worldChainChainId]: { [worldChainAssetId]: 'ethereum' },
       [hemiChainId]: { [hemiAssetId]: 'ethereum' },

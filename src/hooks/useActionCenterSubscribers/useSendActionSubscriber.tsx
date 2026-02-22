@@ -26,7 +26,7 @@ import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getNearTransactionStatus } from '@/lib/utils/near'
 import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
 import { getSonicTransactionStatus } from '@/lib/utils/sonic'
-import { getNearTransactionStatus } from '@/lib/utils/near'import { getStarknetTransactionStatus, isStarknetChainAdapter } from '@/lib/utils/starknet'
+import { getStarknetTransactionStatus, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { getStoryTransactionStatus } from '@/lib/utils/story'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
 import { getTonTransactionStatus, isTonChainAdapter } from '@/lib/utils/ton'
@@ -262,6 +262,8 @@ export const useSendActionSubscriber = () => {
                   const storyTxStatus = await getStoryTransactionStatus(txHash)
                   isConfirmed =
                     storyTxStatus === TxStatus.Confirmed || storyTxStatus === TxStatus.Failed
+                  break
+                }
                 case KnownChainIds.LineaMainnet: {
                   const lineaTxStatus = await getLineaTransactionStatus(txHash)
                   isConfirmed =
@@ -297,7 +299,8 @@ export const useSendActionSubscriber = () => {
                   isConfirmed =
                     modeTxStatus === TxStatus.Confirmed || modeTxStatus === TxStatus.Failed
                   break
-                }                case KnownChainIds.NearMainnet: {
+                }
+                case KnownChainIds.NearMainnet: {
                   const nearTxStatus = await getNearTransactionStatus(txHash)
                   isConfirmed =
                     nearTxStatus === TxStatus.Confirmed || nearTxStatus === TxStatus.Failed

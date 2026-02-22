@@ -1,18 +1,18 @@
-import { katanaChainId } from '@shapeshiftoss/caip'
+import { hemiChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { JsonRpcProvider } from 'ethers'
 
-export const isKatanaChainAdapter = (adapter: unknown): adapter is EvmChainAdapter => {
+export const isHemiChainAdapter = (adapter: unknown): adapter is EvmChainAdapter => {
   if (!adapter) return false
 
   const maybeAdapter = adapter as EvmChainAdapter
   if (typeof maybeAdapter.getChainId !== 'function') return false
 
-  return maybeAdapter.getChainId() === katanaChainId
+  return maybeAdapter.getChainId() === hemiChainId
 }
 
-export const getKatanaTransactionStatus = async (
+export const getHemiTransactionStatus = async (
   txHash: string,
   nodeUrl: string,
 ): Promise<TxStatus> => {
@@ -37,7 +37,7 @@ export const getKatanaTransactionStatus = async (
         return TxStatus.Unknown
     }
   } catch (error) {
-    console.error('[Katana] Error getting transaction status:', error)
+    console.error('[Hemi] Error getting transaction status:', error)
     return TxStatus.Unknown
   }
 }

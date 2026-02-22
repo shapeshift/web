@@ -5,29 +5,40 @@ import {
   avalancheChainId,
   baseChainId,
   bchChainId,
+  berachainChainId,
   blastChainId,
+  bobChainId,
   bscChainId,
   btcChainId,
   CHAIN_NAMESPACE,
   cosmosChainId,
+  cronosChainId,
   dogeChainId,
   ethChainId,
   fromAccountId,
   fromAssetId,
   fromChainId,
   gnosisChainId,
+  hemiChainId,
   hyperEvmChainId,
+  inkChainId,
   isNft,
   katanaChainId,
+  lineaChainId,
   ltcChainId,
+  mantleChainId,
   mayachainChainId,
   megaethChainId,
+  modeChainId,
   monadChainId,
   nearChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  scrollChainId,
   solanaChainId,
+  soneiumChainId,
+  sonicChainId,
   starknetChainId,
   suiChainId,
   thorchainChainId,
@@ -35,6 +46,8 @@ import {
   toAssetId,
   tonChainId,
   tronChainId,
+  unichainChainId,
+  worldChainChainId,
   zecChainId,
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
@@ -46,25 +59,38 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
+  supportsBerachain,
   supportsBlast,
+  supportsBob,
   supportsBSC,
   supportsBTC,
   supportsCosmos,
+  supportsCronos,
   supportsETH,
   supportsGnosis,
+  supportsHemi,
   supportsHyperEvm,
+  supportsInk,
   supportsKatana,
+  supportsLinea,
+  supportsMantle,
   supportsMayachain,
   supportsMegaEth,
+  supportsMode,
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
   supportsPolygon,
+  supportsScroll,
   supportsSolana,
+  supportsSoneium,
+  supportsSonic,
   supportsStarknet,
   supportsSui,
   supportsThorchain,
   supportsTron,
+  supportsUnichain,
+  supportsWorldChain,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { Asset, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
@@ -81,8 +107,7 @@ import type {
 import { initialState } from '../portfolioSliceCommon'
 
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
-import type { BigNumber } from '@/lib/bignumber/bignumber'
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from '@/lib/portals/utils'
 import { assertUnreachable, isNativeHDWallet, isTrezorHDWallet, middleEllipsis } from '@/lib/utils'
 import { supportsNear } from '@/lib/utils/near'
@@ -104,9 +129,22 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case arbitrumChainId:
     case baseChainId:
     case blastChainId:
+    case hemiChainId:
     case hyperEvmChainId:
+    case mantleChainId:
+    case inkChainId:
     case megaethChainId:
+    case berachainChainId:
+    case lineaChainId:
+    case cronosChainId:
     case katanaChainId:
+    case worldChainChainId:
+    case scrollChainId:
+    case sonicChainId:
+    case unichainChainId:
+    case bobChainId:
+    case modeChainId:
+    case soneiumChainId:
     case monadChainId:
     case plasmaChainId:
     case thorchainChainId:
@@ -510,14 +548,40 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsMonad(wallet)
     case hyperEvmChainId:
       return supportsHyperEvm(wallet)
+    case mantleChainId:
+      return supportsMantle(wallet)
+    case inkChainId:
+      return supportsInk(wallet)
     case megaethChainId:
       return supportsMegaEth(wallet)
+    case berachainChainId:
+      return supportsBerachain(wallet)
     case plasmaChainId:
       return supportsPlasma(wallet)
     case katanaChainId:
       return supportsKatana(wallet)
     case blastChainId:
       return supportsBlast(wallet)
+    case worldChainChainId:
+      return supportsWorldChain(wallet)
+    case hemiChainId:
+      return supportsHemi(wallet)
+    case lineaChainId:
+      return supportsLinea(wallet)
+    case scrollChainId:
+      return supportsScroll(wallet)
+    case cronosChainId:
+      return supportsCronos(wallet)
+    case sonicChainId:
+      return supportsSonic(wallet)
+    case unichainChainId:
+      return supportsUnichain(wallet)
+    case bobChainId:
+      return supportsBob(wallet)
+    case modeChainId:
+      return supportsMode(wallet)
+    case soneiumChainId:
+      return supportsSoneium(wallet)
     case tronChainId:
       return supportsTron(wallet)
     case nearChainId:
@@ -527,25 +591,6 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     default:
       return false
   }
-}
-
-export const genericBalanceByFilter = (
-  accountBalances: PortfolioAccountBalancesById,
-  assetId: AssetId | undefined,
-  accountId: AccountId | undefined,
-): string => {
-  const totalByAccountId = Object.entries(accountBalances)
-    .filter(([acctId]) => (accountId ? acctId === accountId : true)) // if no accountId filter, return all
-    .reduce<Record<AccountId, BigNumber>>((acc, [accountId, byAssetId]) => {
-      const accountTotal = Object.entries(byAssetId)
-        .filter(([id, _assetBalance]) => (assetId ? id === assetId : true)) // if no assetId filter, return all
-        .reduce((innerAcc, [_id, assetBalance]) => innerAcc.plus(bnOrZero(assetBalance)), bn(0))
-      acc[accountId] = accountTotal
-      return acc
-    }, {})
-  return Object.values(totalByAccountId)
-    .reduce((acc, accountBalance) => acc.plus(accountBalance), bn(0))
-    .toFixed()
 }
 
 export const getHighestUserCurrencyBalanceAccountByAssetId = (

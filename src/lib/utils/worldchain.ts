@@ -1,18 +1,18 @@
-import { hyperEvmChainId } from '@shapeshiftoss/caip'
+import { worldChainChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { JsonRpcProvider } from 'ethers'
 
-export const isHyperEvmChainAdapter = (adapter: unknown): adapter is EvmChainAdapter => {
+export const isWorldChainChainAdapter = (adapter: unknown): adapter is EvmChainAdapter => {
   if (!adapter) return false
 
   const maybeAdapter = adapter as EvmChainAdapter
   if (typeof maybeAdapter.getChainId !== 'function') return false
 
-  return maybeAdapter.getChainId() === hyperEvmChainId
+  return maybeAdapter.getChainId() === worldChainChainId
 }
 
-export const getHyperEvmTransactionStatus = async (
+export const getWorldChainTransactionStatus = async (
   txHash: string,
   nodeUrl: string,
 ): Promise<TxStatus> => {
@@ -37,7 +37,7 @@ export const getHyperEvmTransactionStatus = async (
         return TxStatus.Unknown
     }
   } catch (error) {
-    console.error('[HyperEVM] Error getting transaction status:', error)
+    console.error('[WorldChain] Error getting transaction status:', error)
     return TxStatus.Unknown
   }
 }

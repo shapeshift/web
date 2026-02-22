@@ -3,19 +3,32 @@ import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
+  berachainChainId,
   blastChainId,
+  bobChainId,
   bscChainId,
+  cronosChainId,
   ethChainId,
   fromAccountId,
   gnosisChainId,
+  hemiChainId,
   hyperEvmChainId,
+  inkChainId,
   katanaChainId,
+  lineaChainId,
+  mantleChainId,
   megaethChainId,
+  modeChainId,
   monadChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  scrollChainId,
+  soneiumChainId,
+  sonicChainId,
   toAccountId,
+  unichainChainId,
+  worldChainChainId,
 } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
@@ -23,17 +36,30 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
+  supportsBerachain,
   supportsBlast,
+  supportsBob,
   supportsBSC,
+  supportsCronos,
   supportsETH,
   supportsGnosis,
+  supportsHemi,
   supportsHyperEvm,
+  supportsInk,
   supportsKatana,
+  supportsLinea,
+  supportsMantle,
   supportsMegaEth,
+  supportsMode,
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
   supportsPolygon,
+  supportsScroll,
+  supportsSoneium,
+  supportsSonic,
+  supportsUnichain,
+  supportsWorldChain,
 } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 
@@ -127,9 +153,22 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === hyperEvmChainId && !supportsHyperEvm(wallet)) continue
     if (chainId === monadChainId && !supportsMonad(wallet)) continue
     if (chainId === plasmaChainId && !supportsPlasma(wallet)) continue
+    if (chainId === mantleChainId && !supportsMantle(wallet)) continue
+    if (chainId === inkChainId && !supportsInk(wallet)) continue
     if (chainId === megaethChainId && !supportsMegaEth(wallet)) continue
+    if (chainId === berachainChainId && !supportsBerachain(wallet)) continue
+    if (chainId === scrollChainId && !supportsScroll(wallet)) continue
+    if (chainId === cronosChainId && !supportsCronos(wallet)) continue
     if (chainId === katanaChainId && !supportsKatana(wallet)) continue
     if (chainId === blastChainId && !supportsBlast(wallet)) continue
+    if (chainId === worldChainChainId && !supportsWorldChain(wallet)) continue
+    if (chainId === hemiChainId && !supportsHemi(wallet)) continue
+    if (chainId === lineaChainId && !supportsLinea(wallet)) continue
+    if (chainId === sonicChainId && !supportsSonic(wallet)) continue
+    if (chainId === unichainChainId && !supportsUnichain(wallet)) continue
+    if (chainId === bobChainId && !supportsBob(wallet)) continue
+    if (chainId === modeChainId && !supportsMode(wallet)) continue
+    if (chainId === soneiumChainId && !supportsSoneium(wallet)) continue
     if (
       isMetaMask(wallet) &&
       !canAddMetaMaskAccount({ accountNumber, chainId, wallet, isSnapInstalled })

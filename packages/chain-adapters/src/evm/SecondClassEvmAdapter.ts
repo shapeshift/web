@@ -405,7 +405,11 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
   private async fetchInternalTransactions(
     txHash: string,
   ): Promise<{ from: string; to: string; value: string }[]> {
-    if (this.chainId === hyperEvmChainId || this.chainId === blastChainId || this.chainId === zkSyncEraChainId) {
+    if (
+      this.chainId === hyperEvmChainId ||
+      this.chainId === blastChainId ||
+      this.chainId === zkSyncEraChainId
+    ) {
       return []
     }
 

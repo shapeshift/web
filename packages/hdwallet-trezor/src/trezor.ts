@@ -296,6 +296,7 @@ export class TrezorHDWallet
   readonly _supportsMonad = true
   readonly _supportsPlasma = true
   readonly _supportsKatana = true
+  readonly _supportsStory = true
   readonly _supportsSonic = true
   readonly _supportsBob = true
   readonly _supportsMode = true

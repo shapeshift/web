@@ -40,6 +40,7 @@ import {
   soneiumChainId,
   sonicChainId,
   starknetChainId,
+  storyChainId,
   suiChainId,
   thorchainChainId,
   toAccountId,
@@ -87,6 +88,7 @@ import {
   supportsSoneium,
   supportsSonic,
   supportsStarknet,
+  supportsStory,
   supportsSui,
   supportsThorchain,
   supportsTron,
@@ -141,6 +143,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case lineaChainId:
     case cronosChainId:
     case katanaChainId:
+    case storyChainId:
     case worldChainChainId:
     case scrollChainId:
     case sonicChainId:
@@ -563,6 +566,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsPlasma(wallet)
     case katanaChainId:
       return supportsKatana(wallet)
+    case storyChainId:
+      return supportsStory(wallet)
     case zkSyncEraChainId:
       return supportsZkSyncEra(wallet)
     case blastChainId:

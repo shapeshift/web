@@ -38,6 +38,7 @@ import {
   soneium,
   sonic,
   starknet,
+  story,
   sui,
   thorchain,
   ton,
@@ -107,6 +108,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return cronos
     case KnownChainIds.KatanaMainnet:
       return katana
+    case KnownChainIds.StoryMainnet:
+      return story
     case KnownChainIds.ZkSyncEraMainnet:
       return zkSyncEra
     case KnownChainIds.BlastMainnet:

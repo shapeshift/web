@@ -26,6 +26,7 @@ import {
   scrollChainId,
   soneiumChainId,
   sonicChainId,
+  storyChainId,
   toAccountId,
   unichainChainId,
   worldChainChainId,
@@ -59,6 +60,7 @@ import {
   supportsScroll,
   supportsSoneium,
   supportsSonic,
+  supportsStory,
   supportsUnichain,
   supportsWorldChain,
   supportsZkSyncEra,
@@ -162,6 +164,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === scrollChainId && !supportsScroll(wallet)) continue
     if (chainId === cronosChainId && !supportsCronos(wallet)) continue
     if (chainId === katanaChainId && !supportsKatana(wallet)) continue
+    if (chainId === storyChainId && !supportsStory(wallet)) continue
     if (chainId === zkSyncEraChainId && !supportsZkSyncEra(wallet)) continue
     if (chainId === blastChainId && !supportsBlast(wallet)) continue
     if (chainId === worldChainChainId && !supportsWorldChain(wallet)) continue

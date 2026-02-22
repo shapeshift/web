@@ -191,6 +191,9 @@ describe('adapters:coingecko:utils', () => {
         'eip155:747474': {
           'eip155:747474/slip44:60': 'katana',
         },
+        'eip155:1514': {
+          'eip155:1514/slip44:60': 'story-2',
+        },
         'eip155:324': {
           'eip155:324/slip44:60': 'ethereum',
         },

@@ -66,6 +66,8 @@ interface ImportMetaEnv {
   readonly VITE_MANTLE_NODE_URL: string
   readonly VITE_FEATURE_INK: string
   readonly VITE_INK_NODE_URL: string
+  readonly VITE_FEATURE_STORY: string
+  readonly VITE_STORY_NODE_URL: string
   readonly VITE_FEATURE_ZK_SYNC_ERA: string
   readonly VITE_ZKSYNC_ERA_NODE_URL: string
 

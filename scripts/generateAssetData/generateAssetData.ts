@@ -55,6 +55,7 @@ import * as solana from './solana'
 import * as soneium from './soneium'
 import * as sonic from './sonic'
 import * as starknet from './starknet'
+import * as story from './story'
 import * as sui from './sui'
 import * as tonModule from './ton'
 import * as tronModule from './tron'
@@ -100,6 +101,7 @@ const generateAssetData = async () => {
   const scrollAssets = await scroll.getAssets()
   const modeAssets = await mode.getAssets()
   const plasmaAssets = await plasma.getAssets()
+  const storyAssets = await story.getAssets()
   const worldchainAssets = await worldchainModule.getAssets()
   const sonicAssets = await sonic.getAssets()
   const soneiumAssets = await soneium.getAssets()
@@ -148,6 +150,7 @@ const generateAssetData = async () => {
     ...scrollAssets,
     ...modeAssets,
     ...plasmaAssets,
+    ...storyAssets,
     ...worldchainAssets,
     ...sonicAssets,
     ...soneiumAssets,

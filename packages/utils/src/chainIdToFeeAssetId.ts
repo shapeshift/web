@@ -34,6 +34,7 @@ import {
   soneiumAssetId,
   sonicAssetId,
   starknetAssetId,
+  storyAssetId,
   suiAssetId,
   thorchainAssetId,
   tonAssetId,
@@ -106,6 +107,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return cronosAssetId
     case KnownChainIds.KatanaMainnet:
       return katanaAssetId
+    case KnownChainIds.StoryMainnet:
+      return storyAssetId
     case KnownChainIds.ZkSyncEraMainnet:
       return zkSyncEraAssetId
     case KnownChainIds.BlastMainnet:

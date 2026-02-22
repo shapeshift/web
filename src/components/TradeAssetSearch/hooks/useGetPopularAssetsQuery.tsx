@@ -20,6 +20,7 @@ import {
   soneiumAssetId,
   sonicAssetId,
   starknetAssetId,
+  storyAssetId,
   suiAssetId,
   thorchainAssetId,
   tronAssetId,
@@ -62,6 +63,7 @@ export const queryFn = async () => {
   if (enabledFlags.Ink) assetIds.push(inkAssetId)
   if (enabledFlags.Scroll) assetIds.push(scrollAssetId)
   if (enabledFlags.Katana) assetIds.push(katanaAssetId)
+  if (enabledFlags.Story) assetIds.push(storyAssetId)
   if (enabledFlags.ZkSyncEra) assetIds.push(zkSyncEraAssetId)
   if (enabledFlags.Blast) assetIds.push(blastAssetId)
   if (enabledFlags.WorldChain) assetIds.push(worldChainAssetId)

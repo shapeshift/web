@@ -33,6 +33,7 @@ import solana from '@/plugins/solana'
 import soneium from '@/plugins/soneium'
 import sonic from '@/plugins/sonic'
 import starknet from '@/plugins/starknet'
+import story from '@/plugins/story'
 import sui from '@/plugins/sui'
 import thorchain from '@/plugins/thorchain'
 import ton from '@/plugins/ton'
@@ -80,6 +81,7 @@ export const activePlugins = [
   solana,
   sonic,
   starknet,
+  story,
   sui,
   thorchain,
   ton,

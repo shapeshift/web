@@ -11,6 +11,7 @@ import {
   modeChainId,
   soneiumChainId,
   sonicChainId,
+  storyChainId,
   toAssetId,
   unichainChainId,
   worldChainChainId,
@@ -64,6 +65,7 @@ const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [worldChainChainId]: '0x4200000000000000000000000000000000000006',
   [blastChainId]: '0x4300000000000000000000000000000000000004',
   [zkSyncEraChainId]: '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91',
+  [storyChainId]: '0x1514000000000000000000000000000000000000',
 }
 const BATCH_SIZE = 500
 
@@ -484,7 +486,6 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
             value: log.args.value.toString(),
           })
         }
-
         // Fallback: WETH9 Withdrawal(address indexed src, uint256 wad) event
         // On OP Stack L2s and other chains, WETH.withdraw() emits Withdrawal instead of Transfer-to-zero
         if (internalTxs.length === 0) {

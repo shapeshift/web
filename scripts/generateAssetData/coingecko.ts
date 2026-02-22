@@ -30,6 +30,7 @@ import {
   soneiumChainId,
   sonicChainId,
   starknetChainId,
+  storyChainId,
   suiChainId,
   toAssetId,
   tonChainId,
@@ -67,6 +68,7 @@ import {
   solana,
   soneium,
   sonic,
+  story,
   sui,
   ton,
   tron,
@@ -250,6 +252,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: katana.explorer,
           explorerAddressLink: katana.explorerAddressLink,
           explorerTxLink: katana.explorerTxLink,
+        }
+      case storyChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: story.explorer,
+          explorerAddressLink: story.explorerAddressLink,
+          explorerTxLink: story.explorerTxLink,
         }
       case zkSyncEraChainId:
         return {

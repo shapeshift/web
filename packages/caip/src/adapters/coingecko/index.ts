@@ -37,6 +37,7 @@ import {
   soneiumChainId,
   sonicChainId,
   starknetChainId,
+  storyChainId,
   suiChainId,
   thorchainChainId,
   tonChainId,
@@ -67,6 +68,7 @@ export enum CoingeckoAssetPlatform {
   Plasma = 'plasma',
   Ink = 'ink',
   Katana = 'katana',
+  Story = 'story',
   ZkSyncEra = 'zksync',
   Blast = 'blast',
   WorldChain = 'world-chain',
@@ -142,6 +144,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Plasma
         case CHAIN_REFERENCE.KatanaMainnet:
           return CoingeckoAssetPlatform.Katana
+        case CHAIN_REFERENCE.StoryMainnet:
+          return CoingeckoAssetPlatform.Story
         case CHAIN_REFERENCE.ZkSyncEraMainnet:
           return CoingeckoAssetPlatform.ZkSyncEra
         case CHAIN_REFERENCE.BlastMainnet:
@@ -283,6 +287,8 @@ export const coingeckoAssetPlatformToChainId = (
       return worldChainChainId
     case CoingeckoAssetPlatform.Katana:
       return katanaChainId
+    case CoingeckoAssetPlatform.Story:
+      return storyChainId
     case CoingeckoAssetPlatform.Mantle:
       return mantleChainId
     case CoingeckoAssetPlatform.Sonic:

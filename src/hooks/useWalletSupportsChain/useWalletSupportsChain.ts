@@ -34,6 +34,7 @@ import {
   soneiumChainId,
   sonicChainId,
   starknetChainId,
+  storyChainId,
   suiChainId,
   thorchainChainId,
   tonChainId,
@@ -80,6 +81,7 @@ import {
   supportsSoneium,
   supportsSonic,
   supportsStarknet,
+  supportsStory,
   supportsSui,
   supportsThorchain,
   supportsTron,
@@ -184,6 +186,7 @@ export const walletSupportsChain = ({
   const isInkEnabled = selectFeatureFlag(store.getState(), 'Ink')
   const isBobEnabled = selectFeatureFlag(store.getState(), 'Bob')
   const isKatanaEnabled = selectFeatureFlag(store.getState(), 'Katana')
+  const isStoryEnabled = selectFeatureFlag(store.getState(), 'Story')
   const isMantleEnabled = selectFeatureFlag(store.getState(), 'Mantle')
   const isLineaEnabled = selectFeatureFlag(store.getState(), 'Linea')
   const isCronosEnabled = selectFeatureFlag(store.getState(), 'Cronos')
@@ -247,6 +250,8 @@ export const walletSupportsChain = ({
       return isPlasmaEnabled && supportsPlasma(wallet)
     case katanaChainId:
       return isKatanaEnabled && supportsKatana(wallet)
+    case storyChainId:
+      return isStoryEnabled && supportsStory(wallet)
     case zkSyncEraChainId:
       return isZkSyncEraEnabled && supportsZkSyncEra(wallet)
     case blastChainId:

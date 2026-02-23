@@ -3,6 +3,7 @@ import {
   berachainAssetId,
   blastAssetId,
   bobAssetId,
+  celoAssetId,
   cronosAssetId,
   flowEvmAssetId,
   hemiAssetId,
@@ -78,6 +79,7 @@ export const queryFn = async () => {
   if (enabledFlags.Bob) assetIds.push(bobAssetId)
   if (enabledFlags.Mode) assetIds.push(modeAssetId)
   if (enabledFlags.Soneium) assetIds.push(soneiumAssetId)
+  if (enabledFlags.Celo) assetIds.push(celoAssetId)
   if (enabledFlags.Starknet) assetIds.push(starknetAssetId)
   if (enabledFlags.Tron) assetIds.push(tronAssetId)
   if (enabledFlags.Berachain) assetIds.push(berachainAssetId)

@@ -9,6 +9,7 @@ import {
   bobChainId,
   bscChainId,
   btcChainId,
+  celoChainId,
   cosmosChainId,
   cronosChainId,
   dogeChainId,
@@ -61,6 +62,7 @@ import {
   supportsBob,
   supportsBSC,
   supportsBTC,
+  supportsCelo,
   supportsCosmos,
   supportsCronos,
   supportsETH,
@@ -209,6 +211,7 @@ export const walletSupportsChain = ({
   const isStarknetEnabled = selectFeatureFlag(store.getState(), 'Starknet')
   const isWorldChainEnabled = selectFeatureFlag(store.getState(), 'WorldChain')
   const isTonEnabled = selectFeatureFlag(store.getState(), 'Ton')
+  const isCeloEnabled = selectFeatureFlag(store.getState(), 'Celo')
 
   switch (chainId) {
     case btcChainId:
@@ -232,6 +235,8 @@ export const walletSupportsChain = ({
       return supportsOptimism(wallet)
     case bscChainId:
       return supportsBSC(wallet)
+    case celoChainId:
+      return isCeloEnabled && supportsCelo(wallet)
     case polygonChainId:
       return supportsPolygon(wallet)
     case gnosisChainId:

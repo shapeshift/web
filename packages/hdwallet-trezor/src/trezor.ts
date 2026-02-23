@@ -310,6 +310,7 @@ export class TrezorHDWallet
   readonly _supportsWorldChain = true
   readonly _supportsHemi = true
   readonly _supportsFlowEvm = true
+  readonly _supportsCelo = true
   readonly _supportsBerachain = true
   readonly _supportsLinea = true
   readonly _supportsScroll = true

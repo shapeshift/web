@@ -507,6 +507,23 @@ export const flowEvm: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const celo: Readonly<Asset> = Object.freeze({
+  assetId: caip.celoAssetId,
+  chainId: caip.celoChainId,
+  name: 'Celo',
+  networkName: 'Celo',
+  symbol: 'CELO',
+  precision: 18,
+  color: '#35D07F',
+  networkColor: '#35D07F',
+  icon: 'https://assets.coingecko.com/coins/images/11090/large/celo.png',
+  networkIcon: 'https://assets.coingecko.com/coins/images/11090/small/celo.png',
+  explorer: 'https://celoscan.io',
+  explorerAddressLink: 'https://celoscan.io/address/',
+  explorerTxLink: 'https://celoscan.io/tx/',
+  relatedAssetKey: null,
+})
+
 export const story: Readonly<Asset> = Object.freeze({
   assetId: caip.storyAssetId,
   chainId: caip.storyChainId,

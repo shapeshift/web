@@ -228,6 +228,7 @@ export class PhantomHDWallet
   readonly _supportsWorldChain = false
   readonly _supportsHemi = false
   readonly _supportsFlowEvm = false
+  readonly _supportsCelo = false
   readonly _supportsBerachain = false
   readonly _supportsLinea = false
   readonly _supportsScroll = false

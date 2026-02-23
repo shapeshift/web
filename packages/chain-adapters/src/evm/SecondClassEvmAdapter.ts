@@ -4,6 +4,7 @@ import {
   berachainChainId,
   blastChainId,
   bobChainId,
+  celoChainId,
   cronosChainId,
   flowEvmChainId,
   hemiChainId,
@@ -56,6 +57,7 @@ const ERC20_ABI = ['function balanceOf(address) view returns (uint256)']
 const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [berachainChainId]: '0x6969696969696969696969696969696969696969',
   [mantleChainId]: '0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8',
+  [celoChainId]: '0x471EcE3750Da237f93B8E339c536989b8978a438',
   [cronosChainId]: '0x5C7F8A570d578ED84E63fdFA7b1eE72dEae1AE23',
   [flowEvmChainId]: '0xd3bF53DAC106A0290B0483EcBC89d40FcC961f3e',
   [sonicChainId]: '0x039e2fB66102314Ce7b64Ce5Ce3E5183bc94aD38',

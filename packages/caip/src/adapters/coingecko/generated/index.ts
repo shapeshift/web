@@ -14,7 +14,6 @@ import monad from "./eip155_143/adapter.json";
 import hyperevm from "./eip155_999/adapter.json";
 import plasma from "./eip155_9745/adapter.json";
 import katana from "./eip155_747474/adapter.json";
-import flowEvm from "./eip155_747/adapter.json";
 import plume from "./eip155_98866/adapter.json";
 import zksyncera from "./eip155_324/adapter.json";
 import blast from "./eip155_81457/adapter.json";
@@ -24,7 +23,6 @@ import linea from "./eip155_59144/adapter.json";
 import bob from "./eip155_60808/adapter.json";
 import mode from "./eip155_34443/adapter.json";
 import megaeth from "./eip155_4326/adapter.json";
-import celo from "./eip155_42220/adapter.json";
 import story from "./eip155_1514/adapter.json";
 import mantle from "./eip155_5000/adapter.json";
 import berachain from "./eip155_80094/adapter.json";
@@ -34,6 +32,8 @@ import cronos from "./eip155_25/adapter.json";
 import sonic from "./eip155_146/adapter.json";
 import unichain from "./eip155_130/adapter.json";
 import soneium from "./eip155_1868/adapter.json";
+import flowevm from "./eip155_747/adapter.json";
+import celo from "./eip155_42220/adapter.json";
 import cosmos from "./cosmos_cosmoshub-4/adapter.json";
 import thorchain from "./cosmos_thorchain-1/adapter.json";
 import mayachain from "./cosmos_mayachain-mainnet-v1/adapter.json";
@@ -63,7 +63,6 @@ export {
   hyperevm,
   plasma,
   katana,
-  flowEvm,
   plume,
   zksyncera,
   blast,
@@ -72,7 +71,6 @@ export {
   linea,
   mode,
   megaeth,
-  celo,
   story,
   mantle,
   berachain,
@@ -82,6 +80,8 @@ export {
   sonic,
   unichain,
   soneium,
+  flowevm,
+  celo,
   cosmos,
   thorchain,
   mayachain,

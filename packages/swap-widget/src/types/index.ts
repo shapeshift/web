@@ -129,17 +129,30 @@ export type ThemeConfig = {
   textColor?: string
   borderRadius?: string
   fontFamily?: string
+  borderColor?: string
+  secondaryTextColor?: string
+  mutedTextColor?: string
+  inputColor?: string
+  hoverColor?: string
+  buttonVariant?: 'filled' | 'outline'
 }
 
 export type SwapWidgetProps = {
-  apiKey?: string
+  affiliateAddress?: string
   apiBaseUrl?: string
   defaultSellAsset?: Asset
   defaultBuyAsset?: Asset
   disabledChainIds?: ChainId[]
   disabledAssetIds?: AssetId[]
   allowedChainIds?: ChainId[]
-  allowedAssetIds?: AssetId[]
+  sellDisabledChainIds?: ChainId[]
+  buyDisabledChainIds?: ChainId[]
+  sellDisabledAssetIds?: AssetId[]
+  buyDisabledAssetIds?: AssetId[]
+  sellAllowedChainIds?: ChainId[]
+  buyAllowedChainIds?: ChainId[]
+  sellAllowedAssetIds?: AssetId[]
+  buyAllowedAssetIds?: AssetId[]
   allowedSwapperNames?: SwapperName[]
   walletClient?: WalletClient
   onConnectWallet?: () => void
@@ -153,6 +166,7 @@ export type SwapWidgetProps = {
   walletConnectProjectId?: string
   defaultReceiveAddress?: string
   ratesRefetchInterval?: number
+  isBuyAssetLocked?: boolean
 }
 
 export type RatesResponse = {
@@ -179,6 +193,15 @@ export type ApiQuoteStep = {
   estimatedExecutionTimeMs: number | undefined
   source: string
   transactionData?: TransactionData
+  relayTransactionMetadata?: TransactionData
+  butterSwapTransactionMetadata?: TransactionData
+  solanaTransactionMetadata?: {
+    instructions: {
+      programId: string
+      keys: { pubkey: string; isSigner: boolean; isWritable: boolean }[]
+      data: { data: number[] }
+    }[]
+  }
 }
 
 export type ApprovalInfo = {
@@ -203,9 +226,14 @@ export type QuoteResponse = {
   affiliateBps: string
   slippageTolerancePercentageDecimal: string | undefined
   networkFeeCryptoBaseUnit: string | undefined
+  /** @deprecated Use `quote.steps` instead. Top-level `steps` is kept for backward compatibility. */
   steps: ApiQuoteStep[]
   approval: ApprovalInfo
   expiresAt: number
+  transactionData?: TransactionData
+  quote?: {
+    steps?: ApiQuoteStep[]
+  }
 }
 
 export { erc20Abi as ERC20_ABI }

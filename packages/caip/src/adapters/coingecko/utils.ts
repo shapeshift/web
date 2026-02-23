@@ -13,27 +13,45 @@ import {
   baseAssetId,
   baseChainId,
   bchChainId,
+  berachainAssetId,
+  berachainChainId,
+  blastAssetId,
+  blastChainId,
+  bobAssetId,
+  bobChainId,
   bscAssetId,
   bscChainId,
   btcChainId,
-  celoAssetId,
-  celoChainId,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
   cosmosChainId,
+  cronosAssetId,
+  cronosChainId,
   dogeChainId,
   ethAssetId,
   ethChainId,
+  flowEvmAssetId,
+  flowEvmChainId,
   gnosisAssetId,
   gnosisChainId,
+  hemiAssetId,
+  hemiChainId,
   hyperEvmAssetId,
   hyperEvmChainId,
+  inkAssetId,
+  inkChainId,
   katanaAssetId,
   katanaChainId,
+  lineaAssetId,
+  lineaChainId,
   ltcChainId,
+  mantleAssetId,
+  mantleChainId,
   mayachainChainId,
   megaethAssetId,
   megaethChainId,
+  modeAssetId,
+  modeChainId,
   monadAssetId,
   monadChainId,
   nearAssetId,
@@ -42,12 +60,22 @@ import {
   optimismChainId,
   plasmaAssetId,
   plasmaChainId,
+  plumeAssetId,
+  plumeChainId,
   polygonAssetId,
   polygonChainId,
+  scrollAssetId,
+  scrollChainId,
   solanaChainId,
   solAssetId,
+  soneiumAssetId,
+  soneiumChainId,
+  sonicAssetId,
+  sonicChainId,
   starknetAssetId,
   starknetChainId,
+  storyAssetId,
+  storyChainId,
   suiAssetId,
   suiChainId,
   thorchainChainId,
@@ -55,7 +83,13 @@ import {
   tonChainId,
   tronAssetId,
   tronChainId,
+  unichainAssetId,
+  unichainChainId,
+  worldChainAssetId,
+  worldChainChainId,
   zecChainId,
+  zkSyncEraAssetId,
+  zkSyncEraChainId,
 } from '../../constants'
 import {
   bitcoinAssetMap,
@@ -277,6 +311,62 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Plume)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.PlumeMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Plume],
+          })
+          prev[plumeChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.WorldChain)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.WorldChainMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.WorldChain],
+          })
+          prev[worldChainChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Mantle)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.MantleMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Mantle],
+          })
+          prev[mantleChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Ink)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.InkMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Ink],
+          })
+          prev[inkChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.MegaEth)) {
         try {
           const assetId = toAssetId({
@@ -286,6 +376,62 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
             assetReference: platforms[CoingeckoAssetPlatform.MegaEth],
           })
           prev[megaethChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Linea)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.LineaMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Linea],
+          })
+          prev[lineaChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Berachain)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.BerachainMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Berachain],
+          })
+          prev[berachainChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Scroll)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.ScrollMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Scroll],
+          })
+          prev[scrollChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Cronos)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.CronosMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Cronos],
+          })
+          prev[cronosChainId][assetId] = id
         } catch {
           // unable to create assetId, skip token
         }
@@ -305,15 +451,141 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
-      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Celo)) {
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.FlowEvm)) {
         try {
           const assetId = toAssetId({
             chainNamespace: CHAIN_NAMESPACE.Evm,
-            chainReference: CHAIN_REFERENCE.CeloMainnet,
+            chainReference: CHAIN_REFERENCE.FlowEvmMainnet,
             assetNamespace: 'erc20',
-            assetReference: platforms[CoingeckoAssetPlatform.Celo],
+            assetReference: platforms[CoingeckoAssetPlatform.FlowEvm],
           })
-          prev[celoChainId][assetId] = id
+          prev[flowEvmChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Story)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.StoryMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Story],
+          })
+          prev[storyChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.ZkSyncEra)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.ZkSyncEraMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.ZkSyncEra],
+          })
+          prev[zkSyncEraChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Blast)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.BlastMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Blast],
+          })
+          prev[blastChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Hemi)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.HemiMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Hemi],
+          })
+          prev[hemiChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Sonic)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.SonicMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Sonic],
+          })
+          prev[sonicChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Unichain)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.UnichainMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Unichain],
+          })
+          prev[unichainChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Bob)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.BobMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Bob],
+          })
+          prev[bobChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Mode)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.ModeMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Mode],
+          })
+          prev[modeChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Soneium)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.SoneiumMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Soneium],
+          })
+          prev[soneiumChainId][assetId] = id
         } catch {
           // unable to create assetId, skip token
         }
@@ -375,9 +647,26 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [hyperEvmChainId]: { [hyperEvmAssetId]: 'hyperliquid' },
       [monadChainId]: { [monadAssetId]: 'monad' },
       [plasmaChainId]: { [plasmaAssetId]: 'plasma' },
+      [plumeChainId]: { [plumeAssetId]: 'plume' },
+      [mantleChainId]: { [mantleAssetId]: 'mantle' },
+      [inkChainId]: { [inkAssetId]: 'ethereum' },
       [megaethChainId]: { [megaethAssetId]: 'ethereum' },
+      [lineaChainId]: { [lineaAssetId]: 'ethereum' },
+      [berachainChainId]: { [berachainAssetId]: 'berachain-bera' },
+      [cronosChainId]: { [cronosAssetId]: 'crypto-com-chain' },
       [katanaChainId]: { [katanaAssetId]: 'katana' },
-      [celoChainId]: { [celoAssetId]: 'celo' },
+      [storyChainId]: { [storyAssetId]: 'story-2' },
+      [flowEvmChainId]: { [flowEvmAssetId]: 'flow' },
+      [zkSyncEraChainId]: { [zkSyncEraAssetId]: 'ethereum' },
+      [blastChainId]: { [blastAssetId]: 'ethereum' },
+      [worldChainChainId]: { [worldChainAssetId]: 'ethereum' },
+      [hemiChainId]: { [hemiAssetId]: 'ethereum' },
+      [scrollChainId]: { [scrollAssetId]: 'ethereum' },
+      [sonicChainId]: { [sonicAssetId]: 'sonic-3' },
+      [unichainChainId]: { [unichainAssetId]: 'ethereum' },
+      [bobChainId]: { [bobAssetId]: 'ethereum' },
+      [modeChainId]: { [modeAssetId]: 'ethereum' },
+      [soneiumChainId]: { [soneiumAssetId]: 'ethereum' },
       [solanaChainId]: { [solAssetId]: 'solana' },
       [starknetChainId]: { [starknetAssetId]: 'starknet' },
       [tronChainId]: { [tronAssetId]: 'tron' },

@@ -1,8 +1,16 @@
 const { execSync } = require('child_process');
 const fs = require('fs');
 
-const sha = fs.readFileSync('src/assets/translations/.last-translation-sha', 'utf8').trim();
-const oldContent = execSync('git show ' + sha + ':src/assets/translations/en/main.json', { encoding: 'utf8' });
+try {
+  const sha = fs.readFileSync('src/assets/translations/.last-translation-sha', 'utf8').trim();
+  if (!/^[0-9a-f]{7,40}$/.test(sha)) {
+    throw new Error(`Invalid SHA format: "${sha}"`);
+  }
+  var oldContent = execSync(`git show "${sha}":src/assets/translations/en/main.json`, { encoding: 'utf8' });
+} catch (err) {
+  console.log(JSON.stringify({ error: err.message }));
+  process.exit(1);
+}
 const oldStrings = JSON.parse(oldContent);
 const newStrings = JSON.parse(fs.readFileSync('src/assets/translations/en/main.json', 'utf8'));
 

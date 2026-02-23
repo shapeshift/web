@@ -1,11 +1,21 @@
 const fs = require('fs');
 
+const ALLOWED_LOCALES = ['de', 'es', 'fr', 'ja', 'pt', 'ru', 'tr', 'uk', 'zh'];
+
 const enKeys = JSON.parse(fs.readFileSync('src/assets/translations/en/main.json', 'utf8'));
 const locale = process.argv[2];
+if (!ALLOWED_LOCALES.includes(locale)) {
+  console.error(`Invalid locale "${locale}". Allowed: ${ALLOWED_LOCALES.join(', ')}`);
+  process.exit(1);
+}
 const translationsArg = process.argv[3];
 
 let newTranslations;
-if (translationsArg && fs.existsSync(translationsArg)) {
+if (translationsArg && (translationsArg.includes('/') || translationsArg.endsWith('.json'))) {
+  if (!fs.existsSync(translationsArg)) {
+    console.error(`File not found: ${translationsArg}`);
+    process.exit(1);
+  }
   newTranslations = JSON.parse(fs.readFileSync(translationsArg, 'utf8'));
 } else {
   newTranslations = JSON.parse(translationsArg);

@@ -9,6 +9,7 @@ import {
   blastChainId,
   bobChainId,
   bscChainId,
+  celoChainId,
   cronosChainId,
   ethChainId,
   flowEvmChainId,
@@ -50,6 +51,7 @@ import {
   blast,
   bnbsmartchain,
   bobChain,
+  celo,
   cronos,
   ethereum,
   flowEvm,
@@ -264,6 +266,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: flowEvm.explorer,
           explorerAddressLink: flowEvm.explorerAddressLink,
           explorerTxLink: flowEvm.explorerTxLink,
+        }
+      case celoChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: celo.explorer,
+          explorerAddressLink: celo.explorerAddressLink,
+          explorerTxLink: celo.explorerTxLink,
         }
       case plumeChainId:
         return {

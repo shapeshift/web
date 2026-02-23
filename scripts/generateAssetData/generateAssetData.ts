@@ -30,6 +30,7 @@ import * as berachain from './berachain'
 import * as blast from './blast'
 import * as bnbsmartchain from './bnbsmartchain'
 import * as bob from './bob'
+import * as celo from './celo'
 import { compressGeneratedAssets } from './compressAssets'
 import { ASSET_DATA_PATH, GENERATED_DIR, RELATED_ASSET_INDEX_PATH } from './constants'
 import * as cronos from './cronos'
@@ -90,6 +91,7 @@ const generateAssetData = async () => {
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
   const flowEvmAssets = await flowEvm.getAssets()
+  const celoAssets = await celo.getAssets()
   const zksyncEraAssets = await zksyncera.getAssets()
   const blastAssets = await blast.getAssets()
   const hemiAssets = await hemi.getAssets()
@@ -141,6 +143,7 @@ const generateAssetData = async () => {
     ...hyperevmAssets,
     ...katanaAssets,
     ...flowEvmAssets,
+    ...celoAssets,
     ...zksyncEraAssets,
     ...blastAssets,
     ...hemiAssets,

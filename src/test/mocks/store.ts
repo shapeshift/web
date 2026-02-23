@@ -116,6 +116,7 @@ export const mockStore: ReduxState = {
       Cronos: false,
       Katana: false,
       FlowEvm: false,
+      Celo: false,
       Plume: false,
       Story: false,
       ZkSyncEra: false,

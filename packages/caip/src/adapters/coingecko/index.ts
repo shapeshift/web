@@ -12,6 +12,7 @@ import {
   blastChainId,
   bobChainId,
   bscChainId,
+  celoChainId,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
   cosmosChainId,
@@ -72,6 +73,7 @@ export enum CoingeckoAssetPlatform {
   Ink = 'ink',
   Katana = 'katana',
   FlowEvm = 'flow-evm',
+  Celo = 'celo',
   Story = 'story',
   ZkSyncEra = 'zksync',
   Blast = 'blast',
@@ -152,6 +154,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Katana
         case CHAIN_REFERENCE.FlowEvmMainnet:
           return CoingeckoAssetPlatform.FlowEvm
+        case CHAIN_REFERENCE.CeloMainnet:
+          return CoingeckoAssetPlatform.Celo
         case CHAIN_REFERENCE.StoryMainnet:
           return CoingeckoAssetPlatform.Story
         case CHAIN_REFERENCE.ZkSyncEraMainnet:
@@ -299,6 +303,8 @@ export const coingeckoAssetPlatformToChainId = (
       return katanaChainId
     case CoingeckoAssetPlatform.FlowEvm:
       return flowEvmChainId
+    case CoingeckoAssetPlatform.Celo:
+      return celoChainId
     case CoingeckoAssetPlatform.Story:
       return storyChainId
     case CoingeckoAssetPlatform.Mantle:

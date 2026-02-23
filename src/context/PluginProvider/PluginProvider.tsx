@@ -139,6 +139,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.Scroll && chainId === KnownChainIds.ScrollMainnet) return false
       if (!featureFlags.Berachain && chainId === KnownChainIds.BerachainMainnet) return false
       if (!featureFlags.Soneium && chainId === KnownChainIds.SoneiumMainnet) return false
+      if (!featureFlags.Celo && chainId === KnownChainIds.CeloMainnet) return false
       if (!featureFlags.BnbSmartChain && chainId === KnownChainIds.BnbSmartChainMainnet)
         return false
       if (!featureFlags.Tron && chainId === KnownChainIds.TronMainnet) return false

@@ -34,7 +34,7 @@ The following assumes the user doesn't have a state chain account yet.
 1. Scale encode a "register as LP" (`registerLpAccount()`) call (`cf_encode_non_native_call(encodedCall, blocksToExpiry=120, nonce=0, {Eth: 'Eip712'})`) - user EIP-712 signs that, submits it.
 That *is* different from swap endpoints in the BaaS in that this needs to be signed!
 2. We pass that sig + asset to ` request_account_creation_deposit_address`
-3. User sends funds to that addess, in the asset the deposit channel was opened for. That is NOT a lending op just yet, just funding the "lending account", as such, lending role is auto-created.
+3. User sends funds to that address, in the asset the deposit channel was opened for. That is NOT a lending op just yet, just funding the "lending account", as such, lending role is auto-created.
 4. A state chain's channel account is opened, tied to the user EVM addy, with some FLIP auto-provisionned
 5. With the same EIP-712 flow as above, user signs `register_liquidity_refund_address` call to register their refund addy
 
@@ -77,7 +77,7 @@ May need to deposit funds into state chain (free balance) if none, see above
 #### Repay
 
 - Use existing free balance for borrowed asset or land some in (see above)
-- `make_repayment(loan_id, borrowedAsset, amount)` reduces pricipal
+- `make_repayment(loan_id, borrowedAsset, amount)` reduces principal
 - Can `remove_collateral(collateralAsset, amount)` once fully repaid, moves from collateral to free balance
 - `withdraw_asset(amount, collateralAsset, collateralAssetAddress)` triggers egress (user gets funds back on-chain)
 

@@ -10,12 +10,13 @@ vi.mock('./rpc', () => ({
 }))
 
 describe('ethAddressToScAccount', () => {
-  it('derives a deterministic SS58 account from an ETH address', () => {
+  it('derives a deterministic SS58 account from an ETH address with cF prefix', () => {
     const result1 = ethAddressToScAccount('0x36eaD71325604DC15d35FAE584D7b50646D81753')
     const result2 = ethAddressToScAccount('0x36eaD71325604DC15d35FAE584D7b50646D81753')
     expect(result1).toBe(result2)
     expect(typeof result1).toBe('string')
     expect(result1.length).toBeGreaterThan(30)
+    expect(result1.startsWith('cF')).toBe(true)
   })
 
   it('produces different accounts for different addresses', () => {

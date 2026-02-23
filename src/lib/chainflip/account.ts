@@ -19,8 +19,8 @@ const encodeSs58Prefix = (prefix: number): Uint8Array => {
     return Uint8Array.from([prefix])
   }
 
-  const first = (prefix & 0b0011_1111) | 0b0100_0000
-  const second = prefix >> 6
+  const first = ((prefix & 0b1111_1100) >> 2) | 0b0100_0000
+  const second = (prefix >> 8) | ((prefix & 0b0000_0011) << 6)
 
   return Uint8Array.from([first, second])
 }

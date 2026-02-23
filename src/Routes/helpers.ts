@@ -10,6 +10,7 @@ export enum RouteCategory {
   Explore = 'explore',
   Fox = 'fox',
   Thorchain = 'thorchain',
+  Chainflip = 'chainflip',
 }
 
 export type Route = {

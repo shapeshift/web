@@ -391,7 +391,7 @@ export const routes: Route[] = [
     label: 'navBar.chainflipLending',
     icon: <RiExchangeFundsLine />,
     main: ChainflipLending,
-    category: RouteCategory.Thorchain,
+    category: RouteCategory.Chainflip,
     priority: 3,
     mobileNav: false,
     disable: !getConfig().VITE_FEATURE_CHAINFLIP_LENDING,

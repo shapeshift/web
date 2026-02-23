@@ -207,11 +207,12 @@ const extractUtxoTransactionData = (
   step: TradeQuoteStep,
   context: DepositExtractionContext = {},
 ): UtxoTransactionData | undefined => {
-  if (step.relayTransactionMetadata?.psbt) {
+  if (step.relayTransactionMetadata?.to) {
     return {
-      type: 'utxo_psbt',
-      psbt: step.relayTransactionMetadata.psbt,
-      opReturnData: step.relayTransactionMetadata.opReturnData,
+      type: 'utxo_deposit',
+      depositAddress: step.relayTransactionMetadata.to,
+      memo: step.relayTransactionMetadata.opReturnData ?? '',
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
     }
   }
 
@@ -498,6 +499,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       ),
       approval: buildApprovalInfo(firstStep),
       expiresAt: now + 60_000,
+      affiliateAddress: req.affiliateInfo?.affiliateAddress,
     }
 
     res.json(response)

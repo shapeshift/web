@@ -12,6 +12,7 @@ import { z } from 'zod'
 
 import { getAsset, getAssetsById } from '../assets'
 import { DEFAULT_AFFILIATE_BPS, getServerConfig } from '../config'
+import { QuoteStore, quoteStore } from '../lib/quoteStore'
 import { booleanFromString } from '../lib/zod'
 import { createServerSwapperDeps } from '../swapperDeps'
 import type {
@@ -474,6 +475,31 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
 
     const quoteId = uuidv4()
     const now = Date.now()
+
+    quoteStore.set(quoteId, {
+      quoteId,
+      swapperName: validSwapperName,
+      sellAssetId: sellAsset.assetId,
+      buyAssetId: buyAsset.assetId,
+      sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      buyAmountAfterFeesCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+      affiliateAddress: req.affiliateInfo?.affiliateAddress,
+      affiliateBps: quote.affiliateBps,
+      sellChainId: sellAsset.chainId,
+      receiveAddress,
+      sendAddress,
+      rate: quote.rate,
+      createdAt: now,
+      expiresAt: now + QuoteStore.QUOTE_TTL_MS,
+      metadata: {
+        chainflipSwapId: firstStep.chainflipSpecific?.chainflipSwapId,
+        nearIntentsDepositAddress: firstStep.nearIntentsSpecific?.depositAddress,
+        nearIntentsDepositMemo: firstStep.nearIntentsSpecific?.depositMemo,
+        relayId: firstStep.relayTransactionMetadata?.relayId,
+      },
+      stepChainIds: quote.steps.map(step => step.sellAsset.chainId),
+      status: 'pending',
+    })
 
     const depositContextResult = await resolveDepositContext(quote, firstStep, validSwapperName)
     if (!depositContextResult.ok) {

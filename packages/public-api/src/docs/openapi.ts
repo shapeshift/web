@@ -6,6 +6,8 @@ import { z } from 'zod'
 import { AssetRequestSchema, AssetsListRequestSchema } from '../routes/assets'
 import { QuoteRequestSchema } from '../routes/quote'
 import { RatesRequestSchema } from '../routes/rates'
+import { RegisterRequestSchema } from '../routes/register'
+import { StatusRequestSchema } from '../routes/status'
 
 export const registry = new OpenAPIRegistry()
 
@@ -373,6 +375,110 @@ registry.registerPath({
   },
 })
 
+const RegisterResponseSchema = registry.register(
+  'RegisterResponse',
+  z.object({
+    quoteId: z.string().uuid(),
+    txHash: z.string(),
+    chainId: z.string(),
+    status: z.enum(['submitted', 'pending', 'confirmed', 'failed']),
+    swapperName: z.string(),
+  }),
+)
+
+const SwapStatusResponseSchema = registry.register(
+  'SwapStatusResponse',
+  z.object({
+    quoteId: z.string().uuid(),
+    txHash: z.string().optional(),
+    status: z.enum(['pending', 'submitted', 'confirmed', 'failed']),
+    swapperName: z.string(),
+    sellAssetId: z.string(),
+    buyAssetId: z.string(),
+    sellAmountCryptoBaseUnit: z.string(),
+    buyAmountAfterFeesCryptoBaseUnit: z.string(),
+    affiliateAddress: z.string().optional(),
+    affiliateBps: z.string(),
+    registeredAt: z.number().optional(),
+  }),
+)
+
+registry.registerPath({
+  method: 'post',
+  path: '/v1/swap/register',
+  summary: 'Register swap transaction',
+  description:
+    'Bind a transaction hash to a previously obtained quote. This registers the swap for status tracking and affiliate attribution. Rate limited to 10 requests per second per affiliate.',
+  tags: ['Swaps'],
+  request: {
+    headers: z.object({ 'X-Affiliate-Address': AffiliateAddressHeaderSchema }),
+    body: {
+      content: {
+        'application/json': {
+          schema: RegisterRequestSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: 'Swap registered successfully',
+      content: {
+        'application/json': {
+          schema: RegisterResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: 'Invalid request or chain mismatch',
+    },
+    403: {
+      description: 'Affiliate address mismatch',
+    },
+    404: {
+      description: 'Quote not found or expired',
+    },
+    409: {
+      description: 'Quote already bound to a different transaction',
+    },
+    429: {
+      description: 'Rate limit exceeded',
+    },
+  },
+})
+
+registry.registerPath({
+  method: 'get',
+  path: '/v1/swap/status',
+  summary: 'Get swap status',
+  description:
+    'Look up the current status of a swap by its quote ID. Optionally pass txHash to verify it matches the registered transaction.',
+  tags: ['Swaps'],
+  request: {
+    headers: z.object({ 'X-Affiliate-Address': AffiliateAddressHeaderSchema }),
+    query: StatusRequestSchema,
+  },
+  responses: {
+    200: {
+      description: 'Swap status',
+      content: {
+        'application/json': {
+          schema: SwapStatusResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: 'Invalid request parameters',
+    },
+    404: {
+      description: 'Quote not found or expired',
+    },
+    409: {
+      description: 'Transaction hash mismatch',
+    },
+  },
+})
+
 export const generateOpenApiDocument = () => {
   const generator = new OpenApiGeneratorV3(registry.definitions)
 
@@ -423,6 +529,25 @@ X-Affiliate-Address: 0xYourArbitrumAddress (optional)
 
 ### 5. Execute the Swap
 Use the returned \`transactionData\` to build and sign a transaction with the user's wallet, then broadcast it to the network.
+
+### 6. Register the Swap (Optional)
+After broadcasting, register the transaction for status tracking and affiliate attribution:
+\`\`\`
+POST /v1/swap/register
+X-Affiliate-Address: 0xYourArbitrumAddress
+
+{
+  "quoteId": "<quoteId from step 4>",
+  "txHash": "0x...",
+  "chainId": "eip155:1"
+}
+\`\`\`
+
+### 7. Check Swap Status (Optional)
+Poll the status endpoint to track swap progress:
+\`\`\`
+GET /v1/swap/status?quoteId=<quoteId>
+\`\`\`
 
 ## Affiliate Tracking (Optional)
 To attribute swaps to your project, include your Arbitrum address in the \`X-Affiliate-Address\` header. This is optional — all endpoints work without it.

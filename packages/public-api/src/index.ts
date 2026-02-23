@@ -6,11 +6,14 @@ import express from 'express'
 import { initAssets } from './assets'
 import { API_HOST, API_PORT } from './config'
 import { affiliateAddress } from './middleware/auth'
+import { registerRateLimit } from './middleware/rateLimit'
 import { getAssetById, getAssetCount, getAssets } from './routes/assets'
 import { getChainCount, getChains } from './routes/chains'
 import { docsRouter } from './routes/docs'
 import { getQuote } from './routes/quote'
 import { getRates } from './routes/rates'
+import { registerSwap } from './routes/register'
+import { getSwapStatus } from './routes/status'
 
 const app = express()
 
@@ -34,6 +37,8 @@ app.get('/', (_req, res) => {
       assetById: 'GET /v1/assets/:assetId',
       swapRates: 'GET /v1/swap/rates',
       swapQuote: 'POST /v1/swap/quote',
+      swapRegister: 'POST /v1/swap/register',
+      swapStatus: 'GET /v1/swap/status',
     },
   })
 })
@@ -46,9 +51,10 @@ app.get('/health', (_req, res) => {
 // API v1 routes
 const v1Router = express.Router()
 
-// Swap endpoints (optional affiliate address tracking)
 v1Router.get('/swap/rates', affiliateAddress, getRates)
 v1Router.post('/swap/quote', affiliateAddress, getQuote)
+v1Router.post('/swap/register', affiliateAddress, registerRateLimit, registerSwap)
+v1Router.get('/swap/status', affiliateAddress, getSwapStatus)
 
 // Chain endpoints
 v1Router.get('/chains', getChains)
@@ -87,6 +93,8 @@ Available endpoints:
   GET  /v1/chains/count           - Get chain count
   GET  /v1/swap/rates             - Get swap rates from all swappers
   POST /v1/swap/quote             - Get executable quote with tx data
+  POST /v1/swap/register          - Register swap txHash against quote
+  GET  /v1/swap/status            - Get swap status by quoteId
   GET  /v1/assets                 - List supported assets
   GET  /v1/assets/count           - Get asset count
   GET  /v1/assets/:assetId        - Get single asset by ID

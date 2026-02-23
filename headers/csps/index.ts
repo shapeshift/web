@@ -7,29 +7,47 @@ import { csp as chainflip } from './chainflip'
 import { csp as arbitrum } from './chains/arbitrum'
 import { csp as avalanche } from './chains/avalanche'
 import { csp as baseChain } from './chains/base'
+import { csp as berachain } from './chains/berachain'
 import { csp as bitcoin } from './chains/bitcoin'
 import { csp as bitcoincash } from './chains/bitcoincash'
+import { csp as blast } from './chains/blast'
 import { csp as bnbsmartchain } from './chains/bnbsmartchain'
+import { csp as bob } from './chains/bob'
 import { csp as cosmos } from './chains/cosmos'
+import { csp as cronos } from './chains/cronos'
 import { csp as dogecoin } from './chains/dogecoin'
 import { csp as ethereum } from './chains/ethereum'
 import { csp as gnosis } from './chains/gnosis'
+import { csp as hemi } from './chains/hemi'
 import { csp as hyperevm } from './chains/hyperevm'
+import { csp as ink } from './chains/ink'
 import { csp as katana } from './chains/katana'
+import { csp as linea } from './chains/linea'
 import { csp as litecoin } from './chains/litecoin'
+import { csp as mantle } from './chains/mantle'
 import { csp as mayachain } from './chains/mayachain'
+import { csp as megaeth } from './chains/megaeth'
+import { csp as mode } from './chains/mode'
 import { csp as monad } from './chains/monad'
 import { csp as near } from './chains/near'
 import { csp as optimism } from './chains/optimism'
 import { csp as plasma } from './chains/plasma'
+import { csp as plume } from './chains/plume'
 import { csp as polygon } from './chains/polygon'
+import { csp as scroll } from './chains/scroll'
 import { csp as solana } from './chains/solana'
+import { csp as soneium } from './chains/soneium'
+import { csp as sonic } from './chains/sonic'
 import { csp as starknet } from './chains/starknet'
+import { csp as story } from './chains/story'
 import { csp as sui } from './chains/sui'
 import { csp as thorchain } from './chains/thorchain'
 import { csp as ton } from './chains/ton'
 import { csp as tron } from './chains/tron'
+import { csp as unichain } from './chains/unichain'
+import { csp as worldchain } from './chains/worldchain'
 import { csp as zcash } from './chains/zcash'
+import { csp as zksyncera } from './chains/zksyncera'
 import { csp as chatwoot } from './chatwoot'
 import { csp as customTokenImport } from './customTokenImport'
 import { csp as foxy } from './defi/foxy'
@@ -108,16 +126,31 @@ export const csps = [
   baseChain,
   bitcoin,
   bitcoincash,
+  blast,
   bnbsmartchain,
   cosmos,
   dogecoin,
   ethereum,
+  bob,
   gnosis,
+  hemi,
+  berachain,
   hyperevm,
+  ink,
+  cronos,
   katana,
+  linea,
+  unichain,
   litecoin,
+  mantle,
+  mode,
+  megaeth,
+  zksyncera,
   optimism,
+  plume,
   polygon,
+  scroll,
+  soneium,
   solana,
   starknet,
   sui,
@@ -129,6 +162,9 @@ export const csps = [
   monad,
   near,
   plasma,
+  story,
+  worldchain,
+  sonic,
   trustwallet,
   coincap,
   coingecko,

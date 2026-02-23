@@ -454,7 +454,7 @@ ${formatColors(lightColors, 'light')}
 
             <div className='demo-widget-container'>
               <SwapWidget
-                apiKey='test-api-key-123'
+                affiliateAddress='0x0000000000000000000000000000000000000001'
                 theme={themeConfig}
                 onSwapSuccess={handleSwapSuccess}
                 onSwapError={handleSwapError}

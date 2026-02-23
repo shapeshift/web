@@ -499,6 +499,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       ),
       approval: buildApprovalInfo(firstStep),
       expiresAt: now + 60_000,
+      affiliateAddress: req.affiliateInfo?.affiliateAddress,
     }
 
     res.json(response)

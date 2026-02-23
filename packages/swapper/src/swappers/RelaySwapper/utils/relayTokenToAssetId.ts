@@ -164,30 +164,48 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
       case CHAIN_REFERENCE.EtherealMainnet:
         return {
           assetReference: ASSET_REFERENCE.Ethereal,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       case CHAIN_REFERENCE.CeloMainnet:
         return {
           assetReference: ASSET_REFERENCE.Celo,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       case CHAIN_REFERENCE.FlowEvmMainnet:
         return {
           assetReference: ASSET_REFERENCE.FlowEvm,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       case CHAIN_REFERENCE.PlumeMainnet:
         return {
           assetReference: ASSET_REFERENCE.Plume,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       case CHAIN_REFERENCE.StoryMainnet:
         return {
           assetReference: ASSET_REFERENCE.Story,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       case CHAIN_REFERENCE.ZkSyncEraMainnet:
         return {
           assetReference: ASSET_REFERENCE.ZkSyncEra,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       case CHAIN_REFERENCE.BlastMainnet:
         return {
           assetReference: ASSET_REFERENCE.Blast,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       case CHAIN_REFERENCE.WorldChainMainnet:
         return {
           assetReference: ASSET_REFERENCE.WorldChain,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       case CHAIN_REFERENCE.HemiMainnet:
         return {
           assetReference: ASSET_REFERENCE.Hemi,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       case CHAIN_REFERENCE.LineaMainnet:
         return {
           assetReference: ASSET_REFERENCE.Linea,

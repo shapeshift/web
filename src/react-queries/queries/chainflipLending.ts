@@ -11,6 +11,7 @@ import {
   cfSafeModeStatuses,
   stateGetRuntimeVersion,
 } from '@/lib/chainflip/rpc'
+import type { ChainflipAsset } from '@/lib/chainflip/types'
 
 export const chainflipLending = createQueryKeys('chainflipLending', {
   lendingPools: () => ({
@@ -21,9 +22,9 @@ export const chainflipLending = createQueryKeys('chainflipLending', {
     queryKey: ['lendingConfig'],
     queryFn: () => cfLendingConfig(),
   }),
-  supplyBalances: (scAccountId: string) => ({
-    queryKey: ['supplyBalances', scAccountId],
-    queryFn: () => cfLendingPoolSupplyBalances(scAccountId),
+  supplyBalances: (asset: ChainflipAsset) => ({
+    queryKey: ['supplyBalances', asset],
+    queryFn: () => cfLendingPoolSupplyBalances(asset),
   }),
   freeBalances: (scAccountId: string) => ({
     queryKey: ['freeBalances', scAccountId],

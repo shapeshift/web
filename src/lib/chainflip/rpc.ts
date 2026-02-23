@@ -85,9 +85,9 @@ export const cfLoanAccounts = (accountId?: string): Promise<ChainflipLoanAccount
   chainflipRpc('cf_loan_accounts', accountId ? [accountId] : [])
 
 export const cfLendingPoolSupplyBalances = (
-  accountId?: string,
+  asset: ChainflipAsset,
 ): Promise<ChainflipSupplyBalancesResponse> =>
-  chainflipRpc('cf_lending_pool_supply_balances', accountId ? [accountId] : [])
+  chainflipRpc('cf_lending_pool_supply_balances', [asset])
 
 export const cfAccountInfoV2 = (accountId: string): Promise<ChainflipAccountInfo> =>
   chainflipRpc('cf_account_info_v2', [accountId])

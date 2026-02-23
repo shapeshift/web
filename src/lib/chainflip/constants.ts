@@ -46,14 +46,15 @@ export const LIQUIDITY_PROVIDER_CALL_INDEX = {
   RegisterLiquidityRefundAddress: 4,
 } as const
 
-export const CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET: Record<ChainflipAssetSymbol, AssetId> = {
-  BTC: btcAssetId,
-  ETH: ethAssetId,
-  SOL: solAssetId,
-  USDC: usdcAssetId,
-  USDT: usdtAssetId,
-  FLIP: flipAssetId,
-}
+export const CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET: Partial<Record<ChainflipAssetSymbol, AssetId>> =
+  {
+    BTC: btcAssetId,
+    ETH: ethAssetId,
+    SOL: solAssetId,
+    USDC: usdcAssetId,
+    USDT: usdtAssetId,
+    FLIP: flipAssetId,
+  }
 
 export const CHAINFLIP_LENDING_ASSET_BY_ASSET_ID: Partial<Record<AssetId, ChainflipAsset>> = {
   [btcAssetId]: { chain: 'Bitcoin', asset: 'BTC' },

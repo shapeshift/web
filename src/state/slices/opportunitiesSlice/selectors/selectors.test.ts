@@ -1,7 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, foxAssetId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { foxEthLpAssetId, foxEthPair, foxEthStakingAssetIdV5 } from '../constants'
 import {
@@ -31,15 +30,6 @@ import { DefiProvider, DefiType } from '@/state/slices/opportunitiesSlice/types'
 import { mockStore } from '@/test/mocks/store'
 
 describe('opportunitiesSlice selectors', () => {
-  beforeAll(() => {
-    BigAmount.configure({
-      resolvePrecision: () => 0,
-      resolvePrice: () => '0',
-      resolvePriceUsd: () => '0',
-    })
-  })
-  afterAll(() => BigAmount.resetConfig())
-
   const walletId = 'walletId'
   const wallet = {
     byId: {

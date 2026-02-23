@@ -12,7 +12,6 @@ import {
   Stack,
   Text as CText,
 } from '@chakra-ui/react'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -22,6 +21,7 @@ import { Text } from '@/components/Text'
 import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { chainIdToChainDisplayName } from '@/lib/utils'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { selectLastHop } from '@/state/slices/tradeQuoteSlice/selectors'
@@ -59,19 +59,11 @@ export const RateChangedModal = ({ prevAmountCryptoBaseUnit }: RateChangedModalP
   )
 
   const prevAmountCryptoPrecision = useMemo(
-    () =>
-      BigAmount.fromBaseUnit({
-        value: prevAmountCryptoBaseUnit,
-        precision: buyAsset.precision,
-      }).toPrecision(),
+    () => fromBaseUnit(prevAmountCryptoBaseUnit, buyAsset.precision),
     [buyAsset.precision, prevAmountCryptoBaseUnit],
   )
   const amountCryptoPrecision = useMemo(
-    () =>
-      BigAmount.fromBaseUnit({
-        value: lastHop.buyAmountAfterFeesCryptoBaseUnit,
-        precision: buyAsset.precision,
-      }).toPrecision(),
+    () => fromBaseUnit(lastHop.buyAmountAfterFeesCryptoBaseUnit, buyAsset.precision),
     [buyAsset.precision, lastHop.buyAmountAfterFeesCryptoBaseUnit],
   )
 

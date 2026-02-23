@@ -54,7 +54,7 @@ Wired in `src/state/store.ts` after store creation. Enables `BigAmount.fromBaseU
 | `.toNumber()` | `number` | JS number (precision loss for large values!) |
 | `.toBN()` | `BigNumber` | Precision-scale BigNumber for BN interop |
 | `.toString()` | `string` | Same as `.toPrecision()` |
-| `.toJSON()` | `object` | `{ value, precision, assetId? }` for serialization |
+| `.toJSON()` | `object` | `{ value, precision }` for serialization |
 
 ---
 

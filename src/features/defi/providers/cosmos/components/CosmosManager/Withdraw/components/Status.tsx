@@ -101,7 +101,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
           opportunity: opportunityMetadata,
           fiatAmounts: [fiatAmount],
           cryptoAmounts: [
-            { assetId: underlyingAssetId, amountCryptoPrecision: state.withdraw.cryptoAmount },
+            { assetId: underlyingAssetId, amountCryptoHuman: state.withdraw.cryptoAmount },
           ],
         },
         assets,

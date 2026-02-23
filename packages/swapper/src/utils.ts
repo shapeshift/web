@@ -13,7 +13,7 @@ import type { TronSignTx } from '@shapeshiftoss/chain-adapters/src/tron/types'
 import type { SolanaSignTx, StarknetSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Asset, EvmChainId } from '@shapeshiftoss/types'
 import { evm, TxStatus } from '@shapeshiftoss/unchained-client'
-import { BigAmount, bn } from '@shapeshiftoss/utils'
+import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
@@ -334,14 +334,8 @@ export const getInputOutputRate = ({
   sellAsset: Asset
   buyAsset: Asset
 }): string => {
-  const sellAmountCryptoHuman = BigAmount.fromBaseUnit({
-    value: sellAmountCryptoBaseUnit,
-    precision: sellAsset.precision,
-  }).toPrecision()
-  const buyAmountCryptoHuman = BigAmount.fromBaseUnit({
-    value: buyAmountCryptoBaseUnit,
-    precision: buyAsset.precision,
-  }).toPrecision()
+  const sellAmountCryptoHuman = fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision)
+  const buyAmountCryptoHuman = fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset.precision)
   return bn(buyAmountCryptoHuman).div(sellAmountCryptoHuman).toFixed()
 }
 

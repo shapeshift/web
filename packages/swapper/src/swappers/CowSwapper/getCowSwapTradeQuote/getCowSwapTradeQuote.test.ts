@@ -433,7 +433,7 @@ describe('getCowSwapTradeQuote', () => {
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteWethToFox)
     expect(cowService.post).toHaveBeenCalledWith(
-      'https://api.cow.fi/mainnet/api/v1/quote',
+      'https://api.cow.fi/mainnet/api/v1/quote/',
       expectedApiInputWethToFox,
     )
   })
@@ -477,7 +477,7 @@ describe('getCowSwapTradeQuote', () => {
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteFoxToEth)
     expect(cowService.post).toHaveBeenCalledWith(
-      'https://api.cow.fi/mainnet/api/v1/quote',
+      'https://api.cow.fi/mainnet/api/v1/quote/',
       expectedApiInputFoxToEth,
     )
   })
@@ -521,7 +521,7 @@ describe('getCowSwapTradeQuote', () => {
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteUsdcToXdai)
     expect(cowService.post).toHaveBeenCalledWith(
-      'https://api.cow.fi/xdai/api/v1/quote',
+      'https://api.cow.fi/xdai/api/v1/quote/',
       expectedApiInputUsdcGnosisToXdai,
     )
   })
@@ -565,7 +565,7 @@ describe('getCowSwapTradeQuote', () => {
     expect(maybeTradeQuote.isOk()).toBe(true)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteUsdcToEthArbitrum)
     expect(cowService.post).toHaveBeenCalledWith(
-      'https://api.cow.fi/arbitrum_one/api/v1/quote',
+      'https://api.cow.fi/arbitrum_one/api/v1/quote/',
       expectedApiInputUsdcToEthArbitrum,
     )
   })
@@ -609,7 +609,7 @@ describe('getCowSwapTradeQuote', () => {
     expect(maybeTradeQuote.isErr()).toBe(false)
     expect(maybeTradeQuote.unwrap()).toEqual(expectedTradeQuoteSmallAmountWethToFox)
     expect(cowService.post).toHaveBeenCalledWith(
-      'https://api.cow.fi/mainnet/api/v1/quote',
+      'https://api.cow.fi/mainnet/api/v1/quote/',
       expectedApiInputSmallAmountWethToFox,
     )
   })

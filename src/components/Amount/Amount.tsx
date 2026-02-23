@@ -1,6 +1,5 @@
 import type { TextProps } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/react'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
 
 import { RawText } from '@/components/Text'
@@ -9,7 +8,7 @@ import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatte
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 export type AmountProps = {
-  value: number | string | BigAmount | undefined
+  value: number | string | undefined
   prefix?: string
   suffix?: string
   omitDecimalTrailingZeros?: boolean
@@ -33,19 +32,17 @@ export function Amount({
     number: { toString },
   } = useLocaleFormatter()
 
-  const resolvedValue = BigAmount.isBigAmount(value) ? value.toPrecision() : value
-
   return (
     <RawText {...props}>
       {prefix && `${prefix}${noSpace ? '' : ' '}`}
-      {toString(resolvedValue, { maximumFractionDigits, omitDecimalTrailingZeros, abbreviated })}
+      {toString(value, { maximumFractionDigits, omitDecimalTrailingZeros, abbreviated })}
       {suffix && `${noSpace ? '' : ' '}${suffix}`}
     </RawText>
   )
 }
 
 type CryptoAmountProps = {
-  value: string | BigAmount | undefined
+  value: string | undefined
   symbol: string
   maximumFractionDigits?: number
 } & AmountProps
@@ -75,8 +72,7 @@ const Crypto = ({
     number: { toCrypto },
   } = useLocaleFormatter()
 
-  const resolvedValue = BigAmount.isBigAmount(value) ? value.toPrecision() : value
-  const crypto = toCrypto(bnOrZero(resolvedValue), symbol, {
+  const crypto = toCrypto(bnOrZero(value), symbol, {
     maximumFractionDigits,
     omitDecimalTrailingZeros,
     abbreviated,
@@ -107,8 +103,7 @@ const Fiat = ({
     number: { toFiat },
   } = useLocaleFormatter({ fiatType })
 
-  const resolvedValue = BigAmount.isBigAmount(value) ? value.toPrecision() : value
-  const fiat = toFiat(bnOrZero(resolvedValue).toFixed(), {
+  const fiat = toFiat(bnOrZero(value).toFixed(), {
     fiatType,
     omitDecimalTrailingZeros,
     abbreviated,
@@ -128,8 +123,7 @@ const Percent = ({ value, autoColor, options, prefix, suffix, ...props }: Percen
   const {
     number: { toPercent },
   } = useLocaleFormatter()
-  const resolvedValue = BigAmount.isBigAmount(value) ? value.toPrecision() : value
-  const formattedNumber = toPercent(bnOrZero(resolvedValue).toFixed(), options)
+  const formattedNumber = toPercent(bnOrZero(value).toFixed(), options)
   const red = useColorModeValue('red.800', 'red.500')
   const green = useColorModeValue('green.500', 'green.200')
   const color = useMemo(() => {

@@ -1,7 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -19,7 +18,7 @@ import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyMana
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { usePoll } from '@/hooks/usePoll/usePoll'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { isSome } from '@/lib/utils'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import { DefiProvider } from '@/state/slices/opportunitiesSlice/types'
@@ -46,10 +45,9 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
 
   const estimatedGasCryptoPrecision = useMemo(
     () =>
-      BigAmount.fromBaseUnit({
-        value: estimatedGasCryptoBaseUnit ?? '0',
-        precision: feeAsset?.precision ?? 0,
-      }).toPrecision(),
+      bnOrZero(estimatedGasCryptoBaseUnit)
+        .div(bn(10).pow(feeAsset?.precision ?? 0))
+        .toFixed(),
     [estimatedGasCryptoBaseUnit, feeAsset?.precision],
   )
 
@@ -70,12 +68,9 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         const feeDataEstimate = await foxyApi.estimateDepositFees({
           tokenContractAddress: assetReference,
           contractAddress,
-          amountDesired: bnOrZero(
-            BigAmount.fromPrecision({
-              value: deposit.cryptoAmount ?? '0',
-              precision: asset.precision,
-            }).toBaseUnit(),
-          ),
+          amountDesired: bnOrZero(deposit.cryptoAmount)
+            .times(bn(10).pow(asset.precision))
+            .decimalPlaces(0),
           userAddress: accountAddress,
         })
 
@@ -120,10 +115,11 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         contractAddress,
         userAddress: accountAddress,
         wallet: walletState.wallet,
-        amount: BigAmount.fromPrecision({
-          value: state?.deposit.cryptoAmount ?? '0',
-          precision: asset.precision,
-        }).toBaseUnit(),
+        amount: bn(
+          bnOrZero(state?.deposit.cryptoAmount)
+            .times(bn(10).pow(asset.precision))
+            .integerValue(),
+        ).toFixed(),
         bip44Params,
       })
       await poll({
@@ -134,12 +130,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
             userAddress: accountAddress,
           }),
         validate: (result: string) => {
-          const allowance = bnOrZero(
-            BigAmount.fromBaseUnit({
-              value: result ?? '0',
-              precision: asset.precision,
-            }).toPrecision(),
-          )
+          const allowance = bnOrZero(result).div(bn(10).pow(asset.precision))
           return bnOrZero(allowance).gte(state?.deposit.cryptoAmount)
         },
         interval: 15000,
@@ -225,19 +216,12 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
       asset={asset}
       spenderName={DefiProvider.ShapeShift}
       feeAsset={feeAsset}
-      estimatedGasFeeCryptoPrecision={bnOrZero(
-        BigAmount.fromBaseUnit({
-          value: estimatedGasCryptoBaseUnit ?? '0',
-          precision: feeAsset.precision,
-        }).toPrecision(),
-      ).toFixed(5)}
+      estimatedGasFeeCryptoPrecision={bnOrZero(estimatedGasCryptoBaseUnit)
+        .div(bn(10).pow(feeAsset.precision))
+        .toFixed(5)}
       disabled={!hasEnoughBalanceForGas}
-      fiatEstimatedGasFee={bnOrZero(
-        BigAmount.fromBaseUnit({
-          value: estimatedGasCryptoBaseUnit ?? '0',
-          precision: feeAsset.precision,
-        }).toPrecision(),
-      )
+      fiatEstimatedGasFee={bnOrZero(estimatedGasCryptoBaseUnit)
+        .div(bn(10).pow(feeAsset.precision))
         .times(bnOrZero(feeMarketData?.price))
         .toFixed(2)}
       loading={state.loading}

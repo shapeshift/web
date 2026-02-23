@@ -1,15 +1,16 @@
 import { Box, HStack, Radio, Text, VStack } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { fromBaseUnit } from '@/lib/math'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { ProfileAvatar } from '@/pages/Dashboard/components/ProfileAvatar/ProfileAvatar'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
-import { selectPortfolioAccountMetadata } from '@/state/slices/selectors'
+import { selectAssetById, selectPortfolioAccountMetadata } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const radioSx = {
@@ -21,7 +22,8 @@ const radioSx = {
 
 type AccountSelectorOptionProps = {
   accountId: AccountId
-  cryptoBalancePrecision: string
+  assetId: AssetId
+  cryptoBalance: string
   fiatBalance: string
   symbol: string
   isSelected: boolean
@@ -32,7 +34,8 @@ type AccountSelectorOptionProps = {
 export const AccountSelectorOption = memo(
   ({
     accountId,
-    cryptoBalancePrecision,
+    assetId,
+    cryptoBalance,
     fiatBalance,
     symbol,
     isSelected,
@@ -46,11 +49,17 @@ export const AccountSelectorOption = memo(
       onOptionClick(accountId)
     }, [accountId, disabled, onOptionClick])
 
+    const asset = useAppSelector(state => selectAssetById(state, assetId))
     const accountMetadata = useAppSelector(selectPortfolioAccountMetadata)
 
     const accountNumber = useMemo(
       () => accountMetadata[accountId]?.bip44Params?.accountNumber,
       [accountMetadata, accountId],
+    )
+
+    const balanceCryptoPrecision = useMemo(
+      () => fromBaseUnit(cryptoBalance, asset?.precision ?? 0),
+      [cryptoBalance, asset?.precision],
     )
 
     return (
@@ -82,7 +91,7 @@ export const AccountSelectorOption = memo(
           <VStack align='end' spacing={0} minW='120px'>
             <Amount.Fiat value={fiatBalance} fontSize='md' fontWeight='bold' color='text.primary' />
             <Amount.Crypto
-              value={cryptoBalancePrecision}
+              value={balanceCryptoPrecision}
               symbol={symbol}
               fontSize='sm'
               color='text.subtle'

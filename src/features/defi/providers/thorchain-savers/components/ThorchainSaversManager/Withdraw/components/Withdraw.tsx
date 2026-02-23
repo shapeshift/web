@@ -2,7 +2,7 @@ import { Alert, AlertIcon, Skeleton } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigAmount, convertPercentageToBasisPoints } from '@shapeshiftoss/utils'
+import { convertPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { useQueryClient } from '@tanstack/react-query'
@@ -30,6 +30,7 @@ import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommo
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { fetchHasEnoughBalanceForTxPlusFeesPlusSweep } from '@/lib/utils/thorchain/balance'
@@ -51,7 +52,7 @@ import {
   selectFeeAssetById,
   selectHighestStakingBalanceAccountIdByStakingId,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -121,13 +122,9 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
   // user info
   const amountAvailableCryptoPrecision = useMemo(() => {
-    const totalBaseUnit = bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
+    return bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit)
       .plus(bnOrZero(opportunityData?.rewardsCryptoBaseUnit?.amounts[0])) // Savers rewards are denominated in a single asset
-      .toFixed(0)
-    return BigAmount.fromBaseUnit({
-      value: totalBaseUnit,
-      precision: asset.precision,
-    })
+      .div(bn(10).pow(asset.precision))
   }, [
     asset.precision,
     opportunityData?.rewardsCryptoBaseUnit,
@@ -136,8 +133,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
   const balanceFilter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
   const balanceCryptoBaseUnit = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
-  ).toBaseUnit()
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter),
+  )
 
   const assetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, assetId),
@@ -151,7 +148,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   }, [assetMarketData?.price, feeAssetMarketData?.price])
 
   const fiatAmountAvailable = useMemo(
-    () => amountAvailableCryptoPrecision.times(assetMarketData?.price),
+    () => bnOrZero(amountAvailableCryptoPrecision).times(bnOrZero(assetMarketData?.price)),
     [amountAvailableCryptoPrecision, assetMarketData?.price],
   )
 
@@ -176,34 +173,21 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       if (balanceCryptoBaseUnitBn.isZero()) return false
 
       return bnOrZero(amountCryptoPrecision)
-        .plus(
-          BigAmount.fromBaseUnit({
-            value: txFeeCryptoBaseUnit,
-            precision: precision ?? 0,
-          }).toPrecision(),
-        )
-        .lte(
-          BigAmount.fromBaseUnit({
-            value: balanceCryptoBaseUnitBn,
-            precision: precision ?? 0,
-          }).toPrecision(),
-        )
+        .plus(fromBaseUnit(txFeeCryptoBaseUnit, precision ?? 0))
+        .lte(fromBaseUnit(balanceCryptoBaseUnitBn, precision))
     },
     [],
   )
 
   const hasEnoughStakingBalance = useMemo(
-    () => amountAvailableCryptoPrecision.gte(cryptoAmount),
+    () => bnOrZero(cryptoAmount).lte(amountAvailableCryptoPrecision),
     [amountAvailableCryptoPrecision, cryptoAmount],
   )
   const { data: thorchainSaversWithdrawQuote, isLoading: isThorchainSaversWithdrawQuoteLoading } =
     useGetThorchainSaversWithdrawQuoteQuery({
       asset,
       accountId,
-      amountCryptoBaseUnit: BigAmount.fromPrecision({
-        value: cryptoAmount,
-        precision: asset.precision,
-      }).toBaseUnit(),
+      amountCryptoBaseUnit: toBaseUnit(cryptoAmount, asset.precision),
       enabled: hasEnoughStakingBalance && !isRunePool,
     })
 
@@ -212,10 +196,8 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     if (!hasEnoughStakingBalance) return null
 
     if (isRunePool) {
-      const percent = bnOrZero(cryptoAmount)
-        .div(amountAvailableCryptoPrecision.toPrecision())
-        .times(100)
-        .toFixed(0)
+      const balanceCryptoPrecision = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
+      const percent = bnOrZero(cryptoAmount).div(balanceCryptoPrecision).times(100).toFixed(0)
       const basisPoints = convertPercentageToBasisPoints(percent)
 
       return `pool-:${basisPoints}`
@@ -257,10 +239,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
           getHasEnoughBalanceForTxPlusFees({
             precision: asset.precision,
             balanceCryptoBaseUnit,
-            amountCryptoPrecision: BigAmount.fromBaseUnit({
-              value: dustAmountCryptoBaseUnit,
-              precision: feeAsset.precision,
-            }).toPrecision(),
+            amountCryptoPrecision: fromBaseUnit(dustAmountCryptoBaseUnit, feeAsset.precision),
             txFeeCryptoBaseUnit: estimatedFeesData.txFeeCryptoBaseUnit,
           }),
       ),
@@ -304,7 +283,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
           {
             opportunity: opportunityData,
             fiatAmounts: [formValues.fiatAmount],
-            cryptoAmounts: [{ assetId, amountCryptoPrecision: formValues.cryptoAmount }],
+            cryptoAmounts: [{ assetId, amountCryptoHuman: formValues.cryptoAmount }],
           },
           assets,
         )
@@ -338,10 +317,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
   const handlePercentClick = useCallback(
     (percent: number) => {
-      const cryptoAmount = amountAvailableCryptoPrecision.times(percent)
-      const fiatAmount = cryptoAmount.times(assetMarketData?.price)
+      const cryptoAmount = bnOrZero(amountAvailableCryptoPrecision).times(percent)
+      const fiatAmount = bnOrZero(cryptoAmount).times(bnOrZero(assetMarketData?.price))
 
-      setValue(Field.FiatAmount, fiatAmount.toPrecision(), { shouldValidate: true })
+      setValue(Field.FiatAmount, fiatAmount.toString(), { shouldValidate: true })
       setValue(Field.CryptoAmount, cryptoAmount.toFixed(asset.precision), { shouldValidate: true })
     },
     [amountAvailableCryptoPrecision, asset.precision, assetMarketData?.price, setValue],
@@ -352,18 +331,12 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
     if (!feeAsset) return bn(0)
     if (!outboundFeeCryptoBaseUnit) return bn(0)
 
-    const outboundFeeCryptoPrecision = BigAmount.fromBaseUnit({
-      value: outboundFeeCryptoBaseUnit,
-      precision: feeAsset.precision,
-    }).toPrecision()
+    const outboundFeeCryptoPrecision = fromBaseUnit(outboundFeeCryptoBaseUnit, feeAsset.precision)
     const outboundFeeInAssetCryptoPrecision = bn(outboundFeeCryptoPrecision).div(
       assetPriceInFeeAsset,
     )
 
-    return BigAmount.fromPrecision({
-      value: outboundFeeInAssetCryptoPrecision,
-      precision: asset.precision,
-    }).toBaseUnit()
+    return toBaseUnit(outboundFeeInAssetCryptoPrecision, asset.precision)
   }, [outboundFeeCryptoBaseUnit, assetPriceInFeeAsset, asset, feeAsset])
 
   // https://gitlab.com/thorchain/thornode/-/blob/develop/x/thorchain/querier_quotes.go#L467
@@ -380,16 +353,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
 
       try {
         const withdrawAmountCryptoPrecision = bnOrZero(value)
-        const withdrawAmountCryptoBaseUnit = BigAmount.fromPrecision({
-          value,
-          precision: asset.precision,
-        }).toBaseUnit()
-        const amountCryptoBaseUnit = BigAmount.fromPrecision({
-          value: withdrawAmountCryptoPrecision,
-          precision: asset.precision,
-        }).toBaseUnit()
+        const withdrawAmountCryptoBaseUnit = toBaseUnit(value, asset.precision)
+        const amountCryptoBaseUnit = toBaseUnit(withdrawAmountCryptoPrecision, asset.precision)
 
-        if (amountAvailableCryptoPrecision.lt(withdrawAmountCryptoPrecision))
+        if (withdrawAmountCryptoPrecision.gt(amountAvailableCryptoPrecision))
           return 'common.insufficientFunds'
 
         setMissingFunds(null)
@@ -428,13 +395,15 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
           .div(100)
         setSlippageCryptoAmountPrecision(cryptoSlippageAmountPrecision.toString())
 
+        const balanceCryptoPrecision = bnOrZero(amountAvailableCryptoPrecision.toPrecision())
+
         const hasValidBalance = await (async () => {
           // Only check for sweep + fees at this stage for UTXOs because of reconciliation - this is *not* required for EVM chains
           if (!isUtxoChainId(chainId)) {
             return (
-              amountAvailableCryptoPrecision.gt(0) &&
+              balanceCryptoPrecision.gt(0) &&
               withdrawAmountCryptoPrecision.gt(0) &&
-              amountAvailableCryptoPrecision.gte(withdrawAmountCryptoPrecision)
+              balanceCryptoPrecision.gte(withdrawAmountCryptoPrecision)
             )
           }
 
@@ -447,10 +416,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
               fromAddress,
             })
 
-          if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds)
+          if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds.toFixed())
 
           return (
-            amountAvailableCryptoPrecision.gt(0) &&
+            balanceCryptoPrecision.gt(0) &&
             withdrawAmountCryptoPrecision.gt(0) &&
             hasEnoughBalanceForTxPlusFeesPlusSweep
           )
@@ -461,10 +430,10 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
           .lt(0)
 
         if (isBelowWithdrawThreshold) {
-          const minLimitCryptoPrecision = BigAmount.fromBaseUnit({
-            value: safeOutboundFeeInAssetCryptoBaseUnit,
-            precision: asset.precision,
-          }).toPrecision()
+          const minLimitCryptoPrecision = fromBaseUnit(
+            safeOutboundFeeInAssetCryptoBaseUnit,
+            asset.precision,
+          )
           const minLimit = `${minLimitCryptoPrecision} ${asset.symbol}`
           return translate('trade.errors.amountTooSmall', {
             minLimit,
@@ -529,7 +498,13 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       setQuoteLoading(true)
       const withdrawAmountCryptoPrecision = bnOrZero(value).div(bnOrZero(assetMarketData?.price))
       try {
-        const amountAvailableFiat = amountAvailableCryptoPrecision.times(assetMarketData?.price)
+        const amountAvailableCryptoPrecisionBn = bnOrZero(
+          amountAvailableCryptoPrecision.toPrecision(),
+        )
+
+        const amountAvailableFiat = amountAvailableCryptoPrecisionBn.times(
+          bnOrZero(assetMarketData?.price),
+        )
         const valueCryptoPrecision = bnOrZero(value)
 
         const hasValidStakingBalance =
@@ -548,7 +523,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
               fromAddress,
             })
 
-          if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds)
+          if (bnOrZero(missingFunds).gt(0)) setMissingFunds(missingFunds.toFixed())
 
           return (
             amountAvailableFiat.gt(0) &&
@@ -620,7 +595,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
         asset={asset}
         cryptoAmountAvailable={amountAvailableCryptoPrecision.toPrecision()}
         cryptoInputValidation={cryptoInputValidation}
-        fiatAmountAvailable={fiatAmountAvailable.toPrecision()}
+        fiatAmountAvailable={fiatAmountAvailable.toString()}
         fiatInputValidation={fiatInputValidation}
         marketData={
           assetMarketData ?? {

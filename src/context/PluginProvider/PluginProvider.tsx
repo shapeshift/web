@@ -122,23 +122,8 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.HyperEvm && chainId === KnownChainIds.HyperEvmMainnet) return false
       if (!featureFlags.Katana && chainId === KnownChainIds.KatanaMainnet) return false
       if (!featureFlags.FlowEvm && chainId === KnownChainIds.FlowEvmMainnet) return false
-      if (!featureFlags.Story && chainId === KnownChainIds.StoryMainnet) return false
-      if (!featureFlags.WorldChain && chainId === KnownChainIds.WorldChainMainnet) return false
-      if (!featureFlags.Sonic && chainId === KnownChainIds.SonicMainnet) return false
-      if (!featureFlags.Unichain && chainId === KnownChainIds.UnichainMainnet) return false
-      if (!featureFlags.Bob && chainId === KnownChainIds.BobMainnet) return false
-      if (!featureFlags.Mode && chainId === KnownChainIds.ModeMainnet) return false
       if (!featureFlags.Plasma && chainId === KnownChainIds.PlasmaMainnet) return false
-      if (!featureFlags.Ink && chainId === KnownChainIds.InkMainnet) return false
       if (!featureFlags.MegaEth && chainId === KnownChainIds.MegaEthMainnet) return false
-      if (!featureFlags.Plume && chainId === KnownChainIds.PlumeMainnet) return false
-      if (!featureFlags.ZkSyncEra && chainId === KnownChainIds.ZkSyncEraMainnet) return false
-      if (!featureFlags.Blast && chainId === KnownChainIds.BlastMainnet) return false
-      if (!featureFlags.Hemi && chainId === KnownChainIds.HemiMainnet) return false
-      if (!featureFlags.Linea && chainId === KnownChainIds.LineaMainnet) return false
-      if (!featureFlags.Scroll && chainId === KnownChainIds.ScrollMainnet) return false
-      if (!featureFlags.Berachain && chainId === KnownChainIds.BerachainMainnet) return false
-      if (!featureFlags.Soneium && chainId === KnownChainIds.SoneiumMainnet) return false
       if (!featureFlags.BnbSmartChain && chainId === KnownChainIds.BnbSmartChainMainnet)
         return false
       if (!featureFlags.Tron && chainId === KnownChainIds.TronMainnet) return false

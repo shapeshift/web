@@ -5,7 +5,7 @@ import { CONTRACT_INTERACTION, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { assertAndProcessMemo, depositWithExpiry, SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { BigAmount, isToken } from '@shapeshiftoss/utils'
+import { isToken } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useCallback, useMemo, useState } from 'react'
@@ -18,6 +18,7 @@ import type { EstimateFeesInput } from '@/components/Modals/Send/utils'
 import { estimateFees, handleSend } from '@/components/Modals/Send/utils'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { assertUnreachable } from '@/lib/utils'
 import { assertGetThorchainChainAdapter } from '@/lib/utils/cosmosSdk'
 import {
@@ -149,10 +150,7 @@ export const useSendThorTx = ({
   const outboundFeeCryptoBaseUnit = useMemo(() => {
     if (assetId === thorchainAssetId) return THORCHAIN_OUTBOUND_FEE_CRYPTO_BASE_UNIT
     if (!feeAsset || !inboundAddressData) return
-    return BigAmount.fromPrecision({
-      value: fromThorBaseUnit(inboundAddressData.outbound_fee),
-      precision: feeAsset.precision,
-    }).toBaseUnit()
+    return toBaseUnit(fromThorBaseUnit(inboundAddressData.outbound_fee), feeAsset.precision)
   }, [assetId, feeAsset, inboundAddressData])
 
   const depositWithExpiryInputData = useMemo(() => {
@@ -198,10 +196,7 @@ export const useSendThorTx = ({
     switch (transactionType) {
       case 'MsgDeposit': {
         return {
-          amountCryptoPrecision: BigAmount.fromBaseUnit({
-            value: amountOrDustCryptoBaseUnit,
-            precision: asset.precision,
-          }).toPrecision(),
+          amountCryptoPrecision: fromBaseUnit(amountOrDustCryptoBaseUnit, asset.precision),
           assetId: asset.assetId,
           feeAssetId: feeAsset.assetId,
           memo,
@@ -218,10 +213,7 @@ export const useSendThorTx = ({
         return {
           amountCryptoPrecision:
             !isToken(assetId) || shouldUseDustAmount
-              ? BigAmount.fromBaseUnit({
-                  value: amountOrDustCryptoBaseUnit,
-                  precision: feeAsset.precision,
-                }).toPrecision()
+              ? fromBaseUnit(amountOrDustCryptoBaseUnit, feeAsset.precision)
               : '0',
           assetId: shouldUseDustAmount ? feeAsset.assetId : asset.assetId,
           feeAssetId: feeAsset.assetId,
@@ -239,10 +231,7 @@ export const useSendThorTx = ({
         if (!inboundAddressData?.address) return
 
         return {
-          amountCryptoPrecision: BigAmount.fromBaseUnit({
-            value: amountOrDustCryptoBaseUnit,
-            precision: asset.precision,
-          }).toPrecision(),
+          amountCryptoPrecision: fromBaseUnit(amountOrDustCryptoBaseUnit, asset.precision),
           assetId,
           feeAssetId: feeAsset.assetId,
           to: inboundAddressData.address,
@@ -382,10 +371,7 @@ export const useSendThorTx = ({
           const estimatedFees = await estimateFees(estimateFeesArgs)
 
           const sendInput: SendInput = {
-            amountCryptoPrecision: BigAmount.fromBaseUnit({
-              value: amountOrDustCryptoBaseUnit,
-              precision: asset.precision,
-            }).toPrecision(),
+            amountCryptoPrecision: fromBaseUnit(amountOrDustCryptoBaseUnit, asset.precision),
             assetId: asset.assetId,
             to: inboundAddressData?.address,
             from: fromAddress,

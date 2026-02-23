@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { BigAmount, getChainShortName } from '@shapeshiftoss/utils'
+import { getChainShortName } from '@shapeshiftoss/utils'
 import { noop } from 'lodash'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -22,6 +22,7 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { useArbitrumClaimTx } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimTx'
 import { Row } from '@/components/Row/Row'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { middleEllipsis } from '@/lib/utils'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
@@ -30,7 +31,7 @@ import {
   selectAssetById,
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -84,15 +85,11 @@ export const ArbitrumBridgeClaimModal = ({
   )
 
   const destinationFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, destinationFeeAssetBalanceFilter),
-  ).toPrecision()
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, destinationFeeAssetBalanceFilter),
+  )
 
   const amountCryptoPrecision = useMemo(
-    () =>
-      BigAmount.fromBaseUnit({
-        value: action.arbitrumBridgeMetadata.amountCryptoBaseUnit,
-        precision: asset?.precision ?? 0,
-      }).toPrecision(),
+    () => fromBaseUnit(action.arbitrumBridgeMetadata.amountCryptoBaseUnit, asset?.precision ?? 0),
     [action.arbitrumBridgeMetadata.amountCryptoBaseUnit, asset],
   )
 
@@ -142,10 +139,7 @@ export const ArbitrumBridgeClaimModal = ({
     if (!evmFeesResult?.data?.networkFeeCryptoBaseUnit) return true
 
     return bnOrZero(evmFeesResult.data.networkFeeCryptoBaseUnit).lte(
-      BigAmount.fromPrecision({
-        value: destinationFeeAssetBalanceCryptoPrecision,
-        precision: destinationFeeAsset.precision,
-      }).toBaseUnit(),
+      toBaseUnit(destinationFeeAssetBalanceCryptoPrecision, destinationFeeAsset.precision),
     )
   }, [destinationFeeAsset, destinationFeeAssetBalanceCryptoPrecision, evmFeesResult?.data])
 

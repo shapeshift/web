@@ -46,7 +46,7 @@ import {
   selectAssetById,
   selectAssets,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -115,11 +115,14 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
     [accountId, feeAsset?.assetId],
   )
   const feeAssetBalance = useAppSelector(s =>
-    selectPortfolioCryptoBalanceByFilter(s, feeAssetBalanceFilter),
+    selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const hasEnoughBalanceForGas = useMemo(
-    () => feeAssetBalance.minus(state?.deposit.estimatedGasCryptoPrecision).gte(0),
+    () =>
+      bnOrZero(feeAssetBalance)
+        .minus(bnOrZero(state?.deposit.estimatedGasCryptoPrecision))
+        .gte(0),
     [feeAssetBalance, state?.deposit.estimatedGasCryptoPrecision],
   )
 
@@ -192,7 +195,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
           cryptoAmounts: [
             {
               assetId: asset.assetId,
-              amountCryptoPrecision: state.deposit.cryptoAmount,
+              amountCryptoHuman: state.deposit.cryptoAmount,
             },
           ],
         },

@@ -1,6 +1,5 @@
 import type { ToAssetIdArgs } from '@shapeshiftoss/caip'
 import { ethChainId, foxyAssetId, fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 
 import type {
@@ -18,11 +17,11 @@ import type {
   OpportunitiesUserDataResolverInput,
 } from '../types'
 
-import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { foxyApi } from '@/state/apis/foxy/foxyApi'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
-import { selectPortfolioCryptoBalanceByFilter } from '@/state/slices/common-selectors'
+import { selectPortfolioCryptoBalanceBaseUnitByFilter } from '@/state/slices/common-selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { selectBip44ParamsByAccountId } from '@/state/slices/portfolioSlice/selectors'
 
@@ -66,12 +65,10 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
 
     if (!underlyingAsset) continue
 
-    const tvl = BigAmount.fromBaseUnit({
-      value: opportunity.tvl?.toString() ?? '0',
-      precision: underlyingAsset?.precision ?? 0,
-    })
-      .times(marketData?.price ?? '0')
-      .toPrecision()
+    const tvl = bnOrZero(opportunity.tvl)
+      .div(`1e+${underlyingAsset?.precision}`)
+      .times(bnOrZero(marketData?.price))
+      .toString()
 
     const apy = foxyApr.data?.foxyApr ?? '0'
 
@@ -85,7 +82,7 @@ export const foxyStakingOpportunitiesMetadataResolver = async ({
       underlyingAssetId: rewardTokenAssetId,
       underlyingAssetIds: [tokenAssetId],
       underlyingAssetRatiosBaseUnit: [
-        BigAmount.fromPrecision({ value: '1', precision: underlyingAsset.precision }).toBaseUnit(),
+        bn(1).times(bn(10).pow(underlyingAsset.precision)).toString(),
       ],
       name: underlyingAsset.symbol,
       rewardAssetIds: [],
@@ -116,7 +113,7 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
 
   for (const stakingOpportunityId of opportunityIds) {
     const balanceFilter = { accountId, assetId: foxyAssetId }
-    const balance = selectPortfolioCryptoBalanceByFilter(state, balanceFilter)
+    const balance = selectPortfolioCryptoBalanceBaseUnitByFilter(state, balanceFilter)
 
     const asset = selectAssetById(state, foxyAssetId)
     if (!asset) continue
@@ -160,7 +157,7 @@ export const foxyStakingOpportunitiesUserDataResolver = async ({
     stakingOpportunitiesUserDataByUserStakingId[userStakingId] = {
       isLoaded: true,
       userStakingId,
-      stakedAmountCryptoBaseUnit: balance.toBaseUnit(),
+      stakedAmountCryptoBaseUnit: balance,
       rewardsCryptoBaseUnit: { amounts: rewardsAmountsCryptoBaseUnit, claimable: true },
       undelegations,
     }

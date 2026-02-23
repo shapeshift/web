@@ -22,9 +22,9 @@ import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
+  selectCryptoHumanBalanceFilter,
   selectPortfolioAllocationPercentByFilter,
-  selectPortfolioCryptoBalanceByFilter,
-  selectPortfolioUserCurrencyBalanceByFilter,
+  selectUserCurrencyBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
@@ -75,12 +75,8 @@ export const AssetAccountRow = (props: AssetAccountRowProps) => {
 
   const filter = useMemo(() => ({ assetId: rowAssetId ?? '', accountId }), [rowAssetId, accountId])
 
-  const userCurrencyBalance = useAppSelector(s =>
-    selectPortfolioUserCurrencyBalanceByFilter(s, filter),
-  )
-  const cryptoPrecisionBalance = useAppSelector(s =>
-    selectPortfolioCryptoBalanceByFilter(s, filter),
-  ).toPrecision()
+  const userCurrencyBalance = useAppSelector(s => selectUserCurrencyBalanceByFilter(s, filter))
+  const cryptoHumanBalance = useAppSelector(s => selectCryptoHumanBalanceFilter(s, filter))
   const allocation =
     useAppSelector(state =>
       selectPortfolioAllocationPercentByFilter(state, { accountId, assetId: rowAssetId }),
@@ -171,7 +167,7 @@ export const AssetAccountRow = (props: AssetAccountRowProps) => {
           textAlign='right'
           display={flexDisplayMdFlex}
         >
-          <Amount.Crypto value={cryptoPrecisionBalance} symbol={asset?.symbol} />
+          <Amount.Crypto value={cryptoHumanBalance} symbol={asset?.symbol} />
           {asset.id && <RawText>{middleEllipsis(asset.id)}</RawText>}
         </Flex>
       )}
@@ -180,11 +176,7 @@ export const AssetAccountRow = (props: AssetAccountRowProps) => {
         <Flex flexDir='column' textAlign='right'>
           <Amount.Fiat value={userCurrencyBalance} />
           {(isCompact || !isLargerThanMd) && (
-            <Amount.Crypto
-              color='text.subtle'
-              value={cryptoPrecisionBalance}
-              symbol={asset?.symbol}
-            />
+            <Amount.Crypto color='text.subtle' value={cryptoHumanBalance} symbol={asset?.symbol} />
           )}
         </Flex>
       </Flex>

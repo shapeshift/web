@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
 import { thorPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
-import { BigAmount, isSome } from '@shapeshiftoss/utils'
+import { isSome, toBaseUnit } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
 import type {
@@ -130,10 +130,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
       .times(bnOrZero(marketData?.price))
       .toFixed()
 
-    const underlyingAssetRatioBaseUnit = BigAmount.fromPrecision({
-      value: '1',
-      precision: asset.precision,
-    }).toBaseUnit()
+    const underlyingAssetRatioBaseUnit = bn(1).times(bn(10).pow(asset.precision)).toString()
     stakingOpportunitiesById[opportunityId] = {
       apy,
       assetId,
@@ -225,10 +222,7 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
           return {
             underlyingAssetRatiosBaseUnit: [
               ...acc.underlyingAssetRatiosBaseUnit,
-              BigAmount.fromPrecision({
-                value: adjustedRatio.toFixed(),
-                precision: asset.precision,
-              }).toBaseUnit(),
+              toBaseUnit(adjustedRatio.toFixed(), asset.precision),
             ],
             underlyingAssetWeightPercentageDecimal: [
               ...acc.underlyingAssetWeightPercentageDecimal,
@@ -323,18 +317,12 @@ export const thorchainSaversStakingOpportunitiesUserDataResolver = async ({
 
       const { asset_deposit_value, asset_redeem_value, asset_address } = accountPosition
 
-      const stakedAmountCryptoBaseUnit = bn(
-        BigAmount.fromPrecision({
-          value: fromThorBaseUnit(asset_deposit_value).toFixed(),
-          precision: asset.precision,
-        }).toBaseUnit(),
+      const stakedAmountCryptoBaseUnit = fromThorBaseUnit(asset_deposit_value).times(
+        bn(10).pow(asset.precision),
       ) // to actual asset precision base unit
 
-      const stakedAmountCryptoBaseUnitIncludeRewards = bn(
-        BigAmount.fromPrecision({
-          value: fromThorBaseUnit(asset_redeem_value).toFixed(),
-          precision: asset.precision,
-        }).toBaseUnit(),
+      const stakedAmountCryptoBaseUnitIncludeRewards = fromThorBaseUnit(asset_redeem_value).times(
+        bn(10).pow(asset.precision),
       ) // to actual asset precision base unit
 
       const rewardsAmountsCryptoBaseUnit: [string] = [

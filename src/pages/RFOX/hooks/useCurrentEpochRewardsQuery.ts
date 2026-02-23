@@ -1,6 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, usdcOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
-import { BigAmount, bn } from '@shapeshiftoss/utils'
+import { bn, toBaseUnit } from '@shapeshiftoss/utils'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQueries } from '@tanstack/react-query'
 import { useCallback } from 'react'
@@ -84,10 +84,10 @@ export const useCurrentEpochRewardsQuery = ({
 
         const rewardUnits = currentEpochRewardUnits - previousEpochRewardUnits
 
-        const affiliateRevenueUsdcBaseUnit = BigAmount.fromPrecision({
-          value: bn(affiliateRevenueUsd).div(usdcMarketData.price),
-          precision: usdcAsset.precision,
-        }).toBaseUnit()
+        const affiliateRevenueUsdcBaseUnit = toBaseUnit(
+          bn(affiliateRevenueUsd).div(usdcMarketData.price),
+          usdcAsset.precision,
+        )
 
         return calcEpochRewardForAccountUsdcBaseUnit(
           rewardUnits,

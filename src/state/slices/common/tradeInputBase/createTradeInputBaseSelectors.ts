@@ -1,9 +1,9 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { BigAmount, bn, bnOrZero } from '@shapeshiftoss/utils'
+import { bn, bnOrZero, toBaseUnit } from '@shapeshiftoss/utils'
 
 import {
   selectEnabledWalletAccountIds,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
 } from '../../common-selectors'
 import { marketData } from '../../marketDataSlice/marketDataSlice'
 import { selectUserCurrencyToUsdRate } from '../../marketDataSlice/selectors'
@@ -176,10 +176,7 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
     selectInputSellAmountCryptoPrecision,
     selectInputSellAsset,
     (sellAmountCryptoPrecision, sellAsset) =>
-      BigAmount.fromPrecision({
-        value: sellAmountCryptoPrecision,
-        precision: sellAsset.precision,
-      }).toBaseUnit(),
+      toBaseUnit(sellAmountCryptoPrecision, sellAsset.precision),
   )
 
   const selectManualReceiveAddress = createSelector(
@@ -221,13 +218,13 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
     },
   )
 
-  const selectSellAssetBalance = createSelector(
+  const selectSellAssetBalanceCryptoBaseUnit = createSelector(
     (state: ReduxState) =>
-      selectPortfolioCryptoBalanceByFilter(state, {
+      selectPortfolioCryptoBalanceBaseUnitByFilter(state, {
         accountId: selectSellAccountId(state),
         assetId: selectInputSellAsset(state).assetId,
       }),
-    sellAssetBalance => sellAssetBalance,
+    sellAssetBalanceCryptoBaseUnit => sellAssetBalanceCryptoBaseUnit,
   )
 
   const selectIsInputtingFiatSellAmount = createSelector(
@@ -257,7 +254,7 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
     selectIsManualReceiveAddressValid,
     selectInputSellAmountUsd,
     selectInputSellAmountUserCurrency,
-    selectSellAssetBalance,
+    selectSellAssetBalanceCryptoBaseUnit,
     selectIsInputtingFiatSellAmount,
     selectHasUserEnteredAmount,
     selectInputSellAmountCryptoPrecision,

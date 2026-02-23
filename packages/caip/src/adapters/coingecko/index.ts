@@ -8,45 +8,28 @@ import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
-  blastChainId,
-  berachainChainId,
-  bobChainId,
   bscChainId,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
   cosmosChainId,
-  cronosChainId,
   ethChainId,
   flowEvmChainId,
   gnosisChainId,
-  hemiChainId,
   hyperEvmChainId,
-  inkChainId,
   katanaChainId,
-  lineaChainId,
-  mantleChainId,
   mayachainChainId,
   megaethChainId,
-  modeChainId,
   monadChainId,
   nearChainId,
   optimismChainId,
   plasmaChainId,
-  plumeChainId,
   polygonChainId,
-  scrollChainId,
   solanaChainId,
-  soneiumChainId,
-  sonicChainId,
   starknetChainId,
-  storyChainId,
   suiChainId,
   thorchainChainId,
   tonChainId,
   tronChainId,
-  zkSyncEraChainId,
-  worldChainChainId,
-  unichainChainId,
 } from '../../constants'
 import * as adapters from './generated'
 
@@ -68,26 +51,9 @@ export enum CoingeckoAssetPlatform {
   Monad = 'monad',
   HyperEvm = 'hyperevm',
   Plasma = 'plasma',
-  Ink = 'ink',
   Katana = 'katana',
   FlowEvm = 'flow-evm',
-  Plume = 'plume-network',
-  Story = 'story',
-  ZkSyncEra = 'zksync',
-  Blast = 'blast',
-  WorldChain = 'world-chain',
-  Hemi = 'hemi',
-  Mantle = 'mantle',
-  Linea = 'linea',
-  Sonic = 'sonic-3',
-  Unichain = 'unichain',
-  Bob = 'bob-network',
-  Mode = 'mode',
   MegaEth = 'megaeth',
-  Berachain = 'berachain',
-  Scroll = 'scroll',
-  Cronos = 'cronos',
-  Soneium = 'soneium',
   Solana = 'solana',
   Starknet = 'starknet',
   Tron = 'tron',
@@ -150,40 +116,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Katana
         case CHAIN_REFERENCE.FlowEvmMainnet:
           return CoingeckoAssetPlatform.FlowEvm
-        case CHAIN_REFERENCE.StoryMainnet:
-          return CoingeckoAssetPlatform.Story
-        case CHAIN_REFERENCE.ZkSyncEraMainnet:
-          return CoingeckoAssetPlatform.ZkSyncEra
-        case CHAIN_REFERENCE.BlastMainnet:
-          return CoingeckoAssetPlatform.Blast
-        case CHAIN_REFERENCE.WorldChainMainnet:
-          return CoingeckoAssetPlatform.WorldChain
-        case CHAIN_REFERENCE.HemiMainnet:
-          return CoingeckoAssetPlatform.Hemi
-        case CHAIN_REFERENCE.MantleMainnet:
-          return CoingeckoAssetPlatform.Mantle
-        case CHAIN_REFERENCE.SonicMainnet:
-          return CoingeckoAssetPlatform.Sonic
-        case CHAIN_REFERENCE.UnichainMainnet:
-          return CoingeckoAssetPlatform.Unichain
-        case CHAIN_REFERENCE.BobMainnet:
-          return CoingeckoAssetPlatform.Bob
-        case CHAIN_REFERENCE.ModeMainnet:
-          return CoingeckoAssetPlatform.Mode
         case CHAIN_REFERENCE.MegaEthMainnet:
           return CoingeckoAssetPlatform.MegaEth
-        case CHAIN_REFERENCE.LineaMainnet:
-          return CoingeckoAssetPlatform.Linea
-        case CHAIN_REFERENCE.BerachainMainnet:
-          return CoingeckoAssetPlatform.Berachain
-        case CHAIN_REFERENCE.InkMainnet:
-          return CoingeckoAssetPlatform.Ink
-        case CHAIN_REFERENCE.ScrollMainnet:
-          return CoingeckoAssetPlatform.Scroll
-        case CHAIN_REFERENCE.CronosMainnet:
-          return CoingeckoAssetPlatform.Cronos
-        case CHAIN_REFERENCE.SoneiumMainnet:
-          return CoingeckoAssetPlatform.Soneium
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
@@ -289,46 +223,12 @@ export const coingeckoAssetPlatformToChainId = (
       return hyperEvmChainId
     case CoingeckoAssetPlatform.Plasma:
       return plasmaChainId
-    case CoingeckoAssetPlatform.WorldChain:
-      return worldChainChainId
     case CoingeckoAssetPlatform.Katana:
       return katanaChainId
     case CoingeckoAssetPlatform.FlowEvm:
       return flowEvmChainId
-    case CoingeckoAssetPlatform.Plume:
-      return plumeChainId
-    case CoingeckoAssetPlatform.Story:
-      return storyChainId
-    case CoingeckoAssetPlatform.Mantle:
-      return mantleChainId
-    case CoingeckoAssetPlatform.Sonic:
-      return sonicChainId
-    case CoingeckoAssetPlatform.Unichain:
-      return unichainChainId
-    case CoingeckoAssetPlatform.Bob:
-      return bobChainId
-    case CoingeckoAssetPlatform.Mode:
-      return modeChainId
     case CoingeckoAssetPlatform.MegaEth:
       return megaethChainId
-    case CoingeckoAssetPlatform.ZkSyncEra:
-      return zkSyncEraChainId
-    case CoingeckoAssetPlatform.Blast:
-      return blastChainId
-    case CoingeckoAssetPlatform.Hemi:
-      return hemiChainId
-    case CoingeckoAssetPlatform.Linea:
-      return lineaChainId
-    case CoingeckoAssetPlatform.Berachain:
-      return berachainChainId
-    case CoingeckoAssetPlatform.Ink:
-      return inkChainId
-    case CoingeckoAssetPlatform.Scroll:
-      return scrollChainId
-    case CoingeckoAssetPlatform.Cronos:
-      return cronosChainId
-    case CoingeckoAssetPlatform.Soneium:
-      return soneiumChainId
     case CoingeckoAssetPlatform.Cosmos:
       return cosmosChainId
     case CoingeckoAssetPlatform.Thorchain:

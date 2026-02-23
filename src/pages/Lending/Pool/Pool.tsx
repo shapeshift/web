@@ -16,7 +16,6 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useMutationState } from '@tanstack/react-query'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo, useState } from 'react'
@@ -100,8 +99,7 @@ const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column-rev
 // Since dynamic components react on the `value` property, this wrappers ensures the repayment lock
 // component accepts it as a prop, vs. <Skeleton /> being the outermost component if not using a wrapper
 const RepaymentLockComponentWithValue = ({ isLoaded, value }: AmountProps & SkeletonOptions) => {
-  const resolvedValue = BigAmount.isBigAmount(value) ? value.toPrecision() : value
-  const isRepaymentLocked = bnOrZero(resolvedValue).gt(0)
+  const isRepaymentLocked = bnOrZero(value).gt(0)
 
   const translate = useTranslate()
 

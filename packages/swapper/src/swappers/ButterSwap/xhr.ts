@@ -33,7 +33,7 @@ type ButterSwapPromise<T> = Promise<Result<T, SwapErrorRight>>
 export type GetButterRouteArgs = {
   sellAsset: Asset
   buyAsset: Asset
-  sellAmountCryptoPrecision: string
+  sellAmountCryptoBaseUnit: string
   slippage: string
   affiliate?: string
 }
@@ -44,7 +44,7 @@ const TRON_NATIVE_ADDRESS = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'
 export const getButterRoute = async ({
   sellAsset,
   buyAsset,
-  sellAmountCryptoPrecision,
+  sellAmountCryptoBaseUnit,
   slippage,
   affiliate,
 }: GetButterRouteArgs): ButterSwapPromise<RouteResponse> => {
@@ -88,7 +88,7 @@ export const getButterRoute = async ({
     tokenInAddress: sellAssetAddress,
     toChainId: butterToChainId,
     tokenOutAddress: buyAssetAddress,
-    amount: sellAmountCryptoPrecision,
+    amount: sellAmountCryptoBaseUnit,
     type: 'exactIn',
     slippage,
     entrance: 'shapeshift',

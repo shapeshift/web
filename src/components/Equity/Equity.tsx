@@ -68,7 +68,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
     [equityRows.length, isLoading],
   )
 
-  const { amountCryptoPrecision: totalCryptoPrecisionBalance, fiatAmount: totalFiatBalance } =
+  const { amountCryptoPrecision: totalCryptoHumanBalance, fiatAmount: totalFiatBalance } =
     totalEquityBalance
 
   const lpAssetBalanceFilter = useMemo(
@@ -152,7 +152,7 @@ export const Equity = ({ assetId, accountId }: EquityProps) => {
             <Skeleton isLoaded={!isLoading}>
               <Amount.Crypto
                 variant='sub-text'
-                value={totalCryptoPrecisionBalance}
+                value={totalCryptoHumanBalance}
                 symbol={asset.symbol}
                 lineHeight={1}
               />

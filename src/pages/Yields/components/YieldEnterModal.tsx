@@ -51,7 +51,7 @@ import {
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetIdFilter,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -211,10 +211,10 @@ export const YieldEnterModal = memo(
 
     const inputTokenBalance = useAppSelector(state =>
       inputTokenAssetId && accountId
-        ? selectPortfolioCryptoBalanceByFilter(state, {
+        ? selectPortfolioCryptoPrecisionBalanceByFilter(state, {
             assetId: inputTokenAssetId,
             accountId,
-          }).toPrecision()
+          })
         : '0',
     )
 
@@ -262,14 +262,13 @@ export const YieldEnterModal = memo(
         if (isFiat) {
           const crypto = bnOrZero(values.value)
             .div(marketData?.price || 1)
-            .decimalPlaces(inputTokenAsset?.precision ?? 18, 1)
             .toFixed()
           setCryptoAmount(crypto)
         } else {
           setCryptoAmount(values.value)
         }
       },
-      [isFiat, inputTokenAsset?.precision, marketData?.price],
+      [isFiat, marketData?.price],
     )
 
     const displayValue = useMemo(() => {
@@ -322,7 +321,6 @@ export const YieldEnterModal = memo(
       quoteData,
       isAllowanceCheckPending,
       isUsdtResetRequired,
-      isAmountLocked,
     } = useYieldTransactionFlow({
       yieldItem,
       action: 'enter',
@@ -415,8 +413,6 @@ export const YieldEnterModal = memo(
       return translate(headingKeys.enter, { symbol: inputTokenAsset?.symbol })
     }, [translate, inputTokenAsset?.symbol, step, headingKeys.enter])
 
-    const isInputDisabled = isSubmitting || isAmountLocked
-
     const percentButtons = useMemo(
       () => (
         <HStack spacing={2} justify='center' width='full'>
@@ -434,7 +430,6 @@ export const YieldEnterModal = memo(
                 borderRadius='full'
                 px={4}
                 fontWeight='medium'
-                isDisabled={isInputDisabled}
               >
                 {percent === 1 ? translate('modals.send.sendForm.max') : `${percent * 100}%`}
               </Button>
@@ -442,7 +437,7 @@ export const YieldEnterModal = memo(
           })}
         </HStack>
       ),
-      [selectedPercent, handlePercentClick, translate, isInputDisabled],
+      [selectedPercent, handlePercentClick, translate],
     )
 
     const statsContent = useMemo(
@@ -560,7 +555,6 @@ export const YieldEnterModal = memo(
             prefix={isFiat ? localeParts.prefix : ''}
             suffix={isFiat ? '' : ` ${inputTokenAsset?.symbol}`}
             onValueChange={handleInputChange}
-            isDisabled={isInputDisabled}
           />
           <HStack
             spacing={2}
@@ -598,7 +592,6 @@ export const YieldEnterModal = memo(
       displayPlaceholder,
       inputTokenAsset?.symbol,
       handleInputChange,
-      isInputDisabled,
       toggleIsFiat,
       cryptoAmount,
       fiatAmount,

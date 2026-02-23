@@ -126,11 +126,9 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
     if ((status !== 'confirming' && status !== 'executing') || !assetMarketData?.price) {
       return null
     }
-    const estimatedCryptoAmount = bn(amount)
-      .dividedBy(bn(assetMarketData.price))
-      .decimalPlaces(asset?.precision ?? 18, 1)
-    return estimatedCryptoAmount.toString()
-  }, [quickBuyState, asset?.precision, assetMarketData?.price])
+    const tokenAmountInUserCurrency = bn(amount).dividedBy(bn(assetMarketData.price))
+    return tokenAmountInUserCurrency.toString()
+  }, [quickBuyState, assetMarketData?.price])
 
   const resetTrade = useCallback(() => {
     hasInitializedTradeRef.current = false
@@ -175,7 +173,6 @@ export const useQuickBuy = ({ assetId }: UseQuickBuyParams): UseQuickBuyReturn =
 
       const estimatedSellAmountCryptoPrecision = bn(amount)
         .dividedBy(bn(feeAssetMarketData.price))
-        .decimalPlaces(feeAsset?.precision ?? 18, 1)
         .toString()
 
       dispatch(

@@ -2,7 +2,7 @@ import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Button, ButtonGroup, HStack, Link, Progress, Stack } from '@chakra-ui/react'
 import type { Order } from '@shapeshiftoss/types'
 import { OrderStatus } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
+import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -46,10 +46,7 @@ export const LimitOrderDetails = ({ order, action, onCancelOrder }: LimitOrderDe
   const executedBuyAmountCryptoPrecision = useMemo(
     () =>
       executedBuyAmountCryptoBaseUnit
-        ? BigAmount.fromBaseUnit({
-            value: executedBuyAmountCryptoBaseUnit,
-            precision: buyAsset?.precision ?? 0,
-          }).toPrecision()
+        ? fromBaseUnit(executedBuyAmountCryptoBaseUnit, buyAsset?.precision ?? 0)
         : '0',
     [executedBuyAmountCryptoBaseUnit, buyAsset?.precision],
   )
@@ -57,10 +54,7 @@ export const LimitOrderDetails = ({ order, action, onCancelOrder }: LimitOrderDe
   const executedSellAmountCryptoPrecision = useMemo(
     () =>
       executedSellAmountCryptoBaseUnit
-        ? BigAmount.fromBaseUnit({
-            value: executedSellAmountCryptoBaseUnit,
-            precision: sellAsset?.precision ?? 0,
-          }).toPrecision()
+        ? fromBaseUnit(executedSellAmountCryptoBaseUnit, sellAsset?.precision ?? 0)
         : '0',
     [executedSellAmountCryptoBaseUnit, sellAsset?.precision],
   )

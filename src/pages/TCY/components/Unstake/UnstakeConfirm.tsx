@@ -1,5 +1,5 @@
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -15,6 +15,7 @@ import { GenericTransactionNotification } from '@/components/Layout/Header/Actio
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { ReusableConfirm } from '@/components/ReusableConfirm/ReusableConfirm'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
+import { toBaseUnit } from '@/lib/math'
 import { BASE_BPS_POINTS, THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
@@ -56,11 +57,7 @@ export const UnstakeConfirm: React.FC = () => {
   })
 
   const amountThorBaseUnit = useMemo(
-    () =>
-      BigAmount.fromPrecision({
-        value: amountCryptoPrecision,
-        precision: THOR_PRECISION,
-      }).toBaseUnit(),
+    () => toBaseUnit(amountCryptoPrecision, THOR_PRECISION),
     [amountCryptoPrecision],
   )
 

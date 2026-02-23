@@ -230,6 +230,8 @@ export type ReadOnlyOpportunityType = {
 }
 
 export type LpEarnOpportunityType = OpportunityMetadataBase & {
+  underlyingToken0AmountCryptoBaseUnit?: string
+  underlyingToken1AmountCryptoBaseUnit?: string
   isVisible?: boolean
 } & EarnDefiTypeBase & { opportunityName: string | undefined } // overriding optional opportunityName property
 

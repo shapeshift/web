@@ -1,4 +1,4 @@
-import { BigAmount, bn, bnOrZero } from '@shapeshiftoss/utils'
+import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { createSelector } from 'reselect'
 
 import { getFeeAssetByAssetId } from '../assetsSlice/utils'
@@ -80,10 +80,7 @@ export const selectActiveQuoteSellAmountCryptoPrecision = createSelector(
   (sellAmountCryptoBaseUnit, asset) => {
     if (!asset) return '0'
 
-    return BigAmount.fromBaseUnit({
-      value: sellAmountCryptoBaseUnit,
-      precision: asset.precision,
-    }).toPrecision()
+    return fromBaseUnit(sellAmountCryptoBaseUnit, asset.precision)
   },
 )
 
@@ -93,10 +90,7 @@ export const selectActiveQuoteBuyAmountCryptoPrecision = createSelector(
   (buyAmountCryptoBaseUnit, asset) => {
     if (!asset) return '0'
 
-    return BigAmount.fromBaseUnit({
-      value: buyAmountCryptoBaseUnit,
-      precision: asset.precision,
-    }).toPrecision()
+    return fromBaseUnit(buyAmountCryptoBaseUnit, asset.precision)
   },
 )
 
@@ -109,7 +103,7 @@ export const selectActiveQuoteNetworkFeeCryptoPrecision = createSelector(
     // CoW does not cost a network fee to submit, but the calcs are implemented as though they did
     // in case we ever wire them in for a different protocol in the future.
     const networkFee = '0'
-    return BigAmount.fromBaseUnit({ value: networkFee, precision }).toPrecision()
+    return fromBaseUnit(networkFee, precision)
   },
 )
 

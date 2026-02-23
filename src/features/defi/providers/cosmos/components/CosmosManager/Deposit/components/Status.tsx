@@ -83,7 +83,7 @@ export const Status = () => {
         {
           opportunity: opportunityMetadata,
           fiatAmounts: [fiatAmount],
-          cryptoAmounts: [{ assetId, amountCryptoPrecision: cryptoAmount }],
+          cryptoAmounts: [{ assetId, amountCryptoHuman: cryptoAmount }],
         },
         assets,
       )

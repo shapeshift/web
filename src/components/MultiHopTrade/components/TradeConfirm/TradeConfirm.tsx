@@ -1,6 +1,5 @@
 import { Stepper, usePrevious } from '@chakra-ui/react'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 
@@ -16,6 +15,7 @@ import { TradeConfirmFooter } from './TradeConfirmFooter'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { fromBaseUnit } from '@/lib/math'
 import {
   selectActiveQuote,
   selectConfirmedTradeExecutionState,
@@ -114,15 +114,7 @@ export const TradeConfirm = ({ isCompact, isModal, onSuccess }: TradeConfirmProp
   }, [activeQuote])
 
   const body = useMemo(() => {
-    if (isTradeComplete && activeQuote && tradeQuoteLastHop) {
-      const sellAmountCrypto = BigAmount.fromBaseUnit({
-        value: activeQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        precision: activeQuote.steps[0].sellAsset.precision,
-      })
-      const quoteBuyAmountCrypto = BigAmount.fromBaseUnit({
-        value: tradeQuoteLastHop.buyAmountAfterFeesCryptoBaseUnit,
-        precision: tradeQuoteLastHop.buyAsset.precision,
-      })
+    if (isTradeComplete && activeQuote && tradeQuoteLastHop)
       return (
         <SpotTradeSuccess
           handleBack={handleBack}
@@ -135,15 +127,20 @@ export const TradeConfirm = ({ isCompact, isModal, onSuccess }: TradeConfirmProp
           summaryTranslation='trade.summary'
           sellAsset={activeQuote?.steps[0].sellAsset}
           buyAsset={tradeQuoteLastHop.buyAsset}
-          sellAmountCryptoPrecision={sellAmountCrypto.toPrecision()}
-          quoteBuyAmountCryptoPrecision={quoteBuyAmountCrypto.toPrecision()}
+          sellAmountCryptoPrecision={fromBaseUnit(
+            activeQuote.steps[0].sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            activeQuote.steps[0].sellAsset.precision,
+          )}
+          quoteBuyAmountCryptoPrecision={fromBaseUnit(
+            tradeQuoteLastHop.buyAmountAfterFeesCryptoBaseUnit,
+            tradeQuoteLastHop.buyAsset.precision,
+          )}
         >
           <Stepper index={-1} orientation='vertical' gap='0' my={6}>
             <ExpandableStepperSteps isExpanded />
           </Stepper>
         </SpotTradeSuccess>
       )
-    }
 
     return <TradeConfirmBody />
   }, [activeQuote, handleBack, isArbitrumBridgeWithdraw, isTradeComplete, tradeQuoteLastHop])

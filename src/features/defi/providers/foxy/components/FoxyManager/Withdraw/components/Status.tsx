@@ -4,7 +4,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { BigAmount } from '@shapeshiftoss/utils'
+import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -43,7 +43,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   const withdrawalFee = useMemo(() => {
     return state?.withdraw.withdrawType === WithdrawType.INSTANT
-      ? bn(state.withdraw.cryptoAmount).times(state.foxyFeePercentage).toString()
+      ? bnOrZero(bn(state.withdraw.cryptoAmount).times(state.foxyFeePercentage)).toString()
       : '0'
   }, [state?.withdraw.withdrawType, state?.withdraw.cryptoAmount, state?.foxyFeePercentage])
 
@@ -135,19 +135,10 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
 
   const usedGasOrEstimateCryptoPrecision = useMemo(() => {
     if (maybeSafeTx?.transaction?.gasUsed)
-      return BigAmount.fromBaseUnit({
-        value: maybeSafeTx.transaction.gasUsed,
-        precision: feeAsset.precision,
-      }).toPrecision()
+      return fromBaseUnit(maybeSafeTx.transaction.gasUsed, feeAsset.precision)
     if (state?.withdraw.usedGasFeeCryptoBaseUnit)
-      return BigAmount.fromBaseUnit({
-        value: state.withdraw.usedGasFeeCryptoBaseUnit,
-        precision: feeAsset.precision,
-      }).toPrecision()
-    return BigAmount.fromBaseUnit({
-      value: state?.withdraw.estimatedGasCryptoBaseUnit ?? '0',
-      precision: feeAsset.precision,
-    }).toPrecision()
+      return fromBaseUnit(state.withdraw.usedGasFeeCryptoBaseUnit, feeAsset.precision)
+    return fromBaseUnit(state?.withdraw.estimatedGasCryptoBaseUnit ?? '0', feeAsset.precision)
   }, [
     feeAsset.precision,
     maybeSafeTx?.transaction?.gasUsed,

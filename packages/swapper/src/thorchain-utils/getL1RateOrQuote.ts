@@ -3,14 +3,15 @@ import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import * as adapters from '@shapeshiftoss/chain-adapters'
 import {
   assertUnreachable,
-  BigAmount,
   bn,
   bnOrZero,
   contractAddressOrUndefined,
   convertDecimalPercentageToBasisPoints,
   convertPrecision,
+  fromBaseUnit,
   isFulfilled,
   isRejected,
+  toBaseUnit,
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -186,13 +187,10 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     const buyAmountBeforeFeesCryptoThorPrecision = bn(quote.expected_amount_out).plus(
       quote.fees.total,
     )
-    return BigAmount.fromPrecision({
-      value: BigAmount.fromBaseUnit({
-        value: buyAmountBeforeFeesCryptoThorPrecision,
-        precision: buyAssetNativePrecision,
-      }).toPrecision(),
-      precision: buyAsset.precision,
-    }).toBaseUnit()
+    return toBaseUnit(
+      fromBaseUnit(buyAmountBeforeFeesCryptoThorPrecision, buyAssetNativePrecision),
+      buyAsset.precision,
+    )
   }
 
   const getProtocolFees = (quote: ThornodeQuoteResponseSuccess) => {

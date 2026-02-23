@@ -9,7 +9,7 @@ import {
   SwapperName,
 } from '@shapeshiftoss/swapper'
 import type { CowSwapError } from '@shapeshiftoss/types'
-import { BigAmount, BigNumber, bn, bnOrZero } from '@shapeshiftoss/utils'
+import { BigNumber, bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -61,7 +61,7 @@ import {
   selectSelectedBuyAssetChainId,
   selectSelectedSellAssetChainId,
   selectSellAccountId,
-  selectSellAssetBalance,
+  selectSellAssetBalanceCryptoBaseUnit,
 } from '@/state/slices/limitOrderInputSlice/selectors'
 import { makeLimitInputOutputRatio } from '@/state/slices/limitOrderSlice/helpers'
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
@@ -117,7 +117,7 @@ export const LimitOrderInput = ({
   const userCurrencyRate = useAppSelector(selectUserCurrencyToUsdRate)
   const networkFeeUserCurrency = useAppSelector(selectActiveQuoteNetworkFeeUserCurrency)
   const expiry = useAppSelector(selectExpiry)
-  const sellAssetBalance = useAppSelector(selectSellAssetBalance)
+  const sellAssetBalanceCryptoBaseUnit = useAppSelector(selectSellAssetBalanceCryptoBaseUnit)
   const limitPriceMode = useAppSelector(selectLimitPriceMode)
   const sellAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, sellAsset.assetId))
   const buyAssetUsdRate = useAppSelector(state => selectUsdRateByAssetId(state, buyAsset.assetId))
@@ -382,7 +382,7 @@ export const LimitOrderInput = ({
       case !shouldShowTradeQuoteOrAwaitInput:
       case !hasUserEnteredAmount:
         return { quoteStatusTranslation: 'trade.previewTrade', isError: false }
-      case sellAssetBalance.isZero():
+      case bnOrZero(sellAssetBalanceCryptoBaseUnit).isZero():
         return { quoteStatusTranslation: 'limitOrder.errors.zeroFunds', isError: true }
       case sellAsset.chainId !== buyAsset.chainId:
         return { quoteStatusTranslation: 'trade.errors.quoteCrossChainNotSupported', isError: true }
@@ -418,7 +418,7 @@ export const LimitOrderInput = ({
     sellAccountId,
     sellAsset.assetId,
     sellAsset.chainId,
-    sellAssetBalance,
+    sellAssetBalanceCryptoBaseUnit,
     shouldShowTradeQuoteOrAwaitInput,
   ])
 
@@ -429,12 +429,9 @@ export const LimitOrderInput = ({
 
     const { feeAmount } = quoteResponse.quote
 
-    const feeAmountBigAmount = BigAmount.fromBaseUnit({
-      value: feeAmount,
-      precision: sellAsset.precision,
-    })
+    const feeAmountCryptoPrecision = fromBaseUnit(feeAmount, sellAsset.precision)
 
-    return feeAmountBigAmount.div(sellAmountCryptoPrecision).toFixed(2)
+    return bn(feeAmountCryptoPrecision).div(sellAmountCryptoPrecision).toFixed(2)
   }, [
     quoteResponse,
     sellAsset.precision,

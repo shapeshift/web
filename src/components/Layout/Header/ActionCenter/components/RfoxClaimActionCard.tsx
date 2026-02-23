@@ -41,26 +41,26 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
 
     // Yes, this may round down to 0 during testing if you unstake a fraction of FOX, but for *real* users, this is much better visually
     // and it doesn't matter to be off from something like a penny to $0.1, this by no means is supposed to be the exact amount up to the 18dp
-    const amountCryptoPrecision = bn(
+    const amountCryptoHuman = bn(
       action.rfoxClaimActionMetadata.request.amountCryptoPrecision,
     ).toFixed(2)
 
     switch (action.status) {
       case ActionStatus.ClaimAvailable: {
         return translate('actionCenter.rfox.unstakeReady', {
-          amount: amountCryptoPrecision,
+          amount: amountCryptoHuman,
           symbol: stakingAsset.symbol,
         })
       }
       case ActionStatus.Pending: {
         return translate('actionCenter.rfox.unstakeTxPending', {
-          amount: amountCryptoPrecision,
+          amount: amountCryptoHuman,
           symbol: stakingAsset.symbol,
         })
       }
       case ActionStatus.Claimed: {
         return translate('actionCenter.rfox.unstakeTxComplete', {
-          amount: amountCryptoPrecision,
+          amount: amountCryptoHuman,
           symbol: stakingAsset.symbol,
         })
       }

@@ -19,7 +19,7 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { PairIcons } from '@/features/defi/components/PairIcons/PairIcons'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useToggle } from '@/hooks/useToggle/useToggle'
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -115,7 +115,7 @@ export const AssetInput: React.FC<AssetInputProps> = ({
 
   // Lower the decimal places when the integer is greater than 8 significant digits for better UI
   const cryptoAmountIntegerCount = useMemo(
-    () => bn(bnOrZero(cryptoAmount).toFixed(0)).precision(true),
+    () => bnOrZero(bnOrZero(cryptoAmount).toFixed(0)).precision(true),
     [cryptoAmount],
   )
   const formattedCryptoAmount = useMemo(

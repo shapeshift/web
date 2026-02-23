@@ -1,5 +1,4 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { matchPath, Route, Routes, useLocation } from 'react-router-dom'
@@ -14,6 +13,7 @@ import { useGetTradeRates } from './hooks/useGetTradeQuotes/useGetTradeRates'
 import type { TradeInputTab } from './types'
 import { TradeRoutePaths } from './types'
 
+import { fromBaseUnit } from '@/lib/math'
 import { TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
@@ -91,11 +91,11 @@ export const MultiHopTrade = memo(
       }
 
       if (paramsSellAmountCryptoBaseUnit && sellAsset) {
-        const sellAmountCrypto = BigAmount.fromBaseUnit({
-          value: paramsSellAmountCryptoBaseUnit,
-          precision: sellAsset.precision,
-        })
-        dispatch(tradeInput.actions.setSellAmountCryptoPrecision(sellAmountCrypto.toPrecision()))
+        dispatch(
+          tradeInput.actions.setSellAmountCryptoPrecision(
+            fromBaseUnit(paramsSellAmountCryptoBaseUnit, sellAsset.precision),
+          ),
+        )
       }
 
       setIsInitialized(true)

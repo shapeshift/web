@@ -1,6 +1,5 @@
 import { Card, HStack, Image, useColorModeValue, VStack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -8,6 +7,7 @@ import { useTranslate } from 'react-polyglot'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
+import { fromBaseUnit } from '@/lib/math'
 import type { TransactionParams } from '@/plugins/walletConnectToDapps/types'
 import { selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -33,10 +33,7 @@ export const SendTransactionContent: FC<SendTransactionContentProps> = ({
   const sendAmountCryptoPrecision = useMemo(() => {
     if (!transaction.value || !feeAsset) return '0'
 
-    return BigAmount.fromBaseUnit({
-      value: transaction.value,
-      precision: feeAsset.precision,
-    }).toPrecision()
+    return fromBaseUnit(transaction.value, feeAsset.precision)
   }, [transaction.value, feeAsset])
 
   const isZeroValue = sendAmountCryptoPrecision === '0'

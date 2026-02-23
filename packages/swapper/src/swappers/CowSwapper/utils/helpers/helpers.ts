@@ -2,11 +2,11 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset, OrderQuoteResponse } from '@shapeshiftoss/types'
 import {
-  BigAmount,
   bn,
   bnOrZero,
   convertBasisPointsToDecimalPercentage,
   convertPrecision,
+  fromBaseUnit,
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -138,15 +138,15 @@ export const getValuesFromQuoteResponse = ({
     slippageTolerancePercentageDecimal,
   })
 
-  const buyAmountAfterAffiliateFeesCryptoPrecision = BigAmount.fromBaseUnit({
-    value: buyAmountAfterAffiliateFeesCryptoBaseUnit,
-    precision: buyAsset.precision,
-  }).toPrecision()
+  const buyAmountAfterAffiliateFeesCryptoPrecision = fromBaseUnit(
+    buyAmountAfterAffiliateFeesCryptoBaseUnit,
+    buyAsset.precision,
+  )
 
-  const sellAmountCryptoPrecision = BigAmount.fromBaseUnit({
-    value: sellAmountAfterFeesCryptoBaseUnit,
-    precision: sellAsset.precision,
-  }).toPrecision()
+  const sellAmountCryptoPrecision = fromBaseUnit(
+    sellAmountAfterFeesCryptoBaseUnit,
+    sellAsset.precision,
+  )
 
   const rate = bnOrZero(buyAmountAfterAffiliateFeesCryptoPrecision)
     .div(sellAmountCryptoPrecision)

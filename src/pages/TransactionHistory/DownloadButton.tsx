@@ -1,6 +1,5 @@
 import { Button, IconButton, useMediaQuery } from '@chakra-ui/react'
 import { TransferType } from '@shapeshiftoss/unchained-client'
-import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import fileDownload from 'js-file-download'
 import { useCallback, useMemo, useState } from 'react'
@@ -10,6 +9,7 @@ import { useTranslate } from 'react-polyglot'
 import { Text } from '@/components/Text'
 import { getTransfers, getTxType } from '@/hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { selectAssets, selectTxs } from '@/state/slices/selectors'
 import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppSelector } from '@/state/store'
@@ -103,31 +103,16 @@ export const DownloadButton = ({
         timestamp: dayjs(tx.blockTime * 1000).toISOString(),
         minerFee:
           tx.fee && feeAsset
-            ? bnOrZero(
-                BigAmount.fromBaseUnit({
-                  value: tx.fee.value,
-                  precision: feeAsset.precision,
-                }).toPrecision(),
-              ).toFixed()
+            ? bnOrZero(fromBaseUnit(tx.fee.value, feeAsset.precision)).toFixed()
             : '0',
         minerFeeCurrency: feeAsset?.symbol ?? '-',
         inputAmount: send
-          ? bnOrZero(
-              BigAmount.fromBaseUnit({
-                value: send.value,
-                precision: send.asset?.precision ?? 18,
-              }).toPrecision(),
-            ).toFixed()
+          ? bnOrZero(fromBaseUnit(send.value, send.asset?.precision ?? 18)).toFixed()
           : '-',
         inputCurrency: send?.asset?.symbol ?? send?.assetId ?? '-',
         inputAddresses: send ? `"${send?.from.join('\n')}"` : '-',
         outputAmount: receive
-          ? bnOrZero(
-              BigAmount.fromBaseUnit({
-                value: receive.value,
-                precision: receive.asset?.precision ?? 18,
-              }).toPrecision(),
-            ).toFixed()
+          ? bnOrZero(fromBaseUnit(receive.value, receive.asset?.precision ?? 18)).toFixed()
           : '-',
         outputCurrency: receive?.asset?.symbol ?? receive?.assetId ?? '-',
         outputAddresses: receive ? `"${receive?.to.join('\n')}"` : '-',

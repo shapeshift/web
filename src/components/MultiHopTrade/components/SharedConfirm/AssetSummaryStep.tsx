@@ -1,7 +1,6 @@
 import type { StepProps } from '@chakra-ui/react'
 import { usePrevious } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import type { JSX } from 'react'
 import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -14,6 +13,7 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bn } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import {
   selectIsAssetWithoutMarketData,
   selectMarketDataUserCurrency,
@@ -46,11 +46,7 @@ export const AssetSummaryStep = ({
   )
 
   const sellAmountCryptoPrecision = useMemo(
-    () =>
-      BigAmount.fromBaseUnit({
-        value: amountCryptoBaseUnit,
-        precision: asset.precision,
-      }).toPrecision(),
+    () => fromBaseUnit(amountCryptoBaseUnit, asset.precision),
     [amountCryptoBaseUnit, asset.precision],
   )
 

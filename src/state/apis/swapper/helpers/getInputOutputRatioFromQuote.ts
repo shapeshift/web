@@ -7,10 +7,10 @@ import type {
 } from '@shapeshiftoss/swapper'
 import { getHopByIndex } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 
 import type { BigNumber } from '@/lib/bignumber/bignumber'
-import { bn } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import type { ReduxState } from '@/state/reducer'
 import { selectFeeAssetById } from '@/state/slices/assetsSlice/selectors'
 import { marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
@@ -29,12 +29,9 @@ const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   const feeAssetUserCurrencyRate = getFeeAssetRate(feeAsset.assetId)
 
   const networkFeeCryptoBaseUnit = tradeQuoteStep.feeData.networkFeeCryptoBaseUnit
-  const networkFeeFiatPrecision = BigAmount.fromBaseUnit({
-    value: networkFeeCryptoBaseUnit ?? '0',
-    precision: feeAsset.precision,
-  })
-    .times(feeAssetUserCurrencyRate)
-    .toBN()
+  const networkFeeFiatPrecision = bnOrZero(
+    fromBaseUnit(networkFeeCryptoBaseUnit ?? '0', feeAsset.precision),
+  ).times(feeAssetUserCurrencyRate)
 
   return networkFeeFiatPrecision
 }
@@ -85,12 +82,7 @@ const _convertCryptoBaseUnitToUsdPrecision = (
   const usdRate = selectUsdRateByAssetId(state, asset.assetId)
   // TODO(gomes): revert me once we have a Portals market-data provider, this allows us to get quotes despite missing market data
   // if (usdRate === undefined) throw Error(`missing usd rate for assetId ${asset.assetId}`)
-  return BigAmount.fromBaseUnit({
-    value: amountCryptoBaseUnit,
-    precision: asset.precision,
-  })
-    .times(usdRate ?? '0')
-    .toBN()
+  return bnOrZero(fromBaseUnit(amountCryptoBaseUnit, asset.precision)).times(usdRate ?? '0')
 }
 
 /*
@@ -139,7 +131,7 @@ export const getInputOutputRatioFromQuote = ({
     ? _convertCryptoBaseUnitToUsdPrecision(state, buyAsset, buySideNetworkFeeCryptoBaseUnit)
     : bn(0)
 
-  const sellAmountUsdPrecision =
+  const sellAmountCryptoBaseUnit =
     sellAsset && sellAmountIncludingProtocolFeesCryptoBaseUnit
       ? _convertCryptoBaseUnitToUsdPrecision(
           state,
@@ -154,7 +146,7 @@ export const getInputOutputRatioFromQuote = ({
     buySideNetworkFeeUsdPrecision,
   )
 
-  const netSendAmountUsdPrecision = sellAmountUsdPrecision.plus(sellSideNetworkFeeUsdPrecision)
+  const netSendAmountUsdPrecision = sellAmountCryptoBaseUnit.plus(sellSideNetworkFeeUsdPrecision)
 
   return netReceiveAmountUsdPrecision.div(netSendAmountUsdPrecision).toNumber()
 }

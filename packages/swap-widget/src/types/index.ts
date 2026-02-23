@@ -132,7 +132,7 @@ export type ThemeConfig = {
 }
 
 export type SwapWidgetProps = {
-  apiKey?: string
+  affiliateAddress?: string
   apiBaseUrl?: string
   defaultSellAsset?: Asset
   defaultBuyAsset?: Asset

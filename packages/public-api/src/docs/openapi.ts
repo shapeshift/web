@@ -71,6 +71,8 @@ const UtxoPsbtTransactionDataSchema = z.object({
   type: z.literal('utxo_psbt').openapi({ example: 'utxo_psbt' }),
   psbt: z.string(),
   opReturnData: z.string().optional(),
+  depositAddress: z.string().optional(),
+  value: z.string().optional(),
 })
 
 const UtxoDepositTransactionDataSchema = z.object({

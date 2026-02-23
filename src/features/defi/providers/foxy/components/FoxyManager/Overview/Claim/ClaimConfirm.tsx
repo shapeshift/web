@@ -12,6 +12,7 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -92,8 +93,14 @@ export const ClaimConfirm = ({
   const accountFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
   const bip44Params = useAppSelector(state => selectBip44ParamsByAccountId(state, accountFilter))
 
-  const cryptoHumanBalance = useMemo(
-    () => bnOrZero(claimAmount).div(`1e+${stakingAsset.precision}`),
+  const cryptoPrecisionBalance = useMemo(
+    () =>
+      bnOrZero(
+        BigAmount.fromBaseUnit({
+          value: claimAmount ?? '0',
+          precision: stakingAsset.precision,
+        }).toPrecision(),
+      ),
     [stakingAsset.precision, claimAmount],
   )
   // The highest level AssetId/OpportunityId, in this case of the single FOXy contract
@@ -233,12 +240,12 @@ export const ClaimConfirm = ({
             <Amount.Crypto
               fontSize='3xl'
               fontWeight='medium'
-              value={cryptoHumanBalance.toString()}
+              value={cryptoPrecisionBalance.toString()}
               symbol={stakingAsset?.symbol}
             />
           </Stack>
           <Amount.Fiat
-            value={cryptoHumanBalance.times(bnOrZero(assetMarketData?.price)).toString()}
+            value={cryptoPrecisionBalance.times(bnOrZero(assetMarketData?.price)).toString()}
             color='text.subtle'
             prefix='≈'
           />
@@ -279,14 +286,23 @@ export const ClaimConfirm = ({
               >
                 <Stack textAlign='right' spacing={0}>
                   <Amount.Fiat
-                    value={bnOrZero(estimatedGas)
-                      .div(`1e+${feeAsset.precision}`)
+                    value={bnOrZero(
+                      BigAmount.fromBaseUnit({
+                        value: estimatedGas ?? '0',
+                        precision: feeAsset.precision,
+                      }).toPrecision(),
+                    )
                       .times(bnOrZero(feeMarketData?.price))
                       .toFixed(2)}
                   />
                   <Amount.Crypto
                     color='text.subtle'
-                    value={bnOrZero(estimatedGas).div(`1e+${feeAsset.precision}`).toFixed(5)}
+                    value={bnOrZero(
+                      BigAmount.fromBaseUnit({
+                        value: estimatedGas ?? '0',
+                        precision: feeAsset.precision,
+                      }).toPrecision(),
+                    ).toFixed(5)}
                     symbol={feeAsset.symbol}
                   />
                 </Stack>

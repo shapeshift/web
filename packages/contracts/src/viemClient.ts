@@ -7,13 +7,13 @@ import {
   arbitrum,
   avalanche,
   base,
-  blast,
   berachain,
+  blast,
   bob,
   bsc,
   celo,
-  flowMainnet,
   cronos,
+  flowMainnet,
   gnosis,
   hemi,
   hyperEvm,
@@ -28,13 +28,13 @@ import {
   plasma,
   plumeMainnet,
   polygon,
-  story,
-  zksync,
-  worldchain,
   scroll,
   soneium,
   sonic,
+  story,
   unichain,
+  worldchain,
+  zksync,
 } from 'viem/chains'
 
 const ethereal = defineChain({
@@ -78,6 +78,8 @@ const megaeth = defineChain({
     },
   },
 })
+
+export const flowEvmChain = flowMainnet
 
 export const viemEthMainnetClient = createPublicClient({
   chain: mainnet,
@@ -147,6 +149,11 @@ export const viemPlasmaClient = createPublicClient({
   transport: fallback([process.env.VITE_PLASMA_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemPlumeClient = createPublicClient({
+  chain: plumeMainnet,
+  transport: fallback([process.env.VITE_PLUME_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemMantleClient = createPublicClient({
   chain: mantle,
   transport: fallback([process.env.VITE_MANTLE_NODE_URL].filter(Boolean).map(url => http(url))),
@@ -177,38 +184,54 @@ export const viemCronosClient = createPublicClient({
   transport: fallback([process.env.VITE_CRONOS_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemFlowEvmClient = createPublicClient({
+  chain: flowMainnet,
+  transport: fallback(
+    [process.env.VITE_FLOWEVM_NODE_URL, 'https://mainnet.evm.nodes.onflow.org']
+      .filter(Boolean)
+      .map(url => http(url)),
+  ),
+}) as PublicClient
+
+export const viemCeloClient = createPublicClient({
+  chain: celo,
+  transport: fallback(
+    [process.env.VITE_CELO_NODE_URL, 'https://forno.celo.org']
+      .filter(Boolean)
+      .map(url => http(url)),
+  ),
+}) as PublicClient
+
 export const viemKatanaClient = createPublicClient({
   chain: katana,
   transport: fallback([process.env.VITE_KATANA_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
-export const viemEtherealClient = createPublicClient({
-  chain: ethereal,
-  transport: fallback([process.env.VITE_ETHEREAL_NODE_URL].filter(Boolean).map(url => http(url))),
-export const viemCeloClient = createPublicClient({
-  chain: celo,
-  transport: fallback([process.env.VITE_CELO_NODE_URL].filter(Boolean).map(url => http(url))),
-export const viemFlowEvmClient = createPublicClient({
-  chain: flowMainnet,
-  transport: fallback([process.env.VITE_FLOW_EVM_NODE_URL].filter(Boolean).map(url => http(url))),
-export const viemPlumeClient = createPublicClient({
-  chain: plumeMainnet,
-  transport: fallback([process.env.VITE_PLUME_NODE_URL].filter(Boolean).map(url => http(url))),
 export const viemStoryClient = createPublicClient({
   chain: story,
   transport: fallback([process.env.VITE_STORY_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemZkSyncEraClient = createPublicClient({
   chain: zksync,
   transport: fallback([process.env.VITE_ZKSYNC_ERA_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemBlastClient = createPublicClient({
   chain: blast,
   transport: fallback([process.env.VITE_BLAST_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemWorldChainClient = createPublicClient({
   chain: worldchain,
   transport: fallback([process.env.VITE_WORLDCHAIN_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemHemiClient = createPublicClient({
   chain: hemi,
   transport: fallback([process.env.VITE_HEMI_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemLineaClient = createPublicClient({
   chain: linea,
   transport: fallback([process.env.VITE_LINEA_NODE_URL].filter(Boolean).map(url => http(url))),
@@ -239,6 +262,11 @@ export const viemSoneiumClient = createPublicClient({
   transport: fallback([process.env.VITE_SONEIUM_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemEtherealClient = createPublicClient({
+  chain: ethereal,
+  transport: fallback([process.env.VITE_ETHEREAL_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,
   [KnownChainIds.BnbSmartChainMainnet]: viemBscClient,
@@ -251,16 +279,15 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.MonadMainnet]: viemMonadClient,
   [KnownChainIds.HyperEvmMainnet]: viemHyperEvmClient,
   [KnownChainIds.PlasmaMainnet]: viemPlasmaClient,
+  [KnownChainIds.PlumeMainnet]: viemPlumeClient,
   [KnownChainIds.MantleMainnet]: viemMantleClient,
   [KnownChainIds.InkMainnet]: viemInkClient,
   [KnownChainIds.MegaEthMainnet]: viemMegaEthClient,
   [KnownChainIds.BerachainMainnet]: viemBerachainClient,
   [KnownChainIds.CronosMainnet]: viemCronosClient,
   [KnownChainIds.KatanaMainnet]: viemKatanaClient,
-  [KnownChainIds.EtherealMainnet]: viemEtherealClient,
-  [KnownChainIds.CeloMainnet]: viemCeloClient,
   [KnownChainIds.FlowEvmMainnet]: viemFlowEvmClient,
-  [KnownChainIds.PlumeMainnet]: viemPlumeClient,
+  [KnownChainIds.CeloMainnet]: viemCeloClient,
   [KnownChainIds.StoryMainnet]: viemStoryClient,
   [KnownChainIds.ZkSyncEraMainnet]: viemZkSyncEraClient,
   [KnownChainIds.BlastMainnet]: viemBlastClient,
@@ -273,6 +300,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.BobMainnet]: viemBobClient,
   [KnownChainIds.ModeMainnet]: viemModeClient,
   [KnownChainIds.SoneiumMainnet]: viemSoneiumClient,
+  [KnownChainIds.EtherealMainnet]: viemEtherealClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -287,16 +315,15 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.MonadMainnet]: monad.id,
   [KnownChainIds.HyperEvmMainnet]: hyperEvm.id,
   [KnownChainIds.PlasmaMainnet]: plasma.id,
+  [KnownChainIds.PlumeMainnet]: plumeMainnet.id,
   [KnownChainIds.MantleMainnet]: mantle.id,
   [KnownChainIds.InkMainnet]: ink.id,
   [KnownChainIds.MegaEthMainnet]: megaeth.id,
   [KnownChainIds.BerachainMainnet]: berachain.id,
   [KnownChainIds.CronosMainnet]: cronos.id,
   [KnownChainIds.KatanaMainnet]: katana.id,
-  [KnownChainIds.EtherealMainnet]: ethereal.id,
-  [KnownChainIds.CeloMainnet]: celo.id,
   [KnownChainIds.FlowEvmMainnet]: flowMainnet.id,
-  [KnownChainIds.PlumeMainnet]: plumeMainnet.id,
+  [KnownChainIds.CeloMainnet]: celo.id,
   [KnownChainIds.StoryMainnet]: story.id,
   [KnownChainIds.ZkSyncEraMainnet]: zksync.id,
   [KnownChainIds.BlastMainnet]: blast.id,
@@ -309,6 +336,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.BobMainnet]: bob.id,
   [KnownChainIds.ModeMainnet]: mode.id,
   [KnownChainIds.SoneiumMainnet]: soneium.id,
+  [KnownChainIds.EtherealMainnet]: ethereal.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -323,16 +351,15 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [monad.id]: viemMonadClient,
   [hyperEvm.id]: viemHyperEvmClient,
   [plasma.id]: viemPlasmaClient,
+  [plumeMainnet.id]: viemPlumeClient,
   [mantle.id]: viemMantleClient,
   [ink.id]: viemInkClient,
   [megaeth.id]: viemMegaEthClient,
   [berachain.id]: viemBerachainClient,
   [cronos.id]: viemCronosClient,
   [katana.id]: viemKatanaClient,
-  [ethereal.id]: viemEtherealClient,
-  [celo.id]: viemCeloClient,
   [flowMainnet.id]: viemFlowEvmClient,
-  [plumeMainnet.id]: viemPlumeClient,
+  [celo.id]: viemCeloClient,
   [story.id]: viemStoryClient,
   [zksync.id]: viemZkSyncEraClient,
   [blast.id]: viemBlastClient,
@@ -345,6 +372,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [bob.id]: viemBobClient,
   [mode.id]: viemModeClient,
   [soneium.id]: viemSoneiumClient,
+  [ethereal.id]: viemEtherealClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

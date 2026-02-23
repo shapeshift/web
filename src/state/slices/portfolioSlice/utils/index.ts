@@ -154,6 +154,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case etherealChainId:
     case celoChainId:
     case flowEvmChainId:
+    case plumeChainId:
     case storyChainId:
     case worldChainChainId:
     case scrollChainId:

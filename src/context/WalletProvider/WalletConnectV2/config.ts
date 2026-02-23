@@ -1,16 +1,31 @@
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
+import { flowEvmChain } from '@shapeshiftoss/contracts'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { Chain } from 'viem/chains'
 import {
   arbitrum,
   avalanche,
   base,
+  blast,
+  bob,
   bsc,
+  celo,
+  cronos,
   gnosis,
+  hemi,
   ink,
   mainnet,
+  mantle,
+  mode,
   optimism,
+  plumeMainnet,
   polygon,
+  soneium,
+  sonic,
+  story,
+  unichain,
+  worldchain,
+  zksync,
 } from 'viem/chains'
 
 import type { EthereumProviderOptions } from './constants'
@@ -59,6 +74,21 @@ export const walletConnectV2OptionalChains: AtLeastOneViemChain = (() => {
     arbitrum,
     base,
     ink,
+    flowEvmChain,
+    mantle,
+    cronos,
+    sonic,
+    unichain,
+    bob,
+    mode,
+    soneium,
+    hemi,
+    worldchain,
+    blast,
+    zksync,
+    story,
+    plumeMainnet,
+    celo,
   ]
   if (optionalViemChains.length === 0) throw new Error('Array must contain at least one element.')
   return optionalViemChains as AtLeastOneViemChain
@@ -81,6 +111,21 @@ const {
   VITE_ARBITRUM_NODE_URL,
   VITE_BASE_NODE_URL,
   VITE_INK_NODE_URL,
+  VITE_FLOWEVM_NODE_URL,
+  VITE_MANTLE_NODE_URL,
+  VITE_CRONOS_NODE_URL,
+  VITE_SONIC_NODE_URL,
+  VITE_UNICHAIN_NODE_URL,
+  VITE_BOB_NODE_URL,
+  VITE_MODE_NODE_URL,
+  VITE_SONEIUM_NODE_URL,
+  VITE_HEMI_NODE_URL,
+  VITE_WORLDCHAIN_NODE_URL,
+  VITE_BLAST_NODE_URL,
+  VITE_ZKSYNC_ERA_NODE_URL,
+  VITE_STORY_NODE_URL,
+  VITE_PLUME_NODE_URL,
+  VITE_CELO_NODE_URL,
 } = getConfig()
 
 export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
@@ -112,6 +157,21 @@ export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
     [CHAIN_REFERENCE.ArbitrumMainnet]: VITE_ARBITRUM_NODE_URL,
     [CHAIN_REFERENCE.BaseMainnet]: VITE_BASE_NODE_URL,
     [CHAIN_REFERENCE.InkMainnet]: VITE_INK_NODE_URL,
+    [CHAIN_REFERENCE.FlowEvmMainnet]: VITE_FLOWEVM_NODE_URL,
+    [CHAIN_REFERENCE.MantleMainnet]: VITE_MANTLE_NODE_URL,
+    [CHAIN_REFERENCE.CronosMainnet]: VITE_CRONOS_NODE_URL,
+    [CHAIN_REFERENCE.SonicMainnet]: VITE_SONIC_NODE_URL,
+    [CHAIN_REFERENCE.UnichainMainnet]: VITE_UNICHAIN_NODE_URL,
+    [CHAIN_REFERENCE.BobMainnet]: VITE_BOB_NODE_URL,
+    [CHAIN_REFERENCE.ModeMainnet]: VITE_MODE_NODE_URL,
+    [CHAIN_REFERENCE.SoneiumMainnet]: VITE_SONEIUM_NODE_URL,
+    [CHAIN_REFERENCE.HemiMainnet]: VITE_HEMI_NODE_URL,
+    [CHAIN_REFERENCE.WorldChainMainnet]: VITE_WORLDCHAIN_NODE_URL,
+    [CHAIN_REFERENCE.BlastMainnet]: VITE_BLAST_NODE_URL,
+    [CHAIN_REFERENCE.ZkSyncEraMainnet]: VITE_ZKSYNC_ERA_NODE_URL,
+    [CHAIN_REFERENCE.StoryMainnet]: VITE_STORY_NODE_URL,
+    [CHAIN_REFERENCE.PlumeMainnet]: VITE_PLUME_NODE_URL,
+    [CHAIN_REFERENCE.CeloMainnet]: VITE_CELO_NODE_URL,
   },
 }
 

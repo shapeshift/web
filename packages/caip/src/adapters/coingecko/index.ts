@@ -81,7 +81,7 @@ export enum CoingeckoAssetPlatform {
   Hemi = 'hemi',
   Mantle = 'mantle',
   Linea = 'linea',
-  Sonic = 'sonic-3',
+  Sonic = 'sonic',
   Unichain = 'unichain',
   Bob = 'bob-network',
   Mode = 'mode',
@@ -156,6 +156,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.FlowEvm
         case CHAIN_REFERENCE.StoryMainnet:
           return CoingeckoAssetPlatform.Story
+        case CHAIN_REFERENCE.PlumeMainnet:
+          return CoingeckoAssetPlatform.Plume
         case CHAIN_REFERENCE.ZkSyncEraMainnet:
           return CoingeckoAssetPlatform.ZkSyncEra
         case CHAIN_REFERENCE.BlastMainnet:

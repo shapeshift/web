@@ -138,11 +138,11 @@
 
 .ssw-quote-row.ssw-best {
   border-color: var(--ssw-accent, #3861fb);
-  background: var(--ssw-accent-light, rgba(56, 97, 251, 0.06));
+  background: color-mix(in srgb, var(--ssw-accent, #3861fb) 6%, transparent);
 }
 
 .ssw-quote-row.ssw-best:hover {
-  background: var(--ssw-accent-light, rgba(56, 97, 251, 0.1));
+  background: color-mix(in srgb, var(--ssw-accent, #3861fb) 12%, transparent);
 }
 
 .ssw-quote-row.ssw-selected {

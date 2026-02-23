@@ -8,7 +8,7 @@ type AccountAddress = string | { address?: string; purpose?: string | number }
 
 type AccountAddressArray = AccountAddress[]
 
-type SignInput = {
+export type SignInput = {
   address: string
   index: number
   sighashTypes?: number[]

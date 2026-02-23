@@ -130,7 +130,6 @@ export const InputStep = ({
     if (ratesError) return 'No routes available'
     if (!rates?.length) return 'No routes found'
     if (isExecuting) return 'Executing...'
-    if (!canExecuteDirectly) return 'Proceed on ShapeShift'
     return 'Swap'
   }, [
     walletAddress,

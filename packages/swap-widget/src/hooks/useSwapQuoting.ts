@@ -45,7 +45,12 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
           }
         }
 
-        const slippageDecimal = (parseFloat(context.slippage) / 100).toString()
+        const parsedSlippage = parseFloat(context.slippage)
+        if (isNaN(parsedSlippage) || parsedSlippage < 0) {
+          actorRef.send({ type: 'QUOTE_ERROR', error: 'Invalid slippage value' })
+          return
+        }
+        const slippageDecimal = (parsedSlippage / 100).toString()
         const rateToUse = context.selectedRate ?? rates?.[0]
         if (!rateToUse || !context.sellAmountBaseUnit) {
           actorRef.send({ type: 'QUOTE_ERROR', error: 'No rate or amount available' })

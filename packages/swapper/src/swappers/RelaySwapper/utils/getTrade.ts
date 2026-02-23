@@ -653,12 +653,13 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
       if (isRelayQuoteTronItemData(selectedItem.data)) {
         return {
-          allowanceContract: '',
+          allowanceContract: selectedItem.data?.parameter?.contract_address ?? '',
           solanaTransactionMetadata: undefined,
           relayTransactionMetadata: {
             relayId: quote.steps[0].requestId,
             orderId,
             to: selectedItem.data?.parameter?.contract_address,
+            data: selectedItem.data?.parameter?.data,
           },
         }
       }

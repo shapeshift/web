@@ -62,9 +62,10 @@ describe('chainflip eip712 helpers', () => {
       nonceOrAccount: 0,
     })
 
-    const callInput = signTypedData.mock.calls[0]?.[0]
-    const typedData = callInput?.typedDataToSign?.typedData
-    expect(typedData?.types?.EIP712Domain).toBeUndefined()
+    expect(signTypedData).toHaveBeenCalledTimes(1)
+    const callInput = signTypedData.mock.calls[0][0]
+    const typedData = callInput.typedDataToSign.typedData
+    expect(typedData.types.EIP712Domain).toBeUndefined()
     expect(result.signature).toBe(`0x${'11'.repeat(65)}`)
   })
 

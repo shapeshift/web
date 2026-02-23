@@ -83,7 +83,6 @@
     "@arbitrum/sdk": "^4.0.1",
     "@cetusprotocol/aggregator-sdk": "^1.4.2",
     "@cetusprotocol/cetus-sui-clmm-sdk": "5.4.0",
-    "@chainflip/extrinsics": "^1.6.2",
     "@chainflip/rpc": "^2.1.1",
     "@chakra-ui/icons": "^2.2.4",
     "@chakra-ui/react": "^2.10.7",
@@ -244,6 +243,7 @@
     "wouter": "^3.6.0"
   },
   "devDependencies": {
+    "@chainflip/extrinsics": "^1.6.2",
     "@commitlint/cli": "^15.0.0",
     "@commitlint/config-conventional": "^15.0.0",
     "@keplr-wallet/types": "^0.12.21",

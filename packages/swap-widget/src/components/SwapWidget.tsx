@@ -1285,10 +1285,9 @@ const SwapWidgetWithExternalWallet = (props: SwapWidgetProps) => {
     () =>
       createApiClient({
         baseUrl: props.apiBaseUrl,
-        apiKey: props.apiKey,
         affiliateAddress: props.affiliateAddress,
       }),
-    [props.apiBaseUrl, props.apiKey, props.affiliateAddress],
+    [props.apiBaseUrl, props.affiliateAddress],
   )
 
   return (
@@ -1305,10 +1304,9 @@ const SwapWidgetWithInternalWallet = (
     () =>
       createApiClient({
         baseUrl: props.apiBaseUrl,
-        apiKey: props.apiKey,
         affiliateAddress: props.affiliateAddress,
       }),
-    [props.apiBaseUrl, props.apiKey, props.affiliateAddress],
+    [props.apiBaseUrl, props.affiliateAddress],
   )
 
   return (

@@ -59,7 +59,6 @@ function App() {
 
 | Prop                     | Type                                            | Default          | Description                                                                                                |
 | ------------------------ | ----------------------------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------- |
-| `apiKey`                 | `string`                                        | -                | **Deprecated.** Use `affiliateAddress` instead. Will be removed in a future version.                       |
 | `affiliateAddress`       | `string`                                        | -                | Your Arbitrum address for affiliate fee attribution. Optional — the widget works without it.               |
 | `apiBaseUrl`             | `string`                                        | -                | Custom API base URL. Useful for testing or custom deployments.                                             |
 | `defaultSellAsset`       | `Asset`                                         | ETH on Ethereum  | Initial asset to sell.                                                                                     |

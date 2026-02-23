@@ -5,7 +5,6 @@ const DEFAULT_API_BASE_URL =
 
 export type ApiClientConfig = {
   baseUrl?: string
-  apiKey?: string
   affiliateAddress?: string
 }
 
@@ -24,8 +23,6 @@ export const createApiClient = (config: ApiClientConfig = {}) => {
     }
     if (config.affiliateAddress) {
       headers['x-affiliate-address'] = config.affiliateAddress
-    } else if (config.apiKey) {
-      headers['x-api-key'] = config.apiKey
     }
 
     const controller = new AbortController()

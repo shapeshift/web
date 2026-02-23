@@ -295,7 +295,7 @@ After all batches are complete:
 
 1. Write accumulated translations to `/tmp/translations-{LOCALE_CODE}-final.json`
 
-2. Run merge (which creates a pre-merge backup automatically):
+2. Run merge (which creates a pre-merge backup automatically). By default, merge **only adds new keys** — existing translations are never overwritten. Pass `--force` only when re-translating changed English strings:
    ```bash
    node .claude/skills/translate/scripts/merge.js {LOCALE_CODE} /tmp/translations-{LOCALE_CODE}-final.json
    ```

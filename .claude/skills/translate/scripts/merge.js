@@ -18,6 +18,18 @@ const existing = JSON.parse(fs.readFileSync(localeFilePath, 'utf8'));
 const backupPath = `/tmp/pre-merge-${locale}.json`;
 fs.writeFileSync(backupPath, JSON.stringify(existing, null, 2) + '\n');
 
+const forceOverwrite = process.argv.includes('--force');
+
+function getByPath(obj, path) {
+  const parts = path.split('.');
+  let current = obj;
+  for (const part of parts) {
+    if (current == null || typeof current !== 'object') return undefined;
+    current = current[part];
+  }
+  return current;
+}
+
 function setByPath(obj, path, value) {
   const parts = path.split('.');
   let current = obj;
@@ -48,10 +60,18 @@ function orderLike(template, target) {
   return ordered;
 }
 
+let added = 0;
+let skipped = 0;
 for (const [path, value] of Object.entries(newTranslations)) {
+  const existingValue = getByPath(existing, path);
+  if (existingValue !== undefined && !forceOverwrite) {
+    skipped++;
+    continue;
+  }
   setByPath(existing, path, value);
+  added++;
 }
 
 const ordered = orderLike(enKeys, existing);
 fs.writeFileSync(localeFilePath, JSON.stringify(ordered, null, 2) + '\n');
-console.log('Merged ' + Object.keys(newTranslations).length + ' translations into ' + locale + ' (backup: ' + backupPath + ')');
+console.log('Merged ' + added + ' new translations into ' + locale + ' (' + skipped + ' existing skipped, backup: ' + backupPath + ')');

@@ -2589,13 +2589,16 @@
         "body": "rFOX, FOX tokenlarınızı Arbitrum'da stake ettiğinizde elde ettiğiniz avantajları ve ödülleri tanımlamak için kullanılan bir terimdir. Şu anda, emisyonları stake etmek için vanilya FOX (Arbitrum'da) tokenlerini kilitliyor ve kilidini açıyorsunuz."
       },
       "why": {
-        "title": "Neden FOX'unuzu stake etmelisiniz?"
+        "title": "Neden FOX'unuzu stake etmelisiniz?",
+        "body": "FOX'unuzu stake etmek, DAO'nun hazinesinden dönem başına USDC cinsinden düzenli ödemeler kazanmanıza olanak tanır ve dönem başına USDC'de istikrarlı bir pasif gelir akışı sağlar. Ayrıca, DAO gelirinin bir kısmı token yakma yoluyla genel FOX arzını azaltmaya tahsis edilecektir. Staking süreci, topluluk içinde bağlılığı ve istikrarı teşvik eden minimum 28 günlük bir stake kaldırma süresini gerektirir."
       },
       "stake": {
-        "title": "FOX'umu nasıl stake ederim?"
+        "title": "FOX'umu nasıl stake ederim?",
+        "body": "FOX'unuzu stake etmek için, FOX tokenlarınızı staking sözleşmesine kilitlemek üzere staking arayüzünü kullanırsınız. Stake edildikten sonra, staking avantajlarınızın bir parçası olarak blok başına USDC ödülleri kazanmaya başlarsınız."
       },
       "unstake": {
-        "title": "Stake kaldırdığımda ne olur?"
+        "title": "Stake kaldırdığımda ne olur?",
+        "body": "Stake'i kaldırmaya karar verdiğinizde, minimum 28 günlük bir stake kaldırma süresi vardır. Bu süre zarfında FOX'unuz kilitli kalır ve USDC emisyonları almayı bırakırsınız. Stake kaldırma süresinin ardından düzenli FOX tokenlarınızın kilidini açabilir ve geri alabilirsiniz."
       },
       "cooldown": {
         "title": "Soğuma süresi ne kadardır?",
@@ -2606,7 +2609,8 @@
         "body": "Evet, birden fazla stake etme tutarınız olabilir. Her bir stake kaldırma eyleminin kendine ait 28 günlük bekleme süresi olacaktır."
       },
       "connect": {
-        "title": "Toplanan toplam ücretler, toplam FOX stake miktarı, emisyon havuzu ve FOX yakma miktarı nasıl birbirine bağlanır?"
+        "title": "Toplanan toplam ücretler, toplam FOX stake miktarı, emisyon havuzu ve FOX yakma miktarı nasıl birbirine bağlanır?",
+        "body": "DAO tarafından toplanan ücretler, takas başına yerel varlıklar cinsindedir. Bu gelirin bir kısmı dönüştürülerek FOX staker'larına ödül olarak dağıtılırken, bir kısmı token yakma yoluyla genel FOX arzını azaltmaya tahsis edilir. Stake edilen toplam FOX, ödüllerin dağıtımını etkiler; ödüller, stake edilen FOX miktarına göre orantılı olarak dağıtılır. Emisyon havuzu, staking ödülleri için mevcut FOX miktarını temsil eder ve FOX yakma miktarı, satın alınıp yakılan FOX miktarıdır."
       }
     },
     "totals": "rFOX Toplamı",
@@ -2836,15 +2840,23 @@
     },
     "deposit": {
       "pending": "%{amount} %{symbol} tutarındaki yatırımınız işleniyor.",
-      "complete": "%{amount} %{symbol} tutarındaki yatırımınız tamamlandı."
+      "complete": "%{amount} %{symbol} tutarındaki yatırımınız tamamlandı.",
+      "failed": "%{amount} %{symbol} yatırma işleminiz başarısız oldu."
     },
     "withdrawal": {
       "pending": "%{amount} %{symbol} tutarındaki çekim işleminiz işleniyor.",
-      "complete": "%{amount} %{symbol} tutarındaki çekim işleminiz tamamlandı."
+      "complete": "%{amount} %{symbol} tutarındaki çekim işleminiz tamamlandı.",
+      "failed": "%{amount} %{symbol} çekme işleminiz başarısız oldu."
     },
     "claim": {
       "pending": "%{amount} %{symbol} tutarındaki talebiniz işleniyor.",
-      "complete": "%{amount} %{symbol} tutarındaki talebiniz tamamlandı."
+      "complete": "%{amount} %{symbol} tutarındaki talebiniz tamamlandı.",
+      "failed": "%{amount} %{symbol} talep işleminiz başarısız oldu."
+    },
+    "yield": {
+      "unstakeAvailableIn": "%{symbol} stake kaldırma işleminiz %{duration} içinde kullanılabilir olacak.",
+      "unstakeReady": "%{symbol} stake kaldırma işleminiz talep edilmeye hazır.",
+      "unstakeClaimed": "%{symbol} stake kaldırma işleminiz talep edildi."
     },
     "bridge": {
       "processing": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz işleniyor.",
@@ -2895,8 +2907,7 @@
   "yieldXYZ": {
     "pageTitle": "Getiriler",
     "pageSubtitle": "Birden fazla zincirde getiri fırsatlarını keşfedin ve yönetin.",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Getiri",
     "apy": "APY",
     "apr": "APR",
@@ -2988,6 +2999,7 @@
     "providers": "Sağlayıcılar",
     "successStaked": "%{amount} %{symbol} tutarındaki stake tutarınızı başarıyla yatırdınız.",
     "successUnstaked": "%{amount} %{symbol} tutarındaki yatırımınızı başarıyla geri çektiniz.",
+    "cooldownNotice": "Çekme işleminiz %{cooldownDuration} içinde kullanılabilir olacak.",
     "successDeposited": "%{amount} %{symbol} tutarını başarıyla yatırdınız.",
     "successWithdrawn": "%{amount} %{symbol} tutarındaki çekme işleminiz başarıyla tamamlandı.",
     "successClaim": "%{amount} %{symbol} tutarındaki talebinizi başarıyla karşıladınız.",

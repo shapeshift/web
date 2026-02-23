@@ -53,6 +53,7 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_SWAPPER_SOLANA: string
   readonly VITE_FEATURE_CHAINFLIP_SWAP: string
   readonly VITE_FEATURE_CHAINFLIP_SWAP_DCA: string
+  readonly VITE_FEATURE_CHAINFLIP_LENDING: string
   readonly VITE_FEATURE_COWSWAP: string
   readonly VITE_FEATURE_THOR_SWAP: string
   readonly VITE_FEATURE_ZRX_SWAP: string
@@ -112,6 +113,7 @@ interface ImportMetaEnv {
   readonly VITE_ZRX_BASE_URL: string
   readonly VITE_CHAINFLIP_API_KEY: string
   readonly VITE_CHAINFLIP_API_URL: string
+  readonly VITE_CHAINFLIP_RPC_URL: string
   readonly VITE_NEAR_INTENTS_API_KEY: string
   readonly VITE_FEATURE_NEAR_INTENTS_SWAP: string
   readonly VITE_RELAY_API_URL: string

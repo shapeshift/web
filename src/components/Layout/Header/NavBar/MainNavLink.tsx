@@ -15,6 +15,7 @@ type SidebarLinkProps = {
   to?: NavLinkProps['to']
   isCompact?: boolean
   isNew?: boolean
+  isDeprecated?: boolean
   isViewOnly?: boolean
   isActive?: boolean
   menuRightComponent?: React.ReactNode
@@ -33,6 +34,7 @@ export const MainNavLink = memo((props: SidebarLinkProps) => {
     isCompact,
     onClick,
     isNew,
+    isDeprecated,
     isViewOnly,
     label,
     isActive,
@@ -43,6 +45,7 @@ export const MainNavLink = memo((props: SidebarLinkProps) => {
       isCompact,
       onClick,
       isNew,
+      isDeprecated,
       isViewOnly,
       label,
       isActive,
@@ -53,6 +56,7 @@ export const MainNavLink = memo((props: SidebarLinkProps) => {
       isCompact,
       onClick,
       isNew,
+      isDeprecated,
       isViewOnly,
       label,
       isActive,
@@ -138,6 +142,11 @@ export const MainNavLink = memo((props: SidebarLinkProps) => {
               display={displayProp3}
             />
           </>
+        )}
+        {isDeprecated && (
+          <Tag ml='auto' size='sm' colorScheme='orange' display={displayProp1}>
+            {translate('common.deprecated')}
+          </Tag>
         )}
         {isViewOnly && (
           <Tag ml='auto' size='sm' colorScheme='blue' display={displayProp1}>

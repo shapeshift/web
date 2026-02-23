@@ -22,6 +22,7 @@ export type Route = {
   disable?: boolean
   hideDesktop?: boolean
   isNew?: boolean
+  isDeprecated?: boolean
   isViewOnly?: boolean
   category?: RouteCategory
   menuRightComponent?: React.ReactNode

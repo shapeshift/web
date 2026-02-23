@@ -67,6 +67,16 @@ const Assets = makeSuspenseful(
   true,
 )
 
+const ChainflipLending = makeSuspenseful(
+  lazy(() =>
+    import('@/pages/ChainflipLending/ChainflipLending').then(({ ChainflipLending }) => ({
+      default: ChainflipLending,
+    })),
+  ),
+  {},
+  true,
+)
+
 const Ramp = makeSuspenseful(
   lazy(() =>
     import('@/pages/Ramp/Ramp').then(({ Ramp }) => ({
@@ -364,7 +374,9 @@ export const routes: Route[] = [
   },
   {
     path: '/lending/*',
-    label: 'navBar.lending',
+    label: getConfig().VITE_FEATURE_CHAINFLIP_LENDING
+      ? 'navBar.thorchainLending'
+      : 'navBar.lending',
     icon: <RiExchangeFundsLine />,
     main: LendingPage,
     category: RouteCategory.Thorchain,
@@ -372,6 +384,18 @@ export const routes: Route[] = [
     mobileNav: false,
     disable: !getConfig().VITE_FEATURE_THORCHAIN_LENDING,
     isViewOnly: true,
+    isDeprecated: getConfig().VITE_FEATURE_CHAINFLIP_LENDING,
+  },
+  {
+    path: '/chainflip-lending/*',
+    label: 'navBar.chainflipLending',
+    icon: <RiExchangeFundsLine />,
+    main: ChainflipLending,
+    category: RouteCategory.Thorchain,
+    priority: 3,
+    mobileNav: false,
+    disable: !getConfig().VITE_FEATURE_CHAINFLIP_LENDING,
+    isNew: true,
   },
   {
     path: '/assets',

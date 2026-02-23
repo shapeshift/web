@@ -4,5 +4,7 @@ export const csp: Csp = {
   'connect-src': [
     'https://explorer-service-processor.chainflip.io/graphql',
     'https://chainflip-broker.io/',
+    'https://rpc.mainnet.chainflip.io',
+    'wss://rpc.mainnet.chainflip.io',
   ],
 }

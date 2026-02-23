@@ -139,6 +139,7 @@
     "manage": "Manage",
     "view": "View",
     "viewOnly": "View-Only",
+    "deprecated": "Deprecated",
     "allChains": "All Chains",
     "wallet": "Wallet",
     "feedbackAndSupport": "Feedback & Support",
@@ -717,6 +718,8 @@
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
     "lending": "Lending",
+    "thorchainLending": "THORChain Lending",
+    "chainflipLending": "Chainflip Lending",
     "pools": "Pools",
     "rFOX": "rFOX",
     "tcy": "TCY",
@@ -727,6 +730,9 @@
     "swap": "Swap",
     "yields": "Yields",
     "earn": "Earn"
+  },
+  "chainflipLending": {
+    "todo": "Chainflip lending UI coming soon."
   },
   "shapeShiftMenu": {
     "products": "Products",

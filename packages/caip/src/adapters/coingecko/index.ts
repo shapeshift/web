@@ -8,8 +8,8 @@ import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
-  blastChainId,
   berachainChainId,
+  blastChainId,
   bobChainId,
   bscChainId,
   celoChainId,
@@ -45,9 +45,9 @@ import {
   thorchainChainId,
   tonChainId,
   tronChainId,
-  zkSyncEraChainId,
-  worldChainChainId,
   unichainChainId,
+  worldChainChainId,
+  zkSyncEraChainId,
 } from '../../constants'
 import * as adapters from './generated'
 

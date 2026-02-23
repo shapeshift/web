@@ -364,7 +364,8 @@ export const plume: Readonly<Asset> = Object.freeze({
   color: '#6C5DD3',
   networkColor: '#6C5DD3',
   icon: 'https://assets.coingecko.com/coins/images/53623/standard/plume-token.png?1736896935',
-  networkIcon: 'https://assets.coingecko.com/coins/images/53623/standard/plume-token.png?1736896935',
+  networkIcon:
+    'https://assets.coingecko.com/coins/images/53623/standard/plume-token.png?1736896935',
   explorer: 'https://explorer.plume.org',
   explorerAddressLink: 'https://explorer.plume.org/address/',
   explorerTxLink: 'https://explorer.plume.org/tx/',
@@ -517,7 +518,8 @@ export const celo: Readonly<Asset> = Object.freeze({
   color: '#35D07F',
   networkColor: '#35D07F',
   icon: 'https://coin-images.coingecko.com/coins/images/11090/large/InjXBNx9_400x400.jpg?1696511031',
-  networkIcon: 'https://coin-images.coingecko.com/coins/images/11090/large/InjXBNx9_400x400.jpg?1696511031',
+  networkIcon:
+    'https://coin-images.coingecko.com/coins/images/11090/large/InjXBNx9_400x400.jpg?1696511031',
   explorer: 'https://celoscan.io',
   explorerAddressLink: 'https://celoscan.io/address/',
   explorerTxLink: 'https://celoscan.io/tx/',
@@ -534,7 +536,8 @@ export const story: Readonly<Asset> = Object.freeze({
   color: '#EA580C',
   networkColor: '#EA580C',
   icon: 'https://assets.coingecko.com/coins/images/54035/standard/Transparent_bg.png?1738075331',
-  networkIcon: 'https://assets.coingecko.com/coins/images/54035/standard/Transparent_bg.png?1738075331',
+  networkIcon:
+    'https://assets.coingecko.com/coins/images/54035/standard/Transparent_bg.png?1738075331',
   explorer: 'https://storyscan.xyz',
   explorerAddressLink: 'https://storyscan.xyz/address/',
   explorerTxLink: 'https://storyscan.xyz/tx/',

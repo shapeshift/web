@@ -11,8 +11,8 @@ import {
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
-  supportsBlast,
   supportsBerachain,
+  supportsBlast,
   supportsBob,
   supportsBSC,
   supportsCelo,
@@ -34,13 +34,13 @@ import {
   supportsPlasma,
   supportsPlume,
   supportsPolygon,
-  supportsStory,
-  supportsZkSyncEra,
-  supportsWorldChain,
   supportsScroll,
   supportsSoneium,
   supportsSonic,
+  supportsStory,
   supportsUnichain,
+  supportsWorldChain,
+  supportsZkSyncEra,
 } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'

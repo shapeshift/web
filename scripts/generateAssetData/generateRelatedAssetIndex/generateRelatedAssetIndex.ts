@@ -20,9 +20,9 @@ import {
   scrollAssetId,
   soneiumAssetId,
   starknetAssetId,
-  zkSyncEraAssetId,
-  worldChainAssetId,
   unichainAssetId,
+  worldChainAssetId,
+  zkSyncEraAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { createThrottle, isToken } from '@shapeshiftoss/utils'

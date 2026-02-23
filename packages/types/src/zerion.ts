@@ -3,8 +3,8 @@ import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
-  blastChainId,
   berachainChainId,
+  blastChainId,
   bobChainId,
   bscChainId,
   celoChainId,
@@ -24,14 +24,14 @@ import {
   plumeChainId,
   polygonChainId,
   solanaChainId,
-  storyChainId,
   soneiumChainId,
   sonicChainId,
+  storyChainId,
   suiChainId,
   tronChainId,
-  zkSyncEraChainId,
-  worldChainChainId,
   unichainChainId,
+  worldChainChainId,
+  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 
 export const ZERION_CHAINS = [

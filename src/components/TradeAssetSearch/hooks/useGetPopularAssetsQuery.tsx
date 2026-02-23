@@ -1,13 +1,13 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
-  etherealAssetId,
-  celoAssetId,
-  flowEvmAssetId,
-  blastAssetId,
-  hemiAssetId,
   berachainAssetId,
+  blastAssetId,
   bobAssetId,
+  celoAssetId,
   cronosAssetId,
+  etherealAssetId,
+  flowEvmAssetId,
+  hemiAssetId,
   hyperEvmAssetId,
   inkAssetId,
   katanaAssetId,
@@ -28,9 +28,9 @@ import {
   suiAssetId,
   thorchainAssetId,
   tronAssetId,
-  zkSyncEraAssetId,
-  worldChainAssetId,
   unichainAssetId,
+  worldChainAssetId,
+  zkSyncEraAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'

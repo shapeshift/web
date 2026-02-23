@@ -177,18 +177,18 @@ export function supportsPlasma(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsPlasma
 }
 
+export function supportsPlume(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsPlume
+}
+
 export function supportsKatana(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsKatana
 }
 
-export function supportsEthereal(wallet: HDWallet): wallet is ETHWallet {
-  return isObject(wallet) && (wallet as any)._supportsEthereal
-export function supportsCelo(wallet: HDWallet): wallet is ETHWallet {
-  return isObject(wallet) && (wallet as any)._supportsCelo
-export function supportsFlowEvm(wallet: HDWallet): wallet is ETHWallet {
-  return isObject(wallet) && (wallet as any)._supportsFlowEvm
 export function supportsStory(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsStory
+}
+
 export function supportsSonic(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsSonic
 }
@@ -217,16 +217,30 @@ export function supportsMegaEth(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsMegaEth
 }
 
-export function supportsPlume(wallet: HDWallet): wallet is ETHWallet {
-  return isObject(wallet) && (wallet as any)._supportsPlume
 export function supportsZkSyncEra(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsZkSyncEra
+}
+
 export function supportsBlast(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsBlast
+}
+
 export function supportsWorldChain(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsWorldChain
+}
+
 export function supportsHemi(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsHemi
+}
+
+export function supportsFlowEvm(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsFlowEvm
+}
+
+export function supportsCelo(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsCelo
+}
+
 export function supportsBerachain(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsBerachain
 }
@@ -568,4 +582,8 @@ export interface HDWallet extends HDWalletInfo {
    * Close connection with device
    */
   disconnect(): Promise<void>
+}
+
+export function supportsEthereal(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsEthereal
 }

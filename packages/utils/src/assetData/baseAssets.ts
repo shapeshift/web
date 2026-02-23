@@ -813,6 +813,7 @@ export const ethereal: Readonly<Asset> = Object.freeze({
   name: 'USDe',
   networkName: 'Ethereal',
   symbol: 'USDe',
+  precision: 18,
   color: '#6E56CF',
   networkColor: '#6E56CF',
   icon: 'https://assets.coingecko.com/coins/images/33613/large/USDE.png',

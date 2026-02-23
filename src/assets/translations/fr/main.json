@@ -201,6 +201,209 @@
   "accountSelector": {
     "chooseAccount": "Choisir un compte"
   },
+  "agenticChat": {
+    "title": "Agent ShapeShift",
+    "aiChat": "Chat IA",
+    "openChat": "Ouvrir le chat",
+    "closeChat": "Fermer le chat",
+    "emptyState": "Comment puis-je vous aider aujourd'hui ?",
+    "placeholder": "Entrez un message...",
+    "stop": "Stop",
+    "send": "Envoyer",
+    "txStepProgress": "%{completedCount} sur %{totalCount} terminés",
+    "agenticChatTools": {
+      "send": {
+        "title": "Envoyer des cryptos",
+        "receivedFrom": "Reçu de %{address}",
+        "steps": {
+          "preparation": "Préparation de la transaction d'envoi",
+          "send": "Signer et envoyer la transaction"
+        },
+        "errors": {
+          "prepareFailed": "Échec de la préparation de la transaction d'envoi",
+          "sendFailed": "Échec de l'envoi : %{error}",
+          "noWallet": "Aucun porte-monnaie connecté",
+          "accountNotFound": "Compte introuvable"
+        },
+        "success": {
+          "transactionSent": "Transaction envoyée : %{txHash}",
+          "title": "Envoi réussi",
+          "description": "Votre transaction d'envoi a été effectuée"
+        }
+      },
+      "swap": {
+        "title": "Échanger",
+        "receivedFrom": "Reçu de %{address}",
+        "steps": {
+          "quote": "Obtention d'un devis pour l'échange",
+          "networkSwitch": "Changer vers %{network}",
+          "networkSwitchGeneric": "Changer de réseau",
+          "approval": "Autoriser les dépenses de jetons",
+          "approvalConfirmation": "Confirmation de l'autorisation",
+          "swap": "Signer la transaction d'échange"
+        },
+        "errors": {
+          "quoteFailed": "Échec de l'obtention d'un devis pour l'échange",
+          "swapFailed": "L'exécution de l'échange a échoué : %{error}",
+          "noWallet": "Aucun porte-monnaie connecté",
+          "accountNotFound": "Compte introuvable"
+        },
+        "success": {
+          "title": "Échange réussi",
+          "description": "Votre transaction d'échange a été effectuée"
+        }
+      },
+      "cancelLimitOrder": {
+        "title": "Annuler l'ordre à cours limité",
+        "steps": {
+          "prepare": "Préparation de l'annulation",
+          "sign": "Signer l'annulation",
+          "submit": "Soumission de l'annulation"
+        },
+        "errors": {
+          "prepareFailed": "Échec de la préparation de l'annulation",
+          "signFailed": "Échec de la signature d'annulation",
+          "submitFailed": "Échec de l'annulation de l'ordre : %{error}",
+          "noWallet": "Aucun porte-monnaie connecté",
+          "accountNotFound": "Compte introuvable"
+        },
+        "success": {
+          "title": "Ordre annulé",
+          "description": "Votre ordre à cours limité a été annulé avec succès"
+        },
+        "networkLabel": "Réseau",
+        "orderLabel": "Ordre",
+        "cancellationFailed": "L'annulation a échoué.",
+        "orderCancelledSuccessfully": "Ordre annulé avec succès"
+      },
+      "createLimitOrder": {
+        "title": "Créer un ordre à cours limité",
+        "steps": {
+          "prepare": "Préparation de l'ordre",
+          "approval": "Autoriser les dépenses de jetons",
+          "approvalConfirmation": "Confirmation de l'autorisation",
+          "sign": "Signer l'ordre",
+          "submit": "Envoi de l'ordre en cours"
+        },
+        "errors": {
+          "prepareFailed": "Échec de la préparation de l'ordre",
+          "approvalFailed": "L'autorisation du jeton a échoué",
+          "signFailed": "Échec de la signature de l'ordre",
+          "submitFailed": "Échec de la création de l'ordre : %{error}",
+          "noWallet": "Aucun porte-monnaie connecté",
+          "accountNotFound": "Compte introuvable"
+        },
+        "success": {
+          "title": "Ordre à cours limité créé",
+          "description": "Votre ordre à cours limité a été créé avec succès"
+        },
+        "expires": "Expire",
+        "viewOrder": "Afficher l'ordre →",
+        "approvalTx": "Tx. d'autorisation",
+        "orderCreationFailed": "La création de l'ordre a échoué",
+        "orderCreatedSuccessfully": "L'ordre a été créé avec succès"
+      },
+      "newCoins": {
+        "title": "Ajouts récents",
+        "subtitle": "Nouveaux actifs sur CoinGecko"
+      },
+      "trendingTokens": {
+        "title": "Tendances sur CoinGecko",
+        "subtitle": "Jetons tendance sur 24h"
+      },
+      "topGainersLosers": {
+        "gainersTitle": "Meilleures performances (%{duration})",
+        "losersTitle": "Pires performances (%{duration})"
+      },
+      "portfolio": {
+        "title": "Portfolio",
+        "totalValue": "Valeur totale",
+        "accountLabel": "Compte",
+        "networkLabel": "Réseau",
+        "emptyState": "Aucun actif dans le portfolio"
+      },
+      "getAssets": {
+        "title": "Actifs",
+        "balance": "Solde",
+        "value": "Valeur",
+        "network": "Réseau",
+        "emptyState": "Aucun actif trouvé",
+        "24h": "24h",
+        "volume": "Volume",
+        "marketCap": "Capitalisation boursière",
+        "fdv": "FDV",
+        "showLess": "Montrer moins",
+        "more": "Plus...",
+        "coinInfo": "Informations sur l'actif",
+        "circulatingSupply": "Offre en circulation",
+        "totalSupply": "Offre totale",
+        "maxSupply": "Offre max.",
+        "unlimited": "Illimité",
+        "sentiment": "Sentiment",
+        "bullish": "Haussier",
+        "bearish": "Baissier",
+        "marketCapRank": "Rang de capitalisation boursière",
+        "volume24h": "Volume sur 24h",
+        "volMcap": "Vol/Cap",
+        "about": "Informations sur",
+        "noDescription": "Aucune description disponible pour cet actif."
+      },
+      "receive": {
+        "title": "Recevoir",
+        "receiveOn": "Recevoir des %{symbol} sur %{network}",
+        "copyAddress": "Copier l'adresse",
+        "copied": "Copié !",
+        "warning": "N'envoyez que des jetons compatibles avec %{network} à cette adresse"
+      },
+      "getLimitOrders": {
+        "title": "Ordres à cours limité",
+        "openOrders": "%{count} ouvert(s)",
+        "noOrders": "Aucun ordre à cours limité trouvé",
+        "status": {
+          "open": "Ouvert",
+          "fulfilled": "Exécuté",
+          "cancelled": "Annulé",
+          "expired": "Expiré",
+          "presignaturePending": "En attente"
+        },
+        "sellLabel": "Vente",
+        "buyLabel": "Achat",
+        "expiresLabel": "Expire",
+        "view": "Voir",
+        "filledLabel": "Exécuté"
+      },
+      "getTransactionHistory": {
+        "title": "Transactions récentes",
+        "noTransactions": "Aucune transaction trouvée",
+        "type": {
+          "send": "Envoi",
+          "receive": "Réception ",
+          "swap": "Échange",
+          "contract": "Contrat"
+        },
+        "status": {
+          "success": "Confirmé",
+          "failed": "Échoué",
+          "pending": "En attente"
+        },
+        "txid": "ID TX",
+        "from": "De",
+        "to": "À",
+        "value": "Valeur",
+        "fee": "Frais",
+        "network": "Réseau",
+        "tokens": "Jetons"
+      }
+    },
+    "chatHistory": "Historique des chats",
+    "newChat": "Nouveau chat",
+    "deleteConversation": "Supprimer la conversation",
+    "deleteConfirmation": "Êtes-vous sûr de vouloir supprimer cette conversation ?",
+    "noConversations": "Aucune conversation pour l'instant",
+    "newConversation": "Nouvelle conversation",
+    "searchChats": "Recherchez dans vos chats...",
+    "noMatchingConversations": "Aucune conversation correspondante"
+  },
   "quickBuy": {
     "title": "Achat rapide de %{assetOnChain}",
     "nativeNotAvailable": "Achat rapide non disponible pour les actifs natifs",
@@ -554,7 +757,8 @@
       "faq": "FAQ",
       "github": "GitHub",
       "discord": "Discord",
-      "twitter": "Twitter"
+      "twitter": "Twitter",
+      "feedback": "Feedback"
     }
   },
   "transactionRow": {
@@ -675,6 +879,16 @@
         "withdraw": "Enlever des liquidités",
         "join_pool": "Rejoindre le pool",
         "exit_pool": "Sortir du pool"
+      },
+      "yieldxyz": {
+        "deposit": "Dépôt Yield",
+        "withdraw": "Retrait Yield",
+        "approve": "Autorisation Yield",
+        "approveSymbol": "Autorisation Yield %{symbol}",
+        "stake": "Stake Yield",
+        "unstake": "Destake Yield",
+        "unstakeRequest": "Requête de destake Yield",
+        "yieldClaim": "Réclamation Yield"
       }
     }
   },
@@ -911,7 +1125,7 @@
     "limitPrice": "Prix limite",
     "provider": "Fournisseur",
     "expiration": "Expiration",
-    "confirmInfo": "L'ordre à cours limité peut ne pas rempli exactement lorsque les prix sur la chaîne atteignent le prix limite.",
+    "confirmInfo": "L'ordre à cours limité peut ne pas exécuté exactement lorsque les prix sur la chaîne atteignent le prix limite.",
     "learnMore": "En savoir plus",
     "youGet": "Vous recevez au moins",
     "expiry": "Expiration",
@@ -956,7 +1170,7 @@
     "orderHistory": "Historique des ordres",
     "status": {
       "open": "Ouvert",
-      "fulfilled": "Rempli",
+      "fulfilled": "Executé",
       "cancelled": "Annulé",
       "expired": "Expiré"
     },
@@ -1800,6 +2014,17 @@
         "body": "Cliquez sur « Appairer » et connectez-vous à Vultisig depuis la fenêtre popup",
         "button": "Appairer"
       }
+    },
+    "seeker": {
+      "connect": {
+        "header": "Connecter Seeker",
+        "body": "Autorisez ShapeShift à se connecter à votre porte-monnaie Seeker.",
+        "button": "Connecter"
+      },
+      "failure": {
+        "header": "Échec de la connexion",
+        "body": "Impossible de se connecter au porte-monnaie Seeker. Veuillez vérifier que l'app Seeker est installée et réessayer."
+      }
     }
   },
   "graph": {
@@ -1976,7 +2201,7 @@
           "networks": "Réseau(x)",
           "expiry": "Expiration de session"
         },
-        "multipleSessionsConnected": "%{count} dApps connectées",
+        "multipleSessionsConnected": "%{count} dApps connectée(s)",
         "clickToManage": "Cliquez pour gérer"
       },
       "modal": {
@@ -1991,7 +2216,7 @@
         "required": "Requis",
         "noAccount": "Vous n'avez pas de compte sur %{chainName} pour cette adresse",
         "connectionRequest": "Demande de connexion",
-        "connectionRequestTooltip": "La connexion permet à cette dApp de demander des approbations de transaction",
+        "connectionRequestTooltip": "La connexion permet à cette dApp de demander des autorisations de transaction",
         "signMessage": {
           "signingFrom": "Signature depuis",
           "requestFrom": "Requête depuis",
@@ -2364,16 +2589,13 @@
         "body": "rFOX est un terme utilisé pour décrire les avantages et les récompenses que vous recevez lorsque vous stakez vos jetons FOX sur Arbitrum. Actuellement, vous verrouillez et déverrouillez les jetons « vanilla » FOX (sur Arbitrum) pour les émissions de staking."
       },
       "why": {
-        "title": "Pourquoi staker vos FOX ?",
-        "body": "Le staking de vos FOX vous permet de gagner régulièrement des paiements en RUNE provenant de la trésorerie de la DAO, fournissant un flux constant de revenus passifs en RUNE par époque. De plus, une partie des RUNE reçus par la DAO est utilisée pour acheter des FOX sur le marché libre et les brûler, réduisant ainsi la masse monétaire totale. Le staking promeut également un alignement de ShapeShift DAO avec l'écosystème THORChain, contribuant ainsi à leur croissance et à leurs succès. Le processus de staking nécessite une période minimale de 28 jours avant le destaking, encourageant l'engagement et la stabilité au sein de la communauté."
+        "title": "Pourquoi staker vos FOX ?"
       },
       "stake": {
-        "title": "Comment staker mes FOX ?",
-        "body": "Pour staker vos FOX, vous utilisez l'interface de staking pour verrouiller vos jetons FOX dans le contrat de staking. Vous devrez signer un message ou une transaction pour désigner l'adresse où vos récompenses RUNE seront payées. Lorsque vous aurez staké, vous commencerez à gagner des récompenses RUNE par bloc dans le cadre de vos avantages de staking."
+        "title": "Comment staker mes FOX ?"
       },
       "unstake": {
-        "title": "Que se passe-t-il lorsque je déstake ?",
-        "body": "Lorsque vous décidez de déstaker, il y a une période minimale de 28 jours de destaking. Pendant ce temps, vos FOX restent verrouillés et vous cessez de recevoir des émissions RUNE. Après la période de déstaking, vous pourrez débloquer et récupérer vos jetons FOX normaux."
+        "title": "Que se passe-t-il lorsque je déstake ?"
       },
       "cooldown": {
         "title": "Quelle est la durée de la période de repos ?",
@@ -2384,8 +2606,7 @@
         "body": "Oui, vous pouvez avoir plusieurs montants en cours de déstaking. Chaque action de déstaking aura sa propre période de repos de 28 jours."
       },
       "connect": {
-        "title": "Quel est le rapport entre le total de frais collectés, le total staké en FOX, le pool d'émissions et le montant de FOX brûlés ?",
-        "body": "Les frais collectés par la DAO sont en RUNE natifs. Une partie de ces RUNE est distribuée aux stakeurs FOX en guise de récompenses, tandis qu'une autre partie est utilisée pour acheter des FOX sur le marché libre et les brûler, réduisant ainsi la masse monétaire globale de FOX. Le montant total staké en FOX influence la distribution des récompenses en RUNE, car les récompenses sont distribuées au prorata du montant des FOX stakés. Le pool d'émissions représente la quantité de FOX disponibles pour les récompenses de staking, et le montant de FOX brûlés est la partie des FOX achetés et brûlés à l'aide des RUNE collectés grâce aux frais."
+        "title": "Quel est le rapport entre le total de frais collectés, le total staké en FOX, le pool d'émissions et le montant de FOX brûlés ?"
       }
     },
     "totals": "Totaux rFOX",
@@ -2493,7 +2714,7 @@
       },
       "marketCap": {
         "title": "Capitalisation de marché",
-        "subtitle": "Principaux actifs avec la capitalisation de marché la plus élevée au cours des dernières 24 heures."
+        "subtitle": "Principaux actifs avec la capitalisation boursière la plus élevée au cours des dernières 24 heures."
       },
       "topMovers": {
         "title": "Plus fortes variations",
@@ -2507,7 +2728,7 @@
   },
   "foxPage": {
     "title": "Tableau de bord du jeton FOX",
-    "description": "Depuis 2019, notre jeton FOX évolue sans cesse et offre aux utilisateurs une gamme d'utilités et d'avantages en constante expansion. Aujourd'hui, notre jeton de gouvernance ERC-20 vous offre une part des revenus sur THORChain et vous permet d'influencer l'avenir de ShapeShift grâce à vos votes. Stakez, échangez, achetez, approvisionnez et gérez vos avoirs FOX ici.",
+    "description": "Depuis 2019, notre jeton FOX évolutif offre à ses utilisateurs un univers d'utilités et d'avantages en constante expansion. Aujourd'hui, notre jeton de gouvernance ERC-20 vous donne droit à une part des revenus de la plateforme et vous permet d'influencer l'avenir de ShapeShift par votre vote. Déposez, échangez, achetez, approvisionnez et gérez vos jetons FOX ici.",
     "foxToken": "Jeton FOX",
     "24hrPriceChange": "Évolution du prix sur 24h",
     "rfox": {
@@ -2599,7 +2820,7 @@
       "complete": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est terminé.",
       "failed": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} a échoué.",
       "streaming": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est en cours de streaming.",
-      "awaitingApproval": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est en attente d'approbation.",
+      "awaitingApproval": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est en attente d'autorisation.",
       "awaitingSwap": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est en attente d'exécution."
     },
     "thorchainLp": {
@@ -2639,7 +2860,7 @@
     },
     "limitOrder": {
       "placed": "Ordre à cours limité de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} placé",
-      "complete": "Votre ordre d'achat de %{buyAmountAndSymbol} contre %{sellAmountAndSymbol} été rempli avec succès.",
+      "complete": "Votre ordre d'achat de %{buyAmountAndSymbol} contre %{sellAmountAndSymbol} été exécuté avec succès.",
       "cancelled": "Votre ordre d'achat de %{buyAmountAndSymbol} contre %{sellAmountAndSymbol} a été annulé.",
       "expired": "Votre ordre d'achat de %{buyAmountAndSymbol} contre %{sellAmountAndSymbol} a expiré."
     },
@@ -2738,6 +2959,7 @@
     "depositSymbol": "Déposer des %{symbol}",
     "withdrawSymbol": "Retirer des %{symbol}",
     "claimableRewards": "Récompenses à réclamer",
+    "withdrawableFunds": "Fonds retirables",
     "noActivePositions": "Vous n'avez aucune position de rendement active.",
     "connectWalletPositions": "Connectez un porte-monnaie pour consulter vos positions de rendements actives.",
     "view": "Voir",
@@ -2752,7 +2974,7 @@
     "assetYields": "Rendements %{asset}",
     "noYieldsMatchingFilters": "Aucun résultat ne correspond aux filtres.",
     "activePositions": "Positions actives",
-    "acrossPositions": "Sur %{count} positions",
+    "acrossPositions": "Sur %{count} position(s)",
     "availableToEarn": "Disponible pour gagner",
     "idleAssetsEarning": "Actifs inutilisés pouvant générer jusqu'à %{apy}% APY",
     "potentialEarnings": "Gains potentiels",
@@ -2803,6 +3025,7 @@
     "depositsDisabledDescription": "Les dépôts sont temporairement indisponibles pour cette opportunité de rendement.",
     "withdrawalsDisabled": "Retraits désactivés",
     "withdrawalsDisabledDescription": "Les retraits sont temporairement indisponibles pour cette opportunité de rendement.",
+    "noActiveBalanceToExit": "Aucun solde actif disponible pour destaker.",
     "noAvailableYields": "Aucune opportunité de rendement n'est disponible pour vos actifs.",
     "connectWalletAvailable": "Connectez un porte-monnaie pour consulter les rendements disponibles pour vos actifs.",
     "aboutProvider": "Informations sur %{provider}",
@@ -2831,7 +3054,8 @@
     "potentialEarningsAmount": "%{amount}/an à %{apy}% APY",
     "depositNow": "Déposez maintenant",
     "strategyInfo": "Informations sur la stratégie",
-    "overview": "Vue d'ensemble"
+    "overview": "Vue d'ensemble",
+    "readyToClaim": "Prêt pour réclamation"
   },
   "earn": {
     "enterFrom": "Investir depuis",

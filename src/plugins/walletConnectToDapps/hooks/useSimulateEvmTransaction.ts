@@ -3,6 +3,7 @@ import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import * as adapters from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
@@ -10,7 +11,6 @@ import type { TransactionParams } from '../types'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { simulateTransaction } from '@/plugins/walletConnectToDapps/utils/tenderly'
 import {
   selectFeeAssetByChainId,
@@ -137,7 +137,10 @@ export const useSimulateEvmTransaction = ({
       supportsEIP1559: true,
     })
 
-    const txFeeCryptoPrecision = bnOrZero(fromBaseUnit(txFeeCryptoBaseUnit, feeAsset.precision))
+    const txFeeCryptoPrecision = BigAmount.fromBaseUnit({
+      value: txFeeCryptoBaseUnit,
+      precision: feeAsset.precision,
+    }).toBN()
     const fiatFee = txFeeCryptoPrecision.times(bnOrZero(marketData.price))
 
     return {

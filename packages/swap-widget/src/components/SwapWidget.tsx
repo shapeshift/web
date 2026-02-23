@@ -19,6 +19,7 @@ import {
   optimism,
   plasma,
   polygon,
+  worldchain,
 } from 'viem/chains'
 
 import { createApiClient } from '../api/client'
@@ -47,6 +48,7 @@ const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
   999: hyperEvm,
   8453: base,
   9745: plasma,
+  480: worldchain,
   42161: arbitrum,
   43114: avalanche,
   747474: katana,
@@ -1282,8 +1284,12 @@ const SwapWidgetCore = ({
 
 const SwapWidgetWithExternalWallet = (props: SwapWidgetProps) => {
   const apiClient = useMemo(
-    () => createApiClient({ baseUrl: props.apiBaseUrl, apiKey: props.apiKey }),
-    [props.apiBaseUrl, props.apiKey],
+    () =>
+      createApiClient({
+        baseUrl: props.apiBaseUrl,
+        affiliateAddress: props.affiliateAddress,
+      }),
+    [props.apiBaseUrl, props.affiliateAddress],
   )
 
   return (
@@ -1297,8 +1303,12 @@ const SwapWidgetWithInternalWallet = (
   props: SwapWidgetProps & { walletConnectProjectId: string },
 ) => {
   const apiClient = useMemo(
-    () => createApiClient({ baseUrl: props.apiBaseUrl, apiKey: props.apiKey }),
-    [props.apiBaseUrl, props.apiKey],
+    () =>
+      createApiClient({
+        baseUrl: props.apiBaseUrl,
+        affiliateAddress: props.affiliateAddress,
+      }),
+    [props.apiBaseUrl, props.affiliateAddress],
   )
 
   return (

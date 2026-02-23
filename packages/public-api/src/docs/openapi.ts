@@ -3,6 +3,7 @@ import '../setupZod'
 import { OpenApiGeneratorV3, OpenAPIRegistry } from '@asteasolutions/zod-to-openapi'
 import { z } from 'zod'
 
+import { AffiliateStatsRequestSchema } from '../routes/affiliate'
 import { AssetRequestSchema, AssetsListRequestSchema } from '../routes/assets'
 import { QuoteRequestSchema } from '../routes/quote'
 import { RatesRequestSchema } from '../routes/rates'
@@ -475,6 +476,45 @@ registry.registerPath({
     },
     409: {
       description: 'Transaction hash mismatch',
+    },
+  },
+})
+
+const AffiliateStatsResponseSchema = registry.register(
+  'AffiliateStatsResponse',
+  z.object({
+    address: z.string().openapi({ example: '0x1234567890123456789012345678901234567890' }),
+    totalSwaps: z.number().openapi({ example: 42 }),
+    totalVolumeUsd: z.string().openapi({ example: '12345.67' }),
+    totalFeesEarnedUsd: z.string().openapi({ example: '44.44' }),
+    timestamp: z.number().openapi({ example: 1708700000000 }),
+  }),
+)
+
+registry.registerPath({
+  method: 'get',
+  path: '/v1/affiliate/stats',
+  summary: 'Get affiliate statistics',
+  description:
+    'Retrieve aggregated swap statistics for an affiliate address. Returns total swaps, volume, and fees earned. Supports optional date range filtering.',
+  tags: ['Affiliate'],
+  request: {
+    query: AffiliateStatsRequestSchema,
+  },
+  responses: {
+    200: {
+      description: 'Affiliate statistics',
+      content: {
+        'application/json': {
+          schema: AffiliateStatsResponseSchema,
+        },
+      },
+    },
+    400: {
+      description: 'Invalid address format',
+    },
+    503: {
+      description: 'Swap service unavailable',
     },
   },
 })

@@ -7,6 +7,7 @@ import {
   blastChainId,
   bobChainId,
   bscChainId,
+  celoChainId,
   cronosChainId,
   ethChainId,
   flowEvmChainId,
@@ -44,6 +45,7 @@ import {
   supportsBlast,
   supportsBob,
   supportsBSC,
+  supportsCelo,
   supportsCronos,
   supportsETH,
   supportsFlowEvm,
@@ -154,6 +156,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === avalancheChainId && !supportsAvalanche(wallet)) continue
     if (chainId === optimismChainId && !supportsOptimism(wallet)) continue
     if (chainId === bscChainId && !supportsBSC(wallet)) continue
+    if (chainId === celoChainId && !supportsCelo(wallet)) continue
     if (chainId === polygonChainId && !supportsPolygon(wallet)) continue
     if (chainId === gnosisChainId && !supportsGnosis(wallet)) continue
     if (chainId === arbitrumChainId && !supportsArbitrum(wallet)) continue

@@ -71,7 +71,6 @@ interface ImportMetaEnv {
   readonly VITE_STORY_NODE_URL: string
   readonly VITE_FEATURE_ZK_SYNC_ERA: string
   readonly VITE_ZKSYNC_ERA_NODE_URL: string
-  readonly VITE_FEATURE_FLOWEVM: string
 
   // URLs and API keys from base .env (always defined)
   readonly VITE_ABSOLUTE_URL_PREFIX: string
@@ -212,6 +211,9 @@ interface ImportMetaEnv {
   readonly VITE_PLUME_NODE_URL: string
   readonly VITE_FEATURE_PLUME: string
   readonly VITE_FLOWEVM_NODE_URL: string
+  readonly VITE_FEATURE_FLOWEVM: string
+  readonly VITE_CELO_NODE_URL: string
+  readonly VITE_FEATURE_CELO: string
   readonly VITE_WORLDCHAIN_NODE_URL: string
   readonly VITE_FEATURE_WORLDCHAIN: string
   readonly VITE_BLAST_NODE_URL: string

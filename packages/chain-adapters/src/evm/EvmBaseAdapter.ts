@@ -15,6 +15,7 @@ import {
   supportsBlast,
   supportsBob,
   supportsBSC,
+  supportsCelo,
   supportsCronos,
   supportsETH,
   supportsFlowEvm,
@@ -112,6 +113,7 @@ export const evmChainIds = [
   KnownChainIds.CronosMainnet,
   KnownChainIds.KatanaMainnet,
   KnownChainIds.FlowEvmMainnet,
+  KnownChainIds.CeloMainnet,
   KnownChainIds.StoryMainnet,
   KnownChainIds.ZkSyncEraMainnet,
   KnownChainIds.BlastMainnet,
@@ -240,6 +242,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsKatana(wallet)
         case Number(fromChainId(KnownChainIds.FlowEvmMainnet).chainReference):
           return supportsFlowEvm(wallet)
+        case Number(fromChainId(KnownChainIds.CeloMainnet).chainReference):
+          return supportsCelo(wallet)
         case Number(fromChainId(KnownChainIds.StoryMainnet).chainReference):
           return supportsStory(wallet)
         case Number(fromChainId(KnownChainIds.ZkSyncEraMainnet).chainReference):
@@ -390,6 +394,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Flow',
         symbol: 'FLOW',
         explorer: 'https://evm.flowscan.io',
+      },
+      [KnownChainIds.CeloMainnet]: {
+        name: 'Celo',
+        symbol: 'CELO',
+        explorer: 'https://celoscan.io',
       },
       [KnownChainIds.StoryMainnet]: {
         name: 'Story',

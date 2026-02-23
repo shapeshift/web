@@ -22,6 +22,8 @@ import {
   bscAssetId,
   bscChainId,
   btcChainId,
+  celoAssetId,
+  celoChainId,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
   cosmosChainId,
@@ -465,6 +467,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Celo)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.CeloMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Celo],
+          })
+          prev[celoChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Story)) {
         try {
           const assetId = toAssetId({
@@ -657,6 +673,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [katanaChainId]: { [katanaAssetId]: 'katana' },
       [storyChainId]: { [storyAssetId]: 'story-2' },
       [flowEvmChainId]: { [flowEvmAssetId]: 'flow' },
+      [celoChainId]: { [celoAssetId]: 'celo' },
       [zkSyncEraChainId]: { [zkSyncEraAssetId]: 'ethereum' },
       [blastChainId]: { [blastAssetId]: 'ethereum' },
       [worldChainChainId]: { [worldChainAssetId]: 'ethereum' },

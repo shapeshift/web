@@ -26,6 +26,7 @@ export const berachainAssetId: AssetId = 'eip155:80094/slip44:60'
 export const cronosAssetId: AssetId = 'eip155:25/slip44:60'
 export const katanaAssetId: AssetId = 'eip155:747474/slip44:60'
 export const flowEvmAssetId: AssetId = 'eip155:747/slip44:60'
+export const celoAssetId: AssetId = 'eip155:42220/slip44:60'
 export const plumeAssetId: AssetId = 'eip155:98866/slip44:60'
 export const storyAssetId: AssetId = 'eip155:1514/slip44:60'
 export const zkSyncEraAssetId: AssetId = 'eip155:324/slip44:60'
@@ -105,6 +106,7 @@ export const berachainChainId: ChainId = 'eip155:80094'
 export const cronosChainId: ChainId = 'eip155:25'
 export const katanaChainId: ChainId = 'eip155:747474'
 export const flowEvmChainId: ChainId = 'eip155:747'
+export const celoChainId: ChainId = 'eip155:42220'
 export const plumeChainId: ChainId = 'eip155:98866'
 export const storyChainId: ChainId = 'eip155:1514'
 export const zkSyncEraChainId: ChainId = 'eip155:324'
@@ -175,6 +177,7 @@ export const CHAIN_REFERENCE = {
   CronosMainnet: '25',
   KatanaMainnet: '747474', // https://docs.katana.network
   FlowEvmMainnet: '747',
+  CeloMainnet: '42220',
   PlumeMainnet: '98866', // https://docs.plumenetwork.xyz
   StoryMainnet: '1514', // https://docs.story.foundation
   ZkSyncEraMainnet: '324', // https://docs.zksync.io
@@ -237,6 +240,7 @@ export const ASSET_REFERENCE = {
   Cronos: '60', // evm chain which uses ethereum derivation path as common practice
   Katana: '60', // evm chain which uses ethereum derivation path as common practice
   FlowEvm: '60', // evm chain which uses ethereum derivation path as common practice
+  Celo: '60', // evm chain which uses ethereum derivation path as common practice
   Plume: '60', // evm chain which uses ethereum derivation path as common practice
   Story: '60', // evm chain which uses ethereum derivation path as common practice
   ZkSyncEra: '60', // evm chain which uses ethereum derivation path as common practice
@@ -347,6 +351,7 @@ export const FEE_ASSET_IDS = [
   avalancheAssetId,
   optimismAssetId,
   bscAssetId,
+  celoAssetId,
   polygonAssetId,
   gnosisAssetId,
   arbitrumAssetId,

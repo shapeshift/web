@@ -11,6 +11,7 @@ import {
   blast,
   bob,
   bsc,
+  celo,
   cronos,
   flowMainnet,
   gnosis,
@@ -171,6 +172,15 @@ export const viemFlowEvmClient = createPublicClient({
   ),
 }) as PublicClient
 
+export const viemCeloClient = createPublicClient({
+  chain: celo,
+  transport: fallback(
+    [process.env.VITE_CELO_NODE_URL, 'https://forno.celo.org']
+      .filter(Boolean)
+      .map(url => http(url)),
+  ),
+}) as PublicClient
+
 export const viemKatanaClient = createPublicClient({
   chain: katana,
   transport: fallback([process.env.VITE_KATANA_NODE_URL].filter(Boolean).map(url => http(url))),
@@ -251,6 +261,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.CronosMainnet]: viemCronosClient,
   [KnownChainIds.KatanaMainnet]: viemKatanaClient,
   [KnownChainIds.FlowEvmMainnet]: viemFlowEvmClient,
+  [KnownChainIds.CeloMainnet]: viemCeloClient,
   [KnownChainIds.StoryMainnet]: viemStoryClient,
   [KnownChainIds.ZkSyncEraMainnet]: viemZkSyncEraClient,
   [KnownChainIds.BlastMainnet]: viemBlastClient,
@@ -285,6 +296,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.CronosMainnet]: cronos.id,
   [KnownChainIds.KatanaMainnet]: katana.id,
   [KnownChainIds.FlowEvmMainnet]: flowMainnet.id,
+  [KnownChainIds.CeloMainnet]: celo.id,
   [KnownChainIds.StoryMainnet]: story.id,
   [KnownChainIds.ZkSyncEraMainnet]: zksync.id,
   [KnownChainIds.BlastMainnet]: blast.id,
@@ -319,6 +331,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [cronos.id]: viemCronosClient,
   [katana.id]: viemKatanaClient,
   [flowMainnet.id]: viemFlowEvmClient,
+  [celo.id]: viemCeloClient,
   [story.id]: viemStoryClient,
   [zksync.id]: viemZkSyncEraClient,
   [blast.id]: viemBlastClient,

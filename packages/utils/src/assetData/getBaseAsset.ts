@@ -14,6 +14,7 @@ import {
   blast,
   bnbsmartchain,
   bobChain,
+  celo,
   cronos,
   dogecoin,
   ethereum,
@@ -114,6 +115,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return katana
     case KnownChainIds.FlowEvmMainnet:
       return flowEvm
+    case KnownChainIds.CeloMainnet:
+      return celo
     case KnownChainIds.StoryMainnet:
       return story
     case KnownChainIds.ZkSyncEraMainnet:

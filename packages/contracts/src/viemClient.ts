@@ -47,7 +47,7 @@ const ethereal = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.ethereal.global'],
+      http: ['https://rpc.ethereal.trade'],
     },
   },
   blockExplorers: {

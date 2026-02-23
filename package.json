@@ -37,6 +37,7 @@
     "hdwallet:docker:emulator:stop": "docker ps -q --filter ancestor=kktech/kkemu:latest | xargs -r docker stop",
     "dev:swap-widget": "yarn workspace @shapeshiftoss/swap-widget dev",
     "generate:all": "yarn generate:caip-adapters && yarn run generate:color-map && yarn run generate:asset-data && yarn run generate:tradable-asset-map && yarn run generate:thor-longtail-tokens",
+    "generate:chain": "yarn tsx ./scripts/generateChainAssetData.ts",
     "generate:caip-adapters": "yarn workspace @shapeshiftoss/caip generate",
     "generate:asset-data": "yarn tsx ./scripts/generateAssetData/generateAssetData.ts && yarn run codemod:clear-assets-migration",
     "generate:related-asset-index": "yarn tsx ./scripts/generateAssetData/generateRelatedAssetIndex.ts && yarn run codemod:clear-assets-migration",
@@ -54,7 +55,7 @@
     "test:packages": "yarn vitest run -c vitest-packages.config.mts",
     "translations:count-words-invalidate-since": "yarn tsx ./scripts/translations/countWordsInvalidateSince.ts",
     "translations:update-path": "yarn tsx ./scripts/translations/updateTranslationPath.ts",
-    "type-check": "yarn tsc --noEmit",
+    "type-check": "NODE_OPTIONS=--max-old-space-size=8192 yarn tsc --noEmit",
     "type-check-watch": "yarn tsc --noEmit --watch"
   },
   "browserslist": {

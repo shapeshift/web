@@ -13,13 +13,6 @@ export const registry = new OpenAPIRegistry()
 // We should probably define the response schemas with Zod too, but for now we'll do best effort with the request schemas
 // and basic response structures.
 
-// Security Schemes
-registry.registerComponent('securitySchemes', 'apiKeyAuth', {
-  type: 'apiKey',
-  in: 'header',
-  name: 'X-API-Key',
-})
-
 // --- Definitions ---
 
 // Asset
@@ -78,6 +71,8 @@ const UtxoPsbtTransactionDataSchema = z.object({
   type: z.literal('utxo_psbt').openapi({ example: 'utxo_psbt' }),
   psbt: z.string(),
   opReturnData: z.string().optional(),
+  depositAddress: z.string().optional(),
+  value: z.string().optional(),
 })
 
 const UtxoDepositTransactionDataSchema = z.object({
@@ -132,6 +127,10 @@ const QuoteResponseSchema = registry.register(
     buyAmountBeforeFeesCryptoBaseUnit: z.string(),
     buyAmountAfterFeesCryptoBaseUnit: z.string(),
     affiliateBps: z.string().openapi({ example: '10' }),
+    affiliateAddress: z
+      .string()
+      .optional()
+      .openapi({ example: '0x0000000000000000000000000000000000000001' }),
     slippageTolerancePercentageDecimal: z.string().optional().openapi({ example: '0.01' }),
     steps: z.array(QuoteStepSchema),
     expiresAt: z.number(),
@@ -200,6 +199,10 @@ const RateResponseSchema = registry.register(
     ),
     timestamp: z.number(),
     expiresAt: z.number(),
+    affiliateAddress: z
+      .string()
+      .optional()
+      .openapi({ example: '0x0000000000000000000000000000000000000001' }),
   }),
 )
 
@@ -297,6 +300,19 @@ registry.registerPath({
   },
 })
 
+const AffiliateAddressHeaderSchema = z
+  .string()
+  .optional()
+  .openapi({
+    param: {
+      name: 'X-Affiliate-Address',
+      in: 'header',
+      description:
+        'Your Arbitrum address for affiliate fee attribution. Optional — endpoints work without it.',
+      example: '0x0000000000000000000000000000000000000001',
+    },
+  })
+
 // GET /v1/swap/rates
 registry.registerPath({
   method: 'get',
@@ -305,8 +321,8 @@ registry.registerPath({
   description:
     'Get informative swap rates from all available swappers. This does not create a transaction.',
   tags: ['Swaps'],
-  security: [{ apiKeyAuth: [] }],
   request: {
+    headers: z.object({ 'X-Affiliate-Address': AffiliateAddressHeaderSchema }),
     query: RatesRequestSchema,
   },
   responses: {
@@ -332,8 +348,8 @@ registry.registerPath({
   description:
     'Get an executable quote for a swap, including transaction data. Requires a specific swapper name.',
   tags: ['Swaps'],
-  security: [{ apiKeyAuth: [] }],
   request: {
+    headers: z.object({ 'X-Affiliate-Address': AffiliateAddressHeaderSchema }),
     body: {
       content: {
         'application/json': {
@@ -385,6 +401,7 @@ GET /v1/assets
 When a user wants to swap, fetch rates from all available swappers to find the best deal:
 \`\`\`
 GET /v1/swap/rates?sellAssetId=eip155:1/slip44:60&buyAssetId=eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&sellAmountCryptoBaseUnit=1000000000000000000
+X-Affiliate-Address: 0xYourArbitrumAddress (optional)
 \`\`\`
 This returns rates from THORChain, 0x, CoW Swap, and other supported swappers.
 
@@ -392,6 +409,8 @@ This returns rates from THORChain, 0x, CoW Swap, and other supported swappers.
 Once the user selects a rate, request an executable quote with transaction data:
 \`\`\`
 POST /v1/swap/quote
+X-Affiliate-Address: 0xYourArbitrumAddress (optional)
+
 {
   "sellAssetId": "eip155:1/slip44:60",
   "buyAssetId": "bip122:000000000019d6689c085ae165831e93/slip44:0",
@@ -405,8 +424,8 @@ POST /v1/swap/quote
 ### 5. Execute the Swap
 Use the returned \`transactionData\` to build and sign a transaction with the user's wallet, then broadcast it to the network.
 
-## Authentication
-Include your API key in the \`X-API-Key\` header for all swap endpoints.
+## Affiliate Tracking (Optional)
+To attribute swaps to your project, include your Arbitrum address in the \`X-Affiliate-Address\` header. This is optional — all endpoints work without it.
 
 ## Asset IDs
 Assets use CAIP-19 format: \`{chainId}/{assetNamespace}:{assetReference}\`

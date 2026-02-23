@@ -17,6 +17,7 @@ import {
   cosmosChainId,
   cronosChainId,
   ethChainId,
+  flowEvmChainId,
   gnosisChainId,
   hemiChainId,
   hyperEvmChainId,
@@ -70,6 +71,7 @@ export enum CoingeckoAssetPlatform {
   Plume = 'plume-network',
   Ink = 'ink',
   Katana = 'katana',
+  FlowEvm = 'flow-evm',
   Story = 'story',
   ZkSyncEra = 'zksync',
   Blast = 'blast',
@@ -148,6 +150,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Plume
         case CHAIN_REFERENCE.KatanaMainnet:
           return CoingeckoAssetPlatform.Katana
+        case CHAIN_REFERENCE.FlowEvmMainnet:
+          return CoingeckoAssetPlatform.FlowEvm
         case CHAIN_REFERENCE.StoryMainnet:
           return CoingeckoAssetPlatform.Story
         case CHAIN_REFERENCE.ZkSyncEraMainnet:
@@ -293,6 +297,8 @@ export const coingeckoAssetPlatformToChainId = (
       return worldChainChainId
     case CoingeckoAssetPlatform.Katana:
       return katanaChainId
+    case CoingeckoAssetPlatform.FlowEvm:
+      return flowEvmChainId
     case CoingeckoAssetPlatform.Story:
       return storyChainId
     case CoingeckoAssetPlatform.Mantle:

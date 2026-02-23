@@ -4,6 +4,7 @@ import {
   blastAssetId,
   bobAssetId,
   cronosAssetId,
+  flowEvmAssetId,
   hemiAssetId,
   hyperEvmAssetId,
   inkAssetId,
@@ -81,6 +82,7 @@ export const queryFn = async () => {
   if (enabledFlags.Tron) assetIds.push(tronAssetId)
   if (enabledFlags.Berachain) assetIds.push(berachainAssetId)
   if (enabledFlags.Sui) assetIds.push(suiAssetId)
+  if (enabledFlags.FlowEvm) assetIds.push(flowEvmAssetId)
 
   for (const assetId of [...new Set(assetIds)]) {
     const asset = primaryAssets[assetId]

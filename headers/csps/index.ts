@@ -17,6 +17,7 @@ import { csp as cosmos } from './chains/cosmos'
 import { csp as cronos } from './chains/cronos'
 import { csp as dogecoin } from './chains/dogecoin'
 import { csp as ethereum } from './chains/ethereum'
+import { csp as flowEvm } from './chains/flowEvm'
 import { csp as gnosis } from './chains/gnosis'
 import { csp as hemi } from './chains/hemi'
 import { csp as hyperevm } from './chains/hyperevm'
@@ -131,6 +132,7 @@ export const csps = [
   cosmos,
   dogecoin,
   ethereum,
+  flowEvm,
   bob,
   gnosis,
   hemi,

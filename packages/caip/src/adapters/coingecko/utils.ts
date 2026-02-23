@@ -30,6 +30,8 @@ import {
   dogeChainId,
   ethAssetId,
   ethChainId,
+  flowEvmAssetId,
+  flowEvmChainId,
   gnosisAssetId,
   gnosisChainId,
   hemiAssetId,
@@ -449,6 +451,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.FlowEvm)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.FlowEvmMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.FlowEvm],
+          })
+          prev[flowEvmChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Story)) {
         try {
           const assetId = toAssetId({
@@ -640,6 +656,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [cronosChainId]: { [cronosAssetId]: 'crypto-com-chain' },
       [katanaChainId]: { [katanaAssetId]: 'katana' },
       [storyChainId]: { [storyAssetId]: 'story-2' },
+      [flowEvmChainId]: { [flowEvmAssetId]: 'flow' },
       [zkSyncEraChainId]: { [zkSyncEraAssetId]: 'ethereum' },
       [blastChainId]: { [blastAssetId]: 'ethereum' },
       [worldChainChainId]: { [worldChainAssetId]: 'ethereum' },

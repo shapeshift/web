@@ -9,6 +9,7 @@ import {
   btcChainId,
   cronosChainId,
   ethChainId,
+  flowEvmChainId,
   gnosisChainId,
   hemiChainId,
   hyperEvmChainId,
@@ -33,6 +34,7 @@ import {
   worldChainChainId,
   zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
+import { flowEvmChain } from '@shapeshiftoss/contracts'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
 import {
@@ -92,6 +94,7 @@ export const chainIdToRelayChainId = {
   [plasmaChainId]: plasma.id,
   [plumeChainId]: plumeMainnet.id,
   [katanaChainId]: katana.id,
+  [flowEvmChainId]: flowEvmChain.id,
   [storyChainId]: story.id,
   [zkSyncEraChainId]: zksync.id,
   [blastChainId]: blast.id,

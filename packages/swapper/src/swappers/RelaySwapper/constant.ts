@@ -28,7 +28,6 @@ import {
   soneiumChainId,
   sonicChainId,
   storyChainId,
-  tronChainId,
   unichainChainId,
   worldChainChainId,
   zkSyncEraChainId,
@@ -83,7 +82,11 @@ export const chainIdToRelayChainId = {
   [gnosisChainId]: gnosis.id,
   [avalancheChainId]: avalanche.id,
   [bscChainId]: bsc.id,
-  [tronChainId]: 728126428,
+  // DISABLED: Tron deposits are built as simple TRC20 transfers instead of depositErc20() vault calls,
+  // and the Relay indexer notification is never sent for non-EVM chains. This causes deposits to be
+  // untracked by Relay, resulting in stuck/lost funds. Re-enable once the Tron transaction building
+  // is verified to use the Relay quote calldata (depositErc20) correctly.
+  // [tronChainId]: 728126428,
   [monadChainId]: monad.id,
   [hyperEvmChainId]: hyperEvm.id,
   [mantleChainId]: mantle.id,

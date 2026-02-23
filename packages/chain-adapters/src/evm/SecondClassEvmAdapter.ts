@@ -514,6 +514,27 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
             })
           }
         }
+        // Fallback: direct ERC20 transfer of native token to recipient
+        // On Celo, CELO is both native and ERC20 - Relay sends it as ERC20 directly (no burn/withdraw)
+        if (internalTxs.length === 0) {
+          const directReceiveLogs = parseEventLogs({
+            abi: erc20Abi,
+            logs: receipt.logs,
+            eventName: 'Transfer',
+          }).filter(
+            log =>
+              isAddressEqual(getAddress(log.address), getAddress(wrappedNativeContract)) &&
+              isAddressEqual(log.args.to, getAddress(pubkey)),
+          )
+
+          for (const log of directReceiveLogs) {
+            internalTxs.push({
+              from: log.args.from,
+              to: getAddress(pubkey),
+              value: log.args.value.toString(),
+            })
+          }
+        }
       }
 
       const block = receipt.blockHash

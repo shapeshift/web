@@ -49,15 +49,15 @@ COPY packages/unchained-client/package.json ./packages/unchained-client/
 COPY packages/utils/package.json ./packages/utils/
 
 # Install dependencies (skip build/postinstall scripts that require git/cypress/etc)
-RUN --mount=type=cache,id=s/5fa4b228-de48-4bb3-90d6-807d0c6e7f1c-/root/.yarn/berry/cache,target=/root/.yarn/berry/cache \
+RUN --mount=type=cache,id=s/4cafb297-3349-46e2-bfef-8210504e0583-/root/.yarn/berry/cache,target=/root/.yarn/berry/cache \
     yarn install --immutable --mode skip-build
 
 # Copy unchained-client config and generator files FIRST (rarely changes, enables layer caching)
 COPY packages/unchained-client/openapitools.json ./packages/unchained-client/
 COPY packages/unchained-client/generator/ ./packages/unchained-client/generator/
 
-# Generate unchained-client code (cached when openapitools.json unchanged)
-RUN --mount=type=cache,id=s/5fa4b228-de48-4bb3-90d6-807d0c6e7f1c-/root/.openapitools,target=/root/.openapitools \
+# Generate unchained-client code (required by tsc --build for workspace packages)
+RUN --mount=type=cache,id=s/4cafb297-3349-46e2-bfef-8210504e0583-/root/.openapitools,target=/root/.openapitools \
     yarn workspace @shapeshiftoss/unchained-client generate
 
 # Copy remaining source files

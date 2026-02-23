@@ -32,6 +32,7 @@ type TokenSelectModalProps = {
   disabledAssetIds?: string[]
   disabledChainIds?: ChainId[]
   allowedChainIds?: ChainId[]
+  allowedAssetIds?: AssetId[]
   walletAddress?: string
   currentAssetIds?: AssetId[]
 }
@@ -67,6 +68,7 @@ export const TokenSelectModal = ({
   disabledAssetIds = [],
   disabledChainIds = [],
   allowedChainIds,
+  allowedAssetIds,
   walletAddress,
   currentAssetIds = [],
 }: TokenSelectModalProps) => {
@@ -90,6 +92,17 @@ export const TokenSelectModal = ({
     return map
   }, [chains])
 
+  const allowedAssetChainIds = useMemo(() => {
+    if (!allowedAssetIds || allowedAssetIds.length === 0) return undefined
+    const chainIds = new Set<ChainId>()
+    for (const asset of allAssets) {
+      if (allowedAssetIds.includes(asset.assetId)) {
+        chainIds.add(asset.chainId)
+      }
+    }
+    return Array.from(chainIds)
+  }, [allowedAssetIds, allAssets])
+
   const filteredChains = useMemo(() => {
     let enabledChains = chains.filter(chain => !disabledChainIds.includes(chain.chainId))
 
@@ -97,17 +110,25 @@ export const TokenSelectModal = ({
       enabledChains = enabledChains.filter(chain => allowedChainIds.includes(chain.chainId))
     }
 
+    if (allowedAssetChainIds) {
+      enabledChains = enabledChains.filter(chain => allowedAssetChainIds.includes(chain.chainId))
+    }
+
     if (!chainSearchQuery.trim()) return enabledChains
 
     const lowerQuery = chainSearchQuery.toLowerCase()
     return enabledChains.filter(chain => chain.name.toLowerCase().includes(lowerQuery))
-  }, [chains, chainSearchQuery, disabledChainIds, allowedChainIds])
+  }, [chains, chainSearchQuery, disabledChainIds, allowedChainIds, allowedAssetChainIds])
 
   const filteredAssets = useMemo(() => {
     let assets = allAssets.filter(
       asset =>
         !disabledAssetIds.includes(asset.assetId) && !disabledChainIds.includes(asset.chainId),
     )
+
+    if (allowedAssetIds && allowedAssetIds.length > 0) {
+      assets = assets.filter(asset => allowedAssetIds.includes(asset.assetId))
+    }
 
     if (allowedChainIds && allowedChainIds.length > 0) {
       assets = assets.filter(asset => allowedChainIds.includes(asset.chainId))
@@ -137,7 +158,15 @@ export const TokenSelectModal = ({
       .sort((a, b) => b.score - a.score)
       .slice(0, 100)
       .map(item => item.asset)
-  }, [allAssets, selectedChainId, searchQuery, disabledAssetIds, disabledChainIds, allowedChainIds])
+  }, [
+    allAssets,
+    selectedChainId,
+    searchQuery,
+    disabledAssetIds,
+    disabledChainIds,
+    allowedAssetIds,
+    allowedChainIds,
+  ])
 
   const { address: bitcoinAddress } = useBitcoinSigning()
   const { address: solanaAddress } = useSolanaSigning()

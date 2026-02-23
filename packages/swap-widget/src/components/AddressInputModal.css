@@ -1,6 +1,6 @@
 .ssw-address-modal {
   background: var(--ssw-bg-secondary);
-  border-radius: 16px;
+  border-radius: var(--ssw-radius-lg);
   width: 90%;
   max-width: 420px;
   max-height: 90vh;
@@ -39,7 +39,7 @@
   gap: 8px;
   background: var(--ssw-bg-tertiary);
   border: 1px solid var(--ssw-border);
-  border-radius: 12px;
+  border-radius: var(--ssw-radius-sm);
   padding: 12px 16px;
   transition: border-color 0.15s ease;
 }
@@ -75,7 +75,7 @@
   background: none;
   color: var(--ssw-text-muted);
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: var(--ssw-radius-2xs);
   transition: all 0.15s ease;
 }
 
@@ -100,7 +100,7 @@
   padding: 10px 16px;
   background: var(--ssw-bg-tertiary);
   border: 1px solid var(--ssw-border);
-  border-radius: 10px;
+  border-radius: var(--ssw-radius-sm);
   color: var(--ssw-text-secondary);
   font-size: 14px;
   cursor: pointer;
@@ -121,7 +121,7 @@
 .ssw-address-btn {
   flex: 1;
   padding: 14px 16px;
-  border-radius: 12px;
+  border-radius: var(--ssw-radius-sm);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -153,4 +153,21 @@
   background: var(--ssw-bg-tertiary);
   color: var(--ssw-text-muted);
   cursor: not-allowed;
+}
+
+.ssw-btn-outline .ssw-address-btn-primary {
+  background: transparent;
+  border: 1px solid var(--ssw-accent);
+  color: var(--ssw-accent);
+}
+
+.ssw-btn-outline .ssw-address-btn-primary:hover:not(:disabled) {
+  background: var(--ssw-accent-light);
+  filter: none;
+}
+
+.ssw-btn-outline .ssw-address-btn-primary:disabled {
+  background: transparent;
+  border-color: var(--ssw-border);
+  color: var(--ssw-text-muted);
 }

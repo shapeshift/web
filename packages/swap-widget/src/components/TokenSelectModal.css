@@ -22,7 +22,7 @@
 
 .ssw-modal {
   background: var(--ssw-bg-secondary);
-  border-radius: 16px;
+  border-radius: var(--ssw-radius-lg);
   width: 100%;
   max-width: 680px;
   max-height: 80vh;
@@ -65,7 +65,7 @@
   padding: 8px;
   cursor: pointer;
   color: var(--ssw-text-secondary);
-  border-radius: 8px;
+  border-radius: var(--ssw-radius-xs);
   transition: all 0.15s ease;
 }
 
@@ -107,7 +107,7 @@
   width: 100%;
   padding: 10px 12px 10px 36px;
   border: 1px solid var(--ssw-border);
-  border-radius: 10px;
+  border-radius: var(--ssw-radius-sm);
   background: var(--ssw-bg-input);
   color: var(--ssw-text-primary);
   font-size: 14px;
@@ -159,7 +159,7 @@
   padding: 10px 12px;
   border: none;
   background: none;
-  border-radius: 10px;
+  border-radius: var(--ssw-radius-sm);
   cursor: pointer;
   transition: background 0.15s ease;
   text-align: left;
@@ -178,7 +178,7 @@
 .ssw-chain-icon-multi {
   width: 28px;
   height: 28px;
-  border-radius: 8px;
+  border-radius: var(--ssw-radius-xs);
   flex-shrink: 0;
 }
 
@@ -252,7 +252,7 @@
   padding: 12px;
   border: none;
   background: none;
-  border-radius: 12px;
+  border-radius: var(--ssw-radius-sm);
   cursor: pointer;
   transition: background 0.15s ease;
   text-align: left;
@@ -307,7 +307,7 @@
   right: -2px;
   width: 16px;
   height: 16px;
-  border-radius: 4px;
+  border-radius: var(--ssw-radius-2xs);
   border: 2px solid var(--ssw-bg-secondary);
   background: var(--ssw-bg-secondary);
 }
@@ -357,7 +357,7 @@
 .ssw-token-balance-skeleton {
   width: 60px;
   height: 14px;
-  border-radius: 4px;
+  border-radius: var(--ssw-radius-2xs);
   background: linear-gradient(
     90deg,
     var(--ssw-bg-hover) 25%,

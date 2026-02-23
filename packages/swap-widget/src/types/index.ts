@@ -128,6 +128,12 @@ export type ThemeConfig = {
   textColor?: string
   borderRadius?: string
   fontFamily?: string
+  borderColor?: string
+  secondaryTextColor?: string
+  mutedTextColor?: string
+  inputColor?: string
+  hoverColor?: string
+  buttonVariant?: 'filled' | 'outline'
 }
 
 export type SwapWidgetProps = {
@@ -138,7 +144,14 @@ export type SwapWidgetProps = {
   disabledChainIds?: ChainId[]
   disabledAssetIds?: AssetId[]
   allowedChainIds?: ChainId[]
-  allowedAssetIds?: AssetId[]
+  sellDisabledChainIds?: ChainId[]
+  buyDisabledChainIds?: ChainId[]
+  sellDisabledAssetIds?: AssetId[]
+  buyDisabledAssetIds?: AssetId[]
+  sellAllowedChainIds?: ChainId[]
+  buyAllowedChainIds?: ChainId[]
+  sellAllowedAssetIds?: AssetId[]
+  buyAllowedAssetIds?: AssetId[]
   allowedSwapperNames?: SwapperName[]
   walletClient?: WalletClient
   onConnectWallet?: () => void
@@ -152,6 +165,7 @@ export type SwapWidgetProps = {
   walletConnectProjectId?: string
   defaultReceiveAddress?: string
   ratesRefetchInterval?: number
+  isBuyAssetLocked?: boolean
 }
 
 export type RatesResponse = {

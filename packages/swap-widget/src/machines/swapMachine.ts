@@ -2,7 +2,7 @@ import { assign, setup } from 'xstate'
 
 import { DEFAULT_BUY_ASSET, DEFAULT_SELL_ASSET } from '../constants/defaults'
 import type { Asset, QuoteResponse, TradeRate } from '../types'
-import { getChainType } from '../types'
+import { getChainType, parseAmount } from '../types'
 import * as guardFns from './guards'
 import type { SwapMachineContext, SwapMachineEvent } from './types'
 
@@ -65,11 +65,14 @@ export const swapMachine = setup({
     hasReceiveAddress: ({ context }) => guardFns.hasReceiveAddress(context),
   },
   actions: {
-    assignSellAsset: assign(({ event }) => {
+    assignSellAsset: assign(({ context, event }) => {
       const { asset } = event as { type: 'SET_SELL_ASSET'; asset: Asset }
       const chainType = getChainType(asset.chainId)
       return {
         sellAsset: asset,
+        sellAmountBaseUnit: context.sellAmount
+          ? parseAmount(context.sellAmount, asset.precision)
+          : undefined,
         chainType,
         isSellAssetEvm: chainType === 'evm',
         isSellAssetUtxo: chainType === 'utxo',

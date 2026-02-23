@@ -44,6 +44,7 @@ type InputStepProps = {
   networkFeeDisplay: string | undefined
   sellBalanceFiatValue: string | undefined
   buyBalanceFiatValue: string | undefined
+  isBuyAssetLocked: boolean
 }
 
 export const InputStep = ({
@@ -85,6 +86,7 @@ export const InputStep = ({
   networkFeeDisplay,
   sellBalanceFiatValue,
   buyBalanceFiatValue,
+  isBuyAssetLocked,
 }: InputStepProps) => {
   const { sellAsset, buyAsset, selectedRate, isSellAssetEvm, isSellAssetUtxo, isSellAssetSolana } =
     context
@@ -264,7 +266,12 @@ export const InputStep = ({
         </div>
 
         <div className='ssw-swap-divider'>
-          <button className='ssw-swap-btn' onClick={onSwapTokens} type='button'>
+          <button
+            className='ssw-swap-btn'
+            onClick={isBuyAssetLocked ? undefined : onSwapTokens}
+            disabled={isBuyAssetLocked}
+            type='button'
+          >
             <svg
               width='16'
               height='16'
@@ -321,7 +328,12 @@ export const InputStep = ({
               value={buyAmount ? formatAmount(buyAmount, buyAsset.precision) : ''}
               readOnly
             />
-            <button className='ssw-token-btn' onClick={() => onOpenTokenModal('buy')} type='button'>
+            <button
+              className={`ssw-token-btn${isBuyAssetLocked ? ' ssw-token-btn-locked' : ''}`}
+              onClick={isBuyAssetLocked ? undefined : () => onOpenTokenModal('buy')}
+              disabled={isBuyAssetLocked}
+              type='button'
+            >
               {buyAsset.icon ? (
                 <img src={buyAsset.icon} alt={buyAsset.symbol} className='ssw-token-icon' />
               ) : (
@@ -333,16 +345,18 @@ export const InputStep = ({
                   {buyChainInfo?.name ?? buyAsset.networkName ?? buyAsset.name}
                 </span>
               </div>
-              <svg
-                width='16'
-                height='16'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-              >
-                <path d='M9 18l6-6-6-6' />
-              </svg>
+              {!isBuyAssetLocked && (
+                <svg
+                  width='16'
+                  height='16'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth='2'
+                >
+                  <path d='M9 18l6-6-6-6' />
+                </svg>
+              )}
             </button>
           </div>
 

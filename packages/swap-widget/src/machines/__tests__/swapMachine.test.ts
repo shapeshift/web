@@ -95,6 +95,27 @@ describe('swapMachine', () => {
       actor.stop()
     })
 
+    it('SET_SELL_ASSET recalculates sellAmountBaseUnit with new precision', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({ type: 'SET_SELL_AMOUNT', amount: '0.001', amountBaseUnit: '1000000000000000' })
+      expect(actor.getSnapshot().context.sellAmountBaseUnit).toBe('1000000000000000')
+
+      actor.send({ type: 'SET_SELL_ASSET', asset: TEST_BTC })
+      expect(actor.getSnapshot().context.sellAmountBaseUnit).toBe('100000')
+      actor.stop()
+    })
+
+    it('SET_SELL_ASSET keeps sellAmountBaseUnit undefined when no sell amount', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      expect(actor.getSnapshot().context.sellAmountBaseUnit).toBeUndefined()
+
+      actor.send({ type: 'SET_SELL_ASSET', asset: TEST_BTC })
+      expect(actor.getSnapshot().context.sellAmountBaseUnit).toBeUndefined()
+      actor.stop()
+    })
+
     it('SET_BUY_ASSET updates buyAsset and isBuyAssetEvm', () => {
       const actor = createActor(swapMachine)
       actor.start()

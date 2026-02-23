@@ -43,13 +43,19 @@ type SwapWidgetContentProps = {
   showPoweredBy: boolean
   defaultReceiveAddress?: string
   enableWalletConnection: boolean
+  isBuyAssetLocked: boolean
   onConnectWallet?: () => void
   onSwapSuccess?: (txHash: string) => void
   onSwapError?: (error: Error) => void
   onAssetSelect?: (type: 'sell' | 'buy', asset: Asset) => void
-  disabledAssetIds: string[]
-  disabledChainIds: string[]
-  allowedChainIds?: string[]
+  sellDisabledAssetIds: string[]
+  buyDisabledAssetIds: string[]
+  sellDisabledChainIds: string[]
+  buyDisabledChainIds: string[]
+  sellAllowedChainIds?: string[]
+  buyAllowedChainIds?: string[]
+  sellAllowedAssetIds?: string[]
+  buyAllowedAssetIds?: string[]
 }
 
 const SwapWidgetContent = ({
@@ -58,13 +64,19 @@ const SwapWidgetContent = ({
   showPoweredBy,
   defaultReceiveAddress,
   enableWalletConnection,
+  isBuyAssetLocked,
   onConnectWallet,
   onSwapSuccess,
   onSwapError,
   onAssetSelect,
-  disabledAssetIds,
-  disabledChainIds,
-  allowedChainIds,
+  sellDisabledAssetIds,
+  buyDisabledAssetIds,
+  sellDisabledChainIds,
+  buyDisabledChainIds,
+  sellAllowedChainIds,
+  buyAllowedChainIds,
+  sellAllowedAssetIds,
+  buyAllowedAssetIds,
 }: SwapWidgetContentProps) => {
   const state = SwapMachineCtx.useSelector(s => s)
   const actorRef = SwapMachineCtx.useActorRef()
@@ -140,13 +152,37 @@ const SwapWidgetContent = ({
     }
     if (themeConfig.cardColor) {
       style['--ssw-bg-tertiary'] = themeConfig.cardColor
-      style['--ssw-bg-input'] = themeConfig.cardColor
     }
     if (themeConfig.textColor) {
       style['--ssw-text-primary'] = themeConfig.textColor
     }
     if (themeConfig.borderRadius) {
-      style['--ssw-border-radius'] = themeConfig.borderRadius
+      const base = parseFloat(themeConfig.borderRadius) || 0
+      style['--ssw-radius-widget'] = `${base * 1.25}px`
+      style['--ssw-radius-lg'] = `${base}px`
+      style['--ssw-radius-md'] = `${Math.round(base * 0.875)}px`
+      style['--ssw-radius-sm'] = `${Math.round(base * 0.625)}px`
+      style['--ssw-radius-xs'] = `${Math.round(base * 0.375)}px`
+      style['--ssw-radius-2xs'] = `${Math.round(base * 0.25)}px`
+    }
+    if (themeConfig.fontFamily) {
+      style['--ssw-font-family'] = themeConfig.fontFamily
+    }
+    if (themeConfig.borderColor) {
+      style['--ssw-border'] = themeConfig.borderColor
+      style['--ssw-border-hover'] = themeConfig.borderColor
+    }
+    if (themeConfig.secondaryTextColor) {
+      style['--ssw-text-secondary'] = themeConfig.secondaryTextColor
+    }
+    if (themeConfig.mutedTextColor) {
+      style['--ssw-text-muted'] = themeConfig.mutedTextColor
+    }
+    if (themeConfig.inputColor) {
+      style['--ssw-bg-input'] = themeConfig.inputColor
+    }
+    if (themeConfig.hoverColor) {
+      style['--ssw-bg-hover'] = themeConfig.hoverColor
     }
     return Object.keys(style).length > 0 ? (style as React.CSSProperties) : undefined
   }, [themeConfig])
@@ -155,7 +191,9 @@ const SwapWidgetContent = ({
 
   return (
     <div
-      className={`ssw-widget ${themeMode === 'light' ? 'ssw-light' : 'ssw-dark'}`}
+      className={`ssw-widget ${themeMode === 'light' ? 'ssw-light' : 'ssw-dark'}${
+        themeConfig?.buttonVariant === 'outline' ? ' ssw-btn-outline' : ''
+      }`}
       style={widgetStyle}
     >
       <div className='ssw-header'>
@@ -224,6 +262,7 @@ const SwapWidgetContent = ({
             networkFeeDisplay={networkFeeDisplay}
             sellBalanceFiatValue={sellBalanceFiatValue}
             buyBalanceFiatValue={buyBalanceFiatValue}
+            isBuyAssetLocked={isBuyAssetLocked}
           />
         )}
 
@@ -273,9 +312,10 @@ const SwapWidgetContent = ({
         isOpen={tokenModalType !== null}
         onClose={() => setTokenModalType(null)}
         onSelect={tokenModalType === 'sell' ? handleSellAssetSelect : handleBuyAssetSelect}
-        disabledAssetIds={disabledAssetIds}
-        disabledChainIds={disabledChainIds}
-        allowedChainIds={allowedChainIds}
+        disabledAssetIds={tokenModalType === 'buy' ? buyDisabledAssetIds : sellDisabledAssetIds}
+        disabledChainIds={tokenModalType === 'buy' ? buyDisabledChainIds : sellDisabledChainIds}
+        allowedChainIds={tokenModalType === 'buy' ? buyAllowedChainIds : sellAllowedChainIds}
+        allowedAssetIds={tokenModalType === 'buy' ? buyAllowedAssetIds : sellAllowedAssetIds}
         walletAddress={walletAddress}
         currentAssetIds={[state.context.sellAsset.assetId, state.context.buyAsset.assetId]}
       />
@@ -320,13 +360,19 @@ type SwapWidgetCoreProps = {
   theme: SwapWidgetProps['theme']
   showPoweredBy: boolean
   enableWalletConnection: boolean
+  isBuyAssetLocked: boolean
   onConnectWallet?: () => void
   onSwapSuccess?: (txHash: string) => void
   onSwapError?: (error: Error) => void
   onAssetSelect?: (type: 'sell' | 'buy', asset: Asset) => void
-  disabledAssetIds: string[]
-  disabledChainIds: string[]
-  allowedChainIds?: string[]
+  sellDisabledAssetIds: string[]
+  buyDisabledAssetIds: string[]
+  sellDisabledChainIds: string[]
+  buyDisabledChainIds: string[]
+  sellAllowedChainIds?: string[]
+  buyAllowedChainIds?: string[]
+  sellAllowedAssetIds?: string[]
+  buyAllowedAssetIds?: string[]
 }
 
 const SwapWidgetCore = ({
@@ -339,13 +385,19 @@ const SwapWidgetCore = ({
   theme,
   showPoweredBy,
   enableWalletConnection,
+  isBuyAssetLocked,
   onConnectWallet,
   onSwapSuccess,
   onSwapError,
   onAssetSelect,
-  disabledAssetIds,
-  disabledChainIds,
-  allowedChainIds,
+  sellDisabledAssetIds,
+  buyDisabledAssetIds,
+  sellDisabledChainIds,
+  buyDisabledChainIds,
+  sellAllowedChainIds,
+  buyAllowedChainIds,
+  sellAllowedAssetIds,
+  buyAllowedAssetIds,
 }: SwapWidgetCoreProps) => {
   const actorRef = SwapMachineCtx.useActorRef()
 
@@ -433,13 +485,19 @@ const SwapWidgetCore = ({
         showPoweredBy={showPoweredBy}
         defaultReceiveAddress={defaultReceiveAddress}
         enableWalletConnection={enableWalletConnection}
+        isBuyAssetLocked={isBuyAssetLocked}
         onConnectWallet={onConnectWallet}
         onSwapSuccess={onSwapSuccess}
         onSwapError={onSwapError}
         onAssetSelect={onAssetSelect}
-        disabledAssetIds={disabledAssetIds}
-        disabledChainIds={disabledChainIds}
-        allowedChainIds={allowedChainIds}
+        sellDisabledAssetIds={sellDisabledAssetIds}
+        buyDisabledAssetIds={buyDisabledAssetIds}
+        sellDisabledChainIds={sellDisabledChainIds}
+        buyDisabledChainIds={buyDisabledChainIds}
+        sellAllowedChainIds={sellAllowedChainIds}
+        buyAllowedChainIds={buyAllowedChainIds}
+        sellAllowedAssetIds={sellAllowedAssetIds}
+        buyAllowedAssetIds={buyAllowedAssetIds}
       />
     </SwapWalletProvider>
   )
@@ -464,13 +522,19 @@ const SwapWidgetWithExternalWallet = (props: SwapWidgetProps) => {
           theme={props.theme}
           showPoweredBy={props.showPoweredBy ?? true}
           enableWalletConnection={false}
+          isBuyAssetLocked={props.isBuyAssetLocked ?? false}
           onConnectWallet={props.onConnectWallet}
           onSwapSuccess={props.onSwapSuccess}
           onSwapError={props.onSwapError}
           onAssetSelect={props.onAssetSelect}
-          disabledAssetIds={props.disabledAssetIds ?? []}
-          disabledChainIds={props.disabledChainIds ?? []}
-          allowedChainIds={props.allowedChainIds}
+          sellDisabledAssetIds={props.sellDisabledAssetIds ?? props.disabledAssetIds ?? []}
+          buyDisabledAssetIds={props.buyDisabledAssetIds ?? props.disabledAssetIds ?? []}
+          sellDisabledChainIds={props.sellDisabledChainIds ?? props.disabledChainIds ?? []}
+          buyDisabledChainIds={props.buyDisabledChainIds ?? props.disabledChainIds ?? []}
+          sellAllowedChainIds={props.sellAllowedChainIds ?? props.allowedChainIds}
+          buyAllowedChainIds={props.buyAllowedChainIds ?? props.allowedChainIds}
+          sellAllowedAssetIds={props.sellAllowedAssetIds}
+          buyAllowedAssetIds={props.buyAllowedAssetIds}
         />
       </SwapMachineCtx.Provider>
     </QueryClientProvider>
@@ -504,9 +568,15 @@ const SwapWidgetWithInternalWallet = (
               onSwapSuccess={props.onSwapSuccess}
               onSwapError={props.onSwapError}
               onAssetSelect={props.onAssetSelect}
-              disabledAssetIds={props.disabledAssetIds ?? []}
-              disabledChainIds={props.disabledChainIds ?? []}
-              allowedChainIds={props.allowedChainIds}
+              sellDisabledAssetIds={props.sellDisabledAssetIds ?? props.disabledAssetIds ?? []}
+              buyDisabledAssetIds={props.buyDisabledAssetIds ?? props.disabledAssetIds ?? []}
+              sellDisabledChainIds={props.sellDisabledChainIds ?? props.disabledChainIds ?? []}
+              buyDisabledChainIds={props.buyDisabledChainIds ?? props.disabledChainIds ?? []}
+              sellAllowedChainIds={props.sellAllowedChainIds ?? props.allowedChainIds}
+              buyAllowedChainIds={props.buyAllowedChainIds ?? props.allowedChainIds}
+              sellAllowedAssetIds={props.sellAllowedAssetIds}
+              buyAllowedAssetIds={props.buyAllowedAssetIds}
+              isBuyAssetLocked={props.isBuyAssetLocked ?? false}
             />
           </SwapMachineCtx.Provider>
         </QueryClientProvider>

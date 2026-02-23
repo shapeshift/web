@@ -298,6 +298,19 @@ registry.registerPath({
   },
 })
 
+const AffiliateAddressHeaderSchema = z
+  .string()
+  .optional()
+  .openapi({
+    param: {
+      name: 'X-Affiliate-Address',
+      in: 'header',
+      description:
+        'Your Arbitrum address for affiliate fee attribution. Optional — endpoints work without it.',
+      example: '0x0000000000000000000000000000000000000001',
+    },
+  })
+
 // GET /v1/swap/rates
 registry.registerPath({
   method: 'get',
@@ -307,6 +320,7 @@ registry.registerPath({
     'Get informative swap rates from all available swappers. This does not create a transaction.',
   tags: ['Swaps'],
   request: {
+    headers: z.object({ 'X-Affiliate-Address': AffiliateAddressHeaderSchema }),
     query: RatesRequestSchema,
   },
   responses: {
@@ -333,6 +347,7 @@ registry.registerPath({
     'Get an executable quote for a swap, including transaction data. Requires a specific swapper name.',
   tags: ['Swaps'],
   request: {
+    headers: z.object({ 'X-Affiliate-Address': AffiliateAddressHeaderSchema }),
     body: {
       content: {
         'application/json': {

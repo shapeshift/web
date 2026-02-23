@@ -12,6 +12,7 @@ import {
   bob,
   bsc,
   cronos,
+  flowMainnet,
   gnosis,
   hemi,
   hyperEvm,
@@ -35,27 +36,6 @@ import {
   zksync,
 } from 'viem/chains'
 
-const flowEvm = defineChain({
-  id: 747,
-  name: 'Flow EVM',
-  nativeCurrency: {
-    name: 'Flow',
-    symbol: 'FLOW',
-    decimals: 18,
-  },
-  rpcUrls: {
-    default: {
-      http: ['https://mainnet.evm.nodes.onflow.org'],
-    },
-  },
-  blockExplorers: {
-    default: {
-      name: 'FlowScan',
-      url: 'https://evm.flowscan.io',
-    },
-  },
-})
-
 const megaeth = defineChain({
   id: 4326,
   name: 'MegaETH',
@@ -77,7 +57,7 @@ const megaeth = defineChain({
   },
 })
 
-export const flowEvmChain = flowEvm
+export const flowEvmChain = flowMainnet
 
 export const viemEthMainnetClient = createPublicClient({
   chain: mainnet,
@@ -183,7 +163,7 @@ export const viemCronosClient = createPublicClient({
 }) as PublicClient
 
 export const viemFlowEvmClient = createPublicClient({
-  chain: flowEvm,
+  chain: flowMainnet,
   transport: fallback(
     [process.env.VITE_FLOWEVM_NODE_URL, 'https://mainnet.evm.nodes.onflow.org']
       .filter(Boolean)
@@ -304,7 +284,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.BerachainMainnet]: berachain.id,
   [KnownChainIds.CronosMainnet]: cronos.id,
   [KnownChainIds.KatanaMainnet]: katana.id,
-  [KnownChainIds.FlowEvmMainnet]: flowEvm.id,
+  [KnownChainIds.FlowEvmMainnet]: flowMainnet.id,
   [KnownChainIds.StoryMainnet]: story.id,
   [KnownChainIds.ZkSyncEraMainnet]: zksync.id,
   [KnownChainIds.BlastMainnet]: blast.id,
@@ -338,7 +318,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [berachain.id]: viemBerachainClient,
   [cronos.id]: viemCronosClient,
   [katana.id]: viemKatanaClient,
-  [flowEvm.id]: viemFlowEvmClient,
+  [flowMainnet.id]: viemFlowEvmClient,
   [story.id]: viemStoryClient,
   [zksync.id]: viemZkSyncEraClient,
   [blast.id]: viemBlastClient,

@@ -23,6 +23,7 @@ import { useGetSwapperTradeQuoteOrRate } from './hooks/useGetSwapperTradeQuoteOr
 
 import { useTradeReceiveAddress } from '@/components/MultiHopTrade/components/TradeInput/hooks/useTradeReceiveAddress'
 import { getTradeQuoteOrRateInput } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/getTradeQuoteOrRateInput'
+import { useAffiliateTracking } from '@/hooks/useAffiliateTracking/useAffiliateTracking'
 import { useHasFocus } from '@/hooks/useHasFocus'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -104,6 +105,7 @@ export const useGetTradeQuotes = () => {
   const { manualReceiveAddress, walletReceiveAddress } = useTradeReceiveAddress()
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
+  const affiliateAddress = useAffiliateTracking()
 
   const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
   const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
@@ -205,7 +207,7 @@ export const useGetTradeQuotes = () => {
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           allowMultiHop: true,
           affiliateBps: getAffiliateBps(sellAsset, buyAsset),
-          // Pass in the user's slippage preference if it's set, else let the swapper use its default
+          affiliateAddress: affiliateAddress ?? undefined,
           slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
           pubKey:
             skipDeviceDerivation && sellAccountId
@@ -217,6 +219,7 @@ export const useGetTradeQuotes = () => {
     }
   }, [
     activeTrade,
+    affiliateAddress,
     buyAsset,
     dispatch,
     isFetchStep,

@@ -13,6 +13,7 @@ import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/Limi
 import { TopAssetsCarousel } from '@/components/MultiHopTrade/components/TradeInput/components/TopAssetsCarousel'
 import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
 import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { useAffiliateTracking } from '@/hooks/useAffiliateTracking/useAffiliateTracking'
 import { blurBackgroundSx, gridOverlaySx } from '@/pages/Trade/constants'
 import { LIMIT_ORDER_ROUTE_ASSET_SPECIFIC, TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 import { selectHasUserEnteredAmount } from '@/state/slices/tradeInputSlice/selectors'
@@ -33,6 +34,8 @@ export const TradeTab = memo(() => {
   const navigate = useNavigate()
   const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
+  
+  useAffiliateTracking()
 
   // Extract params directly from location.pathname using matchPath instead of useParams()
   // Somehow, the route below is overriden by /:chainId/:assetSubId/:nftId, so the wrong pattern matching would be used with useParams()

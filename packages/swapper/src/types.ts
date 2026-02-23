@@ -194,6 +194,7 @@ type CommonTradeInputBase = {
   buyAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   affiliateBps: string
+  affiliateAddress?: string
   allowMultiHop: boolean
   slippageTolerancePercentageDecimal?: string
 }

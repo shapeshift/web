@@ -18,7 +18,7 @@ export const {
   selectIsManualReceiveAddressValid,
   selectInputSellAmountUsd,
   selectInputSellAmountUserCurrency,
-  selectSellAssetBalance,
+  selectSellAssetBalanceCryptoBaseUnit,
   selectIsInputtingFiatSellAmount,
   selectInputSellAmountCryptoPrecision,
   selectSelectedSellAssetChainId,

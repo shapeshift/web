@@ -1,7 +1,6 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAccountId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 
 import { foxEthAssetIds, STAKING_ID_DELIMITER } from '../constants'
 import type {
@@ -23,6 +22,7 @@ import type {
 import { DefiProvider, DefiType } from '../types'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 
 export type UserStakingIdParts = [accountId: AccountId, stakingId: StakingId]
 
@@ -105,12 +105,7 @@ export const getUnderlyingAssetIdsBalances: GetUnderlyingAssetIdsBalances = ({
       }
 
       const cryptoBalancePrecision = bnOrZero(cryptoAmountBaseUnit)
-        .times(
-          BigAmount.fromBaseUnit({
-            value: underlyingAssetRatiosBaseUnit[index],
-            precision: underlyingAsset.precision,
-          }).toPrecision(),
-        )
+        .times(fromBaseUnit(underlyingAssetRatiosBaseUnit[index], underlyingAsset.precision))
         .div(bnOrZero(10).pow(asset.precision))
 
       const fiatAmount = cryptoBalancePrecision.times(marketDataPrice ?? 0).toString()

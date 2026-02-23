@@ -48,8 +48,8 @@ export const useSendFees = () => {
         (acc: FeePrice, key: FeeDataKey) => {
           const txFee = bnOrZero(estimatedFees[key]?.txFee)
             .dividedBy(bn(`1e+${feeAsset.precision}`))
-            .toFixed()
-          const fiatFee = bnOrZero(txFee).times(price).toFixed()
+            .toPrecision()
+          const fiatFee = bnOrZero(txFee).times(price).toPrecision()
           acc[key] = { txFee, fiatFee }
           return acc
         },

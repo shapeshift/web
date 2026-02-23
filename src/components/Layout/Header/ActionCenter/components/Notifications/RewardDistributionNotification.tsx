@@ -4,7 +4,7 @@ import {
   uniV2EthFoxArbitrumAssetId,
   usdcOnArbitrumOneAssetId,
 } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
+import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
 
 import { ActionIcon } from '../ActionIcon'
@@ -65,10 +65,7 @@ export const RewardDistributionNotification = ({
     return {
       amountAndSymbol: (
         <Amount.Crypto
-          value={BigAmount.fromBaseUnit({
-            value: distribution.amount.toString(),
-            precision: asset.precision ?? 0,
-          }).toPrecision()}
+          value={fromBaseUnit(distribution.amount.toString(), asset.precision)}
           symbol={asset.symbol}
           fontSize='sm'
           fontWeight='bold'

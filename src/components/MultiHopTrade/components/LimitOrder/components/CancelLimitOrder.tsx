@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { BigAmount, bn, bnOrZero } from '@shapeshiftoss/utils'
+import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { formatDistanceToNow } from 'date-fns'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -66,18 +66,12 @@ export const CancelLimitOrder = ({ orderToCancel, onSetOrderToCancel }: CancelLi
 
   const buyAmountCryptoPrecision = useMemo(() => {
     if (!orderToCancel || !buyAsset) return '0'
-    return BigAmount.fromBaseUnit({
-      value: orderToCancel.order.buyAmount,
-      precision: buyAsset.precision,
-    }).toPrecision()
+    return fromBaseUnit(orderToCancel.order.buyAmount, buyAsset.precision)
   }, [buyAsset, orderToCancel])
 
   const sellAmountCryptoPrecision = useMemo(() => {
     if (!orderToCancel || !sellAsset) return '0'
-    return BigAmount.fromBaseUnit({
-      value: orderToCancel.order.sellAmount,
-      precision: sellAsset.precision,
-    }).toPrecision()
+    return fromBaseUnit(orderToCancel.order.sellAmount, sellAsset.precision)
   }, [orderToCancel, sellAsset])
 
   const handleClose = useCallback(() => {

@@ -9,7 +9,6 @@ import {
   Skeleton,
 } from '@chakra-ui/react'
 import { tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { Suspense, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -23,11 +22,12 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { RawText } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import {
   selectAssetById,
+  selectCryptoHumanBalanceFilter,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -46,10 +46,7 @@ const StakedBalance = ({ accountId }: { accountId: string | undefined }) => {
 
   const { data: staker } = useTcyStaker(accountId)
 
-  const amountCryptoPrecision = BigAmount.fromBaseUnit({
-    value: staker?.amount ?? '0',
-    precision: THOR_PRECISION,
-  }).toPrecision()
+  const amountCryptoPrecision = fromBaseUnit(staker?.amount ?? '0', THOR_PRECISION)
   const amountUserCurrency = bnOrZero(amountCryptoPrecision)
     .times(bnOrZero(tcyMarketData?.price))
     .toFixed(2)
@@ -76,10 +73,7 @@ const RewardsBalance = ({ accountId }: { accountId: string | undefined }) => {
 
   const { data: distributor } = useTcyDistributor(accountId)
 
-  const amountCryptoPrecision = BigAmount.fromBaseUnit({
-    value: distributor?.total ?? '0',
-    precision: THOR_PRECISION,
-  }).toPrecision()
+  const amountCryptoPrecision = fromBaseUnit(distributor?.total ?? '0', THOR_PRECISION)
   const amountUserCurrency = bnOrZero(amountCryptoPrecision)
     .times(bnOrZero(runeMarketData?.price))
     .toFixed(2)
@@ -142,9 +136,7 @@ export const Overview = ({ currentAccount }: OverviewProps) => {
 
   const filter = useMemo(() => ({ assetId: tcyAssetId, accountId }), [accountId])
 
-  const tcyCryptoPrecisionBalance = useAppSelector(s =>
-    selectPortfolioCryptoBalanceByFilter(s, filter),
-  ).toPrecision()
+  const tcyCryptoHumanBalance = useAppSelector(s => selectCryptoHumanBalanceFilter(s, filter))
 
   if (!tcyAsset) return null
 
@@ -153,11 +145,7 @@ export const Overview = ({ currentAccount }: OverviewProps) => {
       <CardHeader>
         <HStack>
           <AssetIcon assetId={tcyAssetId} />
-          <Amount.Crypto
-            value={tcyCryptoPrecisionBalance}
-            symbol={tcyAsset.symbol}
-            fontSize='2xl'
-          />
+          <Amount.Crypto value={tcyCryptoHumanBalance} symbol={tcyAsset.symbol} fontSize='2xl' />
         </HStack>
       </CardHeader>
       <CardBody pb={6}>

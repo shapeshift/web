@@ -4,7 +4,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { cowSwapTokenToAssetId } from '@shapeshiftoss/swapper'
 import type { Order } from '@shapeshiftoss/types'
 import { OrderStatus } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
+import { fromBaseUnit } from '@shapeshiftoss/utils'
 import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -77,14 +77,8 @@ export const useLimitOrders = () => {
 
       if (!(sellAsset && buyAsset)) return
 
-      const sellAmountCryptoPrecision = BigAmount.fromBaseUnit({
-        value: executedSellAmount,
-        precision: sellAsset.precision,
-      }).toPrecision()
-      const buyAmountCryptoPrecision = BigAmount.fromBaseUnit({
-        value: executedBuyAmount,
-        precision: buyAsset.precision,
-      }).toPrecision()
+      const sellAmountCryptoPrecision = fromBaseUnit(executedSellAmount, sellAsset.precision)
+      const buyAmountCryptoPrecision = fromBaseUnit(executedBuyAmount, buyAsset.precision)
 
       const assetToAssetTranslation = translate(
         ...[

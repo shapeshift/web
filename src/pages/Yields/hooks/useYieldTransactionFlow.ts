@@ -9,16 +9,16 @@ import {
   usdtAssetId,
 } from '@shapeshiftoss/caip'
 import { assertGetViemClient } from '@shapeshiftoss/contracts'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Hash } from 'viem'
 
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { toBaseUnit } from '@/lib/math'
 import { parseAndUpsertSecondClassChainTx } from '@/lib/utils/secondClassChainTx'
 import { enterYield, exitYield, fetchAction, manageYield } from '@/lib/yieldxyz/api'
 import { YIELD_MAX_POLL_ATTEMPTS, YIELD_POLL_INTERVAL_MS } from '@/lib/yieldxyz/constants'
@@ -183,7 +183,6 @@ export const useYieldTransactionFlow = ({
   const [activeStepIndex, setActiveStepIndex] = useState(-1)
   const [currentActionId, setCurrentActionId] = useState<string | null>(null)
   const [resetTxHash, setResetTxHash] = useState<string | null>(null)
-  const committedAmountRef = useRef('')
 
   const isUsdtApprovalResetEnabled = useFeatureFlag('UsdtApprovalReset')
   const submitHashMutation = useSubmitYieldTransactionHash()
@@ -512,10 +511,7 @@ export const useYieldTransactionFlow = ({
 
     return {
       validator,
-      amountCryptoBaseUnit: BigAmount.fromPrecision({
-        value: amount,
-        precision: inputTokenDecimals,
-      }).toBaseUnit(),
+      amountCryptoBaseUnit: toBaseUnit(amount, inputTokenDecimals),
       action: action === 'enter' ? 'stake' : action === 'exit' ? 'unstake' : 'claim',
     }
   }, [yieldChainId, validatorAddress, amount, yieldItem, action])
@@ -796,7 +792,6 @@ export const useYieldTransactionFlow = ({
     setActiveStepIndex(-1)
     setCurrentActionId(null)
     setResetTxHash(null)
-    committedAmountRef.current = ''
     onClose()
   }, [isSubmitting, onClose, queryClient])
 
@@ -816,23 +811,14 @@ export const useYieldTransactionFlow = ({
 
     // If we're in the middle of a multi-step flow, execute the next step
     if (yieldStepIndex >= 0 && rawTransactions[yieldStepIndex] && currentActionId) {
-      if (bnOrZero(committedAmountRef.current).eq(amount)) {
-        await executeSingleTransaction(
-          rawTransactions[yieldStepIndex],
-          yieldStepIndex,
-          activeStepIndex,
-          rawTransactions,
-          currentActionId,
-        )
-        return
-      }
-      // Amount changed since these transactions were created - reset stale state
-      setRawTransactions([])
-      setTransactionSteps([])
-      setActiveStepIndex(-1)
-      setCurrentActionId(null)
-      setResetTxHash(null)
-      committedAmountRef.current = ''
+      await executeSingleTransaction(
+        rawTransactions[yieldStepIndex],
+        yieldStepIndex,
+        activeStepIndex,
+        rawTransactions,
+        currentActionId,
+      )
+      return
     }
 
     if (!yieldChainId) {
@@ -883,7 +869,6 @@ export const useYieldTransactionFlow = ({
 
       setCurrentActionId(quoteData.id)
       setRawTransactions(transactions)
-      committedAmountRef.current = amount
 
       // Build transaction steps with reset step if needed
       const steps: TransactionStep[] = []
@@ -948,11 +933,6 @@ export const useYieldTransactionFlow = ({
     yieldItem?.mechanics.type,
   ])
 
-  const isAmountLocked = useMemo(
-    () => transactionSteps.some(step => Boolean(step.txHash)),
-    [transactionSteps],
-  )
-
   return useMemo(
     () => ({
       step,
@@ -967,7 +947,6 @@ export const useYieldTransactionFlow = ({
       quoteData,
       isAllowanceCheckPending,
       isUsdtResetRequired,
-      isAmountLocked,
     }),
     [
       step,
@@ -982,7 +961,6 @@ export const useYieldTransactionFlow = ({
       quoteData,
       isAllowanceCheckPending,
       isUsdtResetRequired,
-      isAmountLocked,
     ],
   )
 }

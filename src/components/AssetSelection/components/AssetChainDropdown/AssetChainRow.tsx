@@ -10,7 +10,7 @@ import { firstNonZeroDecimal } from '@/lib/math'
 import {
   selectAssetById,
   selectFeeAssetById,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -36,15 +36,15 @@ export const AssetChainRow: React.FC<AssetChainRowProps> = ({
   const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId))
   const iconSrc = feeAsset?.networkIcon ?? feeAsset?.icon
   const filter = useMemo(() => ({ assetId }), [assetId])
-  const cryptoPrecisionBalance = useAppSelector(s =>
-    selectPortfolioCryptoBalanceByFilter(s, filter),
-  ).toPrecision()
+  const cryptoHumanBalance = useAppSelector(s =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(s, filter),
+  )
 
   const userCurrencyBalance = useAppSelector(
     state => selectPortfolioUserCurrencyBalanceByAssetId(state, filter) ?? '0',
   )
 
-  const hideAssetBalance = hideBalances || bnOrZero(cryptoPrecisionBalance).isZero()
+  const hideAssetBalance = hideBalances || bnOrZero(cryptoHumanBalance).isZero()
 
   if (!feeAsset || !asset || !mainImplementationAsset) return null
 
@@ -64,7 +64,7 @@ export const AssetChainRow: React.FC<AssetChainRowProps> = ({
             fontSize='sm'
             fontWeight='normal'
             color='text.subtle'
-            value={firstNonZeroDecimal(bnOrZero(cryptoPrecisionBalance)) ?? '0'}
+            value={firstNonZeroDecimal(bnOrZero(cryptoHumanBalance)) ?? '0'}
             symbol={asset?.symbol ?? ''}
           />
         </Flex>

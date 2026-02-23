@@ -22,7 +22,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
-import { selectPortfolioCryptoBalanceByFilter } from '@/state/slices/selectors'
+import { selectPortfolioCryptoBalanceBaseUnitByFilter } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type YieldAvailableToDepositProps = {
@@ -52,13 +52,16 @@ export const YieldAvailableToDeposit = memo(
     const inputTokenAssetId = inputToken?.assetId ?? yieldItem.token.assetId ?? ''
     const inputTokenPrecision = inputToken?.decimals ?? yieldItem.token.decimals
 
-    const availableBalanceBigAmount = useAppSelector(state =>
-      selectPortfolioCryptoBalanceByFilter(state, { assetId: inputTokenAssetId }),
+    const availableBalanceBaseUnit = useAppSelector(state =>
+      selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId: inputTokenAssetId }),
     )
 
     const availableBalance = useMemo(
-      () => availableBalanceBigAmount.toBN(),
-      [availableBalanceBigAmount],
+      () =>
+        inputTokenPrecision
+          ? bnOrZero(availableBalanceBaseUnit).shiftedBy(-inputTokenPrecision)
+          : bnOrZero(0),
+      [availableBalanceBaseUnit, inputTokenPrecision],
     )
 
     const availableBalanceFiat = useMemo(
@@ -155,7 +158,7 @@ export const YieldAvailableToDeposit = memo(
 
             <Box>
               <Text fontSize='2xl' fontWeight='800' lineHeight='1'>
-                <Amount.Fiat value={availableBalanceFiat.toFixed(2)} />
+                <Amount.Fiat value={availableBalanceFiat.toFixed()} />
               </Text>
               <Text fontSize='sm' color='text.subtle' mt={1}>
                 <Amount.Crypto
@@ -175,7 +178,7 @@ export const YieldAvailableToDeposit = memo(
                   fontSize='sm'
                   fontWeight='semibold'
                   color='text.success'
-                  value={potentialYearlyEarningsFiat.toFixed(2)}
+                  value={potentialYearlyEarningsFiat.toFixed()}
                   suffix={translate('yieldXYZ.perYear')}
                 />
               </Flex>

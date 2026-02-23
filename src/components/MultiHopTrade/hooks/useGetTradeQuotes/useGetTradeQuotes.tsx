@@ -14,7 +14,6 @@ import {
   SwapperName,
   TransactionExecutionState,
 } from '@shapeshiftoss/swapper'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { skipToken as reactQuerySkipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 
@@ -27,6 +26,7 @@ import { useHasFocus } from '@/hooks/useHasFocus'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { getAffiliateBps } from '@/lib/fees/utils'
+import { fromBaseUnit } from '@/lib/math'
 import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import {
   selectPortfolioAccountMetadataByAccountId,
@@ -296,16 +296,14 @@ export const useGetTradeQuotes = () => {
     const activeSwap = swapsById[activeSwapId]
     if (!activeSwap) return
 
-    const expectedBuyAmountCrypto = BigAmount.fromBaseUnit({
-      value: lastStep.buyAmountAfterFeesCryptoBaseUnit,
-      precision: lastStep.buyAsset.precision,
-    })
-
     dispatch(
       swapSlice.actions.upsertSwap({
         ...activeSwap,
         expectedBuyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
-        expectedBuyAmountCryptoPrecision: expectedBuyAmountCrypto.toPrecision(),
+        expectedBuyAmountCryptoPrecision: fromBaseUnit(
+          lastStep.buyAmountAfterFeesCryptoBaseUnit,
+          lastStep.buyAsset.precision,
+        ),
       }),
     )
   }, [

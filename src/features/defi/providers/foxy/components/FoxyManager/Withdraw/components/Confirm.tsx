@@ -3,7 +3,6 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
 import { WithdrawType } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import type { TransactionReceipt, TransactionReceiptParams } from 'ethers'
 import isNil from 'lodash/isNil'
 import { useCallback, useContext, useMemo } from 'react'
@@ -28,7 +27,7 @@ import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import {
   selectBip44ParamsByAccountId,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -59,7 +58,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
     [accountId, feeAsset?.assetId],
   )
   const feeAssetBalance = useAppSelector(s =>
-    selectPortfolioCryptoBalanceByFilter(s, feeAssetBalanceFilter),
+    selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const accountAddress = useMemo(
@@ -95,12 +94,9 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
         userAddress: accountAddress,
         contractAddress,
         wallet: walletState.wallet,
-        amountDesired: bnOrZero(
-          BigAmount.fromPrecision({
-            value: state.withdraw.cryptoAmount ?? '0',
-            precision: underlyingAsset.precision,
-          }).toBaseUnit(),
-        ),
+        amountDesired: bnOrZero(state.withdraw.cryptoAmount)
+          .times(bn(10).pow(underlyingAsset.precision))
+          .decimalPlaces(0),
         type: state.withdraw.withdrawType,
         bip44Params,
       })
@@ -144,16 +140,9 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
     poll,
   ])
 
-  const estimatedGasBigAmount = useMemo(
-    () =>
-      BigAmount.fromBaseUnit({
-        value: state?.withdraw.estimatedGasCryptoBaseUnit ?? '0',
-        precision: feeAsset.precision,
-      }),
-    [state?.withdraw.estimatedGasCryptoBaseUnit, feeAsset.precision],
-  )
-
-  const hasEnoughBalanceForGas = feeAssetBalance.minus(estimatedGasBigAmount).gte(0)
+  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
+    .minus(bnOrZero(state?.withdraw.estimatedGasCryptoBaseUnit).div(bn(10).pow(feeAsset.precision)))
+    .gte(0)
 
   const handleCancel = useCallback(() => onNext(DefiStep.Info), [onNext])
   const notEnoughGasTranslation: TextPropTypes['translation'] = useMemo(
@@ -215,11 +204,16 @@ export const Confirm: React.FC<StepComponentProps & { accountId?: AccountId | un
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={estimatedGasBigAmount.times(feeMarketData?.price).toFixed(2)}
+                value={bnOrZero(state.withdraw.estimatedGasCryptoBaseUnit)
+                  .div(bn(10).pow(feeAsset.precision))
+                  .times(bnOrZero(feeMarketData?.price))
+                  .toFixed(2)}
               />
               <Amount.Crypto
                 color='text.subtle'
-                value={estimatedGasBigAmount.toFixed(5)}
+                value={bnOrZero(state.withdraw.estimatedGasCryptoBaseUnit)
+                  .div(bn(10).pow(feeAsset.precision))
+                  .toFixed(5)}
                 symbol={feeAsset.symbol}
               />
             </Box>

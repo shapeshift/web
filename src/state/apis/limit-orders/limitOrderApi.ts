@@ -180,7 +180,7 @@ export const limitOrderApi = createApi({
 
         try {
           const axiosResponse = await axios.post<OrderQuoteResponse>(
-            `${baseUrl}/${network}/api/v1/quote`,
+            `${baseUrl}/${network}/api/v1/quote/`,
             limitOrderQuoteRequest,
           )
           const response = axiosResponse.data
@@ -230,7 +230,7 @@ export const limitOrderApi = createApi({
 
         try {
           const result = await axios.post<OrderId>(
-            `${baseUrl}/${network}/api/v1/orders`,
+            `${baseUrl}/${network}/api/v1/orders/`,
             limitOrder,
           )
 

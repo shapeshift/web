@@ -1,6 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import type { UseFormSetValue } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -21,7 +20,8 @@ import type {
 import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { toBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { getFeeData } from '@/plugins/cosmos/utils'
@@ -30,7 +30,7 @@ import {
   selectAssetById,
   selectAssets,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoBalanceBaseUnitByFilter,
   selectStakingOpportunityByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -73,14 +73,19 @@ export const Deposit: React.FC<DepositProps> = ({
 
   // user info
   const filter = useMemo(() => ({ assetId, accountId: accountId ?? '' }), [assetId, accountId])
-  const balance = useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))
+  const balance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceBaseUnitByFilter(state, filter),
+  )
 
   // notify
   const toast = useNotificationToast({ desktopPosition: 'top-right' })
 
-  const amountAvailableCryptoPrecision = balance
+  const amountAvailableCryptoPrecision = useMemo(
+    () => bnOrZero(balance).div(`1e${asset.precision}`),
+    [asset.precision, balance],
+  )
   const fiatAmountAvailable = useMemo(
-    () => amountAvailableCryptoPrecision.times(marketData?.price),
+    () => bnOrZero(amountAvailableCryptoPrecision).times(bnOrZero(marketData?.price)),
     [amountAvailableCryptoPrecision, marketData?.price],
   )
 
@@ -88,21 +93,21 @@ export const Deposit: React.FC<DepositProps> = ({
     async (setValue: UseFormSetValue<DepositValues>) => {
       if (!accountId) return
       const estimatedFees = await estimateFees({
-        amountCryptoPrecision: amountAvailableCryptoPrecision.toPrecision(),
+        amountCryptoPrecision: amountAvailableCryptoPrecision.toString(),
         assetId,
         to: '',
         sendMax: true,
         accountId,
         contractAddress: '',
       })
-      const cryptoAmountHuman = amountAvailableCryptoPrecision
-        .minus(
-          BigAmount.fromBaseUnit({
-            value: estimatedFees.average.txFee,
-            precision: asset.precision,
-          }),
-        )
-        .toPrecision()
+      const amountAvailableCryptoBaseUnit = toBaseUnit(
+        amountAvailableCryptoPrecision,
+        asset.precision,
+      )
+      const cryptoAmountHuman = bnOrZero(amountAvailableCryptoBaseUnit)
+        .minus(estimatedFees.average.txFee)
+        .div(bn(10).pow(asset.precision))
+        .toString()
       const fiatAmount = bnOrZero(cryptoAmountHuman).times(bnOrZero(marketData?.price))
       setValue(Field.FiatAmount, fiatAmount.toString(), {
         shouldValidate: true,
@@ -135,7 +140,7 @@ export const Deposit: React.FC<DepositProps> = ({
           {
             opportunity: opportunityMetadata,
             fiatAmounts: [formValues.fiatAmount],
-            cryptoAmounts: [{ assetId, amountCryptoPrecision: formValues.cryptoAmount }],
+            cryptoAmounts: [{ assetId, amountCryptoHuman: formValues.cryptoAmount }],
           },
           assets,
         )
@@ -156,23 +161,25 @@ export const Deposit: React.FC<DepositProps> = ({
 
   const validateCryptoAmount = useCallback(
     (value: string) => {
+      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
       const _value = bnOrZero(value)
-      const hasValidBalance = balance.gt(0) && _value.gt(0) && balance.gte(value)
+      const hasValidBalance = crypto.gt(0) && _value.gt(0) && crypto.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [balance],
+    [asset.precision, balance],
   )
 
   const validateFiatAmount = useCallback(
     (value: string) => {
-      const fiat = balance.times(marketData?.price)
+      const crypto = bnOrZero(balance).div(`1e+${asset.precision}`)
+      const fiat = crypto.times(bnOrZero(marketData?.price))
       const _value = bnOrZero(value)
       const hasValidBalance = fiat.gt(0) && _value.gt(0) && fiat.gte(value)
       if (_value.isEqualTo(0)) return ''
       return hasValidBalance || 'common.insufficientFunds'
     },
-    [balance, marketData?.price],
+    [asset.precision, balance, marketData?.price],
   )
 
   const cryptoInputValidation = useMemo(
@@ -202,7 +209,7 @@ export const Deposit: React.FC<DepositProps> = ({
       apy={apy}
       cryptoAmountAvailable={amountAvailableCryptoPrecision.toPrecision()}
       cryptoInputValidation={cryptoInputValidation}
-      fiatAmountAvailable={fiatAmountAvailable.toFixed(2)}
+      fiatAmountAvailable={fiatAmountAvailable.toFixed(2, BigNumber.ROUND_DOWN)}
       fiatInputValidation={fiatInputValidation}
       marketData={marketData}
       onCancel={handleCancel}

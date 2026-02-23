@@ -7,7 +7,7 @@ import type { ThorTradeQuote } from '@shapeshiftoss/swapper'
 import { isArbitrumBridgeTradeQuoteOrRate, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { BigAmount, positiveOrZero } from '@shapeshiftoss/utils'
+import { positiveOrZero } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -37,6 +37,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { fromBaseUnit } from '@/lib/math'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { useGetTradeRatesQuery } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote } from '@/state/apis/swapper/types'
@@ -222,10 +223,10 @@ export const TradeInput = ({
     const recommendedMinimumCryptoBaseUnit = (activeQuote as ThorTradeQuote)
       ?.recommendedMinimumCryptoBaseUnit
     if (!recommendedMinimumCryptoBaseUnit) return translate('warningAcknowledgement.unsafeTrade')
-    const recommendedMinimumCryptoPrecision = BigAmount.fromBaseUnit({
-      value: recommendedMinimumCryptoBaseUnit,
-      precision: sellAsset.precision,
-    }).toPrecision()
+    const recommendedMinimumCryptoPrecision = fromBaseUnit(
+      recommendedMinimumCryptoBaseUnit,
+      sellAsset.precision,
+    )
     const message = translate('trade.errors.unsafeQuote', {
       symbol: sellAsset.symbol,
       recommendedMin: recommendedMinimumCryptoPrecision,

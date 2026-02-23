@@ -6,7 +6,6 @@ import type { SignTx } from '@shapeshiftoss/chain-adapters'
 import { CONTRACT_INTERACTION, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { EvmChainId } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import {
   AddressLookupTableAccount,
   ComputeBudgetProgram,
@@ -21,6 +20,7 @@ import { SOLANA_YIELD_COMPUTE_UNIT_MARGIN_MULTIPLIER } from './constants'
 import type { TransactionDto } from './types'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { toBaseUnit } from '@/lib/math'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast as evmSignAndBroadcast } from '@/lib/utils/evm'
 import { assertGetNearChainAdapter } from '@/lib/utils/near'
@@ -232,10 +232,7 @@ const executeCosmosTransaction = async ({
 
   const { validator, amountCryptoBaseUnit, action } = cosmosStakeArgs
 
-  const feeCryptoBaseUnit = BigAmount.fromPrecision({
-    value: gas.amount,
-    precision: gas.token.decimals,
-  }).toBaseUnit()
+  const feeCryptoBaseUnit = toBaseUnit(gas.amount, gas.token.decimals)
 
   const chainSpecific = {
     gas: gas.gasLimit,

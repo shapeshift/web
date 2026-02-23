@@ -82,7 +82,7 @@ export type TrackOpportunityProps = {
   opportunity: StakingEarnOpportunityType | LpEarnOpportunityType | OpportunityMetadata
   cryptoAmounts?: {
     assetId: AssetId
-    amountCryptoPrecision: string | number
+    amountCryptoHuman: string | number
     fiatAmount?: string | number
   }[]
   fiatAmounts?: string[] | number[]

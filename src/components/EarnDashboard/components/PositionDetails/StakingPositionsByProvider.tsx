@@ -3,7 +3,6 @@ import { Button, Flex, Tag, useMediaQuery } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -21,7 +20,7 @@ import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCom
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { RFOX_STAKING_ASSET_IDS } from '@/pages/RFOX/constants'
@@ -88,11 +87,8 @@ const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
     const asset = assets[assetId]
     if (!asset) return sum
     const marketDataPrice = bnOrZero(marketDataUserCurrency[assetId]?.price)
-    const cryptoAmountPrecision = bnOrZero(
-      BigAmount.fromBaseUnit({
-        value: rewardsCryptoBaseUnit?.amounts[index] ?? '0',
-        precision: asset?.precision ?? 0,
-      }).toPrecision(),
+    const cryptoAmountPrecision = bnOrZero(rewardsCryptoBaseUnit?.amounts[index]).div(
+      bn(10).pow(asset?.precision),
     )
     sum = bnOrZero(cryptoAmountPrecision).times(marketDataPrice).plus(bnOrZero(sum)).toNumber()
     return sum

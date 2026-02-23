@@ -39,7 +39,7 @@ export const EquityAccountRow = ({
 
   const filter = useMemo(() => ({ assetId: rowAssetId ?? '', accountId }), [rowAssetId, accountId])
   const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
-  const cryptoPrecisionBalance = useAppSelector(
+  const cryptoHumanBalance = useAppSelector(
     state => selectPortfolioCryptoBalanceByFilter(state, filter)?.toPrecision() ?? '0',
   )
   const userCurrencyBalance = useAppSelector(state =>
@@ -79,7 +79,7 @@ export const EquityAccountRow = ({
       totalFiatBalance={totalFiatBalance}
       color={color}
       fiatAmount={userCurrencyBalance}
-      cryptoBalancePrecision={cryptoPrecisionBalance}
+      cryptoBalancePrecision={cryptoHumanBalance}
       symbol={asset.symbol}
       subText={translate('common.wallet')}
     />

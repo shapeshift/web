@@ -1,6 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, toAssetId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
+import { toBaseUnit } from '@shapeshiftoss/utils'
 
 import { TransferType, TxStatus } from '../../types'
 import type { AggregateTransferArgs } from '../../utils'
@@ -119,10 +119,7 @@ export class TransactionParser<T extends Tx> {
           },
           transfers: parsedTx.transfers,
           type,
-          value: BigAmount.fromPrecision({
-            value: tokenAmount,
-            precision: token.decimals,
-          }).toBaseUnit(),
+          value: toBaseUnit(tokenAmount, token.decimals).toString(),
         })
 
         // token send amount

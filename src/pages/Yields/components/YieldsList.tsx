@@ -32,6 +32,7 @@ import { ChainIcon } from '@/components/ChainMenu'
 import { ResultsEmptyNoWallet } from '@/components/ResultsEmptyNoWallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { YIELD_NETWORK_TO_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
 import {
@@ -53,7 +54,7 @@ import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
 import {
   selectAssets,
   selectEnabledWalletAccountIds,
-  selectPortfolioAssetBalances,
+  selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioUserCurrencyBalances,
   selectUserCurrencyToUsdRate,
 } from '@/state/slices/selectors'
@@ -112,7 +113,7 @@ export const YieldsList = memo(() => {
   } = useYieldFilters(isAvailableToEarnTab)
 
   const userCurrencyBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
-  const assetBalances = useAppSelector(selectPortfolioAssetBalances)
+  const assetBalancesBaseUnit = useAppSelector(selectPortfolioAssetBalancesBaseUnit)
   const assets = useAppSelector(selectAssets)
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
 
@@ -191,7 +192,7 @@ export const YieldsList = memo(() => {
   }, [yields?.unfiltered])
 
   const unfilteredAvailableYields = useMemo(() => {
-    if (!isConnected || !userCurrencyBalances) return []
+    if (!isConnected || !userCurrencyBalances || !assetBalancesBaseUnit) return []
 
     const available: AugmentedYieldDto[] = []
 
@@ -208,8 +209,8 @@ export const YieldsList = memo(() => {
         if (minDeposit.gt(0)) {
           const asset = assets[assetId]
           if (!asset) return false
-          const balance = assetBalances[assetId]
-          const balanceHuman = bnOrZero(balance ? balance.toPrecision() : undefined)
+          const baseBalance = bnOrZero(assetBalancesBaseUnit[assetId])
+          const balanceHuman = bnOrZero(fromBaseUnit(baseBalance, asset.precision))
           if (balanceHuman.lt(minDeposit)) return false
         }
         return true
@@ -219,7 +220,7 @@ export const YieldsList = memo(() => {
     }
 
     return available
-  }, [isConnected, unfilteredByInputAssetId, userCurrencyBalances, assetBalances, assets])
+  }, [isConnected, unfilteredByInputAssetId, userCurrencyBalances, assetBalancesBaseUnit, assets])
 
   const filterSourceYields = useMemo(
     () =>

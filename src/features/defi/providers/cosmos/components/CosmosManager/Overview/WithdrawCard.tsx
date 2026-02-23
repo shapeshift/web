@@ -1,7 +1,6 @@
 import { Button, Stack, useColorModeValue } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { FaArrowDown } from 'react-icons/fa'
@@ -14,6 +13,7 @@ import type {
   DefiQueryParams,
 } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import {
   serializeUserStakingId,
   supportsUndelegations,
@@ -95,10 +95,9 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
           <Stack spacing={0} ml='auto' textAlign='right'>
             <Amount.Crypto
               color={textColor}
-              value={BigAmount.fromBaseUnit({
-                value: undelegationAmountCryptoBaseUnit ?? '0',
-                precision: asset.precision,
-              }).toPrecision()}
+              value={bnOrZero(undelegationAmountCryptoBaseUnit)
+                .div(bn(10).pow(asset.precision))
+                .toString()}
               symbol={asset.symbol}
               maximumFractionDigits={asset.precision}
             />

@@ -1,7 +1,7 @@
 import { CardFooter, FormControl, HStack, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -20,11 +20,12 @@ import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAsse
 import { Row } from '@/components/Row/Row'
 import { RawText } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { toBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
-import { selectPortfolioCryptoBalanceByFilter } from '@/state/slices/common-selectors'
+import { selectPortfolioCryptoPrecisionBalanceByFilter } from '@/state/slices/common-selectors'
 import { selectMarketDataByFilter } from '@/state/slices/marketDataSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -93,15 +94,11 @@ export const StakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAccou
   const balanceFilter = useMemo(() => ({ assetId: tcyAssetId, accountId }), [accountId])
 
   const balanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
-  ).toPrecision()
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, balanceFilter),
+  )
 
   const amountCryptoBaseUnit = useMemo(
-    () =>
-      BigAmount.fromPrecision({
-        value: amountCryptoPrecision,
-        precision: THOR_PRECISION,
-      }).toBaseUnit(),
+    () => toBaseUnit(amountCryptoPrecision, THOR_PRECISION),
     [amountCryptoPrecision],
   )
 
@@ -127,10 +124,7 @@ export const StakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAccou
       }
 
       const price = assetUserCurrencyRate ?? 0
-      const cryptoAmount =
-        fieldName === 'fiatAmount'
-          ? bnOrZero(inputValue).div(price).decimalPlaces(THOR_PRECISION, 1)
-          : inputValue
+      const cryptoAmount = fieldName === 'fiatAmount' ? bnOrZero(inputValue).div(price) : inputValue
       const fiatAmount =
         fieldName === 'fiatAmount' ? inputValue : bnOrZero(inputValue).times(bnOrZero(price))
 

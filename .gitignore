@@ -3,10 +3,6 @@
 # Local issue tracking
 .beads/
 
-# Claude Code ephemeral plans
-.claude/plan.md
-.claude/plans/
-
 # no zero installs
 .pnp.*
 .yarn/*

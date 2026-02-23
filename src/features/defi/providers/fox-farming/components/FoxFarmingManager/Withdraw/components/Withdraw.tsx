@@ -1,5 +1,4 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
@@ -20,6 +19,7 @@ import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommo
 import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { assertIsFoxEthStakingContractAddress } from '@/state/slices/opportunitiesSlice/constants'
@@ -89,11 +89,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   )
 
   const amountAvailableCryptoPrecision = useMemo(
-    () =>
-      BigAmount.fromBaseUnit({
-        value: bnOrZero(opportunity?.cryptoAmountBaseUnit),
-        precision: underlyingAsset.precision,
-      }).toPrecision(),
+    () => fromBaseUnit(bnOrZero(opportunity?.cryptoAmountBaseUnit), underlyingAsset.precision),
     [underlyingAsset.precision, opportunity?.cryptoAmountBaseUnit],
   )
 
@@ -102,10 +98,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
       try {
         const fees = await getUnstakeFees(withdraw.cryptoAmount, isExiting)
         if (!fees) return
-        return BigAmount.fromBaseUnit({
-          value: fees.networkFeeCryptoBaseUnit,
-          precision: feeAsset.precision,
-        }).toPrecision()
+        return fromBaseUnit(fees.networkFeeCryptoBaseUnit, feeAsset.precision)
       } catch (error) {
         // TODO: handle client side errors maybe add a toast?
         console.error(error)
@@ -144,7 +137,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           opportunity,
           fiatAmounts: [formValues.fiatAmount],
           cryptoAmounts: [
-            { assetId: underlyingAsset.assetId, amountCryptoPrecision: formValues.cryptoAmount },
+            { assetId: underlyingAsset.assetId, amountCryptoHuman: formValues.cryptoAmount },
           ],
         },
         assets,

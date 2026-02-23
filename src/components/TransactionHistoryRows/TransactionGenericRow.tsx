@@ -5,7 +5,6 @@ import type { TxMetadata } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import { TransferType } from '@shapeshiftoss/unchained-client'
-import { BigAmount } from '@shapeshiftoss/utils'
 import type { JSX } from 'react'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -22,6 +21,7 @@ import { RawText } from '@/components/Text'
 import type { Fee, Transfer, TxDetails } from '@/hooks/useTxDetails/useTxDetails'
 import { Method } from '@/hooks/useTxDetails/useTxDetails'
 import { bn } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { middleEllipsis } from '@/lib/utils'
 import type { TxId } from '@/state/slices/txHistorySlice/txHistorySlice'
 
@@ -122,13 +122,10 @@ export const TransactionGenericRow = ({
     if (hasSingleSendAsset) {
       const symbol = transfersByType.Send[0].asset.symbol
       const precision = transfersByType.Send[0].asset.precision ?? 0
-      const amount = BigAmount.fromBaseUnit({
-        value: transfersByType.Send.reduce(
-          (prev, transfer) => prev.plus(transfer.value),
-          bn(0),
-        ).toFixed(),
+      const amount = fromBaseUnit(
+        transfersByType.Send.reduce((prev, transfer) => prev.plus(transfer.value), bn(0)).toFixed(),
         precision,
-      }).toPrecision()
+      )
 
       return (
         <Amount.Crypto
@@ -317,13 +314,13 @@ export const TransactionGenericRow = ({
     if (hasSingleReceiveAsset) {
       const precision = transfersByType.Receive[0].asset.precision ?? 0
       const symbol = transfersByType.Receive[0].asset.symbol
-      const amount = BigAmount.fromBaseUnit({
-        value: transfersByType.Receive.reduce(
+      const amount = fromBaseUnit(
+        transfersByType.Receive.reduce(
           (prev, transfer) => prev.plus(transfer.value),
           bn(0),
         ).toFixed(),
         precision,
-      }).toPrecision()
+      )
       return (
         <Amount.Crypto
           value={amount}

@@ -1,6 +1,6 @@
 import type { Asset, OrderCreation } from '@shapeshiftoss/types'
 import { SigningScheme } from '@shapeshiftoss/types'
-import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
+import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 
 import type { LimitOrderActiveQuote } from './types'
 
@@ -33,17 +33,9 @@ export const calcLimitPriceTargetAsset = ({
   sellAsset: Asset
   buyAsset: Asset
 }): string => {
-  const buyAmountPrecision = BigAmount.fromBaseUnit({
-    value: buyAmountCryptoBaseUnit,
-    precision: buyAsset.precision,
-  }).toPrecision()
-
-  const sellAmountPrecision = BigAmount.fromBaseUnit({
-    value: sellAmountCryptoBaseUnit,
-    precision: sellAsset.precision,
-  }).toPrecision()
-
-  return bnOrZero(buyAmountPrecision).div(sellAmountPrecision).toFixed()
+  return bnOrZero(fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset.precision))
+    .div(fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision))
+    .toFixed()
 }
 
 export const makeLimitInputOutputRatio = ({

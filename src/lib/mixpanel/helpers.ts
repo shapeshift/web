@@ -69,7 +69,7 @@ export const trackOpportunityEvent = (
       Object.fromEntries(
         cryptoAmounts.map(claimAmount => [
           getMaybeCompositeAssetSymbol(claimAmount.assetId, assetsById),
-          claimAmount.amountCryptoPrecision,
+          claimAmount.amountCryptoHuman,
         ]),
       )),
     ...(element && { element }),

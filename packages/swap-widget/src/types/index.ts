@@ -24,10 +24,9 @@ import {
   polygonChainId,
   solanaChainId,
   thorchainChainId,
-  worldChainChainId,
 } from '@shapeshiftoss/caip'
 import type { TransactionData } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
+import { fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
 import type { WalletClient } from 'viem'
 import { erc20Abi } from 'viem'
 
@@ -227,7 +226,6 @@ export const EVM_CHAIN_IDS = {
   monad: monadChainId,
   hyperEvm: hyperEvmChainId,
   plasma: plasmaChainId,
-  worldChain: worldChainChainId,
   katana: katanaChainId,
 } as const
 
@@ -276,9 +274,7 @@ export const getChainType = (chainId: string): 'evm' | 'utxo' | 'cosmos' | 'sola
 
 export const formatAmount = (amount: string, decimals: number, maxDecimals?: number): string => {
   const effectiveMaxDecimals = maxDecimals ?? Math.min(decimals, 8)
-  const result = BigAmount.fromBaseUnit({ value: amount, precision: decimals }).toFixed(
-    effectiveMaxDecimals,
-  )
+  const result = fromBaseUnit(amount, decimals, effectiveMaxDecimals)
   const num = Number(result)
   if (num === 0) return '0'
 
@@ -294,7 +290,7 @@ export const formatAmount = (amount: string, decimals: number, maxDecimals?: num
 }
 
 export const parseAmount = (amount: string, decimals: number): string => {
-  return BigAmount.fromPrecision({ value: amount, precision: decimals }).toBaseUnit()
+  return toBaseUnit(amount, decimals)
 }
 
 export const truncateAddress = (address: string, chars = 4): string => {

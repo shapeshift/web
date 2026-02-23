@@ -17,7 +17,6 @@ import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -42,6 +41,7 @@ import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { getThorchainFromAddress } from '@/lib/utils/thorchain'
 import { useGetThorchainSaversDepositQuoteQuery } from '@/lib/utils/thorchain/hooks/useGetThorchainSaversDepositQuoteQuery'
 import { formatSecondsToDuration } from '@/lib/utils/time'
@@ -108,18 +108,12 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
 
   const isRunePool = assetId === thorchainAssetId
 
-  const mockDepositAmountCryptoBaseUnit = useMemo(
-    () =>
-      BigNumber.max(
-        THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
-        BigAmount.fromPrecision({ value: 1, precision: asset?.precision ?? 0 }).toBaseUnit(),
-      ),
-    [assetId, asset?.precision],
-  )
-
   const { isLoading: isMockDepositQuoteLoading, error } = useGetThorchainSaversDepositQuoteQuery({
     asset,
-    amountCryptoBaseUnit: mockDepositAmountCryptoBaseUnit,
+    amountCryptoBaseUnit: BigNumber.max(
+      THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT[assetId],
+      toBaseUnit(1, asset?.precision ?? 0),
+    ),
     enabled: !isRunePool,
   })
 
@@ -197,10 +191,10 @@ export const ThorchainSaversOverview: React.FC<OverviewProps> = ({
   const underlyingAssetsFiatBalanceCryptoPrecision = useMemo(() => {
     if (!asset || !earnOpportunityData?.underlyingAssetId) return '0'
 
-    const cryptoAmount = BigAmount.fromBaseUnit({
-      value: earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
-      precision: asset.precision,
-    }).toPrecision()
+    const cryptoAmount = fromBaseUnit(
+      earnOpportunityData?.stakedAmountCryptoBaseUnit ?? '0',
+      asset.precision,
+    )
     const price = marketData?.price
     return bnOrZero(cryptoAmount).times(bnOrZero(price)).toString()
   }, [

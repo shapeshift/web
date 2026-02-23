@@ -4,13 +4,13 @@ import type { FoxEthStakingContractAddress } from '@shapeshiftoss/contracts'
 import { ETH_FOX_POOL_CONTRACT, getOrCreateContractByAddress } from '@shapeshiftoss/contracts'
 import { isGridPlus, supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
-import { BigAmount } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
 
 import { useFoxEth } from '@/context/FoxEthProvider/FoxEthProvider'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { toBaseUnit } from '@/lib/math'
 import { isValidAccountNumber } from '@/lib/utils/accounts'
 import {
   assertGetEvmChainAdapter,
@@ -72,14 +72,7 @@ export const useFoxFarming = (
         const data = encodeFunctionData({
           abi: foxFarmingContract.abi,
           functionName: 'stake',
-          args: [
-            BigInt(
-              BigAmount.fromPrecision({
-                value: lpAmount,
-                precision: lpAsset.precision,
-              }).toBaseUnit(),
-            ),
-          ],
+          args: [BigInt(toBaseUnit(lpAmount, lpAsset.precision))],
         })
 
         const buildCustomTxInput = await createBuildCustomTxInput({
@@ -128,18 +121,7 @@ export const useFoxFarming = (
         const data = encodeFunctionData({
           abi: foxFarmingContract.abi,
           functionName: isExiting ? 'exit' : 'withdraw',
-          ...(isExiting
-            ? {}
-            : {
-                args: [
-                  BigInt(
-                    BigAmount.fromPrecision({
-                      value: lpAmount,
-                      precision: lpAsset.precision,
-                    }).toBaseUnit(),
-                  ),
-                ],
-              }),
+          ...(isExiting ? {} : { args: [BigInt(toBaseUnit(lpAmount, lpAsset.precision))] }),
         })
 
         const buildCustomTxInput = await createBuildCustomTxInput({
@@ -215,11 +197,7 @@ export const useFoxFarming = (
       const data = encodeFunctionData({
         abi: foxFarmingContract.abi,
         functionName: 'stake',
-        args: [
-          BigInt(
-            BigAmount.fromPrecision({ value: lpAmount, precision: lpAsset.precision }).toBaseUnit(),
-          ),
-        ],
+        args: [BigInt(toBaseUnit(lpAmount, lpAsset.precision))],
       })
 
       return getFeesWithWalletEIP1559Support({
@@ -250,18 +228,7 @@ export const useFoxFarming = (
       const data = encodeFunctionData({
         abi: foxFarmingContract.abi,
         functionName: isExiting ? 'exit' : 'withdraw',
-        ...(isExiting
-          ? {}
-          : {
-              args: [
-                BigInt(
-                  BigAmount.fromPrecision({
-                    value: lpAmount,
-                    precision: lpAsset.precision,
-                  }).toBaseUnit(),
-                ),
-              ],
-            }),
+        ...(isExiting ? {} : { args: [BigInt(toBaseUnit(lpAmount, lpAsset.precision))] }),
       })
 
       return getFeesWithWalletEIP1559Support({

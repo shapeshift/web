@@ -137,9 +137,8 @@ export const GetAssetsUI = ({ toolPart }: ToolUIProps<'getAssetsTool'>) => {
           {description && (
             <Box borderTopWidth={1} borderColor={borderColor} pt={4}>
               <Text fontSize='sm' fontWeight='medium' mb={2}>
-                {translate('agenticChat.agenticChatTools.getAssets.about', {
-                  symbol: asset.symbol.toUpperCase(),
-                })}
+                {translate('agenticChat.agenticChatTools.getAssets.about')}{' '}
+                {asset.symbol.toUpperCase()}
               </Text>
               <Text
                 fontSize='sm'

@@ -13,9 +13,10 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { RawText } from '@/components/Text'
 import {
   selectAssetById,
+  selectCryptoHumanBalanceFilter,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceByFilter,
-  selectPortfolioUserCurrencyBalanceByFilter,
+  selectUserCurrencyBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -48,11 +49,11 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({ assetId, account
     )?.toPrecision() ?? '0'
 
   const userCurrencyBalance = useAppSelector(s =>
-    selectPortfolioUserCurrencyBalanceByFilter(s, assetAccountFilter),
+    selectUserCurrencyBalanceByFilter(s, assetAccountFilter),
   )
-  const cryptoPrecisionBalance = useAppSelector(s =>
-    selectPortfolioCryptoBalanceByFilter(s, assetAccountFilter),
-  ).toPrecision()
+  const cryptoHumanBalance = useAppSelector(s =>
+    selectCryptoHumanBalanceFilter(s, assetAccountFilter),
+  )
   const handleClick = useCallback(() => navigate(-1), [navigate])
   const balanceContent = useMemo(() => {
     if (!marketData)
@@ -95,7 +96,7 @@ export const AccountBalance: React.FC<AccountBalanceProps> = ({ assetId, account
           <Amount.Crypto
             color='text.subtle'
             fontWeight='normal'
-            value={cryptoPrecisionBalance}
+            value={cryptoHumanBalance}
             symbol={asset.symbol}
             lineHeight='shorter'
           />

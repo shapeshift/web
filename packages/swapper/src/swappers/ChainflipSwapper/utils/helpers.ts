@@ -1,7 +1,7 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigAmount, bn, bnOrZero, isToken } from '@shapeshiftoss/utils'
+import { bn, bnOrZero, fromBaseUnit, isToken } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
@@ -73,15 +73,15 @@ export const calculateChainflipMinPrice = ({
   sellAsset: Asset
   buyAsset: Asset
 }): string => {
-  const sellAmountCryptoPrecision = BigAmount.fromBaseUnit({
-    value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    precision: sellAsset.precision,
-  }).toPrecision()
+  const sellAmountCryptoPrecision = fromBaseUnit(
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    sellAsset.precision,
+  )
 
-  const buyAmountCryptoPrecision = BigAmount.fromBaseUnit({
-    value: buyAmountAfterFeesCryptoBaseUnit,
-    precision: buyAsset.precision,
-  }).toPrecision()
+  const buyAmountCryptoPrecision = fromBaseUnit(
+    buyAmountAfterFeesCryptoBaseUnit,
+    buyAsset.precision,
+  )
 
   const estimatedPrice = bn(buyAmountCryptoPrecision).div(sellAmountCryptoPrecision)
 

@@ -22,7 +22,6 @@ import type {
   KnownChainIds,
 } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { BigAmount } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import dayjs from 'dayjs'
 import memoize from 'lodash/memoize'
@@ -35,7 +34,7 @@ import { getThorchainLendingPosition } from './lending'
 import { getConfig } from '@/config'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber, BN } from '@/lib/bignumber/bignumber'
-import { bn } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { poll } from '@/lib/poll/poll'
 import type { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
 import { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
@@ -132,7 +131,7 @@ export const waitForThorchainUpdate = ({
 }
 
 export const fromThorBaseUnit = (valueThorBaseUnit: BigNumber.Value | null | undefined): BN =>
-  BigAmount.fromBaseUnit({ value: valueThorBaseUnit, precision: THOR_PRECISION }).toBN()
+  bnOrZero(valueThorBaseUnit).div(bn(10).pow(THOR_PRECISION)) // to crypto precision from THOR 8 dp base unit
 
 export const toThorBaseUnit = ({
   valueCryptoBaseUnit,
@@ -143,13 +142,10 @@ export const toThorBaseUnit = ({
 }): BN => {
   if (!asset?.precision) return bn(0)
 
-  return BigAmount.fromBaseUnit({
-    value: valueCryptoBaseUnit,
-    precision: asset.precision,
-  })
-    .toBN()
+  return bnOrZero(valueCryptoBaseUnit)
+    .div(bn(10).pow(asset?.precision)) // to crypto precision from THOR 8 dp base unit
     .times(bn(10).pow(THOR_PRECISION))
-    .decimalPlaces(0)
+    .decimalPlaces(0) // THORChain expects ints, not floats
 }
 
 export const getThorchainFromAddress = async ({

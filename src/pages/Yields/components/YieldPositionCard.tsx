@@ -192,7 +192,7 @@ export const YieldPositionCard = memo(
     )
 
     const totalValueUserCurrency = useMemo(
-      () => totalValueUsd.times(userCurrencyToUsdRate).toFixed(2),
+      () => totalValueUsd.times(userCurrencyToUsdRate).toFixed(),
       [totalValueUsd, userCurrencyToUsdRate],
     )
 

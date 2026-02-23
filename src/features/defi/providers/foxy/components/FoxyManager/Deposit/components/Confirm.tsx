@@ -2,7 +2,6 @@ import { Alert, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
-import { BigAmount } from '@shapeshiftoss/utils'
 import type { TransactionReceipt, TransactionReceiptParams } from 'ethers'
 import isNil from 'lodash/isNil'
 import { useCallback, useContext, useMemo } from 'react'
@@ -24,11 +23,11 @@ import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyMana
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { usePoll } from '@/hooks/usePoll/usePoll'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import {
   selectBip44ParamsByAccountId,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -65,7 +64,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     [accountId, feeAsset?.assetId],
   )
   const feeAssetBalance = useAppSelector(s =>
-    selectPortfolioCryptoBalanceByFilter(s, feeAssetBalanceFilter),
+    selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const handleDeposit = useCallback(async () => {
@@ -88,12 +87,9 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
         throw new Error(`handleDeposit: wallet does not support ethereum`)
 
       const txid = await foxyApi.deposit({
-        amountDesired: bnOrZero(
-          BigAmount.fromPrecision({
-            value: state?.deposit.cryptoAmount ?? '0',
-            precision: asset.precision,
-          }).toBaseUnit(),
-        ),
+        amountDesired: bnOrZero(state?.deposit.cryptoAmount)
+          .times(bn(10).pow(asset.precision))
+          .decimalPlaces(0),
         tokenContractAddress: assetReference,
         userAddress: accountAddress,
         contractAddress,
@@ -154,18 +150,11 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     [feeAsset.symbol],
   )
 
-  const estimatedGasBigAmount = useMemo(
-    () =>
-      BigAmount.fromBaseUnit({
-        value: state?.deposit.estimatedGasCryptoBaseUnit ?? '0',
-        precision: feeAsset.precision,
-      }),
-    [state?.deposit.estimatedGasCryptoBaseUnit, feeAsset.precision],
-  )
-
   if (!state || !dispatch) return null
 
-  const hasEnoughBalanceForGas = feeAssetBalance.minus(estimatedGasBigAmount).gte(0)
+  const hasEnoughBalanceForGas = bnOrZero(feeAssetBalance)
+    .minus(bnOrZero(state.deposit.estimatedGasCryptoBaseUnit).div(bn(10).pow(feeAsset.precision)))
+    .gte(0)
 
   return (
     <ReusableConfirm
@@ -199,11 +188,16 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
             <Box textAlign='right'>
               <Amount.Fiat
                 fontWeight='bold'
-                value={estimatedGasBigAmount.times(feeMarketData?.price).toFixed(2)}
+                value={bnOrZero(state.deposit.estimatedGasCryptoBaseUnit)
+                  .div(bn(10).pow(feeAsset.precision))
+                  .times(bnOrZero(feeMarketData?.price))
+                  .toFixed(2)}
               />
               <Amount.Crypto
                 color='text.subtle'
-                value={estimatedGasBigAmount.toFixed(5)}
+                value={bnOrZero(state.deposit.estimatedGasCryptoBaseUnit)
+                  .div(bn(10).pow(feeAsset.precision))
+                  .toFixed(5)}
                 symbol={feeAsset.symbol}
               />
             </Box>

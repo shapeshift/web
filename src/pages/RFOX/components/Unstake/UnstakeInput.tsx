@@ -37,7 +37,7 @@ import {
   selectAssets,
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -100,8 +100,8 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     }),
     [stakingAssetFeeAsset?.assetId, stakingAssetAccountId],
   )
-  const stakingAssetFeeAssetBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
+  const stakingAssetFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
   )
 
   const buyAssetSearch = useModal('buyAssetSearch')
@@ -318,19 +318,22 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   const validateHasEnoughFeeBalance = useCallback(
     (input: string) => {
       if (bnOrZero(input).isZero()) return true
-      if (stakingAssetFeeAssetBalance.isZero()) return false
+      if (bnOrZero(stakingAssetFeeAssetBalanceCryptoPrecision).isZero()) return false
 
       const fees = unstakeFees
 
       const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
-        stakingAssetFeeAssetBalance.toBaseUnit(),
+        BigAmount.fromPrecision({
+          value: stakingAssetFeeAssetBalanceCryptoPrecision,
+          precision: stakingAssetFeeAsset?.precision ?? 0,
+        }).toBaseUnit(),
       )
 
       if (!hasEnoughFeeBalance) return false
 
       return true
     },
-    [stakingAssetFeeAssetBalance, unstakeFees],
+    [stakingAssetFeeAsset?.precision, stakingAssetFeeAssetBalanceCryptoPrecision, unstakeFees],
   )
 
   // Trigger re-validation since react-hook-form validation methods are fired onChange and not in a component-reactive manner
@@ -339,7 +342,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   }, [
     stakingAssetFeeAsset?.precision,
     stakingAssetFeeAsset?.symbol,
-    stakingAssetFeeAssetBalance,
+    stakingAssetFeeAssetBalanceCryptoPrecision,
     amountCryptoPrecision,
     amountUserCurrency,
     unstakeFees,

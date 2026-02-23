@@ -20,7 +20,7 @@ export const {
   selectIsManualReceiveAddressValid,
   selectInputSellAmountUsd,
   selectInputSellAmountUserCurrency,
-  selectSellAssetBalance,
+  selectSellAssetBalanceCryptoBaseUnit,
   selectIsInputtingFiatSellAmount,
   selectInputSellAmountCryptoPrecision,
   selectSelectedSellAssetChainId,
@@ -73,16 +73,13 @@ export const selectFiatBuyAmount = createSelector(
 )
 
 export const selectCryptoBuyAmount = createSelector(
-  [selectSelectedBuyFiatRampQuote, selectBuyFiatAmount, selectInputBuyAsset],
-  (selectedQuote, buyFiatAmount, buyAsset) => {
+  [selectSelectedBuyFiatRampQuote, selectBuyFiatAmount],
+  (selectedQuote, buyFiatAmount) => {
     if (!selectedQuote || !selectedQuote.rate) return '0'
 
     const rate = bnOrZero(selectedQuote.rate)
 
-    return bnOrZero(buyFiatAmount)
-      .div(rate)
-      .decimalPlaces(buyAsset?.precision ?? 18, 1)
-      .toString()
+    return bnOrZero(buyFiatAmount).div(rate).toString()
   },
 )
 

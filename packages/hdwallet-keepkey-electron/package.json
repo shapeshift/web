@@ -32,11 +32,11 @@
     "uuid": "^8.3.2"
   },
   "peerDependencies": {
-    "electron": "^35.7.5"
+    "electron": "^12.0.9"
   },
   "devDependencies": {
     "@types/uuid": "^8.3.0",
-    "electron": "^35.7.5"
+    "electron": "^12.0.9"
   },
   "sideEffects": false
 }

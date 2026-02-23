@@ -8,9 +8,10 @@ import { parseAmount } from '../types'
 type UseSwapHandlersParams = {
   onConnectWallet?: () => void
   onAssetSelect?: (type: 'sell' | 'buy', asset: Asset) => void
+  affiliateAddress?: string
 }
 
-export const useSwapHandlers = ({ onConnectWallet, onAssetSelect }: UseSwapHandlersParams) => {
+export const useSwapHandlers = ({ onConnectWallet, onAssetSelect, affiliateAddress }: UseSwapHandlersParams) => {
   const actorRef = SwapMachineCtx.useActorRef()
   const { walletClient, bitcoin, solana } = useSwapWallet()
 
@@ -67,12 +68,15 @@ export const useSwapHandlers = ({ onConnectWallet, onAssetSelect }: UseSwapHandl
       buyAssetId: snap.context.buyAsset.assetId,
       sellAmount: snap.context.sellAmount,
     })
+    if (affiliateAddress) {
+      params.set('affiliate', affiliateAddress)
+    }
     window.open(
       `https://app.shapeshift.com/trade?${params.toString()}`,
       '_blank',
       'noopener,noreferrer',
     )
-  }, [actorRef])
+  }, [actorRef, affiliateAddress])
 
   const handleButtonClick = useCallback(() => {
     const snap = actorRef.getSnapshot()
@@ -96,6 +100,9 @@ export const useSwapHandlers = ({ onConnectWallet, onAssetSelect }: UseSwapHandl
         buyAssetId: snap.context.buyAsset.assetId,
         sellAmount: snap.context.sellAmount,
       })
+      if (affiliateAddress) {
+        params.set('affiliate', affiliateAddress)
+      }
       window.open(
         `https://app.shapeshift.com/trade?${params.toString()}`,
         '_blank',
@@ -104,7 +111,7 @@ export const useSwapHandlers = ({ onConnectWallet, onAssetSelect }: UseSwapHandl
       return
     }
     actorRef.send({ type: 'FETCH_QUOTE' })
-  }, [actorRef, bitcoin.isConnected, solana.isConnected, walletClient, onConnectWallet])
+  }, [actorRef, bitcoin.isConnected, solana.isConnected, walletClient, onConnectWallet, affiliateAddress])
 
   return {
     handleSwapTokens,

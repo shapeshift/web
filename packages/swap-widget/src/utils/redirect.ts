@@ -7,6 +7,7 @@ export type RedirectParams = {
   sellAssetId: AssetId
   buyAssetId: AssetId
   sellAmount?: string
+  affiliateAddress?: string
 }
 
 export const buildShapeShiftTradeUrl = (params: RedirectParams): string => {
@@ -15,6 +16,9 @@ export const buildShapeShiftTradeUrl = (params: RedirectParams): string => {
   url.searchParams.set('buyAssetId', params.buyAssetId)
   if (params.sellAmount) {
     url.searchParams.set('sellAmount', params.sellAmount)
+  }
+  if (params.affiliateAddress) {
+    url.searchParams.set('affiliate', params.affiliateAddress)
   }
   return url.toString()
 }

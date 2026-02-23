@@ -442,6 +442,7 @@ export class LedgerHDWallet
   readonly _supportsBlast = true
   readonly _supportsWorldChain = true
   readonly _supportsHemi = true
+  readonly _supportsFlowEvm = true
   readonly _supportsBerachain = true
   readonly _supportsLinea = true
   readonly _supportsScroll = true

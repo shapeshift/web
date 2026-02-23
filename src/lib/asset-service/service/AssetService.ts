@@ -8,6 +8,7 @@ import {
   bobChainId,
   bscChainId,
   cronosChainId,
+  flowEvmChainId,
   gnosisChainId,
   hemiChainId,
   hyperEvmChainId,
@@ -147,6 +148,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_HEMI && asset.chainId === hemiChainId) return false
       if (!config.VITE_FEATURE_MANTLE && asset.chainId === mantleChainId) return false
       if (!config.VITE_FEATURE_INK && asset.chainId === inkChainId) return false
+      if (!config.VITE_FEATURE_FLOWEVM && asset.chainId === flowEvmChainId) return false
       if (!config.VITE_FEATURE_SONIC && asset.chainId === sonicChainId) return false
       if (!config.VITE_FEATURE_UNICHAIN && asset.chainId === unichainChainId) return false
       if (!config.VITE_FEATURE_BOB && asset.chainId === bobChainId) return false

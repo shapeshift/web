@@ -15,6 +15,7 @@ import {
   cronosChainId,
   dogeChainId,
   ethChainId,
+  flowEvmChainId,
   fromAccountId,
   fromAssetId,
   fromChainId,
@@ -69,6 +70,7 @@ import {
   supportsCosmos,
   supportsCronos,
   supportsETH,
+  supportsFlowEvm,
   supportsGnosis,
   supportsHemi,
   supportsHyperEvm,
@@ -140,6 +142,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case inkChainId:
     case megaethChainId:
     case berachainChainId:
+    case flowEvmChainId:
     case lineaChainId:
     case cronosChainId:
     case katanaChainId:
@@ -554,6 +557,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsMonad(wallet)
     case hyperEvmChainId:
       return supportsHyperEvm(wallet)
+    case flowEvmChainId:
+      return supportsFlowEvm(wallet)
     case mantleChainId:
       return supportsMantle(wallet)
     case inkChainId:

@@ -42,6 +42,7 @@ export type FeatureFlags = {
   Berachain: boolean
   Cronos: boolean
   Katana: boolean
+  FlowEvm: boolean
   Plume: boolean
   Story: boolean
   ZkSyncEra: boolean
@@ -208,6 +209,7 @@ const initialState: Preferences = {
     Berachain: getConfig().VITE_FEATURE_BERACHAIN,
     Cronos: getConfig().VITE_FEATURE_CRONOS,
     Katana: getConfig().VITE_FEATURE_KATANA,
+    FlowEvm: getConfig().VITE_FEATURE_FLOWEVM,
     Plume: getConfig().VITE_FEATURE_PLUME,
     Story: getConfig().VITE_FEATURE_STORY,
     ZkSyncEra: getConfig().VITE_FEATURE_ZK_SYNC_ERA,

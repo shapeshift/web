@@ -34,6 +34,7 @@ import { compressGeneratedAssets } from './compressAssets'
 import { ASSET_DATA_PATH, GENERATED_DIR, RELATED_ASSET_INDEX_PATH } from './constants'
 import * as cronos from './cronos'
 import * as ethereum from './ethereum'
+import * as flowEvm from './flowEvm'
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
 import * as gnosis from './gnosis'
 import * as hemi from './hemi'
@@ -88,6 +89,7 @@ const generateAssetData = async () => {
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
+  const flowEvmAssets = await flowEvm.getAssets()
   const zksyncEraAssets = await zksyncera.getAssets()
   const blastAssets = await blast.getAssets()
   const hemiAssets = await hemi.getAssets()
@@ -138,6 +140,7 @@ const generateAssetData = async () => {
     ...monadAssets,
     ...hyperevmAssets,
     ...katanaAssets,
+    ...flowEvmAssets,
     ...zksyncEraAssets,
     ...blastAssets,
     ...hemiAssets,

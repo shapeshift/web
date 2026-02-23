@@ -221,6 +221,7 @@ export interface ETHWallet extends ETHWalletInfo, HDWallet {
   readonly _supportsBlast: boolean
   readonly _supportsWorldChain: boolean
   readonly _supportsHemi: boolean
+  readonly _supportsFlowEvm: boolean
   readonly _supportsBerachain: boolean
   readonly _supportsLinea: boolean
   readonly _supportsScroll: boolean

@@ -13,6 +13,7 @@ import {
   cronosChainId,
   dogeChainId,
   ethChainId,
+  flowEvmChainId,
   gnosisChainId,
   hemiChainId,
   inkChainId,
@@ -246,5 +247,6 @@ export const getCoingeckoSupportedChainIds = () => {
     ...(getConfig().VITE_FEATURE_MODE ? [modeChainId] : []),
     ...(getConfig().VITE_FEATURE_SONEIUM ? [soneiumChainId] : []),
     ...(getConfig().VITE_FEATURE_TON ? [tonChainId] : []),
+    ...(getConfig().VITE_FEATURE_FLOWEVM ? [flowEvmChainId] : []),
   ]
 }

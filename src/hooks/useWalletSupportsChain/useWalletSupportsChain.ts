@@ -13,6 +13,7 @@ import {
   cronosChainId,
   dogeChainId,
   ethChainId,
+  flowEvmChainId,
   gnosisChainId,
   hemiChainId,
   hyperEvmChainId,
@@ -63,6 +64,7 @@ import {
   supportsCosmos,
   supportsCronos,
   supportsETH,
+  supportsFlowEvm,
   supportsGnosis,
   supportsHemi,
   supportsHyperEvm,
@@ -188,6 +190,7 @@ export const walletSupportsChain = ({
   const isInkEnabled = selectFeatureFlag(store.getState(), 'Ink')
   const isBobEnabled = selectFeatureFlag(store.getState(), 'Bob')
   const isKatanaEnabled = selectFeatureFlag(store.getState(), 'Katana')
+  const isFlowEvmEnabled = selectFeatureFlag(store.getState(), 'FlowEvm')
   const isStoryEnabled = selectFeatureFlag(store.getState(), 'Story')
   const isMantleEnabled = selectFeatureFlag(store.getState(), 'Mantle')
   const isLineaEnabled = selectFeatureFlag(store.getState(), 'Linea')
@@ -255,6 +258,8 @@ export const walletSupportsChain = ({
       return isPlumeEnabled && supportsPlume(wallet)
     case katanaChainId:
       return isKatanaEnabled && supportsKatana(wallet)
+    case flowEvmChainId:
+      return isFlowEvmEnabled && supportsFlowEvm(wallet)
     case storyChainId:
       return isStoryEnabled && supportsStory(wallet)
     case zkSyncEraChainId:

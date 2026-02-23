@@ -7,6 +7,7 @@ import {
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
   ethChainId,
+  flowEvmChainId,
   foxOnArbitrumOneAssetId,
 } from '../../constants'
 import {
@@ -414,6 +415,12 @@ describe('adapters:coingecko', () => {
     it('throws on invalid ChainId', () => {
       const chainId = btcChainId
       expect(() => chainIdToCoingeckoAssetPlatform(chainId)).toThrow()
+    })
+
+    it('can get CoinGecko asset platform for flow evm ChainId', () => {
+      expect(chainIdToCoingeckoAssetPlatform(flowEvmChainId)).toEqual(
+        CoingeckoAssetPlatform.FlowEvm,
+      )
     })
   })
 })

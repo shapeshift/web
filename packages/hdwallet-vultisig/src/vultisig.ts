@@ -239,6 +239,7 @@ export class VultisigHDWallet
   readonly _supportsBlast = false
   readonly _supportsWorldChain = false
   readonly _supportsHemi = false
+  readonly _supportsFlowEvm = false
   readonly _supportsBerachain = false
   readonly _supportsLinea = false
   readonly _supportsScroll = false

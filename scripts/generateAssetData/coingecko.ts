@@ -11,6 +11,7 @@ import {
   bscChainId,
   cronosChainId,
   ethChainId,
+  flowEvmChainId,
   gnosisChainId,
   hemiChainId,
   hyperEvmChainId,
@@ -51,6 +52,7 @@ import {
   bobChain,
   cronos,
   ethereum,
+  flowEvm,
   gnosis,
   hemi,
   hyperevm,
@@ -254,6 +256,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: katana.explorer,
           explorerAddressLink: katana.explorerAddressLink,
           explorerTxLink: katana.explorerTxLink,
+        }
+      case flowEvmChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: flowEvm.explorer,
+          explorerAddressLink: flowEvm.explorerAddressLink,
+          explorerTxLink: flowEvm.explorerTxLink,
         }
       case plumeChainId:
         return {

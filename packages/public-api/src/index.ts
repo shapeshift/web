@@ -38,7 +38,7 @@ app.get('/', (_req, res) => {
   })
 })
 
-// Health check (no auth required)
+// Health check
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: Date.now() })
 })

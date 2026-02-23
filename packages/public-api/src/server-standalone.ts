@@ -7,17 +7,11 @@
  */
 
 import cors from 'cors'
-import crypto from 'crypto'
 import express from 'express'
 import { v4 as uuidv4 } from 'uuid'
 
 const API_PORT = parseInt(process.env.PORT || '3001', 10)
 const API_HOST = process.env.HOST || '0.0.0.0'
-
-// Static API keys for testing
-const STATIC_API_KEYS: Record<string, { name: string; feeSharePercentage: number }> = {
-  'test-api-key-123': { name: 'Test Partner', feeSharePercentage: 50 },
-}
 
 const app = express()
 
@@ -25,35 +19,13 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-// API key auth middleware
-const apiKeyAuth = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const apiKey = req.header('X-API-Key')
-
-  if (!apiKey) {
-    return res.status(401).json({ error: 'API key required', code: 'MISSING_API_KEY' })
-  }
-
-  const partnerInfo = STATIC_API_KEYS[apiKey]
-  if (!partnerInfo) {
-    return res.status(401).json({ error: 'Invalid API key', code: 'INVALID_API_KEY' })
-  }
-
-  ;(req as any).partner = {
-    id: crypto.createHash('sha256').update(apiKey).digest('hex').substring(0, 16),
-    name: partnerInfo.name,
-    feeSharePercentage: partnerInfo.feeSharePercentage,
-  }
-
-  next()
-}
-
 // Health check
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: Date.now() })
 })
 
 // Mock rates endpoint
-app.get('/v1/swap/rates', apiKeyAuth, (req, res) => {
+app.get('/v1/swap/rates', (req, res) => {
   const { sellAssetId, buyAssetId, sellAmountCryptoBaseUnit } = req.query
 
   if (!sellAssetId || !buyAssetId || !sellAmountCryptoBaseUnit) {
@@ -108,7 +80,7 @@ app.get('/v1/swap/rates', apiKeyAuth, (req, res) => {
 })
 
 // Mock quote endpoint
-app.post('/v1/swap/quote', apiKeyAuth, (req, res) => {
+app.post('/v1/swap/quote', (req, res) => {
   const { sellAssetId, buyAssetId, sellAmountCryptoBaseUnit, receiveAddress, swapperName } =
     req.body
 
@@ -209,22 +181,13 @@ app.use((_req, res) => {
 // Start server
 app.listen(API_PORT, API_HOST, () => {
   console.log(`
-╔══════════════════════════════════════════════════════════════════╗
-║                    ShapeShift Public Swap API                    ║
-║                      (Mock/Test Server)                          ║
-╚══════════════════════════════════════════════════════════════════╝
-
 Server running at http://${API_HOST}:${API_PORT}
 
 Endpoints:
-  GET  /health                  - Health check (no auth)
+  GET  /health                  - Health check
   GET  /v1/swap/rates           - Get swap rates from all swappers
   POST /v1/swap/quote           - Get executable quote with tx data
   GET  /v1/assets               - List supported assets
-
-Authentication:
-  Include 'X-API-Key' header for /v1/swap/* endpoints
-  Test key: test-api-key-123
 
 Example requests:
 
@@ -232,11 +195,10 @@ Example requests:
   curl http://localhost:${API_PORT}/health
 
   # Get rates
-  curl -H "X-API-Key: test-api-key-123" \\
-    "http://localhost:${API_PORT}/v1/swap/rates?sellAssetId=eip155:1/slip44:60&buyAssetId=eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&sellAmountCryptoBaseUnit=1000000000000000000"
+  curl "http://localhost:${API_PORT}/v1/swap/rates?sellAssetId=eip155:1/slip44:60&buyAssetId=eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&sellAmountCryptoBaseUnit=1000000000000000000"
 
   # Get quote
-  curl -X POST -H "X-API-Key: test-api-key-123" -H "Content-Type: application/json" \\
+  curl -X POST -H "Content-Type: application/json" \\
     -d '{"sellAssetId":"eip155:1/slip44:60","buyAssetId":"eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","sellAmountCryptoBaseUnit":"1000000000000000000","receiveAddress":"0x742d35Cc6634C0532925a3b844Bc9e7595f4EdC3","swapperName":"THORChain"}' \\
     http://localhost:${API_PORT}/v1/swap/quote
 

@@ -1,5 +1,3 @@
-export const TEST_API_KEY = 'test-api-key-123'
-
 export const ASSET_IDS = {
   // EVM Native Assets
   ETH: 'eip155:1/slip44:60',

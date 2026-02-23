@@ -5,7 +5,6 @@ import express from 'express'
 
 import { initAssets } from './assets'
 import { API_HOST, API_PORT } from './config'
-import { apiKeyAuth, optionalApiKeyAuth } from './middleware/auth'
 import { getAssetById, getAssetCount, getAssets } from './routes/assets'
 import { getChainCount, getChains } from './routes/chains'
 import { docsRouter } from './routes/docs'
@@ -38,7 +37,7 @@ app.get('/', (_req, res) => {
   })
 })
 
-// Health check (no auth required)
+// Health check
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: Date.now() })
 })
@@ -46,18 +45,18 @@ app.get('/health', (_req, res) => {
 // API v1 routes
 const v1Router = express.Router()
 
-// Swap endpoints (require API key)
-v1Router.get('/swap/rates', apiKeyAuth, getRates)
-v1Router.post('/swap/quote', apiKeyAuth, getQuote)
+// Swap endpoints
+v1Router.get('/swap/rates', getRates)
+v1Router.post('/swap/quote', getQuote)
 
-// Chain endpoints (optional auth)
-v1Router.get('/chains', optionalApiKeyAuth, getChains)
-v1Router.get('/chains/count', optionalApiKeyAuth, getChainCount)
+// Chain endpoints
+v1Router.get('/chains', getChains)
+v1Router.get('/chains/count', getChainCount)
 
-// Asset endpoints (optional auth)
-v1Router.get('/assets', optionalApiKeyAuth, getAssets)
-v1Router.get('/assets/count', optionalApiKeyAuth, getAssetCount)
-v1Router.get('/assets/:assetId(*)', optionalApiKeyAuth, getAssetById)
+// Asset endpoints
+v1Router.get('/assets', getAssets)
+v1Router.get('/assets/count', getAssetCount)
+v1Router.get('/assets/:assetId(*)', getAssetById)
 
 app.use('/v1', v1Router)
 app.use('/docs', docsRouter)
@@ -90,10 +89,6 @@ Available endpoints:
   GET  /v1/assets                 - List supported assets
   GET  /v1/assets/count           - Get asset count
   GET  /v1/assets/:assetId        - Get single asset by ID
-
-Authentication:
-  Include 'X-API-Key' header with your API key for /v1/swap/* endpoints.
-  Test API key: test-api-key-123
     `)
   })
 }

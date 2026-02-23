@@ -5,7 +5,6 @@ const DEFAULT_API_BASE_URL =
 
 export type ApiClientConfig = {
   baseUrl?: string
-  apiKey?: string
 }
 
 export const createApiClient = (config: ApiClientConfig = {}) => {
@@ -20,9 +19,6 @@ export const createApiClient = (config: ApiClientConfig = {}) => {
     const url = new URL(`${baseUrl}${endpoint}`)
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-    }
-    if (config.apiKey) {
-      headers['x-api-key'] = config.apiKey
     }
 
     const controller = new AbortController()

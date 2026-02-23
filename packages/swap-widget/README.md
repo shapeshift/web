@@ -44,7 +44,6 @@ import { SwapWidget } from "@shapeshiftoss/swap-widget";
 function App() {
   return (
     <SwapWidget
-      apiKey="your-api-key"
       theme="dark"
       onSwapSuccess={(txHash) => console.log("Success:", txHash)}
       onSwapError={(error) => console.error("Error:", error)}
@@ -59,7 +58,6 @@ function App() {
 
 | Prop                     | Type                                            | Default          | Description                                                                                                |
 | ------------------------ | ----------------------------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------- |
-| `apiKey`                 | `string`                                        | -                | ShapeShift API key for fetching swap rates. Required for production use.                                   |
 | `apiBaseUrl`             | `string`                                        | -                | Custom API base URL. Useful for testing or custom deployments.                                             |
 | `defaultSellAsset`       | `Asset`                                         | ETH on Ethereum  | Initial asset to sell.                                                                                     |
 | `defaultBuyAsset`        | `Asset`                                         | USDC on Ethereum | Initial asset to buy.                                                                                      |
@@ -132,7 +130,7 @@ function App() {
 import { SwapWidget } from "@shapeshiftoss/swap-widget";
 
 function App() {
-  return <SwapWidget apiKey="your-api-key" theme="dark" />;
+  return <SwapWidget theme="dark" />;
 }
 ```
 
@@ -149,7 +147,6 @@ function App() {
 
   return (
     <SwapWidget
-      apiKey="your-api-key"
       walletClient={walletClient}
       onConnectWallet={() => {
         // Your custom wallet connection logic
@@ -198,7 +195,6 @@ const defaultBuyAsset: Asset = {
 function App() {
   return (
     <SwapWidget
-      apiKey="your-api-key"
       defaultSellAsset={defaultSellAsset}
       defaultBuyAsset={defaultBuyAsset}
       theme="dark"
@@ -217,7 +213,6 @@ import { SwapWidget, EVM_CHAIN_IDS } from "@shapeshiftoss/swap-widget";
 function App() {
   return (
     <SwapWidget
-      apiKey="your-api-key"
       allowedChainIds={[
         EVM_CHAIN_IDS.ethereum,
         EVM_CHAIN_IDS.polygon,
@@ -242,7 +237,6 @@ import { SwapWidget } from "@shapeshiftoss/swap-widget";
 function App() {
   return (
     <SwapWidget
-      apiKey="your-api-key"
       enableWalletConnection={true}
       walletConnectProjectId="your-walletconnect-project-id"
       theme="dark"
@@ -267,7 +261,6 @@ import { SwapWidget } from "@shapeshiftoss/swap-widget";
 function App() {
   return (
     <SwapWidget
-      apiKey="your-api-key"
       defaultReceiveAddress="0x1234567890abcdef1234567890abcdef12345678"
       theme="dark"
     />
@@ -480,10 +473,6 @@ The widget supports swaps across multiple blockchain types:
 - **Bitcoin/UTXO swaps** - When using the built-in wallet connection (`enableWalletConnection={true}`), Bitcoin and other UTXO chains can be signed directly via WalletConnect-compatible wallets.
 - **Solana swaps** - Solana transactions can be signed via Phantom, Solflare, or other Solana wallets when using the built-in wallet connection.
 - **Unsupported chains** - Swaps involving chains without wallet support will redirect to [app.shapeshift.com](https://app.shapeshift.com) to complete the transaction.
-
-### API Key
-
-An API key is required for fetching swap rates in production. Contact ShapeShift for API access.
 
 ### Internal QueryClient
 

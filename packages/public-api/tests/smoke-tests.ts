@@ -1,4 +1,4 @@
-import { ASSET_IDS, TEST_API_KEY, TEST_PAIRS } from './test-config'
+import { ASSET_IDS, TEST_PAIRS } from './test-config'
 import type { TestResult, TestSuiteResult } from './test-utils'
 import { fetchWithTimeout, runTest } from './test-utils'
 
@@ -85,38 +85,7 @@ export const runSmokeTests = async (): Promise<TestSuiteResult> => {
     }),
   )
 
-  // 7. Rates Auth Check (Critical)
-  results.push(
-    await runTest('Rates requires auth', true, async () => {
-      const params = new URLSearchParams({
-        sellAssetId: ASSET_IDS.ETH,
-        buyAssetId: ASSET_IDS.USDC_ETH,
-        sellAmountCryptoBaseUnit: '100000000000000000',
-      })
-      const res = await fetchWithTimeout(`${API_URL}/v1/swap/rates?${params}`, {})
-      if (res.status !== 401) throw new Error(`Expected 401, got ${res.status}`)
-    }),
-  )
-
-  // 8. Quote Auth Check (Critical)
-  results.push(
-    await runTest('Quote requires auth', true, async () => {
-      const res = await fetchWithTimeout(`${API_URL}/v1/swap/quote`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sellAssetId: ASSET_IDS.ETH,
-          buyAssetId: ASSET_IDS.USDC_ETH,
-          sellAmountCryptoBaseUnit: '100000000000000000',
-          receiveAddress: '0x0000000000000000000000000000000000000000',
-          swapperName: '0x',
-        }),
-      })
-      if (res.status !== 401) throw new Error(`Expected 401, got ${res.status}`)
-    }),
-  )
-
-  // 9. EVM Same-Chain Rates (Informative)
+  // 7. EVM Same-Chain Rates (Informative)
   const evmPair = TEST_PAIRS.evmSameChain[0]
   results.push(
     await runTest(`Rates: ${evmPair.name}`, false, async () => {
@@ -125,13 +94,7 @@ export const runSmokeTests = async (): Promise<TestSuiteResult> => {
         buyAssetId: evmPair.buyAssetId,
         sellAmountCryptoBaseUnit: evmPair.sellAmountCryptoBaseUnit,
       })
-      const res = await fetchWithTimeout(
-        `${API_URL}/v1/swap/rates?${params}`,
-        {
-          headers: { 'X-API-Key': TEST_API_KEY },
-        },
-        30000,
-      ) // 30s timeout for rates
+      const res = await fetchWithTimeout(`${API_URL}/v1/swap/rates?${params}`, {}, 30000) // 30s timeout for rates
 
       if (!res.ok) throw new Error(`Rates request failed: ${res.status}`)
       const data = (await res.json()) as {
@@ -166,7 +129,7 @@ export const runSmokeTests = async (): Promise<TestSuiteResult> => {
     }),
   )
 
-  // 10. Cross-Chain Rates (Informative)
+  // 8. Cross-Chain Rates (Informative)
   const crossChainPair = TEST_PAIRS.crossChain[0]
   results.push(
     await runTest(`Rates: ${crossChainPair.name}`, false, async () => {
@@ -175,13 +138,7 @@ export const runSmokeTests = async (): Promise<TestSuiteResult> => {
         buyAssetId: crossChainPair.buyAssetId,
         sellAmountCryptoBaseUnit: crossChainPair.sellAmountCryptoBaseUnit,
       })
-      const res = await fetchWithTimeout(
-        `${API_URL}/v1/swap/rates?${params}`,
-        {
-          headers: { 'X-API-Key': TEST_API_KEY },
-        },
-        30000,
-      )
+      const res = await fetchWithTimeout(`${API_URL}/v1/swap/rates?${params}`, {}, 30000)
 
       if (!res.ok) throw new Error(`Rates request failed: ${res.status}`)
       const data = (await res.json()) as {

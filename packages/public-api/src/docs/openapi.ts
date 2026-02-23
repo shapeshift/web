@@ -13,13 +13,6 @@ export const registry = new OpenAPIRegistry()
 // We should probably define the response schemas with Zod too, but for now we'll do best effort with the request schemas
 // and basic response structures.
 
-// Security Schemes
-registry.registerComponent('securitySchemes', 'apiKeyAuth', {
-  type: 'apiKey',
-  in: 'header',
-  name: 'X-API-Key',
-})
-
 // --- Definitions ---
 
 // Asset
@@ -305,7 +298,6 @@ registry.registerPath({
   description:
     'Get informative swap rates from all available swappers. This does not create a transaction.',
   tags: ['Swaps'],
-  security: [{ apiKeyAuth: [] }],
   request: {
     query: RatesRequestSchema,
   },
@@ -332,7 +324,6 @@ registry.registerPath({
   description:
     'Get an executable quote for a swap, including transaction data. Requires a specific swapper name.',
   tags: ['Swaps'],
-  security: [{ apiKeyAuth: [] }],
   request: {
     body: {
       content: {
@@ -404,9 +395,6 @@ POST /v1/swap/quote
 
 ### 5. Execute the Swap
 Use the returned \`transactionData\` to build and sign a transaction with the user's wallet, then broadcast it to the network.
-
-## Authentication
-Include your API key in the \`X-API-Key\` header for all swap endpoints.
 
 ## Asset IDs
 Assets use CAIP-19 format: \`{chainId}/{assetNamespace}:{assetReference}\`

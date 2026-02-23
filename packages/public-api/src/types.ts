@@ -23,19 +23,6 @@ export type {
   UtxoTransactionData,
 }
 
-export type PartnerConfig = {
-  id: string
-  apiKeyHash: string
-  name: string
-  feeSharePercentage: number
-  status: 'active' | 'suspended' | 'pending'
-  rateLimit: {
-    requestsPerMinute: number
-    requestsPerDay: number
-  }
-  createdAt: Date
-}
-
 export type RatesRequest = {
   sellAssetId: AssetId
   buyAssetId: AssetId
@@ -175,12 +162,4 @@ export type ErrorResponse = {
   error: string
   code?: string
   details?: unknown
-}
-
-declare global {
-  namespace Express {
-    interface Request {
-      partner?: PartnerConfig
-    }
-  }
 }

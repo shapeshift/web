@@ -109,6 +109,7 @@ export const debridgeApi: SwapperApi = {
     chainId,
     address,
     swap,
+    config,
     fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
   }) => {
@@ -130,6 +131,8 @@ export const debridgeApi: SwapperApi = {
       }
     }
 
+    let resolvedTxHash = txHash
+
     if (isEvmChainId(chainId)) {
       const sourceTxStatus = await checkEvmSwapStatus({
         txHash,
@@ -141,11 +144,11 @@ export const debridgeApi: SwapperApi = {
 
       if (sourceTxStatus.status !== TxStatus.Confirmed) return sourceTxStatus
 
-      txHash = sourceTxStatus.buyTxHash ?? txHash
+      resolvedTxHash = sourceTxStatus.buyTxHash ?? txHash
     }
 
     const maybeOrderIdsResponse = await debridgeService.get<DebridgeOrderIdsResponse>(
-      `${DEBRIDGE_STATS_API_URL}/api/Transaction/${txHash}/orderIds`,
+      `${DEBRIDGE_STATS_API_URL}/api/Transaction/${resolvedTxHash}/orderIds`,
     )
 
     if (maybeOrderIdsResponse.isErr()) {
@@ -169,7 +172,7 @@ export const debridgeApi: SwapperApi = {
     const orderId = orderIdsResponse.orderIds[0].stringValue
 
     const maybeStatusResponse = await debridgeService.get<DebridgeOrderStatus>(
-      `https://dln.debridge.finance/v1.0/dln/order/${orderId}/status`,
+      `${config.VITE_DEBRIDGE_API_URL}/dln/order/${orderId}/status`,
     )
 
     if (maybeStatusResponse.isErr()) {

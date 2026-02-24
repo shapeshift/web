@@ -1,12 +1,6 @@
 import { fromAssetId, isAssetReference } from '@shapeshiftoss/caip'
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import {
-  BigAmount,
-  bnOrZero,
-  chainIdToFeeAssetId,
-  convertPrecision,
-  isTreasuryChainId,
-} from '@shapeshiftoss/utils'
+import { BigAmount, bnOrZero, chainIdToFeeAssetId, isTreasuryChainId } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
@@ -185,36 +179,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     return dlnFee.payload.feeAmount
   })()
 
-  const protocolFeeAssetId = chainIdToFeeAssetId(sellAsset.chainId)
-
-  const sellChainFeeAssetDecimals = (() => {
-    if (!protocolFeeAssetId) return 18
-    const feeAsset = deps.assetsById[protocolFeeAssetId]
-    return feeAsset?.precision ?? 18
-  })()
-
-  const buyAmountBeforeFeesCryptoBaseUnit = (() => {
-    const dlnFeeInSellAsset = quote.estimation.costsDetails.find(c => c.type === 'DlnProtocolFee')
-    if (!dlnFeeInSellAsset) return buyAmountAfterFeesCryptoBaseUnit
-
-    const feeInBuyAssetPrecision = convertPrecision({
-      value: protocolFeeAmount,
-      inputExponent: sellChainFeeAssetDecimals,
-      outputExponent: buyAsset.precision,
-    })
-
-    return BigAmount.fromBaseUnit({
-      value: buyAmountAfterFeesCryptoBaseUnit,
-      precision: buyAsset.precision,
-    })
-      .plus(
-        BigAmount.fromBaseUnit({
-          value: feeInBuyAssetPrecision.toFixed(0),
-          precision: buyAsset.precision,
-        }),
-      )
-      .toBaseUnit()
-  })()
+  const buyAmountBeforeFeesCryptoBaseUnit = buyAmountAfterFeesCryptoBaseUnit
 
   const allowanceContract = isEvmChainId(sellAsset.chainId) ? quote.tx.to : ''
 
@@ -440,22 +405,9 @@ async function getSameChainTrade<T extends 'quote' | 'rate'>({
   })
 
   const protocolFeeAmount = quote.protocolFee ?? '0'
-  const protocolFeeAssetId = chainIdToFeeAssetId(sellAsset.chainId)
 
   const buyAmountBeforeFeesCryptoBaseUnit = (() => {
     if (protocolFeeAmount === '0') return buyAmountAfterFeesCryptoBaseUnit
-
-    const sellChainFeeAssetDecimals = (() => {
-      if (!protocolFeeAssetId) return 18
-      const feeAsset = deps.assetsById[protocolFeeAssetId]
-      return feeAsset?.precision ?? 18
-    })()
-
-    const feeInBuyAssetPrecision = convertPrecision({
-      value: protocolFeeAmount,
-      inputExponent: sellChainFeeAssetDecimals,
-      outputExponent: buyAsset.precision,
-    })
 
     return BigAmount.fromBaseUnit({
       value: buyAmountAfterFeesCryptoBaseUnit,
@@ -463,7 +415,7 @@ async function getSameChainTrade<T extends 'quote' | 'rate'>({
     })
       .plus(
         BigAmount.fromBaseUnit({
-          value: feeInBuyAssetPrecision.toFixed(0),
+          value: protocolFeeAmount,
           precision: buyAsset.precision,
         }),
       )
@@ -487,13 +439,6 @@ async function getSameChainTrade<T extends 'quote' | 'rate'>({
     deps,
   })
 
-  const protocolFeeAssetCaipChainId = debridgeChainIdToChainId[sellDebridgeChainId.toString()]
-
-  const protocolFeeAssetIdForFees = (() => {
-    if (!protocolFeeAssetCaipChainId) return undefined
-    return chainIdToFeeAssetId(protocolFeeAssetCaipChainId)
-  })()
-
   const tradeId = uuid()
 
   const step: TradeQuoteStep | TradeRateStep = {
@@ -507,19 +452,20 @@ async function getSameChainTrade<T extends 'quote' | 'rate'>({
     accountNumber: input.accountNumber,
     feeData: {
       networkFeeCryptoBaseUnit,
-      protocolFees: protocolFeeAssetIdForFees
-        ? {
-            [protocolFeeAssetIdForFees]: {
-              amountCryptoBaseUnit: protocolFeeAmount,
-              asset: {
-                symbol: quote.tokenIn.symbol,
-                chainId: sellAsset.chainId,
-                precision: quote.tokenIn.decimals,
+      protocolFees:
+        protocolFeeAmount !== '0'
+          ? {
+              [buyAsset.assetId]: {
+                amountCryptoBaseUnit: protocolFeeAmount,
+                asset: {
+                  symbol: quote.tokenOut.symbol,
+                  chainId: buyAsset.chainId,
+                  precision: buyAsset.precision,
+                },
+                requiresBalance: false,
               },
-              requiresBalance: false,
-            },
-          }
-        : {},
+            }
+          : {},
     },
     source: SwapperName.Debridge,
     estimatedExecutionTimeMs: 15_000,

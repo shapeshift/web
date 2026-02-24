@@ -13,7 +13,6 @@ import { GenericTransactionNotification } from '@/components/Layout/Header/Actio
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { getNearTransactionStatus } from '@/lib/utils/near'
-import { getSeiTransactionStatus } from '@/lib/utils/sei'
 import { getStarknetTransactionStatus, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
 import { getTonTransactionStatus, isTonChainAdapter } from '@/lib/utils/ton'
@@ -188,12 +187,6 @@ export const useSendActionSubscriber = () => {
                   const nearTxStatus = await getNearTransactionStatus(txHash)
                   isConfirmed =
                     nearTxStatus === TxStatus.Confirmed || nearTxStatus === TxStatus.Failed
-                  break
-                }
-                case KnownChainIds.SeiMainnet: {
-                  const seiTxStatus = await getSeiTransactionStatus(txHash)
-                  isConfirmed =
-                    seiTxStatus === TxStatus.Confirmed || seiTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.TonMainnet: {

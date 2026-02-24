@@ -72,7 +72,7 @@ import {
   plume,
   polygon,
   scroll,
-  seiChain,
+  sei,
   solana,
   soneium,
   sonic,
@@ -321,9 +321,9 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
         return {
           assetNamespace: ASSET_NAMESPACE.erc20,
           category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
-          explorer: seiChain.explorer,
-          explorerAddressLink: seiChain.explorerAddressLink,
-          explorerTxLink: seiChain.explorerTxLink,
+          explorer: sei.explorer,
+          explorerAddressLink: sei.explorerAddressLink,
+          explorerTxLink: sei.explorerTxLink,
         }
       case berachainChainId:
         return {

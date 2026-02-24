@@ -177,8 +177,28 @@ export function supportsPlasma(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsPlasma
 }
 
+export function supportsPlume(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsPlume
+}
+
 export function supportsKatana(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsKatana
+}
+
+export function supportsStory(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsStory
+}
+
+export function supportsSonic(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsSonic
+}
+
+export function supportsBob(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsBob
+}
+
+export function supportsMode(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsMode
 }
 
 export function supportsHyperEvm(wallet: HDWallet): wallet is ETHWallet {
@@ -197,6 +217,30 @@ export function supportsMegaEth(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsMegaEth
 }
 
+export function supportsZkSyncEra(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsZkSyncEra
+}
+
+export function supportsBlast(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsBlast
+}
+
+export function supportsWorldChain(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsWorldChain
+}
+
+export function supportsHemi(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsHemi
+}
+
+export function supportsFlowEvm(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsFlowEvm
+}
+
+export function supportsCelo(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsCelo
+}
+
 export function supportsBerachain(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsBerachain
 }
@@ -207,6 +251,18 @@ export function supportsLinea(wallet: HDWallet): wallet is ETHWallet {
 
 export function supportsScroll(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsScroll
+}
+
+export function supportsCronos(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsCronos
+}
+
+export function supportsUnichain(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsUnichain
+}
+
+export function supportsSoneium(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsSoneium
 }
 
 export function infoCosmos(info: HDWalletInfo): info is CosmosWalletInfo {

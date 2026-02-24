@@ -38,12 +38,40 @@ export const rpcUrlByChainId = (chainId: EvmChainId): string => {
         return process.env.VITE_MEGAETH_NODE_URL
       case KnownChainIds.BerachainMainnet:
         return process.env.VITE_BERACHAIN_NODE_URL
+      case KnownChainIds.CronosMainnet:
+        return process.env.VITE_CRONOS_NODE_URL
       case KnownChainIds.KatanaMainnet:
         return process.env.VITE_KATANA_NODE_URL
+      case KnownChainIds.FlowEvmMainnet:
+        return process.env.VITE_FLOWEVM_NODE_URL
+      case KnownChainIds.CeloMainnet:
+        return process.env.VITE_CELO_NODE_URL
+      case KnownChainIds.PlumeMainnet:
+        return process.env.VITE_PLUME_NODE_URL
+      case KnownChainIds.StoryMainnet:
+        return process.env.VITE_STORY_NODE_URL
+      case KnownChainIds.ZkSyncEraMainnet:
+        return process.env.VITE_ZKSYNC_ERA_NODE_URL
+      case KnownChainIds.BlastMainnet:
+        return process.env.VITE_BLAST_NODE_URL
+      case KnownChainIds.WorldChainMainnet:
+        return process.env.VITE_WORLDCHAIN_NODE_URL
+      case KnownChainIds.HemiMainnet:
+        return process.env.VITE_HEMI_NODE_URL
       case KnownChainIds.LineaMainnet:
         return process.env.VITE_LINEA_NODE_URL
       case KnownChainIds.ScrollMainnet:
         return process.env.VITE_SCROLL_NODE_URL
+      case KnownChainIds.SonicMainnet:
+        return process.env.VITE_SONIC_NODE_URL
+      case KnownChainIds.UnichainMainnet:
+        return process.env.VITE_UNICHAIN_NODE_URL
+      case KnownChainIds.BobMainnet:
+        return process.env.VITE_BOB_NODE_URL
+      case KnownChainIds.ModeMainnet:
+        return process.env.VITE_MODE_NODE_URL
+      case KnownChainIds.SoneiumMainnet:
+        return process.env.VITE_SONEIUM_NODE_URL
       default:
         return assertUnreachable(chainId)
     }

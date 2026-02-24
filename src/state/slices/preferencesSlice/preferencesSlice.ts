@@ -40,9 +40,23 @@ export type FeatureFlags = {
   Ink: boolean
   MegaEth: boolean
   Berachain: boolean
+  Cronos: boolean
   Katana: boolean
+  FlowEvm: boolean
+  Celo: boolean
+  Plume: boolean
+  Story: boolean
+  ZkSyncEra: boolean
+  Blast: boolean
+  WorldChain: boolean
+  Hemi: boolean
   Linea: boolean
   Scroll: boolean
+  Sonic: boolean
+  Unichain: boolean
+  Bob: boolean
+  Mode: boolean
+  Soneium: boolean
   Zcash: boolean
   ThorSwap: boolean
   WalletConnectToDapps: boolean
@@ -194,9 +208,23 @@ const initialState: Preferences = {
     Ink: getConfig().VITE_FEATURE_INK,
     MegaEth: getConfig().VITE_FEATURE_MEGAETH,
     Berachain: getConfig().VITE_FEATURE_BERACHAIN,
+    Cronos: getConfig().VITE_FEATURE_CRONOS,
     Katana: getConfig().VITE_FEATURE_KATANA,
+    FlowEvm: getConfig().VITE_FEATURE_FLOWEVM,
+    Celo: getConfig().VITE_FEATURE_CELO,
+    Plume: getConfig().VITE_FEATURE_PLUME,
+    Story: getConfig().VITE_FEATURE_STORY,
+    ZkSyncEra: getConfig().VITE_FEATURE_ZK_SYNC_ERA,
+    Blast: getConfig().VITE_FEATURE_BLAST,
+    WorldChain: getConfig().VITE_FEATURE_WORLDCHAIN,
+    Hemi: getConfig().VITE_FEATURE_HEMI,
     Linea: getConfig().VITE_FEATURE_LINEA,
     Scroll: getConfig().VITE_FEATURE_SCROLL,
+    Sonic: getConfig().VITE_FEATURE_SONIC,
+    Unichain: getConfig().VITE_FEATURE_UNICHAIN,
+    Bob: getConfig().VITE_FEATURE_BOB,
+    Mode: getConfig().VITE_FEATURE_MODE,
+    Soneium: getConfig().VITE_FEATURE_SONEIUM,
     Zcash: getConfig().VITE_FEATURE_ZCASH,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,
     WalletConnectToDappsV2: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,

@@ -136,6 +136,11 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
           assetReference: ASSET_REFERENCE.Plasma,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
+      case CHAIN_REFERENCE.PlumeMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Plume,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       case CHAIN_REFERENCE.MantleMainnet:
         return {
           assetReference: ASSET_REFERENCE.Mantle,
@@ -161,6 +166,41 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
           assetReference: ASSET_REFERENCE.Katana,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
+      case CHAIN_REFERENCE.FlowEvmMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.FlowEvm,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.CeloMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Celo,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.StoryMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Story,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.ZkSyncEraMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.ZkSyncEra,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.BlastMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Blast,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.WorldChainMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.WorldChain,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.HemiMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Hemi,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       case CHAIN_REFERENCE.LineaMainnet:
         return {
           assetReference: ASSET_REFERENCE.Linea,
@@ -169,6 +209,36 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
       case CHAIN_REFERENCE.ScrollMainnet:
         return {
           assetReference: ASSET_REFERENCE.Scroll,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.CronosMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Cronos,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.SonicMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Sonic,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.UnichainMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Unichain,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.BobMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Bob,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.ModeMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Mode,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.SoneiumMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Soneium,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
       default:

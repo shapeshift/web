@@ -7,7 +7,11 @@ import { checkEvmSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } fr
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
 import { debridgeService } from './utils/debridgeService'
-import type { DebridgeOrderIdsResponse, DebridgeOrderStatus } from './utils/types'
+import type {
+  DebridgeOrderDetail,
+  DebridgeOrderIdsResponse,
+  DebridgeOrderStatus,
+} from './utils/types'
 
 const DEBRIDGE_STATS_API_URL = 'https://stats-api.dln.trade'
 
@@ -76,7 +80,17 @@ export const debridgeApi: SwapperApi = {
           ...fees,
           gasLimit: BigNumber(fees.gasLimit).times('1.2').toFixed(0),
         }
-        console.log('[deBridge] getUnsignedEvmTransaction feeData', JSON.stringify({ chainId: sellAsset.chainId, to, value, supportsEIP1559, feesFromEstimate: fees, gasLimitWithBuffer: result.gasLimit }))
+        console.log(
+          '[deBridge] getUnsignedEvmTransaction feeData',
+          JSON.stringify({
+            chainId: sellAsset.chainId,
+            to,
+            value,
+            supportsEIP1559,
+            feesFromEstimate: fees,
+            gasLimitWithBuffer: result.gasLimit,
+          }),
+        )
         return result
       } catch (e) {
         console.error(
@@ -238,9 +252,18 @@ export const debridgeApi: SwapperApi = {
       }
     })()
 
+    const buyTxHash = await (async () => {
+      if (status !== TxStatus.Confirmed) return undefined
+      const maybeOrderDetail = await debridgeService.get<DebridgeOrderDetail>(
+        `${DEBRIDGE_STATS_API_URL}/api/Orders/${orderId}`,
+      )
+      if (maybeOrderDetail.isErr()) return undefined
+      return maybeOrderDetail.unwrap().data.fulfilledDstEventMetadata?.transactionHash
+    })()
+
     return {
       status,
-      buyTxHash: undefined,
+      buyTxHash,
       message,
     }
   },

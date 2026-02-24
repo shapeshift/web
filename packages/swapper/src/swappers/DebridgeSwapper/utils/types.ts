@@ -97,6 +97,13 @@ export type DebridgeOrderStatus = {
     | 'ClaimedOrderCancel'
 }
 
+export type DebridgeOrderDetail = {
+  orderId: string
+  fulfilledDstEventMetadata?: {
+    transactionHash?: string
+  }
+}
+
 export type DebridgeOrderId = {
   bytesValue: string
   bytesArrayValue: string

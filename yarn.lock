@@ -13698,7 +13698,7 @@ __metadata:
     bip32: ^2.0.5
     eip-712: ^1.0.0
     jquery: ^3.7.1
-    json: ^9.0.6
+    json: ^10.0.0
     source-map: ^0.8.0-beta.0
     vite: 6.4.1
     vite-plugin-node-polyfills: ^0.23.0
@@ -33103,12 +33103,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"json@npm:^9.0.6":
-  version: 9.0.6
-  resolution: "json@npm:9.0.6"
+"json@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "json@npm:10.0.0"
   bin:
-    json: ./lib/json.js
-  checksum: b9f16874e5bab435ad2e68f5a110549da8e28a4795a24c46e52c97a4f4fc5087f2ceb197eed4f8413fa24a7f7008af3da26caeec7739ca86ec25c2da146af9d5
+    json: lib/json.js
+  checksum: acfe30c4e10ef5cdbb5f9fadd925d7b6d4acde9449cc98132b090ad09fda2b250961978d73718f86fc502a23d4f19ac4e12705aec68ee387d829c766c625c69e
   languageName: node
   linkType: hard
 

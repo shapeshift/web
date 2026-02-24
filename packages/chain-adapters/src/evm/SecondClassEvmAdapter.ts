@@ -416,7 +416,8 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     if (
       this.chainId === hyperEvmChainId ||
       this.chainId === blastChainId ||
-      this.chainId === zkSyncEraChainId
+      this.chainId === zkSyncEraChainId ||
+      this.chainId === seiChainId
     ) {
       return []
     }

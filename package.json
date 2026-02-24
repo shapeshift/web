@@ -151,6 +151,7 @@
     "@visx/xychart": "^3.12.0",
     "@walletconnect/core": "^2.20.2",
     "@walletconnect/utils": "^2.20.2",
+    "@xstate/react": "5.0.5",
     "ai": "^6.0.39",
     "alchemy-sdk": "^3.4.1",
     "axios": "^1.13.5",
@@ -240,7 +241,8 @@
     "viem": "2.43.5",
     "wagmi": "^2.9.2",
     "web-vitals": "^2.1.4",
-    "wouter": "^3.6.0"
+    "wouter": "^3.6.0",
+    "xstate": "5.28.0"
   },
   "devDependencies": {
     "@chainflip/extrinsics": "^1.6.2",

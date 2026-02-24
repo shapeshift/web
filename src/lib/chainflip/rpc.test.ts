@@ -1,12 +1,7 @@
 import type { MockedFunction } from 'vitest'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import {
-  authorSubmitExtrinsic,
-  cfAccountInfoV2,
-  cfEncodeNonNativeCall,
-  cfLendingPools,
-} from './rpc'
+import { authorSubmitExtrinsic, cfAccountInfo, cfEncodeNonNativeCall, cfLendingPools } from './rpc'
 
 const createJsonRpcResponse = (result: unknown) => ({
   jsonrpc: '2.0',
@@ -55,17 +50,17 @@ describe('chainflip rpc', () => {
     })
   })
 
-  it('passes account param for cf_account_info_v2', async () => {
+  it('passes account param for cf_account_info', async () => {
     const accountId = '0xabc'
-    const result = { account_id: accountId }
+    const result = { role: 'unregistered', flip_balance: '0x0' }
     fetchMock.mockResolvedValue(createResponse(createJsonRpcResponse(result)))
 
-    await expect(cfAccountInfoV2(accountId)).resolves.toEqual(result)
+    await expect(cfAccountInfo(accountId)).resolves.toEqual(result)
 
     const [, init] = fetchMock.mock.calls[0]
     const body = JSON.parse(String(init?.body))
 
-    expect(body.method).toBe('cf_account_info_v2')
+    expect(body.method).toBe('cf_account_info')
     expect(body.params).toEqual([accountId])
   })
 

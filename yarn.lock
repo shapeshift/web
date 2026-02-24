@@ -14206,6 +14206,7 @@ __metadata:
     "@walletconnect/types": ^2.20.2
     "@walletconnect/utils": ^2.20.2
     "@walletconnect/web3-provider": ^1.8.0
+    "@xstate/react": 5.0.5
     ai: ^6.0.39
     alchemy-sdk: ^3.4.1
     assert: ^2.0.0
@@ -14338,6 +14339,7 @@ __metadata:
     wagmi: ^2.9.2
     web-vitals: ^2.1.4
     wouter: ^3.6.0
+    xstate: 5.28.0
   peerDependencies:
     lit-html: ^2.6.1
   dependenciesMeta:

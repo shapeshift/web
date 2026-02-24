@@ -146,11 +146,31 @@ const getDevOnlyFlags = (): string[] => {
   return devOnly.sort()
 }
 
+const getPrivateDisabledFlags = (): string[] => {
+  const rootDir = path.resolve(__dirname, '..')
+  const baseFlags = parseEnvFeatureFlags(path.join(rootDir, '.env'))
+  const prodOverrides = parseEnvFeatureFlags(path.join(rootDir, '.env.production'))
+  const privateOverrides = parseEnvFeatureFlags(path.join(rootDir, '.env.private'))
+
+  const prodFlags: Record<string, boolean> = { ...baseFlags, ...prodOverrides }
+  const privateFlags: Record<string, boolean> = { ...baseFlags, ...privateOverrides }
+
+  const allKeys = new Set([...Object.keys(prodFlags), ...Object.keys(privateFlags)])
+  const privateDisabled: string[] = []
+  for (const key of allKeys) {
+    if (prodFlags[key] === true && privateFlags[key] !== true) {
+      privateDisabled.push(key.replace('VITE_FEATURE_', ''))
+    }
+  }
+  return privateDisabled.sort()
+}
+
 const buildReleasePrompt = (
   version: string,
   messages: string[],
   prBodies: Map<number, string>,
   devOnlyFlags: string[],
+  privateDisabledFlags: string[],
 ): string => {
   const commitList = messages
     .map(msg => {
@@ -171,6 +191,13 @@ const buildReleasePrompt = (
           .join('\n')}`
       : ''
 
+  const privateDisabledSection =
+    privateDisabledFlags.length > 0
+      ? `\n\n## Private-build disabled flags (enabled in production, disabled in private build)\n\n${privateDisabledFlags
+          .map(f => `- ${f}`)
+          .join('\n')}`
+      : ''
+
   return `You are a release notes generator for ShapeShift Web, a decentralized crypto exchange.
 
 Given the commit list below for ${version}, produce grouped release notes in markdown with two clearly separated top-level sections.
@@ -184,22 +211,23 @@ Given the commit list below for ${version}, produce grouped release notes in mar
 4. After the bullet list, write 1-2 sentences summarizing what changed and what to test
 5. For internal refactors with no user-facing changes (e.g. migrations, type changes, selector renames), note **regression testing only** and what to sanity-check
 6. For dependency bumps, CI fixes, infra, docker, CSP, and asset data regeneration, group under "## Fixes, deps, and infra" with **no testing required**
+7. If a commit relates to a feature listed in the private-build disabled flags below, append "**Note: disabled in private build.**" to its testing notes within the production section
 
 ### Section 2: "# Dev/local only - no production testing required"
-7. Contains all PRs/commits that are gated behind dev-only feature flags listed below
-8. Match commits to dev-only flags by feature name (e.g. "Celo" matches CELO, "agentic chat" matches AGENTIC_CHAT, "Mantle" matches MANTLE, "Across" matches ACROSS_SWAP, etc.)
-9. Commits whose title explicitly says "behind feature flag" or "under flag" also belong here
-10. Group by feature domain with brief description only - no testing notes needed since these are not visible in production
+8. Contains all PRs/commits that are gated behind dev-only feature flags listed below
+9. Match commits to dev-only flags by feature name (e.g. "Celo" matches CELO, "agentic chat" matches AGENTIC_CHAT, "Mantle" matches MANTLE, "Across" matches ACROSS_SWAP, etc.)
+10. Commits whose title explicitly says "behind feature flag" or "under flag" also belong here
+11. Group by feature domain with brief description only - no testing notes needed since these are not visible in production
 
 ### General rules
-11. Merge/backmerge commits (e.g. "Merge branch 'main' into develop") should be silently dropped
-12. Keep testing notes brief and actionable - what a QA person should click on, not implementation details
-13. Use present tense for summaries ("Enables TON chain" not "Enabled TON chain")
-14. Do NOT use emdashes. Use regular hyphens.
+12. Merge/backmerge commits (e.g. "Merge branch 'main' into develop") should be silently dropped
+13. Keep testing notes brief and actionable - what a QA person should click on, not implementation details
+14. Use present tense for summaries ("Enables TON chain" not "Enabled TON chain")
+15. Do NOT use emdashes. Use regular hyphens.
 
 ## Commits
 
-${commitList}${devOnlySection}`
+${commitList}${devOnlySection}${privateDisabledSection}`
 }
 
 const runClaude = (promptPath: string): Promise<string> => {
@@ -256,8 +284,9 @@ const generateReleaseSummary = async (
   messages: string[],
   prBodies: Map<number, string>,
   devOnlyFlags: string[],
+  privateDisabledFlags: string[],
 ): Promise<string | null> => {
-  const prompt = buildReleasePrompt(version, messages, prBodies, devOnlyFlags)
+  const prompt = buildReleasePrompt(version, messages, prBodies, devOnlyFlags, privateDisabledFlags)
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shapeshift-release-'))
   const promptPath = path.join(tmpDir, 'prompt.txt')
 
@@ -366,7 +395,16 @@ const doRegularRelease = async () => {
   const devOnlyFlags = getDevOnlyFlags()
   console.log(chalk.green(`Detected ${devOnlyFlags.length} dev-only feature flags.`))
 
-  const summary = await generateReleaseSummary(nextVersion, messages, prBodies, devOnlyFlags)
+  const privateDisabledFlags = getPrivateDisabledFlags()
+  console.log(chalk.green(`Detected ${privateDisabledFlags.length} private-build disabled flags.`))
+
+  const summary = await generateReleaseSummary(
+    nextVersion,
+    messages,
+    prBodies,
+    devOnlyFlags,
+    privateDisabledFlags,
+  )
   const prBody = summary ?? messages.join('\n')
 
   if (summary) {

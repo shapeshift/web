@@ -301,6 +301,7 @@ export class TrezorHDWallet
   readonly _supportsSonic = true
   readonly _supportsBob = true
   readonly _supportsMode = true
+  readonly _supportsSei = true
   readonly _supportsHyperEvm = true
   readonly _supportsMantle = true
   readonly _supportsInk = true

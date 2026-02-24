@@ -216,6 +216,8 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_WORLDCHAIN: string
   readonly VITE_BLAST_NODE_URL: string
   readonly VITE_FEATURE_BLAST: string
+  readonly VITE_SEI_NODE_URL: string
+  readonly VITE_FEATURE_SEI: string
   readonly VITE_FEATURE_NOTIFICATIONS_WEBSERVICES: string
 
   // Only present in *some* envs

@@ -12,6 +12,7 @@ import {
   mainnet,
   optimism,
   polygon,
+  sei,
 } from 'viem/chains'
 
 import type { EthereumProviderOptions } from './constants'
@@ -61,6 +62,7 @@ export const walletConnectV2OptionalChains: AtLeastOneViemChain = (() => {
     base,
     ink,
     flowEvmChain,
+    sei,
   ]
   if (optionalViemChains.length === 0) throw new Error('Array must contain at least one element.')
   return optionalViemChains as AtLeastOneViemChain

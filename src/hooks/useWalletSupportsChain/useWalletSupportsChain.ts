@@ -33,6 +33,7 @@ import {
   plumeChainId,
   polygonChainId,
   scrollChainId,
+  seiChainId,
   solanaChainId,
   soneiumChainId,
   sonicChainId,
@@ -83,6 +84,7 @@ import {
   supportsPlume,
   supportsPolygon,
   supportsScroll,
+  supportsSei,
   supportsSolana,
   supportsSoneium,
   supportsSonic,
@@ -207,6 +209,7 @@ export const walletSupportsChain = ({
   const isNearEnabled = selectFeatureFlag(store.getState(), 'Near')
   const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')
   const isPlumeEnabled = selectFeatureFlag(store.getState(), 'Plume')
+  const isSeiEnabled = selectFeatureFlag(store.getState(), 'Sei')
   const isScrollEnabled = selectFeatureFlag(store.getState(), 'Scroll')
   const isStarknetEnabled = selectFeatureFlag(store.getState(), 'Starknet')
   const isWorldChainEnabled = selectFeatureFlag(store.getState(), 'WorldChain')
@@ -275,6 +278,8 @@ export const walletSupportsChain = ({
       return isWorldChainEnabled && supportsWorldChain(wallet)
     case hemiChainId:
       return isHemiEnabled && supportsHemi(wallet)
+    case seiChainId:
+      return isSeiEnabled && supportsSei(wallet)
     case lineaChainId:
       return isLineaEnabled && supportsLinea(wallet)
     case scrollChainId:

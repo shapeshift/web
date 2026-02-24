@@ -40,19 +40,6 @@ const inquireReleaseType = async (): Promise<ReleaseType> => {
   return (await inquirer.prompt(questions)).releaseType
 }
 
-const inquireCleanBranchOffMain = async (): Promise<boolean> => {
-  const questions: inquirer.QuestionCollection<{ isCleanlyBranched: boolean }> = [
-    {
-      type: 'confirm',
-      name: 'isCleanlyBranched',
-      message: 'Is your branch cleanly branched off origin/main?',
-      default: false, // Defaulting to false to encourage verification
-    },
-  ]
-  const { isCleanlyBranched } = await inquirer.prompt(questions)
-  return isCleanlyBranched
-}
-
 const inquireProceedWithCommits = async (commits: string[], action: 'create' | 'merge') => {
   console.log(chalk.blue(['', commits, ''].join('\n')))
   const message =
@@ -258,40 +245,18 @@ const createDraftRegularPR = async (prBody: string, nextVersion: string): Promis
   exit(chalk.green(`Release ${nextVersion} created.`))
 }
 
-const createDraftHotfixPR = async (): Promise<void> => {
-  const currentBranch = await git().revparse(['--abbrev-ref', 'HEAD'])
-  const { messages } = await getCommits({ branch: currentBranch, isHotfix: true })
-  const nextVersion = await getNextReleaseVersion('patch')
-  console.log(chalk.green('Creating draft hotfix PR...'))
-  await createDraftPR(`chore: hotfix release ${nextVersion}`, messages.join('\n'))
-  console.log(chalk.green('Draft hotfix PR created.'))
-  exit(chalk.green(`Hotfix release ${nextVersion} created.`))
-}
-
-type GetCommitsArgs = {
-  branch: string
-  isHotfix?: boolean
-}
 type GetCommitsReturn = {
   messages: string[]
   total: number
 }
-const getCommits = async ({ branch, isHotfix }: GetCommitsArgs): Promise<GetCommitsReturn> => {
-  let range: string
-
-  if (isHotfix) {
-    // For hotfixes, only include commits that are on the branch but not on main
-    range = `origin/main..origin/${branch}`
-  } else {
-    // For regular releases, include all commits since the last tag
-    const latestTag = await getLatestSemverTag()
-    range = latestTag ? `${latestTag}..origin/${branch}` : `origin/main..origin/${branch}`
-  }
+const getCommits = async (branch: string): Promise<GetCommitsReturn> => {
+  const latestTag = await getLatestSemverTag()
+  const range = latestTag ? `${latestTag}..origin/${branch}` : `origin/main..origin/${branch}`
 
   const { all, total } = await git().log([
     '--oneline',
     '--first-parent',
-    '--pretty=format:%s', // no hash, just conventional commit style
+    '--pretty=format:%s',
     range,
   ])
 
@@ -299,12 +264,44 @@ const getCommits = async ({ branch, isHotfix }: GetCommitsArgs): Promise<GetComm
   return { messages, total }
 }
 
+type UnreleasedCommit = { hash: string; message: string }
+
+const getUnreleasedCommits = async (): Promise<UnreleasedCommit[]> => {
+  const { all } = await git().log([
+    '--oneline',
+    '--first-parent',
+    '--pretty=format:%H %s',
+    'origin/main..origin/develop',
+  ])
+
+  return all.map(({ hash }) => {
+    const spaceIdx = hash.indexOf(' ')
+    return { hash: hash.slice(0, spaceIdx), message: hash.slice(spaceIdx + 1) }
+  })
+}
+
+const inquireSelectCommits = async (commits: UnreleasedCommit[]): Promise<UnreleasedCommit[]> => {
+  const { selected } = await inquirer.prompt<{ selected: string[] }>([
+    {
+      type: 'checkbox',
+      name: 'selected',
+      message: 'Select commits to cherry-pick into the hotfix:',
+      choices: commits.map(c => ({
+        name: `${c.hash.slice(0, 8)} ${c.message}`,
+        value: c.hash,
+      })),
+    },
+  ])
+
+  return commits.filter(c => selected.includes(c.hash))
+}
+
 const assertCommitsToRelease = (total: number) => {
   if (!total) exit(chalk.red('No commits to release.'))
 }
 
 const doRegularRelease = async () => {
-  const { messages, total } = await getCommits({ branch: 'develop' })
+  const { messages, total } = await getCommits('develop')
   assertCommitsToRelease(total)
 
   const nextVersion = await getNextReleaseVersion('minor')
@@ -353,83 +350,64 @@ const doRegularRelease = async () => {
 }
 
 const doHotfixRelease = async () => {
-  const currentBranch = await git().revparse(['--abbrev-ref', 'HEAD'])
-  const isMain = currentBranch === 'main'
-
-  if (isMain) {
-    console.log(
-      chalk.red(
-        'Cannot open hotfix PRs directly off local main branch for security reasons. Please branch out to another branch first.',
-      ),
-    )
-    exit()
+  const unreleased = await getUnreleasedCommits()
+  if (unreleased.length === 0) {
+    exit(chalk.red('No unreleased commits found between origin/main and origin/develop.'))
   }
 
-  // Only continue if the branch is cleanly branched off origin/main since we will
-  // target it in the hotfix PR
-  const isCleanOffMain = await inquireCleanBranchOffMain()
-  if (!isCleanOffMain) {
-    exit(
-      chalk.yellow(
-        'Please ensure your branch is cleanly branched off origin/main before proceeding.',
-      ),
-    )
+  console.log(chalk.green(`Found ${unreleased.length} unreleased commit(s).\n`))
+  const selected = await inquireSelectCommits(unreleased)
+  if (selected.length === 0) {
+    exit(chalk.yellow('No commits selected. Hotfix cancelled.'))
   }
 
-  // Dev has confirmed they're clean off main, now verify programmatically
-  await fetch()
+  console.log(chalk.blue('\nSelected commits:'))
+  for (const c of selected) {
+    console.log(chalk.blue(`  ${c.hash.slice(0, 8)} ${c.message}`))
+  }
+  console.log()
 
-  try {
-    await pify(exec)('git merge-base --is-ancestor origin/main HEAD')
-  } catch {
-    exit(
-      chalk.red(
-        'Your branch does not appear to be based on origin/main. Please rebase or branch off origin/main before proceeding.',
-      ),
-    )
+  const { shouldProceed } = await inquirer.prompt<{ shouldProceed: boolean }>([
+    {
+      type: 'confirm',
+      default: true,
+      name: 'shouldProceed',
+      message: 'Proceed with cherry-picking these commits onto main?',
+    },
+  ])
+  if (!shouldProceed) exit('Hotfix cancelled.')
+
+  console.log(chalk.green('Checking out main...'))
+  await git().checkout(['main'])
+  console.log(chalk.green('Pulling main...'))
+  await git().pull()
+
+  for (const c of selected) {
+    console.log(chalk.green(`Cherry-picking ${c.hash.slice(0, 8)} ${c.message}...`))
+    await pify(exec)(`git cherry-pick ${c.hash}`)
   }
 
-  // Check that HEAD is not also an ancestor of origin/develop (which would mean
-  // the branch contains develop history beyond what's on main)
-  const mergeBaseResult = (await pify(exec)('git merge-base origin/main HEAD')) as {
-    stdout: string
-  }
-  const mergeBaseMain = mergeBaseResult.stdout.trim()
-  const mainRefResult = (await pify(exec)('git rev-parse origin/main')) as { stdout: string }
-  const mainSha = mainRefResult.stdout.trim()
-  if (mergeBaseMain !== mainSha) {
-    exit(
-      chalk.red(
-        `Your branch diverged from origin/main (merge-base: ${mergeBaseMain.slice(
-          0,
-          8,
-        )}, origin/main: ${mainSha.slice(0, 8)}). ` +
-          'Please ensure your hotfix branch is based directly on origin/main.',
-      ),
-    )
-  }
+  const nextVersion = await getNextReleaseVersion('patch')
+  console.log(chalk.green(`Tagging main with version ${nextVersion}`))
+  await git().tag(['-a', nextVersion, '-m', nextVersion])
+  console.log(chalk.green('Pushing main with tags...'))
+  await git().push(['origin', 'main', '--tags'])
 
-  // Force push current branch upstream so we can getCommits from it - getCommits uses upstream for diffing
-  console.log(chalk.green(`Force pushing ${currentBranch} branch...`))
-  await git().push(['-u', 'origin', currentBranch, '--force'])
-  const { messages, total } = await getCommits({ branch: currentBranch, isHotfix: true })
-  assertCommitsToRelease(total)
-  await inquireProceedWithCommits(messages, 'create')
+  console.log(chalk.green('Resetting private to main...'))
+  await git().checkout(['-B', 'private'])
+  console.log(chalk.green('Pushing private...'))
+  await git().push(['--force', 'origin', 'private', '--tags'])
 
-  // Merge origin/main as a paranoia check
-  console.log(chalk.green('Merging origin/main...'))
-  await git().merge(['origin/main'])
+  console.log(chalk.green('Checking out develop...'))
+  await git().checkout(['develop'])
+  console.log(chalk.green('Pulling develop...'))
+  await git().pull()
+  console.log(chalk.green('Merging main back into develop...'))
+  await git().merge(['main'])
+  console.log(chalk.green('Pushing develop...'))
+  await git().push(['origin', 'develop'])
 
-  console.log(chalk.green('Setting release to current branch...'))
-  await git().checkout(['-B', 'release'])
-
-  console.log(chalk.green('Force pushing release branch...'))
-  await git().push(['--force', 'origin', 'release'])
-
-  console.log(chalk.green('Creating draft hotfix PR...'))
-  await createDraftHotfixPR()
-
-  exit(chalk.green('Hotfix release process completed.'))
+  exit(chalk.green(`Hotfix release ${nextVersion} completed successfully.`))
 }
 
 type WebReleaseType = Extract<semver.ReleaseType, 'minor' | 'patch'>
@@ -458,7 +436,7 @@ const assertGhAuth = async () => {
 }
 
 const isReleaseInProgress = async (): Promise<boolean> => {
-  const { total } = await getCommits({ branch: 'release' })
+  const { total } = await getCommits('release')
   return Boolean(total)
 }
 
@@ -466,42 +444,10 @@ const createRelease = async () => {
   ;(await inquireReleaseType()) === 'Regular' ? await doRegularRelease() : doHotfixRelease()
 }
 
-const detectIsHotfixRelease = async (): Promise<boolean> => {
-  try {
-    const { stdout } = (await pify(exec)(
-      'gh pr list --base main --head release --state open --json title --jq ".[0].title"',
-    )) as { stdout: string }
-    const title = stdout.trim()
-    if (title.startsWith('chore: hotfix release')) return true
-    if (title.startsWith('chore: release')) return false
-  } catch {
-    // gh lookup failed, fall through to commit-count heuristic
-  }
-
-  // Fallback: check if there's a closed/merged PR with "hotfix" in the title
-  try {
-    const { stdout } = (await pify(exec)(
-      'gh pr list --base main --head release --state merged --json title --jq ".[0].title"',
-    )) as { stdout: string }
-    const title = stdout.trim()
-    if (title.startsWith('chore: hotfix release')) return true
-  } catch {
-    // fall through
-  }
-
-  return false
-}
-
 const mergeRelease = async () => {
-  const { messages, total } = await getCommits({ branch: 'release' })
+  const { messages, total } = await getCommits('release')
   assertCommitsToRelease(total)
   await inquireProceedWithCommits(messages, 'merge')
-
-  const isHotfix = await detectIsHotfixRelease()
-  const versionBump: WebReleaseType = isHotfix ? 'patch' : 'minor'
-  if (isHotfix) {
-    console.log(chalk.green('Detected hotfix release - using patch version bump.'))
-  }
 
   console.log(chalk.green('Checking out release...'))
   await git().checkout(['release'])
@@ -513,7 +459,7 @@ const mergeRelease = async () => {
   await git().pull()
   console.log(chalk.green('Merging release...'))
   await git().merge(['release'])
-  const nextVersion = await getNextReleaseVersion(versionBump)
+  const nextVersion = await getNextReleaseVersion('minor')
   console.log(chalk.green(`Tagging main with version ${nextVersion}`))
   await git().tag(['-a', nextVersion, '-m', nextVersion])
   console.log(chalk.green('Pushing main...'))

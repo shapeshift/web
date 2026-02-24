@@ -37,6 +37,7 @@ import {
   plume,
   polygon,
   scroll,
+  sei,
   solana,
   soneium,
   sonic,
@@ -127,6 +128,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return worldchain
     case KnownChainIds.HemiMainnet:
       return hemi
+    case KnownChainIds.SeiMainnet:
+      return sei
     case KnownChainIds.LineaMainnet:
       return linea
     case KnownChainIds.ScrollMainnet:

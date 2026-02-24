@@ -27,6 +27,7 @@ import {
   plumeChainId,
   polygonChainId,
   scrollChainId,
+  seiChainId,
   soneiumChainId,
   sonicChainId,
   storyChainId,
@@ -64,6 +65,7 @@ import {
   supportsPlume,
   supportsPolygon,
   supportsScroll,
+  supportsSei,
   supportsSoneium,
   supportsSonic,
   supportsStory,
@@ -178,6 +180,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === blastChainId && !supportsBlast(wallet)) continue
     if (chainId === worldChainChainId && !supportsWorldChain(wallet)) continue
     if (chainId === hemiChainId && !supportsHemi(wallet)) continue
+    if (chainId === seiChainId && !supportsSei(wallet)) continue
     if (chainId === lineaChainId && !supportsLinea(wallet)) continue
     if (chainId === sonicChainId && !supportsSonic(wallet)) continue
     if (chainId === unichainChainId && !supportsUnichain(wallet)) continue

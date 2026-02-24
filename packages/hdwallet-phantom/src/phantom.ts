@@ -219,6 +219,7 @@ export class PhantomHDWallet
   readonly _supportsSonic = false
   readonly _supportsBob = false
   readonly _supportsMode = false
+  readonly _supportsSei = false
   readonly _supportsHyperEvm = true
   readonly _supportsMantle = false
   readonly _supportsInk = false

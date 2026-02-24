@@ -13,6 +13,7 @@ import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { ReusableConfirm } from '@/components/ReusableConfirm/ReusableConfirm'
+import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
@@ -31,6 +32,7 @@ export const UnstakeConfirm: React.FC = () => {
   const navigate = useNavigate()
   const { watch } = useFormContext<UnstakeFormValues>()
   const dispatch = useAppDispatch()
+  const { showErrorToast } = useErrorToast()
   const amountCryptoPrecision = watch('amountCryptoPrecision')
   const accountId = watch('accountId')
   const unstakePercent = watch('unstakePercent')
@@ -125,9 +127,9 @@ export const UnstakeConfirm: React.FC = () => {
       await handleUnstake()
       navigate(TCYUnstakeRoute.Input)
     } catch (e) {
-      console.error(e)
+      showErrorToast(e)
     }
-  }, [handleUnstake, navigate])
+  }, [handleUnstake, navigate, showErrorToast])
 
   const handleCancel = useCallback(() => {
     navigate(TCYUnstakeRoute.Input)

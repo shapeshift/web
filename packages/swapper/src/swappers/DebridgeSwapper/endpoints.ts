@@ -72,10 +72,12 @@ export const debridgeApi: SwapperApi = {
     const feeData = await (async () => {
       try {
         const fees = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
-        return {
+        const result = {
           ...fees,
           gasLimit: BigNumber(fees.gasLimit).times('1.2').toFixed(0),
         }
+        console.log('[deBridge] getUnsignedEvmTransaction feeData', JSON.stringify({ chainId: sellAsset.chainId, to, value, supportsEIP1559, feesFromEstimate: fees, gasLimitWithBuffer: result.gasLimit }))
+        return result
       } catch (e) {
         console.error(
           '[deBridge] getUnsignedEvmTransaction: gas estimation failed, using API fallback',

@@ -68,7 +68,7 @@ export const debridgeApi: SwapperApi = {
         const fees = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
         return {
           ...fees,
-          gasLimit: BigNumber.max(gasLimitFromApi ?? '0', fees.gasLimit).toFixed(),
+          gasLimit: BigNumber(fees.gasLimit).times('1.2').toFixed(0),
         }
       } catch {
         if (!gasLimitFromApi) throw new Error('Gas estimation failed and no API gas limit fallback')

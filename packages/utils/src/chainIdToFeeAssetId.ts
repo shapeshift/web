@@ -33,6 +33,7 @@ import {
   plumeAssetId,
   polygonAssetId,
   scrollAssetId,
+  seiAssetId,
   solAssetId,
   soneiumAssetId,
   sonicAssetId,
@@ -126,6 +127,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return worldChainAssetId
     case KnownChainIds.HemiMainnet:
       return hemiAssetId
+    case KnownChainIds.SeiMainnet:
+      return seiAssetId
     case KnownChainIds.LineaMainnet:
       return lineaAssetId
     case KnownChainIds.ScrollMainnet:

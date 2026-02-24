@@ -26,6 +26,7 @@ import {
   plumeChainId,
   polygonChainId,
   scrollChainId,
+  seiChainId,
   solanaChainId,
   soneiumChainId,
   sonicChainId,
@@ -62,6 +63,7 @@ import {
   plumeMainnet,
   polygon,
   scroll,
+  sei,
   soneium,
   sonic,
   story,
@@ -115,6 +117,7 @@ export const chainIdToRelayChainId = {
   [bobChainId]: bob.id,
   [modeChainId]: mode.id,
   [soneiumChainId]: soneium.id,
+  [seiChainId]: sei.id,
 }
 
 export enum RelayStatusMessage {

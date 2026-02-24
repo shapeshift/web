@@ -111,7 +111,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAcc
   )
 
   const amountCryptoPrecision = useMemo(
-    () => bnOrZero(stakedAmountCryptoPrecision).times(currentUnstakePercent).div(100).toString(),
+    () => bnOrZero(stakedAmountCryptoPrecision).times(currentUnstakePercent).div(100).toFixed(),
     [stakedAmountCryptoPrecision, currentUnstakePercent],
   )
 

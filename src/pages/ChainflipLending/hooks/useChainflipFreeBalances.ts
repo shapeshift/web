@@ -30,14 +30,6 @@ export type ChainflipFreeBalanceWithFiat = {
   balanceFiat: string
 }
 
-const hexToBaseUnit = (hex: string): string => {
-  try {
-    return BigInt(hex).toString()
-  } catch {
-    return '0'
-  }
-}
-
 const baseUnitToPrecision = (baseUnit: string, precision: number): string =>
   bnOrZero(baseUnit).div(bnOrZero(10).pow(precision)).toFixed()
 
@@ -85,8 +77,7 @@ export const useChainflipFreeBalances = () => {
     return safeRawBalances.map((balance, i) => {
       const { assetId, precision, price } = balanceFiatData[i]
 
-      const baseUnit = hexToBaseUnit(balance.balance)
-      const cryptoPrecision = baseUnitToPrecision(baseUnit, precision)
+      const cryptoPrecision = baseUnitToPrecision(balance.balance, precision)
       const fiat = bnOrZero(cryptoPrecision).times(price).toFixed(2)
 
       return {

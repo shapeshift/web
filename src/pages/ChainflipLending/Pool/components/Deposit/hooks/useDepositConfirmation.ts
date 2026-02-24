@@ -1,11 +1,11 @@
-import { skipToken, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
 
 import { DepositMachineCtx } from '../DepositMachineContext'
 
 import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
-import { cfFreeBalances } from '@/lib/chainflip/rpc'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
+import { reactQueries } from '@/react-queries'
 
 const POLL_INTERVAL_MS = 6_000
 
@@ -19,18 +19,17 @@ export const useDepositConfirmation = () => {
   const { scAccount } = useChainflipLendingAccount()
 
   const isConfirming = stateValue === 'confirming'
-  const shouldPoll = isConfirming && !!scAccount
 
   const { data: freeBalances } = useQuery({
-    queryKey: ['chainflipFreeBalances', scAccount],
-    queryFn: shouldPoll && scAccount ? () => cfFreeBalances(scAccount) : skipToken,
-    refetchInterval: shouldPoll ? POLL_INTERVAL_MS : false,
+    ...reactQueries.chainflipLending.freeBalances(scAccount ?? ''),
+    enabled: isConfirming && !!scAccount,
+    refetchInterval: isConfirming ? POLL_INTERVAL_MS : false,
   })
 
   const cfAsset = useMemo(() => CHAINFLIP_LENDING_ASSET_BY_ASSET_ID[assetId], [assetId])
 
   useEffect(() => {
-    if (!isConfirming || !freeBalances || !cfAsset) return
+    if (!isConfirming || !freeBalances || !Array.isArray(freeBalances) || !cfAsset) return
 
     const matchingBalance = freeBalances.find(
       b => b.asset.chain === cfAsset.chain && b.asset.asset === cfAsset.asset,

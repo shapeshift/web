@@ -10,11 +10,16 @@ const THIRTY_SECONDS = 30_000
 export const useChainflipAccount = () => {
   const { scAccount } = useChainflipLendingAccount()
 
-  const { data: freeBalances, isLoading: isFreeBalancesLoading } = useQuery({
+  const { data: rawFreeBalances, isLoading: isFreeBalancesLoading } = useQuery({
     ...reactQueries.chainflipLending.freeBalances(scAccount ?? ''),
     enabled: !!scAccount,
     staleTime: FIFTEEN_SECONDS,
   })
+
+  const freeBalances = useMemo(
+    () => (Array.isArray(rawFreeBalances) ? rawFreeBalances : []),
+    [rawFreeBalances],
+  )
 
   const { data: accountInfo, isLoading: isAccountInfoLoading } = useQuery({
     ...reactQueries.chainflipLending.accountInfo(scAccount ?? ''),

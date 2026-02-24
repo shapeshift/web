@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react'
 import { DepositMachineCtx } from '../DepositMachineContext'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
 import { encodeRegisterLiquidityRefundAddress } from '@/lib/chainflip/scale'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { useSignChainflipCall } from '@/pages/ChainflipLending/hooks/useSignChainflipCall'
@@ -10,6 +11,7 @@ import { useSignChainflipCall } from '@/pages/ChainflipLending/hooks/useSignChai
 export const useDepositRefundAddress = () => {
   const actorRef = DepositMachineCtx.useActorRef()
   const stateValue = DepositMachineCtx.useSelector(s => s.value)
+  const assetId = DepositMachineCtx.useSelector(s => s.context.assetId)
   const refundAddress = DepositMachineCtx.useSelector(s => s.context.refundAddress)
   const lastUsedNonce = DepositMachineCtx.useSelector(s => s.context.lastUsedNonce)
   const isNativeWallet = DepositMachineCtx.useSelector(s => s.context.isNativeWallet)
@@ -31,8 +33,11 @@ export const useDepositRefundAddress = () => {
         if (!scAccount) throw new Error('State Chain account not derived')
         if (!refundAddress) throw new Error('Refund address not set')
 
+        const cfAsset = CHAINFLIP_LENDING_ASSET_BY_ASSET_ID[assetId]
+        if (!cfAsset) throw new Error(`Unsupported asset: ${assetId}`)
+
         const encodedCall = encodeRegisterLiquidityRefundAddress({
-          chain: 'Ethereum',
+          chain: cfAsset.chain,
           address: refundAddress,
         })
 
@@ -60,6 +65,7 @@ export const useDepositRefundAddress = () => {
     wallet,
     accountId,
     scAccount,
+    assetId,
     refundAddress,
     lastUsedNonce,
     signAndSubmit,

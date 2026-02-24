@@ -1,8 +1,6 @@
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
-import type { Hex } from 'viem'
 
 import type { SwapperApi } from '../../types'
 import { checkEvmSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
@@ -116,19 +114,13 @@ export const debridgeApi: SwapperApi = {
     const isSameChainSwap = swap?.metadata.debridgeTransactionMetadata?.isSameChainSwap === true
 
     if (isSameChainSwap) {
-      try {
-        const viemClient = viemClientByChainId[chainId]
-        if (!viemClient) {
-          return { buyTxHash: txHash, status: TxStatus.Unknown, message: undefined }
-        }
-
-        const receipt = await viemClient.getTransactionReceipt({ hash: txHash as Hex })
-        const status = receipt.status === 'success' ? TxStatus.Confirmed : TxStatus.Failed
-
-        return { buyTxHash: txHash, status, message: undefined }
-      } catch {
-        return { buyTxHash: txHash, status: TxStatus.Pending, message: undefined }
-      }
+      return checkEvmSwapStatus({
+        txHash,
+        chainId,
+        address,
+        assertGetEvmChainAdapter,
+        fetchIsSmartContractAddressQuery,
+      })
     }
 
     let resolvedTxHash = txHash

@@ -16,6 +16,7 @@ export type ChainAdapterArgs = {
 }
 
 export const isSeiChainAdapter = (adapter: unknown): adapter is ChainAdapter => {
+  if (!adapter) return false
   return (adapter as ChainAdapter).getType() === KnownChainIds.SeiMainnet
 }
 

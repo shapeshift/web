@@ -174,5 +174,9 @@ export type DebridgeError = {
 }
 
 export const isDebridgeError = (error: unknown): error is DebridgeError => {
-  return typeof error === 'object' && error !== null && ('errorCode' in error || 'message' in error)
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    ('errorCode' in error || 'errorId' in error || 'errorMessage' in error)
+  )
 }

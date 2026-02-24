@@ -60,6 +60,9 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
   )
   const refundAddress = DepositMachineCtx.useSelector(s => s.context.refundAddress)
   const error = DepositMachineCtx.useSelector(s => s.context.error)
+  const isNativeWallet = DepositMachineCtx.useSelector(s => s.context.isNativeWallet)
+  const stepConfirmed = DepositMachineCtx.useSelector(s => s.context.stepConfirmed)
+  const isConfirming = DepositMachineCtx.useSelector(s => s.matches('confirming'))
 
   useDepositApproval()
   useDepositFunding()
@@ -131,6 +134,10 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
     flipAllowanceCryptoBaseUnit,
     initialFreeBalanceCryptoBaseUnit,
   ])
+
+  const handleConfirmStep = useCallback(() => {
+    actorRef.send({ type: 'CONFIRM_STEP' })
+  }, [actorRef])
 
   const handleRetry = useCallback(() => {
     actorRef.send({ type: 'RETRY' })
@@ -271,7 +278,23 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
           gap={2}
           px={6}
           py={4}
-        />
+        >
+          {isNativeWallet && !isConfirming && (
+            <Button
+              colorScheme='blue'
+              size='lg'
+              height={12}
+              borderRadius='xl'
+              width='full'
+              fontWeight='bold'
+              onClick={handleConfirmStep}
+              isLoading={stepConfirmed}
+              isDisabled={stepConfirmed}
+            >
+              {translate('common.confirm')}
+            </Button>
+          )}
+        </CardFooter>
       </SlideTransition>
     )
   }

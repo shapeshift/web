@@ -25,12 +25,15 @@ export const useDepositSend = () => {
       assetId: s.context.assetId,
     }),
   )
+  const isNativeWallet = DepositMachineCtx.useSelector(s => s.context.isNativeWallet)
+  const stepConfirmed = DepositMachineCtx.useSelector(s => s.context.stepConfirmed)
   const wallet = useWallet().state.wallet
   const { accountId, accountNumber } = useChainflipLendingAccount()
   const executingRef = useRef(false)
 
   useEffect(() => {
     if (stateValue !== 'sending_deposit' || executingRef.current) return
+    if (isNativeWallet && !stepConfirmed) return
     executingRef.current = true
 
     const execute = async () => {
@@ -111,5 +114,7 @@ export const useDepositSend = () => {
     depositAddress,
     depositAmountCryptoBaseUnit,
     assetId,
+    isNativeWallet,
+    stepConfirmed,
   ])
 }

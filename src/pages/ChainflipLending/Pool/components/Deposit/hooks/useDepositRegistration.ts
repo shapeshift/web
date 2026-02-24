@@ -11,6 +11,8 @@ export const useDepositRegistration = () => {
   const actorRef = DepositMachineCtx.useActorRef()
   const stateValue = DepositMachineCtx.useSelector(s => s.value)
   const lastUsedNonce = DepositMachineCtx.useSelector(s => s.context.lastUsedNonce)
+  const isNativeWallet = DepositMachineCtx.useSelector(s => s.context.isNativeWallet)
+  const stepConfirmed = DepositMachineCtx.useSelector(s => s.context.stepConfirmed)
   const wallet = useWallet().state.wallet
   const { accountId, scAccount } = useChainflipLendingAccount()
   const { signAndSubmit } = useSignChainflipCall()
@@ -18,6 +20,7 @@ export const useDepositRegistration = () => {
 
   useEffect(() => {
     if (stateValue !== 'registering' || executingRef.current) return
+    if (isNativeWallet && !stepConfirmed) return
     executingRef.current = true
 
     const execute = async () => {
@@ -45,5 +48,15 @@ export const useDepositRegistration = () => {
     }
 
     execute()
-  }, [stateValue, actorRef, wallet, accountId, scAccount, lastUsedNonce, signAndSubmit])
+  }, [
+    stateValue,
+    actorRef,
+    wallet,
+    accountId,
+    scAccount,
+    lastUsedNonce,
+    signAndSubmit,
+    isNativeWallet,
+    stepConfirmed,
+  ])
 }

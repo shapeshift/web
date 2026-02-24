@@ -16,12 +16,15 @@ export const useDepositApproval = () => {
   const flipFundingAmountCryptoBaseUnit = DepositMachineCtx.useSelector(
     s => s.context.flipFundingAmountCryptoBaseUnit,
   )
+  const isNativeWallet = DepositMachineCtx.useSelector(s => s.context.isNativeWallet)
+  const stepConfirmed = DepositMachineCtx.useSelector(s => s.context.stepConfirmed)
   const wallet = useWallet().state.wallet
   const { accountId, accountNumber } = useChainflipLendingAccount()
   const executingRef = useRef(false)
 
   useEffect(() => {
     if (stateValue !== 'approving_flip' || executingRef.current) return
+    if (isNativeWallet && !stepConfirmed) return
     executingRef.current = true
 
     const execute = async () => {
@@ -55,5 +58,14 @@ export const useDepositApproval = () => {
     }
 
     execute()
-  }, [stateValue, actorRef, wallet, accountId, accountNumber, flipFundingAmountCryptoBaseUnit])
+  }, [
+    stateValue,
+    actorRef,
+    wallet,
+    accountId,
+    accountNumber,
+    flipFundingAmountCryptoBaseUnit,
+    isNativeWallet,
+    stepConfirmed,
+  ])
 }

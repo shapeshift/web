@@ -5,6 +5,8 @@ import { lazy, memo, Suspense, useEffect, useMemo } from 'react'
 import { DepositMachineCtx } from './DepositMachineContext'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useChainflipAccount } from '@/pages/ChainflipLending/hooks/useChainflipAccount'
 
 const DepositInput = lazy(() =>
@@ -25,10 +27,10 @@ type DepositProps = {
   assetId: AssetId
 }
 
-const machineInput = (assetId: AssetId) => ({ assetId })
-
 export const Deposit = memo(({ assetId }: DepositProps) => {
-  const input = useMemo(() => machineInput(assetId), [assetId])
+  const { connectedType } = useWallet().state
+  const isNativeWallet = connectedType === KeyManager.Native
+  const input = useMemo(() => ({ assetId, isNativeWallet }), [assetId, isNativeWallet])
 
   return (
     <DepositMachineCtx.Provider options={{ input }}>

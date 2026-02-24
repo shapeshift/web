@@ -65,6 +65,8 @@ export const useDepositChannel = () => {
   const stateValue = DepositMachineCtx.useSelector(s => s.value)
   const assetId = DepositMachineCtx.useSelector(s => s.context.assetId)
   const lastUsedNonce = DepositMachineCtx.useSelector(s => s.context.lastUsedNonce)
+  const isNativeWallet = DepositMachineCtx.useSelector(s => s.context.isNativeWallet)
+  const stepConfirmed = DepositMachineCtx.useSelector(s => s.context.stepConfirmed)
   const wallet = useWallet().state.wallet
   const { accountId, scAccount } = useChainflipLendingAccount()
   const { signAndSubmit } = useSignChainflipCall()
@@ -72,6 +74,7 @@ export const useDepositChannel = () => {
 
   useEffect(() => {
     if (stateValue !== 'opening_channel' || executingRef.current) return
+    if (isNativeWallet && !stepConfirmed) return
     executingRef.current = true
 
     const execute = async () => {
@@ -105,5 +108,16 @@ export const useDepositChannel = () => {
     }
 
     execute()
-  }, [stateValue, actorRef, wallet, accountId, scAccount, assetId, lastUsedNonce, signAndSubmit])
+  }, [
+    stateValue,
+    actorRef,
+    wallet,
+    accountId,
+    scAccount,
+    assetId,
+    lastUsedNonce,
+    signAndSubmit,
+    isNativeWallet,
+    stepConfirmed,
+  ])
 }

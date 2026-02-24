@@ -12,6 +12,8 @@ export const useDepositRefundAddress = () => {
   const stateValue = DepositMachineCtx.useSelector(s => s.value)
   const refundAddress = DepositMachineCtx.useSelector(s => s.context.refundAddress)
   const lastUsedNonce = DepositMachineCtx.useSelector(s => s.context.lastUsedNonce)
+  const isNativeWallet = DepositMachineCtx.useSelector(s => s.context.isNativeWallet)
+  const stepConfirmed = DepositMachineCtx.useSelector(s => s.context.stepConfirmed)
   const wallet = useWallet().state.wallet
   const { accountId, scAccount } = useChainflipLendingAccount()
   const { signAndSubmit } = useSignChainflipCall()
@@ -19,6 +21,7 @@ export const useDepositRefundAddress = () => {
 
   useEffect(() => {
     if (stateValue !== 'setting_refund_address' || executingRef.current) return
+    if (isNativeWallet && !stepConfirmed) return
     executingRef.current = true
 
     const execute = async () => {
@@ -60,5 +63,7 @@ export const useDepositRefundAddress = () => {
     refundAddress,
     lastUsedNonce,
     signAndSubmit,
+    isNativeWallet,
+    stepConfirmed,
   ])
 }

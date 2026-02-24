@@ -3,7 +3,10 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET } from '@/lib/chainflip/constants'
+import {
+  CHAINFLIP_LENDING_ASSET_BY_ASSET_ID,
+  CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET,
+} from '@/lib/chainflip/constants'
 import type { ChainflipAsset, ChainflipAssetSymbol } from '@/lib/chainflip/types'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { reactQueries } from '@/react-queries'
@@ -13,6 +16,12 @@ import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketData
 import { useAppSelector } from '@/state/store'
 
 const FIFTEEN_SECONDS = 15_000
+
+const CANONICAL_CF_ASSETS = new Set(
+  Object.values(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID)
+    .filter((cf): cf is NonNullable<typeof cf> => Boolean(cf))
+    .map(cf => `${cf.chain}:${cf.asset}`),
+)
 
 export type ChainflipFreeBalanceWithFiat = {
   asset: ChainflipAsset
@@ -59,7 +68,10 @@ export const useChainflipFreeBalances = () => {
   })
 
   const safeRawBalances = useMemo(
-    () => (Array.isArray(rawBalances) ? rawBalances : []),
+    () =>
+      (Array.isArray(rawBalances) ? rawBalances : []).filter(b =>
+        CANONICAL_CF_ASSETS.has(`${b.asset.chain}:${b.asset.asset}`),
+      ),
     [rawBalances],
   )
 

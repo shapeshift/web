@@ -1,8 +1,8 @@
-import { skipToken, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
-import { cfAccountInfo, cfFreeBalances } from '@/lib/chainflip/rpc'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
+import { reactQueries } from '@/react-queries'
 
 const FIFTEEN_SECONDS = 15_000
 const THIRTY_SECONDS = 30_000
@@ -11,14 +11,14 @@ export const useChainflipAccount = () => {
   const { scAccount } = useChainflipLendingAccount()
 
   const { data: freeBalances, isLoading: isFreeBalancesLoading } = useQuery({
-    queryKey: ['chainflipFreeBalances', scAccount],
-    queryFn: scAccount ? () => cfFreeBalances(scAccount) : skipToken,
+    ...reactQueries.chainflipLending.freeBalances(scAccount ?? ''),
+    enabled: !!scAccount,
     staleTime: FIFTEEN_SECONDS,
   })
 
   const { data: accountInfo, isLoading: isAccountInfoLoading } = useQuery({
-    queryKey: ['chainflipAccountInfo', scAccount],
-    queryFn: scAccount ? () => cfAccountInfo(scAccount) : skipToken,
+    ...reactQueries.chainflipLending.accountInfo(scAccount ?? ''),
+    enabled: !!scAccount,
     staleTime: THIRTY_SECONDS,
   })
 

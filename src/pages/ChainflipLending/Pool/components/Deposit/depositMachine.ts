@@ -35,10 +35,13 @@ type DepositMachineContext = {
   txHashes: DepositTxHashes
   error: string | null
   errorStep: DepositStep | null
+  isNativeWallet: boolean
+  stepConfirmed: boolean
 }
 
 export type DepositMachineInput = {
   assetId: AssetId
+  isNativeWallet: boolean
 }
 
 type DepositMachineEvent =
@@ -81,6 +84,7 @@ type DepositMachineEvent =
   | { type: 'SEND_ERROR'; error: string }
   | { type: 'CONFIRMED' }
   | { type: 'CONFIRMATION_ERROR'; error: string }
+  | { type: 'CONFIRM_STEP' }
   | { type: 'RETRY' }
   | { type: 'DONE' }
 
@@ -230,6 +234,8 @@ export const depositMachine = setup({
       },
     }),
     clearError: assign({ error: null, errorStep: null }),
+    confirmStep: assign({ stepConfirmed: true }),
+    resetStepConfirmed: assign({ stepConfirmed: false }),
   },
 }).createMachine({
   id: 'deposit',
@@ -250,6 +256,8 @@ export const depositMachine = setup({
     txHashes: {},
     error: null,
     errorStep: null,
+    isNativeWallet: input.isNativeWallet,
+    stepConfirmed: false,
   }),
   on: {
     SYNC_ACCOUNT_STATE: { actions: 'syncAccountState' },
@@ -296,7 +304,9 @@ export const depositMachine = setup({
 
     approving_flip: {
       tags: ['executing'],
+      entry: 'resetStepConfirmed',
       on: {
+        CONFIRM_STEP: { actions: 'confirmStep' },
         APPROVAL_BROADCASTED: { actions: 'assignApprovalTx' },
         APPROVAL_SUCCESS: { target: 'funding_account' },
         APPROVAL_ERROR: {
@@ -308,7 +318,9 @@ export const depositMachine = setup({
 
     funding_account: {
       tags: ['executing'],
+      entry: 'resetStepConfirmed',
       on: {
+        CONFIRM_STEP: { actions: 'confirmStep' },
         FUNDING_BROADCASTED: { actions: 'assignFundingTx' },
         FUNDING_SUCCESS: [
           {
@@ -335,7 +347,9 @@ export const depositMachine = setup({
 
     registering: {
       tags: ['executing'],
+      entry: 'resetStepConfirmed',
       on: {
+        CONFIRM_STEP: { actions: 'confirmStep' },
         REGISTRATION_BROADCASTED: { actions: 'assignRegistrationTx' },
         REGISTRATION_SUCCESS: [
           {
@@ -357,7 +371,9 @@ export const depositMachine = setup({
 
     setting_refund_address: {
       tags: ['executing'],
+      entry: 'resetStepConfirmed',
       on: {
+        CONFIRM_STEP: { actions: 'confirmStep' },
         REFUND_ADDRESS_BROADCASTED: { actions: 'assignRefundAddressTx' },
         REFUND_ADDRESS_SUCCESS: {
           target: 'opening_channel',
@@ -372,7 +388,9 @@ export const depositMachine = setup({
 
     opening_channel: {
       tags: ['executing'],
+      entry: 'resetStepConfirmed',
       on: {
+        CONFIRM_STEP: { actions: 'confirmStep' },
         CHANNEL_BROADCASTED: { actions: 'assignChannelTx' },
         CHANNEL_SUCCESS: {
           target: 'sending_deposit',
@@ -387,7 +405,9 @@ export const depositMachine = setup({
 
     sending_deposit: {
       tags: ['executing'],
+      entry: 'resetStepConfirmed',
       on: {
+        CONFIRM_STEP: { actions: 'confirmStep' },
         SEND_BROADCASTED: { actions: 'assignSendTx' },
         SEND_SUCCESS: { target: 'confirming' },
         SEND_ERROR: {

@@ -10,6 +10,7 @@ import { useSignChainflipCall } from '@/pages/ChainflipLending/hooks/useSignChai
 export const useDepositRegistration = () => {
   const actorRef = DepositMachineCtx.useActorRef()
   const stateValue = DepositMachineCtx.useSelector(s => s.value)
+  const lastUsedNonce = DepositMachineCtx.useSelector(s => s.context.lastUsedNonce)
   const wallet = useWallet().state.wallet
   const { accountId, scAccount } = useChainflipLendingAccount()
   const { signAndSubmit } = useSignChainflipCall()
@@ -26,13 +27,14 @@ export const useDepositRegistration = () => {
         if (!scAccount) throw new Error('State Chain account not derived')
 
         const encodedCall = encodeRegisterLpAccount()
+        const nonceOrAccount = lastUsedNonce !== undefined ? lastUsedNonce + 1 : scAccount
 
-        const { txHash } = await signAndSubmit({
+        const { txHash, nonce } = await signAndSubmit({
           encodedCall,
-          nonceOrAccount: scAccount,
+          nonceOrAccount,
         })
 
-        actorRef.send({ type: 'REGISTRATION_BROADCASTED', txHash })
+        actorRef.send({ type: 'REGISTRATION_BROADCASTED', txHash, nonce })
         actorRef.send({ type: 'REGISTRATION_SUCCESS' })
       } catch (e) {
         const message = e instanceof Error ? e.message : 'Account registration failed'
@@ -43,5 +45,5 @@ export const useDepositRegistration = () => {
     }
 
     execute()
-  }, [stateValue, actorRef, wallet, accountId, scAccount, signAndSubmit])
+  }, [stateValue, actorRef, wallet, accountId, scAccount, lastUsedNonce, signAndSubmit])
 }

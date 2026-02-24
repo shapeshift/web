@@ -31,6 +31,7 @@ type DepositMachineContext = {
   isLpRegistered: boolean
   hasRefundAddress: boolean
   initialFreeBalanceCryptoBaseUnit: string
+  lastUsedNonce: number | undefined
   txHashes: DepositTxHashes
   error: string | null
   errorStep: DepositStep | null
@@ -57,13 +58,13 @@ type DepositMachineEvent =
   | { type: 'FUNDING_BROADCASTED'; txHash: string }
   | { type: 'FUNDING_SUCCESS' }
   | { type: 'FUNDING_ERROR'; error: string }
-  | { type: 'REGISTRATION_BROADCASTED'; txHash: string }
+  | { type: 'REGISTRATION_BROADCASTED'; txHash: string; nonce: number }
   | { type: 'REGISTRATION_SUCCESS' }
   | { type: 'REGISTRATION_ERROR'; error: string }
-  | { type: 'REFUND_ADDRESS_BROADCASTED'; txHash: string }
+  | { type: 'REFUND_ADDRESS_BROADCASTED'; txHash: string; nonce: number }
   | { type: 'REFUND_ADDRESS_SUCCESS' }
   | { type: 'REFUND_ADDRESS_ERROR'; error: string }
-  | { type: 'CHANNEL_BROADCASTED'; txHash: string }
+  | { type: 'CHANNEL_BROADCASTED'; txHash: string; nonce: number }
   | { type: 'CHANNEL_SUCCESS'; depositAddress: string }
   | { type: 'CHANNEL_ERROR'; error: string }
   | { type: 'SEND_BROADCASTED'; txHash: string }
@@ -107,18 +108,21 @@ export const depositMachine = setup({
         ...context.txHashes,
         registration: (event as { txHash: string }).txHash,
       }),
+      lastUsedNonce: ({ event }) => (event as { nonce: number }).nonce,
     }),
     assignRefundAddressTx: assign({
       txHashes: ({ context, event }) => ({
         ...context.txHashes,
         refundAddress: (event as { txHash: string }).txHash,
       }),
+      lastUsedNonce: ({ event }) => (event as { nonce: number }).nonce,
     }),
     assignChannelTx: assign({
       txHashes: ({ context, event }) => ({
         ...context.txHashes,
         channel: (event as { txHash: string }).txHash,
       }),
+      lastUsedNonce: ({ event }) => (event as { nonce: number }).nonce,
     }),
     assignDepositAddress: assign({
       depositAddress: ({ event }) =>
@@ -156,6 +160,7 @@ export const depositMachine = setup({
     isLpRegistered: input.isLpRegistered,
     hasRefundAddress: input.hasRefundAddress,
     initialFreeBalanceCryptoBaseUnit: input.initialFreeBalanceCryptoBaseUnit,
+    lastUsedNonce: undefined,
     txHashes: {},
     error: null,
     errorStep: null,

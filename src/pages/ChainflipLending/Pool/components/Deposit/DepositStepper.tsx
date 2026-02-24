@@ -150,7 +150,10 @@ export const DepositStepper = memo(() => {
       {ALL_STEPS.map(step => {
         const status = getStepStatus(step.id)
         const txHash = step.txHashKey ? txHashes[step.txHashKey] : undefined
-        const txLink = step.hasExplorerLink && txHash && explorerTxLink ? `${explorerTxLink}${txHash}` : undefined
+        const txLink =
+          step.hasExplorerLink && txHash && explorerTxLink
+            ? `${explorerTxLink}${txHash}`
+            : undefined
         return (
           <HStack key={step.id} spacing={3} opacity={status === 'pending' ? 0.5 : 1}>
             <Flex alignItems='center' justifyContent='center' width={6} flexShrink={0}>

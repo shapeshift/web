@@ -1,4 +1,4 @@
-import { Button, CardBody, CardFooter, Flex, Stack, VStack } from '@chakra-ui/react'
+import { Button, CardBody, CardFooter, Flex, Skeleton, Stack, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
@@ -170,12 +170,14 @@ export const DepositInput = ({
               {translate('chainflipLending.deposit.available')}
             </RawText>
             <Flex alignItems='center' gap={2}>
-              <Amount.Crypto
-                value={availableCryptoPrecision}
-                symbol={asset.symbol}
-                fontSize='sm'
-                fontWeight='medium'
-              />
+              <Skeleton isLoaded={Boolean(accountId)}>
+                <Amount.Crypto
+                  value={availableCryptoPrecision}
+                  symbol={asset.symbol}
+                  fontSize='sm'
+                  fontWeight='medium'
+                />
+              </Skeleton>
               <Button size='xs' variant='ghost' colorScheme='blue' onClick={handleMaxClick}>
                 {translate('modals.send.sendForm.max')}
               </Button>

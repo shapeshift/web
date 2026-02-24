@@ -88,8 +88,8 @@ export const submitSignedCall = (signedExtrinsicHex: string): Promise<string> =>
 
 export const signAndSubmitChainflipCall = async (
   input: SignChainflipCallInput,
-): Promise<{ signedExtrinsicHex: string; txHash: string }> => {
-  const { signedExtrinsicHex } = await signChainflipCall(input)
+): Promise<{ signedExtrinsicHex: string; txHash: string; nonce: number }> => {
+  const { signedExtrinsicHex, transactionMetadata } = await signChainflipCall(input)
   const txHash = await submitSignedCall(signedExtrinsicHex)
-  return { signedExtrinsicHex, txHash }
+  return { signedExtrinsicHex, txHash, nonce: transactionMetadata.nonce }
 }

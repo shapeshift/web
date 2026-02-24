@@ -11,6 +11,7 @@ export const useDepositRefundAddress = () => {
   const actorRef = DepositMachineCtx.useActorRef()
   const stateValue = DepositMachineCtx.useSelector(s => s.value)
   const refundAddress = DepositMachineCtx.useSelector(s => s.context.refundAddress)
+  const lastUsedNonce = DepositMachineCtx.useSelector(s => s.context.lastUsedNonce)
   const wallet = useWallet().state.wallet
   const { accountId, scAccount } = useChainflipLendingAccount()
   const { signAndSubmit } = useSignChainflipCall()
@@ -32,12 +33,14 @@ export const useDepositRefundAddress = () => {
           address: refundAddress,
         })
 
-        const { txHash } = await signAndSubmit({
+        const nonceOrAccount = lastUsedNonce !== undefined ? lastUsedNonce + 1 : scAccount
+
+        const { txHash, nonce } = await signAndSubmit({
           encodedCall,
-          nonceOrAccount: scAccount,
+          nonceOrAccount,
         })
 
-        actorRef.send({ type: 'REFUND_ADDRESS_BROADCASTED', txHash })
+        actorRef.send({ type: 'REFUND_ADDRESS_BROADCASTED', txHash, nonce })
         actorRef.send({ type: 'REFUND_ADDRESS_SUCCESS' })
       } catch (e) {
         const message = e instanceof Error ? e.message : 'Failed to set refund address'
@@ -48,5 +51,14 @@ export const useDepositRefundAddress = () => {
     }
 
     execute()
-  }, [stateValue, actorRef, wallet, accountId, scAccount, refundAddress, signAndSubmit])
+  }, [
+    stateValue,
+    actorRef,
+    wallet,
+    accountId,
+    scAccount,
+    refundAddress,
+    lastUsedNonce,
+    signAndSubmit,
+  ])
 }

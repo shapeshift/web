@@ -64,6 +64,7 @@ export const useDepositChannel = () => {
   const actorRef = DepositMachineCtx.useActorRef()
   const stateValue = DepositMachineCtx.useSelector(s => s.value)
   const assetId = DepositMachineCtx.useSelector(s => s.context.assetId)
+  const lastUsedNonce = DepositMachineCtx.useSelector(s => s.context.lastUsedNonce)
   const wallet = useWallet().state.wallet
   const { accountId, scAccount } = useChainflipLendingAccount()
   const { signAndSubmit } = useSignChainflipCall()
@@ -83,13 +84,14 @@ export const useDepositChannel = () => {
         if (!cfAsset) throw new Error(`Unsupported asset: ${assetId}`)
 
         const encodedCall = encodeRequestLiquidityDepositAddress(cfAsset, 0)
+        const nonceOrAccount = lastUsedNonce !== undefined ? lastUsedNonce + 1 : scAccount
 
-        const { txHash } = await signAndSubmit({
+        const { txHash, nonce } = await signAndSubmit({
           encodedCall,
-          nonceOrAccount: scAccount,
+          nonceOrAccount,
         })
 
-        actorRef.send({ type: 'CHANNEL_BROADCASTED', txHash })
+        actorRef.send({ type: 'CHANNEL_BROADCASTED', txHash, nonce })
 
         const depositAddress = await pollForDepositAddress(scAccount, cfAsset)
 
@@ -103,5 +105,5 @@ export const useDepositChannel = () => {
     }
 
     execute()
-  }, [stateValue, actorRef, wallet, accountId, scAccount, assetId, signAndSubmit])
+  }, [stateValue, actorRef, wallet, accountId, scAccount, assetId, lastUsedNonce, signAndSubmit])
 }

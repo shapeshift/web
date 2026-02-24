@@ -280,6 +280,7 @@ export const DepositConfirm = ({
   refundAddress: refundAddressProp,
   onReset,
 }: DepositConfirmProps) => {
+  const translate = useTranslate()
   const { accountId } = useChainflipLendingAccount()
   const {
     isFunded,
@@ -364,8 +365,32 @@ export const DepositConfirm = ({
         <CardBody px={6} py={4}>
           <VStack spacing={6} align='center' py={6}>
             <CircularProgress isIndeterminate />
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('common.loading')}
+            </RawText>
           </VStack>
         </CardBody>
+        <CardFooter
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          gap={2}
+          px={6}
+          py={4}
+        >
+          <Button
+            colorScheme='blue'
+            size='lg'
+            height={12}
+            borderRadius='xl'
+            width='full'
+            fontWeight='bold'
+            isLoading
+            isDisabled
+          >
+            {translate('chainflipLending.deposit.confirmAndDeposit')}
+          </Button>
+        </CardFooter>
       </SlideTransition>
     )
   }

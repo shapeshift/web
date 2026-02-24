@@ -267,9 +267,10 @@ const getCommits = async (branch: string): Promise<GetCommitsReturn> => {
 type UnreleasedCommit = { hash: string; message: string }
 
 const getUnreleasedCommits = async (): Promise<UnreleasedCommit[]> => {
-  const { stdout } = (await pify(exec)(
+  const result = await pify(exec)(
     'git log --oneline --first-parent --pretty=format:"%H %s" origin/main..origin/develop',
-  )) as { stdout: string }
+  )
+  const stdout = typeof result === 'string' ? result : (result as { stdout: string }).stdout
 
   if (!stdout.trim()) return []
 

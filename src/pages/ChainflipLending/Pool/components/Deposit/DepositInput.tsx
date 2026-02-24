@@ -105,9 +105,11 @@ export const DepositInput = ({
     setDepositAmountCryptoPrecision(availableCryptoPrecision)
   }, [availableCryptoPrecision, setDepositAmountCryptoPrecision])
 
+  const { hasRefundAddress } = useChainflipAccount()
+
   const handleSubmit = useCallback(() => {
-    navigate(DepositRoutePaths.Confirm)
-  }, [navigate])
+    navigate(hasRefundAddress ? DepositRoutePaths.Confirm : DepositRoutePaths.RefundAddress)
+  }, [navigate, hasRefundAddress])
 
   const isValidWallet = useMemo(
     () => Boolean(walletSupportsEth && walletSupportsAssetChain),

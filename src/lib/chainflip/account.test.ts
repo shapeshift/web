@@ -53,7 +53,13 @@ describe('getChainflipAccountStatus', () => {
     const freeBalancesResult: ChainflipFreeBalancesResponse = [
       { asset: { chain: 'Ethereum', asset: 'USDC' }, balance: '1' },
     ]
-    const accountInfoResult = { role: 'liquidity_provider' as const, flip_balance: '0x1' }
+    const accountInfoResult = {
+      role: 'liquidity_provider' as const,
+      flip_balance: '0x1',
+      bond: '0x0',
+      refund_addresses: null,
+      estimated_redeemable_balance: '0x0',
+    }
 
     vi.mocked(cfFreeBalances).mockResolvedValue(freeBalancesResult)
     vi.mocked(cfAccountInfo).mockResolvedValue(accountInfoResult)

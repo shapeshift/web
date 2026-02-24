@@ -1,6 +1,8 @@
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import { useEffect, useRef } from 'react'
+import type { Hash } from 'viem'
 import { encodeFunctionData, erc20Abi } from 'viem'
 
 import { DepositMachineCtx } from '../DepositMachineContext'
@@ -43,32 +45,32 @@ export const useDepositSend = () => {
 
         const isToken = assetNamespace === 'erc20'
 
-        if (isToken) {
-          const data = encodeFunctionData({
-            abi: erc20Abi,
-            functionName: 'transfer',
-            args: [depositAddress as `0x${string}`, BigInt(depositAmountCryptoBaseUnit)],
-          })
+        const txHash = await (() => {
+          if (isToken) {
+            const data = encodeFunctionData({
+              abi: erc20Abi,
+              functionName: 'transfer',
+              args: [depositAddress as `0x${string}`, BigInt(depositAmountCryptoBaseUnit)],
+            })
 
-          const buildCustomTxInput = await createBuildCustomTxInput({
-            accountNumber,
-            from,
-            adapter,
-            data,
-            to: assetReference,
-            value: '0',
-            wallet,
-          })
+            return createBuildCustomTxInput({
+              accountNumber,
+              from,
+              adapter,
+              data,
+              to: assetReference,
+              value: '0',
+              wallet,
+            }).then(buildCustomTxInput =>
+              buildAndBroadcast({
+                adapter,
+                buildCustomTxInput,
+                receiverAddress: CONTRACT_INTERACTION,
+              }),
+            )
+          }
 
-          const txHash = await buildAndBroadcast({
-            adapter,
-            buildCustomTxInput,
-            receiverAddress: CONTRACT_INTERACTION,
-          })
-
-          actorRef.send({ type: 'SEND_SUCCESS', txHash })
-        } else {
-          const buildCustomTxInput = await createBuildCustomTxInput({
+          return createBuildCustomTxInput({
             accountNumber,
             from,
             adapter,
@@ -76,16 +78,21 @@ export const useDepositSend = () => {
             to: depositAddress,
             value: depositAmountCryptoBaseUnit,
             wallet,
-          })
+          }).then(buildCustomTxInput =>
+            buildAndBroadcast({
+              adapter,
+              buildCustomTxInput,
+              receiverAddress: depositAddress,
+            }),
+          )
+        })()
 
-          const txHash = await buildAndBroadcast({
-            adapter,
-            buildCustomTxInput,
-            receiverAddress: depositAddress,
-          })
+        actorRef.send({ type: 'SEND_BROADCASTED', txHash })
 
-          actorRef.send({ type: 'SEND_SUCCESS', txHash })
-        }
+        const publicClient = assertGetViemClient(chainId)
+        await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
+
+        actorRef.send({ type: 'SEND_SUCCESS' })
       } catch (e) {
         const message = e instanceof Error ? e.message : 'Deposit send failed'
         actorRef.send({ type: 'SEND_ERROR', error: message })

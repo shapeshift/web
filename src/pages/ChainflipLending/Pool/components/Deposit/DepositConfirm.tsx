@@ -41,6 +41,7 @@ import { useAppSelector } from '@/state/store'
 type DepositConfirmProps = {
   assetId: AssetId
   depositAmountCryptoPrecision: string
+  refundAddress?: string
   onReset: () => void
 }
 
@@ -276,6 +277,7 @@ const DepositConfirmContent = memo(
 export const DepositConfirm = ({
   assetId,
   depositAmountCryptoPrecision,
+  refundAddress: refundAddressProp,
   onReset,
 }: DepositConfirmProps) => {
   const { accountId } = useChainflipLendingAccount()
@@ -332,7 +334,7 @@ export const DepositConfirm = ({
       assetId,
       depositAmountCryptoPrecision,
       depositAmountCryptoBaseUnit,
-      refundAddress: userAddress ?? '',
+      refundAddress: refundAddressProp || userAddress || '',
       flipAllowanceCryptoBaseUnit: flipAllowanceCryptoBaseUnit ?? '0',
       flipFundingAmountCryptoBaseUnit: FLIP_FUNDING_AMOUNT_CRYPTO_BASE_UNIT,
       isFunded,
@@ -347,6 +349,7 @@ export const DepositConfirm = ({
     assetId,
     depositAmountCryptoPrecision,
     depositAmountCryptoBaseUnit,
+    refundAddressProp,
     userAddress,
     flipAllowanceCryptoBaseUnit,
     isFunded,

@@ -1,5 +1,7 @@
-import { flipAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { ethChainId, flipAssetId, fromAccountId } from '@shapeshiftoss/caip'
+import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import { useEffect, useRef } from 'react'
+import type { Hash } from 'viem'
 
 import { DepositMachineCtx } from '../DepositMachineContext'
 
@@ -38,7 +40,12 @@ export const useDepositApproval = () => {
           from,
         })
 
-        actorRef.send({ type: 'APPROVAL_SUCCESS', txHash })
+        actorRef.send({ type: 'APPROVAL_BROADCASTED', txHash })
+
+        const publicClient = assertGetViemClient(ethChainId)
+        await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
+
+        actorRef.send({ type: 'APPROVAL_SUCCESS' })
       } catch (e) {
         const message = e instanceof Error ? e.message : 'FLIP approval failed'
         actorRef.send({ type: 'APPROVAL_ERROR', error: message })

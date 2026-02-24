@@ -2,6 +2,8 @@ import { CF_RPC_URL } from './constants'
 import type {
   ChainflipAccountInfo,
   ChainflipAsset,
+  ChainflipAssetSymbol,
+  ChainflipChain,
   ChainflipEnvironmentResponse,
   ChainflipFreeBalancesRawResponse,
   ChainflipFreeBalancesResponse,
@@ -103,7 +105,7 @@ const normalizeFreeBalances = (
 ): ChainflipFreeBalancesResponse =>
   Object.entries(raw).flatMap(([chain, assets]) =>
     Object.entries(assets).map(([asset, balance]) => ({
-      asset: { chain, asset },
+      asset: { chain: chain as ChainflipChain, asset: asset as ChainflipAssetSymbol },
       balance: String(BigInt(balance)),
     })),
   )

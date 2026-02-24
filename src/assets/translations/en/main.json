@@ -2443,7 +2443,16 @@
       "errorTitle": "Deposit Failed",
       "errorDescription": "Something went wrong during the deposit process.",
       "freeBalance": "Free Balance",
-      "freeBalanceTooltip": "Your %{asset} free balance on Chainflip State Chain"
+      "freeBalanceTooltip": "Your %{asset} free balance on Chainflip State Chain",
+      "refundAddress": {
+        "title": "Refund Address",
+        "description": "Set the address where funds will be returned if a deposit fails or you withdraw.",
+        "useWalletAddress": "Use Wallet Address",
+        "useCustomAddress": "Use Custom Address",
+        "label": "Refund Address",
+        "continue": "Continue",
+        "helperText": "This address will be used for withdrawals and refunds on this chain."
+      }
     },
     "markets": "Markets",
     "myBalances": "My Balances",

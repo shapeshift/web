@@ -1,6 +1,8 @@
 import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import { useEffect, useRef } from 'react'
+import type { Hash } from 'viem'
 import { encodeFunctionData } from 'viem'
 
 import { DepositMachineCtx } from '../DepositMachineContext'
@@ -63,7 +65,12 @@ export const useDepositFunding = () => {
           receiverAddress: CONTRACT_INTERACTION,
         })
 
-        actorRef.send({ type: 'FUNDING_SUCCESS', txHash })
+        actorRef.send({ type: 'FUNDING_BROADCASTED', txHash })
+
+        const publicClient = assertGetViemClient(ethChainId)
+        await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
+
+        actorRef.send({ type: 'FUNDING_SUCCESS' })
       } catch (e) {
         const message = e instanceof Error ? e.message : 'State Chain funding failed'
         actorRef.send({ type: 'FUNDING_ERROR', error: message })

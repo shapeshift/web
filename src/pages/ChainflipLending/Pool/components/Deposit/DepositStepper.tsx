@@ -104,14 +104,13 @@ export const DepositStepper = memo(() => {
     [isFunded, flipAllowanceCryptoBaseUnit, flipFundingAmountCryptoBaseUnit],
   )
 
-  const visibleSteps = useMemo(() => {
-    return ALL_STEPS.filter(step => {
-      if (step.id === 'approving_flip') return needsApproval
-      if (step.id === 'funding_account') return !isFunded
-      if (step.id === 'registering') return !isLpRegistered
-      if (step.id === 'setting_refund_address') return !hasRefundAddress
-      return true
-    })
+  const preCompletedSteps = useMemo(() => {
+    const steps = new Set<DepositStep>()
+    if (!needsApproval) steps.add('approving_flip')
+    if (isFunded) steps.add('funding_account')
+    if (isLpRegistered) steps.add('registering')
+    if (hasRefundAddress) steps.add('setting_refund_address')
+    return steps
   }, [needsApproval, isFunded, isLpRegistered, hasRefundAddress])
 
   const getStepStatus = useMemo(() => {
@@ -119,6 +118,8 @@ export const DepositStepper = memo(() => {
     const isError = stateValue === 'error'
 
     return (stepId: DepositStep): StepStatus => {
+      if (preCompletedSteps.has(stepId)) return 'completed'
+
       if (isError && errorStep === stepId) return 'error'
 
       const stepIndex = STEP_ORDER.indexOf(stepId)
@@ -134,11 +135,11 @@ export const DepositStepper = memo(() => {
       if (stepIndex === currentIndex) return 'active'
       return 'pending'
     }
-  }, [stateValue, errorStep])
+  }, [stateValue, errorStep, preCompletedSteps])
 
   return (
     <VStack spacing={3} align='stretch' width='full'>
-      {visibleSteps.map(step => {
+      {ALL_STEPS.map(step => {
         const status = getStepStatus(step.id)
         const txHash = step.txHashKey ? txHashes[step.txHashKey] : undefined
         const isEvmHash = txHash?.startsWith('0x')

@@ -89,13 +89,11 @@ export const useDepositChannel = () => {
           nonceOrAccount: scAccount,
         })
 
+        actorRef.send({ type: 'CHANNEL_BROADCASTED', txHash })
+
         const depositAddress = await pollForDepositAddress(scAccount, cfAsset)
 
-        actorRef.send({
-          type: 'CHANNEL_SUCCESS',
-          depositAddress,
-          txHash,
-        })
+        actorRef.send({ type: 'CHANNEL_SUCCESS', depositAddress })
       } catch (e) {
         const message = e instanceof Error ? e.message : 'Failed to open deposit channel'
         actorRef.send({ type: 'CHANNEL_ERROR', error: message })

@@ -267,17 +267,19 @@ const getCommits = async (branch: string): Promise<GetCommitsReturn> => {
 type UnreleasedCommit = { hash: string; message: string }
 
 const getUnreleasedCommits = async (): Promise<UnreleasedCommit[]> => {
-  const { all } = await git().log([
-    '--oneline',
-    '--first-parent',
-    '--pretty=format:%H %s',
-    'origin/main..origin/develop',
-  ])
+  const { stdout } = (await pify(exec)(
+    'git log --oneline --first-parent --pretty=format:"%H %s" origin/main..origin/develop',
+  )) as { stdout: string }
 
-  return all.map(({ hash }) => {
-    const spaceIdx = hash.indexOf(' ')
-    return { hash: hash.slice(0, spaceIdx), message: hash.slice(spaceIdx + 1) }
-  })
+  if (!stdout.trim()) return []
+
+  return stdout
+    .trim()
+    .split('\n')
+    .map(line => {
+      const spaceIdx = line.indexOf(' ')
+      return { hash: line.slice(0, spaceIdx), message: line.slice(spaceIdx + 1) }
+    })
 }
 
 const inquireSelectCommits = async (commits: UnreleasedCommit[]): Promise<UnreleasedCommit[]> => {

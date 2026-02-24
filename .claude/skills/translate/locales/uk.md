@@ -1,6 +1,9 @@
 # Ukrainian (uk) — Formal (ви)
 
 - Use formal "ви" address consistently
+- Register violations beyond pronouns: imperative forms (ти-imperative "роби" vs ви-imperative "робіть"); possessives ("твій" is ти-form, use "ваш")
+- WRONG: "Підключи свій гаманець" (ти-imperative)
+- RIGHT: "Підключіть ваш гаманець" (ви-imperative + ви-possessive)
 - "staking" = "стейкiнг" — same transliteration pattern as Russian but with Ukrainian orthography
 - "restaking" = "рестейкiнг" — NEVER native calques
 - "unstaking" = "зняти зi стейкiнгу" — NEVER meaningless calques like "ненаставлений"

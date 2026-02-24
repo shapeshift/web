@@ -345,7 +345,7 @@
         "marketCapRank": "Rang de capitalisation boursière",
         "volume24h": "Volume sur 24h",
         "volMcap": "Vol/Cap",
-        "about": "Informations sur",
+        "about": "À propos de %{symbol}",
         "noDescription": "Aucune description disponible pour cet actif."
       },
       "receive": {
@@ -1951,7 +1951,7 @@
         "multiChain": {
           "title": "Plusieurs chaînes sont prises en charge simultanément",
           "subTitle": "Vous n'avez jamais besoin de changer de chaîne dans le porte-monnaie, il fonctionne avec chaque chaîne de manière transparente.",
-          "body": "Lorsqu'une nouvelle chaîne est ajoutée sur ShapeShift, votre porte-monnaie ShapeShift la prend en charge automatiquement."
+          "body": "Accédez à Bitcoin, Ethereum, Solana et bien d'autres chaînes depuis un seul portefeuille. Échangez et gérez vos actifs sur différents réseaux en toute simplicité."
         },
         "selfCustody": {
           "title": "Votre porte-monnaie ShapeShift est auto-dépositaire",

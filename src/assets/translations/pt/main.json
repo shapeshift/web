@@ -345,7 +345,7 @@
         "marketCapRank": "Classificação de capitalização de mercado",
         "volume24h": "Volume nas últimas 24 horas",
         "volMcap": "Vol/Cap Mercado",
-        "about": "Sobre",
+        "about": "Sobre %{symbol}",
         "noDescription": "Não há descrição disponível para este recurso."
       },
       "receive": {
@@ -1951,7 +1951,7 @@
         "multiChain": {
           "title": "Multi-chain",
           "subTitle": "Você nunca precisa trocar de corrente na carteira, funciona perfeitamente com cada rede.",
-          "body": "Quando uma nova rede é adicionada ao ShapeShift, sua carteira será compatível com ela automaticamente."
+          "body": "Acesse Bitcoin, Ethereum, Solana e muitas outras redes a partir de uma única carteira. Negocie e gerencie seus ativos em diferentes redes sem complicações."
         },
         "selfCustody": {
           "title": "Auto-custódia",

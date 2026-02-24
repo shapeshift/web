@@ -1,6 +1,9 @@
 # Turkish (tr) — Formal (siz)
 
 - Use formal "siz" address consistently
+- Register violations beyond pronouns: verb suffixes (sen-form "-sın/-sin" vs siz-form "-sınız/-siniz"); possessives ("senin" is informal, use "sizin")
+- WRONG: "Cüzdanını bağla" (sen-imperative + sen-possessive)
+- RIGHT: "Cüzdanınızı bağlayınız" (siz-imperative + siz-possessive)
 - Verify correct vowel harmony in suffixes (e.g., "Parolayı" not "Parolay" — accusative requires buffer vowel)
 - "claim" (DeFi) = "talep etmek" — NEVER "yuklemeler" (= uploads, completely wrong)
 - Keep DeFi English loanwords where Turkish crypto community uses them: staking, restaking, swap

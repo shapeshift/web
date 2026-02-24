@@ -1,6 +1,9 @@
 # German (de) — Formal (Sie)
 
 - Use formal "Sie" address consistently
+- Register violations beyond pronouns: imperative verb forms ("Folge" is du-form, use "Folgen Sie"); possessives ("dein" is du-form, use "Ihr/Ihre")
+- WRONG: "Folge den Anweisungen auf deinem Gerät" (du-imperative + du-possessive)
+- RIGHT: "Folgen Sie den Anweisungen auf Ihrem Gerät" (Sie-imperative + Sie-possessive)
 - Use verb infinitives for action buttons (e.g., "Einzahlen" not "Einzahlung")
 - German compound nouns are ALWAYS written as one word or hyphenated, NEVER as separate words (e.g., "Verkaufsvorschau" not "Verkauf vorschau", "Gasgebühr" not "Gas Gebühr")
 - Use established German financial terms

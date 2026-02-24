@@ -1,6 +1,8 @@
 const fs = require('fs')
 const path = require('path')
 
+const { stemMatch } = require('../../translate/scripts/script-utils')
+
 const TRANSLATIONS_DIR = path.resolve(__dirname, '../../../../src/assets/translations')
 const BENCHMARK_DIR = path.resolve(__dirname, '../../../../scripts/translations/benchmark')
 const GT_PATH = path.join(BENCHMARK_DIR, 'ground-truth.json')
@@ -99,8 +101,9 @@ function checkGlossaryCorrectness(english, skill, locale) {
     } else {
       const entry = glossary[term.glossaryKey]
       if (entry && typeof entry === 'object' && entry[locale]) {
-        const has = skill.toLowerCase().includes(entry[locale].toLowerCase())
-        matched.push({ passed: has, reason: has ? `"${term.englishPattern}" → "${entry[locale]}"` : `"${term.englishPattern}" should be "${entry[locale]}"` })
+        const has = stemMatch(skill, entry[locale], locale)
+        const display = Array.isArray(entry[locale]) ? entry[locale][0] : entry[locale]
+        matched.push({ passed: has, reason: has ? `"${term.englishPattern}" → "${display}"` : `"${term.englishPattern}" should be "${display}"` })
       }
     }
   }
@@ -128,8 +131,9 @@ function validate(english, skill, locale) {
   }
   for (const { term, approved } of (approvedByLocale[locale] || [])) {
     const tl = term.toLowerCase()
-    if (english.toLowerCase().includes(tl) && !skill.toLowerCase().includes(approved.toLowerCase())) {
-      glossaryViolations.push(`"${term}" should be "${approved}"`)
+    if (english.toLowerCase().includes(tl) && !stemMatch(skill, approved, locale)) {
+      const display = Array.isArray(approved) ? approved[0] : approved
+      glossaryViolations.push(`"${term}" should be "${display}"`)
     }
   }
 

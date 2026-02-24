@@ -46,6 +46,8 @@
   "XDEFI": null,
   "Keplr": null,
   "Phantom": null,
+  "Multichain Snap": null,
+  "Snap": null,
   "GridPlus": null,
   "Uniswap": null,
   "SushiSwap": null,
@@ -174,9 +176,9 @@
     "fr": "réclamer",
     "ja": "請求",
     "pt": "resgatar",
-    "ru": "получить",
-    "tr": "talep etmek",
-    "uk": "отримати",
+    "ru": ["получить", "получение"],
+    "tr": ["talep etmek", "talep"],
+    "uk": ["отримати", "отримання"],
     "zh": "领取"
   },
   "dust": null,
@@ -186,9 +188,9 @@
     "fr": "échanger",
     "ja": "取引",
     "pt": "negociar",
-    "ru": "торговать",
-    "tr": "işlem yapmak",
-    "uk": "торгувати",
+    "ru": ["торговать", "торговля"],
+    "tr": ["işlem yapmak", "işlem"],
+    "uk": ["торгувати", "торгівля"],
     "zh": "交易"
   },
   "Loan to Value": {
@@ -208,9 +210,9 @@
     "fr": "approuver",
     "ja": "承認",
     "pt": "aprovar",
-    "ru": "одобрить",
+    "ru": ["одобрить", "одобрение"],
     "tr": "onaylamak",
-    "uk": "схвалити",
+    "uk": ["схвалити", "схвалення"],
     "zh": "授权"
   },
   "revert": {
@@ -230,9 +232,9 @@
     "fr": "déposer",
     "ja": "入金",
     "pt": "depositar",
-    "ru": "внести",
-    "tr": "yatırmak",
-    "uk": "внести",
+    "ru": ["внести", "внесение", "депозит"],
+    "tr": ["yatırmak", "yatırma"],
+    "uk": ["внести", "внесення"],
     "zh": "存入"
   },
   "insufficient funds": {

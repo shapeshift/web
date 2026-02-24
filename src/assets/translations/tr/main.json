@@ -345,7 +345,7 @@
         "marketCapRank": "Piyasa Değeri Sıralaması",
         "volume24h": "24sa Hacim",
         "volMcap": "Hacim/MCap",
-        "about": "Hakkında",
+        "about": "%{symbol} Hakkında",
         "noDescription": "Bu varlık için herhangi bir açıklama mevcut değil."
       },
       "receive": {
@@ -1951,7 +1951,7 @@
         "multiChain": {
           "title": "Aynı anda birden çok zincir desteklenir",
           "subTitle": "Cüzdandaki zincirleri asla değiştirmenize gerek yoktur, her zincirle sorunsuz bir şekilde çalışır.",
-          "body": "ShapeShift'e yeni bir zincir eklendiğinde, Cüzdanınız bunu otomatik olarak destekleyecektir."
+          "body": "Tek bir cüzdandan Bitcoin, Ethereum, Solana ve daha birçok zincire erişin. Farklı ağlardaki varlıklarınızı sorunsuz bir şekilde takas edin ve yönetin."
         },
         "selfCustody": {
           "title": "ShapeShift Cüzdanınız kişisel velayettir",

@@ -248,6 +248,7 @@ FOCUS ON:
 3. Cultural appropriateness - are there any culturally awkward or inappropriate phrasings?
 4. UI appropriateness - translations should be concise enough for UI elements
 5. Source faithfulness - verify translation doesn't add information not in the English source
+6. Register consistency — verify ALL address forms, verb conjugations, imperatives, and possessives match the declared register. Check beyond just pronouns: verb forms, possessives, and sentence endings must all be consistent.
 
 TERM CONTEXT:
 {TERM_CONTEXT_FROM_BUNDLE}

@@ -1,6 +1,9 @@
 # Japanese (ja) — Polite (です/ます)
 
 - Short UI labels: use noun form without です/ます
+- Register violations: sentence endings (casual だ/ない vs polite です/ません); verb forms (casual ～てる vs polite ～ています)
+- WRONG: "トランザクションが失敗した" (casual past tense)
+- RIGHT: "トランザクションが失敗しました" (polite past tense)
 - Prefer native kanji over katakana loanwords (e.g., 入金 not デポジット, 残高不足 not 資金不足です)
 - Never use お客様
 - For "X out of Y" → Y件中X件

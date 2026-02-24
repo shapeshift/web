@@ -1,6 +1,9 @@
 # French (fr) — Formal (vous)
 
 - Use formal "vous" address consistently
+- Register violations beyond pronouns: verb endings ("tu peux" vs "vous pouvez"); imperatives ("connecte" is tu-form, use "connectez" for vous)
+- WRONG: "Connecte ton portefeuille" (tu-imperative + tu-possessive)
+- RIGHT: "Connectez votre portefeuille" (vous-imperative + vous-possessive)
 - "claim" (DeFi) verb = "réclamer", noun = "réclamation" — NEVER "réclame" (= advertisement in French)
 - "supported" (feature/chain) = "pris(e) en charge" — not "supportée" (anglicism)
 - Use consistent "vous" register: prefer "Veuillez + infinitive" for instructions, no mixed imperatives

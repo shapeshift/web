@@ -1,6 +1,9 @@
 # Russian (ru) — Formal (вы)
 
 - Use formal "вы" address consistently
+- Register violations beyond pronouns: imperative forms (ты-imperative "делай" vs вы-imperative "делайте"); possessives ("твой" is ты-form, use "ваш")
+- WRONG: "Подключи свой кошелёк" (ты-imperative)
+- RIGHT: "Подключите ваш кошелёк" (вы-imperative + вы-possessive)
 - "staking" = "стейкинг" — NEVER "ставка" (= gambling bet) or "стейкировать" (malformed verb)
 - "restaking" = "рестейкинг" — NEVER "переставка" (= rearranging physical objects, catastrophically wrong)
 - "unstaking" = "снять со стейкинга" — NEVER native calques that produce meaningless words

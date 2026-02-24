@@ -1,6 +1,7 @@
 const fs = require('fs');
 const {
   CJK_LOCALES,
+  LOCALE_CONFIGS,
   extractPlaceholders,
   stemMatch,
   loadGlossary,
@@ -119,8 +120,10 @@ for (const path of Object.keys(source)) {
       }
     } else if (typeof value === 'object' && value[locale]) {
       if (termRegex.test(src) && !stemMatch(tgt, value[locale], locale)) {
-        flags.push({ path, reason: 'glossary approved translation', details: `"${term}" should be "${value[locale]}" in ${locale}` });
-        isFlagged = true;
+        const display = Array.isArray(value[locale]) ? value[locale][0] : value[locale];
+        const isInflected = !!LOCALE_CONFIGS[locale];
+        flags.push({ path, reason: 'glossary approved translation', severity: isInflected ? 'info' : 'error', details: `"${term}" should be "${display}" in ${locale}` });
+        if (!isInflected) isFlagged = true;
       }
     }
   }

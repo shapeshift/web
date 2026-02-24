@@ -59,7 +59,7 @@ const approvedTerms = {};
 for (const [term, value] of Object.entries(glossary)) {
   if (term === '_meta') continue;
   if (typeof value === 'object' && value !== null && value[locale]) {
-    approvedTerms[term] = value[locale];
+    approvedTerms[term] = Array.isArray(value[locale]) ? value[locale][0] : value[locale];
   }
 }
 
@@ -86,9 +86,9 @@ function filterGlossaryForBatch(batch) {
   );
 
   const relevantApprovedTerms = {};
-  for (const [term, translation] of Object.entries(approvedTerms)) {
+  for (const [term, canonical] of Object.entries(approvedTerms)) {
     if (batchText.includes(term.toLowerCase())) {
-      relevantApprovedTerms[term] = translation;
+      relevantApprovedTerms[term] = canonical;
     }
   }
 

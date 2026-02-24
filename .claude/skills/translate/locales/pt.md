@@ -1,6 +1,9 @@
-# Portuguese — Brazil (pt) — Informal (voce)
+# Portuguese — Brazil (pt) — Informal (você)
 
-- Use informal "voce" address consistently
+- Use informal "você" address consistently
+- Register violations: mixing tu-forms with você. Você uses third-person conjugation (fala, é), not second-person (falas, és)
+- WRONG: "Tu precisas conectar a carteira" (tu conjugation)
+- RIGHT: "Você precisa conectar a carteira" (você conjugation)
 - "claim" (DeFi) = "resgatar" — not "reivindicar" (sounds legalistic/formal in Brazilian Portuguese)
 - "seed phrase" = "frase de recuperacao" — never literal "frase de sementes"
 - Keep English DeFi loanwords where Brazilian crypto community uses them directly: unstaking, restaking, staking

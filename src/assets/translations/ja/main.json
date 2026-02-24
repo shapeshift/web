@@ -345,7 +345,7 @@
         "marketCapRank": "時価総額ランキング",
         "volume24h": "24時間ボリューム",
         "volMcap": "出来高/時価総額",
-        "about": "について",
+        "about": "%{symbol}について",
         "noDescription": "このアセットの説明はありません。"
       },
       "receive": {
@@ -1951,7 +1951,7 @@
         "multiChain": {
           "title": "複数のチェーンが同時にサポートされます",
           "subTitle": "ウォレット内のチェーンを切り替える必要はなく、各チェーンでシームレスに動作します。",
-          "body": "新しいチェーンがShapeShiftに追加されると、ShapeShiftウォレットは自動的にそれをサポートします。"
+          "body": "1つのウォレットからBitcoin、Ethereum、Solanaなど、多数のチェーンにアクセスできます。異なるネットワーク間でシームレスに取引や資産管理を行えます。"
         },
         "selfCustody": {
           "title": "ShapeShiftウォレットはセルフカストディです",

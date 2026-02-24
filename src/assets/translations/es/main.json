@@ -345,7 +345,7 @@
         "marketCapRank": "Clasificación en capitalización de mercado",
         "volume24h": "Volumen 24 horas",
         "volMcap": "Vol/Cap. M",
-        "about": "Acerca de",
+        "about": "Acerca de %{symbol}",
         "noDescription": "No hay descripción disponible para este activo."
       },
       "receive": {
@@ -1951,7 +1951,7 @@
         "multiChain": {
           "title": "Se admiten varias cadenas simultáneamente",
           "subTitle": "Nunca necesita cambiar cadenas en la billetera, funciona con cada cadena sin problemas.",
-          "body": "Al agregar una nueva cadena a ShapeShift, su billetera ShapeShift la admitirá automáticamente."
+          "body": "Accede a Bitcoin, Ethereum, Solana y muchas más cadenas desde una sola billetera. Intercambia y gestiona tus activos en diferentes redes sin problemas."
         },
         "selfCustody": {
           "title": "Su Billetera ShapeShift es auto-custodia",

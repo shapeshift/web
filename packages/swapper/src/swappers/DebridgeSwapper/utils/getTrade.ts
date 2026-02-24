@@ -367,7 +367,7 @@ async function getSameChainTrade<T extends 'quote' | 'rate'>({
 
   const slippage = input.slippageTolerancePercentageDecimal
     ? bnOrZero(input.slippageTolerancePercentageDecimal).times(100).toFixed()
-    : 'auto'
+    : '5'
 
   const maybeQuote = await fetchDebridgeSingleChainTrade(
     {

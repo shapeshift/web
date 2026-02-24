@@ -94,6 +94,11 @@
 - Branch naming: Use descriptive names (e.g., `feat_gridplus`, `fix_wallet_connect`)
 - When opening PRs (via `gh`, Aviator `av`, or any CLI tool), ALWAYS use the `.github/PULL_REQUEST_TEMPLATE.md` template as the base for the PR body
 
+### xstate PRs
+- When a PR includes xstate state machines, the PR description MUST include a Mermaid `stateDiagram-v2` visualization of the machine's states and transitions
+- Generate the diagram from the machine definition - show states, events, guards, and error/retry flows
+- This serves as living documentation for both product and engineering reviewers
+
 ### UI/UX Standards
 - Account for light/dark mode using `useColorModeValue` hook
 - Account for responsive mobile designs in all UI components

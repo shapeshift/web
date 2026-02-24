@@ -1,3 +1,4 @@
+import bs58 from 'bs58'
 import {
   _void,
   Bytes,
@@ -513,8 +514,27 @@ export const encodeNonNativeSignedCall = (
   return bytesToHex(lengthPrefix)
 }
 
+const toAddressBytes = (address: ChainflipEncodedAddress): Uint8Array => {
+  if (address.address instanceof Uint8Array) return address.address
+
+  switch (address.chain) {
+    case 'Ethereum':
+    case 'Arbitrum':
+      return toHexBytes(address.address)
+    case 'Solana':
+      return bs58.decode(address.address)
+    case 'Bitcoin':
+      return new TextEncoder().encode(address.address)
+    case 'Polkadot':
+    case 'Assethub':
+      return toHexBytes(address.address)
+    default:
+      return toHexBytes(address.address)
+  }
+}
+
 const buildEncodedAddressValue = (address: ChainflipEncodedAddress) => {
-  const addressBytes = toBytes(address.address)
+  const addressBytes = toAddressBytes(address)
   switch (address.chain) {
     case 'Ethereum':
       assertByteLength(addressBytes, 20, 'Ethereum address')

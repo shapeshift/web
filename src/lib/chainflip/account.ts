@@ -1,9 +1,9 @@
 import { blake2b } from 'blakejs'
 import bs58 from 'bs58'
-import { bytesToHex, hexToBytes, isHex } from 'viem'
+import { hexToBytes, isHex } from 'viem'
 
 import { CHAINFLIP_SS58_PREFIX } from './constants'
-import { cfAccountInfo, cfFreeBalances } from './rpc'
+import { cfAccountInfoV2, cfFreeBalances } from './rpc'
 import type { ChainflipAccountInfo, ChainflipFreeBalancesResponse } from './types'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -43,22 +43,6 @@ const ss58Encode = (payload: Uint8Array, prefix: number): string => {
   return bs58.encode(result)
 }
 
-export const ethAddressToNodeId = (ethAddress: string): `0x${string}` => {
-  if (!isHex(ethAddress)) {
-    throw new Error('Invalid Ethereum address')
-  }
-
-  const addressBytes = hexToBytes(ethAddress)
-  if (addressBytes.length !== 20) {
-    throw new Error('Invalid Ethereum address length')
-  }
-
-  const padded = new Uint8Array(32)
-  padded.set(addressBytes, 32 - addressBytes.length)
-
-  return bytesToHex(padded)
-}
-
 export const ethAddressToScAccount = (ethAddress: string): string => {
   if (!isHex(ethAddress)) {
     throw new Error('Invalid Ethereum address')
@@ -92,7 +76,7 @@ export const getChainflipAccountStatus = async (
   const scAccountId = ethAddressToScAccount(ethAddress)
   const [freeBalances, accountInfo] = await Promise.all([
     cfFreeBalances(scAccountId),
-    cfAccountInfo(scAccountId),
+    cfAccountInfoV2(scAccountId),
   ])
 
   return {

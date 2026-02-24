@@ -1,24 +1,14 @@
-import { memo } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Stack } from '@chakra-ui/react'
 
-import { ComponentErrorBoundary } from '@/components/ErrorBoundary'
-import { ChainflipLendingAccountProvider } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
-import { Markets } from '@/pages/ChainflipLending/components/Markets'
-import { MyBalances } from '@/pages/ChainflipLending/components/MyBalances'
-import { Pool } from '@/pages/ChainflipLending/Pool/Pool'
+import { Main } from '@/components/Layout/Main'
+import { Text } from '@/components/Text'
 
-const overview = <Markets />
-const myBalances = <MyBalances />
-const pool = <Pool />
-
-export const ChainflipLending = memo(() => (
-  <ComponentErrorBoundary>
-    <ChainflipLendingAccountProvider>
-      <Routes>
-        <Route index element={overview} />
-        <Route path='balances' element={myBalances} />
-        <Route path='pool/*' element={pool} />
-      </Routes>
-    </ChainflipLendingAccountProvider>
-  </ComponentErrorBoundary>
-))
+export const ChainflipLending = () => {
+  return (
+    <Main>
+      <Stack px={6} py={8} spacing={4}>
+        <Text as='h1' translation='navBar.chainflipLending' />
+      </Stack>
+    </Main>
+  )
+}

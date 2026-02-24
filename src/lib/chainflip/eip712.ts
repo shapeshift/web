@@ -4,7 +4,6 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { AccountMetadata } from '@shapeshiftoss/types'
 import type { TypedData } from 'eip-712'
-import { Signature } from 'ethers'
 
 import { BLOCKS_TO_EXPIRY } from './constants'
 import { authorSubmitExtrinsic, cfEncodeNonNativeCall, stateGetRuntimeVersion } from './rpc'
@@ -27,8 +26,15 @@ export type SignChainflipCallOutput = {
   transactionMetadata: { nonce: number; expiryBlock: number }
 }
 
-const normalizeSignature = (rawSignature: string): string => {
-  return Signature.from(Signature.from(rawSignature)).serialized
+const buildTypedData = (payload: TypedData): TypedData => {
+  const types = { ...payload.types }
+  delete types.EIP712Domain
+  return {
+    domain: payload.domain,
+    types,
+    message: payload.message,
+    primaryType: payload.primaryType,
+  }
 }
 
 export const signChainflipCall = async ({
@@ -53,7 +59,7 @@ export const signChainflipCall = async ({
     nonceOrAccount,
   })
 
-  const typedData = payload.Eip712 as TypedData
+  const typedData = buildTypedData(payload.Eip712 as TypedData)
   const typedDataToSign: ETHSignTypedData = {
     addressNList: toAddressNList(adapter.getBip44Params(accountMetadata.bip44Params)),
     typedData,
@@ -64,8 +70,7 @@ export const signChainflipCall = async ({
     wallet,
   }
 
-  const rawSignature = await adapter.signTypedData(signTypedDataInput)
-  const signature = normalizeSignature(rawSignature)
+  const signature = await adapter.signTypedData(signTypedDataInput)
   const signedExtrinsicHex = encodeNonNativeSignedCall(
     encodedCall,
     { nonce: transactionMetadata.nonce, expiryBlock: transactionMetadata.expiry_block },
@@ -88,8 +93,8 @@ export const submitSignedCall = (signedExtrinsicHex: string): Promise<string> =>
 
 export const signAndSubmitChainflipCall = async (
   input: SignChainflipCallInput,
-): Promise<{ signedExtrinsicHex: string; txHash: string; nonce: number }> => {
-  const { signedExtrinsicHex, transactionMetadata } = await signChainflipCall(input)
+): Promise<{ signedExtrinsicHex: string; txHash: string }> => {
+  const { signedExtrinsicHex } = await signChainflipCall(input)
   const txHash = await submitSignedCall(signedExtrinsicHex)
-  return { signedExtrinsicHex, txHash, nonce: transactionMetadata.nonce }
+  return { signedExtrinsicHex, txHash }
 }

@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import { ethAddressToScAccount, getChainflipAccountStatus, isAccountFunded } from './account'
-import { cfAccountInfo, cfFreeBalances } from './rpc'
+import { cfAccountInfoV2, cfFreeBalances } from './rpc'
 import type { ChainflipAsset, ChainflipFreeBalancesResponse } from './types'
 
 vi.mock('./rpc', () => ({
   cfFreeBalances: vi.fn(),
-  cfAccountInfo: vi.fn(),
+  cfAccountInfoV2: vi.fn(),
 }))
 
 describe('ethAddressToScAccount', () => {
@@ -53,16 +53,10 @@ describe('getChainflipAccountStatus', () => {
     const freeBalancesResult: ChainflipFreeBalancesResponse = [
       { asset: { chain: 'Ethereum', asset: 'USDC' }, balance: '1' },
     ]
-    const accountInfoResult = {
-      role: 'liquidity_provider' as const,
-      flip_balance: '0x1',
-      bond: '0x0',
-      refund_addresses: null,
-      estimated_redeemable_balance: '0x0',
-    }
+    const accountInfoResult = { account_id: scAccountId }
 
     vi.mocked(cfFreeBalances).mockResolvedValue(freeBalancesResult)
-    vi.mocked(cfAccountInfo).mockResolvedValue(accountInfoResult)
+    vi.mocked(cfAccountInfoV2).mockResolvedValue(accountInfoResult)
 
     const status = await getChainflipAccountStatus('0x0000000000000000000000000000000000000001')
 

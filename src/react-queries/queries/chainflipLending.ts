@@ -1,8 +1,7 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
 
 import {
-  cfAccountInfo,
-  cfEnvironment,
+  cfAccountInfoV2,
   cfFreeBalances,
   cfLendingConfig,
   cfLendingPools,
@@ -15,10 +14,6 @@ import {
 import type { ChainflipAsset } from '@/lib/chainflip/types'
 
 export const chainflipLending = createQueryKeys('chainflipLending', {
-  environment: () => ({
-    queryKey: ['environment'],
-    queryFn: () => cfEnvironment(),
-  }),
   lendingPools: () => ({
     queryKey: ['lendingPools'],
     queryFn: () => cfLendingPools(),
@@ -53,6 +48,6 @@ export const chainflipLending = createQueryKeys('chainflipLending', {
   }),
   accountInfo: (scAccountId: string) => ({
     queryKey: ['accountInfo', scAccountId],
-    queryFn: () => cfAccountInfo(scAccountId),
+    queryFn: () => cfAccountInfoV2(scAccountId),
   }),
 })

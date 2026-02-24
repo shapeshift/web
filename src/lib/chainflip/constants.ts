@@ -19,22 +19,6 @@ export const CHAINFLIP_SS58_PREFIX = 2112
 export const CHAINFLIP_GATEWAY_CONTRACT_ADDRESS = '0x6995ab7c4d7f4b03f467cf4c8e920427d9621dbd'
 export const CHAINFLIP_FLIP_TOKEN_ADDRESS = '0x826180541412d574cf1336d22c0c0a287822678a'
 
-export const FLIP_FUNDING_AMOUNT_CRYPTO_BASE_UNIT = '2000000000000000000' // 2 FLIP (18 decimals)
-export const FLIP_PRECISION = 18
-
-export const CHAINFLIP_GATEWAY_ABI = [
-  {
-    name: 'fundStateChainAccount',
-    type: 'function',
-    inputs: [
-      { name: 'nodeID', type: 'bytes32' },
-      { name: 'amount', type: 'uint256' },
-    ],
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-] as const
-
 export const ENVIRONMENT_PALLET_INDEX = 2
 export const ENVIRONMENT_NON_NATIVE_SIGNED_CALL_INDEX = 10
 export const ENVIRONMENT_BATCH_CALL_INDEX = 11

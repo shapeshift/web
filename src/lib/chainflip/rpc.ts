@@ -2,16 +2,11 @@ import { CF_RPC_URL } from './constants'
 import type {
   ChainflipAccountInfo,
   ChainflipAsset,
-  ChainflipAssetSymbol,
-  ChainflipChain,
-  ChainflipEnvironmentResponse,
-  ChainflipFreeBalancesRawResponse,
   ChainflipFreeBalancesResponse,
   ChainflipLendingConfig,
   ChainflipLendingPoolsResponse,
   ChainflipLoanAccountsResponse,
   ChainflipNonNativeCallResult,
-  ChainflipOpenDepositChannelsResponse,
   ChainflipOraclePricesResponse,
   ChainflipRuntimeVersion,
   ChainflipSafeModeStatusesResponse,
@@ -80,9 +75,6 @@ const chainflipRpc = async <T>(method: string, params: readonly unknown[] = []):
   return data.result as T
 }
 
-export const cfEnvironment = (): Promise<ChainflipEnvironmentResponse> =>
-  chainflipRpc('cf_environment')
-
 export const cfLendingPools = (asset?: ChainflipAsset): Promise<ChainflipLendingPoolsResponse> =>
   chainflipRpc('cf_lending_pools', asset ? [asset] : [])
 
@@ -97,23 +89,11 @@ export const cfLendingPoolSupplyBalances = (
 ): Promise<ChainflipSupplyBalancesResponse> =>
   chainflipRpc('cf_lending_pool_supply_balances', [asset])
 
-export const cfAccountInfo = (accountId: string): Promise<ChainflipAccountInfo> =>
-  chainflipRpc('cf_account_info', [accountId])
+export const cfAccountInfoV2 = (accountId: string): Promise<ChainflipAccountInfo> =>
+  chainflipRpc('cf_account_info_v2', [accountId])
 
-const normalizeFreeBalances = (
-  raw: ChainflipFreeBalancesRawResponse,
-): ChainflipFreeBalancesResponse =>
-  Object.entries(raw).flatMap(([chain, assets]) =>
-    Object.entries(assets).map(([asset, balance]) => ({
-      asset: { chain: chain as ChainflipChain, asset: asset as ChainflipAssetSymbol },
-      balance: String(BigInt(balance)),
-    })),
-  )
-
-export const cfFreeBalances = async (accountId: string): Promise<ChainflipFreeBalancesResponse> => {
-  const raw = await chainflipRpc<ChainflipFreeBalancesRawResponse>('cf_free_balances', [accountId])
-  return normalizeFreeBalances(raw)
-}
+export const cfFreeBalances = (accountId: string): Promise<ChainflipFreeBalancesResponse> =>
+  chainflipRpc('cf_free_balances', [accountId])
 
 export const cfOraclePrices = (): Promise<ChainflipOraclePricesResponse> =>
   chainflipRpc('cf_oracle_prices')
@@ -142,6 +122,3 @@ export const cfEncodeNonNativeCall = ({
 
 export const authorSubmitExtrinsic = (extrinsicHex: string): Promise<string> =>
   chainflipRpc('author_submitExtrinsic', [extrinsicHex])
-
-export const cfAllOpenDepositChannels = (): Promise<ChainflipOpenDepositChannelsResponse> =>
-  chainflipRpc('cf_all_open_deposit_channels')

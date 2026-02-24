@@ -307,6 +307,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.ModeMainnet,
     CHAIN_REFERENCE.SoneiumMainnet,
     CHAIN_REFERENCE.SeiMainnet,
+    CHAIN_REFERENCE.CeloMainnet,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
     CHAIN_REFERENCE.CosmosHubMainnet,

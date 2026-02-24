@@ -260,27 +260,33 @@ const createDraftRegularPR = async (prBody: string, nextVersion: string): Promis
 
 const createDraftHotfixPR = async (): Promise<void> => {
   const currentBranch = await git().revparse(['--abbrev-ref', 'HEAD'])
-  const { messages } = await getCommits(currentBranch as GetCommitMessagesArgs)
-  // TODO(0xdef1cafe): parse version bump from commit messages
-  const nextVersion = await getNextReleaseVersion('minor')
+  const { messages } = await getCommits({ branch: currentBranch, isHotfix: true })
+  const nextVersion = await getNextReleaseVersion('patch')
   console.log(chalk.green('Creating draft hotfix PR...'))
   await createDraftPR(`chore: hotfix release ${nextVersion}`, messages.join('\n'))
   console.log(chalk.green('Draft hotfix PR created.'))
   exit(chalk.green(`Hotfix release ${nextVersion} created.`))
 }
 
-type GetCommitMessagesArgs = 'develop' | 'release'
-type GetCommitMessagesReturn = {
+type GetCommitsArgs = {
+  branch: string
+  isHotfix?: boolean
+}
+type GetCommitsReturn = {
   messages: string[]
   total: number
 }
-type GetCommitMessages = (branch: GetCommitMessagesArgs) => Promise<GetCommitMessagesReturn>
-const getCommits: GetCommitMessages = async branch => {
-  // Get the last release tag
-  const latestTag = await getLatestSemverTag()
+const getCommits = async ({ branch, isHotfix }: GetCommitsArgs): Promise<GetCommitsReturn> => {
+  let range: string
 
-  // If we have a last release tag, base the diff on that
-  const range = latestTag ? `${latestTag}..origin/${branch}` : `origin/main..origin/${branch}`
+  if (isHotfix) {
+    // For hotfixes, only include commits that are on the branch but not on main
+    range = `origin/main..origin/${branch}`
+  } else {
+    // For regular releases, include all commits since the last tag
+    const latestTag = await getLatestSemverTag()
+    range = latestTag ? `${latestTag}..origin/${branch}` : `origin/main..origin/${branch}`
+  }
 
   const { all, total } = await git().log([
     '--oneline',
@@ -298,7 +304,7 @@ const assertCommitsToRelease = (total: number) => {
 }
 
 const doRegularRelease = async () => {
-  const { messages, total } = await getCommits('develop')
+  const { messages, total } = await getCommits({ branch: 'develop' })
   assertCommitsToRelease(total)
 
   const nextVersion = await getNextReleaseVersion('minor')
@@ -370,13 +376,43 @@ const doHotfixRelease = async () => {
     )
   }
 
-  // Dev has confirmed they're clean off main, here goes nothing
+  // Dev has confirmed they're clean off main, now verify programmatically
   await fetch()
+
+  try {
+    await pify(exec)('git merge-base --is-ancestor origin/main HEAD')
+  } catch {
+    exit(
+      chalk.red(
+        'Your branch does not appear to be based on origin/main. Please rebase or branch off origin/main before proceeding.',
+      ),
+    )
+  }
+
+  // Check that HEAD is not also an ancestor of origin/develop (which would mean
+  // the branch contains develop history beyond what's on main)
+  const mergeBaseResult = (await pify(exec)('git merge-base origin/main HEAD')) as {
+    stdout: string
+  }
+  const mergeBaseMain = mergeBaseResult.stdout.trim()
+  const mainRefResult = (await pify(exec)('git rev-parse origin/main')) as { stdout: string }
+  const mainSha = mainRefResult.stdout.trim()
+  if (mergeBaseMain !== mainSha) {
+    exit(
+      chalk.red(
+        `Your branch diverged from origin/main (merge-base: ${mergeBaseMain.slice(
+          0,
+          8,
+        )}, origin/main: ${mainSha.slice(0, 8)}). ` +
+          'Please ensure your hotfix branch is based directly on origin/main.',
+      ),
+    )
+  }
 
   // Force push current branch upstream so we can getCommits from it - getCommits uses upstream for diffing
   console.log(chalk.green(`Force pushing ${currentBranch} branch...`))
   await git().push(['-u', 'origin', currentBranch, '--force'])
-  const { messages, total } = await getCommits(currentBranch as GetCommitMessagesArgs)
+  const { messages, total } = await getCommits({ branch: currentBranch, isHotfix: true })
   assertCommitsToRelease(total)
   await inquireProceedWithCommits(messages, 'create')
 
@@ -422,7 +458,7 @@ const assertGhAuth = async () => {
 }
 
 const isReleaseInProgress = async (): Promise<boolean> => {
-  const { total } = await getCommits('release')
+  const { total } = await getCommits({ branch: 'release' })
   return Boolean(total)
 }
 
@@ -430,10 +466,43 @@ const createRelease = async () => {
   ;(await inquireReleaseType()) === 'Regular' ? await doRegularRelease() : doHotfixRelease()
 }
 
+const detectIsHotfixRelease = async (): Promise<boolean> => {
+  try {
+    const { stdout } = (await pify(exec)(
+      'gh pr list --base main --head release --state open --json title --jq ".[0].title"',
+    )) as { stdout: string }
+    const title = stdout.trim()
+    if (title.startsWith('chore: hotfix release')) return true
+    if (title.startsWith('chore: release')) return false
+  } catch {
+    // gh lookup failed, fall through to commit-count heuristic
+  }
+
+  // Fallback: check if there's a closed/merged PR with "hotfix" in the title
+  try {
+    const { stdout } = (await pify(exec)(
+      'gh pr list --base main --head release --state merged --json title --jq ".[0].title"',
+    )) as { stdout: string }
+    const title = stdout.trim()
+    if (title.startsWith('chore: hotfix release')) return true
+  } catch {
+    // fall through
+  }
+
+  return false
+}
+
 const mergeRelease = async () => {
-  const { messages, total } = await getCommits('release')
+  const { messages, total } = await getCommits({ branch: 'release' })
   assertCommitsToRelease(total)
   await inquireProceedWithCommits(messages, 'merge')
+
+  const isHotfix = await detectIsHotfixRelease()
+  const versionBump: WebReleaseType = isHotfix ? 'patch' : 'minor'
+  if (isHotfix) {
+    console.log(chalk.green('Detected hotfix release - using patch version bump.'))
+  }
+
   console.log(chalk.green('Checking out release...'))
   await git().checkout(['release'])
   console.log(chalk.green('Pulling release...'))
@@ -444,7 +513,7 @@ const mergeRelease = async () => {
   await git().pull()
   console.log(chalk.green('Merging release...'))
   await git().merge(['release'])
-  const nextVersion = await getNextReleaseVersion('minor')
+  const nextVersion = await getNextReleaseVersion(versionBump)
   console.log(chalk.green(`Tagging main with version ${nextVersion}`))
   await git().tag(['-a', nextVersion, '-m', nextVersion])
   console.log(chalk.green('Pushing main...'))

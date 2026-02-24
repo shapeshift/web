@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { assign, setup } from 'xstate'
+import { assertEvent, assign, setup } from 'xstate'
 
 export type DepositStep =
   | 'approving_flip'
@@ -39,19 +39,28 @@ type DepositMachineContext = {
 
 export type DepositMachineInput = {
   assetId: AssetId
-  depositAmountCryptoPrecision: string
-  depositAmountCryptoBaseUnit: string
-  refundAddress: string
-  flipAllowanceCryptoBaseUnit: string
-  flipFundingAmountCryptoBaseUnit: string
-  isFunded: boolean
-  isLpRegistered: boolean
-  hasRefundAddress: boolean
-  initialFreeBalanceCryptoBaseUnit: string
 }
 
 type DepositMachineEvent =
-  | { type: 'START' }
+  | { type: 'SET_AMOUNT'; amount: string }
+  | { type: 'SUBMIT_INPUT' }
+  | { type: 'SET_REFUND_ADDRESS'; address: string }
+  | { type: 'SUBMIT_REFUND_ADDRESS' }
+  | { type: 'BACK' }
+  | {
+      type: 'SYNC_ACCOUNT_STATE'
+      isFunded: boolean
+      isLpRegistered: boolean
+      hasRefundAddress: boolean
+    }
+  | {
+      type: 'START'
+      depositAmountCryptoBaseUnit: string
+      refundAddress: string
+      flipAllowanceCryptoBaseUnit: string
+      flipFundingAmountCryptoBaseUnit: string
+      initialFreeBalanceCryptoBaseUnit: string
+    }
   | { type: 'APPROVAL_BROADCASTED'; txHash: string }
   | { type: 'APPROVAL_SUCCESS' }
   | { type: 'APPROVAL_ERROR'; error: string }
@@ -73,13 +82,14 @@ type DepositMachineEvent =
   | { type: 'CONFIRMED' }
   | { type: 'CONFIRMATION_ERROR'; error: string }
   | { type: 'RETRY' }
-  | { type: 'RESET' }
+  | { type: 'DONE' }
 
 export const depositMachine = setup({
   types: {
     context: {} as DepositMachineContext,
     events: {} as DepositMachineEvent,
     input: {} as DepositMachineInput,
+    tags: {} as 'executing',
   },
   guards: {
     needsApproval: ({ context }) =>
@@ -91,86 +101,190 @@ export const depositMachine = setup({
     needsRefundAddress: ({ context }) => !context.hasRefundAddress,
   },
   actions: {
+    assignAmount: assign({
+      depositAmountCryptoPrecision: ({ event }) => {
+        assertEvent(event, 'SET_AMOUNT')
+        return event.amount
+      },
+    }),
+    assignRefundAddress: assign({
+      refundAddress: ({ event }) => {
+        assertEvent(event, 'SET_REFUND_ADDRESS')
+        return event.address
+      },
+    }),
+    syncAccountState: assign({
+      isFunded: ({ event }) => {
+        assertEvent(event, 'SYNC_ACCOUNT_STATE')
+        return event.isFunded
+      },
+      isLpRegistered: ({ event }) => {
+        assertEvent(event, 'SYNC_ACCOUNT_STATE')
+        return event.isLpRegistered
+      },
+      hasRefundAddress: ({ event }) => {
+        assertEvent(event, 'SYNC_ACCOUNT_STATE')
+        return event.hasRefundAddress
+      },
+    }),
+    assignStartDeps: assign({
+      depositAmountCryptoBaseUnit: ({ event }) => {
+        assertEvent(event, 'START')
+        return event.depositAmountCryptoBaseUnit
+      },
+      refundAddress: ({ context, event }) => {
+        assertEvent(event, 'START')
+        return event.refundAddress || context.refundAddress
+      },
+      flipAllowanceCryptoBaseUnit: ({ event }) => {
+        assertEvent(event, 'START')
+        return event.flipAllowanceCryptoBaseUnit
+      },
+      flipFundingAmountCryptoBaseUnit: ({ event }) => {
+        assertEvent(event, 'START')
+        return event.flipFundingAmountCryptoBaseUnit
+      },
+      initialFreeBalanceCryptoBaseUnit: ({ event }) => {
+        assertEvent(event, 'START')
+        return event.initialFreeBalanceCryptoBaseUnit
+      },
+    }),
+    resetForNewDeposit: assign({
+      depositAmountCryptoPrecision: '',
+      depositAmountCryptoBaseUnit: '0',
+      depositAddress: '',
+      lastUsedNonce: undefined,
+      txHashes: {},
+      error: null,
+      errorStep: null,
+    }),
     assignApprovalTx: assign({
-      txHashes: ({ context, event }) => ({
-        ...context.txHashes,
-        approval: (event as { txHash: string }).txHash,
-      }),
+      txHashes: ({ context, event }) => {
+        assertEvent(event, 'APPROVAL_BROADCASTED')
+        return { ...context.txHashes, approval: event.txHash }
+      },
     }),
     assignFundingTx: assign({
-      txHashes: ({ context, event }) => ({
-        ...context.txHashes,
-        funding: (event as { txHash: string }).txHash,
-      }),
+      txHashes: ({ context, event }) => {
+        assertEvent(event, 'FUNDING_BROADCASTED')
+        return { ...context.txHashes, funding: event.txHash }
+      },
     }),
     assignRegistrationTx: assign({
-      txHashes: ({ context, event }) => ({
-        ...context.txHashes,
-        registration: (event as { txHash: string }).txHash,
-      }),
-      lastUsedNonce: ({ event }) => (event as { nonce: number }).nonce,
+      txHashes: ({ context, event }) => {
+        assertEvent(event, 'REGISTRATION_BROADCASTED')
+        return { ...context.txHashes, registration: event.txHash }
+      },
+      lastUsedNonce: ({ event }) => {
+        assertEvent(event, 'REGISTRATION_BROADCASTED')
+        return event.nonce
+      },
     }),
     assignRefundAddressTx: assign({
-      txHashes: ({ context, event }) => ({
-        ...context.txHashes,
-        refundAddress: (event as { txHash: string }).txHash,
-      }),
-      lastUsedNonce: ({ event }) => (event as { nonce: number }).nonce,
+      txHashes: ({ context, event }) => {
+        assertEvent(event, 'REFUND_ADDRESS_BROADCASTED')
+        return { ...context.txHashes, refundAddress: event.txHash }
+      },
+      lastUsedNonce: ({ event }) => {
+        assertEvent(event, 'REFUND_ADDRESS_BROADCASTED')
+        return event.nonce
+      },
     }),
     assignChannelTx: assign({
-      txHashes: ({ context, event }) => ({
-        ...context.txHashes,
-        channel: (event as { txHash: string }).txHash,
-      }),
-      lastUsedNonce: ({ event }) => (event as { nonce: number }).nonce,
+      txHashes: ({ context, event }) => {
+        assertEvent(event, 'CHANNEL_BROADCASTED')
+        return { ...context.txHashes, channel: event.txHash }
+      },
+      lastUsedNonce: ({ event }) => {
+        assertEvent(event, 'CHANNEL_BROADCASTED')
+        return event.nonce
+      },
     }),
     assignDepositAddress: assign({
-      depositAddress: ({ event }) =>
-        (event as { type: 'CHANNEL_SUCCESS'; depositAddress: string }).depositAddress,
+      depositAddress: ({ event }) => {
+        assertEvent(event, 'CHANNEL_SUCCESS')
+        return event.depositAddress
+      },
     }),
     assignSendTx: assign({
-      txHashes: ({ context, event }) => ({
-        ...context.txHashes,
-        deposit: (event as { txHash: string }).txHash,
-      }),
+      txHashes: ({ context, event }) => {
+        assertEvent(event, 'SEND_BROADCASTED')
+        return { ...context.txHashes, deposit: event.txHash }
+      },
     }),
     markFunded: assign({ isFunded: true }),
     markRegistered: assign({ isLpRegistered: true }),
     markRefundAddressSet: assign({ hasRefundAddress: true }),
     assignError: assign({
       error: ({ event }) => {
-        if ('error' in event) return (event as { error: string }).error
-        return 'Unknown error'
+        assertEvent(event, [
+          'APPROVAL_ERROR',
+          'FUNDING_ERROR',
+          'REGISTRATION_ERROR',
+          'REFUND_ADDRESS_ERROR',
+          'CHANNEL_ERROR',
+          'SEND_ERROR',
+          'CONFIRMATION_ERROR',
+        ])
+        return event.error
       },
     }),
     clearError: assign({ error: null, errorStep: null }),
   },
 }).createMachine({
   id: 'deposit',
-  initial: 'idle',
+  initial: 'input',
   context: ({ input }) => ({
     assetId: input.assetId,
-    depositAmountCryptoPrecision: input.depositAmountCryptoPrecision,
-    depositAmountCryptoBaseUnit: input.depositAmountCryptoBaseUnit,
+    depositAmountCryptoPrecision: '',
+    depositAmountCryptoBaseUnit: '0',
     depositAddress: '',
-    refundAddress: input.refundAddress,
-    flipAllowanceCryptoBaseUnit: input.flipAllowanceCryptoBaseUnit,
-    flipFundingAmountCryptoBaseUnit: input.flipFundingAmountCryptoBaseUnit,
-    isFunded: input.isFunded,
-    isLpRegistered: input.isLpRegistered,
-    hasRefundAddress: input.hasRefundAddress,
-    initialFreeBalanceCryptoBaseUnit: input.initialFreeBalanceCryptoBaseUnit,
+    refundAddress: '',
+    flipAllowanceCryptoBaseUnit: '0',
+    flipFundingAmountCryptoBaseUnit: '0',
+    isFunded: false,
+    isLpRegistered: false,
+    hasRefundAddress: false,
+    initialFreeBalanceCryptoBaseUnit: '0',
     lastUsedNonce: undefined,
     txHashes: {},
     error: null,
     errorStep: null,
   }),
+  on: {
+    SYNC_ACCOUNT_STATE: { actions: 'syncAccountState' },
+  },
   states: {
-    idle: {
-      on: { START: 'checking_account' },
+    input: {
+      on: {
+        SET_AMOUNT: { actions: 'assignAmount' },
+        SUBMIT_INPUT: [
+          { target: 'refund_address_input', guard: 'needsRefundAddress' },
+          { target: 'confirm' },
+        ],
+      },
+    },
+
+    refund_address_input: {
+      on: {
+        SET_REFUND_ADDRESS: { actions: 'assignRefundAddress' },
+        SUBMIT_REFUND_ADDRESS: 'confirm',
+        BACK: 'input',
+      },
+    },
+
+    confirm: {
+      on: {
+        START: {
+          target: 'checking_account',
+          actions: 'assignStartDeps',
+        },
+        BACK: 'input',
+      },
     },
 
     checking_account: {
+      tags: ['executing'],
       always: [
         { target: 'approving_flip', guard: 'needsApproval' },
         { target: 'funding_account', guard: 'needsFunding' },
@@ -181,6 +295,7 @@ export const depositMachine = setup({
     },
 
     approving_flip: {
+      tags: ['executing'],
       on: {
         APPROVAL_BROADCASTED: { actions: 'assignApprovalTx' },
         APPROVAL_SUCCESS: { target: 'funding_account' },
@@ -192,6 +307,7 @@ export const depositMachine = setup({
     },
 
     funding_account: {
+      tags: ['executing'],
       on: {
         FUNDING_BROADCASTED: { actions: 'assignFundingTx' },
         FUNDING_SUCCESS: [
@@ -218,6 +334,7 @@ export const depositMachine = setup({
     },
 
     registering: {
+      tags: ['executing'],
       on: {
         REGISTRATION_BROADCASTED: { actions: 'assignRegistrationTx' },
         REGISTRATION_SUCCESS: [
@@ -239,6 +356,7 @@ export const depositMachine = setup({
     },
 
     setting_refund_address: {
+      tags: ['executing'],
       on: {
         REFUND_ADDRESS_BROADCASTED: { actions: 'assignRefundAddressTx' },
         REFUND_ADDRESS_SUCCESS: {
@@ -253,6 +371,7 @@ export const depositMachine = setup({
     },
 
     opening_channel: {
+      tags: ['executing'],
       on: {
         CHANNEL_BROADCASTED: { actions: 'assignChannelTx' },
         CHANNEL_SUCCESS: {
@@ -267,6 +386,7 @@ export const depositMachine = setup({
     },
 
     sending_deposit: {
+      tags: ['executing'],
       on: {
         SEND_BROADCASTED: { actions: 'assignSendTx' },
         SEND_SUCCESS: { target: 'confirming' },
@@ -278,6 +398,7 @@ export const depositMachine = setup({
     },
 
     confirming: {
+      tags: ['executing'],
       on: {
         CONFIRMED: 'success',
         CONFIRMATION_ERROR: {
@@ -288,7 +409,9 @@ export const depositMachine = setup({
     },
 
     success: {
-      type: 'final',
+      on: {
+        DONE: { target: 'input', actions: 'resetForNewDeposit' },
+      },
     },
 
     error: {
@@ -330,7 +453,7 @@ export const depositMachine = setup({
             actions: 'clearError',
           },
         ],
-        RESET: 'idle',
+        BACK: { target: 'input', actions: 'clearError' },
       },
     },
   },

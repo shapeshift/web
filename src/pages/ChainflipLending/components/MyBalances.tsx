@@ -1,6 +1,7 @@
 import type { GridProps } from '@chakra-ui/react'
 import { Button, Center, Flex, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -19,6 +20,7 @@ import type { ChainflipFreeBalanceWithFiat } from '@/pages/ChainflipLending/hook
 import { useChainflipFreeBalances } from '@/pages/ChainflipLending/hooks/useChainflipFreeBalances'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectPortfolioCryptoBalanceByFilter } from '@/state/slices/common-selectors'
+import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
 const balanceRowGrid: GridProps['gridTemplateColumns'] = {
@@ -34,16 +36,27 @@ const LENDING_ASSET_IDS = Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as As
 
 type BalanceRowProps = {
   assetId: AssetId
-  accountId: string | undefined
+  accountNumber: number
   freeBalance: ChainflipFreeBalanceWithFiat | undefined
   onDeposit: (assetId: AssetId) => void
 }
 
-const BalanceRow = ({ assetId, accountId, freeBalance, onDeposit }: BalanceRowProps) => {
+const BalanceRow = ({ assetId, accountNumber, freeBalance, onDeposit }: BalanceRowProps) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const accountIdsByAccountNumberAndChainId = useAppSelector(
+    selectAccountIdsByAccountNumberAndChainId,
+  )
+
+  const chainId = useMemo(() => fromAssetId(assetId).chainId, [assetId])
+
+  // TODO: handle case where no matching account exists for pool asset chain
+  const poolChainAccountId = useMemo(() => {
+    const byChainId = accountIdsByAccountNumberAndChainId[accountNumber]
+    return byChainId?.[chainId]?.[0]
+  }, [accountIdsByAccountNumberAndChainId, accountNumber, chainId])
 
   const walletBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId }),
+    selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId: poolChainAccountId }),
   )
 
   const walletBalancePrecision = useMemo(() => walletBalance.toPrecision(), [walletBalance])
@@ -90,7 +103,7 @@ export const MyBalances = () => {
   const translate = useTranslate()
   const navigate = useNavigate()
   const { dispatch: walletDispatch } = useWallet()
-  const { accountId } = useChainflipLendingAccount()
+  const { accountId, accountNumber } = useChainflipLendingAccount()
   const { freeBalances, isLoading } = useChainflipFreeBalances()
 
   const handleDeposit = useCallback(
@@ -139,12 +152,20 @@ export const MyBalances = () => {
       <BalanceRow
         key={assetId}
         assetId={assetId}
-        accountId={accountId}
+        accountNumber={accountNumber}
         freeBalance={freeBalancesByAssetId[assetId]}
         onDeposit={handleDeposit}
       />
     ))
-  }, [accountId, isLoading, freeBalancesByAssetId, handleDeposit, handleConnectWallet, translate])
+  }, [
+    accountId,
+    accountNumber,
+    isLoading,
+    freeBalancesByAssetId,
+    handleDeposit,
+    handleConnectWallet,
+    translate,
+  ])
 
   return (
     <Main headerComponent={headerComponent} isSubPage>

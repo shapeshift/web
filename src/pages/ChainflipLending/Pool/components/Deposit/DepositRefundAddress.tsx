@@ -14,9 +14,8 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
 
-import { DepositRoutePaths } from './types'
+import { DepositMachineCtx } from './DepositMachineContext'
 
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
@@ -27,6 +26,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { validateAddress } from '@/lib/address/validation'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
+import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
 import { selectAccountIdsByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -35,27 +35,31 @@ const buttonProps = { width: 'full', variant: 'solid', height: '40px', px: 4 }
 
 type DepositRefundAddressProps = {
   assetId: AssetId
-  refundAddress: string
-  setRefundAddress: (address: string) => void
 }
 
 type AddressFormValues = {
   manualAddress: string
 }
 
-export const DepositRefundAddress = ({
-  assetId,
-  refundAddress,
-  setRefundAddress,
-}: DepositRefundAddressProps) => {
+export const DepositRefundAddress = ({ assetId }: DepositRefundAddressProps) => {
   const translate = useTranslate()
-  const navigate = useNavigate()
   const { wallet } = useWallet().state
   const { isSnapInstalled } = useIsSnapInstalled()
-  const { accountId } = useChainflipLendingAccount()
+  const { accountNumber } = useChainflipLendingAccount()
   const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
+  const accountIdsByAccountNumberAndChainId = useAppSelector(
+    selectAccountIdsByAccountNumberAndChainId,
+  )
+
+  const actorRef = DepositMachineCtx.useActorRef()
+  const refundAddress = DepositMachineCtx.useSelector(s => s.context.refundAddress)
 
   const chainId = useMemo(() => fromAssetId(assetId).chainId, [assetId])
+
+  const poolChainAccountId = useMemo(() => {
+    const byChainId = accountIdsByAccountNumberAndChainId[accountNumber]
+    return byChainId?.[chainId]?.[0]
+  }, [accountIdsByAccountNumberAndChainId, accountNumber, chainId])
 
   const walletSupportsAssetChain = useMemo(() => {
     const chainAccountIds = accountIdsByChainId[chainId] ?? []
@@ -67,7 +71,9 @@ export const DepositRefundAddress = ({
     })
   }, [accountIdsByChainId, chainId, wallet, isSnapInstalled])
 
-  const [defaultAccountId, setDefaultAccountId] = useState<AccountId | undefined>(accountId)
+  const [defaultAccountId, setDefaultAccountId] = useState<AccountId | undefined>(
+    poolChainAccountId,
+  )
   const [isCustomAddress, setIsCustomAddress] = useState(false)
 
   const methods = useForm<AddressFormValues>({
@@ -88,45 +94,45 @@ export const DepositRefundAddress = ({
   }, [walletSupportsAssetChain])
 
   useEffect(() => {
-    if (!isCustomAddress && accountId && !refundAddress) {
-      const address = fromAccountId(accountId).account
-      setRefundAddress(address)
+    if (!isCustomAddress && poolChainAccountId && !refundAddress) {
+      const address = fromAccountId(poolChainAccountId).account
+      actorRef.send({ type: 'SET_REFUND_ADDRESS', address })
     }
-  }, [isCustomAddress, accountId, refundAddress, setRefundAddress])
+  }, [isCustomAddress, poolChainAccountId, refundAddress, actorRef])
 
   const handleAccountChange = useCallback(
     (newAccountId: string) => {
       const address = fromAccountId(newAccountId).account
       setDefaultAccountId(newAccountId)
-      setRefundAddress(address)
+      actorRef.send({ type: 'SET_REFUND_ADDRESS', address })
     },
-    [setRefundAddress],
+    [actorRef],
   )
 
   const handleToggleCustomAddress = useCallback(() => {
     if (!walletSupportsAssetChain) return
-    setRefundAddress('')
+    actorRef.send({ type: 'SET_REFUND_ADDRESS', address: '' })
     setIsCustomAddress(prev => !prev)
-  }, [walletSupportsAssetChain, setRefundAddress])
+  }, [walletSupportsAssetChain, actorRef])
 
   const validateChainAddress = useCallback(
     async (address: string) => {
       if (!address) {
-        setRefundAddress('')
+        actorRef.send({ type: 'SET_REFUND_ADDRESS', address: '' })
         return true
       }
 
       const isValid = await validateAddress({ maybeAddress: address, chainId })
 
       if (!isValid) {
-        setRefundAddress('')
+        actorRef.send({ type: 'SET_REFUND_ADDRESS', address: '' })
         return translate('common.invalidAddress')
       }
 
-      setRefundAddress(address)
+      actorRef.send({ type: 'SET_REFUND_ADDRESS', address })
       return true
     },
-    [chainId, setRefundAddress, translate],
+    [chainId, actorRef, translate],
   )
 
   const handleManualInputChange = useCallback(
@@ -139,12 +145,12 @@ export const DepositRefundAddress = ({
   )
 
   const handleContinue = useCallback(() => {
-    navigate(DepositRoutePaths.Confirm)
-  }, [navigate])
+    actorRef.send({ type: 'SUBMIT_REFUND_ADDRESS' })
+  }, [actorRef])
 
   const handleBack = useCallback(() => {
-    navigate(DepositRoutePaths.Input)
-  }, [navigate])
+    actorRef.send({ type: 'BACK' })
+  }, [actorRef])
 
   const isDisabled = !refundAddress
 

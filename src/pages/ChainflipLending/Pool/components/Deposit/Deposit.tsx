@@ -1,10 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { lazy, memo, Suspense, useCallback, useMemo, useState } from 'react'
-import { MemoryRouter, useLocation } from 'react-router-dom'
-import { Route, Switch } from 'wouter'
+import { lazy, memo, Suspense, useEffect, useMemo } from 'react'
 
-import { DepositRoutePaths } from './types'
+import { DepositMachineCtx } from './DepositMachineContext'
+
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { useChainflipAccount } from '@/pages/ChainflipLending/hooks/useChainflipAccount'
 
 const DepositInput = lazy(() =>
   import('./DepositInput').then(({ DepositInput }) => ({ default: DepositInput })),
@@ -18,111 +19,68 @@ const DepositConfirm = lazy(() =>
   import('./DepositConfirm').then(({ DepositConfirm }) => ({ default: DepositConfirm })),
 )
 
-const DepositEntries = [
-  DepositRoutePaths.Input,
-  DepositRoutePaths.RefundAddress,
-  DepositRoutePaths.Confirm,
-]
-
-const suspenseFallback = <div>Loading...</div>
+const suspenseFallback = <CircularProgress />
 
 type DepositProps = {
   assetId: AssetId
 }
 
-export const Deposit = ({ assetId }: DepositProps) => {
-  const [depositAmountCryptoPrecision, setDepositAmountCryptoPrecision] = useState<string>('')
-  const [refundAddress, setRefundAddress] = useState<string>('')
+const machineInput = (assetId: AssetId) => ({ assetId })
 
-  const handleReset = useCallback(() => {
-    setDepositAmountCryptoPrecision('')
-    setRefundAddress('')
-  }, [])
+export const Deposit = memo(({ assetId }: DepositProps) => {
+  const input = useMemo(() => machineInput(assetId), [assetId])
 
   return (
-    <MemoryRouter initialEntries={DepositEntries} initialIndex={0}>
-      <DepositRoutes
-        assetId={assetId}
-        depositAmountCryptoPrecision={depositAmountCryptoPrecision}
-        setDepositAmountCryptoPrecision={setDepositAmountCryptoPrecision}
-        refundAddress={refundAddress}
-        setRefundAddress={setRefundAddress}
-        onReset={handleReset}
-      />
-    </MemoryRouter>
+    <DepositMachineCtx.Provider options={{ input }}>
+      <DepositContent assetId={assetId} />
+    </DepositMachineCtx.Provider>
   )
+})
+
+const DepositContent = memo(({ assetId }: { assetId: AssetId }) => {
+  const isInput = DepositMachineCtx.useSelector(s => s.matches('input'))
+  const isRefundAddress = DepositMachineCtx.useSelector(s => s.matches('refund_address_input'))
+  const isExecuting = DepositMachineCtx.useSelector(s => s.hasTag('executing'))
+  const isConfirm = DepositMachineCtx.useSelector(s => s.matches('confirm'))
+  const isSuccess = DepositMachineCtx.useSelector(s => s.matches('success'))
+  const isError = DepositMachineCtx.useSelector(s => s.matches('error'))
+
+  useAccountStateSync()
+
+  const page = useMemo(() => {
+    if (isInput) return 'input' as const
+    if (isRefundAddress) return 'refund_address_input' as const
+    if (isConfirm) return 'confirm' as const
+    if (isExecuting) return 'executing' as const
+    if (isSuccess) return 'success' as const
+    if (isError) return 'error' as const
+    return 'input' as const
+  }, [isInput, isRefundAddress, isConfirm, isExecuting, isSuccess, isError])
+
+  return (
+    <AnimatePresence mode='wait' initial={false}>
+      <Suspense fallback={suspenseFallback}>
+        {page === 'input' && <DepositInput assetId={assetId} />}
+        {page === 'refund_address_input' && <DepositRefundAddress assetId={assetId} />}
+        {(page === 'confirm' || page === 'executing' || page === 'success' || page === 'error') && (
+          <DepositConfirm assetId={assetId} />
+        )}
+      </Suspense>
+    </AnimatePresence>
+  )
+})
+
+const useAccountStateSync = () => {
+  const actorRef = DepositMachineCtx.useActorRef()
+  const { isFunded, isLpRegistered, hasRefundAddress, isLoading } = useChainflipAccount()
+
+  useEffect(() => {
+    if (isLoading) return
+    actorRef.send({
+      type: 'SYNC_ACCOUNT_STATE',
+      isFunded,
+      isLpRegistered,
+      hasRefundAddress,
+    })
+  }, [actorRef, isFunded, isLpRegistered, hasRefundAddress, isLoading])
 }
-
-type DepositRoutesProps = {
-  assetId: AssetId
-  depositAmountCryptoPrecision: string
-  setDepositAmountCryptoPrecision: (amount: string) => void
-  refundAddress: string
-  setRefundAddress: (address: string) => void
-  onReset: () => void
-}
-
-const DepositRoutes = memo(
-  ({
-    assetId,
-    depositAmountCryptoPrecision,
-    setDepositAmountCryptoPrecision,
-    refundAddress,
-    setRefundAddress,
-    onReset,
-  }: DepositRoutesProps) => {
-    const location = useLocation()
-
-    const depositInput = useMemo(
-      () => (
-        <DepositInput
-          assetId={assetId}
-          depositAmountCryptoPrecision={depositAmountCryptoPrecision}
-          setDepositAmountCryptoPrecision={setDepositAmountCryptoPrecision}
-        />
-      ),
-      [assetId, depositAmountCryptoPrecision, setDepositAmountCryptoPrecision],
-    )
-
-    const depositRefundAddress = useMemo(
-      () => (
-        <DepositRefundAddress
-          assetId={assetId}
-          refundAddress={refundAddress}
-          setRefundAddress={setRefundAddress}
-        />
-      ),
-      [assetId, refundAddress, setRefundAddress],
-    )
-
-    const depositConfirm = useMemo(
-      () => (
-        <DepositConfirm
-          assetId={assetId}
-          depositAmountCryptoPrecision={depositAmountCryptoPrecision}
-          refundAddress={refundAddress}
-          onReset={onReset}
-        />
-      ),
-      [assetId, depositAmountCryptoPrecision, refundAddress, onReset],
-    )
-
-    return (
-      <AnimatePresence mode='wait' initial={false}>
-        <Suspense fallback={suspenseFallback}>
-          <Switch location={location.pathname}>
-            <Route key={DepositRoutePaths.Input} path={DepositRoutePaths.Input}>
-              {depositInput}
-            </Route>
-            <Route key={DepositRoutePaths.RefundAddress} path={DepositRoutePaths.RefundAddress}>
-              {depositRefundAddress}
-            </Route>
-            <Route key={DepositRoutePaths.Confirm} path={DepositRoutePaths.Confirm}>
-              {depositConfirm}
-            </Route>
-          </Switch>
-        </Suspense>
-      </AnimatePresence>
-    )
-  },
-)

@@ -6,9 +6,8 @@ import { useCallback, useMemo } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import { NumericFormat } from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
 
-import { DepositRoutePaths } from './types'
+import { DepositMachineCtx } from './DepositMachineContext'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -24,23 +23,21 @@ import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { useChainflipAccount } from '@/pages/ChainflipLending/hooks/useChainflipAccount'
 import { useChainflipMinimumDeposit } from '@/pages/ChainflipLending/hooks/useChainflipMinimumDeposit'
+import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectAssetById, selectPortfolioCryptoBalanceByFilter } from '@/state/slices/selectors'
+import {
+  selectAssetById,
+  selectPortfolioCryptoBalanceByFilter,
+  selectPortfolioLoadingStatus,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type DepositInputProps = {
   assetId: AssetId
-  depositAmountCryptoPrecision: string
-  setDepositAmountCryptoPrecision: (amount: string) => void
 }
 
-export const DepositInput = ({
-  assetId,
-  depositAmountCryptoPrecision,
-  setDepositAmountCryptoPrecision,
-}: DepositInputProps) => {
+export const DepositInput = ({ assetId }: DepositInputProps) => {
   const translate = useTranslate()
-  const navigate = useNavigate()
   const wallet = useWallet().state.wallet
   const walletSupportsEth = useWalletSupportsChain(ethChainId, wallet)
   const {
@@ -48,14 +45,28 @@ export const DepositInput = ({
   } = useLocaleFormatter()
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const { accountId } = useChainflipLendingAccount()
+  const portfolioLoadingStatus = useAppSelector(selectPortfolioLoadingStatus)
+  const { accountNumber } = useChainflipLendingAccount()
+  const accountIdsByAccountNumberAndChainId = useAppSelector(
+    selectAccountIdsByAccountNumberAndChainId,
+  )
+
+  const actorRef = DepositMachineCtx.useActorRef()
+  const depositAmountCryptoPrecision = DepositMachineCtx.useSelector(
+    s => s.context.depositAmountCryptoPrecision,
+  )
 
   const chainId = useMemo(() => fromAssetId(assetId).chainId, [assetId])
   const walletSupportsAssetChain = useWalletSupportsChain(chainId, wallet)
 
+  const poolChainAccountId = useMemo(() => {
+    const byChainId = accountIdsByAccountNumberAndChainId[accountNumber]
+    return byChainId?.[chainId]?.[0]
+  }, [accountIdsByAccountNumberAndChainId, accountNumber, chainId])
+
   const balanceFilter = useMemo(
-    () => ({ assetId, accountId: accountId ?? '' }),
-    [assetId, accountId],
+    () => ({ assetId, accountId: poolChainAccountId ?? '' }),
+    [assetId, poolChainAccountId],
   )
   const balanceCryptoBaseUnit = useAppSelector(state =>
     selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
@@ -96,20 +107,20 @@ export const DepositInput = ({
 
   const handleInputChange = useCallback(
     (values: NumberFormatValues) => {
-      setDepositAmountCryptoPrecision(values.value)
+      actorRef.send({ type: 'SET_AMOUNT', amount: values.value })
     },
-    [setDepositAmountCryptoPrecision],
+    [actorRef],
   )
 
   const handleMaxClick = useCallback(() => {
-    setDepositAmountCryptoPrecision(availableCryptoPrecision)
-  }, [availableCryptoPrecision, setDepositAmountCryptoPrecision])
-
-  const { hasRefundAddress } = useChainflipAccount()
+    actorRef.send({ type: 'SET_AMOUNT', amount: availableCryptoPrecision })
+  }, [availableCryptoPrecision, actorRef])
 
   const handleSubmit = useCallback(() => {
-    navigate(hasRefundAddress ? DepositRoutePaths.Confirm : DepositRoutePaths.RefundAddress)
-  }, [navigate, hasRefundAddress])
+    actorRef.send({ type: 'SUBMIT_INPUT' })
+  }, [actorRef])
+
+  const isPortfolioLoaded = Boolean(poolChainAccountId) && portfolioLoadingStatus !== 'loading'
 
   const isValidWallet = useMemo(
     () => Boolean(walletSupportsEth && walletSupportsAssetChain),
@@ -170,7 +181,7 @@ export const DepositInput = ({
               {translate('chainflipLending.deposit.available')}
             </RawText>
             <Flex alignItems='center' gap={2}>
-              <Skeleton isLoaded={Boolean(accountId)}>
+              <Skeleton isLoaded={isPortfolioLoaded}>
                 <Amount.Crypto
                   value={availableCryptoPrecision}
                   symbol={asset.symbol}
@@ -178,7 +189,13 @@ export const DepositInput = ({
                   fontWeight='medium'
                 />
               </Skeleton>
-              <Button size='xs' variant='ghost' colorScheme='blue' onClick={handleMaxClick}>
+              <Button
+                size='xs'
+                variant='ghost'
+                colorScheme='blue'
+                onClick={handleMaxClick}
+                isDisabled={!isPortfolioLoaded}
+              >
                 {translate('modals.send.sendForm.max')}
               </Button>
             </Flex>

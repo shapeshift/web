@@ -1,5 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import React, { createContext, memo, useCallback, useContext, useMemo, useState } from 'react'
 
 import { ethAddressToScAccount } from '@/lib/chainflip/account'
@@ -27,10 +27,10 @@ export const ChainflipLendingAccountProvider: React.FC<{
     initialAccountId,
   )
 
-  const accountId = useMemo(
-    () => userSelectedAccountId ?? enabledWalletAccountIds[0],
-    [userSelectedAccountId, enabledWalletAccountIds],
-  )
+  const accountId = useMemo(() => {
+    if (userSelectedAccountId) return userSelectedAccountId
+    return enabledWalletAccountIds.find(id => fromAccountId(id).chainId === ethChainId)
+  }, [userSelectedAccountId, enabledWalletAccountIds])
 
   const accountNumber = useAppSelector(state => {
     if (!accountId) return 0

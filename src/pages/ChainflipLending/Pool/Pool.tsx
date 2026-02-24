@@ -1,6 +1,5 @@
 import type { ResponsiveValue } from '@chakra-ui/react'
 import {
-  Badge,
   Box,
   Button,
   Card,
@@ -14,7 +13,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { ethAssetId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -22,6 +21,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 
 import { Deposit } from './components/Deposit/Deposit'
 
+import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { Display } from '@/components/Display'
@@ -98,18 +98,12 @@ export const Pool = () => {
   const translate = useTranslate()
   const location = useLocation()
   const { dispatch: walletDispatch } = useWallet()
-  const { accountId } = useChainflipLendingAccount()
+  const { accountId, setAccountId } = useChainflipLendingAccount()
 
   const handleConnectWallet = useCallback(
     () => walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
     [walletDispatch],
   )
-
-  const addressBadgeText = useMemo(() => {
-    if (!accountId) return ''
-    const { account } = fromAccountId(accountId)
-    return `${account.slice(0, 6)}...${account.slice(-4)}`
-  }, [accountId])
 
   const poolAssetId = useMemo(() => {
     const [, ...rest] = location.pathname.split('/pool/')
@@ -245,9 +239,13 @@ export const Pool = () => {
                   {translate('chainflipLending.yourPosition')}
                 </Heading>
                 {accountId ? (
-                  <Badge variant='subtle' colorScheme='blue' borderRadius='full' px={2} py={0.5}>
-                    {addressBadgeText}
-                  </Badge>
+                  <AccountDropdown
+                    assetId={ethAssetId}
+                    onChange={setAccountId}
+                    defaultAccountId={accountId}
+                    autoSelectHighestBalance
+                    buttonProps={{ variant: 'ghost', size: 'sm' }}
+                  />
                 ) : null}
               </Flex>
               <VStack spacing={4} align='stretch'>

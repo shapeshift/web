@@ -110,3 +110,94 @@ sdk.lp.withdrawAsset({ wallet, asset, amount, destinationAddress })
 3. Is the `base_asset: "Btc"` format in oracle prices intentional, or will it align with `{ chain, asset }` used elsewhere?
 4. What's the timeline for a lending SDK?
 5. Will deposit channel events be surfable via RPC subscription, or do we need to poll?
+
+---
+
+## PR2 Learnings - Data Layer & Pool Display
+
+Integrating the read-side (pool data, balances, rates, minimums) for the lending UI surfaced a fresh batch of DX pain points.
+
+### Pain Points
+
+#### Hex encoding everywhere
+- Nearly all numeric values from RPC responses come as hex strings (`0x...`): balances, amounts, thresholds, rates, minimums.
+- Every value needs manual `BigInt(hexString).toString()` conversion, then precision division for human-readable amounts.
+- Different assets have different precisions (BTC=8, ETH=18, USDC/USDT=6, FLIP=18, DOT=10, SOL=9) and nothing in the RPC response tells you the precision. You just have to know.
+- **SDK ask**: Return human-readable decimal strings, or at minimum include precision metadata alongside values.
+
+#### Minimum deposit amounts are buried in `cf_environment`
+- `cf_environment` is a massive kitchen-sink response (contains everything from ingress/egress config to pool configs to governance params).
+- Minimum deposit amounts per asset live at `result.ingress_egress.minimum_deposit_amounts[chain][asset]` - deeply nested, hex-encoded base units.
+- You have to cross-reference the asset's precision to convert these to human-readable amounts.
+- No dedicated endpoint like `cf_minimum_deposit_amount(asset)` exists.
+- **SDK ask**: `sdk.lending.getMinimumDepositAmount(asset)` returning a human-readable string.
+
+#### Oracle prices use inconsistent asset identifiers
+- `cf_oracle_prices` returns `{ base_asset: "Btc", quote_asset: "Usd", price_status: "UpToDate" }` using plain string identifiers.
+- Every other RPC endpoint uses structured `{ chain: "Bitcoin", asset: "BTC" }` objects for asset identification.
+- Mapping between the two formats is manual and brittle - if CF adds a new asset, the mapping breaks silently.
+- **SDK ask**: Consistent asset identifiers across all endpoints, or at minimum a canonical mapping function.
+
+#### Interest rates are Perbill/Permill (undocumented which is which)
+- `current_interest_rate` fields use Substrate's Perbill (parts per billion, divide by 1e9) or Permill (parts per million, divide by 1e6).
+- Nothing in the response or docs tells you which scale a given rate uses. Had to figure it out by looking at live values and sanity-checking the resulting percentages.
+- Some rates are per-block, others annualized - also undocumented.
+- **SDK ask**: Normalize all rates to percentage or decimal. Include `rateType: "annual" | "perBlock"` metadata.
+
+#### `cf_lending_config` minimums are hex-encoded USD with implicit precision
+- `minimum_supply_amount_usd` is a hex string representing USD with 6 decimal precision (same as USDC).
+- Nothing in the response indicates the precision or denomination. You only discover the "6 decimals" part by checking live values against pool UIs.
+- **SDK ask**: Return decoded USD amounts as decimal strings, or document the precision.
+
+#### Free balances require manual asset mapping
+- `cf_free_balances` returns per-asset balances as hex strings with `{ chain, asset }` identifiers (e.g., `{ chain: "Ethereum", asset: "USDC" }`).
+- Mapping these to external asset standards (CAIP-19, ShapeShift AssetIds) requires a hand-built mapping table.
+- **SDK ask**: Support CAIP-19 identifiers, or at minimum expose a `cfAssetToChainId(cfAsset)` mapping.
+
+#### No deposit channel endpoint for lending
+- Opening a deposit channel for lending requires `requestLiquidityDepositAddress` via SCALE encoding + EIP-712 signing - the full 6-step pipeline.
+- There's no simple REST or dedicated RPC endpoint. BaaS (Broker as a Service) doesn't expose lending deposit channel endpoints yet.
+- For the PoC we're building the full encode/sign/submit pipeline ourselves.
+- **SDK ask**: `sdk.lending.openDepositChannel({ asset, boostFee? })` that handles the full pipeline.
+
+#### Account derivation is non-trivial
+- Converting an ETH address to a State Chain account ID requires: left-pad 20 bytes to 32 bytes, blake2b hash for checksum, SS58 encode with network prefix 2112, base58check encode.
+- This is completely undocumented. We reverse-engineered it from bouncer test fixtures and the Substrate SS58 spec.
+- **SDK ask**: `sdk.account.fromEthAddress(ethAddress)` returning the SS58-encoded account ID.
+
+### Updated "What We're Using" (PR2)
+
+| Layer | Tool | Notes |
+|-------|------|-------|
+| RPC transport | Raw `fetch` + JSON-RPC 2.0 | Same as PR1 |
+| SCALE encoding | `scale-ts@^1.6.1` | Same as PR1 |
+| Extrinsic types | `@chainflip/extrinsics@^1.6.2` | Same as PR1 |
+| EIP-712 signing | Hand-rolled pipeline | Same as PR1 |
+| SS58 encoding | Manual (blake2b + bs58) | Same as PR1 |
+| Hex decoding | `BigInt(hex).toString()` | Every numeric field. Tedious. |
+| Asset mapping | Hand-built `CF_ASSET_TO_SS_ASSET_ID` map | Maps CF `{chain,asset}` to ShapeShift AssetIds |
+| Precision lookup | Per-asset constant map | BTC=8, ETH=18, USDC=6, etc. |
+
+### Updated SDK API Suggestions
+
+```typescript
+// New: minimum amounts
+sdk.lending.getMinimumDepositAmount(asset)    // -> "0.0001" (human-readable)
+sdk.lending.getMinimumSupplyAmountUsd()       // -> "100.00" (decoded USD)
+
+// New: normalized rates
+sdk.lending.getInterestRate(asset)            // -> { annual: 0.0523, perBlock: 0.0000000827 }
+sdk.lending.getCollateralizationRatio(asset)  // -> { current: 1.5, liquidation: 1.1 }
+
+// New: asset mapping
+sdk.assets.toCaip19(cfAsset)                 // { chain: "Ethereum", asset: "USDC" } -> "eip155:1/erc20:0xa0b8..."
+sdk.assets.fromCaip19(caip19Id)              // reverse mapping
+sdk.assets.precision(cfAsset)                // -> 6 (for USDC)
+```
+
+### Updated Open Questions
+
+6. What precision does `minimum_supply_amount_usd` use? (We're assuming 6 based on live values, but this isn't documented.)
+7. Are interest rates in Perbill or Permill? Is `current_interest_rate` per-block or annualized?
+8. Will BaaS expose `requestLiquidityDepositAddress` for lending operations?
+9. Is there a plan to add precision metadata to RPC responses alongside hex-encoded amounts?

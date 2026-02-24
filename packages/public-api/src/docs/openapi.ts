@@ -3,6 +3,7 @@ import '../setupZod'
 import { OpenApiGeneratorV3, OpenAPIRegistry } from '@asteasolutions/zod-to-openapi'
 import { z } from 'zod'
 
+import { RateLimitErrorCode } from '../middleware/rateLimit'
 import { AssetRequestSchema, AssetsListRequestSchema } from '../routes/assets'
 import { QuoteRequestSchema } from '../routes/quote'
 import { RatesRequestSchema } from '../routes/rates'
@@ -206,13 +207,11 @@ const RateResponseSchema = registry.register(
   }),
 )
 
-// --- Shared Response Schemas ---
-
 const RateLimitErrorSchema = registry.register(
   'RateLimitError',
   z.object({
     error: z.string().openapi({ example: 'Too many requests, please try again later' }),
-    code: z.literal('RATE_LIMIT_EXCEEDED').openapi({ example: 'RATE_LIMIT_EXCEEDED' }),
+    code: z.nativeEnum(RateLimitErrorCode).openapi({ example: RateLimitErrorCode.RateLimitExceeded }),
   }),
 )
 

@@ -56,7 +56,12 @@ export const initAssets = (): Promise<void> => {
             explorerAddressLink: baseAsset?.explorerAddressLink,
             explorerTxLink: baseAsset?.explorerTxLink,
           }
-        } catch {
+        } catch (error) {
+          console.warn('Failed to enrich asset with base chain data', {
+            assetId,
+            chainId: asset.chainId,
+            error,
+          })
           enrichedAssetsById[assetId] = asset
         }
       }

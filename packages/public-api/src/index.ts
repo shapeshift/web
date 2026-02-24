@@ -20,7 +20,7 @@ import { getRates } from './routes/rates'
 
 const app = express()
 
-app.set('trust proxy', 1)
+app.set('trust proxy', process.env.TRUST_PROXY === '1' ? 1 : false)
 
 // Middleware
 app.use(cors())

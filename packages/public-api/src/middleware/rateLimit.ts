@@ -1,7 +1,11 @@
-import type { Options } from 'express-rate-limit'
+import type { Options, RateLimitRequestHandler } from 'express-rate-limit'
 import rateLimit from 'express-rate-limit'
 
 const WINDOW_MS = 60 * 1000
+
+export enum RateLimitErrorCode {
+  RateLimitExceeded = 'RATE_LIMIT_EXCEEDED',
+}
 
 const parseEnvInt = (key: string, defaultValue: number): number => {
   const value = process.env[key]
@@ -13,11 +17,11 @@ const parseEnvInt = (key: string, defaultValue: number): number => {
 const rateLimitHandler: Options['handler'] = (_req, res) => {
   res.status(429).json({
     error: 'Too many requests, please try again later',
-    code: 'RATE_LIMIT_EXCEEDED',
+    code: RateLimitErrorCode.RateLimitExceeded,
   })
 }
 
-const createLimiter = (envKey: string, defaultMax: number) =>
+const createLimiter = (envKey: string, defaultMax: number): RateLimitRequestHandler =>
   rateLimit({
     windowMs: WINDOW_MS,
     max: parseEnvInt(envKey, defaultMax),

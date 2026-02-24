@@ -489,6 +489,41 @@ export const katana: Readonly<Asset> = Object.freeze({
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 
+export const flowEvm: Readonly<Asset> = Object.freeze({
+  assetId: caip.flowEvmAssetId,
+  chainId: caip.flowEvmChainId,
+  name: 'Flow',
+  networkName: 'Flow EVM',
+  symbol: 'FLOW',
+  precision: 18,
+  color: '#00EF8B',
+  networkColor: '#00EF8B',
+  icon: 'https://assets.coingecko.com/coins/images/13446/large/5f6294c0c7a8cda55cb1c936_Flow_Wordmark.png',
+  networkIcon:
+    'https://assets.coingecko.com/coins/images/13446/small/5f6294c0c7a8cda55cb1c936_Flow_Wordmark.png',
+  explorer: 'https://evm.flowscan.io',
+  explorerAddressLink: 'https://evm.flowscan.io/address/',
+  explorerTxLink: 'https://evm.flowscan.io/tx/',
+  relatedAssetKey: null,
+})
+
+export const celo: Readonly<Asset> = Object.freeze({
+  assetId: caip.celoAssetId,
+  chainId: caip.celoChainId,
+  name: 'Celo',
+  networkName: 'Celo',
+  symbol: 'CELO',
+  precision: 18,
+  color: '#35D07F',
+  networkColor: '#35D07F',
+  icon: 'https://assets.coingecko.com/coins/images/11090/large/celo.png',
+  networkIcon: 'https://assets.coingecko.com/coins/images/11090/small/celo.png',
+  explorer: 'https://celoscan.io',
+  explorerAddressLink: 'https://celoscan.io/address/',
+  explorerTxLink: 'https://celoscan.io/tx/',
+  relatedAssetKey: null,
+})
+
 export const story: Readonly<Asset> = Object.freeze({
   assetId: caip.storyAssetId,
   chainId: caip.storyChainId,

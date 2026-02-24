@@ -7,10 +7,12 @@ import bitcoincash from '@/plugins/bitcoincash'
 import blast from '@/plugins/blast'
 import bnbsmartchain from '@/plugins/bnbsmartchain'
 import bob from '@/plugins/bob'
+import celo from '@/plugins/celo'
 import cosmos from '@/plugins/cosmos'
 import cronos from '@/plugins/cronos'
 import dogecoin from '@/plugins/dogecoin'
 import ethereum from '@/plugins/ethereum'
+import flowEvm from '@/plugins/flowEvm'
 import gnosis from '@/plugins/gnosis'
 import hemi from '@/plugins/hemi'
 import hyperevm from '@/plugins/hyperevm'
@@ -55,10 +57,12 @@ export const activePlugins = [
   blast,
   bnbsmartchain,
   bob,
+  celo,
   cosmos,
   cronos,
   dogecoin,
   ethereum,
+  flowEvm,
   gnosis,
   hemi,
   hyperevm,

@@ -101,6 +101,8 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   const isBobEnabled = useAppSelector(state => selectFeatureFlag(state, 'Bob'))
   const isModeEnabled = useAppSelector(state => selectFeatureFlag(state, 'Mode'))
   const isSoneiumEnabled = useAppSelector(state => selectFeatureFlag(state, 'Soneium'))
+  const isFlowEvmEnabled = useAppSelector(state => selectFeatureFlag(state, 'FlowEvm'))
+  const isCeloEnabled = useAppSelector(state => selectFeatureFlag(state, 'Celo'))
   const [isSmallerThanLg] = useMediaQuery(`(max-width: ${breakpoints.lg})`)
 
   const chainIds = useMemo(() => {
@@ -129,6 +131,8 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
       if (!isBobEnabled && chainId === KnownChainIds.BobMainnet) return false
       if (!isModeEnabled && chainId === KnownChainIds.ModeMainnet) return false
       if (!isSoneiumEnabled && chainId === KnownChainIds.SoneiumMainnet) return false
+      if (!isFlowEvmEnabled && chainId === KnownChainIds.FlowEvmMainnet) return false
+      if (!isCeloEnabled && chainId === KnownChainIds.CeloMainnet) return false
       return true
     })
   }, [
@@ -155,6 +159,8 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
     isBobEnabled,
     isModeEnabled,
     isSoneiumEnabled,
+    isFlowEvmEnabled,
+    isCeloEnabled,
   ])
 
   const Title = useMemo(() => {

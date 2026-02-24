@@ -121,6 +121,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.Monad && chainId === KnownChainIds.MonadMainnet) return false
       if (!featureFlags.HyperEvm && chainId === KnownChainIds.HyperEvmMainnet) return false
       if (!featureFlags.Katana && chainId === KnownChainIds.KatanaMainnet) return false
+      if (!featureFlags.FlowEvm && chainId === KnownChainIds.FlowEvmMainnet) return false
       if (!featureFlags.Story && chainId === KnownChainIds.StoryMainnet) return false
       if (!featureFlags.WorldChain && chainId === KnownChainIds.WorldChainMainnet) return false
       if (!featureFlags.Sonic && chainId === KnownChainIds.SonicMainnet) return false
@@ -138,6 +139,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.Scroll && chainId === KnownChainIds.ScrollMainnet) return false
       if (!featureFlags.Berachain && chainId === KnownChainIds.BerachainMainnet) return false
       if (!featureFlags.Soneium && chainId === KnownChainIds.SoneiumMainnet) return false
+      if (!featureFlags.Celo && chainId === KnownChainIds.CeloMainnet) return false
       if (!featureFlags.BnbSmartChain && chainId === KnownChainIds.BnbSmartChainMainnet)
         return false
       if (!featureFlags.Tron && chainId === KnownChainIds.TronMainnet) return false

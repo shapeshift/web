@@ -7,8 +7,10 @@ import {
   bobChainId,
   bscChainId,
   btcChainId,
+  celoChainId,
   cronosChainId,
   ethChainId,
+  flowEvmChainId,
   gnosisChainId,
   hemiChainId,
   hyperEvmChainId,
@@ -28,11 +30,11 @@ import {
   soneiumChainId,
   sonicChainId,
   storyChainId,
-  tronChainId,
   unichainChainId,
   worldChainChainId,
   zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
+import { flowEvmChain } from '@shapeshiftoss/contracts'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
 import {
@@ -43,6 +45,7 @@ import {
   blast,
   bob,
   bsc,
+  celo,
   cronos,
   gnosis,
   hemi,
@@ -83,7 +86,11 @@ export const chainIdToRelayChainId = {
   [gnosisChainId]: gnosis.id,
   [avalancheChainId]: avalanche.id,
   [bscChainId]: bsc.id,
-  [tronChainId]: 728126428,
+  // DISABLED: Tron deposits are built as simple TRC20 transfers instead of depositErc20() vault calls,
+  // and the Relay indexer notification is never sent for non-EVM chains. This causes deposits to be
+  // untracked by Relay, resulting in stuck/lost funds. Re-enable once the Tron transaction building
+  // is verified to use the Relay quote calldata (depositErc20) correctly.
+  // [tronChainId]: 728126428,
   [monadChainId]: monad.id,
   [hyperEvmChainId]: hyperEvm.id,
   [mantleChainId]: mantle.id,
@@ -92,6 +99,8 @@ export const chainIdToRelayChainId = {
   [plasmaChainId]: plasma.id,
   [plumeChainId]: plumeMainnet.id,
   [katanaChainId]: katana.id,
+  [flowEvmChainId]: flowEvmChain.id,
+  [celoChainId]: celo.id,
   [storyChainId]: story.id,
   [zkSyncEraChainId]: zksync.id,
   [blastChainId]: blast.id,

@@ -233,6 +233,14 @@ export function supportsHemi(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsHemi
 }
 
+export function supportsFlowEvm(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsFlowEvm
+}
+
+export function supportsCelo(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsCelo
+}
+
 export function supportsBerachain(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsBerachain
 }

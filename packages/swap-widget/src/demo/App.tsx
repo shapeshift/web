@@ -14,6 +14,9 @@ type ThemeColors = {
   bg: string
   card: string
   accent: string
+  borderColor?: string
+  borderRadius?: string
+  buttonVariant?: 'filled' | 'outline'
 }
 
 const THEME_PRESETS: {
@@ -51,6 +54,25 @@ const THEME_PRESETS: {
     dark: { bg: '#14100a', card: '#1c1814', accent: '#f97316' },
     light: { bg: '#fff8f3', card: '#ffffff', accent: '#f97316' },
   },
+  {
+    name: 'Stucco',
+    dark: {
+      bg: '#0d1117',
+      card: '#0d1117',
+      accent: '#bea989',
+      borderColor: '#2a2520',
+      borderRadius: '6',
+      buttonVariant: 'outline' as const,
+    },
+    light: {
+      bg: '#f5f3ee',
+      card: '#f5f3ee',
+      accent: '#b8941f',
+      borderColor: '#d4cfc7',
+      borderRadius: '6',
+      buttonVariant: 'outline' as const,
+    },
+  },
 ]
 
 type DemoContentProps = {
@@ -82,6 +104,9 @@ const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
       accentColor: currentColors.accent,
       backgroundColor: currentColors.bg,
       cardColor: currentColors.card,
+      borderColor: currentColors.borderColor,
+      borderRadius: currentColors.borderRadius,
+      buttonVariant: currentColors.buttonVariant,
     }),
     [theme, currentColors],
   )
@@ -94,18 +119,25 @@ const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
   const [copied, setCopied] = useState(false)
 
   const copyConfig = useCallback(() => {
+    const formatColors = (colors: ThemeColors, mode: string) => {
+      const lines = [
+        `    mode: "${mode}",`,
+        `    backgroundColor: "${colors.bg}",`,
+        `    cardColor: "${colors.card}",`,
+        `    accentColor: "${colors.accent}",`,
+      ]
+      if (colors.borderColor) lines.push(`    borderColor: "${colors.borderColor}",`)
+      if (colors.borderRadius) lines.push(`    borderRadius: "${colors.borderRadius}",`)
+      if (colors.buttonVariant) lines.push(`    buttonVariant: "${colors.buttonVariant}",`)
+      return lines.join('\n')
+    }
+
     const code = `const themeConfig = {
   dark: {
-    mode: "dark",
-    backgroundColor: "${darkColors.bg}",
-    cardColor: "${darkColors.card}",
-    accentColor: "${darkColors.accent}",
+${formatColors(darkColors, 'dark')}
   },
   light: {
-    mode: "light",
-    backgroundColor: "${lightColors.bg}",
-    cardColor: "${lightColors.card}",
-    accentColor: "${lightColors.accent}",
+${formatColors(lightColors, 'light')}
   },
 };
 
@@ -337,6 +369,53 @@ const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
                 </div>
 
                 <div className='demo-customizer-section'>
+                  <span className='demo-customizer-label'>Border Radius</span>
+                  <div className='demo-color-input-row'>
+                    <input
+                      type='range'
+                      min='0'
+                      max='20'
+                      value={currentColors.borderRadius ?? '16'}
+                      onChange={e =>
+                        setCurrentColors(c => ({ ...c, borderRadius: e.target.value }))
+                      }
+                      className='demo-range-input'
+                    />
+                    <input
+                      type='text'
+                      value={`${currentColors.borderRadius ?? '16'}px`}
+                      readOnly
+                      className='demo-color-text'
+                      style={{ width: 60 }}
+                    />
+                  </div>
+                </div>
+
+                <div className='demo-customizer-section'>
+                  <span className='demo-customizer-label'>Button Style</span>
+                  <div className='demo-theme-toggle'>
+                    <button
+                      className={`demo-theme-btn ${
+                        currentColors.buttonVariant !== 'outline' ? 'active' : ''
+                      }`}
+                      onClick={() => setCurrentColors(c => ({ ...c, buttonVariant: 'filled' }))}
+                      type='button'
+                    >
+                      Filled
+                    </button>
+                    <button
+                      className={`demo-theme-btn ${
+                        currentColors.buttonVariant === 'outline' ? 'active' : ''
+                      }`}
+                      onClick={() => setCurrentColors(c => ({ ...c, buttonVariant: 'outline' }))}
+                      type='button'
+                    >
+                      Outline
+                    </button>
+                  </div>
+                </div>
+
+                <div className='demo-customizer-section'>
                   <button className='demo-copy-btn' onClick={copyConfig} type='button'>
                     {copied ? (
                       <>
@@ -387,10 +466,6 @@ const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
           </div>
         </div>
       </main>
-
-      <footer className='demo-footer'>
-        <p>Built by ShapeShift DAO</p>
-      </footer>
     </div>
   )
 }

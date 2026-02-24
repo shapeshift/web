@@ -47,13 +47,17 @@ export const initAssets = (): Promise<void> => {
     for (const assetId of sortedAssetIds) {
       const asset = localAssetData[assetId]
       if (asset) {
-        const baseAsset = getBaseAsset(asset.chainId)
-        enrichedAssetsById[assetId] = {
-          ...asset,
-          networkName: baseAsset?.networkName,
-          explorer: baseAsset?.explorer,
-          explorerAddressLink: baseAsset?.explorerAddressLink,
-          explorerTxLink: baseAsset?.explorerTxLink,
+        try {
+          const baseAsset = getBaseAsset(asset.chainId)
+          enrichedAssetsById[assetId] = {
+            ...asset,
+            networkName: baseAsset?.networkName,
+            explorer: baseAsset?.explorer,
+            explorerAddressLink: baseAsset?.explorerAddressLink,
+            explorerTxLink: baseAsset?.explorerTxLink,
+          }
+        } catch {
+          enrichedAssetsById[assetId] = asset
         }
       }
     }

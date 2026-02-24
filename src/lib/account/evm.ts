@@ -7,8 +7,10 @@ import {
   blastChainId,
   bobChainId,
   bscChainId,
+  celoChainId,
   cronosChainId,
   ethChainId,
+  flowEvmChainId,
   fromAccountId,
   gnosisChainId,
   hemiChainId,
@@ -43,8 +45,10 @@ import {
   supportsBlast,
   supportsBob,
   supportsBSC,
+  supportsCelo,
   supportsCronos,
   supportsETH,
+  supportsFlowEvm,
   supportsGnosis,
   supportsHemi,
   supportsHyperEvm,
@@ -152,6 +156,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === avalancheChainId && !supportsAvalanche(wallet)) continue
     if (chainId === optimismChainId && !supportsOptimism(wallet)) continue
     if (chainId === bscChainId && !supportsBSC(wallet)) continue
+    if (chainId === celoChainId && !supportsCelo(wallet)) continue
     if (chainId === polygonChainId && !supportsPolygon(wallet)) continue
     if (chainId === gnosisChainId && !supportsGnosis(wallet)) continue
     if (chainId === arbitrumChainId && !supportsArbitrum(wallet)) continue
@@ -167,6 +172,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === scrollChainId && !supportsScroll(wallet)) continue
     if (chainId === cronosChainId && !supportsCronos(wallet)) continue
     if (chainId === katanaChainId && !supportsKatana(wallet)) continue
+    if (chainId === flowEvmChainId && !supportsFlowEvm(wallet)) continue
     if (chainId === storyChainId && !supportsStory(wallet)) continue
     if (chainId === zkSyncEraChainId && !supportsZkSyncEra(wallet)) continue
     if (chainId === blastChainId && !supportsBlast(wallet)) continue

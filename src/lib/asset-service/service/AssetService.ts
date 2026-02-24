@@ -7,7 +7,9 @@ import {
   blastChainId,
   bobChainId,
   bscChainId,
+  celoChainId,
   cronosChainId,
+  flowEvmChainId,
   gnosisChainId,
   hemiChainId,
   hyperEvmChainId,
@@ -129,6 +131,7 @@ class _AssetService {
       const asset = localAssetData[assetId]
       if (!config.VITE_FEATURE_OPTIMISM && asset.chainId === optimismChainId) return false
       if (!config.VITE_FEATURE_BNBSMARTCHAIN && asset.chainId === bscChainId) return false
+      if (!config.VITE_FEATURE_CELO && asset.chainId === celoChainId) return false
       if (!config.VITE_FEATURE_POLYGON && asset.chainId === polygonChainId) return false
       if (!config.VITE_FEATURE_GNOSIS && asset.chainId === gnosisChainId) return false
       if (!config.VITE_FEATURE_ARBITRUM && asset.chainId === arbitrumChainId) return false
@@ -147,6 +150,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_HEMI && asset.chainId === hemiChainId) return false
       if (!config.VITE_FEATURE_MANTLE && asset.chainId === mantleChainId) return false
       if (!config.VITE_FEATURE_INK && asset.chainId === inkChainId) return false
+      if (!config.VITE_FEATURE_FLOWEVM && asset.chainId === flowEvmChainId) return false
       if (!config.VITE_FEATURE_SONIC && asset.chainId === sonicChainId) return false
       if (!config.VITE_FEATURE_UNICHAIN && asset.chainId === unichainChainId) return false
       if (!config.VITE_FEATURE_BOB && asset.chainId === bobChainId) return false

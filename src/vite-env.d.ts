@@ -208,6 +208,10 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_SONEIUM: string
   readonly VITE_PLUME_NODE_URL: string
   readonly VITE_FEATURE_PLUME: string
+  readonly VITE_FLOWEVM_NODE_URL: string
+  readonly VITE_FEATURE_FLOWEVM: string
+  readonly VITE_CELO_NODE_URL: string
+  readonly VITE_FEATURE_CELO: string
   readonly VITE_WORLDCHAIN_NODE_URL: string
   readonly VITE_FEATURE_WORLDCHAIN: string
   readonly VITE_BLAST_NODE_URL: string

@@ -32,6 +32,8 @@ import cronos from "./eip155_25/adapter.json";
 import sonic from "./eip155_146/adapter.json";
 import unichain from "./eip155_130/adapter.json";
 import soneium from "./eip155_1868/adapter.json";
+import flowevm from "./eip155_747/adapter.json";
+import celo from "./eip155_42220/adapter.json";
 import cosmos from "./cosmos_cosmoshub-4/adapter.json";
 import thorchain from "./cosmos_thorchain-1/adapter.json";
 import mayachain from "./cosmos_mayachain-mainnet-v1/adapter.json";
@@ -78,6 +80,8 @@ export {
   sonic,
   unichain,
   soneium,
+  flowevm,
+  celo,
   cosmos,
   thorchain,
   mayachain,

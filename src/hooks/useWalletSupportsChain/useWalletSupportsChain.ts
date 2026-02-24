@@ -9,10 +9,12 @@ import {
   bobChainId,
   bscChainId,
   btcChainId,
+  celoChainId,
   cosmosChainId,
   cronosChainId,
   dogeChainId,
   ethChainId,
+  flowEvmChainId,
   gnosisChainId,
   hemiChainId,
   hyperEvmChainId,
@@ -60,9 +62,11 @@ import {
   supportsBob,
   supportsBSC,
   supportsBTC,
+  supportsCelo,
   supportsCosmos,
   supportsCronos,
   supportsETH,
+  supportsFlowEvm,
   supportsGnosis,
   supportsHemi,
   supportsHyperEvm,
@@ -188,6 +192,7 @@ export const walletSupportsChain = ({
   const isInkEnabled = selectFeatureFlag(store.getState(), 'Ink')
   const isBobEnabled = selectFeatureFlag(store.getState(), 'Bob')
   const isKatanaEnabled = selectFeatureFlag(store.getState(), 'Katana')
+  const isFlowEvmEnabled = selectFeatureFlag(store.getState(), 'FlowEvm')
   const isStoryEnabled = selectFeatureFlag(store.getState(), 'Story')
   const isMantleEnabled = selectFeatureFlag(store.getState(), 'Mantle')
   const isLineaEnabled = selectFeatureFlag(store.getState(), 'Linea')
@@ -206,6 +211,7 @@ export const walletSupportsChain = ({
   const isStarknetEnabled = selectFeatureFlag(store.getState(), 'Starknet')
   const isWorldChainEnabled = selectFeatureFlag(store.getState(), 'WorldChain')
   const isTonEnabled = selectFeatureFlag(store.getState(), 'Ton')
+  const isCeloEnabled = selectFeatureFlag(store.getState(), 'Celo')
 
   switch (chainId) {
     case btcChainId:
@@ -229,6 +235,8 @@ export const walletSupportsChain = ({
       return supportsOptimism(wallet)
     case bscChainId:
       return supportsBSC(wallet)
+    case celoChainId:
+      return isCeloEnabled && supportsCelo(wallet)
     case polygonChainId:
       return supportsPolygon(wallet)
     case gnosisChainId:
@@ -255,6 +263,8 @@ export const walletSupportsChain = ({
       return isPlumeEnabled && supportsPlume(wallet)
     case katanaChainId:
       return isKatanaEnabled && supportsKatana(wallet)
+    case flowEvmChainId:
+      return isFlowEvmEnabled && supportsFlowEvm(wallet)
     case storyChainId:
       return isStoryEnabled && supportsStory(wallet)
     case zkSyncEraChainId:

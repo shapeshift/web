@@ -5,6 +5,7 @@ import {
   bchAssetId,
   bscAssetId,
   btcAssetId,
+  celoAssetId,
   cosmosAssetId,
   dogeAssetId,
   ethAssetId,
@@ -29,6 +30,7 @@ export const COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID: Partial<Record<string, Asset
   [adapters.CoingeckoAssetPlatform.Mayachain]: mayachainAssetId,
   [adapters.CoingeckoAssetPlatform.Gnosis]: gnosisAssetId,
   [adapters.CoingeckoAssetPlatform.Cosmos]: cosmosAssetId,
+  [adapters.CoingeckoAssetPlatform.Celo]: celoAssetId,
   // This isn't a mistake - the network and id are different in the case of MATIC/POS
   'polygon-ecosystem-token': polygonAssetId,
   [adapters.CoingeckoAssetPlatform.Base]: baseAssetId,

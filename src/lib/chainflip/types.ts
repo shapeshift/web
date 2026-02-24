@@ -72,14 +72,27 @@ export type ChainflipLendingConfig = {
   minimum_update_collateral_amount_usd: string
 }
 
+export type ChainflipCollateralBalance = {
+  chain: ChainflipChain
+  asset: ChainflipAssetSymbol
+  amount: string
+}
+
+export type ChainflipLoan = {
+  loan_id: number
+  asset: ChainflipAsset
+  created_at: number
+  principal_amount: string
+}
+
 export type ChainflipLoanAccount = {
-  account_id: string
-  loan_asset: ChainflipAsset
-  collateral_asset: ChainflipAsset
-  debt_amount: string
-  collateral_amount: string
-  ltv?: Perbill
-} & Record<string, unknown>
+  account: string
+  collateral_topup_asset: ChainflipAsset
+  ltv_ratio: string
+  collateral: ChainflipCollateralBalance[]
+  loans: ChainflipLoan[]
+  liquidation_status: unknown
+}
 
 export type ChainflipLoanAccountsResponse = ChainflipLoanAccount[]
 
@@ -110,7 +123,9 @@ export type ChainflipOraclePricesResponse = ChainflipOraclePrice[]
 export type ChainflipFreeBalance = {
   asset: ChainflipAsset
   balance: string
-} & Record<string, unknown>
+}
+
+export type ChainflipFreeBalancesRawResponse = Record<string, Record<string, string>>
 
 export type ChainflipFreeBalancesResponse = ChainflipFreeBalance[]
 
@@ -135,9 +150,11 @@ export type ChainflipSafeModeStatusesResponse = {
 } & Record<string, unknown>
 
 export type ChainflipAccountInfo = {
-  account_id: string
-  nonce?: number
-  balances?: ChainflipFreeBalancesResponse
+  role: 'unregistered' | 'liquidity_provider' | 'validator' | string
+  flip_balance: string
+  bond: string
+  refund_addresses?: Record<string, string | null> | null
+  estimated_redeemable_balance: string
 } & Record<string, unknown>
 
 export type ChainflipEip712Payload = {
@@ -161,6 +178,19 @@ export type ChainflipRuntimeVersion = {
 
 export type ChainflipNonNativeCallResult = [ChainflipEip712Payload, ChainflipTransactionMetadata]
 
+export type ChainflipMinimumDepositAmounts = Record<
+  ChainflipChain,
+  Partial<Record<ChainflipAssetSymbol, string>>
+>
+
+export type ChainflipEnvironmentIngressEgress = {
+  minimum_deposit_amounts: ChainflipMinimumDepositAmounts
+}
+
+export type ChainflipEnvironmentResponse = {
+  ingress_egress: ChainflipEnvironmentIngressEgress
+} & Record<string, unknown>
+
 export type ChainflipDepositChannelEvent = {
   event: 'LiquidityDepositAddressReady'
   channel_id: number
@@ -171,3 +201,13 @@ export type ChainflipDepositChannelEvent = {
   boost_fee: number
   channel_opening_fee: string
 } & Record<string, unknown>
+
+export type ChainflipOpenDepositChannelEntry = [
+  string,
+  string,
+  {
+    chain_accounts: [Record<string, unknown>, ChainflipAsset][]
+  },
+]
+
+export type ChainflipOpenDepositChannelsResponse = ChainflipOpenDepositChannelEntry[]

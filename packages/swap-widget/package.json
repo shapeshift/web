@@ -1,7 +1,7 @@
 {
   "name": "@shapeshiftoss/swap-widget",
-  "version": "0.0.1",
-  "private": true,
+  "version": "0.0.2",
+  "private": false,
   "description": "Embeddable swap widget using ShapeShift API",
   "type": "module",
   "main": "dist/index.js",
@@ -52,5 +52,8 @@
   "peerDependencies": {
     "react": ">=18.0.0",
     "react-dom": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

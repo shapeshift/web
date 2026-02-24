@@ -192,7 +192,7 @@ export const CHAIN_REFERENCE = {
   BobMainnet: '60808', // https://docs.gobob.xyz
   ModeMainnet: '34443', // https://docs.mode.network
   SoneiumMainnet: '1868', // https://soneium.org
-  SeiMainnet: '1329', // https://docs.sei.io
+  SeiMainnet: '1329',
   SolanaMainnet: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', // https://namespaces.chainagnostic.org/solana/caip2
   TronMainnet: '0x2b6653dc', // https://developers.tron.network/docs/networks
   SuiMainnet: '35834a8a', // First 8 chars of SUI mainnet genesis hash
@@ -378,6 +378,7 @@ export const FEE_ASSET_IDS = [
   sonicAssetId,
   unichainAssetId,
   soneiumAssetId,
+  seiAssetId,
   solAssetId,
   tronAssetId,
   suiAssetId,

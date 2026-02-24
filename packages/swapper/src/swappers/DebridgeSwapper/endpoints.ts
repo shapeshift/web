@@ -35,7 +35,13 @@ export const debridgeApi: SwapperApi = {
     try {
       const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
       return feeData.networkFeeCryptoBaseUnit
-    } catch {
+    } catch (e) {
+      console.error('[deBridge] getEvmTransactionFees: gas estimation failed, using API fallback', {
+        error: e,
+        chainId: sellAsset.chainId,
+        to,
+        value,
+      })
       if (!gasLimitFromApi) throw new Error('Gas estimation failed and no API gas limit fallback')
       const { average } = await adapter.getGasFeeData()
       return evm.calcNetworkFeeCryptoBaseUnit({
@@ -70,7 +76,11 @@ export const debridgeApi: SwapperApi = {
           ...fees,
           gasLimit: BigNumber(fees.gasLimit).times('1.2').toFixed(0),
         }
-      } catch {
+      } catch (e) {
+        console.error(
+          '[deBridge] getUnsignedEvmTransaction: gas estimation failed, using API fallback',
+          { error: e, chainId: sellAsset.chainId, to, value },
+        )
         if (!gasLimitFromApi) throw new Error('Gas estimation failed and no API gas limit fallback')
         const { average } = await adapter.getGasFeeData()
         const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
@@ -144,6 +154,11 @@ export const debridgeApi: SwapperApi = {
     )
 
     if (maybeOrderIdsResponse.isErr()) {
+      console.error('[deBridge] checkTradeStatus: failed to fetch orderIds', {
+        error: maybeOrderIdsResponse.unwrapErr(),
+        txHash: resolvedTxHash,
+        chainId,
+      })
       return {
         buyTxHash: undefined,
         status: TxStatus.Pending,
@@ -168,6 +183,12 @@ export const debridgeApi: SwapperApi = {
     )
 
     if (maybeStatusResponse.isErr()) {
+      console.error('[deBridge] checkTradeStatus: failed to fetch order status', {
+        error: maybeStatusResponse.unwrapErr(),
+        orderId,
+        txHash: resolvedTxHash,
+        chainId,
+      })
       return {
         buyTxHash: undefined,
         status: TxStatus.Unknown,

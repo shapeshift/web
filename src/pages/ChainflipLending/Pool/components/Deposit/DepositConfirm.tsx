@@ -15,6 +15,7 @@ import { useDepositApproval } from './hooks/useDepositApproval'
 import { useDepositChannel } from './hooks/useDepositChannel'
 import { useDepositConfirmation } from './hooks/useDepositConfirmation'
 import { useDepositFunding } from './hooks/useDepositFunding'
+import { useDepositRefundAddress } from './hooks/useDepositRefundAddress'
 import { useDepositRegistration } from './hooks/useDepositRegistration'
 import { useDepositSend } from './hooks/useDepositSend'
 import { DepositRoutePaths } from './types'
@@ -59,6 +60,7 @@ const DepositConfirmContent = memo(
     useDepositApproval()
     useDepositFunding()
     useDepositRegistration()
+    useDepositRefundAddress()
     useDepositChannel()
     useDepositSend()
     useDepositConfirmation()
@@ -280,14 +282,15 @@ export const DepositConfirm = ({
   const {
     isFunded,
     isLpRegistered,
+    hasRefundAddress,
     freeBalances,
     isLoading: isAccountLoading,
   } = useChainflipAccount()
 
-  const userAddress = useMemo(() => {
-    if (!accountId) return undefined
-    return fromAccountId(accountId).account
-  }, [accountId])
+  const userAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : undefined),
+    [accountId],
+  )
 
   const { data: flipAllowanceCryptoBaseUnit, isLoading: isAllowanceLoading } = useQuery({
     queryKey: ['chainflipFlipAllowance', userAddress],
@@ -329,10 +332,12 @@ export const DepositConfirm = ({
       assetId,
       depositAmountCryptoPrecision,
       depositAmountCryptoBaseUnit,
+      refundAddress: userAddress ?? '',
       flipAllowanceCryptoBaseUnit: flipAllowanceCryptoBaseUnit ?? '0',
       flipFundingAmountCryptoBaseUnit: FLIP_FUNDING_AMOUNT_CRYPTO_BASE_UNIT,
       isFunded,
       isLpRegistered,
+      hasRefundAddress,
       initialFreeBalanceCryptoBaseUnit,
     }
   }, [
@@ -342,9 +347,11 @@ export const DepositConfirm = ({
     assetId,
     depositAmountCryptoPrecision,
     depositAmountCryptoBaseUnit,
+    userAddress,
     flipAllowanceCryptoBaseUnit,
     isFunded,
     isLpRegistered,
+    hasRefundAddress,
     initialFreeBalanceCryptoBaseUnit,
   ])
 

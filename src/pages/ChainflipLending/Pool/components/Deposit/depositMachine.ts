@@ -5,14 +5,16 @@ export type DepositStep =
   | 'approving_flip'
   | 'funding_account'
   | 'registering'
+  | 'setting_refund_address'
   | 'opening_channel'
   | 'sending_deposit'
   | 'confirming'
 
-type DepositTxHashes = {
+export type DepositTxHashes = {
   approval?: string
   funding?: string
   registration?: string
+  refundAddress?: string
   channel?: string
   deposit?: string
 }
@@ -22,10 +24,12 @@ type DepositMachineContext = {
   depositAmountCryptoPrecision: string
   depositAmountCryptoBaseUnit: string
   depositAddress: string
+  refundAddress: string
   flipAllowanceCryptoBaseUnit: string
   flipFundingAmountCryptoBaseUnit: string
   isFunded: boolean
   isLpRegistered: boolean
+  hasRefundAddress: boolean
   initialFreeBalanceCryptoBaseUnit: string
   txHashes: DepositTxHashes
   error: string | null
@@ -36,24 +40,34 @@ export type DepositMachineInput = {
   assetId: AssetId
   depositAmountCryptoPrecision: string
   depositAmountCryptoBaseUnit: string
+  refundAddress: string
   flipAllowanceCryptoBaseUnit: string
   flipFundingAmountCryptoBaseUnit: string
   isFunded: boolean
   isLpRegistered: boolean
+  hasRefundAddress: boolean
   initialFreeBalanceCryptoBaseUnit: string
 }
 
 type DepositMachineEvent =
   | { type: 'START' }
-  | { type: 'APPROVAL_SUCCESS'; txHash: string }
+  | { type: 'APPROVAL_BROADCASTED'; txHash: string }
+  | { type: 'APPROVAL_SUCCESS' }
   | { type: 'APPROVAL_ERROR'; error: string }
-  | { type: 'FUNDING_SUCCESS'; txHash: string }
+  | { type: 'FUNDING_BROADCASTED'; txHash: string }
+  | { type: 'FUNDING_SUCCESS' }
   | { type: 'FUNDING_ERROR'; error: string }
-  | { type: 'REGISTRATION_SUCCESS'; txHash: string }
+  | { type: 'REGISTRATION_BROADCASTED'; txHash: string }
+  | { type: 'REGISTRATION_SUCCESS' }
   | { type: 'REGISTRATION_ERROR'; error: string }
-  | { type: 'CHANNEL_SUCCESS'; depositAddress: string; txHash: string }
+  | { type: 'REFUND_ADDRESS_BROADCASTED'; txHash: string }
+  | { type: 'REFUND_ADDRESS_SUCCESS' }
+  | { type: 'REFUND_ADDRESS_ERROR'; error: string }
+  | { type: 'CHANNEL_BROADCASTED'; txHash: string }
+  | { type: 'CHANNEL_SUCCESS'; depositAddress: string }
   | { type: 'CHANNEL_ERROR'; error: string }
-  | { type: 'SEND_SUCCESS'; txHash: string }
+  | { type: 'SEND_BROADCASTED'; txHash: string }
+  | { type: 'SEND_SUCCESS' }
   | { type: 'SEND_ERROR'; error: string }
   | { type: 'CONFIRMED' }
   | { type: 'CONFIRMATION_ERROR'; error: string }
@@ -73,42 +87,52 @@ export const depositMachine = setup({
         BigInt(context.flipFundingAmountCryptoBaseUnit),
     needsFunding: ({ context }) => !context.isFunded,
     needsRegistration: ({ context }) => !context.isLpRegistered,
+    needsRefundAddress: ({ context }) => !context.hasRefundAddress,
   },
   actions: {
     assignApprovalTx: assign({
       txHashes: ({ context, event }) => ({
         ...context.txHashes,
-        approval: (event as { type: 'APPROVAL_SUCCESS'; txHash: string }).txHash,
+        approval: (event as { txHash: string }).txHash,
       }),
     }),
     assignFundingTx: assign({
       txHashes: ({ context, event }) => ({
         ...context.txHashes,
-        funding: (event as { type: 'FUNDING_SUCCESS'; txHash: string }).txHash,
+        funding: (event as { txHash: string }).txHash,
       }),
-      isFunded: true,
     }),
     assignRegistrationTx: assign({
       txHashes: ({ context, event }) => ({
         ...context.txHashes,
-        registration: (event as { type: 'REGISTRATION_SUCCESS'; txHash: string }).txHash,
+        registration: (event as { txHash: string }).txHash,
       }),
-      isLpRegistered: true,
     }),
-    assignChannelData: assign({
+    assignRefundAddressTx: assign({
       txHashes: ({ context, event }) => ({
         ...context.txHashes,
-        channel: (event as { type: 'CHANNEL_SUCCESS'; txHash: string }).txHash,
+        refundAddress: (event as { txHash: string }).txHash,
       }),
+    }),
+    assignChannelTx: assign({
+      txHashes: ({ context, event }) => ({
+        ...context.txHashes,
+        channel: (event as { txHash: string }).txHash,
+      }),
+    }),
+    assignDepositAddress: assign({
       depositAddress: ({ event }) =>
         (event as { type: 'CHANNEL_SUCCESS'; depositAddress: string }).depositAddress,
     }),
     assignSendTx: assign({
       txHashes: ({ context, event }) => ({
         ...context.txHashes,
-        deposit: (event as { type: 'SEND_SUCCESS'; txHash: string }).txHash,
+        deposit: (event as { txHash: string }).txHash,
       }),
     }),
+    markFunded: assign({ isFunded: true }),
+    markRegistered: assign({ isLpRegistered: true }),
+    markRefundAddressSet: assign({ hasRefundAddress: true }),
     assignError: assign({
       error: ({ event }) => {
         if ('error' in event) return (event as { error: string }).error
@@ -125,10 +149,12 @@ export const depositMachine = setup({
     depositAmountCryptoPrecision: input.depositAmountCryptoPrecision,
     depositAmountCryptoBaseUnit: input.depositAmountCryptoBaseUnit,
     depositAddress: '',
+    refundAddress: input.refundAddress,
     flipAllowanceCryptoBaseUnit: input.flipAllowanceCryptoBaseUnit,
     flipFundingAmountCryptoBaseUnit: input.flipFundingAmountCryptoBaseUnit,
     isFunded: input.isFunded,
     isLpRegistered: input.isLpRegistered,
+    hasRefundAddress: input.hasRefundAddress,
     initialFreeBalanceCryptoBaseUnit: input.initialFreeBalanceCryptoBaseUnit,
     txHashes: {},
     error: null,
@@ -144,16 +170,15 @@ export const depositMachine = setup({
         { target: 'approving_flip', guard: 'needsApproval' },
         { target: 'funding_account', guard: 'needsFunding' },
         { target: 'registering', guard: 'needsRegistration' },
+        { target: 'setting_refund_address', guard: 'needsRefundAddress' },
         { target: 'opening_channel' },
       ],
     },
 
     approving_flip: {
       on: {
-        APPROVAL_SUCCESS: {
-          target: 'funding_account',
-          actions: 'assignApprovalTx',
-        },
+        APPROVAL_BROADCASTED: { actions: 'assignApprovalTx' },
+        APPROVAL_SUCCESS: { target: 'funding_account' },
         APPROVAL_ERROR: {
           target: 'error',
           actions: ['assignError', assign({ errorStep: 'approving_flip' as DepositStep })],
@@ -163,15 +188,21 @@ export const depositMachine = setup({
 
     funding_account: {
       on: {
+        FUNDING_BROADCASTED: { actions: 'assignFundingTx' },
         FUNDING_SUCCESS: [
           {
             target: 'registering',
             guard: 'needsRegistration',
-            actions: 'assignFundingTx',
+            actions: 'markFunded',
+          },
+          {
+            target: 'setting_refund_address',
+            guard: 'needsRefundAddress',
+            actions: 'markFunded',
           },
           {
             target: 'opening_channel',
-            actions: 'assignFundingTx',
+            actions: 'markFunded',
           },
         ],
         FUNDING_ERROR: {
@@ -183,10 +214,18 @@ export const depositMachine = setup({
 
     registering: {
       on: {
-        REGISTRATION_SUCCESS: {
-          target: 'opening_channel',
-          actions: 'assignRegistrationTx',
-        },
+        REGISTRATION_BROADCASTED: { actions: 'assignRegistrationTx' },
+        REGISTRATION_SUCCESS: [
+          {
+            target: 'setting_refund_address',
+            guard: 'needsRefundAddress',
+            actions: 'markRegistered',
+          },
+          {
+            target: 'opening_channel',
+            actions: 'markRegistered',
+          },
+        ],
         REGISTRATION_ERROR: {
           target: 'error',
           actions: ['assignError', assign({ errorStep: 'registering' as DepositStep })],
@@ -194,11 +233,26 @@ export const depositMachine = setup({
       },
     },
 
+    setting_refund_address: {
+      on: {
+        REFUND_ADDRESS_BROADCASTED: { actions: 'assignRefundAddressTx' },
+        REFUND_ADDRESS_SUCCESS: {
+          target: 'opening_channel',
+          actions: 'markRefundAddressSet',
+        },
+        REFUND_ADDRESS_ERROR: {
+          target: 'error',
+          actions: ['assignError', assign({ errorStep: 'setting_refund_address' as DepositStep })],
+        },
+      },
+    },
+
     opening_channel: {
       on: {
+        CHANNEL_BROADCASTED: { actions: 'assignChannelTx' },
         CHANNEL_SUCCESS: {
           target: 'sending_deposit',
-          actions: 'assignChannelData',
+          actions: 'assignDepositAddress',
         },
         CHANNEL_ERROR: {
           target: 'error',
@@ -209,10 +263,8 @@ export const depositMachine = setup({
 
     sending_deposit: {
       on: {
-        SEND_SUCCESS: {
-          target: 'confirming',
-          actions: 'assignSendTx',
-        },
+        SEND_BROADCASTED: { actions: 'assignSendTx' },
+        SEND_SUCCESS: { target: 'confirming' },
         SEND_ERROR: {
           target: 'error',
           actions: ['assignError', assign({ errorStep: 'sending_deposit' as DepositStep })],
@@ -250,6 +302,11 @@ export const depositMachine = setup({
           {
             target: 'registering',
             guard: ({ context }) => context.errorStep === 'registering',
+            actions: 'clearError',
+          },
+          {
+            target: 'setting_refund_address',
+            guard: ({ context }) => context.errorStep === 'setting_refund_address',
             actions: 'clearError',
           },
           {

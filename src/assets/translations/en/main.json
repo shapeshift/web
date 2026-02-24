@@ -2435,7 +2435,8 @@
         "registering": "Register Account",
         "openingChannel": "Open Channel",
         "sendingDeposit": "Send Deposit",
-        "confirming": "Confirming"
+        "confirming": "Confirming",
+        "settingRefundAddress": "Set Refund Address"
       },
       "executingTitle": "Depositing...",
       "executingDescription": "Please confirm transactions in your wallet as prompted.",

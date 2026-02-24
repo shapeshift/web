@@ -32,6 +32,12 @@ export const useChainflipAccount = () => {
     [accountInfo?.role],
   )
 
+  const hasRefundAddress = useMemo(() => {
+    const refundAddresses = accountInfo?.refund_addresses
+    if (!refundAddresses) return false
+    return Object.values(refundAddresses).some(addr => addr !== null)
+  }, [accountInfo?.refund_addresses])
+
   const isLoading = useMemo(
     () => isFreeBalancesLoading || isAccountInfoLoading,
     [isFreeBalancesLoading, isAccountInfoLoading],
@@ -44,8 +50,9 @@ export const useChainflipAccount = () => {
       accountInfo,
       isFunded,
       isLpRegistered,
+      hasRefundAddress,
       isLoading,
     }),
-    [scAccount, freeBalances, accountInfo, isFunded, isLpRegistered, isLoading],
+    [scAccount, freeBalances, accountInfo, isFunded, isLpRegistered, hasRefundAddress, isLoading],
   )
 }

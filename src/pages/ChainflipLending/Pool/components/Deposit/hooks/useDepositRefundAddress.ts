@@ -3,20 +3,21 @@ import { useEffect, useRef } from 'react'
 import { DepositMachineCtx } from '../DepositMachineContext'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { encodeRegisterLpAccount } from '@/lib/chainflip/scale'
+import { encodeRegisterLiquidityRefundAddress } from '@/lib/chainflip/scale'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { useSignChainflipCall } from '@/pages/ChainflipLending/hooks/useSignChainflipCall'
 
-export const useDepositRegistration = () => {
+export const useDepositRefundAddress = () => {
   const actorRef = DepositMachineCtx.useActorRef()
   const stateValue = DepositMachineCtx.useSelector(s => s.value)
+  const refundAddress = DepositMachineCtx.useSelector(s => s.context.refundAddress)
   const wallet = useWallet().state.wallet
   const { accountId, scAccount } = useChainflipLendingAccount()
   const { signAndSubmit } = useSignChainflipCall()
   const executingRef = useRef(false)
 
   useEffect(() => {
-    if (stateValue !== 'registering' || executingRef.current) return
+    if (stateValue !== 'setting_refund_address' || executingRef.current) return
     executingRef.current = true
 
     const execute = async () => {
@@ -24,24 +25,28 @@ export const useDepositRegistration = () => {
         if (!wallet) throw new Error('Wallet not connected')
         if (!accountId) throw new Error('Account not found')
         if (!scAccount) throw new Error('State Chain account not derived')
+        if (!refundAddress) throw new Error('Refund address not set')
 
-        const encodedCall = encodeRegisterLpAccount()
+        const encodedCall = encodeRegisterLiquidityRefundAddress({
+          chain: 'Ethereum',
+          address: refundAddress,
+        })
 
         const { txHash } = await signAndSubmit({
           encodedCall,
           nonceOrAccount: scAccount,
         })
 
-        actorRef.send({ type: 'REGISTRATION_BROADCASTED', txHash })
-        actorRef.send({ type: 'REGISTRATION_SUCCESS' })
+        actorRef.send({ type: 'REFUND_ADDRESS_BROADCASTED', txHash })
+        actorRef.send({ type: 'REFUND_ADDRESS_SUCCESS' })
       } catch (e) {
-        const message = e instanceof Error ? e.message : 'Account registration failed'
-        actorRef.send({ type: 'REGISTRATION_ERROR', error: message })
+        const message = e instanceof Error ? e.message : 'Failed to set refund address'
+        actorRef.send({ type: 'REFUND_ADDRESS_ERROR', error: message })
       } finally {
         executingRef.current = false
       }
     }
 
     execute()
-  }, [stateValue, actorRef, wallet, accountId, scAccount, signAndSubmit])
+  }, [stateValue, actorRef, wallet, accountId, scAccount, refundAddress, signAndSubmit])
 }

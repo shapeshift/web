@@ -17,7 +17,7 @@ vi.mock('./rpc', () => ({
 }))
 
 describe('chainflip eip712 helpers', () => {
-  it('signs a chainflip call and strips EIP712Domain', async () => {
+  it('signs a chainflip call and preserves typed data from RPC', async () => {
     vi.mocked(stateGetRuntimeVersion).mockResolvedValue({
       specVersion: 20012,
       transactionVersion: 13,
@@ -65,7 +65,11 @@ describe('chainflip eip712 helpers', () => {
     expect(signTypedData).toHaveBeenCalledTimes(1)
     const callInput = signTypedData.mock.calls[0][0]
     const typedData = callInput.typedDataToSign.typedData
-    expect(typedData.types.EIP712Domain).toBeUndefined()
+    expect(typedData.types.EIP712Domain).toEqual([
+      { name: 'name', type: 'string' },
+      { name: 'version', type: 'string' },
+    ])
+    expect(typedData.types.Foo).toEqual([{ name: 'bar', type: 'string' }])
     expect(result.signature).toBe(`0x${'aa'.repeat(32)}${'11'.repeat(32)}1b`)
   })
 

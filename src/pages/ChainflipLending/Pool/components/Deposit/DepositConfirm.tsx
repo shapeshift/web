@@ -224,7 +224,7 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
                 {error ?? translate('chainflipLending.deposit.errorDescription')}
               </RawText>
             </VStack>
-            <DepositStepper />
+            <DepositStepper assetId={assetId} />
           </VStack>
         </CardBody>
         <CardFooter
@@ -268,7 +268,7 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
                 {translate('chainflipLending.deposit.executingDescription')}
               </RawText>
             </VStack>
-            <DepositStepper />
+            <DepositStepper assetId={assetId} />
           </VStack>
         </CardBody>
         <CardFooter

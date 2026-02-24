@@ -1,5 +1,6 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import { Box, Flex, HStack, Link, VStack } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, flipAssetId } from '@shapeshiftoss/caip'
 import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -19,7 +20,7 @@ type StepConfig = {
   labelKey: string
   showFlipIcon: boolean
   txHashKey: keyof DepositTxHashes | null
-  hasExplorerLink: boolean
+  explorerAsset: 'eth' | 'pool' | null
 }
 
 const ALL_STEPS: StepConfig[] = [
@@ -28,49 +29,49 @@ const ALL_STEPS: StepConfig[] = [
     labelKey: 'chainflipLending.deposit.steps.approvingFlip',
     showFlipIcon: true,
     txHashKey: 'approval',
-    hasExplorerLink: true,
+    explorerAsset: 'eth',
   },
   {
     id: 'funding_account',
     labelKey: 'chainflipLending.deposit.steps.fundingAccount',
     showFlipIcon: true,
     txHashKey: 'funding',
-    hasExplorerLink: true,
+    explorerAsset: 'eth',
   },
   {
     id: 'registering',
     labelKey: 'chainflipLending.deposit.steps.registering',
     showFlipIcon: false,
     txHashKey: null,
-    hasExplorerLink: false,
+    explorerAsset: null,
   },
   {
     id: 'setting_refund_address',
     labelKey: 'chainflipLending.deposit.steps.settingRefundAddress',
     showFlipIcon: false,
     txHashKey: null,
-    hasExplorerLink: false,
+    explorerAsset: null,
   },
   {
     id: 'opening_channel',
     labelKey: 'chainflipLending.deposit.steps.openingChannel',
     showFlipIcon: false,
     txHashKey: null,
-    hasExplorerLink: false,
+    explorerAsset: null,
   },
   {
     id: 'sending_deposit',
     labelKey: 'chainflipLending.deposit.steps.sendingDeposit',
     showFlipIcon: false,
     txHashKey: 'deposit',
-    hasExplorerLink: true,
+    explorerAsset: 'pool',
   },
   {
     id: 'confirming',
     labelKey: 'chainflipLending.deposit.steps.confirming',
     showFlipIcon: false,
     txHashKey: null,
-    hasExplorerLink: false,
+    explorerAsset: null,
   },
 ]
 
@@ -81,7 +82,7 @@ type StepStatus = 'completed' | 'active' | 'error' | 'pending'
 const stepIconSize = 5
 const checkCircleIcon = <CheckCircleIcon boxSize={stepIconSize} color='green.500' />
 
-export const DepositStepper = memo(() => {
+export const DepositStepper = memo(({ assetId }: { assetId: AssetId }) => {
   const translate = useTranslate()
   const stateValue = DepositMachineCtx.useSelector(s => s.value) as string
   const {
@@ -103,7 +104,7 @@ export const DepositStepper = memo(() => {
   }))
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
-  const explorerTxLink = ethAsset?.explorerTxLink
+  const poolAsset = useAppSelector(state => selectAssetById(state, assetId))
 
   const needsApproval = useMemo(
     () =>
@@ -150,10 +151,14 @@ export const DepositStepper = memo(() => {
       {ALL_STEPS.map(step => {
         const status = getStepStatus(step.id)
         const txHash = step.txHashKey ? txHashes[step.txHashKey] : undefined
-        const txLink =
-          step.hasExplorerLink && txHash && explorerTxLink
-            ? `${explorerTxLink}${txHash}`
+        const explorerTxLink =
+          step.explorerAsset === 'eth'
+            ? ethAsset?.explorerTxLink
+            : step.explorerAsset === 'pool'
+            ? poolAsset?.explorerTxLink
             : undefined
+        const txLink =
+          step.explorerAsset && txHash && explorerTxLink ? `${explorerTxLink}${txHash}` : undefined
         return (
           <HStack key={step.id} spacing={3} opacity={status === 'pending' ? 0.5 : 1}>
             <Flex alignItems='center' justifyContent='center' width={6} flexShrink={0}>

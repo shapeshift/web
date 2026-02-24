@@ -9,6 +9,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constant
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
 import { AVNU_SUPPORTED_CHAIN_IDS } from '../utils/constants'
 import { getTokenAddress } from '../utils/helpers'
@@ -176,6 +177,14 @@ export const getTradeQuote = async (
             quoteId: bestQuote.quoteId,
             routes: bestQuote.routes,
           },
+          affiliateFee: buildAffiliateFee({
+            strategy: 'sell_asset',
+            affiliateBps,
+            sellAsset,
+            buyAsset,
+            sellAmountCryptoBaseUnit: sellAmount,
+            buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+          }),
         },
       ],
     }

@@ -1,8 +1,9 @@
-import { CHAIN_NAMESPACE, fromAssetId, monadChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId, monadChainId, nearChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import {
   bn,
   bnOrZero,
+  chainIdToFeeAssetId,
   contractAddressOrUndefined,
   DAO_TREASURY_NEAR,
   isToken,
@@ -28,6 +29,7 @@ import {
   makeSwapErrorRight,
 } from '../../../utils'
 import { simulateWithStateOverrides } from '../../../utils/tenderly'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
@@ -419,6 +421,17 @@ export const getTradeRate = async (
           sellAsset,
           source: SwapperName.NearIntents,
           estimatedExecutionTimeMs: quote.timeEstimate ? quote.timeEstimate * 1000 : undefined,
+          affiliateFee: buildAffiliateFee({
+            strategy: 'fixed_asset',
+            affiliateBps,
+            sellAsset,
+            buyAsset,
+            sellAmountCryptoBaseUnit: quote.amountIn,
+            buyAmountCryptoBaseUnit: quote.amountOut,
+            fixedAssetId: chainIdToFeeAssetId(nearChainId),
+            fixedAsset: deps.assetsById[chainIdToFeeAssetId(nearChainId)],
+            isEstimate: true,
+          }),
         },
       ],
     }

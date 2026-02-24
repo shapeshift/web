@@ -10,7 +10,7 @@ export const RegisterRequestSchema = z.object({
   chainId: z.string().min(1),
 })
 
-export const registerSwap = async (req: Request, res: Response): Promise<void> => {
+export const registerSwap = (req: Request, res: Response): void => {
   try {
     const parseResult = RegisterRequestSchema.safeParse(req.body)
     if (!parseResult.success) {
@@ -43,7 +43,11 @@ export const registerSwap = async (req: Request, res: Response): Promise<void> =
     }
 
     const requestAffiliate = req.affiliateInfo?.affiliateAddress
-    if (storedQuote.affiliateAddress && requestAffiliate && storedQuote.affiliateAddress !== requestAffiliate) {
+    if (
+      storedQuote.affiliateAddress &&
+      requestAffiliate &&
+      storedQuote.affiliateAddress !== requestAffiliate
+    ) {
       res.status(403).json({
         error: 'Affiliate address does not match the original quote',
         code: 'AFFILIATE_MISMATCH',

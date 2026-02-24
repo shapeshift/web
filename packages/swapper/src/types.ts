@@ -369,6 +369,13 @@ export type SwapperDeps = {
   StarknetSwapperDeps &
   TonSwapperDeps
 
+export type AffiliateFee = {
+  assetId: AssetId
+  amountCryptoBaseUnit: string
+  asset: Asset
+  isEstimate?: boolean
+}
+
 export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string
   buyAmountAfterFeesCryptoBaseUnit: string
@@ -483,6 +490,7 @@ export type TradeQuoteStep = {
     params?: unknown
   }
   acrossTransactionMetadata?: AcrossTransactionMetadata
+  affiliateFee?: AffiliateFee
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & {

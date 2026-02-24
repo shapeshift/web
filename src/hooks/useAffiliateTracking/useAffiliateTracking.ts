@@ -18,7 +18,10 @@ export const useAffiliateTracking = (): string | null => {
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    const params = new URLSearchParams(window.location.search)
+    const hash = window.location.hash
+    const hashQueryIdx = hash.indexOf('?')
+    const searchStr = hashQueryIdx !== -1 ? hash.substring(hashQueryIdx) : window.location.search
+    const params = new URLSearchParams(searchStr)
     const affiliateParam = params.get('affiliate')
 
     if (!affiliateParam || storedAffiliateAddress) return

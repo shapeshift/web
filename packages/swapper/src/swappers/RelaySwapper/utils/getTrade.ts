@@ -1,4 +1,5 @@
 import {
+  baseChainId,
   btcChainId,
   fromChainId,
   monadChainId,
@@ -34,6 +35,7 @@ import type {
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { simulateWithStateOverrides } from '../../../utils/tenderly'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
 import { MAXIMUM_SUPPORTED_RELAY_STEPS, relayErrorCodeToTradeQuoteError } from '../constant'
@@ -690,6 +692,17 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       estimatedExecutionTimeMs: timeEstimate * 1000,
       solanaTransactionMetadata,
       relayTransactionMetadata,
+      affiliateFee: buildAffiliateFee({
+        strategy: 'fixed_asset',
+        affiliateBps,
+        sellAsset,
+        buyAsset,
+        sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+        fixedAssetId: chainIdToFeeAssetId(baseChainId),
+        fixedAsset: deps.assetsById[chainIdToFeeAssetId(baseChainId)],
+        isEstimate: true,
+      }),
     }
   })
 

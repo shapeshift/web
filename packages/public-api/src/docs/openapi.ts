@@ -316,6 +316,19 @@ const AffiliateAddressHeaderSchema = z
     },
   })
 
+const AffiliateBpsHeaderSchema = z
+  .string()
+  .optional()
+  .openapi({
+    param: {
+      name: 'X-Affiliate-Bps',
+      in: 'header',
+      description:
+        'Custom affiliate fee in basis points (0-1000). Defaults to 10 (0.1%). Can be used independently of X-Affiliate-Address.',
+      example: '10',
+    },
+  })
+
 // GET /v1/swap/rates
 registry.registerPath({
   method: 'get',
@@ -325,7 +338,10 @@ registry.registerPath({
     'Get informative swap rates from all available swappers. This does not create a transaction.',
   tags: ['Swaps'],
   request: {
-    headers: z.object({ 'X-Affiliate-Address': AffiliateAddressHeaderSchema }),
+    headers: z.object({
+      'X-Affiliate-Address': AffiliateAddressHeaderSchema,
+      'X-Affiliate-Bps': AffiliateBpsHeaderSchema,
+    }),
     query: RatesRequestSchema,
   },
   responses: {
@@ -352,7 +368,10 @@ registry.registerPath({
     'Get an executable quote for a swap, including transaction data. Requires a specific swapper name.',
   tags: ['Swaps'],
   request: {
-    headers: z.object({ 'X-Affiliate-Address': AffiliateAddressHeaderSchema }),
+    headers: z.object({
+      'X-Affiliate-Address': AffiliateAddressHeaderSchema,
+      'X-Affiliate-Bps': AffiliateBpsHeaderSchema,
+    }),
     body: {
       content: {
         'application/json': {

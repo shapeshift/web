@@ -34,6 +34,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import {
   ACROSS_SOLANA_TOKEN_ADDRESS,
@@ -422,6 +423,14 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     estimatedExecutionTimeMs: quote.expectedFillTime * 1000,
     acrossTransactionMetadata,
     solanaTransactionMetadata,
+    affiliateFee: buildAffiliateFee({
+      strategy: 'buy_asset',
+      affiliateBps,
+      sellAsset,
+      buyAsset,
+      sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+    }),
   }
 
   const baseQuoteOrRate = {

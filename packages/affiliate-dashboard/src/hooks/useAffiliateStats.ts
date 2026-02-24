@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 const API_BASE_URL = '/v1/affiliate/stats'
 
@@ -34,22 +34,17 @@ export const useAffiliateStats = (): UseAffiliateStatsReturn => {
     setStats(null)
 
     try {
-      const response = await fetch(
-        `${API_BASE_URL}?address=${encodeURIComponent(address)}`,
-      )
+      const response = await fetch(`${API_BASE_URL}?address=${encodeURIComponent(address)}`)
 
       if (!response.ok) {
         const errorText = await response.text().catch(() => 'Unknown error')
-        throw new Error(
-          `Request failed (${String(response.status)}): ${errorText}`,
-        )
+        throw new Error(`Request failed (${String(response.status)}): ${errorText}`)
       }
 
       const data: AffiliateStats = await response.json()
       setStats(data)
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to fetch affiliate stats.'
+      const message = err instanceof Error ? err.message : 'Failed to fetch affiliate stats.'
       setError(message)
     } finally {
       setIsLoading(false)

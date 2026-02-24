@@ -27,6 +27,7 @@ import {
   getInputOutputRate,
   makeSwapErrorRight,
 } from '../../../utils'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
 import {
   CHAINFLIP_BOOST_SWAP_SOURCE,
   CHAINFLIP_DCA_BOOST_SWAP_SOURCE,
@@ -355,6 +356,14 @@ export const getQuoteOrRate = async (
                 : undefined,
               chainflipMaxBoostFee: getMaxBoostFee(),
             },
+            affiliateFee: buildAffiliateFee({
+              strategy: 'buy_asset',
+              affiliateBps: commissionBps,
+              sellAsset,
+              buyAsset,
+              sellAmountCryptoBaseUnit: singleQuoteResponse.boostQuote.ingressAmountNative,
+              buyAmountCryptoBaseUnit: singleQuoteResponse.boostQuote.egressAmountNative,
+            }),
           },
         ],
       } as TradeQuote | TradeRate
@@ -418,6 +427,14 @@ export const getQuoteOrRate = async (
               : undefined,
             chainflipMaxBoostFee: 0,
           },
+          affiliateFee: buildAffiliateFee({
+            strategy: 'buy_asset',
+            affiliateBps: commissionBps,
+            sellAsset,
+            buyAsset,
+            sellAmountCryptoBaseUnit: singleQuoteResponse.ingressAmountNative,
+            buyAmountCryptoBaseUnit: singleQuoteResponse.egressAmountNative,
+          }),
         },
       ],
     } as TradeQuote | TradeRate

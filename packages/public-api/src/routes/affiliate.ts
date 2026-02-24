@@ -8,15 +8,12 @@ import type { ErrorResponse } from '../types'
 export const AffiliateStatsRequestSchema = z.object({
   address: z
     .string()
-    .regex(/^0x[0-9a-fA-F]{40}$/, 'address must be a valid EVM address (0x followed by 40 hex characters)'),
-  startDate: z
-    .string()
-    .datetime()
-    .optional(),
-  endDate: z
-    .string()
-    .datetime()
-    .optional(),
+    .regex(
+      /^0x[0-9a-fA-F]{40}$/,
+      'address must be a valid EVM address (0x followed by 40 hex characters)',
+    ),
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
 })
 
 export type AffiliateStatsRequest = z.infer<typeof AffiliateStatsRequestSchema>

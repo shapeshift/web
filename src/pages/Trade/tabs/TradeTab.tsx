@@ -34,7 +34,7 @@ export const TradeTab = memo(() => {
   const navigate = useNavigate()
   const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
-  
+
   useAffiliateTracking()
 
   // Extract params directly from location.pathname using matchPath instead of useParams()

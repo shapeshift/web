@@ -424,7 +424,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       sellAsset,
       buyAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-      affiliateBps: DEFAULT_AFFILIATE_BPS,
+      affiliateBps: req.affiliateInfo?.affiliateBps ?? DEFAULT_AFFILIATE_BPS,
       allowMultiHop,
       slippageTolerancePercentageDecimal: slippage,
       receiveAddress,

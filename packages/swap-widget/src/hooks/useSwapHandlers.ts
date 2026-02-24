@@ -4,6 +4,7 @@ import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { Asset, TradeRate } from '../types'
 import { parseAmount } from '../types'
+import { buildShapeShiftTradeUrl } from '../utils/redirect'
 
 type UseSwapHandlersParams = {
   onConnectWallet?: () => void
@@ -11,7 +12,11 @@ type UseSwapHandlersParams = {
   affiliateAddress?: string
 }
 
-export const useSwapHandlers = ({ onConnectWallet, onAssetSelect, affiliateAddress }: UseSwapHandlersParams) => {
+export const useSwapHandlers = ({
+  onConnectWallet,
+  onAssetSelect,
+  affiliateAddress,
+}: UseSwapHandlersParams) => {
   const actorRef = SwapMachineCtx.useActorRef()
   const { walletClient, bitcoin, solana } = useSwapWallet()
 
@@ -63,19 +68,16 @@ export const useSwapHandlers = ({ onConnectWallet, onAssetSelect, affiliateAddre
 
   const redirectToShapeShift = useCallback(() => {
     const snap = actorRef.getSnapshot()
-    const params = new URLSearchParams({
+    const sellAmountBaseUnit = snap.context.sellAmount
+      ? parseAmount(snap.context.sellAmount, snap.context.sellAsset.precision)
+      : undefined
+    const url = buildShapeShiftTradeUrl({
       sellAssetId: snap.context.sellAsset.assetId,
       buyAssetId: snap.context.buyAsset.assetId,
-      sellAmount: snap.context.sellAmount,
+      sellAmountBaseUnit,
+      affiliateAddress,
     })
-    if (affiliateAddress) {
-      params.set('affiliate', affiliateAddress)
-    }
-    window.open(
-      `https://app.shapeshift.com/trade?${params.toString()}`,
-      '_blank',
-      'noopener,noreferrer',
-    )
+    window.open(url, '_blank', 'noopener,noreferrer')
   }, [actorRef, affiliateAddress])
 
   const handleButtonClick = useCallback(() => {
@@ -95,23 +97,27 @@ export const useSwapHandlers = ({ onConnectWallet, onAssetSelect, affiliateAddre
       !snap.context.isSellAssetUtxo &&
       !snap.context.isSellAssetSolana
     ) {
-      const params = new URLSearchParams({
+      const sellAmountBaseUnit = snap.context.sellAmount
+        ? parseAmount(snap.context.sellAmount, snap.context.sellAsset.precision)
+        : undefined
+      const url = buildShapeShiftTradeUrl({
         sellAssetId: snap.context.sellAsset.assetId,
         buyAssetId: snap.context.buyAsset.assetId,
-        sellAmount: snap.context.sellAmount,
+        sellAmountBaseUnit,
+        affiliateAddress,
       })
-      if (affiliateAddress) {
-        params.set('affiliate', affiliateAddress)
-      }
-      window.open(
-        `https://app.shapeshift.com/trade?${params.toString()}`,
-        '_blank',
-        'noopener,noreferrer',
-      )
+      window.open(url, '_blank', 'noopener,noreferrer')
       return
     }
     actorRef.send({ type: 'FETCH_QUOTE' })
-  }, [actorRef, bitcoin.isConnected, solana.isConnected, walletClient, onConnectWallet, affiliateAddress])
+  }, [
+    actorRef,
+    bitcoin.isConnected,
+    solana.isConnected,
+    walletClient,
+    onConnectWallet,
+    affiliateAddress,
+  ])
 
   return {
     handleSwapTokens,

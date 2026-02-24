@@ -53,7 +53,7 @@ export const getServerConfig = (): SwapperConfig => ({
 })
 
 // Default affiliate fee in basis points
-export const DEFAULT_AFFILIATE_BPS = '60'
+export const DEFAULT_AFFILIATE_BPS = '10'
 
 // Swap service backend URL
 export const SWAP_SERVICE_BASE_URL = process.env.SWAP_SERVICE_BASE_URL || 'http://localhost:3000'

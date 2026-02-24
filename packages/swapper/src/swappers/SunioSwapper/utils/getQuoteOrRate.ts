@@ -15,6 +15,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { DEFAULT_SLIPPAGE_PERCENTAGE, SUNIO_SMART_ROUTER_CONTRACT } from './constants'
 import { fetchSunioQuote } from './fetchFromSunio'
 import { isSupportedChainId } from './helpers/helpers'
@@ -254,6 +255,15 @@ export async function getQuoteOrRate(
             sunioTransactionMetadata: {
               route: bestRoute,
             },
+          }),
+          affiliateFee: buildAffiliateFee({
+            strategy: 'buy_asset',
+            affiliateBps,
+            sellAsset,
+            buyAsset,
+            sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+            isEstimate: true,
           }),
         },
       ],

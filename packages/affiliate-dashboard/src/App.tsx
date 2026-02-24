@@ -1,4 +1,5 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
+
 import { useAffiliateStats } from './hooks/useAffiliateStats'
 
 const formatUsd = (value: number): string =>
@@ -9,19 +10,15 @@ const formatUsd = (value: number): string =>
     maximumFractionDigits: 2,
   }).format(value)
 
-const formatNumber = (value: number): string =>
-  new Intl.NumberFormat('en-US').format(value)
+const formatNumber = (value: number): string => new Intl.NumberFormat('en-US').format(value)
 
 export const App = (): React.JSX.Element => {
   const [address, setAddress] = useState('')
   const { stats, isLoading, error, fetchStats } = useAffiliateStats()
 
-  const handleAddressChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>): void => {
-      setAddress(e.target.value)
-    },
-    [],
-  )
+  const handleAddressChange = useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
+    setAddress(e.target.value)
+  }, [])
 
   const handleViewStats = useCallback((): void => {
     void fetchStats(address)
@@ -36,10 +33,7 @@ export const App = (): React.JSX.Element => {
     [fetchStats, address],
   )
 
-  const isButtonDisabled = useMemo(
-    () => isLoading || !address.trim(),
-    [isLoading, address],
-  )
+  const isButtonDisabled = useMemo(() => isLoading || !address.trim(), [isLoading, address])
 
   const statCards = useMemo(() => {
     if (!stats) return null
@@ -69,22 +63,20 @@ export const App = (): React.JSX.Element => {
         <header style={styles.header}>
           <div style={styles.logoMark}>◆</div>
           <h1 style={styles.title}>ShapeShift Affiliate Dashboard</h1>
-          <p style={styles.subtitle}>
-            Track your affiliate performance and earnings
-          </p>
+          <p style={styles.subtitle}>Track your affiliate performance and earnings</p>
         </header>
 
         <div style={styles.inputGroup}>
           <div style={styles.inputWrapper}>
             <input
-              type="text"
+              type='text'
               value={address}
               onChange={handleAddressChange}
               onKeyDown={handleKeyDown}
-              placeholder="Enter affiliate address (0x...)"
+              placeholder='Enter affiliate address (0x...)'
               style={styles.input}
               spellCheck={false}
-              autoComplete="off"
+              autoComplete='off'
             />
           </div>
           <button
@@ -103,7 +95,7 @@ export const App = (): React.JSX.Element => {
 
         {statCards ? (
           <div style={styles.statsGrid}>
-            {statCards.map((card) => (
+            {statCards.map(card => (
               <div key={card.label} style={styles.statCard}>
                 <div style={styles.cardIcon}>{card.icon}</div>
                 <div style={styles.cardValue}>{card.value}</div>
@@ -131,8 +123,7 @@ const styles: Record<string, React.CSSProperties> = {
     minHeight: '100vh',
     background: '#0a0b0d',
     color: '#e2e4e9',
-    fontFamily:
-      '"DM Sans", "Söhne", -apple-system, BlinkMacSystemFont, sans-serif',
+    fontFamily: '"DM Sans", "Söhne", -apple-system, BlinkMacSystemFont, sans-serif',
     position: 'relative',
     overflow: 'hidden',
   },
@@ -197,8 +188,7 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '14px 28px',
     fontSize: 15,
     fontWeight: 600,
-    fontFamily:
-      '"DM Sans", "Söhne", -apple-system, BlinkMacSystemFont, sans-serif',
+    fontFamily: '"DM Sans", "Söhne", -apple-system, BlinkMacSystemFont, sans-serif',
     background: '#386ff9',
     color: '#fff',
     border: 'none',

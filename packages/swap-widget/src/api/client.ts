@@ -6,6 +6,7 @@ const DEFAULT_API_BASE_URL =
 export type ApiClientConfig = {
   baseUrl?: string
   affiliateAddress?: string
+  affiliateBps?: string
 }
 
 export const createApiClient = (config: ApiClientConfig = {}) => {
@@ -23,6 +24,9 @@ export const createApiClient = (config: ApiClientConfig = {}) => {
     }
     if (config.affiliateAddress) {
       headers['x-affiliate-address'] = config.affiliateAddress
+    }
+    if (config.affiliateBps) {
+      headers['x-affiliate-bps'] = config.affiliateBps
     }
 
     const controller = new AbortController()

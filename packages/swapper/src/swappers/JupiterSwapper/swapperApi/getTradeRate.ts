@@ -25,6 +25,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { SOLANA_RANDOM_ADDRESS, TOKEN_2022_PROGRAM_ID } from '../utils/constants'
 import {
   calculateAccountCreationCosts,
@@ -239,6 +240,14 @@ export const getTradeRate = async (
         allowanceContract: '0x0',
         // Swap are so fasts on solana that times are under 100ms displaying 0 or very small amount of time is not user friendly
         estimatedExecutionTimeMs: undefined,
+        affiliateFee: buildAffiliateFee({
+          strategy: 'buy_asset',
+          affiliateBps,
+          sellAsset,
+          buyAsset,
+          sellAmountCryptoBaseUnit: priceResponse.inAmount,
+          buyAmountCryptoBaseUnit: priceResponse.outAmount,
+        }),
       },
     ],
   }

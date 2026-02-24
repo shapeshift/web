@@ -78,7 +78,7 @@ class QuoteStore {
     // Check expiration
     const now = Date.now()
     const effectiveTtl = quote.txHash
-      ? quote.registeredAt! + QuoteStore.EXECUTION_TTL_MS
+      ? (quote.registeredAt ?? quote.createdAt) + QuoteStore.EXECUTION_TTL_MS
       : quote.expiresAt
 
     if (now > effectiveTtl) {
@@ -207,7 +207,8 @@ export const SWAPPER_VERIFICATION_MATRIX: Record<string, SwapperVerificationInfo
     category: 'metadata',
     requiredMetadata: ['nearIntentsDepositAddress'],
     canVerifyServerSide: true,
-    notes: 'Needs nearIntentsSpecific.depositAddress + VITE_NEAR_INTENTS_API_KEY — store at quote time',
+    notes:
+      'Needs nearIntentsSpecific.depositAddress + VITE_NEAR_INTENTS_API_KEY — store at quote time',
   },
   Relay: {
     category: 'metadata',
@@ -288,7 +289,7 @@ const StatusRequestSchema = z.object({
   txHash: z.string().min(1),
 })
 
-export const getSwapStatus = async (req: Request, res: Response): Promise<void> => {
+export const getSwapStatus = (req: Request, res: Response): void => {
   try {
     const parsed = StatusRequestSchema.safeParse(req.query)
 
@@ -360,7 +361,7 @@ const RegisterRequestSchema = z.object({
   chainId: z.string().min(1),
 })
 
-export const registerSwap = async (req: Request, res: Response): Promise<void> => {
+export const registerSwap = (req: Request, res: Response): void => {
   try {
     const parsed = RegisterRequestSchema.safeParse(req.body)
 
@@ -440,19 +441,19 @@ export const registerSwap = async (req: Request, res: Response): Promise<void> =
  * Run: import { runAbuseVectorTests } from './status-spike' and call it
  */
 export const runAbuseVectorTests = (): {
-  results: Array<{
+  results: {
     vector: string
     description: string
     mitigated: boolean
     mechanism: string
-  }>
+  }[]
 } => {
-  const results: Array<{
+  const results: {
     vector: string
     description: string
     mitigated: boolean
     mechanism: string
-  }> = []
+  }[] = []
 
   const now = Date.now()
 
@@ -509,7 +510,7 @@ export const runAbuseVectorTests = (): {
   {
     const testQuoteId = 'test-xaffiliate-' + now
     const affiliateA = '0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
-    const affiliateB = '0xBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'
+    const _affiliateB = '0xBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'
 
     quoteStore.set(testQuoteId, {
       quoteId: testQuoteId,
@@ -579,7 +580,8 @@ export const runAbuseVectorTests = (): {
       vector: 'Expired quote',
       description: 'Attacker submits txHash against a quote that expired (past expiresAt)',
       mitigated: expiredQuote === undefined,
-      mechanism: 'QuoteStore.get() checks expiresAt on every read → returns undefined → 404 response',
+      mechanism:
+        'QuoteStore.get() checks expiresAt on every read → returns undefined → 404 response',
     })
   }
 
@@ -613,7 +615,8 @@ export const runAbuseVectorTests = (): {
       vector: 'Chain ID mismatch',
       description: 'Attacker submits txHash from chain B against a quote for chain A',
       mitigated: chainMismatchBlocked,
-      mechanism: 'registerSwap validates chainId matches storedQuote.sellChainId → 400 CHAIN_MISMATCH',
+      mechanism:
+        'registerSwap validates chainId matches storedQuote.sellChainId → 400 CHAIN_MISMATCH',
     })
 
     quoteStore.delete(testQuoteId)

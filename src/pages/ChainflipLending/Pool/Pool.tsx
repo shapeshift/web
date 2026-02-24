@@ -21,6 +21,9 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useLocation, useNavigate } from 'react-router-dom'
 
+import { Borrow } from './components/Borrow/Borrow'
+import { Collateral } from './components/Borrow/Collateral'
+import { Repay } from './components/Borrow/Repay'
 import { Deposit } from './components/Deposit/Deposit'
 import { Supply } from './components/Supply/Supply'
 import { Withdraw } from './components/Withdraw/Withdraw'
@@ -39,6 +42,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
+import { useChainflipLoanAccount } from '@/pages/ChainflipLending/hooks/useChainflipLoanAccount'
 import { useChainflipSupplyPositions } from '@/pages/ChainflipLending/hooks/useChainflipSupplyPositions'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { useAppSelector } from '@/state/store'
@@ -50,12 +54,21 @@ enum PoolTabIndex {
   Supply = 0,
   Withdraw = 1,
   Deposit = 2,
+  Collateral = 3,
+  Borrow = 4,
+  Repay = 5,
 }
 
-const POOL_TAB_ITEMS = [
+const SUPPLY_TAB_ITEMS = [
   { label: 'chainflipLending.supply.title', index: PoolTabIndex.Supply },
   { label: 'chainflipLending.withdraw.title', index: PoolTabIndex.Withdraw },
   { label: 'chainflipLending.depositToChainflip', index: PoolTabIndex.Deposit },
+]
+
+const BORROW_TAB_ITEMS = [
+  { label: 'chainflipLending.collateral.title', index: PoolTabIndex.Collateral },
+  { label: 'chainflipLending.borrow.title', index: PoolTabIndex.Borrow },
+  { label: 'chainflipLending.repay.title', index: PoolTabIndex.Repay },
 ]
 
 type PoolHeaderProps = {
@@ -117,7 +130,8 @@ export const Pool = () => {
   const location = useLocation()
   const { dispatch: walletDispatch } = useWallet()
   const { accountId, setAccountId } = useChainflipLendingAccount()
-  const [tabIndex, setTabIndex] = useState(PoolTabIndex.Supply)
+  const [supplyTabIndex, setSupplyTabIndex] = useState(PoolTabIndex.Supply)
+  const [borrowTabIndex, setBorrowTabIndex] = useState(PoolTabIndex.Collateral)
 
   const handleConnectWallet = useCallback(
     () => walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
@@ -132,6 +146,13 @@ export const Pool = () => {
   const asset = useAppSelector(state => selectAssetById(state, poolAssetId))
   const { pools, isLoading } = useChainflipLendingPools()
   const { supplyPositions, isLoading: isPositionsLoading } = useChainflipSupplyPositions()
+  const {
+    collateralWithFiat,
+    loansWithFiat,
+    totalCollateralFiat,
+    totalBorrowedFiat: userBorrowedFiat,
+    isLoading: isLoanLoading,
+  } = useChainflipLoanAccount()
 
   const poolData = useMemo(() => pools.find(p => p.assetId === poolAssetId), [pools, poolAssetId])
 
@@ -142,10 +163,34 @@ export const Pool = () => {
 
   const headerComponent = useMemo(() => <PoolHeader assetId={poolAssetId} />, [poolAssetId])
 
-  const tabHeader = useMemo(
-    () => <FormHeader items={POOL_TAB_ITEMS} setStepIndex={setTabIndex} activeIndex={tabIndex} />,
-    [tabIndex],
+  const supplyTabHeader = useMemo(
+    () => (
+      <FormHeader
+        items={SUPPLY_TAB_ITEMS}
+        setStepIndex={setSupplyTabIndex}
+        activeIndex={supplyTabIndex}
+      />
+    ),
+    [supplyTabIndex],
   )
+
+  const borrowTabHeader = useMemo(
+    () => (
+      <FormHeader
+        items={BORROW_TAB_ITEMS}
+        setStepIndex={setBorrowTabIndex}
+        activeIndex={borrowTabIndex}
+      />
+    ),
+    [borrowTabIndex],
+  )
+
+  const poolCollateral = useMemo(
+    () => collateralWithFiat.find(c => c.assetId === poolAssetId),
+    [collateralWithFiat, poolAssetId],
+  )
+
+  const firstLoan = useMemo(() => loansWithFiat[0], [loansWithFiat])
 
   const utilisationPercent = useMemo(
     () => (poolData ? bnOrZero(poolData.pool.utilisation_rate).div(1e9).toFixed() : '0'),
@@ -304,17 +349,31 @@ export const Pool = () => {
                   </Box>
                   <Box>
                     <RawText fontSize='xs' color='text.subtle' mb={1} textTransform='uppercase'>
-                      {translate('chainflipLending.collateral')}
+                      {translate('chainflipLending.collateral.title')}
                     </RawText>
-                    <Amount.Fiat value='0' fontSize='lg' fontWeight='bold' />
+                    <Skeleton isLoaded={!isLoanLoading}>
+                      <Amount.Fiat value={totalCollateralFiat} fontSize='lg' fontWeight='bold' />
+                    </Skeleton>
                     {accountId ? (
-                      <Amount.Crypto
-                        value='0'
-                        symbol={asset.symbol}
-                        fontSize='xs'
-                        color='text.subtle'
-                      />
+                      <Skeleton isLoaded={!isLoanLoading}>
+                        <Amount.Crypto
+                          value={poolCollateral?.amountCryptoPrecision ?? '0'}
+                          symbol={asset.symbol}
+                          fontSize='xs'
+                          color='text.subtle'
+                        />
+                      </Skeleton>
                     ) : null}
+                  </Box>
+                </SimpleGrid>
+                <SimpleGrid columns={2} spacing={4}>
+                  <Box>
+                    <RawText fontSize='xs' color='text.subtle' mb={1} textTransform='uppercase'>
+                      {translate('chainflipLending.borrow.borrowed')}
+                    </RawText>
+                    <Skeleton isLoaded={!isLoanLoading}>
+                      <Amount.Fiat value={userBorrowedFiat} fontSize='lg' fontWeight='bold' />
+                    </Skeleton>
                   </Box>
                 </SimpleGrid>
                 {!accountId ? (
@@ -336,8 +395,8 @@ export const Pool = () => {
 
           <Card>
             <CardBody px={0} py={0}>
-              <Tabs index={tabIndex}>
-                {tabHeader}
+              <Tabs index={supplyTabIndex}>
+                {supplyTabHeader}
                 <TabPanels>
                   <TabPanel p={0}>
                     <Supply assetId={poolAssetId} />
@@ -347,6 +406,33 @@ export const Pool = () => {
                   </TabPanel>
                   <TabPanel p={0}>
                     <Deposit assetId={poolAssetId} />
+                  </TabPanel>
+                </TabPanels>
+              </Tabs>
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardBody px={0} py={0}>
+              <Tabs index={borrowTabIndex - PoolTabIndex.Collateral}>
+                {borrowTabHeader}
+                <TabPanels>
+                  <TabPanel p={0}>
+                    <Collateral assetId={poolAssetId} mode='add' />
+                  </TabPanel>
+                  <TabPanel p={0}>
+                    <Borrow assetId={poolAssetId} />
+                  </TabPanel>
+                  <TabPanel p={0}>
+                    {firstLoan ? (
+                      <Repay assetId={poolAssetId} loanId={firstLoan.loanId} />
+                    ) : (
+                      <Box p={6} textAlign='center'>
+                        <RawText color='text.subtle'>
+                          {translate('chainflipLending.borrow.noCollateral')}
+                        </RawText>
+                      </Box>
+                    )}
                   </TabPanel>
                 </TabPanels>
               </Tabs>

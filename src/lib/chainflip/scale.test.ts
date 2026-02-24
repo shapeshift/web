@@ -5,11 +5,15 @@ import {
   encodeAddCollateral,
   encodeAddLenderFunds,
   encodeBatch,
+  encodeExpandLoan,
+  encodeInitiateVoluntaryLiquidation,
+  encodeMakeRepayment,
   encodeNonNativeSignedCall,
   encodeRegisterLiquidityRefundAddress,
   encodeRegisterLpAccount,
   encodeRemoveLenderFunds,
   encodeRequestLiquidityDepositAddress,
+  encodeStopVoluntaryLiquidation,
 } from './scale'
 
 describe('chainflip scale encoders', () => {
@@ -55,6 +59,37 @@ describe('chainflip scale encoders', () => {
 
     const encoded = encodeBatch([addLenderFunds, removeLenderFunds])
     expect(encoded).toBe('0x020b083505050100000000000000000000000000000035060100')
+  })
+
+  it('encodes expandLoan', () => {
+    const encoded = encodeExpandLoan(1, 500, [
+      { asset: { chain: 'Bitcoin', asset: 'BTC' }, amount: 100 },
+    ])
+    expect(encoded).toMatch(/^0x350b/)
+    expect(encoded).toContain('0100000000000000')
+  })
+
+  it('encodes makeRepayment full', () => {
+    const encoded = encodeMakeRepayment(1, 'full')
+    expect(encoded).toMatch(/^0x350c/)
+    expect(encoded).toContain('0100000000000000')
+    expect(encoded).toContain('00')
+  })
+
+  it('encodes makeRepayment exact', () => {
+    const encoded = encodeMakeRepayment(1, 1000)
+    expect(encoded).toMatch(/^0x350c/)
+    expect(encoded).toContain('0100000000000000')
+  })
+
+  it('encodes initiateVoluntaryLiquidation', () => {
+    const encoded = encodeInitiateVoluntaryLiquidation()
+    expect(encoded).toBe('0x350d')
+  })
+
+  it('encodes stopVoluntaryLiquidation', () => {
+    const encoded = encodeStopVoluntaryLiquidation()
+    expect(encoded).toBe('0x350e')
   })
 
   it('encodes nonNativeSignedCall extrinsic', () => {

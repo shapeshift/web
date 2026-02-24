@@ -2405,7 +2405,31 @@
       },
       "noFreeBalance": "No free balance. Deposit to Chainflip first."
     },
-    "borrow": "Borrow",
+    "borrow": {
+      "title": "Borrow",
+      "amount": "Borrow amount",
+      "available": "Available to borrow",
+      "maxLtv": "Max LTV (80%)",
+      "currentLtv": "Current LTV",
+      "projectedLtv": "Projected LTV",
+      "confirmTitle": "Confirm Borrow",
+      "confirmDescription": "Borrow %{amount} %{asset} against your collateral",
+      "confirmAndBorrow": "Confirm & Borrow",
+      "executingTitle": "Borrowing...",
+      "executingDescription": "Your loan is being processed",
+      "successTitle": "Borrow Successful",
+      "successDescription": "You borrowed %{amount} %{asset}",
+      "borrowed": "Borrowed",
+      "errorTitle": "Borrow Failed",
+      "errorDescription": "Something went wrong while borrowing",
+      "steps": {
+        "signing": "Signing loan request",
+        "confirming": "Confirming loan"
+      },
+      "noCollateral": "Add collateral first to borrow",
+      "minimumLoan": "Minimum loan: %{amount}",
+      "availableTooltip": "Your free balance on Chainflip available for borrowing"
+    },
     "totalSupplied": "Total Supplied",
     "totalSuppliedTooltip": "Total value of assets supplied across all Chainflip lending pools.",
     "availableLiquidity": "Available Liquidity",
@@ -2424,7 +2448,34 @@
     "yourPosition": "Your Position",
     "freeBalance": "Free Balance",
     "supplied": "Supplied",
-    "collateral": "Collateral",
+    "collateral": {
+      "title": "Collateral",
+      "add": "Add Collateral",
+      "remove": "Remove Collateral",
+      "amount": "Collateral amount",
+      "availableToAdd": "Available to add",
+      "availableToRemove": "Available to remove",
+      "confirmAddTitle": "Confirm Add Collateral",
+      "confirmRemoveTitle": "Confirm Remove Collateral",
+      "confirmAddDescription": "Add %{amount} %{asset} as collateral",
+      "confirmRemoveDescription": "Remove %{amount} %{asset} from collateral",
+      "confirmAdd": "Confirm & Add",
+      "confirmRemove": "Confirm & Remove",
+      "executingTitle": "Processing...",
+      "executingDescription": "Your collateral update is being processed",
+      "successAddTitle": "Collateral Added",
+      "successRemoveTitle": "Collateral Removed",
+      "successAddDescription": "%{asset} collateral added successfully",
+      "successRemoveDescription": "%{asset} collateral removed successfully",
+      "added": "Added",
+      "removed": "Removed",
+      "errorTitle": "Collateral Update Failed",
+      "errorDescription": "Something went wrong",
+      "steps": {
+        "signing": "Signing collateral update",
+        "confirming": "Confirming update"
+      }
+    },
     "depositToChainflip": "Deposit to Chainflip",
     "depositDescription": "Deposit assets from your wallet to your Chainflip State Chain account to start lending.",
     "freeBalanceDescription": "Available balance on Chainflip State Chain. Supply to pools to earn yield or use as collateral.",
@@ -2506,6 +2557,36 @@
         "signingEgress": "Withdrawing to wallet",
         "confirming": "Confirming withdrawal"
       }
+    },
+    "repay": {
+      "title": "Repay",
+      "amount": "Repay amount",
+      "outstanding": "Outstanding debt",
+      "fullRepayment": "Full repayment",
+      "partialRepayment": "Partial repayment",
+      "confirmTitle": "Confirm Repayment",
+      "confirmDescription": "Repay %{amount} %{asset}",
+      "confirmAndRepay": "Confirm & Repay",
+      "executingTitle": "Repaying...",
+      "executingDescription": "Your repayment is being processed",
+      "successTitle": "Repayment Successful",
+      "successDescription": "You repaid %{amount} %{asset}",
+      "repaid": "Repaid",
+      "errorTitle": "Repayment Failed",
+      "errorDescription": "Something went wrong while repaying",
+      "steps": {
+        "signing": "Signing repayment",
+        "confirming": "Confirming repayment"
+      }
+    },
+    "ltv": {
+      "target": "Target LTV",
+      "topup": "Auto-Topup",
+      "softLiquidation": "Soft Liquidation",
+      "hardLiquidation": "Hard Liquidation",
+      "safe": "Safe",
+      "warning": "Warning",
+      "danger": "Danger"
     }
   },
   "chart": {

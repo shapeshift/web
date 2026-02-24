@@ -10,15 +10,21 @@ if (!ALLOWED_LOCALES.includes(locale)) {
 }
 const translationsArg = process.argv[3];
 
+if (!translationsArg) {
+  console.error('Usage: node merge.js <locale> <translations-json-or-file> [--force]');
+  process.exit(1);
+}
+
 let newTranslations;
-if (translationsArg && (translationsArg.includes('/') || translationsArg.endsWith('.json'))) {
-  if (!fs.existsSync(translationsArg)) {
-    console.error(`File not found: ${translationsArg}`);
-    process.exit(1);
-  }
+if (fs.existsSync(translationsArg)) {
   newTranslations = JSON.parse(fs.readFileSync(translationsArg, 'utf8'));
 } else {
-  newTranslations = JSON.parse(translationsArg);
+  try {
+    newTranslations = JSON.parse(translationsArg);
+  } catch (e) {
+    console.error(`Invalid JSON argument: ${e.message}`);
+    process.exit(1);
+  }
 }
 
 const localeFilePath = 'src/assets/translations/' + locale + '/main.json';

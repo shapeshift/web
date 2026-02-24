@@ -2854,9 +2854,9 @@
       "failed": "Votre réclamation de %{amount} %{symbol} a échoué."
     },
     "yield": {
-      "unstakeAvailableIn": "Votre déstaking de %{symbol} sera disponible dans %{duration}.",
-      "unstakeReady": "Votre déstaking de %{symbol} est prêt à être réclamé.",
-      "unstakeClaimed": "Votre déstaking de %{symbol} a été réclamé."
+      "unstakeAvailableIn": "Votre déstake en %{symbol} sera disponible dans %{duration}.",
+      "unstakeReady": "Votre déstake en %{symbol} est prêt à être réclamé.",
+      "unstakeClaimed": "Votre déstake en %{symbol} a été réclamé."
     },
     "bridge": {
       "processing": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} vers %{buyAmountAndSymbol}.%{buyChainShortName} est en cours de traitement.",

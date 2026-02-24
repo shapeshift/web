@@ -25,13 +25,13 @@ const LOCALE_INFO = {
 }
 
 const GLOSSARY_TARGET_TERMS = [
-  { englishPattern: 'dust', glossaryKey: 'dust (crypto)', isNeverTranslate: true },
-  { englishPattern: 'claim', glossaryKey: 'claim (DeFi rewards)', isNeverTranslate: false },
-  { englishPattern: 'trade', glossaryKey: 'trade (action)', isNeverTranslate: false },
+  { englishPattern: 'dust', glossaryKey: 'dust', isNeverTranslate: true },
+  { englishPattern: 'claim', glossaryKey: 'claim', isNeverTranslate: false },
+  { englishPattern: 'trade', glossaryKey: 'trade', isNeverTranslate: false },
   { englishPattern: 'impermanent loss', glossaryKey: 'impermanent loss', isNeverTranslate: false },
-  { englishPattern: 'approve', glossaryKey: 'approve (on-chain)', isNeverTranslate: false },
+  { englishPattern: 'approve', glossaryKey: 'approve', isNeverTranslate: false },
   { englishPattern: 'seed phrase', glossaryKey: 'seed phrase', isNeverTranslate: false },
-  { englishPattern: 'deposit', glossaryKey: 'deposit (funds)', isNeverTranslate: false },
+  { englishPattern: 'deposit', glossaryKey: 'deposit', isNeverTranslate: false },
   { englishPattern: 'staking', glossaryKey: 'staking', isNeverTranslate: false },
   { englishPattern: 'swap', glossaryKey: 'swap', isNeverTranslate: false },
   { englishPattern: 'wallet', glossaryKey: 'wallet', isNeverTranslate: false },

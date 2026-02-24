@@ -1,6 +1,6 @@
-# Russian (ru) — Formal (vы)
+# Russian (ru) — Formal (вы)
 
-- Use formal "vы" address consistently
+- Use formal "вы" address consistently
 - "staking" = "стейкинг" — NEVER "ставка" (= gambling bet) or "стейкировать" (malformed verb)
 - "restaking" = "рестейкинг" — NEVER "переставка" (= rearranging physical objects, catastrophically wrong)
 - "unstaking" = "снять со стейкинга" — NEVER native calques that produce meaningless words

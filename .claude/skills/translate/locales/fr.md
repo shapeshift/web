@@ -9,3 +9,6 @@
 - "seed phrase" = "phrase de récupération" — never literal "phrase de graine" or "phrase de semences"
 - "unstake" = "déstaker" — coined French DeFi verb, consistent throughout
 - "liquidity pool" = "pool de liquidités" — never "piscine"
+- French elision with dynamic placeholders: "de" requires elision before vowels ("d'ETH") but placeholders resolve at runtime to unknown values. Two rules:
+  - When a numeric %{amount} precedes the symbol, "de" is safe — digits prevent elision (e.g. "dépôt de %{amount} %{symbol}" → "dépôt de 1,5 ETH" is correct French)
+  - When an asset/symbol placeholder appears directly after the preposition with no number buffer, use "en" (denominated in) instead of "de" (e.g. "montant en %{symbol}" not "montant de %{symbol}", "déstake en %{symbol}" not "déstake de %{symbol}")

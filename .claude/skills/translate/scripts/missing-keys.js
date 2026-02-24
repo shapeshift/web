@@ -19,8 +19,12 @@ function findMissing(source, target, path) {
 const locales = ['de','es','fr','ja','pt','ru','tr','uk','zh'];
 const result = {};
 for (const locale of locales) {
-  const target = JSON.parse(fs.readFileSync('src/assets/translations/' + locale + '/main.json', 'utf8'));
-  const missing = findMissing(en, target);
-  if (missing.length > 0) result[locale] = missing;
+  try {
+    const target = JSON.parse(fs.readFileSync('src/assets/translations/' + locale + '/main.json', 'utf8'));
+    const missing = findMissing(en, target);
+    if (missing.length > 0) result[locale] = missing;
+  } catch (e) {
+    result[locale] = [{ error: e.message }];
+  }
 }
 console.log(JSON.stringify(result, null, 2));

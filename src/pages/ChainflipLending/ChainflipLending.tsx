@@ -1,14 +1,21 @@
-import { Stack } from '@chakra-ui/react'
+import { memo } from 'react'
+import { Route, Routes } from 'react-router-dom'
 
-import { Main } from '@/components/Layout/Main'
-import { Text } from '@/components/Text'
+import { ChainflipLendingAccountProvider } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
+import { BorrowTab } from '@/pages/ChainflipLending/components/BorrowTab'
+import { Overview } from '@/pages/ChainflipLending/components/Overview'
+import { SupplyTab } from '@/pages/ChainflipLending/components/SupplyTab'
 
-export const ChainflipLending = () => {
-  return (
-    <Main>
-      <Stack px={6} py={8} spacing={4}>
-        <Text as='h1' translation='navBar.chainflipLending' />
-      </Stack>
-    </Main>
-  )
-}
+const overview = <Overview />
+const supplyTab = <SupplyTab />
+const borrowTab = <BorrowTab />
+
+export const ChainflipLending = memo(() => (
+  <ChainflipLendingAccountProvider>
+    <Routes>
+      <Route index element={overview} />
+      <Route path='supply' element={supplyTab} />
+      <Route path='borrow' element={borrowTab} />
+    </Routes>
+  </ChainflipLendingAccountProvider>
+))

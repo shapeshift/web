@@ -2379,6 +2379,23 @@
       "emptyBody": "It appears you don't have any loans at the moment. Is this financial zen or just a break before your next big lending adventure? Either way, enjoy the calm!"
     }
   },
+  "chainflipLending": {
+    "headerDescription": "Supply assets to earn yield or borrow against collateral on Chainflip.",
+    "overview": "Overview",
+    "supply": "Supply",
+    "borrow": "Borrow",
+    "totalSupplied": "Total Supplied",
+    "availableLiquidity": "Available Liquidity",
+    "totalBorrowed": "Total Borrowed",
+    "overviewPlaceholder": "Markets table coming soon.",
+    "supplyPlaceholder": "Supply markets coming soon.",
+    "borrowPlaceholder": "Borrow markets coming soon.",
+    "pool": "Pool",
+    "supplyApy": "Supply APY",
+    "borrowRate": "Borrow Rate",
+    "utilisation": "Utilisation",
+    "viewMarket": "View Market"
+  },
   "chart": {
     "interval": {
       "5min": "Past five minutes",

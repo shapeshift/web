@@ -258,7 +258,7 @@ export const debridgeApi: SwapperApi = {
         `${DEBRIDGE_STATS_API_URL}/api/Orders/${orderId}`,
       )
       if (maybeOrderDetail.isErr()) return undefined
-      return maybeOrderDetail.unwrap().data.fulfilledDstEventMetadata?.transactionHash
+      return maybeOrderDetail.unwrap().data.fulfilledDstEventMetadata?.transactionHash?.stringValue
     })()
 
     return {

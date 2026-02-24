@@ -4361,14 +4361,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@chainflip/extrinsics@npm:^1.6.2":
+"@chainflip/extrinsics@npm:1.6.2":
   version: 1.6.2
   resolution: "@chainflip/extrinsics@npm:1.6.2"
   checksum: fa8164ce83255c08d10041d84d45086d35b05cfd8f88f5e7142fc0f1afefebdc721311cd1673cc24af14372d033b4b1e76e3403798b1bab28899f85c7cb7ad8c
   languageName: node
   linkType: hard
 
-"@chainflip/rpc@npm:^2.1.1":
+"@chainflip/rpc@npm:2.1.1":
   version: 2.1.1
   resolution: "@chainflip/rpc@npm:2.1.1"
   dependencies:
@@ -14101,8 +14101,8 @@ __metadata:
     "@arbitrum/sdk": ^4.0.1
     "@cetusprotocol/aggregator-sdk": ^1.4.2
     "@cetusprotocol/cetus-sui-clmm-sdk": 5.4.0
-    "@chainflip/extrinsics": ^1.6.2
-    "@chainflip/rpc": ^2.1.1
+    "@chainflip/extrinsics": 1.6.2
+    "@chainflip/rpc": 2.1.1
     "@chakra-ui/icons": ^2.2.4
     "@chakra-ui/react": ^2.10.7
     "@chakra-ui/system": ^2.6.2
@@ -14219,8 +14219,8 @@ __metadata:
     bignumber.js: ^9.3.1
     bip21: ^2.0.3
     bip39: ^3.0.4
-    blakejs: ^1.2.1
-    bs58: ^6.0.0
+    blakejs: 1.2.1
+    bs58: 6.0.0
     buffer: ^6.0.3
     chakra-ui-steps: ^2.2.0
     chalk: 5.3.0

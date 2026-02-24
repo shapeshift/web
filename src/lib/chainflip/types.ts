@@ -149,12 +149,20 @@ export type ChainflipSafeModeStatusesResponse = {
   }
 } & Record<string, unknown>
 
+export type ChainflipLendingPosition = {
+  chain: ChainflipChain
+  asset: ChainflipAssetSymbol
+  total_amount: string
+  available_amount: string
+}
+
 export type ChainflipAccountInfo = {
   role: 'unregistered' | 'liquidity_provider' | 'validator' | string
   flip_balance: string
   bond: string
   refund_addresses?: Record<string, string | null> | null
   estimated_redeemable_balance: string
+  lending_positions?: ChainflipLendingPosition[]
 } & Record<string, unknown>
 
 export type ChainflipEip712Payload = {

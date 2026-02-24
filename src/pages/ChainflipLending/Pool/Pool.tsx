@@ -6,25 +6,30 @@ import {
   CardBody,
   Flex,
   Heading,
-  HStack,
   SimpleGrid,
   Skeleton,
   Stack,
+  TabPanel,
+  TabPanels,
+  Tabs,
   VStack,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { Deposit } from './components/Deposit/Deposit'
+import { Supply } from './components/Supply/Supply'
+import { Withdraw } from './components/Withdraw/Withdraw'
 
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { Display } from '@/components/Display'
+import { FormHeader } from '@/components/FormHeader'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
@@ -34,11 +39,24 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
+import { useChainflipSupplyPositions } from '@/pages/ChainflipLending/hooks/useChainflipSupplyPositions'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
 const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column', lg: 'row' }
 const actionColumnMaxWidth = { base: '100%', lg: '500px' }
+
+enum PoolTabIndex {
+  Supply = 0,
+  Withdraw = 1,
+  Deposit = 2,
+}
+
+const POOL_TAB_ITEMS = [
+  { label: 'chainflipLending.supply.title', index: PoolTabIndex.Supply },
+  { label: 'chainflipLending.withdraw.title', index: PoolTabIndex.Withdraw },
+  { label: 'chainflipLending.depositToChainflip', index: PoolTabIndex.Deposit },
+]
 
 type PoolHeaderProps = {
   assetId: AssetId
@@ -99,6 +117,7 @@ export const Pool = () => {
   const location = useLocation()
   const { dispatch: walletDispatch } = useWallet()
   const { accountId, setAccountId } = useChainflipLendingAccount()
+  const [tabIndex, setTabIndex] = useState(PoolTabIndex.Supply)
 
   const handleConnectWallet = useCallback(
     () => walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
@@ -112,10 +131,21 @@ export const Pool = () => {
 
   const asset = useAppSelector(state => selectAssetById(state, poolAssetId))
   const { pools, isLoading } = useChainflipLendingPools()
+  const { supplyPositions, isLoading: isPositionsLoading } = useChainflipSupplyPositions()
 
   const poolData = useMemo(() => pools.find(p => p.assetId === poolAssetId), [pools, poolAssetId])
 
+  const supplyPosition = useMemo(
+    () => supplyPositions.find(p => p.assetId === poolAssetId),
+    [supplyPositions, poolAssetId],
+  )
+
   const headerComponent = useMemo(() => <PoolHeader assetId={poolAssetId} />, [poolAssetId])
+
+  const tabHeader = useMemo(
+    () => <FormHeader items={POOL_TAB_ITEMS} setStepIndex={setTabIndex} activeIndex={tabIndex} />,
+    [tabIndex],
+  )
 
   const utilisationPercent = useMemo(
     () => (poolData ? bnOrZero(poolData.pool.utilisation_rate).div(1e9).toFixed() : '0'),
@@ -254,14 +284,22 @@ export const Pool = () => {
                     <RawText fontSize='xs' color='text.subtle' mb={1} textTransform='uppercase'>
                       {translate('chainflipLending.supplied')}
                     </RawText>
-                    <Amount.Fiat value='0' fontSize='lg' fontWeight='bold' />
-                    {accountId ? (
-                      <Amount.Crypto
-                        value='0'
-                        symbol={asset.symbol}
-                        fontSize='xs'
-                        color='text.subtle'
+                    <Skeleton isLoaded={!isPositionsLoading}>
+                      <Amount.Fiat
+                        value={supplyPosition?.totalAmountFiat ?? '0'}
+                        fontSize='lg'
+                        fontWeight='bold'
                       />
+                    </Skeleton>
+                    {accountId ? (
+                      <Skeleton isLoaded={!isPositionsLoading}>
+                        <Amount.Crypto
+                          value={supplyPosition?.totalAmountCryptoPrecision ?? '0'}
+                          symbol={asset.symbol}
+                          fontSize='xs'
+                          color='text.subtle'
+                        />
+                      </Skeleton>
                     ) : null}
                   </Box>
                   <Box>
@@ -279,32 +317,7 @@ export const Pool = () => {
                     ) : null}
                   </Box>
                 </SimpleGrid>
-                {accountId ? (
-                  <Display.Desktop>
-                    <HStack spacing={3} pt={2}>
-                      <Button
-                        colorScheme='blue'
-                        size='lg'
-                        height={12}
-                        borderRadius='xl'
-                        flex={1}
-                        fontWeight='bold'
-                      >
-                        {translate('chainflipLending.supply')}
-                      </Button>
-                      <Button
-                        variant='outline'
-                        size='lg'
-                        height={12}
-                        borderRadius='xl'
-                        flex={1}
-                        fontWeight='bold'
-                      >
-                        {translate('chainflipLending.borrow')}
-                      </Button>
-                    </HStack>
-                  </Display.Desktop>
-                ) : (
+                {!accountId ? (
                   <Button
                     colorScheme='blue'
                     size='lg'
@@ -316,26 +329,27 @@ export const Pool = () => {
                   >
                     {translate('common.connectWallet')}
                   </Button>
-                )}
+                ) : null}
               </VStack>
             </CardBody>
           </Card>
 
           <Card>
-            <CardBody p={0}>
-              <Heading
-                as='h3'
-                size='sm'
-                textTransform='uppercase'
-                color='text.subtle'
-                letterSpacing='wider'
-                px={{ base: 4, md: 5 }}
-                pt={{ base: 4, md: 5 }}
-                pb={2}
-              >
-                {translate('chainflipLending.depositToChainflip')}
-              </Heading>
-              <Deposit assetId={poolAssetId} />
+            <CardBody px={0} py={0}>
+              <Tabs index={tabIndex}>
+                {tabHeader}
+                <TabPanels>
+                  <TabPanel p={0}>
+                    <Supply assetId={poolAssetId} />
+                  </TabPanel>
+                  <TabPanel p={0}>
+                    <Withdraw assetId={poolAssetId} />
+                  </TabPanel>
+                  <TabPanel p={0}>
+                    <Deposit assetId={poolAssetId} />
+                  </TabPanel>
+                </TabPanels>
+              </Tabs>
             </CardBody>
           </Card>
         </Stack>

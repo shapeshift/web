@@ -2383,7 +2383,28 @@
   "chainflipLending": {
     "headerDescription": "Supply assets to earn yield or borrow against collateral on Chainflip.",
     "overview": "Overview",
-    "supply": "Supply",
+    "supply": {
+      "title": "Supply",
+      "amount": "Supply amount",
+      "available": "Available to supply",
+      "availableTooltip": "Your free balance on Chainflip State Chain available for lending",
+      "minimumSupply": "Minimum supply: %{amount}",
+      "confirmTitle": "Confirm Supply",
+      "confirmDescription": "Supply %{amount} %{asset} to the lending pool",
+      "confirmAndSupply": "Confirm & Supply",
+      "executingTitle": "Supplying...",
+      "executingDescription": "Your supply is being processed",
+      "successTitle": "Supply Successful",
+      "successDescription": "Your %{asset} is now earning yield",
+      "supplied": "Supplied",
+      "errorTitle": "Supply Failed",
+      "errorDescription": "Something went wrong while supplying",
+      "steps": {
+        "signing": "Signing supply transaction",
+        "confirming": "Confirming supply"
+      },
+      "noFreeBalance": "No free balance. Deposit to Chainflip first."
+    },
     "borrow": "Borrow",
     "totalSupplied": "Total Supplied",
     "totalSuppliedTooltip": "Total value of assets supplied across all Chainflip lending pools.",
@@ -2461,7 +2482,31 @@
     "deployed": "Deployed",
     "comingSoon": "Coming Soon",
     "connectToViewBalances": "Connect wallet to view your balances",
-    "myBalancesTitle": "Chainflip Lending - My Balances"
+    "myBalancesTitle": "Chainflip Lending - My Balances",
+    "withdraw": {
+      "title": "Withdraw",
+      "amount": "Withdraw amount",
+      "available": "Available to withdraw",
+      "availableTooltip": "Your supply position in the lending pool",
+      "confirmTitle": "Confirm Withdrawal",
+      "confirmDescription": "Withdraw %{amount} %{asset} from the lending pool",
+      "confirmAndWithdraw": "Confirm & Withdraw",
+      "executingTitle": "Withdrawing...",
+      "executingDescription": "Your withdrawal is being processed",
+      "successTitle": "Withdrawal Successful",
+      "successDescription": "Your %{asset} has been withdrawn",
+      "withdrawn": "Withdrawn",
+      "errorTitle": "Withdrawal Failed",
+      "errorDescription": "Something went wrong while withdrawing",
+      "noPosition": "No supply position found for this asset",
+      "withdrawAmount": "Withdraw",
+      "steps": {
+        "signingBatch": "Signing withdrawal",
+        "signingRemove": "Removing from pool",
+        "signingEgress": "Withdrawing to wallet",
+        "confirming": "Confirming withdrawal"
+      }
+    }
   },
   "chart": {
     "interval": {

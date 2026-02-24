@@ -49,17 +49,24 @@ const BalanceRow = ({ assetId, accountNumber, freeBalance, onDeposit }: BalanceR
 
   const chainId = useMemo(() => fromAssetId(assetId).chainId, [assetId])
 
-  // TODO: handle case where no matching account exists for pool asset chain
   const poolChainAccountId = useMemo(() => {
     const byChainId = accountIdsByAccountNumberAndChainId[accountNumber]
     return byChainId?.[chainId]?.[0]
   }, [accountIdsByAccountNumberAndChainId, accountNumber, chainId])
 
-  const walletBalance = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, { assetId, accountId: poolChainAccountId }),
+  const balanceFilter = useMemo(
+    () => ({ assetId, accountId: poolChainAccountId ?? '' }),
+    [assetId, poolChainAccountId],
   )
 
-  const walletBalancePrecision = useMemo(() => walletBalance.toPrecision(), [walletBalance])
+  const walletBalance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
+  )
+
+  const walletBalancePrecision = useMemo(
+    () => (poolChainAccountId ? walletBalance.toPrecision() : '0'),
+    [walletBalance, poolChainAccountId],
+  )
 
   const scBalancePrecision = useMemo(
     () => freeBalance?.balanceCryptoPrecision ?? '0',

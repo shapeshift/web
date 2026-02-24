@@ -1,3 +1,4 @@
+import bs58 from 'bs58'
 import { useEffect, useRef } from 'react'
 
 import { DepositMachineCtx } from '../DepositMachineContext'
@@ -12,6 +13,9 @@ import { useSignChainflipCall } from '@/pages/ChainflipLending/hooks/useSignChai
 
 const POLL_INTERVAL_MS = 6_000
 const MAX_POLL_ATTEMPTS = 30
+
+const isByteArray = (value: unknown): value is number[] =>
+  Array.isArray(value) && value.every(item => typeof item === 'number')
 
 const decodeDepositAddress = (
   entry: ChainflipOpenDepositChannelEntry,
@@ -29,12 +33,18 @@ const decodeDepositAddress = (
 
     if (typeof addressData === 'string') return addressData
 
-    if (Array.isArray(addressData)) {
-      const bytes = addressData as number[]
-      if (chainTag === 'Eth' || chainTag === 'Arb') {
-        return `0x${bytes.map(b => b.toString(16).padStart(2, '0')).join('')}`
+    if (isByteArray(addressData)) {
+      switch (chainTag) {
+        case 'Eth':
+        case 'Arb':
+          return `0x${addressData.map(b => b.toString(16).padStart(2, '0')).join('')}`
+        case 'Sol':
+          return bs58.encode(Uint8Array.from(addressData))
+        case 'Btc':
+          return String.fromCharCode(...addressData)
+        default:
+          return undefined
       }
-      return String.fromCharCode(...bytes)
     }
   }
 
@@ -102,6 +112,7 @@ export const useDepositChannel = () => {
 
         actorRef.send({ type: 'CHANNEL_SUCCESS', depositAddress })
       } catch (e) {
+        console.error('[ChainflipLending] Failed to open deposit channel', e)
         const message = e instanceof Error ? e.message : 'Failed to open deposit channel'
         actorRef.send({ type: 'CHANNEL_ERROR', error: message })
       } finally {

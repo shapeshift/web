@@ -51,6 +51,7 @@ export const useDepositRefundAddress = () => {
         actorRef.send({ type: 'REFUND_ADDRESS_BROADCASTED', txHash, nonce })
         actorRef.send({ type: 'REFUND_ADDRESS_SUCCESS' })
       } catch (e) {
+        console.error('[ChainflipLending] Failed to set refund address', e)
         const message = e instanceof Error ? e.message : 'Failed to set refund address'
         actorRef.send({ type: 'REFUND_ADDRESS_ERROR', error: message })
       } finally {

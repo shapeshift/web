@@ -7,6 +7,7 @@ import { DepositMachineCtx } from './DepositMachineContext'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
 import { useChainflipAccount } from '@/pages/ChainflipLending/hooks/useChainflipAccount'
 
 const DepositInput = lazy(() =>
@@ -74,7 +75,15 @@ const DepositContent = memo(({ assetId }: { assetId: AssetId }) => {
 
 const useAccountStateSync = () => {
   const actorRef = DepositMachineCtx.useActorRef()
-  const { isFunded, isLpRegistered, hasRefundAddress, isLoading } = useChainflipAccount()
+  const assetId = DepositMachineCtx.useSelector(s => s.context.assetId)
+  const { isFunded, isLpRegistered, refundAddresses, isLoading } = useChainflipAccount()
+
+  const hasRefundAddress = useMemo(() => {
+    if (!refundAddresses) return false
+    const cfAsset = CHAINFLIP_LENDING_ASSET_BY_ASSET_ID[assetId]
+    if (!cfAsset) return false
+    return refundAddresses[cfAsset.chain] !== null && refundAddresses[cfAsset.chain] !== undefined
+  }, [refundAddresses, assetId])
 
   useEffect(() => {
     if (isLoading) return

@@ -16,7 +16,10 @@ import {
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
-import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
+import {
+  selectAccountIdsByAccountNumberAndChainId,
+  selectPortfolioAccountMetadataByAccountId,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export const useDepositSend = () => {
@@ -32,8 +35,22 @@ export const useDepositSend = () => {
   const isNativeWallet = DepositMachineCtx.useSelector(s => s.context.isNativeWallet)
   const stepConfirmed = DepositMachineCtx.useSelector(s => s.context.stepConfirmed)
   const wallet = useWallet().state.wallet
-  const { accountId, accountNumber } = useChainflipLendingAccount()
-  const accountMetadataFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const { accountNumber } = useChainflipLendingAccount()
+  const accountIdsByAccountNumberAndChainId = useAppSelector(
+    selectAccountIdsByAccountNumberAndChainId,
+  )
+
+  const depositChainId = useMemo(() => fromAssetId(assetId).chainId, [assetId])
+
+  const depositChainAccountId = useMemo(() => {
+    const byChainId = accountIdsByAccountNumberAndChainId[accountNumber]
+    return byChainId?.[depositChainId]?.[0]
+  }, [accountIdsByAccountNumberAndChainId, accountNumber, depositChainId])
+
+  const accountMetadataFilter = useMemo(
+    () => ({ accountId: depositChainAccountId ?? '' }),
+    [depositChainAccountId],
+  )
   const accountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, accountMetadataFilter),
   )
@@ -47,10 +64,10 @@ export const useDepositSend = () => {
     const execute = async () => {
       try {
         if (!wallet) throw new Error('Wallet not connected')
-        if (!accountId) throw new Error('Account not found')
+        if (!depositChainAccountId) throw new Error('No account found for deposit chain')
         if (!depositAddress) throw new Error('Deposit address not set')
 
-        const { account: from } = fromAccountId(accountId)
+        const { account: from } = fromAccountId(depositChainAccountId)
         const { assetNamespace, assetReference, chainId } = fromAssetId(assetId)
         const { chainNamespace } = fromChainId(chainId)
 
@@ -130,22 +147,13 @@ export const useDepositSend = () => {
 
             case CHAIN_NAMESPACE.Solana: {
               const adapter = assertGetSolanaChainAdapter(chainId)
-              const feeData = await adapter.getFeeData({
-                to: depositAddress,
-                value: depositAmountCryptoBaseUnit,
-                chainSpecific: { from },
-                sendMax: false,
-              })
 
               const { txToSign } = await adapter.buildSendTransaction({
                 to: depositAddress,
                 value: depositAmountCryptoBaseUnit,
                 wallet,
                 accountNumber,
-                chainSpecific: {
-                  computeUnitLimit: feeData.fast.chainSpecific.computeUnits,
-                  computeUnitPrice: feeData.fast.chainSpecific.priorityFee,
-                },
+                chainSpecific: {},
               })
 
               const signedTx = await adapter.signTransaction({ txToSign, wallet })
@@ -170,6 +178,7 @@ export const useDepositSend = () => {
 
         actorRef.send({ type: 'SEND_SUCCESS' })
       } catch (e) {
+        console.error('[ChainflipLending] Deposit send failed', e)
         const message = e instanceof Error ? e.message : 'Deposit send failed'
         actorRef.send({ type: 'SEND_ERROR', error: message })
       } finally {
@@ -182,7 +191,7 @@ export const useDepositSend = () => {
     stateValue,
     actorRef,
     wallet,
-    accountId,
+    depositChainAccountId,
     accountNumber,
     accountMetadata,
     depositAddress,

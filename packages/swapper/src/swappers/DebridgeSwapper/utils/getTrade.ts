@@ -1,13 +1,18 @@
 import { fromAssetId, isAssetReference } from '@shapeshiftoss/caip'
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { BigAmount, bnOrZero, chainIdToFeeAssetId, isTreasuryChainId } from '@shapeshiftoss/utils'
+import {
+  BigAmount,
+  bnOrZero,
+  chainIdToFeeAssetId,
+  getBaseAsset,
+  isTreasuryChainId,
+} from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import axios from 'axios'
 import { v4 as uuid } from 'uuid'
 import { zeroAddress } from 'viem'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
   SwapErrorRight,
   SwapperDeps,
@@ -173,11 +178,9 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     buyAsset,
   })
 
-  const protocolFeeAmount = (() => {
-    const dlnFee = quote.estimation.costsDetails.find(c => c.type === 'DlnProtocolFee')
-    if (!dlnFee) return '0'
-    return dlnFee.payload.feeAmount
-  })()
+  const nativePreFee = bnOrZero(quote.fixFee)
+    .plus(bnOrZero(quote.prependedOperatingExpenseCost))
+    .toFixed()
 
   const buyAmountBeforeFeesCryptoBaseUnit = buyAmountAfterFeesCryptoBaseUnit
 
@@ -218,19 +221,16 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     accountNumber,
     feeData: {
       networkFeeCryptoBaseUnit,
-      protocolFees: protocolFeeAssetIdForFees
-        ? {
-            [protocolFeeAssetIdForFees]: {
-              amountCryptoBaseUnit: protocolFeeAmount,
-              asset: {
-                symbol: quote.estimation.srcChainTokenIn.symbol,
-                chainId: sellAsset.chainId,
-                precision: quote.estimation.srcChainTokenIn.decimals,
+      protocolFees:
+        protocolFeeAssetIdForFees && bnOrZero(nativePreFee).gt(0)
+          ? {
+              [protocolFeeAssetIdForFees]: {
+                amountCryptoBaseUnit: nativePreFee,
+                asset: getBaseAsset(sellAsset.chainId),
+                requiresBalance: true,
               },
-              requiresBalance: false,
-            },
-          }
-        : {},
+            }
+          : {},
     },
     source: SwapperName.Debridge,
     estimatedExecutionTimeMs: quote.order.approximateFulfillmentDelay * 1000,
@@ -365,14 +365,9 @@ async function getSameChainTrade<T extends 'quote' | 'rate'>({
 }): Promise<Result<TradeQuote[] | TradeRate[], SwapErrorRight>> {
   const { sellAsset, buyAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit, affiliateBps } = input
 
-  const slippage = (() => {
-    const slippageDecimal =
-      input.slippageTolerancePercentageDecimal ??
-      getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Debridge)
-    const slippagePercent = bnOrZero(slippageDecimal).times(100)
-    if (!slippagePercent.isFinite() || slippagePercent.lte(0)) return 'auto'
-    return slippagePercent.toFixed()
-  })()
+  const slippage = input.slippageTolerancePercentageDecimal
+    ? bnOrZero(input.slippageTolerancePercentageDecimal).times(100).toFixed()
+    : 'auto'
 
   const maybeQuote = await fetchDebridgeSingleChainTrade(
     {
@@ -477,7 +472,9 @@ async function getSameChainTrade<T extends 'quote' | 'rate'>({
     rate,
     swapperName: SwapperName.Debridge,
     affiliateBps,
-    slippageTolerancePercentageDecimal: input.slippageTolerancePercentageDecimal,
+    slippageTolerancePercentageDecimal:
+      input.slippageTolerancePercentageDecimal ??
+      (quote.slippage ? bnOrZero(quote.slippage).div(100).toString() : undefined),
   }
 
   if (input.quoteOrRate === 'quote') {

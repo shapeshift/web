@@ -4,9 +4,11 @@ import { toAssetId } from '../../assetId/assetId'
 import {
   ASSET_REFERENCE,
   btcChainId,
+  celoChainId,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
   ethChainId,
+  flowEvmChainId,
   foxOnArbitrumOneAssetId,
 } from '../../constants'
 import {
@@ -63,6 +65,30 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.MegaEth,
       })
+      const ethOnZkSyncEra = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.ZkSyncEraMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.ZkSyncEra,
+      })
+      const ethOnBlast = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.BlastMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Blast,
+      })
+      const ethOnWorldChain = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.WorldChainMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.WorldChain,
+      })
+      const ethOnHemi = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.HemiMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Hemi,
+      })
       const ethOnLinea = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.LineaMainnet,
@@ -81,15 +107,47 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Scroll,
       })
+      const ethOnUnichain = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.UnichainMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Unichain,
+      })
+      const ethOnBob = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.BobMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Bob,
+      })
+      const ethOnMode = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.ModeMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Mode,
+      })
+      const ethOnSoneium = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.SoneiumMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Soneium,
+      })
       expect(coingeckoToAssetIds('ethereum')).toEqual([
         ethOnEthereum,
         ethOnOptimism,
         ethOnArbitrum,
         ethOnBase,
+        ethOnBob,
+        ethOnZkSyncEra,
+        ethOnBlast,
+        ethOnWorldChain,
+        ethOnHemi,
         ethOnLinea,
+        ethOnMode,
         ethOnMegaEth,
-        ethOnScroll,
         ethOnInk,
+        ethOnScroll,
+        ethOnUnichain,
+        ethOnSoneium,
       ])
     })
 
@@ -215,6 +273,30 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'erc20',
         assetReference: '0xb88339cb7199b77e23db6e890353e22632ba630f',
       })
+      const usdcOnPlume = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.PlumeMainnet,
+        assetNamespace: 'erc20',
+        assetReference: '0x222365ef19f7947e5484218551b56bb3965aa7af',
+      })
+      const usdcOnZkSyncEra = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.ZkSyncEraMainnet,
+        assetNamespace: 'erc20',
+        assetReference: '0x1d17cbcf0d6d143135ae902365d2e5e2a16538d4',
+      })
+      const usdcOnWorldChain = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.WorldChainMainnet,
+        assetNamespace: 'erc20',
+        assetReference: '0x79a02482a880bce3f13e09da970dc34db4cd24d1',
+      })
+      const usdcOnStarknet = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Starknet,
+        chainReference: CHAIN_REFERENCE.StarknetMainnet,
+        assetNamespace: 'token',
+        assetReference: '0x33068f6539f8e6e6b131e6b2b814e6c34a5224bc66947c47dab9dfee93b35fb',
+      })
       const usdcOnSei = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Evm,
         chainReference: CHAIN_REFERENCE.SeiMainnet,
@@ -227,11 +309,17 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'erc20',
         assetReference: '0x2d270e6886d130d724215a266106e6832161eaed',
       })
-      const usdcOnStarknet = toAssetId({
-        chainNamespace: CHAIN_NAMESPACE.Starknet,
-        chainReference: CHAIN_REFERENCE.StarknetMainnet,
-        assetNamespace: 'token',
-        assetReference: '0x33068f6539f8e6e6b131e6b2b814e6c34a5224bc66947c47dab9dfee93b35fb',
+      const usdcOnSonic = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.SonicMainnet,
+        assetNamespace: 'erc20',
+        assetReference: '0x29219dd400f2bf60e5a23d13be72b486d4038894',
+      })
+      const usdcOnUnichain = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.UnichainMainnet,
+        assetNamespace: 'erc20',
+        assetReference: '0x078d782b760474a361dda0af3839290b0ef57ad6',
       })
       const usdcOnNear = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Near,
@@ -248,8 +336,13 @@ describe('adapters:coingecko', () => {
         usdcOnBase,
         usdcOnMonad,
         usdcOnHyperEvm,
-        usdcOnSei,
+        usdcOnPlume,
+        usdcOnZkSyncEra,
+        usdcOnWorldChain,
         usdcOnInk,
+        usdcOnSonic,
+        usdcOnUnichain,
+        usdcOnSei,
         usdcOnSolana,
         usdcOnStarknet,
         usdcOnSui,
@@ -365,6 +458,16 @@ describe('adapters:coingecko', () => {
     it('throws on invalid ChainId', () => {
       const chainId = btcChainId
       expect(() => chainIdToCoingeckoAssetPlatform(chainId)).toThrow()
+    })
+
+    it('can get CoinGecko asset platform for flow evm ChainId', () => {
+      expect(chainIdToCoingeckoAssetPlatform(flowEvmChainId)).toEqual(
+        CoingeckoAssetPlatform.FlowEvm,
+      )
+    })
+
+    it('can get CoinGecko asset platform for celo ChainId', () => {
+      expect(chainIdToCoingeckoAssetPlatform(celoChainId)).toEqual(CoingeckoAssetPlatform.Celo)
     })
   })
 })

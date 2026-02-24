@@ -54,9 +54,10 @@ export const signChainflipCall = async ({
   })
 
   const typedData = payload.Eip712 as TypedData
+  const { EIP712Domain: _, ...typesWithoutDomain } = typedData.types
   const typedDataToSign: ETHSignTypedData = {
     addressNList: toAddressNList(adapter.getBip44Params(accountMetadata.bip44Params)),
-    typedData,
+    typedData: { ...typedData, types: typesWithoutDomain },
   }
 
   const signTypedDataInput: SignTypedDataInput<ETHSignTypedData> = {

@@ -1,7 +1,7 @@
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { assertGetViemClient } from '@shapeshiftoss/contracts'
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import type { Hash } from 'viem'
 import { encodeFunctionData, erc20Abi } from 'viem'
 
@@ -13,7 +13,11 @@ import {
   buildAndBroadcast,
   createBuildCustomTxInput,
 } from '@/lib/utils/evm'
+import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
+import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const useDepositSend = () => {
   const actorRef = DepositMachineCtx.useActorRef()
@@ -29,6 +33,10 @@ export const useDepositSend = () => {
   const stepConfirmed = DepositMachineCtx.useSelector(s => s.context.stepConfirmed)
   const wallet = useWallet().state.wallet
   const { accountId, accountNumber } = useChainflipLendingAccount()
+  const accountMetadataFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const accountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, accountMetadataFilter),
+  )
   const executingRef = useRef(false)
 
   useEffect(() => {
@@ -44,56 +52,121 @@ export const useDepositSend = () => {
 
         const { account: from } = fromAccountId(accountId)
         const { assetNamespace, assetReference, chainId } = fromAssetId(assetId)
-        const adapter = assertGetEvmChainAdapter(chainId)
+        const { chainNamespace } = fromChainId(chainId)
 
-        const isToken = assetNamespace === 'erc20'
+        const txHash = await (async () => {
+          switch (chainNamespace) {
+            case CHAIN_NAMESPACE.Evm: {
+              const adapter = assertGetEvmChainAdapter(chainId)
+              const isToken = assetNamespace === 'erc20'
 
-        const txHash = await (() => {
-          if (isToken) {
-            const data = encodeFunctionData({
-              abi: erc20Abi,
-              functionName: 'transfer',
-              args: [depositAddress as `0x${string}`, BigInt(depositAmountCryptoBaseUnit)],
-            })
+              if (isToken) {
+                const data = encodeFunctionData({
+                  abi: erc20Abi,
+                  functionName: 'transfer',
+                  args: [depositAddress as `0x${string}`, BigInt(depositAmountCryptoBaseUnit)],
+                })
 
-            return createBuildCustomTxInput({
-              accountNumber,
-              from,
-              adapter,
-              data,
-              to: assetReference,
-              value: '0',
-              wallet,
-            }).then(buildCustomTxInput =>
-              buildAndBroadcast({
+                const buildCustomTxInput = await createBuildCustomTxInput({
+                  accountNumber,
+                  from,
+                  adapter,
+                  data,
+                  to: assetReference,
+                  value: '0',
+                  wallet,
+                })
+                return buildAndBroadcast({
+                  adapter,
+                  buildCustomTxInput,
+                  receiverAddress: CONTRACT_INTERACTION,
+                })
+              }
+
+              const buildCustomTxInput = await createBuildCustomTxInput({
+                accountNumber,
+                from,
+                adapter,
+                data: '0x',
+                to: depositAddress,
+                value: depositAmountCryptoBaseUnit,
+                wallet,
+              })
+              return buildAndBroadcast({
                 adapter,
                 buildCustomTxInput,
-                receiverAddress: CONTRACT_INTERACTION,
-              }),
-            )
-          }
+                receiverAddress: depositAddress,
+              })
+            }
 
-          return createBuildCustomTxInput({
-            accountNumber,
-            from,
-            adapter,
-            data: '0x',
-            to: depositAddress,
-            value: depositAmountCryptoBaseUnit,
-            wallet,
-          }).then(buildCustomTxInput =>
-            buildAndBroadcast({
-              adapter,
-              buildCustomTxInput,
-              receiverAddress: depositAddress,
-            }),
-          )
+            case CHAIN_NAMESPACE.Utxo: {
+              if (!accountMetadata?.accountType) {
+                throw new Error('Account type not found for UTXO account')
+              }
+
+              const adapter = assertGetUtxoChainAdapter(chainId)
+              const feeData = await adapter.getFeeData({
+                to: depositAddress,
+                value: depositAmountCryptoBaseUnit,
+                chainSpecific: { from, pubkey: from },
+                sendMax: false,
+              })
+
+              const { txToSign } = await adapter.buildSendTransaction({
+                to: depositAddress,
+                value: depositAmountCryptoBaseUnit,
+                wallet,
+                accountNumber,
+                chainSpecific: {
+                  from,
+                  satoshiPerByte: feeData.fast.chainSpecific.satoshiPerByte,
+                  accountType: accountMetadata.accountType,
+                },
+              })
+
+              const signedTx = await adapter.signTransaction({ txToSign, wallet })
+              return adapter.broadcastTransaction({ hex: signedTx })
+            }
+
+            case CHAIN_NAMESPACE.Solana: {
+              const adapter = assertGetSolanaChainAdapter(chainId)
+              const feeData = await adapter.getFeeData({
+                to: depositAddress,
+                value: depositAmountCryptoBaseUnit,
+                chainSpecific: { from },
+                sendMax: false,
+              })
+
+              const { txToSign } = await adapter.buildSendTransaction({
+                to: depositAddress,
+                value: depositAmountCryptoBaseUnit,
+                wallet,
+                accountNumber,
+                chainSpecific: {
+                  computeUnitLimit: feeData.fast.chainSpecific.computeUnits,
+                  computeUnitPrice: feeData.fast.chainSpecific.priorityFee,
+                },
+              })
+
+              const signedTx = await adapter.signTransaction({ txToSign, wallet })
+              return adapter.broadcastTransaction({
+                senderAddress: from,
+                receiverAddress: depositAddress,
+                hex: signedTx,
+              })
+            }
+
+            default:
+              throw new Error(`Unsupported chain namespace: ${chainNamespace}`)
+          }
         })()
 
         actorRef.send({ type: 'SEND_BROADCASTED', txHash })
 
-        const publicClient = assertGetViemClient(chainId)
-        await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
+        if (chainNamespace === CHAIN_NAMESPACE.Evm) {
+          const publicClient = assertGetViemClient(chainId)
+          await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
+        }
 
         actorRef.send({ type: 'SEND_SUCCESS' })
       } catch (e) {
@@ -111,6 +184,7 @@ export const useDepositSend = () => {
     wallet,
     accountId,
     accountNumber,
+    accountMetadata,
     depositAddress,
     depositAmountCryptoBaseUnit,
     assetId,

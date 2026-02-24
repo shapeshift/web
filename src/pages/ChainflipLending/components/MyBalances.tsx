@@ -169,7 +169,7 @@ export const MyBalances = () => {
 
   return (
     <Main headerComponent={headerComponent} isSubPage>
-      <SEO title='Chainflip Lending - My Balances' />
+      <SEO title={translate('chainflipLending.myBalancesTitle')} />
       <Stack>
         <SimpleGrid
           gridTemplateColumns={balanceRowGrid}

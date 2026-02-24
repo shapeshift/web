@@ -23,7 +23,9 @@ const decodeDepositAddress = (
   for (const [encodedAddress, asset] of chainAccounts) {
     if (asset.chain !== targetAsset.chain || asset.asset !== targetAsset.asset) continue
 
-    const [[chainTag, addressData]] = Object.entries(encodedAddress)
+    const entries = Object.entries(encodedAddress)
+    if (entries.length === 0) continue
+    const [[chainTag, addressData]] = entries
 
     if (typeof addressData === 'string') return addressData
 

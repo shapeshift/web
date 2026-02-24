@@ -40,7 +40,7 @@ describe('chainflip eip712 helpers', () => {
       { nonce: 1, expiry_block: 2 },
     ])
 
-    const signTypedData = vi.fn().mockResolvedValue(`0x${'11'.repeat(65)}`)
+    const signTypedData = vi.fn().mockResolvedValue(`0x${'aa'.repeat(32)}${'11'.repeat(32)}1b`)
     const adapter = {
       getAddress: vi.fn().mockResolvedValue(`0x${'22'.repeat(20)}`),
       getBip44Params: vi.fn().mockReturnValue({
@@ -66,7 +66,7 @@ describe('chainflip eip712 helpers', () => {
     const callInput = signTypedData.mock.calls[0][0]
     const typedData = callInput.typedDataToSign.typedData
     expect(typedData.types.EIP712Domain).toBeUndefined()
-    expect(result.signature).toBe(`0x${'11'.repeat(65)}`)
+    expect(result.signature).toBe(`0x${'aa'.repeat(32)}${'11'.repeat(32)}1b`)
   })
 
   it('submits a signed chainflip call', async () => {
@@ -86,7 +86,7 @@ describe('chainflip eip712 helpers', () => {
       { nonce: 1, expiry_block: 2 },
     ])
 
-    const signTypedData = vi.fn().mockResolvedValue(`0x${'11'.repeat(65)}`)
+    const signTypedData = vi.fn().mockResolvedValue(`0x${'aa'.repeat(32)}${'11'.repeat(32)}1b`)
     const adapter = {
       getAddress: vi.fn().mockResolvedValue(`0x${'22'.repeat(20)}`),
       getBip44Params: vi.fn().mockReturnValue({

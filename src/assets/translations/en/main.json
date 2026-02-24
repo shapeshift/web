@@ -2460,7 +2460,8 @@
     "stateChainBalance": "State Chain",
     "deployed": "Deployed",
     "comingSoon": "Coming Soon",
-    "connectToViewBalances": "Connect wallet to view your balances"
+    "connectToViewBalances": "Connect wallet to view your balances",
+    "myBalancesTitle": "Chainflip Lending - My Balances"
   },
   "chart": {
     "interval": {

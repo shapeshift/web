@@ -116,10 +116,12 @@ export const DepositInput = ({
     [walletSupportsEth, walletSupportsAssetChain],
   )
 
-  // TODO: remove monkey patch - re-enable isBelowMinimum and balance checks once sign+broadcast is tested
   const isSubmitDisabled = useMemo(
-    () => bnOrZero(depositAmountCryptoPrecision).isZero(),
-    [depositAmountCryptoPrecision],
+    () =>
+      bnOrZero(depositAmountCryptoPrecision).isZero() ||
+      isBelowMinimum ||
+      bnOrZero(depositAmountCryptoPrecision).gt(availableCryptoPrecision),
+    [depositAmountCryptoPrecision, isBelowMinimum, availableCryptoPrecision],
   )
 
   if (!asset) return null

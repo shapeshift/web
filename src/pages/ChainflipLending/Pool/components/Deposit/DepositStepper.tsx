@@ -19,6 +19,7 @@ type StepConfig = {
   labelKey: string
   showFlipIcon: boolean
   txHashKey: keyof DepositTxHashes | null
+  hasExplorerLink: boolean
 }
 
 const ALL_STEPS: StepConfig[] = [
@@ -27,42 +28,49 @@ const ALL_STEPS: StepConfig[] = [
     labelKey: 'chainflipLending.deposit.steps.approvingFlip',
     showFlipIcon: true,
     txHashKey: 'approval',
+    hasExplorerLink: true,
   },
   {
     id: 'funding_account',
     labelKey: 'chainflipLending.deposit.steps.fundingAccount',
     showFlipIcon: true,
     txHashKey: 'funding',
+    hasExplorerLink: true,
   },
   {
     id: 'registering',
     labelKey: 'chainflipLending.deposit.steps.registering',
     showFlipIcon: false,
     txHashKey: 'registration',
+    hasExplorerLink: false,
   },
   {
     id: 'setting_refund_address',
     labelKey: 'chainflipLending.deposit.steps.settingRefundAddress',
     showFlipIcon: false,
     txHashKey: 'refundAddress',
+    hasExplorerLink: false,
   },
   {
     id: 'opening_channel',
     labelKey: 'chainflipLending.deposit.steps.openingChannel',
     showFlipIcon: false,
     txHashKey: 'channel',
+    hasExplorerLink: false,
   },
   {
     id: 'sending_deposit',
     labelKey: 'chainflipLending.deposit.steps.sendingDeposit',
     showFlipIcon: false,
     txHashKey: 'deposit',
+    hasExplorerLink: true,
   },
   {
     id: 'confirming',
     labelKey: 'chainflipLending.deposit.steps.confirming',
     showFlipIcon: false,
     txHashKey: null,
+    hasExplorerLink: false,
   },
 ]
 
@@ -142,8 +150,7 @@ export const DepositStepper = memo(() => {
       {ALL_STEPS.map(step => {
         const status = getStepStatus(step.id)
         const txHash = step.txHashKey ? txHashes[step.txHashKey] : undefined
-        const isEvmHash = txHash?.startsWith('0x')
-        const txLink = isEvmHash && explorerTxLink ? `${explorerTxLink}${txHash}` : undefined
+        const txLink = step.hasExplorerLink && txHash && explorerTxLink ? `${explorerTxLink}${txHash}` : undefined
         return (
           <HStack key={step.id} spacing={3} opacity={status === 'pending' ? 0.5 : 1}>
             <Flex alignItems='center' justifyContent='center' width={6} flexShrink={0}>

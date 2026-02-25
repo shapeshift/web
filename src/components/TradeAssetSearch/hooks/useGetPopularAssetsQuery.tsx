@@ -20,6 +20,7 @@ import {
   plasmaAssetId,
   plumeAssetId,
   scrollAssetId,
+  seiAssetId,
   soneiumAssetId,
   sonicAssetId,
   starknetAssetId,
@@ -72,6 +73,7 @@ export const queryFn = async () => {
   if (enabledFlags.Blast) assetIds.push(blastAssetId)
   if (enabledFlags.WorldChain) assetIds.push(worldChainAssetId)
   if (enabledFlags.Hemi) assetIds.push(hemiAssetId)
+  if (enabledFlags.Sei) assetIds.push(seiAssetId)
   if (enabledFlags.Linea) assetIds.push(lineaAssetId)
   if (enabledFlags.Cronos) assetIds.push(cronosAssetId)
   if (enabledFlags.Sonic) assetIds.push(sonicAssetId)

@@ -17,6 +17,7 @@ export const SECOND_CLASS_CHAINS: readonly KnownChainIds[] = [
   KnownChainIds.StoryMainnet,
   KnownChainIds.WorldChainMainnet,
   KnownChainIds.MantleMainnet,
+  KnownChainIds.SeiMainnet,
   KnownChainIds.InkMainnet,
   KnownChainIds.LineaMainnet,
   KnownChainIds.SonicMainnet,
@@ -55,6 +56,7 @@ export const knownChainIds = Object.values(KnownChainIds).filter(chainId => {
   if (chainId === KnownChainIds.StoryMainnet && !enabledFlags.Story) return false
   if (chainId === KnownChainIds.WorldChainMainnet && !enabledFlags.WorldChain) return false
   if (chainId === KnownChainIds.MantleMainnet && !enabledFlags.Mantle) return false
+  if (chainId === KnownChainIds.SeiMainnet && !enabledFlags.Sei) return false
   if (chainId === KnownChainIds.InkMainnet && !enabledFlags.Ink) return false
   if (chainId === KnownChainIds.LineaMainnet && !enabledFlags.Linea) return false
   if (chainId === KnownChainIds.SonicMainnet && !enabledFlags.Sonic) return false

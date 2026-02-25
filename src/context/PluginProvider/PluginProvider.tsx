@@ -135,6 +135,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.ZkSyncEra && chainId === KnownChainIds.ZkSyncEraMainnet) return false
       if (!featureFlags.Blast && chainId === KnownChainIds.BlastMainnet) return false
       if (!featureFlags.Hemi && chainId === KnownChainIds.HemiMainnet) return false
+      if (!featureFlags.Sei && chainId === KnownChainIds.SeiMainnet) return false
       if (!featureFlags.Linea && chainId === KnownChainIds.LineaMainnet) return false
       if (!featureFlags.Scroll && chainId === KnownChainIds.ScrollMainnet) return false
       if (!featureFlags.Berachain && chainId === KnownChainIds.BerachainMainnet) return false

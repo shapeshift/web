@@ -26,6 +26,7 @@ import {
   plumeChainId,
   polygonChainId,
   scrollChainId,
+  seiChainId,
   solanaChainId,
   soneiumChainId,
   sonicChainId,
@@ -156,6 +157,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_BOB && asset.chainId === bobChainId) return false
       if (!config.VITE_FEATURE_MODE && asset.chainId === modeChainId) return false
       if (!config.VITE_FEATURE_MEGAETH && asset.chainId === megaethChainId) return false
+      if (!config.VITE_FEATURE_SEI && asset.chainId === seiChainId) return false
       if (!config.VITE_FEATURE_LINEA && asset.chainId === lineaChainId) return false
       if (!config.VITE_FEATURE_BERACHAIN && asset.chainId === berachainChainId) return false
       if (!config.VITE_FEATURE_SCROLL && asset.chainId === scrollChainId) return false

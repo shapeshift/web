@@ -76,6 +76,8 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'WLD'
     case KnownChainIds.HemiMainnet:
       return 'HEM'
+    case KnownChainIds.SeiMainnet:
+      return 'SEI'
     case KnownChainIds.LineaMainnet:
       return 'LIN'
     case KnownChainIds.ScrollMainnet:

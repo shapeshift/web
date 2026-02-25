@@ -208,6 +208,7 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   [KnownChainIds.BobMainnet]: [],
   [KnownChainIds.ModeMainnet]: [],
   [KnownChainIds.SoneiumMainnet]: [],
+  [KnownChainIds.SeiMainnet]: [],
   [KnownChainIds.ZcashMainnet]: [],
   [KnownChainIds.NearMainnet]: [],
   [KnownChainIds.TonMainnet]: [],

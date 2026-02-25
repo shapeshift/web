@@ -208,9 +208,34 @@ After clicking "Done" on success screens, sometimes the same modal type reopened
 
 **Retest**: PASS - After borrow -> Done, pool page shows fresh data. Reopening borrow modal shows correct current LTV.
 
-## Visual Issues Noted
+### 18. Visual Gap Improvements - Tab Panel Enrichment - PASS
 
-1. **Sparse tab panels vs Chainflip native UI**: Collateral tab only shows amount + add/remove buttons. Missing: LTV ratio, borrow capacity, free balance info. Borrow tab only shows borrowed amount. Repay tab only shows outstanding debt. The Chainflip native UI shows significantly more context (LTV gauge, borrow power, portfolio breakdown).
+- **Date**: 2026-02-25
+- **Screenshots**: `e2e/screenshots/chainflip-lending-pr4/visual-gaps/01-04`
+- **Changes**:
+  - **Your Position card**: Added Borrowed crypto amount (101.0101 USDC), Current LTV (79.4% in green)
+  - **Collateral tab**: Added fiat value ($127.20), Current LTV (79.4%), Borrow Capacity ($0.75)
+  - **Borrow tab**: Added Current LTV (79.4%), Available to Borrow ($0.75), Borrow Power Used (99.26%)
+  - **Repay tab**: Added crypto debt amount (101.0101 USDC), Current LTV (79.4%), Free Balance (106.209245 USDC)
+- **LTV color coding**: green (<80%), yellow (80-90%), red (>90%)
+
+## Visual Gap Audit (vs Chainflip Native UI)
+
+### Addressed
+
+| Area | Before | After |
+|------|--------|-------|
+| Your Position card | Borrowed fiat only, no LTV | Borrowed fiat + crypto, Current LTV with color |
+| Collateral tab | Crypto amount only + buttons | Fiat + crypto, Current LTV, Borrow Capacity + buttons |
+| Borrow tab | Borrowed fiat only + button | Borrowed fiat, Current LTV, Available to Borrow, Borrow Power Used + button |
+| Repay tab | Outstanding fiat only + button | Outstanding fiat + crypto, Current LTV, Free Balance + button |
+
+### Remaining Gaps (future work)
+
+1. **Portfolio breakdown chart**: Chainflip shows pie chart of collateral/borrowed/free. We show only text.
+2. **Per-asset balance table**: Chainflip shows Total/Undeployed/Deployed per asset. We show single-asset pool view.
+3. **APY in position card**: Chainflip shows supply APY earnings. We show APY only in market stats.
+4. **Collateral top-up asset selector**: Chainflip modal has From/To with asset picker. We use pool asset only.
 
 ## Current On-Chain State (after bug fix retest)
 
@@ -244,6 +269,7 @@ After clicking "Done" on success screens, sometimes the same modal type reopened
 | 15 | Second Full Repay | repays loan | 101.01 USDC | none | PASS | ~5s |
 | 16 | Retest: Borrow + BUG-1/3/4 | borrow + verify | 101 USDC | $101.00 | PASS | ~5s |
 | 17 | Retest: BUG-2 validation | partial repay UI | 11 USDC | N/A | PASS | instant |
+| 18 | Visual gap improvements | UI enrichment | N/A | N/A | PASS | N/A |
 
 ### 16. Bug Fix Retest: Borrow + Balance Check (BUG-1 & BUG-3) - PASS
 

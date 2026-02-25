@@ -44,6 +44,7 @@ import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLe
 import { useChainflipAccount } from '@/pages/ChainflipLending/hooks/useChainflipAccount'
 import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
 import { useChainflipLoanAccount } from '@/pages/ChainflipLending/hooks/useChainflipLoanAccount'
+import { useChainflipLtvThresholds } from '@/pages/ChainflipLending/hooks/useChainflipLtvThresholds'
 import { useChainflipSupplyPositions } from '@/pages/ChainflipLending/hooks/useChainflipSupplyPositions'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
@@ -338,6 +339,38 @@ export const Pool = () => {
   const hasCollateral = useMemo(() => bnOrZero(totalCollateralFiat).gt(0), [totalCollateralFiat])
   const hasLoans = useMemo(() => loansWithFiat.length > 0, [loansWithFiat])
 
+  const { thresholds } = useChainflipLtvThresholds()
+
+  const currentLtvDecimal = useMemo(() => {
+    if (!loanAccount?.ltv_ratio) return 0
+    try {
+      return Number(BigInt(loanAccount.ltv_ratio)) / 1_000_000_000
+    } catch {
+      return 0
+    }
+  }, [loanAccount?.ltv_ratio])
+
+  const currentLtvPercent = useMemo(() => (currentLtvDecimal * 100).toFixed(1), [currentLtvDecimal])
+
+  const ltvStatusColor = useMemo(() => {
+    if (currentLtvDecimal >= 0.9) return 'red.500'
+    if (currentLtvDecimal >= 0.8) return 'yellow.500'
+    return 'green.500'
+  }, [currentLtvDecimal])
+
+  const borrowCapacityFiat = useMemo(() => {
+    if (!thresholds) return '0'
+    const maxBorrow = bnOrZero(totalCollateralFiat).times(thresholds.target)
+    return maxBorrow.minus(userBorrowedFiat).toFixed(2)
+  }, [totalCollateralFiat, userBorrowedFiat, thresholds])
+
+  const borrowPowerUsedPercent = useMemo(() => {
+    if (!thresholds) return '0'
+    const maxBorrow = bnOrZero(totalCollateralFiat).times(thresholds.target)
+    if (maxBorrow.isZero()) return '0'
+    return bnOrZero(userBorrowedFiat).div(maxBorrow).toFixed(4)
+  }, [totalCollateralFiat, userBorrowedFiat, thresholds])
+
   const handleVoluntaryLiquidation = useCallback(
     (action: 'initiate' | 'stop') => {
       chainflipLendingModal.open({
@@ -537,7 +570,29 @@ export const Pool = () => {
                     <Skeleton isLoaded={!isLoanLoading}>
                       <Amount.Fiat value={userBorrowedFiat} fontSize='lg' fontWeight='bold' />
                     </Skeleton>
+                    {accountId && firstLoan ? (
+                      <Skeleton isLoaded={!isLoanLoading}>
+                        <Amount.Crypto
+                          value={firstLoan.principalAmountCryptoPrecision}
+                          symbol={asset.symbol}
+                          fontSize='xs'
+                          color='text.subtle'
+                        />
+                      </Skeleton>
+                    ) : null}
                   </Box>
+                  {hasLoans && accountId ? (
+                    <Box>
+                      <RawText fontSize='xs' color='text.subtle' mb={1} textTransform='uppercase'>
+                        {translate('chainflipLending.pool.currentLtv')}
+                      </RawText>
+                      <Skeleton isLoaded={!isLoanLoading}>
+                        <RawText fontSize='lg' fontWeight='bold' color={ltvStatusColor}>
+                          {currentLtvPercent}%
+                        </RawText>
+                      </Skeleton>
+                    </Box>
+                  ) : null}
                 </SimpleGrid>
                 {!accountId ? (
                   <Button
@@ -706,13 +761,42 @@ export const Pool = () => {
                         <RawText fontSize='sm' color='text.subtle'>
                           {translate('chainflipLending.collateral.title')}
                         </RawText>
-                        <Amount.Crypto
-                          value={poolCollateral?.amountCryptoPrecision ?? '0'}
-                          symbol={asset.symbol}
-                          fontSize='sm'
-                          fontWeight='medium'
-                        />
+                        <VStack spacing={0} align='flex-end'>
+                          <Amount.Fiat
+                            value={poolCollateral?.amountFiat ?? '0'}
+                            fontSize='sm'
+                            fontWeight='medium'
+                          />
+                          <Amount.Crypto
+                            value={poolCollateral?.amountCryptoPrecision ?? '0'}
+                            symbol={asset.symbol}
+                            fontSize='xs'
+                            color='text.subtle'
+                          />
+                        </VStack>
                       </Flex>
+                      {hasLoans && (
+                        <Flex justifyContent='space-between' alignItems='center'>
+                          <RawText fontSize='sm' color='text.subtle'>
+                            {translate('chainflipLending.pool.currentLtv')}
+                          </RawText>
+                          <RawText fontSize='sm' fontWeight='medium' color={ltvStatusColor}>
+                            {currentLtvPercent}%
+                          </RawText>
+                        </Flex>
+                      )}
+                      {hasCollateral && (
+                        <Flex justifyContent='space-between' alignItems='center'>
+                          <RawText fontSize='sm' color='text.subtle'>
+                            {translate('chainflipLending.pool.borrowCapacity')}
+                          </RawText>
+                          <Amount.Fiat
+                            value={borrowCapacityFiat}
+                            fontSize='sm'
+                            fontWeight='medium'
+                          />
+                        </Flex>
+                      )}
                       <HStack spacing={3}>
                         <Tooltip
                           label={translate('chainflipLending.pool.noFreeBalance')}
@@ -764,6 +848,40 @@ export const Pool = () => {
                         </RawText>
                         <Amount.Fiat value={userBorrowedFiat} fontSize='sm' fontWeight='medium' />
                       </Flex>
+                      {hasLoans && (
+                        <Flex justifyContent='space-between' alignItems='center'>
+                          <RawText fontSize='sm' color='text.subtle'>
+                            {translate('chainflipLending.pool.currentLtv')}
+                          </RawText>
+                          <RawText fontSize='sm' fontWeight='medium' color={ltvStatusColor}>
+                            {currentLtvPercent}%
+                          </RawText>
+                        </Flex>
+                      )}
+                      {hasCollateral && (
+                        <Flex justifyContent='space-between' alignItems='center'>
+                          <RawText fontSize='sm' color='text.subtle'>
+                            {translate('chainflipLending.pool.availableToBorrow')}
+                          </RawText>
+                          <Amount.Fiat
+                            value={borrowCapacityFiat}
+                            fontSize='sm'
+                            fontWeight='medium'
+                          />
+                        </Flex>
+                      )}
+                      {hasCollateral && (
+                        <Flex justifyContent='space-between' alignItems='center'>
+                          <RawText fontSize='sm' color='text.subtle'>
+                            {translate('chainflipLending.pool.borrowPowerUsed')}
+                          </RawText>
+                          <Amount.Percent
+                            value={borrowPowerUsedPercent}
+                            fontSize='sm'
+                            fontWeight='medium'
+                          />
+                        </Flex>
+                      )}
                       <Tooltip
                         label={translate('chainflipLending.pool.noCollateral')}
                         isDisabled={hasCollateral}
@@ -791,8 +909,39 @@ export const Pool = () => {
                         <RawText fontSize='sm' color='text.subtle'>
                           {translate('chainflipLending.repay.outstanding')}
                         </RawText>
-                        <Amount.Fiat
-                          value={firstLoan?.principalAmountFiat ?? '0'}
+                        <VStack spacing={0} align='flex-end'>
+                          <Amount.Fiat
+                            value={firstLoan?.principalAmountFiat ?? '0'}
+                            fontSize='sm'
+                            fontWeight='medium'
+                          />
+                          {firstLoan && (
+                            <Amount.Crypto
+                              value={firstLoan.principalAmountCryptoPrecision}
+                              symbol={asset.symbol}
+                              fontSize='xs'
+                              color='text.subtle'
+                            />
+                          )}
+                        </VStack>
+                      </Flex>
+                      {hasLoans && (
+                        <Flex justifyContent='space-between' alignItems='center'>
+                          <RawText fontSize='sm' color='text.subtle'>
+                            {translate('chainflipLending.pool.currentLtv')}
+                          </RawText>
+                          <RawText fontSize='sm' fontWeight='medium' color={ltvStatusColor}>
+                            {currentLtvPercent}%
+                          </RawText>
+                        </Flex>
+                      )}
+                      <Flex justifyContent='space-between' alignItems='center'>
+                        <RawText fontSize='sm' color='text.subtle'>
+                          {translate('chainflipLending.pool.freeBalance')}
+                        </RawText>
+                        <Amount.Crypto
+                          value={freeBalanceCryptoPrecision}
+                          symbol={asset.symbol}
                           fontSize='sm'
                           fontWeight='medium'
                         />

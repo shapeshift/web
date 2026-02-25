@@ -2447,7 +2447,11 @@
       "depositToChainflip": "Deposit",
       "withdrawFromChainflip": "Withdraw from Chainflip",
       "freeBalance": "Free Balance",
-      "walletBalance": "Wallet Balance"
+      "walletBalance": "Wallet Balance",
+      "currentLtv": "Current LTV",
+      "borrowCapacity": "Borrow Capacity",
+      "borrowPowerUsed": "Borrow Power Used",
+      "availableToBorrow": "Available to Borrow"
     },
     "supplyApy": "Supply APY",
     "supplyApyTooltip": "Annual percentage yield earned by supplying assets to this pool.",

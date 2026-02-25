@@ -105,6 +105,7 @@ export const borrowMachine = setup({
       borrowAmountCryptoBaseUnit: '0',
       collateralTopupAssetId: null,
       extraCollateral: [],
+      currentLtvBps: 0,
       projectedLtvBps: 0,
       txHash: null,
       lastUsedNonce: undefined,

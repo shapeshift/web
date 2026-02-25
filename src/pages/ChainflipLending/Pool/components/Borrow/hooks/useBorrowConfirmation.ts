@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { useEffect, useRef } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCallback, useEffect, useRef } from 'react'
 
 import { BorrowMachineCtx } from '../BorrowMachineContext'
 
@@ -15,6 +15,7 @@ type LoanSnapshot = {
 }
 
 export const useBorrowConfirmation = () => {
+  const queryClient = useQueryClient()
   const actorRef = BorrowMachineCtx.useActorRef()
   const stateValue = BorrowMachineCtx.useSelector(s => s.value)
   const { scAccount } = useChainflipLendingAccount()
@@ -22,6 +23,15 @@ export const useBorrowConfirmation = () => {
   const isConfirming = stateValue === 'confirming'
   const snapshotRef = useRef<LoanSnapshot | null>(null)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const invalidateQueries = useCallback(async () => {
+    if (!scAccount) return
+    await Promise.all([
+      queryClient.invalidateQueries(reactQueries.chainflipLending.freeBalances(scAccount)),
+      queryClient.invalidateQueries(reactQueries.chainflipLending.accountInfo(scAccount)),
+      queryClient.invalidateQueries(reactQueries.chainflipLending.loanAccounts(scAccount)),
+    ])
+  }, [queryClient, scAccount])
 
   const { data: loanAccountsData } = useQuery({
     ...reactQueries.chainflipLending.loanAccounts(scAccount ?? ''),
@@ -77,7 +87,8 @@ export const useBorrowConfirmation = () => {
 
     if (hasNewLoan || hasIncreasedPrincipal) {
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      void invalidateQueries()
       actorRef.send({ type: 'BORROW_CONFIRMED' })
     }
-  }, [isConfirming, loanAccountsData, scAccount, actorRef])
+  }, [isConfirming, loanAccountsData, scAccount, actorRef, invalidateQueries])
 }

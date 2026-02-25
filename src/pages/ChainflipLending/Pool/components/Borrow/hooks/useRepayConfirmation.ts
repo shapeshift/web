@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { useEffect, useMemo, useRef } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { RepayMachineCtx } from '../RepayMachineContext'
 
@@ -10,6 +10,7 @@ const POLL_INTERVAL_MS = 6_000
 const TIMEOUT_MS = 5 * 60 * 1000
 
 export const useRepayConfirmation = () => {
+  const queryClient = useQueryClient()
   const actorRef = RepayMachineCtx.useActorRef()
   const stateValue = RepayMachineCtx.useSelector(s => s.value)
   const { loanId, isFullRepayment, outstandingDebtCryptoBaseUnit } = RepayMachineCtx.useSelector(
@@ -22,6 +23,15 @@ export const useRepayConfirmation = () => {
   const { scAccount } = useChainflipLendingAccount()
 
   const isConfirming = stateValue === 'confirming'
+
+  const invalidateQueries = useCallback(async () => {
+    if (!scAccount) return
+    await Promise.all([
+      queryClient.invalidateQueries(reactQueries.chainflipLending.freeBalances(scAccount)),
+      queryClient.invalidateQueries(reactQueries.chainflipLending.accountInfo(scAccount)),
+      queryClient.invalidateQueries(reactQueries.chainflipLending.loanAccounts(scAccount)),
+    ])
+  }, [queryClient, scAccount])
 
   const { data: loanAccountsData } = useQuery({
     ...reactQueries.chainflipLending.loanAccounts(scAccount ?? ''),
@@ -55,6 +65,7 @@ export const useRepayConfirmation = () => {
     if (isFullRepayment) {
       if (!matchingLoan) {
         if (timeoutRef.current) clearTimeout(timeoutRef.current)
+        void invalidateQueries()
         actorRef.send({ type: 'REPAY_CONFIRMED' })
       }
       return
@@ -68,10 +79,19 @@ export const useRepayConfirmation = () => {
 
       if (currentPrincipal < previousDebt) {
         if (timeoutRef.current) clearTimeout(timeoutRef.current)
+        void invalidateQueries()
         actorRef.send({ type: 'REPAY_CONFIRMED' })
       }
     } catch {
       // keep polling
     }
-  }, [isConfirming, loanAccount, loanId, isFullRepayment, outstandingDebtCryptoBaseUnit, actorRef])
+  }, [
+    isConfirming,
+    loanAccount,
+    loanId,
+    isFullRepayment,
+    outstandingDebtCryptoBaseUnit,
+    actorRef,
+    invalidateQueries,
+  ])
 }

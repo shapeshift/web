@@ -2619,6 +2619,7 @@
       "availableBalance": "Free balance",
       "availableTooltip": "Your free balance on Chainflip available for repayment",
       "minimumRepayment": "Minimum repayment: %{amount}",
+      "remainingBelowMinimum": "Remaining loan would be below %{amount} minimum. Use full repayment instead.",
       "insufficientBalance": "Insufficient free balance for full repayment",
       "noFreeBalance": "Deposit funds to your Chainflip account first"
     },

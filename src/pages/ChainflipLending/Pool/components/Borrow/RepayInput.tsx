@@ -64,7 +64,7 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
     [outstandingDebtCryptoBaseUnit, asset?.precision],
   )
 
-  const { minimumUpdateLoanAmountUsd } = useChainflipBorrowMinimums()
+  const { minimumUpdateLoanAmountUsd, minimumLoanAmountUsd } = useChainflipBorrowMinimums()
 
   const hasFreeBalance = useMemo(
     () => bnOrZero(freeBalanceCryptoBaseUnit).gt(0),
@@ -83,11 +83,23 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
 
   const inputFiat = useMemo(() => bnOrZero(inputValue).times(assetPrice), [inputValue, assetPrice])
 
+  const outstandingDebtFiat = useMemo(
+    () => bnOrZero(outstandingDebtCryptoPrecision).times(assetPrice),
+    [outstandingDebtCryptoPrecision, assetPrice],
+  )
+
   const isBelowMinimum = useMemo(() => {
     if (isFullRepayment) return false
     if (!minimumUpdateLoanAmountUsd) return false
     return inputFiat.gt(0) && inputFiat.lt(minimumUpdateLoanAmountUsd)
   }, [isFullRepayment, inputFiat, minimumUpdateLoanAmountUsd])
+
+  const isRemainingBelowMinimumLoan = useMemo(() => {
+    if (isFullRepayment) return false
+    if (!minimumLoanAmountUsd) return false
+    const remainingFiat = outstandingDebtFiat.minus(inputFiat)
+    return inputFiat.gt(0) && remainingFiat.gt(0) && remainingFiat.lt(minimumLoanAmountUsd)
+  }, [isFullRepayment, minimumLoanAmountUsd, outstandingDebtFiat, inputFiat])
 
   const handleInputChange = useCallback((values: NumberFormatValues) => {
     setInputValue(values.value)
@@ -137,7 +149,12 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
     if (!hasDebt || !hasFreeBalance) return true
     if (isFullRepayment) return !canAffordFullRepayment
     const amount = bnOrZero(inputValue)
-    return amount.isZero() || amount.gt(availableCryptoPrecision) || isBelowMinimum
+    return (
+      amount.isZero() ||
+      amount.gt(availableCryptoPrecision) ||
+      isBelowMinimum ||
+      isRemainingBelowMinimumLoan
+    )
   }, [
     inputValue,
     isFullRepayment,
@@ -146,6 +163,7 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
     hasDebt,
     canAffordFullRepayment,
     isBelowMinimum,
+    isRemainingBelowMinimumLoan,
   ])
 
   if (!asset) return null
@@ -255,6 +273,14 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
             <RawText fontSize='xs' color='red.500'>
               {translate('chainflipLending.repay.minimumRepayment', {
                 amount: `$${minimumUpdateLoanAmountUsd}`,
+              })}
+            </RawText>
+          )}
+
+          {!isFullRepayment && isRemainingBelowMinimumLoan && minimumLoanAmountUsd && (
+            <RawText fontSize='xs' color='red.500'>
+              {translate('chainflipLending.repay.remainingBelowMinimum', {
+                amount: `$${minimumLoanAmountUsd}`,
               })}
             </RawText>
           )}

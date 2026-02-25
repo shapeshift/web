@@ -1,10 +1,13 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { EgressMachineCtx } from '../EgressMachineContext'
 
 import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
-import { queryLiquidityWithdrawalStatus } from '@/lib/chainflip/explorerApi'
+import {
+  queryLatestWithdrawalId,
+  queryLiquidityWithdrawalStatus,
+} from '@/lib/chainflip/explorerApi'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { reactQueries } from '@/react-queries'
 
@@ -21,16 +24,37 @@ export const useEgressConfirmation = () => {
 
   const isConfirming = stateValue === 'confirming'
   const pollCountRef = useRef(0)
+  const [baselineId, setBaselineId] = useState<number | null>(null)
 
   const cfAsset = useMemo(() => CHAINFLIP_LENDING_ASSET_BY_ASSET_ID[assetId], [assetId])
 
+  useEffect(() => {
+    if (!isConfirming || baselineId !== null) return
+    if (!cfAsset || !destinationAddress) return
+
+    void queryLatestWithdrawalId(destinationAddress, cfAsset.asset, cfAsset.chain).then(id => {
+      setBaselineId(id)
+    })
+  }, [isConfirming, baselineId, cfAsset, destinationAddress])
+
   const { data: withdrawalStatus } = useQuery({
-    queryKey: ['chainflipEgressStatus', destinationAddress, cfAsset?.asset, cfAsset?.chain],
+    queryKey: [
+      'chainflipEgressStatus',
+      destinationAddress,
+      cfAsset?.asset,
+      cfAsset?.chain,
+      baselineId,
+    ],
     queryFn: () => {
-      if (!cfAsset || !destinationAddress) return null
-      return queryLiquidityWithdrawalStatus(destinationAddress, cfAsset.asset, cfAsset.chain)
+      if (!cfAsset || !destinationAddress || baselineId === null) return null
+      return queryLiquidityWithdrawalStatus(
+        destinationAddress,
+        cfAsset.asset,
+        cfAsset.chain,
+        baselineId,
+      )
     },
-    enabled: isConfirming && !!cfAsset && !!destinationAddress,
+    enabled: isConfirming && !!cfAsset && !!destinationAddress && baselineId !== null,
     refetchInterval: isConfirming ? POLL_INTERVAL_MS : false,
   })
 
@@ -45,6 +69,8 @@ export const useEgressConfirmation = () => {
   useEffect(() => {
     if (!isConfirming) {
       pollCountRef.current = 0
+      setBaselineId(null)
+      queryClient.removeQueries({ queryKey: ['chainflipEgressStatus'] })
       return
     }
 
@@ -63,5 +89,5 @@ export const useEgressConfirmation = () => {
         egressTxRef: withdrawalStatus.transactionRef,
       })
     }
-  }, [isConfirming, withdrawalStatus, actorRef, invalidateQueries])
+  }, [isConfirming, withdrawalStatus, actorRef, invalidateQueries, queryClient])
 }

@@ -1,10 +1,13 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { WithdrawMachineCtx } from '../WithdrawMachineContext'
 
 import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
-import { queryLiquidityWithdrawalStatus } from '@/lib/chainflip/explorerApi'
+import {
+  queryLatestWithdrawalId,
+  queryLiquidityWithdrawalStatus,
+} from '@/lib/chainflip/explorerApi'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { reactQueries } from '@/react-queries'
 
@@ -29,6 +32,7 @@ export const useWithdrawConfirmation = () => {
   const isConfirming = stateValue === 'confirming'
   const pollCountRef = useRef(0)
   const supplyDecreasedRef = useRef(false)
+  const [baselineId, setBaselineId] = useState<number | null>(null)
 
   const cfAsset = useMemo(() => CHAINFLIP_LENDING_ASSET_BY_ASSET_ID[assetId], [assetId])
 
@@ -38,6 +42,15 @@ export const useWithdrawConfirmation = () => {
     [withdrawToWallet],
   )
 
+  useEffect(() => {
+    if (!isConfirming || !withdrawToWallet || baselineId !== null) return
+    if (!cfAsset || !withdrawAddress) return
+
+    void queryLatestWithdrawalId(withdrawAddress, cfAsset.asset, cfAsset.chain).then(id => {
+      setBaselineId(id)
+    })
+  }, [isConfirming, withdrawToWallet, baselineId, cfAsset, withdrawAddress])
+
   const { data: accountInfo } = useQuery({
     ...reactQueries.chainflipLending.accountInfo(scAccount ?? ''),
     enabled: isConfirming && !!scAccount && !supplyDecreasedRef.current,
@@ -45,17 +58,29 @@ export const useWithdrawConfirmation = () => {
   })
 
   const { data: withdrawalStatus } = useQuery({
-    queryKey: ['chainflipWithdrawEgressStatus', withdrawAddress, cfAsset?.asset, cfAsset?.chain],
+    queryKey: [
+      'chainflipWithdrawEgressStatus',
+      withdrawAddress,
+      cfAsset?.asset,
+      cfAsset?.chain,
+      baselineId,
+    ],
     queryFn: () => {
-      if (!cfAsset || !withdrawAddress) return null
-      return queryLiquidityWithdrawalStatus(withdrawAddress, cfAsset.asset, cfAsset.chain)
+      if (!cfAsset || !withdrawAddress || baselineId === null) return null
+      return queryLiquidityWithdrawalStatus(
+        withdrawAddress,
+        cfAsset.asset,
+        cfAsset.chain,
+        baselineId,
+      )
     },
     enabled:
       isConfirming &&
       withdrawToWallet &&
       supplyDecreasedRef.current &&
       !!cfAsset &&
-      !!withdrawAddress,
+      !!withdrawAddress &&
+      baselineId !== null,
     refetchInterval:
       isConfirming && withdrawToWallet && supplyDecreasedRef.current
         ? EGRESS_POLL_INTERVAL_MS
@@ -74,6 +99,8 @@ export const useWithdrawConfirmation = () => {
     if (!isConfirming) {
       pollCountRef.current = 0
       supplyDecreasedRef.current = false
+      setBaselineId(null)
+      queryClient.removeQueries({ queryKey: ['chainflipWithdrawEgressStatus'] })
       return
     }
 
@@ -134,5 +161,6 @@ export const useWithdrawConfirmation = () => {
     actorRef,
     invalidateQueries,
     maxAttempts,
+    queryClient,
   ])
 }

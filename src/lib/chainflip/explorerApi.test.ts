@@ -2,18 +2,83 @@ import axios from 'axios'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { LiquidityWithdrawalStatus } from './explorerApi'
-import { queryLiquidityWithdrawalStatus } from './explorerApi'
+import { queryLatestWithdrawalId, queryLiquidityWithdrawalStatus } from './explorerApi'
 
 vi.mock('axios')
 
 const mockAxiosPost = vi.mocked(axios.post)
 
-const makeResponse = (nodes: unknown[]) => ({
+const makeStatusResponse = (nodes: unknown[]) => ({
   data: {
     data: {
       allLiquidityWithdrawals: { nodes },
     },
   },
+})
+
+const makeIdResponse = (nodes: { id: number }[]) => ({
+  data: {
+    data: {
+      allLiquidityWithdrawals: { nodes },
+    },
+  },
+})
+
+describe('queryLatestWithdrawalId', () => {
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should return the latest withdrawal id', async () => {
+    mockAxiosPost.mockResolvedValueOnce(makeIdResponse([{ id: 31922 }]))
+
+    const result = await queryLatestWithdrawalId(
+      '0x5daf465a9ccf64deb146eeae9e7bd40d6761c986',
+      'USDC',
+      'Ethereum',
+    )
+
+    expect(result).toBe(31922)
+  })
+
+  it('should return 0 when no withdrawals exist', async () => {
+    mockAxiosPost.mockResolvedValueOnce(makeIdResponse([]))
+
+    const result = await queryLatestWithdrawalId(
+      '0x0000000000000000000000000000000000000000',
+      'USDC',
+      'Ethereum',
+    )
+
+    expect(result).toBe(0)
+  })
+
+  it('should return 0 on network error', async () => {
+    mockAxiosPost.mockRejectedValueOnce(new Error('Network error'))
+
+    const result = await queryLatestWithdrawalId(
+      '0x5daf465a9ccf64deb146eeae9e7bd40d6761c986',
+      'USDC',
+      'Ethereum',
+    )
+
+    expect(result).toBe(0)
+  })
+
+  it('should normalize address to lowercase', async () => {
+    mockAxiosPost.mockResolvedValueOnce(makeIdResponse([]))
+
+    await queryLatestWithdrawalId('0x5DAF465A9CCF64DEB146EEAE9E7BD40D6761C986', 'USDC', 'Ethereum')
+
+    expect(mockAxiosPost).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        variables: expect.objectContaining({
+          address: '0x5daf465a9ccf64deb146eeae9e7bd40d6761c986',
+        }),
+      }),
+    )
+  })
 })
 
 describe('queryLiquidityWithdrawalStatus', () => {
@@ -23,7 +88,7 @@ describe('queryLiquidityWithdrawalStatus', () => {
 
   it('should return broadcastComplete with transactionRef when broadcast is successful', async () => {
     mockAxiosPost.mockResolvedValueOnce(
-      makeResponse([
+      makeStatusResponse([
         {
           broadcastByBroadcastId: {
             broadcastSuccessEventId: '123456',
@@ -39,6 +104,7 @@ describe('queryLiquidityWithdrawalStatus', () => {
       '0x5daf465a9ccf64deb146eeae9e7bd40d6761c986',
       'USDC',
       'Ethereum',
+      31900,
     )
 
     expect(result).toEqual<LiquidityWithdrawalStatus>({
@@ -53,6 +119,7 @@ describe('queryLiquidityWithdrawalStatus', () => {
           address: '0x5daf465a9ccf64deb146eeae9e7bd40d6761c986',
           asset: 'Usdc',
           chain: 'Ethereum',
+          afterId: 31900,
         },
       }),
     )
@@ -60,7 +127,7 @@ describe('queryLiquidityWithdrawalStatus', () => {
 
   it('should return broadcastComplete false when broadcast has no success event', async () => {
     mockAxiosPost.mockResolvedValueOnce(
-      makeResponse([
+      makeStatusResponse([
         {
           broadcastByBroadcastId: {
             broadcastSuccessEventId: null,
@@ -76,6 +143,7 @@ describe('queryLiquidityWithdrawalStatus', () => {
       '0x5daf465a9ccf64deb146eeae9e7bd40d6761c986',
       'USDC',
       'Ethereum',
+      0,
     )
 
     expect(result).toEqual<LiquidityWithdrawalStatus>({
@@ -86,7 +154,7 @@ describe('queryLiquidityWithdrawalStatus', () => {
 
   it('should return broadcastComplete false when no broadcast exists yet', async () => {
     mockAxiosPost.mockResolvedValueOnce(
-      makeResponse([
+      makeStatusResponse([
         {
           broadcastByBroadcastId: null,
         },
@@ -97,6 +165,7 @@ describe('queryLiquidityWithdrawalStatus', () => {
       '0x5daf465a9ccf64deb146eeae9e7bd40d6761c986',
       'ETH',
       'Ethereum',
+      0,
     )
 
     expect(result).toEqual<LiquidityWithdrawalStatus>({
@@ -105,13 +174,14 @@ describe('queryLiquidityWithdrawalStatus', () => {
     })
   })
 
-  it('should return null when no withdrawal nodes are found', async () => {
-    mockAxiosPost.mockResolvedValueOnce(makeResponse([]))
+  it('should return broadcastComplete false when no withdrawal nodes are found', async () => {
+    mockAxiosPost.mockResolvedValueOnce(makeStatusResponse([]))
 
     const result = await queryLiquidityWithdrawalStatus(
       '0x0000000000000000000000000000000000000000',
       'USDC',
       'Ethereum',
+      31922,
     )
 
     expect(result).toEqual<LiquidityWithdrawalStatus>({
@@ -127,18 +197,20 @@ describe('queryLiquidityWithdrawalStatus', () => {
       '0x5daf465a9ccf64deb146eeae9e7bd40d6761c986',
       'USDC',
       'Ethereum',
+      0,
     )
 
     expect(result).toBeNull()
   })
 
   it('should normalize address to lowercase', async () => {
-    mockAxiosPost.mockResolvedValueOnce(makeResponse([]))
+    mockAxiosPost.mockResolvedValueOnce(makeStatusResponse([]))
 
     await queryLiquidityWithdrawalStatus(
       '0x5DAF465A9CCF64DEB146EEAE9E7BD40D6761C986',
       'USDC',
       'Ethereum',
+      0,
     )
 
     expect(mockAxiosPost).toHaveBeenCalledWith(
@@ -152,9 +224,9 @@ describe('queryLiquidityWithdrawalStatus', () => {
   })
 
   it('should convert asset symbol to GraphQL enum format', async () => {
-    mockAxiosPost.mockResolvedValueOnce(makeResponse([]))
+    mockAxiosPost.mockResolvedValueOnce(makeStatusResponse([]))
 
-    await queryLiquidityWithdrawalStatus('bc1qtest', 'BTC', 'Bitcoin')
+    await queryLiquidityWithdrawalStatus('bc1qtest', 'BTC', 'Bitcoin', 0)
 
     expect(mockAxiosPost).toHaveBeenCalledWith(
       expect.any(String),
@@ -169,7 +241,7 @@ describe('queryLiquidityWithdrawalStatus', () => {
 
   it('should return broadcastComplete false when success event exists but no tx ref', async () => {
     mockAxiosPost.mockResolvedValueOnce(
-      makeResponse([
+      makeStatusResponse([
         {
           broadcastByBroadcastId: {
             broadcastSuccessEventId: '789',
@@ -185,11 +257,32 @@ describe('queryLiquidityWithdrawalStatus', () => {
       '0x5daf465a9ccf64deb146eeae9e7bd40d6761c986',
       'USDT',
       'Ethereum',
+      0,
     )
 
     expect(result).toEqual<LiquidityWithdrawalStatus>({
       broadcastComplete: false,
       transactionRef: null,
     })
+  })
+
+  it('should pass afterId to filter only newer withdrawals', async () => {
+    mockAxiosPost.mockResolvedValueOnce(makeStatusResponse([]))
+
+    await queryLiquidityWithdrawalStatus(
+      '0x5daf465a9ccf64deb146eeae9e7bd40d6761c986',
+      'USDC',
+      'Ethereum',
+      31922,
+    )
+
+    expect(mockAxiosPost).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        variables: expect.objectContaining({
+          afterId: 31922,
+        }),
+      }),
+    )
   })
 })

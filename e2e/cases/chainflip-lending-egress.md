@@ -14,8 +14,8 @@ Tests the complete egress flow - withdraw USDC from Chainflip free balance to wa
 - **egressMachine.ts**: input -> confirm -> signing -> confirming -> success
 - **EgressInput.tsx**: amount input + AccountDropdown destination address (auto-filled from wallet, toggleable to custom)
 - **useEgressSign.ts**: calls `encodeWithdrawAsset(amount, cfAsset, { chain, address })`
-- **useEgressConfirmation.ts**: polls Chainflip Explorer GraphQL for LP withdrawal broadcast completion (60s interval, 30 attempts = 30min max)
-- **explorerApi.ts**: `queryLiquidityWithdrawalStatus` queries `allLiquidityWithdrawals` for `broadcastComplete` + `transactionRef`
+- **useEgressConfirmation.ts**: snapshots latest withdrawal ID as baseline before signing, then polls Explorer GraphQL for NEW withdrawals (id > baseline) every 60s, 30 attempts = 30min max
+- **explorerApi.ts**: `queryLatestWithdrawalId` captures baseline, `queryLiquidityWithdrawalStatus` queries `allLiquidityWithdrawals` with `id: { greaterThan: afterId }` for `broadcastComplete` + `transactionRef`
 - Egress moves funds from State Chain free balance to a destination wallet address on the asset's native chain
 
 ## Test Case

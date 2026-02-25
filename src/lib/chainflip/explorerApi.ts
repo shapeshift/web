@@ -24,10 +24,22 @@ type LiquidityWithdrawalResponse = {
   }
 }
 
+type LatestWithdrawalIdNode = {
+  id: number
+}
+
+type LatestWithdrawalIdResponse = {
+  data: {
+    allLiquidityWithdrawals: {
+      nodes: LatestWithdrawalIdNode[]
+    }
+  }
+}
+
 const toGraphqlAsset = (asset: string): string => asset.charAt(0) + asset.slice(1).toLowerCase()
 
-const LP_WITHDRAWAL_STATUS_QUERY = `
-  query GetLpWithdrawalStatus($address: String!, $asset: ChainflipAsset!, $chain: ChainflipChain!) {
+const LATEST_WITHDRAWAL_ID_QUERY = `
+  query GetLatestWithdrawalId($address: String!, $asset: ChainflipAsset!, $chain: ChainflipChain!) {
     allLiquidityWithdrawals(
       filter: {
         withdrawalAddress: { equalTo: $address }
@@ -35,6 +47,25 @@ const LP_WITHDRAWAL_STATUS_QUERY = `
         chain: { equalTo: $chain }
       }
       orderBy: ID_DESC
+      first: 1
+    ) {
+      nodes {
+        id
+      }
+    }
+  }
+`
+
+const LP_WITHDRAWAL_STATUS_QUERY = `
+  query GetLpWithdrawalStatus($address: String!, $asset: ChainflipAsset!, $chain: ChainflipChain!, $afterId: Int!) {
+    allLiquidityWithdrawals(
+      filter: {
+        withdrawalAddress: { equalTo: $address }
+        asset: { equalTo: $asset }
+        chain: { equalTo: $chain }
+        id: { greaterThan: $afterId }
+      }
+      orderBy: ID_ASC
       first: 1
     ) {
       nodes {
@@ -51,10 +82,35 @@ const LP_WITHDRAWAL_STATUS_QUERY = `
   }
 `
 
+export const queryLatestWithdrawalId = async (
+  withdrawalAddress: string,
+  asset: string,
+  chain: string,
+): Promise<number> => {
+  const graphqlAsset = toGraphqlAsset(asset)
+  const normalizedAddress = withdrawalAddress.toLowerCase()
+
+  try {
+    const { data } = await axios.post<LatestWithdrawalIdResponse>(CHAINFLIP_EXPLORER_GRAPHQL_URL, {
+      query: LATEST_WITHDRAWAL_ID_QUERY,
+      variables: {
+        address: normalizedAddress,
+        asset: graphqlAsset,
+        chain,
+      },
+    })
+
+    return data.data.allLiquidityWithdrawals.nodes[0]?.id ?? 0
+  } catch {
+    return 0
+  }
+}
+
 export const queryLiquidityWithdrawalStatus = async (
   withdrawalAddress: string,
   asset: string,
   chain: string,
+  afterId: number,
 ): Promise<LiquidityWithdrawalStatus | null> => {
   const graphqlAsset = toGraphqlAsset(asset)
   const normalizedAddress = withdrawalAddress.toLowerCase()
@@ -66,6 +122,7 @@ export const queryLiquidityWithdrawalStatus = async (
         address: normalizedAddress,
         asset: graphqlAsset,
         chain,
+        afterId,
       },
     })
 

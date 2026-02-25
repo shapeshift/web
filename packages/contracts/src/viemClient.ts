@@ -29,6 +29,7 @@ import {
   plumeMainnet,
   polygon,
   scroll,
+  sei,
   soneium,
   sonic,
   story,
@@ -186,6 +187,21 @@ export const viemKatanaClient = createPublicClient({
   transport: fallback([process.env.VITE_KATANA_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const ethereal = defineChain({
+  id: 5064014,
+  name: 'Ethereal',
+  nativeCurrency: { name: 'USDe', symbol: 'USDe', decimals: 18 },
+  rpcUrls: { default: { http: ['https://rpc.ethereal.trade'] } },
+  blockExplorers: {
+    default: { name: 'Ethereal Explorer', url: 'https://explorer.ethereal.global' },
+  },
+})
+
+export const viemEtherealClient = createPublicClient({
+  chain: ethereal,
+  transport: fallback([process.env.VITE_ETHEREAL_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemStoryClient = createPublicClient({
   chain: story,
   transport: fallback([process.env.VITE_STORY_NODE_URL].filter(Boolean).map(url => http(url))),
@@ -209,6 +225,11 @@ export const viemWorldChainClient = createPublicClient({
 export const viemHemiClient = createPublicClient({
   chain: hemi,
   transport: fallback([process.env.VITE_HEMI_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
+export const viemSeiClient = createPublicClient({
+  chain: sei,
+  transport: fallback([process.env.VITE_SEI_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
 export const viemLineaClient = createPublicClient({
@@ -260,6 +281,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.BerachainMainnet]: viemBerachainClient,
   [KnownChainIds.CronosMainnet]: viemCronosClient,
   [KnownChainIds.KatanaMainnet]: viemKatanaClient,
+  [KnownChainIds.EtherealMainnet]: viemEtherealClient,
   [KnownChainIds.FlowEvmMainnet]: viemFlowEvmClient,
   [KnownChainIds.CeloMainnet]: viemCeloClient,
   [KnownChainIds.StoryMainnet]: viemStoryClient,
@@ -274,6 +296,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.BobMainnet]: viemBobClient,
   [KnownChainIds.ModeMainnet]: viemModeClient,
   [KnownChainIds.SoneiumMainnet]: viemSoneiumClient,
+  [KnownChainIds.SeiMainnet]: viemSeiClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -295,6 +318,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.BerachainMainnet]: berachain.id,
   [KnownChainIds.CronosMainnet]: cronos.id,
   [KnownChainIds.KatanaMainnet]: katana.id,
+  [KnownChainIds.EtherealMainnet]: ethereal.id,
   [KnownChainIds.FlowEvmMainnet]: flowMainnet.id,
   [KnownChainIds.CeloMainnet]: celo.id,
   [KnownChainIds.StoryMainnet]: story.id,
@@ -309,6 +333,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.BobMainnet]: bob.id,
   [KnownChainIds.ModeMainnet]: mode.id,
   [KnownChainIds.SoneiumMainnet]: soneium.id,
+  [KnownChainIds.SeiMainnet]: sei.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -330,6 +355,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [berachain.id]: viemBerachainClient,
   [cronos.id]: viemCronosClient,
   [katana.id]: viemKatanaClient,
+  [ethereal.id]: viemEtherealClient,
   [flowMainnet.id]: viemFlowEvmClient,
   [celo.id]: viemCeloClient,
   [story.id]: viemStoryClient,
@@ -344,6 +370,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [bob.id]: viemBobClient,
   [mode.id]: viemModeClient,
   [soneium.id]: viemSoneiumClient,
+  [sei.id]: viemSeiClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

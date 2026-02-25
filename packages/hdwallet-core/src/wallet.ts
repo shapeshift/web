@@ -185,6 +185,10 @@ export function supportsKatana(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsKatana
 }
 
+export function supportsEthereal(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsEthereal
+}
+
 export function supportsStory(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsStory
 }
@@ -199,6 +203,10 @@ export function supportsBob(wallet: HDWallet): wallet is ETHWallet {
 
 export function supportsMode(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsMode
+}
+
+export function supportsSei(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsSei
 }
 
 export function supportsHyperEvm(wallet: HDWallet): wallet is ETHWallet {

@@ -121,6 +121,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.Monad && chainId === KnownChainIds.MonadMainnet) return false
       if (!featureFlags.HyperEvm && chainId === KnownChainIds.HyperEvmMainnet) return false
       if (!featureFlags.Katana && chainId === KnownChainIds.KatanaMainnet) return false
+      if (!featureFlags.Ethereal && chainId === KnownChainIds.EtherealMainnet) return false
       if (!featureFlags.FlowEvm && chainId === KnownChainIds.FlowEvmMainnet) return false
       if (!featureFlags.Story && chainId === KnownChainIds.StoryMainnet) return false
       if (!featureFlags.WorldChain && chainId === KnownChainIds.WorldChainMainnet) return false
@@ -135,6 +136,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.ZkSyncEra && chainId === KnownChainIds.ZkSyncEraMainnet) return false
       if (!featureFlags.Blast && chainId === KnownChainIds.BlastMainnet) return false
       if (!featureFlags.Hemi && chainId === KnownChainIds.HemiMainnet) return false
+      if (!featureFlags.Sei && chainId === KnownChainIds.SeiMainnet) return false
       if (!featureFlags.Linea && chainId === KnownChainIds.LineaMainnet) return false
       if (!featureFlags.Scroll && chainId === KnownChainIds.ScrollMainnet) return false
       if (!featureFlags.Berachain && chainId === KnownChainIds.BerachainMainnet) return false

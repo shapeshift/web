@@ -25,6 +25,7 @@ export const worldChainAssetId: AssetId = 'eip155:480/slip44:60'
 export const berachainAssetId: AssetId = 'eip155:80094/slip44:60'
 export const cronosAssetId: AssetId = 'eip155:25/slip44:60'
 export const katanaAssetId: AssetId = 'eip155:747474/slip44:60'
+export const etherealAssetId: AssetId = 'eip155:5064014/slip44:60'
 export const flowEvmAssetId: AssetId = 'eip155:747/slip44:60'
 export const celoAssetId: AssetId = 'eip155:42220/slip44:60'
 export const plumeAssetId: AssetId = 'eip155:98866/slip44:60'
@@ -39,6 +40,7 @@ export const unichainAssetId: AssetId = 'eip155:130/slip44:60'
 export const bobAssetId: AssetId = 'eip155:60808/slip44:60'
 export const modeAssetId: AssetId = 'eip155:34443/slip44:60'
 export const soneiumAssetId: AssetId = 'eip155:1868/slip44:60'
+export const seiAssetId: AssetId = 'eip155:1329/slip44:60'
 export const solAssetId: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501'
 export const wrappedSolAssetId: AssetId =
   'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:So11111111111111111111111111111111111111112'
@@ -105,6 +107,7 @@ export const worldChainChainId: ChainId = 'eip155:480'
 export const berachainChainId: ChainId = 'eip155:80094'
 export const cronosChainId: ChainId = 'eip155:25'
 export const katanaChainId: ChainId = 'eip155:747474'
+export const etherealChainId: ChainId = 'eip155:5064014'
 export const flowEvmChainId: ChainId = 'eip155:747'
 export const celoChainId: ChainId = 'eip155:42220'
 export const plumeChainId: ChainId = 'eip155:98866'
@@ -119,6 +122,7 @@ export const unichainChainId: ChainId = 'eip155:130'
 export const bobChainId: ChainId = 'eip155:60808'
 export const modeChainId: ChainId = 'eip155:34443'
 export const soneiumChainId: ChainId = 'eip155:1868'
+export const seiChainId: ChainId = 'eip155:1329'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
 export const thorchainChainId: ChainId = 'cosmos:thorchain-1'
@@ -176,6 +180,7 @@ export const CHAIN_REFERENCE = {
   BerachainMainnet: '80094',
   CronosMainnet: '25',
   KatanaMainnet: '747474', // https://docs.katana.network
+  EtherealMainnet: '5064014', // https://docs.ethereal.global
   FlowEvmMainnet: '747',
   CeloMainnet: '42220',
   PlumeMainnet: '98866', // https://docs.plumenetwork.xyz
@@ -190,6 +195,7 @@ export const CHAIN_REFERENCE = {
   BobMainnet: '60808', // https://docs.gobob.xyz
   ModeMainnet: '34443', // https://docs.mode.network
   SoneiumMainnet: '1868', // https://soneium.org
+  SeiMainnet: '1329',
   SolanaMainnet: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', // https://namespaces.chainagnostic.org/solana/caip2
   TronMainnet: '0x2b6653dc', // https://developers.tron.network/docs/networks
   SuiMainnet: '35834a8a', // First 8 chars of SUI mainnet genesis hash
@@ -239,6 +245,7 @@ export const ASSET_REFERENCE = {
   Berachain: '60', // evm chain which uses ethereum derivation path as common practice
   Cronos: '60', // evm chain which uses ethereum derivation path as common practice
   Katana: '60', // evm chain which uses ethereum derivation path as common practice
+  Ethereal: '60', // evm chain which uses ethereum derivation path as common practice
   FlowEvm: '60', // evm chain which uses ethereum derivation path as common practice
   Celo: '60', // evm chain which uses ethereum derivation path as common practice
   Plume: '60', // evm chain which uses ethereum derivation path as common practice
@@ -254,6 +261,7 @@ export const ASSET_REFERENCE = {
   Bob: '60', // evm chain which uses ethereum derivation path as common practice
   Mode: '60', // evm chain which uses ethereum derivation path as common practice
   Soneium: '60', // evm chain which uses ethereum derivation path as common practice
+  Sei: '60', // evm chain which uses ethereum derivation path as common practice
   Solana: '501',
   Tron: '195',
   Sui: '784',
@@ -288,6 +296,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.BerachainMainnet,
     CHAIN_REFERENCE.CronosMainnet,
     CHAIN_REFERENCE.KatanaMainnet,
+    CHAIN_REFERENCE.EtherealMainnet,
     CHAIN_REFERENCE.FlowEvmMainnet,
     CHAIN_REFERENCE.PlumeMainnet,
     CHAIN_REFERENCE.StoryMainnet,
@@ -302,6 +311,8 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.BobMainnet,
     CHAIN_REFERENCE.ModeMainnet,
     CHAIN_REFERENCE.SoneiumMainnet,
+    CHAIN_REFERENCE.SeiMainnet,
+    CHAIN_REFERENCE.CeloMainnet,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
     CHAIN_REFERENCE.CosmosHubMainnet,
@@ -372,6 +383,7 @@ export const FEE_ASSET_IDS = [
   sonicAssetId,
   unichainAssetId,
   soneiumAssetId,
+  seiAssetId,
   solAssetId,
   tronAssetId,
   suiAssetId,
@@ -383,5 +395,6 @@ export const FEE_ASSET_IDS = [
   plasmaAssetId,
   worldChainAssetId,
   katanaAssetId,
+  etherealAssetId,
   flowEvmAssetId,
 ]

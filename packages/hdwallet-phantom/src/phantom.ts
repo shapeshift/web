@@ -215,10 +215,12 @@ export class PhantomHDWallet
   readonly _supportsPlasma = false
   readonly _supportsPlume = false
   readonly _supportsKatana = false
+  readonly _supportsEthereal = false
   readonly _supportsStory = false
   readonly _supportsSonic = false
   readonly _supportsBob = false
   readonly _supportsMode = false
+  readonly _supportsSei = false
   readonly _supportsHyperEvm = true
   readonly _supportsMantle = false
   readonly _supportsInk = false

@@ -507,6 +507,23 @@ export const flowEvm: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const ethereal: Readonly<Asset> = Object.freeze({
+  assetId: caip.etherealAssetId,
+  chainId: caip.etherealChainId,
+  name: 'USDe',
+  networkName: 'Ethereal',
+  symbol: 'USDe',
+  precision: 18,
+  color: '#4A90D9',
+  networkColor: '#4A90D9',
+  icon: 'https://assets.coingecko.com/coins/images/33613/large/USDE.png',
+  networkIcon: 'https://assets.relay.link/icons/5064014/light.png',
+  explorer: 'https://explorer.ethereal.global',
+  explorerAddressLink: 'https://explorer.ethereal.global/address/',
+  explorerTxLink: 'https://explorer.ethereal.global/tx/',
+  relatedAssetKey: null,
+})
+
 export const celo: Readonly<Asset> = Object.freeze({
   assetId: caip.celoAssetId,
   chainId: caip.celoChainId,
@@ -590,6 +607,23 @@ export const hemi: Readonly<Asset> = Object.freeze({
   explorerAddressLink: 'https://explorer.hemi.xyz/address/',
   explorerTxLink: 'https://explorer.hemi.xyz/tx/',
   relatedAssetKey: 'eip155:1/slip44:60',
+})
+
+export const sei: Readonly<Asset> = Object.freeze({
+  assetId: caip.seiAssetId,
+  chainId: caip.seiChainId,
+  name: 'SEI',
+  networkName: 'Sei',
+  symbol: 'SEI',
+  precision: 18,
+  color: '#9B1B30',
+  networkColor: '#9B1B30',
+  icon: 'https://assets.coingecko.com/coins/images/28205/large/Sei_Logo_-_Transparent.png',
+  networkIcon: 'https://assets.coingecko.com/coins/images/28205/small/Sei_Logo_-_Transparent.png',
+  explorer: 'https://seitrace.com',
+  explorerAddressLink: 'https://seitrace.com/address/',
+  explorerTxLink: 'https://seitrace.com/tx/',
+  relatedAssetKey: null,
 })
 
 export const linea: Readonly<Asset> = Object.freeze({

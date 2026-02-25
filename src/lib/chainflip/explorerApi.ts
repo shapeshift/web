@@ -101,7 +101,8 @@ export const queryLatestWithdrawalId = async (
     })
 
     return data.data.allLiquidityWithdrawals.nodes[0]?.id ?? 0
-  } catch {
+  } catch (e) {
+    console.error('queryLatestWithdrawalId failed:', e)
     return 0
   }
 }
@@ -136,7 +137,8 @@ export const queryLiquidityWithdrawalStatus = async (
     const broadcastComplete = broadcast.broadcastSuccessEventId !== null && txRef !== null
 
     return { broadcastComplete, transactionRef: txRef }
-  } catch {
+  } catch (e) {
+    console.error('queryLiquidityWithdrawalStatus failed:', e)
     return null
   }
 }

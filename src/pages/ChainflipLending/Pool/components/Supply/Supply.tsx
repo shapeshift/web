@@ -73,7 +73,7 @@ const useFreeBalanceSync = (assetId: AssetId) => {
   const cfAsset = useMemo(() => CHAINFLIP_LENDING_ASSET_BY_ASSET_ID[assetId], [assetId])
 
   const freeBalanceCryptoBaseUnit = useMemo(() => {
-    if (!freeBalances || !cfAsset) return '0'
+    if (!Array.isArray(freeBalances) || !cfAsset) return '0'
     const matching = freeBalances.find(
       b => b.asset.chain === cfAsset.chain && b.asset.asset === cfAsset.asset,
     )

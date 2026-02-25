@@ -269,11 +269,6 @@ export const withdrawMachine = setup({
       on: {
         RETRY: [
           {
-            target: 'signing_batch',
-            guard: ({ context }) => context.errorStep === 'signing_batch',
-            actions: 'clearError',
-          },
-          {
             target: 'signing_remove',
             guard: ({ context }) => context.errorStep === 'signing_remove',
             actions: 'clearError',

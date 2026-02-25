@@ -153,9 +153,10 @@ export const WithdrawInput = ({ assetId }: WithdrawInputProps) => {
 
   const handleToggleCustomAddress = useCallback(() => {
     if (!walletSupportsAssetChain) return
-    setDestinationAddress(isCustomAddress ? defaultAddress : '')
+    const walletAddress = defaultAccountId ? fromAccountId(defaultAccountId).account : ''
+    setDestinationAddress(isCustomAddress ? walletAddress : '')
     setIsCustomAddress(prev => !prev)
-  }, [walletSupportsAssetChain, isCustomAddress, defaultAddress])
+  }, [walletSupportsAssetChain, isCustomAddress, defaultAccountId])
 
   const validateChainAddress = useCallback(
     async (address: string) => {
@@ -207,8 +208,8 @@ export const WithdrawInput = ({ assetId }: WithdrawInputProps) => {
 
   const handleSubmit = useCallback(() => {
     if (!asset) return
-    const withdrawAddress = withdrawToWallet ? destinationAddress : defaultAddress
-    if (!withdrawAddress) return
+    const withdrawAddress = withdrawToWallet ? destinationAddress : ''
+    if (withdrawToWallet && !withdrawAddress) return
     const amountPrecision = isFullWithdrawalOnly
       ? availableCryptoPrecision
       : withdrawAmountCryptoPrecision
@@ -230,15 +231,14 @@ export const WithdrawInput = ({ assetId }: WithdrawInputProps) => {
     availableCryptoPrecision,
     isFullWithdrawalOnly,
     asset,
-    defaultAddress,
     destinationAddress,
     withdrawToWallet,
     isFullWithdrawal,
   ])
 
   const isValidWallet = useMemo(
-    () => Boolean(walletSupportsEth && walletSupportsAssetChain),
-    [walletSupportsEth, walletSupportsAssetChain],
+    () => Boolean(walletSupportsEth && (!withdrawToWallet || walletSupportsAssetChain)),
+    [walletSupportsEth, withdrawToWallet, walletSupportsAssetChain],
   )
 
   const isSubmitDisabled = useMemo(

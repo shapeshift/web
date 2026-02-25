@@ -45,13 +45,13 @@ export const useDepositConfirmation = () => {
       return
     }
 
-    if (!freeBalances || !Array.isArray(freeBalances) || !cfAsset) return
-
     pollCountRef.current += 1
     if (pollCountRef.current > MAX_POLL_ATTEMPTS) {
       actorRef.send({ type: 'CONFIRMATION_ERROR', error: 'Confirmation timed out' })
       return
     }
+
+    if (!Array.isArray(freeBalances) || !cfAsset) return
 
     const matchingBalance = freeBalances.find(
       b => b.asset.chain === cfAsset.chain && b.asset.asset === cfAsset.asset,

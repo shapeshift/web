@@ -6,6 +6,7 @@ import {
   CardBody,
   Flex,
   Heading,
+  HStack,
   SimpleGrid,
   Skeleton,
   Stack,
@@ -16,7 +17,8 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -37,11 +39,14 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
+import { permillToDecimal } from '@/lib/chainflip/utils'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { useChainflipAccount } from '@/pages/ChainflipLending/hooks/useChainflipAccount'
 import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
 import { useChainflipSupplyPositions } from '@/pages/ChainflipLending/hooks/useChainflipSupplyPositions'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
+import { selectPortfolioCryptoBalanceByFilter } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const flexDirPool: ResponsiveValue<Property.FlexDirection> = { base: 'column', lg: 'row' }
@@ -115,7 +120,7 @@ export const Pool = () => {
   const translate = useTranslate()
   const location = useLocation()
   const { dispatch: walletDispatch } = useWallet()
-  const { accountId, setAccountId } = useChainflipLendingAccount()
+  const { accountId, accountNumber, setAccountId } = useChainflipLendingAccount()
   const [tabIndex, setTabIndex] = useState(PoolTabIndex.Supply)
   const chainflipLendingModal = useModal('chainflipLending')
 
@@ -134,6 +139,41 @@ export const Pool = () => {
   const { supplyPositions, isLoading: isPositionsLoading } = useChainflipSupplyPositions()
   const { freeBalances } = useChainflipAccount()
 
+  const accountIdsByAccountNumberAndChainId = useAppSelector(
+    selectAccountIdsByAccountNumberAndChainId,
+  )
+
+  const chainId = useMemo(() => {
+    try {
+      return fromAssetId(poolAssetId).chainId
+    } catch {
+      return undefined
+    }
+  }, [poolAssetId])
+
+  const poolChainAccountId = useMemo(() => {
+    if (!chainId) return undefined
+    const byChainId = accountIdsByAccountNumberAndChainId[accountNumber]
+    return byChainId?.[chainId]?.[0]
+  }, [accountIdsByAccountNumberAndChainId, accountNumber, chainId])
+
+  const balanceFilter = useMemo(
+    () => ({ assetId: poolAssetId, accountId: poolChainAccountId ?? '' }),
+    [poolAssetId, poolChainAccountId],
+  )
+  const walletBalanceCryptoBaseUnit = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, balanceFilter),
+  ).toBaseUnit()
+
+  const walletBalanceCryptoPrecision = useMemo(
+    () =>
+      BigAmount.fromBaseUnit({
+        value: walletBalanceCryptoBaseUnit,
+        precision: asset?.precision ?? 0,
+      }).toPrecision(),
+    [walletBalanceCryptoBaseUnit, asset?.precision],
+  )
+
   const poolData = useMemo(() => pools.find(p => p.assetId === poolAssetId), [pools, poolAssetId])
 
   const supplyPosition = useMemo(
@@ -151,6 +191,18 @@ export const Pool = () => {
     return bnOrZero(matching?.balance).gt(0)
   }, [freeBalances, cfAsset])
 
+  const freeBalanceCryptoPrecision = useMemo(() => {
+    if (!freeBalances || !cfAsset || !asset) return '0'
+    const matching = freeBalances.find(
+      b => b.asset.chain === cfAsset.chain && b.asset.asset === cfAsset.asset,
+    )
+    if (!matching?.balance) return '0'
+    return BigAmount.fromBaseUnit({
+      value: matching.balance,
+      precision: asset.precision,
+    }).toPrecision()
+  }, [freeBalances, cfAsset, asset])
+
   const hasSupplyPosition = useMemo(
     () => bnOrZero(supplyPosition?.totalAmountCryptoPrecision).gt(0),
     [supplyPosition],
@@ -164,17 +216,17 @@ export const Pool = () => {
   )
 
   const utilisationPercent = useMemo(
-    () => (poolData ? bnOrZero(poolData.pool.utilisation_rate).div(1e9).toFixed() : '0'),
+    () => (poolData ? permillToDecimal(poolData.pool.utilisation_rate) : '0'),
     [poolData],
   )
 
   const originationFee = useMemo(
-    () => (poolData ? bnOrZero(poolData.pool.origination_fee).div(1e6).toFixed() : '0'),
+    () => (poolData ? permillToDecimal(poolData.pool.origination_fee) : '0'),
     [poolData],
   )
 
   const liquidationFee = useMemo(
-    () => (poolData ? bnOrZero(poolData.pool.liquidation_fee).div(1e6).toFixed() : '0'),
+    () => (poolData ? permillToDecimal(poolData.pool.liquidation_fee) : '0'),
     [poolData],
   )
 
@@ -374,82 +426,132 @@ export const Pool = () => {
                 {tabHeader}
                 <TabPanels>
                   <TabPanel p={4}>
-                    <VStack spacing={3}>
-                      <Tooltip
-                        label={translate('chainflipLending.pool.noFreeBalance')}
-                        isDisabled={hasFreeBalance}
-                        shouldWrapChildren
-                        hasArrow
-                      >
-                        <Button
-                          colorScheme='blue'
-                          size='lg'
-                          height={12}
-                          borderRadius='xl'
-                          width='full'
-                          fontWeight='bold'
-                          onClick={handleSupply}
-                          isDisabled={!hasFreeBalance || !accountId}
+                    <VStack spacing={3} align='stretch'>
+                      <Flex justifyContent='space-between' alignItems='center'>
+                        <RawText fontSize='sm' color='text.subtle'>
+                          {translate('chainflipLending.pool.freeBalance')}
+                        </RawText>
+                        <Amount.Crypto
+                          value={freeBalanceCryptoPrecision}
+                          symbol={asset.symbol}
+                          fontSize='sm'
+                          fontWeight='medium'
+                        />
+                      </Flex>
+                      <Flex justifyContent='space-between' alignItems='center'>
+                        <RawText fontSize='sm' color='text.subtle'>
+                          {translate('chainflipLending.supplied')}
+                        </RawText>
+                        <Skeleton isLoaded={!isPositionsLoading}>
+                          <Amount.Crypto
+                            value={supplyPosition?.totalAmountCryptoPrecision ?? '0'}
+                            symbol={asset.symbol}
+                            fontSize='sm'
+                            fontWeight='medium'
+                          />
+                        </Skeleton>
+                      </Flex>
+                      <HStack spacing={3}>
+                        <Tooltip
+                          label={translate('chainflipLending.pool.noFreeBalance')}
+                          isDisabled={hasFreeBalance}
+                          shouldWrapChildren
+                          hasArrow
                         >
-                          {translate('chainflipLending.pool.supply')}
-                        </Button>
-                      </Tooltip>
-                      <Tooltip
-                        label={translate('chainflipLending.pool.noSupplyPosition')}
-                        isDisabled={hasSupplyPosition}
-                        shouldWrapChildren
-                        hasArrow
-                      >
-                        <Button
-                          variant='outline'
-                          colorScheme='blue'
-                          size='lg'
-                          height={12}
-                          borderRadius='xl'
-                          width='full'
-                          fontWeight='bold'
-                          onClick={handleWithdrawSupply}
-                          isDisabled={!hasSupplyPosition || !accountId}
+                          <Button
+                            colorScheme='blue'
+                            size='lg'
+                            height={12}
+                            borderRadius='xl'
+                            flex={1}
+                            fontWeight='bold'
+                            onClick={handleSupply}
+                            isDisabled={!hasFreeBalance || !accountId}
+                          >
+                            {translate('chainflipLending.pool.supply')}
+                          </Button>
+                        </Tooltip>
+                        <Tooltip
+                          label={translate('chainflipLending.pool.noSupplyPosition')}
+                          isDisabled={hasSupplyPosition}
+                          shouldWrapChildren
+                          hasArrow
                         >
-                          {translate('chainflipLending.pool.withdrawSupply')}
-                        </Button>
-                      </Tooltip>
+                          <Button
+                            variant='outline'
+                            colorScheme='blue'
+                            size='lg'
+                            height={12}
+                            borderRadius='xl'
+                            flex={1}
+                            fontWeight='bold'
+                            onClick={handleWithdrawSupply}
+                            isDisabled={!hasSupplyPosition || !accountId}
+                          >
+                            {translate('common.withdraw')}
+                          </Button>
+                        </Tooltip>
+                      </HStack>
                     </VStack>
                   </TabPanel>
                   <TabPanel p={4}>
-                    <VStack spacing={3}>
-                      <Button
-                        colorScheme='blue'
-                        size='lg'
-                        height={12}
-                        borderRadius='xl'
-                        width='full'
-                        fontWeight='bold'
-                        onClick={handleDeposit}
-                        isDisabled={!accountId}
-                      >
-                        {translate('chainflipLending.pool.depositToChainflip')}
-                      </Button>
-                      <Tooltip
-                        label={translate('chainflipLending.pool.noFreeBalance')}
-                        isDisabled={hasFreeBalance}
-                        shouldWrapChildren
-                        hasArrow
-                      >
+                    <VStack spacing={3} align='stretch'>
+                      <Flex justifyContent='space-between' alignItems='center'>
+                        <RawText fontSize='sm' color='text.subtle'>
+                          {translate('chainflipLending.pool.freeBalance')}
+                        </RawText>
+                        <Amount.Crypto
+                          value={freeBalanceCryptoPrecision}
+                          symbol={asset.symbol}
+                          fontSize='sm'
+                          fontWeight='medium'
+                        />
+                      </Flex>
+                      <Flex justifyContent='space-between' alignItems='center'>
+                        <RawText fontSize='sm' color='text.subtle'>
+                          {translate('chainflipLending.pool.walletBalance')}
+                        </RawText>
+                        <Amount.Crypto
+                          value={walletBalanceCryptoPrecision}
+                          symbol={asset.symbol}
+                          fontSize='sm'
+                          fontWeight='medium'
+                        />
+                      </Flex>
+                      <HStack spacing={3}>
                         <Button
-                          variant='outline'
                           colorScheme='blue'
                           size='lg'
                           height={12}
                           borderRadius='xl'
-                          width='full'
+                          flex={1}
                           fontWeight='bold'
-                          onClick={handleWithdrawFromChainflip}
-                          isDisabled={!hasFreeBalance || !accountId}
+                          onClick={handleDeposit}
+                          isDisabled={!accountId}
                         >
-                          {translate('chainflipLending.pool.withdrawFromChainflip')}
+                          {translate('chainflipLending.pool.depositToChainflip')}
                         </Button>
-                      </Tooltip>
+                        <Tooltip
+                          label={translate('chainflipLending.pool.noFreeBalance')}
+                          isDisabled={hasFreeBalance}
+                          shouldWrapChildren
+                          hasArrow
+                        >
+                          <Button
+                            variant='outline'
+                            colorScheme='blue'
+                            size='lg'
+                            height={12}
+                            borderRadius='xl'
+                            flex={1}
+                            fontWeight='bold'
+                            onClick={handleWithdrawFromChainflip}
+                            isDisabled={!hasFreeBalance || !accountId}
+                          >
+                            {translate('common.withdraw')}
+                          </Button>
+                        </Tooltip>
+                      </HStack>
                     </VStack>
                   </TabPanel>
                 </TabPanels>

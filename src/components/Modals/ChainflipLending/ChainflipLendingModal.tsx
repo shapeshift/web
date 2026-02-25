@@ -1,3 +1,4 @@
+import { Card } from '@chakra-ui/react'
 import { lazy, Suspense, useMemo } from 'react'
 
 import type { ChainflipLendingModalProps } from './types'
@@ -5,6 +6,7 @@ import type { ChainflipLendingModalProps } from './types'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { useModal } from '@/hooks/useModal/useModal'
+import { ChainflipLendingAccountProvider } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 
 const Supply = lazy(() =>
   import('@/pages/ChainflipLending/Pool/components/Supply/Supply').then(({ Supply }) => ({
@@ -54,7 +56,11 @@ const ChainflipLendingModalContent = ({ mode, assetId }: ChainflipLendingModalPr
     }
   }, [mode, assetId])
 
-  return <Suspense fallback={suspenseFallback}>{content}</Suspense>
+  return (
+    <Card>
+      <Suspense fallback={suspenseFallback}>{content}</Suspense>
+    </Card>
+  )
 }
 
 const ChainflipLendingModal = ({ mode, assetId }: ChainflipLendingModalProps) => {
@@ -62,7 +68,9 @@ const ChainflipLendingModal = ({ mode, assetId }: ChainflipLendingModalProps) =>
 
   return (
     <Dialog isOpen={isOpen} onClose={close}>
-      <ChainflipLendingModalContent mode={mode} assetId={assetId} />
+      <ChainflipLendingAccountProvider>
+        <ChainflipLendingModalContent mode={mode} assetId={assetId} />
+      </ChainflipLendingAccountProvider>
     </Dialog>
   )
 }

@@ -2421,7 +2421,9 @@
       "supply": "Supply",
       "withdrawSupply": "Withdraw Supply",
       "depositToChainflip": "Deposit",
-      "withdrawFromChainflip": "Withdraw from Chainflip"
+      "withdrawFromChainflip": "Withdraw from Chainflip",
+      "freeBalance": "Free Balance",
+      "walletBalance": "Wallet Balance"
     },
     "supplyApy": "Supply APY",
     "supplyApyTooltip": "Annual percentage yield earned by supplying assets to this pool.",

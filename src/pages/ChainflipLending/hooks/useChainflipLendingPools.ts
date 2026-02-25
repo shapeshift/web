@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET } from '@/lib/chainflip/constants'
 import type { ChainflipAssetSymbol, ChainflipLendingPool } from '@/lib/chainflip/types'
+import { baseUnitToPrecision, hexToBaseUnit, permillToDecimal } from '@/lib/chainflip/utils'
 import { reactQueries } from '@/react-queries'
 import type { ReduxState } from '@/state/reducer'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
@@ -24,17 +25,6 @@ export type ChainflipLendingPoolWithFiat = {
 }
 
 const FIVE_MINUTES = 5 * 60 * 1000
-
-const hexToBaseUnit = (hex: string): string => {
-  try {
-    return BigInt(hex).toString()
-  } catch {
-    return '0'
-  }
-}
-
-const baseUnitToPrecision = (baseUnit: string, precision: number): string =>
-  bnOrZero(baseUnit).div(bnOrZero(10).pow(precision)).toFixed()
 
 const selectPoolFiatData = (
   state: ReduxState,
@@ -88,8 +78,8 @@ export const useChainflipLendingPools = () => {
         owedToNetworkCryptoPrecision: owedCrypto,
         totalAmountFiat: totalFiat,
         availableAmountFiat: availableFiat,
-        supplyApy: bnOrZero(pool.current_interest_rate).div(1e6).toFixed(),
-        borrowRate: bnOrZero(pool.current_interest_rate).div(1e6).toFixed(),
+        supplyApy: permillToDecimal(pool.current_interest_rate),
+        borrowRate: permillToDecimal(pool.current_interest_rate),
       }
     })
   }, [pools, poolFiatData])

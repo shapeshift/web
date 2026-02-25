@@ -27,7 +27,7 @@
     "continue": "继续",
     "approve": "授权",
     "approveToken": "授权代币",
-    "approveAmount": "授权数量",
+    "approveAmount": "授权金额",
     "approveTo": "授权给",
     "reset": "重置",
     "confirm": "确认",
@@ -71,7 +71,7 @@
     "preview": "预览",
     "incomplete": "不完整",
     "available": "可用的",
-    "or": "或者",
+    "or": "或",
     "somethingWentWrong": "出了点问题",
     "somethingWentWrongBody": "出了点问题",
     "accountError": "暂时无法获取以下链上的数据：",
@@ -82,7 +82,7 @@
     "happySuccess": "成功！",
     "transactionFailed": "交易失败",
     "transactionFailedBody": "交易失败",
-    "safeProposalQueued": "SAFE 提案已排队。已签署 %{currentConfirmations} 个（共 %{confirmationsRequired} 个）。",
+    "safeProposalQueued": "SAFE 提案已加入队列。%{currentConfirmations}/%{confirmationsRequired} 人已签名。",
     "submitFeedback": "提交反馈",
     "send": "发送",
     "receive": "接收",
@@ -157,7 +157,7 @@
     "chainHalted": "区块链已暂停",
     "poolDisabled": "池已禁用",
     "symmetric": "对称",
-    "asymmetric": "不对称 (%{assetSymbol})",
+    "asymmetric": "非对称 (%{assetSymbol})",
     "import": "导入",
     "accountsLoading": "正在加载帐户",
     "noAccounts": "没有符合所选过滤器的帐户。",
@@ -206,18 +206,18 @@
     "aiChat": "AI 聊天",
     "openChat": "打开聊天",
     "closeChat": "关闭聊天",
-    "emptyState": "有什么我可以帮您的？",
+    "emptyState": "今天有什么可以帮您的？",
     "placeholder": "输入消息...",
     "stop": "停止",
     "send": "发送",
-    "txStepProgress": "%{completedCount}/%{totalCount} complete",
+    "txStepProgress": "已完成 %{completedCount}/%{totalCount}",
     "agenticChatTools": {
       "send": {
         "title": "发送加密货币",
         "receivedFrom": "从 %{address} 接收",
         "steps": {
           "preparation": "准备发送交易中",
-          "send": "签署并发送交易"
+          "send": "签名并发送交易"
         },
         "errors": {
           "prepareFailed": "无法准备发送交易",
@@ -350,17 +350,17 @@
       },
       "receive": {
         "title": "接收",
-        "receiveOn": "在 %{network} 上接收 %{symbol}",
+        "receiveOn": "接收 %{symbol}（%{network} 网络）",
         "copyAddress": "复制地址",
         "copied": "已复制！",
-        "warning": "仅向此地址发送与 %{network} 兼容的代币"
+        "warning": "请仅向此地址发送 %{network} 兼容的代币"
       },
       "getLimitOrders": {
         "title": "限价订单",
         "openOrders": "%{count} 个待成交",
         "noOrders": "未找到限价订单",
         "status": {
-          "open": "待成交",
+          "open": "开放中",
           "fulfilled": "已成交",
           "cancelled": "已取消",
           "expired": "已过期",
@@ -368,7 +368,7 @@
         },
         "sellLabel": "出售",
         "buyLabel": "购买",
-        "expiresLabel": "过期",
+        "expiresLabel": "到期时间",
         "view": "查看",
         "filledLabel": "已成交"
       },
@@ -453,12 +453,12 @@
     }
   },
   "rampPage": {
-    "buyTitle": "<span>在几秒钟内</span>购买加密货币",
-    "sellTitle": "<span>在几秒钟内</span>出售加密货币",
-    "buyBody": "使用信用卡、借记卡或银行账户购买比特币、以太币、USDT、USDC 或其他热门加密货币，无需 KYC。",
+    "buyTitle": "秒速购买加密货币 <span>in Seconds</span>",
+    "sellTitle": "秒速出售加密货币 <span>in Seconds</span>",
+    "buyBody": "使用信用卡、借记卡或银行账户。购买 Bitcoin、Ethereum、USDT、USDC 或其他顶级加密货币。提供无 KYC 服务商。",
     "sellBody": "使用信用卡、借记卡或银行账户出售比特币、以太币、USDT、USDC 或其他热门加密货币，无需 KYC。",
     "disclaimer": "*您可以直接使用加密货币换取现金并存入银行账户。",
-    "ctaTitle": "您还可以使用各种主流钱包，通过 ShapeShift 进行交易，赚取收益并<span>在 %{chainCount} 条链上追踪您的加密货币资产</span>",
+    "ctaTitle": "您还可以将 ShapeShift 与所有顶级钱包配合使用，进行交易、赚取收益并<span>跨 %{chainCount} 条链追踪您的加密资产</span>",
     "availableAssets": "可用资产"
   },
   "updateToast": {
@@ -498,7 +498,7 @@
   },
   "fiatRamps": {
     "title": "购买或出售加密货币",
-    "titleMessage": "你可以使用以下方法%{action} %{asset}：",
+    "titleMessage": "您可以使用以下方式 %{action} %{asset}：",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
@@ -519,7 +519,7 @@
     "availableProviders": "可用的提供商",
     "noProvidersAvailable": "没有可用的提供商",
     "noProvidersBody": "看起来我们还没有该资产的任何提供商。",
-    "notSupported": "%{asset} 不被 %{wallet}  支持 ",
+    "notSupported": "%{asset} 不受 %{wallet} 钱包支持",
     "previewPurchase": "预览购买",
     "previewSale": "预览出售"
   },
@@ -538,14 +538,14 @@
     "privacyPolicy": "隐私政策",
     "connectNewWallet": "连接新钱包",
     "getANewWallet": "获取一个新钱包",
-    "alreadyHaveWallet": "我已经有一个钱包"
+    "alreadyHaveWallet": "我已有钱包"
   },
   "connectWallet": {
     "menu": {
       "switchWallet": "切换钱包",
       "disconnect": "断开",
       "disconnected": "(已断开)",
-      "locked": "(已锁定)",
+      "locked": "（已锁定）",
       "reconnectWallet": "重新连接钱包",
       "walletNotConnected": "您的钱包目前未连接，这将影响交易。",
       "connecting": "正在连接..."
@@ -563,10 +563,10 @@
           "risks": "有风险吗？"
         },
         "bodies": {
-          "rateFluctuationInfo": "您赚取的 %{assetName} 的比率，即年度回报率 (APR)，通常在 7% - 20% 之间波动。",
+          "rateFluctuationInfo": "您赚取的 %{assetName} 年化收益率（APR）通常在 7%-20% 之间波动。",
           "amountStakingInfo": "你可以质押任意数量的 %{assetName}，并且他们将立即开始赚取奖励。",
           "withdrawInfo": "你可以随时提取你的奖励，这需要大约 0.01 美元左右的手续费。",
-          "unbondingInfo": "当你取消质押代币时，它们将保持锁定状态 %{unbondingDays} 天，在此期间它们不会获得奖励。 %{unbondingDays} 天后，你的 %{assetName} 将返回到你的主钱包。",
+          "unbondingInfo": "取消质押您的代币后，它们将锁定 %{unbondingDays} 天，期间不会产生奖励。%{unbondingDays} 天后，您的 %{assetName} 将返回您的主钱包。",
           "slashingInfo": "质押是通过验证器完成的。这种情况非常罕见，但如果你质押的验证器因允许虚假或不正确的交易而发生混乱，你可能会损失部分资产。",
           "partnerInfo": "我们通过与信誉良好的验证者合作来降低这种风险，该验证者拥有安全、可靠且经过审计的基础设施。"
         }
@@ -602,9 +602,9 @@
         "claimYour": "认领你的 %{opportunity}"
       },
       "saversVaults": {
-        "description": "通过 THORChain 储户金库 赚取你的 %{asset} 收益。无锁定时间，奖励自动累积。 THORChain 上的收益来兑换费用和区块奖励。单面收益率上限为流动性提供者双面收益率的一半。",
-        "runePoolDescription": "RUNEPool 可让你通过与他人共享 %{asset} 来赚取更多 %{asset}。你不必选择特定的池子，每个人都可以分享整体表现。",
-        "runePoolOverviewDescription": "RUNEPool 通过将 RUNE 存入 THORChain 中所有支持 POL 的流动性池来优化 RUNE 的使用。通过在这些池中汇集 RUNE，参与者可以获得综合 APY，但面临总无常损失的风险。用户无需选择单个池，而是从整体表现中受益，有效地投资于 RUNE 指数和所有支持 THORChain POL 的资产。这简化了流动性提供并降低了个人风险。",
+        "description": "通过 THORChain 储户金库为您的 %{asset} 赚取收益。无锁定期，奖励自动累积。THORChain 上的收益来自兑换手续费和区块奖励。单边收益上限为流动性提供者双边收益的一半。",
+        "runePoolDescription": "RUNEPool 让您通过与他人共同汇集 %{asset} 来赚取更多 %{asset}。无需选择特定的流动资金池，所有人共享整体收益。",
+        "runePoolOverviewDescription": "RUNEPool 通过将 RUNE 存入 THORChain 中所有启用 POL 的流动资金池来优化 RUNE 的使用。通过在这些流动资金池中汇集 RUNE，参与者可赚取综合 APY，但同时面临整体无常损失风险。用户无需选择单个流动资金池，而是从整体表现中获益，有效投资于 RUNE 指数及所有 THORChain POL 支持的资产。这简化了流动性提供并降低了个人风险。",
         "vaultCap": "金库容量",
         "vaultCapTooltip": "该金库当前的最大容量",
         "haltedDepositTitle": "充值暂时停止。",
@@ -621,16 +621,16 @@
         "introducingSaversVaults": "介绍储户金库",
         "introducingRunePool": "介绍 RUNEPool",
         "risksBody": {
-          "vaults": "参考 <link>这篇文章</link> 以了解与储户金库相关的风险。",
-          "runePool": "参考 <link>这篇文章</link> 以了解与 RUNEPool 相关的风险。"
+          "vaults": "请参阅<link>本文</link>了解储户金库相关风险。",
+          "runePool": "请参阅<link>本文</link>了解 RUNEPool 相关风险。"
         },
         "timeToBreakEven": {
           "title": "收支平衡的时候",
           "tooltip": "预计收益能支付手续费的时间"
         },
         "cannotDepositWhilePendingTx": "交易待处理时无法充值",
-        "cannotWithdrawWhilePendingTx": "交易待处理时无法提现",
-        "agreeRunePool": "我知道 RUNEPool 有 30 天的最低锁定期，并且存在较高的无常损失风险。"
+        "cannotWithdrawWhilePendingTx": "有待处理的交易时无法提取",
+        "agreeRunePool": "我了解 RUNEPool 有 30 天最短锁定期，且无常损失风险较高。"
       }
     },
     "memoNote": {
@@ -680,9 +680,9 @@
       },
       "withdraw": {
         "info": {
-          "title": "提现信息",
+          "title": "提取信息",
           "description": "输入你想要提取的 %{asset} 数量。",
-          "yieldyDescription": "输入你想要提取的 %{asset}  数量。后续提现将合并并重置提现时间。",
+          "yieldyDescription": "输入您想提取的 %{asset} 数量。后续提取将合并处理并重置提取计时。",
           "farmingExpiredDescription": "本次收益挖矿奖励合同已结束。你必须提取全部余额。",
           "rewardsInfo": "你将接收的奖励"
         }
@@ -722,7 +722,7 @@
     "tcy": "TCY",
     "foxEcosystem": "FOX 生态系统",
     "ecosystem": "生态系统",
-    "markets": "市价",
+    "markets": "市场",
     "tokens": "代币",
     "swap": "交换",
     "yields": "收益",
@@ -765,7 +765,7 @@
     "common": "交易",
     "confirmed": "已确认",
     "pending": "待处理",
-    "failed": "失败的",
+    "failed": "失败",
     "swap": "兑换",
     "amount": "数量",
     "emptyMessage": "你的 %{status} 交易将显示在此处。",
@@ -801,7 +801,7 @@
         "revoke": "撤销",
         "revokeSymbol": "撤销 %{symbol} 的授权",
         "amountUnavailable": "不可用",
-        "withdraw": "提现",
+        "withdraw": "提取",
         "receive": "接收"
       },
       "yearn": {
@@ -823,7 +823,7 @@
       },
       "thorchain": {
         "deposit": "充值",
-        "depositRefund": "充值退款",
+        "depositRefund": "存入退款",
         "depositRefundNative": "充值 + 退款",
         "loanOpen": "借贷开放",
         "loanOpenOut": "收到贷款",
@@ -917,7 +917,7 @@
     "assetAddress": "%{asset} 地址",
     "verifyAsset": "验证 %{asset}",
     "verifyAddressMessage": "在继续之前确保您的地址正确。",
-    "slippageInfo": "如果价格不利变化超过此百分比，您的交易将会回滚。",
+    "slippageInfo": "如果价格变动超过此百分比，您的交易将回滚。",
     "allowanceTooltip": "授权智能合约代表您使用的数量。",
     "searchingRate": "获取费率中...",
     "noRateAvailable": "没有费率可用。",
@@ -956,7 +956,7 @@
     "youGet": "获得",
     "tradeTo": "交易成",
     "expand": "展开",
-    "minerFee": "矿工费用",
+    "minerFee": "矿工费",
     "protocolFee": "协议费用",
     "protocol": "协议",
     "tradeFeeSource": "%{tradeFeeSource} 费用",
@@ -972,7 +972,7 @@
     "noQuotesAvailableDescription": "目前未找到可用的报价。请尝试选择另一对。",
     "availableQuotes": "可用报价",
     "unavailableSwappers": "不可用的交换者",
-    "unlimited": "无限的",
+    "unlimited": "无限额",
     "swapsFailed": "%{failedSwaps} 兑换失败",
     "exact": "精确的",
     "free": "免费",
@@ -985,7 +985,7 @@
     "changeAddress": "退款地址",
     "changeAddressExplainer": "在基于 UTXO 的网络上发送加密货币时，交易中未使用的余额将会通过此地址返回给您。",
     "depositAddress": "充值地址",
-    "depositAddressExplainer": "这是协议用于处理资金的地址。您的硬件钱包会显示该地址供您验证。",
+    "depositAddressExplainer": "这是您的资金将被发送进行处理的协议地址。您的硬件钱包将显示此地址以供验证。",
     "customReceiveAddress": "自定义接收地址",
     "customReceiveAddressDescription": "为此交易输入一个自定义接收地址",
     "thisIsYourCustomReceiveAddress": "这是您的自定义接收地址",
@@ -994,7 +994,7 @@
     "tooltip": {
       "continueSwapping": "继续交换以查看最终详情",
       "noRateAvailable": "这通常是由于交易对的流动性非常有限或没有流动性。",
-      "minerFee": "这是在区块链上处理交易的费用，这不是 ShapeShift 收取的费用。",
+      "minerFee": "这是在区块链上处理交易的费用，不是 ShapeShift 收取的费用。",
       "protocolFee": "交易费用是选择的协议收取的，不是 ShapeShift 收取的",
       "inputOutputDifference": "输入和输出数量的美元价值之间的预计差异。",
       "slippageWithAmount": "如果价格变动导致您收到的数量少于 %{amount}，交易将会回滚。这是保证您收到的最低数量。",
@@ -1008,13 +1008,13 @@
       },
       "rateExpired": {
         "title": "新费率",
-        "body": "您之前的交换费率已过期。我们已获取最新费率并更新了您的报价数量。请在确认交换前查看最新详情。",
+        "body": "您之前的兑换价格已过期。我们已获取新价格并更新了您的报价金额。请在确认兑换前查看最新详情。",
         "cta": "好的，明白了"
       }
     },
     "permit2Allowance": {
-      "title": "Permit2 合约额度",
-      "tooltip": "此交易使用 Permit2，需要进行一次性授权来授予 Permit2 合约无限额度。完成该初始设置后，您可以通过签署无需 gas 的消息，向任何支持 Permit2 的协议授权 5 分钟的临时额度来进行交易。"
+      "title": "Permit2 合约授权额度",
+      "tooltip": "此交易使用 Permit2，需要一次性授权以向 Permit2 合约授予无限额度。完成初始设置后，您可以通过签名免 Gas 的消息来授权任何支持 Permit2 协议的交易，每次消息授予 5 分钟临时授权额度。"
     },
     "permit2Eip712": {
       "title": "允许代币转移",
@@ -1028,7 +1028,7 @@
       "sellAmountDoesNotCoverFee": "卖出数量低于手续费",
       "insufficientFunds": "矿工费及金额数量不足",
       "transactionRejected": "用户已拒绝交易",
-      "insufficientFundsForProtocolFee": "没有足够的 %{symbol} 来支付%{chainName} 上的费用",
+      "insufficientFundsForProtocolFee": "%{symbol} 余额不足（%{chainName}），无法支付费用",
       "unsupportedTradePair": "不支持的交易对",
       "noRouteFound": "没有找到该交易对和数量的路径",
       "quoteExpired": "报价已过期，请重试。",
@@ -1070,28 +1070,28 @@
     "summary": "交易概览",
     "estimatedCompletionTime": "预计完成时间",
     "transactionSuccessful": "交易成功，等待确认中",
-    "thorchainSwapperVolatilityAcknowledgementMessage": "THORCHain 协议正在经历波动，请格外小心，并考虑选择其他可用路径。",
+    "thorchainSwapperVolatilityAcknowledgementMessage": "THORChain 协议正在经历波动。请格外谨慎操作，并考虑其他可用路由。",
     "temp": {
       "tradeSuccess": "交易完成"
     },
     "hopTitle": {
       "swap": "通过 %{swapperName} 交换",
-      "swapEta": "在 ~%{eta} 内通过 %{swapperName} 进行交换"
+      "swapEta": "通过 %{swapperName} 兑换，预计 ~%{eta}"
     },
     "transactionTitle": {
       "bridge": "通过 %{swapperName} 从 %{sellChainName} 交换到 %{buyChainName}  ",
-      "swap": "通过 %{swapperName} 在 %{sellChainName} 上进行兑换"
+      "swap": "在 %{sellChainName} 上通过 %{swapperName} 兑换"
     },
     "approvalTitle": "代币额度授权",
     "resetTitle": "代币额度重置",
     "fiatAmountOnChain": "%{chainName} 上的 %{amountFiatFormatted}",
     "quote": {
-      "cantSetSlippage": "我们无法为 %{swapperName} 设置自定义滑点 (%{userSlippageFormatted})",
+      "cantSetSlippage": "无法为 %{userSlippageFormatted} 的自定义滑点设置 %{swapperName}",
       "gas": "完成此兑换交易所需的 gas。",
       "slippage": "这是此报价的滑点。",
       "timeEstimate": "这是此次兑换的预计完成时间。"
     },
-    "awaitingPermit2Approval": "代币转移中",
+    "awaitingPermit2Approval": "等待代币转账",
     "awaitingSwap": "通过 %{swapperName} 进行交换中",
     "awaitingApproval": "授权中",
     "awaitingAllowanceReset": "额度重置中",
@@ -1132,12 +1132,12 @@
     "noOpenOrders": "尚无未结订单。",
     "noHistoricalOrders": "尚无历史订单。",
     "limitPriceIsPercentLowerThanMarket": "限价低于市价 %{percent}%",
-    "highCowFeeImpact": "CoW 费用为您出售数量 (%{cryptoImpact} %{sellAssetSymbol}) 的 %{percentage}% 。您的订单可能无法执行。",
+    "highCowFeeImpact": "CoW 费用占您卖出金额的 %{percentage}%（%{cryptoImpact} %{sellAssetSymbol}）。您的订单可能无法执行。",
     "awaitingOrderPlacement": "在 %{swapperName} 上提交订单中",
     "awaitingAllowanceApproval": "额度授权中",
     "awaitingAllowanceReset": "额度重置中",
     "orderPlacement": "在 %{swapperName} 上下订单",
-    "explanation": "当 %{assetSymbol} 的价格达到 %{limitPrice}，您的限价订单将自动出售 %{sellAmount}，确保您至少收到 %{receiveAmount}。",
+    "explanation": "当 %{assetSymbol} 价格达到 %{limitPrice} 时，您的限价订单将自动卖出 %{sellAmount}，确保您至少收到 %{receiveAmount}。",
     "sellBuy": "出售 → 购买",
     "limitExecution": "限价/执行",
     "statusHead": "状态",
@@ -1179,7 +1179,7 @@
     "loadingOrderList": "正在加载您的限价订单...",
     "orderCard": {
       "warning": {
-        "insufficientBalance": "您的钱包在 %{chainName} 上的 %{symbol} 余额不足以执行此订单。此订单仍然有效，当您在 %{chainName} 上充值 %{symbol} 余额后，将能够执行此订单。",
+        "insufficientBalance": "您的钱包目前 %{symbol} 余额不足（%{chainName}），无法执行此订单。订单仍处于开放状态，当您补充 %{symbol} 余额（%{chainName}）后即可执行。",
         "insufficientAllowance": "此订单需要授权 %{chainName} 上 %{symbol} 的额外额度，以便 CoW Swap 执行此订单。此订单仍然有效，在您完成额度授权后，将能够执行此订单。"
       }
     },
@@ -1257,7 +1257,7 @@
       },
       "disconnect": {
         "header": "断开 KeepKey 设备",
-        "body": "很不幸，在恢复/设置您的 KeepKey 设备时发生错误。请断开并重新连接您的设备，然后尝试再次设置您的 KeepKey 设备。如果问题仍然存在，请联系 KeepKey 寻求支持。"
+        "body": "抱歉，恢复/设置您的 KeepKey 设备时发生错误。请断开并重新连接您的设备，然后重试设置 KeepKey 设备。如问题持续，请联系 KeepKey 支持。"
       }
     },
     "shapeShift": {
@@ -1292,7 +1292,7 @@
         "wordNumber": "第 #%{number} 个单词",
         "info": {
           "title": "您的秘密恢复短语",
-          "description": "写下这 12 个单词并安全地离线存储。这个 12 个单词的短语用于恢复您的钱包私钥。",
+          "description": "写下这 12 个单词并安全地离线存储。这 12 个单词的短语用于恢复您的钱包私钥。",
           "warning": "注意：如果您丢失了秘密恢复短语，ShapeShift 无法帮助您恢复钱包，您的资金将永远丢失。"
         },
         "success": {
@@ -1306,7 +1306,7 @@
         },
         "skip": {
           "title": "跳过此步骤？",
-          "description": "跳过备份意味着如果您失去对该设备的访问权限，您将无法恢复您的钱包。",
+          "description": "跳过备份意味着如果您失去对设备的访问权限，将无法恢复您的钱包。",
           "confirmCta": "是的，我已经保存了我的助记词"
         }
       }
@@ -1347,7 +1347,7 @@
         "generic": "发生了错误",
         "notEnoughNativeToken": "没有足够的 %{asset} 来支付 gas",
         "transactionRejected": "用户已拒绝交易",
-        "qrPermissions": "此功能需要相机访问权限才能工作。请修改你的浏览器设置。",
+        "qrPermissions": "此功能需要摄像头访问权限才能运行。请修改您的浏览器设置。",
         "qrDangerousEthUrl": "不支持包含合约地址的二维码。请手动粘贴目标地址。",
         "noAccountsOnChain": "没有在 %{chain} 上的帐户"
       },
@@ -1423,7 +1423,7 @@
       "withdrawType": "提现类型",
       "instant": "立即",
       "delayed": "7 至 14 天",
-      "fee": "%{fee}% %{symbol} 费用",
+      "fee": "%{fee}% %{symbol} 手续费",
       "noFee": "没有 %{symbol} 费用",
       "withdrawFee": "提现时将收取单独的手续费。",
       "notEnoughGas": "没有足够的 %{assetSymbol} 来支付 gas",
@@ -1435,7 +1435,7 @@
       }
     },
     "approve": {
-      "header": "允许 %{spenderName} 使用你的 %{asset}",
+      "header": "允许 %{spenderName} 使用您的 %{asset}",
       "resetHeader": "重置 %{spenderName} 对 %{asset} 的额度",
       "body": "需要你的授权才能使用你的 %{asset}",
       "learnMore": "为什么我需要这样做？",
@@ -1462,9 +1462,9 @@
       "withdrawInstantTime": "立即",
       "withdrawDelayedTime": "7 至 14 天",
       "xDays": "%{unbondingDays} 天",
-      "estimatedGas": "预计 gas 费用",
+      "estimatedGas": "预估 Gas 费",
       "notEnoughGas": "没有足够的 %{assetSymbol} 来支付 gas",
-      "missingFundsForGas": "资金不足，你还需要更多的 %{cryptoAmountHuman} %{assetSymbol} 才能完成交易",
+      "missingFundsForGas": "余额不足，您还需要 %{cryptoAmountHuman} %{assetSymbol} 才能完成交易",
       "signBroadcast": "签名 & 广播",
       "cancel": "取消"
     },
@@ -1733,7 +1733,7 @@
       },
       "failure": {
         "header": "无法连接到 Ledger",
-        "body": "我们无法检测到您的 Ledger，但您可以以只读模式连接。"
+        "body": "我们未能检测到您的 Ledger，但您可以以只读模式连接。"
       },
       "readOnly": {
         "button": "以只读模式连接"
@@ -1817,10 +1817,10 @@
       "warningExperimental": "ShapeShift 多链快照是一项全新的实验性功能，“按原样”提供",
       "warningBackup": "请确保您已备份您的 MetaMask 助记词。您通过此快照发送到非 EVM 链的任何资金将被发送到您在 MetaMask 中设置的默认账户。",
       "agreeIntro": "在继续之前，请阅读以下内容：",
-      "agreeItem1": "硬件钱包 <strong>不</strong> 受支持",
+      "agreeItem1": "硬件钱包<strong>不</strong>受支持",
       "agreeItem2": "只有 MetaMask 中的帐户 #0 支持 ShapeShift 多链快照提供的额外链",
-      "agreeItem3": "要使用 MetaMask 提供的现有以太坊链，您必须在 MetaMask 中将帐户 #0 连接到 ShapeShift",
-      "agreeItem4": "启用 ShapeShift 多链快照即表示您承认自行承担使用风险。",
+      "agreeItem3": "要使用 MetaMask 提供的现有 Ethereum 链，您必须在 MetaMask 中将账户 #0 连接到 ShapeShift",
+      "agreeItem4": "通过启用 ShapeShift Multichain Snap，您确认自行承担使用风险",
       "readAndUnderstood": "我已阅读并理解",
       "seedBackedUp": "我已备份我的 MetaMask 助记词",
       "acceptInstall": "确认并安装",
@@ -1850,21 +1850,21 @@
       "load": {
         "error": {
           "delete": "抱歉，无法删除你的钱包。",
-          "noWallet": "你没有保存的钱包",
+          "noWallet": "您没有已保存的钱包",
           "pair": "无法配对您的钱包",
           "fetchingWallets": "获取钱包时发生错误。"
         },
-        "header": "保存的钱包",
+        "header": "已保存的钱包",
         "forgetWallet": "忘记钱包",
         "confirmForget": "你确定要忘记 %{wallet} 吗？",
-        "confirmForgetBody": "如果您没有备份您的钱包，您将无法访问它。"
+        "confirmForgetBody": "如果您未备份钱包，将无法访问它。"
       },
       "import": {
         "header": "导入你的钱包",
         "keystoreHeader": "导入您的密钥库钱包",
         "body": "以全小写输入或粘贴您的秘密恢复短语，单词之间用一个空格隔开，不包含逗号或数字。",
         "button": "下一步",
-        "secretRecoveryPhraseError": "输入您的秘密恢复短语，单词之间用一个空格隔开。省略任何逗号、回车或任何其他字符。",
+        "secretRecoveryPhraseError": "请输入您的秘密恢复短语，单词之间用单个空格分隔。不得包含逗号、换行符或任何其他额外字符。",
         "secretRecoveryPhraseRequired": "秘密恢复短语是必填项",
         "secretRecoveryPhraseTooShort": "秘密恢复短语太短",
         "dragAndDrop": "拖放或选择文件",
@@ -1900,7 +1900,7 @@
         "importKeystore": "从密钥库文件导入"
       },
       "success": {
-        "encryptingWallet": "正在加密您的钱包... 如果您的浏览器要求将数据存储在持久存储中，请单击“允许”。",
+        "encryptingWallet": "正在加密您的钱包...如果您的浏览器请求在持久存储中存储数据，请点击「允许」。",
         "header": "钱包已连接",
         "success": "您现在可以关闭此窗口了。",
         "error": "连接你的钱包时出错"
@@ -1985,7 +1985,7 @@
       "headerSecret": "秘密",
       "headerEnd": "恢复短语",
       "subHeader": "妥善保管您的秘密恢复短语至关重要。",
-      "description": "像对待您最宝贵的财产一样对待您的秘密恢复短语——始终确保其安全。密码管理器非常安全，但将其写下来会更安全。",
+      "description": "请像对待您最珍贵的财产一样对待您的秘密恢复短语——始终保持安全。密码管理器是良好的安全措施，将单词写下来则更好。",
       "bulletPoints": {
         "share": "不要与任何人分享它",
         "lose": "如果您丢失它，我们将无法恢复它"
@@ -2001,13 +2001,13 @@
       "button": "继续确认",
       "success": {
         "title": "成功加入！",
-        "description": "您已成功验证您的秘密恢复短语。请确保安全存储它——这是恢复您钱包的唯一方式。",
+        "description": "您已验证您的秘密恢复短语。请务必安全存储——这是恢复您钱包的唯一方式。",
         "viewWallet": "查看钱包"
       }
     },
     "vultisig": {
       "errors": {
-        "connectFailure": "无法连接到 Vultisig 钱包"
+        "connectFailure": "无法连接 Vultisig 钱包"
       },
       "connect": {
         "header": "配对 Vultisig",
@@ -2090,7 +2090,7 @@
     "selectChain": "为您即将创建的帐户选择一条链。",
     "requiresPriorTxHistory": "仅当现有帐户有先前的交易历史记录时，您才可以添加新帐户",
     "newAccountAdded": "新的 %{name} 帐户已添加",
-    "youCanNowUse": "你现在可以使用 %{name} 帐户 #%{accountNumber}",
+    "youCanNowUse": "您现在可以使用 %{name} 账户 #%{accountNumber}",
     "showAssets": "显示资产",
     "hideAssets": "隐藏资产",
     "viewAccount": "查看帐户",
@@ -2100,8 +2100,8 @@
     "menuTitle": "管理帐户",
     "manageAccounts": {
       "title": "管理帐户",
-      "description": "这些是您已连接的链和您已导入的帐户数量。",
-      "emptyList": "你尚未连接任何帐户。添加链即可开始。",
+      "description": "这些是您已连接的链及已导入账户的数量。",
+      "emptyList": "您尚未连接任何账户。添加一条链以开始使用。",
       "addChain": "添加一条链",
       "addAnotherChain": "添加另一条链"
     },
@@ -2172,7 +2172,7 @@
     "minerFee": "矿工费",
     "date": "日期",
     "sentTo": "发送至 %{address}",
-    "receivedFrom": "从 %{address} 收到",
+    "receivedFrom": "收自 %{address}",
     "today": "今天",
     "yesterday": "昨天",
     "thisWeek": "本周",
@@ -2301,7 +2301,7 @@
     "totalCollateralDescription": "添加到借贷池的总抵押品",
     "estCollateralizationRatio": "预估抵押比例",
     "estCollateralizationRatioDescription": "目前抵押率固定为 200%，未来将根据市场情况，动态平衡抵押率的上限和下限。",
-    "collateralizationRatio": "抵押比例",
+    "collateralizationRatio": "抵押比率",
     "totalBorrowers": "借款人总数",
     "totalBorrowersDescription": "参与借款人数量",
     "myLoanInformation": "我的借贷信息",
@@ -2345,7 +2345,7 @@
       },
       "borrowing": {
         "title": "借贷如何运作？",
-        "body": "在 THORChain 中借款涉及使用你存入的资产作为抵押品来获取贷款。贷款以美元（TOR）计价，可以多种 L1 资产形式收取。动态抵押比例，灵活借贷，无利息、爆仓之忧"
+        "body": "在 THORChain 借款涉及使用您已存入的资产作为抵押品来获取贷款。贷款以美元（TOR）计价，可以以各种 L1 资产形式收取。通过动态抵押率，您可以灵活借款而无需担心利息或清算。"
       },
       "repayments": {
         "title": "还款如何运作？",
@@ -2358,14 +2358,14 @@
       "repaymentsDisabled": "还款功能暂时禁用。",
       "borrowingDisabled": "暂时禁止借贷。",
       "amountTooLowToReturnCollateral": "金额太低，无法退还抵押品",
-      "amountTooLowToReturnCollateralTooltip": "还款金额太低，无法退还你的抵押品。请尝试以更高的金额再试一次，或偿还部分金额（这不会退还你的抵押品，但会减少你的债务）。",
+      "amountTooLowToReturnCollateralTooltip": "还款金额太低，无法归还您的抵押品。请以更高金额重试，或还款部分金额（这不会归还您的抵押品，但会减少您的债务）。",
       "amountTooSmallUnknownMinimumTooltip": "你输入的还款金额太小。请输入更高的金额重试。",
       "repaymentUnavailableTooltip": "你目前无法偿还贷款。请等到还款锁定期结束。",
       "repaymentsHaltedTooltip": "还款暂时停止。请稍后重试。"
     },
     "quote": {
       "collateral": "将作为你的贷款担保的总资产金额",
-      "debt": "根据你的新贷款金额，你所欠的债务总额",
+      "debt": "根据您的新贷款金额计算的总债务",
       "repaymentLock": "你可以偿还贷款的最短期限",
       "collateralizationRatio": "你的抵押品价值与贷款金额的比率",
       "feesPlusSlippage": "发生的总费用，包括 L1 费用、滑点费用和 THORChain 流动性费用"
@@ -2404,13 +2404,13 @@
     "removeLiquidity": "移除流动性",
     "initialPricesAndPoolShare": "初始价格和池份额",
     "pricePerAsset": "%{from} 每 %{to}",
-    "symAlert": "进入池后，你的 %{from} 将按照 50:50 的比例分为 %{to} 和 %{from}。",
+    "symAlert": "进入流动资金池后，您的 %{from} 将被拆分为 50:50 的 %{to} 和 %{from} 敞口。",
     "withdrawTypeNotAvailable": "此提款类型不适用于该池。",
     "incompletePositionDepositAlert": "此仓位尚未完成，请存入相应数量的 %{asset} 来完成此仓位。",
     "incompletePositionWithdrawAlert": "此仓位尚未完成，请通过移除 100% 流动性来取消仓位。你也可以通过“添加流动性”来完成仓位。",
     "unsupportedNetworkExplainer": "你的钱包未连接到 %{network}。请连接此链或切换到支持此网络的钱包。",
-    "unsupportedNetworksExplainer": "你的钱包未连接到 %{network1} 和 %{network2}。请连接此链或切换到支持这些网络的钱包。",
-    "depositsDisabled": "充值已禁用",
+    "unsupportedNetworksExplainer": "您的钱包未连接至 %{network1} 和 %{network2}。请连接此链或切换至支持这些网络的钱包。",
+    "depositsDisabled": "存款已禁用",
     "shareOfPool": "池份额",
     "totalLiquidity": "总流动性",
     "totalVolume": "总交易量",
@@ -2519,7 +2519,7 @@
     "staking": "rFOX 质押",
     "bridge": "桥接",
     "bridgeFunds": "桥接资金",
-    "bridgeSuccess": "你的资金已成功转入。你现在可以继续质押。",
+    "bridgeSuccess": "您的资金已成功跨链。您现在可以继续进行质押。",
     "stake": "质押",
     "unstake": "取消质押",
     "claim": "领取",
@@ -2541,8 +2541,8 @@
     "useWalletAddress": "使用钱包地址",
     "useCustomAddress": "使用自定义地址",
     "stakeWarning": "请注意：在质押您的 %{symbol} 时，会有 %{cooldownPeriod} 的锁定期。这意味着，如果您希望取消质押代币，在领取您的资金前，您需要等待 %{cooldownPeriod}。",
-    "bridgeCta": "你选择了 %{originNetwork} 上的 %{assetSymbol}，但你需要 %{destinationNetwork} 上的 %{assetSymbol} 才能质押。我们可以帮助你将资金桥接到 %{destinationNetwork}。你希望我们指导你完成整个过程吗？",
-    "unstakeWarning": "在领取您的 %{symbol} 之前，需要经过 %{cooldownPeriod} 的冷却期。冷却期结束后，您将能够领取未质押的数量。",
+    "bridgeCta": "您选择了 %{assetSymbol}（%{originNetwork} 上），但质押需要 %{assetSymbol}（%{destinationNetwork} 上）。我们可以帮助您通过跨链桥将资金转至 %{destinationNetwork}。是否需要我们引导您完成该过程？",
+    "unstakeWarning": "在领取您的 %{symbol} 之前，冷却期为 %{cooldownPeriod}。时间到期后，您将能够领取已取消质押的金额。",
     "tooltips": {
       "stakeAmount": "这是你将质押的 FOX 数量",
       "unstakeAmount": "这是你将要赎回的 FOX 数量",
@@ -2551,12 +2551,12 @@
       "unstakePendingCooldown": "领取可用 %{cooldownPeriodHuman}",
       "cooldownComplete": "冷却完成 %{cooldownPeriodHuman}"
     },
-    "stakeSuccess": "你已成功质押 %{amount} %{symbol}",
+    "stakeSuccess": "您已成功质押 %{amount} %{symbol}",
     "stakePending": "质押 %{amount} %{symbol}...",
     "changeAddressPending": "正在将 RFOX 奖励地址更改为 %{newAddress}",
     "changeAddressSuccess": "已将 RFOX 奖励地址更改为 %{newAddress}",
-    "unstakePending": "请求提取 %{amount} %{symbol}",
-    "unstakeSuccess": "一旦 %{cooldownPeriod} 过去，你将能够领取你的 %{amount} %{symbol}",
+    "unstakePending": "正在请求提取 %{amount} %{symbol}",
+    "unstakeSuccess": "%{cooldownPeriod} 到期后，您将能够领取 %{amount} %{symbol}",
     "currentRewardAddress": "当前奖励地址",
     "newRewardAddress": "新的奖励地址",
     "rewardCycleExplainer": "这将在下一个奖励周期更新。",
@@ -2590,7 +2590,7 @@
       },
       "why": {
         "title": "为什么要质押你的 FOX？",
-        "body": "质押您的 FOX 可让您从 DAO 的国库中定期获得 USDC 支付，每个时段为您提供稳定的被动收入（以 USDC 计）。此外，DAO 收入的一部分将通过代币销毁用于减少 FOX 的整体供应量。质押过程要求最少 28 天的取消质押期，以鼓励社区成员的承诺与稳定性。"
+        "body": "质押您的 FOX 可让您从 DAO 国库中定期获得 USDC 收益，每个周期提供稳定的 USDC 被动收入来源。此外，DAO 收入的一部分将用于通过代币销毁来减少 FOX 总供应量。质押过程要求最短 28 天的取消质押期，鼓励社区成员保持承诺和稳定性。"
       },
       "stake": {
         "title": "我该如何质押我的 FOX？",
@@ -2643,7 +2643,7 @@
     "claimConfirm": {
       "dustAmountTooltip": "需要少量 %{symbol} 以帮助在 THOR 网络上识别您的地址。",
       "networkFeeTooltip": "这是在区块链上处理该交易所需的 %{symbol} 费用，该费用并非由 ShapeShift 收取。",
-      "missingFundsForGasAlert": "%{symbol} 数量不足，您至少需要 %{amount} %{symbol} 才能完成交易。我们建议您多发送一些，以应对网络费用波动。",
+      "missingFundsForGasAlert": "%{symbol} 余额不足，您至少需要 %{amount} %{symbol} 才能完成交易。建议多发送一些以应对波动的网络费用。",
       "confirmTitle": "确认领取",
       "networkFee": "网络费用",
       "confirmAndClaim": "领取 & 质押",
@@ -2679,10 +2679,10 @@
     },
     "claimPending": "领取 %{amount} %{symbol} 中...",
     "claimStatus": {
-      "pendingSubtitle": "我们正在处理您领取的 %{amount} %{symbol}",
+      "pendingSubtitle": "正在领取 %{amount} %{symbol}",
       "goBack": "返回",
       "successTitle": "领取成功",
-      "successSubtitle": "您已成功领取 %{amount} TCY",
+      "successSubtitle": "已成功领取 %{amount} TCY",
       "failedTitle": "出了些问题",
       "failedSubtitle": "您的领取已失败。请重试。"
     }
@@ -2690,7 +2690,7 @@
   "markets": {
     "recommended": "推荐的",
     "watchlist": "我的关注列表",
-    "marketsBody": "发现最令人兴奋的加密货币。跟踪最热门的货币、新兴代币、DeFi 机会等等。保存、分享和交易您最喜欢的货币。",
+    "marketsBody": "发现最令人兴奋的加密货币。追踪涨跌幅最大的代币、新兴代币、DeFi 机会以及更多内容。保存、分享和交易您的最爱。",
     "watchlistEmpty": {
       "emptyTitle": "关注列表中没有资产",
       "emptyBody": "看来您尚未为任何资产加注星标。立即开始将资产添加到您的关注列表以进行跟踪！"
@@ -2700,13 +2700,13 @@
     "emptyBodySwapper": "未找到符合条件的资产。",
     "categories": {
       "oneClickDefiAssets": {
-        "title": "一键获取 DeFi 资产",
+        "title": "一键 DeFi 资产",
         "filterTitle": "高收益代币",
         "subtitle": "发现最适合您的挖矿收益！通过门户轻松在流动性池、金库、贷款选项和 LSD 之间切换。"
       },
       "thorchainDefi": {
         "title": "THORChain DeFi",
-        "subtitle": "利用 THORCHain Savers 获取你资产的原生收益。"
+        "subtitle": "通过 THORChain Savers 在您的资产上赚取原生收益。"
       },
       "trending": {
         "title": "热门内容",
@@ -2740,20 +2740,20 @@
       "simulateTitle": "rFOX 模拟器",
       "simulateSubtle": "模拟您的 rFOX 质押收益",
       "estimatedRewards": "预计奖励",
-      "depositAmount": "存款金额",
+      "depositAmount": "存入金额",
       "shapeshiftRevenue": "ShapeShift 收入",
       "30days": "30 天"
     },
     "foxFarming": {
       "title": "FOX 收益挖矿+",
-      "description": "厌倦了将你的 %{rewardAssetSymbol} 从一个农场转移到另一个农场？只需质押你的 %{assetSymbol} 并永久赚取 %{rewardAssetSymbol}。",
+      "description": "厌倦了在各个农场之间迁移您的 %{rewardAssetSymbol}？只需质押您的 %{assetSymbol}，即可永久赚取 %{rewardAssetSymbol}。",
       "totalClaimableRewards": "可领取奖励总额",
       "totalStakingValue": "总质押价值",
       "nextEpoch": "下一个时段"
     },
     "governance": {
       "title": "治理",
-      "description": "加入我们的 <link>论坛</link> 并塑造 DAO 的未来。",
+      "description": "加入我们<link>的论坛</link>，共同塑造 DAO 的未来。",
       "totalVotingPower": "总投票权",
       "noActiveProposals": "没有可用的活跃提案",
       "noClosedProposals": "没有可用的已关闭提案"
@@ -2780,7 +2780,7 @@
       "getFeeData": "无法估算网络费用。",
       "getPublicKey": "无法从钱包获取公钥。",
       "getUtxos": "无法获取 utxos。",
-      "getValidator": "无法获取验证器。",
+      "getValidator": "获取验证者失败。",
       "gridplus": {
         "wrongSafeCard": "插入了错误的 SafeCard。请插入正确的 SafeCard，然后重试",
         "removeSafeCard": "请移除已插入的 SafeCard 以访问内置的 GridPlus 钱包。"
@@ -2820,22 +2820,22 @@
       "startSwapping": "开始兑换"
     },
     "swap": {
-      "processing": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换正在进行中。",
+      "processing": "您将 %{sellAmountAndSymbol} 兑换为 %{buyAmountAndSymbol} 的交易正在处理中。",
       "complete": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换已完成。",
-      "failed": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换已失败。",
+      "failed": "您将 %{sellAmountAndSymbol} 兑换为 %{buyAmountAndSymbol} 的交易失败。",
       "streaming": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的流式兑换正在进行中。",
-      "awaitingApproval": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换正在等待授权。",
-      "awaitingSwap": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的兑换正在等待执行。"
+      "awaitingApproval": "您将 %{sellAmountAndSymbol} 兑换为 %{buyAmountAndSymbol} 的交易正在等待授权。",
+      "awaitingSwap": "您将 %{sellAmountAndSymbol} 兑换为 %{buyAmountAndSymbol} 的交易正等待执行。"
     },
     "thorchainLp": {
       "pairAssets": "%{asset1} 和 %{asset2}",
       "withdraw": {
-        "processing": "您从 %{poolName} 池中提取 %{assetAmountsAndSymbols} 的操作正在进行中。",
-        "complete": "您从 %{poolName} 流动性池中提现的 %{assetAmountsAndSymbols} 已完成。 "
+        "processing": "您提取 %{assetAmountsAndSymbols} 从 %{poolName} 流动资金池的请求正在处理中。",
+        "complete": "您提取 %{assetAmountsAndSymbols} 从 %{poolName} 流动资金池的请求已完成。"
       },
       "deposit": {
         "processing": "您存入 %{poolName} 池的 %{amount} %{symbol} 正在处理中。",
-        "complete": "您向 %{poolName} 流动性池中存入的 %{amount} %{symbol} 已完成。"
+        "complete": "您存入 %{amount} %{symbol} 至 %{poolName} 流动资金池的请求已完成。"
       }
     },
     "deposit": {
@@ -2845,8 +2845,8 @@
     },
     "withdrawal": {
       "pending": "您提取的 %{amount} %{symbol} 正在处理中。",
-      "complete": "您提取的 %{amount} %{symbol} 已完成。",
-      "failed": "您提取 %{amount} %{symbol} 的操作失败。"
+      "complete": "您提取 %{amount} %{symbol} 的请求已完成。",
+      "failed": "您提取 %{amount} %{symbol} 的请求失败。"
     },
     "claim": {
       "pending": "您领取的 %{amount} %{symbol} 正在处理中。",
@@ -2859,12 +2859,12 @@
       "unstakeClaimed": "您的 %{symbol} 取消质押已成功领取。"
     },
     "bridge": {
-      "processing": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易正在处理中。",
-      "complete": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易已完成。",
+      "processing": "您通过跨链桥将 %{sellAmountAndSymbol}.%{sellChainShortName} 转至 %{buyAmountAndSymbol}.%{buyChainShortName} 的请求正在处理中。",
+      "complete": "您通过跨链桥将 %{sellAmountAndSymbol}.%{sellChainShortName} 转至 %{buyAmountAndSymbol}.%{buyChainShortName} 的请求已完成。",
       "initiated": "您将 %{sellAmountAndSymbol} 桥接到 %{buyAmountAndSymbol} 的操作已发起。",
       "pendingWithdraw": "您提现的 %{amountAndSymbol} 将在 %{timeText} 可用。",
       "claimAvailable": "您桥接的 %{amountAndSymbol} 已可领取。",
-      "failed": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易已失败。",
+      "failed": "您通过跨链桥将 %{sellAmountAndSymbol}.%{sellChainShortName} 转至 %{buyAmountAndSymbol}.%{buyChainShortName} 的请求失败。",
       "transactionInitiated": "交易已发起",
       "claimWithdraw": "领取提现",
       "withdrawTx": "提现交易",
@@ -2873,28 +2873,28 @@
     "limitOrder": {
       "placed": "使用 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的限价订单已下单",
       "complete": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的订单已成交。",
-      "cancelled": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的订单已取消。",
+      "cancelled": "您购买 %{buyAmountAndSymbol} 换取 %{sellAmountAndSymbol} 的订单已取消。",
       "expired": "您以 %{sellAmountAndSymbol} 购买 %{buyAmountAndSymbol} 的订单已到期。"
     },
     "rfox": {
       "unstakeReady": "您取消质押的 %{amount} %{symbol} 已可领取。",
-      "unstakeTxPending": "您取消质押的 %{amount} %{symbol} 待处理中。",
+      "unstakeTxPending": "您取消质押 %{amount} %{symbol} 的交易正在处理中。",
       "unstakeTxComplete": "您取消质押的 %{amount} %{symbol} 已完成。"
     },
     "tcy": {
       "stakePending": "您质押的 %{amount} %{symbol} 正在处理中...",
-      "unstakePending": "您取消质押的 %{amount} %{symbol} 正在处理中...",
+      "unstakePending": "您取消质押 %{amount} %{symbol} 的请求正在处理中...",
       "stakeComplete": "您质押的 %{amount} %{symbol} 已完成。",
       "unstakeComplete": "您取消质押的 %{amount} %{symbol} 已完成。",
       "claimReady": "您领取的 %{amount} %{symbol} TCY 已就绪。",
-      "claimTxPending": "您领取的 %{amount} %{symbol} TCY 待处理中。",
+      "claimTxPending": "您领取 %{amount} %{symbol} TCY 的交易正在处理中。",
       "claimTxComplete": "您领取的 %{amount} %{symbol} TCY 已完成。"
     },
     "approve": {
       "approvalTxPending": "正在批准 %{contractName} 使用 %{amount} %{symbol}。",
-      "approvalTxComplete": "已批准 %{contractName} 使用 %{amount} %{symbol}。"
+      "approvalTxComplete": "已授权 %{contractName} 使用 %{amount} %{symbol}。"
     },
-    "pendingTransactions": "%{count} 笔待处理交易",
+    "pendingTransactions": "%{count} 条待处理",
     "rewardDistribution": {
       "pending": {
         "description": "您领取的 %{amountAndSymbol} 正在处理中..."
@@ -2919,8 +2919,8 @@
     "connectWallet": "连接钱包以查看收益",
     "stats": "统计数据",
     "minStake": "最小质押数",
-    "minDeposit": "最小充值数",
-    "rewardSchedule": "奖励时间表",
+    "minDeposit": "最低存入",
+    "rewardSchedule": "奖励计划",
     "staking": "质押中...",
     "unstaking": "取消质押中...",
     "depositing": "充值中...",
@@ -2959,7 +2959,7 @@
     "allTypes": "所有类型",
     "showAll": "展示全部",
     "searchValidator": "搜索验证者",
-    "success": "成功!",
+    "success": "成功！",
     "transactions": "交易",
     "currentApy": "当前 APY",
     "estYearlyEarnings": "预计年收益",
@@ -2993,14 +2993,14 @@
     "availableToEarnTooltip": "有可用收益机会的跨资产总闲置余额。",
     "apyTooltip": "提供者展示的年收益率。可能随时间波动。",
     "perYear": "/年",
-    "earningsPerYear": "%{amount} %{symbol} /年",
+    "earningsPerYear": "%{amount} %{symbol}/年",
     "recommendedForYou": "为您精选",
     "earn": "赚钱",
     "providers": "提供者",
     "successStaked": "您已成功质押 %{amount} %{symbol}",
     "successUnstaked": "您已成功取消质押 %{amount} %{symbol}",
     "cooldownNotice": "您的提款将在 %{cooldownDuration} 后可用。",
-    "successDeposited": "您已成功充值 %{amount} %{symbol}",
+    "successDeposited": "您已成功存入 %{amount} %{symbol}",
     "successWithdrawn": "您已成功提现 %{amount} %{symbol}",
     "successClaim": "您已成功领取 %{amount} %{symbol}",
     "viewPosition": "查看仓位",
@@ -3043,7 +3043,7 @@
     "aboutProvider": "关于 %{provider}",
     "visitWebsite": "访问网站",
     "providerDescriptions": {
-      "morpho": "Morpho 是一个货币市场和金库基础设施协议，经过顶级安全公司的多次审计，自 2022 年上线以来，一直提供 250 万美元的漏洞赏金奖励。",
+      "morpho": "Morpho 是一个货币市场和金库基础设施协议，经多家顶级安全公司审计，自 2022 年上线，提供 250 万美元漏洞赏金激励。",
       "morpho-aave": "Morpho 是一个货币市场和金库基础设施协议，经过顶级安全公司的多次审计，自 2022 年上线以来，一直提供 250 万美元的漏洞赏金奖励。",
       "morpho-compound": "Morpho 是一个货币市场和金库基础设施协议，经过顶级安全公司的多次审计，自 2022 年上线以来，一直提供 250 万美元的漏洞赏金奖励。",
       "lido": "Lido 是一个流动性质押协议，允许用户质押 ETH，并通过 stETH 保持流动性。该协议已通过顶级安全公司的多次审计，自 2020 年上线以来，一直提供 200 万美元的漏洞赏金奖励。",
@@ -3052,18 +3052,18 @@
       "kamino": "Kamino 是 Solana 推出的 DeFi 套件，将借贷、流动性和杠杆整合到一个平台上。它还运营着一个 Immunefi 计划，最高赏金可达 150 万美元。",
       "fluid": "Fluid 是由 Instadapp 团队构建的流动性层，它将借贷、去中心化交易所 (DEX)、借贷和稳定币市场整合到一个高效的系统中。该协议已通过顶级安全公司的多重审计，自 2024 年上线以来，一直提供 50 万美元的漏洞赏金奖励。",
       "venus": "Venus 是一个专注于 BNB 链的借贷协议。它通过第三方审计和持续的漏洞赏金计划来增强安全性。",
-      "gearbox": "Gearbox 是一个可组合的杠杆协议，支持集成到 DeFi 策略中的信用账户。该协议已通过顶级安全公司的审计，自 2021 年上线以来，一直提供 20 万美元的漏洞赏金奖励。",
-      "yearn": "Yearn 是一套去中心化产品，旨在帮助个人、DAO 和其他协议通过其数字资产赚取收益。该产品已通过顶级安全公司的审计，自 2020 年上线以来，一直提供 20 万美元的漏洞赏金奖励。",
+      "gearbox": "Gearbox 是一个可组合的杠杆协议，支持接入 DeFi 策略的信用账户。经多家顶级安全公司审计，自 2021 年上线，提供 20 万美元漏洞赏金激励。",
+      "yearn": "Yearn 是一套去中心化产品套件，帮助个人、DAO 及其他协议在其数字资产上获取收益。经多家顶级安全公司审计，自 2020 年上线，提供 20 万美元漏洞赏金激励。",
       "spark": "Spark 是一个去中心化借贷协议，由 Sky（前身为 MakerDAO）生态系统提供支持，允许用户以具有竞争力的利率借入 DAI 和其他稳定币。它还运行着一项 Immunefi 计划，最高赏金可达 500 万美元。",
-      "rocket-pool": "Rocket Pool 是一个去中心化的以太坊流动性质押协议，发行 rETH。该协议已通过顶级安全公司的多次审计，自 2021 年上线以来，一直提供 50 万美元的漏洞赏金奖励。",
+      "rocket-pool": "Rocket Pool 是一个去中心化的 Ethereum 流动性质押协议，发行 rETH。经多家顶级安全公司审计，自 2021 年上线，提供 50 万美元漏洞赏金激励。",
       "drift": "Drift 是一个基于 Solana 构建的去中心化永续交易和借贷平台，运行着一项最高赏金达 50 万美元的 Immunefi 计划。"
     },
     "otherYields": "其他 %{symbol} 收益",
-    "availableToDeposit": "可用于充值",
+    "availableToDeposit": "可存入金额",
     "availableToDepositTooltip": "这是您钱包中可以存入此收益机会的 %{symbol} 数量。",
     "getAsset": "获取 %{symbol}",
     "manage": "管理",
-    "potentialEarningsAmount": "%{amount}/年 (%{apy}% APY)",
+    "potentialEarningsAmount": "%{amount}/年（APY %{apy}%）",
     "depositNow": "立即充值",
     "strategyInfo": "策略信息",
     "overview": "概述",

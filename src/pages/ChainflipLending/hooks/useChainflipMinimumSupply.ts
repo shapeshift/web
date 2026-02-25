@@ -8,6 +8,8 @@ import { reactQueries } from '@/react-queries'
 
 const USD_PRECISION = 6
 const TEN_MINUTES = 10 * 60 * 1000
+// 1% buffer over on-chain minimums to guard against oracle price fluctuations
+const MINIMUM_BUFFER = 1.01
 
 export const useChainflipMinimumSupply = (assetId: AssetId) => {
   const { data: lendingConfig, isLoading } = useQuery({
@@ -25,7 +27,10 @@ export const useChainflipMinimumSupply = (assetId: AssetId) => {
 
     try {
       const minBaseUnit = BigInt(minHex).toString()
-      const minUsd = bnOrZero(minBaseUnit).div(bnOrZero(10).pow(USD_PRECISION)).toFixed()
+      const minUsd = bnOrZero(minBaseUnit)
+        .div(bnOrZero(10).pow(USD_PRECISION))
+        .times(MINIMUM_BUFFER)
+        .toFixed(2)
       const price = bnOrZero(oraclePrice)
 
       const minCrypto = price.gt(0) ? bnOrZero(minUsd).div(price).toFixed() : undefined

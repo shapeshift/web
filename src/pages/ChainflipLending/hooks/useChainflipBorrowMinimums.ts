@@ -7,10 +7,13 @@ import { reactQueries } from '@/react-queries'
 const TEN_MINUTES = 10 * 60 * 1000
 const USD_PRECISION = 6
 
-const hexToUsd = (hex: string): string => {
+// 1% buffer over on-chain minimums to guard against oracle price fluctuations
+const MINIMUM_BUFFER = 1.01
+
+const hexToUsdWithBuffer = (hex: string): string => {
   try {
     const baseUnit = BigInt(hex).toString()
-    return bnOrZero(baseUnit).div(bnOrZero(10).pow(USD_PRECISION)).toFixed()
+    return bnOrZero(baseUnit).div(bnOrZero(10).pow(USD_PRECISION)).times(MINIMUM_BUFFER).toFixed(2)
   } catch {
     return '0'
   }
@@ -33,9 +36,11 @@ export const useChainflipBorrowMinimums = () => {
     }
 
     return {
-      minimumLoanAmountUsd: hexToUsd(lendingConfig.minimum_loan_amount_usd),
-      minimumUpdateLoanAmountUsd: hexToUsd(lendingConfig.minimum_update_loan_amount_usd),
-      minimumUpdateCollateralAmountUsd: hexToUsd(lendingConfig.minimum_update_collateral_amount_usd),
+      minimumLoanAmountUsd: hexToUsdWithBuffer(lendingConfig.minimum_loan_amount_usd),
+      minimumUpdateLoanAmountUsd: hexToUsdWithBuffer(lendingConfig.minimum_update_loan_amount_usd),
+      minimumUpdateCollateralAmountUsd: hexToUsdWithBuffer(
+        lendingConfig.minimum_update_collateral_amount_usd,
+      ),
       isLoading,
     }
   }, [lendingConfig, isLoading])

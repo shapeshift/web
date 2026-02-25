@@ -215,7 +215,7 @@ const initialState: Preferences = {
     Katana: getConfig().VITE_FEATURE_KATANA,
     Ethereal: getConfig().VITE_FEATURE_ETHEREAL,
     Celo: getConfig().VITE_FEATURE_CELO,
-    FlowEvm: getConfig().VITE_FEATURE_FLOW_EVM,
+    FlowEvm: getConfig().VITE_FEATURE_FLOWEVM,
     Plume: getConfig().VITE_FEATURE_PLUME,
     Story: getConfig().VITE_FEATURE_STORY,
     ZkSyncEra: getConfig().VITE_FEATURE_ZK_SYNC_ERA,

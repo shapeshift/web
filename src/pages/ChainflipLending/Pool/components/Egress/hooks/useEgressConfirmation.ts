@@ -67,14 +67,15 @@ export const useEgressConfirmation = () => {
   }, [queryClient, scAccount])
 
   useEffect(() => {
-    if (!isConfirming) {
+    if (stateValue === 'input') {
       pollCountRef.current = 0
       setBaselineId(null)
       queryClient.removeQueries({ queryKey: ['chainflipEgressStatus'] })
-      return
     }
+  }, [stateValue, queryClient])
 
-    if (!withdrawalStatus) return
+  useEffect(() => {
+    if (!isConfirming || !withdrawalStatus) return
 
     pollCountRef.current += 1
     if (pollCountRef.current > MAX_POLL_ATTEMPTS) {
@@ -89,5 +90,5 @@ export const useEgressConfirmation = () => {
         egressTxRef: withdrawalStatus.transactionRef,
       })
     }
-  }, [isConfirming, withdrawalStatus, actorRef, invalidateQueries, queryClient])
+  }, [isConfirming, withdrawalStatus, actorRef, invalidateQueries])
 }

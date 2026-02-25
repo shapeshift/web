@@ -96,13 +96,16 @@ export const useWithdrawConfirmation = () => {
   }, [queryClient, scAccount])
 
   useEffect(() => {
-    if (!isConfirming) {
+    if (stateValue === 'input') {
       pollCountRef.current = 0
       supplyDecreasedRef.current = false
       setBaselineId(null)
       queryClient.removeQueries({ queryKey: ['chainflipWithdrawEgressStatus'] })
-      return
     }
+  }, [stateValue, queryClient])
+
+  useEffect(() => {
+    if (!isConfirming) return
 
     pollCountRef.current += 1
     if (pollCountRef.current > maxAttempts) {
@@ -161,6 +164,5 @@ export const useWithdrawConfirmation = () => {
     actorRef,
     invalidateQueries,
     maxAttempts,
-    queryClient,
   ])
 }

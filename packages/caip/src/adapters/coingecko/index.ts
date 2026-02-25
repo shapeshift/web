@@ -70,11 +70,11 @@ export enum CoingeckoAssetPlatform {
   Monad = 'monad',
   HyperEvm = 'hyperevm',
   Plasma = 'plasma',
+  Plume = 'plume-network',
   Ink = 'ink',
   Katana = 'katana',
-  Celo = 'celo',
   FlowEvm = 'flow-evm',
-  Plume = 'plume-network',
+  Celo = 'celo',
   Story = 'story',
   ZkSyncEra = 'zksync',
   Blast = 'blast',
@@ -150,16 +150,16 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.HyperEvm
         case CHAIN_REFERENCE.PlasmaMainnet:
           return CoingeckoAssetPlatform.Plasma
-        case CHAIN_REFERENCE.KatanaMainnet:
-          return CoingeckoAssetPlatform.Katana
-        case CHAIN_REFERENCE.CeloMainnet:
-          return CoingeckoAssetPlatform.Celo
-        case CHAIN_REFERENCE.FlowEvmMainnet:
-          return CoingeckoAssetPlatform.FlowEvm
-        case CHAIN_REFERENCE.StoryMainnet:
-          return CoingeckoAssetPlatform.Story
         case CHAIN_REFERENCE.PlumeMainnet:
           return CoingeckoAssetPlatform.Plume
+        case CHAIN_REFERENCE.KatanaMainnet:
+          return CoingeckoAssetPlatform.Katana
+        case CHAIN_REFERENCE.FlowEvmMainnet:
+          return CoingeckoAssetPlatform.FlowEvm
+        case CHAIN_REFERENCE.CeloMainnet:
+          return CoingeckoAssetPlatform.Celo
+        case CHAIN_REFERENCE.StoryMainnet:
+          return CoingeckoAssetPlatform.Story
         case CHAIN_REFERENCE.ZkSyncEraMainnet:
           return CoingeckoAssetPlatform.ZkSyncEra
         case CHAIN_REFERENCE.BlastMainnet:
@@ -299,16 +299,16 @@ export const coingeckoAssetPlatformToChainId = (
       return hyperEvmChainId
     case CoingeckoAssetPlatform.Plasma:
       return plasmaChainId
+    case CoingeckoAssetPlatform.Plume:
+      return plumeChainId
     case CoingeckoAssetPlatform.WorldChain:
       return worldChainChainId
     case CoingeckoAssetPlatform.Katana:
       return katanaChainId
-    case CoingeckoAssetPlatform.Celo:
-      return celoChainId
     case CoingeckoAssetPlatform.FlowEvm:
       return flowEvmChainId
-    case CoingeckoAssetPlatform.Plume:
-      return plumeChainId
+    case CoingeckoAssetPlatform.Celo:
+      return celoChainId
     case CoingeckoAssetPlatform.Story:
       return storyChainId
     case CoingeckoAssetPlatform.Mantle:

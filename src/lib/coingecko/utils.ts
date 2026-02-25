@@ -232,12 +232,10 @@ export const getCoingeckoSupportedChainIds = () => {
     dogeChainId,
     zecChainId,
     ...(getConfig().VITE_FEATURE_BERACHAIN ? [berachainChainId] : []),
+    ...(getConfig().VITE_FEATURE_PLUME ? [plumeChainId] : []),
     ...(getConfig().VITE_FEATURE_INK ? [inkChainId] : []),
     ...(getConfig().VITE_FEATURE_CRONOS ? [cronosChainId] : []),
     ...(getConfig().VITE_FEATURE_KATANA ? [katanaChainId] : []),
-    ...(getConfig().VITE_FEATURE_CELO ? [celoChainId] : []),
-    ...(getConfig().VITE_FEATURE_FLOW_EVM ? [flowEvmChainId] : []),
-    ...(getConfig().VITE_FEATURE_PLUME ? [plumeChainId] : []),
     ...(getConfig().VITE_FEATURE_STORY ? [storyChainId] : []),
     ...(getConfig().VITE_FEATURE_ZK_SYNC_ERA ? [zkSyncEraChainId] : []),
     ...(getConfig().VITE_FEATURE_BLAST ? [blastChainId] : []),
@@ -252,5 +250,7 @@ export const getCoingeckoSupportedChainIds = () => {
     ...(getConfig().VITE_FEATURE_MODE ? [modeChainId] : []),
     ...(getConfig().VITE_FEATURE_SONEIUM ? [soneiumChainId] : []),
     ...(getConfig().VITE_FEATURE_TON ? [tonChainId] : []),
+    ...(getConfig().VITE_FEATURE_FLOWEVM ? [flowEvmChainId] : []),
+    ...(getConfig().VITE_FEATURE_CELO ? [celoChainId] : []),
   ]
 }

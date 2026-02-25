@@ -36,7 +36,7 @@ export default function register(): Plugins {
                 }
 
                 return new flowEvm.ChainAdapter({
-                  rpcUrl: getConfig().VITE_FLOW_EVM_NODE_URL,
+                  rpcUrl: getConfig().VITE_FLOWEVM_NODE_URL,
                   getKnownTokens,
                 })
               },

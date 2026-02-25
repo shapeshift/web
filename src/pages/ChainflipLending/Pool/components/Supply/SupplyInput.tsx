@@ -48,7 +48,7 @@ export const SupplyInput = ({ assetId }: SupplyInputProps) => {
     [freeBalanceCryptoBaseUnit, asset?.precision],
   )
 
-  const { minSupply, minSupplyUsd } = useChainflipMinimumSupply(assetId)
+  const { minSupply, isLoading: isMinSupplyLoading } = useChainflipMinimumSupply(assetId)
 
   const isBelowMinimum = useMemo(() => {
     if (!minSupply) return false
@@ -85,11 +85,12 @@ export const SupplyInput = ({ assetId }: SupplyInputProps) => {
 
   const isSubmitDisabled = useMemo(
     () =>
+      isMinSupplyLoading ||
       bnOrZero(inputValue).isZero() ||
-      isBelowMinimum ||
       bnOrZero(inputValue).gt(availableCryptoPrecision) ||
+      isBelowMinimum ||
       !hasFreeBalance,
-    [inputValue, isBelowMinimum, availableCryptoPrecision, hasFreeBalance],
+    [isMinSupplyLoading, inputValue, availableCryptoPrecision, isBelowMinimum, hasFreeBalance],
   )
 
   if (!asset) return null
@@ -158,19 +159,12 @@ export const SupplyInput = ({ assetId }: SupplyInputProps) => {
             </Flex>
           </Flex>
 
-          {minSupplyUsd && (
-            <Flex justifyContent='space-between' alignItems='center'>
-              <RawText fontSize='sm' color='text.subtle'>
-                {translate('chainflipLending.supply.minimumSupply', {
-                  amount: `$${minSupplyUsd}`,
-                })}
-              </RawText>
-              {isBelowMinimum && minSupply && (
-                <RawText fontSize='sm' color='red.500'>
-                  {minSupply} {asset.symbol}
-                </RawText>
-              )}
-            </Flex>
+          {isBelowMinimum && minSupply && (
+            <RawText fontSize='sm' color='red.500'>
+              {translate('chainflipLending.supply.minimumSupply', {
+                amount: `${bnOrZero(minSupply).decimalPlaces(2).toFixed()} ${asset.symbol}`,
+              })}
+            </RawText>
           )}
 
           {!hasFreeBalance && (

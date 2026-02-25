@@ -14,6 +14,7 @@ export const useWithdrawBatch = () => {
   const {
     assetId,
     withdrawAmountCryptoBaseUnit,
+    isFullWithdrawal,
     withdrawAddress,
     lastUsedNonce,
     isNativeWallet,
@@ -21,6 +22,7 @@ export const useWithdrawBatch = () => {
   } = WithdrawMachineCtx.useSelector(s => ({
     assetId: s.context.assetId,
     withdrawAmountCryptoBaseUnit: s.context.withdrawAmountCryptoBaseUnit,
+    isFullWithdrawal: s.context.isFullWithdrawal,
     withdrawAddress: s.context.withdrawAddress,
     lastUsedNonce: s.context.lastUsedNonce,
     isNativeWallet: s.context.isNativeWallet,
@@ -45,7 +47,10 @@ export const useWithdrawBatch = () => {
         if (!scAccount) throw new Error('State Chain account not derived')
         if (!cfAsset) throw new Error(`Unsupported asset: ${assetId}`)
 
-        const removeCall = encodeRemoveLenderFunds(cfAsset, withdrawAmountCryptoBaseUnit)
+        const removeCall = encodeRemoveLenderFunds(
+          cfAsset,
+          isFullWithdrawal ? null : withdrawAmountCryptoBaseUnit,
+        )
         const egressCall = encodeWithdrawAsset(withdrawAmountCryptoBaseUnit, cfAsset, {
           chain: cfAsset.chain,
           address: withdrawAddress,
@@ -81,6 +86,7 @@ export const useWithdrawBatch = () => {
     withdrawAddress,
     lastUsedNonce,
     signAndSubmit,
+    isFullWithdrawal,
     isNativeWallet,
     stepConfirmed,
   ])

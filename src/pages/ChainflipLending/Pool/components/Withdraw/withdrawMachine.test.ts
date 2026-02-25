@@ -11,6 +11,20 @@ const defaultSubmitEvent = {
   withdrawAmountCryptoPrecision: '100.5',
   withdrawAmountCryptoBaseUnit: '100500000',
   withdrawAddress: '0xwithdrawaddr',
+  withdrawToWallet: false,
+  isFullWithdrawal: false,
+}
+
+const walletSubmitEvent = {
+  ...defaultSubmitEvent,
+  withdrawToWallet: true,
+  isFullWithdrawal: false,
+}
+
+const fullWithdrawalSubmitEvent = {
+  ...defaultSubmitEvent,
+  isFullWithdrawal: true,
+  withdrawToWallet: false,
 }
 
 const createTestActor = (overrides?: Partial<{ isNativeWallet: boolean }>) => {
@@ -42,7 +56,8 @@ describe('withdrawMachine', () => {
       expect(snapshot.context.lastUsedNonce).toBeUndefined()
       expect(snapshot.context.error).toBeNull()
       expect(snapshot.context.errorStep).toBeNull()
-      expect(snapshot.context.useBatch).toBe(true)
+      expect(snapshot.context.withdrawToWallet).toBe(false)
+      expect(snapshot.context.useBatch).toBe(false)
     })
 
     it('passes isNativeWallet from input', () => {
@@ -64,33 +79,20 @@ describe('withdrawMachine', () => {
   })
 
   describe('confirm flow', () => {
-    it('CONFIRM with useBatch=true transitions to signing_batch', () => {
+    it('CONFIRM without withdrawToWallet transitions to signing_remove', () => {
       const actor = createTestActor()
       actor.send(defaultSubmitEvent)
       actor.send({ type: 'CONFIRM' })
 
-      expect(actor.getSnapshot().value).toBe('signing_batch')
+      expect(actor.getSnapshot().value).toBe('signing_remove')
     })
 
-    it('CONFIRM with useBatch=false transitions to signing_remove', () => {
+    it('CONFIRM with withdrawToWallet transitions to signing_batch', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
+
       expect(actor.getSnapshot().value).toBe('signing_batch')
-
-      actor.send({ type: 'BATCH_ERROR', error: 'batch not supported' })
-      expect(actor.getSnapshot().value).toBe('signing_remove')
-      expect(actor.getSnapshot().context.useBatch).toBe(false)
-
-      actor.send({ type: 'REMOVE_ERROR', error: 'user rejected' })
-      expect(actor.getSnapshot().value).toBe('error')
-
-      actor.send({ type: 'BACK' })
-      expect(actor.getSnapshot().value).toBe('input')
-
-      actor.send(defaultSubmitEvent)
-      actor.send({ type: 'CONFIRM' })
-      expect(actor.getSnapshot().value).toBe('signing_remove')
     })
 
     it('BACK from confirm returns to input', () => {
@@ -103,10 +105,26 @@ describe('withdrawMachine', () => {
     })
   })
 
+  describe('remove-only path (default, no wallet withdrawal)', () => {
+    it('signing_remove -> REMOVE_SUCCESS -> confirming (skips egress)', () => {
+      const actor = createTestActor()
+      actor.send(defaultSubmitEvent)
+      actor.send({ type: 'CONFIRM' })
+      expect(actor.getSnapshot().value).toBe('signing_remove')
+
+      actor.send({ type: 'REMOVE_BROADCASTED', txHash: '0xremove', nonce: 1 })
+      actor.send({ type: 'REMOVE_SUCCESS' })
+      expect(actor.getSnapshot().value).toBe('confirming')
+
+      actor.send({ type: 'WITHDRAW_CONFIRMED' })
+      expect(actor.getSnapshot().value).toBe('success')
+    })
+  })
+
   describe('batch happy path', () => {
     it('signing_batch -> BATCH_SUCCESS -> confirming -> WITHDRAW_CONFIRMED -> success', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       expect(actor.getSnapshot().value).toBe('signing_batch')
 
@@ -125,7 +143,7 @@ describe('withdrawMachine', () => {
   describe('batch fallback to sequential', () => {
     it('BATCH_ERROR transitions to signing_remove and sets useBatch to false', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       expect(actor.getSnapshot().value).toBe('signing_batch')
 
@@ -135,10 +153,10 @@ describe('withdrawMachine', () => {
     })
   })
 
-  describe('sequential happy path', () => {
+  describe('sequential happy path (wallet, batch fallback)', () => {
     it('signing_remove -> REMOVE_SUCCESS -> signing_egress -> EGRESS_SUCCESS -> confirming -> success', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
 
       actor.send({ type: 'BATCH_ERROR', error: 'fallback' })
@@ -166,7 +184,7 @@ describe('withdrawMachine', () => {
   describe('error and retry', () => {
     it('REMOVE_ERROR transitions to error with correct errorStep', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_ERROR', error: 'fallback' })
       expect(actor.getSnapshot().value).toBe('signing_remove')
@@ -179,7 +197,7 @@ describe('withdrawMachine', () => {
 
     it('RETRY from signing_remove error returns to signing_remove', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_ERROR', error: 'fallback' })
       actor.send({ type: 'REMOVE_ERROR', error: 'user rejected' })
@@ -192,7 +210,7 @@ describe('withdrawMachine', () => {
 
     it('EGRESS_ERROR transitions to error with correct errorStep', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_ERROR', error: 'fallback' })
       actor.send({ type: 'REMOVE_SUCCESS' })
@@ -206,7 +224,7 @@ describe('withdrawMachine', () => {
 
     it('RETRY from signing_egress error returns to signing_egress', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_ERROR', error: 'fallback' })
       actor.send({ type: 'REMOVE_SUCCESS' })
@@ -220,7 +238,7 @@ describe('withdrawMachine', () => {
 
     it('WITHDRAW_TIMEOUT transitions to error with correct errorStep', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_SUCCESS' })
       expect(actor.getSnapshot().value).toBe('confirming')
@@ -233,7 +251,7 @@ describe('withdrawMachine', () => {
 
     it('RETRY from confirming error returns to confirming', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_SUCCESS' })
       actor.send({ type: 'WITHDRAW_TIMEOUT', error: 'timeout' })
@@ -246,7 +264,7 @@ describe('withdrawMachine', () => {
 
     it('BACK from error returns to input and clears error', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_ERROR', error: 'fallback' })
       actor.send({ type: 'REMOVE_ERROR', error: 'rejected' })
@@ -262,7 +280,7 @@ describe('withdrawMachine', () => {
   describe('CONFIRM_STEP / stepConfirmed / resetStepConfirmed', () => {
     it('entry to signing_batch resets stepConfirmed to false', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
 
       expect(actor.getSnapshot().value).toBe('signing_batch')
@@ -271,7 +289,7 @@ describe('withdrawMachine', () => {
 
     it('CONFIRM_STEP sets stepConfirmed to true in signing_batch', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'CONFIRM_STEP' })
 
@@ -280,7 +298,7 @@ describe('withdrawMachine', () => {
 
     it('stepConfirmed resets when transitioning from signing_batch to signing_remove on error', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'CONFIRM_STEP' })
       expect(actor.getSnapshot().context.stepConfirmed).toBe(true)
@@ -292,7 +310,7 @@ describe('withdrawMachine', () => {
 
     it('stepConfirmed resets when transitioning from signing_remove to signing_egress', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_ERROR', error: 'fallback' })
 
@@ -308,7 +326,6 @@ describe('withdrawMachine', () => {
       const actor = createTestActor()
       actor.send(defaultSubmitEvent)
       actor.send({ type: 'CONFIRM' })
-      actor.send({ type: 'BATCH_ERROR', error: 'fallback' })
       expect(actor.getSnapshot().value).toBe('signing_remove')
 
       actor.send({ type: 'CONFIRM_STEP' })
@@ -317,7 +334,7 @@ describe('withdrawMachine', () => {
 
     it('CONFIRM_STEP works in signing_egress', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_ERROR', error: 'fallback' })
       actor.send({ type: 'REMOVE_SUCCESS' })
@@ -357,7 +374,7 @@ describe('withdrawMachine', () => {
 
     it('works during signing states', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       expect(actor.getSnapshot().value).toBe('signing_batch')
 
@@ -373,7 +390,7 @@ describe('withdrawMachine', () => {
   describe('nonce tracking', () => {
     it('BATCH_BROADCASTED updates lastUsedNonce', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
 
       actor.send({ type: 'BATCH_BROADCASTED', txHash: '0xbatch', nonce: 5 })
@@ -383,7 +400,7 @@ describe('withdrawMachine', () => {
 
     it('REMOVE_BROADCASTED updates lastUsedNonce', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_ERROR', error: 'fallback' })
 
@@ -394,7 +411,7 @@ describe('withdrawMachine', () => {
 
     it('EGRESS_BROADCASTED updates lastUsedNonce', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_ERROR', error: 'fallback' })
       actor.send({ type: 'REMOVE_SUCCESS' })
@@ -406,7 +423,7 @@ describe('withdrawMachine', () => {
 
     it('nonces increment across sequential steps', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_ERROR', error: 'fallback' })
 
@@ -421,7 +438,7 @@ describe('withdrawMachine', () => {
 
     it('DONE resets lastUsedNonce to undefined', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_BROADCASTED', txHash: '0xbatch', nonce: 42 })
       actor.send({ type: 'BATCH_SUCCESS' })
@@ -435,7 +452,7 @@ describe('withdrawMachine', () => {
   describe('tx hash tracking', () => {
     it('BATCH_BROADCASTED assigns batch tx hash', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
 
       actor.send({ type: 'BATCH_BROADCASTED', txHash: '0xbatch123', nonce: 1 })
@@ -444,7 +461,7 @@ describe('withdrawMachine', () => {
 
     it('REMOVE_BROADCASTED assigns remove tx hash', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_ERROR', error: 'fallback' })
 
@@ -454,7 +471,7 @@ describe('withdrawMachine', () => {
 
     it('EGRESS_BROADCASTED assigns egress tx hash', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_ERROR', error: 'fallback' })
       actor.send({ type: 'REMOVE_SUCCESS' })
@@ -465,7 +482,7 @@ describe('withdrawMachine', () => {
 
     it('tx hashes accumulate across sequential steps', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_ERROR', error: 'fallback' })
 
@@ -482,7 +499,7 @@ describe('withdrawMachine', () => {
   describe('tags', () => {
     it('signing_batch has executing tag', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
 
       expect(actor.getSnapshot().value).toBe('signing_batch')
@@ -493,7 +510,6 @@ describe('withdrawMachine', () => {
       const actor = createTestActor()
       actor.send(defaultSubmitEvent)
       actor.send({ type: 'CONFIRM' })
-      actor.send({ type: 'BATCH_ERROR', error: 'fallback' })
 
       expect(actor.getSnapshot().value).toBe('signing_remove')
       expect(actor.getSnapshot().hasTag('executing')).toBe(true)
@@ -501,7 +517,7 @@ describe('withdrawMachine', () => {
 
     it('signing_egress has executing tag', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_ERROR', error: 'fallback' })
       actor.send({ type: 'REMOVE_SUCCESS' })
@@ -512,7 +528,7 @@ describe('withdrawMachine', () => {
 
     it('confirming has executing tag', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_SUCCESS' })
 
@@ -535,7 +551,7 @@ describe('withdrawMachine', () => {
 
     it('success state does not have executing tag', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_SUCCESS' })
       actor.send({ type: 'WITHDRAW_CONFIRMED' })
@@ -546,7 +562,7 @@ describe('withdrawMachine', () => {
 
     it('error state does not have executing tag', () => {
       const actor = createTestActor()
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_ERROR', error: 'fallback' })
       actor.send({ type: 'REMOVE_ERROR', error: 'fail' })
@@ -556,11 +572,42 @@ describe('withdrawMachine', () => {
     })
   })
 
-  describe('full happy path (batch)', () => {
-    it('goes through: input -> confirm -> signing_batch -> confirming -> success -> done', () => {
+  describe('full happy path (remove only, default)', () => {
+    it('goes through: input -> confirm -> signing_remove -> confirming -> success -> done', () => {
       const actor = createTestActor()
 
       actor.send(defaultSubmitEvent)
+      expect(actor.getSnapshot().value).toBe('confirm')
+
+      actor.send({ type: 'CONFIRM' })
+      expect(actor.getSnapshot().value).toBe('signing_remove')
+
+      actor.send({ type: 'REMOVE_BROADCASTED', txHash: '0xremove', nonce: 1 })
+      actor.send({ type: 'REMOVE_SUCCESS' })
+      expect(actor.getSnapshot().value).toBe('confirming')
+
+      actor.send({ type: 'WITHDRAW_CONFIRMED' })
+      expect(actor.getSnapshot().value).toBe('success')
+
+      actor.send({ type: 'DONE' })
+      expect(actor.getSnapshot().value).toBe('input')
+      expect(actor.getSnapshot().context.withdrawAmountCryptoPrecision).toBe('')
+      expect(actor.getSnapshot().context.withdrawAmountCryptoBaseUnit).toBe('0')
+      expect(actor.getSnapshot().context.withdrawAddress).toBe('')
+      expect(actor.getSnapshot().context.withdrawToWallet).toBe(false)
+      expect(actor.getSnapshot().context.lastUsedNonce).toBeUndefined()
+      expect(actor.getSnapshot().context.txHashes).toEqual({})
+      expect(actor.getSnapshot().context.error).toBeNull()
+      expect(actor.getSnapshot().context.errorStep).toBeNull()
+      expect(actor.getSnapshot().context.useBatch).toBe(false)
+    })
+  })
+
+  describe('full happy path (batch, with wallet withdrawal)', () => {
+    it('goes through: input -> confirm -> signing_batch -> confirming -> success -> done', () => {
+      const actor = createTestActor()
+
+      actor.send(walletSubmitEvent)
       expect(actor.getSnapshot().value).toBe('confirm')
 
       actor.send({ type: 'CONFIRM' })
@@ -576,22 +623,16 @@ describe('withdrawMachine', () => {
 
       actor.send({ type: 'DONE' })
       expect(actor.getSnapshot().value).toBe('input')
-      expect(actor.getSnapshot().context.withdrawAmountCryptoPrecision).toBe('')
-      expect(actor.getSnapshot().context.withdrawAmountCryptoBaseUnit).toBe('0')
-      expect(actor.getSnapshot().context.withdrawAddress).toBe('')
-      expect(actor.getSnapshot().context.lastUsedNonce).toBeUndefined()
-      expect(actor.getSnapshot().context.txHashes).toEqual({})
-      expect(actor.getSnapshot().context.error).toBeNull()
-      expect(actor.getSnapshot().context.errorStep).toBeNull()
-      expect(actor.getSnapshot().context.useBatch).toBe(true)
+      expect(actor.getSnapshot().context.withdrawToWallet).toBe(false)
+      expect(actor.getSnapshot().context.useBatch).toBe(false)
     })
   })
 
-  describe('full happy path (sequential fallback)', () => {
+  describe('full happy path (sequential fallback, with wallet withdrawal)', () => {
     it('goes through: input -> confirm -> signing_batch -> signing_remove -> signing_egress -> confirming -> success -> done', () => {
       const actor = createTestActor()
 
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       expect(actor.getSnapshot().value).toBe('confirm')
 
       actor.send({ type: 'CONFIRM' })
@@ -618,7 +659,8 @@ describe('withdrawMachine', () => {
 
       actor.send({ type: 'DONE' })
       expect(actor.getSnapshot().value).toBe('input')
-      expect(actor.getSnapshot().context.useBatch).toBe(true)
+      expect(actor.getSnapshot().context.withdrawToWallet).toBe(false)
+      expect(actor.getSnapshot().context.useBatch).toBe(false)
     })
   })
 
@@ -629,7 +671,7 @@ describe('withdrawMachine', () => {
         type: 'SYNC_SUPPLY_POSITION',
         supplyPositionCryptoBaseUnit: '500000000',
       })
-      actor.send(defaultSubmitEvent)
+      actor.send(walletSubmitEvent)
       actor.send({ type: 'CONFIRM' })
       actor.send({ type: 'BATCH_BROADCASTED', txHash: '0xbatch', nonce: 1 })
       actor.send({ type: 'BATCH_SUCCESS' })
@@ -640,15 +682,95 @@ describe('withdrawMachine', () => {
       expect(ctx.withdrawAmountCryptoPrecision).toBe('')
       expect(ctx.withdrawAmountCryptoBaseUnit).toBe('0')
       expect(ctx.withdrawAddress).toBe('')
+      expect(ctx.withdrawToWallet).toBe(false)
       expect(ctx.lastUsedNonce).toBeUndefined()
       expect(ctx.txHashes).toEqual({})
       expect(ctx.error).toBeNull()
       expect(ctx.errorStep).toBeNull()
-      expect(ctx.useBatch).toBe(true)
+      expect(ctx.useBatch).toBe(false)
 
       expect(ctx.assetId).toBe(USDC_ASSET_ID)
       expect(ctx.isNativeWallet).toBe(false)
       expect(ctx.supplyPositionCryptoBaseUnit).toBe('500000000')
+    })
+  })
+
+  describe('isFullWithdrawal', () => {
+    it('SUBMIT with isFullWithdrawal: true stores the flag in context', () => {
+      const actor = createTestActor()
+      actor.send(fullWithdrawalSubmitEvent)
+
+      expect(actor.getSnapshot().context.isFullWithdrawal).toBe(true)
+    })
+
+    it('SUBMIT with isFullWithdrawal: false stores the flag in context', () => {
+      const actor = createTestActor()
+      actor.send(defaultSubmitEvent)
+
+      expect(actor.getSnapshot().context.isFullWithdrawal).toBe(false)
+    })
+
+    it('DONE resets isFullWithdrawal to false', () => {
+      const actor = createTestActor()
+      actor.send(fullWithdrawalSubmitEvent)
+      expect(actor.getSnapshot().context.isFullWithdrawal).toBe(true)
+
+      actor.send({ type: 'CONFIRM' })
+      actor.send({ type: 'REMOVE_BROADCASTED', txHash: '0xremove', nonce: 1 })
+      actor.send({ type: 'REMOVE_SUCCESS' })
+      actor.send({ type: 'WITHDRAW_CONFIRMED' })
+      actor.send({ type: 'DONE' })
+
+      expect(actor.getSnapshot().context.isFullWithdrawal).toBe(false)
+    })
+
+    it('full withdrawal submit stores isFullWithdrawal: true in context', () => {
+      const actor = createTestActor()
+      actor.send(fullWithdrawalSubmitEvent)
+
+      expect(actor.getSnapshot().value).toBe('confirm')
+      expect(actor.getSnapshot().context.isFullWithdrawal).toBe(true)
+      expect(actor.getSnapshot().context.withdrawToWallet).toBe(false)
+    })
+
+    it('full withdrawal submit stores isFullWithdrawal: false after DONE', () => {
+      const actor = createTestActor()
+      actor.send(fullWithdrawalSubmitEvent)
+      actor.send({ type: 'CONFIRM' })
+      actor.send({ type: 'REMOVE_BROADCASTED', txHash: '0xremove', nonce: 1 })
+      actor.send({ type: 'REMOVE_SUCCESS' })
+      actor.send({ type: 'WITHDRAW_CONFIRMED' })
+
+      expect(actor.getSnapshot().context.isFullWithdrawal).toBe(true)
+
+      actor.send({ type: 'DONE' })
+      expect(actor.getSnapshot().context.isFullWithdrawal).toBe(false)
+    })
+
+    it('isFullWithdrawal: true with withdrawToWallet: true sets useBatch to true', () => {
+      const actor = createTestActor()
+      actor.send({
+        ...fullWithdrawalSubmitEvent,
+        withdrawToWallet: true,
+        isFullWithdrawal: true,
+      })
+
+      expect(actor.getSnapshot().context.useBatch).toBe(true)
+      expect(actor.getSnapshot().context.isFullWithdrawal).toBe(true)
+
+      actor.send({ type: 'CONFIRM' })
+      expect(actor.getSnapshot().value).toBe('signing_batch')
+    })
+
+    it('isFullWithdrawal: true with withdrawToWallet: false goes to signing_remove', () => {
+      const actor = createTestActor()
+      actor.send(fullWithdrawalSubmitEvent)
+
+      expect(actor.getSnapshot().context.isFullWithdrawal).toBe(true)
+      expect(actor.getSnapshot().context.withdrawToWallet).toBe(false)
+
+      actor.send({ type: 'CONFIRM' })
+      expect(actor.getSnapshot().value).toBe('signing_remove')
     })
   })
 })

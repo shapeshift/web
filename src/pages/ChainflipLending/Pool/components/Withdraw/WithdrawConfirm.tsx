@@ -1,8 +1,8 @@
-import { CheckCircleIcon } from '@chakra-ui/icons'
-import { Button, CardBody, CardFooter, Flex, VStack } from '@chakra-ui/react'
+import { CheckCircleIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { Button, CardBody, CardFooter, Flex, Link, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useWithdrawBatch } from './hooks/useWithdrawBatch'
@@ -15,8 +15,10 @@ import { WithdrawStepper } from './WithdrawStepper'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { reactQueries } from '@/react-queries'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -30,6 +32,7 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
   const translate = useTranslate()
   const queryClient = useQueryClient()
   const { scAccount } = useChainflipLendingAccount()
+  const { close: closeModal } = useModal('chainflipLending')
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
@@ -40,10 +43,17 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
   const withdrawAmountCryptoPrecision = WithdrawMachineCtx.useSelector(
     s => s.context.withdrawAmountCryptoPrecision,
   )
+  const egressTxRef = WithdrawMachineCtx.useSelector(s => s.context.egressTxRef)
+  const withdrawToWallet = WithdrawMachineCtx.useSelector(s => s.context.withdrawToWallet)
   const error = WithdrawMachineCtx.useSelector(s => s.context.error)
   const isNativeWallet = WithdrawMachineCtx.useSelector(s => s.context.isNativeWallet)
   const stepConfirmed = WithdrawMachineCtx.useSelector(s => s.context.stepConfirmed)
   const isConfirming = WithdrawMachineCtx.useSelector(s => s.matches('confirming'))
+
+  const egressTxLink = useMemo(() => {
+    if (!egressTxRef || !asset?.explorerTxLink) return undefined
+    return `${asset.explorerTxLink}${egressTxRef}`
+  }, [egressTxRef, asset?.explorerTxLink])
 
   useWithdrawBatch()
   useWithdrawRemove()
@@ -67,8 +77,8 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
       await queryClient.invalidateQueries(reactQueries.chainflipLending.freeBalances(scAccount))
       await queryClient.invalidateQueries(reactQueries.chainflipLending.accountInfo(scAccount))
     }
-    actorRef.send({ type: 'DONE' })
-  }, [scAccount, queryClient, actorRef])
+    closeModal()
+  }, [scAccount, queryClient, closeModal])
 
   const handleBack = useCallback(() => {
     actorRef.send({ type: 'BACK' })
@@ -103,6 +113,23 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
                 fontSize='lg'
               />
             </VStack>
+            {withdrawToWallet && egressTxRef && (
+              <VStack spacing={1}>
+                <RawText fontSize='xs' color='text.subtle'>
+                  {translate('chainflipLending.egress.transactionId')}
+                </RawText>
+                {egressTxLink ? (
+                  <Link href={egressTxLink} isExternal color='text.link' fontSize='sm'>
+                    <MiddleEllipsis value={egressTxRef} />
+                    <ExternalLinkIcon mx={1} />
+                  </Link>
+                ) : (
+                  <RawText fontSize='sm'>
+                    <MiddleEllipsis value={egressTxRef} />
+                  </RawText>
+                )}
+              </VStack>
+            )}
           </VStack>
         </CardBody>
         <CardFooter

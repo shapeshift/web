@@ -14,6 +14,11 @@ type StepConfig = {
   labelKey: string
 }
 
+const REMOVE_ONLY_STEPS: StepConfig[] = [
+  { id: 'signing_remove', labelKey: 'chainflipLending.withdraw.steps.signingRemove' },
+  { id: 'confirming', labelKey: 'chainflipLending.withdraw.steps.confirming' },
+]
+
 const BATCH_STEPS: StepConfig[] = [
   { id: 'signing_batch', labelKey: 'chainflipLending.withdraw.steps.signingBatch' },
   { id: 'confirming', labelKey: 'chainflipLending.withdraw.steps.confirming' },
@@ -33,12 +38,16 @@ const checkCircleIcon = <CheckCircleIcon boxSize={stepIconSize} color='green.500
 export const WithdrawStepper = memo(() => {
   const translate = useTranslate()
   const stateValue = WithdrawMachineCtx.useSelector(s => s.value) as string
-  const { useBatch, errorStep } = WithdrawMachineCtx.useSelector(s => ({
+  const { withdrawToWallet, useBatch, errorStep } = WithdrawMachineCtx.useSelector(s => ({
+    withdrawToWallet: s.context.withdrawToWallet,
     useBatch: s.context.useBatch,
     errorStep: s.context.errorStep,
   }))
 
-  const steps = useMemo(() => (useBatch ? BATCH_STEPS : SEQUENTIAL_STEPS), [useBatch])
+  const steps = useMemo(() => {
+    if (!withdrawToWallet) return REMOVE_ONLY_STEPS
+    return useBatch ? BATCH_STEPS : SEQUENTIAL_STEPS
+  }, [withdrawToWallet, useBatch])
 
   const stepOrder = useMemo(() => steps.map(s => s.id), [steps])
 

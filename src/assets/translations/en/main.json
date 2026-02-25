@@ -2436,7 +2436,19 @@
     "availableLiquidityTooltip": "Total value of assets currently available to borrow across all pools.",
     "totalBorrowed": "Total Borrowed",
     "totalBorrowedTooltip": "Total value of outstanding borrows across all Chainflip lending pools.",
-    "pool": "Pool",
+    "pool": {
+      "depositFirst": "Deposit funds to Chainflip first",
+      "noFreeBalance": "No free balance available",
+      "noSupplyPosition": "No supply position to withdraw",
+      "noCollateral": "No collateral deposited",
+      "noLoans": "No active loans",
+      "supply": "Supply",
+      "withdrawSupply": "Withdraw Supply",
+      "depositToChainflip": "Deposit",
+      "withdrawFromChainflip": "Withdraw from Chainflip",
+      "freeBalance": "Free Balance",
+      "walletBalance": "Wallet Balance"
+    },
     "supplyApy": "Supply APY",
     "supplyApyTooltip": "Annual percentage yield earned by supplying assets to this pool.",
     "borrowRate": "Borrow Rate",
@@ -2556,6 +2568,31 @@
         "signingRemove": "Removing from pool",
         "signingEgress": "Withdrawing to wallet",
         "confirming": "Confirming withdrawal"
+      },
+      "alsoWithdrawToWallet": "Also withdraw to wallet",
+      "freeBalanceExplainer": "By default, funds are withdrawn to your free balance on the Chainflip State Chain. Check the box below to also withdraw them back to your wallet.",
+      "fullWithdrawalOnlyTooltip": "Your position is below the minimum required for partial withdrawal. Only full withdrawal is available.",
+      "partialBelowMinimum": "Minimum withdrawal is %{amount}",
+      "remainingBelowMinimum": "Remaining position must be at least %{amount} or withdraw the full amount",
+      "destinationAddress": "Destination address"
+    },
+    "withdrawFromChainflip": {
+      "title": "Withdraw from Chainflip",
+      "amount": "Amount",
+      "destination": "Destination Address",
+      "available": "Available Free Balance",
+      "confirmAndWithdraw": "Confirm Withdrawal",
+      "confirmTitle": "Confirm Withdrawal",
+      "confirmDescription": "Withdraw %{amount} %{symbol} from your Chainflip free balance to your wallet",
+      "errorTitle": "Withdrawal Failed",
+      "errorDescription": "There was an error processing your withdrawal. Please try again.",
+      "executingTitle": "Processing Withdrawal",
+      "executingDescription": "Your withdrawal is being processed on the Chainflip State Chain",
+      "successTitle": "Withdrawal Submitted",
+      "successDescription": "Your withdrawal has been submitted and will arrive in your wallet shortly",
+      "steps": {
+        "signing": "Signing withdrawal transaction",
+        "confirming": "Confirming withdrawal"
       }
     },
     "repay": {
@@ -2587,7 +2624,33 @@
       "safe": "Safe",
       "warning": "Warning",
       "danger": "Danger"
-    }
+    },
+    "egress": {
+      "title": "Withdraw from Chainflip",
+      "amount": "Amount",
+      "destination": "Destination Address",
+      "destinationPlaceholder": "Enter destination address",
+      "available": "Available Free Balance",
+      "confirmAndWithdraw": "Confirm Withdrawal",
+      "confirmTitle": "Confirm Withdrawal",
+      "confirmDescription": "Withdraw %{amount} %{asset} from your Chainflip free balance to your wallet",
+      "errorTitle": "Withdrawal Failed",
+      "errorDescription": "There was an error processing your withdrawal. Please try again.",
+      "executingTitle": "Processing Withdrawal",
+      "executingDescription": "Your withdrawal is being processed on the Chainflip State Chain",
+      "successTitle": "Withdrawal Submitted",
+      "successDescription": "Your withdrawal of %{asset} has been submitted and will arrive in your wallet shortly",
+      "withdrawn": "Withdrawn",
+      "steps": {
+        "signing": "Signing withdrawal transaction",
+        "confirming": "Confirming withdrawal"
+      },
+      "transactionId": "Transaction ID"
+    },
+    "borrowRateTooltip": "The current annual interest rate for borrowing from this pool",
+    "originationFeeTooltip": "One-time fee charged when creating or expanding a loan",
+    "liquidationFeeTooltip": "Fee charged during liquidation of collateral",
+    "suppliedBalance": "Supplied"
   },
   "chart": {
     "interval": {

@@ -2,7 +2,7 @@ import { etherealChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { ethereal, unfreeze } from '@shapeshiftoss/utils'
 
-export const getAssets = async (): Promise<Asset[]> => {
+export const getAssets = (): Asset[] => {
   return [unfreeze(ethereal)]
 }
 

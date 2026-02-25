@@ -42,7 +42,7 @@ export class QuoteStore {
   private txHashIndex = new Map<string, string>()
   private cleanupInterval: ReturnType<typeof setInterval>
 
-  static readonly QUOTE_TTL_MS = 15 * 60 * 1000
+  static readonly QUOTE_TTL_MS = 2 * 60 * 1000
   static readonly EXECUTION_TTL_MS = 60 * 60 * 1000
   static readonly CLEANUP_INTERVAL_MS = 60 * 1000
   static readonly MAX_QUOTES = 10000

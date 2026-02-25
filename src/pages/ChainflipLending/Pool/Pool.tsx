@@ -103,15 +103,34 @@ const PoolHeader: React.FC<PoolHeaderProps> = ({ assetId }) => {
 
 type StatBoxProps = {
   label: string
+  tooltip?: string
   children: React.ReactNode
   isLoading: boolean
 }
 
-const StatBox: React.FC<StatBoxProps> = ({ label, children, isLoading }) => (
+const StatBox: React.FC<StatBoxProps> = ({ label, tooltip, children, isLoading }) => (
   <Box>
-    <RawText fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
-      {label}
-    </RawText>
+    {tooltip ? (
+      <Tooltip label={tooltip} hasArrow placement='top'>
+        <RawText
+          fontSize='xs'
+          color='text.subtle'
+          textTransform='uppercase'
+          mb={1}
+          cursor='help'
+          borderBottomWidth={1}
+          borderBottomStyle='dashed'
+          borderBottomColor='text.subtle'
+          display='inline-block'
+        >
+          {label}
+        </RawText>
+      </Tooltip>
+    ) : (
+      <RawText fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
+        {label}
+      </RawText>
+    )}
     <Skeleton isLoaded={!isLoading}>{children}</Skeleton>
   </Box>
 )
@@ -269,7 +288,11 @@ export const Pool = () => {
                 {translate('chainflipLending.supplyStats')}
               </Heading>
               <SimpleGrid columns={{ base: 2, md: 3 }} spacing={4}>
-                <StatBox label={translate('chainflipLending.totalSupplied')} isLoading={isLoading}>
+                <StatBox
+                  label={translate('chainflipLending.totalSupplied')}
+                  tooltip={translate('chainflipLending.totalSuppliedTooltip')}
+                  isLoading={isLoading}
+                >
                   <Amount.Fiat
                     value={poolData?.totalAmountFiat ?? '0'}
                     fontSize='sm'
@@ -282,7 +305,11 @@ export const Pool = () => {
                     color='text.subtle'
                   />
                 </StatBox>
-                <StatBox label={translate('chainflipLending.supplyApy')} isLoading={isLoading}>
+                <StatBox
+                  label={translate('chainflipLending.supplyApy')}
+                  tooltip={translate('chainflipLending.supplyApyTooltip')}
+                  isLoading={isLoading}
+                >
                   <Amount.Percent
                     value={poolData?.supplyApy ?? '0'}
                     fontSize='sm'
@@ -292,6 +319,7 @@ export const Pool = () => {
                 </StatBox>
                 <StatBox
                   label={translate('chainflipLending.availableLiquidity')}
+                  tooltip={translate('chainflipLending.availableLiquidityTooltip')}
                   isLoading={isLoading}
                 >
                   <Amount.Fiat
@@ -310,23 +338,43 @@ export const Pool = () => {
                 {translate('chainflipLending.borrowStats')}
               </Heading>
               <SimpleGrid columns={{ base: 2, md: 3 }} spacing={4}>
-                <StatBox label={translate('chainflipLending.totalBorrowed')} isLoading={isLoading}>
+                <StatBox
+                  label={translate('chainflipLending.totalBorrowed')}
+                  tooltip={translate('chainflipLending.totalBorrowedTooltip')}
+                  isLoading={isLoading}
+                >
                   <Amount.Fiat value={totalBorrowedFiat} fontSize='sm' fontWeight='bold' />
                 </StatBox>
-                <StatBox label={translate('chainflipLending.borrowRate')} isLoading={isLoading}>
+                <StatBox
+                  label={translate('chainflipLending.borrowRate')}
+                  tooltip={translate('chainflipLending.borrowRateTooltip')}
+                  isLoading={isLoading}
+                >
                   <Amount.Percent
                     value={poolData?.borrowRate ?? '0'}
                     fontSize='sm'
                     fontWeight='bold'
                   />
                 </StatBox>
-                <StatBox label={translate('chainflipLending.utilisation')} isLoading={isLoading}>
+                <StatBox
+                  label={translate('chainflipLending.utilisation')}
+                  tooltip={translate('chainflipLending.utilisationTooltip')}
+                  isLoading={isLoading}
+                >
                   <Amount.Percent value={utilisationPercent} fontSize='sm' fontWeight='bold' />
                 </StatBox>
-                <StatBox label={translate('chainflipLending.originationFee')} isLoading={isLoading}>
+                <StatBox
+                  label={translate('chainflipLending.originationFee')}
+                  tooltip={translate('chainflipLending.originationFeeTooltip')}
+                  isLoading={isLoading}
+                >
                   <Amount.Percent value={originationFee} fontSize='sm' fontWeight='bold' />
                 </StatBox>
-                <StatBox label={translate('chainflipLending.liquidationFee')} isLoading={isLoading}>
+                <StatBox
+                  label={translate('chainflipLending.liquidationFee')}
+                  tooltip={translate('chainflipLending.liquidationFeeTooltip')}
+                  isLoading={isLoading}
+                >
                   <Amount.Percent value={liquidationFee} fontSize='sm' fontWeight='bold' />
                 </StatBox>
               </SimpleGrid>

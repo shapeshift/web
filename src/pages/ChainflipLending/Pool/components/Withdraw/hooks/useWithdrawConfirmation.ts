@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { useEffect, useMemo } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { WithdrawMachineCtx } from '../WithdrawMachineContext'
 
@@ -8,8 +8,10 @@ import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLe
 import { reactQueries } from '@/react-queries'
 
 const POLL_INTERVAL_MS = 6_000
+const MAX_POLL_ATTEMPTS = 20
 
 export const useWithdrawConfirmation = () => {
+  const queryClient = useQueryClient()
   const actorRef = WithdrawMachineCtx.useActorRef()
   const stateValue = WithdrawMachineCtx.useSelector(s => s.value)
   const { assetId, supplyPositionCryptoBaseUnit } = WithdrawMachineCtx.useSelector(s => ({
@@ -19,6 +21,7 @@ export const useWithdrawConfirmation = () => {
   const { scAccount } = useChainflipLendingAccount()
 
   const isConfirming = stateValue === 'confirming'
+  const pollCountRef = useRef(0)
 
   const { data: accountInfo } = useQuery({
     ...reactQueries.chainflipLending.accountInfo(scAccount ?? ''),
@@ -28,8 +31,27 @@ export const useWithdrawConfirmation = () => {
 
   const cfAsset = useMemo(() => CHAINFLIP_LENDING_ASSET_BY_ASSET_ID[assetId], [assetId])
 
+  const invalidateQueries = useCallback(async () => {
+    if (!scAccount) return
+    await Promise.all([
+      queryClient.invalidateQueries(reactQueries.chainflipLending.freeBalances(scAccount)),
+      queryClient.invalidateQueries(reactQueries.chainflipLending.accountInfo(scAccount)),
+    ])
+  }, [queryClient, scAccount])
+
   useEffect(() => {
-    if (!isConfirming || !accountInfo?.lending_positions || !cfAsset) return
+    if (!isConfirming) {
+      pollCountRef.current = 0
+      return
+    }
+
+    if (!accountInfo?.lending_positions || !cfAsset) return
+
+    pollCountRef.current += 1
+    if (pollCountRef.current > MAX_POLL_ATTEMPTS) {
+      actorRef.send({ type: 'WITHDRAW_TIMEOUT', error: 'Confirmation timed out' })
+      return
+    }
 
     const matchingPosition = accountInfo.lending_positions.find(
       p => p.chain === cfAsset.chain && p.asset === cfAsset.asset,
@@ -53,7 +75,15 @@ export const useWithdrawConfirmation = () => {
     })()
 
     if (currentPositionCryptoBaseUnit < previousPositionCryptoBaseUnit) {
+      void invalidateQueries()
       actorRef.send({ type: 'WITHDRAW_CONFIRMED' })
     }
-  }, [isConfirming, accountInfo, cfAsset, supplyPositionCryptoBaseUnit, actorRef])
+  }, [
+    isConfirming,
+    accountInfo,
+    cfAsset,
+    supplyPositionCryptoBaseUnit,
+    actorRef,
+    invalidateQueries,
+  ])
 }

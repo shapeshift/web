@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { useEffect, useMemo } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { DepositMachineCtx } from '../DepositMachineContext'
 
@@ -8,8 +8,10 @@ import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLe
 import { reactQueries } from '@/react-queries'
 
 const POLL_INTERVAL_MS = 6_000
+const MAX_POLL_ATTEMPTS = 20
 
 export const useDepositConfirmation = () => {
+  const queryClient = useQueryClient()
   const actorRef = DepositMachineCtx.useActorRef()
   const stateValue = DepositMachineCtx.useSelector(s => s.value)
   const { assetId, initialFreeBalanceCryptoBaseUnit } = DepositMachineCtx.useSelector(s => ({
@@ -19,6 +21,7 @@ export const useDepositConfirmation = () => {
   const { scAccount } = useChainflipLendingAccount()
 
   const isConfirming = stateValue === 'confirming'
+  const pollCountRef = useRef(0)
 
   const { data: freeBalances } = useQuery({
     ...reactQueries.chainflipLending.freeBalances(scAccount ?? ''),
@@ -28,18 +31,49 @@ export const useDepositConfirmation = () => {
 
   const cfAsset = useMemo(() => CHAINFLIP_LENDING_ASSET_BY_ASSET_ID[assetId], [assetId])
 
+  const invalidateQueries = useCallback(async () => {
+    if (!scAccount) return
+    await Promise.all([
+      queryClient.invalidateQueries(reactQueries.chainflipLending.freeBalances(scAccount)),
+      queryClient.invalidateQueries(reactQueries.chainflipLending.accountInfo(scAccount)),
+    ])
+  }, [queryClient, scAccount])
+
   useEffect(() => {
-    if (!isConfirming || !freeBalances || !Array.isArray(freeBalances) || !cfAsset) return
+    if (!isConfirming) {
+      pollCountRef.current = 0
+      return
+    }
+
+    if (!freeBalances || !Array.isArray(freeBalances) || !cfAsset) return
+
+    pollCountRef.current += 1
+    if (pollCountRef.current > MAX_POLL_ATTEMPTS) {
+      actorRef.send({ type: 'CONFIRMATION_ERROR', error: 'Confirmation timed out' })
+      return
+    }
 
     const matchingBalance = freeBalances.find(
       b => b.asset.chain === cfAsset.chain && b.asset.asset === cfAsset.asset,
     )
 
-    const currentBalanceCryptoBaseUnit = BigInt(matchingBalance?.balance || '0')
-    const previousBalanceCryptoBaseUnit = BigInt(initialFreeBalanceCryptoBaseUnit || '0')
+    try {
+      const currentBalanceCryptoBaseUnit = BigInt(matchingBalance?.balance || '0')
+      const previousBalanceCryptoBaseUnit = BigInt(initialFreeBalanceCryptoBaseUnit || '0')
 
-    if (currentBalanceCryptoBaseUnit > previousBalanceCryptoBaseUnit) {
-      actorRef.send({ type: 'CONFIRMED' })
+      if (currentBalanceCryptoBaseUnit > previousBalanceCryptoBaseUnit) {
+        void invalidateQueries()
+        actorRef.send({ type: 'CONFIRMED' })
+      }
+    } catch {
+      // keep polling
     }
-  }, [isConfirming, freeBalances, cfAsset, initialFreeBalanceCryptoBaseUnit, actorRef])
+  }, [
+    isConfirming,
+    freeBalances,
+    cfAsset,
+    initialFreeBalanceCryptoBaseUnit,
+    actorRef,
+    invalidateQueries,
+  ])
 }

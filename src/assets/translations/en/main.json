@@ -2517,7 +2517,13 @@
         "signingRemove": "Removing from pool",
         "signingEgress": "Withdrawing to wallet",
         "confirming": "Confirming withdrawal"
-      }
+      },
+      "alsoWithdrawToWallet": "Also withdraw to wallet",
+      "freeBalanceExplainer": "By default, funds are withdrawn to your free balance on the Chainflip State Chain. Check the box below to also withdraw them back to your wallet.",
+      "fullWithdrawalOnlyTooltip": "Your position is below the minimum required for partial withdrawal. Only full withdrawal is available.",
+      "partialBelowMinimum": "Minimum withdrawal is %{amount}",
+      "remainingBelowMinimum": "Remaining position must be at least %{amount} or withdraw the full amount",
+      "destinationAddress": "Destination address"
     },
     "withdrawFromChainflip": {
       "title": "Withdraw from Chainflip",
@@ -2558,7 +2564,11 @@
         "signing": "Signing withdrawal transaction",
         "confirming": "Confirming withdrawal"
       }
-    }
+    },
+    "borrowRateTooltip": "The current annual interest rate for borrowing from this pool",
+    "originationFeeTooltip": "One-time fee charged when creating or expanding a loan",
+    "liquidationFeeTooltip": "Fee charged during liquidation of collateral",
+    "suppliedBalance": "Supplied"
   },
   "chart": {
     "interval": {

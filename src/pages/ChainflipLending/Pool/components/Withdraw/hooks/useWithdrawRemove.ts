@@ -11,14 +11,21 @@ import { useSignChainflipCall } from '@/pages/ChainflipLending/hooks/useSignChai
 export const useWithdrawRemove = () => {
   const actorRef = WithdrawMachineCtx.useActorRef()
   const stateValue = WithdrawMachineCtx.useSelector(s => s.value)
-  const { assetId, withdrawAmountCryptoBaseUnit, lastUsedNonce, isNativeWallet, stepConfirmed } =
-    WithdrawMachineCtx.useSelector(s => ({
-      assetId: s.context.assetId,
-      withdrawAmountCryptoBaseUnit: s.context.withdrawAmountCryptoBaseUnit,
-      lastUsedNonce: s.context.lastUsedNonce,
-      isNativeWallet: s.context.isNativeWallet,
-      stepConfirmed: s.context.stepConfirmed,
-    }))
+  const {
+    assetId,
+    withdrawAmountCryptoBaseUnit,
+    isFullWithdrawal,
+    lastUsedNonce,
+    isNativeWallet,
+    stepConfirmed,
+  } = WithdrawMachineCtx.useSelector(s => ({
+    assetId: s.context.assetId,
+    withdrawAmountCryptoBaseUnit: s.context.withdrawAmountCryptoBaseUnit,
+    isFullWithdrawal: s.context.isFullWithdrawal,
+    lastUsedNonce: s.context.lastUsedNonce,
+    isNativeWallet: s.context.isNativeWallet,
+    stepConfirmed: s.context.stepConfirmed,
+  }))
   const wallet = useWallet().state.wallet
   const { accountId, scAccount } = useChainflipLendingAccount()
   const { signAndSubmit } = useSignChainflipCall()
@@ -38,7 +45,10 @@ export const useWithdrawRemove = () => {
         if (!scAccount) throw new Error('State Chain account not derived')
         if (!cfAsset) throw new Error(`Unsupported asset: ${assetId}`)
 
-        const encodedCall = encodeRemoveLenderFunds(cfAsset, withdrawAmountCryptoBaseUnit)
+        const encodedCall = encodeRemoveLenderFunds(
+          cfAsset,
+          isFullWithdrawal ? null : withdrawAmountCryptoBaseUnit,
+        )
         const nonceOrAccount = lastUsedNonce !== undefined ? lastUsedNonce + 1 : scAccount
 
         const { txHash, nonce } = await signAndSubmit({
@@ -68,6 +78,7 @@ export const useWithdrawRemove = () => {
     withdrawAmountCryptoBaseUnit,
     lastUsedNonce,
     signAndSubmit,
+    isFullWithdrawal,
     isNativeWallet,
     stepConfirmed,
   ])

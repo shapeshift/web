@@ -16,6 +16,8 @@ type WithdrawMachineContext = {
   withdrawAmountCryptoBaseUnit: string
   supplyPositionCryptoBaseUnit: string
   withdrawAddress: string
+  withdrawToWallet: boolean
+  isFullWithdrawal: boolean
   stepConfirmed: boolean
   txHashes: WithdrawTxHashes
   lastUsedNonce: number | undefined
@@ -35,6 +37,8 @@ type WithdrawMachineEvent =
       withdrawAmountCryptoPrecision: string
       withdrawAmountCryptoBaseUnit: string
       withdrawAddress: string
+      withdrawToWallet: boolean
+      isFullWithdrawal: boolean
     }
   | { type: 'CONFIRM' }
   | { type: 'BACK' }
@@ -62,7 +66,8 @@ export const withdrawMachine = setup({
     tags: {} as 'executing',
   },
   guards: {
-    useBatch: ({ context }) => context.useBatch,
+    useBatch: ({ context }) => context.withdrawToWallet && context.useBatch,
+    withdrawToWallet: ({ context }) => context.withdrawToWallet,
   },
   actions: {
     assignSubmit: assign({
@@ -77,6 +82,18 @@ export const withdrawMachine = setup({
       withdrawAddress: ({ event }) => {
         assertEvent(event, 'SUBMIT')
         return event.withdrawAddress
+      },
+      withdrawToWallet: ({ event }) => {
+        assertEvent(event, 'SUBMIT')
+        return event.withdrawToWallet
+      },
+      isFullWithdrawal: ({ event }) => {
+        assertEvent(event, 'SUBMIT')
+        return event.isFullWithdrawal
+      },
+      useBatch: ({ event }) => {
+        assertEvent(event, 'SUBMIT')
+        return event.withdrawToWallet
       },
     }),
     syncSupplyPosition: assign({
@@ -129,11 +146,13 @@ export const withdrawMachine = setup({
       withdrawAmountCryptoPrecision: '',
       withdrawAmountCryptoBaseUnit: '0',
       withdrawAddress: '',
+      withdrawToWallet: false,
+      isFullWithdrawal: false,
       lastUsedNonce: undefined,
       txHashes: {},
       error: null,
       errorStep: null,
-      useBatch: true,
+      useBatch: false,
     }),
   },
 }).createMachine({
@@ -146,12 +165,14 @@ export const withdrawMachine = setup({
     withdrawAmountCryptoBaseUnit: '0',
     supplyPositionCryptoBaseUnit: '0',
     withdrawAddress: '',
+    withdrawToWallet: false,
+    isFullWithdrawal: false,
     stepConfirmed: false,
     txHashes: {},
     lastUsedNonce: undefined,
     error: null,
     errorStep: null,
-    useBatch: true,
+    useBatch: false,
   }),
   on: {
     SYNC_SUPPLY_POSITION: { actions: 'syncSupplyPosition' },
@@ -193,7 +214,10 @@ export const withdrawMachine = setup({
       on: {
         CONFIRM_STEP: { actions: 'confirmStep' },
         REMOVE_BROADCASTED: { actions: 'assignRemoveTx' },
-        REMOVE_SUCCESS: { target: 'signing_egress' },
+        REMOVE_SUCCESS: [
+          { target: 'signing_egress', guard: 'withdrawToWallet' },
+          { target: 'confirming' },
+        ],
         REMOVE_ERROR: {
           target: 'error',
           actions: ['assignError', assign({ errorStep: 'signing_remove' as WithdrawStep })],

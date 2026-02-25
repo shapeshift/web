@@ -127,12 +127,11 @@ export const DepositInput = ({ assetId }: DepositInputProps) => {
     [walletSupportsEth, walletSupportsAssetChain],
   )
 
-  // TODO: re-enable isBelowMinimum check after testing
   const isSubmitDisabled = useMemo(() => {
     const isZero = bnOrZero(depositAmountCryptoPrecision).isZero()
     const exceedsBalance = bnOrZero(depositAmountCryptoPrecision).gt(availableCryptoPrecision)
-    return isZero || exceedsBalance
-  }, [depositAmountCryptoPrecision, availableCryptoPrecision])
+    return isZero || exceedsBalance || isBelowMinimum
+  }, [depositAmountCryptoPrecision, availableCryptoPrecision, isBelowMinimum])
 
   if (!asset) return null
 

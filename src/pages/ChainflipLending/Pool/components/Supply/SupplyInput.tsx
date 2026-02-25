@@ -48,7 +48,7 @@ export const SupplyInput = ({ assetId }: SupplyInputProps) => {
     [freeBalanceCryptoBaseUnit, asset?.precision],
   )
 
-  const { minSupply } = useChainflipMinimumSupply(assetId)
+  const { minSupply, isLoading: isMinSupplyLoading } = useChainflipMinimumSupply(assetId)
 
   const isBelowMinimum = useMemo(() => {
     if (!minSupply) return false
@@ -83,13 +83,14 @@ export const SupplyInput = ({ assetId }: SupplyInputProps) => {
     })
   }, [actorRef, inputValue, asset])
 
-  // TODO: re-enable isBelowMinimum check after testing
   const isSubmitDisabled = useMemo(
     () =>
+      isMinSupplyLoading ||
       bnOrZero(inputValue).isZero() ||
       bnOrZero(inputValue).gt(availableCryptoPrecision) ||
+      isBelowMinimum ||
       !hasFreeBalance,
-    [inputValue, availableCryptoPrecision, hasFreeBalance],
+    [isMinSupplyLoading, inputValue, availableCryptoPrecision, isBelowMinimum, hasFreeBalance],
   )
 
   if (!asset) return null

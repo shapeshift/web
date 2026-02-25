@@ -6,10 +6,9 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET } from '@/lib/chainflip/constants'
 import type { ChainflipAssetSymbol, ChainflipLoanAccount } from '@/lib/chainflip/types'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
+import { useChainflipOraclePrices } from '@/pages/ChainflipLending/hooks/useChainflipOraclePrices'
 import { reactQueries } from '@/react-queries'
-import type { ReduxState } from '@/state/reducer'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
-import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
 export type CollateralWithFiat = {
@@ -45,25 +44,9 @@ const hexToBaseUnit = (hex: string): string => {
 const baseUnitToPrecision = (baseUnit: string, precision: number): string =>
   bnOrZero(baseUnit).div(bnOrZero(10).pow(precision)).toFixed()
 
-const selectAssetFiatData = (
-  state: ReduxState,
-  assetSymbol: ChainflipAssetSymbol,
-): { assetId: AssetId | undefined; precision: number; price: string } => {
-  const assetId = CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET[assetSymbol]
-  if (!assetId) return { assetId: undefined, precision: 0, price: '0' }
-
-  const asset = selectAssetById(state, assetId)
-  const marketData = selectMarketDataByAssetIdUserCurrency(state, assetId)
-
-  return {
-    assetId,
-    precision: asset?.precision ?? 0,
-    price: marketData?.price ?? '0',
-  }
-}
-
 export const useChainflipLoanAccount = () => {
   const { scAccount } = useChainflipLendingAccount()
+  const { oraclePriceByAssetId } = useChainflipOraclePrices()
 
   const { data: loanAccountsData, isLoading } = useQuery({
     ...reactQueries.chainflipLending.loanAccounts(scAccount ?? ''),
@@ -79,21 +62,32 @@ export const useChainflipLoanAccount = () => {
   const rawCollateral = useMemo(() => loanAccount?.collateral ?? [], [loanAccount?.collateral])
   const rawLoans = useMemo(() => loanAccount?.loans ?? [], [loanAccount?.loans])
 
-  const collateralFiatData = useAppSelector(state =>
-    rawCollateral.map(c => selectAssetFiatData(state, c.asset as ChainflipAssetSymbol)),
+  const collateralAssetData = useAppSelector(state =>
+    rawCollateral.map(c => {
+      const assetId = CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET[c.asset as ChainflipAssetSymbol]
+      if (!assetId) return { assetId: undefined, precision: 0 }
+      const asset = selectAssetById(state, assetId)
+      return { assetId, precision: asset?.precision ?? 0 }
+    }),
   )
 
-  const loanFiatData = useAppSelector(state =>
-    rawLoans.map(l => selectAssetFiatData(state, l.asset.asset as ChainflipAssetSymbol)),
+  const loanAssetData = useAppSelector(state =>
+    rawLoans.map(l => {
+      const assetId = CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET[l.asset.asset as ChainflipAssetSymbol]
+      if (!assetId) return { assetId: undefined, precision: 0 }
+      const asset = selectAssetById(state, assetId)
+      return { assetId, precision: asset?.precision ?? 0 }
+    }),
   )
 
   const collateralWithFiat: CollateralWithFiat[] = useMemo(() => {
     if (!rawCollateral.length) return []
 
     return rawCollateral.reduce<CollateralWithFiat[]>((acc, collateral, i) => {
-      const { assetId, precision, price } = collateralFiatData[i]
+      const { assetId, precision } = collateralAssetData[i]
       if (!assetId) return acc
 
+      const price = oraclePriceByAssetId[assetId] ?? '0'
       const amountBaseUnit = hexToBaseUnit(collateral.amount)
       const amountCrypto = baseUnitToPrecision(amountBaseUnit, precision)
       const amountFiat = bnOrZero(amountCrypto).times(price).toFixed(2)
@@ -109,15 +103,16 @@ export const useChainflipLoanAccount = () => {
 
       return acc
     }, [])
-  }, [rawCollateral, collateralFiatData])
+  }, [rawCollateral, collateralAssetData, oraclePriceByAssetId])
 
   const loansWithFiat: LoanWithFiat[] = useMemo(() => {
     if (!rawLoans.length) return []
 
     return rawLoans.reduce<LoanWithFiat[]>((acc, loan, i) => {
-      const { assetId, precision, price } = loanFiatData[i]
+      const { assetId, precision } = loanAssetData[i]
       if (!assetId) return acc
 
+      const price = oraclePriceByAssetId[assetId] ?? '0'
       const principalBaseUnit = hexToBaseUnit(loan.principal_amount)
       const principalCrypto = baseUnitToPrecision(principalBaseUnit, precision)
       const principalFiat = bnOrZero(principalCrypto).times(price).toFixed(2)
@@ -135,7 +130,7 @@ export const useChainflipLoanAccount = () => {
 
       return acc
     }, [])
-  }, [rawLoans, loanFiatData])
+  }, [rawLoans, loanAssetData, oraclePriceByAssetId])
 
   const totalCollateralFiat = useMemo(
     () => collateralWithFiat.reduce((sum, c) => sum.plus(c.amountFiat), bnOrZero(0)).toFixed(2),

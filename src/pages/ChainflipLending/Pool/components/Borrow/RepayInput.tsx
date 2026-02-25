@@ -16,6 +16,7 @@ import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { useChainflipBorrowMinimums } from '@/pages/ChainflipLending/hooks/useChainflipBorrowMinimums'
+import { useChainflipOraclePrice } from '@/pages/ChainflipLending/hooks/useChainflipOraclePrices'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -31,6 +32,8 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
   } = useLocaleFormatter()
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const { oraclePrice } = useChainflipOraclePrice(assetId)
+  const assetPrice = useMemo(() => bnOrZero(oraclePrice), [oraclePrice])
 
   const actorRef = RepayMachineCtx.useActorRef()
   const freeBalanceCryptoBaseUnit = RepayMachineCtx.useSelector(
@@ -72,6 +75,19 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
     () => bnOrZero(outstandingDebtCryptoBaseUnit).gt(0),
     [outstandingDebtCryptoBaseUnit],
   )
+
+  const canAffordFullRepayment = useMemo(
+    () => bnOrZero(availableCryptoPrecision).gte(outstandingDebtCryptoPrecision),
+    [availableCryptoPrecision, outstandingDebtCryptoPrecision],
+  )
+
+  const inputFiat = useMemo(() => bnOrZero(inputValue).times(assetPrice), [inputValue, assetPrice])
+
+  const isBelowMinimum = useMemo(() => {
+    if (isFullRepayment) return false
+    if (!minimumUpdateLoanAmountUsd) return false
+    return inputFiat.gt(0) && inputFiat.lt(minimumUpdateLoanAmountUsd)
+  }, [isFullRepayment, inputFiat, minimumUpdateLoanAmountUsd])
 
   const handleInputChange = useCallback((values: NumberFormatValues) => {
     setInputValue(values.value)
@@ -119,10 +135,18 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
 
   const isSubmitDisabled = useMemo(() => {
     if (!hasDebt || !hasFreeBalance) return true
-    if (isFullRepayment) return false
+    if (isFullRepayment) return !canAffordFullRepayment
     const amount = bnOrZero(inputValue)
-    return amount.isZero() || amount.gt(availableCryptoPrecision)
-  }, [inputValue, isFullRepayment, availableCryptoPrecision, hasFreeBalance, hasDebt])
+    return amount.isZero() || amount.gt(availableCryptoPrecision) || isBelowMinimum
+  }, [
+    inputValue,
+    isFullRepayment,
+    availableCryptoPrecision,
+    hasFreeBalance,
+    hasDebt,
+    canAffordFullRepayment,
+    isBelowMinimum,
+  ])
 
   if (!asset) return null
 
@@ -161,6 +185,12 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
             />
           </Flex>
 
+          {isFullRepayment && !canAffordFullRepayment && (
+            <RawText fontSize='xs' color='red.500'>
+              {translate('chainflipLending.repay.insufficientBalance')}
+            </RawText>
+          )}
+
           {!isFullRepayment && (
             <Stack spacing={1}>
               <RawText fontSize='sm' color='text.subtle'>
@@ -188,13 +218,16 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
                   padding: '0.5rem 0',
                 }}
               />
+              {!assetPrice.isZero() && bnOrZero(inputValue).gt(0) && (
+                <Amount.Fiat value={inputFiat.toFixed(2)} fontSize='sm' color='text.subtle' />
+              )}
             </Stack>
           )}
 
           <Flex justifyContent='space-between' alignItems='center'>
-            <HelperTooltip label={translate('chainflipLending.supply.availableTooltip')}>
+            <HelperTooltip label={translate('chainflipLending.repay.availableTooltip')}>
               <RawText fontSize='sm' color='text.subtle'>
-                {translate('chainflipLending.supply.available')}
+                {translate('chainflipLending.repay.availableBalance')}
               </RawText>
             </HelperTooltip>
             <Flex alignItems='center' gap={2}>
@@ -218,9 +251,9 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
             </Flex>
           </Flex>
 
-          {!isFullRepayment && minimumUpdateLoanAmountUsd && (
-            <RawText fontSize='xs' color='text.subtle'>
-              {translate('chainflipLending.supply.minimumSupply', {
+          {!isFullRepayment && isBelowMinimum && minimumUpdateLoanAmountUsd && (
+            <RawText fontSize='xs' color='red.500'>
+              {translate('chainflipLending.repay.minimumRepayment', {
                 amount: `$${minimumUpdateLoanAmountUsd}`,
               })}
             </RawText>
@@ -228,7 +261,7 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
 
           {!hasFreeBalance && (
             <RawText fontSize='xs' color='yellow.500'>
-              {translate('chainflipLending.supply.noFreeBalance')}
+              {translate('chainflipLending.repay.noFreeBalance')}
             </RawText>
           )}
         </VStack>

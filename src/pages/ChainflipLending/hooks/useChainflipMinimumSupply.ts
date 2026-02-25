@@ -3,9 +3,8 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { useChainflipOraclePrice } from '@/pages/ChainflipLending/hooks/useChainflipOraclePrices'
 import { reactQueries } from '@/react-queries'
-import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
-import { useAppSelector } from '@/state/store'
 
 const USD_PRECISION = 6
 const TEN_MINUTES = 10 * 60 * 1000
@@ -16,7 +15,7 @@ export const useChainflipMinimumSupply = (assetId: AssetId) => {
     staleTime: TEN_MINUTES,
   })
 
-  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
+  const { oraclePrice } = useChainflipOraclePrice(assetId)
 
   return useMemo(() => {
     if (!lendingConfig) return { minSupply: undefined, minSupplyUsd: undefined, isLoading }
@@ -27,17 +26,23 @@ export const useChainflipMinimumSupply = (assetId: AssetId) => {
     try {
       const minBaseUnit = BigInt(minHex).toString()
       const minUsd = bnOrZero(minBaseUnit).div(bnOrZero(10).pow(USD_PRECISION)).toFixed()
-      const price = bnOrZero(marketData?.price)
+      const price = bnOrZero(oraclePrice)
 
       const minCrypto = price.gt(0) ? bnOrZero(minUsd).div(price).toFixed() : undefined
 
+      // TODO: rm monkey patch - override minimums for visual testing with small amounts
+      const patchedMinUsd = '0.1'
+      const patchedMinCrypto = price.gt(0)
+        ? bnOrZero(patchedMinUsd).div(price).toFixed()
+        : undefined
+
       return {
-        minSupply: minCrypto,
-        minSupplyUsd: minUsd,
+        minSupply: patchedMinCrypto ?? minCrypto,
+        minSupplyUsd: patchedMinUsd,
         isLoading,
       }
     } catch {
       return { minSupply: undefined, minSupplyUsd: undefined, isLoading }
     }
-  }, [lendingConfig, marketData?.price, isLoading])
+  }, [lendingConfig, oraclePrice, isLoading])
 }

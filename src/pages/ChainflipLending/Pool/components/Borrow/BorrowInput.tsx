@@ -7,6 +7,7 @@ import { NumericFormat } from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 
 import { BorrowMachineCtx } from './BorrowMachineContext'
+import { LtvGauge } from './LtvGauge'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -15,23 +16,16 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
-import { useChainflipAccount } from '@/pages/ChainflipLending/hooks/useChainflipAccount'
 import { useChainflipBorrowMinimums } from '@/pages/ChainflipLending/hooks/useChainflipBorrowMinimums'
+import { useChainflipLoanAccount } from '@/pages/ChainflipLending/hooks/useChainflipLoanAccount'
+import { useChainflipLtvThresholds } from '@/pages/ChainflipLending/hooks/useChainflipLtvThresholds'
+import { useChainflipOraclePrice } from '@/pages/ChainflipLending/hooks/useChainflipOraclePrices'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type BorrowInputProps = {
   assetId: AssetId
-}
-
-const MAX_LTV_BPS = 8000
-
-const ltvColorByBps = (bps: number): string => {
-  if (bps >= 7500) return 'red.500'
-  if (bps >= 5000) return 'yellow.500'
-  return 'green.500'
 }
 
 export const BorrowInput = ({ assetId }: BorrowInputProps) => {
@@ -41,62 +35,67 @@ export const BorrowInput = ({ assetId }: BorrowInputProps) => {
   } = useLocaleFormatter()
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const { oraclePrice } = useChainflipOraclePrice(assetId)
+  const assetPrice = useMemo(() => bnOrZero(oraclePrice), [oraclePrice])
 
   const actorRef = BorrowMachineCtx.useActorRef()
   const currentLtvBps = BorrowMachineCtx.useSelector(s => s.context.currentLtvBps)
 
-  const { freeBalances } = useChainflipAccount()
-  const cfAsset = useMemo(() => CHAINFLIP_LENDING_ASSET_BY_ASSET_ID[assetId], [assetId])
+  const { totalCollateralFiat, totalBorrowedFiat, loansWithFiat } = useChainflipLoanAccount()
+  const { thresholds } = useChainflipLtvThresholds()
+  const { minimumLoanAmountUsd, minimumUpdateLoanAmountUsd } = useChainflipBorrowMinimums()
 
-  const freeBalanceCryptoBaseUnit = useMemo(() => {
-    if (!freeBalances || !cfAsset) return '0'
-    const matching = freeBalances.find(
-      b => b.asset.chain === cfAsset.chain && b.asset.asset === cfAsset.asset,
-    )
-    return matching?.balance ?? '0'
-  }, [freeBalances, cfAsset])
+  const hasExistingLoans = useMemo(() => loansWithFiat.length > 0, [loansWithFiat])
+  const effectiveMinimumUsd = useMemo(
+    () => (hasExistingLoans ? minimumUpdateLoanAmountUsd : minimumLoanAmountUsd),
+    [hasExistingLoans, minimumUpdateLoanAmountUsd, minimumLoanAmountUsd],
+  )
 
   const [inputValue, setInputValue] = useState('')
 
-  const availableCryptoPrecision = useMemo(
-    () =>
-      BigAmount.fromBaseUnit({
-        value: freeBalanceCryptoBaseUnit,
-        precision: asset?.precision ?? 0,
-      }).toPrecision(),
-    [freeBalanceCryptoBaseUnit, asset?.precision],
-  )
+  const hasCollateral = useMemo(() => bnOrZero(totalCollateralFiat).gt(0), [totalCollateralFiat])
 
-  const { minimumLoanAmountUsd } = useChainflipBorrowMinimums()
+  const availableToBorrowCryptoPrecision = useMemo(() => {
+    if (!hasCollateral || assetPrice.isZero() || !thresholds) return '0'
+    const maxBorrowFiat = bnOrZero(totalCollateralFiat)
+      .times(thresholds.target)
+      .minus(totalBorrowedFiat)
+    if (maxBorrowFiat.lte(0)) return '0'
+    return maxBorrowFiat.div(assetPrice).toFixed(asset?.precision ?? 6)
+  }, [
+    hasCollateral,
+    assetPrice,
+    thresholds,
+    totalCollateralFiat,
+    totalBorrowedFiat,
+    asset?.precision,
+  ])
+
+  const inputFiat = useMemo(() => bnOrZero(inputValue).times(assetPrice), [inputValue, assetPrice])
 
   const isBelowMinimum = useMemo(() => {
-    if (!minimumLoanAmountUsd) return false
-    const amount = bnOrZero(inputValue)
-    return amount.gt(0) && amount.lt(minimumLoanAmountUsd)
-  }, [inputValue, minimumLoanAmountUsd])
+    if (!effectiveMinimumUsd) return false
+    return inputFiat.gt(0) && inputFiat.lt(effectiveMinimumUsd)
+  }, [inputFiat, effectiveMinimumUsd])
 
-  const hasFreeBalance = useMemo(
-    () => bnOrZero(freeBalanceCryptoBaseUnit).gt(0),
-    [freeBalanceCryptoBaseUnit],
-  )
-
-  const currentLtvPercent = useMemo(() => (currentLtvBps / 100).toFixed(1), [currentLtvBps])
+  const currentLtvDecimal = useMemo(() => currentLtvBps / 10000, [currentLtvBps])
 
   const projectedLtvBps = useMemo(() => {
-    const amount = bnOrZero(inputValue)
-    if (amount.isZero()) return currentLtvBps
-    return Math.min(currentLtvBps + Math.round(amount.toNumber() * 100), MAX_LTV_BPS)
-  }, [inputValue, currentLtvBps])
+    const totalCollateral = bnOrZero(totalCollateralFiat)
+    if (totalCollateral.isZero() || inputFiat.isZero()) return currentLtvBps
+    const projectedDecimal = bnOrZero(totalBorrowedFiat).plus(inputFiat).div(totalCollateral)
+    return Math.min(Math.round(projectedDecimal.times(10000).toNumber()), 10000)
+  }, [totalCollateralFiat, totalBorrowedFiat, inputFiat, currentLtvBps])
 
-  const projectedLtvPercent = useMemo(() => (projectedLtvBps / 100).toFixed(1), [projectedLtvBps])
+  const projectedLtvDecimal = useMemo(() => projectedLtvBps / 10000, [projectedLtvBps])
 
   const handleInputChange = useCallback((values: NumberFormatValues) => {
     setInputValue(values.value)
   }, [])
 
   const handleMaxClick = useCallback(() => {
-    setInputValue(availableCryptoPrecision)
-  }, [availableCryptoPrecision])
+    setInputValue(availableToBorrowCryptoPrecision)
+  }, [availableToBorrowCryptoPrecision])
 
   const handleSubmit = useCallback(() => {
     if (!asset) return
@@ -119,9 +118,9 @@ export const BorrowInput = ({ assetId }: BorrowInputProps) => {
     () =>
       bnOrZero(inputValue).isZero() ||
       isBelowMinimum ||
-      bnOrZero(inputValue).gt(availableCryptoPrecision) ||
-      !hasFreeBalance,
-    [inputValue, isBelowMinimum, availableCryptoPrecision, hasFreeBalance],
+      bnOrZero(inputValue).gt(availableToBorrowCryptoPrecision) ||
+      !hasCollateral,
+    [inputValue, isBelowMinimum, availableToBorrowCryptoPrecision, hasCollateral],
   )
 
   if (!asset) return null
@@ -163,6 +162,9 @@ export const BorrowInput = ({ assetId }: BorrowInputProps) => {
                 padding: '0.5rem 0',
               }}
             />
+            {!assetPrice.isZero() && bnOrZero(inputValue).gt(0) && (
+              <Amount.Fiat value={inputFiat.toFixed(2)} fontSize='sm' color='text.subtle' />
+            )}
           </Stack>
 
           <Flex justifyContent='space-between' alignItems='center'>
@@ -173,7 +175,7 @@ export const BorrowInput = ({ assetId }: BorrowInputProps) => {
             </HelperTooltip>
             <Flex alignItems='center' gap={2}>
               <Amount.Crypto
-                value={availableCryptoPrecision}
+                value={availableToBorrowCryptoPrecision}
                 symbol={asset.symbol}
                 fontSize='sm'
                 fontWeight='medium'
@@ -183,56 +185,29 @@ export const BorrowInput = ({ assetId }: BorrowInputProps) => {
                 variant='ghost'
                 colorScheme='blue'
                 onClick={handleMaxClick}
-                isDisabled={!hasFreeBalance}
+                isDisabled={!hasCollateral || bnOrZero(availableToBorrowCryptoPrecision).isZero()}
               >
                 {translate('modals.send.sendForm.max')}
               </Button>
             </Flex>
           </Flex>
 
-          <Flex justifyContent='space-between' alignItems='center'>
-            <RawText fontSize='sm' color='text.subtle'>
-              {translate('chainflipLending.borrow.currentLtv')}
-            </RawText>
-            <RawText fontSize='sm' fontWeight='medium' color={ltvColorByBps(currentLtvBps)}>
-              {currentLtvPercent}%
-            </RawText>
-          </Flex>
-
-          <Flex justifyContent='space-between' alignItems='center'>
-            <RawText fontSize='sm' color='text.subtle'>
-              {translate('chainflipLending.borrow.projectedLtv')}
-            </RawText>
-            <RawText fontSize='sm' fontWeight='medium' color={ltvColorByBps(projectedLtvBps)}>
-              {projectedLtvPercent}%
-            </RawText>
-          </Flex>
-
-          <Flex justifyContent='space-between' alignItems='center'>
-            <RawText fontSize='sm' color='text.subtle'>
-              {translate('chainflipLending.borrow.maxLtv')}
-            </RawText>
-            <RawText fontSize='sm' fontWeight='medium'>
-              {(MAX_LTV_BPS / 100).toFixed(0)}%
-            </RawText>
-          </Flex>
-
-          {minimumLoanAmountUsd && (
-            <Flex justifyContent='space-between' alignItems='center'>
-              <RawText fontSize='sm' color='text.subtle'>
-                {translate('chainflipLending.borrow.minimumLoan', {
-                  amount: `$${minimumLoanAmountUsd}`,
-                })}
-              </RawText>
-              {isBelowMinimum && (
-                <RawText fontSize='sm' color='red.500'>
-                  {minimumLoanAmountUsd} {asset.symbol}
-                </RawText>
-              )}
-            </Flex>
+          {hasCollateral && (
+            <LtvGauge
+              currentLtv={currentLtvDecimal}
+              projectedLtv={bnOrZero(inputValue).gt(0) ? projectedLtvDecimal : undefined}
+            />
           )}
 
-          {!hasFreeBalance && (
+          {effectiveMinimumUsd && isBelowMinimum && (
+            <RawText fontSize='xs' color='red.500'>
+              {translate('chainflipLending.borrow.minimumLoan', {
+                amount: `$${effectiveMinimumUsd}`,
+              })}
+            </RawText>
+          )}
+
+          {!hasCollateral && (
             <RawText fontSize='xs' color='yellow.500'>
               {translate('chainflipLending.borrow.noCollateral')}
             </RawText>

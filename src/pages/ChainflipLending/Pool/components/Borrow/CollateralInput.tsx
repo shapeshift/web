@@ -7,6 +7,7 @@ import { NumericFormat } from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 
 import { CollateralMachineCtx } from './CollateralMachineContext'
+import { LtvGauge } from './LtvGauge'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -16,6 +17,9 @@ import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { useChainflipBorrowMinimums } from '@/pages/ChainflipLending/hooks/useChainflipBorrowMinimums'
+import { useChainflipLoanAccount } from '@/pages/ChainflipLending/hooks/useChainflipLoanAccount'
+import { useChainflipLtvThresholds } from '@/pages/ChainflipLending/hooks/useChainflipLtvThresholds'
+import { useChainflipOraclePrice } from '@/pages/ChainflipLending/hooks/useChainflipOraclePrices'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -31,6 +35,8 @@ export const CollateralInput = ({ assetId }: CollateralInputProps) => {
   } = useLocaleFormatter()
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const { oraclePrice } = useChainflipOraclePrice(assetId)
+  const assetPrice = useMemo(() => bnOrZero(oraclePrice), [oraclePrice])
 
   const actorRef = CollateralMachineCtx.useActorRef()
   const mode = CollateralMachineCtx.useSelector(s => s.context.mode)
@@ -41,33 +47,93 @@ export const CollateralInput = ({ assetId }: CollateralInputProps) => {
     s => s.context.collateralBalanceCryptoBaseUnit,
   )
 
+  const { totalCollateralFiat, totalBorrowedFiat } = useChainflipLoanAccount()
+  const { thresholds } = useChainflipLtvThresholds()
+  const { minimumUpdateCollateralAmountUsd } = useChainflipBorrowMinimums()
+
   const [inputValue, setInputValue] = useState('')
 
   const isAddMode = useMemo(() => mode === 'add', [mode])
 
-  const availableBaseUnit = useMemo(
-    () => (isAddMode ? freeBalanceCryptoBaseUnit : collateralBalanceCryptoBaseUnit),
-    [isAddMode, freeBalanceCryptoBaseUnit, collateralBalanceCryptoBaseUnit],
-  )
-
-  const availableCryptoPrecision = useMemo(
+  const freeBalanceCryptoPrecision = useMemo(
     () =>
       BigAmount.fromBaseUnit({
-        value: availableBaseUnit,
+        value: freeBalanceCryptoBaseUnit,
         precision: asset?.precision ?? 0,
       }).toPrecision(),
-    [availableBaseUnit, asset?.precision],
+    [freeBalanceCryptoBaseUnit, asset?.precision],
   )
 
-  const { minimumUpdateCollateralAmountUsd } = useChainflipBorrowMinimums()
+  const collateralCryptoPrecision = useMemo(
+    () =>
+      BigAmount.fromBaseUnit({
+        value: collateralBalanceCryptoBaseUnit,
+        precision: asset?.precision ?? 0,
+      }).toPrecision(),
+    [collateralBalanceCryptoBaseUnit, asset?.precision],
+  )
+
+  const maxRemovableCryptoPrecision = useMemo(() => {
+    if (isAddMode) return '0'
+    const totalCollateral = bnOrZero(totalCollateralFiat)
+    const totalBorrowed = bnOrZero(totalBorrowedFiat)
+    if (totalBorrowed.isZero()) return collateralCryptoPrecision
+    if (!thresholds || totalCollateral.isZero() || assetPrice.isZero()) return '0'
+    const requiredCollateralFiat = totalBorrowed.div(thresholds.target)
+    const removableFiat = totalCollateral.minus(requiredCollateralFiat)
+    if (removableFiat.lte(0)) return '0'
+    const removableCrypto = removableFiat.div(assetPrice)
+    const collateral = bnOrZero(collateralCryptoPrecision)
+    return removableCrypto.gt(collateral)
+      ? collateral.toFixed(asset?.precision ?? 6)
+      : removableCrypto.toFixed(asset?.precision ?? 6)
+  }, [
+    isAddMode,
+    totalCollateralFiat,
+    totalBorrowedFiat,
+    thresholds,
+    assetPrice,
+    collateralCryptoPrecision,
+    asset?.precision,
+  ])
+
+  const availableCryptoPrecision = useMemo(
+    () => (isAddMode ? freeBalanceCryptoPrecision : maxRemovableCryptoPrecision),
+    [isAddMode, freeBalanceCryptoPrecision, maxRemovableCryptoPrecision],
+  )
+
+  const inputFiat = useMemo(() => bnOrZero(inputValue).times(assetPrice), [inputValue, assetPrice])
 
   const isBelowMinimum = useMemo(() => {
     if (!minimumUpdateCollateralAmountUsd) return false
-    const amount = bnOrZero(inputValue)
-    return amount.gt(0) && amount.lt(minimumUpdateCollateralAmountUsd)
-  }, [inputValue, minimumUpdateCollateralAmountUsd])
+    return inputFiat.gt(0) && inputFiat.lt(minimumUpdateCollateralAmountUsd)
+  }, [inputFiat, minimumUpdateCollateralAmountUsd])
 
-  const hasAvailableBalance = useMemo(() => bnOrZero(availableBaseUnit).gt(0), [availableBaseUnit])
+  const hasAvailableBalance = useMemo(
+    () => bnOrZero(availableCryptoPrecision).gt(0),
+    [availableCryptoPrecision],
+  )
+
+  const currentLtvDecimal = useMemo(() => {
+    const totalCollateral = bnOrZero(totalCollateralFiat)
+    if (totalCollateral.isZero()) return 0
+    return bnOrZero(totalBorrowedFiat).div(totalCollateral).toNumber()
+  }, [totalCollateralFiat, totalBorrowedFiat])
+
+  const projectedLtvDecimal = useMemo(() => {
+    if (bnOrZero(inputValue).isZero()) return undefined
+    const totalCollateral = bnOrZero(totalCollateralFiat)
+    const totalBorrowed = bnOrZero(totalBorrowedFiat)
+    if (totalBorrowed.isZero()) return undefined
+    const changeFiat = inputFiat
+    const projectedCollateral = isAddMode
+      ? totalCollateral.plus(changeFiat)
+      : totalCollateral.minus(changeFiat)
+    if (projectedCollateral.lte(0)) return 1
+    return totalBorrowed.div(projectedCollateral).toNumber()
+  }, [inputValue, totalCollateralFiat, totalBorrowedFiat, inputFiat, isAddMode])
+
+  const hasActiveLoans = useMemo(() => bnOrZero(totalBorrowedFiat).gt(0), [totalBorrowedFiat])
 
   const handleInputChange = useCallback((values: NumberFormatValues) => {
     setInputValue(values.value)
@@ -115,7 +181,11 @@ export const CollateralInput = ({ assetId }: CollateralInputProps) => {
 
           <Stack spacing={1}>
             <RawText fontSize='sm' color='text.subtle'>
-              {translate('chainflipLending.collateral.amount')}
+              {translate(
+                isAddMode
+                  ? 'chainflipLending.collateral.add'
+                  : 'chainflipLending.collateral.remove',
+              )}
             </RawText>
             <NumericFormat
               inputMode='decimal'
@@ -139,6 +209,9 @@ export const CollateralInput = ({ assetId }: CollateralInputProps) => {
                 padding: '0.5rem 0',
               }}
             />
+            {!assetPrice.isZero() && bnOrZero(inputValue).gt(0) && (
+              <Amount.Fiat value={inputFiat.toFixed(2)} fontSize='sm' color='text.subtle' />
+            )}
           </Stack>
 
           <Flex justifyContent='space-between' alignItems='center'>
@@ -176,27 +249,24 @@ export const CollateralInput = ({ assetId }: CollateralInputProps) => {
             </Flex>
           </Flex>
 
-          {minimumUpdateCollateralAmountUsd && (
-            <Flex justifyContent='space-between' alignItems='center'>
-              <RawText fontSize='sm' color='text.subtle'>
-                {translate('chainflipLending.collateral.amount', {
-                  amount: `$${minimumUpdateCollateralAmountUsd}`,
-                })}
-              </RawText>
-              {isBelowMinimum && (
-                <RawText fontSize='sm' color='red.500'>
-                  {translate('chainflipLending.collateral.amount')}
-                </RawText>
-              )}
-            </Flex>
+          {hasActiveLoans && (
+            <LtvGauge currentLtv={currentLtvDecimal} projectedLtv={projectedLtvDecimal} />
+          )}
+
+          {isBelowMinimum && minimumUpdateCollateralAmountUsd && (
+            <RawText fontSize='xs' color='red.500'>
+              {translate('chainflipLending.collateral.minimumAmount', {
+                amount: `$${minimumUpdateCollateralAmountUsd}`,
+              })}
+            </RawText>
           )}
 
           {!hasAvailableBalance && (
             <RawText fontSize='xs' color='yellow.500'>
               {translate(
                 isAddMode
-                  ? 'chainflipLending.collateral.availableToAdd'
-                  : 'chainflipLending.collateral.availableToRemove',
+                  ? 'chainflipLending.collateral.noFreeBalance'
+                  : 'chainflipLending.collateral.noRemovable',
               )}
             </RawText>
           )}

@@ -5,9 +5,8 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET } from '@/lib/chainflip/constants'
 import type { ChainflipAssetSymbol, ChainflipChain } from '@/lib/chainflip/types'
 import { useChainflipAccount } from '@/pages/ChainflipLending/hooks/useChainflipAccount'
-import type { ReduxState } from '@/state/reducer'
+import { useChainflipOraclePrices } from '@/pages/ChainflipLending/hooks/useChainflipOraclePrices'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
-import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
 export type ChainflipSupplyPositionWithFiat = {
@@ -32,42 +31,32 @@ const hexToBaseUnit = (hex: string): string => {
 const baseUnitToPrecision = (baseUnit: string, precision: number): string =>
   bnOrZero(baseUnit).div(bnOrZero(10).pow(precision)).toFixed()
 
-const selectPositionFiatData = (
-  state: ReduxState,
-  assetSymbol: ChainflipAssetSymbol,
-): { assetId: AssetId | undefined; precision: number; price: string } => {
-  const assetId = CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET[assetSymbol]
-  if (!assetId) return { assetId: undefined, precision: 0, price: '0' }
-
-  const asset = selectAssetById(state, assetId)
-  const marketData = selectMarketDataByAssetIdUserCurrency(state, assetId)
-
-  return {
-    assetId,
-    precision: asset?.precision ?? 0,
-    price: marketData?.price ?? '0',
-  }
-}
-
 export const useChainflipSupplyPositions = () => {
   const { accountInfo, isLoading } = useChainflipAccount()
+  const { oraclePriceByAssetId } = useChainflipOraclePrices()
 
   const lendingPositions = useMemo(
     () => accountInfo?.lending_positions ?? [],
     [accountInfo?.lending_positions],
   )
 
-  const positionFiatData = useAppSelector(state =>
-    lendingPositions.map(position => selectPositionFiatData(state, position.asset)),
+  const positionAssetData = useAppSelector(state =>
+    lendingPositions.map(position => {
+      const assetId = CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET[position.asset]
+      if (!assetId) return { assetId: undefined, precision: 0 }
+      const asset = selectAssetById(state, assetId)
+      return { assetId, precision: asset?.precision ?? 0 }
+    }),
   )
 
   const supplyPositions: ChainflipSupplyPositionWithFiat[] = useMemo(() => {
     if (!lendingPositions.length) return []
 
     return lendingPositions.reduce<ChainflipSupplyPositionWithFiat[]>((acc, position, i) => {
-      const { assetId, precision, price } = positionFiatData[i]
+      const { assetId, precision } = positionAssetData[i]
       if (!assetId) return acc
 
+      const price = oraclePriceByAssetId[assetId] ?? '0'
       const totalBaseUnit = hexToBaseUnit(position.total_amount)
       const availableBaseUnit = hexToBaseUnit(position.available_amount)
       const totalCrypto = baseUnitToPrecision(totalBaseUnit, precision)
@@ -87,7 +76,7 @@ export const useChainflipSupplyPositions = () => {
 
       return acc
     }, [])
-  }, [lendingPositions, positionFiatData])
+  }, [lendingPositions, positionAssetData, oraclePriceByAssetId])
 
   return useMemo(
     () => ({

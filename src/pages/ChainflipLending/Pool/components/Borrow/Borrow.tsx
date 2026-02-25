@@ -66,13 +66,14 @@ const BorrowContent = memo(({ assetId }: { assetId: AssetId }) => {
 
 const useLtvSync = () => {
   const actorRef = BorrowMachineCtx.useActorRef()
+  const stateValue = BorrowMachineCtx.useSelector(s => s.value)
   const { loanAccount } = useChainflipLoanAccount()
 
   const currentLtvBps = useMemo(() => {
     if (!loanAccount?.ltv_ratio) return 0
     try {
-      const rawPermill = Number(BigInt(loanAccount.ltv_ratio))
-      return Math.round(rawPermill / 100)
+      const rawPerbill = Number(BigInt(loanAccount.ltv_ratio))
+      return Math.round(rawPerbill / 100000)
     } catch {
       return 0
     }
@@ -80,5 +81,5 @@ const useLtvSync = () => {
 
   useEffect(() => {
     actorRef.send({ type: 'SYNC_LTV', currentLtvBps })
-  }, [actorRef, currentLtvBps])
+  }, [actorRef, currentLtvBps, stateValue])
 }

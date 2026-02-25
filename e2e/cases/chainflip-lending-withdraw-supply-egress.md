@@ -14,8 +14,8 @@ Tests the complete withdraw-from-supply flow with "Also withdraw to wallet" chec
 - **withdrawMachine.ts**: input -> confirm -> signing_batch -> [on error: signing_remove -> signing_egress] -> confirming -> success
 - **WithdrawInput.tsx**: `isFullWithdrawalOnly` pre-fills amount (non-editable), "Also withdraw to wallet" checkbox enables AccountDropdown destination address
 - **useWithdrawBatch.ts**: batch encodes `removeLenderFunds(null for full) + withdrawAsset(amount, cfAsset, { chain, address })`
-- **useWithdrawConfirmation.ts**: Phase 1 polls `cf_account_info` lending_positions for supply decrease (6s interval, 20 attempts). Phase 2 polls Chainflip Explorer GraphQL for LP withdrawal broadcast completion (60s interval, 30 attempts)
-- **explorerApi.ts**: `queryLiquidityWithdrawalStatus` queries `allLiquidityWithdrawals` for `broadcastComplete` + `transactionRef`, using baseline ID to match only the current operation
+- **useWithdrawConfirmation.ts**: Phase 1 polls `cf_account_info` lending_positions for supply decrease (6s interval, 20 attempts). Phase 2 snapshots latest withdrawal ID as baseline via `queryLatestWithdrawalId`, then polls Explorer GraphQL for NEW withdrawals (id > baseline) every 60s, 30 attempts = 30min max. Cleanup (reset baselineId, remove queries) only fires when machine resets to input, NOT during success/error transitions.
+- **explorerApi.ts**: `queryLatestWithdrawalId` captures baseline (highest existing withdrawal ID for address/asset/chain), `queryLiquidityWithdrawalStatus` queries `allLiquidityWithdrawals` with `id: { greaterThan: afterId }` filtering for `broadcastComplete` + `transactionRef`
 
 ## Test Case
 
@@ -87,8 +87,10 @@ After signing, the machine transitions to confirming state. Two-phase polling be
 - Should complete within 1-2 minutes
 
 **Phase 2 - Egress Broadcast** (slower, ~60s interval):
-- Once supply decreased, polls Chainflip Explorer GraphQL for the LP withdrawal broadcast
-- Uses baseline withdrawal ID to match only the CURRENT operation (not previous ones)
+- Once supply decreased, snapshots the latest withdrawal ID for address/asset/chain as baseline via `queryLatestWithdrawalId`
+- Polls Chainflip Explorer GraphQL (`allLiquidityWithdrawals` with `id: { greaterThan: baselineId }`) every 60s for up to 30 attempts (30min max)
+- Looks for `broadcastComplete === true` AND `transactionRef` being non-null on the NEW withdrawal (id > baseline)
+- This filtering ensures we match only the CURRENT egress, not stale/previous withdrawals for the same address
 - May take several minutes for Chainflip to broadcast to destination chain
 
 Poll snapshot every 30s, up to **15 minutes** (900s) total timeout. Do NOT take repeated screenshots while waiting - only take one intermediate screenshot and the final result.

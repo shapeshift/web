@@ -187,6 +187,21 @@ export const viemKatanaClient = createPublicClient({
   transport: fallback([process.env.VITE_KATANA_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const ethereal = defineChain({
+  id: 5064014,
+  name: 'Ethereal',
+  nativeCurrency: { name: 'USDe', symbol: 'USDe', decimals: 18 },
+  rpcUrls: { default: { http: ['https://rpc.ethereal.trade'] } },
+  blockExplorers: {
+    default: { name: 'Ethereal Explorer', url: 'https://explorer.ethereal.global' },
+  },
+})
+
+export const viemEtherealClient = createPublicClient({
+  chain: ethereal,
+  transport: fallback([process.env.VITE_ETHEREAL_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemStoryClient = createPublicClient({
   chain: story,
   transport: fallback([process.env.VITE_STORY_NODE_URL].filter(Boolean).map(url => http(url))),
@@ -266,6 +281,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.BerachainMainnet]: viemBerachainClient,
   [KnownChainIds.CronosMainnet]: viemCronosClient,
   [KnownChainIds.KatanaMainnet]: viemKatanaClient,
+  [KnownChainIds.EtherealMainnet]: viemEtherealClient,
   [KnownChainIds.FlowEvmMainnet]: viemFlowEvmClient,
   [KnownChainIds.CeloMainnet]: viemCeloClient,
   [KnownChainIds.StoryMainnet]: viemStoryClient,
@@ -302,6 +318,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.BerachainMainnet]: berachain.id,
   [KnownChainIds.CronosMainnet]: cronos.id,
   [KnownChainIds.KatanaMainnet]: katana.id,
+  [KnownChainIds.EtherealMainnet]: ethereal.id,
   [KnownChainIds.FlowEvmMainnet]: flowMainnet.id,
   [KnownChainIds.CeloMainnet]: celo.id,
   [KnownChainIds.StoryMainnet]: story.id,
@@ -338,6 +355,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [berachain.id]: viemBerachainClient,
   [cronos.id]: viemCronosClient,
   [katana.id]: viemKatanaClient,
+  [ethereal.id]: viemEtherealClient,
   [flowMainnet.id]: viemFlowEvmClient,
   [celo.id]: viemCeloClient,
   [story.id]: viemStoryClient,

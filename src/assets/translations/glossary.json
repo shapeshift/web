@@ -60,6 +60,17 @@
   "Jupiter": null,
   "Chainflip": null,
   "FOXy": null,
+  "stake": {
+    "de": "Stake",
+    "es": "stake",
+    "fr": "stake",
+    "ja": "ステーク",
+    "pt": "stake",
+    "ru": "стейк",
+    "tr": "stake",
+    "uk": "стейк",
+    "zh": "质押"
+  },
   "staking": {
     "de": "Staking",
     "es": "staking",

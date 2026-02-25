@@ -3,6 +3,7 @@ const {
   CJK_LOCALES,
   LOCALE_CONFIGS,
   extractPlaceholders,
+  stripPlaceholders,
   stemMatch,
   loadGlossary,
 } = require('./script-utils');
@@ -109,17 +110,18 @@ for (const path of Object.keys(source)) {
   }
 
   // Check 5: Glossary compliance
+  const srcStripped = stripPlaceholders(src);
   for (const [term, value] of Object.entries(glossary)) {
     if (term === '_meta') continue;
     const termRegex = new RegExp('\\b' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'gi');
 
     if (value === null) {
-      if (termRegex.test(src) && !new RegExp('\\b' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(tgt)) {
+      if (termRegex.test(srcStripped) && !new RegExp('\\b' + term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i').test(tgt)) {
         flags.push({ path, reason: 'glossary never-translate', details: `"${term}" should stay in English` });
         isFlagged = true;
       }
     } else if (typeof value === 'object' && value[locale]) {
-      if (termRegex.test(src) && !stemMatch(tgt, value[locale], locale)) {
+      if (termRegex.test(srcStripped) && !stemMatch(tgt, value[locale], locale)) {
         const display = Array.isArray(value[locale]) ? value[locale][0] : value[locale];
         const isInflected = !!LOCALE_CONFIGS[locale];
         flags.push({ path, reason: 'glossary approved translation', severity: isInflected ? 'info' : 'error', details: `"${term}" should be "${display}" in ${locale}` });

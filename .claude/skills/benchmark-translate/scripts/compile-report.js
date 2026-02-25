@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 
-const { stemMatch } = require('../../translate/scripts/script-utils')
+const { stemMatch, stripPlaceholders } = require('../../translate/scripts/script-utils')
 
 const TRANSLATIONS_DIR = path.resolve(__dirname, '../../../../src/assets/translations')
 const BENCHMARK_DIR = path.resolve(__dirname, '../../../../scripts/translations/benchmark')
@@ -91,7 +91,7 @@ for (const locale of TEST_LOCALES) {
 }
 
 function checkGlossaryCorrectness(english, skill, locale) {
-  const englishLower = english.toLowerCase()
+  const englishLower = stripPlaceholders(english).toLowerCase()
   const matched = []
   for (const term of GLOSSARY_TARGET_TERMS) {
     if (!englishLower.includes(term.englishPattern)) continue
@@ -123,15 +123,16 @@ function validate(english, skill, locale) {
   const ratio = english.length > 0 ? skill.length / english.length : 1
   const lengthRatioOk = ratio <= (isCjk ? 4.0 : 3.0) && ratio >= (isCjk ? 0.15 : 0.25)
 
+  const englishStripped = stripPlaceholders(english).toLowerCase()
   const glossaryViolations = []
   for (const term of neverTranslateTerms) {
-    if (english.toLowerCase().includes(term.toLowerCase()) && !skill.toLowerCase().includes(term.toLowerCase())) {
+    if (englishStripped.includes(term.toLowerCase()) && !skill.toLowerCase().includes(term.toLowerCase())) {
       glossaryViolations.push(`"${term}" should stay in English`)
     }
   }
   for (const { term, approved } of (approvedByLocale[locale] || [])) {
     const tl = term.toLowerCase()
-    if (english.toLowerCase().includes(tl) && !stemMatch(skill, approved, locale)) {
+    if (englishStripped.includes(tl) && !stemMatch(skill, approved, locale)) {
       const display = Array.isArray(approved) ? approved[0] : approved
       glossaryViolations.push(`"${term}" should be "${display}"`)
     }
@@ -314,7 +315,7 @@ if (expanded.length > 0) {
 
 console.log('\n--- Glossary Term Correctness ---')
 for (const tt of GLOSSARY_TARGET_TERMS) {
-  const tr = results.filter(r => r.english.toLowerCase().includes(tt.englishPattern))
+  const tr = results.filter(r => stripPlaceholders(r.english).toLowerCase().includes(tt.englishPattern))
   const checked = tr.filter(r => r.validation.glossaryCorrectness !== null)
   const correct = checked.filter(r => r.validation.glossaryCorrectness === true).length
   console.log(`  "${tt.englishPattern}": ${correct}/${checked.length} correct (${checked.length > 0 ? ((correct / checked.length) * 100).toFixed(0) : 'N/A'}%)`)

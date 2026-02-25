@@ -78,8 +78,12 @@ if (fewShotPath && fs.existsSync(fewShotPath)) {
 const batchArray = Array.isArray(batches) ? batches : [batches];
 const tagKeys = batchArray.flatMap(batch => Object.keys(batch).filter(k => k.includes('.tags.')));
 
+function stripPlaceholders(str) {
+  return str.replace(/%\{\w+\}/g, '');
+}
+
 function filterGlossaryForBatch(batch) {
-  const batchText = Object.values(batch).join(' ').toLowerCase();
+  const batchText = stripPlaceholders(Object.values(batch).join(' ')).toLowerCase();
 
   const relevantNeverTranslate = neverTranslate.filter(term =>
     batchText.includes(term.toLowerCase())

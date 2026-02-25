@@ -6,6 +6,14 @@ function extractPlaceholders(str) {
   return [...str.matchAll(/%\{(\w+)\}/g)].map(m => m[1]);
 }
 
+function stripPlaceholders(str) {
+  return str.replace(/%\{\w+\}/g, '');
+}
+
+function toLower(str, locale) {
+  return locale === 'tr' ? str.toLocaleLowerCase('tr') : str.toLowerCase();
+}
+
 const LOCALE_CONFIGS = {
   de: {
     stemRatio: 0.75,
@@ -72,13 +80,13 @@ function stemMatch(target, approved, locale) {
     return forms.some(form => target.toLowerCase().includes(form.toLowerCase()));
   }
 
-  const targetLower = target.toLowerCase();
+  const targetLower = toLower(target, locale);
   const forms = Array.isArray(approved) ? approved : [approved];
 
   return forms.some(form => {
     const words = form.split(/\s+/);
     return words.every(word => {
-      const wordLower = word.toLowerCase();
+      const wordLower = toLower(word, locale);
 
       // Tier 1: Exact substring
       if (targetLower.includes(wordLower)) return true;
@@ -123,6 +131,8 @@ module.exports = {
   CJK_LOCALES,
   LOCALE_CONFIGS,
   extractPlaceholders,
+  stripPlaceholders,
+  toLower,
   stemMatch,
   loadGlossary,
   glossaryTerms,

@@ -27,7 +27,7 @@
     "continue": "次へ",
     "approve": "承認する",
     "approveToken": "トークンを承認",
-    "approveAmount": "金額を承認",
+    "approveAmount": "承認額",
     "approveTo": "承認先",
     "reset": "リセット",
     "confirm": "確認する",
@@ -35,7 +35,7 @@
     "activity": "アクティビティ",
     "reject": "拒否する",
     "goBack": "戻る",
-    "fiat": "フィアット",
+    "fiat": "法定通貨",
     "connected": "接続済み",
     "trendingTokens": "トレンドトークン",
     "created": "作成日 %{date}",
@@ -56,12 +56,12 @@
     "confirming": "確認しています...",
     "withdrawAndClaim": "出金と獲得",
     "overview": "概要",
-    "connectWallet": "ウォレットを接続する",
+    "connectWallet": "ウォレットを接続",
     "pairing": "ペアリング",
-    "connectWalletToGetStartedWith": "%{feature} を使い始めるにはウォレットを接続してください",
-    "connectedWallet": "ウォレット接続済み",
+    "connectWalletToGetStartedWith": "%{feature}を始めるにはウォレットを接続してください",
+    "connectedWallet": "接続済みウォレット",
     "crypto": "暗号",
-    "walletActions": "ウォレットアクション\n",
+    "walletActions": "ウォレット操作",
     "connectedWalletSettings": "ウォレットの設定",
     "noWallet": "ウォレットが接続されていません",
     "darkTheme": "ダークテーマ",
@@ -82,7 +82,7 @@
     "happySuccess": "成功！",
     "transactionFailed": "処理に失敗しました",
     "transactionFailedBody": "処理に失敗しました",
-    "safeProposalQueued": "SAFE の提案がキューに追加されました。%{confirmationsRequired} 件中 %{currentConfirmations} 件が署名されました。",
+    "safeProposalQueued": "SAFEプロポーザルがキューに追加されました。%{confirmationsRequired}件中%{currentConfirmations}件が署名済みです。",
     "submitFeedback": "フィードバックを送信",
     "send": "送信",
     "receive": "受け取る",
@@ -137,7 +137,7 @@
     "needAsset": "%{asset} が必要ですか?",
     "buyNow": "今すぐ購入",
     "manage": "管理",
-    "view": "ビュー",
+    "view": "表示",
     "viewOnly": "表示のみ",
     "allChains": "すべてのチェーン",
     "wallet": "ウォレット",
@@ -161,12 +161,12 @@
     "import": "インポート",
     "accountsLoading": "アカウントの読み込み中",
     "noAccounts": "選択したフィルターに該当するアカウントはありません。",
-    "sortBy": "並べ替える",
+    "sortBy": "並び替え",
     "orderBy": "並び替える",
     "filterBy": "の条件でフィルター",
     "filterAndSort": "フィルターと並べ替え",
     "carousel": {
-      "next": "次",
+      "next": "次へ",
       "prev": "前",
       "dot": "ドット"
     },
@@ -193,7 +193,7 @@
     "boost": "ブースト",
     "viewOnExplorer": "エクスプローラーで表示",
     "approval": "承認",
-    "permit2Approval": "Permit2の承認",
+    "permit2Approval": "Permit2承認",
     "network": "ネットワーク",
     "feeEstimate": "料金見積もり",
     "list": "リスト"
@@ -206,18 +206,18 @@
     "aiChat": "AIチャット",
     "openChat": "チャットを開く",
     "closeChat": "チャットを閉じる",
-    "emptyState": "本日はどのようなご用件でしょうか？",
-    "placeholder": "メッセージを入力してください...",
+    "emptyState": "今日はどのようなご用件ですか？",
+    "placeholder": "メッセージを入力...",
     "stop": "停止",
     "send": "送信",
-    "txStepProgress": "%{completedCount} / %{totalCount} 完了",
+    "txStepProgress": "%{totalCount}件中%{completedCount}件完了",
     "agenticChatTools": {
       "send": {
         "title": "暗号通貨を送信",
         "receivedFrom": "%{address}から受信",
         "steps": {
           "preparation": "送信トランザクションの準備",
-          "send": "署名してトランザクションを送信する"
+          "send": "トランザクションに署名して送信"
         },
         "errors": {
           "prepareFailed": "送信トランザクションの準備に失敗しました",
@@ -350,17 +350,17 @@
       },
       "receive": {
         "title": "受け取る",
-        "receiveOn": "%{network} で %{symbol} を受信",
+        "receiveOn": "%{network}で%{symbol}を受け取る",
         "copyAddress": "アドレスをコピー",
         "copied": "コピーしました！",
-        "warning": "このアドレスには %{network} 互換トークンのみを送信してください"
+        "warning": "%{network}互換のトークンのみこのアドレスに送信してください"
       },
       "getLimitOrders": {
         "title": "指値注文",
         "openOrders": "%{count} オープン",
         "noOrders": "指値注文が見つかりません",
         "status": {
-          "open": "Open",
+          "open": "オープン",
           "fulfilled": "約定済み",
           "cancelled": "キャンセル",
           "expired": "期限切れ",
@@ -413,7 +413,7 @@
     "error": {
       "insufficientFunds": "%{amount} のクイック購入に失敗しました。資金が足りません。別の金額を試してみませんか?",
       "noQuote": "%{amount} のクイック購入に失敗しました。有効なレート（価格情報）を取得できませんでした。",
-      "failed": "%{amount} のクイック購入に失敗しました。"
+      "failed": "%{amount}のクイック購入が失敗しました。"
     }
   },
   "consentBanner": {
@@ -453,12 +453,12 @@
     }
   },
   "rampPage": {
-    "buyTitle": "暗号通貨を<span>数秒で</span>購入",
-    "sellTitle": "暗号通貨を<span>数秒で</span>売却",
-    "buyBody": "クレジットカード、デビットカード、または銀行口座をご利用いただけます。ビットコイン、イーサリアム、USDT、USDC、その他の主要暗号通貨をご購入いただけます。KYC不要のプロバイダーもご利用いただけます。",
+    "buyTitle": "暗号通貨を<span>すぐに購入</span>",
+    "sellTitle": "暗号通貨を<span>すぐに売却</span>",
+    "buyBody": "クレジットカード、デビットカード、銀行口座を使用できます。Bitcoin、Ethereum、USDT、USDCなどのトップ暗号通貨を購入できます。KYC不要のプロバイダーも利用可能です。",
     "sellBody": "クレジットカード、デビットカード、または銀行口座をご利用いただけます。ビットコイン、イーサリアム、USDT、USDC、その他の主要暗号通貨を売却できます。KYC不要のプロバイダーもご利用いただけます。",
     "disclaimer": "*暗号通貨を売却して銀行口座に直接現金化することもできます。",
-    "ctaTitle": "ShapeShift をすべてのトップウォレットで使用して取引し、利回りを獲得し、<span>%{chainCount} チェーンにわたって暗号資産を追跡</span>することもできます。",
+    "ctaTitle": "ShapeShiftをトップウォレットと一緒に使って、取引、利回り獲得、<span>%{chainCount}チェーンにわたる暗号資産のトラッキング</span>もできます",
     "availableAssets": "利用可能な資産"
   },
   "updateToast": {
@@ -498,13 +498,13 @@
   },
   "fiatRamps": {
     "title": "暗号通貨の売買",
-    "titleMessage": " %{action}で%{asset} を利用できます",
+    "titleMessage": "%{asset}を%{action}するには:",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
     "coinbase": "Coinbase",
     "buy": "買う",
-    "sell": "売る",
+    "sell": "売却",
     "asset": "アセット",
     "selectAnAssetToBuy": "購入するアセットを選択してください",
     "selectBody": "暗号通貨のリストから選択してください",
@@ -519,7 +519,7 @@
     "availableProviders": "利用可能なプロバイダー",
     "noProvidersAvailable": "利用可能なプロバイダーがありません",
     "noProvidersBody": "そのアセットのプロバイダーはまだありません",
-    "notSupported": "%{asset} は %{wallet} でサポートされていません",
+    "notSupported": "%{asset}は%{wallet}でサポートされていません",
     "previewPurchase": "購入内容の確認\n",
     "previewSale": "売却プレビュー"
   },
@@ -545,7 +545,7 @@
       "switchWallet": "ウォレットを切り替える",
       "disconnect": "切断する",
       "disconnected": "(切断済み)",
-      "locked": "（ロックされています）",
+      "locked": "（ロック済み）",
       "reconnectWallet": "ウォレットを再接続する",
       "walletNotConnected": "現在、ウォレットが接続されていません。取引に影響します。",
       "connecting": "接続中..."
@@ -563,10 +563,10 @@
           "risks": "リスクはありますか?"
         },
         "bodies": {
-          "rateFluctuationInfo": "あなたが獲得する %{assetName} の割合、つまり年間収益率 (APR) は、通常 7% ～ 20% の間で変動します。",
+          "rateFluctuationInfo": "%{assetName}で獲得できる年利回り（APR）は通常7%〜20%の間で変動します。",
           "amountStakingInfo": "任意の量の %{assetName} をステークすることができ、すぐに報酬の獲得が始まります。",
           "withdrawInfo": "報酬はいつでも引き出す​​ことができますが、約 $0.01 程度の少額のガス料金が必要です。",
-          "unbondingInfo": "トークンのステークを解除すると、トークンは %{unbondingDays} 日間ロックされたままになり、その間は報酬を獲得できません。 %{unbondingDays} 日が経過すると、%{assetName} はプライマリ ウォレットに戻ります。",
+          "unbondingInfo": "トークンのステーク解除後、%{unbondingDays}日間はロックされ、報酬は獲得できません。%{unbondingDays}日後、%{assetName}はメインウォレットに返却されます。",
           "slashingInfo": "ステーキングはバリデーターを通じて行われます。これは非常にまれですが、ステークしているバリデーターが誤った取引や不正確な取引の通過を許可して台無しになった場合、資産の一部を失う可能性があります。",
           "partnerInfo": "安全で信頼性が高く、監査済みのインフラを備えた評判の高いバリデーターと提携することで、リスクを軽減しています。"
         }
@@ -602,9 +602,9 @@
         "claimYour": "%{opportunity}を獲得しましょう"
       },
       "saversVaults": {
-        "description": "THORChain Savers Vaultを通じて %{asset} の収益を獲得しましょう。ロックアップの時間はなく、報酬は自動的に蓄積されます。 THORChainの利回りはスワップ手数料とブロック報酬から得られます。片面利回りは流動性プロバイダーの両面利回りの半分に制限されています。",
-        "runePoolDescription": "RUNEPool では、他のユーザーと %{asset} をプールすることで、より多くの %{asset} を獲得できます。特定のプールを選択する必要はなく、全員が全体のパフォーマンスを共有します。",
-        "runePoolOverviewDescription": "RUNEPool は、THORChain のすべての POL 対応流動性プールに RUNE を預けることで、RUNE の使用を最適化します。これらのプールに RUNE をプールすることで、参加者は合計 APY を獲得しますが、総変動損失のリスクにさらされます。個々のプールを選択する代わりに、ユーザーは全体的なパフォーマンスの恩恵を受け、RUNE インデックスとすべての THORChain POL 対応資産に効果的に投資します。これにより、流動性の提供が簡素化され、個々のリスクが軽減されます。",
+        "description": "THORChain Savers Vaultsを通じて%{asset}の利回りを獲得できます。ロックアップ期間はなく、報酬は自動的に蓄積されます。THORChainの利回りはスワップ手数料とブロック報酬から得られます。片側利回りは流動性プロバイダーの両側利回りの半分が上限です。",
+        "runePoolDescription": "RUNEPoolでは、%{asset}を他のユーザーとプールすることでより多くの%{asset}を獲得できます。特定のプールを選ぶ必要はなく、全体のパフォーマンスを共有します。",
+        "runePoolOverviewDescription": "RUNEPoolはTHORChainのすべてのPOL対応流動性プールにRUNEを入金することでRUNEの活用を最適化します。これらのプール全体でRUNEをプールすることで、参加者は合計APYを獲得しますが、合計インパーマネントロスのリスクにさらされます。個別プールを選択する代わりに、ユーザーは全体のパフォーマンスから利益を得て、効果的にRUNEインデックスとすべてのTHORChain POL対応資産に投資します。これにより流動性提供が簡素化され、個別リスクが軽減されます。",
         "vaultCap": "Vaultキャップ",
         "vaultCapTooltip": "このVaultの現在の最大容量",
         "haltedDepositTitle": "一時的に入金を停止しております。",
@@ -621,16 +621,16 @@
         "introducingSaversVaults": "Savers Vaultについて",
         "introducingRunePool": "RUNEPoolの説明",
         "risksBody": {
-          "vaults": "参照する <link>この記事</link> Savers Vaultに伴うリスクについて。",
-          "runePool": "参照する <link>この記事</link> RUNEPool に伴うリスクについて。"
+          "vaults": "セーバーズボルトに関するリスクは<link>この記事</link>を参照してください。",
+          "runePool": "RUNEPoolに関するリスクは<link>この記事</link>を参照してください。"
         },
         "timeToBreakEven": {
           "title": "損益分岐点の時間",
           "tooltip": "入金手数料と収益をカバーするまでの推定時間"
         },
         "cannotDepositWhilePendingTx": "送信保留中は入金できません",
-        "cannotWithdrawWhilePendingTx": "送信保留中は出金できません",
-        "agreeRunePool": "RUNEPool には、最低 30 日間のロックアップと、一時的な損失のリスクの上昇の両方があることを理解しています。"
+        "cannotWithdrawWhilePendingTx": "トランザクション保留中は出金できません",
+        "agreeRunePool": "RUNEPoolには30日間の最低ロック期間とインパーマネントロスの高いリスクがあることを理解しています。"
       }
     },
     "memoNote": {
@@ -654,7 +654,7 @@
     "ended": "終了",
     "balance": "バランス",
     "netWorth": "純資産",
-    "loadingAccounts": "%{portfolioAccountsLoaded} 個のアカウントを読み込んでいます",
+    "loadingAccounts": "%{portfolioAccountsLoaded}件のアカウントを読み込みました",
     "loadingMorePositions": "さらに多くのDeFiポジションがまだロード中です",
     "walletBalanceChange24Hr": "24時間の変動",
     "earnBody": "アセットをステーキングするか、DeFiに預けることで受動的収入を獲得します。",
@@ -682,7 +682,7 @@
         "info": {
           "title": "出金情報",
           "description": "出金したい%{asset}の金額を入力してください。",
-          "yieldyDescription": "出金したい%{asset}の金額を入力してください。以降の出金は結合され、出金時間がリセットされます。",
+          "yieldyDescription": "出金したい%{asset}の量を入力してください。以降の出金は統合され、出金時間がリセットされます。",
           "farmingExpiredDescription": "このファーミング報酬コントラクトは終了しました。残高全額を引き出す必要があります。",
           "rewardsInfo": "受け取れる報酬"
         }
@@ -701,7 +701,7 @@
   "navBar": {
     "history": "履歴",
     "home": "ホーム",
-    "myWallet": "ウォレット",
+    "myWallet": "マイウォレット",
     "dashboard": "ダッシュボード",
     "assets": "アセット",
     "accounts": "アカウント",
@@ -722,7 +722,7 @@
     "tcy": "TCY",
     "foxEcosystem": "FOXエコシステム",
     "ecosystem": "エコシステム",
-    "markets": "市場",
+    "markets": "マーケット",
     "tokens": "トークン",
     "swap": "スワップ",
     "yields": "利回り",
@@ -765,7 +765,7 @@
     "common": "取引",
     "confirmed": "確認済み",
     "pending": "保留中",
-    "failed": "失敗しました",
+    "failed": "失敗",
     "swap": "スワップ",
     "amount": "額",
     "emptyMessage": "%{status} トランザクションがここに表示されます。",
@@ -801,7 +801,7 @@
         "revoke": "取り消す",
         "revokeSymbol": "%{symbol} の承認を取り消す",
         "amountUnavailable": "利用不可",
-        "withdraw": "出金する",
+        "withdraw": "出金",
         "receive": "受け取る"
       },
       "yearn": {
@@ -823,7 +823,7 @@
       },
       "thorchain": {
         "deposit": "デポジット",
-        "depositRefund": "デポジットの払い戻し",
+        "depositRefund": "入金返金",
         "depositRefundNative": "デポジット+返金",
         "loanOpen": "ローンオープン",
         "loanOpenOut": "融資を受けました",
@@ -917,7 +917,7 @@
     "assetAddress": "%{asset} アドレス",
     "verifyAsset": "%{asset} を確認してください",
     "verifyAddressMessage": "続行する前に、アドレスが正しいことを確認してください。",
-    "slippageInfo": "価格がこのパーセンテージを超えて不利に変化した場合、トランザクションは元に戻ります。",
+    "slippageInfo": "価格がこの割合を超えて不利に変動した場合、トランザクションはリバートされます。",
     "allowanceTooltip": "スマートコントラクトの使用許可を与える金額。",
     "searchingRate": "フェッチ率...",
     "noRateAvailable": "利用可能なレートはありません。",
@@ -970,7 +970,7 @@
     "viewTransaction": "トランザクションの表示",
     "noQuotesAvailable": "利用できる引用はありません",
     "noQuotesAvailableDescription": "現時点では利用可能な引用が見つかりません。別のペアを選択してください。",
-    "availableQuotes": "提示レート",
+    "availableQuotes": "利用可能な見積もり",
     "unavailableSwappers": "利用できないスワッパー",
     "unlimited": "無制限",
     "swapsFailed": "%{failedSwaps} のスワップが失敗しました",
@@ -985,7 +985,7 @@
     "changeAddress": "アドレスを変更",
     "changeAddressExplainer": "UTXO ベースのネットワークで暗号通貨を送信すると、トランザクションで残った資金はこのアドレスに送り返されます。",
     "depositAddress": "入金先アドレス",
-    "depositAddressExplainer": "これは、資金が処理のために送金されるプロトコルアドレスです。ハードウェアウォレットには、確認のためにこのアドレスが表示されます。",
+    "depositAddressExplainer": "これは資金が処理のために送られるプロトコルアドレスです。ハードウェアウォレットに確認用のアドレスが表示されます。",
     "customReceiveAddress": "カスタム受信アドレス",
     "customReceiveAddressDescription": "この取引のカスタム受信アドレスを入力してください",
     "thisIsYourCustomReceiveAddress": "これはあなたのカスタム受信アドレスです",
@@ -994,7 +994,7 @@
     "tooltip": {
       "continueSwapping": "最終的な詳細について交換を続ける",
       "noRateAvailable": "多くの場合、取引ペアの流動性が非常に限られているか、まったくないことが原因です。",
-      "minerFee": "これはブロックチェーン上でトランザクションを処理するための料金であり、ShapeShiftによって請求される料金ではありません。",
+      "minerFee": "これはブロックチェーン上でトランザクションを処理するための手数料であり、ShapeShiftが請求する手数料ではありません。",
       "protocolFee": "このトランザクションを処理するために選択されたプロトコルによって請求される料金であり、ShapeShiftによって請求される料金ではありません",
       "inputOutputDifference": "入力量と出力量のUSD値間の推定差",
       "slippageWithAmount": "価格が変動し、受け取る金額が %{amount} 未満になる場合、トランザクションは取り消されます。これは受け取ることが保証される最低金額です。",
@@ -1008,13 +1008,13 @@
       },
       "rateExpired": {
         "title": "新しいレート",
-        "body": "以前のスワップ レートは期限切れです。新しいレートを取得し、見積額を更新しました。スワップを確認する前に、最新の詳細を確認してください。",
+        "body": "以前のスワップレートが期限切れになりました。新しいレートを取得し、見積もり額を更新しました。スワップを確認する前に最新の詳細をご確認ください。",
         "cta": "分かりました"
       }
     },
     "permit2Allowance": {
-      "title": "Permit2コントラクと認可",
-      "tooltip": "この取引は Permit2 を使用します。Permit2 では、Permit2 コントラクトに無制限の許可を与えるために One-timeの承認が必要です。この初期設定の後、一時的な 5 分間の許可を与えるガスフリー メッセージに署名することで、Permit2 がサポートする任意のプロトコルで取引を承認できます。"
+      "title": "Permit2コントラクト承認枠",
+      "tooltip": "この取引はPermit2を使用しており、Permit2コントラクトへの無制限の承認枠を付与するための一度の承認が必要です。初期設定後、5分間の一時的な承認枠を付与するガスフリーメッセージに署名することで、Permit2対応プロトコルでの取引を承認できます。"
     },
     "permit2Eip712": {
       "title": "トークンの転送を許可する",
@@ -1028,7 +1028,7 @@
       "sellAmountDoesNotCoverFee": "手数料よりも低い金額で売却する",
       "insufficientFunds": "マイナーの手数料と金額に対して資金が不十分です",
       "transactionRejected": "ユーザーが取引を拒否しました",
-      "insufficientFundsForProtocolFee": "%{chainName} の %{symbol} が手数料として不十分です",
+      "insufficientFundsForProtocolFee": "%{chainName}上の%{symbol}が手数料として不足しています",
       "unsupportedTradePair": "サポートされていないトレードペア",
       "noRouteFound": "このペアと金額のルートは見つかりませんでした",
       "quoteExpired": "見積もりの​​有効期限が切れました。もう一度お試しください。",
@@ -1070,28 +1070,28 @@
     "summary": "取引概要",
     "estimatedCompletionTime": "推定完了時間",
     "transactionSuccessful": "トランザクションが成功しました。確認を待っています",
-    "thorchainSwapperVolatilityAcknowledgementMessage": "THORCHain プロトコルは不安定な状態にあります。細心の注意を払って進め、追加の利用可能なルートを検討してください。",
+    "thorchainSwapperVolatilityAcknowledgementMessage": "THORChainプロトコルは変動性を経験しています。十分に注意して進め、利用可能な追加ルートを検討してください。",
     "temp": {
       "tradeSuccess": "取引完了"
     },
     "hopTitle": {
       "swap": "%{swapperName} 経由で交換",
-      "swapEta": "~%{eta} の %{swapperName} 経由でスワップ"
+      "swapEta": "%{swapperName}経由で約%{eta}でスワップ"
     },
     "transactionTitle": {
       "bridge": "%{swapperName} 経由で %{sellChainName} から %{buyChainName} にスワップ",
-      "swap": "%{swapperName} 経由で %{sellChainName} でスワップします"
+      "swap": "%{swapperName}経由で%{sellChainName}上でスワップ"
     },
     "approvalTitle": "トークン割り当ての承認",
     "resetTitle": "トークン許容量のリセット",
     "fiatAmountOnChain": "%{chainName} の %{amountFiatFormatted}",
     "quote": {
-      "cantSetSlippage": "%{swapperName} のカスタム スリッページ (%{userSlippageFormatted}) を設定できません",
+      "cantSetSlippage": "%{swapperName}にカスタムスリッページ（%{userSlippageFormatted}）を設定できません",
       "gas": "このスワッパーのトランザクションを完了するためのガス代",
       "slippage": "この提示レートでのスリッページです。",
       "timeEstimate": "これは、このスワップが完了するまでの推定時間です。"
     },
-    "awaitingPermit2Approval": "トークン転送を待機中",
+    "awaitingPermit2Approval": "トークン転送待ち",
     "awaitingSwap": "%{swapperName} 経由でのスワップを待機中",
     "awaitingApproval": "承認待ち",
     "awaitingAllowanceReset": "手当のリセットを待機中",
@@ -1132,12 +1132,12 @@
     "noOpenOrders": "未約定の注文はありません",
     "noHistoricalOrders": "注文履歴はまだありません。",
     "limitPriceIsPercentLowerThanMarket": "指値は市場価格より %{percent}% 低いです",
-    "highCowFeeImpact": "CoW手数料は売却額（%{cryptoImpact} %{sellAssetSymbol}）の%{percentage}%です。注文は執行されない可能性があります。",
+    "highCowFeeImpact": "CoW手数料は売却額の%{percentage}%（%{cryptoImpact} %{sellAssetSymbol}）です。注文が執行されない可能性があります。",
     "awaitingOrderPlacement": "%{swapperName} での注文待ち",
     "awaitingAllowanceApproval": "利用許可の承認待ち",
     "awaitingAllowanceReset": "利用許可のリセット待ち",
     "orderPlacement": "%{swapperName} で注文する",
-    "explanation": "%{assetSymbol} の価格が %{limitPrice} に達すると、指値注文により自動的に %{sellAmount} が売却され、少なくとも %{receiveAmount} を受け取ることが保証されます。",
+    "explanation": "%{assetSymbol}の価格が%{limitPrice}に達すると、指値注文が自動的に%{sellAmount}を売却し、少なくとも%{receiveAmount}を受け取ることができます。",
     "sellBuy": "売る → 買う",
     "limitExecution": "制限/実行",
     "statusHead": "状態.",
@@ -1179,7 +1179,7 @@
     "loadingOrderList": "指値注文を読み込んでいます...",
     "orderCard": {
       "warning": {
-        "insufficientBalance": "この注文の実行には %{chainName} 上の %{symbol} の残高が不足しています。注文は有効な状態で維持され、%{chainName} の %{symbol} 残高を追加すると実行可能になります。",
+        "insufficientBalance": "ウォレットは現在%{chainName}上での%{symbol}残高が不足しているため、この注文を執行できません。注文はオープンのままで、%{chainName}上の%{symbol}残高を補充すると執行可能になります。",
         "insufficientAllowance": "この注文の実行には、CoW Swapへの %{chainName} の %{symbol} の追加アローワンスが必要です。注文は有効な状態で維持され、アローワンスの承認後に実行可能となります。"
       }
     },
@@ -1257,7 +1257,7 @@
       },
       "disconnect": {
         "header": "KeepKeyデバイスを切断する",
-        "body": "KeepKeyデバイスの復元/セットアップ中にエラーが発生しました。デバイスを切断して再接続し、KeepKeyデバイスのセットアップを再度試してください。問題が解決しない場合は、KeepKeyサポートにお問い合わせください。"
+        "body": "KeepKeyデバイスの復元/セットアップ中にエラーが発生しました。デバイスを切断して再接続し、KeepKeyデバイスのセットアップを再度お試しください。問題が解決しない場合は、KeepKeyサポートにお問い合わせください。"
       }
     },
     "shapeShift": {
@@ -1276,7 +1276,7 @@
         }
       },
       "confirmPassword": {
-        "placeholder": "パスワードを認証する",
+        "placeholder": "パスワードを確認",
         "error": {
           "invalid": "パスワードが一致している必要があります",
           "required": "パスワードの確認が必要です"
@@ -1286,7 +1286,7 @@
         "menuItem": "ウォレットをバックアップしてください",
         "enterPassword": "続行するにはパスワードを入力してください",
         "testTitle": "シークレットリカバリーフレーズを確認する",
-        "title": "バックアップの確認",
+        "title": "バックアップを確認",
         "description": "以下のシードフレーズの正しい答えをタップしてください。",
         "desktopDescription": "この簡単なテストを完了して、すべてが正しく保存されたことを確認してください。",
         "wordNumber": " #%{number} 番目の単語",
@@ -1306,7 +1306,7 @@
         },
         "skip": {
           "title": "このステップをスキップしますか?",
-          "description": "バックアップをスキップすると、デバイスにアクセスできなくなった場合にウォレットを回復できなくなります。",
+          "description": "バックアップをスキップすると、デバイスへのアクセスを失った場合にウォレットを復元できなくなります。",
           "confirmCta": "はい、シードフレーズを保存しました"
         }
       }
@@ -1347,7 +1347,7 @@
         "generic": "エラーが発生しました。",
         "notEnoughNativeToken": "ガス代の十分な %{asset} がありません",
         "transactionRejected": "ユーザーが取引を拒否しました",
-        "qrPermissions": "この機能が動作するには、カメラへのアクセス許可が必要です。ブラウザの設定を変更してください。",
+        "qrPermissions": "この機能にはカメラへのアクセス許可が必要です。ブラウザの設定を変更してください。",
         "qrDangerousEthUrl": "コントラクトアドレスを含むQRコードはサポートされていません。宛先アドレスを手動で貼り付けてください。",
         "noAccountsOnChain": "%{chain} にアカウントがありません"
       },
@@ -1376,7 +1376,7 @@
         "availableBalance": "%{balance} 利用可能"
       },
       "status": {
-        "pendingBody": "%{amount} %{symbol} を送信します"
+        "pendingBody": "%{amount} %{symbol}を送信中"
       }
     },
     "receive": {
@@ -1423,7 +1423,7 @@
       "withdrawType": "出金タイプ",
       "instant": "即時の",
       "delayed": "7～14日",
-      "fee": "%{fee}% %{symbol} 手数料",
+      "fee": "%{fee}% %{symbol}手数料",
       "noFee": "%{symbol}手数料なし",
       "withdrawFee": "出金の際には別途ガス代がかかります。",
       "notEnoughGas": "ガスをカバーするのに十分な %{assetSymbol} がありません",
@@ -1435,14 +1435,14 @@
       }
     },
     "approve": {
-      "header": "%{spenderName} に %{asset} の使用を許可します",
+      "header": "%{spenderName}が%{asset}を使用することを許可する",
       "resetHeader": "%{asset} の %{spenderName} の手当をリセットします",
       "body": "%{asset} を使用するには許可が必要です",
       "learnMore": "なぜこれを行う必要があるのか?",
       "depositFee": "入金には別途ガス代がかかります。",
       "estimatedGas": "ガス代の目安",
       "reject": "拒否する",
-      "approved": "承認されました"
+      "approved": "承認済み"
     },
     "confirm": {
       "withdraw": {
@@ -1462,9 +1462,9 @@
       "withdrawInstantTime": "即時の",
       "withdrawDelayedTime": "7～14日",
       "xDays": "%{unbondingDays} 日",
-      "estimatedGas": "ガス代の目安",
+      "estimatedGas": "推定ガス手数料",
       "notEnoughGas": "ガス代をカバーするのに十分な %{assetSymbol} がありません",
-      "missingFundsForGas": "資金が不足しています。トランザクションを完了するにはさらに %{cryptoAmountHuman} %{assetSymbol} が必要です",
+      "missingFundsForGas": "残高不足です。トランザクションを完了するには%{cryptoAmountHuman} %{assetSymbol}が追加で必要です",
       "signBroadcast": "署名とブロードキャスト",
       "cancel": "キャンセルする"
     },
@@ -1635,7 +1635,7 @@
         "noProvider": "Keplrウォレット拡張機能が見つかりません"
       },
       "connect": {
-        "header": "Keplrのペアリング",
+        "header": "Keplrをペアリング",
         "body": "「ペアリング」をクリックし、ポップアップウィンドウから「Keplr」を選択します。",
         "button": "ペアリング"
       },
@@ -1651,7 +1651,7 @@
         "addFirst": "最初のSafeCardを接続する",
         "addNew": "新しいセーフカードを追加",
         "lastConnected": "最終接続日: %{date}",
-        "connected": "接続",
+        "connected": "接続済み",
         "connect": "接続する",
         "editNameLabel": "名前を編集",
         "deleteLabel": "削除",
@@ -1720,7 +1720,7 @@
         "success": "このウィンドウを閉じることができます。"
       },
       "errors": {
-        "unknown": "Ledgerウォレットとの通信で予期せぬエラーが発生しました",
+        "unknown": "Ledgerウォレットとの通信中に予期しないエラーが発生しました",
         "noDeviceConnected": "Ledgerデバイスが接続されていません",
         "multipleDevicesConnected": "複数の Ledger デバイスが接続されています。1 つのデバイス以外はすべて切断してください。"
       },
@@ -1733,7 +1733,7 @@
       },
       "failure": {
         "header": "Ledgerに接続できません",
-        "body": "Ledger を検出できませんでしたが、読み取り専用モードで接続できます。"
+        "body": "Ledgerを検出できませんでしたが、読み取り専用モードで接続できます。"
       },
       "readOnly": {
         "button": "読み取り専用として接続"
@@ -1817,10 +1817,10 @@
       "warningExperimental": "ShapeShiftマルチチェーンスナップは新しい実験的な機能であり、現状のまま提供されます。",
       "warningBackup": "MetaMaskシードフレーズをバックアップしていることを確認してください。このスナップを使用してnon-EVMチェーンに送金した資金は、MetaMaskで設定したデフォルトのアカウントに送られます。",
       "agreeIntro": "続行する前に、以下をお読みください。",
-      "agreeItem1": "ハードウェアウォレットは、 <strong>ない</strong> サポートされてい",
+      "agreeItem1": "ハードウェアウォレットは<strong>サポートされていません</strong>",
       "agreeItem2": "ShapeShiftマルチチェーンスナップが提供する追加チェーンでは、MetaMaskのアカウント#1のみがサポートされています。",
-      "agreeItem3": "MetaMaskによって提供される既存のイーサリアムチェーンを使用するには、アカウント#1をMetaMaskのShapeShiftに接続する必要があります",
-      "agreeItem4": "ShapeShiftマルチチェーンスナップを有効にすることにより、ご自身の責任でそれを使用することを認めたものとみなされます",
+      "agreeItem3": "MetaMaskが提供する既存のEthereumチェーンを使用するには、MetaMaskでアカウント#0をShapeShiftに接続する必要があります",
+      "agreeItem4": "ShapeShift Multichain Snapを有効にすることで、自己責任で使用することを承認します",
       "readAndUnderstood": "読んで理解しました",
       "seedBackedUp": "MetaMaskシードフレーズをバックアップしました",
       "acceptInstall": "確認してインストールする",
@@ -1841,7 +1841,7 @@
         "unknown": "WalletConnectとの通信で予期せぬエラーが発生しました"
       },
       "connect": {
-        "header": "WalletConnectのペアリング",
+        "header": "WalletConnectをペアリング",
         "body": "「ペアリング」をクリックし、ポップアップウィンドウから「WalletConnect」を選択します。",
         "button": "ペアリング"
       }
@@ -1850,21 +1850,21 @@
       "load": {
         "error": {
           "delete": "ウォレットを削除できません。",
-          "noWallet": "保存されたウォレットがありません",
+          "noWallet": "保存済みのウォレットがありません",
           "pair": "ウォレットをペアリングできません",
           "fetchingWallets": "ウォレットの取得中にエラーが発生しました。"
         },
-        "header": "保存されたウォレット",
+        "header": "保存済みウォレット",
         "forgetWallet": "ウォレットを忘れた",
         "confirmForget": "%{wallet} を忘れてもよろしいですか?",
-        "confirmForgetBody": "バックアップしていない場合、ウォレットにアクセスすることはできません。"
+        "confirmForgetBody": "バックアップしていない場合、ウォレットにアクセスできなくなります。"
       },
       "import": {
         "header": "ウォレットをインポートする",
         "keystoreHeader": "キーストアウォレットをインポートする",
         "body": "シークレットリカバリーフレーズをすべて小文字で入力するか貼り付けます。コンマや数字は使用せず、各単語の間にスペースを 1 つ入れます。",
         "button": "次へ",
-        "secretRecoveryPhraseError": "シークレットリカバリーフレーズを単語の間にスペースを 1 つ入れて入力します。カンマ、リターン、または追加の文字は省略します。",
+        "secretRecoveryPhraseError": "シークレットリカバリーフレーズを単語間に半角スペースを入れて入力してください。カンマ、改行、その他の文字は省略してください。",
         "secretRecoveryPhraseRequired": "シークレットリカバリーフレーズが必要です",
         "secretRecoveryPhraseTooShort": "シークレットリカバリーフレーズが短すぎます",
         "dragAndDrop": "ドラッグ＆ドロップまたはファイルを選択",
@@ -1887,7 +1887,7 @@
         "showWords": "単語を表示する"
       },
       "start": {
-        "header": "ShapeShiftウォレット",
+        "header": "ShapeShift ウォレット",
         "selectHeader": "ウォレットをインポート",
         "body": "複数のShapeShiftウォレットを持つことができます。ウォレットをロードしたり、シークレットリカバリーフレーズからウォレットをインポートしたり、新しいウォレットを作成したりできます。",
         "selectBody": "シークレット リカバリ フレーズを使用するか、キーストア ファイルをロードしてウォレットをインポートします。",
@@ -1900,7 +1900,7 @@
         "importKeystore": "キーストアファイルのインポート"
       },
       "success": {
-        "encryptingWallet": "ウォレットを暗号化しています...ブラウザが永続ストレージにデータを保存するように要求した場合は、「許可」をクリックしてください。",
+        "encryptingWallet": "ウォレットを暗号化中です...ブラウザが永続ストレージへのデータ保存を求めた場合は、「許可」をクリックしてください。",
         "header": "ウォレットが接続されました",
         "success": "このウィンドウを閉じることができます。",
         "error": "ウォレットの接続中にエラーが発生しました"
@@ -1985,7 +1985,7 @@
       "headerSecret": "秘密",
       "headerEnd": "リカバリフレーズを補完",
       "subHeader": "秘密回復フレーズの安全性を確保することは非常に重要です。",
-      "description": "秘密のリカバリーフレーズは、最も貴重な所有物として扱い、常に安全に保管してください。パスワード マネージャーは優れたセキュリティ対策ですが、単語を書き留めておくとさらに効果的です。",
+      "description": "シークレットリカバリーフレーズは最も大切なものとして扱い、常に安全に保管してください。パスワードマネージャーは優れたセキュリティ対策ですが、単語を書き留める方がさらに安全です。",
       "bulletPoints": {
         "share": "他の人と共有しないでください\n",
         "lose": "紛失した場合、復旧することはできません"
@@ -2001,7 +2001,7 @@
       "button": "確認を続ける",
       "success": {
         "title": "準備ができました",
-        "description": "シークレットリカバリーフレーズを確認しまし\nた。ウォレットを復元するには、このフレーズが唯一の方法なので、必ず安全に保管してください。",
+        "description": "シークレットリカバリーフレーズを確認しました。安全に保管してください。これがウォレットを復元する唯一の方法です。",
         "viewWallet": "ウォレットを表示"
       }
     },
@@ -2090,7 +2090,7 @@
     "selectChain": "アカウントを作成したいチェーンを選択します。",
     "requiresPriorTxHistory": "新しいアカウントを追加できるのは、既存のアカウントに以前の取引履歴がある場合のみです。",
     "newAccountAdded": "新しい %{name} アカウントが追加されました",
-    "youCanNowUse": "%{name} アカウント #%{accountNumber} を使用できるようになりました",
+    "youCanNowUse": "%{name}アカウント#%{accountNumber}を使用できます",
     "showAssets": "アセットの表示",
     "hideAssets": "アセットを非表示にする",
     "viewAccount": "アカウントをみる",
@@ -2100,8 +2100,8 @@
     "menuTitle": "アカウントの管理",
     "manageAccounts": {
       "title": "アカウントの管理",
-      "description": "これらは、接続したチェーンとインポートしたアカウントの数です。",
-      "emptyList": "まだアカウントが接続されていません。開始するにはチェーンを追加してください。",
+      "description": "接続済みのチェーンとインポート済みのアカウント数です。",
+      "emptyList": "アカウントがまだ接続されていません。チェーンを追加して始めましょう。",
       "addChain": "チェーンを追加する",
       "addAnotherChain": "別のチェーンを追加する"
     },
@@ -2141,7 +2141,7 @@
       "resetFilters": "フィルターをリセットする",
       "to": "に",
       "categories": "カテゴリー",
-      "dayRange": "日範囲",
+      "dayRange": "期間",
       "10days": "10日",
       "30days": "30日",
       "90days": "90日",
@@ -2172,7 +2172,7 @@
     "minerFee": "マイナー手数料",
     "date": "日付",
     "sentTo": "%{address}に送信",
-    "receivedFrom": "%{address} から受信しました",
+    "receivedFrom": "%{address}から受信",
     "today": "今日",
     "yesterday": "昨日",
     "thisWeek": "今週",
@@ -2291,7 +2291,7 @@
     "loanToValue": "価値へのローン",
     "availablePools": "利用可能なプール",
     "pool": "プール",
-    "poolDepth": "プールの深さ",
+    "poolDepth": "プール深度",
     "poolDepthDescription": "プールの状態",
     "status": "状態",
     "statusDescription": "プールの状態",
@@ -2345,7 +2345,7 @@
       },
       "borrowing": {
         "title": "借入はどのように機能しますか?",
-        "body": "THORChainでの借入には、預けた資産を担保として使用してローンを組むことが含まれます。融資は米ドル (TOR) 建てで、さまざまな L1 資産で受け取ることができます。動的な担保比率により、利息や清算の心配なく柔軟に借入できます。"
+        "body": "THORChainでの借り入れでは、入金した資産を担保としてローンを組みます。ローンはUSD（TOR）建てで、様々なL1資産で受け取ることができます。動的な担保比率により、利息や清算の心配なく柔軟に借り入れできます。"
       },
       "repayments": {
         "title": "返済はどのように行われますか?",
@@ -2358,14 +2358,14 @@
       "repaymentsDisabled": "返済は一時的に無効になります。",
       "borrowingDisabled": "借用は一時的に無効になっています。",
       "amountTooLowToReturnCollateral": "担保を返還するには金額が低すぎます",
-      "amountTooLowToReturnCollateralTooltip": "返済額が低すぎるため、担保を返却できません。金額を増やして再度お試しいただくか、一部を返済してください (担保は返却されませんが、負債額は減ります)。",
+      "amountTooLowToReturnCollateralTooltip": "返済額が低すぎるため担保が返却されません。金額を増やして再度お試しいただくか、一部返済（担保は返却されませんが負債が減少します）をお試しください。",
       "amountTooSmallUnknownMinimumTooltip": "入力した返済額が少なすぎます。金額を増やして再度お試しください。",
       "repaymentUnavailableTooltip": "まだローンの返済はできません。返済ロックが経過するまでお待ちください。",
       "repaymentsHaltedTooltip": "返済は一時停止されています。しばらくしてからもう一度お試しください。"
     },
     "quote": {
       "collateral": "ローンに対して担保される資産総額",
-      "debt": "新たなローン金額に基づいて支払うべき負債の合計",
+      "debt": "新しいローン額に基づく総負債額",
       "repaymentLock": "ローンを返済できるまでの最低期間",
       "collateralizationRatio": "融資金額に対する担保価値の比率",
       "feesPlusSlippage": "L1手数料、スリッページ、THORChain流動性手数料を含む、発生した手数料の合計"
@@ -2403,17 +2403,17 @@
     "addLiquidity": "流動性の追加",
     "removeLiquidity": "流動性の除去",
     "initialPricesAndPoolShare": "初期価格とプールシェア",
-    "pricePerAsset": "%{from}/%{to}",
-    "symAlert": "あなたの %{from} は、プールに入ると %{to} と %{from} の両方に 50:50 の割合で公開されます。",
+    "pricePerAsset": "%{to}あたり%{from}",
+    "symAlert": "%{from}はプール参入時に%{to}と%{from}の50:50の比率に分割されます。",
     "withdrawTypeNotAvailable": "この引き出しタイプはこのプールでは利用できません。",
     "incompletePositionDepositAlert": "このポジションは不完全です。このポジションを確定するには、対応する金額の %{asset} を入金してください。",
     "incompletePositionWithdrawAlert": "このポジションは不完全です。流動性を 100% 削除してポジションをキャンセルしてください。 「流動性の追加」を通じてポジションを確定することもできます。",
     "unsupportedNetworkExplainer": "ウォレットは %{network} に接続されていません。このチェーンを接続するか、このネットワークをサポートするウォレットに切り替えてください。",
-    "unsupportedNetworksExplainer": "ウォレットは %{network1} と %{network2} に接続されていません。このチェーンを接続するか、これらのネットワークをサポートするウォレットに切り替えてください。",
-    "depositsDisabled": "デポジットが無効です",
+    "unsupportedNetworksExplainer": "ウォレットが%{network1}および%{network2}に接続されていません。このチェーンを接続するか、これらのネットワークをサポートするウォレットに切り替えてください。",
+    "depositsDisabled": "入金無効",
     "shareOfPool": "プールのシェア",
     "totalLiquidity": "総流動性",
-    "totalVolume": "トータルボリューム",
+    "totalVolume": "総取引量",
     "fees24h": "手数料 24時間",
     "selectPair": "ペアの選択",
     "depositAmounts": "入金額",
@@ -2503,7 +2503,7 @@
       "body": "TCYをステークしてRUNEを獲得する。"
     },
     "tags": {
-      "liquid-staking": "流動性ステーキング",
+      "liquid-staking": "リキッドステーキング",
       "yield": "利回り",
       "lending": "レンディング",
       "rwa": "RWA",
@@ -2519,7 +2519,7 @@
     "staking": "rFOXステーキング",
     "bridge": "ブリッジ",
     "bridgeFunds": "資金のブリッジ",
-    "bridgeSuccess": "資金のブリッジが完了しました。ステーキングを続行できます。",
+    "bridgeSuccess": "資金のブリッジが完了しました。ステーキングを続けることができます。",
     "stake": "ステーク",
     "unstake": "ステーク解除",
     "claim": "請求",
@@ -2541,8 +2541,8 @@
     "useWalletAddress": "ウォレットアドレスを使用する",
     "useCustomAddress": "カスタムアドレスを使用する",
     "stakeWarning": "%{symbol} をステークする際は、ロックアップ期間が %{cooldownPeriod} であることに注意してください。つまり、トークンのステークを解除することにした場合、資金を請求できるようになるまで %{cooldownPeriod} 待つ必要があります。",
-    "bridgeCta": "%{originNetwork} で %{assetSymbol} を選択しましたが、ステークするには %{destinationNetwork} で %{assetSymbol} が必要になります。資金を %{destinationNetwork} にブリッジするお手伝いをいたします。手順についてのガイドを開始しますか?",
-    "unstakeWarning": "%{symbol} を請求できるまでのクールダウン期間は %{cooldownPeriod} です。その時間が経過すると、ステークされていない金額を請求できるようになります。",
+    "bridgeCta": "%{originNetwork}上の%{assetSymbol}を選択しましたが、ステーキングには%{destinationNetwork}上の%{assetSymbol}が必要です。資金を%{destinationNetwork}にブリッジするサポートができます。プロセスをガイドしましょうか？",
+    "unstakeWarning": "%{symbol}を請求する前に、クールダウン期間（%{cooldownPeriod}）があります。その期間が経過した後、ステーク解除した量を請求できます。",
     "tooltips": {
       "stakeAmount": "こちらがあなたがステークするFOXの量です",
       "unstakeAmount": "こちらがあなたがステークを解除するFOXの量です",
@@ -2551,12 +2551,12 @@
       "unstakePendingCooldown": " %{cooldownPeriodHuman}は請求可能です",
       "cooldownComplete": " %{cooldownPeriodHuman}はクールダウンが終了しました"
     },
-    "stakeSuccess": "%{amount} %{symbol} のステークに成功しました",
+    "stakeSuccess": "%{amount} %{symbol}のステーキングに成功しました",
     "stakePending": "%{amount} %{symbol} をステーキング中...",
     "changeAddressPending": "RFOX 報酬アドレスを %{newAddress} に変更します",
     "changeAddressSuccess": "RFOX 報酬アドレスを %{newAddress} に変更しました",
-    "unstakePending": "%{amount} %{symbol} の引き出しをリクエストしています",
-    "unstakeSuccess": "%{cooldownPeriod}が経過すると、%{amount} %{symbol}を請求できるようになります",
+    "unstakePending": "%{amount} %{symbol}の出金をリクエスト中",
+    "unstakeSuccess": "%{cooldownPeriod}が経過すると%{amount} %{symbol}を請求できます",
     "currentRewardAddress": "現在の報酬アドレス",
     "newRewardAddress": "新しい報酬アドレス",
     "rewardCycleExplainer": "これは次の報酬サイクルを通して更新されます。",
@@ -2590,7 +2590,7 @@
       },
       "why": {
         "title": "FOXをステークする理由は何?",
-        "body": "FOXをステーキングすることで、DAOの財務からのUSDC定期配当を獲得でき、エポックごとにUSDCによる安定した受動的収入を得られます。また、DAO収益の一部はトークンバーンを通じてFOXの総供給量を削減するために充当されます。ステーキングには最低28日間のステーク解除期間が必要で、コミュニティ内でのコミットメントと安定性を促します。"
+        "body": "FOXをステーキングすると、DAOの財務からエポックごとに定期的なUSDC支払いを獲得でき、安定したパッシブ収入を得られます。さらに、DAO収益の一部がトークンバーンを通じてFOXの全体的な供給量を削減するために割り当てられます。ステーキングプロセスには最低28日間のステーク解除期間が必要で、コミュニティ内のコミットメントと安定性を促進します。"
       },
       "stake": {
         "title": "FOXをステークするにはどうすればいいか?",
@@ -2643,7 +2643,7 @@
     "claimConfirm": {
       "dustAmountTooltip": "THORネットワーク上であなたのアドレスを識別するには、少量の%{symbol}が必要です",
       "networkFeeTooltip": "これはブロックチェーン上で取引を処理するための%{symbol}手数料であり、ShapeShiftが請求する手数料ではありません。",
-      "missingFundsForGasAlert": "%{symbol}が不足しています。取引を完了するには少なくとも%{amount} %{symbol}が必要です。ネットワーク手数料の変動を考慮して、多めに送金することをお勧めします。",
+      "missingFundsForGasAlert": "%{symbol}が不足しています。トランザクションを完了するには少なくとも%{amount} %{symbol}が必要です。変動するネットワーク手数料に備えて少し多めに送ることをお勧めします。",
       "confirmTitle": "請求の確認",
       "networkFee": "ネットワーク料金",
       "confirmAndClaim": "請求&ステーク",
@@ -2679,10 +2679,10 @@
     },
     "claimPending": "%{amount} %{symbol} を取得中です...",
     "claimStatus": {
-      "pendingSubtitle": "%{amount} %{symbol}の請求を処理中です",
+      "pendingSubtitle": "%{amount} %{symbol}を請求中",
       "goBack": "戻る",
       "successTitle": "請求は成功しました",
-      "successSubtitle": "%{amount} TCY を請求しました",
+      "successSubtitle": "%{amount} TCYの請求に成功しました",
       "failedTitle": "問題が発生しました",
       "failedSubtitle": "申請は失敗しました。もう一度お試しください。"
     }
@@ -2690,7 +2690,7 @@
   "markets": {
     "recommended": "推奨",
     "watchlist": "ウォッチリスト",
-    "marketsBody": "最もエキサイティングな暗号通貨を発見してください。トップムーバー、新興トークン、DeFi の機会などを追跡してください。お気に入りの暗号通貨を保存、共有、取引しましょう。",
+    "marketsBody": "最も注目の暗号通貨を発見しましょう。トップムーバー、新興トークン、DeFiの機会などを追跡できます。お気に入りを保存、共有、取引しましょう。",
     "watchlistEmpty": {
       "emptyTitle": "ウォッチリストに資産がありません",
       "emptyBody": "まだアセットにスターを付けていないようです。今すぐウォッチリストにアセットを追加して追跡しましょう。"
@@ -2706,7 +2706,7 @@
       },
       "thorchainDefi": {
         "title": "THORChain DeFi",
-        "subtitle": "THORCHain Savers で資産のネイティブ利回りを獲得しましょう。"
+        "subtitle": "THORChain Saversで資産のネイティブ利回りを獲得しましょう。"
       },
       "trending": {
         "title": "トレンド",
@@ -2740,20 +2740,20 @@
       "simulateTitle": "rFOXシミュレーター",
       "simulateSubtle": "rFOXステーキングの利回りをシミュレーションする",
       "estimatedRewards": "推定報酬",
-      "depositAmount": "預入金額",
+      "depositAmount": "入金額",
       "shapeshiftRevenue": "ShapeShiftの収益",
       "30days": "30日間"
     },
     "foxFarming": {
       "title": "FOXファーミング+",
-      "description": "%{rewardAssetSymbol} をファームからファームへ移行するのにうんざりしていませんか? %{assetSymbol} をステークするだけで、%{rewardAssetSymbol} を永久に獲得できます。",
+      "description": "%{rewardAssetSymbol}をファームからファームへ移行するのに疲れましたか？%{assetSymbol}をステーキングするだけで永続的に%{rewardAssetSymbol}を獲得できます。",
       "totalClaimableRewards": "請求可能な報酬の合計",
       "totalStakingValue": "総ステーキング価値",
       "nextEpoch": "次のエポック"
     },
     "governance": {
       "title": "ガバナンス",
-      "description": "参加しましょう <link>フォーラムで</link> DAO の未来を形作ります。",
+      "description": "<link>フォーラム</link>に参加してDAOの未来を形作りましょう。",
       "totalVotingPower": "総投票権",
       "noActiveProposals": "有効な提案はありません",
       "noClosedProposals": "終了した提案はありません"
@@ -2776,11 +2776,11 @@
       "signMessage": "メッセージの署名に失敗しました。",
       "broadcastTransaction": "トランザクションのブロードキャストに失敗しました。",
       "broadcastTransactionWithMessage": "トランザクション (%{message}) のブロードキャストに失敗しました。",
-      "getGasFeeData": "ネットワーク料金を取得できませんでした。",
+      "getGasFeeData": "ネットワーク手数料の取得に失敗しました。",
       "getFeeData": "ネットワーク料金の見積りに失敗しました。",
       "getPublicKey": "ウォレットから公開鍵を取得できませんでした。",
       "getUtxos": "utxos を取得できませんでした。",
-      "getValidator": "バリデータを取得できませんでした。",
+      "getValidator": "バリデーターの取得に失敗しました。",
       "gridplus": {
         "wrongSafeCard": "間違ったSafeCardが挿入されました。正しいSafeCardを挿入して、もう一度お試しください。",
         "removeSafeCard": "挿入された SafeCard を取り外して、内部の GridPlus ウォレットにアクセスします。"
@@ -2820,22 +2820,22 @@
       "startSwapping": "交換を始める"
     },
     "swap": {
-      "processing": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップを処理中です。",
+      "processing": "%{sellAmountAndSymbol}から%{buyAmountAndSymbol}へのスワップを処理中です。",
       "complete": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップが完了しました。",
-      "failed": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップに失敗しました。",
+      "failed": "%{sellAmountAndSymbol}から%{buyAmountAndSymbol}へのスワップが失敗しました。",
       "streaming": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップがストリーミング中です。",
-      "awaitingApproval": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップは承認待ちです。",
-      "awaitingSwap": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのスワップが実行を待機しています。"
+      "awaitingApproval": "%{sellAmountAndSymbol}から%{buyAmountAndSymbol}へのスワップは承認待ちです。",
+      "awaitingSwap": "%{sellAmountAndSymbol}から%{buyAmountAndSymbol}へのスワップは実行待ちです。"
     },
     "thorchainLp": {
-      "pairAssets": "%{asset1} と %{asset2}",
+      "pairAssets": "%{asset1}と%{asset2}",
       "withdraw": {
-        "processing": "%{poolName} プールからの %{assetAmountsAndSymbols} の引き出しが処理中です。",
-        "complete": "%{poolName} プールからの %{assetAmountsAndSymbols} の引き出しが完了しました。"
+        "processing": "%{poolName}プールからの%{assetAmountsAndSymbols}の出金を処理中です。",
+        "complete": "%{poolName}プールからの%{assetAmountsAndSymbols}の出金が完了しました。"
       },
       "deposit": {
         "processing": "%{poolName} プールへの %{amount} %{symbol} の入金が処理中です。",
-        "complete": "%{poolName} プールへの %{amount} %{symbol} の入金が完了しました。"
+        "complete": "%{poolName}プールへの%{amount} %{symbol}の入金が完了しました。"
       }
     },
     "deposit": {
@@ -2845,8 +2845,8 @@
     },
     "withdrawal": {
       "pending": "%{amount} %{symbol} の出金を処理中です。",
-      "complete": "%{amount} %{symbol} の出金が完了しました。",
-      "failed": "%{amount} %{symbol} の出金が失敗しました。"
+      "complete": "%{amount} %{symbol}の出金が完了しました。",
+      "failed": "%{amount} %{symbol}の出金が失敗しました。"
     },
     "claim": {
       "pending": "%{amount} %{symbol} の請求を処理中です。",
@@ -2854,17 +2854,17 @@
       "failed": "%{amount} %{symbol} の請求が失敗しました。"
     },
     "yield": {
-      "unstakeAvailableIn": "%{symbol} のステーク解除は %{duration} 後に利用可能になります。",
+      "unstakeAvailableIn": "%{symbol}のステーク解除は%{duration}後に利用可能になります。",
       "unstakeReady": "%{symbol} のステーク解除の請求が可能になりました。",
       "unstakeClaimed": "%{symbol} のステーク解除が請求されました。"
     },
     "bridge": {
-      "processing": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが処理中です。",
-      "complete": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが完了しました。",
+      "processing": "%{sellAmountAndSymbol}.%{sellChainShortName}から%{buyAmountAndSymbol}.%{buyChainShortName}へのブリッジを処理中です。",
+      "complete": "%{sellAmountAndSymbol}.%{sellChainShortName}から%{buyAmountAndSymbol}.%{buyChainShortName}へのブリッジが完了しました。",
       "initiated": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのブリッジが開始されました。",
       "pendingWithdraw": "%{amountAndSymbol} の出金は %{timeText} から可能になります。",
       "claimAvailable": "ブリッジした %{amountAndSymbol} を受け取れます",
-      "failed": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが失敗しました。",
+      "failed": "%{sellAmountAndSymbol}.%{sellChainShortName}から%{buyAmountAndSymbol}.%{buyChainShortName}へのブリッジが失敗しました。",
       "transactionInitiated": "取引開始",
       "claimWithdraw": "引き出しを請求",
       "withdrawTx": "出金トランザクション",
@@ -2873,28 +2873,28 @@
     "limitOrder": {
       "placed": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} への指値注文が出されました",
       "complete": "%{buyAmountAndSymbol} を %{sellAmountAndSymbol} で購入する注文が正常に実行されました。",
-      "cancelled": "%{buyAmountAndSymbol} を %{sellAmountAndSymbol} で購入する注文はキャンセルされました。",
+      "cancelled": "%{sellAmountAndSymbol}で%{buyAmountAndSymbol}を購入する注文がキャンセルされました。",
       "expired": "%{buyAmountAndSymbol} を %{sellAmountAndSymbol} で購入する注文の有効期限が切れました。"
     },
     "rfox": {
-      "unstakeReady": "%{amount} %{symbol} のステーク解除を請求する準備ができました。",
-      "unstakeTxPending": "%{amount} %{symbol} のステーク解除が保留中です。",
+      "unstakeReady": "%{amount} %{symbol}のステーク解除の請求準備ができました。",
+      "unstakeTxPending": "%{amount} %{symbol}のステーク解除は保留中です。",
       "unstakeTxComplete": "%{amount} %{symbol} のステーク解除が完了しました。"
     },
     "tcy": {
       "stakePending": "あなたの %{amount} %{symbol} のステークを処理中です...",
-      "unstakePending": "%{amount} %{symbol} のステーク解除を処理中です...",
+      "unstakePending": "%{amount} %{symbol}のステーク解除を処理中です...",
       "stakeComplete": "%{amount} %{symbol} のステークが完了しました。",
       "unstakeComplete": "%{amount} %{symbol} のステーク解除が完了しました。",
       "claimReady": "%{amount} %{symbol}のTCY請求が準備完了です。",
-      "claimTxPending": "%{amount} %{symbol} の TCY 請求は保留中です。",
+      "claimTxPending": "%{amount} %{symbol}のTCY請求は保留中です。",
       "claimTxComplete": "%{amount} %{symbol} の TCY 請求が完了しました。"
     },
     "approve": {
       "approvalTxPending": "%{contractName} が %{amount} %{symbol} の使用を承認中です。",
-      "approvalTxComplete": "%{contractName} が %{amount} %{symbol} を使用することを承認しました。"
+      "approvalTxComplete": "%{contractName}が%{amount} %{symbol}を使用することを承認しました。"
     },
-    "pendingTransactions": "%{count} 保留中",
+    "pendingTransactions": "%{count}件保留中",
     "rewardDistribution": {
       "pending": {
         "description": "%{amountAndSymbol} の報酬を処理中です..."
@@ -2993,16 +2993,16 @@
     "availableToEarnTooltip": "収益機会のある資産全体の合計アイドル残高。",
     "apyTooltip": "プロバイダーが提示する年利回り。利率は時間の経過とともに変動する場合があります。",
     "perYear": "/年",
-    "earningsPerYear": "%{amount} %{symbol} /年",
+    "earningsPerYear": "%{amount} %{symbol}/年",
     "recommendedForYou": "あなたにおすすめ",
     "earn": "得る",
     "providers": "プロバイダー",
     "successStaked": "%{amount} %{symbol} をステークしました",
     "successUnstaked": "%{amount} %{symbol} のステーク解除に成功しました",
     "cooldownNotice": "出金は %{cooldownDuration} 後に利用可能になります。",
-    "successDeposited": "%{amount} %{symbol} を入金しました",
+    "successDeposited": "%{amount} %{symbol}の入金に成功しました",
     "successWithdrawn": "%{amount} %{symbol} の引き出しに成功しました",
-    "successClaim": "%{amount} %{symbol} の請求に成功しました",
+    "successClaim": "%{amount} %{symbol}の請求に成功しました",
     "viewPosition": "表示位置",
     "via": "経由",
     "resetAllowance": "承認をリセット",
@@ -3043,7 +3043,7 @@
     "aboutProvider": "%{provider}について",
     "visitWebsite": "ウェブサイトを訪問",
     "providerDescriptions": {
-      "morpho": "Morpho はマネー マーケットおよび金庫インフラストラクチャ プロトコルであり、一流のセキュリティ企業によって何度も監査され、2022 年から稼働しており、250 万ドルのバグ報奨金インセンティブが付いています。",
+      "morpho": "Morphoはマネーマーケットとヴォールトインフラのプロトコルで、トップクラスのセキュリティ企業により複数回監査済み、2022年から稼働中、バグバウンティは250万ドル。",
       "morpho-aave": "Morpho はマネー マーケットおよび金庫インフラストラクチャ プロトコルであり、一流のセキュリティ企業によって何度も監査され、2022 年から稼働しており、250 万ドルのバグ報奨金インセンティブが付いています。",
       "morpho-compound": "Morpho はマネー マーケットおよび金庫インフラストラクチャ プロトコルであり、一流のセキュリティ企業によって何度も監査され、2022 年から稼働しており、250 万ドルのバグ報奨金インセンティブが付いています。",
       "lido": "Lidoは、stETHを介して流動性を維持しながらETHをステーキングできる流動性ステーキングプロトコルです。一流セキュリティ企業による監査を受け、2020年から運用されており、200万ドルのバグバウンティインセンティブも提供しています。",
@@ -3052,18 +3052,18 @@
       "kamino": "Kaminoは、レンディング、流動性、レバレッジを1つのプラットフォームに統合したSolanaのDeFiスイートです。最大150万ドルの報奨金が設定されたImmunefiプログラムを運営しています。",
       "fluid": "Fluidは、Instadappチームが構築した流動性レイヤーで、レンディング、DEX、借入、ステーブルコイン市場を1つの効率的なシステムに統合します。一流セキュリティ企業による監査を受け、2024年から稼働しており、バグバウンティとして50万ドルのインセンティブを提供しています。",
       "venus": "Venusは、BNBチェーンに特化した貸借プロトコルです。第三者監査と継続的なバグ報奨金プログラムを通じてセキュリティを重視しています。",
-      "gearbox": "Gearboxは、DeFi戦略に組み込むクレジットアカウントを可能にする、構成可能なレバレッジプロトコルです。複数のトップクラスのセキュリティ企業による監査を受けており、2021年から運用されており、バグバウンティとして20万ドルのインセンティブを提供しています。",
-      "yearn": "Yearnは、個人、DAO、その他のプロトコルがデジタル資産から収益を得ることを支援する分散型製品スイートです。複数のトップクラスのセキュリティ企業による監査を受けており、2020年から運用されており、バグバウンティとして20万ドルのインセンティブを提供しています。",
+      "gearbox": "GearboxはDeFi戦略に接続できるクレジットアカウントを可能にするコンポーザブルなレバレッジプロトコルです。トップクラスのセキュリティ企業により複数回監査済み、2021年から稼働中、バグバウンティは20万ドル。",
+      "yearn": "Yearnは個人、DAO、その他のプロトコルがデジタル資産から利回りを獲得できる分散型プロダクト群です。トップクラスのセキュリティ企業により複数回監査済み、2020年から稼働中、バグバウンティは20万ドル。",
       "spark": "Sparkは、Sky（旧MakerDAO）エコシステムをベースにした分散型レンディングプロトコルで、ユーザーはDAIやその他のステーブルコインを競争力のあるレートで借りることができます。最大500万ドルの報奨金が設定されたImmunefiプログラムを運営しています。",
-      "rocket-pool": "Rocket Poolは、rETHを発行する分散型イーサリアム流動性ステーキングプロトコルです。一流セキュリティ企業による監査を受けており、2021年から稼働しています。バグバウンティインセンティブとして50万ドルを提供しています。",
+      "rocket-pool": "Rocket PoolはrETHを発行する分散型Ethereumリキッドステーキングプロトコルです。トップクラスのセキュリティ企業により複数回監査済み、2021年から稼働中、バグバウンティは50万ドル。",
       "drift": "Driftは、Solana上に構築されたパーペチュアル取引および貸付プラットフォームです。最大50万ドルの報奨金が設定されたImmunefiプログラムを運営しています。"
     },
     "otherYields": "その他の%{symbol}利回り",
-    "availableToDeposit": "入金可能",
+    "availableToDeposit": "入金可能額",
     "availableToDepositTooltip": "これは、この利回り機会に入金できるウォレット内の %{symbol} の金額です。",
     "getAsset": "%{symbol} を取得",
     "manage": "管理",
-    "potentialEarningsAmount": "%{amount}/年、%{apy}% APY",
+    "potentialEarningsAmount": "%{apy}% APYで%{amount}/年",
     "depositNow": "今すぐ入金",
     "strategyInfo": "戦略情報",
     "overview": "概要",

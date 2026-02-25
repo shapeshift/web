@@ -13,6 +13,7 @@ type EgressMachineContext = {
   initialFreeBalanceCryptoBaseUnit: string
   stepConfirmed: boolean
   txHash: string | null
+  egressTxRef: string | null
   lastUsedNonce: number | undefined
   error: string | null
   errorStep: EgressStep | null
@@ -37,7 +38,7 @@ type EgressMachineEvent =
   | { type: 'SIGN_BROADCASTED'; txHash: string; nonce: number }
   | { type: 'SIGN_SUCCESS' }
   | { type: 'SIGN_ERROR'; error: string }
-  | { type: 'EGRESS_CONFIRMED' }
+  | { type: 'EGRESS_CONFIRMED'; egressTxRef?: string }
   | { type: 'EGRESS_TIMEOUT'; error: string }
   | { type: 'RETRY' }
   | { type: 'DONE' }
@@ -89,6 +90,12 @@ export const egressMachine = setup({
         return event.error
       },
     }),
+    assignEgressTxRef: assign({
+      egressTxRef: ({ event }) => {
+        assertEvent(event, 'EGRESS_CONFIRMED')
+        return event.egressTxRef ?? null
+      },
+    }),
     clearError: assign({ error: null, errorStep: null }),
     confirmStep: assign({ stepConfirmed: true }),
     resetStepConfirmed: assign({ stepConfirmed: false }),
@@ -97,6 +104,7 @@ export const egressMachine = setup({
       egressAmountCryptoBaseUnit: '0',
       destinationAddress: '',
       txHash: null,
+      egressTxRef: null,
       lastUsedNonce: undefined,
       error: null,
       errorStep: null,
@@ -115,6 +123,7 @@ export const egressMachine = setup({
     initialFreeBalanceCryptoBaseUnit: '0',
     stepConfirmed: false,
     txHash: null,
+    egressTxRef: null,
     lastUsedNonce: undefined,
     error: null,
     errorStep: null,
@@ -156,7 +165,7 @@ export const egressMachine = setup({
     confirming: {
       tags: ['executing'],
       on: {
-        EGRESS_CONFIRMED: 'success',
+        EGRESS_CONFIRMED: { target: 'success', actions: 'assignEgressTxRef' },
         EGRESS_TIMEOUT: {
           target: 'error',
           actions: ['assignError', assign({ errorStep: 'confirming' as EgressStep })],

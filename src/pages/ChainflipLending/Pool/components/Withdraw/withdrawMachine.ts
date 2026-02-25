@@ -20,6 +20,7 @@ type WithdrawMachineContext = {
   isFullWithdrawal: boolean
   stepConfirmed: boolean
   txHashes: WithdrawTxHashes
+  egressTxRef: string | null
   lastUsedNonce: number | undefined
   error: string | null
   errorStep: WithdrawStep | null
@@ -53,7 +54,7 @@ type WithdrawMachineEvent =
   | { type: 'EGRESS_BROADCASTED'; txHash: string; nonce: number }
   | { type: 'EGRESS_SUCCESS' }
   | { type: 'EGRESS_ERROR'; error: string }
-  | { type: 'WITHDRAW_CONFIRMED' }
+  | { type: 'WITHDRAW_CONFIRMED'; egressTxRef?: string }
   | { type: 'WITHDRAW_TIMEOUT'; error: string }
   | { type: 'RETRY' }
   | { type: 'DONE' }
@@ -132,6 +133,12 @@ export const withdrawMachine = setup({
         return event.nonce
       },
     }),
+    assignEgressTxRef: assign({
+      egressTxRef: ({ event }) => {
+        assertEvent(event, 'WITHDRAW_CONFIRMED')
+        return event.egressTxRef ?? null
+      },
+    }),
     disableBatch: assign({ useBatch: false }),
     assignError: assign({
       error: ({ event }) => {
@@ -150,6 +157,7 @@ export const withdrawMachine = setup({
       isFullWithdrawal: false,
       lastUsedNonce: undefined,
       txHashes: {},
+      egressTxRef: null,
       error: null,
       errorStep: null,
       useBatch: false,
@@ -169,6 +177,7 @@ export const withdrawMachine = setup({
     isFullWithdrawal: false,
     stepConfirmed: false,
     txHashes: {},
+    egressTxRef: null,
     lastUsedNonce: undefined,
     error: null,
     errorStep: null,
@@ -242,7 +251,7 @@ export const withdrawMachine = setup({
     confirming: {
       tags: ['executing'],
       on: {
-        WITHDRAW_CONFIRMED: 'success',
+        WITHDRAW_CONFIRMED: { target: 'success', actions: 'assignEgressTxRef' },
         WITHDRAW_TIMEOUT: {
           target: 'error',
           actions: ['assignError', assign({ errorStep: 'confirming' as WithdrawStep })],

@@ -2563,7 +2563,8 @@
       "steps": {
         "signing": "Signing withdrawal transaction",
         "confirming": "Confirming withdrawal"
-      }
+      },
+      "transactionId": "Transaction ID"
     },
     "borrowRateTooltip": "The current annual interest rate for borrowing from this pool",
     "originationFeeTooltip": "One-time fee charged when creating or expanding a loan",

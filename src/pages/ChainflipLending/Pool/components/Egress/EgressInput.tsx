@@ -1,33 +1,63 @@
-import { Button, CardBody, CardFooter, Flex, Input, Stack, VStack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import {
+  Button,
+  CardBody,
+  CardFooter,
+  Flex,
+  FormControl,
+  FormHelperText,
+  HStack,
+  Input,
+  Stack,
+  VStack,
+} from '@chakra-ui/react'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import type { NumberFormatValues } from 'react-number-format'
 import { NumericFormat } from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 
 import { EgressMachineCtx } from './EgressMachineContext'
 
+import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
+import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
+import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { validateAddress } from '@/lib/address/validation'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
-import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
+import {
+  selectAccountIdsByAccountNumberAndChainId,
+  selectAccountIdsByChainId,
+} from '@/state/slices/portfolioSlice/selectors'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+
+const dropdownBoxProps = { width: 'full', p: 0, m: 0 }
+const dropdownButtonProps = { width: 'full', variant: 'solid', height: '40px', px: 4 }
 
 type EgressInputProps = {
   assetId: AssetId
 }
 
+type AddressFormValues = {
+  manualAddress: string
+}
+
 export const EgressInput = ({ assetId }: EgressInputProps) => {
   const translate = useTranslate()
+  const { wallet } = useWallet().state
+  const { isSnapInstalled } = useIsSnapInstalled()
   const {
     number: { localeParts },
   } = useLocaleFormatter()
@@ -43,6 +73,7 @@ export const EgressInput = ({ assetId }: EgressInputProps) => {
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdsByAccountNumberAndChainId,
   )
+  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
 
   const chainId = useMemo(() => fromAssetId(assetId).chainId, [assetId])
 
@@ -51,6 +82,16 @@ export const EgressInput = ({ assetId }: EgressInputProps) => {
     return byChainId?.[chainId]?.[0]
   }, [accountIdsByAccountNumberAndChainId, accountNumber, chainId])
 
+  const walletSupportsAssetChain = useMemo(() => {
+    const chainAccountIds = accountIdsByChainId[chainId] ?? []
+    return walletSupportsChain({
+      checkConnectedAccountIds: chainAccountIds,
+      chainId,
+      wallet,
+      isSnapInstalled,
+    })
+  }, [accountIdsByChainId, chainId, wallet, isSnapInstalled])
+
   const defaultAddress = useMemo(
     () => (accountId ? fromAccountId(accountId).account : ''),
     [accountId],
@@ -58,6 +99,19 @@ export const EgressInput = ({ assetId }: EgressInputProps) => {
 
   const [inputValue, setInputValue] = useState('')
   const [destinationAddress, setDestinationAddress] = useState(defaultAddress)
+  const [defaultAccountId, setDefaultAccountId] = useState<AccountId | undefined>(accountId)
+  const [isCustomAddress, setIsCustomAddress] = useState(!walletSupportsAssetChain)
+
+  const methods = useForm<AddressFormValues>({
+    mode: 'onChange',
+    reValidateMode: 'onChange',
+  })
+  const {
+    register,
+    formState: { errors },
+    setValue,
+    trigger,
+  } = methods
 
   const availableCryptoPrecision = useMemo(
     () =>
@@ -77,13 +131,47 @@ export const EgressInput = ({ assetId }: EgressInputProps) => {
     setInputValue(values.value)
   }, [])
 
-  const handleAddressChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setDestinationAddress(e.target.value)
-  }, [])
-
   const handleMaxClick = useCallback(() => {
     setInputValue(availableCryptoPrecision)
   }, [availableCryptoPrecision])
+
+  const handleAccountChange = useCallback((newAccountId: string) => {
+    const address = fromAccountId(newAccountId).account
+    setDefaultAccountId(newAccountId)
+    setDestinationAddress(address)
+  }, [])
+
+  const handleToggleCustomAddress = useCallback(() => {
+    if (!walletSupportsAssetChain) return
+    setDestinationAddress(isCustomAddress ? defaultAddress : '')
+    setIsCustomAddress(prev => !prev)
+  }, [walletSupportsAssetChain, isCustomAddress, defaultAddress])
+
+  const validateChainAddress = useCallback(
+    async (address: string) => {
+      if (!address) {
+        setDestinationAddress('')
+        return true
+      }
+      const isValid = await validateAddress({ maybeAddress: address, chainId })
+      if (!isValid) {
+        setDestinationAddress('')
+        return translate('common.invalidAddress')
+      }
+      setDestinationAddress(address)
+      return true
+    },
+    [chainId, translate],
+  )
+
+  const handleManualInputChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value
+      setValue('manualAddress', newValue, { shouldValidate: true })
+      await trigger('manualAddress')
+    },
+    [setValue, trigger],
+  )
 
   const handleSubmit = useCallback(() => {
     if (!asset) return
@@ -179,18 +267,53 @@ export const EgressInput = ({ assetId }: EgressInputProps) => {
             </Flex>
           </Flex>
 
-          <Stack spacing={1}>
-            <RawText fontSize='sm' color='text.subtle'>
-              {translate('chainflipLending.egress.destination')}
-            </RawText>
-            <Input
-              value={destinationAddress}
-              onChange={handleAddressChange}
-              placeholder={translate('chainflipLending.egress.destinationPlaceholder')}
-              size='sm'
-              variant='filled'
-            />
-          </Stack>
+          <FormControl isInvalid={Boolean(errors.manualAddress)}>
+            <HStack justifyContent='space-between' mb={2}>
+              <RawText fontSize='sm' color='text.subtle'>
+                {translate('chainflipLending.egress.destination')}
+              </RawText>
+              {walletSupportsAssetChain && (
+                <Button
+                  fontSize='xs'
+                  variant='link'
+                  color='text.link'
+                  onClick={handleToggleCustomAddress}
+                >
+                  {isCustomAddress
+                    ? translate('chainflipLending.deposit.refundAddress.useWalletAddress')
+                    : translate('chainflipLending.deposit.refundAddress.useCustomAddress')}
+                </Button>
+              )}
+            </HStack>
+            {isCustomAddress ? (
+              <Input
+                {...register('manualAddress', {
+                  required: true,
+                  validate: { isValidAddress: validateChainAddress },
+                })}
+                placeholder={translate('common.enterAddress')}
+                autoComplete='off'
+                onChange={handleManualInputChange}
+                size='sm'
+                variant='filled'
+              />
+            ) : (
+              <InlineCopyButton value={destinationAddress}>
+                <AccountDropdown
+                  assetId={assetId}
+                  onChange={handleAccountChange}
+                  boxProps={dropdownBoxProps}
+                  buttonProps={dropdownButtonProps}
+                  defaultAccountId={defaultAccountId}
+                />
+              </InlineCopyButton>
+            )}
+            {errors.manualAddress && (
+              <FormHelperText color='red.500'>
+                {errors.manualAddress.message as string}
+              </FormHelperText>
+            )}
+          </FormControl>
 
           {!hasFreeBalance && (
             <RawText fontSize='xs' color='yellow.500'>

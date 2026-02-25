@@ -4,32 +4,35 @@ import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { EgressMachineCtx } from '../EgressMachineContext'
 
 import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
+import { queryLiquidityWithdrawalStatus } from '@/lib/chainflip/explorerApi'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { reactQueries } from '@/react-queries'
 
-const POLL_INTERVAL_MS = 6_000
-const MAX_POLL_ATTEMPTS = 20
+const POLL_INTERVAL_MS = 60_000
+const MAX_POLL_ATTEMPTS = 30
 
 export const useEgressConfirmation = () => {
   const queryClient = useQueryClient()
   const actorRef = EgressMachineCtx.useActorRef()
   const stateValue = EgressMachineCtx.useSelector(s => s.value)
   const assetId = EgressMachineCtx.useSelector(s => s.context.assetId)
-  const initialFreeBalanceCryptoBaseUnit = EgressMachineCtx.useSelector(
-    s => s.context.initialFreeBalanceCryptoBaseUnit,
-  )
+  const destinationAddress = EgressMachineCtx.useSelector(s => s.context.destinationAddress)
   const { scAccount } = useChainflipLendingAccount()
 
   const isConfirming = stateValue === 'confirming'
   const pollCountRef = useRef(0)
 
-  const { data: freeBalances } = useQuery({
-    ...reactQueries.chainflipLending.freeBalances(scAccount ?? ''),
-    enabled: isConfirming && !!scAccount,
+  const cfAsset = useMemo(() => CHAINFLIP_LENDING_ASSET_BY_ASSET_ID[assetId], [assetId])
+
+  const { data: withdrawalStatus } = useQuery({
+    queryKey: ['chainflipEgressStatus', destinationAddress, cfAsset?.asset, cfAsset?.chain],
+    queryFn: () => {
+      if (!cfAsset || !destinationAddress) return null
+      return queryLiquidityWithdrawalStatus(destinationAddress, cfAsset.asset, cfAsset.chain)
+    },
+    enabled: isConfirming && !!cfAsset && !!destinationAddress,
     refetchInterval: isConfirming ? POLL_INTERVAL_MS : false,
   })
-
-  const cfAsset = useMemo(() => CHAINFLIP_LENDING_ASSET_BY_ASSET_ID[assetId], [assetId])
 
   const invalidateQueries = useCallback(async () => {
     if (!scAccount) return
@@ -45,7 +48,7 @@ export const useEgressConfirmation = () => {
       return
     }
 
-    if (!freeBalances || !cfAsset) return
+    if (!withdrawalStatus) return
 
     pollCountRef.current += 1
     if (pollCountRef.current > MAX_POLL_ATTEMPTS) {
@@ -53,29 +56,12 @@ export const useEgressConfirmation = () => {
       return
     }
 
-    const matching = freeBalances.find(
-      b => b.asset.chain === cfAsset.chain && b.asset.asset === cfAsset.asset,
-    )
-
-    const currentBalance = matching?.balance ?? '0'
-
-    try {
-      const currentBalanceBigInt = BigInt(currentBalance)
-      const initialBalanceBigInt = BigInt(initialFreeBalanceCryptoBaseUnit || '0')
-
-      if (currentBalanceBigInt < initialBalanceBigInt) {
-        void invalidateQueries()
-        actorRef.send({ type: 'EGRESS_CONFIRMED' })
-      }
-    } catch {
-      // keep polling
+    if (withdrawalStatus.broadcastComplete && withdrawalStatus.transactionRef) {
+      void invalidateQueries()
+      actorRef.send({
+        type: 'EGRESS_CONFIRMED',
+        egressTxRef: withdrawalStatus.transactionRef,
+      })
     }
-  }, [
-    isConfirming,
-    freeBalances,
-    cfAsset,
-    initialFreeBalanceCryptoBaseUnit,
-    actorRef,
-    invalidateQueries,
-  ])
+  }, [isConfirming, withdrawalStatus, actorRef, invalidateQueries])
 }

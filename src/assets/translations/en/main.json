@@ -2412,7 +2412,17 @@
     "availableLiquidityTooltip": "Total value of assets currently available to borrow across all pools.",
     "totalBorrowed": "Total Borrowed",
     "totalBorrowedTooltip": "Total value of outstanding borrows across all Chainflip lending pools.",
-    "pool": "Pool",
+    "pool": {
+      "depositFirst": "Deposit funds to Chainflip first",
+      "noFreeBalance": "No free balance available",
+      "noSupplyPosition": "No supply position to withdraw",
+      "noCollateral": "No collateral deposited",
+      "noLoans": "No active loans",
+      "supply": "Supply",
+      "withdrawSupply": "Withdraw Supply",
+      "depositToChainflip": "Deposit",
+      "withdrawFromChainflip": "Withdraw from Chainflip"
+    },
     "supplyApy": "Supply APY",
     "supplyApyTooltip": "Annual percentage yield earned by supplying assets to this pool.",
     "borrowRate": "Borrow Rate",
@@ -2504,6 +2514,46 @@
         "signingBatch": "Signing withdrawal",
         "signingRemove": "Removing from pool",
         "signingEgress": "Withdrawing to wallet",
+        "confirming": "Confirming withdrawal"
+      }
+    },
+    "withdrawFromChainflip": {
+      "title": "Withdraw from Chainflip",
+      "amount": "Amount",
+      "destination": "Destination Address",
+      "available": "Available Free Balance",
+      "confirmAndWithdraw": "Confirm Withdrawal",
+      "confirmTitle": "Confirm Withdrawal",
+      "confirmDescription": "Withdraw %{amount} %{symbol} from your Chainflip free balance to your wallet",
+      "errorTitle": "Withdrawal Failed",
+      "errorDescription": "There was an error processing your withdrawal. Please try again.",
+      "executingTitle": "Processing Withdrawal",
+      "executingDescription": "Your withdrawal is being processed on the Chainflip State Chain",
+      "successTitle": "Withdrawal Submitted",
+      "successDescription": "Your withdrawal has been submitted and will arrive in your wallet shortly",
+      "steps": {
+        "signing": "Signing withdrawal transaction",
+        "confirming": "Confirming withdrawal"
+      }
+    },
+    "egress": {
+      "title": "Withdraw from Chainflip",
+      "amount": "Amount",
+      "destination": "Destination Address",
+      "destinationPlaceholder": "Enter destination address",
+      "available": "Available Free Balance",
+      "confirmAndWithdraw": "Confirm Withdrawal",
+      "confirmTitle": "Confirm Withdrawal",
+      "confirmDescription": "Withdraw %{amount} %{asset} from your Chainflip free balance to your wallet",
+      "errorTitle": "Withdrawal Failed",
+      "errorDescription": "There was an error processing your withdrawal. Please try again.",
+      "executingTitle": "Processing Withdrawal",
+      "executingDescription": "Your withdrawal is being processed on the Chainflip State Chain",
+      "successTitle": "Withdrawal Submitted",
+      "successDescription": "Your withdrawal of %{asset} has been submitted and will arrive in your wallet shortly",
+      "withdrawn": "Withdrawn",
+      "steps": {
+        "signing": "Signing withdrawal transaction",
         "confirming": "Confirming withdrawal"
       }
     }

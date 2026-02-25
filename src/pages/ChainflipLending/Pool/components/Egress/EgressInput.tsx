@@ -1,12 +1,13 @@
-import { Button, CardBody, CardFooter, Flex, Stack, VStack } from '@chakra-ui/react'
+import { Button, CardBody, CardFooter, Flex, Input, Stack, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import { NumericFormat } from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 
-import { SupplyMachineCtx } from './SupplyMachineContext'
+import { EgressMachineCtx } from './EgressMachineContext'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -15,16 +16,17 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { useChainflipMinimumSupply } from '@/pages/ChainflipLending/hooks/useChainflipMinimumSupply'
+import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
+import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-type SupplyInputProps = {
+type EgressInputProps = {
   assetId: AssetId
 }
 
-export const SupplyInput = ({ assetId }: SupplyInputProps) => {
+export const EgressInput = ({ assetId }: EgressInputProps) => {
   const translate = useTranslate()
   const {
     number: { localeParts },
@@ -32,12 +34,30 @@ export const SupplyInput = ({ assetId }: SupplyInputProps) => {
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
-  const actorRef = SupplyMachineCtx.useActorRef()
-  const freeBalanceCryptoBaseUnit = SupplyMachineCtx.useSelector(
+  const actorRef = EgressMachineCtx.useActorRef()
+  const freeBalanceCryptoBaseUnit = EgressMachineCtx.useSelector(
     s => s.context.freeBalanceCryptoBaseUnit,
   )
 
+  const { accountNumber } = useChainflipLendingAccount()
+  const accountIdsByAccountNumberAndChainId = useAppSelector(
+    selectAccountIdsByAccountNumberAndChainId,
+  )
+
+  const chainId = useMemo(() => fromAssetId(assetId).chainId, [assetId])
+
+  const accountId = useMemo(() => {
+    const byChainId = accountIdsByAccountNumberAndChainId[accountNumber]
+    return byChainId?.[chainId]?.[0]
+  }, [accountIdsByAccountNumberAndChainId, accountNumber, chainId])
+
+  const defaultAddress = useMemo(
+    () => (accountId ? fromAccountId(accountId).account : ''),
+    [accountId],
+  )
+
   const [inputValue, setInputValue] = useState('')
+  const [destinationAddress, setDestinationAddress] = useState(defaultAddress)
 
   const availableCryptoPrecision = useMemo(
     () =>
@@ -48,14 +68,6 @@ export const SupplyInput = ({ assetId }: SupplyInputProps) => {
     [freeBalanceCryptoBaseUnit, asset?.precision],
   )
 
-  const { minSupply } = useChainflipMinimumSupply(assetId)
-
-  const isBelowMinimum = useMemo(() => {
-    if (!minSupply) return false
-    const amount = bnOrZero(inputValue)
-    return amount.gt(0) && amount.lt(minSupply)
-  }, [inputValue, minSupply])
-
   const hasFreeBalance = useMemo(
     () => bnOrZero(freeBalanceCryptoBaseUnit).gt(0),
     [freeBalanceCryptoBaseUnit],
@@ -63,6 +75,10 @@ export const SupplyInput = ({ assetId }: SupplyInputProps) => {
 
   const handleInputChange = useCallback((values: NumberFormatValues) => {
     setInputValue(values.value)
+  }, [])
+
+  const handleAddressChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setDestinationAddress(e.target.value)
   }, [])
 
   const handleMaxClick = useCallback(() => {
@@ -78,18 +94,19 @@ export const SupplyInput = ({ assetId }: SupplyInputProps) => {
 
     actorRef.send({
       type: 'SUBMIT',
-      supplyAmountCryptoPrecision: inputValue,
-      supplyAmountCryptoBaseUnit: baseUnit,
+      egressAmountCryptoPrecision: inputValue,
+      egressAmountCryptoBaseUnit: baseUnit,
+      destinationAddress,
     })
-  }, [actorRef, inputValue, asset])
+  }, [actorRef, inputValue, asset, destinationAddress])
 
-  // TODO: re-enable isBelowMinimum check after testing
   const isSubmitDisabled = useMemo(
     () =>
       bnOrZero(inputValue).isZero() ||
       bnOrZero(inputValue).gt(availableCryptoPrecision) ||
-      !hasFreeBalance,
-    [inputValue, availableCryptoPrecision, hasFreeBalance],
+      !hasFreeBalance ||
+      !destinationAddress.trim(),
+    [inputValue, availableCryptoPrecision, hasFreeBalance, destinationAddress],
   )
 
   if (!asset) return null
@@ -107,7 +124,7 @@ export const SupplyInput = ({ assetId }: SupplyInputProps) => {
 
           <Stack spacing={1}>
             <RawText fontSize='sm' color='text.subtle'>
-              {translate('chainflipLending.supply.amount')}
+              {translate('chainflipLending.egress.amount')}
             </RawText>
             <NumericFormat
               inputMode='decimal'
@@ -134,9 +151,13 @@ export const SupplyInput = ({ assetId }: SupplyInputProps) => {
           </Stack>
 
           <Flex justifyContent='space-between' alignItems='center'>
-            <HelperTooltip label={translate('chainflipLending.supply.availableTooltip')}>
+            <HelperTooltip
+              label={translate('chainflipLending.deposit.freeBalanceTooltip', {
+                asset: asset.symbol,
+              })}
+            >
               <RawText fontSize='sm' color='text.subtle'>
-                {translate('chainflipLending.supply.available')}
+                {translate('chainflipLending.deposit.freeBalance')}
               </RawText>
             </HelperTooltip>
             <Flex alignItems='center' gap={2}>
@@ -158,13 +179,18 @@ export const SupplyInput = ({ assetId }: SupplyInputProps) => {
             </Flex>
           </Flex>
 
-          {isBelowMinimum && minSupply && (
-            <RawText fontSize='sm' color='red.500'>
-              {translate('chainflipLending.supply.minimumSupply', {
-                amount: `${bnOrZero(minSupply).decimalPlaces(2).toFixed()} ${asset.symbol}`,
-              })}
+          <Stack spacing={1}>
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('chainflipLending.egress.destination')}
             </RawText>
-          )}
+            <Input
+              value={destinationAddress}
+              onChange={handleAddressChange}
+              placeholder={translate('chainflipLending.egress.destinationPlaceholder')}
+              size='sm'
+              variant='filled'
+            />
+          </Stack>
 
           {!hasFreeBalance && (
             <RawText fontSize='xs' color='yellow.500'>
@@ -192,7 +218,7 @@ export const SupplyInput = ({ assetId }: SupplyInputProps) => {
           onClick={handleSubmit}
           isDisabled={isSubmitDisabled}
         >
-          {translate('chainflipLending.supply.title')}
+          {translate('chainflipLending.egress.title')}
         </Button>
       </CardFooter>
     </SlideTransition>

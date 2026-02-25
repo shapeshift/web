@@ -127,13 +127,11 @@ export const DepositInput = ({ assetId }: DepositInputProps) => {
     [walletSupportsEth, walletSupportsAssetChain],
   )
 
-  const isSubmitDisabled = useMemo(
-    () =>
-      bnOrZero(depositAmountCryptoPrecision).isZero() ||
-      isBelowMinimum ||
-      bnOrZero(depositAmountCryptoPrecision).gt(availableCryptoPrecision),
-    [depositAmountCryptoPrecision, isBelowMinimum, availableCryptoPrecision],
-  )
+  const isSubmitDisabled = useMemo(() => {
+    const isZero = bnOrZero(depositAmountCryptoPrecision).isZero()
+    const exceedsBalance = bnOrZero(depositAmountCryptoPrecision).gt(availableCryptoPrecision)
+    return isZero || exceedsBalance
+  }, [depositAmountCryptoPrecision, availableCryptoPrecision])
 
   if (!asset) return null
 

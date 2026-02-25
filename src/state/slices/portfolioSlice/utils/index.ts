@@ -40,6 +40,7 @@ import {
   plumeChainId,
   polygonChainId,
   scrollChainId,
+  seiChainId,
   solanaChainId,
   soneiumChainId,
   sonicChainId,
@@ -92,6 +93,7 @@ import {
   supportsPlume,
   supportsPolygon,
   supportsScroll,
+  supportsSei,
   supportsSolana,
   supportsSoneium,
   supportsSonic,
@@ -157,6 +159,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case plumeChainId:
     case storyChainId:
     case worldChainChainId:
+    case seiChainId:
     case scrollChainId:
     case sonicChainId:
     case unichainChainId:
@@ -596,6 +599,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsWorldChain(wallet)
     case hemiChainId:
       return supportsHemi(wallet)
+    case seiChainId:
+      return supportsSei(wallet)
     case lineaChainId:
       return supportsLinea(wallet)
     case scrollChainId:

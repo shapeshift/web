@@ -29,6 +29,7 @@ import {
   plumeMainnet,
   polygon,
   scroll,
+  sei,
   soneium,
   sonic,
   story,
@@ -232,6 +233,11 @@ export const viemHemiClient = createPublicClient({
   transport: fallback([process.env.VITE_HEMI_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemSeiClient = createPublicClient({
+  chain: sei,
+  transport: fallback([process.env.VITE_SEI_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemLineaClient = createPublicClient({
   chain: linea,
   transport: fallback([process.env.VITE_LINEA_NODE_URL].filter(Boolean).map(url => http(url))),
@@ -301,6 +307,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.ModeMainnet]: viemModeClient,
   [KnownChainIds.SoneiumMainnet]: viemSoneiumClient,
   [KnownChainIds.EtherealMainnet]: viemEtherealClient,
+  [KnownChainIds.SeiMainnet]: viemSeiClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -337,6 +344,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.ModeMainnet]: mode.id,
   [KnownChainIds.SoneiumMainnet]: soneium.id,
   [KnownChainIds.EtherealMainnet]: ethereal.id,
+  [KnownChainIds.SeiMainnet]: sei.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -373,6 +381,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [mode.id]: viemModeClient,
   [soneium.id]: viemSoneiumClient,
   [ethereal.id]: viemEtherealClient,
+  [sei.id]: viemSeiClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

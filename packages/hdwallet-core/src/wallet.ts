@@ -201,6 +201,10 @@ export function supportsMode(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsMode
 }
 
+export function supportsSei(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsSei
+}
+
 export function supportsHyperEvm(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsHyperEvm
 }

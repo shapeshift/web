@@ -20,6 +20,7 @@ import {
   optimism,
   plumeMainnet,
   polygon,
+  sei,
   soneium,
   sonic,
   story,
@@ -89,6 +90,7 @@ export const walletConnectV2OptionalChains: AtLeastOneViemChain = (() => {
     story,
     plumeMainnet,
     celo,
+    sei,
   ]
   if (optionalViemChains.length === 0) throw new Error('Array must contain at least one element.')
   return optionalViemChains as AtLeastOneViemChain

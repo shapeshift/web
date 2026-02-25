@@ -76,6 +76,8 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.WorldChain
           case CHAIN_REFERENCE.HemiMainnet:
             return ASSET_REFERENCE.Hemi
+          case CHAIN_REFERENCE.SeiMainnet:
+            return ASSET_REFERENCE.Sei
           case CHAIN_REFERENCE.LineaMainnet:
             return ASSET_REFERENCE.Linea
           case CHAIN_REFERENCE.ScrollMainnet:

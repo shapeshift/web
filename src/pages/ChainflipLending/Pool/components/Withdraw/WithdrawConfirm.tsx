@@ -17,6 +17,7 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { reactQueries } from '@/react-queries'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -30,6 +31,7 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
   const translate = useTranslate()
   const queryClient = useQueryClient()
   const { scAccount } = useChainflipLendingAccount()
+  const { close: closeModal } = useModal('chainflipLending')
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
@@ -67,8 +69,8 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
       await queryClient.invalidateQueries(reactQueries.chainflipLending.freeBalances(scAccount))
       await queryClient.invalidateQueries(reactQueries.chainflipLending.accountInfo(scAccount))
     }
-    actorRef.send({ type: 'DONE' })
-  }, [scAccount, queryClient, actorRef])
+    closeModal()
+  }, [scAccount, queryClient, closeModal])
 
   const handleBack = useCallback(() => {
     actorRef.send({ type: 'BACK' })

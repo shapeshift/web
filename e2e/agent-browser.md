@@ -48,6 +48,7 @@ fi
 ## Tips
 
 - **Dismissing modals/overlays**: When transitioning between modals or tabs, click away from the current modal first (use `press "Escape"` or click on the page background). The cookie/tracking banner blocks clicks on underlying elements - dismiss it with `eval "Array.from(document.querySelectorAll('button')).find(b => b.textContent.trim() === 'Got It')?.click()"` or by clicking `@ref` if not blocked.
+- **Stubborn dialogs**: Some dialogs (e.g. Chakra `Dialog` without `closeOnOverlayClick`) won't close on Escape or overlay click. If a dialog is stuck, navigate away with `eval "window.location.hash = '/new-route'"` as a last resort.
 - **Prefer `@ref` over text selectors**: Text selectors like `click "My Balances"` can timeout. Use `snapshot` to get refs, then `click "@e11"`.
 - **`--profile` is first-launch only**: If the daemon is already running, `--profile` is ignored. Close the session first (`close`) then reopen with `--profile`.
 

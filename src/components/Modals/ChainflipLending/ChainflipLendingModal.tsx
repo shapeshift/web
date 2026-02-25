@@ -5,6 +5,7 @@ import type { ChainflipLendingModalProps } from './types'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { Dialog } from '@/components/Modal/components/Dialog'
+import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
 import { useModal } from '@/hooks/useModal/useModal'
 import { ChainflipLendingAccountProvider } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 
@@ -57,7 +58,8 @@ const ChainflipLendingModalContent = ({ mode, assetId }: ChainflipLendingModalPr
   }, [mode, assetId])
 
   return (
-    <Card>
+    <Card position='relative'>
+      <DialogCloseButton />
       <Suspense fallback={suspenseFallback}>{content}</Suspense>
     </Card>
   )

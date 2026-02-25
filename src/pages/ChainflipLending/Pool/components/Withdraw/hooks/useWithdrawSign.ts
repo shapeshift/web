@@ -8,7 +8,7 @@ import { encodeRemoveLenderFunds } from '@/lib/chainflip/scale'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { useSignChainflipCall } from '@/pages/ChainflipLending/hooks/useSignChainflipCall'
 
-export const useWithdrawRemove = () => {
+export const useWithdrawSign = () => {
   const actorRef = WithdrawMachineCtx.useActorRef()
   const stateValue = WithdrawMachineCtx.useSelector(s => s.value)
   const {
@@ -34,7 +34,7 @@ export const useWithdrawRemove = () => {
   const cfAsset = useMemo(() => CHAINFLIP_LENDING_ASSET_BY_ASSET_ID[assetId], [assetId])
 
   useEffect(() => {
-    if (stateValue !== 'signing_remove' || executingRef.current) return
+    if (stateValue !== 'signing' || executingRef.current) return
     if (isNativeWallet && !stepConfirmed) return
     executingRef.current = true
 
@@ -56,11 +56,11 @@ export const useWithdrawRemove = () => {
           nonceOrAccount,
         })
 
-        actorRef.send({ type: 'REMOVE_BROADCASTED', txHash, nonce })
-        actorRef.send({ type: 'REMOVE_SUCCESS' })
+        actorRef.send({ type: 'SIGN_BROADCASTED', txHash, nonce })
+        actorRef.send({ type: 'SIGN_SUCCESS' })
       } catch (e) {
-        const message = e instanceof Error ? e.message : 'Remove lender funds failed'
-        actorRef.send({ type: 'REMOVE_ERROR', error: message })
+        const message = e instanceof Error ? e.message : 'Withdraw transaction failed'
+        actorRef.send({ type: 'SIGN_ERROR', error: message })
       } finally {
         executingRef.current = false
       }

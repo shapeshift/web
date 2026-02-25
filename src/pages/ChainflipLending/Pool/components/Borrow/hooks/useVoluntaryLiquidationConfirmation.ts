@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useRef } from 'react'
 
-import { BorrowMachineCtx } from '../BorrowMachineContext'
+import { VoluntaryLiquidationMachineCtx } from '../VoluntaryLiquidationMachineContext'
 
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { reactQueries } from '@/react-queries'
@@ -9,18 +9,13 @@ import { reactQueries } from '@/react-queries'
 const POLL_INTERVAL_MS = 6_000
 const TIMEOUT_MS = 5 * 60 * 1000
 
-type LoanSnapshot = {
-  count: number
-  totalPrincipal: bigint
-}
-
-export const useBorrowConfirmation = () => {
-  const actorRef = BorrowMachineCtx.useActorRef()
-  const stateValue = BorrowMachineCtx.useSelector(s => s.value)
+export const useVoluntaryLiquidationConfirmation = () => {
+  const actorRef = VoluntaryLiquidationMachineCtx.useActorRef()
+  const stateValue = VoluntaryLiquidationMachineCtx.useSelector(s => s.value)
+  const action = VoluntaryLiquidationMachineCtx.useSelector(s => s.context.action)
   const { scAccount } = useChainflipLendingAccount()
 
   const isConfirming = stateValue === 'confirming'
-  const snapshotRef = useRef<LoanSnapshot | null>(null)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const { data: loanAccountsData } = useQuery({
@@ -31,7 +26,6 @@ export const useBorrowConfirmation = () => {
 
   useEffect(() => {
     if (!isConfirming) {
-      snapshotRef.current = null
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
         timeoutRef.current = null
@@ -41,7 +35,10 @@ export const useBorrowConfirmation = () => {
 
     if (timeoutRef.current === null) {
       timeoutRef.current = setTimeout(() => {
-        actorRef.send({ type: 'BORROW_TIMEOUT', error: 'Loan confirmation timed out' })
+        actorRef.send({
+          type: 'LIQUIDATION_TIMEOUT',
+          error: 'Voluntary liquidation confirmation timed out',
+        })
       }, TIMEOUT_MS)
     }
 
@@ -56,28 +53,21 @@ export const useBorrowConfirmation = () => {
   useEffect(() => {
     if (!isConfirming || !loanAccountsData || !scAccount) return
 
-    const myAccount = loanAccountsData.find(account => account.account === scAccount)
-    const loans = myAccount?.loans ?? []
-    const currentCount = loans.length
-    const currentTotalPrincipal = loans.reduce((sum, l) => {
-      try {
-        return sum + BigInt(l.principal_amount)
-      } catch {
-        return sum
-      }
-    }, 0n)
+    const loanAccount = loanAccountsData.find(account => account.account === scAccount)
+    if (!loanAccount) return
 
-    if (snapshotRef.current === null) {
-      snapshotRef.current = { count: currentCount, totalPrincipal: currentTotalPrincipal }
-      return
-    }
+    const hasVoluntaryLiquidation =
+      loanAccount.liquidation_status !== null &&
+      loanAccount.liquidation_status !== undefined &&
+      typeof loanAccount.liquidation_status === 'object' &&
+      'liquidation_type' in (loanAccount.liquidation_status as Record<string, unknown>) &&
+      (loanAccount.liquidation_status as Record<string, unknown>).liquidation_type === 'Voluntary'
 
-    const hasNewLoan = currentCount > snapshotRef.current.count
-    const hasIncreasedPrincipal = currentTotalPrincipal > snapshotRef.current.totalPrincipal
+    const confirmed = action === 'initiate' ? hasVoluntaryLiquidation : !hasVoluntaryLiquidation
 
-    if (hasNewLoan || hasIncreasedPrincipal) {
+    if (confirmed) {
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
-      actorRef.send({ type: 'BORROW_CONFIRMED' })
+      actorRef.send({ type: 'LIQUIDATION_CONFIRMED' })
     }
-  }, [isConfirming, loanAccountsData, scAccount, actorRef])
+  }, [isConfirming, loanAccountsData, scAccount, action, actorRef])
 }

@@ -145,7 +145,7 @@ export const Markets = () => {
           fontSize='sm'
           px={mobilePadding}
         >
-          <Text translation='chainflipLending.pool' />
+          <Text translation='chainflipLending.poolHeader' />
           <Flex display={mobileDisplay}>
             <HelperTooltip label={translate('chainflipLending.totalSuppliedTooltip')}>
               <Text translation='chainflipLending.totalSupplied' />

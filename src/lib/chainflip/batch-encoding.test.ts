@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { encodeBatch, encodeRemoveLenderFunds, encodeWithdrawAsset } from '@/lib/chainflip/scale'
+
 import { ethAddressToScAccount } from '@/lib/chainflip/account'
+import { encodeBatch, encodeRemoveLenderFunds, encodeWithdrawAsset } from '@/lib/chainflip/scale'
 
 describe('batch encoding for withdraw+egress', () => {
   const cfUsdc = { chain: 'Ethereum' as const, asset: 'USDC' as const }
   const destAddress = '0x5daf465a9ccf64deb146eeae9e7bd40d6761c986'
-  
+
   it('shows the scAccount derivation', () => {
     const sc = ethAddressToScAccount(destAddress)
     console.log('scAccount:', sc)
@@ -50,10 +51,10 @@ describe('batch encoding for withdraw+egress', () => {
     console.log('  pallet:', batch.slice(0, 4), '(0x02 = Environment)')
     console.log('  call:', batch.slice(4, 6), '(0x0b = Batch)')
     console.log('  vector compact length:', batch.slice(6, 8))
-    
+
     // The batch should start with 0x020b (Environment::Batch)
     expect(batch).toMatch(/^0x020b/)
-    
+
     // It should contain both inner calls
     expect(batch).toContain(removeCall.slice(2)) // removeCall without 0x prefix
     expect(batch).toContain(egressCall.slice(2)) // egressCall without 0x prefix

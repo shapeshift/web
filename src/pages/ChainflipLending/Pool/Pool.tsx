@@ -24,10 +24,6 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { Borrow } from './components/Borrow/Borrow'
-import { Collateral } from './components/Borrow/Collateral'
-import { Repay } from './components/Borrow/Repay'
-
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -172,12 +168,19 @@ export const Pool = () => {
   const { pools, isLoading } = useChainflipLendingPools()
   const { supplyPositions, isLoading: isPositionsLoading } = useChainflipSupplyPositions()
   const {
+    loanAccount,
     collateralWithFiat,
     loansWithFiat,
     totalCollateralFiat,
     totalBorrowedFiat: userBorrowedFiat,
     isLoading: isLoanLoading,
   } = useChainflipLoanAccount()
+
+  const isVoluntaryLiquidationActive = useMemo(() => {
+    if (!loanAccount?.liquidation_status) return false
+    const status = loanAccount.liquidation_status as Record<string, unknown>
+    return status.liquidation_type === 'Voluntary'
+  }, [loanAccount?.liquidation_status])
   const { freeBalances } = useChainflipAccount()
 
   const accountIdsByAccountNumberAndChainId = useAppSelector(
@@ -319,6 +322,31 @@ export const Pool = () => {
   const handleWithdrawFromChainflip = useCallback(
     () => handleOpenModal('withdrawFromChainflip'),
     [handleOpenModal],
+  )
+  const handleAddCollateral = useCallback(() => handleOpenModal('addCollateral'), [handleOpenModal])
+  const handleRemoveCollateral = useCallback(
+    () => handleOpenModal('removeCollateral'),
+    [handleOpenModal],
+  )
+  const handleBorrow = useCallback(() => handleOpenModal('borrow'), [handleOpenModal])
+  const handleRepay = useCallback(() => {
+    if (firstLoan) {
+      chainflipLendingModal.open({ mode: 'repay', assetId: poolAssetId, loanId: firstLoan.loanId })
+    }
+  }, [chainflipLendingModal, poolAssetId, firstLoan])
+
+  const hasCollateral = useMemo(() => bnOrZero(totalCollateralFiat).gt(0), [totalCollateralFiat])
+  const hasLoans = useMemo(() => loansWithFiat.length > 0, [loansWithFiat])
+
+  const handleVoluntaryLiquidation = useCallback(
+    (action: 'initiate' | 'stop') => {
+      chainflipLendingModal.open({
+        mode: 'voluntaryLiquidation',
+        assetId: poolAssetId,
+        liquidationAction: action,
+      })
+    },
+    [chainflipLendingModal, poolAssetId],
   )
 
   if (!asset) return null
@@ -672,27 +700,162 @@ export const Pool = () => {
               <Tabs index={borrowTabIndex - PoolTabIndex.Collateral}>
                 {borrowTabHeader}
                 <TabPanels>
-                  <TabPanel p={0}>
-                    <Collateral assetId={poolAssetId} mode='add' />
-                  </TabPanel>
-                  <TabPanel p={0}>
-                    <Borrow assetId={poolAssetId} />
-                  </TabPanel>
-                  <TabPanel p={0}>
-                    {firstLoan ? (
-                      <Repay assetId={poolAssetId} loanId={firstLoan.loanId} />
-                    ) : (
-                      <Box p={6} textAlign='center'>
-                        <RawText color='text.subtle'>
-                          {translate('chainflipLending.borrow.noCollateral')}
+                  <TabPanel p={4}>
+                    <VStack spacing={3} align='stretch'>
+                      <Flex justifyContent='space-between' alignItems='center'>
+                        <RawText fontSize='sm' color='text.subtle'>
+                          {translate('chainflipLending.collateral.title')}
                         </RawText>
-                      </Box>
-                    )}
+                        <Amount.Crypto
+                          value={poolCollateral?.amountCryptoPrecision ?? '0'}
+                          symbol={asset.symbol}
+                          fontSize='sm'
+                          fontWeight='medium'
+                        />
+                      </Flex>
+                      <HStack spacing={3}>
+                        <Tooltip
+                          label={translate('chainflipLending.pool.noFreeBalance')}
+                          isDisabled={hasFreeBalance}
+                          shouldWrapChildren
+                          hasArrow
+                        >
+                          <Button
+                            colorScheme='blue'
+                            size='lg'
+                            height={12}
+                            borderRadius='xl'
+                            flex={1}
+                            fontWeight='bold'
+                            onClick={handleAddCollateral}
+                            isDisabled={!hasFreeBalance || !accountId}
+                          >
+                            {translate('chainflipLending.collateral.add')}
+                          </Button>
+                        </Tooltip>
+                        <Tooltip
+                          label={translate('chainflipLending.pool.noCollateral')}
+                          isDisabled={hasCollateral}
+                          shouldWrapChildren
+                          hasArrow
+                        >
+                          <Button
+                            variant='outline'
+                            colorScheme='blue'
+                            size='lg'
+                            height={12}
+                            borderRadius='xl'
+                            flex={1}
+                            fontWeight='bold'
+                            onClick={handleRemoveCollateral}
+                            isDisabled={!hasCollateral || !accountId}
+                          >
+                            {translate('chainflipLending.collateral.remove')}
+                          </Button>
+                        </Tooltip>
+                      </HStack>
+                    </VStack>
+                  </TabPanel>
+                  <TabPanel p={4}>
+                    <VStack spacing={3} align='stretch'>
+                      <Flex justifyContent='space-between' alignItems='center'>
+                        <RawText fontSize='sm' color='text.subtle'>
+                          {translate('chainflipLending.borrow.borrowed')}
+                        </RawText>
+                        <Amount.Fiat value={userBorrowedFiat} fontSize='sm' fontWeight='medium' />
+                      </Flex>
+                      <Tooltip
+                        label={translate('chainflipLending.pool.noCollateral')}
+                        isDisabled={hasCollateral}
+                        shouldWrapChildren
+                        hasArrow
+                      >
+                        <Button
+                          colorScheme='blue'
+                          size='lg'
+                          height={12}
+                          borderRadius='xl'
+                          width='full'
+                          fontWeight='bold'
+                          onClick={handleBorrow}
+                          isDisabled={!hasCollateral || !accountId}
+                        >
+                          {translate('chainflipLending.borrow.title')}
+                        </Button>
+                      </Tooltip>
+                    </VStack>
+                  </TabPanel>
+                  <TabPanel p={4}>
+                    <VStack spacing={3} align='stretch'>
+                      <Flex justifyContent='space-between' alignItems='center'>
+                        <RawText fontSize='sm' color='text.subtle'>
+                          {translate('chainflipLending.repay.outstanding')}
+                        </RawText>
+                        <Amount.Fiat
+                          value={firstLoan?.principalAmountFiat ?? '0'}
+                          fontSize='sm'
+                          fontWeight='medium'
+                        />
+                      </Flex>
+                      <Tooltip
+                        label={translate('chainflipLending.pool.noLoans')}
+                        isDisabled={hasLoans}
+                        shouldWrapChildren
+                        hasArrow
+                      >
+                        <Button
+                          colorScheme='blue'
+                          size='lg'
+                          height={12}
+                          borderRadius='xl'
+                          width='full'
+                          fontWeight='bold'
+                          onClick={handleRepay}
+                          isDisabled={!hasLoans || !accountId}
+                        >
+                          {translate('chainflipLending.repay.title')}
+                        </Button>
+                      </Tooltip>
+                    </VStack>
                   </TabPanel>
                 </TabPanels>
               </Tabs>
             </CardBody>
           </Card>
+
+          {hasLoans && accountId && (
+            <Card
+              borderColor={isVoluntaryLiquidationActive ? 'red.500' : undefined}
+              borderWidth={isVoluntaryLiquidationActive ? 1 : undefined}
+            >
+              <CardBody p={4}>
+                <VStack spacing={3} align='stretch'>
+                  {isVoluntaryLiquidationActive && (
+                    <RawText fontSize='xs' color='red.500' fontWeight='bold'>
+                      {translate('chainflipLending.voluntaryLiquidation.inProgress')}
+                    </RawText>
+                  )}
+                  <Button
+                    colorScheme={isVoluntaryLiquidationActive ? 'yellow' : 'red'}
+                    variant={isVoluntaryLiquidationActive ? 'solid' : 'outline'}
+                    size='md'
+                    borderRadius='xl'
+                    width='full'
+                    fontWeight='bold'
+                    onClick={() =>
+                      handleVoluntaryLiquidation(isVoluntaryLiquidationActive ? 'stop' : 'initiate')
+                    }
+                  >
+                    {translate(
+                      isVoluntaryLiquidationActive
+                        ? 'chainflipLending.voluntaryLiquidation.confirmStop'
+                        : 'chainflipLending.voluntaryLiquidation.confirmInitiate',
+                    )}
+                  </Button>
+                </VStack>
+              </CardBody>
+            </Card>
+          )}
         </Stack>
       </Flex>
     </Main>

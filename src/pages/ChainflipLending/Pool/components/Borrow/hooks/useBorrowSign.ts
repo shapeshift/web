@@ -4,8 +4,9 @@ import { BorrowMachineCtx } from '../BorrowMachineContext'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
-import { encodeRequestLoan } from '@/lib/chainflip/scale'
+import { encodeExpandLoan, encodeRequestLoan } from '@/lib/chainflip/scale'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
+import { useChainflipLoanAccount } from '@/pages/ChainflipLending/hooks/useChainflipLoanAccount'
 import { useSignChainflipCall } from '@/pages/ChainflipLending/hooks/useSignChainflipCall'
 
 export const useBorrowSign = () => {
@@ -21,6 +22,7 @@ export const useBorrowSign = () => {
 
   const wallet = useWallet().state.wallet
   const { scAccount } = useChainflipLendingAccount()
+  const { loansWithFiat } = useChainflipLoanAccount()
   const { signAndSubmit } = useSignChainflipCall()
   const executingRef = useRef(false)
 
@@ -37,7 +39,10 @@ export const useBorrowSign = () => {
         const cfAsset = CHAINFLIP_LENDING_ASSET_BY_ASSET_ID[assetId]
         if (!cfAsset) throw new Error('Unsupported asset')
 
-        const encodedCall = encodeRequestLoan(cfAsset, borrowAmountCryptoBaseUnit, null, [])
+        const existingLoan = loansWithFiat.find(l => l.assetId === assetId)
+        const encodedCall = existingLoan
+          ? encodeExpandLoan(existingLoan.loanId, borrowAmountCryptoBaseUnit, [])
+          : encodeRequestLoan(cfAsset, borrowAmountCryptoBaseUnit, null, [])
         const nonceOrAccount = lastUsedNonce !== undefined ? lastUsedNonce + 1 : scAccount
 
         const { txHash, nonce } = await signAndSubmit({
@@ -67,5 +72,6 @@ export const useBorrowSign = () => {
     stepConfirmed,
     assetId,
     borrowAmountCryptoBaseUnit,
+    loansWithFiat,
   ])
 }

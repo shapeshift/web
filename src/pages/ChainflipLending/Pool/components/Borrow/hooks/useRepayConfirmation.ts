@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 
 import { RepayMachineCtx } from '../RepayMachineContext'
 
@@ -7,6 +7,7 @@ import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLe
 import { reactQueries } from '@/react-queries'
 
 const POLL_INTERVAL_MS = 6_000
+const TIMEOUT_MS = 5 * 60 * 1000
 
 export const useRepayConfirmation = () => {
   const actorRef = RepayMachineCtx.useActorRef()
@@ -33,6 +34,19 @@ export const useRepayConfirmation = () => {
     return loanAccountsData.find(account => account.account === scAccount)
   }, [loanAccountsData, scAccount])
 
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    if (isConfirming) {
+      timeoutRef.current = setTimeout(() => {
+        actorRef.send({ type: 'REPAY_TIMEOUT', error: 'Confirmation timed out' })
+      }, TIMEOUT_MS)
+    }
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    }
+  }, [isConfirming, actorRef])
+
   useEffect(() => {
     if (!isConfirming || !loanAccount) return
 
@@ -40,6 +54,7 @@ export const useRepayConfirmation = () => {
 
     if (isFullRepayment) {
       if (!matchingLoan) {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current)
         actorRef.send({ type: 'REPAY_CONFIRMED' })
       }
       return
@@ -52,6 +67,7 @@ export const useRepayConfirmation = () => {
       const previousDebt = BigInt(outstandingDebtCryptoBaseUnit || '0')
 
       if (currentPrincipal < previousDebt) {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current)
         actorRef.send({ type: 'REPAY_CONFIRMED' })
       }
     } catch {

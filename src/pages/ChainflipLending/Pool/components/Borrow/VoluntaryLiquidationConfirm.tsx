@@ -1,68 +1,39 @@
-import { CheckCircleIcon } from '@chakra-ui/icons'
-import { Button, CardBody, CardFooter, Flex, VStack } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons'
+import { Button, CardBody, CardFooter, VStack } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { BorrowMachineCtx } from './BorrowMachineContext'
-import { BorrowStepper } from './BorrowStepper'
-import { useBorrowConfirmation } from './hooks/useBorrowConfirmation'
-import { useBorrowSign } from './hooks/useBorrowSign'
+import { useVoluntaryLiquidationConfirmation } from './hooks/useVoluntaryLiquidationConfirmation'
+import { useVoluntaryLiquidationSign } from './hooks/useVoluntaryLiquidationSign'
+import { VoluntaryLiquidationMachineCtx } from './VoluntaryLiquidationMachineContext'
+import { VoluntaryLiquidationStepper } from './VoluntaryLiquidationStepper'
 
-import { Amount } from '@/components/Amount/Amount'
-import { AssetIcon } from '@/components/AssetIcon'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
-import { useChainflipLtvThresholds } from '@/pages/ChainflipLending/hooks/useChainflipLtvThresholds'
 import { reactQueries } from '@/react-queries'
-import { selectAssetById } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
 
-type BorrowConfirmProps = {
-  assetId: AssetId
-}
-
-export const BorrowConfirm = memo(({ assetId }: BorrowConfirmProps) => {
+export const VoluntaryLiquidationConfirm = memo(() => {
   const translate = useTranslate()
   const queryClient = useQueryClient()
   const { scAccount } = useChainflipLendingAccount()
 
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const actorRef = VoluntaryLiquidationMachineCtx.useActorRef()
+  const isConfirm = VoluntaryLiquidationMachineCtx.useSelector(s => s.matches('confirm'))
+  const isSuccess = VoluntaryLiquidationMachineCtx.useSelector(s => s.matches('success'))
+  const isError = VoluntaryLiquidationMachineCtx.useSelector(s => s.matches('error'))
+  const action = VoluntaryLiquidationMachineCtx.useSelector(s => s.context.action)
+  const error = VoluntaryLiquidationMachineCtx.useSelector(s => s.context.error)
+  const isNativeWallet = VoluntaryLiquidationMachineCtx.useSelector(s => s.context.isNativeWallet)
+  const stepConfirmed = VoluntaryLiquidationMachineCtx.useSelector(s => s.context.stepConfirmed)
+  const isConfirming = VoluntaryLiquidationMachineCtx.useSelector(s => s.matches('confirming'))
 
-  const actorRef = BorrowMachineCtx.useActorRef()
-  const isConfirm = BorrowMachineCtx.useSelector(s => s.matches('confirm'))
-  const isSuccess = BorrowMachineCtx.useSelector(s => s.matches('success'))
-  const isError = BorrowMachineCtx.useSelector(s => s.matches('error'))
-  const borrowAmountCryptoPrecision = BorrowMachineCtx.useSelector(
-    s => s.context.borrowAmountCryptoPrecision,
-  )
-  const projectedLtvBps = BorrowMachineCtx.useSelector(s => s.context.projectedLtvBps)
-  const error = BorrowMachineCtx.useSelector(s => s.context.error)
-  const isNativeWallet = BorrowMachineCtx.useSelector(s => s.context.isNativeWallet)
-  const stepConfirmed = BorrowMachineCtx.useSelector(s => s.context.stepConfirmed)
-  const isConfirming = BorrowMachineCtx.useSelector(s => s.matches('confirming'))
+  useVoluntaryLiquidationSign()
+  useVoluntaryLiquidationConfirmation()
 
-  const { thresholds } = useChainflipLtvThresholds()
-
-  useBorrowSign()
-  useBorrowConfirmation()
-
-  const projectedLtvPercent = useMemo(() => (projectedLtvBps / 100).toFixed(1), [projectedLtvBps])
-
-  const ltvColor = useMemo(() => {
-    const decimal = projectedLtvBps / 10000
-    if (thresholds) {
-      if (decimal >= thresholds.softLiquidation) return 'red.500'
-      if (decimal >= thresholds.target) return 'yellow.500'
-      return 'green.500'
-    }
-    if (decimal >= 0.9) return 'red.500'
-    if (decimal >= 0.8) return 'yellow.500'
-    return 'green.500'
-  }, [projectedLtvBps, thresholds])
+  const isInitiate = useMemo(() => action === 'initiate', [action])
 
   const handleConfirm = useCallback(() => {
     actorRef.send({ type: 'CONFIRM' })
@@ -79,8 +50,6 @@ export const BorrowConfirm = memo(({ assetId }: BorrowConfirmProps) => {
   const handleDone = useCallback(async () => {
     if (scAccount) {
       await queryClient.invalidateQueries(reactQueries.chainflipLending.loanAccounts(scAccount))
-      await queryClient.invalidateQueries(reactQueries.chainflipLending.freeBalances(scAccount))
-      await queryClient.invalidateQueries(reactQueries.chainflipLending.accountInfo(scAccount))
     }
     actorRef.send({ type: 'DONE' })
   }, [scAccount, queryClient, actorRef])
@@ -88,8 +57,6 @@ export const BorrowConfirm = memo(({ assetId }: BorrowConfirmProps) => {
   const handleBack = useCallback(() => {
     actorRef.send({ type: 'BACK' })
   }, [actorRef])
-
-  if (!asset) return null
 
   if (isSuccess) {
     return (
@@ -99,25 +66,19 @@ export const BorrowConfirm = memo(({ assetId }: BorrowConfirmProps) => {
             <CheckCircleIcon boxSize={12} color='green.500' />
             <VStack spacing={2}>
               <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
-                {translate('chainflipLending.borrow.successTitle')}
+                {translate(
+                  isInitiate
+                    ? 'chainflipLending.voluntaryLiquidation.initiateSuccessTitle'
+                    : 'chainflipLending.voluntaryLiquidation.stopSuccessTitle',
+                )}
               </RawText>
               <RawText fontSize='sm' color='text.subtle' textAlign='center'>
-                {translate('chainflipLending.borrow.successDescription', {
-                  amount: borrowAmountCryptoPrecision,
-                  asset: asset.symbol,
-                })}
+                {translate(
+                  isInitiate
+                    ? 'chainflipLending.voluntaryLiquidation.initiateSuccessDescription'
+                    : 'chainflipLending.voluntaryLiquidation.stopSuccessDescription',
+                )}
               </RawText>
-            </VStack>
-            <VStack spacing={1}>
-              <RawText fontSize='xs' color='text.subtle'>
-                {translate('chainflipLending.borrow.borrowed')}
-              </RawText>
-              <Amount.Crypto
-                value={borrowAmountCryptoPrecision}
-                symbol={asset.symbol}
-                fontWeight='bold'
-                fontSize='lg'
-              />
             </VStack>
           </VStack>
         </CardBody>
@@ -150,16 +111,16 @@ export const BorrowConfirm = memo(({ assetId }: BorrowConfirmProps) => {
       <SlideTransition>
         <CardBody px={6} py={4}>
           <VStack spacing={6} align='center' py={6}>
-            <AssetIcon assetId={assetId} size='lg' />
+            <WarningIcon boxSize={12} color='red.500' />
             <VStack spacing={2}>
               <RawText fontWeight='bold' fontSize='lg' textAlign='center' color='red.500'>
-                {translate('chainflipLending.borrow.errorTitle')}
+                {translate('chainflipLending.voluntaryLiquidation.errorTitle')}
               </RawText>
               <RawText fontSize='sm' color='text.subtle' textAlign='center'>
-                {error ?? translate('chainflipLending.borrow.errorDescription')}
+                {error || translate('chainflipLending.voluntaryLiquidation.errorDescription')}
               </RawText>
             </VStack>
-            <BorrowStepper />
+            <VoluntaryLiquidationStepper />
           </VStack>
         </CardBody>
         <CardFooter
@@ -197,13 +158,13 @@ export const BorrowConfirm = memo(({ assetId }: BorrowConfirmProps) => {
             <CircularProgress isIndeterminate />
             <VStack spacing={2}>
               <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
-                {translate('chainflipLending.borrow.executingTitle')}
+                {translate('chainflipLending.voluntaryLiquidation.executingTitle')}
               </RawText>
               <RawText fontSize='sm' color='text.subtle' textAlign='center'>
-                {translate('chainflipLending.borrow.executingDescription')}
+                {translate('chainflipLending.voluntaryLiquidation.executingDescription')}
               </RawText>
             </VStack>
-            <BorrowStepper />
+            <VoluntaryLiquidationStepper />
           </VStack>
         </CardBody>
         <CardFooter
@@ -238,29 +199,23 @@ export const BorrowConfirm = memo(({ assetId }: BorrowConfirmProps) => {
     <SlideTransition>
       <CardBody px={6} py={4}>
         <VStack spacing={6} align='center' py={6}>
-          <AssetIcon assetId={assetId} size='lg' />
+          <WarningIcon boxSize={12} color={isInitiate ? 'red.500' : 'yellow.500'} />
           <VStack spacing={2}>
             <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
-              {translate('chainflipLending.borrow.confirmTitle')}
+              {translate(
+                isInitiate
+                  ? 'chainflipLending.voluntaryLiquidation.initiateTitle'
+                  : 'chainflipLending.voluntaryLiquidation.stopTitle',
+              )}
             </RawText>
             <RawText fontSize='sm' color='text.subtle' textAlign='center'>
-              {translate('chainflipLending.borrow.confirmDescription', {
-                amount: borrowAmountCryptoPrecision,
-                asset: asset.symbol,
-              })}
+              {translate(
+                isInitiate
+                  ? 'chainflipLending.voluntaryLiquidation.initiateWarning'
+                  : 'chainflipLending.voluntaryLiquidation.stopDescription',
+              )}
             </RawText>
           </VStack>
-          <Flex direction='column' gap={1} align='center'>
-            <Amount.Crypto
-              value={borrowAmountCryptoPrecision}
-              symbol={asset.symbol}
-              fontWeight='bold'
-              fontSize='2xl'
-            />
-            <RawText fontSize='sm' color={ltvColor}>
-              {translate('chainflipLending.borrow.projectedLtv')}: {projectedLtvPercent}%
-            </RawText>
-          </Flex>
         </VStack>
       </CardBody>
       <CardFooter
@@ -272,7 +227,7 @@ export const BorrowConfirm = memo(({ assetId }: BorrowConfirmProps) => {
         py={4}
       >
         <Button
-          colorScheme='blue'
+          colorScheme={isInitiate ? 'red' : 'blue'}
           size='lg'
           height={12}
           borderRadius='xl'
@@ -280,7 +235,11 @@ export const BorrowConfirm = memo(({ assetId }: BorrowConfirmProps) => {
           fontWeight='bold'
           onClick={handleConfirm}
         >
-          {translate('chainflipLending.borrow.confirmAndBorrow')}
+          {translate(
+            isInitiate
+              ? 'chainflipLending.voluntaryLiquidation.confirmInitiate'
+              : 'chainflipLending.voluntaryLiquidation.confirmStop',
+          )}
         </Button>
         <Button variant='ghost' size='sm' width='full' onClick={handleBack}>
           {translate('common.back')}

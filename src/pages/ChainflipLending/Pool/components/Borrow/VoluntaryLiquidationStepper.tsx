@@ -3,43 +3,45 @@ import { Box, Flex, HStack, VStack } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import type { WithdrawStep } from './withdrawMachine'
-import { WithdrawMachineCtx } from './WithdrawMachineContext'
+import type { VoluntaryLiquidationStep } from './voluntaryLiquidationMachine'
+import { VoluntaryLiquidationMachineCtx } from './VoluntaryLiquidationMachineContext'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { RawText } from '@/components/Text'
 
 type StepConfig = {
-  id: WithdrawStep
+  id: VoluntaryLiquidationStep
   labelKey: string
 }
 
-const STEPS: StepConfig[] = [
-  { id: 'signing', labelKey: 'chainflipLending.withdraw.steps.signing' },
-  { id: 'confirming', labelKey: 'chainflipLending.withdraw.steps.confirming' },
+const ALL_STEPS: StepConfig[] = [
+  { id: 'signing', labelKey: 'chainflipLending.voluntaryLiquidation.steps.signing' },
+  { id: 'confirming', labelKey: 'chainflipLending.voluntaryLiquidation.steps.confirming' },
 ]
+
+const STEP_ORDER: VoluntaryLiquidationStep[] = ALL_STEPS.map(s => s.id)
 
 type StepStatus = 'completed' | 'active' | 'error' | 'pending'
 
 const stepIconSize = 5
 const checkCircleIcon = <CheckCircleIcon boxSize={stepIconSize} color='green.500' />
-const stepOrder = STEPS.map(s => s.id)
 
-export const WithdrawStepper = memo(() => {
+export const VoluntaryLiquidationStepper = memo(() => {
   const translate = useTranslate()
-  const stateValue = WithdrawMachineCtx.useSelector(s => s.value) as string
-  const errorStep = WithdrawMachineCtx.useSelector(s => s.context.errorStep)
+  const stateValue = VoluntaryLiquidationMachineCtx.useSelector(s => s.value) as string
+  const errorStep = VoluntaryLiquidationMachineCtx.useSelector(s => s.context.errorStep)
 
   const getStepStatus = useMemo(() => {
-    const currentIndex = stepOrder.indexOf(stateValue as WithdrawStep)
+    const currentIndex = STEP_ORDER.indexOf(stateValue as VoluntaryLiquidationStep)
     const isError = stateValue === 'error'
 
-    return (stepId: WithdrawStep): StepStatus => {
+    return (stepId: VoluntaryLiquidationStep): StepStatus => {
+      const stepIndex = STEP_ORDER.indexOf(stepId)
+
       if (isError && errorStep === stepId) return 'error'
 
-      const stepIndex = stepOrder.indexOf(stepId)
       if (isError) {
-        const errorIndex = stepOrder.indexOf(errorStep as WithdrawStep)
+        const errorIndex = STEP_ORDER.indexOf(errorStep as VoluntaryLiquidationStep)
         if (stepIndex < errorIndex) return 'completed'
         if (stepIndex > errorIndex) return 'pending'
         return 'error'
@@ -54,7 +56,7 @@ export const WithdrawStepper = memo(() => {
 
   return (
     <VStack spacing={3} align='stretch' width='full'>
-      {STEPS.map(step => {
+      {ALL_STEPS.map(step => {
         const status = getStepStatus(step.id)
         return (
           <HStack key={step.id} spacing={3} opacity={status === 'pending' ? 0.5 : 1}>
@@ -74,21 +76,15 @@ export const WithdrawStepper = memo(() => {
                 />
               )}
             </Flex>
-            <Flex alignItems='center' justifyContent='space-between' flex={1}>
-              <RawText
-                fontSize='sm'
-                fontWeight={status === 'active' ? 'bold' : 'medium'}
-                color={
-                  status === 'error'
-                    ? 'red.500'
-                    : status === 'pending'
-                    ? 'text.subtle'
-                    : 'text.base'
-                }
-              >
-                {translate(step.labelKey)}
-              </RawText>
-            </Flex>
+            <RawText
+              fontSize='sm'
+              fontWeight={status === 'active' ? 'bold' : 'medium'}
+              color={
+                status === 'error' ? 'red.500' : status === 'pending' ? 'text.subtle' : 'text.base'
+              }
+            >
+              {translate(step.labelKey)}
+            </RawText>
           </HStack>
         )
       })}

@@ -33,9 +33,41 @@ const Egress = lazy(() =>
   })),
 )
 
+const Collateral = lazy(() =>
+  import('@/pages/ChainflipLending/Pool/components/Borrow/Collateral').then(({ Collateral }) => ({
+    default: Collateral,
+  })),
+)
+
+const Borrow = lazy(() =>
+  import('@/pages/ChainflipLending/Pool/components/Borrow/Borrow').then(({ Borrow }) => ({
+    default: Borrow,
+  })),
+)
+
+const Repay = lazy(() =>
+  import('@/pages/ChainflipLending/Pool/components/Borrow/Repay').then(({ Repay }) => ({
+    default: Repay,
+  })),
+)
+
+const VoluntaryLiquidation = lazy(() =>
+  import('@/pages/ChainflipLending/Pool/components/Borrow/VoluntaryLiquidation').then(
+    ({ VoluntaryLiquidation }) => ({
+      default: VoluntaryLiquidation,
+    }),
+  ),
+)
+
 const suspenseFallback = <CircularProgress />
 
-const ChainflipLendingModalContent = ({ mode, assetId }: ChainflipLendingModalProps) => {
+const ChainflipLendingModalContent = ({
+  mode,
+  assetId,
+  loanId,
+  liquidationAction,
+  onClose,
+}: ChainflipLendingModalProps & { onClose: () => void }) => {
   const content = useMemo(() => {
     switch (mode) {
       case 'supply':
@@ -47,15 +79,19 @@ const ChainflipLendingModalContent = ({ mode, assetId }: ChainflipLendingModalPr
       case 'withdrawFromChainflip':
         return <Egress assetId={assetId} />
       case 'addCollateral':
+        return <Collateral assetId={assetId} mode='add' />
       case 'removeCollateral':
+        return <Collateral assetId={assetId} mode='remove' />
       case 'borrow':
+        return <Borrow assetId={assetId} />
       case 'repay':
+        return loanId !== undefined ? <Repay assetId={assetId} loanId={loanId} /> : null
       case 'voluntaryLiquidation':
-        return null
+        return <VoluntaryLiquidation action={liquidationAction ?? 'initiate'} onDone={onClose} />
       default:
         return null
     }
-  }, [mode, assetId])
+  }, [mode, assetId, loanId, liquidationAction, onClose])
 
   return (
     <Card position='relative'>
@@ -65,13 +101,24 @@ const ChainflipLendingModalContent = ({ mode, assetId }: ChainflipLendingModalPr
   )
 }
 
-const ChainflipLendingModal = ({ mode, assetId }: ChainflipLendingModalProps) => {
+const ChainflipLendingModal = ({
+  mode,
+  assetId,
+  loanId,
+  liquidationAction,
+}: ChainflipLendingModalProps) => {
   const { close, isOpen } = useModal('chainflipLending')
 
   return (
     <Dialog isOpen={isOpen} onClose={close}>
       <ChainflipLendingAccountProvider>
-        <ChainflipLendingModalContent mode={mode} assetId={assetId} />
+        <ChainflipLendingModalContent
+          mode={mode}
+          assetId={assetId}
+          loanId={loanId}
+          liquidationAction={liquidationAction}
+          onClose={close}
+        />
       </ChainflipLendingAccountProvider>
     </Dialog>
   )

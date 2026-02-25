@@ -71,8 +71,8 @@ const useLtvSync = () => {
   const currentLtvBps = useMemo(() => {
     if (!loanAccount?.ltv_ratio) return 0
     try {
-      const rawRatio = BigInt(loanAccount.ltv_ratio)
-      return Number(rawRatio)
+      const rawPermill = Number(BigInt(loanAccount.ltv_ratio))
+      return Math.round(rawPermill / 100)
     } catch {
       return 0
     }

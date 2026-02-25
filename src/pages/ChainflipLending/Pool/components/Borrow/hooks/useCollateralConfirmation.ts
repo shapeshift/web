@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 
 import { CollateralMachineCtx } from '../CollateralMachineContext'
 
@@ -8,6 +8,7 @@ import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLe
 import { reactQueries } from '@/react-queries'
 
 const POLL_INTERVAL_MS = 6_000
+const TIMEOUT_MS = 5 * 60 * 1000
 
 export const useCollateralConfirmation = () => {
   const actorRef = CollateralMachineCtx.useActorRef()
@@ -31,6 +32,19 @@ export const useCollateralConfirmation = () => {
 
   const cfAsset = useMemo(() => CHAINFLIP_LENDING_ASSET_BY_ASSET_ID[assetId], [assetId])
 
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    if (isConfirming) {
+      timeoutRef.current = setTimeout(() => {
+        actorRef.send({ type: 'COLLATERAL_TIMEOUT', error: 'Confirmation timed out' })
+      }, TIMEOUT_MS)
+    }
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    }
+  }, [isConfirming, actorRef])
+
   useEffect(() => {
     if (!isConfirming || !loanAccountsData || !cfAsset || !scAccount) return
 
@@ -53,6 +67,7 @@ export const useCollateralConfirmation = () => {
           : currentCollateralCryptoBaseUnit < previousCollateralCryptoBaseUnit
 
       if (hasChanged) {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current)
         actorRef.send({ type: 'COLLATERAL_CONFIRMED' })
       }
     } catch {

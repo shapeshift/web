@@ -2428,7 +2428,7 @@
       },
       "noCollateral": "Add collateral first to borrow",
       "minimumLoan": "Minimum loan: %{amount}",
-      "availableTooltip": "Your free balance on Chainflip available for borrowing"
+      "availableTooltip": "Maximum amount you can borrow based on your collateral value and target LTV"
     },
     "totalSupplied": "Total Supplied",
     "totalSuppliedTooltip": "Total value of assets supplied across all Chainflip lending pools.",
@@ -2486,7 +2486,10 @@
       "steps": {
         "signing": "Signing collateral update",
         "confirming": "Confirming update"
-      }
+      },
+      "minimumAmount": "Minimum collateral update: %{amount}",
+      "noFreeBalance": "No free balance available to add as collateral",
+      "noRemovable": "Cannot remove collateral without reducing LTV below target"
     },
     "depositToChainflip": "Deposit to Chainflip",
     "depositDescription": "Deposit assets from your wallet to your Chainflip State Chain account to start lending.",
@@ -2564,10 +2567,8 @@
       "noPosition": "No supply position found for this asset",
       "withdrawAmount": "Withdraw",
       "steps": {
-        "signingBatch": "Signing withdrawal",
-        "signingRemove": "Removing from pool",
-        "signingEgress": "Withdrawing to wallet",
-        "confirming": "Confirming withdrawal"
+        "signing": "Sign transaction",
+        "confirming": "Confirming on-chain"
       },
       "alsoWithdrawToWallet": "Also withdraw to wallet",
       "freeBalanceExplainer": "By default, funds are withdrawn to your free balance on the Chainflip State Chain. Check the box below to also withdraw them back to your wallet.",
@@ -2614,7 +2615,12 @@
       "steps": {
         "signing": "Signing repayment",
         "confirming": "Confirming repayment"
-      }
+      },
+      "availableBalance": "Free balance",
+      "availableTooltip": "Your free balance on Chainflip available for repayment",
+      "minimumRepayment": "Minimum repayment: %{amount}",
+      "insufficientBalance": "Insufficient free balance for full repayment",
+      "noFreeBalance": "Deposit funds to your Chainflip account first"
     },
     "ltv": {
       "target": "Target LTV",
@@ -2650,7 +2656,31 @@
     "borrowRateTooltip": "The current annual interest rate for borrowing from this pool",
     "originationFeeTooltip": "One-time fee charged when creating or expanding a loan",
     "liquidationFeeTooltip": "Fee charged during liquidation of collateral",
-    "suppliedBalance": "Supplied"
+    "suppliedBalance": "Supplied",
+    "poolHeader": "Pool",
+    "collateralHeader": "Collateral",
+    "borrowedHeader": "Borrowed",
+    "voluntaryLiquidation": {
+      "initiateTitle": "Initiate Voluntary Liquidation",
+      "initiateWarning": "This will begin liquidating your entire position. Your collateral will be sold to repay all outstanding loans. This process cannot be undone once confirmed on-chain.",
+      "stopTitle": "Stop Voluntary Liquidation",
+      "stopDescription": "This will cancel the pending voluntary liquidation. Your position will remain open.",
+      "confirmInitiate": "Liquidate My Position",
+      "confirmStop": "Stop Liquidation",
+      "executingTitle": "Processing...",
+      "executingDescription": "Your voluntary liquidation request is being submitted to the Chainflip State Chain.",
+      "initiateSuccessTitle": "Liquidation Initiated",
+      "initiateSuccessDescription": "Your voluntary liquidation has been initiated. Your position will be unwound automatically.",
+      "stopSuccessTitle": "Liquidation Stopped",
+      "stopSuccessDescription": "Voluntary liquidation has been cancelled. Your position remains open.",
+      "errorTitle": "Transaction Failed",
+      "errorDescription": "The voluntary liquidation transaction failed. Please try again.",
+      "inProgress": "Voluntary liquidation in progress",
+      "steps": {
+        "signing": "Sign transaction",
+        "confirming": "Confirming on-chain"
+      }
+    }
   },
   "chart": {
     "interval": {

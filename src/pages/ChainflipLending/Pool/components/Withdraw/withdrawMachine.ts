@@ -1,13 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { assertEvent, assign, setup } from 'xstate'
 
-export type WithdrawStep = 'signing_batch' | 'signing_remove' | 'signing_egress' | 'confirming'
-
-export type WithdrawTxHashes = {
-  batch?: string
-  remove?: string
-  egress?: string
-}
+export type WithdrawStep = 'signing' | 'confirming'
 
 type WithdrawMachineContext = {
   assetId: AssetId
@@ -15,16 +9,12 @@ type WithdrawMachineContext = {
   withdrawAmountCryptoPrecision: string
   withdrawAmountCryptoBaseUnit: string
   supplyPositionCryptoBaseUnit: string
-  withdrawAddress: string
-  withdrawToWallet: boolean
   isFullWithdrawal: boolean
   stepConfirmed: boolean
-  txHashes: WithdrawTxHashes
-  egressTxRef: string | null
+  txHash: string | null
   lastUsedNonce: number | undefined
   error: string | null
   errorStep: WithdrawStep | null
-  useBatch: boolean
 }
 
 export type WithdrawMachineInput = {
@@ -37,24 +27,16 @@ type WithdrawMachineEvent =
       type: 'SUBMIT'
       withdrawAmountCryptoPrecision: string
       withdrawAmountCryptoBaseUnit: string
-      withdrawAddress: string
-      withdrawToWallet: boolean
       isFullWithdrawal: boolean
     }
   | { type: 'CONFIRM' }
   | { type: 'BACK' }
   | { type: 'CONFIRM_STEP' }
   | { type: 'SYNC_SUPPLY_POSITION'; supplyPositionCryptoBaseUnit: string }
-  | { type: 'BATCH_BROADCASTED'; txHash: string; nonce: number }
-  | { type: 'BATCH_SUCCESS' }
-  | { type: 'BATCH_ERROR'; error: string }
-  | { type: 'REMOVE_BROADCASTED'; txHash: string; nonce: number }
-  | { type: 'REMOVE_SUCCESS' }
-  | { type: 'REMOVE_ERROR'; error: string }
-  | { type: 'EGRESS_BROADCASTED'; txHash: string; nonce: number }
-  | { type: 'EGRESS_SUCCESS' }
-  | { type: 'EGRESS_ERROR'; error: string }
-  | { type: 'WITHDRAW_CONFIRMED'; egressTxRef?: string }
+  | { type: 'SIGN_BROADCASTED'; txHash: string; nonce: number }
+  | { type: 'SIGN_SUCCESS' }
+  | { type: 'SIGN_ERROR'; error: string }
+  | { type: 'WITHDRAW_CONFIRMED' }
   | { type: 'WITHDRAW_TIMEOUT'; error: string }
   | { type: 'RETRY' }
   | { type: 'DONE' }
@@ -66,10 +48,6 @@ export const withdrawMachine = setup({
     input: {} as WithdrawMachineInput,
     tags: {} as 'executing',
   },
-  guards: {
-    useBatch: ({ context }) => context.withdrawToWallet && context.useBatch,
-    withdrawToWallet: ({ context }) => context.withdrawToWallet,
-  },
   actions: {
     assignSubmit: assign({
       withdrawAmountCryptoPrecision: ({ event }) => {
@@ -80,21 +58,9 @@ export const withdrawMachine = setup({
         assertEvent(event, 'SUBMIT')
         return event.withdrawAmountCryptoBaseUnit
       },
-      withdrawAddress: ({ event }) => {
-        assertEvent(event, 'SUBMIT')
-        return event.withdrawAddress
-      },
-      withdrawToWallet: ({ event }) => {
-        assertEvent(event, 'SUBMIT')
-        return event.withdrawToWallet
-      },
       isFullWithdrawal: ({ event }) => {
         assertEvent(event, 'SUBMIT')
         return event.isFullWithdrawal
-      },
-      useBatch: ({ event }) => {
-        assertEvent(event, 'SUBMIT')
-        return event.withdrawToWallet
       },
     }),
     syncSupplyPosition: assign({
@@ -103,46 +69,19 @@ export const withdrawMachine = setup({
         return event.supplyPositionCryptoBaseUnit
       },
     }),
-    assignBatchTx: assign({
-      txHashes: ({ context, event }) => {
-        assertEvent(event, 'BATCH_BROADCASTED')
-        return { ...context.txHashes, batch: event.txHash }
+    assignSignTx: assign({
+      txHash: ({ event }) => {
+        assertEvent(event, 'SIGN_BROADCASTED')
+        return event.txHash
       },
       lastUsedNonce: ({ event }) => {
-        assertEvent(event, 'BATCH_BROADCASTED')
+        assertEvent(event, 'SIGN_BROADCASTED')
         return event.nonce
       },
     }),
-    assignRemoveTx: assign({
-      txHashes: ({ context, event }) => {
-        assertEvent(event, 'REMOVE_BROADCASTED')
-        return { ...context.txHashes, remove: event.txHash }
-      },
-      lastUsedNonce: ({ event }) => {
-        assertEvent(event, 'REMOVE_BROADCASTED')
-        return event.nonce
-      },
-    }),
-    assignEgressTx: assign({
-      txHashes: ({ context, event }) => {
-        assertEvent(event, 'EGRESS_BROADCASTED')
-        return { ...context.txHashes, egress: event.txHash }
-      },
-      lastUsedNonce: ({ event }) => {
-        assertEvent(event, 'EGRESS_BROADCASTED')
-        return event.nonce
-      },
-    }),
-    assignEgressTxRef: assign({
-      egressTxRef: ({ event }) => {
-        assertEvent(event, 'WITHDRAW_CONFIRMED')
-        return event.egressTxRef ?? null
-      },
-    }),
-    disableBatch: assign({ useBatch: false }),
     assignError: assign({
       error: ({ event }) => {
-        assertEvent(event, ['BATCH_ERROR', 'REMOVE_ERROR', 'EGRESS_ERROR', 'WITHDRAW_TIMEOUT'])
+        assertEvent(event, ['SIGN_ERROR', 'WITHDRAW_TIMEOUT'])
         return event.error
       },
     }),
@@ -152,15 +91,11 @@ export const withdrawMachine = setup({
     resetForNewWithdraw: assign({
       withdrawAmountCryptoPrecision: '',
       withdrawAmountCryptoBaseUnit: '0',
-      withdrawAddress: '',
-      withdrawToWallet: false,
       isFullWithdrawal: false,
       lastUsedNonce: undefined,
-      txHashes: {},
-      egressTxRef: null,
+      txHash: null,
       error: null,
       errorStep: null,
-      useBatch: false,
     }),
   },
 }).createMachine({
@@ -172,16 +107,12 @@ export const withdrawMachine = setup({
     withdrawAmountCryptoPrecision: '',
     withdrawAmountCryptoBaseUnit: '0',
     supplyPositionCryptoBaseUnit: '0',
-    withdrawAddress: '',
-    withdrawToWallet: false,
     isFullWithdrawal: false,
     stepConfirmed: false,
-    txHashes: {},
-    egressTxRef: null,
+    txHash: null,
     lastUsedNonce: undefined,
     error: null,
     errorStep: null,
-    useBatch: false,
   }),
   on: {
     SYNC_SUPPLY_POSITION: { actions: 'syncSupplyPosition' },
@@ -198,52 +129,21 @@ export const withdrawMachine = setup({
 
     confirm: {
       on: {
-        CONFIRM: [{ target: 'signing_batch', guard: 'useBatch' }, { target: 'signing_remove' }],
+        CONFIRM: 'signing',
         BACK: 'input',
       },
     },
 
-    signing_batch: {
+    signing: {
       tags: ['executing'],
       entry: 'resetStepConfirmed',
       on: {
         CONFIRM_STEP: { actions: 'confirmStep' },
-        BATCH_BROADCASTED: { actions: 'assignBatchTx' },
-        BATCH_SUCCESS: { target: 'confirming' },
-        BATCH_ERROR: {
-          target: 'signing_remove',
-          actions: 'disableBatch',
-        },
-      },
-    },
-
-    signing_remove: {
-      tags: ['executing'],
-      entry: 'resetStepConfirmed',
-      on: {
-        CONFIRM_STEP: { actions: 'confirmStep' },
-        REMOVE_BROADCASTED: { actions: 'assignRemoveTx' },
-        REMOVE_SUCCESS: [
-          { target: 'signing_egress', guard: 'withdrawToWallet' },
-          { target: 'confirming' },
-        ],
-        REMOVE_ERROR: {
+        SIGN_BROADCASTED: { actions: 'assignSignTx' },
+        SIGN_SUCCESS: 'confirming',
+        SIGN_ERROR: {
           target: 'error',
-          actions: ['assignError', assign({ errorStep: 'signing_remove' as WithdrawStep })],
-        },
-      },
-    },
-
-    signing_egress: {
-      tags: ['executing'],
-      entry: 'resetStepConfirmed',
-      on: {
-        CONFIRM_STEP: { actions: 'confirmStep' },
-        EGRESS_BROADCASTED: { actions: 'assignEgressTx' },
-        EGRESS_SUCCESS: { target: 'confirming' },
-        EGRESS_ERROR: {
-          target: 'error',
-          actions: ['assignError', assign({ errorStep: 'signing_egress' as WithdrawStep })],
+          actions: ['assignError', assign({ errorStep: 'signing' as WithdrawStep })],
         },
       },
     },
@@ -251,7 +151,7 @@ export const withdrawMachine = setup({
     confirming: {
       tags: ['executing'],
       on: {
-        WITHDRAW_CONFIRMED: { target: 'success', actions: 'assignEgressTxRef' },
+        WITHDRAW_CONFIRMED: 'success',
         WITHDRAW_TIMEOUT: {
           target: 'error',
           actions: ['assignError', assign({ errorStep: 'confirming' as WithdrawStep })],
@@ -269,18 +169,8 @@ export const withdrawMachine = setup({
       on: {
         RETRY: [
           {
-            target: 'signing_batch',
-            guard: ({ context }) => context.errorStep === 'signing_batch',
-            actions: 'clearError',
-          },
-          {
-            target: 'signing_remove',
-            guard: ({ context }) => context.errorStep === 'signing_remove',
-            actions: 'clearError',
-          },
-          {
-            target: 'signing_egress',
-            guard: ({ context }) => context.errorStep === 'signing_egress',
+            target: 'signing',
+            guard: ({ context }) => context.errorStep === 'signing',
             actions: 'clearError',
           },
           {

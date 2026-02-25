@@ -30,15 +30,9 @@ export const useChainflipMinimumSupply = (assetId: AssetId) => {
 
       const minCrypto = price.gt(0) ? bnOrZero(minUsd).div(price).toFixed() : undefined
 
-      // TODO: rm monkey patch - override minimums for visual testing with small amounts
-      const patchedMinUsd = '0.1'
-      const patchedMinCrypto = price.gt(0)
-        ? bnOrZero(patchedMinUsd).div(price).toFixed()
-        : undefined
-
       return {
-        minSupply: patchedMinCrypto ?? minCrypto,
-        minSupplyUsd: patchedMinUsd,
+        minSupply: minCrypto,
+        minSupplyUsd: minUsd,
         isLoading,
       }
     } catch {

@@ -2609,7 +2609,7 @@
         "body": "Sí, puedes tener múltiples cantidades en recuperación. Cada acción tendrá su propio período de 28 días."
       },
       "connect": {
-        "title": "¿Cómo se relacionan las tarifas totales recaudadas, total Staking FOX, emisiones y cantidad quemado?",
+        "title": "¿Cómo se relacionan las tarifas totales recaudadas, total Staking FOX, emisiones y cantidad quemada?",
         "body": "Las tarifas recaudadas por la DAO están en activos nativos por swapper. Una parte de estos ingresos se convierte y distribuye a los que tienen FOX en staking como recompensas, mientras que otra parte se destina a reducir el suministro total de FOX mediante quema de tokens. El total de FOX en staking influye en la distribución de recompensas, ya que se distribuyen de forma proporcional según la cantidad de FOX en staking. El pool de emisiones representa la cantidad de FOX disponible para recompensas de staking, y la cantidad de quema de FOX es la porción de FOX comprada y quemada."
       }
     },
@@ -2841,17 +2841,17 @@
     "deposit": {
       "pending": "Su depósito de %{amount} %{symbol} procesando.",
       "complete": "Su depósito de %{amount} %{symbol} completado.",
-      "failed": "Tu depósito de %{amount} %{symbol} ha fallado."
+      "failed": "Su depósito de %{amount} %{symbol} ha fallado."
     },
     "withdrawal": {
       "pending": "Su retiro de %{amount} %{symbol} procesando.",
       "complete": "Su retiro de %{amount} %{symbol} completado.",
-      "failed": "Tu retiro de %{amount} %{symbol} ha fallado."
+      "failed": "Su retiro de %{amount} %{symbol} ha fallado."
     },
     "claim": {
       "pending": "Su reclamo de %{amount} %{symbol} procesando.",
       "complete": "Su reclamo de %{amount} %{symbol} está completo.",
-      "failed": "Tu reclamación de %{amount} %{symbol} ha fallado."
+      "failed": "Su reclamo de %{amount} %{symbol} ha fallado."
     },
     "yield": {
       "unstakeAvailableIn": "Tu retiro del staking de %{symbol} estará disponible en %{duration}.",

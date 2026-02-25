@@ -9,7 +9,7 @@
 - For "X out of Y" → Y件中X件
 - Prefer リスト over リスティング
 - For bridge/DeFi "claim" (withdrawal action), use 請求 not 獲得 (which means earn/win)
-- Avoid mixing katakana and Japanese in a single compound where it reads unnaturally (e.g., ペンディング中の → 保留中の)
+- Avoid mixing katakana and kanji in a single compound where it reads unnaturally (e.g., ペンディング中の → 保留中の)
 - Reorder %{…} placeholders to match Japanese SOV/postpositional grammar (e.g., "%{count} of %{total}" → "%{total}件中%{count}件")
 - "allowance" (token approval) = 承認枠 or 承認額 — NEVER プール (= pool, completely wrong meaning)
 - "vault" = ヴォールト — not バルト (typo that changes the meaning entirely)

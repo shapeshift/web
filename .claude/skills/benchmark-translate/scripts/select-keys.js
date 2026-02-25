@@ -185,6 +185,7 @@ function main() {
 
   let coreKeys = []
   let coreCreated = false
+  let stalePruned = false
 
   if (fs.existsSync(CORE_KEYS_PATH)) {
     const loaded = JSON.parse(fs.readFileSync(CORE_KEYS_PATH, 'utf8'))
@@ -192,6 +193,7 @@ function main() {
     const staleCount = loaded.length - validated.length
     if (staleCount > 0) {
       console.log(`Core keys: removed ${staleCount} stale keys (no longer in all locales)`)
+      stalePruned = true
     }
     coreKeys = validated
     console.log(`Core keys loaded: ${coreKeys.length}/${loaded.length} valid`)
@@ -212,7 +214,7 @@ function main() {
     coreCreated = true
   }
 
-  if (!fs.existsSync(CORE_KEYS_PATH) || coreCreated) {
+  if (!fs.existsSync(CORE_KEYS_PATH) || coreCreated || stalePruned) {
     fs.mkdirSync(path.dirname(CORE_KEYS_PATH), { recursive: true })
     fs.writeFileSync(CORE_KEYS_PATH, JSON.stringify(coreKeys, null, 2) + '\n')
     console.log(`Core keys saved to ${CORE_KEYS_PATH} (${coreKeys.length} keys)`)

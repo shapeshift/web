@@ -147,11 +147,8 @@ for (const path of Object.keys(source)) {
     }
   }
 
-  if (isFlagged) {
-    flagged.push(...flags);
-  } else {
-    passed.push(path);
-  }
+  if (flags.length) flagged.push(...flags);
+  if (!isFlagged) passed.push(path);
 }
 
 console.log(JSON.stringify({ rejected, flagged, passed }, null, 2));

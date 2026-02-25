@@ -2999,7 +2999,7 @@
     "providers": "提供者",
     "successStaked": "您已成功质押 %{amount} %{symbol}",
     "successUnstaked": "您已成功取消质押 %{amount} %{symbol}",
-    "cooldownNotice": "您的提款将在 %{cooldownDuration} 后可用。",
+    "cooldownNotice": "您的提现将在 %{cooldownDuration} 后可用。",
     "successDeposited": "您已成功充值 %{amount} %{symbol}",
     "successWithdrawn": "您已成功提现 %{amount} %{symbol}",
     "successClaim": "您已成功领取 %{amount} %{symbol}",

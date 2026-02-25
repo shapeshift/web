@@ -38,7 +38,7 @@ import {
   zksync,
 } from 'viem/chains'
 
-const ethereal = defineChain({
+export const ethereal = defineChain({
   id: 5064014,
   name: 'Ethereal',
   nativeCurrency: {
@@ -188,7 +188,7 @@ export const viemCronosClient = createPublicClient({
 export const viemFlowEvmClient = createPublicClient({
   chain: flowMainnet,
   transport: fallback(
-    [process.env.VITE_FLOWEVM_NODE_URL, 'https://mainnet.evm.nodes.onflow.org']
+    [process.env.VITE_FLOW_EVM_NODE_URL, 'https://mainnet.evm.nodes.onflow.org']
       .filter(Boolean)
       .map(url => http(url)),
   ),

@@ -551,7 +551,7 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
         }
         // Fallback: direct ERC20 transfer of native token to recipient
         // On Celo, CELO is both native and ERC20 - Relay sends it as ERC20 directly (no burn/withdraw)
-        if (internalTxs.length === 0) {
+        if (internalTxs.length === 0 && this.chainId === celoChainId) {
           const directReceiveLogs = parseEventLogs({
             abi: erc20Abi,
             logs: receipt.logs,

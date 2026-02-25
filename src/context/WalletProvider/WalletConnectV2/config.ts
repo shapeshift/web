@@ -1,5 +1,5 @@
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
-import { flowEvmChain } from '@shapeshiftoss/contracts'
+import { ethereal, flowEvmChain } from '@shapeshiftoss/contracts'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { Chain } from 'viem/chains'
 import {
@@ -76,6 +76,7 @@ export const walletConnectV2OptionalChains: AtLeastOneViemChain = (() => {
     base,
     ink,
     flowEvmChain,
+    ethereal,
     mantle,
     cronos,
     sonic,
@@ -113,7 +114,8 @@ const {
   VITE_ARBITRUM_NODE_URL,
   VITE_BASE_NODE_URL,
   VITE_INK_NODE_URL,
-  VITE_FLOWEVM_NODE_URL,
+  VITE_FLOW_EVM_NODE_URL,
+  VITE_ETHEREAL_NODE_URL,
   VITE_MANTLE_NODE_URL,
   VITE_CRONOS_NODE_URL,
   VITE_SONIC_NODE_URL,
@@ -159,7 +161,8 @@ export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
     [CHAIN_REFERENCE.ArbitrumMainnet]: VITE_ARBITRUM_NODE_URL,
     [CHAIN_REFERENCE.BaseMainnet]: VITE_BASE_NODE_URL,
     [CHAIN_REFERENCE.InkMainnet]: VITE_INK_NODE_URL,
-    [CHAIN_REFERENCE.FlowEvmMainnet]: VITE_FLOWEVM_NODE_URL,
+    [CHAIN_REFERENCE.FlowEvmMainnet]: VITE_FLOW_EVM_NODE_URL,
+    [CHAIN_REFERENCE.EtherealMainnet]: VITE_ETHEREAL_NODE_URL,
     [CHAIN_REFERENCE.MantleMainnet]: VITE_MANTLE_NODE_URL,
     [CHAIN_REFERENCE.CronosMainnet]: VITE_CRONOS_NODE_URL,
     [CHAIN_REFERENCE.SonicMainnet]: VITE_SONIC_NODE_URL,

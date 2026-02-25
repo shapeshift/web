@@ -1,3 +1,4 @@
+import type { AppKitNetwork } from '@reown/appkit/networks'
 import {
   arbitrum,
   avalanche,
@@ -10,7 +11,7 @@ import {
 } from '@reown/appkit/networks'
 import type { Config } from 'wagmi'
 
-export const SUPPORTED_CHAINS = [
+export const SUPPORTED_CHAINS: readonly AppKitNetwork[] = [
   mainnet,
   polygon,
   arbitrum,
@@ -19,9 +20,9 @@ export const SUPPORTED_CHAINS = [
   avalanche,
   bsc,
   gnosis,
-] as const
+]
 
 export type SupportedChains = typeof SUPPORTED_CHAINS
-export type SupportedChainId = SupportedChains[number]['id']
+export type SupportedChainId = number
 
 export type WagmiConfig = Config

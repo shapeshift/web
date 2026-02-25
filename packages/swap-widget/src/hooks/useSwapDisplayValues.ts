@@ -1,11 +1,15 @@
+import type { Asset as ShapeshiftAsset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 
 import type { ApiClient } from '../api/client'
 import { getBaseAsset } from '../constants/chains'
 import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
+import type { TradeRate } from '../types'
 import { formatAmount, getChainType } from '../types'
+import type { ChainInfo } from './useAssets'
 import { useChainInfo } from './useAssets'
+import type { BalanceResult } from './useBalances'
 import { useMultiChainBalance } from './useBalances'
 import { formatUsdValue, useMarketData } from './useMarketData'
 import { useSwapRates } from './useSwapRates'
@@ -14,7 +18,33 @@ type UseSwapDisplayValuesParams = {
   apiClient: ApiClient
 }
 
-export const useSwapDisplayValues = ({ apiClient }: UseSwapDisplayValuesParams) => {
+type SwapDisplayValues = {
+  rates: TradeRate[] | undefined
+  isLoadingRates: boolean
+  ratesError: Error | null
+  sellAssetBalance: BalanceResult | undefined
+  isSellBalanceLoading: boolean
+  refetchSellBalance: (() => void) | undefined
+  buyAssetBalance: BalanceResult | undefined
+  isBuyBalanceLoading: boolean
+  refetchBuyBalance: (() => void) | undefined
+  sellChainInfo: ChainInfo | undefined
+  buyChainInfo: ChainInfo | undefined
+  displayRate: TradeRate | undefined
+  buyAmount: string | undefined
+  sellChainNativeAsset: ShapeshiftAsset | undefined
+  networkFeeDisplay: string | undefined
+  sellUsdValue: string
+  buyUsdValue: string
+  sellAssetUsdPrice: string | undefined
+  buyAssetUsdPrice: string | undefined
+  sellBalanceFiatValue: string | undefined
+  buyBalanceFiatValue: string | undefined
+}
+
+export const useSwapDisplayValues = ({
+  apiClient,
+}: UseSwapDisplayValuesParams): SwapDisplayValues => {
   const sellAsset = SwapMachineCtx.useSelector(s => s.context.sellAsset)
   const buyAsset = SwapMachineCtx.useSelector(s => s.context.buyAsset)
   const sellAmountBaseUnit = SwapMachineCtx.useSelector(s => s.context.sellAmountBaseUnit)

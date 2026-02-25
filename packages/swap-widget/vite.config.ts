@@ -1,12 +1,17 @@
 import react from '@vitejs/plugin-react'
-import path from 'path'
 import type { PluginOption } from 'vite'
 import { defineConfig } from 'vite'
+import dts from 'vite-plugin-dts'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
-const isLibBuild = process.env.BUILD_LIB === 'true'
-
-const libExternals = [
+/**
+ * Externals for the library build.
+ *
+ * We use a function so that sub-path imports (e.g. "viem/chains",
+ * "@reown/appkit/react") are matched automatically without listing
+ * every possible entry-point.
+ */
+const LIB_EXTERNAL_PREFIXES = [
   'react',
   'react-dom',
   'viem',
@@ -16,7 +21,13 @@ const libExternals = [
   '@reown/appkit-adapter-bitcoin',
   '@reown/appkit-adapter-solana',
   '@tanstack/react-query',
+  '@solana/web3.js',
+  '@solana/wallet-adapter-wallets',
 ]
+
+function isExternal(id: string): boolean {
+  return LIB_EXTERNAL_PREFIXES.some(prefix => id === prefix || id.startsWith(`${prefix}/`))
+}
 
 const defineGlobalThis: PluginOption = {
   name: 'define-global-this',
@@ -32,35 +43,33 @@ const defineGlobalThis: PluginOption = {
   },
 }
 
+/** Set BUILD_DEMO=true to build the standalone demo app instead of the library. */
+const isDemoBuild = process.env.BUILD_DEMO === 'true'
+
 // eslint-disable-next-line import/no-default-export
 export default defineConfig({
-  plugins: isLibBuild
-    ? [
-        defineGlobalThis,
-        nodePolyfills({
-          globals: {
-            Buffer: true,
-            global: true,
-            process: true,
-          },
-        }) as unknown as PluginOption,
-        react(),
-      ]
-    : [defineGlobalThis, react()],
+  plugins: [
+    defineGlobalThis,
+    nodePolyfills({
+      globals: {
+        Buffer: true,
+        global: true,
+        process: true,
+      },
+    }) as unknown as PluginOption,
+    react(),
+    ...(!isDemoBuild
+      ? [
+          dts({
+            tsconfigPath: './tsconfig.build.json',
+            rollupTypes: true,
+          }),
+        ]
+      : []),
+  ],
   define: {
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
     'process.env': {},
-  },
-  resolve: {
-    alias: {
-      '@reown/appkit/core': path.resolve(
-        __dirname,
-        '../../node_modules/@reown/appkit/dist/esm/exports/core.js',
-      ),
-      '@reown/appkit/networks': path.resolve(
-        __dirname,
-        '../../node_modules/@reown/appkit/dist/esm/exports/networks.js',
-      ),
-    },
   },
   optimizeDeps: {
     exclude: ['@shapeshiftoss/caip', '@shapeshiftoss/utils'],
@@ -78,15 +87,21 @@ export default defineConfig({
     port: Number(process.env.PORT) || 3000,
     host: true,
   },
-  build: isLibBuild
+  publicDir: isDemoBuild ? 'public' : false,
+  build: isDemoBuild
     ? {
+        outDir: 'dist',
+      }
+    : {
         lib: {
           entry: 'src/index.ts',
           name: 'SwapWidget',
           fileName: 'index',
+          formats: ['es'],
         },
+        cssCodeSplit: false,
         rollupOptions: {
-          external: libExternals,
+          external: isExternal,
           output: {
             globals: {
               react: 'React',
@@ -94,8 +109,5 @@ export default defineConfig({
             },
           },
         },
-      }
-    : {
-        outDir: 'dist',
       },
 })

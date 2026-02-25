@@ -1,3 +1,4 @@
+import type { AppKitNetwork } from '@reown/appkit/networks'
 import {
   arbitrum,
   avalanche,
@@ -21,7 +22,7 @@ import { SolanaAdapter } from '@reown/appkit-adapter-solana/react'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets'
 
-export const EVM_NETWORKS = [
+export const EVM_NETWORKS: readonly AppKitNetwork[] = [
   mainnet,
   polygon,
   arbitrum,
@@ -35,9 +36,9 @@ export const EVM_NETWORKS = [
   plasma,
   worldchain,
   katana,
-] as const
+]
 
-export const ALL_NETWORKS = [...EVM_NETWORKS, bitcoin, solana] as const
+export const ALL_NETWORKS: readonly AppKitNetwork[] = [...EVM_NETWORKS, bitcoin, solana]
 
 export type SupportedNetwork = (typeof ALL_NETWORKS)[number]
 export type EvmNetwork = (typeof EVM_NETWORKS)[number]
@@ -94,7 +95,7 @@ export const initializeAppKit = (projectId: string): void => {
   createAppKit({
     adapters: [wagmi, btc, sol],
     projectId,
-    networks: [...ALL_NETWORKS],
+    networks: [...ALL_NETWORKS] as [AppKitNetwork, ...AppKitNetwork[]],
     metadata: APP_METADATA,
   })
 

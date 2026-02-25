@@ -11,6 +11,7 @@ import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { UtxoChainId } from '@shapeshiftoss/types'
 import {
   bnOrZero,
+  chainIdToFeeAssetId,
   convertBasisPointsToPercentage,
   convertDecimalPercentageToBasisPoints,
   convertPrecision,

@@ -3,8 +3,10 @@ import './SwapWidget.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { WalletClient } from 'viem'
+import { WagmiProvider } from 'wagmi'
 
 import { createApiClient } from '../api/client'
+import { standaloneWagmiConfig } from '../config/standaloneWagmi'
 import { DEFAULT_BUY_ASSET, DEFAULT_SELL_ASSET } from '../constants/defaults'
 import type { SwapWalletContextValue } from '../contexts/SwapWalletContext'
 import { SwapWalletProvider, useSwapWallet } from '../contexts/SwapWalletContext'
@@ -520,35 +522,37 @@ const SwapWidgetWithExternalWallet = (props: SwapWidgetProps) => {
   )
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <SwapMachineCtx.Provider>
-        <SwapWidgetCore
-          walletClient={props.walletClient}
-          defaultSellAsset={props.defaultSellAsset ?? DEFAULT_SELL_ASSET}
-          defaultBuyAsset={props.defaultBuyAsset ?? DEFAULT_BUY_ASSET}
-          defaultSlippage={props.defaultSlippage ?? '0.5'}
-          defaultReceiveAddress={props.defaultReceiveAddress}
-          affiliateAddress={props.affiliateAddress}
-          apiClient={apiClient}
-          theme={props.theme}
-          showPoweredBy={props.showPoweredBy ?? true}
-          enableWalletConnection={false}
-          isBuyAssetLocked={props.isBuyAssetLocked ?? false}
-          onConnectWallet={props.onConnectWallet}
-          onSwapSuccess={props.onSwapSuccess}
-          onSwapError={props.onSwapError}
-          onAssetSelect={props.onAssetSelect}
-          sellDisabledAssetIds={props.sellDisabledAssetIds ?? props.disabledAssetIds ?? []}
-          buyDisabledAssetIds={props.buyDisabledAssetIds ?? props.disabledAssetIds ?? []}
-          sellDisabledChainIds={props.sellDisabledChainIds ?? props.disabledChainIds ?? []}
-          buyDisabledChainIds={props.buyDisabledChainIds ?? props.disabledChainIds ?? []}
-          sellAllowedChainIds={props.sellAllowedChainIds ?? props.allowedChainIds}
-          buyAllowedChainIds={props.buyAllowedChainIds ?? props.allowedChainIds}
-          sellAllowedAssetIds={props.sellAllowedAssetIds}
-          buyAllowedAssetIds={props.buyAllowedAssetIds}
-        />
-      </SwapMachineCtx.Provider>
-    </QueryClientProvider>
+    <WagmiProvider config={standaloneWagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <SwapMachineCtx.Provider>
+          <SwapWidgetCore
+            walletClient={props.walletClient}
+            defaultSellAsset={props.defaultSellAsset ?? DEFAULT_SELL_ASSET}
+            defaultBuyAsset={props.defaultBuyAsset ?? DEFAULT_BUY_ASSET}
+            defaultSlippage={props.defaultSlippage ?? '0.5'}
+            defaultReceiveAddress={props.defaultReceiveAddress}
+            affiliateAddress={props.affiliateAddress}
+            apiClient={apiClient}
+            theme={props.theme}
+            showPoweredBy={props.showPoweredBy ?? true}
+            enableWalletConnection={false}
+            isBuyAssetLocked={props.isBuyAssetLocked ?? false}
+            onConnectWallet={props.onConnectWallet}
+            onSwapSuccess={props.onSwapSuccess}
+            onSwapError={props.onSwapError}
+            onAssetSelect={props.onAssetSelect}
+            sellDisabledAssetIds={props.sellDisabledAssetIds ?? props.disabledAssetIds ?? []}
+            buyDisabledAssetIds={props.buyDisabledAssetIds ?? props.disabledAssetIds ?? []}
+            sellDisabledChainIds={props.sellDisabledChainIds ?? props.disabledChainIds ?? []}
+            buyDisabledChainIds={props.buyDisabledChainIds ?? props.disabledChainIds ?? []}
+            sellAllowedChainIds={props.sellAllowedChainIds ?? props.allowedChainIds}
+            buyAllowedChainIds={props.buyAllowedChainIds ?? props.allowedChainIds}
+            sellAllowedAssetIds={props.sellAllowedAssetIds}
+            buyAllowedAssetIds={props.buyAllowedAssetIds}
+          />
+        </SwapMachineCtx.Provider>
+      </QueryClientProvider>
+    </WagmiProvider>
   )
 }
 

@@ -56,7 +56,8 @@ export const getServerConfig = (): SwapperConfig => ({
 export const DEFAULT_AFFILIATE_BPS = '10'
 
 // Swap service backend URL
-export const SWAP_SERVICE_BASE_URL = process.env.SWAP_SERVICE_BASE_URL || 'http://localhost:3000'
+export const SWAP_SERVICE_BASE_URL =
+  process.env.SWAP_SERVICE_BASE_URL || 'https://dev-api.swap-service.shapeshift.com'
 
 // API server config
 export const API_PORT = parseInt(process.env.PORT || '3001', 10)

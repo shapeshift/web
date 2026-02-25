@@ -1,4 +1,5 @@
 import { bnOrZero } from '@shapeshiftoss/utils'
+import type { UseQueryResult } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 
 import type { ApiClient } from '../api/client'
@@ -13,7 +14,10 @@ export type UseSwapRatesParams = {
   refetchInterval?: number
 }
 
-export const useSwapRates = (apiClient: ApiClient, params: UseSwapRatesParams) => {
+export const useSwapRates = (
+  apiClient: ApiClient,
+  params: UseSwapRatesParams,
+): UseQueryResult<TradeRate[]> => {
   const {
     sellAssetId,
     buyAssetId,

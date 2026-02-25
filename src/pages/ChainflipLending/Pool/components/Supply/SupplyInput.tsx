@@ -158,19 +158,12 @@ export const SupplyInput = ({ assetId }: SupplyInputProps) => {
             </Flex>
           </Flex>
 
-          {minSupplyUsd && (
-            <Flex justifyContent='space-between' alignItems='center'>
-              <RawText fontSize='sm' color='text.subtle'>
-                {translate('chainflipLending.supply.minimumSupply', {
-                  amount: `$${minSupplyUsd}`,
-                })}
-              </RawText>
-              {isBelowMinimum && minSupply && (
-                <RawText fontSize='sm' color='red.500'>
-                  {minSupply} {asset.symbol}
-                </RawText>
-              )}
-            </Flex>
+          {isBelowMinimum && minSupply && (
+            <RawText fontSize='sm' color='red.500'>
+              {translate('chainflipLending.supply.minimumSupply', {
+                amount: `${bnOrZero(minSupply).decimalPlaces(2).toFixed()} ${asset.symbol}`,
+              })}
+            </RawText>
           )}
 
           {!hasFreeBalance && (

@@ -1,6 +1,6 @@
-import { bnOrZero } from '@/lib/bignumber/bignumber'
-
 import type { Permill } from './types'
+
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 const PERMILL_DIVISOR = 1_000_000
 

@@ -49,6 +49,25 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
     }
 
     if (txHash && !storedQuote.txHash) {
+      // TOCTOU guard: re-read from store in case a concurrent request already bound a txHash
+      const current = quoteStore.get(quoteId)
+      if (current?.txHash && current.txHash !== txHash) {
+        res.json({
+          quoteId,
+          txHash: current.txHash,
+          status: current.status,
+          swapperName: current.swapperName,
+          sellAssetId: current.sellAssetId,
+          buyAssetId: current.buyAssetId,
+          sellAmountCryptoBaseUnit: current.sellAmountCryptoBaseUnit,
+          buyAmountAfterFeesCryptoBaseUnit: current.buyAmountAfterFeesCryptoBaseUnit,
+          affiliateAddress: current.affiliateAddress,
+          affiliateBps: current.affiliateBps,
+          registeredAt: current.registeredAt,
+        })
+        return
+      }
+
       storedQuote.txHash = txHash
       storedQuote.registeredAt = Date.now()
       storedQuote.status = 'submitted'
@@ -61,7 +80,7 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
 
       if (sellAsset && buyAsset) {
         try {
-          await fetch(`${SWAP_SERVICE_BASE_URL}/swaps`, {
+          const postResponse = await fetch(`${SWAP_SERVICE_BASE_URL}/swaps`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -89,6 +108,10 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
               metadata: storedQuote.metadata,
             }),
           })
+          if (!postResponse.ok) {
+            const errorBody = await postResponse.text()
+            console.error(`swap-service POST failed (${postResponse.status}):`, errorBody)
+          }
         } catch (err) {
           console.error('Failed to register swap in swap-service:', err)
         }

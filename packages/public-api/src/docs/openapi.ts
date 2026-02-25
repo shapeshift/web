@@ -213,9 +213,10 @@ const RateResponseSchema = registry.register(
 registry.registerPath({
   method: 'get',
   path: '/v1/chains',
+  operationId: 'listChains',
   summary: 'List supported chains',
   description: 'Get a list of all supported blockchain networks, sorted alphabetically by name.',
-  tags: ['Chains'],
+  tags: ['Supported Chains'],
   responses: {
     200: {
       description: 'List of chains',
@@ -234,9 +235,10 @@ registry.registerPath({
 registry.registerPath({
   method: 'get',
   path: '/v1/chains/count',
+  operationId: 'getChainCount',
   summary: 'Get chain count',
   description: 'Get the total number of supported blockchain networks.',
-  tags: ['Chains'],
+  tags: ['Supported Chains'],
   responses: {
     200: {
       description: 'Chain count',
@@ -256,9 +258,10 @@ registry.registerPath({
 registry.registerPath({
   method: 'get',
   path: '/v1/assets',
+  operationId: 'listAssets',
   summary: 'List supported assets',
   description: 'Get a list of all supported assets, optionally filtered by chain.',
-  tags: ['Assets'],
+  tags: ['Supported Assets'],
   request: {
     query: AssetsListRequestSchema,
   },
@@ -281,9 +284,10 @@ registry.registerPath({
 registry.registerPath({
   method: 'get',
   path: '/v1/assets/{assetId}',
+  operationId: 'getAssetById',
   summary: 'Get asset by ID',
   description: 'Get details of a specific asset by its ID (URL encoded).',
-  tags: ['Assets'],
+  tags: ['Supported Assets'],
   request: {
     params: AssetRequestSchema,
   },
@@ -298,6 +302,34 @@ registry.registerPath({
     },
     404: {
       description: 'Asset not found',
+    },
+  },
+})
+
+// GET /v1/assets/count
+registry.registerPath({
+  method: 'get',
+  path: '/v1/assets/count',
+  operationId: 'getAssetCount',
+  summary: 'Get asset count',
+  description: 'Get the total number of supported assets, optionally filtered by chain.',
+  tags: ['Supported Assets'],
+  request: {
+    query: z.object({
+      chainId: z.string().optional().openapi({ example: 'eip155:1' }),
+    }),
+  },
+  responses: {
+    200: {
+      description: 'Asset count',
+      content: {
+        'application/json': {
+          schema: z.object({
+            count: z.number().openapi({ example: 5000 }),
+            timestamp: z.number(),
+          }),
+        },
+      },
     },
   },
 })
@@ -332,6 +364,7 @@ const AffiliateBpsHeaderSchema = z
 registry.registerPath({
   method: 'get',
   path: '/v1/swap/rates',
+  operationId: 'getSwapRates',
   summary: 'Get swap rates',
   description:
     'Get informative swap rates from all available swappers. This does not create a transaction.',
@@ -362,6 +395,7 @@ registry.registerPath({
 registry.registerPath({
   method: 'post',
   path: '/v1/swap/quote',
+  operationId: 'getSwapQuote',
   summary: 'Get executable quote',
   description:
     'Get an executable quote for a swap, including transaction data. Requires a specific swapper name.',
@@ -414,6 +448,7 @@ const SwapStatusResponseSchema = registry.register(
 registry.registerPath({
   method: 'get',
   path: '/v1/swap/status',
+  operationId: 'getSwapStatus',
   summary: 'Get swap status',
   description:
     'Look up the current status of a swap by its quote ID. Pass txHash on the first call after broadcasting to bind it to the quote and start tracking. Subsequent calls can omit txHash.',
@@ -457,6 +492,7 @@ const AffiliateStatsResponseSchema = registry.register(
 registry.registerPath({
   method: 'get',
   path: '/v1/affiliate/stats',
+  operationId: 'getAffiliateStats',
   summary: 'Get affiliate statistics',
   description:
     'Retrieve aggregated swap statistics for an affiliate address. Returns total swaps, volume, and fees earned. Supports optional date range filtering.',

@@ -13,7 +13,7 @@ type WindowEntry = {
 
 const windows = new Map<string, WindowEntry>()
 
-setInterval(() => {
+export const rateLimitCleanupInterval = setInterval(() => {
   const now = Date.now()
   for (const [key, entry] of windows) {
     if (now - entry.windowStart > WINDOW_MS * 10) {
@@ -23,7 +23,7 @@ setInterval(() => {
 }, CLEANUP_INTERVAL_MS)
 
 const getKey = (req: Request): string => {
-  return req.affiliateInfo?.affiliateAddress ?? req.ip ?? 'unknown'
+  return req.affiliateInfo?.affiliateAddress ?? req.ip ?? req.socket.remoteAddress ?? 'unknown'
 }
 
 export const registerRateLimit = (req: Request, res: Response, next: NextFunction): void => {

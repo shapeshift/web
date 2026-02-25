@@ -45,12 +45,16 @@ export class QuoteStore {
   static readonly QUOTE_TTL_MS = 15 * 60 * 1000
   static readonly EXECUTION_TTL_MS = 60 * 60 * 1000
   static readonly CLEANUP_INTERVAL_MS = 60 * 1000
+  static readonly MAX_QUOTES = 10000
 
   constructor() {
     this.cleanupInterval = setInterval(() => this.sweep(), QuoteStore.CLEANUP_INTERVAL_MS)
   }
 
   set(quoteId: string, quote: StoredQuote): void {
+    if (!this.store.has(quoteId) && this.store.size >= QuoteStore.MAX_QUOTES) {
+      this.evictOldest()
+    }
     this.store.set(quoteId, quote)
     if (quote.txHash) {
       this.txHashIndex.set(quote.txHash, quoteId)
@@ -86,6 +90,24 @@ export class QuoteStore {
 
   size(): number {
     return this.store.size
+  }
+
+  private evictOldest(): void {
+    let oldestId: string | undefined
+    let oldestTime = Infinity
+    for (const [id, quote] of this.store) {
+      if (quote.createdAt < oldestTime) {
+        oldestTime = quote.createdAt
+        oldestId = id
+      }
+    }
+    if (oldestId) {
+      const quote = this.store.get(oldestId)
+      if (quote) {
+        console.log(`[QuoteStore] Evicting oldest quote ${oldestId} to enforce max size cap`)
+        this.remove(oldestId, quote)
+      }
+    }
   }
 
   private remove(quoteId: string, quote: StoredQuote): void {

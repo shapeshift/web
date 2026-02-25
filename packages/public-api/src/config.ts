@@ -56,8 +56,15 @@ export const getServerConfig = (): SwapperConfig => ({
 export const DEFAULT_AFFILIATE_BPS = '10'
 
 // Swap service backend URL
-export const SWAP_SERVICE_BASE_URL =
-  process.env.SWAP_SERVICE_BASE_URL || 'https://dev-api.swap-service.shapeshift.com'
+const getSwapServiceBaseUrl = (): string => {
+  if (process.env.SWAP_SERVICE_BASE_URL) return process.env.SWAP_SERVICE_BASE_URL
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('SWAP_SERVICE_BASE_URL must be set in production')
+  }
+  return 'https://dev-api.swap-service.shapeshift.com'
+}
+
+export const SWAP_SERVICE_BASE_URL = getSwapServiceBaseUrl()
 
 // API server config
 export const API_PORT = parseInt(process.env.PORT || '3001', 10)

@@ -5,7 +5,9 @@ import express from 'express'
 
 import { initAssets } from './assets'
 import { API_HOST, API_PORT } from './config'
+import { quoteStore } from './lib/quoteStore'
 import { affiliateAddress } from './middleware/auth'
+import { rateLimitCleanupInterval, registerRateLimit } from './middleware/rateLimit'
 import { getAffiliateStats } from './routes/affiliate'
 import { getAssetById, getAssetCount, getAssets } from './routes/assets'
 import { getChainCount, getChains } from './routes/chains'
@@ -50,12 +52,12 @@ app.get('/health', (_req, res) => {
 // API v1 routes
 const v1Router = express.Router()
 
-v1Router.get('/swap/rates', affiliateAddress, getRates)
-v1Router.post('/swap/quote', affiliateAddress, getQuote)
-v1Router.get('/swap/status', affiliateAddress, getSwapStatus)
+v1Router.get('/swap/rates', registerRateLimit, affiliateAddress, getRates)
+v1Router.post('/swap/quote', registerRateLimit, affiliateAddress, getQuote)
+v1Router.get('/swap/status', registerRateLimit, affiliateAddress, getSwapStatus)
 
 // Affiliate endpoints
-v1Router.get('/affiliate/stats', getAffiliateStats)
+v1Router.get('/affiliate/stats', registerRateLimit, getAffiliateStats)
 
 // Chain endpoints
 v1Router.get('/chains', getChains)
@@ -106,5 +108,15 @@ Affiliate Tracking (optional):
     `)
   })
 }
+
+const shutdown = () => {
+  console.log('Shutting down gracefully...')
+  quoteStore.destroy()
+  clearInterval(rateLimitCleanupInterval)
+  process.exit(0)
+}
+
+process.on('SIGTERM', shutdown)
+process.on('SIGINT', shutdown)
 
 startServer().catch(console.error)

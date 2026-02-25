@@ -53,8 +53,22 @@ export const useAffiliateStats = (): UseAffiliateStatsReturn => {
       const response = await fetch(`${API_BASE_URL}?${params.toString()}`)
 
       if (!response.ok) {
-        const errorText = await response.text().catch(() => 'Unknown error')
-        throw new Error(`Request failed (${String(response.status)}): ${errorText}`)
+        let errorMessage = `Request failed (${String(response.status)})`
+        try {
+          const errorBody = (await response.json()) as {
+            error?: string
+            details?: { message: string }[]
+          }
+          if (errorBody.error) {
+            errorMessage = errorBody.error
+          }
+          if (errorBody.details?.[0]?.message) {
+            errorMessage = errorBody.details[0].message
+          }
+        } catch {
+          // Response wasn't JSON, use generic message
+        }
+        throw new Error(errorMessage)
       }
 
       const data = (await response.json()) as ApiResponse

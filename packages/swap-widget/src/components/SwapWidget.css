@@ -47,11 +47,11 @@
   --ssw-bg-tertiary: #ffffff;
   --ssw-bg-input: #f0f2f5;
   --ssw-bg-hover: rgba(0, 0, 0, 0.04);
-  --ssw-border: rgba(0, 0, 0, 0.08);
-  --ssw-border-hover: rgba(0, 0, 0, 0.15);
+  --ssw-border: rgba(0, 0, 0, 0.12);
+  --ssw-border-hover: rgba(0, 0, 0, 0.2);
   --ssw-text-primary: #1a1a2e;
-  --ssw-text-secondary: #5c5c70;
-  --ssw-text-muted: #9090a0;
+  --ssw-text-secondary: #4a4a60;
+  --ssw-text-muted: #6b6b7b;
 
   background: var(--ssw-bg-secondary);
   color: var(--ssw-text-primary);

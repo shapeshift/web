@@ -18,14 +18,54 @@ interface Period {
   endDate?: string
 }
 
-const periods: Period[] = [
-  {
-    label: 'February 2026',
-    startDate: '2026-02-05T00:00:00.000Z',
-    endDate: '2026-03-05T00:00:00.000Z',
-  },
-  { label: 'All Time' },
-]
+const PERIOD_DAY = 5
+const PREVIOUS_PERIODS_COUNT = 3
+
+const formatPeriodLabel = (start: Date, end: Date): string => {
+  const monthShort = new Intl.DateTimeFormat('en-US', { month: 'short' })
+  const startLabel = `${monthShort.format(start)} ${start.getUTCDate()}`
+  const endLabel = `${monthShort.format(end)} ${end.getUTCDate()}`
+  const year = end.getUTCFullYear()
+  return `${startLabel} - ${endLabel}, ${year}`
+}
+
+const generatePeriods = (): Period[] => {
+  const now = new Date()
+  const year = now.getUTCFullYear()
+  const month = now.getUTCMonth()
+
+  let currentStart: Date
+  let currentEnd: Date
+
+  if (now.getUTCDate() < PERIOD_DAY) {
+    currentStart = new Date(Date.UTC(year, month - 1, PERIOD_DAY))
+    currentEnd = new Date(Date.UTC(year, month, PERIOD_DAY))
+  } else {
+    currentStart = new Date(Date.UTC(year, month, PERIOD_DAY))
+    currentEnd = new Date(Date.UTC(year, month + 1, PERIOD_DAY))
+  }
+
+  const result: Period[] = []
+
+  for (let i = 0; i <= PREVIOUS_PERIODS_COUNT; i++) {
+    const start = new Date(
+      Date.UTC(currentStart.getUTCFullYear(), currentStart.getUTCMonth() - i, PERIOD_DAY),
+    )
+    const end = new Date(
+      Date.UTC(currentEnd.getUTCFullYear(), currentEnd.getUTCMonth() - i, PERIOD_DAY),
+    )
+    result.push({
+      label: formatPeriodLabel(start, end),
+      startDate: start.toISOString(),
+      endDate: end.toISOString(),
+    })
+  }
+
+  result.push({ label: 'All Time' })
+  return result
+}
+
+const periods: Period[] = generatePeriods()
 
 const ShapeShiftLogo = (): React.JSX.Element => (
   <svg width='194' height='48' viewBox='0 0 194 48' fill='none' xmlns='http://www.w3.org/2000/svg'>
@@ -80,16 +120,29 @@ const ShapeShiftLogo = (): React.JSX.Element => (
   </svg>
 )
 
+const EVM_ADDRESS_REGEX = /^0x[0-9a-fA-F]{40}$/
+
+const isValidEvmAddress = (addr: string): boolean => EVM_ADDRESS_REGEX.test(addr)
+
 export const App = (): React.JSX.Element => {
   const [address, setAddress] = useState('')
   const [selectedPeriod, setSelectedPeriod] = useState(0)
+  const [validationError, setValidationError] = useState<string | null>(null)
   const { stats, isLoading, error, fetchStats } = useAffiliateStats()
 
   const currentPeriod = periods[selectedPeriod]
 
   const doFetch = useCallback((): void => {
-    if (!address.trim()) return
-    void fetchStats(address, {
+    const trimmed = address.trim()
+    if (!trimmed) return
+
+    if (!isValidEvmAddress(trimmed)) {
+      setValidationError('Please enter a valid Ethereum address (0x followed by 40 hex characters)')
+      return
+    }
+
+    setValidationError(null)
+    void fetchStats(trimmed, {
       startDate: currentPeriod.startDate,
       endDate: currentPeriod.endDate,
     })
@@ -97,6 +150,7 @@ export const App = (): React.JSX.Element => {
 
   const handleAddressChange = useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
     setAddress(e.target.value)
+    setValidationError(null)
   }, [])
 
   const handleViewStats = useCallback((): void => {
@@ -188,7 +242,8 @@ export const App = (): React.JSX.Element => {
           ))}
         </div>
 
-        {error ? <div style={styles.error}>{error}</div> : null}
+        {validationError ? <div style={styles.error}>{validationError}</div> : null}
+        {error && !validationError ? <div style={styles.error}>{error}</div> : null}
 
         {statCards ? (
           <div style={styles.statsGrid}>
@@ -308,6 +363,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   periodRow: {
     display: 'flex',
+    flexWrap: 'wrap',
     gap: 8,
     marginBottom: 24,
   },
@@ -325,12 +381,12 @@ const styles: Record<string, React.CSSProperties> = {
   },
   periodButtonActive: {
     background: 'rgba(56, 111, 249, 0.12)',
-    borderColor: '#386ff9',
+    border: '1px solid #386ff9',
     color: '#386ff9',
   },
   statsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
     gap: 16,
   },
   statCard: {

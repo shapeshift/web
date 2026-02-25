@@ -434,12 +434,21 @@ body,
     padding: 10px;
   }
 
+  .demo-hero {
+    margin-bottom: 0;
+  }
+
   .demo-title {
-    font-size: 32px;
+    font-size: 24px;
+    margin-bottom: 4px;
   }
 
   .demo-subtitle {
-    font-size: 14px;
+    font-size: 13px;
+  }
+
+  .demo-content {
+    gap: 16px;
   }
 
   .demo-layout {
@@ -448,11 +457,10 @@ body,
   }
 
   .demo-customizer {
-    width: 100%;
-    max-width: 420px;
+    display: none;
   }
 
   .demo-main {
-    padding: 32px 16px;
+    padding: 16px 12px;
   }
 }

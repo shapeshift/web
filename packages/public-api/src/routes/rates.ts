@@ -178,7 +178,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
           steps: rate.steps.length,
           estimatedExecutionTimeMs: firstStep.estimatedExecutionTimeMs,
           priceImpactPercentageDecimal: rate.priceImpactPercentageDecimal,
-          affiliateBps: rate.affiliateBps,
+          affiliateBps: req.affiliateInfo?.affiliateBps ?? DEFAULT_AFFILIATE_BPS,
           networkFeeCryptoBaseUnit: firstStep.feeData.networkFeeCryptoBaseUnit,
         }
       } catch (error) {

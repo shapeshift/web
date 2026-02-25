@@ -484,7 +484,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAmountAfterFeesCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
       affiliateAddress: req.affiliateInfo?.affiliateAddress,
-      affiliateBps: quote.affiliateBps,
+      affiliateBps: req.affiliateInfo?.affiliateBps ?? DEFAULT_AFFILIATE_BPS,
       sellChainId: sellAsset.chainId,
       receiveAddress,
       sendAddress,
@@ -517,7 +517,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAmountBeforeFeesCryptoBaseUnit: lastStep.buyAmountBeforeFeesCryptoBaseUnit,
       buyAmountAfterFeesCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
-      affiliateBps: quote.affiliateBps,
+      affiliateBps: req.affiliateInfo?.affiliateBps ?? DEFAULT_AFFILIATE_BPS,
       slippageTolerancePercentageDecimal: quote.slippageTolerancePercentageDecimal,
       networkFeeCryptoBaseUnit: firstStep.feeData.networkFeeCryptoBaseUnit,
       steps: quote.steps.map((step, index) =>

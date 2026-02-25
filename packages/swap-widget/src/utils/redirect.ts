@@ -31,7 +31,7 @@ export const buildShapeShiftTradeUrl = (params: RedirectParams): string => {
   const sellAssetSubId = sellAssetId.substring(sellSlashIdx + 1)
 
   const amount = sellAmountBaseUnit || '0'
-  const affiliate = affiliateAddress ? `?affiliate=${affiliateAddress}` : ''
+  const affiliate = affiliateAddress ? `?affiliate=${encodeURIComponent(affiliateAddress)}` : ''
 
   return `${SHAPESHIFT_APP_URL}/#/trade/${buyChainId}/${buyAssetSubId}/${sellChainId}/${sellAssetSubId}/${amount}${affiliate}`
 }

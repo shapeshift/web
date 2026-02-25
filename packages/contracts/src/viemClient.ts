@@ -38,27 +38,6 @@ import {
   zksync,
 } from 'viem/chains'
 
-export const ethereal = defineChain({
-  id: 5064014,
-  name: 'Ethereal',
-  nativeCurrency: {
-    name: 'USDe',
-    symbol: 'USDe',
-    decimals: 18,
-  },
-  rpcUrls: {
-    default: {
-      http: ['https://rpc.ethereal.trade'],
-    },
-  },
-  blockExplorers: {
-    default: {
-      name: 'Ethereal Explorer',
-      url: 'https://explorer.ethereal.global',
-    },
-  },
-})
-
 const megaeth = defineChain({
   id: 4326,
   name: 'MegaETH',
@@ -188,7 +167,7 @@ export const viemCronosClient = createPublicClient({
 export const viemFlowEvmClient = createPublicClient({
   chain: flowMainnet,
   transport: fallback(
-    [process.env.VITE_FLOW_EVM_NODE_URL, 'https://mainnet.evm.nodes.onflow.org']
+    [process.env.VITE_FLOWEVM_NODE_URL, 'https://mainnet.evm.nodes.onflow.org']
       .filter(Boolean)
       .map(url => http(url)),
   ),
@@ -268,11 +247,6 @@ export const viemSoneiumClient = createPublicClient({
   transport: fallback([process.env.VITE_SONEIUM_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
-export const viemEtherealClient = createPublicClient({
-  chain: ethereal,
-  transport: fallback([process.env.VITE_ETHEREAL_NODE_URL].filter(Boolean).map(url => http(url))),
-}) as PublicClient
-
 export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,
   [KnownChainIds.BnbSmartChainMainnet]: viemBscClient,
@@ -306,7 +280,6 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.BobMainnet]: viemBobClient,
   [KnownChainIds.ModeMainnet]: viemModeClient,
   [KnownChainIds.SoneiumMainnet]: viemSoneiumClient,
-  [KnownChainIds.EtherealMainnet]: viemEtherealClient,
   [KnownChainIds.SeiMainnet]: viemSeiClient,
 }
 
@@ -343,7 +316,6 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.BobMainnet]: bob.id,
   [KnownChainIds.ModeMainnet]: mode.id,
   [KnownChainIds.SoneiumMainnet]: soneium.id,
-  [KnownChainIds.EtherealMainnet]: ethereal.id,
   [KnownChainIds.SeiMainnet]: sei.id,
 }
 
@@ -380,7 +352,6 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [bob.id]: viemBobClient,
   [mode.id]: viemModeClient,
   [soneium.id]: viemSoneiumClient,
-  [ethereal.id]: viemEtherealClient,
   [sei.id]: viemSeiClient,
 }
 

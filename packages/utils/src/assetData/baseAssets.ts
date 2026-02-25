@@ -363,9 +363,8 @@ export const plume: Readonly<Asset> = Object.freeze({
   precision: 18,
   color: '#6C5DD3',
   networkColor: '#6C5DD3',
-  icon: 'https://assets.coingecko.com/coins/images/53623/standard/plume-token.png?1736896935',
-  networkIcon:
-    'https://assets.coingecko.com/coins/images/53623/standard/plume-token.png?1736896935',
+  icon: 'https://assets.coingecko.com/coins/images/49459/large/plume.jpg',
+  networkIcon: 'https://assets.coingecko.com/coins/images/49459/small/plume.jpg',
   explorer: 'https://explorer.plume.org',
   explorerAddressLink: 'https://explorer.plume.org/address/',
   explorerTxLink: 'https://explorer.plume.org/tx/',
@@ -508,6 +507,23 @@ export const flowEvm: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const ethereal: Readonly<Asset> = Object.freeze({
+  assetId: caip.etherealAssetId,
+  chainId: caip.etherealChainId,
+  name: 'USDe',
+  networkName: 'Ethereal',
+  symbol: 'USDe',
+  precision: 18,
+  color: '#4A90D9',
+  networkColor: '#4A90D9',
+  icon: 'https://assets.coingecko.com/coins/images/33613/large/USDE.png',
+  networkIcon: 'https://assets.relay.link/icons/5064014/light.png',
+  explorer: 'https://explorer.ethereal.global',
+  explorerAddressLink: 'https://explorer.ethereal.global/address/',
+  explorerTxLink: 'https://explorer.ethereal.global/tx/',
+  relatedAssetKey: null,
+})
+
 export const celo: Readonly<Asset> = Object.freeze({
   assetId: caip.celoAssetId,
   chainId: caip.celoChainId,
@@ -517,9 +533,8 @@ export const celo: Readonly<Asset> = Object.freeze({
   precision: 18,
   color: '#35D07F',
   networkColor: '#35D07F',
-  icon: 'https://coin-images.coingecko.com/coins/images/11090/large/InjXBNx9_400x400.jpg?1696511031',
-  networkIcon:
-    'https://coin-images.coingecko.com/coins/images/11090/large/InjXBNx9_400x400.jpg?1696511031',
+  icon: 'https://assets.coingecko.com/coins/images/11090/large/celo.png',
+  networkIcon: 'https://assets.coingecko.com/coins/images/11090/small/celo.png',
   explorer: 'https://celoscan.io',
   explorerAddressLink: 'https://celoscan.io/address/',
   explorerTxLink: 'https://celoscan.io/tx/',
@@ -535,9 +550,8 @@ export const story: Readonly<Asset> = Object.freeze({
   precision: 18,
   color: '#EA580C',
   networkColor: '#EA580C',
-  icon: 'https://assets.coingecko.com/coins/images/54035/standard/Transparent_bg.png?1738075331',
-  networkIcon:
-    'https://assets.coingecko.com/coins/images/54035/standard/Transparent_bg.png?1738075331',
+  icon: 'https://assets.coingecko.com/coins/images/51994/large/story-2.png',
+  networkIcon: 'https://assets.coingecko.com/coins/images/51994/small/story-2.png',
   explorer: 'https://storyscan.xyz',
   explorerAddressLink: 'https://storyscan.xyz/address/',
   explorerTxLink: 'https://storyscan.xyz/tx/',
@@ -824,22 +838,5 @@ export const ton: Readonly<Asset> = Object.freeze({
   explorer: 'https://tonscan.org',
   explorerAddressLink: 'https://tonscan.org/address/',
   explorerTxLink: 'https://tonscan.org/tx/',
-  relatedAssetKey: null,
-})
-
-export const ethereal: Readonly<Asset> = Object.freeze({
-  assetId: caip.etherealAssetId,
-  chainId: caip.etherealChainId,
-  name: 'USDe',
-  networkName: 'Ethereal',
-  symbol: 'USDe',
-  precision: 18,
-  color: '#6E56CF',
-  networkColor: '#6E56CF',
-  icon: 'https://assets.coingecko.com/coins/images/33613/large/USDE.png',
-  networkIcon: 'https://assets.coingecko.com/coins/images/33613/large/USDE.png',
-  explorer: 'https://explorer.ethereal.global',
-  explorerAddressLink: 'https://explorer.ethereal.global/address/',
-  explorerTxLink: 'https://explorer.ethereal.global/tx/',
   relatedAssetKey: null,
 })

@@ -18,7 +18,6 @@ import {
   supportsCelo,
   supportsCronos,
   supportsETH,
-  supportsEthereal,
   supportsFlowEvm,
   supportsGnosis,
   supportsHemi,
@@ -107,16 +106,15 @@ export const evmChainIds = [
   KnownChainIds.MonadMainnet,
   KnownChainIds.HyperEvmMainnet,
   KnownChainIds.PlasmaMainnet,
+  KnownChainIds.PlumeMainnet,
   KnownChainIds.MantleMainnet,
   KnownChainIds.InkMainnet,
   KnownChainIds.MegaEthMainnet,
   KnownChainIds.BerachainMainnet,
   KnownChainIds.CronosMainnet,
   KnownChainIds.KatanaMainnet,
-  KnownChainIds.EtherealMainnet,
-  KnownChainIds.CeloMainnet,
   KnownChainIds.FlowEvmMainnet,
-  KnownChainIds.PlumeMainnet,
+  KnownChainIds.CeloMainnet,
   KnownChainIds.StoryMainnet,
   KnownChainIds.ZkSyncEraMainnet,
   KnownChainIds.BlastMainnet,
@@ -230,6 +228,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsHyperEvm(wallet)
         case Number(fromChainId(KnownChainIds.PlasmaMainnet).chainReference):
           return supportsPlasma(wallet)
+        case Number(fromChainId(KnownChainIds.PlumeMainnet).chainReference):
+          return supportsPlume(wallet)
         case Number(fromChainId(KnownChainIds.MantleMainnet).chainReference):
           return supportsMantle(wallet)
         case Number(fromChainId(KnownChainIds.InkMainnet).chainReference):
@@ -242,14 +242,10 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsCronos(wallet)
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
-        case Number(fromChainId(KnownChainIds.EtherealMainnet).chainReference):
-          return supportsEthereal(wallet)
-        case Number(fromChainId(KnownChainIds.CeloMainnet).chainReference):
-          return supportsCelo(wallet)
         case Number(fromChainId(KnownChainIds.FlowEvmMainnet).chainReference):
           return supportsFlowEvm(wallet)
-        case Number(fromChainId(KnownChainIds.PlumeMainnet).chainReference):
-          return supportsPlume(wallet)
+        case Number(fromChainId(KnownChainIds.CeloMainnet).chainReference):
+          return supportsCelo(wallet)
         case Number(fromChainId(KnownChainIds.StoryMainnet).chainReference):
           return supportsStory(wallet)
         case Number(fromChainId(KnownChainIds.ZkSyncEraMainnet).chainReference):
@@ -363,6 +359,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         symbol: 'XPL',
         explorer: 'https://plasmascan.to',
       },
+      [KnownChainIds.PlumeMainnet]: {
+        name: 'PLUME',
+        symbol: 'PLUME',
+        explorer: 'https://explorer.plume.org',
+      },
       [KnownChainIds.MantleMainnet]: {
         name: 'Mantle',
         symbol: 'MNT',
@@ -393,25 +394,15 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         symbol: 'ETH',
         explorer: 'https://katanascan.com',
       },
-      [KnownChainIds.EtherealMainnet]: {
-        name: 'USDe',
-        symbol: 'USDe',
-        explorer: 'https://explorer.ethereal.global',
-      },
-      [KnownChainIds.CeloMainnet]: {
-        name: 'Celo',
-        symbol: 'CELO',
-        explorer: 'https://celoscan.io',
-      },
       [KnownChainIds.FlowEvmMainnet]: {
         name: 'Flow',
         symbol: 'FLOW',
         explorer: 'https://evm.flowscan.io',
       },
-      [KnownChainIds.PlumeMainnet]: {
-        name: 'PLUME',
-        symbol: 'PLUME',
-        explorer: 'https://explorer.plumenetwork.xyz',
+      [KnownChainIds.CeloMainnet]: {
+        name: 'Celo',
+        symbol: 'CELO',
+        explorer: 'https://celoscan.io',
       },
       [KnownChainIds.StoryMainnet]: {
         name: 'Story',

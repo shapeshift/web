@@ -37,7 +37,6 @@ import {
   nearChainId,
   optimismChainId,
   plasmaChainId,
-  plumeChainId,
   polygonChainId,
   scrollChainId,
   seiChainId,
@@ -90,7 +89,6 @@ import {
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
-  supportsPlume,
   supportsPolygon,
   supportsScroll,
   supportsSei,
@@ -150,13 +148,11 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case inkChainId:
     case megaethChainId:
     case berachainChainId:
+    case etherealChainId:
+    case flowEvmChainId:
     case lineaChainId:
     case cronosChainId:
     case katanaChainId:
-    case etherealChainId:
-    case celoChainId:
-    case flowEvmChainId:
-    case plumeChainId:
     case storyChainId:
     case worldChainChainId:
     case seiChainId:
@@ -166,6 +162,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case bobChainId:
     case modeChainId:
     case soneiumChainId:
+    case celoChainId:
     case monadChainId:
     case plasmaChainId:
     case thorchainChainId:
@@ -535,6 +532,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsOptimism(wallet)
     case bscChainId:
       return supportsBSC(wallet)
+    case celoChainId:
+      return supportsCelo(wallet)
     case polygonChainId:
       return supportsPolygon(wallet)
     case gnosisChainId:
@@ -569,6 +568,10 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsMonad(wallet)
     case hyperEvmChainId:
       return supportsHyperEvm(wallet)
+    case etherealChainId:
+      return supportsEthereal(wallet)
+    case flowEvmChainId:
+      return supportsFlowEvm(wallet)
     case mantleChainId:
       return supportsMantle(wallet)
     case inkChainId:
@@ -581,14 +584,6 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsPlasma(wallet)
     case katanaChainId:
       return supportsKatana(wallet)
-    case etherealChainId:
-      return supportsEthereal(wallet)
-    case celoChainId:
-      return supportsCelo(wallet)
-    case flowEvmChainId:
-      return supportsFlowEvm(wallet)
-    case plumeChainId:
-      return supportsPlume(wallet)
     case storyChainId:
       return supportsStory(wallet)
     case zkSyncEraChainId:

@@ -100,6 +100,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return hyperEvmAssetId
     case KnownChainIds.PlasmaMainnet:
       return plasmaAssetId
+    case KnownChainIds.PlumeMainnet:
+      return plumeAssetId
     case KnownChainIds.MantleMainnet:
       return mantleAssetId
     case KnownChainIds.InkMainnet:
@@ -114,12 +116,10 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return katanaAssetId
     case KnownChainIds.EtherealMainnet:
       return etherealAssetId
-    case KnownChainIds.CeloMainnet:
-      return celoAssetId
     case KnownChainIds.FlowEvmMainnet:
       return flowEvmAssetId
-    case KnownChainIds.PlumeMainnet:
-      return plumeAssetId
+    case KnownChainIds.CeloMainnet:
+      return celoAssetId
     case KnownChainIds.StoryMainnet:
       return storyAssetId
     case KnownChainIds.ZkSyncEraMainnet:

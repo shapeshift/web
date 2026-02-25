@@ -362,10 +362,8 @@ export class GridPlusHDWallet
   readonly _supportsBase = true
   readonly _supportsMonad = true
   readonly _supportsPlasma = true
+  readonly _supportsPlume = true
   readonly _supportsKatana = false
-  readonly _supportsEthereal = false
-  readonly _supportsCelo = false
-  readonly _supportsFlowEvm = false
   readonly _supportsStory = false
   readonly _supportsSonic = false
   readonly _supportsBob = false
@@ -375,11 +373,12 @@ export class GridPlusHDWallet
   readonly _supportsMantle = true
   readonly _supportsInk = true
   readonly _supportsMegaEth = true
-  readonly _supportsPlume = false
   readonly _supportsZkSyncEra = true
   readonly _supportsBlast = true
   readonly _supportsWorldChain = true
   readonly _supportsHemi = true
+  readonly _supportsFlowEvm = true
+  readonly _supportsCelo = true
   readonly _supportsBerachain = true
   readonly _supportsLinea = true
   readonly _supportsScroll = true

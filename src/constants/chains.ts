@@ -13,9 +13,6 @@ export const SECOND_CLASS_CHAINS: readonly KnownChainIds[] = [
   KnownChainIds.HyperEvmMainnet,
   KnownChainIds.PlasmaMainnet,
   KnownChainIds.KatanaMainnet,
-  KnownChainIds.EtherealMainnet,
-  KnownChainIds.CeloMainnet,
-  KnownChainIds.FlowEvmMainnet,
   KnownChainIds.PlumeMainnet,
   KnownChainIds.StoryMainnet,
   KnownChainIds.WorldChainMainnet,
@@ -37,6 +34,9 @@ export const SECOND_CLASS_CHAINS: readonly KnownChainIds[] = [
   KnownChainIds.SoneiumMainnet,
   KnownChainIds.NearMainnet,
   KnownChainIds.StarknetMainnet,
+  KnownChainIds.EtherealMainnet,
+  KnownChainIds.FlowEvmMainnet,
+  KnownChainIds.CeloMainnet,
 ]
 
 // returns known ChainIds as an array, excluding the ones that are currently flagged off
@@ -54,9 +54,6 @@ export const knownChainIds = Object.values(KnownChainIds).filter(chainId => {
   if (chainId === KnownChainIds.HyperEvmMainnet && !enabledFlags.HyperEvm) return false
   if (chainId === KnownChainIds.PlasmaMainnet && !enabledFlags.Plasma) return false
   if (chainId === KnownChainIds.KatanaMainnet && !enabledFlags.Katana) return false
-  if (chainId === KnownChainIds.EtherealMainnet && !enabledFlags.Ethereal) return false
-  if (chainId === KnownChainIds.CeloMainnet && !enabledFlags.Celo) return false
-  if (chainId === KnownChainIds.FlowEvmMainnet && !enabledFlags.FlowEvm) return false
   if (chainId === KnownChainIds.StoryMainnet && !enabledFlags.Story) return false
   if (chainId === KnownChainIds.WorldChainMainnet && !enabledFlags.WorldChain) return false
   if (chainId === KnownChainIds.MantleMainnet && !enabledFlags.Mantle) return false
@@ -78,6 +75,9 @@ export const knownChainIds = Object.values(KnownChainIds).filter(chainId => {
   if (chainId === KnownChainIds.SoneiumMainnet && !enabledFlags.Soneium) return false
   if (chainId === KnownChainIds.NearMainnet && !enabledFlags.Near) return false
   if (chainId === KnownChainIds.StarknetMainnet && !enabledFlags.Starknet) return false
+  if (chainId === KnownChainIds.EtherealMainnet && !enabledFlags.Ethereal) return false
+  if (chainId === KnownChainIds.FlowEvmMainnet && !enabledFlags.FlowEvm) return false
+  if (chainId === KnownChainIds.CeloMainnet && !enabledFlags.Celo) return false
   if (chainId === KnownChainIds.TonMainnet && !enabledFlags.Ton) return false
   if (chainId === KnownChainIds.ZcashMainnet && !enabledFlags.Zcash) return false
 

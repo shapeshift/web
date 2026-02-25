@@ -160,6 +160,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === avalancheChainId && !supportsAvalanche(wallet)) continue
     if (chainId === optimismChainId && !supportsOptimism(wallet)) continue
     if (chainId === bscChainId && !supportsBSC(wallet)) continue
+    if (chainId === celoChainId && !supportsCelo(wallet)) continue
     if (chainId === polygonChainId && !supportsPolygon(wallet)) continue
     if (chainId === gnosisChainId && !supportsGnosis(wallet)) continue
     if (chainId === arbitrumChainId && !supportsArbitrum(wallet)) continue
@@ -167,6 +168,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === hyperEvmChainId && !supportsHyperEvm(wallet)) continue
     if (chainId === monadChainId && !supportsMonad(wallet)) continue
     if (chainId === plasmaChainId && !supportsPlasma(wallet)) continue
+    if (chainId === plumeChainId && !supportsPlume(wallet)) continue
     if (chainId === mantleChainId && !supportsMantle(wallet)) continue
     if (chainId === inkChainId && !supportsInk(wallet)) continue
     if (chainId === megaethChainId && !supportsMegaEth(wallet)) continue
@@ -175,9 +177,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === cronosChainId && !supportsCronos(wallet)) continue
     if (chainId === katanaChainId && !supportsKatana(wallet)) continue
     if (chainId === etherealChainId && !supportsEthereal(wallet)) continue
-    if (chainId === celoChainId && !supportsCelo(wallet)) continue
     if (chainId === flowEvmChainId && !supportsFlowEvm(wallet)) continue
-    if (chainId === plumeChainId && !supportsPlume(wallet)) continue
     if (chainId === storyChainId && !supportsStory(wallet)) continue
     if (chainId === zkSyncEraChainId && !supportsZkSyncEra(wallet)) continue
     if (chainId === blastChainId && !supportsBlast(wallet)) continue

@@ -101,6 +101,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return hyperevm
     case KnownChainIds.PlasmaMainnet:
       return plasma
+    case KnownChainIds.PlumeMainnet:
+      return plume
     case KnownChainIds.MantleMainnet:
       return mantle
     case KnownChainIds.InkMainnet:
@@ -115,12 +117,10 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return katana
     case KnownChainIds.EtherealMainnet:
       return ethereal
-    case KnownChainIds.CeloMainnet:
-      return celo
     case KnownChainIds.FlowEvmMainnet:
       return flowEvm
-    case KnownChainIds.PlumeMainnet:
-      return plume
+    case KnownChainIds.CeloMainnet:
+      return celo
     case KnownChainIds.StoryMainnet:
       return story
     case KnownChainIds.ZkSyncEraMainnet:

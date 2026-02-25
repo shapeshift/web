@@ -93,6 +93,8 @@ const generateAssetData = async () => {
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
   const etherealAssets = await ethereal.getAssets()
+  const flowEvmAssets = await flowEvm.getAssets()
+  const celoAssets = await celo.getAssets()
   const zksyncEraAssets = await zksyncera.getAssets()
   const blastAssets = await blast.getAssets()
   const hemiAssets = await hemi.getAssets()
@@ -107,8 +109,6 @@ const generateAssetData = async () => {
   const scrollAssets = await scroll.getAssets()
   const modeAssets = await mode.getAssets()
   const plasmaAssets = await plasma.getAssets()
-  const celoAssets = await celo.getAssets()
-  const flowEvmAssets = await flowEvm.getAssets()
   const plumeAssets = await plume.getAssets()
   const storyAssets = await story.getAssets()
   const worldchainAssets = await worldchainModule.getAssets()
@@ -147,6 +147,8 @@ const generateAssetData = async () => {
     ...hyperevmAssets,
     ...katanaAssets,
     ...etherealAssets,
+    ...flowEvmAssets,
+    ...celoAssets,
     ...zksyncEraAssets,
     ...blastAssets,
     ...hemiAssets,
@@ -161,8 +163,6 @@ const generateAssetData = async () => {
     ...scrollAssets,
     ...modeAssets,
     ...plasmaAssets,
-    ...celoAssets,
-    ...flowEvmAssets,
     ...plumeAssets,
     ...storyAssets,
     ...worldchainAssets,

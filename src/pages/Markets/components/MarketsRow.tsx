@@ -89,9 +89,6 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   const isLineaEnabled = useAppSelector(state => selectFeatureFlag(state, 'Linea'))
   const isScrollEnabled = useAppSelector(state => selectFeatureFlag(state, 'Scroll'))
   const isKatanaEnabled = useAppSelector(state => selectFeatureFlag(state, 'Katana'))
-  const isEtherealEnabled = useAppSelector(state => selectFeatureFlag(state, 'Ethereal'))
-  const isCeloEnabled = useAppSelector(state => selectFeatureFlag(state, 'Celo'))
-  const isFlowEvmEnabled = useAppSelector(state => selectFeatureFlag(state, 'FlowEvm'))
   const isPlumeEnabled = useAppSelector(state => selectFeatureFlag(state, 'Plume'))
   const isStoryEnabled = useAppSelector(state => selectFeatureFlag(state, 'Story'))
   const isZkSyncEraEnabled = useAppSelector(state => selectFeatureFlag(state, 'ZkSyncEra'))
@@ -104,6 +101,9 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   const isBobEnabled = useAppSelector(state => selectFeatureFlag(state, 'Bob'))
   const isModeEnabled = useAppSelector(state => selectFeatureFlag(state, 'Mode'))
   const isSoneiumEnabled = useAppSelector(state => selectFeatureFlag(state, 'Soneium'))
+  const isEtherealEnabled = useAppSelector(state => selectFeatureFlag(state, 'Ethereal'))
+  const isFlowEvmEnabled = useAppSelector(state => selectFeatureFlag(state, 'FlowEvm'))
+  const isCeloEnabled = useAppSelector(state => selectFeatureFlag(state, 'Celo'))
   const isSeiEnabled = useAppSelector(state => selectFeatureFlag(state, 'Sei'))
   const [isSmallerThanLg] = useMediaQuery(`(max-width: ${breakpoints.lg})`)
 
@@ -120,9 +120,6 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
       if (!isLineaEnabled && chainId === KnownChainIds.LineaMainnet) return false
       if (!isScrollEnabled && chainId === KnownChainIds.ScrollMainnet) return false
       if (!isKatanaEnabled && chainId === KnownChainIds.KatanaMainnet) return false
-      if (!isEtherealEnabled && chainId === KnownChainIds.EtherealMainnet) return false
-      if (!isCeloEnabled && chainId === KnownChainIds.CeloMainnet) return false
-      if (!isFlowEvmEnabled && chainId === KnownChainIds.FlowEvmMainnet) return false
       if (!isPlumeEnabled && chainId === KnownChainIds.PlumeMainnet) return false
       if (!isStoryEnabled && chainId === KnownChainIds.StoryMainnet) return false
       if (!isZkSyncEraEnabled && chainId === KnownChainIds.ZkSyncEraMainnet) return false
@@ -137,6 +134,9 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
       if (!isBobEnabled && chainId === KnownChainIds.BobMainnet) return false
       if (!isModeEnabled && chainId === KnownChainIds.ModeMainnet) return false
       if (!isSoneiumEnabled && chainId === KnownChainIds.SoneiumMainnet) return false
+      if (!isEtherealEnabled && chainId === KnownChainIds.EtherealMainnet) return false
+      if (!isFlowEvmEnabled && chainId === KnownChainIds.FlowEvmMainnet) return false
+      if (!isCeloEnabled && chainId === KnownChainIds.CeloMainnet) return false
       return true
     })
   }, [
@@ -152,9 +152,6 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
     isLineaEnabled,
     isScrollEnabled,
     isKatanaEnabled,
-    isEtherealEnabled,
-    isCeloEnabled,
-    isFlowEvmEnabled,
     isStoryEnabled,
     isZkSyncEraEnabled,
     isBlastEnabled,
@@ -166,6 +163,9 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
     isBobEnabled,
     isModeEnabled,
     isSoneiumEnabled,
+    isEtherealEnabled,
+    isFlowEvmEnabled,
+    isCeloEnabled,
     isSeiEnabled,
   ])
 

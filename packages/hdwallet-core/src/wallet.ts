@@ -587,7 +587,3 @@ export interface HDWallet extends HDWalletInfo {
    */
   disconnect(): Promise<void>
 }
-
-export function supportsEthereal(wallet: HDWallet): wallet is ETHWallet {
-  return isObject(wallet) && (wallet as any)._supportsEthereal
-}

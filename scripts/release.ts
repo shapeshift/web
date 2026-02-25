@@ -335,14 +335,14 @@ const getCommits = async (branch: string): Promise<GetCommitsReturn> => {
   const latestTag = await getLatestSemverTag()
   const range = latestTag ? `${latestTag}..origin/${branch}` : `origin/main..origin/${branch}`
 
-  const { all, total } = await git().log([
-    '--oneline',
-    '--first-parent',
-    '--pretty=format:%s',
-    range,
-  ])
+  const { all, total } = await git().log({
+    '--oneline': null,
+    '--first-parent': null,
+    format: { subject: '%s' },
+    [range]: null,
+  })
 
-  const messages = all.map(({ hash }) => hash)
+  const messages = all.map(({ subject }) => subject)
   return { messages, total }
 }
 
@@ -479,9 +479,15 @@ const doHotfixRelease = async () => {
   console.log(chalk.green('Pulling main...'))
   await git().pull()
 
-  for (const c of selected) {
+  const cherryPickOrder = [...selected].reverse()
+  for (const c of cherryPickOrder) {
     console.log(chalk.green(`Cherry-picking ${c.hash.slice(0, 8)} ${c.message}...`))
-    await pify(exec)(`git cherry-pick ${c.hash}`)
+    try {
+      await pify(exec)(`git cherry-pick ${c.hash}`)
+    } catch (err) {
+      await pify(exec)('git cherry-pick --abort')
+      exit(chalk.red(`Cherry-pick failed for ${c.hash.slice(0, 8)}: ${String(err)}`))
+    }
   }
 
   const nextVersion = await getNextReleaseVersion('patch')

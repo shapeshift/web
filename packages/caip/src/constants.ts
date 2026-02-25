@@ -397,4 +397,5 @@ export const FEE_ASSET_IDS = [
   plasmaAssetId,
   worldChainAssetId,
   katanaAssetId,
+  flowEvmAssetId,
 ]

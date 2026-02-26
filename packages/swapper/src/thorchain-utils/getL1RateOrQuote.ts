@@ -472,6 +472,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
               value: '0',
               chainSpecific: {
                 from: sendAddress,
+                tokenId: contractAddressOrUndefined(sellAsset.assetId),
                 instructions: [memoInstruction, transferInstruction],
               },
             })

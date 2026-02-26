@@ -53,6 +53,7 @@ export const getUnsignedSolanaTransaction = async (
     value: '0',
     chainSpecific: {
       from,
+      tokenId: contractAddressOrUndefined(sellAsset.assetId),
       instructions: [memoInstruction, transferInstruction],
     },
   })

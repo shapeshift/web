@@ -5,7 +5,7 @@ import type { SubParser, Tx, TxSpecific } from './types'
 
 const MEMO_PROGRAM_ID = 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr'
 
-export interface ParserArgs {
+export type ParserArgs = {
   midgardUrl: string
 }
 
@@ -20,9 +20,14 @@ export class Parser implements SubParser<Tx> {
     const memoInstruction = tx.instructions.find(ix => ix.programId === MEMO_PROGRAM_ID)
     if (!memoInstruction) return
 
-    const memo = Buffer.from(base58.decode(memoInstruction.data)).toString('utf8')
-    if (!memo) return
+    try {
+      const memo = Buffer.from(base58.decode(memoInstruction.data)).toString('utf8')
+      if (!memo) return
 
-    return await this.parser.parse(memo, tx.txid)
+      return await this.parser.parse(memo, tx.txid)
+    } catch (err) {
+      console.error('Failed to decode or parse Solana THORChain memo', err)
+      return undefined
+    }
   }
 }

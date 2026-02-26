@@ -111,7 +111,10 @@ export const getAssetIdPairFromPool = (pool: ThornodePoolResponse): AssetIdPair 
       const assetId = toAssetId({
         chainId,
         assetNamespace,
-        assetReference: assetReference.toLowerCase(),
+        assetReference:
+          assetNamespace === ASSET_NAMESPACE.splToken
+            ? assetReference
+            : assetReference.toLowerCase(),
       })
 
       return [pool.asset, assetId]

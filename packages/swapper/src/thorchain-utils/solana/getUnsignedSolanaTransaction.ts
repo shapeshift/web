@@ -45,7 +45,7 @@ export const getUnsignedSolanaTransaction = async (
   const transferInstruction = SystemProgram.transfer({
     fromPubkey: new PublicKey(from),
     toPubkey: new PublicKey(vault),
-    lamports: Number(sellAmountIncludingProtocolFeesCryptoBaseUnit),
+    lamports: BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit),
   })
 
   const { fast } = await adapter.getFeeData({

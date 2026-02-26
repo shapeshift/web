@@ -486,11 +486,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         estimateFeesBody: { serializedTx },
       })
 
-      const hasCustomInstructions = instructions && instructions.length > 0
-      const computeUnits =
-        sendMax || hasCustomInstructions
-          ? bnOrZero(baseComputeUnits).times(SOLANA_COMPUTE_UNITS_BUFFER_MULTIPLIER).toFixed()
-          : baseComputeUnits
+      const computeUnits = sendMax
+        ? bnOrZero(baseComputeUnits).times(SOLANA_COMPUTE_UNITS_BUFFER_MULTIPLIER).toFixed()
+        : baseComputeUnits
 
       // SOL transfers should have 0 instructions if they're askchually *just* a transfer (i.e "pure")
       // There *are* some complex SOL transfers, e.g Jupiter swaps, that have instructions on top of transfer,

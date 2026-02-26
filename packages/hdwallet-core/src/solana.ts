@@ -168,11 +168,11 @@ export function solanaBuildTransaction(msg: SolanaSignTx, address: string): Vers
   }
 
   if (msg.computeUnitLimit !== undefined) {
-    instructions.unshift(ComputeBudgetProgram.setComputeUnitLimit({ units: msg.computeUnitLimit }))
+    instructions.push(ComputeBudgetProgram.setComputeUnitLimit({ units: msg.computeUnitLimit }))
   }
 
   if (msg.computeUnitPrice !== undefined) {
-    instructions.unshift(
+    instructions.push(
       ComputeBudgetProgram.setComputeUnitPrice({ microLamports: msg.computeUnitPrice }),
     )
   }

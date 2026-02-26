@@ -1,5 +1,5 @@
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
-import { PublicKey, TransactionInstruction } from '@solana/web3.js'
+import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js'
 
 import type { GetUnsignedSolanaTransactionArgs, SwapperName } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
@@ -20,7 +20,7 @@ export const getSolanaTransactionFees = async (
   if (!memo) throw new Error('Memo is required')
 
   const step = getExecutableTradeStep(tradeQuote, stepIndex)
-  const { sellAsset } = step
+  const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = step
 
   const { vault } = await getThorTxData({ sellAsset, config, swapperName })
 
@@ -32,13 +32,19 @@ export const getSolanaTransactionFees = async (
     data: Buffer.from(memo, 'utf8'),
   })
 
+  const transferInstruction = SystemProgram.transfer({
+    fromPubkey: new PublicKey(from),
+    toPubkey: new PublicKey(vault),
+    lamports: Number(sellAmountIncludingProtocolFeesCryptoBaseUnit),
+  })
+
   const { fast } = await adapter.getFeeData({
     to: vault,
     value: '0',
     chainSpecific: {
       from,
       tokenId: contractAddressOrUndefined(sellAsset.assetId),
-      instructions: [memoInstruction],
+      instructions: [memoInstruction, transferInstruction],
     },
   })
 

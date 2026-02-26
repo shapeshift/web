@@ -82,14 +82,11 @@ interface ImportMetaEnv {
   readonly VITE_KEEPKEY_VERSIONS_URL: string
   readonly VITE_KEEPKEY_LATEST_RELEASE_URL: string
   readonly VITE_COWSWAP_BASE_URL: string
-  readonly VITE_ALCHEMY_POLYGON_URL: string
   readonly VITE_TOKEMAK_STATS_URL: string
   readonly VITE_COINCAP_API_KEY: string
   readonly VITE_EXCHANGERATEHOST_BASE_URL: string
   readonly VITE_EXCHANGERATEHOST_API_KEY: string
-  readonly VITE_ALCHEMY_API_KEY: string
   readonly VITE_MORALIS_API_KEY: string
-  readonly VITE_ALCHEMY_SOLANA_BASE_URL: string
   readonly VITE_BOARDROOM_API_BASE_URL: string
   readonly VITE_BOARDROOM_APP_BASE_URL: string
   readonly VITE_SNAPSHOT_BASE_URL: string
@@ -113,6 +110,7 @@ interface ImportMetaEnv {
   readonly VITE_WALLET_CONNECT_WALLET_PROJECT_ID: string
   readonly VITE_WALLET_CONNECT_RELAY_URL: string
   readonly VITE_PORTALS_BASE_URL: string
+  readonly VITE_PROXY_API_BASE_URL: string
   readonly VITE_SNAP_ID: string
   readonly VITE_SNAP_VERSION: string
   readonly VITE_EXPERIMENTAL_CUSTOM_SEND_NONCE: string

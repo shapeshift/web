@@ -1,6 +1,6 @@
 import { Box, useMediaQuery } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId, isNft, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, isNft, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
 import { bnOrZero, getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftoss/utils'
@@ -12,8 +12,8 @@ import { useGetCustomTokensQuery } from '../hooks/useGetCustomTokensQuery'
 
 import { AssetList } from '@/components/AssetSearch/components/AssetList'
 import { Text } from '@/components/Text'
-import { ALCHEMY_SDK_SUPPORTED_CHAIN_IDS } from '@/lib/alchemySdkInstance'
 import { searchAssets } from '@/lib/assetSearch'
+import { CUSTOM_TOKEN_IMPORT_SUPPORTED_CHAIN_IDS } from '@/lib/customTokenImportSupportedChainIds'
 import { isSome } from '@/lib/utils'
 import { isContractAddress } from '@/lib/utils/isContractAddress'
 import {
@@ -56,20 +56,15 @@ export const SearchTermAssetList = ({
   const assetsById = useAppSelector(selectPrimaryAssets)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
-  const customTokenSupportedChainIds = useMemo(() => {
-    // Solana _is_ supported by Alchemy, but not by the SDK
-    return [...ALCHEMY_SDK_SUPPORTED_CHAIN_IDS, solanaChainId]
-  }, [])
-
   const chainIds = useMemo(() => {
     if (activeChainId === 'All') {
-      return customTokenSupportedChainIds
-    } else if (customTokenSupportedChainIds.includes(activeChainId)) {
+      return CUSTOM_TOKEN_IMPORT_SUPPORTED_CHAIN_IDS
+    } else if (CUSTOM_TOKEN_IMPORT_SUPPORTED_CHAIN_IDS.includes(activeChainId)) {
       return [activeChainId]
     } else {
       return []
     }
-  }, [activeChainId, customTokenSupportedChainIds])
+  }, [activeChainId])
 
   const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
     contractAddress: searchString,

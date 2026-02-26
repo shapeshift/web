@@ -17,6 +17,7 @@ import { csp as celo } from './chains/celo'
 import { csp as cosmos } from './chains/cosmos'
 import { csp as cronos } from './chains/cronos'
 import { csp as dogecoin } from './chains/dogecoin'
+import { csp as ethereal } from './chains/ethereal'
 import { csp as ethereum } from './chains/ethereum'
 import { csp as flowEvm } from './chains/flowEvm'
 import { csp as gnosis } from './chains/gnosis'
@@ -134,9 +135,8 @@ export const csps = [
   bnbsmartchain,
   cosmos,
   dogecoin,
+  ethereal,
   ethereum,
-  flowEvm,
-  celo,
   bob,
   gnosis,
   hemi,
@@ -168,6 +168,8 @@ export const csps = [
   monad,
   near,
   plasma,
+  celo,
+  flowEvm,
   story,
   worldchain,
   sonic,

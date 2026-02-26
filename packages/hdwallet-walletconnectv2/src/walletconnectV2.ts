@@ -150,8 +150,10 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
   readonly _supportsBase = true
   readonly _supportsMonad = true
   readonly _supportsPlasma = true
-  readonly _supportsPlume = true
   readonly _supportsKatana = true
+  readonly _supportsEthereal = true
+  readonly _supportsCelo = true
+  readonly _supportsFlowEvm = true
   readonly _supportsStory = true
   readonly _supportsSonic = true
   readonly _supportsBob = true
@@ -161,12 +163,11 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
   readonly _supportsMantle = true
   readonly _supportsInk = true
   readonly _supportsMegaEth = true
+  readonly _supportsPlume = true
   readonly _supportsZkSyncEra = true
   readonly _supportsBlast = true
   readonly _supportsWorldChain = true
   readonly _supportsHemi = true
-  readonly _supportsFlowEvm = true
-  readonly _supportsCelo = true
   readonly _supportsBerachain = true
   readonly _supportsLinea = true
   readonly _supportsScroll = true

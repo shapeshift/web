@@ -198,6 +198,7 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   [KnownChainIds.ScrollMainnet]: [],
   [KnownChainIds.CronosMainnet]: [],
   [KnownChainIds.KatanaMainnet]: [],
+  [KnownChainIds.EtherealMainnet]: [],
   [KnownChainIds.FlowEvmMainnet]: [],
   [KnownChainIds.CeloMainnet]: [],
   [KnownChainIds.PlumeMainnet]: [],

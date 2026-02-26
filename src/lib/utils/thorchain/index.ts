@@ -5,6 +5,7 @@ import {
   fromAccountId,
   fromAssetId,
   rujiAssetId,
+  solanaChainId,
   tcyAssetId,
   thorchainChainId,
   tronChainId,
@@ -308,7 +309,12 @@ export const getThorchainTransactionType = (chainId: ChainId) => {
   if (supportedEvmChainIds.includes(chainId as KnownChainIds)) {
     return 'EvmCustomTx'
   }
-  if (isUtxoChainId(chainId) || chainId === cosmosChainId || chainId === tronChainId) {
+  if (
+    isUtxoChainId(chainId) ||
+    chainId === cosmosChainId ||
+    chainId === tronChainId ||
+    chainId === solanaChainId
+  ) {
     return 'Send'
   }
 

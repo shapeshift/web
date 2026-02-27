@@ -20,6 +20,56 @@ import { fetchSunioQuote } from './fetchFromSunio'
 import { isSupportedChainId } from './helpers/helpers'
 import { sunioServiceFactory } from './sunioService'
 
+type ContractParams = {
+  consumeUserResourcePercent: number
+  originEnergyLimit: number
+  energyFactor: number
+}
+
+const CONTRACT_PARAMS_CACHE_TTL_MS = 60 * 60 * 1000
+let cachedContractParams: { params: ContractParams; fetchedAt: number } | undefined
+
+async function getContractParams(rpcUrl: string): Promise<ContractParams> {
+  const now = Date.now()
+  if (cachedContractParams && now - cachedContractParams.fetchedAt < CONTRACT_PARAMS_CACHE_TTL_MS) {
+    return cachedContractParams.params
+  }
+
+  const [contractResponse, contractInfoResponse] = await Promise.all([
+    fetch(`${rpcUrl}/wallet/getcontract`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value: SUNIO_SMART_ROUTER_CONTRACT, visible: true }),
+    }),
+    fetch(`${rpcUrl}/wallet/getcontractinfo`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value: SUNIO_SMART_ROUTER_CONTRACT, visible: true }),
+    }),
+  ])
+
+  const contractData = await contractResponse.json()
+  const contractInfoData = await contractInfoResponse.json()
+
+  const params: ContractParams = {
+    consumeUserResourcePercent: contractData.consume_user_resource_percent ?? 60,
+    originEnergyLimit: contractData.origin_energy_limit ?? 1_200_000,
+    energyFactor: contractInfoData.contract_state?.energy_factor ?? 0,
+  }
+
+  cachedContractParams = { params, fetchedAt: now }
+  return params
+}
+
+function calculateUserEnergy(totalEnergy: number, contractParams: ContractParams): number {
+  const userShare = totalEnergy * (contractParams.consumeUserResourcePercent / 100)
+  return Math.min(userShare, contractParams.originEnergyLimit)
+}
+
+const SAFETY_MARGIN = 1.3
+const BASE_ENERGY_TRX_TO_TOKEN = Math.ceil(150_000 * SAFETY_MARGIN)
+const BASE_ENERGY_TRC20_TO_TOKEN = Math.ceil(300_000 * SAFETY_MARGIN)
+
 export async function getQuoteOrRate(
   input: GetTronTradeQuoteInput | CommonTradeQuoteInput,
   deps: SwapperDeps,
@@ -114,84 +164,63 @@ export async function getQuoteOrRate(
       )
     }
 
-    // Fetch network fees for both quotes and rates (when wallet connected)
     let networkFeeCryptoBaseUnit: string | undefined = undefined
 
-    // Estimate fees when we have an address to estimate from
     if (receiveAddress) {
       try {
+        const rpcUrl = deps.config.VITE_TRON_NODE_URL
         const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
         const isSellingNativeTrx = !contractAddress
 
-        const tronWeb = new TronWeb({ fullHost: deps.config.VITE_TRON_NODE_URL })
+        const tronWeb = new TronWeb({ fullHost: rpcUrl })
 
-        // Get chain parameters for pricing
-        const params = await tronWeb.trx.getChainParameters()
-        const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
-        const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
+        const [chainParams, contractParams] = await Promise.all([
+          tronWeb.trx.getChainParameters(),
+          getContractParams(rpcUrl),
+        ])
 
-        // Check if recipient needs activation (applies to all swaps)
+        const bandwidthPrice = chainParams.find(p => p.key === 'getTransactionFee')?.value ?? 1000
+        const energyPrice = chainParams.find(p => p.key === 'getEnergyFee')?.value ?? 100
+
         let accountActivationFee = 0
         try {
-          const recipientInfoResponse = await fetch(
-            `${deps.config.VITE_TRON_NODE_URL}/wallet/getaccount`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ address: receiveAddress, visible: true }),
-            },
-          )
+          const recipientInfoResponse = await fetch(`${rpcUrl}/wallet/getaccount`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ address: receiveAddress, visible: true }),
+          })
           const recipientInfo = await recipientInfoResponse.json()
           const recipientExists = recipientInfo && Object.keys(recipientInfo).length > 1
           if (!recipientExists) {
-            accountActivationFee = 1_000_000 // 1 TRX
+            accountActivationFee = 1_000_000
           }
         } catch {
           // Ignore activation check errors
         }
 
-        // For native TRX swaps, Sun.io uses a contract call with value
-        // We need to estimate energy for the swap contract, not just bandwidth
-        if (isSellingNativeTrx) {
-          try {
-            // Sun.io contract owner provides most energy (~117k), users only pay ~2k
-            // Use fixed 2k energy estimate instead of querying (which returns total 120k)
-            const energyUsed = 2000 // User pays ~2k energy, contract covers the rest
-            const energyFee = energyUsed * energyPrice // No multiplier - contract provides energy
+        const baseEnergy = isSellingNativeTrx
+          ? BASE_ENERGY_TRX_TO_TOKEN
+          : BASE_ENERGY_TRC20_TO_TOKEN
 
-            // Estimate bandwidth for contract call (much larger than simple transfer)
-            const bandwidthFee = 1100 * bandwidthPrice // ~1100 bytes for contract call (with safety buffer)
+        const adjustedEnergy =
+          contractParams.energyFactor > 0
+            ? Math.ceil(baseEnergy * (1 + contractParams.energyFactor))
+            : baseEnergy
 
-            networkFeeCryptoBaseUnit = bn(energyFee)
-              .plus(bandwidthFee)
-              .plus(accountActivationFee)
-              .toFixed(0)
-          } catch (estimationError) {
-            // Fallback estimate: ~2k energy + ~1100 bytes bandwidth + activation fee
-            const fallbackEnergyFee = 2000 * energyPrice
-            const fallbackBandwidthFee = 1100 * bandwidthPrice
-            networkFeeCryptoBaseUnit = bn(fallbackEnergyFee)
-              .plus(fallbackBandwidthFee)
-              .plus(accountActivationFee)
-              .toFixed(0)
-          }
-        } else {
-          // For TRC-20 swaps through Sun.io router
-          // Same as TRX: contract owner provides most energy, user pays ~2k
-          // Sun.io provides ~217k energy, user pays ~2k
-          const energyFee = 2000 * energyPrice
-          const bandwidthFee = 1100 * bandwidthPrice
+        const userEnergy = calculateUserEnergy(adjustedEnergy, contractParams)
 
-          networkFeeCryptoBaseUnit = bn(energyFee)
-            .plus(bandwidthFee)
-            .plus(accountActivationFee)
-            .toFixed(0)
-        }
+        const energyFee = userEnergy * energyPrice
+        const bandwidthFee = 1100 * bandwidthPrice
+
+        networkFeeCryptoBaseUnit = bn(energyFee)
+          .plus(bandwidthFee)
+          .plus(accountActivationFee)
+          .toFixed(0)
       } catch (error) {
-        // For rates, fall back to '0' on estimation failure
-        // For quotes, let it error (required for accurate swap)
         if (!isQuote) {
-          networkFeeCryptoBaseUnit = '0'
+          const fallbackEnergy = BASE_ENERGY_TRC20_TO_TOKEN * 0.6
+          const fallbackFee = Math.ceil(fallbackEnergy * 100 + 1100 * 1000)
+          networkFeeCryptoBaseUnit = String(fallbackFee)
         } else {
           throw error
         }

@@ -181,11 +181,10 @@ export const sunioApi: SwapperApi = {
 
       const contractRet = tx.ret?.[0]?.contractRet
 
-      // Only mark as confirmed if SUCCESS AND has confirmations (in a block)
       const status =
         contractRet === 'SUCCESS' && tx.confirmations > 0
           ? TxStatus.Confirmed
-          : contractRet === 'REVERT'
+          : contractRet && contractRet !== 'SUCCESS'
           ? TxStatus.Failed
           : TxStatus.Pending
 

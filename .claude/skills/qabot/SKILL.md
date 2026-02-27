@@ -358,7 +358,7 @@ Run lifecycle: `pending` (created) -> `running` (agent-browser starts) -> `passe
 
 **CRITICAL**: Process each step individually. After each step: take a screenshot and push the result immediately via the batch endpoint. Do NOT batch all results at the end.
 
-```
+```text
 # Pre-write all click helpers to /tmp/ (see Tips > JS Eval section above)
 # Record the run start time ONCE before the loop:
 RUN_START_MS=$(python3 -c 'import time; print(int(time.time()*1000))')

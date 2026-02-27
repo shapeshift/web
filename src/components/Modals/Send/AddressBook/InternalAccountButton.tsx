@@ -104,7 +104,7 @@ const InternalAccountButtonComponent = ({
         onClick={handleClick}
         transition='all 0.2s'
         sx={addressSx}
-        data-test={`internal-account-${label.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}`}
+        data-testid={`internal-account-${accountId}`}
       >
         {isUtxoAccount ? (
           <ProfileAvatar size='sm' flexShrink={0} />

@@ -28,7 +28,7 @@ If any of these are missing, tell the user to add them to `~/.secrets`. The API 
 ## Ports
 
 - **Web dev server** (ShapeShift app): `localhost:3000`
-- **qabot API/dashboard**: `https://qabot-kappa.vercel.app`
+- **qabot API/dashboard**: `localhost:8080` (dev) or deployed URL
 
 ## Modes
 
@@ -59,9 +59,7 @@ name: Test Name
 description: What this tests
 route: /trade
 depends_on:
-  - wallet-health.yaml       # runs BEFORE main steps (wallet unlock etc.)
-post_depends_on:
-  - cleanup.yaml          # runs AFTER main steps (regression tests etc.)
+  - wallet-health.yaml       # runs this fixture first, wallet unlock etc.
 steps:
   - name: Step name
     instruction: Natural language instruction for agent-browser
@@ -71,21 +69,18 @@ steps:
 
 ### Composability
 
-Fixtures can declare `depends_on` (pre-dependencies) and `post_depends_on` (post-dependencies).
+Fixtures can declare `depends_on` - a list of other fixture filenames that must run first.
 
-- `depends_on` - fixtures that run BEFORE the main steps (e.g. wallet-health, wallet unlock)
-- `post_depends_on` - fixtures that run AFTER all main steps (e.g. regression tests, cleanup)
 - Dependencies are resolved recursively and deduplicated (each fixture runs at most once)
 - All fixtures run sequentially in one browser session - the page state carries over
-- Step indices are continuous across all fixtures: [pre_deps, main_steps, post_deps]
+- Step indices are continuous across all fixtures (dep fixture steps come first)
 - All steps from all fixtures go into a single qabot run
 - The `fixtureFile` for the run is the top-level fixture name
 
-Example: `1.1012.0.yaml` depends on `wallet-health.yaml` and post-depends on `evm-chains-regression.yaml`:
+Example: `eth-to-fox-swap.yaml` depends on `wallet-health.yaml`. When you run eth-to-fox-swap:
 1. wallet-health runs first (7 steps: dismiss onboarding, unlock wallet, verify page)
-2. 1.1012.0 main steps run next (second-class chain tests)
-3. evm-chains-regression runs last (first-class EVM swap regression)
-4. Step indices are continuous across all three
+2. eth-to-fox-swap steps run next (5 steps: select assets, enter amount, verify quote)
+3. Total: 12 steps in one run, indices 0-11
 
 ### Onboarding Dialog
 
@@ -157,32 +152,6 @@ The native wallet requires a password on each session start. The wallet-health f
   ```
   Then use them: `agent-browser --session qabot eval "$(cat /tmp/click-close.js)"`
 
-#### Chakra UI Modal Interactions (CRITICAL)
-
-- **Modal focus trap**: Chakra UI modals close when focus moves outside them. `agent-browser press` commands steal focus from modals and cause them to close. `click --ref` can also close modals. **Solution: Use JS eval exclusively for all modal interactions.**
-- **Typing in modal inputs**: Do NOT use `press` commands. Use `nativeInputValueSetter` to set React controlled input values:
-  ```js
-  var input = document.querySelector("[data-testid=global-search-input]");
-  var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
-  setter.call(input, "usdc");
-  input.dispatchEvent(new Event("input", {bubbles: true}));
-  input.dispatchEvent(new Event("change", {bubbles: true}));
-  ```
-- **Closing modals**: `press Escape` works because it's a global key event.
-- **Modal data-testid access**: Always scope queries to the modal container (e.g. `document.querySelector("[data-testid=global-search-modal]").querySelector(...)`)
-- **Timing**: Wait 1s after opening modal for mount, 1.5s after typing for search results.
-
-#### Global Search Modal (data-testids)
-
-- `global-search-button`: opens the modal (on GlobalSearchButton component)
-- `global-search-modal`: the ModalContent container
-- `global-search-input`: the search text input (on GlobalFilter)
-- `grouped-asset-row-{SYMBOL}-{assetId}`: expandable multi-chain grouped row
-- `asset-row-{ChainName}-{SYMBOL}-{assetId}`: chain variant inside grouped row
-- `asset-row-{SYMBOL}-{assetId}`: standalone (non-grouped) asset row
-- `markets-row-{category}`: market section (e.g. `markets-row-recentlyAdded`)
-- `asset-card-{symbol}`: clickable card in markets grid
-
 #### Clicking on External Origins
 
 - **Clicking on external origins**: `click --ref` and `click --text` frequently time out on gome/release.shapeshift.com (elements blocked by overlays or slow hydration). **Always prefer JS eval for clicking on external origins**.
@@ -195,25 +164,7 @@ The native wallet requires a password on each session start. The wallet-health f
 #### Asset Picker
 
 - **Asset picker multi-chain**: Assets like FOX exist on multiple chains. Clicking the asset button once expands to show chain variants - click the specific chain variant (e.g. "Ethereum (FOX)") from the expanded list. Primary assets like SOL, BTC, RUNE don't need expansion.
-- **Opening the asset picker**: Focus the asset avatar button via JS eval, then send Enter via `agent-browser press Enter`. Example:
-  ```bash
-  printf 'var btn=document.querySelector("[data-testid=sell-asset-avatar]"); if(btn) btn.focus();' > /tmp/focus-sell-avatar.js
-  agent-browser --session qabot eval "$(cat /tmp/focus-sell-avatar.js)"
-  agent-browser --session qabot press Enter
-  ```
-- **Chain filter**: Click the "All" button next to the search input to open the network dropdown, then select the desired chain via its menuitem role. Example:
-  ```bash
-  printf 'var btn=document.querySelector("button[role=menuitem]"); var items=document.querySelectorAll("[role=menuitem]"); for(var i=0;i<items.length;i++){if(items[i].textContent.includes("Ethereum")){items[i].click();break;}}' > /tmp/select-chain.js
-  agent-browser --session qabot eval "$(cat /tmp/select-chain.js)"
-  ```
-- **Selecting an asset from search results**: Portal-rendered asset picker buttons don't respond to JS `.click()`. Instead, find the button via JS eval, get its bounding rect coordinates, then use mouse commands:
-  ```bash
-  # Get coordinates of the target asset button
-  printf 'var btns=document.querySelectorAll("button"); for(var i=0;i<btns.length;i++){if(btns[i].textContent.includes("FOX")&&btns[i].textContent.includes("Ethereum")){var r=btns[i].getBoundingClientRect();JSON.stringify({x:Math.round(r.x+r.width/2),y:Math.round(r.y+r.height/2)})}}' > /tmp/get-asset-coords.js
-  # Then click at those coordinates
-  agent-browser --session qabot mouse move X Y && agent-browser --session qabot mouse down && agent-browser --session qabot mouse up
-  ```
-- **Popular bar pills are NOT selectors**: The popular asset pills at the top of the picker (ETH, USDT, etc.) are quick-filter shortcuts that filter the search results - they are NOT clickable asset selectors. You still need to click the actual asset button from the filtered results below.
+- **Asset picker interaction**: Open sell asset picker by JS-clicking the sell asset avatar button. Search by focusing the search input via JS eval then pressing characters. Select results by JS-clicking the matching button.
 - **Switch Assets is unreliable after swaps**: After completing a swap, the "Switch Assets" button may not reverse assets. Always verify via snapshot after clicking. If it didn't work, fall back to manually selecting assets via the pickers.
 
 #### Screenshots
@@ -225,13 +176,12 @@ The native wallet requires a password on each session start. The wallet-health f
 - **Screenshots are temporary**: Screenshots are saved to `/tmp/` only as a temp step before uploading to Vercel Blob. After uploading, `rm` the local file. Do NOT accumulate local screenshots.
 - **Delete after successful push**: The `step-complete` endpoint handles screenshot upload server-side. After a successful curl (HTTP 201), delete the local file with `rm -f`.
 - **Screenshots timing**: Always take screenshots AFTER verifying the expected state via snapshot, not before. Early screenshots capture intermediate states.
-- **One screenshot per verification**: Never combine two major checks (e.g. balance check + Tx history) into one step with one screenshot. Each verification gets its own dedicated step and screenshot.
-- **Balance before/after**: Before a swap, note the target asset balance. After the swap completes, screenshot the Accounts tab showing the chain -> Account 0 -> per-asset balance. Include "balance before -> after" in the step name and report (e.g. "verify FOX balance 12.5 -> 24.8").
-- **Dismiss notifications immediately**: Close swap completion toast notifications as soon as they appear - don't leave them lingering. They can obscure UI elements and pollute screenshots.
 
 #### Agent Thought / Action Logging
 
 - **Agent thoughts must be user-facing**: `agentThought` and `actionTaken` fields in results should read like a QA engineer's notes, NOT implementation details. Write "Focused password input, typed password" not "JS eval to focus input, press chars one by one". Describe what happened from a user's perspective, not the automation method used.
+- **No developer jargon**: Never use terms like "React controlled input", "nativeInputValueSetter", "dispatchEvent", "HStack", "Chakra modal". Write like a human QA tester: "Entered amount in the input field", "Clicked the account button", "Toggled to dollar input mode".
+- **Shell expansion in curl fields**: Dollar signs in `-F` field values get shell-expanded (e.g. `$0.10` becomes `/bin/zsh.10`). **Always use single quotes** for `-F` values containing dollar signs: `-F 'agentThought=Entered 10 cents'`. Or avoid dollar signs entirely - write "10 cents" or "0.10 USD" instead of "$0.10".
 
 #### Swap Flow Gotchas
 
@@ -264,7 +214,7 @@ The native wallet requires a password on each session start. The wallet-health f
 
 ```bash
 source ~/.secrets
-QABOT="${QABOT_URL:-https://qabot-kappa.vercel.app}"
+QABOT="${QABOT_URL:-http://localhost:8080}"
 BASE_URL="${BASE_URL:-http://localhost:3000}"
 ```
 
@@ -272,25 +222,108 @@ All write requests use:
 - `Authorization: Bearer $QABOT_API_KEY`
 - `X-Qabot-Operator: $QABOT_OPERATOR`
 
-### 2. Resolve fixture dependencies
+### 2. Detect enabled chains (for multi-chain fixtures)
+
+Some fixtures (e.g. `send-receive.yaml`) test multiple chains. Before executing, detect
+which chains are actually enabled in the target environment. Use **read-only** operations only.
+
+**First-class chains** (always enabled, no feature flag):
+Ethereum, Bitcoin, Bitcoin Cash, Dogecoin, Litecoin, Cosmos Hub, THORChain, Avalanche
+
+**Feature-flagged chains** need `VITE_FEATURE_<FLAG>=true` in the effective env config.
+Vite precedence: `.env.production` overrides `.env` (base). Check both files:
+
+```bash
+# WEB_REPO should already be set from section 4 (branch detection).
+# If not, detect it from the port 3000 process or set it manually.
+
+# One-liner: merge .env + .env.production (later overrides), extract enabled chain flags
+ENABLED_FLAGS=$(cat "$WEB_REPO/.env" "$WEB_REPO/.env.production" 2>/dev/null | \
+  grep '^VITE_FEATURE_' | \
+  awk -F= '{flags[$1]=$2} END{for(f in flags) if(flags[f]=="true") print f}' | \
+  sed 's/VITE_FEATURE_//' | sort)
+
+# $ENABLED_FLAGS now contains flag names like: ARBITRUM, BASE, BNBSMARTCHAIN, ...
+# Cross-reference with the fixture's chain list to determine which chains to test.
+```
+
+Flag name → chain mapping (from `src/config.ts` and `src/constants/chains.ts`):
+OPTIMISM, BNBSMARTCHAIN, POLYGON, GNOSIS, ARBITRUM, SOLANA, STARKNET, TRON, SUI, NEAR,
+TON, BASE, MONAD, HYPEREVM, PLASMA, MANTLE, INK, MEGAETH, BERACHAIN, CRONOS, KATANA,
+FLOWEVM, CELO, PLUME, STORY, ZK_SYNC_ERA, BLAST, ETHEREAL, WORLDCHAIN, HEMI, SEI,
+LINEA, SCROLL, SONIC, UNICHAIN, BOB, MODE, SONEIUM, MAYACHAIN, ZCASH
+
+Note: `.env.production` can explicitly disable chains that `.env` enables (e.g. `FLOWEVM=false`).
+
+### 3. Resolve fixture dependencies
 
 ```bash
 # Read the fixture YAML
-# If depends_on is present, load each pre-dependency recursively
-# If post_depends_on is present, load each post-dependency recursively
+# If depends_on is present, load each dependency recursively
 # Deduplicate (each fixture runs once even if referenced multiple times)
-# Build ordered list: [pre_dep_steps, ..., main_fixture_steps, ..., post_dep_steps]
+# Build ordered list: [dep1_steps, dep2_steps, ..., main_fixture_steps]
 # Step indices are continuous: 0, 1, 2, ... across all fixtures
 ```
 
-### 3. Create a run
+### 4. Detect branch and commit
 
-Always capture the current branch and commit hash:
+Branch and commit must reflect the **web app being tested**, NOT the qabot repo.
+Use **read-only git operations only** (fetch, rev-parse) - NEVER switch branches.
 
 ```bash
-BRANCH=$(git rev-parse --abbrev-ref HEAD)
-COMMIT=$(git rev-parse --short HEAD)
+GITHUB_REPO="shapeshift/web"
 
+# Origin-to-branch mapping (CloudFlare Pages deployments):
+#   localhost:3000         → local branch (detected from dev server process)
+#   gome.shapeshift.com   → gome
+#   release.shapeshift.com → release
+#   develop.shapeshift.com → develop
+#   app.shapeshift.com    → main
+#   neo.shapeshift.com    → neo
+
+if [[ "$BASE_URL" == *"localhost"* ]]; then
+  # Local dev: detect web repo from the process actually serving port 3000
+  # This handles worktrees correctly (main repo vs .worktrees/qabot etc.)
+  DEV_PID=$(lsof -i :3000 -sTCP:LISTEN -n -P -t 2>/dev/null | head -1)
+  if [ -n "$DEV_PID" ]; then
+    WEB_REPO=$(lsof -p "$DEV_PID" 2>/dev/null | awk '/cwd/{print $NF}')
+  fi
+  # Fallback: infer from context (check WEB_REPO env var, or ask the user)
+  if [ -z "$WEB_REPO" ]; then
+    echo "ERROR: Could not detect web repo from port 3000. Set WEB_REPO env var." >&2
+    exit 1
+  fi
+  BRANCH=$(git -C "$WEB_REPO" rev-parse --abbrev-ref HEAD)
+  COMMIT=$(git -C "$WEB_REPO" rev-parse HEAD)
+else
+  # Remote origin: infer WEB_REPO from context for git fetch
+  # (any local clone of shapeshift/web works - agent should find it)
+  # Remote origin: map URL to branch, fetch latest upstream commit
+  case "$BASE_URL" in
+    *gome.*)    BRANCH="gome" ;;
+    *release.*) BRANCH="release" ;;
+    *develop.*) BRANCH="develop" ;;
+    *neo.*)     BRANCH="neo" ;;
+    *)          BRANCH="main" ;;  # app.shapeshift.com or unknown
+  esac
+  git -C "$WEB_REPO" fetch origin "$BRANCH" --quiet 2>/dev/null
+  COMMIT=$(git -C "$WEB_REPO" rev-parse "origin/$BRANCH" 2>/dev/null || echo "unknown")
+fi
+
+COMMIT_SHORT="${COMMIT:0:7}"
+BRANCH_URL="https://github.com/$GITHUB_REPO/tree/$BRANCH"
+COMMIT_URL="https://github.com/$GITHUB_REPO/commit/$COMMIT"
+```
+
+The dashboard auto-generates GitHub permalinks from `prBranch` and `commitSha`:
+- Branch → `https://github.com/shapeshift/web/tree/<branch>`
+- Commit → `https://github.com/shapeshift/web/commit/<sha>`
+
+### 5. Create a run
+
+**IMPORTANT**: Always pass the full (not short) commit SHA so the dashboard permalink works.
+
+```bash
 RUN_ID=$(curl -s -X POST "$QABOT/api/runs" \
   -H "Authorization: Bearer $QABOT_API_KEY" \
   -H "X-Qabot-Operator: $QABOT_OPERATOR" \
@@ -308,7 +341,7 @@ RUN_ID=$(curl -s -X POST "$QABOT/api/runs" \
 # For cron/clawdbot runs, use: triggerType: "cron"
 ```
 
-### 4. Mark run as running
+### 6. Mark run as running
 
 Before executing any steps, transition the run from `pending` to `running`:
 
@@ -321,7 +354,7 @@ curl -s -X PATCH "$QABOT/api/runs/$RUN_ID" \
 
 Run lifecycle: `pending` (created) -> `running` (agent-browser starts) -> `passed`/`failed` (all steps done)
 
-### 5. Execute fixture steps (one at a time)
+### 7. Execute fixture steps (one at a time)
 
 **CRITICAL**: Process each step individually. After each step: take a screenshot and push the result immediately via the batch endpoint. Do NOT batch all results at the end.
 
@@ -363,7 +396,7 @@ For EACH step across all fixtures (index 0, 1, 2, ...):
 
 This way the dashboard updates live as each step completes.
 
-### 6. Complete the run
+### 8. Complete the run
 
 ```bash
 STATUS="passed"  # or "failed" if any step failed
@@ -372,6 +405,15 @@ curl -s -X PATCH "$QABOT/api/runs/$RUN_ID" \
   -H "Authorization: Bearer $QABOT_API_KEY" -H "X-Qabot-Operator: $QABOT_OPERATOR" \
   -H "Content-Type: application/json" \
   -d '{"status":"'"$STATUS"'","completedAt":"'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'","durationMs":'"$TOTAL_MS"'}'
+```
+
+### 9. Post PR comment (if PR run)
+
+```bash
+curl -s -X POST "$QABOT/api/github/comment" \
+  -H "Authorization: Bearer $QABOT_API_KEY" -H "X-Qabot-Operator: $QABOT_OPERATOR" \
+  -H "Content-Type: application/json" \
+  -d '{"runId":"'"$RUN_ID"'"}'
 ```
 
 ## Available Fixtures
@@ -388,4 +430,4 @@ For each step, capture:
 - **errorMessage**: If the step failed, what went wrong
 - **errorStack**: Any error output from agent-browser
 
-This context shows up in the qabot dashboard.
+This context shows up in the qabot dashboard and PR comments.

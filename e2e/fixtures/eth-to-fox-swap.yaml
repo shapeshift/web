@@ -2,7 +2,7 @@ name: ETH to FOX Swap
 description: Full ETH to FOX swap - select assets, enter amount, preview, sign, wait for completion
 route: /trade
 depends_on:
-  - smoke-test.yaml
+  - wallet-health.yaml
 steps:
   - name: Dismiss stale notifications
     instruction: >
@@ -14,24 +14,22 @@ steps:
     screenshot: true
   - name: Select ETH as sell asset
     instruction: >
-      Check if ETH is already the sell asset (look at [data-testid="sell-asset-button"]).
-      If not, click [data-testid="sell-asset-button"] to open the sell asset modal.
-      Focus the search input [data-testid="asset-search-input"] and type "ETH".
-      Click [data-testid="asset-row-ETH"] to select ETH on Ethereum.
+      Check if ETH is already the sell asset. If not, click the sell asset selector,
+      search for ETH, and select "Ethereum (ETH)".
     expected: ETH is selected as the sell asset
     screenshot: true
   - name: Select FOX as buy asset
     instruction: >
-      Click [data-testid="buy-asset-button"] to open the buy asset picker.
-      Focus [data-testid="asset-search-input"] and type "FOX".
-      Click [data-testid="grouped-asset-row-FOX"] to expand the chain variants,
-      then click [data-testid="asset-row-Ethereum-FOX"] to select FOX on Ethereum.
+      Click the buy/receive asset selector button (the one showing the current buy asset like BTC).
+      In the asset picker dialog, type "FOX" in the search field.
+      Click the FOX result - if it shows multiple chain avatars, click it once to expand,
+      then click "Ethereum (FOX)" from the expanded list.
       Wait for the dialog to close and FOX to appear as the buy asset.
     expected: FOX is selected as the buy asset with a FOX balance shown
     screenshot: true
   - name: Toggle to fiat input
     instruction: >
-      Click the fiat toggle button (shows "≈ $0.00") below the sell amount to switch to fiat/USD input mode.
+      Click the "≈ $0.00" button below the sell amount to toggle to fiat/USD input mode.
       If already in fiat mode (placeholder shows "$0"), skip this step.
     expected: The input field is in fiat mode (placeholder shows $0, balance shows $ amount)
     screenshot: true
@@ -47,29 +45,27 @@ steps:
       Wait up to 10 seconds for a swap quote to appear.
       The "You Get" field should show a FOX amount (not 0),
       and a rate like "1 ETH = X FOX" should appear.
-      The "Preview Trade" button [data-testid="trade-form-preview-button-trade.previewTrade"]
-      should become enabled (not disabled).
+      The "Preview Trade" button should become enabled (not disabled).
     expected: Quote is displayed with FOX receive amount, rate shown, Preview Trade button enabled
     screenshot: true
   - name: Preview trade
     instruction: >
-      Click [data-testid="trade-form-preview-button-trade.previewTrade"].
+      Click the "Preview Trade" button.
       Wait for the "Confirm Details" screen to appear showing swap details
       (sell amount, receive amount, swapper, fees).
     expected: Confirm Details screen visible with swap summary and "Confirm and Trade" button
     screenshot: true
   - name: Confirm and Trade
     instruction: >
-      Click [data-testid="trade-confirm-button-trade.confirmAndTrade"].
+      Click the "Confirm and Trade" button.
       This transitions to the Trade execution screen.
-      A "Sign & Swap" button [data-testid="trade-confirm-button-trade.signAndSwap"]
-      will appear, initially in a loading/disabled state.
-      Wait up to 30 seconds for it to become enabled (no longer loading/disabled).
+      A "Sign & Swap" button will appear, initially in a loading/disabled state.
+      Wait up to 30 seconds for "Sign & Swap" to become enabled (no longer loading/disabled).
     expected: Sign & Swap button is visible and enabled (not loading, not disabled)
     screenshot: true
   - name: Sign and Swap
     instruction: >
-      Click [data-testid="trade-confirm-button-trade.signAndSwap"] to sign and submit the transaction.
+      Click the "Sign & Swap" button to sign and submit the transaction.
       The native wallet will sign the transaction automatically (no password prompt for native ETH sends).
       After clicking, the transaction is submitted on-chain.
     expected: Transaction submitted, swap execution in progress

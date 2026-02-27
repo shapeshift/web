@@ -1,4 +1,4 @@
-name: Smoke Test
+name: Wallet Health
 description: Dismiss onboarding, unlock native wallet, verify trade page loads with swap inputs and button
 route: /trade
 steps:
@@ -13,30 +13,22 @@ steps:
       This banner can block interactions with other elements if left open.
     expected: The onboarding dialog is dismissed (or was never shown), no cookie banner visible
     screenshot: true
-  - name: Connect wallet
-    instruction: >
-      Click [data-testid="connect-wallet-button"] to open the wallet connection dialog.
-      If the wallet is already connected (no Connect Wallet button visible), skip this step.
-    expected: Wallet dialog is open showing saved wallets and connection options
-    screenshot: true
-  - name: Select native wallet
-    instruction: >
-      Click the native wallet button [data-testid="native-wallet-<name>"] (e.g. [data-testid="native-wallet-test"]).
-      Wait for the password prompt to appear.
-    expected: Password input dialog is visible
-    screenshot: true
   - name: Fill wallet password
     instruction: >
-      Focus the password input via:
-      eval "document.querySelector('[data-testid=wallet-password-input]')?.focus()"
+      Wait for the "Enter Your Password" dialog to appear.
+      Click on the native wallet button (e.g. "teest" or "test") to select it if not already selected.
+      Once the password input and "Next" button appear, focus the password input using JS eval
+      (click --ref often times out on external origins):
+      eval "document.querySelector('input[type=password], input[placeholder*=Password]')?.focus()"
       Then type $NATIVE_WALLET_PASSWORD character by character using press
       (agent-browser fill does not trigger React onChange - use press for each char).
     expected: Password field is filled (shows masked dots), Next button is enabled and clickable
     screenshot: true
   - name: Unlock wallet
     instruction: >
-      Click the submit button via:
-      eval "document.querySelector('[data-testid=wallet-password-submit-button]')?.click()"
+      Click the "Next" button to submit the password. On external origins where click --ref
+      may time out, use JS eval:
+      eval "Array.from(document.querySelectorAll('button')).find(b => b.textContent.trim() === 'Next')?.click()"
       Wait for the wallet to fully unlock and the app to load (no more password dialog).
       Wait at least 8 seconds for external origins to fully hydrate.
     expected: The wallet is unlocked and the app shows the main interface (no password prompt visible)
@@ -46,18 +38,14 @@ steps:
     expected: The trade page is visible with a swap interface (Swap heading, asset selectors)
     screenshot: true
   - name: Sell input visible
-    instruction: >
-      Look for the sell/from asset input field. The sell asset button has
-      [data-testid="sell-asset-button"] and shows the current sell asset symbol.
+    instruction: Look for the sell/from asset input field
     expected: A sell asset input field is visible with an asset selector
     screenshot: true
   - name: Buy input visible
-    instruction: >
-      Look for the buy/to asset input field. The buy asset button has
-      [data-testid="buy-asset-button"] and shows the current buy asset symbol.
+    instruction: Look for the buy/to asset input field
     expected: A buy asset input field is visible with an asset selector
     screenshot: true
   - name: Swap button exists
-    instruction: Look for the swap/trade action button (Connect Wallet or Preview Trade)
+    instruction: Look for the swap/trade action button
     expected: A swap or trade button is present on the page
     screenshot: true

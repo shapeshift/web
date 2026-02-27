@@ -1,0 +1,472 @@
+name: Send & Receive
+description: >
+  Test send (self-send) and receive flows across all production-enabled chains.
+  Verifies address display, QR code, send form, broadcast, and tx history.
+
+  CONSTRAINTS (CRITICAL - READ BEFORE EXECUTING):
+  - NEVER spend more than $2 USD per chain, absolute maximum
+  - EVM chains: $0.10 self-send
+  - UTXO chains (BTC, BCH, DOGE, LTC, ZEC): up to $2 self-send
+  - Other chains: $0.10-$1 depending on minimums
+  - ALWAYS use fiat input mode (toggle to $ before entering amount)
+  - ALWAYS self-send using "Your Wallets" account picker in the send modal address screen
+  - NEVER type or paste an address manually into the send address input
+  - NEVER send to any address other than your own
+  - If insufficient funds for a chain, DO NOT SKIP. Instead, swap $1 (ceiling)
+    from the highest-balance chain into the target chain's native asset first.
+    Use the /trade page to execute the swap, then return to the send flow.
+    Only skip if the swap itself fails or there's no chain with enough balance.
+  - Exclude Tron (too expensive)
+
+  FUNDING VIA SWAP (when balance is insufficient):
+  - Navigate to /trade via hash route
+  - Set sell asset to the chain with highest USD balance (check balances first)
+  - Set buy asset to the target chain's native asset
+  - Toggle to fiat mode, enter $1 (ceiling - never swap more than $1 to fund)
+  - Preview and confirm the swap
+  - Wait for swap completion (up to 120s for cross-chain)
+  - Navigate back to the target chain's asset page and continue the send flow
+  - The swap step does NOT count as a fixture step - it's infrastructure.
+    Log it in the agentThought of the navigate step for the chain.
+  - For UTXO chains, broadcast confirmation = success (don't wait for on-chain confirm)
+  - Only test native asset per chain (ETH for Ethereum, BTC for Bitcoin, etc.)
+
+  CHAIN DETECTION:
+  - Before running, detect which chains are enabled using the chain detection
+    procedure in SKILL.md (section 2). Only test chains that are enabled in the
+    target environment. Skip disabled chains.
+  - First-class chains (always enabled, no flag): Ethereum, Bitcoin, Bitcoin Cash,
+    Dogecoin, Litecoin, Cosmos Hub, THORChain, Avalanche
+  - Feature-flagged chains: check VITE_FEATURE_<FLAG> in .env + .env.production
+
+  NAVIGATION:
+  - NEVER use agent-browser `navigate` for in-app page changes - it causes full page reload
+    and disconnects the wallet, requiring re-authentication
+  - Use JS eval to change hash route: eval "window.location.hash = '/assets/<assetId>'"
+  - This preserves wallet connection and app state
+
+  SEND MODAL INTERACTIONS:
+  - The send modal is a Chakra UI modal with focus trap
+  - "Your Wallets" account rows are HStack divs with onClick, NOT buttons
+  - To click Account #0, find the chakra-stack inside the modal body that contains
+    "Account #0" text but NOT "Account #1", and dispatchEvent on it:
+    var modal = document.querySelector("[class*=modal__body]");
+    var stacks = modal.querySelectorAll("[class*=chakra-stack]");
+    for (var i=0; i<stacks.length; i++) {
+      if (stacks[i].textContent.includes("Account #0") && !stacks[i].textContent.includes("Account #1")) {
+        stacks[i].dispatchEvent(new MouseEvent("click",{bubbles:true,cancelable:true}));
+        break;
+      }
+    }
+  - Do NOT use .closest("button") - it finds the wrong parent button and opens Choose Account dialog
+  - For amount input in the modal, use nativeInputValueSetter since React controlled inputs
+    don't respond to press commands inside Chakra modals:
+    var input = modal.querySelector("input");
+    var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+    setter.call(input, "0.1");
+    input.dispatchEvent(new Event("input", {bubbles: true}));
+    input.dispatchEvent(new Event("change", {bubbles: true}));
+  - The fiat/crypto toggle is a button showing "$0.00" (crypto mode) or "0 ETH" (fiat mode)
+  - Preview button shows "Loading... Preview" while estimating gas, wait for it to become just "Preview"
+  - After clicking Confirm, the modal closes and a toast appears: "Sending X ETH"
+  - On completion, toast updates to: "You have successfully sent X ETH"
+
+  EXECUTION MODEL:
+  - This fixture defines a `chains` list and `step_template` sections below.
+  - The agent repeats the step template for EACH enabled chain.
+  - Step naming: "<chain_name>: <step_template_name>" (e.g. "Ethereum: Open send modal")
+  - Total steps = wallet-health deps + (chains * steps_per_chain)
+  - If a chain fails, log the failure and CONTINUE to the next chain.
+
+route: /trade
+depends_on:
+  - wallet-health.yaml
+
+# ============================================================================
+# CHAIN DEFINITIONS
+# ============================================================================
+# Each chain entry: name, symbol, assetId, type (evm|utxo|cosmos|other),
+# sendAmountUsd, flag (feature flag name, omit for always-enabled chains)
+#
+# The agent should:
+# 1. Run chain detection (SKILL.md section 2) to get ENABLED_FLAGS
+# 2. Include chains with no `flag` field (always enabled)
+# 3. Include chains whose `flag` is in ENABLED_FLAGS
+# 4. Skip chains whose `flag` is NOT in ENABLED_FLAGS
+# 5. Always skip Tron regardless of flag status
+
+chains:
+  # --- First-class (always enabled, no feature flag) ---
+  - name: Ethereum
+    symbol: ETH
+    assetId: eip155:1/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+
+  - name: Bitcoin
+    symbol: BTC
+    assetId: bip122:000000000019d6689c085ae165831e93/slip44:0
+    type: utxo
+    sendAmountUsd: "2"
+
+  - name: Bitcoin Cash
+    symbol: BCH
+    assetId: bip122:000000000000000000651ef99cb9fcbe/slip44:145
+    type: utxo
+    sendAmountUsd: "2"
+
+  - name: Dogecoin
+    symbol: DOGE
+    assetId: bip122:00000000001a91e3dace36e2be3bf030/slip44:3
+    type: utxo
+    sendAmountUsd: "2"
+
+  - name: Litecoin
+    symbol: LTC
+    assetId: bip122:12a765e31ffd4059bada1e25190f6e98/slip44:2
+    type: utxo
+    sendAmountUsd: "2"
+
+  - name: Cosmos Hub
+    symbol: ATOM
+    assetId: cosmos:cosmoshub-4/slip44:118
+    type: cosmos
+    sendAmountUsd: "0.1"
+
+  - name: THORChain
+    symbol: RUNE
+    assetId: cosmos:thorchain-1/slip44:931
+    type: cosmos
+    sendAmountUsd: "0.1"
+
+  - name: Avalanche
+    symbol: AVAX
+    assetId: eip155:43114/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+
+  # --- Feature-flagged (check VITE_FEATURE_<flag> in env) ---
+  - name: Optimism
+    symbol: ETH
+    assetId: eip155:10/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: OPTIMISM
+
+  - name: BNB Smart Chain
+    symbol: BNB
+    assetId: eip155:56/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: BNBSMARTCHAIN
+
+  - name: Polygon
+    symbol: POL
+    assetId: eip155:137/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: POLYGON
+
+  - name: Gnosis
+    symbol: xDAI
+    assetId: eip155:100/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: GNOSIS
+
+  - name: Arbitrum
+    symbol: ETH
+    assetId: eip155:42161/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: ARBITRUM
+
+  - name: Base
+    symbol: ETH
+    assetId: eip155:8453/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: BASE
+
+  - name: Solana
+    symbol: SOL
+    assetId: solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501
+    type: other
+    sendAmountUsd: "0.1"
+    flag: SOLANA
+
+  - name: Mayachain
+    symbol: CACAO
+    assetId: cosmos:mayachain-mainnet-v1/slip44:931
+    type: cosmos
+    sendAmountUsd: "0.1"
+    flag: MAYACHAIN
+
+  - name: Zcash
+    symbol: ZEC
+    assetId: bip122:00040fe8ec8471911baa1db1266ea15d/slip44:133
+    type: utxo
+    sendAmountUsd: "2"
+    flag: ZCASH
+
+  - name: SUI
+    symbol: SUI
+    assetId: sui:35834a8a/slip44:784
+    type: other
+    sendAmountUsd: "0.1"
+    flag: SUI
+
+  - name: TON
+    symbol: TON
+    assetId: ton:mainnet/slip44:607
+    type: other
+    sendAmountUsd: "0.1"
+    flag: TON
+
+  - name: NEAR
+    symbol: NEAR
+    assetId: near:mainnet/slip44:397
+    type: other
+    sendAmountUsd: "0.1"
+    flag: NEAR
+
+  - name: Starknet
+    symbol: STRK
+    assetId: starknet:SN_MAIN/slip44:9004
+    type: other
+    sendAmountUsd: "0.1"
+    flag: STARKNET
+
+  - name: Monad
+    symbol: MON
+    assetId: eip155:143/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: MONAD
+
+  - name: HyperEVM
+    symbol: HYPE
+    assetId: eip155:999/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: HYPEREVM
+
+  - name: Plasma
+    symbol: pETH
+    assetId: eip155:9745/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: PLASMA
+
+  - name: Katana
+    symbol: KAN
+    assetId: eip155:747474/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: KATANA
+
+  - name: Mantle
+    symbol: MNT
+    assetId: eip155:5000/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: MANTLE
+
+  - name: Ink
+    symbol: ETH
+    assetId: eip155:57073/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: INK
+
+  - name: MegaETH
+    symbol: ETH
+    assetId: eip155:4326/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: MEGAETH
+
+  - name: Berachain
+    symbol: BERA
+    assetId: eip155:80094/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: BERACHAIN
+
+  - name: Cronos
+    symbol: CRO
+    assetId: eip155:25/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: CRONOS
+
+  - name: Sonic
+    symbol: S
+    assetId: eip155:146/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: SONIC
+
+  - name: Linea
+    symbol: ETH
+    assetId: eip155:59144/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: LINEA
+
+  - name: Scroll
+    symbol: ETH
+    assetId: eip155:534352/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: SCROLL
+
+  - name: Blast
+    symbol: ETH
+    assetId: eip155:81457/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: BLAST
+
+  - name: ZkSync Era
+    symbol: ETH
+    assetId: eip155:324/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: ZK_SYNC_ERA
+
+  - name: Hemi
+    symbol: ETH
+    assetId: eip155:43111/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: HEMI
+
+  - name: Sei
+    symbol: SEI
+    assetId: eip155:1329/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: SEI
+
+  - name: Story
+    symbol: IP
+    assetId: eip155:1514/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: STORY
+
+  - name: WorldChain
+    symbol: WLD
+    assetId: eip155:480/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: WORLDCHAIN
+
+  - name: Plume
+    symbol: ETH
+    assetId: eip155:98866/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: PLUME
+
+  - name: Unichain
+    symbol: ETH
+    assetId: eip155:130/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: UNICHAIN
+
+  - name: BOB
+    symbol: ETH
+    assetId: eip155:60808/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: BOB
+
+  - name: Mode
+    symbol: ETH
+    assetId: eip155:34443/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: MODE
+
+  - name: Soneium
+    symbol: ETH
+    assetId: eip155:1868/slip44:60
+    type: evm
+    sendAmountUsd: "0.1"
+    flag: SONEIUM
+
+  # EXCLUDED: Tron (too expensive for self-send testing)
+  # EXCLUDED: Ethereal, FlowEvm, Celo (.env.production disables them)
+
+# ============================================================================
+# STEP TEMPLATES
+# ============================================================================
+# The agent repeats these steps for EACH enabled chain.
+# Replace {name}, {symbol}, {assetId}, {sendAmountUsd} with chain values.
+# For UTXO chains, broadcast = success (skip "verify transaction confirmed" wait).
+
+step_template:
+  - name: "Navigate to {name} asset page"
+    instruction: >
+      Use JS eval to navigate to the {name} ({symbol}) asset page:
+      eval "window.location.hash = '/assets/{assetId}'"
+      Wait 3 seconds for page to load.
+      Verify the asset page shows the chain name, balance, and action buttons
+      (Trade, Send, Receive). If the asset page doesn't load or shows
+      "Asset not found", mark as failed.
+      CHECK BALANCE: If the balance shows $0.00 or "No balance", skip ALL remaining
+      steps for this chain (mark as skipped with "insufficient funds").
+    expected: Asset page loaded with balance > $0, Send and Receive buttons visible
+    screenshot: true
+
+  - name: "Test {name} receive - open and verify"
+    instruction: >
+      Click "Receive" button via JS eval. Wait 2 seconds for modal.
+      Verify the receive modal shows: QR code, address, Copy button.
+      Record the address format (0x for EVM, bc1/1/3 for BTC, etc.).
+      Close the modal by pressing Escape.
+    expected: Receive modal shows address and QR code. Modal closed.
+    screenshot: true
+
+  - name: "Open {name} send modal"
+    instruction: >
+      Click "Send" button via JS eval. Wait 2 seconds for the send modal.
+      The modal should show address input and "Your Wallets" section
+      listing your accounts.
+    expected: Send modal open with "Your Wallets" showing Account #0
+    screenshot: true
+
+  - name: "Select own {name} account for self-send"
+    instruction: >
+      Click Account #0 in "Your Wallets" using the JS pattern from the
+      fixture description (querySelectorAll chakra-stack, match "Account #0"
+      excluding "Account #1", dispatchEvent MouseEvent click).
+      CRITICAL: Do NOT type any address. Do NOT use .closest("button").
+      After clicking, modal should advance to amount entry.
+    expected: Amount entry screen showing destination "Account #0"
+    screenshot: true
+
+  - name: "Enter {name} send amount and confirm"
+    instruction: >
+      1. Toggle to fiat mode if not already (click the "$0.00" button)
+      2. Enter {sendAmountUsd} using nativeInputValueSetter pattern
+      3. Wait for Preview button to become enabled (not "Loading...")
+      4. Click Preview. Wait for confirm screen.
+      5. Verify amount, destination (Account #0), chain name.
+      6. Click Confirm. Wait for broadcast toast ("Sending...").
+      UTXO note: For UTXO chains, broadcast = success. Don't wait for confirm.
+      CONSTRAINT: Never exceed the sendAmountUsd for this chain.
+    expected: Transaction broadcast confirmed via toast notification
+    screenshot: true
+
+  - name: "Verify {name} send result"
+    instruction: >
+      Wait up to 60s for completion toast ("successfully sent").
+      For UTXO chains, broadcast toast is sufficient - don't wait for on-chain.
+      Dismiss any feedback dialog ("Maybe Later").
+      Navigate back to asset page and check Transaction History for the send.
+    expected: Send transaction visible in history or confirmed via toast
+    screenshot: true

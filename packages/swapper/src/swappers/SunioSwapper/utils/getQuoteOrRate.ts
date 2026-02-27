@@ -26,8 +26,34 @@ type ContractParams = {
   energyFactor: number
 }
 
+type ChainPrices = {
+  bandwidthPrice: number
+  energyPrice: number
+}
+
 const CONTRACT_PARAMS_CACHE_TTL_MS = 60 * 60 * 1000
 let cachedContractParams: { params: ContractParams; fetchedAt: number } | undefined
+
+const CHAIN_PRICES_CACHE_TTL_MS = 10 * 60 * 1000
+let cachedChainPrices: { prices: ChainPrices; fetchedAt: number } | undefined
+
+async function getChainPrices(rpcUrl: string): Promise<ChainPrices> {
+  const now = Date.now()
+  if (cachedChainPrices && now - cachedChainPrices.fetchedAt < CHAIN_PRICES_CACHE_TTL_MS) {
+    return cachedChainPrices.prices
+  }
+
+  const tronWeb = new TronWeb({ fullHost: rpcUrl })
+  const chainParams = await tronWeb.trx.getChainParameters()
+
+  const prices: ChainPrices = {
+    bandwidthPrice: chainParams.find(p => p.key === 'getTransactionFee')?.value ?? 1000,
+    energyPrice: chainParams.find(p => p.key === 'getEnergyFee')?.value ?? 100,
+  }
+
+  cachedChainPrices = { prices, fetchedAt: now }
+  return prices
+}
 
 async function getContractParams(rpcUrl: string): Promise<ContractParams> {
   const now = Date.now()
@@ -66,9 +92,9 @@ function calculateUserEnergy(totalEnergy: number, contractParams: ContractParams
   return Math.min(userShare, contractParams.originEnergyLimit)
 }
 
-const SAFETY_MARGIN = 1.3
-const BASE_ENERGY_TRX_TO_TOKEN = Math.ceil(150_000 * SAFETY_MARGIN)
-const BASE_ENERGY_TRC20_TO_TOKEN = Math.ceil(300_000 * SAFETY_MARGIN)
+const SAFETY_MARGIN = 1.1
+const BASE_ENERGY_TRX_TO_TOKEN = Math.ceil(85_000 * SAFETY_MARGIN)
+const BASE_ENERGY_TRC20_TO_TOKEN = Math.ceil(170_000 * SAFETY_MARGIN)
 
 export async function getQuoteOrRate(
   input: GetTronTradeQuoteInput | CommonTradeQuoteInput,
@@ -166,23 +192,18 @@ export async function getQuoteOrRate(
 
     let networkFeeCryptoBaseUnit: string | undefined = undefined
 
-    if (receiveAddress) {
-      try {
-        const rpcUrl = deps.config.VITE_TRON_NODE_URL
-        const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-        const isSellingNativeTrx = !contractAddress
+    try {
+      const rpcUrl = deps.config.VITE_TRON_NODE_URL
+      const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+      const isSellingNativeTrx = !contractAddress
 
-        const tronWeb = new TronWeb({ fullHost: rpcUrl })
+      const [{ bandwidthPrice, energyPrice }, contractParams] = await Promise.all([
+        getChainPrices(rpcUrl),
+        getContractParams(rpcUrl),
+      ])
 
-        const [chainParams, contractParams] = await Promise.all([
-          tronWeb.trx.getChainParameters(),
-          getContractParams(rpcUrl),
-        ])
-
-        const bandwidthPrice = chainParams.find(p => p.key === 'getTransactionFee')?.value ?? 1000
-        const energyPrice = chainParams.find(p => p.key === 'getEnergyFee')?.value ?? 100
-
-        let accountActivationFee = 0
+      let accountActivationFee = 0
+      if (receiveAddress) {
         try {
           const recipientInfoResponse = await fetch(`${rpcUrl}/wallet/getaccount`, {
             method: 'POST',
@@ -197,33 +218,31 @@ export async function getQuoteOrRate(
         } catch {
           // Ignore activation check errors
         }
+      }
 
-        const baseEnergy = isSellingNativeTrx
-          ? BASE_ENERGY_TRX_TO_TOKEN
-          : BASE_ENERGY_TRC20_TO_TOKEN
+      const baseEnergy = isSellingNativeTrx ? BASE_ENERGY_TRX_TO_TOKEN : BASE_ENERGY_TRC20_TO_TOKEN
 
-        const adjustedEnergy =
-          contractParams.energyFactor > 0
-            ? Math.ceil(baseEnergy * (1 + contractParams.energyFactor))
-            : baseEnergy
+      const adjustedEnergy =
+        contractParams.energyFactor > 0
+          ? Math.ceil(baseEnergy * (1 + contractParams.energyFactor))
+          : baseEnergy
 
-        const userEnergy = calculateUserEnergy(adjustedEnergy, contractParams)
+      const userEnergy = calculateUserEnergy(adjustedEnergy, contractParams)
 
-        const energyFee = userEnergy * energyPrice
-        const bandwidthFee = 1100 * bandwidthPrice
+      const energyFee = userEnergy * energyPrice
+      const bandwidthFee = 1100 * bandwidthPrice
 
-        networkFeeCryptoBaseUnit = bn(energyFee)
-          .plus(bandwidthFee)
-          .plus(accountActivationFee)
-          .toFixed(0)
-      } catch (error) {
-        if (!isQuote) {
-          const fallbackEnergy = BASE_ENERGY_TRC20_TO_TOKEN * 0.6
-          const fallbackFee = Math.ceil(fallbackEnergy * 100 + 1100 * 1000)
-          networkFeeCryptoBaseUnit = String(fallbackFee)
-        } else {
-          throw error
-        }
+      networkFeeCryptoBaseUnit = bn(energyFee)
+        .plus(bandwidthFee)
+        .plus(accountActivationFee)
+        .toFixed(0)
+    } catch (error) {
+      if (!isQuote) {
+        const fallbackEnergy = BASE_ENERGY_TRC20_TO_TOKEN * 0.6
+        const fallbackFee = Math.ceil(fallbackEnergy * 100 + 1100 * 1000)
+        networkFeeCryptoBaseUnit = String(fallbackFee)
+      } else {
+        throw error
       }
     }
 

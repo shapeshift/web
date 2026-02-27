@@ -1,4 +1,4 @@
-import { ASSET_IDS, TEST_API_KEY, TEST_PAIRS } from './test-config'
+import { ASSET_IDS, TEST_AFFILIATE_ADDRESS, TEST_PAIRS } from './test-config'
 import type { TestResult, TestSuiteResult } from './test-utils'
 import { fetchWithTimeout, runTest } from './test-utils'
 
@@ -85,34 +85,38 @@ export const runSmokeTests = async (): Promise<TestSuiteResult> => {
     }),
   )
 
-  // 7. Rates Auth Check (Critical)
+  // 7. Rates works without affiliate address (Critical)
   results.push(
-    await runTest('Rates requires auth', true, async () => {
+    await runTest('Rates works without affiliate address', true, async () => {
       const params = new URLSearchParams({
         sellAssetId: ASSET_IDS.ETH,
         buyAssetId: ASSET_IDS.USDC_ETH,
         sellAmountCryptoBaseUnit: '100000000000000000',
       })
-      const res = await fetchWithTimeout(`${API_URL}/v1/swap/rates?${params}`, {})
-      if (res.status !== 401) throw new Error(`Expected 401, got ${res.status}`)
+      const res = await fetchWithTimeout(`${API_URL}/v1/swap/rates?${params}`, {}, 30000)
+      if (res.status === 401) throw new Error('Rates should not require authentication')
     }),
   )
 
-  // 8. Quote Auth Check (Critical)
+  // 8. Quote works without affiliate address (Critical)
   results.push(
-    await runTest('Quote requires auth', true, async () => {
-      const res = await fetchWithTimeout(`${API_URL}/v1/swap/quote`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sellAssetId: ASSET_IDS.ETH,
-          buyAssetId: ASSET_IDS.USDC_ETH,
-          sellAmountCryptoBaseUnit: '100000000000000000',
-          receiveAddress: '0x0000000000000000000000000000000000000000',
-          swapperName: '0x',
-        }),
-      })
-      if (res.status !== 401) throw new Error(`Expected 401, got ${res.status}`)
+    await runTest('Quote works without affiliate address', true, async () => {
+      const res = await fetchWithTimeout(
+        `${API_URL}/v1/swap/quote`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sellAssetId: ASSET_IDS.ETH,
+            buyAssetId: ASSET_IDS.USDC_ETH,
+            sellAmountCryptoBaseUnit: '100000000000000000',
+            receiveAddress: '0x0000000000000000000000000000000000000000',
+            swapperName: '0x',
+          }),
+        },
+        30000,
+      )
+      if (res.status === 401) throw new Error('Quote should not require authentication')
     }),
   )
 
@@ -128,10 +132,10 @@ export const runSmokeTests = async (): Promise<TestSuiteResult> => {
       const res = await fetchWithTimeout(
         `${API_URL}/v1/swap/rates?${params}`,
         {
-          headers: { 'X-API-Key': TEST_API_KEY },
+          headers: { 'X-Affiliate-Address': TEST_AFFILIATE_ADDRESS },
         },
         30000,
-      ) // 30s timeout for rates
+      )
 
       if (!res.ok) throw new Error(`Rates request failed: ${res.status}`)
       const data = (await res.json()) as {
@@ -178,7 +182,7 @@ export const runSmokeTests = async (): Promise<TestSuiteResult> => {
       const res = await fetchWithTimeout(
         `${API_URL}/v1/swap/rates?${params}`,
         {
-          headers: { 'X-API-Key': TEST_API_KEY },
+          headers: { 'X-Affiliate-Address': TEST_AFFILIATE_ADDRESS },
         },
         30000,
       )

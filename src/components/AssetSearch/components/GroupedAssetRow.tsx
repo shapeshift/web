@@ -171,6 +171,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
         p={4}
         borderBottomRadius={isOpen ? 0 : 'lg'}
         bg={isOpen ? 'background.surface.raised.base' : 'transparent'}
+        data-testid={`grouped-asset-row-${asset.symbol}`}
       >
         <Flex gap={3} alignItems='center' flex={1} minWidth={0}>
           <AssetIcon assetId={asset.assetId} showNetworkIcon={false} size='md' flexShrink={0} />

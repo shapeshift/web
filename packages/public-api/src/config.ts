@@ -50,6 +50,7 @@ export const getServerConfig = (): SwapperConfig => ({
   VITE_SUI_NODE_URL: process.env.SUI_NODE_URL || 'https://fullnode.mainnet.sui.io',
   VITE_ACROSS_API_URL: process.env.ACROSS_API_URL || 'https://app.across.to/api',
   VITE_ACROSS_INTEGRATOR_ID: process.env.ACROSS_INTEGRATOR_ID || '',
+  VITE_DEBRIDGE_API_URL: process.env.DEBRIDGE_API_URL || 'https://dln.debridge.finance/v1.0',
 })
 
 // Default affiliate fee in basis points
@@ -58,8 +59,3 @@ export const DEFAULT_AFFILIATE_BPS = '60'
 // API server config
 export const API_PORT = parseInt(process.env.PORT || '3001', 10)
 export const API_HOST = process.env.HOST || '0.0.0.0'
-
-// Static API keys for testing (in production these would come from a database)
-export const STATIC_API_KEYS: Record<string, { name: string; feeSharePercentage: number }> = {
-  'test-api-key-123': { name: 'Test Partner', feeSharePercentage: 50 },
-}

@@ -1,7 +1,8 @@
 name: fox-ecosystem
 description: Fox Ecosystem page - rFOX staking/unstaking/claiming, simulator, FOX token, farming, governance, action center notifications
-url: http://localhost:3000/#/fox-ecosystem
-depends_on: smoke-test
+route: /fox-ecosystem
+depends_on:
+  - wallet-health.yaml
 
 steps:
   - name: Navigate to Fox Ecosystem
@@ -16,7 +17,10 @@ steps:
 
   - name: Stake FOX - open modal and enter amount
     instruction: Click [data-testid="rfox-stake-button"] via JS dispatchEvent. Focus the amount input, type "0.5" via keyboard type. Wait for gas estimation to load.
-    expected: Stake dialog opens showing "Balance: X FOX" on Arbitrum One. After typing 0.5, Staking Details appear with Stake Amount, Lockup Period (a month), Share of Pool, and Approval Fee or Network Fee. Stake button becomes enabled.
+    expected: >
+      Stake dialog opens showing Balance X FOX on Arbitrum One. After typing 0.5,
+      Staking Details appear with Stake Amount, Lockup Period, Share of Pool,
+      and Approval Fee or Network Fee. Stake button becomes enabled.
     screenshot: true
 
   - name: Stake FOX - submit and approve
@@ -63,7 +67,11 @@ steps:
 
   - name: Confirm the claim transaction
     instruction: Click the "Confirm & Claim" button via JS dispatchEvent. Wait 5 seconds for transaction to process.
-    expected: Transaction signs and submits. Returns to claim list. The claimed request should no longer appear in the list. NOTE (soft_fail): No success toast is shown for claims - this is a known UX inconsistency. Stake and Unstake both show toasts, but Claim does not.
+    expected: >
+      Transaction signs and submits. Returns to claim list. The claimed request
+      should no longer appear in the list. NOTE (soft_fail) - no success toast is
+      shown for claims, this is a known UX inconsistency. Stake and Unstake both
+      show toasts, but Claim does not.
     screenshot: true
     soft_fail: true
 

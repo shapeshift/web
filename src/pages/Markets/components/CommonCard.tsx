@@ -57,7 +57,7 @@ export const CommonCard: React.FC<CommonCardProps> = ({
       borderRadius='2xl'
       p={0}
       onClick={handleClick}
-      data-testid={`asset-card-${subtitle}`}
+      data-testid={`asset-card-${assetId}`}
     >
       <CardBody
         as={Flex}

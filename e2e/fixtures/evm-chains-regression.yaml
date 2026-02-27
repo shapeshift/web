@@ -5,6 +5,8 @@ description: >
   Detects node failures, RPC issues, and swapper regressions.
   Chains: Ethereum, Base, Gnosis, Avalanche, Arbitrum, BSC, Optimism.
 route: /trade
+depends_on:
+  - wallet-health.yaml
 steps:
   # ============================================================
   # ETHEREUM - ETH -> any token ($1)

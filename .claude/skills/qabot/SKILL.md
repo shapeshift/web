@@ -376,7 +376,7 @@ For EACH step across all fixtures (index 0, 1, 2, ...):
      curl -s -X POST "$QABOT/api/runs/$RUN_ID/step-complete" \
        -H "Authorization: Bearer $QABOT_API_KEY" -H "X-Qabot-Operator: $QABOT_OPERATOR" \
        -F "stepIndex=$INDEX" \
-       -F "name=<fixture-name>: <step name>" \
+       -F "name=<group> > <step name>" \
        -F "status=<passed|failed>" \
        -F "durationMs=$ELAPSED_MS" \
        -F "agentThought=<what you observed - user-facing QA language>" \
@@ -395,6 +395,26 @@ For EACH step across all fixtures (index 0, 1, 2, ...):
 **IMPORTANT**: `durationMs` for each step is the **total elapsed wall-clock time since the run started**, NOT the duration of that individual step. This captures agent thinking time between steps (which is significant). The dashboard shows these as cumulative timestamps so the last step's duration = total run duration.
 
 This way the dashboard updates live as each step completes.
+
+#### Step Naming Convention (Grouping)
+
+The dashboard groups steps into collapsible sections using ` > ` as the separator. Use this convention in ALL step names:
+
+- **Dependency fixture steps**: `<Fixture Name> > <step name>`
+  - Example: `Wallet Health > Dismiss onboarding`
+  - Example: `Wallet Health > Unlock wallet`
+- **Template fixture steps** (multi-chain): `<Chain Name> > <step name>`
+  - Example: `Ethereum > Navigate to asset page`
+  - Example: `Bitcoin > Enter amount and confirm send`
+- **Regular fixture steps**: `<Fixture Name> > <step name>`
+  - Example: `ETH to FOX Swap > Select sell asset`
+
+Multi-level nesting is supported by chaining separators:
+- `Send Receive > Ethereum > Navigate to asset page` (3 levels)
+
+Steps without ` > ` render flat (no grouping) for backwards compatibility.
+
+**CRITICAL**: Always use ` > ` (space-arrow-space), never `: ` or ` - ` as group separators. The dashboard only recognizes ` > `.
 
 ### 8. Complete the run
 

@@ -74,7 +74,8 @@ description: >
   EXECUTION MODEL:
   - This fixture defines a `chains` list and `step_template` sections below.
   - The agent repeats the step template for EACH enabled chain.
-  - Step naming: "<chain_name>: <step_template_name>" (e.g. "Ethereum: Open send modal")
+  - Step naming uses ` > ` separator for dashboard grouping:
+    "{chain_name} > {step_template_name}" (e.g. "Ethereum > Open send modal")
   - Total steps = wallet-health deps + (chains * steps_per_chain)
   - If a chain fails, log the failure and CONTINUE to the next chain.
 
@@ -409,7 +410,7 @@ chains:
 # For UTXO chains, broadcast = success (skip "verify transaction confirmed" wait).
 
 step_template:
-  - name: "Navigate to {name} asset page"
+  - name: "{name} > Navigate to asset page"
     instruction: >
       Use JS eval to navigate to the {name} ({symbol}) asset page:
       eval "window.location.hash = '/assets/{assetId}'"
@@ -422,7 +423,7 @@ step_template:
     expected: Asset page loaded with balance > $0, Send and Receive buttons visible
     screenshot: true
 
-  - name: "Test {name} receive - open and verify"
+  - name: "{name} > Test receive"
     instruction: >
       Click "Receive" button via JS eval. Wait 2 seconds for modal.
       Verify the receive modal shows: QR code, address, Copy button.
@@ -431,7 +432,7 @@ step_template:
     expected: Receive modal shows address and QR code. Modal closed.
     screenshot: true
 
-  - name: "Open {name} send modal"
+  - name: "{name} > Open send modal"
     instruction: >
       Click "Send" button via JS eval. Wait 2 seconds for the send modal.
       The modal should show address input and "Your Wallets" section
@@ -439,7 +440,7 @@ step_template:
     expected: Send modal open with "Your Wallets" showing Account #0
     screenshot: true
 
-  - name: "Select own {name} account for self-send"
+  - name: "{name} > Select own account"
     instruction: >
       Click Account #0 in "Your Wallets" using the JS pattern from the
       fixture description (querySelectorAll chakra-stack, match "Account #0"
@@ -449,7 +450,7 @@ step_template:
     expected: Amount entry screen showing destination "Account #0"
     screenshot: true
 
-  - name: "Enter {name} send amount and confirm"
+  - name: "{name} > Enter amount and confirm"
     instruction: >
       1. Toggle to fiat mode if not already (click the "$0.00" button)
       2. Enter {sendAmountUsd} using nativeInputValueSetter pattern
@@ -462,7 +463,7 @@ step_template:
     expected: Transaction broadcast confirmed via toast notification
     screenshot: true
 
-  - name: "Verify {name} send result"
+  - name: "{name} > Verify send result"
     instruction: >
       Wait up to 60s for completion toast ("successfully sent").
       For UTXO chains, broadcast toast is sufficient - don't wait for on-chain.

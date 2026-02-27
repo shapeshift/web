@@ -1,0 +1,94 @@
+name: ETH to FOX Swap
+description: Full ETH to FOX swap - select assets, enter amount, preview, sign, wait for completion
+route: /trade
+depends_on:
+  - smoke-test.yaml
+steps:
+  - name: Dismiss stale notifications
+    instruction: >
+      Before starting the swap, dismiss any lingering notifications from previous swaps.
+      Close any toast notifications, feedback dialogs ("How was your trade experience?"),
+      or pending transaction banners by clicking their Close/X buttons.
+      This prevents stale UI state from interfering with the current swap's completion detection.
+    expected: No stale notifications visible
+    screenshot: true
+  - name: Select ETH as sell asset
+    instruction: >
+      Check if ETH is already the sell asset (look at [data-testid="sell-asset-button"]).
+      If not, click [data-testid="sell-asset-button"] to open the sell asset modal.
+      Focus the search input [data-testid="asset-search-input"] and type "ETH".
+      Click [data-testid="asset-row-ETH"] to select ETH on Ethereum.
+    expected: ETH is selected as the sell asset
+    screenshot: true
+  - name: Select FOX as buy asset
+    instruction: >
+      Click [data-testid="buy-asset-button"] to open the buy asset picker.
+      Focus [data-testid="asset-search-input"] and type "FOX".
+      Click [data-testid="grouped-asset-row-FOX"] to expand the chain variants,
+      then click [data-testid="asset-row-Ethereum-FOX"] to select FOX on Ethereum.
+      Wait for the dialog to close and FOX to appear as the buy asset.
+    expected: FOX is selected as the buy asset with a FOX balance shown
+    screenshot: true
+  - name: Toggle to fiat input
+    instruction: >
+      Click the fiat toggle button (shows "≈ $0.00") below the sell amount to switch to fiat/USD input mode.
+      If already in fiat mode (placeholder shows "$0"), skip this step.
+    expected: The input field is in fiat mode (placeholder shows $0, balance shows $ amount)
+    screenshot: true
+  - name: Enter swap amount
+    instruction: >
+      Click the sell amount textbox and type 0.10 character by character using press
+      (NOT fill - React controlled inputs need keypress events).
+      Wait a moment for the value to register.
+    expected: $0.10 is entered in the sell field
+    screenshot: true
+  - name: Wait for quote
+    instruction: >
+      Wait up to 10 seconds for a swap quote to appear.
+      The "You Get" field should show a FOX amount (not 0),
+      and a rate like "1 ETH = X FOX" should appear.
+      The "Preview Trade" button [data-testid="trade-form-preview-button-trade.previewTrade"]
+      should become enabled (not disabled).
+    expected: Quote is displayed with FOX receive amount, rate shown, Preview Trade button enabled
+    screenshot: true
+  - name: Preview trade
+    instruction: >
+      Click [data-testid="trade-form-preview-button-trade.previewTrade"].
+      Wait for the "Confirm Details" screen to appear showing swap details
+      (sell amount, receive amount, swapper, fees).
+    expected: Confirm Details screen visible with swap summary and "Confirm and Trade" button
+    screenshot: true
+  - name: Confirm and Trade
+    instruction: >
+      Click [data-testid="trade-confirm-button-trade.confirmAndTrade"].
+      This transitions to the Trade execution screen.
+      A "Sign & Swap" button [data-testid="trade-confirm-button-trade.signAndSwap"]
+      will appear, initially in a loading/disabled state.
+      Wait up to 30 seconds for it to become enabled (no longer loading/disabled).
+    expected: Sign & Swap button is visible and enabled (not loading, not disabled)
+    screenshot: true
+  - name: Sign and Swap
+    instruction: >
+      Click [data-testid="trade-confirm-button-trade.signAndSwap"] to sign and submit the transaction.
+      The native wallet will sign the transaction automatically (no password prompt for native ETH sends).
+      After clicking, the transaction is submitted on-chain.
+    expected: Transaction submitted, swap execution in progress
+    screenshot: true
+  - name: Wait for completion
+    instruction: >
+      Wait for the swap to complete. The page will show "Awaiting swap" with a progress bar.
+      When complete, it transitions back to the main trade page.
+      A feedback dialog ("How was your trade experience?") may appear - dismiss it by clicking "Maybe Later" or "Close".
+      Check that the buy asset balance has increased.
+      Wait up to 120 seconds, checking every 5 seconds.
+      Look for: the trade page reappearing, a feedback dialog, success notification, or the
+      "Awaiting swap" text disappearing.
+    expected: Swap completed - back on trade page, FOX balance increased, no more "Awaiting swap"
+    screenshot: true
+  - name: Clean up notifications
+    instruction: >
+      After confirming the swap completed, dismiss any remaining notifications or dialogs
+      (feedback dialog, success toast, etc.) by clicking Close/X/Maybe Later buttons.
+      This leaves a clean state for any subsequent fixture that depends on this one.
+    expected: Trade page is clean with no overlaying notifications or dialogs
+    screenshot: true

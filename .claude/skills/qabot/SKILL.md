@@ -59,7 +59,7 @@ name: Test Name
 description: What this tests
 route: /trade
 depends_on:
-  - smoke-test.yaml       # runs BEFORE main steps (wallet unlock etc.)
+  - wallet-health.yaml       # runs BEFORE main steps (wallet unlock etc.)
 post_depends_on:
   - cleanup.yaml          # runs AFTER main steps (regression tests etc.)
 steps:
@@ -73,7 +73,7 @@ steps:
 
 Fixtures can declare `depends_on` (pre-dependencies) and `post_depends_on` (post-dependencies).
 
-- `depends_on` - fixtures that run BEFORE the main steps (e.g. smoke-test, wallet unlock)
+- `depends_on` - fixtures that run BEFORE the main steps (e.g. wallet-health, wallet unlock)
 - `post_depends_on` - fixtures that run AFTER all main steps (e.g. regression tests, cleanup)
 - Dependencies are resolved recursively and deduplicated (each fixture runs at most once)
 - All fixtures run sequentially in one browser session - the page state carries over
@@ -81,15 +81,15 @@ Fixtures can declare `depends_on` (pre-dependencies) and `post_depends_on` (post
 - All steps from all fixtures go into a single qabot run
 - The `fixtureFile` for the run is the top-level fixture name
 
-Example: `1.1012.0.yaml` depends on `smoke-test.yaml` and post-depends on `evm-chains-regression.yaml`:
-1. smoke-test runs first (7 steps: dismiss onboarding, unlock wallet, verify page)
+Example: `1.1012.0.yaml` depends on `wallet-health.yaml` and post-depends on `evm-chains-regression.yaml`:
+1. wallet-health runs first (7 steps: dismiss onboarding, unlock wallet, verify page)
 2. 1.1012.0 main steps run next (second-class chain tests)
 3. evm-chains-regression runs last (first-class EVM swap regression)
 4. Step indices are continuous across all three
 
 ### Onboarding Dialog
 
-On first visit to any origin (gome.shapeshift.com, release.shapeshift.com, etc.), ShapeShift shows an onboarding splash dialog ("Self-Custody", "You own your keys") with "Skip" and "Next" buttons. The smoke-test fixture handles dismissing this. Always run smoke-test as a dependency for other fixtures.
+On first visit to any origin (gome.shapeshift.com, release.shapeshift.com, etc.), ShapeShift shows an onboarding splash dialog ("Self-Custody", "You own your keys") with "Skip" and "Next" buttons. The wallet-health fixture handles dismissing this. Always run wallet-health as a dependency for other fixtures.
 
 ## agent-browser Session
 
@@ -115,14 +115,21 @@ Origins where the wallet has been imported:
 
 ### Wallet Unlock
 
-The native wallet requires a password on each session start. The smoke-test fixture handles this. If running without smoke-test, handle it manually:
+The native wallet requires a password on each session start. The wallet-health fixture handles this. If running without wallet-health, handle it manually:
 
 1. Check for onboarding dialog first - click "Skip" if present
-2. Look for "Enter Your Password" dialog
+2. The "Enter Your Password" dialog may or may not appear automatically depending on the page:
+   - On some pages, the wallet modal opens automatically with the unlock prompt
+   - On other pages (e.g. /trade), you'll see "Connect Wallet" in the top-right nav instead
+   - If you see "Connect Wallet", click it, then **wait 5 seconds** for native wallets to load in the modal
+   - If the "test" wallet appears in the wallet list on the left side of the modal, click it to get the password prompt
+   - Note: the nav button may still say "Connect Wallet" even while the wallet is loading/connecting - this is normal
 3. Click the wallet name button (e.g. "test", "teest") if wallet selection is shown
-4. Click the password textbox
+4. Focus the password input via JS eval (click --ref often times out on external origins):
+   `eval "document.querySelector('input[type=password], input[placeholder*=Password]')?.focus()"`
 5. Type `$NATIVE_WALLET_PASSWORD` character by character using `press` (NOT `fill` - React controlled inputs need keypress events)
-6. Click "Next"
+6. Click "Next" via JS eval:
+   `eval "$(cat /tmp/click-next.js)"`
 7. Wait 8+ seconds for external origins to fully hydrate
 
 ### Tips
@@ -150,6 +157,32 @@ The native wallet requires a password on each session start. The smoke-test fixt
   ```
   Then use them: `agent-browser --session qabot eval "$(cat /tmp/click-close.js)"`
 
+#### Chakra UI Modal Interactions (CRITICAL)
+
+- **Modal focus trap**: Chakra UI modals close when focus moves outside them. `agent-browser press` commands steal focus from modals and cause them to close. `click --ref` can also close modals. **Solution: Use JS eval exclusively for all modal interactions.**
+- **Typing in modal inputs**: Do NOT use `press` commands. Use `nativeInputValueSetter` to set React controlled input values:
+  ```js
+  var input = document.querySelector("[data-testid=global-search-input]");
+  var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+  setter.call(input, "usdc");
+  input.dispatchEvent(new Event("input", {bubbles: true}));
+  input.dispatchEvent(new Event("change", {bubbles: true}));
+  ```
+- **Closing modals**: `press Escape` works because it's a global key event.
+- **Modal data-testid access**: Always scope queries to the modal container (e.g. `document.querySelector("[data-testid=global-search-modal]").querySelector(...)`)
+- **Timing**: Wait 1s after opening modal for mount, 1.5s after typing for search results.
+
+#### Global Search Modal (data-testids)
+
+- `global-search-button`: opens the modal (on GlobalSearchButton component)
+- `global-search-modal`: the ModalContent container
+- `global-search-input`: the search text input (on GlobalFilter)
+- `grouped-asset-row-{SYMBOL}-{assetId}`: expandable multi-chain grouped row
+- `asset-row-{ChainName}-{SYMBOL}-{assetId}`: chain variant inside grouped row
+- `asset-row-{SYMBOL}-{assetId}`: standalone (non-grouped) asset row
+- `markets-row-{category}`: market section (e.g. `markets-row-recentlyAdded`)
+- `asset-card-{symbol}`: clickable card in markets grid
+
 #### Clicking on External Origins
 
 - **Clicking on external origins**: `click --ref` and `click --text` frequently time out on gome/release.shapeshift.com (elements blocked by overlays or slow hydration). **Always prefer JS eval for clicking on external origins**.
@@ -157,7 +190,7 @@ The native wallet requires a password on each session start. The smoke-test fixt
   ```js
   var btn=document.querySelector("button[class*=avatar]"); if(btn) btn.dispatchEvent(new MouseEvent("click",{bubbles:true,cancelable:true}));
   ```
-- **Cookie/tracking banner**: On external origins, a cookie banner ("Our dApp uses anonymized click tracking...") appears with a "Got It" button. **Dismiss this immediately after page load** - it can block interactions. The smoke-test fixture should handle this.
+- **Cookie/tracking banner**: On external origins, a cookie banner ("Our dApp uses anonymized click tracking...") appears with a "Got It" button. **Dismiss this immediately after page load** - it can block interactions. The wallet-health fixture should handle this.
 
 #### Asset Picker
 
@@ -190,12 +223,7 @@ The native wallet requires a password on each session start. The smoke-test fixt
   agent-browser --session qabot screenshot "/tmp/step-0-dismiss-onboarding.png"
   ```
 - **Screenshots are temporary**: Screenshots are saved to `/tmp/` only as a temp step before uploading to Vercel Blob. After uploading, `rm` the local file. Do NOT accumulate local screenshots.
-- **Verify upload before deleting**: Always check the upload response contains a valid blob URL BEFORE deleting the local file. Pattern:
-  ```bash
-  RESPONSE=$(curl -s -X POST "$QABOT/api/runs/$RUN_ID/screenshots" ...)
-  SHOT_URL=$(echo "$RESPONSE" | jq -r '.url')
-  if [ -n "$SHOT_URL" ] && [ "$SHOT_URL" != "null" ]; then rm -f /tmp/step-N-name.png; fi
-  ```
+- **Delete after successful push**: The `step-complete` endpoint handles screenshot upload server-side. After a successful curl (HTTP 201), delete the local file with `rm -f`.
 - **Screenshots timing**: Always take screenshots AFTER verifying the expected state via snapshot, not before. Early screenshots capture intermediate states.
 - **One screenshot per verification**: Never combine two major checks (e.g. balance check + Tx history) into one step with one screenshot. Each verification gets its own dedicated step and screenshot.
 - **Balance before/after**: Before a swap, note the target asset balance. After the swap completes, screenshot the Accounts tab showing the chain -> Account 0 -> per-asset balance. Include "balance before -> after" in the step name and report (e.g. "verify FOX balance 12.5 -> 24.8").
@@ -295,7 +323,7 @@ Run lifecycle: `pending` (created) -> `running` (agent-browser starts) -> `passe
 
 ### 5. Execute fixture steps (one at a time)
 
-**CRITICAL**: Process each step individually. After each step: take a screenshot, upload it, then push that step's result immediately. Do NOT batch all results at the end.
+**CRITICAL**: Process each step individually. After each step: take a screenshot and push the result immediately via the batch endpoint. Do NOT batch all results at the end.
 
 ```
 # Pre-write all click helpers to /tmp/ (see Tips > JS Eval section above)
@@ -311,32 +339,29 @@ For EACH step across all fixtures (index 0, 1, 2, ...):
      ELAPSED_MS=$(($(python3 -c 'import time; print(int(time.time()*1000))') - RUN_START_MS))
   5. ALWAYS take a screenshot using ABSOLUTE path in /tmp/:
      agent-browser --session qabot screenshot "/tmp/step-$INDEX-<step-name-slug>.png"
-  6. Upload the screenshot, verify response, then delete local file:
-     RESPONSE=$(curl -s -X POST "$QABOT/api/runs/$RUN_ID/screenshots" \
+  6. Push screenshot + result in ONE call via the batch endpoint:
+     curl -s -X POST "$QABOT/api/runs/$RUN_ID/step-complete" \
        -H "Authorization: Bearer $QABOT_API_KEY" -H "X-Qabot-Operator: $QABOT_OPERATOR" \
+       -F "stepIndex=$INDEX" \
+       -F "name=<fixture-name>: <step name>" \
+       -F "status=<passed|failed>" \
+       -F "durationMs=$ELAPSED_MS" \
+       -F "agentThought=<what you observed - user-facing QA language>" \
+       -F "actionTaken=<what happened from user perspective>" \
        -F "file=@/tmp/step-$INDEX-<slug>.png" \
-       -F "label=<step-name>")
-     SHOT_URL=$(echo "$RESPONSE" | jq -r '.url')
-     if [ -n "$SHOT_URL" ] && [ "$SHOT_URL" != "null" ]; then rm -f "/tmp/step-$INDEX-<slug>.png"; fi
-  7. Push this step's result immediately:
-     curl -s -X POST "$QABOT/api/runs/$RUN_ID/results" \
-       -H "Authorization: Bearer $QABOT_API_KEY" -H "X-Qabot-Operator: $QABOT_OPERATOR" \
-       -H "Content-Type: application/json" \
-       -d '{"results":[{
-         "stepIndex": $INDEX,
-         "name": "<fixture-name>: <step name>",
-         "status": "<passed|failed>",
-         "durationMs": '"$ELAPSED_MS"',
-         "agentThought": "<what you observed - user-facing QA language>",
-         "actionTaken": "<what happened from user perspective>",
-         "screenshots": [{"url": "'"$SHOT_URL"'", "label": "<step-name>"}]
-       }]}'
+       -F "label=<step-name>"
+     The server uploads the screenshot to Vercel Blob, inserts the result,
+     and recalculates run counters - all in one request.
+     On success, delete the local file: rm -f "/tmp/step-$INDEX-<slug>.png"
+     If the step has no screenshot, omit the "file" and "label" fields.
+  7. For failed steps, also add: -F "errorMessage=<what went wrong>"
+     and optionally: -F "errorStack=<stack trace or agent-browser output>"
   8. If step failed and it's critical, you may stop early
 ```
 
 **IMPORTANT**: `durationMs` for each step is the **total elapsed wall-clock time since the run started**, NOT the duration of that individual step. This captures agent thinking time between steps (which is significant). The dashboard shows these as cumulative timestamps so the last step's duration = total run duration.
 
-This way the dashboard updates live as each step completes (auto-refreshes every 10s).
+This way the dashboard updates live as each step completes.
 
 ### 6. Complete the run
 

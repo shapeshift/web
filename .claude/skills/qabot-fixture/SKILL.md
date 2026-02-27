@@ -15,7 +15,7 @@ You are helping the user create a new E2E test fixture for qabot. Fixtures are Y
 Ask the user what they want to test. If they give a vague answer like "test the earn page", ask clarifying questions:
 - What specific functionality? (page loads, specific interaction, full flow)
 - What route? (e.g., /earn, /trade, /dashboard) - note: the base URL is a run-level arg, not per-fixture
-- Does it need a connected wallet? (most tests do - use `depends_on: smoke-test.yaml`)
+- Does it need a connected wallet? (most tests do - use `depends_on: wallet-health.yaml`)
 
 ### 2. Read existing fixtures for reference
 
@@ -48,7 +48,7 @@ name: Human Readable Name
 description: One-line description of what this fixture tests
 route: /<route>
 depends_on:
-  - smoke-test.yaml          # runs BEFORE main steps (wallet unlock, onboarding dismiss)
+  - wallet-health.yaml          # runs BEFORE main steps (wallet unlock, onboarding dismiss)
 post_depends_on:
   - evm-chains-regression.yaml  # runs AFTER main steps (optional)
 steps:
@@ -65,7 +65,7 @@ steps:
 
 Fixtures can declare dependencies that run before or after the main steps:
 
-- **`depends_on`** - fixtures that run BEFORE the main steps. Most fixtures should include `smoke-test.yaml` which handles onboarding dismiss + wallet unlock.
+- **`depends_on`** - fixtures that run BEFORE the main steps. Most fixtures should include `wallet-health.yaml` which handles onboarding dismiss + wallet unlock.
 - **`post_depends_on`** - fixtures that run AFTER all main steps (e.g. regression suites, cleanup).
 - Dependencies are resolved recursively and deduplicated (each fixture runs at most once).
 - All fixtures run in one browser session - page state carries over.

@@ -64,8 +64,9 @@ steps:
       Focus [data-testid="asset-search-input"] and search "xDAI", or use
       [data-testid="chain-filter-button"] then [data-testid="chain-menu-item-Gnosis"] to filter.
       Click [data-testid="asset-row-XDAI"] to select xDAI on Gnosis.
-      If no xDAI balance, first bridge $1 ETH from Ethereum to Gnosis (ETH -> xDAI).
+      If no xDAI balance, mark step as failed (precondition: xDAI balance required).
     expected: Sell asset is xDAI on Gnosis with balance
+    soft_fail: true
     screenshot: false
 
   - name: "Gnosis: Same-chain swap xDAI -> token ($1)"
@@ -92,8 +93,9 @@ steps:
       Focus [data-testid="asset-search-input"] and search "AVAX", or use
       [data-testid="chain-filter-button"] then [data-testid="chain-menu-item-Avalanche C-Chain"] to filter.
       Click [data-testid="asset-row-AVAX"] to select AVAX.
-      If no AVAX balance, first bridge $1 ETH from Ethereum to Avalanche.
+      If no AVAX balance, mark step as failed (precondition: AVAX balance required).
     expected: Sell asset is AVAX with balance
+    soft_fail: true
     screenshot: false
 
   - name: "Avalanche: Same-chain swap AVAX -> token ($1)"
@@ -147,8 +149,9 @@ steps:
       Focus [data-testid="asset-search-input"] and search "BNB", or use
       [data-testid="chain-filter-button"] then [data-testid="chain-menu-item-BNB Smart Chain"] to filter.
       Click [data-testid="asset-row-BNB"] to select BNB.
-      If no BNB balance, first bridge $1 ETH to BSC.
+      If no BNB balance, mark step as failed (precondition: BNB balance required).
     expected: Sell asset is BNB with balance
+    soft_fail: true
     screenshot: false
 
   - name: "BSC: Same-chain swap BNB -> token ($1)"

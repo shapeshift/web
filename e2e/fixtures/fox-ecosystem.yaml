@@ -6,7 +6,7 @@ depends_on:
 
 steps:
   - name: Navigate to Fox Ecosystem
-    instruction: Open http://localhost:3000/#/fox-ecosystem. Wait for the page to fully load with rFOX section visible.
+    instruction: Navigate to the fox-ecosystem route (use BASE_URL from environment). Wait for the page to fully load with rFOX section visible.
     expected: Page shows "FOX Token Dashboard" heading, rFOX Staking section with APY badge, navigation links (rFOX Staking, FOX Token, FOX Farming+, Governance). "Program Ended" banner about WETH/FOX sunset visible.
     screenshot: true
 
@@ -61,17 +61,25 @@ steps:
     screenshot: true
 
   - name: Claim a ready unstaking request
-    instruction: Find the smallest enabled claim request (one with "Cooldown finished" text and not disabled). Click it via JS dispatchEvent.
-    expected: Confirmation screen shows claim amount in FOX with USD value, receive address, network fee in USD, and "Confirm & Claim" button.
+    instruction: >
+      Check if any enabled claim request exists (one with "Cooldown finished" text and not disabled).
+      If no ready requests exist (all are still cooling down), skip this step.
+      If a ready request exists, find the smallest one and click it via JS dispatchEvent.
+    expected: >
+      Either no ready requests exist (all cooling down, step is skipped) OR
+      confirmation screen shows claim amount in FOX with USD value, receive address,
+      network fee in USD, and "Confirm & Claim" button.
     screenshot: true
+    soft_fail: true
 
   - name: Confirm the claim transaction
-    instruction: Click the "Confirm & Claim" button via JS dispatchEvent. Wait 5 seconds for transaction to process.
+    instruction: >
+      If the previous step was skipped (no ready requests), skip this step too.
+      Otherwise click the "Confirm & Claim" button via JS dispatchEvent. Wait 5 seconds for transaction to process.
     expected: >
-      Transaction signs and submits. Returns to claim list. The claimed request
-      should no longer appear in the list. NOTE (soft_fail) - no success toast is
-      shown for claims, this is a known UX inconsistency. Stake and Unstake both
-      show toasts, but Claim does not.
+      Either skipped (no ready claim) OR transaction signs and submits. Returns to
+      claim list. The claimed request should no longer appear in the list.
+      NOTE - no success toast is shown for claims, this is a known UX inconsistency.
     screenshot: true
     soft_fail: true
 

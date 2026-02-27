@@ -211,7 +211,9 @@ const RateLimitErrorSchema = registry.register(
   'RateLimitError',
   z.object({
     error: z.string().openapi({ example: 'Too many requests, please try again later' }),
-    code: z.nativeEnum(RateLimitErrorCode).openapi({ example: RateLimitErrorCode.RateLimitExceeded }),
+    code: z
+      .nativeEnum(RateLimitErrorCode)
+      .openapi({ example: RateLimitErrorCode.RateLimitExceeded }),
   }),
 )
 

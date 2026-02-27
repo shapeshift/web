@@ -6,6 +6,12 @@ import express from 'express'
 import { initAssets } from './assets'
 import { API_HOST, API_PORT } from './config'
 import { affiliateAddress } from './middleware/auth'
+import {
+  dataLimiter,
+  globalLimiter,
+  swapQuoteLimiter,
+  swapRatesLimiter,
+} from './middleware/rateLimit'
 import { getAssetById, getAssetCount, getAssets } from './routes/assets'
 import { getChainCount, getChains } from './routes/chains'
 import { docsRouter } from './routes/docs'
@@ -14,9 +20,12 @@ import { getRates } from './routes/rates'
 
 const app = express()
 
+app.set('trust proxy', process.env.TRUST_PROXY === '1' ? 1 : false)
+
 // Middleware
 app.use(cors())
 app.use(express.json())
+app.use(globalLimiter)
 
 // Root endpoint - API info
 app.get('/', (_req, res) => {
@@ -47,17 +56,17 @@ app.get('/health', (_req, res) => {
 const v1Router = express.Router()
 
 // Swap endpoints (optional affiliate address tracking)
-v1Router.get('/swap/rates', affiliateAddress, getRates)
-v1Router.post('/swap/quote', affiliateAddress, getQuote)
+v1Router.get('/swap/rates', swapRatesLimiter, affiliateAddress, getRates)
+v1Router.post('/swap/quote', swapQuoteLimiter, affiliateAddress, getQuote)
 
 // Chain endpoints
-v1Router.get('/chains', getChains)
-v1Router.get('/chains/count', getChainCount)
+v1Router.get('/chains', dataLimiter, getChains)
+v1Router.get('/chains/count', dataLimiter, getChainCount)
 
 // Asset endpoints
-v1Router.get('/assets', getAssets)
-v1Router.get('/assets/count', getAssetCount)
-v1Router.get('/assets/:assetId(*)', getAssetById)
+v1Router.get('/assets', dataLimiter, getAssets)
+v1Router.get('/assets/count', dataLimiter, getAssetCount)
+v1Router.get('/assets/:assetId(*)', dataLimiter, getAssetById)
 
 app.use('/v1', v1Router)
 app.use('/docs', docsRouter)

@@ -53,6 +53,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.BerachainMainnet]: evm.Account
     [KnownChainIds.CronosMainnet]: evm.Account
     [KnownChainIds.KatanaMainnet]: evm.Account
+    [KnownChainIds.EtherealMainnet]: evm.Account
     [KnownChainIds.FlowEvmMainnet]: evm.Account
     [KnownChainIds.CeloMainnet]: evm.Account
     [KnownChainIds.PlumeMainnet]: evm.Account
@@ -125,6 +126,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.BerachainMainnet]: evm.FeeData
     [KnownChainIds.CronosMainnet]: evm.FeeData
     [KnownChainIds.KatanaMainnet]: evm.FeeData
+    [KnownChainIds.EtherealMainnet]: evm.FeeData
     [KnownChainIds.FlowEvmMainnet]: evm.FeeData
     [KnownChainIds.CeloMainnet]: evm.FeeData
     [KnownChainIds.PlumeMainnet]: evm.FeeData
@@ -230,6 +232,7 @@ export type ChainSignTx = {
   [KnownChainIds.BerachainMainnet]: ETHSignTx
   [KnownChainIds.CronosMainnet]: ETHSignTx
   [KnownChainIds.KatanaMainnet]: ETHSignTx
+  [KnownChainIds.EtherealMainnet]: ETHSignTx
   [KnownChainIds.FlowEvmMainnet]: ETHSignTx
   [KnownChainIds.CeloMainnet]: ETHSignTx
   [KnownChainIds.PlumeMainnet]: ETHSignTx
@@ -307,6 +310,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.BerachainMainnet]: evm.BuildTxInput
     [KnownChainIds.CronosMainnet]: evm.BuildTxInput
     [KnownChainIds.KatanaMainnet]: evm.BuildTxInput
+    [KnownChainIds.EtherealMainnet]: evm.BuildTxInput
     [KnownChainIds.FlowEvmMainnet]: evm.BuildTxInput
     [KnownChainIds.CeloMainnet]: evm.BuildTxInput
     [KnownChainIds.PlumeMainnet]: evm.BuildTxInput
@@ -434,6 +438,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.BerachainMainnet]: evm.GetFeeDataInput
     [KnownChainIds.CronosMainnet]: evm.GetFeeDataInput
     [KnownChainIds.KatanaMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.EtherealMainnet]: evm.GetFeeDataInput
     [KnownChainIds.FlowEvmMainnet]: evm.GetFeeDataInput
     [KnownChainIds.CeloMainnet]: evm.GetFeeDataInput
     [KnownChainIds.PlumeMainnet]: evm.GetFeeDataInput
@@ -526,6 +531,7 @@ export enum ChainAdapterDisplayName {
   Berachain = 'Berachain',
   Cronos = 'Cronos',
   Katana = 'Katana',
+  Ethereal = 'Ethereal',
   FlowEvm = 'Flow EVM',
   Celo = 'Celo',
   Plume = 'Plume',

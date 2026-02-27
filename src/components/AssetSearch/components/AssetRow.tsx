@@ -291,6 +291,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
         width='100%'
         height='auto'
         p={4}
+        data-testid={`asset-row-${showChainName ? `${chainName}-${asset.symbol}` : asset.symbol}`}
         {...props}
         {...longPressHandlers(asset)}
       >

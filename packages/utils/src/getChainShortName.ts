@@ -60,6 +60,8 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'CRO'
     case KnownChainIds.KatanaMainnet:
       return 'KAT'
+    case KnownChainIds.EtherealMainnet:
+      return 'ETRL'
     case KnownChainIds.FlowEvmMainnet:
       return 'FLOW'
     case KnownChainIds.CeloMainnet:

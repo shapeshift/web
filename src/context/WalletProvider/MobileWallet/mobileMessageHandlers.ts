@@ -258,3 +258,47 @@ export const getAppleAttributionData = (): Promise<AppleSearchAdsAttributionData
 export const sendMobileConsole = (params: MobileConsoleParams): Promise<void> => {
   return postMessage<void>({ cmd: 'console', ...params })
 }
+
+/**
+ * Open the native QR scanner in the mobile app.
+ * Returns a Promise that resolves with the scanned data, or rejects if cancelled/timeout.
+ */
+export const openNativeQRScanner = (): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const eventListener = (event: MessageEvent) => {
+      if (event.data?.type === 'qrScanResult') {
+        window.removeEventListener('message', eventListener)
+        resolve(event.data.data)
+      } else if (event.data?.type === 'qrScanCancelled') {
+        window.removeEventListener('message', eventListener)
+        reject(new Error('QR scan cancelled'))
+      }
+    }
+
+    // 60 second timeout for scanning
+    const timeoutId = setTimeout(() => {
+      window.removeEventListener('message', eventListener)
+      reject(new Error('QR scan timed out'))
+    }, 60000)
+
+    window.addEventListener('message', eventListener)
+
+    window.ReactNativeWebView?.postMessage(
+      JSON.stringify({
+        cmd: 'openNativeQRScanner',
+        id: `${Date.now()}-openNativeQRScanner`,
+      }),
+    )
+
+    // Clean up timeout if scan completes
+    const originalListener = eventListener
+    const wrappedListener = (event: MessageEvent) => {
+      if (event.data?.type === 'qrScanResult' || event.data?.type === 'qrScanCancelled') {
+        clearTimeout(timeoutId)
+      }
+      return originalListener(event)
+    }
+    window.removeEventListener('message', eventListener)
+    window.addEventListener('message', wrappedListener)
+  })
+}

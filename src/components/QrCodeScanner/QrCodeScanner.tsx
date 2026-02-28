@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Box, Button, Flex } from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Button, Center, Flex, Spinner } from '@chakra-ui/react'
 import type {
   Html5QrcodeError,
   Html5QrcodeResult,
@@ -6,7 +6,7 @@ import type {
   QrcodeSuccessCallback,
 } from 'html5-qrcode/cjs/core'
 import { Html5QrcodeErrorTypes } from 'html5-qrcode/cjs/core'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { DialogBackButton } from '../Modal/components/DialogBackButton'
@@ -17,6 +17,8 @@ import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
+import { openNativeQRScanner } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { isMobile } from '@/lib/globals'
 
 export type DOMExceptionCallback = (errorMessage: string) => void
 
@@ -47,8 +49,34 @@ export const QrCodeScanner = ({
 }) => {
   const translate = useTranslate()
   const [scanError, setScanError] = useState<DOMException['message'] | null>(null)
+  const [isNativeScannerLoading, setIsNativeScannerLoading] = useState(isMobile)
 
   const error = addressError ?? scanError
+
+  // Use native scanner when in mobile app
+  useEffect(() => {
+    if (!isMobile) return
+
+    setIsNativeScannerLoading(true)
+
+    openNativeQRScanner()
+      .then(data => {
+        // Create a minimal result object for compatibility
+        const mockResult = { decodedText: data } as Html5QrcodeResult
+        onSuccess(data, mockResult)
+      })
+      .catch(e => {
+        setIsNativeScannerLoading(false)
+        if (e.message === 'QR scan cancelled') {
+          onBack()
+        } else {
+          setScanError(e.message)
+          if (onError) {
+            onError(e.message, { type: Html5QrcodeErrorTypes.UNKWOWN_ERROR } as Html5QrcodeError)
+          }
+        }
+      })
+  }, [onSuccess, onBack, onError])
 
   const handleScanSuccess: QrcodeSuccessCallback = useCallback(
     (decodedText, _result) => {
@@ -72,6 +100,27 @@ export const QrCodeScanner = ({
   )
 
   const handlePermissionsButtonClick = useCallback(() => setScanError(null), [])
+
+  // Show loading state while waiting for native scanner
+  if (isMobile && isNativeScannerLoading) {
+    return (
+      <SlideTransition>
+        <DialogHeader>
+          <DialogHeader.Left>
+            <DialogBackButton onClick={onBack} />
+          </DialogHeader.Left>
+          <DialogHeader.Middle>
+            <DialogTitle>{translate('modals.send.scanQrCode')}</DialogTitle>
+          </DialogHeader.Middle>
+        </DialogHeader>
+        <DialogBody>
+          <Center minHeight='298px'>
+            <Spinner size='xl' color='blue.500' />
+          </Center>
+        </DialogBody>
+      </SlideTransition>
+    )
+  }
 
   return (
     <SlideTransition>

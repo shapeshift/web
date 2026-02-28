@@ -94,13 +94,21 @@ description: >
   1. ALWAYS USE FIAT INPUT MODE: Toggle to $ before ANY amount entry.
   2. Deposit amounts: start at $0.10, increase as needed:
      $0.10 → $0.30 → $0.50 → $1 → $2 → $3 (ABSOLUTE MAX per tx).
-  3. Withdrawal amounts: minimum viable (~$0.20 equivalent).
-  4. $40 ACCUMULATED TOTAL across all sub-fixtures INCLUDING GAS.
+  3. If a yield's MINIMUM DEPOSIT exceeds $3, SKIP the deposit and mark
+     the step as PASSED with note "minimum exceeds $3 ceiling".
+     Do NOT deposit more than $3 into any single yield.
+  4. Withdrawal amounts: minimum viable (~$0.20 equivalent).
+  5. $40 ACCUMULATED TOTAL across all sub-fixtures INCLUDING GAS.
      Withdrawals REDUCE the running total (money comes back to wallet).
      Track in agentThought: "SPEND TRACKER: $X.XX net spent ($40 budget)"
-  5. NEVER transact on Tron.
-  6. TRANSACTION REPORTING: Every tx reports action, asset, amount,
+  6. NEVER transact on Tron.
+  7. TRANSACTION REPORTING: Every tx reports action, asset, amount,
      provider, chain, running total in agentThought.
+  8. DO NOT SKIP transactions to "conserve gas" or "conserve time".
+     Time is NOT a constraint. Execute ALL deposits and withdrawals.
+     The only valid reasons to skip are: minimum exceeds $3 ceiling,
+     budget exhausted, or the asset/chain is genuinely unavailable.
+  9. Skipped steps are marked PASSED with an explanation, NEVER failed.
 
   === INTERACTION RULES ===
   - Use JS eval for clicking (write to /tmp/ first, no smart quotes)
@@ -111,9 +119,16 @@ description: >
 
   === FUNDING SWAPS ===
   When a yield requires an asset the wallet doesn't hold:
-  1. Navigate to /trade, select highest-balance sell, needed buy
-  2. FIAT mode, enter $1 (max $3), preview, confirm, sign, wait 120s
-  3. Navigate back. Report as "FUNDING SWAP". Counts toward $40 net total.
+  1. Navigate to /trade (Swap page)
+  2. Select the HIGHEST BALANCE asset in the entire wallet as the sell
+     asset (not just highest on that chain — the swapper handles
+     cross-chain bridge swaps automatically)
+  3. Select the needed asset as buy. Note: related assets may be grouped
+     in the asset selector — expand the group to find the right variant
+  4. FIAT mode, enter $0.20 (enough for a yield deposit). Max $3.
+  5. Preview, confirm, sign, wait 120s for completion
+  6. Navigate back to the yield. Report as "FUNDING SWAP".
+  7. Counts toward $40 net total (but withdrawals offset it).
 
   === API CROSS-REFERENCING ===
   To validate displayed data against the API, fetch the yield opportunity

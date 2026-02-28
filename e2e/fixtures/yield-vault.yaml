@@ -34,15 +34,23 @@ description: >
   === HARD CONSTRAINTS ===
   1. ALWAYS FIAT MODE.
   2. Deposit: $0.10 → $0.30 → $0.50 → $1 → $2 → $3 (MAX).
-  3. Withdrawal: minimum viable (~$0.20).
-  4. $40 accumulated total INCLUDING GAS.
-  5. NEVER transact on Tron.
-  6. Report every tx.
+  3. If a yield's MINIMUM DEPOSIT exceeds $3, SKIP and mark PASSED
+     with note "minimum exceeds $3 ceiling". Do NOT deposit more than $3.
+  4. Withdrawal: minimum viable (~$0.20).
+  5. $40 accumulated total INCLUDING GAS.
+  6. NEVER transact on Tron.
+  7. Report every tx.
+  8. DO NOT SKIP transactions to "conserve gas" or "conserve time".
+     Time is NOT a constraint. Execute ALL deposits and withdrawals.
+  9. Skipped steps are PASSED with explanation, NEVER failed.
 
   === FUNDING SWAPS ===
   If underlying asset balance insufficient:
-  /trade → sell ETH → buy underlying → FIAT $1 (max $3).
-  Preview, confirm, sign, wait 120s. Navigate back.
+  1. /trade → select HIGHEST BALANCE asset in entire wallet as sell
+     (cross-chain bridge swaps are fine)
+  2. Select needed asset as buy. Expand grouped assets if needed.
+  3. FIAT $0.20 (enough for a yield deposit). Max $3.
+  4. Preview, confirm, sign, wait 120s. Navigate back.
 
 route: /earn
 depends_on:

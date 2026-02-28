@@ -45,10 +45,17 @@ description: >
   === HARD CONSTRAINTS ===
   1. ALWAYS FIAT MODE. Toggle to $, verify "$0" placeholder.
   2. Deposit: $0.10 → $0.30 → $0.50 → $1 → $2 → $3 (MAX per tx).
-  3. Withdrawal: minimum viable (~$0.20 equivalent).
-  4. $40 accumulated total INCLUDING GAS.
-  5. NEVER transact on Tron.
-  6. Report every tx: action, asset, amount, provider, chain, running total.
+  3. If a yield's MINIMUM DEPOSIT exceeds $3, SKIP and mark PASSED
+     with note "minimum exceeds $3 ceiling". Do NOT deposit more than $3.
+  4. Withdrawal: minimum viable (~$0.20 equivalent).
+  5. $40 accumulated total INCLUDING GAS.
+  6. NEVER transact on Tron.
+  7. Report every tx: action, asset, amount, provider, chain, running total.
+  8. DO NOT SKIP transactions to "conserve gas" or "conserve time".
+     Time is NOT a constraint. Execute ALL deposits and withdrawals.
+  9. Skipped steps are PASSED with explanation, NEVER failed.
+  10. If you need an asset you don't hold, swap $0.20 from the highest
+      balance asset in the wallet (cross-chain bridge swaps are fine).
 
   === INTERACTION RULES ===
   - JS eval for clicking (write to /tmp/, no smart quotes)

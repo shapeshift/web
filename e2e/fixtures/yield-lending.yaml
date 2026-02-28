@@ -1,74 +1,61 @@
 name: Yield Lending
 description: >
   Tests lending yield providers — PRIMARY GOAL IS BUG DETECTION.
-  Providers: Compound (USDC, Ethereum) and Aave (multi-chain, prefer Arbitrum).
+  Covers the broadest range of chains and providers since lending is available
+  across the most networks.
+
+  Providers covered:
+  - Compound (USDT on Ethereum, USDC on Arbitrum) — existing positions
+  - Aave (USDT on Optimism, USDC.e on Gnosis) — existing/new positions
+  - Spark (USDT on Ethereum) — existing position ~$0.10
+  - Venus (DAI on Binance/BSC) — new position
+  - Fluid (USDT on Arbitrum) — existing position ~$1.00
+  - Gearbox (wETH on Optimism) — new position
+  - Kamino Finance (SOL on Solana) — existing position ~$0.065
+  - Drift Protocol (USDT on Solana) — new position
+
+  Chains covered: Ethereum, Arbitrum, Optimism, Gnosis, Binance, Solana,
+  Polygon, Base, Plasma (9 chains)
 
   === TRANSACTION FLOW — CRITICAL ===
 
-  The "Waiting" state in transaction modals is NOT stuck. It means a button
-  has appeared next to the step — you MUST click that button to proceed.
-
-  APPROVE + ACTION FLOWS (common for ERC20 lending deposits/withdrawals):
+  APPROVE + ACTION FLOWS (common for ERC20 lending):
   1. Click submit → modal opens with steps
-  2. Step 1 shows "Waiting" + "Approve" button → click Approve
+  2. Step 1: "Waiting" + "Approve" button → click Approve
   3. Wait 30-60s for EVM on-chain confirmation
-  4. Step 2 shows "Waiting" + action button (Deposit/Withdraw) → click it
+  4. Step 2: "Waiting" + action button → click it
   5. Wait 30-60s for EVM on-chain confirmation
   6. Success state appears
 
-  TIMING GUIDANCE:
-  - EVM transactions: 30-60 seconds per step
-  - Two-step flows (approve + action): total 60-120s
-  - Cosmos transactions: 2-15 seconds (if any Cosmos lending added)
+  TIMING:
+  - After ANY yield action button click: wait 90-120 seconds minimum
+  - Two-step EVM flows: Approve → wait 30-60s → Action → wait 30-60s
+  - Solana transactions: 5-15 seconds per step
 
   === YIELD ID FORMAT ===
-  Compound yield IDs include the version number:
-  - CORRECT: ethereum-usdc-compound-v3-lending
-  - WRONG:   ethereum-usdc-compound-lending
-  When navigating directly, always use the v3 format.
+  Compound yield IDs include version: use "ethereum-usdc-compound-v3-lending"
 
-  === KNOWN ISSUES ===
+  === DIALOG MODAL INPUTS ===
+  On external origins, input fields in dialog modals don't respond to
+  keyboard input. Use percentage buttons (25%/50%/75%/Max) instead.
 
-  1. MY POSITIONS CARDS: Cards are NOT clickable via el.click() due to
-     React synthetic event issues with Chakra Card components. Always use
-     direct URL navigation: window.location.hash = '/yield/{yieldId}'
-
-  === BUG DETECTION APPROACH ===
-
-  SOFT FAILS (data/visual bugs — continue testing):
-  - APY mismatch between yields list, detail page, and trade earn tab
-  - TVL showing $0 or stale value
-  - Wrong provider name or asset icon
-  - Balance inconsistency between yield page, DeFi drawer, and asset page
-  - Type showing "Staking" instead of "Lending"
-  - Gas estimate unreasonable for the chain
-  - Toast/Action Center showing wrong amount, asset, or provider
-  - Funding swap quote inconsistency
-
-  HARD FAILS (broken functionality — stop this provider, try next):
-  - Deposit modal won't open
-  - Withdrawal tx fails
-  - Page crash / error boundary
-  - Wallet disconnects
-
-  FOR EVERY STEP: actively compare UI vs expected behavior. Report exact
-  values when something looks wrong.
+  === FAILED TRANSACTIONS ===
+  If a transaction fails, check the browser Network tab for response
+  details. Failures may originate from the yield.xyz API.
 
   === HARD CONSTRAINTS ===
-  1. ALWAYS FIAT MODE for amount entry.
-  2. $0.10 DEFAULT for deposits and withdrawals. Only increment if minimum
-     not met. Sequence: $0.10 → $0.50 → $1 → $2 → $3 (SUPER MAX).
-  3. $40 accumulated total INCLUDING GAS. Withdrawals REDUCE the running
-     total (money comes back). Track: "SPEND TRACKER: $X.XX net ($40 budget)"
-  4. NEVER transact on Tron.
-  5. Report every tx in agentThought.
+  1. ALWAYS FIAT MODE.
+  2. Deposit: $0.10 → $0.30 → $0.50 → $1 → $2 → $3 (MAX).
+  3. Withdrawal: minimum viable (~$0.20).
+  4. $40 accumulated total INCLUDING GAS.
+  5. NEVER transact on Tron.
+  6. Report every tx.
 
   === FUNDING SWAPS ===
-  If USDC/target asset balance insufficient:
-  1. eval "window.location.hash = '/trade'"
-  2. Sell ETH → buy needed asset. FIAT mode, $1 (max $3).
-  3. Preview, dismiss warnings, confirm, sign, wait 120s.
-  4. Navigate back. Report: "FUNDING SWAP: $1 ETH → {asset}"
+  If target asset balance insufficient:
+  1. /trade → sell ETH → buy needed asset. FIAT $1 (max $3).
+  2. Preview, confirm, sign, wait 120s. Navigate back.
+  3. Report: "FUNDING SWAP: $1 ETH → {asset}"
 
 route: /earn
 depends_on:
@@ -76,397 +63,528 @@ depends_on:
 
 steps:
   # ==========================================================================
-  # COMPOUND USDC LENDING (lending, Ethereum)
-  # Existing position: ~$0.29 USDC, APY ~2.18%
+  # COMPOUND USDT LENDING (Ethereum)
+  # Existing position: ~$0.10, APY ~3.36%
   # ==========================================================================
 
-  - name: Compound USDC > Navigate and verify detail page
+  - name: Compound USDT Ethereum > Navigate and verify
     instruction: >
       eval "window.location.hash = '/earn'"
-      Wait 5 seconds. Click [data-testid="yields-tab-my-positions"] via JS dispatchEvent.
-      Wait 3 seconds. Look for USDC lending with ~2.18% APY.
-      Click on it. If unclear which is Compound, try All tab + search "Compound".
-      Wait 5 seconds. Verify [data-testid="yield-detail-page"].
+      Wait 5 seconds. Click My Positions tab. Wait 3 seconds.
+      Find USDT/Compound position. Click on it. Wait 5 seconds.
 
       BUG HUNT:
-      1. Provider: should say "Compound". If missing, wrong, or showing
-         "Aave" for a Compound yield, SOFT FAIL.
-      2. Asset: should be "USDC" with USDC icon. If showing wrong stablecoin
-         icon or name (e.g., "USDT" label with USDC icon), SOFT FAIL.
-      3. Type: should be "Lending". If "Staking" or "Vault", SOFT FAIL.
-      4. APY: ~2.18%. Is this reasonable for Compound USDC lending?
-         (Compound rates fluctuate, but 0% or >50% would be suspicious.)
-      5. Chain: should be "Ethereum". If showing Arbitrum or Polygon for
-         Compound v2 USDC, that might be a different market — note it.
-      6. Are there TWO USDC entries on the My Positions list with different
-         APYs? (Exploration found USDC at 2.18% and 4.00% — this could be
-         Compound v2 vs v3, or different chains. Note if confusing to user.)
+      1. Provider: "Compound". Asset: "USDT". Type: "Lending".
+      2. APY: ~3.36%. Chain: Ethereum.
+      3. Position: ~$0.10. TVL > $1M?
+      4. Yield ID includes "v3" if Compound v3.
     expected: >
-      Compound USDC detail: correct provider, asset, type "Lending",
-      reasonable APY, Ethereum chain. No confusing duplicate entries.
+      Compound USDT detail: correct provider, type, chain.
     screenshot: true
 
-  - name: Compound USDC > Data validation — cross-reference all values
+  - name: Compound USDT Ethereum > Partial withdrawal
     instruction: >
-      Read ALL displayed data and cross-reference:
-
-      From position card:
-      - Balance (USDC amount + USD value). Record exact values.
-      From [data-testid="yield-stats"]:
-      - TVL [data-testid="yield-stat-tvl"]: record value
-      - Type [data-testid="yield-stat-type"]: should say "Lending"
-      - Reward schedule [data-testid="yield-stat-reward-schedule"]: record
-      From [data-testid="yield-info-apy"]: APY value. Record.
-      From hero section: APY badge value. Record.
-
-      BUG HUNT — consistency checks:
-      1. APY in hero badge vs APY in info card: do they match? If different,
-         SOFT FAIL — same yield showing two different APYs on same page.
-      2. APY here vs APY on the yields list: did we record the list APY
-         earlier? Compare. If >0.5% difference, SOFT FAIL.
-      3. TVL: is it > $1M? (Compound USDC pool is large.) If $0 or < $1000,
-         likely stale API data.
-      4. USDC balance × $1 ≈ shown USD value? (USDC is ~$1 pegged.)
-         If crypto says "0.29 USDC" but USD says "$500", BUG.
-      5. Reward schedule: is the text meaningful? Not "undefined" or empty?
-      6. Provider info section: any broken images, empty text, or 404 logos?
-    expected: >
-      All data consistent. APYs match across views. TVL reasonable.
-      Balance conversion correct. No broken display elements.
-    screenshot: true
-    soft_fail: true
-
-  - name: Compound USDC > Full withdrawal
-    instruction: >
-      Click [data-testid="yield-position-exit-button"] or
-      [data-testid="yield-hero-exit-button"] via JS dispatchEvent.
-      Wait for form.
-      Click [data-testid="yield-form-percent-max"]. Wait 2 seconds.
-
-      BUG HUNT before confirming:
-      1. Max amount matches the full balance we recorded? If less, BUG.
-      2. Gas estimate: shown? Reasonable for Ethereum? (~$0.50-$10 range)
-         If showing $0 gas, SOFT FAIL — gas estimation failed.
-         If showing > $50 gas for a USDC withdrawal, SOFT FAIL — inflated.
-
-      Click [data-testid="yield-form-submit-button"]. Wait for confirm.
-
-      BUG HUNT on confirm screen:
-      3. Amount matches? Provider correct? Chain correct?
-      4. Is there a warning about anything? (Shouldn't be for USDC withdrawal.)
-
-      Click [data-testid="yield-action-confirm-button"].
-
-      === TWO-STEP FLOW (Approve + Withdraw) ===
-      Compound withdrawals may require an approval step:
-      - Step 1 shows "Waiting" + "Approve" → click the Approve button
-      - Wait 30-60s for on-chain confirmation
-      - Step 2 shows "Waiting" + "Withdraw" → click the Withdraw button
-      - Wait 30-60s for on-chain confirmation
-      Do NOT assume "Waiting" means stuck — click the button next to it.
-      Total expected time: 60-120s for both steps.
-
-      BUG HUNT post-tx:
-      5. Success screen appeared? Toast shows correct USDC amount?
-      6. If the tx REVERTED on-chain but the UI shows success, that's a
-         CRITICAL BUG. Check if the position actually changed.
-
-      REPORT: "WITHDRAWAL: Full ~$0.29 USDC from Compound on Ethereum.
-      SPEND TRACKER: $X.XX spent ($40 budget)"
-    expected: >
-      Full withdrawal successful. Two-step flow (if needed) completes
-      within ~120s. Amounts consistent across form, confirm, success,
-      and toast. Gas reasonable.
-    screenshot: true
-
-  - name: Compound USDC > Verify empty state
-    instruction: >
-      Click [data-testid="yield-success-close"].
-
-      BUG HUNT — empty state:
-      1. Position card: $0 or "0 USDC"? If still showing old $0.29, BUG
-         (stale data — didn't refetch after tx).
-      2. Withdraw button: disabled/hidden? If still enabled with $0, SOFT FAIL.
-      3. Deposit button: still present and enabled? If missing, BUG.
-      4. [data-testid="yield-available-to-deposit"]: does it show the USDC
-         balance that was returned from Compound? If it shows $0 but we
-         just withdrew USDC, the available balance isn't updating.
-      5. Navigate briefly to My Positions tab and back: is this position
-         still listed? If still listed with $0 balance, SOFT FAIL — should
-         either show $0 or be removed from "My Positions".
-    expected: >
-      Clean empty state. Balance $0. Withdraw disabled. Deposit available.
-      Position correctly reflected (removed or shows $0) on My Positions.
-    screenshot: true
-    soft_fail: true
-
-  - name: Compound USDC > Check USDC balance for re-deposit
-    instruction: >
-      Check [data-testid="yield-available-to-deposit"] for USDC balance.
-
-      BUG HUNT:
-      1. After full withdrawal, this should show at least the withdrawn
-         amount (~$0.29 USDC). If $0, either the withdrawal didn't return
-         USDC to the wallet or the display is stale.
-      2. Is the balance shown here consistent with what the wallet drawer
-         would show for USDC? (We'll check later, but note the value now.)
-
-      If balance >= $0.10: proceed directly to deposit.
-      If balance < $0.10: funding swap needed (next step).
-    expected: >
-      USDC balance recorded. Should be >= $0.29 from withdrawal.
-    screenshot: true
-
-  - name: Compound USDC > Funding swap if needed
-    instruction: >
-      SKIP if USDC balance >= $0.10 from previous step.
-
-      If USDC insufficient:
-      1. eval "window.location.hash = '/trade'"  Wait 5 seconds.
-      2. Select ETH as sell. Search "USDC", select USDC on Ethereum as buy.
-      3. FIAT MODE: Toggle to $. Verify "$0" placeholder.
-         Type "1" via keyboard. Wait 10s for quote.
-      4. BUG HUNT on swap quote:
-         a. Does the quote show a reasonable USDC receive amount (~$1)?
-         b. Is the swapper identified? (CowSwap, 0x, etc.)
-         c. Is the rate sensible? (1 ETH ≈ current ETH price in USDC)
-      5. Click "Preview Trade" (JS eval). Dismiss warnings if shown. Wait.
-      6. Click "Confirm and Trade". Dismiss impact warning if shown.
-         Wait for "Sign & Swap" (up to 30s).
-      7. Click "Sign & Swap". Wait up to 120s.
-      8. Dismiss feedback ("Maybe Later").
-      9. eval "window.location.hash = '/earn'" — navigate back.
-         Re-navigate to the Compound USDC detail page.
-
-      REPORT: "FUNDING SWAP: $1 ETH → USDC on Ethereum.
-      SPEND TRACKER: $X.XX spent ($40 budget)"
-    expected: >
-      Skipped (sufficient USDC) or swap completed successfully.
-    screenshot: true
-    soft_fail: true
-
-  - name: Compound USDC > Re-deposit
-    instruction: >
-      Click deposit button via JS dispatchEvent. Wait for form.
-      FIAT MODE: Toggle to fiat. Verify "$0" placeholder.
-      Type "0.10". Wait 3 seconds.
-      If submit disabled: "0.50" → "1" → "2" → "3". NEVER exceed $3.
-
-      BUG HUNT:
-      1. Does fiat toggle work? If stuck in crypto mode, SOFT FAIL.
-      2. After typing: does the crypto equivalent show correctly?
-         $0.10 ÷ ~$1/USDC ≈ 0.10 USDC. If showing wildly different, BUG.
-      3. Is there a minimum deposit message? Record what minimum is shown.
-      4. If no amount works up to $3 and we have USDC balance, HARD FAIL.
-
-      Click submit, confirm. Wait up to 60s.
-
-      BUG HUNT post-tx:
-      5. Success screen: correct amount deposited?
-      6. Toast: mentions "Compound" and "USDC" and correct amount?
-
-      REPORT: "DEPOSIT: $X USDC to Compound lending on Ethereum.
-      SPEND TRACKER: $X.XX spent ($40 budget)"
-    expected: >
-      Deposit successful. Correct amount, provider, asset in all UIs.
-    screenshot: true
-
-  - name: Compound USDC > Verify position and cross-reference surfaces
-    instruction: >
-      Close success dialog.
-
-      BUG HUNT — position after deposit:
-      1. Position card: shows non-zero USDC balance? Record exact value.
-      2. Balance ≈ deposit amount? (Not showing old pre-withdrawal balance.)
-      3. APY still showing correctly? (Shouldn't change from depositing.)
-
-      Now cross-reference with DeFi drawer:
-      4. Open wallet drawer → DeFi tab → wait 30 seconds.
-      5. Find USDC/Compound in the table. Does the balance MATCH the
-         yield page position? If different, SOFT FAIL — data inconsistency
-         between views.
-      6. Does the APY in DeFi drawer match the yield detail page?
-      7. Close drawer.
-
-      BUG HUNT — cross-reference with yield page list:
-      8. eval "window.location.hash = '/earn'" → My Positions tab.
-      9. Find Compound USDC. Balance match? APY match?
-      10. Navigate back to Compound detail page.
-    expected: >
-      Position balance consistent across: yield detail page, DeFi drawer,
-      and yields list. APY consistent. No stale data anywhere.
-    screenshot: true
-    soft_fail: true
-
-  - name: Compound USDC > Action Center — verify all Compound txns
-    instruction: >
-      Open Action Center.
-
-      BUG HUNT — audit ALL Compound transactions:
-      1. Full withdrawal notification: present? Amount correct? Status "Confirmed"?
-      2. Funding swap (if executed): present? Correct assets and amount?
-      3. Re-deposit notification: present? Amount correct? Status "Confirmed"?
-      4. Are notifications in correct chronological order?
-      5. Do any show wrong asset (e.g., "ETH" instead of "USDC" for the deposit)?
-      6. Are there duplicates?
-      7. Expand a notification: detail view renders correctly?
-
-      Close Action Center.
-    expected: >
-      All Compound transactions accurately logged. No missing, duplicate,
-      or incorrect notifications.
-    screenshot: true
-    soft_fail: true
-
-  # ==========================================================================
-  # AAVE LENDING (lending, prefer Arbitrum for lower gas)
-  # ==========================================================================
-
-  - name: Aave Lending > Search and verify detail page
-    instruction: >
-      eval "window.location.hash = '/earn'"
-      Wait 3 seconds. Click [data-testid="yields-tab-all"] via JS dispatchEvent.
-      Focus [data-testid="yields-search-input"]. Type "Aave". Wait 3 seconds.
-
-      BUG HUNT on search results:
-      1. Do results show Aave opportunities? How many?
-      2. Are they all actually Aave? (No Compound or Morpho results mixed in?)
-      3. Do they show different chains? (Ethereum, Arbitrum, etc.)
-      4. Are APYs shown for each? Any showing 0% or NaN?
-
-      Prefer Arbitrum Aave (lower gas). Click one. Wait 5 seconds.
-
-      BUG HUNT on detail page:
-      5. Provider: "Aave"? Asset name and icon correct?
-      6. Type: "Lending"? If wrong type, SOFT FAIL.
-      7. Chain: matches what we selected? If we clicked Arbitrum Aave but
-         detail page shows Ethereum, BUG.
-      8. [data-testid="yield-related-markets"]: are related markets shown?
-         Do they link to valid yields?
-    expected: >
-      Aave lending detail page with correct provider, type, chain, asset.
-      Search results were accurate.
-    screenshot: true
-
-  - name: Aave Lending > Data validation
-    instruction: >
-      Read: APY from hero badge, APY from info card, TVL, type, provider.
-
-      BUG HUNT:
-      1. Hero APY vs info card APY: match?
-      2. TVL: reasonable for Aave? (Should be large — millions/billions.)
-      3. Type: "Lending" (not "Vault" or "Staking")?
-      4. Related markets: do they show other Aave lending options?
-         Are the links functional (clicking navigates to another yield)?
-      5. Is there a "Supply APY" vs "Borrow APY" distinction shown?
-         For lending deposits, we care about supply APY.
-    expected: >
-      All data consistent and reasonable. APYs match across views.
-    screenshot: true
-    soft_fail: true
-
-  - name: Aave Lending > Check balance and fund if needed
-    instruction: >
-      Check [data-testid="yield-available-to-deposit"] for available balance.
-      Check [data-testid="yield-position-card"] for existing position.
-      Record the required asset name and current balance.
-
-      BUG HUNT:
-      1. Does "available to deposit" show the correct asset?
-      2. If it shows [data-testid="yield-get-asset-button"] instead, the
-         wallet has $0 of this asset. Is the button functional?
-
-      If balance < $0.10:
-        Execute funding swap:
-        1. eval "window.location.hash = '/trade'"
-        2. Sell ETH, buy the Aave asset. FIAT mode, $1.
-        3. Preview, confirm, sign, wait 120s. Dismiss feedback.
-        4. Navigate back to Aave detail page.
-        REPORT: "FUNDING SWAP: $1 ETH → {asset} on {chain}.
-        SPEND TRACKER: $X.XX spent ($40 budget)"
-
-      If balance sufficient: skip swap.
-    expected: >
-      Sufficient balance for deposit, or funding swap completed.
-    screenshot: true
-    soft_fail: true
-
-  - name: Aave Lending > Deposit
-    instruction: >
-      Click deposit button via JS dispatchEvent.
-      FIAT MODE: Toggle to fiat. Verify "$0" placeholder.
-      Type "0.10". Increment if needed: "0.50" → "1" → "2" → "3". Max $3.
-
-      BUG HUNT:
-      1. If Arbitrum: gas should be very low (<$0.10). If showing > $5
-         gas on Arbitrum, SOFT FAIL — wrong gas estimation for L2.
-      2. If the deposit requires an approval step (ERC20 allowance), does
-         the flow handle it? Look for "Approve" button before "Deposit".
-         If approval fails silently, HARD FAIL.
-      3. After approval (if needed), does it auto-proceed to deposit?
-
-      === TWO-STEP FLOW (Approve + Deposit) ===
-      ERC20 deposits typically require approval first:
-      - After clicking confirm, Step 1 shows "Waiting" + "Approve" → click it
-      - Wait 30-60s for approval to confirm on-chain
-      - Step 2 shows "Waiting" + "Deposit" → click it
-      - Wait 30-60s for deposit to confirm on-chain
-      Do NOT assume "Waiting" means stuck — each step needs a button click.
-
-      Submit and confirm. Wait for completion (total 60-120s for two steps).
-
-      REPORT: "DEPOSIT: $X {asset} to Aave on {chain}.
-      SPEND TRACKER: $X.XX spent ($40 budget)"
-    expected: >
-      Deposit successful. Approval flow (if needed) works correctly.
-      Two-step flow completes within ~120s. Gas appropriate for the chain.
-    screenshot: true
-
-  - name: Aave Lending > Verify position and partial withdrawal
-    instruction: >
-      Close success. Verify position card shows deposited amount.
-
-      BUG HUNT:
-      1. Balance matches deposit? Not showing stale data?
-      2. Withdraw button now enabled?
-
-      Click withdraw. FIAT MODE. Type "0.10" (or "0.50" if minimum higher).
-
-      BUG HUNT:
-      3. Partial withdrawal accepted? Form shows remaining balance preview?
-      4. Gas for withdrawal reasonable for this chain?
-      5. After completion: remaining balance = deposit - withdrawal?
-      6. Toast accurate?
-
+      Click withdraw. Use Max button (position is small, ~$0.10).
       Submit and confirm.
 
-      REPORT: "PARTIAL WITHDRAWAL: $0.10 {asset} from Aave on {chain}.
-      SPEND TRACKER: $X.XX spent ($40 budget)"
+      === TWO-STEP FLOW ===
+      After clicking confirm, watch for:
+      Step 1: "Approve" button → click → wait 30-60s
+      Step 2: "Withdraw" button → click → wait 30-60s
+      Total: 90-120 seconds.
+
+      BUG HUNT post-tx:
+      1. Success screen? Toast with correct USDT amount?
+      2. Position now $0 or removed?
+      3. Gas reasonable for Ethereum?
+
+      REPORT: "WITHDRAWAL: Max ~$0.10 USDT from Compound on Ethereum.
+      SPEND TRACKER: gas only ($40 budget)"
     expected: >
-      Position correct after deposit. Partial withdrawal successful.
-      Remaining balance accurate.
+      Full withdrawal successful. Position cleared.
+    screenshot: true
+
+  - name: Compound USDT Ethereum > Re-deposit
+    instruction: >
+      Check USDT balance. If < $0.10: execute funding swap
+      (/trade, sell ETH, buy USDT on Ethereum, $1, wait 120s).
+
+      Click deposit. FIAT MODE. Type "0.10".
+      Increment if needed: "0.30" → "0.50".
+      Submit and confirm. Wait 90-120 seconds (two-step EVM flow).
+
+      REPORT: "DEPOSIT: $X USDT to Compound on Ethereum.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      Deposit successful. Position restored.
+    screenshot: true
+
+  # ==========================================================================
+  # SPARK USDT LENDING (Ethereum)
+  # Existing position: ~$0.10, APY ~3.50%
+  # ==========================================================================
+
+  - name: Spark USDT Ethereum > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click My Positions tab. Find USDT/Spark.
+      Click on it. Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: "Spark". Asset: "USDT". Type: "Lending".
+      2. APY: ~3.50%. Chain: Ethereum.
+      3. Position: ~$0.10.
+      4. Compare Spark APY vs Compound USDT APY (~3.36%). Spark should
+         be slightly higher. If identical, might be stale data.
+    expected: >
+      Spark USDT detail correct. APY slightly higher than Compound.
     screenshot: true
     soft_fail: true
 
-  - name: Aave Lending > Action Center and asset page roundtrip
+  - name: Spark USDT Ethereum > Data validation
     instruction: >
-      Open Action Center.
+      Read all displayed data: APY (hero + info), TVL, type, provider.
 
       BUG HUNT:
-      1. All Aave txns present? (Funding swap if done, deposit, withdrawal)
-      2. Correct assets, amounts, statuses?
-      3. Chain correct in each notification?
-      Close Action Center.
-
-      Navigate to the asset's page via window.location.hash. Wait 5 seconds.
-
-      BUG HUNT — asset page:
-      4. [data-testid="yield-asset-section"] present?
-      5. Shows Aave lending position with correct balance?
-      6. Balance matches yield page position?
-      7. If no yield section: is the asset page aware of the Aave position
-         at all? If it shows $0 earning when there's an active position, BUG.
+      1. APY hero badge matches info card?
+      2. TVL: Spark USDT should be > $100M. If $0, SOFT FAIL.
+      3. Type: "Lending" (not "Vault" or "Staking")?
+      4. Compare with Compound: both USDT lending on Ethereum.
+         Are labels/layout consistent?
     expected: >
-      Action Center accurate. Asset page shows Aave position consistently.
+      Data consistent. TVL reasonable. Type correct.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # AAVE USDT LENDING (Optimism)
+  # Existing position: ~$0.10 (USDT on Optimism)
+  # Tests L2 lending — lower gas costs
+  # ==========================================================================
+
+  - name: Aave USDT Optimism > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click My Positions tab. Find USDT/Aave position.
+      There may be multiple Aave USDT positions across chains.
+      Look for the one on Optimism (~$0.10 or $0.20).
+      Click on it. Wait 5 seconds.
+
+      If unclear which is Optimism, try All tab → filter by Optimism
+      → search "USDT" → find Aave.
+
+      BUG HUNT:
+      1. Provider: "Aave". Asset: "USDT". Type: "Lending".
+      2. Chain: "Optimism". If showing Ethereum, wrong position.
+      3. APY: ~2.34% (Optimism Aave USDT). Position: ~$0.10.
+      4. Gas estimate should be very low on Optimism L2.
+    expected: >
+      Aave USDT on Optimism. Correct chain, provider, type.
+    screenshot: true
+
+  - name: Aave USDT Optimism > Deposit
+    instruction: >
+      Check available USDT balance on Optimism. If < $0.10:
+      Funding swap: /trade → sell ETH → buy USDT on Optimism → $1.
+
+      Click deposit. FIAT MODE. Type "0.10".
+      Increment if needed. Submit and confirm.
+      Wait 90-120 seconds.
+
+      BUG HUNT:
+      1. Gas should be very low on Optimism (<$0.10). If > $5, SOFT FAIL.
+      2. Two-step flow (Approve + Deposit) works correctly?
+      3. After each "Waiting" step, click the button that appeared.
+
+      REPORT: "DEPOSIT: $X USDT to Aave on Optimism.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      Deposit successful with low L2 gas.
+    screenshot: true
+
+  # ==========================================================================
+  # AAVE USDC.e LENDING (Gnosis)
+  # Existing balance: $1.50 USDC.e available, APY ~1.14%
+  # Tests Gnosis chain coverage
+  # ==========================================================================
+
+  - name: Aave USDC.e Gnosis > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click All tab. Filter by Gnosis network.
+      Find USDC.e/Aave (APY ~1.14%, $1.50 available). Click on it.
+      Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: "Aave". Asset: "USDC.e". Type: "Lending".
+      2. Chain: "Gnosis". APY: ~1.14%.
+      3. Available to deposit: ~$1.50.
+      4. TVL: $9.03M. If $0, SOFT FAIL.
+      5. This is one of only 2 yields on Gnosis — is the page
+         treating it differently or normally?
+    expected: >
+      Aave USDC.e on Gnosis correct. $1.50 available.
+    screenshot: true
+    soft_fail: true
+
+  - name: Aave USDC.e Gnosis > Deposit (new position)
+    instruction: >
+      Click deposit. FIAT MODE. Type "0.10".
+      If submit disabled: "0.30" → "0.50" → "1".
+      Submit and confirm. Wait 90-120 seconds.
+
+      BUG HUNT:
+      1. Gnosis gas should be extremely low (<$0.01).
+         If showing > $1, SOFT FAIL.
+      2. Two-step ERC20 approval flow works on Gnosis?
+      3. Success screen and toast correct?
+
+      REPORT: "DEPOSIT: $X USDC.e to Aave on Gnosis.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      New position on Gnosis created. Very low gas.
+    screenshot: true
+
+  # ==========================================================================
+  # FLUID USDT LENDING (Arbitrum)
+  # Existing position: ~$1.00, APY ~7.38%
+  # Tests high-APY lending on L2
+  # ==========================================================================
+
+  - name: Fluid USDT Arbitrum > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click My Positions tab.
+      Find USDT/Fluid ~$1.00 position. Click on it. Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: "Fluid". Asset: "USDT". Type: "Lending".
+      2. Chain: Arbitrum. APY: high (check current rate).
+      3. Position: ~$1.00.
+      4. Compare with Aave USDT on Arbitrum — is Fluid APY higher?
+    expected: >
+      Fluid USDT on Arbitrum correct. Position ~$1.00.
+    screenshot: true
+    soft_fail: true
+
+  - name: Fluid USDT Arbitrum > Partial withdrawal
+    instruction: >
+      Click withdraw. Use 25% button or FIAT MODE type "0.20".
+      Submit and confirm. Wait 90-120 seconds.
+
+      BUG HUNT:
+      1. Arbitrum gas very low?
+      2. Partial withdrawal accepted?
+      3. Remaining balance = ~$0.80?
+
+      REPORT: "PARTIAL WITHDRAWAL: ~$0.20 USDT from Fluid on Arbitrum.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      Partial withdrawal on Arbitrum. Low gas. Balance updated.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # VENUS DAI LENDING (Binance/BSC)
+  # No existing position, APY ~2.18%
+  # Tests BSC chain coverage
+  # ==========================================================================
+
+  - name: Venus DAI BSC > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click All tab. Filter by Binance network.
+      Find DAI/Venus (APY ~2.18%). Click on it. Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: "Venus". Asset: "DAI". Type: "Lending".
+      2. Chain: "Binance" or "BSC". APY: ~2.18%.
+      3. TVL: ~$2.36M. If $0, SOFT FAIL.
+      4. No existing position — deposit button available?
+      5. Available balance: check if wallet has DAI on BSC.
+    expected: >
+      Venus DAI on BSC detail correct. Venus is BSC-native protocol.
+    screenshot: true
+    soft_fail: true
+
+  - name: Venus DAI BSC > Fund and deposit
+    instruction: >
+      If no DAI on BSC: execute funding swap.
+      /trade → sell BNB or highest BSC balance → buy DAI on BSC → $1.
+      Wait 120s. Navigate back to Venus DAI detail.
+
+      If DAI available: proceed directly.
+
+      Click deposit. FIAT MODE. Type "0.10".
+      Increment if needed. Submit and confirm.
+      Wait 90-120 seconds.
+
+      BUG HUNT:
+      1. BSC gas should be very low (<$0.05).
+      2. Two-step approval flow works on BSC?
+      3. First deposit creates new position?
+
+      If funding swap fails (no BSC assets): SOFT FAIL, skip.
+
+      REPORT: "DEPOSIT: $X DAI to Venus on BSC.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      Venus deposit on BSC successful, or soft fail if no fundable assets.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # GEARBOX wETH LENDING (Optimism)
+  # No existing position, APY ~6.40%
+  # Tests Gearbox provider + another Optimism yield
+  # ==========================================================================
+
+  - name: Gearbox wETH Optimism > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click All tab. Filter by Optimism network.
+      Find wETH/Gearbox (APY ~6.40%). Click on it. Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: "Gearbox". Asset: "wETH". Type: "Lending".
+      2. Chain: "Optimism". APY: ~6.40% (high for WETH lending).
+      3. TVL: ~$16,978 (very small). Note if TVL seems suspiciously low.
+      4. No existing position — deposit available?
+      5. Available: check if wallet has wETH on Optimism.
+    expected: >
+      Gearbox wETH on Optimism correct. APY high, TVL low.
+    screenshot: true
+    soft_fail: true
+
+  - name: Gearbox wETH Optimism > Deposit if funded
+    instruction: >
+      If no wETH on Optimism: try funding swap.
+      /trade → sell ETH → buy wETH on Optimism → $1. Wait 120s.
+
+      If funded: click deposit. FIAT MODE. Type "0.10".
+      Submit and confirm. Wait 90-120 seconds.
+
+      If swap fails: SOFT FAIL, skip remaining Gearbox steps.
+
+      REPORT: "DEPOSIT: $X wETH to Gearbox on Optimism.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      Gearbox deposit on Optimism, or soft fail if unfundable.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # KAMINO FINANCE SOL LENDING (Solana)
+  # Existing position: ~$0.065, APY ~4.95%
+  # Tests Solana lending (not just staking)
+  # ==========================================================================
+
+  - name: Kamino SOL Solana > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click My Positions tab.
+      Find SOL/Kamino Finance position (~$0.065). Click on it.
+      Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: "Kamino Finance". Asset: "SOL". Type: "Lending".
+      2. Chain: "Solana". APY: ~4.95%.
+      3. Position: ~$0.065.
+      4. Compare with Figment SOL staking (~5.53%) — Kamino lending
+         APY should be slightly lower than native staking.
+      5. TVL: ~$255M. If $0, SOFT FAIL.
+    expected: >
+      Kamino SOL lending on Solana correct. APY below staking rate.
+    screenshot: true
+    soft_fail: true
+
+  - name: Kamino SOL Solana > Deposit
+    instruction: >
+      Click deposit. FIAT MODE. Type "0.10".
+      Increment if needed. Submit and confirm.
+      Wait 90-120 seconds. Solana txns are fast (5-15s per step).
+
+      BUG HUNT:
+      1. Solana gas very low (~$0.001)?
+      2. Single-step or two-step flow for SOL deposit?
+      3. Success and toast correct?
+
+      REPORT: "DEPOSIT: $X SOL to Kamino on Solana.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      Kamino deposit successful with very low Solana gas.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # DRIFT PROTOCOL USDT LENDING (Solana)
+  # No existing position, APY ~0.95%
+  # Tests second Solana lending provider
+  # ==========================================================================
+
+  - name: Drift USDT Solana > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click All tab. Filter by Solana.
+      Find USDT/Drift Protocol (APY ~0.95%). Click on it. Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: "Drift Protocol". Asset: "USDT". Type: "Lending".
+      2. Chain: "Solana". APY: ~0.95% (low for lending).
+      3. TVL: ~$13.31M.
+      4. No existing position — deposit available?
+      5. Available USDT on Solana: check wallet balance.
+    expected: >
+      Drift USDT on Solana correct. Low APY noted.
+    screenshot: true
+    soft_fail: true
+
+  - name: Drift USDT Solana > Deposit if funded
+    instruction: >
+      If no USDT on Solana: execute funding swap.
+      /trade → sell SOL → buy USDT on Solana → $1. Wait 120s.
+
+      If funded: click deposit. FIAT MODE. Type "0.10".
+      Submit and confirm. Wait 90-120 seconds.
+
+      If swap fails: SOFT FAIL, skip.
+
+      REPORT: "DEPOSIT: $X USDT to Drift on Solana.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      Drift deposit on Solana, or soft fail if unfundable.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # FLUID USDT LENDING (Polygon)
+  # Existing position: ~$0.133 USDT balance
+  # Tests Polygon chain coverage
+  # ==========================================================================
+
+  - name: Fluid USDT Polygon > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click My Positions tab.
+      Find USDT/Fluid on Polygon (~$0.133). Click on it. Wait 5 seconds.
+
+      Note: There are multiple Fluid USDT positions across chains
+      (Arbitrum ~$1, Polygon ~$0.133). Make sure this is the Polygon one.
+
+      BUG HUNT:
+      1. Provider: "Fluid". Asset: "USDT". Type: "Lending".
+      2. Chain: "Polygon". APY: check current rate (~7.38%?).
+      3. Position: ~$0.133.
+      4. Fluid on Polygon vs Fluid on Arbitrum — are they correctly
+         distinguished in the UI? Can user tell which chain?
+    expected: >
+      Fluid USDT on Polygon correct. Distinguishable from Arbitrum position.
+    screenshot: true
+    soft_fail: true
+
+  - name: Fluid USDT Polygon > Data validation
+    instruction: >
+      Read all data: APY, TVL, type, provider info.
+
+      BUG HUNT:
+      1. APY hero vs info card: match?
+      2. TVL reasonable for Polygon lending?
+      3. Cross-reference: navigate to yield page My Positions tab.
+         Does Polygon USDT/Fluid position show correct balance and APY?
+    expected: >
+      Data consistent across all surfaces.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # FLUID USDT0 LENDING (Plasma)
+  # Existing position: ~$0.125
+  # Tests Plasma chain coverage
+  # ==========================================================================
+
+  - name: Fluid USDT0 Plasma > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click My Positions tab.
+      Find USDT0/Fluid on Plasma (~$0.125). Click on it. Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: "Fluid". Asset: "USDT0". Type: "Lending".
+      2. Chain: "Plasma". APY: check current rate (~5.77%?).
+      3. Position: ~$0.125.
+      4. USDT0 vs USDT: are these correctly labeled as different assets?
+         USDT0 is the Plasma-native USDT. If labeled just "USDT", note it.
+    expected: >
+      Fluid USDT0 on Plasma correct. USDT0 properly identified.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # AAVE/COMPOUND USDC LENDING (Base)
+  # No existing position
+  # Tests Base chain coverage
+  # ==========================================================================
+
+  - name: Aave USDC Base > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click All tab. Filter by Base network.
+      Find USDC lending — look for Aave or Compound or Fluid.
+      USDC has 3 markets on Base (max APY ~3.81%). Click the highest APY.
+      Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: Aave or Fluid or Compound?
+      2. Asset: "USDC". Type: "Lending". Chain: "Base".
+      3. APY: up to ~3.81%.
+      4. No position — deposit available?
+      5. Available USDC on Base: check wallet.
+    expected: >
+      USDC lending on Base detail correct.
+    screenshot: true
+    soft_fail: true
+
+  - name: Aave USDC Base > Deposit if funded
+    instruction: >
+      If no USDC on Base: execute funding swap.
+      /trade → sell ETH → buy USDC on Base → $1. Wait 120s.
+
+      If funded: click deposit. FIAT MODE. Type "0.10".
+      Submit and confirm. Wait 90-120 seconds.
+
+      If swap fails: SOFT FAIL, skip.
+
+      BUG HUNT:
+      1. Base gas should be very low (L2).
+      2. Two-step ERC20 approval flow?
+
+      REPORT: "DEPOSIT: $X USDC to [provider] on Base.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      USDC lending on Base deposit, or soft fail.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # FINAL: Action Center audit for all lending transactions
+  # ==========================================================================
+
+  - name: Lending > Action Center audit
+    instruction: >
+      Open Action Center. Scroll through ALL notifications from this
+      lending fixture.
+
+      BUG HUNT:
+      1. Count lending transactions. Does it match what we executed?
+      2. For EACH notification: correct action, asset, amount, provider,
+         chain, status?
+      3. Missing notifications? Duplicates?
+      4. Are multi-chain transactions clearly labeled with chain name?
+         E.g., "USDT to Aave on Optimism" vs "USDT to Aave on Ethereum"
+         — can the user distinguish them?
+
+      Close Action Center.
+    expected: >
+      All lending transactions accurately logged with correct chain labels.
     screenshot: true
     soft_fail: true

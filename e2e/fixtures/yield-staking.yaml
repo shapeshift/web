@@ -1,89 +1,60 @@
 name: Yield Staking
 description: >
   Tests staking yield providers — PRIMARY GOAL IS BUG DETECTION.
-  Providers: Lido (liquid staking, ETH), ShapeShift DAO (native staking, ATOM),
-  Benqi (liquid staking, AVAX), pooled staking (SOL).
+
+  Providers covered:
+  - Lido (liquid staking, ETH → stETH on Ethereum) — existing position ~$3.68
+  - ShapeShift DAO (native staking, ATOM on Cosmos) — existing position ~$2.06
+  - Benqi (liquid staking, AVAX → sAVAX on Avalanche) — existing position ~$1.33
+  - Figment (pooled staking, SOL on Solana) — existing position ~$2.65
+  - Rocket Pool (liquid staking, ETH → rETH on Ethereum) — existing position ~$0.51
+  - Mantle (liquid staking, ETH → mETH on Ethereum) — no position, test deposit
+
+  Chains covered: Ethereum, Cosmos, Avalanche, Solana (4 chains, 6 providers)
 
   === TRANSACTION FLOW — CRITICAL ===
 
-  The "Waiting" state in transaction modals is NOT stuck. It means a button
-  has appeared next to the step — you MUST click that button to proceed.
+  The "Waiting" state in transaction modals is NOT stuck. A button has
+  appeared next to the step — you MUST click that button to proceed.
 
   TWO-STEP FLOWS (approve + action):
-  1. Click the action button (e.g., "Unstake") → modal opens with steps
+  1. Click the action button → modal opens with steps
   2. Step 1 shows "Waiting" + an "Approve" button → click Approve
-  3. Wait for on-chain confirmation (EVM: 30-60s, Cosmos: 2-15s)
+  3. Wait for on-chain confirmation (EVM: 30-60s, Cosmos: 2-15s, SOL: 5-15s)
   4. Step 2 appears with "Waiting" + the action button → click it
   5. Wait for on-chain confirmation again
   6. Success state appears
 
-  TIMING GUIDANCE:
-  - Cosmos transactions (ATOM): 2-15 seconds per step
-  - EVM transactions (ETH, AVAX): 30-60 seconds per step
-  - Two-step flows (approve + action): total 60-120s for EVM
-  - Always wait for each step to complete before clicking the next button
+  TIMING:
+  - After ANY yield action button click: wait 90-120 seconds
+  - Cosmos transactions: 2-15 seconds per step
+  - EVM transactions: 30-60 seconds per step
+  - Solana transactions: 5-15 seconds per step
+  - Two-step flows: Approve → wait 30-60s → Action → wait 30-60s
 
-  === KNOWN BUGS (verified in mini-tests) ===
+  === KNOWN BUGS ===
 
-  1. LIDO MAX BUTTON BUG: When unstaking from Lido, the Max button fills
-     the ETH wallet balance instead of the stETH position balance. This is
-     a confirmed bug — do NOT block on it, but verify it still reproduces
-     and log it as a SOFT FAIL.
-
-  2. ATOM UNSTAKE — 7-UNBONDING LIMIT: Cosmos Hub allows max 7 concurrent
-     unbonding operations per validator. If the test wallet already has 7
-     pending unbondings, the unstake tx will fail on-chain. This is a
-     chain-level constraint, not a UI bug. If unstake fails, check if
-     this is the cause and log it as "EXPECTED FAIL: Cosmos 7-unbonding limit".
-
-  3. MY POSITIONS CARDS: Cards are NOT clickable via el.click() due to
-     React synthetic event issues with Chakra Card components. Always use
-     direct URL navigation: window.location.hash = '/yield/{yieldId}'
-
-  === BUG DETECTION APPROACH ===
-
-  SOFT FAILS (data/visual bugs — continue testing, log the bug):
-  - APY on detail page doesn't match yields list page
-  - Position balance discrepancy between yield page and DeFi drawer
-  - Wrong provider name, asset icon, or chain label
-  - Stale balance after successful tx (didn't update)
-  - Action Center shows wrong amount, wrong asset, or wrong status
-  - Toast notification has wrong info
-  - Delayed withdrawal shows "instant" messaging or vice versa
-  - Claim button visible when no rewards available
-  - Asset page yield section shows different data than yield detail page
-
-  HARD FAILS (broken functionality — stop this provider, try next):
-  - Deposit button doesn't open modal
-  - Withdraw modal won't submit
-  - Tx signs but position doesn't change
-  - Page crashes or error boundary
-  - Wallet disconnects mid-flow
-
-  FOR EVERY STEP: actively look for discrepancies. Compare what the UI says
-  vs what SHOULD be true. Report exact values when something looks wrong.
+  1. LIDO MAX BUTTON BUG: Unstake Max fills ETH wallet balance instead of
+     stETH position balance. Log as SOFT FAIL, continue.
+  2. ATOM UNSTAKE — 7-UNBONDING LIMIT: Max 7 concurrent unbondings per
+     validator. If wallet has 7 pending, unstake fails. Chain constraint.
+  3. MY POSITIONS CARDS: Use window.location.hash for navigation, not click.
+  4. DIALOG MODAL INPUTS: On external origins, use percentage buttons
+     (25%/50%/75%/Max) instead of keyboard input for amounts.
 
   === HARD CONSTRAINTS ===
-  1. ALWAYS FIAT MODE for amount entry. Toggle to $, verify "$0" placeholder.
-  2. $0.10 DEFAULT for deposits and withdrawals. Only increment if minimum
-     not met. Sequence: $0.10 → $0.50 → $1 → $2 → $3 (SUPER MAX).
-  3. $40 accumulated total INCLUDING GAS. Withdrawals REDUCE the running
-     total (money comes back). Track: "SPEND TRACKER: $X.XX net ($40 budget)"
-  4. NEVER transact on Tron.
-  5. Report every tx: action, asset, amount, provider, chain, running total.
+  1. ALWAYS FIAT MODE. Toggle to $, verify "$0" placeholder.
+  2. Deposit: $0.10 → $0.30 → $0.50 → $1 → $2 → $3 (MAX per tx).
+  3. Withdrawal: minimum viable (~$0.20 equivalent).
+  4. $40 accumulated total INCLUDING GAS.
+  5. NEVER transact on Tron.
+  6. Report every tx: action, asset, amount, provider, chain, running total.
 
   === INTERACTION RULES ===
   - JS eval for clicking (write to /tmp/, no smart quotes)
   - dispatchEvent for React components
-  - window.location.hash for navigation (never agent-browser navigate)
+  - window.location.hash for navigation
   - Native wallet signs automatically
-
-  === FUNDING SWAPS (if needed) ===
-  1. eval "window.location.hash = '/trade'"
-  2. Sell highest-balance asset, buy needed asset
-  3. FIAT mode, $1 (max $3), preview, confirm, sign, wait 120s
-  4. Dismiss feedback. Navigate back.
-  5. Report: "FUNDING SWAP: $1 ETH → {asset}. SPEND TRACKER: $X"
 
 route: /earn
 depends_on:
@@ -92,588 +63,405 @@ depends_on:
 steps:
   # ==========================================================================
   # LIDO ETH STAKING (liquid staking, Ethereum)
-  # Existing position: ~$2.20 stETH, APY ~2.83%
+  # Existing position: ~$3.68 stETH, APY ~2.34%
   # ==========================================================================
 
   - name: Lido ETH Staking > Navigate and verify detail page
     instruction: >
       eval "window.location.hash = '/earn'"
-      Wait 5 seconds. Click [data-testid="yields-tab-my-positions"] via JS dispatchEvent.
-      Wait 3 seconds. Find "Lido" or "stETH" with APY ~2.83%. Click it.
-      If not found, try: eval "window.location.hash = '/earn/lido-ethereum-steth-staking'"
-      Wait 5 seconds. Verify [data-testid="yield-detail-page"].
+      Wait 5 seconds. Click My Positions tab via JS dispatchEvent.
+      Wait 3 seconds. Find "Lido" or "stETH" with APY ~2.34%. Click it.
+      If not clickable, try: eval "window.location.hash = '/earn/lido-ethereum-steth-staking'"
+      Wait 5 seconds.
 
       BUG HUNT:
-      1. Does the detail page show "Lido" as provider? If missing or wrong name, SOFT FAIL.
-      2. Is the asset icon an ETH/stETH icon? If showing wrong icon, SOFT FAIL.
-      3. Does [data-testid="yield-hero-apy-badge"] show a percentage? Is it
-         reasonable (1-5% for Lido)? If 0% or >10%, likely stale/wrong data.
-      4. Are both Deposit [data-testid="yield-hero-enter-button"] and Withdraw
-         [data-testid="yield-hero-exit-button"] buttons present?
-      5. Does [data-testid="yield-stat-type"] say "Liquid Staking"?
-         If it says "Staking" or "Lending" or something else, SOFT FAIL.
+      1. Provider: should be "Lido". If missing or wrong, SOFT FAIL.
+      2. Asset icon: ETH/stETH icon? Wrong icon = SOFT FAIL.
+      3. APY badge: ~2.34%. If 0% or >10%, likely stale/wrong.
+      4. Deposit and Withdraw buttons both present?
+      5. Type: "Liquid Staking"? If wrong classification, SOFT FAIL.
+      6. Chain: Ethereum.
     expected: >
-      Detail page: Lido provider, stETH asset, ~2.83% APY, "Liquid Staking" type,
-      both deposit and withdraw buttons present.
+      Lido detail: ~2.34% APY, "Liquid Staking" type, Ethereum chain.
     screenshot: true
 
   - name: Lido ETH Staking > Record position and validate data
     instruction: >
-      Read [data-testid="yield-position-card"]: balance (crypto + USD).
-      Read APY from [data-testid="yield-hero-apy-badge"] or [data-testid="yield-info-apy"].
-      Read [data-testid="yield-stats"]: TVL, type, reward schedule.
-
-      BUG HUNT — data validation:
-      1. Position balance: is USD value > $0? Record exact value.
-         If showing "$0" when we know there's a position, BUG.
-      2. APY cross-check: the APY on this detail page should match the APY
-         shown next to this position on the My Positions list. If they differ,
-         SOFT FAIL — inconsistent data between views.
-      3. TVL: is it a reasonable number (billions for Lido)? If $0 or
-         absurdly small, likely API issue.
-      4. Reward schedule: what does it say? Is it meaningful text?
-      5. Does the crypto balance × current ETH price ≈ the shown USD value?
-         If way off (>20% difference), SOFT FAIL — price calculation bug.
-    expected: >
-      Position ~$2.20, APY ~2.83%, type "Liquid Staking".
-      Data consistent across views. TVL reasonable.
-    screenshot: true
-    soft_fail: true
-
-  - name: Lido ETH Staking > Full withdrawal
-    instruction: >
-      Click [data-testid="yield-position-exit-button"] or
-      [data-testid="yield-hero-exit-button"] via JS dispatchEvent.
-      Wait for withdrawal form.
-
-      BUG HUNT before submitting:
-      1. Does the form show the correct current balance to withdraw?
-      2. Is the Max button [data-testid="yield-form-percent-max"] present?
-      3. KNOWN BUG CHECK: After clicking Max, does it fill the stETH position
-         balance or the ETH wallet balance? If it fills ETH wallet balance,
-         this is the confirmed Lido Max button bug — log as SOFT FAIL but
-         continue. Manually enter the correct stETH amount if needed.
-
-      Click Max (or enter position balance manually if Max bug triggers).
-      Wait 2 seconds for gas estimation.
-      Click [data-testid="yield-form-submit-button"]. Wait for confirm screen.
-
-      BUG HUNT on confirm screen:
-      4. Does confirm screen show the correct withdrawal amount?
-      5. Is the gas/fee estimate shown? Is it reasonable for Ethereum?
-      6. Is the provider name correct on the confirm screen?
-
-      Click [data-testid="yield-action-confirm-button"].
-
-      === TWO-STEP FLOW (Approve + Unstake) ===
-      The Lido unstake is a TWO-STEP flow:
-      - Step 1: "Approve" appears with "Waiting" status — click the Approve button
-      - Wait 30-60 seconds for the approval tx to confirm on-chain
-      - Step 2: "Unstake" appears with "Waiting" status — click the Unstake button
-      - Wait 30-60 seconds for the unstake tx to confirm on-chain
-      Do NOT assume "Waiting" means stuck. Each "Waiting" step requires
-      clicking the button that appeared next to it.
-      Total expected time: 60-120 seconds for both steps.
-
-      BUG HUNT after tx:
-      7. Did [data-testid="yield-success"] appear? If stuck on loading, HARD FAIL.
-      8. Does the toast notification show correct info (amount, asset)?
-      9. Is the toast amount consistent with what we withdrew?
-
-      REPORT: "WITHDRAWAL: Full ~$2.20 stETH from Lido on Ethereum.
-      Gas: ~$X. SPEND TRACKER: gas only ($40 budget)"
-    expected: >
-      Two-step flow (Approve → Unstake) completes within ~120s.
-      Withdrawal confirmed. Success screen appears. Toast is accurate.
-      Amounts consistent across form, confirm, success, and toast.
-      If Lido Max button bug triggered, logged as SOFT FAIL.
-    screenshot: true
-
-  - name: Lido ETH Staking > Verify empty state
-    instruction: >
-      Click [data-testid="yield-success-close"].
-
-      BUG HUNT — empty state verification:
-      1. Does position card show $0.00 or "0" balance? Record exact text.
-         If it still shows the old balance, BUG (stale data).
-      2. Is the Withdraw button now disabled/hidden? If still enabled with
-         $0 balance, SOFT FAIL.
-      3. Is the Deposit button still available? If it disappeared, BUG.
-      4. Did the hero section update? (APY badge still shown — that's ok,
-         it's the opportunity APY. But balance should be 0.)
-      5. Check [data-testid="yield-available-to-deposit"]: does it show the
-         ETH balance that was just returned from staking?
-    expected: >
-      Zero balance. Withdraw disabled. Deposit available.
-      Available-to-deposit shows returned ETH.
-    screenshot: true
-
-  - name: Lido ETH Staking > Action Center — verify withdrawal notification
-    instruction: >
-      Click notification bell (aria-label="Pending Transactions").
-
-      BUG HUNT — audit the withdrawal notification:
-      1. Is there a notification for this withdrawal? If missing, BUG.
-      2. Status badge: should be "Confirmed". If "Pending" after 60s, BUG.
-         If wrong status text, SOFT FAIL.
-      3. Asset icon: is it ETH/stETH? If wrong icon, SOFT FAIL.
-      4. Amount: does it match what we withdrew? If wrong amount, SOFT FAIL.
-      5. Provider: does it mention "Lido"? If missing or wrong, SOFT FAIL.
-      6. Timestamp: is it from just now? If hours old, BUG.
-      7. Click to expand: does the detail view show correct info?
-         Does expanding/collapsing work smoothly?
-
-      Close Action Center.
-    expected: >
-      Withdrawal notification present with correct status, amount,
-      asset, provider, and timestamp. Expandable.
-    screenshot: true
-
-  - name: Lido ETH Staking > Re-deposit
-    instruction: >
-      Click [data-testid="yield-hero-enter-button"] or
-      [data-testid="yield-position-enter-button"] via JS dispatchEvent.
-
-      BUG HUNT — deposit modal:
-      1. Does the modal open? If not, HARD FAIL.
-      2. Is the currency toggle present?
-
-      FIAT MODE: Toggle to fiat. Verify "$0" placeholder.
-      Type "0.10" via keyboard. Wait 3 seconds.
-
-      BUG HUNT — amount handling:
-      3. Did fiat toggle actually switch? If still showing crypto, BUG.
-      4. After typing "0.10", does the crypto equivalent show below/beside?
-         Is the conversion reasonable? ($0.10 ÷ ETH price ≈ shown amount)
-      5. Is the submit button enabled? If disabled at $0.10, try incrementing:
-         clear → "0.50" → "1" → "2" → "3". Record which amount worked.
-         If NONE work and we know there's sufficient ETH balance, HARD FAIL.
-      6. Is a gas estimate shown? Is it reasonable?
-
-      Click submit. Click confirm. Wait up to 60s.
-
-      BUG HUNT — post-deposit:
-      7. Did success screen appear? If stuck, HARD FAIL.
-      8. Toast: correct amount and "Lido" mentioned?
-
-      REPORT: "DEPOSIT: $X ETH to Lido stETH on Ethereum.
-      SPEND TRACKER: $X.XX spent ($40 budget)"
-    expected: >
-      Deposit successful at minimum viable amount ($0.10–$3).
-      Fiat toggle, gas estimate, and conversion all correct.
-    screenshot: true
-
-  - name: Lido ETH Staking > Verify position after deposit
-    instruction: >
-      Close success dialog.
+      Read position card: balance (crypto + USD, expecting ~$3.68).
+      Read APY from hero badge and info section.
+      Read stats: TVL, type, reward schedule.
 
       BUG HUNT:
-      1. Does position card now show a non-zero balance? Record exact value.
-      2. Does the USD value approximately match what we deposited?
-         If we deposited $0.10 but position shows $2.50, BUG (stale data
-         from before the full withdrawal).
-      3. Is the Withdraw button now enabled? (Should be, since balance > 0)
-      4. Did the stats bar update? Check active positions count — if we had
-         fully withdrawn and re-deposited, count should stay the same.
+      1. Position balance > $0? Record exact.
+      2. APY consistent between detail page and My Positions list?
+      3. TVL: should be billions for Lido. If $0, SOFT FAIL.
+      4. Crypto balance × ETH price ≈ shown USD? >20% off = SOFT FAIL.
     expected: >
-      Position shows newly deposited balance ≈ deposit amount.
-      Not showing stale pre-withdrawal balance.
+      Position ~$3.68, APY ~2.34%, TVL in billions. Data consistent.
     screenshot: true
     soft_fail: true
 
   - name: Lido ETH Staking > Partial withdrawal
     instruction: >
-      Click withdraw button via JS dispatchEvent.
-      FIAT MODE: Toggle to fiat. Verify "$0" placeholder.
-      Type "0.10". If below minimum, try "0.50".
+      Click withdraw button via JS dispatchEvent. Wait for form.
 
-      BUG HUNT:
-      1. Does the form accept partial amounts? Or does it force Max-only?
-         If partial amounts are rejected when balance is sufficient, BUG.
-      2. After entering amount, is remaining balance preview shown?
-         Is it correct? (current balance - withdrawal = remaining)
+      KNOWN BUG CHECK: Click Max button — does it fill stETH position
+      balance or ETH wallet balance? If ETH wallet balance, log SOFT FAIL.
 
-      Submit and confirm.
+      DO NOT use Max for the actual withdrawal. Instead:
+      Use 25% button or manually enter the fiat equivalent of ~$0.20.
+      FIAT MODE: Toggle to $. Verify "$0" placeholder.
+      If keyboard input doesn't work in dialog, use percentage buttons.
+
+      Submit and confirm. Wait for tx.
 
       === TWO-STEP FLOW (Approve + Unstake) ===
-      Same as full withdrawal: expect Approve button → wait 30-60s →
-      Unstake button → wait 30-60s. Click each "Waiting" step's button.
-      Total: 60-120 seconds.
+      Step 1: "Approve" button appears with "Waiting" → click Approve
+      Wait 30-60 seconds for approval on-chain.
+      Step 2: "Unstake" button appears with "Waiting" → click Unstake
+      Wait 30-60 seconds for unstake on-chain.
+      Total: 90-120 seconds. Do NOT assume "Waiting" means stuck.
 
       BUG HUNT post-tx:
-      3. Does position still show remaining balance (deposit - withdrawal)?
-      4. Does the toast show the correct partial withdrawal amount?
-      5. Is the remaining balance > $0?
+      1. Success screen appeared?
+      2. Toast notification correct (amount, asset)?
+      3. Position balance updated (reduced by withdrawal)?
 
-      REPORT: "PARTIAL WITHDRAWAL: $0.10 stETH from Lido on Ethereum.
+      REPORT: "PARTIAL WITHDRAWAL: ~$0.20 stETH from Lido on Ethereum.
+      SPEND TRACKER: gas only, ~$X net ($40 budget)"
+    expected: >
+      Two-step flow completes within ~120s. Partial withdrawal successful.
+      Remaining position > $0. If Max bug triggered, logged as SOFT FAIL.
+    screenshot: true
+
+  - name: Lido ETH Staking > Re-deposit
+    instruction: >
+      Click deposit button via JS dispatchEvent. Wait for form.
+      FIAT MODE: Toggle to $. Verify "$0" placeholder.
+      Type "0.10". Wait 3 seconds.
+      If submit disabled, increment: "0.30" → "0.50" → "1".
+
+      Submit and confirm. Wait up to 90 seconds.
+
+      BUG HUNT:
+      1. Fiat toggle works?
+      2. Crypto equivalent shown correctly?
+      3. Gas estimate reasonable for Ethereum?
+      4. Success screen and toast correct?
+
+      REPORT: "DEPOSIT: $X ETH to Lido stETH on Ethereum.
       SPEND TRACKER: $X.XX spent ($40 budget)"
     expected: >
-      Two-step flow completes. Partial withdrawal successful.
-      Position shows correct remaining balance.
-      Not showing $0 (that would mean it withdrew everything).
+      Deposit successful at minimum viable amount.
     screenshot: true
-    soft_fail: true
 
-  - name: Lido ETH Staking > Action Center — verify all Lido txns
+  - name: Lido ETH Staking > Verify and Action Center
     instruction: >
-      Open Action Center.
+      Close success dialog. Verify position balance updated.
 
-      BUG HUNT — verify ALL three Lido transactions:
-      1. Full withdrawal notification — still shows Confirmed?
-      2. Re-deposit notification — shows Confirmed with correct amount?
-      3. Partial withdrawal notification — shows Confirmed with correct amount?
-      4. Are they in the correct chronological order (newest first)?
-      5. Do any show wrong amounts or wrong statuses?
-      6. Are there any DUPLICATE notifications for the same tx?
-
+      Open Action Center. Verify:
+      1. Withdrawal notification present with correct details.
+      2. Deposit notification present with correct details.
+      3. Both show "Confirmed" status.
+      4. Correct chronological order.
       Close Action Center.
     expected: >
-      All three Lido txns present in correct order with accurate details.
+      Position reflects deposit. Action Center accurate.
     screenshot: true
     soft_fail: true
 
   # ==========================================================================
   # SHAPESHIFT DAO ATOM STAKING (native staking, Cosmos Hub)
-  # Existing position: ~$1.98 ATOM, APY ~15.39%
-  # 21-day unbonding period — tests delayed withdrawal flow
+  # Existing position: ~$2.06, APY ~15.39%
+  # 21-day unbonding period
   # ==========================================================================
 
   - name: ATOM Staking > Navigate and verify detail page
     instruction: >
       eval "window.location.hash = '/earn'"
-      Wait 3 seconds. Click [data-testid="yields-tab-my-positions"].
-      Wait 3 seconds. Find ATOM/Cosmos with APY ~15.39%. Click on it.
-      Wait 5 seconds.
+      Wait 3 seconds. Click My Positions tab. Wait 3 seconds.
+      Find ATOM/Cosmos with APY ~15.39%. Click on it. Wait 5 seconds.
 
       BUG HUNT:
-      1. Provider: should be "ShapeShift DAO". If missing or wrong, SOFT FAIL.
-      2. Type: should be "Native Staking" or "Staking". If "Lending" or
-         "Liquid Staking", SOFT FAIL — wrong classification.
-      3. APY: ~15.39% is high for staking. Cross-check: is this the current
-         on-chain Cosmos staking APR? If it seems stale (hasn't changed in
-         weeks), note it.
-      4. Chain label: should mention "Cosmos Hub" or "ATOM". If showing
-         wrong chain, SOFT FAIL.
+      1. Provider: "ShapeShift DAO". If wrong, SOFT FAIL.
+      2. Type: "Native Staking" or "Staking". If "Lending", SOFT FAIL.
+      3. APY: ~15.39%. Cross-check against current Cosmos staking rate.
+      4. Chain: "Cosmos Hub" or "ATOM". If wrong chain, SOFT FAIL.
+      5. Position: ~$2.06.
     expected: >
-      ATOM staking detail: ShapeShift DAO provider, ~15.39% APY,
-      Native Staking type, Cosmos Hub chain. All correct.
+      ATOM staking: ShapeShift DAO, ~15.39% APY, Cosmos. Correct.
     screenshot: true
 
-  - name: ATOM Staking > Check claims — verify button state
+  - name: ATOM Staking > Check and claim rewards
     instruction: >
-      Look for [data-testid="yield-position-claim-button"].
+      Look for claim button.
 
-      BUG HUNT — claim button logic:
-      1. If button exists and is ENABLED (clickable):
-         - Record the reward amount shown
-         - Verify reward amount is > $0
-         - Verify it mentions ATOM (not wrong asset)
-         - This means "claims ARE ready" — button should be active. CORRECT.
-      2. If button exists but is DISABLED (greyed out):
-         - Verify there's a reason shown (e.g., "No rewards" or amount is $0)
-         - This means "claims NOT ready" — button disabled is CORRECT.
-         - If button is disabled BUT reward amount > $0, that's a BUG.
-      3. If button is ABSENT entirely:
-         - For Cosmos native staking, rewards should be claimable. If no
-           claim button at all, this MIGHT be a BUG (or the implementation
-           auto-compounds). Note it either way.
-      4. Check for multiple claim buttons — are rewards split across validators?
+      If ENABLED (claimable rewards):
+        Record reward amount. Verify it mentions ATOM.
+        Click claim → confirm → wait 2-15 seconds.
+        After ANY yield action button click, wait 90-120 seconds.
+        Check toast for correct ATOM amount.
+        REPORT: "CLAIM: X ATOM from ShapeShift DAO on Cosmos."
+
+      If DISABLED/ABSENT:
+        Log: "Claims not ready — button correctly disabled/hidden."
+
+      If claim FAILS: check browser Network tab for error details.
+      The failure might be from yield.xyz API, not the UI itself.
     expected: >
-      Claim button state correctly reflects reward availability.
-      No false positives (enabled with 0 rewards) or false negatives
-      (disabled with claimable rewards).
+      Claim successful with correct amounts, OR correctly skipped.
     screenshot: true
     soft_fail: true
 
-  - name: ATOM Staking > Claim rewards if ready
+  - name: ATOM Staking > Partial withdrawal (unbonding)
     instruction: >
-      If claim button is ENABLED:
-        Click [data-testid="yield-position-claim-button"] via JS dispatchEvent.
-        Wait for claim confirmation screen.
+      Click withdraw button. Use 25% button (dialog inputs may not
+      respond to keyboard on external origins).
 
-        BUG HUNT:
-        1. Does confirm screen show the reward amount? Does it match what
-           was shown on the position card?
-        2. Is gas/fee shown? Is it in ATOM (correct for Cosmos)?
-        3. After clicking confirm and waiting: did a success state appear?
-        4. Toast: does it say "claimed" with correct ATOM amount?
+      If 25% button unavailable, try FIAT MODE: type "0.20".
+      Submit and confirm.
 
-        REPORT: "CLAIM: X ATOM rewards from ShapeShift DAO on Cosmos.
-        SPEND TRACKER: $X.XX spent ($40 budget)"
-
-      If DISABLED/absent: skip. Note: "Claims not ready — button correctly
-      disabled/hidden. No false-positive claim button."
-    expected: >
-      Claim successful with accurate amounts, OR correctly skipped.
-    screenshot: true
-    soft_fail: true
-
-  - name: ATOM Staking > Full withdrawal (unbonding)
-    instruction: >
-      Click exit/withdraw button via JS dispatchEvent.
-      Click [data-testid="yield-form-percent-max"].
-
-      BUG HUNT before submitting:
-      1. Does Max fill the full ATOM balance? Record the amount.
-      2. Is gas estimate shown in ATOM?
-
-      Submit and confirm. Wait up to 15s (Cosmos txs confirm in 2-15s).
-
-      === KNOWN ISSUE: 7-UNBONDING LIMIT ===
+      === 7-UNBONDING LIMIT ===
       Cosmos Hub allows max 7 concurrent unbonding delegations per validator.
-      If the test wallet already has 7 pending unbondings, this tx WILL FAIL
-      on-chain. If it fails, check the error message:
-      - If error mentions "too many unbonding" or similar: log as
-        "EXPECTED FAIL: Cosmos 7-unbonding limit" and SKIP remaining
-        ATOM unstake steps. This is a chain constraint, not a UI bug.
-      - If the UI shows success but the tx actually failed: CRITICAL BUG.
+      If tx fails with "too many unbonding" error:
+      - Log as "EXPECTED FAIL: Cosmos 7-unbonding limit"
+      - SKIP remaining ATOM unstake steps
+      - This is a chain constraint, NOT a UI bug
 
-      BUG HUNT — unbonding behavior:
-      3. Cosmos has 21-day unbonding. Does the app communicate this?
-         Look for: warning text, unbonding period mention, confirmation dialog
-         that warns about the waiting period.
-      4. If the withdrawal completes INSTANTLY (no unbonding message), that's
-         either a BUG (should show unbonding) or the implementation handles
-         unbonding differently. Note which behavior occurred.
-      5. Toast: does it say "unstaking" or "withdrawing"? Does it mention
-         the unbonding period?
+      Wait 90-120 seconds after clicking action button.
 
-      REPORT: "UNSTAKE: Full ~$1.98 ATOM from ShapeShift DAO on Cosmos.
-      21-day unbonding. SPEND TRACKER: $X.XX spent ($40 budget)"
+      BUG HUNT:
+      1. Does the app warn about 21-day unbonding period?
+      2. If withdrawal completes instantly (no unbonding message), BUG.
+      3. Toast mentions unbonding?
+
+      REPORT: "UNSTAKE: ~$0.20 ATOM from ShapeShift DAO on Cosmos.
+      21-day unbonding. SPEND TRACKER: $X.XX ($40 budget)"
     expected: >
       Unbonding initiated (2-15s). App shows 21-day unbonding messaging.
-      OR: Expected fail if 7-unbonding limit already reached on wallet.
+      OR: Expected fail if 7-unbonding limit reached.
     screenshot: true
 
   - name: ATOM Staking > Verify delayed withdrawal messaging
     instruction: >
-      BUG HUNT — delayed withdrawal UI:
-      1. Does the yield detail page now show "Funds arriving in X days"
-         or similar unbonding countdown? Record the exact text.
-      2. Is there a pending withdrawal indicator? What does it look like?
-      3. Is [data-testid="yield-position-withdraw-button"] present?
-         (This would be for completing the withdrawal after unbonding.)
-         If present but we just started unbonding, is it disabled? It
-         SHOULD be disabled until the 21 days pass.
-      4. If the position just shows $0 with NO unbonding messaging, that's
-         a BUG — the user has no idea their ATOM is in unbonding limbo.
-      5. Does the stats bar "Active positions" count still include this
-         position? (Debatable — is an unbonding position "active"?)
-      6. Check the position card: does it show the unbonding amount or $0?
-         It should show the amount that's unbonding, not $0.
+      BUG HUNT:
+      1. Does yield detail show "Funds arriving in X days" or countdown?
+      2. Is pending withdrawal indicator visible?
+      3. Position shows unbonding amount, not $0?
+      4. Stats bar still counts this position?
     expected: >
-      Clear unbonding messaging with countdown. Position shows unbonding
-      amount, not $0. User can understand their ATOM is in transit.
-    screenshot: true
-    soft_fail: true
-
-  - name: ATOM Staking > Action Center — delayed withdrawal status
-    instruction: >
-      Open Action Center.
-
-      BUG HUNT — delayed withdrawal notification:
-      1. Is there an ATOM unstaking notification?
-      2. What status badge does it show? It should NOT be "Confirmed" —
-         the funds are still unbonding. Expected: "Pending", "Unbonding",
-         or similar in-progress status.
-      3. If it shows "Confirmed" when ATOM is actually in 21-day unbonding,
-         that's a SOFT FAIL — misleading status.
-      4. Does the notification detail mention the unbonding timeframe?
-      5. Is there a separate "Claim Available" notification that shouldn't
-         be there yet (unbonding just started)?
-
-      Close Action Center.
-    expected: >
-      Notification shows pending/unbonding status, NOT "Confirmed".
-      No premature "Claim Available" badge.
+      Clear unbonding messaging. Position shows unbonding amount.
     screenshot: true
     soft_fail: true
 
   - name: ATOM Staking > Re-deposit
     instruction: >
-      Click deposit button via JS dispatchEvent.
-      FIAT MODE: Toggle to fiat. Verify "$0" placeholder.
-      Type "0.10". Increment if needed: "0.50" → "1" → "2" → "3". Max $3.
+      Click deposit button. FIAT MODE. Type "0.10".
+      Increment if needed: "0.30" → "0.50" → "1". Max $3.
 
       BUG HUNT:
-      1. Can we deposit while there's an active unbonding? The app should
-         allow this (new delegation to the validator). If deposit is blocked
-         because of pending unbonding, that might be a BUG.
-      2. After successful deposit: does the position card show the NEW
-         deposit amount separately from the unbonding amount? Or are they
-         combined? Note the behavior.
-      3. Toast: correct deposit amount and provider?
+      1. Can deposit while unbonding is active?
+      2. Position shows new deposit separately from unbonding?
+      3. Toast correct?
 
-      Submit and confirm. Wait for completion.
+      Submit and confirm. Wait 90-120 seconds.
 
-      REPORT: "DEPOSIT: $X ATOM to ShapeShift DAO staking on Cosmos.
-      SPEND TRACKER: $X.XX spent ($40 budget)"
+      REPORT: "DEPOSIT: $X ATOM to ShapeShift DAO on Cosmos.
+      SPEND TRACKER: $X.XX ($40 budget)"
     expected: >
-      ATOM deposit successful while unbonding is in progress.
-      Position correctly shows new stake amount.
+      ATOM deposit successful while unbonding in progress.
     screenshot: true
-
-  - name: ATOM Staking > Asset page roundtrip — cross-reference
-    instruction: >
-      eval "window.location.hash = '/assets/cosmos:cosmoshub-4/slip44:118'"
-      Wait 5 seconds.
-
-      BUG HUNT — asset page vs yield page consistency:
-      1. Does the asset page show the ATOM balance? Is it correct?
-         (Should include: liquid ATOM + staked ATOM. Unbonding may or may
-         not be included depending on implementation.)
-      2. Is [data-testid="yield-asset-section"] present? If missing on an
-         asset with active staking, that's a BUG.
-      3. Does the yield section show the correct staking position?
-         Does the balance match what the yield detail page shows?
-      4. If there's a "Start Earning" or "Stake" CTA on the asset page,
-         is it functional? (Don't click it, just verify it's present and
-         not showing stale data like "Earn 0% APY")
-      5. Does the asset price update correctly? Is the shown price
-         reasonable for ATOM?
-    expected: >
-      Asset page shows ATOM balance. Yield section reflects staking
-      position consistently with yield detail page.
-    screenshot: true
-    soft_fail: true
 
   # ==========================================================================
   # BENQI AVAX STAKING (liquid staking, Avalanche)
-  # Existing position: ~$1.62, APY ~4.94%
+  # Existing position: ~$1.33, APY ~4.94%
   # ==========================================================================
 
-  - name: AVAX Staking > Navigate and verify detail page
+  - name: AVAX Staking > Navigate and verify
     instruction: >
       eval "window.location.hash = '/earn'"
-      Wait 3 seconds. Click My Positions tab.
-      Find AVAX/Avalanche ~4.94% APY. Click on it.
-      Wait 5 seconds.
+      Wait 3 seconds. Click My Positions tab. Find AVAX ~4.94% APY.
+      Click on it. Wait 5 seconds.
 
       BUG HUNT:
-      1. Provider: should be "Benqi" or similar Avalanche liquid staking provider.
-      2. Type: "Liquid Staking". If wrong type, SOFT FAIL.
-      3. APY: ~4.94%. Reasonable for AVAX staking?
-      4. Chain: should mention "Avalanche". If showing "Ethereum", BUG.
-      5. Position balance: ~$1.62. Does the crypto amount × AVAX price
-         approximate $1.62?
+      1. Provider: "Benqi". Type: "Liquid Staking".
+      2. APY: ~4.94%. Chain: "Avalanche".
+      3. Position: ~$1.33. Crypto × AVAX price ≈ $1.33?
     expected: >
-      AVAX staking detail correct: provider, type, APY, chain, balance all match.
+      AVAX/Benqi detail correct. Provider, type, APY, chain all match.
     screenshot: true
     soft_fail: true
 
-  - name: AVAX Staking > Partial withdrawal with verification
+  - name: AVAX Staking > Partial withdrawal
     instruction: >
-      Click withdraw button via JS dispatchEvent.
-      FIAT MODE: Toggle to fiat. Verify "$0" placeholder.
-      Type "0.10". If below minimum, try "0.50".
+      Click withdraw. Use 25% button or FIAT MODE type "0.20".
+      Submit and confirm. Wait 90-120 seconds.
 
       BUG HUNT:
-      1. Form accepts partial amount? Shows remaining balance preview?
-      2. Gas estimate is in AVAX (not ETH — wrong chain gas would be a BUG).
+      1. Gas estimate in AVAX (not ETH)?
+      2. Withdrawal is instant? (Liquid staking should be instant.)
+         If shows "21 day unbonding" for liquid staking, BUG.
+      3. Position updated? Toast correct?
 
-      Submit and confirm. Wait for completion.
-
-      BUG HUNT post-tx:
-      3. Position updated? New balance = old balance - withdrawal?
-      4. Toast shows correct AVAX amount, not ETH or other asset?
-      5. Withdrawal was instant? (Liquid staking should be — unlike native
-         Cosmos staking. If it shows "21 day unbonding" for AVAX liquid
-         staking, that's a BUG — wrong withdrawal behavior.)
-
-      REPORT: "PARTIAL WITHDRAWAL: $0.10 sAVAX from Benqi on Avalanche.
-      SPEND TRACKER: $X.XX spent ($40 budget)"
+      REPORT: "PARTIAL WITHDRAWAL: ~$0.20 sAVAX from Benqi on Avalanche.
+      SPEND TRACKER: $X.XX ($40 budget)"
     expected: >
-      Instant partial withdrawal. Balance updated correctly.
-      No unbonding period (liquid staking = instant).
+      Instant partial withdrawal. Balance updated. No unbonding period.
     screenshot: true
     soft_fail: true
 
-  - name: AVAX Staking > Action Center and asset page verification
+  - name: AVAX Staking > Action Center verify
     instruction: >
-      Open Action Center.
-
-      BUG HUNT:
-      1. AVAX withdrawal notification present? Correct status (Confirmed)?
-      2. Correct asset (AVAX/sAVAX, not ETH or SOL)?
-      3. Correct amount (matches what we withdrew)?
-
+      Open Action Center. Verify AVAX withdrawal notification:
+      1. Present? Status "Confirmed"?
+      2. Correct asset (AVAX/sAVAX)?
+      3. Correct amount?
       Close Action Center.
-
-      Navigate to AVAX asset page:
-      eval "window.location.hash = '/assets/eip155:43114/slip44:60'"
-      Wait 5 seconds.
-
-      BUG HUNT — asset page:
-      4. AVAX balance shown correctly?
-      5. Yield section present and shows staking position?
-      6. Balance on asset page consistent with yield page position?
     expected: >
-      Action Center accurate. Asset page consistent with yield page.
+      Action Center accurate for AVAX withdrawal.
     screenshot: true
     soft_fail: true
 
   # ==========================================================================
-  # SOLANA STAKING (pooled staking)
-  # Existing position: ~$2.63, APY ~5.53%
+  # FIGMENT SOL STAKING (pooled staking, Solana)
+  # Existing position: ~$2.65, APY ~5.53%
   # ==========================================================================
 
-  - name: SOL Staking > Navigate and verify detail page
+  - name: SOL Staking > Navigate and verify
     instruction: >
       eval "window.location.hash = '/earn'"
       Wait 3 seconds. Click My Positions tab.
       Find SOL/Solana ~5.53% APY. Click on it. Wait 5 seconds.
 
       BUG HUNT:
-      1. Type: should be "Pooled Staking" or "Staking". If "Lending", BUG.
-      2. Provider: who is the Solana staking provider? Record it.
-      3. APY: ~5.53%. Reasonable for SOL staking.
-      4. Chain: should mention "Solana". Not "Ethereum" or "Cosmos".
-      5. Position: ~$2.63. Does crypto × SOL price ≈ $2.63?
+      1. Type: "Pooled Staking" or "Staking". If "Lending", BUG.
+      2. Provider: "Figment". APY: ~5.53%.
+      3. Chain: "Solana". Not Ethereum.
+      4. Position: ~$2.65.
     expected: >
-      SOL staking detail correct: type, provider, APY, chain, balance.
+      SOL/Figment staking detail correct.
     screenshot: true
     soft_fail: true
 
-  - name: SOL Staking > Partial withdrawal with verification
+  - name: SOL Staking > Partial withdrawal
     instruction: >
-      Click withdraw button.
-      FIAT MODE: Toggle to fiat. Verify "$0" placeholder.
-      Type "0.10". If below minimum, increment: "0.50" → "1".
+      Click withdraw. Use 25% button or FIAT MODE type "0.20".
+      Submit and confirm. Wait 90-120 seconds.
 
       BUG HUNT:
-      1. Does the form accept partial withdrawal for pooled staking?
-      2. Gas estimate: should be in SOL (tiny Solana tx fee, ~$0.001).
-         If gas shows > $1 for a Solana tx, SOFT FAIL — wrong fee display.
+      1. Gas estimate in SOL (~$0.001). If > $1 for Solana, SOFT FAIL.
+      2. Withdrawal behavior: instant or multi-day unbonding?
+         Note which behavior occurred for Figment SOL staking.
+      3. Position updated? Toast correct?
 
-      Submit and confirm. Wait for completion.
-
-      BUG HUNT post-tx:
-      3. Position updated? Remaining balance correct?
-      4. Was withdrawal instant? (Pooled staking withdrawal behavior varies.
-         If shows multi-day unbonding, note it — might be expected for some
-         Solana staking providers.)
-      5. Toast correct?
-
-      REPORT: "PARTIAL WITHDRAWAL: $0.10 SOL from pooled staking on Solana.
-      SPEND TRACKER: $X.XX spent ($40 budget)"
+      REPORT: "PARTIAL WITHDRAWAL: ~$0.20 SOL from Figment on Solana.
+      SPEND TRACKER: $X.XX ($40 budget)"
     expected: >
-      Partial withdrawal successful. Balance updated. Gas reasonable for Solana.
+      Partial withdrawal successful. Gas reasonable for Solana.
     screenshot: true
     soft_fail: true
 
-  - name: SOL Staking > Action Center verification
+  - name: SOL Staking > Action Center verify
     instruction: >
-      Open Action Center.
-
-      BUG HUNT:
-      1. SOL withdrawal notification present?
-      2. Correct asset (SOL, not ETH/ATOM/AVAX)?
-      3. Correct amount and status?
-      4. Solana txns should confirm quickly — if status is still "Pending"
-         after 30s, SOFT FAIL.
-
+      Open Action Center. Verify SOL notification:
+      1. Present? Status correct?
+      2. Correct asset (SOL)? Amount?
+      3. Solana txns confirm quickly — if "Pending" after 30s, SOFT FAIL.
       Close Action Center.
     expected: >
       SOL withdrawal notification accurate and confirmed.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # ROCKET POOL ETH STAKING (liquid staking, Ethereum)
+  # Existing position: ~$0.51, APY ~2.25%
+  # Tests a second Ethereum liquid staking provider for comparison
+  # ==========================================================================
+
+  - name: Rocket Pool ETH > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click My Positions tab.
+      Find ETH/Rocket Pool with APY ~2.25%. Click on it. Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: "Rocket Pool". Type: "Liquid Staking".
+      2. APY: ~2.25%. Should be slightly less than Lido (~2.34%).
+      3. Chain: Ethereum. Asset: rETH.
+      4. Position: ~$0.51.
+      5. Compare data with Lido detail page — both are ETH liquid staking
+         on Ethereum. Are APYs, type labels, UI layout consistent?
+    expected: >
+      Rocket Pool detail correct. APY slightly below Lido. Consistent UI.
+    screenshot: true
+    soft_fail: true
+
+  - name: Rocket Pool ETH > Data validation
+    instruction: >
+      Read APY (hero badge + info card), TVL, type, reward schedule.
+
+      BUG HUNT:
+      1. APY consistency: hero badge vs info card match?
+      2. TVL: Rocket Pool is large — should be hundreds of millions.
+         If $0, SOFT FAIL.
+      3. Compare with Lido: both liquid staking on ETH. Are type labels
+         the same? ("Liquid Staking" for both?)
+      4. Reward schedule: meaningful text?
+    expected: >
+      Data consistent. TVL > $100M. Type matches Lido's label.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # MANTLE ETH STAKING (liquid staking, Ethereum)
+  # No existing position — tests fresh deposit flow
+  # Available: ~$165.34 equivalent ETH
+  # ==========================================================================
+
+  - name: Mantle ETH > Navigate and verify (no position)
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click All tab. Search "Mantle". Wait 3 seconds.
+      Find ETH/Mantle with APY ~2.34%. Click on it. Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: "Mantle". Type: "Liquid Staking".
+      2. APY: ~2.34%. Chain: Ethereum.
+      3. No position card (fresh yield). Deposit button available?
+      4. Available to deposit: shows ETH wallet balance (~$165)?
+    expected: >
+      Mantle detail: correct provider, no existing position,
+      deposit available with ETH balance shown.
+    screenshot: true
+    soft_fail: true
+
+  - name: Mantle ETH > Deposit (new position)
+    instruction: >
+      Click deposit button. FIAT MODE. Type "0.10".
+      If submit disabled, increment: "0.30" → "0.50".
+      Submit and confirm. Wait 90-120 seconds.
+
+      BUG HUNT:
+      1. First-time deposit: does it create a new position?
+      2. Success screen shows correct amount?
+      3. Toast mentions "Mantle" and correct ETH amount?
+
+      REPORT: "DEPOSIT: $0.10 ETH to Mantle mETH on Ethereum.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      New Mantle mETH position created. Amount correct.
+    screenshot: true
+
+  - name: Mantle ETH > Verify new position
+    instruction: >
+      Close success dialog. Verify position card now shows balance.
+
+      BUG HUNT:
+      1. Position card shows ~$0.10 balance?
+      2. Navigate to My Positions tab — is Mantle now listed?
+      3. Stats bar: position count increased by 1?
+    expected: >
+      New position visible. Stats bar updated.
     screenshot: true
     soft_fail: true

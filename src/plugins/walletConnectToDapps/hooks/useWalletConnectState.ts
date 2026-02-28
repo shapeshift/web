@@ -1,3 +1,4 @@
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
 import {
@@ -7,11 +8,13 @@ import {
   isTransactionParamsArray,
 } from '@/plugins/walletConnectToDapps/typeGuards'
 import type { KnownSigningMethod, WalletConnectState } from '@/plugins/walletConnectToDapps/types'
+import { TronSigningMethod } from '@/plugins/walletConnectToDapps/types'
 import {
   extractAllConnectedAccounts,
   getSignParamsMessage,
   getWalletAccountFromCosmosParams,
   getWalletAccountFromEthParams,
+  getWalletAccountFromTronParams,
   getWalletAddressFromEthSignParams,
 } from '@/plugins/walletConnectToDapps/utils'
 import { selectPortfolioAccountMetadata } from '@/state/slices/portfolioSlice/selectors'
@@ -38,8 +41,16 @@ export const useWalletConnectState = (state: WalletConnectState) => {
       return getWalletAddressFromEthSignParams(connectedAccounts, requestParams)
     if (requestParams && isTransactionParamsArray(requestParams)) return requestParams[0].from
     if (requestParams && 'signerAddress' in requestParams) return requestParams.signerAddress
-    else return undefined
-  }, [connectedAccounts, requestParams])
+
+    const isTronMethod = Object.values(TronSigningMethod).includes(
+      request?.method as TronSigningMethod,
+    )
+    if (isTronMethod && chainId) {
+      const tronAccountId = getWalletAccountFromTronParams(connectedAccounts, chainId)
+      return tronAccountId ? fromAccountId(tronAccountId).account : undefined
+    }
+    return undefined
+  }, [connectedAccounts, requestParams, request?.method, chainId])
 
   const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
 
@@ -53,8 +64,13 @@ export const useWalletConnectState = (state: WalletConnectState) => {
       return getWalletAccountFromEthParams(connectedAccounts, requestParams, chainId)
     if (requestParams && 'signerAddress' in requestParams)
       return getWalletAccountFromCosmosParams(connectedAccounts, requestParams)
-    else return undefined
-  }, [connectedAccounts, requestParams, chainId])
+
+    const isTronMethod = Object.values(TronSigningMethod).includes(
+      request?.method as TronSigningMethod,
+    )
+    if (isTronMethod) return getWalletAccountFromTronParams(connectedAccounts, chainId)
+    return undefined
+  }, [connectedAccounts, requestParams, chainId, request?.method])
 
   const accountMetadata = accountId ? accountMetadataById[accountId] : undefined
 

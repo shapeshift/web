@@ -14,6 +14,7 @@ import type {
 import {
   CosmosSigningMethod,
   EIP155_SigningMethod,
+  TronSigningMethod,
   WalletConnectActionType,
   WalletConnectModal,
 } from '@/plugins/walletConnectToDapps/types'
@@ -154,6 +155,16 @@ export const useWalletConnectEventsHandler = (
             type: WalletConnectActionType.SET_MODAL,
             payload: {
               modal: WalletConnectModal.SendCosmosTransactionConfirmation,
+              data: { requestEvent, requestSession: getRequestSession() },
+            },
+          })
+
+        case TronSigningMethod.TRON_SIGN_TRANSACTION:
+        case TronSigningMethod.TRON_SIGN_MESSAGE:
+          return dispatch({
+            type: WalletConnectActionType.SET_MODAL,
+            payload: {
+              modal: WalletConnectModal.SendTronTransactionConfirmation,
               data: { requestEvent, requestSession: getRequestSession() },
             },
           })

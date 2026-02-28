@@ -122,10 +122,10 @@ steps:
 
       Submit and confirm. Wait for tx.
 
-      === TWO-STEP FLOW (Approve + Unstake) ===
-      Step 1: "Approve" button appears with "Waiting" → click Approve
-      Wait 30-60 seconds for approval on-chain.
-      Step 2: "Unstake" button appears with "Waiting" → click Unstake
+      === MODAL FLOW (approval may be optional) ===
+      If an "Approve" button appears with "Waiting" → click Approve,
+      then wait 30-60 seconds for on-chain confirmation.
+      Next, click "Unstake" when it appears with "Waiting".
       Wait 30-60 seconds for unstake on-chain.
       Total: 90-120 seconds. Do NOT assume "Waiting" means stuck.
 
@@ -146,6 +146,8 @@ steps:
       Click deposit button via JS dispatchEvent. Wait for form.
       FIAT MODE: Toggle to $. Verify "$0" placeholder.
       Type "0.10". Wait 3 seconds.
+      If keyboard entry does not update the field, use preset amount controls
+      (25%/50%/75%/Max) instead of keyboard entry.
       If submit disabled, increment: "0.30" → "0.50" → "1".
 
       Submit and confirm. Wait up to 90 seconds.
@@ -264,6 +266,7 @@ steps:
   - name: ATOM Staking > Re-deposit
     instruction: >
       Click deposit button. FIAT MODE. Type "0.10".
+      If keyboard entry does not update the field, use preset amount controls.
       Increment if needed: "0.30" → "0.50" → "1". Max $3.
 
       BUG HUNT:
@@ -446,6 +449,7 @@ steps:
   - name: Mantle ETH > Deposit (new position)
     instruction: >
       Click deposit button. FIAT MODE. Type "0.10".
+      If keyboard entry does not update the field, use preset amount controls.
       If submit disabled, increment: "0.30" → "0.50".
       Submit and confirm. Wait 90-120 seconds.
 

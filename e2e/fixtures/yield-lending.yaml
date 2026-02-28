@@ -116,7 +116,7 @@ steps:
   - name: Compound USDT Ethereum > Re-deposit
     instruction: >
       Check USDT balance. If < $0.10: execute funding swap
-      (/trade, sell ETH, buy USDT on Ethereum, $1, wait 120s).
+      (/trade, sell highest-balance wallet asset, buy USDT on Ethereum, $0.20, wait 120s).
 
       Click deposit. FIAT MODE. Type "0.10".
       Increment if needed: "0.30" → "0.50".
@@ -194,7 +194,7 @@ steps:
   - name: Aave USDT Optimism > Deposit
     instruction: >
       Check available USDT balance on Optimism. If < $0.10:
-      Funding swap: /trade → sell ETH → buy USDT on Optimism → $1.
+      Funding swap: /trade → sell highest-balance wallet asset → buy USDT on Optimism → $0.20.
 
       Click deposit. FIAT MODE. Type "0.10".
       Increment if needed. Submit and confirm.
@@ -319,7 +319,7 @@ steps:
   - name: Venus DAI BSC > Fund and deposit
     instruction: >
       If no DAI on BSC: execute funding swap.
-      /trade → sell BNB or highest BSC balance → buy DAI on BSC → $1.
+      /trade → sell highest-balance wallet asset → buy DAI on BSC → $0.20.
       Wait 120s. Navigate back to Venus DAI detail.
 
       If DAI available: proceed directly.
@@ -368,7 +368,7 @@ steps:
   - name: Gearbox wETH Optimism > Deposit if funded
     instruction: >
       If no wETH on Optimism: try funding swap.
-      /trade → sell ETH → buy wETH on Optimism → $1. Wait 120s.
+      /trade → sell highest-balance wallet asset → buy wETH on Optimism → $0.20. Wait 120s.
 
       If funded: click deposit. FIAT MODE. Type "0.10".
       Submit and confirm. Wait 90-120 seconds.
@@ -451,7 +451,7 @@ steps:
   - name: Drift USDT Solana > Deposit if funded
     instruction: >
       If no USDT on Solana: execute funding swap.
-      /trade → sell SOL → buy USDT on Solana → $1. Wait 120s.
+      /trade → sell highest-balance wallet asset → buy USDT on Solana → $0.20. Wait 120s.
 
       If funded: click deposit. FIAT MODE. Type "0.10".
       Submit and confirm. Wait 90-120 seconds.
@@ -556,7 +556,7 @@ steps:
   - name: Aave USDC Base > Deposit if funded
     instruction: >
       If no USDC on Base: execute funding swap.
-      /trade → sell ETH → buy USDC on Base → $1. Wait 120s.
+      /trade → sell highest-balance wallet asset → buy USDC on Base → $0.20. Wait 120s.
 
       If funded: click deposit. FIAT MODE. Type "0.10".
       Submit and confirm. Wait 90-120 seconds.

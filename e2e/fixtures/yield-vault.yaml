@@ -143,7 +143,7 @@ steps:
     instruction: >
       Close success dialog. Verify position shows updated balance.
 
-      Click withdraw. Use 25% button or FIAT MODE "0.10".
+      Click withdraw. Use 25% button or FIAT MODE "0.20".
       Submit and confirm. Wait 90-120 seconds.
 
       BUG HUNT:
@@ -212,7 +212,7 @@ steps:
   - name: Yearn vbUSDT Katana > Deposit (new position)
     instruction: >
       Check vbUSDT availability. If < $0.10: funding swap needed.
-      /trade → sell ETH → buy vbUSDT on Katana → $1. Wait 120s.
+      /trade → sell highest-balance wallet asset → buy vbUSDT on Katana → $0.20. Wait 120s.
 
       If funded: click deposit. FIAT MODE. Type "0.10".
       Increment if needed. Submit and confirm.

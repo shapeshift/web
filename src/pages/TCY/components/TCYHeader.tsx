@@ -1,4 +1,4 @@
-import { Flex, Heading } from '@chakra-ui/react'
+import { Box, Flex, Heading } from '@chakra-ui/react'
 import { fromAccountId, thorchainAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -80,8 +80,8 @@ export const TCYHeader = ({ currentAccount, onAccountNumberChange }: TCYHeaderPr
   }, [accountIds, handleChange, currentAccountId])
 
   return (
-    <>
-      <PageHeader data-testid='tcy-header'>
+    <Box data-testid='tcy-header'>
+      <PageHeader>
         <SEO title={translate('TCY.staking')} />
         <Display.Mobile>
           <PageHeader.Left>
@@ -101,6 +101,6 @@ export const TCYHeader = ({ currentAccount, onAccountNumberChange }: TCYHeaderPr
       <Display.Mobile>
         <Flex py={2}>{activeAccountDropdown}</Flex>
       </Display.Mobile>
-    </>
+    </Box>
   )
 }

@@ -50,6 +50,7 @@ export type TypeOption = {
 
 type FilterMenuProps = {
   label: string
+  testId: string
   value: string | null
   options: { id: string; name: string; icon?: string; chainId?: ChainId }[]
   onSelect: (id: string | null) => void
@@ -65,7 +66,7 @@ const chevronDownIcon = <ChevronDownIcon />
 
 const ALL_OPTION_VALUE = '__all__'
 
-const FilterMenu = memo(({ label, value, options, onSelect, renderIcon }: FilterMenuProps) => {
+const FilterMenu = memo(({ label, testId, value, options, onSelect, renderIcon }: FilterMenuProps) => {
   const selectedOption = useMemo(() => options.find(o => o.id === value), [options, value])
   const displayLabel = useMemo(
     () => (selectedOption ? selectedOption.name : label),
@@ -100,7 +101,7 @@ const FilterMenu = memo(({ label, value, options, onSelect, renderIcon }: Filter
 
   return (
     <Menu>
-      <MenuButton as={Button} rightIcon={chevronDownIcon} minW='160px' data-testid={`yield-filter-${label.toLowerCase().replace(/\s+/g, '-')}`}>
+      <MenuButton as={Button} rightIcon={chevronDownIcon} minW='160px' data-testid={testId}>
         <HStack spacing={2}>
           {selectedIcon}
           <Text isTruncated maxW='120px'>
@@ -216,6 +217,7 @@ export const YieldFilters = memo(
       >
         <FilterMenu
           label={allNetworksLabel}
+          testId='yield-filter-network'
           value={selectedNetwork}
           options={networks}
           onSelect={onSelectNetwork}
@@ -223,6 +225,7 @@ export const YieldFilters = memo(
         />
         <FilterMenu
           label={allProvidersLabel}
+          testId='yield-filter-provider'
           value={selectedProvider}
           options={providers}
           onSelect={onSelectProvider}
@@ -230,6 +233,7 @@ export const YieldFilters = memo(
         />
         <FilterMenu
           label={allTypesLabel}
+          testId='yield-filter-type'
           value={selectedType}
           options={types}
           onSelect={onSelectType}

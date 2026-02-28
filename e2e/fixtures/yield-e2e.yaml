@@ -344,7 +344,7 @@ steps:
       1. Does the drawer actually open? If not, hard fail.
       2. Are all 5 tabs present (My Crypto, Accounts, Watchlist, DeFi, Activity)?
          If DeFi tab is missing, hard fail.
-      3. After 30s wait, does [data-testid="defi-earn-position-table"] appear?
+      3. After 30s wait, does [data-test="defi-earn-position-table"] appear?
          If still loading after 45s, SOFT FAIL — performance regression.
       4. Is the loading state a spinner, skeleton, or blank? If blank with no
          indicator, SOFT FAIL (bad UX).

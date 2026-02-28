@@ -33,6 +33,10 @@ All data-testid attributes added to yield/earn components for E2E testing.
 - `yield-detail-page` — Detail page container
 - `yield-detail-back-button` — Back navigation button
 
+## Yield Asset Details Page (`src/pages/Yields/YieldAssetDetails.tsx`)
+- `yield-asset-details-page` — Asset details page container
+- `yield-asset-details-back-button` — Back navigation button
+
 ## Yield Hero (`src/pages/Yields/components/YieldHero.tsx`)
 - `yield-hero` — Hero section container
 - `yield-hero-apy-badge` — APY badge

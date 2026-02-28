@@ -101,7 +101,7 @@ type FormHeaderProps = {
   activeIndex: number
 }
 
-type FormHeaderTabProps = {
+type FormHeaderTabProps = React.ComponentProps<typeof Button> & {
   index: number
   onClick: (index: number) => void
   isActive?: boolean
@@ -109,7 +109,13 @@ type FormHeaderTabProps = {
 
 const activeStyle = { color: 'text.base' }
 
-const FormHeaderTab: React.FC<FormHeaderTabProps> = ({ index, onClick, isActive, children }) => {
+const FormHeaderTab: React.FC<FormHeaderTabProps> = ({
+  index,
+  onClick,
+  isActive,
+  children,
+  ...rest
+}) => {
   const handleClick = useCallback(() => {
     onClick(index)
   }, [index, onClick])
@@ -120,6 +126,7 @@ const FormHeaderTab: React.FC<FormHeaderTabProps> = ({ index, onClick, isActive,
       variant='unstyled'
       color='text.subtle'
       _active={activeStyle}
+      {...rest}
     >
       {children}
     </Button>

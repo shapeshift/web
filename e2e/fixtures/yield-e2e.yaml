@@ -56,6 +56,23 @@ description: >
      the browser Network tab for response details — failures may originate
      from the yield.xyz API, not the UI itself.
 
+  === BUG INVESTIGATION (CRITICAL) ===
+
+  When you find a potential bug, DON'T just report it — INVESTIGATE it:
+  1. Verify you're looking at the exact same yield ID + account ID + chain.
+     A "discrepancy" between two different yields isn't a bug.
+  2. Check network requests (JS eval or Network tab) — what did the API
+     actually return vs what the UI shows? Include raw API data.
+  3. Read the codebase (~/Sites/shapeshiftWeb) — grep for the component,
+     selector, or API call. Understand WHERE the bug originates.
+  4. Cross-reference the same data across multiple surfaces (detail page,
+     My Positions list, DeFi drawer, trade earn tab).
+  5. Navigate freely in the app to verify — just don't execute transactions
+     outside constraints.
+  6. Write up with confidence: expected, actual, API response, code
+     analysis, and your conclusion. Not "possible bug" — "confirmed bug
+     in X component because Y".
+
   === BUG DETECTION PHILOSOPHY ===
 
   SOFT FAILS (visual/data bugs — fixture continues, bug is logged):
@@ -109,6 +126,16 @@ description: >
      The only valid reasons to skip are: minimum exceeds $3 ceiling,
      budget exhausted, or the asset/chain is genuinely unavailable.
   9. Skipped steps are marked PASSED with an explanation, NEVER failed.
+  10. SPEND TRACKING: The real cost of a run = gas fees + protocol
+      fees/slippage (deposit amount minus position value) + any deposits
+      that cannot be withdrawn. Track the delta between deposit amount
+      and resulting position value — the difference is real spend.
+  11. Before depositing >$3 (only allowed if instant withdrawal confirmed):
+      verify the yield supports INSTANT withdrawal (not delayed/unbonding).
+      Check the API response, UI warnings, or yield type. If withdrawal
+      is delayed, treat the $3 ceiling as absolute.
+  12. KNOWN: Mantle mETH has a 0.02 ETH (~$38) minimum AND its Unstake
+      button is disabled in the UI. Do NOT deposit into Mantle.
 
   === INTERACTION RULES ===
   - Use JS eval for clicking (write to /tmp/ first, no smart quotes)

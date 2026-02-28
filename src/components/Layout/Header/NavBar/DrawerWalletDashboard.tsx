@@ -223,11 +223,11 @@ export const DrawerWalletDashboard: FC<DrawerWalletDashboardProps> = memo(
               height='100%'
             >
               <TabList bg='transparent' borderWidth={0} pt={2} pb={0} px={4} gap={2} flexShrink={0}>
-                <Tab>{translate('dashboard.portfolio.myCrypto')} </Tab>
-                <Tab>{translate('accounts.accounts')}</Tab>
-                <Tab>{translate('watchlist.title')}</Tab>
-                <Tab>{translate('navBar.defi')}</Tab>
-                <Tab>{translate('common.activity')}</Tab>
+                <Tab data-testid='drawer-tab-my-crypto'>{translate('dashboard.portfolio.myCrypto')} </Tab>
+                <Tab data-testid='drawer-tab-accounts'>{translate('accounts.accounts')}</Tab>
+                <Tab data-testid='drawer-tab-watchlist'>{translate('watchlist.title')}</Tab>
+                <Tab data-testid='drawer-tab-defi'>{translate('navBar.defi')}</Tab>
+                <Tab data-testid='drawer-tab-activity'>{translate('common.activity')}</Tab>
               </TabList>
               <TabPanels flex='1' overflow='auto' maxHeight={'100%'}>
                 <TabPanel px={2} pb={4} height='100%'>

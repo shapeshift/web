@@ -236,5 +236,5 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
 
   if (!filteredDown.length) return null
 
-  return <ReactTable data={filteredDown} columns={columns} />
+  return <ReactTable data={filteredDown} columns={columns} data-testid='lp-positions-table' />
 }

@@ -360,6 +360,7 @@ export const YieldPositionCard = memo(
                 colorScheme='green'
                 variant='solid'
                 onClick={() => handleWithdrawClick(entry.actionIndex)}
+                data-testid='yield-position-withdraw-button'
               >
                 {translate('common.withdraw')}
               </Button>
@@ -399,6 +400,7 @@ export const YieldPositionCard = memo(
                   variant='solid'
                   onClick={handleClaimClick}
                   isDisabled={!canClaim}
+                  data-testid='yield-position-claim-button'
                 >
                   {translate('common.claim')}
                 </Button>
@@ -449,7 +451,7 @@ export const YieldPositionCard = memo(
 
     if (!accountId) {
       return (
-        <Card variant='dashboard'>
+        <Card variant='dashboard' data-testid='yield-position-card'>
           <CardBody p={{ base: 4, md: 5 }}>
             <Flex justifyContent='space-between' alignItems='center' mb={4}>
               <Heading
@@ -482,6 +484,7 @@ export const YieldPositionCard = memo(
                 onClick={handleConnectWallet}
                 width='full'
                 fontWeight='bold'
+                data-testid='yield-position-connect-wallet'
               >
                 {translate('common.connectWallet')}
               </Button>
@@ -507,7 +510,7 @@ export const YieldPositionCard = memo(
     }
 
     return (
-      <Card>
+      <Card data-testid='yield-position-card'>
         <CardBody p={{ base: 4, md: 5 }}>
           <Flex justifyContent='space-between' alignItems='center' mb={4}>
             <Heading as='h3' size='sm' color='text.subtle'>
@@ -549,6 +552,7 @@ export const YieldPositionCard = memo(
                       ? translate('yieldXYZ.depositsDisabledDescription')
                       : undefined
                   }
+                  data-testid='yield-position-enter-button'
                 >
                   {enterLabel}
                 </Button>
@@ -564,6 +568,7 @@ export const YieldPositionCard = memo(
                       flex={1}
                       fontWeight='bold'
                       isDisabled={isExitDisabled}
+                      data-testid='yield-position-exit-button'
                     >
                       {exitLabel}
                     </Button>

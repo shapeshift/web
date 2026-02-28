@@ -124,6 +124,7 @@ const YieldItem = memo(
         _hover={hoverBg}
         transition='all 0.2s'
         textAlign='left'
+        data-testid={`earn-yield-option-${yieldItem.id}`}
       >
         <HStack spacing={3} width='full'>
           <Avatar
@@ -266,6 +267,7 @@ export const YieldSelector = memo(
           onClick={handleOpen}
           rightIcon={chevronDownIcon}
           justifyContent='space-between'
+          data-testid='earn-yield-selector'
         >
           {selectedYield && selectedDisplayInfo ? (
             <HStack spacing={3} flex={1}>
@@ -296,7 +298,7 @@ export const YieldSelector = memo(
           )}
         </Button>
 
-        <Dialog isOpen={isOpen} onClose={handleClose} height='80vh'>
+        <Dialog isOpen={isOpen} onClose={handleClose} height='80vh' data-testid='earn-yield-selector-modal'>
           <DialogHeader>
             <DialogHeader.Left>{null}</DialogHeader.Left>
             <DialogHeader.Middle>
@@ -317,6 +319,7 @@ export const YieldSelector = memo(
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   variant='filled'
+                  data-testid='earn-yield-search-input'
                 />
               </InputGroup>
 

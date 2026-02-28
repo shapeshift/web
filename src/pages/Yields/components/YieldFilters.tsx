@@ -100,7 +100,7 @@ const FilterMenu = memo(({ label, value, options, onSelect, renderIcon }: Filter
 
   return (
     <Menu>
-      <MenuButton as={Button} rightIcon={chevronDownIcon} minW='160px'>
+      <MenuButton as={Button} rightIcon={chevronDownIcon} minW='160px' data-testid={`yield-filter-${label.toLowerCase().replace(/\s+/g, '-')}`}>
         <HStack spacing={2}>
           {selectedIcon}
           <Text isTruncated maxW='120px'>
@@ -241,6 +241,7 @@ export const YieldFilters = memo(
               aria-label='Sort'
               icon={sortIcon}
               width={{ base: 'full', md: 'auto' }}
+              data-testid='yield-filter-sort'
             />
           </Tooltip>
           <MenuList zIndex='banner' maxH='300px' overflowY='auto'>

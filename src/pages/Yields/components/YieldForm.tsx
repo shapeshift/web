@@ -580,7 +580,7 @@ export const YieldForm = memo(
 
     const percentButtons = useMemo(
       () => (
-        <HStack spacing={2} justify='center' width='full'>
+        <HStack spacing={2} justify='center' width='full' data-testid='yield-form-percent-buttons'>
           {PRESET_PERCENTAGES.map(percent => {
             const isSelected = selectedPercent === percent
             return (
@@ -596,6 +596,7 @@ export const YieldForm = memo(
                 px={4}
                 fontWeight='medium'
                 isDisabled={isInputDisabled}
+                data-testid={`yield-form-percent-${percent === 1 ? 'max' : `${percent * 100}`}`}
               >
                 {percent === 1 ? translate('modals.send.sendForm.max') : `${percent * 100}%`}
               </Button>
@@ -775,6 +776,7 @@ export const YieldForm = memo(
             role='button'
             tabIndex={0}
             aria-label={translate('trade.switchCurrency')}
+            data-testid='yield-form-currency-toggle'
             onKeyDown={e => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault()
@@ -909,6 +911,7 @@ export const YieldForm = memo(
               isSubmitting ? translate('common.confirming') : translate('yieldXYZ.loadingQuote')
             }
             onClick={isConnected ? handleConfirm : handleConnectWallet}
+            data-testid='yield-form-submit-button'
           >
             {buttonText}
           </Button>

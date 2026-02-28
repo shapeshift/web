@@ -81,7 +81,7 @@ export const TCYHeader = ({ currentAccount, onAccountNumberChange }: TCYHeaderPr
 
   return (
     <>
-      <PageHeader>
+      <PageHeader data-testid='tcy-header'>
         <SEO title={translate('TCY.staking')} />
         <Display.Mobile>
           <PageHeader.Left>

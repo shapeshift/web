@@ -409,7 +409,7 @@ export const BorrowConfirm = ({
 
   return (
     <SlideTransition>
-      <Flex flexDir='column' width='full'>
+      <Flex flexDir='column' width='full' data-testid='lending-borrow-confirm'>
         <CardHeader>
           <WithBackButton onBack={handleBack}>
             <Heading as='h5' textAlign='center'>

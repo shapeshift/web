@@ -540,12 +540,13 @@ export const YieldAssetDetails = memo(() => {
   ])
 
   return (
-    <Container maxW='1200px' py={{ base: 4, md: 8 }} px={{ base: 4, md: 6 }}>
+    <Container maxW='1200px' py={{ base: 4, md: 8 }} px={{ base: 4, md: 6 }} data-testid='yield-asset-details-page'>
       <Button
         leftIcon={<ArrowBackIcon />}
         variant='ghost'
         onClick={() => navigate('/yields')}
         mb={6}
+        data-testid='yield-asset-details-back-button'
       >
         {translate('common.back')}
       </Button>

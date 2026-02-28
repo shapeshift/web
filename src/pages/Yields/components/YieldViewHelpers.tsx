@@ -19,13 +19,14 @@ export const ViewToggle = memo(({ viewMode, setViewMode }: ViewToggleProps) => {
   const handleSetListView = useCallback(() => setViewMode('list'), [setViewMode])
 
   return (
-    <ButtonGroup size='md' isAttached variant='outline' width={{ base: 'full', md: 'auto' }}>
+    <ButtonGroup size='md' isAttached variant='outline' width={{ base: 'full', md: 'auto' }} data-testid='yields-view-toggle'>
       <IconButton
         aria-label='Grid View'
         icon={gridIcon}
         onClick={handleSetGridView}
         isActive={isGridActive}
         flex={{ base: 1, md: 'none' }}
+        data-testid='yields-view-grid'
       />
       <IconButton
         aria-label='List View'
@@ -33,6 +34,7 @@ export const ViewToggle = memo(({ viewMode, setViewMode }: ViewToggleProps) => {
         onClick={handleSetListView}
         isActive={isListActive}
         flex={{ base: 1, md: 'none' }}
+        data-testid='yields-view-list'
       />
     </ButtonGroup>
   )

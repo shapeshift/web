@@ -135,11 +135,11 @@ const FormHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) =>
     [setStepIndex],
   )
   return (
-    <Flex px={6} py={4} gap={4}>
-      <FormHeaderTab index={0} onClick={handleClick} isActive={activeIndex === 0}>
+    <Flex px={6} py={4} gap={4} data-testid='pool-position-tabs'>
+      <FormHeaderTab index={0} onClick={handleClick} isActive={activeIndex === 0} data-testid='pool-add-liquidity-tab'>
         {translate('pools.addLiquidity')}
       </FormHeaderTab>
-      <FormHeaderTab index={1} onClick={handleClick} isActive={activeIndex === 1}>
+      <FormHeaderTab index={1} onClick={handleClick} isActive={activeIndex === 1} data-testid='pool-remove-liquidity-tab'>
         {translate('pools.removeLiquidity')}
       </FormHeaderTab>
     </Flex>

@@ -156,7 +156,7 @@ For each swapper-related PR, execute **at least 2 successful swaps**:
 
 ```bash
 # 1. Start local development environment
-yarn dev
+pnpm run dev
 
 # 2. Use browser automation (Playwright) or manual testing
 # Connect wallet and execute test swaps

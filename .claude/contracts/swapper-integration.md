@@ -56,9 +56,9 @@ Every new swapper must be registered in all of the following locations:
 ## Testing Checklist
 
 ### Automated Checks (MUST pass)
-- [ ] `yarn type-check` - All type checks pass
-- [ ] `yarn lint` - All lint checks pass
-- [ ] `yarn build:swapper` - Swapper package builds
+- [ ] `pnpm run type-check` - All type checks pass
+- [ ] `pnpm run lint` - All lint checks pass
+- [ ] `pnpm run build:swapper` - Swapper package builds
 - [ ] No `any` types used
 - [ ] All errors handled monadically (`Result<T, SwapErrorRight>`)
 

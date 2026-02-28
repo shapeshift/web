@@ -41,5 +41,5 @@ watchman watch [path-to-package]
 - In a different terminal window, run the typescript server inside the package.
 
 ```bash
-yarn dev
+pnpm run dev
 ```

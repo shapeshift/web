@@ -7,13 +7,8 @@
 .claude/plan.md
 .claude/plans/
 
-# no zero installs
+# Yarn PnP (legacy, safe to keep)
 .pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
 
 # generated files
 packages/unchained-client/src/generated

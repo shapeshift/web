@@ -14,21 +14,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        run: corepack enable && corepack prepare pnpm@10.30.3 --activate
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: Cache node_modules
         uses: actions/cache@v4
         with:
           path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: ${{ runner.os }}-node-
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-node-modules-
 
-      - name: Yarn Install
-        run: yarn install --immutable
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
 
   call-pr-workflow:
     name: Call

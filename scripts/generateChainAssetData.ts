@@ -91,8 +91,8 @@ const main = async () => {
       .map(d => d.name)
       .sort()
 
-    console.error('Usage: yarn generate:chain <chainId>')
-    console.error('Example: yarn generate:chain eip155:59144')
+    console.error('Usage: pnpm run generate:chain <chainId>')
+    console.error('Example: pnpm run generate:chain eip155:59144')
     console.error(`\nAvailable chains: ${dirs.join(', ')}`)
     process.exit(1)
   }

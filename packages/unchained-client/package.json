@@ -21,14 +21,14 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn generate && yarn run -T tsc --build && yarn postbuild",
-    "build:docker": "yarn clean:dist && yarn run -T tsc --build && yarn postbuild",
+    "build": "pnpm run clean && pnpm run generate && pnpm exec tsc --build && pnpm run postbuild",
+    "build:docker": "pnpm run clean:dist && pnpm exec tsc --build && pnpm run postbuild",
     "clean": "rm -rf dist src/generated",
     "clean:dist": "rm -rf dist",
-    "dev": "yarn run -T tsc --build --watch",
+    "dev": "pnpm exec tsc --build --watch",
     "generate": "TS_POST_PROCESS_FILE=./generator/post_process.sh JAVA_OPTS='-Dlog.level=error' openapi-generator-cli generate",
-    "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",
-    "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
+    "postbuild": "pnpm run postbuild:esm && pnpm run postbuild:cjs",
+    "postbuild:esm": "pnpm exec tsc-esm-fix --target=dist/esm --ext=.js",
     "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   },
   "dependencies": {

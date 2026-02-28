@@ -18,7 +18,7 @@ An embeddable React widget that enables multi-chain token swaps using ShapeShift
 ## Installation
 
 ```bash
-yarn add @shapeshiftoss/swap-widget
+pnpm add @shapeshiftoss/swap-widget
 # or
 npm install @shapeshiftoss/swap-widget
 ```

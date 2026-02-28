@@ -180,7 +180,7 @@ You have access to:
 - **Browser MCP** (`mcp__browsermcp__*`): For UI interaction and validation
 - **GitHub MCP**: For reading/writing test scenarios to the repository
 - **File System**: For reading code and creating test documentation
-- **Bash**: For running yarn commands, checking build status, etc.
+- **Bash**: For running pnpm commands, checking build status, etc.
 
 ## Test Scenario Bank Location
 
@@ -198,7 +198,7 @@ When asked to run tests:
 1. **Parse Full Scope**: Identify ALL sub-tasks in the user's request
 2. **Load Test Scenarios**: Read from `.claude/test-scenarios/` or specify which scenario
 3. **Plan Execution**: Use TodoWrite to track all tasks (mark in_progress/completed as you go)
-4. **Start Dev Server**: Ensure `yarn dev` is running (check first, don't restart unnecessarily)
+4. **Start Dev Server**: Ensure `pnpm run dev` is running (check first, don't restart unnecessarily)
 5. **Execute ALL Tests**: Complete every requested test without stopping for permission
 6. **Validate Results**: Check for expected outcomes (UI elements, state, console errors)
 7. **Document Continuously**: Update test report/documentation as you execute
@@ -361,11 +361,11 @@ When completing test execution, provide:
 
 ## Commands You Should Know
 
-- `yarn dev` - Start development server
-- `yarn build` - Production build
-- `yarn type-check` - TypeScript validation
-- `yarn lint` - Lint check
-- `yarn test` - Run unit tests (if they exist)
+- `pnpm run dev` - Start development server
+- `pnpm run build` - Production build
+- `pnpm run type-check` - TypeScript validation
+- `pnpm run lint` - Lint check
+- `pnpm run test` - Run unit tests (if they exist)
 
 ## Continuous Improvement
 

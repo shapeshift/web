@@ -91,6 +91,7 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
 
           <Box width={inputContainerWidth} sx={inputStyle}>
             <NumericFormat
+              data-testid='rfox-deposit-input'
               decimalScale={2}
               customInput={Input}
               valueIsNumericString={true}
@@ -125,6 +126,7 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
 
           <Box width={revenueInputContainerWidth} sx={inputStyle}>
             <NumericFormat
+              data-testid='rfox-revenue-input'
               decimalScale={2}
               customInput={Input}
               valueIsNumericString={true}

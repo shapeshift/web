@@ -62,6 +62,7 @@ const SavedWalletItem = ({ onSelect, isSelected, wallet }: SavedWalletItemProps)
       borderRadius='md'
       onClick={handleSelect}
       bg={isSelected ? bgColor : undefined}
+      data-testid={`native-wallet-${wallet.name}`}
     >
       <Flex alignItems='center' width='full'>
         <FoxIcon boxSize='24px' mr={3}>

@@ -14288,7 +14288,7 @@ __metadata:
     use-long-press: ^3.3.0
     uuid: ^9.0.0
     vaul: ^1.1.2
-    viem: 2.43.5
+    viem: 2.46.2
     vite: 6.4.1
     vite-bundle-analyzer: ^0.18.1
     vite-plugin-checker: ^0.9.1
@@ -36444,6 +36444,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ox@npm:0.12.4":
+  version: 0.12.4
+  resolution: "ox@npm:0.12.4"
+  dependencies:
+    "@adraffy/ens-normalize": ^1.11.0
+    "@noble/ciphers": ^1.3.0
+    "@noble/curves": 1.9.1
+    "@noble/hashes": ^1.8.0
+    "@scure/bip32": ^1.7.0
+    "@scure/bip39": ^1.6.0
+    abitype: ^1.2.3
+    eventemitter3: 5.0.1
+  peerDependencies:
+    typescript: ">=5.4.0"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 22ada789c2a069294c50500e1e6c116e8fbe86e270d93a2e6f4d4ebcf50d45f1aebfcfa6617c8ed20c61948887e9a3a9542a1fcf63d71c5e55f88d600b757049
+  languageName: node
+  linkType: hard
+
 "ox@npm:0.6.7":
   version: 0.6.7
   resolution: "ox@npm:0.6.7"
@@ -43976,6 +43997,27 @@ pvutils@latest:
     typescript:
       optional: true
   checksum: 19509464f9b27dda13bd0c3045c22675ff01d9357e3390d435e334c2d6204d1749e3f46752253cc1d9ad17411643e9369e6aaa44e42d1af45af1e17ac9181bad
+  languageName: node
+  linkType: hard
+
+"viem@npm:2.46.2":
+  version: 2.46.2
+  resolution: "viem@npm:2.46.2"
+  dependencies:
+    "@noble/curves": 1.9.1
+    "@noble/hashes": 1.8.0
+    "@scure/bip32": 1.7.0
+    "@scure/bip39": 1.6.0
+    abitype: 1.2.3
+    isows: 1.0.7
+    ox: 0.12.4
+    ws: 8.18.3
+  peerDependencies:
+    typescript: ">=5.0.4"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: ddad201b0fa5a9e0d2e6ec6f3b7cfe10aa5db7e7e60130a52688c7d7e0453288023a9b8f861ff9563823dceb7c5f473863042ffd51a23ccb6426e3347f176fb3
   languageName: node
   linkType: hard
 

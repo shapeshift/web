@@ -167,10 +167,13 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.BnbSmartChainMain
       const rawTxHex = hex.startsWith('0x') ? hex : `0x${hex}`
 
       for (const rpcUrl of BSC_PUBLIC_RPC_ENDPOINTS) {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 10_000)
         try {
           const response = await fetch(rpcUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
             body: JSON.stringify({
               jsonrpc: '2.0',
               method: 'eth_sendRawTransaction',
@@ -191,6 +194,8 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.BnbSmartChainMain
           }
         } catch (rpcErr) {
           console.warn(`[BSC] Fallback RPC ${rpcUrl} failed:`, rpcErr)
+        } finally {
+          clearTimeout(timeoutId)
         }
       }
 

@@ -170,7 +170,7 @@ For each of these, RESEARCH whether the service actually supports the new chain 
 33. **WalletConnect V2** - `src/context/WalletProvider/WalletConnectV2/config.ts`
     - All EVM second-class chains MUST be added here for WalletConnect wallet connectivity
     - Four touchpoints in the file, all required:
-      1. **viem import**: Add `<viemChainName>` to the `import { ... } from 'viem/chains'` block (alphabetically sorted)
+      1. **viem import**: Add `<viemChainName>` to the `import { ... } from 'viem/chains'` block (append at end per Phase 4.5 convention)
       2. **optionalViemChains**: If feature-flagged, add `if (config.VITE_FEATURE_<CHAIN>) { optionalViemChains.push(<viemChainName>) }` block before the length check. If not flagged, add to the hardcoded array.
       3. **Config destructuring**: Add `VITE_<CHAIN>_NODE_URL` to the `const { ... } = config` destructuring
       4. **rpcMap**: If feature-flagged, add `if (config.VITE_FEATURE_<CHAIN>) { walletConnectV2RpcMap[CHAIN_REFERENCE.<Chain>Mainnet] = VITE_<CHAIN>_NODE_URL }` block. If not flagged, add to the hardcoded rpcMap object.

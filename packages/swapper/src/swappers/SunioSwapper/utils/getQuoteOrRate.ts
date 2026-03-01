@@ -2,6 +2,7 @@ import { tronChainId } from '@shapeshiftoss/caip'
 import { BigAmount, bn, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { TronWeb } from 'tronweb'
 
 import type {
   CommonTradeQuoteInput,
@@ -14,17 +15,110 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { DEFAULT_SLIPPAGE_PERCENTAGE, SUNIO_SMART_ROUTER_CONTRACT } from './constants'
+import type { SunioRoute } from '../types'
+import {
+  DEFAULT_SLIPPAGE_PERCENTAGE,
+  SUNIO_SMART_ROUTER_CONTRACT,
+  SUNIO_TRON_NATIVE_ADDRESS,
+} from './constants'
+import { convertAddressesToEvmFormat } from './convertAddressesToEvmFormat'
 import { fetchSunioQuote } from './fetchFromSunio'
 import { isSupportedChainId } from './helpers/helpers'
 import { sunioServiceFactory } from './sunioService'
 
 const ENERGY_PRICE = 100
-const BANDWIDTH_PRICE = 1000
 const USER_ENERGY_SHARE = 0.6
-const ENERGY_PER_HOP_TRX_SELL = 65_000
-const ENERGY_PER_HOP_TRC20_SELL = 85_000
-const SAFETY_MARGIN = 1.1
+const BASE_ENERGY_PER_HOP = 65_000
+const TOKEN_ENERGY_SHARE = 0.5
+const ENERGY_FACTOR_CACHE_TTL_MS = 6 * 60 * 60 * 1000
+
+const energyFactorCache = new Map<string, { value: number; expiry: number }>()
+
+const simulateSwapEnergy = async (
+  route: SunioRoute,
+  sellAmountCryptoBaseUnit: string,
+  senderAddress: string,
+  isSellingNativeTrx: boolean,
+  rpcUrl: string,
+): Promise<number | undefined> => {
+  try {
+    const tronWeb = new TronWeb({ fullHost: rpcUrl })
+
+    const path = route.tokens
+    const poolVersion = route.poolVersions
+    const versionLen = Array(poolVersion.length).fill(2)
+    const fees = route.poolFees.map(fee => Number(fee))
+
+    const swapData = {
+      amountIn: sellAmountCryptoBaseUnit,
+      amountOutMin: '0',
+      recipient: senderAddress,
+      deadline: Math.floor(Date.now() / 1000) + 60 * 20,
+    }
+
+    const parameters = [
+      { type: 'address[]', value: path },
+      { type: 'string[]', value: poolVersion },
+      { type: 'uint256[]', value: versionLen },
+      { type: 'uint24[]', value: fees },
+      {
+        type: 'tuple(uint256,uint256,address,uint256)',
+        value: convertAddressesToEvmFormat([
+          swapData.amountIn,
+          swapData.amountOutMin,
+          swapData.recipient,
+          swapData.deadline,
+        ]),
+      },
+    ]
+
+    const functionSelector =
+      'swapExactInput(address[],string[],uint256[],uint24[],(uint256,uint256,address,uint256))'
+
+    const result = await tronWeb.transactionBuilder.triggerConstantContract(
+      SUNIO_SMART_ROUTER_CONTRACT,
+      functionSelector,
+      { callValue: isSellingNativeTrx ? Number(sellAmountCryptoBaseUnit) : 0 },
+      parameters,
+      senderAddress,
+    )
+
+    if (!result?.energy_used) return undefined
+
+    return result.energy_used + (result.energy_penalty ?? 0)
+  } catch {
+    return undefined
+  }
+}
+
+const getTokenEnergyFactor = async (
+  rawContractAddress: string,
+  rpcUrl: string,
+): Promise<number> => {
+  const contractAddress = rawContractAddress.toLowerCase()
+  const now = Date.now()
+  const cached = energyFactorCache.get(contractAddress)
+  if (cached && now < cached.expiry) return cached.value
+
+  try {
+    const response = await fetch(`${rpcUrl}/wallet/getcontractinfo`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value: rawContractAddress, visible: true }),
+    })
+    const data = await response.json()
+    const energyFactor: number = data?.contract_state?.energy_factor ?? 0
+
+    energyFactorCache.set(contractAddress, {
+      value: energyFactor,
+      expiry: now + ENERGY_FACTOR_CACHE_TTL_MS,
+    })
+
+    return energyFactor
+  } catch {
+    return 0
+  }
+}
 
 export async function getQuoteOrRate(
   input: GetTronTradeQuoteInput | CommonTradeQuoteInput,
@@ -45,6 +139,7 @@ export async function getQuoteOrRate(
       sellAsset,
       buyAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      sendAddress,
       receiveAddress,
       accountNumber,
       affiliateBps,
@@ -125,30 +220,49 @@ export async function getQuoteOrRate(
     const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
     const isSellingNativeTrx = !contractAddress
     const hopCount = bestRoute.tokens.length - 1
-    const energyPerHop = isSellingNativeTrx ? ENERGY_PER_HOP_TRX_SELL : ENERGY_PER_HOP_TRC20_SELL
-    const totalEnergy = Math.ceil(hopCount * energyPerHop * SAFETY_MARGIN)
-    const userEnergy = totalEnergy * USER_ENERGY_SHARE
-    const energyFee = userEnergy * ENERGY_PRICE
-    const bandwidthFee = 1100 * BANDWIDTH_PRICE
+    const rpcUrl = deps.config.VITE_TRON_NODE_URL
 
-    let accountActivationFee = 0
-    if (receiveAddress) {
-      try {
-        const rpcUrl = deps.config.VITE_TRON_NODE_URL
-        const recipientInfoResponse = await fetch(`${rpcUrl}/wallet/getaccount`, {
+    const simulationPromise = sendAddress
+      ? simulateSwapEnergy(
+          bestRoute,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          sendAddress,
+          isSellingNativeTrx,
+          rpcUrl,
+        )
+      : Promise.resolve(undefined)
+
+    const accountActivationPromise = receiveAddress
+      ? fetch(`${rpcUrl}/wallet/getaccount`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ address: receiveAddress, visible: true }),
         })
-        const recipientInfo = await recipientInfoResponse.json()
-        const recipientExists = recipientInfo && Object.keys(recipientInfo).length > 1
-        if (!recipientExists) {
-          accountActivationFee = 1_000_000
-        }
-      } catch {
-        // Ignore activation check errors
-      }
+          .then(res => res.json())
+          .then(info => (info && Object.keys(info).length > 1 ? 0 : 1_000_000))
+          .catch(() => 0)
+      : Promise.resolve(0)
+
+    const [simulatedEnergy, accountActivationFee] = await Promise.all([
+      simulationPromise,
+      accountActivationPromise,
+    ])
+
+    let totalEnergy: number
+    if (simulatedEnergy) {
+      totalEnergy = simulatedEnergy
+    } else {
+      const sellTokenAddress = contractAddress ?? SUNIO_TRON_NATIVE_ADDRESS
+      const energyFactor = isSellingNativeTrx
+        ? 0
+        : await getTokenEnergyFactor(sellTokenAddress, rpcUrl)
+      const penaltyMultiplier = 1 + (TOKEN_ENERGY_SHARE * energyFactor) / 10000
+      totalEnergy = Math.ceil(BASE_ENERGY_PER_HOP * hopCount * penaltyMultiplier)
     }
+
+    const userEnergy = totalEnergy * USER_ENERGY_SHARE
+    const energyFee = userEnergy * ENERGY_PRICE
+    const bandwidthFee = 1_100_000
 
     const networkFeeCryptoBaseUnit = bn(energyFee)
       .plus(bandwidthFee)

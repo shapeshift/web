@@ -32,7 +32,7 @@ const extractSymbolFromError = (message: string): string | undefined => {
     if (TOKEN_SYMBOLS.includes(candidate)) return candidate
   }
   // Match any known token symbol in the message
-  return TOKEN_SYMBOLS.find(sym => upper.includes(sym))
+  return TOKEN_SYMBOLS.find(sym => new RegExp(`\\b${sym}\\b`).test(upper))
 }
 
 /**
@@ -63,7 +63,7 @@ export const getYieldQuoteErrorTranslation = (error: unknown): QuoteErrorTransla
     combinedLower.includes('minimum') &&
     (combinedLower.includes('stake') || combinedLower.includes('deposit'))
   ) {
-    return { key: 'yieldXYZ.belowMinimum' }
+    return { key: 'earn.belowMinimum' }
   }
 
   // Network / chain not supported

@@ -6,11 +6,15 @@ import {
   avalancheChainId,
   baseChainId,
   berachainChainId,
+  blastChainId,
   bobChainId,
   bscChainId,
+  celoChainId,
   cronosChainId,
   ethChainId,
+  flowEvmChainId,
   gnosisChainId,
+  hemiChainId,
   hyperEvmChainId,
   inkChainId,
   katanaChainId,
@@ -22,16 +26,22 @@ import {
   nearChainId,
   optimismChainId,
   plasmaChainId,
+  plumeChainId,
   polygonChainId,
   scrollChainId,
+  seiChainId,
   solanaChainId,
+  soneiumChainId,
   sonicChainId,
   starknetChainId,
+  storyChainId,
   suiChainId,
   toAssetId,
   tonChainId,
   tronChainId,
   unichainChainId,
+  worldChainChainId,
+  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import {
@@ -39,11 +49,15 @@ import {
   avax,
   base,
   berachain,
+  blast,
   bnbsmartchain,
   bobChain,
+  celo,
   cronos,
   ethereum,
+  flowEvm,
   gnosis,
+  hemi,
   hyperevm,
   ink,
   katana,
@@ -55,14 +69,20 @@ import {
   near,
   optimism,
   plasma,
+  plume,
   polygon,
   scroll,
+  sei,
   solana,
+  soneium,
   sonic,
+  story,
   sui,
   ton,
   tron,
   unichainChain,
+  worldchain,
+  zkSyncEra,
 } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
@@ -201,6 +221,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorerAddressLink: megaeth.explorerAddressLink,
           explorerTxLink: megaeth.explorerTxLink,
         }
+      case worldChainChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: worldchain.explorer,
+          explorerAddressLink: worldchain.explorerAddressLink,
+          explorerTxLink: worldchain.explorerTxLink,
+        }
       case lineaChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.erc20,
@@ -232,6 +260,70 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: katana.explorer,
           explorerAddressLink: katana.explorerAddressLink,
           explorerTxLink: katana.explorerTxLink,
+        }
+      case flowEvmChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: flowEvm.explorer,
+          explorerAddressLink: flowEvm.explorerAddressLink,
+          explorerTxLink: flowEvm.explorerTxLink,
+        }
+      case celoChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: celo.explorer,
+          explorerAddressLink: celo.explorerAddressLink,
+          explorerTxLink: celo.explorerTxLink,
+        }
+      case plumeChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: plume.explorer,
+          explorerAddressLink: plume.explorerAddressLink,
+          explorerTxLink: plume.explorerTxLink,
+        }
+      case storyChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: story.explorer,
+          explorerAddressLink: story.explorerAddressLink,
+          explorerTxLink: story.explorerTxLink,
+        }
+      case zkSyncEraChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: zkSyncEra.explorer,
+          explorerAddressLink: zkSyncEra.explorerAddressLink,
+          explorerTxLink: zkSyncEra.explorerTxLink,
+        }
+      case blastChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: blast.explorer,
+          explorerAddressLink: blast.explorerAddressLink,
+          explorerTxLink: blast.explorerTxLink,
+        }
+      case hemiChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: hemi.explorer,
+          explorerAddressLink: hemi.explorerAddressLink,
+          explorerTxLink: hemi.explorerTxLink,
+        }
+      case seiChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: sei.explorer,
+          explorerAddressLink: sei.explorerAddressLink,
+          explorerTxLink: sei.explorerTxLink,
         }
       case berachainChainId:
         return {
@@ -272,6 +364,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: modeChain.explorer,
           explorerAddressLink: modeChain.explorerAddressLink,
           explorerTxLink: modeChain.explorerTxLink,
+        }
+      case soneiumChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: soneium.explorer,
+          explorerAddressLink: soneium.explorerAddressLink,
+          explorerTxLink: soneium.explorerTxLink,
         }
       case solanaChainId:
         return {

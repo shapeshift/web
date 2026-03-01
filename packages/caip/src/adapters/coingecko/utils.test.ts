@@ -176,6 +176,9 @@ describe('adapters:coingecko:utils', () => {
         'eip155:9745': {
           'eip155:9745/slip44:60': 'plasma',
         },
+        'eip155:480': {
+          'eip155:480/slip44:60': 'ethereum',
+        },
         'eip155:4326': {
           'eip155:4326/slip44:60': 'ethereum',
         },
@@ -187,6 +190,24 @@ describe('adapters:coingecko:utils', () => {
         },
         'eip155:747474': {
           'eip155:747474/slip44:60': 'katana',
+        },
+        'eip155:747': {
+          'eip155:747/slip44:60': 'flow',
+        },
+        'eip155:42220': {
+          'eip155:42220/slip44:60': 'celo',
+        },
+        'eip155:1514': {
+          'eip155:1514/slip44:60': 'story-2',
+        },
+        'eip155:324': {
+          'eip155:324/slip44:60': 'ethereum',
+        },
+        'eip155:81457': {
+          'eip155:81457/slip44:60': 'ethereum',
+        },
+        'eip155:43111': {
+          'eip155:43111/slip44:60': 'ethereum',
         },
         'eip155:5000': {
           'eip155:5000/slip44:60': 'mantle',
@@ -211,6 +232,12 @@ describe('adapters:coingecko:utils', () => {
         },
         'eip155:34443': {
           'eip155:34443/slip44:60': 'ethereum',
+        },
+        'eip155:1868': {
+          'eip155:1868/slip44:60': 'ethereum',
+        },
+        'eip155:98866': {
+          'eip155:98866/slip44:60': 'plume',
         },
         'near:mainnet': {
           'near:mainnet/slip44:397': 'near',

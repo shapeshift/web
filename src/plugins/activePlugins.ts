@@ -4,13 +4,18 @@ import base from '@/plugins/base'
 import berachain from '@/plugins/berachain'
 import bitcoin from '@/plugins/bitcoin'
 import bitcoincash from '@/plugins/bitcoincash'
+import blast from '@/plugins/blast'
 import bnbsmartchain from '@/plugins/bnbsmartchain'
 import bob from '@/plugins/bob'
+import celo from '@/plugins/celo'
 import cosmos from '@/plugins/cosmos'
 import cronos from '@/plugins/cronos'
 import dogecoin from '@/plugins/dogecoin'
+import ethereal from '@/plugins/ethereal'
 import ethereum from '@/plugins/ethereum'
+import flowEvm from '@/plugins/flowEvm'
 import gnosis from '@/plugins/gnosis'
+import hemi from '@/plugins/hemi'
 import hyperevm from '@/plugins/hyperevm'
 import ink from '@/plugins/ink'
 import katana from '@/plugins/katana'
@@ -25,18 +30,24 @@ import monad from '@/plugins/monad'
 import near from '@/plugins/near'
 import optimism from '@/plugins/optimism'
 import plasma from '@/plugins/plasma'
+import plume from '@/plugins/plume'
 import polygon from '@/plugins/polygon'
 import scroll from '@/plugins/scroll'
+import sei from '@/plugins/sei'
 import solana from '@/plugins/solana'
+import soneium from '@/plugins/soneium'
 import sonic from '@/plugins/sonic'
 import starknet from '@/plugins/starknet'
+import story from '@/plugins/story'
 import sui from '@/plugins/sui'
 import thorchain from '@/plugins/thorchain'
 import ton from '@/plugins/ton'
 import tron from '@/plugins/tron'
 import unichain from '@/plugins/unichain'
 import walletConnectToDapps from '@/plugins/walletConnectToDapps'
+import worldchain from '@/plugins/worldchain'
 import zcash from '@/plugins/zcash'
+import zksyncera from '@/plugins/zksyncera'
 
 export const activePlugins = [
   arbitrum,
@@ -45,13 +56,18 @@ export const activePlugins = [
   berachain,
   bitcoin,
   bitcoincash,
+  blast,
   bnbsmartchain,
   bob,
+  celo,
   cosmos,
   cronos,
   dogecoin,
   ethereum,
+  ethereal,
+  flowEvm,
   gnosis,
+  hemi,
   hyperevm,
   ink,
   katana,
@@ -67,15 +83,21 @@ export const activePlugins = [
   near,
   optimism,
   plasma,
+  plume,
   polygon,
+  sei,
   scroll,
+  soneium,
   solana,
   sonic,
   starknet,
+  story,
   sui,
   thorchain,
   ton,
   tron,
   walletConnectToDapps,
+  worldchain,
   zcash,
+  zksyncera,
 ]

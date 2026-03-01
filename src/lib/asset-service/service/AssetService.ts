@@ -4,10 +4,15 @@ import {
   arbitrumChainId,
   baseChainId,
   berachainChainId,
+  blastChainId,
   bobChainId,
   bscChainId,
+  celoChainId,
   cronosChainId,
+  etherealChainId,
+  flowEvmChainId,
   gnosisChainId,
+  hemiChainId,
   hyperEvmChainId,
   inkChainId,
   katanaChainId,
@@ -19,16 +24,22 @@ import {
   monadChainId,
   nearChainId,
   optimismChainId,
+  plumeChainId,
   polygonChainId,
   scrollChainId,
+  seiChainId,
   solanaChainId,
+  soneiumChainId,
   sonicChainId,
   starknetChainId,
+  storyChainId,
   suiChainId,
   tonChainId,
   tronChainId,
   unichainChainId,
+  worldChainChainId,
   zecChainId,
+  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import { getBaseAsset } from '@shapeshiftoss/utils'
@@ -122,6 +133,7 @@ class _AssetService {
       const asset = localAssetData[assetId]
       if (!config.VITE_FEATURE_OPTIMISM && asset.chainId === optimismChainId) return false
       if (!config.VITE_FEATURE_BNBSMARTCHAIN && asset.chainId === bscChainId) return false
+      if (!config.VITE_FEATURE_CELO && asset.chainId === celoChainId) return false
       if (!config.VITE_FEATURE_POLYGON && asset.chainId === polygonChainId) return false
       if (!config.VITE_FEATURE_GNOSIS && asset.chainId === gnosisChainId) return false
       if (!config.VITE_FEATURE_ARBITRUM && asset.chainId === arbitrumChainId) return false
@@ -132,17 +144,27 @@ class _AssetService {
       if (!config.VITE_FEATURE_MONAD && asset.chainId === monadChainId) return false
       if (!config.VITE_FEATURE_HYPEREVM && asset.chainId === hyperEvmChainId) return false
       if (!config.VITE_FEATURE_KATANA && asset.chainId === katanaChainId) return false
+      if (!config.VITE_FEATURE_STORY && asset.chainId === storyChainId) return false
+      if (!config.VITE_FEATURE_PLUME && asset.chainId === plumeChainId) return false
+      if (!config.VITE_FEATURE_ZK_SYNC_ERA && asset.chainId === zkSyncEraChainId) return false
+      if (!config.VITE_FEATURE_BLAST && asset.chainId === blastChainId) return false
+      if (!config.VITE_FEATURE_WORLDCHAIN && asset.chainId === worldChainChainId) return false
+      if (!config.VITE_FEATURE_HEMI && asset.chainId === hemiChainId) return false
       if (!config.VITE_FEATURE_MANTLE && asset.chainId === mantleChainId) return false
       if (!config.VITE_FEATURE_INK && asset.chainId === inkChainId) return false
+      if (!config.VITE_FEATURE_ETHEREAL && asset.chainId === etherealChainId) return false
+      if (!config.VITE_FEATURE_FLOWEVM && asset.chainId === flowEvmChainId) return false
       if (!config.VITE_FEATURE_SONIC && asset.chainId === sonicChainId) return false
       if (!config.VITE_FEATURE_UNICHAIN && asset.chainId === unichainChainId) return false
       if (!config.VITE_FEATURE_BOB && asset.chainId === bobChainId) return false
       if (!config.VITE_FEATURE_MODE && asset.chainId === modeChainId) return false
       if (!config.VITE_FEATURE_MEGAETH && asset.chainId === megaethChainId) return false
+      if (!config.VITE_FEATURE_SEI && asset.chainId === seiChainId) return false
       if (!config.VITE_FEATURE_LINEA && asset.chainId === lineaChainId) return false
       if (!config.VITE_FEATURE_BERACHAIN && asset.chainId === berachainChainId) return false
       if (!config.VITE_FEATURE_SCROLL && asset.chainId === scrollChainId) return false
       if (!config.VITE_FEATURE_CRONOS && asset.chainId === cronosChainId) return false
+      if (!config.VITE_FEATURE_SONEIUM && asset.chainId === soneiumChainId) return false
       if (!config.VITE_FEATURE_MAYACHAIN && asset.chainId === mayachainChainId) return false
       if (!config.VITE_FEATURE_NEAR && asset.chainId === nearChainId) return false
       if (!config.VITE_FEATURE_ZCASH && asset.chainId === zecChainId) return false

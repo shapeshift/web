@@ -58,6 +58,26 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.Cronos
           case CHAIN_REFERENCE.KatanaMainnet:
             return ASSET_REFERENCE.Katana
+          case CHAIN_REFERENCE.EtherealMainnet:
+            return ASSET_REFERENCE.Ethereal
+          case CHAIN_REFERENCE.FlowEvmMainnet:
+            return ASSET_REFERENCE.FlowEvm
+          case CHAIN_REFERENCE.CeloMainnet:
+            return ASSET_REFERENCE.Celo
+          case CHAIN_REFERENCE.PlumeMainnet:
+            return ASSET_REFERENCE.Plume
+          case CHAIN_REFERENCE.StoryMainnet:
+            return ASSET_REFERENCE.Story
+          case CHAIN_REFERENCE.ZkSyncEraMainnet:
+            return ASSET_REFERENCE.ZkSyncEra
+          case CHAIN_REFERENCE.BlastMainnet:
+            return ASSET_REFERENCE.Blast
+          case CHAIN_REFERENCE.WorldChainMainnet:
+            return ASSET_REFERENCE.WorldChain
+          case CHAIN_REFERENCE.HemiMainnet:
+            return ASSET_REFERENCE.Hemi
+          case CHAIN_REFERENCE.SeiMainnet:
+            return ASSET_REFERENCE.Sei
           case CHAIN_REFERENCE.LineaMainnet:
             return ASSET_REFERENCE.Linea
           case CHAIN_REFERENCE.ScrollMainnet:
@@ -70,6 +90,8 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.Bob
           case CHAIN_REFERENCE.ModeMainnet:
             return ASSET_REFERENCE.Mode
+          case CHAIN_REFERENCE.SoneiumMainnet:
+            return ASSET_REFERENCE.Soneium
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

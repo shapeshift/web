@@ -354,6 +354,40 @@ export const plasma: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const plume: Readonly<Asset> = Object.freeze({
+  assetId: caip.plumeAssetId,
+  chainId: caip.plumeChainId,
+  name: 'Plume',
+  networkName: 'Plume',
+  symbol: 'PLUME',
+  precision: 18,
+  color: '#6C5DD3',
+  networkColor: '#6C5DD3',
+  icon: 'https://assets.coingecko.com/coins/images/49459/large/plume.jpg',
+  networkIcon: 'https://assets.coingecko.com/coins/images/49459/small/plume.jpg',
+  explorer: 'https://explorer.plume.org',
+  explorerAddressLink: 'https://explorer.plume.org/address/',
+  explorerTxLink: 'https://explorer.plume.org/tx/',
+  relatedAssetKey: null,
+})
+
+export const worldchain: Readonly<Asset> = Object.freeze({
+  assetId: caip.worldChainAssetId,
+  chainId: caip.worldChainChainId,
+  name: 'Ethereum',
+  networkName: 'World Chain',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#000000',
+  networkColor: '#000000',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.relay.link/icons/480/light.png',
+  explorer: 'https://worldscan.org',
+  explorerAddressLink: 'https://worldscan.org/address/',
+  explorerTxLink: 'https://worldscan.org/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
 export const mantle: Readonly<Asset> = Object.freeze({
   assetId: caip.mantleAssetId,
   chainId: caip.mantleChainId,
@@ -455,6 +489,143 @@ export const katana: Readonly<Asset> = Object.freeze({
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 
+export const flowEvm: Readonly<Asset> = Object.freeze({
+  assetId: caip.flowEvmAssetId,
+  chainId: caip.flowEvmChainId,
+  name: 'Flow',
+  networkName: 'Flow EVM',
+  symbol: 'FLOW',
+  precision: 18,
+  color: '#00EF8B',
+  networkColor: '#00EF8B',
+  icon: 'https://assets.coingecko.com/coins/images/13446/large/5f6294c0c7a8cda55cb1c936_Flow_Wordmark.png',
+  networkIcon:
+    'https://assets.coingecko.com/coins/images/13446/small/5f6294c0c7a8cda55cb1c936_Flow_Wordmark.png',
+  explorer: 'https://evm.flowscan.io',
+  explorerAddressLink: 'https://evm.flowscan.io/address/',
+  explorerTxLink: 'https://evm.flowscan.io/tx/',
+  relatedAssetKey: null,
+})
+
+export const ethereal: Readonly<Asset> = Object.freeze({
+  assetId: caip.etherealAssetId,
+  chainId: caip.etherealChainId,
+  name: 'USDe',
+  networkName: 'Ethereal',
+  symbol: 'USDe',
+  precision: 18,
+  color: '#4A90D9',
+  networkColor: '#4A90D9',
+  icon: 'https://assets.coingecko.com/coins/images/33613/large/USDE.png',
+  networkIcon: 'https://assets.relay.link/icons/5064014/light.png',
+  explorer: 'https://explorer.ethereal.global',
+  explorerAddressLink: 'https://explorer.ethereal.global/address/',
+  explorerTxLink: 'https://explorer.ethereal.global/tx/',
+  relatedAssetKey: null,
+})
+
+export const celo: Readonly<Asset> = Object.freeze({
+  assetId: caip.celoAssetId,
+  chainId: caip.celoChainId,
+  name: 'Celo',
+  networkName: 'Celo',
+  symbol: 'CELO',
+  precision: 18,
+  color: '#35D07F',
+  networkColor: '#35D07F',
+  icon: 'https://assets.coingecko.com/coins/images/11090/large/celo.png',
+  networkIcon: 'https://assets.coingecko.com/coins/images/11090/small/celo.png',
+  explorer: 'https://celoscan.io',
+  explorerAddressLink: 'https://celoscan.io/address/',
+  explorerTxLink: 'https://celoscan.io/tx/',
+  relatedAssetKey: null,
+})
+
+export const story: Readonly<Asset> = Object.freeze({
+  assetId: caip.storyAssetId,
+  chainId: caip.storyChainId,
+  name: 'Story',
+  networkName: 'Story',
+  symbol: 'IP',
+  precision: 18,
+  color: '#EA580C',
+  networkColor: '#EA580C',
+  icon: 'https://assets.coingecko.com/coins/images/51994/large/story-2.png',
+  networkIcon: 'https://assets.coingecko.com/coins/images/51994/small/story-2.png',
+  explorer: 'https://storyscan.xyz',
+  explorerAddressLink: 'https://storyscan.xyz/address/',
+  explorerTxLink: 'https://storyscan.xyz/tx/',
+  relatedAssetKey: null,
+})
+
+export const zkSyncEra: Readonly<Asset> = Object.freeze({
+  assetId: caip.zkSyncEraAssetId,
+  chainId: caip.zkSyncEraChainId,
+  name: 'Ethereum',
+  networkName: 'zkSync Era',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#8C8DFC',
+  networkColor: '#8C8DFC',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.relay.link/icons/324/light.png',
+  explorer: 'https://explorer.zksync.io',
+  explorerAddressLink: 'https://explorer.zksync.io/address/',
+  explorerTxLink: 'https://explorer.zksync.io/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
+export const blast: Readonly<Asset> = Object.freeze({
+  assetId: caip.blastAssetId,
+  chainId: caip.blastChainId,
+  name: 'Ethereum',
+  networkName: 'Blast',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#FCFC03',
+  networkColor: '#FCFC03',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.relay.link/icons/81457/light.png',
+  explorer: 'https://blastscan.io',
+  explorerAddressLink: 'https://blastscan.io/address/',
+  explorerTxLink: 'https://blastscan.io/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
+export const hemi: Readonly<Asset> = Object.freeze({
+  assetId: caip.hemiAssetId,
+  chainId: caip.hemiChainId,
+  name: 'Ethereum',
+  networkName: 'Hemi',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#FF6B35',
+  networkColor: '#FF6B35',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.relay.link/icons/43111/light.png',
+  explorer: 'https://explorer.hemi.xyz',
+  explorerAddressLink: 'https://explorer.hemi.xyz/address/',
+  explorerTxLink: 'https://explorer.hemi.xyz/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
+export const sei: Readonly<Asset> = Object.freeze({
+  assetId: caip.seiAssetId,
+  chainId: caip.seiChainId,
+  name: 'SEI',
+  networkName: 'Sei',
+  symbol: 'SEI',
+  precision: 18,
+  color: '#9B1B30',
+  networkColor: '#9B1B30',
+  icon: 'https://assets.coingecko.com/coins/images/28205/large/Sei_Logo_-_Transparent.png',
+  networkIcon: 'https://assets.coingecko.com/coins/images/28205/small/Sei_Logo_-_Transparent.png',
+  explorer: 'https://seitrace.com',
+  explorerAddressLink: 'https://seitrace.com/address/',
+  explorerTxLink: 'https://seitrace.com/tx/',
+  relatedAssetKey: null,
+})
+
 export const linea: Readonly<Asset> = Object.freeze({
   assetId: caip.lineaAssetId,
   chainId: caip.lineaChainId,
@@ -492,7 +663,7 @@ export const scroll: Readonly<Asset> = Object.freeze({
 export const sonic: Readonly<Asset> = Object.freeze({
   assetId: caip.sonicAssetId,
   chainId: caip.sonicChainId,
-  name: 'Sonic',
+  name: 'Sonic (S)',
   networkName: 'Sonic',
   symbol: 'S',
   precision: 18,
@@ -516,7 +687,7 @@ export const unichainChain: Readonly<Asset> = Object.freeze({
   color: '#5C6BC0',
   networkColor: '#F50DB4',
   icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
-  networkIcon: 'https://assets.coingecko.com/asset_platforms/images/305/small/unichain-logo.png',
+  networkIcon: 'https://assets.coingecko.com/asset_platforms/images/22206/small/unichain.png',
   explorer: 'https://uniscan.xyz',
   explorerAddressLink: 'https://uniscan.xyz/address/',
   explorerTxLink: 'https://uniscan.xyz/tx/',
@@ -533,7 +704,7 @@ export const bobChain: Readonly<Asset> = Object.freeze({
   color: '#5C6BC0',
   networkColor: '#F25D00',
   icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
-  networkIcon: 'https://assets.coingecko.com/asset_platforms/images/203/small/bob.jpeg',
+  networkIcon: 'https://assets.coingecko.com/asset_platforms/images/255/small/bob.jpeg',
   explorer: 'https://explorer.gobob.xyz',
   explorerAddressLink: 'https://explorer.gobob.xyz/address/',
   explorerTxLink: 'https://explorer.gobob.xyz/tx/',
@@ -550,10 +721,27 @@ export const modeChain: Readonly<Asset> = Object.freeze({
   color: '#5C6BC0',
   networkColor: '#DFFE00',
   icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
-  networkIcon: 'https://assets.coingecko.com/asset_platforms/images/180/small/mode.jpeg',
+  networkIcon: 'https://assets.relay.link/icons/34443/light.png',
   explorer: 'https://modescan.io',
   explorerAddressLink: 'https://modescan.io/address/',
   explorerTxLink: 'https://modescan.io/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
+export const soneium: Readonly<Asset> = Object.freeze({
+  assetId: caip.soneiumAssetId,
+  chainId: caip.soneiumChainId,
+  name: 'Ethereum',
+  networkName: 'Soneium',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#627EEA',
+  networkColor: '#1A1A2E',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.relay.link/icons/1868/light.png',
+  explorer: 'https://soneium.blockscout.com',
+  explorerAddressLink: 'https://soneium.blockscout.com/address/',
+  explorerTxLink: 'https://soneium.blockscout.com/tx/',
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 

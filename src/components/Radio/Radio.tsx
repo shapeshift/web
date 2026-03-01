@@ -38,6 +38,7 @@ const RadioCard = memo((props: RadioCardProps) => {
         htmlFor={input.id}
         cursor='pointer'
         isDisabled={isLoading}
+        data-testid={`radio-${props.value}`}
         {...checkbox}
         {...buttonPadding}
         {...radioProps}

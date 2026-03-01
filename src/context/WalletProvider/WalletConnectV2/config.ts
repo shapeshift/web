@@ -1,23 +1,39 @@
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
+import { ethereal, flowEvmChain, viemMegaEthClient } from '@shapeshiftoss/contracts'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { Chain } from 'viem/chains'
 import {
   arbitrum,
   avalanche,
   base,
+  berachain,
+  blast,
   bob,
   bsc,
+  celo,
+  cronos,
   gnosis,
+  hemi,
   hyperEvm,
   ink,
   katana,
+  linea,
   mainnet,
+  mantle,
   mode,
   monad,
   optimism,
   plasma,
+  plume,
   polygon,
+  scroll,
+  sei,
+  soneium,
+  sonic,
+  story,
   unichain,
+  worldchain,
+  zkSync,
 } from 'viem/chains'
 
 import type { EthereumProviderOptions } from './constants'
@@ -68,6 +84,8 @@ export const walletConnectV2OptionalChains: AtLeastOneViemChain = (() => {
     arbitrum,
     base,
     ink,
+    flowEvmChain,
+    sei,
   ]
 
   if (config.VITE_FEATURE_MONAD) {
@@ -98,6 +116,70 @@ export const walletConnectV2OptionalChains: AtLeastOneViemChain = (() => {
     optionalViemChains.push(mode)
   }
 
+  if (config.VITE_FEATURE_SONIC) {
+    optionalViemChains.push(sonic)
+  }
+
+  if (config.VITE_FEATURE_STORY) {
+    optionalViemChains.push(story)
+  }
+
+  if (config.VITE_FEATURE_WORLDCHAIN) {
+    optionalViemChains.push(worldchain)
+  }
+
+  if (config.VITE_FEATURE_ZK_SYNC_ERA) {
+    optionalViemChains.push(zkSync)
+  }
+
+  if (config.VITE_FEATURE_BLAST) {
+    optionalViemChains.push(blast)
+  }
+
+  if (config.VITE_FEATURE_HEMI) {
+    optionalViemChains.push(hemi)
+  }
+
+  if (config.VITE_FEATURE_SONEIUM) {
+    optionalViemChains.push(soneium)
+  }
+
+  if (config.VITE_FEATURE_CRONOS) {
+    optionalViemChains.push(cronos)
+  }
+
+  if (config.VITE_FEATURE_MANTLE) {
+    optionalViemChains.push(mantle)
+  }
+
+  if (config.VITE_FEATURE_LINEA) {
+    optionalViemChains.push(linea)
+  }
+
+  if (config.VITE_FEATURE_BERACHAIN) {
+    optionalViemChains.push(berachain)
+  }
+
+  if (config.VITE_FEATURE_CELO) {
+    optionalViemChains.push(celo)
+  }
+
+  if (config.VITE_FEATURE_ETHEREAL) {
+    optionalViemChains.push(ethereal as unknown as ViemChain)
+  }
+
+  if (config.VITE_FEATURE_PLUME) {
+    optionalViemChains.push(plume)
+  }
+
+  if (config.VITE_FEATURE_SCROLL) {
+    optionalViemChains.push(scroll)
+  }
+
+  if (config.VITE_FEATURE_MEGAETH) {
+    optionalViemChains.push(viemMegaEthClient.chain as unknown as ViemChain)
+  }
+
   if (optionalViemChains.length === 0) throw new Error('Array must contain at least one element.')
   return optionalViemChains as AtLeastOneViemChain
 })()
@@ -119,6 +201,8 @@ const {
   VITE_ARBITRUM_NODE_URL,
   VITE_BASE_NODE_URL,
   VITE_INK_NODE_URL,
+  VITE_FLOWEVM_NODE_URL,
+  VITE_SEI_NODE_URL,
   VITE_MONAD_NODE_URL,
   VITE_HYPEREVM_NODE_URL,
   VITE_PLASMA_NODE_URL,
@@ -126,6 +210,22 @@ const {
   VITE_UNICHAIN_NODE_URL,
   VITE_BOB_NODE_URL,
   VITE_MODE_NODE_URL,
+  VITE_SONIC_NODE_URL,
+  VITE_STORY_NODE_URL,
+  VITE_WORLDCHAIN_NODE_URL,
+  VITE_ZKSYNC_ERA_NODE_URL,
+  VITE_BLAST_NODE_URL,
+  VITE_HEMI_NODE_URL,
+  VITE_SONEIUM_NODE_URL,
+  VITE_CRONOS_NODE_URL,
+  VITE_MANTLE_NODE_URL,
+  VITE_LINEA_NODE_URL,
+  VITE_BERACHAIN_NODE_URL,
+  VITE_CELO_NODE_URL,
+  VITE_ETHEREAL_NODE_URL,
+  VITE_PLUME_NODE_URL,
+  VITE_SCROLL_NODE_URL,
+  VITE_MEGAETH_NODE_URL,
 } = config
 
 const walletConnectV2RpcMap: Record<number, string> = {
@@ -138,6 +238,8 @@ const walletConnectV2RpcMap: Record<number, string> = {
   [CHAIN_REFERENCE.ArbitrumMainnet]: VITE_ARBITRUM_NODE_URL,
   [CHAIN_REFERENCE.BaseMainnet]: VITE_BASE_NODE_URL,
   [CHAIN_REFERENCE.InkMainnet]: VITE_INK_NODE_URL,
+  [CHAIN_REFERENCE.FlowEvmMainnet]: VITE_FLOWEVM_NODE_URL,
+  [CHAIN_REFERENCE.SeiMainnet]: VITE_SEI_NODE_URL,
 }
 
 if (config.VITE_FEATURE_MONAD) {
@@ -166,6 +268,70 @@ if (config.VITE_FEATURE_BOB) {
 
 if (config.VITE_FEATURE_MODE) {
   walletConnectV2RpcMap[CHAIN_REFERENCE.ModeMainnet] = VITE_MODE_NODE_URL
+}
+
+if (config.VITE_FEATURE_SONIC) {
+  walletConnectV2RpcMap[CHAIN_REFERENCE.SonicMainnet] = VITE_SONIC_NODE_URL
+}
+
+if (config.VITE_FEATURE_STORY) {
+  walletConnectV2RpcMap[CHAIN_REFERENCE.StoryMainnet] = VITE_STORY_NODE_URL
+}
+
+if (config.VITE_FEATURE_WORLDCHAIN) {
+  walletConnectV2RpcMap[CHAIN_REFERENCE.WorldChainMainnet] = VITE_WORLDCHAIN_NODE_URL
+}
+
+if (config.VITE_FEATURE_ZK_SYNC_ERA) {
+  walletConnectV2RpcMap[CHAIN_REFERENCE.ZkSyncEraMainnet] = VITE_ZKSYNC_ERA_NODE_URL
+}
+
+if (config.VITE_FEATURE_BLAST) {
+  walletConnectV2RpcMap[CHAIN_REFERENCE.BlastMainnet] = VITE_BLAST_NODE_URL
+}
+
+if (config.VITE_FEATURE_HEMI) {
+  walletConnectV2RpcMap[CHAIN_REFERENCE.HemiMainnet] = VITE_HEMI_NODE_URL
+}
+
+if (config.VITE_FEATURE_SONEIUM) {
+  walletConnectV2RpcMap[CHAIN_REFERENCE.SoneiumMainnet] = VITE_SONEIUM_NODE_URL
+}
+
+if (config.VITE_FEATURE_CRONOS) {
+  walletConnectV2RpcMap[CHAIN_REFERENCE.CronosMainnet] = VITE_CRONOS_NODE_URL
+}
+
+if (config.VITE_FEATURE_MANTLE) {
+  walletConnectV2RpcMap[CHAIN_REFERENCE.MantleMainnet] = VITE_MANTLE_NODE_URL
+}
+
+if (config.VITE_FEATURE_LINEA) {
+  walletConnectV2RpcMap[CHAIN_REFERENCE.LineaMainnet] = VITE_LINEA_NODE_URL
+}
+
+if (config.VITE_FEATURE_BERACHAIN) {
+  walletConnectV2RpcMap[CHAIN_REFERENCE.BerachainMainnet] = VITE_BERACHAIN_NODE_URL
+}
+
+if (config.VITE_FEATURE_CELO) {
+  walletConnectV2RpcMap[CHAIN_REFERENCE.CeloMainnet] = VITE_CELO_NODE_URL
+}
+
+if (config.VITE_FEATURE_ETHEREAL) {
+  walletConnectV2RpcMap[CHAIN_REFERENCE.EtherealMainnet] = VITE_ETHEREAL_NODE_URL
+}
+
+if (config.VITE_FEATURE_PLUME) {
+  walletConnectV2RpcMap[CHAIN_REFERENCE.PlumeMainnet] = VITE_PLUME_NODE_URL
+}
+
+if (config.VITE_FEATURE_SCROLL) {
+  walletConnectV2RpcMap[CHAIN_REFERENCE.ScrollMainnet] = VITE_SCROLL_NODE_URL
+}
+
+if (config.VITE_FEATURE_MEGAETH) {
+  walletConnectV2RpcMap[CHAIN_REFERENCE.MegaEthMainnet] = VITE_MEGAETH_NODE_URL
 }
 
 export const walletConnectV2ProviderConfig: EthereumProviderOptions = {

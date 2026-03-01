@@ -5,14 +5,19 @@ import {
   baseAssetId,
   bchAssetId,
   berachainAssetId,
+  blastAssetId,
   bobAssetId,
   bscAssetId,
   btcAssetId,
+  celoAssetId,
   cosmosAssetId,
   cronosAssetId,
   dogeAssetId,
   ethAssetId,
+  etherealAssetId,
+  flowEvmAssetId,
   gnosisAssetId,
+  hemiAssetId,
   hyperEvmAssetId,
   inkAssetId,
   katanaAssetId,
@@ -26,17 +31,23 @@ import {
   nearAssetId,
   optimismAssetId,
   plasmaAssetId,
+  plumeAssetId,
   polygonAssetId,
   scrollAssetId,
+  seiAssetId,
   solAssetId,
+  soneiumAssetId,
   sonicAssetId,
   starknetAssetId,
+  storyAssetId,
   suiAssetId,
   thorchainAssetId,
   tonAssetId,
   tronAssetId,
   unichainAssetId,
+  worldChainAssetId,
   zecAssetId,
+  zkSyncEraAssetId,
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
@@ -89,6 +100,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return hyperEvmAssetId
     case KnownChainIds.PlasmaMainnet:
       return plasmaAssetId
+    case KnownChainIds.PlumeMainnet:
+      return plumeAssetId
     case KnownChainIds.MantleMainnet:
       return mantleAssetId
     case KnownChainIds.InkMainnet:
@@ -101,6 +114,24 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return cronosAssetId
     case KnownChainIds.KatanaMainnet:
       return katanaAssetId
+    case KnownChainIds.EtherealMainnet:
+      return etherealAssetId
+    case KnownChainIds.FlowEvmMainnet:
+      return flowEvmAssetId
+    case KnownChainIds.CeloMainnet:
+      return celoAssetId
+    case KnownChainIds.StoryMainnet:
+      return storyAssetId
+    case KnownChainIds.ZkSyncEraMainnet:
+      return zkSyncEraAssetId
+    case KnownChainIds.BlastMainnet:
+      return blastAssetId
+    case KnownChainIds.WorldChainMainnet:
+      return worldChainAssetId
+    case KnownChainIds.HemiMainnet:
+      return hemiAssetId
+    case KnownChainIds.SeiMainnet:
+      return seiAssetId
     case KnownChainIds.LineaMainnet:
       return lineaAssetId
     case KnownChainIds.ScrollMainnet:
@@ -113,6 +144,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return bobAssetId
     case KnownChainIds.ModeMainnet:
       return modeAssetId
+    case KnownChainIds.SoneiumMainnet:
+      return soneiumAssetId
     case KnownChainIds.ZcashMainnet:
       return zecAssetId
     case KnownChainIds.NearMainnet:

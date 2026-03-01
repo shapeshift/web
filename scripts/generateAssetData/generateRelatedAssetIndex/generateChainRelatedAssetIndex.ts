@@ -3,12 +3,15 @@ import {
   adapters,
   arbitrumAssetId,
   baseAssetId,
+  blastAssetId,
   bobAssetId,
+  cronosAssetId,
   ethAssetId,
   FEE_ASSET_IDS,
   foxAssetId,
   foxOnArbitrumOneAssetId,
   fromAssetId,
+  hemiAssetId,
   inkAssetId,
   katanaAssetId,
   lineaAssetId,
@@ -16,9 +19,12 @@ import {
   modeAssetId,
   optimismAssetId,
   scrollAssetId,
+  soneiumAssetId,
   sonicAssetId,
   starknetAssetId,
   unichainAssetId,
+  worldChainAssetId,
+  zkSyncEraAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { createThrottle, isToken } from '@shapeshiftoss/utils'
@@ -59,6 +65,7 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     optimismAssetId,
     arbitrumAssetId,
     baseAssetId,
+    hemiAssetId,
     inkAssetId,
     katanaAssetId,
     lineaAssetId,
@@ -67,13 +74,17 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     unichainAssetId,
     bobAssetId,
     modeAssetId,
+    soneiumAssetId,
+    worldChainAssetId,
+    blastAssetId,
+    zkSyncEraAssetId,
   ],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
   [starknetAssetId]: [
     'eip155:1/erc20:0xca14007eff0db1f8135f4c25b34de49ab0d42766',
     'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:HsRpHQn6VbyMs5b5j5SV6xQ2VvpvvCCzu19GjytVSCoz',
   ],
-  // Native stablecoins not tagged as bridged by CoinGecko
+  // Native stablecoins on Linea + Mantle - CoinGecko doesn't tag these as bridged categories
   'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': [
     'eip155:59144/erc20:0x176211869ca2b568f2a7d4ee941e073a821ee1ff',
     'eip155:5000/erc20:0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9',
@@ -89,8 +100,9 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   ],
   // CRO on Ethereum <-> CRO native on Cronos
   'eip155:1/erc20:0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b': ['eip155:25/slip44:60'],
-  // FTM on Ethereum <-> S native on Sonic
-  'eip155:1/erc20:0x4e15361fd6b4bb609fa63c81a2be19d873717870': [sonicAssetId],
+  // Native chain tokens as keys (isPrimary=true) with their Ethereum ERC20 counterparts as values
+  [sonicAssetId]: ['eip155:1/erc20:0x4e15361fd6b4bb609fa63c81a2be19d873717870'],
+  [cronosAssetId]: ['eip155:1/erc20:0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b'],
 }
 
 const getManualRelatedAssetIds = (

@@ -2,6 +2,12 @@ import type {
   AddEthereumChainParameter,
   Address,
   Coin,
+  CosmosAccountPath,
+  CosmosGetAccountPaths,
+  CosmosSignedTx,
+  CosmosSignTx,
+  CosmosWallet,
+  CosmosWalletInfo,
   DescribePath,
   ETHAccountPath,
   ETHGetAccountPath,
@@ -26,6 +32,13 @@ import type EthereumProvider from '@walletconnect/ethereum-provider'
 import isObject from 'lodash/isObject'
 
 import {
+  cosmosDescribePath,
+  cosmosGetAccountPaths,
+  cosmosGetAddress,
+  cosmosNextAccountPath,
+  cosmosSignTx,
+} from './cosmos'
+import {
   describeETHPath,
   ethGetAddress,
   ethSendTx,
@@ -34,6 +47,12 @@ import {
   ethSignTypedData,
   ethVerifyMessage,
 } from './ethereum'
+
+const COSMOS_OPTIONAL_NAMESPACE = {
+  chains: ['cosmos:cosmoshub-4'],
+  methods: ['cosmos_getAccounts', 'cosmos_signAmino', 'cosmos_signDirect'],
+  events: [],
+}
 
 export function isWalletConnectV2(wallet: HDWallet): wallet is WalletConnectV2HDWallet {
   return isObject(wallet) && (wallet as any)._isWalletConnectV2
@@ -51,9 +70,10 @@ export function isWalletConnectV2(wallet: HDWallet): wallet is WalletConnectV2HD
  * - eth_sendRawTransaction
  * @see https://specs.walletconnect.com/2.0/blockchain-rpc/ethereum-rpc
  */
-export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo {
+export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, CosmosWalletInfo {
   readonly _supportsETHInfo = true
   readonly _supportsBTCInfo = false
+  readonly _supportsCosmosInfo = true
   public getVendor(): string {
     return 'WalletConnectV2'
   }
@@ -94,6 +114,8 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo {
     switch (msg.coin) {
       case 'Ethereum':
         return describeETHPath(msg.path)
+      case 'Atom':
+        return cosmosDescribePath(msg.path)
       default:
         throw new Error('Unsupported path')
     }
@@ -131,13 +153,21 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo {
       },
     ]
   }
+
+  public cosmosGetAccountPaths(msg: CosmosGetAccountPaths): CosmosAccountPath[] {
+    return cosmosGetAccountPaths(msg)
+  }
+
+  public cosmosNextAccountPath(): CosmosAccountPath | undefined {
+    return cosmosNextAccountPath()
+  }
 }
 
-export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
-  readonly _supportsETH = true
+export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWallet {
   readonly _supportsETHInfo = true
   readonly _supportsBTCInfo = false
   readonly _supportsBTC = false
+  readonly _supportsCosmosInfo = true
   readonly _isWalletConnectV2 = true
   readonly _supportsEthSwitchChain = true
   readonly _supportsAvalanche = true
@@ -181,10 +211,90 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
   chainId: number | undefined
   accounts: string[] = []
   ethAddress: Address | undefined
+  cosmosAddress: string | undefined
+
+  get _supportsETH(): boolean {
+    return !!this.provider.session?.namespaces?.eip155
+  }
+
+  get _supportsCosmos(): boolean {
+    return !!this.provider.session?.namespaces?.cosmos
+  }
 
   constructor(provider: EthereumProvider) {
     this.provider = provider
     this.info = new WalletConnectV2WalletInfo()
+    this.patchSignerForNonEvmNamespaces()
+    this.patchProviderConnectForMultiNamespace()
+  }
+
+  private patchSignerForNonEvmNamespaces(): void {
+    const signer = this.provider.signer
+    const originalConnect = signer.connect.bind(signer)
+    signer.connect = async (params: Parameters<typeof signer.connect>[0]) => {
+      const requiredEvm = params.namespaces?.eip155
+      const optionalEvm = params.optionalNamespaces?.eip155
+
+      const mergeUnique = (...arrays: (string[] | undefined)[]): string[] => [
+        ...new Set(arrays.flatMap(a => a ?? [])),
+      ]
+
+      // Preserve any non-eip155 namespaces from the original params
+      const { eip155: _reqEip155, ...otherRequiredNamespaces } = params.namespaces ?? {}
+      const { eip155: _optEip155, ...otherOptionalNamespaces } = params.optionalNamespaces ?? {}
+
+      return originalConnect({
+        ...params,
+        namespaces: {
+          ...otherRequiredNamespaces,
+        },
+        optionalNamespaces: {
+          ...otherOptionalNamespaces,
+          eip155: {
+            chains: mergeUnique(requiredEvm?.chains, optionalEvm?.chains),
+            methods: mergeUnique(requiredEvm?.methods, optionalEvm?.methods),
+            events: mergeUnique(requiredEvm?.events, optionalEvm?.events),
+            rpcMap: {
+              ...(requiredEvm as any)?.rpcMap,
+              ...(optionalEvm as any)?.rpcMap,
+            },
+          },
+          cosmos: COSMOS_OPTIONAL_NAMESPACE,
+        },
+      })
+    }
+  }
+
+  private patchProviderConnectForMultiNamespace(): void {
+    const provider = this.provider as any
+
+    const originalConnect = provider.connect.bind(provider)
+    provider.connect = async (opts?: any) => {
+      const modal = provider.modal
+      const originalSubscribeState = modal?.subscribeState?.bind(modal)
+
+      if (modal) {
+        modal.subscribeState = (_callback: any) => () => {}
+      }
+
+      try {
+        await originalConnect(opts)
+      } finally {
+        if (modal && originalSubscribeState) {
+          modal.subscribeState = originalSubscribeState
+        }
+      }
+    }
+
+    const originalEnable = provider.enable.bind(provider)
+    provider.enable = async () => {
+      try {
+        return await originalEnable()
+      } catch (e: unknown) {
+        if (provider.signer?.session) return []
+        throw e
+      }
+    }
   }
 
   async getFeatures(): Promise<Record<string, any>> {
@@ -337,17 +447,10 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
   }
 
   public async ethGetAddress(): Promise<Address | null> {
-    if (this.ethAddress) {
-      return this.ethAddress
-    }
+    if (this.ethAddress) return this.ethAddress
     const address = await ethGetAddress(this.provider)
-    if (address) {
-      this.ethAddress = address
-      return address
-    } else {
-      this.ethAddress = undefined
-      return null
-    }
+    if (address) this.ethAddress = address
+    return address
   }
 
   /**
@@ -403,7 +506,13 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
   }
 
   public async getDeviceID(): Promise<string> {
-    return 'wc:' + (await this.ethGetAddress())
+    const ethAddr = await this.ethGetAddress()
+    if (ethAddr) return 'wc:' + ethAddr
+
+    const cosmosAddr = await this.cosmosGetAddress()
+    if (cosmosAddr) return 'wc:' + cosmosAddr
+
+    return 'wc:unknown'
   }
 
   public async getFirmwareVersion(): Promise<string> {
@@ -426,5 +535,26 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet {
     })
 
     this.chainId = parsedChainId
+  }
+
+  // -- Cosmos Methods --
+
+  public cosmosGetAccountPaths(msg: CosmosGetAccountPaths): CosmosAccountPath[] {
+    return this.info.cosmosGetAccountPaths(msg)
+  }
+
+  public cosmosNextAccountPath(): CosmosAccountPath | undefined {
+    return this.info.cosmosNextAccountPath()
+  }
+
+  public async cosmosGetAddress(): Promise<string | null> {
+    if (this.cosmosAddress) return this.cosmosAddress
+    const address = cosmosGetAddress(this.provider)
+    if (address) this.cosmosAddress = address
+    return address
+  }
+
+  public async cosmosSignTx(msg: CosmosSignTx): Promise<CosmosSignedTx | null> {
+    return cosmosSignTx(this.provider, msg)
   }
 }

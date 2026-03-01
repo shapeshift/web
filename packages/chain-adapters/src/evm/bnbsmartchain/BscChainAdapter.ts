@@ -5,13 +5,20 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
 
-import { ErrorHandler } from '../../error/ErrorHandler'
-import type { FeeDataEstimate, GetFeeDataInput } from '../../types'
-import { ChainAdapterDisplayName } from '../../types'
+import { ErrorHandler, handleBroadcastTransactionError } from '../../error/ErrorHandler'
+import type { BroadcastTransactionInput, FeeDataEstimate, GetFeeDataInput } from '../../types'
+import { ChainAdapterDisplayName, CONTRACT_INTERACTION } from '../../types'
 import { bn, bnOrZero } from '../../utils/bignumber'
+import { assertAddressNotSanctioned } from '../../utils/validateAddress'
 import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../EvmBaseAdapter'
 import { EvmBaseAdapter } from '../EvmBaseAdapter'
 import type { GasFeeDataEstimate } from '../types'
+
+const BSC_PUBLIC_RPC_ENDPOINTS = [
+  'https://bsc-dataseed.binance.org/',
+  'https://bsc-dataseed1.ninicoin.io/',
+  'https://bsc-rpc.publicnode.com',
+]
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.BnbSmartChainMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.BnbSmartChainMainnet
@@ -128,6 +135,67 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.BnbSmartChainMain
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getFeeData',
       })
+    }
+  }
+
+  /**
+   * Override broadcastTransaction to add fallback to public BSC RPC endpoints.
+   * When the unchained API broadcast fails, we retry via public BSC JSON-RPC
+   * endpoints using eth_sendRawTransaction.
+   */
+  async broadcastTransaction({
+    senderAddress,
+    receiverAddress,
+    hex,
+  }: BroadcastTransactionInput): Promise<string> {
+    await Promise.all([
+      assertAddressNotSanctioned(senderAddress),
+      receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
+    ])
+
+    // Try unchained API first
+    try {
+      const txHash = await this.providers.http.sendTx({ sendTxBody: { hex } })
+      return txHash
+    } catch (unchainedErr) {
+      console.warn(
+        '[BSC] Unchained broadcast failed, falling back to public RPC endpoints',
+        unchainedErr,
+      )
+
+      // Fallback: try public BSC RPC endpoints
+      const rawTxHex = hex.startsWith('0x') ? hex : `0x${hex}`
+
+      for (const rpcUrl of BSC_PUBLIC_RPC_ENDPOINTS) {
+        try {
+          const response = await fetch(rpcUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              jsonrpc: '2.0',
+              method: 'eth_sendRawTransaction',
+              params: [rawTxHex],
+              id: 1,
+            }),
+          })
+
+          const data = await response.json()
+
+          if (data.result) {
+            console.info(`[BSC] Broadcast succeeded via fallback RPC: ${rpcUrl}`)
+            return data.result as string
+          }
+
+          if (data.error) {
+            console.warn(`[BSC] Fallback RPC ${rpcUrl} returned error:`, data.error)
+          }
+        } catch (rpcErr) {
+          console.warn(`[BSC] Fallback RPC ${rpcUrl} failed:`, rpcErr)
+        }
+      }
+
+      // All fallbacks failed — throw the original unchained error
+      return handleBroadcastTransactionError(unchainedErr)
     }
   }
 }

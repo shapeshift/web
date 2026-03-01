@@ -32,7 +32,10 @@ export const approveSolanaRequest = async ({
   }
 
   const bip44Params = accountMetadata?.bip44Params
-  const addressNList = bip44Params ? toAddressNList(chainAdapter.getBip44Params(bip44Params)) : []
+  if (!bip44Params) {
+    throw new Error('Missing bip44Params in account metadata — cannot derive correct signing key')
+  }
+  const addressNList = toAddressNList(chainAdapter.getBip44Params(bip44Params))
 
   switch (request.method) {
     case SolanaSigningMethod.SOLANA_SIGN_TRANSACTION: {

@@ -25,6 +25,8 @@ import {
 } from '@/state/slices/selectors'
 import { store, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
+const MAX_VISIBLE_NETWORKS = 4
+
 type GroupedAssetRowProps = {
   asset: Asset
   handleClick: (asset: Asset) => void
@@ -94,12 +96,14 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
   )
 
   const networksIcons = useMemo(() => {
-    // Deduplicate by chainId to show each chain only once
     const uniqueChainIds = Array.from(
       new Set(relatedAssetIds.map(assetId => fromAssetId(assetId).chainId)),
     )
 
-    return uniqueChainIds.map((chainId, index) => {
+    const visibleChainIds = uniqueChainIds.slice(0, MAX_VISIBLE_NETWORKS)
+    const overflowCount = uniqueChainIds.length - visibleChainIds.length
+
+    const icons = visibleChainIds.map((chainId, index) => {
       const feeAsset = selectFeeAssetByChainId(store.getState(), chainId)
       return (
         <Box
@@ -112,7 +116,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
           boxSize='16px'
           color='white'
           fontWeight='bold'
-          zIndex={uniqueChainIds.length - index} // Higher z-index for earlier items
+          zIndex={uniqueChainIds.length - index}
           ml={index > 0 ? -1.5 : 0}
           border='1px solid'
           borderColor='background.surface.overlay.base'
@@ -121,6 +125,28 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
         </Box>
       )
     })
+
+    if (overflowCount > 0) {
+      icons.push(
+        <Center
+          key='overflow'
+          borderRadius='full'
+          boxSize='16px'
+          ml={-1.5}
+          bg='background.button.secondary.base'
+          color='text.subtle'
+          fontSize='2xs'
+          fontWeight='bold'
+          zIndex={0}
+          border='1px solid'
+          borderColor='background.surface.overlay.base'
+        >
+          {`+${overflowCount}`}
+        </Center>,
+      )
+    }
+
+    return icons
   }, [relatedAssetIds])
 
   const changePercent24Hr = groupedAssetBalances?.primaryAsset.priceChange

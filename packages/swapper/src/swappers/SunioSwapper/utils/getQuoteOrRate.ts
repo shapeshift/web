@@ -30,6 +30,7 @@ const ENERGY_PRICE = 100
 const USER_ENERGY_SHARE = 0.6
 const BASE_ENERGY_PER_HOP = 65_000
 const TOKEN_ENERGY_SHARE = 0.5
+const SAFETY_MARGIN = 1.2
 const ENERGY_FACTOR_CACHE_TTL_MS = 6 * 60 * 60 * 1000
 
 const energyFactorCache = new Map<string, { value: number; expiry: number }>()
@@ -260,7 +261,7 @@ export async function getQuoteOrRate(
       totalEnergy = Math.ceil(BASE_ENERGY_PER_HOP * hopCount * penaltyMultiplier)
     }
 
-    const userEnergy = totalEnergy * USER_ENERGY_SHARE
+    const userEnergy = Math.ceil(totalEnergy * SAFETY_MARGIN) * USER_ENERGY_SHARE
     const energyFee = userEnergy * ENERGY_PRICE
     const bandwidthFee = 1_100_000
 

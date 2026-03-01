@@ -22,7 +22,7 @@ import {
   selectAssetById,
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -43,8 +43,8 @@ const WalletConnectSigningWithSection: React.FC<WalletConnectSigningWithSectionP
   const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
 
   const feeAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, { assetId: feeAssetId, accountId }),
-  )
+    selectPortfolioCryptoBalanceByFilter(state, { assetId: feeAssetId, accountId }),
+  ).toPrecision()
 
   const feeAssetBalanceUserCurrency = useAppSelector(state =>
     selectPortfolioUserCurrencyBalanceByFilter(state, { assetId: feeAssetId, accountId }),

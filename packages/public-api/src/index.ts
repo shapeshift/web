@@ -5,7 +5,13 @@ import express from 'express'
 
 import { initAssets } from './assets'
 import { API_HOST, API_PORT } from './config'
-import { apiKeyAuth, optionalApiKeyAuth } from './middleware/auth'
+import { affiliateAddress } from './middleware/auth'
+import {
+  dataLimiter,
+  globalLimiter,
+  swapQuoteLimiter,
+  swapRatesLimiter,
+} from './middleware/rateLimit'
 import { getAssetById, getAssetCount, getAssets } from './routes/assets'
 import { getChainCount, getChains } from './routes/chains'
 import { docsRouter } from './routes/docs'
@@ -14,9 +20,12 @@ import { getRates } from './routes/rates'
 
 const app = express()
 
+app.set('trust proxy', process.env.TRUST_PROXY === '1' ? 1 : false)
+
 // Middleware
 app.use(cors())
 app.use(express.json())
+app.use(globalLimiter)
 
 // Root endpoint - API info
 app.get('/', (_req, res) => {
@@ -38,7 +47,7 @@ app.get('/', (_req, res) => {
   })
 })
 
-// Health check (no auth required)
+// Health check
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: Date.now() })
 })
@@ -46,18 +55,18 @@ app.get('/health', (_req, res) => {
 // API v1 routes
 const v1Router = express.Router()
 
-// Swap endpoints (require API key)
-v1Router.get('/swap/rates', apiKeyAuth, getRates)
-v1Router.post('/swap/quote', apiKeyAuth, getQuote)
+// Swap endpoints (optional affiliate address tracking)
+v1Router.get('/swap/rates', swapRatesLimiter, affiliateAddress, getRates)
+v1Router.post('/swap/quote', swapQuoteLimiter, affiliateAddress, getQuote)
 
-// Chain endpoints (optional auth)
-v1Router.get('/chains', optionalApiKeyAuth, getChains)
-v1Router.get('/chains/count', optionalApiKeyAuth, getChainCount)
+// Chain endpoints
+v1Router.get('/chains', dataLimiter, getChains)
+v1Router.get('/chains/count', dataLimiter, getChainCount)
 
-// Asset endpoints (optional auth)
-v1Router.get('/assets', optionalApiKeyAuth, getAssets)
-v1Router.get('/assets/count', optionalApiKeyAuth, getAssetCount)
-v1Router.get('/assets/:assetId(*)', optionalApiKeyAuth, getAssetById)
+// Asset endpoints
+v1Router.get('/assets', dataLimiter, getAssets)
+v1Router.get('/assets/count', dataLimiter, getAssetCount)
+v1Router.get('/assets/:assetId(*)', dataLimiter, getAssetById)
 
 app.use('/v1', v1Router)
 app.use('/docs', docsRouter)
@@ -91,9 +100,9 @@ Available endpoints:
   GET  /v1/assets/count           - Get asset count
   GET  /v1/assets/:assetId        - Get single asset by ID
 
-Authentication:
-  Include 'X-API-Key' header with your API key for /v1/swap/* endpoints.
-  Test API key: test-api-key-123
+Affiliate Tracking (optional):
+  Include 'X-Affiliate-Address' header with your Arbitrum address for affiliate fee attribution.
+  The API works without it — no authentication required.
     `)
   })
 }

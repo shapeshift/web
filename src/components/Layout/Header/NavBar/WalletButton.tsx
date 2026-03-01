@@ -138,6 +138,7 @@ export const WalletButton: FC<WalletButtonProps> = ({
       border='1px solid'
       borderColor='border.base'
       _hover={connectButtonHoverSx}
+      data-testid='connect-wallet-button'
     >
       <Text translation='common.connectWallet' />
     </Button>

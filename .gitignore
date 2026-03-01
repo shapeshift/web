@@ -3,6 +3,10 @@
 # Local issue tracking
 .beads/
 
+# Claude Code ephemeral plans
+.claude/plan.md
+.claude/plans/
+
 # no zero installs
 .pnp.*
 .yarn/*
@@ -47,3 +51,6 @@ yarn-error.log*
 .idea/
 .playwright-mcp/
 .sisyphus/
+
+# translation benchmark data
+scripts/translations/benchmark/

@@ -74,7 +74,7 @@ If you are using Linux and macOS it works out of the box following these steps:
     pnpm install
     ```
 
-    > This is short for `pnpm install` ; be sure to use `pnpm install --frozen-lockfile` instead if you're setting up a CI pipeline or trying to duplicate a historical build.
+    > Use `pnpm install --frozen-lockfile` instead if you're setting up a CI pipeline or trying to duplicate a historical build.
 5. Build Packages:
 
     ```sh

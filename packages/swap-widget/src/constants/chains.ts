@@ -20,6 +20,7 @@ import {
   polygon,
   solana,
   thorchain,
+  worldchain,
 } from '@shapeshiftoss/utils'
 
 import type { ChainId } from '../types'
@@ -36,6 +37,7 @@ const BASE_ASSETS_BY_CHAIN_ID: Record<ChainId, Asset> = {
   [monad.chainId]: monad,
   [hyperevm.chainId]: hyperevm,
   [plasma.chainId]: plasma,
+  [worldchain.chainId]: worldchain,
   [katana.chainId]: katana,
   [bitcoin.chainId]: bitcoin,
   [bitcoincash.chainId]: bitcoincash,

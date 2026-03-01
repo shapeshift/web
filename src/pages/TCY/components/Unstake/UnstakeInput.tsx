@@ -13,10 +13,10 @@ import {
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
+import { BigAmount, bnOrZero, convertPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import noop from 'lodash/noop'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useFormContext, useWatch } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
 
@@ -34,8 +34,7 @@ import { Row } from '@/components/Row/Row'
 import { RawText } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
-import { BASE_BPS_POINTS, THOR_PRECISION } from '@/lib/utils/thorchain/constants'
+import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
@@ -86,14 +85,11 @@ export const UnstakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAcc
     formState: { errors, isValid },
   } = useFormContext<UnstakeFormValues>()
   const [fieldName, setFieldName] = useState<AmountFieldName>('amountCryptoPrecision')
-  const [unstakePercent, setUnstakePercent] = useState(100)
+  const [selectedUnstakePercent, setSelectedUnstakePercent] = useState<number | undefined>(
+    undefined,
+  )
 
-  const amountCryptoPrecision = useWatch<UnstakeFormValues, 'amountCryptoPrecision'>({
-    name: 'amountCryptoPrecision',
-  })
-  const fiatAmount = useWatch<UnstakeFormValues, 'fiatAmount'>({
-    name: 'fiatAmount',
-  })
+  const currentUnstakePercent = selectedUnstakePercent ?? 100
 
   const { price: assetUserCurrencyRate = '0' } =
     useAppSelector(state =>
@@ -105,7 +101,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAcc
   const { data: tcyStaker } = useTcyStaker(accountId)
 
   const stakedAmountCryptoPrecision = useMemo(
-    () => BigAmount.fromThorBaseUnit(tcyStaker?.amount ?? 0).toFixed(),
+    () => BigAmount.fromThorBaseUnit(tcyStaker?.amount ?? 0).toPrecision(),
     [tcyStaker?.amount],
   )
 
@@ -114,51 +110,30 @@ export const UnstakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAcc
     [stakedAmountCryptoPrecision, assetUserCurrencyRate],
   )
 
-  const withdrawBps = useMemo(() => {
-    if (!tcyStaker?.amount) return '0'
-    const amountThorBaseUnit = toBaseUnit(amountCryptoPrecision, THOR_PRECISION)
-    const stakedAmountCryptoBaseUnit = toBaseUnit(tcyStaker.amount, THOR_PRECISION)
-    const withdrawRatio = bnOrZero(amountThorBaseUnit).div(stakedAmountCryptoBaseUnit)
-    return withdrawRatio.times(BASE_BPS_POINTS).toFixed(0)
-  }, [tcyStaker?.amount, amountCryptoPrecision])
-
-  const handleAmountChange = useCallback(
-    (inputValue: string) => {
-      if (inputValue === '') {
-        setValue('amountCryptoPrecision', '')
-        setValue('fiatAmount', '')
-        return
-      }
-
-      const price = assetUserCurrencyRate ?? 0
-      const cryptoAmount = inputValue
-      const fiatAmount = bnOrZero(cryptoAmount).times(bnOrZero(price))
-
-      setValue('amountCryptoPrecision', cryptoAmount.toString())
-      setValue('fiatAmount', fiatAmount.toString())
-    },
-    [setValue, assetUserCurrencyRate],
+  const amountCryptoPrecision = useMemo(
+    () => bnOrZero(stakedAmountCryptoPrecision).times(currentUnstakePercent).div(100).toFixed(),
+    [stakedAmountCryptoPrecision, currentUnstakePercent],
   )
 
-  const handleUnstakePercentChange = useCallback(
-    (value: number) => {
-      setUnstakePercent(value)
-      if (!tcyStaker?.amount) {
-        setValue('amountCryptoPrecision', '0')
-        setValue('fiatAmount', '0')
-        return
-      }
-      const stakedAmount = fromBaseUnit(tcyStaker.amount, THOR_PRECISION)
-      const unstakeAmount = bnOrZero(stakedAmount).times(value).div(100).toString()
-      handleAmountChange(unstakeAmount)
-    },
-    [tcyStaker?.amount, handleAmountChange, setValue],
+  const fiatAmount = useMemo(
+    () => bnOrZero(amountCryptoPrecision).times(assetUserCurrencyRate).toFixed(2),
+    [amountCryptoPrecision, assetUserCurrencyRate],
   )
 
-  // Set initial values when component mounts or when staked amount changes
+  const withdrawBps = useMemo(
+    () => convertPercentageToBasisPoints(currentUnstakePercent).toFixed(0),
+    [currentUnstakePercent],
+  )
+
+  const handleUnstakePercentChange = useCallback((value: number) => {
+    setSelectedUnstakePercent(value)
+  }, [])
+
   useEffect(() => {
-    handleUnstakePercentChange(unstakePercent)
-  }, [unstakePercent, tcyStaker?.amount, handleUnstakePercentChange])
+    setValue('amountCryptoPrecision', amountCryptoPrecision)
+    setValue('fiatAmount', fiatAmount)
+    setValue('unstakePercent', currentUnstakePercent)
+  }, [amountCryptoPrecision, fiatAmount, currentUnstakePercent, setValue])
 
   const { estimatedFeesData, isEstimatedFeesDataLoading, isEstimatedFeesDataError } = useSendThorTx(
     {
@@ -182,7 +157,14 @@ export const UnstakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAcc
 
   register('amountCryptoPrecision', {
     validate: (value: string) => {
-      if (bnOrZero(value).gt(fromBaseUnit(tcyStaker?.amount, THOR_PRECISION))) {
+      if (
+        bnOrZero(value).gt(
+          BigAmount.fromBaseUnit({
+            value: tcyStaker?.amount,
+            precision: THOR_PRECISION,
+          }).toPrecision(),
+        )
+      ) {
         return translate('common.insufficientFunds')
       }
       return true
@@ -221,7 +203,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAcc
           placeholder={translate('common.enterAmount')}
           balance={stakedAmountCryptoPrecision}
           onToggleIsFiat={toggleIsFiat}
-          onChange={handleAmountChange}
+          onChange={noop}
           isFiat={fieldName === 'fiatAmount'}
           cryptoAmount={amountCryptoPrecision}
           fiatAmount={fiatAmount}
@@ -232,11 +214,11 @@ export const UnstakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAcc
           percentOptions={[]}
         >
           <Stack spacing={4} px={6} pb={4}>
-            <Slider value={unstakePercent} onChange={handleUnstakePercentChange}>
+            <Slider value={currentUnstakePercent} onChange={handleUnstakePercentChange}>
               <SliderTrack>
                 <SliderFilledTrack bg='blue.500' />
               </SliderTrack>
-              <Tooltip label={`${unstakePercent}%`}>
+              <Tooltip label={`${currentUnstakePercent}%`}>
                 <SliderThumb boxSize={4} />
               </Tooltip>
             </Slider>

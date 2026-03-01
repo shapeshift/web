@@ -2,7 +2,7 @@ import type { FlexProps } from '@chakra-ui/react'
 import { Card, CardBody, Heading, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { usdcOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
-import { BigAmount as AmountLib } from '@shapeshiftoss/utils'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -48,7 +48,7 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
   const totalStakedCryptoResult = useTotalStakedQuery<string>({
     stakingAssetId,
     select: (totalStaked: bigint) => {
-      return AmountLib.fromBaseUnit({
+      return BigAmount.fromBaseUnit({
         value: totalStaked.toString(),
         precision: stakingAsset?.precision ?? 0,
       }).toFixed(2)
@@ -95,7 +95,13 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
       borderRadius='2xl'
       overflow='hidden'
     >
-      <Card flexDir='column' borderRadius={0} width='full' boxShadow='none'>
+      <Card
+        data-testid='rfox-simulator'
+        flexDir='column'
+        borderRadius={0}
+        width='full'
+        boxShadow='none'
+      >
         <CardBody flex='1' p={rfoxSimulatorCardBody}>
           <Heading as='h5' mb={1}>
             {translate('foxPage.rfox.simulateTitle')}

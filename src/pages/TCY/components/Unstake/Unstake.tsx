@@ -38,6 +38,7 @@ export type UnstakeFormValues = {
   amountCryptoPrecision: string
   fiatAmount: string
   accountId: string
+  unstakePercent: number
 }
 
 export const Unstake: React.FC<TCYRouteProps & { currentAccount: CurrentAccount }> = ({
@@ -53,6 +54,7 @@ export const Unstake: React.FC<TCYRouteProps & { currentAccount: CurrentAccount 
       amountCryptoPrecision: '',
       fiatAmount: '',
       accountId,
+      unstakePercent: 100,
     },
   })
 

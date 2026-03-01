@@ -211,7 +211,7 @@ export const GlobalSearchModal = memo(
     return (
       <Modal scrollBehavior='inside' {...modalProps} size='lg'>
         <ModalOverlay {...overlayProps} />
-        <ModalContent overflow='hidden' {...modalContentProps}>
+        <ModalContent overflow='hidden' data-testid='global-search-modal' {...modalContentProps}>
           <ModalHeader
             position='sticky'
             top={0}

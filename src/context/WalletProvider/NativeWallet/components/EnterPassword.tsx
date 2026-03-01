@@ -162,6 +162,7 @@ export const EnterPassword = () => {
                 autoComplete={'password'}
                 id='password'
                 data-test='wallet-password-input'
+                data-testid='wallet-password-input'
               />
               <InputRightElement>
                 <IconButton
@@ -183,6 +184,7 @@ export const EnterPassword = () => {
             isLoading={isSubmitting}
             isDisabled={!isValid}
             data-test='wallet-password-submit-button'
+            data-testid='wallet-password-submit-button'
           >
             <Text translation={'walletProvider.shapeShift.password.button'} />
           </Button>

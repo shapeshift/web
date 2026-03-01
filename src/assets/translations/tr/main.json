@@ -201,6 +201,209 @@
   "accountSelector": {
     "chooseAccount": "Hesap Seç"
   },
+  "agenticChat": {
+    "title": "ShapeShift Agent",
+    "aiChat": "Ai Sohbet",
+    "openChat": "Sohbeti Aç",
+    "closeChat": "Sohbeti Kapat",
+    "emptyState": "Bugün size nasıl yardımcı olabilirim?",
+    "placeholder": "Bir mesaj yazın...",
+    "stop": "Dur",
+    "send": "Gönder",
+    "txStepProgress": "%{completedCount}  %{totalCount} tamamlandı",
+    "agenticChatTools": {
+      "send": {
+        "title": "Kripto Gönder",
+        "receivedFrom": "%{address} adresinden alındı.",
+        "steps": {
+          "preparation": "Gönderme işlemi hazırlanıyor",
+          "send": "İşlemi imzalayıp gönderin."
+        },
+        "errors": {
+          "prepareFailed": "Gönderme işlemine hazırlık başarısız oldu.",
+          "sendFailed": "Gönderme başarısız oldu: %{error}",
+          "noWallet": "Bağlı cüzdan yok.",
+          "accountNotFound": "Hesap bulunamadı."
+        },
+        "success": {
+          "transactionSent": "Gönderilen işlem: %{txHash}",
+          "title": "Gönderim başarılı.",
+          "description": "Gönderme işleminiz tamamlandı."
+        }
+      },
+      "swap": {
+        "title": "Takas",
+        "receivedFrom": "%{address} adresinden alındı.",
+        "steps": {
+          "quote": "Takas teklifi al",
+          "networkSwitch": "%{network}'a geçin",
+          "networkSwitchGeneric": "Ağ değiştir",
+          "approval": "Token harcamasını onaylayın",
+          "approvalConfirmation": "Onay teyit ediliyor",
+          "swap": "Takas işlemi imzalayın"
+        },
+        "errors": {
+          "quoteFailed": "Takas teklifi alınamadı.",
+          "swapFailed": "Takas işlemi başarısız oldu: %{error}",
+          "noWallet": "Bağlı cüzdan yok.",
+          "accountNotFound": "Hesap bulunamadı."
+        },
+        "success": {
+          "title": "Takas Başarılı",
+          "description": "Takas işleminiz tamamlandı."
+        }
+      },
+      "cancelLimitOrder": {
+        "title": "Limit Emrini İptal Et",
+        "steps": {
+          "prepare": "İptal hazırlanıyor",
+          "sign": "İmza iptali",
+          "submit": "İptal talebi gönderiliyor"
+        },
+        "errors": {
+          "prepareFailed": "İptal işlemini hazırlamakta başarısız olundu.",
+          "signFailed": "İptal belgesini imzalamayı başaramadı.",
+          "submitFailed": "İşlem iptal edilemedi: %{error}",
+          "noWallet": "Bağlı cüzdan yok.",
+          "accountNotFound": "Hesap bulunamadı."
+        },
+        "success": {
+          "title": "İşlem İptal Edildi",
+          "description": "Limit emriniz başarıyla iptal edildi."
+        },
+        "networkLabel": "Ağ",
+        "orderLabel": "Emir",
+        "cancellationFailed": "İptal işlemi başarısız oldu.",
+        "orderCancelledSuccessfully": "Sipariş başarıyla iptal edildi."
+      },
+      "createLimitOrder": {
+        "title": "Limit Emri Oluştur",
+        "steps": {
+          "prepare": "Emir hazırlanıyor",
+          "approval": "Token harcamasını onaylayın",
+          "approvalConfirmation": "Onay teyit ediliyor",
+          "sign": "Emri imzalayın",
+          "submit": "Emir gönderiliyor"
+        },
+        "errors": {
+          "prepareFailed": "Emir hazırlama başarısız oldu.",
+          "approvalFailed": "Token onayı başarısız oldu.",
+          "signFailed": "Emri imzalamayı başaramadı.",
+          "submitFailed": "Emir oluşturulamadı: %{error}",
+          "noWallet": "Bağlı cüzdan yok.",
+          "accountNotFound": "Hesap bulunamadı."
+        },
+        "success": {
+          "title": "Limit Emri Oluşturuldu",
+          "description": "Limit emriniz başarıyla oluşturuldu."
+        },
+        "expires": "Süresi doluyor",
+        "viewOrder": "Emri görüntüle →",
+        "approvalTx": "Tx onayı",
+        "orderCreationFailed": "Emir oluşturma başarısız oldu",
+        "orderCreatedSuccessfully": "Emir başarıyla oluşturuldu."
+      },
+      "newCoins": {
+        "title": "Son Eklenenler",
+        "subtitle": "CoinGecko'da yeni kripto paralar"
+      },
+      "trendingTokens": {
+        "title": "CoinGecko'da Trend Olanlar",
+        "subtitle": "24/sa trend olan tokenlar"
+      },
+      "topGainersLosers": {
+        "gainersTitle": "En Çok Kazananlar (%{duration})",
+        "losersTitle": "En Çok Kaybedenler (%{duration})"
+      },
+      "portfolio": {
+        "title": "Portföy",
+        "totalValue": "Toplam Değer",
+        "accountLabel": "Hesap",
+        "networkLabel": "Ağ",
+        "emptyState": "Portföyde varlık bulunmamaktadır."
+      },
+      "getAssets": {
+        "title": "Varlıklar",
+        "balance": "Bakiye",
+        "value": "Değer",
+        "network": "Ağ",
+        "emptyState": "Hiçbir varlık bulunamadı.",
+        "24h": "24sa",
+        "volume": "Hacim",
+        "marketCap": "Piyasa Değeri",
+        "fdv": "FDV",
+        "showLess": "Daha az göster",
+        "more": "Daha fazla...",
+        "coinInfo": "Coin Bilgisi",
+        "circulatingSupply": "Dolaşımdaki Arz",
+        "totalSupply": "Toplam Arz",
+        "maxSupply": "Maks Tedarik",
+        "unlimited": "Sınırsız",
+        "sentiment": "Hissiyat",
+        "bullish": "Bullish",
+        "bearish": "Bearish",
+        "marketCapRank": "Piyasa Değeri Sıralaması",
+        "volume24h": "24sa Hacim",
+        "volMcap": "Hacim/MCap",
+        "about": "%{symbol} Hakkında",
+        "noDescription": "Bu varlık için herhangi bir açıklama mevcut değil."
+      },
+      "receive": {
+        "title": "Alınan",
+        "receiveOn": "%{symbol}'ü %{network}'ten alın.",
+        "copyAddress": "Adresi kopyala",
+        "copied": "Kopyalandı!",
+        "warning": "Bu adrese yalnızca %{network} uyumlu token'lar gönderin."
+      },
+      "getLimitOrders": {
+        "title": "Limit Emirleri",
+        "openOrders": "%{count} açık",
+        "noOrders": "Limit emri bulunamadı.",
+        "status": {
+          "open": "Açık",
+          "fulfilled": "Tamamlandı",
+          "cancelled": "İptal edildi",
+          "expired": "Süresi doldu",
+          "presignaturePending": "Beklemede"
+        },
+        "sellLabel": "Sat",
+        "buyLabel": "Satın Al",
+        "expiresLabel": "Süresi doluyor",
+        "view": "Görünüm",
+        "filledLabel": "Tamamlanan"
+      },
+      "getTransactionHistory": {
+        "title": "Son İşlemler",
+        "noTransactions": "Hiçbir işlem bulunamadı.",
+        "type": {
+          "send": "Gönder",
+          "receive": "Al",
+          "swap": "Takas",
+          "contract": "Sözleşme"
+        },
+        "status": {
+          "success": "Onaylandı",
+          "failed": "Başarısız",
+          "pending": "Bekliyor"
+        },
+        "txid": "Txid",
+        "from": "'dan",
+        "to": "'a",
+        "value": "Değer",
+        "fee": "Ücret",
+        "network": "Ağ",
+        "tokens": "Jetonlar"
+      }
+    },
+    "chatHistory": "Sohbet Geçmişi",
+    "newChat": "Yeni Sohbet",
+    "deleteConversation": "Konuşmayı Sil",
+    "deleteConfirmation": "Bu konuşmayı silmek istediğinizden emin misiniz?",
+    "noConversations": "Henüz hiçbir görüşme yapılmadı.",
+    "newConversation": "Yeni Görüşme",
+    "searchChats": "Sohbetlerinizde arama yapın...",
+    "noMatchingConversations": "Eşleşen görüşme yok"
+  },
   "quickBuy": {
     "title": "Hızlı Satın Al %{assetOnChain}",
     "nativeNotAvailable": "Hızlı Satın Al yerel varlıklarda mevcut değildir",
@@ -554,7 +757,8 @@
       "faq": "SSS",
       "github": "GitHub",
       "discord": "Discord",
-      "twitter": "Twitter"
+      "twitter": "Twitter",
+      "feedback": "Geri bildirim"
     }
   },
   "transactionRow": {
@@ -675,6 +879,16 @@
         "withdraw": "Likiditeyi Kaldır",
         "join_pool": "Havuza Katılın",
         "exit_pool": "Havuzdan Çık"
+      },
+      "yieldxyz": {
+        "deposit": "Getiri Yatırma",
+        "withdraw": "Getiri Çekme",
+        "approve": "Getiri Onayı",
+        "approveSymbol": "Getiri Onayı %{symbol}",
+        "stake": "Getiri Stake",
+        "unstake": "Getiri UnStake",
+        "unstakeRequest": "Getiri Unstake Talebi",
+        "yieldClaim": "Getiriyi Talep Et"
       }
     }
   },
@@ -1737,7 +1951,7 @@
         "multiChain": {
           "title": "Aynı anda birden çok zincir desteklenir",
           "subTitle": "Cüzdandaki zincirleri asla değiştirmenize gerek yoktur, her zincirle sorunsuz bir şekilde çalışır.",
-          "body": "ShapeShift'e yeni bir zincir eklendiğinde, Cüzdanınız bunu otomatik olarak destekleyecektir."
+          "body": "Tek bir cüzdandan Bitcoin, Ethereum, Solana ve daha birçok zincire erişin. Farklı ağlardaki varlıklarınızı sorunsuz bir şekilde takas edin ve yönetin."
         },
         "selfCustody": {
           "title": "ShapeShift Cüzdanınız kişisel velayettir",
@@ -1799,6 +2013,17 @@
         "header": "Vultisig'i Eşleştir",
         "body": "Eşleştir'e tıklayın ve açılan pencereden Vultisig'e giriş yapın",
         "button": "Eşleştir"
+      }
+    },
+    "seeker": {
+      "connect": {
+        "header": "Seeker'a bağlan",
+        "body": "ShapeShift'in Seeker cüzdanınızla bağlantı kurmasına izin verin.",
+        "button": "Bağlan"
+      },
+      "failure": {
+        "header": "Bağlantı başarısız oldu",
+        "body": "Seeker cüzdanına bağlanılamadı. Lütfen Seeker uygulamasının kullanılabilir olduğundan emin olun ve tekrar deneyin."
       }
     }
   },
@@ -2365,15 +2590,15 @@
       },
       "why": {
         "title": "Neden FOX'unuzu stake etmelisiniz?",
-        "body": "FOX'unuzu stake etmek, DAO'nun hazinesinden düzenli RUNE ödemeleri kazanmanıza olanak tanır ve dönem başına RUNE cinsinden istikrarlı bir pasif gelir akışı sağlar. Ek olarak, DAO tarafından alınan RUNE'un bir kısmı FOX'u açık piyasadan satın almak ve yakmak için kullanılıyor ve bu da genel arzı azaltıyor. Staking ayrıca ShapeShift DAO'nun THORChain ekosistemiyle uyumunu destekleyerek büyümelerine ve başarılarına katkıda bulunur. Staking süreci, topluluk içinde kararlılığı ve istikrarı teşvik edecek şekilde minimum 28 günlük bir stake etme süresi gerektirir."
+        "body": "FOX'unuzu stake etmek, DAO'nun hazinesinden dönem başına USDC cinsinden düzenli ödemeler kazanmanıza olanak tanır ve dönem başına USDC'de istikrarlı bir pasif gelir akışı sağlar. Ayrıca, DAO gelirinin bir kısmı token yakma yoluyla genel FOX arzını azaltmaya tahsis edilecektir. Staking süreci, topluluk içinde bağlılığı ve istikrarı teşvik eden minimum 28 günlük bir stake kaldırma süresini gerektirir."
       },
       "stake": {
         "title": "FOX'umu nasıl stake ederim?",
-        "body": "FOX'unuzu stake etmek için, FOX tokenlarınızı stake etme sözleşmesine kilitlemek amacıyla stake etme arayüzünü kullanırsınız. RUNE ödüllerinizin ödeneceği adresi atamak için bir mesaj veya işlem imzalamanız gerekecektir. Stake etme avantajlarınızın bir parçası olarak blok başına RUNE ödülleri kazanmaya başlarsınız."
+        "body": "FOX'unuzu stake etmek için, FOX tokenlarınızı staking sözleşmesine kilitlemek üzere staking arayüzünü kullanırsınız. Stake edildikten sonra, staking avantajlarınızın bir parçası olarak blok başına USDC ödülleri kazanmaya başlarsınız."
       },
       "unstake": {
         "title": "Stake kaldırdığımda ne olur?",
-        "body": "Stake etmeye karar verdiğinizde minimum 28 günlük bir stake kaldırma süresi vardır. Bu süre zarfında FOX'unuz kilitli kalır ve RUNE emisyonlarını almayı bırakırsınız. Stake kaldırma süresinin ardından normal FOX tokenlarınızın kilidini açabilir ve geri alabilirsiniz."
+        "body": "Stake'i kaldırmaya karar verdiğinizde, minimum 28 günlük bir stake kaldırma süresi vardır. Bu süre zarfında FOX'unuz kilitli kalır ve USDC emisyonları almayı bırakırsınız. Stake kaldırma süresinin ardından düzenli FOX tokenlarınızın kilidini açabilir ve geri alabilirsiniz."
       },
       "cooldown": {
         "title": "Soğuma süresi ne kadardır?",
@@ -2385,7 +2610,7 @@
       },
       "connect": {
         "title": "Toplanan toplam ücretler, toplam FOX stake miktarı, emisyon havuzu ve FOX yakma miktarı nasıl birbirine bağlanır?",
-        "body": "DAO tarafından toplanan ücretler yerel RUNE cinsindendir. Bu RUNE'un bir kısmı FOX stakerlarına ödül olarak dağıtılırken, bir kısmı da FOX'u açık piyasadan satın almak ve yakmak için kullanılıyor ve bu da genel FOX arzını azaltıyor. Ödüller, yatırılan FOX miktarına göre orantılı olarak dağıtıldığından, toplam FOX stake miktarı RUNE ödüllerinin dağıtımını etkiler. Emisyon havuzu, staking ödülleri için mevcut FOX miktarını temsil eder ve FOX yakma miktarı, ücretlerden toplanan RUNE kullanılarak satın alınan ve yakılan FOX'un kısmıdır."
+        "body": "DAO tarafından toplanan ücretler, takas başına yerel varlıklar cinsindedir. Bu gelirin bir kısmı dönüştürülerek FOX staker'larına ödül olarak dağıtılırken, bir kısmı token yakma yoluyla genel FOX arzını azaltmaya tahsis edilir. Stake edilen toplam FOX, ödüllerin dağıtımını etkiler; ödüller, stake edilen FOX miktarına göre orantılı olarak dağıtılır. Emisyon havuzu, staking ödülleri için mevcut FOX miktarını temsil eder ve FOX yakma miktarı, satın alınıp yakılan FOX miktarıdır."
       }
     },
     "totals": "rFOX Toplamı",
@@ -2507,7 +2732,7 @@
   },
   "foxPage": {
     "title": "FOX Token Panosu",
-    "description": "2019'dan beri, şekil değiştiren FOX Token'ımız kullanıcılara sürekli genişleyen bir fayda ve avantaj dünyası sunuyor. Bugün, ERC-20 yönetim token'ımız size THORChain'deki gelirlerden bir pay veriyor ve oyunuzla ShapeShift'in geleceğini etkilemenizi sağlıyor. FOX varlıklarınızı burada stake edin, takas edin, satın alın, tedarik edin ve yönetin.",
+    "description": "2019'dan beri, sürekli şekil değiştiren FOX Token'ımız kullanıcılara sürekli genişleyen bir fayda ve avantajlar dünyası sunuyor. Bugün, ERC-20 yönetim token'ımız size platform genelindeki gelirlerden pay veriyor ve oyunuz aracılığıyla ShapeShift'in geleceğini etkilemenizi sağlıyor. FOX varlıklarınızı burada stake edin, takas edin, satın alın, arz edin ve yönetin.",
     "foxToken": "FOX Token",
     "24hrPriceChange": "24sa Fiyat Değişimi",
     "rfox": {
@@ -2615,15 +2840,23 @@
     },
     "deposit": {
       "pending": "%{amount} %{symbol} tutarındaki yatırımınız işleniyor.",
-      "complete": "%{amount} %{symbol} tutarındaki yatırımınız tamamlandı."
+      "complete": "%{amount} %{symbol} tutarındaki yatırımınız tamamlandı.",
+      "failed": "%{amount} %{symbol} yatırma işleminiz başarısız oldu."
     },
     "withdrawal": {
       "pending": "%{amount} %{symbol} tutarındaki çekim işleminiz işleniyor.",
-      "complete": "%{amount} %{symbol} tutarındaki çekim işleminiz tamamlandı."
+      "complete": "%{amount} %{symbol} tutarındaki çekim işleminiz tamamlandı.",
+      "failed": "%{amount} %{symbol} çekme işleminiz başarısız oldu."
     },
     "claim": {
       "pending": "%{amount} %{symbol} tutarındaki talebiniz işleniyor.",
-      "complete": "%{amount} %{symbol} tutarındaki talebiniz tamamlandı."
+      "complete": "%{amount} %{symbol} tutarındaki talebiniz tamamlandı.",
+      "failed": "%{amount} %{symbol} talep işleminiz başarısız oldu."
+    },
+    "yield": {
+      "unstakeAvailableIn": "%{symbol} stake kaldırma işleminiz %{duration} içinde kullanılabilir olacak.",
+      "unstakeReady": "%{symbol} stake kaldırma işleminiz talep edilmeye hazır.",
+      "unstakeClaimed": "%{symbol} stake kaldırma işleminiz talep edildi."
     },
     "bridge": {
       "processing": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz işleniyor.",
@@ -2674,8 +2907,7 @@
   "yieldXYZ": {
     "pageTitle": "Getiriler",
     "pageSubtitle": "Birden fazla zincirde getiri fırsatlarını keşfedin ve yönetin.",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Getiri",
     "apy": "APY",
     "apr": "APR",
@@ -2738,6 +2970,7 @@
     "depositSymbol": "Yatırma %{symbol}",
     "withdrawSymbol": "Çekme %{symbol}",
     "claimableRewards": "Talep edilebilir ödüller",
+    "withdrawableFunds": "Çekilebilir fonlar",
     "noActivePositions": "Şu anda aktif getiri sağlayan herhangi bir pozisyonunuz bulunmamaktadır.",
     "connectWalletPositions": "Aktif getiri pozisyonlarınızı görüntülemek için bir cüzdan bağlayın.",
     "view": "Görünüm",
@@ -2766,6 +2999,7 @@
     "providers": "Sağlayıcılar",
     "successStaked": "%{amount} %{symbol} tutarındaki stake tutarınızı başarıyla yatırdınız.",
     "successUnstaked": "%{amount} %{symbol} tutarındaki yatırımınızı başarıyla geri çektiniz.",
+    "cooldownNotice": "Çekme işleminiz %{cooldownDuration} içinde kullanılabilir olacak.",
     "successDeposited": "%{amount} %{symbol} tutarını başarıyla yatırdınız.",
     "successWithdrawn": "%{amount} %{symbol} tutarındaki çekme işleminiz başarıyla tamamlandı.",
     "successClaim": "%{amount} %{symbol} tutarındaki talebinizi başarıyla karşıladınız.",
@@ -2803,6 +3037,7 @@
     "depositsDisabledDescription": "Bu getiri fırsatı için yatırma işlemleri geçici olarak durdurulmuştur.",
     "withdrawalsDisabled": "Çekme İşlemleri Devre Dışı Bırakıldı",
     "withdrawalsDisabledDescription": "Bu getiri fırsatı için çekme işlemleri geçici olarak devre dışı bırakılmıştır.",
+    "noActiveBalanceToExit": "Çekilebilecek aktif bakiye bulunmamaktadır.",
     "noAvailableYields": "Varlıklarınız için herhangi bir getiri fırsatı bulunmamaktadır.",
     "connectWalletAvailable": "Varlıklarınız için mevcut getirileri görmek için bir cüzdan bağlayın.",
     "aboutProvider": "%{provider} hakkında",
@@ -2831,7 +3066,8 @@
     "potentialEarningsAmount": "%{amount}/yıl %{apy}% APY",
     "depositNow": "Şimdi Yatırın",
     "strategyInfo": "Strateji Bilgisi",
-    "overview": "Genel Bakış"
+    "overview": "Genel Bakış",
+    "readyToClaim": "Talep etmeye hazır"
   },
   "earn": {
     "enterFrom": "Şuradan girin",

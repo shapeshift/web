@@ -15,7 +15,14 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { DEFAULT_SLIPPAGE_PERCENTAGE, SUNIO_SMART_ROUTER_CONTRACT } from './constants'
+import type { SunioRoute } from '../types'
+import { buildSwapRouteParameters } from './buildSwapRouteParameters'
+import {
+  DEFAULT_SLIPPAGE_PERCENTAGE,
+  SUNIO_SMART_ROUTER_CONTRACT,
+  SUNIO_TRON_NATIVE_ADDRESS,
+} from './constants'
+import { convertAddressesToEvmFormat } from './convertAddressesToEvmFormat'
 import { fetchSunioQuote } from './fetchFromSunio'
 import { isSupportedChainId } from './helpers/helpers'
 import { sunioServiceFactory } from './sunioService'
@@ -95,6 +102,64 @@ function calculateUserEnergy(totalEnergy: number, contractParams: ContractParams
 const SAFETY_MARGIN = 1.1
 const BASE_ENERGY_TRX_TO_TOKEN = Math.ceil(85_000 * SAFETY_MARGIN)
 const BASE_ENERGY_TRC20_TO_TOKEN = Math.ceil(170_000 * SAFETY_MARGIN)
+
+async function simulateSwapEnergy(
+  route: SunioRoute,
+  sellAmountCryptoBaseUnit: string,
+  buyAmountCryptoBaseUnit: string,
+  senderAddress: string,
+  rpcUrl: string,
+): Promise<number | undefined> {
+  try {
+    const tronWeb = new TronWeb({ fullHost: rpcUrl })
+
+    const routeParams = buildSwapRouteParameters(
+      route,
+      sellAmountCryptoBaseUnit,
+      buyAmountCryptoBaseUnit,
+      senderAddress,
+      DEFAULT_SLIPPAGE_PERCENTAGE,
+    )
+
+    const parameters = [
+      { type: 'address[]', value: routeParams.path },
+      { type: 'string[]', value: routeParams.poolVersion },
+      { type: 'uint256[]', value: routeParams.versionLen },
+      { type: 'uint24[]', value: routeParams.fees },
+      {
+        type: 'tuple(uint256,uint256,address,uint256)',
+        value: convertAddressesToEvmFormat([
+          routeParams.swapData.amountIn,
+          routeParams.swapData.amountOutMin,
+          routeParams.swapData.recipient,
+          routeParams.swapData.deadline,
+        ]),
+      },
+    ]
+
+    const functionSelector =
+      'swapExactInput(address[],string[],uint256[],uint24[],(uint256,uint256,address,uint256))'
+
+    const isSellingNativeTrx = !route.tokens[0] || route.tokens[0] === SUNIO_TRON_NATIVE_ADDRESS
+    const callValue = isSellingNativeTrx ? Number(sellAmountCryptoBaseUnit) : 0
+
+    const result = await tronWeb.transactionBuilder.triggerConstantContract(
+      SUNIO_SMART_ROUTER_CONTRACT,
+      functionSelector,
+      { callValue },
+      parameters,
+      senderAddress,
+    )
+
+    const energyUsed = result.energy_used ?? 0
+    const energyPenalty = result.energy_penalty ?? 0
+    const totalEnergy = energyUsed + energyPenalty
+
+    return totalEnergy > 0 ? totalEnergy : undefined
+  } catch {
+    return undefined
+  }
+}
 
 export async function getQuoteOrRate(
   input: GetTronTradeQuoteInput | CommonTradeQuoteInput,
@@ -190,6 +255,11 @@ export async function getQuoteOrRate(
       )
     }
 
+    const buyAmountCryptoBaseUnit = BigAmount.fromPrecision({
+      value: bestRoute.amountOut,
+      precision: buyAsset.precision,
+    }).toBaseUnit()
+
     let networkFeeCryptoBaseUnit: string | undefined = undefined
 
     try {
@@ -197,9 +267,20 @@ export async function getQuoteOrRate(
       const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
       const isSellingNativeTrx = !contractAddress
 
-      const [{ bandwidthPrice, energyPrice }, contractParams] = await Promise.all([
+      const senderAddress = 'sendAddress' in input ? input.sendAddress : undefined
+
+      const [{ bandwidthPrice, energyPrice }, contractParams, simulatedEnergy] = await Promise.all([
         getChainPrices(rpcUrl),
         getContractParams(rpcUrl),
+        senderAddress
+          ? simulateSwapEnergy(
+              bestRoute,
+              sellAmountIncludingProtocolFeesCryptoBaseUnit,
+              buyAmountCryptoBaseUnit,
+              senderAddress,
+              rpcUrl,
+            )
+          : Promise.resolve(undefined),
       ])
 
       let accountActivationFee = 0
@@ -220,12 +301,17 @@ export async function getQuoteOrRate(
         }
       }
 
-      const baseEnergy = isSellingNativeTrx ? BASE_ENERGY_TRX_TO_TOKEN : BASE_ENERGY_TRC20_TO_TOKEN
+      const baseEnergy = simulatedEnergy
+        ? Math.ceil(simulatedEnergy * SAFETY_MARGIN)
+        : isSellingNativeTrx
+        ? BASE_ENERGY_TRX_TO_TOKEN
+        : BASE_ENERGY_TRC20_TO_TOKEN
 
-      const adjustedEnergy =
-        contractParams.energyFactor > 0
-          ? Math.ceil(baseEnergy * (1 + contractParams.energyFactor))
-          : baseEnergy
+      const adjustedEnergy = simulatedEnergy
+        ? baseEnergy
+        : contractParams.energyFactor > 0
+        ? Math.ceil(baseEnergy * (1 + contractParams.energyFactor))
+        : baseEnergy
 
       const userEnergy = calculateUserEnergy(adjustedEnergy, contractParams)
 
@@ -245,11 +331,6 @@ export async function getQuoteOrRate(
         throw error
       }
     }
-
-    const buyAmountCryptoBaseUnit = BigAmount.fromPrecision({
-      value: bestRoute.amountOut,
-      precision: buyAsset.precision,
-    }).toBaseUnit()
 
     // Calculate protocol fees only for quotes
     const protocolFeeCryptoBaseUnit = isQuote

@@ -24,21 +24,9 @@ import { getSunioTradeQuote } from './getSunioTradeQuote/getSunioTradeQuote'
 import { getSunioTradeRate } from './getSunioTradeRate/getSunioTradeRate'
 import { buildSwapRouteParameters } from './utils/buildSwapRouteParameters'
 import { SUNIO_SMART_ROUTER_CONTRACT } from './utils/constants'
+import { convertAddressesToEvmFormat } from './utils/convertAddressesToEvmFormat'
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
-
-const convertAddressesToEvmFormat = (value: unknown): unknown => {
-  if (Array.isArray(value)) {
-    return value.map(v => convertAddressesToEvmFormat(v))
-  }
-
-  if (typeof value === 'string' && value.startsWith('T') && TronWeb.isAddress(value)) {
-    const hex = TronWeb.address.toHex(value)
-    return hex.replace(/^41/, '0x')
-  }
-
-  return value
-}
 
 export const sunioApi: SwapperApi = {
   getTradeQuote: async (

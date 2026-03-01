@@ -239,10 +239,17 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
         ...new Set(arrays.flatMap(a => a ?? [])),
       ]
 
+      // Preserve any non-eip155 namespaces from the original params
+      const { eip155: _reqEip155, ...otherRequiredNamespaces } = params.namespaces ?? {}
+      const { eip155: _optEip155, ...otherOptionalNamespaces } = params.optionalNamespaces ?? {}
+
       return originalConnect({
         ...params,
-        namespaces: {},
+        namespaces: {
+          ...otherRequiredNamespaces,
+        },
         optionalNamespaces: {
+          ...otherOptionalNamespaces,
           eip155: {
             chains: mergeUnique(requiredEvm?.chains, optionalEvm?.chains),
             methods: mergeUnique(requiredEvm?.methods, optionalEvm?.methods),
@@ -267,7 +274,7 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
       const originalSubscribeState = modal?.subscribeState?.bind(modal)
 
       if (modal) {
-        modal.subscribeState = () => {}
+        modal.subscribeState = (_callback: any) => () => {}
       }
 
       try {

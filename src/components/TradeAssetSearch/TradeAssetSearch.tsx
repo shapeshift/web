@@ -480,7 +480,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
             <InputLeftElement pointerEvents='none' zIndex={1}>
               <SearchIcon color='gray.300' />
             </InputLeftElement>
-            <Input {...inputProps} />
+            <Input {...inputProps} data-testid='asset-search-input' />
           </InputGroup>
           {showAssetTab && (
             <AllChainMenu

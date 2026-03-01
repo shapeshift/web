@@ -1,0 +1,164 @@
+name: fox-ecosystem
+description: Fox Ecosystem page - rFOX staking/unstaking/claiming, simulator, FOX token, farming, governance, action center notifications
+route: /fox-ecosystem
+depends_on:
+  - wallet-health.yaml
+
+steps:
+  - name: Navigate to Fox Ecosystem
+    instruction: Navigate to the fox-ecosystem route (use BASE_URL from environment). Wait for the page to fully load with rFOX section visible.
+    expected: Page shows "FOX Token Dashboard" heading, rFOX Staking section with APY badge, navigation links (rFOX Staking, FOX Token, FOX Farming+, Governance). "Program Ended" banner about WETH/FOX sunset visible.
+    screenshot: true
+
+  - name: Verify rFOX section balances
+    instruction: Check [data-testid="rfox-section"]. Read the staking balance, pending rewards, lifetime rewards, and time in pool values.
+    expected: Staking balance shows FOX amount with USD equivalent. Pending rewards shows USDC amount. Lifetime rewards shows USD value. Time in pool shows duration. APY percentage displayed in badge. FOX and WETH/FOX filter tabs visible.
+    screenshot: true
+
+  - name: Stake FOX - open modal and enter amount
+    instruction: Click [data-testid="rfox-stake-button"] via JS dispatchEvent. Focus the amount input, type "0.5" via keyboard type. Wait for gas estimation to load.
+    expected: >
+      Stake dialog opens showing Balance X FOX on Arbitrum One. After typing 0.5,
+      Staking Details appear with Stake Amount, Lockup Period, Share of Pool,
+      and Approval Fee or Network Fee. Stake button becomes enabled.
+    screenshot: true
+
+  - name: Stake FOX - submit and approve
+    instruction: Click the "Stake" button via JS dispatchEvent. An "Attention!" warning appears about the lock-up period. Click "Yes" to proceed. The confirm screen shows amount, fee, and "Approve" button (if first stake) or "Confirm & Stake". Click "Approve" if shown, wait for approval tx to confirm, then click "Confirm & Stake".
+    expected: Warning modal mentions 1 month lock-up period. After confirming, approval toast "Approving RFOX to use X FOX" appears in bottom-right. After approval confirms, toast updates to "Approved RFOX to use X FOX" with green checkmark. Button changes to "Confirm & Stake". After stake confirms, toast shows "You have successfully staked X FOX" with green checkmark. Modal returns to input screen.
+    screenshot: true
+    soft_fail: true
+
+  - name: Verify staking balance increased
+    instruction: Close the Stake modal. Read the staking balance in [data-testid="rfox-section"].
+    expected: Staking balance has increased by the staked amount (0.5 FOX). The balance update is visible on the main page.
+    screenshot: true
+
+  - name: Unstake FOX - open modal and select 25%
+    instruction: Click [data-testid="rfox-unstake-button"] via JS dispatchEvent. Click the "25%" preset button.
+    expected: Unstake dialog opens at 100%, then changes to 25.00% after clicking preset. Amount shows approximately 25% of staked balance. Staking Details show Unstake Amount, Lockup Period (a month), Share of Pool, Gas Fee. Unstake button enabled.
+    screenshot: true
+
+  - name: Unstake FOX - submit and confirm
+    instruction: Click the "Unstake" button. An "Attention!" warning appears about cooldown period. Click "I understand". On the Confirm screen, click "Confirm & Unstake". Wait for tx to process.
+    expected: Warning mentions cooldown period of a month. After confirmation, toast "Requesting withdraw of X FOX" appears (pending). After tx confirms, toast updates to "Once a month has elapsed you will be able to claim your X FOX" with green checkmark. Modal returns to input screen. Staking balance decreases.
+    screenshot: true
+    soft_fail: true
+
+  - name: Check Action Center notifications
+    instruction: Click the notification bell button (aria-label="Pending Transactions") in the header. Read the notifications list.
+    expected: Action Center drawer opens showing "Notifications" header. Recent transactions listed with status badges - Confirmed for stake/unstake, Claim Available for ready unstaking requests, Claimed for completed claims. Each shows rFOX icon, description, and time ago.
+    screenshot: true
+
+  - name: Close Action Center
+    instruction: Click the close button (aria-label="Close") on the Action Center drawer.
+    expected: Drawer closes, back to Fox Ecosystem page.
+    screenshot: false
+
+  - name: Open Claim modal and verify requests
+    instruction: Click [data-testid="rfox-claim-button"] via JS dispatchEvent.
+    expected: Claim dialog opens with a list of unstaking requests. Each shows Claim FOX, cooldown status, and FOX amount. Cooling-down requests show "Claim available in X days" (yellow text). Ready requests show "Cooldown finished X ago" (green text) and are clickable.
+    screenshot: true
+
+  - name: Claim a ready unstaking request
+    instruction: >
+      Check if any enabled claim request exists (one with "Cooldown finished" text and not disabled).
+      If no ready requests exist (all are still cooling down), skip this step.
+      If a ready request exists, find the smallest one and click it via JS dispatchEvent.
+    expected: >
+      Either no ready requests exist (all cooling down, step is skipped) OR
+      confirmation screen shows claim amount in FOX with USD value, receive address,
+      network fee in USD, and "Confirm & Claim" button.
+    screenshot: true
+    soft_fail: true
+
+  - name: Confirm the claim transaction
+    instruction: >
+      If the previous step was skipped (no ready requests), skip this step too.
+      Otherwise click the "Confirm & Claim" button via JS dispatchEvent. Wait 5 seconds for transaction to process.
+    expected: >
+      Either skipped (no ready claim) OR transaction signs and submits. Returns to
+      claim list. The claimed request should no longer appear in the list.
+      NOTE - no success toast is shown for claims, this is a known UX inconsistency.
+    screenshot: true
+    soft_fail: true
+
+  - name: Verify balance increased after claim
+    instruction: Close the Claim modal. Open the Stake modal via [data-testid="rfox-stake-button"] and read the available balance.
+    expected: Available FOX balance has increased by the claimed amount.
+    screenshot: true
+
+  - name: Close Stake modal after balance check
+    instruction: Close the dialog via JS dispatchEvent.
+    expected: Dialog closes.
+    screenshot: false
+
+  - name: Switch to WETH/FOX filter
+    instruction: Click [data-testid="fox-chain-filter-WETH/FOX"] via JS dispatchEvent. Scroll [data-testid="rfox-section"] into view.
+    expected: rFOX section switches to WETH/FOX view. Staking balance shows WETH/FOX amount. Stake button is hidden (LP sunset). Only Unstake and Claim buttons visible.
+    screenshot: true
+
+  - name: Switch back to FOX filter
+    instruction: Click [data-testid="fox-chain-filter-FOX"] via JS dispatchEvent.
+    expected: rFOX section switches back to FOX view with all three buttons (Stake, Unstake, Claim).
+    screenshot: false
+
+  - name: Test simulator deposit input
+    instruction: Focus [data-testid="rfox-deposit-input"] via JS focus() + select(), then type "50000" via keyboard type.
+    expected: Deposit amount shows 50,000 FOX. Share of Pool percentage increases from the default value.
+    screenshot: true
+
+  - name: Test simulator revenue input
+    instruction: Focus [data-testid="rfox-revenue-input"] via JS focus() + select(), then type "500000" via keyboard type.
+    expected: Revenue shows $500,000. Estimated Rewards, Total Burn values update proportionally.
+    screenshot: true
+
+  - name: Scroll to FOX Token section
+    instruction: Scroll [data-testid="fox-token-section"] into view using JS scrollIntoView({behavior:"smooth",block:"start"}).
+    expected: FOX Token section visible with current price, 24h change (green/red), market cap, 24hr volume. Buy [data-testid="fox-buy-button"] and Trade [data-testid="fox-trade-button"] buttons visible. Chain filter buttons (All, Ethereum, Arbitrum One, Optimism, Polygon, Gnosis) visible.
+    screenshot: true
+
+  - name: Test Ethereum chain filter
+    instruction: Click [data-testid="fox-chain-filter-Ethereum"] via JS dispatchEvent.
+    expected: Token balance list filters to show only Ethereum FOX holdings.
+    screenshot: true
+
+  - name: Test Arbitrum chain filter
+    instruction: Click [data-testid="fox-chain-filter-Arbitrum One"] via JS dispatchEvent.
+    expected: Token balance list filters to show only Arbitrum One FOX holdings.
+    screenshot: true
+
+  - name: Reset chain filter to All
+    instruction: Click [data-testid="fox-chain-filter-All"] via JS dispatchEvent.
+    expected: All FOX balances across all chains shown in the list.
+    screenshot: false
+
+  - name: Scroll to FOX Farming section
+    instruction: Scroll to the FOX Farming+ section using document.getElementById("farming").scrollIntoView(). Scroll up 200px to see full section.
+    expected: Farming section shows APY percentage, Total Claimable Rewards in FOX with Claim button [data-testid="fox-farming-claim-button"], Total Staking Value in WETH/FOX with Manage button [data-testid="fox-farming-manage-button"], Next Epoch countdown.
+    screenshot: true
+
+  - name: Scroll to Governance section
+    instruction: Scroll to Governance using document.getElementById("governance").scrollIntoView().
+    expected: Governance section shows total voting power in FOX, Active tab [data-testid="governance-tab-active"] selected by default, at least one proposal with title, description snippet, and vote counts (For/Against with progress bars).
+    screenshot: true
+
+  - name: Test Governance Closed tab
+    instruction: Click [data-testid="governance-tab-closed"] via JS dispatchEvent.
+    expected: Closed tab shows completed proposals with final vote tallies, For/Against percentages and progress bars.
+    screenshot: true
+
+  - name: Reset Governance to Active tab
+    instruction: Click [data-testid="governance-tab-active"] via JS dispatchEvent.
+    expected: Active tab selected again showing current proposals.
+    screenshot: false
+
+  - name: Re-verify Action Center after all transactions
+    instruction: Click the notification bell button (aria-label="Pending Transactions"). Scroll through the notifications list.
+    expected: Action Center shows complete history - stake confirmation, unstake with cooldown info, approval confirmation, claim completions, and any "Claim Available" items for ready unstaking requests. All entries have correct status badges and timestamps.
+    screenshot: true
+
+  - name: Close Action Center final
+    instruction: Click the close button on the Action Center drawer.
+    expected: Drawer closes cleanly.
+    screenshot: false

@@ -1303,7 +1303,7 @@ importers:
         version: 4.2.0
       '@ledgerhq/device-core':
         specifier: 0.6.9
-        version: 0.6.9(react-redux@9.2.0(@types/react@19.1.2)(react@18.3.1)(redux@5.0.1))(react@18.3.1)
+        version: 0.6.9(react-redux@9.2.0(@types/react@19.1.2)(react@19.2.4)(redux@5.0.1))(react@19.2.4)
       '@ledgerhq/hw-app-btc':
         specifier: 10.13.0
         version: 10.13.0
@@ -1312,7 +1312,7 @@ importers:
         version: 6.32.9
       '@ledgerhq/hw-app-eth':
         specifier: 7.0.0
-        version: 7.0.0(react-redux@9.2.0(@types/react@19.1.2)(react@18.3.1)(redux@5.0.1))(react@18.3.1)
+        version: 7.0.0(react-redux@9.2.0(@types/react@19.1.2)(react@19.2.4)(redux@5.0.1))(react@19.2.4)
       '@ledgerhq/hw-app-near':
         specifier: 6.31.10
         version: 6.31.10
@@ -1385,7 +1385,7 @@ importers:
         version: 10.13.0
       '@ledgerhq/hw-app-eth':
         specifier: 7.0.0
-        version: 7.0.0(react-redux@9.2.0(@types/react@19.1.2)(react@19.2.4)(redux@5.0.1))(react@19.2.4)
+        version: 7.0.0(react-redux@9.2.0(@types/react@19.1.2)(react@18.3.1)(redux@5.0.1))(react@18.3.1)
       '@ledgerhq/hw-transport':
         specifier: 6.31.13
         version: 6.31.13
@@ -20423,14 +20423,14 @@ snapshots:
       - react
       - react-redux
 
-  '@ledgerhq/device-core@0.6.9(react-redux@9.2.0(@types/react@19.1.2)(react@18.3.1)(redux@5.0.1))(react@18.3.1)':
+  '@ledgerhq/device-core@0.6.9(react-redux@9.2.0(@types/react@19.1.2)(react@19.2.4)(redux@5.0.1))(react@19.2.4)':
     dependencies:
       '@ledgerhq/devices': 8.7.0
       '@ledgerhq/errors': 6.29.0
       '@ledgerhq/hw-transport': 6.31.13
       '@ledgerhq/live-network': 2.2.3
       '@ledgerhq/logs': 6.13.0
-      '@ledgerhq/types-live': 6.98.0(react-redux@9.2.0(@types/react@19.1.2)(react@18.3.1)(redux@5.0.1))(react@18.3.1)
+      '@ledgerhq/types-live': 6.98.0(react-redux@9.2.0(@types/react@19.1.2)(react@19.2.4)(redux@5.0.1))(react@19.2.4)
       '@noble/hashes': 1.8.0
       semver: 7.7.4
     transitivePeerDependencies:

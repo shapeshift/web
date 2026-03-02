@@ -29,6 +29,7 @@ import type {
   NearChainId,
   OrderQuoteResponse,
   PartialRecord,
+  SolanaChainId,
   TonChainId,
   TronChainId,
   UtxoAccountType,
@@ -278,6 +279,18 @@ export type GetTonTradeRateInput = CommonTradeRateInput & {
   chainId: TonChainId
 }
 
+export type GetSolanaTradeQuoteInputBase = CommonTradeInput & {
+  chainId: SolanaChainId
+}
+
+export type GetSolanaTradeQuoteInput = CommonTradeInput & {
+  chainId: SolanaChainId
+}
+
+export type GetSolanaTradeRateInput = CommonTradeRateInput & {
+  chainId: SolanaChainId
+}
+
 type GetUtxoTradeQuoteWithWallet = CommonTradeQuoteInput & {
   chainId: UtxoChainId
   accountType: UtxoAccountType
@@ -303,6 +316,7 @@ export type GetTradeQuoteInput =
   | GetTronTradeQuoteInput
   | GetNearTradeQuoteInput
   | GetTonTradeQuoteInput
+  | GetSolanaTradeQuoteInput
 
 export type GetTradeRateInput =
   | GetEvmTradeRateInput
@@ -311,6 +325,7 @@ export type GetTradeRateInput =
   | GetTronTradeRateInput
   | GetNearTradeRateInput
   | GetTonTradeRateInput
+  | GetSolanaTradeRateInput
 
 export type GetTradeQuoteInputWithWallet =
   | GetUtxoTradeQuoteWithWallet
@@ -319,6 +334,7 @@ export type GetTradeQuoteInputWithWallet =
   | GetTronTradeQuoteInputBase
   | GetNearTradeQuoteInputBase
   | GetTonTradeQuoteInputBase
+  | GetSolanaTradeQuoteInputBase
 
 export type EvmSwapperDeps = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter

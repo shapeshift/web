@@ -1,5 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
+import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import type {
   ETHSignMessage,
   ETHSignTx,
@@ -48,6 +49,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
 import PQueue from 'p-queue'
+import type { Hex, PublicClient } from 'viem'
 import { isAddress, toHex } from 'viem'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
@@ -592,6 +594,25 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
+  private async getAccountFallback(pubkey: string, viemClient: PublicClient): Promise<Account<T>> {
+    const [balance, nonce] = await Promise.all([
+      viemClient.getBalance({ address: pubkey as `0x${string}` }),
+      viemClient.getTransactionCount({ address: pubkey as `0x${string}` }),
+    ])
+
+    return {
+      balance: balance.toString(),
+      chainId: this.chainId,
+      assetId: this.assetId,
+      chain: this.getType(),
+      chainSpecific: {
+        nonce,
+        tokens: [],
+      },
+      pubkey,
+    } as Account<T>
+  }
+
   async getAccount(pubkey: string): Promise<Account<T>> {
     try {
       const data = await this.providers.http.getAccount({ pubkey })
@@ -620,6 +641,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         pubkey,
       } as Account<T>
     } catch (err) {
+      const viemClient = viemClientByChainId[this.chainId]
+      if (viemClient) {
+        console.warn(`Unchained getAccount failed for ${this.chainId}, falling back to direct RPC`)
+        return this.getAccountFallback(pubkey, viemClient)
+      }
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getAccount',
         options: { pubkey },
@@ -712,9 +738,18 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
       ])
 
-      const txHash = await this.providers.http.sendTx({ sendTxBody: { hex } })
-
-      return txHash
+      try {
+        return await this.providers.http.sendTx({ sendTxBody: { hex } })
+      } catch (unchainedErr) {
+        const viemClient = viemClientByChainId[this.chainId]
+        if (viemClient) {
+          console.warn(
+            `Unchained broadcastTransaction failed for ${this.chainId}, falling back to direct RPC`,
+          )
+          return viemClient.sendRawTransaction({ serializedTransaction: hex as Hex })
+        }
+        throw unchainedErr
+      }
     } catch (err) {
       return handleBroadcastTransactionError(err)
     }
@@ -931,11 +966,33 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
+  private async getGasFeeDataFallback(viemClient: PublicClient): Promise<GasFeeDataEstimate> {
+    const feeData = await viemClient.estimateFeesPerGas()
+
+    const gasPrice = (feeData.gasPrice ?? 0n).toString()
+    const maxFeePerGas = feeData.maxFeePerGas?.toString()
+    const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas?.toString()
+
+    const fees = {
+      gasPrice,
+      ...(maxFeePerGas && maxPriorityFeePerGas ? { maxFeePerGas, maxPriorityFeePerGas } : {}),
+    }
+
+    return { fast: fees, average: fees, slow: fees }
+  }
+
   async getGasFeeData(): Promise<GasFeeDataEstimate> {
     try {
       const { fast, average, slow } = await this.providers.http.getGasFees()
       return { fast, average, slow }
     } catch (err) {
+      const viemClient = viemClientByChainId[this.chainId]
+      if (viemClient) {
+        console.warn(
+          `Unchained getGasFeeData failed for ${this.chainId}, falling back to direct RPC`,
+        )
+        return this.getGasFeeDataFallback(viemClient)
+      }
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getGasFeeData',
       })

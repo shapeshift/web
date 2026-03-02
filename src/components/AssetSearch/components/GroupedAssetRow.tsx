@@ -120,6 +120,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
           ml={index > 0 ? -1.5 : 0}
           border='1px solid'
           borderColor='background.surface.overlay.base'
+          data-testid={`chain-icon-${chainId}`}
         >
           <LazyLoadAvatar src={feeAsset?.networkIcon ?? feeAsset?.icon} boxSize='100%' />
         </Box>
@@ -140,6 +141,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
           zIndex={0}
           border='1px solid'
           borderColor='background.surface.overlay.base'
+          data-testid={`chain-icon-overflow-${overflowCount}`}
         >
           {`+${overflowCount}`}
         </Center>,
@@ -268,7 +270,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
                   lineHeight={1}
                   value={groupedAssetBalances?.primaryAsset.fiatAmount.toString()}
                 />
-                <Flex>
+                <Flex data-testid={`chain-icons-${asset.symbol}`}>
                   {networksIcons}
                   <Center
                     bg='background.button.secondary.base'

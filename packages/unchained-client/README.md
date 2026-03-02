@@ -10,10 +10,10 @@ Using npm:
 npm install @shapeshiftoss/unchained-client
 ```
 
-Using yarn:
+Using pnpm:
 
 ```sh
-yarn add @shapeshiftoss/unchained-client
+pnpm add @shapeshiftoss/unchained-client
 ```
 
 ## Resources

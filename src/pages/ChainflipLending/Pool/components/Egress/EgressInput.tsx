@@ -289,7 +289,7 @@ export const EgressInput = ({ assetId }: EgressInputProps) => {
             {isCustomAddress ? (
               <Input
                 {...register('manualAddress', {
-                  required: true,
+                  required: translate('common.addressRequired'),
                   validate: { isValidAddress: validateChainAddress },
                 })}
                 placeholder={translate('common.enterAddress')}
@@ -318,7 +318,7 @@ export const EgressInput = ({ assetId }: EgressInputProps) => {
 
           {!hasFreeBalance && (
             <RawText fontSize='xs' color='yellow.500'>
-              {translate('chainflipLending.supply.noFreeBalance')}
+              {translate('chainflipLending.egress.noFreeBalance')}
             </RawText>
           )}
         </VStack>

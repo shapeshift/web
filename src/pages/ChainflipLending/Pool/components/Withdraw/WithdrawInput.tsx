@@ -138,8 +138,9 @@ export const WithdrawInput = ({ assetId }: WithdrawInputProps) => {
       const checked = e.target.checked
       setWithdrawToWallet(checked)
       if (checked) {
-        setDestinationAddress(defaultAddress)
-        setIsCustomAddress(!walletSupportsAssetChain)
+        const showCustom = !walletSupportsAssetChain
+        setDestinationAddress(showCustom ? '' : defaultAddress)
+        setIsCustomAddress(showCustom)
       }
     },
     [defaultAddress, walletSupportsAssetChain],
@@ -384,7 +385,7 @@ export const WithdrawInput = ({ assetId }: WithdrawInputProps) => {
                     {isCustomAddress ? (
                       <Input
                         {...register('manualAddress', {
-                          required: true,
+                          required: translate('common.addressRequired'),
                           validate: { isValidAddress: validateChainAddress },
                         })}
                         placeholder={translate('common.enterAddress')}

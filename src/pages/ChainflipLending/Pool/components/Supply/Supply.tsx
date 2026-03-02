@@ -91,7 +91,7 @@ const useLendingPositionSync = (assetId: AssetId) => {
   const cfAsset = useMemo(() => CHAINFLIP_LENDING_ASSET_BY_ASSET_ID[assetId], [assetId])
 
   const lendingPositionCryptoBaseUnit = useMemo(() => {
-    if (!accountInfo?.lending_positions || !cfAsset) return '0'
+    if (!Array.isArray(accountInfo?.lending_positions) || !cfAsset) return '0'
     const matching = accountInfo.lending_positions.find(
       (p: { chain: string; asset: string; total_amount?: string }) =>
         p.chain === cfAsset.chain && p.asset === cfAsset.asset,

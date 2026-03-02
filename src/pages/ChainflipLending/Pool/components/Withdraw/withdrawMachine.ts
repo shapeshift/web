@@ -147,6 +147,13 @@ export const withdrawMachine = setup({
       },
     }),
     clearError: assign({ error: null, errorStep: null }),
+    resetExecutionState: assign({
+      txHashes: {} as WithdrawTxHashes,
+      lastUsedNonce: undefined,
+      egressTxRef: null,
+      stepConfirmed: false,
+      useBatch: false,
+    }),
     confirmStep: assign({ stepConfirmed: true }),
     resetStepConfirmed: assign({ stepConfirmed: false }),
     resetForNewWithdraw: assign({
@@ -284,7 +291,7 @@ export const withdrawMachine = setup({
             actions: 'clearError',
           },
         ],
-        BACK: { target: 'input', actions: 'clearError' },
+        BACK: { target: 'input', actions: ['clearError', 'resetExecutionState'] },
       },
     },
   },

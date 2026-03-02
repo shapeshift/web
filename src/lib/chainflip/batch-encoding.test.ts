@@ -10,7 +10,7 @@ describe('batch encoding for withdraw+egress', () => {
   it('shows the scAccount derivation', () => {
     const sc = ethAddressToScAccount(destAddress)
     console.log('scAccount:', sc)
-    expect(sc).toMatch(/^0x[0-9a-fA-F]+$/)
+    expect(sc).toMatch(/^[1-9A-HJ-NP-Za-km-z]+$/)
   })
 
   it('encodes removeLenderFunds(USDC, null) for full withdrawal', () => {

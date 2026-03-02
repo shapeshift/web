@@ -30,8 +30,6 @@ const isCosmosSdkChainId = (chainId: string): boolean =>
 export const isWcSupportedChainId = (chainId: string): boolean =>
   isEvmChainId(chainId) || isBip122ChainId(chainId) || isCosmosSdkChainId(chainId)
 
-// BIP122 CAIP-10 requires derived addresses (bc1q..., 3...), not extended public keys (zpub/ypub/xpub)
-// See: https://namespaces.chainagnostic.org/bip122/caip10
 const ZPUB_NETWORK = {
   bip32: { public: 0x04b24746, private: 0x04b2430c },
   messagePrefix: '\x18Bitcoin Signed Message:\n',
@@ -65,22 +63,26 @@ export const isExtPubKey = (account: string): boolean =>
   )
 
 export const deriveAddressFromExtPubKey = (extPubKey: string): string => {
+  const isNativeSegwit =
+    extPubKey.startsWith('zpub') || extPubKey.startsWith('vpub') || extPubKey.startsWith('Zpub')
+  const isNestedSegwit = extPubKey.startsWith('ypub') || extPubKey.startsWith('Ypub')
+
   const network = (() => {
-    if (extPubKey.startsWith('zpub') || extPubKey.startsWith('vpub')) return ZPUB_NETWORK
-    if (extPubKey.startsWith('ypub') || extPubKey.startsWith('Ypub')) return YPUB_NETWORK
+    if (isNativeSegwit) return ZPUB_NETWORK
+    if (isNestedSegwit) return YPUB_NETWORK
     return XPUB_NETWORK
   })()
 
   const node = bip32.fromBase58(extPubKey, network)
   const child = node.derive(0).derive(0)
 
-  if (extPubKey.startsWith('zpub') || extPubKey.startsWith('vpub')) {
+  if (isNativeSegwit) {
     const { address } = payments.p2wpkh({ pubkey: child.publicKey, network })
     if (!address) throw new Error('Failed to derive P2WPKH address')
     return address
   }
 
-  if (extPubKey.startsWith('ypub') || extPubKey.startsWith('Ypub')) {
+  if (isNestedSegwit) {
     const { address } = payments.p2sh({
       redeem: payments.p2wpkh({ pubkey: child.publicKey, network }),
       network,
@@ -156,7 +158,6 @@ export const createApprovalNamespaces = (
     namespace => namespace.chains ?? [],
   )
 
-  // Handle optional EVM namespaces
   const additionalEvmChainIds = selectedChainIds.filter(
     chainId => isEvmChainId(chainId) && !requiredChainIds.includes(chainId),
   )
@@ -184,7 +185,6 @@ export const createApprovalNamespaces = (
     }
   }
 
-  // Handle optional BIP122 namespaces
   const additionalBip122ChainIds = selectedChainIds.filter(
     chainId => isBip122ChainId(chainId) && !requiredChainIds.includes(chainId),
   )
@@ -217,7 +217,6 @@ export const createApprovalNamespaces = (
     }
   }
 
-  // Handle optional Cosmos namespaces
   const cosmosNamespaceKey = CHAIN_NAMESPACE.CosmosSdk
   const additionalCosmosChainIds = selectedChainIds.filter(
     chainId => isCosmosSdkChainId(chainId) && !requiredChainIds.includes(chainId),

@@ -69,6 +69,29 @@ export interface CosmosSignedTx {
   signatures: string[]
 }
 
+export interface CosmosSignAminoDoc {
+  addressNList: BIP32Path
+  signDoc: {
+    chain_id: string
+    account_number: string
+    sequence: string
+    fee: Cosmos.StdFee
+    msgs: Cosmos.Msg[]
+    memo: string
+  }
+}
+
+export interface CosmosSignedAmino {
+  signed: CosmosSignAminoDoc['signDoc']
+  signature: {
+    pub_key: {
+      type: string
+      value: string
+    }
+    signature: string
+  }
+}
+
 export interface CosmosGetAccountPaths {
   accountIdx: number
 }
@@ -97,6 +120,7 @@ export interface CosmosWallet extends CosmosWalletInfo, HDWallet {
 
   cosmosGetAddress(msg: CosmosGetAddress): Promise<string | null>
   cosmosSignTx(msg: CosmosSignTx): Promise<CosmosSignedTx | null>
+  cosmosSignAmino?(msg: CosmosSignAminoDoc): Promise<CosmosSignedAmino | null>
 }
 
 export function cosmosDescribePath(path: BIP32Path): PathDescription {

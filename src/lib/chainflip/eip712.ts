@@ -86,10 +86,31 @@ export const signChainflipCall = async ({
 export const submitSignedCall = (signedExtrinsicHex: string): Promise<string> =>
   authorSubmitExtrinsic(signedExtrinsicHex)
 
+const isNonceError = (error: unknown): boolean => {
+  const message = error instanceof Error ? error.message : String(error)
+  return (
+    message.includes('Priority is too low') ||
+    message.includes('Stale') ||
+    message.includes('1010') ||
+    message.includes('nonce')
+  )
+}
+
 export const signAndSubmitChainflipCall = async (
   input: SignChainflipCallInput,
 ): Promise<{ signedExtrinsicHex: string; txHash: string; nonce: number }> => {
-  const { signedExtrinsicHex, transactionMetadata } = await signChainflipCall(input)
-  const txHash = await submitSignedCall(signedExtrinsicHex)
-  return { signedExtrinsicHex, txHash, nonce: transactionMetadata.nonce }
+  try {
+    const { signedExtrinsicHex, transactionMetadata } = await signChainflipCall(input)
+    const txHash = await submitSignedCall(signedExtrinsicHex)
+    return { signedExtrinsicHex, txHash, nonce: transactionMetadata.nonce }
+  } catch (firstError) {
+    if (!isNonceError(firstError)) throw firstError
+
+    const retryNonce =
+      typeof input.nonceOrAccount === 'number' ? input.nonceOrAccount + 1 : input.nonceOrAccount
+    const retryInput = { ...input, nonceOrAccount: retryNonce }
+    const { signedExtrinsicHex, transactionMetadata } = await signChainflipCall(retryInput)
+    const txHash = await submitSignedCall(signedExtrinsicHex)
+    return { signedExtrinsicHex, txHash, nonce: transactionMetadata.nonce }
+  }
 }

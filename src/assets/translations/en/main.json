@@ -1,5 +1,6 @@
 {
   "common": {
+    "addressRequired": "Address is required",
     "amount": "Amount",
     "ascending": "Ascending",
     "descending": "Descending",
@@ -2383,7 +2384,28 @@
   "chainflipLending": {
     "headerDescription": "Supply assets to earn yield or borrow against collateral on Chainflip.",
     "overview": "Overview",
-    "supply": "Supply",
+    "supply": {
+      "title": "Supply",
+      "amount": "Supply amount",
+      "available": "Available to supply",
+      "availableTooltip": "Your free balance on Chainflip State Chain available for lending",
+      "minimumSupply": "Minimum supply: %{amount}",
+      "confirmTitle": "Confirm Supply",
+      "confirmDescription": "Supply %{amount} %{asset} to the lending pool",
+      "confirmAndSupply": "Confirm & Supply",
+      "executingTitle": "Supplying...",
+      "executingDescription": "Your supply is being processed",
+      "successTitle": "Supply Successful",
+      "successDescription": "Your %{asset} is now earning yield",
+      "supplied": "Supplied",
+      "errorTitle": "Supply Failed",
+      "errorDescription": "Something went wrong while supplying",
+      "steps": {
+        "signing": "Signing supply transaction",
+        "confirming": "Confirming supply"
+      },
+      "noFreeBalance": "No free balance. Deposit to Chainflip first."
+    },
     "borrow": "Borrow",
     "totalSupplied": "Total Supplied",
     "totalSuppliedTooltip": "Total value of assets supplied across all Chainflip lending pools.",
@@ -2391,7 +2413,19 @@
     "availableLiquidityTooltip": "Total value of assets currently available to borrow across all pools.",
     "totalBorrowed": "Total Borrowed",
     "totalBorrowedTooltip": "Total value of outstanding borrows across all Chainflip lending pools.",
-    "pool": "Pool",
+    "pool": {
+      "depositFirst": "Deposit funds to Chainflip first",
+      "noFreeBalance": "No free balance available",
+      "noSupplyPosition": "No supply position to withdraw",
+      "noCollateral": "No collateral deposited",
+      "noLoans": "No active loans",
+      "supply": "Supply",
+      "withdrawSupply": "Withdraw Supply",
+      "depositToChainflip": "Deposit",
+      "withdrawFromChainflip": "Withdraw from Chainflip",
+      "freeBalance": "Free Balance",
+      "walletBalance": "Wallet Balance"
+    },
     "supplyApy": "Supply APY",
     "supplyApyTooltip": "Annual percentage yield earned by supplying assets to this pool.",
     "borrowRate": "Borrow Rate",
@@ -2461,7 +2495,83 @@
     "deployed": "Deployed",
     "comingSoon": "Coming Soon",
     "connectToViewBalances": "Connect wallet to view your balances",
-    "myBalancesTitle": "Chainflip Lending - My Balances"
+    "myBalancesTitle": "Chainflip Lending - My Balances",
+    "withdraw": {
+      "title": "Withdraw",
+      "amount": "Withdraw amount",
+      "available": "Available to withdraw",
+      "availableTooltip": "Your supply position in the lending pool",
+      "confirmTitle": "Confirm Withdrawal",
+      "confirmDescription": "Withdraw %{amount} %{asset} from the lending pool",
+      "confirmAndWithdraw": "Confirm & Withdraw",
+      "executingTitle": "Withdrawing...",
+      "executingDescription": "Your withdrawal is being processed",
+      "successTitle": "Withdrawal Successful",
+      "successDescription": "Your %{asset} has been withdrawn",
+      "withdrawn": "Withdrawn",
+      "errorTitle": "Withdrawal Failed",
+      "errorDescription": "Something went wrong while withdrawing",
+      "noPosition": "No supply position found for this asset",
+      "withdrawAmount": "Withdraw",
+      "steps": {
+        "signingBatch": "Signing withdrawal",
+        "signingRemove": "Removing from pool",
+        "signingEgress": "Withdrawing to wallet",
+        "confirming": "Confirming withdrawal"
+      },
+      "alsoWithdrawToWallet": "Also withdraw to wallet",
+      "freeBalanceExplainer": "By default, funds are withdrawn to your free balance on the Chainflip State Chain. Check the box below to also withdraw them back to your wallet.",
+      "fullWithdrawalOnlyTooltip": "Your position is below the minimum required for partial withdrawal. Only full withdrawal is available.",
+      "partialBelowMinimum": "Minimum withdrawal is %{amount}",
+      "remainingBelowMinimum": "Remaining position must be at least %{amount} or withdraw the full amount",
+      "destinationAddress": "Destination address"
+    },
+    "withdrawFromChainflip": {
+      "title": "Withdraw from Chainflip",
+      "amount": "Amount",
+      "destination": "Destination Address",
+      "available": "Available Free Balance",
+      "confirmAndWithdraw": "Confirm Withdrawal",
+      "confirmTitle": "Confirm Withdrawal",
+      "confirmDescription": "Withdraw %{amount} %{symbol} from your Chainflip free balance to your wallet",
+      "errorTitle": "Withdrawal Failed",
+      "errorDescription": "There was an error processing your withdrawal. Please try again.",
+      "executingTitle": "Processing Withdrawal",
+      "executingDescription": "Your withdrawal is being processed on the Chainflip State Chain",
+      "successTitle": "Withdrawal Submitted",
+      "successDescription": "Your withdrawal has been submitted and will arrive in your wallet shortly",
+      "steps": {
+        "signing": "Signing withdrawal transaction",
+        "confirming": "Confirming withdrawal"
+      }
+    },
+    "egress": {
+      "title": "Withdraw from Chainflip",
+      "amount": "Amount",
+      "destination": "Destination Address",
+      "destinationPlaceholder": "Enter destination address",
+      "available": "Available Free Balance",
+      "confirmAndWithdraw": "Confirm Withdrawal",
+      "confirmTitle": "Confirm Withdrawal",
+      "confirmDescription": "Withdraw %{amount} %{asset} from your Chainflip free balance to your wallet",
+      "errorTitle": "Withdrawal Failed",
+      "errorDescription": "There was an error processing your withdrawal. Please try again.",
+      "executingTitle": "Processing Withdrawal",
+      "executingDescription": "Your withdrawal is being processed on the Chainflip State Chain",
+      "successTitle": "Withdrawal Submitted",
+      "successDescription": "Your withdrawal of %{asset} has been submitted and will arrive in your wallet shortly",
+      "withdrawn": "Withdrawn",
+      "steps": {
+        "signing": "Signing withdrawal transaction",
+        "confirming": "Confirming withdrawal"
+      },
+      "transactionId": "Transaction ID",
+      "noFreeBalance": "No free balance available to withdraw"
+    },
+    "borrowRateTooltip": "The current annual interest rate for borrowing from this pool",
+    "originationFeeTooltip": "One-time fee charged when creating or expanding a loan",
+    "liquidationFeeTooltip": "Fee charged during liquidation of collateral",
+    "suppliedBalance": "Supplied"
   },
   "chart": {
     "interval": {
@@ -3113,10 +3223,8 @@
       "enterAmountDescription": "Amount must be greater than zero.",
       "initiateFailedTitle": "Error",
       "initiateFailedDescription": "Failed to initiate transaction sequence.",
-      "quoteFailedTitle": "Quote Failed",
-      "quoteFailedDescription": "Unable to get a quote for this transaction. Please try again.",
-      "insufficientAssetForGas": "Insufficient %{symbol} for Gas",
-      "rateLimited": "Too Many Requests"
+      "quoteFailedTitle": "Quote failed",
+      "quoteFailedDescription": "Unable to get a quote for this transaction. Please try again."
     },
     "underMaintenance": "Under Maintenance",
     "underMaintenanceDescription": "This yield opportunity is currently under maintenance. Deposits may be unavailable.",

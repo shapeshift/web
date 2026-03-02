@@ -22,6 +22,7 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
 import {
   CHAINFLIP_FLIP_TOKEN_ADDRESS,
   CHAINFLIP_GATEWAY_CONTRACT_ADDRESS,
@@ -44,6 +45,7 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
   const translate = useTranslate()
   const queryClient = useQueryClient()
   const { accountNumber, scAccount } = useChainflipLendingAccount()
+  const { close: closeModal } = useModal('chainflipLending')
   const { freeBalances } = useChainflipAccount()
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdsByAccountNumberAndChainId,
@@ -148,8 +150,8 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
       await queryClient.invalidateQueries(reactQueries.chainflipLending.freeBalances(scAccount))
       await queryClient.invalidateQueries(reactQueries.chainflipLending.accountInfo(scAccount))
     }
-    actorRef.send({ type: 'DONE' })
-  }, [scAccount, queryClient, actorRef])
+    closeModal()
+  }, [scAccount, queryClient, closeModal])
 
   const handleBack = useCallback(() => {
     actorRef.send({ type: 'BACK' })

@@ -8,8 +8,12 @@ import {
   encodeNonNativeSignedCall,
   encodeRegisterLiquidityRefundAddress,
   encodeRegisterLpAccount,
+  encodeRemoveCollateral,
   encodeRemoveLenderFunds,
   encodeRequestLiquidityDepositAddress,
+  encodeRequestLoan,
+  encodeUpdateCollateralTopupAsset,
+  encodeWithdrawAsset,
 } from './scale'
 
 describe('chainflip scale encoders', () => {
@@ -95,5 +99,103 @@ describe('chainflip scale encoders', () => {
     const expected = bytesToHex(Uint8Array.from([...lengthPrefix, ...versioned]))
 
     expect(encoded).toBe(expected)
+  })
+
+  describe('encodeRemoveLenderFunds', () => {
+    it('encodes partial withdrawal with specific amount', () => {
+      const encoded = encodeRemoveLenderFunds({ chain: 'Bitcoin', asset: 'BTC' }, 500)
+      expect(encoded).toBe('0x35060501f4010000000000000000000000000000')
+    })
+  })
+
+  describe('encodeWithdrawAsset', () => {
+    it('encodes withdrawal to Ethereum address', () => {
+      const ethAddress = `0x${'aa'.repeat(20)}`
+      const encoded = encodeWithdrawAsset(
+        1000,
+        { chain: 'Ethereum', asset: 'ETH' },
+        { chain: 'Ethereum', address: ethAddress },
+      )
+      expect(encoded).toMatch(/^0x1f01/)
+      expect(encoded).toMatch(/^0x[0-9a-f]+$/)
+      expect(encoded).toContain('aa'.repeat(20))
+    })
+
+    it('encodes withdrawal to Bitcoin address (text-encoded)', () => {
+      const btcAddress = 'bc1qtest'
+      const encoded = encodeWithdrawAsset(
+        50000,
+        { chain: 'Bitcoin', asset: 'BTC' },
+        { chain: 'Bitcoin', address: btcAddress },
+      )
+      expect(encoded).toMatch(/^0x1f01/)
+      expect(encoded).toMatch(/^0x[0-9a-f]+$/)
+    })
+
+    it('encodes withdrawal to Solana address (base58)', () => {
+      const solAddress = '11111111111111111111111111111111'
+      const encoded = encodeWithdrawAsset(
+        100,
+        { chain: 'Solana', asset: 'SOL' },
+        { chain: 'Solana', address: solAddress },
+      )
+      expect(encoded).toMatch(/^0x1f01/)
+      expect(encoded).toMatch(/^0x[0-9a-f]+$/)
+    })
+  })
+
+  describe('encodeRemoveCollateral', () => {
+    it('encodes single asset removal', () => {
+      const encoded = encodeRemoveCollateral([
+        { asset: { chain: 'Ethereum', asset: 'ETH' }, amount: 100 },
+      ])
+      expect(encoded).toBe('0x3508040164000000000000000000000000000000')
+    })
+  })
+
+  describe('encodeRequestLoan', () => {
+    it('encodes loan request with no extra collateral', () => {
+      const encoded = encodeRequestLoan({ chain: 'Ethereum', asset: 'USDC' }, 5000, null, [])
+      expect(encoded).toBe('0x350903881300000000000000000000000000000000')
+    })
+
+    it('encodes loan request with extra collateral and topup asset', () => {
+      const encoded = encodeRequestLoan(
+        { chain: 'Ethereum', asset: 'USDC' },
+        5000,
+        { chain: 'Ethereum', asset: 'ETH' },
+        [{ asset: { chain: 'Bitcoin', asset: 'BTC' }, amount: 10 }],
+      )
+      expect(encoded).toMatch(/^0x3509/)
+      expect(encoded).toMatch(/^0x[0-9a-f]+$/)
+    })
+  })
+
+  describe('encodeUpdateCollateralTopupAsset', () => {
+    it('encodes setting topup asset', () => {
+      const encoded = encodeUpdateCollateralTopupAsset({ chain: 'Ethereum', asset: 'ETH' })
+      expect(encoded).toBe('0x350a0101')
+    })
+
+    it('encodes clearing topup asset (null)', () => {
+      const encoded = encodeUpdateCollateralTopupAsset(null)
+      expect(encoded).toBe('0x350a00')
+    })
+  })
+
+  describe('encodeBatch', () => {
+    it('throws if more than 10 calls', () => {
+      const singleCall = encodeAddLenderFunds({ chain: 'Bitcoin', asset: 'BTC' }, 1)
+      const calls = Array.from({ length: 11 }, () => singleCall)
+      expect(() => encodeBatch(calls)).toThrow('Batch call limit exceeded')
+    })
+  })
+
+  describe('encodeAddLenderFunds', () => {
+    it('throws for unsupported asset', () => {
+      expect(() => encodeAddLenderFunds({ chain: 'Arbitrum', asset: 'ETH' } as never, 1)).toThrow(
+        'Unsupported Chainflip asset',
+      )
+    })
   })
 })

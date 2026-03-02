@@ -23,7 +23,13 @@ export const rateLimitCleanupInterval = setInterval(() => {
 }, CLEANUP_INTERVAL_MS)
 
 const getKey = (req: Request): string => {
-  return req.affiliateInfo?.affiliateAddress ?? req.ip ?? req.socket.remoteAddress ?? 'unknown'
+  const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown'
+  const affiliateAddress = req.affiliateInfo?.affiliateAddress?.toLowerCase()
+  if (affiliateAddress) return `${affiliateAddress}:${ip}`
+  if (ip === 'unknown') {
+    console.warn('[rateLimit] Could not determine client identity, using shared bucket')
+  }
+  return ip
 }
 
 export const registerRateLimit = (req: Request, res: Response, next: NextFunction): void => {

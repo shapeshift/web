@@ -194,6 +194,7 @@ export async function getCowSwapTradeQuote(
           buyAsset,
           sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
           buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+          isEstimate: true,
         }),
         buyAsset,
         sellAsset,

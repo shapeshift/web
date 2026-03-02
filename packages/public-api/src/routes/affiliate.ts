@@ -4,6 +4,8 @@ import { z } from 'zod'
 import { SWAP_SERVICE_BASE_URL } from '../config'
 import type { ErrorResponse } from '../types'
 
+const AFFILIATE_TIMEOUT_MS = 10_000
+
 // Request validation schema
 export const AffiliateStatsRequestSchema = z.object({
   address: z
@@ -14,7 +16,14 @@ export const AffiliateStatsRequestSchema = z.object({
     ),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
-})
+}).refine(
+  ({ startDate, endDate }) =>
+    !startDate || !endDate || new Date(startDate).getTime() <= new Date(endDate).getTime(),
+  {
+    message: 'startDate must be before or equal to endDate',
+    path: ['startDate'],
+  },
+)
 
 export type AffiliateStatsRequest = z.infer<typeof AffiliateStatsRequestSchema>
 
@@ -52,7 +61,7 @@ export const getAffiliateStats = async (req: Request, res: Response): Promise<vo
     const { address, startDate, endDate } = parseResult.data
 
     // Build backend URL with query params
-    const backendUrl = new URL(`${SWAP_SERVICE_BASE_URL}/swaps/affiliate-fees/${address}`)
+    const backendUrl = new URL(`/swaps/affiliate-fees/${address}`, SWAP_SERVICE_BASE_URL)
     if (startDate) {
       backendUrl.searchParams.append('startDate', String(startDate))
     }
@@ -61,16 +70,30 @@ export const getAffiliateStats = async (req: Request, res: Response): Promise<vo
     }
 
     // Call backend swap-service
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), AFFILIATE_TIMEOUT_MS)
     let backendResponse: globalThis.Response
     try {
-      backendResponse = await fetch(backendUrl.toString())
+      backendResponse = await fetch(backendUrl.toString(), {
+        signal: controller.signal,
+      })
     } catch (error) {
+      clearTimeout(timeout)
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        res.status(504).json({
+          error: 'Swap service request timed out',
+          code: 'SERVICE_TIMEOUT',
+        } as ErrorResponse)
+        return
+      }
       console.error('Failed to connect to swap-service:', error)
       res.status(503).json({
         error: 'Swap service unavailable',
         code: 'SERVICE_UNAVAILABLE',
       } as ErrorResponse)
       return
+    } finally {
+      clearTimeout(timeout)
     }
 
     // Handle backend errors

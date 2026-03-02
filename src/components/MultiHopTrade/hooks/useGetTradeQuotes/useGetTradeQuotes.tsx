@@ -250,6 +250,7 @@ export const useGetTradeQuotes = () => {
         isBuyAssetChainSupported,
         hopExecutionMetadata,
         activeTrade,
+        affiliateAddress,
       },
     ],
     queryFn: queryFnOrSkip,

@@ -442,6 +442,8 @@ const SwapStatusResponseSchema = registry.register(
     affiliateAddress: z.string().optional(),
     affiliateBps: z.string(),
     registeredAt: z.number().optional(),
+    buyTxHash: z.string().optional(),
+    isAffiliateVerified: z.boolean().optional(),
   }),
 )
 

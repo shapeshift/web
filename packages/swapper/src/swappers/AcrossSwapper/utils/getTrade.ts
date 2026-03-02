@@ -423,14 +423,17 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     estimatedExecutionTimeMs: quote.expectedFillTime * 1000,
     acrossTransactionMetadata,
     solanaTransactionMetadata,
-    affiliateFee: buildAffiliateFee({
-      strategy: 'buy_asset',
-      affiliateBps,
-      sellAsset,
-      buyAsset,
-      sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-    }),
+    affiliateFee:
+      appFee !== undefined && appFeeRecipient !== undefined
+        ? buildAffiliateFee({
+            strategy: 'buy_asset',
+            affiliateBps,
+            sellAsset,
+            buyAsset,
+            sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+          })
+        : undefined,
   }
 
   const baseQuoteOrRate = {

@@ -4,13 +4,6 @@ import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
-/**
- * Externals for the library build.
- *
- * We use a function so that sub-path imports (e.g. "viem/chains",
- * "@reown/appkit/react") are matched automatically without listing
- * every possible entry-point.
- */
 const LIB_EXTERNAL_PREFIXES = [
   'react',
   'react-dom',
@@ -43,7 +36,6 @@ const defineGlobalThis: PluginOption = {
   },
 }
 
-/** Set BUILD_DEMO=true to build the standalone demo app instead of the library. */
 const isDemoBuild = process.env.BUILD_DEMO === 'true'
 
 // eslint-disable-next-line import/no-default-export

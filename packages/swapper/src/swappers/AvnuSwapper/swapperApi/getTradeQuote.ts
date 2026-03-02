@@ -178,7 +178,7 @@ export const getTradeQuote = async (
             routes: bestQuote.routes,
           },
           affiliateFee: buildAffiliateFee({
-            strategy: 'sell_asset',
+            strategy: 'buy_asset',
             affiliateBps,
             sellAsset,
             buyAsset,

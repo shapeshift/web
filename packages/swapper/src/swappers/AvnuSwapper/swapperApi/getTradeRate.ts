@@ -144,7 +144,7 @@ export const getTradeRate = async (
           source: SwapperName.Avnu,
           estimatedExecutionTimeMs: undefined,
           affiliateFee: buildAffiliateFee({
-            strategy: 'sell_asset',
+            strategy: 'buy_asset',
             affiliateBps,
             sellAsset,
             buyAsset,

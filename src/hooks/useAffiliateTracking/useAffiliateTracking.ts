@@ -21,7 +21,7 @@ const clearAffiliateStorage = (): void => {
   }
 }
 
-const readStoredAffiliate = (): string | null => {
+export const readStoredAffiliate = (): string | null => {
   if (typeof window === 'undefined') return null
 
   try {

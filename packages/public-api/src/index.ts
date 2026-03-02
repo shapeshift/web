@@ -21,6 +21,7 @@ const app = express()
 // Middleware
 app.use(cors())
 app.use(express.json())
+app.set('trust proxy', true)
 
 // Root endpoint - API info
 app.get('/', (_req, res) => {

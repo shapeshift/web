@@ -129,6 +129,7 @@ export const useGetTradeRateInput = ({
 
   const tradeInputQueryKey = useMemo(
     () => ({
+      affiliateAddress,
       buyAsset,
       sellAmountCryptoPrecision,
       sellAsset,
@@ -143,6 +144,7 @@ export const useGetTradeRateInput = ({
       receiveAddress,
     }),
     [
+      affiliateAddress,
       buyAsset,
       isBuyAssetChainSupported,
       receiveAccountMetadata,

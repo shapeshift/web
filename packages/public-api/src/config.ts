@@ -61,6 +61,7 @@ const getSwapServiceBaseUrl = (): string => {
   if (process.env.NODE_ENV === 'production') {
     throw new Error('SWAP_SERVICE_BASE_URL must be set in production')
   }
+  console.warn('[config] SWAP_SERVICE_BASE_URL not set, using dev default')
   return 'https://dev-api.swap-service.shapeshift.com'
 }
 

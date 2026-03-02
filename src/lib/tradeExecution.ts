@@ -45,7 +45,7 @@ import { assertGetUtxoChainAdapter } from './utils/utxo'
 
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
-import { AFFILIATE_STORAGE_KEY } from '@/hooks/useAffiliateTracking/useAffiliateTracking'
+import { readStoredAffiliate } from '@/hooks/useAffiliateTracking/useAffiliateTracking'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { getAffiliateBps } from '@/lib/fees/utils'
 import { poll } from '@/lib/poll/poll'
@@ -211,7 +211,7 @@ export class TradeExecution {
             queryClient.fetchQuery({
               queryKey: ['createSwap', swap.id],
               queryFn: () => {
-                const affiliateAddress = localStorage.getItem(AFFILIATE_STORAGE_KEY) ?? undefined
+                const affiliateAddress = readStoredAffiliate() ?? undefined
                 const affiliateBps = getAffiliateBps(updatedSwap.sellAsset, updatedSwap.buyAsset)
                 return axios.post(`${import.meta.env.VITE_SWAPS_SERVER_URL}/swaps`, {
                   swapId: swap.id,

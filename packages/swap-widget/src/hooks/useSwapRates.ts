@@ -12,6 +12,7 @@ export type UseSwapRatesParams = {
   enabled?: boolean
   allowedSwapperNames?: SwapperName[]
   refetchInterval?: number
+  affiliateAddress?: string
 }
 
 export const useSwapRates = (
@@ -25,10 +26,11 @@ export const useSwapRates = (
     enabled = true,
     allowedSwapperNames,
     refetchInterval = 15_000,
+    affiliateAddress,
   } = params
 
   return useQuery({
-    queryKey: ['swapRates', sellAssetId, buyAssetId, sellAmountCryptoBaseUnit, allowedSwapperNames],
+    queryKey: ['swapRates', sellAssetId, buyAssetId, sellAmountCryptoBaseUnit, allowedSwapperNames, affiliateAddress],
     queryFn: async (): Promise<TradeRate[]> => {
       if (!sellAssetId || !buyAssetId || !sellAmountCryptoBaseUnit) {
         return []

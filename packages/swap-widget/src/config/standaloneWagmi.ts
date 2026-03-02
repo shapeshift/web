@@ -1,10 +1,3 @@
-/**
- * Standalone wagmi configuration for read-only RPC access.
- *
- * Used by SwapWidgetWithExternalWallet so balance-fetching hooks
- * (useConfig, getBalance, readContract) work without AppKit / WalletConnect.
- */
-
 import { arbitrum, avalanche, base, bsc, gnosis, mainnet, optimism, polygon } from 'viem/chains'
 import { createConfig, http } from 'wagmi'
 

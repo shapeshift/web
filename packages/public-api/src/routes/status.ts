@@ -8,7 +8,7 @@ import type { ErrorResponse } from '../types'
 
 export const StatusRequestSchema = z.object({
   quoteId: z.string().uuid(),
-  txHash: z.string().min(1).optional(),
+  txHash: z.string().min(1).max(128).optional(),
 })
 
 const toHumanAmount = (baseUnit: string, precision: number): string => {
@@ -40,6 +40,16 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
       return
     }
 
+    const requestAffiliateAddress = req.affiliateInfo?.affiliateAddress?.toLowerCase()
+    const quoteAffiliateAddress = storedQuote.affiliateAddress?.toLowerCase()
+    if (quoteAffiliateAddress && requestAffiliateAddress !== quoteAffiliateAddress) {
+      res.status(403).json({
+        error: 'Quote is not accessible for this affiliate',
+        code: 'AFFILIATE_MISMATCH',
+      } as ErrorResponse)
+      return
+    }
+
     if (txHash && storedQuote.txHash && storedQuote.txHash !== txHash) {
       res.status(409).json({
         error: 'Transaction hash does not match the registered swap',
@@ -51,7 +61,7 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
     if (txHash && !storedQuote.txHash) {
       // TOCTOU guard: re-read from store in case a concurrent request already bound a txHash
       const current = quoteStore.get(quoteId)
-      if (current?.txHash && current.txHash !== txHash) {
+      if (current?.txHash) {
         res.json({
           quoteId,
           txHash: current.txHash,

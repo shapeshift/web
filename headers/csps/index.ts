@@ -17,6 +17,7 @@ import { csp as celo } from './chains/celo'
 import { csp as cosmos } from './chains/cosmos'
 import { csp as cronos } from './chains/cronos'
 import { csp as dogecoin } from './chains/dogecoin'
+import { csp as ethereal } from './chains/ethereal'
 import { csp as ethereum } from './chains/ethereum'
 import { csp as flowEvm } from './chains/flowEvm'
 import { csp as gnosis } from './chains/gnosis'
@@ -37,6 +38,7 @@ import { csp as plasma } from './chains/plasma'
 import { csp as plume } from './chains/plume'
 import { csp as polygon } from './chains/polygon'
 import { csp as scroll } from './chains/scroll'
+import { csp as sei } from './chains/sei'
 import { csp as solana } from './chains/solana'
 import { csp as soneium } from './chains/soneium'
 import { csp as sonic } from './chains/sonic'
@@ -52,6 +54,7 @@ import { csp as zcash } from './chains/zcash'
 import { csp as zksyncera } from './chains/zksyncera'
 import { csp as chatwoot } from './chatwoot'
 import { csp as customTokenImport } from './customTokenImport'
+import { csp as debridge } from './debridge'
 import { csp as foxy } from './defi/foxy'
 import { csp as idle } from './defi/idle'
 import { csp as mtpelerin } from './defi/mtpelerin'
@@ -132,9 +135,8 @@ export const csps = [
   bnbsmartchain,
   cosmos,
   dogecoin,
+  ethereal,
   ethereum,
-  flowEvm,
-  celo,
   bob,
   gnosis,
   hemi,
@@ -166,9 +168,12 @@ export const csps = [
   monad,
   near,
   plasma,
+  celo,
+  flowEvm,
   story,
   worldchain,
   sonic,
+  sei,
   trustwallet,
   coincap,
   coingecko,
@@ -199,6 +204,7 @@ export const csps = [
   walletConnect,
   walletMigration,
   relay,
+  debridge,
   railway,
   discord,
   yieldxyz,

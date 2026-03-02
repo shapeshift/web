@@ -16,6 +16,7 @@ import {
   cronosChainId,
   dogeChainId,
   ethChainId,
+  etherealChainId,
   flowEvmChainId,
   fromAccountId,
   fromAssetId,
@@ -38,6 +39,7 @@ import {
   plasmaChainId,
   polygonChainId,
   scrollChainId,
+  seiChainId,
   solanaChainId,
   soneiumChainId,
   sonicChainId,
@@ -72,6 +74,7 @@ import {
   supportsCosmos,
   supportsCronos,
   supportsETH,
+  supportsEthereal,
   supportsFlowEvm,
   supportsGnosis,
   supportsHemi,
@@ -88,6 +91,7 @@ import {
   supportsPlasma,
   supportsPolygon,
   supportsScroll,
+  supportsSei,
   supportsSolana,
   supportsSoneium,
   supportsSonic,
@@ -144,12 +148,14 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case inkChainId:
     case megaethChainId:
     case berachainChainId:
+    case etherealChainId:
     case flowEvmChainId:
     case lineaChainId:
     case cronosChainId:
     case katanaChainId:
     case storyChainId:
     case worldChainChainId:
+    case seiChainId:
     case scrollChainId:
     case sonicChainId:
     case unichainChainId:
@@ -562,6 +568,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsMonad(wallet)
     case hyperEvmChainId:
       return supportsHyperEvm(wallet)
+    case etherealChainId:
+      return supportsEthereal(wallet)
     case flowEvmChainId:
       return supportsFlowEvm(wallet)
     case mantleChainId:
@@ -586,6 +594,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsWorldChain(wallet)
     case hemiChainId:
       return supportsHemi(wallet)
+    case seiChainId:
+      return supportsSei(wallet)
     case lineaChainId:
       return supportsLinea(wallet)
     case scrollChainId:

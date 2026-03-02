@@ -89,9 +89,11 @@
 ### Git & Version Control
 - Never commit changes unless explicitly requested
 - When creating commits, follow the Git Safety Protocol (see session notes)
+- **Before pushing**: always run `yarn lint --fix`, and if there are lint fixes, commit them before pushing. Never push without verifying lint passes first.
 - Main branch is `develop` - use this for PRs
 - Branch naming: Use descriptive names (e.g., `feat_gridplus`, `fix_wallet_connect`)
 - When opening PRs (via `gh`, Aviator `av`, or any CLI tool), ALWAYS use the `.github/PULL_REQUEST_TEMPLATE.md` template as the base for the PR body
+- **Editing PR descriptions**: `gh pr edit --body` fails on this repo due to a deprecated Projects Classic GraphQL error. Use the REST API instead: `gh api repos/shapeshift/web/pulls/<number> -X PATCH -F "body=@/path/to/body.md"` (write the body to a temp file first)
 
 ### UI/UX Standards
 - Account for light/dark mode using `useColorModeValue` hook
@@ -133,6 +135,23 @@
   3. Add to `src/state/store.ts` `clearState()` function
   4. Add persist config if needed
   5. Export selectors from slice using `selectors` property
+
+### Contracts (Enforceable Integration Specs)
+
+Contracts live in `.claude/contracts/` (project) and `~/.claude/contracts/` (global, fallback).
+They define the authoritative checklist of integration points for a feature type.
+
+**When building:** If a contract exists for the feature type being implemented, load it
+and use it as your todo list. Every item must be addressed.
+
+**When reviewing:** If a contract exists for the feature type being reviewed, load it
+and perform gap analysis against the PR diff. Flag missing items with severity prefixes.
+
+**Discovery:** Check `.claude/contracts/` first, then `~/.claude/contracts/`.
+
+Current contracts:
+- `second-class-evm-chain.md` - All integration points for adding a new second-class EVM chain
+- `swapper-integration.md` - Registration, testing, and completion checklist for new swappers
 
 ### Type Definitions
 - Prefer `type` over `interface` for type definitions

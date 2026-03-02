@@ -93,6 +93,7 @@
 - Main branch is `develop` - use this for PRs
 - Branch naming: Use descriptive names (e.g., `feat_gridplus`, `fix_wallet_connect`)
 - When opening PRs (via `gh`, Aviator `av`, or any CLI tool), ALWAYS use the `.github/PULL_REQUEST_TEMPLATE.md` template as the base for the PR body
+- **Editing PR descriptions**: `gh pr edit --body` fails on this repo due to a deprecated Projects Classic GraphQL error. Use the REST API instead: `gh api repos/shapeshift/web/pulls/<number> -X PATCH -F "body=@/path/to/body.md"` (write the body to a temp file first)
 
 ### UI/UX Standards
 - Account for light/dark mode using `useColorModeValue` hook

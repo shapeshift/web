@@ -95,7 +95,13 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
       borderRadius='2xl'
       overflow='hidden'
     >
-      <Card flexDir='column' borderRadius={0} width='full' boxShadow='none'>
+      <Card
+        data-testid='rfox-simulator'
+        flexDir='column'
+        borderRadius={0}
+        width='full'
+        boxShadow='none'
+      >
         <CardBody flex='1' p={rfoxSimulatorCardBody}>
           <Heading as='h5' mb={1}>
             {translate('foxPage.rfox.simulateTitle')}

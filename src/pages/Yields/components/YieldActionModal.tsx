@@ -31,6 +31,7 @@ import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
 import { YieldAssetFlow } from '@/pages/Yields/components/YieldAssetFlow'
 import { YieldSuccess } from '@/pages/Yields/components/YieldSuccess'
+import { getYieldQuoteErrorTranslation } from '@/pages/Yields/hooks/getYieldQuoteErrorTranslation'
 import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
@@ -87,6 +88,7 @@ export const YieldActionModal = memo(function YieldActionModal({
     handleClose,
     isQuoteLoading,
     quoteData,
+    quoteError,
     isAllowanceCheckPending,
     isUsdtResetRequired,
   } = useYieldTransactionFlow({
@@ -209,6 +211,10 @@ export const YieldActionModal = memo(function YieldActionModal({
   ])
 
   const buttonText = useMemo(() => {
+    if (quoteError && amount) {
+      const { key, params } = getYieldQuoteErrorTranslation(quoteError)
+      return translate(key, params)
+    }
     const yieldType = yieldItem.mechanics.type
     // Use the current step's type/title for a clean button label (e.g., "Stake", "Unstake", "Approve")
     if (activeStepIndex >= 0 && transactionSteps[activeStepIndex]) {
@@ -232,6 +238,8 @@ export const YieldActionModal = memo(function YieldActionModal({
   }, [
     action,
     translate,
+    quoteError,
+    amount,
     activeStepIndex,
     transactionSteps,
     quoteData,

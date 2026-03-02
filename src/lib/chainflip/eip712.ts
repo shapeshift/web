@@ -1,0 +1,100 @@
+import { ethChainId } from '@shapeshiftoss/caip'
+import type { SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
+import { toAddressNList } from '@shapeshiftoss/chain-adapters'
+import type { ETHSignTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { AccountMetadata } from '@shapeshiftoss/types'
+import type { TypedData } from 'eip-712'
+
+import { BLOCKS_TO_EXPIRY } from './constants'
+import { authorSubmitExtrinsic, cfEncodeNonNativeCall, stateGetRuntimeVersion } from './rpc'
+import { encodeNonNativeSignedCall } from './scale'
+
+import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
+
+export type SignChainflipCallInput = {
+  wallet: HDWallet
+  accountMetadata: AccountMetadata
+  encodedCall: string
+  blocksToExpiry?: number
+  nonceOrAccount: number | string
+}
+
+export type SignChainflipCallOutput = {
+  signedExtrinsicHex: string
+  signature: string
+  signer: string
+  transactionMetadata: { nonce: number; expiryBlock: number }
+}
+
+const buildTypedData = (payload: TypedData): TypedData => {
+  const types = { ...payload.types }
+  delete types.EIP712Domain
+  return {
+    domain: payload.domain,
+    types,
+    message: payload.message,
+    primaryType: payload.primaryType,
+  }
+}
+
+export const signChainflipCall = async ({
+  wallet,
+  accountMetadata,
+  encodedCall,
+  blocksToExpiry = BLOCKS_TO_EXPIRY,
+  nonceOrAccount,
+}: SignChainflipCallInput): Promise<SignChainflipCallOutput> => {
+  const version = await stateGetRuntimeVersion()
+  if (version.specVersion < 20012) {
+    throw new Error(`Chainflip spec version too old: ${version.specVersion}`)
+  }
+
+  const adapter = assertGetEvmChainAdapter(ethChainId)
+  const accountNumber = accountMetadata.bip44Params.accountNumber
+  const signer = await adapter.getAddress({ accountNumber, wallet })
+
+  const [payload, transactionMetadata] = await cfEncodeNonNativeCall({
+    hexCall: encodedCall,
+    blocksToExpiry,
+    nonceOrAccount,
+  })
+
+  const typedData = buildTypedData(payload.Eip712 as TypedData)
+  const typedDataToSign: ETHSignTypedData = {
+    addressNList: toAddressNList(adapter.getBip44Params(accountMetadata.bip44Params)),
+    typedData,
+  }
+
+  const signTypedDataInput: SignTypedDataInput<ETHSignTypedData> = {
+    typedDataToSign,
+    wallet,
+  }
+
+  const signature = await adapter.signTypedData(signTypedDataInput)
+  const signedExtrinsicHex = encodeNonNativeSignedCall(
+    encodedCall,
+    { nonce: transactionMetadata.nonce, expiryBlock: transactionMetadata.expiry_block },
+    { signature, signer },
+  )
+
+  return {
+    signedExtrinsicHex,
+    signature,
+    signer,
+    transactionMetadata: {
+      nonce: transactionMetadata.nonce,
+      expiryBlock: transactionMetadata.expiry_block,
+    },
+  }
+}
+
+export const submitSignedCall = (signedExtrinsicHex: string): Promise<string> =>
+  authorSubmitExtrinsic(signedExtrinsicHex)
+
+export const signAndSubmitChainflipCall = async (
+  input: SignChainflipCallInput,
+): Promise<{ signedExtrinsicHex: string; txHash: string }> => {
+  const { signedExtrinsicHex } = await signChainflipCall(input)
+  const txHash = await submitSignedCall(signedExtrinsicHex)
+  return { signedExtrinsicHex, txHash }
+}

@@ -26,6 +26,7 @@ type NavigationDropdownItem = {
   path: string
   icon?: React.ComponentType
   isNew?: boolean
+  isDeprecated?: boolean
 }
 
 type NavigationDropdownProps = {
@@ -148,6 +149,17 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
                       px={1.5}
                     >
                       {translate('common.new')}
+                    </Badge>
+                  )}
+                  {item.isDeprecated && (
+                    <Badge
+                      colorScheme='orange'
+                      fontSize='2xs'
+                      variant='solid'
+                      borderRadius='full'
+                      px={1.5}
+                    >
+                      {translate('common.deprecated')}
                     </Badge>
                   )}
                 </HStack>

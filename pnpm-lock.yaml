@@ -84,6 +84,9 @@ importers:
       '@cetusprotocol/cetus-sui-clmm-sdk':
         specifier: 5.4.0
         version: 5.4.0(@mysten/bcs@1.9.2)(@mysten/sui@1.45.0(typescript@5.2.2))
+      '@chainflip/rpc':
+        specifier: ^2.1.1
+        version: 2.1.2
       '@chakra-ui/icons':
         specifier: ^2.2.4
         version: 2.2.4(@chakra-ui/react@2.10.7(@emotion/react@11.14.0(@types/react@19.1.2)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.2)(react@19.2.4))(@types/react@19.1.2)(react@19.2.4))(@types/react@19.1.2)(framer-motion@12.7.4(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)
@@ -312,6 +315,12 @@ importers:
       bip39:
         specifier: ^3.0.4
         version: 3.1.0
+      blakejs:
+        specifier: ^1.2.1
+        version: 1.2.1
+      bs58:
+        specifier: ^6.0.0
+        version: 6.0.0
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
@@ -513,6 +522,9 @@ importers:
       retry-axios:
         specifier: ^2.6.0
         version: 2.6.0(axios@1.13.6)
+      scale-ts:
+        specifier: 1.6.1
+        version: 1.6.1
       scroll-into-view-if-needed:
         specifier: ^3.0.10
         version: 3.1.0
@@ -547,6 +559,9 @@ importers:
         specifier: ^3.6.0
         version: 3.9.0(react@19.2.4)
     devDependencies:
+      '@chainflip/extrinsics':
+        specifier: ^1.6.2
+        version: 1.6.2
       '@commitlint/cli':
         specifier: ^15.0.0
         version: 15.0.0
@@ -3008,6 +3023,15 @@ packages:
       '@mysten/bcs': '>=0.8.1'
       '@mysten/sui': '>=1.1.2'
 
+  '@chainflip/extrinsics@1.6.2':
+    resolution: {integrity: sha512-CseddihWRvjnuNLM94+EXqqNVexdJVEGj218tibgWqw0CnGmo9cJyHbln6sqgQPlSl4/LqBbeBR9XniJekKwZQ==}
+
+  '@chainflip/rpc@2.1.2':
+    resolution: {integrity: sha512-CVE4xOyOODt7RsCmfGWNUruVPg5iQZayArWGGSAn9ynyuRewBk/LNiQlaSl5bzTB6b33W5uuYTUfjCKvZ+ElaQ==}
+
+  '@chainflip/utils@2.1.2':
+    resolution: {integrity: sha512-ujHjiVRdm5AbN5XotoIlVtN7RMmkR7PnrMW/pGhWg+2Yr6vtKyKas/GSRHrX4VGnm7H1j7xKcSuj9GNag60n5A==}
+
   '@chakra-ui/anatomy@2.2.2':
     resolution: {integrity: sha512-MV6D4VLRIHr4PkW4zMyqfrNS1mPlCTiCXwvYGtDFQYr+xHFfonhAuf9WjsSc0nyp2m0OdkSLnzmVKkZFLo25Tg==}
 
@@ -3334,6 +3358,9 @@ packages:
   '@csstools/css-tokenizer@4.0.0':
     resolution: {integrity: sha512-QxULHAm7cNu72w97JUNCBFODFaXpbDg+dP8b/oWFAZ2MTRppA3U00Y2L1HqaS4J6yBqxwa/Y3nMBaxVKbB/NsA==}
     engines: {node: '>=20.19.0'}
+
+  '@date-fns/utc@2.1.1':
+    resolution: {integrity: sha512-SlJDfG6RPeEX8wEVv6ZB3kak4MmbtyiI2qX/5zuKdordbrhB/iaJ58GVMZgJ6P1sJaM1gMgENFYYeg1JWrCFrA==}
 
   '@defuse-protocol/one-click-sdk-typescript@0.1.16':
     resolution: {integrity: sha512-uro+FN+6S/8GMNfd+Xbvhk3OgbNM2au57Zy8+aJmco0BhAB9irzQGeyf/qX9yIY0e+msgMvS3pP/tmm16I9IVw==}
@@ -14919,6 +14946,9 @@ packages:
     resolution: {integrity: sha512-xAg7SOnEhrm5zI3puOOKyy1OMcMlIJZYNJY7xLBwSze0UjhPLnWfj2GF2EpT0jmzaJKIWKHLsaSSajf35bcYnA==}
     engines: {node: '>=v12.22.7'}
 
+  scale-ts@1.6.1:
+    resolution: {integrity: sha512-PBMc2AWc6wSEqJYBDPcyCLUj9/tMKnLX70jLOSndMtcUoLQucP/DM0vnQo1wJAYjTrQiq8iG9rD0q6wFzgjH7g==}
+
   scheduler@0.23.2:
     resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
 
@@ -18265,6 +18295,20 @@ snapshots:
       - debug
       - encoding
 
+  '@chainflip/extrinsics@1.6.2': {}
+
+  '@chainflip/rpc@2.1.2':
+    dependencies:
+      '@chainflip/utils': 2.1.2
+      zod: 3.25.76
+
+  '@chainflip/utils@2.1.2':
+    dependencies:
+      '@date-fns/utc': 2.1.1
+      '@noble/hashes': 2.0.1
+      bignumber.js: 9.3.1
+      date-fns: 4.1.0
+
   '@chakra-ui/anatomy@2.2.2': {}
 
   '@chakra-ui/anatomy@2.3.6': {}
@@ -18892,6 +18936,8 @@ snapshots:
   '@csstools/css-syntax-patches-for-csstree@1.0.28': {}
 
   '@csstools/css-tokenizer@4.0.0': {}
+
+  '@date-fns/utc@2.1.1': {}
 
   '@defuse-protocol/one-click-sdk-typescript@0.1.16':
     dependencies:
@@ -37469,6 +37515,8 @@ snapshots:
   saxes@6.0.0:
     dependencies:
       xmlchars: 2.2.0
+
+  scale-ts@1.6.1: {}
 
   scheduler@0.23.2:
     dependencies:

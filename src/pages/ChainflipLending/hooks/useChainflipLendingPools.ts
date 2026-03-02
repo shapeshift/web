@@ -6,10 +6,9 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET } from '@/lib/chainflip/constants'
 import type { ChainflipAssetSymbol, ChainflipLendingPool } from '@/lib/chainflip/types'
 import { baseUnitToPrecision, hexToBaseUnit, permillToDecimal } from '@/lib/chainflip/utils'
+import { useChainflipOraclePrices } from '@/pages/ChainflipLending/hooks/useChainflipOraclePrices'
 import { reactQueries } from '@/react-queries'
-import type { ReduxState } from '@/state/reducer'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
-import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
 export type ChainflipLendingPoolWithFiat = {
@@ -26,38 +25,29 @@ export type ChainflipLendingPoolWithFiat = {
 
 const FIVE_MINUTES = 5 * 60 * 1000
 
-const selectPoolFiatData = (
-  state: ReduxState,
-  pool: ChainflipLendingPool,
-): { assetId: AssetId | undefined; precision: number; price: string } => {
-  const assetId = CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET[pool.asset.asset as ChainflipAssetSymbol]
-  if (!assetId) return { assetId: undefined, precision: 0, price: '0' }
-
-  const asset = selectAssetById(state, assetId)
-  const marketData = selectMarketDataByAssetIdUserCurrency(state, assetId)
-
-  return {
-    assetId,
-    precision: asset?.precision ?? 0,
-    price: marketData?.price ?? '0',
-  }
-}
-
 export const useChainflipLendingPools = () => {
+  const { oraclePriceByAssetId } = useChainflipOraclePrices()
+
   const { data: pools, isLoading } = useQuery({
     ...reactQueries.chainflipLending.lendingPools(),
     staleTime: FIVE_MINUTES,
   })
 
-  const poolFiatData = useAppSelector(state =>
-    (pools ?? []).map(pool => selectPoolFiatData(state, pool)),
+  const poolAssetData = useAppSelector(state =>
+    (pools ?? []).map(pool => {
+      const assetId = CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET[pool.asset.asset as ChainflipAssetSymbol]
+      if (!assetId) return { assetId: undefined, precision: 0 }
+      const asset = selectAssetById(state, assetId)
+      return { assetId, precision: asset?.precision ?? 0 }
+    }),
   )
 
   const poolsWithFiat: ChainflipLendingPoolWithFiat[] = useMemo(() => {
     if (!pools) return []
 
     return pools.map((pool, i) => {
-      const { assetId, precision, price } = poolFiatData[i]
+      const { assetId, precision } = poolAssetData[i]
+      const price = assetId ? oraclePriceByAssetId[assetId] ?? '0' : '0'
 
       const totalBaseUnit = hexToBaseUnit(pool.total_amount)
       const availableBaseUnit = hexToBaseUnit(pool.available_amount)
@@ -82,7 +72,7 @@ export const useChainflipLendingPools = () => {
         borrowRate: permillToDecimal(pool.current_interest_rate),
       }
     })
-  }, [pools, poolFiatData])
+  }, [pools, poolAssetData, oraclePriceByAssetId])
 
   const totalSuppliedFiat = useMemo(
     () => poolsWithFiat.reduce((sum, p) => sum.plus(p.totalAmountFiat), bnOrZero(0)).toFixed(2),

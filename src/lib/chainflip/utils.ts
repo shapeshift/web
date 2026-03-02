@@ -8,7 +8,7 @@ export const hexToBaseUnit = (hex: string): string => {
   try {
     return BigInt(hex).toString()
   } catch {
-    return '0'
+    throw new Error(`Invalid hex base unit value: ${hex}`)
   }
 }
 

@@ -16,8 +16,8 @@ describe('chainflip utils', () => {
       expect(hexToBaseUnit('0x0')).toBe('0')
     })
 
-    it('returns 0 for invalid hex', () => {
-      expect(hexToBaseUnit('not-hex')).toBe('0')
+    it('throws for invalid hex', () => {
+      expect(() => hexToBaseUnit('not-hex')).toThrow('Invalid hex base unit value: not-hex')
     })
 
     it('returns 0 for empty string', () => {

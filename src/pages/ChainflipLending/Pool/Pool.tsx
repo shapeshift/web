@@ -43,6 +43,8 @@ import { permillToDecimal } from '@/lib/chainflip/utils'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { useChainflipAccount } from '@/pages/ChainflipLending/hooks/useChainflipAccount'
 import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
+import { useChainflipLoanAccount } from '@/pages/ChainflipLending/hooks/useChainflipLoanAccount'
+import { useChainflipLtvThresholds } from '@/pages/ChainflipLending/hooks/useChainflipLtvThresholds'
 import { useChainflipSupplyPositions } from '@/pages/ChainflipLending/hooks/useChainflipSupplyPositions'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
@@ -55,11 +57,20 @@ const actionColumnMaxWidth = { base: '100%', lg: '500px' }
 enum PoolTabIndex {
   Supply = 0,
   Deposit = 1,
+  Collateral = 2,
+  Borrow = 3,
+  Repay = 4,
 }
 
-const POOL_TAB_ITEMS = [
+const SUPPLY_TAB_ITEMS = [
   { label: 'chainflipLending.supply.title', index: PoolTabIndex.Supply },
   { label: 'chainflipLending.depositToChainflip', index: PoolTabIndex.Deposit },
+]
+
+const BORROW_TAB_ITEMS = [
+  { label: 'chainflipLending.collateral.title', index: PoolTabIndex.Collateral },
+  { label: 'chainflipLending.borrow.title', index: PoolTabIndex.Borrow },
+  { label: 'chainflipLending.repay.title', index: PoolTabIndex.Repay },
 ]
 
 type PoolHeaderProps = {
@@ -140,7 +151,8 @@ export const Pool = () => {
   const location = useLocation()
   const { dispatch: walletDispatch } = useWallet()
   const { accountId, accountNumber, setAccountId } = useChainflipLendingAccount()
-  const [tabIndex, setTabIndex] = useState(PoolTabIndex.Supply)
+  const [supplyTabIndex, setSupplyTabIndex] = useState(PoolTabIndex.Supply)
+  const [borrowTabIndex, setBorrowTabIndex] = useState(PoolTabIndex.Collateral)
   const chainflipLendingModal = useModal('chainflipLending')
 
   const handleConnectWallet = useCallback(
@@ -156,6 +168,20 @@ export const Pool = () => {
   const asset = useAppSelector(state => selectAssetById(state, poolAssetId))
   const { pools, isLoading } = useChainflipLendingPools()
   const { supplyPositions, isLoading: isPositionsLoading } = useChainflipSupplyPositions()
+  const {
+    loanAccount,
+    collateralWithFiat,
+    loansWithFiat,
+    totalCollateralFiat,
+    totalBorrowedFiat: userBorrowedFiat,
+    isLoading: isLoanLoading,
+  } = useChainflipLoanAccount()
+
+  const isVoluntaryLiquidationActive = useMemo(() => {
+    if (!loanAccount?.liquidation_status) return false
+    const status = loanAccount.liquidation_status as Record<string, unknown>
+    return status.liquidation_type === 'Voluntary'
+  }, [loanAccount?.liquidation_status])
   const { freeBalances } = useChainflipAccount()
 
   const accountIdsByAccountNumberAndChainId = useAppSelector(
@@ -229,9 +255,36 @@ export const Pool = () => {
 
   const headerComponent = useMemo(() => <PoolHeader assetId={poolAssetId} />, [poolAssetId])
 
-  const tabHeader = useMemo(
-    () => <FormHeader items={POOL_TAB_ITEMS} setStepIndex={setTabIndex} activeIndex={tabIndex} />,
-    [tabIndex],
+  const supplyTabHeader = useMemo(
+    () => (
+      <FormHeader
+        items={SUPPLY_TAB_ITEMS}
+        setStepIndex={setSupplyTabIndex}
+        activeIndex={supplyTabIndex}
+      />
+    ),
+    [supplyTabIndex],
+  )
+
+  const borrowTabHeader = useMemo(
+    () => (
+      <FormHeader
+        items={BORROW_TAB_ITEMS}
+        setStepIndex={setBorrowTabIndex}
+        activeIndex={borrowTabIndex}
+      />
+    ),
+    [borrowTabIndex],
+  )
+
+  const poolCollateral = useMemo(
+    () => collateralWithFiat.find(c => c.assetId === poolAssetId),
+    [collateralWithFiat, poolAssetId],
+  )
+
+  const poolLoan = useMemo(
+    () => loansWithFiat.find(loan => loan.assetId === poolAssetId),
+    [loansWithFiat, poolAssetId],
   )
 
   const utilisationPercent = useMemo(
@@ -273,6 +326,67 @@ export const Pool = () => {
   const handleWithdrawFromChainflip = useCallback(
     () => handleOpenModal('withdrawFromChainflip'),
     [handleOpenModal],
+  )
+  const handleAddCollateral = useCallback(() => handleOpenModal('addCollateral'), [handleOpenModal])
+  const handleRemoveCollateral = useCallback(
+    () => handleOpenModal('removeCollateral'),
+    [handleOpenModal],
+  )
+  const handleBorrow = useCallback(() => handleOpenModal('borrow'), [handleOpenModal])
+  const handleRepay = useCallback(() => {
+    if (poolLoan) {
+      chainflipLendingModal.open({ mode: 'repay', assetId: poolAssetId, loanId: poolLoan.loanId })
+    }
+  }, [chainflipLendingModal, poolAssetId, poolLoan])
+
+  const hasCollateral = useMemo(() => bnOrZero(totalCollateralFiat).gt(0), [totalCollateralFiat])
+  const hasPoolCollateral = useMemo(
+    () => bnOrZero(poolCollateral?.amountFiat).gt(0),
+    [poolCollateral?.amountFiat],
+  )
+  const hasLoans = useMemo(() => Boolean(poolLoan), [poolLoan])
+
+  const { thresholds } = useChainflipLtvThresholds()
+
+  const currentLtvDecimal = useMemo(() => {
+    if (!loanAccount?.ltv_ratio) return 0
+    try {
+      return Number(BigInt(loanAccount.ltv_ratio)) / 1_000_000_000
+    } catch {
+      return 0
+    }
+  }, [loanAccount?.ltv_ratio])
+
+  const currentLtvPercent = useMemo(() => (currentLtvDecimal * 100).toFixed(1), [currentLtvDecimal])
+
+  const ltvStatusColor = useMemo(() => {
+    if (currentLtvDecimal >= 0.9) return 'red.500'
+    if (currentLtvDecimal >= 0.8) return 'yellow.500'
+    return 'green.500'
+  }, [currentLtvDecimal])
+
+  const borrowCapacityFiat = useMemo(() => {
+    if (!thresholds) return '0'
+    const maxBorrow = bnOrZero(totalCollateralFiat).times(thresholds.target)
+    return maxBorrow.minus(userBorrowedFiat).toFixed(2)
+  }, [totalCollateralFiat, userBorrowedFiat, thresholds])
+
+  const borrowPowerUsedPercent = useMemo(() => {
+    if (!thresholds) return '0'
+    const maxBorrow = bnOrZero(totalCollateralFiat).times(thresholds.target)
+    if (maxBorrow.isZero()) return '0'
+    return bnOrZero(userBorrowedFiat).div(maxBorrow).toFixed(4)
+  }, [totalCollateralFiat, userBorrowedFiat, thresholds])
+
+  const handleVoluntaryLiquidation = useCallback(
+    (action: 'initiate' | 'stop') => {
+      chainflipLendingModal.open({
+        mode: 'voluntaryLiquidation',
+        assetId: poolAssetId,
+        liquidationAction: action,
+      })
+    },
+    [chainflipLendingModal, poolAssetId],
   )
 
   if (!asset) return null
@@ -438,18 +552,54 @@ export const Pool = () => {
                   </Box>
                   <Box>
                     <RawText fontSize='xs' color='text.subtle' mb={1} textTransform='uppercase'>
-                      {translate('chainflipLending.collateral')}
+                      {translate('chainflipLending.collateral.title')}
                     </RawText>
-                    <Amount.Fiat value='0' fontSize='lg' fontWeight='bold' />
+                    <Skeleton isLoaded={!isLoanLoading}>
+                      <Amount.Fiat value={totalCollateralFiat} fontSize='lg' fontWeight='bold' />
+                    </Skeleton>
                     {accountId ? (
-                      <Amount.Crypto
-                        value='0'
-                        symbol={asset.symbol}
-                        fontSize='xs'
-                        color='text.subtle'
-                      />
+                      <Skeleton isLoaded={!isLoanLoading}>
+                        <Amount.Crypto
+                          value={poolCollateral?.amountCryptoPrecision ?? '0'}
+                          symbol={asset.symbol}
+                          fontSize='xs'
+                          color='text.subtle'
+                        />
+                      </Skeleton>
                     ) : null}
                   </Box>
+                </SimpleGrid>
+                <SimpleGrid columns={2} spacing={4}>
+                  <Box>
+                    <RawText fontSize='xs' color='text.subtle' mb={1} textTransform='uppercase'>
+                      {translate('chainflipLending.borrow.borrowed')}
+                    </RawText>
+                    <Skeleton isLoaded={!isLoanLoading}>
+                      <Amount.Fiat value={userBorrowedFiat} fontSize='lg' fontWeight='bold' />
+                    </Skeleton>
+                    {accountId && poolLoan ? (
+                      <Skeleton isLoaded={!isLoanLoading}>
+                        <Amount.Crypto
+                          value={poolLoan.principalAmountCryptoPrecision}
+                          symbol={asset.symbol}
+                          fontSize='xs'
+                          color='text.subtle'
+                        />
+                      </Skeleton>
+                    ) : null}
+                  </Box>
+                  {hasLoans && accountId ? (
+                    <Box>
+                      <RawText fontSize='xs' color='text.subtle' mb={1} textTransform='uppercase'>
+                        {translate('chainflipLending.pool.currentLtv')}
+                      </RawText>
+                      <Skeleton isLoaded={!isLoanLoading}>
+                        <RawText fontSize='lg' fontWeight='bold' color={ltvStatusColor}>
+                          {currentLtvPercent}%
+                        </RawText>
+                      </Skeleton>
+                    </Box>
+                  ) : null}
                 </SimpleGrid>
                 {!accountId ? (
                   <Button
@@ -470,8 +620,8 @@ export const Pool = () => {
 
           <Card>
             <CardBody px={0} py={0}>
-              <Tabs index={tabIndex}>
-                {tabHeader}
+              <Tabs index={supplyTabIndex}>
+                {supplyTabHeader}
                 <TabPanels>
                   <TabPanel p={4}>
                     <VStack spacing={3} align='stretch'>
@@ -606,6 +756,262 @@ export const Pool = () => {
               </Tabs>
             </CardBody>
           </Card>
+
+          <Card>
+            <CardBody px={0} py={0}>
+              <Tabs index={borrowTabIndex - PoolTabIndex.Collateral}>
+                {borrowTabHeader}
+                <TabPanels>
+                  <TabPanel p={4}>
+                    <VStack spacing={3} align='stretch'>
+                      <Flex justifyContent='space-between' alignItems='center'>
+                        <RawText fontSize='sm' color='text.subtle'>
+                          {translate('chainflipLending.collateral.title')}
+                        </RawText>
+                        <VStack spacing={0} align='flex-end'>
+                          <Amount.Fiat
+                            value={poolCollateral?.amountFiat ?? '0'}
+                            fontSize='sm'
+                            fontWeight='medium'
+                          />
+                          <Amount.Crypto
+                            value={poolCollateral?.amountCryptoPrecision ?? '0'}
+                            symbol={asset.symbol}
+                            fontSize='xs'
+                            color='text.subtle'
+                          />
+                        </VStack>
+                      </Flex>
+                      {hasLoans && (
+                        <Flex justifyContent='space-between' alignItems='center'>
+                          <RawText fontSize='sm' color='text.subtle'>
+                            {translate('chainflipLending.pool.currentLtv')}
+                          </RawText>
+                          <RawText fontSize='sm' fontWeight='medium' color={ltvStatusColor}>
+                            {currentLtvPercent}%
+                          </RawText>
+                        </Flex>
+                      )}
+                      {hasCollateral && (
+                        <Flex justifyContent='space-between' alignItems='center'>
+                          <RawText fontSize='sm' color='text.subtle'>
+                            {translate('chainflipLending.pool.borrowCapacity')}
+                          </RawText>
+                          <Amount.Fiat
+                            value={borrowCapacityFiat}
+                            fontSize='sm'
+                            fontWeight='medium'
+                          />
+                        </Flex>
+                      )}
+                      <HStack spacing={3}>
+                        <Tooltip
+                          label={translate('chainflipLending.pool.noFreeBalance')}
+                          isDisabled={hasFreeBalance}
+                          shouldWrapChildren
+                          hasArrow
+                        >
+                          <Button
+                            colorScheme='blue'
+                            size='lg'
+                            height={12}
+                            borderRadius='xl'
+                            flex={1}
+                            fontWeight='bold'
+                            onClick={handleAddCollateral}
+                            isDisabled={!hasFreeBalance || !accountId}
+                          >
+                            {translate('chainflipLending.collateral.add')}
+                          </Button>
+                        </Tooltip>
+                        <Tooltip
+                          label={translate('chainflipLending.pool.noCollateral')}
+                          isDisabled={hasPoolCollateral}
+                          shouldWrapChildren
+                          hasArrow
+                        >
+                          <Button
+                            variant='outline'
+                            colorScheme='blue'
+                            size='lg'
+                            height={12}
+                            borderRadius='xl'
+                            flex={1}
+                            fontWeight='bold'
+                            onClick={handleRemoveCollateral}
+                            isDisabled={!hasPoolCollateral || !accountId}
+                          >
+                            {translate('chainflipLending.collateral.remove')}
+                          </Button>
+                        </Tooltip>
+                      </HStack>
+                    </VStack>
+                  </TabPanel>
+                  <TabPanel p={4}>
+                    <VStack spacing={3} align='stretch'>
+                      <Flex justifyContent='space-between' alignItems='center'>
+                        <RawText fontSize='sm' color='text.subtle'>
+                          {translate('chainflipLending.borrow.borrowed')}
+                        </RawText>
+                        <Amount.Fiat value={userBorrowedFiat} fontSize='sm' fontWeight='medium' />
+                      </Flex>
+                      {hasLoans && (
+                        <Flex justifyContent='space-between' alignItems='center'>
+                          <RawText fontSize='sm' color='text.subtle'>
+                            {translate('chainflipLending.pool.currentLtv')}
+                          </RawText>
+                          <RawText fontSize='sm' fontWeight='medium' color={ltvStatusColor}>
+                            {currentLtvPercent}%
+                          </RawText>
+                        </Flex>
+                      )}
+                      {hasCollateral && (
+                        <Flex justifyContent='space-between' alignItems='center'>
+                          <RawText fontSize='sm' color='text.subtle'>
+                            {translate('chainflipLending.pool.availableToBorrow')}
+                          </RawText>
+                          <Amount.Fiat
+                            value={borrowCapacityFiat}
+                            fontSize='sm'
+                            fontWeight='medium'
+                          />
+                        </Flex>
+                      )}
+                      {hasCollateral && (
+                        <Flex justifyContent='space-between' alignItems='center'>
+                          <RawText fontSize='sm' color='text.subtle'>
+                            {translate('chainflipLending.pool.borrowPowerUsed')}
+                          </RawText>
+                          <Amount.Percent
+                            value={borrowPowerUsedPercent}
+                            fontSize='sm'
+                            fontWeight='medium'
+                          />
+                        </Flex>
+                      )}
+                      <Tooltip
+                        label={translate('chainflipLending.pool.noCollateral')}
+                        isDisabled={hasCollateral}
+                        shouldWrapChildren
+                        hasArrow
+                      >
+                        <Button
+                          colorScheme='blue'
+                          size='lg'
+                          height={12}
+                          borderRadius='xl'
+                          width='full'
+                          fontWeight='bold'
+                          onClick={handleBorrow}
+                          isDisabled={!hasCollateral || !accountId}
+                        >
+                          {translate('chainflipLending.borrow.title')}
+                        </Button>
+                      </Tooltip>
+                    </VStack>
+                  </TabPanel>
+                  <TabPanel p={4}>
+                    <VStack spacing={3} align='stretch'>
+                      <Flex justifyContent='space-between' alignItems='center'>
+                        <RawText fontSize='sm' color='text.subtle'>
+                          {translate('chainflipLending.repay.outstanding')}
+                        </RawText>
+                        <VStack spacing={0} align='flex-end'>
+                          <Amount.Fiat
+                            value={poolLoan?.principalAmountFiat ?? '0'}
+                            fontSize='sm'
+                            fontWeight='medium'
+                          />
+                          {poolLoan && (
+                            <Amount.Crypto
+                              value={poolLoan.principalAmountCryptoPrecision}
+                              symbol={asset.symbol}
+                              fontSize='xs'
+                              color='text.subtle'
+                            />
+                          )}
+                        </VStack>
+                      </Flex>
+                      {hasLoans && (
+                        <Flex justifyContent='space-between' alignItems='center'>
+                          <RawText fontSize='sm' color='text.subtle'>
+                            {translate('chainflipLending.pool.currentLtv')}
+                          </RawText>
+                          <RawText fontSize='sm' fontWeight='medium' color={ltvStatusColor}>
+                            {currentLtvPercent}%
+                          </RawText>
+                        </Flex>
+                      )}
+                      <Flex justifyContent='space-between' alignItems='center'>
+                        <RawText fontSize='sm' color='text.subtle'>
+                          {translate('chainflipLending.pool.freeBalance')}
+                        </RawText>
+                        <Amount.Crypto
+                          value={freeBalanceCryptoPrecision}
+                          symbol={asset.symbol}
+                          fontSize='sm'
+                          fontWeight='medium'
+                        />
+                      </Flex>
+                      <Tooltip
+                        label={translate('chainflipLending.pool.noLoans')}
+                        isDisabled={hasLoans}
+                        shouldWrapChildren
+                        hasArrow
+                      >
+                        <Button
+                          colorScheme='blue'
+                          size='lg'
+                          height={12}
+                          borderRadius='xl'
+                          width='full'
+                          fontWeight='bold'
+                          onClick={handleRepay}
+                          isDisabled={!hasLoans || !accountId}
+                        >
+                          {translate('chainflipLending.repay.title')}
+                        </Button>
+                      </Tooltip>
+                    </VStack>
+                  </TabPanel>
+                </TabPanels>
+              </Tabs>
+            </CardBody>
+          </Card>
+
+          {hasLoans && accountId && (
+            <Card
+              borderColor={isVoluntaryLiquidationActive ? 'red.500' : undefined}
+              borderWidth={isVoluntaryLiquidationActive ? 1 : undefined}
+            >
+              <CardBody p={4}>
+                <VStack spacing={3} align='stretch'>
+                  {isVoluntaryLiquidationActive && (
+                    <RawText fontSize='xs' color='red.500' fontWeight='bold'>
+                      {translate('chainflipLending.voluntaryLiquidation.inProgress')}
+                    </RawText>
+                  )}
+                  <Button
+                    colorScheme={isVoluntaryLiquidationActive ? 'yellow' : 'red'}
+                    variant={isVoluntaryLiquidationActive ? 'solid' : 'outline'}
+                    size='md'
+                    borderRadius='xl'
+                    width='full'
+                    fontWeight='bold'
+                    onClick={() =>
+                      handleVoluntaryLiquidation(isVoluntaryLiquidationActive ? 'stop' : 'initiate')
+                    }
+                  >
+                    {translate(
+                      isVoluntaryLiquidationActive
+                        ? 'chainflipLending.voluntaryLiquidation.confirmStop'
+                        : 'chainflipLending.voluntaryLiquidation.confirmInitiate',
+                    )}
+                  </Button>
+                </VStack>
+              </CardBody>
+            </Card>
+          )}
         </Stack>
       </Flex>
     </Main>

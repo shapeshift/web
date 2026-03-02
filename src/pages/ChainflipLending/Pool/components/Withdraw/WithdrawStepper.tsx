@@ -14,19 +14,8 @@ type StepConfig = {
   labelKey: string
 }
 
-const REMOVE_ONLY_STEPS: StepConfig[] = [
-  { id: 'signing_remove', labelKey: 'chainflipLending.withdraw.steps.signingRemove' },
-  { id: 'confirming', labelKey: 'chainflipLending.withdraw.steps.confirming' },
-]
-
-const BATCH_STEPS: StepConfig[] = [
-  { id: 'signing_batch', labelKey: 'chainflipLending.withdraw.steps.signingBatch' },
-  { id: 'confirming', labelKey: 'chainflipLending.withdraw.steps.confirming' },
-]
-
-const SEQUENTIAL_STEPS: StepConfig[] = [
-  { id: 'signing_remove', labelKey: 'chainflipLending.withdraw.steps.signingRemove' },
-  { id: 'signing_egress', labelKey: 'chainflipLending.withdraw.steps.signingEgress' },
+const STEPS: StepConfig[] = [
+  { id: 'signing', labelKey: 'chainflipLending.withdraw.steps.signing' },
   { id: 'confirming', labelKey: 'chainflipLending.withdraw.steps.confirming' },
 ]
 
@@ -34,22 +23,12 @@ type StepStatus = 'completed' | 'active' | 'error' | 'pending'
 
 const stepIconSize = 5
 const checkCircleIcon = <CheckCircleIcon boxSize={stepIconSize} color='green.500' />
+const stepOrder = STEPS.map(s => s.id)
 
 export const WithdrawStepper = memo(() => {
   const translate = useTranslate()
   const stateValue = WithdrawMachineCtx.useSelector(s => s.value) as string
-  const { withdrawToWallet, useBatch, errorStep } = WithdrawMachineCtx.useSelector(s => ({
-    withdrawToWallet: s.context.withdrawToWallet,
-    useBatch: s.context.useBatch,
-    errorStep: s.context.errorStep,
-  }))
-
-  const steps = useMemo(() => {
-    if (!withdrawToWallet) return REMOVE_ONLY_STEPS
-    return useBatch ? BATCH_STEPS : SEQUENTIAL_STEPS
-  }, [withdrawToWallet, useBatch])
-
-  const stepOrder = useMemo(() => steps.map(s => s.id), [steps])
+  const errorStep = WithdrawMachineCtx.useSelector(s => s.context.errorStep)
 
   const getStepStatus = useMemo(() => {
     const currentIndex = stepOrder.indexOf(stateValue as WithdrawStep)
@@ -71,11 +50,11 @@ export const WithdrawStepper = memo(() => {
       if (stepIndex === currentIndex) return 'active'
       return 'pending'
     }
-  }, [stateValue, errorStep, stepOrder])
+  }, [stateValue, errorStep])
 
   return (
     <VStack spacing={3} align='stretch' width='full'>
-      {steps.map(step => {
+      {STEPS.map(step => {
         const status = getStepStatus(step.id)
         return (
           <HStack key={step.id} spacing={3} opacity={status === 'pending' ? 0.5 : 1}>

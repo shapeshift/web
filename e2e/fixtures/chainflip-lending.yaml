@@ -48,11 +48,11 @@ description: >
      if amount is below the protocol minimum.
   4. Supply minimum: ~$100 from protocol. If existing free balance is
      insufficient, use whatever free balance exists. If under $100,
-     skip supply — mark PASSED (not failed).
+     skip supply with SKIPPED (not passed, not failed).
   5. Borrow: smallest possible amount ($10 minimum). Keep LTV << 80%.
   6. Collateral: $10 minimum for updates.
-  7. Skipped steps = PASSED with explanation. Never mark skipped as
-     failed.
+  7. Skipped steps = SKIPPED with explanation. Never mark skipped as
+     passed or failed.
   8. No Bitcoin deposits.
   9. No force-funding swaps — work with existing balances.
   10. Report every operation with action, asset, amount, before/after.
@@ -148,19 +148,19 @@ steps:
       - If minimum warning appears: clear input, try "1.00"
       - If still below minimum: clear input, try "2.00"
       - If $2.00 is still below minimum: SKIP entire deposit phase
-        as PASSED with note "minimum deposit exceeds $2 ceiling"
+        as SKIPPED with note "minimum deposit exceeds $2 ceiling"
 
       Once a valid amount is accepted, click submit/continue.
       Wait for confirm screen. Verify amount shown.
       Click "Confirm & Deposit".
     expected: >
       Valid deposit amount entered ($0.50-$2) and confirmed.
-      OR PASSED (skipped) if minimum exceeds $2.
+      OR SKIPPED if minimum exceeds $2.
     screenshot: true
 
   - name: Deposit USDC > Execute deposit
     instruction: >
-      If previous step was skipped, mark this PASSED too.
+      If previous step was SKIPPED, mark this SKIPPED too.
 
       The stepper shows progress. For returning users:
       - Open Channel (EIP-712 sign)
@@ -179,7 +179,7 @@ steps:
 
   - name: Deposit USDC > Verify toast + Action Center
     instruction: >
-      If deposit was skipped, mark this PASSED too.
+      If deposit was SKIPPED, mark this SKIPPED too.
 
       Wait up to 10 seconds for toast notification.
       Toast should mention deposit amount and "Chainflip".
@@ -201,7 +201,7 @@ steps:
 
   - name: Deposit USDC > Verify free balance increase
     instruction: >
-      If deposit was skipped, mark this PASSED too.
+      If deposit was SKIPPED, mark this SKIPPED too.
 
       Click "Done". Wait 3 seconds.
 
@@ -233,12 +233,12 @@ steps:
         Click "Supply" button. Modal opens.
         Verify available balance shows free balance amount.
     expected: >
-      Supply feasible (free balance >= $100) or PASSED (skipped).
+      Supply feasible (free balance >= $100) or SKIPPED.
     screenshot: true
 
   - name: Supply USDC > Enter amount and confirm
     instruction: >
-      If previous step was skipped, mark this PASSED too.
+      If previous step was SKIPPED, mark this SKIPPED too.
 
       Enter "101" in amount input (just above $100 minimum).
       If free balance < 101 but >= 100, enter "100" or use Max.
@@ -251,7 +251,7 @@ steps:
 
   - name: Supply USDC > Execute
     instruction: >
-      If supply was skipped, mark this PASSED too.
+      If supply was SKIPPED, mark this SKIPPED too.
 
       Stepper: Signing (EIP-712) → Confirming.
       For native wallet: click "Confirm" button.
@@ -264,7 +264,7 @@ steps:
 
   - name: Supply USDC > Verify toast + Action Center
     instruction: >
-      If supply was skipped, mark this PASSED too.
+      If supply was SKIPPED, mark this SKIPPED too.
 
       Wait 10s for toast. Should mention supply + USDC + amount.
 
@@ -282,7 +282,7 @@ steps:
 
   - name: Supply USDC > Verify position
     instruction: >
-      If supply was skipped, mark this PASSED too.
+      If supply was SKIPPED, mark this SKIPPED too.
 
       Click "Done". Wait 3 seconds.
 
@@ -303,7 +303,7 @@ steps:
 
   - name: Withdraw Supply > Open modal
     instruction: >
-      If supply phase was skipped, mark this PASSED too.
+      If supply phase was SKIPPED, mark this SKIPPED too.
 
       Click "Withdraw Supply" or "Withdraw" button.
       Modal opens. Verify available shows supply position.
@@ -316,7 +316,7 @@ steps:
 
   - name: Withdraw Supply > Full withdrawal
     instruction: >
-      If withdraw was skipped, mark this PASSED too.
+      If withdraw was SKIPPED, mark this SKIPPED too.
 
       Click "Max" to withdraw the full supply position.
       Click submit. Verify confirm screen. Click "Confirm & Withdraw".
@@ -331,7 +331,7 @@ steps:
 
   - name: Withdraw Supply > Verify toast + Action Center
     instruction: >
-      If withdraw was skipped, mark this PASSED too.
+      If withdraw was SKIPPED, mark this SKIPPED too.
 
       Wait 10s for toast. Should mention withdrawal + USDC.
 
@@ -348,7 +348,7 @@ steps:
 
   - name: Withdraw Supply > Verify balances
     instruction: >
-      If withdraw was skipped, mark this PASSED too.
+      If withdraw was SKIPPED, mark this SKIPPED too.
 
       Click "Done". Wait 3 seconds.
 
@@ -381,12 +381,12 @@ steps:
 
       If present and free balance >= $10: proceed.
     expected: >
-      Collateral UI available and free balance sufficient, or PASSED (skipped).
+      Collateral UI available and free balance sufficient, or SKIPPED.
     screenshot: true
 
   - name: Add Collateral > Enter amount and execute
     instruction: >
-      If skipped, mark this PASSED too.
+      If SKIPPED, mark this SKIPPED too.
 
       Click "Add Collateral". Modal opens.
       Enter amount: use all available free balance minus $1 buffer,
@@ -402,7 +402,7 @@ steps:
 
   - name: Add Collateral > Verify toast + balances
     instruction: >
-      If skipped, mark this PASSED too.
+      If SKIPPED, mark this SKIPPED too.
 
       Check toast (10s). Verify Action Center card if toast appears.
 
@@ -425,7 +425,7 @@ steps:
 
   - name: Borrow > Open modal
     instruction: >
-      If collateral phase was skipped, mark this PASSED too.
+      If collateral phase was SKIPPED, mark this SKIPPED too.
 
       Look for "Borrow" tab or button. If not present: SKIP.
 
@@ -446,7 +446,7 @@ steps:
 
   - name: Borrow > Execute
     instruction: >
-      If skipped, mark this PASSED too.
+      If SKIPPED, mark this SKIPPED too.
 
       Click submit. Confirm. Sign. Wait up to 120 seconds.
 
@@ -458,7 +458,7 @@ steps:
 
   - name: Borrow > Verify toast + balances
     instruction: >
-      If skipped, mark this PASSED too.
+      If SKIPPED, mark this SKIPPED too.
 
       Check toast. Verify Action Center card.
 
@@ -479,7 +479,7 @@ steps:
 
   - name: Repay > Full repayment
     instruction: >
-      If borrow was skipped, mark this PASSED too.
+      If borrow was SKIPPED, mark this SKIPPED too.
 
       Look for "Repay" tab or button. Click it.
 
@@ -496,7 +496,7 @@ steps:
 
   - name: Repay > Verify toast + balances
     instruction: >
-      If skipped, mark this PASSED too.
+      If SKIPPED, mark this SKIPPED too.
 
       Check toast. Verify Action Center card.
 
@@ -517,7 +517,7 @@ steps:
 
   - name: Remove Collateral > Execute
     instruction: >
-      If collateral phases were skipped, mark this PASSED too.
+      If collateral phases were SKIPPED, mark this SKIPPED too.
 
       Look for "Remove Collateral" option. Click it.
       Enter full collateral amount or click Max (no loans, safe
@@ -609,7 +609,7 @@ steps:
       Open Action Center (bell icon in header).
 
       Count all "Chainflip Lending" cards from this session.
-      Expected cards (reverse chronological, some may have been skipped):
+      Expected cards (reverse chronological, some may be SKIPPED):
 
       1. Egress — Confirmed
       2. Remove Collateral — Confirmed (if available)

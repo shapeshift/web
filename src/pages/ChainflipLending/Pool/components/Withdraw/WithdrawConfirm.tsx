@@ -1,5 +1,5 @@
-import { CheckCircleIcon, ExternalLinkIcon } from '@chakra-ui/icons'
-import { Button, CardBody, CardFooter, Flex, Link, VStack } from '@chakra-ui/react'
+import { CheckCircleIcon } from '@chakra-ui/icons'
+import { Button, CardBody, CardFooter, Flex, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { memo, useCallback, useMemo } from 'react'
@@ -8,15 +8,13 @@ import { useTranslate } from 'react-polyglot'
 import { useWithdrawActionCenter } from './hooks/useWithdrawActionCenter'
 import { useWithdrawBatch } from './hooks/useWithdrawBatch'
 import { useWithdrawConfirmation } from './hooks/useWithdrawConfirmation'
-import { useWithdrawEgress } from './hooks/useWithdrawEgress'
-import { useWithdrawRemove } from './hooks/useWithdrawRemove'
+import { useWithdrawSign } from './hooks/useWithdrawSign'
 import { WithdrawMachineCtx } from './WithdrawMachineContext'
 import { WithdrawStepper } from './WithdrawStepper'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
-import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -44,21 +42,12 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
   const withdrawAmountCryptoPrecision = WithdrawMachineCtx.useSelector(
     s => s.context.withdrawAmountCryptoPrecision,
   )
-  const egressTxRef = WithdrawMachineCtx.useSelector(s => s.context.egressTxRef)
-  const withdrawToWallet = WithdrawMachineCtx.useSelector(s => s.context.withdrawToWallet)
   const error = WithdrawMachineCtx.useSelector(s => s.context.error)
   const isNativeWallet = WithdrawMachineCtx.useSelector(s => s.context.isNativeWallet)
   const stepConfirmed = WithdrawMachineCtx.useSelector(s => s.context.stepConfirmed)
   const isConfirming = WithdrawMachineCtx.useSelector(s => s.matches('confirming'))
 
-  const egressTxLink = useMemo(() => {
-    if (!egressTxRef || !asset?.explorerTxLink) return undefined
-    return `${asset.explorerTxLink}${egressTxRef}`
-  }, [egressTxRef, asset?.explorerTxLink])
-
-  useWithdrawBatch()
-  useWithdrawRemove()
-  useWithdrawEgress()
+  useWithdrawSign()
   useWithdrawConfirmation()
   useWithdrawActionCenter()
 
@@ -85,6 +74,15 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
   const handleBack = useCallback(() => {
     actorRef.send({ type: 'BACK' })
   }, [actorRef])
+
+  const confirmDescription = useMemo(
+    () =>
+      translate('chainflipLending.withdraw.confirmDescription', {
+        amount: withdrawAmountCryptoPrecision,
+        asset: asset?.symbol ?? '',
+      }),
+    [translate, withdrawAmountCryptoPrecision, asset?.symbol],
+  )
 
   if (!asset) return null
 
@@ -115,23 +113,6 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
                 fontSize='lg'
               />
             </VStack>
-            {withdrawToWallet && egressTxRef && (
-              <VStack spacing={1}>
-                <RawText fontSize='xs' color='text.subtle'>
-                  {translate('chainflipLending.egress.transactionId')}
-                </RawText>
-                {egressTxLink ? (
-                  <Link href={egressTxLink} isExternal color='text.link' fontSize='sm'>
-                    <MiddleEllipsis value={egressTxRef} />
-                    <ExternalLinkIcon mx={1} />
-                  </Link>
-                ) : (
-                  <RawText fontSize='sm'>
-                    <MiddleEllipsis value={egressTxRef} />
-                  </RawText>
-                )}
-              </VStack>
-            )}
           </VStack>
         </CardBody>
         <CardFooter
@@ -257,10 +238,7 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
               {translate('chainflipLending.withdraw.confirmTitle')}
             </RawText>
             <RawText fontSize='sm' color='text.subtle' textAlign='center'>
-              {translate('chainflipLending.withdraw.confirmDescription', {
-                amount: withdrawAmountCryptoPrecision,
-                asset: asset.symbol,
-              })}
+              {confirmDescription}
             </RawText>
           </VStack>
           <Flex direction='column' gap={1} align='center'>

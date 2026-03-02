@@ -47,13 +47,13 @@ export const useSupplyConfirmation = () => {
       return
     }
 
-    if (!accountInfo?.lending_positions || !cfAsset) return
-
     pollCountRef.current += 1
     if (pollCountRef.current > MAX_POLL_ATTEMPTS) {
       actorRef.send({ type: 'SUPPLY_TIMEOUT', error: 'Confirmation timed out' })
       return
     }
+
+    if (!accountInfo?.lending_positions || !cfAsset) return
 
     const matchingPosition = accountInfo.lending_positions.find(
       (p: { chain: string; asset: string; total_amount?: string }) =>

@@ -1,4 +1,5 @@
 import type { AxiosError } from 'axios'
+import { isAxiosError } from 'axios'
 
 type StakeKitErrorResponse = {
   message?: string
@@ -42,7 +43,9 @@ const extractSymbolFromError = (message: string): string | undefined => {
  * Returns a translation key + optional params for interpolation.
  */
 export const getYieldQuoteErrorTranslation = (error: unknown): QuoteErrorTranslation => {
-  const axiosError = error as AxiosError<StakeKitErrorResponse> | undefined
+  const axiosError: AxiosError<StakeKitErrorResponse> | undefined = isAxiosError(error)
+    ? error
+    : undefined
   const data = axiosError?.response?.data
   const message = data?.message ?? data?.error ?? ''
   const errorMessage = error instanceof Error ? error.message : ''

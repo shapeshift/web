@@ -903,7 +903,7 @@ export const YieldForm = memo(
         </Flex>
 
         <Box pt={4} pb={4}>
-                    <Button
+          <Button
             colorScheme='blue'
             size='lg'
             width='full'

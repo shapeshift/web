@@ -15,14 +15,24 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup pnpm
+        run: corepack enable && corepack prepare pnpm@10.30.3 --activate
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: 'yarn'
+          cache: 'pnpm'
 
-      - name: Yarn Install
-        run: yarn install --immutable
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-node-modules-
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Extract Version
         id: version
@@ -46,7 +56,7 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Build Web
-        run: MODE=production DEPLOY=true VITE_VERSION=${{ steps.version.outputs.version }} yarn build:web
+        run: MODE=production DEPLOY=true VITE_VERSION=${{ steps.version.outputs.version }} pnpm run build:web
 
       - name: Sentry Release
         uses: getsentry/action-release@v3

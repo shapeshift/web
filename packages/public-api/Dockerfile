@@ -9,10 +9,9 @@ WORKDIR /app
 RUN apk add --no-cache python3 make g++ openjdk17-jre
 
 # Copy workspace files
-COPY package.json yarn.lock .yarnrc.yml ./
-COPY .yarn ./.yarn
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 
-# Copy all workspace package.json files for resolution (yarn requires all workspaces present)
+# Copy all workspace package.json files for resolution (pnpm requires all workspaces present)
 COPY packages/caip/package.json ./packages/caip/
 COPY packages/chain-adapters/package.json ./packages/chain-adapters/
 COPY packages/contracts/package.json ./packages/contracts/
@@ -49,8 +48,7 @@ COPY packages/unchained-client/package.json ./packages/unchained-client/
 COPY packages/utils/package.json ./packages/utils/
 
 # Install dependencies with Railway cache mount (skip build/postinstall scripts that require git/cypress/etc)
-RUN --mount=type=cache,id=s/5fa4b228-de48-4bb3-90d6-807d0c6e7f1c-/root/.yarn/berry/cache,target=/root/.yarn/berry/cache \
-    yarn install --immutable --mode skip-build
+RUN corepack enable && corepack prepare pnpm@10.30.3 --activate && pnpm install --frozen-lockfile
 
 # Copy unchained-client config and generator files FIRST (rarely changes, enables layer caching)
 COPY packages/unchained-client/openapitools.json ./packages/unchained-client/
@@ -58,8 +56,7 @@ COPY packages/unchained-client/generator/ ./packages/unchained-client/generator/
 
 # Generate unchained-client code (cached when openapitools.json unchanged)
 # Cache mount for OpenAPI Generator JAR to avoid re-downloading on each build
-RUN --mount=type=cache,id=s/5fa4b228-de48-4bb3-90d6-807d0c6e7f1c-/root/.openapitools,target=/root/.openapitools \
-    yarn workspace @shapeshiftoss/unchained-client generate
+RUN pnpm --filter @shapeshiftoss/unchained-client generate
 
 # Copy remaining source files
 COPY packages/ ./packages/
@@ -67,14 +64,14 @@ COPY public/generated/generatedAssetData.json ./public/generated/
 COPY tsconfig.json tsconfig.packages.json ./
 
 # Build all packages using parallel tsc with project references
-RUN yarn run -T tsc --build tsconfig.packages.json && yarn postbuild:packages
+RUN pnpm exec tsc --build tsconfig.packages.json && pnpm run postbuild:packages
 
 # Build the public-api bundle
 WORKDIR /app/packages/public-api
-RUN yarn node esbuild.config.mjs
+RUN node esbuild.config.mjs
 
 # Build smoke tests bundle
-RUN yarn node esbuild.smoke-tests.mjs
+RUN node esbuild.smoke-tests.mjs
 
 # Production stage
 FROM node:22-alpine AS runner

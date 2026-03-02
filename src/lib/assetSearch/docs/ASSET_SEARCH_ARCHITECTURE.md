@@ -215,7 +215,7 @@ Test files:
 
 Run tests:
 ```bash
-yarn test src/lib/assetSearch
+pnpm run test src/lib/assetSearch
 ```
 
 ## Common Modifications

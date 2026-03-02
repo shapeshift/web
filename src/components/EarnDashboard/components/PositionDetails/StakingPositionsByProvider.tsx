@@ -419,6 +419,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       columns={columns}
       displayHeaders={!isCompactCols}
       onRowClick={isCompactCols ? handleRowClick : undefined}
+      data-testid='staking-positions-table'
     />
   )
 }

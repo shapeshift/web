@@ -417,6 +417,10 @@ export function isVultisig(wallet: HDWallet | null): boolean {
   return isObject(wallet) && (wallet as any)._isVultisig
 }
 
+export function isWalletConnectV2(wallet: HDWallet | null): boolean {
+  return isObject(wallet) && (wallet as any)._isWalletConnectV2
+}
+
 export interface HDWalletInfo {
   /**
    * Retrieve the wallet's vendor string.

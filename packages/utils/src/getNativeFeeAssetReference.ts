@@ -58,6 +58,8 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.Cronos
           case CHAIN_REFERENCE.KatanaMainnet:
             return ASSET_REFERENCE.Katana
+          case CHAIN_REFERENCE.EtherealMainnet:
+            return ASSET_REFERENCE.Ethereal
           case CHAIN_REFERENCE.FlowEvmMainnet:
             return ASSET_REFERENCE.FlowEvm
           case CHAIN_REFERENCE.CeloMainnet:

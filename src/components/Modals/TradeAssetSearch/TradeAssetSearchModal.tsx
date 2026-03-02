@@ -32,6 +32,7 @@ type AssetSearchModalBaseProps = TradeAssetSearchModalProps & {
   chainIdFilterPredicate: (chainId: ChainId) => boolean
   selectedChainId?: ChainId | 'All'
   onSelectedChainIdChange?: (chainId: ChainId | 'All') => void
+  'data-testid'?: string
 }
 
 export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
@@ -47,6 +48,7 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   onSelectedChainIdChange,
   showFiatTab,
   showAssetTab,
+  'data-testid': dataTestId,
 }) => {
   const translate = useTranslate()
 
@@ -67,7 +69,7 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
   )
 
   return (
-    <Dialog isOpen={isOpen} onClose={close} isFullScreen>
+    <Dialog isOpen={isOpen} onClose={close} isFullScreen data-testid={dataTestId}>
       <DialogHeader>
         <DialogHeaderMiddle>{translate(title)}</DialogHeaderMiddle>
         <DialogHeaderRight>
@@ -93,11 +95,24 @@ export const TradeAssetSearchModalBase: FC<AssetSearchModalBaseProps> = ({
 
 export const SellTradeAssetSearchModal: FC<TradeAssetSearchModalProps> = memo(props => {
   const sellAssetSearch = useModal('sellTradeAssetSearch')
-  return <TradeAssetSearchModalBase {...props} {...sellAssetSearch} />
+  return (
+    <TradeAssetSearchModalBase
+      {...props}
+      {...sellAssetSearch}
+      data-testid='sell-asset-search-modal'
+    />
+  )
 })
 
 export const BuyTradeAssetSearchModal: FC<TradeAssetSearchModalProps> = memo(props => {
   const buyAssetSearch = useModal('buyTradeAssetSearch')
   // Assets unsupported by the wallet are allowed when buying
-  return <TradeAssetSearchModalBase {...props} {...buyAssetSearch} allowWalletUnsupportedAssets />
+  return (
+    <TradeAssetSearchModalBase
+      {...props}
+      {...buyAssetSearch}
+      allowWalletUnsupportedAssets
+      data-testid='buy-asset-search-modal'
+    />
+  )
 })

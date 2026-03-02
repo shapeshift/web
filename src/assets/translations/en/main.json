@@ -1,5 +1,6 @@
 {
   "common": {
+    "addressRequired": "Address is required",
     "amount": "Amount",
     "ascending": "Ascending",
     "descending": "Descending",
@@ -2656,7 +2657,8 @@
         "signing": "Signing withdrawal transaction",
         "confirming": "Confirming withdrawal"
       },
-      "transactionId": "Transaction ID"
+      "transactionId": "Transaction ID",
+      "noFreeBalance": "No free balance available to withdraw"
     },
     "borrowRateTooltip": "The current annual interest rate for borrowing from this pool",
     "originationFeeTooltip": "One-time fee charged when creating or expanding a loan",

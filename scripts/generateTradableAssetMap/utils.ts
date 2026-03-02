@@ -12,6 +12,7 @@ import {
   dogeChainId,
   ethChainId,
   ltcChainId,
+  solanaChainId,
   thorchainChainId,
   toAssetId,
   tronChainId,
@@ -35,6 +36,7 @@ enum Chain {
   ETH = 'ETH',
   GAIA = 'GAIA',
   LTC = 'LTC',
+  SOL = 'SOL',
   THOR = 'THOR',
   TRON = 'TRON',
   ZEC = 'ZEC',
@@ -52,6 +54,7 @@ const chainToChainId: Record<Chain, ChainId> = {
   [Chain.ETH]: ethChainId,
   [Chain.GAIA]: cosmosChainId,
   [Chain.LTC]: ltcChainId,
+  [Chain.SOL]: solanaChainId,
   [Chain.THOR]: thorchainChainId,
   [Chain.TRON]: tronChainId,
   [Chain.ZEC]: zecChainId,
@@ -73,6 +76,8 @@ const getTokenStandardFromChainId = (chainId: ChainId): AssetNamespace | undefin
       return ASSET_NAMESPACE.erc20
     case KnownChainIds.TronMainnet:
       return ASSET_NAMESPACE.trc20
+    case KnownChainIds.SolanaMainnet:
+      return ASSET_NAMESPACE.splToken
     default:
       return undefined
   }
@@ -106,7 +111,10 @@ export const getAssetIdPairFromPool = (pool: ThornodePoolResponse): AssetIdPair 
       const assetId = toAssetId({
         chainId,
         assetNamespace,
-        assetReference: assetReference.toLowerCase(),
+        assetReference:
+          assetNamespace === ASSET_NAMESPACE.splToken
+            ? assetReference
+            : assetReference.toLowerCase(),
       })
 
       return [pool.asset, assetId]

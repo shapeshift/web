@@ -5,6 +5,7 @@ import {
   bobAssetId,
   celoAssetId,
   cronosAssetId,
+  etherealAssetId,
   flowEvmAssetId,
   hemiAssetId,
   hyperEvmAssetId,
@@ -62,12 +63,15 @@ export const queryFn = async () => {
   if (enabledFlags.Monad) assetIds.push(monadAssetId)
   if (enabledFlags.Near) assetIds.push(nearAssetId)
   if (enabledFlags.Plasma) assetIds.push(plasmaAssetId)
-  if (enabledFlags.Plume) assetIds.push(plumeAssetId)
   if (enabledFlags.Mantle) assetIds.push(mantleAssetId)
   if (enabledFlags.MegaEth) assetIds.push(megaethAssetId)
   if (enabledFlags.Ink) assetIds.push(inkAssetId)
   if (enabledFlags.Scroll) assetIds.push(scrollAssetId)
   if (enabledFlags.Katana) assetIds.push(katanaAssetId)
+  if (enabledFlags.Ethereal) assetIds.push(etherealAssetId)
+  if (enabledFlags.Celo) assetIds.push(celoAssetId)
+  if (enabledFlags.FlowEvm) assetIds.push(flowEvmAssetId)
+  if (enabledFlags.Plume) assetIds.push(plumeAssetId)
   if (enabledFlags.Story) assetIds.push(storyAssetId)
   if (enabledFlags.ZkSyncEra) assetIds.push(zkSyncEraAssetId)
   if (enabledFlags.Blast) assetIds.push(blastAssetId)
@@ -81,12 +85,10 @@ export const queryFn = async () => {
   if (enabledFlags.Bob) assetIds.push(bobAssetId)
   if (enabledFlags.Mode) assetIds.push(modeAssetId)
   if (enabledFlags.Soneium) assetIds.push(soneiumAssetId)
-  if (enabledFlags.Celo) assetIds.push(celoAssetId)
   if (enabledFlags.Starknet) assetIds.push(starknetAssetId)
   if (enabledFlags.Tron) assetIds.push(tronAssetId)
   if (enabledFlags.Berachain) assetIds.push(berachainAssetId)
   if (enabledFlags.Sui) assetIds.push(suiAssetId)
-  if (enabledFlags.FlowEvm) assetIds.push(flowEvmAssetId)
 
   for (const assetId of [...new Set(assetIds)]) {
     const asset = primaryAssets[assetId]

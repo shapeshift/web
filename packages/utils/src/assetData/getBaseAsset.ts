@@ -17,6 +17,7 @@ import {
   celo,
   cronos,
   dogecoin,
+  ethereal,
   ethereum,
   flowEvm,
   gnosis,
@@ -114,6 +115,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return cronos
     case KnownChainIds.KatanaMainnet:
       return katana
+    case KnownChainIds.EtherealMainnet:
+      return ethereal
     case KnownChainIds.FlowEvmMainnet:
       return flowEvm
     case KnownChainIds.CeloMainnet:

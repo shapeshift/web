@@ -23,7 +23,7 @@ export const useDepositConfirmation = () => {
   const isConfirming = stateValue === 'confirming'
   const pollCountRef = useRef(0)
 
-  const { data: freeBalances } = useQuery({
+  const { data: freeBalances, dataUpdatedAt } = useQuery({
     ...reactQueries.chainflipLending.freeBalances(scAccount ?? ''),
     enabled: isConfirming && !!scAccount,
     refetchInterval: isConfirming ? POLL_INTERVAL_MS : false,
@@ -45,13 +45,13 @@ export const useDepositConfirmation = () => {
       return
     }
 
-    if (!freeBalances || !Array.isArray(freeBalances) || !cfAsset) return
-
     pollCountRef.current += 1
     if (pollCountRef.current > MAX_POLL_ATTEMPTS) {
       actorRef.send({ type: 'CONFIRMATION_ERROR', error: 'Confirmation timed out' })
       return
     }
+
+    if (!Array.isArray(freeBalances) || !cfAsset) return
 
     const matchingBalance = freeBalances.find(
       b => b.asset.chain === cfAsset.chain && b.asset.asset === cfAsset.asset,
@@ -65,12 +65,13 @@ export const useDepositConfirmation = () => {
         void invalidateQueries()
         actorRef.send({ type: 'CONFIRMED' })
       }
-    } catch {
-      // keep polling
+    } catch (error) {
+      console.error('[useDepositConfirmation] Error parsing free balances during confirmation poll', error)
     }
   }, [
     isConfirming,
     freeBalances,
+    dataUpdatedAt,
     cfAsset,
     initialFreeBalanceCryptoBaseUnit,
     actorRef,

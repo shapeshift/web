@@ -507,6 +507,23 @@ export const flowEvm: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const ethereal: Readonly<Asset> = Object.freeze({
+  assetId: caip.etherealAssetId,
+  chainId: caip.etherealChainId,
+  name: 'USDe',
+  networkName: 'Ethereal',
+  symbol: 'USDe',
+  precision: 18,
+  color: '#4A90D9',
+  networkColor: '#4A90D9',
+  icon: 'https://assets.coingecko.com/coins/images/33613/large/USDE.png',
+  networkIcon: 'https://assets.relay.link/icons/5064014/light.png',
+  explorer: 'https://explorer.ethereal.global',
+  explorerAddressLink: 'https://explorer.ethereal.global/address/',
+  explorerTxLink: 'https://explorer.ethereal.global/tx/',
+  relatedAssetKey: null,
+})
+
 export const celo: Readonly<Asset> = Object.freeze({
   assetId: caip.celoAssetId,
   chainId: caip.celoChainId,

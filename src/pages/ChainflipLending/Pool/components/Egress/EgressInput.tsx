@@ -143,9 +143,10 @@ export const EgressInput = ({ assetId }: EgressInputProps) => {
 
   const handleToggleCustomAddress = useCallback(() => {
     if (!walletSupportsAssetChain) return
-    setDestinationAddress(isCustomAddress ? defaultAddress : '')
+    const walletAddress = defaultAccountId ? fromAccountId(defaultAccountId).account : ''
+    setDestinationAddress(isCustomAddress ? walletAddress : '')
     setIsCustomAddress(prev => !prev)
-  }, [walletSupportsAssetChain, isCustomAddress, defaultAddress])
+  }, [walletSupportsAssetChain, isCustomAddress, defaultAccountId])
 
   const validateChainAddress = useCallback(
     async (address: string) => {
@@ -288,7 +289,7 @@ export const EgressInput = ({ assetId }: EgressInputProps) => {
             {isCustomAddress ? (
               <Input
                 {...register('manualAddress', {
-                  required: true,
+                  required: translate('common.addressRequired'),
                   validate: { isValidAddress: validateChainAddress },
                 })}
                 placeholder={translate('common.enterAddress')}
@@ -317,7 +318,7 @@ export const EgressInput = ({ assetId }: EgressInputProps) => {
 
           {!hasFreeBalance && (
             <RawText fontSize='xs' color='yellow.500'>
-              {translate('chainflipLending.supply.noFreeBalance')}
+              {translate('chainflipLending.egress.noFreeBalance')}
             </RawText>
           )}
         </VStack>

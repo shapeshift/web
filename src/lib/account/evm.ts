@@ -10,6 +10,7 @@ import {
   celoChainId,
   cronosChainId,
   ethChainId,
+  etherealChainId,
   flowEvmChainId,
   fromAccountId,
   gnosisChainId,
@@ -49,6 +50,7 @@ import {
   supportsCelo,
   supportsCronos,
   supportsETH,
+  supportsEthereal,
   supportsFlowEvm,
   supportsGnosis,
   supportsHemi,
@@ -174,6 +176,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === scrollChainId && !supportsScroll(wallet)) continue
     if (chainId === cronosChainId && !supportsCronos(wallet)) continue
     if (chainId === katanaChainId && !supportsKatana(wallet)) continue
+    if (chainId === etherealChainId && !supportsEthereal(wallet)) continue
     if (chainId === flowEvmChainId && !supportsFlowEvm(wallet)) continue
     if (chainId === storyChainId && !supportsStory(wallet)) continue
     if (chainId === zkSyncEraChainId && !supportsZkSyncEra(wallet)) continue

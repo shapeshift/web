@@ -32,10 +32,14 @@ export const useEgressConfirmation = () => {
     if (!isConfirming || baselineId !== null) return
     if (!cfAsset || !destinationAddress) return
 
-    void queryLatestWithdrawalId(destinationAddress, cfAsset.asset, cfAsset.chain).then(id => {
-      setBaselineId(id)
-    })
-  }, [isConfirming, baselineId, cfAsset, destinationAddress])
+    void queryLatestWithdrawalId(destinationAddress, cfAsset.asset, cfAsset.chain)
+      .then(id => {
+        setBaselineId(id)
+      })
+      .catch(() => {
+        actorRef.send({ type: 'EGRESS_TIMEOUT', error: 'Failed to fetch withdrawal baseline' })
+      })
+  }, [isConfirming, baselineId, cfAsset, destinationAddress, actorRef])
 
   const { data: withdrawalStatus } = useQuery({
     queryKey: [
@@ -71,6 +75,9 @@ export const useEgressConfirmation = () => {
       pollCountRef.current = 0
       setBaselineId(null)
       queryClient.removeQueries({ queryKey: ['chainflipEgressStatus'] })
+    }
+    if (stateValue === 'confirming') {
+      pollCountRef.current = 0
     }
   }, [stateValue, queryClient])
 

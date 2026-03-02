@@ -198,6 +198,7 @@ type CommonTradeInputBase = {
   buyAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   affiliateBps: string
+  affiliateAddress?: string
   allowMultiHop: boolean
   slippageTolerancePercentageDecimal?: string
 }
@@ -387,6 +388,13 @@ export type SwapperDeps = {
   StarknetSwapperDeps &
   TonSwapperDeps
 
+export type AffiliateFee = {
+  assetId: AssetId
+  amountCryptoBaseUnit: string
+  asset: Asset
+  isEstimate?: boolean
+}
+
 export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string
   buyAmountAfterFeesCryptoBaseUnit: string
@@ -502,6 +510,7 @@ export type TradeQuoteStep = {
   }
   acrossTransactionMetadata?: AcrossTransactionMetadata
   debridgeTransactionMetadata?: DebridgeTransactionMetadata
+  affiliateFee?: AffiliateFee
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & {

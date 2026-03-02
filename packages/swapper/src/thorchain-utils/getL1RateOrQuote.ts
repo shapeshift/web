@@ -19,6 +19,7 @@ import { TronWeb } from 'tronweb'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../index'
+import { buildAffiliateFee } from '../swappers/utils/affiliateFee'
 import type {
   CommonTradeQuoteInput,
   GetEvmTradeQuoteInput,
@@ -302,6 +303,14 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
           accountNumber,
           allowanceContract,
           feeData,
+          affiliateFee: buildAffiliateFee({
+            strategy: 'buy_asset',
+            affiliateBps: route.affiliateBps,
+            sellAsset,
+            buyAsset,
+            sellAmountCryptoBaseUnit,
+            buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+          }),
           thorchainSpecific: {
             maxStreamingQuantity: route.quote.max_streaming_quantity,
           },

@@ -1,14 +1,32 @@
 {
   "name": "@shapeshiftoss/swap-widget",
-  "version": "0.0.1",
-  "private": true,
+  "version": "0.1.0",
   "description": "Embeddable swap widget using ShapeShift API",
   "type": "module",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "style": "dist/style.css",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./style.css": "./dist/style.css",
+    "./dist/style.css": "./dist/style.css"
+  },
+  "sideEffects": [
+    "*.css"
+  ],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
+    "dev": "BUILD_DEMO=true vite",
+    "build": "vite build",
+    "build:demo": "BUILD_DEMO=true vite build",
     "preview": "vite preview",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
@@ -17,6 +35,49 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@shapeshiftoss/caip": "^8.0.0",
+    "@shapeshiftoss/types": "^8.0.0",
+    "@shapeshiftoss/utils": "^1.0.0",
+    "@xstate/react": "5.0.5",
+    "bech32": "^2.0.0",
+    "p-queue": "^8.0.1",
+    "react-virtuoso": "^4.7.11",
+    "xstate": "5.28.0"
+  },
+  "peerDependencies": {
+    "@reown/appkit": "^1.8.17",
+    "@reown/appkit-adapter-bitcoin": "^1.8.17",
+    "@reown/appkit-adapter-solana": "^1.8.17",
+    "@reown/appkit-adapter-wagmi": "^1.8.17",
+    "@solana/wallet-adapter-wallets": "^0.19.32",
+    "@solana/web3.js": "^1.98.0",
+    "@tanstack/react-query": "^5.69.0",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "viem": "^2.40.0",
+    "wagmi": "^3.3.0"
+  },
+  "peerDependenciesMeta": {
+    "@reown/appkit": {
+      "optional": true
+    },
+    "@reown/appkit-adapter-bitcoin": {
+      "optional": true
+    },
+    "@reown/appkit-adapter-solana": {
+      "optional": true
+    },
+    "@reown/appkit-adapter-wagmi": {
+      "optional": true
+    },
+    "@solana/wallet-adapter-wallets": {
+      "optional": true
+    },
+    "@solana/web3.js": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
     "@reown/appkit": "^1.8.17",
     "@reown/appkit-adapter-bitcoin": "^1.8.17",
     "@reown/appkit-adapter-solana": "^1.8.17",
@@ -27,15 +88,6 @@
     "@solana/wallet-adapter-wallets": "^0.19.32",
     "@solana/web3.js": "1.98.0",
     "@tanstack/react-query": "^5.69.0",
-    "@xstate/react": "5.0.5",
-    "bech32": "^2.0.0",
-    "p-queue": "^8.0.1",
-    "react-virtuoso": "^4.7.11",
-    "viem": "2.40.3",
-    "wagmi": "3.3.2",
-    "xstate": "5.28.0"
-  },
-  "devDependencies": {
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.2",
     "@types/react": "^19.0.0",
@@ -45,12 +97,14 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "typescript": "~5.2.2",
+    "viem": "2.40.3",
     "vite": "^5.0.0",
+    "vite-plugin-dts": "^4.5.4",
     "vite-plugin-node-polyfills": "0.23.0",
-    "vitest": "4.0.18"
+    "vitest": "4.0.18",
+    "wagmi": "3.3.2"
   },
-  "peerDependencies": {
-    "react": ">=18.0.0",
-    "react-dom": ">=18.0.0"
+  "publishConfig": {
+    "access": "public"
   }
 }

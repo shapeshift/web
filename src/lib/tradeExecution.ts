@@ -45,7 +45,9 @@ import { assertGetUtxoChainAdapter } from './utils/utxo'
 
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { readStoredAffiliate } from '@/hooks/useAffiliateTracking/useAffiliateTracking'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+import { getAffiliateBps } from '@/lib/fees/utils'
 import { poll } from '@/lib/poll/poll'
 import { getOrCreateUser } from '@/lib/user/api'
 import { selectCurrentSwap, selectWalletEnabledAccountIds } from '@/state/slices/selectors'
@@ -209,10 +211,15 @@ export class TradeExecution {
             queryClient.fetchQuery({
               queryKey: ['createSwap', swap.id],
               queryFn: () => {
+                const affiliateAddress = readStoredAffiliate() ?? undefined
+                const affiliateBps = getAffiliateBps(updatedSwap.sellAsset, updatedSwap.buyAsset)
                 return axios.post(`${import.meta.env.VITE_SWAPS_SERVER_URL}/swaps`, {
                   swapId: swap.id,
                   sellTxHash,
                   userId: userData?.id,
+                  affiliateAddress,
+                  affiliateBps,
+                  origin: 'web',
                   sellAsset: updatedSwap.sellAsset,
                   buyAsset: updatedSwap.buyAsset,
                   sellAmountCryptoBaseUnit: updatedSwap.sellAmountCryptoBaseUnit,

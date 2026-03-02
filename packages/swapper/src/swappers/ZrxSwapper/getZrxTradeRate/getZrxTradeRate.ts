@@ -12,6 +12,7 @@ import type {
   TradeRate,
 } from '../../../types'
 import { SwapperName } from '../../../types'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { fetchZrxPrice } from '../utils/fetchFromZrx'
 import {
@@ -99,6 +100,14 @@ export async function getZrxTradeRate(
         buyAmountAfterFeesCryptoBaseUnit: buyAmount,
         sellAmountIncludingProtocolFeesCryptoBaseUnit,
         source: SwapperName.Zrx,
+        affiliateFee: buildAffiliateFee({
+          strategy: 'buy_asset',
+          affiliateBps,
+          sellAsset,
+          buyAsset,
+          sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          buyAmountCryptoBaseUnit: buyAmount,
+        }),
       },
     ] as SingleHopTradeRateSteps,
   })

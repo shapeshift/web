@@ -8,6 +8,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constant
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { getAggregatorClient, getSuiClient } from '../utils/helpers'
 import { getCetusTradeData } from './getCetusTradeData'
 
@@ -121,6 +122,15 @@ export const getTradeQuote = async (
           sellAsset,
           allowanceContract: '0x0',
           estimatedExecutionTimeMs: undefined,
+          affiliateFee: buildAffiliateFee({
+            strategy: 'buy_asset',
+            affiliateBps,
+            sellAsset,
+            buyAsset,
+            sellAmountCryptoBaseUnit: sellAmount,
+            buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+            isEstimate: true,
+          }),
         },
       ],
     }

@@ -1,3 +1,4 @@
+import type { UseQueryResult } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 
 import type { ApiClient } from '../api/client'
@@ -14,7 +15,10 @@ export type UseSwapQuoteParams = {
   enabled?: boolean
 }
 
-export const useSwapQuote = (apiClient: ApiClient, params: UseSwapQuoteParams) => {
+export const useSwapQuote = (
+  apiClient: ApiClient,
+  params: UseSwapQuoteParams,
+): UseQueryResult<QuoteResponse | null> => {
   const {
     sellAssetId,
     buyAssetId,

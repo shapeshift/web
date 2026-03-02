@@ -1,4 +1,5 @@
 import { bnOrZero } from '@shapeshiftoss/utils'
+import type { UseQueryResult } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 
 import type { ApiClient } from '../api/client'
@@ -11,9 +12,13 @@ export type UseSwapRatesParams = {
   enabled?: boolean
   allowedSwapperNames?: SwapperName[]
   refetchInterval?: number
+  affiliateAddress?: string
 }
 
-export const useSwapRates = (apiClient: ApiClient, params: UseSwapRatesParams) => {
+export const useSwapRates = (
+  apiClient: ApiClient,
+  params: UseSwapRatesParams,
+): UseQueryResult<TradeRate[]> => {
   const {
     sellAssetId,
     buyAssetId,
@@ -21,10 +26,11 @@ export const useSwapRates = (apiClient: ApiClient, params: UseSwapRatesParams) =
     enabled = true,
     allowedSwapperNames,
     refetchInterval = 15_000,
+    affiliateAddress,
   } = params
 
   return useQuery({
-    queryKey: ['swapRates', sellAssetId, buyAssetId, sellAmountCryptoBaseUnit, allowedSwapperNames],
+    queryKey: ['swapRates', sellAssetId, buyAssetId, sellAmountCryptoBaseUnit, allowedSwapperNames, affiliateAddress],
     queryFn: async (): Promise<TradeRate[]> => {
       if (!sellAssetId || !buyAssetId || !sellAmountCryptoBaseUnit) {
         return []

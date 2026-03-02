@@ -5,18 +5,23 @@ import express from 'express'
 
 import { initAssets } from './assets'
 import { API_HOST, API_PORT } from './config'
+import { quoteStore } from './lib/quoteStore'
 import { affiliateAddress } from './middleware/auth'
 import {
+  affiliateStatsLimiter,
   dataLimiter,
   globalLimiter,
   swapQuoteLimiter,
   swapRatesLimiter,
+  swapStatusLimiter,
 } from './middleware/rateLimit'
+import { getAffiliateStats } from './routes/affiliate'
 import { getAssetById, getAssetCount, getAssets } from './routes/assets'
 import { getChainCount, getChains } from './routes/chains'
 import { docsRouter } from './routes/docs'
 import { getQuote } from './routes/quote'
 import { getRates } from './routes/rates'
+import { getSwapStatus } from './routes/status'
 
 const app = express()
 
@@ -43,6 +48,8 @@ app.get('/', (_req, res) => {
       assetById: 'GET /v1/assets/:assetId',
       swapRates: 'GET /v1/swap/rates',
       swapQuote: 'POST /v1/swap/quote',
+      swapStatus: 'GET /v1/swap/status',
+      affiliateStats: 'GET /v1/affiliate/stats',
     },
   })
 })
@@ -58,6 +65,10 @@ const v1Router = express.Router()
 // Swap endpoints (optional affiliate address tracking)
 v1Router.get('/swap/rates', swapRatesLimiter, affiliateAddress, getRates)
 v1Router.post('/swap/quote', swapQuoteLimiter, affiliateAddress, getQuote)
+v1Router.get('/swap/status', swapStatusLimiter, affiliateAddress, getSwapStatus)
+
+// Affiliate endpoints
+v1Router.get('/affiliate/stats', affiliateStatsLimiter, getAffiliateStats)
 
 // Chain endpoints
 v1Router.get('/chains', dataLimiter, getChains)
@@ -96,6 +107,8 @@ Available endpoints:
   GET  /v1/chains/count           - Get chain count
   GET  /v1/swap/rates             - Get swap rates from all swappers
   POST /v1/swap/quote             - Get executable quote with tx data
+  GET  /v1/swap/status            - Get swap status by quoteId
+  GET  /v1/affiliate/stats        - Get affiliate stats by address
   GET  /v1/assets                 - List supported assets
   GET  /v1/assets/count           - Get asset count
   GET  /v1/assets/:assetId        - Get single asset by ID
@@ -106,5 +119,14 @@ Affiliate Tracking (optional):
     `)
   })
 }
+
+const shutdown = () => {
+  console.log('Shutting down gracefully...')
+  quoteStore.destroy()
+  process.exit(0)
+}
+
+process.on('SIGTERM', shutdown)
+process.on('SIGINT', shutdown)
 
 startServer().catch(console.error)

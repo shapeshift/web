@@ -113,7 +113,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       sellAsset,
       buyAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-      affiliateBps: DEFAULT_AFFILIATE_BPS,
+      affiliateBps: req.affiliateInfo?.affiliateBps ?? DEFAULT_AFFILIATE_BPS,
       allowMultiHop,
       slippageTolerancePercentageDecimal,
       receiveAddress: undefined,
@@ -154,7 +154,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
             steps: 0,
             estimatedExecutionTimeMs: undefined,
             priceImpactPercentageDecimal: undefined,
-            affiliateBps: DEFAULT_AFFILIATE_BPS,
+            affiliateBps: req.affiliateInfo?.affiliateBps ?? DEFAULT_AFFILIATE_BPS,
             networkFeeCryptoBaseUnit: undefined,
             error: {
               code: error.code ?? TradeQuoteError.UnknownError,
@@ -178,7 +178,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
           steps: rate.steps.length,
           estimatedExecutionTimeMs: firstStep.estimatedExecutionTimeMs,
           priceImpactPercentageDecimal: rate.priceImpactPercentageDecimal,
-          affiliateBps: rate.affiliateBps,
+          affiliateBps: req.affiliateInfo?.affiliateBps ?? DEFAULT_AFFILIATE_BPS,
           networkFeeCryptoBaseUnit: firstStep.feeData.networkFeeCryptoBaseUnit,
         }
       } catch (error) {

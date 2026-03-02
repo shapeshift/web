@@ -1,8 +1,11 @@
 import { adapters } from '@shapeshiftoss/caip'
 import { BigAmount, bn } from '@shapeshiftoss/utils'
+import type { UseQueryResult } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 
 import type { AssetId } from '../types'
+
+type MarketDataQueryResult<TData> = Omit<UseQueryResult<MarketDataById>, 'data'> & { data: TData }
 
 const MARKET_DATA_STALE_TIME = 10 * 60 * 1000
 const MARKET_DATA_GC_TIME = 60 * 60 * 1000
@@ -112,7 +115,7 @@ const fetchAllMarketData = async (): Promise<MarketDataById> => {
   return result
 }
 
-export const useAllMarketData = () => {
+export const useAllMarketData = (): UseQueryResult<MarketDataById> => {
   return useQuery({
     queryKey: ['allMarketData'],
     queryFn: fetchAllMarketData,
@@ -123,7 +126,7 @@ export const useAllMarketData = () => {
   })
 }
 
-export const useMarketData = (assetIds: AssetId[]) => {
+export const useMarketData = (assetIds: AssetId[]): MarketDataQueryResult<MarketDataById> => {
   const { data: allMarketData, ...rest } = useAllMarketData()
 
   const filteredData = (() => {
@@ -141,7 +144,9 @@ export const useMarketData = (assetIds: AssetId[]) => {
   return { data: filteredData, ...rest }
 }
 
-export const useAssetPrice = (assetId: AssetId | undefined) => {
+export const useAssetPrice = (
+  assetId: AssetId | undefined,
+): MarketDataQueryResult<string | undefined> => {
   const { data: allMarketData, ...rest } = useAllMarketData()
 
   return {

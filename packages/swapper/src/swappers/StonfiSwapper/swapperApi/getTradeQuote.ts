@@ -5,6 +5,7 @@ import { SettlementMethod } from '@ston-fi/omniston-sdk'
 import type { CommonTradeQuoteInput, TradeQuote, TradeQuoteResult } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
 import type { OmnistonAssetAddress, StonfiTradeSpecific } from '../types'
 import { STONFI_DEFAULT_SLIPPAGE_BPS, STONFI_QUOTE_TIMEOUT_MS } from '../utils/constants'
@@ -155,6 +156,15 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
           allowanceContract: '0x0',
           estimatedExecutionTimeMs: 30000,
           stonfiSpecific: buildStonfiSpecific(quote, bidAssetAddress, askAssetAddress),
+          affiliateFee: buildAffiliateFee({
+            strategy: 'buy_asset',
+            affiliateBps,
+            sellAsset,
+            buyAsset,
+            sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            buyAmountCryptoBaseUnit,
+            isEstimate: true,
+          }),
         },
       ],
     }

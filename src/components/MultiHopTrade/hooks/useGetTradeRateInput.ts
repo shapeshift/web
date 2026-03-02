@@ -9,6 +9,7 @@ import type { GetTradeQuoteOrRateInputArgs } from './useGetTradeQuotes/getTradeQ
 import { getTradeQuoteOrRateInput } from './useGetTradeQuotes/getTradeQuoteOrRateInput'
 
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useAffiliateTracking } from '@/hooks/useAffiliateTracking/useAffiliateTracking'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { getAffiliateBps } from '@/lib/fees/utils'
@@ -79,6 +80,7 @@ export const useGetTradeRateInput = ({
   const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
 
   const affiliateBps = useMemo(() => getAffiliateBps(sellAsset, buyAsset), [sellAsset, buyAsset])
+  const affiliateAddress = useAffiliateTracking()
 
   const walletType = useAppSelector(selectWalletType)
 
@@ -106,11 +108,12 @@ export const useGetTradeRateInput = ({
       sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
       allowMultiHop: true,
       affiliateBps,
-      // Pass in the user's slippage preference if it's set, else let the swapper use its default
+      affiliateAddress: affiliateAddress ?? undefined,
       slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
       pubKey,
     }),
     [
+      affiliateAddress,
       affiliateBps,
       buyAsset,
       pubKey,
@@ -126,6 +129,7 @@ export const useGetTradeRateInput = ({
 
   const tradeInputQueryKey = useMemo(
     () => ({
+      affiliateAddress,
       buyAsset,
       sellAmountCryptoPrecision,
       sellAsset,
@@ -140,6 +144,7 @@ export const useGetTradeRateInput = ({
       receiveAddress,
     }),
     [
+      affiliateAddress,
       buyAsset,
       isBuyAssetChainSupported,
       receiveAccountMetadata,

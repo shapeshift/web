@@ -77,7 +77,7 @@ After setup, the profile persists at `~/.agent-browser/profiles/qabot/` and subs
 For local testing, start the dev server:
 
 ```bash
-yarn dev
+pnpm run dev
 ```
 
 Or point `BASE_URL` at a staging environment:

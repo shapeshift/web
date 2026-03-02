@@ -78,9 +78,11 @@ export const getYieldQuoteErrorTranslation = (error: unknown): QuoteErrorTransla
     ? error
     : undefined
   const data = axiosError?.response?.data
-  const message = data?.message ?? data?.error ?? ''
+  const message = data?.message ?? ''
+  const apiError = data?.error ?? ''
+  const errorCode = data?.code ?? ''
   const errorMessage = error instanceof Error ? error.message : ''
-  const combined = `${message} ${errorMessage}`
+  const combined = [message, apiError, errorCode, errorMessage].filter(Boolean).join(' ')
   const combinedLower = combined.toLowerCase()
 
   // Insufficient funds / balance / gas / rent patterns — extract the asset symbol

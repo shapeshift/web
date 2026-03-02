@@ -11,6 +11,7 @@ import celo from '@/plugins/celo'
 import cosmos from '@/plugins/cosmos'
 import cronos from '@/plugins/cronos'
 import dogecoin from '@/plugins/dogecoin'
+import ethereal from '@/plugins/ethereal'
 import ethereum from '@/plugins/ethereum'
 import flowEvm from '@/plugins/flowEvm'
 import gnosis from '@/plugins/gnosis'
@@ -63,6 +64,7 @@ export const activePlugins = [
   cronos,
   dogecoin,
   ethereum,
+  ethereal,
   flowEvm,
   gnosis,
   hemi,

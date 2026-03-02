@@ -1,6 +1,5 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
 import { uniq } from 'lodash'
@@ -16,7 +15,10 @@ import { SessionProposalRoutes } from '@/plugins/walletConnectToDapps/components
 import { PeerMeta } from '@/plugins/walletConnectToDapps/components/PeerMeta'
 import type { SessionProposalRef } from '@/plugins/walletConnectToDapps/types'
 import { WalletConnectActionType } from '@/plugins/walletConnectToDapps/types'
-import { createApprovalNamespaces } from '@/plugins/walletConnectToDapps/utils/createApprovalNamespaces'
+import {
+  createApprovalNamespaces,
+  isWcSupportedChainId,
+} from '@/plugins/walletConnectToDapps/utils/createApprovalNamespaces'
 import type { WalletConnectSessionModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
 import {
   selectAccountIdsByAccountNumberAndChainId,
@@ -104,9 +106,11 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         return
       }
 
-      const evmChainIds = Object.keys(selectedAccountNumberAccountIdsByChainId).filter(isEvmChainId)
+      const supportedChainIds = Object.keys(selectedAccountNumberAccountIdsByChainId).filter(
+        isWcSupportedChainId,
+      )
       const orderedAccountIds = orderAccountIdsByBalance(
-        evmChainIds,
+        supportedChainIds,
         selectedAccountNumberAccountIdsByChainId,
       )
 
@@ -131,9 +135,9 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       (chainIds: ChainId[]) => {
         if (!selectedAccountNumberAccountIdsByChainId) return
 
-        const evmChainIds = chainIds.filter(isEvmChainId)
+        const supportedChainIds = chainIds.filter(isWcSupportedChainId)
         const orderedAccountIds = orderAccountIdsByBalance(
-          evmChainIds,
+          supportedChainIds,
           selectedAccountNumberAccountIdsByChainId,
         )
         setSelectedAccountIds(orderedAccountIds)

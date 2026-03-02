@@ -230,7 +230,7 @@ Given the commit list below for ${version}, produce grouped release notes in mar
 ${commitList}${devOnlySection}${privateDisabledSection}`
 }
 
-const runClaude = (promptPath: string): Promise<string> => {
+const spawnClaude = (cmd: string, args: string[], promptPath: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const promptStream = fs.createReadStream(promptPath)
     promptStream.on('error', err => reject(new Error(`Failed to read prompt file: ${err.message}`)))
@@ -239,7 +239,7 @@ const runClaude = (promptPath: string): Promise<string> => {
     delete env.CLAUDE_CODE_ENTRYPOINT
     delete env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS
 
-    const child = spawn('claude', ['-p', '--model', 'opus', '--max-turns', '1'], {
+    const child = spawn(cmd, args, {
       stdio: ['pipe', 'pipe', 'pipe'],
       env,
     })
@@ -256,9 +256,10 @@ const runClaude = (promptPath: string): Promise<string> => {
 
     promptStream.pipe(child.stdin)
 
+    const label = `${cmd} ${args[0] === 'code' ? 'code ' : ''}`
     const timer = setTimeout(() => {
       child.kill('SIGTERM')
-      reject(new Error(`Claude timed out after ${CLAUDE_TIMEOUT_MS / 1000}s`))
+      reject(new Error(`${label}timed out after ${CLAUDE_TIMEOUT_MS / 1000}s`))
     }, CLAUDE_TIMEOUT_MS)
 
     child.on('close', code => {
@@ -266,17 +267,42 @@ const runClaude = (promptPath: string): Promise<string> => {
       if (code === 0 && stdout.trim()) {
         resolve(stdout.trim())
       } else {
-        reject(
-          new Error(`Claude exited with code ${code}${stderr ? `: ${stderr.slice(0, 200)}` : ''}`),
-        )
+        const details = [
+          stderr && `stderr: ${stderr.slice(0, 500)}`,
+          stdout && `stdout: ${stdout.slice(0, 500)}`,
+        ]
+          .filter(Boolean)
+          .join('; ')
+        reject(new Error(`${label}exited with code ${code}${details ? `: ${details}` : ''}`))
       }
     })
 
     child.on('error', err => {
       clearTimeout(timer)
-      reject(new Error(`Claude not available: ${err.message}`))
+      reject(new Error(`${label}not available: ${err.message}`))
     })
   })
+}
+
+const isCcrAvailable = (): Promise<boolean> => {
+  return new Promise(resolve => {
+    const child = spawn('which', ['ccr'], { stdio: ['ignore', 'pipe', 'ignore'] })
+    child.on('close', code => resolve(code === 0))
+    child.on('error', () => resolve(false))
+  })
+}
+
+const CLAUDE_ARGS = ['-p', '--model', 'opus', '--max-turns', '1']
+
+const runClaude = async (promptPath: string): Promise<string> => {
+  try {
+    return await spawnClaude('claude', CLAUDE_ARGS, promptPath)
+  } catch (cliErr) {
+    if (!(await isCcrAvailable())) throw cliErr
+    console.log(chalk.yellow(`claude CLI failed: ${(cliErr as Error).message}`))
+    console.log(chalk.blue('Falling back to ccr code...'))
+    return await spawnClaude('ccr', ['code', ...CLAUDE_ARGS], promptPath)
+  }
 }
 
 const generateReleaseSummary = async (

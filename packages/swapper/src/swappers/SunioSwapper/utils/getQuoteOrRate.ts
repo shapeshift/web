@@ -15,10 +15,111 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { DEFAULT_SLIPPAGE_PERCENTAGE, SUNIO_SMART_ROUTER_CONTRACT } from './constants'
+import type { SunioRoute } from '../types'
+import {
+  DEFAULT_SLIPPAGE_PERCENTAGE,
+  SUNIO_SMART_ROUTER_CONTRACT,
+  SUNIO_TRON_NATIVE_ADDRESS,
+} from './constants'
+import { convertAddressesToEvmFormat } from './convertAddressesToEvmFormat'
 import { fetchSunioQuote } from './fetchFromSunio'
 import { isSupportedChainId } from './helpers/helpers'
 import { sunioServiceFactory } from './sunioService'
+
+const ENERGY_PRICE = 100
+const USER_ENERGY_SHARE = 0.6
+const BASE_ENERGY_PER_HOP = 65_000
+const TOKEN_ENERGY_SHARE = 0.5
+const SAFETY_MARGIN = 1.2
+const ENERGY_FACTOR_CACHE_TTL_MS = 6 * 60 * 60 * 1000
+
+const energyFactorCache = new Map<string, { value: number; expiry: number }>()
+
+const simulateSwapEnergy = async (
+  route: SunioRoute,
+  sellAmountCryptoBaseUnit: string,
+  senderAddress: string,
+  isSellingNativeTrx: boolean,
+  rpcUrl: string,
+): Promise<number | undefined> => {
+  try {
+    const tronWeb = new TronWeb({ fullHost: rpcUrl })
+
+    const path = route.tokens
+    const poolVersion = route.poolVersions
+    const versionLen = Array(poolVersion.length).fill(2)
+    const fees = route.poolFees.map(fee => Number(fee))
+
+    const swapData = {
+      amountIn: sellAmountCryptoBaseUnit,
+      amountOutMin: '0',
+      recipient: senderAddress,
+      deadline: Math.floor(Date.now() / 1000) + 60 * 20,
+    }
+
+    const parameters = [
+      { type: 'address[]', value: path },
+      { type: 'string[]', value: poolVersion },
+      { type: 'uint256[]', value: versionLen },
+      { type: 'uint24[]', value: fees },
+      {
+        type: 'tuple(uint256,uint256,address,uint256)',
+        value: convertAddressesToEvmFormat([
+          swapData.amountIn,
+          swapData.amountOutMin,
+          swapData.recipient,
+          swapData.deadline,
+        ]),
+      },
+    ]
+
+    const functionSelector =
+      'swapExactInput(address[],string[],uint256[],uint24[],(uint256,uint256,address,uint256))'
+
+    const result = await tronWeb.transactionBuilder.triggerConstantContract(
+      SUNIO_SMART_ROUTER_CONTRACT,
+      functionSelector,
+      { callValue: isSellingNativeTrx ? Number(sellAmountCryptoBaseUnit) : 0 },
+      parameters,
+      senderAddress,
+    )
+
+    if (!result?.energy_used) return undefined
+
+    return result.energy_used + (result.energy_penalty ?? 0)
+  } catch {
+    return undefined
+  }
+}
+
+const getTokenEnergyFactor = async (
+  rawContractAddress: string,
+  rpcUrl: string,
+): Promise<number> => {
+  const contractAddress = rawContractAddress.toLowerCase()
+  const now = Date.now()
+  const cached = energyFactorCache.get(contractAddress)
+  if (cached && now < cached.expiry) return cached.value
+
+  try {
+    const response = await fetch(`${rpcUrl}/wallet/getcontractinfo`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value: rawContractAddress, visible: true }),
+    })
+    const data = await response.json()
+    const energyFactor: number = data?.contract_state?.energy_factor ?? 0
+
+    energyFactorCache.set(contractAddress, {
+      value: energyFactor,
+      expiry: now + ENERGY_FACTOR_CACHE_TTL_MS,
+    })
+
+    return energyFactor
+  } catch {
+    return 0
+  }
+}
 
 export async function getQuoteOrRate(
   input: GetTronTradeQuoteInput | CommonTradeQuoteInput,
@@ -39,13 +140,12 @@ export async function getQuoteOrRate(
       sellAsset,
       buyAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      sendAddress,
       receiveAddress,
       accountNumber,
       affiliateBps,
       slippageTolerancePercentageDecimal,
     } = input
-
-    const { assertGetTronChainAdapter: _assertGetTronChainAdapter } = deps
 
     if (!isSupportedChainId(sellAsset.chainId)) {
       return Err(
@@ -104,7 +204,6 @@ export async function getQuoteOrRate(
 
     const isQuote = input.quoteOrRate === 'quote'
 
-    // For quotes, receiveAddress is required
     if (isQuote && !receiveAddress) {
       return Err(
         makeSwapErrorRight({
@@ -114,96 +213,63 @@ export async function getQuoteOrRate(
       )
     }
 
-    // Fetch network fees for both quotes and rates (when wallet connected)
-    let networkFeeCryptoBaseUnit: string | undefined = undefined
-
-    // Estimate fees when we have an address to estimate from
-    if (receiveAddress) {
-      try {
-        const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-        const isSellingNativeTrx = !contractAddress
-
-        const tronWeb = new TronWeb({ fullHost: deps.config.VITE_TRON_NODE_URL })
-
-        // Get chain parameters for pricing
-        const params = await tronWeb.trx.getChainParameters()
-        const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
-        const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
-
-        // Check if recipient needs activation (applies to all swaps)
-        let accountActivationFee = 0
-        try {
-          const recipientInfoResponse = await fetch(
-            `${deps.config.VITE_TRON_NODE_URL}/wallet/getaccount`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ address: receiveAddress, visible: true }),
-            },
-          )
-          const recipientInfo = await recipientInfoResponse.json()
-          const recipientExists = recipientInfo && Object.keys(recipientInfo).length > 1
-          if (!recipientExists) {
-            accountActivationFee = 1_000_000 // 1 TRX
-          }
-        } catch {
-          // Ignore activation check errors
-        }
-
-        // For native TRX swaps, Sun.io uses a contract call with value
-        // We need to estimate energy for the swap contract, not just bandwidth
-        if (isSellingNativeTrx) {
-          try {
-            // Sun.io contract owner provides most energy (~117k), users only pay ~2k
-            // Use fixed 2k energy estimate instead of querying (which returns total 120k)
-            const energyUsed = 2000 // User pays ~2k energy, contract covers the rest
-            const energyFee = energyUsed * energyPrice // No multiplier - contract provides energy
-
-            // Estimate bandwidth for contract call (much larger than simple transfer)
-            const bandwidthFee = 1100 * bandwidthPrice // ~1100 bytes for contract call (with safety buffer)
-
-            networkFeeCryptoBaseUnit = bn(energyFee)
-              .plus(bandwidthFee)
-              .plus(accountActivationFee)
-              .toFixed(0)
-          } catch (estimationError) {
-            // Fallback estimate: ~2k energy + ~1100 bytes bandwidth + activation fee
-            const fallbackEnergyFee = 2000 * energyPrice
-            const fallbackBandwidthFee = 1100 * bandwidthPrice
-            networkFeeCryptoBaseUnit = bn(fallbackEnergyFee)
-              .plus(fallbackBandwidthFee)
-              .plus(accountActivationFee)
-              .toFixed(0)
-          }
-        } else {
-          // For TRC-20 swaps through Sun.io router
-          // Same as TRX: contract owner provides most energy, user pays ~2k
-          // Sun.io provides ~217k energy, user pays ~2k
-          const energyFee = 2000 * energyPrice
-          const bandwidthFee = 1100 * bandwidthPrice
-
-          networkFeeCryptoBaseUnit = bn(energyFee)
-            .plus(bandwidthFee)
-            .plus(accountActivationFee)
-            .toFixed(0)
-        }
-      } catch (error) {
-        // For rates, fall back to '0' on estimation failure
-        // For quotes, let it error (required for accurate swap)
-        if (!isQuote) {
-          networkFeeCryptoBaseUnit = '0'
-        } else {
-          throw error
-        }
-      }
-    }
-
     const buyAmountCryptoBaseUnit = BigAmount.fromPrecision({
       value: bestRoute.amountOut,
       precision: buyAsset.precision,
     }).toBaseUnit()
 
-    // Calculate protocol fees only for quotes
+    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+    const isSellingNativeTrx = !contractAddress
+    const hopCount = bestRoute.tokens.length - 1
+    const rpcUrl = deps.config.VITE_TRON_NODE_URL
+
+    const simulationPromise = sendAddress
+      ? simulateSwapEnergy(
+          bestRoute,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          sendAddress,
+          isSellingNativeTrx,
+          rpcUrl,
+        )
+      : Promise.resolve(undefined)
+
+    const accountActivationPromise = receiveAddress
+      ? fetch(`${rpcUrl}/wallet/getaccount`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ address: receiveAddress, visible: true }),
+        })
+          .then(res => res.json())
+          .then(info => (info && Object.keys(info).length > 1 ? 0 : 1_000_000))
+          .catch(() => 0)
+      : Promise.resolve(0)
+
+    const [simulatedEnergy, accountActivationFee] = await Promise.all([
+      simulationPromise,
+      accountActivationPromise,
+    ])
+
+    let totalEnergy: number
+    if (simulatedEnergy) {
+      totalEnergy = simulatedEnergy
+    } else {
+      const sellTokenAddress = contractAddress ?? SUNIO_TRON_NATIVE_ADDRESS
+      const energyFactor = isSellingNativeTrx
+        ? 0
+        : await getTokenEnergyFactor(sellTokenAddress, rpcUrl)
+      const penaltyMultiplier = 1 + (TOKEN_ENERGY_SHARE * energyFactor) / 10000
+      totalEnergy = Math.ceil(BASE_ENERGY_PER_HOP * hopCount * penaltyMultiplier)
+    }
+
+    const userEnergy = Math.ceil(totalEnergy * SAFETY_MARGIN) * USER_ENERGY_SHARE
+    const energyFee = userEnergy * ENERGY_PRICE
+    const bandwidthFee = 1_100_000
+
+    const networkFeeCryptoBaseUnit = bn(energyFee)
+      .plus(bandwidthFee)
+      .plus(accountActivationFee)
+      .toFixed(0)
+
     const protocolFeeCryptoBaseUnit = isQuote
       ? bn(bestRoute.fee).times(sellAmountIncludingProtocolFeesCryptoBaseUnit).toFixed(0)
       : '0'

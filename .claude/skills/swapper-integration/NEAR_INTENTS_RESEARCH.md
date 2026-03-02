@@ -365,7 +365,7 @@ Authorization: Bearer YOUR_JWT_TOKEN
 
 **Installation**:
 ```bash
-yarn add @defuse-protocol/one-click-sdk-typescript
+pnpm add @defuse-protocol/one-click-sdk-typescript
 ```
 
 **Basic Usage**:
@@ -680,7 +680,7 @@ export const getTreasuryAddress = (chainId: ChainId): string => {
 #### 1.2 Install TypeScript SDK
 ```bash
 cd /Users/alexandre.gomes/Sites/shapeshiftWebClone
-yarn add @defuse-protocol/one-click-sdk-typescript
+pnpm add @defuse-protocol/one-click-sdk-typescript
 ```
 
 #### 1.3 Verify Chain Support
@@ -1050,16 +1050,16 @@ export const getEnabledSwappers = (
 #### 5.4 Build Validation
 ```bash
 # Type checking
-yarn type-check
+pnpm run type-check
 
 # Linting
-yarn lint
+pnpm run lint
 
 # Build swapper package
-yarn build:packages
+pnpm run build:packages
 
 # Build full app
-yarn build:web
+pnpm run build:web
 ```
 
 ---

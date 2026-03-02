@@ -1,0 +1,643 @@
+name: Chainflip Lending
+description: >
+  End-to-end round-trip across all 3 fund buckets on the USDC pool.
+  Assumes the user has an EXISTING Chainflip Lending position (account
+  already registered, refund address set, prior deposits exist).
+
+  Round-trip sequence:
+    Navigate → Deposit ($0.50-$2) → Supply → Withdraw Supply →
+    Add Collateral → Borrow (small, safe LTV) → Repay →
+    Remove Collateral → Egress
+
+  Each step verifies:
+    - Toast notification with correct domain language
+    - Action Center card with correct status + operation type
+
+  === THREE FUND BUCKETS ===
+
+  All on Chainflip State Chain:
+    - Free balance: staging area. Deposits land here.
+    - Supply: allocated to lending pools, earning yield.
+    - Collateral: backing loans, determines borrowing power.
+
+  Funds MUST move through free balance between supply and collateral.
+
+  === TRANSACTION FLOW ===
+
+  All State Chain ops use EIP-712 signing:
+    1. App SCALE-encodes the call
+    2. User signs structured typed data in wallet
+    3. App submits signed extrinsic to State Chain
+    4. App polls State Chain for confirmation (~6s intervals)
+
+  Deposit is different: EIP-712 to open channel → EVM tx to channel
+  address → State Chain witnesses the deposit.
+
+  === TIMING ===
+
+  - EVM on-chain tx (deposit send): 30-60s confirmation
+  - State Chain confirmation polling: 5-10s per confirmation
+  - Egress to wallet: 60-300s (on-chain broadcast from CF vaults)
+  - After ANY action button: wait up to 180s total
+
+  === HARD CONSTRAINTS ===
+
+  1. USDC pool only. Single pool round-trip.
+  2. Existing position — account is registered, refund address set.
+  3. $2 max deposit ceiling. Start at $0.50, increment to $1 then $2
+     if amount is below the protocol minimum.
+  4. Supply minimum: ~$100 from protocol. If existing free balance is
+     insufficient, use whatever free balance exists. If under $100,
+     skip supply — mark PASSED (not failed).
+  5. Borrow: smallest possible amount ($10 minimum). Keep LTV << 80%.
+  6. Collateral: $10 minimum for updates.
+  7. Skipped steps = PASSED with explanation. Never mark skipped as
+     failed.
+  8. No Bitcoin deposits.
+  9. No force-funding swaps — work with existing balances.
+  10. Report every operation with action, asset, amount, before/after.
+
+  === ACTION CENTER VERIFICATION ===
+
+  After EVERY successful flow:
+    1. Wait up to 10s for toast notification (bottom-right desktop)
+    2. Read toast text — must mention asset and amount
+    3. Click toast → Action Center drawer opens
+    4. Verify latest card:
+       - Type label: "Chainflip Lending"
+       - Status: green "Confirmed"
+       - Description: correct operation + amount
+       - Asset icon: USDC
+    5. Close Action Center
+
+  If toast missing within 10s: SOFT FAIL, verify Action Center
+  manually via bell icon.
+
+  === NATIVE WALLET ===
+
+  At each signing step, a "Confirm" button may appear for hardware
+  wallets. Click it. If password prompt: enter $NATIVE_WALLET_PASSWORD.
+
+route: /chainflip-lending
+depends_on:
+  - wallet-health.yaml
+
+steps:
+  # ========================================================================
+  # PHASE 0: Navigate and record baseline
+  # ========================================================================
+
+  - name: Navigate to Chainflip Lending
+    instruction: >
+      eval "window.location.hash = '/chainflip-lending'"
+      Wait 5 seconds.
+
+      Verify:
+      1. Page loads with "Chainflip Lending" header
+      2. Markets table shows pools (BTC, ETH, SOL, USDC, USDT)
+      3. Stats cards show Total Supplied, Available Liquidity,
+         Total Borrowed (all > $0)
+    expected: >
+      Chainflip Lending page loads with live pool data.
+    screenshot: true
+
+  - name: Navigate to USDC pool and record baseline
+    instruction: >
+      Click USDC row in markets table, or:
+      eval "window.location.hash = '/chainflip-lending/pool/usdc'"
+      Wait 5 seconds.
+
+      Record baseline "Your Position" values exactly:
+      - Free Balance: ___ USDC
+      - Supplied: ___ USDC
+      - Collateral: ___ USDC
+      - Any active loans? Amount: ___
+
+      Also record pool stats: supply APY, borrow rate, utilisation.
+
+      These baselines are critical for verifying each subsequent step.
+    expected: >
+      USDC pool page loads. Baseline position recorded.
+    screenshot: true
+
+  # ========================================================================
+  # PHASE 1: Deposit (wallet → free balance)
+  # $0.50 start, increment if below minimum. $2 absolute max.
+  # ========================================================================
+
+  - name: Deposit USDC > Open modal
+    instruction: >
+      Click the "Deposit" button on the USDC pool page.
+      Modal opens with amount input.
+
+      Verify:
+      1. Title mentions "Deposit"
+      2. Available balance shows wallet USDC balance
+      3. Current free balance indicator visible
+      4. This is a returning user — no refund address step expected
+    expected: >
+      Deposit modal opens showing wallet USDC balance.
+    screenshot: true
+
+  - name: Deposit USDC > Enter amount ($0.50 start)
+    instruction: >
+      Enter "0.50" in the amount input. Wait 2 seconds.
+
+      Check for minimum deposit warning:
+      - If NO warning and submit enabled: proceed with $0.50
+      - If minimum warning appears: clear input, try "1.00"
+      - If still below minimum: clear input, try "2.00"
+      - If $2.00 is still below minimum: SKIP entire deposit phase
+        as PASSED with note "minimum deposit exceeds $2 ceiling"
+
+      Once a valid amount is accepted, click submit/continue.
+      Wait for confirm screen. Verify amount shown.
+      Click "Confirm & Deposit".
+    expected: >
+      Valid deposit amount entered ($0.50-$2) and confirmed.
+      OR PASSED (skipped) if minimum exceeds $2.
+    screenshot: true
+
+  - name: Deposit USDC > Execute deposit
+    instruction: >
+      If previous step was skipped, mark this PASSED too.
+
+      The stepper shows progress. For returning users:
+      - Open Channel (EIP-712 sign)
+      - Send Deposit (EVM on-chain tx)
+      - Confirming (State Chain witness)
+
+      For native wallet: click "Confirm" at each signing step.
+      If password prompt: enter $NATIVE_WALLET_PASSWORD.
+
+      Wait up to 180 seconds. Poll snapshots every 15 seconds.
+
+      Expected: success screen with deposit confirmation.
+    expected: >
+      Deposit completes. Success screen shows deposited amount.
+    screenshot: true
+
+  - name: Deposit USDC > Verify toast + Action Center
+    instruction: >
+      If deposit was skipped, mark this PASSED too.
+
+      Wait up to 10 seconds for toast notification.
+      Toast should mention deposit amount and "Chainflip".
+
+      If toast visible:
+        1. Record toast text
+        2. Click toast → Action Center drawer opens
+        3. Verify latest card:
+           - Type: "Chainflip Lending"
+           - Status: "Confirmed" (green)
+           - Mentions deposit and USDC
+        4. Close Action Center
+
+      If no toast: open Action Center via bell icon. SOFT FAIL.
+    expected: >
+      Toast notification for deposit. Action Center card correct.
+    screenshot: true
+    soft_fail: true
+
+  - name: Deposit USDC > Verify free balance increase
+    instruction: >
+      If deposit was skipped, mark this PASSED too.
+
+      Click "Done". Wait 3 seconds.
+
+      Verify free balance increased by the deposited amount
+      compared to Phase 0 baseline.
+
+      Record new free balance.
+
+      REPORT: "DEPOSIT: X USDC. Free balance: [before] → [after]."
+    expected: >
+      Free balance increased by deposit amount.
+    screenshot: true
+
+  # ========================================================================
+  # PHASE 2: Supply (free balance → lending pool)
+  # Minimum $100. If free balance < $100, SKIP.
+  # ========================================================================
+
+  - name: Supply USDC > Check feasibility
+    instruction: >
+      Check current free balance on the USDC pool page.
+
+      If free balance < $100:
+        SKIP entire supply phase (steps through "Verify position")
+        with note: "Free balance ($X) below $100 supply minimum.
+        Cannot supply without larger deposit (exceeds $2 ceiling)."
+
+      If free balance >= $100:
+        Click "Supply" button. Modal opens.
+        Verify available balance shows free balance amount.
+    expected: >
+      Supply feasible (free balance >= $100) or PASSED (skipped).
+    screenshot: true
+
+  - name: Supply USDC > Enter amount and confirm
+    instruction: >
+      If previous step was skipped, mark this PASSED too.
+
+      Enter "101" in amount input (just above $100 minimum).
+      If free balance < 101 but >= 100, enter "100" or use Max.
+
+      Verify no minimum warning. Click submit.
+      Verify confirm screen. Click "Confirm & Supply".
+    expected: >
+      Supply amount confirmed.
+    screenshot: true
+
+  - name: Supply USDC > Execute
+    instruction: >
+      If supply was skipped, mark this PASSED too.
+
+      Stepper: Signing (EIP-712) → Confirming.
+      For native wallet: click "Confirm" button.
+      Wait up to 120 seconds.
+
+      Expected: success screen "Supply Successful".
+    expected: >
+      Supply completes successfully.
+    screenshot: true
+
+  - name: Supply USDC > Verify toast + Action Center
+    instruction: >
+      If supply was skipped, mark this PASSED too.
+
+      Wait 10s for toast. Should mention supply + USDC + amount.
+
+      If toast visible:
+        1. Click toast → Action Center opens
+        2. Verify latest card: "Chainflip Lending", "Confirmed",
+           mentions supply
+        3. Close drawer
+
+      If no toast: check Action Center manually. SOFT FAIL.
+    expected: >
+      Toast + Action Center card for supply operation.
+    screenshot: true
+    soft_fail: true
+
+  - name: Supply USDC > Verify position
+    instruction: >
+      If supply was skipped, mark this PASSED too.
+
+      Click "Done". Wait 3 seconds.
+
+      Verify:
+      - Supplied increased by supply amount
+      - Free balance decreased by supply amount
+
+      REPORT: "SUPPLY: X USDC. Free: [before] → [after].
+      Supplied: [before] → [after]."
+    expected: >
+      Supplied balance increased. Free balance decreased.
+    screenshot: true
+
+  # ========================================================================
+  # PHASE 3: Withdraw supply (lending pool → free balance)
+  # Only if supply was executed.
+  # ========================================================================
+
+  - name: Withdraw Supply > Open modal
+    instruction: >
+      If supply phase was skipped, mark this PASSED too.
+
+      Click "Withdraw Supply" or "Withdraw" button.
+      Modal opens. Verify available shows supply position.
+
+      Do NOT check "Also withdraw to wallet" — we need funds
+      in free balance for collateral next.
+    expected: >
+      Withdraw modal shows supply position as available.
+    screenshot: true
+
+  - name: Withdraw Supply > Full withdrawal
+    instruction: >
+      If withdraw was skipped, mark this PASSED too.
+
+      Click "Max" to withdraw the full supply position.
+      Click submit. Verify confirm screen. Click "Confirm & Withdraw".
+
+      For native wallet: click "Confirm".
+      Wait up to 120 seconds.
+
+      Expected: success screen "Withdrawal Successful".
+    expected: >
+      Full withdrawal completes.
+    screenshot: true
+
+  - name: Withdraw Supply > Verify toast + Action Center
+    instruction: >
+      If withdraw was skipped, mark this PASSED too.
+
+      Wait 10s for toast. Should mention withdrawal + USDC.
+
+      If toast visible:
+        1. Click toast → Action Center
+        2. Verify card: "Chainflip Lending", "Confirmed", withdrawal
+        3. Close drawer
+
+      If no toast: SOFT FAIL, check manually.
+    expected: >
+      Toast + Action Center card for withdrawal.
+    screenshot: true
+    soft_fail: true
+
+  - name: Withdraw Supply > Verify balances
+    instruction: >
+      If withdraw was skipped, mark this PASSED too.
+
+      Click "Done". Wait 3 seconds.
+
+      Verify:
+      - Free balance restored (supply amount returned)
+      - Supplied back to previous level (or ~0 if full withdraw)
+
+      REPORT: "WITHDRAW: X USDC. Supplied: [before] → [after].
+      Free: [before] → [after]."
+    expected: >
+      Free balance restored. Supply position cleared or reduced.
+    screenshot: true
+
+  # ========================================================================
+  # PHASE 4: Add Collateral (free balance → collateral)
+  # Minimum $10. If no collateral UI, SKIP phases 4-7.
+  # ========================================================================
+
+  - name: Add Collateral > Check availability
+    instruction: >
+      On USDC pool page, look for "Collateral" tab, "Add Collateral"
+      button, or collateral section.
+
+      If NOT present:
+        SKIP phases 4-7 with note: "Collateral/Borrow flow not
+        available in this build (PR #12026 not merged)."
+
+      If present and free balance < $10:
+        SKIP with note: "Free balance below $10 collateral minimum."
+
+      If present and free balance >= $10: proceed.
+    expected: >
+      Collateral UI available and free balance sufficient, or PASSED (skipped).
+    screenshot: true
+
+  - name: Add Collateral > Enter amount and execute
+    instruction: >
+      If skipped, mark this PASSED too.
+
+      Click "Add Collateral". Modal opens.
+      Enter amount: use all available free balance minus $1 buffer,
+      minimum $10. If free balance is $50, enter "49".
+
+      Click submit. Confirm. Sign (native wallet: click Confirm).
+      Wait up to 120 seconds.
+
+      Expected: success screen.
+    expected: >
+      Collateral added successfully.
+    screenshot: true
+
+  - name: Add Collateral > Verify toast + balances
+    instruction: >
+      If skipped, mark this PASSED too.
+
+      Check toast (10s). Verify Action Center card if toast appears.
+
+      After "Done", verify:
+      - Collateral increased
+      - Free balance decreased
+
+      REPORT: "ADD COLLATERAL: X USDC. Free: [before] → [after].
+      Collateral: [before] → [after]."
+    expected: >
+      Collateral balance increased. Action Center card present.
+    screenshot: true
+    soft_fail: true
+
+  # ========================================================================
+  # PHASE 5: Borrow (against collateral)
+  # Minimum $10 for loan update, $100 for new loan.
+  # Keep LTV well below 80%.
+  # ========================================================================
+
+  - name: Borrow > Open modal
+    instruction: >
+      If collateral phase was skipped, mark this PASSED too.
+
+      Look for "Borrow" tab or button. If not present: SKIP.
+
+      Click it. Modal shows:
+      - Available to borrow (collateral × 80% LTV - existing debt)
+      - Current LTV
+      - Amount input
+
+      Enter "10" (minimum for loan update, or $100 if new loan
+      and available). Use the smallest valid amount.
+
+      If available borrow capacity < $10: SKIP with note
+      "Insufficient borrowing capacity."
+    expected: >
+      Borrow modal open with amount entered.
+    screenshot: true
+    soft_fail: true
+
+  - name: Borrow > Execute
+    instruction: >
+      If skipped, mark this PASSED too.
+
+      Click submit. Confirm. Sign. Wait up to 120 seconds.
+
+      Expected: success screen. Verify LTV shown is low (safe zone).
+    expected: >
+      Borrow completes. LTV in safe zone.
+    screenshot: true
+    soft_fail: true
+
+  - name: Borrow > Verify toast + balances
+    instruction: >
+      If skipped, mark this PASSED too.
+
+      Check toast. Verify Action Center card.
+
+      Verify:
+      - Active loan shows borrowed amount
+      - Free balance increased (borrowed funds land in free balance)
+      - LTV < 80%
+
+      REPORT: "BORROW: X USDC. LTV: Y%. Free: [before] → [after]."
+    expected: >
+      Loan active. Free balance increased. LTV safe.
+    screenshot: true
+    soft_fail: true
+
+  # ========================================================================
+  # PHASE 6: Repay (full repayment)
+  # ========================================================================
+
+  - name: Repay > Full repayment
+    instruction: >
+      If borrow was skipped, mark this PASSED too.
+
+      Look for "Repay" tab or button. Click it.
+
+      Toggle "Full Repayment" or click Max.
+      Verify free balance can cover the full debt.
+
+      Click submit. Confirm. Sign. Wait up to 120 seconds.
+
+      Expected: success screen. No active loans after.
+    expected: >
+      Full repayment completes. No active loans.
+    screenshot: true
+    soft_fail: true
+
+  - name: Repay > Verify toast + balances
+    instruction: >
+      If skipped, mark this PASSED too.
+
+      Check toast. Verify Action Center card.
+
+      Verify:
+      - No active loans
+      - LTV: 0% or N/A
+      - Free balance decreased by repayment amount
+
+      REPORT: "REPAY: Full repayment of X USDC. Loans: 0."
+    expected: >
+      Loan cleared. Action Center card present.
+    screenshot: true
+    soft_fail: true
+
+  # ========================================================================
+  # PHASE 7: Remove Collateral (collateral → free balance)
+  # ========================================================================
+
+  - name: Remove Collateral > Execute
+    instruction: >
+      If collateral phases were skipped, mark this PASSED too.
+
+      Look for "Remove Collateral" option. Click it.
+      Enter full collateral amount or click Max (no loans, safe
+      to remove everything).
+
+      Submit. Confirm. Sign. Wait up to 120 seconds.
+
+      After success, verify:
+      - Collateral: 0 (or reduced)
+      - Free balance increased
+
+      Check toast + Action Center card.
+
+      REPORT: "REMOVE COLLATERAL: X USDC. Collateral: [before] → [after].
+      Free: [before] → [after]."
+    expected: >
+      Collateral removed. Free balance restored.
+    screenshot: true
+    soft_fail: true
+
+  # ========================================================================
+  # PHASE 8: Egress (free balance → wallet)
+  # ========================================================================
+
+  - name: Egress > Open modal
+    instruction: >
+      On USDC pool page, click "Withdraw from Chainflip" or egress
+      button.
+
+      Verify:
+      - Available: current free balance
+      - Destination address pre-filled with wallet address
+    expected: >
+      Egress modal opens with free balance and destination.
+    screenshot: true
+
+  - name: Egress > Withdraw to wallet
+    instruction: >
+      Click Max or enter full free balance amount.
+      Verify destination is wallet address.
+
+      Click submit. Confirm. Click "Confirm Withdrawal".
+
+      For native wallet: click "Confirm".
+      Wait up to 300 seconds (egress is an on-chain broadcast from
+      Chainflip vaults — can take 1-5 minutes).
+
+      Expected: success screen with optional tx reference/link.
+    expected: >
+      Egress completes. Transaction reference shown.
+    screenshot: true
+
+  - name: Egress > Verify toast + Action Center
+    instruction: >
+      Wait 10s for toast. Should mention withdrawal from Chainflip.
+
+      If toast visible:
+        1. Click toast → Action Center
+        2. Verify card: "Chainflip Lending", "Confirmed"
+        3. Close drawer
+
+      If no toast: SOFT FAIL, check manually.
+    expected: >
+      Toast + Action Center card for egress.
+    screenshot: true
+    soft_fail: true
+
+  - name: Egress > Verify final state
+    instruction: >
+      Click "Done". Wait 5 seconds.
+
+      Verify:
+      - Free Balance: ~0
+      - Supplied: unchanged or 0
+      - Collateral: 0
+
+      REPORT: "EGRESS: X USDC from State Chain to wallet.
+      All State Chain balances near zero. Round-trip complete."
+    expected: >
+      State Chain balances zeroed. Round-trip complete.
+    screenshot: true
+
+  # ========================================================================
+  # PHASE 9: Final Action Center audit
+  # ========================================================================
+
+  - name: Action Center > Full audit
+    instruction: >
+      Open Action Center (bell icon in header).
+
+      Count all "Chainflip Lending" cards from this session.
+      Expected cards (reverse chronological, some may have been skipped):
+
+      1. Egress — Confirmed
+      2. Remove Collateral — Confirmed (if available)
+      3. Repay — Confirmed (if available)
+      4. Borrow — Confirmed (if available)
+      5. Add Collateral — Confirmed (if available)
+      6. Withdraw from pool — Confirmed (if supply was run)
+      7. Supply to pool — Confirmed (if supply was run)
+      8. Deposit — Confirmed (if deposit was run)
+
+      For each card verify:
+      - Type: "Chainflip Lending"
+      - Status: green "Confirmed"
+      - Description: domain-appropriate (distinguishable operations)
+      - Asset icon: USDC
+      - Timestamp: from this session
+
+      BUG HUNT:
+      - Missing cards? Duplicates?
+      - Any stuck in "Pending"?
+      - Can you distinguish deposit vs supply vs withdraw cards?
+
+      Close Action Center.
+
+      REPORT: "ACTION CENTER AUDIT: X/Y expected cards found.
+      All statuses correct. Operations distinguishable."
+    expected: >
+      All executed operations have Action Center cards.
+      Types and statuses correct.
+    screenshot: true
+    soft_fail: true

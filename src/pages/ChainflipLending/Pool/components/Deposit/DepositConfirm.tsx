@@ -9,6 +9,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { DepositMachineCtx } from './DepositMachineContext'
 import { DepositStepper } from './DepositStepper'
+import { useDepositActionCenter } from './hooks/useDepositActionCenter'
 import { useDepositApproval } from './hooks/useDepositApproval'
 import { useDepositChannel } from './hooks/useDepositChannel'
 import { useDepositConfirmation } from './hooks/useDepositConfirmation'
@@ -73,6 +74,7 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
   useDepositChannel()
   useDepositSend()
   useDepositConfirmation()
+  useDepositActionCenter()
 
   const poolChainId = useMemo(() => fromAssetId(assetId).chainId, [assetId])
 

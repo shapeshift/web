@@ -26,6 +26,7 @@ export enum ActionType {
   ChangeAddress = 'ChangeAddress',
   RewardDistribution = 'RewardDistribution',
   ArbitrumBridgeWithdraw = 'ArbitrumBridgeWithdraw',
+  ChainflipLending = 'Chainflip Lending',
 }
 
 export enum ActionStatus {
@@ -83,6 +84,23 @@ type ActionArbitrumBridgeWithdrawMetadata = {
   destinationAccountId: AccountId
   timeRemainingSeconds?: number
   claimDetails?: ClaimDetails
+}
+
+export enum ChainflipLendingOperationType {
+  Deposit = 'deposit',
+  Supply = 'supply',
+  Withdraw = 'withdraw',
+  Egress = 'egress',
+}
+
+type ActionChainflipLendingMetadata = {
+  operationType: ChainflipLendingOperationType
+  amountCryptoPrecision: string
+  assetId: AssetId
+  accountId: AccountId
+  message: string
+  txHash?: string
+  egressTxRef?: string
 }
 
 export enum GenericTransactionDisplayType {
@@ -191,6 +209,11 @@ export type ArbitrumBridgeWithdrawAction = BaseAction & {
   arbitrumBridgeMetadata: ActionArbitrumBridgeWithdrawMetadata
 }
 
+export type ChainflipLendingAction = BaseAction & {
+  type: ActionType.ChainflipLending
+  chainflipLendingMetadata: ActionChainflipLendingMetadata
+}
+
 export type Action =
   | SwapAction
   | LimitOrderAction
@@ -200,6 +223,7 @@ export type Action =
   | TcyClaimAction
   | RewardDistributionAction
   | ArbitrumBridgeWithdrawAction
+  | ChainflipLendingAction
 
 export type ActionState = {
   byId: Record<string, Action>
@@ -258,4 +282,8 @@ export const isArbitrumBridgeWithdrawAction = (
   action: Action,
 ): action is ArbitrumBridgeWithdrawAction => {
   return Boolean(action.type === ActionType.ArbitrumBridgeWithdraw && action.arbitrumBridgeMetadata)
+}
+
+export const isChainflipLendingAction = (action: Action): action is ChainflipLendingAction => {
+  return Boolean(action.type === ActionType.ChainflipLending && action.chainflipLendingMetadata)
 }

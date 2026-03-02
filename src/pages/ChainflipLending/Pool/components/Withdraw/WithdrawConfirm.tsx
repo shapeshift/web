@@ -5,6 +5,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { useWithdrawActionCenter } from './hooks/useWithdrawActionCenter'
 import { useWithdrawBatch } from './hooks/useWithdrawBatch'
 import { useWithdrawConfirmation } from './hooks/useWithdrawConfirmation'
 import { useWithdrawEgress } from './hooks/useWithdrawEgress'
@@ -59,6 +60,7 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
   useWithdrawRemove()
   useWithdrawEgress()
   useWithdrawConfirmation()
+  useWithdrawActionCenter()
 
   const handleConfirm = useCallback(() => {
     actorRef.send({ type: 'CONFIRM' })

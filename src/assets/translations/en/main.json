@@ -3099,6 +3099,28 @@
       "complete": {
         "description": "Your reward of %{amountAndSymbol} is complete."
       }
+    },
+    "chainflipLending": {
+      "deposit": {
+        "pending": "Your deposit of %{amountAndSymbol} to Chainflip is being processed.",
+        "complete": "Your deposit of %{amountAndSymbol} to Chainflip is complete.",
+        "failed": "Your deposit of %{amountAndSymbol} to Chainflip has failed."
+      },
+      "supply": {
+        "pending": "Your supply of %{amountAndSymbol} to the lending pool is being processed.",
+        "complete": "Your supply of %{amountAndSymbol} to the lending pool is complete.",
+        "failed": "Your supply of %{amountAndSymbol} to the lending pool has failed."
+      },
+      "withdraw": {
+        "pending": "Your withdrawal of %{amountAndSymbol} from the lending pool is being processed.",
+        "complete": "Your withdrawal of %{amountAndSymbol} from the lending pool is complete.",
+        "failed": "Your withdrawal of %{amountAndSymbol} from the lending pool has failed."
+      },
+      "egress": {
+        "pending": "Your withdrawal of %{amountAndSymbol} from Chainflip is being processed.",
+        "complete": "Your withdrawal of %{amountAndSymbol} from Chainflip is complete.",
+        "failed": "Your withdrawal of %{amountAndSymbol} from Chainflip has failed."
+      }
     }
   },
   "yieldXYZ": {

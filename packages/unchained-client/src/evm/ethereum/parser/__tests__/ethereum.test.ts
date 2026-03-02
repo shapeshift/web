@@ -139,7 +139,8 @@ const mockTokenData: Record<string, { decimals: number; name: string; symbol: st
 }
 
 vi.mock('ethers', async () => {
-  const actual = await vi.importActual<typeof import('ethers')>('ethers')
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const actual = await vi.importActual<any>('ethers')
 
   const MockContract = vi.fn().mockImplementation((address: string) => {
     const checksumAddress = actual.getAddress(address.toLowerCase())

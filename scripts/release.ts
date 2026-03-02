@@ -337,10 +337,7 @@ const getCommits = async (branch: string): Promise<GetCommitsReturn> => {
 
   const result = await pify(exec)(`git log --first-parent --pretty=format:"%s" ${range}`)
   const stdout = typeof result === 'string' ? result : (result as { stdout: string }).stdout
-  const messages = stdout
-    .trim()
-    .split('\n')
-    .filter(Boolean)
+  const messages = stdout.trim().split('\n').filter(Boolean)
 
   const total = messages.length
   return { messages, total }
@@ -356,7 +353,10 @@ const getUnreleasedCommits = async (): Promise<UnreleasedCommit[]> => {
 
   if (!stdout.trim()) return []
 
-  return stdout.trim().split('\n').map(line => {
+  return stdout
+    .trim()
+    .split('\n')
+    .map(line => {
       const spaceIdx = line.indexOf(' ')
       return { hash: line.slice(0, spaceIdx), message: line.slice(spaceIdx + 1) }
     })
@@ -493,7 +493,9 @@ const doHotfixRelease = async () => {
       const shortHash = c.hash.slice(0, 8)
       const shortMainSha = mainSha.slice(0, 8)
       exit(
-        chalk.red(`Cherry-pick failed for ${shortHash}: ${message}\nMain has been reset to ${shortMainSha}.`),
+        chalk.red(
+          `Cherry-pick failed for ${shortHash}: ${message}\nMain has been reset to ${shortMainSha}.`,
+        ),
       )
     }
   }

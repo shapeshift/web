@@ -356,10 +356,7 @@ const getUnreleasedCommits = async (): Promise<UnreleasedCommit[]> => {
 
   if (!stdout.trim()) return []
 
-  return stdout
-    .trim()
-    .split('\n')
-    .map(line => {
+  return stdout.trim().split('\n').map(line => {
       const spaceIdx = line.indexOf(' ')
       return { hash: line.slice(0, spaceIdx), message: line.slice(spaceIdx + 1) }
     })
@@ -493,10 +490,10 @@ const doHotfixRelease = async () => {
       }
       await git().reset(['--hard', mainSha])
       const message = err instanceof Error ? err.message : String(err)
+      const shortHash = c.hash.slice(0, 8)
+      const shortMainSha = mainSha.slice(0, 8)
       exit(
-        chalk.red(
-          `Cherry-pick failed for ${c.hash.slice(0, 8)}: ${message}\nMain has been reset to ${mainSha.slice(0, 8)}.`,
-        ),
+        chalk.red(`Cherry-pick failed for ${shortHash}: ${message}\nMain has been reset to ${shortMainSha}.`),
       )
     }
   }

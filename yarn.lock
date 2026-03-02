@@ -13636,6 +13636,7 @@ __metadata:
     bech32: ^1.1.4
     bip32: ^2.0.5
     bip39: ^3.0.2
+    bitcoinjs-message: ^2.1.0
     bs58: ^4.0.1
     bs58check: ^4.0.0
     cosmjs-types: ^0.4.1

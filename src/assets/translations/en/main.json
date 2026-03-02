@@ -178,6 +178,7 @@
       "expandRow": "Expand Row"
     },
     "featureDisabled": "This feature is temporarily disabled.",
+    "no": "No",
     "yes": "Yes",
     "activeAccount": "Active Account",
     "selectAccount": "Select Account",
@@ -2249,7 +2250,14 @@
               "placeholder": "Gas Limit...",
               "tooltip": "The gas limit refers to the maximum amount of gas a user can consume to conduct a transaction."
             }
-          }
+          },
+          "recipientAddress": "Recipient Address",
+          "amount": "Amount",
+          "amountSats": "%{amount} sats",
+          "psbt": "PSBT",
+          "broadcast": "Broadcast",
+          "inputs": "Inputs (%{count})",
+          "outputs": "Outputs (%{count})"
         },
         "connect": {
           "title": "Connect your wallet to a dApp via WalletConnect and trigger transactions",

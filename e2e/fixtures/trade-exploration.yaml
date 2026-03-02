@@ -1,0 +1,44 @@
+name: Trade Page Exploration
+description: >
+  Autonomous exploration of the trade page. The agent navigates freely
+  within the trade domain, trying edge cases, unusual inputs, and rapid
+  actions to discover bugs that scripted tests miss.
+
+  The agent should snapshot anything that looks broken and report findings
+  as results with descriptive step names like:
+  "Found: infinite loading when switching assets rapidly"
+
+mode: exploratory
+route: /trade
+depends_on:
+  - wallet-health.yaml
+
+domain:
+  routes:
+    - /trade
+  actions:
+    - switch-assets
+    - search-assets
+    - change-amounts
+    - preview-trade
+    - filter-by-chain
+    - toggle-fiat-crypto
+
+constraints:
+  - Never spend more than $1 per action
+  - Never approve token spending above $5
+  - Always use fiat mode for amounts
+  - Never confirm a trade (stop at preview/confirm screen)
+  - Maximum 15 minutes exploration time
+  - Stay on /trade route only
+
+goals:
+  - Find UI states that break (infinite loading, error screens, blank content)
+  - Try edge cases (0 amount, very large amounts, same asset both sides)
+  - Try rapid actions (switch assets mid-quote, spam preview button)
+  - Test with different chain filters and obscure tokens
+  - Look for visual glitches (overlapping text, broken layouts, missing icons)
+  - Check error handling (what happens when a quote fails?)
+
+duration: 15min
+max_findings: 20

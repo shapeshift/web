@@ -1,0 +1,83 @@
+name: Cross-Chain Swap Exploration
+description: >
+  Autonomous exploration of swap flows across all first-class EVM chains,
+  Solana, Cosmos Hub (ATOM), THORChain (RUNE), and Mayachain (CACAO).
+
+  The agent picks random swap pairs across any combination of chains and
+  directions - same-chain swaps, cross-chain swaps, any asset to any asset.
+  The goal is to discover broken quotes, failed broadcasts, UI glitches,
+  and edge cases that scripted fixtures miss.
+
+  IMPORTANT FINANCIAL CONSTRAINTS:
+  - Maximum $10 per individual swap (use fiat mode, never exceed)
+  - Maximum $5 CUMULATIVE downside across ALL swaps in the session
+    (downside = fees + gas + price impact + slippage losses)
+  - Track running downside: after each swap, compare USD value sent vs received
+  - If cumulative downside approaches $4, reduce swap sizes to $1-2
+  - If cumulative downside hits $5, STOP executing swaps (can still explore UI)
+  - Prefer small swaps ($1-3) to minimize downside per trade
+
+  CHAIN COVERAGE:
+  First-class EVM chains: Ethereum (ETH), Avalanche (AVAX), Base (ETH),
+  Optimism (ETH), Arbitrum (ETH), BNB Smart Chain (BNB), Polygon (POL),
+  Gnosis (xDAI)
+  Non-EVM: Solana (SOL), Cosmos Hub (ATOM), THORChain (RUNE), Mayachain (CACAO)
+
+  SWAP COMBINATIONS TO EXPLORE:
+  - Same-chain: ETH -> USDC on Ethereum, AVAX -> token on Avalanche, etc.
+  - Cross-chain EVM: ETH (Ethereum) -> ETH (Base), BNB -> AVAX, etc.
+  - Cross-ecosystem: ETH -> SOL, BTC -> ATOM, RUNE -> ETH, CACAO -> AVAX
+  - Exotic pairs: ATOM -> SOL, RUNE -> CACAO, xDAI -> POL
+  - The agent should try diverse combinations, not just obvious ones
+
+  EXECUTION:
+  - Navigate via hash route: eval "window.location.hash = '/trade'"
+  - Use data-testid selectors for asset pickers and trade buttons
+  - Always check balance before swapping (don't swap more than you have)
+  - Preview every trade before confirming (check the rate/impact)
+  - If a quote shows >5% price impact, report as finding but don't execute
+  - If a swap takes >120s, report as finding (slow swap)
+  - Track which pairs worked and which failed
+
+mode: exploratory
+route: /trade
+depends_on:
+  - wallet-health.yaml
+
+domain:
+  routes:
+    - /trade
+  actions:
+    - switch-sell-asset
+    - switch-buy-asset
+    - search-assets
+    - filter-by-chain
+    - change-amounts
+    - preview-trade
+    - confirm-trade
+    - sign-swap
+    - toggle-fiat-crypto
+
+constraints:
+  - Maximum $10 per individual swap
+  - Maximum $5 cumulative downside (fees + gas + slippage) across all swaps
+  - Always use fiat mode for entering amounts
+  - Always preview before confirming
+  - Skip swaps with >5% price impact (report as finding)
+  - Check balance before each swap
+  - Track cumulative downside after each completed swap
+  - Stop executing swaps if cumulative downside reaches $5
+
+goals:
+  - Test diverse swap pairs across all first-class chains
+  - Find broken quotes (no route, infinite loading, error messages)
+  - Find failed broadcasts or stuck transactions
+  - Find UI glitches during swap flow (overlapping text, missing data)
+  - Test rapid asset switching (change sell/buy mid-quote)
+  - Test edge cases (very small amounts, dust amounts)
+  - Discover which cross-chain routes work and which don't
+  - Check approval flows for ERC20 tokens
+  - Report any swap taking >120s as slow
+
+duration: 30min
+max_findings: 30

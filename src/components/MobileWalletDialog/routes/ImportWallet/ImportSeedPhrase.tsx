@@ -114,7 +114,7 @@ export const ImportSeedPhrase = () => {
               </CText>
             </Box>
             <Box width='full'>
-              <FormControl isInvalid={Boolean(errors.mnemonic)} mb={6}>
+              <FormControl isInvalid={Boolean(errors.mnemonic)} mb={6} data-qabot-forbidden='seed-phrase-input'>
                 <Textarea
                   variant='filled'
                   size='lg'

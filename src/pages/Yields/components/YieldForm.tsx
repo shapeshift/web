@@ -51,6 +51,7 @@ import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
 import { YieldExplainers } from '@/pages/Yields/components/YieldExplainers'
 import { YieldSuccess } from '@/pages/Yields/components/YieldSuccess'
+import { getYieldQuoteErrorTranslation } from '@/pages/Yields/hooks/getYieldQuoteErrorTranslation'
 import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
@@ -62,7 +63,7 @@ import {
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetIdFilter,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -259,10 +260,10 @@ export const YieldForm = memo(
 
     const inputTokenBalance = useAppSelector(state =>
       inputTokenAssetId && accountId
-        ? selectPortfolioCryptoPrecisionBalanceByFilter(state, {
+        ? selectPortfolioCryptoBalanceByFilter(state, {
             assetId: inputTokenAssetId,
             accountId,
-          })
+          }).toPrecision()
         : '0',
     )
 
@@ -345,13 +346,14 @@ export const YieldForm = memo(
         if (isFiat) {
           const crypto = bnOrZero(values.value)
             .div(marketData?.price || 1)
+            .decimalPlaces(inputTokenAsset?.precision ?? 18, 1)
             .toFixed()
           setCryptoAmount(crypto)
         } else {
           setCryptoAmount(values.value)
         }
       },
-      [isFiat, marketData?.price],
+      [isFiat, inputTokenAsset?.precision, marketData?.price],
     )
 
     const displayValue = useMemo(() => {
@@ -435,8 +437,10 @@ export const YieldForm = memo(
       handleConfirm,
       isQuoteLoading,
       quoteData,
+      quoteError,
       isAllowanceCheckPending,
       isUsdtResetRequired,
+      isAmountLocked,
     } = useYieldTransactionFlow({
       yieldItem,
       action: flowAction,
@@ -512,6 +516,10 @@ export const YieldForm = memo(
     const buttonText = useMemo(() => {
       if (!isConnected) return translate('common.connectWallet')
       if (isQuoteActive) return translate('yieldXYZ.loadingQuote')
+      if (quoteError && cryptoAmount) {
+        const { key, params } = getYieldQuoteErrorTranslation(quoteError)
+        return translate(key, params)
+      }
 
       if (isSubmitting && transactionSteps.length > 0) {
         const activeStep = transactionSteps.find(s => s.status !== 'success')
@@ -561,6 +569,8 @@ export const YieldForm = memo(
     }, [
       isConnected,
       isQuoteActive,
+      quoteError,
+      cryptoAmount,
       isSubmitting,
       transactionSteps,
       activeStepIndex,
@@ -574,9 +584,11 @@ export const YieldForm = memo(
       withdrawableToken?.symbol,
     ])
 
+    const isInputDisabled = isSubmitting || isAmountLocked
+
     const percentButtons = useMemo(
       () => (
-        <HStack spacing={2} justify='center' width='full'>
+        <HStack spacing={2} justify='center' width='full' data-testid='yield-form-percent-buttons'>
           {PRESET_PERCENTAGES.map(percent => {
             const isSelected = selectedPercent === percent
             return (
@@ -591,6 +603,8 @@ export const YieldForm = memo(
                 borderRadius='full'
                 px={4}
                 fontWeight='medium'
+                isDisabled={isInputDisabled}
+                data-testid={`yield-form-percent-${percent === 1 ? 'max' : `${percent * 100}`}`}
               >
                 {percent === 1 ? translate('modals.send.sendForm.max') : `${percent * 100}%`}
               </Button>
@@ -598,7 +612,7 @@ export const YieldForm = memo(
           })}
         </HStack>
       ),
-      [selectedPercent, handlePercentClick, translate],
+      [selectedPercent, handlePercentClick, translate, isInputDisabled],
     )
 
     const statsContent = useMemo(
@@ -632,7 +646,7 @@ export const YieldForm = memo(
                   {estimatedYearlyEarnings.decimalPlaces(4).toString()} {inputTokenAsset?.symbol}
                 </GradientApy>
                 <Text fontSize='xs' color='text.subtle'>
-                  <Amount.Fiat value={estimatedYearlyEarningsFiat.toString()} />
+                  <Amount.Fiat value={estimatedYearlyEarningsFiat.toFixed(2)} />
                 </Text>
               </Flex>
             </Flex>
@@ -760,6 +774,7 @@ export const YieldForm = memo(
             prefix={isFiat ? localeParts.prefix : ''}
             suffix={isFiat ? '' : ` ${inputTokenAsset?.symbol}`}
             onValueChange={handleInputChange}
+            isDisabled={isInputDisabled}
           />
           <HStack
             spacing={2}
@@ -769,6 +784,7 @@ export const YieldForm = memo(
             role='button'
             tabIndex={0}
             aria-label={translate('trade.switchCurrency')}
+            data-testid='yield-form-currency-toggle'
             onKeyDown={e => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault()
@@ -805,6 +821,7 @@ export const YieldForm = memo(
       displayPlaceholder,
       inputTokenAsset?.symbol,
       handleInputChange,
+      isInputDisabled,
       toggleIsFiat,
       cryptoAmount,
       fiatAmount,
@@ -902,6 +919,7 @@ export const YieldForm = memo(
               isSubmitting ? translate('common.confirming') : translate('yieldXYZ.loadingQuote')
             }
             onClick={isConnected ? handleConfirm : handleConnectWallet}
+            data-testid='yield-form-submit-button'
           >
             {buttonText}
           </Button>

@@ -345,7 +345,11 @@ export const FoxFarming = () => {
                 </Box>
 
                 {rewardsCryptoAmount !== '0' && Boolean(rewardsCryptoAmount && rewardAsset) ? (
-                  <Button onClick={handleClaimClick} colorScheme='gray'>
+                  <Button
+                    data-testid='fox-farming-claim-button'
+                    onClick={handleClaimClick}
+                    colorScheme='gray'
+                  >
                     {translate('common.claim')}
                   </Button>
                 ) : null}
@@ -372,7 +376,11 @@ export const FoxFarming = () => {
                 />
               </Skeleton>
             </Box>
-            <Button onClick={handleManageClick} colorScheme='gray'>
+            <Button
+              data-testid='fox-farming-manage-button'
+              onClick={handleManageClick}
+              colorScheme='gray'
+            >
               {translate('common.manage')}
             </Button>
           </Stack>

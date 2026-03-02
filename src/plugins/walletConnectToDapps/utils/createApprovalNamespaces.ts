@@ -27,6 +27,9 @@ const isCosmosSdkChainId = (chainId: string): boolean =>
 
 const isTronChainId = (chainId: string): boolean => chainId.startsWith(`${CHAIN_NAMESPACE.Tron}:`)
 
+export const isWcSupportedChainId = (chainId: string): boolean =>
+  isEvmChainId(chainId) || isCosmosSdkChainId(chainId) || isTronChainId(chainId)
+
 export const createApprovalNamespaces = (
   requiredNamespaces: ProposalTypes.RequiredNamespaces,
   optionalNamespaces: ProposalTypes.OptionalNamespaces,
@@ -37,7 +40,7 @@ export const createApprovalNamespaces = (
 
   const getDefaultMethods = (key: string): string[] => {
     switch (key) {
-      case 'eip155':
+      case CHAIN_NAMESPACE.Evm:
         return DEFAULT_EIP155_METHODS
       case CHAIN_NAMESPACE.CosmosSdk:
         return DEFAULT_COSMOS_METHODS

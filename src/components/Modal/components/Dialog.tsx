@@ -19,6 +19,7 @@ export type DialogProps = {
   height?: string
   isFullScreen?: boolean
   modalProps?: Omit<ModalProps, 'children' | 'isOpen' | 'onClose'>
+  'data-testid'?: string
 } & PropsWithChildren
 
 const CustomDrawerContent = styled(Drawer.Content)<{ zIndex?: string; pointerEvents?: string }>`
@@ -56,6 +57,7 @@ const DialogWindow: React.FC<DialogProps> = ({
   isFullScreen,
   modalProps,
   children,
+  'data-testid': dataTestId,
 }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { setIsOpen, isOpen: isDialogOpen } = useDialog()
@@ -130,7 +132,11 @@ const DialogWindow: React.FC<DialogProps> = ({
       >
         <Drawer.Portal>
           <CustomDrawerOverlay onClick={handleClose} {...overlayProps?.sx} />
-          <CustomDrawerContent style={contentStyle} {...modalContentProps?.containerProps?.sx}>
+          <CustomDrawerContent
+            style={contentStyle}
+            {...modalContentProps?.containerProps?.sx}
+            data-testid={dataTestId}
+          >
             {children}
           </CustomDrawerContent>
         </Drawer.Portal>
@@ -140,7 +146,7 @@ const DialogWindow: React.FC<DialogProps> = ({
   return (
     <Modal isCentered {...modalProps} {...stackedModalProps}>
       <ModalOverlay {...overlayProps} />
-      <ModalContent height={height} {...modalContentProps}>
+      <ModalContent height={height} {...modalContentProps} data-testid={dataTestId}>
         {children}
       </ModalContent>
     </Modal>

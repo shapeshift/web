@@ -1,6 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, thorchainAssetId, usdcOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
-import { BigAmount, bn } from '@shapeshiftoss/utils'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
 import { getAddress } from 'viem'
 
@@ -9,6 +9,7 @@ import { getStakingContract } from '../helpers'
 import type { Epoch } from '../types'
 import { useEpochHistoryQuery } from './useEpochHistoryQuery'
 
+import { bn } from '@/lib/bignumber/bignumber'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -59,16 +60,16 @@ export const useLifetimeRewardsUserCurrencyQuery = ({
               value: distribution.amount,
               precision: usdcAsset?.precision ?? 0,
             })
-              .times(usdcMarketData.price)
               .toBN()
+              .times(usdcMarketData.price)
           }
 
           return BigAmount.fromBaseUnit({
             value: distribution.amount,
             precision: runeAsset?.precision ?? 0,
           })
-            .times(runeMarketData.price)
             .toBN()
+            .times(runeMarketData.price)
         })()
 
         return acc.plus(epochRewardUserCurrency)

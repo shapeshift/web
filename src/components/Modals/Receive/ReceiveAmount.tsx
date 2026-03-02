@@ -102,7 +102,7 @@ const ReceiveAmountContent = ({
 
       const cryptoAmount =
         fieldName === ReceiveAmountFormFields.FiatAmount
-          ? bn(inputValue).div(bnOrZero(price))
+          ? bn(inputValue).div(bnOrZero(price)).decimalPlaces(asset.precision, 1)
           : inputValue
       const fiatAmount =
         fieldName === ReceiveAmountFormFields.FiatAmount
@@ -115,7 +115,7 @@ const ReceiveAmountContent = ({
 
       setValue(otherField, otherAmount)
     },
-    [fieldName, price, setValue],
+    [asset.precision, fieldName, price, setValue],
   )
 
   const handleConfirm = useCallback(() => {

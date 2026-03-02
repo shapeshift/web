@@ -935,20 +935,10 @@ export const useYieldTransactionFlow = ({
       }
     } catch (error) {
       console.error('Failed to initiate action:', error)
-      if (error instanceof ChainAdapterError) {
-        toast({
-          title: translate('yieldXYZ.errors.initiateFailedTitle'),
-          description: translate(error.metadata.translation, error.metadata.options),
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        })
-      } else {
-        showErrorToast(
-          'yieldXYZ.errors.initiateFailedTitle',
-          'yieldXYZ.errors.initiateFailedDescription',
-        )
-      }
+      showErrorToast(
+        'yieldXYZ.errors.initiateFailedTitle',
+        'yieldXYZ.errors.initiateFailedDescription',
+      )
       setIsSubmitting(false)
       setTransactionSteps([])
     }

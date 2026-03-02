@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 const CHAINFLIP_EXPLORER_GRAPHQL_URL = 'https://explorer-service-processor.chainflip.io/graphql'
+const EXPLORER_REQUEST_TIMEOUT_MS = 10_000
 
 export type LiquidityWithdrawalStatus = {
   broadcastComplete: boolean
@@ -86,24 +87,28 @@ export const queryLatestWithdrawalId = async (
   withdrawalAddress: string,
   asset: string,
   chain: string,
-): Promise<number> => {
+): Promise<number | null> => {
   const graphqlAsset = toGraphqlAsset(asset)
   const normalizedAddress = withdrawalAddress.toLowerCase()
 
   try {
-    const { data } = await axios.post<LatestWithdrawalIdResponse>(CHAINFLIP_EXPLORER_GRAPHQL_URL, {
-      query: LATEST_WITHDRAWAL_ID_QUERY,
-      variables: {
-        address: normalizedAddress,
-        asset: graphqlAsset,
-        chain,
+    const { data } = await axios.post<LatestWithdrawalIdResponse>(
+      CHAINFLIP_EXPLORER_GRAPHQL_URL,
+      {
+        query: LATEST_WITHDRAWAL_ID_QUERY,
+        variables: {
+          address: normalizedAddress,
+          asset: graphqlAsset,
+          chain,
+        },
       },
-    })
+      { timeout: EXPLORER_REQUEST_TIMEOUT_MS },
+    )
 
     return data.data.allLiquidityWithdrawals.nodes[0]?.id ?? 0
   } catch (e) {
     console.error('queryLatestWithdrawalId failed:', e)
-    return 0
+    return null
   }
 }
 
@@ -117,15 +122,19 @@ export const queryLiquidityWithdrawalStatus = async (
   const normalizedAddress = withdrawalAddress.toLowerCase()
 
   try {
-    const { data } = await axios.post<LiquidityWithdrawalResponse>(CHAINFLIP_EXPLORER_GRAPHQL_URL, {
-      query: LP_WITHDRAWAL_STATUS_QUERY,
-      variables: {
-        address: normalizedAddress,
-        asset: graphqlAsset,
-        chain,
-        afterId,
+    const { data } = await axios.post<LiquidityWithdrawalResponse>(
+      CHAINFLIP_EXPLORER_GRAPHQL_URL,
+      {
+        query: LP_WITHDRAWAL_STATUS_QUERY,
+        variables: {
+          address: normalizedAddress,
+          asset: graphqlAsset,
+          chain,
+          afterId,
+        },
       },
-    })
+      { timeout: EXPLORER_REQUEST_TIMEOUT_MS },
+    )
 
     const node = data.data.allLiquidityWithdrawals.nodes[0]
     if (!node?.broadcastByBroadcastId) {

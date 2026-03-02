@@ -14,4 +14,6 @@ export type ChainflipLendingModalMode =
 export type ChainflipLendingModalProps = {
   mode: ChainflipLendingModalMode
   assetId: AssetId
+  loanId?: number
+  liquidationAction?: 'initiate' | 'stop'
 }

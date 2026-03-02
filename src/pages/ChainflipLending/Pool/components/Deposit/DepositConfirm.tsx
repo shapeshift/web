@@ -150,8 +150,9 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
       await queryClient.invalidateQueries(reactQueries.chainflipLending.freeBalances(scAccount))
       await queryClient.invalidateQueries(reactQueries.chainflipLending.accountInfo(scAccount))
     }
+    actorRef.send({ type: 'DONE' })
     closeModal()
-  }, [scAccount, queryClient, closeModal])
+  }, [scAccount, queryClient, actorRef, closeModal])
 
   const handleBack = useCallback(() => {
     actorRef.send({ type: 'BACK' })

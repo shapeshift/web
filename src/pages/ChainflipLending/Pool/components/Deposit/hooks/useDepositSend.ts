@@ -67,6 +67,9 @@ export const useDepositSend = () => {
         if (!depositChainAccountId) throw new Error('No account found for deposit chain')
         if (!depositAddress) throw new Error('Deposit address not set')
 
+        const depositAmount = BigInt(depositAmountCryptoBaseUnit)
+        if (depositAmount <= 0n) throw new Error('Deposit amount must be greater than zero')
+
         const { account: from } = fromAccountId(depositChainAccountId)
         const { assetNamespace, assetReference, chainId } = fromAssetId(assetId)
         const { chainNamespace } = fromChainId(chainId)

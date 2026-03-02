@@ -73,7 +73,7 @@ All integration points required when adding a new second-class EVM chain to Shap
     - Native asset included
     - Registered in `scripts/generateAssetData/generateAssetData.ts`
     - **Shared coingecko script** - `scripts/generateAssetData/coingecko.ts` must import and use the new chain's `chainId` constant
-    - **Per-chain generation**: after wiring, run `source ~/.zshrc && ZERION_API_KEY=$ZERION_API_KEY yarn generate:chain <chainId>` (e.g., `eip155:59144`) to regenerate only this chain's assets (~30s vs 30min for full `generate:all`). Also accepts directory name (e.g., `linea`).
+    - **Per-chain generation**: after wiring, run `source ~/.zshrc && ZERION_API_KEY=$ZERION_API_KEY pnpm run generate:chain <chainId>` (e.g., `eip155:59144`) to regenerate only this chain's assets (~30s vs 30min for full `generate:all`). Also accepts directory name (e.g., `linea`).
 
 15. **Coingecko Integration** - `packages/caip/src/adapters/coingecko/`
     - Enum value in `CoingeckoAssetPlatform`
@@ -197,15 +197,15 @@ Some chains have an ERC20 contract that represents the native token (e.g., Mantl
 44. **Blacklist native ERC20 wrapper** - `scripts/generateAssetData/blacklist.json`
     - If the chain has a special ERC20 contract representing the native token, add it to the blacklist
     - Known patterns: Mantle `eip155:5000/erc20:0xdeaddeaddeaddeaddeaddeaddeaddeaddead0000`, Polygon `eip155:137/erc20:0x0000000000000000000000000000000000001010`
-    - To detect: after `yarn generate:chain`, check if there are two entries with the same symbol as the native asset (one `slip44:60`, one `erc20:0x...`)
-    - After adding to blacklist, re-run `yarn generate:chain` to apply
+    - To detect: after `pnpm run generate:chain`, check if there are two entries with the same symbol as the native asset (one `slip44:60`, one `erc20:0x...`)
+    - After adding to blacklist, re-run `pnpm run generate:chain` to apply
 
 ## Phase 4: Consistency Checks
 
 35. **Trailing slashes** on RPC URLs - all `*_NODE_URL` entries should be consistent (no trailing slash)
 36. **Chain ID correctness** - verify against the chain's official docs
 37. **Explorer URLs** - verify they're the official block explorer
-38. **Asset icon URLs** - verify they resolve (HTTP 200, not 403/404). Prefer `assets.relay.link/icons/<chainId>/light.png` for networkIcon over CoinGecko URLs which often return 403. **After changing `networkIcon` in `baseAssets.ts`, you MUST re-run `yarn generate:chain` for that chain** - the generated JSON caches the old URL and won't pick up the fix until regenerated.
+38. **Asset icon URLs** - verify they resolve (HTTP 200, not 403/404). Prefer `assets.relay.link/icons/<chainId>/light.png` for networkIcon over CoinGecko URLs which often return 403. **After changing `networkIcon` in `baseAssets.ts`, you MUST re-run `pnpm run generate:chain` for that chain** - the generated JSON caches the old URL and won't pick up the fix until regenerated.
 39. **Generated data** - verify asset-manifest.json, generatedAssetData.json, relatedAssetIndex.json are regenerated
 
 40. **Related Asset Index** - `public/generated/relatedAssetIndex.json` + `scripts/generateAssetData/generateRelatedAssetIndex/generateRelatedAssetIndex.ts`

@@ -275,6 +275,8 @@ export default defineConfig(({ mode }) => {
       format: 'es',
     },
     resolve: {
+      // Ensure a single copy of React packages (prevents duplicate bundling in pnpm)
+      dedupe: ['react', 'react-dom', 'react-is', 'react/jsx-runtime', 'react/jsx-dev-runtime'],
       alias: {
         '@': resolve(__dirname, './src'),
         'ethers/lib/utils': 'ethers5/lib/utils.js',
@@ -301,8 +303,15 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: id => {
             if (id.includes('node_modules')) {
+              // buffer polyfill must be in its own chunk to avoid circular deps between ui↔sdk in pnpm
+              // Matches: node_modules/buffer/, node_modules/base64-js/, node_modules/ieee754/,
+              // and also vite-plugin-node-polyfills/shims/buffer/ and safe-buffer
+              if (/\/node_modules\/(buffer|base64-js|ieee754|safe-buffer)\//.test(id)) return 'polyfills'
+              if (/vite-plugin-node-polyfills\/shims\/buffer\//.test(id)) return 'polyfills'
               if (id.match(/(framer-motion|@visx|@coral-xyz)/)) return 'ui'
               if (id.match(/(react-icons|@react-spring|react-datepicker|react-dom)/)) return 'react'
+              // Ensure core 'react' package is in the 'react' chunk to prevent duplication in pnpm
+              if (/\/node_modules\/react\//.test(id) && !/\/@[^/]+\/react/.test(id)) return 'react'
               if (id.match(/(dayjs|lodash|@formatjs)/)) return 'utils'
               if (id.match(/(@redux|@tanstack)/)) return 'state'
               if (id.match(/(@sentry|mixpanel|@moralisweb3|moralis)/)) return 'sdk'

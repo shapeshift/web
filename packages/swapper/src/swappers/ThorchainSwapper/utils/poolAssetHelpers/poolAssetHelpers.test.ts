@@ -1,4 +1,4 @@
-import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
+import { btcAssetId, ethAssetId, solAssetId } from '@shapeshiftoss/caip'
 import { describe, expect, it } from 'vitest'
 
 import { assetIdToThorPoolAssetId, thorPoolAssetIdToAssetId } from './poolAssetHelpers'
@@ -20,6 +20,11 @@ describe('poolAssetHelpers', () => {
     it('returns ERC20 assetId when poolAssetId is in ERC20 format', () => {
       const result = thorPoolAssetIdToAssetId('ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48')
       expect(result).toEqual(usdcAssetId)
+    })
+
+    it('returns Solana assetId when poolAssetId is SOL.SOL', () => {
+      const result = thorPoolAssetIdToAssetId('SOL.SOL')
+      expect(result).toEqual(solAssetId)
     })
 
     it('returns undefined for an asset we dont support', () => {
@@ -52,6 +57,13 @@ describe('poolAssetHelpers', () => {
       const assetId = usdcAssetId
       const result = assetIdToThorPoolAssetId({ assetId })
       const poolAssetId = 'ETH.USDC-0XA0B86991C6218B36C1D19D4A2E9EB0CE3606EB48'
+      expect(result).toEqual(poolAssetId)
+    })
+
+    it('returns SOL pool when assetId is solAssetId (base58 case-sensitive)', () => {
+      const assetId = solAssetId
+      const result = assetIdToThorPoolAssetId({ assetId })
+      const poolAssetId = 'SOL.SOL'
       expect(result).toEqual(poolAssetId)
     })
 

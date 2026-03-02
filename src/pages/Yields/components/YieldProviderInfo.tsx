@@ -36,7 +36,7 @@ export const YieldProviderInfo = memo(
     if (!description) return null
 
     return (
-      <Box>
+      <Box data-testid={`yield-provider-info-${providerId}`}>
         <Display.Desktop>
           <Card>
             <CardBody>

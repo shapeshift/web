@@ -7,6 +7,7 @@ import {
   cosmossdk,
   evm,
   getInboundAddressDataForChain,
+  solana,
   tron,
   utxo,
 } from '../../thorchain-utils'
@@ -25,6 +26,8 @@ export const thorchainApi: SwapperApi = {
   getEvmTransactionFees: input => evm.getEvmTransactionFees(input, swapperName),
   getUnsignedUtxoTransaction: input => utxo.getUnsignedUtxoTransaction(input, swapperName),
   getUtxoTransactionFees: input => utxo.getUtxoTransactionFees(input, swapperName),
+  getUnsignedSolanaTransaction: input => solana.getUnsignedSolanaTransaction(input, swapperName),
+  getSolanaTransactionFees: input => solana.getSolanaTransactionFees(input, swapperName),
   getUnsignedTronTransaction: input => tron.getUnsignedTronTransaction(input, swapperName),
   getTronTransactionFees: input => tron.getTronTransactionFees(input, swapperName),
   getUnsignedCosmosSdkTransaction: async ({

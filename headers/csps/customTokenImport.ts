@@ -5,5 +5,6 @@ export const csp: Csp = {
     // Common metadata sources
     'https://arweave.net/',
     'https://*.arweave.net/',
+    'https://api.proxy.shapeshift.com',
   ],
 }

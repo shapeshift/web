@@ -80,8 +80,13 @@ export const useCollateralConfirmation = () => {
         void invalidateQueries()
         actorRef.send({ type: 'COLLATERAL_CONFIRMED' })
       }
-    } catch {
-      // keep polling
+    } catch (error) {
+      console.error('[useCollateralConfirmation] parse failure', {
+        currentAmount,
+        collateralBalanceCryptoBaseUnit,
+        mode,
+        error,
+      })
     }
   }, [
     isConfirming,

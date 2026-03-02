@@ -340,6 +340,10 @@ export const Pool = () => {
   }, [chainflipLendingModal, poolAssetId, poolLoan])
 
   const hasCollateral = useMemo(() => bnOrZero(totalCollateralFiat).gt(0), [totalCollateralFiat])
+  const hasPoolCollateral = useMemo(
+    () => bnOrZero(poolCollateral?.amountFiat).gt(0),
+    [poolCollateral?.amountFiat],
+  )
   const hasLoans = useMemo(() => Boolean(poolLoan), [poolLoan])
 
   const { thresholds } = useChainflipLtvThresholds()
@@ -822,7 +826,7 @@ export const Pool = () => {
                         </Tooltip>
                         <Tooltip
                           label={translate('chainflipLending.pool.noCollateral')}
-                          isDisabled={hasCollateral}
+                          isDisabled={hasPoolCollateral}
                           shouldWrapChildren
                           hasArrow
                         >
@@ -835,7 +839,7 @@ export const Pool = () => {
                             flex={1}
                             fontWeight='bold'
                             onClick={handleRemoveCollateral}
-                            isDisabled={!hasCollateral || !accountId}
+                            isDisabled={!hasPoolCollateral || !accountId}
                           >
                             {translate('chainflipLending.collateral.remove')}
                           </Button>

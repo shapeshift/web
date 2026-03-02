@@ -32,13 +32,19 @@ export const useEgressConfirmation = () => {
     if (!isConfirming || baselineId !== null) return
     if (!cfAsset || !destinationAddress) return
 
+    let isActive = true
     void queryLatestWithdrawalId(destinationAddress, cfAsset.asset, cfAsset.chain).then(id => {
+      if (!isActive) return
       if (id === null) {
         actorRef.send({ type: 'EGRESS_TIMEOUT', error: 'Failed to fetch withdrawal baseline' })
         return
       }
       setBaselineId(id)
     })
+
+    return () => {
+      isActive = false
+    }
   }, [isConfirming, baselineId, cfAsset, destinationAddress, actorRef])
 
   const { data: withdrawalStatus } = useQuery({

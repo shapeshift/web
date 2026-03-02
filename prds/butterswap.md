@@ -122,7 +122,7 @@ These STEPS are presented to the user as part of a single HOP in the UI, maintai
 
 ## 10. Developer Workflow Notes
 
-* Always use `yarn vitest run <path-to-test-file> -t "<test name>"` to run ButterSwap integration tests in run mode for the specific file and test you are working on.
+* Always use `pnpm exec vitest run <path-to-test-file> -t "<test name>"` to run ButterSwap integration tests in run mode for the specific file and test you are working on.
 
   Example:
-  yarn vitest run packages/swapper/src/swappers/ButterSwap/xhr.test.ts -t "ButterSwap ETH->USDC mainnet integration"
+  pnpm exec vitest run packages/swapper/src/swappers/ButterSwap/xhr.test.ts -t "ButterSwap ETH->USDC mainnet integration"

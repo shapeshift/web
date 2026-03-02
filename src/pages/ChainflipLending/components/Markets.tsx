@@ -20,6 +20,7 @@ import { SEO } from '@/components/Layout/Seo'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { Text } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { permillToDecimal } from '@/lib/chainflip/utils'
 import { ChainflipLendingHeader } from '@/pages/ChainflipLending/components/ChainflipLendingHeader'
 import type { ChainflipLendingPoolWithFiat } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
 import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
@@ -44,7 +45,7 @@ const MarketRow = ({ pool, onViewMarket }: MarketRowProps) => {
   }, [pool.assetId, onViewMarket])
 
   const utilisationPercent = useMemo(
-    () => bnOrZero(pool.pool.utilisation_rate).div(1e9).toFixed(),
+    () => permillToDecimal(pool.pool.utilisation_rate),
     [pool.pool.utilisation_rate],
   )
 

@@ -7,7 +7,14 @@ import { initAssets } from './assets'
 import { API_HOST, API_PORT } from './config'
 import { quoteStore } from './lib/quoteStore'
 import { affiliateAddress } from './middleware/auth'
-import { rateLimitCleanupInterval, registerRateLimit } from './middleware/rateLimit'
+import {
+  affiliateStatsLimiter,
+  dataLimiter,
+  globalLimiter,
+  swapQuoteLimiter,
+  swapRatesLimiter,
+  swapStatusLimiter,
+} from './middleware/rateLimit'
 import { getAffiliateStats } from './routes/affiliate'
 import { getAssetById, getAssetCount, getAssets } from './routes/assets'
 import { getChainCount, getChains } from './routes/chains'
@@ -18,10 +25,12 @@ import { getSwapStatus } from './routes/status'
 
 const app = express()
 
+app.set('trust proxy', process.env.TRUST_PROXY === '1' ? 1 : false)
+
 // Middleware
 app.use(cors())
 app.use(express.json())
-app.set('trust proxy', true)
+app.use(globalLimiter)
 
 // Root endpoint - API info
 app.get('/', (_req, res) => {
@@ -53,21 +62,22 @@ app.get('/health', (_req, res) => {
 // API v1 routes
 const v1Router = express.Router()
 
-v1Router.get('/swap/rates', registerRateLimit, affiliateAddress, getRates)
-v1Router.post('/swap/quote', registerRateLimit, affiliateAddress, getQuote)
-v1Router.get('/swap/status', registerRateLimit, affiliateAddress, getSwapStatus)
+// Swap endpoints (optional affiliate address tracking)
+v1Router.get('/swap/rates', swapRatesLimiter, affiliateAddress, getRates)
+v1Router.post('/swap/quote', swapQuoteLimiter, affiliateAddress, getQuote)
+v1Router.get('/swap/status', swapStatusLimiter, affiliateAddress, getSwapStatus)
 
 // Affiliate endpoints
-v1Router.get('/affiliate/stats', registerRateLimit, getAffiliateStats)
+v1Router.get('/affiliate/stats', affiliateStatsLimiter, getAffiliateStats)
 
 // Chain endpoints
-v1Router.get('/chains', getChains)
-v1Router.get('/chains/count', getChainCount)
+v1Router.get('/chains', dataLimiter, getChains)
+v1Router.get('/chains/count', dataLimiter, getChainCount)
 
 // Asset endpoints
-v1Router.get('/assets', getAssets)
-v1Router.get('/assets/count', getAssetCount)
-v1Router.get('/assets/:assetId(*)', getAssetById)
+v1Router.get('/assets', dataLimiter, getAssets)
+v1Router.get('/assets/count', dataLimiter, getAssetCount)
+v1Router.get('/assets/:assetId(*)', dataLimiter, getAssetById)
 
 app.use('/v1', v1Router)
 app.use('/docs', docsRouter)
@@ -113,7 +123,6 @@ Affiliate Tracking (optional):
 const shutdown = () => {
   console.log('Shutting down gracefully...')
   quoteStore.destroy()
-  clearInterval(rateLimitCleanupInterval)
   process.exit(0)
 }
 

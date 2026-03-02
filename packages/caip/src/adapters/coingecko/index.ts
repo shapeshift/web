@@ -12,6 +12,7 @@ import {
   blastChainId,
   bobChainId,
   bscChainId,
+  celoChainId,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
   cosmosChainId,
@@ -35,6 +36,7 @@ import {
   plumeChainId,
   polygonChainId,
   scrollChainId,
+  seiChainId,
   solanaChainId,
   soneiumChainId,
   sonicChainId,
@@ -72,6 +74,7 @@ export enum CoingeckoAssetPlatform {
   Ink = 'ink',
   Katana = 'katana',
   FlowEvm = 'flow-evm',
+  Celo = 'celo',
   Story = 'story',
   ZkSyncEra = 'zksync',
   Blast = 'blast',
@@ -88,6 +91,7 @@ export enum CoingeckoAssetPlatform {
   Scroll = 'scroll',
   Cronos = 'cronos',
   Soneium = 'soneium',
+  Sei = 'sei-v2',
   Solana = 'solana',
   Starknet = 'starknet',
   Tron = 'tron',
@@ -152,6 +156,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Katana
         case CHAIN_REFERENCE.FlowEvmMainnet:
           return CoingeckoAssetPlatform.FlowEvm
+        case CHAIN_REFERENCE.CeloMainnet:
+          return CoingeckoAssetPlatform.Celo
         case CHAIN_REFERENCE.StoryMainnet:
           return CoingeckoAssetPlatform.Story
         case CHAIN_REFERENCE.ZkSyncEraMainnet:
@@ -186,6 +192,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Cronos
         case CHAIN_REFERENCE.SoneiumMainnet:
           return CoingeckoAssetPlatform.Soneium
+        case CHAIN_REFERENCE.SeiMainnet:
+          return CoingeckoAssetPlatform.Sei
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
@@ -299,6 +307,8 @@ export const coingeckoAssetPlatformToChainId = (
       return katanaChainId
     case CoingeckoAssetPlatform.FlowEvm:
       return flowEvmChainId
+    case CoingeckoAssetPlatform.Celo:
+      return celoChainId
     case CoingeckoAssetPlatform.Story:
       return storyChainId
     case CoingeckoAssetPlatform.Mantle:
@@ -331,6 +341,8 @@ export const coingeckoAssetPlatformToChainId = (
       return cronosChainId
     case CoingeckoAssetPlatform.Soneium:
       return soneiumChainId
+    case CoingeckoAssetPlatform.Sei:
+      return seiChainId
     case CoingeckoAssetPlatform.Cosmos:
       return cosmosChainId
     case CoingeckoAssetPlatform.Thorchain:

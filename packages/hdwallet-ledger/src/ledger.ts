@@ -430,10 +430,12 @@ export class LedgerHDWallet
   readonly _supportsPlasma = true
   readonly _supportsPlume = true
   readonly _supportsKatana = true
+  readonly _supportsEthereal = true
   readonly _supportsStory = true
   readonly _supportsSonic = true
   readonly _supportsBob = true
   readonly _supportsMode = true
+  readonly _supportsSei = true
   readonly _supportsHyperEvm = true
   readonly _supportsMantle = true
   readonly _supportsInk = true
@@ -443,6 +445,7 @@ export class LedgerHDWallet
   readonly _supportsWorldChain = true
   readonly _supportsHemi = true
   readonly _supportsFlowEvm = true
+  readonly _supportsCelo = true
   readonly _supportsBerachain = true
   readonly _supportsLinea = true
   readonly _supportsScroll = true

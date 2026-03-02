@@ -50,6 +50,7 @@ export const getServerConfig = (): SwapperConfig => ({
   VITE_SUI_NODE_URL: process.env.SUI_NODE_URL || 'https://fullnode.mainnet.sui.io',
   VITE_ACROSS_API_URL: process.env.ACROSS_API_URL || 'https://app.across.to/api',
   VITE_ACROSS_INTEGRATOR_ID: process.env.ACROSS_INTEGRATOR_ID || '',
+  VITE_DEBRIDGE_API_URL: process.env.DEBRIDGE_API_URL || 'https://dln.debridge.finance/v1.0',
 })
 
 // Default affiliate fee in basis points

@@ -9,6 +9,7 @@ import {
   bobChainId,
   bscChainId,
   btcChainId,
+  celoChainId,
   cosmosChainId,
   cronosChainId,
   dogeChainId,
@@ -26,6 +27,7 @@ import {
   optimismChainId,
   plumeChainId,
   polygonChainId,
+  seiChainId,
   solanaChainId,
   soneiumChainId,
   sonicChainId,
@@ -240,6 +242,7 @@ export const getCoingeckoSupportedChainIds = () => {
     ...(getConfig().VITE_FEATURE_WORLDCHAIN ? [worldChainChainId] : []),
     ...(getConfig().VITE_FEATURE_HEMI ? [hemiChainId] : []),
     ...(getConfig().VITE_FEATURE_MANTLE ? [mantleChainId] : []),
+    ...(getConfig().VITE_FEATURE_SEI ? [seiChainId] : []),
     ...(getConfig().VITE_FEATURE_LINEA ? [lineaChainId] : []),
     ...(getConfig().VITE_FEATURE_SONIC ? [sonicChainId] : []),
     ...(getConfig().VITE_FEATURE_UNICHAIN ? [unichainChainId] : []),
@@ -248,5 +251,6 @@ export const getCoingeckoSupportedChainIds = () => {
     ...(getConfig().VITE_FEATURE_SONEIUM ? [soneiumChainId] : []),
     ...(getConfig().VITE_FEATURE_TON ? [tonChainId] : []),
     ...(getConfig().VITE_FEATURE_FLOWEVM ? [flowEvmChainId] : []),
+    ...(getConfig().VITE_FEATURE_CELO ? [celoChainId] : []),
   ]
 }

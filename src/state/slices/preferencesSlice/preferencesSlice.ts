@@ -42,6 +42,8 @@ export type FeatureFlags = {
   Berachain: boolean
   Cronos: boolean
   Katana: boolean
+  Ethereal: boolean
+  Celo: boolean
   FlowEvm: boolean
   Plume: boolean
   Story: boolean
@@ -49,6 +51,7 @@ export type FeatureFlags = {
   Blast: boolean
   WorldChain: boolean
   Hemi: boolean
+  Sei: boolean
   Linea: boolean
   Scroll: boolean
   Sonic: boolean
@@ -121,6 +124,7 @@ export type FeatureFlags = {
   AvnuSwap: boolean
   StonfiSwap: boolean
   AcrossSwap: boolean
+  DebridgeSwap: boolean
   LazyTxHistory: boolean
   LedgerReadOnly: boolean
   QuickBuy: boolean
@@ -209,6 +213,8 @@ const initialState: Preferences = {
     Berachain: getConfig().VITE_FEATURE_BERACHAIN,
     Cronos: getConfig().VITE_FEATURE_CRONOS,
     Katana: getConfig().VITE_FEATURE_KATANA,
+    Ethereal: getConfig().VITE_FEATURE_ETHEREAL,
+    Celo: getConfig().VITE_FEATURE_CELO,
     FlowEvm: getConfig().VITE_FEATURE_FLOWEVM,
     Plume: getConfig().VITE_FEATURE_PLUME,
     Story: getConfig().VITE_FEATURE_STORY,
@@ -216,6 +222,7 @@ const initialState: Preferences = {
     Blast: getConfig().VITE_FEATURE_BLAST,
     WorldChain: getConfig().VITE_FEATURE_WORLDCHAIN,
     Hemi: getConfig().VITE_FEATURE_HEMI,
+    Sei: getConfig().VITE_FEATURE_SEI,
     Linea: getConfig().VITE_FEATURE_LINEA,
     Scroll: getConfig().VITE_FEATURE_SCROLL,
     Sonic: getConfig().VITE_FEATURE_SONIC,
@@ -288,6 +295,7 @@ const initialState: Preferences = {
     AvnuSwap: getConfig().VITE_FEATURE_AVNU_SWAP,
     StonfiSwap: getConfig().VITE_FEATURE_STONFI_SWAP,
     AcrossSwap: getConfig().VITE_FEATURE_ACROSS_SWAP,
+    DebridgeSwap: getConfig().VITE_FEATURE_DEBRIDGE_SWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
     LedgerReadOnly: getConfig().VITE_FEATURE_LEDGER_READ_ONLY,
     QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,

@@ -345,7 +345,7 @@
         "marketCapRank": "市值排名",
         "volume24h": "24 小时交易量",
         "volMcap": "交易量/市值",
-        "about": "关于",
+        "about": "关于 %{symbol}",
         "noDescription": "此资产暂无描述。"
       },
       "receive": {
@@ -1951,7 +1951,7 @@
         "multiChain": {
           "title": "同时支持多条链",
           "subTitle": "你永远不需要在钱包中切换链，它可以与每个链条无缝配合。",
-          "body": "当 ShapeShift 上添加新链时，你的 ShapeShift 钱包将自动支持它。"
+          "body": "通过单个钱包即可访问 Bitcoin、Ethereum、Solana 等众多链。在不同网络间无缝交易和管理您的资产。"
         },
         "selfCustody": {
           "title": "你的 ShapeShift 钱包是自我保管的",
@@ -2589,13 +2589,16 @@
         "body": "rFOX 是一个术语，用于描述当您将 FOX 代币质押在 Arbitrum 上时所获得的利益和奖励。目前，您能够将原生 FOX（在 Arbitrum 上）代币进行锁仓和解锁，以获得质押奖励。"
       },
       "why": {
-        "title": "为什么要质押你的 FOX？"
+        "title": "为什么要质押你的 FOX？",
+        "body": "质押您的 FOX 可让您从 DAO 的国库中定期获得 USDC 支付，每个时段为您提供稳定的被动收入（以 USDC 计）。此外，DAO 收入的一部分将通过代币销毁用于减少 FOX 的整体供应量。质押过程要求最少 28 天的取消质押期，以鼓励社区成员的承诺与稳定性。"
       },
       "stake": {
-        "title": "我该如何质押我的 FOX？"
+        "title": "我该如何质押我的 FOX？",
+        "body": "要质押您的 FOX，请使用质押界面将您的 FOX 代币锁定到质押合约中。质押完成后，您将开始按区块获取 USDC 奖励，作为质押收益的一部分。"
       },
       "unstake": {
-        "title": "当我取消质押时会发生什么？"
+        "title": "当我取消质押时会发生什么？",
+        "body": "当您决定取消质押时，须经过至少 28 天的取消质押期。在此期间，您的 FOX 保持锁定状态，您将停止接收 USDC 排放奖励。取消质押期结束后，您可以解锁并取回您的普通 FOX 代币。"
       },
       "cooldown": {
         "title": "冷却期有多长？",
@@ -2606,7 +2609,8 @@
         "body": "是的，你可以有多个取消质押金额。每个取消质押操作都有各自的 28 天冷却期。"
       },
       "connect": {
-        "title": "收取的总费用、FOX 总质押量、排放池和 FOX 销毁量有何关联？"
+        "title": "收取的总费用、FOX 总质押量、排放池和 FOX 销毁量有何关联？",
+        "body": "DAO 收取的费用以每个兑换者的原生资产计算。该收入的一部分被转换后作为奖励分配给 FOX 质押者，另一部分则通过代币销毁用于减少 FOX 的整体供应量。FOX 总质押量影响奖励的分配，奖励按质押的 FOX 数量按比例分配。排放池代表可用于质押奖励的 FOX 数量，FOX 销毁量则是被购买并销毁的 FOX 份额。"
       }
     },
     "totals": "rFOX 总计",
@@ -2836,15 +2840,23 @@
     },
     "deposit": {
       "pending": "您存入的 %{amount} %{symbol} 正在处理中。",
-      "complete": "您存入的 %{amount} %{symbol} 已完成。"
+      "complete": "您存入的 %{amount} %{symbol} 已完成。",
+      "failed": "您存入 %{amount} %{symbol} 的操作失败。"
     },
     "withdrawal": {
       "pending": "您提取的 %{amount} %{symbol} 正在处理中。",
-      "complete": "您提取的 %{amount} %{symbol} 已完成。"
+      "complete": "您提取的 %{amount} %{symbol} 已完成。",
+      "failed": "您提取 %{amount} %{symbol} 的操作失败。"
     },
     "claim": {
       "pending": "您领取的 %{amount} %{symbol} 正在处理中。",
-      "complete": "您领取的 %{amount} %{symbol} 已完成。"
+      "complete": "您领取的 %{amount} %{symbol} 已完成。",
+      "failed": "您领取 %{amount} %{symbol} 的操作失败。"
+    },
+    "yield": {
+      "unstakeAvailableIn": "您的 %{symbol} 取消质押将在 %{duration} 后可用。",
+      "unstakeReady": "您的 %{symbol} 取消质押已可领取。",
+      "unstakeClaimed": "您的 %{symbol} 取消质押已成功领取。"
     },
     "bridge": {
       "processing": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易正在处理中。",
@@ -2895,8 +2907,7 @@
   "yieldXYZ": {
     "pageTitle": "收益",
     "pageSubtitle": "发现并管理跨多条链的收益机会",
-    "actions": {
-    },
+    "actions": {},
     "yield": "收益",
     "apy": "APY",
     "apr": "APR",
@@ -2988,6 +2999,7 @@
     "providers": "提供者",
     "successStaked": "您已成功质押 %{amount} %{symbol}",
     "successUnstaked": "您已成功取消质押 %{amount} %{symbol}",
+    "cooldownNotice": "您的提现将在 %{cooldownDuration} 后可用。",
     "successDeposited": "您已成功充值 %{amount} %{symbol}",
     "successWithdrawn": "您已成功提现 %{amount} %{symbol}",
     "successClaim": "您已成功领取 %{amount} %{symbol}",

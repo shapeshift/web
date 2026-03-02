@@ -1,4 +1,5 @@
-import type { StdTx } from '@cosmjs/amino'
+import type { StdSignDoc, StdTx } from '@cosmjs/amino'
+import { serializeSignDoc } from '@cosmjs/amino'
 import type { SignerData } from '@cosmjs/stargate'
 import * as core from '@shapeshiftoss/hdwallet-core'
 import * as bech32 from 'bech32'
@@ -104,6 +105,27 @@ export function MixinNativeCosmosWallet<TBase extends core.Constructor<NativeHDW
           signerData,
           'cosmos',
         )
+      })
+    }
+
+    async cosmosSignAmino(msg: core.CosmosSignAminoDoc): Promise<core.CosmosSignedAmino | null> {
+      return this.needsMnemonic(!!this.#masterKey, async () => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const keyPair = await util.getKeyPair(this.#masterKey!, msg.addressNList, 'cosmos')
+        const pubkey = await keyPair.node.getPublicKey()
+        const signBytes = serializeSignDoc(msg.signDoc as StdSignDoc)
+        const signatureBytes = await keyPair.node.ecdsaSign('sha256', signBytes)
+
+        return {
+          signed: msg.signDoc,
+          signature: {
+            pub_key: {
+              type: 'tendermint/PubKeySecp256k1',
+              value: Buffer.from(pubkey).toString('base64'),
+            },
+            signature: Buffer.from(signatureBytes).toString('base64'),
+          },
+        }
       })
     }
   }

@@ -345,7 +345,7 @@
         "marketCapRank": "時価総額ランキング",
         "volume24h": "24時間ボリューム",
         "volMcap": "出来高/時価総額",
-        "about": "について",
+        "about": "%{symbol}について",
         "noDescription": "このアセットの説明はありません。"
       },
       "receive": {
@@ -1951,7 +1951,7 @@
         "multiChain": {
           "title": "複数のチェーンが同時にサポートされます",
           "subTitle": "ウォレット内のチェーンを切り替える必要はなく、各チェーンでシームレスに動作します。",
-          "body": "新しいチェーンがShapeShiftに追加されると、ShapeShiftウォレットは自動的にそれをサポートします。"
+          "body": "1つのウォレットからBitcoin、Ethereum、Solanaなど、多数のチェーンにアクセスできます。異なるネットワーク間でシームレスに取引や資産管理を行えます。"
         },
         "selfCustody": {
           "title": "ShapeShiftウォレットはセルフカストディです",
@@ -2589,13 +2589,16 @@
         "body": "rFOX は、Arbitrum で FOX トークンをステークしたときに受け取る利益と報酬を表すために使用される用語です。現在、ステーク発行のために、(Arbitrum 上の)バニラ FOXトークンをロックおよびロック解除します。"
       },
       "why": {
-        "title": "FOXをステークする理由は何?"
+        "title": "FOXをステークする理由は何?",
+        "body": "FOXをステーキングすることで、DAOの財務からのUSDC定期配当を獲得でき、エポックごとにUSDCによる安定した受動的収入を得られます。また、DAO収益の一部はトークンバーンを通じてFOXの総供給量を削減するために充当されます。ステーキングには最低28日間のステーク解除期間が必要で、コミュニティ内でのコミットメントと安定性を促します。"
       },
       "stake": {
-        "title": "FOXをステークするにはどうすればいいか?"
+        "title": "FOXをステークするにはどうすればいいか?",
+        "body": "FOXをステーキングするには、ステーキングインターフェースを使用してFOXトークンをステーキングコントラクトにロックします。ステーキング後、ステーキング特典の一環としてブロックごとにUSDC報酬の獲得が始まります。"
       },
       "unstake": {
-        "title": "ステークを解除するとどうなるか?"
+        "title": "ステークを解除するとどうなるか?",
+        "body": "ステークを解除する際は、最低28日間のステーク解除期間があります。この期間中、FOXはロックされたままとなり、USDCエミッションの受け取りが停止されます。ステーク解除期間が終了すると、通常のFOXトークンのロックを解除して回収できます。"
       },
       "cooldown": {
         "title": "クールダウン期間はどれくらいか?",
@@ -2606,7 +2609,8 @@
         "body": "はい、ステーキング解除量は複数設定できます。ステーキング解除アクションごとに 28 日間のクールダウン期間があります。"
       },
       "connect": {
-        "title": "徴収された合計手数料、ステークされた FOX の合計、発行プール、FOX バーン量はそれぞれどのように関連していますか?"
+        "title": "徴収された合計手数料、ステークされた FOX の合計、発行プール、FOX バーン量はそれぞれどのように関連していますか?",
+        "body": "DAOが収集する手数料は、スワッパーごとにネイティブ資産で支払われます。この収益の一部はFOXステーカーへの報酬として変換・配分され、別の一部はトークンバーンを通じてFOXの総供給量を削減するために充当されます。ステーキングされたFOXの総量が報酬の配分に影響し、報酬はステーキングされたFOXの量に基づいてプロラータで配分されます。エミッションプールはステーキング報酬として利用可能なFOXの量を表し、FOXバーン量は購入してバーンされたFOXの量です。"
       }
     },
     "totals": "rFOX の合計",
@@ -2836,15 +2840,23 @@
     },
     "deposit": {
       "pending": "%{amount} %{symbol} の入金を処理中です。",
-      "complete": "%{amount} %{symbol} の入金が完了しました。"
+      "complete": "%{amount} %{symbol} の入金が完了しました。",
+      "failed": "%{amount} %{symbol} の入金が失敗しました。"
     },
     "withdrawal": {
       "pending": "%{amount} %{symbol} の出金を処理中です。",
-      "complete": "%{amount} %{symbol} の出金が完了しました。"
+      "complete": "%{amount} %{symbol} の出金が完了しました。",
+      "failed": "%{amount} %{symbol} の出金が失敗しました。"
     },
     "claim": {
       "pending": "%{amount} %{symbol} の請求を処理中です。",
-      "complete": "%{amount} %{symbol} の請求が完了しました。"
+      "complete": "%{amount} %{symbol} の請求が完了しました。",
+      "failed": "%{amount} %{symbol} の請求が失敗しました。"
+    },
+    "yield": {
+      "unstakeAvailableIn": "%{symbol} のステーク解除は %{duration} 後に利用可能になります。",
+      "unstakeReady": "%{symbol} のステーク解除の請求が可能になりました。",
+      "unstakeClaimed": "%{symbol} のステーク解除が請求されました。"
     },
     "bridge": {
       "processing": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが処理中です。",
@@ -2895,8 +2907,7 @@
   "yieldXYZ": {
     "pageTitle": "利回り",
     "pageSubtitle": "複数のチェーンにわたる収益機会の発見と管理",
-    "actions": {
-    },
+    "actions": {},
     "yield": "利回り",
     "apy": "年利",
     "apr": "APR",
@@ -2988,6 +2999,7 @@
     "providers": "プロバイダー",
     "successStaked": "%{amount} %{symbol} をステークしました",
     "successUnstaked": "%{amount} %{symbol} のステーク解除に成功しました",
+    "cooldownNotice": "出金は %{cooldownDuration} 後に利用可能になります。",
     "successDeposited": "%{amount} %{symbol} を入金しました",
     "successWithdrawn": "%{amount} %{symbol} の引き出しに成功しました",
     "successClaim": "%{amount} %{symbol} の請求に成功しました",

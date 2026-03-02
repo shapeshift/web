@@ -3,6 +3,7 @@ import '../setupZod'
 import { OpenApiGeneratorV3, OpenAPIRegistry } from '@asteasolutions/zod-to-openapi'
 import { z } from 'zod'
 
+import { RateLimitErrorCode } from '../middleware/rateLimit'
 import { AffiliateStatsRequestSchema } from '../routes/affiliate'
 import { AssetRequestSchema, AssetsListRequestSchema } from '../routes/assets'
 import { QuoteRequestSchema } from '../routes/quote'
@@ -208,6 +209,43 @@ const RateResponseSchema = registry.register(
   }),
 )
 
+const RateLimitErrorSchema = registry.register(
+  'RateLimitError',
+  z.object({
+    error: z.string().openapi({ example: 'Too many requests, please try again later' }),
+    code: z
+      .nativeEnum(RateLimitErrorCode)
+      .openapi({ example: RateLimitErrorCode.RateLimitExceeded }),
+  }),
+)
+
+const rateLimitResponse = {
+  description: 'Rate limit exceeded. Includes Retry-After header with seconds until reset.',
+  content: {
+    'application/json': {
+      schema: RateLimitErrorSchema,
+    },
+  },
+  headers: {
+    'Retry-After': {
+      description: 'Seconds until the rate limit window resets',
+      schema: { type: 'integer' as const, example: 30 },
+    },
+    'RateLimit-Limit': {
+      description: 'Maximum requests allowed per window',
+      schema: { type: 'integer' as const, example: 60 },
+    },
+    'RateLimit-Remaining': {
+      description: 'Requests remaining in the current window',
+      schema: { type: 'integer' as const, example: 0 },
+    },
+    'RateLimit-Reset': {
+      description: 'Seconds until the rate limit window resets',
+      schema: { type: 'integer' as const, example: 30 },
+    },
+  },
+}
+
 // --- Paths ---
 
 registry.registerPath({
@@ -229,6 +267,7 @@ registry.registerPath({
         },
       },
     },
+    429: rateLimitResponse,
   },
 })
 
@@ -251,6 +290,7 @@ registry.registerPath({
         },
       },
     },
+    429: rateLimitResponse,
   },
 })
 
@@ -277,6 +317,7 @@ registry.registerPath({
         },
       },
     },
+    429: rateLimitResponse,
   },
 })
 
@@ -303,6 +344,7 @@ registry.registerPath({
     404: {
       description: 'Asset not found',
     },
+    429: rateLimitResponse,
   },
 })
 
@@ -388,6 +430,7 @@ registry.registerPath({
     400: {
       description: 'Invalid request',
     },
+    429: rateLimitResponse,
   },
 })
 
@@ -425,6 +468,7 @@ registry.registerPath({
     400: {
       description: 'Invalid request or unavailable swapper',
     },
+    429: rateLimitResponse,
   },
 })
 

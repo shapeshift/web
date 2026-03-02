@@ -1,12 +1,11 @@
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
+import { bnOrZero, convertPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router'
 
-import { useTcyStaker } from '../../queries/useTcyStaker'
 import { TCYUnstakeRoute } from '../../types'
 import type { UnstakeFormValues } from './Unstake'
 
@@ -14,8 +13,8 @@ import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { ReusableConfirm } from '@/components/ReusableConfirm/ReusableConfirm'
+import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
-import { BASE_BPS_POINTS, THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import {
@@ -33,8 +32,10 @@ export const UnstakeConfirm: React.FC = () => {
   const navigate = useNavigate()
   const { watch } = useFormContext<UnstakeFormValues>()
   const dispatch = useAppDispatch()
+  const { showErrorToast } = useErrorToast()
   const amountCryptoPrecision = watch('amountCryptoPrecision')
   const accountId = watch('accountId')
+  const unstakePercent = watch('unstakePercent')
   const tcyMarketData = useAppSelector(state =>
     selectMarketDataByFilter(state, { assetId: tcyAssetId }),
   )
@@ -47,29 +48,16 @@ export const UnstakeConfirm: React.FC = () => {
     [amountCryptoPrecision, tcyMarketData],
   )
 
-  const { data: tcyStaker } = useTcyStaker(accountId)
-
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
 
   const toast = useNotificationToast({
     duration: isDrawerOpen ? 5000 : null,
   })
 
-  const amountThorBaseUnit = useMemo(
-    () =>
-      BigAmount.fromPrecision({
-        value: amountCryptoPrecision,
-        precision: THOR_PRECISION,
-      }).toBaseUnit(),
-    [amountCryptoPrecision],
+  const withdrawBps = useMemo(
+    () => convertPercentageToBasisPoints(unstakePercent).toFixed(0),
+    [unstakePercent],
   )
-
-  const withdrawBps = useMemo(() => {
-    if (!tcyStaker?.amount || !amountThorBaseUnit) return '0'
-    const stakedAmountThorBaseUnit = tcyStaker.amount
-    const withdrawRatio = bnOrZero(amountThorBaseUnit).div(stakedAmountThorBaseUnit)
-    return withdrawRatio.times(BASE_BPS_POINTS).toFixed(0)
-  }, [tcyStaker?.amount, amountThorBaseUnit])
 
   const {
     executeTransaction,
@@ -135,9 +123,13 @@ export const UnstakeConfirm: React.FC = () => {
   })
 
   const handleConfirm = useCallback(async () => {
-    await handleUnstake()
-    navigate(TCYUnstakeRoute.Input)
-  }, [handleUnstake, navigate])
+    try {
+      await handleUnstake()
+      navigate(TCYUnstakeRoute.Input)
+    } catch (e) {
+      showErrorToast(e)
+    }
+  }, [handleUnstake, navigate, showErrorToast])
 
   const handleCancel = useCallback(() => {
     navigate(TCYUnstakeRoute.Input)

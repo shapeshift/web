@@ -1,56 +1,38 @@
-import type { NextFunction, Request, Response } from 'express'
+import type { Options, RateLimitRequestHandler } from 'express-rate-limit'
+import rateLimit from 'express-rate-limit'
 
-import type { ErrorResponse } from '../types'
+const WINDOW_MS = 60 * 1000
 
-const WINDOW_MS = 1000
-const MAX_REQUESTS_PER_WINDOW = 10
-const CLEANUP_INTERVAL_MS = 60 * 1000
-
-type WindowEntry = {
-  count: number
-  windowStart: number
+export enum RateLimitErrorCode {
+  RateLimitExceeded = 'RATE_LIMIT_EXCEEDED',
 }
 
-const windows = new Map<string, WindowEntry>()
-
-export const rateLimitCleanupInterval = setInterval(() => {
-  const now = Date.now()
-  for (const [key, entry] of windows) {
-    if (now - entry.windowStart > WINDOW_MS * 10) {
-      windows.delete(key)
-    }
-  }
-}, CLEANUP_INTERVAL_MS)
-
-const getKey = (req: Request): string => {
-  const ip = req.ip ?? req.socket.remoteAddress ?? 'unknown'
-  const affiliateAddress = req.affiliateInfo?.affiliateAddress?.toLowerCase()
-  if (affiliateAddress) return `${affiliateAddress}:${ip}`
-  if (ip === 'unknown') {
-    console.warn('[rateLimit] Could not determine client identity, using shared bucket')
-  }
-  return ip
+const parseEnvInt = (key: string, defaultValue: number): number => {
+  const value = process.env[key]
+  if (!value) return defaultValue
+  const parsed = parseInt(value, 10)
+  return isNaN(parsed) ? defaultValue : parsed
 }
 
-export const registerRateLimit = (req: Request, res: Response, next: NextFunction): void => {
-  const key = getKey(req)
-  const now = Date.now()
-  const entry = windows.get(key)
-
-  if (!entry || now - entry.windowStart >= WINDOW_MS) {
-    windows.set(key, { count: 1, windowStart: now })
-    next()
-    return
-  }
-
-  if (entry.count >= MAX_REQUESTS_PER_WINDOW) {
-    res.status(429).json({
-      error: 'Too many requests',
-      code: 'RATE_LIMITED',
-    } as ErrorResponse)
-    return
-  }
-
-  entry.count++
-  next()
+const rateLimitHandler: Options['handler'] = (_req, res) => {
+  res.status(429).json({
+    error: 'Too many requests, please try again later',
+    code: RateLimitErrorCode.RateLimitExceeded,
+  })
 }
+
+const createLimiter = (envKey: string, defaultMax: number): RateLimitRequestHandler =>
+  rateLimit({
+    windowMs: WINDOW_MS,
+    max: parseEnvInt(envKey, defaultMax),
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    handler: rateLimitHandler,
+  })
+
+export const globalLimiter = createLimiter('RATE_LIMIT_GLOBAL_MAX', 300)
+export const dataLimiter = createLimiter('RATE_LIMIT_DATA_MAX', 120)
+export const swapRatesLimiter = createLimiter('RATE_LIMIT_SWAP_RATES_MAX', 60)
+export const swapQuoteLimiter = createLimiter('RATE_LIMIT_SWAP_QUOTE_MAX', 45)
+export const swapStatusLimiter = createLimiter('RATE_LIMIT_SWAP_STATUS_MAX', 60)
+export const affiliateStatsLimiter = createLimiter('RATE_LIMIT_AFFILIATE_STATS_MAX', 30)

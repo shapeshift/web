@@ -9,6 +9,7 @@ import {
   blastChainId,
   bobChainId,
   bscChainId,
+  celoChainId,
   cronosChainId,
   ethChainId,
   flowEvmChainId,
@@ -28,6 +29,7 @@ import {
   plumeChainId,
   polygonChainId,
   scrollChainId,
+  seiChainId,
   solanaChainId,
   soneiumChainId,
   sonicChainId,
@@ -50,6 +52,7 @@ import {
   blast,
   bnbsmartchain,
   bobChain,
+  celo,
   cronos,
   ethereum,
   flowEvm,
@@ -69,6 +72,7 @@ import {
   plume,
   polygon,
   scroll,
+  sei,
   solana,
   soneium,
   sonic,
@@ -265,6 +269,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorerAddressLink: flowEvm.explorerAddressLink,
           explorerTxLink: flowEvm.explorerTxLink,
         }
+      case celoChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: celo.explorer,
+          explorerAddressLink: celo.explorerAddressLink,
+          explorerTxLink: celo.explorerTxLink,
+        }
       case plumeChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.erc20,
@@ -304,6 +316,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: hemi.explorer,
           explorerAddressLink: hemi.explorerAddressLink,
           explorerTxLink: hemi.explorerTxLink,
+        }
+      case seiChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: sei.explorer,
+          explorerAddressLink: sei.explorerAddressLink,
+          explorerTxLink: sei.explorerTxLink,
         }
       case berachainChainId:
         return {

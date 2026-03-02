@@ -51,3 +51,6 @@ yarn-error.log*
 .idea/
 .playwright-mcp/
 .sisyphus/
+
+# translation benchmark data
+scripts/translations/benchmark/

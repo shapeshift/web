@@ -7,9 +7,11 @@ import bitcoincash from '@/plugins/bitcoincash'
 import blast from '@/plugins/blast'
 import bnbsmartchain from '@/plugins/bnbsmartchain'
 import bob from '@/plugins/bob'
+import celo from '@/plugins/celo'
 import cosmos from '@/plugins/cosmos'
 import cronos from '@/plugins/cronos'
 import dogecoin from '@/plugins/dogecoin'
+import ethereal from '@/plugins/ethereal'
 import ethereum from '@/plugins/ethereum'
 import flowEvm from '@/plugins/flowEvm'
 import gnosis from '@/plugins/gnosis'
@@ -31,6 +33,7 @@ import plasma from '@/plugins/plasma'
 import plume from '@/plugins/plume'
 import polygon from '@/plugins/polygon'
 import scroll from '@/plugins/scroll'
+import sei from '@/plugins/sei'
 import solana from '@/plugins/solana'
 import soneium from '@/plugins/soneium'
 import sonic from '@/plugins/sonic'
@@ -56,10 +59,12 @@ export const activePlugins = [
   blast,
   bnbsmartchain,
   bob,
+  celo,
   cosmos,
   cronos,
   dogecoin,
   ethereum,
+  ethereal,
   flowEvm,
   gnosis,
   hemi,
@@ -80,6 +85,7 @@ export const activePlugins = [
   plasma,
   plume,
   polygon,
+  sei,
   scroll,
   soneium,
   solana,

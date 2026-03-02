@@ -1,15 +1,15 @@
 import type { JsonRpcResult } from '@json-rpc-tools/utils'
 import { formatJsonRpcResult } from '@json-rpc-tools/utils'
-import type { AccountId } from '@shapeshiftoss/caip'
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type { Cosmos, CosmosSignTx, HDWallet } from '@shapeshiftoss/hdwallet-core'
-import type { AccountMetadata, CosmosSdkChainId } from '@shapeshiftoss/types'
+import type { Cosmos, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { supportsCosmos } from '@shapeshiftoss/hdwallet-core'
+import type { AccountMetadata } from '@shapeshiftoss/types'
 import { getSdkError } from '@walletconnect/utils'
 
 import { assertIsDefined } from '@/lib/utils'
+import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import type {
-  CustomTransactionData,
+  CosmosSignAminoCallRequestParams,
   SupportedSessionRequest,
 } from '@/plugins/walletConnectToDapps/types'
 import { CosmosSigningMethod } from '@/plugins/walletConnectToDapps/types'
@@ -17,55 +17,54 @@ import { CosmosSigningMethod } from '@/plugins/walletConnectToDapps/types'
 type ApproveCosmosRequestArgs = {
   requestEvent: SupportedSessionRequest
   wallet: HDWallet
-  chainAdapter: ChainAdapter<CosmosSdkChainId>
   accountMetadata?: AccountMetadata
-  customTransactionData?: CustomTransactionData
-  accountId?: AccountId
 }
 
 export const approveCosmosRequest = async ({
   requestEvent,
   wallet,
-  chainAdapter,
   accountMetadata,
-  customTransactionData,
-}: ApproveCosmosRequestArgs): Promise<JsonRpcResult<string>> => {
+}: ApproveCosmosRequestArgs): Promise<JsonRpcResult<unknown>> => {
   const { params, id } = requestEvent
   const { request } = params
 
-  assertIsDefined(customTransactionData)
-  assertIsDefined(accountMetadata)
-
-  const { bip44Params } = accountMetadata
-  const { accountNumber } = bip44Params
-  const addressNList = toAddressNList(chainAdapter.getBip44Params(bip44Params))
+  if (!supportsCosmos(wallet)) {
+    throw new Error('Wallet does not support Cosmos')
+  }
 
   switch (request.method) {
-    case CosmosSigningMethod.COSMOS_SIGN_AMINO:
-      // TODO: Implement
-      const txToSign: CosmosSignTx = {
-        addressNList,
-        tx: {
-          // FIXME: proto-tx-builder requires a message length of 1, but sign messages have 0
-          msg: request.params.signDoc.msgs as unknown as Cosmos.Msg[],
-          fee: request.params.signDoc.fee,
-          signatures: [],
-          memo: request.params.signDoc.memo,
-        },
-        chain_id: request.params.signDoc.chain_id,
-        account_number: accountNumber.toString(),
-        sequence: request.params.signDoc.sequence,
-        fee: 0, // fixme
+    case CosmosSigningMethod.COSMOS_SIGN_AMINO: {
+      assertIsDefined(accountMetadata)
+
+      const { bip44Params } = accountMetadata
+      const chainAdapter = assertGetCosmosSdkChainAdapter(params.chainId)
+      const addressNList = toAddressNList(chainAdapter.getBip44Params(bip44Params))
+
+      const { signDoc } = request.params as CosmosSignAminoCallRequestParams
+
+      if (!wallet.cosmosSignAmino) {
+        throw new Error('Wallet does not support cosmosSignAmino')
       }
-      const signedMessage = await chainAdapter.signTransaction({
-        txToSign,
-        wallet,
+
+      const result = await wallet.cosmosSignAmino({
+        addressNList,
+        signDoc: {
+          chain_id: signDoc.chain_id,
+          account_number: signDoc.account_number,
+          sequence: signDoc.sequence,
+          fee: signDoc.fee as unknown as Cosmos.StdFee,
+          msgs: signDoc.msgs as unknown as Cosmos.Msg[],
+          memo: signDoc.memo,
+        },
       })
-      return formatJsonRpcResult(id, signedMessage)
+
+      if (!result) throw new Error('Failed to sign Cosmos amino transaction')
+
+      return formatJsonRpcResult(id, result)
+    }
 
     case CosmosSigningMethod.COSMOS_SIGN_DIRECT: {
-      // TODO: Implement
-      return formatJsonRpcResult(1, 'signedMessage')
+      throw new Error('cosmos_signDirect is not yet supported - use cosmos_signAmino instead')
     }
 
     default:

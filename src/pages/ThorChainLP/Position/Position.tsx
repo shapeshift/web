@@ -101,7 +101,7 @@ type FormHeaderProps = {
   activeIndex: number
 }
 
-type FormHeaderTabProps = React.ComponentProps<typeof Button> & {
+type FormHeaderTabProps = Omit<React.ComponentProps<typeof Button>, 'onClick'> & {
   index: number
   onClick: (index: number) => void
   isActive?: boolean

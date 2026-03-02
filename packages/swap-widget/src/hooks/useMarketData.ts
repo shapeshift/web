@@ -1,5 +1,5 @@
 import { adapters } from '@shapeshiftoss/caip'
-import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
+import { BigAmount, bn } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 
 import type { AssetId } from '../types'
@@ -157,7 +157,7 @@ export const formatUsdValue = (
 ): string => {
   if (!usdPrice || usdPrice === '0') return '$0.00'
 
-  const amount = fromBaseUnit(cryptoAmount, precision)
+  const amount = BigAmount.fromBaseUnit({ value: cryptoAmount, precision }).toPrecision()
   const usdValue = bn(amount).times(usdPrice).toNumber()
 
   if (usdValue < 0.01) return '< $0.01'

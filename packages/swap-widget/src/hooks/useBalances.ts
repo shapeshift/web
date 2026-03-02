@@ -10,7 +10,7 @@ import { useConfig } from 'wagmi'
 
 import type { SupportedChainId } from '../config/wagmi'
 import type { AssetId } from '../types'
-import { formatAmount, getChainType } from '../types'
+import { formatAmount, getChainType, UTXO_CHAIN_IDS } from '../types'
 
 const CONCURRENCY_LIMIT = 5
 const DELAY_BETWEEN_BATCHES_MS = 50
@@ -567,7 +567,10 @@ export const useMultiChainBalances = (
           tokenAddress: parsed.tokenAddress,
           precision,
         })
-      } else if (parsed?.chainType === 'utxo') {
+      } else if (
+        parsed?.chainType === 'utxo' &&
+        parsed.chainReference === UTXO_CHAIN_IDS.bitcoin.split(':')[1]
+      ) {
         utxo.push({ assetId, precision })
       } else if (parsed?.chainType === 'solana') {
         solana.push({

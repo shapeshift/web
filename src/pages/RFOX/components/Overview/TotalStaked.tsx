@@ -27,6 +27,7 @@ export const TotalStaked: React.FC<TotalStakedProps> = ({ stakingAssetId }) => {
         value: totalStaked.toString(),
         precision: stakingAsset?.precision ?? 0,
       })
+        .toBN()
         .times(stakingAssetMarketData?.price ?? 0)
         .toFixed(2)
     },

@@ -1,6 +1,6 @@
 # Asset data generation
 
-Our asset data is generated periodically using a yarn script, with the result committed to source control.
+Our asset data is generated periodically using a pnpm script, with the result committed to source control.
 
 ### Before you start
 
@@ -16,7 +16,7 @@ export COINCAP_API_KEY=<coincap api key>
 Run the script:
 
 ```bash
-yarn generate:asset-data
+pnpm run generate:asset-data
 ```
 
 The script will update several .json files. These changes must be committed to source control.

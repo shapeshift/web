@@ -562,7 +562,7 @@ describe('BigAmount', () => {
     it('round-trips through toJSON/fromJSON', () => {
       const original = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
       const json = original.toJSON()
-      expect(json).toEqual({ value: '150000000', precision: 8 })
+      expect(json).toEqual({ value: '150000000', precision: 8, assetId: undefined })
 
       const restored = BigAmount.fromJSON(json)
       expect(restored.eq(original)).toBe(true)

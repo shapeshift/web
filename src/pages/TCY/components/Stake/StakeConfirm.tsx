@@ -1,5 +1,5 @@
 import { tcyAssetId, thorchainChainId } from '@shapeshiftoss/caip'
-import { bnOrZero } from '@shapeshiftoss/utils'
+import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -13,8 +13,8 @@ import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { ReusableConfirm } from '@/components/ReusableConfirm/ReusableConfirm'
+import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
-import { toBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
@@ -32,6 +32,7 @@ export const StakeConfirm: React.FC = () => {
   const translate = useTranslate()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const { showErrorToast } = useErrorToast()
   const { watch } = useFormContext<StakeFormValues>()
   const amountCryptoPrecision = watch('amountCryptoPrecision')
   const accountId = watch('accountId')
@@ -54,7 +55,11 @@ export const StakeConfirm: React.FC = () => {
   })
 
   const amountCryptoBaseUnit = useMemo(
-    () => toBaseUnit(amountCryptoPrecision, THOR_PRECISION),
+    () =>
+      BigAmount.fromPrecision({
+        value: amountCryptoPrecision,
+        precision: THOR_PRECISION,
+      }).toBaseUnit(),
     [amountCryptoPrecision],
   )
 
@@ -123,9 +128,13 @@ export const StakeConfirm: React.FC = () => {
   })
 
   const handleConfirm = useCallback(async () => {
-    await handleStake()
-    navigate(TCYStakeRoute.Input)
-  }, [handleStake, navigate])
+    try {
+      await handleStake()
+      navigate(TCYStakeRoute.Input)
+    } catch (e) {
+      showErrorToast(e)
+    }
+  }, [handleStake, navigate, showErrorToast])
 
   const handleCancel = useCallback(() => {
     navigate(TCYStakeRoute.Input)

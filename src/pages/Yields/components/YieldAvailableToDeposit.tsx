@@ -22,7 +22,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
-import { selectPortfolioCryptoBalanceBaseUnitByFilter } from '@/state/slices/selectors'
+import { selectPortfolioCryptoBalanceByFilter } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type YieldAvailableToDepositProps = {
@@ -52,16 +52,13 @@ export const YieldAvailableToDeposit = memo(
     const inputTokenAssetId = inputToken?.assetId ?? yieldItem.token.assetId ?? ''
     const inputTokenPrecision = inputToken?.decimals ?? yieldItem.token.decimals
 
-    const availableBalanceBaseUnit = useAppSelector(state =>
-      selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId: inputTokenAssetId }),
+    const availableBalanceBigAmount = useAppSelector(state =>
+      selectPortfolioCryptoBalanceByFilter(state, { assetId: inputTokenAssetId }),
     )
 
     const availableBalance = useMemo(
-      () =>
-        inputTokenPrecision
-          ? bnOrZero(availableBalanceBaseUnit).shiftedBy(-inputTokenPrecision)
-          : bnOrZero(0),
-      [availableBalanceBaseUnit, inputTokenPrecision],
+      () => availableBalanceBigAmount.toBN(),
+      [availableBalanceBigAmount],
     )
 
     const availableBalanceFiat = useMemo(
@@ -88,7 +85,7 @@ export const YieldAvailableToDeposit = memo(
     if (!hasAvailableBalance) {
       return (
         <>
-          <Card variant='dashboard'>
+          <Card variant='dashboard' data-testid='yield-available-to-deposit'>
             <CardBody p={{ base: 4, md: 5 }}>
               <VStack spacing={4} align='stretch'>
                 <Flex justifyContent='space-between' alignItems='center'>
@@ -125,6 +122,7 @@ export const YieldAvailableToDeposit = memo(
                   onClick={handleOpenSwapperModal}
                   width='full'
                   fontWeight='bold'
+                  data-testid='yield-get-asset-button'
                 >
                   {translate('yieldXYZ.getAsset', { symbol: inputTokenSymbol })}
                 </Button>
@@ -142,7 +140,7 @@ export const YieldAvailableToDeposit = memo(
     }
 
     return (
-      <Card>
+      <Card data-testid='yield-available-to-deposit'>
         <CardBody p={{ base: 4, md: 5 }}>
           <VStack spacing={4} align='stretch'>
             <Flex justifyContent='space-between' alignItems='center'>
@@ -158,7 +156,7 @@ export const YieldAvailableToDeposit = memo(
 
             <Box>
               <Text fontSize='2xl' fontWeight='800' lineHeight='1'>
-                <Amount.Fiat value={availableBalanceFiat.toFixed()} />
+                <Amount.Fiat value={availableBalanceFiat.toFixed(2)} />
               </Text>
               <Text fontSize='sm' color='text.subtle' mt={1}>
                 <Amount.Crypto
@@ -178,7 +176,7 @@ export const YieldAvailableToDeposit = memo(
                   fontSize='sm'
                   fontWeight='semibold'
                   color='text.success'
-                  value={potentialYearlyEarningsFiat.toFixed()}
+                  value={potentialYearlyEarningsFiat.toFixed(2)}
                   suffix={translate('yieldXYZ.perYear')}
                 />
               </Flex>

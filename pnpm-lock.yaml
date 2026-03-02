@@ -49,7 +49,7 @@ overrides:
   validator: 13.15.26
   node-fetch@^2.0.0: 2.7.0
   '@ethersproject/providers>ws': 7.5.10
-  ethers>ws: 8.18.1
+  ethers>ws: 8.18.3
 
 patchedDependencies:
   '@bithighlander/bitcoin-cash-js-lib@5.2.1':
@@ -16970,18 +16970,6 @@ packages:
       utf-8-validate:
         optional: true
 
-  ws@8.18.1:
-    resolution: {integrity: sha512-RKW2aJZMXeMxVpnZ6bck+RswznaxmzdULiBr6KY7XkTnW8uvt0iT9H5DkHUChXrc+uurzwa0rVI16n/Xzjdz1w==}
-    engines: {node: '>=10.0.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: '>=5.0.2'
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
-
   ws@8.18.3:
     resolution: {integrity: sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==}
     engines: {node: '>=10.0.0'}
@@ -32934,7 +32922,7 @@ snapshots:
       '@types/node': 18.15.13
       aes-js: 4.0.0-beta.5
       tslib: 2.4.0
-      ws: 8.18.1(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+      ws: 8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -32947,7 +32935,7 @@ snapshots:
       '@types/node': 18.15.13
       aes-js: 4.0.0-beta.5
       tslib: 2.4.0
-      ws: 8.18.1(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      ws: 8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -32960,7 +32948,7 @@ snapshots:
       '@types/node': 22.7.5
       aes-js: 4.0.0-beta.5
       tslib: 2.7.0
-      ws: 8.18.1(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+      ws: 8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -32973,7 +32961,7 @@ snapshots:
       '@types/node': 22.7.5
       aes-js: 4.0.0-beta.5
       tslib: 2.7.0
-      ws: 8.18.1(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+      ws: 8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -32986,7 +32974,7 @@ snapshots:
       '@types/node': 22.7.5
       aes-js: 4.0.0-beta.5
       tslib: 2.7.0
-      ws: 8.18.1(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      ws: 8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -39865,16 +39853,6 @@ snapshots:
     optionalDependencies:
       bufferutil: 4.1.0
       utf-8-validate: 5.0.10
-
-  ws@8.18.1(bufferutil@4.1.0)(utf-8-validate@5.0.10):
-    optionalDependencies:
-      bufferutil: 4.1.0
-      utf-8-validate: 5.0.10
-
-  ws@8.18.1(bufferutil@4.1.0)(utf-8-validate@6.0.6):
-    optionalDependencies:
-      bufferutil: 4.1.0
-      utf-8-validate: 6.0.6
 
   ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10):
     optionalDependencies:

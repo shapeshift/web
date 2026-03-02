@@ -373,7 +373,7 @@
       "validator": "13.15.26",
       "node-fetch@^2.0.0": "2.7.0",
       "@ethersproject/providers>ws": "7.5.10",
-      "ethers>ws": "8.18.1"
+      "ethers>ws": "8.18.3"
     },
     "patchedDependencies": {
       "@bithighlander/bitcoin-cash-js-lib@5.2.1": "patches/@bithighlander-bitcoin-cash-js-lib-npm-5.2.1-92e8f8436e.patch",

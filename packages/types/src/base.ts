@@ -120,6 +120,8 @@ export type SuiChainId = KnownChainIds.SuiMainnet
 
 export type NearChainId = KnownChainIds.NearMainnet
 
+export type SolanaChainId = KnownChainIds.SolanaMainnet
+
 export type StarknetChainId = KnownChainIds.StarknetMainnet
 
 export type TonChainId = KnownChainIds.TonMainnet

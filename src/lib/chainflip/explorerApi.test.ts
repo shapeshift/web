@@ -53,7 +53,7 @@ describe('queryLatestWithdrawalId', () => {
     expect(result).toBe(0)
   })
 
-  it('should return 0 on network error', async () => {
+  it('should return null on network error', async () => {
     mockAxiosPost.mockRejectedValueOnce(new Error('Network error'))
 
     const result = await queryLatestWithdrawalId(
@@ -62,7 +62,7 @@ describe('queryLatestWithdrawalId', () => {
       'Ethereum',
     )
 
-    expect(result).toBe(0)
+    expect(result).toBeNull()
   })
 
   it('should normalize address to lowercase', async () => {
@@ -77,6 +77,7 @@ describe('queryLatestWithdrawalId', () => {
           address: '0x5daf465a9ccf64deb146eeae9e7bd40d6761c986',
         }),
       }),
+      expect.objectContaining({ timeout: 10_000 }),
     )
   })
 })
@@ -122,6 +123,7 @@ describe('queryLiquidityWithdrawalStatus', () => {
           afterId: 31900,
         },
       }),
+      expect.objectContaining({ timeout: 10_000 }),
     )
   })
 
@@ -220,6 +222,7 @@ describe('queryLiquidityWithdrawalStatus', () => {
           address: '0x5daf465a9ccf64deb146eeae9e7bd40d6761c986',
         }),
       }),
+      expect.objectContaining({ timeout: 10_000 }),
     )
   })
 
@@ -236,6 +239,7 @@ describe('queryLiquidityWithdrawalStatus', () => {
           chain: 'Bitcoin',
         }),
       }),
+      expect.objectContaining({ timeout: 10_000 }),
     )
   })
 
@@ -283,6 +287,7 @@ describe('queryLiquidityWithdrawalStatus', () => {
           afterId: 31922,
         }),
       }),
+      expect.objectContaining({ timeout: 10_000 }),
     )
   })
 })

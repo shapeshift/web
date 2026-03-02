@@ -40,21 +40,8 @@ const inquireReleaseType = async (): Promise<ReleaseType> => {
   return (await inquirer.prompt(questions)).releaseType
 }
 
-const inquireCleanBranchOffMain = async (): Promise<boolean> => {
-  const questions: inquirer.QuestionCollection<{ isCleanlyBranched: boolean }> = [
-    {
-      type: 'confirm',
-      name: 'isCleanlyBranched',
-      message: 'Is your branch cleanly branched off origin/main?',
-      default: false, // Defaulting to false to encourage verification
-    },
-  ]
-  const { isCleanlyBranched } = await inquirer.prompt(questions)
-  return isCleanlyBranched
-}
-
 const inquireProceedWithCommits = async (commits: string[], action: 'create' | 'merge') => {
-  console.log(chalk.blue(['', commits, ''].join('\n')))
+  console.log(chalk.blue(['', ...commits, ''].join('\n')))
   const message =
     action === 'create'
       ? 'Do you want to create a release with these commits?'
@@ -366,39 +353,56 @@ const createDraftRegularPR = async (prBody: string, nextVersion: string): Promis
   exit(chalk.green(`Release ${nextVersion} created.`))
 }
 
-const createDraftHotfixPR = async (): Promise<void> => {
-  const currentBranch = await git().revparse(['--abbrev-ref', 'HEAD'])
-  const { messages } = await getCommits(currentBranch as GetCommitMessagesArgs)
-  // TODO(0xdef1cafe): parse version bump from commit messages
-  const nextVersion = await getNextReleaseVersion('minor')
-  console.log(chalk.green('Creating draft hotfix PR...'))
-  await createDraftPR(`chore: hotfix release ${nextVersion}`, messages.join('\n'))
-  console.log(chalk.green('Draft hotfix PR created.'))
-  exit(chalk.green(`Hotfix release ${nextVersion} created.`))
-}
-
-type GetCommitMessagesArgs = 'develop' | 'release'
-type GetCommitMessagesReturn = {
+type GetCommitsReturn = {
   messages: string[]
   total: number
 }
-type GetCommitMessages = (branch: GetCommitMessagesArgs) => Promise<GetCommitMessagesReturn>
-const getCommits: GetCommitMessages = async branch => {
-  // Get the last release tag
+const getCommits = async (branch: string): Promise<GetCommitsReturn> => {
   const latestTag = await getLatestSemverTag()
-
-  // If we have a last release tag, base the diff on that
   const range = latestTag ? `${latestTag}..origin/${branch}` : `origin/main..origin/${branch}`
 
-  const { all, total } = await git().log([
-    '--oneline',
-    '--first-parent',
-    '--pretty=format:%s', // no hash, just conventional commit style
-    range,
+  const result = await pify(exec)(`git log --first-parent --pretty=format:"%s" ${range}`)
+  const stdout = typeof result === 'string' ? result : (result as { stdout: string }).stdout
+  const messages = stdout.trim().split('\n').filter(Boolean)
+
+  const total = messages.length
+  return { messages, total }
+}
+
+type UnreleasedCommit = { hash: string; message: string }
+
+const getUnreleasedCommits = async (): Promise<UnreleasedCommit[]> => {
+  const result = await pify(exec)(
+    'git log --first-parent --pretty=format:"%H %s" origin/main..origin/develop',
+  )
+  const stdout = typeof result === 'string' ? result : (result as { stdout: string }).stdout
+
+  if (!stdout.trim()) return []
+
+  return stdout
+    .trim()
+    .split('\n')
+    .map(line => {
+      const spaceIdx = line.indexOf(' ')
+      if (spaceIdx === -1) return { hash: line, message: '' }
+      return { hash: line.slice(0, spaceIdx), message: line.slice(spaceIdx + 1) }
+    })
+}
+
+const inquireSelectCommits = async (commits: UnreleasedCommit[]): Promise<UnreleasedCommit[]> => {
+  const { selected } = await inquirer.prompt<{ selected: string[] }>([
+    {
+      type: 'checkbox',
+      name: 'selected',
+      message: 'Select commits to cherry-pick into the hotfix:',
+      choices: commits.map(c => ({
+        name: `${c.hash.slice(0, 8)} ${c.message}`,
+        value: c.hash,
+      })),
+    },
   ])
 
-  const messages = all.map(({ hash }) => hash)
-  return { messages, total }
+  return commits.filter(c => selected.includes(c.hash))
 }
 
 const assertCommitsToRelease = (total: number) => {
@@ -467,53 +471,102 @@ const doRegularRelease = async () => {
 }
 
 const doHotfixRelease = async () => {
-  const currentBranch = await git().revparse(['--abbrev-ref', 'HEAD'])
-  const isMain = currentBranch === 'main'
-
-  if (isMain) {
-    console.log(
-      chalk.red(
-        'Cannot open hotfix PRs directly off local main branch for security reasons. Please branch out to another branch first.',
-      ),
-    )
-    exit()
+  const unreleased = await getUnreleasedCommits()
+  if (unreleased.length === 0) {
+    exit(chalk.red('No unreleased commits found between origin/main and origin/develop.'))
   }
 
-  // Only continue if the branch is cleanly branched off origin/main since we will
-  // target it in the hotfix PR
-  const isCleanOffMain = await inquireCleanBranchOffMain()
-  if (!isCleanOffMain) {
+  console.log(chalk.green(`Found ${unreleased.length} unreleased commit(s).\n`))
+  const selected = await inquireSelectCommits(unreleased)
+  if (selected.length === 0) {
+    exit(chalk.yellow('No commits selected. Hotfix cancelled.'))
+  }
+
+  console.log(chalk.blue('\nSelected commits:'))
+  for (const c of selected) {
+    console.log(chalk.blue(`  ${c.hash.slice(0, 8)} ${c.message}`))
+  }
+  console.log()
+
+  const { shouldProceed } = await inquirer.prompt<{ shouldProceed: boolean }>([
+    {
+      type: 'confirm',
+      default: true,
+      name: 'shouldProceed',
+      message: 'Proceed with cherry-picking these commits onto main?',
+    },
+  ])
+  if (!shouldProceed) exit('Hotfix cancelled.')
+
+  console.log(chalk.green('Checking out main...'))
+  await git().checkout(['main'])
+  console.log(chalk.green('Pulling main...'))
+  await git().pull()
+  const mainSha = (await git().revparse(['HEAD'])).trim()
+
+  const cherryPickOrder = [...selected].reverse()
+  for (const c of cherryPickOrder) {
+    console.log(chalk.green(`Cherry-picking ${c.hash.slice(0, 8)} ${c.message}...`))
+    try {
+      await pify(exec)(`git cherry-pick ${c.hash}`)
+    } catch (err) {
+      try {
+        await pify(exec)('git cherry-pick --abort')
+      } catch {
+        // no-op
+      }
+      await git().reset(['--hard', mainSha])
+      const message = err instanceof Error ? err.message : String(err)
+      const shortHash = c.hash.slice(0, 8)
+      const shortMainSha = mainSha.slice(0, 8)
+      exit(
+        chalk.red(
+          `Cherry-pick failed for ${shortHash}: ${message}\nMain has been reset to ${shortMainSha}.`,
+        ),
+      )
+    }
+  }
+
+  const nextVersion = await getNextReleaseVersion('patch')
+  console.log(chalk.green(`Tagging main with version ${nextVersion}`))
+  await git().tag(['-a', nextVersion, '-m', nextVersion])
+  console.log(chalk.green('Pushing main with tags...'))
+  await git().push(['origin', 'main', '--tags'])
+
+  console.log(chalk.green('Resetting private to main...'))
+  await git().checkout(['-B', 'private'])
+  console.log(chalk.green('Pushing private...'))
+  await git().push(['--force', 'origin', 'private', '--tags'])
+
+  console.log(chalk.green('Checking out develop...'))
+  await git().checkout(['develop'])
+  console.log(chalk.green('Pulling develop...'))
+  await git().pull()
+  const developSha = (await git().revparse(['HEAD'])).trim()
+  console.log(chalk.green('Merging main back into develop...'))
+  try {
+    await git().merge(['main'])
+  } catch (err) {
+    await git()
+      .merge(['--abort'])
+      .catch(() => {})
+    await git().reset(['--hard', developSha])
+    const message = err instanceof Error ? err.message : String(err)
     exit(
-      chalk.yellow(
-        'Please ensure your branch is cleanly branched off origin/main before proceeding.',
+      chalk.red(
+        `Merge into develop failed: ${message}\n` +
+          `Hotfix ${nextVersion} was pushed to main but develop merge failed.\n` +
+          `Develop has been reset to ${developSha.slice(
+            0,
+            8,
+          )}. Please merge main into develop manually.`,
       ),
     )
   }
+  console.log(chalk.green('Pushing develop...'))
+  await git().push(['origin', 'develop'])
 
-  // Dev has confirmed they're clean off main, here goes nothing
-  await fetch()
-
-  // Force push current branch upstream so we can getCommits from it - getCommits uses upstream for diffing
-  console.log(chalk.green(`Force pushing ${currentBranch} branch...`))
-  await git().push(['-u', 'origin', currentBranch, '--force'])
-  const { messages, total } = await getCommits(currentBranch as GetCommitMessagesArgs)
-  assertCommitsToRelease(total)
-  await inquireProceedWithCommits(messages, 'create')
-
-  // Merge origin/main as a paranoia check
-  console.log(chalk.green('Merging origin/main...'))
-  await git().merge(['origin/main'])
-
-  console.log(chalk.green('Setting release to current branch...'))
-  await git().checkout(['-B', 'release'])
-
-  console.log(chalk.green('Force pushing release branch...'))
-  await git().push(['--force', 'origin', 'release'])
-
-  console.log(chalk.green('Creating draft hotfix PR...'))
-  await createDraftHotfixPR()
-
-  exit(chalk.green('Hotfix release process completed.'))
+  exit(chalk.green(`Hotfix release ${nextVersion} completed successfully.`))
 }
 
 type WebReleaseType = Extract<semver.ReleaseType, 'minor' | 'patch'>
@@ -554,6 +607,7 @@ const mergeRelease = async () => {
   const { messages, total } = await getCommits('release')
   assertCommitsToRelease(total)
   await inquireProceedWithCommits(messages, 'merge')
+
   console.log(chalk.green('Checking out release...'))
   await git().checkout(['release'])
   console.log(chalk.green('Pulling release...'))
@@ -581,8 +635,27 @@ const mergeRelease = async () => {
   await git().checkout(['develop'])
   console.log(chalk.green('Pulling develop...'))
   await git().pull()
+  const developSha = (await git().revparse(['HEAD'])).trim()
   console.log(chalk.green('Merging main back into develop...'))
-  await git().merge(['main'])
+  try {
+    await git().merge(['main'])
+  } catch (err) {
+    await git()
+      .merge(['--abort'])
+      .catch(() => {})
+    await git().reset(['--hard', developSha])
+    const message = err instanceof Error ? err.message : String(err)
+    exit(
+      chalk.red(
+        `Merge into develop failed: ${message}\n` +
+          `Release ${nextVersion} was pushed to main but develop merge failed.\n` +
+          `Develop has been reset to ${developSha.slice(
+            0,
+            8,
+          )}. Please merge main into develop manually.`,
+      ),
+    )
+  }
   console.log(chalk.green('Pushing develop...'))
   await git().push(['origin', 'develop'])
   exit(chalk.green(`Release ${nextVersion} completed successfully.`))

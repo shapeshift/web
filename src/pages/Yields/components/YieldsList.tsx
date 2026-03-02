@@ -1131,7 +1131,7 @@ export const YieldsList = memo(() => {
   ])
 
   return (
-    <Container maxW='1200px' py={8} px={{ base: 4, md: 6 }}>
+    <Container maxW='1200px' py={8} px={{ base: 4, md: 6 }} data-testid='yields-page'>
       <Box mb={8}>
         <Flex
           justifyContent='space-between'
@@ -1140,7 +1140,7 @@ export const YieldsList = memo(() => {
           gap={4}
         >
           <Box>
-            <Heading as='h2' size='xl' mb={2}>
+            <Heading as='h2' size='xl' mb={2} data-testid='yields-page-title'>
               {translate('yieldXYZ.pageTitle')}
             </Heading>
             {!isMobile && <Text color='text.subtle'>{translate('yieldXYZ.pageSubtitle')}</Text>}
@@ -1169,9 +1169,13 @@ export const YieldsList = memo(() => {
         onChange={handleTabChange}
       >
         <TabList mb={4} gap={4}>
-          <Tab _selected={tabSelectedSx}>{translate('common.all')}</Tab>
-          <Tab _selected={tabSelectedSx}>{translate('yieldXYZ.availableToEarn')}</Tab>
-          <Tab _selected={tabSelectedSx}>
+          <Tab _selected={tabSelectedSx} data-testid='yields-tab-all'>
+            {translate('common.all')}
+          </Tab>
+          <Tab _selected={tabSelectedSx} data-testid='yields-tab-available'>
+            {translate('yieldXYZ.availableToEarn')}
+          </Tab>
+          <Tab _selected={tabSelectedSx} data-testid='yields-tab-my-positions'>
             {translate('yieldXYZ.myPositions')} ({myPositions.length})
           </Tab>
         </TabList>
@@ -1189,6 +1193,7 @@ export const YieldsList = memo(() => {
               value={searchQuery}
               onChange={handleSearchChange}
               borderRadius='full'
+              data-testid='yields-search-input'
             />
           </InputGroup>
           <Flex
@@ -1212,6 +1217,7 @@ export const YieldsList = memo(() => {
                   sortOption={sortOption}
                   onSortChange={handleSortChange}
                   mb={0}
+                  data-testid='yields-filters'
                 />
                 <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
               </>

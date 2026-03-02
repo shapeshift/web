@@ -236,5 +236,9 @@ export const LpPositionsByProvider: React.FC<LpPositionsByProviderProps> = ({ id
 
   if (!filteredDown.length) return null
 
-  return <ReactTable data={filteredDown} columns={columns} />
+  return (
+    <Flex data-testid='lp-positions-table' flexDir='column'>
+      <ReactTable data={filteredDown} columns={columns} />
+    </Flex>
+  )
 }

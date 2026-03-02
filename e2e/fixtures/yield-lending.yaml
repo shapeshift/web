@@ -1,0 +1,599 @@
+name: Yield Lending
+description: >
+  Tests lending yield providers — PRIMARY GOAL IS BUG DETECTION.
+  Covers the broadest range of chains and providers since lending is available
+  across the most networks.
+
+  Providers covered:
+  - Compound (USDT on Ethereum, USDC on Arbitrum) — existing positions
+  - Aave (USDT on Optimism, USDC.e on Gnosis) — existing/new positions
+  - Spark (USDT on Ethereum) — existing position ~$0.10
+  - Venus (DAI on Binance/BSC) — new position
+  - Fluid (USDT on Arbitrum) — existing position ~$1.00
+  - Gearbox (wETH on Optimism) — new position
+  - Kamino Finance (SOL on Solana) — existing position ~$0.065
+  - Drift Protocol (USDT on Solana) — new position
+
+  Chains covered: Ethereum, Arbitrum, Optimism, Gnosis, Binance, Solana,
+  Polygon, Base, Plasma (9 chains)
+
+  === TRANSACTION FLOW — CRITICAL ===
+
+  APPROVE + ACTION FLOWS (common for ERC20 lending):
+  1. Click submit → modal opens with steps
+  2. Step 1: "Waiting" + "Approve" button → click Approve
+  3. Wait 30-60s for EVM on-chain confirmation
+  4. Step 2: "Waiting" + action button → click it
+  5. Wait 30-60s for EVM on-chain confirmation
+  6. Success state appears
+
+  TIMING:
+  - After ANY yield action button click: wait 90-120 seconds minimum
+  - Two-step EVM flows: Approve → wait 30-60s → Action → wait 30-60s
+  - Solana transactions: 5-15 seconds per step
+
+  === YIELD ID FORMAT ===
+  Compound yield IDs include version: use "ethereum-usdc-compound-v3-lending"
+
+  === DIALOG MODAL INPUTS ===
+  On external origins, input fields in dialog modals don't respond to
+  keyboard input. Use percentage buttons (25%/50%/75%/Max) instead.
+
+  === FAILED TRANSACTIONS ===
+  If a transaction fails, check the browser Network tab for response
+  details. Failures may originate from the yield.xyz API.
+
+  === HARD CONSTRAINTS ===
+  1. ALWAYS FIAT MODE.
+  2. Deposit: $0.10 → $0.30 → $0.50 → $1 → $2 → $3 (MAX).
+  3. If a yield's MINIMUM DEPOSIT exceeds $3, SKIP and mark PASSED
+     with note "minimum exceeds $3 ceiling". Do NOT deposit more than $3.
+  4. Withdrawal: minimum viable (~$0.20).
+  5. $40 accumulated total INCLUDING GAS.
+  6. NEVER transact on Tron.
+  7. Report every tx.
+  8. DO NOT SKIP transactions to "conserve gas" or "conserve time".
+     Time is NOT a constraint. Execute ALL deposits and withdrawals.
+  9. Skipped steps are PASSED with explanation, NEVER failed.
+
+  === FUNDING SWAPS ===
+  If target asset balance insufficient:
+  1. /trade → select HIGHEST BALANCE asset in entire wallet as sell
+     (cross-chain bridge swaps are fine, the swapper handles them)
+  2. Select needed asset as buy. Related assets may be grouped —
+     expand the group to find the right variant.
+  3. FIAT $0.20 (enough for a yield deposit). Max $3.
+  4. Preview, confirm, sign, wait 120s. Navigate back.
+  5. Report: "FUNDING SWAP: $0.20 {source} → {target}"
+
+route: /earn
+depends_on:
+  - wallet-health.yaml
+
+steps:
+  # ==========================================================================
+  # COMPOUND USDT LENDING (Ethereum)
+  # Existing position: ~$0.10, APY ~3.36%
+  # ==========================================================================
+
+  - name: Compound USDT Ethereum > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 5 seconds. Click My Positions tab. Wait 3 seconds.
+      Find USDT/Compound position. Click on it. Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: "Compound". Asset: "USDT". Type: "Lending".
+      2. APY: ~3.36%. Chain: Ethereum.
+      3. Position: ~$0.10. TVL > $1M?
+      4. Yield ID includes "v3" if Compound v3.
+    expected: >
+      Compound USDT detail: correct provider, type, chain.
+    screenshot: true
+
+  - name: Compound USDT Ethereum > Partial withdrawal
+    instruction: >
+      Click withdraw. Use Max button (position is small, ~$0.10).
+      Submit and confirm.
+
+      === TWO-STEP FLOW ===
+      After clicking confirm, watch for:
+      Step 1: "Approve" button → click → wait 30-60s
+      Step 2: "Withdraw" button → click → wait 30-60s
+      Total: 90-120 seconds.
+
+      BUG HUNT post-tx:
+      1. Success screen? Toast with correct USDT amount?
+      2. Position now $0 or removed?
+      3. Gas reasonable for Ethereum?
+
+      REPORT: "WITHDRAWAL: Max ~$0.10 USDT from Compound on Ethereum.
+      SPEND TRACKER: gas only ($40 budget)"
+    expected: >
+      Full withdrawal successful. Position cleared.
+    screenshot: true
+
+  - name: Compound USDT Ethereum > Re-deposit
+    instruction: >
+      Check USDT balance. If < $0.10: execute funding swap
+      (/trade, sell highest-balance wallet asset, buy USDT on Ethereum, $0.20, wait 120s).
+
+      Click deposit. FIAT MODE. Type "0.10".
+      Increment if needed: "0.30" → "0.50".
+      Submit and confirm. Wait 90-120 seconds (two-step EVM flow).
+
+      REPORT: "DEPOSIT: $X USDT to Compound on Ethereum.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      Deposit successful. Position restored.
+    screenshot: true
+
+  # ==========================================================================
+  # SPARK USDT LENDING (Ethereum)
+  # Existing position: ~$0.10, APY ~3.50%
+  # ==========================================================================
+
+  - name: Spark USDT Ethereum > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click My Positions tab. Find USDT/Spark.
+      Click on it. Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: "Spark". Asset: "USDT". Type: "Lending".
+      2. APY: ~3.50%. Chain: Ethereum.
+      3. Position: ~$0.10.
+      4. Compare Spark APY vs Compound USDT APY (~3.36%). Spark should
+         be slightly higher. If identical, might be stale data.
+    expected: >
+      Spark USDT detail correct. APY slightly higher than Compound.
+    screenshot: true
+    soft_fail: true
+
+  - name: Spark USDT Ethereum > Data validation
+    instruction: >
+      Read all displayed data: APY (hero + info), TVL, type, provider.
+
+      BUG HUNT:
+      1. APY hero badge matches info card?
+      2. TVL: Spark USDT should be > $100M. If $0, SOFT FAIL.
+      3. Type: "Lending" (not "Vault" or "Staking")?
+      4. Compare with Compound: both USDT lending on Ethereum.
+         Are labels/layout consistent?
+    expected: >
+      Data consistent. TVL reasonable. Type correct.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # AAVE USDT LENDING (Optimism)
+  # Existing position: ~$0.10 (USDT on Optimism)
+  # Tests L2 lending — lower gas costs
+  # ==========================================================================
+
+  - name: Aave USDT Optimism > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click My Positions tab. Find USDT/Aave position.
+      There may be multiple Aave USDT positions across chains.
+      Look for the one on Optimism (~$0.10 or $0.20).
+      Click on it. Wait 5 seconds.
+
+      If unclear which is Optimism, try All tab → filter by Optimism
+      → search "USDT" → find Aave.
+
+      BUG HUNT:
+      1. Provider: "Aave". Asset: "USDT". Type: "Lending".
+      2. Chain: "Optimism". If showing Ethereum, wrong position.
+      3. APY: ~2.34% (Optimism Aave USDT). Position: ~$0.10.
+      4. Gas estimate should be very low on Optimism L2.
+    expected: >
+      Aave USDT on Optimism. Correct chain, provider, type.
+    screenshot: true
+
+  - name: Aave USDT Optimism > Deposit
+    instruction: >
+      Check available USDT balance on Optimism. If < $0.10:
+      Funding swap: /trade → sell highest-balance wallet asset → buy USDT on Optimism → $0.20.
+
+      Click deposit. FIAT MODE. Type "0.10".
+      Increment if needed. Submit and confirm.
+      Wait 90-120 seconds.
+
+      BUG HUNT:
+      1. Gas should be very low on Optimism (<$0.10). If > $5, SOFT FAIL.
+      2. Two-step flow (Approve + Deposit) works correctly?
+      3. After each "Waiting" step, click the button that appeared.
+
+      REPORT: "DEPOSIT: $X USDT to Aave on Optimism.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      Deposit successful with low L2 gas.
+    screenshot: true
+
+  # ==========================================================================
+  # AAVE USDC.e LENDING (Gnosis)
+  # Existing balance: $1.50 USDC.e available, APY ~1.14%
+  # Tests Gnosis chain coverage
+  # ==========================================================================
+
+  - name: Aave USDC.e Gnosis > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click All tab. Filter by Gnosis network.
+      Find USDC.e/Aave (APY ~1.14%, $1.50 available). Click on it.
+      Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: "Aave". Asset: "USDC.e". Type: "Lending".
+      2. Chain: "Gnosis". APY: ~1.14%.
+      3. Available to deposit: ~$1.50.
+      4. TVL: $9.03M. If $0, SOFT FAIL.
+      5. This is one of only 2 yields on Gnosis — is the page
+         treating it differently or normally?
+    expected: >
+      Aave USDC.e on Gnosis correct. $1.50 available.
+    screenshot: true
+    soft_fail: true
+
+  - name: Aave USDC.e Gnosis > Deposit (new position)
+    instruction: >
+      Click deposit. FIAT MODE. Type "0.10".
+      If submit disabled: "0.30" → "0.50" → "1".
+      Submit and confirm. Wait 90-120 seconds.
+
+      BUG HUNT:
+      1. Gnosis gas should be extremely low (<$0.01).
+         If showing > $1, SOFT FAIL.
+      2. Two-step ERC20 approval flow works on Gnosis?
+      3. Success screen and toast correct?
+
+      REPORT: "DEPOSIT: $X USDC.e to Aave on Gnosis.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      New position on Gnosis created. Very low gas.
+    screenshot: true
+
+  # ==========================================================================
+  # FLUID USDT LENDING (Arbitrum)
+  # Existing position: ~$1.00, APY ~7.38%
+  # Tests high-APY lending on L2
+  # ==========================================================================
+
+  - name: Fluid USDT Arbitrum > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click My Positions tab.
+      Find USDT/Fluid ~$1.00 position. Click on it. Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: "Fluid". Asset: "USDT". Type: "Lending".
+      2. Chain: Arbitrum. APY: high (check current rate).
+      3. Position: ~$1.00.
+      4. Compare with Aave USDT on Arbitrum — is Fluid APY higher?
+    expected: >
+      Fluid USDT on Arbitrum correct. Position ~$1.00.
+    screenshot: true
+    soft_fail: true
+
+  - name: Fluid USDT Arbitrum > Partial withdrawal
+    instruction: >
+      Click withdraw. Use 25% button or FIAT MODE type "0.20".
+      Submit and confirm. Wait 90-120 seconds.
+
+      BUG HUNT:
+      1. Arbitrum gas very low?
+      2. Partial withdrawal accepted?
+      3. Remaining balance = ~$0.80?
+
+      REPORT: "PARTIAL WITHDRAWAL: ~$0.20 USDT from Fluid on Arbitrum.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      Partial withdrawal on Arbitrum. Low gas. Balance updated.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # VENUS DAI LENDING (Binance/BSC)
+  # No existing position, APY ~2.18%
+  # Tests BSC chain coverage
+  # ==========================================================================
+
+  - name: Venus DAI BSC > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click All tab. Filter by Binance network.
+      Find DAI/Venus (APY ~2.18%). Click on it. Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: "Venus". Asset: "DAI". Type: "Lending".
+      2. Chain: "Binance" or "BSC". APY: ~2.18%.
+      3. TVL: ~$2.36M. If $0, SOFT FAIL.
+      4. No existing position — deposit button available?
+      5. Available balance: check if wallet has DAI on BSC.
+    expected: >
+      Venus DAI on BSC detail correct. Venus is BSC-native protocol.
+    screenshot: true
+    soft_fail: true
+
+  - name: Venus DAI BSC > Fund and deposit
+    instruction: >
+      If no DAI on BSC: execute funding swap.
+      /trade → sell highest-balance wallet asset → buy DAI on BSC → $0.20.
+      Wait 120s. Navigate back to Venus DAI detail.
+
+      If DAI available: proceed directly.
+
+      Click deposit. FIAT MODE. Type "0.10".
+      Increment if needed. Submit and confirm.
+      Wait 90-120 seconds.
+
+      BUG HUNT:
+      1. BSC gas should be very low (<$0.05).
+      2. Two-step approval flow works on BSC?
+      3. First deposit creates new position?
+
+      If funding swap fails (no BSC assets): SOFT FAIL, skip.
+
+      REPORT: "DEPOSIT: $X DAI to Venus on BSC.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      Venus deposit on BSC successful, or soft fail if no fundable assets.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # GEARBOX wETH LENDING (Optimism)
+  # No existing position, APY ~6.40%
+  # Tests Gearbox provider + another Optimism yield
+  # ==========================================================================
+
+  - name: Gearbox wETH Optimism > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click All tab. Filter by Optimism network.
+      Find wETH/Gearbox (APY ~6.40%). Click on it. Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: "Gearbox". Asset: "wETH". Type: "Lending".
+      2. Chain: "Optimism". APY: ~6.40% (high for WETH lending).
+      3. TVL: ~$16,978 (very small). Note if TVL seems suspiciously low.
+      4. No existing position — deposit available?
+      5. Available: check if wallet has wETH on Optimism.
+    expected: >
+      Gearbox wETH on Optimism correct. APY high, TVL low.
+    screenshot: true
+    soft_fail: true
+
+  - name: Gearbox wETH Optimism > Deposit if funded
+    instruction: >
+      If no wETH on Optimism: try funding swap.
+      /trade → sell highest-balance wallet asset → buy wETH on Optimism → $0.20. Wait 120s.
+
+      If funded: click deposit. FIAT MODE. Type "0.10".
+      Submit and confirm. Wait 90-120 seconds.
+
+      If swap fails: SOFT FAIL, skip remaining Gearbox steps.
+
+      REPORT: "DEPOSIT: $X wETH to Gearbox on Optimism.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      Gearbox deposit on Optimism, or soft fail if unfundable.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # KAMINO FINANCE SOL LENDING (Solana)
+  # Existing position: ~$0.065, APY ~4.95%
+  # Tests Solana lending (not just staking)
+  # ==========================================================================
+
+  - name: Kamino SOL Solana > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click My Positions tab.
+      Find SOL/Kamino Finance position (~$0.065). Click on it.
+      Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: "Kamino Finance". Asset: "SOL". Type: "Lending".
+      2. Chain: "Solana". APY: ~4.95%.
+      3. Position: ~$0.065.
+      4. Compare with Figment SOL staking (~5.53%) — Kamino lending
+         APY should be slightly lower than native staking.
+      5. TVL: ~$255M. If $0, SOFT FAIL.
+    expected: >
+      Kamino SOL lending on Solana correct. APY below staking rate.
+    screenshot: true
+    soft_fail: true
+
+  - name: Kamino SOL Solana > Deposit
+    instruction: >
+      Click deposit. FIAT MODE. Type "0.10".
+      Increment if needed. Submit and confirm.
+      Wait 90-120 seconds. Solana txns are fast (5-15s per step).
+
+      BUG HUNT:
+      1. Solana gas very low (~$0.001)?
+      2. Single-step or two-step flow for SOL deposit?
+      3. Success and toast correct?
+
+      REPORT: "DEPOSIT: $X SOL to Kamino on Solana.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      Kamino deposit successful with very low Solana gas.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # DRIFT PROTOCOL USDT LENDING (Solana)
+  # No existing position, APY ~0.95%
+  # Tests second Solana lending provider
+  # ==========================================================================
+
+  - name: Drift USDT Solana > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click All tab. Filter by Solana.
+      Find USDT/Drift Protocol (APY ~0.95%). Click on it. Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: "Drift Protocol". Asset: "USDT". Type: "Lending".
+      2. Chain: "Solana". APY: ~0.95% (low for lending).
+      3. TVL: ~$13.31M.
+      4. No existing position — deposit available?
+      5. Available USDT on Solana: check wallet balance.
+    expected: >
+      Drift USDT on Solana correct. Low APY noted.
+    screenshot: true
+    soft_fail: true
+
+  - name: Drift USDT Solana > Deposit if funded
+    instruction: >
+      If no USDT on Solana: execute funding swap.
+      /trade → sell highest-balance wallet asset → buy USDT on Solana → $0.20. Wait 120s.
+
+      If funded: click deposit. FIAT MODE. Type "0.10".
+      Submit and confirm. Wait 90-120 seconds.
+
+      If swap fails: SOFT FAIL, skip.
+
+      REPORT: "DEPOSIT: $X USDT to Drift on Solana.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      Drift deposit on Solana, or soft fail if unfundable.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # FLUID USDT LENDING (Polygon)
+  # Existing position: ~$0.133 USDT balance
+  # Tests Polygon chain coverage
+  # ==========================================================================
+
+  - name: Fluid USDT Polygon > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click My Positions tab.
+      Find USDT/Fluid on Polygon (~$0.133). Click on it. Wait 5 seconds.
+
+      Note: There are multiple Fluid USDT positions across chains
+      (Arbitrum ~$1, Polygon ~$0.133). Make sure this is the Polygon one.
+
+      BUG HUNT:
+      1. Provider: "Fluid". Asset: "USDT". Type: "Lending".
+      2. Chain: "Polygon". APY: check current rate (~7.38%?).
+      3. Position: ~$0.133.
+      4. Fluid on Polygon vs Fluid on Arbitrum — are they correctly
+         distinguished in the UI? Can user tell which chain?
+    expected: >
+      Fluid USDT on Polygon correct. Distinguishable from Arbitrum position.
+    screenshot: true
+    soft_fail: true
+
+  - name: Fluid USDT Polygon > Data validation
+    instruction: >
+      Read all data: APY, TVL, type, provider info.
+
+      BUG HUNT:
+      1. APY hero vs info card: match?
+      2. TVL reasonable for Polygon lending?
+      3. Cross-reference: navigate to yield page My Positions tab.
+         Does Polygon USDT/Fluid position show correct balance and APY?
+    expected: >
+      Data consistent across all surfaces.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # FLUID USDT0 LENDING (Plasma)
+  # Existing position: ~$0.125
+  # Tests Plasma chain coverage
+  # ==========================================================================
+
+  - name: Fluid USDT0 Plasma > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click My Positions tab.
+      Find USDT0/Fluid on Plasma (~$0.125). Click on it. Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: "Fluid". Asset: "USDT0". Type: "Lending".
+      2. Chain: "Plasma". APY: check current rate (~5.77%?).
+      3. Position: ~$0.125.
+      4. USDT0 vs USDT: are these correctly labeled as different assets?
+         USDT0 is the Plasma-native USDT. If labeled just "USDT", note it.
+    expected: >
+      Fluid USDT0 on Plasma correct. USDT0 properly identified.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # AAVE/COMPOUND USDC LENDING (Base)
+  # No existing position
+  # Tests Base chain coverage
+  # ==========================================================================
+
+  - name: Aave USDC Base > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click All tab. Filter by Base network.
+      Find USDC lending — look for Aave or Compound or Fluid.
+      USDC has 3 markets on Base (max APY ~3.81%). Click the highest APY.
+      Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: Aave or Fluid or Compound?
+      2. Asset: "USDC". Type: "Lending". Chain: "Base".
+      3. APY: up to ~3.81%.
+      4. No position — deposit available?
+      5. Available USDC on Base: check wallet.
+    expected: >
+      USDC lending on Base detail correct.
+    screenshot: true
+    soft_fail: true
+
+  - name: Aave USDC Base > Deposit if funded
+    instruction: >
+      If no USDC on Base: execute funding swap.
+      /trade → sell highest-balance wallet asset → buy USDC on Base → $0.20. Wait 120s.
+
+      If funded: click deposit. FIAT MODE. Type "0.10".
+      Submit and confirm. Wait 90-120 seconds.
+
+      If swap fails: SOFT FAIL, skip.
+
+      BUG HUNT:
+      1. Base gas should be very low (L2).
+      2. Two-step ERC20 approval flow?
+
+      REPORT: "DEPOSIT: $X USDC to [provider] on Base.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      USDC lending on Base deposit, or soft fail.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # FINAL: Action Center audit for all lending transactions
+  # ==========================================================================
+
+  - name: Lending > Action Center audit
+    instruction: >
+      Open Action Center. Scroll through ALL notifications from this
+      lending fixture.
+
+      BUG HUNT:
+      1. Count lending transactions. Does it match what we executed?
+      2. For EACH notification: correct action, asset, amount, provider,
+         chain, status?
+      3. Missing notifications? Duplicates?
+      4. Are multi-chain transactions clearly labeled with chain name?
+         E.g., "USDT to Aave on Optimism" vs "USDT to Aave on Ethereum"
+         — can the user distinguish them?
+
+      Close Action Center.
+    expected: >
+      All lending transactions accurately logged with correct chain labels.
+    screenshot: true
+    soft_fail: true

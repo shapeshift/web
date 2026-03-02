@@ -28,7 +28,7 @@ export const PositionDetails: React.FC<PositionDetailsProps> = ({
   if (!hasPositions) return null
 
   return (
-    <Flex px={flexPx} py={flexPy} flexDir='column' gap={flexGap}>
+    <Flex px={flexPx} py={flexPy} flexDir='column' gap={flexGap} data-testid='position-details'>
       <StakingPositionsByProvider
         ids={opportunities.staking}
         forceCompactView={forceCompactView}

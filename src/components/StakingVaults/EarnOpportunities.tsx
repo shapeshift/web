@@ -111,7 +111,7 @@ export const EarnOpportunitiesContent = ({ assetId, accountId }: EarnOpportuniti
   if (allRows.length === 0) return null
 
   return (
-    <Card variant='dashboard'>
+    <Card variant='dashboard' data-testid='earn-opportunities-card'>
       <CardHeader flexDir='row' display='flex'>
         <HStack gap={6} width='full'>
           <Box>

@@ -119,6 +119,7 @@ const LendingPoolButton = ({ asset, onPoolClick }: LendingPoolButtonProps) => {
       height='auto'
       color='text.base'
       onClick={handlePoolClick}
+      data-testid={`lending-pool-row-${asset.assetId}`}
     >
       <AssetCell assetId={asset.assetId} />
       <Skeleton isLoaded={isLoaded} display={mobileDisplay}>
@@ -173,7 +174,7 @@ export const AvailablePools = () => {
   }, [handlePoolClick, isLendingSupportedAssetsLoading, lendingSupportedAssets])
 
   return (
-    <Main headerComponent={headerComponent} isSubPage>
+    <Main headerComponent={headerComponent} isSubPage data-testid='lending-available-pools'>
       <SEO title={translate('navBar.lending')} />
       <Stack>
         <SimpleGrid

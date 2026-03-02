@@ -44,6 +44,7 @@ export const YieldOpportunityCard = memo(({ maxApyYield, onClick }: YieldOpportu
       borderWidth={1}
       borderColor='border.base'
       p={{ base: 4, sm: 6 }}
+      data-testid='yield-opportunity-card'
     >
       <Flex justify='space-between' align='center' gap={4}>
         <Box flex={1}>
@@ -62,6 +63,7 @@ export const YieldOpportunityCard = memo(({ maxApyYield, onClick }: YieldOpportu
           flexShrink={0}
           bgGradient='linear(to-r, blue.500, purple.600)'
           _hover={hoverStyle}
+          data-testid='yield-start-earning-button'
         >
           {startEarningText}
         </Button>

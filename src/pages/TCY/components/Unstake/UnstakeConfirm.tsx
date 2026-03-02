@@ -144,6 +144,7 @@ export const UnstakeConfirm: React.FC = () => {
 
   return (
     <ReusableConfirm
+      data-testid='tcy-unstake-confirm'
       assetId={tcyAssetId}
       headerText={translate('TCY.unstakeConfirm.confirmTitle')}
       cryptoAmount={amountCryptoPrecision}

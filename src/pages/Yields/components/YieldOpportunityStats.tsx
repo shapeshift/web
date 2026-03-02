@@ -130,7 +130,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
   if (isMobile) return null
 
   return (
-    <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} mb={8}>
+    <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} mb={8} data-testid='yields-stats-bar'>
       {hasActiveDeposits && (
         <Box
           bgGradient='linear(to-br, blue.800, blue.900)'
@@ -144,6 +144,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
           display='flex'
           flexDirection='column'
           justifyContent='center'
+          data-testid='yields-stat-active-positions'
         >
           <Box position='absolute' right={-4} top={-4} opacity={0.1}>
             {chartPieIcon}
@@ -171,6 +172,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
         position='relative'
         overflow='hidden'
         gridColumn={gridColumn}
+        data-testid='yields-stat-available-to-earn'
       >
         <Box position='absolute' right={-4} top={-4} opacity={0.1}>
           {moonIcon}
@@ -223,6 +225,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
                   color='purple.100'
                   textTransform='uppercase'
                   letterSpacing='wider'
+                  data-testid='yields-stat-potential-earnings-label'
                 >
                   {translate('yieldXYZ.potentialEarnings')}
                 </Text>

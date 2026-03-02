@@ -524,7 +524,7 @@ export const BorrowInput = ({
         shouldShowAcknowledgement={shouldShowWarningAcknowledgement}
         setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
       />
-      <Stack spacing={0}>
+      <Stack spacing={0} data-testid='lending-borrow-input'>
         <TradeAssetInput
           accountId={collateralAccountId}
           assetId={collateralAssetId}

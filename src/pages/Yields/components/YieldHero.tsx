@@ -121,6 +121,7 @@ export const YieldHero = memo(
         align='center'
         py={{ base: 4, md: 6 }}
         px={{ base: 3, md: 6 }}
+        data-testid='yield-hero'
       >
         <Text fontWeight='semibold' fontSize='md'>
           {yieldTitle}
@@ -198,6 +199,7 @@ export const YieldHero = memo(
           py={1.5}
           fontWeight='bold'
           fontSize='sm'
+          data-testid='yield-hero-apy-badge'
         >
           {apy}% {translate('common.apy')}
         </Badge>
@@ -227,6 +229,7 @@ export const YieldHero = memo(
             onClick={handleEnter}
             flex={1}
             fontWeight='bold'
+            data-testid='yield-hero-enter-button'
           >
             {enterLabel}
           </Button>
@@ -240,6 +243,7 @@ export const YieldHero = memo(
               onClick={handleExit}
               flex={1}
               fontWeight='bold'
+              data-testid='yield-hero-exit-button'
             >
               {exitLabel}
             </Button>

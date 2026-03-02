@@ -101,7 +101,7 @@ type FormHeaderProps = {
   activeIndex: number
 }
 
-type FormHeaderTabProps = {
+type FormHeaderTabProps = React.ComponentProps<typeof Button> & {
   index: number
   onClick: (index: number) => void
   isActive?: boolean
@@ -109,7 +109,13 @@ type FormHeaderTabProps = {
 
 const activeStyle = { color: 'text.base' }
 
-const FormHeaderTab: React.FC<FormHeaderTabProps> = ({ index, onClick, isActive, children }) => {
+const FormHeaderTab: React.FC<FormHeaderTabProps> = ({
+  index,
+  onClick,
+  isActive,
+  children,
+  ...rest
+}) => {
   const handleClick = useCallback(() => {
     onClick(index)
   }, [index, onClick])
@@ -120,6 +126,7 @@ const FormHeaderTab: React.FC<FormHeaderTabProps> = ({ index, onClick, isActive,
       variant='unstyled'
       color='text.subtle'
       _active={activeStyle}
+      {...rest}
     >
       {children}
     </Button>
@@ -135,11 +142,21 @@ const FormHeader: React.FC<FormHeaderProps> = ({ setStepIndex, activeIndex }) =>
     [setStepIndex],
   )
   return (
-    <Flex px={6} py={4} gap={4}>
-      <FormHeaderTab index={0} onClick={handleClick} isActive={activeIndex === 0}>
+    <Flex px={6} py={4} gap={4} data-testid='pool-position-tabs'>
+      <FormHeaderTab
+        index={0}
+        onClick={handleClick}
+        isActive={activeIndex === 0}
+        data-testid='pool-add-liquidity-tab'
+      >
         {translate('pools.addLiquidity')}
       </FormHeaderTab>
-      <FormHeaderTab index={1} onClick={handleClick} isActive={activeIndex === 1}>
+      <FormHeaderTab
+        index={1}
+        onClick={handleClick}
+        isActive={activeIndex === 1}
+        data-testid='pool-remove-liquidity-tab'
+      >
         {translate('pools.removeLiquidity')}
       </FormHeaderTab>
     </Flex>

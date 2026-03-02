@@ -569,7 +569,7 @@ export const RepayInput = ({
   }
 
   return (
-    <Stack spacing={0}>
+    <Stack spacing={0} data-testid='lending-repay-input'>
       <TradeAssetInput
         assetId={repaymentAsset?.assetId ?? ''}
         assetSymbol={repaymentAsset?.symbol ?? ''}

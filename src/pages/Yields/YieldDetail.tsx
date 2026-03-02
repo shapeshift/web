@@ -232,7 +232,7 @@ export const YieldDetail = memo(() => {
   if (error || !yieldItem) return errorElement
 
   return (
-    <Box bg='background.surface.base' minH='100vh' pb={20}>
+    <Box bg='background.surface.base' minH='100vh' pb={20} data-testid='yield-detail-page'>
       <Container
         maxW={{ base: 'full', md: 'container.md', lg: '1400px' }}
         px={{ base: 4, md: 8, lg: 12 }}
@@ -246,6 +246,7 @@ export const YieldDetail = memo(() => {
             color='text.subtle'
             onClick={handleBack}
             _hover={{ color: 'text.base' }}
+            data-testid='yield-detail-back-button'
           />
           <Display.Desktop>
             {showAccountSelector && selectorAssetId && (

@@ -540,6 +540,7 @@ export const EarnInput = memo(
         headerRightContent={<></>}
         isCompact={false}
         isLoading={isLoadingYields}
+        data-testid='earn-input-form'
         SideComponent={EmptySideComponent}
         shouldOpenSideComponent={false}
         tradeInputTab={TradeInputTab.Earn}

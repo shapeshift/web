@@ -214,6 +214,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
       renderEmptyComponent={renderEmptyComponent}
       initialState={initialState}
       displayHeaders={!isCompactCols}
+      data-test='defi-earn-position-table'
     />
   )
 }

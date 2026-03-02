@@ -79,17 +79,17 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
   )
 
   return (
-    <Card>
+    <Card data-testid='yield-stats'>
       <CardBody>
         <SimpleGrid columns={3} spacing={4}>
-          <Box>
+          <Box data-testid='yield-stat-tvl'>
             <Text fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
               {translate('yieldXYZ.tvl')}
             </Text>
             <Amount.Fiat value={tvlUserCurrency} abbreviated fontSize='sm' fontWeight='bold' />
           </Box>
 
-          <Box>
+          <Box data-testid='yield-stat-reward-schedule'>
             <Text fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
               {translate('yieldXYZ.rewardSchedule')}
             </Text>
@@ -98,7 +98,7 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
             </Text>
           </Box>
 
-          <Box>
+          <Box data-testid='yield-stat-type'>
             <Text fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
               {translate('yieldXYZ.type')}
             </Text>

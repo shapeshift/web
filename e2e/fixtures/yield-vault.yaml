@@ -1,0 +1,301 @@
+name: Yield Vault
+description: >
+  Tests vault yield providers — PRIMARY GOAL IS BUG DETECTION.
+
+  Providers covered:
+  - Morpho (vbUSDC vaults on Katana) — existing positions ~$0.038 + ~$0.055
+  - Morpho (Steakhouse High Yield, Clearstar, Yearn OG vaults on Katana)
+  - Yearn Finance (vbUSDT on Katana) — no position, new deposit
+
+  Chains covered: Katana (primary vault chain)
+
+  Katana is the main chain for vault-type yields in this app. The vbUSDC,
+  vbETH, and vbUSDT assets on Katana have multiple Morpho vault markets
+  (5 each) with APYs up to 13.74%.
+
+  === TRANSACTION FLOW — CRITICAL ===
+
+  APPROVE + ACTION FLOWS (ERC20 vault deposits/withdrawals):
+  1. Click submit → modal opens with steps
+  2. Step 1: "Waiting" + "Approve" → click Approve
+  3. Wait 30-60s for on-chain confirmation
+  4. Step 2: "Waiting" + action button → click it
+  5. Wait 30-60s for on-chain confirmation
+  6. Success state appears
+
+  TIMING:
+  - After ANY yield action button click: wait 90-120 seconds minimum
+  - Two-step flows: Approve → wait 30-60s → Action → wait 30-60s
+
+  === DIALOG MODAL INPUTS ===
+  On external origins, input fields in dialog modals don't respond to
+  keyboard input. Use percentage buttons (25%/50%/75%/Max) instead.
+
+  === HARD CONSTRAINTS ===
+  1. ALWAYS FIAT MODE.
+  2. Deposit: $0.10 → $0.30 → $0.50 → $1 → $2 → $3 (MAX).
+  3. If a yield's MINIMUM DEPOSIT exceeds $3, SKIP and mark PASSED
+     with note "minimum exceeds $3 ceiling". Do NOT deposit more than $3.
+  4. Withdrawal: minimum viable (~$0.20).
+  5. $40 accumulated total INCLUDING GAS.
+  6. NEVER transact on Tron.
+  7. Report every tx.
+  8. DO NOT SKIP transactions to "conserve gas" or "conserve time".
+     Time is NOT a constraint. Execute ALL deposits and withdrawals.
+  9. Skipped steps are PASSED with explanation, NEVER failed.
+
+  === FUNDING SWAPS ===
+  If underlying asset balance insufficient:
+  1. /trade → select HIGHEST BALANCE asset in entire wallet as sell
+     (cross-chain bridge swaps are fine)
+  2. Select needed asset as buy. Expand grouped assets if needed.
+  3. FIAT $0.20 (enough for a yield deposit). Max $3.
+  4. Preview, confirm, sign, wait 120s. Navigate back.
+
+route: /earn
+depends_on:
+  - wallet-health.yaml
+
+steps:
+  # ==========================================================================
+  # MORPHO vbUSDC VAULT (Katana) — Steakhouse High Yield
+  # Existing position: ~$0.038
+  # One of highest APY vaults at ~13.74%
+  # ==========================================================================
+
+  - name: Morpho vbUSDC Katana (Steakhouse) > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 5 seconds. Click All tab. Filter by Katana network.
+      Find vbUSDC — it shows "5 markets" with Max APY 13.74%.
+      Click on it to expand, then find "Steakhouse High Yield" / Morpho.
+      Click on the highest APY Morpho vault. Wait 5 seconds.
+
+      If the "5 markets" row expands to show individual vaults, click
+      the Steakhouse High Yield one. If not, just click the vbUSDC row.
+
+      BUG HUNT:
+      1. Provider: "Morpho". Asset: "vbUSDC". Type: "Vault".
+         KEY CHECK: Type should be "Vault", NOT "Lending". Morpho vaults
+         aggregate lending — they're vaults. If showing "Lending", SOFT FAIL.
+      2. Chain: "Katana". APY: ~13.74% (if Steakhouse) or highest available.
+      3. TVL: reasonable? vbUSDC TVL ~$44.59M across all markets.
+      4. Vault name visible? (Steakhouse High Yield, Clearstar, etc.)
+    expected: >
+      Morpho vbUSDC vault on Katana. Type = "Vault". APY ~13.74%.
+    screenshot: true
+
+  - name: Morpho vbUSDC Katana > Data validation
+    instruction: >
+      Read ALL displayed data:
+      - APY (hero badge + info card)
+      - TVL
+      - Type (MUST be "Vault")
+      - Reward schedule
+      - Related markets (should show other Morpho vbUSDC vaults)
+      - Provider info section
+
+      BUG HUNT:
+      1. TYPE: [data-testid="yield-stat-type"] should say "Vault".
+         If "Lending" or "Staking", that's a classification bug.
+      2. APY hero badge == info card APY?
+      3. TVL > $0?
+      4. Related markets: shows other Morpho vaults for vbUSDC?
+         If empty or shows unrelated yields, SOFT FAIL.
+      5. Provider logo loads? Description not empty?
+      6. Reward schedule: "Continuous" or specific schedule?
+    expected: >
+      Type = "Vault". APYs consistent. TVL > $0. Related markets relevant.
+    screenshot: true
+    soft_fail: true
+
+  - name: Morpho vbUSDC Katana > Deposit
+    instruction: >
+      Check existing position balance (~$0.038).
+      Check available vbUSDC to deposit (~$0.092).
+
+      If balance too low for meaningful test:
+      Click deposit. FIAT MODE. Type "0.10".
+      If submit disabled: try "0.30" → "0.50".
+
+      If keyboard doesn't work in dialog: use percentage buttons instead.
+
+      Submit and confirm. Wait 90-120 seconds.
+
+      === TWO-STEP FLOW ===
+      Step 1: "Approve" → click → wait 30-60s
+      Step 2: "Deposit" → click → wait 30-60s
+
+      BUG HUNT:
+      1. Does vault deposit form differ from lending deposit?
+      2. Is there a "vault share" or token conversion shown?
+      3. Gas estimate reasonable for Katana chain?
+      4. Success screen and toast mention Morpho?
+
+      REPORT: "DEPOSIT: $X vbUSDC to Morpho vault on Katana.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      Vault deposit successful. Two-step flow completes.
+    screenshot: true
+    soft_fail: true
+
+  - name: Morpho vbUSDC Katana > Verify and partial withdraw
+    instruction: >
+      Close success dialog. Verify position shows updated balance.
+
+      Click withdraw. Use 25% button or FIAT MODE "0.20".
+      Submit and confirm. Wait 90-120 seconds.
+
+      BUG HUNT:
+      1. Withdrawal form shows amount in underlying or vault shares?
+      2. "You will receive X" preview shown?
+      3. If vault liquidity is locked, does error message explain why?
+      4. Remaining balance correct?
+
+      REPORT: "PARTIAL WITHDRAWAL: $X vbUSDC from Morpho vault on Katana.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      Partial vault withdrawal. Clear error messaging if liquidity locked.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # MORPHO vbUSDC VAULT (Katana) — Clearstar or Yearn OG
+  # Second Morpho vault to compare behavior
+  # ==========================================================================
+
+  - name: Morpho vbUSDC Katana (second vault) > Navigate and compare
+    instruction: >
+      Navigate back to Katana vbUSDC yield list.
+      Find a DIFFERENT Morpho vault (Clearstar ~13.22%, Yearn OG ~12.12%,
+      or another from the 5 markets).
+      Click on it. Wait 5 seconds.
+
+      BUG HUNT — comparison with first vault:
+      1. Same provider (Morpho) but different vault name?
+      2. Different APY from the first vault?
+      3. Type: still "Vault"?
+      4. TVL: different from first vault?
+      5. Can the user clearly distinguish between the two Morpho vaults?
+         If they look identical with no vault name, SOFT FAIL — confusing UX.
+    expected: >
+      Second Morpho vault distinguishable from first. Different APY/TVL.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # YEARN FINANCE vbUSDT VAULT (Katana)
+  # No existing position, APY ~4.93%
+  # Tests non-Morpho vault provider
+  # ==========================================================================
+
+  - name: Yearn vbUSDT Katana > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click All tab. Filter by Katana.
+      Find vbUSDT — shows "5 markets" with Max APY ~4.93%.
+      Click on it, find Yearn Finance option. Click it. Wait 5 seconds.
+
+      BUG HUNT:
+      1. Provider: "Yearn Finance" (not "Morpho"). Asset: "vbUSDT".
+      2. Type: "Vault". Chain: "Katana".
+      3. APY: ~4.93%. TVL: part of ~$50.67M total.
+      4. Compare Yearn vault UI with Morpho vault UI:
+         - Is the layout identical?
+         - Are type labels the same?
+         - Any Yearn-specific UI elements?
+    expected: >
+      Yearn vbUSDT vault on Katana. Correct provider. Type = "Vault".
+    screenshot: true
+    soft_fail: true
+
+  - name: Yearn vbUSDT Katana > Deposit (new position)
+    instruction: >
+      Check vbUSDT availability. If < $0.10: funding swap needed.
+      /trade → sell highest-balance wallet asset → buy vbUSDT on Katana → $0.20. Wait 120s.
+
+      If funded: click deposit. FIAT MODE. Type "0.10".
+      Increment if needed. Submit and confirm.
+      Wait 90-120 seconds.
+
+      If swap fails or vbUSDT not swappable: SOFT FAIL, skip.
+
+      BUG HUNT:
+      1. First-time vault deposit: creates new position?
+      2. Yearn vault deposit flow same as Morpho vault flow?
+      3. Different approval pattern?
+
+      REPORT: "DEPOSIT: $X vbUSDT to Yearn vault on Katana.
+      SPEND TRACKER: $X.XX ($40 budget)"
+    expected: >
+      Yearn vault deposit, or soft fail if unfundable.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # MORPHO-AAVE VAULT (Ethereum) — if discoverable
+  # Tests Morpho-Aave hybrid on Ethereum mainnet
+  # ==========================================================================
+
+  - name: Morpho-Aave Vault Ethereum > Search and verify
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click All tab. Search "Morpho-aave" or "Morpho Aave".
+      Wait 3 seconds.
+
+      If results found:
+      1. Click highest APY Morpho-Aave vault. Wait 5 seconds.
+      2. Provider: "Morpho-aave" or "Morpho Aave".
+      3. Type: "Vault" (should NOT be "Lending").
+      4. Chain: likely Ethereum.
+      5. Record APY, TVL, asset.
+
+      If NO results for "Morpho-aave":
+      Try: filter by provider "Morpho-aave" from dropdown.
+      If still nothing: SOFT FAIL — Morpho-Aave may not be in current listings.
+
+      Do NOT deposit — just verify the detail page exists and data is correct.
+    expected: >
+      Morpho-Aave vault found and verified, or soft fail if not available.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # VAULT CROSS-REFERENCE: DeFi drawer
+  # ==========================================================================
+
+  - name: Vault > DeFi drawer cross-reference
+    instruction: >
+      Open wallet drawer → DeFi tab → wait 30 seconds.
+
+      BUG HUNT:
+      1. Are Morpho vault positions listed? Match yield page balances?
+      2. Are Yearn vault positions listed (if deposit succeeded)?
+      3. APY in DeFi drawer matches yield page?
+      4. Token shown: vault token or underlying? Consistent with yield page?
+
+      Close drawer.
+    expected: >
+      Vault positions in DeFi drawer match yield page data.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # FINAL: Action Center audit for vault transactions
+  # ==========================================================================
+
+  - name: Vault > Action Center audit
+    instruction: >
+      Open Action Center. Review all vault transaction notifications.
+
+      BUG HUNT:
+      1. Vault deposit and withdrawal notifications present?
+      2. Correctly labeled as vault operations (not lending)?
+      3. Correct amounts, assets, providers?
+      4. Distinguishable between different Morpho vaults?
+
+      Close Action Center.
+    expected: >
+      All vault transactions logged. Identifiable as vault ops.
+    screenshot: true
+    soft_fail: true

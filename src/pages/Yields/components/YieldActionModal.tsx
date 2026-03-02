@@ -420,6 +420,7 @@ export const YieldActionModal = memo(function YieldActionModal({
       onClose={handleClose}
       isFullScreen
       modalProps={{ closeOnOverlayClick: !isSubmitting }}
+      data-testid={`yield-action-modal-${action}`}
     >
       <DialogHeader>
         <DialogHeader.Left>{null}</DialogHeader.Left>
@@ -448,6 +449,7 @@ export const YieldActionModal = memo(function YieldActionModal({
             isLoading={isButtonLoading}
             loadingText={loadingText}
             onClick={handleConfirm}
+            data-testid='yield-action-confirm-button'
           >
             {buttonText}
           </Button>
@@ -464,6 +466,7 @@ export const YieldActionModal = memo(function YieldActionModal({
             fontWeight='semibold'
             borderRadius='xl'
             onClick={handleClose}
+            data-testid='yield-action-close-button'
           >
             {translate('common.close')}
           </Button>

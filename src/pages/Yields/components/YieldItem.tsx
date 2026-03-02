@@ -323,6 +323,7 @@ export const YieldItem = memo(
           borderColor='border.base'
           boxShadow='none'
           _hover={{ bg: 'background.surface.raised.base' }}
+          data-testid={`yield-item-${isSingle ? data.yieldItem.id : data.assetSymbol}`}
         >
           <CardBody p={2}>
             <Flex alignItems='center' gap={2} mb={2}>
@@ -394,6 +395,7 @@ export const YieldItem = memo(
           borderBottomWidth='1px'
           borderColor='border.base'
           transition='background 0.2s'
+          data-testid={`yield-item-${isSingle ? data.yieldItem.id : data.assetSymbol}`}
         >
           <Flex p={4} alignItems='center' gap={4}>
             <Flex alignItems='center' gap={3} flex='1' minW='200px'>
@@ -464,6 +466,7 @@ export const YieldItem = memo(
         position='relative'
         display='flex'
         flexDir='column'
+        data-testid={`yield-item-${isSingle ? data.yieldItem.id : data.assetSymbol}`}
       >
         <CardBody p={5} display='flex' flexDir='column' flex={1}>
           <Flex justifyContent='space-between' alignItems='flex-start' mb={6}>

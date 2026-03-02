@@ -82,7 +82,7 @@ export const YieldManager = () => {
   if (!yieldItem) return null
 
   return (
-    <Dialog isOpen={true} onClose={handleClose} isFullScreen>
+    <Dialog isOpen={true} onClose={handleClose} isFullScreen data-testid='yield-manager-modal'>
       <DialogHeader>
         <DialogHeader.Left>{null}</DialogHeader.Left>
         <DialogHeader.Middle>

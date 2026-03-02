@@ -85,7 +85,7 @@ export const YieldAvailableToDeposit = memo(
     if (!hasAvailableBalance) {
       return (
         <>
-          <Card variant='dashboard'>
+          <Card variant='dashboard' data-testid='yield-available-to-deposit'>
             <CardBody p={{ base: 4, md: 5 }}>
               <VStack spacing={4} align='stretch'>
                 <Flex justifyContent='space-between' alignItems='center'>
@@ -122,6 +122,7 @@ export const YieldAvailableToDeposit = memo(
                   onClick={handleOpenSwapperModal}
                   width='full'
                   fontWeight='bold'
+                  data-testid='yield-get-asset-button'
                 >
                   {translate('yieldXYZ.getAsset', { symbol: inputTokenSymbol })}
                 </Button>
@@ -139,7 +140,7 @@ export const YieldAvailableToDeposit = memo(
     }
 
     return (
-      <Card>
+      <Card data-testid='yield-available-to-deposit'>
         <CardBody p={{ base: 4, md: 5 }}>
           <VStack spacing={4} align='stretch'>
             <Flex justifyContent='space-between' alignItems='center'>

@@ -1,0 +1,455 @@
+name: Yield E2E
+description: >
+  Comprehensive yield/DeFi E2E test suite — PRIMARY GOAL IS BUG DETECTION.
+  This is a bug-finding tool, not a smoke test. Every step actively hunts for
+  discrepancies between UI state, API data, and implementation intent.
+
+  Coverage across 12 chains (excluding Tron), 18 providers, and all yield types
+  (Staking, Lending, Vault). ~15 distinct yields tested.
+
+  Sub-fixtures:
+  - yield-staking.yaml: Lido (ETH), ShapeShift DAO (ATOM), Benqi (AVAX),
+    Figment (SOL), Rocket Pool (ETH), Mantle (ETH), Luganodes (ETH)
+  - yield-lending.yaml: Aave (multi-chain), Compound (multi-chain),
+    Spark (ETH), Venus (BSC), Fluid (Arbitrum/Polygon/Plasma), Gearbox (Optimism),
+    Kamino (Solana), Drift (Solana)
+  - yield-vault.yaml: Morpho (Katana/Ethereum), Yearn (Katana)
+
+  === CRITICAL: TRANSACTION FLOW PATTERN ===
+
+  The "Waiting" state in transaction modals is NOT stuck — it means "click
+  the action button that appeared next to it". This is the standard flow:
+
+  1. Click action (Deposit/Withdraw/Stake/Unstake) → modal opens with steps
+  2. Each step shows "Waiting" status + a clickable button → CLICK THE BUTTON
+  3. Wait for on-chain confirmation before next step appears
+  4. Repeat for each step until success
+
+  TIMING PER STEP:
+  - Cosmos transactions (ATOM): 2-15 seconds
+  - EVM transactions (ETH, AVAX, USDC, etc.): 30-60 seconds
+  - Two-step flows (approve + action): 60-120 seconds total for EVM
+  - Solana transactions: 5-15 seconds
+  - After ANY yield action button click: WAIT 90-120 SECONDS minimum
+  - Two-step EVM: Approve → wait 30-60s → Action → wait 30-60s
+
+  === KNOWN BUGS & ISSUES ===
+
+  1. LIDO MAX BUTTON BUG: Unstake Max fills ETH wallet balance instead of
+     stETH position balance. CONFIRMED. Log as SOFT FAIL, don't block.
+  2. ATOM UNSTAKE — 7-UNBONDING LIMIT: Cosmos allows max 7 concurrent
+     unbondings per validator. If wallet has 7 pending, unstake fails.
+     This is a chain constraint, not a UI bug.
+  3. MY POSITIONS CARDS: Not clickable via el.click() — React synthetic
+     events don't fire on Chakra Card components. Use direct URL navigation:
+     window.location.hash = '/yield/{yieldId}'
+  4. YIELD ID FORMAT: Compound IDs include version — use
+     "ethereum-usdc-compound-v3-lending" NOT "ethereum-usdc-compound-lending"
+  5. CLAIM BUTTON IN ALERTS: Works correctly — click it, modal opens,
+     click Claim in modal, wait ~25s for Cosmos confirmation.
+  6. TVL SHOWS $0: Some yields (ATOM/ShapeShift DAO, AVAX/Benqi) show
+     $0 TVL — likely stale API data. Log as SOFT FAIL.
+  7. DIALOG MODAL INPUTS: On external origins, input fields in dialog modals
+     don't respond to keyboard input. Use percentage buttons
+     (25%/50%/75%/Max) instead of typing amounts directly.
+  8. FAILED CLAIMS/TRANSACTIONS: If a claim or transaction fails, check
+     the browser Network tab for response details — failures may originate
+     from the yield.xyz API, not the UI itself.
+
+  === BUG INVESTIGATION (CRITICAL) ===
+
+  When you find a potential bug, DON'T just report it — INVESTIGATE it:
+  1. Verify you're looking at the exact same yield ID + account ID + chain.
+     A "discrepancy" between two different yields isn't a bug.
+  2. Check network requests (JS eval or Network tab) — what did the API
+     actually return vs what the UI shows? Include raw API data.
+  3. Read the codebase (~/Sites/shapeshiftWeb) — grep for the component,
+     selector, or API call. Understand WHERE the bug originates.
+  4. Cross-reference the same data across multiple surfaces (detail page,
+     My Positions list, DeFi drawer, trade earn tab).
+  5. Navigate freely in the app to verify — just don't execute transactions
+     outside constraints.
+  6. Write up with confidence: expected, actual, API response, code
+     analysis, and your conclusion. Not "possible bug" — "confirmed bug
+     in X component because Y".
+
+  === BUG DETECTION PHILOSOPHY ===
+
+  SOFT FAILS (visual/data bugs — fixture continues, bug is logged):
+  - APY displayed doesn't match API response
+  - Wrong asset icon or name shown
+  - Balance shows stale/incorrect value after tx
+  - Position status shows wrong state
+  - UI elements misaligned, missing, or showing wrong data
+  - Action Center shows incorrect messaging or wrong tx type
+  - DeFi drawer shows different data than yield page for same position
+  - Toast shows wrong info
+  - Stats bar counts don't match actual position count
+  - Search returns wrong results or misses valid matches
+  - View toggle doesn't render correctly
+  - Filter shows wrong subset
+
+  HARD FAILS (broken functionality — fixture stops for that yield):
+  - Can't deposit at all (tx fails, button broken, modal won't open)
+  - Can't withdraw (tx fails, modal broken)
+  - Can't claim ready rewards
+  - Tx signs but nothing happens (no state change)
+  - Page crashes or shows error boundary
+  - Wallet disconnects during flow
+  - Modal won't open or close
+  - Navigation completely broken
+
+  FOR EVERY STEP, the agent MUST:
+  1. Check expected state against BOTH the UI AND observable behavior
+  2. Look for visual inconsistencies (wrong icons, stale data, layout bugs)
+  3. Cross-reference data between surfaces when applicable
+  4. Report bugs with specifics in agentThought, not vague "looks ok"
+  5. When data seems wrong, note the EXACT values seen vs expected
+
+  === HARD CONSTRAINTS ===
+
+  1. ALWAYS USE FIAT INPUT MODE: Toggle to $ before ANY amount entry.
+  2. Deposit amounts: start at $0.10, increase as needed:
+     $0.10 → $0.30 → $0.50 → $1 → $2 → $3 (ABSOLUTE MAX per tx).
+  3. If a yield's MINIMUM DEPOSIT exceeds $3, SKIP the deposit and mark
+     the step as PASSED with note "minimum exceeds $3 ceiling".
+     Do NOT deposit more than $3 into any single yield.
+  4. Withdrawal amounts: minimum viable (~$0.20 equivalent).
+  5. $40 ACCUMULATED TOTAL across all sub-fixtures INCLUDING GAS.
+     Withdrawals REDUCE the running total (money comes back to wallet).
+     Track in agentThought: "SPEND TRACKER: $X.XX net spent ($40 budget)"
+  6. NEVER transact on Tron.
+  7. TRANSACTION REPORTING: Every tx reports action, asset, amount,
+     provider, chain, running total in agentThought.
+  8. DO NOT SKIP transactions to "conserve gas" or "conserve time".
+     Time is NOT a constraint. Execute ALL deposits and withdrawals.
+     The only valid reasons to skip are: minimum exceeds $3 ceiling,
+     budget exhausted, or the asset/chain is genuinely unavailable.
+  9. Skipped steps are marked PASSED with an explanation, NEVER failed.
+  10. SPEND TRACKING: The real cost of a run = gas fees + protocol
+      fees/slippage (deposit amount minus position value) + any deposits
+      that cannot be withdrawn. Track the delta between deposit amount
+      and resulting position value — the difference is real spend.
+  11. Before depositing >$3 (only allowed if instant withdrawal confirmed):
+      verify the yield supports INSTANT withdrawal (not delayed/unbonding).
+      Check the API response, UI warnings, or yield type. If withdrawal
+      is delayed, treat the $3 ceiling as absolute.
+  12. KNOWN: Mantle mETH has a 0.02 ETH (~$38) minimum AND its Unstake
+      button is disabled in the UI. Do NOT deposit into Mantle.
+
+  === INTERACTION RULES ===
+  - Use JS eval for clicking (write to /tmp/ first, no smart quotes)
+  - Use dispatchEvent for React components
+  - NEVER use agent-browser navigate — use window.location.hash
+  - Wait 8+ seconds after wallet unlock on external origins
+  - DeFi drawer tab takes ~30 seconds to load
+
+  === FUNDING SWAPS ===
+  When a yield requires an asset the wallet doesn't hold:
+  1. Navigate to /trade (Swap page)
+  2. Select the HIGHEST BALANCE asset in the entire wallet as the sell
+     asset (not just highest on that chain — the swapper handles
+     cross-chain bridge swaps automatically)
+  3. Select the needed asset as buy. Note: related assets may be grouped
+     in the asset selector — expand the group to find the right variant
+  4. FIAT mode, enter $0.20 (enough for a yield deposit). Max $3.
+  5. Preview, confirm, sign, wait 120s for completion
+  6. Navigate back to the yield. Report as "FUNDING SWAP".
+  7. Counts toward $40 net total (but withdrawals offset it).
+
+  === API CROSS-REFERENCING ===
+  To validate displayed data against the API, fetch the yield opportunity
+  data directly via JS eval in the browser console:
+    eval "fetch('/api/v1/yields').then(r=>r.json()).then(d=>console.log(JSON.stringify(d)))"
+  Or check the network tab for recent API responses.
+  Compare APY, TVL, provider name, asset name against what the UI shows.
+  Any mismatch is a SOFT FAIL bug worth reporting.
+
+route: /earn
+depends_on:
+  - wallet-health.yaml
+
+steps:
+  # ==========================================================================
+  # SECTION 1: YIELD PAGE VERIFICATION — hunt for display/data bugs
+  # ==========================================================================
+
+  - name: Yield Page > Navigate and verify page structure
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 5 seconds for full load.
+
+      BUG HUNT — check ALL of the following:
+      1. [data-testid="yields-page"] exists and is visible (not hidden/collapsed)
+      2. Page title text is present and not empty/garbled
+      3. All three tabs render: [data-testid="yields-tab-all"],
+         [data-testid="yields-tab-available"], [data-testid="yields-tab-my-positions"]
+      4. Tab text is correct ("All", "Available to Earn", "My Positions") — not
+         truncated, not showing raw keys, not duplicated
+      5. No error boundary or crash screen visible
+      6. No console errors visible in the page (check for red error overlays)
+      7. Search input [data-testid="yields-search-input"] is present and focusable
+      8. View toggle buttons exist
+      9. Network filter dropdown shows "All Networks"
+      10. Provider filter dropdown shows "All Providers"
+      11. Type filter dropdown shows "All Types"
+
+      If ANY of these are missing or wrong, report the specific issue.
+    expected: >
+      Yields page fully loaded with correct structure. All tabs, search,
+      view toggle, and filters render correctly. No error states.
+    screenshot: true
+
+  - name: Yield Page > Verify stats bar data accuracy
+    instruction: >
+      Read stats bar values:
+      - Active positions count
+      - Available to earn
+      - Potential earnings
+
+      BUG HUNT — check for data issues:
+      1. Active positions count: should be ~20. If 0 when we know there
+         are positions, that's a BUG.
+      2. Available to earn: should be ~$199. If $0 or absurdly high, BUG.
+      3. Potential earnings: should be positive. If negative or NaN, BUG.
+      4. Are any values showing "NaN", "undefined", "null", or "-"?
+      5. Are dollar signs and formatting correct?
+      6. Do the numbers update after a brief wait, or are they frozen/loading?
+
+      Record EXACT values seen for comparison later.
+    expected: >
+      Stats show ~20 positions, ~$199 available, positive earnings/yr.
+      All values are properly formatted numbers, no NaN/undefined.
+    screenshot: true
+    soft_fail: true
+
+  - name: Yield Page > My Positions tab — cross-check position data
+    instruction: >
+      Click My Positions tab via JS dispatchEvent. Wait 3 seconds.
+      Count visible positions.
+
+      BUG HUNT — for EACH visible position, check:
+      1. Asset name/icon: does the icon match the asset name?
+      2. Provider name: is it shown? Is it a real provider?
+      3. APY: is it a reasonable percentage? Look for: negative APY,
+         APY > 10000%, APY showing "0.00%" for active positions
+      4. Balance: does it show a non-zero value?
+      5. Are there duplicate entries for the same position?
+      6. Does the position count match the stats bar count?
+
+      Record all positions with: asset, provider, APY, balance, chain.
+      Expected positions include:
+      - ETH/Lido (~$3.68, Ethereum)
+      - ATOM/ShapeShift DAO (~$2.06, Cosmos)
+      - SOL/Figment (~$2.65, Solana)
+      - AVAX/Benqi (~$1.33, Avalanche)
+      - ETH/Rocket Pool (~$0.51, Ethereum)
+      - Multiple lending positions (Compound, Aave, Spark, Fluid, etc.)
+      - vbUSDC/Morpho (~$0.09, Katana)
+    expected: >
+      20 positions visible. Count matches stats bar.
+      Expected top positions by value: ETH/Lido, SOL/Figment, ATOM/ShapeShift DAO, AVAX/Benqi.
+    screenshot: true
+    soft_fail: true
+
+  - name: Yield Page > Available to Earn tab — verify recommendations
+    instruction: >
+      Click Available to Earn tab via JS dispatchEvent. Wait 3 seconds.
+
+      BUG HUNT:
+      1. Does this tab show assets WITH idle balances? If it shows assets with
+         $0 balance, that's a bug.
+      2. Are the recommended yields sensible?
+      3. Do the APYs match what's shown in the All tab for the same yield?
+      4. Is the "Start Earning" CTA present and clickable?
+      5. Are there assets shown here that the wallet doesn't actually hold?
+      6. Verify: stETH/Lido ($165 available), ATOM/ShapeShift DAO ($3 available),
+         SOL/Figment ($1.46 available), AVAX/Benqi ($2.19 available)
+    expected: >
+      Available tab shows only assets with idle balance > $0.
+      Recommendations make sense. APYs consistent with All tab.
+    screenshot: true
+    soft_fail: true
+
+  - name: Yield Page > Test search — verify filtering accuracy
+    instruction: >
+      Click All tab. Focus search input.
+      Type "USDC". Wait 2 seconds.
+
+      BUG HUNT:
+      1. Do ALL results contain "USDC" in name/ticker?
+      2. Are legitimate USDC yields MISSING?
+      3. Result count should be several (USDC exists on multiple chains).
+      4. Clear search, type "xyznonexistent". Should show empty state.
+      5. Clear search, type "eth". Should match Ethereum yields.
+
+      Clear search after testing.
+    expected: >
+      Search correctly filters. "USDC" shows only USDC. Nonsense query
+      shows empty state. Case-insensitive matching works.
+    screenshot: true
+    soft_fail: true
+
+  - name: Yield Page > Test network filter per chain
+    instruction: >
+      For each network filter option, click it and verify:
+      1. Ethereum — should show: ETH/Lido, ETH/Rocket Pool, ETH/Mantle,
+         USDC/Compound, USDT/Compound, USDC/Aave, DAI/Spark, WETH/Gearbox,
+         GHO/Fluid, USDS/Compound, EURC/Aave, PYUSD/Aave, WETH/Aave,
+         WETH/Compound, WETH/Spark
+      2. Plasma — should show: USDe/Fluid or Aave, USDT0/Fluid or Aave,
+         WETH/Aave
+      3. Base — should show: GHO, USDC/Fluid or Aave or Compound, EURC
+      4. Arbitrum — should show: GHO, USDC (4 markets), USDT (3 markets),
+         DAI/Aave, USDC.e (2 markets), LUSD/Aave
+      5. Solana — should show: SOL/Figment, SOL/Kamino, USDC/Drift or Kamino,
+         USDT/Drift or Kamino, USDS/Drift, EURC
+      6. Binance — should show: USDC (2 markets), DAI/Venus, USDT (2 markets)
+      7. Avalanche — should show: AVAX/Benqi, GHO/Aave, USDC/Aave, USDt/Aave,
+         EURC/Aave, DAI.e/Aave, AUSD/Aave
+      8. Polygon — should show: USDT (3 markets, 7.38%), USDC (2 markets),
+         DAI/Aave, USDC.e (2 markets), EURS/Aave
+      9. Katana — should show: vbUSDC (5 markets, Morpho), vbETH (5 markets),
+         vbUSDT (5 markets), AUSD (2 markets)
+      10. Optimism — should show: wETH/Gearbox, USDT (2 markets), USDC (2 markets),
+          DAI/Aave, LUSD/Aave, USDC.e/Aave
+      11. Gnosis — should show: USDC.e/Aave ($1.50 balance), GHO/Aave
+      12. Cosmos — should show: ATOM/ShapeShift DAO only
+
+      For each, just verify yields appear and belong to the correct chain.
+      Don't need to verify every single one — spot check 2-3 per chain.
+
+      Reset to All Networks after testing.
+    expected: >
+      All 12 chain filters work correctly. No cross-chain leaks.
+      Each chain shows expected yields.
+    screenshot: true
+    soft_fail: true
+
+  - name: Yield Page > Test view toggle
+    instruction: >
+      Switch to List View. Snapshot — verify list layout.
+      Switch to Grid View. Snapshot — verify grid layout.
+
+      BUG HUNT:
+      1. Do both views show the SAME yields? Count items in each.
+      2. Is data identical in both views?
+      3. Does toggling cause visual glitches?
+
+      Reset to Grid View after testing.
+    expected: >
+      Both views show same data. No visual glitches.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # SECTION 2: TRADE PAGE EARN TAB — verify alternate entry point
+  # ==========================================================================
+
+  - name: Trade Page Earn > Navigate and verify
+    instruction: >
+      eval "window.location.hash = '/trade'"
+      Wait 5 seconds.
+      Click Earn tab via JS dispatchEvent. Wait 3 seconds.
+
+      BUG HUNT:
+      1. Does Earn tab exist and switch content?
+      2. Is yield selector visible?
+      3. Is there an amount input field?
+
+      Open yield selector. Search "ETH". Verify Lido/stETH option.
+      Select it. Enter $0.10 in FIAT mode. Verify submit button enables.
+      Do NOT submit. Clear and navigate back.
+      eval "window.location.hash = '/earn'"
+    expected: >
+      Earn tab functional. Yield selector works. Amount entry works.
+      No submission — $0 spent.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # SECTION 3: WALLET DRAWER DEFI TAB (Baseline snapshot)
+  # ==========================================================================
+
+  - name: DeFi Drawer > Open and record baseline
+    instruction: >
+      Click wallet button to open drawer:
+      printf 'var btns=document.querySelectorAll("button");for(var i=0;i<btns.length;i++){var t=btns[i].textContent;if(t.includes("$")&&!t.includes("Got It")&&!t.includes("Skip")){btns[i].click();break;}}' > /tmp/click-wallet-btn.js
+      eval "$(cat /tmp/click-wallet-btn.js)"
+      Wait 2 seconds.
+      Click DeFi tab via JS dispatchEvent. Wait 30 seconds for load.
+
+      BUG HUNT:
+      1. Does the drawer open?
+      2. Does DeFi tab load within 30s?
+      3. Count positions — should match yield page My Positions count (~20).
+      4. Record each position's asset, provider, balance.
+
+      Cross-reference: DeFi drawer positions should match yield page positions.
+      Any discrepancy is a BUG.
+
+      Close drawer (Escape). Record baseline.
+    expected: >
+      DeFi drawer loads. Position count matches yield page.
+      Baseline recorded for post-test comparison.
+    screenshot: true
+    soft_fail: true
+
+  # ==========================================================================
+  # SECTION 4: FINAL VERIFICATION (after sub-fixture runs)
+  # ==========================================================================
+
+  - name: Final Verification > DeFi drawer post-test comparison
+    instruction: >
+      Open wallet drawer. Click DeFi tab. Wait 30 seconds.
+
+      Compare against baseline:
+      1. Did position count change as expected?
+      2. For modified positions: does balance reflect operations?
+      3. Are there "ghost" positions (fully withdrawn but still showing)?
+      4. Check pagination if needed.
+
+      Close drawer.
+    expected: >
+      DeFi drawer accurately reflects all post-test positions.
+    screenshot: true
+    soft_fail: true
+
+  - name: Final Verification > Yield page consistency check
+    instruction: >
+      eval "window.location.hash = '/earn'"
+      Wait 3 seconds. Click My Positions tab.
+
+      BUG HUNT:
+      1. Position count matches DeFi drawer?
+      2. Stats bar active positions count matches visible count?
+      3. Has "Available to earn" updated correctly?
+      4. Any stale pre-test balances?
+    expected: >
+      Yield page consistent with DeFi drawer. Stats bar accurate.
+    screenshot: true
+    soft_fail: true
+
+  - name: Final Verification > Action Center audit
+    instruction: >
+      Open Action Center (notification bell). Scroll through ALL notifications.
+
+      BUG HUNT — audit every notification from this test session:
+      1. Count total notifications. Does it match transactions executed?
+      2. For EACH notification verify: action type, asset, amount, provider,
+         status badge, timestamp.
+      3. Missing notifications? Duplicates?
+      4. Click to expand one — does detail view work?
+
+      Close Action Center.
+
+      FINAL SPEND REPORT in agentThought:
+      "FINAL SPEND REPORT: $X.XX net spent across N transactions.
+       Budget remaining: $(40 - X.XX).
+       Deposits: $X.XX | Withdrawals returned: $X.XX | Gas: ~$X.XX
+       Breakdown: [list each tx with type, amount, provider, chain]"
+    expected: >
+      Action Center has complete, accurate transaction history.
+      Final spend report generated.
+    screenshot: true
+    soft_fail: true

@@ -366,7 +366,7 @@ export const YourPositions = () => {
   ])
 
   return (
-    <Main headerComponent={headerComponent} isSubPage>
+    <Main headerComponent={headerComponent} isSubPage data-testid='pools-your-positions'>
       <SEO title={translate('pools.yourPositions.yourPositions')} />
       <Stack padding={stackPadding}>{body}</Stack>
     </Main>

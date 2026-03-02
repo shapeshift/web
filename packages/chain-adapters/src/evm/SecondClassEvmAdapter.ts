@@ -11,6 +11,7 @@ import {
   hyperEvmChainId,
   mantleChainId,
   modeChainId,
+  plumeChainId,
   seiChainId,
   soneiumChainId,
   sonicChainId,
@@ -71,6 +72,7 @@ const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [blastChainId]: '0x4300000000000000000000000000000000000004',
   [zkSyncEraChainId]: '0x5AEa5775959fBC2557Cc8789bC1bf90A239D9a91',
   [storyChainId]: '0x1514000000000000000000000000000000000000',
+  [plumeChainId]: '0xea237441c92cae6fc17caaf9a7acb3f953be4bd1',
   [seiChainId]: '0xE30feDd158A2e3b13e9badaeABaFc5516e95e8C7',
 }
 const BATCH_SIZE = 500
@@ -417,6 +419,8 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
       this.chainId === hyperEvmChainId ||
       this.chainId === blastChainId ||
       this.chainId === zkSyncEraChainId ||
+      this.chainId === flowEvmChainId ||
+      this.chainId === celoChainId ||
       this.chainId === seiChainId
     ) {
       return []
@@ -542,6 +546,27 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
               from: wrappedNativeContract,
               to: getAddress(pubkey),
               value: BigInt(log.data).toString(),
+            })
+          }
+        }
+        // Fallback: direct ERC20 transfer of native token to recipient
+        // On Celo, CELO is both native and ERC20 - Relay sends it as ERC20 directly (no burn/withdraw)
+        if (internalTxs.length === 0 && this.chainId === celoChainId) {
+          const directReceiveLogs = parseEventLogs({
+            abi: erc20Abi,
+            logs: receipt.logs,
+            eventName: 'Transfer',
+          }).filter(
+            log =>
+              isAddressEqual(getAddress(log.address), getAddress(wrappedNativeContract)) &&
+              isAddressEqual(log.args.to, getAddress(pubkey)),
+          )
+
+          for (const log of directReceiveLogs) {
+            internalTxs.push({
+              from: log.args.from,
+              to: getAddress(pubkey),
+              value: log.args.value.toString(),
             })
           }
         }

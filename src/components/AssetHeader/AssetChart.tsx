@@ -121,7 +121,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
           <RawText color='text.subtle'>
             {asset?.symbol} {translate('assets.assetDetails.assetHeader.price')}
           </RawText>
-          <Heading fontSize='4xl' lineHeight={1} mb={2}>
+          <Heading fontSize='4xl' lineHeight={1} mb={2} data-testid='asset-chart-price'>
             <Skeleton isLoaded={isLoaded}>{priceContent}</Skeleton>
           </Heading>
           <Skeleton isLoaded={isLoaded}>

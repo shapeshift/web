@@ -34,6 +34,7 @@ import * as celo from './celo'
 import { compressGeneratedAssets } from './compressAssets'
 import { ASSET_DATA_PATH, GENERATED_DIR, RELATED_ASSET_INDEX_PATH } from './constants'
 import * as cronos from './cronos'
+import * as ethereal from './ethereal'
 import * as ethereum from './ethereum'
 import * as flowEvm from './flowEvm'
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
@@ -91,6 +92,7 @@ const generateAssetData = async () => {
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
+  const etherealAssets = await ethereal.getAssets()
   const flowEvmAssets = await flowEvm.getAssets()
   const celoAssets = await celo.getAssets()
   const zksyncEraAssets = await zksyncera.getAssets()
@@ -144,6 +146,7 @@ const generateAssetData = async () => {
     ...monadAssets,
     ...hyperevmAssets,
     ...katanaAssets,
+    ...etherealAssets,
     ...flowEvmAssets,
     ...celoAssets,
     ...zksyncEraAssets,

@@ -358,6 +358,7 @@ const getUnreleasedCommits = async (): Promise<UnreleasedCommit[]> => {
     .split('\n')
     .map(line => {
       const spaceIdx = line.indexOf(' ')
+      if (spaceIdx === -1) return { hash: line, message: '' }
       return { hash: line.slice(0, spaceIdx), message: line.slice(spaceIdx + 1) }
     })
 }
@@ -515,8 +516,27 @@ const doHotfixRelease = async () => {
   await git().checkout(['develop'])
   console.log(chalk.green('Pulling develop...'))
   await git().pull()
+  const developSha = (await git().revparse(['HEAD'])).trim()
   console.log(chalk.green('Merging main back into develop...'))
-  await git().merge(['main'])
+  try {
+    await git().merge(['main'])
+  } catch (err) {
+    await git()
+      .merge(['--abort'])
+      .catch(() => {})
+    await git().reset(['--hard', developSha])
+    const message = err instanceof Error ? err.message : String(err)
+    exit(
+      chalk.red(
+        `Merge into develop failed: ${message}\n` +
+          `Hotfix ${nextVersion} was pushed to main but develop merge failed.\n` +
+          `Develop has been reset to ${developSha.slice(
+            0,
+            8,
+          )}. Please merge main into develop manually.`,
+      ),
+    )
+  }
   console.log(chalk.green('Pushing develop...'))
   await git().push(['origin', 'develop'])
 
@@ -589,8 +609,27 @@ const mergeRelease = async () => {
   await git().checkout(['develop'])
   console.log(chalk.green('Pulling develop...'))
   await git().pull()
+  const developSha = (await git().revparse(['HEAD'])).trim()
   console.log(chalk.green('Merging main back into develop...'))
-  await git().merge(['main'])
+  try {
+    await git().merge(['main'])
+  } catch (err) {
+    await git()
+      .merge(['--abort'])
+      .catch(() => {})
+    await git().reset(['--hard', developSha])
+    const message = err instanceof Error ? err.message : String(err)
+    exit(
+      chalk.red(
+        `Merge into develop failed: ${message}\n` +
+          `Release ${nextVersion} was pushed to main but develop merge failed.\n` +
+          `Develop has been reset to ${developSha.slice(
+            0,
+            8,
+          )}. Please merge main into develop manually.`,
+      ),
+    )
+  }
   console.log(chalk.green('Pushing develop...'))
   await git().push(['origin', 'develop'])
   exit(chalk.green(`Release ${nextVersion} completed successfully.`))

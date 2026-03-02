@@ -88,6 +88,7 @@ const validators = {
   VITE_SOLANA_NODE_URL: url(),
   VITE_STARKNET_NODE_URL: url(),
   VITE_TRON_NODE_URL: url(),
+  VITE_TRON_ESTIMATE_ENERGY_URL: url({ default: '' }),
   VITE_SUI_NODE_URL: url(),
   VITE_TON_NODE_URL: url(),
   VITE_NEAR_NODE_URL: url(),

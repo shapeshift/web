@@ -11,6 +11,7 @@ export const getServerConfig = (): SwapperConfig => ({
   VITE_THORCHAIN_NODE_URL: process.env.THORCHAIN_NODE_URL || 'https://thornode.ninerealms.com',
   VITE_MAYACHAIN_NODE_URL: process.env.MAYACHAIN_NODE_URL || 'https://tendermint.mayachain.info',
   VITE_TRON_NODE_URL: process.env.TRON_NODE_URL || 'https://api.trongrid.io',
+  VITE_TRON_ESTIMATE_ENERGY_URL: process.env.TRON_ESTIMATE_ENERGY_URL || '',
   VITE_FEATURE_THORCHAINSWAP_LONGTAIL: process.env.FEATURE_THORCHAINSWAP_LONGTAIL === 'true',
   VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL:
     process.env.FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL === 'true',

@@ -11,4 +11,4 @@ export const mayaPoolAssetIdToAssetId = (id: string): AssetId | undefined =>
   mayaPoolIdAssetIdSymbolMap[id.toUpperCase()]
 
 export const assetIdToMayaPoolAssetId = ({ assetId }: { assetId: AssetId }): string | undefined =>
-  assetIdToMayaPoolAssetIdMap[assetId.toLowerCase()]
+  assetIdToMayaPoolAssetIdMap[assetId]

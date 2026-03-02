@@ -391,10 +391,14 @@ export const YieldAssetDetails = memo(() => {
   const handleYieldClick = useCallback(
     (yieldId: string) => {
       const validator = getDefaultValidatorForYield(yieldId)
-      const url = validator ? `/yield/${yieldId}?validator=${validator}` : `/yield/${yieldId}`
+      const params = new URLSearchParams()
+      if (validator) params.set('validator', validator)
+      if (selectedAccountId) params.set('accountId', selectedAccountId)
+      const queryString = params.toString()
+      const url = queryString ? `/yield/${yieldId}?${queryString}` : `/yield/${yieldId}`
       navigate(url)
     },
-    [navigate],
+    [navigate, selectedAccountId],
   )
 
   const handleRowClick = useCallback(

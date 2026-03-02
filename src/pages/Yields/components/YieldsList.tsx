@@ -499,10 +499,16 @@ export const YieldsList = memo(() => {
       const balances = allBalances?.[yieldId]
       if (!balances || balances.length === 0) return undefined
       // Find the account with the highest USD balance for this yield
-      const best = balances.reduce((prev, curr) =>
+      const bestByUsd = balances.reduce((prev, curr) =>
         bnOrZero(curr.amountUsd).gt(bnOrZero(prev.amountUsd)) ? curr : prev,
       )
-      return bnOrZero(best.amountUsd).gt(0) ? best.accountId : undefined
+      if (bnOrZero(bestByUsd.amountUsd).gt(0)) return bestByUsd.accountId
+
+      // Fallback: when USD balance is zero for all entries, try position amount
+      const bestByAmount = balances.reduce((prev, curr) =>
+        bnOrZero(curr.amount).gt(bnOrZero(prev.amount)) ? curr : prev,
+      )
+      return bnOrZero(bestByAmount.amount).gt(0) ? bestByAmount.accountId : undefined
     },
     [allBalances],
   )

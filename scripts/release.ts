@@ -41,7 +41,7 @@ const inquireReleaseType = async (): Promise<ReleaseType> => {
 }
 
 const inquireProceedWithCommits = async (commits: string[], action: 'create' | 'merge') => {
-  console.log(chalk.blue(['', commits, ''].join('\n')))
+  console.log(chalk.blue(['', ...commits, ''].join('\n')))
   const message =
     action === 'create'
       ? 'Do you want to create a release with these commits?'

@@ -66,7 +66,10 @@ export const useDepositConfirmation = () => {
         actorRef.send({ type: 'CONFIRMED' })
       }
     } catch (error) {
-      console.error('[useDepositConfirmation] Error parsing free balances during confirmation poll', error)
+      console.error(
+        '[useDepositConfirmation] Error parsing free balances during confirmation poll',
+        error,
+      )
     }
   }, [
     isConfirming,

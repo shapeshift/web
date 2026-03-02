@@ -5,7 +5,7 @@
 Use bundled mode to avoid ESM/tsx module resolution issues:
 
 ```bash
-yarn build:bundle && yarn start:prod
+pnpm run build:bundle && pnpm run start:prod
 ```
 
 This bundles everything with esbuild into `dist/server.cjs` and runs it with plain Node.js.

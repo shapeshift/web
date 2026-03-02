@@ -9,10 +9,9 @@ WORKDIR /app
 RUN apk add --no-cache python3 make g++ openjdk17-jre
 
 # Copy workspace files
-COPY package.json yarn.lock .yarnrc.yml ./
-COPY .yarn ./.yarn
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 
-# Copy all workspace package.json files for resolution (yarn requires all workspaces present)
+# Copy all workspace package.json files for resolution (pnpm requires all workspaces present)
 COPY packages/caip/package.json ./packages/caip/
 COPY packages/chain-adapters/package.json ./packages/chain-adapters/
 COPY packages/contracts/package.json ./packages/contracts/
@@ -49,16 +48,14 @@ COPY packages/unchained-client/package.json ./packages/unchained-client/
 COPY packages/utils/package.json ./packages/utils/
 
 # Install dependencies (skip build/postinstall scripts that require git/cypress/etc)
-RUN --mount=type=cache,id=s/4cafb297-3349-46e2-bfef-8210504e0583-/root/.yarn/berry/cache,target=/root/.yarn/berry/cache \
-    yarn install --immutable --mode skip-build
+RUN corepack enable && corepack prepare pnpm@10.30.3 --activate && pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy unchained-client config and generator files FIRST (rarely changes, enables layer caching)
 COPY packages/unchained-client/openapitools.json ./packages/unchained-client/
 COPY packages/unchained-client/generator/ ./packages/unchained-client/generator/
 
 # Generate unchained-client code (required by tsc --build for workspace packages)
-RUN --mount=type=cache,id=s/4cafb297-3349-46e2-bfef-8210504e0583-/root/.openapitools,target=/root/.openapitools \
-    yarn workspace @shapeshiftoss/unchained-client generate
+RUN pnpm --filter @shapeshiftoss/unchained-client generate
 
 # Copy remaining source files
 COPY packages/ ./packages/
@@ -66,11 +63,11 @@ COPY public/generated/generatedAssetData.json ./public/generated/
 COPY tsconfig.json tsconfig.packages.json ./
 
 # Build all packages using parallel tsc with project references
-RUN yarn run -T tsc --build tsconfig.packages.json && yarn postbuild:packages
+RUN pnpm exec tsc --build tsconfig.packages.json && pnpm run postbuild:packages
 
 # Build the swap-widget
 WORKDIR /app/packages/swap-widget
-RUN yarn build
+RUN pnpm run build
 
 # Production stage
 FROM node:22-alpine AS runner

@@ -1,7 +1,7 @@
 ---
 name: swapper-integration
 description: Integrate new DEX aggregators, swappers, or bridge protocols (like Bebop, Portals, Jupiter, 0x, 1inch, etc.) into ShapeShift Web. Activates when user wants to add, integrate, or implement support for a new swapper. Guides through research, implementation, and testing following established patterns. (project)
-allowed-tools: Read, Write, Edit, Grep, Glob, WebFetch, WebSearch, Bash(yarn test:*), Bash(yarn lint:*), Bash(yarn type-check), Bash(yarn build:*), Bash(gh pr:*), AskUserQuestion
+allowed-tools: Read, Write, Edit, Grep, Glob, WebFetch, WebSearch, Bash(pnpm run test:*), Bash(pnpm run lint:*), Bash(pnpm run type-check), Bash(pnpm run build:*), Bash(gh pr:*), AskUserQuestion
 ---
 
 # Swapper Integration Skill
@@ -1336,16 +1336,16 @@ export const getConfig = (): Config => ({
 
 ```bash
 # Type checking (MUST pass)
-yarn type-check
+pnpm run type-check
 
 # Linting (MUST pass)
-yarn lint
+pnpm run lint
 
 # Build swapper package (MUST pass)
-yarn build:swapper
+pnpm run build:swapper
 
 # Build web (SHOULD pass, may have unrelated errors)
-yarn build:web
+pnpm run build:web
 ```
 
 Fix ALL type errors and lint errors before manual testing.
@@ -1463,9 +1463,9 @@ all pass before the integration is complete.
 Before considering integration complete:
 
 **Code Quality**:
-- [ ] All type checks pass (`yarn type-check`)
-- [ ] All lint checks pass (`yarn lint`)
-- [ ] Build succeeds (`yarn build:swapper`)
+- [ ] All type checks pass (`pnpm run type-check`)
+- [ ] All lint checks pass (`pnpm run lint`)
+- [ ] Build succeeds (`pnpm run build:swapper`)
 - [ ] No `any` types used
 - [ ] All errors handled monadically
 

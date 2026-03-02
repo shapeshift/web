@@ -3,7 +3,7 @@
 ## Getting Started
 
 ```sh
-yarn add @shapeshiftoss/types
+pnpm add @shapeshiftoss/types
 ```
 
 ## Usage

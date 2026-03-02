@@ -55,6 +55,7 @@
     "node_modules",
     "**/__mocks__",
     "**/*.js",
+    "packages/*/dist",
     "packages/hdwallet-sandbox/**",
     "packages/hdwallet-integration/**",
     "src/lib/asset-service/service/encodedAssetData.json",

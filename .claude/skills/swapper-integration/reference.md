@@ -370,9 +370,9 @@ Standard structure (most swappers):
 Before considering integration complete:
 
 **Automated checks**:
-- [ ] `yarn type-check` passes
-- [ ] `yarn lint` passes
-- [ ] `yarn build:swapper` succeeds
+- [ ] `pnpm run type-check` passes
+- [ ] `pnpm run lint` passes
+- [ ] `pnpm run build:swapper` succeeds
 
 **Manual testing**:
 - [ ] Can fetch quote for supported chain

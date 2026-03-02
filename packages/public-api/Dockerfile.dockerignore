@@ -1,4 +1,4 @@
-# Dependencies (yarn install handles these fresh)
+# Dependencies (pnpm install handles these fresh)
 node_modules/
 packages/*/node_modules/
 

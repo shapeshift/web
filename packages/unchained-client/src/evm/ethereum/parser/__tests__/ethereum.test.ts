@@ -120,6 +120,45 @@ vi.mock('axios', () => {
   }
 })
 
+// Mock ethers Contract to prevent real RPC calls during mempool tx parsing
+// The uniV2 parser creates Contract instances to fetch token metadata (decimals, name, symbol)
+// for unconfirmed transactions, which fails when rpcUrl is empty
+const mockTokenData: Record<string, { decimals: number; name: string; symbol: string }> = {
+  // FOX token
+  '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d': {
+    decimals: 18,
+    name: 'FOX',
+    symbol: 'FOX',
+  },
+  // Uniswap V2 FOX/WETH LP token
+  '0x470e8de2eBaef52014A47Cb5E6aF86884947F08c': {
+    decimals: 18,
+    name: 'Uniswap V2',
+    symbol: 'UNI-V2',
+  },
+}
+
+vi.mock('ethers', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const actual = await vi.importActual<any>('ethers')
+
+  const MockContract = vi.fn().mockImplementation((address: string) => {
+    const checksumAddress = actual.getAddress(address.toLowerCase())
+    const data = mockTokenData[checksumAddress] ?? { decimals: 18, name: 'Unknown', symbol: 'UNK' }
+
+    return {
+      decimals: vi.fn().mockResolvedValue(data.decimals),
+      name: vi.fn().mockResolvedValue(data.name),
+      symbol: vi.fn().mockResolvedValue(data.symbol),
+    }
+  })
+
+  return {
+    ...actual,
+    Contract: MockContract,
+  }
+})
+
 const makeTxParser = vi.fn(
   async () =>
     new TransactionParser({

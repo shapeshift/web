@@ -126,7 +126,7 @@ To generate new static adapter data, run the following
 
 ```zsh
 cd packages/caip
-yarn generate
+pnpm run generate
 ```
 
 and commit the generated `adapter.json` files.

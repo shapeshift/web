@@ -335,14 +335,14 @@ const getCommits = async (branch: string): Promise<GetCommitsReturn> => {
   const latestTag = await getLatestSemverTag()
   const range = latestTag ? `${latestTag}..origin/${branch}` : `origin/main..origin/${branch}`
 
-  const { all, total } = await git().log({
-    '--oneline': null,
-    '--first-parent': null,
-    format: { subject: '%s' },
-    [range]: null,
-  })
+  const result = await pify(exec)(`git log --first-parent --pretty=format:"%s" ${range}`)
+  const stdout = typeof result === 'string' ? result : (result as { stdout: string }).stdout
+  const messages = stdout
+    .trim()
+    .split('\n')
+    .filter(Boolean)
 
-  const messages = all.map(({ subject }) => subject)
+  const total = messages.length
   return { messages, total }
 }
 
@@ -350,7 +350,7 @@ type UnreleasedCommit = { hash: string; message: string }
 
 const getUnreleasedCommits = async (): Promise<UnreleasedCommit[]> => {
   const result = await pify(exec)(
-    'git log --oneline --first-parent --pretty=format:"%H %s" origin/main..origin/develop',
+    'git log --first-parent --pretty=format:"%H %s" origin/main..origin/develop',
   )
   const stdout = typeof result === 'string' ? result : (result as { stdout: string }).stdout
 
@@ -478,6 +478,7 @@ const doHotfixRelease = async () => {
   await git().checkout(['main'])
   console.log(chalk.green('Pulling main...'))
   await git().pull()
+  const mainSha = (await git().revparse(['HEAD'])).trim()
 
   const cherryPickOrder = [...selected].reverse()
   for (const c of cherryPickOrder) {
@@ -485,8 +486,18 @@ const doHotfixRelease = async () => {
     try {
       await pify(exec)(`git cherry-pick ${c.hash}`)
     } catch (err) {
-      await pify(exec)('git cherry-pick --abort')
-      exit(chalk.red(`Cherry-pick failed for ${c.hash.slice(0, 8)}: ${String(err)}`))
+      try {
+        await pify(exec)('git cherry-pick --abort')
+      } catch {
+        // no-op
+      }
+      await git().reset(['--hard', mainSha])
+      const message = err instanceof Error ? err.message : String(err)
+      exit(
+        chalk.red(
+          `Cherry-pick failed for ${c.hash.slice(0, 8)}: ${message}\nMain has been reset to ${mainSha.slice(0, 8)}.`,
+        ),
+      )
     }
   }
 

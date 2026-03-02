@@ -18,6 +18,13 @@ import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLe
 import { ChainflipLendingHeader } from '@/pages/ChainflipLending/components/ChainflipLendingHeader'
 import type { ChainflipFreeBalanceWithFiat } from '@/pages/ChainflipLending/hooks/useChainflipFreeBalances'
 import { useChainflipFreeBalances } from '@/pages/ChainflipLending/hooks/useChainflipFreeBalances'
+import type {
+  CollateralWithFiat,
+  LoanWithFiat,
+} from '@/pages/ChainflipLending/hooks/useChainflipLoanAccount'
+import { useChainflipLoanAccount } from '@/pages/ChainflipLending/hooks/useChainflipLoanAccount'
+import type { ChainflipSupplyPositionWithFiat } from '@/pages/ChainflipLending/hooks/useChainflipSupplyPositions'
+import { useChainflipSupplyPositions } from '@/pages/ChainflipLending/hooks/useChainflipSupplyPositions'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectPortfolioCryptoBalanceByFilter } from '@/state/slices/common-selectors'
 import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
@@ -25,7 +32,7 @@ import { useAppSelector } from '@/state/store'
 
 const balanceRowGrid: GridProps['gridTemplateColumns'] = {
   base: '1fr',
-  md: '200px 1fr 1fr',
+  md: '200px 1fr 1fr 1fr 1fr 1fr',
 }
 
 const mobileDisplay = { base: 'none', md: 'flex' }
@@ -38,10 +45,21 @@ type BalanceRowProps = {
   assetId: AssetId
   accountNumber: number
   freeBalance: ChainflipFreeBalanceWithFiat | undefined
+  supplyPosition: ChainflipSupplyPositionWithFiat | undefined
+  collateral: CollateralWithFiat | undefined
+  loan: LoanWithFiat | undefined
   onDeposit: (assetId: AssetId) => void
 }
 
-const BalanceRow = ({ assetId, accountNumber, freeBalance, onDeposit }: BalanceRowProps) => {
+const BalanceRow = ({
+  assetId,
+  accountNumber,
+  freeBalance,
+  supplyPosition,
+  collateral,
+  loan,
+  onDeposit,
+}: BalanceRowProps) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdsByAccountNumberAndChainId,
@@ -73,6 +91,21 @@ const BalanceRow = ({ assetId, accountNumber, freeBalance, onDeposit }: BalanceR
     [freeBalance?.balanceCryptoPrecision],
   )
 
+  const suppliedPrecision = useMemo(
+    () => supplyPosition?.totalAmountCryptoPrecision ?? '0',
+    [supplyPosition?.totalAmountCryptoPrecision],
+  )
+
+  const collateralPrecision = useMemo(
+    () => collateral?.amountCryptoPrecision ?? '0',
+    [collateral?.amountCryptoPrecision],
+  )
+
+  const borrowedPrecision = useMemo(
+    () => loan?.principalAmountCryptoPrecision ?? '0',
+    [loan?.principalAmountCryptoPrecision],
+  )
+
   const handleClick = useCallback(() => {
     onDeposit(assetId)
   }, [assetId, onDeposit])
@@ -102,6 +135,15 @@ const BalanceRow = ({ assetId, accountNumber, freeBalance, onDeposit }: BalanceR
       <Flex display={mobileDisplay}>
         <Amount.Crypto value={scBalancePrecision} symbol={symbol} />
       </Flex>
+      <Flex display={mobileDisplay}>
+        <Amount.Crypto value={suppliedPrecision} symbol={symbol} />
+      </Flex>
+      <Flex display={mobileDisplay}>
+        <Amount.Crypto value={collateralPrecision} symbol={symbol} />
+      </Flex>
+      <Flex display={mobileDisplay}>
+        <Amount.Crypto value={borrowedPrecision} symbol={symbol} />
+      </Flex>
     </Button>
   )
 }
@@ -112,6 +154,8 @@ export const MyBalances = () => {
   const { dispatch: walletDispatch } = useWallet()
   const { accountId, accountNumber } = useChainflipLendingAccount()
   const { freeBalances, isLoading } = useChainflipFreeBalances()
+  const { supplyPositions, isLoading: isPositionsLoading } = useChainflipSupplyPositions()
+  const { collateralWithFiat, loansWithFiat, isLoading: isLoanLoading } = useChainflipLoanAccount()
 
   const handleDeposit = useCallback(
     (assetId: AssetId) => {
@@ -139,6 +183,36 @@ export const MyBalances = () => {
     [freeBalances],
   )
 
+  const supplyPositionsByAssetId = useMemo(
+    () =>
+      supplyPositions.reduce<Partial<Record<AssetId, ChainflipSupplyPositionWithFiat>>>(
+        (acc, position) => {
+          acc[position.assetId] = position
+          return acc
+        },
+        {},
+      ),
+    [supplyPositions],
+  )
+
+  const collateralByAssetId = useMemo(
+    () =>
+      collateralWithFiat.reduce<Partial<Record<AssetId, CollateralWithFiat>>>((acc, c) => {
+        acc[c.assetId] = c
+        return acc
+      }, {}),
+    [collateralWithFiat],
+  )
+
+  const loansByAssetId = useMemo(
+    () =>
+      loansWithFiat.reduce<Partial<Record<AssetId, LoanWithFiat>>>((acc, l) => {
+        acc[l.assetId] = l
+        return acc
+      }, {}),
+    [loansWithFiat],
+  )
+
   const balanceRows = useMemo(() => {
     if (!accountId) {
       return (
@@ -151,7 +225,7 @@ export const MyBalances = () => {
       )
     }
 
-    if (isLoading) {
+    if (isLoading || isPositionsLoading || isLoanLoading) {
       return Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} height={16} />)
     }
 
@@ -161,6 +235,9 @@ export const MyBalances = () => {
         assetId={assetId}
         accountNumber={accountNumber}
         freeBalance={freeBalancesByAssetId[assetId]}
+        supplyPosition={supplyPositionsByAssetId[assetId]}
+        collateral={collateralByAssetId[assetId]}
+        loan={loansByAssetId[assetId]}
         onDeposit={handleDeposit}
       />
     ))
@@ -168,7 +245,12 @@ export const MyBalances = () => {
     accountId,
     accountNumber,
     isLoading,
+    isPositionsLoading,
+    isLoanLoading,
     freeBalancesByAssetId,
+    supplyPositionsByAssetId,
+    collateralByAssetId,
+    loansByAssetId,
     handleDeposit,
     handleConnectWallet,
     translate,
@@ -186,12 +268,21 @@ export const MyBalances = () => {
           fontSize='sm'
           px={mobilePadding}
         >
-          <Text translation='chainflipLending.pool' />
+          <Text translation='chainflipLending.market' />
           <Flex display={mobileDisplay}>
             <Text translation='chainflipLending.walletBalance' />
           </Flex>
           <Flex display={mobileDisplay}>
             <Text translation='chainflipLending.stateChainBalance' />
+          </Flex>
+          <Flex display={mobileDisplay}>
+            <Text translation='chainflipLending.suppliedBalance' />
+          </Flex>
+          <Flex display={mobileDisplay}>
+            <Text translation='chainflipLending.collateralHeader' />
+          </Flex>
+          <Flex display={mobileDisplay}>
+            <Text translation='chainflipLending.borrowedHeader' />
           </Flex>
         </SimpleGrid>
         <Stack mx={listMargin}>{balanceRows}</Stack>

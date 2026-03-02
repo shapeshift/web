@@ -120,6 +120,40 @@ vi.mock('axios', () => {
   }
 })
 
+const mockTokenData: Record<string, { decimals: number; name: string; symbol: string }> = {
+  '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d': {
+    decimals: 18,
+    name: 'FOX',
+    symbol: 'FOX',
+  },
+  '0x470e8de2eBaef52014A47Cb5E6aF86884947F08c': {
+    decimals: 18,
+    name: 'Uniswap V2',
+    symbol: 'UNI-V2',
+  },
+}
+
+vi.mock('ethers', async () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const actual = await vi.importActual<any>('ethers')
+
+  const MockContract = vi.fn().mockImplementation((address: string) => {
+    const checksumAddress = actual.getAddress(address.toLowerCase())
+    const data = mockTokenData[checksumAddress] ?? { decimals: 18, name: 'Unknown', symbol: 'UNK' }
+
+    return {
+      decimals: vi.fn().mockResolvedValue(data.decimals),
+      name: vi.fn().mockResolvedValue(data.name),
+      symbol: vi.fn().mockResolvedValue(data.symbol),
+    }
+  })
+
+  return {
+    ...actual,
+    Contract: MockContract,
+  }
+})
+
 const makeTxParser = vi.fn(
   async () =>
     new TransactionParser({

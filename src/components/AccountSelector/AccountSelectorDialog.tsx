@@ -52,11 +52,11 @@ export const AccountSelectorDialog = ({
               .toBN()
               .times(marketData?.price ?? 0)
               .toFixed(2)
-          : '0.00'
+          : '0'
 
         return {
           accountId,
-          cryptoBalance: balance?.toBaseUnit() ?? '0',
+          cryptoBalancePrecision: balance?.toPrecision() ?? '0',
           fiatBalance,
         }
       }),
@@ -75,15 +75,14 @@ export const AccountSelectorDialog = ({
       </DialogHeader>
       <DialogBody maxH='80vh' overflowY='auto'>
         <VStack spacing={2} align='stretch'>
-          {accountsWithDetails.map(({ accountId, cryptoBalance, fiatBalance }) => {
+          {accountsWithDetails.map(({ accountId, cryptoBalancePrecision, fiatBalance }) => {
             const isSelected = selectedAccountId === accountId
             return (
               <AccountSelectorOption
                 key={accountId}
                 accountId={accountId}
-                cryptoBalance={cryptoBalance}
+                cryptoBalancePrecision={cryptoBalancePrecision}
                 fiatBalance={fiatBalance}
-                assetId={assetId}
                 symbol={asset.symbol}
                 isSelected={isSelected}
                 disabled={disabled}

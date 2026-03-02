@@ -1,6 +1,7 @@
 import { mergeQueryKeys } from '@lukemorales/query-key-factory'
 
 import { accountManagement } from './queries/accountManagement'
+import { chainflipLending } from './queries/chainflipLending'
 import { common } from './queries/common'
 import { midgard } from './queries/midgard'
 import { mutations } from './queries/mutations'
@@ -12,6 +13,7 @@ import { thorchainLp } from '@/pages/ThorChainLP/queries/queries'
 
 export const reactQueries = mergeQueryKeys(
   accountManagement,
+  chainflipLending,
   common,
   midgard,
   mutations,

@@ -101,8 +101,9 @@ export const SharedTradeInputBody = ({
     onSellAssetChainIdChange,
   ])
 
-  const assetSelectButtonProps = useMemo(() => {
+  const sellAssetSelectButtonProps = useMemo(() => {
     return {
+      'data-testid': 'sell-asset-button',
       maxWidth: isSmallerThanMd ? '100%' : undefined,
     }
   }, [isSmallerThanMd])
@@ -117,14 +118,14 @@ export const SharedTradeInputBody = ({
         assetFilterPredicate={assetFilterPredicate}
         chainIdFilterPredicate={chainIdFilterPredicate}
         showChainDropdown={!isSmallerThanMd}
-        buttonProps={assetSelectButtonProps}
+        buttonProps={sellAssetSelectButtonProps}
         mb={isSmallerThanMd ? 0 : 4}
       />
     ),
     [
       sellAsset.assetId,
       isSmallerThanMd,
-      assetSelectButtonProps,
+      sellAssetSelectButtonProps,
       handleSellAssetClick,
       setSellAsset,
       assetFilterPredicate,

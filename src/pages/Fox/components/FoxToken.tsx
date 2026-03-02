@@ -20,7 +20,7 @@ export const FoxToken = () => {
   return (
     <>
       <Divider mb={4} id='token' />
-      <Box py={4} px={containerPaddingX} scrollMarginTop={300}>
+      <Box py={4} px={containerPaddingX} scrollMarginTop={300} data-testid='fox-token-section'>
         <Heading as='h2' fontSize='2xl' display='flex' alignItems='center'>
           <AssetIcon assetId={assetId} showNetworkIcon={false} me={2} />
           {translate('foxPage.foxToken')}

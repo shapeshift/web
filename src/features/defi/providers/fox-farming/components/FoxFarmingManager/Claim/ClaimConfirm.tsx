@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -36,7 +37,6 @@ import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFo
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -53,7 +53,7 @@ import {
   selectAssets,
   selectEarnUserStakingOpportunityByUserStakingId,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -188,7 +188,7 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
         {
           opportunity,
           fiatAmounts: [claimFiatAmount],
-          cryptoAmounts: [{ assetId: asset.assetId, amountCryptoHuman: amount }],
+          cryptoAmounts: [{ assetId: asset.assetId, amountCryptoPrecision: amount }],
         },
         assets,
       )
@@ -233,7 +233,10 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
         const fees = await getClaimFees(accountAddress)
         if (!fees) throw new Error('failed to get claim fees')
 
-        const estimatedGasCrypto = fromBaseUnit(fees.networkFeeCryptoBaseUnit, feeAsset.precision)
+        const estimatedGasCrypto = BigAmount.fromBaseUnit({
+          value: fees.networkFeeCryptoBaseUnit,
+          precision: feeAsset.precision,
+        }).toPrecision()
 
         setCanClaim(true)
         setEstimatedGas(estimatedGasCrypto)
@@ -258,11 +261,11 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
   )
 
   const feeAssetBalance = useAppSelector(s =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(s, feeAssetBalanceFilter),
+    selectPortfolioCryptoBalanceByFilter(s, feeAssetBalanceFilter),
   )
 
   const hasEnoughBalanceForGas = useMemo(
-    () => bnOrZero(feeAssetBalance).minus(bnOrZero(estimatedGas)).gte(0),
+    () => feeAssetBalance.minus(estimatedGas).gte(0),
     [feeAssetBalance, estimatedGas],
   )
 

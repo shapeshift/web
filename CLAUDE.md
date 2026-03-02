@@ -95,6 +95,11 @@
 - When opening PRs (via `gh`, Aviator `av`, or any CLI tool), ALWAYS use the `.github/PULL_REQUEST_TEMPLATE.md` template as the base for the PR body
 - **Editing PR descriptions**: `gh pr edit --body` fails on this repo due to a deprecated Projects Classic GraphQL error. Use the REST API instead: `gh api repos/shapeshift/web/pulls/<number> -X PATCH -F "body=@/path/to/body.md"` (write the body to a temp file first)
 
+### xstate PRs
+- When a PR includes xstate state machines, the PR description MUST include a Mermaid `stateDiagram-v2` visualization of the machine's states and transitions
+- Generate the diagram from the machine definition - show states, events, guards, and error/retry flows
+- This serves as living documentation for both product and engineering reviewers
+
 ### UI/UX Standards
 - Account for light/dark mode using `useColorModeValue` hook
 - Account for responsive mobile designs in all UI components

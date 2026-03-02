@@ -65,12 +65,12 @@
 ### Project Overview
 - **Project**: Decentralized crypto exchange platform
 - **Main branch**: `develop` (not main/master)
-- **Package manager**: yarn
+- **Package manager**: pnpm
 - **State management**: Redux Toolkit with redux-persist
 - **Architecture**: Plugin-based for blockchain support
 
 ### Code Quality & Standards
-- Always run `yarn lint --fix` and `yarn type-check` after making changes
+- Always run `pnpm run lint --fix` and `pnpm run type-check` after making changes
 - Keep changes surgical where possible - minimize changes to make code reviews easier
 - Make targeted, focused modifications rather than broad refactors unless specifically requested
 - Never create documentation files unless explicitly requested
@@ -89,7 +89,7 @@
 ### Git & Version Control
 - Never commit changes unless explicitly requested
 - When creating commits, follow the Git Safety Protocol (see session notes)
-- **Before pushing**: always run `yarn lint --fix`, and if there are lint fixes, commit them before pushing. Never push without verifying lint passes first.
+- **Before pushing**: always run `pnpm run lint --fix`, and if there are lint fixes, commit them before pushing. Never push without verifying lint passes first.
 - Main branch is `develop` - use this for PRs
 - Branch naming: Use descriptive names (e.g., `feat_gridplus`, `fix_wallet_connect`)
 - When opening PRs (via `gh`, Aviator `av`, or any CLI tool), ALWAYS use the `.github/PULL_REQUEST_TEMPLATE.md` template as the base for the PR body

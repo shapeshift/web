@@ -29,7 +29,14 @@ export enum CosmosSigningMethod {
   COSMOS_SIGN_AMINO = 'cosmos_signAmino',
 }
 
-export type KnownSigningMethod = EIP155_SigningMethod | CosmosSigningMethod
+export enum SolanaSigningMethod {
+  SOLANA_SIGN_TRANSACTION = 'solana_signTransaction',
+  SOLANA_SIGN_AND_SEND_TRANSACTION = 'solana_signAndSendTransaction',
+  SOLANA_SIGN_MESSAGE = 'solana_signMessage',
+  SOLANA_SIGN_ALL_TRANSACTIONS = 'solana_signAllTransactions',
+}
+
+export type KnownSigningMethod = EIP155_SigningMethod | CosmosSigningMethod | SolanaSigningMethod
 
 export interface ModalData<T = WalletConnectRequest> {
   proposal?: WalletKitTypes.EventArguments['session_proposal']
@@ -106,6 +113,7 @@ export enum WalletConnectModal {
   SignEIP155TransactionConfirmation = 'signEIP155TransactionConfirmation',
   SendEIP155TransactionConfirmation = 'sendEIP155TransactionConfirmation',
   SendCosmosTransactionConfirmation = 'sendCosmosTransactionConfirmation',
+  SendSolanaTransactionConfirmation = 'sendSolanaTransactionConfirmation',
   NoAccountsForChain = 'noAccountsForChain',
 }
 
@@ -230,6 +238,48 @@ export type CosmosSignAminoCallRequest = {
   params: CosmosSignAminoCallRequestParams
 }
 
+export type SolanaSignTransactionCallRequestParams = {
+  transaction: string
+}
+
+export type SolanaSignTransactionCallRequest = {
+  method: SolanaSigningMethod.SOLANA_SIGN_TRANSACTION
+  params: SolanaSignTransactionCallRequestParams
+}
+
+export type SolanaSignAndSendTransactionCallRequestParams = {
+  transaction: string // base64 encoded
+  sendOptions?: {
+    skipPreflight?: boolean
+    preflightCommitment?: string
+    maxRetries?: number
+  }
+}
+
+export type SolanaSignAndSendTransactionCallRequest = {
+  method: SolanaSigningMethod.SOLANA_SIGN_AND_SEND_TRANSACTION
+  params: SolanaSignAndSendTransactionCallRequestParams
+}
+
+export type SolanaSignAllTransactionsCallRequestParams = {
+  transactions: string[]
+}
+
+export type SolanaSignAllTransactionsCallRequest = {
+  method: SolanaSigningMethod.SOLANA_SIGN_ALL_TRANSACTIONS
+  params: SolanaSignAllTransactionsCallRequestParams
+}
+
+export type SolanaSignMessageCallRequestParams = {
+  message: string
+  pubkey: string
+}
+
+export type SolanaSignMessageCallRequest = {
+  method: SolanaSigningMethod.SOLANA_SIGN_MESSAGE
+  params: SolanaSignMessageCallRequestParams
+}
+
 type EthSignTypedDataCallRequestParams = [account: string, message: string]
 export type EthSignTypedDataCallRequest = {
   method:
@@ -250,6 +300,10 @@ export type WalletConnectRequest =
   | CosmosGetAccountsCallRequest
   | CosmosSignDirectCallRequest
   | CosmosSignAminoCallRequest
+  | SolanaSignTransactionCallRequest
+  | SolanaSignAndSendTransactionCallRequest
+  | SolanaSignAllTransactionsCallRequest
+  | SolanaSignMessageCallRequest
 
 export type EthSignParams =
   | EthSignCallRequest
@@ -263,6 +317,10 @@ export type RequestParams =
   | EthSignParams
   | CosmosSignDirectCallRequestParams
   | CosmosSignAminoCallRequestParams
+  | SolanaSignTransactionCallRequestParams
+  | SolanaSignAndSendTransactionCallRequestParams
+  | SolanaSignAllTransactionsCallRequestParams
+  | SolanaSignMessageCallRequestParams
 
 export type ConfirmData = {
   nonce?: string

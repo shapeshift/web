@@ -63,6 +63,22 @@ export interface SolanaTxSignature {
   signature: string
 }
 
+export interface SolanaSignRawTx {
+  addressNList: BIP32Path
+  rawTransaction: string
+  pubKey?: string
+}
+
+export interface SolanaSignMessage {
+  addressNList: BIP32Path
+  message: Uint8Array
+  pubKey?: string
+}
+
+export interface SolanaSignedMessage {
+  signature: string
+}
+
 export interface SolanaGetAccountPaths {
   accountIdx: number
 }
@@ -93,6 +109,8 @@ export interface SolanaWallet extends SolanaWalletInfo, HDWallet {
   solanaGetAddresses?(msgs: SolanaGetAddress[]): Promise<string[]>
   solanaSignTx(msg: SolanaSignTx): Promise<SolanaSignedTx | null>
   solanaSendTx?(msg: SolanaSignTx): Promise<SolanaTxSignature | null>
+  solanaSignRawTransaction?(msg: SolanaSignRawTx): Promise<SolanaSignedTx | null>
+  solanaSignMessage?(msg: SolanaSignMessage): Promise<SolanaSignedMessage | null>
 }
 
 export function solanaDescribePath(path: BIP32Path): PathDescription {

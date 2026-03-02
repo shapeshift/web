@@ -2207,7 +2207,13 @@
       "modal": {
         "title": "WalletConnect",
         "interactContract": "Interact Contract",
+        "program": "Program",
+        "instructions": "Instructions",
+        "feePayer": "Fee Payer",
+        "nInstructions": "%{count} instructions",
+        "nTransactions": "%{count} transactions",
         "transactionData": "Transaction Data",
+        "instructionDetail": "%{accountCount} accounts, %{dataLength} bytes",
         "method": "Method",
         "signingWith": "Signing With",
         "connectWith": "Connect With",

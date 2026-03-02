@@ -8,7 +8,7 @@ import isObject from 'lodash/isObject'
 
 import * as btc from './bitcoin'
 import * as eth from './ethereum'
-import { solanaSendTx, solanaSignTx } from './solana'
+import { solanaSignRawTransaction, solanaSendTx, solanaSignTx } from './solana'
 import * as sui from './sui'
 import type {
   PhantomEvmProvider,
@@ -491,6 +491,12 @@ export class PhantomHDWallet
   public async solanaSendTx(msg: core.SolanaSignTx): Promise<core.SolanaTxSignature | null> {
     const address = await this.solanaGetAddress()
     return address ? solanaSendTx(msg, this.solanaProvider, address) : null
+  }
+
+  public async solanaSignRawTransaction(
+    msg: core.SolanaSignRawTx,
+  ): Promise<core.SolanaSignedTx | null> {
+    return solanaSignRawTransaction(msg, this.solanaProvider)
   }
 
   /** Sui */

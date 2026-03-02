@@ -7,15 +7,22 @@ import {
   isTransactionParamsArray,
 } from '@/plugins/walletConnectToDapps/typeGuards'
 import type { KnownSigningMethod, WalletConnectState } from '@/plugins/walletConnectToDapps/types'
+import { SolanaSigningMethod } from '@/plugins/walletConnectToDapps/types'
 import {
   extractAllConnectedAccounts,
   getSignParamsMessage,
   getWalletAccountFromCosmosParams,
   getWalletAccountFromEthParams,
+  getWalletAccountFromSolanaParams,
   getWalletAddressFromEthSignParams,
 } from '@/plugins/walletConnectToDapps/utils'
 import { selectPortfolioAccountMetadata } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
+
+const solanaSigningMethods: string[] = Object.values(SolanaSigningMethod)
+
+const isSolanaMethod = (method: string | undefined): boolean =>
+  method !== undefined && solanaSigningMethods.includes(method)
 
 /*
   A helper hook to derive commonly used information from the WalletConnectState
@@ -26,6 +33,7 @@ export const useWalletConnectState = (state: WalletConnectState) => {
 
   const params = requestEvent?.params
   const request = params?.request
+  const method: KnownSigningMethod | undefined = request?.method
   // Unlike V1, V2 uses CAIP2 standards strings
   const chainId = params?.chainId
   const requestParams = request?.params
@@ -38,8 +46,10 @@ export const useWalletConnectState = (state: WalletConnectState) => {
       return getWalletAddressFromEthSignParams(connectedAccounts, requestParams)
     if (requestParams && isTransactionParamsArray(requestParams)) return requestParams[0].from
     if (requestParams && 'signerAddress' in requestParams) return requestParams.signerAddress
-    else return undefined
-  }, [connectedAccounts, requestParams])
+    if (isSolanaMethod(method) && requestParams && 'pubkey' in requestParams)
+      return requestParams.pubkey
+    return undefined
+  }, [connectedAccounts, method, requestParams])
 
   const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
 
@@ -53,8 +63,10 @@ export const useWalletConnectState = (state: WalletConnectState) => {
       return getWalletAccountFromEthParams(connectedAccounts, requestParams, chainId)
     if (requestParams && 'signerAddress' in requestParams)
       return getWalletAccountFromCosmosParams(connectedAccounts, requestParams)
-    else return undefined
-  }, [connectedAccounts, requestParams, chainId])
+    if (isSolanaMethod(method))
+      return getWalletAccountFromSolanaParams(connectedAccounts, requestParams, chainId)
+    return undefined
+  }, [connectedAccounts, method, requestParams, chainId])
 
   const accountMetadata = accountId ? accountMetadataById[accountId] : undefined
 
@@ -62,7 +74,6 @@ export const useWalletConnectState = (state: WalletConnectState) => {
     request && (isSignRequest(request) || isSignTypedRequest(request))
       ? getSignParamsMessage(request.params, true)
       : undefined
-  const method: KnownSigningMethod | undefined = requestEvent?.params.request.method
 
   return {
     address,

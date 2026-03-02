@@ -4,21 +4,40 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ProposalTypes, SessionTypes } from '@walletconnect/types'
 import { uniq } from 'lodash'
 
-import { CosmosSigningMethod, EIP155_SigningMethod } from '@/plugins/walletConnectToDapps/types'
+import {
+  CosmosSigningMethod,
+  EIP155_SigningMethod,
+  SolanaSigningMethod,
+} from '@/plugins/walletConnectToDapps/types'
 
 const DEFAULT_EIP155_METHODS = Object.values(EIP155_SigningMethod).filter(
   method => method !== EIP155_SigningMethod.GET_CAPABILITIES,
 )
 
-const DEFAULT_COSMOS_METHODS = Object.values(CosmosSigningMethod)
+const DEFAULT_SOLANA_METHODS = Object.values(SolanaSigningMethod)
+const DEFAULT_SOLANA_EVENTS: string[] = []
 
+const DEFAULT_COSMOS_METHODS = Object.values(CosmosSigningMethod)
 const DEFAULT_COSMOS_EVENTS: string[] = []
+
+const isSolanaChainId = (chainId: string): boolean =>
+  chainId.startsWith(`${CHAIN_NAMESPACE.Solana}:`)
 
 const isCosmosSdkChainId = (chainId: string): boolean =>
   chainId.startsWith(`${CHAIN_NAMESPACE.CosmosSdk}:`)
 
-export const isWcSupportedChainId = (chainId: string): boolean =>
-  isEvmChainId(chainId) || isCosmosSdkChainId(chainId)
+const getDefaultMethods = (key: string): string[] => {
+  switch (key) {
+    case CHAIN_NAMESPACE.Evm:
+      return DEFAULT_EIP155_METHODS
+    case CHAIN_NAMESPACE.Solana:
+      return DEFAULT_SOLANA_METHODS
+    case CHAIN_NAMESPACE.CosmosSdk:
+      return DEFAULT_COSMOS_METHODS
+    default:
+      return []
+  }
+}
 
 export const createApprovalNamespaces = (
   requiredNamespaces: ProposalTypes.RequiredNamespaces,
@@ -27,17 +46,6 @@ export const createApprovalNamespaces = (
   selectedChainIds: ChainId[],
 ): SessionTypes.Namespaces => {
   const approvedNamespaces: SessionTypes.Namespaces = {}
-
-  const getDefaultMethods = (key: string): string[] => {
-    switch (key) {
-      case CHAIN_NAMESPACE.Evm:
-        return DEFAULT_EIP155_METHODS
-      case CHAIN_NAMESPACE.CosmosSdk:
-        return DEFAULT_COSMOS_METHODS
-      default:
-        return []
-    }
-  }
 
   const createNamespaceEntry = (
     key: string,
@@ -65,11 +73,11 @@ export const createApprovalNamespaces = (
     }
   })
 
+  // Handle optional EVM namespaces for chains user selected but aren't required
   const requiredChainIds = Object.values(requiredNamespaces).flatMap(
     namespace => namespace.chains ?? [],
   )
 
-  // Handle optional EVM namespaces
   const additionalEvmChainIds = selectedChainIds.filter(
     chainId => isEvmChainId(chainId) && !requiredChainIds.includes(chainId),
   )
@@ -93,6 +101,39 @@ export const createApprovalNamespaces = (
             : DEFAULT_EIP155_METHODS),
         ]),
         events: uniq([...(existing?.events ?? []), ...(optionalNamespaces?.eip155?.events ?? [])]),
+      }
+    }
+  }
+
+  // Handle optional Solana namespaces
+  const solanaNamespaceKey = CHAIN_NAMESPACE.Solana
+  const additionalSolanaChainIds = selectedChainIds.filter(
+    chainId => isSolanaChainId(chainId) && !requiredChainIds.includes(chainId),
+  )
+
+  if (additionalSolanaChainIds.length > 0) {
+    const solanaAccountIds = selectedAccountIds.filter(
+      accountId =>
+        fromAccountId(accountId).chainNamespace === solanaNamespaceKey &&
+        additionalSolanaChainIds.includes(fromAccountId(accountId).chainId),
+    )
+
+    if (solanaAccountIds.length > 0) {
+      const existing = approvedNamespaces[solanaNamespaceKey]
+      approvedNamespaces[solanaNamespaceKey] = {
+        ...(existing ?? {}),
+        accounts: uniq([...(existing?.accounts ?? []), ...solanaAccountIds]),
+        methods: uniq([
+          ...(existing?.methods ?? DEFAULT_SOLANA_METHODS),
+          ...(optionalNamespaces?.[solanaNamespaceKey]?.methods &&
+          optionalNamespaces[solanaNamespaceKey].methods.length > 0
+            ? optionalNamespaces[solanaNamespaceKey].methods
+            : DEFAULT_SOLANA_METHODS),
+        ]),
+        events: uniq([
+          ...(existing?.events ?? DEFAULT_SOLANA_EVENTS),
+          ...(optionalNamespaces?.[solanaNamespaceKey]?.events ?? DEFAULT_SOLANA_EVENTS),
+        ]),
       }
     }
   }

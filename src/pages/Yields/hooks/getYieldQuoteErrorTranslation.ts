@@ -26,14 +26,21 @@ const TOKEN_SYMBOLS = [
  */
 const extractSymbolFromError = (message: string): string | undefined => {
   const upper = message.toUpperCase()
+  // Sort by length descending to match longer symbols first (e.g. "DYDX" before "DY")
+  const sortedSymbols = [...TOKEN_SYMBOLS].sort((a, b) => b.length - a.length)
+
   // Match "Insufficient <SYMBOL>" pattern
   const insufficientMatch = upper.match(/INSUFFICIENT\s+(\w+)/)
   if (insufficientMatch) {
     const candidate = insufficientMatch[1]
     if (TOKEN_SYMBOLS.includes(candidate)) return candidate
   }
+  // Match concatenated API error names, e.g. "DriftLendingInsufficientSolForRentError"
+  const concatenatedMatch = sortedSymbols.find(sym => upper.includes(`INSUFFICIENT${sym}`))
+  if (concatenatedMatch) return concatenatedMatch
+
   // Match any known token symbol in the message
-  return TOKEN_SYMBOLS.find(sym => new RegExp(`\\b${sym}\\b`).test(upper))
+  return sortedSymbols.find(sym => new RegExp(`\\b${sym}\\b`).test(upper))
 }
 
 /**
@@ -61,11 +68,15 @@ export const getYieldQuoteErrorTranslation = (error: unknown): QuoteErrorTransla
     return { key: 'common.insufficientFunds' }
   }
 
-  // Minimum stake / deposit not met
-  if (
-    combinedLower.includes('minimum') &&
-    (combinedLower.includes('stake') || combinedLower.includes('deposit'))
-  ) {
+  // Minimum stake / deposit / amount not met
+  const isBelowMinimum =
+    combinedLower.includes('below minimum') ||
+    (combinedLower.includes('minimum') &&
+      (combinedLower.includes('stake') ||
+        combinedLower.includes('deposit') ||
+        combinedLower.includes('amount')))
+
+  if (isBelowMinimum) {
     return { key: 'earn.belowMinimum' }
   }
 

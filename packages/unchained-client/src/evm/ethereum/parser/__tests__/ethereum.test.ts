@@ -120,17 +120,12 @@ vi.mock('axios', () => {
   }
 })
 
-// Mock ethers Contract to prevent real RPC calls during mempool tx parsing
-// The uniV2 parser creates Contract instances to fetch token metadata (decimals, name, symbol)
-// for unconfirmed transactions, which fails when rpcUrl is empty
 const mockTokenData: Record<string, { decimals: number; name: string; symbol: string }> = {
-  // FOX token
   '0xc770EEfAd204B5180dF6a14Ee197D99d808ee52d': {
     decimals: 18,
     name: 'FOX',
     symbol: 'FOX',
   },
-  // Uniswap V2 FOX/WETH LP token
   '0x470e8de2eBaef52014A47Cb5E6aF86884947F08c': {
     decimals: 18,
     name: 'Uniswap V2',

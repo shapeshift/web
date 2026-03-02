@@ -1,6 +1,6 @@
 import { usePrevious } from '@chakra-ui/react'
 import { OrderStatus } from '@shapeshiftoss/types'
-import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
+import { BigAmount, bnOrZero } from '@shapeshiftoss/utils'
 import { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { v4 as uuidv4 } from 'uuid'
@@ -101,6 +101,15 @@ export const useLimitOrderActionSubscriber = () => {
 
       if (action) return
 
+      const sellAmountCrypto = BigAmount.fromBaseUnit({
+        value: sellAmountCryptoBaseUnit,
+        precision: sellAsset.precision,
+      })
+      const buyAmountCrypto = BigAmount.fromBaseUnit({
+        value: buyAmountCryptoBaseUnit,
+        precision: buyAsset.precision,
+      })
+
       dispatch(
         actionSlice.actions.upsertAction({
           id: uuidv4(),
@@ -112,8 +121,8 @@ export const useLimitOrderActionSubscriber = () => {
             cowSwapQuoteId: activeQuoteId,
             sellAmountCryptoBaseUnit,
             buyAmountCryptoBaseUnit,
-            sellAmountCryptoPrecision: fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset?.precision),
-            buyAmountCryptoPrecision: fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset?.precision),
+            sellAmountCryptoPrecision: sellAmountCrypto.toPrecision(),
+            buyAmountCryptoPrecision: buyAmountCrypto.toPrecision(),
             sellAsset,
             buyAsset,
             accountId,
@@ -258,20 +267,23 @@ export const useLimitOrderActionSubscriber = () => {
       }
 
       if (order.order.status === OrderStatus.FULFILLED && action.status !== ActionStatus.Complete) {
+        const executedBuyAmountCrypto = BigAmount.fromBaseUnit({
+          value: order.order.executedBuyAmount,
+          precision: action.limitOrderMetadata.buyAsset.precision,
+        })
+        const executedSellAmountCrypto = BigAmount.fromBaseUnit({
+          value: order.order.executedSellAmount,
+          precision: action.limitOrderMetadata.sellAsset.precision,
+        })
+
         const updatedAction: LimitOrderAction = {
           ...action,
           limitOrderMetadata: {
             ...action.limitOrderMetadata,
             executedBuyAmountCryptoBaseUnit: order.order.executedBuyAmount,
             executedSellAmountCryptoBaseUnit: order.order.executedSellAmount,
-            executedBuyAmountCryptoPrecision: fromBaseUnit(
-              order.order.executedBuyAmount,
-              action.limitOrderMetadata.buyAsset.precision,
-            ),
-            executedSellAmountCryptoPrecision: fromBaseUnit(
-              order.order.executedSellAmount,
-              action.limitOrderMetadata.sellAsset.precision,
-            ),
+            executedBuyAmountCryptoPrecision: executedBuyAmountCrypto.toPrecision(),
+            executedSellAmountCryptoPrecision: executedSellAmountCrypto.toPrecision(),
             filledDecimalPercentage: bnOrZero(order.order.executedSellAmount)
               .div(order.order.sellAmount)
               .toString(),

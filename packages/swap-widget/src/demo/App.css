@@ -345,6 +345,13 @@ body,
   border-color: var(--demo-accent);
 }
 
+.demo-range-input {
+  flex: 1;
+  height: 4px;
+  accent-color: var(--demo-accent);
+  cursor: pointer;
+}
+
 .demo-copy-btn {
   display: flex;
   align-items: center;

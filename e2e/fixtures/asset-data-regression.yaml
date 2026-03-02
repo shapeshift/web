@@ -1,0 +1,270 @@
+name: Asset Data Regression
+description: >
+  Validates asset search, related asset grouping, and markets page after asset data regeneration.
+  Tests USDC, USDT, and FOX search with grouped multi-chain variants via global search,
+  plus markets recently added section.
+  Does NOT require wallet connection - no depends_on smoke-test.
+route: /trade
+
+# ============================================================
+# IMPLEMENTATION NOTES (for agent-browser execution):
+#
+# Global Search Modal Interaction Pattern:
+#   1. Click [data-testid=global-search-button] via JS eval (.click())
+#   2. Wait 1s for modal to mount
+#   3. Set search value via nativeInputValueSetter (NOT press commands - those steal focus and close modal)
+#   4. All subsequent reads/clicks must happen via JS eval targeting [data-testid=global-search-modal]
+#   5. Close modal with Escape key between searches
+#
+# The modal closes when focus moves outside it. agent-browser `press` commands
+# move focus away. Use JS eval exclusively for modal interactions.
+#
+# Data-testid patterns:
+#   - global-search-button: opens the search modal
+#   - global-search-modal: the modal container
+#   - global-search-input: the search text input
+#   - grouped-asset-row-{SYMBOL}-{assetId}: expandable multi-chain grouped row
+#   - asset-row-{ChainName}-{SYMBOL}-{assetId}: individual chain variant inside grouped row
+#   - asset-row-{SYMBOL}-{assetId}: standalone (non-grouped) asset row
+#   - markets-row-{category}: market section (e.g. markets-row-recentlyAdded)
+#   - asset-card-{SYMBOL}: clickable card in markets grid
+#
+# JS eval helper for typing in React controlled inputs:
+#   var input = document.querySelector("[data-testid=global-search-input]");
+#   var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+#   setter.call(input, "usdc");
+#   input.dispatchEvent(new Event("input", {bubbles: true}));
+#   input.dispatchEvent(new Event("change", {bubbles: true}));
+# ============================================================
+
+steps:
+  # ============================================================
+  # STEP 0: DISMISS ONBOARDING / BANNERS
+  # ============================================================
+  - name: Dismiss onboarding and banners
+    instruction: >
+      After opening the page, dismiss onboarding splash if present (click "Skip" button via JS eval).
+      Dismiss cookie/tracking banner if present (click "Got It" button via JS eval).
+      Wait 2 seconds for page to settle.
+    expected: No onboarding dialog or cookie banner visible, trade page is loading
+    screenshot: true
+
+  # ============================================================
+  # STEP 1: USDC SEARCH
+  # ============================================================
+  - name: "USDC: Open global search and search"
+    instruction: >
+      Click [data-testid=global-search-button] via JS eval to open the search modal.
+      Wait 1 second for modal to mount.
+      Set search input value to "usdc" using nativeInputValueSetter + input/change events.
+      Wait 2 seconds for results.
+      Verify [data-testid=global-search-modal] contains [data-testid^=grouped-asset-row-USDC].
+    expected: >
+      Global search modal is open with "usdc" in search input.
+      Results show grouped-asset-row-USDC (expandable with chevron).
+      Also note: there may be 2 spam USDC tokens (0x115b...aba605, 0x7177...638f9c)
+      without proper icons - these are NOT in the generated asset data and come from
+      a dynamic runtime source. Flag as soft_fail if present.
+    screenshot: true
+
+  # ============================================================
+  # STEP 2: USDC EXPAND + VERIFY CHAIN VARIANTS
+  # ============================================================
+  - name: "USDC: Expand grouped row and verify chain variants"
+    instruction: >
+      Click [data-testid^=grouped-asset-row-USDC] via JS eval to expand.
+      Wait 1 second for Collapse animation.
+      Count child elements matching [data-testid^=asset-row-] inside the modal.
+      Expected at minimum 8 chain variants: Ethereum, Arbitrum, Base, Optimism,
+      Polygon, Avalanche, BSC, Solana.
+      Scroll to a mid-list variant for the screenshot.
+    expected: >
+      Grouped USDC row is expanded (chevron pointing up).
+      JS eval confirms 8+ chain variants present.
+      Key chains: Ethereum, Arbitrum One, Base, Solana, Avalanche, BSC, Sui, Tron.
+    screenshot: true
+
+  # ============================================================
+  # STEP 3: CLOSE MODAL
+  # ============================================================
+  - name: "USDC: Close global search"
+    instruction: >
+      Press Escape to close the global search modal.
+      Wait 1 second.
+    expected: Global search modal is closed, trade page is visible
+    screenshot: false
+
+  # ============================================================
+  # STEP 4: USDT SEARCH
+  # ============================================================
+  - name: "USDT: Open global search and search"
+    instruction: >
+      Click [data-testid=global-search-button] via JS eval to re-open modal.
+      Wait 1 second. Set value to "usdt" via nativeInputValueSetter.
+      Wait 2 seconds for results.
+      Verify [data-testid^=grouped-asset-row-USDT] exists in modal.
+    expected: >
+      Global search modal shows USDT results with grouped-asset-row-USDT visible.
+    screenshot: true
+
+  # ============================================================
+  # STEP 5: USDT EXPAND + VERIFY
+  # ============================================================
+  - name: "USDT: Expand grouped row and verify chain variants"
+    instruction: >
+      Click [data-testid^=grouped-asset-row-USDT] via JS eval to expand.
+      Wait 1 second. Count [data-testid^=asset-row-] children.
+      Expected at minimum 6 chains: Ethereum, Arbitrum, Optimism, Polygon, Avalanche, BSC.
+    expected: >
+      Grouped USDT row expanded. JS eval confirms 6+ chain variants.
+      Key chains: Ethereum, Arbitrum, Optimism, Polygon, Avalanche, BSC.
+    screenshot: true
+
+  # ============================================================
+  # STEP 6: CLOSE MODAL
+  # ============================================================
+  - name: "USDT: Close global search"
+    instruction: >
+      Press Escape to close modal. Wait 1 second.
+    expected: Global search modal is closed
+    screenshot: false
+
+  # ============================================================
+  # STEP 7: FOX SEARCH
+  # ============================================================
+  - name: "FOX: Open global search and search"
+    instruction: >
+      Click [data-testid=global-search-button] via JS eval to re-open modal.
+      Wait 1 second. Set value to "fox" via nativeInputValueSetter.
+      Wait 2 seconds for results.
+      Verify [data-testid^=grouped-asset-row-FOX] exists in modal.
+    expected: >
+      Global search modal shows FOX results with grouped-asset-row-FOX visible.
+    screenshot: true
+
+  # ============================================================
+  # STEP 8: FOX EXPAND + VERIFY
+  # ============================================================
+  - name: "FOX: Expand grouped row and verify chain variants"
+    instruction: >
+      Click [data-testid^=grouped-asset-row-FOX] via JS eval to expand.
+      Wait 1 second. Count [data-testid^=asset-row-] children.
+      Expected at minimum 2 chains: Ethereum, Arbitrum.
+    expected: >
+      Grouped FOX row expanded. JS eval confirms 2+ chain variants.
+      Key chains: Ethereum, Arbitrum.
+    screenshot: true
+
+  # ============================================================
+  # STEP 9: CLOSE MODAL
+  # ============================================================
+  - name: "FOX: Close global search"
+    instruction: >
+      Press Escape to close modal. Wait 1 second.
+    expected: Global search modal is closed
+    screenshot: false
+
+  # ============================================================
+  # STEP 10: MARKETS PAGE
+  # ============================================================
+  - name: "Markets: Navigate to markets page"
+    instruction: >
+      Navigate to http://localhost:3000/#/markets/recommended via agent-browser open.
+      Wait 8 seconds for all market data sections to fully load
+      (CoinGecko data, categories, asset cards).
+    expected: Markets page is visible with category sections (Trending, Top Movers, Recently Added, etc.)
+    screenshot: true
+
+  # ============================================================
+  # STEP 11: RECENTLY ADDED - CLICK FIRST ASSET
+  # ============================================================
+  - name: "Markets: Click first recently added asset"
+    instruction: >
+      Find [data-testid=markets-row-recentlyAdded] via JS eval.
+      Find first [data-testid^=asset-card-] inside that section. Note its symbol.
+      Click it via JS eval.
+      Wait 5 seconds for asset detail page to fully load (price chart, market data).
+    expected: >
+      Asset detail page loads. URL hash contains /assets/.
+      [data-testid=asset-chart-price] exists and shows a price (not N/A, not empty skeleton).
+      [data-testid=asset-market-data] exists with market data rows.
+    screenshot: true
+
+  # ============================================================
+  # STEP 12: ASSET PAGE - VERIFY MARKET DATA
+  # ============================================================
+  - name: "Asset page: Verify market data loaded"
+    instruction: >
+      Check [data-testid=asset-market-data] via JS eval.
+      Verify it contains text content (price, market cap, volume values).
+      Check [data-testid=asset-chart-price] has non-empty text.
+    expected: >
+      Market data card is visible with price, market cap, and volume values.
+      Price heading shows a dollar amount (not "N/A", not empty).
+    screenshot: true
+
+  # ============================================================
+  # STEP 13: ASSET PAGE - CLICK 1H TIMEFRAME
+  # ============================================================
+  - name: "Asset page: Click 1H timeframe button"
+    instruction: >
+      Click [data-testid=radio-1H] via JS eval.
+      Wait 3 seconds for chart data to reload.
+      Verify the button appears selected (check aria-checked or data-checked attribute).
+    expected: >
+      1H timeframe button is selected/active.
+      Chart area is visible (PriceChart component rendered).
+      No error states or empty chart.
+    screenshot: true
+
+  # ============================================================
+  # STEP 14: ASSET PAGE - CLICK 1W TIMEFRAME
+  # ============================================================
+  - name: "Asset page: Click 1W timeframe button"
+    instruction: >
+      Click [data-testid=radio-1W] via JS eval.
+      Wait 3 seconds for chart data to reload.
+      Verify the button appears selected.
+    expected: >
+      1W timeframe button is selected/active.
+      Chart area is visible. No errors.
+    screenshot: true
+
+  # ============================================================
+  # STEP 15: NAVIGATE BACK TO MARKETS
+  # ============================================================
+  - name: "Markets: Navigate back to markets page"
+    instruction: >
+      Navigate to http://localhost:3000/#/markets/recommended via agent-browser open.
+      Wait 5 seconds for market data sections to load.
+    expected: Markets page visible with category sections including Recently Added.
+    screenshot: false
+
+  # ============================================================
+  # STEP 16: RECENTLY ADDED - CLICK SECOND ASSET
+  # ============================================================
+  - name: "Markets: Click second recently added asset"
+    instruction: >
+      Find [data-testid=markets-row-recentlyAdded] via JS eval.
+      Find ALL [data-testid^=asset-card-] inside that section.
+      Click the SECOND one (index 1) via JS eval. Note its symbol.
+      Wait 5 seconds for asset detail page to load.
+    expected: >
+      Second asset's detail page loads. URL hash contains /assets/.
+      [data-testid=asset-chart-price] shows a price.
+      [data-testid=asset-market-data] exists.
+    screenshot: true
+
+  # ============================================================
+  # STEP 17: SECOND ASSET - VERIFY MARKET DATA + TIMEFRAMES
+  # ============================================================
+  - name: "Asset page: Verify second asset market data and timeframes"
+    instruction: >
+      Check [data-testid=asset-market-data] has text content (price, market cap, volume).
+      Click [data-testid=radio-1H] via JS eval, wait 2 seconds.
+      Click [data-testid=radio-1W] via JS eval, wait 2 seconds.
+      Verify no errors after timeframe switches.
+    expected: >
+      Market data is present for second asset.
+      Timeframe buttons (1H, 1W) are clickable and chart updates without errors.
+    screenshot: true

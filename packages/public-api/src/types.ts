@@ -23,17 +23,8 @@ export type {
   UtxoTransactionData,
 }
 
-export type PartnerConfig = {
-  id: string
-  apiKeyHash: string
-  name: string
-  feeSharePercentage: number
-  status: 'active' | 'suspended' | 'pending'
-  rateLimit: {
-    requestsPerMinute: number
-    requestsPerDay: number
-  }
-  createdAt: Date
+export type AffiliateInfo = {
+  affiliateAddress: string
 }
 
 export type RatesRequest = {
@@ -82,6 +73,7 @@ export type RatesResponse = {
   rates: ApiRate[]
   timestamp: number
   expiresAt: number
+  affiliateAddress?: string
 }
 
 export type ApiQuoteStep = {
@@ -115,6 +107,7 @@ export type QuoteResponse = {
   buyAmountBeforeFeesCryptoBaseUnit: string
   buyAmountAfterFeesCryptoBaseUnit: string
   affiliateBps: string
+  affiliateAddress?: string
   slippageTolerancePercentageDecimal: string | undefined
   networkFeeCryptoBaseUnit: string | undefined
   steps: ApiQuoteStep[]
@@ -180,7 +173,7 @@ export type ErrorResponse = {
 declare global {
   namespace Express {
     interface Request {
-      partner?: PartnerConfig
+      affiliateInfo?: AffiliateInfo
     }
   }
 }

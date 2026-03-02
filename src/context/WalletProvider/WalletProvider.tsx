@@ -32,6 +32,18 @@ import { useKeepKeyEventHandler } from '@/context/WalletProvider/KeepKey/hooks/u
 import { MobileConfig } from '@/context/WalletProvider/MobileWallet/config'
 import { getWallet } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { KeepKeyRoutes } from '@/context/WalletProvider/routes'
+import { SEEKER_DEFAULT_CLUSTER, SeekerConfig } from '@/context/WalletProvider/Seeker/config'
+import {
+  checkSeekerAvailability,
+  seekerAuthorize,
+  seekerDeauthorize,
+  seekerGetAddress,
+  seekerGetPublicKey,
+  seekerGetStatus,
+  seekerSignAndSendTransaction,
+  seekerSignMessage,
+  seekerSignTransaction,
+} from '@/context/WalletProvider/Seeker/seekerMessageHandlers'
 import { useWalletConnectV2EventHandler } from '@/context/WalletProvider/WalletConnectV2/useWalletConnectV2EventHandler'
 import { METAMASK_RDNS, useMipdProviders } from '@/lib/mipd'
 import { localWalletSlice } from '@/state/slices/localWalletSlice/localWalletSlice'
@@ -908,6 +920,68 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 disconnect()
               }
             } else {
+              disconnect()
+            }
+            dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+            break
+          }
+          case KeyManager.Seeker: {
+            try {
+              const authResult = await seekerAuthorize(SEEKER_DEFAULT_CLUSTER)
+
+              if (authResult.success && authResult.address) {
+                const { SeekerHDWallet } = await import('@shapeshiftoss/hdwallet-seeker')
+
+                const messageHandler = {
+                  checkAvailability: checkSeekerAvailability,
+                  authorize: seekerAuthorize,
+                  deauthorize: seekerDeauthorize,
+                  getAddress: seekerGetAddress,
+                  getStatus: seekerGetStatus,
+                  signTransaction: seekerSignTransaction,
+                  signAndSendTransaction: seekerSignAndSendTransaction,
+                  getPublicKey: seekerGetPublicKey,
+                  signMessage: seekerSignMessage,
+                }
+
+                const deviceId = `seeker:${authResult.address}`
+                const wallet = new SeekerHDWallet(deviceId, authResult.address, messageHandler)
+
+                const { icon } = SeekerConfig
+                const name = authResult.label || SeekerConfig.name
+                await wallet.initialize()
+
+                dispatch({
+                  type: WalletActions.SET_WALLET,
+                  payload: {
+                    wallet,
+                    name,
+                    icon,
+                    deviceId,
+                    connectedType: KeyManager.Seeker,
+                  },
+                })
+                dispatch({
+                  type: WalletActions.SET_IS_CONNECTED,
+                  payload: true,
+                })
+                dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+                dispatch({
+                  type: WalletActions.SET_CONNECTOR_TYPE,
+                  payload: { modalType: KeyManager.Seeker, isMipdProvider: false },
+                })
+                store.dispatch(
+                  localWalletSlice.actions.setLocalWallet({
+                    type: KeyManager.Seeker,
+                    deviceId,
+                    rdns: null,
+                  }),
+                )
+              } else {
+                disconnect()
+              }
+            } catch (e) {
+              console.error(e, 'Seeker: Failed to reconnect wallet on app load')
               disconnect()
             }
             dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })

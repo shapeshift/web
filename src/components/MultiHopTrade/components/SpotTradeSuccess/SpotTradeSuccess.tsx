@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { TransferType } from '@shapeshiftoss/unchained-client'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { JSX } from 'react'
 import { useCallback, useMemo } from 'react'
@@ -30,7 +31,6 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
 import { useTxDetails, useTxDetailsQuery } from '@/hooks/useTxDetails/useTxDetails'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { selectLastHopBuyAccountId } from '@/state/slices/tradeInputSlice/selectors'
 import {
   selectActiveQuote,
@@ -108,9 +108,13 @@ export const SpotTradeSuccess = ({
     const receiveTransfer = transfers.find(
       transfer => transfer.type === TransferType.Receive && transfer.assetId === buyAsset.assetId,
     )
-    return receiveTransfer?.value
-      ? fromBaseUnit(receiveTransfer.value, buyAsset.precision)
-      : undefined
+    if (!receiveTransfer?.value) return undefined
+
+    const receivedBuyAmountCrypto = BigAmount.fromBaseUnit({
+      value: receiveTransfer.value,
+      precision: buyAsset.precision,
+    })
+    return receivedBuyAmountCrypto.toPrecision()
   }, [transfers, buyAsset])
 
   const maybeExtraDeltaCryptoPrecision = useMemo(() => {
@@ -124,10 +128,10 @@ export const SpotTradeSuccess = ({
   const { buyAmountBeforeFeesCryptoPrecision } = useMemo(() => {
     const { buyAmountBeforeFeesCryptoBaseUnit } = lastHop ?? {}
 
-    const buyAmountBeforeFeesCryptoPrecision = fromBaseUnit(
-      buyAmountBeforeFeesCryptoBaseUnit,
-      lastHop?.buyAsset.precision ?? 0,
-    )
+    const buyAmountBeforeFeesCryptoPrecision = BigAmount.fromBaseUnit({
+      value: buyAmountBeforeFeesCryptoBaseUnit,
+      precision: lastHop?.buyAsset.precision ?? 0,
+    }).toPrecision()
 
     return {
       buyAmountBeforeFeesCryptoPrecision,

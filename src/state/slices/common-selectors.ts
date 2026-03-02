@@ -2,6 +2,7 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, isNft } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
 import createCachedSelector from 're-reselect'
@@ -166,6 +167,61 @@ export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelecto
     return fromBaseUnit(bnOrZero(assetBalances[assetId]), precision)
   },
 )((_s: ReduxState, filter) => `${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`)
+
+// ── BigAmount-returning selectors ────────────────
+
+export const selectPortfolioAccountBalances = createDeepEqualOutputSelector(
+  selectEnabledWalletAccountIds,
+  portfolio.selectors.selectAccountBalancesById,
+  (walletAccountIds, accountBalancesById): Record<AccountId, Record<AssetId, BigAmount>> => {
+    const filtered = pickBy(accountBalancesById, (_balances, accountId: AccountId) =>
+      walletAccountIds.includes(accountId),
+    )
+    return Object.fromEntries(
+      Object.entries(filtered).map(([accountId, byAssetId]) => [
+        accountId,
+        Object.fromEntries(
+          Object.entries(byAssetId).map(([assetId, balance]) => [
+            assetId,
+            BigAmount.fromBaseUnit({ value: balance, assetId }),
+          ]),
+        ),
+      ]),
+    ) as Record<AccountId, Record<AssetId, BigAmount>>
+  },
+)
+
+export const selectPortfolioAssetBalances = createDeepEqualOutputSelector(
+  selectPortfolioAssetBalancesBaseUnit,
+  (assetBalancesById): Record<AssetId, BigAmount> =>
+    Object.fromEntries(
+      Object.entries(assetBalancesById).map(([assetId, balance]) => [
+        assetId,
+        BigAmount.fromBaseUnit({ value: balance, assetId }),
+      ]),
+    ) as Record<AssetId, BigAmount>,
+)
+
+export const selectPortfolioCryptoBalanceByFilter = createCachedSelector(
+  selectAssets,
+  selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioAssetBalancesBaseUnit,
+  selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
+  (assets, accountBalances, assetBalances, accountId, assetId): BigAmount => {
+    if (!assetId) return BigAmount.zero({ precision: 0 })
+    // to avoid megabillion phantom balances, return zero rather than base unit value
+    // if we don't have a precision for the asset
+    if (assets[assetId]?.precision === undefined) return BigAmount.zero({ precision: 0 })
+    const rawBalance = accountId
+      ? accountBalances?.[accountId]?.[assetId] ?? '0'
+      : assetBalances[assetId] ?? '0'
+    return BigAmount.fromBaseUnit({ value: rawBalance, assetId })
+  },
+)(
+  (_s: ReduxState, filter) =>
+    `bigAmount-${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`,
+)
 
 export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector(
   selectAssets,

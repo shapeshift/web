@@ -256,6 +256,7 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
                 hash: input.txid,
                 index: input.vout,
                 ...inputData,
+                ...(input.sequence !== undefined && { sequence: input.sequence }),
               })
             } catch (e) {
               throw new Error(`failed to add input: ${e}`)

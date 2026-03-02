@@ -11,7 +11,7 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import {
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -57,7 +57,7 @@ const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = memo(props => {
     [accountId, assetId],
   )
   const balance = useAppSelector(state =>
-    isConnected ? selectPortfolioCryptoPrecisionBalanceByFilter(state, filter) : '0',
+    isConnected ? selectPortfolioCryptoBalanceByFilter(state, filter).toPrecision() : '0',
   )
   const fiatBalance = bnOrZero(balance)
     .times(bnOrZero(marketData?.price))

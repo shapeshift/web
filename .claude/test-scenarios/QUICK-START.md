@@ -5,7 +5,7 @@ Get started with automated testing for ShapeShift Web in 5 minutes!
 ## Prerequisites
 
 1. **Browser MCP installed** - Follow setup in main README
-2. **Dev server running** - `yarn dev` in terminal
+2. **Dev server running** - `pnpm run dev` in terminal
 3. **Claude Code** - Ready to accept slash commands
 
 ## Quick Commands
@@ -142,7 +142,7 @@ Each test scenario includes:
 ### "Dev server not running"
 ```bash
 # Start dev server first
-yarn dev
+pnpm run dev
 
 # Then run test
 /test-agent run critical
@@ -176,7 +176,7 @@ You just modified the swap flow. Here's what to do:
 
 ```bash
 # 1. Start dev server if not running
-yarn dev
+pnpm run dev
 
 # 2. Run swap-related tests
 /test-agent test asset-swap-flow
@@ -240,9 +240,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install deps
-        run: yarn install
+        run: pnpm install
       - name: Start dev server
-        run: yarn dev &
+        run: pnpm run dev &
       - name: Run critical tests
         run: /test-agent run critical --ci
 ```
@@ -315,7 +315,7 @@ jobs:
 ║ ✅ Medium       → Test bi-weekly                     ║
 ║                                                       ║
 ║ WORKFLOW                                              ║
-║ 1. yarn dev                  → Start server          ║
+║ 1. pnpm run dev                  → Start server          ║
 ║ 2. /test-agent test [name]   → Run test              ║
 ║ 3. Review results            → Check pass/fail       ║
 ║ 4. Fix issues                → If any failures       ║

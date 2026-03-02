@@ -79,19 +79,47 @@ const resolveBech32V1ForHdwallet: PluginOption = {
   },
 }
 
-// hdwallet-ledger monkey-patches @ledgerhq/hw-app-btc via require() for Zcash v5 trusted input hashing.
-// As a workspace package, Vite serves its source as ESM where require() doesn't exist.
-// This transform guards the require() call so it doesn't produce a noisy console error in dev.
-// The monkey-patch still works in production builds where rollup handles CJS via transformMixedEsModules.
-const guardRequireForHdwallet: PluginOption = {
-  name: 'guard-require-hdwallet',
+// Zcash v5 trusted input fix: @ledgerhq/hw-app-btc computes SHA256d for trusted inputs,
+// but Zcash v5 uses ZIP-244 tree hashes. The runtime monkey-patch in hdwallet-ledger/src/bitcoin.ts
+// doesn't work in Vite dev (ESM, no `require()`). Instead, we patch the source at build time.
+//
+// This plugin does two things:
+// 1. Transforms getTrustedInputBIP143.js to check for _customZcashTxId (set by hdwallet-ledger)
+//    - Dev mode: handled by esbuild plugin in optimizeDeps.esbuildOptions.plugins (pre-bundling)
+//    - Prod build: handled by the Vite transform hook below (rollup pipeline)
+// 2. Strips the dead runtime require() monkey-patch from hdwallet-ledger to avoid console errors
+
+const zcashTrustedInputPatchRegex =
+  /function getTrustedInputBIP143\(transport, indexLookup, transaction, additionals\s*=\s*\[\]\)\s*\{/
+const zcashTrustedInputPatchReplacement = `function getTrustedInputBIP143(transport, indexLookup, transaction, additionals = []) {
+    // Zcash v5 patch: use correct TXID from adapter instead of SHA256d of mangled v5 tx
+    if (additionals && additionals.includes("zcash") && transaction && transaction._customZcashTxId && transaction._customZcashAmount) {
+        const hash = Buffer.from(transaction._customZcashTxId, "hex").reverse();
+        const data = Buffer.alloc(4);
+        data.writeUInt32LE(indexLookup, 0);
+        const amountBuf = Buffer.alloc(8);
+        amountBuf.writeBigUInt64LE(BigInt(transaction._customZcashAmount));
+        return Buffer.concat([hash, data, amountBuf]).toString("hex");
+    }`
+
+const patchZcashTrustedInput: PluginOption = {
+  name: 'patch-zcash-trusted-input',
   enforce: 'pre',
   transform(code, id) {
+    // 1. Patch getTrustedInputBIP143 — only fires during production rollup builds
+    //    (dev mode pre-bundling uses the esbuild plugin in optimizeDeps instead)
+    if (id.includes('@ledgerhq/hw-app-btc') && id.includes('getTrustedInputBIP143')) {
+      const patched = code.replace(zcashTrustedInputPatchRegex, zcashTrustedInputPatchReplacement)
+      if (patched !== code) {
+        return { code: patched, map: null }
+      }
+    }
+    // 2. Strip the dead runtime monkey-patch from hdwallet-ledger (it can't work in ESM)
     if (id.includes('packages/hdwallet-ledger/src/bitcoin.ts') && code.includes('require(')) {
       return {
         code: code.replace(
-          /try\s*\{[^}]*require\('@ledgerhq\/hw-app-btc\/lib\/getTrustedInputBIP143'\)/s,
-          match => `if (typeof require !== 'undefined') ${match}`,
+          /try\s*\{[^}]*require\('@ledgerhq\/hw-app-btc\/lib\/getTrustedInputBIP143'\)[\s\S]*?\} catch \(e\) \{[^}]*\}/,
+          '// Zcash v5 trusted input patch applied via Vite plugin (patchZcashTrustedInput)',
         ),
         map: null,
       }
@@ -166,7 +194,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       resolveEthersV5ForHdwallet,
       resolveBech32V1ForHdwallet,
-      guardRequireForHdwallet,
+      patchZcashTrustedInput,
       mode === 'development' && !process.env.DEPLOY && defineGlobalThis,
       nodePolyfills({
         globals: {
@@ -247,6 +275,8 @@ export default defineConfig(({ mode }) => {
       format: 'es',
     },
     resolve: {
+      // Ensure a single copy of React packages (prevents duplicate bundling in pnpm)
+      dedupe: ['react', 'react-dom', 'react-is', 'react/jsx-runtime', 'react/jsx-dev-runtime'],
       alias: {
         '@': resolve(__dirname, './src'),
         'ethers/lib/utils': 'ethers5/lib/utils.js',
@@ -273,8 +303,15 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: id => {
             if (id.includes('node_modules')) {
+              // buffer polyfill must be in its own chunk to avoid circular deps between ui↔sdk in pnpm
+              // Matches: node_modules/buffer/, node_modules/base64-js/, node_modules/ieee754/,
+              // and also vite-plugin-node-polyfills/shims/buffer/ and safe-buffer
+              if (/\/node_modules\/(buffer|base64-js|ieee754|safe-buffer)\//.test(id)) return 'polyfills'
+              if (/vite-plugin-node-polyfills\/shims\/buffer\//.test(id)) return 'polyfills'
               if (id.match(/(framer-motion|@visx|@coral-xyz)/)) return 'ui'
               if (id.match(/(react-icons|@react-spring|react-datepicker|react-dom)/)) return 'react'
+              // Ensure core 'react' package is in the 'react' chunk to prevent duplication in pnpm
+              if (/\/node_modules\/react\//.test(id) && !/\/@[^/]+\/react/.test(id)) return 'react'
               if (id.match(/(dayjs|lodash|@formatjs)/)) return 'utils'
               if (id.match(/(@redux|@tanstack)/)) return 'state'
               if (id.match(/(@sentry|mixpanel|@moralisweb3|moralis)/)) return 'sdk'
@@ -315,6 +352,25 @@ export default defineConfig(({ mode }) => {
       minify: mode === 'development' && !process.env.DEPLOY ? false : 'esbuild',
       sourcemap: mode === 'development' && !process.env.DEPLOY ? 'inline' : false,
       outDir: 'build',
+    },
+    optimizeDeps: {
+      esbuildOptions: {
+        plugins: [
+          {
+            name: 'patch-zcash-trusted-input',
+            setup(build) {
+              build.onLoad({ filter: /getTrustedInputBIP143\.js$/ }, args => {
+                const contents = fs.readFileSync(args.path, 'utf8')
+                const patched = contents.replace(
+                  zcashTrustedInputPatchRegex,
+                  zcashTrustedInputPatchReplacement,
+                )
+                return { contents: patched !== contents ? patched : contents, loader: 'js' }
+              })
+            },
+          },
+        ],
+      },
     },
   }
 })

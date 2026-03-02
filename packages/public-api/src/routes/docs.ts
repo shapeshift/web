@@ -26,12 +26,6 @@ router.use(
     hideDownloadButton: true,
     darkMode: true,
     defaultOpenAllTags: true,
-    authentication: {
-      preferredSecurityScheme: 'apiKeyAuth',
-      apiKey: {
-        token: 'test-api-key-123',
-      },
-    },
     customCss: `
       .sidebar { --theme-color-1: #383838; }
     `,

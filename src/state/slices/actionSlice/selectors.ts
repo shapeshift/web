@@ -203,7 +203,9 @@ export const selectWalletGenericTransactionActionsSorted = createDeepEqualOutput
 export const selectPendingGenericTransactionActions = createDeepEqualOutputSelector(
   selectWalletGenericTransactionActionsSorted,
   actions => {
-    return actions.filter(action => action.status === ActionStatus.Pending)
+    return actions.filter(
+      action => action.status === ActionStatus.Pending || action.status === ActionStatus.Initiated,
+    )
   },
 )
 

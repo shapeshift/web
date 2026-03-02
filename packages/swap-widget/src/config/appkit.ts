@@ -13,6 +13,7 @@ import {
   plasma,
   polygon,
   solana,
+  worldchain,
 } from '@reown/appkit/networks'
 import { createAppKit } from '@reown/appkit/react'
 import { BitcoinAdapter } from '@reown/appkit-adapter-bitcoin'
@@ -32,6 +33,7 @@ export const EVM_NETWORKS = [
   monad,
   hyperEvm,
   plasma,
+  worldchain,
   katana,
 ] as const
 

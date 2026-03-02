@@ -139,6 +139,7 @@
     "manage": "Manage",
     "view": "View",
     "viewOnly": "View-Only",
+    "deprecated": "Deprecated",
     "allChains": "All Chains",
     "wallet": "Wallet",
     "feedbackAndSupport": "Feedback & Support",
@@ -196,7 +197,8 @@
     "permit2Approval": "Permit2 Approval",
     "network": "Network",
     "feeEstimate": "Fee Estimate",
-    "list": "List"
+    "list": "List",
+    "retry": "Retry"
   },
   "accountSelector": {
     "chooseAccount": "Choose Account"
@@ -345,7 +347,7 @@
         "marketCapRank": "Market Cap Rank",
         "volume24h": "24h Volume",
         "volMcap": "Vol/MCap",
-        "about": "About",
+        "about": "About %{symbol}",
         "noDescription": "No description available for this asset."
       },
       "receive": {
@@ -717,6 +719,8 @@
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
     "lending": "Lending",
+    "thorchainLending": "THORChain Lending",
+    "chainflipLending": "Chainflip Lending",
     "pools": "Pools",
     "rFOX": "rFOX",
     "tcy": "TCY",
@@ -2014,6 +2018,17 @@
         "body": "Click Pair and login to Vultisig from the popup window",
         "button": "Pair"
       }
+    },
+    "seeker": {
+      "connect": {
+        "header": "Connect Seeker",
+        "body": "Authorize ShapeShift to connect with your Seeker wallet",
+        "button": "Connect"
+      },
+      "failure": {
+        "header": "Connection Failed",
+        "body": "Unable to connect to Seeker wallet. Please ensure the Seeker app is available and try again."
+      }
     }
   },
   "graph": {
@@ -2364,6 +2379,89 @@
       "emptyTitle": "The Land of Zero Loans!",
       "emptyBody": "It appears you don't have any loans at the moment. Is this financial zen or just a break before your next big lending adventure? Either way, enjoy the calm!"
     }
+  },
+  "chainflipLending": {
+    "headerDescription": "Supply assets to earn yield or borrow against collateral on Chainflip.",
+    "overview": "Overview",
+    "supply": "Supply",
+    "borrow": "Borrow",
+    "totalSupplied": "Total Supplied",
+    "totalSuppliedTooltip": "Total value of assets supplied across all Chainflip lending pools.",
+    "availableLiquidity": "Available Liquidity",
+    "availableLiquidityTooltip": "Total value of assets currently available to borrow across all pools.",
+    "totalBorrowed": "Total Borrowed",
+    "totalBorrowedTooltip": "Total value of outstanding borrows across all Chainflip lending pools.",
+    "pool": "Pool",
+    "supplyApy": "Supply APY",
+    "supplyApyTooltip": "Annual percentage yield earned by supplying assets to this pool.",
+    "borrowRate": "Borrow Rate",
+    "utilisation": "Utilisation",
+    "utilisationTooltip": "Percentage of supplied assets currently being borrowed. Higher utilisation means higher yields but less available liquidity.",
+    "market": "Market",
+    "supplyStats": "Supply Stats",
+    "borrowStats": "Borrow Stats",
+    "yourPosition": "Your Position",
+    "freeBalance": "Free Balance",
+    "supplied": "Supplied",
+    "collateral": "Collateral",
+    "depositToChainflip": "Deposit to Chainflip",
+    "depositDescription": "Deposit assets from your wallet to your Chainflip State Chain account to start lending.",
+    "freeBalanceDescription": "Available balance on Chainflip State Chain. Supply to pools to earn yield or use as collateral.",
+    "noFreeBalanceHint": "Deposit to start lending",
+    "originationFee": "Origination Fee",
+    "liquidationFee": "Liquidation Fee",
+    "yourSupplied": "Your Supplied",
+    "yourBorrowed": "Your Borrowed",
+    "yourFreeBalance": "Your Free Balance",
+    "connectWalletDescription": "Connect your wallet to view your lending positions.",
+    "protocolStats": "Protocol Stats",
+    "deposit": {
+      "amount": "Amount",
+      "available": "Available",
+      "explainer": "Assets will be deposited to your Chainflip State Chain account. Once deposited, you can supply to lending pools to earn yield.",
+      "openChannel": "Open Deposit Channel",
+      "confirmTitle": "Confirm Deposit",
+      "confirmDescription": "Deposit %{amount} %{asset} to your Chainflip State Chain account. You will be prompted to sign twice: once to open the deposit channel, and once to send the transaction.",
+      "confirmingTitle": "Depositing...",
+      "confirmingDescription": "Please confirm the transactions in your wallet.",
+      "confirmAndDeposit": "Confirm & Deposit",
+      "successTitle": "Deposit Confirmed",
+      "successDescription": "Your %{asset} has been deposited to your Chainflip State Chain account.",
+      "deposited": "Deposited",
+      "minimumDeposit": "Min. Deposit",
+      "steps": {
+        "approvingFlip": "Approve FLIP",
+        "fundingAccount": "Fund Account",
+        "registering": "Register Account",
+        "openingChannel": "Open Channel",
+        "sendingDeposit": "Send Deposit",
+        "confirming": "Confirming",
+        "settingRefundAddress": "Set Refund Address"
+      },
+      "executingTitle": "Depositing...",
+      "executingDescription": "Please confirm transactions in your wallet as prompted.",
+      "errorTitle": "Deposit Failed",
+      "errorDescription": "Something went wrong during the deposit process.",
+      "freeBalance": "Free Balance",
+      "freeBalanceTooltip": "Your %{asset} free balance on Chainflip State Chain",
+      "refundAddress": {
+        "title": "Refund Address",
+        "description": "Set the address where funds will be returned if a deposit fails or you withdraw.",
+        "useWalletAddress": "Use Wallet Address",
+        "useCustomAddress": "Use Custom Address",
+        "label": "Refund Address",
+        "continue": "Continue",
+        "helperText": "This address will be used for withdrawals and refunds on this chain."
+      }
+    },
+    "markets": "Markets",
+    "myBalances": "My Balances",
+    "walletBalance": "Wallet",
+    "stateChainBalance": "State Chain",
+    "deployed": "Deployed",
+    "comingSoon": "Coming Soon",
+    "connectToViewBalances": "Connect wallet to view your balances",
+    "myBalancesTitle": "Chainflip Lending - My Balances"
   },
   "chart": {
     "interval": {
@@ -2829,15 +2927,23 @@
     },
     "deposit": {
       "pending": "Your deposit of %{amount} %{symbol} is being processed.",
-      "complete": "Your deposit of %{amount} %{symbol} is complete."
+      "complete": "Your deposit of %{amount} %{symbol} is complete.",
+      "failed": "Your deposit of %{amount} %{symbol} has failed."
     },
     "withdrawal": {
       "pending": "Your withdrawal of %{amount} %{symbol} is being processed.",
-      "complete": "Your withdrawal of %{amount} %{symbol} is complete."
+      "complete": "Your withdrawal of %{amount} %{symbol} is complete.",
+      "failed": "Your withdrawal of %{amount} %{symbol} has failed."
     },
     "claim": {
       "pending": "Your claim of %{amount} %{symbol} is being processed.",
-      "complete": "Your claim of %{amount} %{symbol} is complete."
+      "complete": "Your claim of %{amount} %{symbol} is complete.",
+      "failed": "Your claim of %{amount} %{symbol} has failed."
+    },
+    "yield": {
+      "unstakeAvailableIn": "Your %{symbol} unstake will be available in %{duration}.",
+      "unstakeReady": "Your %{symbol} unstake is ready to claim.",
+      "unstakeClaimed": "Your %{symbol} unstake was claimed."
     },
     "bridge": {
       "processing": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is being processed.",
@@ -2980,6 +3086,7 @@
     "providers": "Providers",
     "successStaked": "You successfully staked %{amount} %{symbol}",
     "successUnstaked": "You successfully unstaked %{amount} %{symbol}",
+    "cooldownNotice": "Your withdrawal will be available in %{cooldownDuration}.",
     "successDeposited": "You successfully deposited %{amount} %{symbol}",
     "successWithdrawn": "You successfully withdrew %{amount} %{symbol}",
     "successClaim": "You successfully claimed %{amount} %{symbol}",
@@ -3006,8 +3113,10 @@
       "enterAmountDescription": "Amount must be greater than zero.",
       "initiateFailedTitle": "Error",
       "initiateFailedDescription": "Failed to initiate transaction sequence.",
-      "quoteFailedTitle": "Quote failed",
-      "quoteFailedDescription": "Unable to get a quote for this transaction. Please try again."
+      "quoteFailedTitle": "Quote Failed",
+      "quoteFailedDescription": "Unable to get a quote for this transaction. Please try again.",
+      "insufficientAssetForGas": "Insufficient %{symbol} for Gas",
+      "rateLimited": "Too Many Requests"
     },
     "underMaintenance": "Under Maintenance",
     "underMaintenanceDescription": "This yield opportunity is currently under maintenance. Deposits may be unavailable.",

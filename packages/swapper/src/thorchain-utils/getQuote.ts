@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bchAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { bn, fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
+import { BigAmount, bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import qs from 'qs'
@@ -60,11 +60,17 @@ export const getQuote = async (
   const buyPoolId = getPoolAssetId({ assetId: buyAssetId, swapperName })
   const sellPoolId = getPoolAssetId({ assetId: sellAsset.assetId, swapperName })
 
-  const sellAmountCryptoPrecision = fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision)
+  const sellAmountCryptoPrecision = BigAmount.fromBaseUnit({
+    value: sellAmountCryptoBaseUnit,
+    precision: sellAsset.precision,
+  }).toPrecision()
 
   // All pool amounts are native precision regardless of token precision
   const sellAmountCryptoThorBaseUnit = bn(
-    toBaseUnit(sellAmountCryptoPrecision, getNativePrecision(sellAsset.assetId, swapperName)),
+    BigAmount.fromPrecision({
+      value: sellAmountCryptoPrecision,
+      precision: getNativePrecision(sellAsset.assetId, swapperName),
+    }).toBaseUnit(),
   )
 
   // The swap endpoint expects BCH receiveAddress's to be stripped of the "bitcoincash:" prefix

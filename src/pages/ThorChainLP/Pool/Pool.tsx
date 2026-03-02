@@ -123,12 +123,12 @@ export const Pool = () => {
 
   const runeTvlCryptoPrecision = useMemo(() => {
     if (!pool?.runeDepth) return
-    return BigAmount.fromThorBaseUnit(pool.runeDepth).toFixed()
+    return BigAmount.fromThorBaseUnit(pool.runeDepth).toPrecision()
   }, [pool?.runeDepth])
 
   const assetTvlCryptoPrecision = useMemo(() => {
     if (!pool?.assetDepth) return
-    return BigAmount.fromThorBaseUnit(pool.assetDepth).toFixed()
+    return BigAmount.fromThorBaseUnit(pool.assetDepth).toPrecision()
   }, [pool?.assetDepth])
 
   const { isTradingActive, isLoading: isTradingActiveLoading } = useIsTradingActive({
@@ -183,7 +183,7 @@ export const Pool = () => {
   if (!poolAssetId) return null
 
   return (
-    <Main headerComponent={headerComponent} isSubPage>
+    <Main headerComponent={headerComponent} isSubPage data-testid='pool-detail-page'>
       {maybePoolDisabledAlert}
       <Flex gap={4} flexDir={flexDirPool}>
         <Stack gap={6} flex={1}>

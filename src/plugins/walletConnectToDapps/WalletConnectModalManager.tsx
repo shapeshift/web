@@ -10,7 +10,6 @@ import { MemoryRouter } from 'react-router-dom'
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertUnreachable } from '@/lib/utils'
-import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { CosmosSignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/CosmosSignMessageConfirmation'
@@ -27,7 +26,6 @@ import { SolanaSignMessageConfirmationModal } from '@/plugins/walletConnectToDap
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
   CosmosSignAminoCallRequest,
-  CosmosSignDirectCallRequest,
   CustomTransactionData,
   EthSendTransactionCallRequest,
   EthSignCallRequest,
@@ -132,30 +130,30 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     [accountId, accountMetadata, chainId, handleClose, requestEvent, topic, wallet, web3wallet],
   )
 
-  const handleConfirmCosmosRequest = useCallback(
-    async (customTransactionData?: CustomTransactionData) => {
-      if (!requestEvent || !chainId || !wallet || !web3wallet || !topic) {
-        return
-      }
+  const handleConfirmCosmosRequest = useCallback(async () => {
+    if (!requestEvent || !wallet || !web3wallet || !topic) {
+      return
+    }
 
-      const chainAdapter = assertGetCosmosSdkChainAdapter(chainId)
-
+    try {
       const response = await approveCosmosRequest({
         wallet,
         requestEvent,
-        chainAdapter,
         accountMetadata,
-        customTransactionData,
-        accountId,
       })
       await web3wallet.respondSessionRequest({
         topic,
         response,
       })
-      handleClose()
-    },
-    [accountId, accountMetadata, chainId, handleClose, requestEvent, topic, wallet, web3wallet],
-  )
+    } catch (e) {
+      console.error('[WC Cosmos] request failed:', e)
+      await web3wallet.respondSessionRequest({
+        topic,
+        response: formatJsonRpcError(requestEvent.id, (e as Error).message ?? 'Unknown error'),
+      })
+    }
+    handleClose()
+  }, [accountMetadata, handleClose, requestEvent, topic, wallet, web3wallet])
 
   const handleConfirmSolanaRequest = useCallback(async () => {
     if (!requestEvent || !chainId || !wallet || !web3wallet || !topic) {
@@ -352,12 +350,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
           <CosmosSignMessageConfirmationModal
             onConfirm={handleConfirmCosmosRequest}
             onReject={handleRejectRequestAndClose}
-            dispatch={dispatch}
-            state={
-              state as Required<
-                WalletConnectState<CosmosSignDirectCallRequest | CosmosSignAminoCallRequest>
-              >
-            }
+            state={state as Required<WalletConnectState<CosmosSignAminoCallRequest>>}
             topic={topic}
           />
         )

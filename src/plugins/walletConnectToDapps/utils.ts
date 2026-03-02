@@ -181,7 +181,9 @@ export const getChainIdFromDomain = (message: string): ChainId | undefined => {
 }
 
 export const isWcSupportedChainId = (chainId: string): boolean =>
-  isEvmChainId(chainId) || chainId.startsWith(`${CHAIN_NAMESPACE.Solana}:`)
+  isEvmChainId(chainId) ||
+  chainId.startsWith(`${CHAIN_NAMESPACE.Solana}:`) ||
+  chainId.startsWith(`${CHAIN_NAMESPACE.CosmosSdk}:`)
 
 export const isChainInProposedNamespaces = (
   chainId: string,

@@ -1,6 +1,5 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
 import { uniq } from 'lodash'

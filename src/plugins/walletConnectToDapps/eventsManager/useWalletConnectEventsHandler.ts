@@ -1,4 +1,4 @@
-import { formatJsonRpcResult } from '@json-rpc-tools/utils'
+import { formatJsonRpcError, formatJsonRpcResult } from '@json-rpc-tools/utils'
 import type { WalletKitTypes } from '@reown/walletkit'
 import type { ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId, toChainId } from '@shapeshiftoss/caip'
@@ -28,7 +28,10 @@ export const useWalletConnectEventsHandler = (
     (proposal: WalletKitTypes.EventArguments['session_proposal']) => {
       dispatch({
         type: WalletConnectActionType.SET_MODAL,
-        payload: { modal: WalletConnectModal.SessionProposal, data: { proposal } },
+        payload: {
+          modal: WalletConnectModal.SessionProposal,
+          data: { proposal },
+        },
       })
     },
     [dispatch],
@@ -149,7 +152,28 @@ export const useWalletConnectEventsHandler = (
           })
           return
         }
+        case CosmosSigningMethod.COSMOS_GET_ACCOUNTS: {
+          const cosmosAccounts = session?.namespaces?.cosmos?.accounts ?? []
+          // Best-effort: pubkey should be a base64-encoded secp256k1 public key, but we
+          // only have the bech32 address here. Falls back to address which is semantically
+          // wrong but allows dApps that don't strictly validate the pubkey field to work.
+          const accounts = cosmosAccounts.map(caip10 => {
+            const { account } = fromAccountId(caip10)
+            return { address: account, algo: 'secp256k1', pubkey: account }
+          })
+          return web3wallet?.respondSessionRequest({
+            topic,
+            response: formatJsonRpcResult(requestEvent.id, accounts),
+          })
+        }
         case CosmosSigningMethod.COSMOS_SIGN_DIRECT:
+          return web3wallet?.respondSessionRequest({
+            topic,
+            response: formatJsonRpcError(
+              requestEvent.id,
+              'cosmos_signDirect is not supported - use cosmos_signAmino instead',
+            ),
+          })
         case CosmosSigningMethod.COSMOS_SIGN_AMINO:
           return dispatch({
             type: WalletConnectActionType.SET_MODAL,
@@ -178,5 +202,9 @@ export const useWalletConnectEventsHandler = (
     [dispatch, web3wallet],
   )
 
-  return { handleSessionProposal, handleSessionAuthRequest, handleSessionRequest }
+  return {
+    handleSessionProposal,
+    handleSessionAuthRequest,
+    handleSessionRequest,
+  }
 }

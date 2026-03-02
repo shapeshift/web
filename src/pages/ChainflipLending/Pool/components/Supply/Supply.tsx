@@ -92,7 +92,7 @@ const useLendingPositionSync = (assetId: AssetId) => {
 
   const lendingPositionCryptoBaseUnit = useMemo(() => {
     if (!Array.isArray(accountInfo?.lending_positions) || !cfAsset) return '0'
-    const matching = accountInfo.lending_positions.find(
+    const matching = accountInfo!.lending_positions.find(
       (p: { chain: string; asset: string; total_amount?: string }) =>
         p.chain === cfAsset.chain && p.asset === cfAsset.asset,
     )

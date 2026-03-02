@@ -103,17 +103,12 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
   const chainIdsSortedByBalance = useAppSelector(selectWalletConnectedChainIdsSorted)
 
   const availableChainIds = useMemo(() => {
-    // Use all EVM chains available for the selected account number as a source of truth
-    // Do *not* honor wc optional namespaces, the app is the source of truth, and the app may or may not handle additional one at their discretion
-    // This is to keep things simple for users and not display less chains than they have accounts for, for a given account number
     const accountNumberChainIds = Object.entries(
       accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {},
     )
       .filter(([chainId]) => isWcSupportedChainId(chainId))
       .map(([chainId]) => chainId)
 
-    // Add any required chains from the dApp even if user doesn't have account/s at the current accountNumber for it/them - we'll handle that state ourselves
-    // Rationale being, they should definitely be able to see the required chains when going to network selection regardless of whether or not they have an account for it
     const requiredFromNamespaces = Object.values(requiredNamespaces)
       .flatMap(namespace => namespace.chains ?? [])
       .filter(isWcSupportedChainId)

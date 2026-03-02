@@ -6,7 +6,11 @@ import type { ProposalTypes, SessionTypes } from '@walletconnect/types'
 import * as bip32 from 'bip32'
 import { uniq } from 'lodash'
 
-import { BIP122SigningMethod, EIP155_SigningMethod } from '@/plugins/walletConnectToDapps/types'
+import {
+  BIP122SigningMethod,
+  CosmosSigningMethod,
+  EIP155_SigningMethod,
+} from '@/plugins/walletConnectToDapps/types'
 
 const DEFAULT_EIP155_METHODS = Object.values(EIP155_SigningMethod).filter(
   method => method !== EIP155_SigningMethod.GET_CAPABILITIES,
@@ -15,10 +19,16 @@ const DEFAULT_EIP155_METHODS = Object.values(EIP155_SigningMethod).filter(
 const DEFAULT_BIP122_METHODS = Object.values(BIP122SigningMethod)
 const DEFAULT_BIP122_EVENTS: string[] = []
 
+const DEFAULT_COSMOS_METHODS = Object.values(CosmosSigningMethod)
+const DEFAULT_COSMOS_EVENTS: string[] = []
+
 const isBip122ChainId = (chainId: string): boolean => chainId === btcChainId
 
+const isCosmosSdkChainId = (chainId: string): boolean =>
+  chainId.startsWith(`${CHAIN_NAMESPACE.CosmosSdk}:`)
+
 export const isWcSupportedChainId = (chainId: string): boolean =>
-  isEvmChainId(chainId) || isBip122ChainId(chainId)
+  isEvmChainId(chainId) || isBip122ChainId(chainId) || isCosmosSdkChainId(chainId)
 
 // BIP122 CAIP-10 requires derived addresses (bc1q..., 3...), not extended public keys (zpub/ypub/xpub)
 // See: https://namespaces.chainagnostic.org/bip122/caip10
@@ -97,6 +107,8 @@ const getDefaultMethods = (key: string): string[] => {
       return DEFAULT_EIP155_METHODS
     case CHAIN_NAMESPACE.Utxo:
       return DEFAULT_BIP122_METHODS
+    case CHAIN_NAMESPACE.CosmosSdk:
+      return DEFAULT_COSMOS_METHODS
     default:
       return []
   }
@@ -200,6 +212,39 @@ export const createApprovalNamespaces = (
         events: uniq([
           ...(existing?.events ?? DEFAULT_BIP122_EVENTS),
           ...(optionalNamespaces?.bip122?.events ?? []),
+        ]),
+      }
+    }
+  }
+
+  // Handle optional Cosmos namespaces
+  const cosmosNamespaceKey = CHAIN_NAMESPACE.CosmosSdk
+  const additionalCosmosChainIds = selectedChainIds.filter(
+    chainId => isCosmosSdkChainId(chainId) && !requiredChainIds.includes(chainId),
+  )
+
+  if (additionalCosmosChainIds.length > 0) {
+    const cosmosAccountIds = selectedAccountIds.filter(
+      accountId =>
+        fromAccountId(accountId).chainNamespace === cosmosNamespaceKey &&
+        additionalCosmosChainIds.includes(fromAccountId(accountId).chainId),
+    )
+
+    if (cosmosAccountIds.length > 0) {
+      const existing = approvedNamespaces[cosmosNamespaceKey]
+      approvedNamespaces[cosmosNamespaceKey] = {
+        ...(existing ?? {}),
+        accounts: uniq([...(existing?.accounts ?? []), ...cosmosAccountIds]),
+        methods: uniq([
+          ...(existing?.methods ?? DEFAULT_COSMOS_METHODS),
+          ...(optionalNamespaces?.[cosmosNamespaceKey]?.methods &&
+          optionalNamespaces[cosmosNamespaceKey].methods.length > 0
+            ? optionalNamespaces[cosmosNamespaceKey].methods
+            : DEFAULT_COSMOS_METHODS),
+        ]),
+        events: uniq([
+          ...(existing?.events ?? DEFAULT_COSMOS_EVENTS),
+          ...(optionalNamespaces?.[cosmosNamespaceKey]?.events ?? DEFAULT_COSMOS_EVENTS),
         ]),
       }
     }

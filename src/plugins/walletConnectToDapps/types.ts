@@ -24,6 +24,7 @@ export enum EIP155_SigningMethod {
 }
 
 export enum CosmosSigningMethod {
+  COSMOS_GET_ACCOUNTS = 'cosmos_getAccounts',
   COSMOS_SIGN_DIRECT = 'cosmos_signDirect',
   COSMOS_SIGN_AMINO = 'cosmos_signAmino',
 }
@@ -194,6 +195,11 @@ export type EthPersonalSignCallRequest = {
   params: EthPersonalSignCallRequestParams
 }
 
+export type CosmosGetAccountsCallRequest = {
+  method: CosmosSigningMethod.COSMOS_GET_ACCOUNTS
+  params: undefined
+}
+
 export type CosmosSignDirectCallRequestParams = {
   signerAddress: string
   signDoc: {
@@ -299,6 +305,7 @@ export type WalletConnectRequest =
   | EthPersonalSignCallRequest
   | EthSignTypedDataCallRequest
   | EthSendTransactionCallRequest
+  | CosmosGetAccountsCallRequest
   | CosmosSignDirectCallRequest
   | CosmosSignAminoCallRequest
   | BIP122SendTransferCallRequest

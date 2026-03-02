@@ -1169,8 +1169,12 @@ export const YieldsList = memo(() => {
         onChange={handleTabChange}
       >
         <TabList mb={4} gap={4}>
-          <Tab _selected={tabSelectedSx} data-testid='yields-tab-all'>{translate('common.all')}</Tab>
-          <Tab _selected={tabSelectedSx} data-testid='yields-tab-available'>{translate('yieldXYZ.availableToEarn')}</Tab>
+          <Tab _selected={tabSelectedSx} data-testid='yields-tab-all'>
+            {translate('common.all')}
+          </Tab>
+          <Tab _selected={tabSelectedSx} data-testid='yields-tab-available'>
+            {translate('yieldXYZ.availableToEarn')}
+          </Tab>
           <Tab _selected={tabSelectedSx} data-testid='yields-tab-my-positions'>
             {translate('yieldXYZ.myPositions')} ({myPositions.length})
           </Tab>

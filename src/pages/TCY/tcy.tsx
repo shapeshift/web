@@ -151,7 +151,13 @@ export const TCY = () => {
   }, [dispatch])
 
   return (
-    <Main pb={mainPaddingBottom} headerComponent={tcyHeader} px={4} isSubPage data-testid='tcy-page'>
+    <Main
+      pb={mainPaddingBottom}
+      headerComponent={tcyHeader}
+      px={4}
+      isSubPage
+      data-testid='tcy-page'
+    >
       {!isConnected ? (
         <ResultsEmpty
           title={<ButtonWalletPredicate isValidWallet />}

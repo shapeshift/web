@@ -66,58 +66,60 @@ const chevronDownIcon = <ChevronDownIcon />
 
 const ALL_OPTION_VALUE = '__all__'
 
-const FilterMenu = memo(({ label, testId, value, options, onSelect, renderIcon }: FilterMenuProps) => {
-  const selectedOption = useMemo(() => options.find(o => o.id === value), [options, value])
-  const displayLabel = useMemo(
-    () => (selectedOption ? selectedOption.name : label),
-    [selectedOption, label],
-  )
+const FilterMenu = memo(
+  ({ label, testId, value, options, onSelect, renderIcon }: FilterMenuProps) => {
+    const selectedOption = useMemo(() => options.find(o => o.id === value), [options, value])
+    const displayLabel = useMemo(
+      () => (selectedOption ? selectedOption.name : label),
+      [selectedOption, label],
+    )
 
-  const selectedIcon = useMemo(
-    () => (selectedOption && renderIcon ? renderIcon(selectedOption) : null),
-    [selectedOption, renderIcon],
-  )
+    const selectedIcon = useMemo(
+      () => (selectedOption && renderIcon ? renderIcon(selectedOption) : null),
+      [selectedOption, renderIcon],
+    )
 
-  const handleChange = useCallback(
-    (newValue: string | string[]) => {
-      const selectedValue = Array.isArray(newValue) ? newValue[0] : newValue
-      onSelect(selectedValue === ALL_OPTION_VALUE ? null : selectedValue)
-    },
-    [onSelect],
-  )
+    const handleChange = useCallback(
+      (newValue: string | string[]) => {
+        const selectedValue = Array.isArray(newValue) ? newValue[0] : newValue
+        onSelect(selectedValue === ALL_OPTION_VALUE ? null : selectedValue)
+      },
+      [onSelect],
+    )
 
-  const menuItems = useMemo(
-    () =>
-      options.map(opt => (
-        <MenuItemOption key={opt.id} value={opt.id}>
-          <HStack spacing={3}>
-            {renderIcon && renderIcon(opt)}
-            <Text>{opt.name}</Text>
+    const menuItems = useMemo(
+      () =>
+        options.map(opt => (
+          <MenuItemOption key={opt.id} value={opt.id}>
+            <HStack spacing={3}>
+              {renderIcon && renderIcon(opt)}
+              <Text>{opt.name}</Text>
+            </HStack>
+          </MenuItemOption>
+        )),
+      [options, renderIcon],
+    )
+
+    return (
+      <Menu>
+        <MenuButton as={Button} rightIcon={chevronDownIcon} minW='160px' data-testid={testId}>
+          <HStack spacing={2}>
+            {selectedIcon}
+            <Text isTruncated maxW='120px'>
+              {displayLabel}
+            </Text>
           </HStack>
-        </MenuItemOption>
-      )),
-    [options, renderIcon],
-  )
-
-  return (
-    <Menu>
-      <MenuButton as={Button} rightIcon={chevronDownIcon} minW='160px' data-testid={testId}>
-        <HStack spacing={2}>
-          {selectedIcon}
-          <Text isTruncated maxW='120px'>
-            {displayLabel}
-          </Text>
-        </HStack>
-      </MenuButton>
-      <MenuList zIndex='banner' maxH='300px' overflowY='auto'>
-        <MenuOptionGroup type='radio' value={value ?? ALL_OPTION_VALUE} onChange={handleChange}>
-          <MenuItemOption value={ALL_OPTION_VALUE}>{label}</MenuItemOption>
-          {menuItems}
-        </MenuOptionGroup>
-      </MenuList>
-    </Menu>
-  )
-})
+        </MenuButton>
+        <MenuList zIndex='banner' maxH='300px' overflowY='auto'>
+          <MenuOptionGroup type='radio' value={value ?? ALL_OPTION_VALUE} onChange={handleChange}>
+            <MenuItemOption value={ALL_OPTION_VALUE}>{label}</MenuItemOption>
+            {menuItems}
+          </MenuOptionGroup>
+        </MenuList>
+      </Menu>
+    )
+  },
+)
 
 type YieldFiltersProps = {
   networks: NetworkOption[]

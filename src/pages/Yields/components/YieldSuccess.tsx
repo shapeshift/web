@@ -77,7 +77,14 @@ export const YieldSuccess = memo(
     return (
       <>
         <ReactCanvasConfetti onInit={getInstance} style={confettiStyle} />
-        <VStack spacing={6} py={4} textAlign='center' align='center' width='full' data-testid='yield-success'>
+        <VStack
+          spacing={6}
+          py={4}
+          textAlign='center'
+          align='center'
+          width='full'
+          data-testid='yield-success'
+        >
           <Box
             position='relative'
             w={20}
@@ -136,7 +143,13 @@ export const YieldSuccess = memo(
           {showButtons && (
             <VStack spacing={3} width='full' pt={2}>
               {yieldId && (
-                <Button colorScheme='blue' width='full' size='lg' onClick={handleViewPosition} data-testid='yield-success-view-position'>
+                <Button
+                  colorScheme='blue'
+                  width='full'
+                  size='lg'
+                  onClick={handleViewPosition}
+                  data-testid='yield-success-view-position'
+                >
                   {translate('yieldXYZ.viewPosition')}
                 </Button>
               )}

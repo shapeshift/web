@@ -544,7 +544,12 @@ export const YieldAssetDetails = memo(() => {
   ])
 
   return (
-    <Container maxW='1200px' py={{ base: 4, md: 8 }} px={{ base: 4, md: 6 }} data-testid='yield-asset-details-page'>
+    <Container
+      maxW='1200px'
+      py={{ base: 4, md: 8 }}
+      px={{ base: 4, md: 6 }}
+      data-testid='yield-asset-details-page'
+    >
       <Button
         leftIcon={<ArrowBackIcon />}
         variant='ghost'

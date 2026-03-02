@@ -32,7 +32,14 @@ export const YieldAssetFlow = memo(
     )
 
     return (
-      <Flex alignItems='center' justify='center' py={6} gap={6} flexDirection={flexDirection} data-testid={`yield-asset-flow-${direction}`}>
+      <Flex
+        alignItems='center'
+        justify='center'
+        py={6}
+        gap={6}
+        flexDirection={flexDirection}
+        data-testid={`yield-asset-flow-${direction}`}
+      >
         <VStack spacing={2}>
           <Box p={1} bg='background.surface.raised.base' borderRadius='full'>
             <Avatar size='md' src={assetLogoURI} name={assetSymbol} />

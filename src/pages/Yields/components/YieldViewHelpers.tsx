@@ -19,7 +19,13 @@ export const ViewToggle = memo(({ viewMode, setViewMode }: ViewToggleProps) => {
   const handleSetListView = useCallback(() => setViewMode('list'), [setViewMode])
 
   return (
-    <ButtonGroup size='md' isAttached variant='outline' width={{ base: 'full', md: 'auto' }} data-testid='yields-view-toggle'>
+    <ButtonGroup
+      size='md'
+      isAttached
+      variant='outline'
+      width={{ base: 'full', md: 'auto' }}
+      data-testid='yields-view-toggle'
+    >
       <IconButton
         aria-label='Grid View'
         icon={gridIcon}

@@ -298,7 +298,12 @@ export const YieldSelector = memo(
           )}
         </Button>
 
-        <Dialog isOpen={isOpen} onClose={handleClose} height='80vh' data-testid='earn-yield-selector-modal'>
+        <Dialog
+          isOpen={isOpen}
+          onClose={handleClose}
+          height='80vh'
+          data-testid='earn-yield-selector-modal'
+        >
           <DialogHeader>
             <DialogHeader.Left>{null}</DialogHeader.Left>
             <DialogHeader.Middle>

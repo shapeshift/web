@@ -103,6 +103,7 @@ export const Header = memo(() => {
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
   const isNewWalletManagerEnabled = useFeatureFlag('NewWalletManager')
   const isEarnTabEnabled = useFeatureFlag('EarnTab')
+  const isChainflipLendingEnabled = useFeatureFlag('ChainflipLending')
 
   const tradeSubMenuItems = useMemo(
     () =>
@@ -114,17 +115,33 @@ export const Header = memo(() => {
   const { degradedChainIds } = useDiscoverAccounts()
 
   const hasWallet = Boolean(walletInfo?.deviceId)
-  const earnSubMenuItems = useMemo(
-    () => [
+  const earnSubMenuItems = useMemo(() => {
+    const items = [
       ...(isYieldsPageEnabled
         ? [{ label: 'navBar.yields', path: '/yields', icon: TbTrendingUp, isNew: true }]
         : []),
       { label: 'navBar.tcy', path: '/tcy', icon: TCYIcon },
       { label: 'navBar.pools', path: '/pools', icon: TbPool },
-      { label: 'navBar.lending', path: '/lending', icon: TbBuildingBank },
-    ],
-    [isYieldsPageEnabled],
-  )
+      {
+        label: isChainflipLendingEnabled ? 'navBar.thorchainLending' : 'navBar.lending',
+        path: '/lending',
+        icon: TbBuildingBank,
+        isDeprecated: isChainflipLendingEnabled,
+      },
+      ...(isChainflipLendingEnabled
+        ? [
+            {
+              label: 'navBar.chainflipLending',
+              path: '/chainflip-lending',
+              icon: TbBuildingBank,
+              isNew: true,
+            },
+          ]
+        : []),
+    ]
+
+    return items
+  }, [isChainflipLendingEnabled, isYieldsPageEnabled])
 
   /**
    * FOR DEVELOPERS:

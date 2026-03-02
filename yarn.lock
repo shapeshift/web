@@ -4382,6 +4382,35 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@chainflip/extrinsics@npm:^1.6.2":
+  version: 1.6.2
+  resolution: "@chainflip/extrinsics@npm:1.6.2"
+  checksum: fa8164ce83255c08d10041d84d45086d35b05cfd8f88f5e7142fc0f1afefebdc721311cd1673cc24af14372d033b4b1e76e3403798b1bab28899f85c7cb7ad8c
+  languageName: node
+  linkType: hard
+
+"@chainflip/rpc@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "@chainflip/rpc@npm:2.1.1"
+  dependencies:
+    "@chainflip/utils": 2.1.2
+    zod: ^3.25.75
+  checksum: 90ef7bbb9df2a31472fd584b1e98e3180c9f63f393dd2edc0fcc9dd8a663aecb9f8cc75b7e802b33ef3a6e94699df910f846d2e90753ae3bf61e9386a57145ff
+  languageName: node
+  linkType: hard
+
+"@chainflip/utils@npm:2.1.2":
+  version: 2.1.2
+  resolution: "@chainflip/utils@npm:2.1.2"
+  dependencies:
+    "@date-fns/utc": ^2.1.1
+    "@noble/hashes": ^2.0.1
+    bignumber.js: ^9.3.1
+    date-fns: 4.1.0
+  checksum: f0aa32f0cbde5162e09badc3595076524780530eca4042ff575d83e70db8b41993f8ecc7c9a0b72316a3661b5f425b962bdad138b172d8e111579c95f428b9f0
+  languageName: node
+  linkType: hard
+
 "@chakra-ui/anatomy@npm:2.2.2":
   version: 2.2.2
   resolution: "@chakra-ui/anatomy@npm:2.2.2"
@@ -5355,6 +5384,13 @@ __metadata:
   version: 4.0.0
   resolution: "@csstools/css-tokenizer@npm:4.0.0"
   checksum: 924d1223561c035c7e9d8cde747d0ea37c4cba5b635b401901fe3f67ef0ccc33106a7c78b9751e80519457e432d950954717497093a5df56900f258ab4a50641
+  languageName: node
+  linkType: hard
+
+"@date-fns/utc@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "@date-fns/utc@npm:2.1.1"
+  checksum: 80db3b4afbe261ed441f4c0fe688a5979ab7377fafa8100920b46bfd5f3dcf2f0ded9e63869fdbbedad0f5fc05e411e88bab1e3374e5173a822052666f01550a
   languageName: node
   linkType: hard
 
@@ -14232,6 +14268,8 @@ __metadata:
     "@arbitrum/sdk": ^4.0.1
     "@cetusprotocol/aggregator-sdk": ^1.4.2
     "@cetusprotocol/cetus-sui-clmm-sdk": 5.4.0
+    "@chainflip/extrinsics": ^1.6.2
+    "@chainflip/rpc": ^2.1.1
     "@chakra-ui/icons": ^2.2.4
     "@chakra-ui/react": ^2.10.7
     "@chakra-ui/system": ^2.6.2
@@ -14347,6 +14385,8 @@ __metadata:
     bignumber.js: ^9.3.1
     bip21: ^2.0.3
     bip39: ^3.0.4
+    blakejs: ^1.2.1
+    bs58: ^6.0.0
     buffer: ^6.0.3
     chakra-ui-steps: ^2.2.0
     chalk: 5.3.0
@@ -14441,6 +14481,7 @@ __metadata:
     reselect: ^5.1.1
     resize-observer-polyfill: ^1.5.1
     retry-axios: ^2.6.0
+    scale-ts: 1.6.1
     scroll-into-view-if-needed: ^3.0.10
     semver: ^7.7.2
     simple-git: ^3.16.0
@@ -26446,17 +26487,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"date-fns@npm:4.1.0, date-fns@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "date-fns@npm:4.1.0"
+  checksum: fb681b242cccabed45494468f64282a7d375ea970e0adbcc5dcc92dcb7aba49b2081c2c9739d41bf71ce89ed68dd73bebfe06ca35129490704775d091895710b
+  languageName: node
+  linkType: hard
+
 "date-fns@npm:^2.16.1, date-fns@npm:^2.29.3":
   version: 2.29.3
   resolution: "date-fns@npm:2.29.3"
   checksum: e01cf5b62af04e05dfff921bb9c9933310ed0e1ae9a81eb8653452e64dc841acf7f6e01e1a5ae5644d0337e9a7f936175fd2cb6819dc122fdd9c5e86c56be484
-  languageName: node
-  linkType: hard
-
-"date-fns@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "date-fns@npm:4.1.0"
-  checksum: fb681b242cccabed45494468f64282a7d375ea970e0adbcc5dcc92dcb7aba49b2081c2c9739d41bf71ce89ed68dd73bebfe06ca35129490704775d091895710b
   languageName: node
   linkType: hard
 
@@ -40680,6 +40721,13 @@ pvutils@latest:
   dependencies:
     xmlchars: ^2.2.0
   checksum: d3fa3e2aaf6c65ed52ee993aff1891fc47d5e47d515164b5449cbf5da2cbdc396137e55590472e64c5c436c14ae64a8a03c29b9e7389fc6f14035cf4e982ef3b
+  languageName: node
+  linkType: hard
+
+"scale-ts@npm:1.6.1":
+  version: 1.6.1
+  resolution: "scale-ts@npm:1.6.1"
+  checksum: 0e045e45184194eab4770d823a2d455646eae7fc827f0f6162ca409f4f3387415a152e885f1594ba327da5b62ebc355c16049c5573c9a298038bd5d741a92175
   languageName: node
   linkType: hard
 

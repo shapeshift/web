@@ -51,6 +51,7 @@ import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
 import { YieldExplainers } from '@/pages/Yields/components/YieldExplainers'
 import { YieldSuccess } from '@/pages/Yields/components/YieldSuccess'
+import { getYieldQuoteErrorTranslation } from '@/pages/Yields/hooks/getYieldQuoteErrorTranslation'
 import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
@@ -436,6 +437,7 @@ export const YieldForm = memo(
       handleConfirm,
       isQuoteLoading,
       quoteData,
+      quoteError,
       isAllowanceCheckPending,
       isUsdtResetRequired,
       isAmountLocked,
@@ -514,6 +516,10 @@ export const YieldForm = memo(
     const buttonText = useMemo(() => {
       if (!isConnected) return translate('common.connectWallet')
       if (isQuoteActive) return translate('yieldXYZ.loadingQuote')
+      if (quoteError && cryptoAmount) {
+        const { key, params } = getYieldQuoteErrorTranslation(quoteError)
+        return translate(key, params)
+      }
 
       if (isSubmitting && transactionSteps.length > 0) {
         const activeStep = transactionSteps.find(s => s.status !== 'success')
@@ -563,6 +569,8 @@ export const YieldForm = memo(
     }, [
       isConnected,
       isQuoteActive,
+      quoteError,
+      cryptoAmount,
       isSubmitting,
       transactionSteps,
       activeStepIndex,

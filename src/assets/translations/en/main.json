@@ -3339,8 +3339,10 @@
       "enterAmountDescription": "Amount must be greater than zero.",
       "initiateFailedTitle": "Error",
       "initiateFailedDescription": "Failed to initiate transaction sequence.",
-      "quoteFailedTitle": "Quote failed",
-      "quoteFailedDescription": "Unable to get a quote for this transaction. Please try again."
+      "quoteFailedTitle": "Quote Failed",
+      "quoteFailedDescription": "Unable to get a quote for this transaction. Please try again.",
+      "insufficientAssetForGas": "Insufficient %{symbol} for Gas",
+      "rateLimited": "Too Many Requests"
     },
     "underMaintenance": "Under Maintenance",
     "underMaintenanceDescription": "This yield opportunity is currently under maintenance. Deposits may be unavailable.",

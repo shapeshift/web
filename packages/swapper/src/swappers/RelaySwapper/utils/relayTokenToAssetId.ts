@@ -136,11 +136,6 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
           assetReference: ASSET_REFERENCE.Plasma,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
-      case CHAIN_REFERENCE.PlumeMainnet:
-        return {
-          assetReference: ASSET_REFERENCE.Plume,
-          assetNamespace: ASSET_NAMESPACE.slip44,
-        }
       case CHAIN_REFERENCE.MantleMainnet:
         return {
           assetReference: ASSET_REFERENCE.Mantle,
@@ -166,14 +161,24 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
           assetReference: ASSET_REFERENCE.Katana,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
-      case CHAIN_REFERENCE.FlowEvmMainnet:
+      case CHAIN_REFERENCE.EtherealMainnet:
         return {
-          assetReference: ASSET_REFERENCE.FlowEvm,
+          assetReference: ASSET_REFERENCE.Ethereal,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
       case CHAIN_REFERENCE.CeloMainnet:
         return {
           assetReference: ASSET_REFERENCE.Celo,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.FlowEvmMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.FlowEvm,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.PlumeMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Plume,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
       case CHAIN_REFERENCE.StoryMainnet:

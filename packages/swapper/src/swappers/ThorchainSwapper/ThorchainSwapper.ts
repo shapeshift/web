@@ -9,6 +9,9 @@ export const thorchainSwapper: Swapper = {
   executeUtxoTransaction: (txToSign, { signAndBroadcastTransaction }) => {
     return signAndBroadcastTransaction(txToSign)
   },
+  executeSolanaTransaction: (txToSign, { signAndBroadcastTransaction }) => {
+    return signAndBroadcastTransaction(txToSign)
+  },
   executeTronTransaction: (txToSign, { signAndBroadcastTransaction }) => {
     return signAndBroadcastTransaction(txToSign)
   },

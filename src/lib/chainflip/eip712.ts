@@ -4,6 +4,7 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { AccountMetadata } from '@shapeshiftoss/types'
 import type { TypedData } from 'eip-712'
+import { Signature } from 'ethers'
 
 import { BLOCKS_TO_EXPIRY } from './constants'
 import { authorSubmitExtrinsic, cfEncodeNonNativeCall, stateGetRuntimeVersion } from './rpc'
@@ -26,15 +27,8 @@ export type SignChainflipCallOutput = {
   transactionMetadata: { nonce: number; expiryBlock: number }
 }
 
-const buildTypedData = (payload: TypedData): TypedData => {
-  const types = { ...payload.types }
-  delete types.EIP712Domain
-  return {
-    domain: payload.domain,
-    types,
-    message: payload.message,
-    primaryType: payload.primaryType,
-  }
+const normalizeSignature = (rawSignature: string): string => {
+  return Signature.from(Signature.from(rawSignature)).serialized
 }
 
 export const signChainflipCall = async ({
@@ -59,7 +53,7 @@ export const signChainflipCall = async ({
     nonceOrAccount,
   })
 
-  const typedData = buildTypedData(payload.Eip712 as TypedData)
+  const typedData = payload.Eip712 as TypedData
   const typedDataToSign: ETHSignTypedData = {
     addressNList: toAddressNList(adapter.getBip44Params(accountMetadata.bip44Params)),
     typedData,
@@ -70,7 +64,8 @@ export const signChainflipCall = async ({
     wallet,
   }
 
-  const signature = await adapter.signTypedData(signTypedDataInput)
+  const rawSignature = await adapter.signTypedData(signTypedDataInput)
+  const signature = normalizeSignature(rawSignature)
   const signedExtrinsicHex = encodeNonNativeSignedCall(
     encodedCall,
     { nonce: transactionMetadata.nonce, expiryBlock: transactionMetadata.expiry_block },
@@ -91,10 +86,31 @@ export const signChainflipCall = async ({
 export const submitSignedCall = (signedExtrinsicHex: string): Promise<string> =>
   authorSubmitExtrinsic(signedExtrinsicHex)
 
+const isNonceError = (error: unknown): boolean => {
+  const message = error instanceof Error ? error.message : String(error)
+  return (
+    message.includes('Priority is too low') ||
+    message.includes('Stale') ||
+    message.includes('1010') ||
+    message.includes('nonce')
+  )
+}
+
 export const signAndSubmitChainflipCall = async (
   input: SignChainflipCallInput,
-): Promise<{ signedExtrinsicHex: string; txHash: string }> => {
-  const { signedExtrinsicHex } = await signChainflipCall(input)
-  const txHash = await submitSignedCall(signedExtrinsicHex)
-  return { signedExtrinsicHex, txHash }
+): Promise<{ signedExtrinsicHex: string; txHash: string; nonce: number }> => {
+  try {
+    const { signedExtrinsicHex, transactionMetadata } = await signChainflipCall(input)
+    const txHash = await submitSignedCall(signedExtrinsicHex)
+    return { signedExtrinsicHex, txHash, nonce: transactionMetadata.nonce }
+  } catch (firstError) {
+    if (!isNonceError(firstError)) throw firstError
+
+    const retryNonce =
+      typeof input.nonceOrAccount === 'number' ? input.nonceOrAccount + 1 : input.nonceOrAccount
+    const retryInput = { ...input, nonceOrAccount: retryNonce }
+    const { signedExtrinsicHex, transactionMetadata } = await signChainflipCall(retryInput)
+    const txHash = await submitSignedCall(signedExtrinsicHex)
+    return { signedExtrinsicHex, txHash, nonce: transactionMetadata.nonce }
+  }
 }

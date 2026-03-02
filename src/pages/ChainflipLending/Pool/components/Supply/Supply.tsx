@@ -91,8 +91,9 @@ const useLendingPositionSync = (assetId: AssetId) => {
   const cfAsset = useMemo(() => CHAINFLIP_LENDING_ASSET_BY_ASSET_ID[assetId], [assetId])
 
   const lendingPositionCryptoBaseUnit = useMemo(() => {
-    if (!Array.isArray(accountInfo?.lending_positions) || !cfAsset) return '0'
-    const matching = accountInfo!.lending_positions.find(
+    const positions = accountInfo?.lending_positions
+    if (!Array.isArray(positions) || !cfAsset) return '0'
+    const matching = positions.find(
       (p: { chain: string; asset: string; total_amount?: string }) =>
         p.chain === cfAsset.chain && p.asset === cfAsset.asset,
     )
@@ -102,7 +103,7 @@ const useLendingPositionSync = (assetId: AssetId) => {
     } catch {
       return '0'
     }
-  }, [accountInfo?.lending_positions, cfAsset])
+  }, [accountInfo, cfAsset])
 
   useEffect(() => {
     actorRef.send({

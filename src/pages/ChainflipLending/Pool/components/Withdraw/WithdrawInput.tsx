@@ -238,8 +238,11 @@ export const WithdrawInput = ({ assetId }: WithdrawInputProps) => {
   ])
 
   const isValidWallet = useMemo(
-    () => Boolean(walletSupportsEth && (!withdrawToWallet || walletSupportsAssetChain)),
-    [walletSupportsEth, withdrawToWallet, walletSupportsAssetChain],
+    () =>
+      Boolean(
+        walletSupportsEth && (!withdrawToWallet || walletSupportsAssetChain || isCustomAddress),
+      ),
+    [walletSupportsEth, withdrawToWallet, walletSupportsAssetChain, isCustomAddress],
   )
 
   const isSubmitDisabled = useMemo(

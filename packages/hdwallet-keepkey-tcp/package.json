@@ -30,7 +30,7 @@
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "workspace:^",
     "@shapeshiftoss/hdwallet-keepkey": "workspace:^",
-    "axios": "^0.21.1"
+    "axios": "^0.30.3"
   },
   "sideEffects": false
 }

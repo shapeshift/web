@@ -36,7 +36,7 @@
     "@shapeshiftoss/common-api": "^9.3.0",
     "@shapeshiftoss/contracts": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^",
-    "axios": "^1.13.5",
+    "axios": "^0.30.3",
     "bignumber.js": "^9.3.1",
     "bs58": "^5.0.0",
     "ethers": "6.11.1",

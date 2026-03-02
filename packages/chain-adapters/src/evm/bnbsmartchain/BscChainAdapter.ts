@@ -148,17 +148,24 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.BnbSmartChainMain
     receiverAddress,
     hex,
   }: BroadcastTransactionInput): Promise<string> {
-    // Sanctions check runs before broadcast — must not fall through to RPC fallback
-    await Promise.all([
-      assertAddressNotSanctioned(senderAddress),
-      receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
-    ])
-
-    // Try unchained API first
     try {
+      // Sanctions check inside try-catch to match base class error handling pattern
+      await Promise.all([
+        assertAddressNotSanctioned(senderAddress),
+        receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
+      ])
+
       const txHash = await this.providers.http.sendTx({ sendTxBody: { hex } })
       return txHash
     } catch (unchainedErr) {
+      // Don't fall back to public RPCs for sanctions failures
+      if (
+        unchainedErr instanceof Error &&
+        unchainedErr.message.toLowerCase().includes('sanctioned')
+      ) {
+        return handleBroadcastTransactionError(unchainedErr)
+      }
+
       console.warn(
         '[BSC] Unchained broadcast failed, falling back to public RPC endpoints',
         unchainedErr,

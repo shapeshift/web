@@ -494,10 +494,33 @@ export const YieldsList = memo(() => {
     searchQuery,
   ])
 
+  const getBestAccountIdForYield = useCallback(
+    (yieldId: string): string | undefined => {
+      const balances = allBalances?.[yieldId]
+      if (!balances || balances.length === 0) return undefined
+      // Find the account with the highest USD balance for this yield
+      const bestByUsd = balances.reduce((prev, curr) =>
+        bnOrZero(curr.amountUsd).gt(bnOrZero(prev.amountUsd)) ? curr : prev,
+      )
+      if (bnOrZero(bestByUsd.amountUsd).gt(0)) return bestByUsd.accountId
+
+      // Fallback: when USD balance is zero for all entries, try position amount
+      const bestByAmount = balances.reduce((prev, curr) =>
+        bnOrZero(curr.amount).gt(bnOrZero(prev.amount)) ? curr : prev,
+      )
+      return bnOrZero(bestByAmount.amount).gt(0) ? bestByAmount.accountId : undefined
+    },
+    [allBalances],
+  )
+
   const handleYieldClick = useCallback(
-    (yieldId: string) => {
+    (yieldId: string, accountId?: string) => {
       const validator = getDefaultValidatorForYield(yieldId)
-      const url = validator ? `/yield/${yieldId}?validator=${validator}` : `/yield/${yieldId}`
+      const params = new URLSearchParams()
+      if (validator) params.set('validator', validator)
+      if (accountId) params.set('accountId', accountId)
+      const query = params.toString()
+      const url = query ? `/yield/${yieldId}?${query}` : `/yield/${yieldId}`
       navigate(url)
     },
     [navigate],
@@ -506,9 +529,10 @@ export const YieldsList = memo(() => {
   const handleRowClick = useCallback(
     (row: Row<AugmentedYieldDto>) => {
       if (!row.original.status.enter) return
-      handleYieldClick(row.original.id)
+      const bestAccountId = getBestAccountIdForYield(row.original.id)
+      handleYieldClick(row.original.id, bestAccountId)
     },
-    [handleYieldClick],
+    [getBestAccountIdForYield, handleYieldClick],
   )
 
   const columns = useMemo<ColumnDef<AugmentedYieldDto>[]>(
@@ -1030,6 +1054,7 @@ export const YieldsList = memo(() => {
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={{ base: 2, md: 6 }}>
         {myPositions.map(position => {
           const posDisplayInfo = getYieldDisplayInfo(position)
+          const bestAccountId = getBestAccountIdForYield(position.id)
           return (
             <YieldItem
               key={position.id}
@@ -1040,7 +1065,7 @@ export const YieldsList = memo(() => {
                 providerName: posDisplayInfo.name,
               }}
               variant={isMobile ? 'mobile' : 'card'}
-              onEnter={() => handleYieldClick(position.id)}
+              onEnter={() => handleYieldClick(position.id, bestAccountId)}
               userBalanceUsd={
                 allBalances?.[position.id]
                   ? allBalances[position.id].reduce(
@@ -1054,7 +1079,14 @@ export const YieldsList = memo(() => {
         })}
       </SimpleGrid>
     ),
-    [allBalances, getYieldDisplayInfo, handleYieldClick, myPositions, isMobile],
+    [
+      allBalances,
+      getBestAccountIdForYield,
+      getYieldDisplayInfo,
+      handleYieldClick,
+      myPositions,
+      isMobile,
+    ],
   )
 
   const positionsListElement = useMemo(

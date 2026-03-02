@@ -95,6 +95,7 @@ export const collateralMachine = setup({
     resetForNewCollateral: assign({
       collateralAmountCryptoPrecision: '',
       collateralAmountCryptoBaseUnit: '0',
+      stepConfirmed: false,
       txHash: null,
       lastUsedNonce: undefined,
       error: null,

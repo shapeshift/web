@@ -64,11 +64,10 @@ export const useCollateralConfirmation = () => {
     const matchingCollateral = loanAccount.collateral.find(
       c => c.chain === cfAsset.chain && c.asset === cfAsset.asset,
     )
-
-    if (!matchingCollateral?.amount) return
+    const currentAmount = matchingCollateral?.amount ?? '0'
 
     try {
-      const currentCollateralCryptoBaseUnit = BigInt(matchingCollateral.amount)
+      const currentCollateralCryptoBaseUnit = BigInt(currentAmount)
       const previousCollateralCryptoBaseUnit = BigInt(collateralBalanceCryptoBaseUnit || '0')
 
       const hasChanged =

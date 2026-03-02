@@ -87,10 +87,10 @@ export const submitSignedCall = (signedExtrinsicHex: string): Promise<string> =>
   authorSubmitExtrinsic(signedExtrinsicHex)
 
 const isNonceError = (error: unknown): boolean => {
-  const message = error instanceof Error ? error.message : String(error)
+  const message = (error instanceof Error ? error.message : String(error)).toLowerCase()
   return (
-    message.includes('Priority is too low') ||
-    message.includes('Stale') ||
+    message.includes('priority is too low') ||
+    message.includes('stale') ||
     message.includes('1010') ||
     message.includes('nonce')
   )

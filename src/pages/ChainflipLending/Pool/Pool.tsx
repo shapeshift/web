@@ -282,7 +282,10 @@ export const Pool = () => {
     [collateralWithFiat, poolAssetId],
   )
 
-  const firstLoan = useMemo(() => loansWithFiat[0], [loansWithFiat])
+  const poolLoan = useMemo(
+    () => loansWithFiat.find(loan => loan.assetId === poolAssetId),
+    [loansWithFiat, poolAssetId],
+  )
 
   const utilisationPercent = useMemo(
     () => (poolData ? permillToDecimal(poolData.pool.utilisation_rate) : '0'),
@@ -331,13 +334,13 @@ export const Pool = () => {
   )
   const handleBorrow = useCallback(() => handleOpenModal('borrow'), [handleOpenModal])
   const handleRepay = useCallback(() => {
-    if (firstLoan) {
-      chainflipLendingModal.open({ mode: 'repay', assetId: poolAssetId, loanId: firstLoan.loanId })
+    if (poolLoan) {
+      chainflipLendingModal.open({ mode: 'repay', assetId: poolAssetId, loanId: poolLoan.loanId })
     }
-  }, [chainflipLendingModal, poolAssetId, firstLoan])
+  }, [chainflipLendingModal, poolAssetId, poolLoan])
 
   const hasCollateral = useMemo(() => bnOrZero(totalCollateralFiat).gt(0), [totalCollateralFiat])
-  const hasLoans = useMemo(() => loansWithFiat.length > 0, [loansWithFiat])
+  const hasLoans = useMemo(() => Boolean(poolLoan), [poolLoan])
 
   const { thresholds } = useChainflipLtvThresholds()
 
@@ -570,10 +573,10 @@ export const Pool = () => {
                     <Skeleton isLoaded={!isLoanLoading}>
                       <Amount.Fiat value={userBorrowedFiat} fontSize='lg' fontWeight='bold' />
                     </Skeleton>
-                    {accountId && firstLoan ? (
+                    {accountId && poolLoan ? (
                       <Skeleton isLoaded={!isLoanLoading}>
                         <Amount.Crypto
-                          value={firstLoan.principalAmountCryptoPrecision}
+                          value={poolLoan.principalAmountCryptoPrecision}
                           symbol={asset.symbol}
                           fontSize='xs'
                           color='text.subtle'
@@ -911,13 +914,13 @@ export const Pool = () => {
                         </RawText>
                         <VStack spacing={0} align='flex-end'>
                           <Amount.Fiat
-                            value={firstLoan?.principalAmountFiat ?? '0'}
+                            value={poolLoan?.principalAmountFiat ?? '0'}
                             fontSize='sm'
                             fontWeight='medium'
                           />
-                          {firstLoan && (
+                          {poolLoan && (
                             <Amount.Crypto
-                              value={firstLoan.principalAmountCryptoPrecision}
+                              value={poolLoan.principalAmountCryptoPrecision}
                               symbol={asset.symbol}
                               fontSize='xs'
                               color='text.subtle'

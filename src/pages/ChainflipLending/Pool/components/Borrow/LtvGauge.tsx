@@ -18,15 +18,26 @@ const ltvToPercent = (ltv: number): string => `${Math.min(Math.max(ltv * 100, 0)
 const ltvToDisplayPercent = (ltv: number): string =>
   `${(Math.min(Math.max(ltv, 0), 1) * 100).toFixed(1)}%`
 
-const getStatusColor = (ltv: number): string => {
-  if (ltv >= 0.9) return 'red.500'
-  if (ltv >= 0.8) return 'yellow.500'
+const DEFAULT_SOFT_LIQUIDATION_LTV = 0.8
+const DEFAULT_HARD_LIQUIDATION_LTV = 0.9
+
+const getStatusColor = (
+  ltv: number,
+  softLiquidationLtv: number,
+  hardLiquidationLtv: number,
+): string => {
+  if (ltv >= hardLiquidationLtv) return 'red.500'
+  if (ltv >= softLiquidationLtv) return 'yellow.500'
   return 'green.500'
 }
 
-const getStatusKey = (ltv: number): string => {
-  if (ltv >= 0.9) return 'chainflipLending.ltv.danger'
-  if (ltv >= 0.8) return 'chainflipLending.ltv.warning'
+const getStatusKey = (
+  ltv: number,
+  softLiquidationLtv: number,
+  hardLiquidationLtv: number,
+): string => {
+  if (ltv >= hardLiquidationLtv) return 'chainflipLending.ltv.danger'
+  if (ltv >= softLiquidationLtv) return 'chainflipLending.ltv.warning'
   return 'chainflipLending.ltv.safe'
 }
 
@@ -34,8 +45,27 @@ export const LtvGauge = memo(({ currentLtv, projectedLtv }: LtvGaugeProps) => {
   const translate = useTranslate()
   const { thresholds } = useChainflipLtvThresholds()
 
-  const statusColor = useMemo(() => getStatusColor(currentLtv), [currentLtv])
-  const statusKey = useMemo(() => getStatusKey(currentLtv), [currentLtv])
+  const softLiquidationLtv = thresholds?.softLiquidation ?? DEFAULT_SOFT_LIQUIDATION_LTV
+  const hardLiquidationLtv = thresholds?.hardLiquidation ?? DEFAULT_HARD_LIQUIDATION_LTV
+
+  const statusColor = useMemo(
+    () => getStatusColor(currentLtv, softLiquidationLtv, hardLiquidationLtv),
+    [currentLtv, softLiquidationLtv, hardLiquidationLtv],
+  )
+  const statusKey = useMemo(
+    () => getStatusKey(currentLtv, softLiquidationLtv, hardLiquidationLtv),
+    [currentLtv, softLiquidationLtv, hardLiquidationLtv],
+  )
+
+  const gaugeGradient = useMemo(
+    () =>
+      `linear(to-r, green.500 0%, green.500 ${softLiquidationLtv * 100}%, yellow.500 ${
+        softLiquidationLtv * 100
+      }%, yellow.500 ${hardLiquidationLtv * 100}%, red.500 ${
+        hardLiquidationLtv * 100
+      }%, red.800 100%)`,
+    [softLiquidationLtv, hardLiquidationLtv],
+  )
 
   const thresholdMarkers = useMemo(() => {
     if (!thresholds) return []
@@ -70,12 +100,7 @@ export const LtvGauge = memo(({ currentLtv, projectedLtv }: LtvGaugeProps) => {
           borderRadius='full'
           overflow='hidden'
         >
-          <Box
-            width='full'
-            height='full'
-            bgGradient='linear(to-r, green.500 0%, green.500 80%, yellow.500 80%, yellow.500 85%, orange.500 85%, orange.500 90%, red.500 90%, red.500 95%, red.800 95%)'
-            opacity={0.3}
-          />
+          <Box width='full' height='full' bgGradient={gaugeGradient} opacity={0.3} />
         </Box>
 
         <Box
@@ -100,7 +125,7 @@ export const LtvGauge = memo(({ currentLtv, projectedLtv }: LtvGaugeProps) => {
             height={MARKER_HEIGHT}
             borderWidth='2px'
             borderStyle='dashed'
-            borderColor={getStatusColor(projectedLtv)}
+            borderColor={getStatusColor(projectedLtv, softLiquidationLtv, hardLiquidationLtv)}
             borderRadius='full'
             zIndex={1}
           />

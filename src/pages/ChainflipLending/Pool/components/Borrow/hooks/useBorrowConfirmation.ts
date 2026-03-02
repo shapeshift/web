@@ -22,6 +22,7 @@ export const useBorrowConfirmation = () => {
 
   const isConfirming = stateValue === 'confirming'
   const snapshotRef = useRef<LoanSnapshot | null>(null)
+  const preConfirmSnapshotRef = useRef<LoanSnapshot | null>(null)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const invalidateQueries = useCallback(async () => {
@@ -39,9 +40,25 @@ export const useBorrowConfirmation = () => {
     refetchInterval: isConfirming ? POLL_INTERVAL_MS : false,
   })
 
+  // Capture pre-confirm snapshot before transitioning to confirming
+  useEffect(() => {
+    if (isConfirming || !loanAccountsData || !scAccount) return
+    const myAccount = loanAccountsData.find(account => account.account === scAccount)
+    const loans = myAccount?.loans ?? []
+    const totalPrincipal = loans.reduce((sum, loan) => {
+      try {
+        return sum + BigInt(loan.principal_amount)
+      } catch {
+        return sum
+      }
+    }, 0n)
+    preConfirmSnapshotRef.current = { count: loans.length, totalPrincipal }
+  }, [isConfirming, loanAccountsData, scAccount])
+
   useEffect(() => {
     if (!isConfirming) {
       snapshotRef.current = null
+      preConfirmSnapshotRef.current = null
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
         timeoutRef.current = null
@@ -78,8 +95,10 @@ export const useBorrowConfirmation = () => {
     }, 0n)
 
     if (snapshotRef.current === null) {
-      snapshotRef.current = { count: currentCount, totalPrincipal: currentTotalPrincipal }
-      return
+      snapshotRef.current = preConfirmSnapshotRef.current ?? {
+        count: currentCount,
+        totalPrincipal: currentTotalPrincipal,
+      }
     }
 
     const hasNewLoan = currentCount > snapshotRef.current.count

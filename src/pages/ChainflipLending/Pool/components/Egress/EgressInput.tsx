@@ -174,8 +174,12 @@ export const EgressInput = ({ assetId }: EgressInputProps) => {
     [setValue, trigger],
   )
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     if (!asset) return
+    if (isCustomAddress) {
+      const isValid = await trigger('manualAddress')
+      if (!isValid) return
+    }
     const baseUnit = BigAmount.fromPrecision({
       value: inputValue || '0',
       precision: asset.precision,
@@ -187,15 +191,23 @@ export const EgressInput = ({ assetId }: EgressInputProps) => {
       egressAmountCryptoBaseUnit: baseUnit,
       destinationAddress,
     })
-  }, [actorRef, inputValue, asset, destinationAddress])
+  }, [actorRef, inputValue, asset, destinationAddress, isCustomAddress, trigger])
 
   const isSubmitDisabled = useMemo(
     () =>
       bnOrZero(inputValue).isZero() ||
       bnOrZero(inputValue).gt(availableCryptoPrecision) ||
       !hasFreeBalance ||
-      !destinationAddress.trim(),
-    [inputValue, availableCryptoPrecision, hasFreeBalance, destinationAddress],
+      !destinationAddress.trim() ||
+      Boolean(isCustomAddress && errors.manualAddress),
+    [
+      inputValue,
+      availableCryptoPrecision,
+      hasFreeBalance,
+      destinationAddress,
+      isCustomAddress,
+      errors.manualAddress,
+    ],
   )
 
   if (!asset) return null

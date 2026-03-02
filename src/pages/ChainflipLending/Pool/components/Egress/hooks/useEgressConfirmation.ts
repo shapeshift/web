@@ -32,13 +32,13 @@ export const useEgressConfirmation = () => {
     if (!isConfirming || baselineId !== null) return
     if (!cfAsset || !destinationAddress) return
 
-    void queryLatestWithdrawalId(destinationAddress, cfAsset.asset, cfAsset.chain)
-      .then(id => {
-        setBaselineId(id)
-      })
-      .catch(() => {
+    void queryLatestWithdrawalId(destinationAddress, cfAsset.asset, cfAsset.chain).then(id => {
+      if (id === null) {
         actorRef.send({ type: 'EGRESS_TIMEOUT', error: 'Failed to fetch withdrawal baseline' })
-      })
+        return
+      }
+      setBaselineId(id)
+    })
   }, [isConfirming, baselineId, cfAsset, destinationAddress, actorRef])
 
   const { data: withdrawalStatus } = useQuery({
@@ -82,13 +82,15 @@ export const useEgressConfirmation = () => {
   }, [stateValue, queryClient])
 
   useEffect(() => {
-    if (!isConfirming || !withdrawalStatus) return
+    if (!isConfirming) return
 
     pollCountRef.current += 1
     if (pollCountRef.current > MAX_POLL_ATTEMPTS) {
       actorRef.send({ type: 'EGRESS_TIMEOUT', error: 'Confirmation timed out' })
       return
     }
+
+    if (!withdrawalStatus) return
 
     if (withdrawalStatus.broadcastComplete && withdrawalStatus.transactionRef) {
       void invalidateQueries()

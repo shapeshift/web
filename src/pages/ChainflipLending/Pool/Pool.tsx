@@ -337,6 +337,7 @@ export const Pool = () => {
     canRemoveCollateral,
     canBorrow,
     canLiquidate,
+    isLoading: isSafeModeStatusesLoading,
   } = useChainflipSafeModeStatuses(poolAssetId)
 
   const { thresholds } = useChainflipLtvThresholds()
@@ -592,7 +593,12 @@ export const Pool = () => {
                               width='full'
                               fontWeight='bold'
                               onClick={handleSupply}
-                              isDisabled={!canSupply || !hasFreeBalance || !accountId}
+                              isDisabled={
+                                isSafeModeStatusesLoading ||
+                                !canSupply ||
+                                !hasFreeBalance ||
+                                !accountId
+                              }
                             >
                               {translate('chainflipLending.pool.supply')}
                             </Button>
@@ -615,7 +621,12 @@ export const Pool = () => {
                               width='full'
                               fontWeight='bold'
                               onClick={handleWithdrawSupply}
-                              isDisabled={!canWithdrawSupply || !hasSupplyPosition || !accountId}
+                              isDisabled={
+                                isSafeModeStatusesLoading ||
+                                !canWithdrawSupply ||
+                                !hasSupplyPosition ||
+                                !accountId
+                              }
                             >
                               {translate('common.withdraw')}
                             </Button>
@@ -665,7 +676,9 @@ export const Pool = () => {
                               width='full'
                               fontWeight='bold'
                               onClick={handleDeposit}
-                              isDisabled={!canDepositToChainflip || !accountId}
+                              isDisabled={
+                                isSafeModeStatusesLoading || !canDepositToChainflip || !accountId
+                              }
                             >
                               {translate('chainflipLending.pool.depositToChainflip')}
                             </Button>
@@ -689,7 +702,10 @@ export const Pool = () => {
                               fontWeight='bold'
                               onClick={handleWithdrawFromChainflip}
                               isDisabled={
-                                !canWithdrawFromChainflip || !hasFreeBalance || !accountId
+                                isSafeModeStatusesLoading ||
+                                !canWithdrawFromChainflip ||
+                                !hasFreeBalance ||
+                                !accountId
                               }
                             >
                               {translate('common.withdraw')}
@@ -758,7 +774,12 @@ export const Pool = () => {
                               width='full'
                               fontWeight='bold'
                               onClick={handleAddCollateral}
-                              isDisabled={!canAddCollateral || !hasFreeBalance || !accountId}
+                              isDisabled={
+                                isSafeModeStatusesLoading ||
+                                !canAddCollateral ||
+                                !hasFreeBalance ||
+                                !accountId
+                              }
                             >
                               {translate('chainflipLending.collateral.add')}
                             </Button>
@@ -781,7 +802,12 @@ export const Pool = () => {
                               width='full'
                               fontWeight='bold'
                               onClick={handleRemoveCollateral}
-                              isDisabled={!canRemoveCollateral || !hasPoolCollateral || !accountId}
+                              isDisabled={
+                                isSafeModeStatusesLoading ||
+                                !canRemoveCollateral ||
+                                !hasPoolCollateral ||
+                                !accountId
+                              }
                             >
                               {translate('chainflipLending.collateral.remove')}
                             </Button>
@@ -860,7 +886,12 @@ export const Pool = () => {
                               width='full'
                               fontWeight='bold'
                               onClick={handleBorrow}
-                              isDisabled={!canBorrow || !hasCollateral || !accountId}
+                              isDisabled={
+                                isSafeModeStatusesLoading ||
+                                !canBorrow ||
+                                !hasCollateral ||
+                                !accountId
+                              }
                             >
                               {translate('chainflipLending.borrow.title')}
                             </Button>
@@ -946,7 +977,7 @@ export const Pool = () => {
                           isVoluntaryLiquidationActive ? 'stop' : 'initiate',
                         )
                       }
-                      isDisabled={!canLiquidate}
+                      isDisabled={isSafeModeStatusesLoading || !canLiquidate}
                     >
                       {translate(
                         isVoluntaryLiquidationActive

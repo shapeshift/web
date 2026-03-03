@@ -6,7 +6,6 @@ import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useWithdrawActionCenter } from './hooks/useWithdrawActionCenter'
-import { useWithdrawBatch } from './hooks/useWithdrawBatch'
 import { useWithdrawConfirmation } from './hooks/useWithdrawConfirmation'
 import { useWithdrawSign } from './hooks/useWithdrawSign'
 import { WithdrawMachineCtx } from './WithdrawMachineContext'

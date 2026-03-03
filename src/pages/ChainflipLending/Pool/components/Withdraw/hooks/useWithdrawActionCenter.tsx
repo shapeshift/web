@@ -11,18 +11,17 @@ export const useWithdrawActionCenter = () => {
   const { createAction, completeAction, failAction } = useChainflipLendingAction()
   const actionIdRef = useRef<string | null>(null)
 
-  const isSigningBatch = WithdrawMachineCtx.useSelector(s => s.matches('signing_batch'))
-  const isSigningRemove = WithdrawMachineCtx.useSelector(s => s.matches('signing_remove'))
+  const isSigning = WithdrawMachineCtx.useSelector(s => s.matches('signing'))
   const isSuccess = WithdrawMachineCtx.useSelector(s => s.matches('success'))
   const isError = WithdrawMachineCtx.useSelector(s => s.matches('error'))
   const assetId = WithdrawMachineCtx.useSelector(s => s.context.assetId)
   const withdrawAmountCryptoPrecision = WithdrawMachineCtx.useSelector(
     s => s.context.withdrawAmountCryptoPrecision,
   )
-  const egressTxRef = WithdrawMachineCtx.useSelector(s => s.context.egressTxRef)
+  const txHash = WithdrawMachineCtx.useSelector(s => s.context.txHash)
 
   useEffect(() => {
-    if ((isSigningBatch || isSigningRemove) && !actionIdRef.current && accountId) {
+    if (isSigning && !actionIdRef.current && accountId) {
       actionIdRef.current = createAction({
         operationType: ChainflipLendingOperationType.Withdraw,
         amountCryptoPrecision: withdrawAmountCryptoPrecision,
@@ -30,21 +29,14 @@ export const useWithdrawActionCenter = () => {
         accountId,
       })
     }
-  }, [
-    isSigningBatch,
-    isSigningRemove,
-    accountId,
-    createAction,
-    withdrawAmountCryptoPrecision,
-    assetId,
-  ])
+  }, [isSigning, accountId, createAction, withdrawAmountCryptoPrecision, assetId])
 
   useEffect(() => {
     if (isSuccess && actionIdRef.current) {
-      completeAction(actionIdRef.current, undefined, egressTxRef ?? undefined)
+      completeAction(actionIdRef.current, txHash ?? undefined)
       actionIdRef.current = null
     }
-  }, [isSuccess, completeAction, egressTxRef])
+  }, [isSuccess, completeAction, txHash])
 
   useEffect(() => {
     if (isError && actionIdRef.current) {

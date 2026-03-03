@@ -10,6 +10,15 @@ import type {
 } from '@/plugins/walletConnectToDapps/types'
 import { EIP155_SigningMethod } from '@/plugins/walletConnectToDapps/types'
 
+export const isBip122AccountParams = (
+  params: RequestParams,
+): params is RequestParams & { account: string } =>
+  typeof params === 'object' &&
+  params !== null &&
+  !Array.isArray(params) &&
+  'account' in params &&
+  typeof (params as { account: unknown }).account === 'string'
+
 export const isTransactionParamsArray = (
   transactions: RequestParams | undefined,
 ): transactions is TransactionParams[] =>

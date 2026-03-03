@@ -19,6 +19,8 @@ import type { Hash } from 'viem'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { trackYieldEvent } from '@/lib/mixpanel/helpers'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { parseAndUpsertSecondClassChainTx } from '@/lib/utils/secondClassChainTx'
 import { enterYield, exitYield, fetchAction, manageYield } from '@/lib/yieldxyz/api'
 import { YIELD_MAX_POLL_ATTEMPTS, YIELD_POLL_INTERVAL_MS } from '@/lib/yieldxyz/constants'
@@ -630,6 +632,31 @@ export const useYieldTransactionFlow = ({
           address: userAddress,
         })
 
+        // Track confirm event for the first non-approval transaction
+        const isApproval = isApprovalTransaction(tx)
+        const isFirstNonApprovalTx =
+          !isApproval &&
+          allTransactions.slice(0, yieldTxIndex).every(t => isApprovalTransaction(t))
+
+        if (isFirstNonApprovalTx) {
+          const confirmEvent =
+            action === 'enter'
+              ? MixPanelEvent.YieldEnterConfirm
+              : action === 'exit'
+                ? MixPanelEvent.YieldExitConfirm
+                : MixPanelEvent.YieldClaimConfirm
+
+          trackYieldEvent(confirmEvent, {
+            provider: yieldItem.providerId,
+            yieldType: yieldItem.mechanics.type,
+            yieldId: yieldItem.id,
+            assetSymbol: assetSymbol,
+            network: yieldItem.network,
+            amountCryptoPrecision: amount,
+            action,
+          })
+        }
+
         const isLastTransaction = yieldTxIndex + 1 >= allTransactions.length
 
         const completeLastYieldTransaction = async () => {
@@ -730,6 +757,25 @@ export const useYieldTransactionFlow = ({
 
           updateStepStatus(uiStepIndex, { status: 'success', loadingMessage: undefined })
           queryClient.removeQueries({ queryKey: ['yieldxyz', 'quote'] })
+
+          // Track success event
+          const successEvent =
+            action === 'enter'
+              ? MixPanelEvent.YieldEnterSuccess
+              : action === 'exit'
+                ? MixPanelEvent.YieldExitSuccess
+                : MixPanelEvent.YieldClaimSuccess
+
+          trackYieldEvent(successEvent, {
+            provider: yieldItem.providerId,
+            yieldType: yieldItem.mechanics.type,
+            yieldId: yieldItem.id,
+            assetSymbol: assetSymbol,
+            network: yieldItem.network,
+            amountCryptoPrecision: amount,
+            action,
+          })
+
           setStep(ModalStep.Success)
         }
 
@@ -876,6 +922,25 @@ export const useYieldTransactionFlow = ({
       const transactions = filterExecutableTransactions(quoteData.transactions)
 
       if (transactions.length === 0) {
+        // Track success event for already-completed flows
+        if (yieldItem) {
+          const successEvent =
+            action === 'enter'
+              ? MixPanelEvent.YieldEnterSuccess
+              : action === 'exit'
+                ? MixPanelEvent.YieldExitSuccess
+                : MixPanelEvent.YieldClaimSuccess
+
+          trackYieldEvent(successEvent, {
+            provider: yieldItem.providerId,
+            yieldType: yieldItem.mechanics.type,
+            yieldId: yieldItem.id,
+            assetSymbol: assetSymbol,
+            network: yieldItem.network,
+            amountCryptoPrecision: amount,
+            action,
+          })
+        }
         setStep(ModalStep.Success)
         setIsSubmitting(false)
         return

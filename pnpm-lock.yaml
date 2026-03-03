@@ -1858,6 +1858,12 @@ importers:
 
   packages/hdwallet-walletconnectv2:
     dependencies:
+      '@bitcoinerlab/secp256k1':
+        specifier: ^1.2.0
+        version: 1.2.0
+      '@shapeshiftoss/bitcoinjs-lib':
+        specifier: 7.0.0-shapeshift.2
+        version: 7.0.0-shapeshift.2(typescript@5.2.2)
       '@shapeshiftoss/hdwallet-core':
         specifier: workspace:^
         version: link:../hdwallet-core

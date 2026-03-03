@@ -574,7 +574,7 @@ const isReleaseInProgress = async (): Promise<boolean> => {
 }
 
 const createRelease = async () => {
-  ;(await inquireReleaseType()) === 'Regular' ? await doRegularRelease() : doHotfixRelease()
+  ;(await inquireReleaseType()) === 'Regular' ? await doRegularRelease() : await doHotfixRelease()
 }
 
 const mergeRelease = async () => {

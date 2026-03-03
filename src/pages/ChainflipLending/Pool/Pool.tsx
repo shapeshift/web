@@ -531,19 +531,21 @@ export const Pool = () => {
           alignSelf='flex-start'
           gap={4}
         >
-          {accountId && (
-            <Flex justifyContent='flex-end' alignItems='center'>
-              <AccountDropdown
-                assetId={ethAssetId}
-                onChange={setAccountId}
-                defaultAccountId={accountId}
-                autoSelectHighestBalance
-                buttonProps={{ variant: 'ghost', size: 'sm' }}
-              />
-            </Flex>
-          )}
           <Card data-testid='chainflip-pool-actions'>
             <CardBody px={0} py={0}>
+              {accountId && (
+                <Box px={4} pt={4}>
+                  <Flex justifyContent='flex-end' alignItems='center'>
+                    <AccountDropdown
+                      assetId={ethAssetId}
+                      onChange={setAccountId}
+                      defaultAccountId={accountId}
+                      autoSelectHighestBalance
+                      buttonProps={{ variant: 'ghost', size: 'sm' }}
+                    />
+                  </Flex>
+                </Box>
+              )}
               <Tabs index={actionTabIndex}>
                 {actionTabHeader}
                 <TabPanels>

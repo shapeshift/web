@@ -173,14 +173,7 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, B
     scriptType?: BTCInputScriptType,
   ): Promise<boolean> {
     if (coin !== 'Bitcoin') return false
-    if (!scriptType) return true
-    return (
-      [
-        BTCInputScriptType.SpendWitness,
-        BTCInputScriptType.SpendP2SHWitness,
-        BTCInputScriptType.SpendAddress,
-      ] as BTCInputScriptType[]
-    ).includes(scriptType)
+    return scriptType === undefined || scriptType === BTCInputScriptType.SpendWitness
   }
 
   public async btcSupportsSecureTransfer(): Promise<boolean> {
@@ -391,8 +384,14 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, BTCWallet {
         const { coin, scriptType } = getPublicKey
 
         if (coin === 'Bitcoin' && scriptType === BTCInputScriptType.SpendWitness) {
-          const address = await this.btcGetAddress({ coin: 'Bitcoin' } as BTCGetAddress)
-          return { xpub: address } as PublicKey
+          const address = await this.btcGetAddress({
+            coin,
+            addressNList: getPublicKey.addressNList,
+            scriptType,
+            showDisplay: false,
+          } as BTCGetAddress)
+          if (!address) return null
+          return { xpub: address }
         }
 
         return null

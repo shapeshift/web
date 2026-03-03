@@ -33,16 +33,6 @@ export function describeBTCPath(
 export function btcGetAccountPaths(msg: BTCGetAccountPaths): BTCAccountPath[] {
   const slip44 = slip44ByCoin(msg.coin)
   if (slip44 === undefined) return []
-  const bip44 = {
-    coin: msg.coin,
-    scriptType: BTCInputScriptType.SpendAddress,
-    addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
-  }
-  const bip49 = {
-    coin: msg.coin,
-    scriptType: BTCInputScriptType.SpendP2SHWitness,
-    addressNList: [0x80000000 + 49, 0x80000000 + slip44, 0x80000000 + msg.accountIdx],
-  }
   const bip84 = {
     coin: msg.coin,
     scriptType: BTCInputScriptType.SpendWitness,
@@ -54,51 +44,21 @@ export function btcGetAccountPaths(msg: BTCGetAccountPaths): BTCAccountPath[] {
   if (!msg.scriptType || msg.scriptType === BTCInputScriptType.SpendWitness) {
     paths.push(bip84)
   }
-  if (!msg.scriptType || msg.scriptType === BTCInputScriptType.SpendP2SHWitness) {
-    paths.push(bip49)
-  }
-  if (!msg.scriptType || msg.scriptType === BTCInputScriptType.SpendAddress) {
-    paths.push(bip44)
-  }
 
   return paths
 }
 
 export function btcNextAccountPath(msg: BTCAccountPath): BTCAccountPath | undefined {
-  const dominated: Record<BTCInputScriptType, BTCInputScriptType | undefined> = {
-    [BTCInputScriptType.SpendWitness]: BTCInputScriptType.SpendP2SHWitness,
-    [BTCInputScriptType.SpendP2SHWitness]: BTCInputScriptType.SpendAddress,
-    [BTCInputScriptType.SpendAddress]: undefined,
-    [BTCInputScriptType.SpendMultisig]: undefined,
-    [BTCInputScriptType.CashAddr]: undefined,
-    [BTCInputScriptType.Bech32]: undefined,
-    [BTCInputScriptType.External]: undefined,
-  }
-  const next = dominated[msg.scriptType]
-  if (!next) return undefined
-
+  if (msg.scriptType !== BTCInputScriptType.SpendWitness) return undefined
   const slip44 = slip44ByCoin(msg.coin)
   if (slip44 === undefined) return undefined
-
-  let purpose: number
-  switch (next) {
-    case BTCInputScriptType.SpendAddress:
-      purpose = 44
-      break
-    case BTCInputScriptType.SpendP2SHWitness:
-      purpose = 49
-      break
-    default:
-      purpose = 84
-      break
-  }
 
   const accountIdx = msg.addressNList[2] & 0x7fffffff
 
   return {
     coin: msg.coin,
-    scriptType: next,
-    addressNList: [0x80000000 + purpose, 0x80000000 + slip44, 0x80000000 + accountIdx],
+    scriptType: BTCInputScriptType.SpendWitness,
+    addressNList: [0x80000000 + 84, 0x80000000 + slip44, 0x80000000 + accountIdx + 1],
   }
 }
 

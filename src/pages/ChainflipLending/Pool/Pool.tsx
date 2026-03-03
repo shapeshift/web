@@ -688,7 +688,9 @@ export const Pool = () => {
                               width='full'
                               fontWeight='bold'
                               onClick={handleWithdrawFromChainflip}
-                              isDisabled={!canWithdrawFromChainflip || !hasFreeBalance || !accountId}
+                              isDisabled={
+                                !canWithdrawFromChainflip || !hasFreeBalance || !accountId
+                              }
                             >
                               {translate('common.withdraw')}
                             </Button>

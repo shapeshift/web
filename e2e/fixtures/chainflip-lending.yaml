@@ -87,6 +87,24 @@ steps:
   # PHASE 0: Navigate and record baseline
   # ========================================================================
 
+  - name: Ensure Chainflip Lending feature flag enabled
+    instruction: >
+      eval "window.location.hash = '/'"
+      Wait 2 seconds.
+
+      Verify the current session has the Chainflip Lending feature enabled
+      before navigating into the flow.
+
+      If you can inspect Redux state, confirm:
+      preferences.featureFlags.ChainflipLending === true
+
+      If the Chainflip Lending route/header is unavailable in this session,
+      mark this scenario SKIPPED with note:
+      "ChainflipLending feature flag is disabled for this session."
+    expected: >
+      Chainflip Lending is enabled for this session before flow validation starts.
+    screenshot: true
+
   - name: Navigate to Chainflip Lending
     instruction: >
       eval "window.location.hash = '/chainflip-lending'"

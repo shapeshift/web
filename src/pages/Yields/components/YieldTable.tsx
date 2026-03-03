@@ -58,6 +58,7 @@ export const YieldTable = memo(({ table, isLoading, onRowClick }: YieldTableProp
             cursor={isClickable ? 'pointer' : undefined}
             onClick={() => handleRowClick(row)}
             _hover={isClickable ? { bg: 'background.surface.raised.base' } : undefined}
+            data-testid={`yield-table-row-${row.original.id}`}
           >
             {row.getVisibleCells().map(cell => {
               const meta = cell.column.columnDef.meta as YieldColumnMeta | undefined
@@ -79,7 +80,7 @@ export const YieldTable = memo(({ table, isLoading, onRowClick }: YieldTableProp
   )
 
   return (
-    <Table variant='simple' size={tableSize}>
+    <Table variant='simple' size={tableSize} data-testid='yield-table'>
       <Thead>
         {headerGroups.map(headerGroup => (
           <Tr key={headerGroup.id}>

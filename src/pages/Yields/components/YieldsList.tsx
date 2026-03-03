@@ -1135,7 +1135,13 @@ export const YieldsList = memo(() => {
   ])
 
   return (
-    <Container maxW='1200px' pt={containerPaddingTop} pb={8} px={{ base: 4, md: 6 }} data-testid='yields-page'>
+    <Container
+      maxW='1200px'
+      pt={containerPaddingTop}
+      pb={8}
+      px={{ base: 4, md: 6 }}
+      data-testid='yields-page'
+    >
       <Box mb={8}>
         <Flex
           justifyContent='space-between'

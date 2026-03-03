@@ -680,6 +680,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               try {
                 await localMetaMaskWallet.initialize()
                 const deviceId = await localMetaMaskWallet.getDeviceID()
+                const isLocked = await localMetaMaskWallet.isLocked()
                 dispatch({
                   type: WalletActions.SET_WALLET,
                   payload: {
@@ -690,7 +691,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                     connectedType: KeyManager.MetaMask,
                   },
                 })
-                dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+                dispatch({ type: WalletActions.SET_IS_LOCKED, payload: isLocked })
                 dispatch({
                   type: WalletActions.SET_IS_CONNECTED,
                   payload: true,

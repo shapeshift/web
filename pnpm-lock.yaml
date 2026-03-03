@@ -1522,6 +1522,9 @@ importers:
       bip39:
         specifier: ^3.0.2
         version: 3.1.0
+      bitcoinjs-message:
+        specifier: ^2.1.0
+        version: 2.2.0
       bs58:
         specifier: ^4.0.1
         version: 4.0.1

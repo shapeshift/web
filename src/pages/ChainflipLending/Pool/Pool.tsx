@@ -406,34 +406,34 @@ export const Pool = () => {
   const supplyTooltipLabel = !canSupply
     ? actionPausedLabel
     : !hasFreeBalance
-      ? translate('chainflipLending.pool.noFreeBalance')
-      : undefined
+    ? translate('chainflipLending.pool.noFreeBalance')
+    : undefined
   const withdrawSupplyTooltipLabel = !canWithdrawSupply
     ? actionPausedLabel
     : !hasSupplyPosition
-      ? translate('chainflipLending.pool.noSupplyPosition')
-      : undefined
+    ? translate('chainflipLending.pool.noSupplyPosition')
+    : undefined
   const depositTooltipLabel = !canDepositToChainflip ? actionPausedLabel : undefined
   const withdrawFromChainflipTooltipLabel = !canWithdrawFromChainflip
     ? actionPausedLabel
     : !hasFreeBalance
-      ? translate('chainflipLending.pool.noFreeBalance')
-      : undefined
+    ? translate('chainflipLending.pool.noFreeBalance')
+    : undefined
   const addCollateralTooltipLabel = !canAddCollateral
     ? actionPausedLabel
     : !hasFreeBalance
-      ? translate('chainflipLending.pool.noFreeBalance')
-      : undefined
+    ? translate('chainflipLending.pool.noFreeBalance')
+    : undefined
   const removeCollateralTooltipLabel = !canRemoveCollateral
     ? actionPausedLabel
     : !hasPoolCollateral
-      ? translate('chainflipLending.pool.noCollateral')
-      : undefined
+    ? translate('chainflipLending.pool.noCollateral')
+    : undefined
   const borrowTooltipLabel = !canBorrow
     ? actionPausedLabel
     : !hasCollateral
-      ? translate('chainflipLending.pool.noCollateral')
-      : undefined
+    ? translate('chainflipLending.pool.noCollateral')
+    : undefined
   const liquidateTooltipLabel = !canLiquidate ? actionPausedLabel : undefined
 
   return (

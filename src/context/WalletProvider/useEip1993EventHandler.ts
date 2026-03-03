@@ -63,38 +63,50 @@ export const useEip1993EventHandler = ({
       const _isLocked = Array.isArray(accountsOrChains) && accountsOrChains.length === 0
 
       if (_isLocked) {
+        // Wallet is locked - set both locked state AND disconnected state
+        // This prevents the wallet drawer overlay from blocking interaction
         dispatch({ type: WalletActions.SET_IS_LOCKED, payload: true })
-      } else {
-        // Either a chain change or a wallet unlock - ensure we set isLocked to false before continuing to avoid bad states
-        dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+        // Return early - don't try to re-pair when wallet is locked
+        return
       }
+
+      // Either a chain change or a wallet unlock - ensure we set isLocked to false before continuing to avoid bad states
+      dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
 
       const adapter = (await getAdapter(localWalletType)) as MetaMaskAdapter | PhantomAdapter | null
 
       // Re-pair - which in case of accounts changed means the user will be prompted to connect their current account if they didn't do so
       // Note, this isn't guaranteed to work, not all wallets are the same, some (i.e MM) have this weird flow where connecting to an unconnected account
       // from a connected account can only be done from the wallet itself and not programmatically
-      const localWallet = await adapter?.pairDevice()
+      try {
+        const localWallet = await adapter?.pairDevice()
 
-      if (!localWallet) return
+        if (!localWallet) return
 
-      await localWallet.initialize()
-      const deviceId = await localWallet?.getDeviceID()
+        await localWallet.initialize()
+        const deviceId = await localWallet?.getDeviceID()
 
-      if (!deviceId) return
+        if (!deviceId) return
 
-      const { icon, name } = SUPPORTED_WALLETS[localWalletType]
+        const { icon, name } = SUPPORTED_WALLETS[localWalletType]
 
-      dispatch({
-        type: WalletActions.SET_WALLET,
-        payload: {
-          wallet: localWallet,
-          name,
-          icon,
-          deviceId,
-          connectedType: localWalletType,
-        },
-      })
+        dispatch({
+          type: WalletActions.SET_WALLET,
+          payload: {
+            wallet: localWallet,
+            name,
+            icon,
+            deviceId,
+            connectedType: localWalletType,
+          },
+        })
+      } catch (e) {
+        // If pairDevice/initialize/getDeviceID fails, wallet is likely locked or disconnected
+        console.error('Failed to re-pair wallet after account/chain change:', e)
+        dispatch({ type: WalletActions.SET_IS_LOCKED, payload: true })
+        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+      }
     },
     [dispatch, getAdapter, localWalletType, state.adapters],
   )

@@ -674,32 +674,46 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               })
             }
 
-            const localMetaMaskWallet = await metamaskAdapter?.pairDevice()
-            if (localMetaMaskWallet) {
-              const { name, icon } = SUPPORTED_WALLETS[KeyManager.MetaMask]
-              try {
+            try {
+              const localMetaMaskWallet = await metamaskAdapter?.pairDevice()
+              if (localMetaMaskWallet) {
+                const { name, icon } = SUPPORTED_WALLETS[KeyManager.MetaMask]
                 await localMetaMaskWallet.initialize()
                 const deviceId = await localMetaMaskWallet.getDeviceID()
-                dispatch({
-                  type: WalletActions.SET_WALLET,
-                  payload: {
-                    wallet: localMetaMaskWallet,
-                    name,
-                    icon,
-                    deviceId,
-                    connectedType: KeyManager.MetaMask,
-                  },
-                })
-                dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
-                dispatch({
-                  type: WalletActions.SET_IS_CONNECTED,
-                  payload: true,
-                })
-              } catch (e) {
+
+                // Check if wallet is actually unlocked by verifying ethAddress is available
+                // If ethAddress is empty, the wallet is locked - don't claim it's connected
+                const ethAddress = (localMetaMaskWallet as MetaMaskMultiChainHDWallet).ethAddress
+
+                if (!ethAddress) {
+                  // Wallet is locked - set locked state and disconnect
+                  dispatch({ type: WalletActions.SET_IS_LOCKED, payload: true })
+                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+                } else {
+                  dispatch({
+                    type: WalletActions.SET_WALLET,
+                    payload: {
+                      wallet: localMetaMaskWallet,
+                      name,
+                      icon,
+                      deviceId,
+                      connectedType: KeyManager.MetaMask,
+                    },
+                  })
+                  dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+                  dispatch({
+                    type: WalletActions.SET_IS_CONNECTED,
+                    payload: true,
+                  })
+                }
+              } else {
                 disconnect()
               }
-            } else {
-              disconnect()
+            } catch (e) {
+              // pairDevice/initialize/getDeviceID failed - wallet is likely locked or disconnected
+              console.error('MetaMask: Failed to reconnect wallet on app load:', e)
+              dispatch({ type: WalletActions.SET_IS_LOCKED, payload: true })
+              dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
             }
             dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
             break
@@ -717,32 +731,42 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               })
             }
 
-            const localPhantomWallet = await phantomAdapter?.pairDevice()
-            if (localPhantomWallet) {
-              const { name, icon } = SUPPORTED_WALLETS[KeyManager.Phantom]
-              try {
+            try {
+              const localPhantomWallet = await phantomAdapter?.pairDevice()
+              if (localPhantomWallet) {
+                const { name, icon } = SUPPORTED_WALLETS[KeyManager.Phantom]
                 await localPhantomWallet.initialize()
                 const deviceId = await localPhantomWallet.getDeviceID()
-                dispatch({
-                  type: WalletActions.SET_WALLET,
-                  payload: {
-                    wallet: localPhantomWallet,
-                    name,
-                    icon,
-                    deviceId,
-                    connectedType: KeyManager.Phantom,
-                  },
-                })
-                dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
-                dispatch({
-                  type: WalletActions.SET_IS_CONNECTED,
-                  payload: true,
-                })
-              } catch (e) {
+
+                if (!deviceId) {
+                  // Wallet is locked - set locked state
+                  dispatch({ type: WalletActions.SET_IS_LOCKED, payload: true })
+                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+                } else {
+                  dispatch({
+                    type: WalletActions.SET_WALLET,
+                    payload: {
+                      wallet: localPhantomWallet,
+                      name,
+                      icon,
+                      deviceId,
+                      connectedType: KeyManager.Phantom,
+                    },
+                  })
+                  dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+                  dispatch({
+                    type: WalletActions.SET_IS_CONNECTED,
+                    payload: true,
+                  })
+                }
+              } else {
                 disconnect()
               }
-            } else {
-              disconnect()
+            } catch (e) {
+              // pairDevice/initialize/getDeviceID failed - wallet is likely locked or disconnected
+              console.error('Phantom: Failed to reconnect wallet on app load:', e)
+              dispatch({ type: WalletActions.SET_IS_LOCKED, payload: true })
+              dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
             }
             dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
             break
@@ -760,32 +784,42 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               })
             }
 
-            const localCoinbaseWallet = await coinbaseAdapter?.pairDevice()
-            if (localCoinbaseWallet) {
-              const { name, icon } = SUPPORTED_WALLETS[KeyManager.Coinbase]
-              try {
+            try {
+              const localCoinbaseWallet = await coinbaseAdapter?.pairDevice()
+              if (localCoinbaseWallet) {
+                const { name, icon } = SUPPORTED_WALLETS[KeyManager.Coinbase]
                 await localCoinbaseWallet.initialize()
                 const deviceId = await localCoinbaseWallet.getDeviceID()
-                dispatch({
-                  type: WalletActions.SET_WALLET,
-                  payload: {
-                    wallet: localCoinbaseWallet,
-                    name,
-                    icon,
-                    deviceId,
-                    connectedType: KeyManager.Coinbase,
-                  },
-                })
-                dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
-                dispatch({
-                  type: WalletActions.SET_IS_CONNECTED,
-                  payload: true,
-                })
-              } catch (e) {
+
+                if (!deviceId) {
+                  // Wallet is locked - set locked state
+                  dispatch({ type: WalletActions.SET_IS_LOCKED, payload: true })
+                  dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
+                } else {
+                  dispatch({
+                    type: WalletActions.SET_WALLET,
+                    payload: {
+                      wallet: localCoinbaseWallet,
+                      name,
+                      icon,
+                      deviceId,
+                      connectedType: KeyManager.Coinbase,
+                    },
+                  })
+                  dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+                  dispatch({
+                    type: WalletActions.SET_IS_CONNECTED,
+                    payload: true,
+                  })
+                }
+              } else {
                 disconnect()
               }
-            } else {
-              disconnect()
+            } catch (e) {
+              // pairDevice/initialize/getDeviceID failed - wallet is likely locked or disconnected
+              console.error('Coinbase: Failed to reconnect wallet on app load:', e)
+              dispatch({ type: WalletActions.SET_IS_LOCKED, payload: true })
+              dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: false })
             }
             dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
             break

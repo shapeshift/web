@@ -50,7 +50,10 @@ export const FoxTokenHeader = () => {
   const fiatRamps = useModal('fiatRamps')
   const navigate = useNavigate()
 
-  const handleSwapClick = useCallback(() => navigate(TradeRoutePaths.Input), [navigate])
+  const handleSwapClick = useCallback(
+    () => navigate(`${TradeRoutePaths.Input}/${assetId}`),
+    [assetId, navigate],
+  )
 
   const handleBuyClick = useCallback(() => {
     fiatRamps.open({

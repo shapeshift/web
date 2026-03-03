@@ -148,7 +148,12 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
         })()
 
         return (
-          <MenuItemOption value={relatedAssetId} key={relatedAssetId} isDisabled={isDisabled}>
+          <MenuItemOption
+            value={relatedAssetId}
+            key={relatedAssetId}
+            isDisabled={isDisabled}
+            data-testid={`chain-option-${chainDisplayName}`}
+          >
             <Tooltip isDisabled={!isDisabled} label={tooltipLabel}>
               <Box width='100%' height='100%'>
                 <AssetChainRow assetId={relatedAssetId} mainImplementationAssetId={assetId} />
@@ -205,7 +210,12 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
           "This asset is only available on <currentChain>"
         */}
         <Tooltip isDisabled={isTooltipExplainerDisabled} label={buttonTooltipText}>
-          <MenuButton as={Button} isDisabled={isButtonDisabled} {...buttonProps}>
+          <MenuButton
+            as={Button}
+            isDisabled={isButtonDisabled}
+            {...buttonProps}
+            data-testid='asset-chain-dropdown'
+          >
             <AssetChainRow
               assetId={assetId}
               mainImplementationAssetId={assetId}

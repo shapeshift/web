@@ -65,12 +65,12 @@
 ### Project Overview
 - **Project**: Decentralized crypto exchange platform
 - **Main branch**: `develop` (not main/master)
-- **Package manager**: yarn
+- **Package manager**: pnpm
 - **State management**: Redux Toolkit with redux-persist
 - **Architecture**: Plugin-based for blockchain support
 
 ### Code Quality & Standards
-- Always run `yarn lint --fix` and `yarn type-check` after making changes
+- Always run `pnpm run lint --fix` and `pnpm run type-check` after making changes
 - Keep changes surgical where possible - minimize changes to make code reviews easier
 - Make targeted, focused modifications rather than broad refactors unless specifically requested
 - Never create documentation files unless explicitly requested
@@ -89,9 +89,16 @@
 ### Git & Version Control
 - Never commit changes unless explicitly requested
 - When creating commits, follow the Git Safety Protocol (see session notes)
+- **Before pushing**: always run `pnpm run lint --fix`, and if there are lint fixes, commit them before pushing. Never push without verifying lint passes first.
 - Main branch is `develop` - use this for PRs
 - Branch naming: Use descriptive names (e.g., `feat_gridplus`, `fix_wallet_connect`)
 - When opening PRs (via `gh`, Aviator `av`, or any CLI tool), ALWAYS use the `.github/PULL_REQUEST_TEMPLATE.md` template as the base for the PR body
+- **Editing PR descriptions**: `gh pr edit --body` fails on this repo due to a deprecated Projects Classic GraphQL error. Use the REST API instead: `gh api repos/shapeshift/web/pulls/<number> -X PATCH -F "body=@/path/to/body.md"` (write the body to a temp file first)
+
+### xstate PRs
+- When a PR includes xstate state machines, the PR description MUST include a Mermaid `stateDiagram-v2` visualization of the machine's states and transitions
+- Generate the diagram from the machine definition - show states, events, guards, and error/retry flows
+- This serves as living documentation for both product and engineering reviewers
 
 ### UI/UX Standards
 - Account for light/dark mode using `useColorModeValue` hook

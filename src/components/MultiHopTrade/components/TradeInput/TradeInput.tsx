@@ -434,8 +434,9 @@ export const TradeInput = ({
     [dispatch],
   )
 
-  const assetSelectButtonProps = useMemo(() => {
+  const buyAssetSelectButtonProps = useMemo(() => {
     return {
+      'data-testid': 'buy-asset-button',
       maxWidth: isSmallerThanMd ? '100%' : undefined,
     }
   }, [isSmallerThanMd])
@@ -450,14 +451,14 @@ export const TradeInput = ({
         assetFilterPredicate={assetFilterPredicate}
         chainIdFilterPredicate={chainIdFilterPredicate}
         showChainDropdown={!isSmallerThanMd}
-        buttonProps={assetSelectButtonProps}
+        buttonProps={buyAssetSelectButtonProps}
         mb={isSmallerThanMd ? 0 : 4}
       />
     ),
     [
       buyAsset.assetId,
       isSmallerThanMd,
-      assetSelectButtonProps,
+      buyAssetSelectButtonProps,
       handleBuyAssetClick,
       setBuyAsset,
       assetFilterPredicate,

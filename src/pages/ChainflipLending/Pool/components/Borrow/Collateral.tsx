@@ -29,7 +29,10 @@ export const Collateral = memo(({ assetId: initialAssetId, mode }: CollateralPro
   const [activeAssetId, setActiveAssetId] = useState(initialAssetId)
   const { connectedType } = useWallet().state
   const isNativeWallet = connectedType === KeyManager.Native
-  const input = useMemo(() => ({ assetId: activeAssetId, isNativeWallet, mode }), [activeAssetId, isNativeWallet, mode])
+  const input = useMemo(
+    () => ({ assetId: activeAssetId, isNativeWallet, mode }),
+    [activeAssetId, isNativeWallet, mode],
+  )
 
   return (
     <CollateralMachineCtx.Provider key={activeAssetId} options={{ input }}>
@@ -62,13 +65,14 @@ const CollateralContent = memo(
       <AnimatePresence mode='wait' initial={false}>
         <Suspense fallback={suspenseFallback}>
           {page === 'input' && <CollateralInput assetId={assetId} onAssetChange={onAssetChange} />}
-          {(page === 'confirm' || page === 'executing' || page === 'success' || page === 'error') && (
-            <CollateralConfirm assetId={assetId} />
-          )}
+          {(page === 'confirm' ||
+            page === 'executing' ||
+            page === 'success' ||
+            page === 'error') && <CollateralConfirm assetId={assetId} />}
         </Suspense>
       </AnimatePresence>
     )
-  }
+  },
 )
 
 const useFreeBalanceSync = (assetId: AssetId) => {

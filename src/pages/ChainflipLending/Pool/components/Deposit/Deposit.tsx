@@ -32,7 +32,10 @@ export const Deposit = memo(({ assetId: initialAssetId }: DepositProps) => {
   const [activeAssetId, setActiveAssetId] = useState(initialAssetId)
   const { connectedType } = useWallet().state
   const isNativeWallet = connectedType === KeyManager.Native
-  const input = useMemo(() => ({ assetId: activeAssetId, isNativeWallet }), [activeAssetId, isNativeWallet])
+  const input = useMemo(
+    () => ({ assetId: activeAssetId, isNativeWallet }),
+    [activeAssetId, isNativeWallet],
+  )
 
   return (
     <DepositMachineCtx.Provider key={activeAssetId} options={{ input }}>
@@ -67,13 +70,14 @@ const DepositContent = memo(
         <Suspense fallback={suspenseFallback}>
           {page === 'input' && <DepositInput assetId={assetId} onAssetChange={onAssetChange} />}
           {page === 'refund_address_input' && <DepositRefundAddress assetId={assetId} />}
-          {(page === 'confirm' || page === 'executing' || page === 'success' || page === 'error') && (
-            <DepositConfirm assetId={assetId} />
-          )}
+          {(page === 'confirm' ||
+            page === 'executing' ||
+            page === 'success' ||
+            page === 'error') && <DepositConfirm assetId={assetId} />}
         </Suspense>
       </AnimatePresence>
     )
-  }
+  },
 )
 
 const useAccountStateSync = () => {

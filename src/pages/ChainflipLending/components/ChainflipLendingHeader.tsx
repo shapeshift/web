@@ -18,7 +18,6 @@ import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChai
 const responsiveFlex = { base: 'auto', lg: 1 }
 const containerPaddingTop = { base: 0, md: 8 }
 
-
 export const ChainflipLendingHeader = () => {
   const translate = useTranslate()
   const navigate = useNavigate()

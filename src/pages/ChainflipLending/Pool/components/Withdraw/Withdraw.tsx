@@ -27,7 +27,10 @@ export const Withdraw = memo(({ assetId: initialAssetId }: WithdrawProps) => {
   const [activeAssetId, setActiveAssetId] = useState(initialAssetId)
   const { connectedType } = useWallet().state
   const isNativeWallet = connectedType === KeyManager.Native
-  const input = useMemo(() => ({ assetId: activeAssetId, isNativeWallet }), [activeAssetId, isNativeWallet])
+  const input = useMemo(
+    () => ({ assetId: activeAssetId, isNativeWallet }),
+    [activeAssetId, isNativeWallet],
+  )
 
   return (
     <WithdrawMachineCtx.Provider key={activeAssetId} options={{ input }}>
@@ -59,13 +62,14 @@ const WithdrawContent = memo(
       <AnimatePresence mode='wait' initial={false}>
         <Suspense fallback={suspenseFallback}>
           {page === 'input' && <WithdrawInput assetId={assetId} onAssetChange={onAssetChange} />}
-          {(page === 'confirm' || page === 'executing' || page === 'success' || page === 'error') && (
-            <WithdrawConfirm assetId={assetId} />
-          )}
+          {(page === 'confirm' ||
+            page === 'executing' ||
+            page === 'success' ||
+            page === 'error') && <WithdrawConfirm assetId={assetId} />}
         </Suspense>
       </AnimatePresence>
     )
-  }
+  },
 )
 
 const useSupplyPositionSync = () => {

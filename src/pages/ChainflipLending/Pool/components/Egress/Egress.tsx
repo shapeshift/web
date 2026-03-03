@@ -27,7 +27,10 @@ export const Egress = memo(({ assetId: initialAssetId }: EgressProps) => {
   const [activeAssetId, setActiveAssetId] = useState(initialAssetId)
   const { connectedType } = useWallet().state
   const isNativeWallet = connectedType === KeyManager.Native
-  const input = useMemo(() => ({ assetId: activeAssetId, isNativeWallet }), [activeAssetId, isNativeWallet])
+  const input = useMemo(
+    () => ({ assetId: activeAssetId, isNativeWallet }),
+    [activeAssetId, isNativeWallet],
+  )
 
   return (
     <EgressMachineCtx.Provider key={activeAssetId} options={{ input }}>
@@ -59,13 +62,14 @@ const EgressContent = memo(
       <AnimatePresence mode='wait' initial={false}>
         <Suspense fallback={suspenseFallback}>
           {page === 'input' && <EgressInput assetId={assetId} onAssetChange={onAssetChange} />}
-          {(page === 'confirm' || page === 'executing' || page === 'success' || page === 'error') && (
-            <EgressConfirm assetId={assetId} />
-          )}
+          {(page === 'confirm' ||
+            page === 'executing' ||
+            page === 'success' ||
+            page === 'error') && <EgressConfirm assetId={assetId} />}
         </Suspense>
       </AnimatePresence>
     )
-  }
+  },
 )
 
 const useFreeBalanceSync = (assetId: AssetId) => {

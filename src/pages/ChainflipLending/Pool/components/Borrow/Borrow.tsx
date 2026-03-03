@@ -26,7 +26,10 @@ export const Borrow = memo(({ assetId: initialAssetId }: BorrowProps) => {
   const [activeAssetId, setActiveAssetId] = useState(initialAssetId)
   const { connectedType } = useWallet().state
   const isNativeWallet = connectedType === KeyManager.Native
-  const input = useMemo(() => ({ assetId: activeAssetId, isNativeWallet }), [activeAssetId, isNativeWallet])
+  const input = useMemo(
+    () => ({ assetId: activeAssetId, isNativeWallet }),
+    [activeAssetId, isNativeWallet],
+  )
 
   return (
     <BorrowMachineCtx.Provider key={activeAssetId} options={{ input }}>
@@ -58,13 +61,14 @@ const BorrowContent = memo(
       <AnimatePresence mode='wait' initial={false}>
         <Suspense fallback={suspenseFallback}>
           {page === 'input' && <BorrowInput assetId={assetId} onAssetChange={onAssetChange} />}
-          {(page === 'confirm' || page === 'executing' || page === 'success' || page === 'error') && (
-            <BorrowConfirm assetId={assetId} />
-          )}
+          {(page === 'confirm' ||
+            page === 'executing' ||
+            page === 'success' ||
+            page === 'error') && <BorrowConfirm assetId={assetId} />}
         </Suspense>
       </AnimatePresence>
     )
-  }
+  },
 )
 
 const useLtvSync = () => {

@@ -27,7 +27,10 @@ export const Supply = memo(({ assetId: initialAssetId }: SupplyProps) => {
   const [activeAssetId, setActiveAssetId] = useState(initialAssetId)
   const { connectedType } = useWallet().state
   const isNativeWallet = connectedType === KeyManager.Native
-  const input = useMemo(() => ({ assetId: activeAssetId, isNativeWallet }), [activeAssetId, isNativeWallet])
+  const input = useMemo(
+    () => ({ assetId: activeAssetId, isNativeWallet }),
+    [activeAssetId, isNativeWallet],
+  )
 
   return (
     <SupplyMachineCtx.Provider key={activeAssetId} options={{ input }}>
@@ -60,13 +63,14 @@ const SupplyContent = memo(
       <AnimatePresence mode='wait' initial={false}>
         <Suspense fallback={suspenseFallback}>
           {page === 'input' && <SupplyInput assetId={assetId} onAssetChange={onAssetChange} />}
-          {(page === 'confirm' || page === 'executing' || page === 'success' || page === 'error') && (
-            <SupplyConfirm assetId={assetId} />
-          )}
+          {(page === 'confirm' ||
+            page === 'executing' ||
+            page === 'success' ||
+            page === 'error') && <SupplyConfirm assetId={assetId} />}
         </Suspense>
       </AnimatePresence>
     )
-  }
+  },
 )
 
 const useFreeBalanceSync = (assetId: AssetId) => {

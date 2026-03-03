@@ -91,6 +91,10 @@ export enum ChainflipLendingOperationType {
   Supply = 'supply',
   Withdraw = 'withdraw',
   Egress = 'egress',
+  AddCollateral = 'addCollateral',
+  RemoveCollateral = 'removeCollateral',
+  Borrow = 'borrow',
+  Repay = 'repay',
 }
 
 type ActionChainflipLendingMetadata = {

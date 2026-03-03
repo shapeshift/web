@@ -2463,7 +2463,8 @@
       "currentLtv": "Current LTV",
       "borrowCapacity": "Borrow Capacity",
       "borrowPowerUsed": "Borrow Power Used",
-      "availableToBorrow": "Available to Borrow"
+      "availableToBorrow": "Available to Borrow",
+      "actionPaused": "This action is temporarily paused on Chainflip"
     },
     "supplyApy": "Supply APY",
     "supplyApyTooltip": "Annual percentage yield earned by supplying assets to this pool.",

@@ -1,21 +1,15 @@
 import type { GridProps } from '@chakra-ui/react'
-import { Button, Center, Flex, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
+import { Button, Flex, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
-import { Main } from '@/components/Layout/Main'
-import { SEO } from '@/components/Layout/Seo'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { Text } from '@/components/Text'
-import { WalletActions } from '@/context/WalletProvider/actions'
-import { useWallet } from '@/hooks/useWallet/useWallet'
 import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
-import { ChainflipLendingHeader } from '@/pages/ChainflipLending/components/ChainflipLendingHeader'
 import type { ChainflipFreeBalanceWithFiat } from '@/pages/ChainflipLending/hooks/useChainflipFreeBalances'
 import { useChainflipFreeBalances } from '@/pages/ChainflipLending/hooks/useChainflipFreeBalances'
 import type {
@@ -149,7 +143,6 @@ const BalanceRow = ({
 }
 
 export const MyBalancesList = () => {
-  const translate = useTranslate()
   const navigate = useNavigate()
   const { accountId, accountNumber } = useChainflipLendingAccount()
   const { freeBalances, isLoading } = useChainflipFreeBalances()

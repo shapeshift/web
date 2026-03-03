@@ -45,6 +45,7 @@ import { useChainflipAccount } from '@/pages/ChainflipLending/hooks/useChainflip
 import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
 import { useChainflipLoanAccount } from '@/pages/ChainflipLending/hooks/useChainflipLoanAccount'
 import { useChainflipLtvThresholds } from '@/pages/ChainflipLending/hooks/useChainflipLtvThresholds'
+import { useChainflipSafeModeStatuses } from '@/pages/ChainflipLending/hooks/useChainflipSafeModeStatuses'
 import { useChainflipSupplyPositions } from '@/pages/ChainflipLending/hooks/useChainflipSupplyPositions'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
@@ -168,7 +169,6 @@ export const Pool = () => {
     loansWithFiat,
     totalCollateralFiat,
     totalBorrowedFiat: userBorrowedFiat,
-    isLoading: isLoanLoading,
   } = useChainflipLoanAccount()
 
   const isVoluntaryLiquidationActive = useMemo(() => {
@@ -328,6 +328,16 @@ export const Pool = () => {
     [poolCollateral?.amountFiat],
   )
   const hasLoans = useMemo(() => Boolean(poolLoan), [poolLoan])
+  const {
+    canDepositToChainflip,
+    canWithdrawFromChainflip,
+    canSupply,
+    canWithdrawSupply,
+    canAddCollateral,
+    canRemoveCollateral,
+    canBorrow,
+    canLiquidate,
+  } = useChainflipSafeModeStatuses(poolAssetId)
 
   const { thresholds } = useChainflipLtvThresholds()
 
@@ -374,12 +384,46 @@ export const Pool = () => {
 
   if (!asset) return null
 
+  const actionPausedLabel = translate('chainflipLending.pool.actionPaused')
+  const supplyTooltipLabel = !canSupply
+    ? actionPausedLabel
+    : !hasFreeBalance
+    ? translate('chainflipLending.pool.noFreeBalance')
+    : undefined
+  const withdrawSupplyTooltipLabel = !canWithdrawSupply
+    ? actionPausedLabel
+    : !hasSupplyPosition
+    ? translate('chainflipLending.pool.noSupplyPosition')
+    : undefined
+  const depositTooltipLabel = !canDepositToChainflip ? actionPausedLabel : undefined
+  const withdrawFromChainflipTooltipLabel = !canWithdrawFromChainflip
+    ? actionPausedLabel
+    : !hasFreeBalance
+    ? translate('chainflipLending.pool.noFreeBalance')
+    : undefined
+  const addCollateralTooltipLabel = !canAddCollateral
+    ? actionPausedLabel
+    : !hasFreeBalance
+    ? translate('chainflipLending.pool.noFreeBalance')
+    : undefined
+  const removeCollateralTooltipLabel = !canRemoveCollateral
+    ? actionPausedLabel
+    : !hasPoolCollateral
+    ? translate('chainflipLending.pool.noCollateral')
+    : undefined
+  const borrowTooltipLabel = !canBorrow
+    ? actionPausedLabel
+    : !hasCollateral
+    ? translate('chainflipLending.pool.noCollateral')
+    : undefined
+  const liquidateTooltipLabel = !canLiquidate ? actionPausedLabel : undefined
+
   return (
     <Main headerComponent={headerComponent} isSubPage>
       <SEO title={`${asset.name} - Chainflip Lending`} />
       <Flex gap={6} flexDir={flexDirPool}>
         <Stack gap={4} flex={1}>
-          <Card>
+          <Card data-testid='chainflip-pool-supply-stats'>
             <CardBody>
               <Heading as='h5' fontSize='sm' textTransform='uppercase' color='text.subtle' mb={4}>
                 {translate('chainflipLending.supplyStats')}
@@ -429,7 +473,7 @@ export const Pool = () => {
             </CardBody>
           </Card>
 
-          <Card>
+          <Card data-testid='chainflip-pool-borrow-stats'>
             <CardBody>
               <Heading as='h5' fontSize='sm' textTransform='uppercase' color='text.subtle' mb={4}>
                 {translate('chainflipLending.borrowStats')}
@@ -498,12 +542,12 @@ export const Pool = () => {
               />
             </Flex>
           )}
-          <Card>
+          <Card data-testid='chainflip-pool-actions'>
             <CardBody px={0} py={0}>
               <Tabs index={actionTabIndex}>
                 {actionTabHeader}
                 <TabPanels>
-                  <TabPanel p={4}>
+                  <TabPanel p={4} data-testid='chainflip-tab-supply'>
                     <VStack spacing={3} align='stretch'>
                       <Flex justifyContent='space-between' alignItems='center'>
                         <RawText fontSize='sm' color='text.subtle'>
@@ -531,12 +575,13 @@ export const Pool = () => {
                       </Flex>
                       <HStack spacing={3}>
                         <Tooltip
-                          label={translate('chainflipLending.pool.noFreeBalance')}
-                          isDisabled={hasFreeBalance}
+                          label={supplyTooltipLabel}
+                          isDisabled={!supplyTooltipLabel}
                           shouldWrapChildren
                           hasArrow
                         >
                           <Button
+                            data-testid='chainflip-tab-supply-open'
                             colorScheme='blue'
                             size='lg'
                             height={12}
@@ -544,18 +589,19 @@ export const Pool = () => {
                             flex={1}
                             fontWeight='bold'
                             onClick={handleSupply}
-                            isDisabled={!hasFreeBalance || !accountId}
+                            isDisabled={!canSupply || !hasFreeBalance || !accountId}
                           >
                             {translate('chainflipLending.pool.supply')}
                           </Button>
                         </Tooltip>
                         <Tooltip
-                          label={translate('chainflipLending.pool.noSupplyPosition')}
-                          isDisabled={hasSupplyPosition}
+                          label={withdrawSupplyTooltipLabel}
+                          isDisabled={!withdrawSupplyTooltipLabel}
                           shouldWrapChildren
                           hasArrow
                         >
                           <Button
+                            data-testid='chainflip-tab-withdraw-supply-open'
                             variant='outline'
                             colorScheme='blue'
                             size='lg'
@@ -564,7 +610,7 @@ export const Pool = () => {
                             flex={1}
                             fontWeight='bold'
                             onClick={handleWithdrawSupply}
-                            isDisabled={!hasSupplyPosition || !accountId}
+                            isDisabled={!canWithdrawSupply || !hasSupplyPosition || !accountId}
                           >
                             {translate('common.withdraw')}
                           </Button>
@@ -572,7 +618,7 @@ export const Pool = () => {
                       </HStack>
                     </VStack>
                   </TabPanel>
-                  <TabPanel p={4}>
+                  <TabPanel p={4} data-testid='chainflip-tab-deposit'>
                     <VStack spacing={3} align='stretch'>
                       <Flex justifyContent='space-between' alignItems='center'>
                         <RawText fontSize='sm' color='text.subtle'>
@@ -597,25 +643,34 @@ export const Pool = () => {
                         />
                       </Flex>
                       <HStack spacing={3}>
-                        <Button
-                          colorScheme='blue'
-                          size='lg'
-                          height={12}
-                          borderRadius='xl'
-                          flex={1}
-                          fontWeight='bold'
-                          onClick={handleDeposit}
-                          isDisabled={!accountId}
-                        >
-                          {translate('chainflipLending.pool.depositToChainflip')}
-                        </Button>
                         <Tooltip
-                          label={translate('chainflipLending.pool.noFreeBalance')}
-                          isDisabled={hasFreeBalance}
+                          label={depositTooltipLabel}
+                          isDisabled={!depositTooltipLabel}
                           shouldWrapChildren
                           hasArrow
                         >
                           <Button
+                            data-testid='chainflip-tab-deposit-open'
+                            colorScheme='blue'
+                            size='lg'
+                            height={12}
+                            borderRadius='xl'
+                            flex={1}
+                            fontWeight='bold'
+                            onClick={handleDeposit}
+                            isDisabled={!canDepositToChainflip || !accountId}
+                          >
+                            {translate('chainflipLending.pool.depositToChainflip')}
+                          </Button>
+                        </Tooltip>
+                        <Tooltip
+                          label={withdrawFromChainflipTooltipLabel}
+                          isDisabled={!withdrawFromChainflipTooltipLabel}
+                          shouldWrapChildren
+                          hasArrow
+                        >
+                          <Button
+                            data-testid='chainflip-tab-egress-open'
                             variant='outline'
                             colorScheme='blue'
                             size='lg'
@@ -624,7 +679,7 @@ export const Pool = () => {
                             flex={1}
                             fontWeight='bold'
                             onClick={handleWithdrawFromChainflip}
-                            isDisabled={!hasFreeBalance || !accountId}
+                            isDisabled={!canWithdrawFromChainflip || !hasFreeBalance || !accountId}
                           >
                             {translate('common.withdraw')}
                           </Button>
@@ -632,7 +687,7 @@ export const Pool = () => {
                       </HStack>
                     </VStack>
                   </TabPanel>
-                  <TabPanel p={4}>
+                  <TabPanel p={4} data-testid='chainflip-tab-collateral'>
                     <VStack spacing={3} align='stretch'>
                       <Flex justifyContent='space-between' alignItems='center'>
                         <RawText fontSize='sm' color='text.subtle'>
@@ -676,12 +731,13 @@ export const Pool = () => {
                       )}
                       <HStack spacing={3}>
                         <Tooltip
-                          label={translate('chainflipLending.pool.noFreeBalance')}
-                          isDisabled={hasFreeBalance}
+                          label={addCollateralTooltipLabel}
+                          isDisabled={!addCollateralTooltipLabel}
                           shouldWrapChildren
                           hasArrow
                         >
                           <Button
+                            data-testid='chainflip-tab-add-collateral-open'
                             colorScheme='blue'
                             size='lg'
                             height={12}
@@ -689,18 +745,19 @@ export const Pool = () => {
                             flex={1}
                             fontWeight='bold'
                             onClick={handleAddCollateral}
-                            isDisabled={!hasFreeBalance || !accountId}
+                            isDisabled={!canAddCollateral || !hasFreeBalance || !accountId}
                           >
                             {translate('chainflipLending.collateral.add')}
                           </Button>
                         </Tooltip>
                         <Tooltip
-                          label={translate('chainflipLending.pool.noCollateral')}
-                          isDisabled={hasPoolCollateral}
+                          label={removeCollateralTooltipLabel}
+                          isDisabled={!removeCollateralTooltipLabel}
                           shouldWrapChildren
                           hasArrow
                         >
                           <Button
+                            data-testid='chainflip-tab-remove-collateral-open'
                             variant='outline'
                             colorScheme='blue'
                             size='lg'
@@ -709,7 +766,7 @@ export const Pool = () => {
                             flex={1}
                             fontWeight='bold'
                             onClick={handleRemoveCollateral}
-                            isDisabled={!hasPoolCollateral || !accountId}
+                            isDisabled={!canRemoveCollateral || !hasPoolCollateral || !accountId}
                           >
                             {translate('chainflipLending.collateral.remove')}
                           </Button>
@@ -717,7 +774,7 @@ export const Pool = () => {
                       </HStack>
                     </VStack>
                   </TabPanel>
-                  <TabPanel p={4}>
+                  <TabPanel p={4} data-testid='chainflip-tab-manage-loan'>
                     <VStack spacing={3} align='stretch'>
                       <Flex justifyContent='space-between' alignItems='center'>
                         <RawText fontSize='sm' color='text.subtle'>
@@ -772,12 +829,13 @@ export const Pool = () => {
                       </Flex>
                       <HStack spacing={3}>
                         <Tooltip
-                          label={translate('chainflipLending.pool.noCollateral')}
-                          isDisabled={hasCollateral}
+                          label={borrowTooltipLabel}
+                          isDisabled={!borrowTooltipLabel}
                           shouldWrapChildren
                           hasArrow
                         >
                           <Button
+                            data-testid='chainflip-tab-borrow-open'
                             colorScheme='blue'
                             size='lg'
                             height={12}
@@ -785,7 +843,7 @@ export const Pool = () => {
                             flex={1}
                             fontWeight='bold'
                             onClick={handleBorrow}
-                            isDisabled={!hasCollateral || !accountId}
+                            isDisabled={!canBorrow || !hasCollateral || !accountId}
                           >
                             {translate('chainflipLending.borrow.title')}
                           </Button>
@@ -797,6 +855,7 @@ export const Pool = () => {
                           hasArrow
                         >
                           <Button
+                            data-testid='chainflip-tab-repay-open'
                             variant='outline'
                             colorScheme='blue'
                             size='lg'
@@ -848,30 +907,40 @@ export const Pool = () => {
                       {translate('chainflipLending.voluntaryLiquidation.inProgress')}
                     </RawText>
                   )}
-                  <Button
-                    colorScheme={isVoluntaryLiquidationActive ? 'yellow' : 'red'}
-                    variant={isVoluntaryLiquidationActive ? 'solid' : 'outline'}
-                    size='md'
-                    borderRadius='xl'
-                    width='full'
-                    fontWeight='bold'
-                    onClick={() =>
-                      handleVoluntaryLiquidation(isVoluntaryLiquidationActive ? 'stop' : 'initiate')
-                    }
+                  <Tooltip
+                    label={liquidateTooltipLabel}
+                    isDisabled={!liquidateTooltipLabel}
+                    shouldWrapChildren
+                    hasArrow
                   >
-                    {translate(
-                      isVoluntaryLiquidationActive
-                        ? 'chainflipLending.voluntaryLiquidation.confirmStop'
-                        : 'chainflipLending.voluntaryLiquidation.confirmInitiate',
-                    )}
-                  </Button>
+                    <Button
+                      data-testid='chainflip-open-voluntary-liquidation'
+                      colorScheme={isVoluntaryLiquidationActive ? 'yellow' : 'red'}
+                      variant={isVoluntaryLiquidationActive ? 'solid' : 'outline'}
+                      size='md'
+                      borderRadius='xl'
+                      width='full'
+                      fontWeight='bold'
+                      onClick={() =>
+                        handleVoluntaryLiquidation(
+                          isVoluntaryLiquidationActive ? 'stop' : 'initiate',
+                        )
+                      }
+                      isDisabled={!canLiquidate}
+                    >
+                      {translate(
+                        isVoluntaryLiquidationActive
+                          ? 'chainflipLending.voluntaryLiquidation.confirmStop'
+                          : 'chainflipLending.voluntaryLiquidation.confirmInitiate',
+                      )}
+                    </Button>
+                  </Tooltip>
                 </VStack>
               </CardBody>
             </Card>
-          )
-          }
-        </Stack >
-      </Flex >
-    </Main >
+          )}
+        </Stack>
+      </Flex>
+    </Main>
   )
 }

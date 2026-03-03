@@ -10,7 +10,6 @@ import { useTranslate } from 'react-polyglot'
 import { SupplyMachineCtx } from './SupplyMachineContext'
 
 import { Amount } from '@/components/Amount/Amount'
-import { AssetIcon } from '@/components/AssetIcon'
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { SlideTransition } from '@/components/SlideTransition'
@@ -66,10 +65,7 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
     [freeBalanceCryptoBaseUnit],
   )
 
-  const assetIds = useMemo(
-    () => Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as AssetId[],
-    [],
-  )
+  const assetIds = useMemo(() => Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as AssetId[], [])
 
   const assets = useAppSelector(selectAssets)
 
@@ -149,6 +145,7 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
               {translate('chainflipLending.supply.amount')}
             </RawText>
             <NumericFormat
+              data-testid='chainflip-supply-amount-input'
               inputMode='decimal'
               valueIsNumericString={true}
               decimalScale={asset.precision}
@@ -186,6 +183,7 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
                 fontWeight='medium'
               />
               <Button
+                data-testid='chainflip-supply-max'
                 size='xs'
                 variant='ghost'
                 colorScheme='blue'
@@ -222,6 +220,7 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
         py={4}
       >
         <Button
+          data-testid='chainflip-supply-submit'
           colorScheme='blue'
           size='lg'
           height={12}

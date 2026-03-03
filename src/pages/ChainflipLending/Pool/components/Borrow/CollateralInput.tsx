@@ -118,10 +118,7 @@ export const CollateralInput = ({ assetId, onAssetChange }: CollateralInputProps
     [availableCryptoPrecision],
   )
 
-  const assetIds = useMemo(
-    () => Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as AssetId[],
-    [],
-  )
+  const assetIds = useMemo(() => Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as AssetId[], [])
 
   const assets = useAppSelector(selectAssets)
 
@@ -138,9 +135,7 @@ export const CollateralInput = ({ assetId, onAssetChange }: CollateralInputProps
   const handleAssetClick = useCallback(() => {
     buyAssetSearch.open({
       onAssetClick: (asset: Asset) => onAssetChange(asset.assetId),
-      title: isAddMode
-        ? 'chainflipLending.collateral.add'
-        : 'chainflipLending.collateral.remove',
+      title: isAddMode ? 'chainflipLending.collateral.add' : 'chainflipLending.collateral.remove',
       assets: lendingAssets,
     })
   }, [buyAssetSearch, onAssetChange, lendingAssets, isAddMode])
@@ -223,6 +218,7 @@ export const CollateralInput = ({ assetId, onAssetChange }: CollateralInputProps
               {translate('chainflipLending.collateral.amount')}
             </RawText>
             <NumericFormat
+              data-testid='chainflip-collateral-amount-input'
               inputMode='decimal'
               valueIsNumericString={true}
               decimalScale={asset.precision}
@@ -273,6 +269,7 @@ export const CollateralInput = ({ assetId, onAssetChange }: CollateralInputProps
                 fontWeight='medium'
               />
               <Button
+                data-testid='chainflip-collateral-max'
                 size='xs'
                 variant='ghost'
                 colorScheme='blue'
@@ -317,6 +314,7 @@ export const CollateralInput = ({ assetId, onAssetChange }: CollateralInputProps
         py={4}
       >
         <Button
+          data-testid='chainflip-collateral-submit'
           colorScheme='blue'
           size='lg'
           height={12}

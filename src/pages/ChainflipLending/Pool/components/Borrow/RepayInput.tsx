@@ -1,6 +1,5 @@
 import { Button, CardBody, CardFooter, Flex, Stack, Switch, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
@@ -10,26 +9,23 @@ import { useTranslate } from 'react-polyglot'
 import { RepayMachineCtx } from './RepayMachineContext'
 
 import { Amount } from '@/components/Amount/Amount'
-import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
+import { AssetIcon } from '@/components/AssetIcon'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
-import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
 import { useChainflipBorrowMinimums } from '@/pages/ChainflipLending/hooks/useChainflipBorrowMinimums'
 import { useChainflipOraclePrice } from '@/pages/ChainflipLending/hooks/useChainflipOraclePrices'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectAssetById, selectAssets } from '@/state/slices/selectors'
+import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type RepayInputProps = {
   assetId: AssetId
-  onAssetChange: (assetId: AssetId) => void
 }
 
-export const RepayInput = ({ assetId, onAssetChange }: RepayInputProps) => {
+export const RepayInput = ({ assetId }: RepayInputProps) => {
   const translate = useTranslate()
   const {
     number: { localeParts },
@@ -105,36 +101,6 @@ export const RepayInput = ({ assetId, onAssetChange }: RepayInputProps) => {
     return inputFiat.gt(0) && remainingFiat.gt(0) && remainingFiat.lt(minimumLoanAmountUsd)
   }, [isFullRepayment, minimumLoanAmountUsd, outstandingDebtFiat, inputFiat])
 
-  const assetIds = useMemo(
-    () => Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as AssetId[],
-    [],
-  )
-
-  const assets = useAppSelector(selectAssets)
-
-  const lendingAssets = useMemo(() => {
-    return assetIds.reduce<Asset[]>((acc, assetId) => {
-      const asset = assets[assetId]
-      if (asset) acc.push(asset)
-      return acc
-    }, [])
-  }, [assetIds, assets])
-
-  const buyAssetSearch = useModal('buyAssetSearch')
-
-  const handleAssetClick = useCallback(() => {
-    buyAssetSearch.open({
-      onAssetClick: (asset: Asset) => onAssetChange(asset.assetId),
-      title: 'chainflipLending.repay.title',
-      assets: lendingAssets,
-    })
-  }, [buyAssetSearch, onAssetChange, lendingAssets])
-
-  const handleAssetChange = useCallback(
-    (asset: Asset) => onAssetChange(asset.assetId),
-    [onAssetChange],
-  )
-
   const handleInputChange = useCallback((values: NumberFormatValues) => {
     setInputValue(values.value)
   }, [])
@@ -160,9 +126,9 @@ export const RepayInput = ({ assetId, onAssetChange }: RepayInputProps) => {
     const baseUnit = isFullRepayment
       ? outstandingDebtCryptoBaseUnit
       : BigAmount.fromPrecision({
-        value: inputValue || '0',
-        precision: asset.precision,
-      }).toBaseUnit()
+          value: inputValue || '0',
+          precision: asset.precision,
+        }).toBaseUnit()
 
     actorRef.send({
       type: 'SUBMIT',
@@ -206,15 +172,12 @@ export const RepayInput = ({ assetId, onAssetChange }: RepayInputProps) => {
     <SlideTransition>
       <CardBody px={6} py={4}>
         <VStack spacing={4} align='stretch'>
-          <TradeAssetSelect
-            assetId={assetId}
-            assetIds={assetIds}
-            onAssetClick={handleAssetClick}
-            onAssetChange={handleAssetChange}
-            onlyConnectedChains={false}
-            px={0}
-            mb={0}
-          />
+          <Flex alignItems='center' gap={2}>
+            <AssetIcon assetId={assetId} size='sm' />
+            <RawText fontWeight='bold' fontSize='lg'>
+              {asset.symbol}
+            </RawText>
+          </Flex>
 
           <Flex justifyContent='space-between' alignItems='center'>
             <RawText fontSize='sm' color='text.subtle'>
@@ -233,6 +196,7 @@ export const RepayInput = ({ assetId, onAssetChange }: RepayInputProps) => {
               {translate('chainflipLending.repay.fullRepayment')}
             </RawText>
             <Switch
+              data-testid='chainflip-repay-full-toggle'
               isChecked={isFullRepayment}
               onChange={handleFullRepaymentToggle}
               colorScheme='blue'
@@ -252,6 +216,7 @@ export const RepayInput = ({ assetId, onAssetChange }: RepayInputProps) => {
                 {translate('chainflipLending.repay.amount')}
               </RawText>
               <NumericFormat
+                data-testid='chainflip-repay-amount-input'
                 inputMode='decimal'
                 valueIsNumericString={true}
                 decimalScale={asset.precision}
@@ -294,6 +259,7 @@ export const RepayInput = ({ assetId, onAssetChange }: RepayInputProps) => {
               />
               {!isFullRepayment && (
                 <Button
+                  data-testid='chainflip-repay-max'
                   size='xs'
                   variant='ghost'
                   colorScheme='blue'
@@ -339,6 +305,7 @@ export const RepayInput = ({ assetId, onAssetChange }: RepayInputProps) => {
         py={4}
       >
         <Button
+          data-testid='chainflip-repay-submit'
           colorScheme='blue'
           size='lg'
           height={12}

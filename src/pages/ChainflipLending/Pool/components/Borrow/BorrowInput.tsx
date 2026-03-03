@@ -93,10 +93,7 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
 
   const projectedLtvDecimal = useMemo(() => projectedLtvBps / 10000, [projectedLtvBps])
 
-  const assetIds = useMemo(
-    () => Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as AssetId[],
-    [],
-  )
+  const assetIds = useMemo(() => Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as AssetId[], [])
 
   const assets = useAppSelector(selectAssets)
 
@@ -178,6 +175,7 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
               {translate('chainflipLending.borrow.amount')}
             </RawText>
             <NumericFormat
+              data-testid='chainflip-borrow-amount-input'
               inputMode='decimal'
               valueIsNumericString={true}
               decimalScale={asset.precision}
@@ -218,6 +216,7 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
                 fontWeight='medium'
               />
               <Button
+                data-testid='chainflip-borrow-max'
                 size='xs'
                 variant='ghost'
                 colorScheme='blue'
@@ -261,6 +260,7 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
         py={4}
       >
         <Button
+          data-testid='chainflip-borrow-submit'
           colorScheme='blue'
           size='lg'
           height={12}

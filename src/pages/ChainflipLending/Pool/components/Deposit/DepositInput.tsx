@@ -11,7 +11,6 @@ import { useTranslate } from 'react-polyglot'
 import { DepositMachineCtx } from './DepositMachineContext'
 
 import { Amount } from '@/components/Amount/Amount'
-import { AssetIcon } from '@/components/AssetIcon'
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
@@ -102,10 +101,7 @@ export const DepositInput = ({ assetId, onAssetChange }: DepositInputProps) => {
     }).toPrecision()
   }, [freeBalances, cfAsset, asset])
 
-  const assetIds = useMemo(
-    () => Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as AssetId[],
-    [],
-  )
+  const assetIds = useMemo(() => Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as AssetId[], [])
 
   const assets = useAppSelector(selectAssets)
 
@@ -189,6 +185,7 @@ export const DepositInput = ({ assetId, onAssetChange }: DepositInputProps) => {
               {translate('chainflipLending.deposit.amount')}
             </RawText>
             <NumericFormat
+              data-testid='chainflip-deposit-amount-input'
               inputMode='decimal'
               valueIsNumericString={true}
               decimalScale={asset.precision}
@@ -226,6 +223,7 @@ export const DepositInput = ({ assetId, onAssetChange }: DepositInputProps) => {
                 />
               </Skeleton>
               <Button
+                data-testid='chainflip-deposit-max'
                 size='xs'
                 variant='ghost'
                 colorScheme='blue'
@@ -285,6 +283,7 @@ export const DepositInput = ({ assetId, onAssetChange }: DepositInputProps) => {
         py={4}
       >
         <ButtonWalletPredicate
+          data-testid='chainflip-deposit-submit'
           isValidWallet={isValidWallet}
           colorScheme='blue'
           size='lg'

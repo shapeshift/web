@@ -131,10 +131,7 @@ export const EgressInput = ({ assetId, onAssetChange }: EgressInputProps) => {
     [freeBalanceCryptoBaseUnit],
   )
 
-  const assetIds = useMemo(
-    () => Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as AssetId[],
-    [],
-  )
+  const assetIds = useMemo(() => Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as AssetId[], [])
 
   const assets = useAppSelector(selectAssets)
 
@@ -265,6 +262,7 @@ export const EgressInput = ({ assetId, onAssetChange }: EgressInputProps) => {
               {translate('chainflipLending.egress.amount')}
             </RawText>
             <NumericFormat
+              data-testid='chainflip-egress-amount-input'
               inputMode='decimal'
               valueIsNumericString={true}
               decimalScale={asset.precision}
@@ -306,6 +304,7 @@ export const EgressInput = ({ assetId, onAssetChange }: EgressInputProps) => {
                 fontWeight='medium'
               />
               <Button
+                data-testid='chainflip-egress-max'
                 size='xs'
                 variant='ghost'
                 colorScheme='blue'
@@ -324,6 +323,7 @@ export const EgressInput = ({ assetId, onAssetChange }: EgressInputProps) => {
               </RawText>
               {walletSupportsAssetChain && (
                 <Button
+                  data-testid='chainflip-egress-toggle-destination'
                   fontSize='xs'
                   variant='link'
                   color='text.link'
@@ -337,6 +337,7 @@ export const EgressInput = ({ assetId, onAssetChange }: EgressInputProps) => {
             </HStack>
             {isCustomAddress ? (
               <Input
+                data-testid='chainflip-egress-custom-address-input'
                 {...register('manualAddress', {
                   required: translate('common.addressRequired'),
                   validate: { isValidAddress: validateChainAddress },
@@ -382,6 +383,7 @@ export const EgressInput = ({ assetId, onAssetChange }: EgressInputProps) => {
         py={4}
       >
         <Button
+          data-testid='chainflip-egress-submit'
           colorScheme='blue'
           size='lg'
           height={12}

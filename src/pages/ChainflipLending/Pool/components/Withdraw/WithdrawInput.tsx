@@ -11,7 +11,6 @@ import { useTranslate } from 'react-polyglot'
 import { WithdrawMachineCtx } from './WithdrawMachineContext'
 
 import { Amount } from '@/components/Amount/Amount'
-import { AssetIcon } from '@/components/AssetIcon'
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
@@ -71,10 +70,7 @@ export const WithdrawInput = ({ assetId, onAssetChange }: WithdrawInputProps) =>
     return bnOrZero(availableCryptoPrecision).lt(bnOrZero(minSupply).times(2))
   }, [availableCryptoPrecision, minSupply])
 
-  const assetIds = useMemo(
-    () => Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as AssetId[],
-    [],
-  )
+  const assetIds = useMemo(() => Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as AssetId[], [])
 
   const assets = useAppSelector(selectAssets)
 
@@ -204,6 +200,7 @@ export const WithdrawInput = ({ assetId, onAssetChange }: WithdrawInputProps) =>
                   </HelperTooltip>
                 ) : (
                   <NumericFormat
+                    data-testid='chainflip-withdraw-supply-amount-input'
                     inputMode='decimal'
                     valueIsNumericString={true}
                     decimalScale={asset.precision}
@@ -241,7 +238,13 @@ export const WithdrawInput = ({ assetId, onAssetChange }: WithdrawInputProps) =>
                     fontSize='sm'
                     fontWeight='medium'
                   />
-                  <Button size='xs' variant='ghost' colorScheme='blue' onClick={handleMaxClick}>
+                  <Button
+                    data-testid='chainflip-withdraw-supply-max'
+                    size='xs'
+                    variant='ghost'
+                    colorScheme='blue'
+                    onClick={handleMaxClick}
+                  >
                     {translate('modals.send.sendForm.max')}
                   </Button>
                 </Flex>
@@ -283,6 +286,7 @@ export const WithdrawInput = ({ assetId, onAssetChange }: WithdrawInputProps) =>
         py={4}
       >
         <ButtonWalletPredicate
+          data-testid='chainflip-withdraw-supply-submit'
           isValidWallet={Boolean(walletSupportsEth)}
           colorScheme='blue'
           size='lg'

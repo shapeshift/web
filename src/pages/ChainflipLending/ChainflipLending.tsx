@@ -14,6 +14,7 @@ export const ChainflipLending = memo(() => (
     <ChainflipLendingAccountProvider>
       <Routes>
         <Route index element={overview} />
+        <Route path='balances' element={overview} />
         <Route path='pool/*' element={pool} />
       </Routes>
     </ChainflipLendingAccountProvider>

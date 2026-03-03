@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { lazy, memo, Suspense, useEffect, useMemo, useState } from 'react'
+import { lazy, memo, Suspense, useEffect, useMemo } from 'react'
 
 import { RepayMachineCtx } from './RepayMachineContext'
 
@@ -26,17 +26,16 @@ type RepayProps = {
 }
 
 export const Repay = memo(({ assetId: initialAssetId, loanId }: RepayProps) => {
-  const [activeAssetId, setActiveAssetId] = useState(initialAssetId)
   const { connectedType } = useWallet().state
   const isNativeWallet = connectedType === KeyManager.Native
   const input = useMemo(
-    () => ({ assetId: activeAssetId, loanId, isNativeWallet }),
-    [activeAssetId, loanId, isNativeWallet],
+    () => ({ assetId: initialAssetId, loanId, isNativeWallet }),
+    [initialAssetId, loanId, isNativeWallet],
   )
 
   return (
-    <RepayMachineCtx.Provider key={activeAssetId} options={{ input }}>
-      <RepayContent assetId={activeAssetId} loanId={loanId} onAssetChange={setActiveAssetId} />
+    <RepayMachineCtx.Provider options={{ input }}>
+      <RepayContent assetId={initialAssetId} loanId={loanId} />
     </RepayMachineCtx.Provider>
   )
 })
@@ -44,10 +43,9 @@ export const Repay = memo(({ assetId: initialAssetId, loanId }: RepayProps) => {
 type RepayContentProps = {
   assetId: AssetId
   loanId: number
-  onAssetChange: (assetId: AssetId) => void
 }
 
-const RepayContent = memo(({ assetId, loanId, onAssetChange }: RepayContentProps) => {
+const RepayContent = memo(({ assetId, loanId }: RepayContentProps) => {
   const isInput = RepayMachineCtx.useSelector(s => s.matches('input'))
   const isConfirm = RepayMachineCtx.useSelector(s => s.matches('confirm'))
   const isExecuting = RepayMachineCtx.useSelector(s => s.hasTag('executing'))
@@ -69,15 +67,14 @@ const RepayContent = memo(({ assetId, loanId, onAssetChange }: RepayContentProps
   return (
     <AnimatePresence mode='wait' initial={false}>
       <Suspense fallback={suspenseFallback}>
-        {page === 'input' && <RepayInput assetId={assetId} onAssetChange={onAssetChange} />}
+        {page === 'input' && <RepayInput assetId={assetId} />}
         {(page === 'confirm' || page === 'executing' || page === 'success' || page === 'error') && (
           <RepayConfirm assetId={assetId} />
         )}
       </Suspense>
     </AnimatePresence>
   )
-}
-)
+})
 
 const useFreeBalanceSync = (assetId: AssetId) => {
   const actorRef = RepayMachineCtx.useActorRef()

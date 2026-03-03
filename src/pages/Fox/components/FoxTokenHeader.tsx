@@ -50,10 +50,15 @@ export const FoxTokenHeader = () => {
   const fiatRamps = useModal('fiatRamps')
   const navigate = useNavigate()
 
-  const handleSwapClick = useCallback(
-    () => navigate(`${TradeRoutePaths.Input}/${assetId}`),
-    [assetId, navigate],
-  )
+  const handleSwapClick = useCallback(() => {
+    // Parse assetId to construct proper trade route
+    // Route format: /trade/:buyChainId/:buyAssetSubId/:sellChainId/:sellAssetSubId/:amount
+    const [chainId, assetSubId] = assetId.split('/')
+    // Default sell asset to ETH on same chain
+    const sellChainId = chainId
+    const sellAssetSubId = 'slip44:60' // ETH
+    navigate(`${TradeRoutePaths.Input}/${chainId}/${assetSubId}/${sellChainId}/${sellAssetSubId}/0`)
+  }, [assetId, navigate])
 
   const handleBuyClick = useCallback(() => {
     fiatRamps.open({

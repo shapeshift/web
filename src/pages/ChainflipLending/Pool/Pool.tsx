@@ -58,19 +58,14 @@ enum PoolTabIndex {
   Supply = 0,
   Deposit = 1,
   Collateral = 2,
-  Borrow = 3,
-  Repay = 4,
+  ManageLoan = 3,
 }
 
-const SUPPLY_TAB_ITEMS = [
+const ACTION_TAB_ITEMS = [
   { label: 'chainflipLending.supply.title', index: PoolTabIndex.Supply },
   { label: 'chainflipLending.depositToChainflip', index: PoolTabIndex.Deposit },
-]
-
-const BORROW_TAB_ITEMS = [
   { label: 'chainflipLending.collateral.title', index: PoolTabIndex.Collateral },
-  { label: 'chainflipLending.borrow.title', index: PoolTabIndex.Borrow },
-  { label: 'chainflipLending.repay.title', index: PoolTabIndex.Repay },
+  { label: 'chainflipLending.manageLoan', index: PoolTabIndex.ManageLoan },
 ]
 
 type PoolHeaderProps = {
@@ -151,8 +146,7 @@ export const Pool = () => {
   const location = useLocation()
   const { dispatch: walletDispatch } = useWallet()
   const { accountId, accountNumber, setAccountId } = useChainflipLendingAccount()
-  const [supplyTabIndex, setSupplyTabIndex] = useState(PoolTabIndex.Supply)
-  const [borrowTabIndex, setBorrowTabIndex] = useState(PoolTabIndex.Collateral)
+  const [actionTabIndex, setActionTabIndex] = useState(PoolTabIndex.Supply)
   const chainflipLendingModal = useModal('chainflipLending')
 
   const handleConnectWallet = useCallback(
@@ -255,26 +249,15 @@ export const Pool = () => {
 
   const headerComponent = useMemo(() => <PoolHeader assetId={poolAssetId} />, [poolAssetId])
 
-  const supplyTabHeader = useMemo(
+  const actionTabHeader = useMemo(
     () => (
       <FormHeader
-        items={SUPPLY_TAB_ITEMS}
-        setStepIndex={setSupplyTabIndex}
-        activeIndex={supplyTabIndex}
+        items={ACTION_TAB_ITEMS}
+        setStepIndex={setActionTabIndex}
+        activeIndex={actionTabIndex}
       />
     ),
-    [supplyTabIndex],
-  )
-
-  const borrowTabHeader = useMemo(
-    () => (
-      <FormHeader
-        items={BORROW_TAB_ITEMS}
-        setStepIndex={setBorrowTabIndex}
-        activeIndex={borrowTabIndex}
-      />
-    ),
-    [borrowTabIndex],
+    [actionTabIndex],
   )
 
   const poolCollateral = useMemo(
@@ -504,124 +487,21 @@ export const Pool = () => {
           alignSelf='flex-start'
           gap={4}
         >
-          <Card>
-            <CardBody p={{ base: 4, md: 5 }}>
-              <Flex justifyContent='space-between' alignItems='center' mb={4}>
-                <Heading
-                  as='h3'
-                  size='sm'
-                  textTransform='uppercase'
-                  color='text.subtle'
-                  letterSpacing='wider'
-                >
-                  {translate('chainflipLending.yourPosition')}
-                </Heading>
-                {accountId ? (
-                  <AccountDropdown
-                    assetId={ethAssetId}
-                    onChange={setAccountId}
-                    defaultAccountId={accountId}
-                    autoSelectHighestBalance
-                    buttonProps={{ variant: 'ghost', size: 'sm' }}
-                  />
-                ) : null}
-              </Flex>
-              <VStack spacing={4} align='stretch'>
-                <SimpleGrid columns={2} spacing={4}>
-                  <Box>
-                    <RawText fontSize='xs' color='text.subtle' mb={1} textTransform='uppercase'>
-                      {translate('chainflipLending.supplied')}
-                    </RawText>
-                    <Skeleton isLoaded={!isPositionsLoading}>
-                      <Amount.Fiat
-                        value={supplyPosition?.totalAmountFiat ?? '0'}
-                        fontSize='lg'
-                        fontWeight='bold'
-                      />
-                    </Skeleton>
-                    {accountId ? (
-                      <Skeleton isLoaded={!isPositionsLoading}>
-                        <Amount.Crypto
-                          value={supplyPosition?.totalAmountCryptoPrecision ?? '0'}
-                          symbol={asset.symbol}
-                          fontSize='xs'
-                          color='text.subtle'
-                        />
-                      </Skeleton>
-                    ) : null}
-                  </Box>
-                  <Box>
-                    <RawText fontSize='xs' color='text.subtle' mb={1} textTransform='uppercase'>
-                      {translate('chainflipLending.collateral.title')}
-                    </RawText>
-                    <Skeleton isLoaded={!isLoanLoading}>
-                      <Amount.Fiat value={totalCollateralFiat} fontSize='lg' fontWeight='bold' />
-                    </Skeleton>
-                    {accountId ? (
-                      <Skeleton isLoaded={!isLoanLoading}>
-                        <Amount.Crypto
-                          value={poolCollateral?.amountCryptoPrecision ?? '0'}
-                          symbol={asset.symbol}
-                          fontSize='xs'
-                          color='text.subtle'
-                        />
-                      </Skeleton>
-                    ) : null}
-                  </Box>
-                </SimpleGrid>
-                <SimpleGrid columns={2} spacing={4}>
-                  <Box>
-                    <RawText fontSize='xs' color='text.subtle' mb={1} textTransform='uppercase'>
-                      {translate('chainflipLending.borrow.borrowed')}
-                    </RawText>
-                    <Skeleton isLoaded={!isLoanLoading}>
-                      <Amount.Fiat value={userBorrowedFiat} fontSize='lg' fontWeight='bold' />
-                    </Skeleton>
-                    {accountId && poolLoan ? (
-                      <Skeleton isLoaded={!isLoanLoading}>
-                        <Amount.Crypto
-                          value={poolLoan.principalAmountCryptoPrecision}
-                          symbol={asset.symbol}
-                          fontSize='xs'
-                          color='text.subtle'
-                        />
-                      </Skeleton>
-                    ) : null}
-                  </Box>
-                  {hasLoans && accountId ? (
-                    <Box>
-                      <RawText fontSize='xs' color='text.subtle' mb={1} textTransform='uppercase'>
-                        {translate('chainflipLending.pool.currentLtv')}
-                      </RawText>
-                      <Skeleton isLoaded={!isLoanLoading}>
-                        <RawText fontSize='lg' fontWeight='bold' color={ltvStatusColor}>
-                          {currentLtvPercent}%
-                        </RawText>
-                      </Skeleton>
-                    </Box>
-                  ) : null}
-                </SimpleGrid>
-                {!accountId ? (
-                  <Button
-                    colorScheme='blue'
-                    size='lg'
-                    height={12}
-                    borderRadius='xl'
-                    onClick={handleConnectWallet}
-                    width='full'
-                    fontWeight='bold'
-                  >
-                    {translate('common.connectWallet')}
-                  </Button>
-                ) : null}
-              </VStack>
-            </CardBody>
-          </Card>
-
+          {accountId && (
+            <Flex justifyContent='flex-end' alignItems='center'>
+              <AccountDropdown
+                assetId={ethAssetId}
+                onChange={setAccountId}
+                defaultAccountId={accountId}
+                autoSelectHighestBalance
+                buttonProps={{ variant: 'ghost', size: 'sm' }}
+              />
+            </Flex>
+          )}
           <Card>
             <CardBody px={0} py={0}>
-              <Tabs index={supplyTabIndex}>
-                {supplyTabHeader}
+              <Tabs index={actionTabIndex}>
+                {actionTabHeader}
                 <TabPanels>
                   <TabPanel p={4}>
                     <VStack spacing={3} align='stretch'>
@@ -752,16 +632,6 @@ export const Pool = () => {
                       </HStack>
                     </VStack>
                   </TabPanel>
-                </TabPanels>
-              </Tabs>
-            </CardBody>
-          </Card>
-
-          <Card>
-            <CardBody px={0} py={0}>
-              <Tabs index={borrowTabIndex - PoolTabIndex.Collateral}>
-                {borrowTabHeader}
-                <TabPanels>
                   <TabPanel p={4}>
                     <VStack spacing={3} align='stretch'>
                       <Flex justifyContent='space-between' alignItems='center'>
@@ -889,59 +759,6 @@ export const Pool = () => {
                           />
                         </Flex>
                       )}
-                      <Tooltip
-                        label={translate('chainflipLending.pool.noCollateral')}
-                        isDisabled={hasCollateral}
-                        shouldWrapChildren
-                        hasArrow
-                      >
-                        <Button
-                          colorScheme='blue'
-                          size='lg'
-                          height={12}
-                          borderRadius='xl'
-                          width='full'
-                          fontWeight='bold'
-                          onClick={handleBorrow}
-                          isDisabled={!hasCollateral || !accountId}
-                        >
-                          {translate('chainflipLending.borrow.title')}
-                        </Button>
-                      </Tooltip>
-                    </VStack>
-                  </TabPanel>
-                  <TabPanel p={4}>
-                    <VStack spacing={3} align='stretch'>
-                      <Flex justifyContent='space-between' alignItems='center'>
-                        <RawText fontSize='sm' color='text.subtle'>
-                          {translate('chainflipLending.repay.outstanding')}
-                        </RawText>
-                        <VStack spacing={0} align='flex-end'>
-                          <Amount.Fiat
-                            value={poolLoan?.principalAmountFiat ?? '0'}
-                            fontSize='sm'
-                            fontWeight='medium'
-                          />
-                          {poolLoan && (
-                            <Amount.Crypto
-                              value={poolLoan.principalAmountCryptoPrecision}
-                              symbol={asset.symbol}
-                              fontSize='xs'
-                              color='text.subtle'
-                            />
-                          )}
-                        </VStack>
-                      </Flex>
-                      {hasLoans && (
-                        <Flex justifyContent='space-between' alignItems='center'>
-                          <RawText fontSize='sm' color='text.subtle'>
-                            {translate('chainflipLending.pool.currentLtv')}
-                          </RawText>
-                          <RawText fontSize='sm' fontWeight='medium' color={ltvStatusColor}>
-                            {currentLtvPercent}%
-                          </RawText>
-                        </Flex>
-                      )}
                       <Flex justifyContent='space-between' alignItems='center'>
                         <RawText fontSize='sm' color='text.subtle'>
                           {translate('chainflipLending.pool.freeBalance')}
@@ -953,31 +770,71 @@ export const Pool = () => {
                           fontWeight='medium'
                         />
                       </Flex>
-                      <Tooltip
-                        label={translate('chainflipLending.pool.noLoans')}
-                        isDisabled={hasLoans}
-                        shouldWrapChildren
-                        hasArrow
-                      >
-                        <Button
-                          colorScheme='blue'
-                          size='lg'
-                          height={12}
-                          borderRadius='xl'
-                          width='full'
-                          fontWeight='bold'
-                          onClick={handleRepay}
-                          isDisabled={!hasLoans || !accountId}
+                      <HStack spacing={3}>
+                        <Tooltip
+                          label={translate('chainflipLending.pool.noCollateral')}
+                          isDisabled={hasCollateral}
+                          shouldWrapChildren
+                          hasArrow
                         >
-                          {translate('chainflipLending.repay.title')}
-                        </Button>
-                      </Tooltip>
+                          <Button
+                            colorScheme='blue'
+                            size='lg'
+                            height={12}
+                            borderRadius='xl'
+                            flex={1}
+                            fontWeight='bold'
+                            onClick={handleBorrow}
+                            isDisabled={!hasCollateral || !accountId}
+                          >
+                            {translate('chainflipLending.borrow.title')}
+                          </Button>
+                        </Tooltip>
+                        <Tooltip
+                          label={translate('chainflipLending.pool.noLoans')}
+                          isDisabled={hasLoans}
+                          shouldWrapChildren
+                          hasArrow
+                        >
+                          <Button
+                            variant='outline'
+                            colorScheme='blue'
+                            size='lg'
+                            height={12}
+                            borderRadius='xl'
+                            flex={1}
+                            fontWeight='bold'
+                            onClick={handleRepay}
+                            isDisabled={!hasLoans || !accountId}
+                          >
+                            {translate('chainflipLending.repay.title')}
+                          </Button>
+                        </Tooltip>
+                      </HStack>
                     </VStack>
                   </TabPanel>
                 </TabPanels>
               </Tabs>
             </CardBody>
           </Card>
+
+          {!accountId && (
+            <Card>
+              <CardBody p={4}>
+                <Button
+                  colorScheme='blue'
+                  size='lg'
+                  height={12}
+                  borderRadius='xl'
+                  onClick={handleConnectWallet}
+                  width='full'
+                  fontWeight='bold'
+                >
+                  {translate('common.connectWallet')}
+                </Button>
+              </CardBody>
+            </Card>
+          )}
 
           {hasLoans && accountId && (
             <Card
@@ -1011,9 +868,10 @@ export const Pool = () => {
                 </VStack>
               </CardBody>
             </Card>
-          )}
-        </Stack>
-      </Flex>
-    </Main>
+          )
+          }
+        </Stack >
+      </Flex >
+    </Main >
   )
 }

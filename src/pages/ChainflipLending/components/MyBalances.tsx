@@ -148,10 +148,9 @@ const BalanceRow = ({
   )
 }
 
-export const MyBalances = () => {
+export const MyBalancesList = () => {
   const translate = useTranslate()
   const navigate = useNavigate()
-  const { dispatch: walletDispatch } = useWallet()
   const { accountId, accountNumber } = useChainflipLendingAccount()
   const { freeBalances, isLoading } = useChainflipFreeBalances()
   const { supplyPositions, isLoading: isPositionsLoading } = useChainflipSupplyPositions()
@@ -163,13 +162,6 @@ export const MyBalances = () => {
     },
     [navigate],
   )
-
-  const handleConnectWallet = useCallback(
-    () => walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
-    [walletDispatch],
-  )
-
-  const headerComponent = useMemo(() => <ChainflipLendingHeader />, [])
 
   const freeBalancesByAssetId = useMemo(
     () =>
@@ -214,17 +206,6 @@ export const MyBalances = () => {
   )
 
   const balanceRows = useMemo(() => {
-    if (!accountId) {
-      return (
-        <Center flexDir='column' gap={4} py={12}>
-          <Text color='text.subtle' translation='chainflipLending.connectToViewBalances' />
-          <Button colorScheme='blue' onClick={handleConnectWallet}>
-            {translate('common.connectWallet')}
-          </Button>
-        </Center>
-      )
-    }
-
     if (isLoading || isPositionsLoading || isLoanLoading) {
       return Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} height={16} />)
     }
@@ -242,7 +223,6 @@ export const MyBalances = () => {
       />
     ))
   }, [
-    accountId,
     accountNumber,
     isLoading,
     isPositionsLoading,
@@ -252,41 +232,38 @@ export const MyBalances = () => {
     collateralByAssetId,
     loansByAssetId,
     handleDeposit,
-    handleConnectWallet,
-    translate,
   ])
 
+  if (!accountId) return null
+
   return (
-    <Main headerComponent={headerComponent} isSubPage>
-      <SEO title={translate('chainflipLending.myBalancesTitle')} />
-      <Stack>
-        <SimpleGrid
-          gridTemplateColumns={balanceRowGrid}
-          columnGap={4}
-          color='text.subtle'
-          fontWeight='bold'
-          fontSize='sm'
-          px={mobilePadding}
-        >
-          <Text translation='chainflipLending.market' />
-          <Flex display={mobileDisplay}>
-            <Text translation='chainflipLending.walletBalance' />
-          </Flex>
-          <Flex display={mobileDisplay}>
-            <Text translation='chainflipLending.stateChainBalance' />
-          </Flex>
-          <Flex display={mobileDisplay}>
-            <Text translation='chainflipLending.suppliedBalance' />
-          </Flex>
-          <Flex display={mobileDisplay}>
-            <Text translation='chainflipLending.collateralHeader' />
-          </Flex>
-          <Flex display={mobileDisplay}>
-            <Text translation='chainflipLending.borrowedHeader' />
-          </Flex>
-        </SimpleGrid>
-        <Stack mx={listMargin}>{balanceRows}</Stack>
-      </Stack>
-    </Main>
+    <Stack>
+      <SimpleGrid
+        gridTemplateColumns={balanceRowGrid}
+        columnGap={4}
+        color='text.subtle'
+        fontWeight='bold'
+        fontSize='sm'
+        px={mobilePadding}
+      >
+        <Text translation='chainflipLending.market' />
+        <Flex display={mobileDisplay}>
+          <Text translation='chainflipLending.walletBalance' />
+        </Flex>
+        <Flex display={mobileDisplay}>
+          <Text translation='chainflipLending.stateChainBalance' />
+        </Flex>
+        <Flex display={mobileDisplay}>
+          <Text translation='chainflipLending.suppliedBalance' />
+        </Flex>
+        <Flex display={mobileDisplay}>
+          <Text translation='chainflipLending.collateralHeader' />
+        </Flex>
+        <Flex display={mobileDisplay}>
+          <Text translation='chainflipLending.borrowedHeader' />
+        </Flex>
+      </SimpleGrid>
+      <Stack mx={listMargin}>{balanceRows}</Stack>
+    </Stack>
   )
 }

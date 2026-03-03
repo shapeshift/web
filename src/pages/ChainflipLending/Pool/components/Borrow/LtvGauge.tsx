@@ -59,10 +59,8 @@ export const LtvGauge = memo(({ currentLtv, projectedLtv }: LtvGaugeProps) => {
 
   const gaugeGradient = useMemo(
     () =>
-      `linear(to-r, green.500 0%, green.500 ${softLiquidationLtv * 100}%, yellow.500 ${
-        softLiquidationLtv * 100
-      }%, yellow.500 ${hardLiquidationLtv * 100}%, red.500 ${
-        hardLiquidationLtv * 100
+      `linear(to-r, green.500 0%, green.500 ${softLiquidationLtv * 100}%, yellow.500 ${softLiquidationLtv * 100
+      }%, yellow.500 ${hardLiquidationLtv * 100}%, red.500 ${hardLiquidationLtv * 100
       }%, red.800 100%)`,
     [softLiquidationLtv, hardLiquidationLtv],
   )
@@ -131,7 +129,7 @@ export const LtvGauge = memo(({ currentLtv, projectedLtv }: LtvGaugeProps) => {
           />
         )}
 
-        {thresholdMarkers.map(marker => (
+        {thresholdMarkers.map((marker, index) => (
           <Box key={marker.labelKey}>
             <Box
               position='absolute'
@@ -145,7 +143,7 @@ export const LtvGauge = memo(({ currentLtv, projectedLtv }: LtvGaugeProps) => {
             />
             <Text
               position='absolute'
-              top={LABEL_TOP}
+              top={index % 2 === 0 ? LABEL_TOP : '44px'}
               left={ltvToPercent(marker.value)}
               transform='translateX(-50%)'
               fontSize='2xs'

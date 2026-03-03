@@ -1,5 +1,4 @@
 export type Permill = number
-export type Perbill = number
 
 export type ChainflipChain =
   | 'Bitcoin'
@@ -45,8 +44,8 @@ export type ChainflipLendingPool = {
   total_amount: string
   available_amount: string
   owed_to_network: string
-  utilisation_rate: Perbill
-  current_interest_rate: Perbill
+  utilisation_rate: Permill
+  current_interest_rate: Permill
   origination_fee: Permill
   liquidation_fee: Permill
   interest_rate_curve: ChainflipInterestRateCurve
@@ -149,12 +148,20 @@ export type ChainflipSafeModeStatusesResponse = {
   }
 } & Record<string, unknown>
 
+export type ChainflipLendingPosition = {
+  chain: ChainflipChain
+  asset: ChainflipAssetSymbol
+  total_amount: string
+  available_amount: string
+}
+
 export type ChainflipAccountInfo = {
   role: 'unregistered' | 'liquidity_provider' | 'validator' | string
   flip_balance: string
   bond: string
   refund_addresses?: Record<string, string | null> | null
   estimated_redeemable_balance: string
+  lending_positions?: ChainflipLendingPosition[]
 } & Record<string, unknown>
 
 export type ChainflipEip712Payload = {

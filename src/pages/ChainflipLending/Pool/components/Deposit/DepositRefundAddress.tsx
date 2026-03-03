@@ -94,11 +94,12 @@ export const DepositRefundAddress = ({ assetId }: DepositRefundAddressProps) => 
   }, [walletSupportsAssetChain])
 
   useEffect(() => {
-    if (!isCustomAddress && poolChainAccountId && !refundAddress) {
-      const address = fromAccountId(poolChainAccountId).account
+    const activeAccountId = defaultAccountId ?? poolChainAccountId
+    if (!isCustomAddress && activeAccountId && !refundAddress) {
+      const address = fromAccountId(activeAccountId).account
       actorRef.send({ type: 'SET_REFUND_ADDRESS', address })
     }
-  }, [isCustomAddress, poolChainAccountId, refundAddress, actorRef])
+  }, [isCustomAddress, defaultAccountId, poolChainAccountId, refundAddress, actorRef])
 
   const handleAccountChange = useCallback(
     (newAccountId: string) => {

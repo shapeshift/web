@@ -26,20 +26,20 @@ export const useChainflipSafeModeStatuses = (assetId: AssetId) => {
           }[]
         | undefined,
     ) => {
-      if (!cfAsset || !assets) return true
+      if (!cfAsset || !assets) return false
 
       return assets.some(asset => asset.chain === cfAsset.chain && asset.asset === cfAsset.asset)
     }
 
     return {
-      canDepositToChainflip: liquidityProvider?.deposit_enabled ?? true,
-      canWithdrawFromChainflip: liquidityProvider?.withdrawal_enabled ?? true,
+      canDepositToChainflip: Boolean(liquidityProvider?.deposit_enabled),
+      canWithdrawFromChainflip: Boolean(liquidityProvider?.withdrawal_enabled),
       canSupply: includesAsset(lendingPools?.add_lender_funds),
       canWithdrawSupply: includesAsset(lendingPools?.withdraw_lender_funds),
       canAddCollateral: includesAsset(lendingPools?.add_collateral),
       canRemoveCollateral: includesAsset(lendingPools?.remove_collateral),
       canBorrow: includesAsset(lendingPools?.borrowing),
-      canLiquidate: lendingPools?.liquidations_enabled ?? true,
+      canLiquidate: Boolean(lendingPools?.liquidations_enabled),
     }
   }, [assetId, data])
 

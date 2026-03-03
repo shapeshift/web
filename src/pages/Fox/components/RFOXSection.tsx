@@ -47,9 +47,9 @@ import { StakeModal } from '@/pages/RFOX/components/StakeModal'
 import { UnstakeModal } from '@/pages/RFOX/components/UnstakeModal'
 import { selectStakingBalance } from '@/pages/RFOX/helpers'
 import { useCurrentApyQuery } from '@/pages/RFOX/hooks/useCurrentApyQuery'
-import { useGetUnstakingRequestsQuery } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { useCurrentEpochRewardsQuery } from '@/pages/RFOX/hooks/useCurrentEpochRewardsQuery'
+import { useGetUnstakingRequestsQuery } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 import { useLifetimeRewardsUserCurrencyQuery } from '@/pages/RFOX/hooks/useLifetimeRewardsQuery'
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
@@ -190,8 +190,7 @@ export const RFOXSection = () => {
   const allUnstakingRequestsQuery = useGetUnstakingRequestsQuery()
 
   const hasClaimableRequests = useMemo(() => {
-    const accountRequests =
-      allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? '']
+    const accountRequests = allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? '']
     if (!accountRequests?.length) return false
 
     return accountRequests.some(request => {
@@ -341,7 +340,14 @@ export const RFOXSection = () => {
         </Button>
       </Flex>
     )
-  }, [handleStakeClick, handleUnstakeClick, handleClaimClick, translate, stakingAssetId, hasClaimableRequests])
+  }, [
+    handleStakeClick,
+    handleUnstakeClick,
+    handleClaimClick,
+    translate,
+    stakingAssetId,
+    hasClaimableRequests,
+  ])
 
   if (!(stakingAsset && usdcAsset)) return null
 

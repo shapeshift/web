@@ -1,4 +1,4 @@
-import { Box, Flex, Text } from '@chakra-ui/react'
+import { Box, Flex, HStack, Stack, Text } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -11,7 +11,6 @@ type LtvGaugeProps = {
 
 const GAUGE_HEIGHT = '12px'
 const MARKER_HEIGHT = '24px'
-const LABEL_TOP = '32px'
 
 const ltvToPercent = (ltv: number): string => `${Math.min(Math.max(ltv * 100, 0), 100)}%`
 
@@ -90,7 +89,7 @@ export const LtvGauge = memo(({ currentLtv, projectedLtv }: LtvGaugeProps) => {
 
   return (
     <Box width='full'>
-      <Box position='relative' height='60px'>
+      <Box position='relative' height={MARKER_HEIGHT}>
         <Box
           position='absolute'
           top='0'
@@ -143,29 +142,37 @@ export const LtvGauge = memo(({ currentLtv, projectedLtv }: LtvGaugeProps) => {
               bg={marker.color}
               opacity={0.6}
             />
-            <Text
-              position='absolute'
-              top={LABEL_TOP}
-              left={ltvToPercent(marker.value)}
-              transform='translateX(-50%)'
-              fontSize='2xs'
-              color='text.subtle'
-              whiteSpace='nowrap'
-            >
-              {translate(marker.labelKey)}
-            </Text>
           </Box>
         ))}
       </Box>
 
-      <Flex justifyContent='space-between' alignItems='center' mt={2}>
+      {!!thresholdMarkers.length && (
+        <Flex mt={3} gap={3} wrap='wrap'>
+          {thresholdMarkers.map(marker => (
+            <HStack key={marker.labelKey} spacing={1.5}>
+              <Box width='8px' height='8px' borderRadius='full' bg={marker.color} />
+              <Text fontSize='2xs' color='text.subtle'>
+                {translate(marker.labelKey)}
+              </Text>
+            </HStack>
+          ))}
+        </Flex>
+      )}
+
+      <Stack
+        mt={3}
+        direction={{ base: 'column', sm: 'row' }}
+        justifyContent='space-between'
+        alignItems={{ base: 'flex-start', sm: 'center' }}
+        gap={1}
+      >
         <Text fontSize='sm' fontWeight='bold' color={statusColor}>
           {ltvToDisplayPercent(currentLtv)}
         </Text>
         <Text fontSize='sm' color={statusColor}>
           {translate(statusKey)}
         </Text>
-      </Flex>
+      </Stack>
     </Box>
   )
 })

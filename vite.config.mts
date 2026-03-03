@@ -189,6 +189,7 @@ const serveCompressedAssets: PluginOption = {
 // eslint-disable-next-line import/no-default-export
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
+  const port = Number(process.env.PORT) || 3000
 
   return {
     plugins: [
@@ -245,7 +246,7 @@ export default defineConfig(({ mode }) => {
       ),
     },
     server: {
-      port: 3000,
+      port,
       headers,
       host: '0.0.0.0',
       allowedHosts: true,
@@ -268,7 +269,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     preview: {
-      port: 3000,
+      port,
       headers,
     },
     worker: {

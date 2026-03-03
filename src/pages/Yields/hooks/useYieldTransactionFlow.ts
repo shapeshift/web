@@ -635,22 +635,21 @@ export const useYieldTransactionFlow = ({
         // Track confirm event for the first non-approval transaction
         const isApproval = isApprovalTransaction(tx)
         const isFirstNonApprovalTx =
-          !isApproval &&
-          allTransactions.slice(0, yieldTxIndex).every(t => isApprovalTransaction(t))
+          !isApproval && allTransactions.slice(0, yieldTxIndex).every(t => isApprovalTransaction(t))
 
         if (isFirstNonApprovalTx) {
           const confirmEvent =
             action === 'enter'
               ? MixPanelEvent.YieldEnterConfirm
               : action === 'exit'
-                ? MixPanelEvent.YieldExitConfirm
-                : MixPanelEvent.YieldClaimConfirm
+              ? MixPanelEvent.YieldExitConfirm
+              : MixPanelEvent.YieldClaimConfirm
 
           trackYieldEvent(confirmEvent, {
             provider: yieldItem.providerId,
             yieldType: yieldItem.mechanics.type,
             yieldId: yieldItem.id,
-            assetSymbol: assetSymbol,
+            assetSymbol,
             network: yieldItem.network,
             amountCryptoPrecision: amount,
             action,
@@ -763,14 +762,14 @@ export const useYieldTransactionFlow = ({
             action === 'enter'
               ? MixPanelEvent.YieldEnterSuccess
               : action === 'exit'
-                ? MixPanelEvent.YieldExitSuccess
-                : MixPanelEvent.YieldClaimSuccess
+              ? MixPanelEvent.YieldExitSuccess
+              : MixPanelEvent.YieldClaimSuccess
 
           trackYieldEvent(successEvent, {
             provider: yieldItem.providerId,
             yieldType: yieldItem.mechanics.type,
             yieldId: yieldItem.id,
-            assetSymbol: assetSymbol,
+            assetSymbol,
             network: yieldItem.network,
             amountCryptoPrecision: amount,
             action,
@@ -822,6 +821,7 @@ export const useYieldTransactionFlow = ({
       yieldItem,
       action,
       amount,
+      assetSymbol,
       translate,
       updateStepStatus,
       buildCosmosStakeArgs,
@@ -928,14 +928,14 @@ export const useYieldTransactionFlow = ({
             action === 'enter'
               ? MixPanelEvent.YieldEnterSuccess
               : action === 'exit'
-                ? MixPanelEvent.YieldExitSuccess
-                : MixPanelEvent.YieldClaimSuccess
+              ? MixPanelEvent.YieldExitSuccess
+              : MixPanelEvent.YieldClaimSuccess
 
           trackYieldEvent(successEvent, {
             provider: yieldItem.providerId,
             yieldType: yieldItem.mechanics.type,
             yieldId: yieldItem.id,
-            assetSymbol: assetSymbol,
+            assetSymbol,
             network: yieldItem.network,
             amountCryptoPrecision: amount,
             action,
@@ -1005,12 +1005,13 @@ export const useYieldTransactionFlow = ({
     accountId,
     action,
     amount,
+    assetSymbol,
     quoteError,
     quoteData,
     resolveSymbolForTx,
     translate,
     showErrorToast,
-    yieldItem?.mechanics.type,
+    yieldItem,
   ])
 
   const isAmountLocked = useMemo(

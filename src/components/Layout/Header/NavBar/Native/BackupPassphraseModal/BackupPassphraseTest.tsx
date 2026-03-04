@@ -151,7 +151,7 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
             translation={'modals.shapeShift.backupPassphrase.description'}
             mb={12}
           />
-          <VStack alignItems='stretch'>
+          <VStack alignItems='stretch' data-qabot-forbidden='seed-phrase-exposure'>
             {testState.options.map((lineWords, i) => (
               <Box key={i} borderRadius='xl' position='relative' mb={4}>
                 <CText

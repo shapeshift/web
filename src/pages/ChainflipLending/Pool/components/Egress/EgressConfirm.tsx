@@ -7,6 +7,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { EgressMachineCtx } from './EgressMachineContext'
 import { EgressStepper } from './EgressStepper'
+import { useEgressActionCenter } from './hooks/useEgressActionCenter'
 import { useEgressConfirmation } from './hooks/useEgressConfirmation'
 import { useEgressSign } from './hooks/useEgressSign'
 
@@ -55,6 +56,7 @@ export const EgressConfirm = memo(({ assetId }: EgressConfirmProps) => {
 
   useEgressSign()
   useEgressConfirmation()
+  useEgressActionCenter()
 
   const handleConfirm = useCallback(() => {
     actorRef.send({ type: 'CONFIRM' })

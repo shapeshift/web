@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -23,24 +24,26 @@ import { EgressMachineCtx } from './EgressMachineContext'
 
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { Amount } from '@/components/Amount/Amount'
-import { AssetIcon } from '@/components/AssetIcon'
+import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { validateAddress } from '@/lib/address/validation'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import {
   selectAccountIdsByAccountNumberAndChainId,
   selectAccountIdsByChainId,
 } from '@/state/slices/portfolioSlice/selectors'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectAssetById } from '@/state/slices/selectors'
+import { selectAssetById, selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const dropdownBoxProps = { width: 'full', p: 0, m: 0 }
@@ -48,13 +51,14 @@ const dropdownButtonProps = { width: 'full', variant: 'solid', height: '40px', p
 
 type EgressInputProps = {
   assetId: AssetId
+  onAssetChange: (assetId: AssetId) => void
 }
 
 type AddressFormValues = {
   manualAddress: string
 }
 
-export const EgressInput = ({ assetId }: EgressInputProps) => {
+export const EgressInput = ({ assetId, onAssetChange }: EgressInputProps) => {
   const translate = useTranslate()
   const { wallet } = useWallet().state
   const { isSnapInstalled } = useIsSnapInstalled()
@@ -125,6 +129,33 @@ export const EgressInput = ({ assetId }: EgressInputProps) => {
   const hasFreeBalance = useMemo(
     () => bnOrZero(freeBalanceCryptoBaseUnit).gt(0),
     [freeBalanceCryptoBaseUnit],
+  )
+
+  const assetIds = useMemo(() => Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as AssetId[], [])
+
+  const assets = useAppSelector(selectAssets)
+
+  const lendingAssets = useMemo(() => {
+    return assetIds.reduce<Asset[]>((acc, assetId) => {
+      const asset = assets[assetId]
+      if (asset) acc.push(asset)
+      return acc
+    }, [])
+  }, [assetIds, assets])
+
+  const buyAssetSearch = useModal('buyAssetSearch')
+
+  const handleAssetClick = useCallback(() => {
+    buyAssetSearch.open({
+      onAssetClick: (asset: Asset) => onAssetChange(asset.assetId),
+      title: 'chainflipLending.egress.title',
+      assets: lendingAssets,
+    })
+  }, [buyAssetSearch, onAssetChange, lendingAssets])
+
+  const handleAssetChange = useCallback(
+    (asset: Asset) => onAssetChange(asset.assetId),
+    [onAssetChange],
   )
 
   const handleInputChange = useCallback((values: NumberFormatValues) => {
@@ -216,18 +247,22 @@ export const EgressInput = ({ assetId }: EgressInputProps) => {
     <SlideTransition>
       <CardBody px={6} py={4}>
         <VStack spacing={4} align='stretch'>
-          <Flex alignItems='center' gap={2}>
-            <AssetIcon assetId={assetId} size='sm' />
-            <RawText fontWeight='bold' fontSize='lg'>
-              {asset.symbol}
-            </RawText>
-          </Flex>
+          <TradeAssetSelect
+            assetId={assetId}
+            assetIds={assetIds}
+            onAssetClick={handleAssetClick}
+            onAssetChange={handleAssetChange}
+            onlyConnectedChains={false}
+            px={0}
+            mb={0}
+          />
 
           <Stack spacing={1}>
             <RawText fontSize='sm' color='text.subtle'>
               {translate('chainflipLending.egress.amount')}
             </RawText>
             <NumericFormat
+              data-testid='chainflip-egress-amount-input'
               inputMode='decimal'
               valueIsNumericString={true}
               decimalScale={asset.precision}
@@ -269,6 +304,7 @@ export const EgressInput = ({ assetId }: EgressInputProps) => {
                 fontWeight='medium'
               />
               <Button
+                data-testid='chainflip-egress-max'
                 size='xs'
                 variant='ghost'
                 colorScheme='blue'
@@ -287,6 +323,7 @@ export const EgressInput = ({ assetId }: EgressInputProps) => {
               </RawText>
               {walletSupportsAssetChain && (
                 <Button
+                  data-testid='chainflip-egress-toggle-destination'
                   fontSize='xs'
                   variant='link'
                   color='text.link'
@@ -300,6 +337,7 @@ export const EgressInput = ({ assetId }: EgressInputProps) => {
             </HStack>
             {isCustomAddress ? (
               <Input
+                data-testid='chainflip-egress-custom-address-input'
                 {...register('manualAddress', {
                   required: translate('common.addressRequired'),
                   validate: { isValidAddress: validateChainAddress },
@@ -345,6 +383,7 @@ export const EgressInput = ({ assetId }: EgressInputProps) => {
         py={4}
       >
         <Button
+          data-testid='chainflip-egress-submit'
           colorScheme='blue'
           size='lg'
           height={12}

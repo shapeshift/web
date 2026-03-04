@@ -25,17 +25,17 @@ type RepayProps = {
   loanId: number
 }
 
-export const Repay = memo(({ assetId, loanId }: RepayProps) => {
+export const Repay = memo(({ assetId: initialAssetId, loanId }: RepayProps) => {
   const { connectedType } = useWallet().state
   const isNativeWallet = connectedType === KeyManager.Native
   const input = useMemo(
-    () => ({ assetId, loanId, isNativeWallet }),
-    [assetId, loanId, isNativeWallet],
+    () => ({ assetId: initialAssetId, loanId, isNativeWallet }),
+    [initialAssetId, loanId, isNativeWallet],
   )
 
   return (
     <RepayMachineCtx.Provider options={{ input }}>
-      <RepayContent assetId={assetId} loanId={loanId} />
+      <RepayContent assetId={initialAssetId} loanId={loanId} />
     </RepayMachineCtx.Provider>
   )
 })

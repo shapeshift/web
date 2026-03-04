@@ -1,13 +1,17 @@
 import type {
   AddEthereumChainParameter,
   Address,
+  BTCAccountPath,
+  BTCGetAccountPaths,
+  BTCGetAddress,
+  BTCSignedMessage,
+  BTCSignedTx,
+  BTCSignMessage,
+  BTCSignTx,
+  BTCVerifyMessage,
+  BTCWallet,
+  BTCWalletInfo,
   Coin,
-  CosmosAccountPath,
-  CosmosGetAccountPaths,
-  CosmosSignedTx,
-  CosmosSignTx,
-  CosmosWallet,
-  CosmosWalletInfo,
   DescribePath,
   ETHAccountPath,
   ETHGetAccountPath,
@@ -20,6 +24,7 @@ import type {
   ETHVerifyMessage,
   ETHWallet,
   ETHWalletInfo,
+  GetPublicKey,
   HDWallet,
   HDWalletInfo,
   PathDescription,
@@ -27,17 +32,19 @@ import type {
   Pong,
   PublicKey,
 } from '@shapeshiftoss/hdwallet-core'
-import { slip44ByCoin } from '@shapeshiftoss/hdwallet-core'
+import { BTCInputScriptType, slip44ByCoin } from '@shapeshiftoss/hdwallet-core'
 import type EthereumProvider from '@walletconnect/ethereum-provider'
 import isObject from 'lodash/isObject'
 
 import {
-  cosmosDescribePath,
-  cosmosGetAccountPaths,
-  cosmosGetAddress,
-  cosmosNextAccountPath,
-  cosmosSignTx,
-} from './cosmos'
+  btcGetAccountPaths,
+  btcGetAddress,
+  btcNextAccountPath,
+  btcSignMessage,
+  btcSignTx,
+  btcVerifyMessage,
+  describeBTCPath,
+} from './bitcoin'
 import {
   describeETHPath,
   ethGetAddress,
@@ -48,10 +55,10 @@ import {
   ethVerifyMessage,
 } from './ethereum'
 
-const COSMOS_OPTIONAL_NAMESPACE = {
-  chains: ['cosmos:cosmoshub-4'],
-  methods: ['cosmos_getAccounts', 'cosmos_signAmino', 'cosmos_signDirect'],
-  events: [],
+const BIP122_OPTIONAL_NAMESPACE = {
+  chains: ['bip122:000000000019d6689c085ae165831e93'],
+  methods: ['sendTransfer', 'signPsbt', 'signMessage', 'getAccountAddresses'],
+  events: ['bip122_addressesChanged'],
 }
 
 export function isWalletConnectV2(wallet: HDWallet): wallet is WalletConnectV2HDWallet {
@@ -70,10 +77,9 @@ export function isWalletConnectV2(wallet: HDWallet): wallet is WalletConnectV2HD
  * - eth_sendRawTransaction
  * @see https://specs.walletconnect.com/2.0/blockchain-rpc/ethereum-rpc
  */
-export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, CosmosWalletInfo {
+export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalletInfo {
   readonly _supportsETHInfo = true
-  readonly _supportsBTCInfo = false
-  readonly _supportsCosmosInfo = true
+  readonly _supportsBTCInfo = true
   public getVendor(): string {
     return 'WalletConnectV2'
   }
@@ -114,8 +120,12 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, C
     switch (msg.coin) {
       case 'Ethereum':
         return describeETHPath(msg.path)
-      case 'Atom':
-        return cosmosDescribePath(msg.path)
+      case 'Bitcoin':
+        return describeBTCPath(
+          msg.path,
+          msg.coin,
+          msg.scriptType ?? BTCInputScriptType.SpendWitness,
+        )
       default:
         throw new Error('Unsupported path')
     }
@@ -154,20 +164,39 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, C
     ]
   }
 
-  public cosmosGetAccountPaths(msg: CosmosGetAccountPaths): CosmosAccountPath[] {
-    return cosmosGetAccountPaths(msg)
+  public async btcSupportsCoin(coin: Coin): Promise<boolean> {
+    return coin === 'Bitcoin'
   }
 
-  public cosmosNextAccountPath(): CosmosAccountPath | undefined {
-    return cosmosNextAccountPath()
+  public async btcSupportsScriptType(
+    coin: Coin,
+    scriptType?: BTCInputScriptType,
+  ): Promise<boolean> {
+    if (coin !== 'Bitcoin') return false
+    return scriptType === undefined || scriptType === BTCInputScriptType.SpendWitness
+  }
+
+  public async btcSupportsSecureTransfer(): Promise<boolean> {
+    return false
+  }
+
+  public btcSupportsNativeShapeShift(): boolean {
+    return false
+  }
+
+  public btcGetAccountPaths(msg: BTCGetAccountPaths): BTCAccountPath[] {
+    return btcGetAccountPaths(msg)
+  }
+
+  public btcNextAccountPath(msg: BTCAccountPath): BTCAccountPath | undefined {
+    return btcNextAccountPath(msg)
   }
 }
 
-export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWallet {
+export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, BTCWallet {
+  readonly _supportsETH = true
   readonly _supportsETHInfo = true
-  readonly _supportsBTCInfo = false
-  readonly _supportsBTC = false
-  readonly _supportsCosmosInfo = true
+  readonly _supportsBTCInfo = true
   readonly _isWalletConnectV2 = true
   readonly _supportsEthSwitchChain = true
   readonly _supportsAvalanche = true
@@ -211,89 +240,29 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
   chainId: number | undefined
   accounts: string[] = []
   ethAddress: Address | undefined
-  cosmosAddress: string | undefined
+  btcAddress: string | undefined
 
-  get _supportsETH(): boolean {
-    return !!this.provider.session?.namespaces?.eip155
-  }
-
-  get _supportsCosmos(): boolean {
-    return !!this.provider.session?.namespaces?.cosmos
+  get _supportsBTC(): boolean {
+    return !!this.provider.session?.namespaces?.bip122
   }
 
   constructor(provider: EthereumProvider) {
     this.provider = provider
     this.info = new WalletConnectV2WalletInfo()
     this.patchSignerForNonEvmNamespaces()
-    this.patchProviderConnectForMultiNamespace()
   }
 
   private patchSignerForNonEvmNamespaces(): void {
     const signer = this.provider.signer
     const originalConnect = signer.connect.bind(signer)
     signer.connect = async (params: Parameters<typeof signer.connect>[0]) => {
-      const requiredEvm = params.namespaces?.eip155
-      const optionalEvm = params.optionalNamespaces?.eip155
-
-      const mergeUnique = (...arrays: (string[] | undefined)[]): string[] => [
-        ...new Set(arrays.flatMap(a => a ?? [])),
-      ]
-
-      // Preserve any non-eip155 namespaces from the original params
-      const { eip155: _reqEip155, ...otherRequiredNamespaces } = params.namespaces ?? {}
-      const { eip155: _optEip155, ...otherOptionalNamespaces } = params.optionalNamespaces ?? {}
-
       return originalConnect({
         ...params,
-        namespaces: {
-          ...otherRequiredNamespaces,
-        },
         optionalNamespaces: {
-          ...otherOptionalNamespaces,
-          eip155: {
-            chains: mergeUnique(requiredEvm?.chains, optionalEvm?.chains),
-            methods: mergeUnique(requiredEvm?.methods, optionalEvm?.methods),
-            events: mergeUnique(requiredEvm?.events, optionalEvm?.events),
-            rpcMap: {
-              ...(requiredEvm as any)?.rpcMap,
-              ...(optionalEvm as any)?.rpcMap,
-            },
-          },
-          cosmos: COSMOS_OPTIONAL_NAMESPACE,
+          ...params.optionalNamespaces,
+          bip122: BIP122_OPTIONAL_NAMESPACE,
         },
       })
-    }
-  }
-
-  private patchProviderConnectForMultiNamespace(): void {
-    const provider = this.provider as any
-
-    const originalConnect = provider.connect.bind(provider)
-    provider.connect = async (opts?: any) => {
-      const modal = provider.modal
-      const originalSubscribeState = modal?.subscribeState?.bind(modal)
-
-      if (modal) {
-        modal.subscribeState = (_callback: any) => () => {}
-      }
-
-      try {
-        await originalConnect(opts)
-      } finally {
-        if (modal && originalSubscribeState) {
-          modal.subscribeState = originalSubscribeState
-        }
-      }
-    }
-
-    const originalEnable = provider.enable.bind(provider)
-    provider.enable = async () => {
-      try {
-        return await originalEnable()
-      } catch (e: unknown) {
-        if (provider.signer?.session) return []
-        throw e
-      }
     }
   }
 
@@ -409,9 +378,25 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
     return this.info.describePath(msg)
   }
 
-  public async getPublicKeys(): Promise<(PublicKey | null)[]> {
-    // Ethereum public keys are not exposed by the RPC API
-    return []
+  public async getPublicKeys(msg: GetPublicKey[]): Promise<(PublicKey | null)[]> {
+    return await Promise.all(
+      msg.map(async getPublicKey => {
+        const { coin, scriptType } = getPublicKey
+
+        if (coin === 'Bitcoin' && scriptType === BTCInputScriptType.SpendWitness) {
+          const address = await this.btcGetAddress({
+            coin,
+            addressNList: getPublicKey.addressNList,
+            scriptType,
+            showDisplay: false,
+          } as BTCGetAddress)
+          if (!address) return null
+          return { xpub: address }
+        }
+
+        return null
+      }),
+    )
   }
 
   public async isInitialized(): Promise<boolean> {
@@ -447,10 +432,17 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
   }
 
   public async ethGetAddress(): Promise<Address | null> {
-    if (this.ethAddress) return this.ethAddress
+    if (this.ethAddress) {
+      return this.ethAddress
+    }
     const address = await ethGetAddress(this.provider)
-    if (address) this.ethAddress = address
-    return address
+    if (address) {
+      this.ethAddress = address
+      return address
+    } else {
+      this.ethAddress = undefined
+      return null
+    }
   }
 
   /**
@@ -509,8 +501,8 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
     const ethAddr = await this.ethGetAddress()
     if (ethAddr) return 'wc:' + ethAddr
 
-    const cosmosAddr = await this.cosmosGetAddress()
-    if (cosmosAddr) return 'wc:' + cosmosAddr
+    const btcAddr = await this.btcGetAddress({ coin: 'Bitcoin' } as BTCGetAddress)
+    if (btcAddr) return 'wc:' + btcAddr
 
     return 'wc:unknown'
   }
@@ -537,24 +529,56 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
     this.chainId = parsedChainId
   }
 
-  // -- Cosmos Methods --
+  // -- BTC Methods --
 
-  public cosmosGetAccountPaths(msg: CosmosGetAccountPaths): CosmosAccountPath[] {
-    return this.info.cosmosGetAccountPaths(msg)
+  public async btcSupportsCoin(coin: Coin): Promise<boolean> {
+    return this.info.btcSupportsCoin(coin)
   }
 
-  public cosmosNextAccountPath(): CosmosAccountPath | undefined {
-    return this.info.cosmosNextAccountPath()
+  public async btcSupportsScriptType(
+    coin: Coin,
+    scriptType?: BTCInputScriptType,
+  ): Promise<boolean> {
+    return this.info.btcSupportsScriptType(coin, scriptType)
   }
 
-  public async cosmosGetAddress(): Promise<string | null> {
-    if (this.cosmosAddress) return this.cosmosAddress
-    const address = cosmosGetAddress(this.provider)
-    if (address) this.cosmosAddress = address
-    return address
+  public async btcSupportsSecureTransfer(): Promise<boolean> {
+    return this.info.btcSupportsSecureTransfer()
   }
 
-  public async cosmosSignTx(msg: CosmosSignTx): Promise<CosmosSignedTx | null> {
-    return cosmosSignTx(this.provider, msg)
+  public btcSupportsNativeShapeShift(): boolean {
+    return this.info.btcSupportsNativeShapeShift()
+  }
+
+  public btcGetAccountPaths(msg: BTCGetAccountPaths): BTCAccountPath[] {
+    return this.info.btcGetAccountPaths(msg)
+  }
+
+  public btcNextAccountPath(msg: BTCAccountPath): BTCAccountPath | undefined {
+    return this.info.btcNextAccountPath(msg)
+  }
+
+  public async btcGetAddress(msg: BTCGetAddress): Promise<string | null> {
+    if (this.btcAddress) {
+      return this.btcAddress
+    }
+    const address = await btcGetAddress(this.provider, msg)
+    if (address) {
+      this.btcAddress = address
+      return address
+    }
+    return null
+  }
+
+  public async btcSignTx(msg: BTCSignTx): Promise<BTCSignedTx | null> {
+    return btcSignTx(this, this.provider, msg)
+  }
+
+  public async btcSignMessage(msg: BTCSignMessage): Promise<BTCSignedMessage | null> {
+    return btcSignMessage(this.provider, msg)
+  }
+
+  public async btcVerifyMessage(msg: BTCVerifyMessage): Promise<boolean | null> {
+    return btcVerifyMessage(this.provider, msg)
   }
 }

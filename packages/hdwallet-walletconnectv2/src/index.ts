@@ -1,3 +1,3 @@
 export * from './adapter'
-export * from './cosmos'
+export * from './bitcoin'
 export * from './walletconnectV2'

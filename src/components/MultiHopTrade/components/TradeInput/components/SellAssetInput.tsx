@@ -27,6 +27,8 @@ export type SellAssetInputProps = {
   onChangeIsInputtingFiatSellAmount: (isInputtingFiatSellAmount: boolean) => void
   onChangeSellAmountCryptoPrecision: (sellAmountCryptoPrecision: string) => void
   placeholder?: string
+  inputDataTestId?: string
+  fiatToggleDataTestId?: string
 }
 
 export const SellAssetInput = memo(

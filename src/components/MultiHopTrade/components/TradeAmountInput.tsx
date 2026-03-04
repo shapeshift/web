@@ -140,6 +140,8 @@ export type TradeAmountInputProps = {
   placeholder?: string
   activeQuote?: TradeQuote | TradeRate | undefined
   inputContainerStyleOverride?: React.CSSProperties
+  inputDataTestId?: string
+  fiatToggleDataTestId?: string
 } & PropsWithChildren
 
 const defaultPercentOptions = [0.25, 0.5, 0.75, 1]
@@ -187,6 +189,8 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     activeQuote,
     onToggleIsFiat: handleIsInputtingFiatSellAmountChange,
     inputContainerStyleOverride,
+    inputDataTestId,
+    fiatToggleDataTestId,
   }) => {
     const {
       number: { localeParts },
@@ -273,6 +277,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         return (
           <NumericFormat
             customInput={AmountInput}
+            data-testid={inputDataTestId}
             decimalScale={isFiat ? localeParts.fraction : asset?.precision}
             valueIsNumericString={true}
             disabled={isReadOnly}
@@ -340,6 +345,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         handleOnFocus,
         handleValueChange,
         isFiat,
+        inputDataTestId,
         placeholder,
         isReadOnly,
         localeParts.decimal,
@@ -456,6 +462,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                     variant='link'
                     color='text.subtle'
                     mb={1}
+                    data-testid={fiatToggleDataTestId}
                   >
                     <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
                   </Button>
@@ -483,6 +490,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                   fontWeight='medium'
                   variant='link'
                   color='text.subtle'
+                  data-testid={fiatToggleDataTestId}
                 >
                   <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
                 </Button>

@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { lazy, memo, Suspense, useEffect, useMemo } from 'react'
+import { lazy, memo, Suspense, useEffect, useMemo, useState } from 'react'
 
 import { BorrowMachineCtx } from './BorrowMachineContext'
 
@@ -22,47 +22,54 @@ type BorrowProps = {
   assetId: AssetId
 }
 
-export const Borrow = memo(({ assetId }: BorrowProps) => {
+export const Borrow = memo(({ assetId: initialAssetId }: BorrowProps) => {
+  const [activeAssetId, setActiveAssetId] = useState(initialAssetId)
   const { connectedType } = useWallet().state
   const isNativeWallet = connectedType === KeyManager.Native
-  const input = useMemo(() => ({ assetId, isNativeWallet }), [assetId, isNativeWallet])
+  const input = useMemo(
+    () => ({ assetId: activeAssetId, isNativeWallet }),
+    [activeAssetId, isNativeWallet],
+  )
 
   return (
-    <BorrowMachineCtx.Provider options={{ input }}>
-      <BorrowContent assetId={assetId} />
+    <BorrowMachineCtx.Provider key={activeAssetId} options={{ input }}>
+      <BorrowContent assetId={activeAssetId} onAssetChange={setActiveAssetId} />
     </BorrowMachineCtx.Provider>
   )
 })
 
-const BorrowContent = memo(({ assetId }: { assetId: AssetId }) => {
-  const isInput = BorrowMachineCtx.useSelector(s => s.matches('input'))
-  const isConfirm = BorrowMachineCtx.useSelector(s => s.matches('confirm'))
-  const isExecuting = BorrowMachineCtx.useSelector(s => s.hasTag('executing'))
-  const isSuccess = BorrowMachineCtx.useSelector(s => s.matches('success'))
-  const isError = BorrowMachineCtx.useSelector(s => s.matches('error'))
+const BorrowContent = memo(
+  ({ assetId, onAssetChange }: { assetId: AssetId; onAssetChange: (assetId: AssetId) => void }) => {
+    const isInput = BorrowMachineCtx.useSelector(s => s.matches('input'))
+    const isConfirm = BorrowMachineCtx.useSelector(s => s.matches('confirm'))
+    const isExecuting = BorrowMachineCtx.useSelector(s => s.hasTag('executing'))
+    const isSuccess = BorrowMachineCtx.useSelector(s => s.matches('success'))
+    const isError = BorrowMachineCtx.useSelector(s => s.matches('error'))
 
-  useLtvSync()
+    useLtvSync()
 
-  const page = useMemo(() => {
-    if (isInput) return 'input' as const
-    if (isConfirm) return 'confirm' as const
-    if (isExecuting) return 'executing' as const
-    if (isSuccess) return 'success' as const
-    if (isError) return 'error' as const
-    return 'input' as const
-  }, [isInput, isConfirm, isExecuting, isSuccess, isError])
+    const page = useMemo(() => {
+      if (isInput) return 'input' as const
+      if (isConfirm) return 'confirm' as const
+      if (isExecuting) return 'executing' as const
+      if (isSuccess) return 'success' as const
+      if (isError) return 'error' as const
+      return 'input' as const
+    }, [isInput, isConfirm, isExecuting, isSuccess, isError])
 
-  return (
-    <AnimatePresence mode='wait' initial={false}>
-      <Suspense fallback={suspenseFallback}>
-        {page === 'input' && <BorrowInput assetId={assetId} />}
-        {(page === 'confirm' || page === 'executing' || page === 'success' || page === 'error') && (
-          <BorrowConfirm assetId={assetId} />
-        )}
-      </Suspense>
-    </AnimatePresence>
-  )
-})
+    return (
+      <AnimatePresence mode='wait' initial={false}>
+        <Suspense fallback={suspenseFallback}>
+          {page === 'input' && <BorrowInput assetId={assetId} onAssetChange={onAssetChange} />}
+          {(page === 'confirm' ||
+            page === 'executing' ||
+            page === 'success' ||
+            page === 'error') && <BorrowConfirm assetId={assetId} />}
+        </Suspense>
+      </AnimatePresence>
+    )
+  },
+)
 
 const useLtvSync = () => {
   const actorRef = BorrowMachineCtx.useActorRef()

@@ -1,8 +1,10 @@
 import * as bitcoin from '@shapeshiftoss/bitcoinjs-lib'
 import * as core from '@shapeshiftoss/hdwallet-core'
 import * as bchAddr from 'bchaddrjs'
+import * as bitcoinMsg from 'bitcoinjs-message'
 
 import type * as Isolation from './crypto/isolation'
+import { SecP256K1 } from './crypto/isolation/core'
 import type { NativeHDWalletBase } from './native'
 import * as util from './util'
 
@@ -354,9 +356,51 @@ export function MixinNativeBTCWallet<TBase extends core.Constructor<NativeHDWall
       })
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async btcSignMessage(_msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
-      throw new Error('function not implemented')
+    async btcSignMessage(msg: core.BTCSignMessage): Promise<core.BTCSignedMessage> {
+      const result = await this.needsMnemonic(!!this.#masterKey, async () => {
+        const { addressNList, coin, message } = msg
+        const scriptType = msg.scriptType ?? core.BTCInputScriptType.SpendAddress
+
+        const keyPair = await util.getKeyPair(this.#masterKey!, addressNList, coin, scriptType)
+
+        const { address } = core.createPayment(keyPair.publicKey, keyPair.network, scriptType)
+        if (!address) throw new Error('Could not derive address')
+
+        const signer: bitcoinMsg.SignerAsync = {
+          sign: async (hash: Buffer): Promise<{ signature: Buffer; recovery: number }> => {
+            const recoverableSig = await SecP256K1.RecoverableSignature.signCanonically(
+              keyPair.node,
+              null,
+              hash,
+            )
+            return {
+              signature: Buffer.from(recoverableSig.slice(0, 64)),
+              recovery: recoverableSig[64],
+            }
+          },
+        }
+
+        const sigOptions: bitcoinMsg.SignatureOptions | undefined = (() => {
+          switch (scriptType) {
+            case core.BTCInputScriptType.SpendWitness:
+            case core.BTCInputScriptType.Bech32:
+              return { segwitType: 'p2wpkh' as const }
+            case core.BTCInputScriptType.SpendP2SHWitness:
+              return { segwitType: 'p2sh(p2wpkh)' as const }
+            default:
+              return undefined
+          }
+        })()
+
+        const signedMsg = await bitcoinMsg.signAsync(message, signer, true, sigOptions)
+
+        return {
+          address,
+          signature: signedMsg.toString('hex'),
+        }
+      })
+      if (!result) throw new Error('Mnemonic required')
+      return result
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

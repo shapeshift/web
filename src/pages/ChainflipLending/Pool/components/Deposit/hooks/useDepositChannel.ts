@@ -58,14 +58,18 @@ const pollForDepositAddress = async (
   for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
     await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL_MS))
 
-    const channels = await cfAllOpenDepositChannels()
+    try {
+      const channels = await cfAllOpenDepositChannels()
 
-    for (const entry of channels) {
-      const [accountId] = entry
-      if (accountId !== scAccount) continue
+      for (const entry of channels) {
+        const [accountId] = entry
+        if (accountId !== scAccount) continue
 
-      const address = decodeDepositAddress(entry, cfAsset)
-      if (address) return address
+        const address = decodeDepositAddress(entry, cfAsset)
+        if (address) return address
+      }
+    } catch {
+      continue
     }
   }
 

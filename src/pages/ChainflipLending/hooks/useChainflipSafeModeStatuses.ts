@@ -13,7 +13,7 @@ export const useChainflipSafeModeStatuses = (assetId: AssetId) => {
     staleTime: THIRTY_SECONDS,
   })
 
-  const permissions = useMemo(() => {
+  return useMemo(() => {
     const cfAsset = CHAINFLIP_LENDING_ASSET_BY_ASSET_ID[assetId]
     const lendingPools = data?.lending_pools
     const liquidityProvider = data?.liquidity_provider
@@ -40,14 +40,7 @@ export const useChainflipSafeModeStatuses = (assetId: AssetId) => {
       canRemoveCollateral: includesAsset(lendingPools?.remove_collateral),
       canBorrow: includesAsset(lendingPools?.borrowing),
       canLiquidate: Boolean(lendingPools?.liquidations_enabled),
-    }
-  }, [assetId, data])
-
-  return useMemo(
-    () => ({
-      ...permissions,
       isLoading,
-    }),
-    [permissions, isLoading],
-  )
+    }
+  }, [assetId, data, isLoading])
 }

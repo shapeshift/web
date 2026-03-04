@@ -377,6 +377,28 @@
       "@ethersproject/providers>ws": "7.5.10",
       "ethers>ws": "8.18.3"
     },
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "typescript": "5.2.2",
+        "react": "19.2.4",
+        "react-dom": "19.2.4",
+        "@testing-library/dom": "8.20.1",
+        "viem": "2.43.5",
+        "msw": "*",
+        "ethers": "*",
+        "starknet": "9.4.0",
+        "cross-fetch": "4.1.0",
+        "zod": "*",
+        "bs58": "6.0.0",
+        "utf-8-validate": "6.0.6",
+        "@ton/core": "0.62.1",
+        "eslint": "8.57.1",
+        "@solana/sysvars": "*"
+      },
+      "ignoreMissing": [
+        "@solana/sysvars"
+      ]
+    },
     "patchedDependencies": {
       "@bithighlander/bitcoin-cash-js-lib@5.2.1": "patches/@bithighlander-bitcoin-cash-js-lib-npm-5.2.1-92e8f8436e.patch",
       "friendly-challenge@0.9.2": "patches/friendly-challenge-npm-0.9.2-db0cad46d3.patch",

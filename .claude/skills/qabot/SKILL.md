@@ -148,6 +148,19 @@ The native wallet requires a password on each session start. The wallet-health f
    `eval "$(cat /tmp/click-next.js)"`
 7. Wait 8+ seconds for external origins to fully hydrate
 
+### PR Review Reliability Checklist (localhost)
+
+When using qabot for PR review validation on localhost:
+
+1. Follow PR `Testing` steps verbatim before adding extra assertions.
+2. Do a manual-first pass with `agent-browser` in the same live session:
+   - reach exact page/state
+   - confirm account/wallet assumptions
+   - validate selectors and click-path before reporting
+3. Keep wallet setup as preflight only (never as reported qabot steps), but ensure required preconditions are visible before step 1 (e.g. `Send` button).
+4. Only after manual flow is stable, create/report qabot run steps.
+5. If automation friction is selector-related, add/ask for precise `data-testid` at the failing UI control.
+
 ### Tips
 
 #### JS Eval & Smart Quotes (CRITICAL)

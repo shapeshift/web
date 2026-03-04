@@ -196,6 +196,7 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
               {translate('chainflipLending.repay.fullRepayment')}
             </RawText>
             <Switch
+              data-testid='chainflip-repay-full-toggle'
               isChecked={isFullRepayment}
               onChange={handleFullRepaymentToggle}
               colorScheme='blue'
@@ -215,6 +216,7 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
                 {translate('chainflipLending.repay.amount')}
               </RawText>
               <NumericFormat
+                data-testid='chainflip-repay-amount-input'
                 inputMode='decimal'
                 valueIsNumericString={true}
                 decimalScale={asset.precision}
@@ -257,6 +259,7 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
               />
               {!isFullRepayment && (
                 <Button
+                  data-testid='chainflip-repay-max'
                   size='xs'
                   variant='ghost'
                   colorScheme='blue'
@@ -302,6 +305,7 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
         py={4}
       >
         <Button
+          data-testid='chainflip-repay-submit'
           colorScheme='blue'
           size='lg'
           height={12}

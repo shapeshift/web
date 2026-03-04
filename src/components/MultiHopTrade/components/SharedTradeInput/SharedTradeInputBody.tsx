@@ -103,7 +103,7 @@ export const SharedTradeInputBody = ({
 
   const sellAssetSelectButtonProps = useMemo(() => {
     return {
-      'data-testid': 'sell-asset-button',
+      'data-testid': 'trade-sell-asset-picker',
       maxWidth: isSmallerThanMd ? '100%' : undefined,
     }
   }, [isSmallerThanMd])
@@ -150,12 +150,15 @@ export const SharedTradeInputBody = ({
           onChangeAccountId={setSellAccountId}
           onChangeIsInputtingFiatSellAmount={onChangeIsInputtingFiatSellAmount}
           onChangeSellAmountCryptoPrecision={onChangeSellAmountCryptoPrecision}
+          inputDataTestId='trade-sell-amount-input'
+          fiatToggleDataTestId='trade-sell-fiat-toggle'
         />
         <FormDivider
           isDisabled={isSwitchAssetsDisabled}
           isLoading={isLoading}
           mt={2}
           onClick={handleSwitchAssets}
+          data-testid='trade-switch-assets'
         />
         {children}
       </Stack>

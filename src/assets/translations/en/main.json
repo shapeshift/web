@@ -2481,6 +2481,7 @@
     "totalBorrowed": "Total Borrowed",
     "totalBorrowedTooltip": "Total value of outstanding borrows across all Chainflip lending pools.",
     "pool": {
+      "actionPaused": "This action is temporarily paused on Chainflip",
       "depositFirst": "Deposit funds to Chainflip first",
       "noFreeBalance": "No free balance available",
       "noSupplyPosition": "No supply position to withdraw",

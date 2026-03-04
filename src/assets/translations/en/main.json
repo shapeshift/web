@@ -3228,6 +3228,54 @@
       "complete": {
         "description": "Your reward of %{amountAndSymbol} is complete."
       }
+    },
+    "chainflipLending": {
+      "deposit": {
+        "pending": "Your deposit of %{amountAndSymbol} to Chainflip is being processed.",
+        "complete": "Your deposit of %{amountAndSymbol} to Chainflip is complete.",
+        "failed": "Your deposit of %{amountAndSymbol} to Chainflip has failed."
+      },
+      "supply": {
+        "pending": "Your supply of %{amountAndSymbol} to the lending pool is being processed.",
+        "complete": "Your supply of %{amountAndSymbol} to the lending pool is complete.",
+        "failed": "Your supply of %{amountAndSymbol} to the lending pool has failed."
+      },
+      "withdraw": {
+        "pending": "Your withdrawal of %{amountAndSymbol} from the lending pool is being processed.",
+        "complete": "Your withdrawal of %{amountAndSymbol} from the lending pool is complete.",
+        "failed": "Your withdrawal of %{amountAndSymbol} from the lending pool has failed."
+      },
+      "egress": {
+        "pending": "Your withdrawal of %{amountAndSymbol} from Chainflip is being processed.",
+        "complete": "Your withdrawal of %{amountAndSymbol} from Chainflip is complete.",
+        "failed": "Your withdrawal of %{amountAndSymbol} from Chainflip has failed."
+      },
+      "addCollateral": {
+        "pending": "Your move of %{amountAndSymbol} from your Chainflip free balance to collateral is being processed.",
+        "complete": "Your move of %{amountAndSymbol} from your Chainflip free balance to collateral is complete.",
+        "failed": "Your move of %{amountAndSymbol} from your Chainflip free balance to collateral has failed."
+      },
+      "removeCollateral": {
+        "pending": "Your move of %{amountAndSymbol} from collateral back to your Chainflip free balance is being processed.",
+        "complete": "Your move of %{amountAndSymbol} from collateral back to your Chainflip free balance is complete.",
+        "failed": "Your move of %{amountAndSymbol} from collateral back to your Chainflip free balance has failed."
+      },
+      "borrow": {
+        "pending": "Your borrow of %{amountAndSymbol} to your Chainflip free balance is being processed.",
+        "complete": "Your borrow of %{amountAndSymbol} to your Chainflip free balance is complete.",
+        "failed": "Your borrow of %{amountAndSymbol} to your Chainflip free balance has failed."
+      },
+      "repay": {
+        "pending": "Your repayment of %{amountAndSymbol} from your Chainflip free balance is being processed.",
+        "complete": "Your repayment of %{amountAndSymbol} from your Chainflip free balance is complete.",
+        "failed": "Your repayment of %{amountAndSymbol} from your Chainflip free balance has failed."
+      },
+      "details": {
+        "operation": "Operation",
+        "amount": "Amount",
+        "transactionId": "Transaction Id",
+        "egressTransactionId": "Egress Transaction Id"
+      }
     }
   },
   "yieldXYZ": {

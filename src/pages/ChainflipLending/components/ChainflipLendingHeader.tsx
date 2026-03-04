@@ -9,8 +9,6 @@ import { Amount } from '@/components/Amount/Amount'
 import { Display } from '@/components/Display'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
-import type { TabItem } from '@/components/TabMenu/TabMenu'
-import { TabMenu } from '@/components/TabMenu/TabMenu'
 import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -19,20 +17,6 @@ import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChai
 
 const responsiveFlex = { base: 'auto', lg: 1 }
 const containerPaddingTop = { base: 0, md: 8 }
-
-const navItems: TabItem[] = [
-  {
-    label: 'chainflipLending.markets',
-    path: '/chainflip-lending',
-    color: 'blue',
-    exact: true,
-  },
-  {
-    label: 'chainflipLending.myBalances',
-    path: '/chainflip-lending/balances',
-    color: 'green',
-  },
-]
 
 export const ChainflipLendingHeader = () => {
   const translate = useTranslate()
@@ -132,7 +116,6 @@ export const ChainflipLendingHeader = () => {
             </Flex>
           )}
         </Container>
-        <TabMenu items={navItems} />
       </Stack>
     </>
   )

@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 
 import {
+  isBip122AccountParams,
   isEthSignParams,
   isSignRequest,
   isSignTypedRequest,
@@ -10,6 +11,7 @@ import type { KnownSigningMethod, WalletConnectState } from '@/plugins/walletCon
 import {
   extractAllConnectedAccounts,
   getSignParamsMessage,
+  getWalletAccountFromBip122Params,
   getWalletAccountFromCosmosParams,
   getWalletAccountFromEthParams,
   getWalletAddressFromEthSignParams,
@@ -38,7 +40,10 @@ export const useWalletConnectState = (state: WalletConnectState) => {
       return getWalletAddressFromEthSignParams(connectedAccounts, requestParams)
     if (requestParams && isTransactionParamsArray(requestParams)) return requestParams[0].from
     if (requestParams && 'signerAddress' in requestParams) return requestParams.signerAddress
-    else return undefined
+    if (requestParams && isBip122AccountParams(requestParams)) {
+      return requestParams.account
+    }
+    return undefined
   }, [connectedAccounts, requestParams])
 
   const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
@@ -53,7 +58,9 @@ export const useWalletConnectState = (state: WalletConnectState) => {
       return getWalletAccountFromEthParams(connectedAccounts, requestParams, chainId)
     if (requestParams && 'signerAddress' in requestParams)
       return getWalletAccountFromCosmosParams(connectedAccounts, requestParams)
-    else return undefined
+    if (requestParams && isBip122AccountParams(requestParams))
+      return getWalletAccountFromBip122Params(connectedAccounts, requestParams)
+    return undefined
   }, [connectedAccounts, requestParams, chainId])
 
   const accountMetadata = accountId ? accountMetadataById[accountId] : undefined

@@ -124,6 +124,7 @@ export async function btcSignTx(
         index: input.vout,
         nonWitnessUtxo: Buffer.from(input.hex, 'hex'),
         ...(redeemScript && { redeemScript }),
+        ...(input.sequence !== undefined && { sequence: input.sequence }),
       })
     }
 

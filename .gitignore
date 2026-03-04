@@ -1,12 +1,14 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# no zero installs
+# Local issue tracking
+.beads/
+
+# Claude Code ephemeral plans
+.claude/plan.md
+.claude/plans/
+
+# Yarn PnP (legacy, safe to keep)
 .pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
 
 # generated files
 packages/unchained-client/src/generated
@@ -44,3 +46,6 @@ yarn-error.log*
 .idea/
 .playwright-mcp/
 .sisyphus/
+
+# translation benchmark data
+scripts/translations/benchmark/

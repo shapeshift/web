@@ -5,6 +5,7 @@ import type {
   UtxoChainAdapter,
 } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import type { PropsWithChildren } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
@@ -19,7 +20,6 @@ import type { IWalletContext } from '@/context/WalletProvider/WalletContext'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { ensLookup } from '@/lib/address/ens'
 import type { ResolveVanityAddressReturn } from '@/lib/address/types'
-import { fromBaseUnit } from '@/lib/math'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
@@ -27,8 +27,7 @@ import type { AssetBalancesById } from '@/state/slices/portfolioSlice/portfolioS
 import {
   selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoBalanceBaseUnitByFilter,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByFilter,
 } from '@/state/slices/selectors'
 import { ethereum as mockEthereum, rune as mockRune } from '@/test/mocks/assets'
@@ -57,8 +56,7 @@ vi.mock('@/state/slices/selectors', async () => {
   return {
     ...actual,
     selectFeeAssetById: vi.fn(),
-    selectPortfolioCryptoPrecisionBalanceByFilter: vi.fn(),
-    selectPortfolioCryptoBalanceBaseUnitByFilter: vi.fn(),
+    selectPortfolioCryptoBalanceByFilter: vi.fn(),
     selectPortfolioUserCurrencyBalanceByFilter: vi.fn(),
     selectMarketDataByAssetIdUserCurrency: vi.fn(() => ({
       [ethAssetId]: { price: '2000' },
@@ -121,10 +119,9 @@ const setup = ({
     return fakeMarketData[assetId]
   })
   vi.mocked(selectFeeAssetById).mockReturnValue(mockEthereum)
-  vi.mocked(selectPortfolioCryptoPrecisionBalanceByFilter).mockReturnValue(
-    fromBaseUnit(assetBalance, asset.precision),
+  vi.mocked(selectPortfolioCryptoBalanceByFilter).mockReturnValue(
+    BigAmount.fromBaseUnit({ value: assetBalance, precision: asset.precision }),
   )
-  vi.mocked(selectPortfolioCryptoBalanceBaseUnitByFilter).mockReturnValue(assetBalance)
   vi.mocked(selectPortfolioUserCurrencyBalanceByFilter).mockReturnValue(runeFiatAmount)
   vi.mocked(useFormContext).mockImplementation(
     () =>

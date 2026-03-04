@@ -3,7 +3,6 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 
 import { AccountSelectorOption } from '@/components/AccountSelector/AccountSelectorOption'
 import { Dialog } from '@/components/Modal/components/Dialog'
@@ -41,7 +40,7 @@ export const AccountSelectorDialog = ({
   onAccountSelect,
 }: AccountSelectorDialogProps) => {
   const translate = useTranslate()
-  const accountBalances = useSelector(selectPortfolioAccountBalances)
+  const accountBalances = useAppSelector(selectPortfolioAccountBalances)
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   const accountsWithDetails = useMemo(
@@ -53,11 +52,11 @@ export const AccountSelectorDialog = ({
               .toBN()
               .times(marketData?.price ?? 0)
               .toFixed(2)
-          : '0.00'
+          : '0'
 
         return {
           accountId,
-          cryptoBalance: balance?.toBaseUnit() ?? '0',
+          cryptoBalancePrecision: balance?.toPrecision() ?? '0',
           fiatBalance,
         }
       }),
@@ -76,15 +75,14 @@ export const AccountSelectorDialog = ({
       </DialogHeader>
       <DialogBody maxH='80vh' overflowY='auto'>
         <VStack spacing={2} align='stretch'>
-          {accountsWithDetails.map(({ accountId, cryptoBalance, fiatBalance }) => {
+          {accountsWithDetails.map(({ accountId, cryptoBalancePrecision, fiatBalance }) => {
             const isSelected = selectedAccountId === accountId
             return (
               <AccountSelectorOption
                 key={accountId}
                 accountId={accountId}
-                cryptoBalance={cryptoBalance}
+                cryptoBalancePrecision={cryptoBalancePrecision}
                 fiatBalance={fiatBalance}
-                assetId={assetId}
                 symbol={asset.symbol}
                 isSelected={isSelected}
                 disabled={disabled}

@@ -24,8 +24,10 @@ import {
   polygonChainId,
   solanaChainId,
   thorchainChainId,
+  worldChainChainId,
 } from '@shapeshiftoss/caip'
-import { fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
+import type { TransactionData } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { WalletClient } from 'viem'
 import { erc20Abi } from 'viem'
 
@@ -127,17 +129,30 @@ export type ThemeConfig = {
   textColor?: string
   borderRadius?: string
   fontFamily?: string
+  borderColor?: string
+  secondaryTextColor?: string
+  mutedTextColor?: string
+  inputColor?: string
+  hoverColor?: string
+  buttonVariant?: 'filled' | 'outline'
 }
 
 export type SwapWidgetProps = {
-  apiKey?: string
+  affiliateAddress?: string
   apiBaseUrl?: string
   defaultSellAsset?: Asset
   defaultBuyAsset?: Asset
   disabledChainIds?: ChainId[]
   disabledAssetIds?: AssetId[]
   allowedChainIds?: ChainId[]
-  allowedAssetIds?: AssetId[]
+  sellDisabledChainIds?: ChainId[]
+  buyDisabledChainIds?: ChainId[]
+  sellDisabledAssetIds?: AssetId[]
+  buyDisabledAssetIds?: AssetId[]
+  sellAllowedChainIds?: ChainId[]
+  buyAllowedChainIds?: ChainId[]
+  sellAllowedAssetIds?: AssetId[]
+  buyAllowedAssetIds?: AssetId[]
   allowedSwapperNames?: SwapperName[]
   walletClient?: WalletClient
   onConnectWallet?: () => void
@@ -151,36 +166,73 @@ export type SwapWidgetProps = {
   walletConnectProjectId?: string
   defaultReceiveAddress?: string
   ratesRefetchInterval?: number
+  isBuyAssetLocked?: boolean
 }
 
 export type RatesResponse = {
   rates: TradeRate[]
 }
 
-type TransactionData = {
-  to: string
-  data: string
-  value?: string
-  gasLimit?: string
-  chainId?: number
-  relayId?: string
-}
+export type {
+  CosmosTransactionData,
+  EvmTransactionData,
+  Permit2SignatureRequired,
+  SolanaTransactionData,
+  TransactionData,
+  UtxoDepositTransactionData,
+  UtxoPsbtTransactionData,
+  UtxoTransactionData,
+} from '@shapeshiftoss/types'
 
-type QuoteStep = {
+export type ApiQuoteStep = {
+  sellAsset: Asset
+  buyAsset: Asset
+  sellAmountCryptoBaseUnit: string
+  buyAmountAfterFeesCryptoBaseUnit: string
+  allowanceContract: string
+  estimatedExecutionTimeMs: number | undefined
+  source: string
   transactionData?: TransactionData
   relayTransactionMetadata?: TransactionData
   butterSwapTransactionMetadata?: TransactionData
+  solanaTransactionMetadata?: {
+    instructions: {
+      programId: string
+      keys: { pubkey: string; isSigner: boolean; isWritable: boolean }[]
+      data: { data: number[] }
+    }[]
+  }
+}
+
+export type ApprovalInfo = {
+  isRequired: boolean
+  spender: string
+  approvalTx?: {
+    to: string
+    data: string
+    value: string
+  }
 }
 
 export type QuoteResponse = {
-  quote?: {
-    steps?: QuoteStep[]
-  }
+  quoteId: string
+  swapperName: SwapperName
+  rate: string
+  sellAsset: Asset
+  buyAsset: Asset
+  sellAmountCryptoBaseUnit: string
+  buyAmountBeforeFeesCryptoBaseUnit: string
+  buyAmountAfterFeesCryptoBaseUnit: string
+  affiliateBps: string
+  slippageTolerancePercentageDecimal: string | undefined
+  networkFeeCryptoBaseUnit: string | undefined
+  /** @deprecated Use `quote.steps` instead. Top-level `steps` is kept for backward compatibility. */
+  steps: ApiQuoteStep[]
+  approval: ApprovalInfo
+  expiresAt: number
   transactionData?: TransactionData
-  steps?: QuoteStep[]
-  approval?: {
-    isRequired: boolean
-    spender: string
+  quote?: {
+    steps?: ApiQuoteStep[]
   }
 }
 
@@ -203,6 +255,7 @@ export const EVM_CHAIN_IDS = {
   monad: monadChainId,
   hyperEvm: hyperEvmChainId,
   plasma: plasmaChainId,
+  worldChain: worldChainChainId,
   katana: katanaChainId,
 } as const
 
@@ -251,7 +304,9 @@ export const getChainType = (chainId: string): 'evm' | 'utxo' | 'cosmos' | 'sola
 
 export const formatAmount = (amount: string, decimals: number, maxDecimals?: number): string => {
   const effectiveMaxDecimals = maxDecimals ?? Math.min(decimals, 8)
-  const result = fromBaseUnit(amount, decimals, effectiveMaxDecimals)
+  const result = BigAmount.fromBaseUnit({ value: amount, precision: decimals }).toFixed(
+    effectiveMaxDecimals,
+  )
   const num = Number(result)
   if (num === 0) return '0'
 
@@ -267,7 +322,7 @@ export const formatAmount = (amount: string, decimals: number, maxDecimals?: num
 }
 
 export const parseAmount = (amount: string, decimals: number): string => {
-  return toBaseUnit(amount, decimals)
+  return BigAmount.fromPrecision({ value: amount, precision: decimals }).toBaseUnit()
 }
 
 export const truncateAddress = (address: string, chars = 4): string => {

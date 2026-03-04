@@ -32,7 +32,6 @@ import { ChainIcon } from '@/components/ChainMenu'
 import { ResultsEmptyNoWallet } from '@/components/ResultsEmptyNoWallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { YIELD_NETWORK_TO_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
 import {
@@ -54,7 +53,7 @@ import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
 import {
   selectAssets,
   selectEnabledWalletAccountIds,
-  selectPortfolioAssetBalancesBaseUnit,
+  selectPortfolioAssetBalances,
   selectPortfolioUserCurrencyBalances,
   selectUserCurrencyToUsdRate,
 } from '@/state/slices/selectors'
@@ -113,7 +112,7 @@ export const YieldsList = memo(() => {
   } = useYieldFilters(isAvailableToEarnTab)
 
   const userCurrencyBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
-  const assetBalancesBaseUnit = useAppSelector(selectPortfolioAssetBalancesBaseUnit)
+  const assetBalances = useAppSelector(selectPortfolioAssetBalances)
   const assets = useAppSelector(selectAssets)
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
 
@@ -192,7 +191,7 @@ export const YieldsList = memo(() => {
   }, [yields?.unfiltered])
 
   const unfilteredAvailableYields = useMemo(() => {
-    if (!isConnected || !userCurrencyBalances || !assetBalancesBaseUnit) return []
+    if (!isConnected || !userCurrencyBalances) return []
 
     const available: AugmentedYieldDto[] = []
 
@@ -209,8 +208,8 @@ export const YieldsList = memo(() => {
         if (minDeposit.gt(0)) {
           const asset = assets[assetId]
           if (!asset) return false
-          const baseBalance = bnOrZero(assetBalancesBaseUnit[assetId])
-          const balanceHuman = bnOrZero(fromBaseUnit(baseBalance, asset.precision))
+          const balance = assetBalances[assetId]
+          const balanceHuman = bnOrZero(balance ? balance.toPrecision() : undefined)
           if (balanceHuman.lt(minDeposit)) return false
         }
         return true
@@ -220,7 +219,7 @@ export const YieldsList = memo(() => {
     }
 
     return available
-  }, [isConnected, unfilteredByInputAssetId, userCurrencyBalances, assetBalancesBaseUnit, assets])
+  }, [isConnected, unfilteredByInputAssetId, userCurrencyBalances, assetBalances, assets])
 
   const filterSourceYields = useMemo(
     () =>
@@ -495,10 +494,33 @@ export const YieldsList = memo(() => {
     searchQuery,
   ])
 
+  const getBestAccountIdForYield = useCallback(
+    (yieldId: string): string | undefined => {
+      const balances = allBalances?.[yieldId]
+      if (!balances || balances.length === 0) return undefined
+      // Find the account with the highest USD balance for this yield
+      const bestByUsd = balances.reduce((prev, curr) =>
+        bnOrZero(curr.amountUsd).gt(bnOrZero(prev.amountUsd)) ? curr : prev,
+      )
+      if (bnOrZero(bestByUsd.amountUsd).gt(0)) return bestByUsd.accountId
+
+      // Fallback: when USD balance is zero for all entries, try position amount
+      const bestByAmount = balances.reduce((prev, curr) =>
+        bnOrZero(curr.amount).gt(bnOrZero(prev.amount)) ? curr : prev,
+      )
+      return bnOrZero(bestByAmount.amount).gt(0) ? bestByAmount.accountId : undefined
+    },
+    [allBalances],
+  )
+
   const handleYieldClick = useCallback(
-    (yieldId: string) => {
+    (yieldId: string, accountId?: string) => {
       const validator = getDefaultValidatorForYield(yieldId)
-      const url = validator ? `/yield/${yieldId}?validator=${validator}` : `/yield/${yieldId}`
+      const params = new URLSearchParams()
+      if (validator) params.set('validator', validator)
+      if (accountId) params.set('accountId', accountId)
+      const query = params.toString()
+      const url = query ? `/yield/${yieldId}?${query}` : `/yield/${yieldId}`
       navigate(url)
     },
     [navigate],
@@ -507,9 +529,10 @@ export const YieldsList = memo(() => {
   const handleRowClick = useCallback(
     (row: Row<AugmentedYieldDto>) => {
       if (!row.original.status.enter) return
-      handleYieldClick(row.original.id)
+      const bestAccountId = getBestAccountIdForYield(row.original.id)
+      handleYieldClick(row.original.id, bestAccountId)
     },
-    [handleYieldClick],
+    [getBestAccountIdForYield, handleYieldClick],
   )
 
   const columns = useMemo<ColumnDef<AugmentedYieldDto>[]>(
@@ -1031,6 +1054,7 @@ export const YieldsList = memo(() => {
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={{ base: 2, md: 6 }}>
         {myPositions.map(position => {
           const posDisplayInfo = getYieldDisplayInfo(position)
+          const bestAccountId = getBestAccountIdForYield(position.id)
           return (
             <YieldItem
               key={position.id}
@@ -1041,7 +1065,7 @@ export const YieldsList = memo(() => {
                 providerName: posDisplayInfo.name,
               }}
               variant={isMobile ? 'mobile' : 'card'}
-              onEnter={() => handleYieldClick(position.id)}
+              onEnter={() => handleYieldClick(position.id, bestAccountId)}
               userBalanceUsd={
                 allBalances?.[position.id]
                   ? allBalances[position.id].reduce(
@@ -1055,7 +1079,14 @@ export const YieldsList = memo(() => {
         })}
       </SimpleGrid>
     ),
-    [allBalances, getYieldDisplayInfo, handleYieldClick, myPositions, isMobile],
+    [
+      allBalances,
+      getBestAccountIdForYield,
+      getYieldDisplayInfo,
+      handleYieldClick,
+      myPositions,
+      isMobile,
+    ],
   )
 
   const positionsListElement = useMemo(
@@ -1100,7 +1131,7 @@ export const YieldsList = memo(() => {
   ])
 
   return (
-    <Container maxW='1200px' py={8} px={{ base: 4, md: 6 }}>
+    <Container maxW='1200px' py={8} px={{ base: 4, md: 6 }} data-testid='yields-page'>
       <Box mb={8}>
         <Flex
           justifyContent='space-between'
@@ -1109,7 +1140,7 @@ export const YieldsList = memo(() => {
           gap={4}
         >
           <Box>
-            <Heading as='h2' size='xl' mb={2}>
+            <Heading as='h2' size='xl' mb={2} data-testid='yields-page-title'>
               {translate('yieldXYZ.pageTitle')}
             </Heading>
             {!isMobile && <Text color='text.subtle'>{translate('yieldXYZ.pageSubtitle')}</Text>}
@@ -1138,9 +1169,13 @@ export const YieldsList = memo(() => {
         onChange={handleTabChange}
       >
         <TabList mb={4} gap={4}>
-          <Tab _selected={tabSelectedSx}>{translate('common.all')}</Tab>
-          <Tab _selected={tabSelectedSx}>{translate('yieldXYZ.availableToEarn')}</Tab>
-          <Tab _selected={tabSelectedSx}>
+          <Tab _selected={tabSelectedSx} data-testid='yields-tab-all'>
+            {translate('common.all')}
+          </Tab>
+          <Tab _selected={tabSelectedSx} data-testid='yields-tab-available'>
+            {translate('yieldXYZ.availableToEarn')}
+          </Tab>
+          <Tab _selected={tabSelectedSx} data-testid='yields-tab-my-positions'>
             {translate('yieldXYZ.myPositions')} ({myPositions.length})
           </Tab>
         </TabList>
@@ -1158,6 +1193,7 @@ export const YieldsList = memo(() => {
               value={searchQuery}
               onChange={handleSearchChange}
               borderRadius='full'
+              data-testid='yields-search-input'
             />
           </InputGroup>
           <Flex
@@ -1181,6 +1217,7 @@ export const YieldsList = memo(() => {
                   sortOption={sortOption}
                   onSortChange={handleSortChange}
                   mb={0}
+                  data-testid='yields-filters'
                 />
                 <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
               </>

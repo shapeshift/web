@@ -1,6 +1,6 @@
 import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { isToken } from '@shapeshiftoss/utils'
+import { BigAmount, isToken } from '@shapeshiftoss/utils'
 import { encodeURL } from '@solana/pay'
 import { PublicKey } from '@solana/web3.js'
 import bip21 from 'bip21'
@@ -9,7 +9,6 @@ import { build as buildEthUrl } from 'eth-url-parser'
 import { CHAIN_ID_TO_URN_SCHEME, EMPTY_ADDRESS_ERROR } from './constants'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { toBaseUnit } from '@/lib/math'
 
 export type GenerateReceiveQrTextArgs = {
   receiveAddress: string
@@ -74,7 +73,10 @@ export const generateReceiveQrText = ({
         })
       }
 
-      const amountBaseUnit = toBaseUnit(amountCryptoPrecision, asset.precision)
+      const amountBaseUnit = BigAmount.fromPrecision({
+        value: amountCryptoPrecision,
+        precision: asset.precision,
+      }).toBaseUnit()
 
       if (isToken(assetId)) {
         const { assetReference } = fromAssetId(assetId)

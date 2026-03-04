@@ -1,7 +1,7 @@
 import './TokenSelectModal.css'
 
 import { bnOrZero } from '@shapeshiftoss/utils'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Virtuoso } from 'react-virtuoso'
 
 import type { ChainInfo } from '../hooks/useAssets'
@@ -32,6 +32,7 @@ type TokenSelectModalProps = {
   disabledAssetIds?: string[]
   disabledChainIds?: ChainId[]
   allowedChainIds?: ChainId[]
+  allowedAssetIds?: AssetId[]
   walletAddress?: string
   currentAssetIds?: AssetId[]
 }
@@ -67,6 +68,7 @@ export const TokenSelectModal = ({
   disabledAssetIds = [],
   disabledChainIds = [],
   allowedChainIds,
+  allowedAssetIds,
   walletAddress,
   currentAssetIds = [],
 }: TokenSelectModalProps) => {
@@ -90,6 +92,17 @@ export const TokenSelectModal = ({
     return map
   }, [chains])
 
+  const allowedAssetChainIds = useMemo(() => {
+    if (!allowedAssetIds || allowedAssetIds.length === 0) return undefined
+    const chainIds = new Set<ChainId>()
+    for (const asset of allAssets) {
+      if (allowedAssetIds.includes(asset.assetId)) {
+        chainIds.add(asset.chainId)
+      }
+    }
+    return Array.from(chainIds)
+  }, [allowedAssetIds, allAssets])
+
   const filteredChains = useMemo(() => {
     let enabledChains = chains.filter(chain => !disabledChainIds.includes(chain.chainId))
 
@@ -97,17 +110,25 @@ export const TokenSelectModal = ({
       enabledChains = enabledChains.filter(chain => allowedChainIds.includes(chain.chainId))
     }
 
+    if (allowedAssetChainIds) {
+      enabledChains = enabledChains.filter(chain => allowedAssetChainIds.includes(chain.chainId))
+    }
+
     if (!chainSearchQuery.trim()) return enabledChains
 
     const lowerQuery = chainSearchQuery.toLowerCase()
     return enabledChains.filter(chain => chain.name.toLowerCase().includes(lowerQuery))
-  }, [chains, chainSearchQuery, disabledChainIds, allowedChainIds])
+  }, [chains, chainSearchQuery, disabledChainIds, allowedChainIds, allowedAssetChainIds])
 
   const filteredAssets = useMemo(() => {
     let assets = allAssets.filter(
       asset =>
         !disabledAssetIds.includes(asset.assetId) && !disabledChainIds.includes(asset.chainId),
     )
+
+    if (allowedAssetIds && allowedAssetIds.length > 0) {
+      assets = assets.filter(asset => allowedAssetIds.includes(asset.assetId))
+    }
 
     if (allowedChainIds && allowedChainIds.length > 0) {
       assets = assets.filter(asset => allowedChainIds.includes(asset.chainId))
@@ -137,32 +158,43 @@ export const TokenSelectModal = ({
       .sort((a, b) => b.score - a.score)
       .slice(0, 100)
       .map(item => item.asset)
-  }, [allAssets, selectedChainId, searchQuery, disabledAssetIds, disabledChainIds, allowedChainIds])
-
-  const visibleAssets = useMemo(() => {
-    const start = Math.max(0, visibleRange.startIndex - VISIBLE_BUFFER)
-    const end = Math.min(filteredAssets.length, visibleRange.endIndex + VISIBLE_BUFFER)
-    return filteredAssets.slice(start, end)
-  }, [filteredAssets, visibleRange])
-
-  const assetPrecisions = useMemo(() => {
-    const precisions: Record<AssetId, number> = {}
-    for (const asset of visibleAssets) {
-      precisions[asset.assetId] = asset.precision
-    }
-    return precisions
-  }, [visibleAssets])
-
-  const assetIds = useMemo(() => visibleAssets.map(a => a.assetId), [visibleAssets])
+  }, [
+    allAssets,
+    selectedChainId,
+    searchQuery,
+    disabledAssetIds,
+    disabledChainIds,
+    allowedAssetIds,
+    allowedChainIds,
+  ])
 
   const { address: bitcoinAddress } = useBitcoinSigning()
   const { address: solanaAddress } = useSolanaSigning()
+
+  const initialAssetPrecisions = useMemo(() => {
+    const precisions: Record<AssetId, number> = {}
+    for (const asset of filteredAssets.slice(0, 30)) {
+      precisions[asset.assetId] = asset.precision
+    }
+    return precisions
+  }, [filteredAssets])
+
+  const initialAssetIds = useMemo(
+    () => filteredAssets.slice(0, 30).map(a => a.assetId),
+    [filteredAssets],
+  )
 
   const {
     data: balances,
     loadingAssetIds,
     refetchSpecific,
-  } = useMultiChainBalances(walletAddress, bitcoinAddress, solanaAddress, assetIds, assetPrecisions)
+  } = useMultiChainBalances(
+    walletAddress,
+    bitcoinAddress,
+    solanaAddress,
+    initialAssetIds,
+    initialAssetPrecisions,
+  )
 
   useEffect(() => {
     if (isOpen && currentAssetIds.length > 0) {
@@ -171,6 +203,65 @@ export const TokenSelectModal = ({
   }, [isOpen, currentAssetIds, refetchSpecific])
 
   const { data: marketData } = useAllMarketData()
+
+  const balanceSortDoneRef = useRef(false)
+  const sortedAssetsRef = useRef<Asset[]>(filteredAssets)
+  const prevFilteredRef = useRef(filteredAssets)
+
+  const sortedAssets = useMemo(() => {
+    const filterChanged = filteredAssets !== prevFilteredRef.current
+    if (filterChanged) {
+      prevFilteredRef.current = filteredAssets
+      balanceSortDoneRef.current = false
+    }
+
+    if (balanceSortDoneRef.current) {
+      return sortedAssetsRef.current
+    }
+
+    if (!balances || Object.keys(balances).length === 0) {
+      sortedAssetsRef.current = filteredAssets
+      return filteredAssets
+    }
+
+    const withBalance: { asset: Asset; fiatValue: number }[] = []
+    const withoutBalance: Asset[] = []
+
+    for (const asset of filteredAssets) {
+      const balance = balances[asset.assetId]
+      if (balance && balance.balance !== '0') {
+        const price = marketData?.[asset.assetId]?.price
+        const fiatValue = price
+          ? bnOrZero(balance.balance)
+              .div(bnOrZero(10).pow(asset.precision))
+              .times(bnOrZero(price))
+              .toNumber()
+          : 0
+        withBalance.push({ asset, fiatValue })
+      } else {
+        withoutBalance.push(asset)
+      }
+    }
+
+    withBalance.sort((a, b) => b.fiatValue - a.fiatValue)
+
+    const result = [...withBalance.map(w => w.asset), ...withoutBalance]
+    balanceSortDoneRef.current = true
+    sortedAssetsRef.current = result
+    return result
+  }, [filteredAssets, balances, marketData])
+
+  const visibleRangeAssetIds = useMemo(() => {
+    const start = Math.max(0, visibleRange.startIndex - VISIBLE_BUFFER)
+    const end = Math.min(sortedAssets.length, visibleRange.endIndex + VISIBLE_BUFFER)
+    return sortedAssets.slice(start, end).map(a => a.assetId)
+  }, [sortedAssets, visibleRange])
+
+  useEffect(() => {
+    if (visibleRangeAssetIds.length > 0) {
+      refetchSpecific?.(visibleRangeAssetIds)
+    }
+  }, [visibleRangeAssetIds, refetchSpecific])
 
   const handleAssetSelect = useCallback(
     (asset: Asset) => {
@@ -258,9 +349,6 @@ export const TokenSelectModal = ({
                 onClick={() => handleChainSelect(null)}
                 type='button'
               >
-                <div className='ssw-chain-icon-multi'>
-                  <span>🔗</span>
-                </div>
                 <span className='ssw-chain-name'>All Chains</span>
               </button>
 
@@ -319,11 +407,11 @@ export const TokenSelectModal = ({
                   <div className='ssw-spinner' />
                   <span>Loading assets...</span>
                 </div>
-              ) : filteredAssets.length === 0 ? (
+              ) : sortedAssets.length === 0 ? (
                 <div className='ssw-empty'>No tokens found</div>
               ) : (
                 <Virtuoso
-                  data={filteredAssets}
+                  data={sortedAssets}
                   rangeChanged={setVisibleRange}
                   overscan={200}
                   itemContent={(_, asset) => {

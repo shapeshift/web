@@ -1,7 +1,7 @@
 .ssw-quote-selector {
   width: 100%;
   padding: 14px 16px;
-  border-radius: 14px;
+  border-radius: var(--ssw-radius-md);
   background: var(--ssw-bg-tertiary);
   border: 1px solid var(--ssw-border);
   cursor: pointer;
@@ -65,17 +65,17 @@
 }
 
 .ssw-quote-provider-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--ssw-radius-xs);
   object-fit: contain;
   background: var(--ssw-bg-secondary);
 }
 
 .ssw-quote-provider-icon-placeholder {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--ssw-radius-xs);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -92,7 +92,7 @@
 
 .ssw-quote-best-tag {
   padding: 3px 7px;
-  border-radius: 5px;
+  border-radius: var(--ssw-radius-xs);
   background: var(--ssw-accent);
   color: white;
   font-size: 10px;

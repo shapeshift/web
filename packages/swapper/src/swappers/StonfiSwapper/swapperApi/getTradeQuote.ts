@@ -5,11 +5,14 @@ import { SettlementMethod } from '@ston-fi/omniston-sdk'
 import type { CommonTradeQuoteInput, TradeQuote, TradeQuoteResult } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
 import type { OmnistonAssetAddress, StonfiTradeSpecific } from '../types'
 import { STONFI_DEFAULT_SLIPPAGE_BPS, STONFI_QUOTE_TIMEOUT_MS } from '../utils/constants'
 import {
+  affiliateBpsToNumber,
   calculateRate,
   slippageDecimalToBps,
+  tonAddressToOmnistonAddress,
   validateTonAssets,
   waitForQuote,
 } from '../utils/helpers'
@@ -47,6 +50,7 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
     receiveAddress,
     accountNumber,
     slippageTolerancePercentageDecimal,
+    affiliateBps,
   } = input
 
   const validation = validateTonAssets(sellAsset, buyAsset)
@@ -63,6 +67,10 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
       STONFI_DEFAULT_SLIPPAGE_BPS,
     )
 
+    const referrerFeeBps = affiliateBpsToNumber(affiliateBps)
+    const tonTreasuryAddress = getTreasuryAddressFromChainId(sellAsset.chainId)
+    const referrerAddress = tonAddressToOmnistonAddress(tonTreasuryAddress)
+
     const quoteResult = await waitForQuote(
       omniston,
       {
@@ -70,9 +78,12 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
         bidAssetAddress,
         askAssetAddress,
         amount: { bidUnits: sellAmountIncludingProtocolFeesCryptoBaseUnit },
+        referrerAddress,
+        referrerFeeBps,
         settlementParams: {
           maxPriceSlippageBps: slippageBps,
           gaslessSettlement: 'GASLESS_SETTLEMENT_PROHIBITED',
+          flexibleReferrerFee: true,
         },
       },
       STONFI_QUOTE_TIMEOUT_MS,
@@ -122,7 +133,7 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
       id: quote.quoteId,
       rate,
       receiveAddress,
-      affiliateBps: '0',
+      affiliateBps,
       slippageTolerancePercentageDecimal:
         slippageTolerancePercentageDecimal ?? String(STONFI_DEFAULT_SLIPPAGE_BPS / 10000),
       quoteOrRate: 'quote',

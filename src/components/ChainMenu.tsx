@@ -88,6 +88,7 @@ const ChainMenuItem = <T extends ChainId | 'All'>({
       onClick={handleClick}
       borderRadius='lg'
       m={0}
+      data-testid={`chain-menu-item-${chainName}`}
     >
       <Flex justifyContent={'space-between'} fontSize='md' width='full' alignItems='center'>
         <Text>{chainName}</Text>
@@ -141,7 +142,7 @@ const GenericChainMenu = <T extends ChainId | 'All'>({
         )}
         isDisabled={disableTooltip || isDisabled}
       >
-        <MenuButton as={Button} {...buttonProps}>
+        <MenuButton as={Button} data-testid='chain-filter-button' {...buttonProps}>
           <Flex alignItems='center' justifyContent='center'>
             <MenuIcon<T>
               activeChainId={activeChainId}

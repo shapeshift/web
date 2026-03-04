@@ -1,10 +1,22 @@
 .ssw-settings-modal {
   background: var(--ssw-bg-secondary);
-  border-radius: 16px;
+  border-radius: var(--ssw-radius-lg);
   width: 100%;
   max-width: 400px;
   overflow: hidden;
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+  animation: ssw-settings-slide-up 0.2s ease;
+}
+
+@keyframes ssw-settings-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .ssw-settings-content {
@@ -49,7 +61,7 @@
   flex: 1;
   padding: 10px 12px;
   border: 1px solid var(--ssw-border);
-  border-radius: 10px;
+  border-radius: var(--ssw-radius-sm);
   background: var(--ssw-bg-tertiary);
   color: var(--ssw-text-primary);
   font-size: 14px;
@@ -79,7 +91,7 @@
   width: 100%;
   padding: 10px 28px 10px 12px;
   border: 1px solid var(--ssw-border);
-  border-radius: 10px;
+  border-radius: var(--ssw-radius-sm);
   background: var(--ssw-bg-tertiary);
   color: var(--ssw-text-primary);
   font-size: 14px;
@@ -115,7 +127,7 @@
   align-items: flex-start;
   gap: 8px;
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: var(--ssw-radius-sm);
   background: rgba(255, 193, 7, 0.1);
   color: #ffc107;
   font-size: 13px;

@@ -13,6 +13,7 @@ import {
   SwapperName,
 } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { identity } from 'lodash'
 import type { Selector } from 'reselect'
 
@@ -28,7 +29,6 @@ import type { ActiveQuoteMeta } from './types'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { calculateFeeUsd } from '@/lib/fees/utils'
-import { fromBaseUnit } from '@/lib/math'
 import { validateQuoteRequest } from '@/state/apis/swapper/helpers/validateQuoteRequest'
 import { selectIsTradeQuoteApiQueryPending } from '@/state/apis/swapper/selectors'
 import type { ApiQuote, ErrorWithMeta, TradeQuoteError } from '@/state/apis/swapper/types'
@@ -53,7 +53,7 @@ import {
   selectInputSellAssetUserCurrencyRate,
   selectManualReceiveAddress,
   selectSecondHopSellAccountId,
-  selectSellAssetBalanceCryptoBaseUnit,
+  selectSellAssetBalance,
   selectUserSlippagePercentageDecimal,
 } from '@/state/slices/tradeInputSlice/selectors'
 import {
@@ -133,7 +133,7 @@ export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
   portfolio.selectors.selectIsWalletConnected,
   selectWalletConnectedChainIds,
   selectManualReceiveAddress,
-  selectSellAssetBalanceCryptoBaseUnit,
+  selectSellAssetBalance,
   selectInputSellAsset,
   selectInputBuyAsset,
   (
@@ -141,7 +141,7 @@ export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
     isWalletConnected,
     walletConnectedChainIds,
     manualReceiveAddress,
-    sellAssetBalanceCryptoBaseUnit,
+    sellAssetBalance,
     sellAsset,
     buyAsset,
   ) => {
@@ -152,7 +152,7 @@ export const selectTradeQuoteRequestErrors = createDeepEqualOutputSelector(
       isWalletConnected,
       walletConnectedChainIds,
       manualReceiveAddress,
-      sellAssetBalanceCryptoBaseUnit,
+      sellAssetBalanceCryptoBaseUnit: sellAssetBalance.toBaseUnit(),
       sellAmountCryptoBaseUnit: inputSellAmountCryptoBaseUnit,
       sellAsset,
       buyAsset,
@@ -344,7 +344,10 @@ export const selectQuoteSellAmountCryptoPrecision: Selector<ReduxState, string |
     selectQuoteSellAmountCryptoBaseUnit,
     (firstHopSellAsset, sellAmountCryptoBaseUnit) =>
       firstHopSellAsset
-        ? fromBaseUnit(bnOrZero(sellAmountCryptoBaseUnit), firstHopSellAsset?.precision)
+        ? BigAmount.fromBaseUnit({
+            value: bnOrZero(sellAmountCryptoBaseUnit),
+            precision: firstHopSellAsset?.precision ?? 0,
+          }).toPrecision()
         : undefined,
   )
 
@@ -475,7 +478,10 @@ export const selectQuoteSellAmountBeforeFeesCryptoPrecision = createSelector(
   selectFirstHopSellAsset,
   (sellAmountBeforeFeesCryptoBaseUnit, sellAsset) => {
     if (!sellAmountBeforeFeesCryptoBaseUnit || !sellAsset) return
-    return fromBaseUnit(sellAmountBeforeFeesCryptoBaseUnit, sellAsset.precision)
+    return BigAmount.fromBaseUnit({
+      value: sellAmountBeforeFeesCryptoBaseUnit,
+      precision: sellAsset.precision,
+    }).toPrecision()
   },
 )
 
@@ -484,7 +490,10 @@ export const selectBuyAmountBeforeFeesCryptoPrecision = createSelector(
   selectLastHopBuyAsset,
   (buyAmountBeforeFeesCryptoBaseUnit, buyAsset) => {
     if (!buyAmountBeforeFeesCryptoBaseUnit || !buyAsset) return
-    return fromBaseUnit(buyAmountBeforeFeesCryptoBaseUnit, buyAsset.precision)
+    return BigAmount.fromBaseUnit({
+      value: buyAmountBeforeFeesCryptoBaseUnit,
+      precision: buyAsset.precision,
+    }).toPrecision()
   },
 )
 

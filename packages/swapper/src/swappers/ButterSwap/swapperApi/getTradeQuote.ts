@@ -1,11 +1,10 @@
 import { btcChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
+  BigAmount,
   bnOrZero,
   chainIdToFeeAssetId,
   convertDecimalPercentageToBasisPoints,
-  fromBaseUnit,
-  toBaseUnit,
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -83,10 +82,10 @@ export const getTradeQuote = async (
   const routeResult = await getButterRoute({
     sellAsset,
     buyAsset,
-    sellAmountCryptoBaseUnit: fromBaseUnit(
-      sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      sellAsset.precision,
-    ),
+    sellAmountCryptoPrecision: BigAmount.fromBaseUnit({
+      value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      precision: sellAsset.precision,
+    }).toPrecision(),
     slippage,
     affiliate: makeButterSwapAffiliate(affiliateBps),
   })
@@ -96,10 +95,10 @@ export const getTradeQuote = async (
 
   if (!isRouteSuccess(routeResponse)) {
     if (routeResponse.errno === ButterSwapErrorCode.InsufficientAmount) {
-      const minAmountCryptoBaseUnit = toBaseUnit(
-        (routeResponse as any).minAmount,
-        sellAsset.precision,
-      )
+      const minAmountCryptoBaseUnit = BigAmount.fromPrecision({
+        value: (routeResponse as any).minAmount,
+        precision: sellAsset.precision,
+      }).toBaseUnit()
       return Err(
         createTradeAmountTooSmallErr({
           minAmountCryptoBaseUnit,
@@ -165,7 +164,10 @@ export const getTradeQuote = async (
   }
 
   // Map gasFee.amount to networkFeeCryptoBaseUnit using fee asset precision
-  const networkFeeCryptoBaseUnit = toBaseUnit(bnOrZero(route.gasFee?.amount), feeAsset.precision)
+  const networkFeeCryptoBaseUnit = BigAmount.fromPrecision({
+    value: bnOrZero(route.gasFee?.amount),
+    precision: feeAsset.precision,
+  }).toBaseUnit()
 
   // Use destination receive amount as a priority if present and defined
   // It won't for same-chain swaps, so we fall back to the source chain receive amount (i.e source chain *is* the destination chain)
@@ -173,7 +175,10 @@ export const getTradeQuote = async (
 
   // TODO: affiliate fees not yet here, gut feel is that Butter won't do the swap output - fees logic for us here
   // Sanity check me when affiliates are implemented, and do the math ourselves if needed
-  const buyAmountAfterFeesCryptoBaseUnit = toBaseUnit(outputAmount, buyAsset.precision)
+  const buyAmountAfterFeesCryptoBaseUnit = BigAmount.fromPrecision({
+    value: outputAmount,
+    precision: buyAsset.precision,
+  }).toBaseUnit()
 
   const rate = getInputOutputRate({
     sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -239,7 +244,10 @@ export const getTradeQuote = async (
   const solanaTransactionMetadata = maybeSolanaTransactionMetadata?.unwrap()
 
   const step = {
-    buyAmountBeforeFeesCryptoBaseUnit: toBaseUnit(outputAmount, buyAsset.precision),
+    buyAmountBeforeFeesCryptoBaseUnit: BigAmount.fromPrecision({
+      value: outputAmount,
+      precision: buyAsset.precision,
+    }).toBaseUnit(),
     buyAmountAfterFeesCryptoBaseUnit,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     feeData: {

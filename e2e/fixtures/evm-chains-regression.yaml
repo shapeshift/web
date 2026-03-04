@@ -1,0 +1,197 @@
+name: First-Class EVM Chains Swap Regression
+description: >
+  Regression test for first-class EVM chains. Executes a $1 same-chain swap
+  on each chain (native -> any token) and verifies the swap completes.
+  Detects node failures, RPC issues, and swapper regressions.
+  Chains: Ethereum, Base, Gnosis, Avalanche, Arbitrum, BSC, Optimism.
+route: /trade
+depends_on:
+  - wallet-health.yaml
+steps:
+  # ============================================================
+  # ETHEREUM - ETH -> any token ($1)
+  # ============================================================
+  - name: "Ethereum: Same-chain swap ETH -> token ($1)"
+    instruction: >
+      Ensure sell is ETH on Ethereum (check [data-testid="sell-asset-button"]).
+      Click [data-testid="buy-asset-button"] to open TO picker.
+      Focus [data-testid="asset-search-input"] and search, or use
+      [data-testid="chain-filter-button"] then [data-testid="chain-menu-item-Ethereum"] to filter.
+      Select any available token (e.g. [data-testid="asset-row-USDC"] or similar).
+      Ensure fiat mode. Enter "1" in sell amount. Wait for quote.
+      Click [data-testid="trade-form-preview-button-trade.previewTrade"].
+      Handle warnings (click "I understand" if shown).
+      Click [data-testid="trade-confirm-button-trade.confirmAndTrade"].
+      Wait for [data-testid="trade-confirm-button-trade.signAndSwap"] to become enabled, then click it.
+      Wait for completion (max 120s). Dismiss notifications.
+    expected: Swap completed, notification says complete
+    screenshot: true
+
+  # ============================================================
+  # BASE - ETH -> any token ($1)
+  # ============================================================
+  - name: "Base: Switch sell to ETH on Base"
+    instruction: >
+      Click [data-testid="sell-asset-button"] to open sell picker.
+      Focus [data-testid="asset-search-input"] and search "ETH", or use
+      [data-testid="chain-filter-button"] then [data-testid="chain-menu-item-Base"] to filter.
+      Click [data-testid="asset-row-ETH"] to select ETH on Base.
+      Verify sell shows ETH on Base.
+    expected: Sell asset is ETH on Base
+    screenshot: false
+
+  - name: "Base: Same-chain swap ETH -> token ($1)"
+    instruction: >
+      Click [data-testid="buy-asset-button"] to open TO picker.
+      Focus [data-testid="asset-search-input"] and search, or use
+      [data-testid="chain-filter-button"] then [data-testid="chain-menu-item-Base"] to filter.
+      Select any token (e.g. [data-testid="asset-row-USDC"]).
+      Ensure fiat mode. Enter "1". Wait for quote.
+      Click [data-testid="trade-form-preview-button-trade.previewTrade"].
+      Handle warnings (click "I understand" if shown).
+      Click [data-testid="trade-confirm-button-trade.confirmAndTrade"].
+      Wait for [data-testid="trade-confirm-button-trade.signAndSwap"] to become enabled, then click it.
+      Wait for completion (max 120s). Dismiss notifications.
+    expected: Swap completed, notification says complete
+    screenshot: true
+
+  # ============================================================
+  # GNOSIS - xDAI -> any token ($1)
+  # ============================================================
+  - name: "Gnosis: Switch sell to xDAI on Gnosis"
+    instruction: >
+      Click [data-testid="sell-asset-button"] to open sell picker.
+      Focus [data-testid="asset-search-input"] and search "xDAI", or use
+      [data-testid="chain-filter-button"] then [data-testid="chain-menu-item-Gnosis"] to filter.
+      Click [data-testid="asset-row-XDAI"] to select xDAI on Gnosis.
+      If no xDAI balance, mark step as failed (precondition: xDAI balance required).
+    expected: Sell asset is xDAI on Gnosis with balance
+    soft_fail: true
+    screenshot: false
+
+  - name: "Gnosis: Same-chain swap xDAI -> token ($1)"
+    instruction: >
+      Click [data-testid="buy-asset-button"] to open TO picker.
+      Focus [data-testid="asset-search-input"] and search, or use
+      [data-testid="chain-filter-button"] then [data-testid="chain-menu-item-Gnosis"] to filter.
+      Select any token (e.g. [data-testid="asset-row-USDC"]).
+      Ensure fiat mode. Enter "1". Wait for quote.
+      Click [data-testid="trade-form-preview-button-trade.previewTrade"].
+      Handle warnings (click "I understand" if shown).
+      Click [data-testid="trade-confirm-button-trade.confirmAndTrade"].
+      Wait for [data-testid="trade-confirm-button-trade.signAndSwap"] to become enabled, then click it.
+      Wait for completion (max 120s). Dismiss notifications.
+    expected: Swap completed, notification says complete
+    screenshot: true
+
+  # ============================================================
+  # AVALANCHE - AVAX -> any token ($1)
+  # ============================================================
+  - name: "Avalanche: Switch sell to AVAX"
+    instruction: >
+      Click [data-testid="sell-asset-button"] to open sell picker.
+      Focus [data-testid="asset-search-input"] and search "AVAX", or use
+      [data-testid="chain-filter-button"] then [data-testid="chain-menu-item-Avalanche C-Chain"] to filter.
+      Click [data-testid="asset-row-AVAX"] to select AVAX.
+      If no AVAX balance, mark step as failed (precondition: AVAX balance required).
+    expected: Sell asset is AVAX with balance
+    soft_fail: true
+    screenshot: false
+
+  - name: "Avalanche: Same-chain swap AVAX -> token ($1)"
+    instruction: >
+      Click [data-testid="buy-asset-button"] to open TO picker.
+      Focus [data-testid="asset-search-input"] and search, or use
+      [data-testid="chain-filter-button"] then [data-testid="chain-menu-item-Avalanche C-Chain"] to filter.
+      Select any token (e.g. [data-testid="asset-row-USDC"]).
+      Ensure fiat mode. Enter "1". Wait for quote.
+      Click [data-testid="trade-form-preview-button-trade.previewTrade"].
+      Handle warnings (click "I understand" if shown).
+      Click [data-testid="trade-confirm-button-trade.confirmAndTrade"].
+      Wait for [data-testid="trade-confirm-button-trade.signAndSwap"] to become enabled, then click it.
+      Wait for completion (max 120s). Dismiss notifications.
+    expected: Swap completed, notification says complete
+    screenshot: true
+
+  # ============================================================
+  # ARBITRUM - ETH -> any token ($1)
+  # ============================================================
+  - name: "Arbitrum: Switch sell to ETH on Arbitrum"
+    instruction: >
+      Click [data-testid="sell-asset-button"] to open sell picker.
+      Focus [data-testid="asset-search-input"] and search "ETH", or use
+      [data-testid="chain-filter-button"] then [data-testid="chain-menu-item-Arbitrum One"] to filter.
+      Click [data-testid="asset-row-ETH"] to select ETH on Arbitrum.
+    expected: Sell asset is ETH on Arbitrum
+    screenshot: false
+
+  - name: "Arbitrum: Same-chain swap ETH -> token ($1)"
+    instruction: >
+      Click [data-testid="buy-asset-button"] to open TO picker.
+      Focus [data-testid="asset-search-input"] and search, or use
+      [data-testid="chain-filter-button"] then [data-testid="chain-menu-item-Arbitrum One"] to filter.
+      Select any token (e.g. [data-testid="asset-row-USDC"]).
+      Ensure fiat mode. Enter "1". Wait for quote.
+      Click [data-testid="trade-form-preview-button-trade.previewTrade"].
+      Handle warnings (click "I understand" if shown).
+      Click [data-testid="trade-confirm-button-trade.confirmAndTrade"].
+      Wait for [data-testid="trade-confirm-button-trade.signAndSwap"] to become enabled, then click it.
+      Wait for completion (max 120s). Dismiss notifications.
+    expected: Swap completed, notification says complete
+    screenshot: true
+
+  # ============================================================
+  # BSC - BNB -> any token ($1)
+  # ============================================================
+  - name: "BSC: Switch sell to BNB"
+    instruction: >
+      Click [data-testid="sell-asset-button"] to open sell picker.
+      Focus [data-testid="asset-search-input"] and search "BNB", or use
+      [data-testid="chain-filter-button"] then [data-testid="chain-menu-item-BNB Smart Chain"] to filter.
+      Click [data-testid="asset-row-BNB"] to select BNB.
+      If no BNB balance, mark step as failed (precondition: BNB balance required).
+    expected: Sell asset is BNB with balance
+    soft_fail: true
+    screenshot: false
+
+  - name: "BSC: Same-chain swap BNB -> token ($1)"
+    instruction: >
+      Click [data-testid="buy-asset-button"] to open TO picker.
+      Focus [data-testid="asset-search-input"] and search, or use
+      [data-testid="chain-filter-button"] then [data-testid="chain-menu-item-BNB Smart Chain"] to filter.
+      Select any token (e.g. [data-testid="asset-row-USDT"]).
+      Ensure fiat mode. Enter "1". Wait for quote.
+      Click [data-testid="trade-form-preview-button-trade.previewTrade"].
+      Handle warnings (click "I understand" if shown).
+      Click [data-testid="trade-confirm-button-trade.confirmAndTrade"].
+      Wait for [data-testid="trade-confirm-button-trade.signAndSwap"] to become enabled, then click it.
+      Wait for completion (max 120s). Dismiss notifications.
+    expected: Swap completed, notification says complete
+    screenshot: true
+
+  # ============================================================
+  # OPTIMISM - ETH -> any token ($1)
+  # ============================================================
+  - name: "Optimism: Switch sell to ETH on Optimism"
+    instruction: >
+      Click [data-testid="sell-asset-button"] to open sell picker.
+      Focus [data-testid="asset-search-input"] and search "ETH", or use
+      [data-testid="chain-filter-button"] then [data-testid="chain-menu-item-Optimism"] to filter.
+      Click [data-testid="asset-row-ETH"] to select ETH on Optimism.
+    expected: Sell asset is ETH on Optimism
+    screenshot: false
+
+  - name: "Optimism: Same-chain swap ETH -> token ($1)"
+    instruction: >
+      Click [data-testid="buy-asset-button"] to open TO picker.
+      Focus [data-testid="asset-search-input"] and search, or use
+      [data-testid="chain-filter-button"] then [data-testid="chain-menu-item-Optimism"] to filter.
+      Select any token (e.g. [data-testid="asset-row-USDC"]).
+      Ensure fiat mode. Enter "1". Wait for quote.
+      Click [data-testid="trade-form-preview-button-trade.previewTrade"].
+      Handle warnings (click "I understand" if shown).
+      Click [data-testid="trade-confirm-button-trade.confirmAndTrade"].
+      Wait for [data-testid="trade-confirm-button-trade.signAndSwap"] to become enabled, then click it.
+      Wait for completion (max 120s). Dismiss notifications.
+    expected: Swap completed, notification says complete
+    screenshot: true

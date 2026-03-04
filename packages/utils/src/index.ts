@@ -7,6 +7,7 @@ export * from './encoding'
 export * from './assetData'
 export * from './baseUnits/baseUnits'
 export { BigAmount } from './bigAmount/bigAmount'
+export type { BigAmountConfig } from './bigAmount/bigAmount'
 export * from './basisPoints'
 export * from './bignumber/bignumber'
 export * from './chainIdToFeeAsset'
@@ -37,6 +38,7 @@ export const isToken = (assetId: AssetId) => {
     case ASSET_NAMESPACE.suiCoin:
     case ASSET_NAMESPACE.starknetToken:
     case ASSET_NAMESPACE.nep141:
+    case ASSET_NAMESPACE.jetton:
       return true
     default:
       return false

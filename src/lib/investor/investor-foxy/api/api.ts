@@ -49,7 +49,7 @@ import type {
   WithdrawInput,
 } from './foxy-types'
 
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { MAX_ALLOWANCE } from '@/lib/investor/constants/allowance'
 import { DefiType } from '@/state/slices/opportunitiesSlice/types'
 
@@ -1029,10 +1029,6 @@ export class FoxyApi {
     } catch (e) {
       throw new Error(`Failed to get totalSupply: ${e}`)
     }
-  }
-
-  pricePerShare(): BigNumber {
-    return bn(1).times('1e+18')
   }
 
   // TODO: use tokemak's api to get apy when they build it

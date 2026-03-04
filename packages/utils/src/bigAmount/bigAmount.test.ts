@@ -1353,10 +1353,9 @@ describe('BigAmount', () => {
     })
 
     it('throws without config', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '150000000', assetId: 'btc' })
       BigAmount.resetConfig()
-      const amount = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
-      // no assetId, so assetId error comes first
-      expect(() => amount.toUserCurrency()).toThrow('requires assetId')
+      expect(() => amount.toUserCurrency()).toThrow('not configured')
     })
   })
 

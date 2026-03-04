@@ -211,6 +211,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       rates,
       timestamp: now,
       expiresAt: now + 30_000, // 30 second expiry
+      affiliateAddress: req.affiliateInfo?.affiliateAddress,
     }
 
     res.json(response)

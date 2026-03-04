@@ -28,6 +28,7 @@ type YieldSuccessProps = {
   showConfetti?: boolean
   successMessageKey?: YieldSuccessMessageKey
   showButtons?: boolean
+  cooldownMessage?: string
 }
 
 export const YieldSuccess = memo(
@@ -42,6 +43,7 @@ export const YieldSuccess = memo(
     showConfetti = true,
     successMessageKey = 'successStaked',
     showButtons = true,
+    cooldownMessage,
   }: YieldSuccessProps) => {
     const translate = useTranslate()
     const navigate = useNavigate()
@@ -75,7 +77,14 @@ export const YieldSuccess = memo(
     return (
       <>
         <ReactCanvasConfetti onInit={getInstance} style={confettiStyle} />
-        <VStack spacing={6} py={4} textAlign='center' align='center' width='full'>
+        <VStack
+          spacing={6}
+          py={4}
+          textAlign='center'
+          align='center'
+          width='full'
+          data-testid='yield-success'
+        >
           <Box
             position='relative'
             w={20}
@@ -98,6 +107,11 @@ export const YieldSuccess = memo(
             <Text color='text.subtle' fontSize='md'>
               {translate(`yieldXYZ.${successMessageKey}`, { amount, symbol })}
             </Text>
+            {cooldownMessage && (
+              <Text color='text.subtle' fontSize='sm' mt={1}>
+                {cooldownMessage}
+              </Text>
+            )}
           </Box>
 
           {providerInfo && (
@@ -129,7 +143,13 @@ export const YieldSuccess = memo(
           {showButtons && (
             <VStack spacing={3} width='full' pt={2}>
               {yieldId && (
-                <Button colorScheme='blue' width='full' size='lg' onClick={handleViewPosition}>
+                <Button
+                  colorScheme='blue'
+                  width='full'
+                  size='lg'
+                  onClick={handleViewPosition}
+                  data-testid='yield-success-view-position'
+                >
                   {translate('yieldXYZ.viewPosition')}
                 </Button>
               )}
@@ -139,6 +159,7 @@ export const YieldSuccess = memo(
                 width='full'
                 size='lg'
                 onClick={onDone}
+                data-testid='yield-success-close'
               >
                 {translate('common.close')}
               </Button>

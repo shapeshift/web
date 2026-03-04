@@ -302,6 +302,7 @@ export const EarnFooter = memo(
             isDisabled={isDisabled}
             isLoading={isLoading}
             isValidWallet
+            data-testid='earn-submit-button'
           >
             {buttonText}
           </ButtonWalletPredicate>

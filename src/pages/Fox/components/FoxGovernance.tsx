@@ -166,10 +166,12 @@ export const FoxGovernance = () => {
         <Tabs isLazy lazyBehavior='keepMounted' variant='soft-rounded' size='sm'>
           <Flex flex={flexPropsMd1} width={widthBaseFull}>
             <TabList m={0} width={widthMdAuto} pl={tabListPaddingLeft}>
-              <Tab flex={flexPropsMdAuto} me={2}>
+              <Tab data-testid='governance-tab-active' flex={flexPropsMdAuto} me={2}>
                 {translate('common.active')}
               </Tab>
-              <Tab flex={flexPropsMdAuto}>{translate('common.closed')}</Tab>
+              <Tab data-testid='governance-tab-closed' flex={flexPropsMdAuto}>
+                {translate('common.closed')}
+              </Tab>
             </TabList>
           </Flex>
           <TabPanels>

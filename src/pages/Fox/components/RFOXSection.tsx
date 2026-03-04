@@ -297,6 +297,7 @@ export const RFOXSection = () => {
       <Flex flexWrap='wrap' gap={2}>
         {stakingAssetId === foxOnArbitrumOneAssetId && (
           <Button
+            data-testid='rfox-stake-button'
             onClick={handleStakeClick}
             colorScheme='gray'
             flex='1 1 auto'
@@ -306,6 +307,7 @@ export const RFOXSection = () => {
           </Button>
         )}
         <Button
+          data-testid='rfox-unstake-button'
           onClick={handleUnstakeClick}
           colorScheme='gray'
           flex='1 1 auto'
@@ -313,7 +315,12 @@ export const RFOXSection = () => {
         >
           {translate('defi.unstake')}
         </Button>
-        <Button onClick={handleClaimClick} colorScheme='green' flex='1 1 auto'>
+        <Button
+          data-testid='rfox-claim-button'
+          onClick={handleClaimClick}
+          colorScheme='green'
+          flex='1 1 auto'
+        >
           {translate('defi.claim')}
         </Button>
       </Flex>
@@ -340,7 +347,7 @@ export const RFOXSection = () => {
           </Flex>
         </CardBody>
       </Card>
-      <Box py={4} px={containerPaddingX} id='rfox'>
+      <Box py={4} px={containerPaddingX} id='rfox' data-testid='rfox-section'>
         <Flex sx={headerSx}>
           <Box mb={headerTitleMb}>
             <Heading as='h2' fontSize='2xl' display='flex' alignItems='center'>

@@ -13,7 +13,7 @@ import {
 import { fromAccountId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { BigAmount as AmountLib, getChainShortName } from '@shapeshiftoss/utils'
+import { BigAmount, getChainShortName } from '@shapeshiftoss/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -38,7 +38,7 @@ import {
   selectAssetById,
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
   selectTxById,
 } from '@/state/slices/selectors'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
@@ -75,8 +75,8 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     }),
     [confirmedQuote.stakingAssetAccountId, stakingAssetFeeAsset?.assetId],
   )
-  const stakingAssetFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
+  const stakingAssetFeeAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
   )
   const stakingAssetMarketDataUserCurrency = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, confirmedQuote.stakingAssetId),
@@ -89,7 +89,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
 
   const stakingAmountCryptoPrecision = useMemo(
     () =>
-      AmountLib.fromBaseUnit({
+      BigAmount.fromBaseUnit({
         value: confirmedQuote.stakingAmountCryptoBaseUnit,
         precision: stakingAsset?.precision ?? 0,
       }).toPrecision(),
@@ -188,17 +188,14 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     // Staking asset fee asset still loading, assume enough balance not to have a flash of error state on first render
     if (!stakingAssetFeeAsset) return true
     if (bnOrZero(stakingAmountCryptoPrecision).isZero()) return true
-    if (bnOrZero(stakingAssetFeeAssetBalanceCryptoPrecision).isZero()) return false
+    if (stakingAssetFeeAssetBalance.isZero()) return false
 
     // Unfortunately, we can't get Tx fees if an approval is required, because getting Tx fees means simulating the Tx, and the Tx would revert on approval needed.
     // So bnOrZero(stakeFees?.totalNetworkFeeCryptoBaseUnit) would always evaluate to 0 in the expression above, if an approval is required.
     const fees = approvalFees || stakeFees
 
     const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
-      AmountLib.fromPrecision({
-        value: stakingAssetFeeAssetBalanceCryptoPrecision,
-        precision: stakingAssetFeeAsset.precision,
-      }).toBaseUnit(),
+      stakingAssetFeeAssetBalance.toBaseUnit(),
     )
 
     if (!hasEnoughFeeBalance) return false
@@ -207,7 +204,7 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
   }, [
     stakingAssetFeeAsset,
     stakingAmountCryptoPrecision,
-    stakingAssetFeeAssetBalanceCryptoPrecision,
+    stakingAssetFeeAssetBalance,
     approvalFees,
     stakeFees,
   ])

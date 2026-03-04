@@ -958,7 +958,6 @@ export const useYieldTransactionFlow = ({
     quoteError,
     quoteData,
     resolveSymbolForTx,
-    toast,
     translate,
     showErrorToast,
     yieldItem?.mechanics.type,

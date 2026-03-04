@@ -49,6 +49,7 @@ import { selectStakingBalance } from '@/pages/RFOX/helpers'
 import { useCurrentApyQuery } from '@/pages/RFOX/hooks/useCurrentApyQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { useCurrentEpochRewardsQuery } from '@/pages/RFOX/hooks/useCurrentEpochRewardsQuery'
+import { useGetUnstakingRequestsQuery } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 import { useLifetimeRewardsUserCurrencyQuery } from '@/pages/RFOX/hooks/useLifetimeRewardsQuery'
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
@@ -186,6 +187,19 @@ export const RFOXSection = () => {
     return matchingAccountId
   }, [accountIdsByAccountNumberAndChainId, assetAccountNumber, stakingAssetId])
 
+  const allUnstakingRequestsQuery = useGetUnstakingRequestsQuery()
+
+  const hasClaimableRequests = useMemo(() => {
+    const accountRequests = allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? '']
+    if (!accountRequests?.length) return false
+
+    return accountRequests.some(request => {
+      const currentTimestampMs = Date.now()
+      const unstakingTimestampMs = Number(request.cooldownExpiry) * 1000
+      return currentTimestampMs >= unstakingTimestampMs
+    })
+  }, [allUnstakingRequestsQuery.data?.byAccountId, stakingAssetAccountId])
+
   useEffect(() => {
     if (selectedUnstakingRequest) return
 
@@ -320,12 +334,20 @@ export const RFOXSection = () => {
           onClick={handleClaimClick}
           colorScheme='green'
           flex='1 1 auto'
+          isDisabled={!hasClaimableRequests}
         >
           {translate('defi.claim')}
         </Button>
       </Flex>
     )
-  }, [handleStakeClick, handleUnstakeClick, handleClaimClick, translate, stakingAssetId])
+  }, [
+    handleStakeClick,
+    handleUnstakeClick,
+    handleClaimClick,
+    translate,
+    stakingAssetId,
+    hasClaimableRequests,
+  ])
 
   if (!(stakingAsset && usdcAsset)) return null
 

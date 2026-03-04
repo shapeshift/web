@@ -44,6 +44,15 @@ describe('speedUpUtils', () => {
       expect(getTxVsize(tx).toString()).toBe('246')
     })
 
+    it('rounds up weight/4 deterministically for odd weights', () => {
+      const tx = {
+        weight: 983,
+        vin: [],
+        vout: [],
+      }
+      expect(getTxVsize(tx).toString()).toBe('246')
+    })
+
     it('uses bitcoinjs virtual size from hex when vsize and weight are missing', () => {
       const fromHexSpy = vi.spyOn(Transaction, 'fromHex').mockReturnValue({
         virtualSize: () => 246,
@@ -159,6 +168,20 @@ describe('speedUpUtils', () => {
         vinValue: '5000',
         vinAddress: 'bc1qabc',
         prevTxVouts: [{ value: '1111' }, { value: '5000' }],
+      })
+
+      expect(index).toBe(1)
+    })
+
+    it('ignores invalid vin.vout values and falls back to matching heuristics', () => {
+      const index = resolveVinVoutIndex({
+        vinVout: 'not-a-number',
+        vinValue: '5000',
+        vinAddress: 'bc1qxyz',
+        prevTxVouts: [
+          { value: '5000', addresses: ['bc1qabc'] },
+          { value: '5000', addresses: ['bc1qxyz'] },
+        ],
       })
 
       expect(index).toBe(1)

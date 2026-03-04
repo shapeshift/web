@@ -1,4 +1,5 @@
 import { Transaction } from '@shapeshiftoss/bitcoinjs-lib'
+import BigNumber from 'bignumber.js'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 
@@ -34,7 +35,7 @@ export const getTxVsize = (tx: SpeedUpTxLike) => {
   if (vsize.gt(0)) return vsize
 
   const weight = bnOrZero(tx.weight)
-  if (weight.gt(0)) return weight.plus(3).div(4).integerValue()
+  if (weight.gt(0)) return weight.div(4).integerValue(BigNumber.ROUND_CEIL)
 
   if (tx.hex) {
     try {
@@ -134,7 +135,10 @@ export const resolveVinVoutIndex = ({
   vinAddress?: string
   prevTxVouts: VoutLike[]
 }) => {
-  if (vinVout !== undefined && vinVout !== null) return Number(vinVout)
+  if (vinVout !== undefined && vinVout !== null) {
+    const parsedIndex = Number(vinVout)
+    if (Number.isInteger(parsedIndex) && parsedIndex >= 0) return parsedIndex
+  }
 
   const valueMatches = prevTxVouts
     .map((vout, index) => ({

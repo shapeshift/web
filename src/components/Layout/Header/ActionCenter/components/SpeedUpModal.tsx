@@ -384,8 +384,9 @@ export const SpeedUpModal = ({
           position: 'top-right',
         })
       } finally {
-        if (cancelled) return
-        setIsLoading(false)
+        if (!cancelled) {
+          setIsLoading(false)
+        }
       }
     }
 

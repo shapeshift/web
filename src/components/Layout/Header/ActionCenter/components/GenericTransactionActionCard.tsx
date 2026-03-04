@@ -152,7 +152,6 @@ export const GenericTransactionActionCard = ({
   }, [action.transactionMetadata, asset?.symbol, cooldownDuration, translate])
 
   const isCollapsable = !!txLink || (isYieldClaim && action.status === ActionStatus.ClaimAvailable)
-  const isClaimAvailable = action.status === ActionStatus.ClaimAvailable
   const isSpeedUpEligible =
     action.type === ActionType.Send &&
     action.transactionMetadata.displayType === GenericTransactionDisplayType.SEND &&
@@ -162,7 +161,7 @@ export const GenericTransactionActionCard = ({
     action.transactionMetadata.isRbfEnabled === true
 
   const details = useMemo(() => {
-    if (isYieldClaim && isClaimAvailable) {
+    if (isYieldClaim && action.status === ActionStatus.ClaimAvailable) {
       return (
         <Stack gap={4}>
           <Button width='full' colorScheme='green' onClick={handleClaimClick}>
@@ -227,7 +226,6 @@ export const GenericTransactionActionCard = ({
   }, [
     action,
     handleClaimClick,
-    isClaimAvailable,
     isYieldClaim,
     isSpeedUpEligible,
     onOpenSpeedUp,

@@ -63,7 +63,11 @@ export const useSendActionSubscriber = () => {
       )
 
       if (action.transactionMetadata.replacesTxHash) {
-        const originalAction = allActions[action.transactionMetadata.replacesTxHash]
+        const originalAction = Object.values(allActions).find(
+          candidate =>
+            isGenericTransactionAction(candidate) &&
+            candidate.transactionMetadata.txHash === action.transactionMetadata.replacesTxHash,
+        )
         if (
           originalAction &&
           originalAction.status === ActionStatus.Pending &&

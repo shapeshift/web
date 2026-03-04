@@ -12,6 +12,7 @@ import {
   ActionStatus,
   ActionType,
   GenericTransactionDisplayType,
+  isGenericTransactionAction,
 } from '@/state/slices/actionSlice/types'
 import { selectInternalAccountIdByAddress } from '@/state/slices/addressBookSlice/selectors'
 import { store, useAppDispatch } from '@/state/store'
@@ -104,27 +105,20 @@ export const useCompleteSendFlow = ({ handleClose }: UseCompleteSendFlowArgs) =>
 
             if (!tx) return
             const isRbfEnabled = tx.vin.some(
-              vin => typeof vin.sequence === 'number' && vin.sequence < 0xffffffff,
+              vin => typeof vin.sequence === 'number' && vin.sequence < 0xfffffffe,
             )
+
+            const existingAction = actionSlice.selectors.selectActionsById(store.getState())[txHash]
+            if (!existingAction || !isGenericTransactionAction(existingAction)) return
 
             dispatch(
               actionSlice.actions.upsertAction({
-                id: txHash,
-                type: ActionType.Send,
+                ...existingAction,
                 transactionMetadata: {
-                  displayType: GenericTransactionDisplayType.SEND,
-                  txHash,
-                  chainId,
-                  accountId,
-                  accountIdsToRefetch,
-                  assetId,
-                  amountCryptoPrecision,
-                  message: 'modals.send.status.pendingBody',
+                  ...existingAction.transactionMetadata,
                   isRbfEnabled,
                   btcUtxoRbfTxMetadata,
                 },
-                status: ActionStatus.Pending,
-                createdAt: Date.now(),
                 updatedAt: Date.now(),
               }),
             )

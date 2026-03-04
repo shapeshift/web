@@ -14,7 +14,8 @@ import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { Text } from '@/components/Text'
 import { useModal } from '@/hooks/useModal/useModal'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
-import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const swapIcon = <SwapIcon />
@@ -47,10 +48,17 @@ export const FoxTokenHeader = () => {
   const appDispatch = useAppDispatch()
 
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const fiatRamps = useModal('fiatRamps')
   const navigate = useNavigate()
 
-  const handleSwapClick = useCallback(() => navigate(TradeRoutePaths.Input), [navigate])
+  const handleSwapClick = useCallback(() => {
+    // Set the buy asset via dispatch to ensure trade context is properly initialized
+    if (asset) {
+      appDispatch(tradeInput.actions.setBuyAsset(asset))
+    }
+    navigate(TradeRoutePaths.Input)
+  }, [appDispatch, asset, navigate])
 
   const handleBuyClick = useCallback(() => {
     fiatRamps.open({

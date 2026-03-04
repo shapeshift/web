@@ -2716,6 +2716,8 @@
   "pools": {
     "pools": "Pools",
     "pool": "Pool",
+    "errorFetchingPools": "Unable to fetch pools. Please try again later.",
+    "noPoolsAvailable": "No pools available at this time.",
     "positions": "Positions",
     "tvl": "TVL",
     "volume24h": "Volume 24H",

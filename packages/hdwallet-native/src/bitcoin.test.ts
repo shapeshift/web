@@ -504,14 +504,18 @@ describe('NativeBTCWallet', () => {
     await expect(wallet.btcSignTx(input as any)).rejects.toThrowError('Can not sign for this input')
   })
 
-  it("doesn't support signing messages", async () => {
+  it('should sign messages', async () => {
     await expect(
       wallet.btcSignMessage({
         coin: 'Bitcoin',
         addressNList: core.bip32ToAddressNList("m/44'/0'/0'/0/0"),
         message: 'foobar',
       }),
-    ).rejects.toThrowError('not implemented')
+    ).resolves.toEqual({
+      address: '1JAd7XCBzGudGpJQSDSfpmJhiygtLQWaGL',
+      signature:
+        '20334a3da1ff11887fc53d7e68e8b3e47c07fc0e127e78fe82b778941e88a99051691161a3b57a4e405932257bb8f75d2b5628650b3f6c755647cbb31ff89041e6',
+    })
   })
 
   it("doesn't support verifying messages", async () => {

@@ -91,14 +91,11 @@ export const MultiHopTrade = memo(
       }
 
       if (paramsSellAmountCryptoBaseUnit && sellAsset) {
-        dispatch(
-          tradeInput.actions.setSellAmountCryptoPrecision(
-            BigAmount.fromBaseUnit({
-              value: paramsSellAmountCryptoBaseUnit,
-              precision: sellAsset.precision,
-            }).toPrecision(),
-          ),
-        )
+        const sellAmountCrypto = BigAmount.fromBaseUnit({
+          value: paramsSellAmountCryptoBaseUnit,
+          precision: sellAsset.precision,
+        })
+        dispatch(tradeInput.actions.setSellAmountCryptoPrecision(sellAmountCrypto.toPrecision()))
       }
 
       setIsInitialized(true)

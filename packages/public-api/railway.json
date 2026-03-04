@@ -16,7 +16,7 @@
       "packages/hdwallet-core/**",
       "packages/hdwallet-ledger/**",
       "public/generated/generatedAssetData.json",
-      "yarn.lock"
+      "pnpm-lock.yaml"
     ]
   },
   "deploy": {

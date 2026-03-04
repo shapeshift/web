@@ -405,6 +405,7 @@ export const EarnConfirm = memo(() => {
       footerContent={footerContent}
       onBack={handleBack}
       headerTranslation='earn.confirmEarn'
+      data-testid='earn-confirm-form'
     />
   )
 })

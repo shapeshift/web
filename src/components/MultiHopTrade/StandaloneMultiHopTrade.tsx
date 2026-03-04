@@ -120,14 +120,11 @@ export const StandaloneMultiHopTrade = memo(
       }
 
       if (paramsSellAmountCryptoBaseUnit && routeSellAsset) {
-        dispatch(
-          tradeInput.actions.setSellAmountCryptoPrecision(
-            BigAmount.fromBaseUnit({
-              value: paramsSellAmountCryptoBaseUnit,
-              precision: routeSellAsset.precision,
-            }).toPrecision(),
-          ),
-        )
+        const sellAmountCrypto = BigAmount.fromBaseUnit({
+          value: paramsSellAmountCryptoBaseUnit,
+          precision: routeSellAsset.precision,
+        })
+        dispatch(tradeInput.actions.setSellAmountCryptoPrecision(sellAmountCrypto.toPrecision()))
       }
 
       setIsInitialized(true)

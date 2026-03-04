@@ -120,18 +120,21 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
     })
   }, [activeQuote.params.accountId, feeAsset, maybeSafeTx, txHash])
 
-  const hasSufficientBalanceForGas = useMemo(() => {
-    if (approvalNetworkFeeCryptoBaseUnit === undefined) {
-      return isLoading
-    }
+  const approvalNetworkFeeCrypto = useMemo(
+    () =>
+      approvalNetworkFeeCryptoBaseUnit !== undefined
+        ? BigAmount.fromBaseUnit({
+            value: approvalNetworkFeeCryptoBaseUnit,
+            precision: feeAsset?.precision ?? 0,
+          })
+        : undefined,
+    [approvalNetworkFeeCryptoBaseUnit, feeAsset?.precision],
+  )
 
-    return feeAssetBalance.gte(
-      BigAmount.fromBaseUnit({
-        value: approvalNetworkFeeCryptoBaseUnit,
-        precision: feeAssetBalance.precision,
-      }),
-    )
-  }, [approvalNetworkFeeCryptoBaseUnit, feeAssetBalance, isLoading])
+  const hasSufficientBalanceForGas = useMemo(() => {
+    if (!approvalNetworkFeeCrypto) return isLoading
+    return feeAssetBalance.gte(approvalNetworkFeeCrypto)
+  }, [approvalNetworkFeeCrypto, feeAssetBalance, isLoading])
 
   const approveAssetTranslation = useMemo(() => {
     return [
@@ -180,12 +183,9 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
           {!isAllowanceResetRequired && txStatus === TxStatus.Unknown && (
             <>
               <Text translation='common.approvalFee' color='text.subtle' />
-              {approvalNetworkFeeCryptoBaseUnit && feeAsset && (
+              {approvalNetworkFeeCrypto && feeAsset && (
                 <Amount.Crypto
-                  value={BigAmount.fromBaseUnit({
-                    value: approvalNetworkFeeCryptoBaseUnit,
-                    precision: feeAsset?.precision ?? 0,
-                  }).toPrecision()}
+                  value={approvalNetworkFeeCrypto.toPrecision()}
                   symbol={feeAsset?.symbol ?? ''}
                 />
               )}
@@ -201,7 +201,7 @@ const AllowanceApprovalInner = ({ activeQuote }: { activeQuote: LimitOrderActive
     )
   }, [
     isAllowanceResetRequired,
-    approvalNetworkFeeCryptoBaseUnit,
+    approvalNetworkFeeCrypto,
     approveAssetTranslation,
     feeAsset,
     translate,

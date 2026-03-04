@@ -14,6 +14,9 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
+import dayjs from 'dayjs'
+import dayjsDuration from 'dayjs/plugin/duration'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import { TbSwitchVertical } from 'react-icons/tb'
 import type { NumberFormatValues } from 'react-number-format'
@@ -48,6 +51,7 @@ import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
 import { YieldExplainers } from '@/pages/Yields/components/YieldExplainers'
 import { YieldSuccess } from '@/pages/Yields/components/YieldSuccess'
+import { getYieldQuoteErrorTranslation } from '@/pages/Yields/hooks/getYieldQuoteErrorTranslation'
 import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
@@ -84,6 +88,9 @@ const YieldFormSkeleton = memo(() => (
     <Skeleton height='20px' width='100px' borderRadius='lg' />
   </Flex>
 ))
+
+dayjs.extend(dayjsDuration)
+dayjs.extend(relativeTime)
 
 const selectedHoverSx = { bg: 'blue.600' }
 const unselectedHoverSx = { bg: 'background.surface.raised.hover' }
@@ -430,8 +437,10 @@ export const YieldForm = memo(
       handleConfirm,
       isQuoteLoading,
       quoteData,
+      quoteError,
       isAllowanceCheckPending,
       isUsdtResetRequired,
+      isAmountLocked,
     } = useYieldTransactionFlow({
       yieldItem,
       action: flowAction,
@@ -507,6 +516,10 @@ export const YieldForm = memo(
     const buttonText = useMemo(() => {
       if (!isConnected) return translate('common.connectWallet')
       if (isQuoteActive) return translate('yieldXYZ.loadingQuote')
+      if (quoteError && cryptoAmount) {
+        const { key, params } = getYieldQuoteErrorTranslation(quoteError)
+        return translate(key, params)
+      }
 
       if (isSubmitting && transactionSteps.length > 0) {
         const activeStep = transactionSteps.find(s => s.status !== 'success')
@@ -556,6 +569,8 @@ export const YieldForm = memo(
     }, [
       isConnected,
       isQuoteActive,
+      quoteError,
+      cryptoAmount,
       isSubmitting,
       transactionSteps,
       activeStepIndex,
@@ -569,9 +584,11 @@ export const YieldForm = memo(
       withdrawableToken?.symbol,
     ])
 
+    const isInputDisabled = isSubmitting || isAmountLocked
+
     const percentButtons = useMemo(
       () => (
-        <HStack spacing={2} justify='center' width='full'>
+        <HStack spacing={2} justify='center' width='full' data-testid='yield-form-percent-buttons'>
           {PRESET_PERCENTAGES.map(percent => {
             const isSelected = selectedPercent === percent
             return (
@@ -586,6 +603,8 @@ export const YieldForm = memo(
                 borderRadius='full'
                 px={4}
                 fontWeight='medium'
+                isDisabled={isInputDisabled}
+                data-testid={`yield-form-percent-${percent === 1 ? 'max' : `${percent * 100}`}`}
               >
                 {percent === 1 ? translate('modals.send.sendForm.max') : `${percent * 100}%`}
               </Button>
@@ -593,7 +612,7 @@ export const YieldForm = memo(
           })}
         </HStack>
       ),
-      [selectedPercent, handlePercentClick, translate],
+      [selectedPercent, handlePercentClick, translate, isInputDisabled],
     )
 
     const statsContent = useMemo(
@@ -755,6 +774,7 @@ export const YieldForm = memo(
             prefix={isFiat ? localeParts.prefix : ''}
             suffix={isFiat ? '' : ` ${inputTokenAsset?.symbol}`}
             onValueChange={handleInputChange}
+            isDisabled={isInputDisabled}
           />
           <HStack
             spacing={2}
@@ -764,6 +784,7 @@ export const YieldForm = memo(
             role='button'
             tabIndex={0}
             aria-label={translate('trade.switchCurrency')}
+            data-testid='yield-form-currency-toggle'
             onKeyDown={e => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault()
@@ -800,6 +821,7 @@ export const YieldForm = memo(
       displayPlaceholder,
       inputTokenAsset?.symbol,
       handleInputChange,
+      isInputDisabled,
       toggleIsFiat,
       cryptoAmount,
       fiatAmount,
@@ -831,6 +853,13 @@ export const YieldForm = memo(
         return cryptoAmount
       })()
       const successMessageKey = getYieldSuccessMessageKey(yieldItem.mechanics.type, action)
+      const cooldownSeconds = yieldItem.mechanics.cooldownPeriod?.seconds
+      const cooldownMessage =
+        action === 'exit' && cooldownSeconds
+          ? translate('yieldXYZ.cooldownNotice', {
+              cooldownDuration: dayjs.duration(cooldownSeconds, 'seconds').humanize(),
+            })
+          : undefined
 
       return (
         <YieldSuccess
@@ -842,6 +871,7 @@ export const YieldForm = memo(
           accountId={accountId}
           onDone={handleFormDone}
           successMessageKey={successMessageKey}
+          cooldownMessage={cooldownMessage}
         />
       )
     }
@@ -889,6 +919,7 @@ export const YieldForm = memo(
               isSubmitting ? translate('common.confirming') : translate('yieldXYZ.loadingQuote')
             }
             onClick={isConnected ? handleConfirm : handleConnectWallet}
+            data-testid='yield-form-submit-button'
           >
             {buttonText}
           </Button>

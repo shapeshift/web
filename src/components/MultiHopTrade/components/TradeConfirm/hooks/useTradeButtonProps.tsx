@@ -92,6 +92,15 @@ export const useTradeButtonProps = ({
     const firstStep = activeQuote.steps[0]
     const lastStep = activeQuote.steps[activeQuote.steps.length - 1]
 
+    const sellAmountCrypto = BigAmount.fromBaseUnit({
+      value: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      precision: firstStep.sellAsset.precision,
+    })
+    const expectedBuyAmountCrypto = BigAmount.fromBaseUnit({
+      value: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+      precision: lastStep.buyAsset.precision,
+    })
+
     const swap: Swap = {
       id: uuid(),
       createdAt: Date.now(),
@@ -105,20 +114,16 @@ export const useTradeButtonProps = ({
       buyAsset: lastStep.buyAsset,
       sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       expectedBuyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
-      sellAmountCryptoPrecision: BigAmount.fromBaseUnit({
-        value: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        precision: firstStep.sellAsset.precision,
-      }).toPrecision(),
-      expectedBuyAmountCryptoPrecision: BigAmount.fromBaseUnit({
-        value: lastStep.buyAmountAfterFeesCryptoBaseUnit,
-        precision: lastStep.buyAsset.precision,
-      }).toPrecision(),
+      sellAmountCryptoPrecision: sellAmountCrypto.toPrecision(),
+      expectedBuyAmountCryptoPrecision: expectedBuyAmountCrypto.toPrecision(),
       metadata: {
         chainflipSwapId: firstStep?.chainflipSpecific?.chainflipSwapId,
         nearIntentsSpecific: firstStep?.nearIntentsSpecific,
         relayerExplorerTxLink,
         relayerTxHash,
         relayTransactionMetadata: firstStep?.relayTransactionMetadata,
+        acrossTransactionMetadata: firstStep?.acrossTransactionMetadata,
+        debridgeTransactionMetadata: firstStep?.debridgeTransactionMetadata,
         stepIndex: currentHopIndex,
         quoteId: firstStep?.stonfiSpecific?.quoteId ?? activeQuote.id,
         streamingSwapMetadata: {

@@ -103,14 +103,11 @@ export const LimitOrder = ({
     }
 
     if (sellAmountCryptoBaseUnit && routeSellAsset) {
-      dispatch(
-        limitOrderInput.actions.setSellAmountCryptoPrecision(
-          BigAmount.fromBaseUnit({
-            value: sellAmountCryptoBaseUnit,
-            precision: routeSellAsset.precision,
-          }).toPrecision(),
-        ),
-      )
+      const sellAmountCrypto = BigAmount.fromBaseUnit({
+        value: sellAmountCryptoBaseUnit,
+        precision: routeSellAsset.precision,
+      })
+      dispatch(limitOrderInput.actions.setSellAmountCryptoPrecision(sellAmountCrypto.toPrecision()))
     }
 
     if (routeLimitPriceDirection) {

@@ -1,4 +1,7 @@
 import { Avatar, Box, Button, Flex, Text } from '@chakra-ui/react'
+import dayjs from 'dayjs'
+import dayjsDuration from 'dayjs/plugin/duration'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -28,6 +31,7 @@ import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
 import { YieldAssetFlow } from '@/pages/Yields/components/YieldAssetFlow'
 import { YieldSuccess } from '@/pages/Yields/components/YieldSuccess'
+import { getYieldQuoteErrorTranslation } from '@/pages/Yields/hooks/getYieldQuoteErrorTranslation'
 import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
@@ -36,6 +40,9 @@ import {
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+
+dayjs.extend(dayjsDuration)
+dayjs.extend(relativeTime)
 
 type YieldActionModalProps = {
   isOpen: boolean
@@ -81,6 +88,7 @@ export const YieldActionModal = memo(function YieldActionModal({
     handleClose,
     isQuoteLoading,
     quoteData,
+    quoteError,
     isAllowanceCheckPending,
     isUsdtResetRequired,
   } = useYieldTransactionFlow({
@@ -203,6 +211,10 @@ export const YieldActionModal = memo(function YieldActionModal({
   ])
 
   const buttonText = useMemo(() => {
+    if (quoteError && amount) {
+      const { key, params } = getYieldQuoteErrorTranslation(quoteError)
+      return translate(key, params)
+    }
     const yieldType = yieldItem.mechanics.type
     // Use the current step's type/title for a clean button label (e.g., "Stake", "Unstake", "Approve")
     if (activeStepIndex >= 0 && transactionSteps[activeStepIndex]) {
@@ -226,6 +238,8 @@ export const YieldActionModal = memo(function YieldActionModal({
   }, [
     action,
     translate,
+    quoteError,
+    amount,
     activeStepIndex,
     transactionSteps,
     quoteData,
@@ -357,6 +371,14 @@ export const YieldActionModal = memo(function YieldActionModal({
     [yieldItem.mechanics.type, action],
   )
 
+  const cooldownMessage = useMemo(() => {
+    if (action !== 'exit') return undefined
+    const cooldownSeconds = yieldItem.mechanics.cooldownPeriod?.seconds
+    if (!cooldownSeconds) return undefined
+    const cooldownDuration = dayjs.duration(cooldownSeconds, 'seconds').humanize()
+    return translate('yieldXYZ.cooldownNotice', { cooldownDuration })
+  }, [action, yieldItem.mechanics.cooldownPeriod?.seconds, translate])
+
   const successProviderInfo = useMemo(
     () => (vaultMetadata ? { name: vaultMetadata.name, logoURI: vaultMetadata.logoURI } : null),
     [vaultMetadata],
@@ -373,6 +395,7 @@ export const YieldActionModal = memo(function YieldActionModal({
         accountId={accountId}
         onDone={handleClose}
         successMessageKey={successMessageKey}
+        cooldownMessage={cooldownMessage}
       />
     ),
     [
@@ -384,6 +407,7 @@ export const YieldActionModal = memo(function YieldActionModal({
       accountId,
       handleClose,
       successMessageKey,
+      cooldownMessage,
     ],
   )
 
@@ -396,6 +420,7 @@ export const YieldActionModal = memo(function YieldActionModal({
       onClose={handleClose}
       isFullScreen
       modalProps={{ closeOnOverlayClick: !isSubmitting }}
+      data-testid={`yield-action-modal-${action}`}
     >
       <DialogHeader>
         <DialogHeader.Left>{null}</DialogHeader.Left>
@@ -424,6 +449,7 @@ export const YieldActionModal = memo(function YieldActionModal({
             isLoading={isButtonLoading}
             loadingText={loadingText}
             onClick={handleConfirm}
+            data-testid='yield-action-confirm-button'
           >
             {buttonText}
           </Button>
@@ -440,6 +466,7 @@ export const YieldActionModal = memo(function YieldActionModal({
             fontWeight='semibold'
             borderRadius='xl'
             onClick={handleClose}
+            data-testid='yield-action-close-button'
           >
             {translate('common.close')}
           </Button>

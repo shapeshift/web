@@ -20,6 +20,8 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
     case SwapperName.NearIntents:
     case SwapperName.Stonfi:
     case SwapperName.Sunio:
+    case SwapperName.Across:
+    case SwapperName.Debridge:
       return true
     case SwapperName.Zrx:
     case SwapperName.CowSwap:
@@ -53,6 +55,8 @@ export const getEnabledSwappers = (
     SunioSwap,
     AvnuSwap,
     StonfiSwap,
+    AcrossSwap,
+    DebridgeSwap,
   }: FeatureFlags,
   isCrossAccountTrade: boolean,
   isSolBuyAssetId: boolean,
@@ -111,6 +115,10 @@ export const getEnabledSwappers = (
       AvnuSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Avnu)),
     [SwapperName.Stonfi]:
       StonfiSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Stonfi)),
+    [SwapperName.Across]:
+      AcrossSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Across)),
+    [SwapperName.Debridge]:
+      DebridgeSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Debridge)),
     [SwapperName.Test]: false,
   }
 }

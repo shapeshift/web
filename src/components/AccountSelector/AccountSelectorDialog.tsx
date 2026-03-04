@@ -3,7 +3,6 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useSelector } from 'react-redux'
 
 import { AccountSelectorOption } from '@/components/AccountSelector/AccountSelectorOption'
 import { Dialog } from '@/components/Modal/components/Dialog'
@@ -41,18 +40,24 @@ export const AccountSelectorDialog = ({
   onAccountSelect,
 }: AccountSelectorDialogProps) => {
   const translate = useTranslate()
-  const accountBalances = useSelector(selectPortfolioAccountBalances)
+  const accountBalances = useAppSelector(selectPortfolioAccountBalances)
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   const accountsWithDetails = useMemo(
     () =>
       accountIds.map(accountId => {
         const balance = accountBalances?.[accountId]?.[assetId]
+        const fiatBalance = balance
+          ? balance
+              .toBN()
+              .times(marketData?.price ?? 0)
+              .toFixed(2)
+          : '0'
 
         return {
           accountId,
-          cryptoBalancePrecision: balance ? balance.toPrecision() : '0',
-          fiatBalance: balance ? balance.times(marketData?.price ?? 0).toFixed(2) : '0',
+          cryptoBalancePrecision: balance?.toPrecision() ?? '0',
+          fiatBalance,
         }
       }),
     [accountIds, accountBalances, assetId, marketData],

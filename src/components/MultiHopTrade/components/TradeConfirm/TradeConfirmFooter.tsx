@@ -184,10 +184,12 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
 
   const allowanceResetNetworkFeeCryptoPrecision = useMemo(
     () =>
-      BigAmount.fromBaseUnit({
-        value: allowanceResetNetworkFeeCryptoBaseUnit,
-        precision: sellChainFeeAsset?.precision ?? 0,
-      }).toPrecision(),
+      allowanceResetNetworkFeeCryptoBaseUnit !== undefined
+        ? BigAmount.fromBaseUnit({
+            value: allowanceResetNetworkFeeCryptoBaseUnit,
+            precision: sellChainFeeAsset?.precision ?? 0,
+          }).toPrecision()
+        : undefined,
     [allowanceResetNetworkFeeCryptoBaseUnit, sellChainFeeAsset?.precision],
   )
 
@@ -201,10 +203,12 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
 
   const approvalNetworkFeeCryptoPrecision = useMemo(
     () =>
-      BigAmount.fromBaseUnit({
-        value: approvalNetworkFeeCryptoBaseUnit,
-        precision: sellChainFeeAsset?.precision ?? 0,
-      }).toPrecision(),
+      approvalNetworkFeeCryptoBaseUnit !== undefined
+        ? BigAmount.fromBaseUnit({
+            value: approvalNetworkFeeCryptoBaseUnit,
+            precision: sellChainFeeAsset?.precision ?? 0,
+          }).toPrecision()
+        : undefined,
     [approvalNetworkFeeCryptoBaseUnit, sellChainFeeAsset?.precision],
   )
 

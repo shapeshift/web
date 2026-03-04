@@ -85,6 +85,7 @@ export const NavBar = (props: NavBarProps) => {
               // Replace paths with segments (e.g /wallet/*) to paths without (e.g /wallet)
               to={item.path.replace('/*', '')}
               isNew={item.isNew}
+              isDeprecated={item.isDeprecated}
               isViewOnly={item.isViewOnly}
               size='lg'
               onClick={onClick}

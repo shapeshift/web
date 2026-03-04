@@ -91,25 +91,21 @@ export const parseAmountDisplayMeta = (items: AmountDisplayMeta[]): ProtocolFeeD
     .forEach(({ amountCryptoBaseUnit, asset }: AmountDisplayMeta) => {
       if (!asset.assetId) return
       const key = asset.assetId
+      const amountCrypto = BigAmount.fromBaseUnit({
+        value: amountCryptoBaseUnit,
+        precision: asset.precision,
+      })
       if (feeMap[key]) {
         // If we already have this asset+chain combination, add the amounts
         feeMap[key].amountCryptoPrecision = bnOrZero(feeMap[key].amountCryptoPrecision)
-          .plus(
-            BigAmount.fromBaseUnit({
-              value: amountCryptoBaseUnit,
-              precision: asset.precision,
-            }).toPrecision(),
-          )
+          .plus(amountCrypto.toPrecision())
           .toString()
       } else {
         // First time seeing this asset+chain combination
         feeMap[key] = {
           assetId: asset.assetId,
           chainName: chainIdToChainDisplayName(asset.chainId),
-          amountCryptoPrecision: BigAmount.fromBaseUnit({
-            value: amountCryptoBaseUnit,
-            precision: asset.precision,
-          }).toPrecision(),
+          amountCryptoPrecision: amountCrypto.toPrecision(),
           symbol: asset.symbol,
         }
       }

@@ -29,6 +29,7 @@ import type {
   NearChainId,
   OrderQuoteResponse,
   PartialRecord,
+  SolanaChainId,
   TonChainId,
   TronChainId,
   UtxoAccountType,
@@ -43,7 +44,9 @@ import type Polyglot from 'node-polyglot'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { Address, Hex } from 'viem'
 
+import type { AcrossTransactionMetadata } from './swappers/AcrossSwapper/utils/types'
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
+import type { DebridgeTransactionMetadata } from './swappers/DebridgeSwapper/utils/types'
 import type { RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
@@ -81,6 +84,9 @@ export type SwapperConfig = {
   VITE_TENDERLY_ACCOUNT_SLUG: string
   VITE_TENDERLY_PROJECT_SLUG: string
   VITE_SUI_NODE_URL: string
+  VITE_ACROSS_API_URL: string
+  VITE_ACROSS_INTEGRATOR_ID: string
+  VITE_DEBRIDGE_API_URL: string
 }
 
 export enum SwapperName {
@@ -101,6 +107,8 @@ export enum SwapperName {
   Sunio = 'Sun.io',
   Avnu = 'AVNU',
   Stonfi = 'STON.fi',
+  Across = 'Across',
+  Debridge = 'deBridge',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -271,6 +279,18 @@ export type GetTonTradeRateInput = CommonTradeRateInput & {
   chainId: TonChainId
 }
 
+export type GetSolanaTradeQuoteInputBase = CommonTradeInput & {
+  chainId: SolanaChainId
+}
+
+export type GetSolanaTradeQuoteInput = CommonTradeInput & {
+  chainId: SolanaChainId
+}
+
+export type GetSolanaTradeRateInput = CommonTradeRateInput & {
+  chainId: SolanaChainId
+}
+
 type GetUtxoTradeQuoteWithWallet = CommonTradeQuoteInput & {
   chainId: UtxoChainId
   accountType: UtxoAccountType
@@ -296,6 +316,7 @@ export type GetTradeQuoteInput =
   | GetTronTradeQuoteInput
   | GetNearTradeQuoteInput
   | GetTonTradeQuoteInput
+  | GetSolanaTradeQuoteInput
 
 export type GetTradeRateInput =
   | GetEvmTradeRateInput
@@ -304,6 +325,7 @@ export type GetTradeRateInput =
   | GetTronTradeRateInput
   | GetNearTradeRateInput
   | GetTonTradeRateInput
+  | GetSolanaTradeRateInput
 
 export type GetTradeQuoteInputWithWallet =
   | GetUtxoTradeQuoteWithWallet
@@ -312,6 +334,7 @@ export type GetTradeQuoteInputWithWallet =
   | GetTronTradeQuoteInputBase
   | GetNearTradeQuoteInputBase
   | GetTonTradeQuoteInputBase
+  | GetSolanaTradeQuoteInputBase
 
 export type EvmSwapperDeps = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
@@ -437,6 +460,7 @@ export type TradeQuoteStep = {
     method?: string
     args?: { type: string; value: unknown }[]
     memo?: string
+    serializedSolanaTransaction?: string
   }
   sunioTransactionMetadata?: {
     route: {
@@ -476,6 +500,8 @@ export type TradeQuoteStep = {
     estimatedGasConsumption: string
     params?: unknown
   }
+  acrossTransactionMetadata?: AcrossTransactionMetadata
+  debridgeTransactionMetadata?: DebridgeTransactionMetadata
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & {
@@ -536,6 +562,8 @@ export type SwapperSpecificMetadata = {
     deadline: string
   }
   relayTransactionMetadata: RelayTransactionMetadata | undefined
+  acrossTransactionMetadata: AcrossTransactionMetadata | undefined
+  debridgeTransactionMetadata: DebridgeTransactionMetadata | undefined
   relayerExplorerTxLink: string | undefined
   relayerTxHash: string | undefined
   stepIndex: SupportedTradeQuoteStepIndex

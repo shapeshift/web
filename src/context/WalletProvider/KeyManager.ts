@@ -3,6 +3,7 @@ export enum KeyManager {
   Native = 'native',
   Coinbase = 'coinbase',
   Phantom = 'phantom',
+  Seeker = 'seeker',
   MetaMask = 'metamask',
   KeepKey = 'keepkey',
   Keplr = 'keplr',

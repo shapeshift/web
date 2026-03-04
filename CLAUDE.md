@@ -65,12 +65,12 @@
 ### Project Overview
 - **Project**: Decentralized crypto exchange platform
 - **Main branch**: `develop` (not main/master)
-- **Package manager**: yarn
+- **Package manager**: pnpm
 - **State management**: Redux Toolkit with redux-persist
 - **Architecture**: Plugin-based for blockchain support
 
 ### Code Quality & Standards
-- Always run `yarn lint --fix` and `yarn type-check` after making changes
+- Always run `pnpm run lint --fix` and `pnpm run type-check` after making changes
 - Keep changes surgical where possible - minimize changes to make code reviews easier
 - Make targeted, focused modifications rather than broad refactors unless specifically requested
 - Never create documentation files unless explicitly requested
@@ -89,9 +89,16 @@
 ### Git & Version Control
 - Never commit changes unless explicitly requested
 - When creating commits, follow the Git Safety Protocol (see session notes)
+- **Before pushing**: always run `pnpm run lint --fix`, and if there are lint fixes, commit them before pushing. Never push without verifying lint passes first.
 - Main branch is `develop` - use this for PRs
 - Branch naming: Use descriptive names (e.g., `feat_gridplus`, `fix_wallet_connect`)
 - When opening PRs (via `gh`, Aviator `av`, or any CLI tool), ALWAYS use the `.github/PULL_REQUEST_TEMPLATE.md` template as the base for the PR body
+- **Editing PR descriptions**: `gh pr edit --body` fails on this repo due to a deprecated Projects Classic GraphQL error. Use the REST API instead: `gh api repos/shapeshift/web/pulls/<number> -X PATCH -F "body=@/path/to/body.md"` (write the body to a temp file first)
+
+### xstate PRs
+- When a PR includes xstate state machines, the PR description MUST include a Mermaid `stateDiagram-v2` visualization of the machine's states and transitions
+- Generate the diagram from the machine definition - show states, events, guards, and error/retry flows
+- This serves as living documentation for both product and engineering reviewers
 
 ### UI/UX Standards
 - Account for light/dark mode using `useColorModeValue` hook
@@ -134,6 +141,23 @@
   4. Add persist config if needed
   5. Export selectors from slice using `selectors` property
 
+### Contracts (Enforceable Integration Specs)
+
+Contracts live in `.claude/contracts/` (project) and `~/.claude/contracts/` (global, fallback).
+They define the authoritative checklist of integration points for a feature type.
+
+**When building:** If a contract exists for the feature type being implemented, load it
+and use it as your todo list. Every item must be addressed.
+
+**When reviewing:** If a contract exists for the feature type being reviewed, load it
+and perform gap analysis against the PR diff. Flag missing items with severity prefixes.
+
+**Discovery:** Check `.claude/contracts/` first, then `~/.claude/contracts/`.
+
+Current contracts:
+- `second-class-evm-chain.md` - All integration points for adding a new second-class EVM chain
+- `swapper-integration.md` - Registration, testing, and completion checklist for new swappers
+
 ### Type Definitions
 - Prefer `type` over `interface` for type definitions
 - Use strict typing - avoid `any`
@@ -158,7 +182,6 @@
 - Use `BigAmount.fromBaseUnit({ value, precision })` for constructing from raw blockchain values (preferred, lossless)
 - Use `BigAmount.fromPrecision({ value, precision })` only when a precision-scale value is all that's available
 - Call `.toPrecision()` / `.toBaseUnit()` directly on BigAmount for string extraction — no wrapper aliases
-- Core selectors (`selectPortfolioCryptoBalanceByFilter`) return `BigAmount`
 - Never cast `as BigAmount` — fix types as needed
 - Naming: `CryptoBaseUnit` = raw integer, `CryptoPrecision` = human-readable (NOT "HumanBalance")
 

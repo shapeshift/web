@@ -115,6 +115,7 @@ export async function btcSignTx(
       prev_index: input.vout,
       amount: input.amount,
       script_type: translateInputScriptType(input.scriptType),
+      ...(input.sequence !== undefined && { sequence: input.sequence }),
     }
   })
 

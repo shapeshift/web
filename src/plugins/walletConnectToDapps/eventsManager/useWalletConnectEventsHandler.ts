@@ -1,4 +1,4 @@
-import { formatJsonRpcResult } from '@json-rpc-tools/utils'
+import { formatJsonRpcError, formatJsonRpcResult } from '@json-rpc-tools/utils'
 import type { WalletKitTypes } from '@reown/walletkit'
 import type { ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId, toChainId } from '@shapeshiftoss/caip'
@@ -12,11 +12,16 @@ import type {
   WalletSwitchEthereumChainParams,
 } from '@/plugins/walletConnectToDapps/types'
 import {
+  BIP122SigningMethod,
   CosmosSigningMethod,
   EIP155_SigningMethod,
   WalletConnectActionType,
   WalletConnectModal,
 } from '@/plugins/walletConnectToDapps/types'
+import {
+  deriveAddressFromExtPubKey,
+  isExtPubKey,
+} from '@/plugins/walletConnectToDapps/utils/createApprovalNamespaces'
 
 export const useWalletConnectEventsHandler = (
   dispatch: WalletConnectContextType['dispatch'],
@@ -27,7 +32,10 @@ export const useWalletConnectEventsHandler = (
     (proposal: WalletKitTypes.EventArguments['session_proposal']) => {
       dispatch({
         type: WalletConnectActionType.SET_MODAL,
-        payload: { modal: WalletConnectModal.SessionProposal, data: { proposal } },
+        payload: {
+          modal: WalletConnectModal.SessionProposal,
+          data: { proposal },
+        },
       })
     },
     [dispatch],
@@ -148,7 +156,28 @@ export const useWalletConnectEventsHandler = (
           })
           return
         }
+        case CosmosSigningMethod.COSMOS_GET_ACCOUNTS: {
+          const cosmosAccounts = session?.namespaces?.cosmos?.accounts ?? []
+          // Best-effort: pubkey should be a base64-encoded secp256k1 public key, but we
+          // only have the bech32 address here. Falls back to address which is semantically
+          // wrong but allows dApps that don't strictly validate the pubkey field to work.
+          const accounts = cosmosAccounts.map(caip10 => {
+            const { account } = fromAccountId(caip10)
+            return { address: account, algo: 'secp256k1', pubkey: account }
+          })
+          return web3wallet?.respondSessionRequest({
+            topic,
+            response: formatJsonRpcResult(requestEvent.id, accounts),
+          })
+        }
         case CosmosSigningMethod.COSMOS_SIGN_DIRECT:
+          return web3wallet?.respondSessionRequest({
+            topic,
+            response: formatJsonRpcError(
+              requestEvent.id,
+              'cosmos_signDirect is not supported - use cosmos_signAmino instead',
+            ),
+          })
         case CosmosSigningMethod.COSMOS_SIGN_AMINO:
           return dispatch({
             type: WalletConnectActionType.SET_MODAL,
@@ -158,6 +187,34 @@ export const useWalletConnectEventsHandler = (
             },
           })
 
+        case BIP122SigningMethod.BIP122_SEND_TRANSFER:
+        case BIP122SigningMethod.BIP122_SIGN_PSBT:
+        case BIP122SigningMethod.BIP122_SIGN_MESSAGE:
+          return dispatch({
+            type: WalletConnectActionType.SET_MODAL,
+            payload: {
+              modal: WalletConnectModal.SendBitcoinTransactionConfirmation,
+              data: { requestEvent, requestSession: getRequestSession() },
+            },
+          })
+
+        case BIP122SigningMethod.BIP122_GET_ACCOUNT_ADDRESSES: {
+          const bip122Accounts = session?.namespaces?.bip122?.accounts ?? []
+          const addresses = bip122Accounts.map(caip10 => {
+            const { account } = fromAccountId(caip10)
+            try {
+              const address = isExtPubKey(account) ? deriveAddressFromExtPubKey(account) : account
+              return { address }
+            } catch {
+              return { address: account }
+            }
+          })
+          return web3wallet?.respondSessionRequest({
+            topic,
+            response: formatJsonRpcResult(requestEvent.id, addresses),
+          })
+        }
+
         default:
           return
       }
@@ -165,5 +222,9 @@ export const useWalletConnectEventsHandler = (
     [dispatch, web3wallet],
   )
 
-  return { handleSessionProposal, handleSessionAuthRequest, handleSessionRequest }
+  return {
+    handleSessionProposal,
+    handleSessionAuthRequest,
+    handleSessionRequest,
+  }
 }

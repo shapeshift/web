@@ -4,6 +4,12 @@ description: Integrate a new blockchain as a second-class citizen in ShapeShift 
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 
+**Second-class EVM chain?** If this is a second-class EVM chain integration,
+disregard the rest of this skill. Load and follow the contract at
+`.claude/contracts/second-class-evm-chain.md` instead - it contains the
+complete, authoritative checklist of every integration point required.
+Use the contract as your build todo list, checking off items as you go.
+
 # Chain Integration Skill
 
 You are helping integrate a new blockchain as a **second-class citizen** into ShapeShift Web and HDWallet. This means basic support (native asset send/receive, account derivation, swaps to/from the chain) using the "poor man's" approach similar to Monad, Tron, and Sui - public RPC, no microservices, minimal features.
@@ -239,7 +245,7 @@ For EVM-compatible chains (like Monad, HyperEVM, Base), you need **MINIMAL chang
 - ✅ Wallet support flags (`_supportsChainName: boolean`)
 - ✅ Support function (`supportsChainName()`)
 - ✅ Set flags on all wallet implementations (~14 files)
-- ✅ Build and verify with `yarn hdwallet:build`
+- ✅ Build and verify with `pnpm run hdwallet:build`
 
 **Why?** Each wallet type (Native, Ledger, MetaMask, etc.) needs to explicitly declare support for the chain, even though the crypto is identical. This enables wallet-specific gating in the UI.
 
@@ -558,10 +564,10 @@ export function supports[Chain](wallet: HDWallet): wallet is [Chain]Wallet {
 
 ```bash
 # Build hdwallet packages to verify
-yarn hdwallet:build
+pnpm run hdwallet:build
 
 # Run hdwallet tests
-yarn hdwallet:test
+pnpm run hdwallet:test
 ```
 
 No version bumps or publishing needed — hdwallet packages are workspace packages (`workspace:^`).
@@ -1226,16 +1232,42 @@ export enum CoingeckoAssetPlatform {
 }
 ```
 
-**File**: `packages/caip/src/adapters/coingecko/utils.ts`
+**File**: `packages/caip/src/adapters/coingecko/index.ts` (3 touchpoints — enum + 2 switch statements)
 
-Add chain ID to platform mapping in the `chainIdToCoingeckoAssetPlatform` function:
+CRITICAL: This file has 3 separate places to update. Missing any causes runtime failures.
 
+Touchpoint 1 — Already shown above: `CoingeckoAssetPlatform` enum entry.
+
+Touchpoint 2 — `chainIdToCoingeckoAssetPlatform()` forward mapping (CHAIN_REFERENCE → platform):
 ```typescript
-// For EVM chains, add to the EVM switch statement
+// For EVM chains, add to the EVM switch (inside chainNamespace Evm case)
 case CHAIN_REFERENCE.[ChainName]Mainnet:
   return CoingeckoAssetPlatform.[ChainName]
+```
 
-// For non-EVM chains, add separate case in outer switch
+Touchpoint 3 — `coingeckoAssetPlatformToChainId()` reverse mapping (platform → chainId):
+```typescript
+case CoingeckoAssetPlatform.[ChainName]:
+  return [chainLower]ChainId
+```
+NOTE: This reverse mapping requires importing `[chainLower]ChainId` from `../../constants`. Only import what is used — `chainIdToCoingeckoAssetPlatform` uses `CHAIN_REFERENCE` not chainId constants.
+
+**File**: `packages/caip/src/adapters/coingecko/utils.ts` (2 touchpoints)
+
+Touchpoint 4 — Add chainId to `buildByChainId` loop in `COINGECKO_ASSET_PLATFORM_TO_CHAIN_ID_MAP` (~line 280-310):
+```typescript
+// Import chainId + assetId from constants at top of file
+import { [chainLower]AssetId, [chainLower]ChainId, ... } from '../../constants'
+
+// Add to the switch/if chain inside the buildByChainId loop
+prev[[chainLower]ChainId][assetId] = id
+```
+
+Touchpoint 5 — Add native asset to `COINGECKO_NATIVE_ASSET_PLATFORM_TO_CHAIN_ID_MAP` (~line 370-390):
+```typescript
+[[chainLower]ChainId]: { [[chainLower]AssetId]: '[coingecko-native-coin-id]' },
+// e.g., for Cronos: [cronosChainId]: { [cronosAssetId]: 'crypto-com-chain' }
+// e.g., for ETH-native chains: [scrollChainId]: { [scrollAssetId]: 'ethereum' }
 ```
 
 **File**: `packages/caip/src/adapters/coingecko/utils.test.ts`
@@ -1371,13 +1403,13 @@ case [chainLower]ChainId:
 2. **Update viem if needed**: For new/recent chains, update viem to latest version first:
    ```bash
    # Check current version
-   yarn why viem
+   pnpm why viem
 
    # Update to latest pinned version
-   yarn up viem@latest
+   pnpm update viem@latest
 
    # Rebuild packages
-   yarn build:packages
+   pnpm run build:packages
    ```
 
 3. **Only define manually if unavailable**: If the chain doesn't exist in viem, use `defineChain()` pattern (see viem docs)
@@ -1456,17 +1488,17 @@ Claude running it is hands-off but you won't see detailed progress, and it may a
 
 ```bash
 # Step 1: Generate CoinGecko CAIP adapters (JSON mappings from our code)
-yarn generate:caip-adapters
+pnpm run generate:caip-adapters
 # ✓ Generates packages/caip/src/adapters/coingecko/generated/eip155_999/adapter.json
 # ✓ Takes ~10 seconds
 
 # Step 2: Generate color map (picks up new assets)
-yarn generate:color-map
+pnpm run generate:color-map
 # ✓ Updates scripts/generateAssetData/color-map.json
 # ✓ Takes ~5 seconds
 
 # Step 3: Generate asset data (fetches tokens from CoinGecko)
-ZERION_API_KEY=<user-provided-key> yarn generate:asset-data
+ZERION_API_KEY=<user-provided-key> pnpm run generate:asset-data
 # ✓ Fetches all HyperEVM ERC20 tokens from CoinGecko platform 'hyperevm'
 # ✓ Updates src/assets/generated/
 # ✓ Takes 2-5 minutes - YOU SHOULD SEE:
@@ -1477,12 +1509,12 @@ ZERION_API_KEY=<user-provided-key> yarn generate:asset-data
 #   - "Asset data generated successfully"
 
 # Step 4: Generate tradable asset map (for swapper support)
-yarn generate:tradable-asset-map
+pnpm run generate:tradable-asset-map
 # ✓ Generates src/lib/swapper/constants.ts mappings
 # ✓ Takes ~10 seconds
 
 # Step 5: Generate Thor longtail tokens (Thor-specific, optional for most chains)
-yarn generate:thor-longtail-tokens
+pnpm run generate:thor-longtail-tokens
 # ✓ Updates Thor longtail token list
 # ✓ Takes ~5 seconds
 ```
@@ -1617,6 +1649,50 @@ if (enabledFlags.Sui) assetIds.push(suiAssetId)
 **Reference PRs:**
 - See how Monad, Tron, Sui, Plasma, and HyperEVM were added in the same PR
 
+### Step 5.6: Add ETH Related Asset to Related Asset Index (CONDITIONAL - ETH-native chains only!)
+
+**ONLY for chains where ETH is the native gas token** (e.g., Optimism, Arbitrum, Base, Katana, MegaETH).
+**SKIP for chains with their own native token** (e.g., Berachain/BERA, Monad/MON, Tron/TRX, Sui/SUI).
+
+**Why this matters:** The related asset index groups the same asset across different chains (e.g., ETH on Ethereum, ETH on Optimism, ETH on Arbitrum). When a user views ETH, they can see all the chain variants. If your chain uses ETH as its native gas token and you don't add it here, the chain's ETH won't appear as a related asset in the UI.
+
+**File**: `scripts/generateAssetData/generateRelatedAssetIndex/generateRelatedAssetIndex.ts`
+
+1. **Import your chain's asset ID** at the top:
+```typescript
+import {
+  adapters,
+  arbitrumAssetId,
+  baseAssetId,
+  ethAssetId,
+  FEE_ASSET_IDS,
+  foxAssetId,
+  foxOnArbitrumOneAssetId,
+  fromAssetId,
+  katanaAssetId,
+  megaethAssetId,
+  [chainLower]AssetId,  // ADD THIS - only if native token IS ETH
+  optimismAssetId,
+  starknetAssetId,
+} from '@shapeshiftoss/caip'
+```
+
+2. **Add to the `manualRelatedAssetIndex`** under `ethAssetId`:
+```typescript
+const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
+  [ethAssetId]: [optimismAssetId, arbitrumAssetId, baseAssetId, katanaAssetId, megaethAssetId, [chainLower]AssetId],
+  //                                                                                           ^^^^^^^^^^^^^^^^ ADD
+  [foxAssetId]: [foxOnArbitrumOneAssetId],
+  // ...
+}
+```
+
+**How to determine if this step applies:**
+- ✅ **ADD** if: Chain uses ETH as native gas (user pays gas in ETH, like Optimism, Base, Arbitrum)
+- ❌ **SKIP** if: Chain has its own native gas token (like BERA for Berachain, MON for Monad, TRX for Tron)
+
+**Reference**: Look at which assetIds are already in the array - they're all L2s/chains where the native token is ETH.
+
 ---
 
 ## Phase 6: Ledger Support (Optional)
@@ -1665,10 +1741,94 @@ export const availableLedgerAppAssetIds = [
 
 ## Phase 7: Testing & Validation
 
+### Step 7.0: Fix CoinGecko Adapter Tests (REQUIRED - ALWAYS FAILS AFTER CHAIN INTEGRATION!)
+
+**CRITICAL**: After adding a new chain, TWO test files in `packages/caip/src/adapters/coingecko/` will almost always fail. Fix them BEFORE running the full test suite.
+
+**IMPORTANT**: Always run `pnpm run build:packages` FIRST so TypeScript can resolve workspace package exports. Without this, type-check shows false errors like `'"@shapeshiftoss/caip"' has no exported member named '[chainLower]ChainId'`.
+
+#### Test File 1: `packages/caip/src/adapters/coingecko/utils.test.ts`
+
+The `parseData` test at line ~100 has a hardcoded expected output with every chain's entry. When you add a new chain to `parseData()` in `utils.ts`, you MUST add the matching expected entry:
+
+```typescript
+// Add your chain's expected entry to the `expected` object in the test
+'eip155:[CHAIN_ID]': {
+  'eip155:[CHAIN_ID]/slip44:60': '[coingecko-native-id]',
+},
+```
+
+**How to find the CoinGecko native ID**: Look at what you set in the `parseData()` function's initial data (the object at the bottom of `parseData()` that maps `chainId` → `{ assetId: coingeckoId }`).
+
+#### Test File 2: `packages/caip/src/adapters/coingecko/index.test.ts`
+
+**ONLY for ETH-native chains** (where CoinGecko maps the native asset to `'ethereum'`):
+
+The `coingeckoToAssetIds('ethereum')` test expects a specific list of all chain asset IDs that map to `'ethereum'` in CoinGecko. Add your chain:
+
+```typescript
+const ethOn[ChainName] = toAssetId({
+  chainNamespace,
+  chainReference: CHAIN_REFERENCE.[ChainName]Mainnet,
+  assetNamespace: 'slip44',
+  assetReference: ASSET_REFERENCE.[ChainName],
+})
+expect(coingeckoToAssetIds('ethereum')).toEqual([
+  ethOnEthereum,
+  ethOnOptimism,
+  ethOnArbitrum,
+  ethOnBase,
+  ethOnMegaEth,
+  ethOn[ChainName],  // ADD THIS
+])
+```
+
+**Skip this** if your chain's native asset has its own CoinGecko ID (e.g., 'mantle', 'monad', 'berachain-bera').
+
+#### Test File 3: `packages/chain-adapters/src/evm/EvmBaseAdapter.ts` (targetNetwork)
+
+**CRITICAL for EVM chains**: The `targetNetwork` object in `EvmBaseAdapter.ts` (around line ~230) maps chain IDs to network display info for `ethSwitchChain`. If you add your chain to `evmChainIds` but forget `targetNetwork`, the build will fail with:
+
+```
+error TS2339: Property 'eip155:XXX' does not exist on type...
+error TS18048: 'targetNetwork' is possibly 'undefined'.
+```
+
+**Fix**: Add your chain's entry:
+```typescript
+[KnownChainIds.[ChainName]Mainnet]: {
+  name: '[ChainName]',
+  symbol: '[SYMBOL]',
+  explorer: 'https://[explorer-url]',
+},
+```
+
+#### Verification Commands
+
+```bash
+# 1. Build packages first (REQUIRED before type-check)
+pnpm run build:packages
+
+# 2. Run CAIP tests specifically
+pnpm exec vitest run packages/caip/ --reporter=verbose
+
+# 3. Type-check
+pnpm run type-check
+
+# 4. Lint
+pnpm run lint --fix
+```
+
+**Common patterns by chain native token**:
+| Native Token | CoinGecko ID | Update index.test.ts? | Update utils.test.ts? |
+|---|---|---|---|
+| ETH (L2s like Base, Optimism, Ink) | `'ethereum'` | YES - add to `coingeckoToAssetIds('ethereum')` | YES - add chain entry |
+| Own token (BERA, MON, MNT, CRO) | `'berachain-bera'`, `'monad'`, `'mantle'`, `'cronos'` | NO | YES - add chain entry |
+
 ### Step 7.1: Type Check
 
 ```bash
-yarn type-check
+pnpm run type-check
 
 # Fix any TypeScript errors
 ```
@@ -1676,13 +1836,13 @@ yarn type-check
 ### Step 7.2: Lint
 
 ```bash
-yarn lint --fix
+pnpm run lint --fix
 ```
 
 ### Step 7.3: Build
 
 ```bash
-yarn build
+pnpm run build
 
 # Verify no build errors
 # Check bundle size didn't explode
@@ -1836,7 +1996,7 @@ case [chainLower]ChainId:
 
 ### Gotcha 12: Missing CoinGecko Script Case
 
-**Problem**: `yarn generate:asset-data` fails with "no coingecko token support for chainId"
+**Problem**: `pnpm run generate:asset-data` fails with "no coingecko token support for chainId"
 **Solution**: Add your chain case to `scripts/generateAssetData/coingecko.ts`
 **Files to update**:
 - Import `[chainLower]ChainId` from caip
@@ -1848,7 +2008,7 @@ case [chainLower]ChainId:
 
 **Problem**: Asset generation fails with "Missing Zerion API key"
 **Solution**: Get key from user via `AskUserQuestion`, pass as env var
-**Command**: `ZERION_API_KEY=<key> yarn generate:all`
+**Command**: `ZERION_API_KEY=<key> pnpm run generate:all`
 **CRITICAL**: NEVER commit the Zerion API key to VCS!
 **Example**: Always pass key via command line only
 

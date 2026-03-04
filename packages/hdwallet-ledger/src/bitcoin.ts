@@ -352,9 +352,9 @@ export async function btcSignTx(
 
   if (txs.length !== indexes.length) throw new Error('tx/index array length mismatch')
 
-  // For all coins (including Zcash), use empty sequences array to let Ledger use DEFAULT_SEQUENCE (0xffffffff)
-  // Setting sequence to 0 would enable RBF/locktime which causes issues
-  const sequences: number[] = []
+  // Build sequences from input.sequence values when provided.
+  // Undefined entries cause Ledger to use DEFAULT_SEQUENCE (0xffffffff).
+  const sequences: (number | undefined)[] = msg.inputs.map(input => input.sequence)
 
   // Build inputs array with 5 parameters: [tx, index, redeemScript, sequence, blockHeight]
   // For Zcash, the blockHeight (5th param) is CRITICAL - Ledger uses it to calculate consensusBranchId
@@ -365,9 +365,9 @@ export async function btcSignTx(
           txs[i],
           indexes[i],
           undefined,
-          undefined,
+          sequences[i],
           blockHeights[i],
-        ]) as [Transaction, number, undefined, undefined, number | undefined][])
+        ]) as [Transaction, number, undefined, number | undefined, number | undefined][])
       : (zip(txs, indexes, [], sequences) as [Transaction, number, undefined, number | undefined][])
 
   // ZCASH MONKEY PATCH ACTIVATION:

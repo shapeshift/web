@@ -188,12 +188,11 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     if (!dustAmountCryptoBaseUnit) return
     if (!feeAsset) return
 
-    const dustAmountCryptoPrecision = BigAmount.fromBaseUnit({
+    return BigAmount.fromBaseUnit({
       value: dustAmountCryptoBaseUnit,
       precision: feeAsset.precision,
-    }).toPrecision()
-
-    return bn(dustAmountCryptoPrecision)
+    })
+      .toBN()
       .times(bnOrZero(feeAssetMarketData?.price))
       .toString()
   }, [dustAmountCryptoBaseUnit, feeAssetMarketData?.price, feeAsset])

@@ -1086,9 +1086,11 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     })
 
     setConfirmedQuote({
-      assetDepositAmountCryptoPrecision: actualAssetDepositAmountCryptoPrecision,
+      assetDepositAmountCryptoPrecision: bnOrZero(
+        actualAssetDepositAmountCryptoPrecision,
+      ).toFixed(),
       assetDepositAmountFiatUserCurrency: actualAssetDepositAmountFiatUserCurrency,
-      runeDepositAmountCryptoPrecision: actualRuneDepositAmountCryptoPrecision,
+      runeDepositAmountCryptoPrecision: bnOrZero(actualRuneDepositAmountCryptoPrecision).toFixed(),
       runeDepositAmountFiatUserCurrency: actualRuneDepositAmountFiatUserCurrency,
       shareOfPoolDecimalPercent,
       slippageFiatUserCurrency,
@@ -1581,7 +1583,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
       />
       {renderHeader}
-      <Stack divider={divider} spacing={4} pb={4}>
+      <Stack divider={divider} spacing={4} pb={4} data-testid='pool-add-liquidity-form'>
         {pairSelect}
         <Stack>
           <FormLabel mb={0} px={6} fontSize='sm'>

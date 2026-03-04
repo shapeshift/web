@@ -37,6 +37,14 @@ export function handleError<T extends LedgerResponse<any, any>>(
       throw new core.DeviceLocked()
     }
 
+    // NEAR Ledger app: BIP32 path not exactly 5 levels (Bip32PathParsingFail)
+    if (result.payload.error.includes('0xb00b') || result.payload.error.includes('0xB00B')) {
+      throw new Error(
+        "NEAR Ledger app requires a 5-level BIP32 path (m/44'/397'/<account>'/0'/0'). " +
+          'The provided path has the wrong number of levels.',
+      )
+    }
+
     // Device disconnected during operation, typically due to app navigation
     if (result.payload.error.includes('DisconnectedDeviceDuringOperation')) {
       throw new core.DisconnectedDeviceDuringOperation()

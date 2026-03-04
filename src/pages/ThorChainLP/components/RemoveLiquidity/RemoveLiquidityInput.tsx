@@ -438,12 +438,10 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   const poolAssetFeeAssetProtocolFeeCryptoPrecision = useMemo(() => {
     if (!poolAssetFeeAsset || !poolAssetFeeAssetOutboundFeeCryptoBaseUnit) return bn(0)
     if (bnOrZero(actualAssetWithdrawAmountCryptoPrecision).eq(0)) return bn(0)
-    return bnOrZero(
-      BigAmount.fromBaseUnit({
-        value: poolAssetFeeAssetOutboundFeeCryptoBaseUnit,
-        precision: poolAssetFeeAsset.precision,
-      }).toPrecision(),
-    )
+    return BigAmount.fromBaseUnit({
+      value: poolAssetFeeAssetOutboundFeeCryptoBaseUnit,
+      precision: poolAssetFeeAsset.precision,
+    }).toBN()
   }, [
     poolAssetFeeAssetOutboundFeeCryptoBaseUnit,
     actualAssetWithdrawAmountCryptoPrecision,
@@ -466,8 +464,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   )
 
   const poolAssetFeeAssetDustAmountCryptoPrecision = useMemo(() => {
-    if (!poolAssetFeeAsset) return bn(0)
-    if (opportunityType !== AsymSide.Asset) return bn(0)
+    if (!poolAssetFeeAsset) return '0'
+    if (opportunityType !== AsymSide.Asset) return '0'
 
     return BigAmount.fromBaseUnit({
       value: poolAssetFeeAssetDustAmountCryptoBaseUnit,
@@ -676,9 +674,13 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     if (!currentAccountIdByChainId) return
 
     setConfirmedQuote({
-      assetWithdrawAmountCryptoPrecision: actualAssetWithdrawAmountCryptoPrecision,
+      assetWithdrawAmountCryptoPrecision: bnOrZero(
+        actualAssetWithdrawAmountCryptoPrecision,
+      ).toFixed(),
       assetWithdrawAmountFiatUserCurrency: actualAssetWithdrawAmountFiatUserCurrency,
-      runeWithdrawAmountCryptoPrecision: actualRuneWithdrawAmountCryptoPrecision,
+      runeWithdrawAmountCryptoPrecision: bnOrZero(
+        actualRuneWithdrawAmountCryptoPrecision,
+      ).toFixed(),
       runeWithdrawAmountFiatUserCurrency: actualRuneWithdrawAmountFiatUserCurrency,
       shareOfPoolDecimalPercent,
       slippageFiatUserCurrency,
@@ -1042,7 +1044,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   return (
     <SlideTransition>
       {renderHeader}
-      <Stack divider={divider} spacing={4} pb={4}>
+      <Stack divider={divider} spacing={4} pb={4} data-testid='pool-remove-liquidity-form'>
         <Stack>
           <FormLabel mb={0} px={6} fontSize='sm'>
             {translate('pools.removeAmounts')}

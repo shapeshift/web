@@ -1,22 +1,32 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { SwapperName, TradeQuote, TradeQuoteError, TradeRate } from '@shapeshiftoss/swapper'
-import type { Asset } from '@shapeshiftoss/types'
+import type { SwapperName, TradeQuoteError } from '@shapeshiftoss/swapper'
+import type {
+  Asset,
+  CosmosTransactionData,
+  EvmTransactionData,
+  Permit2SignatureRequired,
+  SolanaTransactionData,
+  TransactionData,
+  UtxoDepositTransactionData,
+  UtxoPsbtTransactionData,
+  UtxoTransactionData,
+} from '@shapeshiftoss/types'
 
-// Partner configuration
-export type PartnerConfig = {
-  id: string
-  apiKeyHash: string
-  name: string
-  feeSharePercentage: number
-  status: 'active' | 'suspended' | 'pending'
-  rateLimit: {
-    requestsPerMinute: number
-    requestsPerDay: number
-  }
-  createdAt: Date
+export type {
+  CosmosTransactionData,
+  EvmTransactionData,
+  Permit2SignatureRequired,
+  SolanaTransactionData,
+  TransactionData,
+  UtxoDepositTransactionData,
+  UtxoPsbtTransactionData,
+  UtxoTransactionData,
 }
 
-// API Request Types
+export type AffiliateInfo = {
+  affiliateAddress: string
+}
+
 export type RatesRequest = {
   sellAssetId: AssetId
   buyAssetId: AssetId
@@ -43,7 +53,6 @@ export type StatusRequest = {
   swapperName: SwapperName
 }
 
-// API Response Types
 export type ApiRate = {
   swapperName: SwapperName
   rate: string
@@ -64,6 +73,7 @@ export type RatesResponse = {
   rates: ApiRate[]
   timestamp: number
   expiresAt: number
+  affiliateAddress?: string
 }
 
 export type ApiQuoteStep = {
@@ -74,12 +84,7 @@ export type ApiQuoteStep = {
   allowanceContract: string
   estimatedExecutionTimeMs: number | undefined
   source: string
-  transactionData?: {
-    to: string
-    data: string
-    value: string
-    gasLimit?: string
-  }
+  transactionData?: TransactionData
 }
 
 export type ApprovalInfo = {
@@ -102,12 +107,12 @@ export type QuoteResponse = {
   buyAmountBeforeFeesCryptoBaseUnit: string
   buyAmountAfterFeesCryptoBaseUnit: string
   affiliateBps: string
+  affiliateAddress?: string
   slippageTolerancePercentageDecimal: string | undefined
   networkFeeCryptoBaseUnit: string | undefined
   steps: ApiQuoteStep[]
   approval: ApprovalInfo
   expiresAt: number
-  quote: TradeQuote | TradeRate
 }
 
 export type StatusResponse = {
@@ -165,11 +170,10 @@ export type ErrorResponse = {
   details?: unknown
 }
 
-// Extend Express Request to include partner info
 declare global {
   namespace Express {
     interface Request {
-      partner?: PartnerConfig
+      affiliateInfo?: AffiliateInfo
     }
   }
 }

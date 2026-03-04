@@ -134,7 +134,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
         precision: feeAsset.precision,
       }).toPrecision()
     return BigAmount.fromBaseUnit({
-      value: state?.deposit.estimatedGasCryptoBaseUnit,
+      value: state?.deposit.estimatedGasCryptoBaseUnit ?? '0',
       precision: feeAsset.precision,
     }).toPrecision()
   }, [

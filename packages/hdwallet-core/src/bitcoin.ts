@@ -75,6 +75,7 @@ type BTCSignTxInputBase = {
   vout: number
   addressNList: BIP32Path
   amount?: string
+  sequence?: number
 }
 
 type BTCSignTxInputNativeBase = BTCSignTxInputBase & {
@@ -110,7 +111,6 @@ export type BTCSignTxInputNative = GuardedUnion<BTCSignTxInputNativeUnguarded>
 type BTCSignTxInputKKBase = BTCSignTxInputBase & {
   txid: string
   amount: string
-  sequence?: number
 }
 
 type BTCSignTxInputKKSegwit = BTCSignTxInputKKBase & {
@@ -164,6 +164,7 @@ export type BTCSignTxInputSafe = {
   txid: string
   amount: string
   vout: number
+  sequence?: number
 }
 ta.assert<ta.Extends<BTCSignTxInputSafe, BTCSignTxInput>>()
 

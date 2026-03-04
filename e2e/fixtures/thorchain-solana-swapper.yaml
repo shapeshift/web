@@ -1,0 +1,187 @@
+name: THORChain Solana Swapper
+description: Test THORChain Solana swapper integration - SOL to RUNE and RUNE to SOL swaps, specifically selecting THORChain quotes
+route: /trade
+depends_on:
+  - wallet-health.yaml
+steps:
+  - name: Dismiss stale notifications
+    instruction: >
+      Before starting, dismiss any lingering notifications from previous swaps.
+      Close any toast notifications, feedback dialogs ("How was your trade experience?"),
+      or pending transaction banners by clicking their Close/X buttons.
+    expected: No stale notifications visible
+    screenshot: true
+
+  - name: Select SOL as sell asset
+    instruction: >
+      Click the sell asset selector button. On external origins, use JS eval to click
+      the sell asset avatar button (find button with text matching current sell asset + img child).
+      In the asset picker dialog, focus the search input via JS eval, then type "SOL" char by char.
+      Click "Solana (SOL)" from the results (SOL is a primary asset, no multi-chain expansion needed).
+      Wait for the dialog to close and SOL to appear as the sell asset.
+    expected: SOL is selected as the sell asset
+    screenshot: true
+
+  - name: Select RUNE as buy asset
+    instruction: >
+      Click the buy/receive asset selector button (using JS eval on external origins).
+      In the asset picker dialog, focus the search input via JS eval, then type "RUNE" char by char.
+      Click "THORChain (RUNE)" from the results (RUNE is a primary asset, no multi-chain expansion needed).
+      Wait for the dialog to close and RUNE to appear as the buy asset.
+    expected: RUNE is selected as the buy asset
+    screenshot: true
+
+  - name: Toggle to fiat input
+    instruction: >
+      Click the "≈ $0.00" button below the sell amount to toggle to fiat/USD input mode.
+      If already in fiat mode (placeholder shows "$0"), skip this step.
+    expected: The input field is in fiat mode (placeholder shows $0, balance shows $ amount)
+    screenshot: true
+
+  - name: Enter $1 swap amount
+    instruction: >
+      Click the sell amount textbox and type 1 character by character using press
+      (NOT fill - React controlled inputs need keypress events).
+      Wait a moment for the value to register.
+    expected: $1 is entered in the sell field
+    screenshot: true
+
+  - name: Wait for quotes and select THORChain
+    instruction: >
+      Wait up to 15 seconds for swap quotes to appear.
+      Look for a quotes list or rate display. There may be multiple swapper options.
+      Specifically look for the THORChain quote - it will have the THORChain logo
+      (a green/teal runic symbol). Click on the THORChain quote to select it.
+      If no quote appears at $1, clear the input, type 2 (for $2), and wait again.
+      If still no quote at $2, try 3, then 5, then 10. Stop at $10 if no quote.
+      The "Preview Trade" button should become enabled (not disabled).
+    expected: THORChain quote is selected, Preview Trade button enabled
+    screenshot: true
+
+  - name: Preview trade (SOL to RUNE)
+    instruction: >
+      Click the "Preview Trade" button.
+      A warning dialog may appear saying "This amount is below the recommended minimum".
+      If so, click "I understand" to proceed.
+      Wait for the "Confirm Details" screen to appear showing swap details
+      (sell amount, receive amount, swapper, fees).
+      Verify the swapper shown is THORChain.
+    expected: Confirm Details screen visible with THORChain as swapper and "Confirm and Trade" button
+    screenshot: true
+
+  - name: Confirm and Trade (SOL to RUNE)
+    instruction: >
+      Click the "Confirm and Trade" button.
+      A price impact warning may appear ("This trade is impacted by price movement X%").
+      If so, click "I understand" to proceed.
+      This transitions to the Trade execution screen.
+      A "Sign & Swap" button will appear, initially in a loading/disabled state.
+      Wait up to 30 seconds for "Sign & Swap" to become enabled (no longer loading/disabled).
+    expected: Sign & Swap button is visible and enabled (not loading, not disabled)
+    screenshot: true
+
+  - name: Sign and Swap (SOL to RUNE)
+    instruction: >
+      Click the "Sign & Swap" button to sign and submit the transaction.
+      The native wallet will sign the transaction automatically.
+      After clicking, the transaction is submitted on-chain.
+    expected: Transaction submitted, swap execution in progress
+    screenshot: true
+
+  - name: Wait for SOL to RUNE completion
+    instruction: >
+      Wait for the swap to complete. The page will show "Awaiting swap" with a progress bar.
+      When complete, it transitions back to the main trade page.
+      A feedback dialog ("How was your trade experience?") may appear - dismiss it by clicking "Maybe Later" or "Close".
+      Wait up to 120 seconds, checking every 5 seconds.
+      Look for: the trade page reappearing, a feedback dialog, success notification, or the
+      "Awaiting swap" text disappearing.
+    expected: SOL to RUNE swap completed - back on trade page, no more "Awaiting swap"
+    screenshot: true
+
+  - name: Clean up after SOL to RUNE
+    instruction: >
+      Dismiss any remaining notifications or dialogs (feedback dialog, success toast, etc.)
+      by clicking Close/X/Maybe Later buttons. This leaves a clean state for the next swap.
+    expected: Trade page is clean with no overlaying notifications or dialogs
+    screenshot: true
+
+  - name: Switch to RUNE sell / SOL buy
+    instruction: >
+      The page should still have RUNE as buy and SOL as sell from the first swap.
+      Click the "Switch Assets" button (between sell and buy sections) to reverse them.
+      Use JS eval on external origins: find the button with text "Switch Assets" and click it.
+      After switching, RUNE should be the sell asset and SOL should be the buy asset.
+      If Switch Assets doesn't work, manually select RUNE as sell and SOL as buy via the asset pickers.
+    expected: RUNE is the sell asset, SOL is the buy asset
+    screenshot: true
+
+  - name: Toggle to fiat input for RUNE
+    instruction: >
+      Click the "≈ $0.00" button below the sell amount to toggle to fiat/USD input mode.
+      If already in fiat mode (placeholder shows "$0"), skip this step.
+    expected: The input field is in fiat mode
+    screenshot: true
+
+  - name: Enter $1 RUNE swap amount
+    instruction: >
+      Click the sell amount textbox and type 1 character by character using press
+      (NOT fill - React controlled inputs need keypress events).
+      Wait a moment for the value to register.
+    expected: $1 is entered in the sell field
+    screenshot: true
+
+  - name: Wait for quotes and select THORChain (RUNE to SOL)
+    instruction: >
+      Wait up to 15 seconds for swap quotes to appear.
+      Look for a quotes list or rate display. There may be multiple swapper options.
+      Specifically look for the THORChain quote - it will have the THORChain logo
+      (a green/teal runic symbol). Click on the THORChain quote to select it.
+      If no quote appears at $1, clear the input, type 2 (for $2), and wait again.
+      If still no quote at $2, try 3, then 5, then 10. Stop at $10 if no quote.
+      The "Preview Trade" button should become enabled (not disabled).
+    expected: THORChain quote is selected, Preview Trade button enabled
+    screenshot: true
+
+  - name: Preview trade (RUNE to SOL)
+    instruction: >
+      Click the "Preview Trade" button.
+      A warning dialog may appear about below-minimum amount. Click "I understand" if so.
+      Wait for the "Confirm Details" screen to appear showing swap details.
+      Verify the swapper shown is THORChain.
+    expected: Confirm Details screen visible with THORChain as swapper and "Confirm and Trade" button
+    screenshot: true
+
+  - name: Confirm and Trade (RUNE to SOL)
+    instruction: >
+      Click the "Confirm and Trade" button.
+      A price impact warning may appear. Click "I understand" if so.
+      This transitions to the Trade execution screen.
+      A "Sign & Swap" button will appear, initially in a loading/disabled state.
+      Wait up to 30 seconds for "Sign & Swap" to become enabled.
+    expected: Sign & Swap button is visible and enabled
+    screenshot: true
+
+  - name: Sign and Swap (RUNE to SOL)
+    instruction: >
+      Click the "Sign & Swap" button to sign and submit the transaction.
+      The native wallet will sign the transaction automatically.
+      After clicking, the transaction is submitted on-chain.
+    expected: Transaction submitted, swap execution in progress
+    screenshot: true
+
+  - name: Wait for RUNE to SOL completion
+    instruction: >
+      Wait for the swap to complete. The page will show "Awaiting swap" with a progress bar.
+      When complete, it transitions back to the main trade page.
+      A feedback dialog may appear - dismiss it by clicking "Maybe Later" or "Close".
+      Wait up to 120 seconds, checking every 5 seconds.
+    expected: RUNE to SOL swap completed - back on trade page, no more "Awaiting swap"
+    screenshot: true
+
+  - name: Clean up notifications
+    instruction: >
+      After confirming both swaps completed, dismiss any remaining notifications or dialogs
+      by clicking Close/X/Maybe Later buttons.
+    expected: Trade page is clean with no overlaying notifications or dialogs
+    screenshot: true

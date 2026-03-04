@@ -78,7 +78,7 @@ export const Deposit: React.FC<DepositProps> = ({
   // notify
   const toast = useNotificationToast({ desktopPosition: 'top-right' })
 
-  const amountAvailableCryptoPrecision = useMemo(() => balance, [balance])
+  const amountAvailableCryptoPrecision = balance
   const fiatAmountAvailable = useMemo(
     () => amountAvailableCryptoPrecision.times(marketData?.price),
     [amountAvailableCryptoPrecision, marketData?.price],

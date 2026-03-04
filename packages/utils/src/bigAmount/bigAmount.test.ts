@@ -5,8 +5,6 @@ import type { BigAmountConfig } from './bigAmount'
 import { BigAmount } from './bigAmount'
 
 describe('BigAmount', () => {
-  // ── Construction ──────────────────────────────────
-
   describe('fromBaseUnit', () => {
     it('converts base unit to precision scale for BTC (8 decimals)', () => {
       const amount = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
@@ -113,8 +111,6 @@ describe('BigAmount', () => {
     })
   })
 
-  // ── Core safety: base unit vs precision can't be mixed ──
-
   describe('base unit / precision safety', () => {
     it('fromBaseUnit and fromPrecision produce the same BigAmount for equivalent values', () => {
       const fromBase = BigAmount.fromBaseUnit({ value: '1000000000000000000', precision: 18 })
@@ -138,8 +134,6 @@ describe('BigAmount', () => {
     })
   })
 
-  // ── Round-trip: fromBaseUnit → toBaseUnit ──────────
-
   describe('round-trip', () => {
     it.each([
       { baseUnit: '150000000', precision: 8, label: 'BTC' },
@@ -157,8 +151,6 @@ describe('BigAmount', () => {
       },
     )
   })
-
-  // ── Arithmetic ────────────────────────────────────
 
   describe('plus', () => {
     it('adds two BigAmounts with same precision', () => {
@@ -201,7 +193,6 @@ describe('BigAmount', () => {
   describe('times', () => {
     it('multiplies by a dimensionless scalar', () => {
       const amount = BigAmount.fromPrecision({ value: '1.5', precision: 8 })
-      // .times(2) doubles the amount
       expect(amount.times(2).toPrecision()).toBe('3')
       expect(amount.times(2).toBaseUnit()).toBe('300000000')
     })
@@ -298,7 +289,6 @@ describe('BigAmount', () => {
 
   describe('arithmetic chaining', () => {
     it('chains multiple operations with precision', () => {
-      // .times() and .div() are dimensionless scalar operations
       const result = BigAmount.fromBaseUnit({ value: '1000000000000000000', precision: 18 })
         .times(2500)
         .div(1.1)
@@ -306,15 +296,12 @@ describe('BigAmount', () => {
       expect(result).toBe('2272.72')
     })
 
-    it('handles base unit → fiat via toPrecision (the correct pattern)', () => {
-      // With base-unit storage, fiat conversion goes through toPrecision:
+    it('base unit → fiat via toPrecision', () => {
       const amount = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
       const fiat = bn(amount.toPrecision()).times(60000).toFixed(2)
       expect(fiat).toBe('90000.00')
     })
   })
-
-  // ── Comparison ────────────────────────────────────
 
   describe('comparison', () => {
     it('gt with BigAmount', () => {
@@ -393,8 +380,6 @@ describe('BigAmount', () => {
       expect(BigAmount.fromPrecision({ value: undefined, precision: 8 }).isFinite()).toBe(true)
     })
   })
-
-  // ── Output ────────────────────────────────────────
 
   describe('toBaseUnit', () => {
     it('converts to integer base unit string', () => {
@@ -501,8 +486,6 @@ describe('BigAmount', () => {
     })
   })
 
-  // ── THORChain precision ──────────────────────────
-
   describe('fromThorBaseUnit', () => {
     it('creates BigAmount from THOR 8-decimal base unit', () => {
       const amount = BigAmount.fromThorBaseUnit('150000000')
@@ -568,13 +551,10 @@ describe('BigAmount', () => {
     })
   })
 
-  // ── Interop ───────────────────────────────────────
-
   describe('JSON serialization', () => {
     it('round-trips through toJSON/fromJSON', () => {
       const original = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
       const json = original.toJSON()
-      // toJSON stores base unit value
       expect(json).toEqual({ value: '150000000', precision: 8 })
 
       const restored = BigAmount.fromJSON(json)
@@ -589,8 +569,6 @@ describe('BigAmount', () => {
       expect(restored.toBaseUnit()).toBe('1000000000000000000')
     })
   })
-
-  // ── Static utilities ──────────────────────────────
 
   describe('min', () => {
     it('returns the smallest amount', () => {
@@ -663,8 +641,6 @@ describe('BigAmount', () => {
     })
   })
 
-  // ── Immutability ──────────────────────────────────
-
   describe('immutability', () => {
     it('arithmetic operations return new instances', () => {
       const a = BigAmount.fromPrecision({ value: '1', precision: 8 })
@@ -687,8 +663,6 @@ describe('BigAmount', () => {
       expect(b.toPrecision()).toBe('-5')
     })
   })
-
-  // ── Real-world patterns ───────────────────────────
 
   describe('real-world patterns', () => {
     it('base unit → fiat display via toPrecision()', () => {
@@ -741,36 +715,29 @@ describe('BigAmount', () => {
     })
 
     it('ERC-20 approval with exact BigInt (viem pattern)', () => {
-      const amount = BigAmount.fromPrecision({ value: '100', precision: 6 }) // 100 USDC
+      const amount = BigAmount.fromPrecision({ value: '100', precision: 6 })
       const bigIntForContract = BigInt(amount.toBaseUnit())
       expect(bigIntForContract).toBe(100000000n)
       expect(typeof bigIntForContract).toBe('bigint')
     })
   })
 
-  // ── Internal storage verification ──────────────────
-
   describe('base-unit internal storage', () => {
     it('fromBaseUnit stores value directly (no division)', () => {
       const amount = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
-      // toBaseUnit is identity for fromBaseUnit
       expect(amount.toBaseUnit()).toBe('150000000')
     })
 
     it('fromPrecision converts to base units for storage', () => {
       const amount = BigAmount.fromPrecision({ value: '1.5', precision: 8 })
-      // Internally stored as 150000000 (base units)
       expect(amount.toBaseUnit()).toBe('150000000')
     })
 
     it('.times() operates on base units (dimensionless scalar)', () => {
       const amount = BigAmount.fromBaseUnit({ value: '100', precision: 8 })
-      // 100 base units * 2 = 200 base units
       expect(amount.times(2).toBaseUnit()).toBe('200')
     })
   })
-
-  // ── assetId ─────────────────────────────────────
 
   describe('assetId', () => {
     const mockConfig = {
@@ -837,22 +804,19 @@ describe('BigAmount', () => {
       expect(amount.toJSON()).toEqual({ value: '100', precision: 8, assetId: undefined })
     })
 
-    it('fromJSON restores assetId', () => {
-      const original = BigAmount.fromBaseUnit({ value: '100', assetId: 'test-asset' })
+    it('fromJSON round-trips value and precision', () => {
+      const original = BigAmount.fromBaseUnit({ value: '100', precision: 8 })
       const restored = BigAmount.fromJSON(original.toJSON())
-      expect(restored.assetId).toBe('test-asset')
       expect(restored.toBaseUnit()).toBe('100')
+      expect(restored.precision).toBe(8)
     })
 
     it('discriminated union prevents passing both precision and assetId', () => {
       // @ts-expect-error — discriminated union: precision and assetId are mutually exclusive
       const amount = BigAmount.fromBaseUnit({ value: '100', precision: 8, assetId: 'test-asset' })
-      // Runtime still works (one takes precedence) but TypeScript catches the error
       expect(amount).toBeDefined()
     })
   })
-
-  // ── configure + assetId-based construction ──────
 
   describe('configure', () => {
     const mockConfig = {
@@ -862,18 +826,8 @@ describe('BigAmount', () => {
         if (assetId === 'usdc') return 6
         return 0
       },
-      resolvePrice: (assetId: string) => {
-        if (assetId === 'btc') return '60000'
-        if (assetId === 'eth') return '2500'
-        if (assetId === 'usdc') return '1'
-        return '0'
-      },
-      resolvePriceUsd: (assetId: string) => {
-        if (assetId === 'btc') return '60000'
-        if (assetId === 'eth') return '2500'
-        if (assetId === 'usdc') return '1'
-        return '0'
-      },
+      resolvePrice: () => '0',
+      resolvePriceUsd: () => '0',
     }
 
     beforeAll(() => {
@@ -908,117 +862,6 @@ describe('BigAmount', () => {
       expect(amount.assetId).toBeUndefined()
     })
   })
-
-  // ── toUserCurrency / toUSD ──────────────────────
-
-  describe('toUserCurrency', () => {
-    const mockConfig = {
-      resolvePrecision: (assetId: string) => {
-        if (assetId === 'btc') return 8
-        if (assetId === 'eth') return 18
-        return 0
-      },
-      resolvePrice: (assetId: string) => {
-        if (assetId === 'btc') return '60000'
-        if (assetId === 'eth') return '2500'
-        return '0'
-      },
-      resolvePriceUsd: (assetId: string) => {
-        if (assetId === 'btc') return '59000'
-        if (assetId === 'eth') return '2400'
-        return '0'
-      },
-    }
-
-    beforeAll(() => {
-      BigAmount.configure(mockConfig)
-    })
-
-    it('converts BTC to user currency', () => {
-      const amount = BigAmount.fromBaseUnit({ value: '150000000', assetId: 'btc' })
-      // 1.5 BTC * $60,000 = $90,000
-      expect(amount.toUserCurrency()).toBe('90000.00')
-    })
-
-    it('converts ETH to user currency', () => {
-      const amount = BigAmount.fromBaseUnit({
-        value: '1000000000000000000',
-        assetId: 'eth',
-      })
-      // 1 ETH * $2,500 = $2,500
-      expect(amount.toUserCurrency()).toBe('2500.00')
-    })
-
-    it('supports custom decimal places', () => {
-      const amount = BigAmount.fromBaseUnit({ value: '150000000', assetId: 'btc' })
-      expect(amount.toUserCurrency(4)).toBe('90000.0000')
-    })
-
-    it('throws without assetId', () => {
-      const amount = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
-      expect(() => amount.toUserCurrency()).toThrow('requires assetId')
-    })
-
-    it('converts zero correctly', () => {
-      const amount = BigAmount.zero({ precision: 8, assetId: 'btc' })
-      expect(amount.toUserCurrency()).toBe('0.00')
-    })
-  })
-
-  describe('toUSD', () => {
-    const mockConfig = {
-      resolvePrecision: (assetId: string) => {
-        if (assetId === 'btc') return 8
-        return 0
-      },
-      resolvePrice: (assetId: string) => {
-        if (assetId === 'btc') return '60000'
-        return '0'
-      },
-      resolvePriceUsd: (assetId: string) => {
-        if (assetId === 'btc') return '59000'
-        return '0'
-      },
-    }
-
-    beforeAll(() => {
-      BigAmount.configure(mockConfig)
-    })
-
-    it('converts BTC to USD (different from user currency)', () => {
-      const amount = BigAmount.fromBaseUnit({ value: '150000000', assetId: 'btc' })
-      // 1.5 BTC * $59,000 = $88,500
-      expect(amount.toUSD()).toBe('88500.00')
-    })
-
-    it('throws without assetId', () => {
-      const amount = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
-      expect(() => amount.toUSD()).toThrow('requires assetId')
-    })
-  })
-
-  // ── unconfigured throws ─────────────────────────
-
-  describe('unconfigured errors', () => {
-    beforeAll(() => {
-      // Reset config by configuring with a config that has all resolvers
-      // then test the "not configured" path by creating BigAmount without assetId
-      // The "not configured" error is for fromBaseUnit({ assetId }) without configure()
-      // We can't easily un-configure, but we test the throw paths on toUserCurrency/toUSD
-    })
-
-    it('toUserCurrency throws without assetId even when configured', () => {
-      const amount = BigAmount.fromBaseUnit({ value: '100', precision: 8 })
-      expect(() => amount.toUserCurrency()).toThrow('requires assetId')
-    })
-
-    it('toUSD throws without assetId even when configured', () => {
-      const amount = BigAmount.fromBaseUnit({ value: '100', precision: 8 })
-      expect(() => amount.toUSD()).toThrow('requires assetId')
-    })
-  })
-
-  // ── NullableScalar: null/undefined accepted without bnOrZero ──
 
   describe('NullableScalar widening', () => {
     const amount = BigAmount.fromPrecision({ value: '10', precision: 8 })
@@ -1146,8 +989,6 @@ describe('BigAmount', () => {
     })
   })
 
-  // ── div(0) safety ────────────────────────────────
-
   describe('div safety', () => {
     it('div(0) returns zero instead of Infinity', () => {
       const amount = BigAmount.fromBaseUnit({ value: '1000000000000000000', precision: 18 })
@@ -1194,13 +1035,10 @@ describe('BigAmount', () => {
       const amount = BigAmount.zero({ precision: 8, assetId: 'test-asset' }).plus(
         BigAmount.fromBaseUnit({ value: '100', precision: 8 }),
       )
-      // assetId comes from the left operand in plus
       const result = amount.div(0)
       expect(result.assetId).toBe('test-asset')
     })
   })
-
-  // ── unconfigured state ────────────────────────────
 
   describe('unconfigured state', () => {
     let savedConfig: BigAmountConfig | undefined
@@ -1212,16 +1050,6 @@ describe('BigAmount', () => {
 
     afterAll(() => {
       if (savedConfig) BigAmount.configure(savedConfig)
-    })
-
-    it('throws when calling toUserCurrency without config', () => {
-      const amount = BigAmount.fromBaseUnit({ value: '1000000', precision: 6 })
-      expect(() => amount.toUserCurrency()).toThrow('requires assetId')
-    })
-
-    it('throws when calling toUSD without config', () => {
-      const amount = BigAmount.fromBaseUnit({ value: '1000000', precision: 6 })
-      expect(() => amount.toUSD()).toThrow('requires assetId')
     })
 
     it('throws when using assetId resolution without config', () => {
@@ -1236,8 +1064,6 @@ describe('BigAmount', () => {
     })
   })
 
-  // ── negative precision ────────────────────────────
-
   describe('negative precision', () => {
     it('handles negative precision mathematically (multiplies instead of divides)', () => {
       const amount = BigAmount.fromBaseUnit({ value: '100', precision: -2 })
@@ -1249,8 +1075,6 @@ describe('BigAmount', () => {
       expect(amount.toBaseUnit()).toBe('100')
     })
   })
-
-  // ── toBN interop ────────────────────────────────
 
   describe('toBN', () => {
     it('returns precision-scale BigNumber', () => {
@@ -1280,8 +1104,6 @@ describe('BigAmount', () => {
       expect(viaBN.eq(viaString)).toBe(true)
     })
   })
-
-  // ── discriminated union: precision vs assetId ───
 
   describe('discriminated union enforcement', () => {
     const mockConfig = {
@@ -1350,8 +1172,6 @@ describe('BigAmount', () => {
     })
   })
 
-  // ── uint256-scale values ───────────────────────
-
   describe('uint256-scale values', () => {
     const maxUint256 =
       '115792089237316195423570985008687907853269984665640564039457584007913129639935'
@@ -1375,8 +1195,6 @@ describe('BigAmount', () => {
       expect(amount.times(2).div(2).toBaseUnit()).toBe(large)
     })
   })
-
-  // ── precision 0 ────────────────────────────────
 
   describe('precision 0', () => {
     it('constructs with precision 0', () => {
@@ -1409,8 +1227,6 @@ describe('BigAmount', () => {
     })
   })
 
-  // ── negative values in fromBaseUnit ────────────
-
   describe('negative values in fromBaseUnit', () => {
     it('handles negative base unit values', () => {
       const amount = BigAmount.fromBaseUnit({ value: '-150000000', precision: 8 })
@@ -1424,8 +1240,6 @@ describe('BigAmount', () => {
       expect(amount.toBaseUnit()).toBe('-1000000000000000000')
     })
   })
-
-  // ── toBaseUnit rounding ────────────────────────
 
   describe('toBaseUnit rounding', () => {
     it('rounds correctly after fractional multiplication', () => {
@@ -1444,8 +1258,6 @@ describe('BigAmount', () => {
       expect(amount.times(0.004).toBaseUnit()).toBe('0')
     })
   })
-
-  // ── precision stability ────────────────────────
 
   describe('precision stability over chained operations', () => {
     it('maintains exact value through 20 times(2)/div(2) cycles', () => {
@@ -1466,8 +1278,6 @@ describe('BigAmount', () => {
     })
   })
 
-  // ── toSignificant edge cases ───────────────────
-
   describe('toSignificant edge cases', () => {
     it('toSignificant(0) returns integer part only', () => {
       const amount = BigAmount.fromPrecision({ value: '12.345', precision: 18 })
@@ -1484,8 +1294,6 @@ describe('BigAmount', () => {
       expect(amount.toSignificant(1)).toBe('5')
     })
   })
-
-  // ── decimalPlaces edge cases ──────────────────────
 
   describe('decimalPlaces edge cases', () => {
     it('handles zero decimal places', () => {
@@ -1507,6 +1315,127 @@ describe('BigAmount', () => {
     it('uses ROUND_HALF_UP by default', () => {
       const amount = BigAmount.fromBaseUnit({ value: '199999999', precision: 8 })
       expect(amount.decimalPlaces(2).toPrecision()).toBe('2')
+    })
+  })
+
+  describe('toUserCurrency', () => {
+    beforeAll(() => {
+      BigAmount.configure({
+        resolvePrecision: () => 8,
+        resolvePrice: (assetId: string) => {
+          if (assetId === 'btc') return '50000'
+          return '0'
+        },
+        resolvePriceUsd: (assetId: string) => {
+          if (assetId === 'btc') return '50000'
+          return '0'
+        },
+      })
+    })
+
+    afterAll(() => {
+      BigAmount.resetConfig()
+    })
+
+    it('converts to user currency with default 2 decimals', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '150000000', assetId: 'btc' })
+      expect(amount.toUserCurrency()).toBe('75000.00')
+    })
+
+    it('converts to user currency with custom decimals', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '150000000', assetId: 'btc' })
+      expect(amount.toUserCurrency(4)).toBe('75000.0000')
+    })
+
+    it('throws without assetId', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
+      expect(() => amount.toUserCurrency()).toThrow('requires assetId')
+    })
+
+    it('throws without config', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '150000000', assetId: 'btc' })
+      BigAmount.resetConfig()
+      expect(() => amount.toUserCurrency()).toThrow('not configured')
+    })
+  })
+
+  describe('toUSD', () => {
+    beforeAll(() => {
+      BigAmount.configure({
+        resolvePrecision: () => 8,
+        resolvePrice: () => '0',
+        resolvePriceUsd: (assetId: string) => {
+          if (assetId === 'btc') return '50000'
+          return '0'
+        },
+      })
+    })
+
+    afterAll(() => {
+      BigAmount.resetConfig()
+    })
+
+    it('converts to USD with default 2 decimals', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '150000000', assetId: 'btc' })
+      expect(amount.toUSD()).toBe('75000.00')
+    })
+
+    it('converts to USD with custom decimals', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '150000000', assetId: 'btc' })
+      expect(amount.toUSD(0)).toBe('75000')
+    })
+
+    it('throws without assetId', () => {
+      const amount = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
+      expect(() => amount.toUSD()).toThrow('requires assetId')
+    })
+  })
+
+  describe('fromBN with assetId', () => {
+    beforeAll(() => {
+      BigAmount.configure({
+        resolvePrecision: () => 8,
+        resolvePrice: () => '0',
+        resolvePriceUsd: () => '0',
+      })
+    })
+
+    afterAll(() => {
+      BigAmount.resetConfig()
+    })
+
+    it('carries assetId through fromBN', () => {
+      const amount = BigAmount.fromBN({ value: bn('1.5'), precision: 8, assetId: 'btc' })
+      expect(amount.assetId).toBe('btc')
+      expect(amount.toPrecision()).toBe('1.5')
+    })
+  })
+
+  describe('toJSON/fromJSON with assetId', () => {
+    it('round-trips assetId through JSON', () => {
+      const original = BigAmount.fromBaseUnit({ value: '150000000', precision: 8 })
+      const json = original.toJSON()
+      expect(json.assetId).toBeUndefined()
+
+      const restored = BigAmount.fromJSON(json)
+      expect(restored.toPrecision()).toBe('1.5')
+      expect(restored.assetId).toBeUndefined()
+    })
+
+    it('round-trips assetId when present', () => {
+      BigAmount.configure({
+        resolvePrecision: () => 8,
+        resolvePrice: () => '0',
+        resolvePriceUsd: () => '0',
+      })
+      const original = BigAmount.fromBaseUnit({ value: '150000000', assetId: 'btc' })
+      const json = original.toJSON()
+      expect(json.assetId).toBe('btc')
+
+      const restored = BigAmount.fromJSON(json)
+      expect(restored.toPrecision()).toBe('1.5')
+      expect(restored.assetId).toBe('btc')
+      BigAmount.resetConfig()
     })
   })
 })

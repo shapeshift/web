@@ -57,10 +57,9 @@ export const AssetHeader: React.FC<AssetHeaderProps> = ({ assetId, accountId }) 
   const canDisplayAssetActions = useWalletSupportsChain(chainId, wallet)
 
   const filter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
-  const cryptoBalanceBigAmount = useAppSelector(state =>
-    selectPortfolioCryptoBalanceByFilter(state, filter),
-  )
-  const cryptoBalance = cryptoBalanceBigAmount.toPrecision()
+  const cryptoBalance =
+    useAppSelector(state => selectPortfolioCryptoBalanceByFilter(state, filter))?.toPrecision() ??
+    '0'
 
   const formattedPrice = toFiat(marketData?.price ?? '0')
 

@@ -1,6 +1,6 @@
 import { Transaction } from '@shapeshiftoss/bitcoinjs-lib'
 
-import { bn } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 
 type TxValue = string | number | null | undefined
 
@@ -30,10 +30,10 @@ export const toSats = (value?: TxValue) => {
 }
 
 export const getTxVsize = (tx: SpeedUpTxLike) => {
-  const vsize = bn(tx.vsize ?? 0)
+  const vsize = bnOrZero(tx.vsize)
   if (vsize.gt(0)) return vsize
 
-  const weight = bn(tx.weight ?? 0)
+  const weight = bnOrZero(tx.weight)
   if (weight.gt(0)) return weight.plus(3).div(4).integerValue()
 
   if (tx.hex) {
@@ -48,10 +48,10 @@ export const getTxVsize = (tx: SpeedUpTxLike) => {
 }
 
 export const getTxVirtualBytes = (tx: SpeedUpTxLike) => {
-  const vsize = bn(tx.vsize ?? 0)
+  const vsize = bnOrZero(tx.vsize)
   if (vsize.gt(0)) return vsize
 
-  const weight = bn(tx.weight ?? 0)
+  const weight = bnOrZero(tx.weight)
   if (weight.gt(0)) return weight.div(4)
 
   if (tx.hex) {
@@ -101,7 +101,7 @@ export const getDisplayFeeRateSatPerVb = ({
   const txFeeRate = getTxFeeRateSatPerVb(tx)
   if (txFeeRate.gt(0)) return txFeeRate
 
-  const networkFeeRate = bn(networkAverageFeeRateSatPerVb ?? 0).integerValue()
+  const networkFeeRate = bnOrZero(networkAverageFeeRateSatPerVb).integerValue()
   if (networkFeeRate.gt(0)) return networkFeeRate
 
   return bn(1)
@@ -117,7 +117,7 @@ export const getDisplayFeeRateSatPerVbPrecise = ({
   const txFeeRate = getTxFeeRateSatPerVbPrecise(tx)
   if (txFeeRate.gt(0)) return txFeeRate
 
-  const networkFeeRate = bn(networkAverageFeeRateSatPerVb ?? 0)
+  const networkFeeRate = bnOrZero(networkAverageFeeRateSatPerVb)
   if (networkFeeRate.gt(0)) return networkFeeRate
 
   return bn(1)

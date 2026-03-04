@@ -5,6 +5,7 @@ import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { swapSlice } from '../swapSlice/swapSlice'
 import { actionSlice } from './actionSlice'
 import type {
+  ChainflipLendingAction,
   GenericTransactionAction,
   LimitOrderAction,
   RfoxClaimAction,
@@ -15,6 +16,7 @@ import {
   ActionType,
   GenericTransactionDisplayType,
   isArbitrumBridgeWithdrawAction,
+  isChainflipLendingAction,
   isGenericTransactionAction,
   isLimitOrderAction,
   isPendingSendAction,
@@ -78,6 +80,10 @@ export const selectWalletActions = createDeepEqualOutputSelector(
         })
 
         return enabledWalletAccountIds.includes(stakingAccountId)
+      }
+
+      if (isChainflipLendingAction(action)) {
+        return enabledWalletAccountIds.includes(action.chainflipLendingMetadata.accountId)
       }
 
       return action
@@ -315,5 +321,15 @@ export const selectYieldActionsByTxHash = createDeepEqualOutputSelector(
       }
     }
     return result
+  },
+)
+
+export const selectPendingChainflipLendingActions = createDeepEqualOutputSelector(
+  selectWalletActions,
+  actions => {
+    return actions.filter(
+      (action): action is ChainflipLendingAction =>
+        isChainflipLendingAction(action) && action.status === ActionStatus.Pending,
+    )
   },
 )

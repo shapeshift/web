@@ -169,7 +169,7 @@ describe('CoinGecko market service', () => {
     it('can flatten multiple responses', async () => {
       mocks.get.mockResolvedValueOnce({ data: [eth] }).mockResolvedValue({ data: [btc] })
       const result = await coinGeckoMarketService.findAll()
-      expect(Object.keys(result).length).toEqual(6)
+      expect(Object.keys(result).length).toEqual(17)
     })
 
     it('can sort by market cap', async () => {
@@ -193,7 +193,7 @@ describe('CoinGecko market service', () => {
     it('can return some results if partially rate limited', async () => {
       mocks.get.mockResolvedValueOnce({ status: 429 }).mockResolvedValue({ data: [eth] })
       const result = await coinGeckoMarketService.findAll()
-      expect(Object.keys(result).length).toEqual(5)
+      expect(Object.keys(result).length).toEqual(16)
     })
 
     it('can use default args', async () => {
@@ -221,15 +221,43 @@ describe('CoinGecko market service', () => {
       const result = await coinGeckoMarketService.findAll()
       const btcAssetId = adapters.coingeckoToAssetIds('bitcoin')
       const ethAssetId = adapters.coingeckoToAssetIds('ethereum')
-      const [btcKey, ethKey, ethOptimismKey, ethOnArbitrumKey, ethOnArbitrumNovaKey, ethOnBaseKey] =
-        Object.keys(result)
+      const [
+        btcKey,
+        ethKey,
+        ethOptimismKey,
+        ethOnArbitrumKey,
+        ethOnBaseKey,
+        ethOnBobKey,
+        ethOnBlastKey,
+        ethOnWorldChainKey,
+        ethOnHemiKey,
+        ethOnLineaKey,
+        ethOnModeKey,
+        ethOnMegaEthKey,
+        ethOnInkKey,
+        ethOnScrollKey,
+        ethOnUnichainKey,
+        ethOnSoneiumKey,
+        ethOnZkSyncEraKey,
+      ] = Object.keys(result)
       expect(btcAssetId).toEqual([btcKey])
       expect(ethAssetId).toEqual([
         ethKey,
         ethOptimismKey,
         ethOnArbitrumKey,
-        ethOnArbitrumNovaKey,
         ethOnBaseKey,
+        ethOnBobKey,
+        ethOnBlastKey,
+        ethOnWorldChainKey,
+        ethOnHemiKey,
+        ethOnLineaKey,
+        ethOnModeKey,
+        ethOnMegaEthKey,
+        ethOnInkKey,
+        ethOnScrollKey,
+        ethOnUnichainKey,
+        ethOnSoneiumKey,
+        ethOnZkSyncEraKey,
       ])
     })
 
@@ -394,10 +422,22 @@ describe('CoinGecko market service', () => {
       ]
 
       const expected = [
-        { date: new Date('2021-09-15T00:00:00.000Z').valueOf(), price: 47135.43199562694 },
-        { date: new Date('2021-09-14T00:00:00.000Z').valueOf(), price: 45139.83396873267 },
-        { date: new Date('2021-09-13T00:00:00.000Z').valueOf(), price: 46195.21830082935 },
-        { date: new Date('2021-09-12T00:00:00.000Z').valueOf(), price: 45196.488277558245 },
+        {
+          date: new Date('2021-09-15T00:00:00.000Z').valueOf(),
+          price: 47135.43199562694,
+        },
+        {
+          date: new Date('2021-09-14T00:00:00.000Z').valueOf(),
+          price: 45139.83396873267,
+        },
+        {
+          date: new Date('2021-09-13T00:00:00.000Z').valueOf(),
+          price: 46195.21830082935,
+        },
+        {
+          date: new Date('2021-09-12T00:00:00.000Z').valueOf(),
+          price: 45196.488277558245,
+        },
       ]
       mocks.get.mockResolvedValue({ data: { prices: mockHistoryData } })
       expect(await coinGeckoMarketService.findPriceHistoryByAssetId(args)).toEqual(expected)

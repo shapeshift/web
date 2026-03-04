@@ -45,6 +45,9 @@ export const CardStyle = {
       container: {
         bg: 'background.surface.raised.base',
         borderColor: 'border.base',
+        _dark: {
+          boxShadow: '0 1px 0 var(--chakra-colors-border-base) inset, var(--chakra-shadows-sm)',
+        },
       },
     }),
     unstyled: {

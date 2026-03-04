@@ -1,0 +1,41 @@
+{
+  "name": "@shapeshiftoss/hdwallet-keepkey-nodewebusb",
+  "version": "1.62.41",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "pnpm run clean && pnpm exec tsc --build && pnpm run postbuild",
+    "clean": "rm -rf dist",
+    "dev": "pnpm exec tsc --build --watch",
+    "postbuild": "pnpm run postbuild:esm && pnpm run postbuild:cjs",
+    "postbuild:esm": "pnpm exec tsc-esm-fix --target=dist/esm --ext=.js",
+    "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
+  },
+  "dependencies": {
+    "@shapeshiftoss/hdwallet-core": "workspace:^",
+    "@shapeshiftoss/hdwallet-keepkey": "workspace:^"
+  },
+  "peerDependencies": {
+    "usb": "^2.3.1"
+  },
+  "devDependencies": {
+    "usb": "^2.3.1"
+  },
+  "sideEffects": false
+}

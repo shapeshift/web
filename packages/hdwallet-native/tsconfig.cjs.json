@@ -1,0 +1,26 @@
+{
+  "extends": "../../tsconfig.packages.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "rootDir": "src",
+    "outDir": "dist/cjs",
+    "tsBuildInfoFile": "dist/cjs/.tsbuildinfo"
+  },
+  "files": [
+    "src/modules.d.ts"
+  ],
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "dist",
+    "**/*.test.ts",
+    "**/__tests__/**",
+    "**/__mocks__/**"
+  ],
+  "references": [
+    {
+      "path": "../hdwallet-core/tsconfig.cjs.json"
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 export * from './types'
 
+export { ResponseError } from './generated/ethereum/runtime'
+
 export * as ws from './websocket'
 
 export * as evm from './evm'
@@ -16,7 +18,6 @@ export * as bnbsmartchain from './evm/bnbsmartchain'
 export * as polygon from './evm/polygon'
 export * as gnosis from './evm/gnosis'
 export * as arbitrum from './evm/arbitrum'
-export * as arbitrumNova from './evm/arbitrumNova'
 export * as base from './evm/base'
 export * as bitcoin from './utxo/bitcoin'
 export * as bitcoincash from './utxo/bitcoincash'

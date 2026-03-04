@@ -289,7 +289,7 @@ export const YourLoans = () => {
   const connectIcon = useMemo(() => <FaWallet />, [])
 
   return (
-    <Main headerComponent={lendingHeader} isSubPage>
+    <Main headerComponent={lendingHeader} isSubPage data-testid='lending-your-loans'>
       <SEO title={translate('lending.yourLoans.yourLoans')} />
       {isConnected ? (
         <Stack>

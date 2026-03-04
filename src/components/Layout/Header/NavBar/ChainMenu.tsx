@@ -3,7 +3,7 @@ import { Box } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { ETHWallet } from '@shapeshiftoss/hdwallet-core'
-import { supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core'
+import { supportsEthSwitchChain } from '@shapeshiftoss/hdwallet-core/wallet'
 import { memo, useCallback, useMemo } from 'react'
 import { toHex } from 'viem'
 

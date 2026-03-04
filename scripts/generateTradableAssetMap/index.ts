@@ -1,3 +1,5 @@
+import '../loadEnv'
+
 import type { AssetId } from '@shapeshiftoss/caip'
 import { mayachainAssetId, rujiAssetId, tcyAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
@@ -9,6 +11,8 @@ import path from 'path'
 
 import type { AssetIdPair } from './types'
 import { getAssetIdPairFromPool } from './utils'
+
+const { VITE_THORCHAIN_NODE_URL, VITE_MAYACHAIN_NODE_URL } = process.env
 
 const axiosConfig = {
   timeout: 10000,
@@ -61,7 +65,7 @@ export const generateTradableAssetMap = async (
 }
 
 generateTradableAssetMap(
-  'https://api.thorchain.shapeshift.com/lcd/thorchain/pools',
+  `${VITE_THORCHAIN_NODE_URL}/thorchain/pools`,
   [
     ['THOR.RUNE', thorchainAssetId],
     ['THOR.TCY', tcyAssetId],
@@ -75,7 +79,7 @@ generateTradableAssetMap(
   .catch(err => console.info(err))
 
 generateTradableAssetMap(
-  'https://api.mayachain.shapeshift.com/lcd/mayachain/pools',
+  `${VITE_MAYACHAIN_NODE_URL}/mayachain/pools`,
   [['MAYA.CACAO', mayachainAssetId]],
   'MayachainSwapper',
 )

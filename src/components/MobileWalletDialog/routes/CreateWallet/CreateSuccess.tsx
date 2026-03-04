@@ -1,6 +1,6 @@
 import { Button, Icon, Text, VStack } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useCallback } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
 import type { Location } from 'react-router-dom'
@@ -33,82 +33,111 @@ export const CreateSuccess = ({ onClose }: CreateSuccessProps) => {
   const queryClient = useQueryClient()
   const { dispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
+  const saveAttemptedRef = useRef(false)
+  const connectionAttemptedRef = useRef(false)
+  const savedWalletRef = useRef<Awaited<ReturnType<typeof addWallet>> | null>(null)
+  const [isConnecting, setIsConnecting] = useState(false)
 
-  const saveAndSelectWallet = useCallback(async () => {
+  const saveWallet = useCallback(async () => {
+    if (saveAttemptedRef.current) return
+    saveAttemptedRef.current = true
+
     if (location.state?.vault?.label && location.state?.vault?.mnemonic) {
-      const wallet = await addWallet({
-        label: location.state.vault.label,
-        mnemonic: location.state.vault.mnemonic,
-      })
+      try {
+        const wallet = await addWallet({
+          label: location.state.vault.label,
+          mnemonic: location.state.vault.mnemonic,
+        })
 
-      if (!wallet) {
-        return
+        if (wallet) {
+          savedWalletRef.current = wallet
+          await queryClient.invalidateQueries({ queryKey: ['listWallets'] })
+        }
+      } catch (e) {
+        console.error('Failed to save wallet:', e)
+        saveAttemptedRef.current = false
       }
+    }
+  }, [location.state?.vault, queryClient])
 
+  const handleWalletConnection = useCallback(async () => {
+    if (connectionAttemptedRef.current) return
+    connectionAttemptedRef.current = true
+
+    const wallet = savedWalletRef.current
+    if (!wallet || !location.state?.vault?.mnemonic) {
+      connectionAttemptedRef.current = false
+      return
+    }
+
+    try {
       const adapter = await getAdapter(KeyManager.Mobile)
       const deviceId = wallet.id
       if (adapter && deviceId) {
         const { name, icon } = MobileConfig
-        try {
-          const walletInstance = await adapter.pairDevice(deviceId)
-          await walletInstance?.loadDevice({ mnemonic: location.state?.vault?.mnemonic ?? '' })
+        const walletInstance = await adapter.pairDevice(deviceId)
+        await walletInstance?.loadDevice({ mnemonic: location.state?.vault?.mnemonic ?? '' })
 
-          if (!(await walletInstance?.isInitialized())) {
-            await walletInstance?.initialize()
-          }
-          dispatch({
-            type: WalletActions.SET_WALLET,
-            payload: {
-              wallet: walletInstance,
-              name,
-              icon,
-              deviceId,
-              meta: { label: location.state?.vault?.label },
-              connectedType: KeyManager.Mobile,
-            },
-          })
-          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-          dispatch({
-            type: WalletActions.SET_CONNECTOR_TYPE,
-            payload: { modalType: KeyManager.Mobile, isMipdProvider: false },
-          })
-
-          localWallet.setLocalWallet({ type: KeyManager.Mobile, deviceId })
-          localWallet.setLocalNativeWalletName(location.state?.vault?.label ?? 'label')
-        } catch (e) {
-          console.log(e)
+        if (!(await walletInstance?.isInitialized())) {
+          await walletInstance?.initialize()
         }
+        dispatch({
+          type: WalletActions.SET_WALLET,
+          payload: {
+            wallet: walletInstance,
+            name,
+            icon,
+            deviceId,
+            meta: { label: location.state?.vault?.label },
+            connectedType: KeyManager.Mobile,
+          },
+        })
+        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        dispatch({
+          type: WalletActions.SET_CONNECTOR_TYPE,
+          payload: { modalType: KeyManager.Mobile, isMipdProvider: false },
+        })
+
+        localWallet.setLocalWallet({ type: KeyManager.Mobile, deviceId })
+        localWallet.setLocalNativeWalletName(location.state?.vault?.label ?? 'label')
+        appDispatch(setWelcomeModal({ show: true }))
       }
-      await queryClient.invalidateQueries({ queryKey: ['listWallets'] })
       wallet.revoke()
-      appDispatch(setWelcomeModal({ show: true }))
+      savedWalletRef.current = null
+    } catch (e) {
+      console.error('Failed to connect wallet:', e)
+      connectionAttemptedRef.current = false
     }
-  }, [
-    location.state?.vault,
-    dispatch,
-    getAdapter,
-    localWallet,
-    queryClient,
-    appDispatch,
-    setWelcomeModal,
-  ])
+  }, [location.state?.vault, dispatch, getAdapter, localWallet, appDispatch, setWelcomeModal])
 
-  const handleViewWallet = useCallback(() => {
-    saveAndSelectWallet()
-    onClose()
-  }, [onClose, saveAndSelectWallet])
+  useEffect(() => {
+    saveWallet()
+  }, [saveWallet])
 
-  const handleClose = useCallback(() => {
-    saveAndSelectWallet()
-    onClose()
-    appDispatch(setWelcomeModal({ show: true }))
-  }, [onClose, appDispatch, setWelcomeModal, saveAndSelectWallet])
+  useEffect(() => {
+    return () => {
+      if (savedWalletRef.current) {
+        savedWalletRef.current.revoke()
+        savedWalletRef.current = null
+      }
+    }
+  }, [])
+
+  const handleViewWallet = useCallback(async () => {
+    setIsConnecting(true)
+    try {
+      await handleWalletConnection()
+      onClose()
+    } finally {
+      setIsConnecting(false)
+    }
+  }, [onClose, handleWalletConnection])
 
   return (
     <SlideTransition>
       <DialogHeader>
         <DialogHeaderRight>
-          <DialogCloseButton onClick={handleClose} />
+          <DialogCloseButton onClick={onClose} />
         </DialogHeaderRight>
       </DialogHeader>
       <DialogBody>
@@ -126,7 +155,14 @@ export const CreateSuccess = ({ onClose }: CreateSuccessProps) => {
         </VStack>
       </DialogBody>
       <DialogFooter>
-        <Button colorScheme='blue' size='lg' width='full' onClick={handleViewWallet}>
+        <Button
+          colorScheme='blue'
+          size='lg'
+          width='full'
+          onClick={handleViewWallet}
+          isLoading={isConnecting}
+          loadingText={translate('walletProvider.manualBackup.success.viewWallet')}
+        >
           {translate('walletProvider.manualBackup.success.viewWallet')}
         </Button>
       </DialogFooter>

@@ -1,5 +1,6 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { Box, Button, Center, Collapse, Flex, Text as CText, useDisclosure } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
@@ -24,6 +25,8 @@ import {
 } from '@/state/slices/selectors'
 import { store, useAppSelector, useSelectorWithArgs } from '@/state/store'
 
+const MAX_VISIBLE_NETWORKS = 4
+
 type GroupedAssetRowProps = {
   asset: Asset
   handleClick: (asset: Asset) => void
@@ -31,6 +34,7 @@ type GroupedAssetRowProps = {
   hideZeroBalanceAmounts?: boolean
   showPrice?: boolean
   onLongPress?: (asset: Asset) => void
+  relatedAssetIds?: AssetId[]
 }
 
 export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
@@ -40,6 +44,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
   hideZeroBalanceAmounts,
   showPrice,
   onLongPress,
+  relatedAssetIds: providedRelatedAssetIds,
 }) => {
   const { isOpen, onToggle } = useDisclosure()
   const assets = useAppSelector(selectAssets)
@@ -67,10 +72,13 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
     }),
     [asset],
   )
-  const relatedAssetIds = useSelectorWithArgs(
+
+  // Always fetch relatedAssetIds, but prefer provided filtered list if available
+  const allRelatedAssetIds = useSelectorWithArgs(
     selectRelatedAssetIdsInclusiveSorted,
     relatedAssetIdsFilter,
   )
+  const relatedAssetIds = providedRelatedAssetIds ?? allRelatedAssetIds
 
   const handleGroupClick = useCallback(
     (e: React.MouseEvent) => {
@@ -88,11 +96,18 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
   )
 
   const networksIcons = useMemo(() => {
-    return relatedAssetIds.map((assetId, index) => {
-      const feeAsset = selectFeeAssetByChainId(store.getState(), fromAssetId(assetId).chainId)
+    const uniqueChainIds = Array.from(
+      new Set(relatedAssetIds.map(assetId => fromAssetId(assetId).chainId)),
+    )
+
+    const visibleChainIds = uniqueChainIds.slice(0, MAX_VISIBLE_NETWORKS)
+    const overflowCount = uniqueChainIds.length - visibleChainIds.length
+
+    const icons = visibleChainIds.map((chainId, index) => {
+      const feeAsset = selectFeeAssetByChainId(store.getState(), chainId)
       return (
         <Box
-          key={feeAsset?.chainId}
+          key={chainId}
           borderRadius='full'
           display='flex'
           alignItems='center'
@@ -101,15 +116,39 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
           boxSize='16px'
           color='white'
           fontWeight='bold'
-          zIndex={relatedAssetIds.length - index} // Higher z-index for earlier items
+          zIndex={uniqueChainIds.length - index}
           ml={index > 0 ? -1.5 : 0}
           border='1px solid'
           borderColor='background.surface.overlay.base'
+          data-testid={`chain-icon-${chainId}`}
         >
           <LazyLoadAvatar src={feeAsset?.networkIcon ?? feeAsset?.icon} boxSize='100%' />
         </Box>
       )
     })
+
+    if (overflowCount > 0) {
+      icons.push(
+        <Center
+          key='overflow'
+          borderRadius='full'
+          boxSize='16px'
+          ml={-1.5}
+          bg='background.button.secondary.base'
+          color='text.subtle'
+          fontSize='2xs'
+          fontWeight='bold'
+          zIndex={0}
+          border='1px solid'
+          borderColor='background.surface.overlay.base'
+          data-testid={`chain-icon-overflow-${overflowCount}`}
+        >
+          {`+${overflowCount}`}
+        </Center>,
+      )
+    }
+
+    return icons
   }, [relatedAssetIds])
 
   const changePercent24Hr = groupedAssetBalances?.primaryAsset.priceChange
@@ -160,6 +199,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
         p={4}
         borderBottomRadius={isOpen ? 0 : 'lg'}
         bg={isOpen ? 'background.surface.raised.base' : 'transparent'}
+        data-testid={`grouped-asset-row-${asset.symbol}-${asset.assetId}`}
       >
         <Flex gap={3} alignItems='center' flex={1} minWidth={0}>
           <AssetIcon assetId={asset.assetId} showNetworkIcon={false} size='md' flexShrink={0} />
@@ -230,7 +270,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
                   lineHeight={1}
                   value={groupedAssetBalances?.primaryAsset.fiatAmount.toString()}
                 />
-                <Flex>
+                <Flex data-testid={`chain-icons-${asset.symbol}`}>
                   {networksIcons}
                   <Center
                     bg='background.button.secondary.base'

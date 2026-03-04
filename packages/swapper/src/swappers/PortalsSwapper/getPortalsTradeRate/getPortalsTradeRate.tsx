@@ -41,7 +41,6 @@ export async function getPortalsTradeRate(
     receiveAddress,
     supportsEIP1559,
   } = input
-  const adapter = assertGetEvmChainAdapter(chainId)
 
   const sellAssetChainId = sellAsset.chainId
   const buyAssetChainId = buyAsset.chainId
@@ -66,11 +65,20 @@ export async function getPortalsTradeRate(
     )
   }
 
+  if (!isSupportedChainId(chainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `unsupported chainId`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId },
+      }),
+    )
+  }
+
+  const adapter = assertGetEvmChainAdapter(chainId)
   const isCrossChain = sellAssetChainId !== buyAssetChainId
 
   try {
-    if (!isSupportedChainId(chainId)) throw new Error(`Unsupported chainId ${sellAsset.chainId}`)
-
     const sellPortalsNetwork = chainIdToPortalsNetwork[sellAssetChainId as KnownChainIds]
     const buyPortalsNetwork = chainIdToPortalsNetwork[buyAssetChainId as KnownChainIds]
 

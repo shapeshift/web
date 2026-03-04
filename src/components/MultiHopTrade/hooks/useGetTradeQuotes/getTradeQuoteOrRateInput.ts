@@ -1,22 +1,25 @@
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { GetTradeQuoteInput, GetTradeRateInput } from '@shapeshiftoss/swapper'
 import type {
   Asset,
   CosmosSdkChainId,
   EvmChainId,
+  NearChainId,
   TronChainId,
   UtxoChainId,
 } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
-import { toBaseUnit } from '@/lib/math'
 import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
+import { assertGetNearChainAdapter } from '@/lib/utils/near'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
@@ -56,10 +59,10 @@ export const getTradeQuoteOrRateInput = async ({
   const tradeQuoteInputCommonArgs =
     quoteOrRate === 'quote' && receiveAddress && sellAccountNumber !== undefined
       ? {
-          sellAmountIncludingProtocolFeesCryptoBaseUnit: toBaseUnit(
-            sellAmountBeforeFeesCryptoPrecision,
-            sellAsset.precision,
-          ),
+          sellAmountIncludingProtocolFeesCryptoBaseUnit: BigAmount.fromPrecision({
+            value: sellAmountBeforeFeesCryptoPrecision,
+            precision: sellAsset.precision,
+          }).toBaseUnit(),
           sellAsset,
           buyAsset,
           receiveAddress,
@@ -70,10 +73,10 @@ export const getTradeQuoteOrRateInput = async ({
           quoteOrRate: 'quote',
         }
       : {
-          sellAmountIncludingProtocolFeesCryptoBaseUnit: toBaseUnit(
-            sellAmountBeforeFeesCryptoPrecision,
-            sellAsset.precision,
-          ),
+          sellAmountIncludingProtocolFeesCryptoBaseUnit: BigAmount.fromPrecision({
+            value: sellAmountBeforeFeesCryptoPrecision,
+            precision: sellAsset.precision,
+          }).toBaseUnit(),
           sellAsset,
           buyAsset,
           receiveAddress,
@@ -232,6 +235,61 @@ export const getTradeQuoteOrRateInput = async ({
       return {
         ...tradeQuoteInputCommonArgs,
         chainId: sellAsset.chainId as CosmosSdkChainId,
+        sendAddress,
+      } as GetTradeQuoteInput
+    }
+    case CHAIN_NAMESPACE.Near: {
+      const sellAssetChainAdapter = assertGetNearChainAdapter(sellAsset.chainId)
+
+      const sendAddress =
+        wallet && sellAccountNumber !== undefined
+          ? await sellAssetChainAdapter.getAddress({
+              accountNumber: sellAccountNumber,
+              wallet,
+              pubKey,
+            })
+          : undefined
+
+      return {
+        ...tradeQuoteInputCommonArgs,
+        chainId: sellAsset.chainId as NearChainId,
+        sendAddress,
+      } as GetTradeQuoteInput
+    }
+    case CHAIN_NAMESPACE.Starknet: {
+      const sellAssetChainAdapter = assertGetStarknetChainAdapter(sellAsset.chainId)
+
+      const sendAddress =
+        wallet && sellAccountNumber !== undefined
+          ? await sellAssetChainAdapter.getAddress({
+              accountNumber: sellAccountNumber,
+              wallet,
+              pubKey,
+            })
+          : undefined
+
+      return {
+        ...tradeQuoteInputCommonArgs,
+        chainId: sellAsset.chainId,
+        sendAddress,
+      } as GetTradeQuoteInput
+    }
+    case CHAIN_NAMESPACE.Ton: {
+      const { assertGetTonChainAdapter } = await import('@/lib/utils/ton')
+      const sellAssetChainAdapter = assertGetTonChainAdapter(sellAsset.chainId)
+
+      const sendAddress =
+        wallet && sellAccountNumber !== undefined
+          ? await sellAssetChainAdapter.getAddress({
+              accountNumber: sellAccountNumber,
+              wallet,
+              pubKey,
+            })
+          : undefined
+
+      return {
+        ...tradeQuoteInputCommonArgs,
+        chainId: sellAsset.chainId,
         sendAddress,
       } as GetTradeQuoteInput
     }

@@ -4,7 +4,7 @@ import { ethAssetId, ethChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapterManager } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
 import { shapeShiftSnapInstalled } from '@shapeshiftoss/metamask-snaps-adapter'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { renderHook } from '@testing-library/react'
@@ -79,7 +79,6 @@ const mockEvmChainIds = [
   KnownChainIds.BnbSmartChainMainnet,
   KnownChainIds.PolygonMainnet,
   KnownChainIds.ArbitrumMainnet,
-  KnownChainIds.ArbitrumNovaMainnet,
   KnownChainIds.BaseMainnet,
 ]
 vi.mock('@/lib/utils/evm', async () => {

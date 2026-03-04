@@ -1,4 +1,4 @@
-import { fromAssetId, solanaChainId } from '@shapeshiftoss/caip'
+import { fromAssetId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { chainIdToFeeAssetId } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
@@ -33,17 +33,18 @@ type ButterSwapPromise<T> = Promise<Result<T, SwapErrorRight>>
 export type GetButterRouteArgs = {
   sellAsset: Asset
   buyAsset: Asset
-  sellAmountCryptoBaseUnit: string
+  sellAmountCryptoPrecision: string
   slippage: string
   affiliate?: string
 }
 
 const SOLANA_NATIVE_ADDRESS = 'So11111111111111111111111111111111111111112'
+const TRON_NATIVE_ADDRESS = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'
 
 export const getButterRoute = async ({
   sellAsset,
   buyAsset,
-  sellAmountCryptoBaseUnit,
+  sellAmountCryptoPrecision,
   slippage,
   affiliate,
 }: GetButterRouteArgs): ButterSwapPromise<RouteResponse> => {
@@ -67,12 +68,14 @@ export const getButterRoute = async ({
 
   const sellAssetAddress = (() => {
     if (sellAsset.chainId === solanaChainId && sellAssetIsNative) return SOLANA_NATIVE_ADDRESS
+    if (sellAsset.chainId === tronChainId && sellAssetIsNative) return TRON_NATIVE_ADDRESS
     if (sellAssetIsNative) return zeroAddress
     return sellAssetAddressRaw
   })()
 
   const buyAssetAddress = (() => {
     if (buyAsset.chainId === solanaChainId && buyAssetIsNative) return SOLANA_NATIVE_ADDRESS
+    if (buyAsset.chainId === tronChainId && buyAssetIsNative) return TRON_NATIVE_ADDRESS
     if (buyAssetIsNative) return zeroAddress
     return buyAssetAddressRaw
   })()
@@ -85,7 +88,7 @@ export const getButterRoute = async ({
     tokenInAddress: sellAssetAddress,
     toChainId: butterToChainId,
     tokenOutAddress: buyAssetAddress,
-    amount: sellAmountCryptoBaseUnit,
+    amount: sellAmountCryptoPrecision,
     type: 'exactIn',
     slippage,
     entrance: 'shapeshift',

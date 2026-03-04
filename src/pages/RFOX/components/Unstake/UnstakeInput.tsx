@@ -1,7 +1,7 @@
 import { CardBody, CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { isSome } from '@shapeshiftoss/utils'
+import { BigAmount, isSome } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -28,7 +28,6 @@ import { useToggle } from '@/hooks/useToggle/useToggle'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { selectStakingBalance } from '@/pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
 import { supportedStakingAssetIds, useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
@@ -38,7 +37,7 @@ import {
   selectAssets,
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -101,8 +100,8 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     }),
     [stakingAssetFeeAsset?.assetId, stakingAssetAccountId],
   )
-  const stakingAssetFeeAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
+  const stakingAssetFeeAssetBalance = useAppSelector(state =>
+    selectPortfolioCryptoBalanceByFilter(state, stakingAssetFeeAssetBalanceFilter),
   )
 
   const buyAssetSearch = useModal('buyAssetSearch')
@@ -155,7 +154,11 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   })
 
   const amountCryptoBaseUnit = useMemo(
-    () => toBaseUnit(amountCryptoPrecision, stakingAsset?.precision ?? 0),
+    () =>
+      BigAmount.fromPrecision({
+        value: amountCryptoPrecision,
+        precision: stakingAsset?.precision ?? 0,
+      }).toBaseUnit(),
     [amountCryptoPrecision, stakingAsset?.precision],
   )
 
@@ -205,7 +208,10 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
 
   const userStakingBalanceCryptoPrecision = useMemo(() => {
     if (!(userStakingBalanceOfCryptoBaseUnit && stakingAsset)) return
-    return fromBaseUnit(userStakingBalanceOfCryptoBaseUnit, stakingAsset?.precision)
+    return BigAmount.fromBaseUnit({
+      value: userStakingBalanceOfCryptoBaseUnit,
+      precision: stakingAsset?.precision ?? 0,
+    }).toPrecision()
   }, [stakingAsset, userStakingBalanceOfCryptoBaseUnit])
 
   const userStakingBalanceUserCurrency = useMemo(() => {
@@ -277,7 +283,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
         stakingAssetAccountId &&
         hasEnteredValue &&
         stakingAsset &&
-        cooldownPeriodData?.cooldownPeriod
+        cooldownPeriodData?.cooldownPeriod !== undefined
       )
     )
       return
@@ -285,8 +291,11 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     setConfirmedQuote({
       stakingAssetAccountId,
       stakingAssetId,
-      unstakingAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, stakingAsset.precision),
-      cooldownPeriod: cooldownPeriodData?.cooldownPeriod,
+      unstakingAmountCryptoBaseUnit: BigAmount.fromPrecision({
+        value: amountCryptoPrecision,
+        precision: stakingAsset.precision,
+      }).toBaseUnit(),
+      cooldownPeriod: cooldownPeriodData.cooldownPeriod,
     })
 
     navigate(UnstakeRoutePaths.Confirm)
@@ -301,25 +310,27 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     stakingAssetId,
   ])
 
+  const handleUnstakeClick = useMemo(() => {
+    if (stakingAssetId === uniV2EthFoxArbitrumAssetId) return handleSubmit
+    return handleWarning
+  }, [handleSubmit, handleWarning, stakingAssetId])
+
   const validateHasEnoughFeeBalance = useCallback(
     (input: string) => {
       if (bnOrZero(input).isZero()) return true
-      if (bnOrZero(stakingAssetFeeAssetBalanceCryptoPrecision).isZero()) return false
+      if (stakingAssetFeeAssetBalance.isZero()) return false
 
       const fees = unstakeFees
 
       const hasEnoughFeeBalance = bnOrZero(fees?.networkFeeCryptoBaseUnit).lte(
-        toBaseUnit(
-          stakingAssetFeeAssetBalanceCryptoPrecision,
-          stakingAssetFeeAsset?.precision ?? 0,
-        ),
+        stakingAssetFeeAssetBalance.toBaseUnit(),
       )
 
       if (!hasEnoughFeeBalance) return false
 
       return true
     },
-    [stakingAssetFeeAsset?.precision, stakingAssetFeeAssetBalanceCryptoPrecision, unstakeFees],
+    [stakingAssetFeeAssetBalance, unstakeFees],
   )
 
   // Trigger re-validation since react-hook-form validation methods are fired onChange and not in a component-reactive manner
@@ -328,7 +339,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
   }, [
     stakingAssetFeeAsset?.precision,
     stakingAssetFeeAsset?.symbol,
-    stakingAssetFeeAssetBalanceCryptoPrecision,
+    stakingAssetFeeAssetBalance,
     amountCryptoPrecision,
     amountUserCurrency,
     unstakeFees,
@@ -479,11 +490,11 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
               !hasEnteredValue ||
                 !isUnstakeFeesSuccess ||
                 Boolean(errors.amountFieldInput) ||
-                !cooldownPeriodData?.cooldownPeriodSeconds,
+                cooldownPeriodData?.cooldownPeriodSeconds === undefined,
             )}
             size='lg'
             mx={-2}
-            onClick={handleWarning}
+            onClick={handleUnstakeClick}
             colorScheme={Boolean(errors.amountFieldInput) ? 'red' : 'blue'}
             isLoading={isUnstakeFeesLoading}
           >

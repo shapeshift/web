@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/chain-adapters",
-  "version": "11.3.6",
+  "version": "11.3.7",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "type": "module",
@@ -9,9 +9,9 @@
   "types": "dist/esm/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/esm/index.d.ts",
       "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/esm/index.d.ts"
+      "require": "./dist/cjs/index.js"
     }
   },
   "files": [
@@ -21,33 +21,40 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn run -T tsc --build && yarn postbuild",
+    "build": "pnpm run clean && pnpm exec tsc --build && pnpm run postbuild",
     "clean": "rm -rf dist",
-    "dev": "yarn run -T tsc --build --watch",
-    "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",
-    "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
+    "dev": "pnpm exec tsc --build --watch",
+    "postbuild": "pnpm run postbuild:esm && pnpm run postbuild:cjs",
+    "postbuild:esm": "pnpm exec tsc-esm-fix --target=dist/esm --ext=.js",
     "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   },
   "dependencies": {
     "@mysten/sui": "1.45.0",
+    "@near-js/crypto": "^2.5.1",
+    "@near-js/providers": "^2.5.1",
+    "@near-js/transactions": "^2.5.1",
+    "@near-js/utils": "^2.5.1",
     "@shapeshiftoss/caip": "workspace:^",
-    "@shapeshiftoss/hdwallet-core": "1.62.31",
-    "@shapeshiftoss/hdwallet-ledger": "1.62.31",
+    "@shapeshiftoss/hdwallet-core": "workspace:^",
+    "@shapeshiftoss/hdwallet-ledger": "workspace:^",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^",
     "@solana/spl-token": "^0.4.9",
-    "@solana/web3.js": "^1.98.0",
-    "axios": "^1.13.0",
+    "@solana/web3.js": "1.98.0",
+    "@ton/core": "^0.62.1",
+    "@ton/crypto": "^3.3.0",
+    "axios": "^1.13.5",
     "bech32": "^2.0.0",
     "bignumber.js": "^9.3.1",
     "bs58check": "^2.1.2",
     "coinselect": "^3.1.13",
-    "lodash": "^4.17.21",
+    "ethers": "6.11.1",
+    "lodash": "^4.17.23",
     "multicoin-address-validator": "^0.5.12",
     "node-polyglot": "^2.4.0",
     "p-queue": "^8.0.1",
-    "viem": "^2.40.3"
+    "viem": "2.43.5"
   },
   "devDependencies": {
     "@types/bs58check": "^2.1.0",

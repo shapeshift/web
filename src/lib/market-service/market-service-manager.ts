@@ -146,8 +146,29 @@ export class MarketServiceManager {
         // Swallow error, not every asset will be with every provider.
       }
     }
-    if (!result) return []
-    return result
+    if (result?.length) return result
+
+    // If we don't find any results, then we look for related assets
+    const relatedAssetIds = this.assetService.getRelatedAssetIds(assetId)
+    if (!relatedAssetIds.length) return []
+
+    // Loop through related assets and look for price history
+    // Once found for any related asset, exit loop.
+    for (const relatedAssetId of relatedAssetIds) {
+      for (const provider of this.marketProviders) {
+        try {
+          const maybeResult = await provider.findPriceHistoryByAssetId({
+            assetId: relatedAssetId,
+            timeframe,
+          })
+          if (maybeResult?.length) return maybeResult
+        } catch (e) {
+          // Swallow error, not every related asset will be with every provider.
+        }
+      }
+    }
+
+    return []
   }
 
   async findAllSortedByVolumeDesc(count: number): Promise<AssetId[]> {

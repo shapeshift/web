@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useMemo } from 'react'
 
@@ -14,6 +14,8 @@ export type DefaultAssetListProps = {
   popularAssets: Asset[]
   onAssetClick: (asset: Asset) => void
   activeChainId: ChainId | 'All'
+  assetFilterPredicate?: (assetId: AssetId) => boolean
+  chainIdFilterPredicate?: (chainId: ChainId) => boolean
 }
 
 export const DefaultAssetList = ({
@@ -21,6 +23,8 @@ export const DefaultAssetList = ({
   popularAssets,
   onAssetClick,
   activeChainId,
+  assetFilterPredicate,
+  chainIdFilterPredicate,
 }: DefaultAssetListProps) => {
   const { isConnected } = useWallet().state
   const isPortfolioLoading = useAppSelector(selectIsPortfolioLoading)
@@ -56,6 +60,8 @@ export const DefaultAssetList = ({
       groupIsLoading={groupIsLoading}
       onAssetClick={onAssetClick}
       activeChainId={activeChainId}
+      assetFilterPredicate={assetFilterPredicate}
+      chainIdFilterPredicate={chainIdFilterPredicate}
     />
   )
 }

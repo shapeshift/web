@@ -1,3 +1,4 @@
+import { tronAssetId } from '@shapeshiftoss/caip'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import type { GetUnsignedTronTransactionArgs } from '../types'
@@ -13,16 +14,43 @@ export const getUnsignedTronTransaction = ({
 
   const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-  const { accountNumber, sellAsset, relayTransactionMetadata, nearIntentsSpecific } = step
+  const {
+    accountNumber,
+    sellAsset,
+    relayTransactionMetadata,
+    nearIntentsSpecific,
+    butterSwapTransactionMetadata,
+  } = step
 
   const adapter = assertGetTronChainAdapter(sellAsset.chainId)
+
+  if (butterSwapTransactionMetadata) {
+    const { to, data, method, args, value: butterValue } = butterSwapTransactionMetadata
+
+    if (!to) throw new Error('Missing Butter swap contract address')
+    if (!data) throw new Error('Missing Butter swap transaction data')
+
+    // Use Butter's value field which includes swap fees for same-chain swaps
+    // For native TRX sells, also include the sell amount
+    const isNativeTron = sellAsset.assetId === tronAssetId
+    const value = isNativeTron ? step.sellAmountIncludingProtocolFeesCryptoBaseUnit : butterValue
+
+    return adapter.buildCustomApiTx({
+      from,
+      to,
+      accountNumber,
+      data,
+      value,
+      method,
+      args,
+    })
+  }
 
   const to = relayTransactionMetadata?.to ?? nearIntentsSpecific?.depositAddress
   if (!to) throw new Error('Missing transaction destination address')
 
   const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
 
-  // Extract contract address for TRC20 tokens
   const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
 
   return adapter.buildSendApiTransaction({

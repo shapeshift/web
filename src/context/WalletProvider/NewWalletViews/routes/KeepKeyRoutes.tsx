@@ -67,6 +67,16 @@ export const KeepKeyRoutes = () => {
           return await firstAdapter?.pairDevice(sdk)
         } else {
           const secondAdapter = await getAdapter(KeyManager.KeepKey, 1)
+
+          // @ts-ignore - getDevices exists on WebUSBKeepKeyAdapter
+          const existingDevices = await secondAdapter?.getDevices?.()
+
+          if (existingDevices?.length > 0) {
+            const existingDevice = existingDevices[0]
+            const existingWallet = state.keyring.get(existingDevice.serialNumber)
+            if (existingWallet) return existingWallet
+          }
+
           // @ts-ignore TODO(gomes): FIXME, most likely borked because of WebUSBKeepKeyAdapter
           return await secondAdapter?.pairDevice()
         }
@@ -82,7 +92,7 @@ export const KeepKeyRoutes = () => {
     })()
 
     setWallet(wallet || null)
-  }, [getAdapter, setErrorLoading])
+  }, [getAdapter, setErrorLoading, state.keyring])
 
   // Actually initializes KK once hdwallet is paired
   const initializeKeepKeyMutation = useMutation({

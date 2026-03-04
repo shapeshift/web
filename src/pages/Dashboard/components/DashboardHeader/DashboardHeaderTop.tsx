@@ -117,8 +117,8 @@ export const DashboardHeaderTop = memo(() => {
 
   const handleQrCodeClick = useCallback(() => {
     vibrate('heavy')
-    qrCode.open({})
-  }, [qrCode])
+    qrCode.open({ assetId: asset?.assetId, accountId })
+  }, [qrCode, asset?.assetId, accountId])
 
   const handleSendClick = useCallback(() => {
     vibrate('heavy')

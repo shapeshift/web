@@ -24,15 +24,41 @@ export type FeatureFlags = {
   Polygon: boolean
   Gnosis: boolean
   Arbitrum: boolean
-  ArbitrumNova: boolean
   Solana: boolean
+  Starknet: boolean
   Tron: boolean
   Sui: boolean
+  Ton: boolean
+  Near: boolean
+  AgenticChat: boolean
   Base: boolean
   Mayachain: boolean
   Monad: boolean
   HyperEvm: boolean
   Plasma: boolean
+  Mantle: boolean
+  Ink: boolean
+  MegaEth: boolean
+  Berachain: boolean
+  Cronos: boolean
+  Katana: boolean
+  Ethereal: boolean
+  Celo: boolean
+  FlowEvm: boolean
+  Plume: boolean
+  Story: boolean
+  ZkSyncEra: boolean
+  Blast: boolean
+  WorldChain: boolean
+  Hemi: boolean
+  Sei: boolean
+  Linea: boolean
+  Scroll: boolean
+  Sonic: boolean
+  Unichain: boolean
+  Bob: boolean
+  Mode: boolean
+  Soneium: boolean
   Zcash: boolean
   ThorSwap: boolean
   WalletConnectToDapps: boolean
@@ -73,8 +99,6 @@ export type FeatureFlags = {
   RunePoolWithdraw: boolean
   Markets: boolean
   PhantomWallet: boolean
-  FoxPage: boolean
-  FoxPageRFOX: boolean
   FoxPageFoxSection: boolean
   FoxPageFoxFarmingSection: boolean
   FoxPageGovernance: boolean
@@ -82,6 +106,7 @@ export type FeatureFlags = {
   ChainflipSwap: boolean
   SolanaSwapper: boolean
   ChainflipDca: boolean
+  ChainflipLending: boolean
   JupiterSwap: boolean
   NewWalletFlow: boolean
   NewLimitFlow: boolean
@@ -97,8 +122,11 @@ export type FeatureFlags = {
   NearIntentsSwap: boolean
   CetusSwap: boolean
   SunioSwap: boolean
+  AvnuSwap: boolean
+  StonfiSwap: boolean
+  AcrossSwap: boolean
+  DebridgeSwap: boolean
   LazyTxHistory: boolean
-  RfoxFoxEcosystemPage: boolean
   LedgerReadOnly: boolean
   QuickBuy: boolean
   NewWalletManager: boolean
@@ -106,6 +134,10 @@ export type FeatureFlags = {
   WebServices: boolean
   AddressBook: boolean
   AppRating: boolean
+  YieldXyz: boolean
+  YieldsPage: boolean
+  YieldMultiAccount: boolean
+  EarnTab: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -164,15 +196,41 @@ const initialState: Preferences = {
     Polygon: getConfig().VITE_FEATURE_POLYGON,
     Gnosis: getConfig().VITE_FEATURE_GNOSIS,
     Arbitrum: getConfig().VITE_FEATURE_ARBITRUM,
-    ArbitrumNova: getConfig().VITE_FEATURE_ARBITRUM_NOVA,
     Solana: getConfig().VITE_FEATURE_SOLANA,
+    Starknet: getConfig().VITE_FEATURE_STARKNET,
     Tron: getConfig().VITE_FEATURE_TRON,
     Sui: getConfig().VITE_FEATURE_SUI,
+    Ton: getConfig().VITE_FEATURE_TON,
+    Near: getConfig().VITE_FEATURE_NEAR,
+    AgenticChat: getConfig().VITE_FEATURE_AGENTIC_CHAT,
     Base: getConfig().VITE_FEATURE_BASE,
     Mayachain: getConfig().VITE_FEATURE_MAYACHAIN,
     Monad: getConfig().VITE_FEATURE_MONAD,
     HyperEvm: getConfig().VITE_FEATURE_HYPEREVM,
     Plasma: getConfig().VITE_FEATURE_PLASMA,
+    Mantle: getConfig().VITE_FEATURE_MANTLE,
+    Ink: getConfig().VITE_FEATURE_INK,
+    MegaEth: getConfig().VITE_FEATURE_MEGAETH,
+    Berachain: getConfig().VITE_FEATURE_BERACHAIN,
+    Cronos: getConfig().VITE_FEATURE_CRONOS,
+    Katana: getConfig().VITE_FEATURE_KATANA,
+    Ethereal: getConfig().VITE_FEATURE_ETHEREAL,
+    Celo: getConfig().VITE_FEATURE_CELO,
+    FlowEvm: getConfig().VITE_FEATURE_FLOWEVM,
+    Plume: getConfig().VITE_FEATURE_PLUME,
+    Story: getConfig().VITE_FEATURE_STORY,
+    ZkSyncEra: getConfig().VITE_FEATURE_ZK_SYNC_ERA,
+    Blast: getConfig().VITE_FEATURE_BLAST,
+    WorldChain: getConfig().VITE_FEATURE_WORLDCHAIN,
+    Hemi: getConfig().VITE_FEATURE_HEMI,
+    Sei: getConfig().VITE_FEATURE_SEI,
+    Linea: getConfig().VITE_FEATURE_LINEA,
+    Scroll: getConfig().VITE_FEATURE_SCROLL,
+    Sonic: getConfig().VITE_FEATURE_SONIC,
+    Unichain: getConfig().VITE_FEATURE_UNICHAIN,
+    Bob: getConfig().VITE_FEATURE_BOB,
+    Mode: getConfig().VITE_FEATURE_MODE,
+    Soneium: getConfig().VITE_FEATURE_SONEIUM,
     Zcash: getConfig().VITE_FEATURE_ZCASH,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,
     WalletConnectToDappsV2: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,
@@ -213,14 +271,13 @@ const initialState: Preferences = {
     RunePoolWithdraw: getConfig().VITE_FEATURE_RUNEPOOL_WITHDRAW,
     Markets: getConfig().VITE_FEATURE_MARKETS,
     PhantomWallet: getConfig().VITE_FEATURE_PHANTOM_WALLET,
-    FoxPage: getConfig().VITE_FEATURE_FOX_PAGE,
-    FoxPageRFOX: getConfig().VITE_FEATURE_FOX_PAGE_RFOX,
     FoxPageFoxSection: getConfig().VITE_FEATURE_FOX_PAGE_FOX_SECTION,
     FoxPageFoxFarmingSection: getConfig().VITE_FEATURE_FOX_PAGE_FOX_FARMING_SECTION,
     FoxPageGovernance: getConfig().VITE_FEATURE_FOX_PAGE_GOVERNANCE,
     LimitOrders: getConfig().VITE_FEATURE_LIMIT_ORDERS,
     ChainflipSwap: getConfig().VITE_FEATURE_CHAINFLIP_SWAP,
     ChainflipDca: getConfig().VITE_FEATURE_CHAINFLIP_SWAP_DCA,
+    ChainflipLending: getConfig().VITE_FEATURE_CHAINFLIP_LENDING,
     SolanaSwapper: getConfig().VITE_FEATURE_SWAPPER_SOLANA,
     JupiterSwap: getConfig().VITE_FEATURE_JUPITER_SWAP,
     NewWalletFlow: getConfig().VITE_FEATURE_NEW_WALLET_FLOW,
@@ -237,8 +294,11 @@ const initialState: Preferences = {
     NearIntentsSwap: getConfig().VITE_FEATURE_NEAR_INTENTS_SWAP,
     CetusSwap: getConfig().VITE_FEATURE_CETUS_SWAP,
     SunioSwap: getConfig().VITE_FEATURE_SUNIO_SWAP,
+    AvnuSwap: getConfig().VITE_FEATURE_AVNU_SWAP,
+    StonfiSwap: getConfig().VITE_FEATURE_STONFI_SWAP,
+    AcrossSwap: getConfig().VITE_FEATURE_ACROSS_SWAP,
+    DebridgeSwap: getConfig().VITE_FEATURE_DEBRIDGE_SWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
-    RfoxFoxEcosystemPage: getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
     LedgerReadOnly: getConfig().VITE_FEATURE_LEDGER_READ_ONLY,
     QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,
     NewWalletManager: getConfig().VITE_FEATURE_NEW_WALLET_MANAGER,
@@ -246,6 +306,10 @@ const initialState: Preferences = {
     WebServices: getConfig().VITE_FEATURE_NOTIFICATIONS_WEBSERVICES,
     AddressBook: getConfig().VITE_FEATURE_ADDRESS_BOOK,
     AppRating: getConfig().VITE_FEATURE_APP_RATING,
+    YieldXyz: getConfig().VITE_FEATURE_YIELD_XYZ,
+    YieldsPage: getConfig().VITE_FEATURE_YIELDS_PAGE,
+    YieldMultiAccount: getConfig().VITE_FEATURE_YIELD_MULTI_ACCOUNT,
+    EarnTab: getConfig().VITE_FEATURE_EARN_TAB,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

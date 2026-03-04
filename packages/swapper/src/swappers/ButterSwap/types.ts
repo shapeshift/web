@@ -100,6 +100,7 @@ export type BuildTxSuccessItem = {
   chainId: string
   method?: string
   args?: { type: string; value: unknown }[]
+  memo?: string
 }
 
 export type BuildTxResponse =

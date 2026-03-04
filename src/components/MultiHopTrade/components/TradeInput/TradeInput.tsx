@@ -7,7 +7,7 @@ import type { ThorTradeQuote } from '@shapeshiftoss/swapper'
 import { isArbitrumBridgeTradeQuoteOrRate, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { positiveOrZero } from '@shapeshiftoss/utils'
+import { BigAmount, positiveOrZero } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -37,7 +37,6 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { fromBaseUnit } from '@/lib/math'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { useGetTradeRatesQuery } from '@/state/apis/swapper/swapperApi'
 import type { ApiQuote } from '@/state/apis/swapper/types'
@@ -86,12 +85,14 @@ type TradeInputProps = {
   tradeInputRef: React.MutableRefObject<HTMLDivElement | null>
   isCompact?: boolean
   isStandalone?: boolean
+  isModal?: boolean
   onChangeTab: (newTab: TradeInputTab) => void
 }
 
 export const TradeInput = ({
   isCompact,
   isStandalone,
+  isModal,
   tradeInputRef,
   onChangeTab,
 }: TradeInputProps) => {
@@ -221,10 +222,10 @@ export const TradeInput = ({
     const recommendedMinimumCryptoBaseUnit = (activeQuote as ThorTradeQuote)
       ?.recommendedMinimumCryptoBaseUnit
     if (!recommendedMinimumCryptoBaseUnit) return translate('warningAcknowledgement.unsafeTrade')
-    const recommendedMinimumCryptoPrecision = fromBaseUnit(
-      recommendedMinimumCryptoBaseUnit,
-      sellAsset.precision,
-    )
+    const recommendedMinimumCryptoPrecision = BigAmount.fromBaseUnit({
+      value: recommendedMinimumCryptoBaseUnit,
+      precision: sellAsset.precision,
+    }).toPrecision()
     const message = translate('trade.errors.unsafeQuote', {
       symbol: sellAsset.symbol,
       recommendedMin: recommendedMinimumCryptoPrecision,
@@ -433,8 +434,9 @@ export const TradeInput = ({
     [dispatch],
   )
 
-  const assetSelectButtonProps = useMemo(() => {
+  const buyAssetSelectButtonProps = useMemo(() => {
     return {
+      'data-testid': 'trade-buy-asset-picker',
       maxWidth: isSmallerThanMd ? '100%' : undefined,
     }
   }, [isSmallerThanMd])
@@ -449,14 +451,14 @@ export const TradeInput = ({
         assetFilterPredicate={assetFilterPredicate}
         chainIdFilterPredicate={chainIdFilterPredicate}
         showChainDropdown={!isSmallerThanMd}
-        buttonProps={assetSelectButtonProps}
+        buttonProps={buyAssetSelectButtonProps}
         mb={isSmallerThanMd ? 0 : 4}
       />
     ),
     [
       buyAsset.assetId,
       isSmallerThanMd,
-      assetSelectButtonProps,
+      buyAssetSelectButtonProps,
       handleBuyAssetClick,
       setBuyAsset,
       assetFilterPredicate,
@@ -510,6 +512,7 @@ export const TradeInput = ({
             formControlProps={formControlProps}
             labelPostFix={buyTradeAssetSelect}
             activeQuote={activeQuote}
+            inputDataTestId='trade-buy-amount-input'
           />
         </>
       </SharedTradeInputBody>
@@ -609,6 +612,7 @@ export const TradeInput = ({
         onSubmit={handleTradeQuoteConfirm}
         onChangeTab={onChangeTab}
         isStandalone={isStandalone}
+        isModal={isModal}
       />
     </>
   )

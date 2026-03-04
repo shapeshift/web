@@ -2,6 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/chain-adapters'
 import type { InboundAddressResponse } from '@shapeshiftoss/swapper'
 import {
+  assetIdToMayaPoolAssetId,
   assetIdToThorPoolAssetId,
   isNativeAsset,
   isRuji,
@@ -9,19 +10,29 @@ import {
   SwapperName,
 } from '@shapeshiftoss/swapper'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 
 import type { EvmFees } from '@/hooks/queries/useEvmFees'
-import { bn } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import type { ThorchainMimir } from '@/lib/utils/thorchain/types'
 
 export const selectInboundAddressData = (
   data: InboundAddressResponse[],
   assetId: AssetId | undefined,
+  swapperName: SwapperName,
 ): InboundAddressResponse | undefined => {
   if (!assetId) throw new Error(`AssetId is required: ${assetId}`)
 
-  const assetPoolId = assetIdToThorPoolAssetId({ assetId })
+  const assetPoolId = (() => {
+    switch (swapperName) {
+      case SwapperName.Thorchain:
+        return assetIdToThorPoolAssetId({ assetId })
+      case SwapperName.Mayachain:
+        return assetIdToMayaPoolAssetId({ assetId })
+      default:
+        throw new Error(`Invalid swapper name: ${swapperName}`)
+    }
+  })()
+
   const assetChainSymbol = assetPoolId?.slice(0, assetPoolId.indexOf('.'))
 
   return data.find(inbound => inbound.chain === assetChainSymbol)
@@ -77,9 +88,12 @@ export const selectEvmFees = (
   feeAsset: Asset,
   feeAssetMarketData: MarketData,
 ): EvmFees => {
-  const txFeeFiat = bn(fromBaseUnit(fees.networkFeeCryptoBaseUnit, feeAsset.precision))
+  const txFeeFiat = BigAmount.fromBaseUnit({
+    value: fees.networkFeeCryptoBaseUnit,
+    precision: feeAsset.precision,
+  })
     .times(feeAssetMarketData.price)
-    .toString()
+    .toPrecision()
 
   const { networkFeeCryptoBaseUnit } = fees
   return { fees, txFeeFiat, networkFeeCryptoBaseUnit }

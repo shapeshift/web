@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/types",
-  "version": "8.6.5",
+  "version": "8.6.6",
   "description": "Common types shared across packages",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
@@ -10,9 +10,9 @@
   "types": "dist/esm/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/esm/index.d.ts",
       "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/esm/index.d.ts"
+      "require": "./dist/cjs/index.js"
     }
   },
   "files": [
@@ -22,17 +22,17 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn run -T tsc --build && yarn postbuild",
+    "build": "pnpm run clean && pnpm exec tsc --build && pnpm run postbuild",
     "clean": "rm -rf dist",
-    "dev": "yarn run -T tsc --build --watch",
-    "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",
-    "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
+    "dev": "pnpm exec tsc --build --watch",
+    "postbuild": "pnpm run postbuild:esm && pnpm run postbuild:cjs",
+    "postbuild:esm": "pnpm exec tsc-esm-fix --target=dist/esm --ext=.js",
     "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   },
   "dependencies": {
     "@cowprotocol/app-data": "^2.3.0",
     "@shapeshiftoss/caip": "workspace:^",
     "ethers5": "npm:ethers@5.7.2",
-    "viem": "^2.40.3"
+    "viem": "2.43.5"
   }
 }

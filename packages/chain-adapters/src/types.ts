@@ -6,6 +6,7 @@ import type {
   HDWallet,
   MayachainSignTx,
   SolanaSignTx,
+  StarknetSignTx,
   SuiSignTx,
   ThorchainSignTx,
 } from '@shapeshiftoss/hdwallet-core'
@@ -20,8 +21,11 @@ import type PQueue from 'p-queue'
 
 import type * as cosmossdk from './cosmossdk/types'
 import type * as evm from './evm/types'
+import type * as near from './near/types'
 import type * as solana from './solana/types'
+import type * as starknet from './starknet/types'
 import type * as sui from './sui/types'
+import type * as ton from './ton/types'
 import type * as tron from './tron/types'
 import type * as utxo from './utxo/types'
 
@@ -39,11 +43,33 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.PolygonMainnet]: evm.Account
     [KnownChainIds.GnosisMainnet]: evm.Account
     [KnownChainIds.ArbitrumMainnet]: evm.Account
-    [KnownChainIds.ArbitrumNovaMainnet]: evm.Account
     [KnownChainIds.BaseMainnet]: evm.Account
     [KnownChainIds.MonadMainnet]: evm.Account
     [KnownChainIds.HyperEvmMainnet]: evm.Account
     [KnownChainIds.PlasmaMainnet]: evm.Account
+    [KnownChainIds.MantleMainnet]: evm.Account
+    [KnownChainIds.InkMainnet]: evm.Account
+    [KnownChainIds.MegaEthMainnet]: evm.Account
+    [KnownChainIds.BerachainMainnet]: evm.Account
+    [KnownChainIds.CronosMainnet]: evm.Account
+    [KnownChainIds.KatanaMainnet]: evm.Account
+    [KnownChainIds.EtherealMainnet]: evm.Account
+    [KnownChainIds.FlowEvmMainnet]: evm.Account
+    [KnownChainIds.CeloMainnet]: evm.Account
+    [KnownChainIds.PlumeMainnet]: evm.Account
+    [KnownChainIds.StoryMainnet]: evm.Account
+    [KnownChainIds.ZkSyncEraMainnet]: evm.Account
+    [KnownChainIds.BlastMainnet]: evm.Account
+    [KnownChainIds.WorldChainMainnet]: evm.Account
+    [KnownChainIds.HemiMainnet]: evm.Account
+    [KnownChainIds.LineaMainnet]: evm.Account
+    [KnownChainIds.ScrollMainnet]: evm.Account
+    [KnownChainIds.SonicMainnet]: evm.Account
+    [KnownChainIds.UnichainMainnet]: evm.Account
+    [KnownChainIds.BobMainnet]: evm.Account
+    [KnownChainIds.ModeMainnet]: evm.Account
+    [KnownChainIds.SoneiumMainnet]: evm.Account
+    [KnownChainIds.SeiMainnet]: evm.Account
     [KnownChainIds.BitcoinMainnet]: utxo.Account
     [KnownChainIds.BitcoinCashMainnet]: utxo.Account
     [KnownChainIds.DogecoinMainnet]: utxo.Account
@@ -55,6 +81,9 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.SolanaMainnet]: solana.Account
     [KnownChainIds.TronMainnet]: tron.Account
     [KnownChainIds.SuiMainnet]: sui.Account
+    [KnownChainIds.NearMainnet]: near.Account
+    [KnownChainIds.StarknetMainnet]: starknet.Account
+    [KnownChainIds.TonMainnet]: ton.Account
   }
 >
 
@@ -87,11 +116,33 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.PolygonMainnet]: evm.FeeData
     [KnownChainIds.GnosisMainnet]: evm.FeeData
     [KnownChainIds.ArbitrumMainnet]: evm.FeeData
-    [KnownChainIds.ArbitrumNovaMainnet]: evm.FeeData
     [KnownChainIds.BaseMainnet]: evm.FeeData
     [KnownChainIds.MonadMainnet]: evm.FeeData
     [KnownChainIds.HyperEvmMainnet]: evm.FeeData
     [KnownChainIds.PlasmaMainnet]: evm.FeeData
+    [KnownChainIds.MantleMainnet]: evm.FeeData
+    [KnownChainIds.InkMainnet]: evm.FeeData
+    [KnownChainIds.MegaEthMainnet]: evm.FeeData
+    [KnownChainIds.BerachainMainnet]: evm.FeeData
+    [KnownChainIds.CronosMainnet]: evm.FeeData
+    [KnownChainIds.KatanaMainnet]: evm.FeeData
+    [KnownChainIds.EtherealMainnet]: evm.FeeData
+    [KnownChainIds.FlowEvmMainnet]: evm.FeeData
+    [KnownChainIds.CeloMainnet]: evm.FeeData
+    [KnownChainIds.PlumeMainnet]: evm.FeeData
+    [KnownChainIds.StoryMainnet]: evm.FeeData
+    [KnownChainIds.ZkSyncEraMainnet]: evm.FeeData
+    [KnownChainIds.BlastMainnet]: evm.FeeData
+    [KnownChainIds.WorldChainMainnet]: evm.FeeData
+    [KnownChainIds.HemiMainnet]: evm.FeeData
+    [KnownChainIds.LineaMainnet]: evm.FeeData
+    [KnownChainIds.ScrollMainnet]: evm.FeeData
+    [KnownChainIds.SonicMainnet]: evm.FeeData
+    [KnownChainIds.UnichainMainnet]: evm.FeeData
+    [KnownChainIds.BobMainnet]: evm.FeeData
+    [KnownChainIds.ModeMainnet]: evm.FeeData
+    [KnownChainIds.SoneiumMainnet]: evm.FeeData
+    [KnownChainIds.SeiMainnet]: evm.FeeData
     [KnownChainIds.BitcoinMainnet]: utxo.FeeData
     [KnownChainIds.BitcoinCashMainnet]: utxo.FeeData
     [KnownChainIds.DogecoinMainnet]: utxo.FeeData
@@ -103,6 +154,9 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.SolanaMainnet]: solana.FeeData
     [KnownChainIds.TronMainnet]: tron.FeeData
     [KnownChainIds.SuiMainnet]: sui.FeeData
+    [KnownChainIds.NearMainnet]: near.FeeData
+    [KnownChainIds.StarknetMainnet]: starknet.FeeData
+    [KnownChainIds.TonMainnet]: ton.FeeData
   }
 >
 
@@ -169,10 +223,32 @@ export type ChainSignTx = {
   [KnownChainIds.PolygonMainnet]: ETHSignTx
   [KnownChainIds.GnosisMainnet]: ETHSignTx
   [KnownChainIds.ArbitrumMainnet]: ETHSignTx
-  [KnownChainIds.ArbitrumNovaMainnet]: ETHSignTx
   [KnownChainIds.BaseMainnet]: ETHSignTx
   [KnownChainIds.MonadMainnet]: ETHSignTx
   [KnownChainIds.PlasmaMainnet]: ETHSignTx
+  [KnownChainIds.MantleMainnet]: ETHSignTx
+  [KnownChainIds.InkMainnet]: ETHSignTx
+  [KnownChainIds.MegaEthMainnet]: ETHSignTx
+  [KnownChainIds.BerachainMainnet]: ETHSignTx
+  [KnownChainIds.CronosMainnet]: ETHSignTx
+  [KnownChainIds.KatanaMainnet]: ETHSignTx
+  [KnownChainIds.EtherealMainnet]: ETHSignTx
+  [KnownChainIds.FlowEvmMainnet]: ETHSignTx
+  [KnownChainIds.CeloMainnet]: ETHSignTx
+  [KnownChainIds.PlumeMainnet]: ETHSignTx
+  [KnownChainIds.StoryMainnet]: ETHSignTx
+  [KnownChainIds.ZkSyncEraMainnet]: ETHSignTx
+  [KnownChainIds.BlastMainnet]: ETHSignTx
+  [KnownChainIds.WorldChainMainnet]: ETHSignTx
+  [KnownChainIds.HemiMainnet]: ETHSignTx
+  [KnownChainIds.LineaMainnet]: ETHSignTx
+  [KnownChainIds.ScrollMainnet]: ETHSignTx
+  [KnownChainIds.SonicMainnet]: ETHSignTx
+  [KnownChainIds.UnichainMainnet]: ETHSignTx
+  [KnownChainIds.BobMainnet]: ETHSignTx
+  [KnownChainIds.ModeMainnet]: ETHSignTx
+  [KnownChainIds.SoneiumMainnet]: ETHSignTx
+  [KnownChainIds.SeiMainnet]: ETHSignTx
   [KnownChainIds.BitcoinMainnet]: BTCSignTx
   [KnownChainIds.BitcoinCashMainnet]: BTCSignTx
   [KnownChainIds.DogecoinMainnet]: BTCSignTx
@@ -184,6 +260,9 @@ export type ChainSignTx = {
   [KnownChainIds.SolanaMainnet]: SolanaSignTx
   [KnownChainIds.TronMainnet]: tron.TronSignTx
   [KnownChainIds.SuiMainnet]: SuiSignTx
+  [KnownChainIds.NearMainnet]: near.NearSignTx
+  [KnownChainIds.StarknetMainnet]: StarknetSignTx
+  [KnownChainIds.TonMainnet]: ton.TonSignTx
 }
 
 export type SignTx<T extends ChainId> = T extends keyof ChainSignTx ? ChainSignTx[T] : never
@@ -201,6 +280,8 @@ export type BuildSendTxInput<T extends ChainId> = {
 
 export type BuildSendApiTxInput<T extends KnownChainIds> = Omit<BuildSendTxInput<T>, 'wallet'> & {
   from: string
+  /** Optional override for wallet-specific derivation paths (e.g., BIP44 vs Ledger Live) */
+  addressNList?: number[]
 }
 
 export type UtxoBuildSendApiTxInput<T extends UtxoChainId> = Omit<BuildSendTxInput<T>, 'wallet'> & {
@@ -219,11 +300,33 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.PolygonMainnet]: evm.BuildTxInput
     [KnownChainIds.GnosisMainnet]: evm.BuildTxInput
     [KnownChainIds.ArbitrumMainnet]: evm.BuildTxInput
-    [KnownChainIds.ArbitrumNovaMainnet]: evm.BuildTxInput
     [KnownChainIds.BaseMainnet]: evm.BuildTxInput
     [KnownChainIds.MonadMainnet]: evm.BuildTxInput
     [KnownChainIds.HyperEvmMainnet]: evm.BuildTxInput
     [KnownChainIds.PlasmaMainnet]: evm.BuildTxInput
+    [KnownChainIds.MantleMainnet]: evm.BuildTxInput
+    [KnownChainIds.InkMainnet]: evm.BuildTxInput
+    [KnownChainIds.MegaEthMainnet]: evm.BuildTxInput
+    [KnownChainIds.BerachainMainnet]: evm.BuildTxInput
+    [KnownChainIds.CronosMainnet]: evm.BuildTxInput
+    [KnownChainIds.KatanaMainnet]: evm.BuildTxInput
+    [KnownChainIds.EtherealMainnet]: evm.BuildTxInput
+    [KnownChainIds.FlowEvmMainnet]: evm.BuildTxInput
+    [KnownChainIds.CeloMainnet]: evm.BuildTxInput
+    [KnownChainIds.PlumeMainnet]: evm.BuildTxInput
+    [KnownChainIds.StoryMainnet]: evm.BuildTxInput
+    [KnownChainIds.ZkSyncEraMainnet]: evm.BuildTxInput
+    [KnownChainIds.BlastMainnet]: evm.BuildTxInput
+    [KnownChainIds.WorldChainMainnet]: evm.BuildTxInput
+    [KnownChainIds.HemiMainnet]: evm.BuildTxInput
+    [KnownChainIds.LineaMainnet]: evm.BuildTxInput
+    [KnownChainIds.ScrollMainnet]: evm.BuildTxInput
+    [KnownChainIds.SonicMainnet]: evm.BuildTxInput
+    [KnownChainIds.UnichainMainnet]: evm.BuildTxInput
+    [KnownChainIds.BobMainnet]: evm.BuildTxInput
+    [KnownChainIds.ModeMainnet]: evm.BuildTxInput
+    [KnownChainIds.SoneiumMainnet]: evm.BuildTxInput
+    [KnownChainIds.SeiMainnet]: evm.BuildTxInput
     [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.BuildTxInput
     [KnownChainIds.DogecoinMainnet]: utxo.BuildTxInput
@@ -235,6 +338,9 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.SolanaMainnet]: solana.BuildTxInput
     [KnownChainIds.TronMainnet]: tron.BuildTxInput
     [KnownChainIds.SuiMainnet]: sui.BuildTxInput
+    [KnownChainIds.NearMainnet]: near.BuildTxInput
+    [KnownChainIds.StarknetMainnet]: starknet.BuildTxInput
+    [KnownChainIds.TonMainnet]: ton.BuildTxInput
   }
 >
 
@@ -322,11 +428,33 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.PolygonMainnet]: evm.GetFeeDataInput
     [KnownChainIds.GnosisMainnet]: evm.GetFeeDataInput
     [KnownChainIds.ArbitrumMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.ArbitrumNovaMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BaseMainnet]: evm.GetFeeDataInput
     [KnownChainIds.MonadMainnet]: evm.GetFeeDataInput
     [KnownChainIds.HyperEvmMainnet]: evm.GetFeeDataInput
     [KnownChainIds.PlasmaMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.MantleMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.InkMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.MegaEthMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.BerachainMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.CronosMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.KatanaMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.EtherealMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.FlowEvmMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.CeloMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.PlumeMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.StoryMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.ZkSyncEraMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.BlastMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.WorldChainMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.HemiMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.LineaMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.ScrollMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.SonicMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.UnichainMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.BobMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.ModeMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.SoneiumMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.SeiMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BitcoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.DogecoinMainnet]: utxo.GetFeeDataInput
@@ -335,6 +463,9 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.SolanaMainnet]: solana.GetFeeDataInput
     [KnownChainIds.SuiMainnet]: sui.GetFeeDataInput
     [KnownChainIds.TronMainnet]: tron.GetFeeDataInput
+    [KnownChainIds.NearMainnet]: near.GetFeeDataInput
+    [KnownChainIds.StarknetMainnet]: starknet.GetFeeDataInput
+    [KnownChainIds.TonMainnet]: ton.GetFeeDataInput
   }
 >
 export type GetFeeDataInput<T extends ChainId> = {
@@ -390,11 +521,33 @@ export enum ChainAdapterDisplayName {
   Polygon = 'Polygon',
   Gnosis = 'Gnosis',
   Arbitrum = 'Arbitrum One',
-  ArbitrumNova = 'Arbitrum Nova',
   Base = 'Base',
   Monad = 'Monad',
   HyperEvm = 'HyperEVM',
   Plasma = 'Plasma',
+  Mantle = 'Mantle',
+  Ink = 'Ink',
+  MegaEth = 'MegaETH',
+  Berachain = 'Berachain',
+  Cronos = 'Cronos',
+  Katana = 'Katana',
+  Ethereal = 'Ethereal',
+  FlowEvm = 'Flow EVM',
+  Celo = 'Celo',
+  Plume = 'Plume',
+  Story = 'Story',
+  ZkSyncEra = 'zkSync Era',
+  Blast = 'Blast',
+  WorldChain = 'World Chain',
+  Hemi = 'Hemi',
+  Linea = 'Linea',
+  Scroll = 'Scroll',
+  Sonic = 'Sonic',
+  Unichain = 'Unichain',
+  Bob = 'BOB',
+  Mode = 'Mode',
+  Soneium = 'Soneium',
+  Sei = 'Sei',
   Cosmos = 'Cosmos',
   Bitcoin = 'Bitcoin',
   BitcoinCash = 'Bitcoin Cash',
@@ -404,6 +557,9 @@ export enum ChainAdapterDisplayName {
   Solana = 'Solana',
   Tron = 'Tron',
   Sui = 'Sui',
+  Near = 'NEAR',
+  Starknet = 'Starknet',
+  Ton = 'TON',
 }
 
 export type BroadcastTransactionInput = {

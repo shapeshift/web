@@ -73,6 +73,18 @@ export const KeepKeyConnect = () => {
           return await firstAdapter?.pairDevice(sdk)
         } else {
           const secondAdapter = await getAdapter(KeyManager.KeepKey, 1)
+
+          // @ts-ignore - getDevices exists on WebUSBKeepKeyAdapter
+          const existingDevices = await secondAdapter?.getDevices?.()
+
+          if (existingDevices?.length > 0) {
+            const existingDevice = existingDevices[0]
+            const existingWallet = state.keyring.get(existingDevice.serialNumber)
+            if (existingWallet) return existingWallet
+            // @ts-ignore
+            return await secondAdapter?.pairDevice()
+          }
+
           // @ts-ignore TODO(gomes): FIXME, most likely borked because of WebUSBKeepKeyAdapter
           return await secondAdapter?.pairDevice()
         }
@@ -83,20 +95,19 @@ export const KeepKeyConnect = () => {
           return
         }
 
-        console.error(err)
         setErrorLoading('walletProvider.errors.walletNotFound')
         return
       }
     })()
 
     if (!wallet) return
+
     try {
       // Check firmware version before proceeding
       const deviceFirmware = await wallet.getFirmwareVersion()
 
       // If we're still loading the latest firmware version, wait
       if (versionsQuery.isFetching) {
-        console.log('Still loading latest firmware version, waiting...')
         setLoading(true)
         return
       }
@@ -106,7 +117,6 @@ export const KeepKeyConnect = () => {
         console.warn('Latest firmware version not available, proceeding anyway')
       } else if (!semverGte(deviceFirmware, latestFirmware)) {
         // If the device firmware is older than the required firmware version, show error and return
-        console.error(`Firmware version ${deviceFirmware} is older than required ${latestFirmware}`)
         setErrorLoading('walletProvider.errors.walletNotFound')
         return
       }
@@ -124,6 +134,11 @@ export const KeepKeyConnect = () => {
 
       await wallet.initialize()
 
+      const features = await wallet.getFeatures()
+      const needsPin = features?.pinProtection && !features?.pinCached
+
+      if (needsPin) return
+
       dispatch({
         type: WalletActions.SET_WALLET,
         payload: {
@@ -139,9 +154,10 @@ export const KeepKeyConnect = () => {
         type: WalletActions.SET_IS_CONNECTED,
         payload: true,
       })
+      const aliasDeviceId = state.keyring.getAlias(deviceId)
       localWallet.setLocalWallet({
         type: KeyManager.KeepKey,
-        deviceId: state.keyring.getAlias(deviceId),
+        deviceId: aliasDeviceId,
       })
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
     } catch (e) {

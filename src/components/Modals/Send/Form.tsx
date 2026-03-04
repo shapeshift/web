@@ -1,50 +1,40 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAccountId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { isToken } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
 
+import { useCompleteSendFlow } from './hooks/useCompleteSendFlow'
 import { useFormSend } from './hooks/useFormSend/useFormSend'
 import { SendFormFields, SendRoutes } from './SendCommon'
 import { maybeFetchChangeAddress } from './utils'
 import { Address } from './views/Address'
 import { Confirm } from './views/Confirm'
-import { Status } from './views/Status'
 
-import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
-import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { SendAmountDetails } from '@/components/Modals/Send/views/SendAmountDetails'
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
 import { SlideTransition } from '@/components/SlideTransition'
 import { useModal } from '@/hooks/useModal/useModal'
-import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { parseAddress, parseAddressInputWithChainId } from '@/lib/address/address'
 import { parseUrlDirect } from '@/lib/address/bip21'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
-import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import {
-  ActionStatus,
-  ActionType,
-  GenericTransactionDisplayType,
-} from '@/state/slices/actionSlice/types'
-import { selectInternalAccountIdByAddress } from '@/state/slices/addressBookSlice/selectors'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectFirstAccountIdByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetIdFilter,
 } from '@/state/slices/selectors'
-import { store, useAppDispatch, useAppSelector } from '@/state/store'
+import { store, useAppSelector } from '@/state/store'
 
-const status = <Status />
 const sendAmount = <SendAmountDetails />
 const address = <Address />
 
@@ -64,7 +54,6 @@ export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.SendMax]: boolean
   [SendFormFields.VanityAddress]: string
   [SendFormFields.CustomNonce]?: string
-  [SendFormFields.TxHash]?: string
   [SendFormFields.ChangeAddress]?: string
 }
 
@@ -79,11 +68,8 @@ type SendFormProps = {
 const selectRedirect = <Navigate to={SendRoutes.Select} replace />
 
 export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', accountId }) => {
-  const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const send = useModal('send')
   const qrCode = useModal('qrCode')
-  const dispatch = useAppDispatch()
-  const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
   const navigate = useNavigate()
   const { handleFormSend } = useFormSend()
   const mixpanel = getMixPanel()
@@ -117,7 +103,6 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
       amountCryptoPrecision: '',
       fiatAmount: '',
       fiatSymbol: selectedCurrency,
-      txHash: '',
     },
   })
 
@@ -125,19 +110,13 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
     name: SendFormFields.AssetId,
     control: methods.control,
   })
-  const formAccountId = useWatch<SendInput, SendFormFields.AccountId>({
-    name: SendFormFields.AccountId,
-    control: methods.control,
-  })
-  const formAmountCryptoPrecision = useWatch<SendInput, SendFormFields.AmountCryptoPrecision>({
-    name: SendFormFields.AmountCryptoPrecision,
-    control: methods.control,
-  })
 
   const handleClose = useCallback(() => {
     send.close()
     qrCode.close()
   }, [qrCode, send])
+
+  const completeSendFlow = useCompleteSendFlow({ handleClose })
 
   const handleSubmit = useCallback(
     async (data: SendInput) => {
@@ -151,87 +130,18 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
 
       const txHash = await handleFormSend(data, false)
       if (!txHash) return
+
       mixpanel?.track(MixPanelEvent.SendBroadcast)
-      methods.setValue(SendFormFields.TxHash, txHash)
 
-      const internalAccountIdFilter = {
-        accountAddress: data.to,
-        chainId: fromAccountId(formAccountId).chainId,
-      }
-
-      const { chainNamespace } = fromAccountId(formAccountId)
-
-      const internalReceiveAccountId = (() => {
-        if (chainNamespace === CHAIN_NAMESPACE.Evm) {
-          return toAccountId({ chainId: fromAccountId(formAccountId).chainId, account: data.to })
-        }
-
-        return selectInternalAccountIdByAddress(store.getState(), internalAccountIdFilter)
-      })()
-
-      const accountIdsToRefetch = [formAccountId]
-
-      if (internalReceiveAccountId) {
-        accountIdsToRefetch.push(internalReceiveAccountId)
-      }
-
-      dispatch(
-        actionSlice.actions.upsertAction({
-          id: txHash,
-          type: ActionType.Send,
-          transactionMetadata: {
-            displayType: GenericTransactionDisplayType.SEND,
-            txHash,
-            chainId: fromAccountId(formAccountId).chainId,
-            accountId: formAccountId,
-            accountIdsToRefetch,
-            assetId,
-            amountCryptoPrecision: formAmountCryptoPrecision,
-            message: 'modals.send.status.pendingBody',
-          },
-          status: ActionStatus.Pending,
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-        }),
-      )
-
-      toast({
-        id: txHash,
-        duration: isDrawerOpen ? 5000 : null,
-        status: 'success',
-        render: ({ onClose, ...props }) => {
-          const handleClick = () => {
-            onClose()
-            openActionCenter()
-          }
-
-          return (
-            <GenericTransactionNotification
-              handleClick={handleClick}
-              actionId={txHash}
-              onClose={onClose}
-              {...props}
-            />
-          )
-        },
+      completeSendFlow({
+        txHash,
+        to: data.to,
+        accountId: data.accountId,
+        assetId: data.assetId,
+        amountCryptoPrecision: data.amountCryptoPrecision,
       })
-
-      handleClose()
     },
-    [
-      wallet,
-      methods,
-      handleFormSend,
-      mixpanel,
-      assetId,
-      dispatch,
-      formAccountId,
-      formAmountCryptoPrecision,
-      handleClose,
-      isDrawerOpen,
-      openActionCenter,
-      toast,
-    ],
+    [wallet, methods, handleFormSend, mixpanel, completeSendFlow],
   )
 
   const handleAssetSelect = useCallback(
@@ -300,12 +210,34 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
 
         // Update assetId and accountId if detected from QR code
         if (maybeUrlResult.assetId) {
-          methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId)
+          const { chainNamespace } = fromAssetId(maybeUrlResult.assetId)
+          const supportsErc681 =
+            chainNamespace === CHAIN_NAMESPACE.Evm || chainNamespace === CHAIN_NAMESPACE.Solana
+          const isAmbiguousAsset = supportsErc681 && !isToken(maybeUrlResult.assetId)
+
+          // If the QR code didn't explicitly specify a token (plain address scan),
+          // and we already have an asset from the page context on the same chain, keep it
+          const resolvedAssetId = (() => {
+            if (isAmbiguousAsset && initialAssetId) {
+              const { chainId: contextChainId, chainNamespace: contextChainNamespace } =
+                fromAssetId(initialAssetId)
+              const { chainId: qrChainId } = fromAssetId(maybeUrlResult.assetId)
+              const chainMatch = urlDirectResult
+                ? contextChainId === qrChainId
+                : contextChainNamespace === chainNamespace
+              if (chainMatch) {
+                return initialAssetId
+              }
+            }
+            return maybeUrlResult.assetId
+          })()
+
+          methods.setValue(SendFormFields.AssetId, resolvedAssetId)
 
           // Get accounts for this asset to ensure we have a valid accountId
           const state = store.getState()
           const accountIds = selectPortfolioAccountIdsByAssetIdFilter(state, {
-            assetId: maybeUrlResult.assetId,
+            assetId: resolvedAssetId,
           })
           const accountId = accountIds[0]
 
@@ -313,30 +245,30 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
           if (accountId) {
             methods.setValue(SendFormFields.AccountId, accountId)
           }
-        }
 
-        if (maybeUrlResult.assetId && maybeUrlResult.amountCryptoPrecision) {
-          const marketData = selectMarketDataByAssetIdUserCurrency(
-            store.getState(),
-            maybeUrlResult.assetId ?? '',
-          )
-          methods.setValue(
-            SendFormFields.AmountCryptoPrecision,
-            maybeUrlResult.amountCryptoPrecision,
-          )
-          methods.setValue(
-            SendFormFields.FiatAmount,
-            bnOrZero(maybeUrlResult.amountCryptoPrecision)
-              .times(bnOrZero(marketData?.price))
-              .toString(),
-          )
+          if (maybeUrlResult.amountCryptoPrecision && resolvedAssetId === maybeUrlResult.assetId) {
+            const marketData = selectMarketDataByAssetIdUserCurrency(
+              store.getState(),
+              maybeUrlResult.assetId ?? '',
+            )
+            methods.setValue(
+              SendFormFields.AmountCryptoPrecision,
+              maybeUrlResult.amountCryptoPrecision,
+            )
+            methods.setValue(
+              SendFormFields.FiatAmount,
+              bnOrZero(maybeUrlResult.amountCryptoPrecision)
+                .times(bnOrZero(marketData?.price))
+                .toString(),
+            )
+          }
         }
         navigate(SendRoutes.Address)
       } catch (e: any) {
         setAddressError(e.message)
       }
     },
-    [navigate, methods],
+    [initialAssetId, navigate, methods],
   )
 
   const qrCodeScanner = useMemo(
@@ -377,7 +309,6 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
               <Route path={SendRoutes.AmountDetails}>{sendAmount}</Route>
               <Route path={SendRoutes.Scan}>{qrCodeScanner}</Route>
               <Route path={SendRoutes.Confirm}>{confirm}</Route>
-              <Route path={SendRoutes.Status}>{status}</Route>
               <Route path='/'>{selectRedirect}</Route>
             </Switch>
           )}

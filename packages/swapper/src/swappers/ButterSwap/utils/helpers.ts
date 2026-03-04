@@ -12,6 +12,7 @@ const BUTTERSWAP_CHAIN_ID_TO_CHAIN_ID: Record<number, KnownChainIds> = {
   43114: KnownChainIds.AvalancheMainnet,
   1360108768460801: KnownChainIds.SolanaMainnet,
   1360095883558913: KnownChainIds.BitcoinMainnet,
+  728126428: KnownChainIds.TronMainnet,
 }
 
 const CHAIN_ID_TO_BUTTERSWAP_CHAIN_ID: Record<KnownChainIds, number> = Object.entries(

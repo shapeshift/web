@@ -1,8 +1,9 @@
-import { ChevronDownIcon, SearchIcon } from '@chakra-ui/icons'
+import { ChevronDownIcon, SearchIcon, TimeIcon } from '@chakra-ui/icons'
 import { Flex, IconButton, Text } from '@chakra-ui/react'
 import { useCallback, useLayoutEffect, useMemo } from 'react'
 import { FaExpand } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { ProfileAvatar } from '../ProfileAvatar/ProfileAvatar'
 
@@ -14,6 +15,7 @@ import { useAppSelector } from '@/state/store'
 
 const searchIcon = <SearchIcon />
 const qrCodeIcon = <FaExpand />
+const historyIcon = <TimeIcon />
 
 const mobileButtonRowDisplay = { base: 'flex', md: 'none' }
 
@@ -29,6 +31,7 @@ export const MobileUserHeader = ({
   onOpen,
 }: MobileUserHeaderPrps) => {
   const translate = useTranslate()
+  const navigate = useNavigate()
 
   const {
     state: { walletInfo },
@@ -71,6 +74,11 @@ export const MobileUserHeader = ({
     onOpen()
   }, [onOpen])
 
+  const handleHistoryClick = useCallback(() => {
+    vibrate('heavy')
+    navigate('/history')
+  }, [navigate])
+
   return (
     <Flex
       className='mobile-user-header'
@@ -96,6 +104,12 @@ export const MobileUserHeader = ({
           icon={qrCodeIcon}
           aria-label={translate('modals.send.qrCode')}
           onClick={handleQrCodeClick}
+          isRound
+        />
+        <IconButton
+          icon={historyIcon}
+          aria-label={translate('navBar.history')}
+          onClick={handleHistoryClick}
           isRound
         />
       </Flex>

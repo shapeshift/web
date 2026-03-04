@@ -1,0 +1,30 @@
+{
+  "name": "@shapeshiftoss/hdwallet-integration",
+  "version": "1.62.41",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "clean": "rm -rf node_modules"
+  },
+  "dependencies": {
+    "@bitcoinerlab/secp256k1": "^1.1.1",
+    "@shapeshiftoss/hdwallet-core": "workspace:^",
+    "@shapeshiftoss/hdwallet-keepkey": "workspace:^",
+    "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "workspace:^",
+    "@shapeshiftoss/hdwallet-keepkey-tcp": "workspace:^",
+    "@shapeshiftoss/hdwallet-ledger": "workspace:^",
+    "@shapeshiftoss/hdwallet-metamask-multichain": "workspace:^",
+    "@shapeshiftoss/hdwallet-native": "workspace:^",
+    "@shapeshiftoss/hdwallet-trezor": "workspace:^",
+    "@shapeshiftoss/hdwallet-vultisig": "workspace:^",
+    "fast-json-stable-stringify": "^2.1.0",
+    "msw": "^0.27.1",
+    "whatwg-fetch": "^3.6.2"
+  },
+  "devDependencies": {
+    "vitest": "3.0.9"
+  },
+  "sideEffects": false
+}

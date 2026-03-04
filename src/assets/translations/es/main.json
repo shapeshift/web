@@ -48,9 +48,12 @@
     "insufficientAmountForGas": "No suficiente %{assetSymbol}.%{chainSymbol} para cubrir gas",
     "invalidAddress": "Dirección Inválida",
     "deposit": "Depositar",
+    "supply": "Suministrar",
     "withdraw": "Retirar",
     "withdrawal": "Retiro",
     "claim": "Reclamar",
+    "claiming": "Reclamando...",
+    "confirming": "Confirmando...",
     "withdrawAndClaim": "Retirar y Reclamar",
     "overview": "Vista Rápida",
     "connectWallet": "Conectar Billetera",
@@ -177,6 +180,7 @@
     "featureDisabled": "Esta característica está temporalmente deshabilitada.",
     "yes": "Sí",
     "activeAccount": "Cuenta Activa",
+    "selectAccount": "Seleccionar Cuenta",
     "update": "Actualizar",
     "apy": "RAE",
     "installed": "Instalado",
@@ -196,6 +200,209 @@
   },
   "accountSelector": {
     "chooseAccount": "Elija Cuenta"
+  },
+  "agenticChat": {
+    "title": "Agente ShapeShift",
+    "aiChat": "Chat IA",
+    "openChat": "Abrir chat",
+    "closeChat": "Cerrar chat",
+    "emptyState": "¿Cómo puedo ayudarte hoy?",
+    "placeholder": "Escribe un mensaje...",
+    "stop": "Detener",
+    "send": "Enviar",
+    "txStepProgress": "%{completedCount} de %{totalCount} completo",
+    "agenticChatTools": {
+      "send": {
+        "title": "Enviar Cripto",
+        "receivedFrom": "Recibido de %{address}",
+        "steps": {
+          "preparation": "Preparando transacción de envío",
+          "send": "Firmar y enviar transacción"
+        },
+        "errors": {
+          "prepareFailed": "No se pudo preparar la transacción de envío",
+          "sendFailed": "Envío fallido: %{error}",
+          "noWallet": "No hay billetera conectada",
+          "accountNotFound": "Cuenta no encontrada"
+        },
+        "success": {
+          "transactionSent": "Transacción enviada: %{txHash}",
+          "title": "Envío Exitoso",
+          "description": "Su transacción de envío se ha completado"
+        }
+      },
+      "swap": {
+        "title": "Intercambiar",
+        "receivedFrom": "Recibido de %{address}",
+        "steps": {
+          "quote": "Obtener cotización de intercambio",
+          "networkSwitch": "Cambiar a %{network}",
+          "networkSwitchGeneric": "Cambiar red",
+          "approval": "Aprobar gasto de tokens",
+          "approvalConfirmation": "Confirmando aprobación",
+          "swap": "Firmar transacción de intercambio"
+        },
+        "errors": {
+          "quoteFailed": "No se pudo obtener la cotización de intercambio",
+          "swapFailed": "Error en la ejecución del intercambio: %{error}",
+          "noWallet": "No hay billetera conectada",
+          "accountNotFound": "Cuenta no encontrada"
+        },
+        "success": {
+          "title": "Intercambio Exitoso",
+          "description": "Su transacción de intercambio ha completado"
+        }
+      },
+      "cancelLimitOrder": {
+        "title": "Cancelar Orden Limitada",
+        "steps": {
+          "prepare": "Preparando cancelación",
+          "sign": "Firmar cancelación",
+          "submit": "Enviando cancelación"
+        },
+        "errors": {
+          "prepareFailed": "No se pudo preparar la cancelación",
+          "signFailed": "No se pudo firmar la cancelación",
+          "submitFailed": "No se pudo cancelar la orden: %{error}",
+          "noWallet": "No hay billetera conectada",
+          "accountNotFound": "Cuenta no encontrada"
+        },
+        "success": {
+          "title": "Orden Cancelada",
+          "description": "Su orden limitada ha sido cancelada exitosamente"
+        },
+        "networkLabel": "Red",
+        "orderLabel": "Orden",
+        "cancellationFailed": "Cancelación fallida",
+        "orderCancelledSuccessfully": "Orden cancelada exitosamente"
+      },
+      "createLimitOrder": {
+        "title": "Crear Orden Limitada",
+        "steps": {
+          "prepare": "Preparando orden",
+          "approval": "Aprobar gasto de tokens",
+          "approvalConfirmation": "Confirmando aprobación",
+          "sign": "Firmar orden",
+          "submit": "Enviando orden"
+        },
+        "errors": {
+          "prepareFailed": "No se pudo preparar el pedido",
+          "approvalFailed": "Aprobación del token falló",
+          "signFailed": "No se pudo firmar la orden",
+          "submitFailed": "Error al crear pedido: %{error}",
+          "noWallet": "No hay billetera conectada",
+          "accountNotFound": "Cuenta no encontrada"
+        },
+        "success": {
+          "title": "Orden Límite Creada",
+          "description": "Su orden limitada ha sido creada exitosamente"
+        },
+        "expires": "Caduca",
+        "viewOrder": "Ver orden →",
+        "approvalTx": "Aprobar tx",
+        "orderCreationFailed": "Error al crear orden",
+        "orderCreatedSuccessfully": "Orden creada exitosamente"
+      },
+      "newCoins": {
+        "title": "Añadido Recientemente",
+        "subtitle": "Nuevas monedas en CoinGecko"
+      },
+      "trendingTokens": {
+        "title": "Tendencias en CoinGecko",
+        "subtitle": "Tokens en tendencia de 24 horas"
+      },
+      "topGainersLosers": {
+        "gainersTitle": "Principales Ganadores (%{duration})",
+        "losersTitle": "Principales Perdedores (%{duration})"
+      },
+      "portfolio": {
+        "title": "Portafolio",
+        "totalValue": "Valor Total",
+        "accountLabel": "Cuenta",
+        "networkLabel": "Red",
+        "emptyState": "No hay activos en portafolio"
+      },
+      "getAssets": {
+        "title": "Activos",
+        "balance": "Balance",
+        "value": "Valor",
+        "network": "Red",
+        "emptyState": "No se encontraron activos",
+        "24h": "24h",
+        "volume": "Volumen",
+        "marketCap": "Capitalización de Mercado",
+        "fdv": "FDV",
+        "showLess": "Mostrar menos",
+        "more": "Más...",
+        "coinInfo": "Información de moneda",
+        "circulatingSupply": "Suministro Circulante",
+        "totalSupply": "Suministro Total",
+        "maxSupply": "Suministro Máximo",
+        "unlimited": "Ilimitado",
+        "sentiment": "Sentimiento",
+        "bullish": "Alcista",
+        "bearish": "Bajista",
+        "marketCapRank": "Clasificación en capitalización de mercado",
+        "volume24h": "Volumen 24 horas",
+        "volMcap": "Vol/Cap. M",
+        "about": "Acerca de %{symbol}",
+        "noDescription": "No hay descripción disponible para este activo."
+      },
+      "receive": {
+        "title": "Recibir",
+        "receiveOn": "Recibir %{symbol} en %{network}",
+        "copyAddress": "Copiar dirección",
+        "copied": "Copiado!",
+        "warning": "Envíe únicamente tokens compatibles con %{network} a esta dirección"
+      },
+      "getLimitOrders": {
+        "title": "Órdenes Limitadas",
+        "openOrders": "%{count} abierto",
+        "noOrders": "No se encontraron órdenes limitadas",
+        "status": {
+          "open": "Abierto",
+          "fulfilled": "Completada",
+          "cancelled": "Cancelada",
+          "expired": "Caducada",
+          "presignaturePending": "Pendiente"
+        },
+        "sellLabel": "Vender",
+        "buyLabel": "Comprar",
+        "expiresLabel": "Caduca",
+        "view": "Ver",
+        "filledLabel": "Completada"
+      },
+      "getTransactionHistory": {
+        "title": "Transacciones Recientes",
+        "noTransactions": "No se encontraron transacciones",
+        "type": {
+          "send": "Enviar",
+          "receive": "Recibir",
+          "swap": "Intercambiar",
+          "contract": "Contrato"
+        },
+        "status": {
+          "success": "Confirmadas",
+          "failed": "Fallidas",
+          "pending": "Pendientes"
+        },
+        "txid": "IdTx",
+        "from": "De",
+        "to": "Para",
+        "value": "Valor",
+        "fee": "Tarifa",
+        "network": "Red",
+        "tokens": "Tokens"
+      }
+    },
+    "chatHistory": "Historial de Chat",
+    "newChat": "Nuevo Chat",
+    "deleteConversation": "Eliminar Conversación",
+    "deleteConfirmation": "¿Estás seguro que deseas eliminar esta conversación?",
+    "noConversations": "No hay conversaciones todavía",
+    "newConversation": "Nueva Conversación",
+    "searchChats": "Busca tus chats...",
+    "noMatchingConversations": "No hay conversaciones coincidentes"
   },
   "quickBuy": {
     "title": "Compra Rápida %{assetOnChain}",
@@ -328,7 +535,10 @@
     "viewSavedWallets": "Ver Carteras Guardadas",
     "footerOne": "Al continuar, acepta las",
     "terms": "Términos",
-    "privacyPolicy": "Política de Privacidad"
+    "privacyPolicy": "Política de Privacidad",
+    "connectNewWallet": "Conectar Billetera Nueva",
+    "getANewWallet": "Obtener Billetera Nueva",
+    "alreadyHaveWallet": "Ya tengo una Billetera"
   },
   "connectWallet": {
     "menu": {
@@ -342,6 +552,7 @@
     }
   },
   "defi": {
+    "yourBalance": "Tu Saldo",
     "modals": {
       "learnMore": {
         "next": "Siguiente",
@@ -444,6 +655,7 @@
     "balance": "Balance",
     "netWorth": "Valor neto",
     "loadingAccounts": "%{portfolioAccountsLoaded} Cargadas",
+    "loadingMorePositions": "Se siguen cargando más posiciones DeFi",
     "walletBalanceChange24Hr": "Cambio de 24 horas",
     "earnBody": "Obtenga ingresos adicionales haciendo staking o depositando sus activos en una estrategia DeFi.",
     "noAccountsOpportunities": "No hay cuentas para este activo, por lo que no hay oportunidades de staking disponibles.",
@@ -500,7 +712,6 @@
     "featureFlags": "Indicadores de Funciones",
     "wallet": "Billetera",
     "explore": "Explore",
-    "trade": "Intercambie/Bridge",
     "market": "Mercado",
     "limitOrder": "Órdenes limitadas",
     "buyCrypto": "Comprar/Vender Cripto",
@@ -510,9 +721,12 @@
     "rFOX": "rFOX",
     "tcy": "TCY",
     "foxEcosystem": "Ecosistema FOX",
+    "ecosystem": "Ecosistema",
     "markets": "Mercados",
     "tokens": "Tokens",
-    "swap": "Intercambiar"
+    "swap": "Intercambiar",
+    "yields": "Rendimientos",
+    "earn": "Ganar"
   },
   "shapeShiftMenu": {
     "products": "Productos",
@@ -523,6 +737,10 @@
     "foxToken": {
       "title": "Token FOX",
       "subtitle": "Nuestro Token de Gobernanza"
+    },
+    "agent": {
+      "title": "Agente",
+      "subtitle": "Chatea con tu billetera"
     },
     "classic": {
       "title": "Clásico",
@@ -539,7 +757,8 @@
       "faq": "Preguntas Frecuentes",
       "github": "GitHub",
       "discord": "Discord",
-      "twitter": "Twitter"
+      "twitter": "Twitter",
+      "feedback": "Comentario"
     }
   },
   "transactionRow": {
@@ -660,6 +879,16 @@
         "withdraw": "Remover Liquidez",
         "join_pool": "Unirse al Pool",
         "exit_pool": "Salir del Pool"
+      },
+      "yieldxyz": {
+        "deposit": "Depositar Rendimiento",
+        "withdraw": "Retirar Rendimiento",
+        "approve": "Aprobar Rendimiento",
+        "approveSymbol": "Aprobar Rendimiento %{symbol}",
+        "stake": "Stake Rendimiento",
+        "unstake": "Unstaking Rendimiento",
+        "unstakeRequest": "Solicitud Unstaking Rendimiento",
+        "yieldClaim": "Reclamar Rendimiento"
       }
     }
   },
@@ -1092,6 +1321,7 @@
       "getFeesError": "Error al obtener tarifas",
       "broadcastingTransaction": "Enviando Transacción",
       "youHaveSent": "Has enviado con éxito %{amount} %{symbol}",
+      "sendFailed": "Envío fallido",
       "toAddress": "A Dirección",
       "toAddressOrEns": "Para Dirección o ENS",
       "scanQrCode": "Escanear código QR",
@@ -1721,7 +1951,7 @@
         "multiChain": {
           "title": "Se admiten varias cadenas simultáneamente",
           "subTitle": "Nunca necesita cambiar cadenas en la billetera, funciona con cada cadena sin problemas.",
-          "body": "Al agregar una nueva cadena a ShapeShift, su billetera ShapeShift la admitirá automáticamente."
+          "body": "Accede a Bitcoin, Ethereum, Solana y muchas más cadenas desde una sola billetera. Intercambia y gestiona tus activos en diferentes redes sin problemas."
         },
         "selfCustody": {
           "title": "Su Billetera ShapeShift es auto-custodia",
@@ -1783,6 +2013,17 @@
         "header": "Emparejar Vultisig",
         "body": "Haga clic en Emparejar e inicie sesión en Vultisig desde la ventana emergente",
         "button": "Emparejar"
+      }
+    },
+    "seeker": {
+      "connect": {
+        "header": "Conectar Seeker",
+        "body": "Autorizar ShapeShift para conectarse a billetera Seeker",
+        "button": "Conectar"
+      },
+      "failure": {
+        "header": "Conexión Fallida",
+        "body": "No se puede conectar billetera Seeker. Asegurese que la app Seeker esté disponible y vuelve a intentarlo."
       }
     }
   },
@@ -1879,6 +2120,18 @@
     "title": "Abra la app %{appName}",
     "description": "Para continuar, deberá abrir la aplicación %{appName} en su dispositivo Ledger.",
     "devicePrompt": "Su dispositivo le indicará los pasos necesarios para completar su acción actual."
+  },
+  "starknet": {
+    "deployAccount": {
+      "title": "Implementar Cuenta Starknet",
+      "description": "Starknet utiliza cuentas de contratos inteligentes que deben implementarse antes de su uso.",
+      "sendDescription": "Primero deberás implementar la cuenta para poder enviar",
+      "swapDescription": "Starknet usa cuentas con contratos inteligentes. Necesitarás implementar tu cuenta antes de poder intercambiar.",
+      "explanation": "Esta es una configuración única que inicializará tu cuenta en Starknet. Se deducirá una pequeña comisión de tu saldo.",
+      "deployButton": "Implementar Cuenta",
+      "deploying": "Implementando Cuenta...",
+      "deployFailed": "Implementación Fallida"
+    }
   },
   "transactionHistory": {
     "transactionHistory": "Historial de transacciones",
@@ -2337,15 +2590,15 @@
       },
       "why": {
         "title": "¿Por qué hacer Staking de FOX?",
-        "body": "Staking FOX le permite obtener pagos regulares RUNE de la tesorería del DAO, lo que proporciona un flujo constante de ingresos pasivos en RUNE por época. Además, una parte del RUNE recibido se utiliza para comprar FOX en el mercado abierto y quemarlo, lo que reduce la oferta general. Staking también respalda la alineación de ShapeShift DAO con el ecosistema THORChain, contribuyendo a su crecimiento y éxito. El proceso de staking requiere un período mínimo de 28 días, lo que fomenta compromiso y estabilidad dentro de la comunidad."
+        "body": "Hacer staking de tus FOX te permite ganar pagos regulares de USDC del tesoro de la DAO, proporcionando un flujo constante de ingresos pasivos en USDC por época. Además, una parte de los ingresos de la DAO se destinará a reducir el suministro total de FOX mediante quema de tokens. El proceso de staking requiere un período mínimo de 28 días para retirar del staking, fomentando el compromiso y la estabilidad dentro de la comunidad."
       },
       "stake": {
         "title": "¿Cómo hago Staking FOX?",
-        "body": "Para hacer Staking de FOX, utiliza la interfaz Staking bloqueando FOX en el contrato. Deberá firmar mensaje o transacción para asignar dirección donde se pagarán recompensas RUNE. Una vez iniciado, comenzará a ganar recompensas RUNE por bloque como parte de tus beneficios."
+        "body": "Para hacer staking de tus FOX, usa la interfaz de staking para bloquear tus tokens FOX en el contrato de staking. Una vez en staking, comienzas a ganar recompensas en USDC por bloque como parte de tus beneficios de staking."
       },
       "unstake": {
         "title": "¿Qué pasa cuando dejo de hacer Staking?",
-        "body": "Cuando decide retirar Staking, existe un período mínimo de 28 días. Durante este tiempo, tus FOX permanecen bloqueados y dejan de recibir emisiones RUNE. Después del período, puedes desbloquear y recuperar tus tokens FOX."
+        "body": "Cuando decides retirar del staking, hay un período mínimo de 28 días. Durante este tiempo, tus FOX permanecen bloqueados y dejas de recibir emisiones de USDC. Tras el período de retiro del staking, puedes desbloquear y recuperar tus tokens FOX regulares."
       },
       "cooldown": {
         "title": "¿Cuánto dura el período de recuperación?",
@@ -2356,8 +2609,8 @@
         "body": "Sí, puedes tener múltiples cantidades en recuperación. Cada acción tendrá su propio período de 28 días."
       },
       "connect": {
-        "title": "¿Cómo se relacionan las tarifas totales recaudadas, total Staking FOX, emisiones y cantidad quemado?",
-        "body": "Las tarifas cobradas por la DAO están en RUNE nativo. Una parte se distribuye a los Staking FOX como recompensa, otra parte se utiliza para comprar FOX en el mercado abierto y quemarlo, lo que reduce suministro general FOX. El total de FOX Staking influye en distribución de recompensas RUNE, ya que las recompensas se distribuyen pro-rata en función de la cantidad de FOX Staking. El grupo de emisiones representa la cantidad de FOX disponible para recompensas, y cantidad de FOX quemado es la porción de FOX comprada y quemada utilizando RUNE recaudado de tarifas."
+        "title": "¿Cómo se relacionan las tarifas totales recaudadas, total Staking FOX, emisiones y cantidad quemada?",
+        "body": "Las tarifas recaudadas por la DAO están en activos nativos por swapper. Una parte de estos ingresos se convierte y distribuye a los que tienen FOX en staking como recompensas, mientras que otra parte se destina a reducir el suministro total de FOX mediante quema de tokens. El total de FOX en staking influye en la distribución de recompensas, ya que se distribuyen de forma proporcional según la cantidad de FOX en staking. El pool de emisiones representa la cantidad de FOX disponible para recompensas de staking, y la cantidad de quema de FOX es la porción de FOX comprada y quemada."
       }
     },
     "totals": "rFOX Totales",
@@ -2368,7 +2621,9 @@
     "emissionsPoolHelper": "Cantidad total de recompensas que se distribuirán a %{symbol} participantes",
     "foxBurnAmount": "Cantidad FOX quemados (esta época)",
     "pendingDistribution": "Distribución Pendiente",
-    "selectRuneAddress": "Seleccione una dirección RUNE"
+    "selectRuneAddress": "Seleccione una dirección RUNE",
+    "lpSunsetWarningTitle": "Programa Finalizado",
+    "lpSunsetWarningDescription": "El programa de recompensas WETH/FOX de Arbitrum ha finalizado. Por favor, cancele su staking y reclame su saldo lo antes posible."
   },
   "TCY": {
     "stake": "Stake",
@@ -2477,11 +2732,11 @@
   },
   "foxPage": {
     "title": "Panel de control token FOX",
-    "description": "Desde 2019, nuestro cambiante token FOX, ofrece a sus usuarios un mundo en constante expansión de utilidades y ventajas. Hoy, nuestro token de gobernanza ERC-20 otorga una participación en los ingresos THORChain y permite influir en el futuro de ShapeShift con tu voto. Stake, intercambia, compra, suministra y gestiona tus activos FOX aquí.",
+    "description": "Desde 2019, nuestro cambiante token FOX, ofrece a usuarios un mundo en constante expansión de utilidades y ventajas. Hoy, nuestro token de gobernanza ERC-20 te otorga una participación en los ingresos de la plataforma y te permite influir en el futuro de ShapeShift con tu voto. Participa, intercambia, compra, suministra y gestiona tus activos de FOX aquí.",
     "foxToken": "Token FOX",
     "24hrPriceChange": "Cambio de precio 24 horas",
     "rfox": {
-      "totalSymbolBurn": "Quema total de %{symbol}",
+      "totalBurn": "Total Quemado",
       "simulateTitle": "Simulador rFOX",
       "simulateSubtle": "Simule el rendimiento de staking rFOX",
       "estimatedRewards": "Recompensas Estimadas",
@@ -2516,6 +2771,7 @@
       "buildTransaction": "Error al crear la transacción.",
       "signTransaction": "No se pudo firmar la transacción.",
       "blindSigningRequired": "Transacción requiere firma ciega. Activa Blind Signing o Contract Data en la configuración de tu app Ledger y vuelve a intentarlo.",
+      "ledgerTronAllowDataDisabled": "Habilite los datos de transacciones en la configuración de su app Ledger TRON y vuelva a intentarlo.",
       "signAndBroadcastTransaction": "No se pudo firmar ni transmitir la transacción.",
       "signMessage": "No se pudo firmar el mensaje.",
       "broadcastTransaction": "No se pudo transmitir la transacción.",
@@ -2584,15 +2840,23 @@
     },
     "deposit": {
       "pending": "Su depósito de %{amount} %{symbol} procesando.",
-      "complete": "Su depósito de %{amount} %{symbol} completado."
+      "complete": "Su depósito de %{amount} %{symbol} completado.",
+      "failed": "Su depósito de %{amount} %{symbol} ha fallado."
     },
     "withdrawal": {
       "pending": "Su retiro de %{amount} %{symbol} procesando.",
-      "complete": "Su retiro de %{amount} %{symbol} completado."
+      "complete": "Su retiro de %{amount} %{symbol} completado.",
+      "failed": "Su retiro de %{amount} %{symbol} ha fallado."
     },
     "claim": {
       "pending": "Su reclamo de %{amount} %{symbol} procesando.",
-      "complete": "Su reclamo de %{amount} %{symbol} está completo."
+      "complete": "Su reclamo de %{amount} %{symbol} está completo.",
+      "failed": "Su reclamo de %{amount} %{symbol} ha fallado."
+    },
+    "yield": {
+      "unstakeAvailableIn": "Tu retiro del staking de %{symbol} estará disponible en %{duration}.",
+      "unstakeReady": "Tu retiro del staking de %{symbol} está listo para reclamar.",
+      "unstakeClaimed": "Tu retiro del staking de %{symbol} fue reclamado."
     },
     "bridge": {
       "processing": "Su bridge de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName} se está procesando.",
@@ -2639,5 +2903,227 @@
         "description": "Tu recompensa de %{amountAndSymbol} está completa."
       }
     }
+  },
+  "yieldXYZ": {
+    "pageTitle": "Rendimientos",
+    "pageSubtitle": "Descubra y gestione oportunidades de rendimiento en múltiples cadenas",
+    "actions": {},
+    "yield": "Rendimiento",
+    "apy": "APY",
+    "apr": "APR",
+    "tvl": "TVL",
+    "asset": "Activo",
+    "provider": "Proveedor",
+    "balance": "Balance",
+    "noYields": "No hay oportunidades de rendimiento disponibles",
+    "connectWallet": "Conecta una billetera para ver los rendimientos",
+    "stats": "Estadísticas",
+    "minStake": "Staking Mínimo",
+    "minDeposit": "Depósito Mínimo",
+    "rewardSchedule": "Cronograma de Recompensas",
+    "staking": "Staking...",
+    "unstaking": "Retirando Staking...",
+    "depositing": "Depositando...",
+    "withdrawing": "Retirando...",
+    "stakingPending": "Staking",
+    "unstakingPending": "Retirando Staking",
+    "depositingPending": "Depositando",
+    "withdrawingPending": "Retirando",
+    "availableDate": "disponible %{date}",
+    "withdrawable": "Retirable",
+    "type": "Tipo",
+    "totalValue": "Valor Total",
+    "myPosition": "Mi Posición",
+    "myPositions": "Mis Posiciones",
+    "myValidatorPosition": "Mi Posición %{validator}",
+    "earnUpToOnBalance": "Podrías ganar hasta %{apy} en tu saldo",
+    "startEarning": "Empieza a ganar",
+    "maxApy": "APY máximo",
+    "nativeStaking": "Staking Nativo",
+    "validator": "Validador",
+    "staked": "Staked",
+    "claimable": "Reclamable",
+    "loadingQuote": "Cargando Cotización...",
+    "preferred": "Preferido",
+    "pending": "Pendiente",
+    "ready": "Listo",
+    "bestReturn": "Mejor Retorno",
+    "highestApy": "APY más Alto",
+    "lowestApy": "APY más Bajo",
+    "highestTvl": "TVL más Alto",
+    "lowestTvl": "TVL más Bajo",
+    "nameAZ": "Nombre (A-Z)",
+    "nameZA": "Nombre (Z-A)",
+    "allNetworks": "Todas las Redes",
+    "allProviders": "Todos los Proveedores",
+    "allTypes": "Todos los Tipos",
+    "showAll": "Mostrar Todo",
+    "searchValidator": "Buscar validador",
+    "success": "¡Éxito!",
+    "transactions": "Transacciones",
+    "currentApy": "APY Actual",
+    "estYearlyEarnings": "Ganancias Anuales Estimadas",
+    "switch": "Cambiar",
+    "claimSymbol": "Reclamar %{symbol}",
+    "stakeSymbol": "Stake %{symbol}",
+    "unstakeSymbol": "Unstake %{symbol}",
+    "depositSymbol": "Depositar %{symbol}",
+    "withdrawSymbol": "Retirar %{symbol}",
+    "claimableRewards": "Recompensas reclamables",
+    "withdrawableFunds": "Fondos retirables",
+    "noActivePositions": "No tienes ninguna posición de rendimiento activa.",
+    "connectWalletPositions": "Conecte una billetera para ver sus posiciones de rendimiento activas.",
+    "view": "Ver",
+    "close": "Cerrar",
+    "estEarnings": "Ganancias Est.",
+    "network": "Red",
+    "market": "mercado",
+    "markets": "mercados",
+    "chain": "cadena",
+    "chains": "cadenas",
+    "reward": "Recompensa",
+    "assetYields": "%{asset} Rendimientos",
+    "noYieldsMatchingFilters": "No se encontraron rendimientos que coincidan con los filtros.",
+    "activePositions": "Posiciones Activas",
+    "acrossPositions": "En %{count} posiciones",
+    "availableToEarn": "Disponible para Ganar",
+    "idleAssetsEarning": "Activos inactivos que podrían generar hasta un %{apy}% APY",
+    "potentialEarnings": "Ganancias Potenciales",
+    "potentialEarningsTooltip": "Ganancias anuales estimadas basadas en su saldo inactivo × el mejor APY disponible para cada activo.",
+    "availableToEarnTooltip": "Saldo inactivo total en activos que tienen oportunidades de rendimiento disponibles.",
+    "apyTooltip": "Rendimiento porcentual anual mostrado por el proveedor. Las tarifas pueden fluctuar con el tiempo.",
+    "perYear": "/yr",
+    "earningsPerYear": "%{amount} %{symbol} /yr",
+    "recommendedForYou": "Recomendado para ti",
+    "earn": "Ganar",
+    "providers": "Proveedores",
+    "successStaked": "Has staked con éxito %{amount} %{symbol}",
+    "successUnstaked": "Has retirado staking exitosamente %{amount} %{symbol}",
+    "cooldownNotice": "Tu retiro estará disponible en %{cooldownDuration}.",
+    "successDeposited": "Depositó exitosamente %{amount} %{symbol}",
+    "successWithdrawn": "Retiraste exitosamente %{amount} %{symbol}",
+    "successClaim": "Reclamaste exitosamente %{amount} %{symbol}",
+    "viewPosition": "Ver Posición",
+    "via": "via",
+    "resetAllowance": "Restablecer Asignación",
+    "loading": {
+      "signInWallet": "Iniciar Sesión en Billetera",
+      "waiting": "Esperando",
+      "done": "Hecho",
+      "failed": "Fallido",
+      "preparingTransaction": "Preparando transacción..."
+    },
+    "errors": {
+      "walletNotConnected": "Billetera no conectada",
+      "broadcastFailed": "No se pudo transmitir la transacción",
+      "transactionFailedTitle": "Transacción fallida",
+      "transactionFailedDescription": "Por favor, inténtelo de nuevo.",
+      "unsupportedNetworkTitle": "Red no compatible",
+      "unsupportedNetworkDescription": "Esta red de rendimiento aún no es compatible.",
+      "walletNotConnectedTitle": "Billetera no conectada",
+      "walletNotConnectedDescription": "Conecte una billetera que admita esta red para continuar.",
+      "enterAmountTitle": "Introduzca una cantidad",
+      "enterAmountDescription": "El importe debe ser mayor que cero.",
+      "initiateFailedTitle": "Error",
+      "initiateFailedDescription": "No se pudo iniciar la secuencia de transacción.",
+      "quoteFailedTitle": "Cotización fallida",
+      "quoteFailedDescription": "No se pudo obtener una cotización para esta transacción. Inténtelo de nuevo."
+    },
+    "underMaintenance": "En Mantenimiento",
+    "underMaintenanceDescription": "Esta oportunidad de rendimiento se encuentra actualmente en mantenimiento. Es posible que no haya depósitos disponibles.",
+    "deprecated": "Obsoleto",
+    "deprecatedDescription": "Esta oportunidad de rendimiento ha quedado obsoleta y es posible que sea descontinuada pronto.",
+    "depositsDisabled": "Depósitos Deshabilitados",
+    "depositsDisabledDescription": "Depósitos temporalmente no disponibles para esta oportunidad de rendimiento.",
+    "withdrawalsDisabled": "Retiros Deshabilitados",
+    "withdrawalsDisabledDescription": "Retiros temporalmente no disponibles para esta oportunidad de rendimiento.",
+    "noActiveBalanceToExit": "No hay balance activo disponible para unstake.",
+    "noAvailableYields": "No hay oportunidades de rendimiento disponibles para sus activos",
+    "connectWalletAvailable": "Conecte una billetera para ver los rendimientos disponibles para sus activos",
+    "aboutProvider": "Acerca de %{provider}",
+    "visitWebsite": "Visitar Sitio Web",
+    "providerDescriptions": {
+      "morpho": "Morpho es un protocolo en infraestructura de bóveda y mercado monetario, auditado múltiples veces por empresas de seguridad de primer nivel, activo desde 2022, con $2,5 millones en incentivos de recompensas por bugs.",
+      "morpho-aave": "Morpho es un protocolo en infraestructura de bóveda y mercado monetario, auditado múltiples veces por empresas de seguridad de primer nivel, activo desde 2022, con $2,5 millones en incentivos de recompensas por bugs.",
+      "morpho-compound": "Morpho es un protocolo en infraestructura de bóveda y mercado monetario, auditado múltiples veces por empresas de seguridad de primer nivel, activo desde 2022, con $2,5 millones en incentivos de recompensas por bugs.",
+      "lido": "Lido es un protocolo de staking líquido que permite a usuarios stake ETH mientras mantienen la liquidez mediante stETH. Auditado repetidamente por firmas de seguridad de primer nivel, activo desde 2020 y con $2 millones en recompensas por bugs.",
+      "aave": "Aave es una plataforma de préstamos multicadena que permite a usuarios prestar, tomar prestado y desarrollar estrategias avanzadas. Auditada por firmas de seguridad de primer nivel, activa desde 2017 y con $1 millón en recompensas por bugs.",
+      "compound": "Compound es un mercado monetario DeFi fundamental con tasas de interés algorítmicas. Multiply auditado por firmas de seguridad de primer nivel, activo desde 2018 y con $1 millón en recompensas por bugs.",
+      "kamino": "Kamino es una suite DeFi en Solana que unifica préstamos, liquidez y apalancamiento en una sola plataforma. Gestiona un programa Immunefi con una recompensa máxima de hasta $1.5 millones.",
+      "fluid": "Fluid es una capa de liquidez desarrollada por el equipo Instadapp que conecta mercados de préstamos, DEX, préstamos y stablecoins en un sistema eficiente. Auditada repetidamente por firmas de seguridad de primer nivel, activa desde 2024 y con $0.5 millones en recompensas por bugs.",
+      "venus": "Venus es un protocolo de préstamos centrado en la cadena BNB. Prioriza la seguridad mediante auditorías externas y un programa continuo de recompensas por bugs.",
+      "gearbox": "Gearbox es un protocolo de apalancamiento componible que permite cuentas de crédito que se integran con estrategias DeFi. Auditado repetidamente por firmas de seguridad de primer nivel, activo desde 2021, con $0.2 millones en recompensas por bugs.",
+      "yearn": "Yearn es un conjunto descentralizado de productos que ayuda a individuos, DAO y otros protocolos a obtener rentabilidad de sus activos digitales. Auditado repetidamente por firmas de seguridad de primer nivel, activo desde 2020, con $0.2 millones en recompensas por bugs.",
+      "spark": "Spark es un protocolo de préstamos descentralizado impulsado por el ecosistema Sky (anteriormente MakerDAO), que permite a usuarios pedir prestado DAI y otras monedas estables a tasas competitivas. Gestiona un programa Immunefi con una recompensa máxima de hasta $5 millones.",
+      "rocket-pool": "Rocket Pool es un protocolo descentralizado de staking líquido en Ethereum que emite rETH. Auditado repetidamente por firmas de seguridad de primer nivel, activo desde 2021 y con $0.5 millones en recompensas por bugs.",
+      "drift": "Drift es una plataforma descentralizada de intercambios perpetuo y préstamos basada en Solana. Gestiona un programa Immunefi con una recompensa máxima de hasta $0.5 millones."
+    },
+    "otherYields": "Otros %{symbol} Rendimientos",
+    "availableToDeposit": "Disponible para Depositar",
+    "availableToDepositTooltip": "Cantidad de %{symbol} en su billetera que puede depositar en esta oportunidad de rendimiento.",
+    "getAsset": "Obtener %{symbol}",
+    "manage": "Administrar",
+    "potentialEarningsAmount": "%{amount}/yr a %{apy}% APY",
+    "depositNow": "Deposite Ahora",
+    "strategyInfo": "Información de Estrategia",
+    "overview": "Descripción General",
+    "readyToClaim": "Listo para reclamar"
+  },
+  "earn": {
+    "enterFrom": "Ingresar desde",
+    "stakeAmount": "Monto de Stake",
+    "selectYieldOpportunity": "Seleccionar oportunidad de rendimiento",
+    "selectYieldFor": "Seleccione el rendimiento para %{asset}",
+    "noYieldsAvailable": "No hay oportunidades de rendimiento disponibles para %{asset}",
+    "estimatedYearlyEarnings": "Ganancias Anuales Est.",
+    "yieldType": "Tipo de Rendimiento",
+    "yieldTypes": {
+      "native-staking": "Staking Nativo",
+      "pooled-staking": "Staking en Grupo",
+      "liquid-staking": "Staking Líquido",
+      "staking": "Staking",
+      "lending": "Préstamo",
+      "vault": "Bóveda",
+      "restaking": "Restaking"
+    },
+    "confirmEarn": "Confirmar Stake",
+    "earnWith": "Gana con",
+    "belowMinimum": "Depósito por debajo del mínimo",
+    "minimumDeposit": "Depósito Mínimo",
+    "explainers": {
+      "liquidStakingReceive": "Recibirá %{symbol} que podrá intercambiar en cualquier momento",
+      "liquidStakingTrade": "Puedes intercambiar tu token de staking líquido en cualquier momento",
+      "liquidStakingWithdraw": "Al retirar, sus activos estarán disponibles de inmediato",
+      "rewardsSchedule": "Recompensas se distribuyen cada %{schedule} y acumulan automáticamente",
+      "stakingUnbonding": "Al hacer unstaking, hay un período de desvinculación de %{days} días antes de que los tokens estén disponibles",
+      "restakingYield": "Recompensas por Restaking acumulan automáticamente en su posición",
+      "restakingWithdraw": "Al retirar, sus activos pueden tener un período de desvinculación",
+      "vaultYield": "Rendimiento se acumula automáticamente en su posición",
+      "vaultWithdraw": "Al retirar, sus activos estarán disponibles de inmediato",
+      "lendingYield": "Intereses se acumulan en su posición automáticamente",
+      "lendingWithdraw": "Al retirar, sus activos estarán disponibles de inmediato"
+    }
+  },
+  "perfProfiler": {
+    "title": "Perfilador de Rendimiento",
+    "export": "Exportar",
+    "reset": "Reiniciar",
+    "disabledMessage": "Perfilador deshabilitado. Haga clic en el icono del ojo para habilitarla.",
+    "toggleAria": "Activar o Desactivar perfilador",
+    "collapseAria": "Colapsar",
+    "expandAria": "Expandir perfilador",
+    "enableProfiling": "Habilitar perfilador",
+    "disableProfiling": "Deshabilitar perfilador",
+    "session": "Sesión",
+    "indexedDb": "Base de datos indexada",
+    "reads": "Lecturas",
+    "writes": "Escribe",
+    "avg": "promedio",
+    "max": "máximo",
+    "selectors": "Selectores",
+    "totalCalls": "Total de llamadas",
+    "slow": "Lento",
+    "assetSearch": "Búsqueda de Activos",
+    "searches": "Búsquedas"
   }
 }

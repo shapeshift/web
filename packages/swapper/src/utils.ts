@@ -1,25 +1,37 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { solanaChainId, suiChainId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter, SignTx, solana, sui } from '@shapeshiftoss/chain-adapters'
-import type { SolanaSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
+import { solanaChainId, starknetChainId, suiChainId } from '@shapeshiftoss/caip'
+import type {
+  EvmChainAdapter,
+  near,
+  SignTx,
+  solana,
+  starknet,
+  sui,
+  ton,
+} from '@shapeshiftoss/chain-adapters'
+import { isSecondClassEvmAdapter } from '@shapeshiftoss/chain-adapters'
+import type { TronSignTx } from '@shapeshiftoss/chain-adapters/src/tron/types'
+import type { SolanaSignTx, StarknetSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Asset, EvmChainId } from '@shapeshiftoss/types'
 import { evm, TxStatus } from '@shapeshiftoss/unchained-client'
-import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
+import { BigAmount, bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
-import type { TronSignTx } from 'packages/chain-adapters/src/tron/types'
 
 import { fetchSafeTransactionInfo } from './safe-utils'
 import type {
   EvmTransactionExecutionProps,
   ExecutableTradeStep,
+  NearTransactionExecutionProps,
   SolanaTransactionExecutionProps,
+  StarknetTransactionExecutionProps,
   SuiTransactionExecutionProps,
   SupportedTradeQuoteStepIndex,
   SwapErrorRight,
+  TonTransactionExecutionProps,
   TradeQuote,
   TradeQuoteStep,
   TradeRate,
@@ -194,6 +206,27 @@ export const executeSuiTransaction = (
   return callbacks.signAndBroadcastTransaction(txToSign)
 }
 
+export const executeNearTransaction = (
+  txToSign: near.NearSignTx,
+  callbacks: NearTransactionExecutionProps,
+) => {
+  return callbacks.signAndBroadcastTransaction(txToSign)
+}
+
+export const executeStarknetTransaction = (
+  txToSign: StarknetSignTx,
+  callbacks: StarknetTransactionExecutionProps,
+) => {
+  return callbacks.signAndBroadcastTransaction(txToSign)
+}
+
+export const executeTonTransaction = (
+  txToSign: ton.TonSignTx,
+  callbacks: TonTransactionExecutionProps,
+) => {
+  return callbacks.signAndBroadcastTransaction(txToSign)
+}
+
 export const createDefaultStatusResponse = (buyTxHash?: string) => ({
   status: TxStatus.Unknown,
   buyTxHash,
@@ -240,7 +273,9 @@ export const checkSafeTransactionStatus = async ({
   // Transaction executed on-chain
   if (isExecutedSafeTx) {
     const adapter = assertGetEvmChainAdapter(chainId)
-    const tx = await adapter.httpProvider.getTransaction({ txid: transaction.transactionHash })
+    const tx = await adapter.httpProvider.getTransaction({
+      txid: transaction.transactionHash,
+    })
     const status = evm.getTxStatus(tx)
 
     return {
@@ -265,6 +300,17 @@ export const checkEvmSwapStatus = async ({
   fetchIsSmartContractAddressQuery: (userAddress: string, chainId: ChainId) => Promise<boolean>
 }): Promise<TradeStatus> => {
   try {
+    const adapter = assertGetEvmChainAdapter(chainId)
+
+    if (isSecondClassEvmAdapter(adapter)) {
+      const status = await adapter.getTransactionStatus(txHash)
+      return {
+        status,
+        buyTxHash: txHash,
+        message: undefined,
+      }
+    }
+
     const maybeSafeTransactionStatus = await checkSafeTransactionStatus({
       address,
       txHash,
@@ -274,7 +320,6 @@ export const checkEvmSwapStatus = async ({
     })
     if (maybeSafeTransactionStatus) return maybeSafeTransactionStatus
 
-    const adapter = assertGetEvmChainAdapter(chainId)
     const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
     const status = evm.getTxStatus(tx)
 
@@ -300,8 +345,14 @@ export const getInputOutputRate = ({
   sellAsset: Asset
   buyAsset: Asset
 }): string => {
-  const sellAmountCryptoHuman = fromBaseUnit(sellAmountCryptoBaseUnit, sellAsset.precision)
-  const buyAmountCryptoHuman = fromBaseUnit(buyAmountCryptoBaseUnit, buyAsset.precision)
+  const sellAmountCryptoHuman = BigAmount.fromBaseUnit({
+    value: sellAmountCryptoBaseUnit,
+    precision: sellAsset.precision,
+  }).toPrecision()
+  const buyAmountCryptoHuman = BigAmount.fromBaseUnit({
+    value: buyAmountCryptoBaseUnit,
+    precision: buyAsset.precision,
+  }).toPrecision()
   return bn(buyAmountCryptoHuman).div(sellAmountCryptoHuman).toFixed()
 }
 
@@ -409,6 +460,46 @@ export const checkSuiSwapStatus = async ({
     }
   } catch (e) {
     console.error(e)
+    return createDefaultStatusResponse(txHash)
+  }
+}
+
+export const checkStarknetSwapStatus = async ({
+  txHash,
+  assertGetStarknetChainAdapter,
+}: {
+  txHash: string
+  assertGetStarknetChainAdapter: (chainId: ChainId) => starknet.ChainAdapter
+}): Promise<TradeStatus> => {
+  try {
+    const adapter = assertGetStarknetChainAdapter(starknetChainId)
+    const provider = adapter.getStarknetProvider()
+
+    // Use raw RPC call for better compatibility with various RPC providers
+    const response = await provider.fetch('starknet_getTransactionReceipt', [txHash])
+    const result: { result?: { execution_status?: string }; error?: unknown } =
+      await response.json()
+
+    // If there's an error or no result, transaction might still be pending
+    if (result.error || !result.result) {
+      return createDefaultStatusResponse(txHash)
+    }
+
+    const receipt = result.result
+    const status =
+      receipt.execution_status === 'SUCCEEDED'
+        ? TxStatus.Confirmed
+        : receipt.execution_status === 'REVERTED'
+        ? TxStatus.Failed
+        : TxStatus.Pending
+
+    return {
+      status,
+      buyTxHash: txHash,
+      message: undefined,
+    }
+  } catch (e) {
+    // Don't log expected errors during status polling (tx might still be pending)
     return createDefaultStatusResponse(txHash)
   }
 }

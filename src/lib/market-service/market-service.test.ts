@@ -1,7 +1,7 @@
 import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { ethers } from 'ethers'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { CoinGeckoMarketService } from './coingecko/coingecko'
 import {
@@ -12,6 +12,8 @@ import {
 import { mockFoxyMarketData, mockFoxyPriceHistoryData } from './foxy/foxyMockData'
 import { MarketServiceManager } from './market-service-manager'
 import { mockTcyMarketData, mockTcyPriceHistoryData } from './tcy/tcyMockData'
+
+import { initAssetService } from '@/lib/asset-service'
 
 const mockCoingeckoFindAll = vi.fn().mockImplementation(() => mockCGFindAllData)
 const mockCoingeckoFindByAssetId = vi.fn().mockImplementation(() => mockCGFindByAssetIdData)
@@ -115,6 +117,10 @@ describe('market service', () => {
       unchainedEthereumHttpUrl: '',
     },
   }
+
+  beforeAll(async () => {
+    await initAssetService()
+  })
 
   describe('findAll', () => {
     it('can return from first market service and skip the next', async () => {

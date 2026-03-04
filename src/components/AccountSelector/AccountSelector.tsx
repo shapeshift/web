@@ -13,13 +13,12 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioAccountBalances,
   selectPortfolioAccountIdsByAssetIdFilter,
   selectPortfolioAccountMetadata,
 } from '@/state/slices/selectors'
@@ -32,6 +31,7 @@ export type AccountSelectorProps = {
   disabled?: boolean
   buttonProps?: ButtonProps
   boxProps?: BoxProps
+  cryptoBalanceOverride?: string
 }
 
 const chevronIconSx = {
@@ -39,7 +39,15 @@ const chevronIconSx = {
 }
 
 export const AccountSelector: FC<AccountSelectorProps> = memo(
-  ({ assetId, accountId: selectedAccountId, onChange, disabled, buttonProps, boxProps }) => {
+  ({
+    assetId,
+    accountId: selectedAccountId,
+    onChange,
+    disabled,
+    buttonProps,
+    boxProps,
+    cryptoBalanceOverride,
+  }) => {
     const translate = useTranslate()
     const { isOpen, onOpen, onClose } = useDisclosure()
     const {
@@ -51,7 +59,7 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
       selectPortfolioAccountIdsByAssetIdFilter(state, filter),
     )
     const asset = useAppSelector(state => selectAssetById(state, assetId))
-    const accountBalancesBaseUnit = useAppSelector(selectPortfolioAccountBalancesBaseUnit)
+    const accountBalances = useAppSelector(selectPortfolioAccountBalances)
     const accountMetadata = useAppSelector(selectPortfolioAccountMetadata)
     const marketData = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, assetId),
@@ -70,10 +78,8 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
     const selectedAccountDetails = useMemo(() => {
       if (!selectedAccountId || !asset) return null
 
-      const cryptoBalance = fromBaseUnit(
-        accountBalancesBaseUnit?.[selectedAccountId]?.[assetId] ?? 0,
-        asset.precision ?? 0,
-      )
+      const balance = accountBalances?.[selectedAccountId]?.[assetId]
+      const cryptoBalance = cryptoBalanceOverride ?? balance?.toPrecision() ?? '0'
       const fiatBalance = bnOrZero(cryptoBalance).times(marketDataPrice)
 
       return {
@@ -81,7 +87,7 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
         fiatBalance,
         label: isUtxoAccountId(selectedAccountId) ? accountIdToLabel(selectedAccountId) : undefined,
       }
-    }, [selectedAccountId, asset, accountBalancesBaseUnit, assetId, marketDataPrice])
+    }, [selectedAccountId, asset, cryptoBalanceOverride, accountBalances, assetId, marketDataPrice])
 
     const handleAccountSelect = useCallback(
       (accountId: AccountId) => {

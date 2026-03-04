@@ -1,36 +1,80 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
-  arbitrumNovaChainId,
   avalancheChainId,
   baseChainId,
+  berachainChainId,
+  blastChainId,
+  bobChainId,
   bscChainId,
+  celoChainId,
+  cronosChainId,
   ethChainId,
+  etherealChainId,
+  flowEvmChainId,
   fromAccountId,
   gnosisChainId,
+  hemiChainId,
   hyperEvmChainId,
+  inkChainId,
+  katanaChainId,
+  lineaChainId,
+  mantleChainId,
+  megaethChainId,
+  modeChainId,
   monadChainId,
   optimismChainId,
   plasmaChainId,
+  plumeChainId,
   polygonChainId,
+  scrollChainId,
+  seiChainId,
+  soneiumChainId,
+  sonicChainId,
+  storyChainId,
   toAccountId,
+  unichainChainId,
+  worldChainChainId,
+  zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
+  isMetaMask,
   supportsArbitrum,
-  supportsArbitrumNova,
   supportsAvalanche,
   supportsBase,
+  supportsBerachain,
+  supportsBlast,
+  supportsBob,
   supportsBSC,
+  supportsCelo,
+  supportsCronos,
   supportsETH,
+  supportsEthereal,
+  supportsFlowEvm,
   supportsGnosis,
+  supportsHemi,
   supportsHyperEvm,
+  supportsInk,
+  supportsKatana,
+  supportsLinea,
+  supportsMantle,
+  supportsMegaEth,
+  supportsMode,
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
+  supportsPlume,
   supportsPolygon,
-} from '@shapeshiftoss/hdwallet-core'
-import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
+  supportsScroll,
+  supportsSei,
+  supportsSoneium,
+  supportsSonic,
+  supportsStory,
+  supportsUnichain,
+  supportsWorldChain,
+  supportsZkSyncEra,
+} from '@shapeshiftoss/hdwallet-core/wallet'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
@@ -116,16 +160,38 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === avalancheChainId && !supportsAvalanche(wallet)) continue
     if (chainId === optimismChainId && !supportsOptimism(wallet)) continue
     if (chainId === bscChainId && !supportsBSC(wallet)) continue
+    if (chainId === celoChainId && !supportsCelo(wallet)) continue
     if (chainId === polygonChainId && !supportsPolygon(wallet)) continue
     if (chainId === gnosisChainId && !supportsGnosis(wallet)) continue
     if (chainId === arbitrumChainId && !supportsArbitrum(wallet)) continue
-    if (chainId === arbitrumNovaChainId && !supportsArbitrumNova(wallet)) continue
     if (chainId === baseChainId && !supportsBase(wallet)) continue
     if (chainId === hyperEvmChainId && !supportsHyperEvm(wallet)) continue
     if (chainId === monadChainId && !supportsMonad(wallet)) continue
     if (chainId === plasmaChainId && !supportsPlasma(wallet)) continue
+    if (chainId === plumeChainId && !supportsPlume(wallet)) continue
+    if (chainId === mantleChainId && !supportsMantle(wallet)) continue
+    if (chainId === inkChainId && !supportsInk(wallet)) continue
+    if (chainId === megaethChainId && !supportsMegaEth(wallet)) continue
+    if (chainId === berachainChainId && !supportsBerachain(wallet)) continue
+    if (chainId === scrollChainId && !supportsScroll(wallet)) continue
+    if (chainId === cronosChainId && !supportsCronos(wallet)) continue
+    if (chainId === katanaChainId && !supportsKatana(wallet)) continue
+    if (chainId === etherealChainId && !supportsEthereal(wallet)) continue
+    if (chainId === flowEvmChainId && !supportsFlowEvm(wallet)) continue
+    if (chainId === storyChainId && !supportsStory(wallet)) continue
+    if (chainId === zkSyncEraChainId && !supportsZkSyncEra(wallet)) continue
+    if (chainId === blastChainId && !supportsBlast(wallet)) continue
+    if (chainId === worldChainChainId && !supportsWorldChain(wallet)) continue
+    if (chainId === hemiChainId && !supportsHemi(wallet)) continue
+    if (chainId === seiChainId && !supportsSei(wallet)) continue
+    if (chainId === lineaChainId && !supportsLinea(wallet)) continue
+    if (chainId === sonicChainId && !supportsSonic(wallet)) continue
+    if (chainId === unichainChainId && !supportsUnichain(wallet)) continue
+    if (chainId === bobChainId && !supportsBob(wallet)) continue
+    if (chainId === modeChainId && !supportsMode(wallet)) continue
+    if (chainId === soneiumChainId && !supportsSoneium(wallet)) continue
     if (
-      wallet instanceof MetaMaskMultiChainHDWallet &&
+      isMetaMask(wallet) &&
       !canAddMetaMaskAccount({ accountNumber, chainId, wallet, isSnapInstalled })
     ) {
       continue

@@ -1,4 +1,5 @@
 import { useMediaQuery } from '@chakra-ui/react'
+import { captureException } from '@sentry/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
@@ -6,26 +7,30 @@ import { isToken } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 
 import type { SendInput } from '../Send/Form'
+import { useCompleteSendFlow } from '../Send/hooks/useCompleteSendFlow'
 import { useFormSend } from '../Send/hooks/useFormSend/useFormSend'
 import { SendFormFields, SendRoutes } from '../Send/SendCommon'
 import { Address } from '../Send/views/Address'
 import { Confirm } from '../Send/views/Confirm'
-import { Status } from '../Send/views/Status'
 
 import { SendAmountDetails } from '@/components/Modals/Send/views/SendAmountDetails'
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { parseAddress, parseAddressInputWithChainId } from '@/lib/address/address'
 import { parseUrlDirect } from '@/lib/address/bip21'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/connect/Connect'
+import { isWalletConnectV2Uri } from '@/plugins/walletConnectToDapps/components/modals/connect/utils'
+import { useWalletConnectV2 } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
+  selectFirstAccountIdByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetIdFilter,
 } from '@/state/slices/selectors'
@@ -41,15 +46,19 @@ const scanRedirect = <Navigate to={SendRoutes.Scan} replace />
 
 const formStyle = { height: '100%' }
 
-export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
+export const Form: React.FC<QrCodeFormProps> = ({ assetId: initialAssetId, accountId }) => {
   const navigate = useNavigate()
   const { handleFormSend } = useFormSend()
   const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
   const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
   const [addressError, setAddressError] = useState<string | null>(null)
-  const { isOpen, close: handleClose } = useModal('qrCode')
-  const [walletConnectDappUrl, setWalletConnectDappUrl] = useState('')
+  const { close: handleClose } = useModal('qrCode')
+  const { pair } = useWalletConnectV2()
+  const translate = useTranslate()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
+
+  const completeSendFlow = useCompleteSendFlow({ handleClose })
 
   const methods = useForm<SendInput>({
     mode: 'onChange',
@@ -57,7 +66,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
       accountId,
       to: '',
       vanityAddress: '',
-      assetId: '',
+      assetId: initialAssetId ?? '',
       feeType: FeeDataKey.Average,
       amountCryptoPrecision: '',
       fiatAmount: '',
@@ -74,19 +83,29 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   const handleAssetSelect = useCallback(
     (assetId: AssetId) => {
       const asset = selectAssetById(store.getState(), assetId ?? '')
-      // This should never happen, but tsc
       if (!asset) return
       methods.setValue(SendFormFields.AssetId, asset.assetId)
+      methods.setValue(SendFormFields.AmountCryptoPrecision, '')
+      methods.setValue(SendFormFields.FiatAmount, '')
+      methods.setValue(SendFormFields.FiatSymbol, selectedCurrency)
 
-      if (isSmallerThanMd) {
-        navigate(SendRoutes.Address)
-        return
+      const detectedAccountId = selectFirstAccountIdByChainId(
+        store.getState(),
+        fromAssetId(assetId).chainId,
+      )
+      if (detectedAccountId) {
+        methods.setValue(SendFormFields.AccountId, detectedAccountId)
       }
-      // On desktop, go directly to AmountDetails
-      // On mobile, go to Address first
-      navigate(SendRoutes.AmountDetails)
+
+      requestAnimationFrame(() => {
+        if (isSmallerThanMd) {
+          navigate(SendRoutes.Address)
+          return
+        }
+        navigate(SendRoutes.AmountDetails)
+      })
     },
-    [methods, navigate, isSmallerThanMd],
+    [methods, navigate, isSmallerThanMd, selectedCurrency],
   )
 
   const handleBack = useCallback(() => {
@@ -98,10 +117,16 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
     async (data: SendInput) => {
       const txHash = await handleFormSend(data, false)
       if (!txHash) return
-      methods.setValue(SendFormFields.TxHash, txHash)
-      navigate(SendRoutes.Status)
+
+      completeSendFlow({
+        txHash,
+        to: data.to,
+        accountId: data.accountId,
+        assetId: data.assetId,
+        amountCryptoPrecision: data.amountCryptoPrecision,
+      })
     },
-    [handleFormSend, methods, navigate],
+    [handleFormSend, completeSendFlow],
   )
 
   const checkKeyDown = useCallback((event: React.KeyboardEvent<HTMLFormElement>) => {
@@ -113,9 +138,42 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
     (decodedText: string) => {
       ;(async () => {
         try {
-          // If this is a WalletConnect dApp QR Code, skip the whole send logic and render the QR Code Modal instead.
+          // If this is a WalletConnect dApp QR Code, skip the whole send logic and auto-pair directly.
           // There's no need for any RFC-3986 decoding here since we don't really care about parsing and WC will do that for us
-          if (decodedText.startsWith('wc:')) return setWalletConnectDappUrl(decodedText)
+          if (decodedText.startsWith('wc:')) {
+            if (!isWalletConnectV2Uri(decodedText)) {
+              setAddressError(translate('plugins.walletConnectToDapps.modal.connect.invalidUri'))
+              return
+            }
+            try {
+              await pair?.({ uri: decodedText })
+              handleClose()
+            } catch (error: unknown) {
+              const errorMessage = error instanceof Error ? error.message : String(error)
+              if (errorMessage.includes('Pairing already exists')) {
+                toast({
+                  title: translate('plugins.walletConnectToDapps.errors.errorConnectingToDapp'),
+                  description: translate(
+                    'plugins.walletConnectToDapps.errors.pairingAlreadyExists',
+                  ),
+                  status: 'error',
+                  duration: 5000,
+                  isClosable: true,
+                })
+              } else {
+                captureException(error)
+                toast({
+                  title: translate('plugins.walletConnectToDapps.errors.errorConnectingToDapp'),
+                  description: errorMessage,
+                  status: 'error',
+                  duration: 5000,
+                  isClosable: true,
+                })
+              }
+              handleClose()
+            }
+            return
+          }
 
           // This should
           // - First attempt parsing as payment URI (BIP-21, ERC-681, Solana Pay) to extract address, amount, asset and chainId
@@ -136,7 +194,6 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
               }
             return parseAddress({ address: decodedText })
           })()
-
           if (!maybeUrlResult.assetId) return
 
           const { address, vanityAddress } = urlDirectResult
@@ -172,19 +229,11 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             )
           }
 
-          // Update accountId to match the scanned asset
-          if (maybeUrlResult.assetId && !accountId) {
-            // Get accounts for this asset to ensure we have a valid accountId
-            const state = store.getState()
-            const accountIds = selectPortfolioAccountIdsByAssetIdFilter(state, {
-              assetId: maybeUrlResult.assetId,
-            })
-            const detectedAccountId = accountIds[0]
-
-            // Only set accountId if one exists for this asset
-            if (detectedAccountId) {
-              methods.setValue(SendFormFields.AccountId, detectedAccountId)
-            }
+          const accountIds = selectPortfolioAccountIdsByAssetIdFilter(store.getState(), {
+            assetId: maybeUrlResult.assetId,
+          })
+          if (accountIds[0]) {
+            methods.setValue(SendFormFields.AccountId, accountIds[0])
           }
 
           const { chainNamespace } = fromAssetId(maybeUrlResult.assetId)
@@ -193,24 +242,47 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             chainNamespace === CHAIN_NAMESPACE.Evm || chainNamespace === CHAIN_NAMESPACE.Solana
           // Most wallets do not specify target_address on purpose for ERC-20 or Solana token transfers, as it's inherently unsafe
           // (although we have heuristics to make it safe)
-          // For the purpose of being spec compliant, we assume that if there was an `amount` field, that means native amount (which it should, according to the spec)
-          // And we then assume native asset transfer as a result - users can always change asset in the amount screen if that was wrong
-          // However, if not asset AND no amount are specific, we don't assume anything, and let em select the asset manually
-          const isAmbiguousTransfer =
-            supportsErc681 &&
-            !isToken(maybeUrlResult.assetId) &&
-            !maybeUrlResult.amountCryptoPrecision
+          // Without an explicit token in the QR code, the resolved asset defaults to the native fee asset (e.g ETH),
+          // which is ambiguous - the user may have intended to send a token on the same chain.
+          // If we have page context (initialAssetId) on the same chain, use that; otherwise show the asset selector.
+          const isAmbiguousTransfer = supportsErc681 && !isToken(maybeUrlResult.assetId)
 
           if (isAmbiguousTransfer) {
-            return navigate(SendRoutes.Select)
+            if (initialAssetId) {
+              const { chainId: contextChainId, chainNamespace: contextChainNamespace } =
+                fromAssetId(initialAssetId)
+              const { chainId: qrChainId } = fromAssetId(maybeUrlResult.assetId)
+              const chainMatch = urlDirectResult
+                ? contextChainId === qrChainId
+                : contextChainNamespace === chainNamespace
+              if (chainMatch) {
+                methods.setValue(SendFormFields.AssetId, initialAssetId)
+                if (initialAssetId !== maybeUrlResult.assetId) {
+                  methods.setValue(SendFormFields.AmountCryptoPrecision, '')
+                  methods.setValue(SendFormFields.FiatAmount, '')
+                }
+                const state = store.getState()
+                const contextAccountIds = selectPortfolioAccountIdsByAssetIdFilter(state, {
+                  assetId: initialAssetId,
+                })
+                if (contextAccountIds[0]) {
+                  methods.setValue(SendFormFields.AccountId, contextAccountIds[0])
+                }
+                return navigate(SendRoutes.AmountDetails, { state: { isFromQrCode: true } })
+              }
+            }
+            requestAnimationFrame(() => navigate(SendRoutes.Select))
+            return
           }
-          return navigate(SendRoutes.AmountDetails, { state: { isFromQrCode: true } })
+          requestAnimationFrame(() =>
+            navigate(SendRoutes.AmountDetails, { state: { isFromQrCode: true } }),
+          )
         } catch (e: any) {
           setAddressError(e.message)
         }
       })()
     },
-    [accountId, methods, navigate],
+    [handleClose, initialAssetId, methods, navigate, pair, toast, translate],
   )
 
   const selectAssetRouterElement = useMemo(
@@ -230,10 +302,6 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
     () => <Confirm handleSubmit={methods.handleSubmit(handleSubmit)} />,
     [methods, handleSubmit],
   )
-  const statusElement = useMemo(() => <Status />, [])
-
-  if (walletConnectDappUrl)
-    return <ConnectModal initialUri={walletConnectDappUrl} isOpen={isOpen} onClose={handleClose} />
 
   return (
     <FormProvider {...methods}>
@@ -250,7 +318,6 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             <Route path={SendRoutes.AmountDetails} element={detailsElement} />
             <Route path={SendRoutes.Scan} element={qrCodeScannerElement} />
             <Route path={SendRoutes.Confirm} element={confirmElement} />
-            <Route path={SendRoutes.Status} element={statusElement} />
             <Route path='/' element={scanRedirect} />
           </Routes>
         </AnimatePresence>

@@ -9,9 +9,11 @@ import { getStakingContract } from './helpers'
 export const stakeEvent = getAbiItem({ abi: RFOX_ABI, name: 'Stake' })
 export const unstakeEvent = getAbiItem({ abi: RFOX_ABI, name: 'Unstake' })
 
-export const IPFS_GATEWAY = 'https://gateway.shapeshift.com/ipfs'
+export const IPFS_GATEWAY = 'https://gateway.pinata.cloud/ipfs'
 
-export const CURRENT_EPOCH_IPFS_HASH = 'bafkreiapwxmfytgbbiar6nrmjmrbhd6llhf5gdg2lz6mo5yjshqj6xsgoy'
+export const CURRENT_EPOCH_IPFS_HASH = 'bafkreibf7lcutzt65fxcgwtpsvey7pb4nv77btdctw6aukrhlqlp3gncc4'
+export const STUB_RUNE_ADDRESS = 'thor1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqn8p0r8'
+export const RFOX_V3_UPGRADE_EPOCH = 18
 
 export const RFOX_STAKING_ASSET_IDS = [foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId]
 

@@ -1,9 +1,11 @@
+import { arbitrumChainId, toAccountId } from '@shapeshiftoss/caip'
 import type { Swap } from '@shapeshiftoss/swapper'
 
 import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { swapSlice } from '../swapSlice/swapSlice'
 import { actionSlice } from './actionSlice'
 import type {
+  ChainflipLendingAction,
   GenericTransactionAction,
   LimitOrderAction,
   RfoxClaimAction,
@@ -12,11 +14,14 @@ import type {
 import {
   ActionStatus,
   ActionType,
+  GenericTransactionDisplayType,
   isArbitrumBridgeWithdrawAction,
+  isChainflipLendingAction,
   isGenericTransactionAction,
   isLimitOrderAction,
   isPendingSendAction,
   isPendingSwapAction,
+  isRewardDistributionAction,
   isRfoxClaimAction,
   isSwapAction,
   isTcyClaimAction,
@@ -66,6 +71,19 @@ export const selectWalletActions = createDeepEqualOutputSelector(
 
       if (isTcyClaimAction(action)) {
         return enabledWalletAccountIds.includes(action.tcyClaimActionMetadata.claim.accountId)
+      }
+
+      if (isRewardDistributionAction(action)) {
+        const stakingAccountId = toAccountId({
+          chainId: arbitrumChainId,
+          account: action.rewardDistributionMetadata.distribution.stakingAddress,
+        })
+
+        return enabledWalletAccountIds.includes(stakingAccountId)
+      }
+
+      if (isChainflipLendingAction(action)) {
+        return enabledWalletAccountIds.includes(action.chainflipLendingMetadata.accountId)
       }
 
       return action
@@ -191,7 +209,9 @@ export const selectWalletGenericTransactionActionsSorted = createDeepEqualOutput
 export const selectPendingGenericTransactionActions = createDeepEqualOutputSelector(
   selectWalletGenericTransactionActionsSorted,
   actions => {
-    return actions.filter(action => action.status === ActionStatus.Pending)
+    return actions.filter(
+      action => action.status === ActionStatus.Pending || action.status === ActionStatus.Initiated,
+    )
   },
 )
 
@@ -275,6 +295,41 @@ export const selectPendingArbitrumBridgeWithdrawActions = createDeepEqualOutputS
         isArbitrumBridgeWithdrawAction(action) &&
         action.status !== ActionStatus.Claimed &&
         action.status !== ActionStatus.Failed,
+    )
+  },
+)
+
+const isYieldAction = (action: GenericTransactionAction): boolean => {
+  const { displayType, yieldType } = action.transactionMetadata
+  if (yieldType) return true
+  return displayType === GenericTransactionDisplayType.Yield
+}
+
+export const selectYieldActionsByTxHash = createDeepEqualOutputSelector(
+  actionSlice.selectors.selectActionsById,
+  actionSlice.selectors.selectActionIds,
+  (actionsById, actionIds): Record<string, GenericTransactionAction> => {
+    const result: Record<string, GenericTransactionAction> = {}
+    for (const id of actionIds) {
+      const action = actionsById[id]
+      if (
+        isGenericTransactionAction(action) &&
+        isYieldAction(action) &&
+        action.transactionMetadata.txHash
+      ) {
+        result[action.transactionMetadata.txHash] = action
+      }
+    }
+    return result
+  },
+)
+
+export const selectPendingChainflipLendingActions = createDeepEqualOutputSelector(
+  selectWalletActions,
+  actions => {
+    return actions.filter(
+      (action): action is ChainflipLendingAction =>
+        isChainflipLendingAction(action) && action.status === ActionStatus.Pending,
     )
   },
 )

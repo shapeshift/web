@@ -78,6 +78,7 @@ export const GlobalFilter: React.FC<GlobalFilterProps> = props => {
         placeholder='Search'
         onChange={handleInputChange}
         value={value}
+        data-testid='global-search-input'
         {...inputProps}
       />
       {value && (

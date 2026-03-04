@@ -18,7 +18,6 @@ export type RfoxStakingQuote = {
   stakingAssetAccountId: AccountId
   stakingAssetId: AssetId
   stakingAmountCryptoBaseUnit: string
-  runeAddress: string
 }
 
 export type StakeInputValues = AddressSelectionValues & TradeAmountInputFormValues

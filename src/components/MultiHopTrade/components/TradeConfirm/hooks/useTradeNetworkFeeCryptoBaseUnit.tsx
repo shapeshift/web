@@ -1,6 +1,5 @@
 import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
+import { isGridPlus, supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
@@ -18,8 +17,11 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
+import { assertGetNearChainAdapter } from '@/lib/utils/near'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
+import { assertGetTonChainAdapter } from '@/lib/utils/ton'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
@@ -237,6 +239,70 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                   chainId: hop.sellAsset.chainId,
                   config: getConfig(),
                   assertGetSuiChainAdapter,
+                })
+                return output
+              }
+              case CHAIN_NAMESPACE.Near: {
+                if (!swapper.getNearTransactionFees) throw Error('missing getNearTransactionFees')
+
+                const adapter = assertGetNearChainAdapter(stepSellAssetChainId)
+                const from = await adapter.getAddress({
+                  accountNumber,
+                  wallet,
+                  ...(skipDeviceDerivation ? { pubKey } : {}),
+                })
+
+                const output = await swapper.getNearTransactionFees({
+                  tradeQuote,
+                  from,
+                  stepIndex: hopIndex,
+                  slippageTolerancePercentageDecimal,
+                  chainId: hop.sellAsset.chainId,
+                  config: getConfig(),
+                  assertGetNearChainAdapter,
+                })
+                return output
+              }
+              case CHAIN_NAMESPACE.Starknet: {
+                if (!swapper.getStarknetTransactionFees)
+                  throw Error('missing getStarknetTransactionFees')
+
+                const adapter = assertGetStarknetChainAdapter(stepSellAssetChainId)
+                const from = await adapter.getAddress({
+                  accountNumber,
+                  wallet,
+                  ...(skipDeviceDerivation ? { pubKey } : {}),
+                })
+
+                const output = await swapper.getStarknetTransactionFees({
+                  tradeQuote,
+                  from,
+                  stepIndex: hopIndex,
+                  slippageTolerancePercentageDecimal,
+                  chainId: hop.sellAsset.chainId,
+                  config: getConfig(),
+                  assertGetStarknetChainAdapter,
+                })
+                return output
+              }
+              case CHAIN_NAMESPACE.Ton: {
+                if (!swapper.getTonTransactionFees) throw Error('missing getTonTransactionFees')
+
+                const adapter = assertGetTonChainAdapter(stepSellAssetChainId)
+                const from = await adapter.getAddress({
+                  accountNumber,
+                  wallet,
+                  ...(skipDeviceDerivation ? { pubKey } : {}),
+                })
+
+                const output = await swapper.getTonTransactionFees({
+                  tradeQuote,
+                  from,
+                  stepIndex: hopIndex,
+                  slippageTolerancePercentageDecimal,
+                  chainId: hop.sellAsset.chainId,
+                  config: getConfig(),
+                  assertGetTonChainAdapter,
                 })
                 return output
               }

@@ -18,10 +18,10 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { assertAndProcessMemo } from '@shapeshiftoss/swapper'
+import { assertAndProcessMemo, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { isToken } from '@shapeshiftoss/utils'
+import { BigAmount, isToken } from '@shapeshiftoss/utils'
 import { useMutation, useMutationState, useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import prettyMilliseconds from 'pretty-ms'
@@ -43,7 +43,6 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { toBaseUnit } from '@/lib/math'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -244,7 +243,7 @@ export const RepayConfirm = ({
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),
     staleTime: 60_000,
-    select: data => selectInboundAddressData(data, repaymentAsset?.assetId),
+    select: data => selectInboundAddressData(data, repaymentAsset?.assetId, SwapperName.Thorchain),
     enabled: !!repaymentAsset?.assetId,
   })
 
@@ -262,10 +261,10 @@ export const RepayConfirm = ({
   } = useSendThorTx({
     assetId: repaymentAsset?.assetId ?? '',
     accountId: repaymentAccountId,
-    amountCryptoBaseUnit: toBaseUnit(
-      confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
-      repaymentAsset?.precision ?? 0,
-    ),
+    amountCryptoBaseUnit: BigAmount.fromPrecision({
+      value: confirmedQuote?.repaymentAmountCryptoPrecision ?? 0,
+      precision: repaymentAsset?.precision ?? 0,
+    }).toBaseUnit(),
     memo,
     // no explicit from address required for repayments
     fromAddress: '',
@@ -406,7 +405,7 @@ export const RepayConfirm = ({
 
   return (
     <SlideTransition>
-      <Flex flexDir='column' width='full'>
+      <Flex flexDir='column' width='full' data-testid='lending-repay-confirm'>
         <CardHeader>
           <WithBackButton onBack={handleBack}>
             <Heading as='h5' textAlign='center'>

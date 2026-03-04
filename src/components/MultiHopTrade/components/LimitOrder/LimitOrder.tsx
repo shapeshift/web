@@ -1,4 +1,5 @@
 import { Flex } from '@chakra-ui/react'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Route, Routes, useMatch, useNavigate } from 'react-router-dom'
 
@@ -13,7 +14,6 @@ import { LimitOrderRoutePaths } from './types'
 
 import type { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import { fromBaseUnit } from '@/lib/math'
 import { LIMIT_ORDER_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import type { LimitPriceMode, PriceDirection } from '@/state/slices/limitOrderInputSlice/constants'
@@ -87,6 +87,9 @@ export const LimitOrder = ({
   const routeSellAsset = useAppSelector(state => selectAssetById(state, sellAssetId ?? ''))
   const routeBuyAsset = useAppSelector(state => selectAssetById(state, buyAssetId ?? ''))
 
+  // Check if we have URL params that need to be loaded
+  const hasUrlParams = Boolean(chainId && assetSubId)
+
   // Initialize state from URL params
   useEffect(() => {
     if (isInitialized) return
@@ -100,11 +103,11 @@ export const LimitOrder = ({
     }
 
     if (sellAmountCryptoBaseUnit && routeSellAsset) {
-      dispatch(
-        limitOrderInput.actions.setSellAmountCryptoPrecision(
-          fromBaseUnit(sellAmountCryptoBaseUnit, routeSellAsset.precision),
-        ),
-      )
+      const sellAmountCrypto = BigAmount.fromBaseUnit({
+        value: sellAmountCryptoBaseUnit,
+        precision: routeSellAsset.precision,
+      })
+      dispatch(limitOrderInput.actions.setSellAmountCryptoPrecision(sellAmountCrypto.toPrecision()))
     }
 
     if (routeLimitPriceDirection) {
@@ -200,6 +203,12 @@ export const LimitOrder = ({
     ),
     [tradeInputRef],
   )
+
+  // If we have URL params but assets haven't been initialized yet, don't render
+  // This prevents crashes from components trying to use defaultAsset with empty assetId
+  if (hasUrlParams && !isInitialized) {
+    return null
+  }
 
   return (
     <Flex flex={1} width='full' justifyContent='center'>

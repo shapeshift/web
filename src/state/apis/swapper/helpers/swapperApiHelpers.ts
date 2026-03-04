@@ -18,9 +18,12 @@ import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
+import { assertGetNearChainAdapter } from '@/lib/utils/near'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { thorchainBlockTimeMs } from '@/lib/utils/thorchain/constants'
+import { assertGetTonChainAdapter } from '@/lib/utils/ton'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { getInboundAddressesQuery, getMimirQuery } from '@/react-queries/queries/thornode'
@@ -50,8 +53,11 @@ export const createSwapperDeps = (state: ReduxState): SwapperDeps => ({
   assertGetUtxoChainAdapter,
   assertGetCosmosSdkChainAdapter,
   assertGetSolanaChainAdapter,
+  assertGetTonChainAdapter,
   assertGetTronChainAdapter,
   assertGetSuiChainAdapter,
+  assertGetNearChainAdapter,
+  assertGetStarknetChainAdapter,
   fetchIsSmartContractAddressQuery,
   config: getConfig(),
   mixPanel: getMixPanel(),
@@ -112,7 +118,11 @@ export const checkTradingActivity = async (
         gcTime: 0,
       })
 
-      const inboundAddressResponse = selectInboundAddressData(inboundAddresses, assetId)
+      const inboundAddressResponse = selectInboundAddressData(
+        inboundAddresses,
+        assetId,
+        swapperName,
+      )
 
       const mimir = await queryClient.fetchQuery({
         ...getMimirQuery(chainId),

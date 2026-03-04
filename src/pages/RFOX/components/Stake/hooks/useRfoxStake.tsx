@@ -3,6 +3,7 @@ import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { RFOX_ABI } from '@shapeshiftoss/contracts'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
@@ -18,13 +19,13 @@ import { useEvmFees } from '@/hooks/queries/useEvmFees'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
   isGetFeesWithWalletEIP1559SupportArgs,
 } from '@/lib/utils/evm'
+import { STUB_RUNE_ADDRESS } from '@/pages/RFOX/constants'
 import { getStakingContract } from '@/pages/RFOX/helpers'
 import { reactQueries } from '@/react-queries'
 import { useAllowance } from '@/react-queries/hooks/useAllowance'
@@ -46,7 +47,6 @@ import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type UseRfoxStakeProps = {
-  runeAddress: string | undefined
   stakingAssetId: AssetId
   stakingAssetAccountId: AccountId | undefined
   amountCryptoBaseUnit: string
@@ -69,7 +69,6 @@ type UseRfoxStakeReturn = {
 
 export const useRfoxStake = ({
   amountCryptoBaseUnit,
-  runeAddress,
   stakingAssetId,
   stakingAssetAccountId,
   methods,
@@ -113,7 +112,13 @@ export const useRfoxStake = ({
   )
 
   const amountCryptoPrecision = useMemo(
-    () => (stakingAsset ? fromBaseUnit(amountCryptoBaseUnit, stakingAsset.precision) : undefined),
+    () =>
+      stakingAsset
+        ? BigAmount.fromBaseUnit({
+            value: amountCryptoBaseUnit,
+            precision: stakingAsset.precision,
+          }).toPrecision()
+        : undefined,
     [amountCryptoBaseUnit, stakingAsset],
   )
 
@@ -123,14 +128,14 @@ export const useRfoxStake = ({
   )
 
   const stakeCallData = useMemo(() => {
-    if (!(isValidStakingAmount && runeAddress && stakingAsset)) return
+    if (!(isValidStakingAmount && stakingAsset)) return
 
     return encodeFunctionData({
       abi: RFOX_ABI,
       functionName: 'stake',
-      args: [BigInt(amountCryptoBaseUnit), runeAddress],
+      args: [BigInt(amountCryptoBaseUnit), STUB_RUNE_ADDRESS],
     })
-  }, [amountCryptoBaseUnit, isValidStakingAmount, runeAddress, stakingAsset])
+  }, [amountCryptoBaseUnit, isValidStakingAmount, stakingAsset])
 
   const approvalCallData = useMemo(() => {
     if (!stakingAsset) return
@@ -152,10 +157,13 @@ export const useRfoxStake = ({
   const allowanceCryptoPrecision = useMemo(() => {
     const allowanceDataCryptoBaseUnit = allowanceQuery.data
     if (!allowanceDataCryptoBaseUnit) return
-    if (!stakingAssetFeeAsset) return
+    if (!stakingAsset) return
 
-    return fromBaseUnit(allowanceDataCryptoBaseUnit, stakingAssetFeeAsset.precision)
-  }, [allowanceQuery.data, stakingAssetFeeAsset])
+    return BigAmount.fromBaseUnit({
+      value: allowanceDataCryptoBaseUnit,
+      precision: stakingAsset.precision,
+    }).toPrecision()
+  }, [allowanceQuery.data, stakingAsset])
 
   const isApprovalRequired = useMemo(
     () =>
@@ -312,7 +320,6 @@ export const useRfoxStake = ({
         stakeMutation.isIdle &&
           hasEnoughBalance &&
           isValidStakingAmount &&
-          runeAddress &&
           !Boolean(errors?.amountFieldInput || errors?.manualRuneAddress) &&
           allowanceQuery.isSuccess &&
           !isApprovalRequired,
@@ -324,7 +331,6 @@ export const useRfoxStake = ({
       hasEnoughBalance,
       isApprovalRequired,
       isValidStakingAmount,
-      runeAddress,
       stakeMutation.isIdle,
     ],
   )
@@ -357,7 +363,10 @@ export const useRfoxStake = ({
 
       if (!stakingAsset || !stakingAssetAccountId) return
 
-      const amountCryptoPrecision = fromBaseUnit(amountCryptoBaseUnit, stakingAsset.precision)
+      const amountCryptoPrecision = BigAmount.fromBaseUnit({
+        value: amountCryptoBaseUnit,
+        precision: stakingAsset.precision,
+      }).toPrecision()
 
       dispatch(
         actionSlice.actions.upsertAction({

@@ -257,6 +257,8 @@ export const AddressInput = ({
               minHeight='auto'
               borderRadius='10px'
               minRows={1}
+              maxRows={3}
+              overflow='auto'
               py={3}
               data-test='send-address-input'
               data-1p-ignore

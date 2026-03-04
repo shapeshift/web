@@ -1,0 +1,107 @@
+import type { ChainId } from '@shapeshiftoss/caip'
+import {
+  arbitrumChainId,
+  avalancheChainId,
+  baseChainId,
+  bscChainId,
+  cosmosChainId,
+  ethChainId,
+  gnosisChainId,
+  hyperEvmChainId,
+  katanaChainId,
+  monadChainId,
+  nearChainId,
+  optimismChainId,
+  plasmaChainId,
+  polygonChainId,
+  solanaChainId,
+  suiChainId,
+  tronChainId,
+} from '@shapeshiftoss/caip'
+import invert from 'lodash/invert'
+
+import type { ValidatorDto } from './types'
+import { YieldNetwork } from './types'
+
+export const CHAIN_ID_TO_YIELD_NETWORK: Partial<Record<ChainId, YieldNetwork>> = {
+  [ethChainId]: YieldNetwork.Ethereum,
+  [arbitrumChainId]: YieldNetwork.Arbitrum,
+  [baseChainId]: YieldNetwork.Base,
+  [optimismChainId]: YieldNetwork.Optimism,
+  [polygonChainId]: YieldNetwork.Polygon,
+  [bscChainId]: YieldNetwork.Binance,
+  [avalancheChainId]: YieldNetwork.AvalancheC,
+  [gnosisChainId]: YieldNetwork.Gnosis,
+  [cosmosChainId]: YieldNetwork.Cosmos,
+  [solanaChainId]: YieldNetwork.Solana,
+  [suiChainId]: YieldNetwork.Sui,
+  [monadChainId]: YieldNetwork.Monad,
+  [tronChainId]: YieldNetwork.Tron,
+  [hyperEvmChainId]: YieldNetwork.Hyperevm,
+  [nearChainId]: YieldNetwork.Near,
+  [plasmaChainId]: YieldNetwork.Plasma,
+  [katanaChainId]: YieldNetwork.Katana,
+}
+
+export const YIELD_NETWORK_TO_CHAIN_ID: Partial<Record<YieldNetwork, ChainId>> = invert(
+  CHAIN_ID_TO_YIELD_NETWORK,
+) as Partial<Record<YieldNetwork, ChainId>>
+
+export const SUPPORTED_YIELD_NETWORKS = Object.values(CHAIN_ID_TO_YIELD_NETWORK)
+
+export const isSupportedYieldNetwork = (network: string): network is YieldNetwork =>
+  Object.values(CHAIN_ID_TO_YIELD_NETWORK).includes(network as YieldNetwork)
+
+export const YIELD_POLL_INTERVAL_MS = 5000
+export const YIELD_MAX_POLL_ATTEMPTS = 120
+
+// Compute unit safety margin for Solana yield transactions
+// Same as Jupiter swapper (1.6) to handle network volatility
+export const SOLANA_YIELD_COMPUTE_UNIT_MARGIN_MULTIPLIER = 1.6
+
+export const SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS =
+  'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
+
+export const SHAPESHIFT_VALIDATOR_LOGO =
+  'https://raw.githubusercontent.com/cosmostation/chainlist/main/chain/cosmos/moniker/cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf.png'
+
+export const COSMOS_SHAPESHIFT_FALLBACK_APR = '0.1425'
+
+export const COSMOS_NETWORK_FALLBACK_APR = 0.15
+
+export const SHAPESHIFT_VALIDATOR_NAME = 'ShapeShift DAO'
+
+export const SHAPESHIFT_VALIDATOR: ValidatorDto = {
+  address: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+  name: SHAPESHIFT_VALIDATOR_NAME,
+  logoURI: SHAPESHIFT_VALIDATOR_LOGO,
+  preferred: true,
+  votingPower: 0,
+  commission: 0.1,
+  status: 'active',
+  tvl: '0',
+  tvlRaw: '0',
+  rewardRate: {
+    total: parseFloat(COSMOS_SHAPESHIFT_FALLBACK_APR),
+    rateType: 'APR',
+    components: [],
+  },
+}
+
+export const COSMOS_DECIMALS = 6
+
+export const COSMOS_ATOM_NATIVE_STAKING_YIELD_ID = 'cosmos-atom-native-staking'
+export const SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID =
+  'solana-sol-native-multivalidator-staking'
+
+export const FIGMENT_SOLANA_VALIDATOR_ADDRESS = 'CcaHc2L43ZWjwCHART3oZoJvHLAe9hzT2DJNUpBzoTN1'
+export const FIGMENT_VALIDATOR_NAME = 'Figment'
+export const FIGMENT_VALIDATOR_LOGO = 'https://assets.stakek.it/validators/figment.png'
+
+// Default validators by yield ID - used for yields that require validator selection
+export const DEFAULT_VALIDATOR_BY_YIELD_ID: Record<string, string> = {
+  // ShapeShift DAO
+  [COSMOS_ATOM_NATIVE_STAKING_YIELD_ID]: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+  // Figment
+  [SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID]: FIGMENT_SOLANA_VALIDATOR_ADDRESS,
+}

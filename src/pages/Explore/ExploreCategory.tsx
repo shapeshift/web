@@ -4,7 +4,6 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { debounce } from 'lodash'
-import { matchSorter } from 'match-sorter'
 import type { ChangeEvent, FormEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -27,6 +26,7 @@ import { SEO } from '@/components/Layout/Seo'
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
 import { useModal } from '@/hooks/useModal/useModal'
+import { searchAssets } from '@/lib/assetSearch'
 import { isSome } from '@/lib/utils'
 import { PortalAssetRow } from '@/pages/Explore/components/PortalAssetRow'
 import { marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
@@ -62,11 +62,7 @@ export const ExploreCategory = () => {
   const isSearching = Boolean(searchString.length)
 
   const categoryHook = useMemo(() => {
-    if (category === MarketsCategories.OneClickDefi) {
-      return CATEGORY_TO_QUERY_HOOK[MarketsCategories.Trending]
-    }
-
-    if (category) {
+    if (category && category !== MarketsCategories.OneClickDefi) {
       return CATEGORY_TO_QUERY_HOOK[category]
     }
 
@@ -126,15 +122,7 @@ export const ExploreCategory = () => {
       return hasPositiveMarketCapAndOver1000 && asset.chainId === selectedChainId
     })
 
-    const matchedAssets = matchSorter(filteredAssets, searchString, {
-      keys: [
-        { key: 'name', threshold: matchSorter.rankings.MATCHES },
-        { key: 'symbol', threshold: matchSorter.rankings.WORD_STARTS_WITH },
-        { key: 'assetId', threshold: matchSorter.rankings.CONTAINS },
-      ],
-    })
-
-    return matchedAssets.slice(0, 20)
+    return searchAssets(searchString, filteredAssets).slice(0, 20)
   }, [
     oneClickDefiAssets,
     categoryAssets,

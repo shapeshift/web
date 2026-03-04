@@ -20,6 +20,7 @@ import { AssetChainRow } from './AssetChainRow'
 
 import { getStyledMenuButtonProps } from '@/components/AssetSelection/helpers'
 import { useModalChildZIndex } from '@/context/ModalStackProvider'
+import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
@@ -64,6 +65,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
     const {
       state: { wallet },
     } = useWallet()
+    const { supportedChains } = usePlugins()
     const translate = useTranslate()
     const modalChildZIndex = useModalChildZIndex()
     const chainDisplayName = useAppSelector(state =>
@@ -146,7 +148,12 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
         })()
 
         return (
-          <MenuItemOption value={relatedAssetId} key={relatedAssetId} isDisabled={isDisabled}>
+          <MenuItemOption
+            value={relatedAssetId}
+            key={relatedAssetId}
+            isDisabled={isDisabled}
+            data-testid={`chain-option-${chainDisplayName}`}
+          >
             <Tooltip isDisabled={!isDisabled} label={tooltipLabel}>
               <Box width='100%' height='100%'>
                 <AssetChainRow assetId={relatedAssetId} mainImplementationAssetId={assetId} />
@@ -190,7 +197,10 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
       return translate('trade.tooltip.noRelatedAssets', { chainDisplayName })
     }, [chainDisplayName, translate])
 
-    if (!assetId || isLoading) return <AssetRowLoading {...buttonProps} />
+    const assetChainId = assetId ? fromAssetId(assetId).chainId : undefined
+    if (!assetId || isLoading || (assetChainId && !supportedChains.includes(assetChainId))) {
+      return <AssetRowLoading {...buttonProps} />
+    }
 
     return (
       <Menu isLazy>
@@ -200,7 +210,12 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
           "This asset is only available on <currentChain>"
         */}
         <Tooltip isDisabled={isTooltipExplainerDisabled} label={buttonTooltipText}>
-          <MenuButton as={Button} isDisabled={isButtonDisabled} {...buttonProps}>
+          <MenuButton
+            as={Button}
+            isDisabled={isButtonDisabled}
+            {...buttonProps}
+            data-testid='asset-chain-dropdown'
+          >
             <AssetChainRow
               assetId={assetId}
               mainImplementationAssetId={assetId}
@@ -211,7 +226,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
           </MenuButton>
         </Tooltip>
         <Portal>
-          <MenuList zIndex={modalChildZIndex}>
+          <MenuList zIndex={modalChildZIndex} overflowY='auto' maxHeight='300px'>
             <MenuOptionGroup type='radio' value={assetId} onChange={handleChangeAsset}>
               {renderedChains}
             </MenuOptionGroup>

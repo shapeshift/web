@@ -24,7 +24,7 @@ export const Widget = ({ currentAccount }: { currentAccount: CurrentAccount }) =
   }, [stepIndex, setStepIndex])
 
   return (
-    <Card>
+    <Card data-testid='tcy-widget'>
       <CardBody px={0} py={0}>
         <Tabs index={stepIndex}>
           <TabPanels>

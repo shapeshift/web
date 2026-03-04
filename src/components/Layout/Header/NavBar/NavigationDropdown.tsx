@@ -1,6 +1,8 @@
 import {
+  Badge,
   Box,
   Button,
+  HStack,
   Icon,
   Menu,
   MenuButton,
@@ -23,6 +25,8 @@ type NavigationDropdownItem = {
   label: string
   path: string
   icon?: React.ComponentType
+  isNew?: boolean
+  isDeprecated?: boolean
 }
 
 type NavigationDropdownProps = {
@@ -70,7 +74,8 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
       return (
         currentPath.startsWith('/trade') ||
         currentPath.startsWith('/limit') ||
-        currentPath.startsWith('/ramp')
+        currentPath.startsWith('/ramp') ||
+        currentPath.startsWith('/earn')
       )
     }
 
@@ -114,6 +119,7 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
           _hover={menuButtonHoverSx}
           _active={menuButtonActiveSx}
           aria-current={isActive ? 'page' : undefined}
+          data-test={`navigation-${label.split('.')[1]}-dropdown`}
         >
           <Box fontSize='md' color={isActive ? 'text.base' : 'text.subtle'}>
             {translate(label)}
@@ -132,8 +138,33 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
                 p={3}
                 _hover={menuItemHoverSx}
                 icon={item.icon && <Icon as={item.icon} boxSize={6} />}
+                data-test={`navigation-${item.label.split('.')[1]}-menuitem`}
               >
-                <Text>{translate(item.label)}</Text>
+                <HStack spacing={2}>
+                  <Text>{translate(item.label)}</Text>
+                  {item.isNew && (
+                    <Badge
+                      colorScheme='blue'
+                      fontSize='2xs'
+                      variant='solid'
+                      borderRadius='full'
+                      px={1.5}
+                    >
+                      {translate('common.new')}
+                    </Badge>
+                  )}
+                  {item.isDeprecated && (
+                    <Badge
+                      colorScheme='orange'
+                      fontSize='2xs'
+                      variant='solid'
+                      borderRadius='full'
+                      px={1.5}
+                    >
+                      {translate('common.deprecated')}
+                    </Badge>
+                  )}
+                </HStack>
               </MenuItem>
             )
           })}

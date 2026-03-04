@@ -1,5 +1,7 @@
 import { usePrevious } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { isSecondClassEvmAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useRef } from 'react'
@@ -8,13 +10,12 @@ import { useNotificationToast } from '../useNotificationToast'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
-import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
-import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
-import { getMonadTransactionStatus } from '@/lib/utils/monad'
-import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
+import { getNearTransactionStatus } from '@/lib/utils/near'
+import { getStarknetTransactionStatus, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
+import { getTonTransactionStatus, isTonChainAdapter } from '@/lib/utils/ton'
 import { getTronTransactionStatus } from '@/lib/utils/tron'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingWalletSendActions } from '@/state/slices/actionSlice/selectors'
@@ -24,6 +25,12 @@ import { selectTxs } from '@/state/slices/selectors'
 import { txHistory } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from '@/state/store'
+
+const getSecondClassEvmTxStatus = (chainId: ChainId, txHash: string) => {
+  const adapter = getChainAdapterManager().get(chainId)
+  if (!isSecondClassEvmAdapter(adapter)) return
+  return adapter.getTransactionStatus(txHash)
+}
 
 export const useSendActionSubscriber = () => {
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
@@ -98,6 +105,50 @@ export const useSendActionSubscriber = () => {
     [dispatch, toast, isDrawerOpen, openActionCenter],
   )
 
+  const failAction = useCallback(
+    (action: ReturnType<typeof selectPendingWalletSendActions>[number]) => {
+      const { txHash } = action.transactionMetadata
+
+      dispatch(
+        actionSlice.actions.upsertAction({
+          ...action,
+          status: ActionStatus.Failed,
+          updatedAt: Date.now(),
+          transactionMetadata: {
+            ...action.transactionMetadata,
+            message: 'modals.send.sendFailed',
+          },
+        }),
+      )
+
+      const isActive = toast.isActive(txHash)
+
+      if (isActive) return
+
+      toast({
+        id: txHash,
+        duration: isDrawerOpen ? 5000 : null,
+        status: 'error',
+        render: ({ onClose, ...props }) => {
+          const handleClick = () => {
+            onClose()
+            openActionCenter()
+          }
+
+          return (
+            <GenericTransactionNotification
+              handleClick={handleClick}
+              actionId={txHash}
+              onClose={onClose}
+              {...props}
+            />
+          )
+        },
+      })
+    },
+    [dispatch, toast, isDrawerOpen, openActionCenter],
+  )
+
   useEffect(() => {
     pendingSendActions.forEach(action => {
       const { accountId, txHash } = action.transactionMetadata
@@ -132,46 +183,124 @@ export const useSendActionSubscriber = () => {
                     suiTxStatus === TxStatus.Confirmed || suiTxStatus === TxStatus.Failed
                   break
                 }
-                case KnownChainIds.MonadMainnet: {
-                  const monadTxStatus = await getMonadTransactionStatus(txHash)
+                case KnownChainIds.NearMainnet: {
+                  const nearTxStatus = await getNearTransactionStatus(txHash)
                   isConfirmed =
-                    monadTxStatus === TxStatus.Confirmed || monadTxStatus === TxStatus.Failed
+                    nearTxStatus === TxStatus.Confirmed || nearTxStatus === TxStatus.Failed
                   break
                 }
-                case KnownChainIds.PlasmaMainnet: {
-                  const plasmaTxStatus = await getPlasmaTransactionStatus(txHash)
-                  isConfirmed =
-                    plasmaTxStatus === TxStatus.Confirmed || plasmaTxStatus === TxStatus.Failed
+                case KnownChainIds.TonMainnet: {
+                  const tonTxStatus = await getTonTransactionStatus(txHash)
+
+                  if (tonTxStatus === TxStatus.Failed) {
+                    const adapter = getChainAdapterManager().get(chainId)
+                    if (isTonChainAdapter(adapter)) {
+                      try {
+                        if (adapter?.parseTx) {
+                          const parsedTx = await adapter.parseTx(txHash, accountAddress)
+                          dispatch(
+                            txHistory.actions.onMessage({
+                              message: parsedTx,
+                              accountId,
+                            }),
+                          )
+                        }
+                      } catch (error) {
+                        console.error('Failed to parse failed TON Tx:', error)
+                      }
+                    }
+
+                    failAction(action)
+
+                    const intervalId = pollingIntervalsRef.current.get(pollingKey)
+                    if (intervalId) {
+                      clearInterval(intervalId)
+                      pollingIntervalsRef.current.delete(pollingKey)
+                    }
+                    return
+                  }
+
+                  isConfirmed = tonTxStatus === TxStatus.Confirmed
                   break
                 }
-                case KnownChainIds.HyperEvmMainnet: {
-                  const hyperEvmNodeUrl = getConfig().VITE_HYPEREVM_NODE_URL
-                  const hyperEvmTxStatus = await getHyperEvmTransactionStatus(
-                    txHash,
-                    hyperEvmNodeUrl,
-                  )
-                  isConfirmed =
-                    hyperEvmTxStatus === TxStatus.Confirmed || hyperEvmTxStatus === TxStatus.Failed
+                case KnownChainIds.StarknetMainnet: {
+                  const adapter = getChainAdapterManager().get(chainId)
+                  if (isStarknetChainAdapter(adapter)) {
+                    const starknetTxStatus = await getStarknetTransactionStatus(txHash, adapter)
+
+                    // Handle failed transactions
+                    if (starknetTxStatus === TxStatus.Failed) {
+                      // Parse and upsert Tx for transaction history
+                      try {
+                        if (adapter?.parseTx) {
+                          const parsedTx = await adapter.parseTx(txHash, accountAddress)
+                          dispatch(
+                            txHistory.actions.onMessage({
+                              message: parsedTx,
+                              accountId,
+                            }),
+                          )
+                        }
+                      } catch (error) {
+                        console.error('Failed to parse failed Starknet Tx:', error)
+                      }
+
+                      failAction(action)
+
+                      const intervalId = pollingIntervalsRef.current.get(pollingKey)
+                      if (intervalId) {
+                        clearInterval(intervalId)
+                        pollingIntervalsRef.current.delete(pollingKey)
+                      }
+                      return
+                    }
+
+                    isConfirmed = starknetTxStatus === TxStatus.Confirmed
+                  }
                   break
                 }
-                default:
+                default: {
+                  // All second-class EVM chains are handled generically via adapter.getTransactionStatus()
+                  const txStatus = await getSecondClassEvmTxStatus(chainId, txHash)
+                  if (txStatus) {
+                    isConfirmed = txStatus === TxStatus.Confirmed || txStatus === TxStatus.Failed
+                    break
+                  }
                   console.error(`Unsupported second-class chain: ${chainId}`)
                   return
+                }
               }
 
               if (isConfirmed) {
                 // Parse and upsert Tx for second-class chains
+                const { accountIdsToRefetch } = action.transactionMetadata
+                const accountIdsToUpsert = accountIdsToRefetch ?? [accountId]
+
                 try {
                   const adapter = getChainAdapterManager().get(chainId)
-                  if (adapter?.parseTx) {
-                    const parsedTx = await adapter.parseTx(txHash, accountAddress)
-                    dispatch(
-                      txHistory.actions.onMessage({
-                        message: parsedTx,
-                        accountId,
-                      }),
-                    )
+                  if (!adapter?.parseTx) {
+                    completeAction(action)
+                    const intervalId = pollingIntervalsRef.current.get(pollingKey)
+                    if (intervalId) {
+                      clearInterval(intervalId)
+                      pollingIntervalsRef.current.delete(pollingKey)
+                    }
+                    return
                   }
+
+                  // Parse and upsert for all involved accounts (sender + recipient if held)
+                  await Promise.all(
+                    accountIdsToUpsert.map(async accountIdToUpsert => {
+                      const address = fromAccountId(accountIdToUpsert).account
+                      const parsedTx = await adapter.parseTx(txHash, address)
+                      dispatch(
+                        txHistory.actions.onMessage({
+                          message: parsedTx,
+                          accountId: accountIdToUpsert,
+                        }),
+                      )
+                    }),
+                  )
                 } catch (error) {
                   // Silent fail - Tx just won't show in history
                   console.error('Failed to parse and upsert Tx:', error)
@@ -204,7 +333,7 @@ export const useSendActionSubscriber = () => {
 
       completeAction(action)
     })
-  }, [txs, pendingSendActions, completeAction, dispatch])
+  }, [txs, pendingSendActions, completeAction, failAction, dispatch])
 
   useEffect(() => {
     const intervals = pollingIntervalsRef.current

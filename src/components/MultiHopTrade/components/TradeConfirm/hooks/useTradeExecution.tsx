@@ -1,9 +1,13 @@
 import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
-import type { SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
+import type { near, SignTx, SignTypedDataInput, ton } from '@shapeshiftoss/chain-adapters'
 import { ChainAdapterError, toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type { ETHSignTypedData, SolanaSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
-import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
+import type {
+  ETHSignTypedData,
+  SolanaSignTx,
+  StarknetSignTx,
+  SuiSignTx,
+} from '@shapeshiftoss/hdwallet-core'
+import { isGridPlus, supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/swapper'
 import {
@@ -35,8 +39,11 @@ import { TradeExecution } from '@/lib/tradeExecution'
 import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from '@/lib/utils/evm'
+import { assertGetNearChainAdapter } from '@/lib/utils/near'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
+import { assertGetTonChainAdapter } from '@/lib/utils/ton'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import {
@@ -54,11 +61,12 @@ import {
   selectTradeSlippagePercentageDecimal,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useTradeExecution = (
   hopIndex: SupportedTradeQuoteStepIndex,
   confirmedTradeId: TradeQuote['id'],
+  onSwapTxBroadcast?: () => void,
 ) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
@@ -133,7 +141,12 @@ export const useTradeExecution = (
     if (!hop) throw Error(`Current hop is undefined: ${hopIndex}`)
 
     return new Promise<void>(async resolve => {
-      dispatch(tradeQuoteSlice.actions.setSwapTxPending({ hopIndex, id: confirmedTradeId }))
+      dispatch(
+        tradeQuoteSlice.actions.setSwapTxPending({
+          hopIndex,
+          id: confirmedTradeId,
+        }),
+      )
 
       // Capture event data once at the start, before any state changes
       const eventDataSnapshot = getMixpanelEventData()
@@ -151,9 +164,18 @@ export const useTradeExecution = (
         })()
 
         dispatch(
-          tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message, id: confirmedTradeId }),
+          tradeQuoteSlice.actions.setSwapTxMessage({
+            hopIndex,
+            message,
+            id: confirmedTradeId,
+          }),
         )
-        dispatch(tradeQuoteSlice.actions.setSwapTxFailed({ hopIndex, id: confirmedTradeId }))
+        dispatch(
+          tradeQuoteSlice.actions.setSwapTxFailed({
+            hopIndex,
+            id: confirmedTradeId,
+          }),
+        )
         showErrorToast(e)
 
         if (!hasMixpanelSuccessOrFailFiredRef.current) {
@@ -182,7 +204,11 @@ export const useTradeExecution = (
       execution.on(TradeExecutionEvent.SellTxHash, ({ sellTxHash }) => {
         txHashReceived = true
         dispatch(
-          tradeQuoteSlice.actions.setSwapSellTxHash({ hopIndex, sellTxHash, id: confirmedTradeId }),
+          tradeQuoteSlice.actions.setSwapSellTxHash({
+            hopIndex,
+            sellTxHash,
+            id: confirmedTradeId,
+          }),
         )
         dispatch(tradeInput.actions.setSellAmountCryptoPrecision('0'))
 
@@ -212,6 +238,8 @@ export const useTradeExecution = (
           })
         }
 
+        onSwapTxBroadcast?.()
+
         // Don't navigate away during QuickBuy - let the QuickBuy component handle the success state
         if (!isQuickBuy) {
           navigate(TradeRoutePaths.Input)
@@ -235,7 +263,11 @@ export const useTradeExecution = (
         TradeExecutionEvent.Status,
         ({ buyTxHash, message, actualBuyAmountCryptoBaseUnit }) => {
           dispatch(
-            tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message, id: confirmedTradeId }),
+            tradeQuoteSlice.actions.setSwapTxMessage({
+              hopIndex,
+              message,
+              id: confirmedTradeId,
+            }),
           )
           if (buyTxHash) {
             txHashReceived = true
@@ -249,15 +281,21 @@ export const useTradeExecution = (
           }
 
           // Update the swap with the actual buy amount if available
-          if (actualBuyAmountCryptoBaseUnit && activeSwapId) {
-            const currentSwap = swapsById[activeSwapId]
-            if (currentSwap) {
-              dispatch(
-                swapSlice.actions.upsertSwap({
-                  ...currentSwap,
-                  actualBuyAmountCryptoBaseUnit,
-                }),
-              )
+          // Read fresh state to avoid stale closure - swapsById captured at render time may have outdated status
+          if (actualBuyAmountCryptoBaseUnit) {
+            const freshActiveSwapId = swapSlice.selectors.selectActiveSwapId(store.getState())
+            if (freshActiveSwapId) {
+              const currentSwap = swapSlice.selectors.selectSwapsById(store.getState())[
+                freshActiveSwapId
+              ]
+              if (currentSwap) {
+                dispatch(
+                  swapSlice.actions.upsertSwap({
+                    ...currentSwap,
+                    actualBuyAmountCryptoBaseUnit,
+                  }),
+                )
+              }
             }
           }
         },
@@ -266,20 +304,30 @@ export const useTradeExecution = (
         if (buyTxHash) {
           txHashReceived = true
           dispatch(
-            tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash, id: confirmedTradeId }),
+            tradeQuoteSlice.actions.setSwapBuyTxHash({
+              hopIndex,
+              buyTxHash,
+              id: confirmedTradeId,
+            }),
           )
         }
 
         // Update the swap with the actual buy amount if available
-        if (actualBuyAmountCryptoBaseUnit && activeSwapId) {
-          const currentSwap = swapsById[activeSwapId]
-          if (currentSwap) {
-            dispatch(
-              swapSlice.actions.upsertSwap({
-                ...currentSwap,
-                actualBuyAmountCryptoBaseUnit,
-              }),
-            )
+        // Read fresh state to avoid stale closure - swapsById captured at render time may have outdated status
+        if (actualBuyAmountCryptoBaseUnit) {
+          const freshActiveSwapId = swapSlice.selectors.selectActiveSwapId(store.getState())
+          if (freshActiveSwapId) {
+            const currentSwap = swapSlice.selectors.selectSwapsById(store.getState())[
+              freshActiveSwapId
+            ]
+            if (currentSwap) {
+              dispatch(
+                swapSlice.actions.upsertSwap({
+                  ...currentSwap,
+                  actualBuyAmountCryptoBaseUnit,
+                }),
+              )
+            }
           }
         }
 
@@ -310,7 +358,12 @@ export const useTradeExecution = (
           // issue in the interim.
           // await dispatch(waitForTransactionHash(txHash)).unwrap()
         }
-        dispatch(tradeQuoteSlice.actions.setSwapTxComplete({ hopIndex, id: confirmedTradeId }))
+        dispatch(
+          tradeQuoteSlice.actions.setSwapTxComplete({
+            hopIndex,
+            id: confirmedTradeId,
+          }),
+        )
 
         const isLastHop = hopIndex === tradeQuote.steps.length - 1
         if (isLastHop && !hasMixpanelSuccessOrFailFiredRef.current) {
@@ -455,8 +508,13 @@ export const useTradeExecution = (
                 )
               }
 
-              const signedTx = await adapter.signTransaction({ txToSign, wallet })
-              const output = await adapter.broadcastTransaction({ hex: signedTx })
+              const signedTx = await adapter.signTransaction({
+                txToSign,
+                wallet,
+              })
+              const output = await adapter.broadcastTransaction({
+                hex: signedTx,
+              })
 
               trackMixpanelEventOnExecute()
               return output
@@ -596,6 +654,101 @@ export const useTradeExecution = (
           cancelPollingRef.current = output?.cancelPolling
           return
         }
+        case CHAIN_NAMESPACE.Near: {
+          const adapter = assertGetNearChainAdapter(stepSellAssetChainId)
+
+          const from = await adapter.getAddress({
+            accountNumber,
+            wallet,
+            pubKey:
+              wallet && isTrezor(wallet) ? fromAccountId(sellAssetAccountId).account : undefined,
+          })
+
+          const output = await execution.execNearTransaction({
+            swapperName,
+            tradeQuote,
+            stepIndex: hopIndex,
+            slippageTolerancePercentageDecimal,
+            from,
+            signAndBroadcastTransaction: async (txToSign: near.NearSignTx) => {
+              const hex = await adapter.signTransaction({ txToSign, wallet })
+
+              const output = await adapter.broadcastTransaction({
+                senderAddress: from,
+                receiverAddress,
+                hex,
+              })
+
+              trackMixpanelEventOnExecute()
+              return output
+            },
+          })
+          cancelPollingRef.current = output?.cancelPolling
+          return
+        }
+        case CHAIN_NAMESPACE.Starknet: {
+          const adapter = assertGetStarknetChainAdapter(stepSellAssetChainId)
+
+          const from = await adapter.getAddress({
+            accountNumber,
+            wallet,
+            pubKey: skipDeviceDerivation ? pubKey : undefined,
+          })
+
+          const output = await execution.execStarknetTransaction({
+            swapperName,
+            tradeQuote,
+            stepIndex: hopIndex,
+            slippageTolerancePercentageDecimal,
+            from,
+            signAndBroadcastTransaction: async (txToSign: StarknetSignTx) => {
+              const hex = await adapter.signTransaction({ txToSign, wallet })
+
+              const output = await adapter.broadcastTransaction({
+                senderAddress: from,
+                receiverAddress,
+                hex,
+              })
+
+              trackMixpanelEventOnExecute()
+              return output
+            },
+          })
+          cancelPollingRef.current = output?.cancelPolling
+          return
+        }
+        case CHAIN_NAMESPACE.Ton: {
+          const adapter = assertGetTonChainAdapter(stepSellAssetChainId)
+
+          const from = await adapter.getAddress({
+            accountNumber,
+            wallet,
+            pubKey:
+              wallet && isTrezor(wallet) ? fromAccountId(sellAssetAccountId).account : undefined,
+          })
+
+          const output = await execution.execTonTransaction({
+            swapperName,
+            tradeQuote,
+            stepIndex: hopIndex,
+            slippageTolerancePercentageDecimal,
+            from,
+            signAndBroadcastTransaction: async (txToSign: ton.TonSignTx) => {
+              const hex = await adapter.signTransaction({ txToSign, wallet })
+
+              const output = await adapter.broadcastTransaction({
+                senderAddress: from,
+                receiverAddress,
+                hex,
+              })
+
+              trackMixpanelEventOnExecute()
+              return output
+            },
+          })
+          cancelPollingRef.current = output?.cancelPolling
+          return
+        }
         default:
           assertUnreachable(stepSellAssetChainNamespace)
       }
@@ -621,6 +774,7 @@ export const useTradeExecution = (
     swapsById,
     toast,
     isQuickBuy,
+    onSwapTxBroadcast,
   ])
 
   return executeTrade

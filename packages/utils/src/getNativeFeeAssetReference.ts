@@ -38,8 +38,6 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.Gnosis
           case CHAIN_REFERENCE.ArbitrumMainnet:
             return ASSET_REFERENCE.Arbitrum
-          case CHAIN_REFERENCE.ArbitrumNovaMainnet:
-            return ASSET_REFERENCE.ArbitrumNova
           case CHAIN_REFERENCE.BaseMainnet:
             return ASSET_REFERENCE.Base
           case CHAIN_REFERENCE.MonadMainnet:
@@ -48,6 +46,52 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.HyperEvm
           case CHAIN_REFERENCE.PlasmaMainnet:
             return ASSET_REFERENCE.Plasma
+          case CHAIN_REFERENCE.MantleMainnet:
+            return ASSET_REFERENCE.Mantle
+          case CHAIN_REFERENCE.InkMainnet:
+            return ASSET_REFERENCE.Ink
+          case CHAIN_REFERENCE.MegaEthMainnet:
+            return ASSET_REFERENCE.MegaEth
+          case CHAIN_REFERENCE.BerachainMainnet:
+            return ASSET_REFERENCE.Berachain
+          case CHAIN_REFERENCE.CronosMainnet:
+            return ASSET_REFERENCE.Cronos
+          case CHAIN_REFERENCE.KatanaMainnet:
+            return ASSET_REFERENCE.Katana
+          case CHAIN_REFERENCE.EtherealMainnet:
+            return ASSET_REFERENCE.Ethereal
+          case CHAIN_REFERENCE.FlowEvmMainnet:
+            return ASSET_REFERENCE.FlowEvm
+          case CHAIN_REFERENCE.CeloMainnet:
+            return ASSET_REFERENCE.Celo
+          case CHAIN_REFERENCE.PlumeMainnet:
+            return ASSET_REFERENCE.Plume
+          case CHAIN_REFERENCE.StoryMainnet:
+            return ASSET_REFERENCE.Story
+          case CHAIN_REFERENCE.ZkSyncEraMainnet:
+            return ASSET_REFERENCE.ZkSyncEra
+          case CHAIN_REFERENCE.BlastMainnet:
+            return ASSET_REFERENCE.Blast
+          case CHAIN_REFERENCE.WorldChainMainnet:
+            return ASSET_REFERENCE.WorldChain
+          case CHAIN_REFERENCE.HemiMainnet:
+            return ASSET_REFERENCE.Hemi
+          case CHAIN_REFERENCE.SeiMainnet:
+            return ASSET_REFERENCE.Sei
+          case CHAIN_REFERENCE.LineaMainnet:
+            return ASSET_REFERENCE.Linea
+          case CHAIN_REFERENCE.ScrollMainnet:
+            return ASSET_REFERENCE.Scroll
+          case CHAIN_REFERENCE.SonicMainnet:
+            return ASSET_REFERENCE.Sonic
+          case CHAIN_REFERENCE.UnichainMainnet:
+            return ASSET_REFERENCE.Unichain
+          case CHAIN_REFERENCE.BobMainnet:
+            return ASSET_REFERENCE.Bob
+          case CHAIN_REFERENCE.ModeMainnet:
+            return ASSET_REFERENCE.Mode
+          case CHAIN_REFERENCE.SoneiumMainnet:
+            return ASSET_REFERENCE.Soneium
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
@@ -80,6 +124,27 @@ export const getNativeFeeAssetReference = (
         switch (chainReference) {
           case CHAIN_REFERENCE.SuiMainnet:
             return ASSET_REFERENCE.Sui
+          default:
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
+        }
+      case CHAIN_NAMESPACE.Near:
+        switch (chainReference) {
+          case CHAIN_REFERENCE.NearMainnet:
+            return ASSET_REFERENCE.Near
+          default:
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
+        }
+      case CHAIN_NAMESPACE.Starknet:
+        switch (chainReference) {
+          case CHAIN_REFERENCE.StarknetMainnet:
+            return ASSET_REFERENCE.Starknet
+          default:
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
+        }
+      case CHAIN_NAMESPACE.Ton:
+        switch (chainReference) {
+          case CHAIN_REFERENCE.TonMainnet:
+            return ASSET_REFERENCE.Ton
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

@@ -2,17 +2,15 @@ import { TimeIcon } from '@chakra-ui/icons'
 import { lazy } from 'react'
 import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
-import { TbGraph } from 'react-icons/tb'
+import { TbGraph, TbTrendingUp } from 'react-icons/tb'
 
 import type { Route } from './helpers'
 import { RouteCategory } from './helpers'
 
 import { ExploreIcon } from '@/components/Icons/Explore'
-import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { FoxPageIcon } from '@/components/Icons/FoxPageIcon'
 import { HomeIcon } from '@/components/Icons/Home'
 import { PoolsIcon } from '@/components/Icons/Pools'
-import { RFOXIcon } from '@/components/Icons/RFOX'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { TCYIcon } from '@/components/Icons/TCYIcon'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
@@ -23,11 +21,10 @@ import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { Accounts } from '@/pages/Accounts/Accounts'
 import { ExploreCategory } from '@/pages/Explore/ExploreCategory'
 import { FoxEcosystemPage } from '@/pages/Fox/FoxEcosystemPage'
-import { FoxPage } from '@/pages/Fox/FoxPage'
 import { History } from '@/pages/History/History'
-import { RFOX } from '@/pages/RFOX/RFOX'
 import { TCYNavIndicator } from '@/pages/TCY/components/TCYNavIndicator'
 import { TCY } from '@/pages/TCY/tcy'
+import { EarnTab } from '@/pages/Trade/tabs/EarnTab'
 import { LimitTab } from '@/pages/Trade/tabs/LimitTab'
 import { RampTab } from '@/pages/Trade/tabs/RampTab'
 import { TradeTab } from '@/pages/Trade/tabs/TradeTab'
@@ -37,6 +34,8 @@ export const TRADE_ROUTE_ASSET_SPECIFIC =
   '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit'
 export const LIMIT_ORDER_ROUTE_ASSET_SPECIFIC =
   '/limit/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit/:limitPriceMode/:limitPriceDirection/:limitPrice'
+export const EARN_ROUTE_ASSET_SPECIFIC =
+  '/earn/:sellChainId/:sellAssetSubId/:yieldId/:sellAmountCryptoBaseUnit'
 
 const Dashboard = makeSuspenseful(
   lazy(() =>
@@ -62,6 +61,16 @@ const Assets = makeSuspenseful(
   lazy(() =>
     import('@/pages/Assets/Assets').then(({ Assets }) => ({
       default: Assets,
+    })),
+  ),
+  {},
+  true,
+)
+
+const ChainflipLending = makeSuspenseful(
+  lazy(() =>
+    import('@/pages/ChainflipLending/ChainflipLending').then(({ ChainflipLending }) => ({
+      default: ChainflipLending,
     })),
   ),
   {},
@@ -128,6 +137,26 @@ const MarketsPage = makeSuspenseful(
   true,
 )
 
+const YieldsPage = makeSuspenseful(
+  lazy(() =>
+    import('@/pages/Yields/Yields').then(({ Yields }) => ({
+      default: Yields,
+    })),
+  ),
+  {},
+  true,
+)
+
+const YieldDetailPage = makeSuspenseful(
+  lazy(() =>
+    import('@/pages/Yields/YieldDetailPage').then(({ YieldDetailPage }) => ({
+      default: YieldDetailPage,
+    })),
+  ),
+  {},
+  true,
+)
+
 const WalletConnectDeepLink = makeSuspenseful(
   lazy(() =>
     import('@/pages/WalletConnectDeepLink/WalletConnectDeepLink').then(
@@ -172,24 +201,32 @@ export const routes: Route[] = [
     hide: true,
   },
   {
+    path: '/yields/*',
+    label: 'navBar.earn',
+    icon: <TbTrendingUp />,
+    mobileNav: true,
+    hideDesktop: true,
+    main: YieldsPage,
+    priority: 7,
+    disable: !getConfig().VITE_FEATURE_YIELD_XYZ || !getConfig().VITE_FEATURE_YIELDS_PAGE,
+  },
+  {
     path: '/history',
     label: 'navBar.history',
     icon: <TimeIcon />,
-    mobileNav: true,
-    hideDesktop: true,
     main: History,
-    priority: 7,
+    hide: true,
   },
   {
     path: '/trade/*',
-    label: 'navBar.trade',
+    label: 'navBar.swap',
     shortLabel: 'common.trade',
     icon: <SwapIcon />,
     mobileNav: true,
     priority: 2,
     main: TradeTab,
     category: RouteCategory.Featured,
-    relatedPaths: ['/trade', '/limit'],
+    relatedPaths: ['/trade', '/limit', '/ramp/trade', '/earn'],
     routes: [
       {
         path: TRADE_ROUTE_ASSET_SPECIFIC,
@@ -227,6 +264,22 @@ export const routes: Route[] = [
     priority: 3,
     mobileNav: false,
     disable: !getConfig().VITE_FEATURE_MARKETS,
+  },
+  {
+    path: '/yield/:yieldId/*',
+    main: YieldDetailPage,
+    hide: true,
+    disable: !getConfig().VITE_FEATURE_YIELD_XYZ,
+  },
+  {
+    path: '/yields/*',
+    label: 'navBar.yields',
+    icon: <TbGraph />,
+    main: YieldsPage,
+    category: RouteCategory.Featured,
+    priority: 3,
+    mobileNav: false,
+    disable: !getConfig().VITE_FEATURE_YIELD_XYZ || !getConfig().VITE_FEATURE_YIELDS_PAGE,
   },
   {
     path: '/ramp/*',
@@ -293,33 +346,12 @@ export const routes: Route[] = [
     ],
   },
   {
-    path: '/rfox/*',
-    label: 'navBar.rFOX',
-    icon: <RFOXIcon />,
-    mobileNav: false,
-    priority: 1,
-    main: RFOX,
-    category: RouteCategory.Fox,
-    disable: !getConfig().VITE_FEATURE_RFOX || getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
-  },
-  {
-    path: '/fox',
-    label: 'navBar.foxEcosystem',
-    icon: <FoxIcon />,
-    main: FoxPage,
-    category: RouteCategory.Fox,
-    priority: 6,
-    mobileNav: false,
-    disable: !getConfig().VITE_FEATURE_FOX_PAGE || getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
-  },
-  {
     path: '/fox-ecosystem/*',
     label: 'navBar.foxEcosystem',
     icon: <FoxPageIcon />,
     main: FoxEcosystemPage,
     priority: 6,
     mobileNav: false,
-    disable: !getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
   },
   {
     path: '/tcy/*',
@@ -342,7 +374,9 @@ export const routes: Route[] = [
   },
   {
     path: '/lending/*',
-    label: 'navBar.lending',
+    label: getConfig().VITE_FEATURE_CHAINFLIP_LENDING
+      ? 'navBar.thorchainLending'
+      : 'navBar.lending',
     icon: <RiExchangeFundsLine />,
     main: LendingPage,
     category: RouteCategory.Thorchain,
@@ -350,6 +384,18 @@ export const routes: Route[] = [
     mobileNav: false,
     disable: !getConfig().VITE_FEATURE_THORCHAIN_LENDING,
     isViewOnly: true,
+    isDeprecated: getConfig().VITE_FEATURE_CHAINFLIP_LENDING,
+  },
+  {
+    path: '/chainflip-lending/*',
+    label: 'navBar.chainflipLending',
+    icon: <RiExchangeFundsLine />,
+    main: ChainflipLending,
+    category: RouteCategory.Chainflip,
+    priority: 3,
+    mobileNav: false,
+    disable: !getConfig().VITE_FEATURE_CHAINFLIP_LENDING,
+    isNew: true,
   },
   {
     path: '/assets',
@@ -402,6 +448,20 @@ export const routes: Route[] = [
       {
         path: LimitOrderRoutePaths.Orders,
         main: LimitTab,
+        hide: true,
+      },
+    ],
+  },
+  {
+    path: '/earn/*',
+    label: '',
+    hideDesktop: true,
+    main: EarnTab,
+    disable: !getConfig().VITE_FEATURE_EARN_TAB,
+    routes: [
+      {
+        path: EARN_ROUTE_ASSET_SPECIFIC,
+        main: EarnTab,
         hide: true,
       },
     ],

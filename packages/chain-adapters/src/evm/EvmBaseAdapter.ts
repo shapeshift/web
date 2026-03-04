@@ -9,17 +9,39 @@ import type {
 } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsArbitrum,
-  supportsArbitrumNova,
   supportsAvalanche,
   supportsBase,
+  supportsBerachain,
+  supportsBlast,
+  supportsBob,
   supportsBSC,
+  supportsCelo,
+  supportsCronos,
   supportsETH,
+  supportsEthereal,
+  supportsFlowEvm,
   supportsGnosis,
+  supportsHemi,
   supportsHyperEvm,
+  supportsInk,
+  supportsKatana,
+  supportsLinea,
+  supportsMantle,
+  supportsMegaEth,
+  supportsMode,
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
+  supportsPlume,
   supportsPolygon,
+  supportsScroll,
+  supportsSei,
+  supportsSoneium,
+  supportsSonic,
+  supportsStory,
+  supportsUnichain,
+  supportsWorldChain,
+  supportsZkSyncEra,
 } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -29,7 +51,11 @@ import PQueue from 'p-queue'
 import { isAddress, toHex } from 'viem'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
-import { ChainAdapterError, ErrorHandler } from '../error/ErrorHandler'
+import {
+  ChainAdapterError,
+  ErrorHandler,
+  handleBroadcastTransactionError,
+} from '../error/ErrorHandler'
 import type {
   Account,
   BroadcastTransactionInput,
@@ -77,11 +103,33 @@ export const evmChainIds = [
   KnownChainIds.PolygonMainnet,
   KnownChainIds.GnosisMainnet,
   KnownChainIds.ArbitrumMainnet,
-  KnownChainIds.ArbitrumNovaMainnet,
   KnownChainIds.BaseMainnet,
   KnownChainIds.MonadMainnet,
   KnownChainIds.HyperEvmMainnet,
   KnownChainIds.PlasmaMainnet,
+  KnownChainIds.PlumeMainnet,
+  KnownChainIds.MantleMainnet,
+  KnownChainIds.InkMainnet,
+  KnownChainIds.MegaEthMainnet,
+  KnownChainIds.BerachainMainnet,
+  KnownChainIds.CronosMainnet,
+  KnownChainIds.KatanaMainnet,
+  KnownChainIds.EtherealMainnet,
+  KnownChainIds.FlowEvmMainnet,
+  KnownChainIds.CeloMainnet,
+  KnownChainIds.StoryMainnet,
+  KnownChainIds.ZkSyncEraMainnet,
+  KnownChainIds.BlastMainnet,
+  KnownChainIds.WorldChainMainnet,
+  KnownChainIds.HemiMainnet,
+  KnownChainIds.LineaMainnet,
+  KnownChainIds.ScrollMainnet,
+  KnownChainIds.SonicMainnet,
+  KnownChainIds.UnichainMainnet,
+  KnownChainIds.BobMainnet,
+  KnownChainIds.ModeMainnet,
+  KnownChainIds.SoneiumMainnet,
+  KnownChainIds.SeiMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -174,8 +222,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsGnosis(wallet)
         case Number(fromChainId(KnownChainIds.ArbitrumMainnet).chainReference):
           return supportsArbitrum(wallet)
-        case Number(fromChainId(KnownChainIds.ArbitrumNovaMainnet).chainReference):
-          return supportsArbitrumNova(wallet)
         case Number(fromChainId(KnownChainIds.BaseMainnet).chainReference):
           return supportsBase(wallet)
         case Number(fromChainId(KnownChainIds.MonadMainnet).chainReference):
@@ -184,6 +230,52 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsHyperEvm(wallet)
         case Number(fromChainId(KnownChainIds.PlasmaMainnet).chainReference):
           return supportsPlasma(wallet)
+        case Number(fromChainId(KnownChainIds.PlumeMainnet).chainReference):
+          return supportsPlume(wallet)
+        case Number(fromChainId(KnownChainIds.MantleMainnet).chainReference):
+          return supportsMantle(wallet)
+        case Number(fromChainId(KnownChainIds.InkMainnet).chainReference):
+          return supportsInk(wallet)
+        case Number(fromChainId(KnownChainIds.MegaEthMainnet).chainReference):
+          return supportsMegaEth(wallet)
+        case Number(fromChainId(KnownChainIds.BerachainMainnet).chainReference):
+          return supportsBerachain(wallet)
+        case Number(fromChainId(KnownChainIds.CronosMainnet).chainReference):
+          return supportsCronos(wallet)
+        case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
+          return supportsKatana(wallet)
+        case Number(fromChainId(KnownChainIds.EtherealMainnet).chainReference):
+          return supportsEthereal(wallet)
+        case Number(fromChainId(KnownChainIds.FlowEvmMainnet).chainReference):
+          return supportsFlowEvm(wallet)
+        case Number(fromChainId(KnownChainIds.CeloMainnet).chainReference):
+          return supportsCelo(wallet)
+        case Number(fromChainId(KnownChainIds.StoryMainnet).chainReference):
+          return supportsStory(wallet)
+        case Number(fromChainId(KnownChainIds.ZkSyncEraMainnet).chainReference):
+          return supportsZkSyncEra(wallet)
+        case Number(fromChainId(KnownChainIds.BlastMainnet).chainReference):
+          return supportsBlast(wallet)
+        case Number(fromChainId(KnownChainIds.WorldChainMainnet).chainReference):
+          return supportsWorldChain(wallet)
+        case Number(fromChainId(KnownChainIds.HemiMainnet).chainReference):
+          return supportsHemi(wallet)
+        case Number(fromChainId(KnownChainIds.LineaMainnet).chainReference):
+          return supportsLinea(wallet)
+        case Number(fromChainId(KnownChainIds.ScrollMainnet).chainReference):
+          return supportsScroll(wallet)
+        case Number(fromChainId(KnownChainIds.SonicMainnet).chainReference):
+          return supportsSonic(wallet)
+        case Number(fromChainId(KnownChainIds.UnichainMainnet).chainReference):
+          return supportsUnichain(wallet)
+        case Number(fromChainId(KnownChainIds.BobMainnet).chainReference):
+          return supportsBob(wallet)
+        case Number(fromChainId(KnownChainIds.ModeMainnet).chainReference):
+          return supportsMode(wallet)
+        case Number(fromChainId(KnownChainIds.SoneiumMainnet).chainReference):
+          return supportsSoneium(wallet)
+        case Number(fromChainId(KnownChainIds.SeiMainnet).chainReference):
+          return supportsSei(wallet)
         default:
           return false
       }
@@ -251,11 +343,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         symbol: 'ETH',
         explorer: 'https://arbiscan.io',
       },
-      [KnownChainIds.ArbitrumNovaMainnet]: {
-        name: 'Ethereum',
-        symbol: 'ETH',
-        explorer: 'https://nova.arbiscan.io',
-      },
       [KnownChainIds.BaseMainnet]: {
         name: 'Ethereum',
         symbol: 'ETH',
@@ -275,6 +362,121 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Plasma',
         symbol: 'XPL',
         explorer: 'https://plasmascan.to',
+      },
+      [KnownChainIds.PlumeMainnet]: {
+        name: 'PLUME',
+        symbol: 'PLUME',
+        explorer: 'https://explorer.plume.org',
+      },
+      [KnownChainIds.MantleMainnet]: {
+        name: 'Mantle',
+        symbol: 'MNT',
+        explorer: 'https://mantlescan.xyz',
+      },
+      [KnownChainIds.InkMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://explorer.inkonchain.com',
+      },
+      [KnownChainIds.MegaEthMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://megaeth.blockscout.com',
+      },
+      [KnownChainIds.BerachainMainnet]: {
+        name: 'Berachain',
+        symbol: 'BERA',
+        explorer: 'https://berascan.com',
+      },
+      [KnownChainIds.CronosMainnet]: {
+        name: 'Cronos',
+        symbol: 'CRO',
+        explorer: 'https://cronoscan.com',
+      },
+      [KnownChainIds.KatanaMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://katanascan.com',
+      },
+      [KnownChainIds.EtherealMainnet]: {
+        name: 'USDe',
+        symbol: 'USDe',
+        explorer: 'https://explorer.ethereal.global',
+      },
+      [KnownChainIds.FlowEvmMainnet]: {
+        name: 'Flow',
+        symbol: 'FLOW',
+        explorer: 'https://evm.flowscan.io',
+      },
+      [KnownChainIds.CeloMainnet]: {
+        name: 'Celo',
+        symbol: 'CELO',
+        explorer: 'https://celoscan.io',
+      },
+      [KnownChainIds.StoryMainnet]: {
+        name: 'Story',
+        symbol: 'IP',
+        explorer: 'https://storyscan.xyz',
+      },
+      [KnownChainIds.ZkSyncEraMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://explorer.zksync.io',
+      },
+      [KnownChainIds.BlastMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://blastscan.io',
+      },
+      [KnownChainIds.WorldChainMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://worldscan.org',
+      },
+      [KnownChainIds.HemiMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://explorer.hemi.xyz',
+      },
+      [KnownChainIds.LineaMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://lineascan.build',
+      },
+      [KnownChainIds.ScrollMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://scrollscan.com',
+      },
+      [KnownChainIds.SonicMainnet]: {
+        name: 'Sonic',
+        symbol: 'S',
+        explorer: 'https://sonicscan.org',
+      },
+      [KnownChainIds.UnichainMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://uniscan.xyz',
+      },
+      [KnownChainIds.BobMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://explorer.gobob.xyz',
+      },
+      [KnownChainIds.ModeMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://modescan.io',
+      },
+      [KnownChainIds.SoneiumMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://soneium.blockscout.com',
+      },
+      [KnownChainIds.SeiMainnet]: {
+        name: 'SEI',
+        symbol: 'SEI',
+        explorer: 'https://seitrace.com',
       },
     }[this.chainId]
 
@@ -334,7 +536,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           : toHex(BigInt(account.chainSpecific.nonce))
 
       const txToSign = {
-        addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
+        addressNList: input.addressNList ?? toAddressNList(this.getBip44Params({ accountNumber })),
         value: toHex(isTokenSend ? 0n : BigInt(value)),
         to: isTokenSend ? contractAddress : to,
         chainId: Number(fromChainId(this.chainId).chainReference),
@@ -359,7 +561,13 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       this.assertSupportsChain(input.wallet)
 
       const from = await this.getAddress(input)
-      const txToSign = await this.buildSendApiTransaction({ ...input, from })
+
+      const addressNList = input.wallet.ethGetAccountPaths?.({
+        coin: 'Ethereum',
+        accountIdx: input.accountNumber,
+      })?.[0]?.addressNList
+
+      const txToSign = await this.buildSendApiTransaction({ ...input, from, addressNList })
 
       return { txToSign }
     } catch (err) {
@@ -508,19 +716,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       return txHash
     } catch (err) {
-      if ((err as Error).name === 'ResponseError') {
-        const response = await ((err as any).response as Response).json()
-        const error = JSON.parse(response.message)
-
-        return ErrorHandler(JSON.stringify(response), {
-          translation: 'chainAdapters.errors.broadcastTransactionWithMessage',
-          options: { message: error.message },
-        })
-      }
-
-      return ErrorHandler(err, {
-        translation: 'chainAdapters.errors.broadcastTransaction',
-      })
+      return handleBroadcastTransactionError(err)
     }
   }
 
@@ -578,9 +774,12 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       this.assertSupportsChain(wallet)
       await verifyLedgerAppOpen(this.chainId, wallet)
 
-      const bip44Params = this.getBip44Params({ accountNumber })
+      const addressNList =
+        wallet.ethGetAccountPaths?.({ coin: 'Ethereum', accountIdx: accountNumber })?.[0]
+          ?.addressNList ?? toAddressNList(this.getBip44Params({ accountNumber }))
+
       const address = await wallet.ethGetAddress({
-        addressNList: toAddressNList(bip44Params),
+        addressNList,
         showDisplay: showOnDevice,
       })
 
@@ -604,9 +803,12 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       // Check if wallet supports batch address derivation (Trezor currently, but any wallet could implement ethGetAddresses)
       if (wallet.ethGetAddresses) {
         const msgs = accountNumbers.map(accountNumber => {
-          const bip44Params = this.getBip44Params({ accountNumber })
+          const addressNList =
+            wallet.ethGetAccountPaths?.({ coin: 'Ethereum', accountIdx: accountNumber })?.[0]
+              ?.addressNList ?? toAddressNList(this.getBip44Params({ accountNumber }))
+
           return {
-            addressNList: toAddressNList(bip44Params),
+            addressNList,
             showDisplay: false,
           }
         })
@@ -687,9 +889,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
             }
           : { gasPrice: toHex(gasPrice ? BigInt(gasPrice) : 0n) }
 
-      const bip44Params = this.getBip44Params({ accountNumber })
       const txToSign = {
-        addressNList: toAddressNList(bip44Params),
+        addressNList: input.addressNList ?? toAddressNList(this.getBip44Params({ accountNumber })),
         value: toHex(BigInt(value)),
         to,
         chainId: Number(fromChainId(this.chainId).chainReference),
@@ -714,7 +915,13 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       this.assertSupportsChain(wallet)
 
       const from = await this.getAddress({ accountNumber, wallet, pubKey })
-      const txToSign = await this.buildCustomApiTx({ ...input, from })
+
+      const addressNList = wallet.ethGetAccountPaths?.({
+        coin: 'Ethereum',
+        accountIdx: accountNumber,
+      })?.[0]?.addressNList
+
+      const txToSign = await this.buildCustomApiTx({ ...input, from, addressNList })
 
       return { txToSign }
     } catch (err) {

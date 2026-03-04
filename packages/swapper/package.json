@@ -1,7 +1,6 @@
 {
   "name": "@shapeshiftoss/swapper",
-  "version": "17.6.7",
-  "packageManager": "yarn@3.5.0",
+  "version": "17.6.9",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "type": "module",
@@ -10,9 +9,9 @@
   "types": "dist/esm/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/esm/index.d.ts",
       "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/esm/index.d.ts"
+      "require": "./dist/cjs/index.js"
     }
   },
   "files": [
@@ -22,45 +21,48 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn run -T tsc --build && yarn postbuild",
+    "build": "pnpm run clean && pnpm exec tsc --build && pnpm run postbuild",
     "clean": "rm -rf dist",
-    "dev": "yarn run -T tsc --build --watch",
-    "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",
-    "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
+    "dev": "pnpm exec tsc --build --watch",
+    "postbuild": "pnpm run postbuild:esm && pnpm run postbuild:cjs",
+    "postbuild:esm": "pnpm exec tsc-esm-fix --target=dist/esm --ext=.js",
     "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   },
   "dependencies": {
     "@arbitrum/sdk": "^4.0.1",
+    "@avnu/avnu-sdk": "^4.0.1",
     "@coral-xyz/anchor": "0.29.0",
     "@cowprotocol/app-data": "^2.3.0",
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.1-0.2",
     "@jup-ag/api": "^6.0.30",
+    "@mysten/sui": "^1.45.2",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/chain-adapters": "workspace:^",
     "@shapeshiftoss/contracts": "workspace:^",
-    "@shapeshiftoss/hdwallet-core": "1.62.31",
+    "@shapeshiftoss/hdwallet-core": "workspace:^",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^",
     "@sniptt/monads": "^0.5.10",
-    "@solana/web3.js": "^1.98.0",
+    "@solana/web3.js": "1.98.0",
+    "@ston-fi/omniston-sdk": "^0.7.8",
     "@uniswap/sdk-core": "^5.3.1",
     "@uniswap/v3-sdk": "^3.13.1",
-    "axios": "^1.13.0",
-    "axios-cache-interceptor": "^1.5.3",
+    "axios": "^1.13.5",
+    "axios-cache-interceptor": "^1.11.1",
     "bignumber.js": "^9.3.1",
     "eip-712": "^1.0.0",
     "ethers": "6.11.1",
     "ethers5": "npm:ethers@5.7.2",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "mixpanel-browser": "^2.67.0",
     "node-polyglot": "^2.4.0",
     "pretty-ms": "7.0.1",
-    "qs": "^6.10.5",
+    "qs": "^6.14.2",
     "retry-axios": "^2.6.0",
     "uuid": "^9.0.0",
-    "viem": "^2.40.3"
+    "viem": "2.43.5"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.178",

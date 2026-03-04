@@ -1,5 +1,6 @@
 {
   "common": {
+    "addressRequired": "Address is required",
     "amount": "Amount",
     "ascending": "Ascending",
     "descending": "Descending",
@@ -48,9 +49,12 @@
     "insufficientAmountForGas": "Not enough %{assetSymbol}.%{chainSymbol} to cover gas",
     "invalidAddress": "Invalid Address",
     "deposit": "Deposit",
+    "supply": "Supply",
     "withdraw": "Withdraw",
     "withdrawal": "Withdrawal",
     "claim": "Claim",
+    "claiming": "Claiming...",
+    "confirming": "Confirming...",
     "withdrawAndClaim": "Withdraw & Claim",
     "overview": "Overview",
     "connectWallet": "Connect Wallet",
@@ -136,6 +140,7 @@
     "manage": "Manage",
     "view": "View",
     "viewOnly": "View-Only",
+    "deprecated": "Deprecated",
     "allChains": "All Chains",
     "wallet": "Wallet",
     "feedbackAndSupport": "Feedback & Support",
@@ -175,8 +180,10 @@
       "expandRow": "Expand Row"
     },
     "featureDisabled": "This feature is temporarily disabled.",
+    "no": "No",
     "yes": "Yes",
     "activeAccount": "Active Account",
+    "selectAccount": "Select Account",
     "update": "Update",
     "apy": "APY",
     "installed": "Installed",
@@ -192,10 +199,214 @@
     "permit2Approval": "Permit2 Approval",
     "network": "Network",
     "feeEstimate": "Fee Estimate",
-    "list": "List"
+    "list": "List",
+    "retry": "Retry"
   },
   "accountSelector": {
     "chooseAccount": "Choose Account"
+  },
+  "agenticChat": {
+    "title": "ShapeShift Agent",
+    "aiChat": "AI Chat",
+    "openChat": "Open chat",
+    "closeChat": "Close chat",
+    "emptyState": "How can I help you today?",
+    "placeholder": "Type a message...",
+    "stop": "Stop",
+    "send": "Send",
+    "txStepProgress": "%{completedCount} of %{totalCount} complete",
+    "agenticChatTools": {
+      "send": {
+        "title": "Send Crypto",
+        "receivedFrom": "Received from %{address}",
+        "steps": {
+          "preparation": "Preparing send transaction",
+          "send": "Sign and send transaction"
+        },
+        "errors": {
+          "prepareFailed": "Failed to prepare send transaction",
+          "sendFailed": "Send failed: %{error}",
+          "noWallet": "No wallet connected",
+          "accountNotFound": "Account not found"
+        },
+        "success": {
+          "transactionSent": "Transaction sent: %{txHash}",
+          "title": "Send Successful",
+          "description": "Your send transaction has been completed"
+        }
+      },
+      "swap": {
+        "title": "Swap",
+        "receivedFrom": "Received from %{address}",
+        "steps": {
+          "quote": "Getting swap quote",
+          "networkSwitch": "Switch to %{network}",
+          "networkSwitchGeneric": "Switch network",
+          "approval": "Approve token spending",
+          "approvalConfirmation": "Confirming approval",
+          "swap": "Sign swap transaction"
+        },
+        "errors": {
+          "quoteFailed": "Failed to get swap quote",
+          "swapFailed": "Swap execution failed: %{error}",
+          "noWallet": "No wallet connected",
+          "accountNotFound": "Account not found"
+        },
+        "success": {
+          "title": "Swap Successful",
+          "description": "Your swap transaction has been completed"
+        }
+      },
+      "cancelLimitOrder": {
+        "title": "Cancel Limit Order",
+        "steps": {
+          "prepare": "Preparing cancellation",
+          "sign": "Sign cancellation",
+          "submit": "Submitting cancellation"
+        },
+        "errors": {
+          "prepareFailed": "Failed to prepare cancellation",
+          "signFailed": "Failed to sign cancellation",
+          "submitFailed": "Failed to cancel order: %{error}",
+          "noWallet": "No wallet connected",
+          "accountNotFound": "Account not found"
+        },
+        "success": {
+          "title": "Order Cancelled",
+          "description": "Your limit order has been successfully cancelled"
+        },
+        "networkLabel": "Network",
+        "orderLabel": "Order",
+        "cancellationFailed": "Cancellation failed",
+        "orderCancelledSuccessfully": "Order cancelled successfully"
+      },
+      "createLimitOrder": {
+        "title": "Create Limit Order",
+        "steps": {
+          "prepare": "Preparing order",
+          "approval": "Approve token spending",
+          "approvalConfirmation": "Confirming approval",
+          "sign": "Sign order",
+          "submit": "Submitting order"
+        },
+        "errors": {
+          "prepareFailed": "Failed to prepare order",
+          "approvalFailed": "Token approval failed",
+          "signFailed": "Failed to sign order",
+          "submitFailed": "Failed to create order: %{error}",
+          "noWallet": "No wallet connected",
+          "accountNotFound": "Account not found"
+        },
+        "success": {
+          "title": "Limit Order Created",
+          "description": "Your limit order has been successfully created"
+        },
+        "expires": "Expires",
+        "viewOrder": "View order →",
+        "approvalTx": "Approval tx",
+        "orderCreationFailed": "Order creation failed",
+        "orderCreatedSuccessfully": "Order created successfully"
+      },
+      "newCoins": {
+        "title": "Recently Added",
+        "subtitle": "New coins on CoinGecko"
+      },
+      "trendingTokens": {
+        "title": "Trending on CoinGecko",
+        "subtitle": "24h trending tokens"
+      },
+      "topGainersLosers": {
+        "gainersTitle": "Top Gainers (%{duration})",
+        "losersTitle": "Top Losers (%{duration})"
+      },
+      "portfolio": {
+        "title": "Portfolio",
+        "totalValue": "Total Value",
+        "accountLabel": "Account",
+        "networkLabel": "Network",
+        "emptyState": "No assets in portfolio"
+      },
+      "getAssets": {
+        "title": "Assets",
+        "balance": "Balance",
+        "value": "Value",
+        "network": "Network",
+        "emptyState": "No assets found",
+        "24h": "24h",
+        "volume": "Volume",
+        "marketCap": "Market Cap",
+        "fdv": "FDV",
+        "showLess": "Show less",
+        "more": "More...",
+        "coinInfo": "Coin Info",
+        "circulatingSupply": "Circulating Supply",
+        "totalSupply": "Total Supply",
+        "maxSupply": "Max Supply",
+        "unlimited": "Unlimited",
+        "sentiment": "Sentiment",
+        "bullish": "Bullish",
+        "bearish": "Bearish",
+        "marketCapRank": "Market Cap Rank",
+        "volume24h": "24h Volume",
+        "volMcap": "Vol/MCap",
+        "about": "About %{symbol}",
+        "noDescription": "No description available for this asset."
+      },
+      "receive": {
+        "title": "Receive",
+        "receiveOn": "Receive %{symbol} on %{network}",
+        "copyAddress": "Copy address",
+        "copied": "Copied!",
+        "warning": "Only send %{network}-compatible tokens to this address"
+      },
+      "getLimitOrders": {
+        "title": "Limit Orders",
+        "openOrders": "%{count} open",
+        "noOrders": "No limit orders found",
+        "status": {
+          "open": "Open",
+          "fulfilled": "Filled",
+          "cancelled": "Cancelled",
+          "expired": "Expired",
+          "presignaturePending": "Pending"
+        },
+        "sellLabel": "Sell",
+        "buyLabel": "Buy",
+        "expiresLabel": "Expires",
+        "view": "View",
+        "filledLabel": "Filled"
+      },
+      "getTransactionHistory": {
+        "title": "Recent Transactions",
+        "noTransactions": "No transactions found",
+        "type": {
+          "send": "Send",
+          "receive": "Receive",
+          "swap": "Swap",
+          "contract": "Contract"
+        },
+        "status": {
+          "success": "Confirmed",
+          "failed": "Failed",
+          "pending": "Pending"
+        },
+        "txid": "Txid",
+        "from": "From",
+        "to": "To",
+        "value": "Value",
+        "fee": "Fee",
+        "network": "Network",
+        "tokens": "Tokens"
+      }
+    },
+    "chatHistory": "Chat History",
+    "newChat": "New Chat",
+    "deleteConversation": "Delete Conversation",
+    "deleteConfirmation": "Are you sure you want to delete this conversation?",
+    "noConversations": "No conversations yet",
+    "newConversation": "New Conversation",
+    "searchChats": "Search your chats...",
+    "noMatchingConversations": "No matching conversations"
   },
   "quickBuy": {
     "title": "Quick Buy %{assetOnChain}",
@@ -345,6 +556,7 @@
     }
   },
   "defi": {
+    "yourBalance": "Your Balance",
     "modals": {
       "learnMore": {
         "next": "Next",
@@ -447,6 +659,7 @@
     "balance": "Balance",
     "netWorth": "Net Worth",
     "loadingAccounts": "Loaded %{portfolioAccountsLoaded} accounts",
+    "loadingMorePositions": "More DeFi positions are still loading",
     "walletBalanceChange24Hr": "24-hour change",
     "earnBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
     "noAccountsOpportunities": "You have no accounts for this asset, so staking opportunities are currently unavailable.",
@@ -503,12 +716,13 @@
     "featureFlags": "Feature Flags",
     "wallet": "Wallet",
     "explore": "Explore",
-    "trade": "Trade/Bridge",
     "market": "Market",
     "limitOrder": "Limit Orders",
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
     "lending": "Lending",
+    "thorchainLending": "THORChain Lending",
+    "chainflipLending": "Chainflip Lending",
     "pools": "Pools",
     "rFOX": "rFOX",
     "tcy": "TCY",
@@ -516,7 +730,9 @@
     "ecosystem": "Ecosystem",
     "markets": "Markets",
     "tokens": "Tokens",
-    "swap": "Swap"
+    "swap": "Swap",
+    "yields": "Yields",
+    "earn": "Earn"
   },
   "shapeShiftMenu": {
     "products": "Products",
@@ -547,7 +763,8 @@
       "faq": "FAQ",
       "github": "GitHub",
       "discord": "Discord",
-      "twitter": "Twitter"
+      "twitter": "Twitter",
+      "feedback": "Feedback"
     }
   },
   "transactionRow": {
@@ -668,6 +885,16 @@
         "withdraw": "Remove Liquidity",
         "join_pool": "Join Pool",
         "exit_pool": "Exit Pool"
+      },
+      "yieldxyz": {
+        "deposit": "Yield Deposit",
+        "withdraw": "Yield Withdraw",
+        "approve": "Yield Approve",
+        "approveSymbol": "Yield Approve %{symbol}",
+        "stake": "Yield Stake",
+        "unstake": "Yield Unstake",
+        "unstakeRequest": "Yield Unstake Request",
+        "yieldClaim": "Yield Claim"
       }
     }
   },
@@ -1100,6 +1327,7 @@
       "getFeesError": "Error getting fees",
       "broadcastingTransaction": "Broadcasting Transaction",
       "youHaveSent": "You have successfully sent %{amount} %{symbol}",
+      "sendFailed": "Send failed",
       "toAddress": "To Address",
       "toAddressOrEns": "To Address or ENS",
       "scanQrCode": "Scan QR Code",
@@ -1792,6 +2020,17 @@
         "body": "Click Pair and login to Vultisig from the popup window",
         "button": "Pair"
       }
+    },
+    "seeker": {
+      "connect": {
+        "header": "Connect Seeker",
+        "body": "Authorize ShapeShift to connect with your Seeker wallet",
+        "button": "Connect"
+      },
+      "failure": {
+        "header": "Connection Failed",
+        "body": "Unable to connect to Seeker wallet. Please ensure the Seeker app is available and try again."
+      }
     }
   },
   "graph": {
@@ -1887,6 +2126,18 @@
     "title": "Open the %{appName} App",
     "description": "To continue, you will need to open the %{appName} app on your Ledger device.",
     "devicePrompt": "Your device will prompt you with any necessary steps required to complete your current action."
+  },
+  "starknet": {
+    "deployAccount": {
+      "title": "Deploy Starknet Account",
+      "description": "Starknet uses smart contract accounts that need to be deployed before use.",
+      "sendDescription": "You'll need to deploy the account first to be able to send",
+      "swapDescription": "Starknet uses smart contract accounts. You'll need to deploy your account first before you can swap.",
+      "explanation": "This is a one-time setup that will initialize your account on Starknet. A small fee will be deducted from your balance.",
+      "deployButton": "Deploy Account",
+      "deploying": "Deploying Account...",
+      "deployFailed": "Deployment Failed"
+    }
   },
   "transactionHistory": {
     "transactionHistory": "Transaction History",
@@ -2004,7 +2255,14 @@
               "placeholder": "Gas Limit...",
               "tooltip": "The gas limit refers to the maximum amount of gas a user can consume to conduct a transaction."
             }
-          }
+          },
+          "recipientAddress": "Recipient Address",
+          "amount": "Amount",
+          "amountSats": "%{amount} sats",
+          "psbt": "PSBT",
+          "broadcast": "Broadcast",
+          "inputs": "Inputs (%{count})",
+          "outputs": "Outputs (%{count})"
         },
         "connect": {
           "title": "Connect your wallet to a dApp via WalletConnect and trigger transactions",
@@ -2129,6 +2387,319 @@
       "yourLoans": "Your Loans",
       "emptyTitle": "The Land of Zero Loans!",
       "emptyBody": "It appears you don't have any loans at the moment. Is this financial zen or just a break before your next big lending adventure? Either way, enjoy the calm!"
+    }
+  },
+  "chainflipLending": {
+    "headerDescription": "Supply assets to earn yield or borrow against collateral on Chainflip.",
+    "overview": "Overview",
+    "myDashboard": "My Dashboard",
+    "allMarkets": "All Markets",
+    "manageLoan": "Manage Loan",
+    "supply": {
+      "title": "Supply",
+      "amount": "Amount",
+      "available": "Available to supply",
+      "availableTooltip": "Your free balance on Chainflip State Chain available for lending",
+      "minimumSupply": "Minimum supply: %{amount}",
+      "confirmTitle": "Confirm Supply",
+      "confirmDescription": "Supply %{amount} %{asset} to the lending pool",
+      "confirmAndSupply": "Confirm & Supply",
+      "executingTitle": "Supplying...",
+      "executingDescription": "Your supply is being processed",
+      "successTitle": "Supply Successful",
+      "successDescription": "Your %{asset} is now earning yield",
+      "supplied": "Supplied",
+      "errorTitle": "Supply Failed",
+      "errorDescription": "Something went wrong while supplying",
+      "steps": {
+        "signing": "Signing supply transaction",
+        "confirming": "Confirming supply"
+      },
+      "noFreeBalance": "No free balance. Deposit to Chainflip first."
+    },
+    "borrow": {
+      "title": "Borrow",
+      "amount": "Amount",
+      "available": "Available to borrow",
+      "maxLtv": "Max LTV (80%)",
+      "currentLtv": "Current LTV",
+      "projectedLtv": "Projected LTV",
+      "confirmTitle": "Confirm Borrow",
+      "confirmDescription": "Borrow %{amount} %{asset} against your collateral",
+      "confirmAndBorrow": "Confirm & Borrow",
+      "executingTitle": "Borrowing...",
+      "executingDescription": "Your loan is being processed",
+      "successTitle": "Borrow Successful",
+      "successDescription": "You borrowed %{amount} %{asset}",
+      "borrowed": "Borrowed",
+      "errorTitle": "Borrow Failed",
+      "errorDescription": "Something went wrong while borrowing",
+      "steps": {
+        "signing": "Signing loan request",
+        "confirming": "Confirming loan"
+      },
+      "noCollateral": "Add collateral first to borrow",
+      "minimumLoan": "Minimum loan: %{amount}",
+      "availableTooltip": "Maximum amount you can borrow based on your collateral value and target LTV"
+    },
+    "totalSupplied": "Total Supplied",
+    "totalSuppliedTooltip": "Total value of assets supplied across all Chainflip lending pools.",
+    "availableLiquidity": "Available Liquidity",
+    "availableLiquidityTooltip": "Total value of assets currently available to borrow across all pools.",
+    "totalBorrowed": "Total Borrowed",
+    "totalBorrowedTooltip": "Total value of outstanding borrows across all Chainflip lending pools.",
+    "pool": {
+      "actionPaused": "This action is temporarily paused on Chainflip",
+      "depositFirst": "Deposit funds to Chainflip first",
+      "noFreeBalance": "No free balance available",
+      "noSupplyPosition": "No supply position to withdraw",
+      "noCollateral": "No collateral deposited",
+      "noLoans": "No active loans",
+      "supply": "Supply",
+      "withdrawSupply": "Withdraw Supply",
+      "depositToChainflip": "Deposit",
+      "withdrawFromChainflip": "Withdraw from Chainflip",
+      "freeBalance": "Free Balance",
+      "walletBalance": "Wallet Balance",
+      "currentLtv": "Current LTV",
+      "borrowCapacity": "Borrow Capacity",
+      "borrowPowerUsed": "Borrow Power Used",
+      "availableToBorrow": "Available to Borrow",
+      "actionPaused": "This action is temporarily paused on Chainflip"
+    },
+    "supplyApy": "Supply APY",
+    "supplyApyTooltip": "Annual percentage yield earned by supplying assets to this pool.",
+    "borrowRate": "Borrow Rate",
+    "utilisation": "Utilisation",
+    "utilisationTooltip": "Percentage of supplied assets currently being borrowed. Higher utilisation means higher yields but less available liquidity.",
+    "market": "Market",
+    "supplyStats": "Supply Stats",
+    "borrowStats": "Borrow Stats",
+    "yourPosition": "Your Position",
+    "freeBalance": "Free Balance",
+    "supplied": "Supplied",
+    "collateral": {
+      "title": "Collateral",
+      "add": "Add Collateral",
+      "remove": "Remove Collateral",
+      "amount": "Amount",
+      "availableToAdd": "Available to add",
+      "availableToRemove": "Available to remove",
+      "confirmAddTitle": "Confirm Add Collateral",
+      "confirmRemoveTitle": "Confirm Remove Collateral",
+      "confirmAddDescription": "Add %{amount} %{asset} as collateral",
+      "confirmRemoveDescription": "Remove %{amount} %{asset} from collateral",
+      "confirmAdd": "Confirm & Add",
+      "confirmRemove": "Confirm & Remove",
+      "executingTitle": "Processing...",
+      "executingDescription": "Your collateral update is being processed",
+      "successAddTitle": "Collateral Added",
+      "successRemoveTitle": "Collateral Removed",
+      "successAddDescription": "%{asset} collateral added successfully",
+      "successRemoveDescription": "%{asset} collateral removed successfully",
+      "added": "Added",
+      "removed": "Removed",
+      "errorTitle": "Collateral Update Failed",
+      "errorDescription": "Something went wrong",
+      "steps": {
+        "signing": "Signing collateral update",
+        "confirming": "Confirming update"
+      },
+      "minimumAmount": "Minimum collateral update: %{amount}",
+      "noFreeBalance": "No free balance available to add as collateral",
+      "noRemovable": "Cannot remove collateral without reducing LTV below target"
+    },
+    "depositToChainflip": "Deposit to Chainflip",
+    "depositDescription": "Deposit assets from your wallet to your Chainflip State Chain account to start lending.",
+    "freeBalanceDescription": "Available balance on Chainflip State Chain. Supply to pools to earn yield or use as collateral.",
+    "noFreeBalanceHint": "Deposit to start lending",
+    "originationFee": "Origination Fee",
+    "liquidationFee": "Liquidation Fee",
+    "yourSupplied": "Your Supplied",
+    "yourBorrowed": "Your Borrowed",
+    "yourFreeBalance": "Your Free Balance",
+    "connectWalletDescription": "Connect your wallet to view your lending positions.",
+    "protocolStats": "Protocol Stats",
+    "deposit": {
+      "amount": "Amount",
+      "available": "Available",
+      "explainer": "Assets will be deposited to your Chainflip State Chain account. Once deposited, you can supply to lending pools to earn yield.",
+      "openChannel": "Open Deposit Channel",
+      "confirmTitle": "Confirm Deposit",
+      "confirmDescription": "Deposit %{amount} %{asset} to your Chainflip State Chain account. You will be prompted to sign twice: once to open the deposit channel, and once to send the transaction.",
+      "confirmingTitle": "Depositing...",
+      "confirmingDescription": "Please confirm the transactions in your wallet.",
+      "confirmAndDeposit": "Confirm & Deposit",
+      "successTitle": "Deposit Confirmed",
+      "successDescription": "Your %{asset} has been deposited to your Chainflip State Chain account.",
+      "deposited": "Deposited",
+      "minimumDeposit": "Min. Deposit",
+      "steps": {
+        "approvingFlip": "Approve FLIP",
+        "fundingAccount": "Fund Account",
+        "registering": "Register Account",
+        "openingChannel": "Open Channel",
+        "sendingDeposit": "Send Deposit",
+        "confirming": "Confirming",
+        "settingRefundAddress": "Set Refund Address"
+      },
+      "executingTitle": "Depositing...",
+      "executingDescription": "Please confirm transactions in your wallet as prompted.",
+      "errorTitle": "Deposit Failed",
+      "errorDescription": "Something went wrong during the deposit process.",
+      "freeBalance": "Free Balance",
+      "freeBalanceTooltip": "Your %{asset} free balance on Chainflip State Chain",
+      "refundAddress": {
+        "title": "Refund Address",
+        "description": "Set the address where funds will be returned if a deposit fails or you withdraw.",
+        "useWalletAddress": "Use Wallet Address",
+        "useCustomAddress": "Use Custom Address",
+        "label": "Refund Address",
+        "continue": "Continue",
+        "helperText": "This address will be used for withdrawals and refunds on this chain."
+      }
+    },
+    "markets": "Markets",
+    "myBalances": "My Balances",
+    "walletBalance": "Wallet",
+    "stateChainBalance": "State Chain",
+    "deployed": "Deployed",
+    "comingSoon": "Coming Soon",
+    "connectToViewBalances": "Connect wallet to view your balances",
+    "myBalancesTitle": "Chainflip Lending - My Balances",
+    "withdraw": {
+      "title": "Withdraw",
+      "amount": "Amount",
+      "available": "Available to withdraw",
+      "availableTooltip": "Your supply position in the lending pool",
+      "confirmTitle": "Confirm Withdrawal",
+      "confirmDescription": "Withdraw %{amount} %{asset} from the lending pool",
+      "confirmAndWithdraw": "Confirm & Withdraw",
+      "executingTitle": "Withdrawing...",
+      "executingDescription": "Your withdrawal is being processed",
+      "successTitle": "Withdrawal Successful",
+      "successDescription": "Your %{asset} has been withdrawn",
+      "withdrawn": "Withdrawn",
+      "errorTitle": "Withdrawal Failed",
+      "errorDescription": "Something went wrong while withdrawing",
+      "noPosition": "No supply position found for this asset",
+      "withdrawAmount": "Withdraw",
+      "steps": {
+        "signing": "Sign transaction",
+        "confirming": "Confirming on-chain"
+      },
+      "alsoWithdrawToWallet": "Also withdraw to wallet",
+      "freeBalanceExplainer": "By default, funds are withdrawn to your free balance on the Chainflip State Chain. Check the box below to also withdraw them back to your wallet.",
+      "fullWithdrawalOnlyTooltip": "Your position is below the minimum required for partial withdrawal. Only full withdrawal is available.",
+      "partialBelowMinimum": "Minimum withdrawal is %{amount}",
+      "remainingBelowMinimum": "Remaining position must be at least %{amount} or withdraw the full amount",
+      "destinationAddress": "Destination address"
+    },
+    "withdrawFromChainflip": {
+      "title": "Withdraw from Chainflip",
+      "amount": "Amount",
+      "destination": "Destination Address",
+      "available": "Available Free Balance",
+      "confirmAndWithdraw": "Confirm Withdrawal",
+      "confirmTitle": "Confirm Withdrawal",
+      "confirmDescription": "Withdraw %{amount} %{symbol} from your Chainflip free balance to your wallet",
+      "errorTitle": "Withdrawal Failed",
+      "errorDescription": "There was an error processing your withdrawal. Please try again.",
+      "executingTitle": "Processing Withdrawal",
+      "executingDescription": "Your withdrawal is being processed on the Chainflip State Chain",
+      "successTitle": "Withdrawal Submitted",
+      "successDescription": "Your withdrawal has been submitted and will arrive in your wallet shortly",
+      "steps": {
+        "signing": "Signing withdrawal transaction",
+        "confirming": "Confirming withdrawal"
+      }
+    },
+    "repay": {
+      "title": "Repay",
+      "amount": "Amount",
+      "outstanding": "Outstanding debt",
+      "fullRepayment": "Full repayment",
+      "partialRepayment": "Partial repayment",
+      "confirmTitle": "Confirm Repayment",
+      "confirmDescription": "Repay %{amount} %{asset}",
+      "confirmAndRepay": "Confirm & Repay",
+      "executingTitle": "Repaying...",
+      "executingDescription": "Your repayment is being processed",
+      "successTitle": "Repayment Successful",
+      "successDescription": "You repaid %{amount} %{asset}",
+      "repaid": "Repaid",
+      "errorTitle": "Repayment Failed",
+      "errorDescription": "Something went wrong while repaying",
+      "steps": {
+        "signing": "Signing repayment",
+        "confirming": "Confirming repayment"
+      },
+      "availableBalance": "Free balance",
+      "availableTooltip": "Your free balance on Chainflip available for repayment",
+      "minimumRepayment": "Minimum repayment: %{amount}",
+      "remainingBelowMinimum": "Remaining loan would be below %{amount} minimum. Use full repayment instead.",
+      "insufficientBalance": "Insufficient free balance for full repayment",
+      "noFreeBalance": "Deposit funds to your Chainflip account first"
+    },
+    "ltv": {
+      "target": "Target LTV",
+      "topup": "Auto-Topup",
+      "softLiquidation": "Soft Liquidation",
+      "hardLiquidation": "Hard Liquidation",
+      "safe": "Safe",
+      "warning": "Warning",
+      "danger": "Danger"
+    },
+    "egress": {
+      "title": "Withdraw from Chainflip",
+      "amount": "Amount",
+      "destination": "Destination Address",
+      "destinationPlaceholder": "Enter destination address",
+      "available": "Available Free Balance",
+      "confirmAndWithdraw": "Confirm Withdrawal",
+      "confirmTitle": "Confirm Withdrawal",
+      "confirmDescription": "Withdraw %{amount} %{asset} from your Chainflip free balance to your wallet",
+      "errorTitle": "Withdrawal Failed",
+      "errorDescription": "There was an error processing your withdrawal. Please try again.",
+      "executingTitle": "Processing Withdrawal",
+      "executingDescription": "Your withdrawal is being processed on the Chainflip State Chain",
+      "successTitle": "Withdrawal Submitted",
+      "successDescription": "Your withdrawal of %{asset} has been submitted and will arrive in your wallet shortly",
+      "withdrawn": "Withdrawn",
+      "steps": {
+        "signing": "Signing withdrawal transaction",
+        "confirming": "Confirming withdrawal"
+      },
+      "transactionId": "Transaction ID",
+      "noFreeBalance": "No free balance available to withdraw"
+    },
+    "borrowRateTooltip": "The current annual interest rate for borrowing from this pool",
+    "originationFeeTooltip": "One-time fee charged when creating or expanding a loan",
+    "liquidationFeeTooltip": "Fee charged during liquidation of collateral",
+    "suppliedBalance": "Supplied",
+    "poolHeader": "Pool",
+    "collateralHeader": "Collateral",
+    "borrowedHeader": "Borrowed",
+    "voluntaryLiquidation": {
+      "initiateTitle": "Initiate Voluntary Liquidation",
+      "initiateWarning": "This will begin liquidating your entire position. Your collateral will be sold to repay all outstanding loans. This process cannot be undone once confirmed on-chain.",
+      "stopTitle": "Stop Voluntary Liquidation",
+      "stopDescription": "This will cancel the pending voluntary liquidation. Your position will remain open.",
+      "confirmInitiate": "Liquidate My Position",
+      "confirmStop": "Stop Liquidation",
+      "executingTitle": "Processing...",
+      "executingDescription": "Your voluntary liquidation request is being submitted to the Chainflip State Chain.",
+      "initiateSuccessTitle": "Liquidation Initiated",
+      "initiateSuccessDescription": "Your voluntary liquidation has been initiated. Your position will be unwound automatically.",
+      "stopSuccessTitle": "Liquidation Stopped",
+      "stopSuccessDescription": "Voluntary liquidation has been cancelled. Your position remains open.",
+      "errorTitle": "Transaction Failed",
+      "errorDescription": "The voluntary liquidation transaction failed. Please try again.",
+      "inProgress": "Voluntary liquidation in progress",
+      "steps": {
+        "signing": "Sign transaction",
+        "confirming": "Confirming on-chain"
+      }
     }
   },
   "chart": {
@@ -2345,15 +2916,15 @@
       },
       "why": {
         "title": "Why stake your FOX?",
-        "body": "Staking your FOX allows you to earn regular RUNE payouts from the DAO's treasury, providing a steady stream of passive income in RUNE per epoch. Additionally, a portion of the RUNE received by the DAO is used to buy FOX from the open market and burn it, reducing the overall supply. Staking also supports the ShapeShift DAO's alignment with the THORChain ecosystem, contributing to their growth and success. The staking process requires a minimum 28-day unstaking period, encouraging commitment and stability within the community."
+        "body": "Staking your FOX allows you to earn regular USDC payouts from the DAO's treasury, providing a steady stream of passive income in USDC per epoch. Additionally, a portion of DAO revenue will be allocated toward reducing the overall FOX supply through token burns. The staking process requires a minimum 28-day unstaking period, encouraging commitment and stability within the community."
       },
       "stake": {
         "title": "How do I stake my FOX?",
-        "body": "To stake your FOX, you use the staking interface to lock your FOX tokens into the staking contract. You will need to sign a message or transaction to assign the address where your RUNE rewards will be paid. Once staked, you start earning RUNE rewards per block as part of your staking benefits."
+        "body": "To stake your FOX, you use the staking interface to lock your FOX tokens into the staking contract. Once staked, you start earning USDC rewards per block as part of your staking benefits."
       },
       "unstake": {
         "title": "What happens when I unstake?",
-        "body": "When you decide to unstake, there is a minimum 28-day unstaking period. During this time, your FOX remains locked, and you cease to receive RUNE emissions. After the unstaking period, you can unlock and retrieve your regular FOX tokens."
+        "body": "When you decide to unstake, there is a minimum 28-day unstaking period. During this time, your FOX remains locked, and you cease to receive USDC emissions. After the unstaking period, you can unlock and retrieve your regular FOX tokens."
       },
       "cooldown": {
         "title": "How long is the cooldown period?",
@@ -2365,7 +2936,7 @@
       },
       "connect": {
         "title": "How do total fees collected, total FOX staked, emissions pool, and FOX burn amount connect?",
-        "body": "The fees collected by the DAO are in native RUNE. A portion of this RUNE is distributed to FOX stakers as rewards, while another portion is used to buy FOX from the open market and burn it, reducing the overall FOX supply. The total FOX staked influences the distribution of RUNE rewards, as rewards are distributed pro-rata based on the amount of FOX staked. The emissions pool represents the amount of FOX available for staking rewards, and the FOX burn amount is the portion of FOX purchased and burned using the RUNE collected from fees."
+        "body": "The fees collected by the DAO are in native assets per swapper. A portion of this revenue is converted and distributed to FOX stakers as rewards, while another portion is allocated toward reducing the overall FOX supply through token burns. The total FOX staked influences the distribution of rewards, as rewards are distributed pro-rata based on the amount of FOX staked. The emissions pool represents the amount of FOX available for staking rewards, and the FOX burn amount is the portion of FOX purchased and burned."
       }
     },
     "totals": "rFOX Totals",
@@ -2376,7 +2947,9 @@
     "emissionsPoolHelper": "The total amount of rewards to be distributed %{symbol} stakers",
     "foxBurnAmount": "FOX Burn Amount (This Epoch)",
     "pendingDistribution": "Pending Distribution",
-    "selectRuneAddress": "Select a RUNE address"
+    "selectRuneAddress": "Select a RUNE address",
+    "lpSunsetWarningTitle": "Program Ended",
+    "lpSunsetWarningDescription": "The Arbitrum WETH/FOX Rewards program has been sunset. Please un-stake and claim your balance at your earliest convenience."
   },
   "TCY": {
     "stake": "Stake",
@@ -2485,11 +3058,11 @@
   },
   "foxPage": {
     "title": "FOX Token Dashboard",
-    "description": "Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token gives you a share in revenues on THORChain, and enables you to influence the future of ShapeShift through your vote. Stake, swap, buy, supply, and manage your FOX holdings here.",
+    "description": "Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token gives you a share in revenues across the platform, and enables you to influence the future of ShapeShift through your vote. Stake, swap, buy, supply, and manage your FOX holdings here.",
     "foxToken": "FOX Token",
     "24hrPriceChange": "24h Price Change",
     "rfox": {
-      "totalSymbolBurn": "Total %{symbol} Burn",
+      "totalBurn": "Total Burn",
       "simulateTitle": "rFOX Simulator",
       "simulateSubtle": "Simulate your rFOX staking yield",
       "estimatedRewards": "Estimated Rewards",
@@ -2593,15 +3166,23 @@
     },
     "deposit": {
       "pending": "Your deposit of %{amount} %{symbol} is being processed.",
-      "complete": "Your deposit of %{amount} %{symbol} is complete."
+      "complete": "Your deposit of %{amount} %{symbol} is complete.",
+      "failed": "Your deposit of %{amount} %{symbol} has failed."
     },
     "withdrawal": {
       "pending": "Your withdrawal of %{amount} %{symbol} is being processed.",
-      "complete": "Your withdrawal of %{amount} %{symbol} is complete."
+      "complete": "Your withdrawal of %{amount} %{symbol} is complete.",
+      "failed": "Your withdrawal of %{amount} %{symbol} has failed."
     },
     "claim": {
       "pending": "Your claim of %{amount} %{symbol} is being processed.",
-      "complete": "Your claim of %{amount} %{symbol} is complete."
+      "complete": "Your claim of %{amount} %{symbol} is complete.",
+      "failed": "Your claim of %{amount} %{symbol} has failed."
+    },
+    "yield": {
+      "unstakeAvailableIn": "Your %{symbol} unstake will be available in %{duration}.",
+      "unstakeReady": "Your %{symbol} unstake is ready to claim.",
+      "unstakeClaimed": "Your %{symbol} unstake was claimed."
     },
     "bridge": {
       "processing": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is being processed.",
@@ -2647,6 +3228,278 @@
       "complete": {
         "description": "Your reward of %{amountAndSymbol} is complete."
       }
+    },
+    "chainflipLending": {
+      "deposit": {
+        "pending": "Your deposit of %{amountAndSymbol} to Chainflip is being processed.",
+        "complete": "Your deposit of %{amountAndSymbol} to Chainflip is complete.",
+        "failed": "Your deposit of %{amountAndSymbol} to Chainflip has failed."
+      },
+      "supply": {
+        "pending": "Your supply of %{amountAndSymbol} to the lending pool is being processed.",
+        "complete": "Your supply of %{amountAndSymbol} to the lending pool is complete.",
+        "failed": "Your supply of %{amountAndSymbol} to the lending pool has failed."
+      },
+      "withdraw": {
+        "pending": "Your withdrawal of %{amountAndSymbol} from the lending pool is being processed.",
+        "complete": "Your withdrawal of %{amountAndSymbol} from the lending pool is complete.",
+        "failed": "Your withdrawal of %{amountAndSymbol} from the lending pool has failed."
+      },
+      "egress": {
+        "pending": "Your withdrawal of %{amountAndSymbol} from Chainflip is being processed.",
+        "complete": "Your withdrawal of %{amountAndSymbol} from Chainflip is complete.",
+        "failed": "Your withdrawal of %{amountAndSymbol} from Chainflip has failed."
+      },
+      "addCollateral": {
+        "pending": "Your move of %{amountAndSymbol} from your Chainflip free balance to collateral is being processed.",
+        "complete": "Your move of %{amountAndSymbol} from your Chainflip free balance to collateral is complete.",
+        "failed": "Your move of %{amountAndSymbol} from your Chainflip free balance to collateral has failed."
+      },
+      "removeCollateral": {
+        "pending": "Your move of %{amountAndSymbol} from collateral back to your Chainflip free balance is being processed.",
+        "complete": "Your move of %{amountAndSymbol} from collateral back to your Chainflip free balance is complete.",
+        "failed": "Your move of %{amountAndSymbol} from collateral back to your Chainflip free balance has failed."
+      },
+      "borrow": {
+        "pending": "Your borrow of %{amountAndSymbol} to your Chainflip free balance is being processed.",
+        "complete": "Your borrow of %{amountAndSymbol} to your Chainflip free balance is complete.",
+        "failed": "Your borrow of %{amountAndSymbol} to your Chainflip free balance has failed."
+      },
+      "repay": {
+        "pending": "Your repayment of %{amountAndSymbol} from your Chainflip free balance is being processed.",
+        "complete": "Your repayment of %{amountAndSymbol} from your Chainflip free balance is complete.",
+        "failed": "Your repayment of %{amountAndSymbol} from your Chainflip free balance has failed."
+      },
+      "details": {
+        "operation": "Operation",
+        "amount": "Amount",
+        "transactionId": "Transaction Id",
+        "egressTransactionId": "Egress Transaction Id"
+      }
     }
+  },
+  "yieldXYZ": {
+    "pageTitle": "Yields",
+    "pageSubtitle": "Discover and manage yield opportunities across multiple chains",
+    "actions": {},
+    "yield": "Yield",
+    "apy": "APY",
+    "apr": "APR",
+    "tvl": "TVL",
+    "asset": "Asset",
+    "provider": "Provider",
+    "balance": "Balance",
+    "noYields": "No yield opportunities available",
+    "connectWallet": "Connect a wallet to view yields",
+    "stats": "Stats",
+    "minStake": "Min Stake",
+    "minDeposit": "Min Deposit",
+    "rewardSchedule": "Reward Schedule",
+    "staking": "Staking...",
+    "unstaking": "Unstaking...",
+    "depositing": "Depositing...",
+    "withdrawing": "Withdrawing...",
+    "stakingPending": "Staking",
+    "unstakingPending": "Unstaking",
+    "depositingPending": "Depositing",
+    "withdrawingPending": "Withdrawing",
+    "availableDate": "available %{date}",
+    "withdrawable": "Withdrawable",
+    "type": "Type",
+    "totalValue": "Total Value",
+    "myPosition": "My Position",
+    "myPositions": "My Positions",
+    "myValidatorPosition": "My %{validator} Position",
+    "earnUpToOnBalance": "You could earn up to %{apy} on your balance",
+    "startEarning": "Start earning",
+    "maxApy": "Max APY",
+    "nativeStaking": "Native Staking",
+    "validator": "Validator",
+    "staked": "Staked",
+    "claimable": "Claimable",
+    "loadingQuote": "Loading Quote...",
+    "preferred": "Preferred",
+    "pending": "Pending",
+    "ready": "Ready",
+    "bestReturn": "Best Return",
+    "highestApy": "Highest APY",
+    "lowestApy": "Lowest APY",
+    "highestTvl": "Highest TVL",
+    "lowestTvl": "Lowest TVL",
+    "nameAZ": "Name (A-Z)",
+    "nameZA": "Name (Z-A)",
+    "allNetworks": "All Networks",
+    "allProviders": "All Providers",
+    "allTypes": "All Types",
+    "showAll": "Show All",
+    "searchValidator": "Search for validator",
+    "success": "Success!",
+    "transactions": "Transactions",
+    "currentApy": "Current APY",
+    "estYearlyEarnings": "Est. Yearly Earnings",
+    "switch": "Switch",
+    "claimSymbol": "Claim %{symbol}",
+    "stakeSymbol": "Stake %{symbol}",
+    "unstakeSymbol": "Unstake %{symbol}",
+    "depositSymbol": "Deposit %{symbol}",
+    "withdrawSymbol": "Withdraw %{symbol}",
+    "claimableRewards": "Claimable rewards",
+    "withdrawableFunds": "Withdrawable funds",
+    "noActivePositions": "You do not have any active yield positions.",
+    "connectWalletPositions": "Connect a wallet to view your active yield positions.",
+    "view": "View",
+    "close": "Close",
+    "estEarnings": "Est. Earnings",
+    "network": "Network",
+    "market": "market",
+    "markets": "markets",
+    "chain": "chain",
+    "chains": "chains",
+    "reward": "Reward",
+    "assetYields": "%{asset} Yields",
+    "noYieldsMatchingFilters": "No yields found matching filters.",
+    "activePositions": "Active Positions",
+    "acrossPositions": "Across %{count} positions",
+    "availableToEarn": "Available to Earn",
+    "idleAssetsEarning": "Idle assets that could be earning up to %{apy}% APY",
+    "potentialEarnings": "Potential Earnings",
+    "potentialEarningsTooltip": "Estimated yearly earnings based on your idle balance × best available APY for each asset.",
+    "availableToEarnTooltip": "Total idle balance across assets that have yield opportunities available.",
+    "apyTooltip": "Annual percentage yield shown by the provider. Rates may fluctuate over time.",
+    "perYear": "/yr",
+    "earningsPerYear": "%{amount} %{symbol} /yr",
+    "recommendedForYou": "Recommended for you",
+    "earn": "Earn",
+    "providers": "Providers",
+    "successStaked": "You successfully staked %{amount} %{symbol}",
+    "successUnstaked": "You successfully unstaked %{amount} %{symbol}",
+    "cooldownNotice": "Your withdrawal will be available in %{cooldownDuration}.",
+    "successDeposited": "You successfully deposited %{amount} %{symbol}",
+    "successWithdrawn": "You successfully withdrew %{amount} %{symbol}",
+    "successClaim": "You successfully claimed %{amount} %{symbol}",
+    "viewPosition": "View Position",
+    "via": "via",
+    "resetAllowance": "Reset Allowance",
+    "loading": {
+      "signInWallet": "Sign in Wallet",
+      "waiting": "Waiting",
+      "done": "Done",
+      "failed": "Failed",
+      "preparingTransaction": "Preparing transaction..."
+    },
+    "errors": {
+      "walletNotConnected": "Wallet not connected",
+      "broadcastFailed": "Failed to broadcast transaction",
+      "transactionFailedTitle": "Transaction failed",
+      "transactionFailedDescription": "Please try again.",
+      "unsupportedNetworkTitle": "Unsupported network",
+      "unsupportedNetworkDescription": "This yield network is not supported yet.",
+      "walletNotConnectedTitle": "Wallet not connected",
+      "walletNotConnectedDescription": "Connect a wallet that supports this network to continue.",
+      "enterAmountTitle": "Enter an amount",
+      "enterAmountDescription": "Amount must be greater than zero.",
+      "initiateFailedTitle": "Error",
+      "initiateFailedDescription": "Failed to initiate transaction sequence.",
+      "quoteFailedTitle": "Quote Failed",
+      "quoteFailedDescription": "Unable to get a quote for this transaction. Please try again.",
+      "insufficientAssetForGas": "Insufficient %{symbol} for Gas",
+      "rateLimited": "Too Many Requests"
+    },
+    "underMaintenance": "Under Maintenance",
+    "underMaintenanceDescription": "This yield opportunity is currently under maintenance. Deposits may be unavailable.",
+    "deprecated": "Deprecated",
+    "deprecatedDescription": "This yield opportunity has been deprecated and may be discontinued soon.",
+    "depositsDisabled": "Deposits Disabled",
+    "depositsDisabledDescription": "Deposits are temporarily unavailable for this yield opportunity.",
+    "withdrawalsDisabled": "Withdrawals Disabled",
+    "withdrawalsDisabledDescription": "Withdrawals are temporarily unavailable for this yield opportunity.",
+    "noActiveBalanceToExit": "No active balance available to unstake.",
+    "noAvailableYields": "No yield opportunities available for your assets",
+    "connectWalletAvailable": "Connect a wallet to see yields available for your assets",
+    "aboutProvider": "About %{provider}",
+    "visitWebsite": "Visit Website",
+    "providerDescriptions": {
+      "morpho": "Morpho is a money market and vault infrastructure protocol, multiply audited by top-tier security firms, live since 2022, with $2.5M in bug bounty incentives.",
+      "morpho-aave": "Morpho is a money market and vault infrastructure protocol, multiply audited by top-tier security firms, live since 2022, with $2.5M in bug bounty incentives.",
+      "morpho-compound": "Morpho is a money market and vault infrastructure protocol, multiply audited by top-tier security firms, live since 2022, with $2.5M in bug bounty incentives.",
+      "lido": "Lido is a liquid staking protocol that lets users stake ETH while keeping liquidity via stETH. Multiply audited by top-tier security firms, live since 2020, with $2M in bug bounty incentives.",
+      "aave": "Aave is a multi-chain lending marketplace enabling users to lend, borrow, and build advanced strategies. Multiply audited by top-tier security firms, live since 2017, with $1M in bug bounty incentives.",
+      "compound": "Compound is a foundational DeFi money market with algorithmic interest rates. Multiply audited by top-tier security firms, live since 2018, with $1M in bug bounty incentives.",
+      "kamino": "Kamino is a Solana DeFi suite unifying lending, liquidity, and leverage into one platform. Runs an Immunefi program with up to $1.5M maximum bounty.",
+      "fluid": "Fluid is a liquidity layer built by the Instadapp team, connecting lending, DEX, borrowing, and stablecoin markets into one efficient system. Multiply audited by top-tier security firms, live since 2024, with $0.5M in bug bounty incentives.",
+      "venus": "Venus is a lending and borrowing protocol focused on BNB Chain. Emphasizes security through third-party audits and an ongoing bug bounty program.",
+      "gearbox": "Gearbox is a composable leverage protocol enabling credit accounts that plug into DeFi strategies. Multiply audited by top-tier security firms, live since 2021, with $0.2M in bug bounty incentives.",
+      "yearn": "Yearn is a decentralized suite of products helping individuals, DAOs, and other protocols earn yield on their digital assets. Multiply audited by top-tier security firms, live since 2020, with $0.2M in bug bounty incentives.",
+      "spark": "Spark is a decentralized lending protocol powered by the Sky (formerly MakerDAO) ecosystem, allowing users to borrow DAI and other stablecoins at competitive rates. Runs an Immunefi program with up to $5M maximum bounty.",
+      "rocket-pool": "Rocket Pool is a decentralized Ethereum liquid staking protocol that issues rETH. Multiply audited by top-tier security firms, live since 2021, with $0.5M in bug bounty incentives.",
+      "drift": "Drift is a decentralized perpetuals exchange and lending platform built on Solana. Runs an Immunefi program with up to $0.5M maximum bounty."
+    },
+    "otherYields": "Other %{symbol} Yields",
+    "availableToDeposit": "Available to Deposit",
+    "availableToDepositTooltip": "This is the amount of %{symbol} in your wallet that you can deposit into this yield opportunity.",
+    "getAsset": "Get %{symbol}",
+    "manage": "Manage",
+    "potentialEarningsAmount": "%{amount}/yr at %{apy}% APY",
+    "depositNow": "Deposit Now",
+    "strategyInfo": "Strategy Info",
+    "overview": "Overview",
+    "readyToClaim": "Ready to claim"
+  },
+  "earn": {
+    "enterFrom": "Enter from",
+    "stakeAmount": "Stake Amount",
+    "selectYieldOpportunity": "Select yield opportunity",
+    "selectYieldFor": "Select yield for %{asset}",
+    "noYieldsAvailable": "No yield opportunities available for %{asset}",
+    "estimatedYearlyEarnings": "Est. Yearly Earnings",
+    "yieldType": "Yield Type",
+    "yieldTypes": {
+      "native-staking": "Native Staking",
+      "pooled-staking": "Pooled Staking",
+      "liquid-staking": "Liquid Staking",
+      "staking": "Staking",
+      "lending": "Lending",
+      "vault": "Vault",
+      "restaking": "Restaking"
+    },
+    "confirmEarn": "Confirm Stake",
+    "earnWith": "Earn with",
+    "belowMinimum": "Below minimum deposit",
+    "minimumDeposit": "Minimum Deposit",
+    "explainers": {
+      "liquidStakingReceive": "You'll receive %{symbol} which you can trade at any time",
+      "liquidStakingTrade": "You can trade your liquid staking token at any time",
+      "liquidStakingWithdraw": "When withdrawing, your assets will be available immediately",
+      "rewardsSchedule": "Rewards are distributed every %{schedule} and accrue automatically",
+      "stakingUnbonding": "When unstaking, there is a %{days} day unbonding period before tokens are available",
+      "restakingYield": "Restaking rewards accrue to your position automatically",
+      "restakingWithdraw": "When withdrawing, your assets may have an unbonding period",
+      "vaultYield": "Yield accrues to your position automatically",
+      "vaultWithdraw": "When withdrawing, your assets will be available immediately",
+      "lendingYield": "Interest accrues to your position automatically",
+      "lendingWithdraw": "When withdrawing, your assets will be available immediately"
+    }
+  },
+  "perfProfiler": {
+    "title": "Perf Profiler",
+    "export": "Export",
+    "reset": "Reset",
+    "disabledMessage": "Profiling disabled. Click eye icon to enable.",
+    "toggleAria": "Toggle profiler",
+    "collapseAria": "Collapse",
+    "expandAria": "Expand profiler",
+    "enableProfiling": "Enable profiling",
+    "disableProfiling": "Disable profiling",
+    "session": "Session",
+    "indexedDb": "IndexedDB",
+    "reads": "Reads",
+    "writes": "Writes",
+    "avg": "avg",
+    "max": "max",
+    "selectors": "Selectors",
+    "totalCalls": "Total calls",
+    "slow": "Slow",
+    "assetSearch": "Asset Search",
+    "searches": "Searches"
   }
 }

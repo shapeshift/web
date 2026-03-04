@@ -1,8 +1,14 @@
 ---
 name: chain-integration
-description: Integrate a new blockchain as a second-class citizen in ShapeShift Web and HDWallet. Covers everything from HDWallet native/Ledger support to Web chain adapter, asset generation, feature flags, and local testing via Verdaccio. Activates when user wants to add basic support for a new blockchain.
+description: Integrate a new blockchain as a second-class citizen in ShapeShift Web. HDWallet packages live in the monorepo under packages/hdwallet-*. Covers everything from HDWallet native/Ledger support to Web chain adapter, asset generation, and feature flags. Activates when user wants to add basic support for a new blockchain.
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 ---
+
+**Second-class EVM chain?** If this is a second-class EVM chain integration,
+disregard the rest of this skill. Load and follow the contract at
+`.claude/contracts/second-class-evm-chain.md` instead - it contains the
+complete, authoritative checklist of every integration point required.
+Use the contract as your build todo list, checking off items as you go.
 
 # Chain Integration Skill
 
@@ -39,12 +45,10 @@ Recent examples: **Monad** (EVM), **Tron** (UTXO-like), **Sui** (non-EVM)
 
 **ALWAYS follow this order:**
 
-1. **HDWallet Native Support** (hdwallet repo)
-2. **Local Verdaccio Publishing** (test hdwallet changes in web)
-3. **Web Basic Support** (web repo - poor man's chain adapter)
-4. **Web Plugin & Integration** (web repo - wire everything up)
-5. **Ledger Support** (hdwallet repo - if chain is supported by Ledger)
-6. **Clean Commits** (revert verdaccio bumps before PR)
+1. **HDWallet Native Support** (workspace packages under `packages/hdwallet-*`)
+2. **Web Basic Support** (poor man's chain adapter)
+3. **Web Plugin & Integration** (wire everything up)
+4. **Ledger Support** (`packages/hdwallet-ledger` - if chain is supported by Ledger)
 
 ## Phase 0: Deep Research & Information Gathering
 
@@ -220,7 +224,7 @@ After determining chain type (EVM or non-EVM), collect remaining details:
 
 ## Phase 1: HDWallet Native Support
 
-**Working Directory**: `/Users/alexandre.gomes/Sites/shapeshiftHdWallet`
+**Working Directory**: Same monorepo — hdwallet packages are at `packages/hdwallet-*`
 
 ### Step 1.0: Choose Implementation Strategy
 
@@ -241,7 +245,7 @@ For EVM-compatible chains (like Monad, HyperEVM, Base), you need **MINIMAL chang
 - ✅ Wallet support flags (`_supportsChainName: boolean`)
 - ✅ Support function (`supportsChainName()`)
 - ✅ Set flags on all wallet implementations (~14 files)
-- ✅ Version bump and Verdaccio publish
+- ✅ Build and verify with `pnpm run hdwallet:build`
 
 **Why?** Each wallet type (Native, Ledger, MetaMask, etc.) needs to explicitly declare support for the chain, even though the crypto is identical. This enables wallet-specific gating in the UI.
 
@@ -249,7 +253,7 @@ For EVM-compatible chains (like Monad, HyperEVM, Base), you need **MINIMAL chang
 - Monad hdwallet: <https://github.com/shapeshift/hdwallet/pull/753>
 - HyperEVM hdwallet: <https://github.com/shapeshift/hdwallet/pull/756>
 
-**Time estimate**: 30 minutes for hdwallet + Verdaccio (vs 1-2 days for non-EVM)
+**Time estimate**: 30 minutes for hdwallet changes (vs 1-2 days for non-EVM)
 
 ### Step 1.1: Research HDWallet Patterns (Non-EVM Only)
 
@@ -257,7 +261,7 @@ Examine existing implementations to understand patterns:
 
 **For non-EVM chains** (like Tron, Sui):
 ```bash
-# In hdwallet repo
+# In the monorepo
 cat packages/hdwallet-core/src/tron.ts
 cat packages/hdwallet-native/src/tron.ts
 cat packages/hdwallet-native/src/crypto/isolation/adapters/tron.ts
@@ -343,7 +347,6 @@ Set `readonly _supports[ChainName] = false` on:
 - packages/hdwallet-keplr/src/keplr.ts
 - packages/hdwallet-phantom/src/phantom.ts
 - packages/hdwallet-vultisig/src/vultisig.ts
-- packages/hdwallet-walletconnect/src/walletconnect.ts (deprecated, use V2)
 
 **For non-EVM chains:**
 
@@ -352,7 +355,7 @@ Set `readonly _supports[ChainName] = true` for Native only:
 
 Set `readonly _supports[ChainName] = false` on all other wallet types listed above.
 
-**Then**: Skip to Step 1.6 (Version Bump)
+**Then**: Skip to Step 1.6 (Build & Verify)
 
 ---
 
@@ -557,90 +560,21 @@ export function supports[Chain](wallet: HDWallet): wallet is [Chain]Wallet {
 }
 ```
 
-### Step 1.6: Version Bump & Test
+### Step 1.6: Build & Verify
 
 ```bash
-# In hdwallet repo
-cd packages/hdwallet-core
-npm version patch
+# Build hdwallet packages to verify
+pnpm run hdwallet:build
 
-cd ../hdwallet-native
-npm version patch
-
-# Run lerna to sync versions
-npx lerna version patch --no-git-tag-version --yes
-
-# Build to verify
-yarn build
+# Run hdwallet tests
+pnpm run hdwallet:test
 ```
+
+No version bumps or publishing needed — hdwallet packages are workspace packages (`workspace:^`).
 
 ---
 
-## Phase 2: Local Verdaccio Testing
-
-**Purpose**: Test hdwallet changes in web locally before publishing to npm.
-
-### Step 2.1: Start Verdaccio
-
-```bash
-# Terminal 1 - Start local npm registry
-npx verdaccio
-```
-
-### Step 2.2: Configure npm for Local Registry
-
-```bash
-# Set registry to localhost
-npm set registry http://localhost:4873
-yarn config set registry http://localhost:4873
-```
-
-### Step 2.3: Publish HDWallet Packages
-
-```bash
-# In hdwallet repo root
-yarn lerna publish --registry http://localhost:4873 --no-git-tag-version --no-push --force-publish --yes
-```
-
-**Commit this separately** (will revert later):
-```bash
-git add -A
-git commit -m "chore: bump hdwallet versions for local testing"
-```
-
-### Step 2.4: Update Web Dependencies
-
-```bash
-# In web repo
-cd /Users/alexandre.gomes/Sites/shapeshiftWeb
-
-# Update hdwallet packages
-yarn up @shapeshiftoss/hdwallet-core@latest
-yarn up @shapeshiftoss/hdwallet-native@latest
-# ... update other hdwallet packages as needed
-```
-
-**Commit this separately** (will revert later):
-```bash
-git add package.json yarn.lock
-git commit -m "chore: bump hdwallet deps for local testing"
-```
-
-### Step 2.5: Verify Installation
-
-```bash
-# In web repo
-yarn why @shapeshiftoss/hdwallet-core
-yarn why @shapeshiftoss/hdwallet-native
-
-# Should show local verdaccio versions
-```
-
----
-
-## Phase 3: Web Chain Adapter (Poor Man's Approach)
-
-**Working Directory**: `/Users/alexandre.gomes/Sites/shapeshiftWeb`
+## Phase 2: Web Chain Adapter (Poor Man's Approach)
 
 ### Step 3.1: Add Chain Constants
 
@@ -809,6 +743,130 @@ export * as [chainLower] from './[chainname]'
 // In packages/chain-adapters/src/index.ts
 export * from './[adaptertype]'
 ```
+
+### Step 3.2a: Implement parseTx (Iterative Approach)
+
+**CRITICAL**: The `parseTx()` method parses transaction data after broadcast. This determines:
+- Whether the transaction shows in history (if applicable)
+- Execution price calculation for swaps
+- Transfer display (from/to/value)
+
+**Reference Implementations** (use these as patterns):
+- **EVM chains**: `SecondClassEvmAdapter.parseTx()` - handles ERC-20 Transfer events automatically
+- **Sui**: `SuiChainAdapter.parseTx()` - parses SUI native and coin transfers
+- **Tron**: `TronChainAdapter.parseTx()` - parses TRC-20 transfers
+- **NEAR**: `NearChainAdapter.parseTx()` + `parseNep141Transfers()` - parses NEP-141 token logs
+
+**Iterative Development Flow**:
+
+1. **Start with naive implementation** - Parse native asset transfers only:
+```typescript
+async parseTx(txHash: string, pubkey: string): Promise<Transaction> {
+  const result = await this.rpcCall('getTransaction', [txHash])
+
+  // Basic structure
+  const status = result.success ? TxStatus.Confirmed : TxStatus.Failed
+  const fee = { assetId: this.assetId, value: result.fee.toString() }
+
+  const transfers: Transfer[] = []
+
+  // Parse native transfers (naive - just native asset)
+  if (result.value) {
+    transfers.push({
+      assetId: this.assetId,
+      from: [result.from],
+      to: [result.to],
+      type: result.from === pubkey ? TransferType.Send : TransferType.Receive,
+      value: result.value.toString(),
+    })
+  }
+
+  return { txid: txHash, status, fee, transfers, /* ... */ }
+}
+```
+
+2. **User testing reveals issues** - User tests sends/swaps and reports:
+   - "Native send works but tokens don't show"
+   - "Swap execution price is wrong"
+   - Provides RPC response from debugger
+
+3. **Refine with actual RPC response** - User provides debugger scope:
+```typescript
+// Example: User provides RPC response showing token events in logs
+// You then add token parsing logic based on actual data structure
+
+private parseTokenTransfers(result: RpcResult, pubkey: string): Transfer[] {
+  const transfers: Transfer[] = []
+
+  // Parse token events from logs/events
+  for (const event of result.events || []) {
+    if (event.type === 'token_transfer') {
+      // Token-specific parsing based on actual RPC structure
+    }
+  }
+
+  return transfers
+}
+```
+
+**Key considerations for parseTx**:
+
+| Aspect | Native Asset | Tokens | Internal Transfers |
+|--------|--------------|--------|-------------------|
+| Where to find | Transaction value field | Event logs / receipts | Nested calls / traces |
+| Asset ID | `this.assetId` | `chainId/namespace:contractAddress` | Varies |
+| pubkey comparison | Usually sender field | Event old_owner/new_owner | May be nested |
+
+**Common patterns by chain type**:
+
+**EVM Chains** (SecondClassEvmAdapter handles automatically):
+- Native: `tx.value`
+- Tokens: ERC-20 Transfer events in logs
+- Uses `ethers.Interface.parseLog()` to decode events
+
+**Non-EVM Chains** (must implement manually):
+
+```typescript
+// NEAR pattern - EVENT_JSON logs
+for (const log of receipt.outcome.logs) {
+  if (!log.startsWith('EVENT_JSON:')) continue
+  const event = JSON.parse(log.slice('EVENT_JSON:'.length))
+  if (event.standard === 'nep141' && event.event === 'ft_transfer') {
+    // Parse transfer from event.data
+  }
+}
+
+// Sui pattern - coin type from object changes
+for (const change of result.objectChanges) {
+  if (change.type === 'mutated' && change.objectType.includes('::coin::Coin<')) {
+    // Extract coin type and amount
+  }
+}
+
+// Tron pattern - TRC20 logs
+for (const log of result.log || []) {
+  if (log.topics[0] === TRC20_TRANSFER_TOPIC) {
+    // Decode TRC20 transfer
+  }
+}
+```
+
+**pubkey vs account ID gotcha**:
+- Some chains pass `pubkey` as hex public key
+- But logs/events use account addresses (e.g., `alice.near`, base58, etc.)
+- May need to convert: `const accountId = pubKeyToAddress(pubkey)`
+
+**When to ask user for debugger scope**:
+- Initial naive implementation doesn't catch tokens
+- Swap execution prices are wrong
+- Internal transfers missing
+
+**Example request to user**:
+> "The parseTx implementation needs refinement for token transfers. Can you:
+> 1. Make a token send/swap
+> 2. Set a breakpoint in parseTx()
+> 3. Share the `result` variable from the RPC response
+> This will help me see the actual data structure for token events."
 
 ### Step 3.3: Add Utility Functions
 
@@ -1174,16 +1232,42 @@ export enum CoingeckoAssetPlatform {
 }
 ```
 
-**File**: `packages/caip/src/adapters/coingecko/utils.ts`
+**File**: `packages/caip/src/adapters/coingecko/index.ts` (3 touchpoints — enum + 2 switch statements)
 
-Add chain ID to platform mapping in the `chainIdToCoingeckoAssetPlatform` function:
+CRITICAL: This file has 3 separate places to update. Missing any causes runtime failures.
 
+Touchpoint 1 — Already shown above: `CoingeckoAssetPlatform` enum entry.
+
+Touchpoint 2 — `chainIdToCoingeckoAssetPlatform()` forward mapping (CHAIN_REFERENCE → platform):
 ```typescript
-// For EVM chains, add to the EVM switch statement
+// For EVM chains, add to the EVM switch (inside chainNamespace Evm case)
 case CHAIN_REFERENCE.[ChainName]Mainnet:
   return CoingeckoAssetPlatform.[ChainName]
+```
 
-// For non-EVM chains, add separate case in outer switch
+Touchpoint 3 — `coingeckoAssetPlatformToChainId()` reverse mapping (platform → chainId):
+```typescript
+case CoingeckoAssetPlatform.[ChainName]:
+  return [chainLower]ChainId
+```
+NOTE: This reverse mapping requires importing `[chainLower]ChainId` from `../../constants`. Only import what is used — `chainIdToCoingeckoAssetPlatform` uses `CHAIN_REFERENCE` not chainId constants.
+
+**File**: `packages/caip/src/adapters/coingecko/utils.ts` (2 touchpoints)
+
+Touchpoint 4 — Add chainId to `buildByChainId` loop in `COINGECKO_ASSET_PLATFORM_TO_CHAIN_ID_MAP` (~line 280-310):
+```typescript
+// Import chainId + assetId from constants at top of file
+import { [chainLower]AssetId, [chainLower]ChainId, ... } from '../../constants'
+
+// Add to the switch/if chain inside the buildByChainId loop
+prev[[chainLower]ChainId][assetId] = id
+```
+
+Touchpoint 5 — Add native asset to `COINGECKO_NATIVE_ASSET_PLATFORM_TO_CHAIN_ID_MAP` (~line 370-390):
+```typescript
+[[chainLower]ChainId]: { [[chainLower]AssetId]: '[coingecko-native-coin-id]' },
+// e.g., for Cronos: [cronosChainId]: { [cronosAssetId]: 'crypto-com-chain' }
+// e.g., for ETH-native chains: [scrollChainId]: { [scrollAssetId]: 'ethereum' }
 ```
 
 **File**: `packages/caip/src/adapters/coingecko/utils.test.ts`
@@ -1319,13 +1403,13 @@ case [chainLower]ChainId:
 2. **Update viem if needed**: For new/recent chains, update viem to latest version first:
    ```bash
    # Check current version
-   yarn why viem
+   pnpm why viem
 
    # Update to latest pinned version
-   yarn up viem@latest
+   pnpm update viem@latest
 
    # Rebuild packages
-   yarn build:packages
+   pnpm run build:packages
    ```
 
 3. **Only define manually if unavailable**: If the chain doesn't exist in viem, use `defineChain()` pattern (see viem docs)
@@ -1404,17 +1488,17 @@ Claude running it is hands-off but you won't see detailed progress, and it may a
 
 ```bash
 # Step 1: Generate CoinGecko CAIP adapters (JSON mappings from our code)
-yarn generate:caip-adapters
+pnpm run generate:caip-adapters
 # ✓ Generates packages/caip/src/adapters/coingecko/generated/eip155_999/adapter.json
 # ✓ Takes ~10 seconds
 
 # Step 2: Generate color map (picks up new assets)
-yarn generate:color-map
+pnpm run generate:color-map
 # ✓ Updates scripts/generateAssetData/color-map.json
 # ✓ Takes ~5 seconds
 
 # Step 3: Generate asset data (fetches tokens from CoinGecko)
-ZERION_API_KEY=<user-provided-key> yarn generate:asset-data
+ZERION_API_KEY=<user-provided-key> pnpm run generate:asset-data
 # ✓ Fetches all HyperEVM ERC20 tokens from CoinGecko platform 'hyperevm'
 # ✓ Updates src/assets/generated/
 # ✓ Takes 2-5 minutes - YOU SHOULD SEE:
@@ -1425,12 +1509,12 @@ ZERION_API_KEY=<user-provided-key> yarn generate:asset-data
 #   - "Asset data generated successfully"
 
 # Step 4: Generate tradable asset map (for swapper support)
-yarn generate:tradable-asset-map
+pnpm run generate:tradable-asset-map
 # ✓ Generates src/lib/swapper/constants.ts mappings
 # ✓ Takes ~10 seconds
 
 # Step 5: Generate Thor longtail tokens (Thor-specific, optional for most chains)
-yarn generate:thor-longtail-tokens
+pnpm run generate:thor-longtail-tokens
 # ✓ Updates Thor longtail token list
 # ✓ Takes ~5 seconds
 ```
@@ -1565,6 +1649,50 @@ if (enabledFlags.Sui) assetIds.push(suiAssetId)
 **Reference PRs:**
 - See how Monad, Tron, Sui, Plasma, and HyperEVM were added in the same PR
 
+### Step 5.6: Add ETH Related Asset to Related Asset Index (CONDITIONAL - ETH-native chains only!)
+
+**ONLY for chains where ETH is the native gas token** (e.g., Optimism, Arbitrum, Base, Katana, MegaETH).
+**SKIP for chains with their own native token** (e.g., Berachain/BERA, Monad/MON, Tron/TRX, Sui/SUI).
+
+**Why this matters:** The related asset index groups the same asset across different chains (e.g., ETH on Ethereum, ETH on Optimism, ETH on Arbitrum). When a user views ETH, they can see all the chain variants. If your chain uses ETH as its native gas token and you don't add it here, the chain's ETH won't appear as a related asset in the UI.
+
+**File**: `scripts/generateAssetData/generateRelatedAssetIndex/generateRelatedAssetIndex.ts`
+
+1. **Import your chain's asset ID** at the top:
+```typescript
+import {
+  adapters,
+  arbitrumAssetId,
+  baseAssetId,
+  ethAssetId,
+  FEE_ASSET_IDS,
+  foxAssetId,
+  foxOnArbitrumOneAssetId,
+  fromAssetId,
+  katanaAssetId,
+  megaethAssetId,
+  [chainLower]AssetId,  // ADD THIS - only if native token IS ETH
+  optimismAssetId,
+  starknetAssetId,
+} from '@shapeshiftoss/caip'
+```
+
+2. **Add to the `manualRelatedAssetIndex`** under `ethAssetId`:
+```typescript
+const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
+  [ethAssetId]: [optimismAssetId, arbitrumAssetId, baseAssetId, katanaAssetId, megaethAssetId, [chainLower]AssetId],
+  //                                                                                           ^^^^^^^^^^^^^^^^ ADD
+  [foxAssetId]: [foxOnArbitrumOneAssetId],
+  // ...
+}
+```
+
+**How to determine if this step applies:**
+- ✅ **ADD** if: Chain uses ETH as native gas (user pays gas in ETH, like Optimism, Base, Arbitrum)
+- ❌ **SKIP** if: Chain has its own native gas token (like BERA for Berachain, MON for Monad, TRX for Tron)
+
+**Reference**: Look at which assetIds are already in the array - they're all L2s/chains where the native token is ETH.
+
 ---
 
 ## Phase 6: Ledger Support (Optional)
@@ -1613,11 +1741,94 @@ export const availableLedgerAppAssetIds = [
 
 ## Phase 7: Testing & Validation
 
+### Step 7.0: Fix CoinGecko Adapter Tests (REQUIRED - ALWAYS FAILS AFTER CHAIN INTEGRATION!)
+
+**CRITICAL**: After adding a new chain, TWO test files in `packages/caip/src/adapters/coingecko/` will almost always fail. Fix them BEFORE running the full test suite.
+
+**IMPORTANT**: Always run `pnpm run build:packages` FIRST so TypeScript can resolve workspace package exports. Without this, type-check shows false errors like `'"@shapeshiftoss/caip"' has no exported member named '[chainLower]ChainId'`.
+
+#### Test File 1: `packages/caip/src/adapters/coingecko/utils.test.ts`
+
+The `parseData` test at line ~100 has a hardcoded expected output with every chain's entry. When you add a new chain to `parseData()` in `utils.ts`, you MUST add the matching expected entry:
+
+```typescript
+// Add your chain's expected entry to the `expected` object in the test
+'eip155:[CHAIN_ID]': {
+  'eip155:[CHAIN_ID]/slip44:60': '[coingecko-native-id]',
+},
+```
+
+**How to find the CoinGecko native ID**: Look at what you set in the `parseData()` function's initial data (the object at the bottom of `parseData()` that maps `chainId` → `{ assetId: coingeckoId }`).
+
+#### Test File 2: `packages/caip/src/adapters/coingecko/index.test.ts`
+
+**ONLY for ETH-native chains** (where CoinGecko maps the native asset to `'ethereum'`):
+
+The `coingeckoToAssetIds('ethereum')` test expects a specific list of all chain asset IDs that map to `'ethereum'` in CoinGecko. Add your chain:
+
+```typescript
+const ethOn[ChainName] = toAssetId({
+  chainNamespace,
+  chainReference: CHAIN_REFERENCE.[ChainName]Mainnet,
+  assetNamespace: 'slip44',
+  assetReference: ASSET_REFERENCE.[ChainName],
+})
+expect(coingeckoToAssetIds('ethereum')).toEqual([
+  ethOnEthereum,
+  ethOnOptimism,
+  ethOnArbitrum,
+  ethOnBase,
+  ethOnMegaEth,
+  ethOn[ChainName],  // ADD THIS
+])
+```
+
+**Skip this** if your chain's native asset has its own CoinGecko ID (e.g., 'mantle', 'monad', 'berachain-bera').
+
+#### Test File 3: `packages/chain-adapters/src/evm/EvmBaseAdapter.ts` (targetNetwork)
+
+**CRITICAL for EVM chains**: The `targetNetwork` object in `EvmBaseAdapter.ts` (around line ~230) maps chain IDs to network display info for `ethSwitchChain`. If you add your chain to `evmChainIds` but forget `targetNetwork`, the build will fail with:
+
+```
+error TS2339: Property 'eip155:XXX' does not exist on type...
+error TS18048: 'targetNetwork' is possibly 'undefined'.
+```
+
+**Fix**: Add your chain's entry:
+```typescript
+[KnownChainIds.[ChainName]Mainnet]: {
+  name: '[ChainName]',
+  symbol: '[SYMBOL]',
+  explorer: 'https://[explorer-url]',
+},
+```
+
+#### Verification Commands
+
+```bash
+# 1. Build packages first (REQUIRED before type-check)
+pnpm run build:packages
+
+# 2. Run CAIP tests specifically
+pnpm exec vitest run packages/caip/ --reporter=verbose
+
+# 3. Type-check
+pnpm run type-check
+
+# 4. Lint
+pnpm run lint --fix
+```
+
+**Common patterns by chain native token**:
+| Native Token | CoinGecko ID | Update index.test.ts? | Update utils.test.ts? |
+|---|---|---|---|
+| ETH (L2s like Base, Optimism, Ink) | `'ethereum'` | YES - add to `coingeckoToAssetIds('ethereum')` | YES - add chain entry |
+| Own token (BERA, MON, MNT, CRO) | `'berachain-bera'`, `'monad'`, `'mantle'`, `'cronos'` | NO | YES - add chain entry |
+
 ### Step 7.1: Type Check
 
 ```bash
-# In web repo
-yarn type-check
+pnpm run type-check
 
 # Fix any TypeScript errors
 ```
@@ -1625,13 +1836,13 @@ yarn type-check
 ### Step 7.2: Lint
 
 ```bash
-yarn lint --fix
+pnpm run lint --fix
 ```
 
 ### Step 7.3: Build
 
 ```bash
-yarn build
+pnpm run build
 
 # Verify no build errors
 # Check bundle size didn't explode
@@ -1660,67 +1871,16 @@ If Ledger supported:
 
 ## Phase 8: Clean Up & Commit
 
-### Step 8.1: Revert Verdaccio Commits
+### Step 8.1: Create Feature Commits
+
+Everything is in the same monorepo now — hdwallet packages are workspace packages under `packages/hdwallet-*`.
 
 ```bash
-# In web repo
-git log --oneline | head -20  # Find commit hashes
-
-# Revert the hdwallet bump commit
-git revert [commit-hash] --no-edit
-
-# Verify web is clean
-git status
-```
-
-```bash
-# In hdwallet repo
-git log --oneline | head -10
-
-# Revert the version bump commit
-git revert [commit-hash] --no-edit
-
-# Verify hdwallet is clean
-git status
-```
-
-### Step 8.2: Restore npm Registry
-
-```bash
-npm set registry https://registry.npmjs.org
-yarn config set registry https://registry.yarnpkg.com
-```
-
-### Step 8.3: Create Feature Commits
-
-**In HDWallet repo**:
-
-```bash
-# Commit native support
-git add packages/hdwallet-core packages/hdwallet-native
-git commit -m "feat: support [chainname] with native wallet
-
-- Add [ChainName] core interfaces (GetAddress, SignTx, Wallet)
-- Implement Native[Chain]Wallet mixin
-- Add [chain] crypto adapter for address derivation and signing
-- Register SLIP44 coin type [COINTYPE]
-- Follow BIP44 derivation path: m/44'/[COINTYPE]'/0'/0/0"
-```
-
-If Ledger:
-```bash
-# Commit ledger support separately
-git add packages/hdwallet-ledger
-git commit -m "feat: add ledger support for [chainname]"
-```
-
-**In Web repo**:
-
-```bash
-# Commit web integration
+# Commit everything together
 git add -A
 git commit -m "feat: implement [chainname]
 
+- Add [ChainName] hdwallet core interfaces and native wallet support
 - Add [ChainName] chain adapter with poor man's RPC
 - Support native asset sends/receives
 - Add account derivation
@@ -1728,26 +1888,13 @@ git commit -m "feat: implement [chainname]
 - Add asset generation for [chain] from CoinGecko
 - Wire transaction status polling
 - Add [chain] plugin with feature flag gating
-- Update hdwallet dependencies to include [chain] support
 
 Behind feature flag for now."
 ```
 
-### Step 8.4: Open PRs
+### Step 8.2: Open PR
 
-**HDWallet PR**:
 ```bash
-# In hdwallet repo
-git push origin HEAD
-
-# Open PR to main
-gh pr create --title "feat: support [chainname] with native wallet" \
-  --body "Adds [ChainName] support to hdwallet-core and hdwallet-native..."
-```
-
-**Web PR**:
-```bash
-# In web repo
 git push origin HEAD
 
 # Open PR to develop
@@ -1849,7 +1996,7 @@ case [chainLower]ChainId:
 
 ### Gotcha 12: Missing CoinGecko Script Case
 
-**Problem**: `yarn generate:asset-data` fails with "no coingecko token support for chainId"
+**Problem**: `pnpm run generate:asset-data` fails with "no coingecko token support for chainId"
 **Solution**: Add your chain case to `scripts/generateAssetData/coingecko.ts`
 **Files to update**:
 - Import `[chainLower]ChainId` from caip
@@ -1861,7 +2008,7 @@ case [chainLower]ChainId:
 
 **Problem**: Asset generation fails with "Missing Zerion API key"
 **Solution**: Get key from user via `AskUserQuestion`, pass as env var
-**Command**: `ZERION_API_KEY=<key> yarn generate:all`
+**Command**: `ZERION_API_KEY=<key> pnpm run generate:all`
 **CRITICAL**: NEVER commit the Zerion API key to VCS!
 **Example**: Always pass key via command line only
 
@@ -1934,6 +2081,197 @@ case plasmaChainId:
 **Why**: This function converts accountId to human-readable label. Without the case, it hits the `default` and returns `''` (empty string), causing blank addresses everywhere in the UI.
 
 **Note**: This affects ALL wallet types (Native, Ledger, Trezor, MetaMask), not just one wallet.
+
+### Gotcha 18: Missing getNativeFeeAssetReference Case (RUNTIME CRASH!)
+
+**Problem**: App crashes with error:
+```
+Error: Chain namespace [chain] on mainnet not supported.
+    at getNativeFeeAssetReference.ts:XX:XX
+```
+
+**Root Cause**: Missing chainNamespace case in `getNativeFeeAssetReference()` function
+**File**: `packages/utils/src/getNativeFeeAssetReference.ts`
+
+**Solution**:
+Add case to the switch statement:
+```typescript
+case CHAIN_NAMESPACE.[ChainName]:
+  switch (chainReference) {
+    case CHAIN_REFERENCE.[ChainName]Mainnet:
+      return ASSET_REFERENCE.[ChainName]
+    default:
+      throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
+  }
+```
+
+**Why**: This function maps chainId to the native fee asset reference. Without it, any selector that needs the fee asset for your chain will throw and crash the app.
+
+**Note**: This is called early in the app initialization, so it will crash immediately when the app tries to load accounts for your chain.
+
+### Gotcha 19: Missing accountToPortfolio Case (ACCOUNT NOT VISIBLE!)
+
+**Problem**: Account discovery succeeds (getAccount returns valid data) but account doesn't appear in the UI anywhere.
+
+**Root Cause**: Missing or placeholder implementation in `accountToPortfolio()` function
+**File**: `src/state/slices/portfolioSlice/utils/index.ts`
+
+**Symptom**: You can verify getAccount is returning correct data with console.log, but the account just doesn't show up in the portfolio UI.
+
+**Solution**:
+Find the switch statement for `chainNamespace` and implement your chain's case:
+```typescript
+case CHAIN_NAMESPACE.[ChainName]: {
+  const chainAccount = account as Account<KnownChainIds.[ChainName]Mainnet>
+  const { chainId, assetId, pubkey } = account
+  const accountId = toAccountId({ chainId, account: pubkey })
+
+  portfolio.accounts.ids.push(accountId)
+  portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+  portfolio.accountBalances.ids.push(accountId)
+  portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
+
+  // Add token support if applicable
+  chainAccount.chainSpecific.tokens?.forEach(token => {
+    if (!assetIds.includes(token.assetId)) return
+    if (bnOrZero(token.balance).gt(0)) portfolio.accounts.byId[accountId].hasActivity = true
+    portfolio.accounts.byId[accountId].assetIds.push(token.assetId)
+    portfolio.accountBalances.byId[accountId][token.assetId] = token.balance
+  })
+
+  break
+}
+```
+
+**Why**: This function converts chain adapter account data into the Redux portfolio state structure. Without it, the account data is fetched but never stored, making the account invisible.
+
+### Gotcha 20: parseTx Doesn't Parse Token Transfers (SWAP EXECUTION PRICE WRONG!)
+
+**Problem**:
+- Native asset sends work fine
+- Token sends/swaps show wrong execution price or $0
+- Token transfers not appearing in transaction details
+
+**Root Cause**: `parseTx()` only parses native transfers, not token events
+
+**Symptom**: User reports swap worked but execution price shows as incorrect or zero.
+
+**Solution**: Implement token parsing in parseTx. This is an iterative process:
+
+1. **Start naive** - Parse native transfers only (initial implementation)
+2. **User tests** - User makes a token send/swap
+3. **Get RPC response** - User provides debugger scope with actual RPC data
+4. **Refine parsing** - Add token event parsing based on real data structure
+
+**Reference implementations**:
+- `SecondClassEvmAdapter.parseTx()` - ERC-20 Transfer events
+- `SuiChainAdapter.parseTx()` - SUI coin object changes
+- `TronChainAdapter.parseTx()` - TRC-20 logs
+- `NearChainAdapter.parseNep141Transfers()` - NEP-141 EVENT_JSON logs
+
+**Common issues**:
+1. **pubkey mismatch**: Logs use account address (e.g., `alice.near`) but function receives hex pubkey
+   - Solution: Convert pubkey to account address before comparison
+2. **Token contract ID extraction**: Token contract might be in receiver_id, Delegate action, or nested
+   - Solution: Check actual RPC response structure
+3. **Missing event parsing**: Chain-specific event format not handled
+   - Solution: Parse EVENT_JSON, logs, or objectChanges based on chain type
+
+**How to debug**:
+```typescript
+async parseTx(txHash: string, pubkey: string): Promise<Transaction> {
+  const result = await this.rpcCall('tx', [txHash, 'dontcare'])
+  console.log('parseTx result:', JSON.stringify(result, null, 2))
+  console.log('pubkey:', pubkey)
+  // ... rest of implementation
+}
+```
+
+**Ask user for**: Breakpoint in parseTx, share `result` variable to see actual token event structure.
+
+---
+
+### Gotcha 21: Token Sends Build as Native Transfers (isToken missing new namespace)
+
+**Problem**:
+- Token send UI works, transaction broadcasts successfully
+- But transaction is a native transfer to self, not a token transfer
+- Token balance unchanged, only gas spent
+
+**Root Cause**: `isToken()` in `packages/utils/src/index.ts` doesn't include the new chain's token namespace.
+
+**Why it matters**: `contractAddressOrUndefined(assetId)` uses `isToken()` to determine if an asset is a token. If `isToken()` returns `false`, `contractAddressOrUndefined()` returns `undefined`, and the chain adapter builds a native transfer instead of a token transfer.
+
+**EVM chains**: Not affected - EVM abstraction already handles `erc20`, `erc721`, `erc1155`.
+
+**Non-EVM chains**: MUST add their token namespace to `isToken()`:
+```typescript
+// packages/utils/src/index.ts
+export const isToken = (assetId: AssetId) => {
+  switch (fromAssetId(assetId).assetNamespace) {
+    case ASSET_NAMESPACE.erc20:
+    case ASSET_NAMESPACE.erc721:
+    case ASSET_NAMESPACE.erc1155:
+    case ASSET_NAMESPACE.splToken:  // Solana
+    case ASSET_NAMESPACE.trc20:     // Tron
+    case ASSET_NAMESPACE.suiCoin:   // Sui
+    case ASSET_NAMESPACE.nep141:    // NEAR <-- ADD YOUR NAMESPACE HERE
+      return true
+    default:
+      return false
+  }
+}
+```
+
+**Symptom**: User sends token, tx succeeds, but token balance unchanged. Tx on block explorer shows native transfer to self.
+
+**Debug**: Add logs in Send flow:
+```typescript
+console.log('[Send] assetId:', asset.assetId)
+console.log('[Send] contractAddress:', contractAddressOrUndefined(asset.assetId))
+// If contractAddress is undefined for a token, isToken() is missing the namespace
+```
+
+---
+
+### Gotcha 22: Ledger "TypeError: coin" Error (Missing translateCoinAndMethod case)
+
+**Problem**:
+- Ledger connection works for other chains
+- But new chain throws `TypeError: coin` when deriving address
+- Error trace shows `translateCoinAndMethod` hitting `default: throw new TypeError("coin")`
+
+**Root Cause**: For non-EVM chains, `translateCoinAndMethod` in Ledger WebHID/WebUSB transport needs a case for the new coin type.
+
+**Files to update**:
+1. `packages/hdwallet-ledger-webhid/src/transport.ts`
+2. `packages/hdwallet-ledger-webusb/src/transport.ts`
+
+**Solution**: Add import and case for the new chain's Ledger app:
+
+```typescript
+// 1. Add import at top
+import Near from "@ledgerhq/hw-app-near";
+
+// 2. Add case in translateCoinAndMethod switch
+case "Near": {
+  const near = new Near(transport as Transport);
+  const methodInstance = near[method as LedgerTransportMethodName<"Near">].bind(near);
+  return methodInstance as LedgerTransportMethod<T, U>;
+}
+```
+
+**Prerequisites**:
+- `@ledgerhq/hw-app-[chainname]` must exist as npm package
+- Chain must be in `LedgerTransportCoinType` union in `packages/hdwallet-ledger/src/transport.ts`
+
+**EVM chains**: Not affected - they use the Ethereum app via `case "Eth"`.
+
+**Checklist for new non-EVM Ledger chain**:
+- [ ] Add to `LedgerTransportCoinType` in `hdwallet-ledger/src/transport.ts`
+- [ ] Add to `LedgerTransportMethodMap` type mapping in same file
+- [ ] Add import + case in `hdwallet-ledger-webhid/src/transport.ts`
+- [ ] Add import + case in `hdwallet-ledger-webusb/src/transport.ts`
 
 ---
 
@@ -2012,20 +2350,18 @@ case plasmaChainId:
 
 This skill covers the COMPLETE process for adding a new blockchain as a second-class citizen:
 
-1. ✅ HDWallet native support
-2. ✅ Local Verdaccio testing workflow
-3. ✅ Web poor man's chain adapter
-4. ✅ Feature flags and configuration
-5. ✅ Asset generation
-6. ✅ Transaction status polling
-7. ✅ Ledger support (optional)
-8. ✅ Testing and validation
-9. ✅ Clean commit workflow
+1. ✅ HDWallet native support (workspace packages under `packages/hdwallet-*`)
+2. ✅ Web poor man's chain adapter
+3. ✅ Feature flags and configuration
+4. ✅ Asset generation
+5. ✅ Transaction status polling
+6. ✅ Ledger support (optional)
+7. ✅ Testing and validation
+8. ✅ Clean commit workflow
 
 **Key Principles:**
-- Always start with HDWallet native
-- Test locally with Verdaccio before publishing
-- Keep verdaccio bumps in separate revertable commits
+- HDWallet packages are in the monorepo — no separate repo, no Verdaccio, no version bumps
+- Always start with HDWallet native (`packages/hdwallet-core` + `packages/hdwallet-native`)
 - Follow existing patterns (Monad for EVM, Tron/Sui for non-EVM)
 - Poor man's approach: public RPC, no microservices, minimal features
 - Feature flag everything

@@ -21,11 +21,33 @@ export enum KnownChainIds {
   PolygonMainnet = 'eip155:137',
   GnosisMainnet = 'eip155:100',
   ArbitrumMainnet = 'eip155:42161',
-  ArbitrumNovaMainnet = 'eip155:42170',
   BaseMainnet = 'eip155:8453',
   MonadMainnet = 'eip155:143',
   HyperEvmMainnet = 'eip155:999',
   PlasmaMainnet = 'eip155:9745',
+  MantleMainnet = 'eip155:5000',
+  InkMainnet = 'eip155:57073',
+  MegaEthMainnet = 'eip155:4326',
+  BerachainMainnet = 'eip155:80094',
+  CronosMainnet = 'eip155:25',
+  KatanaMainnet = 'eip155:747474',
+  EtherealMainnet = 'eip155:5064014',
+  FlowEvmMainnet = 'eip155:747',
+  CeloMainnet = 'eip155:42220',
+  PlumeMainnet = 'eip155:98866',
+  StoryMainnet = 'eip155:1514',
+  ZkSyncEraMainnet = 'eip155:324',
+  BlastMainnet = 'eip155:81457',
+  WorldChainMainnet = 'eip155:480',
+  HemiMainnet = 'eip155:43111',
+  SeiMainnet = 'eip155:1329',
+  LineaMainnet = 'eip155:59144',
+  ScrollMainnet = 'eip155:534352',
+  SonicMainnet = 'eip155:146',
+  UnichainMainnet = 'eip155:130',
+  BobMainnet = 'eip155:60808',
+  ModeMainnet = 'eip155:34443',
+  SoneiumMainnet = 'eip155:1868',
   BitcoinMainnet = 'bip122:000000000019d6689c085ae165831e93',
   BitcoinCashMainnet = 'bip122:000000000000000000651ef99cb9fcbe',
   DogecoinMainnet = 'bip122:00000000001a91e3dace36e2be3bf030',
@@ -37,6 +59,9 @@ export enum KnownChainIds {
   SolanaMainnet = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
   TronMainnet = 'tron:0x2b6653dc',
   SuiMainnet = 'sui:35834a8a',
+  NearMainnet = 'near:mainnet',
+  StarknetMainnet = 'starknet:SN_MAIN',
+  TonMainnet = 'ton:mainnet',
 }
 
 export type EvmChainId =
@@ -47,11 +72,33 @@ export type EvmChainId =
   | KnownChainIds.PolygonMainnet
   | KnownChainIds.GnosisMainnet
   | KnownChainIds.ArbitrumMainnet
-  | KnownChainIds.ArbitrumNovaMainnet
   | KnownChainIds.BaseMainnet
   | KnownChainIds.MonadMainnet
   | KnownChainIds.HyperEvmMainnet
   | KnownChainIds.PlasmaMainnet
+  | KnownChainIds.MantleMainnet
+  | KnownChainIds.InkMainnet
+  | KnownChainIds.MegaEthMainnet
+  | KnownChainIds.BerachainMainnet
+  | KnownChainIds.CronosMainnet
+  | KnownChainIds.KatanaMainnet
+  | KnownChainIds.EtherealMainnet
+  | KnownChainIds.FlowEvmMainnet
+  | KnownChainIds.CeloMainnet
+  | KnownChainIds.PlumeMainnet
+  | KnownChainIds.StoryMainnet
+  | KnownChainIds.ZkSyncEraMainnet
+  | KnownChainIds.BlastMainnet
+  | KnownChainIds.WorldChainMainnet
+  | KnownChainIds.HemiMainnet
+  | KnownChainIds.SeiMainnet
+  | KnownChainIds.LineaMainnet
+  | KnownChainIds.ScrollMainnet
+  | KnownChainIds.SonicMainnet
+  | KnownChainIds.UnichainMainnet
+  | KnownChainIds.BobMainnet
+  | KnownChainIds.ModeMainnet
+  | KnownChainIds.SoneiumMainnet
 
 export type CosmosSdkChainId =
   | KnownChainIds.CosmosMainnet
@@ -70,6 +117,14 @@ export type UtxoChainId =
 export type TronChainId = KnownChainIds.TronMainnet
 
 export type SuiChainId = KnownChainIds.SuiMainnet
+
+export type NearChainId = KnownChainIds.NearMainnet
+
+export type SolanaChainId = KnownChainIds.SolanaMainnet
+
+export type StarknetChainId = KnownChainIds.StarknetMainnet
+
+export type TonChainId = KnownChainIds.TonMainnet
 
 export enum WithdrawType {
   DELAYED,

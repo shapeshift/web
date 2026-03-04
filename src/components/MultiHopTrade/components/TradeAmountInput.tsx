@@ -32,7 +32,7 @@ import { PercentOptionsButtonGroup } from '@/components/DeFi/components/PercentO
 import { Display } from '@/components/Display'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
@@ -140,6 +140,8 @@ export type TradeAmountInputProps = {
   placeholder?: string
   activeQuote?: TradeQuote | TradeRate | undefined
   inputContainerStyleOverride?: React.CSSProperties
+  inputDataTestId?: string
+  fiatToggleDataTestId?: string
 } & PropsWithChildren
 
 const defaultPercentOptions = [0.25, 0.5, 0.75, 1]
@@ -187,6 +189,8 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     activeQuote,
     onToggleIsFiat: handleIsInputtingFiatSellAmountChange,
     inputContainerStyleOverride,
+    inputDataTestId,
+    fiatToggleDataTestId,
   }) => {
     const {
       number: { localeParts },
@@ -219,7 +223,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     const setValue = methods?.setValue ?? _methods.setValue
 
     // Lower the decimal places when the integer is greater than 8 significant digits for better UI
-    const cryptoAmountIntegerCount = bnOrZero(bnOrZero(cryptoAmount).toFixed(0)).precision(true)
+    const cryptoAmountIntegerCount = bn(bnOrZero(cryptoAmount).toFixed(0)).precision(true)
     const formattedCryptoAmount = useMemo(
       () =>
         bnOrZero(cryptoAmountIntegerCount).isLessThanOrEqualTo(8)
@@ -273,6 +277,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         return (
           <NumericFormat
             customInput={AmountInput}
+            data-testid={inputDataTestId}
             decimalScale={isFiat ? localeParts.fraction : asset?.precision}
             valueIsNumericString={true}
             disabled={isReadOnly}
@@ -289,8 +294,8 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               isFiat
                 ? fiatAmount && !bnOrZero(fiatAmount).isZero()
                   ? fiatAmount
-                  : undefined
-                : formattedCryptoAmount || undefined
+                  : ''
+                : formattedCryptoAmount || ''
             }
             // this is already within a useCallback, we don't need to memo this
             onValueChange={(values: NumberFormatValues) => {
@@ -309,6 +314,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                   ? ''
                   : bnOrZero(value)
                       .div(bnOrZero(assetMarketDataUserCurrency?.price))
+                      .decimalPlaces(asset?.precision ?? 18, 1)
                       .toString()
                 setValue('amountCryptoPrecision', _cryptoAmount)
               } else {
@@ -339,6 +345,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         handleOnFocus,
         handleValueChange,
         isFiat,
+        inputDataTestId,
         placeholder,
         isReadOnly,
         localeParts.decimal,
@@ -433,7 +440,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
             pe={0}
             display={hideAmounts ? 'none' : 'flex'}
           >
-            <Flex gap={2} flex={1} alignItems='flex-end' pb={layout === 'inline' ? 4 : 0}>
+            <Flex gap={2} flex={1} alignItems='flex-end' pb={layout === 'inline' ? 4 : 0} pe={5}>
               <Skeleton isLoaded={!showInputSkeleton} width='full'>
                 <Controller
                   name={'amountFieldInput'}
@@ -455,6 +462,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                     variant='link'
                     color='text.subtle'
                     mb={1}
+                    data-testid={fiatToggleDataTestId}
                   >
                     <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
                   </Button>
@@ -482,6 +490,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                   fontWeight='medium'
                   variant='link'
                   color='text.subtle'
+                  data-testid={fiatToggleDataTestId}
                 >
                   <Skeleton isLoaded={!showFiatSkeleton}>{oppositeCurrency}</Skeleton>
                 </Button>

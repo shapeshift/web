@@ -5,9 +5,7 @@ import {
   baseChainId,
   bscChainId,
   ethChainId,
-  gnosisChainId,
   hyperEvmChainId,
-  monadChainId,
   optimismChainId,
   polygonChainId,
 } from '@shapeshiftoss/caip'
@@ -20,9 +18,7 @@ export const CHAIN_ID_TO_PORTALS_NETWORK: Partial<Record<ChainId, string>> = {
   [bscChainId]: 'bsc',
   [optimismChainId]: 'optimism',
   [arbitrumChainId]: 'arbitrum',
-  [gnosisChainId]: 'gnosis',
   [baseChainId]: 'base',
-  [monadChainId]: 'monad',
   [hyperEvmChainId]: 'hyperevm',
 }
 

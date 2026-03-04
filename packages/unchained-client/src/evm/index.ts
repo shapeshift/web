@@ -1,5 +1,4 @@
 import * as arbitrum from './arbitrum'
-import * as arbitrumNova from './arbitrumNova'
 import * as avalanche from './avalanche'
 import * as base from './base'
 import * as bnbsmartchain from './bnbsmartchain'
@@ -18,19 +17,8 @@ export type Api =
   | gnosis.V1Api
   | bnbsmartchain.V1Api
   | arbitrum.V1Api
-  | arbitrumNova.V1Api
   | base.V1Api
 
 export * from './parser'
 
-export {
-  ethereum,
-  avalanche,
-  optimism,
-  gnosis,
-  polygon,
-  bnbsmartchain,
-  arbitrum,
-  arbitrumNova,
-  base,
-}
+export { ethereum, avalanche, optimism, gnosis, polygon, bnbsmartchain, arbitrum, base }

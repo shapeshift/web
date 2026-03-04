@@ -5,7 +5,6 @@ import {
   baseChainId,
   bscChainId,
   ethChainId,
-  gnosisChainId,
   optimismChainId,
   polygonChainId,
 } from '@shapeshiftoss/caip'
@@ -17,7 +16,6 @@ export enum SupportedPortalsNetwork {
   Ethereum = 'ethereum',
   Optimism = 'optimism',
   Polygon = 'polygon',
-  Gnosis = 'gnosis',
   Arbitrum = 'arbitrum',
   Base = 'base',
 }
@@ -28,7 +26,6 @@ const PORTALS_NETWORKS_TO_CHAIN_ID_MAP: Record<SupportedPortalsNetwork, ChainId>
   [SupportedPortalsNetwork.Ethereum]: ethChainId,
   [SupportedPortalsNetwork.Optimism]: optimismChainId,
   [SupportedPortalsNetwork.Polygon]: polygonChainId,
-  [SupportedPortalsNetwork.Gnosis]: gnosisChainId,
   [SupportedPortalsNetwork.Arbitrum]: arbitrumChainId,
   [SupportedPortalsNetwork.Base]: baseChainId,
 } as const

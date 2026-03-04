@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
 import { matchPath, Route, Routes, useLocation } from 'react-router-dom'
 
 import type { QuoteListProps } from './components/QuoteList/QuoteList'
@@ -14,7 +14,6 @@ import { useGetTradeRates } from './hooks/useGetTradeQuotes/useGetTradeRates'
 import type { TradeInputTab } from './types'
 import { TradeRoutePaths } from './types'
 
-import { fromBaseUnit } from '@/lib/math'
 import { TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
@@ -45,7 +44,6 @@ export const MultiHopTrade = memo(
     onChangeTab,
   }: TradeCardProps) => {
     const dispatch = useAppDispatch()
-    const methods = useForm({ mode: 'onChange' })
     const location = useLocation()
 
     // Extract params directly from location.pathname using matchPath instead of useParams()
@@ -93,20 +91,18 @@ export const MultiHopTrade = memo(
       }
 
       if (paramsSellAmountCryptoBaseUnit && sellAsset) {
-        dispatch(
-          tradeInput.actions.setSellAmountCryptoPrecision(
-            fromBaseUnit(paramsSellAmountCryptoBaseUnit, sellAsset.precision),
-          ),
-        )
+        const sellAmountCrypto = BigAmount.fromBaseUnit({
+          value: paramsSellAmountCryptoBaseUnit,
+          precision: sellAsset.precision,
+        })
+        dispatch(tradeInput.actions.setSellAmountCryptoPrecision(sellAmountCrypto.toPrecision()))
       }
 
       setIsInitialized(true)
     }, [dispatch, buyAsset, sellAsset, paramsSellAmountCryptoBaseUnit, isInitialized])
 
     return (
-      <FormProvider {...methods}>
-        <TradeRoutes isCompact={isCompact} onChangeTab={onChangeTab} isStandalone={isStandalone} />
-      </FormProvider>
+      <TradeRoutes isCompact={isCompact} onChangeTab={onChangeTab} isStandalone={isStandalone} />
     )
   },
 )

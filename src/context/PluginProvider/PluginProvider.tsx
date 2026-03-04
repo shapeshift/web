@@ -61,7 +61,9 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     let pluginRoutes: Route[] = []
 
     // newly registered will be default + what comes from plugins
-    const newChainAdapters: { [k in ChainId]?: () => ChainAdapter<KnownChainIds> } = {}
+    const newChainAdapters: {
+      [k in ChainId]?: () => ChainAdapter<KnownChainIds>
+    } = {}
 
     // register providers from each plugin
     for (const plugin of pluginManager.values()) {
@@ -111,17 +113,40 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.Polygon && chainId === KnownChainIds.PolygonMainnet) return false
       if (!featureFlags.Gnosis && chainId === KnownChainIds.GnosisMainnet) return false
       if (!featureFlags.Arbitrum && chainId === KnownChainIds.ArbitrumMainnet) return false
-      if (!featureFlags.ArbitrumNova && chainId === KnownChainIds.ArbitrumNovaMainnet) return false
       if (!featureFlags.Base && chainId === KnownChainIds.BaseMainnet) return false
       if (!featureFlags.Solana && chainId === KnownChainIds.SolanaMainnet) return false
       if (!featureFlags.Sui && chainId === KnownChainIds.SuiMainnet) return false
+      if (!featureFlags.Starknet && chainId === KnownChainIds.StarknetMainnet) return false
       if (!featureFlags.Mayachain && chainId === KnownChainIds.MayachainMainnet) return false
       if (!featureFlags.Monad && chainId === KnownChainIds.MonadMainnet) return false
       if (!featureFlags.HyperEvm && chainId === KnownChainIds.HyperEvmMainnet) return false
+      if (!featureFlags.Katana && chainId === KnownChainIds.KatanaMainnet) return false
+      if (!featureFlags.Ethereal && chainId === KnownChainIds.EtherealMainnet) return false
+      if (!featureFlags.FlowEvm && chainId === KnownChainIds.FlowEvmMainnet) return false
+      if (!featureFlags.Story && chainId === KnownChainIds.StoryMainnet) return false
+      if (!featureFlags.WorldChain && chainId === KnownChainIds.WorldChainMainnet) return false
+      if (!featureFlags.Sonic && chainId === KnownChainIds.SonicMainnet) return false
+      if (!featureFlags.Unichain && chainId === KnownChainIds.UnichainMainnet) return false
+      if (!featureFlags.Bob && chainId === KnownChainIds.BobMainnet) return false
+      if (!featureFlags.Mode && chainId === KnownChainIds.ModeMainnet) return false
       if (!featureFlags.Plasma && chainId === KnownChainIds.PlasmaMainnet) return false
+      if (!featureFlags.Ink && chainId === KnownChainIds.InkMainnet) return false
+      if (!featureFlags.MegaEth && chainId === KnownChainIds.MegaEthMainnet) return false
+      if (!featureFlags.Plume && chainId === KnownChainIds.PlumeMainnet) return false
+      if (!featureFlags.ZkSyncEra && chainId === KnownChainIds.ZkSyncEraMainnet) return false
+      if (!featureFlags.Blast && chainId === KnownChainIds.BlastMainnet) return false
+      if (!featureFlags.Hemi && chainId === KnownChainIds.HemiMainnet) return false
+      if (!featureFlags.Sei && chainId === KnownChainIds.SeiMainnet) return false
+      if (!featureFlags.Linea && chainId === KnownChainIds.LineaMainnet) return false
+      if (!featureFlags.Scroll && chainId === KnownChainIds.ScrollMainnet) return false
+      if (!featureFlags.Berachain && chainId === KnownChainIds.BerachainMainnet) return false
+      if (!featureFlags.Soneium && chainId === KnownChainIds.SoneiumMainnet) return false
+      if (!featureFlags.Celo && chainId === KnownChainIds.CeloMainnet) return false
       if (!featureFlags.BnbSmartChain && chainId === KnownChainIds.BnbSmartChainMainnet)
         return false
       if (!featureFlags.Tron && chainId === KnownChainIds.TronMainnet) return false
+      if (!featureFlags.Ton && chainId === KnownChainIds.TonMainnet) return false
+      if (!featureFlags.Near && chainId === KnownChainIds.NearMainnet) return false
       if (!featureFlags.Zcash && chainId === KnownChainIds.ZcashMainnet) return false
       return true
     })

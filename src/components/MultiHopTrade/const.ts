@@ -27,3 +27,16 @@ export const cardstyles: CardProps = {
     boxShadow: '0 1px 0 rgba(255,255,255,0.05) inset, 0 2px 5px rgba(0,0,0,.2)',
   },
 }
+
+export const modalCardStyles: CardProps = {
+  bg: 'transparent',
+  borderColor: 'transparent',
+  boxShadow: 'none',
+  borderWidth: 0,
+  borderRadius: 0,
+  _dark: {
+    bg: 'transparent',
+    borderColor: 'transparent',
+    boxShadow: 'none',
+  },
+}

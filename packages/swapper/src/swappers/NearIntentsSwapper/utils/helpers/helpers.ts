@@ -1,5 +1,5 @@
 import { ASSOCIATED_PROGRAM_ID } from '@coral-xyz/anchor/dist/cjs/utils/token'
-import { fromAssetId, solanaChainId, suiChainId } from '@shapeshiftoss/caip'
+import { fromAssetId, solanaChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero, isToken } from '@shapeshiftoss/utils'
@@ -9,6 +9,28 @@ import { zeroAddress } from 'viem'
 import type { GetExecutionStatusResponse, TokenResponse } from '../../types'
 import { chainIdToNearIntentsChain } from '../../types'
 import { OneClickService } from '../oneClickService'
+
+const getTokensWithRetry = async (): Promise<TokenResponse[]> => {
+  const maxRetries = 3
+  let lastError: Error | null = null
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await OneClickService.getTokens()
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err))
+      const isWebSocketError = lastError.message.includes('WebSocket is not ready')
+
+      if (isWebSocketError && attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
+        continue
+      }
+      throw lastError
+    }
+  }
+
+  throw lastError ?? new Error('Failed to get tokens after retries')
+}
 
 const ATA_RENT_LAMPORTS = 2040000
 
@@ -39,8 +61,21 @@ export const getNearIntentsAsset = ({
   return `nep141:${nearNetwork}-${contractAddress.toLowerCase()}.omft.near`
 }
 
-const NEP245_CHAINS = ['bsc', 'pol', 'avax', 'op', 'tron', 'monad'] as const
-const TOKEN_LOOKUP_CHAINS = ['sui'] as const
+const NEP245_CHAINS = ['bsc', 'pol', 'avax', 'op', 'tron', 'monad', 'plasma'] as const
+const TOKEN_LOOKUP_CHAINS = ['sui', 'starknet', 'ton'] as const
+const NEAR_CHAIN = 'near' as const
+const WNEAR_CONTRACT_ADDRESS = 'wrap.near' as const
+
+type Nep245Chain = (typeof NEP245_CHAINS)[number]
+type TokenLookupChain = (typeof TOKEN_LOOKUP_CHAINS)[number]
+
+const isNep245Chain = (chain: string): chain is Nep245Chain => {
+  return NEP245_CHAINS.includes(chain as Nep245Chain)
+}
+
+const isTokenLookupChain = (chain: string): chain is TokenLookupChain => {
+  return TOKEN_LOOKUP_CHAINS.includes(chain as TokenLookupChain)
+}
 
 export const assetToNearIntentsAsset = async (asset: Asset): Promise<string | null> => {
   const nearNetwork =
@@ -48,23 +83,38 @@ export const assetToNearIntentsAsset = async (asset: Asset): Promise<string | nu
 
   if (!nearNetwork) return null
 
-  // NEP-245 chains (BSC, Polygon, Avalanche, Optimism, TRON, SUI) and Solana require token lookup
+  // NEAR chain requires special handling
+  // Native NEAR maps to wNEAR (wrap.near)
+  if (nearNetwork === NEAR_CHAIN) {
+    const tokens = await getTokensWithRetry()
+    const { assetNamespace, assetReference } = fromAssetId(asset.assetId)
+    const isNativeAsset = assetNamespace === 'slip44'
+
+    // Native NEAR maps to wNEAR, tokens use their contract address directly
+    const contractAddress = isNativeAsset ? WNEAR_CONTRACT_ADDRESS : assetReference
+
+    const match = tokens.find((t: TokenResponse) => {
+      if (t.blockchain !== NEAR_CHAIN) return false
+      return t.contractAddress === contractAddress
+    })
+
+    return match?.assetId ?? null
+  }
+
+  // NEP-245 chains (BSC, Polygon, Avalanche, Optimism, TRON, Monad), Token lookup chains (Sui, Starknet), and Solana require token lookup
   // Asset IDs use hashed format that can't be generated from contract addresses
   const requiresLookup =
-    NEP245_CHAINS.includes(nearNetwork as any) ||
-    TOKEN_LOOKUP_CHAINS.includes(nearNetwork as any) ||
-    asset.chainId === solanaChainId ||
-    asset.chainId === suiChainId
+    isNep245Chain(nearNetwork) || isTokenLookupChain(nearNetwork) || asset.chainId === solanaChainId
 
   if (requiresLookup) {
-    const tokens = await OneClickService.getTokens()
+    const tokens = await getTokensWithRetry()
 
     const { assetNamespace, assetReference } = fromAssetId(asset.assetId)
     const isNativeAsset = assetNamespace === 'slip44'
     const contractAddress = !isNativeAsset ? assetReference.toLowerCase() : null
 
     const match = tokens.find((t: TokenResponse) => {
-      if (t.blockchain !== nearNetwork) return false
+      if (typeof t.blockchain !== 'string' || t.blockchain !== nearNetwork) return false
       return contractAddress
         ? t.contractAddress?.toLowerCase() === contractAddress
         : !t.contractAddress

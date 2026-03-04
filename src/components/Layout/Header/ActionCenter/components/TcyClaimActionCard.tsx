@@ -1,4 +1,5 @@
 import { tcyAssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useCallback, useMemo } from 'react'
@@ -7,7 +8,6 @@ import { useNavigate } from 'react-router'
 
 import { ClaimActionCard } from './ClaimActionCard'
 
-import { fromThorBaseUnit } from '@/lib/utils/thorchain'
 import type { TcyClaimAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -32,23 +32,23 @@ export const TcyClaimActionCard = ({ action }: TcyClaimActionCardProps) => {
 
   const message = useMemo(() => {
     if (!tcyAsset) return null
-    const amountCryptoHuman = fromThorBaseUnit(
+    const amountCryptoPrecision = BigAmount.fromThorBaseUnit(
       action.tcyClaimActionMetadata.claim.amountThorBaseUnit,
-    )
+    ).toPrecision()
     switch (action.status) {
       case ActionStatus.ClaimAvailable:
         return translate('actionCenter.tcy.claimReady', {
-          amount: amountCryptoHuman,
+          amount: amountCryptoPrecision,
           symbol: tcyAsset.symbol,
         })
       case ActionStatus.Pending:
         return translate('actionCenter.tcy.claimTxPending', {
-          amount: amountCryptoHuman,
+          amount: amountCryptoPrecision,
           symbol: tcyAsset.symbol,
         })
       case ActionStatus.Claimed:
         return translate('actionCenter.tcy.claimTxComplete', {
-          amount: amountCryptoHuman,
+          amount: amountCryptoPrecision,
           symbol: tcyAsset.symbol,
         })
       default:

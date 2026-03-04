@@ -1,6 +1,6 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { assertGetViemClient } from '@shapeshiftoss/contracts'
-import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
+import { isGridPlus } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { COW_SWAP_VAULT_RELAYER_ADDRESS, SwapperName } from '@shapeshiftoss/swapper'
 import { useMutation } from '@tanstack/react-query'

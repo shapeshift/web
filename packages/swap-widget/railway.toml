@@ -1,0 +1,10 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "packages/swap-widget/Dockerfile"
+watchPatterns = [
+  "packages/swap-widget/**"
+]
+
+[deploy]
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10

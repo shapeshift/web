@@ -18,8 +18,6 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'BNB'
     case KnownChainIds.ArbitrumMainnet:
       return 'ARB'
-    case KnownChainIds.ArbitrumNovaMainnet:
-      return 'ARB-Nova'
     case KnownChainIds.BaseMainnet:
       return 'BAS'
     case KnownChainIds.BitcoinMainnet:
@@ -42,14 +40,66 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'TRX'
     case KnownChainIds.SuiMainnet:
       return 'SUI'
+    case KnownChainIds.StarknetMainnet:
+      return 'STRK'
     case KnownChainIds.MonadMainnet:
       return 'MON'
     case KnownChainIds.HyperEvmMainnet:
       return 'HYPE'
     case KnownChainIds.PlasmaMainnet:
       return 'XPL'
+    case KnownChainIds.MantleMainnet:
+      return 'MNT'
+    case KnownChainIds.InkMainnet:
+      return 'INK'
+    case KnownChainIds.MegaEthMainnet:
+      return 'MEGA'
+    case KnownChainIds.BerachainMainnet:
+      return 'BERA'
+    case KnownChainIds.CronosMainnet:
+      return 'CRO'
+    case KnownChainIds.KatanaMainnet:
+      return 'KAT'
+    case KnownChainIds.EtherealMainnet:
+      return 'ETRL'
+    case KnownChainIds.FlowEvmMainnet:
+      return 'FLOW'
+    case KnownChainIds.CeloMainnet:
+      return 'CELO'
+    case KnownChainIds.PlumeMainnet:
+      return 'PLUME'
+    case KnownChainIds.StoryMainnet:
+      return 'STORY'
+    case KnownChainIds.ZkSyncEraMainnet:
+      return 'ZKS'
+    case KnownChainIds.BlastMainnet:
+      return 'BLAST'
+    case KnownChainIds.WorldChainMainnet:
+      return 'WLD'
+    case KnownChainIds.HemiMainnet:
+      return 'HEM'
+    case KnownChainIds.SeiMainnet:
+      return 'SEI'
+    case KnownChainIds.LineaMainnet:
+      return 'LIN'
+    case KnownChainIds.ScrollMainnet:
+      return 'SCR'
+    case KnownChainIds.SonicMainnet:
+      return 'S'
+    case KnownChainIds.UnichainMainnet:
+      return 'UNI'
+    case KnownChainIds.BobMainnet:
+      return 'BOB'
+    case KnownChainIds.ModeMainnet:
+      return 'MODE'
+    case KnownChainIds.SoneiumMainnet:
+      return 'SON'
     case KnownChainIds.ZcashMainnet:
       return 'ZEC'
+    case KnownChainIds.NearMainnet:
+      return 'NEAR'
+    case KnownChainIds.TonMainnet:
+      return 'TON'
     default: {
       assertUnreachable(chainId)
     }

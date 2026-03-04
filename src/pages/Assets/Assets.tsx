@@ -1,6 +1,5 @@
 import { Flex } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
-import { matchSorter } from 'match-sorter'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -14,6 +13,7 @@ import { MarketsTableVirtualized } from '@/components/MarketTableVirtualized/Mar
 import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
 import { RawText } from '@/components/Text'
 import { useModal } from '@/hooks/useModal/useModal'
+import { searchAssets } from '@/lib/assetSearch'
 import { selectAssetsNoSpam } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -22,24 +22,15 @@ export const Assets = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const navigate = useNavigate()
   const assetsNoSpam = useAppSelector(selectAssetsNoSpam)
-  const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
   const assetActionsDrawer = useModal('assetActionsDrawer')
 
-  const filterRowsBySearchTerm = useCallback((rows: Asset[], filterValue: any) => {
-    if (!filterValue) return rows
-    if (typeof filterValue !== 'string') {
-      return []
-    }
-    const search = filterValue.trim().toLowerCase()
-    const matchedAssets = matchSorter(rows, search, {
-      keys: ['name', 'symbol'],
-      threshold: matchSorter.rankings.CONTAINS,
-    })
-    return matchedAssets
+  const filterRowsBySearchTerm = useCallback((rows: Asset[], filterValue: unknown) => {
+    if (!filterValue || typeof filterValue !== 'string') return rows
+    return searchAssets(filterValue.trim(), rows)
   }, [])
   const rows = useMemo(() => {
-    return isSearching ? filterRowsBySearchTerm(assetsNoSpam, searchQuery) : assetsNoSpam
-  }, [assetsNoSpam, filterRowsBySearchTerm, isSearching, searchQuery])
+    return searchQuery ? filterRowsBySearchTerm(assetsNoSpam, searchQuery) : assetsNoSpam
+  }, [assetsNoSpam, filterRowsBySearchTerm, searchQuery])
 
   const handleRowClick = useCallback(
     (asset: Asset) => {

@@ -12,7 +12,7 @@ import { bech32 } from 'bech32'
 import PQueue from 'p-queue'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
-import { ErrorHandler } from '../error/ErrorHandler'
+import { ErrorHandler, handleBroadcastTransactionError } from '../error/ErrorHandler'
 import type {
   Account,
   BroadcastTransactionInput,
@@ -382,19 +382,9 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
 
       return txHash
     } catch (err) {
-      if ((err as Error).name === 'ResponseError') {
-        const response = await ((err as any).response as Response).json()
-
+      return handleBroadcastTransactionError(err, response => {
         const match = response.message.match(/description:\s*([^,]+)$/)
-
-        return ErrorHandler(JSON.stringify(response), {
-          translation: 'chainAdapters.errors.broadcastTransactionWithMessage',
-          options: { message: match && match[1] ? match[1].trim() : response.message },
-        })
-      }
-
-      return ErrorHandler(err, {
-        translation: 'chainAdapters.errors.broadcastTransaction',
+        return match && match[1] ? match[1].trim() : response.message
       })
     }
   }

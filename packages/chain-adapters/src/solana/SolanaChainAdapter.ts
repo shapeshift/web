@@ -43,7 +43,11 @@ import { isUndefined } from 'lodash'
 import PQueue from 'p-queue'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
-import { ChainAdapterError, ErrorHandler } from '../error/ErrorHandler'
+import {
+  ChainAdapterError,
+  ErrorHandler,
+  handleBroadcastTransactionError,
+} from '../error/ErrorHandler'
 import type {
   Account,
   BroadcastTransactionInput,
@@ -347,6 +351,60 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     }
   }
 
+  async buildCustomTx(input: {
+    wallet: HDWallet
+    accountNumber: number
+    pubKey?: string
+    instructions: SolanaTxInstruction[]
+    computeUnitLimit?: number
+    computeUnitPrice?: number
+    addressLookupTableAccounts?: string[]
+  }): Promise<{
+    txToSign: SignTx<KnownChainIds.SolanaMainnet>
+  }> {
+    try {
+      const { wallet, accountNumber, pubKey, instructions } = input
+
+      this.assertSupportsChain(wallet)
+
+      if (!instructions || instructions.length === 0) {
+        throw new Error('At least one instruction is required')
+      }
+
+      if (input.computeUnitLimit && input.computeUnitLimit > MAX_COMPUTE_UNITS) {
+        throw new Error(
+          `Compute unit limit ${input.computeUnitLimit} exceeds maximum of ${MAX_COMPUTE_UNITS}`,
+        )
+      }
+
+      await this.getAddress({ accountNumber, wallet, pubKey })
+
+      const { blockhash } = await this.connection.getLatestBlockhash()
+
+      const addressLookupTableAccountInfos = await this.getAddressLookupTableAccounts(
+        input.addressLookupTableAccounts ?? [],
+      )
+
+      return {
+        txToSign: {
+          addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
+          blockHash: blockhash,
+          to: '',
+          value: '',
+          instructions,
+          computeUnitLimit: input.computeUnitLimit,
+          computeUnitPrice: input.computeUnitPrice,
+          addressLookupTableAccountInfos,
+          ...(pubKey && { pubKey }),
+        },
+      }
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
+    }
+  }
+
   async signTransaction(signTxInput: SignTxInput<SolanaSignTx>): Promise<string> {
     try {
       const { txToSign, wallet } = signTxInput
@@ -411,18 +469,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
       return txHash
     } catch (err) {
-      if ((err as Error).name === 'ResponseError') {
-        const response = await ((err as any).response as Response).json()
-
-        return ErrorHandler(JSON.stringify(response), {
-          translation: 'chainAdapters.errors.broadcastTransactionWithMessage',
-          options: { message: response.message },
-        })
-      }
-
-      return ErrorHandler(err, {
-        translation: 'chainAdapters.errors.broadcastTransaction',
-      })
+      return handleBroadcastTransactionError(err)
     }
   }
 

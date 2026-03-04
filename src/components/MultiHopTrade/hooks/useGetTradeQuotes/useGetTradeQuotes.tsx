@@ -1,6 +1,6 @@
 import { skipToken as reduxSkipToken } from '@reduxjs/toolkit/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
+import { isGridPlus } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type {
@@ -14,6 +14,7 @@ import {
   SwapperName,
   TransactionExecutionState,
 } from '@shapeshiftoss/swapper'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { skipToken as reactQuerySkipToken, useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 
@@ -25,12 +26,14 @@ import { getTradeQuoteOrRateInput } from '@/components/MultiHopTrade/hooks/useGe
 import { useHasFocus } from '@/hooks/useHasFocus'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { DEFAULT_FEE_BPS } from '@/lib/fees/constant'
+import { getAffiliateBps } from '@/lib/fees/utils'
 import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import {
   selectPortfolioAccountMetadataByAccountId,
   selectUsdRateByAssetId,
+  selectWalletSwapsById,
 } from '@/state/slices/selectors'
+import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import {
   selectFirstHopSellAccountId,
   selectInputBuyAsset,
@@ -64,6 +67,8 @@ export const useGetTradeQuotes = () => {
     undefined,
   )
   const confirmedTradeExecution = useAppSelector(selectConfirmedTradeExecution)
+  const swapsById = useAppSelector(selectWalletSwapsById)
+  const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
 
   useEffect(
     () => {
@@ -199,7 +204,7 @@ export const useGetTradeQuotes = () => {
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           allowMultiHop: true,
-          affiliateBps: DEFAULT_FEE_BPS,
+          affiliateBps: getAffiliateBps(sellAsset, buyAsset),
           // Pass in the user's slippage preference if it's set, else let the swapper use its default
           slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
           pubKey:
@@ -284,7 +289,34 @@ export const useGetTradeQuotes = () => {
     // Set as both confirmed *and* active
     dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
     dispatch(tradeQuoteSlice.actions.setConfirmedQuote(quoteData.quote))
-  }, [activeTrade, activeQuoteMeta, dispatch, queryStateMeta.data, confirmedTradeExecution])
+
+    if (!activeSwapId || !('steps' in quoteData.quote)) return
+
+    const lastStep = quoteData.quote.steps[quoteData.quote.steps.length - 1]
+    const activeSwap = swapsById[activeSwapId]
+    if (!activeSwap) return
+
+    const expectedBuyAmountCrypto = BigAmount.fromBaseUnit({
+      value: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+      precision: lastStep.buyAsset.precision,
+    })
+
+    dispatch(
+      swapSlice.actions.upsertSwap({
+        ...activeSwap,
+        expectedBuyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+        expectedBuyAmountCryptoPrecision: expectedBuyAmountCrypto.toPrecision(),
+      }),
+    )
+  }, [
+    activeTrade,
+    activeQuoteMeta,
+    dispatch,
+    queryStateMeta.data,
+    confirmedTradeExecution,
+    swapsById,
+    activeSwapId,
+  ])
 
   return queryStateMeta
 }

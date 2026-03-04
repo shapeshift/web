@@ -10,6 +10,7 @@ import {
   TbPool,
   TbRefresh,
   TbStack,
+  TbTrendingUp,
 } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -55,7 +56,7 @@ const rightHStackSpacingSx = { base: 2, lg: 4 }
 const searchBoxMaxWSx = { base: 'auto', lg: '400px' }
 const searchBoxMinWSx = { base: 'auto', xl: '300px' }
 
-const tradeSubMenuItems = [
+const baseTradeSubMenuItems = [
   { label: 'navBar.swap', path: '/trade', icon: TbRefresh },
   { label: 'limitOrder.heading', path: '/limit', icon: TbLayersSelected },
   { label: 'fiatRamps.buy', path: '/ramp/buy', icon: TbCreditCard },
@@ -67,16 +68,12 @@ const exploreSubMenuItems = [
   { label: 'navBar.markets', path: '/markets', icon: TbGraph },
 ]
 
-const earnSubMenuItems = [
-  { label: 'navBar.tcy', path: '/tcy', icon: TCYIcon },
-  { label: 'navBar.pools', path: '/pools', icon: TbPool },
-  { label: 'navBar.lending', path: '/lending', icon: TbBuildingBank },
-]
-
 export const Header = memo(() => {
   const isDegradedState = useSelector(selectPortfolioDegradedState)
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
+  const isYieldXyzEnabled = useFeatureFlag('YieldXyz')
+  const isYieldsPageEnabled = useFeatureFlag('YieldsPage')
 
   const navigate = useNavigate()
   const {
@@ -87,24 +84,16 @@ export const Header = memo(() => {
   const height = useMemo(() => ref.current?.getBoundingClientRect()?.height ?? 0, [])
   const { scrollY } = useScroll()
 
-  // Responsive display based on viewport width
-  const searchBoxDisplay = useMemo(
-    () => ({
-      base: 'none',
-      '2xl': 'flex',
-      // Hide at smaller breakpoints where it would get cramped
-      xl: 'none',
-    }),
-    [],
-  )
+  const searchBoxDisplay = {
+    base: 'none',
+    '2xl': 'flex',
+    xl: 'none',
+  }
 
-  const iconButtonDisplay = useMemo(
-    () => ({
-      base: 'flex',
-      '2xl': 'none',
-    }),
-    [],
-  )
+  const iconButtonDisplay = {
+    base: 'flex',
+    '2xl': 'none',
+  }
 
   useEffect(() => {
     return scrollY.onChange(() => setY(scrollY.get()))
@@ -113,10 +102,46 @@ export const Header = memo(() => {
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
   const isNewWalletManagerEnabled = useFeatureFlag('NewWalletManager')
-  const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
+  const isEarnTabEnabled = useFeatureFlag('EarnTab')
+  const isChainflipLendingEnabled = useFeatureFlag('ChainflipLending')
+
+  const tradeSubMenuItems = useMemo(
+    () =>
+      isEarnTabEnabled
+        ? [...baseTradeSubMenuItems, { label: 'navBar.earn', path: '/earn', icon: TbTrendingUp }]
+        : baseTradeSubMenuItems,
+    [isEarnTabEnabled],
+  )
   const { degradedChainIds } = useDiscoverAccounts()
 
   const hasWallet = Boolean(walletInfo?.deviceId)
+  const earnSubMenuItems = useMemo(() => {
+    const items = [
+      ...(isYieldsPageEnabled
+        ? [{ label: 'navBar.yields', path: '/yields', icon: TbTrendingUp, isNew: true }]
+        : []),
+      { label: 'navBar.tcy', path: '/tcy', icon: TCYIcon },
+      { label: 'navBar.pools', path: '/pools', icon: TbPool },
+      {
+        label: isChainflipLendingEnabled ? 'navBar.thorchainLending' : 'navBar.lending',
+        path: '/lending',
+        icon: TbBuildingBank,
+        isDeprecated: isChainflipLendingEnabled,
+      },
+      ...(isChainflipLendingEnabled
+        ? [
+            {
+              label: 'navBar.chainflipLending',
+              path: '/chainflip-lending',
+              icon: TbBuildingBank,
+              isNew: true,
+            },
+          ]
+        : []),
+    ]
+
+    return items
+  }, [isChainflipLendingEnabled, isYieldsPageEnabled])
 
   /**
    * FOR DEVELOPERS:
@@ -172,10 +197,14 @@ export const Header = memo(() => {
                 items={exploreSubMenuItems}
                 defaultPath='/assets'
               />
-              <NavigationDropdown label='defi.earn' items={earnSubMenuItems} defaultPath='/tcy' />
+              <NavigationDropdown
+                label='defi.earn'
+                items={earnSubMenuItems}
+                defaultPath={isYieldXyzEnabled && isYieldsPageEnabled ? '/yields' : '/tcy'}
+              />
               <Link
                 as={ReactRouterLink}
-                to={isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox'}
+                to={'/fox-ecosystem'}
                 fontWeight='medium'
                 color='text.subtle'
                 _hover={{ color: 'text.base', textDecoration: 'none' }}

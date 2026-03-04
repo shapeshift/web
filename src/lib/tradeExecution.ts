@@ -5,15 +5,18 @@ import type {
   CosmosSdkTransactionExecutionInput,
   EvmMessageExecutionInput,
   EvmTransactionExecutionInput,
+  NearTransactionExecutionInput,
   RelayerTxDetailsArgs,
   SellTxHashArgs,
   SolanaTransactionExecutionInput,
+  StarknetTransactionExecutionInput,
   StatusArgs,
   SuiTransactionExecutionInput,
   SupportedTradeQuoteStepIndex,
   Swap,
   Swapper,
   SwapperApi,
+  TonTransactionExecutionInput,
   TradeExecutionEventMap,
   TronTransactionExecutionInput,
   UtxoTransactionExecutionInput,
@@ -32,8 +35,11 @@ import { EventEmitter } from 'node:events'
 
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from './utils/evm'
+import { assertGetNearChainAdapter } from './utils/near'
 import { assertGetSolanaChainAdapter } from './utils/solana'
+import { assertGetStarknetChainAdapter } from './utils/starknet'
 import { assertGetSuiChainAdapter } from './utils/sui'
+import { assertGetTonChainAdapter } from './utils/ton'
 import { assertGetTronChainAdapter } from './utils/tron'
 import { assertGetUtxoChainAdapter } from './utils/utxo'
 
@@ -87,8 +93,11 @@ export const fetchTradeStatus = async ({
     assertGetUtxoChainAdapter,
     assertGetCosmosSdkChainAdapter,
     assertGetSolanaChainAdapter,
+    assertGetTonChainAdapter,
     assertGetTronChainAdapter,
     assertGetSuiChainAdapter,
+    assertGetNearChainAdapter,
+    assertGetStarknetChainAdapter,
     fetchIsSmartContractAddressQuery,
   })
 
@@ -179,6 +188,7 @@ export class TradeExecution {
           chainflipSwapId: tradeQuote.steps[0]?.chainflipSpecific?.chainflipSwapId,
           nearIntentsSpecific: tradeQuote.steps[0]?.nearIntentsSpecific,
           relayTransactionMetadata: tradeQuote.steps[0]?.relayTransactionMetadata,
+          quoteId: tradeQuote.steps[0]?.stonfiSpecific?.quoteId ?? swap.metadata.quoteId,
           stepIndex,
         },
       }
@@ -188,38 +198,42 @@ export class TradeExecution {
       const isWebServicesEnabled = getConfig().VITE_FEATURE_NOTIFICATIONS_WEBSERVICES
 
       if (isWebServicesEnabled) {
-        const walletEnabledAccountIds = selectWalletEnabledAccountIds(store.getState())
-        const userData = await queryClient.fetchQuery<{ id: string }>({
-          queryKey: ['user', walletEnabledAccountIds],
-          queryFn: () => getOrCreateUser({ accountIds: walletEnabledAccountIds }),
-        })
-
-        if (userData) {
-          queryClient.fetchQuery({
-            queryKey: ['createSwap', swap.id],
-            queryFn: () => {
-              return axios.post(`${import.meta.env.VITE_SWAPS_SERVER_URL}/swaps`, {
-                swapId: swap.id,
-                sellTxHash,
-                userId: userData?.id,
-                sellAsset: updatedSwap.sellAsset,
-                buyAsset: updatedSwap.buyAsset,
-                sellAmountCryptoBaseUnit: updatedSwap.sellAmountCryptoBaseUnit,
-                expectedBuyAmountCryptoBaseUnit: updatedSwap.expectedBuyAmountCryptoBaseUnit,
-                sellAmountCryptoPrecision: updatedSwap.sellAmountCryptoPrecision,
-                expectedBuyAmountCryptoPrecision: updatedSwap.expectedBuyAmountCryptoPrecision,
-                source: updatedSwap.source,
-                swapperName: updatedSwap.swapperName,
-                sellAccountId: accountId,
-                buyAccountId: accountId,
-                receiveAddress: updatedSwap.receiveAddress,
-                isStreaming: updatedSwap.isStreaming,
-                metadata: updatedSwap.metadata,
-              })
-            },
-            staleTime: 0,
-            gcTime: 0,
+        try {
+          const walletEnabledAccountIds = selectWalletEnabledAccountIds(store.getState())
+          const userData = await queryClient.fetchQuery<{ id: string }>({
+            queryKey: ['user', walletEnabledAccountIds],
+            queryFn: () => getOrCreateUser({ accountIds: walletEnabledAccountIds }),
           })
+
+          if (userData) {
+            queryClient.fetchQuery({
+              queryKey: ['createSwap', swap.id],
+              queryFn: () => {
+                return axios.post(`${import.meta.env.VITE_SWAPS_SERVER_URL}/swaps`, {
+                  swapId: swap.id,
+                  sellTxHash,
+                  userId: userData?.id,
+                  sellAsset: updatedSwap.sellAsset,
+                  buyAsset: updatedSwap.buyAsset,
+                  sellAmountCryptoBaseUnit: updatedSwap.sellAmountCryptoBaseUnit,
+                  expectedBuyAmountCryptoBaseUnit: updatedSwap.expectedBuyAmountCryptoBaseUnit,
+                  sellAmountCryptoPrecision: updatedSwap.sellAmountCryptoPrecision,
+                  expectedBuyAmountCryptoPrecision: updatedSwap.expectedBuyAmountCryptoPrecision,
+                  source: updatedSwap.source,
+                  swapperName: updatedSwap.swapperName,
+                  sellAccountId: accountId,
+                  buyAccountId: accountId,
+                  receiveAddress: updatedSwap.receiveAddress,
+                  isStreaming: updatedSwap.isStreaming,
+                  metadata: updatedSwap.metadata,
+                })
+              },
+              staleTime: 0,
+              gcTime: 0,
+            })
+          }
+        } catch (e) {
+          console.error('Failed to notify swap webservice, chain might not be supported yet', e)
         }
       }
 
@@ -437,7 +451,9 @@ export class TradeExecution {
         assertGetUtxoChainAdapter,
       })
 
-      return await swapper.executeUtxoTransaction(unsignedTxResult, { signAndBroadcastTransaction })
+      return await swapper.executeUtxoTransaction(unsignedTxResult, {
+        signAndBroadcastTransaction,
+      })
     }
 
     return await this._execWalletAgnostic(
@@ -640,6 +656,159 @@ export class TradeExecution {
       })
 
       return await swapper.executeSuiTransaction(unsignedTxResult, {
+        signAndBroadcastTransaction,
+      })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execNearTransaction({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    from,
+    signAndBroadcastTransaction,
+  }: NearTransactionExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        config,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedNearTransaction) {
+        throw Error('missing implementation for getUnsignedNearTransaction')
+      }
+      if (!swapper.executeNearTransaction) {
+        throw Error('missing implementation for executeNearTransaction')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedNearTransaction({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+        config,
+        assertGetNearChainAdapter,
+      })
+
+      return await swapper.executeNearTransaction(unsignedTxResult, {
+        signAndBroadcastTransaction,
+      })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execStarknetTransaction({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    from,
+    signAndBroadcastTransaction,
+  }: StarknetTransactionExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        config,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedStarknetTransaction) {
+        throw Error('missing implementation for getUnsignedStarknetTransaction')
+      }
+      if (!swapper.executeStarknetTransaction) {
+        throw Error('missing implementation for executeStarknetTransaction')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedStarknetTransaction({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+        config,
+        assertGetStarknetChainAdapter,
+      })
+
+      return await swapper.executeStarknetTransaction(unsignedTxResult, {
+        signAndBroadcastTransaction,
+      })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execTonTransaction({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    from,
+    signAndBroadcastTransaction,
+  }: TonTransactionExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        config,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedTonTransaction) {
+        throw Error('missing implementation for getUnsignedTonTransaction')
+      }
+      if (!swapper.executeTonTransaction) {
+        throw Error('missing implementation for executeTonTransaction')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedTonTransaction({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+        config,
+        assertGetTonChainAdapter,
+      })
+
+      return await swapper.executeTonTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
       })
     }

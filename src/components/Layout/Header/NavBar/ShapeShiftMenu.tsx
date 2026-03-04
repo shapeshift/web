@@ -14,7 +14,7 @@ import {
   useMediaQuery,
   VStack,
 } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { FiSmartphone } from 'react-icons/fi'
 import { RiRobot2Line, RiTwitterXLine } from 'react-icons/ri'
@@ -25,6 +25,7 @@ import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { OGIcon } from '@/components/Icons/OGIcon'
 import { ShapeShiftLogoText } from '@/components/Icons/ShapeShiftLogoText'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
+import { openUserbackWidget } from '@/components/UserbackWidget/UserbackWidget'
 import { useHoverIntent } from '@/hooks/useHoverIntent'
 import { breakpoints } from '@/theme/theme'
 
@@ -129,8 +130,12 @@ export const ShapeShiftMenu = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const translate = useTranslate()
   const [isLargerThanXl] = useMediaQuery(`(min-width: ${breakpoints['xl']})`)
-
   const { handleMouseEnter, handleMouseLeave } = useHoverIntent(isOpen, onOpen, onClose)
+
+  const handleFeedbackClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    openUserbackWidget()
+  }, [])
 
   const afterSx = useMemo(
     () => ({
@@ -240,6 +245,15 @@ export const ShapeShiftMenu = () => {
                 <FooterLink href='https://shapeshift.com/faq' isExternal>
                   {translate('shapeShiftMenu.footer.faq')}
                 </FooterLink>
+                <Link
+                  href='#'
+                  onClick={handleFeedbackClick}
+                  fontSize='sm'
+                  color='text.subtle'
+                  _hover={footerLinkHoverSx}
+                >
+                  {translate('shapeShiftMenu.footer.feedback')}
+                </Link>
               </HStack>
 
               <HStack spacing={1} align='baseline'>

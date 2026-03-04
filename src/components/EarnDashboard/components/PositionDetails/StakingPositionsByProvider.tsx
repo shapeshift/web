@@ -3,6 +3,7 @@ import { Button, Flex, Tag, useMediaQuery } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -10,16 +11,17 @@ import { useLocation } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { ReactTable } from '@/components/ReactTable/ReactTable'
+import type { YieldOpportunityDisplay } from '@/components/StakingVaults/hooks/useYieldAsOpportunities'
 import { RawText } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { RFOX_STAKING_ASSET_IDS } from '@/pages/RFOX/constants'
@@ -38,14 +40,20 @@ import {
 import { useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
+type UnifiedPosition = StakingEarnOpportunityType & {
+  isYield?: boolean
+  yieldId?: string
+}
+
 type StakingPositionsByProviderProps = {
   ids: OpportunityId[]
   forceCompactView?: boolean
+  yieldOpportunities?: YieldOpportunityDisplay[]
 }
 
 const arrowForwardIcon = <ArrowForwardIcon />
 
-export type RowProps = Row<StakingEarnOpportunityType>
+export type RowProps = Row<UnifiedPosition>
 
 type CalculateRewardFiatAmountArgs = {
   assets: Partial<Record<AssetId, Asset>>
@@ -80,8 +88,11 @@ const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
     const asset = assets[assetId]
     if (!asset) return sum
     const marketDataPrice = bnOrZero(marketDataUserCurrency[assetId]?.price)
-    const cryptoAmountPrecision = bnOrZero(rewardsCryptoBaseUnit?.amounts[index]).div(
-      bn(10).pow(asset?.precision),
+    const cryptoAmountPrecision = bnOrZero(
+      BigAmount.fromBaseUnit({
+        value: rewardsCryptoBaseUnit?.amounts[index] ?? '0',
+        precision: asset?.precision ?? 0,
+      }).toPrecision(),
     )
     sum = bnOrZero(cryptoAmountPrecision).times(marketDataPrice).plus(bnOrZero(sum)).toNumber()
     return sum
@@ -91,6 +102,7 @@ const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
 export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProps> = ({
   ids,
   forceCompactView,
+  yieldOpportunities,
 }) => {
   const location = useLocation()
   const { navigate } = useBrowserRouter()
@@ -109,8 +121,25 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
-  const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
-  const filteredDown = useMemo(
+
+  const yieldPositionsAsUnified = useMemo<UnifiedPosition[]>(() => {
+    if (!yieldOpportunities?.length) return []
+    return yieldOpportunities.map(y => ({
+      id: y.yieldId,
+      assetId: y.inputAssetId,
+      underlyingAssetId: y.inputAssetId,
+      provider: y.providerName,
+      apy: y.apy,
+      fiatAmount: y.fiatAmount,
+      icon: y.providerIcon,
+      isYield: true,
+      yieldId: y.yieldId,
+      isReadOnly: true,
+      opportunityName: undefined,
+    })) as unknown as UnifiedPosition[]
+  }, [yieldOpportunities])
+
+  const legacyFiltered = useMemo(
     () =>
       stakingOpportunities.filter(
         e => ids.includes(e.assetId as OpportunityId) || ids.includes(e.id as OpportunityId),
@@ -118,9 +147,22 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
     [ids, stakingOpportunities],
   )
 
+  const filteredDown = useMemo<UnifiedPosition[]>(
+    () => [...yieldPositionsAsUnified, ...legacyFiltered],
+    [yieldPositionsAsUnified, legacyFiltered],
+  )
+
   const handleClick = useCallback(
     (row: RowProps, action: DefiAction) => {
       const { original: opportunity } = row
+
+      if (opportunity.isYield && opportunity.yieldId) {
+        if (walletDrawer.isOpen) {
+          walletDrawer.close()
+        }
+        navigate(`/yield/${opportunity.yieldId}`)
+        return
+      }
 
       if (opportunity.isReadOnly) {
         const url = getMetadataForProvider(opportunity.provider)?.url
@@ -128,6 +170,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         return
       }
 
+      const legacyOpp = opportunity as StakingEarnOpportunityType
       const {
         type,
         provider,
@@ -136,14 +179,14 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         rewardAddress,
         assetId,
         highestBalanceAccountAddress,
-      } = opportunity
+      } = legacyOpp
       const { assetReference, assetNamespace } = fromAssetId(assetId)
 
       if (provider === DefiProvider.rFOX) {
         if (walletDrawer.isOpen) {
           walletDrawer.close()
         }
-        return navigate(isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox')
+        return navigate('/fox-ecosystem')
       }
 
       if (forceCompactView) {
@@ -153,7 +196,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
 
         switch (provider) {
           case DefiProvider.EthFoxStaking:
-            return navigate(isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox')
+            return navigate('/fox-ecosystem')
           case DefiProvider.CosmosSdk:
           case DefiProvider.ThorchainSavers:
             return navigate(`/assets/${assetId}`)
@@ -170,7 +213,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       trackOpportunityEvent(
         MixPanelEvent.ClickOpportunity,
         {
-          opportunity,
+          opportunity: legacyOpp,
           element: 'Table Row',
         },
         assets,
@@ -200,40 +243,33 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         },
       )
     },
-    [
-      forceCompactView,
-      isConnected,
-      assets,
-      walletDrawer,
-      navigate,
-      location,
-      isRfoxFoxEcosystemPageEnabled,
-      dispatch,
-    ],
+    [forceCompactView, isConnected, assets, walletDrawer, navigate, location, dispatch],
   )
-  const columns: Column<StakingEarnOpportunityType>[] = useMemo(
+  const columns: Column<UnifiedPosition>[] = useMemo(
     () => [
       {
         Header: translate('defi.stakingPosition'),
         accessor: 'assetId',
         Cell: ({ row }: { row: RowProps }) => {
-          // Version or Provider
-          // Opportunity Name
+          const opp = row.original as StakingEarnOpportunityType & UnifiedPosition
           const subText = []
-          if (row.original.version) subText.push(row.original.provider)
-          if (row.original.opportunityName) subText.push(row.original.opportunityName)
-          const isRunePool = row.original.assetId === thorchainAssetId
-          const providerName = isRunePool
-            ? 'RUNEPool'
-            : row.original.version ?? row.original.provider
+          if (opp.version) subText.push(opp.provider)
+          if (opp.opportunityName) subText.push(opp.opportunityName)
+          const isRunePool = opp.assetId === thorchainAssetId
+          const providerName = isRunePool ? 'RUNEPool' : opp.version ?? opp.provider
+          const iconElement = opp.isYield ? (
+            <AssetIcon assetId={opp.assetId} size='sm' />
+          ) : (
+            <LazyLoadAvatar
+              size='sm'
+              bg='transparent'
+              src={opp.icon ?? getMetadataForProvider(opp.provider)?.icon ?? ''}
+              key={`provider-icon-${opp.id}`}
+            />
+          )
           return (
             <Flex gap={4} alignItems='center'>
-              <LazyLoadAvatar
-                size='sm'
-                bg='transparent'
-                src={row.original.icon ?? getMetadataForProvider(row.original.provider)?.icon ?? ''}
-                key={`provider-icon-${row.original.id}`}
-              />
+              {iconElement}
               <Flex flexDir='column'>
                 <RawText>{providerName}</RawText>
                 <RawText textTransform='capitalize' variant='sub-text' size='xs'>
@@ -249,20 +285,19 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         Header: translate('defi.totalValue'),
         accessor: 'fiatAmount',
         Cell: ({ row }: { row: RowProps }) => {
-          const opportunity = row.original
+          const opp = row.original as StakingEarnOpportunityType & UnifiedPosition
 
-          const fiatRewardsAmount = calculateRewardFiatAmount({
-            rewardAssetIds: row.original.rewardAssetIds,
-            rewardsCryptoBaseUnit: row.original.rewardsCryptoBaseUnit,
-            assets,
-            marketDataUserCurrency,
-          })
+          const fiatRewardsAmount = opp.isYield
+            ? 0
+            : calculateRewardFiatAmount({
+                rewardAssetIds: opp.rewardAssetIds,
+                rewardsCryptoBaseUnit: opp.rewardsCryptoBaseUnit,
+                assets,
+                marketDataUserCurrency,
+              })
 
-          const hasValue =
-            bnOrZero(opportunity.fiatAmount).gt(0) || bnOrZero(fiatRewardsAmount).gt(0)
-
-          // Note, this already includes rewards. Let's not double-count them
-          const totalFiatAmount = bnOrZero(row.original.fiatAmount).toFixed(2)
+          const hasValue = bnOrZero(opp.fiatAmount).gt(0) || bnOrZero(fiatRewardsAmount).gt(0)
+          const totalFiatAmount = bnOrZero(opp.fiatAmount).toFixed(2)
 
           return hasValue ? (
             <Flex flexDir='column' alignItems={widthMdFlexStart}>
@@ -277,33 +312,38 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         Header: translate('defi.apy'),
         accessor: 'apy',
         Cell: ({ row }: { row: RowProps }) => {
-          const isRfoxStaking = RFOX_STAKING_ASSET_IDS.includes(row.original.underlyingAssetId)
+          const opp = row.original as StakingEarnOpportunityType & UnifiedPosition
+          const isRfoxStaking =
+            !opp.isYield && RFOX_STAKING_ASSET_IDS.includes(opp.underlyingAssetId)
 
-          if (isRfoxStaking) return <RfoxApy stakingAssetId={row.original.underlyingAssetId} />
+          if (isRfoxStaking) return <RfoxApy stakingAssetId={opp.underlyingAssetId} />
 
           return (
             <Tag colorScheme='green'>
-              <Amount.Percent value={row.original.apy} />
+              <Amount.Percent value={opp.apy} />
             </Tag>
           )
         },
       },
       {
         Header: translate('defi.claimableRewards'),
-        accessor: 'rewardsCryptoBaseUnit',
+        accessor: 'id',
         display: isCompactCols ? 'none' : undefined,
         Cell: ({ row }: { row: RowProps }) => {
+          const opp = row.original as StakingEarnOpportunityType & UnifiedPosition
+          const handleClaimClick = useCallback(() => handleClick(row, DefiAction.Claim), [row])
+
+          if (opp.isYield) return <RawText variant='sub-text'>-</RawText>
+
           const fiatAmount = calculateRewardFiatAmount({
-            rewardAssetIds: row.original.rewardAssetIds,
-            rewardsCryptoBaseUnit: row.original.rewardsCryptoBaseUnit,
+            rewardAssetIds: opp.rewardAssetIds,
+            rewardsCryptoBaseUnit: opp.rewardsCryptoBaseUnit,
             assets,
             marketDataUserCurrency,
           })
           const hasRewardsBalance = bnOrZero(fiatAmount).gt(0)
 
-          const handleClaimClick = useCallback(() => handleClick(row, DefiAction.Claim), [row])
-
-          return hasRewardsBalance && row.original.isClaimableRewards ? (
+          return hasRewardsBalance && opp.isClaimableRewards ? (
             <Button
               isDisabled={!hasRewardsBalance}
               variant='ghost-filled'
@@ -322,30 +362,17 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
             <RawText variant='sub-text'>-</RawText>
           )
         },
-        sortType: (a: RowProps, b: RowProps): number => {
-          const aFiatPrice = calculateRewardFiatAmount({
-            rewardAssetIds: a.original.rewardAssetIds,
-            rewardsCryptoBaseUnit: a.original.rewardsCryptoBaseUnit,
-            assets,
-            marketDataUserCurrency,
-          })
-          const bFiatPrice = calculateRewardFiatAmount({
-            rewardAssetIds: b.original.rewardAssetIds,
-            rewardsCryptoBaseUnit: b.original.rewardsCryptoBaseUnit,
-            assets,
-            marketDataUserCurrency,
-          })
-          return aFiatPrice - bFiatPrice
-        },
       },
       {
         Header: () => null,
         id: 'expander',
         display: isCompactCols ? 'none' : undefined,
         Cell: ({ row }: { row: RowProps }) => {
-          const url = getMetadataForProvider(row.original.provider)?.url
+          const opp = row.original as StakingEarnOpportunityType & UnifiedPosition
+          const url = getMetadataForProvider(opp.provider)?.url
           const translation = (() => {
-            if (!row.original.isReadOnly) return 'common.manage'
+            if (opp.isYield) return 'common.view'
+            if (!opp.isReadOnly) return 'common.manage'
             return url ? 'common.view' : undefined
           })()
           const handleOverviewClick = useCallback(
@@ -361,9 +388,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
                   size='sm'
                   colorScheme='blue'
                   width={widthMdAuto}
-                  rightIcon={
-                    row.original.isReadOnly && url ? <ExternalLinkIcon boxSize={3} /> : undefined
-                  }
+                  rightIcon={opp.isReadOnly && url ? <ExternalLinkIcon boxSize={3} /> : undefined}
                   onClick={handleOverviewClick}
                 >
                   {translate(translation)}
@@ -394,6 +419,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       columns={columns}
       displayHeaders={!isCompactCols}
       onRowClick={isCompactCols ? handleRowClick : undefined}
+      data-testid='staking-positions-table'
     />
   )
 }

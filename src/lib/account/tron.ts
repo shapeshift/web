@@ -1,5 +1,5 @@
 import { toAccountId, tronChainId } from '@shapeshiftoss/caip'
-import { supportsTron } from '@shapeshiftoss/hdwallet-core'
+import { supportsTron } from '@shapeshiftoss/hdwallet-core/wallet'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 
 import type { DeriveAccountIdsAndMetadata } from './account'

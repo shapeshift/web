@@ -8,19 +8,17 @@ import { useNavigate } from 'react-router-dom'
 import { useFoxPageContext } from '../hooks/useFoxPageContext'
 
 import { Amount } from '@/components/Amount/Amount'
-import { RewardsIcon } from '@/components/Icons/RewardsIcon'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { Text } from '@/components/Text'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
-import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const swapIcon = <SwapIcon />
-const rewardsIcon = <RewardsIcon />
 const faCreditCardIcon = <FaCreditCard />
 
 const columnsProps = {
@@ -50,11 +48,17 @@ export const FoxTokenHeader = () => {
   const appDispatch = useAppDispatch()
 
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const fiatRamps = useModal('fiatRamps')
   const navigate = useNavigate()
-  const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
 
-  const handleSwapClick = useCallback(() => navigate(TradeRoutePaths.Input), [navigate])
+  const handleSwapClick = useCallback(() => {
+    // Set the buy asset via dispatch to ensure trade context is properly initialized
+    if (asset) {
+      appDispatch(tradeInput.actions.setBuyAsset(asset))
+    }
+    navigate(TradeRoutePaths.Input)
+  }, [appDispatch, asset, navigate])
 
   const handleBuyClick = useCallback(() => {
     fiatRamps.open({
@@ -63,10 +67,6 @@ export const FoxTokenHeader = () => {
       accountId: assetAccountId,
     })
   }, [assetAccountId, assetId, fiatRamps])
-
-  const handleStakeClick = useCallback(() => {
-    navigate('/rfox')
-  }, [navigate])
 
   useEffect(() => {
     appDispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
@@ -137,25 +137,25 @@ export const FoxTokenHeader = () => {
       </SimpleGrid>
 
       <Flex alignItems='center'>
-        <Button mx={2} variant='solid' leftIcon={faCreditCardIcon} onClick={handleBuyClick}>
+        <Button
+          data-testid='fox-buy-button'
+          mx={2}
+          variant='solid'
+          leftIcon={faCreditCardIcon}
+          onClick={handleBuyClick}
+        >
           <Text translation='assets.assetCards.assetActions.buy' />
         </Button>
 
-        <Button mx={2} variant='solid' leftIcon={swapIcon} onClick={handleSwapClick}>
+        <Button
+          data-testid='fox-trade-button'
+          mx={2}
+          variant='solid'
+          leftIcon={swapIcon}
+          onClick={handleSwapClick}
+        >
           <Text translation='common.trade' />
         </Button>
-
-        {!isRfoxFoxEcosystemPageEnabled && (
-          <Button
-            mx={2}
-            variant='solid'
-            colorScheme='blue'
-            leftIcon={rewardsIcon}
-            onClick={handleStakeClick}
-          >
-            <Text translation='defi.stake' />
-          </Button>
-        )}
       </Flex>
     </Flex>
   )

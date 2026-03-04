@@ -1,4 +1,4 @@
-import { solanaChainId } from '@shapeshiftoss/caip'
+import { solanaChainId, tronChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
@@ -50,6 +50,31 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
           assertGetEvmChainAdapter,
           fetchIsSmartContractAddressQuery,
         })
+      }
+
+      if (sellChainId === tronChainId) {
+        const adapter = input.assertGetTronChainAdapter(tronChainId)
+        const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
+
+        if (!tx) {
+          return createDefaultStatusResponse(txHash)
+        }
+
+        const contractRet = tx.ret?.[0]?.contractRet
+
+        // Only mark as confirmed if SUCCESS AND has confirmations (in a block)
+        const status =
+          contractRet === 'SUCCESS' && tx.confirmations > 0
+            ? TxStatus.Confirmed
+            : contractRet === 'REVERT'
+            ? TxStatus.Failed
+            : TxStatus.Pending
+
+        return {
+          status,
+          buyTxHash: txHash,
+          message: undefined,
+        }
       }
 
       // Fallback: unknown same-chain type (should never happen for Butter, but just in case). Avoid bridge polling.

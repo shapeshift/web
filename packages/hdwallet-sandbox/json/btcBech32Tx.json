@@ -1,0 +1,66 @@
+{
+  "txid": "fa80a9949f1094119195064462f54d0e0eabd3139becd4514ae635b8c7fe3a46",
+  "hash": "764ef1574ee2b262e4a84eb575d80461977364590ef424011cb09156db078710",
+  "version": 1,
+  "size": 247,
+  "vsize": 165,
+  "weight": 658,
+  "locktime": 0,
+  "vin": [
+    {
+      "txid": "86a6e02943dcd057cfbe349f2c2274478a3a1be908eb788606a6950e727a0d36",
+      "vout": 0,
+      "n": 0,
+      "scriptSig": {
+        "asm": "001495f41f5c0e0ec2c7fe27f0ac4bd59a5632a40b5f",
+        "hex": "16001495f41f5c0e0ec2c7fe27f0ac4bd59a5632a40b5f"
+      },
+      "txinwitness": [
+        "3045022100f312e8246e6a00d21fd762f12231c5fb7a20094a32940b9a84e28d712a5ced9b02203b9124d7a94aa7eb1e090ceda32e884511d7068b8d47593aa46537900e3e37d401",
+        "037e8bf05c6c7223cfba3ea484ecd61ee910ae38609ea89b4a4839beed2186b3fb"
+      ],
+      "sequence": 4294967295,
+      "addr": "3Bvy87TmQhhSBqfiCBh8w5yPx6usiDM8SY",
+      "valueSat": 319488,
+      "value": 0.00319488
+    }
+  ],
+  "vout": [
+    {
+      "value": "0.00009426",
+      "n": 0,
+      "scriptPubKey": {
+        "asm": "0 ece6935b2a5a5b5ff997c87370b16fa10f164410",
+        "hex": "0014ece6935b2a5a5b5ff997c87370b16fa10f164410",
+        "reqSigs": 1,
+        "addresses": ["bc1qannfxke2tfd4l7vhepehpvt05y83v3qsf6nfkk"],
+        "type": "witness_v0_keyhash"
+      },
+      "spentTxId": "7e58757f43015242c0efa29447bea4583336f2358fdff587b52bbe040ad8982a",
+      "spentIndex": 0,
+      "spentHeight": 590093
+    },
+    {
+      "value": "0.00309896",
+      "n": 1,
+      "scriptPubKey": {
+        "asm": "OP_HASH160 dfe58cc93d35fb99e15436f47d3bbfce82032806 OP_EQUAL",
+        "hex": "a914dfe58cc93d35fb99e15436f47d3bbfce8203280687",
+        "reqSigs": 1,
+        "addresses": ["3N6sbjPwa9L911fPxykD3XnGifMdVRMZPV"],
+        "type": "scripthash"
+      },
+      "spentTxId": "50ccbc5916ea5e63e13acc03745bb4a7b00a41c5e30dbb352d6174b4fba17f41",
+      "spentIndex": 0,
+      "spentHeight": 592303
+    }
+  ],
+  "blockhash": "00000000000000000017277948d61a631dae6cce1d7fb501301b825599189f51",
+  "blockheight": 590093,
+  "confirmations": 45356,
+  "time": 1565797979,
+  "blocktime": 1565797979,
+  "valueOut": 0.00319322,
+  "valueIn": 0.00319488,
+  "fees": 1.66e-6
+}

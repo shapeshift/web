@@ -2,7 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { assertUnreachable, bnOrZero, toBaseUnit } from '@shapeshiftoss/utils'
+import { assertUnreachable, BigAmount, bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
@@ -127,16 +127,16 @@ export const getQuoteOrRate = async (
 
   if (maybeQuoteResponse.isErr()) {
     const error = maybeQuoteResponse.unwrapErr()
-    const cause = error.cause as AxiosError<any, any>
+    const cause = error.cause as AxiosError<any, any> | undefined
 
     if (
-      cause.message.includes('code 400') &&
-      cause.response?.data.detail.includes('Amount outside asset bounds')
+      cause?.message?.includes('code 400') &&
+      cause?.response?.data?.detail?.includes('Amount outside asset bounds')
     ) {
       return Err(
         createTradeAmountTooSmallErr({
           assetId: sellAsset.assetId,
-          minAmountCryptoBaseUnit: cause.response?.data.errors.minimalAmountNative[0],
+          minAmountCryptoBaseUnit: cause.response?.data?.errors?.minimalAmountNative?.[0],
         }),
       )
     }
@@ -309,12 +309,12 @@ export const getQuoteOrRate = async (
 
       // This is not really a buyAmount before fees but rather an input/output calculation to get the sell amount
       // prorated to the buy asset price to determine price impact
-      const buyAmountBeforeFeesCryptoBaseUnit = toBaseUnit(
-        bnOrZero(singleQuoteResponse.boostQuote.ingressAmount).times(
+      const buyAmountBeforeFeesCryptoBaseUnit = BigAmount.fromPrecision({
+        value: bnOrZero(singleQuoteResponse.boostQuote.ingressAmount).times(
           bnOrZero(singleQuoteResponse.estimatedPrice),
         ),
-        buyAsset.precision,
-      )
+        precision: buyAsset.precision,
+      }).toBaseUnit()
 
       const boostTradeRateOrQuote = {
         id: uuid(),
@@ -372,12 +372,12 @@ export const getQuoteOrRate = async (
 
     // This is not really a buyAmount before fees but rather an input/output calculation to get the sell amount
     // prorated to the buy asset price to determine price impact
-    const buyAmountBeforeFeesCryptoBaseUnit = toBaseUnit(
-      bnOrZero(singleQuoteResponse.ingressAmount).times(
+    const buyAmountBeforeFeesCryptoBaseUnit = BigAmount.fromPrecision({
+      value: bnOrZero(singleQuoteResponse.ingressAmount).times(
         bnOrZero(singleQuoteResponse.estimatedPrice),
       ),
-      buyAsset.precision,
-    )
+      precision: buyAsset.precision,
+    }).toBaseUnit()
 
     const tradeRateOrQuote = {
       id: uuid(),

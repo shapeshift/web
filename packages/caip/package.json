@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/caip",
-  "version": "8.16.5",
+  "version": "8.16.7",
   "description": "CAIP Implementation",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
@@ -10,9 +10,9 @@
   "types": "dist/esm/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/esm/index.d.ts",
       "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/esm/index.d.ts"
+      "require": "./dist/cjs/index.js"
     }
   },
   "files": [
@@ -22,17 +22,17 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn run -T tsc --build && yarn postbuild",
+    "build": "pnpm run clean && pnpm exec tsc --build && pnpm run postbuild",
     "clean": "rm -rf dist",
-    "dev": "yarn run -T tsc --build --watch",
-    "generate": "yarn generate:coingecko && yarn generate:coincap",
-    "generate:coingecko": "yarn build && yarn run -T tsx src/adapters/coingecko/generate.ts",
-    "generate:coincap": "yarn build && yarn run -T tsx src/adapters/coincap/generate.ts",
-    "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",
-    "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
+    "dev": "pnpm exec tsc --build --watch",
+    "generate": "pnpm run generate:coingecko && pnpm run generate:coincap",
+    "generate:coingecko": "pnpm run build && pnpm exec tsx src/adapters/coingecko/generate.ts",
+    "generate:coincap": "pnpm run build && pnpm exec tsx src/adapters/coincap/generate.ts",
+    "postbuild": "pnpm run postbuild:esm && pnpm run postbuild:cjs",
+    "postbuild:esm": "pnpm exec tsc-esm-fix --target=dist/esm --ext=.js",
     "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   },
   "dependencies": {
-    "axios": "^1.13.0"
+    "axios": "^1.13.5"
   }
 }

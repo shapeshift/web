@@ -1,0 +1,30 @@
+{
+  "mayachainUnsignedTx": {
+    "fee": {
+      "amount": [
+        {
+          "amount": "0",
+          "denom": "cacao"
+        }
+      ],
+      "gas": "2000000"
+    },
+    "memo": "",
+    "msg": [
+      {
+        "type": "mayachain/MsgSend",
+        "value": {
+          "amount": [
+            {
+              "amount": "1",
+              "denom": "cacao"
+            }
+          ],
+          "from_address": "maya10prpfj07j6a7rvtd5tfqhdzp8xsypzatf5xx6y",
+          "to_address": "maya10prpfj07j6a7rvtd5tfqhdzp8xsypzatf5xx6y"
+        }
+      }
+    ],
+    "signatures": []
+  }
+}

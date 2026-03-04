@@ -2,9 +2,9 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, isNft } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
+import { BigAmount } from '@shapeshiftoss/utils'
 import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
-import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
 
@@ -23,6 +23,12 @@ import {
 import { portfolio } from './portfolioSlice/portfolioSlice'
 import { preferences } from './preferencesSlice/preferencesSlice'
 
+import {
+  deduplicateAssets,
+  MINIMUM_MARKET_CAP_THRESHOLD,
+  searchAssets,
+  shouldSearchAllAssets as shouldSearchAllAssetsUtil,
+} from '@/lib/assetSearch'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
@@ -161,6 +167,61 @@ export const selectPortfolioCryptoPrecisionBalanceByFilter = createCachedSelecto
     return fromBaseUnit(bnOrZero(assetBalances[assetId]), precision)
   },
 )((_s: ReduxState, filter) => `${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`)
+
+// ── BigAmount-returning selectors ────────────────
+
+export const selectPortfolioAccountBalances = createDeepEqualOutputSelector(
+  selectEnabledWalletAccountIds,
+  portfolio.selectors.selectAccountBalancesById,
+  (walletAccountIds, accountBalancesById): Record<AccountId, Record<AssetId, BigAmount>> => {
+    const filtered = pickBy(accountBalancesById, (_balances, accountId: AccountId) =>
+      walletAccountIds.includes(accountId),
+    )
+    return Object.fromEntries(
+      Object.entries(filtered).map(([accountId, byAssetId]) => [
+        accountId,
+        Object.fromEntries(
+          Object.entries(byAssetId).map(([assetId, balance]) => [
+            assetId,
+            BigAmount.fromBaseUnit({ value: balance, assetId }),
+          ]),
+        ),
+      ]),
+    ) as Record<AccountId, Record<AssetId, BigAmount>>
+  },
+)
+
+export const selectPortfolioAssetBalances = createDeepEqualOutputSelector(
+  selectPortfolioAssetBalancesBaseUnit,
+  (assetBalancesById): Record<AssetId, BigAmount> =>
+    Object.fromEntries(
+      Object.entries(assetBalancesById).map(([assetId, balance]) => [
+        assetId,
+        BigAmount.fromBaseUnit({ value: balance, assetId }),
+      ]),
+    ) as Record<AssetId, BigAmount>,
+)
+
+export const selectPortfolioCryptoBalanceByFilter = createCachedSelector(
+  selectAssets,
+  selectPortfolioAccountBalancesBaseUnit,
+  selectPortfolioAssetBalancesBaseUnit,
+  selectAccountIdParamFromFilter,
+  selectAssetIdParamFromFilter,
+  (assets, accountBalances, assetBalances, accountId, assetId): BigAmount => {
+    if (!assetId) return BigAmount.zero({ precision: 0 })
+    // to avoid megabillion phantom balances, return zero rather than base unit value
+    // if we don't have a precision for the asset
+    if (assets[assetId]?.precision === undefined) return BigAmount.zero({ precision: 0 })
+    const rawBalance = accountId
+      ? accountBalances?.[accountId]?.[assetId] ?? '0'
+      : assetBalances[assetId] ?? '0'
+    return BigAmount.fromBaseUnit({ value: rawBalance, assetId })
+  },
+)(
+  (_s: ReduxState, filter) =>
+    `bigAmount-${filter?.accountId ?? 'accountId'}-${filter?.assetId ?? 'assetId'}`,
+)
 
 export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector(
   selectAssets,
@@ -521,25 +582,29 @@ export const selectAssetsBySearchQuery = createCachedSelector(
   (primaryAssets, allAssets, marketDataUsd, searchQuery, limit): Asset[] => {
     if (!searchQuery) return primaryAssets.slice(0, limit)
 
-    // Contract address searches need all assets to find related variants
-    // Name/symbol searches use primaries to avoid duplicates
     const isContractAddressSearch = isContractAddress(searchQuery)
-    const sortedAssets = isContractAddressSearch ? allAssets : primaryAssets
+    const primaryAssetIds = new Set(primaryAssets.map(a => a.assetId))
+    const primarySymbols = new Set(primaryAssets.map(a => a.symbol.toLowerCase()))
 
-    // Filters by low market-cap to avoid spew
+    // Note: Unlike the worker's handleSearch, this selector doesn't have an activeChainId check
+    // because it's used for global search (header) which always searches across all chains.
+    // The worker adds `activeChainId !== 'All'` for trade asset search with chain filtering.
+    const useAllAssets =
+      isContractAddressSearch ||
+      shouldSearchAllAssetsUtil(searchQuery, allAssets, primaryAssetIds, primarySymbols)
+
+    const sortedAssets = useAllAssets ? allAssets : primaryAssets
+
+    // Filter out spam tokens (low market cap) but keep assets with no market data
     const filteredAssets = sortedAssets.filter(asset => {
-      const marketCap = marketDataUsd[asset.assetId]?.marketCap
-      return bnOrZero(marketCap).isZero() || bnOrZero(marketCap).gte(1000)
-    })
-    const matchedAssets = matchSorter(filteredAssets, searchQuery, {
-      keys: [
-        { key: 'name', threshold: matchSorter.rankings.MATCHES },
-        { key: 'symbol', threshold: matchSorter.rankings.WORD_STARTS_WITH },
-        { key: 'assetId', threshold: matchSorter.rankings.CONTAINS },
-      ],
+      const marketCap = bnOrZero(marketDataUsd[asset.assetId]?.marketCap)
+      return marketCap.isZero() || marketCap.gte(MINIMUM_MARKET_CAP_THRESHOLD)
     })
 
-    return limit ? matchedAssets.slice(0, limit) : matchedAssets
+    const matchedAssets = searchAssets(searchQuery, filteredAssets)
+    const deduplicated = deduplicateAssets(matchedAssets, searchQuery)
+
+    return limit ? deduplicated.slice(0, limit) : deduplicated
   },
 )((_state: ReduxState, filter) => filter?.searchQuery ?? 'assetsBySearchQuery')
 

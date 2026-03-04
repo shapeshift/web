@@ -1,11 +1,11 @@
 import { useColorMode, usePrevious } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import type { FormEvent } from 'react'
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { FiatRampRoutePaths } from './types'
@@ -40,6 +40,7 @@ import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { marketApi, marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
+  selectAssetById,
   selectAssets,
   selectMarketDataByFilter,
   selectPortfolioAccountMetadataByAccountId,
@@ -69,13 +70,7 @@ export type FiatRampTradeProps = {
 }
 
 export const FiatRampTrade = memo(({ onChangeTab, direction }: FiatRampTradeProps) => {
-  const methods = useForm({ mode: 'onChange' })
-
-  return (
-    <FormProvider {...methods}>
-      <RampRoutes onChangeTab={onChangeTab} direction={direction} />
-    </FormProvider>
-  )
+  return <RampRoutes onChangeTab={onChangeTab} direction={direction} />
 })
 
 type RampRoutesProps = {
@@ -121,6 +116,21 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   const queryClient = useQueryClient()
 
   const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
+
+  const btcAsset = useAppSelector(state => selectAssetById(state, btcAssetId))
+  const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+
+  useEffect(() => {
+    if (!btcAsset || !ethAsset) return
+
+    if (!buyAsset.assetId) {
+      dispatch(tradeRampInput.actions.setBuyAsset(btcAsset))
+    }
+
+    if (!sellAsset.assetId) {
+      dispatch(tradeRampInput.actions.setSellAsset(ethAsset))
+    }
+  }, [btcAsset, ethAsset, buyAsset.assetId, sellAsset.assetId, dispatch])
 
   const fiatMarketData = useAppSelector(marketData.selectors.selectFiatMarketData)
 

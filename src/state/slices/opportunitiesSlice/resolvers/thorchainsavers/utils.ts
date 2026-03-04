@@ -12,6 +12,7 @@ import {
   fromAssetId,
   ltcAssetId,
   thorchainAssetId,
+  tronAssetId,
 } from '@shapeshiftoss/caip'
 import { assetIdToThorPoolAssetId } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
@@ -59,6 +60,7 @@ export const THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT = {
   [bscAssetId]: '10000000000',
   [cosmosAssetId]: '1', // the inbound address dust_threshold is '0', but LP withdrawls fail without a dust value
   [thorchainAssetId]: '1', // partial LP withdrawls fail without a dust value
+  [tronAssetId]: '1', // the inbound address dust_threshold is '0', but TRON rejects 0-value transactions
   [binanceAssetId]: '0',
   [usdcEthereumAssetId]: '0',
   [usdtEthereumAssetId]: '0',

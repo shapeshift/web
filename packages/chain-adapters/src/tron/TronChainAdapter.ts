@@ -6,6 +6,7 @@ import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import PQueue from 'p-queue'
 import { TronWeb } from 'tronweb'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
@@ -56,10 +57,16 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
   }
 
   protected readonly rpcUrl: string
+  private requestQueue: PQueue
 
   constructor(args: ChainAdapterArgs) {
     this.providers = args.providers
     this.rpcUrl = args.rpcUrl
+    this.requestQueue = new PQueue({
+      intervalCap: 1,
+      interval: 400,
+      concurrency: 1,
+    })
   }
 
   private assertSupportsChain(wallet: HDWallet): asserts wallet is TronWallet {
@@ -187,7 +194,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         fullHost: this.rpcUrl,
       })
 
-      let txData
+      let txData: TronUnsignedTx
 
       if (contractAddress) {
         // Build TRC20 transfer transaction
@@ -203,19 +210,21 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
           callValue: 0,
         }
 
-        txData = await tronWeb.transactionBuilder.triggerSmartContract(
-          contractAddress,
-          functionSelector,
-          options,
-          parameter,
-          from,
+        const result = await this.requestQueue.add(() =>
+          tronWeb.transactionBuilder.triggerSmartContract(
+            contractAddress,
+            functionSelector,
+            options,
+            parameter,
+            from,
+          ),
         )
 
-        if (!txData.result || !txData.result.result) {
+        if (!result.result || !result.result.result) {
           throw new Error('Failed to build TRC20 transaction')
         }
 
-        txData = txData.transaction
+        txData = result.transaction
       } else {
         const requestBody = {
           owner_address: from,
@@ -224,37 +233,118 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
           visible: true,
         }
 
-        const response = await fetch(`${this.rpcUrl}/wallet/createtransaction`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody),
-        })
+        const response = await this.requestQueue.add(() =>
+          fetch(`${this.rpcUrl}/wallet/createtransaction`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody),
+          }),
+        )
 
-        txData = await response.json()
+        const responseData = await response.json()
 
-        if (txData.Error) {
-          throw new Error(`TronGrid API error: ${txData.Error}`)
+        if (responseData.Error) {
+          throw new Error(`TronGrid API error: ${responseData.Error}`)
         }
+
+        txData = responseData as TronUnsignedTx
       }
 
       // Add memo if provided
       if (memo) {
-        txData = await tronWeb.transactionBuilder.addUpdateData(txData, memo, 'utf8')
+        txData = (await this.requestQueue.add(() =>
+          tronWeb.transactionBuilder.addUpdateData(txData as any, memo, 'utf8'),
+        )) as TronUnsignedTx
       }
 
       if (!txData.raw_data_hex) {
         throw new Error('Failed to create transaction')
       }
 
+      const rawDataHexValue: any = txData.raw_data_hex
       const rawDataHex =
-        typeof txData.raw_data_hex === 'string'
-          ? txData.raw_data_hex
-          : Buffer.isBuffer(txData.raw_data_hex)
-          ? txData.raw_data_hex.toString('hex')
-          : Array.isArray(txData.raw_data_hex)
-          ? Buffer.from(txData.raw_data_hex).toString('hex')
+        typeof rawDataHexValue === 'string'
+          ? rawDataHexValue
+          : Buffer.isBuffer(rawDataHexValue)
+          ? rawDataHexValue.toString('hex')
+          : Array.isArray(rawDataHexValue)
+          ? Buffer.from(rawDataHexValue).toString('hex')
           : (() => {
-              throw new Error(`Unexpected raw_data_hex type: ${typeof txData.raw_data_hex}`)
+              throw new Error(`Unexpected raw_data_hex type: ${typeof rawDataHexValue}`)
+            })()
+
+      if (!/^[0-9a-fA-F]+$/.test(rawDataHex)) {
+        throw new Error(`Invalid raw_data_hex format: ${rawDataHex.slice(0, 100)}`)
+      }
+
+      return {
+        addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
+        rawDataHex,
+        transaction: txData,
+      }
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
+    }
+  }
+
+  async buildCustomApiTx(input: {
+    from: string
+    to: string
+    accountNumber: number
+    data: string
+    value: string
+    method?: string
+    args?: { type: string; value: unknown }[]
+  }): Promise<TronSignTx> {
+    try {
+      const { from, to, accountNumber, data, value } = input
+
+      // Always use raw data field instead of method/args to ensure correct method selector
+      // TronWeb's triggerSmartContract computes method selectors differently than expected
+      const callData = data.startsWith('0x') ? data.slice(2) : data
+      let txData: TronUnsignedTx
+
+      const requestBody = {
+        owner_address: from,
+        contract_address: to,
+        data: callData,
+        fee_limit: 100_000_000,
+        call_value: Number(value) || 0,
+        visible: true,
+      }
+
+      const response = await this.requestQueue.add(() =>
+        fetch(`${this.rpcUrl}/wallet/triggersmartcontract`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody),
+        }),
+      )
+
+      const result = await response.json()
+
+      if (result.Error || !result.transaction) {
+        throw new Error(`TronGrid API error: ${result.Error || 'No transaction returned'}`)
+      }
+
+      txData = result.transaction
+
+      if (!txData.raw_data_hex) {
+        throw new Error('Failed to create transaction')
+      }
+
+      const rawDataHexValue = txData.raw_data_hex
+      const rawDataHex =
+        typeof rawDataHexValue === 'string'
+          ? rawDataHexValue
+          : Buffer.isBuffer(rawDataHexValue)
+          ? (rawDataHexValue as Buffer).toString('hex')
+          : Array.isArray(rawDataHexValue)
+          ? Buffer.from(rawDataHexValue).toString('hex')
+          : (() => {
+              throw new Error(`Unexpected raw_data_hex type: ${typeof rawDataHexValue}`)
             })()
 
       if (!/^[0-9a-fA-F]+$/.test(rawDataHex)) {
@@ -372,7 +462,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
       // Get live network prices from chain parameters
       const tronWeb = new TronWeb({ fullHost: this.rpcUrl })
-      const params = await tronWeb.trx.getChainParameters()
+      const params = await this.requestQueue.add(() => tronWeb.trx.getChainParameters())
       const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
       const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
 
@@ -406,11 +496,15 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         try {
           // Use actual sender if available, otherwise use recipient for estimation
           const estimationFrom = from || to
-          const baseTx = await tronWeb.transactionBuilder.sendTrx(to, Number(value), estimationFrom)
+          const baseTx = await this.requestQueue.add(() =>
+            tronWeb.transactionBuilder.sendTrx(to, Number(value), estimationFrom),
+          )
 
           // Add memo if provided to get accurate size
           const finalTx = memo
-            ? await tronWeb.transactionBuilder.addUpdateData(baseTx, memo, 'utf8')
+            ? await this.requestQueue.add(() =>
+                tronWeb.transactionBuilder.addUpdateData(baseTx, memo, 'utf8'),
+              )
             : baseTx
 
           // Calculate bandwidth from actual transaction size
@@ -431,14 +525,16 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       // Check if recipient address needs activation (1 TRX cost)
       let accountActivationFee = 0
       try {
-        const recipientInfoResponse = await fetch(`${this.rpcUrl}/wallet/getaccount`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            address: to,
-            visible: true,
+        const recipientInfoResponse = await this.requestQueue.add(() =>
+          fetch(`${this.rpcUrl}/wallet/getaccount`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              address: to,
+              visible: true,
+            }),
           }),
-        })
+        )
         const recipientInfo = await recipientInfoResponse.json()
         const recipientExists = recipientInfo && Object.keys(recipientInfo).length > 1
 
@@ -583,8 +679,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
       const parsedTx = this.parse(tx, pubkey)
 
+      const txInitiator = tx.raw_data?.contract?.[0]?.parameter?.value?.owner_address
+
       const trc20Transfers = this.parseTRC20Transfers(tx, pubkey)
-      const internalTrxTransfers = this.parseInternalTrxTransfers(tx, pubkey)
+      const internalTrxTransfers = this.parseInternalTrxTransfers(tx, pubkey, txInitiator)
 
       return {
         ...parsedTx,
@@ -631,7 +729,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         const fromAddress = tronWeb.address.fromHex('41' + log.topics[1].slice(-40))
         const toAddress = tronWeb.address.fromHex('41' + log.topics[2].slice(-40))
 
-        if (fromAddress === ZERO_ADDRESS || toAddress === ZERO_ADDRESS) continue
+        // Skip mints (from zero address) but allow burns (to zero address) — a burn is a valid
+        // deduction e.g. unstaking sTRX burns the token on behalf of the user
+        // https://tronscan.org/#/transaction/1aac271797fe4344ff71f33368085073ea22e560815794811f7336120736d77c
+        if (fromAddress === ZERO_ADDRESS) continue
 
         if (fromAddress === toAddress) continue
 
@@ -673,6 +774,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
   private parseInternalTrxTransfers(
     tx: unchained.tron.TronTx,
     pubkey: string,
+    txInitiator?: string,
   ): {
     assetId: AssetId
     from: string[]
@@ -711,12 +813,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
           const value = String(callInfo.callValue)
 
-          const isSend = caller_address === pubkey
-          const isReceive = transferTo_address === pubkey
+          const isDirectSend = caller_address === pubkey
+          const isDirectReceive = transferTo_address === pubkey
+          const isInitiatedByUser = txInitiator === pubkey && caller_address !== pubkey
 
-          if (!isSend && !isReceive) continue
-
-          if (isSend) {
+          if (isDirectSend) {
             transfers.push({
               assetId: this.assetId,
               from: [caller_address],
@@ -724,9 +825,17 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
               type: TransferType.Send,
               value,
             })
+          } else if (isInitiatedByUser) {
+            transfers.push({
+              assetId: this.assetId,
+              from: [txInitiator],
+              to: [transferTo_address],
+              type: TransferType.Send,
+              value,
+            })
           }
 
-          if (isReceive) {
+          if (isDirectReceive) {
             transfers.push({
               assetId: this.assetId,
               from: [caller_address],

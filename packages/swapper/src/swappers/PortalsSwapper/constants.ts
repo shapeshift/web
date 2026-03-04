@@ -6,7 +6,6 @@ export const chainIdToPortalsNetwork: Partial<Record<KnownChainIds, string>> = {
   [KnownChainIds.OptimismMainnet]: 'optimism',
   [KnownChainIds.BnbSmartChainMainnet]: 'bsc',
   [KnownChainIds.PolygonMainnet]: 'polygon',
-  [KnownChainIds.GnosisMainnet]: 'gnosis',
   [KnownChainIds.ArbitrumMainnet]: 'arbitrum',
   [KnownChainIds.BaseMainnet]: 'base',
   [KnownChainIds.HyperEvmMainnet]: 'hyperevm',

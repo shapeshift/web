@@ -16,8 +16,7 @@ import type {
 } from '@shapeshiftoss/chain-adapters'
 import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet-core'
-import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
+import { isGridPlus, supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { CosmosSdkChainId, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
@@ -33,8 +32,11 @@ import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, getSupportedEvmChainIds } from '@/lib/utils/evm'
+import { assertGetNearChainAdapter } from '@/lib/utils/near'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
+import { assertGetTonChainAdapter } from '@/lib/utils/ton'
 import { assertGetUtxoChainAdapter, isUtxoChainId } from '@/lib/utils/utxo'
 import {
   selectAssetById,
@@ -122,7 +124,11 @@ export const estimateFees = async ({
       const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
         to,
         value,
-        chainSpecific: { from: account, tokenId: contractAddress, instructions },
+        chainSpecific: {
+          from: account,
+          tokenId: contractAddress,
+          instructions,
+        },
         sendMax,
       }
       return adapter.getFeeData(getFeeDataInput)
@@ -149,6 +155,42 @@ export const estimateFees = async ({
         chainSpecific: {
           from: account,
           tokenId: contractAddress,
+        },
+        sendMax,
+      }
+      return adapter.getFeeData(getFeeDataInput)
+    }
+    case CHAIN_NAMESPACE.Near: {
+      const adapter = assertGetNearChainAdapter(asset.chainId)
+      const getFeeDataInput: GetFeeDataInput<KnownChainIds.NearMainnet> = {
+        to,
+        value,
+        chainSpecific: { from: account, contractAddress },
+        sendMax,
+      }
+      return adapter.getFeeData(getFeeDataInput)
+    }
+    case CHAIN_NAMESPACE.Starknet: {
+      const adapter = assertGetStarknetChainAdapter(asset.chainId)
+      const getFeeDataInput: GetFeeDataInput<KnownChainIds.StarknetMainnet> = {
+        to,
+        value,
+        chainSpecific: {
+          from: account,
+          tokenContractAddress: contractAddress,
+        },
+        sendMax,
+      }
+      return adapter.getFeeData(getFeeDataInput)
+    }
+    case CHAIN_NAMESPACE.Ton: {
+      const adapter = assertGetTonChainAdapter(asset.chainId)
+      const getFeeDataInput: GetFeeDataInput<KnownChainIds.TonMainnet> = {
+        to,
+        value,
+        chainSpecific: {
+          from: account,
+          contractAddress,
         },
         sendMax,
       }
@@ -334,6 +376,7 @@ export const handleSend = async ({
         sendMax: sendInput.sendMax,
         chainSpecific: {
           contractAddress,
+          memo,
         },
       } as BuildSendTxInput<KnownChainIds.TronMainnet>)
     }
@@ -360,6 +403,68 @@ export const handleSend = async ({
           gasPrice: fees.chainSpecific.gasPrice,
         },
       } as BuildSendTxInput<KnownChainIds.SuiMainnet>)
+    }
+
+    if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.Near) {
+      const { accountNumber } = bip44Params
+      const adapter = assertGetNearChainAdapter(chainId)
+      const fees = estimatedFees[feeType] as FeeData<KnownChainIds.NearMainnet>
+      const contractAddress = contractAddressOrUndefined(asset.assetId)
+      const pubKey = skipDeviceDerivation ? fromAccountId(sendInput.accountId).account : undefined
+
+      return adapter.buildSendTransaction({
+        to,
+        value,
+        wallet,
+        accountNumber,
+        pubKey,
+        sendMax: sendInput.sendMax,
+        chainSpecific: {
+          gasPrice: fees.chainSpecific.gasPrice,
+          contractAddress,
+        },
+      } as BuildSendTxInput<KnownChainIds.NearMainnet>)
+    }
+
+    if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.Starknet) {
+      const { accountNumber } = bip44Params
+      const adapter = assertGetStarknetChainAdapter(chainId)
+      const contractAddress = contractAddressOrUndefined(asset.assetId)
+      const fees = estimatedFees[feeType] as FeeData<KnownChainIds.StarknetMainnet>
+
+      return adapter.buildSendTransaction({
+        to,
+        value,
+        wallet,
+        accountNumber,
+        pubKey:
+          isLedger(wallet) || isTrezor(wallet)
+            ? fromAccountId(sendInput.accountId).account
+            : undefined,
+        sendMax: sendInput.sendMax,
+        chainSpecific: {
+          tokenContractAddress: contractAddress,
+          maxFee: fees.chainSpecific.maxFee,
+        },
+      } as BuildSendTxInput<KnownChainIds.StarknetMainnet>)
+    }
+
+    if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.Ton) {
+      const { accountNumber } = bip44Params
+      const adapter = assertGetTonChainAdapter(chainId)
+      const contractAddress = contractAddressOrUndefined(asset.assetId)
+
+      return adapter.buildSendTransaction({
+        to,
+        value,
+        wallet,
+        accountNumber,
+        sendMax: sendInput.sendMax,
+        chainSpecific: {
+          contractAddress,
+          memo,
+        },
+      } as BuildSendTxInput<KnownChainIds.TonMainnet>)
     }
 
     throw new Error(`${chainId} not supported`)

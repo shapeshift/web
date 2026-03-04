@@ -1,6 +1,6 @@
 import type { SupportedTradeQuoteStepIndex, Swap, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapStatus, TransactionExecutionState } from '@shapeshiftoss/swapper'
-import { fromBaseUnit } from '@shapeshiftoss/utils'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { v4 as uuid } from 'uuid'
@@ -31,6 +31,7 @@ type UseTradeButtonPropsProps = {
   currentHopIndex: SupportedTradeQuoteStepIndex
   activeTradeId: string
   isExactAllowance: boolean
+  onSwapTxBroadcast?: () => void
 }
 
 type TradeButtonProps = {
@@ -45,6 +46,7 @@ export const useTradeButtonProps = ({
   currentHopIndex,
   activeTradeId,
   isExactAllowance,
+  onSwapTxBroadcast,
 }: UseTradeButtonPropsProps): TradeButtonProps | undefined => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
@@ -90,6 +92,15 @@ export const useTradeButtonProps = ({
     const firstStep = activeQuote.steps[0]
     const lastStep = activeQuote.steps[activeQuote.steps.length - 1]
 
+    const sellAmountCrypto = BigAmount.fromBaseUnit({
+      value: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      precision: firstStep.sellAsset.precision,
+    })
+    const expectedBuyAmountCrypto = BigAmount.fromBaseUnit({
+      value: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+      precision: lastStep.buyAsset.precision,
+    })
+
     const swap: Swap = {
       id: uuid(),
       createdAt: Date.now(),
@@ -103,22 +114,18 @@ export const useTradeButtonProps = ({
       buyAsset: lastStep.buyAsset,
       sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       expectedBuyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
-      sellAmountCryptoPrecision: fromBaseUnit(
-        firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        firstStep.sellAsset.precision,
-      ),
-      expectedBuyAmountCryptoPrecision: fromBaseUnit(
-        lastStep.buyAmountAfterFeesCryptoBaseUnit,
-        lastStep.buyAsset.precision,
-      ),
+      sellAmountCryptoPrecision: sellAmountCrypto.toPrecision(),
+      expectedBuyAmountCryptoPrecision: expectedBuyAmountCrypto.toPrecision(),
       metadata: {
         chainflipSwapId: firstStep?.chainflipSpecific?.chainflipSwapId,
         nearIntentsSpecific: firstStep?.nearIntentsSpecific,
         relayerExplorerTxLink,
         relayerTxHash,
         relayTransactionMetadata: firstStep?.relayTransactionMetadata,
+        acrossTransactionMetadata: firstStep?.acrossTransactionMetadata,
+        debridgeTransactionMetadata: firstStep?.debridgeTransactionMetadata,
         stepIndex: currentHopIndex,
-        quoteId: activeQuote.id,
+        quoteId: firstStep?.stonfiSpecific?.quoteId ?? activeQuote.id,
         streamingSwapMetadata: {
           maxSwapCount: firstStep.thorchainSpecific?.maxStreamingQuantity ?? 0,
           attemptedSwapCount: 0,
@@ -143,7 +150,7 @@ export const useTradeButtonProps = ({
     relayerTxHash,
   ])
 
-  const executeTrade = useTradeExecution(currentHopIndex, activeTradeId)
+  const executeTrade = useTradeExecution(currentHopIndex, activeTradeId, onSwapTxBroadcast)
 
   const handleSignTx = useCallback(() => {
     if (

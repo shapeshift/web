@@ -38,7 +38,7 @@ export const useIsTradingActive = ({
           refetchOnMount: true,
         }
       : {}),
-    select: data => selectInboundAddressData(data, assetId),
+    select: data => selectInboundAddressData(data, assetId, swapperName),
   })
 
   const {

@@ -22,7 +22,6 @@ const makeWethMockCoingeckoResponse = () => ({
     'polygon-pos': '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',
     xdai: '0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1',
     'arbitrum-one': '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
-    'arbitrum-nova': '0x722e8bdd2ce80a4422e880164f2079488e115365',
     base: '0x4200000000000000000000000000000000000006',
   },
 })
@@ -153,7 +152,7 @@ describe('adapters:coingecko:utils', () => {
           'eip155:10/erc20:0x4200000000000000000000000000000000000006': 'weth',
         },
         'eip155:137': {
-          'eip155:137/slip44:60': 'matic-network',
+          'eip155:137/slip44:60': 'polygon-ecosystem-token',
           'eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619': 'weth',
         },
         'eip155:100': {
@@ -163,10 +162,6 @@ describe('adapters:coingecko:utils', () => {
         'eip155:42161': {
           'eip155:42161/slip44:60': 'ethereum',
           'eip155:42161/erc20:0x82af49447d8a07e3bd95bd0d56f35241523fbab1': 'weth',
-        },
-        'eip155:42170': {
-          'eip155:42170/slip44:60': 'ethereum',
-          'eip155:42170/erc20:0x722e8bdd2ce80a4422e880164f2079488e115365': 'weth',
         },
         'eip155:8453': {
           'eip155:8453/slip44:60': 'ethereum',
@@ -181,6 +176,72 @@ describe('adapters:coingecko:utils', () => {
         'eip155:9745': {
           'eip155:9745/slip44:60': 'plasma',
         },
+        'eip155:480': {
+          'eip155:480/slip44:60': 'ethereum',
+        },
+        'eip155:4326': {
+          'eip155:4326/slip44:60': 'ethereum',
+        },
+        'eip155:59144': {
+          'eip155:59144/slip44:60': 'ethereum',
+        },
+        'eip155:534352': {
+          'eip155:534352/slip44:60': 'ethereum',
+        },
+        'eip155:747474': {
+          'eip155:747474/slip44:60': 'katana',
+        },
+        'eip155:747': {
+          'eip155:747/slip44:60': 'flow',
+        },
+        'eip155:42220': {
+          'eip155:42220/slip44:60': 'celo',
+        },
+        'eip155:1514': {
+          'eip155:1514/slip44:60': 'story-2',
+        },
+        'eip155:324': {
+          'eip155:324/slip44:60': 'ethereum',
+        },
+        'eip155:81457': {
+          'eip155:81457/slip44:60': 'ethereum',
+        },
+        'eip155:43111': {
+          'eip155:43111/slip44:60': 'ethereum',
+        },
+        'eip155:5000': {
+          'eip155:5000/slip44:60': 'mantle',
+        },
+        'eip155:80094': {
+          'eip155:80094/slip44:60': 'berachain-bera',
+        },
+        'eip155:57073': {
+          'eip155:57073/slip44:60': 'ethereum',
+        },
+        'eip155:60808': {
+          'eip155:60808/slip44:60': 'ethereum',
+        },
+        'eip155:25': {
+          'eip155:25/slip44:60': 'crypto-com-chain',
+        },
+        'eip155:146': {
+          'eip155:146/slip44:60': 'sonic-3',
+        },
+        'eip155:130': {
+          'eip155:130/slip44:60': 'ethereum',
+        },
+        'eip155:34443': {
+          'eip155:34443/slip44:60': 'ethereum',
+        },
+        'eip155:1868': {
+          'eip155:1868/slip44:60': 'ethereum',
+        },
+        'eip155:98866': {
+          'eip155:98866/slip44:60': 'plume',
+        },
+        'near:mainnet': {
+          'near:mainnet/slip44:397': 'near',
+        },
         'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp': {
           'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501': 'solana',
         },
@@ -189,6 +250,12 @@ describe('adapters:coingecko:utils', () => {
         },
         'tron:0x2b6653dc': {
           'tron:0x2b6653dc/slip44:195': 'tron',
+        },
+        'starknet:SN_MAIN': {
+          'starknet:SN_MAIN/slip44:9004': 'starknet',
+        },
+        'ton:mainnet': {
+          'ton:mainnet/slip44:607': 'the-open-network',
         },
       }
       expect(result).toEqual(expected)

@@ -25,13 +25,13 @@ export type CurrentEpochMetadata = {
 }
 
 export type RewardDistribution = {
-  /** The amount (RUNE) distributed to the reward address */
+  /** The amount (reward asset) distributed to the reward address */
   amount: string
   /** The rFOX staking reward units earned for the current epoch */
   rewardUnits: string
   /** The total rFOX staking reward units earned across all epochs */
   totalRewardUnits: string
-  /** The transaction ID (THORChain) for the reward distribution, empty string if not yet distributed */
+  /** The transaction ID for the reward distribution */
   txId: string
   /** The address used for the reward distribution */
   rewardAddress: string
@@ -50,14 +50,14 @@ export type Epoch = {
   startBlock: number
   /** The end block for this epoch */
   endBlock: number
-  /** The treasury address on THORChain used to determine revenue earned by the DAO for rFOX reward distributions and total burn */
-  treasuryAddress: string
-  /** The total revenue (RUNE) earned by the treasury for this epoch */
+  /** The total revenue (USD) earned this epoch */
   totalRevenue: string
-  /** The percentage of revenue (RUNE) accumulated by the treasury to be used to buy FOX from the open market and subsequently burned for this epoch */
+  /** The revenue (USD) earned (by service) for this epoch */
+  revenue: Record<string, string>
+  /** The percentage of revenue to be used to buy FOX from the open market and subsequently burned for this epoch */
   burnRate: number
-  /** The spot price of rune in USD */
-  runePriceUsd: string
+  /** The spot price of reward asset in USD */
+  rewardAssetPriceUsd: string
   /** The status of the reward distribution */
   distributionStatus: 'pending' | 'complete'
   /** The details for each staking contract for this epoch */
@@ -67,7 +67,7 @@ export type Epoch = {
 export type EpochDetails = {
   /** The total rFOX staking reward units for this epoch */
   totalRewardUnits: string
-  /** The percentage of revenue (RUNE) accumulated by the treasury to be distributed as rewards for this epoch */
+  /** The percentage of revenue to be distributed as rewards for this epoch */
   distributionRate: number
   /** The spot price of asset in USD */
   assetPriceUsd: string
@@ -91,19 +91,4 @@ export type StakingInfo = {
   earnedRewards: bigint
   rewardPerTokenStored: bigint
   runeAddress: string
-}
-
-// A subset of the RfoxRoute enum below - to be used in the context of /#/rfox
-export enum RfoxSubRoute {
-  Stake = 'stake',
-  Unstake = 'unstake',
-  Claim = 'claim',
-  ChangeAddress = 'change-address',
-}
-
-export enum RfoxRoute {
-  Stake = `/rfox/${RfoxSubRoute.Stake}`,
-  Unstake = `/rfox/${RfoxSubRoute.Unstake}`,
-  Claim = `/rfox/${RfoxSubRoute.Claim}`,
-  ChangeAddress = `/rfox/${RfoxSubRoute.ChangeAddress}`,
 }

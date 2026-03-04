@@ -1,6 +1,6 @@
+import { BigAmount } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
 import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
 
@@ -15,7 +15,6 @@ import type { TradeCardProps } from './MultiHopTrade'
 import type { TradeInputTab } from './types'
 import { TradeRoutePaths } from './types'
 
-import { fromBaseUnit } from '@/lib/math'
 import { TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import {
@@ -26,7 +25,10 @@ import {
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-export type StandaloneTradeCardProps = TradeCardProps
+export type StandaloneTradeCardProps = TradeCardProps & {
+  onSuccess?: () => void
+  isModal?: boolean
+}
 
 const GetTradeRates = () => {
   useGetTradeRates()
@@ -39,10 +41,11 @@ export const StandaloneMultiHopTrade = memo(
     defaultSellAssetId,
     isCompact,
     onChangeTab,
+    onSuccess,
     isStandalone,
+    isModal,
   }: StandaloneTradeCardProps) => {
     const dispatch = useAppDispatch()
-    const methods = useForm({ mode: 'onChange' })
     const location = useLocation()
 
     // Extract params directly from location.pathname using matchPath instead of useParams()
@@ -117,24 +120,24 @@ export const StandaloneMultiHopTrade = memo(
       }
 
       if (paramsSellAmountCryptoBaseUnit && routeSellAsset) {
-        dispatch(
-          tradeInput.actions.setSellAmountCryptoPrecision(
-            fromBaseUnit(paramsSellAmountCryptoBaseUnit, routeSellAsset.precision),
-          ),
-        )
+        const sellAmountCrypto = BigAmount.fromBaseUnit({
+          value: paramsSellAmountCryptoBaseUnit,
+          precision: routeSellAsset.precision,
+        })
+        dispatch(tradeInput.actions.setSellAmountCryptoPrecision(sellAmountCrypto.toPrecision()))
       }
 
       setIsInitialized(true)
     }, [dispatch, routeBuyAsset, routeSellAsset, paramsSellAmountCryptoBaseUnit, isInitialized])
 
     return (
-      <FormProvider {...methods}>
-        <StandaloneTradeRoutes
-          isCompact={isCompact}
-          onChangeTab={onChangeTab}
-          isStandalone={isStandalone}
-        />
-      </FormProvider>
+      <StandaloneTradeRoutes
+        isCompact={isCompact}
+        onChangeTab={onChangeTab}
+        onSuccess={onSuccess}
+        isStandalone={isStandalone}
+        isModal={isModal}
+      />
     )
   },
 )
@@ -142,11 +145,13 @@ export const StandaloneMultiHopTrade = memo(
 type StandaloneTradeRoutesProps = {
   isCompact?: boolean
   isStandalone?: boolean
+  isModal?: boolean
   onChangeTab: (newTab: TradeInputTab) => void
+  onSuccess?: () => void
 }
 
 const StandaloneTradeRoutes = memo(
-  ({ isCompact, isStandalone, onChangeTab }: StandaloneTradeRoutesProps) => {
+  ({ isCompact, isStandalone, isModal, onChangeTab, onSuccess }: StandaloneTradeRoutesProps) => {
     const location = useLocation()
 
     const tradeInputRef = useRef<HTMLDivElement | null>(null)
@@ -169,7 +174,10 @@ const StandaloneTradeRoutes = memo(
     }, [location.pathname])
 
     // Create memoized elements for each route
-    const tradeConfirmElement = useMemo(() => <TradeConfirm isCompact={isCompact} />, [isCompact])
+    const tradeConfirmElement = useMemo(
+      () => <TradeConfirm isCompact={isCompact} isModal={isModal} onSuccess={onSuccess} />,
+      [isCompact, isModal, onSuccess],
+    )
 
     const verifyAddressesElement = useMemo(() => <VerifyAddresses />, [])
 
@@ -196,12 +204,13 @@ const StandaloneTradeRoutes = memo(
       () => (
         <TradeInput
           isCompact={isCompact}
+          isModal={isModal}
           tradeInputRef={tradeInputRef}
           onChangeTab={onChangeTab}
           isStandalone={isStandalone}
         />
       ),
-      [isCompact, onChangeTab, isStandalone],
+      [isCompact, isModal, onChangeTab, isStandalone],
     )
 
     return (

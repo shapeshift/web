@@ -127,16 +127,36 @@ export const FoxHeader = () => {
               </Flex>
               <Text color='text.subtle' translation='foxPage.description' />
               <HStack gap={4} mt={6}>
-                <Link href='#rfox' color='text.link' onClick={handleRfoxClick}>
+                <Link
+                  data-testid='fox-nav-rfox'
+                  href='#rfox'
+                  color='text.link'
+                  onClick={handleRfoxClick}
+                >
                   {translate('RFOX.staking')}
                 </Link>
-                <Link href='#token' color='text.link' onClick={handleTokenClick}>
+                <Link
+                  data-testid='fox-nav-token'
+                  href='#token'
+                  color='text.link'
+                  onClick={handleTokenClick}
+                >
                   {translate('foxPage.foxToken')}
                 </Link>
-                <Link href='#farming' color='text.link' onClick={handleFarmingClick}>
+                <Link
+                  data-testid='fox-nav-farming'
+                  href='#farming'
+                  color='text.link'
+                  onClick={handleFarmingClick}
+                >
                   {translate('foxPage.foxFarming.title')}
                 </Link>
-                <Link href='#governance' color='text.link' onClick={handleGovernanceClick}>
+                <Link
+                  data-testid='fox-nav-governance'
+                  href='#governance'
+                  color='text.link'
+                  onClick={handleGovernanceClick}
+                >
                   {translate('foxPage.governance.title')}
                 </Link>
               </HStack>

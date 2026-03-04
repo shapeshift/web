@@ -18,7 +18,11 @@ import WAValidator from 'multicoin-address-validator'
 import PQueue from 'p-queue'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
-import { ChainAdapterError, ErrorHandler } from '../error/ErrorHandler'
+import {
+  ChainAdapterError,
+  ErrorHandler,
+  handleBroadcastTransactionError,
+} from '../error/ErrorHandler'
 import type {
   Account,
   BroadcastTransactionInput,
@@ -352,7 +356,9 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
               if (!response.ok || data.error) {
                 throw new Error(`Blockchair API error: ${data.error || response.statusText}`)
               }
-              return { hex: data.data[input.txid].raw_transaction }
+              return {
+                hex: data.data[input.txid].raw_transaction,
+              }
             }
             throw error
           }
@@ -371,10 +377,14 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
           vout: input.vout,
           txid: input.txid,
           hex: data.hex,
+          ...(this.chainId === KnownChainIds.BitcoinMainnet && { sequence: 0xfffffffd }),
           // For Zcash, we need to pass the blockHeight and txid of each input transaction
-          // so Ledger can add them to the PSBT and determine the correct consensus branch ID
+          // so Ledger can add them to the PSBT and determine the correct consensus branch ID.
+          // Only pass blockHeight if it's a valid positive number (mempool txs have blockHeight: -1)
           ...(this.coinName === 'Zcash' &&
-            'blockHeight' in data && { blockHeight: data.blockHeight }),
+            'blockHeight' in data &&
+            typeof data.blockHeight === 'number' &&
+            data.blockHeight > 0 && { blockHeight: data.blockHeight }),
         })
       }
 
@@ -586,19 +596,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       return txHash
     } catch (err) {
-      if ((err as Error).name === 'ResponseError') {
-        const response = await ((err as any).response as Response).json()
-        const error = JSON.parse(response.message)
-
-        return ErrorHandler(JSON.stringify(response), {
-          translation: 'chainAdapters.errors.broadcastTransactionWithMessage',
-          options: { message: error.message },
-        })
-      }
-
-      return ErrorHandler(err, {
-        translation: 'chainAdapters.errors.broadcastTransaction',
-      })
+      return handleBroadcastTransactionError(err)
     }
   }
 

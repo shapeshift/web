@@ -1,5 +1,5 @@
 import { Box, Center } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback } from 'react'
 import type { ItemProps, TopItemListProps } from 'react-virtuoso'
@@ -32,6 +32,8 @@ export type GroupedAssetListProps = {
   onImportClick?: (asset: Asset) => void
   hideZeroBalanceAmounts: boolean
   activeChainId: ChainId | 'All'
+  assetFilterPredicate?: (assetId: AssetId) => boolean
+  chainIdFilterPredicate?: (chainId: ChainId) => boolean
 }
 
 export const GroupedAssetList = ({
@@ -43,6 +45,8 @@ export const GroupedAssetList = ({
   onImportClick,
   hideZeroBalanceAmounts,
   activeChainId,
+  assetFilterPredicate,
+  chainIdFilterPredicate,
 }: GroupedAssetListProps) => {
   const renderGroupContent = useCallback(
     (index: number) => {
@@ -85,6 +89,8 @@ export const GroupedAssetList = ({
         disableUnsupported: false,
         hideZeroBalanceAmounts,
         onImportClick,
+        assetFilterPredicate,
+        chainIdFilterPredicate,
       }
 
       return (
@@ -97,7 +103,15 @@ export const GroupedAssetList = ({
         />
       )
     },
-    [assets, onAssetClick, hideZeroBalanceAmounts, onImportClick, activeChainId],
+    [
+      assets,
+      onAssetClick,
+      hideZeroBalanceAmounts,
+      onImportClick,
+      activeChainId,
+      assetFilterPredicate,
+      chainIdFilterPredicate,
+    ],
   )
 
   return (

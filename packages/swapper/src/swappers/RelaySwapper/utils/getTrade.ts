@@ -245,6 +245,16 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   const { data: quote } = maybeQuote.unwrap()
 
+  const orderId = quote.protocol?.v2?.orderId
+  if (!orderId && sellAsset.chainId === btcChainId) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Relay quote missing protocol.v2.orderId',
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
+  }
+
   const { slippageTolerance, currencyOut, timeEstimate } = quote.details
 
   const buyAmountAfterFeesCryptoBaseUnit = currencyOut.amount
@@ -504,7 +514,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
         value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
         chainSpecific: {
           pubkey: xpub ?? getRelayDefaultUserAddress(sellAsset.chainId),
-          opReturnData: firstStep.requestId,
+          opReturnData: orderId,
         },
         sendMax: false,
       }
@@ -599,9 +609,10 @@ export async function getTrade<T extends 'quote' | 'rate'>({
           relayTransactionMetadata: {
             from: sendAddress,
             psbt: selectedItem.data.psbt,
-            opReturnData: quoteStep.requestId,
+            opReturnData: orderId,
             to: relayer,
             relayId: quote.steps[0].requestId,
+            orderId,
           },
           solanaTransactionMetadata: undefined,
         }
@@ -613,12 +624,14 @@ export async function getTrade<T extends 'quote' | 'rate'>({
           relayTransactionMetadata: {
             from: sendAddress,
             to: selectedItem.data?.to,
-            value: selectedItem.data?.value,
+            // v2 API may return value as undefined or empty object for ERC-20 swaps - default to '0'
+            value: typeof selectedItem.data?.value === 'string' ? selectedItem.data.value : '0',
             data: selectedItem.data?.data,
             // gas is not documented in the relay docs but refers to gasLimit
             gasLimit: selectedItem.data?.gas,
             chainId: Number(fromChainId(sellAsset.chainId).chainReference),
             relayId: quote.steps[0].requestId,
+            orderId,
           },
           solanaTransactionMetadata: undefined,
         }
@@ -633,6 +646,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
           },
           relayTransactionMetadata: {
             relayId: quote.steps[0].requestId,
+            orderId,
           },
         }
       }
@@ -643,6 +657,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
           solanaTransactionMetadata: undefined,
           relayTransactionMetadata: {
             relayId: quote.steps[0].requestId,
+            orderId,
             to: selectedItem.data?.parameter?.contract_address,
           },
         }

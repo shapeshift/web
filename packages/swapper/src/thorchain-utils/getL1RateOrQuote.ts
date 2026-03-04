@@ -3,18 +3,18 @@ import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import * as adapters from '@shapeshiftoss/chain-adapters'
 import {
   assertUnreachable,
+  BigAmount,
   bn,
   bnOrZero,
   contractAddressOrUndefined,
   convertDecimalPercentageToBasisPoints,
   convertPrecision,
-  fromBaseUnit,
   isFulfilled,
   isRejected,
-  toBaseUnit,
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js'
 import { TronWeb } from 'tronweb'
 import { v4 as uuid } from 'uuid'
 
@@ -43,6 +43,7 @@ import {
   getNativePrecision,
   getSwapSource,
 } from './index'
+import * as solana from './solana'
 import * as tron from './tron'
 import type {
   ThorEvmTradeQuote,
@@ -58,6 +59,7 @@ import type {
 import * as utxo from './utxo'
 
 const SAFE_GAS_LIMIT = '100000' // depositWithExpiry()
+const SOLANA_MEMO_PROGRAM_ID = 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr'
 
 type ThorTradeRateOrQuote = ThorTradeRate | ThorTradeQuote
 type ThorEvmTradeRateOrQuote = ThorEvmTradeRate | ThorEvmTradeQuote
@@ -103,6 +105,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     assertGetEvmChainAdapter,
     assertGetUtxoChainAdapter,
     assertGetCosmosSdkChainAdapter,
+    assertGetSolanaChainAdapter,
   } = deps
 
   // "NativePrecision" is intended to indicate the base unit precision of the asset
@@ -187,10 +190,13 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     const buyAmountBeforeFeesCryptoThorPrecision = bn(quote.expected_amount_out).plus(
       quote.fees.total,
     )
-    return toBaseUnit(
-      fromBaseUnit(buyAmountBeforeFeesCryptoThorPrecision, buyAssetNativePrecision),
-      buyAsset.precision,
-    )
+    return BigAmount.fromPrecision({
+      value: BigAmount.fromBaseUnit({
+        value: buyAmountBeforeFeesCryptoThorPrecision,
+        precision: buyAssetNativePrecision,
+      }).toPrecision(),
+      precision: buyAsset.precision,
+    }).toBaseUnit()
   }
 
   const getProtocolFees = (quote: ThornodeQuoteResponseSuccess) => {
@@ -368,7 +374,11 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
         perRouteValues.map(async (route): Promise<T> => {
           const memo = getMemo(route)
 
-          const { vault } = await utxo.getThorTxData({ sellAsset, config, swapperName })
+          const { vault } = await utxo.getThorTxData({
+            sellAsset,
+            config,
+            swapperName,
+          })
 
           const feeData = await (async (): Promise<QuoteFeeData> => {
             const protocolFees = getProtocolFees(route.quote)
@@ -436,12 +446,58 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
       )
     }
     case CHAIN_NAMESPACE.Solana: {
-      return Err(
-        makeSwapErrorRight({
-          message: 'Solana is not supported',
-          code: TradeQuoteError.UnsupportedTradePair,
+      const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
+      const sendAddress = (input as CommonTradeQuoteInput).sendAddress
+
+      const maybeRoutes = await Promise.allSettled(
+        perRouteValues.map(async (route): Promise<T> => {
+          const memo = getMemo(route)
+          const protocolFees = getProtocolFees(route.quote)
+
+          const feeData = await (async (): Promise<QuoteFeeData> => {
+            if (!sendAddress) return { networkFeeCryptoBaseUnit: undefined, protocolFees }
+            const { vault } = await solana.getThorTxData({ sellAsset, config, swapperName })
+            const memoInstruction = new TransactionInstruction({
+              keys: [],
+              programId: new PublicKey(SOLANA_MEMO_PROGRAM_ID),
+              data: Buffer.from(memo, 'utf8'),
+            })
+            const transferInstruction = SystemProgram.transfer({
+              fromPubkey: new PublicKey(sendAddress),
+              toPubkey: new PublicKey(vault),
+              lamports: BigInt(sellAmountCryptoBaseUnit),
+            })
+            const { fast } = await adapter.getFeeData({
+              to: vault,
+              value: '0',
+              chainSpecific: {
+                from: sendAddress,
+                tokenId: contractAddressOrUndefined(sellAsset.assetId),
+                instructions: [memoInstruction, transferInstruction],
+              },
+            })
+            return { networkFeeCryptoBaseUnit: fast.txFee, protocolFees }
+          })()
+
+          return makeThorTradeRateOrQuote<ThorUtxoOrCosmosTradeRateOrQuote>({
+            route,
+            allowanceContract: '0x0',
+            memo,
+            feeData,
+          })
         }),
       )
+
+      const routes = maybeRoutes.filter(isFulfilled).map(r => r.value)
+      if (!routes.length)
+        return Err(
+          makeSwapErrorRight({
+            message: 'Unable to create any routes',
+            code: TradeQuoteError.UnsupportedTradePair,
+            cause: maybeRoutes.filter(isRejected).map(r => r.reason),
+          }),
+        )
+      return Ok(routes)
     }
     case CHAIN_NAMESPACE.Tron: {
       const maybeRoutes = await Promise.allSettled(
@@ -456,10 +512,16 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
               const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
 
               // Get vault address
-              const { vault } = await tron.getThorTxData({ sellAsset, config, swapperName })
+              const { vault } = await tron.getThorTxData({
+                sellAsset,
+                config,
+                swapperName,
+              })
 
               // Estimate fees using the receive address for accurate energy calculation
-              const tronWeb = new TronWeb({ fullHost: deps.config.VITE_TRON_NODE_URL })
+              const tronWeb = new TronWeb({
+                fullHost: deps.config.VITE_TRON_NODE_URL,
+              })
               const params = await tronWeb.trx.getChainParameters()
               const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
               const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
@@ -475,7 +537,10 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
                     {},
                     [
                       { type: 'address', value: vault }, // Use vault as recipient
-                      { type: 'uint256', value: sellAmountIncludingProtocolFeesCryptoBaseUnit },
+                      {
+                        type: 'uint256',
+                        value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+                      },
                     ],
                     input.receiveAddress, // Use user's address as sender for estimation
                   )
@@ -536,6 +601,30 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
       return Err(
         makeSwapErrorRight({
           message: 'SUI is not supported',
+          code: TradeQuoteError.UnsupportedTradePair,
+        }),
+      )
+    }
+    case CHAIN_NAMESPACE.Near: {
+      return Err(
+        makeSwapErrorRight({
+          message: 'NEAR is not supported',
+          code: TradeQuoteError.UnsupportedTradePair,
+        }),
+      )
+    }
+    case CHAIN_NAMESPACE.Starknet: {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Starknet is not supported',
+          code: TradeQuoteError.UnsupportedTradePair,
+        }),
+      )
+    }
+    case CHAIN_NAMESPACE.Ton: {
+      return Err(
+        makeSwapErrorRight({
+          message: 'TON is not supported',
           code: TradeQuoteError.UnsupportedTradePair,
         }),
       )

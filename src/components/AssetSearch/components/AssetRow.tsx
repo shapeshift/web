@@ -29,8 +29,9 @@ import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
 import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
   selectAssetById,
+  selectAssets,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,
 } from '@/state/slices/selectors'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
@@ -62,7 +63,14 @@ export type AssetRowProps = AssetRowData & ButtonProps
 export const AssetRow: FC<AssetRowProps> = memo(
   ({
     asset,
-    data: { handleClick, handleLongPress, disableUnsupported, hideZeroBalanceAmounts },
+    data: {
+      handleClick,
+      handleLongPress,
+      disableUnsupported,
+      hideZeroBalanceAmounts,
+      assetFilterPredicate,
+      chainIdFilterPredicate,
+    },
     showPrice = false,
     onImportClick,
     showRelatedAssets = false,
@@ -100,10 +108,40 @@ export const AssetRow: FC<AssetRowProps> = memo(
       relatedAssetIdsFilter,
     )
 
+    const assetsById = useAppSelector(selectAssets)
+
+    // Filter related assets by predicates if provided (same pattern as AssetChainDropdown)
+    // For non-primary assets, also filter to only show same-symbol variants
+    // e.g., AXLUSDC should only show AXLUSDC on different chains, not USDC or USDC.E
+    const filteredRelatedAssetIds = useMemo(() => {
+      return relatedAssetIds.filter(relatedAssetId => {
+        const { chainId } = fromAssetId(relatedAssetId)
+        const isChainAllowed = chainIdFilterPredicate?.(chainId) ?? true
+        const isAssetAllowed = assetFilterPredicate?.(relatedAssetId) ?? true
+        if (!isChainAllowed || !isAssetAllowed) return false
+
+        // For non-primary assets, only include related assets with the same symbol
+        if (!asset.isPrimary) {
+          const relatedAsset = assetsById[relatedAssetId]
+          if (!relatedAsset) return false
+          return relatedAsset.symbol === asset.symbol
+        }
+
+        return true
+      })
+    }, [
+      relatedAssetIds,
+      chainIdFilterPredicate,
+      assetFilterPredicate,
+      asset.isPrimary,
+      asset.symbol,
+      assetsById,
+    ])
+
     const filter = useMemo(() => ({ assetId }), [assetId])
     const isSupported = wallet && isAssetSupportedByWallet(assetId, wallet)
-    const cryptoHumanBalance = useAppSelector(s =>
-      canDisplayBalances ? selectPortfolioCryptoPrecisionBalanceByFilter(s, filter) : '0',
+    const cryptoPrecisionBalance = useAppSelector(s =>
+      canDisplayBalances ? selectPortfolioCryptoBalanceByFilter(s, filter).toPrecision() : '0',
     )
     const userCurrencyBalance =
       useAppSelector(s =>
@@ -152,7 +190,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
       handleLongPress?.(row as Asset)
     }, defaultLongPressConfig)
 
-    const hideAssetBalance = !!(hideZeroBalanceAmounts && bnOrZero(cryptoHumanBalance).isZero())
+    const hideAssetBalance = !!(hideZeroBalanceAmounts && bnOrZero(cryptoPrecisionBalance).isZero())
 
     const marketData = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
@@ -229,7 +267,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
       changePercent24Hr,
     ])
 
-    if (showRelatedAssets && relatedAssetIds.length > 1) {
+    if (showRelatedAssets && filteredRelatedAssetIds.length > 1) {
       return (
         <GroupedAssetRow
           asset={asset}
@@ -238,6 +276,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
           hideZeroBalanceAmounts={hideZeroBalanceAmounts}
           showPrice={showPrice}
           onLongPress={handleLongPress}
+          relatedAssetIds={filteredRelatedAssetIds}
         />
       )
     }
@@ -252,6 +291,9 @@ export const AssetRow: FC<AssetRowProps> = memo(
         width='100%'
         height='auto'
         p={4}
+        data-testid={`asset-row-${showChainName ? `${chainName}-${asset.symbol}` : asset.symbol}-${
+          asset.assetId
+        }`}
         {...props}
         {...longPressHandlers(asset)}
       >
@@ -269,11 +311,11 @@ export const AssetRow: FC<AssetRowProps> = memo(
               {showChainName ? `${chainName} (${asset.symbol})` : asset.name}
             </Text>
             <Flex alignItems='center' gap={2}>
-              {bnOrZero(cryptoHumanBalance).gt(0) ? (
+              {bnOrZero(cryptoPrecisionBalance).gt(0) ? (
                 <Amount.Crypto
                   fontSize='sm'
                   fontWeight='medium'
-                  value={firstNonZeroDecimal(bnOrZero(cryptoHumanBalance)) ?? '0'}
+                  value={firstNonZeroDecimal(bnOrZero(cryptoPrecisionBalance)) ?? '0'}
                   symbol={asset.symbol}
                 />
               ) : (

@@ -1,0 +1,88 @@
+name: HDWallet Tests
+
+on:
+  push:
+    branches: [main, develop, release]
+    paths:
+      - 'packages/hdwallet-*/**'
+      - 'vitest.hdwallet.config.mts'
+  pull_request:
+    paths:
+      - 'packages/hdwallet-*/**'
+      - 'vitest.hdwallet.config.mts'
+
+jobs:
+  unit:
+    name: HDWallet Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        run: corepack enable && corepack prepare pnpm@10.30.3 --activate
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-node-modules-
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Unchained Client
+        run: pnpm --filter @shapeshiftoss/unchained-client generate
+
+      - name: Build HDWallet Packages
+        run: pnpm run hdwallet:build
+
+      - name: Test HDWallet
+        run: pnpm run hdwallet:test
+
+  integration:
+    name: HDWallet Integration Tests
+    runs-on: ubuntu-latest
+    services:
+      kkemu:
+        image: kktech/kkemu:latest
+        ports:
+          - 5000:5000
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        run: corepack enable && corepack prepare pnpm@10.30.3 --activate
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-node-modules-
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Unchained Client
+        run: pnpm --filter @shapeshiftoss/unchained-client generate
+
+      - name: Build HDWallet Packages
+        run: pnpm run hdwallet:build
+
+      - name: Integration Tests
+        run: pnpm run hdwallet:test:integration

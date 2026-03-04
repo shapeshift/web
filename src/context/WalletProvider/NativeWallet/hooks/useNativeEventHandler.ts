@@ -1,5 +1,5 @@
 import type { Event } from '@shapeshiftoss/hdwallet-core'
-import { NativeEvents } from '@shapeshiftoss/hdwallet-native'
+import { NativeEvents } from '@shapeshiftoss/hdwallet-native/nativeEvents'
 import type { Dispatch } from 'react'
 import { useEffect } from 'react'
 

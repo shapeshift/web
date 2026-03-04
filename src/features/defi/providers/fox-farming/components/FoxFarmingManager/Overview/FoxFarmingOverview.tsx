@@ -2,6 +2,7 @@ import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, toAssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
@@ -22,7 +23,6 @@ import type {
 import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
 import { foxEthLpAssetId } from '@/state/slices/opportunitiesSlice/constants'
 import {
@@ -118,10 +118,10 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const underlyingAssetsFiatBalance = useMemo(() => {
     if (!stakingAsset) return '0'
 
-    const cryptoAmount = fromBaseUnit(
-      bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit),
-      stakingAsset.precision,
-    )
+    const cryptoAmount = BigAmount.fromBaseUnit({
+      value: bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit),
+      precision: stakingAsset.precision,
+    }).toPrecision()
     const foxEthLpFiatPrice =
       marketDataUserCurrency?.[opportunityData?.underlyingAssetId ?? '']?.price ?? '0'
     return bnOrZero(cryptoAmount).times(foxEthLpFiatPrice).toString()
@@ -141,11 +141,10 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const lpAssetWithBalancesAndIcons = useMemo(
     () => ({
       ...lpAsset,
-      cryptoBalancePrecision: fromBaseUnit(
-        bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit),
-        stakingAsset.precision,
-        6,
-      ),
+      cryptoBalancePrecision: BigAmount.fromBaseUnit({
+        value: bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit),
+        precision: stakingAsset.precision,
+      }).toFixed(6),
       allocationPercentage: '1',
       icons: underlyingAssetsIcons,
     }),
@@ -172,14 +171,25 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   const rewardAsset = useAppSelector(state => selectAssetById(state, rewardAssetId))
   if (!rewardAsset) throw new Error(`Asset not found for AssetId ${rewardId}`)
 
-  const cryptoAmountAvailable = bn(
-    fromBaseUnit(bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit), stakingAsset.precision),
+  const cryptoAmountAvailable = useMemo(
+    () =>
+      bn(
+        BigAmount.fromBaseUnit({
+          value: bnOrZero(opportunityData?.stakedAmountCryptoBaseUnit),
+          precision: stakingAsset.precision,
+        }).toPrecision(),
+      ),
+    [opportunityData?.stakedAmountCryptoBaseUnit, stakingAsset.precision],
   )
-  const rewardAmountAvailable = bn(
-    fromBaseUnit(
-      bnOrZero(opportunityData?.rewardsCryptoBaseUnit.amounts[0]),
-      rewardAsset.precision,
-    ),
+  const rewardAmountAvailable = useMemo(
+    () =>
+      bn(
+        BigAmount.fromBaseUnit({
+          value: bnOrZero(opportunityData?.rewardsCryptoBaseUnit.amounts[0]),
+          precision: rewardAsset.precision,
+        }).toPrecision(),
+      ),
+    [opportunityData?.rewardsCryptoBaseUnit.amounts, rewardAsset.precision],
   )
   const hasClaim = rewardAmountAvailable.gt(0)
 

@@ -1,26 +1,29 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
-import { isNull, isUndefined } from 'lodash'
+import { isNull, isUndefined } from 'lodash-es'
 
-export * from './makeAsset/makeAsset'
 export * from './assertUnreachable'
-export * from './sha256'
+export * from './encoding'
+export * from './assetData'
+export * from './baseUnits/baseUnits'
+export { BigAmount } from './bigAmount/bigAmount'
+export type { BigAmountConfig } from './bigAmount/bigAmount'
+export * from './basisPoints'
+export * from './bignumber/bignumber'
 export * from './chainIdToFeeAsset'
 export * from './chainIdToFeeAssetId'
-export * from './utxo'
-export * from './bignumber/bignumber'
-export * from './basisPoints'
-export * from './baseUnits/baseUnits'
-export * from './promises'
-export * from './treasury'
-export * from './timeout'
 export * from './createThrottle'
-export * from './historyTimeframe'
-export * from './getNativeFeeAssetReference'
-export * from './assetData'
-export * from './unfreeze'
 export * from './getAssetNamespaceFromChainId'
 export * from './getChainShortName'
+export * from './getNativeFeeAssetReference'
+export * from './historyTimeframe'
+export * from './makeAsset/makeAsset'
+export * from './promises'
+export * from './sha256'
+export * from './timeout'
+export * from './treasury'
+export * from './unfreeze'
+export * from './utxo'
 
 export const isSome = <T>(option: T | null | undefined): option is T =>
   !isUndefined(option) && !isNull(option)
@@ -33,6 +36,9 @@ export const isToken = (assetId: AssetId) => {
     case ASSET_NAMESPACE.splToken:
     case ASSET_NAMESPACE.trc20:
     case ASSET_NAMESPACE.suiCoin:
+    case ASSET_NAMESPACE.starknetToken:
+    case ASSET_NAMESPACE.nep141:
+    case ASSET_NAMESPACE.jetton:
       return true
     default:
       return false

@@ -18,14 +18,18 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
     case SwapperName.ButterSwap:
     case SwapperName.Bebop:
     case SwapperName.NearIntents:
+    case SwapperName.Stonfi:
+    case SwapperName.Sunio:
+    case SwapperName.Across:
+    case SwapperName.Debridge:
       return true
     case SwapperName.Zrx:
     case SwapperName.CowSwap:
     case SwapperName.ArbitrumBridge:
     case SwapperName.Portals:
-    case SwapperName.Cetus:
-    case SwapperName.Sunio:
     case SwapperName.Test:
+    case SwapperName.Avnu:
+    case SwapperName.Cetus:
       // Technically supported for Arbitrum Bridge, but we disable it for the sake of simplicity for now
       return false
     default:
@@ -49,6 +53,10 @@ export const getEnabledSwappers = (
     NearIntentsSwap,
     CetusSwap,
     SunioSwap,
+    AvnuSwap,
+    StonfiSwap,
+    AcrossSwap,
+    DebridgeSwap,
   }: FeatureFlags,
   isCrossAccountTrade: boolean,
   isSolBuyAssetId: boolean,
@@ -103,6 +111,14 @@ export const getEnabledSwappers = (
       SunioSwap &&
       (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Sunio)) &&
       !isLedgerTronSell,
+    [SwapperName.Avnu]:
+      AvnuSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Avnu)),
+    [SwapperName.Stonfi]:
+      StonfiSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Stonfi)),
+    [SwapperName.Across]:
+      AcrossSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Across)),
+    [SwapperName.Debridge]:
+      DebridgeSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Debridge)),
     [SwapperName.Test]: false,
   }
 }

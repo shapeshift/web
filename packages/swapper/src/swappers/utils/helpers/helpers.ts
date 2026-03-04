@@ -7,6 +7,7 @@ import {
   ethAssetId,
   fromAssetId,
   gnosisAssetId,
+  katanaAssetId,
   monadAssetId,
   optimismAssetId,
   plasmaAssetId,
@@ -22,9 +23,13 @@ import {
   DAO_TREASURY_BSC,
   DAO_TREASURY_ETHEREUM_MAINNET,
   DAO_TREASURY_GNOSIS,
+  DAO_TREASURY_HYPEREVM,
+  DAO_TREASURY_MONAD,
   DAO_TREASURY_OPTIMISM,
   DAO_TREASURY_POLYGON,
   DAO_TREASURY_SOLANA,
+  DAO_TREASURY_STARKNET,
+  DAO_TREASURY_TON,
   isTreasuryChainId,
 } from '@shapeshiftoss/utils'
 
@@ -51,6 +56,8 @@ export const isNativeEvmAsset = (assetId: AssetId): boolean => {
       return assetId === monadAssetId
     case KnownChainIds.PlasmaMainnet:
       return assetId === plasmaAssetId
+    case KnownChainIds.KatanaMainnet:
+      return assetId === katanaAssetId
     default:
       return false
   }
@@ -67,6 +74,10 @@ const DAO_TREASURY_BY_CHAIN_ID: Record<TreasuryChainId, string> = {
   [KnownChainIds.BaseMainnet]: DAO_TREASURY_BASE,
   [KnownChainIds.SolanaMainnet]: DAO_TREASURY_SOLANA,
   [KnownChainIds.BitcoinMainnet]: DAO_TREASURY_BITCOIN,
+  [KnownChainIds.StarknetMainnet]: DAO_TREASURY_STARKNET,
+  [KnownChainIds.TonMainnet]: DAO_TREASURY_TON,
+  [KnownChainIds.MonadMainnet]: DAO_TREASURY_MONAD,
+  [KnownChainIds.HyperEvmMainnet]: DAO_TREASURY_HYPEREVM,
 }
 
 export const getTreasuryAddressFromChainId = (chainId: ChainId): string => {

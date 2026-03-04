@@ -11,6 +11,7 @@ import ButterSwapIcon from './butterswap.png'
 import CetusIcon from './cetus-icon.jpg'
 import ChainflipIcon from './chainflip-icon.png'
 import CowIcon from './cow-icon.png'
+import DebridgeIcon from './debridge-icon.svg'
 import JupiterIcon from './jupiter-icon.svg'
 import MayachainIcon from './maya_logo.png'
 import NearIntentsIcon from './near-intents-icon.png'
@@ -66,6 +67,8 @@ export const SwapperIcon = ({
         return StonfiIcon
       case SwapperName.Across:
         return AcrossIcon
+      case SwapperName.Debridge:
+        return DebridgeIcon
       case SwapperName.Test:
         return ''
       default:

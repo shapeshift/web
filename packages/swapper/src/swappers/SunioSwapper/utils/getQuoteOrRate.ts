@@ -1,5 +1,5 @@
 import { tronChainId } from '@shapeshiftoss/caip'
-import { bn, contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import { BigAmount, bn, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { TronWeb } from 'tronweb'
@@ -198,9 +198,10 @@ export async function getQuoteOrRate(
       }
     }
 
-    const buyAmountCryptoBaseUnit = bn(bestRoute.amountOut)
-      .times(bn(10).pow(buyAsset.precision))
-      .toFixed(0)
+    const buyAmountCryptoBaseUnit = BigAmount.fromPrecision({
+      value: bestRoute.amountOut,
+      precision: buyAsset.precision,
+    }).toBaseUnit()
 
     // Calculate protocol fees only for quotes
     const protocolFeeCryptoBaseUnit = isQuote

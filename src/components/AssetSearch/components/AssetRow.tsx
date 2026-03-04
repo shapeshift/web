@@ -31,7 +31,7 @@ import {
   selectAssetById,
   selectAssets,
   selectMarketDataByAssetIdUserCurrency,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioCryptoBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,
 } from '@/state/slices/selectors'
 import { useAppSelector, useSelectorWithArgs } from '@/state/store'
@@ -140,8 +140,8 @@ export const AssetRow: FC<AssetRowProps> = memo(
 
     const filter = useMemo(() => ({ assetId }), [assetId])
     const isSupported = wallet && isAssetSupportedByWallet(assetId, wallet)
-    const cryptoHumanBalance = useAppSelector(s =>
-      canDisplayBalances ? selectPortfolioCryptoPrecisionBalanceByFilter(s, filter) : '0',
+    const cryptoPrecisionBalance = useAppSelector(s =>
+      canDisplayBalances ? selectPortfolioCryptoBalanceByFilter(s, filter).toPrecision() : '0',
     )
     const userCurrencyBalance =
       useAppSelector(s =>
@@ -190,7 +190,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
       handleLongPress?.(row as Asset)
     }, defaultLongPressConfig)
 
-    const hideAssetBalance = !!(hideZeroBalanceAmounts && bnOrZero(cryptoHumanBalance).isZero())
+    const hideAssetBalance = !!(hideZeroBalanceAmounts && bnOrZero(cryptoPrecisionBalance).isZero())
 
     const marketData = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
@@ -291,6 +291,9 @@ export const AssetRow: FC<AssetRowProps> = memo(
         width='100%'
         height='auto'
         p={4}
+        data-testid={`asset-row-${showChainName ? `${chainName}-${asset.symbol}` : asset.symbol}-${
+          asset.assetId
+        }`}
         {...props}
         {...longPressHandlers(asset)}
       >
@@ -308,11 +311,11 @@ export const AssetRow: FC<AssetRowProps> = memo(
               {showChainName ? `${chainName} (${asset.symbol})` : asset.name}
             </Text>
             <Flex alignItems='center' gap={2}>
-              {bnOrZero(cryptoHumanBalance).gt(0) ? (
+              {bnOrZero(cryptoPrecisionBalance).gt(0) ? (
                 <Amount.Crypto
                   fontSize='sm'
                   fontWeight='medium'
-                  value={firstNonZeroDecimal(bnOrZero(cryptoHumanBalance)) ?? '0'}
+                  value={firstNonZeroDecimal(bnOrZero(cryptoPrecisionBalance)) ?? '0'}
                   symbol={asset.symbol}
                 />
               ) : (

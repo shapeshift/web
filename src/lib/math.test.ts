@@ -1,37 +1,29 @@
 import { describe, expect, it } from 'vitest'
 
-import { fromBaseUnit } from './math'
+import { bn } from './bignumber/bignumber'
+import { firstNonZeroDecimal } from './math'
 
 describe('@/lib/math', () => {
-  describe('fromBaseUnit', () => {
-    it('should correctly convert and round down with given displayDecimals', () => {
-      const result = fromBaseUnit(123456789, 4, 2)
-      expect(result).toBe('12345.67')
+  describe('firstNonZeroDecimal', () => {
+    it('returns first significant digits for small decimal', () => {
+      expect(firstNonZeroDecimal(bn('0.00000123'))).toBe('0.0000012')
     })
 
-    it('should correctly convert without displayDecimals and return full precision', () => {
-      const result = fromBaseUnit(123456789, 4)
-      expect(result).toBe('12345.6789')
+    it('returns whole number with first decimals', () => {
+      expect(firstNonZeroDecimal(bn('1.23456'))).toBe('1.23')
     })
 
-    it('should correctly convert and round down with given displayDecimals for another input', () => {
-      const result = fromBaseUnit(987654321, 6, 3)
-      expect(result).toBe('987.654')
+    it('handles negative values', () => {
+      expect(firstNonZeroDecimal(bn('-0.00045'))).toBe('-0.00045')
     })
 
-    it('should correctly convert without displayDecimals and return full precision for another input', () => {
-      const result = fromBaseUnit(987654321, 6)
-      expect(result).toBe('987.654321')
+    it('handles very small values', () => {
+      expect(firstNonZeroDecimal(bn('0.0000000001'))).toBe('0.0000000001')
     })
 
-    it('should correctly convert and round down with given displayDecimals for high precision input', () => {
-      const result = fromBaseUnit('182912819182912192', 18, 8)
-      expect(result).toBe('0.18291281')
-    })
-
-    it('should correctly convert without displayDecimals and return full precision for high precision input', () => {
-      const result = fromBaseUnit('182912819182912192', 18)
-      expect(result).toBe('0.182912819182912192')
+    it('captures leading zeros for amounts with no significant decimals', () => {
+      expect(firstNonZeroDecimal(bn('100'))).toBe('100.0000000000')
+      expect(firstNonZeroDecimal(bn('0'))).toBe('0.0000000000')
     })
   })
 })

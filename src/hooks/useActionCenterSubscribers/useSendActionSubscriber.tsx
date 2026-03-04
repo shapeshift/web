@@ -1,5 +1,7 @@
 import { usePrevious } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { isSecondClassEvmAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useRef } from 'react'
@@ -8,18 +10,12 @@ import { useNotificationToast } from '../useNotificationToast'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
-import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
-import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
-import { getKatanaTransactionStatus } from '@/lib/utils/katana'
-import { getMegaEthTransactionStatus } from '@/lib/utils/megaeth'
-import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getNearTransactionStatus } from '@/lib/utils/near'
-import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
 import { getStarknetTransactionStatus, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
-import { getTonTransactionStatus } from '@/lib/utils/ton'
+import { getTonTransactionStatus, isTonChainAdapter } from '@/lib/utils/ton'
 import { getTronTransactionStatus } from '@/lib/utils/tron'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingWalletSendActions } from '@/state/slices/actionSlice/selectors'
@@ -29,6 +25,12 @@ import { selectTxs } from '@/state/slices/selectors'
 import { txHistory } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from '@/state/store'
+
+const getSecondClassEvmTxStatus = (chainId: ChainId, txHash: string) => {
+  const adapter = getChainAdapterManager().get(chainId)
+  if (!isSecondClassEvmAdapter(adapter)) return
+  return adapter.getTransactionStatus(txHash)
+}
 
 export const useSendActionSubscriber = () => {
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
@@ -181,41 +183,6 @@ export const useSendActionSubscriber = () => {
                     suiTxStatus === TxStatus.Confirmed || suiTxStatus === TxStatus.Failed
                   break
                 }
-                case KnownChainIds.MonadMainnet: {
-                  const monadTxStatus = await getMonadTransactionStatus(txHash)
-                  isConfirmed =
-                    monadTxStatus === TxStatus.Confirmed || monadTxStatus === TxStatus.Failed
-                  break
-                }
-                case KnownChainIds.PlasmaMainnet: {
-                  const plasmaTxStatus = await getPlasmaTransactionStatus(txHash)
-                  isConfirmed =
-                    plasmaTxStatus === TxStatus.Confirmed || plasmaTxStatus === TxStatus.Failed
-                  break
-                }
-                case KnownChainIds.HyperEvmMainnet: {
-                  const hyperEvmNodeUrl = getConfig().VITE_HYPEREVM_NODE_URL
-                  const hyperEvmTxStatus = await getHyperEvmTransactionStatus(
-                    txHash,
-                    hyperEvmNodeUrl,
-                  )
-                  isConfirmed =
-                    hyperEvmTxStatus === TxStatus.Confirmed || hyperEvmTxStatus === TxStatus.Failed
-                  break
-                }
-                case KnownChainIds.MegaEthMainnet: {
-                  const megaEthTxStatus = await getMegaEthTransactionStatus(txHash)
-                  isConfirmed =
-                    megaEthTxStatus === TxStatus.Confirmed || megaEthTxStatus === TxStatus.Failed
-                  break
-                }
-                case KnownChainIds.KatanaMainnet: {
-                  const katanaNodeUrl = getConfig().VITE_KATANA_NODE_URL
-                  const katanaTxStatus = await getKatanaTransactionStatus(txHash, katanaNodeUrl)
-                  isConfirmed =
-                    katanaTxStatus === TxStatus.Confirmed || katanaTxStatus === TxStatus.Failed
-                  break
-                }
                 case KnownChainIds.NearMainnet: {
                   const nearTxStatus = await getNearTransactionStatus(txHash)
                   isConfirmed =
@@ -224,8 +191,36 @@ export const useSendActionSubscriber = () => {
                 }
                 case KnownChainIds.TonMainnet: {
                   const tonTxStatus = await getTonTransactionStatus(txHash)
-                  isConfirmed =
-                    tonTxStatus === TxStatus.Confirmed || tonTxStatus === TxStatus.Failed
+
+                  if (tonTxStatus === TxStatus.Failed) {
+                    const adapter = getChainAdapterManager().get(chainId)
+                    if (isTonChainAdapter(adapter)) {
+                      try {
+                        if (adapter?.parseTx) {
+                          const parsedTx = await adapter.parseTx(txHash, accountAddress)
+                          dispatch(
+                            txHistory.actions.onMessage({
+                              message: parsedTx,
+                              accountId,
+                            }),
+                          )
+                        }
+                      } catch (error) {
+                        console.error('Failed to parse failed TON Tx:', error)
+                      }
+                    }
+
+                    failAction(action)
+
+                    const intervalId = pollingIntervalsRef.current.get(pollingKey)
+                    if (intervalId) {
+                      clearInterval(intervalId)
+                      pollingIntervalsRef.current.delete(pollingKey)
+                    }
+                    return
+                  }
+
+                  isConfirmed = tonTxStatus === TxStatus.Confirmed
                   break
                 }
                 case KnownChainIds.StarknetMainnet: {
@@ -264,9 +259,16 @@ export const useSendActionSubscriber = () => {
                   }
                   break
                 }
-                default:
+                default: {
+                  // All second-class EVM chains are handled generically via adapter.getTransactionStatus()
+                  const txStatus = await getSecondClassEvmTxStatus(chainId, txHash)
+                  if (txStatus) {
+                    isConfirmed = txStatus === TxStatus.Confirmed || txStatus === TxStatus.Failed
+                    break
+                  }
                   console.error(`Unsupported second-class chain: ${chainId}`)
                   return
+                }
               }
 
               if (isConfirmed) {

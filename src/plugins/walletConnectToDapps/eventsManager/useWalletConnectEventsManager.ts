@@ -10,6 +10,7 @@ import type {
   WalletConnectState,
 } from '@/plugins/walletConnectToDapps/types'
 import {
+  BIP122SigningMethod,
   CosmosSigningMethod,
   EIP155_SigningMethod,
   WalletConnectActionType,
@@ -24,6 +25,7 @@ export const isSupportedSessionRequest = (
   const supportedMethods = [
     ...Object.values(EIP155_SigningMethod),
     ...Object.values(CosmosSigningMethod),
+    ...Object.values(BIP122SigningMethod),
   ]
   return supportedMethods.some(value => value === request.params.request.method)
 }
@@ -51,7 +53,8 @@ export const useWalletConnectEventsManager = (
         })
       }
 
-      isSupportedSessionRequest(request) && handleSessionRequest(request)
+      if (!isSupportedSessionRequest(request)) return
+      handleSessionRequest(request)
     },
     [handleSessionRequest, state.web3wallet],
   )

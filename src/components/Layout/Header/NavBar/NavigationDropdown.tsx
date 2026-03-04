@@ -26,6 +26,7 @@ type NavigationDropdownItem = {
   path: string
   icon?: React.ComponentType
   isNew?: boolean
+  isDeprecated?: boolean
 }
 
 type NavigationDropdownProps = {
@@ -118,6 +119,7 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
           _hover={menuButtonHoverSx}
           _active={menuButtonActiveSx}
           aria-current={isActive ? 'page' : undefined}
+          data-test={`navigation-${label.split('.')[1]}-dropdown`}
         >
           <Box fontSize='md' color={isActive ? 'text.base' : 'text.subtle'}>
             {translate(label)}
@@ -136,6 +138,7 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
                 p={3}
                 _hover={menuItemHoverSx}
                 icon={item.icon && <Icon as={item.icon} boxSize={6} />}
+                data-test={`navigation-${item.label.split('.')[1]}-menuitem`}
               >
                 <HStack spacing={2}>
                   <Text>{translate(item.label)}</Text>
@@ -148,6 +151,17 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
                       px={1.5}
                     >
                       {translate('common.new')}
+                    </Badge>
+                  )}
+                  {item.isDeprecated && (
+                    <Badge
+                      colorScheme='orange'
+                      fontSize='2xs'
+                      variant='solid'
+                      borderRadius='full'
+                      px={1.5}
+                    >
+                      {translate('common.deprecated')}
                     </Badge>
                   )}
                 </HStack>

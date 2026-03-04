@@ -415,6 +415,9 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
               ? translate('starknet.deployAccount.deploying')
               : undefined
           }
+          data-testid={`trade-confirm-button-${
+            Array.isArray(translation) ? translation[0] : translation
+          }`}
         >
           <Text translation={translation} />
         </Button>

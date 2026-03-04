@@ -54,7 +54,7 @@ export const YieldInfoCard = memo(
     )
 
     return (
-      <Card>
+      <Card data-testid='yield-info-card'>
         <CardBody p={{ base: 4, md: 6 }}>
           <VStack spacing={4} align='stretch'>
             {yieldItem.metadata.deprecated && (
@@ -117,7 +117,7 @@ export const YieldInfoCard = memo(
             </Flex>
 
             <HStack spacing={3} flexWrap='wrap'>
-              <Box>
+              <Box data-testid='yield-info-apy'>
                 <GradientApy fontSize='4xl' fontWeight='medium'>
                   {apy}% {translate('common.apy')}
                 </GradientApy>

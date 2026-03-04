@@ -10,8 +10,9 @@ import { MemoryRouter } from 'react-router-dom'
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertUnreachable } from '@/lib/utils'
-import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
+import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
+import { BitcoinSignConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/BitcoinSignConfirmation'
 import { CosmosSignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/CosmosSignMessageConfirmation'
 import { EIP155SignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignMessageConfirmation'
 import { EIP155SignTypedDataConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignTypedDataConfirmation'
@@ -24,8 +25,10 @@ import { SessionProposalModal } from '@/plugins/walletConnectToDapps/components/
 import { SessionProposalRoutes } from '@/plugins/walletConnectToDapps/components/modals/SessionProposalRoutes'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
+  BIP122SendTransferCallRequest,
+  BIP122SignMessageCallRequest,
+  BIP122SignPsbtCallRequest,
   CosmosSignAminoCallRequest,
-  CosmosSignDirectCallRequest,
   CustomTransactionData,
   EthSendTransactionCallRequest,
   EthSignCallRequest,
@@ -37,6 +40,7 @@ import type {
   WalletConnectState,
 } from '@/plugins/walletConnectToDapps/types'
 import { WalletConnectActionType, WalletConnectModal } from '@/plugins/walletConnectToDapps/types'
+import { approveBIP122Request } from '@/plugins/walletConnectToDapps/utils/BIP122RequestHandlerUtil'
 import { approveCosmosRequest } from '@/plugins/walletConnectToDapps/utils/CosmosRequestHandlerUtil'
 import { approveEIP155Request } from '@/plugins/walletConnectToDapps/utils/EIP155RequestHandlerUtil'
 import { approveSessionAuthRequest } from '@/plugins/walletConnectToDapps/utils/SessionAuthRequestHandlerUtil'
@@ -125,30 +129,61 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     [accountId, accountMetadata, chainId, handleClose, requestEvent, topic, wallet, web3wallet],
   )
 
-  const handleConfirmCosmosRequest = useCallback(
-    async (customTransactionData?: CustomTransactionData) => {
-      if (!requestEvent || !chainId || !wallet || !web3wallet || !topic) {
-        return
-      }
+  const handleConfirmCosmosRequest = useCallback(async () => {
+    if (!requestEvent || !wallet || !web3wallet || !topic) {
+      return
+    }
 
-      const chainAdapter = assertGetCosmosSdkChainAdapter(chainId)
-
+    try {
       const response = await approveCosmosRequest({
         wallet,
         requestEvent,
-        chainAdapter,
         accountMetadata,
-        customTransactionData,
-        accountId,
       })
       await web3wallet.respondSessionRequest({
         topic,
         response,
       })
-      handleClose()
-    },
-    [accountId, accountMetadata, chainId, handleClose, requestEvent, topic, wallet, web3wallet],
-  )
+    } catch (e) {
+      console.error('[WC Cosmos] request failed:', e)
+      await web3wallet.respondSessionRequest({
+        topic,
+        response: formatJsonRpcError(requestEvent.id, (e as Error).message ?? 'Unknown error'),
+      })
+    }
+    handleClose()
+  }, [accountMetadata, handleClose, requestEvent, topic, wallet, web3wallet])
+
+  const handleConfirmBIP122Request = useCallback(async () => {
+    if (!requestEvent || !wallet || !web3wallet || !topic || !chainId) return
+
+    try {
+      const utxoChainAdapter = (() => {
+        try {
+          return assertGetUtxoChainAdapter(chainId)
+        } catch {
+          return undefined
+        }
+      })()
+
+      const response = await approveBIP122Request({
+        wallet,
+        requestEvent,
+        chainAdapter: utxoChainAdapter,
+      })
+      await web3wallet.respondSessionRequest({
+        topic,
+        response,
+      })
+    } catch (e) {
+      console.error('[WC BIP122] request failed:', e)
+      await web3wallet.respondSessionRequest({
+        topic,
+        response: formatJsonRpcError(requestEvent.id, (e as Error).message ?? 'Unknown error'),
+      })
+    }
+    handleClose()
+  }, [chainId, handleClose, requestEvent, topic, wallet, web3wallet])
 
   const handleRejectRequest = useCallback(async () => {
     if (!requestEvent || !web3wallet || !topic) return
@@ -222,6 +257,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       case WalletConnectModal.SignEIP155TransactionConfirmation:
       case WalletConnectModal.SendEIP155TransactionConfirmation:
       case WalletConnectModal.SendCosmosTransactionConfirmation:
+      case WalletConnectModal.SendBitcoinTransactionConfirmation:
         await handleRejectRequest()
         break
       case WalletConnectModal.NoAccountsForChain:
@@ -316,10 +352,23 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
           <CosmosSignMessageConfirmationModal
             onConfirm={handleConfirmCosmosRequest}
             onReject={handleRejectRequestAndClose}
-            dispatch={dispatch}
+            state={state as Required<WalletConnectState<CosmosSignAminoCallRequest>>}
+            topic={topic}
+          />
+        )
+      case WalletConnectModal.SendBitcoinTransactionConfirmation:
+        if (!topic) return null
+        return (
+          <BitcoinSignConfirmationModal
+            onConfirm={handleConfirmBIP122Request}
+            onReject={handleRejectRequestAndClose}
             state={
               state as Required<
-                WalletConnectState<CosmosSignDirectCallRequest | CosmosSignAminoCallRequest>
+                WalletConnectState<
+                  | BIP122SendTransferCallRequest
+                  | BIP122SignPsbtCallRequest
+                  | BIP122SignMessageCallRequest
+                >
               >
             }
             topic={topic}
@@ -335,6 +384,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     dispatch,
     handleClose,
     handleConfirmSessionAuth,
+    handleConfirmBIP122Request,
     handleConfirmCosmosRequest,
     handleConfirmEIP155Request,
     handleRejectRequestAndClose,

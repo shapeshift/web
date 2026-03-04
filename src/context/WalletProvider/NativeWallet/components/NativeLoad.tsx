@@ -180,6 +180,7 @@ export const NativeLoad = () => {
                   // we need to pass a local scope arg here, so we need an anonymous function wrapper
                   onClick={() => handleWalletSelect(wallet)}
                   data-test='native-saved-wallet-button'
+                  data-testid={`native-wallet-${wallet.name}`}
                 >
                   <Box textAlign='left'>
                     <RawText

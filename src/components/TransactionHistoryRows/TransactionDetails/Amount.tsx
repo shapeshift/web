@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
 
 import { Amount as AmountComponent } from '@/components/Amount/Amount'
-import { fromBaseUnit } from '@/lib/math'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -26,7 +26,10 @@ export const Amount = ({ value, symbol, precision, assetId }: AmountArgs) => {
   return (
     <AmountComponent.Crypto
       lineHeight={1}
-      value={fromBaseUnit(value ?? '0', asset?.precision ?? precision ?? 0)}
+      value={BigAmount.fromBaseUnit({
+        value: value ?? '0',
+        precision: asset?.precision ?? precision ?? 0,
+      }).toPrecision()}
       symbol={asset?.symbol ?? symbol ?? ''}
       maximumFractionDigits={6}
     />

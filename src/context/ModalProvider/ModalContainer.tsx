@@ -231,6 +231,16 @@ const ManageHiddenAssetsModal = makeSuspenseful(
   ),
 )
 
+const ChainflipLendingModal = makeSuspenseful(
+  lazy(() =>
+    import('@/components/Modals/ChainflipLending/ChainflipLendingModal').then(
+      ({ ChainflipLendingModalComponent }) => ({
+        default: ChainflipLendingModalComponent,
+      }),
+    ),
+  ),
+)
+
 export const MODALS: Modals = {
   receive: ReceiveModal,
   qrCode: QrCodeModal,
@@ -259,6 +269,7 @@ export const MODALS: Modals = {
   walletDrawer: WalletDrawer,
   addressBookSave: AddressBookSaveModal,
   manageHiddenAssets: ManageHiddenAssetsModal,
+  chainflipLending: ChainflipLendingModal,
 } as const
 
 export const modalReducer = (state: ModalState, action: ModalActions<keyof Modals>): ModalState => {

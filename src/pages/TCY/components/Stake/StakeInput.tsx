@@ -178,7 +178,7 @@ export const StakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAccou
   }, [accountId, setValue])
 
   return (
-    <Stack>
+    <Stack data-testid='tcy-stake-input'>
       {headerComponent}
       <FormControl isInvalid={Boolean(errors.amountCryptoPrecision)}>
         <TradeAssetInput

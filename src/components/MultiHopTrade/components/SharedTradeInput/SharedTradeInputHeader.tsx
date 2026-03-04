@@ -180,6 +180,7 @@ export const SharedTradeInputHeader = ({
                 color={selectedTab !== TradeInputTab.Earn ? 'text.subtle' : undefined}
                 onClick={handleClickEarn}
                 cursor={selectedTab !== TradeInputTab.Earn ? 'pointer' : undefined}
+                data-testid='trade-tab-earn'
               >
                 {translate('navBar.earn')}
               </Heading>
@@ -252,6 +253,7 @@ export const SharedTradeInputHeader = ({
                 ml={-2}
                 onClick={handleClickEarn}
                 type='button'
+                data-testid='trade-tab-earn-mobile'
               >
                 {translate('navBar.earn')}
               </Box>

@@ -1,20 +1,19 @@
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
 import {
+  isBip122AccountParams,
   isEthSignParams,
   isSignRequest,
   isSignTypedRequest,
   isTransactionParamsArray,
 } from '@/plugins/walletConnectToDapps/typeGuards'
 import type { KnownSigningMethod, WalletConnectState } from '@/plugins/walletConnectToDapps/types'
-import { TronSigningMethod } from '@/plugins/walletConnectToDapps/types'
 import {
   extractAllConnectedAccounts,
   getSignParamsMessage,
+  getWalletAccountFromBip122Params,
   getWalletAccountFromCosmosParams,
   getWalletAccountFromEthParams,
-  getWalletAccountFromTronParams,
   getWalletAddressFromEthSignParams,
 } from '@/plugins/walletConnectToDapps/utils'
 import { selectPortfolioAccountMetadata } from '@/state/slices/portfolioSlice/selectors'
@@ -41,16 +40,11 @@ export const useWalletConnectState = (state: WalletConnectState) => {
       return getWalletAddressFromEthSignParams(connectedAccounts, requestParams)
     if (requestParams && isTransactionParamsArray(requestParams)) return requestParams[0].from
     if (requestParams && 'signerAddress' in requestParams) return requestParams.signerAddress
-
-    const isTronMethod = Object.values(TronSigningMethod).includes(
-      request?.method as TronSigningMethod,
-    )
-    if (isTronMethod && chainId) {
-      const tronAccountId = getWalletAccountFromTronParams(connectedAccounts, chainId)
-      return tronAccountId ? fromAccountId(tronAccountId).account : undefined
+    if (requestParams && isBip122AccountParams(requestParams)) {
+      return requestParams.account
     }
     return undefined
-  }, [connectedAccounts, requestParams, request?.method, chainId])
+  }, [connectedAccounts, requestParams])
 
   const accountMetadataById = useAppSelector(selectPortfolioAccountMetadata)
 
@@ -64,13 +58,10 @@ export const useWalletConnectState = (state: WalletConnectState) => {
       return getWalletAccountFromEthParams(connectedAccounts, requestParams, chainId)
     if (requestParams && 'signerAddress' in requestParams)
       return getWalletAccountFromCosmosParams(connectedAccounts, requestParams)
-
-    const isTronMethod = Object.values(TronSigningMethod).includes(
-      request?.method as TronSigningMethod,
-    )
-    if (isTronMethod) return getWalletAccountFromTronParams(connectedAccounts, chainId)
+    if (requestParams && isBip122AccountParams(requestParams))
+      return getWalletAccountFromBip122Params(connectedAccounts, requestParams)
     return undefined
-  }, [connectedAccounts, requestParams, chainId, request?.method])
+  }, [connectedAccounts, requestParams, chainId])
 
   const accountMetadata = accountId ? accountMetadataById[accountId] : undefined
 

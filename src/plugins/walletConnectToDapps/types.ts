@@ -29,12 +29,14 @@ export enum CosmosSigningMethod {
   COSMOS_SIGN_AMINO = 'cosmos_signAmino',
 }
 
-export enum TronSigningMethod {
-  TRON_SIGN_TRANSACTION = 'tron_signTransaction',
-  TRON_SIGN_MESSAGE = 'tron_signMessage',
+export enum BIP122SigningMethod {
+  BIP122_SEND_TRANSFER = 'sendTransfer',
+  BIP122_SIGN_PSBT = 'signPsbt',
+  BIP122_SIGN_MESSAGE = 'signMessage',
+  BIP122_GET_ACCOUNT_ADDRESSES = 'getAccountAddresses',
 }
 
-export type KnownSigningMethod = EIP155_SigningMethod | CosmosSigningMethod | TronSigningMethod
+export type KnownSigningMethod = EIP155_SigningMethod | CosmosSigningMethod | BIP122SigningMethod
 
 export interface ModalData<T = WalletConnectRequest> {
   proposal?: WalletKitTypes.EventArguments['session_proposal']
@@ -111,7 +113,7 @@ export enum WalletConnectModal {
   SignEIP155TransactionConfirmation = 'signEIP155TransactionConfirmation',
   SendEIP155TransactionConfirmation = 'sendEIP155TransactionConfirmation',
   SendCosmosTransactionConfirmation = 'sendCosmosTransactionConfirmation',
-  SendTronTransactionConfirmation = 'sendTronTransactionConfirmation',
+  SendBitcoinTransactionConfirmation = 'sendBitcoinTransactionConfirmation',
   NoAccountsForChain = 'noAccountsForChain',
 }
 
@@ -236,6 +238,56 @@ export type CosmosSignAminoCallRequest = {
   params: CosmosSignAminoCallRequestParams
 }
 
+export type BIP122SendTransferCallRequestParams = {
+  account: string
+  recipientAddress: string
+  amount: string
+  memo?: string
+}
+
+export type BIP122SendTransferCallRequest = {
+  method: BIP122SigningMethod.BIP122_SEND_TRANSFER
+  params: BIP122SendTransferCallRequestParams
+}
+
+export type BIP122SignPsbtSignInput = {
+  address: string
+  index: number
+  sighashTypes?: number[]
+}
+
+export type BIP122SignPsbtCallRequestParams = {
+  account: string
+  psbt: string
+  signInputs: BIP122SignPsbtSignInput[]
+  broadcast?: boolean
+}
+
+export type BIP122SignPsbtCallRequest = {
+  method: BIP122SigningMethod.BIP122_SIGN_PSBT
+  params: BIP122SignPsbtCallRequestParams
+}
+
+export type BIP122SignMessageCallRequestParams = {
+  account: string
+  message: string
+  protocol?: 'ecdsa' | 'bip322-simple'
+}
+
+export type BIP122SignMessageCallRequest = {
+  method: BIP122SigningMethod.BIP122_SIGN_MESSAGE
+  params: BIP122SignMessageCallRequestParams
+}
+
+export type BIP122GetAccountAddressesCallRequestParams = {
+  account: string
+}
+
+export type BIP122GetAccountAddressesCallRequest = {
+  method: BIP122SigningMethod.BIP122_GET_ACCOUNT_ADDRESSES
+  params: BIP122GetAccountAddressesCallRequestParams
+}
+
 type EthSignTypedDataCallRequestParams = [account: string, message: string]
 export type EthSignTypedDataCallRequest = {
   method:
@@ -243,24 +295,6 @@ export type EthSignTypedDataCallRequest = {
     | EIP155_SigningMethod.ETH_SIGN_TYPED_DATA_V3
     | EIP155_SigningMethod.ETH_SIGN_TYPED_DATA_V4
   params: EthSignTypedDataCallRequestParams
-}
-
-export type TronSignTransactionCallRequestParams = {
-  transaction: Record<string, unknown>
-}
-
-export type TronSignTransactionCallRequest = {
-  method: TronSigningMethod.TRON_SIGN_TRANSACTION
-  params: TronSignTransactionCallRequestParams
-}
-
-export type TronSignMessageCallRequestParams = {
-  message: string
-}
-
-export type TronSignMessageCallRequest = {
-  method: TronSigningMethod.TRON_SIGN_MESSAGE
-  params: TronSignMessageCallRequestParams
 }
 
 export type WalletConnectRequest =
@@ -274,8 +308,10 @@ export type WalletConnectRequest =
   | CosmosGetAccountsCallRequest
   | CosmosSignDirectCallRequest
   | CosmosSignAminoCallRequest
-  | TronSignTransactionCallRequest
-  | TronSignMessageCallRequest
+  | BIP122SendTransferCallRequest
+  | BIP122SignPsbtCallRequest
+  | BIP122SignMessageCallRequest
+  | BIP122GetAccountAddressesCallRequest
 
 export type EthSignParams =
   | EthSignCallRequest
@@ -289,8 +325,10 @@ export type RequestParams =
   | EthSignParams
   | CosmosSignDirectCallRequestParams
   | CosmosSignAminoCallRequestParams
-  | TronSignTransactionCallRequestParams
-  | TronSignMessageCallRequestParams
+  | BIP122SendTransferCallRequestParams
+  | BIP122SignPsbtCallRequestParams
+  | BIP122SignMessageCallRequestParams
+  | BIP122GetAccountAddressesCallRequestParams
 
 export type ConfirmData = {
   nonce?: string

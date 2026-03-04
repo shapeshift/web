@@ -383,7 +383,7 @@
         "react": "19.2.4",
         "react-dom": "19.2.4",
         "@testing-library/dom": "8.20.1",
-        "viem": "2.40.3",
+        "viem": "2.43.5",
         "msw": "*",
         "ethers": "*",
         "starknet": "9.4.0",

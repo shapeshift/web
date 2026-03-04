@@ -5,7 +5,11 @@ import generatedTradableAssetMap from '../../generated/generatedTradableAssetMap
 
 const thorPoolIdAssetIdSymbolMap = generatedTradableAssetMap as Record<string, AssetId>
 
-export const assetIdToThorPoolAssetIdMap = invert(thorPoolIdAssetIdSymbolMap)
+// Lowercase keys so lookups are case-insensitive (required for Solana base58 addresses)
+const rawMap = invert(thorPoolIdAssetIdSymbolMap)
+export const assetIdToThorPoolAssetIdMap: Record<string, string> = Object.fromEntries(
+  Object.entries(rawMap).map(([k, v]) => [k.toLowerCase(), v]),
+)
 
 export const thorPoolAssetIdToAssetId = (id: string): AssetId | undefined =>
   thorPoolIdAssetIdSymbolMap[id.toUpperCase()]

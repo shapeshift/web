@@ -13,6 +13,7 @@ import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { ReusableConfirm } from '@/components/ReusableConfirm/ReusableConfirm'
+import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
@@ -31,6 +32,7 @@ export const StakeConfirm: React.FC = () => {
   const translate = useTranslate()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const { showErrorToast } = useErrorToast()
   const { watch } = useFormContext<StakeFormValues>()
   const amountCryptoPrecision = watch('amountCryptoPrecision')
   const accountId = watch('accountId')
@@ -126,9 +128,13 @@ export const StakeConfirm: React.FC = () => {
   })
 
   const handleConfirm = useCallback(async () => {
-    await handleStake()
-    navigate(TCYStakeRoute.Input)
-  }, [handleStake, navigate])
+    try {
+      await handleStake()
+      navigate(TCYStakeRoute.Input)
+    } catch (e) {
+      showErrorToast(e)
+    }
+  }, [handleStake, navigate, showErrorToast])
 
   const handleCancel = useCallback(() => {
     navigate(TCYStakeRoute.Input)

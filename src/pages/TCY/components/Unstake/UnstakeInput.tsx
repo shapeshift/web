@@ -190,7 +190,7 @@ export const UnstakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAcc
   }, [accountId, setValue])
 
   return (
-    <Stack>
+    <Stack data-testid='tcy-unstake-input'>
       {headerComponent}
       <FormControl isInvalid={Boolean(errors.amountCryptoPrecision)}>
         <TradeAssetInput

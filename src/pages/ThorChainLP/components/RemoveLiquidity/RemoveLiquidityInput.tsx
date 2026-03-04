@@ -1044,7 +1044,7 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   return (
     <SlideTransition>
       {renderHeader}
-      <Stack divider={divider} spacing={4} pb={4}>
+      <Stack divider={divider} spacing={4} pb={4} data-testid='pool-remove-liquidity-form'>
         <Stack>
           <FormLabel mb={0} px={6} fontSize='sm'>
             {translate('pools.removeAmounts')}

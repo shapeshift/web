@@ -208,7 +208,7 @@ export const AvailablePools = () => {
   )
 
   return (
-    <Main headerComponent={headerComponent} isSubPage>
+    <Main headerComponent={headerComponent} isSubPage data-testid='pools-available-page'>
       <SEO title={translate('navBar.pools')} />
       <Stack px={stackPadding}>
         {sortedPools.length ? (

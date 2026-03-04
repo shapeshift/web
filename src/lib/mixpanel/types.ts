@@ -76,6 +76,13 @@ export enum MixPanelEvent {
   HighlightedTokenClicked = 'Highlighted Token Clicked',
   FiveStarRating = 'Five Star Rating',
   AdAttributionReceived = 'Ad Attribution Received',
+  // Yield XYZ events
+  YieldEnterConfirm = 'Yield Enter Confirm',
+  YieldEnterSuccess = 'Yield Enter Success',
+  YieldExitConfirm = 'Yield Exit Confirm',
+  YieldExitSuccess = 'Yield Exit Success',
+  YieldClaimConfirm = 'Yield Claim Confirm',
+  YieldClaimSuccess = 'Yield Claim Success',
 }
 
 export type TrackOpportunityProps = {

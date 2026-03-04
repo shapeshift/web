@@ -7,6 +7,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { CollateralMachineCtx } from './CollateralMachineContext'
 import { CollateralStepper } from './CollateralStepper'
+import { useCollateralActionCenter } from './hooks/useCollateralActionCenter'
 import { useCollateralConfirmation } from './hooks/useCollateralConfirmation'
 import { useCollateralSign } from './hooks/useCollateralSign'
 
@@ -46,6 +47,7 @@ export const CollateralConfirm = memo(({ assetId }: CollateralConfirmProps) => {
 
   useCollateralSign()
   useCollateralConfirmation()
+  useCollateralActionCenter()
 
   const isAddMode = mode === 'add'
 

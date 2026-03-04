@@ -117,13 +117,27 @@ export const useCompleteSendFlow = ({ handleClose }: UseCompleteSendFlowArgs) =>
                 transactionMetadata: {
                   ...existingAction.transactionMetadata,
                   isRbfEnabled,
-                  btcUtxoRbfTxMetadata,
+                  btcUtxoRbfTxMetadata:
+                    btcUtxoRbfTxMetadata ?? existingAction.transactionMetadata.btcUtxoRbfTxMetadata,
                 },
                 updatedAt: Date.now(),
               }),
             )
           } catch (e) {
             console.error('Failed to resolve BTC RBF capability:', e)
+            const existingAction = actionSlice.selectors.selectActionsById(store.getState())[txHash]
+            if (!existingAction || !isGenericTransactionAction(existingAction)) return
+
+            dispatch(
+              actionSlice.actions.upsertAction({
+                ...existingAction,
+                transactionMetadata: {
+                  ...existingAction.transactionMetadata,
+                  isRbfEnabled: false,
+                },
+                updatedAt: Date.now(),
+              }),
+            )
           }
         })()
       }

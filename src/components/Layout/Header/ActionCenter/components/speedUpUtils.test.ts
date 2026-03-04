@@ -23,6 +23,10 @@ describe('speedUpUtils', () => {
     it('parses btc decimal strings to sats', () => {
       expect(toSats('0.00000512').toString()).toBe('512')
     })
+
+    it('parses btc scientific notation to sats', () => {
+      expect(toSats('1e-8').toString()).toBe('1')
+    })
   })
 
   describe('getTxVsize', () => {

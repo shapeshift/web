@@ -27,7 +27,8 @@ export type SpeedUpTxLike = {
 export const toSats = (value?: TxValue) => {
   if (value === undefined || value === null) return bn(0)
   const parsed = String(value)
-  return parsed.includes('.') ? bn(parsed).times(1e8) : bn(parsed)
+  const isPrecisionValue = /[.eE]/.test(parsed)
+  return isPrecisionValue ? bn(parsed).times('100000000') : bn(parsed)
 }
 
 export const getTxVsize = (tx: SpeedUpTxLike) => {

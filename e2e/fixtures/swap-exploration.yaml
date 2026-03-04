@@ -1,0 +1,134 @@
+name: Cross-Chain Swap Exploration
+description: >
+  Autonomous exploration of swap flows across all first-class EVM chains,
+  Solana, Cosmos Hub (ATOM), THORChain (RUNE), and Mayachain (CACAO).
+
+  The agent picks random swap pairs across any combination of chains and
+  directions - same-chain swaps, cross-chain swaps, any asset to any asset.
+  The goal is to discover broken quotes, failed broadcasts, UI glitches,
+  and edge cases that scripted fixtures miss.
+
+  IMPORTANT FINANCIAL CONSTRAINTS:
+  - Maximum $10 per individual swap (use fiat mode, never exceed)
+  - Maximum $5 CUMULATIVE downside across ALL swaps in the session
+    (downside = fees + gas + price impact + slippage losses)
+  - Track running downside: after each swap, compare USD value sent vs received
+  - If cumulative downside approaches $4, reduce swap sizes to $1-2
+  - If cumulative downside hits $5, STOP executing swaps (can still explore UI)
+  - Prefer small swaps ($1-3) to minimize downside per trade
+
+  CHAIN COVERAGE:
+  First-class EVM chains: Ethereum (ETH), Avalanche (AVAX), Base (ETH),
+  Optimism (ETH), Arbitrum (ETH), BNB Smart Chain (BNB), Polygon (POL),
+  Gnosis (xDAI)
+  Non-EVM: Solana (SOL), Cosmos Hub (ATOM), THORChain (RUNE), Mayachain (CACAO)
+
+  SWAP COMBINATIONS TO EXPLORE:
+  - Same-chain: ETH -> USDC on Ethereum, AVAX -> token on Avalanche, etc.
+  - Cross-chain EVM: ETH (Ethereum) -> ETH (Base), BNB -> AVAX, etc.
+  - Cross-ecosystem: ETH -> SOL, BTC -> ATOM, RUNE -> ETH, CACAO -> AVAX
+  - Exotic pairs: ATOM -> SOL, RUNE -> CACAO, xDAI -> POL
+  - The agent should try diverse combinations, not just obvious ones
+
+  EXECUTION:
+  - Navigate via hash route: eval "window.location.hash = '/trade'"
+  - Use data-testid selectors for asset pickers and trade buttons
+  - Always check balance before swapping (don't swap more than you have)
+  - Preview every trade before confirming (check the rate/impact)
+  - If a quote shows >5% price impact, report as finding but don't execute
+  - If a swap takes >120s, report as finding (slow swap)
+  - Track which pairs worked and which failed
+
+mode: exploratory
+route: /trade
+depends_on:
+  - wallet-health.yaml
+
+domain:
+  routes:
+    - /trade
+  actions:
+    - switch-sell-asset
+    - switch-buy-asset
+    - search-assets
+    - filter-by-chain
+    - change-amounts
+    - preview-trade
+    - confirm-trade
+    - sign-swap
+    - toggle-fiat-crypto
+
+steps:
+  - name: Initialize swap session in fiat mode
+    instruction: >
+      Start on /trade and run toggle-fiat-crypto so all entered amounts are in USD.
+      Keep fiat mode enabled for the entire run. Initialize downside tracking at $0.
+    expected: Fiat mode active and cumulative downside tracker initialized
+    screenshot: true
+  - name: Select sell and buy assets across chains
+    instruction: >
+      Run switch-sell-asset and switch-buy-asset to create diverse pairs across
+      first-class EVM chains plus Solana, Cosmos Hub, THORChain, and Mayachain.
+      Use filter-by-chain and search-assets between selections to broaden coverage.
+    expected: Diverse same-chain and cross-chain pairs are selected successfully
+    screenshot: true
+  - name: Validate balance and per-swap budget before quote
+    instruction: >
+      Before each quote, check available sell balance and cap swap size to <= $10.
+      If balance is insufficient, log a finding and switch to another pair instead
+      of forcing the trade.
+    expected: No quote attempt exceeds wallet balance or $10 notional
+    screenshot: true
+  - name: Quote and preview candidate swap
+    instruction: >
+      Run change-amounts and preview-trade. Wait for quote state to settle and
+      capture quote failures, stuck loading, or malformed route details as findings.
+      If price impact is greater than 5%, log the finding and skip execution.
+    expected: Valid quotes can be previewed; >5% impact routes are skipped and reported
+    screenshot: true
+  - name: Confirm and sign eligible swaps only
+    instruction: >
+      For swaps that pass checks, run confirm-trade then sign-swap. If signing or
+      broadcast fails, record the failure and continue exploring other pairs.
+      Report swaps taking longer than 120s as slow swaps.
+    expected: Eligible swaps execute, and failures/slow swaps are recorded
+    screenshot: true
+  - name: Enforce cumulative downside guardrail
+    instruction: >
+      After each completed swap, estimate downside (fees + gas + slippage/impact)
+      and update cumulative downside. If cumulative downside reaches $4, reduce
+      notional to $1-$2. If cumulative downside reaches or exceeds $5, stop all
+      further swap executions and continue UI-only exploration.
+    expected: Swap execution halts once cumulative downside is >= $5
+    screenshot: true
+  - name: Continuous findings capture
+    instruction: >
+      Throughout execution, document findings for broken quotes, failed broadcasts,
+      infinite loading, route errors, and UI rendering glitches. Include pair,
+      chain context, and reproduction notes for each finding.
+    expected: Findings list includes actionable details for each discovered issue
+    screenshot: true
+
+constraints:
+  - Maximum $10 per individual swap
+  - Maximum $5 cumulative downside (fees + gas + slippage) across all swaps
+  - Always use fiat mode for entering amounts
+  - Always preview before confirming
+  - Skip swaps with >5% price impact (report as finding)
+  - Check balance before each swap
+  - Track cumulative downside after each completed swap
+  - Stop executing swaps if cumulative downside reaches $5
+
+goals:
+  - Test diverse swap pairs across all first-class chains
+  - Find broken quotes (no route, infinite loading, error messages)
+  - Find failed broadcasts or stuck transactions
+  - Find UI glitches during swap flow (overlapping text, missing data)
+  - Test rapid asset switching (change sell/buy mid-quote)
+  - Test edge cases (very small amounts, dust amounts)
+  - Discover which cross-chain routes work and which don't
+  - Check approval flows for ERC20 tokens
+  - Report any swap taking >120s as slow
+
+duration: 30min
+max_findings: 30

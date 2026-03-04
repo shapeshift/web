@@ -77,6 +77,32 @@ export const trackOpportunityEvent = (
   mixpanel?.track(event, eventData)
 }
 
+export type TrackYieldEventProps = {
+  provider: string
+  yieldType: string
+  yieldId: string
+  assetSymbol: string
+  network: string
+  amountCryptoPrecision: string
+  action: 'enter' | 'exit' | 'manage'
+}
+
+export const trackYieldEvent = (event: MixPanelEvent, properties: TrackYieldEventProps) => {
+  const mixpanel = getMixPanel()
+  if (!mixpanel) return
+
+  const eventData = {
+    provider: properties.provider,
+    yieldType: properties.yieldType,
+    yieldId: properties.yieldId,
+    asset: properties.assetSymbol,
+    network: properties.network,
+    amountCryptoPrecision: properties.amountCryptoPrecision,
+    action: properties.action,
+  }
+  mixpanel.track(event, eventData)
+}
+
 export const trackAppleSearchAdsAttribution = (data: AppleSearchAdsAttributionData) => {
   const mixpanel = getMixPanel()
   if (!mixpanel) return

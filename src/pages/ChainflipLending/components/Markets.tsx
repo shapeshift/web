@@ -20,7 +20,9 @@ import { SEO } from '@/components/Layout/Seo'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { Text } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { permillToDecimal } from '@/lib/chainflip/utils'
 import { ChainflipLendingHeader } from '@/pages/ChainflipLending/components/ChainflipLendingHeader'
+import { MyBalancesList } from '@/pages/ChainflipLending/components/MyBalances'
 import type { ChainflipLendingPoolWithFiat } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
 import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
 
@@ -44,7 +46,7 @@ const MarketRow = ({ pool, onViewMarket }: MarketRowProps) => {
   }, [pool.assetId, onViewMarket])
 
   const utilisationPercent = useMemo(
-    () => bnOrZero(pool.pool.utilisation_rate).div(1e9).toFixed(),
+    () => permillToDecimal(pool.pool.utilisation_rate),
     [pool.pool.utilisation_rate],
   )
 
@@ -135,36 +137,56 @@ export const Markets = () => {
   return (
     <Main headerComponent={headerComponent} isSubPage>
       <SEO title='Chainflip Lending' />
-      <Stack>
-        <SimpleGrid
-          gridTemplateColumns={marketRowGrid}
-          columnGap={4}
-          color='text.subtle'
-          fontWeight='bold'
-          fontSize='sm'
-          px={mobilePadding}
-        >
-          <Text translation='chainflipLending.pool' />
-          <Flex display={mobileDisplay}>
-            <HelperTooltip label={translate('chainflipLending.totalSuppliedTooltip')}>
-              <Text translation='chainflipLending.totalSupplied' />
-            </HelperTooltip>
-          </Flex>
-          <Flex display={mobileDisplay}>
-            <HelperTooltip label={translate('chainflipLending.supplyApyTooltip')}>
-              <Text translation='chainflipLending.supplyApy' />
-            </HelperTooltip>
-          </Flex>
-          <Flex display={mobileDisplay}>
-            <HelperTooltip label={translate('chainflipLending.totalBorrowedTooltip')}>
-              <Text translation='chainflipLending.totalBorrowed' />
-            </HelperTooltip>
-          </Flex>
-          <HelperTooltip label={translate('chainflipLending.utilisationTooltip')}>
-            <Text translation='chainflipLending.utilisation' />
-          </HelperTooltip>
-        </SimpleGrid>
-        <Stack mx={listMargin}>{marketRows}</Stack>
+      <Stack spacing={8}>
+        <Stack spacing={4}>
+          <Text
+            translation='chainflipLending.myDashboard'
+            fontWeight='bold'
+            fontSize='xl'
+            px={mobilePadding}
+          />
+          <MyBalancesList />
+        </Stack>
+
+        <Stack spacing={4}>
+          <Text
+            translation='chainflipLending.allMarkets'
+            fontWeight='bold'
+            fontSize='xl'
+            px={mobilePadding}
+          />
+          <Stack>
+            <SimpleGrid
+              gridTemplateColumns={marketRowGrid}
+              columnGap={4}
+              color='text.subtle'
+              fontWeight='bold'
+              fontSize='sm'
+              px={mobilePadding}
+            >
+              <Text translation='chainflipLending.poolHeader' />
+              <Flex display={mobileDisplay}>
+                <HelperTooltip label={translate('chainflipLending.totalSuppliedTooltip')}>
+                  <Text translation='chainflipLending.totalSupplied' />
+                </HelperTooltip>
+              </Flex>
+              <Flex display={mobileDisplay}>
+                <HelperTooltip label={translate('chainflipLending.supplyApyTooltip')}>
+                  <Text translation='chainflipLending.supplyApy' />
+                </HelperTooltip>
+              </Flex>
+              <Flex display={mobileDisplay}>
+                <HelperTooltip label={translate('chainflipLending.totalBorrowedTooltip')}>
+                  <Text translation='chainflipLending.totalBorrowed' />
+                </HelperTooltip>
+              </Flex>
+              <HelperTooltip label={translate('chainflipLending.utilisationTooltip')}>
+                <Text translation='chainflipLending.utilisation' />
+              </HelperTooltip>
+            </SimpleGrid>
+            <Stack mx={listMargin}>{marketRows}</Stack>
+          </Stack>
+        </Stack>
       </Stack>
     </Main>
   )

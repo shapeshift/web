@@ -1,14 +1,17 @@
 import type {
   AddEthereumChainParameter,
   Address,
+  BTCAccountPath,
+  BTCGetAccountPaths,
+  BTCGetAddress,
+  BTCSignedMessage,
+  BTCSignedTx,
+  BTCSignMessage,
+  BTCSignTx,
+  BTCVerifyMessage,
+  BTCWallet,
+  BTCWalletInfo,
   Coin,
-  CosmosAccountPath,
-  CosmosGetAccountPaths,
-  CosmosGetAddress,
-  CosmosSignedTx,
-  CosmosSignTx,
-  CosmosWallet,
-  CosmosWalletInfo,
   DescribePath,
   ETHAccountPath,
   ETHGetAccountPath,
@@ -21,31 +24,27 @@ import type {
   ETHVerifyMessage,
   ETHWallet,
   ETHWalletInfo,
+  GetPublicKey,
   HDWallet,
   HDWalletInfo,
   PathDescription,
   Ping,
   Pong,
   PublicKey,
-  TronAccountPath,
-  TronGetAccountPaths,
-  TronGetAddress,
-  TronSignedTx,
-  TronSignTx,
-  TronWallet,
-  TronWalletInfo,
 } from '@shapeshiftoss/hdwallet-core'
-import { slip44ByCoin } from '@shapeshiftoss/hdwallet-core'
+import { BTCInputScriptType, slip44ByCoin } from '@shapeshiftoss/hdwallet-core'
 import type EthereumProvider from '@walletconnect/ethereum-provider'
 import isObject from 'lodash/isObject'
 
 import {
-  cosmosGetAccountPaths,
-  cosmosGetAddress,
-  cosmosNextAccountPath,
-  cosmosSignTx,
-  describeCosmosPath,
-} from './cosmos'
+  btcGetAccountPaths,
+  btcGetAddress,
+  btcNextAccountPath,
+  btcSignMessage,
+  btcSignTx,
+  btcVerifyMessage,
+  describeBTCPath,
+} from './bitcoin'
 import {
   describeETHPath,
   ethGetAddress,
@@ -55,24 +54,11 @@ import {
   ethSignTypedData,
   ethVerifyMessage,
 } from './ethereum'
-import {
-  describeTronPath,
-  tronGetAddress,
-  tronNextAccountPath,
-  tronSignTx,
-  tronWcGetAccountPaths,
-} from './tron'
 
-const COSMOS_OPTIONAL_NAMESPACE = {
-  chains: ['cosmos:cosmoshub-4'],
-  methods: ['cosmos_getAccounts', 'cosmos_signAmino', 'cosmos_signDirect'],
-  events: [],
-}
-
-const TRON_OPTIONAL_NAMESPACE = {
-  chains: ['tron:0x2b6653dc'],
-  methods: ['tron_signTransaction', 'tron_signMessage'],
-  events: [],
+const BIP122_OPTIONAL_NAMESPACE = {
+  chains: ['bip122:000000000019d6689c085ae165831e93'],
+  methods: ['sendTransfer', 'signPsbt', 'signMessage', 'getAccountAddresses'],
+  events: ['bip122_addressesChanged'],
 }
 
 export function isWalletConnectV2(wallet: HDWallet): wallet is WalletConnectV2HDWallet {
@@ -91,13 +77,9 @@ export function isWalletConnectV2(wallet: HDWallet): wallet is WalletConnectV2HD
  * - eth_sendRawTransaction
  * @see https://specs.walletconnect.com/2.0/blockchain-rpc/ethereum-rpc
  */
-export class WalletConnectV2WalletInfo
-  implements HDWalletInfo, ETHWalletInfo, CosmosWalletInfo, TronWalletInfo
-{
+export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalletInfo {
   readonly _supportsETHInfo = true
-  readonly _supportsBTCInfo = false
-  readonly _supportsCosmosInfo = true
-  readonly _supportsTronInfo = true
+  readonly _supportsBTCInfo = true
   public getVendor(): string {
     return 'WalletConnectV2'
   }
@@ -138,10 +120,12 @@ export class WalletConnectV2WalletInfo
     switch (msg.coin) {
       case 'Ethereum':
         return describeETHPath(msg.path)
-      case 'Atom':
-        return describeCosmosPath(msg.path)
-      case 'Tron':
-        return describeTronPath(msg.path)
+      case 'Bitcoin':
+        return describeBTCPath(
+          msg.path,
+          msg.coin,
+          msg.scriptType ?? BTCInputScriptType.SpendWitness,
+        )
       default:
         throw new Error('Unsupported path')
     }
@@ -180,30 +164,39 @@ export class WalletConnectV2WalletInfo
     ]
   }
 
-  public cosmosGetAccountPaths(msg: CosmosGetAccountPaths): CosmosAccountPath[] {
-    return cosmosGetAccountPaths(msg)
+  public async btcSupportsCoin(coin: Coin): Promise<boolean> {
+    return coin === 'Bitcoin'
   }
 
-  public cosmosNextAccountPath(_msg: CosmosAccountPath): CosmosAccountPath | undefined {
-    return cosmosNextAccountPath(_msg)
+  public async btcSupportsScriptType(
+    coin: Coin,
+    scriptType?: BTCInputScriptType,
+  ): Promise<boolean> {
+    if (coin !== 'Bitcoin') return false
+    return scriptType === undefined || scriptType === BTCInputScriptType.SpendWitness
   }
 
-  public tronGetAccountPaths(msg: TronGetAccountPaths): TronAccountPath[] {
-    return tronWcGetAccountPaths(msg)
+  public async btcSupportsSecureTransfer(): Promise<boolean> {
+    return false
   }
 
-  public tronNextAccountPath(_msg: TronAccountPath): TronAccountPath | undefined {
-    return tronNextAccountPath(_msg)
+  public btcSupportsNativeShapeShift(): boolean {
+    return false
+  }
+
+  public btcGetAccountPaths(msg: BTCGetAccountPaths): BTCAccountPath[] {
+    return btcGetAccountPaths(msg)
+  }
+
+  public btcNextAccountPath(msg: BTCAccountPath): BTCAccountPath | undefined {
+    return btcNextAccountPath(msg)
   }
 }
 
-export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWallet, TronWallet {
+export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, BTCWallet {
   readonly _supportsETH = true
   readonly _supportsETHInfo = true
-  readonly _supportsBTCInfo = false
-  readonly _supportsBTC = false
-  readonly _supportsCosmosInfo = true
-  readonly _supportsTronInfo = true
+  readonly _supportsBTCInfo = true
   readonly _isWalletConnectV2 = true
   readonly _supportsEthSwitchChain = true
   readonly _supportsAvalanche = true
@@ -247,15 +240,10 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
   chainId: number | undefined
   accounts: string[] = []
   ethAddress: Address | undefined
-  cosmosAddress: string | undefined
-  tronAddress: string | undefined
+  btcAddress: string | undefined
 
-  get _supportsCosmos(): boolean {
-    return !!this.provider.session?.namespaces?.cosmos
-  }
-
-  get _supportsTron(): boolean {
-    return !!this.provider.session?.namespaces?.tron
+  get _supportsBTC(): boolean {
+    return !!this.provider.session?.namespaces?.bip122
   }
 
   constructor(provider: EthereumProvider) {
@@ -272,8 +260,7 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
         ...params,
         optionalNamespaces: {
           ...params.optionalNamespaces,
-          cosmos: COSMOS_OPTIONAL_NAMESPACE,
-          tron: TRON_OPTIONAL_NAMESPACE,
+          bip122: BIP122_OPTIONAL_NAMESPACE,
         },
       })
     }
@@ -391,9 +378,25 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
     return this.info.describePath(msg)
   }
 
-  public async getPublicKeys(): Promise<(PublicKey | null)[]> {
-    // Ethereum public keys are not exposed by the RPC API
-    return []
+  public async getPublicKeys(msg: GetPublicKey[]): Promise<(PublicKey | null)[]> {
+    return await Promise.all(
+      msg.map(async getPublicKey => {
+        const { coin, scriptType } = getPublicKey
+
+        if (coin === 'Bitcoin' && scriptType === BTCInputScriptType.SpendWitness) {
+          const address = await this.btcGetAddress({
+            coin,
+            addressNList: getPublicKey.addressNList,
+            scriptType,
+            showDisplay: false,
+          } as BTCGetAddress)
+          if (!address) return null
+          return { xpub: address }
+        }
+
+        return null
+      }),
+    )
   }
 
   public async isInitialized(): Promise<boolean> {
@@ -495,7 +498,13 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
   }
 
   public async getDeviceID(): Promise<string> {
-    return 'wc:' + (await this.ethGetAddress())
+    const ethAddr = await this.ethGetAddress()
+    if (ethAddr) return 'wc:' + ethAddr
+
+    const btcAddr = await this.btcGetAddress({ coin: 'Bitcoin' } as BTCGetAddress)
+    if (btcAddr) return 'wc:' + btcAddr
+
+    return 'wc:unknown'
   }
 
   public async getFirmwareVersion(): Promise<string> {
@@ -520,55 +529,56 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, CosmosWalle
     this.chainId = parsedChainId
   }
 
-  // -- Cosmos Methods --
+  // -- BTC Methods --
 
-  public cosmosGetAccountPaths(msg: CosmosGetAccountPaths): CosmosAccountPath[] {
-    return this.info.cosmosGetAccountPaths(msg)
+  public async btcSupportsCoin(coin: Coin): Promise<boolean> {
+    return this.info.btcSupportsCoin(coin)
   }
 
-  public cosmosNextAccountPath(msg: CosmosAccountPath): CosmosAccountPath | undefined {
-    return this.info.cosmosNextAccountPath(msg)
+  public async btcSupportsScriptType(
+    coin: Coin,
+    scriptType?: BTCInputScriptType,
+  ): Promise<boolean> {
+    return this.info.btcSupportsScriptType(coin, scriptType)
   }
 
-  public async cosmosGetAddress(msg: CosmosGetAddress): Promise<string | null> {
-    if (this.cosmosAddress) {
-      return this.cosmosAddress
+  public async btcSupportsSecureTransfer(): Promise<boolean> {
+    return this.info.btcSupportsSecureTransfer()
+  }
+
+  public btcSupportsNativeShapeShift(): boolean {
+    return this.info.btcSupportsNativeShapeShift()
+  }
+
+  public btcGetAccountPaths(msg: BTCGetAccountPaths): BTCAccountPath[] {
+    return this.info.btcGetAccountPaths(msg)
+  }
+
+  public btcNextAccountPath(msg: BTCAccountPath): BTCAccountPath | undefined {
+    return this.info.btcNextAccountPath(msg)
+  }
+
+  public async btcGetAddress(msg: BTCGetAddress): Promise<string | null> {
+    if (this.btcAddress) {
+      return this.btcAddress
     }
-    const address = await cosmosGetAddress(this.provider, msg)
+    const address = await btcGetAddress(this.provider, msg)
     if (address) {
-      this.cosmosAddress = address
+      this.btcAddress = address
       return address
     }
     return null
   }
 
-  public async cosmosSignTx(msg: CosmosSignTx): Promise<CosmosSignedTx | null> {
-    return cosmosSignTx(this.provider, msg)
+  public async btcSignTx(msg: BTCSignTx): Promise<BTCSignedTx | null> {
+    return btcSignTx(this, this.provider, msg)
   }
 
-  // -- Tron Methods --
-
-  public tronGetAccountPaths(msg: TronGetAccountPaths): TronAccountPath[] {
-    return this.info.tronGetAccountPaths(msg)
+  public async btcSignMessage(msg: BTCSignMessage): Promise<BTCSignedMessage | null> {
+    return btcSignMessage(this.provider, msg)
   }
 
-  public tronNextAccountPath(msg: TronAccountPath): TronAccountPath | undefined {
-    return this.info.tronNextAccountPath(msg)
-  }
-
-  public async tronGetAddress(msg: TronGetAddress): Promise<string | null> {
-    if (this.tronAddress) {
-      return this.tronAddress
-    }
-    const address = await tronGetAddress(this.provider, msg)
-    if (address) {
-      this.tronAddress = address
-      return address
-    }
-    return null
-  }
-
-  public async tronSignTx(msg: TronSignTx): Promise<TronSignedTx | null> {
-    return tronSignTx(this.provider, msg)
+  public async btcVerifyMessage(msg: BTCVerifyMessage): Promise<boolean | null> {
+    return btcVerifyMessage(this.provider, msg)
   }
 }

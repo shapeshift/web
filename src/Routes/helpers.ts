@@ -10,6 +10,7 @@ export enum RouteCategory {
   Explore = 'explore',
   Fox = 'fox',
   Thorchain = 'thorchain',
+  Chainflip = 'chainflip',
 }
 
 export type Route = {
@@ -22,6 +23,7 @@ export type Route = {
   disable?: boolean
   hideDesktop?: boolean
   isNew?: boolean
+  isDeprecated?: boolean
   isViewOnly?: boolean
   category?: RouteCategory
   menuRightComponent?: React.ReactNode

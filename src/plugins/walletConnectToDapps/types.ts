@@ -29,14 +29,14 @@ export enum CosmosSigningMethod {
   COSMOS_SIGN_AMINO = 'cosmos_signAmino',
 }
 
-export enum SolanaSigningMethod {
-  SOLANA_SIGN_TRANSACTION = 'solana_signTransaction',
-  SOLANA_SIGN_AND_SEND_TRANSACTION = 'solana_signAndSendTransaction',
-  SOLANA_SIGN_MESSAGE = 'solana_signMessage',
-  SOLANA_SIGN_ALL_TRANSACTIONS = 'solana_signAllTransactions',
+export enum BIP122SigningMethod {
+  BIP122_SEND_TRANSFER = 'sendTransfer',
+  BIP122_SIGN_PSBT = 'signPsbt',
+  BIP122_SIGN_MESSAGE = 'signMessage',
+  BIP122_GET_ACCOUNT_ADDRESSES = 'getAccountAddresses',
 }
 
-export type KnownSigningMethod = EIP155_SigningMethod | CosmosSigningMethod | SolanaSigningMethod
+export type KnownSigningMethod = EIP155_SigningMethod | CosmosSigningMethod | BIP122SigningMethod
 
 export interface ModalData<T = WalletConnectRequest> {
   proposal?: WalletKitTypes.EventArguments['session_proposal']
@@ -113,7 +113,7 @@ export enum WalletConnectModal {
   SignEIP155TransactionConfirmation = 'signEIP155TransactionConfirmation',
   SendEIP155TransactionConfirmation = 'sendEIP155TransactionConfirmation',
   SendCosmosTransactionConfirmation = 'sendCosmosTransactionConfirmation',
-  SendSolanaTransactionConfirmation = 'sendSolanaTransactionConfirmation',
+  SendBitcoinTransactionConfirmation = 'sendBitcoinTransactionConfirmation',
   NoAccountsForChain = 'noAccountsForChain',
 }
 
@@ -238,46 +238,54 @@ export type CosmosSignAminoCallRequest = {
   params: CosmosSignAminoCallRequestParams
 }
 
-export type SolanaSignTransactionCallRequestParams = {
-  transaction: string
+export type BIP122SendTransferCallRequestParams = {
+  account: string
+  recipientAddress: string
+  amount: string
+  memo?: string
 }
 
-export type SolanaSignTransactionCallRequest = {
-  method: SolanaSigningMethod.SOLANA_SIGN_TRANSACTION
-  params: SolanaSignTransactionCallRequestParams
+export type BIP122SendTransferCallRequest = {
+  method: BIP122SigningMethod.BIP122_SEND_TRANSFER
+  params: BIP122SendTransferCallRequestParams
 }
 
-export type SolanaSignAndSendTransactionCallRequestParams = {
-  transaction: string // base64 encoded
-  sendOptions?: {
-    skipPreflight?: boolean
-    preflightCommitment?: string
-    maxRetries?: number
-  }
+export type BIP122SignPsbtSignInput = {
+  address: string
+  index: number
+  sighashTypes?: number[]
 }
 
-export type SolanaSignAndSendTransactionCallRequest = {
-  method: SolanaSigningMethod.SOLANA_SIGN_AND_SEND_TRANSACTION
-  params: SolanaSignAndSendTransactionCallRequestParams
+export type BIP122SignPsbtCallRequestParams = {
+  account: string
+  psbt: string
+  signInputs: BIP122SignPsbtSignInput[]
+  broadcast?: boolean
 }
 
-export type SolanaSignAllTransactionsCallRequestParams = {
-  transactions: string[]
+export type BIP122SignPsbtCallRequest = {
+  method: BIP122SigningMethod.BIP122_SIGN_PSBT
+  params: BIP122SignPsbtCallRequestParams
 }
 
-export type SolanaSignAllTransactionsCallRequest = {
-  method: SolanaSigningMethod.SOLANA_SIGN_ALL_TRANSACTIONS
-  params: SolanaSignAllTransactionsCallRequestParams
-}
-
-export type SolanaSignMessageCallRequestParams = {
+export type BIP122SignMessageCallRequestParams = {
+  account: string
   message: string
-  pubkey: string
+  protocol?: 'ecdsa' | 'bip322-simple'
 }
 
-export type SolanaSignMessageCallRequest = {
-  method: SolanaSigningMethod.SOLANA_SIGN_MESSAGE
-  params: SolanaSignMessageCallRequestParams
+export type BIP122SignMessageCallRequest = {
+  method: BIP122SigningMethod.BIP122_SIGN_MESSAGE
+  params: BIP122SignMessageCallRequestParams
+}
+
+export type BIP122GetAccountAddressesCallRequestParams = {
+  account: string
+}
+
+export type BIP122GetAccountAddressesCallRequest = {
+  method: BIP122SigningMethod.BIP122_GET_ACCOUNT_ADDRESSES
+  params: BIP122GetAccountAddressesCallRequestParams
 }
 
 type EthSignTypedDataCallRequestParams = [account: string, message: string]
@@ -300,10 +308,10 @@ export type WalletConnectRequest =
   | CosmosGetAccountsCallRequest
   | CosmosSignDirectCallRequest
   | CosmosSignAminoCallRequest
-  | SolanaSignTransactionCallRequest
-  | SolanaSignAndSendTransactionCallRequest
-  | SolanaSignAllTransactionsCallRequest
-  | SolanaSignMessageCallRequest
+  | BIP122SendTransferCallRequest
+  | BIP122SignPsbtCallRequest
+  | BIP122SignMessageCallRequest
+  | BIP122GetAccountAddressesCallRequest
 
 export type EthSignParams =
   | EthSignCallRequest
@@ -317,10 +325,10 @@ export type RequestParams =
   | EthSignParams
   | CosmosSignDirectCallRequestParams
   | CosmosSignAminoCallRequestParams
-  | SolanaSignTransactionCallRequestParams
-  | SolanaSignAndSendTransactionCallRequestParams
-  | SolanaSignAllTransactionsCallRequestParams
-  | SolanaSignMessageCallRequestParams
+  | BIP122SendTransferCallRequestParams
+  | BIP122SignPsbtCallRequestParams
+  | BIP122SignMessageCallRequestParams
+  | BIP122GetAccountAddressesCallRequestParams
 
 export type ConfirmData = {
   nonce?: string

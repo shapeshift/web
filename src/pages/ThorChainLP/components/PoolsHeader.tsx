@@ -46,7 +46,7 @@ export const PoolsHeader = () => {
   return (
     <>
       <Display.Mobile>
-        <PageHeader>
+        <PageHeader data-testid='pools-header'>
           <PageHeader.Left>
             <PageBackButton onBack={handleBack} />
           </PageHeader.Left>

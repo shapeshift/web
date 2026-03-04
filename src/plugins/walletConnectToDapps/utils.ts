@@ -6,7 +6,6 @@ import type {
   FeeDataKey,
   GetFeeDataInput,
 } from '@shapeshiftoss/chain-adapters'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import type { SessionTypes } from '@walletconnect/types'
 import type { Hex } from 'viem'
@@ -20,7 +19,6 @@ import type {
   CosmosSignDirectCallRequestParams,
   CustomTransactionData,
   EthSignParams,
-  RequestParams,
   TransactionParams,
   WalletConnectState,
 } from '@/plugins/walletConnectToDapps/types'
@@ -130,26 +128,14 @@ export const getWalletAccountFromCosmosParams = (
   )
 }
 
-export const getWalletAccountFromSolanaParams = (
+export const getWalletAccountFromBip122Params = (
   accountIds: AccountId[],
-  params: RequestParams | undefined,
-  chainId: ChainId,
+  params: { account: string },
 ): AccountId => {
-  const pubkey =
-    params && typeof params === 'object' && !Array.isArray(params) && 'pubkey' in params
-      ? (params as { pubkey: string }).pubkey
-      : undefined
-
-  if (pubkey) {
-    const match = accountIds.find(accountId => {
-      const { account, chainId: acctChainId } = fromAccountId(accountId)
-      return account === pubkey && acctChainId === chainId
-    })
-    if (match) return match
-  }
-
-  const matchForChain = accountIds.find(accountId => fromAccountId(accountId).chainId === chainId)
-  return matchForChain ?? ''
+  const paramsAccount = params.account
+  return (
+    accountIds.find(accountId => paramsAccount?.includes(fromAccountId(accountId).account)) || ''
+  )
 }
 
 /**
@@ -178,17 +164,4 @@ export const getChainIdFromDomain = (message: string): ChainId | undefined => {
   } catch {
     return undefined
   }
-}
-
-export const isWcSupportedChainId = (chainId: string): boolean =>
-  isEvmChainId(chainId) ||
-  chainId.startsWith(`${CHAIN_NAMESPACE.Solana}:`) ||
-  chainId.startsWith(`${CHAIN_NAMESPACE.CosmosSdk}:`)
-
-export const isChainInProposedNamespaces = (
-  chainId: string,
-  proposedNamespaceKeys: Set<string>,
-): boolean => {
-  const chainNamespace = chainId.split(':')[0] as string
-  return proposedNamespaceKeys.has(chainNamespace)
 }

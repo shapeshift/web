@@ -1,3 +1,4 @@
+import bs58 from 'bs58'
 import {
   _void,
   Bytes,
@@ -8,6 +9,7 @@ import {
   Tuple,
   u16,
   u32,
+  u64,
   u128,
   Vector,
 } from 'scale-ts'
@@ -154,6 +156,11 @@ const rawBytesCodec = createCodec<Uint8Array>(
   },
 )
 
+const repaymentAmountCodec = Enum({
+  Full: _void,
+  Exact: u128,
+})
+
 const lendingPoolsCallCodec = Enum(
   {
     AddLenderFunds: Struct({
@@ -180,6 +187,15 @@ const lendingPoolsCallCodec = Enum(
     UpdateCollateralTopupAsset: Struct({
       collateralTopupAsset: Option(runtimeAssetCodec),
     }),
+    ExpandLoan: Struct({
+      loanId: u64,
+      extraAmountToBorrow: u128,
+      extraCollateral: Vector(Tuple(runtimeAssetCodec, u128)),
+    }),
+    MakeRepayment: Struct({
+      loanId: u64,
+      amount: repaymentAmountCodec,
+    }),
     InitiateVoluntaryLiquidation: _void,
     StopVoluntaryLiquidation: _void,
   },
@@ -190,6 +206,8 @@ const lendingPoolsCallCodec = Enum(
     LENDING_POOLS_CALL_INDEX.RemoveCollateral,
     LENDING_POOLS_CALL_INDEX.RequestLoan,
     LENDING_POOLS_CALL_INDEX.UpdateCollateralTopupAsset,
+    LENDING_POOLS_CALL_INDEX.ExpandLoan,
+    LENDING_POOLS_CALL_INDEX.MakeRepayment,
     LENDING_POOLS_CALL_INDEX.InitiateVoluntaryLiquidation,
     LENDING_POOLS_CALL_INDEX.StopVoluntaryLiquidation,
   ],
@@ -394,6 +412,63 @@ export const encodeUpdateCollateralTopupAsset = (
   })
 }
 
+export const encodeExpandLoan = (
+  loanId: bigint | number,
+  extraAmountToBorrow: ChainflipAmountInput,
+  extraCollateral: ChainflipAssetAmount[],
+): string => {
+  return encodeRuntimeCallHex({
+    tag: 'LendingPools',
+    value: {
+      tag: 'ExpandLoan',
+      value: {
+        loanId: typeof loanId === 'bigint' ? loanId : BigInt(loanId),
+        extraAmountToBorrow: toAmount(extraAmountToBorrow),
+        extraCollateral: buildAssetAmountPairs(extraCollateral),
+      },
+    },
+  })
+}
+
+export const encodeMakeRepayment = (
+  loanId: bigint | number,
+  amount: 'full' | ChainflipAmountInput,
+): string => {
+  return encodeRuntimeCallHex({
+    tag: 'LendingPools',
+    value: {
+      tag: 'MakeRepayment',
+      value: {
+        loanId: typeof loanId === 'bigint' ? loanId : BigInt(loanId),
+        amount:
+          amount === 'full'
+            ? { tag: 'Full' as const, value: undefined }
+            : { tag: 'Exact' as const, value: toAmount(amount) },
+      },
+    },
+  })
+}
+
+export const encodeInitiateVoluntaryLiquidation = (): string => {
+  return encodeRuntimeCallHex({
+    tag: 'LendingPools',
+    value: {
+      tag: 'InitiateVoluntaryLiquidation',
+      value: undefined,
+    },
+  })
+}
+
+export const encodeStopVoluntaryLiquidation = (): string => {
+  return encodeRuntimeCallHex({
+    tag: 'LendingPools',
+    value: {
+      tag: 'StopVoluntaryLiquidation',
+      value: undefined,
+    },
+  })
+}
+
 export const encodeRequestLiquidityDepositAddress = (
   asset: ChainflipAsset,
   boostFee: number,
@@ -513,8 +588,27 @@ export const encodeNonNativeSignedCall = (
   return bytesToHex(lengthPrefix)
 }
 
+const toAddressBytes = (address: ChainflipEncodedAddress): Uint8Array => {
+  if (address.address instanceof Uint8Array) return address.address
+
+  switch (address.chain) {
+    case 'Ethereum':
+    case 'Arbitrum':
+      return toHexBytes(address.address)
+    case 'Solana':
+      return bs58.decode(address.address)
+    case 'Bitcoin':
+      return new TextEncoder().encode(address.address)
+    case 'Polkadot':
+    case 'Assethub':
+      return toHexBytes(address.address)
+    default:
+      return toHexBytes(address.address)
+  }
+}
+
 const buildEncodedAddressValue = (address: ChainflipEncodedAddress) => {
-  const addressBytes = toBytes(address.address)
+  const addressBytes = toAddressBytes(address)
   switch (address.chain) {
     case 'Ethereum':
       assertByteLength(addressBytes, 20, 'Ethereum address')

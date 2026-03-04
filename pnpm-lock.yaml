@@ -91,8 +91,8 @@ importers:
         specifier: 5.4.0
         version: 5.4.0(@mysten/bcs@1.9.2)(@mysten/sui@1.45.2(typescript@5.2.2))
       '@chainflip/rpc':
-        specifier: ^2.1.1
-        version: 2.1.2
+        specifier: 2.1.1
+        version: 2.1.1
       '@chakra-ui/icons':
         specifier: ^2.2.4
         version: 2.2.4(@chakra-ui/react@2.10.7(@emotion/react@11.14.0(@types/react@19.1.2)(react@19.2.4))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.1.2)(react@19.2.4))(@types/react@19.1.2)(react@19.2.4))(@types/react@19.1.2)(framer-motion@12.7.4(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)
@@ -294,6 +294,9 @@ importers:
       '@walletconnect/utils':
         specifier: ^2.20.2
         version: 2.23.7(typescript@5.2.2)(zod@3.25.76)
+      '@xstate/react':
+        specifier: 5.0.5
+        version: 5.0.5(@types/react@19.1.2)(react@19.2.4)(xstate@5.28.0)
       ai:
         specifier: ^6.0.39
         version: 6.0.105(zod@3.25.76)
@@ -322,10 +325,10 @@ importers:
         specifier: ^3.0.4
         version: 3.1.0
       blakejs:
-        specifier: ^1.2.1
+        specifier: 1.2.1
         version: 1.2.1
       bs58:
-        specifier: ^6.0.0
+        specifier: 6.0.0
         version: 6.0.0
       buffer:
         specifier: ^6.0.3
@@ -564,9 +567,12 @@ importers:
       wouter:
         specifier: ^3.6.0
         version: 3.9.0(react@19.2.4)
+      xstate:
+        specifier: 5.28.0
+        version: 5.28.0
     devDependencies:
       '@chainflip/extrinsics':
-        specifier: ^1.6.2
+        specifier: 1.6.2
         version: 1.6.2
       '@commitlint/cli':
         specifier: ^15.0.0
@@ -1522,6 +1528,9 @@ importers:
       bip39:
         specifier: ^3.0.2
         version: 3.1.0
+      bitcoinjs-message:
+        specifier: ^2.1.0
+        version: 2.2.0
       bs58:
         specifier: ^4.0.1
         version: 4.0.1
@@ -1858,6 +1867,12 @@ importers:
 
   packages/hdwallet-walletconnectv2:
     dependencies:
+      '@bitcoinerlab/secp256k1':
+        specifier: ^1.2.0
+        version: 1.2.0
+      '@shapeshiftoss/bitcoinjs-lib':
+        specifier: 7.0.0-shapeshift.2
+        version: 7.0.0-shapeshift.2(typescript@5.2.2)
       '@shapeshiftoss/hdwallet-core':
         specifier: workspace:^
         version: link:../hdwallet-core
@@ -3032,8 +3047,8 @@ packages:
   '@chainflip/extrinsics@1.6.2':
     resolution: {integrity: sha512-CseddihWRvjnuNLM94+EXqqNVexdJVEGj218tibgWqw0CnGmo9cJyHbln6sqgQPlSl4/LqBbeBR9XniJekKwZQ==}
 
-  '@chainflip/rpc@2.1.2':
-    resolution: {integrity: sha512-CVE4xOyOODt7RsCmfGWNUruVPg5iQZayArWGGSAn9ynyuRewBk/LNiQlaSl5bzTB6b33W5uuYTUfjCKvZ+ElaQ==}
+  '@chainflip/rpc@2.1.1':
+    resolution: {integrity: sha512-YS5i+hrZHbIDFEqpn5Yl/msdChihUjXcdsNj51hzGqVAfoQ+uWBCsblp0uLBKdBT3iOVMAmvfz/cPtg/ozuMVw==}
 
   '@chainflip/utils@2.1.2':
     resolution: {integrity: sha512-ujHjiVRdm5AbN5XotoIlVtN7RMmkR7PnrMW/pGhWg+2Yr6vtKyKas/GSRHrX4VGnm7H1j7xKcSuj9GNag60n5A==}
@@ -18249,7 +18264,7 @@ snapshots:
 
   '@chainflip/extrinsics@1.6.2': {}
 
-  '@chainflip/rpc@2.1.2':
+  '@chainflip/rpc@2.1.1':
     dependencies:
       '@chainflip/utils': 2.1.2
       zod: 3.25.76

@@ -76,7 +76,7 @@ export const LendingHeader = () => {
   return (
     <>
       <Display.Mobile>
-        <PageHeader>
+        <PageHeader data-testid='lending-header'>
           <PageHeader.Left>
             <PageBackButton onBack={handleBack} />
           </PageHeader.Left>

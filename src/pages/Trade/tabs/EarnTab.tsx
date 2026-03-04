@@ -109,7 +109,15 @@ export const EarnTab = memo(function EarnTab() {
   )
 
   return (
-    <Main pt={mainPaddingTop} mt={mainMarginTop} px={0} display='flex' flex={1} width='full'>
+    <Main
+      pt={mainPaddingTop}
+      mt={mainMarginTop}
+      px={0}
+      display='flex'
+      flex={1}
+      width='full'
+      data-testid='earn-tab'
+    >
       <Box
         position='relative'
         width='full'

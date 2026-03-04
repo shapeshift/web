@@ -1,14 +1,13 @@
 {
   "name": "@shapeshiftoss/public-api",
   "version": "0.1.0",
-  "packageManager": "yarn@3.5.0",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "yarn clean && yarn run -T tsc --build",
+    "build": "pnpm run clean && pnpm exec tsc --build",
     "build:bundle": "node esbuild.config.mjs",
     "build:smoke-tests": "node esbuild.smoke-tests.mjs",
     "clean": "rm -rf dist",
@@ -31,6 +30,7 @@
     "@types/swagger-ui-express": "^4.1.8",
     "cors": "^2.8.5",
     "express": "^4.21.0",
+    "express-rate-limit": "^7.5.0",
     "uuid": "^9.0.0",
     "yaml": "^2.8.2",
     "zod": "3.23.8"

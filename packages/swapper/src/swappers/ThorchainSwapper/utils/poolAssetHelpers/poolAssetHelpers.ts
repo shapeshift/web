@@ -15,4 +15,4 @@ export const thorPoolAssetIdToAssetId = (id: string): AssetId | undefined =>
   thorPoolIdAssetIdSymbolMap[id.toUpperCase()]
 
 export const assetIdToThorPoolAssetId = ({ assetId }: { assetId: AssetId }): string | undefined =>
-  assetIdToThorPoolAssetIdMap[assetId.toLowerCase()]
+  assetIdToThorPoolAssetIdMap[assetId]

@@ -345,7 +345,7 @@
         "marketCapRank": "Clasificación en capitalización de mercado",
         "volume24h": "Volumen 24 horas",
         "volMcap": "Vol/Cap. M",
-        "about": "Acerca de",
+        "about": "Acerca de %{symbol}",
         "noDescription": "No hay descripción disponible para este activo."
       },
       "receive": {
@@ -1951,7 +1951,7 @@
         "multiChain": {
           "title": "Se admiten varias cadenas simultáneamente",
           "subTitle": "Nunca necesita cambiar cadenas en la billetera, funciona con cada cadena sin problemas.",
-          "body": "Al agregar una nueva cadena a ShapeShift, su billetera ShapeShift la admitirá automáticamente."
+          "body": "Accede a Bitcoin, Ethereum, Solana y muchas más cadenas desde una sola billetera. Intercambia y gestiona tus activos en diferentes redes sin problemas."
         },
         "selfCustody": {
           "title": "Su Billetera ShapeShift es auto-custodia",
@@ -2589,13 +2589,16 @@
         "body": "rFOX término utilizado para describir beneficios y recompensas que recibe al hacer Staking de sus FOX en Arbitrum. Actualmente, bloquea y desbloquea tokens vanilla FOX (en Arbitrum) para emisiones Staking."
       },
       "why": {
-        "title": "¿Por qué hacer Staking de FOX?"
+        "title": "¿Por qué hacer Staking de FOX?",
+        "body": "Hacer staking de tus FOX te permite ganar pagos regulares de USDC del tesoro de la DAO, proporcionando un flujo constante de ingresos pasivos en USDC por época. Además, una parte de los ingresos de la DAO se destinará a reducir el suministro total de FOX mediante quema de tokens. El proceso de staking requiere un período mínimo de 28 días para retirar del staking, fomentando el compromiso y la estabilidad dentro de la comunidad."
       },
       "stake": {
-        "title": "¿Cómo hago Staking FOX?"
+        "title": "¿Cómo hago Staking FOX?",
+        "body": "Para hacer staking de tus FOX, usa la interfaz de staking para bloquear tus tokens FOX en el contrato de staking. Una vez en staking, comienzas a ganar recompensas en USDC por bloque como parte de tus beneficios de staking."
       },
       "unstake": {
-        "title": "¿Qué pasa cuando dejo de hacer Staking?"
+        "title": "¿Qué pasa cuando dejo de hacer Staking?",
+        "body": "Cuando decides retirar del staking, hay un período mínimo de 28 días. Durante este tiempo, tus FOX permanecen bloqueados y dejas de recibir emisiones de USDC. Tras el período de retiro del staking, puedes desbloquear y recuperar tus tokens FOX regulares."
       },
       "cooldown": {
         "title": "¿Cuánto dura el período de recuperación?",
@@ -2606,7 +2609,8 @@
         "body": "Sí, puedes tener múltiples cantidades en recuperación. Cada acción tendrá su propio período de 28 días."
       },
       "connect": {
-        "title": "¿Cómo se relacionan las tarifas totales recaudadas, total Staking FOX, emisiones y cantidad quemado?"
+        "title": "¿Cómo se relacionan las tarifas totales recaudadas, total Staking FOX, emisiones y cantidad quemada?",
+        "body": "Las tarifas recaudadas por la DAO están en activos nativos por swapper. Una parte de estos ingresos se convierte y distribuye a los que tienen FOX en staking como recompensas, mientras que otra parte se destina a reducir el suministro total de FOX mediante quema de tokens. El total de FOX en staking influye en la distribución de recompensas, ya que se distribuyen de forma proporcional según la cantidad de FOX en staking. El pool de emisiones representa la cantidad de FOX disponible para recompensas de staking, y la cantidad de quema de FOX es la porción de FOX comprada y quemada."
       }
     },
     "totals": "rFOX Totales",
@@ -2836,15 +2840,23 @@
     },
     "deposit": {
       "pending": "Su depósito de %{amount} %{symbol} procesando.",
-      "complete": "Su depósito de %{amount} %{symbol} completado."
+      "complete": "Su depósito de %{amount} %{symbol} completado.",
+      "failed": "Su depósito de %{amount} %{symbol} ha fallado."
     },
     "withdrawal": {
       "pending": "Su retiro de %{amount} %{symbol} procesando.",
-      "complete": "Su retiro de %{amount} %{symbol} completado."
+      "complete": "Su retiro de %{amount} %{symbol} completado.",
+      "failed": "Su retiro de %{amount} %{symbol} ha fallado."
     },
     "claim": {
       "pending": "Su reclamo de %{amount} %{symbol} procesando.",
-      "complete": "Su reclamo de %{amount} %{symbol} está completo."
+      "complete": "Su reclamo de %{amount} %{symbol} está completo.",
+      "failed": "Su reclamo de %{amount} %{symbol} ha fallado."
+    },
+    "yield": {
+      "unstakeAvailableIn": "Tu retiro del staking de %{symbol} estará disponible en %{duration}.",
+      "unstakeReady": "Tu retiro del staking de %{symbol} está listo para reclamar.",
+      "unstakeClaimed": "Tu retiro del staking de %{symbol} fue reclamado."
     },
     "bridge": {
       "processing": "Su bridge de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName} se está procesando.",
@@ -2895,8 +2907,7 @@
   "yieldXYZ": {
     "pageTitle": "Rendimientos",
     "pageSubtitle": "Descubra y gestione oportunidades de rendimiento en múltiples cadenas",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Rendimiento",
     "apy": "APY",
     "apr": "APR",
@@ -2988,6 +2999,7 @@
     "providers": "Proveedores",
     "successStaked": "Has staked con éxito %{amount} %{symbol}",
     "successUnstaked": "Has retirado staking exitosamente %{amount} %{symbol}",
+    "cooldownNotice": "Tu retiro estará disponible en %{cooldownDuration}.",
     "successDeposited": "Depositó exitosamente %{amount} %{symbol}",
     "successWithdrawn": "Retiraste exitosamente %{amount} %{symbol}",
     "successClaim": "Reclamaste exitosamente %{amount} %{symbol}",

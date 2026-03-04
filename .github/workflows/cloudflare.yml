@@ -64,21 +64,23 @@ jobs:
       - name: Debug GitHub Context
         env: { CONTENT : "${{ toJson(github) }}" }
         run: "echo $CONTENT"
+      - name: Setup pnpm
+        run: corepack enable && corepack prepare pnpm@10.30.3 --activate
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Cache node_modules
         uses: actions/cache@v4
         with:
           path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: ${{ runner.os }}-node-
-      - name: Yarn Install
-        run: yarn install --immutable
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-node-modules-
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
       - name: Build Web
-        run: MODE=${{ env.BUILD_MODE }} DEPLOY=true VITE_VERSION=${{ env.version }} yarn build:web
+        run: MODE=${{ env.BUILD_MODE }} DEPLOY=true VITE_VERSION=${{ env.version }} pnpm run build:web
       # a poor mans extension of cloudflare/pages-action@1 https://github.com/cloudflare/pages-action/blob/main/src/index.ts
       # passing more params directly to wrangler to control commit hash and message
       # https://developers.cloudflare.com/workers/wrangler/commands/#publish-1

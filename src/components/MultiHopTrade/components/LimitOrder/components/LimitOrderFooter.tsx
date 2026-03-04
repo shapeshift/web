@@ -6,6 +6,7 @@ import {
   MenuItemOption,
   MenuList,
   MenuOptionGroup,
+  Portal,
 } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
 
@@ -102,11 +103,13 @@ export const LimitOrderFooter = () => {
           >
             <Text translation={expiryOptionTranslation} />
           </MenuButton>
-          <MenuList zIndex={modalChildZIndex}>
-            <MenuOptionGroup type='radio' value={expiry} onChange={handleChangeExpiryOption}>
-              {expiryOptions}
-            </MenuOptionGroup>
-          </MenuList>
+          <Portal>
+            <MenuList zIndex={modalChildZIndex}>
+              <MenuOptionGroup type='radio' value={expiry} onChange={handleChangeExpiryOption}>
+                {expiryOptions}
+              </MenuOptionGroup>
+            </MenuList>
+          </Portal>
         </Menu>
       </Row.Value>
     </Row>

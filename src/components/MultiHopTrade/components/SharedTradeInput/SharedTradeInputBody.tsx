@@ -101,8 +101,9 @@ export const SharedTradeInputBody = ({
     onSellAssetChainIdChange,
   ])
 
-  const assetSelectButtonProps = useMemo(() => {
+  const sellAssetSelectButtonProps = useMemo(() => {
     return {
+      'data-testid': 'trade-sell-asset-picker',
       maxWidth: isSmallerThanMd ? '100%' : undefined,
     }
   }, [isSmallerThanMd])
@@ -117,14 +118,14 @@ export const SharedTradeInputBody = ({
         assetFilterPredicate={assetFilterPredicate}
         chainIdFilterPredicate={chainIdFilterPredicate}
         showChainDropdown={!isSmallerThanMd}
-        buttonProps={assetSelectButtonProps}
+        buttonProps={sellAssetSelectButtonProps}
         mb={isSmallerThanMd ? 0 : 4}
       />
     ),
     [
       sellAsset.assetId,
       isSmallerThanMd,
-      assetSelectButtonProps,
+      sellAssetSelectButtonProps,
       handleSellAssetClick,
       setSellAsset,
       assetFilterPredicate,
@@ -149,12 +150,15 @@ export const SharedTradeInputBody = ({
           onChangeAccountId={setSellAccountId}
           onChangeIsInputtingFiatSellAmount={onChangeIsInputtingFiatSellAmount}
           onChangeSellAmountCryptoPrecision={onChangeSellAmountCryptoPrecision}
+          inputDataTestId='trade-sell-amount-input'
+          fiatToggleDataTestId='trade-sell-fiat-toggle'
         />
         <FormDivider
           isDisabled={isSwitchAssetsDisabled}
           isLoading={isLoading}
           mt={2}
           onClick={handleSwitchAssets}
+          data-testid='trade-switch-assets'
         />
         {children}
       </Stack>

@@ -14,7 +14,7 @@ import {
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { PublicKey, TransactionInstruction } from '@solana/web3.js'
+import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js'
 import { TronWeb } from 'tronweb'
 import { v4 as uuid } from 'uuid'
 
@@ -43,6 +43,7 @@ import {
   getNativePrecision,
   getSwapSource,
 } from './index'
+import * as solana from './solana'
 import * as tron from './tron'
 import type {
   ThorEvmTradeQuote,
@@ -56,9 +57,9 @@ import type {
   TradeType,
 } from './types'
 import * as utxo from './utxo'
-import { MEMO_PROGRAM_ID } from './solana/constants'
 
 const SAFE_GAS_LIMIT = '100000' // depositWithExpiry()
+const SOLANA_MEMO_PROGRAM_ID = 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr'
 
 type ThorTradeRateOrQuote = ThorTradeRate | ThorTradeQuote
 type ThorEvmTradeRateOrQuote = ThorEvmTradeRate | ThorEvmTradeQuote
@@ -455,15 +456,25 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
 
           const feeData = await (async (): Promise<QuoteFeeData> => {
             if (!sendAddress) return { networkFeeCryptoBaseUnit: undefined, protocolFees }
+            const { vault } = await solana.getThorTxData({ sellAsset, config, swapperName })
             const memoInstruction = new TransactionInstruction({
               keys: [],
-              programId: new PublicKey(MEMO_PROGRAM_ID),
+              programId: new PublicKey(SOLANA_MEMO_PROGRAM_ID),
               data: Buffer.from(memo, 'utf8'),
             })
+            const transferInstruction = SystemProgram.transfer({
+              fromPubkey: new PublicKey(sendAddress),
+              toPubkey: new PublicKey(vault),
+              lamports: BigInt(sellAmountCryptoBaseUnit),
+            })
             const { fast } = await adapter.getFeeData({
-              to: '',
+              to: vault,
               value: '0',
-              chainSpecific: { from: sendAddress, instructions: [memoInstruction] },
+              chainSpecific: {
+                from: sendAddress,
+                tokenId: contractAddressOrUndefined(sellAsset.assetId),
+                instructions: [memoInstruction, transferInstruction],
+              },
             })
             return { networkFeeCryptoBaseUnit: fast.txFee, protocolFees }
           })()

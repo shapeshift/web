@@ -24,6 +24,42 @@ domain:
     - filter-by-chain
     - toggle-fiat-crypto
 
+steps:
+  - name: Set fiat mode for all exploration inputs
+    instruction: >
+      Run toggle-fiat-crypto first. If the sell input is already in fiat mode
+      (shows a $ placeholder), keep it unchanged. Keep fiat mode enabled for the
+      rest of this fixture.
+    expected: Fiat mode is enabled before any amount entry
+    screenshot: true
+  - name: Explore sell and buy asset switching
+    instruction: >
+      Run switch-assets and rotate through multiple sell/buy combinations on /trade.
+      Include at least one same-asset attempt to validate error handling.
+      Keep notional size <= $1 and do not confirm.
+    expected: Asset switching works and validation appears for invalid pairings
+    screenshot: true
+  - name: Filter by chain and search obscure assets
+    instruction: >
+      Run filter-by-chain, then search-assets in each selected chain view.
+      Try both common tokens and low-liquidity/obscure tokens. Capture any empty,
+      frozen, or misrendered search/filter states as findings.
+    expected: Chain filter and search update results without UI breakage
+    screenshot: true
+  - name: Change amounts across edge cases
+    instruction: >
+      Run change-amounts using $0, very small values, very large values, and rapid
+      amount edits while quotes are loading. Never exceed $1 per action.
+    expected: Amount changes are handled with stable validation and no infinite loading
+    screenshot: true
+  - name: Preview trade and stop before confirmation
+    instruction: >
+      Run preview-trade for valid quotes only. Stop at preview/confirm screen and do
+      not execute. Record findings for failed quotes, long quote loading (>30s),
+      incorrect fee/rate displays, and visible UI glitches.
+    expected: Preview opens when quote is valid; no trade confirmation is executed
+    screenshot: true
+
 constraints:
   - Never spend more than $1 per action
   - Never approve token spending above $5

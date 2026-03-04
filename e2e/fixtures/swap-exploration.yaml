@@ -58,6 +58,57 @@ domain:
     - sign-swap
     - toggle-fiat-crypto
 
+steps:
+  - name: Initialize swap session in fiat mode
+    instruction: >
+      Start on /trade and run toggle-fiat-crypto so all entered amounts are in USD.
+      Keep fiat mode enabled for the entire run. Initialize downside tracking at $0.
+    expected: Fiat mode active and cumulative downside tracker initialized
+    screenshot: true
+  - name: Select sell and buy assets across chains
+    instruction: >
+      Run switch-sell-asset and switch-buy-asset to create diverse pairs across
+      first-class EVM chains plus Solana, Cosmos Hub, THORChain, and Mayachain.
+      Use filter-by-chain and search-assets between selections to broaden coverage.
+    expected: Diverse same-chain and cross-chain pairs are selected successfully
+    screenshot: true
+  - name: Validate balance and per-swap budget before quote
+    instruction: >
+      Before each quote, check available sell balance and cap swap size to <= $10.
+      If balance is insufficient, log a finding and switch to another pair instead
+      of forcing the trade.
+    expected: No quote attempt exceeds wallet balance or $10 notional
+    screenshot: true
+  - name: Quote and preview candidate swap
+    instruction: >
+      Run change-amounts and preview-trade. Wait for quote state to settle and
+      capture quote failures, stuck loading, or malformed route details as findings.
+      If price impact is greater than 5%, log the finding and skip execution.
+    expected: Valid quotes can be previewed; >5% impact routes are skipped and reported
+    screenshot: true
+  - name: Confirm and sign eligible swaps only
+    instruction: >
+      For swaps that pass checks, run confirm-trade then sign-swap. If signing or
+      broadcast fails, record the failure and continue exploring other pairs.
+      Report swaps taking longer than 120s as slow swaps.
+    expected: Eligible swaps execute, and failures/slow swaps are recorded
+    screenshot: true
+  - name: Enforce cumulative downside guardrail
+    instruction: >
+      After each completed swap, estimate downside (fees + gas + slippage/impact)
+      and update cumulative downside. If cumulative downside reaches $4, reduce
+      notional to $1-$2. If cumulative downside reaches or exceeds $5, stop all
+      further swap executions and continue UI-only exploration.
+    expected: Swap execution halts once cumulative downside is >= $5
+    screenshot: true
+  - name: Continuous findings capture
+    instruction: >
+      Throughout execution, document findings for broken quotes, failed broadcasts,
+      infinite loading, route errors, and UI rendering glitches. Include pair,
+      chain context, and reproduction notes for each finding.
+    expected: Findings list includes actionable details for each discovered issue
+    screenshot: true
+
 constraints:
   - Maximum $10 per individual swap
   - Maximum $5 cumulative downside (fees + gas + slippage) across all swaps

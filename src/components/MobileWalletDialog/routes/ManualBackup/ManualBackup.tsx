@@ -141,7 +141,13 @@ export const ManualBackup = ({ showContinueButton = true }: ManualBackupProps) =
             <CText color='text.subtle'>{translate('walletProvider.manualBackup.subHeader')}</CText>
           </Box>
 
-          <Box bg={bgColor} borderRadius='xl' p={4} width='full' data-qabot-forbidden='seed-phrase-exposure'>
+          <Box
+            bg={bgColor}
+            borderRadius='xl'
+            p={4}
+            width='full'
+            data-qabot-forbidden='seed-phrase-exposure'
+          >
             <SimpleGrid columns={2} spacing={2}>
               {wordsButtonList}
             </SimpleGrid>

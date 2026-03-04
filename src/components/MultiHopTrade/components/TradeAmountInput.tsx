@@ -294,8 +294,8 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               isFiat
                 ? fiatAmount && !bnOrZero(fiatAmount).isZero()
                   ? fiatAmount
-                  : undefined
-                : formattedCryptoAmount || undefined
+                  : ''
+                : formattedCryptoAmount || ''
             }
             // this is already within a useCallback, we don't need to memo this
             onValueChange={(values: NumberFormatValues) => {

@@ -90,6 +90,27 @@ On first visit to any origin (gome.shapeshift.com, release.shapeshift.com, etc.)
 
 **IMPORTANT**: Always use the `qabot` profile. The native wallet is stored in this profile's IndexedDB per-origin.
 
+Use a shell-scoped command alias at session start to reduce command noise:
+
+```bash
+AB='agent-browser --session qabot --profile ~/.agent-browser/profiles/qabot'
+```
+
+Then use `$AB` for all commands in that shell session:
+
+```bash
+$AB open <url>
+$AB snapshot
+$AB click "Connect Wallet"
+$AB screenshot /tmp/step-0.png
+```
+
+When you need a headed run, append `--headed` only for that command:
+
+```bash
+$AB --headed open <url>
+```
+
 ```bash
 agent-browser --session qabot --profile ~/.agent-browser/profiles/qabot open <url>
 ```
@@ -126,6 +147,19 @@ The native wallet requires a password on each session start. The wallet-health f
 6. Click "Next" via JS eval:
    `eval "$(cat /tmp/click-next.js)"`
 7. Wait 8+ seconds for external origins to fully hydrate
+
+### PR Review Reliability Checklist (localhost)
+
+When using qabot for PR review validation on localhost:
+
+1. Follow PR `Testing` steps verbatim before adding extra assertions.
+2. Do a manual-first pass with `agent-browser` in the same live session:
+   - reach exact page/state
+   - confirm account/wallet assumptions
+   - validate selectors and click-path before reporting
+3. Keep wallet setup as preflight only (never as reported qabot steps), but ensure required preconditions are visible before step 1 (e.g. `Send` button).
+4. Only after manual flow is stable, create/report qabot run steps.
+5. If automation friction is selector-related, add/ask for precise `data-testid` at the failing UI control.
 
 ### Tips
 

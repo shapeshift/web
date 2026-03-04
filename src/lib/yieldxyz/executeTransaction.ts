@@ -5,6 +5,7 @@ import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { SignTx } from '@shapeshiftoss/chain-adapters'
 import { CONTRACT_INTERACTION, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
 import {
@@ -182,8 +183,10 @@ const executeEvmTransaction = async ({
     addressNList,
   }
 
+  const walletSupportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
+
   const txToSign: SignTx<EvmChainId> =
-    parsed.maxFeePerGas || parsed.maxPriorityFeePerGas
+    (parsed.maxFeePerGas || parsed.maxPriorityFeePerGas) && walletSupportsEIP1559
       ? {
           ...baseTxToSign,
           maxFeePerGas: toHexOrDefault(parsed.maxFeePerGas, '0x0'),
@@ -191,7 +194,7 @@ const executeEvmTransaction = async ({
         }
       : {
           ...baseTxToSign,
-          gasPrice: toHexOrDefault(parsed.gasPrice ?? '0', '0x0'),
+          gasPrice: toHexOrDefault(parsed.gasPrice ?? parsed.maxFeePerGas ?? '0', '0x0'),
         }
 
   const txHash = await evmSignAndBroadcast({

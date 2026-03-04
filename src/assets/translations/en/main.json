@@ -69,6 +69,7 @@
     "rename": "Rename",
     "forget": "Forget?",
     "pending": "Pending",
+    "current": "Current",
     "preview": "Preview",
     "incomplete": "Incomplete",
     "available": "Available",
@@ -1389,7 +1390,9 @@
         "description": "Increase the fee to speed up your pending Bitcoin transaction.",
         "currentFee": "Current Fee",
         "currentFeeRate": "Current Fee Rate",
+        "previousFee": "Previous Fee",
         "newFee": "New Fee",
+        "additionalFee": "Additional Fee",
         "newFeeRate": "New Fee Rate",
         "feeDifference": "Additional Fee",
         "confirm": "Confirm Speed Up",
@@ -1403,7 +1406,10 @@
         "canceling": "Canceling transaction...",
         "fetchError": "Failed to fetch transaction data",
         "feesTooLow": "Current fees are already at network rates",
-        "speedUpFailed": "Failed to speed up transaction"
+        "alreadySpentOrReplaced": "This transaction can no longer be sped up because it was already replaced or confirmed.",
+        "alreadyConfirmed": "This transaction is already confirmed and can no longer be sped up.",
+        "speedUpFailed": "Failed to speed up transaction",
+        "broadcastNotObserved": "Replacement transaction broadcast was not observed by the network yet. Please try again."
       }
     },
     "receive": {
@@ -3141,6 +3147,8 @@
   "actionCenter": {
     "title": "Notifications",
     "viewTransaction": "View Transaction",
+    "originalTransaction": "Original Transaction",
+    "replacementTransaction": "Replacement Transaction",
     "viewOrder": "View Order",
     "cancelOrder": "Cancel Order",
     "pair": "Pair",
@@ -3157,6 +3165,7 @@
       "confirmed": "Confirmed",
       "failed": "Failed",
       "pending": "Pending",
+      "replaced": "Replaced",
       "claimAvailable": "Claim Available",
       "claimed": "Claimed",
       "unknown": "Unknown",

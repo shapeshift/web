@@ -72,7 +72,7 @@ export const useSendActionSubscriber = () => {
           dispatch(
             actionSlice.actions.upsertAction({
               ...originalAction,
-              status: ActionStatus.Complete,
+              status: ActionStatus.Replaced,
               updatedAt: Date.now(),
               transactionMetadata: {
                 ...originalAction.transactionMetadata,

@@ -65,6 +65,8 @@ export const GenericTransactionNotification = ({
     const {
       confirmedQuote: _confirmedQuote,
       accountIdsToRefetch: _accountIdsToRefetch,
+      isRbfEnabled: _isRbfEnabled,
+      btcUtxoRbfTxMetadata: _btcUtxoRbfTxMetadata,
       ...serializableMetadata
     } = action.transactionMetadata
     return [

@@ -295,7 +295,6 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       if (!satoshiPerByte) throw new Error('satoshiPerByte is required')
 
       this.assertIsAccountTypeSupported(accountType)
-
       const utxos = await this.providers.http.getUtxos({ pubkey: xpub })
 
       const coinSelectResult = utxoSelect({
@@ -378,7 +377,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
           txid: input.txid,
           hex: data.hex,
           // BIP-125: Opt-in RBF for Bitcoin transactions (sequence < 0xffffffff signals replaceability)
-          ...(this.chainId === KnownChainIds.BitcoinMainnet && { sequence: 0xfffffffe }),
+          ...(this.chainId === KnownChainIds.BitcoinMainnet && { sequence: 0xfffffffd }),
           // For Zcash, we need to pass the blockHeight and txid of each input transaction
           // so Ledger can add them to the PSBT and determine the correct consensus branch ID.
           // Only pass blockHeight if it's a valid positive number (mempool txs have blockHeight: -1)

@@ -87,6 +87,6 @@ describe('getAffiliateBps', () => {
   })
 
   it('should return default fee for unrelated assets', () => {
-    expect(getAffiliateBps(ethAsset, btcAsset)).toBe('55')
+    expect(getAffiliateBps(ethAsset, btcAsset)).toBe('60')
   })
 })

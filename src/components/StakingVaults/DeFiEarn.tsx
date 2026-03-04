@@ -109,7 +109,7 @@ export const DeFiEarn = memo(
     const isTableLoading = isYieldXyzEnabled ? isYieldLoading : isOpportunitiesLoading
 
     return (
-      <Flex width='full' flexDir='column' gap={6}>
+      <Flex width='full' flexDir='column' gap={6} data-test='defi-earn-container'>
         <Flex
           justifyContent='space-between'
           alignItems='center'

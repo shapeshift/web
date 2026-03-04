@@ -1,5 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -20,8 +21,7 @@ import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { usePoll } from '@/hooks/usePoll/usePoll'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fromBaseUnit } from '@/lib/math'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
@@ -99,8 +99,8 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
       await poll({
         fn: () => allowance(),
         validate: (result: string) => {
-          const allowance = bn(fromBaseUnit(result, asset.precision))
-          return allowance.gte(bnOrZero(state?.deposit.cryptoAmount))
+          const allowance = BigAmount.fromBaseUnit({ value: result, precision: asset.precision })
+          return allowance.gte(state?.deposit.cryptoAmount)
         },
         interval: 15000,
         maxAttempts: 30,
@@ -113,10 +113,10 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
       dispatch({
         type: FoxFarmingDepositActionType.SET_DEPOSIT,
         payload: {
-          estimatedGasCryptoPrecision: fromBaseUnit(
-            fees.networkFeeCryptoBaseUnit,
-            feeAsset.precision,
-          ),
+          estimatedGasCryptoPrecision: BigAmount.fromBaseUnit({
+            value: fees.networkFeeCryptoBaseUnit,
+            precision: feeAsset.precision,
+          }).toPrecision(),
         },
       })
 

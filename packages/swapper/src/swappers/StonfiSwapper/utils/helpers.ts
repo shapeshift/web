@@ -113,6 +113,20 @@ export const slippageDecimalToBps = (
   return Math.round(parsed * 10000)
 }
 
+export const tonAddressToOmnistonAddress = (address: string): OmnistonAssetAddress => {
+  return {
+    blockchain: Blockchain.TON,
+    address,
+  }
+}
+
+export const affiliateBpsToNumber = (affiliateBps: string | undefined): number => {
+  if (!affiliateBps) return 0
+  const parsed = parseInt(affiliateBps, 10)
+  if (Number.isNaN(parsed) || !Number.isFinite(parsed) || parsed < 0) return 0
+  return parsed
+}
+
 export const waitForQuote = (
   omniston: Omniston,
   request: QuoteRequest,

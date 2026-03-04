@@ -1,0 +1,32 @@
+name: Chainflip Lending Revamp UI
+description: Validates the revamped Chainflip lending surfaces for USDC pool and key action modals.
+route: /chainflip-lending
+steps:
+  - name: Chainflip lending dashboard
+    instruction: Open the chainflip lending dashboard and ensure the refreshed layout is visible.
+    expected: Chainflip lending dashboard cards and market tables are visible.
+    screenshot: true
+  - name: Open usdc pool
+    instruction: Navigate into the USDC pool from the All Markets table.
+    expected: USDC pool page is visible with action tabs.
+    screenshot: true
+  - name: Supply modal
+    instruction: Open Supply action and verify supply input controls.
+    expected: Supply modal is open with amount input, max and submit controls.
+    screenshot: true
+  - name: Deposit and egress modal
+    instruction: Open Deposit to Chainflip tab and open Withdraw modal.
+    expected: Egress modal is open with destination toggle and amount controls.
+    screenshot: true
+  - name: Collateral modal ltv gauge
+    instruction: Open Collateral tab and open Add Collateral modal.
+    expected: LTV gauge shows target, soft liquidation and hard liquidation labels without overlap.
+    screenshot: true
+  - name: Borrow modal
+    instruction: Open Manage Loan tab and open Borrow modal.
+    expected: Borrow modal is open with amount input and target LTV section.
+    screenshot: true
+  - name: Repay modal
+    instruction: Open Repay modal from Manage Loan tab.
+    expected: Repay modal is open with full repayment toggle and amount controls.
+    screenshot: true

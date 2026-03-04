@@ -391,10 +391,14 @@ export const YieldAssetDetails = memo(() => {
   const handleYieldClick = useCallback(
     (yieldId: string) => {
       const validator = getDefaultValidatorForYield(yieldId)
-      const url = validator ? `/yield/${yieldId}?validator=${validator}` : `/yield/${yieldId}`
+      const params = new URLSearchParams()
+      if (validator) params.set('validator', validator)
+      if (selectedAccountId) params.set('accountId', selectedAccountId)
+      const queryString = params.toString()
+      const url = queryString ? `/yield/${yieldId}?${queryString}` : `/yield/${yieldId}`
       navigate(url)
     },
-    [navigate],
+    [navigate, selectedAccountId],
   )
 
   const handleRowClick = useCallback(
@@ -540,12 +544,18 @@ export const YieldAssetDetails = memo(() => {
   ])
 
   return (
-    <Container maxW='1200px' py={{ base: 4, md: 8 }} px={{ base: 4, md: 6 }}>
+    <Container
+      maxW='1200px'
+      py={{ base: 4, md: 8 }}
+      px={{ base: 4, md: 6 }}
+      data-testid='yield-asset-details-page'
+    >
       <Button
         leftIcon={<ArrowBackIcon />}
         variant='ghost'
         onClick={() => navigate('/yields')}
         mb={6}
+        data-testid='yield-asset-details-back-button'
       >
         {translate('common.back')}
       </Button>

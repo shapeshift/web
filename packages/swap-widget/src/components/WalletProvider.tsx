@@ -7,6 +7,7 @@ import type { Config } from 'wagmi'
 import { useWalletClient, WagmiProvider } from 'wagmi'
 
 import { getWagmiAdapter, initializeAppKit } from '../config/appkit'
+import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { truncateAddress } from '../types'
 
 const queryClient = new QueryClient()
@@ -54,7 +55,11 @@ export const InternalWalletProvider = ({ projectId, children }: InternalWalletPr
 
 export const ConnectWalletButton = () => {
   const { open } = useAppKit()
-  const { address, isConnected } = useAppKitAccount()
+  const { address: appKitAddress, isConnected: appKitConnected } = useAppKitAccount()
+  const { walletAddress } = useSwapWallet()
+
+  const connectedAddress = walletAddress ?? appKitAddress
+  const isConnected = !!walletAddress || appKitConnected
 
   const handleClick = useCallback(() => {
     open()
@@ -81,7 +86,7 @@ export const ConnectWalletButton = () => {
 
   return (
     <button onClick={handleClick} type='button' className='ssw-connect-btn ssw-connected'>
-      {address ? truncateAddress(address) : 'Connected'}
+      {connectedAddress ? truncateAddress(connectedAddress) : 'Connected'}
     </button>
   )
 }

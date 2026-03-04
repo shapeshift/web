@@ -28,8 +28,8 @@ import { vibrate } from '@/lib/vibrate'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
-  selectCryptoHumanBalanceFilter,
   selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioCryptoBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
@@ -85,9 +85,9 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
 
   const opportunitiesFilter = useMemo(() => ({ assetId, accountId }), [assetId, accountId])
 
-  const cryptoHumanBalance = useAppSelector(s =>
-    selectCryptoHumanBalanceFilter(s, opportunitiesFilter),
-  )
+  const cryptoPrecisionBalance = useAppSelector(s =>
+    selectPortfolioCryptoBalanceByFilter(s, opportunitiesFilter),
+  ).toPrecision()
 
   const priceContent = useMemo(() => {
     if (!marketData)
@@ -121,7 +121,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
           <RawText color='text.subtle'>
             {asset?.symbol} {translate('assets.assetDetails.assetHeader.price')}
           </RawText>
-          <Heading fontSize='4xl' lineHeight={1} mb={2}>
+          <Heading fontSize='4xl' lineHeight={1} mb={2} data-testid='asset-chart-price'>
             <Skeleton isLoaded={isLoaded}>{priceContent}</Skeleton>
           </Heading>
           <Skeleton isLoaded={isLoaded}>
@@ -164,7 +164,7 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
         <AssetActions
           assetId={assetId}
           accountId={accountId}
-          cryptoBalance={cryptoHumanBalance}
+          cryptoBalance={cryptoPrecisionBalance}
           isMobile
         />
       </Flex>

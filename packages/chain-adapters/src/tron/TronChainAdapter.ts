@@ -729,7 +729,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         const fromAddress = tronWeb.address.fromHex('41' + log.topics[1].slice(-40))
         const toAddress = tronWeb.address.fromHex('41' + log.topics[2].slice(-40))
 
-        if (fromAddress === ZERO_ADDRESS || toAddress === ZERO_ADDRESS) continue
+        // Skip mints (from zero address) but allow burns (to zero address) — a burn is a valid
+        // deduction e.g. unstaking sTRX burns the token on behalf of the user
+        // https://tronscan.org/#/transaction/1aac271797fe4344ff71f33368085073ea22e560815794811f7336120736d77c
+        if (fromAddress === ZERO_ADDRESS) continue
 
         if (fromAddress === toAddress) continue
 

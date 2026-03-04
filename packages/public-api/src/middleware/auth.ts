@@ -1,83 +1,30 @@
-import crypto from 'crypto'
 import type { NextFunction, Request, Response } from 'express'
 
-import { STATIC_API_KEYS } from '../config'
-import type { ErrorResponse, PartnerConfig } from '../types'
+import type { ErrorResponse } from '../types'
 
-// Hash an API key for comparison (in production, keys would be stored hashed)
-const hashApiKey = (key: string): string => {
-  return crypto.createHash('sha256').update(key).digest('hex')
-}
+const EVM_ADDRESS_REGEX = /^0x[0-9a-fA-F]{40}$/
 
-// API key authentication middleware
-export const apiKeyAuth = (req: Request, res: Response, next: NextFunction): void => {
-  const apiKey = req.header('X-API-Key')
+// Affiliate address middleware - attaches affiliate info if a valid address is provided
+// The API works without an affiliate address (anonymous access)
+export const affiliateAddress = (req: Request, res: Response, next: NextFunction): void => {
+  const address = req.header('X-Affiliate-Address')
 
-  if (!apiKey) {
-    const errorResponse: ErrorResponse = {
-      error: 'API key required',
-      code: 'MISSING_API_KEY',
-    }
-    res.status(401).json(errorResponse)
+  if (!address) {
+    next()
     return
   }
 
-  // Look up the partner by API key
-  // In production, this would query a database
-  const partnerInfo = STATIC_API_KEYS[apiKey]
-
-  if (!partnerInfo) {
+  if (!EVM_ADDRESS_REGEX.test(address)) {
     const errorResponse: ErrorResponse = {
-      error: 'Invalid API key',
-      code: 'INVALID_API_KEY',
+      error:
+        'Invalid affiliate address format. Must be a valid EVM address (0x followed by 40 hex characters).',
+      code: 'INVALID_AFFILIATE_ADDRESS',
     }
-    res.status(401).json(errorResponse)
+    res.status(400).json(errorResponse)
     return
   }
 
-  // Attach partner info to request
-  const partner: PartnerConfig = {
-    id: hashApiKey(apiKey).substring(0, 16), // Use hash prefix as ID
-    apiKeyHash: hashApiKey(apiKey),
-    name: partnerInfo.name,
-    feeSharePercentage: partnerInfo.feeSharePercentage,
-    status: 'active',
-    rateLimit: {
-      requestsPerMinute: 60,
-      requestsPerDay: 10000,
-    },
-    createdAt: new Date(),
-  }
-
-  req.partner = partner
-
-  next()
-}
-
-// Optional auth - allows unauthenticated requests but attaches partner info if present
-export const optionalApiKeyAuth = (req: Request, _res: Response, next: NextFunction): void => {
-  const apiKey = req.header('X-API-Key')
-
-  if (apiKey) {
-    const partnerInfo = STATIC_API_KEYS[apiKey]
-
-    if (partnerInfo) {
-      const partner: PartnerConfig = {
-        id: hashApiKey(apiKey).substring(0, 16),
-        apiKeyHash: hashApiKey(apiKey),
-        name: partnerInfo.name,
-        feeSharePercentage: partnerInfo.feeSharePercentage,
-        status: 'active',
-        rateLimit: {
-          requestsPerMinute: 60,
-          requestsPerDay: 10000,
-        },
-        createdAt: new Date(),
-      }
-
-      req.partner = partner
-    }
-  }
+  req.affiliateInfo = { affiliateAddress: address }
 
   next()
 }

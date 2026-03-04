@@ -47,6 +47,7 @@ export const GlobalSearchButton = memo(({ isIconButton = false }: GlobalSearchBu
           variant='ghost'
           aria-label={translate('common.search')}
           onClick={onOpen}
+          data-testid='global-search-button'
         />
       ) : (
         <Box width={widthProp}>
@@ -55,6 +56,7 @@ export const GlobalSearchButton = memo(({ isIconButton = false }: GlobalSearchBu
             icon={searchIcon}
             aria-label={translate('common.search')}
             onClick={onOpen}
+            data-testid='global-search-button'
           />
           <Button
             width='full'

@@ -1,4 +1,5 @@
 import { Flex } from '@chakra-ui/react'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Route, Routes, useMatch, useNavigate } from 'react-router-dom'
 
@@ -13,7 +14,6 @@ import { LimitOrderRoutePaths } from './types'
 
 import type { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import { fromBaseUnit } from '@/lib/math'
 import { LIMIT_ORDER_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import type { LimitPriceMode, PriceDirection } from '@/state/slices/limitOrderInputSlice/constants'
@@ -103,11 +103,11 @@ export const LimitOrder = ({
     }
 
     if (sellAmountCryptoBaseUnit && routeSellAsset) {
-      dispatch(
-        limitOrderInput.actions.setSellAmountCryptoPrecision(
-          fromBaseUnit(sellAmountCryptoBaseUnit, routeSellAsset.precision),
-        ),
-      )
+      const sellAmountCrypto = BigAmount.fromBaseUnit({
+        value: sellAmountCryptoBaseUnit,
+        precision: routeSellAsset.precision,
+      })
+      dispatch(limitOrderInput.actions.setSellAmountCryptoPrecision(sellAmountCrypto.toPrecision()))
     }
 
     if (routeLimitPriceDirection) {

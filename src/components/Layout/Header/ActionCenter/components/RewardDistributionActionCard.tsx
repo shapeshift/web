@@ -4,7 +4,7 @@ import {
   uniV2EthFoxArbitrumAssetId,
   usdcOnArbitrumOneAssetId,
 } from '@shapeshiftoss/caip'
-import { fromBaseUnit } from '@shapeshiftoss/utils'
+import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -54,8 +54,11 @@ export const RewardDistributionActionCard = ({ action }: RewardDistributionActio
     return {
       amountAndSymbol: (
         <Amount.Crypto
-          value={fromBaseUnit(distribution.amount.toString(), asset.precision)}
-          symbol={asset.symbol}
+          value={BigAmount.fromBaseUnit({
+            value: distribution.amount.toString(),
+            precision: asset.precision ?? 0,
+          }).toPrecision()}
+          symbol={asset?.symbol}
           fontSize='sm'
           fontWeight='bold'
           maximumFractionDigits={6}

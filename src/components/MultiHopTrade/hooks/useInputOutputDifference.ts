@@ -1,6 +1,6 @@
 import type { SupportedTradeQuoteStepIndex, TradeQuote, TradeRate } from '@shapeshiftoss/swapper'
 import { getHopByIndex } from '@shapeshiftoss/swapper'
-import { bn, bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
+import { BigAmount, bn, bnOrZero } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
 
 import { selectUsdRateByAssetId } from '@/state/slices/selectors'
@@ -29,10 +29,10 @@ export const useInputOutputDifferenceDecimalPercentage = (
     const sellAmountIncludingProtocolFeesCryptoBaseUnit =
       firstHop?.sellAmountIncludingProtocolFeesCryptoBaseUnit
 
-    const sellAmountIncludingProtocolFeesCryptoPrecision = fromBaseUnit(
-      sellAmountIncludingProtocolFeesCryptoBaseUnit ?? '0',
-      sellAsset.precision,
-    )
+    const sellAmountIncludingProtocolFeesCryptoPrecision = BigAmount.fromBaseUnit({
+      value: sellAmountIncludingProtocolFeesCryptoBaseUnit ?? '0',
+      precision: sellAsset.precision,
+    }).toPrecision()
 
     return bn(sellAmountIncludingProtocolFeesCryptoPrecision).times(sellAssetUsdRate).toFixed()
   }, [sellAsset, sellAssetUsdRate, tradeQuote])
@@ -45,10 +45,10 @@ export const useInputOutputDifferenceDecimalPercentage = (
     const lastHop = getHopByIndex(tradeQuote, lastHopIndex)
     const buyAmountAfterProtocolFeesCryptoBaseUnit = lastHop?.buyAmountAfterFeesCryptoBaseUnit
 
-    const buyAmountAfterProtocolFeesCryptoPrecision = fromBaseUnit(
-      buyAmountAfterProtocolFeesCryptoBaseUnit ?? '0',
-      buyAsset.precision,
-    )
+    const buyAmountAfterProtocolFeesCryptoPrecision = BigAmount.fromBaseUnit({
+      value: buyAmountAfterProtocolFeesCryptoBaseUnit ?? '0',
+      precision: buyAsset.precision,
+    }).toPrecision()
 
     return bn(buyAmountAfterProtocolFeesCryptoPrecision).times(buyAssetUsdRate).toFixed()
   }, [buyAsset, buyAssetUsdRate, numSteps, tradeQuote])

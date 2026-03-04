@@ -1,12 +1,12 @@
 import { fromAccountId, thorchainChainId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TransferType } from '@shapeshiftoss/unchained-client'
+import { BigAmount } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
-import { fromBaseUnit } from '@/lib/math'
 import { selectTxByFilter } from '@/state/slices/selectors'
 import { selectSwapById } from '@/state/slices/swapSlice/selectors'
 import { useAppSelector } from '@/state/store'
@@ -31,13 +31,13 @@ export const useActualBuyAmountCryptoPrecision = (
   const { data: secondClassChainActualBuyAmount } = useQuery({
     queryKey: ['secondClassChainExecutionPrice', swap?.buyTxHash, swap?.buyAsset?.chainId],
     queryFn: async () => {
-      if (!swap?.buyTxHash || !swap?.buyAsset || !swap?.buyAccountId) return undefined
+      if (!swap?.buyTxHash || !swap?.buyAsset || !swap?.buyAccountId) return null
 
       try {
         const chainAdapterManager = getChainAdapterManager()
         const adapter = chainAdapterManager.get(swap.buyAsset.chainId)
 
-        if (!adapter) return undefined
+        if (!adapter) return null
 
         const { account: address } = fromAccountId(swap.buyAccountId)
         const parsedTx = await adapter.parseTx(swap.buyTxHash, address)
@@ -47,9 +47,9 @@ export const useActualBuyAmountCryptoPrecision = (
             transfer.type === TransferType.Receive && transfer.assetId === swap.buyAsset.assetId,
         )
 
-        return receiveTransfer?.value
+        return receiveTransfer?.value ?? null
       } catch (error) {
-        return undefined
+        return null
       }
     },
     enabled: Boolean(
@@ -64,11 +64,17 @@ export const useActualBuyAmountCryptoPrecision = (
 
   const actualBuyAmountCryptoPrecision = useMemo(() => {
     if (swap?.actualBuyAmountCryptoBaseUnit && swap?.buyAsset) {
-      return fromBaseUnit(swap.actualBuyAmountCryptoBaseUnit, swap.buyAsset.precision)
+      return BigAmount.fromBaseUnit({
+        value: swap.actualBuyAmountCryptoBaseUnit,
+        precision: swap.buyAsset.precision,
+      }).toPrecision()
     }
 
     if (secondClassChainActualBuyAmount && swap?.buyAsset) {
-      return fromBaseUnit(secondClassChainActualBuyAmount, swap.buyAsset.precision)
+      return BigAmount.fromBaseUnit({
+        value: secondClassChainActualBuyAmount,
+        precision: swap.buyAsset.precision,
+      }).toPrecision()
     }
 
     if (!tx?.transfers?.length || !swap?.buyAsset) return undefined
@@ -77,10 +83,12 @@ export const useActualBuyAmountCryptoPrecision = (
       transfer =>
         transfer.type === TransferType.Receive && transfer.assetId === swap.buyAsset.assetId,
     )
+    if (!receiveTransfer?.value) return undefined
 
-    return receiveTransfer?.value
-      ? fromBaseUnit(receiveTransfer.value, swap.buyAsset.precision)
-      : undefined
+    return BigAmount.fromBaseUnit({
+      value: receiveTransfer.value,
+      precision: swap.buyAsset.precision,
+    }).toPrecision()
   }, [tx, swap, secondClassChainActualBuyAmount])
 
   return actualBuyAmountCryptoPrecision

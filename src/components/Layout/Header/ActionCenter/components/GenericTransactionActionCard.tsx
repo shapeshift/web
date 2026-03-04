@@ -1,23 +1,25 @@
 import { Button, ButtonGroup, Link, Stack, useDisclosure } from '@chakra-ui/react'
-import { btcChainId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
+import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router'
 
 import { ActionCard } from './ActionCard'
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
-import { SpeedUpModal } from './SpeedUpModal'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
+import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { getTxLink } from '@/lib/getTxLink'
 import { middleEllipsis } from '@/lib/utils'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus } from '@/state/slices/actionSlice/types'
+import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/assetsSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
+dayjs.extend(duration)
 dayjs.extend(relativeTime)
 
 type GenericTransactionActionCardProps = {
@@ -26,11 +28,31 @@ type GenericTransactionActionCardProps = {
 
 export const GenericTransactionActionCard = ({ action }: GenericTransactionActionCardProps) => {
   const translate = useTranslate()
+  const navigate = useNavigate()
+  const { closeDrawer } = useActionCenterContext()
   const feeAsset = useAppSelector(state =>
     selectFeeAssetByChainId(state, action.transactionMetadata.chainId),
   )
   const asset = useAppSelector(state =>
     selectAssetById(state, action.transactionMetadata.assetId ?? ''),
+  )
+
+  const isYieldClaim = useMemo(
+    () =>
+      action.transactionMetadata.displayType === GenericTransactionDisplayType.Claim &&
+      !!action.transactionMetadata.yieldId,
+    [action.transactionMetadata.displayType, action.transactionMetadata.yieldId],
+  )
+
+  const handleClaimClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      closeDrawer()
+      if (action.transactionMetadata.yieldId) {
+        navigate(`/yield/${action.transactionMetadata.yieldId}`)
+      }
+    },
+    [closeDrawer, navigate, action.transactionMetadata.yieldId],
   )
 
   const formattedDate = useMemo(() => {
@@ -56,20 +78,7 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
     })
   }, [action.transactionMetadata.txHash, action.transactionMetadata.chainId, feeAsset])
 
-  const isRbfEligible =
-    action.status === ActionStatus.Pending &&
-    action.transactionMetadata.chainId === btcChainId &&
-    action.transactionMetadata.replacedByTxHash === undefined
-
-  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: isRbfEligible })
-
-  const [isSpeedUpModalOpen, setIsSpeedUpModalOpen] = useState(false)
-  const handleCloseSpeedUpModal = useCallback(() => setIsSpeedUpModalOpen(false), [])
-  const handleSpeedUpClick = useCallback((e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsSpeedUpModalOpen(true)
-  }, [])
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false })
 
   const icon = useMemo(() => {
     return (
@@ -83,50 +92,63 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
     return <ActionStatusTag status={action.status} />
   }, [action.status])
 
-  return (
-    <>
-      <ActionCard
-        formattedDate={formattedDate}
-        isCollapsable={!!txLink || isRbfEligible}
-        isOpen={isOpen}
-        type={action.type}
-        displayType={action.transactionMetadata.displayType}
-        description={translate(action.transactionMetadata.message, {
-          ...action.transactionMetadata,
-          amount: action.transactionMetadata.amountCryptoPrecision,
-          symbol: asset?.symbol,
-          newAddress: middleEllipsis(action.transactionMetadata.newAddress ?? ''),
-        })}
-        icon={icon}
-        footer={footer}
-        onToggle={onToggle}
-      >
+  const cooldownExpiryTimestamp = action.transactionMetadata.cooldownExpiryTimestamp
+  const cooldownDuration = useMemo(() => {
+    if (!cooldownExpiryTimestamp) return undefined
+    const remaining = cooldownExpiryTimestamp - Date.now()
+    if (remaining <= 0) return undefined
+    return dayjs.duration(remaining).humanize()
+  }, [cooldownExpiryTimestamp])
+
+  const description = useMemo(
+    () =>
+      translate(action.transactionMetadata.message, {
+        ...action.transactionMetadata,
+        amount: action.transactionMetadata.amountCryptoPrecision,
+        symbol: asset?.symbol,
+        newAddress: middleEllipsis(action.transactionMetadata.newAddress ?? ''),
+        duration: cooldownDuration,
+      }),
+    [action.transactionMetadata, asset?.symbol, cooldownDuration, translate],
+  )
+
+  const isCollapsable = !!txLink || (isYieldClaim && action.status === ActionStatus.ClaimAvailable)
+
+  const details = useMemo(() => {
+    if (isYieldClaim && action.status === ActionStatus.ClaimAvailable) {
+      return (
         <Stack gap={4}>
-          <ButtonGroup width='full' size='sm'>
-            {txLink && (
-              <Button width='full' as={Link} isExternal href={txLink}>
-                {translate('actionCenter.viewTransaction')}
-              </Button>
-            )}
-            {isRbfEligible && (
-              <Button width='full' colorScheme='blue' onClick={handleSpeedUpClick}>
-                {translate('transactionHistory.speedUp')}
-              </Button>
-            )}
-          </ButtonGroup>
+          <Button width='full' colorScheme='green' onClick={handleClaimClick}>
+            {translate('common.claim')}
+          </Button>
         </Stack>
-      </ActionCard>
-      {isSpeedUpModalOpen && (
-        <SpeedUpModal
-          txHash={action.transactionMetadata.txHash}
-          accountId={action.transactionMetadata.accountId}
-          assetId={action.transactionMetadata.assetId}
-          amountCryptoPrecision={action.transactionMetadata.amountCryptoPrecision}
-          accountIdsToRefetch={action.transactionMetadata.accountIdsToRefetch}
-          isOpen={isSpeedUpModalOpen}
-          onClose={handleCloseSpeedUpModal}
-        />
-      )}
-    </>
+      )
+    }
+
+    return (
+      <Stack gap={4}>
+        <ButtonGroup width='full' size='sm'>
+          <Button width='full' as={Link} isExternal href={txLink}>
+            {translate('actionCenter.viewTransaction')}
+          </Button>
+        </ButtonGroup>
+      </Stack>
+    )
+  }, [action.status, handleClaimClick, isYieldClaim, translate, txLink])
+
+  return (
+    <ActionCard
+      formattedDate={formattedDate}
+      isCollapsable={isCollapsable}
+      isOpen={isOpen}
+      type={action.type}
+      displayType={action.transactionMetadata.displayType}
+      description={description}
+      icon={icon}
+      footer={footer}
+      onToggle={onToggle}
+    >
+      {details}
+    </ActionCard>
   )
 }

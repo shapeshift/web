@@ -1,6 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, toAssetId } from '@shapeshiftoss/caip'
-import { toBaseUnit } from '@shapeshiftoss/utils'
+import { BigAmount } from '@shapeshiftoss/utils'
 
 import { TransferType, TxStatus } from '../../types'
 import type { AggregateTransferArgs } from '../../utils'
@@ -58,6 +58,7 @@ export class TransactionParser<T extends Tx> {
       chainId: this.chainId,
       // all transactions from unchained are finalized with at least 1 confirmation (unused throughout web)
       confirmations: 1,
+      data: parserResult?.data,
       status: this.getStatus(tx),
       trade: parserResult?.trade,
       transfers: parserResult?.transfers ?? [],
@@ -119,7 +120,10 @@ export class TransactionParser<T extends Tx> {
           },
           transfers: parsedTx.transfers,
           type,
-          value: toBaseUnit(tokenAmount, token.decimals).toString(),
+          value: BigAmount.fromPrecision({
+            value: tokenAmount,
+            precision: token.decimals,
+          }).toBaseUnit(),
         })
 
         // token send amount

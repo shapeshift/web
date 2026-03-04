@@ -5,6 +5,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { memo, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { useRepayActionCenter } from './hooks/useRepayActionCenter'
 import { useRepayConfirmation } from './hooks/useRepayConfirmation'
 import { useRepaySign } from './hooks/useRepaySign'
 import { RepayMachineCtx } from './RepayMachineContext'
@@ -46,6 +47,7 @@ export const RepayConfirm = memo(({ assetId }: RepayConfirmProps) => {
 
   useRepaySign()
   useRepayConfirmation()
+  useRepayActionCenter()
 
   const handleConfirm = useCallback(() => {
     actorRef.send({ type: 'CONFIRM' })

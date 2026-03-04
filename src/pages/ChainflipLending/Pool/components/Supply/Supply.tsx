@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { lazy, memo, Suspense, useEffect, useMemo } from 'react'
+import { lazy, memo, Suspense, useEffect, useMemo, useState } from 'react'
 
 import { SupplyMachineCtx } from './SupplyMachineContext'
 
@@ -23,48 +23,55 @@ type SupplyProps = {
   assetId: AssetId
 }
 
-export const Supply = memo(({ assetId }: SupplyProps) => {
+export const Supply = memo(({ assetId: initialAssetId }: SupplyProps) => {
+  const [activeAssetId, setActiveAssetId] = useState(initialAssetId)
   const { connectedType } = useWallet().state
   const isNativeWallet = connectedType === KeyManager.Native
-  const input = useMemo(() => ({ assetId, isNativeWallet }), [assetId, isNativeWallet])
+  const input = useMemo(
+    () => ({ assetId: activeAssetId, isNativeWallet }),
+    [activeAssetId, isNativeWallet],
+  )
 
   return (
-    <SupplyMachineCtx.Provider options={{ input }}>
-      <SupplyContent assetId={assetId} />
+    <SupplyMachineCtx.Provider key={activeAssetId} options={{ input }}>
+      <SupplyContent assetId={activeAssetId} onAssetChange={setActiveAssetId} />
     </SupplyMachineCtx.Provider>
   )
 })
 
-const SupplyContent = memo(({ assetId }: { assetId: AssetId }) => {
-  const isInput = SupplyMachineCtx.useSelector(s => s.matches('input'))
-  const isConfirm = SupplyMachineCtx.useSelector(s => s.matches('confirm'))
-  const isExecuting = SupplyMachineCtx.useSelector(s => s.hasTag('executing'))
-  const isSuccess = SupplyMachineCtx.useSelector(s => s.matches('success'))
-  const isError = SupplyMachineCtx.useSelector(s => s.matches('error'))
+const SupplyContent = memo(
+  ({ assetId, onAssetChange }: { assetId: AssetId; onAssetChange: (assetId: AssetId) => void }) => {
+    const isInput = SupplyMachineCtx.useSelector(s => s.matches('input'))
+    const isConfirm = SupplyMachineCtx.useSelector(s => s.matches('confirm'))
+    const isExecuting = SupplyMachineCtx.useSelector(s => s.hasTag('executing'))
+    const isSuccess = SupplyMachineCtx.useSelector(s => s.matches('success'))
+    const isError = SupplyMachineCtx.useSelector(s => s.matches('error'))
 
-  useFreeBalanceSync(assetId)
-  useLendingPositionSync(assetId)
+    useFreeBalanceSync(assetId)
+    useLendingPositionSync(assetId)
 
-  const page = useMemo(() => {
-    if (isInput) return 'input' as const
-    if (isConfirm) return 'confirm' as const
-    if (isExecuting) return 'executing' as const
-    if (isSuccess) return 'success' as const
-    if (isError) return 'error' as const
-    return 'input' as const
-  }, [isInput, isConfirm, isExecuting, isSuccess, isError])
+    const page = useMemo(() => {
+      if (isInput) return 'input' as const
+      if (isConfirm) return 'confirm' as const
+      if (isExecuting) return 'executing' as const
+      if (isSuccess) return 'success' as const
+      if (isError) return 'error' as const
+      return 'input' as const
+    }, [isInput, isConfirm, isExecuting, isSuccess, isError])
 
-  return (
-    <AnimatePresence mode='wait' initial={false}>
-      <Suspense fallback={suspenseFallback}>
-        {page === 'input' && <SupplyInput assetId={assetId} />}
-        {(page === 'confirm' || page === 'executing' || page === 'success' || page === 'error') && (
-          <SupplyConfirm assetId={assetId} />
-        )}
-      </Suspense>
-    </AnimatePresence>
-  )
-})
+    return (
+      <AnimatePresence mode='wait' initial={false}>
+        <Suspense fallback={suspenseFallback}>
+          {page === 'input' && <SupplyInput assetId={assetId} onAssetChange={onAssetChange} />}
+          {(page === 'confirm' ||
+            page === 'executing' ||
+            page === 'success' ||
+            page === 'error') && <SupplyConfirm assetId={assetId} />}
+        </Suspense>
+      </AnimatePresence>
+    )
+  },
+)
 
 const useFreeBalanceSync = (assetId: AssetId) => {
   const actorRef = SupplyMachineCtx.useActorRef()

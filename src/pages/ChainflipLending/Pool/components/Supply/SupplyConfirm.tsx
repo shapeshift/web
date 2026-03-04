@@ -5,6 +5,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { memo, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { useSupplyActionCenter } from './hooks/useSupplyActionCenter'
 import { useSupplyConfirmation } from './hooks/useSupplyConfirmation'
 import { useSupplySign } from './hooks/useSupplySign'
 import { SupplyMachineCtx } from './SupplyMachineContext'
@@ -47,6 +48,7 @@ export const SupplyConfirm = memo(({ assetId }: SupplyConfirmProps) => {
 
   useSupplySign()
   useSupplyConfirmation()
+  useSupplyActionCenter()
 
   const handleConfirm = useCallback(() => {
     actorRef.send({ type: 'CONFIRM' })

@@ -4,9 +4,8 @@ import { PublicKey, TransactionInstruction } from '@solana/web3.js'
 import type { GetUnsignedSolanaTransactionArgs, SwapperName } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import type { ThorTradeQuote } from '../types'
+import { MEMO_PROGRAM_ID } from './constants'
 import { getThorTxData } from './getThorTxData'
-
-const MEMO_PROGRAM_ID = 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr'
 
 export const getSolanaTransactionFees = async (
   args: GetUnsignedSolanaTransactionArgs,

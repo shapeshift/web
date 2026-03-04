@@ -18,7 +18,7 @@ import { useQuery as useReactQuery } from '@tanstack/react-query'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { generatePath, matchPath, useNavigate } from 'react-router-dom'
+import { generatePath, matchPath, NavLink, useNavigate } from 'react-router-dom'
 
 import { MobileWalletList } from './components/WalletList'
 
@@ -324,21 +324,11 @@ export const MobileConnect = () => {
                   mx='auto'
                 >
                   {translate('connectWalletPage.footerOne')}{' '}
-                  <Link
-                    isExternal
-                    target='_blank'
-                    fontWeight='bold'
-                    href='https://app.shapeshift.com/#/legal/terms-of-service'
-                  >
+                  <Link as={NavLink} to='/legal/terms-of-service' fontWeight='bold'>
                     {translate('connectWalletPage.terms')}
                   </Link>{' '}
                   {translate('common.and')}{' '}
-                  <Link
-                    isExternal
-                    target='_blank'
-                    fontWeight='bold'
-                    href='https://app.shapeshift.com/#/legal/privacy-policy'
-                  >
+                  <Link as={NavLink} to='/legal/privacy-policy' fontWeight='bold'>
                     {translate('connectWalletPage.privacyPolicy')}
                   </Link>
                 </RawText>

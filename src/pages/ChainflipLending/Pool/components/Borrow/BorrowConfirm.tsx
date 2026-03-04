@@ -7,6 +7,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { BorrowMachineCtx } from './BorrowMachineContext'
 import { BorrowStepper } from './BorrowStepper'
+import { useBorrowActionCenter } from './hooks/useBorrowActionCenter'
 import { useBorrowConfirmation } from './hooks/useBorrowConfirmation'
 import { useBorrowSign } from './hooks/useBorrowSign'
 
@@ -49,6 +50,7 @@ export const BorrowConfirm = memo(({ assetId }: BorrowConfirmProps) => {
 
   useBorrowSign()
   useBorrowConfirmation()
+  useBorrowActionCenter()
 
   const projectedLtvPercent = useMemo(() => (projectedLtvBps / 100).toFixed(1), [projectedLtvBps])
 

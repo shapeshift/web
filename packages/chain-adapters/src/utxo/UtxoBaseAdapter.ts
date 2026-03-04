@@ -295,6 +295,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       if (!satoshiPerByte) throw new Error('satoshiPerByte is required')
 
       this.assertIsAccountTypeSupported(accountType)
+
       const utxos = await this.providers.http.getUtxos({ pubkey: xpub })
 
       const coinSelectResult = utxoSelect({

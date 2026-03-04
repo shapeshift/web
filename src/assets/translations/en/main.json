@@ -2392,9 +2392,12 @@
   "chainflipLending": {
     "headerDescription": "Supply assets to earn yield or borrow against collateral on Chainflip.",
     "overview": "Overview",
+    "myDashboard": "My Dashboard",
+    "allMarkets": "All Markets",
+    "manageLoan": "Manage Loan",
     "supply": {
       "title": "Supply",
-      "amount": "Supply amount",
+      "amount": "Amount",
       "available": "Available to supply",
       "availableTooltip": "Your free balance on Chainflip State Chain available for lending",
       "minimumSupply": "Minimum supply: %{amount}",
@@ -2416,7 +2419,7 @@
     },
     "borrow": {
       "title": "Borrow",
-      "amount": "Borrow amount",
+      "amount": "Amount",
       "available": "Available to borrow",
       "maxLtv": "Max LTV (80%)",
       "currentLtv": "Current LTV",
@@ -2460,7 +2463,8 @@
       "currentLtv": "Current LTV",
       "borrowCapacity": "Borrow Capacity",
       "borrowPowerUsed": "Borrow Power Used",
-      "availableToBorrow": "Available to Borrow"
+      "availableToBorrow": "Available to Borrow",
+      "actionPaused": "This action is temporarily paused on Chainflip"
     },
     "supplyApy": "Supply APY",
     "supplyApyTooltip": "Annual percentage yield earned by supplying assets to this pool.",
@@ -2477,7 +2481,7 @@
       "title": "Collateral",
       "add": "Add Collateral",
       "remove": "Remove Collateral",
-      "amount": "Collateral amount",
+      "amount": "Amount",
       "availableToAdd": "Available to add",
       "availableToRemove": "Available to remove",
       "confirmAddTitle": "Confirm Add Collateral",
@@ -2564,7 +2568,7 @@
     "myBalancesTitle": "Chainflip Lending - My Balances",
     "withdraw": {
       "title": "Withdraw",
-      "amount": "Withdraw amount",
+      "amount": "Amount",
       "available": "Available to withdraw",
       "availableTooltip": "Your supply position in the lending pool",
       "confirmTitle": "Confirm Withdrawal",
@@ -2611,7 +2615,7 @@
     },
     "repay": {
       "title": "Repay",
-      "amount": "Repay amount",
+      "amount": "Amount",
       "outstanding": "Outstanding debt",
       "fullRepayment": "Full repayment",
       "partialRepayment": "Partial repayment",

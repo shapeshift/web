@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
-import { lazy, memo, Suspense, useEffect, useMemo } from 'react'
+import { lazy, memo, Suspense, useEffect, useMemo, useState } from 'react'
 
 import { CollateralMachineCtx } from './CollateralMachineContext'
 
@@ -25,48 +25,55 @@ type CollateralProps = {
   mode: 'add' | 'remove'
 }
 
-export const Collateral = memo(({ assetId, mode }: CollateralProps) => {
+export const Collateral = memo(({ assetId: initialAssetId, mode }: CollateralProps) => {
+  const [activeAssetId, setActiveAssetId] = useState(initialAssetId)
   const { connectedType } = useWallet().state
   const isNativeWallet = connectedType === KeyManager.Native
-  const input = useMemo(() => ({ assetId, isNativeWallet, mode }), [assetId, isNativeWallet, mode])
+  const input = useMemo(
+    () => ({ assetId: activeAssetId, isNativeWallet, mode }),
+    [activeAssetId, isNativeWallet, mode],
+  )
 
   return (
-    <CollateralMachineCtx.Provider options={{ input }}>
-      <CollateralContent assetId={assetId} />
+    <CollateralMachineCtx.Provider key={activeAssetId} options={{ input }}>
+      <CollateralContent assetId={activeAssetId} onAssetChange={setActiveAssetId} />
     </CollateralMachineCtx.Provider>
   )
 })
 
-const CollateralContent = memo(({ assetId }: { assetId: AssetId }) => {
-  const isInput = CollateralMachineCtx.useSelector(s => s.matches('input'))
-  const isConfirm = CollateralMachineCtx.useSelector(s => s.matches('confirm'))
-  const isExecuting = CollateralMachineCtx.useSelector(s => s.hasTag('executing'))
-  const isSuccess = CollateralMachineCtx.useSelector(s => s.matches('success'))
-  const isError = CollateralMachineCtx.useSelector(s => s.matches('error'))
+const CollateralContent = memo(
+  ({ assetId, onAssetChange }: { assetId: AssetId; onAssetChange: (assetId: AssetId) => void }) => {
+    const isInput = CollateralMachineCtx.useSelector(s => s.matches('input'))
+    const isConfirm = CollateralMachineCtx.useSelector(s => s.matches('confirm'))
+    const isExecuting = CollateralMachineCtx.useSelector(s => s.hasTag('executing'))
+    const isSuccess = CollateralMachineCtx.useSelector(s => s.matches('success'))
+    const isError = CollateralMachineCtx.useSelector(s => s.matches('error'))
 
-  useFreeBalanceSync(assetId)
-  useCollateralBalanceSync(assetId)
+    useFreeBalanceSync(assetId)
+    useCollateralBalanceSync(assetId)
 
-  const page = useMemo(() => {
-    if (isInput) return 'input' as const
-    if (isConfirm) return 'confirm' as const
-    if (isExecuting) return 'executing' as const
-    if (isSuccess) return 'success' as const
-    if (isError) return 'error' as const
-    return 'input' as const
-  }, [isInput, isConfirm, isExecuting, isSuccess, isError])
+    const page = useMemo(() => {
+      if (isInput) return 'input' as const
+      if (isConfirm) return 'confirm' as const
+      if (isExecuting) return 'executing' as const
+      if (isSuccess) return 'success' as const
+      if (isError) return 'error' as const
+      return 'input' as const
+    }, [isInput, isConfirm, isExecuting, isSuccess, isError])
 
-  return (
-    <AnimatePresence mode='wait' initial={false}>
-      <Suspense fallback={suspenseFallback}>
-        {page === 'input' && <CollateralInput assetId={assetId} />}
-        {(page === 'confirm' || page === 'executing' || page === 'success' || page === 'error') && (
-          <CollateralConfirm assetId={assetId} />
-        )}
-      </Suspense>
-    </AnimatePresence>
-  )
-})
+    return (
+      <AnimatePresence mode='wait' initial={false}>
+        <Suspense fallback={suspenseFallback}>
+          {page === 'input' && <CollateralInput assetId={assetId} onAssetChange={onAssetChange} />}
+          {(page === 'confirm' ||
+            page === 'executing' ||
+            page === 'success' ||
+            page === 'error') && <CollateralConfirm assetId={assetId} />}
+        </Suspense>
+      </AnimatePresence>
+    )
+  },
+)
 
 const useFreeBalanceSync = (assetId: AssetId) => {
   const actorRef = CollateralMachineCtx.useActorRef()

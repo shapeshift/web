@@ -56,9 +56,9 @@ import type {
   TradeType,
 } from './types'
 import * as utxo from './utxo'
+import { MEMO_PROGRAM_ID } from './solana/constants'
 
 const SAFE_GAS_LIMIT = '100000' // depositWithExpiry()
-const SOLANA_MEMO_PROGRAM_ID = 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr'
 
 type ThorTradeRateOrQuote = ThorTradeRate | ThorTradeQuote
 type ThorEvmTradeRateOrQuote = ThorEvmTradeRate | ThorEvmTradeQuote
@@ -457,7 +457,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
             if (!sendAddress) return { networkFeeCryptoBaseUnit: undefined, protocolFees }
             const memoInstruction = new TransactionInstruction({
               keys: [],
-              programId: new PublicKey(SOLANA_MEMO_PROGRAM_ID),
+              programId: new PublicKey(MEMO_PROGRAM_ID),
               data: Buffer.from(memo, 'utf8'),
             })
             const { fast } = await adapter.getFeeData({

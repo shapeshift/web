@@ -1,4 +1,4 @@
-import { Box, Flex, Text } from '@chakra-ui/react'
+import { Box, Flex, Text, VStack } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -11,8 +11,6 @@ type LtvGaugeProps = {
 
 const GAUGE_HEIGHT = '12px'
 const MARKER_HEIGHT = '24px'
-const LABEL_TOP = '32px'
-
 const ltvToPercent = (ltv: number): string => `${Math.min(Math.max(ltv * 100, 0), 100)}%`
 
 const ltvToDisplayPercent = (ltv: number): string =>
@@ -132,40 +130,40 @@ export const LtvGauge = memo(({ currentLtv, projectedLtv }: LtvGaugeProps) => {
         )}
 
         {thresholdMarkers.map(marker => (
-          <Box key={marker.labelKey}>
-            <Box
-              position='absolute'
-              top='0'
-              left={ltvToPercent(marker.value)}
-              transform='translateX(-50%)'
-              width='2px'
-              height={GAUGE_HEIGHT}
-              bg={marker.color}
-              opacity={0.6}
-            />
-            <Text
-              position='absolute'
-              top={LABEL_TOP}
-              left={ltvToPercent(marker.value)}
-              transform='translateX(-50%)'
-              fontSize='2xs'
-              color='text.subtle'
-              whiteSpace='nowrap'
-            >
-              {translate(marker.labelKey)}
-            </Text>
-          </Box>
+          <Box
+            key={marker.labelKey}
+            position='absolute'
+            top='0'
+            left={ltvToPercent(marker.value)}
+            transform='translateX(-50%)'
+            width='2px'
+            height={GAUGE_HEIGHT}
+            bg={marker.color}
+            opacity={0.6}
+          />
         ))}
       </Box>
 
-      <Flex justifyContent='space-between' alignItems='center' mt={2}>
-        <Text fontSize='sm' fontWeight='bold' color={statusColor}>
-          {ltvToDisplayPercent(currentLtv)}
-        </Text>
-        <Text fontSize='sm' color={statusColor}>
-          {translate(statusKey)}
-        </Text>
-      </Flex>
+      <VStack spacing={2} align='stretch' mt={2}>
+        <Flex justifyContent='space-between' alignItems='center'>
+          <Text fontSize='sm' fontWeight='bold' color={statusColor}>
+            {ltvToDisplayPercent(currentLtv)}
+          </Text>
+          <Text fontSize='sm' color={statusColor}>
+            {translate(statusKey)}
+          </Text>
+        </Flex>
+        <Flex justifyContent='space-between' alignItems='center' flexWrap='wrap' gap={2}>
+          {thresholdMarkers.map(marker => (
+            <Flex key={marker.labelKey} alignItems='center' gap={1}>
+              <Box width='8px' height='8px' borderRadius='full' bg={marker.color} />
+              <Text fontSize='2xs' color='text.subtle'>
+                {translate(marker.labelKey)}
+              </Text>
+            </Flex>
+          ))}
+        </Flex>
+      </VStack>
     </Box>
   )
 })

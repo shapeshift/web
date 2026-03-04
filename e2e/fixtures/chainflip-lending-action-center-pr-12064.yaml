@@ -1,0 +1,27 @@
+name: Chainflip Lending Action Center PR 12064
+description: >
+  Evidence-only fixture for PR 12064. Assumes the current browser session
+  already executed Chainflip lending USDC operations and the Action Center
+  contains the resulting cards. Focuses only on notification center copy,
+  expanded details, and egress transaction affordances.
+route: /#/chainflip-lending/pool/eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
+steps:
+  - name: Verify confirmed Chainflip lending cards
+    instruction: >
+      Open the notification center drawer and verify the confirmed Chainflip
+      lending cards for deposit, borrow, repay, add collateral, and remove
+      collateral show sane user copy with expanded details for operation,
+      amount, and transaction id.
+    expected: >
+      Confirmed Chainflip lending cards are visible with expanded details and
+      no untranslated keys.
+    screenshot: true
+  - name: Verify egress card transaction affordance
+    instruction: >
+      Verify the egress card shows the withdraw-from-Chainflip copy, expanded
+      details include the egress transaction id, and a View Transaction button
+      is present for the external explorer link.
+    expected: >
+      The egress Action Center card shows human copy, egress tx id, and a View
+      Transaction button.
+    screenshot: true

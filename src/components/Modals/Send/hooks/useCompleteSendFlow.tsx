@@ -73,7 +73,6 @@ export const useCompleteSendFlow = ({ handleClose }: UseCompleteSendFlowArgs) =>
             assetId,
             amountCryptoPrecision,
             message: 'modals.send.status.pendingBody',
-            // Optimistically enable for fresh BTC sends so the Action Center CTA is available immediately.
             isRbfEnabled: chainId === btcChainId,
             btcUtxoRbfTxMetadata,
           },
@@ -83,27 +82,26 @@ export const useCompleteSendFlow = ({ handleClose }: UseCompleteSendFlowArgs) =>
         }),
       )
 
-      // Resolve RBF capability after broadcast and store it on the action metadata.
       if (chainId === btcChainId) {
         void (async () => {
           const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
           try {
             const adapter = assertGetUtxoChainAdapter(btcChainId)
-            let tx: Awaited<ReturnType<typeof adapter.httpProvider.getTransaction>> | undefined =
-              undefined
-
-            // Freshly broadcast txs may not be immediately indexable by the backend.
-            for (let i = 0; i < 6; i++) {
-              try {
-                tx = await adapter.httpProvider.getTransaction({ txid: txHash })
-                break
-              } catch (e) {
-                if (i === 5) throw e
-                await sleep(1000)
+            const fetchTransactionWithRetry = async (
+              txid: string,
+            ): Promise<Awaited<ReturnType<typeof adapter.httpProvider.getTransaction>>> => {
+              for (let i = 0; i < 6; i++) {
+                try {
+                  return await adapter.httpProvider.getTransaction({ txid })
+                } catch (e) {
+                  if (i === 5) throw e
+                  await sleep(1000)
+                }
               }
-            }
 
-            if (!tx) return
+              throw new Error('Failed to fetch transaction after retries')
+            }
+            const tx = await fetchTransactionWithRetry(txHash)
             const isRbfEnabled = tx.vin.some(
               vin => typeof vin.sequence === 'number' && vin.sequence < 0xfffffffe,
             )

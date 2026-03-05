@@ -138,7 +138,13 @@ export const resolveVinVoutIndex = ({
 }) => {
   if (vinVout !== undefined && vinVout !== null) {
     const parsedIndex = Number(vinVout)
-    if (Number.isInteger(parsedIndex) && parsedIndex >= 0) return parsedIndex
+    if (
+      Number.isInteger(parsedIndex) &&
+      parsedIndex >= 0 &&
+      parsedIndex < prevTxVouts.length
+    ) {
+      return parsedIndex
+    }
   }
 
   const valueMatches = prevTxVouts

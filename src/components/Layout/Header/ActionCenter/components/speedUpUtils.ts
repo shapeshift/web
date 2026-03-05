@@ -136,6 +136,9 @@ export const resolveVinVoutIndex = ({
   vinAddress?: string
   prevTxVouts: VoutLike[]
 }) => {
+  const vinValueSats =
+    vinValue !== undefined && vinValue !== null ? toSats(vinValue).toFixed(0) : undefined
+
   if (vinVout !== undefined && vinVout !== null) {
     const parsedIndex = Number(vinVout)
     if (
@@ -150,11 +153,12 @@ export const resolveVinVoutIndex = ({
   const valueMatches = prevTxVouts
     .map((vout, index) => ({
       index,
-      value: String(vout.value ?? ''),
+      valueSats:
+        vout.value !== undefined && vout.value !== null ? toSats(vout.value).toFixed(0) : undefined,
       addresses: vout.addresses ?? [],
     }))
     .filter(vout =>
-      vinValue !== undefined && vinValue !== null ? vout.value === String(vinValue) : true,
+      vinValueSats !== undefined ? vout.valueSats === vinValueSats : true,
     )
 
   const addressAndValueMatches = valueMatches.filter(vout =>

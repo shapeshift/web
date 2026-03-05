@@ -39,6 +39,7 @@ coverage/
 # Documentation
 *.md
 !packages/public-api/*.md
+!packages/swap-widget/*.md
 docs/
 
 # Test files

@@ -22,6 +22,7 @@ import { MobileFeature, useMobileFeaturesCompatibility } from '../useMobileFeatu
 import { useModal } from '../useModal/useModal'
 import { useNotificationToast } from '../useNotificationToast'
 import { useWallet } from '../useWallet/useWallet'
+import { getStepSourceForTxLink } from './getStepSourceForTxLink'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
@@ -251,8 +252,12 @@ export const useSwapActionSubscriber = () => {
         chainId,
         defaultExplorerBaseUrl,
         maybeSafeTx,
-        stepSource: status && status !== TxStatus.Unknown ? swap.source : undefined,
-        maybeChainflipSwapId: `${swap.metadata.chainflipSwapId}`,
+        stepSource: getStepSourceForTxLink({
+          status,
+          swapperName: swap.swapperName,
+          source: swap.source,
+        }),
+        maybeChainflipSwapId: swap.metadata.chainflipSwapId,
         maybeNearIntentsDepositAddress: swap.metadata.nearIntentsSpecific?.depositAddress,
         ...(swap.swapperName === SwapperName.CowSwap ? { tradeId: txHash } : { txId: txHash }),
         ...(swap.metadata.relayerTxHash && {

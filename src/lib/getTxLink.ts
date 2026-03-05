@@ -39,11 +39,26 @@ type GetTxLink = GetTxBaseUrl &
     address: string | undefined
     chainId: ChainId | undefined
     maybeSafeTx: SafeTxInfo | undefined
-    maybeChainflipSwapId?: string | undefined
+    maybeChainflipSwapId?: string | number | null | undefined
     maybeNearIntentsDepositAddress?: string | undefined
     isRelayer?: boolean
     relayerExplorerTxLink?: string | undefined
   }
+
+const getValidChainflipSwapId = (
+  maybeChainflipSwapId: string | number | null | undefined,
+): string | undefined => {
+  if (maybeChainflipSwapId == null) return undefined
+
+  const normalized = String(maybeChainflipSwapId).trim()
+
+  if (!normalized) return undefined
+
+  const lowercase = normalized.toLowerCase()
+  if (lowercase === 'undefined' || lowercase === 'null') return undefined
+
+  return normalized
+}
 
 export const getTxBaseUrl = ({
   stepSource,
@@ -106,6 +121,7 @@ export const getTxLink = ({
     isRelayer,
     relayerExplorerTxLink,
   })
+  const chainflipSwapId = getValidChainflipSwapId(maybeChainflipSwapId)
 
   if (!isSafeTxHash) {
     switch (name) {
@@ -121,9 +137,7 @@ export const getTxLink = ({
       case CHAINFLIP_BOOST_SWAP_SOURCE:
       case CHAINFLIP_DCA_SWAP_SOURCE:
       case CHAINFLIP_DCA_BOOST_SWAP_SOURCE:
-        return maybeChainflipSwapId
-          ? `${baseUrl}${maybeChainflipSwapId}`
-          : `${defaultExplorerBaseUrl}${id}`
+        return chainflipSwapId ? `${baseUrl}${chainflipSwapId}` : `${defaultExplorerBaseUrl}${id}`
       case SwapperName.NearIntents:
         return maybeNearIntentsDepositAddress
           ? `${baseUrl}${maybeNearIntentsDepositAddress}`

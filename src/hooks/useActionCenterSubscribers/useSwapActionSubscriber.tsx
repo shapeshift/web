@@ -26,6 +26,7 @@ import { useWallet } from '../useWallet/useWallet'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
 import { getConfig } from '@/config'
+import { getTxLinkStepSource } from '@/hooks/useActionCenterSubscribers/txLinkStepSource'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
@@ -246,13 +247,19 @@ export const useSwapActionSubscriber = () => {
           ? swap.buyAsset.explorerTxLink
           : swap.sellAsset.explorerTxLink
 
+      const txLinkStepSource = getTxLinkStepSource({
+        status,
+        source: swap.source,
+        swapperName: swap.swapperName,
+      })
+
       const txLink = getTxLink({
         address,
         chainId,
         defaultExplorerBaseUrl,
         maybeSafeTx,
-        stepSource: status && status !== TxStatus.Unknown ? swap.source : undefined,
-        maybeChainflipSwapId: `${swap.metadata.chainflipSwapId}`,
+        stepSource: txLinkStepSource,
+        maybeChainflipSwapId: swap.metadata.chainflipSwapId,
         maybeNearIntentsDepositAddress: swap.metadata.nearIntentsSpecific?.depositAddress,
         ...(swap.swapperName === SwapperName.CowSwap ? { tradeId: txHash } : { txId: txHash }),
         ...(swap.metadata.relayerTxHash && {

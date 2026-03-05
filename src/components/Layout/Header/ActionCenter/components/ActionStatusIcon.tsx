@@ -42,6 +42,12 @@ export const ActionStatusIcon = ({ status }: { status?: ActionStatus }) => {
             <TbCheck strokeWidth={4} />
           </IconWrapper>
         )
+      case ActionStatus.Replaced:
+        return (
+          <IconWrapper bg='gray.500'>
+            <TbCheck strokeWidth={4} />
+          </IconWrapper>
+        )
       case ActionStatus.Failed:
       case ActionStatus.Cancelled:
       case ActionStatus.Expired:

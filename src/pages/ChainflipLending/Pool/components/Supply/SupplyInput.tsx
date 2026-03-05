@@ -1,5 +1,6 @@
 import { Button, CardBody, CardFooter, Flex, Stack, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
@@ -9,22 +10,25 @@ import { useTranslate } from 'react-polyglot'
 import { SupplyMachineCtx } from './SupplyMachineContext'
 
 import { Amount } from '@/components/Amount/Amount'
-import { AssetIcon } from '@/components/AssetIcon'
+import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
+import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
 import { useChainflipMinimumSupply } from '@/pages/ChainflipLending/hooks/useChainflipMinimumSupply'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectAssetById } from '@/state/slices/selectors'
+import { selectAssetById, selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type SupplyInputProps = {
   assetId: AssetId
+  onAssetChange: (assetId: AssetId) => void
 }
 
-export const SupplyInput = ({ assetId }: SupplyInputProps) => {
+export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
   const translate = useTranslate()
   const {
     number: { localeParts },
@@ -59,6 +63,33 @@ export const SupplyInput = ({ assetId }: SupplyInputProps) => {
   const hasFreeBalance = useMemo(
     () => bnOrZero(freeBalanceCryptoBaseUnit).gt(0),
     [freeBalanceCryptoBaseUnit],
+  )
+
+  const assetIds = useMemo(() => Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as AssetId[], [])
+
+  const assets = useAppSelector(selectAssets)
+
+  const lendingAssets = useMemo(() => {
+    return assetIds.reduce<Asset[]>((acc, assetId) => {
+      const asset = assets[assetId]
+      if (asset) acc.push(asset)
+      return acc
+    }, [])
+  }, [assetIds, assets])
+
+  const buyAssetSearch = useModal('buyAssetSearch')
+
+  const handleAssetClick = useCallback(() => {
+    buyAssetSearch.open({
+      onAssetClick: (asset: Asset) => onAssetChange(asset.assetId),
+      title: 'chainflipLending.supply.title',
+      assets: lendingAssets,
+    })
+  }, [buyAssetSearch, onAssetChange, lendingAssets])
+
+  const handleAssetChange = useCallback(
+    (asset: Asset) => onAssetChange(asset.assetId),
+    [onAssetChange],
   )
 
   const handleInputChange = useCallback((values: NumberFormatValues) => {
@@ -99,18 +130,22 @@ export const SupplyInput = ({ assetId }: SupplyInputProps) => {
     <SlideTransition>
       <CardBody px={6} py={4}>
         <VStack spacing={4} align='stretch'>
-          <Flex alignItems='center' gap={2}>
-            <AssetIcon assetId={assetId} size='sm' />
-            <RawText fontWeight='bold' fontSize='lg'>
-              {asset.symbol}
-            </RawText>
-          </Flex>
+          <TradeAssetSelect
+            assetId={assetId}
+            assetIds={assetIds}
+            onAssetClick={handleAssetClick}
+            onAssetChange={handleAssetChange}
+            onlyConnectedChains={false}
+            px={0}
+            mb={0}
+          />
 
           <Stack spacing={1}>
             <RawText fontSize='sm' color='text.subtle'>
               {translate('chainflipLending.supply.amount')}
             </RawText>
             <NumericFormat
+              data-testid='chainflip-supply-amount-input'
               inputMode='decimal'
               valueIsNumericString={true}
               decimalScale={asset.precision}
@@ -148,6 +183,7 @@ export const SupplyInput = ({ assetId }: SupplyInputProps) => {
                 fontWeight='medium'
               />
               <Button
+                data-testid='chainflip-supply-max'
                 size='xs'
                 variant='ghost'
                 colorScheme='blue'
@@ -184,6 +220,7 @@ export const SupplyInput = ({ assetId }: SupplyInputProps) => {
         py={4}
       >
         <Button
+          data-testid='chainflip-supply-submit'
           colorScheme='blue'
           size='lg'
           height={12}

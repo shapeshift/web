@@ -14,8 +14,8 @@ overrides:
   '@typescript-eslint/parser': ^8.16.0
   '@typescript-eslint/eslint-plugin': ^8.16.0
   eslint-plugin-import: ^2.31.0
-  react-router@^6.30.0: 6.30.0
-  react-router@6.30.0: 6.30.0
+  react-router@^6.30.0: 6.30.2
+  react-router@6.30.0: 6.30.2
   '@types/react': 19.1.2
   '@types/react-dom': 19.1.2
   readable-stream: 3.6.0
@@ -44,6 +44,12 @@ overrides:
   motion-dom: 12.7.4
   motion-utils: 12.7.2
   porto>zod: 4.3.6
+  elliptic: 6.6.1
+  '@mysten/sui': 1.45.2
+  validator: 13.15.26
+  node-fetch@^2.0.0: 2.7.0
+  '@ethersproject/providers>ws': 7.5.10
+  ethers>ws: 8.18.3
 
 patchedDependencies:
   '@bithighlander/bitcoin-cash-js-lib@5.2.1':
@@ -61,7 +67,7 @@ patchedDependencies:
   react-polyglot@0.7.2:
     hash: 6dc83422df610350e7e21e62ec98c1946ccf8aa92c4ac4ddc2bd97b4403ab138
     path: patches/react-polyglot-npm-0.7.2-636f85156f.patch
-  react-router@6.30.0:
+  react-router@6.30.2:
     hash: 2f48bbfed228db1edcc3e6da58f5dd6480824e45b14bcb9265c58332aa857bec
     path: patches/react-router-npm-6.30.0-cd12804d8c.patch
 
@@ -83,7 +89,7 @@ importers:
         version: 1.4.5(axios@1.13.6)(typescript@5.2.2)
       '@cetusprotocol/cetus-sui-clmm-sdk':
         specifier: 5.4.0
-        version: 5.4.0(@mysten/bcs@1.9.2)(@mysten/sui@1.45.0(typescript@5.2.2))
+        version: 5.4.0(@mysten/bcs@1.9.2)(@mysten/sui@1.45.2(typescript@5.2.2))
       '@chainflip/rpc':
         specifier: 2.1.1
         version: 2.1.1
@@ -139,8 +145,8 @@ importers:
         specifier: 2.27.2
         version: 2.27.2
       '@mysten/sui':
-        specifier: 1.45.0
-        version: 1.45.0(typescript@5.2.2)
+        specifier: 1.45.2
+        version: 1.45.2(typescript@5.2.2)
       '@near-js/crypto':
         specifier: ^2.5.1
         version: 2.5.1(@near-js/types@2.5.1)(@near-js/utils@2.5.1(@near-js/types@2.5.1))
@@ -484,8 +490,8 @@ importers:
         specifier: ^9.2.0
         version: 9.2.0(@types/react@19.1.2)(react@19.2.4)(redux@5.0.1)
       react-router:
-        specifier: 6.30.0
-        version: 6.30.0(patch_hash=2f48bbfed228db1edcc3e6da58f5dd6480824e45b14bcb9265c58332aa857bec)(react@19.2.4)
+        specifier: 6.30.2
+        version: 6.30.2(patch_hash=2f48bbfed228db1edcc3e6da58f5dd6480824e45b14bcb9265c58332aa857bec)(react@19.2.4)
       react-router-breadcrumbs-hoc:
         specifier: ^4.1.0
         version: 4.1.0(react-router-dom@6.30.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)
@@ -494,7 +500,7 @@ importers:
         version: 6.30.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       react-scan:
         specifier: ^0.3.3
-        version: 0.3.6(@types/react@19.1.2)(react-dom@19.2.4(react@19.2.4))(react-router-dom@6.30.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-router@6.30.0(patch_hash=2f48bbfed228db1edcc3e6da58f5dd6480824e45b14bcb9265c58332aa857bec)(react@19.2.4))(react@19.2.4)(rollup@4.59.0)
+        version: 0.3.6(@types/react@19.1.2)(react-dom@19.2.4(react@19.2.4))(react-router-dom@6.30.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-router@6.30.2(patch_hash=2f48bbfed228db1edcc3e6da58f5dd6480824e45b14bcb9265c58332aa857bec)(react@19.2.4))(react@19.2.4)(rollup@4.59.0)
       react-table:
         specifier: ^7.8.0
         version: 7.8.0(react@19.2.4)
@@ -812,8 +818,8 @@ importers:
   packages/chain-adapters:
     dependencies:
       '@mysten/sui':
-        specifier: 1.45.0
-        version: 1.45.0(typescript@5.2.2)
+        specifier: 1.45.2
+        version: 1.45.2(typescript@5.2.2)
       '@near-js/crypto':
         specifier: ^2.5.1
         version: 2.5.1(@near-js/types@2.5.1)(@near-js/utils@2.5.1(@near-js/types@2.5.1))
@@ -1303,7 +1309,7 @@ importers:
         version: 4.2.0
       '@ledgerhq/device-core':
         specifier: 0.6.9
-        version: 0.6.9(react-redux@9.2.0(@types/react@19.1.2)(react@18.3.1)(redux@5.0.1))(react@18.3.1)
+        version: 0.6.9(react-redux@9.2.0(@types/react@19.1.2)(react@19.2.4)(redux@5.0.1))(react@19.2.4)
       '@ledgerhq/hw-app-btc':
         specifier: 10.13.0
         version: 10.13.0
@@ -1312,7 +1318,7 @@ importers:
         version: 6.32.9
       '@ledgerhq/hw-app-eth':
         specifier: 7.0.0
-        version: 7.0.0(react-redux@9.2.0(@types/react@19.1.2)(react@18.3.1)(redux@5.0.1))(react@18.3.1)
+        version: 7.0.0(react-redux@9.2.0(@types/react@19.1.2)(react@19.2.4)(redux@5.0.1))(react@19.2.4)
       '@ledgerhq/hw-app-near':
         specifier: 6.31.10
         version: 6.31.10
@@ -1385,7 +1391,7 @@ importers:
         version: 10.13.0
       '@ledgerhq/hw-app-eth':
         specifier: 7.0.0
-        version: 7.0.0(react-redux@9.2.0(@types/react@19.1.2)(react@19.2.4)(redux@5.0.1))(react@19.2.4)
+        version: 7.0.0(react-redux@9.2.0(@types/react@19.1.2)(react@18.3.1)(redux@5.0.1))(react@18.3.1)
       '@ledgerhq/hw-transport':
         specifier: 6.31.13
         version: 6.31.13
@@ -1522,6 +1528,9 @@ importers:
       bip39:
         specifier: ^3.0.2
         version: 3.1.0
+      bitcoinjs-message:
+        specifier: ^2.1.0
+        version: 2.2.0
       bs58:
         specifier: ^4.0.1
         version: 4.0.1
@@ -1553,7 +1562,7 @@ importers:
         specifier: ^4.17.23
         version: 4.17.23
       node-fetch:
-        specifier: ^2.6.1
+        specifier: 2.7.0
         version: 2.7.0
       p-lazy:
         specifier: ^3.1.0
@@ -1761,8 +1770,8 @@ importers:
   packages/hdwallet-seeker:
     dependencies:
       '@mysten/sui':
-        specifier: 1.45.0
-        version: 1.45.0(typescript@5.2.2)
+        specifier: 1.45.2
+        version: 1.45.2(typescript@5.2.2)
       '@shapeshiftoss/hdwallet-core':
         specifier: workspace:^
         version: link:../hdwallet-core
@@ -1858,6 +1867,12 @@ importers:
 
   packages/hdwallet-walletconnectv2:
     dependencies:
+      '@bitcoinerlab/secp256k1':
+        specifier: ^1.2.0
+        version: 1.2.0
+      '@shapeshiftoss/bitcoinjs-lib':
+        specifier: 7.0.0-shapeshift.2
+        version: 7.0.0-shapeshift.2(typescript@5.2.2)
       '@shapeshiftoss/hdwallet-core':
         specifier: workspace:^
         version: link:../hdwallet-core
@@ -2050,7 +2065,7 @@ importers:
         specifier: 6.0.30
         version: 6.0.30
       '@mysten/sui':
-        specifier: ^1.45.2
+        specifier: 1.45.2
         version: 1.45.2(typescript@5.2.2)
       '@shapeshiftoss/bitcoinjs-lib':
         specifier: 7.0.0-shapeshift.0
@@ -2172,7 +2187,7 @@ importers:
         version: link:../caip
       '@shapeshiftoss/common-api':
         specifier: ^9.3.0
-        version: 9.3.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+        version: 9.3.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
       '@shapeshiftoss/contracts':
         specifier: workspace:^
         version: link:../contracts
@@ -2190,16 +2205,16 @@ importers:
         version: 5.0.0
       ethers:
         specifier: 6.11.1
-        version: 6.11.1(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+        version: 6.11.1(bufferutil@4.1.0)(utf-8-validate@6.0.6)
       isomorphic-ws:
         specifier: ^4.0.1
-        version: 4.0.1(ws@8.19.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))
+        version: 4.0.1(ws@8.19.0(bufferutil@4.1.0)(utf-8-validate@6.0.6))
       viem:
         specifier: 2.43.5
-        version: 2.43.5(bufferutil@4.1.0)(typescript@5.2.2)(utf-8-validate@5.0.10)(zod@3.25.76)
+        version: 2.43.5(bufferutil@4.1.0)(typescript@5.2.2)(utf-8-validate@6.0.6)(zod@3.25.76)
       ws:
         specifier: ^8.17.1
-        version: 8.19.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+        version: 8.19.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
     devDependencies:
       '@openapitools/openapi-generator-cli':
         specifier: ^2.5.1
@@ -3027,7 +3042,7 @@ packages:
     resolution: {integrity: sha512-k3SFPEPMFLV48/xIReh8C3nbKbCsRUd8N0Nio+zEHw3eZBFSHtTFxYTiDVnn3e/f5UBB7A6MEglYIDTFMwDfYQ==}
     peerDependencies:
       '@mysten/bcs': '>=0.8.1'
-      '@mysten/sui': '>=1.1.2'
+      '@mysten/sui': 1.45.2
 
   '@chainflip/extrinsics@1.6.2':
     resolution: {integrity: sha512-CseddihWRvjnuNLM94+EXqqNVexdJVEGj218tibgWqw0CnGmo9cJyHbln6sqgQPlSl4/LqBbeBR9XniJekKwZQ==}
@@ -5036,10 +5051,6 @@ packages:
   '@mysten/ledgerjs-hw-app-sui@0.7.0':
     resolution: {integrity: sha512-Z2ydxg35U2tk3pThsWzPewticDnHWqAeLlh2Vp4NhYU/YFyoVxK9obh21pnvU/hmRzL+BRpYlwbX5Nuo77+lwA==}
 
-  '@mysten/sui@1.45.0':
-    resolution: {integrity: sha512-WYpZmrGWE/FeQaRhYrAYpHcHallj4BFIfSmjq6BkODzEhP9HfMplQAtd8AmtctwO7cpHJ+BjPUOguEAcf1gU4g==}
-    engines: {node: '>=18'}
-
   '@mysten/sui@1.45.2':
     resolution: {integrity: sha512-gftf7fNpFSiXyfXpbtP2afVEnhc7p2m/MEYc/SO5pov92dacGKOpQIF7etZsGDI1Wvhv+dpph+ulRNpnYSs7Bg==}
     engines: {node: '>=18'}
@@ -5741,8 +5752,8 @@ packages:
       react-redux:
         optional: true
 
-  '@remix-run/router@1.23.0':
-    resolution: {integrity: sha512-O3rHJzAQKamUz1fvE0Qaw0xSFqsA/yafi2iqeE0pvdFtCO1viYx8QL6f3Ln/aCCTLxs68SLf0KPM9eSeM8yBnA==}
+  '@remix-run/router@1.23.1':
+    resolution: {integrity: sha512-vDbaOzF7yT2Qs4vO6XV1MHcJv+3dgR1sT+l3B8xxOVhUC336prMvqrvsLL/9Dnw2xr6Qhz4J0dmS0llNAbnUmQ==}
     engines: {node: '>=14.0.0'}
 
   '@remix-run/router@1.23.2':
@@ -10797,12 +10808,6 @@ packages:
     engines: {node: '>= 12.20.55'}
     hasBin: true
 
-  elliptic@6.5.4:
-    resolution: {integrity: sha512-iLhC6ULemrljPZb+QutR5TQGB+pdW6KGD5RSegS+8sorOZT+rdQFbsQFJgvN3eRqNALqJer4oQ16YvJHlU8hzQ==}
-
-  elliptic@6.5.7:
-    resolution: {integrity: sha512-ESVCtTwiA+XhY3wyh24QqRGBoP3rEdDUl3EDUUo9tft074fi19IrdpH7hLCMMP3CIj7jb3W96rn8lt/BqIlt5Q==}
-
   elliptic@6.6.1:
     resolution: {integrity: sha512-RaddvvMatK2LJHqFJ+YA4WysVN5Ita9E35botqIYspQ4TkRAlCicdzKOjlyv/1Za5RyTNn7di//eEV0uTAfe3g==}
 
@@ -13528,19 +13533,6 @@ packages:
   node-fetch-native@1.6.7:
     resolution: {integrity: sha512-g9yhqoedzIUm0nTnTqAQvueMPVOuIY16bqgAJJC8XOOubYFNwz6IER9qs0Gq2Xd0+CecCKFjtdDTMA4u4xG06Q==}
 
-  node-fetch@2.6.1:
-    resolution: {integrity: sha512-V4aYg89jEoVRxRb2fJdAg8FHvI7cEyYdVAh94HH0UIK8oJxUfkjlDQN9RbMx+bEjP7+ggMiFRprSti032Oipxw==}
-    engines: {node: 4.x || >=6.0.0}
-
-  node-fetch@2.6.7:
-    resolution: {integrity: sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==}
-    engines: {node: 4.x || >=6.0.0}
-    peerDependencies:
-      encoding: ^0.1.0
-    peerDependenciesMeta:
-      encoding:
-        optional: true
-
   node-fetch@2.7.0:
     resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
     engines: {node: 4.x || >=6.0.0}
@@ -14527,8 +14519,8 @@ packages:
       react: '>=16.8'
       react-dom: 18.2.0
 
-  react-router@6.30.0:
-    resolution: {integrity: sha512-D3X8FyH9nBcTSHGdEKurK7r8OYE1kKFn3d/CF+CoxbSHkxU7o37+Uh7eAHRXr6k2tSExXYO++07PeXJtA/dEhQ==}
+  react-router@6.30.2:
+    resolution: {integrity: sha512-H2Bm38Zu1bm8KUE5NVWRMzuIyAV8p/JrOaBJAwVmp37AXG72+CZJlEBw6pdn9i5TBgLMhNDgijS4ZlblpHyWTA==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       react: '>=16.8'
@@ -14541,7 +14533,7 @@ packages:
       next: '>=13.0.0'
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: 18.2.0
-      react-router: 6.30.0
+      react-router: 6.30.2
       react-router-dom: ^5.0.0 || ^6.0.0 || ^7.0.0
     peerDependenciesMeta:
       '@remix-run/react':
@@ -16294,9 +16286,6 @@ packages:
   v8-compile-cache-lib@3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
 
-  valibot@0.36.0:
-    resolution: {integrity: sha512-CjF1XN4sUce8sBK9TixrDqFM7RwNkuXdJu174/AwmQUB62QbCQADg5lLe8ldBalFgtj1uKj+pKwDJiNo4Mn+eQ==}
-
   valibot@0.38.0:
     resolution: {integrity: sha512-RCJa0fetnzp+h+KN9BdgYOgtsMAG9bfoJ9JSjIhFHobKWVWyzM3jjaeNTdpFK9tQtf3q1sguXeERJ/LcmdFE7w==}
     peerDependencies:
@@ -16331,10 +16320,6 @@ packages:
   validate@5.2.0:
     resolution: {integrity: sha512-pVADd6GfDT7bALYvvzhfHnfmxCDem2bG7lGY3mwHzY7ktMH/SaczoF+eKkGokQEdGKozkJvyuOiSfQEHXp4zIA==}
     engines: {node: '>=7.6'}
-
-  validator@13.15.20:
-    resolution: {integrity: sha512-KxPOq3V2LmfQPP4eqf3Mq/zrT0Dqp2Vmx2Bn285LwVahLc+CsxOM0crBHczm8ijlcjZ0Q5Xd6LW3z3odTPnlrw==}
-    engines: {node: '>= 0.10'}
 
   validator@13.15.26:
     resolution: {integrity: sha512-spH26xU080ydGggxRyR1Yhcbgx+j3y5jbNXk/8L+iRvdIEQ4uTRH2Sgf2dokud6Q4oAtsbNvJ1Ft+9xmm6IZcA==}
@@ -16952,18 +16937,6 @@ packages:
       utf-8-validate:
         optional: true
 
-  ws@7.4.6:
-    resolution: {integrity: sha512-YmhHDO4MzaDLB+M9ym/mDA5z0naX8j7SIlT8f8z+I0VtzsRbekxEutHSme7NPS2qE8StCYQNUnfWdXta/Yu85A==}
-    engines: {node: '>=8.3.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: ^5.0.2
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
-
   ws@7.5.10:
     resolution: {integrity: sha512-+dbF1tHwZpXcbOJdVOkzLDxZP1ailvSxM6ZweXTegylPny803bFhA+vqBYw4s31NSAk4S2Qz+AKXK9a4wkdjcQ==}
     engines: {node: '>=8.3.0'}
@@ -17030,18 +17003,6 @@ packages:
     peerDependencies:
       bufferutil: ^4.0.1
       utf-8-validate: '>=5.0.2'
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
-
-  ws@8.5.0:
-    resolution: {integrity: sha512-BWX0SWVgLPzYwF8lTzEy1egjhS4S4OEAHfsO8o65WOVsrnSRGaSiUaa9e0ggGlkMTtBlmOpEXiie9RUcBO86qg==}
-    engines: {node: '>=10.0.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: ^5.0.2
     peerDependenciesMeta:
       bufferutil:
         optional: true
@@ -18278,10 +18239,10 @@ snapshots:
       - '@gql.tada/vue-support'
       - axios
 
-  '@cetusprotocol/cetus-sui-clmm-sdk@5.4.0(@mysten/bcs@1.9.2)(@mysten/sui@1.45.0(typescript@5.2.2))':
+  '@cetusprotocol/cetus-sui-clmm-sdk@5.4.0(@mysten/bcs@1.9.2)(@mysten/sui@1.45.2(typescript@5.2.2))':
     dependencies:
       '@mysten/bcs': 1.9.2
-      '@mysten/sui': 1.45.0(typescript@5.2.2)
+      '@mysten/sui': 1.45.2(typescript@5.2.2)
       '@suchipi/femver': 1.0.0
       '@syntsugar/cc-graph': 0.1.1
       '@types/bn.js': 5.2.0
@@ -19716,7 +19677,7 @@ snapshots:
       '@ethersproject/transactions': 5.7.0
       '@ethersproject/web': 5.7.1
       bech32: 1.1.4
-      ws: 7.4.6(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+      ws: 7.5.10(bufferutil@4.1.0)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -19742,7 +19703,7 @@ snapshots:
       '@ethersproject/transactions': 5.8.0
       '@ethersproject/web': 5.8.0
       bech32: 1.1.4
-      ws: 8.18.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+      ws: 7.5.10(bufferutil@4.1.0)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -19785,7 +19746,7 @@ snapshots:
       '@ethersproject/logger': 5.7.0
       '@ethersproject/properties': 5.7.0
       bn.js: 5.2.3
-      elliptic: 6.5.4
+      elliptic: 6.6.1
       hash.js: 1.1.7
 
   '@ethersproject/signing-key@5.8.0':
@@ -20477,14 +20438,14 @@ snapshots:
       - react
       - react-redux
 
-  '@ledgerhq/device-core@0.6.9(react-redux@9.2.0(@types/react@19.1.2)(react@18.3.1)(redux@5.0.1))(react@18.3.1)':
+  '@ledgerhq/device-core@0.6.9(react-redux@9.2.0(@types/react@19.1.2)(react@19.2.4)(redux@5.0.1))(react@19.2.4)':
     dependencies:
       '@ledgerhq/devices': 8.7.0
       '@ledgerhq/errors': 6.29.0
       '@ledgerhq/hw-transport': 6.31.13
       '@ledgerhq/live-network': 2.2.3
       '@ledgerhq/logs': 6.13.0
-      '@ledgerhq/types-live': 6.98.0(react-redux@9.2.0(@types/react@19.1.2)(react@18.3.1)(redux@5.0.1))(react@18.3.1)
+      '@ledgerhq/types-live': 6.98.0(react-redux@9.2.0(@types/react@19.1.2)(react@19.2.4)(redux@5.0.1))(react@19.2.4)
       '@noble/hashes': 1.8.0
       semver: 7.7.4
     transitivePeerDependencies:
@@ -21643,28 +21604,6 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@mysten/sui@1.45.0(typescript@5.2.2)':
-    dependencies:
-      '@graphql-typed-document-node/core': 3.2.0(graphql@16.13.0)
-      '@mysten/bcs': 1.9.2
-      '@mysten/utils': 0.2.0
-      '@noble/curves': 1.9.4
-      '@noble/hashes': 1.8.0
-      '@protobuf-ts/grpcweb-transport': 2.11.1
-      '@protobuf-ts/runtime': 2.11.1
-      '@protobuf-ts/runtime-rpc': 2.11.1
-      '@scure/base': 1.2.6
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      gql.tada: 1.9.0(graphql@16.13.0)(typescript@5.2.2)
-      graphql: 16.13.0
-      poseidon-lite: 0.2.1
-      valibot: 0.36.0
-    transitivePeerDependencies:
-      - '@gql.tada/svelte-support'
-      - '@gql.tada/vue-support'
-      - typescript
-
   '@mysten/sui@1.45.2(typescript@5.2.2)':
     dependencies:
       '@graphql-typed-document-node/core': 3.2.0(graphql@16.13.0)
@@ -21800,7 +21739,7 @@ snapshots:
       borsh: 1.0.0
       http-errors: 1.7.2
     optionalDependencies:
-      node-fetch: 2.6.7
+      node-fetch: 2.7.0
     transitivePeerDependencies:
       - encoding
 
@@ -21813,7 +21752,7 @@ snapshots:
       borsh: 1.0.0
       exponential-backoff: 3.1.3
     optionalDependencies:
-      node-fetch: 2.6.7
+      node-fetch: 2.7.0
     transitivePeerDependencies:
       - encoding
 
@@ -22541,7 +22480,7 @@ snapshots:
       react: 19.2.4
       react-redux: 9.2.0(@types/react@19.1.2)(react@19.2.4)(redux@5.0.1)
 
-  '@remix-run/router@1.23.0': {}
+  '@remix-run/router@1.23.1': {}
 
   '@remix-run/router@1.23.2': {}
 
@@ -24112,6 +24051,13 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
+  '@shapeshiftoss/blockbook@9.3.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)':
+    dependencies:
+      ws: 8.19.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   '@shapeshiftoss/caip@8.16.8':
     dependencies:
       axios: 1.13.6(debug@4.4.3)
@@ -24125,6 +24071,17 @@ snapshots:
       tsoa: 4.1.3
       uuid: 8.3.2
       ws: 8.19.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  '@shapeshiftoss/common-api@9.3.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)':
+    dependencies:
+      '@shapeshiftoss/blockbook': 9.3.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      bignumber.js: 9.3.1
+      tsoa: 4.1.3
+      uuid: 8.3.2
+      ws: 8.19.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -24410,6 +24367,7 @@ snapshots:
       - '@ethersproject/contracts'
       - '@ethersproject/providers'
       - bufferutil
+      - encoding
       - utf-8-validate
 
   '@shapeshiftoss/unchained-client@10.14.10(@ethersproject/address@5.8.0)(@ethersproject/contracts@5.8.0)(@ethersproject/networks@5.8.0)(@ethersproject/providers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(@ethersproject/solidity@5.8.0)(bufferutil@4.1.0)(cross-fetch@4.1.0)(ipfs-only-hash@4.0.0)(multiformats@9.9.0)(typescript@5.2.2)(utf-8-validate@5.0.10)(zod@3.25.76)':
@@ -29909,6 +29867,8 @@ snapshots:
       dotenv: 10.0.0
       emittery: 0.8.1
       type-fest: 1.2.1
+    transitivePeerDependencies:
+      - encoding
 
   '@zag-js/dom-query@0.31.1': {}
 
@@ -31485,7 +31445,9 @@ snapshots:
 
   cross-fetch@3.1.4:
     dependencies:
-      node-fetch: 2.6.1
+      node-fetch: 2.7.0
+    transitivePeerDependencies:
+      - encoding
 
   cross-fetch@3.2.0:
     dependencies:
@@ -32015,26 +31977,6 @@ snapshots:
       extract-zip: 2.0.1
     transitivePeerDependencies:
       - supports-color
-
-  elliptic@6.5.4:
-    dependencies:
-      bn.js: 4.12.3
-      brorand: 1.1.0
-      hash.js: 1.1.7
-      hmac-drbg: 1.0.1
-      inherits: 2.0.4
-      minimalistic-assert: 1.0.1
-      minimalistic-crypto-utils: 1.0.1
-
-  elliptic@6.5.7:
-    dependencies:
-      bn.js: 4.12.3
-      brorand: 1.1.0
-      hash.js: 1.1.7
-      hmac-drbg: 1.0.1
-      inherits: 2.0.4
-      minimalistic-assert: 1.0.1
-      minimalistic-crypto-utils: 1.0.1
 
   elliptic@6.6.1:
     dependencies:
@@ -32943,7 +32885,7 @@ snapshots:
     dependencies:
       aes-js: 3.0.0
       bn.js: 4.12.3
-      elliptic: 6.5.4
+      elliptic: 6.6.1
       hash.js: 1.1.3
       js-sha3: 0.5.7
       scrypt-js: 2.0.4
@@ -32995,7 +32937,7 @@ snapshots:
       '@types/node': 18.15.13
       aes-js: 4.0.0-beta.5
       tslib: 2.4.0
-      ws: 8.5.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+      ws: 8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -33008,7 +32950,7 @@ snapshots:
       '@types/node': 18.15.13
       aes-js: 4.0.0-beta.5
       tslib: 2.4.0
-      ws: 8.5.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      ws: 8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -33021,7 +32963,7 @@ snapshots:
       '@types/node': 22.7.5
       aes-js: 4.0.0-beta.5
       tslib: 2.7.0
-      ws: 8.17.1(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+      ws: 8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -33034,7 +32976,7 @@ snapshots:
       '@types/node': 22.7.5
       aes-js: 4.0.0-beta.5
       tslib: 2.7.0
-      ws: 8.17.1(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+      ws: 8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -33047,7 +32989,7 @@ snapshots:
       '@types/node': 22.7.5
       aes-js: 4.0.0-beta.5
       tslib: 2.7.0
-      ws: 8.17.1(bufferutil@4.1.0)(utf-8-validate@6.0.6)
+      ws: 8.18.3(bufferutil@4.1.0)(utf-8-validate@6.0.6)
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -33669,7 +33611,7 @@ snapshots:
       cbor: 10.0.11
       cbor-bigdecimal: 10.0.11(bignumber.js@9.3.1)
       crc-32: 1.2.2
-      elliptic: 6.5.7
+      elliptic: 6.6.1
       ethers: 6.16.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
       hash.js: 1.1.7
       js-sha3: 0.9.3
@@ -34403,6 +34345,10 @@ snapshots:
   isomorphic-ws@4.0.1(ws@8.19.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)):
     dependencies:
       ws: 8.19.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
+
+  isomorphic-ws@4.0.1(ws@8.19.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)):
+    dependencies:
+      ws: 8.19.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
 
   isomorphic-ws@5.0.0(ws@8.17.1(bufferutil@4.1.0)(utf-8-validate@5.0.10)):
     dependencies:
@@ -35723,7 +35669,7 @@ snapshots:
       depd: 2.0.0
       http-errors: 1.7.2
       near-abi: 0.1.1
-      node-fetch: 2.6.7
+      node-fetch: 2.7.0
     transitivePeerDependencies:
       - encoding
 
@@ -35783,12 +35729,6 @@ snapshots:
       semver: 6.3.1
 
   node-fetch-native@1.6.7: {}
-
-  node-fetch@2.6.1: {}
-
-  node-fetch@2.6.7:
-    dependencies:
-      whatwg-url: 5.0.0
 
   node-fetch@2.7.0:
     dependencies:
@@ -36096,8 +36036,8 @@ snapshots:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/curves': 1.9.7
       '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.6.2
-      '@scure/bip39': 1.5.4
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
       abitype: 1.0.8(typescript@5.2.2)(zod@3.25.76)
       eventemitter3: 5.0.1
     optionalDependencies:
@@ -36968,14 +36908,14 @@ snapshots:
       '@remix-run/router': 1.23.2
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
-      react-router: 6.30.0(patch_hash=2f48bbfed228db1edcc3e6da58f5dd6480824e45b14bcb9265c58332aa857bec)(react@19.2.4)
+      react-router: 6.30.2(patch_hash=2f48bbfed228db1edcc3e6da58f5dd6480824e45b14bcb9265c58332aa857bec)(react@19.2.4)
 
-  react-router@6.30.0(patch_hash=2f48bbfed228db1edcc3e6da58f5dd6480824e45b14bcb9265c58332aa857bec)(react@19.2.4):
+  react-router@6.30.2(patch_hash=2f48bbfed228db1edcc3e6da58f5dd6480824e45b14bcb9265c58332aa857bec)(react@19.2.4):
     dependencies:
-      '@remix-run/router': 1.23.0
+      '@remix-run/router': 1.23.1
       react: 19.2.4
 
-  react-scan@0.3.6(@types/react@19.1.2)(react-dom@19.2.4(react@19.2.4))(react-router-dom@6.30.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-router@6.30.0(patch_hash=2f48bbfed228db1edcc3e6da58f5dd6480824e45b14bcb9265c58332aa857bec)(react@19.2.4))(react@19.2.4)(rollup@4.59.0):
+  react-scan@0.3.6(@types/react@19.1.2)(react-dom@19.2.4(react@19.2.4))(react-router-dom@6.30.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-router@6.30.2(patch_hash=2f48bbfed228db1edcc3e6da58f5dd6480824e45b14bcb9265c58332aa857bec)(react@19.2.4))(react@19.2.4)(rollup@4.59.0):
     dependencies:
       '@babel/core': 7.29.0
       '@babel/generator': 7.29.1
@@ -36997,7 +36937,7 @@ snapshots:
       react-dom: 19.2.4(react@19.2.4)
       tsx: 4.21.0
     optionalDependencies:
-      react-router: 6.30.0(patch_hash=2f48bbfed228db1edcc3e6da58f5dd6480824e45b14bcb9265c58332aa857bec)(react@19.2.4)
+      react-router: 6.30.2(patch_hash=2f48bbfed228db1edcc3e6da58f5dd6480824e45b14bcb9265c58332aa857bec)(react@19.2.4)
       react-router-dom: 6.30.3(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       unplugin: 2.1.0
     transitivePeerDependencies:
@@ -38391,7 +38331,7 @@ snapshots:
       eventemitter3: 5.0.1
       google-protobuf: 3.21.4
       semver: 7.7.1
-      validator: 13.15.20
+      validator: 13.15.26
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -38915,8 +38855,6 @@ snapshots:
 
   v8-compile-cache-lib@3.0.1: {}
 
-  valibot@0.36.0: {}
-
   valibot@0.38.0(typescript@5.2.2):
     optionalDependencies:
       typescript: 5.2.2
@@ -38941,8 +38879,6 @@ snapshots:
       '@eivifj/dot': 1.0.3
       component-type: 1.2.1
       typecast: 0.0.1
-
-  validator@13.15.20: {}
 
   validator@13.15.26: {}
 
@@ -39908,11 +39844,6 @@ snapshots:
       bufferutil: 4.1.0
       utf-8-validate: 5.0.10
 
-  ws@7.4.6(bufferutil@4.1.0)(utf-8-validate@5.0.10):
-    optionalDependencies:
-      bufferutil: 4.1.0
-      utf-8-validate: 5.0.10
-
   ws@7.5.10(bufferutil@4.1.0)(utf-8-validate@5.0.10):
     optionalDependencies:
       bufferutil: 4.1.0
@@ -39932,11 +39863,6 @@ snapshots:
     optionalDependencies:
       bufferutil: 4.1.0
       utf-8-validate: 5.0.10
-
-  ws@8.17.1(bufferutil@4.1.0)(utf-8-validate@6.0.6):
-    optionalDependencies:
-      bufferutil: 4.1.0
-      utf-8-validate: 6.0.6
 
   ws@8.18.0(bufferutil@4.1.0)(utf-8-validate@5.0.10):
     optionalDependencies:
@@ -39959,16 +39885,6 @@ snapshots:
       utf-8-validate: 5.0.10
 
   ws@8.19.0(bufferutil@4.1.0)(utf-8-validate@6.0.6):
-    optionalDependencies:
-      bufferutil: 4.1.0
-      utf-8-validate: 6.0.6
-
-  ws@8.5.0(bufferutil@4.1.0)(utf-8-validate@5.0.10):
-    optionalDependencies:
-      bufferutil: 4.1.0
-      utf-8-validate: 5.0.10
-
-  ws@8.5.0(bufferutil@4.1.0)(utf-8-validate@6.0.6):
     optionalDependencies:
       bufferutil: 4.1.0
       utf-8-validate: 6.0.6

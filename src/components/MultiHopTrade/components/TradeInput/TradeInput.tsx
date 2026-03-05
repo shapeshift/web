@@ -436,7 +436,7 @@ export const TradeInput = ({
 
   const buyAssetSelectButtonProps = useMemo(() => {
     return {
-      'data-testid': 'buy-asset-button',
+      'data-testid': 'trade-buy-asset-picker',
       maxWidth: isSmallerThanMd ? '100%' : undefined,
     }
   }, [isSmallerThanMd])
@@ -512,6 +512,7 @@ export const TradeInput = ({
             formControlProps={formControlProps}
             labelPostFix={buyTradeAssetSelect}
             activeQuote={activeQuote}
+            inputDataTestId='trade-buy-amount-input'
           />
         </>
       </SharedTradeInputBody>

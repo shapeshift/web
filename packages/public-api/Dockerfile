@@ -47,9 +47,6 @@ COPY packages/types/package.json ./packages/types/
 COPY packages/unchained-client/package.json ./packages/unchained-client/
 COPY packages/utils/package.json ./packages/utils/
 
-# Copy patches directory (required by pnpm for patched dependencies in lockfile)
-COPY patches/ ./patches/
-
 # Install dependencies with Railway cache mount (skip build/postinstall scripts that require git/cypress/etc)
 RUN corepack enable && corepack prepare pnpm@10.30.3 --activate && pnpm install --frozen-lockfile --ignore-scripts
 

@@ -50,6 +50,9 @@ COPY packages/utils/package.json ./packages/utils/
 # Copy patches directory (required by pnpm for patched dependencies in lockfile)
 COPY patches/ ./patches/
 
+# Use copy instead of hard-link to avoid ENOENT rename failures on Docker's overlay filesystem
+ENV NPM_CONFIG_PACKAGE_IMPORT_METHOD=copy
+
 # Install dependencies (skip build/postinstall scripts that require git/cypress/etc)
 RUN corepack enable && corepack prepare pnpm@10.30.3 --activate && pnpm install --frozen-lockfile --ignore-scripts
 

@@ -14,7 +14,7 @@ type SwapIdResponse = {
       nodes: {
         swap: {
           nativeId: string | undefined
-        }
+        } | null
       }[]
     }
   }
@@ -32,26 +32,43 @@ const nativeSwapIdQuery = `
   }
 `
 
+export const chainflipSwapIdQueryKey = (txHash: string) => ['chainflipSwapId', { txHash }] as const
+
+export const selectLatestChainflipSwapId = (response: SwapIdResponse): string | undefined => {
+  const nodes = response.data.txRefs.nodes
+
+  for (let i = nodes.length - 1; i >= 0; i--) {
+    const nativeId = nodes[i]?.swap?.nativeId
+    if (nativeId) return nativeId
+  }
+
+  return undefined
+}
+
+export const fetchChainflipSwapIdByTxHash = async (txHash: string): Promise<string | undefined> => {
+  const { data } = await axios.post<SwapIdResponse>(
+    'https://explorer-service-processor.chainflip.io/graphql',
+    {
+      query: nativeSwapIdQuery,
+      variables: {
+        searchString: txHash,
+      },
+    },
+  )
+
+  return selectLatestChainflipSwapId(data)
+}
+
 export const useChainflipSwapIdQuery = ({
   txHash,
   swapperName,
 }: UseChainflipSwapIdArgs): UseQueryResult<string | undefined, Error> => {
   return useQuery({
-    queryKey: ['chainflipSwapId', { txHash }],
+    queryKey: txHash ? chainflipSwapIdQueryKey(txHash) : ['chainflipSwapId', { txHash }],
     queryFn:
       txHash && swapperName === SwapperName.Chainflip
-        ? () =>
-            // Yes, this is ugly, just another day in "we're doing inline raw GraphQL queries with http"
-            // Note, this is undocumented but is actually the exact same query fragment CF UI uses to go from Tx hash to swap ID (though only a fragment of it,
-            // actually stripped out to the bare minimum here vs. cf UI)
-            axios.post<SwapIdResponse>('https://explorer-service-processor.chainflip.io/graphql', {
-              query: nativeSwapIdQuery,
-              variables: {
-                searchString: txHash,
-              },
-            })
+        ? () => fetchChainflipSwapIdByTxHash(txHash)
         : skipToken,
-    select: ({ data: { data } }) => data.txRefs.nodes[0].swap.nativeId,
     // Long-poll until swap by initiating Txid is indexed
     refetchInterval: 10_000,
   })

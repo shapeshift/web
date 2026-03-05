@@ -29,6 +29,10 @@ import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import {
+  chainflipSwapIdQueryKey,
+  fetchChainflipSwapIdByTxHash,
+} from '@/hooks/queries/useChainflipSwapIdQuery'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { getTxLink } from '@/lib/getTxLink'
 import { fetchTradeStatus, tradeStatusQueryKey } from '@/lib/tradeExecution'
@@ -246,13 +250,32 @@ export const useSwapActionSubscriber = () => {
           ? swap.buyAsset.explorerTxLink
           : swap.sellAsset.explorerTxLink
 
+      const maybeChainflipSwapId = (() => {
+        const chainflipSwapId = swap.metadata.chainflipSwapId
+        return chainflipSwapId === undefined ? undefined : String(chainflipSwapId)
+      })()
+
+      const chainflipSwapIdTxHash = buyTxHash ?? swap.sellTxHash
+
+      const latestChainflipSwapId =
+        swap.swapperName === SwapperName.Chainflip && chainflipSwapIdTxHash
+          ? await queryClient
+              .fetchQuery({
+                queryKey: chainflipSwapIdQueryKey(chainflipSwapIdTxHash),
+                queryFn: () => fetchChainflipSwapIdByTxHash(chainflipSwapIdTxHash),
+                staleTime: 10_000,
+                gcTime: 60_000,
+              })
+              .catch(() => undefined)
+          : undefined
+
       const txLink = getTxLink({
         address,
         chainId,
         defaultExplorerBaseUrl,
         maybeSafeTx,
         stepSource: status && status !== TxStatus.Unknown ? swap.source : undefined,
-        maybeChainflipSwapId: `${swap.metadata.chainflipSwapId}`,
+        maybeChainflipSwapId: latestChainflipSwapId ?? maybeChainflipSwapId,
         maybeNearIntentsDepositAddress: swap.metadata.nearIntentsSpecific?.depositAddress,
         ...(swap.swapperName === SwapperName.CowSwap ? { tradeId: txHash } : { txId: txHash }),
         ...(swap.metadata.relayerTxHash && {

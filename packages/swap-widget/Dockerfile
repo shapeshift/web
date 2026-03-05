@@ -9,7 +9,8 @@ WORKDIR /app
 RUN apk add --no-cache python3 make g++ openjdk17-jre
 
 # Copy workspace files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY patches/ ./patches/
 
 # Copy all workspace package.json files for resolution (pnpm requires all workspaces present)
 COPY packages/caip/package.json ./packages/caip/
@@ -47,21 +48,21 @@ COPY packages/types/package.json ./packages/types/
 COPY packages/unchained-client/package.json ./packages/unchained-client/
 COPY packages/utils/package.json ./packages/utils/
 
-# Copy patches directory (required by pnpm for patched dependencies in lockfile)
-COPY patches/ ./patches/
-
-# Use copy instead of hard-link to avoid ENOENT rename failures on Docker's overlay filesystem
+# Copy import method avoids hard-link failures from the pnpm store on Docker overlay FS
 ENV NPM_CONFIG_PACKAGE_IMPORT_METHOD=copy
 
-# Install dependencies (skip build/postinstall scripts that require git/cypress/etc)
-# Retry loop: pnpm's hoisting/linking phase hits intermittent ENOENT rename failures on
-# Docker overlay filesystems. Packages are cached in the store after the first attempt,
-# so retries are fast. Clean node_modules between attempts to avoid partial state.
-RUN corepack enable && corepack prepare pnpm@10.30.3 --activate && \
+# Install dependencies, skipping lifecycle scripts (controlled by onlyBuiltDependencies in package.json)
+# Retry loop: pnpm's hoisted linker intermittently fails with ENOENT on Docker overlay FS (known issue).
+RUN --mount=type=cache,id=s/4cafb297-3349-46e2-bfef-8210504e0583-/root/.local/share/pnpm/store,target=/root/.local/share/pnpm/store \
+    corepack enable && \
     for i in 1 2 3; do \
       pnpm install --frozen-lockfile --ignore-scripts && break || \
-      { echo "pnpm install attempt $i failed, retrying..."; rm -rf node_modules; }; \
+      rm -rf node_modules; \
     done
+
+# Run postinstall for openapi-generator-cli to download the JAR (skipped by --ignore-scripts above)
+RUN --mount=type=cache,id=s/4cafb297-3349-46e2-bfef-8210504e0583-/root/.openapi-generator-cli,target=/root/.openapi-generator-cli \
+    pnpm rebuild @openapitools/openapi-generator-cli
 
 # Copy unchained-client config and generator files FIRST (rarely changes, enables layer caching)
 COPY packages/unchained-client/openapitools.json ./packages/unchained-client/

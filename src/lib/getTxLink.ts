@@ -83,6 +83,20 @@ export const getTxBaseUrl = ({
   }
 }
 
+const normalizeChainflipSwapId = (
+  maybeChainflipSwapId: string | undefined,
+): string | undefined => {
+  if (typeof maybeChainflipSwapId !== 'string') return undefined
+
+  const normalizedChainflipSwapId = maybeChainflipSwapId.trim()
+  if (!normalizedChainflipSwapId) return undefined
+
+  const lowerCaseSwapId = normalizedChainflipSwapId.toLowerCase()
+  if (lowerCaseSwapId === 'undefined' || lowerCaseSwapId === 'null') return undefined
+
+  return normalizedChainflipSwapId
+}
+
 export const getTxLink = ({
   stepSource: name,
   defaultExplorerBaseUrl,
@@ -98,6 +112,7 @@ export const getTxLink = ({
 }: GetTxLink): string => {
   const isSafeTxHash = maybeSafeTx?.isSafeTxHash
   const id = txId ?? tradeId
+  const normalizedChainflipSwapId = normalizeChainflipSwapId(maybeChainflipSwapId)
   const isOrder = !!tradeId
   const baseUrl = getTxBaseUrl({
     stepSource: name,
@@ -121,8 +136,8 @@ export const getTxLink = ({
       case CHAINFLIP_BOOST_SWAP_SOURCE:
       case CHAINFLIP_DCA_SWAP_SOURCE:
       case CHAINFLIP_DCA_BOOST_SWAP_SOURCE:
-        return maybeChainflipSwapId
-          ? `${baseUrl}${maybeChainflipSwapId}`
+        return normalizedChainflipSwapId
+          ? `${baseUrl}${normalizedChainflipSwapId}`
           : `${defaultExplorerBaseUrl}${id}`
       case SwapperName.NearIntents:
         return maybeNearIntentsDepositAddress

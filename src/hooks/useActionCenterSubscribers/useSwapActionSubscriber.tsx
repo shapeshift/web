@@ -246,13 +246,18 @@ export const useSwapActionSubscriber = () => {
           ? swap.buyAsset.explorerTxLink
           : swap.sellAsset.explorerTxLink
 
+      const maybeChainflipSwapId =
+        typeof swap.metadata.chainflipSwapId === 'string' && swap.metadata.chainflipSwapId.trim()
+          ? swap.metadata.chainflipSwapId.trim()
+          : undefined
+
       const txLink = getTxLink({
         address,
         chainId,
         defaultExplorerBaseUrl,
         maybeSafeTx,
         stepSource: status && status !== TxStatus.Unknown ? swap.source : undefined,
-        maybeChainflipSwapId: `${swap.metadata.chainflipSwapId}`,
+        maybeChainflipSwapId,
         maybeNearIntentsDepositAddress: swap.metadata.nearIntentsSpecific?.depositAddress,
         ...(swap.swapperName === SwapperName.CowSwap ? { tradeId: txHash } : { txId: txHash }),
         ...(swap.metadata.relayerTxHash && {

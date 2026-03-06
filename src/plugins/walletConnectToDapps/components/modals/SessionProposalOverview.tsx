@@ -1,7 +1,6 @@
 import { ArrowUpDownIcon, InfoOutlineIcon } from '@chakra-ui/icons'
 import { Alert, AlertIcon, Button, HStack, Tooltip, VStack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { ProposalTypes } from '@walletconnect/types'
 import { useMemo } from 'react'
 import { TbPlug } from 'react-icons/tb'
@@ -15,6 +14,7 @@ import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { RawText } from '@/components/Text'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
+import { isWcSupportedChainId } from '@/plugins/walletConnectToDapps/utils'
 import {
   selectAccountIdsByAccountNumberAndChainId,
   selectEvmAddressByAccountNumber,
@@ -80,7 +80,7 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
     return Object.values(requiredNamespaces).every(
       namespace =>
         namespace.chains?.every(chainId => {
-          if (!isEvmChainId(chainId)) return false
+          if (!isWcSupportedChainId(chainId)) return false
           return Boolean(accountsByChain[chainId]?.length)
         }),
     )

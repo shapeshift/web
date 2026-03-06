@@ -1,4 +1,5 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
+import { VersionedTransaction } from '@solana/web3.js'
 
 import { Isolation } from './crypto'
 import { SolanaAdapter } from './crypto/isolation/adapters/solana'
@@ -65,6 +66,29 @@ export function MixinNativeSolanaWallet<TBase extends core.Constructor<NativeHDW
             Buffer.from(signature).toString('base64'),
           ),
         }
+      })
+    }
+
+    async solanaSignRawTransaction(msg: core.SolanaSignRawTx): Promise<core.SolanaSignedTx | null> {
+      return this.needsMnemonic(!!this.adapter, async () => {
+        const transaction = VersionedTransaction.deserialize(
+          Buffer.from(msg.rawTransaction, 'base64'),
+        )
+        const signedTransaction = await this.adapter!.signTransaction(transaction, msg.addressNList)
+
+        return {
+          serialized: Buffer.from(signedTransaction.serialize()).toString('base64'),
+          signatures: signedTransaction.signatures.map(signature =>
+            Buffer.from(signature).toString('base64'),
+          ),
+        }
+      })
+    }
+
+    async solanaSignMessage(msg: core.SolanaSignMessage): Promise<core.SolanaSignedMessage | null> {
+      return this.needsMnemonic(!!this.adapter, async () => {
+        const signature = await this.adapter!.signMessage(msg.message, msg.addressNList)
+        return { signature: Buffer.from(signature).toString('base64') }
       })
     }
   }

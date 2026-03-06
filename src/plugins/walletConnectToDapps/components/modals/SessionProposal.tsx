@@ -16,9 +16,10 @@ import { PeerMeta } from '@/plugins/walletConnectToDapps/components/PeerMeta'
 import type { SessionProposalRef } from '@/plugins/walletConnectToDapps/types'
 import { WalletConnectActionType } from '@/plugins/walletConnectToDapps/types'
 import {
-  createApprovalNamespaces,
+  isChainInProposedNamespaces,
   isWcSupportedChainId,
-} from '@/plugins/walletConnectToDapps/utils/createApprovalNamespaces'
+} from '@/plugins/walletConnectToDapps/utils'
+import { createApprovalNamespaces } from '@/plugins/walletConnectToDapps/utils/createApprovalNamespaces'
 import type { WalletConnectSessionModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
 import {
   selectAccountIdsByAccountNumberAndChainId,
@@ -50,6 +51,11 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     const { id, params } = proposal
     const { proposer, requiredNamespaces, optionalNamespaces } = params
 
+    const proposedNamespaceKeys = useMemo(
+      () => new Set([...Object.keys(requiredNamespaces), ...Object.keys(optionalNamespaces)]),
+      [requiredNamespaces, optionalNamespaces],
+    )
+
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [selectedAccountIds, setSelectedAccountIds] = useState<AccountId[]>([])
     const location = useLocation()
@@ -57,7 +63,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     const [selectedAccountNumber, setSelectedAccountNumber] = useState<number | null>(null)
 
     const selectedChainIds = useMemo(
-      () => uniq(selectedAccountIds.map(chainId => fromAccountId(chainId).chainId)),
+      () => uniq(selectedAccountIds.map(accountId => fromAccountId(accountId).chainId)),
       [selectedAccountIds],
     )
 
@@ -106,16 +112,16 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         return
       }
 
-      const supportedChainIds = Object.keys(selectedAccountNumberAccountIdsByChainId).filter(
-        isWcSupportedChainId,
-      )
+      const supportedChainIds = Object.keys(selectedAccountNumberAccountIdsByChainId)
+        .filter(isWcSupportedChainId)
+        .filter(chainId => isChainInProposedNamespaces(chainId, proposedNamespaceKeys))
       const orderedAccountIds = orderAccountIdsByBalance(
         supportedChainIds,
         selectedAccountNumberAccountIdsByChainId,
       )
 
       setSelectedAccountIds(orderedAccountIds)
-    }, [selectedAccountNumberAccountIdsByChainId, orderAccountIdsByBalance])
+    }, [selectedAccountNumberAccountIdsByChainId, orderAccountIdsByBalance, proposedNamespaceKeys])
 
     const handleAccountClick = useCallback(() => {
       navigate(SessionProposalRoutes.ChooseAccount)
@@ -135,14 +141,16 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       (chainIds: ChainId[]) => {
         if (!selectedAccountNumberAccountIdsByChainId) return
 
-        const supportedChainIds = chainIds.filter(isWcSupportedChainId)
+        const supportedChainIds = chainIds
+          .filter(isWcSupportedChainId)
+          .filter(chainId => isChainInProposedNamespaces(chainId, proposedNamespaceKeys))
         const orderedAccountIds = orderAccountIdsByBalance(
           supportedChainIds,
           selectedAccountNumberAccountIdsByChainId,
         )
         setSelectedAccountIds(orderedAccountIds)
       },
-      [selectedAccountNumberAccountIdsByChainId, orderAccountIdsByBalance],
+      [selectedAccountNumberAccountIdsByChainId, orderAccountIdsByBalance, proposedNamespaceKeys],
     )
 
     /*
@@ -177,13 +185,13 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         })
         dispatch({ type: WalletConnectActionType.ADD_SESSION, payload: session })
 
-        // Emit chainChanged to signal intended active chain
+        // Emit chainChanged to signal intended active chain (EVM only - chainChanged is an EIP-1193 event)
         // Per WC spec, event.data uses numeric chain ref, chainId param uses CAIP-2
         // https://specs.walletconnect.com/2.0/specs/clients/sign/session-events
-        if (selectedChainIds.length > 0) {
+        const primaryEvmChainId = selectedChainIds.find(isEvmChainId)
+        if (primaryEvmChainId) {
           try {
-            const primaryChainId = selectedChainIds[0]
-            const { chainReference } = fromChainId(primaryChainId)
+            const { chainReference } = fromChainId(primaryEvmChainId)
             const chainIdNumber = parseInt(chainReference, 10)
 
             await web3wallet.emitSessionEvent({
@@ -192,7 +200,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
                 name: 'chainChanged',
                 data: chainIdNumber,
               },
-              chainId: primaryChainId,
+              chainId: primaryEvmChainId,
             })
           } catch (error) {
             console.warn('Failed to emit chainChanged event:', error)
@@ -287,6 +295,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
             requiredChainIds={requiredChainIds}
             selectedAccountNumber={selectedAccountNumber}
             requiredNamespaces={requiredNamespaces}
+            optionalNamespaces={optionalNamespaces}
             onSelectedChainIdsChange={handleChainIdsChange}
             onBack={handleBack}
             onDone={handleBack}
@@ -297,6 +306,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         requiredChainIds,
         selectedAccountNumber,
         requiredNamespaces,
+        optionalNamespaces,
         handleChainIdsChange,
         handleBack,
       ],

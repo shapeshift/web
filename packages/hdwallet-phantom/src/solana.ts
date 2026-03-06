@@ -1,5 +1,6 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
 import type { PublicKey } from '@solana/web3.js'
+import { VersionedTransaction } from '@solana/web3.js'
 
 import type { PhantomSolanaProvider } from './types'
 
@@ -30,4 +31,18 @@ export async function solanaSendTx(
   const transaction = core.solanaBuildTransaction(msg, address)
   const { signature } = await provider.signAndSendTransaction(transaction)
   return { signature }
+}
+
+export async function solanaSignRawTransaction(
+  msg: core.SolanaSignRawTx,
+  provider: PhantomSolanaProvider,
+): Promise<core.SolanaSignedTx | null> {
+  const transaction = VersionedTransaction.deserialize(Buffer.from(msg.rawTransaction, 'base64'))
+  const signedTransaction = await provider.signTransaction(transaction)
+  return {
+    serialized: Buffer.from(signedTransaction.serialize()).toString('base64'),
+    signatures: signedTransaction.signatures.map(signature =>
+      Buffer.from(signature).toString('base64'),
+    ),
+  }
 }

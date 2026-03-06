@@ -26,7 +26,10 @@ import {
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { RawText } from '@/components/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
-import { isWcSupportedChainId } from '@/plugins/walletConnectToDapps/utils/createApprovalNamespaces'
+import {
+  isChainInProposedNamespaces,
+  isWcSupportedChainId,
+} from '@/plugins/walletConnectToDapps/utils'
 import {
   selectAccountIdsByAccountNumberAndChainId,
   selectWalletConnectedChainIdsSorted,
@@ -81,6 +84,7 @@ type NetworkSelectionProps = {
   requiredChainIds: ChainId[]
   selectedAccountNumber: number
   requiredNamespaces: ProposalTypes.RequiredNamespaces
+  optionalNamespaces: ProposalTypes.OptionalNamespaces
   onSelectedChainIdsChange: (chainIds: ChainId[]) => void
   onBack: () => void
   onDone: () => void
@@ -91,6 +95,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
   requiredChainIds,
   selectedAccountNumber,
   requiredNamespaces,
+  optionalNamespaces,
   onSelectedChainIdsChange,
   onBack,
   onDone,
@@ -102,11 +107,20 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
   )
   const chainIdsSortedByBalance = useAppSelector(selectWalletConnectedChainIdsSorted)
 
+  const proposedNamespaceKeys = useMemo(
+    () => new Set([...Object.keys(requiredNamespaces), ...Object.keys(optionalNamespaces)]),
+    [requiredNamespaces, optionalNamespaces],
+  )
+
   const availableChainIds = useMemo(() => {
+    // Show all user chains within the proposed namespaces
+    // e.g. if dApp proposes eip155, show all EVM chains; if solana, show only Solana chains
+    // Within a namespace, show all user chains (not just the specific ones the dApp requested)
     const accountNumberChainIds = Object.entries(
       accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {},
     )
       .filter(([chainId]) => isWcSupportedChainId(chainId))
+      .filter(([chainId]) => isChainInProposedNamespaces(chainId, proposedNamespaceKeys))
       .map(([chainId]) => chainId)
 
     const requiredFromNamespaces = Object.values(requiredNamespaces)
@@ -133,6 +147,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
     requiredNamespaces,
     requiredChainIds,
     chainIdsSortedByBalance,
+    proposedNamespaceKeys,
   ])
 
   const handleChainIdsChange = useCallback(
@@ -143,10 +158,17 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
   const optionalChainIds = useMemo(() => {
     const userChainIds = Object.keys(
       accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {},
-    ).filter(isWcSupportedChainId)
+    )
+      .filter(isWcSupportedChainId)
+      .filter(chainId => isChainInProposedNamespaces(chainId, proposedNamespaceKeys))
 
     return userChainIds.filter(chainId => !requiredChainIds.includes(chainId as ChainId))
-  }, [selectedAccountNumber, accountIdsByAccountNumberAndChainId, requiredChainIds])
+  }, [
+    selectedAccountNumber,
+    accountIdsByAccountNumberAndChainId,
+    requiredChainIds,
+    proposedNamespaceKeys,
+  ])
 
   const isAllOptionalChainsSelected = useMemo(() => {
     if (optionalChainIds.length === 0) return false
@@ -162,7 +184,9 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
     } else {
       const userChainIds = Object.keys(
         accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? {},
-      ).filter(isWcSupportedChainId)
+      )
+        .filter(isWcSupportedChainId)
+        .filter(chainId => isChainInProposedNamespaces(chainId, proposedNamespaceKeys))
       onSelectedChainIdsChange(userChainIds as ChainId[])
     }
   }, [
@@ -172,6 +196,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
     requiredChainIds,
     accountIdsByAccountNumberAndChainId,
     onSelectedChainIdsChange,
+    proposedNamespaceKeys,
   ])
 
   const networkRows = useMemo(() => {

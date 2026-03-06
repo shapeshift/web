@@ -152,7 +152,7 @@ export const BackupPassphraseInfo: React.FC<LocationState> = props => {
             </AlertDescription>
           </Alert>
 
-          <Wrap mt={12} mb={6}>
+          <Wrap mt={12} mb={6} data-qabot-forbidden='seed-phrase-exposure'>
             {revealed ? words : placeholders}
           </Wrap>
         </ModalBody>

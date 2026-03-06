@@ -1,0 +1,6 @@
+nodeLinker: hoisted
+shamefullyHoist: true
+strictPeerDependencies: true
+autoInstallPeers: true
+packages:
+  - 'packages/*'

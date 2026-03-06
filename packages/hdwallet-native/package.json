@@ -28,11 +28,11 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn run -T tsc --build && yarn postbuild",
+    "build": "pnpm run clean && pnpm exec tsc --build && pnpm run postbuild",
     "clean": "rm -rf dist",
-    "dev": "yarn run -T tsc --build --watch",
-    "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",
-    "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
+    "dev": "pnpm exec tsc --build --watch",
+    "postbuild": "pnpm run postbuild:esm && pnpm run postbuild:cjs",
+    "postbuild:esm": "pnpm exec tsc-esm-fix --target=dist/esm --ext=.js",
     "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   },
   "dependencies": {
@@ -51,6 +51,7 @@
     "bech32": "^1.1.4",
     "bip32": "^2.0.5",
     "bip39": "^3.0.2",
+    "bitcoinjs-message": "^2.1.0",
     "bs58": "^4.0.1",
     "bs58check": "^4.0.0",
     "crypto-js": "^4.2.0",

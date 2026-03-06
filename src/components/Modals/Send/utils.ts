@@ -1,5 +1,6 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
+  btcChainId,
   CHAIN_NAMESPACE,
   fromAccountId,
   fromChainId,
@@ -38,6 +39,7 @@ import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { assertGetTonChainAdapter } from '@/lib/utils/ton'
 import { assertGetUtxoChainAdapter, isUtxoChainId } from '@/lib/utils/utxo'
+import type { BtcUtxoRbfTxMetadata } from '@/state/slices/actionSlice/types'
 import {
   selectAssetById,
   selectPortfolioAccountMetadataByAccountId,
@@ -208,6 +210,44 @@ export const handleSend = async ({
   sendInput: SendInput
   wallet: HDWallet
 }): Promise<string> => {
+  const { txHash } = await handleSendWithMetadata({ sendInput, wallet })
+  return txHash
+}
+
+type HandleSendWithMetadataResult = {
+  txHash: string
+  btcUtxoRbfTxMetadata?: BtcUtxoRbfTxMetadata
+}
+
+const getBtcUtxoRbfTxMetadata = (txToSign: unknown): BtcUtxoRbfTxMetadata | undefined => {
+  const maybeBtcTx = txToSign as {
+    inputs?: {
+      addressNList?: number[]
+    }[]
+  }
+
+  const inputs = maybeBtcTx.inputs
+    ?.filter(
+      (
+        input,
+      ): input is {
+        addressNList: number[]
+      } => Array.isArray(input.addressNList),
+    )
+    .map(input => ({ addressNList: input.addressNList }))
+
+  if (!inputs?.length) return undefined
+
+  return { inputs }
+}
+
+export const handleSendWithMetadata = async ({
+  sendInput,
+  wallet,
+}: {
+  sendInput: SendInput
+  wallet: HDWallet
+}): Promise<HandleSendWithMetadataResult> => {
   const { asset, chainId, accountMetadata, adapter } = prepareSendAdapter(sendInput)
   const supportedEvmChainIds = getSupportedEvmChainIds()
   const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
@@ -512,7 +552,10 @@ export const handleSend = async ({
     throw new Error('Broadcast failed')
   }
 
-  return broadcastTXID
+  return {
+    txHash: broadcastTXID,
+    btcUtxoRbfTxMetadata: chainId === btcChainId ? getBtcUtxoRbfTxMetadata(txToSign) : undefined,
+  }
 }
 
 const prepareSendAdapter = (sendInput: SendInput) => {

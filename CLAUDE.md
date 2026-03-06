@@ -65,12 +65,12 @@
 ### Project Overview
 - **Project**: Decentralized crypto exchange platform
 - **Main branch**: `develop` (not main/master)
-- **Package manager**: yarn
+- **Package manager**: pnpm
 - **State management**: Redux Toolkit with redux-persist
 - **Architecture**: Plugin-based for blockchain support
 
 ### Code Quality & Standards
-- Always run `yarn lint --fix` and `yarn type-check` after making changes
+- Always run `pnpm run lint --fix` and `pnpm run type-check` after making changes
 - Keep changes surgical where possible - minimize changes to make code reviews easier
 - Make targeted, focused modifications rather than broad refactors unless specifically requested
 - Never create documentation files unless explicitly requested
@@ -89,11 +89,16 @@
 ### Git & Version Control
 - Never commit changes unless explicitly requested
 - When creating commits, follow the Git Safety Protocol (see session notes)
-- **Before pushing**: always run `yarn lint --fix`, and if there are lint fixes, commit them before pushing. Never push without verifying lint passes first.
+- **Before pushing**: always run `pnpm run lint --fix`, and if there are lint fixes, commit them before pushing. Never push without verifying lint passes first.
 - Main branch is `develop` - use this for PRs
 - Branch naming: Use descriptive names (e.g., `feat_gridplus`, `fix_wallet_connect`)
 - When opening PRs (via `gh`, Aviator `av`, or any CLI tool), ALWAYS use the `.github/PULL_REQUEST_TEMPLATE.md` template as the base for the PR body
 - **Editing PR descriptions**: `gh pr edit --body` fails on this repo due to a deprecated Projects Classic GraphQL error. Use the REST API instead: `gh api repos/shapeshift/web/pulls/<number> -X PATCH -F "body=@/path/to/body.md"` (write the body to a temp file first)
+
+### xstate PRs
+- When a PR includes xstate state machines, the PR description MUST include a Mermaid `stateDiagram-v2` visualization of the machine's states and transitions
+- Generate the diagram from the machine definition - show states, events, guards, and error/retry flows
+- This serves as living documentation for both product and engineering reviewers
 
 ### UI/UX Standards
 - Account for light/dark mode using `useColorModeValue` hook
@@ -185,3 +190,41 @@ Current contracts:
 - Each wallet has unique `walletId` (e.g., `metamask:0x123`, `ledger:ABC`)
 - Portfolio state is filtered by active `walletId`
 - Account discovery runs per wallet on connection
+
+### Issue Tracking (beads)
+
+This project uses **bd** (beads) for issue tracking. Run `bd onboard` to get started.
+
+```bash
+bd ready              # Find available work
+bd show <id>          # View issue details
+bd update <id> --status in_progress  # Claim work
+bd close <id>         # Complete work
+bd sync               # Sync with git
+```
+
+### Session Completion
+
+**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
+
+**MANDATORY WORKFLOW:**
+
+1. **File issues for remaining work** - Create issues for anything that needs follow-up
+2. **Run quality gates** (if code changed) - Tests, linters, builds
+3. **Update issue status** - Close finished work, update in-progress items
+4. **PUSH TO REMOTE** - This is MANDATORY:
+   ```bash
+   git pull --rebase
+   bd sync
+   git push
+   git status  # MUST show "up to date with origin"
+   ```
+5. **Clean up** - Clear stashes, prune remote branches
+6. **Verify** - All changes committed AND pushed
+7. **Hand off** - Provide context for next session
+
+**CRITICAL RULES:**
+- Work is NOT complete until `git push` succeeds
+- NEVER stop before pushing - that leaves work stranded locally
+- NEVER say "ready to push when you are" - YOU must push
+- If push fails, resolve and retry until it succeeds

@@ -50,6 +50,19 @@ const layoutDirection: ResponsiveValue<Property.FlexDirection> = {
 
 const actionColumnMaxWidth = { base: '100%', lg: '500px' }
 
+// Safe area insets for mobile (iPhone notch, etc.)
+const headerPaddingTop = {
+  base: 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))',
+  md: 4,
+}
+
+const headerPosition: ResponsiveValue<Property.Position> = { base: 'sticky', md: 'relative' }
+
+const containerPaddingBottom = {
+  base: 'calc(env(safe-area-inset-bottom) + var(--safe-area-inset-bottom) + 80px)',
+  md: 20,
+}
+
 export const YieldDetail = memo(() => {
   const { yieldId } = useParams<{ yieldId: string }>()
   const [searchParams] = useSearchParams()
@@ -232,12 +245,28 @@ export const YieldDetail = memo(() => {
   if (error || !yieldItem) return errorElement
 
   return (
-    <Box bg='background.surface.base' minH='100vh' pb={20}>
+    <Box
+      bg='background.surface.base'
+      minH='100vh'
+      pb={containerPaddingBottom}
+      data-testid='yield-detail-page'
+    >
       <Container
         maxW={{ base: 'full', md: 'container.md', lg: '1400px' }}
         px={{ base: 4, md: 8, lg: 12 }}
       >
-        <Flex py={4} align='center' justify='space-between'>
+        <Flex
+          pt={headerPaddingTop}
+          pb={2}
+          align='center'
+          justify='space-between'
+          position={headerPosition}
+          top={0}
+          left={0}
+          right={0}
+          bg='background.surface.base'
+          zIndex='sticky'
+        >
           <IconButton
             aria-label={translate('common.back')}
             icon={backIcon}
@@ -246,6 +275,7 @@ export const YieldDetail = memo(() => {
             color='text.subtle'
             onClick={handleBack}
             _hover={{ color: 'text.base' }}
+            data-testid='yield-detail-back-button'
           />
           <Display.Desktop>
             {showAccountSelector && selectorAssetId && (

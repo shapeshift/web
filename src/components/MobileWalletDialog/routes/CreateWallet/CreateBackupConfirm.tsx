@@ -115,7 +115,7 @@ export const CreateBackupConfirm = () => {
         </DialogHeaderRight>
       </DialogHeader>
       <DialogBody>
-        <VStack spacing={6} alignItems='stretch'>
+        <VStack spacing={6} alignItems='stretch' data-qabot-forbidden='seed-phrase-exposure'>
           <Box>
             <CText fontSize='2xl' fontWeight='bold' textAlign='center'>
               {translate('modals.shapeShift.backupPassphrase.title')}

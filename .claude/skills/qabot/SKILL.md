@@ -90,6 +90,27 @@ On first visit to any origin (gome.shapeshift.com, release.shapeshift.com, etc.)
 
 **IMPORTANT**: Always use the `qabot` profile. The native wallet is stored in this profile's IndexedDB per-origin.
 
+Use a shell-scoped command alias at session start to reduce command noise:
+
+```bash
+AB='agent-browser --session qabot --profile ~/.agent-browser/profiles/qabot'
+```
+
+Then use `$AB` for all commands in that shell session:
+
+```bash
+$AB open <url>
+$AB snapshot
+$AB click "Connect Wallet"
+$AB screenshot /tmp/step-0.png
+```
+
+When you need a headed run, append `--headed` only for that command:
+
+```bash
+$AB --headed open <url>
+```
+
 ```bash
 agent-browser --session qabot --profile ~/.agent-browser/profiles/qabot open <url>
 ```
@@ -126,6 +147,19 @@ The native wallet requires a password on each session start. The wallet-health f
 6. Click "Next" via JS eval:
    `eval "$(cat /tmp/click-next.js)"`
 7. Wait 8+ seconds for external origins to fully hydrate
+
+### PR Review Reliability Checklist (localhost)
+
+When using qabot for PR review validation on localhost:
+
+1. Follow PR `Testing` steps verbatim before adding extra assertions.
+2. Do a manual-first pass with `agent-browser` in the same live session:
+   - reach exact page/state
+   - confirm account/wallet assumptions
+   - validate selectors and click-path before reporting
+3. Keep wallet setup as preflight only (never as reported qabot steps), but ensure required preconditions are visible before step 1 (e.g. `Send` button).
+4. Only after manual flow is stable, create/report qabot run steps.
+5. If automation friction is selector-related, add/ask for precise `data-testid` at the failing UI control.
 
 ### Tips
 
@@ -200,6 +234,17 @@ The native wallet requires a password on each session start. The wallet-health f
   ```
 - **THORChain swap timing**: SOL->RUNE completes in ~10s, RUNE->SOL can take ~90s. Always poll with 120s timeout.
 - **Feedback dialog after swap**: A "How was your trade experience?" dialog appears after swaps complete. Dismiss with "Maybe Later" button.
+
+#### Bug Investigation (CRITICAL)
+
+When you encounter what looks like a bug, **don't just report it — investigate it**:
+
+1. **Verify identity**: Is this the exact same yield ID, same account ID, same chain? Check the URL params (`yieldId`, `accountId`). A "discrepancy" between two different yields isn't a bug.
+2. **Check network requests**: Open the browser's Network tab (or use JS eval to intercept fetch responses) to see what the API actually returned vs what the UI shows. Include the raw API response in your agentThought.
+3. **Read the codebase**: You have access to `~/Sites/shapeshiftWeb`. `grep` for the relevant component, selector, or API call. Understand WHERE the bug likely originates (frontend rendering? stale cache? API response?).
+4. **Cross-reference surfaces**: Check the same data across multiple views (yield detail page, My Positions list, DeFi drawer, wallet drawer). Note exactly which surfaces show correct vs incorrect data.
+5. **Navigate freely**: You can explore the entire app to verify bugs — click around, check different pages, use filters. Just don't execute transactions outside fixture constraints.
+6. **Write it up with confidence**: In agentThought, explain: what you expected, what you saw, what the API returned, what the code does, and your conclusion on where the bug is. Don't just say "possible bug" — say "confirmed bug in X component because Y".
 
 #### Shell & Environment
 

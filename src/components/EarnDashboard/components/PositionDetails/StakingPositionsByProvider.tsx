@@ -197,7 +197,6 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         switch (provider) {
           case DefiProvider.EthFoxStaking:
             return navigate('/fox-ecosystem')
-          case DefiProvider.CosmosSdk:
           case DefiProvider.ThorchainSavers:
             return navigate(`/assets/${assetId}`)
           default:

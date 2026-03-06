@@ -2,11 +2,6 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import pipe from 'lodash/flow'
 
 import {
-  cosmosSdkOpportunityIdsResolver,
-  cosmosSdkStakingOpportunitiesMetadataResolver,
-  cosmosSdkStakingOpportunitiesUserDataResolver,
-} from './resolvers/cosmosSdk'
-import {
   ethFoxStakingMetadataResolver,
   ethFoxStakingOpportunityIdsResolver,
   ethFoxStakingUserDataResolver,
@@ -46,9 +41,6 @@ export const DefiProviderToMetadataResolverByDeFiType: DefiProviderToMetadataRes
 
 export const DefiProviderToOpportunitiesMetadataResolverByDeFiType: DefiProviderToOpportunitiesMetadataResolver =
   {
-    [`${DefiProvider.CosmosSdk}`]: {
-      [`${DefiType.Staking}`]: cosmosSdkStakingOpportunitiesMetadataResolver,
-    },
     [`${DefiProvider.ThorchainSavers}`]: {
       [`${DefiType.Staking}`]: thorchainSaversStakingOpportunitiesMetadataResolver,
     },
@@ -65,9 +57,6 @@ export const DefiProviderToOpportunitiesUserDataResolverByDeFiType: DefiProvider
     [`${DefiProvider.ThorchainSavers}`]: {
       [`${DefiType.Staking}`]: thorchainSaversStakingOpportunitiesUserDataResolver,
     },
-    [`${DefiProvider.CosmosSdk}`]: {
-      [`${DefiType.Staking}`]: cosmosSdkStakingOpportunitiesUserDataResolver,
-    },
   }
 
 export const DefiProviderToOpportunityIdsResolverByDeFiType: DefiProviderToOpportunityIdsResolver =
@@ -83,9 +72,6 @@ export const DefiProviderToOpportunityIdsResolverByDeFiType: DefiProviderToOppor
     },
     [`${DefiProvider.ShapeShift}`]: {
       [`${DefiType.Staking}`]: foxyStakingOpportunityIdsResolver,
-    },
-    [`${DefiProvider.CosmosSdk}`]: {
-      [`${DefiType.Staking}`]: cosmosSdkOpportunityIdsResolver,
     },
   }
 
@@ -157,10 +143,6 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   ],
 
   [KnownChainIds.CosmosMainnet]: [
-    {
-      defiProvider: DefiProvider.CosmosSdk,
-      defiType: DefiType.Staking,
-    },
     {
       defiProvider: DefiProvider.ThorchainSavers,
       defiType: DefiType.Staking,

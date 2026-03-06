@@ -45,10 +45,9 @@ export const useTransactionsSubscriber = () => {
     ({ chainId, data, transfers, status }: Transaction, accountId: AccountId) => {
       if (status !== TxStatus.Confirmed) return
 
-      const { getOpportunitiesUserData, getOpportunityUserData } = opportunitiesApi.endpoints
+      const { getOpportunityUserData } = opportunitiesApi.endpoints
 
       const shouldRefetchRfoxOpportunity = data?.parser === 'rfox' && data.type === 'evm'
-      const shouldRefetchCosmosSdkOpportunities = data?.parser === 'staking'
 
       // Ugly catch-all that should go away now that we are fully migrated to the opportunities slice and know the Tx shape of the opportunities we're dealing with
       const shouldRefetchAllOpportunities = !(
@@ -88,19 +87,6 @@ export const useTransactionsSubscriber = () => {
                 }),
                 accountId,
                 defiProvider: DefiProvider.rFOX,
-                defiType: DefiType.Staking,
-              },
-            ],
-            { forceRefetch: true },
-          ),
-        )
-      } else if (shouldRefetchCosmosSdkOpportunities) {
-        dispatch(
-          getOpportunitiesUserData.initiate(
-            [
-              {
-                accountId,
-                defiProvider: DefiProvider.CosmosSdk,
                 defiType: DefiType.Staking,
               },
             ],

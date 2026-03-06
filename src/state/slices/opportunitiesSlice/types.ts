@@ -1,7 +1,6 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { PartialRecord } from '@shapeshiftoss/types'
 
-import type { CosmosSdkStakingSpecificUserStakingOpportunity } from './resolvers/cosmosSdk/types'
 import type { FoxySpecificUserStakingOpportunity } from './resolvers/foxy/types'
 import type { ThorchainSaversStakingSpecificMetadata } from './resolvers/thorchainsavers/types'
 import type {
@@ -23,7 +22,6 @@ export enum DefiProvider {
   ShapeShift = 'ShapeShift',
   rFOX = 'rFOX',
   EthFoxStaking = 'ETH/FOX Staking',
-  CosmosSdk = 'Cosmos SDK',
   ThorchainSavers = 'THORChain Savers',
 }
 
@@ -108,7 +106,6 @@ export type SaversUserStakingOpportunity = {
 export type UserStakingOpportunity =
   | UserStakingOpportunityBase
   | SaversUserStakingOpportunity
-  | CosmosSdkStakingSpecificUserStakingOpportunity
   | FoxySpecificUserStakingOpportunity
 
 export type UserStakingOpportunityWithMetadata = UserStakingOpportunity & OpportunityMetadata

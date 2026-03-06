@@ -30,7 +30,14 @@ export const useSwapRates = (
   } = params
 
   return useQuery({
-    queryKey: ['swapRates', sellAssetId, buyAssetId, sellAmountCryptoBaseUnit, allowedSwapperNames, affiliateAddress],
+    queryKey: [
+      'swapRates',
+      sellAssetId,
+      buyAssetId,
+      sellAmountCryptoBaseUnit,
+      allowedSwapperNames,
+      affiliateAddress,
+    ],
     queryFn: async (): Promise<TradeRate[]> => {
       if (!sellAssetId || !buyAssetId || !sellAmountCryptoBaseUnit) {
         return []

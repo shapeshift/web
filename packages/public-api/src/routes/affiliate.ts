@@ -7,23 +7,25 @@ import type { ErrorResponse } from '../types'
 const AFFILIATE_TIMEOUT_MS = 10_000
 
 // Request validation schema
-export const AffiliateStatsRequestSchema = z.object({
-  address: z
-    .string()
-    .regex(
-      /^0x[0-9a-fA-F]{40}$/,
-      'address must be a valid EVM address (0x followed by 40 hex characters)',
-    ),
-  startDate: z.string().datetime().optional(),
-  endDate: z.string().datetime().optional(),
-}).refine(
-  ({ startDate, endDate }) =>
-    !startDate || !endDate || new Date(startDate).getTime() <= new Date(endDate).getTime(),
-  {
-    message: 'startDate must be before or equal to endDate',
-    path: ['startDate'],
-  },
-)
+export const AffiliateStatsRequestSchema = z
+  .object({
+    address: z
+      .string()
+      .regex(
+        /^0x[0-9a-fA-F]{40}$/,
+        'address must be a valid EVM address (0x followed by 40 hex characters)',
+      ),
+    startDate: z.string().datetime().optional(),
+    endDate: z.string().datetime().optional(),
+  })
+  .refine(
+    ({ startDate, endDate }) =>
+      !startDate || !endDate || new Date(startDate).getTime() <= new Date(endDate).getTime(),
+    {
+      message: 'startDate must be before or equal to endDate',
+      path: ['startDate'],
+    },
+  )
 
 export type AffiliateStatsRequest = z.infer<typeof AffiliateStatsRequestSchema>
 

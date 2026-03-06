@@ -26,6 +26,10 @@ import { useWallet } from '../useWallet/useWallet'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
 import { getConfig } from '@/config'
+import {
+  chainflipSwapIdQueryKey,
+  fetchChainflipSwapId,
+} from '@/hooks/queries/useChainflipSwapIdQuery'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
@@ -246,13 +250,27 @@ export const useSwapActionSubscriber = () => {
           ? swap.buyAsset.explorerTxLink
           : swap.sellAsset.explorerTxLink
 
+      // Resolve the real Chainflip swap ID from the sell tx hash via Chainflip's GraphQL API,
+      // rather than using the stale broker channel ID from swap.metadata.chainflipSwapId
+      const maybeChainflipSwapId =
+        swap.swapperName === SwapperName.Chainflip && swap.sellTxHash
+          ? await queryClient
+              .fetchQuery({
+                queryKey: chainflipSwapIdQueryKey(swap.sellTxHash),
+                queryFn: () => fetchChainflipSwapId(swap.sellTxHash!),
+                staleTime: 10_000,
+                gcTime: 10_000,
+              })
+              .catch(() => undefined)
+          : undefined
+
       const txLink = getTxLink({
         address,
         chainId,
         defaultExplorerBaseUrl,
         maybeSafeTx,
         stepSource: status && status !== TxStatus.Unknown ? swap.source : undefined,
-        maybeChainflipSwapId: `${swap.metadata.chainflipSwapId}`,
+        maybeChainflipSwapId,
         maybeNearIntentsDepositAddress: swap.metadata.nearIntentsSpecific?.depositAddress,
         ...(swap.swapperName === SwapperName.CowSwap ? { tradeId: txHash } : { txId: txHash }),
         ...(swap.metadata.relayerTxHash && {

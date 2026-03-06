@@ -32,12 +32,28 @@ const nativeSwapIdQuery = `
   }
 `
 
+export const chainflipSwapIdQueryKey = (txHash: string) =>
+  ['chainflipSwapId', { txHash }] as const
+
+export const fetchChainflipSwapId = async (txHash: string): Promise<string | undefined> => {
+  const { data } = await axios.post<SwapIdResponse>(
+    'https://explorer-service-processor.chainflip.io/graphql',
+    {
+      query: nativeSwapIdQuery,
+      variables: {
+        searchString: txHash,
+      },
+    },
+  )
+  return data.data.txRefs.nodes[0]?.swap.nativeId
+}
+
 export const useChainflipSwapIdQuery = ({
   txHash,
   swapperName,
 }: UseChainflipSwapIdArgs): UseQueryResult<string | undefined, Error> => {
   return useQuery({
-    queryKey: ['chainflipSwapId', { txHash }],
+    queryKey: txHash ? chainflipSwapIdQueryKey(txHash) : ['chainflipSwapId', { txHash }],
     queryFn:
       txHash && swapperName === SwapperName.Chainflip
         ? () =>

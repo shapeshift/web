@@ -20,6 +20,7 @@ describe('deriveReleaseState', () => {
     latestTagSha: 'aaa',
     latestTagName: 'v1.1015.0',
     nextVersion: 'v1.1016.0',
+    openPrereleasePr: undefined,
     openReleasePr: undefined,
   }
 
@@ -27,10 +28,29 @@ describe('deriveReleaseState', () => {
     expect(deriveReleaseState(base)).toBe('idle')
   })
 
+  it('returns idle when prerelease was merged (release matches develop, ahead of main)', () => {
+    expect(
+      deriveReleaseState({
+        ...base,
+        releaseSha: 'bbb',
+      }),
+    ).toBe('idle')
+  })
+
+  it('returns prerelease_pr_open when develop -> release PR exists', () => {
+    expect(
+      deriveReleaseState({
+        ...base,
+        openPrereleasePr: { number: 41, title: 'chore: prerelease v1.1016.0' },
+      }),
+    ).toBe('prerelease_pr_open')
+  })
+
   it('returns release_pr_open when a release -> main PR exists', () => {
     expect(
       deriveReleaseState({
         ...base,
+        releaseSha: 'bbb',
         openReleasePr: { number: 42, title: 'chore: release v1.1016.0' },
       }),
     ).toBe('release_pr_open')
@@ -76,11 +96,22 @@ describe('deriveReleaseState', () => {
     ).toBe('idle')
   })
 
+  it('prioritizes prerelease_pr_open over everything', () => {
+    expect(
+      deriveReleaseState({
+        ...base,
+        openPrereleasePr: { number: 41, title: 'chore: prerelease v1.1016.0' },
+        openReleasePr: { number: 42, title: 'chore: release v1.1016.0' },
+      }),
+    ).toBe('prerelease_pr_open')
+  })
+
   it('prioritizes release_pr_open over merged_untagged', () => {
     expect(
       deriveReleaseState({
         ...base,
         mainSha: 'ccc',
+        releaseSha: 'bbb',
         openReleasePr: { number: 42, title: 'chore: release v1.1016.0' },
       }),
     ).toBe('release_pr_open')

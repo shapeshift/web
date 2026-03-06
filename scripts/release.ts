@@ -18,6 +18,7 @@ import { exit, getLatestSemverTag } from './utils'
 
 export type ReleaseState =
   | 'idle'
+  | 'prerelease_pr_open'
   | 'release_pr_open'
   | 'merged_untagged'
   | 'tagged_private_stale'
@@ -130,6 +131,7 @@ export const deriveReleaseState = ({
   latestTagSha,
   latestTagName,
   nextVersion,
+  openPrereleasePr,
   openReleasePr,
 }: {
   releaseSha: string
@@ -139,9 +141,17 @@ export const deriveReleaseState = ({
   latestTagSha: string
   latestTagName: string
   nextVersion: string
+  openPrereleasePr: GitHubPr | undefined
   openReleasePr: GitHubPr | undefined
 }): ReleaseState => {
+  if (openPrereleasePr) return 'prerelease_pr_open'
+
   if (openReleasePr) return 'release_pr_open'
+
+  // Release branch has the commits (matches develop) but no release -> main PR yet
+  if (releaseSha === developSha && releaseSha !== mainSha && !openReleasePr) {
+    return 'idle'
+  }
 
   if (mainSha !== latestTagSha) return 'merged_untagged'
 
@@ -570,7 +580,10 @@ const doRegularRelease = async () => {
     getTagSha(latestTag),
   ])
 
-  const openReleasePr = await findOpenPr('release', 'main')
+  const [openPrereleasePr, openReleasePr] = await Promise.all([
+    findOpenPr('develop', 'release'),
+    findOpenPr('release', 'main'),
+  ])
 
   const state = deriveReleaseState({
     releaseSha,
@@ -580,6 +593,7 @@ const doRegularRelease = async () => {
     latestTagSha,
     latestTagName: latestTag,
     nextVersion,
+    openPrereleasePr,
     openReleasePr,
   })
 
@@ -588,69 +602,106 @@ const doRegularRelease = async () => {
 
   switch (state) {
     case 'idle': {
-      const messages = await getCommitMessages(`${latestTag}..origin/develop`)
-      if (messages.length === 0) exit(chalk.red('No commits to release.'))
+      // Two sub-states within idle:
+      // 1. Release branch matches develop (prerelease merged) -> create release -> main PR
+      // 2. Release branch matches main (fresh start) -> create develop -> release PR
+      const prereleaseMerged = releaseSha === developSha && releaseSha !== mainSha
 
-      console.log(chalk.green(`${messages.length} commits to release.`))
-      console.log(chalk.green('Generating AI release summary...'))
+      if (prereleaseMerged) {
+        const messages = await getCommitMessages(`${latestTag}..origin/release`)
+        if (messages.length === 0) exit(chalk.red('No commits to release.'))
 
-      const prNumbers = extractPrNumbers(messages)
-      console.log(chalk.green(`Found ${prNumbers.length} PR references, fetching context...`))
+        console.log(chalk.green(`${messages.length} commits ready on release branch.`))
+        console.log(chalk.green('Generating AI release summary...'))
 
-      const prBodies =
-        prNumbers.length > 0 ? await fetchPrBodies(prNumbers) : new Map<number, string>()
-      console.log(chalk.green(`Fetched ${prBodies.size}/${prNumbers.length} PR descriptions.`))
+        const prNumbers = extractPrNumbers(messages)
+        console.log(chalk.green(`Found ${prNumbers.length} PR references, fetching context...`))
 
-      const devOnlyFlags = computeDevOnlyFlags(
-        readEnvFile('.env'),
-        readEnvFile('.env.production'),
-        readEnvFile('.env.development'),
-      )
-      const privateDisabledFlags = computePrivateDisabledFlags(
-        readEnvFile('.env'),
-        readEnvFile('.env.production'),
-        readEnvFile('.env.private'),
-      )
+        const prBodies =
+          prNumbers.length > 0 ? await fetchPrBodies(prNumbers) : new Map<number, string>()
+        console.log(chalk.green(`Fetched ${prBodies.size}/${prNumbers.length} PR descriptions.`))
+
+        const devOnlyFlags = computeDevOnlyFlags(
+          readEnvFile('.env'),
+          readEnvFile('.env.production'),
+          readEnvFile('.env.development'),
+        )
+        const privateDisabledFlags = computePrivateDisabledFlags(
+          readEnvFile('.env'),
+          readEnvFile('.env.production'),
+          readEnvFile('.env.private'),
+        )
+        console.log(
+          chalk.green(
+            `Detected ${devOnlyFlags.length} dev-only flags, ${privateDisabledFlags.length} private-disabled flags.`,
+          ),
+        )
+
+        const summary = await generateReleaseSummary(
+          nextVersion,
+          messages,
+          prBodies,
+          devOnlyFlags,
+          privateDisabledFlags,
+        )
+        const releaseBody = summary ?? messages.join('\n')
+
+        if (summary) console.log(chalk.green('AI summary generated successfully.\n'))
+        console.log(chalk.blue(['', releaseBody, ''].join('\n')))
+
+        if (!(await inquireConfirm('Create release PR with this body?')))
+          exit('Release cancelled.')
+
+        console.log(chalk.green('Creating release PR (release -> main)...'))
+        const releasePrUrl = await createPr({
+          base: 'main',
+          head: 'release',
+          title: `chore: release ${nextVersion}`,
+          body: releaseBody,
+        })
+        console.log(chalk.green(`Release PR created: ${releasePrUrl}`))
+        console.log(
+          chalk.green(
+            '\nMerge the release PR on GitHub when CI passes, then run this script again.',
+          ),
+        )
+      } else {
+        const messages = await getCommitMessages(`${latestTag}..origin/develop`)
+        if (messages.length === 0) exit(chalk.red('No commits to release.'))
+
+        console.log(chalk.green(`${messages.length} commits to release.`))
+        const commitList = messages.map(m => `- ${m}`).join('\n')
+
+        if (!(await inquireConfirm(`Create prerelease PR with ${messages.length} commits?`)))
+          exit('Release cancelled.')
+
+        console.log(chalk.green('Creating prerelease PR (develop -> release)...'))
+        const prereleasePrUrl = await createPr({
+          base: 'release',
+          head: 'develop',
+          title: `chore: prerelease ${nextVersion}`,
+          body: `## Prerelease ${nextVersion}\n\n${commitList}`,
+        })
+        console.log(chalk.green(`Prerelease PR created: ${prereleasePrUrl}`))
+        console.log(
+          chalk.green(
+            '\nMerge the prerelease PR on GitHub, then run this script again to create the release PR.',
+          ),
+        )
+      }
+      break
+    }
+
+    case 'prerelease_pr_open': {
       console.log(
-        chalk.green(
-          `Detected ${devOnlyFlags.length} dev-only flags, ${privateDisabledFlags.length} private-disabled flags.`,
+        chalk.yellow(
+          `Prerelease PR is open: #${openPrereleasePr!.number} - ${openPrereleasePr!.title}`,
         ),
       )
-
-      const summary = await generateReleaseSummary(
-        nextVersion,
-        messages,
-        prBodies,
-        devOnlyFlags,
-        privateDisabledFlags,
-      )
-      const releaseBody = summary ?? messages.join('\n')
-
-      if (summary) console.log(chalk.green('AI summary generated successfully.\n'))
-      console.log(chalk.blue(['', releaseBody, ''].join('\n')))
-
-      if (!(await inquireConfirm('Create release PRs with this body?'))) exit('Release cancelled.')
-
-      // Reset release branch to develop and force push
-      console.log(chalk.green('Checking out develop...'))
-      await git().checkout(['develop'])
-      await git().pull()
-      console.log(chalk.green('Resetting release to develop...'))
-      await git().checkout(['-B', 'release'])
-      console.log(chalk.green('Force pushing release branch...'))
-      await git().push(['--force', 'origin', 'release'])
-
-      // Create release -> main PR
-      console.log(chalk.green('Creating release PR (release -> main)...'))
-      const releasePrUrl = await createPr({
-        base: 'main',
-        head: 'release',
-        title: `chore: release ${nextVersion}`,
-        body: releaseBody,
-      })
-      console.log(chalk.green(`Release PR created: ${releasePrUrl}`))
       console.log(
-        chalk.green('\nMerge the release PR on GitHub when CI passes, then run this script again.'),
+        chalk.yellow(
+          'Merge it on GitHub, then run this script again to create the release PR.',
+        ),
       )
       break
     }

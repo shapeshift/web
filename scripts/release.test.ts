@@ -173,9 +173,7 @@ describe('extractPrNumbers', () => {
   })
 
   it('deduplicates PR numbers', () => {
-    expect(
-      extractPrNumbers(['feat: thing (#100)', 'fix: same thing (#100)']),
-    ).toEqual([100])
+    expect(extractPrNumbers(['feat: thing (#100)', 'fix: same thing (#100)'])).toEqual([100])
   })
 
   it('returns empty array for no matches', () => {
@@ -198,7 +196,8 @@ describe('extractDescription', () => {
   })
 
   it('strips HTML comments', () => {
-    const body = '## Description\n<!-- hidden -->This is visible and long enough to pass.\n## Testing'
+    const body =
+      '## Description\n<!-- hidden -->This is visible and long enough to pass.\n## Testing'
     expect(extractDescription(body)).toBe('This is visible and long enough to pass.')
   })
 
@@ -207,7 +206,7 @@ describe('extractDescription', () => {
     const body = `## Description\n${long}\n## Testing`
     const result = extractDescription(body)
     expect(result).toHaveLength(503)
-    expect(result!.endsWith('...')).toBe(true)
+    expect(result?.endsWith('...')).toBe(true)
   })
 })
 

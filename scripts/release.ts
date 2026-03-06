@@ -649,8 +649,7 @@ const doRegularRelease = async () => {
         if (summary) console.log(chalk.green('AI summary generated successfully.\n'))
         console.log(chalk.blue(['', releaseBody, ''].join('\n')))
 
-        if (!(await inquireConfirm('Create release PR with this body?')))
-          exit('Release cancelled.')
+        if (!(await inquireConfirm('Create release PR with this body?'))) exit('Release cancelled.')
 
         console.log(chalk.green('Creating release PR (release -> main)...'))
         const releasePrUrl = await createPr({
@@ -693,22 +692,22 @@ const doRegularRelease = async () => {
     }
 
     case 'prerelease_pr_open': {
+      if (!openPrereleasePr) break
       console.log(
         chalk.yellow(
-          `Prerelease PR is open: #${openPrereleasePr!.number} - ${openPrereleasePr!.title}`,
+          `Prerelease PR is open: #${openPrereleasePr.number} - ${openPrereleasePr.title}`,
         ),
       )
       console.log(
-        chalk.yellow(
-          'Merge it on GitHub, then run this script again to create the release PR.',
-        ),
+        chalk.yellow('Merge it on GitHub, then run this script again to create the release PR.'),
       )
       break
     }
 
     case 'release_pr_open': {
+      if (!openReleasePr) break
       console.log(
-        chalk.yellow(`Release PR is open: #${openReleasePr!.number} - ${openReleasePr!.title}`),
+        chalk.yellow(`Release PR is open: #${openReleasePr.number} - ${openReleasePr.title}`),
       )
       console.log(chalk.yellow('Merge it on GitHub, then run this script again to finalize.'))
       break
@@ -762,6 +761,9 @@ const doRegularRelease = async () => {
       console.log(chalk.green(`Release ${latestTag} is fully complete. Nothing to do.`))
       break
     }
+
+    default:
+      break
   }
 }
 
@@ -858,8 +860,9 @@ const doHotfixRelease = async () => {
     }
 
     case 'hotfix_pr_open': {
+      if (!openHotfixPr) break
       console.log(
-        chalk.yellow(`Hotfix PR is open: #${openHotfixPr!.number} - ${openHotfixPr!.title}`),
+        chalk.yellow(`Hotfix PR is open: #${openHotfixPr.number} - ${openHotfixPr.title}`),
       )
       console.log(chalk.yellow('Merge it on GitHub, then run this script again to finalize.'))
       break
@@ -937,6 +940,9 @@ const doHotfixRelease = async () => {
       console.log(chalk.green(`Hotfix ${latestTag} is fully complete. Nothing to do.`))
       break
     }
+
+    default:
+      break
   }
 }
 

@@ -11,6 +11,8 @@ export interface TronSignTx {
   addressNList: BIP32Path
   /** Raw transaction data in hex format */
   rawDataHex: string
+  /** Full transaction object for wallets that need it (e.g. WalletConnect) */
+  transaction?: Record<string, unknown>
 }
 
 export interface TronSignedTx {

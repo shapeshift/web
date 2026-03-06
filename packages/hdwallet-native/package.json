@@ -42,6 +42,7 @@
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
     "@shapeshiftoss/hdwallet-core": "workspace:^",
     "@shapeshiftoss/proto-tx-builder": "0.10.0",
+    "@shapeshiftoss/utils": "workspace:*",
     "@solana/web3.js": "1.98.0",
     "@ton/core": "^0.62.1",
     "@ton/crypto": "^3.3.0",

@@ -10,6 +10,7 @@ import {
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import BigNumber from 'bignumber.js'
 
 import type { SwapErrorRight } from '../../../../types'
 import { TradeQuoteError } from '../../../../types'
@@ -109,7 +110,9 @@ export const deductSlippageFromAmount = ({
   amount: string
   slippageTolerancePercentageDecimal: string
 }) => {
-  return bn(amount).minus(bn(amount).times(slippageTolerancePercentageDecimal)).toFixed(0)
+  return bn(amount)
+    .minus(bn(amount).times(slippageTolerancePercentageDecimal))
+    .toFixed(0, BigNumber.ROUND_DOWN)
 }
 
 export const getValuesFromQuoteResponse = ({

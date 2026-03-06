@@ -5,6 +5,7 @@ import { BigAmount, bn, bnOrZero, isToken } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
+import BigNumber from 'bignumber.js'
 
 import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
@@ -88,7 +89,7 @@ export const calculateChainflipMinPrice = ({
   // This is called minimumPrice upstream but this really is a rate, let's not honour confusing terminology
   const minimumRate = estimatedPrice
     .times(bn(1).minus(bnOrZero(slippageTolerancePercentageDecimal)))
-    .toFixed(buyAsset.precision)
+    .toFixed(buyAsset.precision, BigNumber.ROUND_DOWN)
 
   return minimumRate
 }

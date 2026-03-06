@@ -1,3 +1,4 @@
+import { BigAmount } from '@shapeshiftoss/utils'
 import type * as eventemitter2 from 'eventemitter2'
 import * as Rx from 'rxjs'
 import * as RxOp from 'rxjs/operators'
@@ -187,9 +188,7 @@ export function slip44ByCoin<T extends Coin>(coin: T): Slip44ByCoin<T> {
 }
 
 export function satsFromStr(coins: string): number {
-  const index = coins.indexOf('.')
-  const exponent = index > 0 ? 8 - (coins.length - index - 1) : 8
-  return Number(coins.replace(/\./g, '')) * 10 ** exponent
+  return Number(BigAmount.fromPrecision({ value: coins, precision: 8 }).toBaseUnit())
 }
 
 export function hardenedPath(path: BIP32Path): BIP32Path {

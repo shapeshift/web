@@ -21,6 +21,9 @@
     },
     {
       "path": "../types/tsconfig.cjs.json"
+    },
+    {
+      "path": "../utils/tsconfig.cjs.json"
     }
   ]
 }

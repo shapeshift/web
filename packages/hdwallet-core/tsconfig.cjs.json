@@ -14,5 +14,10 @@
     "**/*.test.ts",
     "**/__tests__/**",
     "**/__mocks__/**"
+  ],
+  "references": [
+    {
+      "path": "../utils/tsconfig.cjs.json"
+    }
   ]
 }

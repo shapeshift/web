@@ -1,7 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, solanaChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { bn, convertPrecision, isToken } from '@shapeshiftoss/utils'
 import { Err, Ok } from '@sniptt/monads'
 import { getAddress } from 'viem'
@@ -12,7 +11,7 @@ import type { BebopSupportedChainId } from '../../types'
 import { BEBOP_NATIVE_MARKER, bebopSupportedChainIds } from '../../types'
 
 export const isSolanaChainId = (chainId: ChainId): boolean => {
-  return chainId === KnownChainIds.SolanaMainnet
+  return chainId === solanaChainId
 }
 
 export const assetIdToBebopToken = (assetId: AssetId): string => {

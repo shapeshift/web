@@ -15,6 +15,10 @@ export const executeSolanaMessage = async (
 ): Promise<string> => {
   const { serializedTx, quoteId } = messageData
 
+  if (!serializedTx || !quoteId) {
+    throw new Error('Missing serializedTx or quoteId in message data')
+  }
+
   const signatures = await signSerializedTransaction(serializedTx)
 
   if (!signatures.length) {

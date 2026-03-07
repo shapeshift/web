@@ -129,8 +129,6 @@ export const deriveReleaseState = ({
   developSha,
   privateSha,
   latestTagSha,
-  latestTagName,
-  nextVersion,
   openPrereleasePr,
   openReleasePr,
 }: {
@@ -139,8 +137,6 @@ export const deriveReleaseState = ({
   developSha: string
   privateSha: string
   latestTagSha: string
-  latestTagName: string
-  nextVersion: string
   openPrereleasePr: GitHubPr | undefined
   openReleasePr: GitHubPr | undefined
 }): ReleaseState => {
@@ -148,14 +144,9 @@ export const deriveReleaseState = ({
 
   if (openReleasePr) return 'release_pr_open'
 
-  // Release branch has the commits (matches develop) but no release -> main PR yet
-  if (releaseSha === developSha && releaseSha !== mainSha && !openReleasePr) {
-    return 'idle'
-  }
-
   if (mainSha !== latestTagSha) return 'merged_untagged'
 
-  if (latestTagName === nextVersion && privateSha !== mainSha) return 'tagged_private_stale'
+  if (privateSha !== mainSha) return 'tagged_private_stale'
 
   if (releaseSha === mainSha && developSha === mainSha) return 'done'
 
@@ -166,20 +157,16 @@ export const deriveHotfixState = ({
   mainSha,
   privateSha,
   latestTagSha,
-  latestTagName,
-  nextVersion,
   openHotfixPr,
 }: {
   mainSha: string
   privateSha: string
   latestTagSha: string
-  latestTagName: string
-  nextVersion: string
   openHotfixPr: GitHubPr | undefined
 }): HotfixState => {
   if (openHotfixPr) return 'hotfix_pr_open'
   if (mainSha !== latestTagSha) return 'merged_untagged'
-  if (latestTagName === nextVersion && privateSha !== mainSha) return 'tagged_private_stale'
+  if (privateSha !== mainSha) return 'tagged_private_stale'
   return 'idle'
 }
 
@@ -591,8 +578,6 @@ const doRegularRelease = async () => {
     developSha,
     privateSha,
     latestTagSha,
-    latestTagName: latestTag,
-    nextVersion,
     openPrereleasePr,
     openReleasePr,
   })
@@ -603,9 +588,9 @@ const doRegularRelease = async () => {
   switch (state) {
     case 'idle': {
       // Two sub-states within idle:
-      // 1. Release branch matches develop (prerelease merged) -> create release -> main PR
+      // 1. Release branch ahead of main (prerelease merged) -> create release -> main PR
       // 2. Release branch matches main (fresh start) -> create develop -> release PR
-      const prereleaseMerged = releaseSha === developSha && releaseSha !== mainSha
+      const prereleaseMerged = releaseSha !== mainSha
 
       if (prereleaseMerged) {
         const messages = await getCommitMessages(`${latestTag}..origin/release`)
@@ -788,8 +773,6 @@ const doHotfixRelease = async () => {
     mainSha,
     privateSha,
     latestTagSha,
-    latestTagName: latestTag,
-    nextVersion,
     openHotfixPr,
   })
 

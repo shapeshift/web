@@ -18,8 +18,6 @@ describe('deriveReleaseState', () => {
     developSha: 'bbb',
     privateSha: 'aaa',
     latestTagSha: 'aaa',
-    latestTagName: 'v1.1015.0',
-    nextVersion: 'v1.1016.0',
     openPrereleasePr: undefined,
     openReleasePr: undefined,
   }
@@ -70,9 +68,6 @@ describe('deriveReleaseState', () => {
     expect(
       deriveReleaseState({
         ...base,
-        latestTagName: 'v1.1016.0',
-        latestTagSha: 'aaa',
-        mainSha: 'aaa',
         privateSha: 'zzz',
       }),
     ).toBe('tagged_private_stale')
@@ -87,13 +82,13 @@ describe('deriveReleaseState', () => {
     ).toBe('done')
   })
 
-  it('returns idle not tagged_private_stale for old completed releases', () => {
+  it('returns tagged_private_stale whenever private is behind main regardless of develop', () => {
     expect(
       deriveReleaseState({
         ...base,
         privateSha: 'zzz',
       }),
-    ).toBe('idle')
+    ).toBe('tagged_private_stale')
   })
 
   it('prioritizes prerelease_pr_open over everything', () => {
@@ -123,8 +118,6 @@ describe('deriveHotfixState', () => {
     mainSha: 'aaa',
     privateSha: 'aaa',
     latestTagSha: 'aaa',
-    latestTagName: 'v1.1015.0',
-    nextVersion: 'v1.1015.1',
     openHotfixPr: undefined,
   }
 
@@ -154,7 +147,6 @@ describe('deriveHotfixState', () => {
     expect(
       deriveHotfixState({
         ...base,
-        latestTagName: 'v1.1015.1',
         privateSha: 'zzz',
       }),
     ).toBe('tagged_private_stale')

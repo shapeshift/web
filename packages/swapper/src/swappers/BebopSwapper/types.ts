@@ -1,7 +1,7 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { Address, Hex } from 'viem'
 
-export const bebopSupportedChainIds = [
+export const bebopSupportedEvmChainIds = [
   KnownChainIds.EthereumMainnet,
   KnownChainIds.PolygonMainnet,
   KnownChainIds.ArbitrumMainnet,
@@ -9,6 +9,11 @@ export const bebopSupportedChainIds = [
   KnownChainIds.AvalancheMainnet,
   KnownChainIds.OptimismMainnet,
   KnownChainIds.BnbSmartChainMainnet,
+] as const
+
+export const bebopSupportedChainIds = [
+  ...bebopSupportedEvmChainIds,
+  KnownChainIds.SolanaMainnet,
 ] as const
 
 export type BebopSupportedChainId = (typeof bebopSupportedChainIds)[number]
@@ -113,6 +118,7 @@ export const chainIdToBebopChain: Record<BebopSupportedChainId, string> = {
   [KnownChainIds.AvalancheMainnet]: 'avalanche',
   [KnownChainIds.OptimismMainnet]: 'optimism',
   [KnownChainIds.BnbSmartChainMainnet]: 'bsc',
+  [KnownChainIds.SolanaMainnet]: 'solana',
 }
 
 export const BEBOP_NATIVE_MARKER = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
@@ -121,3 +127,59 @@ export const BEBOP_NATIVE_MARKER = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 // This is Vitalik's address, same as what Bebop's own UI uses for price-only quotes.
 // MUST NEVER be used for executable quote transactions.
 export const BEBOP_DUMMY_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' as Address
+
+// Solana dummy address for rate quotes
+export const BEBOP_SOLANA_DUMMY_ADDRESS = 'ETpdrEkK8n3jPLysUZCNe1LHdM76GSrbHgAtVpCvWYLp'
+
+export type BebopSolanaQuoteResponse = {
+  requestId: string
+  type: string
+  status: 'QUOTE_SUCCESS' | 'QUOTE_INDIC_ROUTE'
+  quoteId: string
+  chainId: number
+  approvalType: string
+  nativeToken: string
+  taker: string
+  receiver: string
+  expiry: number
+  slippage: number
+  gasFee: {
+    native: string
+    usd: number
+  }
+  buyTokens: Record<
+    string,
+    {
+      amount: string
+      decimals: number
+      priceUsd: number
+      symbol: string
+      minimumAmount: string
+      price: number
+      priceBeforeFee: number
+      amountBeforeFee: string
+      deltaFromExpected: number
+    }
+  >
+  sellTokens: Record<
+    string,
+    {
+      amount: string
+      decimals: number
+      priceUsd: number
+      symbol: string
+      price: number
+      priceBeforeFee: number
+    }
+  >
+  settlementAddress: string
+  approvalTarget: string
+  requiredSignatures: string[]
+  priceImpact: number
+  warnings: string[]
+  solana_tx: string
+  blockhash: string
+  makers: string[]
+  partnerFee?: Record<string, string>
+  protocolFee?: Record<string, string>
+}

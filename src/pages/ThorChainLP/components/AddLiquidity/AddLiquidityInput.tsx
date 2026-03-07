@@ -1673,6 +1673,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
         {maybeOpportunityNotSupportedExplainer}
         {maybeAlert}
         <ButtonWalletPredicate
+          data-testid='lp-deposit-button'
           isValidWallet={Boolean(walletSupportsOpportunity)}
           mx={-2}
           size='lg'

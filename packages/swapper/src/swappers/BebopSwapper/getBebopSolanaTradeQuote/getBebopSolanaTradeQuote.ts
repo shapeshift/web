@@ -12,7 +12,6 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { BEBOP_SOLANA_DUMMY_ADDRESS } from '../types'
 import { fetchBebopSolanaQuote } from '../utils/fetchFromBebop'
 import { assertValidTrade, calculateRate } from '../utils/helpers/helpers'
 
@@ -36,10 +35,10 @@ export async function getBebopSolanaTradeQuote(
 
   const takerAddress = sendAddress || receiveAddress
 
-  if (!takerAddress || takerAddress === BEBOP_SOLANA_DUMMY_ADDRESS) {
+  if (!takerAddress) {
     return Err(
       makeSwapErrorRight({
-        message: 'Cannot execute quote with dummy address - wallet required',
+        message: 'Cannot execute quote without a wallet address',
         code: TradeQuoteError.UnknownError,
       }),
     )
@@ -84,7 +83,8 @@ export async function getBebopSolanaTradeQuote(
   const buyAmountBeforeFeesCryptoBaseUnit = buyTokenData.amountBeforeFee || buyAmount
   const buyAmountAfterFeesCryptoBaseUnit = buyAmount
 
-  const networkFeeCryptoBaseUnit = bebopQuoteResponse.gasFee.native
+  // Bebop Solana is gasless - Bebop pays the network fees via co-signing
+  const networkFeeCryptoBaseUnit = '0'
 
   return Ok({
     id: uuid(),

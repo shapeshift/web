@@ -69,7 +69,8 @@ export async function getBebopSolanaTradeRate(
   const buyAmountBeforeFeesCryptoBaseUnit = buyTokenData.amountBeforeFee || buyAmount
   const buyAmountAfterFeesCryptoBaseUnit = buyAmount
 
-  const networkFeeCryptoBaseUnit = bebopPriceResponse.gasFee.native
+  // Bebop Solana is gasless - Bebop pays the network fees via co-signing
+  const networkFeeCryptoBaseUnit = '0'
 
   return Ok({
     id: uuid(),

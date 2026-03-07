@@ -128,8 +128,8 @@ export const BEBOP_NATIVE_MARKER = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 // MUST NEVER be used for executable quote transactions.
 export const BEBOP_DUMMY_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' as Address
 
-// Solana dummy address for rate quotes
-export const BEBOP_SOLANA_DUMMY_ADDRESS = 'ETpdrEkK8n3jPLysUZCNe1LHdM76GSrbHgAtVpCvWYLp'
+// Solana dummy address for rate quotes - uses the Token Program address which cannot be a real wallet
+export const BEBOP_SOLANA_DUMMY_ADDRESS = 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
 
 export type BebopSolanaQuoteResponse = {
   requestId: string

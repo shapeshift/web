@@ -65,64 +65,6 @@ export const extractDescription = (prBody: string): string | undefined => {
   return desc.length > MAX_DESC_LENGTH ? `${desc.slice(0, MAX_DESC_LENGTH)}...` : desc
 }
 
-export const parseEnvFeatureFlags = (content: string): Record<string, boolean> => {
-  const flags: Record<string, boolean> = {}
-  for (const line of content.split('\n')) {
-    const trimmed = line.trim()
-    if (trimmed.startsWith('#') || !trimmed.includes('=')) continue
-    const [key, ...rest] = trimmed.split('=')
-    if (!key.startsWith('VITE_FEATURE_')) continue
-    const value = rest.join('=').trim().toLowerCase()
-    if (value === 'true') flags[key] = true
-    else if (value === 'false') flags[key] = false
-  }
-  return flags
-}
-
-export const computeDevOnlyFlags = (
-  baseContent: string,
-  prodContent: string,
-  devContent: string,
-): string[] => {
-  const baseFlags = parseEnvFeatureFlags(baseContent)
-  const prodOverrides = parseEnvFeatureFlags(prodContent)
-  const devOverrides = parseEnvFeatureFlags(devContent)
-
-  const prodFlags: Record<string, boolean> = { ...baseFlags, ...prodOverrides }
-  const devFlags: Record<string, boolean> = { ...baseFlags, ...devOverrides }
-
-  const allKeys = new Set([...Object.keys(prodFlags), ...Object.keys(devFlags)])
-  const devOnly: string[] = []
-  for (const key of allKeys) {
-    if (devFlags[key] === true && prodFlags[key] !== true) {
-      devOnly.push(key.replace('VITE_FEATURE_', ''))
-    }
-  }
-  return devOnly.sort()
-}
-
-export const computePrivateDisabledFlags = (
-  baseContent: string,
-  prodContent: string,
-  privateContent: string,
-): string[] => {
-  const baseFlags = parseEnvFeatureFlags(baseContent)
-  const prodOverrides = parseEnvFeatureFlags(prodContent)
-  const privateOverrides = parseEnvFeatureFlags(privateContent)
-
-  const prodFlags: Record<string, boolean> = { ...baseFlags, ...prodOverrides }
-  const privateFlags: Record<string, boolean> = { ...baseFlags, ...privateOverrides }
-
-  const allKeys = new Set([...Object.keys(prodFlags), ...Object.keys(privateFlags)])
-  const privateDisabled: string[] = []
-  for (const key of allKeys) {
-    if (prodFlags[key] === true && privateFlags[key] !== true) {
-      privateDisabled.push(key.replace('VITE_FEATURE_', ''))
-    }
-  }
-  return privateDisabled.sort()
-}
-
 export const deriveReleaseState = ({
   releaseSha,
   mainSha,
@@ -180,8 +122,6 @@ export const buildReleasePrompt = (
   version: string,
   messages: string[],
   prBodies: Map<number, string>,
-  devOnlyFlags: string[],
-  privateDisabledFlags: string[],
 ): string => {
   const commitList = messages
     .map(msg => {
@@ -195,50 +135,46 @@ export const buildReleasePrompt = (
     })
     .join('\n')
 
-  const devOnlySection =
-    devOnlyFlags.length > 0
-      ? `\n\n## Dev-only feature flags (enabled in dev, disabled in production)\n\n${devOnlyFlags
-          .map(f => `- ${f}`)
-          .join('\n')}`
-      : ''
-
-  const privateDisabledSection =
-    privateDisabledFlags.length > 0
-      ? `\n\n## Private-build disabled flags (enabled in production, disabled in private build)\n\n${privateDisabledFlags
-          .map(f => `- ${f}`)
-          .join('\n')}`
-      : ''
-
   return `You are a release notes generator for ShapeShift Web, a decentralized crypto exchange.
 
 Given the commit list below for ${version}, produce grouped release notes in markdown with two clearly separated top-level sections.
 
-## Rules
+## STEP 1: Determine which features are behind a flag (OFF in production)
+
+Read the env files to determine which VITE_FEATURE_* flags are OFF in production:
+- .env is the base (all environments inherit from it)
+- .env.production overrides base for production
+- .env.development overrides base for development
+
+A feature is "under flag" (not in production) if its effective production value is false, i.e. it is false in .env and not overridden to true in .env.production, OR it is overridden to false in .env.production.
+
+A feature is "dev-only" if it is ON in development (.env + .env.development overrides) but OFF in production.
+
+For each commit below, check if it relates to a flagged-off-in-prod feature by matching the feature name in the commit message to a VITE_FEATURE_* flag name (e.g. "celo" matches VITE_FEATURE_CELO, "across" matches VITE_FEATURE_ACROSS_SWAP, "agentic" matches VITE_FEATURE_AGENTIC_CHAT). Commits explicitly saying "behind feature flag" or "under flag" also count.
+
+## STEP 2: Write grouped release notes
 
 ### Section 1: "# Production changes - testing required"
-1. Contains all PRs/commits that affect production code paths
+1. Contains all PRs/commits that are NOT behind a flagged-off-in-prod feature
 2. Group related commits under descriptive ## headings by feature domain (e.g. "TON chain + Stonfi swapper", "Yield improvements", "BigAmount migration")
 3. List each commit as a bullet under its group, preserving the original text and PR number
 4. After the bullet list, write 1-2 sentences summarizing what changed and what to test
 5. For internal refactors with no user-facing changes (e.g. migrations, type changes, selector renames), note **regression testing only** and what to sanity-check
 6. For dependency bumps, CI fixes, infra, docker, CSP, and asset data regeneration, group under "## Fixes, deps, and infra" with **no testing required**
-7. If a commit relates to a feature listed in the private-build disabled flags below, append "**Note: disabled in private build.**" to its testing notes within the production section
 
 ### Section 2: "# Dev/local only - no production testing required"
-8. Contains all PRs/commits that are gated behind dev-only feature flags listed below
-9. Match commits to dev-only flags by feature name (e.g. "Celo" matches CELO, "agentic chat" matches AGENTIC_CHAT, "Mantle" matches MANTLE, "Across" matches ACROSS_SWAP, etc.)
-10. Commits whose title explicitly says "behind feature flag" or "under flag" also belong here
-11. Group by feature domain with brief description only - no testing notes needed since these are not visible in production
+7. Contains ALL commits behind a feature flag that is OFF in production
+8. Group by feature domain with brief description only - no testing notes needed since these are not visible in production
 
 ### General rules
-12. Merge/backmerge commits (e.g. "Merge branch 'main' into develop") should be silently dropped
-13. Keep testing notes brief and actionable - what a QA person should click on, not implementation details
-14. Use present tense for summaries ("Enables TON chain" not "Enabled TON chain")
-15. Do NOT use emdashes. Use regular hyphens.
+9. Merge/backmerge commits (e.g. "Merge branch 'main' into develop") should be silently dropped
+10. Keep testing notes brief and actionable - what a QA person should click on, not implementation details
+11. Use present tense for summaries ("Enables TON chain" not "Enabled TON chain")
+12. Do NOT use emdashes. Use regular hyphens.
 
 ## Commits
 
-${commitList}${devOnlySection}${privateDisabledSection}`
+${commitList}`
 }
 
 const spawnClaude = (cmd: string, args: string[], promptPath: string): Promise<string> => {
@@ -303,7 +239,7 @@ const isCcrAvailable = (): Promise<boolean> => {
   })
 }
 
-const CLAUDE_ARGS = ['-p', '--model', 'opus', '--max-turns', '1']
+const CLAUDE_ARGS = ['-p', '--model', 'opus', '--max-turns', '3']
 
 const runClaude = async (promptPath: string): Promise<string> => {
   try {
@@ -320,10 +256,8 @@ const generateReleaseSummary = async (
   version: string,
   messages: string[],
   prBodies: Map<number, string>,
-  devOnlyFlags: string[],
-  privateDisabledFlags: string[],
 ): Promise<string | null> => {
-  const prompt = buildReleasePrompt(version, messages, prBodies, devOnlyFlags, privateDisabledFlags)
+  const prompt = buildReleasePrompt(version, messages, prBodies)
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shapeshift-release-'))
   const promptPath = path.join(tmpDir, 'prompt.txt')
 
@@ -440,7 +374,7 @@ type WebReleaseType = Extract<semver.ReleaseType, 'minor' | 'patch'>
 const getNextVersion = async (bump: WebReleaseType): Promise<string> => {
   const latestTag = await getLatestSemverTag()
   const nextVersion = semver.inc(latestTag, bump)
-  if (!nextVersion) exit(chalk.red(`Could not bump version to ${nextVersion}`))
+  if (!nextVersion) exit(chalk.red(`Could not increment ${latestTag} with bump type '${bump}'`))
   return `v${nextVersion}`
 }
 
@@ -496,15 +430,6 @@ const createPr = async ({
     } catch {
       // best-effort cleanup
     }
-  }
-}
-
-const readEnvFile = (filename: string): string => {
-  const filePath = path.resolve(__dirname, '..', filename)
-  try {
-    return fs.readFileSync(filePath, 'utf-8')
-  } catch {
-    return ''
   }
 }
 
@@ -606,29 +531,7 @@ const doRegularRelease = async () => {
           prNumbers.length > 0 ? await fetchPrBodies(prNumbers) : new Map<number, string>()
         console.log(chalk.green(`Fetched ${prBodies.size}/${prNumbers.length} PR descriptions.`))
 
-        const devOnlyFlags = computeDevOnlyFlags(
-          readEnvFile('.env'),
-          readEnvFile('.env.production'),
-          readEnvFile('.env.development'),
-        )
-        const privateDisabledFlags = computePrivateDisabledFlags(
-          readEnvFile('.env'),
-          readEnvFile('.env.production'),
-          readEnvFile('.env.private'),
-        )
-        console.log(
-          chalk.green(
-            `Detected ${devOnlyFlags.length} dev-only flags, ${privateDisabledFlags.length} private-disabled flags.`,
-          ),
-        )
-
-        const summary = await generateReleaseSummary(
-          nextVersion,
-          messages,
-          prBodies,
-          devOnlyFlags,
-          privateDisabledFlags,
-        )
+        const summary = await generateReleaseSummary(nextVersion, messages, prBodies)
         const releaseBody = summary ?? messages.join('\n')
 
         if (summary) console.log(chalk.green('AI summary generated successfully.\n'))

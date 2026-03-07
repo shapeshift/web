@@ -2,13 +2,10 @@ import { describe, expect, it } from 'vitest'
 
 import {
   buildReleasePrompt,
-  computeDevOnlyFlags,
-  computePrivateDisabledFlags,
   deriveHotfixState,
   deriveReleaseState,
   extractDescription,
   extractPrNumbers,
-  parseEnvFeatureFlags,
 } from './release'
 
 describe('deriveReleaseState', () => {
@@ -202,62 +199,6 @@ describe('extractDescription', () => {
   })
 })
 
-describe('parseEnvFeatureFlags', () => {
-  it('parses feature flags from env content', () => {
-    const content = `
-VITE_FEATURE_FOO=true
-VITE_FEATURE_BAR=false
-SOME_OTHER_VAR=hello
-# VITE_FEATURE_COMMENTED=true
-`
-    expect(parseEnvFeatureFlags(content)).toEqual({
-      VITE_FEATURE_FOO: true,
-      VITE_FEATURE_BAR: false,
-    })
-  })
-
-  it('handles empty content', () => {
-    expect(parseEnvFeatureFlags('')).toEqual({})
-  })
-
-  it('handles values with equals signs', () => {
-    const content = 'VITE_FEATURE_THING=true=extra'
-    expect(parseEnvFeatureFlags(content)).toEqual({})
-  })
-})
-
-describe('computeDevOnlyFlags', () => {
-  it('finds flags enabled in dev but not prod', () => {
-    const base = 'VITE_FEATURE_A=false\nVITE_FEATURE_B=false'
-    const prod = 'VITE_FEATURE_A=false'
-    const dev = 'VITE_FEATURE_A=true\nVITE_FEATURE_B=true'
-    expect(computeDevOnlyFlags(base, prod, dev)).toEqual(['A', 'B'])
-  })
-
-  it('excludes flags that are also enabled in prod', () => {
-    const base = ''
-    const prod = 'VITE_FEATURE_A=true'
-    const dev = 'VITE_FEATURE_A=true'
-    expect(computeDevOnlyFlags(base, prod, dev)).toEqual([])
-  })
-
-  it('returns sorted results', () => {
-    const base = ''
-    const prod = ''
-    const dev = 'VITE_FEATURE_ZEBRA=true\nVITE_FEATURE_ALPHA=true'
-    expect(computeDevOnlyFlags(base, prod, dev)).toEqual(['ALPHA', 'ZEBRA'])
-  })
-})
-
-describe('computePrivateDisabledFlags', () => {
-  it('finds flags enabled in prod but disabled in private', () => {
-    const base = ''
-    const prod = 'VITE_FEATURE_X=true\nVITE_FEATURE_Y=true'
-    const priv = 'VITE_FEATURE_X=false'
-    expect(computePrivateDisabledFlags(base, prod, priv)).toEqual(['X', 'Y'])
-  })
-})
-
 describe('buildReleasePrompt', () => {
   it('includes commit messages and PR context', () => {
     const prBodies = new Map([[123, '## Description\nSome context here for the PR.\n## Testing']])
@@ -265,20 +206,20 @@ describe('buildReleasePrompt', () => {
       'v1.1016.0',
       ['feat: something (#123)', 'fix: other thing (#456)'],
       prBodies,
-      ['CELO'],
-      ['LENDING'],
     )
 
     expect(prompt).toContain('v1.1016.0')
     expect(prompt).toContain('feat: something (#123)')
     expect(prompt).toContain('fix: other thing (#456)')
     expect(prompt).toContain('Context: Some context here for the PR.')
-    expect(prompt).toContain('CELO')
-    expect(prompt).toContain('LENDING')
+    expect(prompt).toContain('.env')
+    expect(prompt).toContain('.env.production')
+    expect(prompt).toContain('.env.development')
   })
 
-  it('omits dev-only section when no flags', () => {
-    const prompt = buildReleasePrompt('v1.0.0', ['feat: thing (#1)'], new Map(), [], [])
-    expect(prompt).not.toContain('Dev-only feature flags')
+  it('instructs Claude to read env files for flag detection', () => {
+    const prompt = buildReleasePrompt('v1.0.0', ['feat: thing (#1)'], new Map())
+    expect(prompt).toContain('VITE_FEATURE_')
+    expect(prompt).toContain('OFF in production')
   })
 })

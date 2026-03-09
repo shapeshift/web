@@ -8,6 +8,7 @@ import type {
   NearTransactionExecutionInput,
   RelayerTxDetailsArgs,
   SellTxHashArgs,
+  SolanaMessageExecutionInput,
   SolanaTransactionExecutionInput,
   StarknetTransactionExecutionInput,
   StatusArgs,
@@ -556,6 +557,56 @@ export class TradeExecution {
       return await swapper.executeSolanaTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
       })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execSolanaMessage({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    signSerializedTransaction,
+  }: SolanaMessageExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        config,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedSolanaMessage) {
+        throw Error('missing implementation for getUnsignedSolanaMessage')
+      }
+      if (!swapper.executeSolanaMessage) {
+        throw Error('missing implementation for executeSolanaMessage')
+      }
+
+      const unsignedMessageResult = await swapper.getUnsignedSolanaMessage({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        config,
+      })
+
+      return await swapper.executeSolanaMessage(
+        unsignedMessageResult,
+        { signSerializedTransaction },
+        config,
+      )
     }
 
     return await this._execWalletAgnostic(

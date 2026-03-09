@@ -698,6 +698,13 @@ export class LedgerHDWallet
     return solana.solanaSignTx(this.transport, msg)
   }
 
+  public async solanaSignSerializedTx(
+    msg: core.SolanaSignSerializedTx,
+  ): Promise<core.SolanaSignedTx | null> {
+    await this.validateCurrentApp('Solana')
+    return solana.solanaSignSerializedTx(this.transport, msg)
+  }
+
   public async suiGetAddress(msg: core.SuiGetAddress): Promise<string> {
     await this.validateCurrentApp('Sui')
     return sui.suiGetAddress(this.transport, msg)

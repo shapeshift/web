@@ -25,7 +25,8 @@ This file is the canonical instruction entrypoint for local agent tooling in thi
 
 - New second-class EVM chain work: [.claude/contracts/second-class-evm-chain.md](.claude/contracts/second-class-evm-chain.md)
 - New swapper integration work: [.claude/contracts/swapper-integration.md](.claude/contracts/swapper-integration.md)
-- QA automation: [.claude/skills/qabot/SKILL.md](.claude/skills/qabot/SKILL.md)
+- Test scenarios (`/test-agent`, @neomaking flow): [.claude/test-scenarios/README.md](.claude/test-scenarios/README.md)
+- QA automation (`qabot`, fixture-based flow): [.claude/skills/qabot/SKILL.md](.claude/skills/qabot/SKILL.md)
 - Translation workflow: [.claude/skills/translate/SKILL.md](.claude/skills/translate/SKILL.md)
 
 ## Tooling Notes

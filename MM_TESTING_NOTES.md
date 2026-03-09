@@ -54,6 +54,32 @@
 - "Don't ask again" checkbox present
 - Zero regression: native multichain code paths not executed when flag OFF
 
-## Regression Testing (flag ON, reconnect flow)
+## Regression Testing (flag ON, reconnect flow) - PASS
 - Modal correctly skipped on reconnect when preference already stored
 - Preference key: `nativeMultichainPreference_io.metamask:0x5daf...61c986` = `native`
+
+## Native Multichain Modal Flow (flag ON, fresh user) - PASS
+- Cleared localStorage preferences, reloaded page
+- Modal auto-opened: "MetaMask now natively supports Solana"
+- Shows MetaMask fox logo, Solana chain icon, "Use native multichain" CTA
+- Clicking "Use native multichain" stores preference, dismisses modal, re-pairs wallet
+- After re-pair: SOL balance re-populated (0.10131415 SOL), accounts re-discovered
+- Subsequent reloads: no modal (preference persisted)
+
+## Regression Testing (flag OFF, disconnect + reconnect) - PASS
+- Flag toggled to false in .env.development, HMR picked up
+- Cleared native multichain preferences from localStorage
+- Disconnected wallet via wallet menu > Disconnect
+- Reconnected via Connect Wallet > MetaMask > Pair
+- Snap install modal appeared correctly (not native multichain modal)
+- "Multichain support is now available for MetaMask!" with "Add Snap" button
+- All 40+ chain icons displayed, "Don't ask again" checkbox present
+- Zero regression from native multichain code paths
+
+## Code Review Summary
+- 3 parallel review agents ran: native-multichain.ts, UI/hooks, state/portfolio
+- Feature flag guards solid across all files - flag OFF = zero regression
+- Portfolio cleanup on snap->native migration is comprehensive
+- Race conditions in connect flows mitigated by promise deduplication locks
+- Test coverage thin but functional for flag guard logic
+- No showstopper bugs for happy path

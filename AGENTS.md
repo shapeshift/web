@@ -5,10 +5,11 @@ This file is the canonical instruction entrypoint for local agent tooling in thi
 ## Read Order
 
 1. This file (high-signal defaults and routing)
-2. [.claude/contracts](.claude/contracts)
-3. [.claude/skills](.claude/skills)
-4. [.claude/test-scenarios](.claude/test-scenarios)
-5. [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md)
+2. [.claude/programming-guidelines.md](.claude/programming-guidelines.md)
+3. [.claude/contracts](.claude/contracts)
+4. [.claude/skills](.claude/skills)
+5. [.claude/test-scenarios](.claude/test-scenarios)
+6. [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md)
 
 ## Must-Follow Defaults
 
@@ -29,5 +30,6 @@ This file is the canonical instruction entrypoint for local agent tooling in thi
 
 - Claude compatibility is provided by `CLAUDE.md` importing this file.
 - Codex compatibility is pinned via `.codex/config.toml`.
+- Full legacy `CLAUDE.md` policy content was moved to `.claude/programming-guidelines.md` to avoid loss while keeping top-level entrypoints compact.
 - Repo-local skills live in `.claude/skills`.
 - Additional user-level skills/config may exist in `~/.agents`, `~/.codex/skills`, and `~/.openclaw`.

@@ -1,4 +1,5 @@
 @AGENTS.md
+@.claude/programming-guidelines.md
 
 # Claude Compatibility Shim
 

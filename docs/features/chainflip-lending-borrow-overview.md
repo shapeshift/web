@@ -254,9 +254,9 @@ All lending operations are currently enabled:
 - Remove collateral: enabled
 - Liquidations: enabled
 
-## Composable Operations via Batching
+## Composable Operations via Batching (not yet in UI)
 
-Multiple operations can be batched into a single EIP-712 signature using `Environment.batch` (max 10 calls):
+The low-level `encodeBatch` primitive exists in `src/lib/chainflip/scale.ts` and is tested, but the UI state machines currently sign each operation individually. The following batch combinations are **planned/aspirational** and not yet wired into the UI components or xstate machines:
 
 | Batch | Use Case |
 |-------|----------|
@@ -265,4 +265,4 @@ Multiple operations can be batched into a single EIP-712 signature using `Enviro
 | `makeRepayment + removeCollateral + withdrawAsset` | Full unwind to on-chain wallet |
 | `registerRefundAddress + addCollateral + requestLoan` | First-time borrow with setup |
 
-Batch error handling: try batch first, fall back to sequential (sign each individually) if batch fails. For sequential fallback, nonces are incremented manually (`lastUsedNonce + 1`).
+Current implementation: each operation gets its own EIP-712 signature, with nonces incremented manually (`lastUsedNonce + 1`) for sequential calls within the same session. Batching would reduce these to a single signature per composed operation.

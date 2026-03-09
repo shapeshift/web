@@ -173,23 +173,16 @@ Note: `withdrawAsset` takes an explicit `destinationAddress` - it does NOT use t
 
 The app polls `cf_free_balances` and detects when the balance decreases from the initial snapshot. The egress is confirmed when Chainflip broadcasts the on-chain transaction.
 
-## Withdraw Supply + Egress Combined
+## Withdraw Supply + Egress Combined (not yet in UI)
 
-A common user flow is "I want my money back in my wallet". This involves two steps:
+A common user flow is "I want my money back in my wallet". This involves two steps today (two separate flows, two signatures):
 
 1. **Withdraw from pool**: `removeLenderFunds` (supply position -> free balance)
 2. **Egress to wallet**: `withdrawAsset` (free balance -> on-chain)
 
-These can be batched via `Environment.batch` for a single EIP-712 signature:
+The low-level `encodeBatch` primitive and translation key (`alsoWithdrawToWallet`) exist, but the combined batch flow is **not yet wired into the UI**. The withdraw and egress state machines operate independently today.
 
-```
-User clicks "Withdraw to Wallet"
-  -> batch([removeLenderFunds(asset, amount), withdrawAsset(amount, asset, address)])
-  -> single EIP-712 signature
-  -> funds go from supply position directly to on-chain wallet
-```
-
-The UI can offer this as an optional checkbox: "Also withdraw to wallet" during the supply withdraw flow.
+**Planned**: batch both calls via `Environment.batch` for a single EIP-712 signature, with an "Also withdraw to wallet" checkbox in the withdraw flow.
 
 ## Live Pool Data (March 2026)
 

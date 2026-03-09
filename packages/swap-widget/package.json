@@ -8,6 +8,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "dev": "vite",
+    "clean": "rm -rf dist node_modules",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint src --ext .ts,.tsx",

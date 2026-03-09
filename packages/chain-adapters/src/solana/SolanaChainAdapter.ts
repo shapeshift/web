@@ -450,7 +450,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
       // Fallback: sign then broadcast via our own infra
       const signedTx = await wallet.solanaSignTx?.(txToSign)
-      if (!signedTx) throw new Error('error signing tx')
+      if (!signedTx?.serialized) throw new Error('error signing tx')
 
       return this.broadcastTransaction({ senderAddress, receiverAddress, hex: signedTx.serialized })
     } catch (err) {

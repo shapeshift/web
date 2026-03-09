@@ -129,7 +129,10 @@ export const MetaMaskConnect = () => {
           if (isMmNativeMultichain) {
             const storedPref = localStorage.getItem(`nativeMultichainPreference_${deviceId}`)
             if (!storedPref) return navigate('/metamask/native-multichain')
-            return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+            if (storedPref === 'native') {
+              return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+            }
+            // storedPref === 'snap' - fall through to existing snap install/update flow below
           }
 
           const isSnapInstalled = await checkIsSnapInstalled()

@@ -425,9 +425,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             const isFlagOn = selectFeatureFlag(store.getState(), 'MmNativeMultichain')
             if (!isFlagOn) return undefined
             // Read preference from localStorage - matches useNativeMultichainPreference logic
-            const deviceId = state.deviceId
-            const storedPref = deviceId
-              ? localStorage.getItem(`nativeMultichainPreference_${deviceId}`)
+            // Use localWalletDeviceId as fallback since state.deviceId is null during bootstrap
+            const preferenceDeviceId = state.deviceId ?? localWalletDeviceId
+            const storedPref = preferenceDeviceId
+              ? localStorage.getItem(`nativeMultichainPreference_${preferenceDeviceId}`)
               : null
             const isNativeMode = storedPref === 'native' || (storedPref !== 'snap' && isFlagOn)
             return { useNativeMultichain: isNativeMode }

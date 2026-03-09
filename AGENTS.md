@@ -18,6 +18,8 @@ This file is the canonical instruction entrypoint for local agent tooling in thi
 - Use `pnpm`.
 - Keep changes surgical and focused.
 - For complex multi-step tasks, prefer `bd` tracking before implementation.
+- Prefer `origin` for new feature/fix branch pushes when permissions allow.
+- If a PR branch is already on `fork`, keep using that existing `fork` branch.
 - Run `pnpm run lint --fix` and `pnpm run type-check` after code changes.
 - Use `.github/PULL_REQUEST_TEMPLATE.md` for PR bodies.
 

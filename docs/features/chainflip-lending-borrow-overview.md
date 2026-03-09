@@ -231,8 +231,6 @@ Interest is collected every 10 blocks (~60 seconds).
 Current state of the test account showing an active borrow position:
 
 ```
-Account: cFHsUq1uK5opJudRDd194A6JcRQNyhKtXNMRrMgNLV3izEw4P
-
 Collateral:
   USDC: ~156.43
 

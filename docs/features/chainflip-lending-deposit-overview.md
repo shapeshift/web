@@ -8,9 +8,7 @@ This document covers the first functional flow of the Chainflip lending PoC: dep
 
 Your Ethereum address IS your Chainflip lending identity. It's mandatory - you cannot use a Bitcoin, Solana, or any other chain address as your account identifier. The ETH address deterministically maps to a Chainflip State Chain account via left-padding + SS58 encoding (prefix 2112).
 
-For this PoC:
-- ETH address: `0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986`
-- State Chain account: `cFHsUq1uK5opJudRDd194A6JcRQNyhKtXNMRrMgNLV3izEw4P`
+For example, an ETH address `0xABCD...1234` deterministically maps to a State Chain account `cFxxx...yyy`.
 
 Keep in mind: **you do not need to connect the wallet that holds the funds**. For now the PoC doesn't surface this, but the architecture is evolutive enough that supporting e.g. connecting an EVM wallet only or a Ledger with just ETH accounts and depositing from e.g. QR code is definitely an option we can and should think about. This holds true for the deposit flow below, and also for all other flows in subsequent docs.
 
@@ -193,17 +191,16 @@ Every step can fail independently. The machine tracks `errorStep` so that RETRY 
 
 ## Live Account Data (March 2026)
 
-Current state of the PoC test account (`0x5daF465a9cCf64DEB146eEaE9E7Bd40d6761c986`):
+Example state of a PoC test account:
 
 | Field | Value |
 |-------|-------|
-| State Chain Account | `cFHsUq1uK5opJudRDd194A6JcRQNyhKtXNMRrMgNLV3izEw4P` |
 | Role | `liquidity_provider` |
 | FLIP Balance | ~4.0 FLIP |
 | ETH Free Balance | ~0.011 ETH |
 | USDC Free Balance | ~74.88 USDC |
 | USDC Collateral | ~156.43 USDC |
-| Active Loan | #126 (USDC, ~101.07 principal) |
+| Active Loan | USDC, ~101.07 principal |
 | Current LTV | ~64.65% |
 | Refund Addresses | Ethereum, Solana |
 

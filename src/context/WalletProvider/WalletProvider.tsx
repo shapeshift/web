@@ -458,7 +458,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
       return adapterInstance
     },
-    [isDarkMode, mipdProviders, state.adapters, state.deviceId, state.keyring, state.modalType],
+    [isDarkMode, localWalletDeviceId, mipdProviders, state.adapters, state.deviceId, state.keyring, state.modalType],
   )
 
   const disconnect = useCallback(() => {

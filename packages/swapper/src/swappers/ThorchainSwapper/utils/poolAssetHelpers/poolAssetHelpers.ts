@@ -5,10 +5,16 @@ import generatedTradableAssetMap from '../../generated/generatedTradableAssetMap
 
 const thorPoolIdAssetIdSymbolMap = generatedTradableAssetMap as Record<string, AssetId>
 
-export const assetIdToThorPoolAssetIdMap = invert(thorPoolIdAssetIdSymbolMap)
+export const assetIdToThorPoolAssetIdMap: Record<string, string> = invert(
+  thorPoolIdAssetIdSymbolMap,
+)
+
+const assetIdToThorPoolAssetIdMapLower: Record<string, string> = Object.fromEntries(
+  Object.entries(assetIdToThorPoolAssetIdMap).map(([k, v]) => [k.toLowerCase(), v]),
+)
 
 export const thorPoolAssetIdToAssetId = (id: string): AssetId | undefined =>
   thorPoolIdAssetIdSymbolMap[id.toUpperCase()]
 
 export const assetIdToThorPoolAssetId = ({ assetId }: { assetId: AssetId }): string | undefined =>
-  assetIdToThorPoolAssetIdMap[assetId]
+  assetIdToThorPoolAssetIdMapLower[assetId.toLowerCase()]

@@ -16,12 +16,13 @@ import type {
   GetFeeDataInput,
 } from '@shapeshiftoss/chain-adapters'
 import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet, SolanaTxInstruction } from '@shapeshiftoss/hdwallet-core'
 import { isGridPlus, supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { CosmosSdkChainId, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import { PublicKey, TransactionInstruction } from '@solana/web3.js'
 
 import type { SendInput } from './Form'
 
@@ -58,6 +59,8 @@ export type EstimateFeesInput = {
   accountId: AccountId
   contractAddress: string | undefined
 }
+
+const SOLANA_MEMO_PROGRAM_ID = 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr'
 
 export const estimateFees = async ({
   amountCryptoPrecision,
@@ -112,8 +115,17 @@ export const estimateFees = async ({
     case CHAIN_NAMESPACE.Solana: {
       const adapter = assertGetSolanaChainAdapter(asset.chainId)
 
+      const memoInstruction: TransactionInstruction | undefined = memo
+        ? new TransactionInstruction({
+            keys: [],
+            programId: new PublicKey(SOLANA_MEMO_PROGRAM_ID),
+            data: Buffer.from(memo, 'utf8'),
+          })
+        : undefined
+
       // For SPL transfers, build complete instruction set including compute budget
-      // For SOL transfers (pure sends i.e not e.g a Jup swap), pass no instructions to get 0 count (avoids blind signing)
+      // For SOL transfers with memo (e.g. THORChain), pass memo instruction for accurate fee estimation
+      // For pure SOL transfers, pass no instructions to get 0 count (avoids blind signing)
       const instructions = contractAddress
         ? await adapter.buildEstimationInstructions({
             from: account,
@@ -121,6 +133,8 @@ export const estimateFees = async ({
             tokenId: contractAddress,
             value,
           })
+        : memoInstruction
+        ? [memoInstruction]
         : undefined
 
       const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
@@ -376,12 +390,19 @@ export const handleSendWithMetadata = async ({
 
       const solanaAdapter = assertGetSolanaChainAdapter(chainId)
       const { account } = fromAccountId(sendInput.accountId)
-      const instructions = await solanaAdapter.buildEstimationInstructions({
+
+      const memoInstruction: SolanaTxInstruction | undefined = memo
+        ? { keys: [], programId: SOLANA_MEMO_PROGRAM_ID, data: Buffer.from(memo, 'utf8') }
+        : undefined
+
+      const estimationInstructions = await solanaAdapter.buildEstimationInstructions({
         from: account,
         to,
         tokenId: contractAddress,
         value,
       })
+
+      const shouldAddComputeBudget = estimationInstructions.length > 1 || Boolean(memoInstruction)
 
       const input: BuildSendTxInput<KnownChainIds.SolanaMainnet> = {
         to,
@@ -389,16 +410,16 @@ export const handleSendWithMetadata = async ({
         wallet,
         accountNumber: bip44Params.accountNumber,
         pubKey: skipDeviceDerivation ? fromAccountId(sendInput.accountId).account : undefined,
-        chainSpecific:
-          instructions.length <= 1
-            ? {
-                tokenId: contractAddress,
-              }
-            : {
-                tokenId: contractAddress,
-                computeUnitLimit: fees.chainSpecific.computeUnits,
-                computeUnitPrice: fees.chainSpecific.priorityFee,
-              },
+        chainSpecific: shouldAddComputeBudget
+          ? {
+              tokenId: contractAddress,
+              computeUnitLimit: fees.chainSpecific.computeUnits,
+              computeUnitPrice: fees.chainSpecific.priorityFee,
+              instructions: memoInstruction ? [memoInstruction] : undefined,
+            }
+          : {
+              tokenId: contractAddress,
+            },
       }
 
       return solanaAdapter.buildSendTransaction(input)

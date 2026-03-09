@@ -8,7 +8,7 @@ import isObject from 'lodash/isObject'
 import * as btc from './bitcoin'
 import * as cosmos from './cosmos'
 import * as eth from './ethereum'
-import { solanaSendTx, solanaSignTx } from './solana'
+import { solanaSendTx, solanaSignSerializedTx, solanaSignTx } from './solana'
 import * as thorchain from './thorchain'
 import type {
   VultisigEvmProvider,
@@ -468,6 +468,12 @@ export class VultisigHDWallet
   public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
     const address = await this.solanaGetAddress()
     return address ? solanaSignTx(msg, this.solanaProvider, address) : null
+  }
+
+  public async solanaSignSerializedTx(
+    msg: core.SolanaSignSerializedTx,
+  ): Promise<core.SolanaSignedTx | null> {
+    return solanaSignSerializedTx(msg, this.solanaProvider)
   }
 
   public async solanaSendTx(msg: core.SolanaSignTx): Promise<core.SolanaTxSignature | null> {

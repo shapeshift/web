@@ -9,7 +9,7 @@ This file is the canonical instruction entrypoint for local agent tooling in thi
 3. [.claude/programming-guidelines.md](.claude/programming-guidelines.md)
 4. [.claude/contracts](.claude/contracts)
 5. [.claude/skills](.claude/skills)
-6. [.claude/test-scenarios](.claude/test-scenarios)
+6. [.claude/test-scenarios/README.md](.claude/test-scenarios/README.md)
 7. [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md)
 
 ## Must-Follow Defaults

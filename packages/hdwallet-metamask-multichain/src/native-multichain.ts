@@ -49,14 +49,9 @@ type BtcWalletStandard = Wallet & {
 
 function getMetaMaskBtcWallet(): BtcWalletStandard | undefined {
   const wallets = getWallets().get()
-  console.log(
-    '[MM Native BTC] All Wallet Standard wallets:',
-    wallets.map(w => ({ name: w.name, chains: w.chains, features: Object.keys(w.features) })),
-  )
   const btcWallet = wallets.find(
     w => w.name === 'MetaMask' && w.chains.some(c => c.startsWith('bitcoin:')),
   ) as BtcWalletStandard | undefined
-  console.log('[MM Native BTC] Found BTC wallet:', !!btcWallet)
   return btcWallet
 }
 
@@ -111,14 +106,9 @@ type SolWalletStandard = Wallet & {
 
 function getMetaMaskSolWallet(): SolWalletStandard | undefined {
   const wallets = getWallets().get()
-  console.log(
-    '[MM Native SOL] All Wallet Standard wallets:',
-    wallets.map(w => ({ name: w.name, chains: w.chains, features: Object.keys(w.features) })),
-  )
   const solWallet = wallets.find(
     w => w.name === 'MetaMask' && w.chains.some(c => c.startsWith('solana:')),
   ) as SolWalletStandard | undefined
-  console.log('[MM Native SOL] Found SOL wallet:', !!solWallet)
   return solWallet
 }
 
@@ -355,7 +345,6 @@ export class MetaMaskNativeMultiChainHDWallet
     // any supportsSolana()/supportsBTC() checks run against this wallet instance.
     const hasBtc = !!getMetaMaskBtcWallet()
     const hasSol = !!getMetaMaskSolWallet()
-    console.log('[MM Native] Constructor: hasBtc =', hasBtc, ', hasSol =', hasSol)
     this._supportsBTC = hasBtc
     this._supportsBTCInfo = hasBtc
     this._supportsSolana = hasSol
@@ -395,7 +384,7 @@ export class MetaMaskNativeMultiChainHDWallet
   }
 
   public async initialize(): Promise<void> {
-    console.log('[MM Native] initialize() - BTC:', this._supportsBTC, 'SOL:', this._supportsSolana)
+    // noop - BTC/SOL support flags are set in constructor
   }
 
   public hasOnDevicePinEntry(): boolean {
@@ -513,24 +502,20 @@ export class MetaMaskNativeMultiChainHDWallet
   }
 
   private async connectBtcWallet(): Promise<boolean> {
-    console.log('[MM Native BTC] connectBtcWallet called, connected:', this.btcConnected, 'connecting:', !!this.btcConnecting)
     if (this.btcConnected) return this.btcAddresses.length > 0
     if (this.btcConnecting) return this.btcConnecting
 
     this.btcConnecting = (async () => {
       const wallet = this.getBtcWallet()
       if (!wallet) {
-        console.log('[MM Native BTC] No BTC wallet found via Wallet Standard')
         this.btcConnected = true
         return false
       }
 
       try {
-        console.log('[MM Native BTC] Calling bitcoin:connect...')
         const { addresses } = await wallet.features['bitcoin:connect'].connect({
           purposes: ['payment'],
         })
-        console.log('[MM Native BTC] bitcoin:connect returned', addresses.length, 'addresses:', addresses.map(a => a.address))
         if (!addresses.length) {
           this.btcConnected = true
           return false
@@ -864,22 +849,18 @@ export class MetaMaskNativeMultiChainHDWallet
   }
 
   private async connectSolWallet(): Promise<boolean> {
-    console.log('[MM Native SOL] connectSolWallet called, connected:', this.solConnected, 'connecting:', !!this.solConnecting)
     if (this.solConnected) return this.solAddresses.length > 0
     if (this.solConnecting) return this.solConnecting
 
     this.solConnecting = (async () => {
       const wallet = this.getSolWallet()
       if (!wallet) {
-        console.log('[MM Native SOL] No SOL wallet found via Wallet Standard')
         this.solConnected = true
         return false
       }
 
       try {
-        console.log('[MM Native SOL] Calling standard:connect...')
         const { accounts } = await wallet.features['standard:connect'].connect()
-        console.log('[MM Native SOL] standard:connect returned', accounts.length, 'accounts:', accounts.map(a => ({ address: a.address, chains: a.chains })))
         // Filter to only Solana accounts and cache all of them
         const solanaAccounts = accounts.filter(a => a.chains.some(c => c.startsWith('solana:')))
         this.solAddresses = solanaAccounts.map(a => a.address)

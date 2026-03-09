@@ -13,10 +13,6 @@ export const useNativeMultichainAutoOpen = () => {
   const hasOpened = useRef(false)
 
   useEffect(() => {
-    const debugInfo = { isConnected, shouldShowDeprecationModal, hasOpened: hasOpened.current, modal: !!modal, deviceId }
-    console.log('[MM Native AutoOpen]', debugInfo)
-    ;(window as any).__MM_AUTO_OPEN_DEBUG = (window as any).__MM_AUTO_OPEN_DEBUG || []
-    ;(window as any).__MM_AUTO_OPEN_DEBUG.push(debugInfo)
     if (!isConnected) {
       hasOpened.current = false
       return

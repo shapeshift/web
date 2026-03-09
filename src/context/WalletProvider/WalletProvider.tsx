@@ -430,7 +430,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             const storedPref = preferenceDeviceId
               ? localStorage.getItem(`nativeMultichainPreference_${preferenceDeviceId}`)
               : null
-            const isNativeMode = storedPref === 'native' || (storedPref !== 'snap' && isFlagOn)
+            const isNativeMode = storedPref === 'native'
             return { useNativeMultichain: isNativeMode }
           })()
 

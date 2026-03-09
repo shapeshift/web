@@ -54,6 +54,7 @@ import {
 } from '@/state/slices/localWalletSlice/selectors'
 import { portfolio as portfolioSlice } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectFeatureFlag } from '@/state/slices/preferencesSlice/selectors'
 import { store } from '@/state/store'
 
 export type WalletInfo = {
@@ -418,10 +419,28 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
               return METAMASK_RDNS
             return getKeyManagerOptions(keyManager, isDarkMode)
           })()
+          // For MetaMask, determine if native multichain should be used based on feature flag + user preference
+          const mmNativeMultichainOptions = (() => {
+            if (keyManager !== KeyManager.MetaMask) return undefined
+            const isFlagOn = selectFeatureFlag(store.getState(), 'MmNativeMultichain')
+            if (!isFlagOn) return undefined
+            // Read preference from localStorage - matches useNativeMultichainPreference logic
+            const deviceId = state.deviceId
+            const storedPref = deviceId
+              ? localStorage.getItem(`nativeMultichainPreference_${deviceId}`)
+              : null
+            const isNativeMode = storedPref === 'native' || (storedPref !== 'snap' && isFlagOn)
+            return { useNativeMultichain: isNativeMode }
+          })()
+
           // @ts-ignore tsc is drunk as well, not narrowing to the specific adapter and its KeyManager options here
           // eslint is drunk, this isn't a hook
           // eslint-disable-next-line react-hooks/rules-of-hooks
-          adapterInstance = Adapter.useKeyring(state.keyring, keyManagerOptions)
+          adapterInstance = Adapter.useKeyring(
+            state.keyring,
+            keyManagerOptions,
+            mmNativeMultichainOptions,
+          )
 
           if (adapterInstance) {
             currentStateAdapters[keyManager] = adapterInstance
@@ -438,7 +457,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
 
       return adapterInstance
     },
-    [isDarkMode, mipdProviders, state.adapters, state.keyring, state.modalType],
+    [isDarkMode, mipdProviders, state.adapters, state.deviceId, state.keyring, state.modalType],
   )
 
   const disconnect = useCallback(() => {

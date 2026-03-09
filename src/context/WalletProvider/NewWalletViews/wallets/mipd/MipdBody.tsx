@@ -14,6 +14,7 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { MetaMaskConfig } from '@/context/WalletProvider/MetaMask/config'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import {
   checkIsMetaMaskDesktop,
   checkIsMetaMaskMobileWebView,
@@ -42,6 +43,7 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
     [mipdProviders, rdns],
   )
   const showSnapModal = useSelector(preferences.selectors.selectShowSnapsModal)
+  const isMmNativeMultichain = useFeatureFlag('MmNativeMultichain')
 
   const { dispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
@@ -100,6 +102,15 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
         if (!isMetaMaskDesktop || isMetaMaskMobileWebView)
           return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
+        // With native multichain, show the native multichain choice step instead of snap install
+        // but only if the user hasn't already made a choice (stored preference)
+        if (isMmNativeMultichain) {
+          const storedPref = localStorage.getItem(`nativeMultichainPreference_${deviceId}`)
+          if (!storedPref)
+            return navigate('/metamask/native-multichain')
+          return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+        }
+
         const isSnapInstalled = await checkIsSnapInstalled()
         const snapVersion = await getSnapVersion()
         const isCorrectVersion = snapVersion === getConfig().VITE_SNAP_VERSION
@@ -131,6 +142,7 @@ export const MipdBody = ({ rdns, isLoading, error, setIsLoading, setError }: Mip
     getAdapter,
     navigate,
     isMetaMaskMobileWebView,
+    isMmNativeMultichain,
     localWallet,
     maybeMipdProvider?.info.icon,
     maybeMipdProvider?.info.name,

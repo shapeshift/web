@@ -307,6 +307,7 @@ const validators = {
   VITE_FEATURE_YIELD_MULTI_ACCOUNT: bool({ default: false }),
   VITE_FEATURE_PERFORMANCE_PROFILER: bool({ default: false }),
   VITE_FEATURE_AGENTIC_CHAT: bool({ default: false }),
+  VITE_FEATURE_MM_NATIVE_MULTICHAIN: bool({ default: false }),
   VITE_AGENTIC_SERVER_BASE_URL: url({
     default: 'https://shapeshiftossagentic-server-production.up.railway.app',
   }),

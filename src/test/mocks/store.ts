@@ -211,6 +211,7 @@ export const mockStore: ReduxState = {
       YieldMultiAccount: false,
       EarnTab: false,
       AgenticChat: false,
+      MmNativeMultichain: false,
     },
     showTopAssetsCarousel: true,
     quickBuyAmounts: [10, 50, 100],

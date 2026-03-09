@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 
 import { SnapInstall } from '../../MetaMask/components/SnapInstall'
 import { SnapUpdate } from '../../MetaMask/components/SnapUpdate'
+import { NativeMultichainStep } from '../../MetaMask/components/NativeMultichainStep'
 import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from '../constants'
 import type { RightPanelContentProps } from '../types'
 import { CoinbaseQrBody } from '../wallets/mipd/CoinbaseQrBody'
@@ -70,6 +71,7 @@ export const MipdRoutes = ({
 
   const snapInstallElement = useMemo(() => <SnapInstall />, [])
   const snapUpdateElement = useMemo(() => <SnapUpdate />, [])
+  const nativeMultichainElement = useMemo(() => <NativeMultichainStep />, [])
 
   if (!modalType) return null
 
@@ -80,6 +82,7 @@ export const MipdRoutes = ({
       <Route path='/metamask/connect' element={mipdBodyElement} />
       <Route path='/metamask/snap/install' element={snapInstallElement} />
       <Route path='/metamask/snap/update' element={snapUpdateElement} />
+      <Route path='/metamask/native-multichain' element={nativeMultichainElement} />
     </Routes>
   )
 }

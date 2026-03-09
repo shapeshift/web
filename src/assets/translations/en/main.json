@@ -1820,6 +1820,21 @@
         "button": "Pair"
       }
     },
+    "nativeMultichain": {
+      "title": "MetaMask now natively supports %{chains}",
+      "subtitle": "You can now use %{chains} directly through MetaMask without the ShapeShift Multichain Snap.",
+      "useNative": "Use native multichain",
+      "useNativeRecommended": "Recommended",
+      "keepSnap": "Keep using snap",
+      "switchWarning": "Switching will re-derive your non-EVM accounts. Your EVM accounts and balances are not affected.",
+      "nativeActive": "Native Multichain",
+      "snapActive": "Multichain Snap",
+      "switchToNative": "Switch to native multichain",
+      "switchToSnap": "Switch back to snap",
+      "switchConfirmTitle": "Switch multichain mode",
+      "switchConfirmBody": "This will re-derive your non-EVM accounts using the new mode. Your EVM accounts are not affected.",
+      "switchConfirmAction": "Switch"
+    },
     "metaMaskSnap": {
       "title": "Multichain support is now available for MetaMask!",
       "subtitle": "Add the Multichain Snap on Metamask to send, receive, track, trade, and earn with the following chains:",

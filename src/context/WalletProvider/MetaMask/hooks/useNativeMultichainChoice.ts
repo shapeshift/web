@@ -1,5 +1,5 @@
-import { btcChainId, solanaChainId } from '@shapeshiftoss/caip'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { btcChainId, solanaChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { getWallets } from '@wallet-standard/app'
 import { useCallback, useEffect, useMemo, useState } from 'react'

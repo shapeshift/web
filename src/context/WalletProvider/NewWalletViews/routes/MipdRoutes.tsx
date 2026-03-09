@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
+import { NativeMultichainStep } from '../../MetaMask/components/NativeMultichainStep'
 import { SnapInstall } from '../../MetaMask/components/SnapInstall'
 import { SnapUpdate } from '../../MetaMask/components/SnapUpdate'
-import { NativeMultichainStep } from '../../MetaMask/components/NativeMultichainStep'
 import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from '../constants'
 import type { RightPanelContentProps } from '../types'
 import { CoinbaseQrBody } from '../wallets/mipd/CoinbaseQrBody'

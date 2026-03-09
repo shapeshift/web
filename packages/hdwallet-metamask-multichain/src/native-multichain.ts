@@ -4,9 +4,9 @@ import type { AddEthereumChainParameter, Address } from '@shapeshiftoss/hdwallet
 import * as core from '@shapeshiftoss/hdwallet-core'
 import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { VersionedTransaction } from '@solana/web3.js'
-import bs58 from 'bs58'
 import { getWallets } from '@wallet-standard/app'
 import type { Wallet, WalletAccount } from '@wallet-standard/base'
+import bs58 from 'bs58'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
 import isObject from 'lodash/isObject'
 import type { EIP6963ProviderDetail } from 'mipd'
@@ -963,9 +963,7 @@ export class MetaMaskNativeMultiChainHDWallet
     if (!signed) return null
 
     // Decode to get the signature from the signed tx
-    const decoded = VersionedTransaction.deserialize(
-      Buffer.from(signed.serialized, 'base64'),
-    )
+    const decoded = VersionedTransaction.deserialize(Buffer.from(signed.serialized, 'base64'))
     return { signature: Buffer.from(decoded.signatures[0]).toString('base64') }
   }
 

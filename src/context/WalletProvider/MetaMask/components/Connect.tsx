@@ -128,8 +128,7 @@ export const MetaMaskConnect = () => {
           // but only if the user hasn't already made a choice (stored preference)
           if (isMmNativeMultichain) {
             const storedPref = localStorage.getItem(`nativeMultichainPreference_${deviceId}`)
-            if (!storedPref)
-              return navigate('/metamask/native-multichain')
+            if (!storedPref) return navigate('/metamask/native-multichain')
             return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
           }
 

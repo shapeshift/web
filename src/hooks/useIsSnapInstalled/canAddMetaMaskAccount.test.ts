@@ -33,10 +33,20 @@ describe('canAddMetaMaskAccount', () => {
     it('should always return true regardless of chain or snap', () => {
       const wallet = makeWallet()
       expect(
-        canAddMetaMaskAccount({ accountNumber: 0, chainId: ethChainId, wallet, isSnapInstalled: false }),
+        canAddMetaMaskAccount({
+          accountNumber: 0,
+          chainId: ethChainId,
+          wallet,
+          isSnapInstalled: false,
+        }),
       ).toBe(true)
       expect(
-        canAddMetaMaskAccount({ accountNumber: 0, chainId: btcChainId, wallet, isSnapInstalled: false }),
+        canAddMetaMaskAccount({
+          accountNumber: 0,
+          chainId: btcChainId,
+          wallet,
+          isSnapInstalled: false,
+        }),
       ).toBe(true)
     })
   })
@@ -47,7 +57,12 @@ describe('canAddMetaMaskAccount', () => {
       const wallet = makeWallet({ _isMetaMaskNativeMultichain: true })
 
       expect(
-        canAddMetaMaskAccount({ accountNumber: 1, chainId: ethChainId, wallet, isSnapInstalled: false }),
+        canAddMetaMaskAccount({
+          accountNumber: 1,
+          chainId: ethChainId,
+          wallet,
+          isSnapInstalled: false,
+        }),
       ).toBe(false)
     })
 
@@ -56,7 +71,12 @@ describe('canAddMetaMaskAccount', () => {
       const wallet = makeWallet({ _isMetaMaskNativeMultichain: true })
 
       expect(
-        canAddMetaMaskAccount({ accountNumber: 1, chainId: btcChainId, wallet, isSnapInstalled: false }),
+        canAddMetaMaskAccount({
+          accountNumber: 1,
+          chainId: btcChainId,
+          wallet,
+          isSnapInstalled: false,
+        }),
       ).toBe(true)
     })
 
@@ -65,7 +85,12 @@ describe('canAddMetaMaskAccount', () => {
       const wallet = makeWallet({ _isMetaMaskNativeMultichain: true })
 
       expect(
-        canAddMetaMaskAccount({ accountNumber: 1, chainId: solanaChainId, wallet, isSnapInstalled: false }),
+        canAddMetaMaskAccount({
+          accountNumber: 1,
+          chainId: solanaChainId,
+          wallet,
+          isSnapInstalled: false,
+        }),
       ).toBe(true)
     })
   })
@@ -76,10 +101,20 @@ describe('canAddMetaMaskAccount', () => {
       const wallet = makeWallet()
 
       expect(
-        canAddMetaMaskAccount({ accountNumber: 1, chainId: ethChainId, wallet, isSnapInstalled: false }),
+        canAddMetaMaskAccount({
+          accountNumber: 1,
+          chainId: ethChainId,
+          wallet,
+          isSnapInstalled: false,
+        }),
       ).toBe(false)
       expect(
-        canAddMetaMaskAccount({ accountNumber: 1, chainId: btcChainId, wallet, isSnapInstalled: false }),
+        canAddMetaMaskAccount({
+          accountNumber: 1,
+          chainId: btcChainId,
+          wallet,
+          isSnapInstalled: false,
+        }),
       ).toBe(false)
     })
   })
@@ -90,7 +125,12 @@ describe('canAddMetaMaskAccount', () => {
       const wallet = makeWallet()
 
       expect(
-        canAddMetaMaskAccount({ accountNumber: 1, chainId: ethChainId, wallet, isSnapInstalled: true }),
+        canAddMetaMaskAccount({
+          accountNumber: 1,
+          chainId: ethChainId,
+          wallet,
+          isSnapInstalled: true,
+        }),
       ).toBe(false)
     })
 
@@ -99,7 +139,12 @@ describe('canAddMetaMaskAccount', () => {
       const wallet = makeWallet()
 
       expect(
-        canAddMetaMaskAccount({ accountNumber: 1, chainId: cosmosChainId, wallet, isSnapInstalled: true }),
+        canAddMetaMaskAccount({
+          accountNumber: 1,
+          chainId: cosmosChainId,
+          wallet,
+          isSnapInstalled: true,
+        }),
       ).toBe(false)
     })
 
@@ -108,7 +153,12 @@ describe('canAddMetaMaskAccount', () => {
       const wallet = makeWallet()
 
       expect(
-        canAddMetaMaskAccount({ accountNumber: 1, chainId: btcChainId, wallet, isSnapInstalled: true }),
+        canAddMetaMaskAccount({
+          accountNumber: 1,
+          chainId: btcChainId,
+          wallet,
+          isSnapInstalled: true,
+        }),
       ).toBe(true)
     })
   })
@@ -119,7 +169,12 @@ describe('canAddMetaMaskAccount', () => {
       const wallet = { _isMetaMask: false } as unknown as HDWallet
 
       expect(() =>
-        canAddMetaMaskAccount({ accountNumber: 1, chainId: ethChainId, wallet, isSnapInstalled: false }),
+        canAddMetaMaskAccount({
+          accountNumber: 1,
+          chainId: ethChainId,
+          wallet,
+          isSnapInstalled: false,
+        }),
       ).toThrow('canAddMetaMaskAccount should only be called in the context of a MetaMask adapter')
     })
   })

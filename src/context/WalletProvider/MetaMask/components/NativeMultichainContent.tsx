@@ -11,6 +11,7 @@ type NativeMultichainContentProps = {
   chainAssets: Asset[]
   onUseNative: () => void
   onKeepSnap: () => void
+  isKeepSnapLoading: boolean
 }
 
 export const NativeMultichainContent: React.FC<NativeMultichainContentProps> = ({
@@ -18,6 +19,7 @@ export const NativeMultichainContent: React.FC<NativeMultichainContentProps> = (
   chainAssets,
   onUseNative,
   onKeepSnap,
+  isKeepSnapLoading,
 }) => {
   const translate = useTranslate()
 
@@ -59,17 +61,23 @@ export const NativeMultichainContent: React.FC<NativeMultichainContentProps> = (
             </HStack>
           </Button>
           {hasSnap && (
-            <Button width='full' variant='ghost' size='lg' onClick={onKeepSnap}>
+            <Button
+              width='full'
+              variant='ghost'
+              size='lg'
+              onClick={onKeepSnap}
+              isLoading={isKeepSnapLoading}
+            >
               {translate('walletProvider.nativeMultichain.keepSnap')}
             </Button>
           )}
         </VStack>
       </Flex>
       {hasSnap && (
-        <HStack spacing={2} color='text.warning' justifyContent='center' pb={6}>
-          <WarningIcon boxSize={3} />
+        <HStack spacing={2} justifyContent='center' pb={6} px={6}>
+          <WarningIcon boxSize={3} color='text.warning' />
           <Text fontSize='xs' color='text.subtle'>
-            {translate('walletProvider.nativeMultichain.switchWarning')}
+            {translate('walletProvider.nativeMultichain.snapChainWarning')}
           </Text>
         </HStack>
       )}

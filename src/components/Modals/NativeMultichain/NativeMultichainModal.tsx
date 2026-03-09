@@ -15,9 +15,10 @@ export const NativeMultichainModal: React.FC<NativeMultichainModalProps> = () =>
     onClose: close,
   })
 
-  const { hasSnap, chainAssets, handleUseNative, handleKeepSnap } = useNativeMultichainChoice({
-    onDismiss: close,
-  })
+  const { hasSnap, chainAssets, handleUseNative, handleKeepSnap, isKeepSnapLoading } =
+    useNativeMultichainChoice({
+      onDismiss: close,
+    })
 
   return (
     <Modal {...modalProps} isCentered size='sm'>
@@ -29,6 +30,7 @@ export const NativeMultichainModal: React.FC<NativeMultichainModalProps> = () =>
           chainAssets={chainAssets}
           onUseNative={handleUseNative}
           onKeepSnap={handleKeepSnap}
+          isKeepSnapLoading={isKeepSnapLoading}
         />
       </ModalContent>
     </Modal>

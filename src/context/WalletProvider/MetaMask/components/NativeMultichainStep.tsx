@@ -13,9 +13,10 @@ export const NativeMultichainStep: React.FC = () => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
   }, [dispatch])
 
-  const { hasSnap, chainAssets, handleUseNative, handleKeepSnap } = useNativeMultichainChoice({
-    onDismiss: closeModal,
-  })
+  const { hasSnap, chainAssets, handleUseNative, handleKeepSnap, isKeepSnapLoading } =
+    useNativeMultichainChoice({
+      onDismiss: closeModal,
+    })
 
   return (
     <NativeMultichainContent
@@ -23,6 +24,7 @@ export const NativeMultichainStep: React.FC = () => {
       chainAssets={chainAssets}
       onUseNative={handleUseNative}
       onKeepSnap={handleKeepSnap}
+      isKeepSnapLoading={isKeepSnapLoading}
     />
   )
 }

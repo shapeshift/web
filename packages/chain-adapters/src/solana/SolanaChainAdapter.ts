@@ -442,11 +442,17 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       if (!wallet) throw new Error('wallet is required')
       this.assertSupportsChain(wallet)
 
+      // Try sign+send in one step (e.g. Phantom provider). If the wallet doesn't
+      // implement solanaSendTx or it returns null, fall back to sign then broadcast
+      // through our own RPC which is more reliable than relying on the wallet's RPC.
       const tx = await wallet.solanaSendTx?.(txToSign)
+      if (tx) return tx.signature
 
-      if (!tx) throw new Error('error signing & broadcasting tx')
+      // Fallback: sign then broadcast via our own infra
+      const signedTx = await wallet.solanaSignTx?.(txToSign)
+      if (!signedTx) throw new Error('error signing tx')
 
-      return tx.signature
+      return this.broadcastTransaction({ senderAddress, receiverAddress, hex: signedTx.serialized })
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.signAndBroadcastTransaction',

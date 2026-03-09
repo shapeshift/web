@@ -1826,6 +1826,7 @@
       "useNative": "Use native multichain",
       "useNativeRecommended": "Recommended",
       "keepSnap": "Keep using snap",
+      "snapChainWarning": "Choosing native multichain will replace snap-provided chain accounts. You can switch back in wallet settings anytime.",
       "switchWarning": "Switching will re-derive your non-EVM accounts. Your EVM accounts and balances are not affected.",
       "nativeActive": "Native Multichain",
       "snapActive": "Multichain Snap",

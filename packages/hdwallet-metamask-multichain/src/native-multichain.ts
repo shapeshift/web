@@ -6,7 +6,6 @@ import { BTCInputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { VersionedTransaction } from '@solana/web3.js'
 import { getWallets } from '@wallet-standard/app'
 import type { Wallet, WalletAccount } from '@wallet-standard/base'
-import bs58 from 'bs58'
 import { ethErrors, serializeError } from 'eth-rpc-errors'
 import isObject from 'lodash/isObject'
 import type { EIP6963ProviderDetail } from 'mipd'
@@ -923,49 +922,9 @@ export class MetaMaskNativeMultiChainHDWallet
     }
   }
 
-  public async solanaSendTx(msg: core.SolanaSignTx): Promise<core.SolanaTxSignature | null> {
-    const wallet = this.getSolWallet()
-    if (!wallet) return null
-
-    const connected = await this.connectSolWallet()
-    if (!connected) return null
-
-    const accountIndex = msg.addressNList ? getAccountIndex(msg.addressNList) : 0
-    const address = this.solAddresses[accountIndex]
-    if (!address) return null
-
-    const account = this.solAccounts.find(a => a.address === address)
-    if (!account) return null
-
-    const transaction = core.solanaBuildTransaction(msg, address)
-    const serializedTx = transaction.serialize()
-
-    // Use signAndSendTransaction if available (preferred - single user approval)
-    if (wallet.features['solana:signAndSendTransaction']) {
-      const [{ signature }] = await (
-        wallet.features['solana:signAndSendTransaction'] as {
-          signAndSendTransaction: (input: {
-            account: WalletAccount
-            transaction: Uint8Array
-            chain: string
-          }) => Promise<{ signature: Uint8Array }[]>
-        }
-      ).signAndSendTransaction({
-        account,
-        transaction: serializedTx,
-        chain: 'solana:mainnet',
-      })
-      return { signature: bs58.encode(signature) }
-    }
-
-    // Fallback: sign then broadcast via the chain adapter's broadcastTransaction
-    const signed = await this.solanaSignTx(msg)
-    if (!signed) return null
-
-    // Decode to get the signature from the signed tx
-    const decoded = VersionedTransaction.deserialize(Buffer.from(signed.serialized, 'base64'))
-    return { signature: Buffer.from(decoded.signatures[0]).toString('base64') }
-  }
+  // solanaSendTx intentionally not implemented - we rely on the chain adapter's
+  // sign + broadcast fallback which uses our own RPC for reliable broadcasting,
+  // rather than depending on MetaMask's signAndSendTransaction broadcast.
 
   public async getDeviceID(): Promise<string> {
     return this.providerRdns + ':' + (await this.ethGetAddress(this.provider))

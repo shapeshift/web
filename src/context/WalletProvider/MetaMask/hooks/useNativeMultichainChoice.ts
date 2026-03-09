@@ -16,6 +16,7 @@ import { isSome } from '@/lib/utils'
 import { selectWalletId } from '@/state/slices/common-selectors'
 import { selectAssetById } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
+import { enableShapeShiftSnap } from '@/utils/snaps'
 
 // Detect which non-EVM chains MetaMask actually exposes via Wallet Standard.
 // This runs at module scope since Wallet Standard registration happens early via content script.
@@ -43,8 +44,10 @@ export const useNativeMultichainChoice = ({ onDismiss }: UseNativeMultichainChoi
   const walletId = useAppSelector(selectWalletId)
   const { setPreference } = useNativeMultichainPreference(deviceId)
   const { migrateAccounts } = useAccountMigration()
+  const [isKeepSnapLoading, setIsKeepSnapLoading] = useState(false)
 
-  // Check snap status directly (useIsSnapInstalled returns null when flag is ON)
+  // Check snap status directly - useIsSnapInstalled returns null when flag is ON,
+  // but we need the real value here to show the "Keep using snap" option.
   const [hasSnap, setHasSnap] = useState<boolean | null>(null)
   useEffect(() => {
     checkIsSnapInstalled()
@@ -88,10 +91,19 @@ export const useNativeMultichainChoice = ({ onDismiss }: UseNativeMultichainChoi
     }
   }, [setPreference, walletId, migrateAccounts, onDismiss, getAdapter, dispatch])
 
-  const handleKeepSnap = useCallback(() => {
-    setPreference('snap')
-    onDismiss()
+  const handleKeepSnap = useCallback(async () => {
+    setIsKeepSnapLoading(true)
+    try {
+      // Install/connect the snap if not already connected to this origin
+      await enableShapeShiftSnap()
+      setPreference('snap')
+      onDismiss()
+    } catch (e) {
+      console.error('Failed to enable ShapeShift snap', e)
+    } finally {
+      setIsKeepSnapLoading(false)
+    }
   }, [setPreference, onDismiss])
 
-  return { hasSnap, chainAssets, handleUseNative, handleKeepSnap }
+  return { hasSnap, chainAssets, handleUseNative, handleKeepSnap, isKeepSnapLoading }
 }

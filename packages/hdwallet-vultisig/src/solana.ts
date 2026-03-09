@@ -1,5 +1,6 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
 import type { PublicKey } from '@solana/web3.js'
+import { VersionedTransaction } from '@solana/web3.js'
 
 import type { VultisigSolanaProvider } from './types'
 
@@ -13,6 +14,21 @@ export async function solanaSignTx(
   address: string,
 ): Promise<core.SolanaSignedTx | null> {
   const transaction = core.solanaBuildTransaction(msg, address)
+  const signedTransaction = await provider.signTransaction(transaction)
+  return {
+    serialized: Buffer.from(signedTransaction.serialize()).toString('base64'),
+    signatures: signedTransaction.signatures.map(signature =>
+      Buffer.from(signature).toString('base64'),
+    ),
+  }
+}
+
+export async function solanaSignSerializedTx(
+  msg: core.SolanaSignSerializedTx,
+  provider: VultisigSolanaProvider,
+): Promise<core.SolanaSignedTx | null> {
+  const txBytes = Buffer.from(msg.serializedTx, 'base64')
+  const transaction = VersionedTransaction.deserialize(txBytes)
   const signedTransaction = await provider.signTransaction(transaction)
   return {
     serialized: Buffer.from(signedTransaction.serialize()).toString('base64'),

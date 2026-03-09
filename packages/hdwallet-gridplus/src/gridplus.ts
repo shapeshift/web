@@ -645,6 +645,16 @@ export class GridPlusHDWallet
     return solana.solanaSignTx(this.client, msg)
   }
 
+  async solanaSignSerializedTx(
+    msg: core.SolanaSignSerializedTx,
+  ): Promise<core.SolanaSignedTx | null> {
+    this.assertSolanaFwSupport()
+    if (!this.expectedActiveWalletId) throw new Error('Expected SafeCard ID not set')
+
+    await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType)
+    return solana.solanaSignSerializedTx(this.client, msg)
+  }
+
   async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string | null> {
     if (!this.client) throw new Error('Device not connected')
     return cosmos.cosmosGetAddress(this.client, msg)

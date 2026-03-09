@@ -1,5 +1,5 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
-import { PublicKey } from '@solana/web3.js'
+import { PublicKey, VersionedTransaction } from '@solana/web3.js'
 import bs58 from 'bs58'
 
 import type { LedgerTransport } from './transport'
@@ -34,6 +34,29 @@ export async function solanaSignTx(
   const bip32Path = addressNListToBIP32Path(msg.addressNList)
 
   const transaction = core.solanaBuildTransaction(msg, address)
+  const txBuffer = Buffer.from(transaction.message.serialize())
+
+  const res = await transport.call('Solana', 'signTransaction', bip32Path, txBuffer)
+  handleError(res, transport, 'Unable to sign Solana transaction')
+
+  transaction.addSignature(new PublicKey(address), res.payload.signature)
+
+  return {
+    serialized: Buffer.from(transaction.serialize()).toString('base64'),
+    signatures: transaction.signatures.map(signature => Buffer.from(signature).toString('base64')),
+  }
+}
+
+export async function solanaSignSerializedTx(
+  transport: LedgerTransport,
+  msg: core.SolanaSignSerializedTx,
+): Promise<core.SolanaSignedTx> {
+  const address = await solanaGetAddress(transport, msg)
+
+  const bip32Path = addressNListToBIP32Path(msg.addressNList)
+
+  const txBytes = Buffer.from(msg.serializedTx, 'base64')
+  const transaction = VersionedTransaction.deserialize(txBytes)
   const txBuffer = Buffer.from(transaction.message.serialize())
 
   const res = await transport.call('Solana', 'signTransaction', bip32Path, txBuffer)

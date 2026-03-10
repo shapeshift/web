@@ -82,7 +82,7 @@ Tests for specific bugs that were fixed:
 
 ### Portless Support
 
-All test scenarios reference `${PORTLESS_URL:-http://localhost:3000}` for the dev server URL. If you use [Portless](https://portless.dev), set `PORTLESS_URL` (e.g. `http://shapeshiftweb.localhost`) and the scenarios will use it. Without Portless, everything defaults to `http://localhost:3000`.
+All test scenarios reference `${PORTLESS_URL:-http://localhost:3000}` for the dev server URL. When using Portless, `PORTLESS_URL` is set automatically (e.g. `http://feat-x.web.localhost:1355`). Without Portless, everything defaults to `http://localhost:3000`.
 
 ### Manual Testing
 

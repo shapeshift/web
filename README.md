@@ -99,7 +99,7 @@ pnpm run dev
 
 > It opens [http://localhost:3000](http://localhost:3000) to view it in the browser and the page will reload if you make edits.
 >
-> **Portless (optional):** If you use [Portless](https://portless.dev), the app is also available at `shapeshiftweb.localhost` (no port number). All localhost checks are Portless-aware.
+> **Portless (optional):** If you have [Portless](https://github.com/vercel-labs/portless) installed, `dev:web` uses it automatically. The app is available at `http://<branch>.web.localhost:1355`. Use `dev:web:localhost` for plain `localhost:3000`.
 >
 > You will also see any lint errors in the console.
 

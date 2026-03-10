@@ -27,10 +27,10 @@ If any of these are missing, tell the user to add them to `~/.secrets`. The API 
 
 ## Ports
 
-- **Web dev server** (ShapeShift app): `localhost:3000` (or `$PORTLESS_URL` if using Portless, e.g. `shapeshiftweb.localhost`)
+- **Web dev server** (ShapeShift app): `localhost:3000` (or `$PORTLESS_URL` if using Portless, e.g. `http://<branch>.web.localhost:1355`)
 - **qabot API/dashboard**: `localhost:8080` (dev) or deployed URL
 
-**Portless note:** If the dev server is running behind Portless, `BASE_URL` should be set to the Portless URL (e.g. `http://shapeshiftweb.localhost`). The qabot profile stores wallet state per-origin, so a Portless origin (`shapeshiftweb.localhost`) is separate from `localhost:3000` - you must import the wallet once per origin.
+**Portless note:** If the dev server is running via Portless, `PORTLESS_URL` is set automatically (e.g. `http://feat-x.web.localhost:1355`). The qabot profile stores wallet state per-origin, so each Portless origin is separate from `localhost:3000` - import the wallet once per new origin.
 
 ## Modes
 
@@ -147,7 +147,7 @@ There should be a keystore file on the Desktop (e.g. `thorswap-keystore*.txt` or
 
 Origins where the wallet has been imported:
 - `http://localhost:3000` (local dev, legacy)
-- `http://shapeshiftweb.localhost:1355` (local dev via Portless - all worktrees share this origin when using `portless shapeshiftweb`)
+- `http://<branch>.web.localhost:1355` (local dev via Portless - origin varies per branch, e.g. `develop.web.localhost:1355`)
 - `https://gome.shapeshift.com` (gome staging)
 - `https://release.shapeshift.com` (release staging)
 
@@ -282,7 +282,7 @@ When you encounter what looks like a bug, **don't just report it — investigate
 ```bash
 source ~/.secrets
 QABOT="${QABOT_URL:-http://localhost:8080}"
-# Use PORTLESS_URL if set (e.g. http://shapeshiftweb.localhost), otherwise default to localhost:3000
+# PORTLESS_URL is set automatically by Portless (e.g. http://develop.web.localhost:1355)
 BASE_URL="${PORTLESS_URL:-${BASE_URL:-http://localhost:3000}}"
 ```
 
@@ -343,7 +343,7 @@ GITHUB_REPO="shapeshift/web"
 
 # Origin-to-branch mapping (CloudFlare Pages deployments):
 #   localhost:3000                → local branch (detected from dev server process)
-#   shapeshiftweb.localhost       → local branch (Portless, same as localhost:3000)
+#   *.web.localhost:1355          → local branch (Portless, detected from dev process)
 #   gome.shapeshift.com          → gome
 #   release.shapeshift.com       → release
 #   develop.shapeshift.com       → develop
@@ -352,15 +352,19 @@ GITHUB_REPO="shapeshift/web"
 
 if [[ "$BASE_URL" == *"localhost"* ]]; then
   # Local dev: detect web repo from the process serving the dev server
-  # This handles both localhost:3000 and Portless (*.localhost) URLs
-  # For Portless, the underlying server still listens on a port - detect it
-  DEV_PID=$(lsof -i :3000 -sTCP:LISTEN -n -P -t 2>/dev/null | head -1)
+  # Try Portless proxy (1355) first, then direct port (3000), then any vite process
+  DEV_PID=$(lsof -i :1355 -sTCP:LISTEN -n -P -t 2>/dev/null | head -1)
+  if [ -z "$DEV_PID" ]; then
+    DEV_PID=$(lsof -i :3000 -sTCP:LISTEN -n -P -t 2>/dev/null | head -1)
+  fi
+  if [ -z "$DEV_PID" ]; then
+    DEV_PID=$(pgrep -f "vite.*--port" 2>/dev/null | head -1)
+  fi
   if [ -n "$DEV_PID" ]; then
     WEB_REPO=$(lsof -p "$DEV_PID" 2>/dev/null | awk '/cwd/{print $NF}')
   fi
-  # Fallback: infer from context (check WEB_REPO env var, or ask the user)
   if [ -z "$WEB_REPO" ]; then
-    echo "ERROR: Could not detect web repo from port 3000. Set WEB_REPO env var." >&2
+    echo "ERROR: Could not detect web repo. Set WEB_REPO env var." >&2
     exit 1
   fi
   BRANCH=$(git -C "$WEB_REPO" rev-parse --abbrev-ref HEAD)

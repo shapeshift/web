@@ -80,7 +80,7 @@ For local testing, start the dev server:
 pnpm run dev
 ```
 
-If you use [Portless](https://portless.dev), set `PORTLESS_URL` to the Portless URL (e.g. `http://shapeshiftweb.localhost`). The wallet profile is stored per-origin, so you'll need to import the wallet separately for the Portless origin.
+When using [Portless](https://github.com/vercel-labs/portless) (`pnpm run dev:web`), `PORTLESS_URL` is set automatically (e.g. `http://develop.web.localhost:1355`). The wallet profile is stored per-origin, so you'll need to import the wallet separately for each Portless origin.
 
 Or point `BASE_URL` at a staging environment:
 

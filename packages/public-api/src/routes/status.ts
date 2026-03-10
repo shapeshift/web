@@ -54,7 +54,9 @@ const buildSwapRegistrationBody = (storedQuote: ReturnType<typeof quoteStore.get
   }
 }
 
-const registerSwapInService = async (storedQuote: ReturnType<typeof quoteStore.get> & object): Promise<boolean> => {
+const registerSwapInService = async (
+  storedQuote: ReturnType<typeof quoteStore.get> & object,
+): Promise<boolean> => {
   const registration = buildSwapRegistrationBody(storedQuote)
   if (!registration) return false
 

@@ -117,12 +117,14 @@ $AB --headed open <url>
 agent-browser --session qabot --profile ~/.agent-browser/profiles/qabot open <url>
 ```
 
-The profile at `~/.agent-browser/profiles/qabot` stores the native wallet (IndexedDB, localStorage, cookies) per origin. Import the wallet once per origin in headed mode, then reuse.
+The profile at `~/.agent-browser/profiles/qabot` stores the native wallet (IndexedDB, localStorage, cookies) per origin. Import the wallet once per origin, then reuse.
 
-First-time setup per origin (headed, import wallet via keystore):
+First-time setup per origin (keystore import - works headless):
 ```bash
-agent-browser --session qabot --profile ~/.agent-browser/profiles/qabot --headed open <url>
+agent-browser --session qabot --profile ~/.agent-browser/profiles/qabot open <url>
 ```
+
+Only use `--headed` if the user explicitly wants to import via seed phrase (which requires visual interaction). Keystore import is fully automatable headless.
 
 **Keystore import flow** (when no native wallet exists for the origin):
 

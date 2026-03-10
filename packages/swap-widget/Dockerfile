@@ -60,7 +60,7 @@ COPY packages/unchained-client/openapitools.json ./packages/unchained-client/
 COPY packages/unchained-client/generator/ ./packages/unchained-client/generator/
 
 # Generate unchained-client code (required by tsc --build for workspace packages)
-RUN --mount=type=cache,id=s/4cafb297-3349-46e2-bfef-8210504e0583-/root/.openapi-generator-cli,target=/root/.openapi-generator-cli \
+RUN --mount=type=cache,id=s/4cafb297-3349-46e2-bfef-8210504e0583-/root/.openapitools,target=/root/.openapitools \
     pnpm --filter @shapeshiftoss/unchained-client generate
 
 # Copy remaining source files

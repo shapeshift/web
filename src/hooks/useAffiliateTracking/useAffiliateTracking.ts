@@ -30,6 +30,11 @@ export const readStoredAffiliate = (): string | null => {
 
     if (!address) return null
 
+    if (!isAddress(address)) {
+      clearAffiliateStorage()
+      return null
+    }
+
     if (isAffiliateExpired(timestamp)) {
       clearAffiliateStorage()
       return null

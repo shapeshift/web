@@ -6,6 +6,8 @@ import { SWAP_SERVICE_BASE_URL } from '../config'
 import { quoteStore } from '../lib/quoteStore'
 import type { ErrorResponse } from '../types'
 
+const STATUS_TIMEOUT_MS = 10_000
+
 export const StatusRequestSchema = z.object({
   quoteId: z.string().uuid(),
   txHash: z.string().min(1).max(128).optional(),
@@ -59,7 +61,7 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
     }
 
     if (txHash && !storedQuote.txHash) {
-      // TOCTOU guard: re-read from store in case a concurrent request already bound a txHash
+      // Defense-in-depth: re-read from store before mutation (future-proofing for potential async operations above)
       const current = quoteStore.get(quoteId)
       if (current?.txHash) {
         res.json({
@@ -89,10 +91,13 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
       const buyAsset = getAsset(storedQuote.buyAssetId)
 
       if (sellAsset && buyAsset) {
+        const postController = new AbortController()
+        const postTimeout = setTimeout(() => postController.abort(), STATUS_TIMEOUT_MS)
         try {
           const postResponse = await fetch(`${SWAP_SERVICE_BASE_URL}/swaps`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            signal: postController.signal,
             body: JSON.stringify({
               swapId: quoteId,
               sellAsset,
@@ -124,19 +129,27 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
           }
         } catch (err) {
           console.error('Failed to register swap in swap-service:', err)
+        } finally {
+          clearTimeout(postTimeout)
         }
       }
     }
 
     let swapServiceStatus: Record<string, unknown> | null = null
     if (storedQuote.txHash) {
+      const getController = new AbortController()
+      const getTimeout = setTimeout(() => getController.abort(), STATUS_TIMEOUT_MS)
       try {
-        const swapResponse = await fetch(`${SWAP_SERVICE_BASE_URL}/swaps/${quoteId}`)
+        const swapResponse = await fetch(`${SWAP_SERVICE_BASE_URL}/swaps/${quoteId}`, {
+          signal: getController.signal,
+        })
         if (swapResponse.ok) {
           swapServiceStatus = (await swapResponse.json()) as Record<string, unknown>
         }
       } catch (err) {
         console.error('Failed to fetch swap status from swap-service:', err)
+      } finally {
+        clearTimeout(getTimeout)
       }
     }
 

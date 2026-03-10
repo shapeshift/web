@@ -48,7 +48,7 @@ COPY packages/types/package.json ./packages/types/
 COPY packages/unchained-client/package.json ./packages/unchained-client/
 COPY packages/utils/package.json ./packages/utils/
 
-# Copy import method avoids hard-link failures from the pnpm store on Docker overlay FS
+# pnpm uses copy instead of hard links, which Docker's overlay filesystem doesn't support
 ENV NPM_CONFIG_PACKAGE_IMPORT_METHOD=copy
 
 # Install dependencies, skipping lifecycle scripts (controlled by onlyBuiltDependencies in package.json)

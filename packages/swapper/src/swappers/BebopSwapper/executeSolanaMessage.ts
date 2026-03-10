@@ -4,8 +4,13 @@ import type { SolanaMessageExecutionProps, SolanaMessageToSign, SwapperConfig } 
 import { bebopServiceFactory } from './utils/bebopService'
 
 type BebopOrderResponse = {
-  txHash: string
-  status: string
+  txHash?: string
+  status?: string
+  error?: {
+    errorCode: number
+    message: string
+    requestId: string
+  }
 }
 
 export const executeSolanaMessage = async (
@@ -45,8 +50,14 @@ export const executeSolanaMessage = async (
 
   const { data: orderResponse } = maybeOrderResponse.unwrap()
 
+  if (orderResponse.error) {
+    throw new Error(
+      `Bebop order failed: ${orderResponse.error.message} (code ${orderResponse.error.errorCode})`,
+    )
+  }
+
   if (!orderResponse.txHash) {
-    throw new Error('Bebop order response missing txHash')
+    throw new Error(`Bebop order response missing txHash: ${JSON.stringify(orderResponse)}`)
   }
 
   return orderResponse.txHash

@@ -239,7 +239,7 @@ const isCcrAvailable = (): Promise<boolean> => {
   })
 }
 
-const CLAUDE_ARGS = ['-p', '--model', 'opus', '--max-turns', '3']
+const CLAUDE_ARGS = ['-p', '--model', 'opus', '--max-turns', '10']
 
 const runClaude = async (promptPath: string): Promise<string> => {
   try {

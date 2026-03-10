@@ -221,7 +221,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   }, [selectedOrder, selectedSort, showOrderFilter, showSortFilter])
 
   return (
-    <Box mb={12}>
+    <Box mb={12} data-testid={category ? `markets-row-${category}` : undefined}>
       <Flex
         justify='space-between'
         align={flexAlign}

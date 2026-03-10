@@ -1,40 +1,40 @@
-# Agent Instructions
+# Agent Instructions (Source of Truth)
 
-This project uses **bd** (beads) for issue tracking. Run `bd onboard` to get started.
+This file is the canonical instruction entrypoint for local agent tooling in this repo.
 
-## Quick Reference
+## Read Order
 
-```bash
-bd ready              # Find available work
-bd show <id>          # View issue details
-bd update <id> --status in_progress  # Claim work
-bd close <id>         # Complete work
-bd sync               # Sync with git
-```
+1. This file (high-signal defaults and routing)
+2. [.claude/guidelines/beads-rules.md](.claude/guidelines/beads-rules.md)
+3. [.claude/programming-guidelines.md](.claude/programming-guidelines.md)
+4. [.claude/contracts](.claude/contracts)
+5. [.claude/skills](.claude/skills)
+6. [.claude/test-scenarios/README.md](.claude/test-scenarios/README.md)
+7. [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md)
 
-## Landing the Plane (Session Completion)
+## Must-Follow Defaults
 
-**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
+- Use `develop` as the base branch.
+- Use `pnpm`.
+- Keep changes surgical and focused.
+- For complex multi-step tasks, prefer `bd` tracking before implementation.
+- Prefer `origin` for new feature/fix branch pushes when permissions allow.
+- If a PR branch is already on `fork`, keep using that existing `fork` branch.
+- Run `pnpm run lint --fix` and `pnpm run type-check` after code changes.
+- Use `.github/PULL_REQUEST_TEMPLATE.md` for PR bodies.
 
-**MANDATORY WORKFLOW:**
+## Routing
 
-1. **File issues for remaining work** - Create issues for anything that needs follow-up
-2. **Run quality gates** (if code changed) - Tests, linters, builds
-3. **Update issue status** - Close finished work, update in-progress items
-4. **PUSH TO REMOTE** - This is MANDATORY:
-   ```bash
-   git pull --rebase
-   bd sync
-   git push
-   git status  # MUST show "up to date with origin"
-   ```
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All changes committed AND pushed
-7. **Hand off** - Provide context for next session
+- New second-class EVM chain work: [.claude/contracts/second-class-evm-chain.md](.claude/contracts/second-class-evm-chain.md)
+- New swapper integration work: [.claude/contracts/swapper-integration.md](.claude/contracts/swapper-integration.md)
+- Test scenarios (`/test-agent`, @neomaking flow): [.claude/test-scenarios/README.md](.claude/test-scenarios/README.md)
+- QA automation (`qabot`, fixture-based flow): [.claude/skills/qabot/SKILL.md](.claude/skills/qabot/SKILL.md)
+- Translation workflow: [.claude/skills/translate/SKILL.md](.claude/skills/translate/SKILL.md)
 
-**CRITICAL RULES:**
-- Work is NOT complete until `git push` succeeds
-- NEVER stop before pushing - that leaves work stranded locally
-- NEVER say "ready to push when you are" - YOU must push
-- If push fails, resolve and retry until it succeeds
+## Tooling Notes
 
+- Claude compatibility is provided by `CLAUDE.md` importing this file.
+- Codex compatibility is pinned via `.codex/config.toml`.
+- Full legacy `CLAUDE.md` policy content was moved to `.claude/programming-guidelines.md` to avoid loss while keeping top-level entrypoints compact.
+- Repo-local skills live in `.claude/skills`.
+- Additional user-level skills/config may exist in `~/.agents`, `~/.codex/skills`, and `~/.openclaw`.

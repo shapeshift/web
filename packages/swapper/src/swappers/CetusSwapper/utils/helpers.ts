@@ -1,6 +1,6 @@
 import type { RouterDataV3 } from '@cetusprotocol/aggregator-sdk'
 import { AggregatorClient, Env } from '@cetusprotocol/aggregator-sdk'
-import { SuiClient } from '@cetusprotocol/aggregator-sdk/node_modules/@mysten/sui/client'
+import { SuiClient } from '@mysten/sui/client'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 

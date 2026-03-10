@@ -49,6 +49,7 @@ import { selectStakingBalance } from '@/pages/RFOX/helpers'
 import { useCurrentApyQuery } from '@/pages/RFOX/hooks/useCurrentApyQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { useCurrentEpochRewardsQuery } from '@/pages/RFOX/hooks/useCurrentEpochRewardsQuery'
+import { useGetUnstakingRequestsQuery } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery'
 import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 import { useLifetimeRewardsUserCurrencyQuery } from '@/pages/RFOX/hooks/useLifetimeRewardsQuery'
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
@@ -186,6 +187,19 @@ export const RFOXSection = () => {
     return matchingAccountId
   }, [accountIdsByAccountNumberAndChainId, assetAccountNumber, stakingAssetId])
 
+  const allUnstakingRequestsQuery = useGetUnstakingRequestsQuery()
+
+  const hasClaimableRequests = useMemo(() => {
+    const accountRequests = allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? '']
+    if (!accountRequests?.length) return false
+
+    return accountRequests.some(request => {
+      const currentTimestampMs = Date.now()
+      const unstakingTimestampMs = Number(request.cooldownExpiry) * 1000
+      return currentTimestampMs >= unstakingTimestampMs
+    })
+  }, [allUnstakingRequestsQuery.data?.byAccountId, stakingAssetAccountId])
+
   useEffect(() => {
     if (selectedUnstakingRequest) return
 
@@ -297,6 +311,7 @@ export const RFOXSection = () => {
       <Flex flexWrap='wrap' gap={2}>
         {stakingAssetId === foxOnArbitrumOneAssetId && (
           <Button
+            data-testid='rfox-stake-button'
             onClick={handleStakeClick}
             colorScheme='gray'
             flex='1 1 auto'
@@ -306,6 +321,7 @@ export const RFOXSection = () => {
           </Button>
         )}
         <Button
+          data-testid='rfox-unstake-button'
           onClick={handleUnstakeClick}
           colorScheme='gray'
           flex='1 1 auto'
@@ -313,12 +329,25 @@ export const RFOXSection = () => {
         >
           {translate('defi.unstake')}
         </Button>
-        <Button onClick={handleClaimClick} colorScheme='green' flex='1 1 auto'>
+        <Button
+          data-testid='rfox-claim-button'
+          onClick={handleClaimClick}
+          colorScheme='green'
+          flex='1 1 auto'
+          isDisabled={!hasClaimableRequests}
+        >
           {translate('defi.claim')}
         </Button>
       </Flex>
     )
-  }, [handleStakeClick, handleUnstakeClick, handleClaimClick, translate, stakingAssetId])
+  }, [
+    handleStakeClick,
+    handleUnstakeClick,
+    handleClaimClick,
+    translate,
+    stakingAssetId,
+    hasClaimableRequests,
+  ])
 
   if (!(stakingAsset && usdcAsset)) return null
 
@@ -340,7 +369,7 @@ export const RFOXSection = () => {
           </Flex>
         </CardBody>
       </Card>
-      <Box py={4} px={containerPaddingX} id='rfox'>
+      <Box py={4} px={containerPaddingX} id='rfox' data-testid='rfox-section'>
         <Flex sx={headerSx}>
           <Box mb={headerTitleMb}>
             <Heading as='h2' fontSize='2xl' display='flex' alignItems='center'>

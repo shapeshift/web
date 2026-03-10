@@ -71,7 +71,7 @@ import * as zksyncera from './zksyncera'
 
 import { getAssetService } from '@/lib/asset-service'
 
-// To regenerate all relatedAssetKey values, run: REGEN_ALL=true yarn generate:asset-data
+// To regenerate all relatedAssetKey values, run: REGEN_ALL=true pnpm run generate:asset-data
 const REGEN_ALL = process.env.REGEN_ALL === 'true'
 
 const generateAssetData = async () => {

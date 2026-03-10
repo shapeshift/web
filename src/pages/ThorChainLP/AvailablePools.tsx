@@ -1,5 +1,15 @@
 import type { FlexProps, GridProps } from '@chakra-ui/react'
-import { Flex, Skeleton, Spinner, Stack, Tag, TagLeftIcon } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Flex,
+  Skeleton,
+  Spinner,
+  Stack,
+  Tag,
+  TagLeftIcon,
+} from '@chakra-ui/react'
 import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { partition } from 'lodash'
 import { useCallback, useMemo } from 'react'
@@ -44,7 +54,7 @@ type RowProps = Row<Pool>
 
 export const AvailablePools = () => {
   const navigate = useNavigate()
-  const { data: pools } = usePools()
+  const { data: pools, isLoading, isError } = usePools()
   const translate = useTranslate()
 
   const isThorchainLpDepositFlagEnabled = useFeatureFlag('ThorchainLpDeposit')
@@ -211,7 +221,16 @@ export const AvailablePools = () => {
     <Main headerComponent={headerComponent} isSubPage data-testid='pools-available-page'>
       <SEO title={translate('navBar.pools')} />
       <Stack px={stackPadding}>
-        {sortedPools.length ? (
+        {isError ? (
+          <Alert status='error' borderRadius='lg'>
+            <AlertIcon />
+            <AlertDescription>{translate('pools.errorFetchingPools')}</AlertDescription>
+          </Alert>
+        ) : isLoading ? (
+          <Flex gap={4} alignItems='center' justifyContent='center' py={12}>
+            <Spinner />
+          </Flex>
+        ) : sortedPools.length ? (
           <ReactTable
             data={sortedPools}
             columns={columns}
@@ -220,9 +239,10 @@ export const AvailablePools = () => {
             variant='clickable'
           />
         ) : (
-          <Flex gap={4} alignItems='center' justifyContent='center'>
-            <Spinner />
-          </Flex>
+          <Alert status='info' borderRadius='lg'>
+            <AlertIcon />
+            <AlertDescription>{translate('pools.noPoolsAvailable')}</AlertDescription>
+          </Alert>
         )}
       </Stack>
     </Main>

@@ -11,7 +11,7 @@ import {
   Icon,
   IconButton,
 } from '@chakra-ui/react'
-import { memo, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { TbBellFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { Virtuoso } from 'react-virtuoso'
@@ -25,6 +25,7 @@ import { GenericTransactionActionCard } from './components/GenericTransactionAct
 import { LimitOrderActionCard } from './components/LimitOrderActionCard'
 import { RewardDistributionActionCard } from './components/RewardDistributionActionCard'
 import { RfoxClaimActionCard } from './components/RfoxClaimActionCard'
+import { SpeedUpModal } from './components/SpeedUpModal'
 import { SwapActionCard } from './components/SwapActionCard'
 import { TcyClaimActionCard } from './components/TcyClaimActionCard'
 
@@ -41,6 +42,7 @@ import {
   selectWalletActionsSorted,
   selectWalletPendingActions,
 } from '@/state/slices/actionSlice/selectors'
+import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
 import { ActionType, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
@@ -77,6 +79,16 @@ export const ActionCenter = memo(() => {
 
   const translate = useTranslate()
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
+  const [speedUpAction, setSpeedUpAction] = useState<GenericTransactionAction | undefined>(
+    undefined,
+  )
+  const handleOpenSpeedUp = useCallback(
+    (action: GenericTransactionAction) => {
+      setSpeedUpAction(action)
+      closeDrawer()
+    },
+    [closeDrawer],
+  )
 
   const actions = useAppSelector(state => (isConnected ? selectWalletActionsSorted(state) : []))
 
@@ -133,7 +145,13 @@ export const ActionCenter = memo(() => {
               return <RfoxInitiatedActionCard key={action.id} action={action} />
             }
 
-            return <GenericTransactionActionCard key={action.id} action={action} />
+            return (
+              <GenericTransactionActionCard
+                key={action.id}
+                action={action}
+                onOpenSpeedUp={handleOpenSpeedUp}
+              />
+            )
           }
           case ActionType.RfoxClaim: {
             return <RfoxClaimActionCard key={action.id} action={action} />
@@ -157,7 +175,7 @@ export const ActionCenter = memo(() => {
 
       return actionsCards
     }
-  }, [actions, ordersByActionId, swapsById, setOrderToCancel])
+  }, [actions, handleOpenSpeedUp, ordersByActionId, swapsById])
 
   const actionCenterButton = useMemo(() => {
     if (pendingActions.length) {
@@ -252,6 +270,18 @@ export const ActionCenter = memo(() => {
           </Box>
         </Box>
       </Display.Mobile>
+      {speedUpAction && (
+        <SpeedUpModal
+          txHash={speedUpAction.transactionMetadata.txHash}
+          accountId={speedUpAction.transactionMetadata.accountId}
+          assetId={speedUpAction.transactionMetadata.assetId}
+          amountCryptoPrecision={speedUpAction.transactionMetadata.amountCryptoPrecision}
+          accountIdsToRefetch={speedUpAction.transactionMetadata.accountIdsToRefetch}
+          btcUtxoRbfTxMetadata={speedUpAction.transactionMetadata.btcUtxoRbfTxMetadata}
+          isOpen={Boolean(speedUpAction)}
+          onClose={() => setSpeedUpAction(undefined)}
+        />
+      )}
     </>
   )
 })

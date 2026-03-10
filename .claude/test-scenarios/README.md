@@ -2,6 +2,12 @@
 
 This directory contains automated test scenarios for the ShapeShift Web application. These scenarios are used by the `/test-agent` slash command to validate features and ensure quality.
 
+## Scope Clarification
+
+- This directory is for `@neomaking`'s `/test-agent` workflow and related scenario docs.
+- This is not `qabot` testing.
+- `qabot` has its own fixture-based flow and instructions at `.claude/skills/qabot/SKILL.md`.
+
 ## Directory Structure
 
 ```

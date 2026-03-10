@@ -19,6 +19,68 @@ const toHumanAmount = (baseUnit: string, precision: number): string => {
   return `${padded.slice(0, -precision)}.${padded.slice(-precision)}`
 }
 
+const buildSwapRegistrationBody = (storedQuote: ReturnType<typeof quoteStore.get> & object) => {
+  const sellAsset = getAsset(storedQuote.sellAssetId)
+  const buyAsset = getAsset(storedQuote.buyAssetId)
+  if (!sellAsset || !buyAsset) return undefined
+
+  return {
+    body: JSON.stringify({
+      swapId: storedQuote.quoteId,
+      sellAsset,
+      buyAsset,
+      sellAmountCryptoBaseUnit: storedQuote.sellAmountCryptoBaseUnit,
+      expectedBuyAmountCryptoBaseUnit: storedQuote.buyAmountAfterFeesCryptoBaseUnit,
+      sellAmountCryptoPrecision: toHumanAmount(
+        storedQuote.sellAmountCryptoBaseUnit,
+        sellAsset.precision,
+      ),
+      expectedBuyAmountCryptoPrecision: toHumanAmount(
+        storedQuote.buyAmountAfterFeesCryptoBaseUnit,
+        buyAsset.precision,
+      ),
+      sellTxHash: storedQuote.txHash,
+      source: storedQuote.swapperName,
+      swapperName: storedQuote.swapperName,
+      sellAccountId: storedQuote.sendAddress,
+      receiveAddress: storedQuote.receiveAddress,
+      affiliateAddress: storedQuote.affiliateAddress,
+      affiliateBps: storedQuote.affiliateBps,
+      origin: 'api',
+      metadata: storedQuote.metadata,
+    }),
+    sellAsset,
+    buyAsset,
+  }
+}
+
+const registerSwapInService = async (storedQuote: ReturnType<typeof quoteStore.get> & object): Promise<boolean> => {
+  const registration = buildSwapRegistrationBody(storedQuote)
+  if (!registration) return false
+
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), STATUS_TIMEOUT_MS)
+  try {
+    const postResponse = await fetch(`${SWAP_SERVICE_BASE_URL}/swaps`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
+      body: registration.body,
+    })
+    if (!postResponse.ok) {
+      const errorBody = await postResponse.text()
+      console.error(`swap-service POST failed (${postResponse.status}):`, errorBody)
+      return false
+    }
+    return true
+  } catch (err) {
+    console.error('Failed to register swap in swap-service:', err)
+    return false
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
 export const getSwapStatus = async (req: Request, res: Response): Promise<void> => {
   try {
     const parseResult = StatusRequestSchema.safeParse(req.query)
@@ -85,54 +147,7 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
       storedQuote.status = 'submitted'
       quoteStore.set(quoteId, storedQuote)
 
-      // Create swap record in swap-service only when txHash is provided
-      // This prevents phantom swap inflation from quote-only requests
-      const sellAsset = getAsset(storedQuote.sellAssetId)
-      const buyAsset = getAsset(storedQuote.buyAssetId)
-
-      if (sellAsset && buyAsset) {
-        const postController = new AbortController()
-        const postTimeout = setTimeout(() => postController.abort(), STATUS_TIMEOUT_MS)
-        try {
-          const postResponse = await fetch(`${SWAP_SERVICE_BASE_URL}/swaps`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            signal: postController.signal,
-            body: JSON.stringify({
-              swapId: quoteId,
-              sellAsset,
-              buyAsset,
-              sellAmountCryptoBaseUnit: storedQuote.sellAmountCryptoBaseUnit,
-              expectedBuyAmountCryptoBaseUnit: storedQuote.buyAmountAfterFeesCryptoBaseUnit,
-              sellAmountCryptoPrecision: toHumanAmount(
-                storedQuote.sellAmountCryptoBaseUnit,
-                sellAsset.precision,
-              ),
-              expectedBuyAmountCryptoPrecision: toHumanAmount(
-                storedQuote.buyAmountAfterFeesCryptoBaseUnit,
-                buyAsset.precision,
-              ),
-              sellTxHash: txHash,
-              source: storedQuote.swapperName,
-              swapperName: storedQuote.swapperName,
-              sellAccountId: storedQuote.sendAddress,
-              receiveAddress: storedQuote.receiveAddress,
-              affiliateAddress: storedQuote.affiliateAddress,
-              affiliateBps: storedQuote.affiliateBps,
-              origin: 'api',
-              metadata: storedQuote.metadata,
-            }),
-          })
-          if (!postResponse.ok) {
-            const errorBody = await postResponse.text()
-            console.error(`swap-service POST failed (${postResponse.status}):`, errorBody)
-          }
-        } catch (err) {
-          console.error('Failed to register swap in swap-service:', err)
-        } finally {
-          clearTimeout(postTimeout)
-        }
-      }
+      await registerSwapInService(storedQuote)
     }
 
     let swapServiceStatus: Record<string, unknown> | null = null
@@ -145,6 +160,8 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
         })
         if (swapResponse.ok) {
           swapServiceStatus = (await swapResponse.json()) as Record<string, unknown>
+        } else if (swapResponse.status === 404) {
+          await registerSwapInService(storedQuote)
         }
       } catch (err) {
         console.error('Failed to fetch swap status from swap-service:', err)
@@ -159,6 +176,11 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
         : swapServiceStatus?.status === 'FAILED'
         ? 'failed'
         : storedQuote.status
+
+    if (status !== storedQuote.status && (status === 'confirmed' || status === 'failed')) {
+      storedQuote.status = status
+      quoteStore.set(quoteId, storedQuote)
+    }
 
     const response: Record<string, unknown> = {
       quoteId,

@@ -437,6 +437,8 @@ export type TradeQuoteStep = {
     value: Hex
     gas?: string
   }
+  bebopSolanaSerializedTx?: string
+  bebopQuoteId?: string
   jupiterQuoteResponse?: QuoteResponse
   solanaTransactionMetadata?: {
     addressLookupTableAddresses: string[]
@@ -690,6 +692,15 @@ export type SolanaTransactionExecutionProps = {
   signAndBroadcastTransaction: (txToSign: SolanaSignTx) => Promise<string>
 }
 
+export type SolanaMessageToSign = {
+  serializedTx: string
+  quoteId: string
+}
+
+export type SolanaMessageExecutionProps = {
+  signSerializedTransaction: (serializedTx: string) => Promise<string[]>
+}
+
 export type TronTransactionExecutionProps = {
   signAndBroadcastTransaction: (txToSign: tron.TronSignTx) => Promise<string>
 }
@@ -761,6 +772,7 @@ export type GetUnsignedTonTransactionArgs = CommonGetUnsignedTransactionArgs &
 export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata &
   Omit<EvmSwapperDeps, 'fetchIsSmartContractAddressQuery'>
+export type GetUnsignedSolanaMessageArgs = CommonGetUnsignedTransactionArgs
 export type GetUnsignedUtxoTransactionArgs = CommonGetUnsignedTransactionArgs &
   UtxoAccountMetadata &
   UtxoSwapperDeps
@@ -839,6 +851,11 @@ export type Swapper = {
     txToSign: SolanaSignTx,
     callbacks: SolanaTransactionExecutionProps,
   ) => Promise<string>
+  executeSolanaMessage?: (
+    messageData: SolanaMessageToSign,
+    callbacks: SolanaMessageExecutionProps,
+    config: SwapperConfig,
+  ) => Promise<string>
   executeTronTransaction?: (
     txToSign: tron.TronSignTx,
     callbacks: TronTransactionExecutionProps,
@@ -877,6 +894,7 @@ export type SwapperApi = {
     input: GetUnsignedCosmosSdkTransactionArgs,
   ) => Promise<SignTx<CosmosSdkChainId>>
   getUnsignedSolanaTransaction?: (input: GetUnsignedSolanaTransactionArgs) => Promise<SolanaSignTx>
+  getUnsignedSolanaMessage?: (input: GetUnsignedSolanaMessageArgs) => Promise<SolanaMessageToSign>
   getUnsignedTronTransaction?: (input: GetUnsignedTronTransactionArgs) => Promise<tron.TronSignTx>
   getUnsignedSuiTransaction?: (input: GetUnsignedSuiTransactionArgs) => Promise<SuiSignTx>
   getUnsignedNearTransaction?: (input: GetUnsignedNearTransactionArgs) => Promise<near.NearSignTx>
@@ -934,6 +952,8 @@ export type CosmosSdkTransactionExecutionInput = CommonTradeExecutionInput &
 export type SolanaTransactionExecutionInput = CommonTradeExecutionInput &
   SolanaTransactionExecutionProps &
   SolanaAccountMetadata
+
+export type SolanaMessageExecutionInput = CommonTradeExecutionInput & SolanaMessageExecutionProps
 
 export type TronTransactionExecutionInput = CommonTradeExecutionInput &
   TronTransactionExecutionProps &

@@ -54,6 +54,11 @@ export interface SolanaSignTx {
   pubKey?: string
 }
 
+export interface SolanaSignSerializedTx {
+  addressNList: BIP32Path
+  serializedTx: string // base64-encoded VersionedTransaction
+}
+
 export interface SolanaSignedTx {
   serialized: string
   signatures: string[]
@@ -92,6 +97,7 @@ export interface SolanaWallet extends SolanaWalletInfo, HDWallet {
   solanaGetAddress(msg: SolanaGetAddress): Promise<string | null>
   solanaGetAddresses?(msgs: SolanaGetAddress[]): Promise<string[]>
   solanaSignTx(msg: SolanaSignTx): Promise<SolanaSignedTx | null>
+  solanaSignSerializedTx?(msg: SolanaSignSerializedTx): Promise<SolanaSignedTx | null>
   solanaSendTx?(msg: SolanaSignTx): Promise<SolanaTxSignature | null>
 }
 

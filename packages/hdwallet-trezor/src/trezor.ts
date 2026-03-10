@@ -644,6 +644,12 @@ export class TrezorHDWallet
     return Sol.solanaSignTx(this.transport, msg)
   }
 
+  public async solanaSignSerializedTx(
+    msg: core.SolanaSignSerializedTx,
+  ): Promise<core.SolanaSignedTx | null> {
+    return Sol.solanaSignSerializedTx(this.transport, msg)
+  }
+
   public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): core.SolanaAccountPath[] {
     return core.solanaGetAccountPaths(msg)
   }

@@ -30,12 +30,21 @@ export async function solanaSignSerializedTx(
   const txBytes = Buffer.from(msg.serializedTx, 'base64')
   const transaction = VersionedTransaction.deserialize(txBytes)
   const signedTransaction = await provider.signTransaction(transaction)
-  return {
-    serialized: Buffer.from(signedTransaction.serialize()).toString('base64'),
-    signatures: signedTransaction.signatures.map(signature =>
-      Buffer.from(signature).toString('base64'),
-    ),
+
+  // Extract signatures before serialize - for partially-signed txs (e.g. gasless Bebop),
+  // serialize() throws because not all required signatures are present yet.
+  const signatures = signedTransaction.signatures.map(signature =>
+    Buffer.from(signature).toString('base64'),
+  )
+
+  let serialized: string
+  try {
+    serialized = Buffer.from(signedTransaction.serialize()).toString('base64')
+  } catch {
+    serialized = msg.serializedTx
   }
+
+  return { serialized, signatures }
 }
 
 export async function solanaSendTx(

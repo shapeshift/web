@@ -1,0 +1,116 @@
+name: Bebop Solana Swap
+description: Test Solana swaps using Bebop swapper - small fiat amounts ($0.50). Run 3 times to verify consistency per MBMaria's report of first attempt failing, second sometimes succeeding, and stuck pending txs.
+route: /trade
+depends_on:
+  - wallet-health.yaml
+steps:
+  - name: Select SOL as sell asset
+    instruction: >
+      Open the sell asset picker by JS-clicking the sell asset avatar button.
+      Search for "SOL" by focusing the search input and typing.
+      Select SOL (Solana native) from the results.
+    expected: SOL is selected as the sell asset
+    screenshot: true
+  - name: Select USDC as buy asset
+    instruction: >
+      Open the buy asset picker by JS-clicking the buy asset avatar button.
+      Search for "USDC" by focusing the search input and typing.
+      Select USDC on Solana from the results (look for "Solana" chain variant).
+    expected: USDC on Solana is selected as the buy asset
+    screenshot: true
+  - name: Check SOL balance
+    instruction: >
+      Take a snapshot to read the SOL balance displayed on the sell side.
+      Note the balance - we need enough for $0.50 + gas.
+    expected: SOL balance is visible and sufficient for a small swap
+    screenshot: true
+  - name: Toggle to fiat and enter amount (swap 1)
+    instruction: >
+      If the input is not already in fiat mode (showing "$"), click the fiat toggle
+      button (the small button near the input that switches between crypto and fiat).
+      Enter 0.50 in the sell amount input.
+      Wait a few seconds for a quote to load.
+    expected: Amount of $0.50 is entered, a quote is loading or loaded
+    screenshot: true
+  - name: Check swapper is Bebop (swap 1)
+    instruction: >
+      Look at the swap quote details to see which swapper/protocol is being used.
+      Take a snapshot to verify Bebop is available as one of the quote options.
+      Note: Bebop may not always be the best rate - just verify it appears.
+    expected: A swap quote is displayed showing rate and protocol info
+    screenshot: true
+  - name: Preview trade (swap 1)
+    instruction: >
+      Click the "Preview Trade" button.
+      Wait 2-3 seconds, then check for and dismiss any warning dialogs
+      ("Below recommended minimum" -> click "I understand",
+      "Price impact" -> click "I understand").
+    expected: The confirm/preview trade screen is shown with trade details
+    screenshot: true
+  - name: Confirm and sign (swap 1)
+    instruction: >
+      Click "Confirm and Trade" to execute the swap.
+      The wallet will prompt for signing - approve it.
+      Wait for the transaction to broadcast.
+    expected: Transaction is submitted and shows pending/broadcasting status
+    screenshot: true
+  - name: Wait for completion (swap 1)
+    instruction: >
+      Wait up to 60 seconds for the swap to complete.
+      Check status every 10 seconds via snapshot.
+      Note the final status - does it complete, fail, or stay stuck in pending?
+    expected: Swap completes successfully or shows a clear error
+    screenshot: true
+  - name: Dismiss feedback and return (swap 1)
+    instruction: >
+      If a "How was your trade experience?" dialog appears, click "Maybe Later".
+      Navigate back to the trade page if needed.
+      Verify the trade page is ready for another swap.
+    expected: Back on the trade page ready for another swap
+    screenshot: true
+  - name: Enter amount (swap 2)
+    instruction: >
+      The sell/buy assets should still be SOL/USDC.
+      If fiat mode is still active, enter 0.50 in the sell amount.
+      If not in fiat mode, toggle to fiat first, then enter 0.50.
+      Wait for a quote to load.
+    expected: $0.50 amount entered with a quote loaded
+    screenshot: true
+  - name: Preview and confirm (swap 2)
+    instruction: >
+      Click "Preview Trade", handle any warning dialogs (click "I understand"),
+      then click "Confirm and Trade" to execute.
+      Approve the wallet signing prompt.
+    expected: Second swap is submitted
+    screenshot: true
+  - name: Wait for completion (swap 2)
+    instruction: >
+      Wait up to 60 seconds for the second swap to complete.
+      Check status every 10 seconds. Note if behavior differs from swap 1.
+    expected: Swap completes or shows clear status
+    screenshot: true
+  - name: Dismiss and prep swap 3
+    instruction: >
+      Dismiss any feedback dialog. Return to trade page.
+      Verify ready for a third swap.
+    expected: Trade page ready for swap 3
+    screenshot: true
+  - name: Enter amount (swap 3)
+    instruction: >
+      Enter $0.50 in fiat mode for the sell amount.
+      Wait for quote.
+    expected: $0.50 entered with quote loaded
+    screenshot: true
+  - name: Preview and confirm (swap 3)
+    instruction: >
+      Click "Preview Trade", handle warnings, click "Confirm and Trade".
+      Approve signing.
+    expected: Third swap submitted
+    screenshot: true
+  - name: Wait for completion (swap 3)
+    instruction: >
+      Wait up to 60 seconds for the third swap.
+      Note final status and whether the pattern matches MBMaria's report
+      (first fails, second sometimes works, stuck pending).
+    expected: Swap completes or shows clear status
+    screenshot: true

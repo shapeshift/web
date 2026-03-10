@@ -115,15 +115,16 @@ export const Form: React.FC<QrCodeFormProps> = ({ assetId: initialAssetId, accou
 
   const handleSubmit = useCallback(
     async (data: SendInput) => {
-      const txHash = await handleFormSend(data, false)
-      if (!txHash) return
+      const sendResult = await handleFormSend(data, false)
+      if (!sendResult?.txHash) return
 
       completeSendFlow({
-        txHash,
+        txHash: sendResult.txHash,
         to: data.to,
         accountId: data.accountId,
         assetId: data.assetId,
         amountCryptoPrecision: data.amountCryptoPrecision,
+        btcUtxoRbfTxMetadata: sendResult.btcUtxoRbfTxMetadata,
       })
     },
     [handleFormSend, completeSendFlow],

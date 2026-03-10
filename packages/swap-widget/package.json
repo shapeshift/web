@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite",
     "clean": "rm -rf dist node_modules",
-    "build": "tsc && vite build",
+    "build": "rm -rf dist && tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",

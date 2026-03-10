@@ -27,7 +27,7 @@
 // Navigate to trade
 browser_click({ element: "Trade navigation link", ref: "..." })
 // OR
-browser_navigate({ url: "${PORTLESS_URL:-http://localhost:3000}/trade" })
+browser_navigate({ url: "${PORTLESS_URL:-http://localhost:3000}/#/trade" })
 ```
 
 **Validation Points**:

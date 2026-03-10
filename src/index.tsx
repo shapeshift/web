@@ -61,6 +61,7 @@ if (shouldEnableSentry) {
   ] as const
 
   const environment = (() => {
+    if (isLocalhost) return 'localhost'
     if (window.location.hostname.includes('app')) return 'production'
 
     if (VALID_ENVS.some(env => window.location.hostname.includes(env)))

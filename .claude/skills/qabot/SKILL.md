@@ -119,7 +119,7 @@ agent-browser --session qabot --profile ~/.agent-browser/profiles/qabot open <ur
 
 The profile at `~/.agent-browser/profiles/qabot` stores the native wallet (IndexedDB, localStorage, cookies) per origin. Import the wallet once per origin in headed mode, then reuse.
 
-First time setup per origin (headed, import wallet via keystore):
+First-time setup per origin (headed, import wallet via keystore):
 ```bash
 agent-browser --session qabot --profile ~/.agent-browser/profiles/qabot --headed open <url>
 ```

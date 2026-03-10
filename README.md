@@ -99,7 +99,7 @@ pnpm run dev
 
 > It opens [http://localhost:3000](http://localhost:3000) to view it in the browser and the page will reload if you make edits.
 >
-> **Portless (optional):** If you have [Portless](https://github.com/vercel-labs/portless) installed, `dev:web` uses it automatically. The app is available at `http://<branch>.web.localhost:1355`. Use `dev:web:localhost` for plain `localhost:3000`.
+> **Portless (optional):** Install [Portless](https://github.com/vercel-labs/portless) globally (`npm i -g portless`), then `dev:web` uses it automatically. The app is available at `http://<branch>.web.localhost:1355`. Without Portless, use `dev:web:localhost` for plain `localhost:3000`.
 >
 > You will also see any lint errors in the console.
 

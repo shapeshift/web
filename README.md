@@ -99,7 +99,9 @@ pnpm run dev
 
 > It opens [http://localhost:3000](http://localhost:3000) to view it in the browser and the page will reload if you make edits.
 >
-> You will also see any lint errors in the console.  
+> **Portless (optional):** If you use [Portless](https://portless.dev), the app is also available at `shapeshiftweb.localhost` (no port number). All localhost checks are Portless-aware.
+>
+> You will also see any lint errors in the console.
 
 <br/>
 

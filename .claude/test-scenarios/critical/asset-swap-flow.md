@@ -8,7 +8,7 @@
 
 ## Prerequisites
 
-- Dev server running on `localhost:3000`
+- Dev server running on `localhost:3000` (or `$PORTLESS_URL` if using Portless)
 - Wallet connected with test funds
 - Test wallet should have:
   - Small amount of ETH for gas
@@ -27,7 +27,7 @@
 // Navigate to trade
 browser_click({ element: "Trade navigation link", ref: "..." })
 // OR
-browser_navigate({ url: "http://localhost:3000/trade" })
+browser_navigate({ url: "${PORTLESS_URL:-http://localhost:3000}/trade" })
 ```
 
 **Validation Points**:

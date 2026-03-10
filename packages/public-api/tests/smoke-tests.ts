@@ -2,7 +2,8 @@ import { ASSET_IDS, TEST_AFFILIATE_ADDRESS, TEST_PAIRS } from './test-config'
 import type { TestResult, TestSuiteResult } from './test-utils'
 import { fetchWithTimeout, runTest } from './test-utils'
 
-const getApiUrl = (): string => process.env.API_URL || 'http://localhost:3001'
+const getApiUrl = (): string =>
+  process.env.API_URL || process.env.PORTLESS_API_URL || 'http://localhost:3001'
 
 export const runSmokeTests = async (): Promise<TestSuiteResult> => {
   const API_URL = getApiUrl()

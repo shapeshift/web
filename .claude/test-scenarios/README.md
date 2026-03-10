@@ -80,6 +80,10 @@ Tests for specific bugs that were fixed:
 /test-agent maintenance
 ```
 
+### Portless Support
+
+All test scenarios reference `${PORTLESS_URL:-http://localhost:3000}` for the dev server URL. If you use [Portless](https://portless.dev), set `PORTLESS_URL` (e.g. `http://shapeshiftweb.localhost`) and the scenarios will use it. Without Portless, everything defaults to `http://localhost:3000`.
+
 ### Manual Testing
 
 Each scenario file contains:

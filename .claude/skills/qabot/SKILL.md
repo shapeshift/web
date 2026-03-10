@@ -27,8 +27,10 @@ If any of these are missing, tell the user to add them to `~/.secrets`. The API 
 
 ## Ports
 
-- **Web dev server** (ShapeShift app): `localhost:3000`
+- **Web dev server** (ShapeShift app): `localhost:3000` (or `$PORTLESS_URL` if using Portless, e.g. `shapeshiftweb.localhost`)
 - **qabot API/dashboard**: `localhost:8080` (dev) or deployed URL
+
+**Portless note:** If the dev server is running behind Portless, `BASE_URL` should be set to the Portless URL (e.g. `http://shapeshiftweb.localhost`). The qabot profile stores wallet state per-origin, so a Portless origin (`shapeshiftweb.localhost`) is separate from `localhost:3000` - you must import the wallet once per origin.
 
 ## Modes
 
@@ -117,15 +119,35 @@ agent-browser --session qabot --profile ~/.agent-browser/profiles/qabot open <ur
 
 The profile at `~/.agent-browser/profiles/qabot` stores the native wallet (IndexedDB, localStorage, cookies) per origin. Import the wallet once per origin in headed mode, then reuse.
 
-First time setup per origin (headed, import wallet manually):
+First time setup per origin (headed, import wallet via keystore):
 ```bash
 agent-browser --session qabot --profile ~/.agent-browser/profiles/qabot --headed open <url>
-# Import the native wallet, set password to $NATIVE_WALLET_PASSWORD, close.
-# Subsequent runs reuse the persisted profile.
 ```
 
+**Keystore import flow** (when no native wallet exists for the origin):
+
+There should be a keystore file on the Desktop (e.g. `thorswap-keystore*.txt` or similar). The exact filename may change - look for a keystore/json file on `~/Desktop/`.
+
+1. Click "Connect Wallet" button (use JS eval if click times out):
+   `eval "document.querySelectorAll('button').forEach(b => { if(b.textContent.includes('Connect Wallet')) b.click() })"`
+2. Click "Import existing"
+3. Click "Keystore" (the "Import Keystore File" option)
+4. Upload the keystore file to the hidden file input:
+   `upload "input[type=file]" "/Users/gomes/Desktop/<keystore-filename>"`
+5. Fill the keystore password:
+   `fill "input[placeholder*=Password]" "$NATIVE_WALLET_PASSWORD"`
+6. Click "Import Keystore"
+7. On the "Create a New Password" screen:
+   - Fill nickname: `fill "input[placeholder*=nickname]" "test"`
+   - Fill password: `fill "input[placeholder*='Enter Password']" "$NATIVE_WALLET_PASSWORD"`
+   - Fill confirm: `fill "input[placeholder*='Confirm Password']" "$NATIVE_WALLET_PASSWORD"`
+   - Click "Next"
+8. Skip onboarding carousel if shown
+9. Wallet "test" should appear in top-right. Subsequent runs reuse the persisted profile.
+
 Origins where the wallet has been imported:
-- `http://localhost:3000` (local dev)
+- `http://localhost:3000` (local dev, legacy)
+- `http://shapeshiftweb.localhost:1355` (local dev via Portless - all worktrees share this origin when using `portless shapeshiftweb`)
 - `https://gome.shapeshift.com` (gome staging)
 - `https://release.shapeshift.com` (release staging)
 
@@ -260,7 +282,8 @@ When you encounter what looks like a bug, **don't just report it — investigate
 ```bash
 source ~/.secrets
 QABOT="${QABOT_URL:-http://localhost:8080}"
-BASE_URL="${BASE_URL:-http://localhost:3000}"
+# Use PORTLESS_URL if set (e.g. http://shapeshiftweb.localhost), otherwise default to localhost:3000
+BASE_URL="${PORTLESS_URL:-${BASE_URL:-http://localhost:3000}}"
 ```
 
 All write requests use:
@@ -319,16 +342,18 @@ Use **read-only git operations only** (fetch, rev-parse) - NEVER switch branches
 GITHUB_REPO="shapeshift/web"
 
 # Origin-to-branch mapping (CloudFlare Pages deployments):
-#   localhost:3000         → local branch (detected from dev server process)
-#   gome.shapeshift.com   → gome
-#   release.shapeshift.com → release
-#   develop.shapeshift.com → develop
-#   app.shapeshift.com    → main
-#   neo.shapeshift.com    → neo
+#   localhost:3000                → local branch (detected from dev server process)
+#   shapeshiftweb.localhost       → local branch (Portless, same as localhost:3000)
+#   gome.shapeshift.com          → gome
+#   release.shapeshift.com       → release
+#   develop.shapeshift.com       → develop
+#   app.shapeshift.com           → main
+#   neo.shapeshift.com           → neo
 
 if [[ "$BASE_URL" == *"localhost"* ]]; then
-  # Local dev: detect web repo from the process actually serving port 3000
-  # This handles worktrees correctly (main repo vs .worktrees/qabot etc.)
+  # Local dev: detect web repo from the process serving the dev server
+  # This handles both localhost:3000 and Portless (*.localhost) URLs
+  # For Portless, the underlying server still listens on a port - detect it
   DEV_PID=$(lsof -i :3000 -sTCP:LISTEN -n -P -t 2>/dev/null | head -1)
   if [ -n "$DEV_PID" ]; then
     WEB_REPO=$(lsof -p "$DEV_PID" 2>/dev/null | awk '/cwd/{print $NF}')

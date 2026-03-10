@@ -20,6 +20,7 @@ import { App } from './App'
 import { AppProviders } from './AppProviders'
 import { PerformanceProfiler } from './components/PerformanceProfiler'
 import { getConfig } from './config'
+import { isLocalDev } from './lib/isLocalDev'
 import { renderConsoleArt } from './lib/consoleArt'
 import { profiler } from './lib/performanceProfiler'
 import { reportWebVitals } from './lib/reportWebVitals'
@@ -35,12 +36,12 @@ if (enablePerformanceProfiler) {
 const SENTRY_ENABLED = true
 
 scan({
-  enabled: window.location.hostname === 'localhost' && enableReactScan,
+  enabled: isLocalDev() && enableReactScan,
 })
 
 // Sentry is disabled on localhost by default
 // To test locally, set VITE_ENABLE_SENTRY_LOCALHOST=true in your .env.local file
-const isLocalhost = window.location.hostname === 'localhost'
+const isLocalhost = isLocalDev()
 const enableSentryOnLocalhost = import.meta.env.VITE_ENABLE_SENTRY_LOCALHOST === 'true'
 const shouldEnableSentry = SENTRY_ENABLED && (!isLocalhost || enableSentryOnLocalhost)
 

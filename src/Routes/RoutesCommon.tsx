@@ -13,6 +13,7 @@ import { HomeIcon } from '@/components/Icons/Home'
 import { PoolsIcon } from '@/components/Icons/Pools'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { TCYIcon } from '@/components/Icons/TCYIcon'
+import { isLocalDev } from '@/lib/isLocalDev'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
@@ -411,7 +412,7 @@ export const routes: Route[] = [
     path: '/flags',
     label: 'navBar.featureFlags',
     icon: <FaFlag />,
-    hide: window.location.hostname !== 'localhost',
+    hide: !isLocalDev(),
     main: Flags,
   },
   {

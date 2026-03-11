@@ -11,7 +11,7 @@ RUN npx vite build
 
 FROM nginx:stable-alpine AS runner
 COPY --from=builder /app/dist /usr/share/nginx/html
-RUN printf 'server {\n\
+RUN mkdir -p /etc/nginx/templates && printf 'server {\n\
     listen       8080;\n\
     server_name  _;\n\
     root         /usr/share/nginx/html;\n\

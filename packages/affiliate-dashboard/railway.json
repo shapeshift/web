@@ -7,7 +7,9 @@
       "src/**",
       "package.json",
       "vite.config.ts",
-      "index.html"
+      "index.html",
+      "Dockerfile",
+      "railway.json"
     ]
   },
   "deploy": {

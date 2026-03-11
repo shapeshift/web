@@ -547,7 +547,12 @@ export class TradeExecution {
       const metadata = step?.solanaTransactionMetadata
 
       // Jito bundle path for oversized Butter Solana transactions
-      if (metadata?.isOversized && metadata.instructions?.length && signTransaction) {
+      if (metadata?.isOversized) {
+        if (!metadata.instructions?.length || !signTransaction) {
+          throw new Error(
+            'Oversized Solana transaction requires instructions and signTransaction for Jito bundle execution',
+          )
+        }
         const executableStep = getExecutableTradeStep(tradeQuote, stepIndex)
         const { execSolanaJitoBundle } = await import('@/lib/solanaJitoBundle')
         return await execSolanaJitoBundle({

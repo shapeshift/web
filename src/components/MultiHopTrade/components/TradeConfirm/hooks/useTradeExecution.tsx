@@ -1,10 +1,4 @@
-import {
-  bchAssetId,
-  CHAIN_NAMESPACE,
-  fromAccountId,
-  fromAssetId,
-  fromChainId,
-} from '@shapeshiftoss/caip'
+import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type { near, SignTx, SignTypedDataInput, ton } from '@shapeshiftoss/chain-adapters'
 import { ChainAdapterError, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type {
@@ -24,8 +18,6 @@ import {
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
 import type { CosmosSdkChainId, EvmChainId, TronChainId, UtxoChainId } from '@shapeshiftoss/types'
-import { isToken } from '@shapeshiftoss/utils'
-import { Connection } from '@solana/web3.js'
 import type { TypedData } from 'eip-712'
 import camelCase from 'lodash/camelCase'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
@@ -38,7 +30,6 @@ import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/
 import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
 import { getMixpanelEventData } from '@/components/MultiHopTrade/helpers'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
-import { getConfig } from '@/config'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -433,68 +424,6 @@ export const useTradeExecution = (
       }
 
       if (swapperName === SwapperName.Bebop && hop?.bebopSolanaSerializedTx && hop?.bebopQuoteId) {
-        // Pre-create any missing token accounts needed by Bebop's AMM-routed Solana swaps.
-        // Bebop's Raydium CLMM routes reference ATAs (e.g. WSOL, buy token) that may not exist
-        // on-chain, causing "AccountNotInitialized" errors at execution time.
-        const solanaAdapter = assertGetSolanaChainAdapter(stepSellAssetChainId)
-        const fromAddress = await solanaAdapter.getAddress({
-          accountNumber,
-          wallet,
-          pubKey: skipDeviceDerivation ? pubKey : undefined,
-        })
-
-        const ataCreationInstructions: Parameters<typeof solanaAdapter.convertInstruction>[0][] = []
-
-        const WSOL_MINT = 'So11111111111111111111111111111111111111112'
-        // WSOL ATA is needed when native SOL is involved on either side (CLMM routes wrap/unwrap)
-        if (!isToken(hop.sellAsset.assetId) || !isToken(hop.buyAsset.assetId)) {
-          const { instruction } = await solanaAdapter.createAssociatedTokenAccountInstruction({
-            from: fromAddress,
-            to: fromAddress,
-            tokenId: WSOL_MINT,
-          })
-          if (instruction) ataCreationInstructions.push(instruction)
-        }
-
-        // Buy token ATA
-        if (isToken(hop.buyAsset.assetId)) {
-          const { assetReference } = fromAssetId(hop.buyAsset.assetId)
-          const { instruction } = await solanaAdapter.createAssociatedTokenAccountInstruction({
-            from: fromAddress,
-            to: fromAddress,
-            tokenId: assetReference,
-          })
-          if (instruction) ataCreationInstructions.push(instruction)
-        }
-
-        if (ataCreationInstructions.length > 0) {
-          const txToSign = await solanaAdapter.buildSendApiTransaction({
-            from: fromAddress,
-            to: '',
-            value: '0',
-            accountNumber,
-            chainSpecific: {
-              instructions: ataCreationInstructions.map(i => solanaAdapter.convertInstruction(i)),
-              computeUnitLimit: '400000',
-              computeUnitPrice: '50000',
-            },
-          })
-          const hex = await solanaAdapter.signTransaction({ txToSign, wallet })
-          const txHash = await solanaAdapter.broadcastTransaction({
-            senderAddress: fromAddress,
-            receiverAddress: fromAddress,
-            hex,
-          })
-          // Wait for ATA creation to confirm before proceeding with the Bebop swap
-          const connection = new Connection(getConfig().VITE_SOLANA_NODE_URL)
-          const { blockhash, lastValidBlockHeight } =
-            await connection.getLatestBlockhash('confirmed')
-          await connection.confirmTransaction(
-            { signature: txHash, blockhash, lastValidBlockHeight },
-            'confirmed',
-          )
-        }
-
         const output = await execution.execSolanaMessage({
           swapperName,
           tradeQuote,

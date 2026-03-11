@@ -73,15 +73,10 @@ export function MixinNativeSolanaWallet<TBase extends core.Constructor<NativeHDW
       msg: core.SolanaSignSerializedTx,
     ): Promise<core.SolanaSignedTx | null> {
       return this.needsMnemonic(!!this.adapter, async () => {
-        console.log(`[Bebop Native Sign] Deserializing tx, base64 length: ${msg.serializedTx.length}`)
         const txBytes = Buffer.from(msg.serializedTx, 'base64')
-        console.log(`[Bebop Native Sign] Tx bytes length: ${txBytes.length}`)
         const transaction = VersionedTransaction.deserialize(txBytes)
-        console.log(`[Bebop Native Sign] Deserialized. Num signatures before signing: ${transaction.signatures.length}`)
-        console.log(`[Bebop Native Sign] Message accountKeys: ${transaction.message.staticAccountKeys.map(k => k.toBase58()).join(', ')}`)
 
         const signedTransaction = await this.adapter!.signTransaction(transaction, msg.addressNList)
-        console.log(`[Bebop Native Sign] Signed. Num signatures after signing: ${signedTransaction.signatures.length}`)
 
         // Extract signatures before attempting serialize - for partially-signed txs
         // (e.g. gasless Bebop where Bebop is the fee payer), serialize() throws because
@@ -90,19 +85,12 @@ export function MixinNativeSolanaWallet<TBase extends core.Constructor<NativeHDW
           Buffer.from(signature).toString('base64'),
         )
 
-        signatures.forEach((sig, i) => {
-          const bytes = Buffer.from(sig, 'base64')
-          const isZero = bytes.every(b => b === 0)
-          console.log(`[Bebop Native Sign] Sig[${i}]: isZero=${isZero}, bytes=${bytes.length}`)
-        })
-
         let serialized: string
         try {
           serialized = Buffer.from(signedTransaction.serialize()).toString('base64')
-          console.log(`[Bebop Native Sign] Full serialize succeeded`)
-        } catch (e) {
+        } catch {
           // Partial signing - serialize the message without signature verification
-          console.log(`[Bebop Native Sign] Partial sign - serialize threw (expected for co-signed tx): ${(e as Error).message}`)
+          // For co-signed txs (e.g. gasless Bebop), not all sigs are present yet
           serialized = msg.serializedTx
         }
 

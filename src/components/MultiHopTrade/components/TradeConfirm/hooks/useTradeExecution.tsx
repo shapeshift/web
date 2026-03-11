@@ -424,42 +424,20 @@ export const useTradeExecution = (
       }
 
       if (swapperName === SwapperName.Bebop && hop?.bebopSolanaSerializedTx && hop?.bebopQuoteId) {
-        console.log(`[Bebop Solana Hook] Detected Bebop Solana trade: ${JSON.stringify({
-          swapperName,
-          quoteId: hop.bebopQuoteId,
-          serializedTxLength: hop.bebopSolanaSerializedTx?.length,
-          sellAsset: hop.sellAsset.assetId,
-          buyAsset: hop.buyAsset.assetId,
-          sellAmount: hop.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        })}`)
         const output = await execution.execSolanaMessage({
           swapperName,
           tradeQuote,
           stepIndex: hopIndex,
           slippageTolerancePercentageDecimal,
           signSerializedTransaction: async (serializedTx: string) => {
-            console.log(`[Bebop Solana Hook] signSerializedTransaction called, serializedTx length: ${serializedTx.length}`)
             if (!wallet || !supportsSolana(wallet) || !wallet.solanaSignSerializedTx) {
-              console.error(`[Bebop Solana Hook] Wallet check failed: ${JSON.stringify({
-                hasWallet: !!wallet,
-                supportsSolana: wallet ? supportsSolana(wallet) : false,
-                hasSignSerializedTx: wallet && supportsSolana(wallet) ? !!wallet.solanaSignSerializedTx : false,
-              })}`)
               throw new Error('Wallet does not support signing serialized Solana transactions')
             }
 
-            console.log(`[Bebop Solana Hook] Calling wallet.solanaSignSerializedTx with addressNList: ${JSON.stringify(toAddressNList(accountMetadata.bip44Params))}`)
             const result = await wallet.solanaSignSerializedTx({
               addressNList: toAddressNList(accountMetadata.bip44Params),
               serializedTx,
             })
-
-            console.log(`[Bebop Solana Hook] Wallet sign result: ${JSON.stringify({
-              hasResult: !!result,
-              hasSignatures: !!result?.signatures,
-              numSignatures: result?.signatures?.length,
-              serializedLength: result?.serialized?.length,
-            })}`)
 
             if (!result?.signatures) {
               throw new Error('Failed to sign Bebop Solana transaction')

@@ -190,22 +190,11 @@ export const fetchBebopSolanaQuote = async ({
       params.set('fee', affiliateBps)
     }
 
-    console.log(`[Bebop Solana Quote] Request URL: ${url}?${params}`)
-    console.log(`[Bebop Solana Quote] Params: ${JSON.stringify({
-      sellToken,
-      buyToken,
-      sellAmountFormatted,
-      takerAddress,
-      receiverAddress,
-      slippagePercentage,
-    })}`)
-
     const bebopService = bebopServiceFactory({ apiKey })
     const maybeResponse = await bebopService.get<BebopSolanaQuoteResponse>(`${url}?${params}`)
 
     if (maybeResponse.isErr()) {
       const err = maybeResponse.unwrapErr()
-      console.error(`[Bebop Solana Quote] HTTP error: ${JSON.stringify({ message: err.message, cause: err.cause })}`)
       return Err(
         makeSwapErrorRight({
           message: 'Failed to fetch quote from Bebop Solana',
@@ -217,20 +206,7 @@ export const fetchBebopSolanaQuote = async ({
 
     const response = maybeResponse.unwrap()
 
-    console.log(`[Bebop Solana Quote] Response: ${JSON.stringify({
-      status: response.data.status,
-      makers: response.data.makers,
-      quoteId: response.data.quoteId,
-      hasSolanaTx: !!response.data.solana_tx,
-      solanaTxLength: response.data.solana_tx?.length,
-      sellTokens: response.data.sellTokens,
-      buyTokens: response.data.buyTokens,
-      blockhash: response.data.blockhash,
-      expiry: response.data.expiry,
-    })}`)
-
     if (response.data.status !== 'QUOTE_SUCCESS') {
-      console.warn(`[Bebop Solana Quote] Non-success status: ${response.data.status}`)
       return Err(
         makeSwapErrorRight({
           message: `Bebop Solana quote not executable: ${response.data.status}`,
@@ -240,7 +216,6 @@ export const fetchBebopSolanaQuote = async ({
     }
 
     if (!response.data.solana_tx) {
-      console.error(`[Bebop Solana Quote] Missing solana_tx in response`)
       return Err(
         makeSwapErrorRight({
           message: 'Missing solana_tx in response',
@@ -258,9 +233,7 @@ export const fetchBebopSolanaQuote = async ({
     const hasAmmRoute = response.data.makers.some(
       maker => maker.toLowerCase().includes('clmm') || maker.toLowerCase().includes('amm'),
     )
-    console.log(`[Bebop Solana Quote] Route check: ${JSON.stringify({ makers: response.data.makers, hasAmmRoute })}`)
     if (hasAmmRoute) {
-      console.warn(`[Bebop Solana Quote] Rejected - contains AMM routing: ${response.data.makers.join(', ')}`)
       return Err(
         makeSwapErrorRight({
           message: `Bebop Solana quote contains AMM routing (${response.data.makers.join(
@@ -271,7 +244,6 @@ export const fetchBebopSolanaQuote = async ({
       )
     }
 
-    console.log(`[Bebop Solana Quote] Success - quoteId: ${response.data.quoteId}`)
     return Ok(response.data)
   } catch (error) {
     return Err(

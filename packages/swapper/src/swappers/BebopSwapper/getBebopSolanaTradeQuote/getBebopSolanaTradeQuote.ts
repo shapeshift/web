@@ -52,15 +52,6 @@ export async function getBebopSolanaTradeQuote(
     input.slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Bebop)
 
-  console.log(`[Bebop Solana TradeQuote] Input: ${JSON.stringify({
-    sellAsset: sellAsset.assetId,
-    buyAsset: buyAsset.assetId,
-    sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    takerAddress,
-    receiverAddress: receiveAddress ?? takerAddress,
-    accountNumber,
-  })}`)
-
   const maybeBebopQuoteResponse = await fetchBebopSolanaQuote({
     buyAsset,
     sellAsset,
@@ -107,16 +98,6 @@ export async function getBebopSolanaTradeQuote(
 
   // Bebop Solana is gasless - Bebop pays the network fees via co-signing
   const networkFeeCryptoBaseUnit = '0'
-
-  console.log(`[Bebop Solana TradeQuote] Built quote: ${JSON.stringify({
-    sellAmount,
-    buyAmount,
-    rate,
-    buyAmountBeforeFeesCryptoBaseUnit,
-    buyAmountAfterFeesCryptoBaseUnit,
-    quoteId: bebopQuoteResponse.quoteId,
-    serializedTxLength: bebopQuoteResponse.solana_tx?.length,
-  })}`)
 
   return Ok({
     id: uuid(),

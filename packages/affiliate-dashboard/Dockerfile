@@ -19,7 +19,7 @@ RUN printf 'server {\n\
     location /v1/ {\n\
         proxy_pass         ${API_URL}/v1/;\n\
         proxy_http_version 1.1;\n\
-        proxy_set_header   Host              $host;\n\
+        proxy_set_header   Host              api.shapeshift.com;\n\
         proxy_set_header   X-Real-IP         $remote_addr;\n\
         proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;\n\
         proxy_set_header   X-Forwarded-Proto $scheme;\n\
@@ -28,5 +28,7 @@ RUN printf 'server {\n\
         try_files $uri $uri/ /index.html;\n\
     }\n\
 }\n' > /tmp/default.conf.template
+# Default to production API if API_URL not set
+ENV API_URL=https://api.shapeshift.com
 EXPOSE 8080
 CMD ["/bin/sh", "-c", "envsubst '${API_URL}' < /tmp/default.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"]

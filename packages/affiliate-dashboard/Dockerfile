@@ -30,11 +30,8 @@ RUN pnpm build
 # Production stage — serve static files with nginx
 FROM nginx:stable-alpine AS runner
 
-# Copy built assets
 COPY --from=builder /app/packages/affiliate-dashboard/dist /usr/share/nginx/html
-
-# Copy nginx config template
-COPY packages/affiliate-dashboard/nginx.conf.template /etc/nginx/templates/default.conf.template
+COPY --from=builder /app/packages/affiliate-dashboard/nginx.conf.template /etc/nginx/templates/default.conf.template
 
 EXPOSE 8080
 

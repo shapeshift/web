@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/unchained-client",
-  "version": "10.14.9-coderabbit-fix.2",
+  "version": "10.14.10",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "type": "module",
@@ -21,12 +21,10 @@
     "access": "public"
   },
   "scripts": {
-    "build": "pnpm run clean && pnpm run generate && pnpm exec tsc --build && pnpm run postbuild",
-    "build:docker": "pnpm run clean:dist && pnpm exec tsc --build && pnpm run postbuild",
-    "clean": "rm -rf dist src/generated",
-    "clean:dist": "rm -rf dist",
+    "build": "rm -rf dist && pnpm run generate && pnpm exec tsc --build && pnpm run postbuild",
+    "clean": "rm -rf dist src/generated node_modules",
     "dev": "pnpm exec tsc --build --watch",
-    "generate": "TS_POST_PROCESS_FILE=./generator/post_process.sh JAVA_OPTS='-Dlog.level=error' openapi-generator-cli generate",
+    "generate": "rm -rf src/generated && TS_POST_PROCESS_FILE=./generator/post_process.sh JAVA_OPTS='-Dlog.level=error' openapi-generator-cli generate",
     "postbuild": "pnpm run postbuild:esm && pnpm run postbuild:cjs",
     "postbuild:esm": "pnpm exec tsc-esm-fix --target=dist/esm --ext=.js",
     "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"

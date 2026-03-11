@@ -4,8 +4,13 @@ import type { SolanaMessageExecutionProps, SolanaMessageToSign, SwapperConfig } 
 import { bebopServiceFactory } from './utils/bebopService'
 
 type BebopOrderResponse = {
-  txHash: string
-  status: string
+  txHash?: string
+  status?: string
+  error?: {
+    errorCode: number
+    message: string
+    requestId: string
+  }
 }
 
 export const executeSolanaMessage = async (
@@ -25,7 +30,17 @@ export const executeSolanaMessage = async (
     throw new Error('No signatures returned from wallet')
   }
 
-  const userSignatureBase64 = signatures[signatures.length - 1]
+  // Find the actual non-zero user signature (skip empty placeholder slots from co-signers)
+  const nonZeroSigIndex = signatures.findIndex(sig => {
+    const bytes = Buffer.from(sig, 'base64')
+    return !bytes.every(b => b === 0)
+  })
+
+  if (nonZeroSigIndex === -1) {
+    throw new Error('No non-zero signatures found after signing')
+  }
+
+  const userSignatureBase64 = signatures[nonZeroSigIndex]
   const userSignatureBytes = Buffer.from(userSignatureBase64, 'base64')
   const userSignatureBase58 = bs58.encode(userSignatureBytes)
 
@@ -45,8 +60,14 @@ export const executeSolanaMessage = async (
 
   const { data: orderResponse } = maybeOrderResponse.unwrap()
 
+  if (orderResponse.error) {
+    throw new Error(
+      `Bebop order failed: ${orderResponse.error.message} (code ${orderResponse.error.errorCode})`,
+    )
+  }
+
   if (!orderResponse.txHash) {
-    throw new Error('Bebop order response missing txHash')
+    throw new Error(`Bebop order response missing txHash: ${JSON.stringify(orderResponse)}`)
   }
 
   return orderResponse.txHash

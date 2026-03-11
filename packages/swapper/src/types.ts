@@ -435,7 +435,7 @@ export type TradeQuoteStep = {
   solanaTransactionMetadata?: {
     addressLookupTableAddresses: string[]
     instructions?: TransactionInstruction[]
-    /** True when the raw Butter tx exceeds the 1232-byte Solana limit and needs Jito bundle splitting */
+    /** True when the serialized tx exceeds the 1232-byte Solana limit and needs Jito bundle splitting */
     isOversized?: boolean
   }
   cowswapQuoteResponse?: OrderQuoteResponse

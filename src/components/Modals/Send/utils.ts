@@ -22,7 +22,7 @@ import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { CosmosSdkChainId, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
-import { PublicKey, TransactionInstruction } from '@solana/web3.js'
+import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js'
 
 import type { SendInput } from './Form'
 
@@ -124,7 +124,7 @@ export const estimateFees = async ({
         : undefined
 
       // For SPL transfers, build complete instruction set including compute budget
-      // For SOL transfers with memo (e.g. THORChain), pass memo instruction for accurate fee estimation
+      // For SOL transfers with memo (e.g. THORChain LP), include both memo AND transfer for accurate CU estimation
       // For pure SOL transfers, pass no instructions to get 0 count (avoids blind signing)
       const instructions = contractAddress
         ? await adapter.buildEstimationInstructions({
@@ -134,7 +134,14 @@ export const estimateFees = async ({
             value,
           })
         : memoInstruction
-        ? [memoInstruction]
+        ? [
+            memoInstruction,
+            SystemProgram.transfer({
+              fromPubkey: new PublicKey(account),
+              toPubkey: new PublicKey(to),
+              lamports: Number(value),
+            }),
+          ]
         : undefined
 
       const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
@@ -404,6 +411,10 @@ export const handleSendWithMetadata = async ({
 
       const shouldAddComputeBudget = estimationInstructions.length > 1 || Boolean(memoInstruction)
 
+      // Each ComputeBudgetProgram instruction (setComputeUnitLimit, setComputeUnitPrice) costs 150 CU.
+      // Fee estimation doesn't include these, so we add a fixed buffer to cover them.
+      const COMPUTE_BUDGET_INSTRUCTION_OVERHEAD_CU = 300
+
       const input: BuildSendTxInput<KnownChainIds.SolanaMainnet> = {
         to,
         value,
@@ -413,7 +424,9 @@ export const handleSendWithMetadata = async ({
         chainSpecific: shouldAddComputeBudget
           ? {
               tokenId: contractAddress,
-              computeUnitLimit: fees.chainSpecific.computeUnits,
+              computeUnitLimit: String(
+                Number(fees.chainSpecific.computeUnits) + COMPUTE_BUDGET_INSTRUCTION_OVERHEAD_CU,
+              ),
               computeUnitPrice: fees.chainSpecific.priorityFee,
               instructions: memoInstruction ? [memoInstruction] : undefined,
             }

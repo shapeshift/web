@@ -4,11 +4,13 @@
 
 # Frontend source (not needed for server builds)
 src/
+!packages/affiliate-dashboard/src/
 e2e/
 
 # Static assets
 public/
 !public/generated/generatedAssetData.json
+!packages/affiliate-dashboard/public/
 
 # Development tooling
 .github/
@@ -25,6 +27,7 @@ docs/
 *.md
 !packages/public-api/*.md
 !packages/swap-widget/*.md
+!packages/affiliate-dashboard/*.md
 
 # Test files
 **/*.test.*

@@ -17,8 +17,7 @@ COPY packages/affiliate-dashboard/package.json ./packages/affiliate-dashboard/
 ENV NPM_CONFIG_PACKAGE_IMPORT_METHOD=copy
 
 # Install dependencies
-RUN --mount=type=cache,id=s/affiliate-dashboard/pnpm-store,target=/root/.local/share/pnpm/store \
-    corepack enable && \
+RUN corepack enable && \
     pnpm install --frozen-lockfile --ignore-scripts --filter @shapeshiftoss/affiliate-dashboard...
 
 # Copy affiliate-dashboard source

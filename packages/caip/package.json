@@ -22,8 +22,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "pnpm run clean && pnpm exec tsc --build && pnpm run postbuild",
-    "clean": "rm -rf dist",
+    "build": "rm -rf dist && pnpm exec tsc --build && pnpm run postbuild",
+    "clean": "rm -rf dist node_modules",
     "dev": "pnpm exec tsc --build --watch",
     "generate": "pnpm run generate:coingecko && pnpm run generate:coincap",
     "generate:coingecko": "pnpm run build && pnpm exec tsx src/adapters/coingecko/generate.ts",

@@ -2,10 +2,12 @@
   "$schema": "https://railway.com/railway.schema.json",
   "build": {
     "builder": "DOCKERFILE",
-    "dockerfilePath": "packages/affiliate-dashboard/Dockerfile",
+    "dockerfilePath": "Dockerfile",
     "watchPatterns": [
-      "packages/affiliate-dashboard/**",
-      "pnpm-lock.yaml"
+      "src/**",
+      "package.json",
+      "vite.config.ts",
+      "index.html"
     ]
   },
   "deploy": {

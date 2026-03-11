@@ -1,27 +1,16 @@
-# syntax=docker/dockerfile:1
-
 FROM node:22-alpine AS builder
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY patches/ ./patches/
-COPY packages/affiliate-dashboard/package.json ./packages/affiliate-dashboard/
+COPY package.json ./
+RUN npm install
 
-ENV NPM_CONFIG_PACKAGE_IMPORT_METHOD=copy
-RUN corepack enable && \
-    pnpm install --frozen-lockfile --ignore-scripts --filter @shapeshiftoss/affiliate-dashboard...
+COPY index.html tsconfig.json tsconfig.node.json vite.config.ts ./
+COPY src/ ./src/
 
-COPY packages/affiliate-dashboard/index.html ./packages/affiliate-dashboard/
-COPY packages/affiliate-dashboard/tsconfig.json ./packages/affiliate-dashboard/
-COPY packages/affiliate-dashboard/tsconfig.node.json ./packages/affiliate-dashboard/
-COPY packages/affiliate-dashboard/vite.config.ts ./packages/affiliate-dashboard/
-COPY packages/affiliate-dashboard/src/ ./packages/affiliate-dashboard/src/
-
-WORKDIR /app/packages/affiliate-dashboard
-RUN pnpm build
+RUN npx vite build
 
 FROM nginx:stable-alpine AS runner
-COPY --from=builder /app/packages/affiliate-dashboard/dist /usr/share/nginx/html
+COPY --from=builder /app/dist /usr/share/nginx/html
 RUN printf 'server {\n\
     listen       8080;\n\
     server_name  _;\n\

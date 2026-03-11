@@ -1,11 +1,11 @@
 FROM node:22-alpine AS builder
 WORKDIR /app
 
-COPY package.json ./
+COPY packages/affiliate-dashboard/package.json ./
 RUN npm install
 
-COPY index.html tsconfig.json tsconfig.node.json vite.config.ts ./
-COPY src/ ./src/
+COPY packages/affiliate-dashboard/index.html packages/affiliate-dashboard/tsconfig.json packages/affiliate-dashboard/tsconfig.node.json packages/affiliate-dashboard/vite.config.ts ./
+COPY packages/affiliate-dashboard/src/ ./src/
 
 RUN npx vite build
 

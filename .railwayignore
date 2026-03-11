@@ -1,14 +1,6 @@
 # Railway snapshot ignore - reduce repo snapshot size for Railway builds
-# The Dockerfile.dockerignore handles Docker build context separately;
-# this file reduces what Railway snapshots from GitHub before the build starts.
-
-# Frontend source (not needed for server builds — root-level only to avoid excluding packages/*/src/)
-/src/
-/e2e/
-
-# Static assets (root-level only)
-/public/
-!/public/generated/generatedAssetData.json
+# NOTE: Railway does NOT support gitignore root-scoping (/src/ vs src/)
+# so we avoid patterns that match at every directory level.
 
 # Development tooling
 .github/
@@ -19,13 +11,7 @@ prds/
 scripts/
 headers/
 __mocks__/
+e2e/
 
 # Documentation
 docs/
-*.md
-!packages/public-api/*.md
-!packages/swap-widget/*.md
-
-# Test files
-**/*.test.*
-**/*.spec.*

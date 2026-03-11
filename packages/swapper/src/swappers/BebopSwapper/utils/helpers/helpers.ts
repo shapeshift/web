@@ -103,7 +103,7 @@ export const isBebopSolanaTxSafe = (solanaTxBase64: string, takerAddress: string
     return true
   } catch (e) {
     console.error(`[Bebop Solana] Failed to decode tx for signer check: ${(e as Error).message}`)
-    return true
+    return false
   }
 }
 

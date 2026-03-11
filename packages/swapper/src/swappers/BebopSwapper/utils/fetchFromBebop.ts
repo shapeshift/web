@@ -223,6 +223,24 @@ export const fetchBebopSolanaQuote = async ({
       )
     }
 
+    // Reject non-PMM routes (e.g. Raydium CLMM) - these AMM-routed swaps require pre-existing
+    // token accounts (ATAs) that Bebop's gasless co-signed flow can't create.
+    // PMM (Private Market Maker) routes handle everything server-side.
+    // When rejected, other swappers like Jupiter will handle these pairs instead.
+    const hasPmmRoute = response.data.makers.some(
+      maker => !maker.toLowerCase().includes('clmm') && !maker.toLowerCase().includes('amm'),
+    )
+    if (!hasPmmRoute) {
+      return Err(
+        makeSwapErrorRight({
+          message: `Bebop Solana quote uses AMM routing (${response.data.makers.join(
+            ', ',
+          )}), which requires pre-existing ATAs`,
+          code: TradeQuoteError.NoRouteFound,
+        }),
+      )
+    }
+
     return Ok(response.data)
   } catch (error) {
     return Err(

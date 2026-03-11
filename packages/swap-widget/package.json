@@ -24,9 +24,9 @@
     "README.md"
   ],
   "scripts": {
-    "dev": "BUILD_DEMO=true vite",
-    "build": "vite build",
-    "build:demo": "BUILD_DEMO=true vite build",
+    "dev": "vite",
+    "clean": "rm -rf dist node_modules",
+    "build": "rm -rf dist && tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",

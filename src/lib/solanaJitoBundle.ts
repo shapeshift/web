@@ -134,8 +134,10 @@ const pollBundleLanding = async (
       const bundleStatus = bundleStatuses.value[0]
       // Return the last tx hash (the one with the swap + tip)
       const txs = bundleStatus?.transactions
-      if (txs?.length) return txs[txs.length - 1]
-      return bundleId
+      if (!txs?.length) {
+        throw new Error(`Jito bundle landed but no transaction hash returned: ${bundleId}`)
+      }
+      return txs[txs.length - 1]
     }
 
     if (status?.status === 'Failed' || status?.status === 'Invalid') {

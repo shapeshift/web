@@ -552,7 +552,7 @@ export class TradeExecution {
         const { execSolanaJitoBundle } = await import('@/lib/solanaJitoBundle')
         return await execSolanaJitoBundle({
           instructions: metadata.instructions,
-          addressLookupTableAddresses: metadata.addressLookupTableAddresses,
+          addressLookupTableAddresses: metadata.addressLookupTableAddresses ?? [],
           from,
           accountNumber: executableStep.accountNumber,
           sellAssetChainId: chainId,

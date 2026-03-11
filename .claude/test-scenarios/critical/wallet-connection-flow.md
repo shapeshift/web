@@ -8,7 +8,7 @@
 
 ## Prerequisites
 
-- Dev server running on `localhost:3000`
+- Dev server running on `localhost:3000` (or `$PORTLESS_URL` if using Portless)
 - Browser with MetaMask extension installed (or ability to test without actual wallet)
 - No wallet currently connected
 
@@ -16,7 +16,7 @@
 
 ### 1. Navigate to Application
 
-**Action**: Open browser and navigate to `http://localhost:3000`
+**Action**: Open browser and navigate to `${PORTLESS_URL:-http://localhost:3000}`
 **Expected Result**: Application loads successfully, showing "Connect Wallet" button
 
 **Validation Points**:

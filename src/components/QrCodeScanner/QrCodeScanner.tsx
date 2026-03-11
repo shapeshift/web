@@ -18,6 +18,10 @@ import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
 import { openNativeQRScanner } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import {
+  MobileFeature,
+  useMobileFeaturesCompatibility,
+} from '@/hooks/useMobileFeaturesCompatibility'
 import { isMobile } from '@/lib/globals'
 
 export type DOMExceptionCallback = (errorMessage: string) => void
@@ -49,23 +53,30 @@ export const QrCodeScanner = ({
 }) => {
   const translate = useTranslate()
   const [scanError, setScanError] = useState<DOMException['message'] | null>(null)
-  const [isNativeScannerLoading, setIsNativeScannerLoading] = useState(isMobile)
+  const mobileFeaturesCompatibility = useMobileFeaturesCompatibility()
+  const isNativeQrScannerCompatible =
+    mobileFeaturesCompatibility[MobileFeature.NativeQrScanner]?.isCompatible
+  const useNativeScanner = isMobile && isNativeQrScannerCompatible
+  const [isNativeScannerLoading, setIsNativeScannerLoading] = useState(useNativeScanner)
 
   const error = addressError ?? scanError
 
-  // Use native scanner when in mobile app
+  // Use native scanner when in mobile app with compatible version
   useEffect(() => {
-    if (!isMobile) return
+    if (!useNativeScanner) return
 
+    let isCancelled = false
     setIsNativeScannerLoading(true)
 
     openNativeQRScanner()
       .then(data => {
+        if (isCancelled) return
         // Create a minimal result object for compatibility
         const mockResult = { decodedText: data } as Html5QrcodeResult
         onSuccess(data, mockResult)
       })
       .catch(e => {
+        if (isCancelled) return
         setIsNativeScannerLoading(false)
         if (e.message === 'QR scan cancelled') {
           onBack()
@@ -76,7 +87,11 @@ export const QrCodeScanner = ({
           }
         }
       })
-  }, [onSuccess, onBack, onError])
+
+    return () => {
+      isCancelled = true
+    }
+  }, [useNativeScanner, onSuccess, onBack, onError])
 
   const handleScanSuccess: QrcodeSuccessCallback = useCallback(
     (decodedText, _result) => {
@@ -102,7 +117,7 @@ export const QrCodeScanner = ({
   const handlePermissionsButtonClick = useCallback(() => setScanError(null), [])
 
   // Show loading state while waiting for native scanner
-  if (isMobile && isNativeScannerLoading) {
+  if (useNativeScanner && isNativeScannerLoading) {
     return (
       <SlideTransition>
         <DialogHeader>

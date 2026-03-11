@@ -265,18 +265,22 @@ export const sendMobileConsole = (params: MobileConsoleParams): Promise<void> =>
  */
 export const openNativeQRScanner = (): Promise<string> => {
   return new Promise((resolve, reject) => {
+    let timeoutId: ReturnType<typeof setTimeout>
+
     const eventListener = (event: MessageEvent) => {
       if (event.data?.type === 'qrScanResult') {
+        clearTimeout(timeoutId)
         window.removeEventListener('message', eventListener)
         resolve(event.data.data)
       } else if (event.data?.type === 'qrScanCancelled') {
+        clearTimeout(timeoutId)
         window.removeEventListener('message', eventListener)
         reject(new Error('QR scan cancelled'))
       }
     }
 
     // 60 second timeout for scanning
-    const timeoutId = setTimeout(() => {
+    timeoutId = setTimeout(() => {
       window.removeEventListener('message', eventListener)
       reject(new Error('QR scan timed out'))
     }, 60000)
@@ -289,16 +293,5 @@ export const openNativeQRScanner = (): Promise<string> => {
         id: `${Date.now()}-openNativeQRScanner`,
       }),
     )
-
-    // Clean up timeout if scan completes
-    const originalListener = eventListener
-    const wrappedListener = (event: MessageEvent) => {
-      if (event.data?.type === 'qrScanResult' || event.data?.type === 'qrScanCancelled') {
-        clearTimeout(timeoutId)
-      }
-      return originalListener(event)
-    }
-    window.removeEventListener('message', eventListener)
-    window.addEventListener('message', wrappedListener)
   })
 }

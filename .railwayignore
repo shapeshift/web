@@ -2,15 +2,13 @@
 # The Dockerfile.dockerignore handles Docker build context separately;
 # this file reduces what Railway snapshots from GitHub before the build starts.
 
-# Frontend source (not needed for server builds)
-src/
-!packages/affiliate-dashboard/src/
-e2e/
+# Frontend source (not needed for server builds — root-level only to avoid excluding packages/*/src/)
+/src/
+/e2e/
 
-# Static assets
-public/
-!public/generated/generatedAssetData.json
-!packages/affiliate-dashboard/public/
+# Static assets (root-level only)
+/public/
+!/public/generated/generatedAssetData.json
 
 # Development tooling
 .github/
@@ -27,7 +25,6 @@ docs/
 *.md
 !packages/public-api/*.md
 !packages/swap-widget/*.md
-!packages/affiliate-dashboard/*.md
 
 # Test files
 **/*.test.*

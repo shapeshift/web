@@ -13,7 +13,11 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { fetchBebopSolanaQuote } from '../utils/fetchFromBebop'
-import { assertValidTrade, calculateRate } from '../utils/helpers/helpers'
+import {
+  assertValidTrade,
+  calculateRate,
+  isBebopSolanaTxSafe,
+} from '../utils/helpers/helpers'
 
 export async function getBebopSolanaTradeQuote(
   input: GetSolanaTradeQuoteInput,
@@ -48,6 +52,15 @@ export async function getBebopSolanaTradeQuote(
     input.slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Bebop)
 
+  console.log(`[Bebop Solana TradeQuote] Input: ${JSON.stringify({
+    sellAsset: sellAsset.assetId,
+    buyAsset: buyAsset.assetId,
+    sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    takerAddress,
+    receiverAddress: receiveAddress ?? takerAddress,
+    accountNumber,
+  })}`)
+
   const maybeBebopQuoteResponse = await fetchBebopSolanaQuote({
     buyAsset,
     sellAsset,
@@ -74,6 +87,15 @@ export async function getBebopSolanaTradeQuote(
     )
   }
 
+  if (bebopQuoteResponse.solana_tx && !isBebopSolanaTxSafe(bebopQuoteResponse.solana_tx, takerAddress)) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Bebop signer index mismatch - taker not at expected position',
+        code: TradeQuoteError.NoRouteFound,
+      }),
+    )
+  }
+
   const sellAmount = bebopQuoteResponse.sellTokens[sellTokenAddress].amount
   const buyAmount = bebopQuoteResponse.buyTokens[buyTokenAddress].amount
 
@@ -85,6 +107,16 @@ export async function getBebopSolanaTradeQuote(
 
   // Bebop Solana is gasless - Bebop pays the network fees via co-signing
   const networkFeeCryptoBaseUnit = '0'
+
+  console.log(`[Bebop Solana TradeQuote] Built quote: ${JSON.stringify({
+    sellAmount,
+    buyAmount,
+    rate,
+    buyAmountBeforeFeesCryptoBaseUnit,
+    buyAmountAfterFeesCryptoBaseUnit,
+    quoteId: bebopQuoteResponse.quoteId,
+    serializedTxLength: bebopQuoteResponse.solana_tx?.length,
+  })}`)
 
   return Ok({
     id: uuid(),

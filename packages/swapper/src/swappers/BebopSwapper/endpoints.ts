@@ -102,6 +102,12 @@ export const bebopApi: SwapperApi = {
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
     const { bebopSolanaSerializedTx, bebopQuoteId } = step
+    console.log(`[Bebop Solana Endpoints] getUnsignedSolanaMessage: ${JSON.stringify({
+      stepIndex,
+      hasSerializedTx: !!bebopSolanaSerializedTx,
+      serializedTxLength: bebopSolanaSerializedTx?.length,
+      quoteId: bebopQuoteId,
+    })}`)
     if (!bebopSolanaSerializedTx || !bebopQuoteId) {
       throw new Error('Bebop Solana transaction metadata is required')
     }
@@ -135,6 +141,7 @@ export const bebopApi: SwapperApi = {
     return feeData.networkFeeCryptoBaseUnit
   },
   checkTradeStatus: input => {
+    console.log(`[Bebop checkTradeStatus] ${JSON.stringify({ chainId: input.chainId, txHash: input.txHash })}`)
     if (input.chainId === solanaChainId) {
       return checkSolanaSwapStatus({
         txHash: input.txHash,

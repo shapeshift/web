@@ -11,7 +11,7 @@ RUN npx vite build
 
 FROM nginx:stable-alpine AS runner
 COPY --from=builder /app/dist /usr/share/nginx/html
-RUN mkdir -p /etc/nginx/templates && printf 'server {\n\
+RUN printf 'server {\n\
     listen       8080;\n\
     server_name  _;\n\
     root         /usr/share/nginx/html;\n\
@@ -19,14 +19,14 @@ RUN mkdir -p /etc/nginx/templates && printf 'server {\n\
     location /v1/ {\n\
         proxy_pass         ${API_URL}/v1/;\n\
         proxy_http_version 1.1;\n\
-        proxy_set_header   Host              $$host;\n\
-        proxy_set_header   X-Real-IP         $$remote_addr;\n\
-        proxy_set_header   X-Forwarded-For   $$proxy_add_x_forwarded_for;\n\
-        proxy_set_header   X-Forwarded-Proto $$scheme;\n\
+        proxy_set_header   Host              $host;\n\
+        proxy_set_header   X-Real-IP         $remote_addr;\n\
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;\n\
+        proxy_set_header   X-Forwarded-Proto $scheme;\n\
     }\n\
     location / {\n\
-        try_files $$uri $$uri/ /index.html;\n\
+        try_files $uri $uri/ /index.html;\n\
     }\n\
-}\n' > /etc/nginx/templates/default.conf.template
+}\n' > /tmp/default.conf.template
 EXPOSE 8080
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/bin/sh", "-c", "envsubst '${API_URL}' < /tmp/default.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"]

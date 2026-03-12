@@ -198,6 +198,7 @@ type CommonTradeInputBase = {
   buyAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   affiliateBps: string
+  affiliateAddress?: string
   allowMultiHop: boolean
   slippageTolerancePercentageDecimal?: string
 }
@@ -387,6 +388,13 @@ export type SwapperDeps = {
   StarknetSwapperDeps &
   TonSwapperDeps
 
+export type AffiliateFee = {
+  assetId: AssetId
+  amountCryptoBaseUnit: string
+  asset: Asset
+  isEstimate?: boolean
+}
+
 export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string
   buyAmountAfterFeesCryptoBaseUnit: string
@@ -435,7 +443,7 @@ export type TradeQuoteStep = {
   solanaTransactionMetadata?: {
     addressLookupTableAddresses: string[]
     instructions?: TransactionInstruction[]
-    /** True when the raw Butter tx exceeds the 1232-byte Solana limit and needs Jito bundle splitting */
+    /** True when the serialized tx exceeds the 1232-byte Solana limit and needs Jito bundle splitting */
     isOversized?: boolean
   }
   cowswapQuoteResponse?: OrderQuoteResponse
@@ -506,6 +514,7 @@ export type TradeQuoteStep = {
   }
   acrossTransactionMetadata?: AcrossTransactionMetadata
   debridgeTransactionMetadata?: DebridgeTransactionMetadata
+  affiliateFee?: AffiliateFee
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & {

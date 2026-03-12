@@ -18,6 +18,7 @@ export const useDepositActionCenter = () => {
   const depositAmountCryptoPrecision = DepositMachineCtx.useSelector(
     s => s.context.depositAmountCryptoPrecision,
   )
+  const depositTxHash = DepositMachineCtx.useSelector(s => s.context.txHashes.deposit)
 
   useEffect(() => {
     if (isSendingDeposit && !actionIdRef.current && accountId) {
@@ -32,10 +33,10 @@ export const useDepositActionCenter = () => {
 
   useEffect(() => {
     if (isSuccess && actionIdRef.current) {
-      completeAction(actionIdRef.current)
+      completeAction(actionIdRef.current, depositTxHash)
       actionIdRef.current = null
     }
-  }, [isSuccess, completeAction])
+  }, [isSuccess, completeAction, depositTxHash])
 
   useEffect(() => {
     if (isError && actionIdRef.current) {

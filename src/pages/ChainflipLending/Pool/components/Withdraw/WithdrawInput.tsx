@@ -199,29 +199,34 @@ export const WithdrawInput = ({ assetId, onAssetChange }: WithdrawInputProps) =>
                     </RawText>
                   </HelperTooltip>
                 ) : (
-                  <NumericFormat
-                    data-testid='chainflip-withdraw-supply-amount-input'
-                    inputMode='decimal'
-                    valueIsNumericString={true}
-                    decimalScale={asset.precision}
-                    thousandSeparator={localeParts.group}
-                    decimalSeparator={localeParts.decimal}
-                    allowedDecimalSeparators={allowedDecimalSeparators}
-                    allowNegative={false}
-                    allowLeadingZeros={false}
-                    value={withdrawAmountCryptoPrecision}
-                    placeholder='0.00'
-                    onValueChange={handleInputChange}
-                    style={{
-                      width: '100%',
-                      fontSize: '1.25rem',
-                      fontWeight: 'bold',
-                      background: 'transparent',
-                      border: 'none',
-                      outline: 'none',
-                      padding: '0.5rem 0',
-                    }}
-                  />
+                  <Flex alignItems='center' gap={2}>
+                    <NumericFormat
+                      data-testid='chainflip-withdraw-supply-amount-input'
+                      inputMode='decimal'
+                      valueIsNumericString={true}
+                      decimalScale={asset.precision}
+                      thousandSeparator={localeParts.group}
+                      decimalSeparator={localeParts.decimal}
+                      allowedDecimalSeparators={allowedDecimalSeparators}
+                      allowNegative={false}
+                      allowLeadingZeros={false}
+                      value={withdrawAmountCryptoPrecision}
+                      placeholder='0.00'
+                      onValueChange={handleInputChange}
+                      style={{
+                        flex: 1,
+                        fontSize: '1.25rem',
+                        fontWeight: 'bold',
+                        background: 'transparent',
+                        border: 'none',
+                        outline: 'none',
+                        padding: '0.5rem 0',
+                      }}
+                    />
+                    <RawText fontSize='lg' fontWeight='bold' color='text.subtle'>
+                      {asset.symbol}
+                    </RawText>
+                  </Flex>
                 )}
               </Stack>
 

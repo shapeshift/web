@@ -46,6 +46,22 @@ export const getUnsignedTronTransaction = ({
     })
   }
 
+  if (relayTransactionMetadata?.data) {
+    const to = relayTransactionMetadata.to
+    if (!to) throw new Error('Missing Relay transaction destination address')
+
+    const isNativeTron = sellAsset.assetId === tronAssetId
+    const value = isNativeTron ? step.sellAmountIncludingProtocolFeesCryptoBaseUnit : '0'
+
+    return adapter.buildCustomApiTx({
+      from,
+      to,
+      accountNumber,
+      data: relayTransactionMetadata.data,
+      value,
+    })
+  }
+
   const to = relayTransactionMetadata?.to ?? nearIntentsSpecific?.depositAddress
   if (!to) throw new Error('Missing transaction destination address')
 

@@ -3,7 +3,7 @@ import { Button, CardBody, CardFooter, Flex, HStack, Stack, VStack } from '@chak
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import { NumericFormat } from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -116,11 +116,17 @@ export const CollateralInput = ({ assetId, onAssetChange }: CollateralInputProps
 
   const displayInputValue = useMemo(() => {
     if (isFiat) {
-      const fiat = inputFiat.toString()
-      return fiat === '0' ? '' : fiat
+      const fiat = inputFiat.toFixed()
+      return inputFiat.isZero() ? '' : fiat
     }
     return inputValue
   }, [isFiat, inputFiat, inputValue])
+
+  useEffect(() => {
+    if (assetPrice.isZero() && isFiat) {
+      toggleIsFiat()
+    }
+  }, [assetPrice, isFiat, toggleIsFiat])
 
   const availableFiat = useMemo(
     () => bnOrZero(availableCryptoPrecision).times(assetPrice).toFixed(2),

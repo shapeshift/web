@@ -129,9 +129,9 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
     return `${asset.explorerTxLink}${txHashes.deposit}`
   }, [txHashes.deposit, asset?.explorerTxLink])
 
-  const isLoading = isAllowanceLoading || !asset
-
   const effectiveRefundAddress = refundAddress || userAddress || ''
+
+  const isLoading = isAllowanceLoading || !asset || !effectiveRefundAddress
 
   const handleStart = useCallback(() => {
     actorRef.send({

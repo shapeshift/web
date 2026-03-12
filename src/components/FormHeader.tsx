@@ -42,7 +42,7 @@ export const FormHeader: React.FC<FormHeaderProps> = ({
           </FormHeaderTab>
         ))}
       </Flex>
-      {rightElement && <Box flexShrink={0}>{rightElement}</Box>}
+      {rightElement != null && <Box flexShrink={0}>{rightElement}</Box>}
     </Flex>
   )
 }

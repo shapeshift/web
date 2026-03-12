@@ -260,21 +260,15 @@ export const Pool = () => {
     selectMarketDataByAssetIdUserCurrency(state, poolAssetId),
   )
 
-  const freeBalanceFiat = useMemo(
-    () =>
-      bnOrZero(freeBalanceCryptoPrecision)
-        .times(marketData?.price ?? 0)
-        .toFixed(2),
-    [freeBalanceCryptoPrecision, marketData?.price],
-  )
+  const freeBalanceFiat = useMemo(() => {
+    if (!marketData?.price) return undefined
+    return bnOrZero(freeBalanceCryptoPrecision).times(marketData.price).toFixed(2)
+  }, [freeBalanceCryptoPrecision, marketData?.price])
 
-  const walletBalanceFiat = useMemo(
-    () =>
-      bnOrZero(walletBalanceCryptoPrecision)
-        .times(marketData?.price ?? 0)
-        .toFixed(2),
-    [walletBalanceCryptoPrecision, marketData?.price],
-  )
+  const walletBalanceFiat = useMemo(() => {
+    if (!marketData?.price) return undefined
+    return bnOrZero(walletBalanceCryptoPrecision).times(marketData.price).toFixed(2)
+  }, [walletBalanceCryptoPrecision, marketData?.price])
 
   const hasSupplyPosition = useMemo(
     () => bnOrZero(supplyPosition?.totalAmountCryptoPrecision).gt(0),
@@ -581,7 +575,13 @@ export const Pool = () => {
                           {translate('chainflipLending.pool.freeBalance')}
                         </RawText>
                         <VStack spacing={0} align='flex-end'>
-                          <Amount.Fiat value={freeBalanceFiat} fontSize='sm' fontWeight='medium' />
+                          {freeBalanceFiat !== undefined && (
+                            <Amount.Fiat
+                              value={freeBalanceFiat}
+                              fontSize='sm'
+                              fontWeight='medium'
+                            />
+                          )}
                           <Amount.Crypto
                             value={freeBalanceCryptoPrecision}
                             symbol={asset.symbol}
@@ -595,11 +595,13 @@ export const Pool = () => {
                           {translate('chainflipLending.pool.walletBalance')}
                         </RawText>
                         <VStack spacing={0} align='flex-end'>
-                          <Amount.Fiat
-                            value={walletBalanceFiat}
-                            fontSize='sm'
-                            fontWeight='medium'
-                          />
+                          {walletBalanceFiat !== undefined && (
+                            <Amount.Fiat
+                              value={walletBalanceFiat}
+                              fontSize='sm'
+                              fontWeight='medium'
+                            />
+                          )}
                           <Amount.Crypto
                             value={walletBalanceCryptoPrecision}
                             symbol={asset.symbol}
@@ -671,7 +673,13 @@ export const Pool = () => {
                           {translate('chainflipLending.pool.freeBalance')}
                         </RawText>
                         <VStack spacing={0} align='flex-end'>
-                          <Amount.Fiat value={freeBalanceFiat} fontSize='sm' fontWeight='medium' />
+                          {freeBalanceFiat !== undefined && (
+                            <Amount.Fiat
+                              value={freeBalanceFiat}
+                              fontSize='sm'
+                              fontWeight='medium'
+                            />
+                          )}
                           <Amount.Crypto
                             value={freeBalanceCryptoPrecision}
                             symbol={asset.symbol}
@@ -907,7 +915,13 @@ export const Pool = () => {
                           {translate('chainflipLending.pool.freeBalance')}
                         </RawText>
                         <VStack spacing={0} align='flex-end'>
-                          <Amount.Fiat value={freeBalanceFiat} fontSize='sm' fontWeight='medium' />
+                          {freeBalanceFiat !== undefined && (
+                            <Amount.Fiat
+                              value={freeBalanceFiat}
+                              fontSize='sm'
+                              fontWeight='medium'
+                            />
+                          )}
                           <Amount.Crypto
                             value={freeBalanceCryptoPrecision}
                             symbol={asset.symbol}

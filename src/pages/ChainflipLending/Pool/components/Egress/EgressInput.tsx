@@ -146,7 +146,7 @@ export const EgressInput = ({ assetId, onAssetChange }: EgressInputProps) => {
 
   const fiatAmount = useMemo(() => {
     if (!marketData?.price) return '0'
-    return bnOrZero(inputValue).times(marketData.price).toString()
+    return bnOrZero(inputValue).times(marketData.price).toFixed()
   }, [inputValue, marketData?.price])
 
   const displayInputValue = useMemo(() => {

@@ -67,13 +67,10 @@ export const WithdrawInput = ({ assetId, onAssetChange }: WithdrawInputProps) =>
 
   const { minSupply, isLoading: isMinSupplyLoading } = useChainflipMinimumSupply(assetId)
 
-  const availableFiat = useMemo(
-    () =>
-      bnOrZero(availableCryptoPrecision)
-        .times(marketData?.price ?? 0)
-        .toFixed(2),
-    [availableCryptoPrecision, marketData?.price],
-  )
+  const availableFiat = useMemo(() => {
+    if (!marketData?.price) return undefined
+    return bnOrZero(availableCryptoPrecision).times(marketData.price).toString()
+  }, [availableCryptoPrecision, marketData?.price])
 
   const hasPosition = useMemo(
     () => bnOrZero(supplyPositionCryptoBaseUnit).gt(0),
@@ -253,7 +250,9 @@ export const WithdrawInput = ({ assetId, onAssetChange }: WithdrawInputProps) =>
                 </HelperTooltip>
                 <Flex alignItems='center' gap={2}>
                   <VStack spacing={0} align='flex-end'>
-                    <Amount.Fiat value={availableFiat} fontSize='sm' fontWeight='medium' />
+                    {availableFiat !== undefined && (
+                      <Amount.Fiat value={availableFiat} fontSize='sm' fontWeight='medium' />
+                    )}
                     <Amount.Crypto
                       value={availableCryptoPrecision}
                       symbol={asset.symbol}

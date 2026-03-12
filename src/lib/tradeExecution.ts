@@ -23,6 +23,7 @@ import type {
   UtxoTransactionExecutionInput,
 } from '@shapeshiftoss/swapper'
 import {
+  getExecutableTradeStep,
   getHopByIndex,
   isExecutableTradeQuote,
   swappers,
@@ -533,6 +534,7 @@ export class TradeExecution {
     slippageTolerancePercentageDecimal,
     from,
     signAndBroadcastTransaction,
+    signTransaction,
   }: SolanaTransactionExecutionInput) {
     const buildSignBroadcast = async (
       swapper: Swapper & SwapperApi,
@@ -544,6 +546,33 @@ export class TradeExecution {
         config,
       }: CommonGetUnsignedTransactionArgs,
     ) => {
+      if (!isExecutableTradeQuote(tradeQuote)) {
+        throw new Error('Unable to execute a trade rate quote')
+      }
+
+      const step = getHopByIndex(tradeQuote, stepIndex)
+      const metadata = step?.solanaTransactionMetadata
+
+      // Jito bundle path for oversized Butter Solana transactions
+      if (metadata?.isOversized) {
+        if (!metadata.instructions?.length || !signTransaction) {
+          throw new Error(
+            'Oversized Solana transaction requires instructions and signTransaction for Jito bundle execution',
+          )
+        }
+        const executableStep = getExecutableTradeStep(tradeQuote, stepIndex)
+        const { execSolanaJitoBundle } = await import('@/lib/solanaJitoBundle')
+        return await execSolanaJitoBundle({
+          instructions: metadata.instructions,
+          addressLookupTableAddresses: metadata.addressLookupTableAddresses ?? [],
+          from,
+          accountNumber: executableStep.accountNumber,
+          sellAssetChainId: chainId,
+          signTransaction,
+        })
+      }
+
+      // Standard single-tx path
       if (!swapper.getUnsignedSolanaTransaction) {
         throw Error('missing implementation for getUnsignedSolanaTransaction')
       }

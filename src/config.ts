@@ -89,6 +89,7 @@ const validators = {
   VITE_MODE_NODE_URL: url(),
   VITE_SONEIUM_NODE_URL: url(),
   VITE_SOLANA_NODE_URL: url(),
+  VITE_JITO_BLOCK_ENGINE_URL: url(),
   VITE_STARKNET_NODE_URL: url(),
   VITE_TRON_NODE_URL: url(),
   VITE_SUI_NODE_URL: url(),

@@ -1,0 +1,1 @@
+export { useIsNativeMultichainAvailable } from './useIsNativeMultichainAvailable'

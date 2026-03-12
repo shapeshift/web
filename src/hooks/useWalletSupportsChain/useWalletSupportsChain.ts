@@ -99,6 +99,7 @@ import {
   supportsWorldChain,
   supportsZkSyncEra,
 } from '@shapeshiftoss/hdwallet-core/wallet'
+import { isMetaMaskNativeMultichain } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { useMemo } from 'react'
 
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
@@ -129,12 +130,14 @@ const checkWalletHasRuntimeSupport = ({
 
   if (!wallet) return false
 
-  // Non-EVM ChainIds are only supported with the MM multichain snap installed
+  // Non-EVM ChainIds are only supported with the MM multichain snap installed or native multichain
   if (
     isMetaMask(wallet) &&
+    // Native multichain wallet supports non-EVM chains directly
+    !isMetaMaskNativeMultichain(wallet) &&
     // snap installation checks may take a render or two too many to kick in after switching from MM with snaps to another mipd wallet
     // however, we get a new wallet ref instantly, so this ensures we don't wrongly derive non-EVM accounts for another EIP1193 wallet
-    (!isSnapInstalled || (wallet as any).providerRdns !== METAMASK_RDNS) &&
+    (!isSnapInstalled || (wallet as { providerRdns?: string }).providerRdns !== METAMASK_RDNS) &&
     !isEvmChainId(chainId)
   )
     return false

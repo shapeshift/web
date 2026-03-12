@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router'
 import { useDiscoverAccounts } from './useDiscoverAccounts'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
@@ -20,6 +21,8 @@ import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useSnapStatusHandler = () => {
+  const isMmNativeMultichain = useFeatureFlag('MmNativeMultichain')
+
   const queryClient = useQueryClient()
   const appDispatch = useAppDispatch()
   const translate = useTranslate()
@@ -39,6 +42,7 @@ export const useSnapStatusHandler = () => {
   const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
 
   useEffect(() => {
+    if (isMmNativeMultichain) return
     if (isDiscoveringAccounts) return
     if (!isCorrectVersion && isSnapInstalled) return
     if (!currentWalletId) return
@@ -104,5 +108,6 @@ export const useSnapStatusHandler = () => {
     navigate,
     enabledWalletAccountIds,
     isDiscoveringAccounts,
+    isMmNativeMultichain,
   ])
 }

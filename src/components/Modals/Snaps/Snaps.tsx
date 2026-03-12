@@ -4,6 +4,7 @@ import { useCallback, useEffect } from 'react'
 import { SnapContentRouter } from './SnapContent'
 
 import { useModalRegistration } from '@/context/ModalStackProvider'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from '@/hooks/useModal/useModal'
 
@@ -12,6 +13,7 @@ export type SnapsModalProps = {
 }
 
 export const Snaps: React.FC<SnapsModalProps> = ({ isRemoved }) => {
+  const isMmNativeMultichain = useFeatureFlag('MmNativeMultichain')
   const { close, isOpen } = useModal('snaps')
   const { isSnapInstalled, isCorrectVersion } = useIsSnapInstalled()
   const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
@@ -20,15 +22,20 @@ export const Snaps: React.FC<SnapsModalProps> = ({ isRemoved }) => {
   })
 
   useEffect(() => {
+    if (isMmNativeMultichain) {
+      close()
+      return
+    }
     if (isSnapInstalled && isCorrectVersion) {
       close()
     }
-  }, [close, isCorrectVersion, isSnapInstalled])
+  }, [close, isCorrectVersion, isMmNativeMultichain, isSnapInstalled])
 
   const handleClose = useCallback(() => {
     close()
   }, [close])
 
+  if (isMmNativeMultichain) return null
   if (isSnapInstalled === null) return null
   if (isCorrectVersion === null) return null
 

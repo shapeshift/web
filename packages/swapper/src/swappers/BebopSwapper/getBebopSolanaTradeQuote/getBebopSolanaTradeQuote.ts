@@ -13,7 +13,7 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { fetchBebopSolanaQuote } from '../utils/fetchFromBebop'
-import { assertValidTrade, calculateRate } from '../utils/helpers/helpers'
+import { assertValidTrade, calculateRate, isBebopSolanaTxSafe } from '../utils/helpers/helpers'
 
 export async function getBebopSolanaTradeQuote(
   input: GetSolanaTradeQuoteInput,
@@ -70,6 +70,18 @@ export async function getBebopSolanaTradeQuote(
       makeSwapErrorRight({
         message: 'Invalid token addresses in response',
         code: TradeQuoteError.InvalidResponse,
+      }),
+    )
+  }
+
+  if (
+    bebopQuoteResponse.solana_tx &&
+    !isBebopSolanaTxSafe(bebopQuoteResponse.solana_tx, takerAddress)
+  ) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Bebop signer index mismatch - taker not at expected position',
+        code: TradeQuoteError.NoRouteFound,
       }),
     )
   }

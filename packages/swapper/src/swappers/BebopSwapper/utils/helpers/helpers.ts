@@ -89,6 +89,10 @@ export const isBebopSolanaTxSafe = (solanaTxBase64: string, takerAddress: string
   try {
     const tx = VersionedTransaction.deserialize(Buffer.from(solanaTxBase64, 'base64'))
     const numSigners = tx.message.header.numRequiredSignatures
+    if (numSigners < 1) {
+      console.warn('[Bebop Solana] Transaction has no required signers. Rejecting as malformed.')
+      return false
+    }
     const signerKeys = tx.message.staticAccountKeys.slice(0, numSigners)
     const takerPubkey = new PublicKey(takerAddress)
     const takerIndex = signerKeys.findIndex(key => key.equals(takerPubkey))

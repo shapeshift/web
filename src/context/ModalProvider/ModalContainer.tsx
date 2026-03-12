@@ -231,6 +231,14 @@ const ManageHiddenAssetsModal = makeSuspenseful(
   ),
 )
 
+const NativeMultichainModal = makeSuspenseful(
+  lazy(() =>
+    import('@/components/Modals/NativeMultichain/NativeMultichainModal').then(
+      ({ NativeMultichainModal }) => ({ default: NativeMultichainModal }),
+    ),
+  ),
+)
+
 const ChainflipLendingModal = makeSuspenseful(
   lazy(() =>
     import('@/components/Modals/ChainflipLending/ChainflipLendingModal').then(
@@ -269,6 +277,7 @@ export const MODALS: Modals = {
   walletDrawer: WalletDrawer,
   addressBookSave: AddressBookSaveModal,
   manageHiddenAssets: ManageHiddenAssetsModal,
+  nativeMultichain: NativeMultichainModal,
   chainflipLending: ChainflipLendingModal,
 } as const
 

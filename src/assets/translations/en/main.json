@@ -69,6 +69,7 @@
     "rename": "Rename",
     "forget": "Forget?",
     "pending": "Pending",
+    "current": "Current",
     "preview": "Preview",
     "incomplete": "Incomplete",
     "available": "Available",
@@ -1383,6 +1384,32 @@
       },
       "status": {
         "pendingBody": "Sending %{amount} %{symbol}"
+      },
+      "speedUp": {
+        "title": "Speed Up Transaction",
+        "description": "Increase the fee to speed up your pending Bitcoin transaction.",
+        "currentFee": "Current Fee",
+        "currentFeeRate": "Current Fee Rate",
+        "previousFee": "Previous Fee",
+        "newFee": "New Fee",
+        "additionalFee": "Additional Fee",
+        "newFeeRate": "New Fee Rate",
+        "feeDifference": "Additional Fee",
+        "confirm": "Confirm Speed Up",
+        "cancel": "Cancel Transaction Instead",
+        "cancelDescription": "Send the funds back to yourself with a higher fee, effectively canceling the original transaction.",
+        "confirmCancel": "Confirm Cancellation",
+        "insufficientFunds": "Insufficient funds to bump fee",
+        "selectFeeRate": "Select a higher fee rate",
+        "pendingTransaction": "Pending Transaction",
+        "speedingUp": "Speeding up transaction...",
+        "canceling": "Canceling transaction...",
+        "fetchError": "Failed to fetch transaction data",
+        "feesTooLow": "Current fees are already at network rates",
+        "alreadySpentOrReplaced": "This transaction can no longer be sped up because it was already replaced or confirmed.",
+        "alreadyConfirmed": "This transaction is already confirmed and can no longer be sped up.",
+        "speedUpFailed": "Failed to speed up transaction",
+        "broadcastNotObserved": "Replacement transaction broadcast was not observed by the network yet. Please try again."
       }
     },
     "receive": {
@@ -1793,6 +1820,22 @@
         "button": "Pair"
       }
     },
+    "nativeMultichain": {
+      "title": "MetaMask now natively supports %{chains}",
+      "subtitle": "You can now use %{chains} directly through MetaMask without the ShapeShift Multichain Snap.",
+      "useNative": "Use native multichain",
+      "useNativeRecommended": "Recommended",
+      "keepSnap": "Keep using Snap",
+      "snapChainWarning": "Choosing native multichain will replace snap-provided chain accounts. You can switch back in wallet settings anytime.",
+      "switchWarning": "Switching will re-derive your non-EVM accounts. Your EVM accounts and balances are not affected.",
+      "nativeActive": "Native Multichain",
+      "snapActive": "Multichain Snap",
+      "switchToNative": "Switch to native multichain",
+      "switchToSnap": "Switch back to Snap",
+      "switchConfirmTitle": "Switch multichain mode",
+      "switchConfirmBody": "This will re-derive your non-EVM accounts using the new mode. Your EVM accounts are not affected.",
+      "switchConfirmAction": "Switch"
+    },
     "metaMaskSnap": {
       "title": "Multichain support is now available for MetaMask!",
       "subtitle": "Add the Multichain Snap on Metamask to send, receive, track, trade, and earn with the following chains:",
@@ -2182,7 +2225,12 @@
     "today": "Today",
     "yesterday": "Yesterday",
     "thisWeek": "This Week",
-    "thisMonth": "This Month"
+    "thisMonth": "This Month",
+    "speedUp": "Speed Up",
+    "cancelTransaction": "Cancel Transaction",
+    "replaced": "Replaced",
+    "replacedBy": "Replaced by %{txHash}",
+    "replaces": "Replaces %{txHash}"
   },
   "plugins": {
     "foxPage": {
@@ -2390,6 +2438,8 @@
     }
   },
   "chainflipLending": {
+    "awaitingConfirmTitle": "Awaiting Confirmation",
+    "awaitingConfirmDescription": "Confirm the transaction in your wallet to proceed",
     "headerDescription": "Supply assets to earn yield or borrow against collateral on Chainflip.",
     "overview": "Overview",
     "myDashboard": "My Dashboard",
@@ -2409,6 +2459,7 @@
       "successTitle": "Supply Successful",
       "successDescription": "Your %{asset} is now earning yield",
       "supplied": "Supplied",
+      "transactionId": "Transaction ID",
       "errorTitle": "Supply Failed",
       "errorDescription": "Something went wrong while supplying",
       "steps": {
@@ -2432,6 +2483,7 @@
       "successTitle": "Borrow Successful",
       "successDescription": "You borrowed %{amount} %{asset}",
       "borrowed": "Borrowed",
+      "transactionId": "Transaction ID",
       "errorTitle": "Borrow Failed",
       "errorDescription": "Something went wrong while borrowing",
       "steps": {
@@ -2464,8 +2516,7 @@
       "currentLtv": "Current LTV",
       "borrowCapacity": "Borrow Capacity",
       "borrowPowerUsed": "Borrow Power Used",
-      "availableToBorrow": "Available to Borrow",
-      "actionPaused": "This action is temporarily paused on Chainflip"
+      "availableToBorrow": "Available to Borrow"
     },
     "supplyApy": "Supply APY",
     "supplyApyTooltip": "Annual percentage yield earned by supplying assets to this pool.",
@@ -2499,6 +2550,7 @@
       "successRemoveDescription": "%{asset} collateral removed successfully",
       "added": "Added",
       "removed": "Removed",
+      "transactionId": "Transaction ID",
       "errorTitle": "Collateral Update Failed",
       "errorDescription": "Something went wrong",
       "steps": {
@@ -2526,14 +2578,16 @@
       "explainer": "Assets will be deposited to your Chainflip State Chain account. Once deposited, you can supply to lending pools to earn yield.",
       "openChannel": "Open Deposit Channel",
       "confirmTitle": "Confirm Deposit",
-      "confirmDescription": "Deposit %{amount} %{asset} to your Chainflip State Chain account. You will be prompted to sign twice: once to open the deposit channel, and once to send the transaction.",
+      "confirmDescription": "Deposit %{amount} %{asset} to your Chainflip State Chain account. You will be guided through each required step and prompted to sign transactions as needed.",
       "confirmingTitle": "Depositing...",
       "confirmingDescription": "Please confirm the transactions in your wallet.",
       "confirmAndDeposit": "Confirm & Deposit",
       "successTitle": "Deposit Confirmed",
       "successDescription": "Your %{asset} has been deposited to your Chainflip State Chain account.",
       "deposited": "Deposited",
+      "transactionId": "Transaction ID",
       "minimumDeposit": "Min. Deposit",
+      "belowMinimumDeposit": "Min. %{amount} %{symbol}",
       "steps": {
         "approvingFlip": "Approve FLIP",
         "fundingAccount": "Fund Account",
@@ -2593,7 +2647,8 @@
       "fullWithdrawalOnlyTooltip": "Your position is below the minimum required for partial withdrawal. Only full withdrawal is available.",
       "partialBelowMinimum": "Minimum withdrawal is %{amount}",
       "remainingBelowMinimum": "Remaining position must be at least %{amount} or withdraw the full amount",
-      "destinationAddress": "Destination address"
+      "destinationAddress": "Destination address",
+      "transactionId": "Transaction ID"
     },
     "withdrawFromChainflip": {
       "title": "Withdraw from Chainflip",
@@ -2628,6 +2683,7 @@
       "successTitle": "Repayment Successful",
       "successDescription": "You repaid %{amount} %{asset}",
       "repaid": "Repaid",
+      "transactionId": "Transaction ID",
       "errorTitle": "Repayment Failed",
       "errorDescription": "Something went wrong while repaying",
       "steps": {
@@ -2666,6 +2722,7 @@
       "successTitle": "Withdrawal Submitted",
       "successDescription": "Your withdrawal of %{asset} has been submitted and will arrive in your wallet shortly",
       "withdrawn": "Withdrawn",
+      "receiveAddress": "Receive Address",
       "steps": {
         "signing": "Signing withdrawal transaction",
         "confirming": "Confirming withdrawal"
@@ -3118,6 +3175,8 @@
   "actionCenter": {
     "title": "Notifications",
     "viewTransaction": "View Transaction",
+    "originalTransaction": "Original Transaction",
+    "replacementTransaction": "Replacement Transaction",
     "viewOrder": "View Order",
     "cancelOrder": "Cancel Order",
     "pair": "Pair",
@@ -3134,6 +3193,7 @@
       "confirmed": "Confirmed",
       "failed": "Failed",
       "pending": "Pending",
+      "replaced": "Replaced",
       "claimAvailable": "Claim Available",
       "claimed": "Claimed",
       "unknown": "Unknown",

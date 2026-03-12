@@ -1,4 +1,5 @@
-import { Button, ButtonGroup, Link, Stack, useDisclosure } from '@chakra-ui/react'
+import { Button, ButtonGroup, HStack, Link, Stack, useDisclosure } from '@chakra-ui/react'
+import { btcChainId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -12,10 +13,15 @@ import { ActionStatusTag } from './ActionStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
+import { RawText } from '@/components/Text'
 import { getTxLink } from '@/lib/getTxLink'
 import { middleEllipsis } from '@/lib/utils'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
-import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/assetsSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -24,9 +30,13 @@ dayjs.extend(relativeTime)
 
 type GenericTransactionActionCardProps = {
   action: GenericTransactionAction
+  onOpenSpeedUp?: (action: GenericTransactionAction) => void
 }
 
-export const GenericTransactionActionCard = ({ action }: GenericTransactionActionCardProps) => {
+export const GenericTransactionActionCard = ({
+  action,
+  onOpenSpeedUp,
+}: GenericTransactionActionCardProps) => {
   const translate = useTranslate()
   const navigate = useNavigate()
   const { closeDrawer } = useActionCenterContext()
@@ -78,6 +88,30 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
     })
   }, [action.transactionMetadata.txHash, action.transactionMetadata.chainId, feeAsset])
 
+  const replacementTxLink = useMemo(() => {
+    if (!feeAsset || !action.transactionMetadata.replacedByTxHash) return
+
+    return getTxLink({
+      txId: action.transactionMetadata.replacedByTxHash,
+      chainId: action.transactionMetadata.chainId,
+      defaultExplorerBaseUrl: feeAsset.explorerTxLink,
+      address: undefined,
+      maybeSafeTx: undefined,
+    })
+  }, [action.transactionMetadata.chainId, action.transactionMetadata.replacedByTxHash, feeAsset])
+
+  const originalTxLink = useMemo(() => {
+    if (!feeAsset || !action.transactionMetadata.replacesTxHash) return
+
+    return getTxLink({
+      txId: action.transactionMetadata.replacesTxHash,
+      chainId: action.transactionMetadata.chainId,
+      defaultExplorerBaseUrl: feeAsset.explorerTxLink,
+      address: undefined,
+      maybeSafeTx: undefined,
+    })
+  }, [action.transactionMetadata.chainId, action.transactionMetadata.replacesTxHash, feeAsset])
+
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false })
 
   const icon = useMemo(() => {
@@ -100,19 +134,31 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
     return dayjs.duration(remaining).humanize()
   }, [cooldownExpiryTimestamp])
 
-  const description = useMemo(
-    () =>
-      translate(action.transactionMetadata.message, {
-        ...action.transactionMetadata,
-        amount: action.transactionMetadata.amountCryptoPrecision,
-        symbol: asset?.symbol,
-        newAddress: middleEllipsis(action.transactionMetadata.newAddress ?? ''),
-        duration: cooldownDuration,
-      }),
-    [action.transactionMetadata, asset?.symbol, cooldownDuration, translate],
-  )
+  const description = useMemo(() => {
+    const {
+      btcUtxoRbfTxMetadata: _btcUtxoRbfTxMetadata,
+      accountIdsToRefetch: _accountIdsToRefetch,
+      confirmedQuote: _confirmedQuote,
+      ...serializableMetadata
+    } = action.transactionMetadata
+
+    return translate(action.transactionMetadata.message, {
+      ...serializableMetadata,
+      amount: action.transactionMetadata.amountCryptoPrecision,
+      symbol: asset?.symbol,
+      newAddress: middleEllipsis(action.transactionMetadata.newAddress ?? ''),
+      duration: cooldownDuration,
+    })
+  }, [action.transactionMetadata, asset?.symbol, cooldownDuration, translate])
 
   const isCollapsable = !!txLink || (isYieldClaim && action.status === ActionStatus.ClaimAvailable)
+  const isSpeedUpEligible =
+    action.type === ActionType.Send &&
+    action.transactionMetadata.displayType === GenericTransactionDisplayType.SEND &&
+    action.transactionMetadata.chainId === btcChainId &&
+    action.status === ActionStatus.Pending &&
+    !action.transactionMetadata.replacedByTxHash &&
+    action.transactionMetadata.isRbfEnabled === true
 
   const details = useMemo(() => {
     if (isYieldClaim && action.status === ActionStatus.ClaimAvailable) {
@@ -131,10 +177,63 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
           <Button width='full' as={Link} isExternal href={txLink}>
             {translate('actionCenter.viewTransaction')}
           </Button>
+          {isSpeedUpEligible && (
+            <Button
+              width='full'
+              colorScheme='blue'
+              onClick={() => {
+                onOpenSpeedUp?.(action)
+              }}
+            >
+              {translate('transactionHistory.speedUp')}
+            </Button>
+          )}
         </ButtonGroup>
+        {replacementTxLink && action.transactionMetadata.replacedByTxHash ? (
+          <HStack justifyContent='space-between' alignItems='flex-start'>
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('actionCenter.replacementTransaction')}
+            </RawText>
+            <Link
+              isExternal
+              href={replacementTxLink}
+              color='blue.300'
+              fontSize='sm'
+              fontWeight='medium'
+            >
+              {middleEllipsis(action.transactionMetadata.replacedByTxHash)}
+            </Link>
+          </HStack>
+        ) : null}
+        {originalTxLink && action.transactionMetadata.replacesTxHash ? (
+          <HStack justifyContent='space-between' alignItems='flex-start'>
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('actionCenter.originalTransaction')}
+            </RawText>
+            <Link
+              isExternal
+              href={originalTxLink}
+              color='blue.300'
+              fontSize='sm'
+              fontWeight='medium'
+            >
+              {middleEllipsis(action.transactionMetadata.replacesTxHash)}
+            </Link>
+          </HStack>
+        ) : null}
       </Stack>
     )
-  }, [action.status, handleClaimClick, isYieldClaim, translate, txLink])
+  }, [
+    action,
+    handleClaimClick,
+    isYieldClaim,
+    isSpeedUpEligible,
+    onOpenSpeedUp,
+    originalTxLink,
+    replacementTxLink,
+    translate,
+    txLink,
+  ])
 
   return (
     <ActionCard

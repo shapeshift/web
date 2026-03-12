@@ -19,6 +19,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { BEBOP_DUMMY_ADDRESS } from '../types'
 import { fetchBebopQuote } from '../utils/fetchFromBebop'
@@ -151,6 +152,15 @@ export async function getBebopTradeQuote(
           sellAmountIncludingProtocolFeesCryptoBaseUnit,
           source: SwapperName.Bebop,
           bebopTransactionMetadata: transactionMetadata,
+          affiliateFee: buildAffiliateFee({
+            strategy: 'buy_asset',
+            affiliateBps,
+            sellAsset,
+            buyAsset,
+            sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+            isEstimate: true,
+          }),
         },
       ] as SingleHopTradeQuoteSteps,
     })

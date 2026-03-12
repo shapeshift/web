@@ -9,7 +9,8 @@ WORKDIR /app
 RUN apk add --no-cache python3 make g++ openjdk17-jre
 
 # Copy workspace files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY patches/ ./patches/
 
 # Copy all workspace package.json files for resolution (pnpm requires all workspaces present)
 COPY packages/caip/package.json ./packages/caip/
@@ -47,16 +48,20 @@ COPY packages/types/package.json ./packages/types/
 COPY packages/unchained-client/package.json ./packages/unchained-client/
 COPY packages/utils/package.json ./packages/utils/
 
-# Install dependencies with Railway cache mount (skip build/postinstall scripts that require git/cypress/etc)
-RUN corepack enable && corepack prepare pnpm@10.30.3 --activate && pnpm install --frozen-lockfile
+# pnpm uses copy instead of hard links, which Docker's overlay filesystem doesn't support
+ENV NPM_CONFIG_PACKAGE_IMPORT_METHOD=copy
+
+# Install dependencies, skipping lifecycle scripts (controlled by onlyBuiltDependencies in package.json)
+RUN --mount=type=cache,id=s/ff1bcf56-d6d3-403a-b41e-2c92b7233f01-/root/.local/share/pnpm/store,target=/root/.local/share/pnpm/store \
+    corepack enable && pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy unchained-client config and generator files FIRST (rarely changes, enables layer caching)
 COPY packages/unchained-client/openapitools.json ./packages/unchained-client/
 COPY packages/unchained-client/generator/ ./packages/unchained-client/generator/
 
-# Generate unchained-client code (cached when openapitools.json unchanged)
-# Cache mount for OpenAPI Generator JAR to avoid re-downloading on each build
-RUN pnpm --filter @shapeshiftoss/unchained-client generate
+# Generate unchained-client code (required by tsc --build for workspace packages)
+RUN --mount=type=cache,id=s/ff1bcf56-d6d3-403a-b41e-2c92b7233f01-/root/.openapitools,target=/root/.openapitools \
+    pnpm --filter @shapeshiftoss/unchained-client generate
 
 # Copy remaining source files
 COPY packages/ ./packages/

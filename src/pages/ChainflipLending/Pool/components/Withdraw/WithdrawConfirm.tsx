@@ -1,8 +1,9 @@
-import { CheckCircleIcon } from '@chakra-ui/icons'
-import { Button, CardBody, CardFooter, Flex, VStack } from '@chakra-ui/react'
+import { ArrowForwardIcon, CheckCircleIcon } from '@chakra-ui/icons'
+import { Button, CardBody, CardFooter, Flex, HStack, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { flipAssetId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useWithdrawActionCenter } from './hooks/useWithdrawActionCenter'
@@ -74,15 +75,6 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
     actorRef.send({ type: 'BACK' })
   }, [actorRef])
 
-  const confirmDescription = useMemo(
-    () =>
-      translate('chainflipLending.withdraw.confirmDescription', {
-        amount: withdrawAmountCryptoPrecision,
-        asset: asset?.symbol ?? '',
-      }),
-    [translate, withdrawAmountCryptoPrecision, asset?.symbol],
-  )
-
   if (!asset) return null
 
   if (isSuccess) {
@@ -101,16 +93,18 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
                 })}
               </RawText>
             </VStack>
-            <VStack spacing={1}>
-              <RawText fontSize='xs' color='text.subtle'>
-                {translate('chainflipLending.withdraw.withdrawn')}
-              </RawText>
-              <Amount.Crypto
-                value={withdrawAmountCryptoPrecision}
-                symbol={asset.symbol}
-                fontWeight='bold'
-                fontSize='lg'
-              />
+            <VStack spacing={2} width='full' px={2}>
+              <Flex justifyContent='space-between' alignItems='center' width='full'>
+                <RawText fontSize='sm' color='text.subtle'>
+                  {translate('chainflipLending.withdraw.withdrawn')}
+                </RawText>
+                <Amount.Crypto
+                  value={withdrawAmountCryptoPrecision}
+                  symbol={asset.symbol}
+                  fontWeight='medium'
+                  fontSize='sm'
+                />
+              </Flex>
             </VStack>
           </VStack>
         </CardBody>
@@ -143,7 +137,11 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
       <SlideTransition>
         <CardBody px={6} py={4}>
           <VStack spacing={6} align='center' py={6}>
-            <AssetIcon assetId={assetId} size='lg' />
+            <HStack spacing={3}>
+              <AssetIcon assetId={flipAssetId} size='md' />
+              <ArrowForwardIcon boxSize={5} color='text.subtle' />
+              <AssetIcon assetId={assetId} size='md' />
+            </HStack>
             <VStack spacing={2}>
               <RawText fontWeight='bold' fontSize='lg' textAlign='center' color='red.500'>
                 {translate('chainflipLending.withdraw.errorTitle')}
@@ -182,18 +180,29 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
     )
   }
 
+  const isAwaitingNativeConfirm = isNativeWallet && !isConfirming && !stepConfirmed
+
   if (!isConfirm) {
     return (
       <SlideTransition>
         <CardBody px={6} py={4}>
           <VStack spacing={6} align='center' py={6}>
-            <CircularProgress isIndeterminate />
+            <HStack spacing={3}>
+              <AssetIcon assetId={flipAssetId} size='md' />
+              <ArrowForwardIcon boxSize={5} color='text.subtle' />
+              <AssetIcon assetId={assetId} size='md' />
+            </HStack>
+            {!isAwaitingNativeConfirm && <CircularProgress isIndeterminate />}
             <VStack spacing={2}>
               <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
-                {translate('chainflipLending.withdraw.executingTitle')}
+                {isAwaitingNativeConfirm
+                  ? translate('chainflipLending.awaitingConfirmTitle')
+                  : translate('chainflipLending.withdraw.executingTitle')}
               </RawText>
               <RawText fontSize='sm' color='text.subtle' textAlign='center'>
-                {translate('chainflipLending.withdraw.executingDescription')}
+                {isAwaitingNativeConfirm
+                  ? translate('chainflipLending.awaitingConfirmDescription')
+                  : translate('chainflipLending.withdraw.executingDescription')}
               </RawText>
             </VStack>
             <WithdrawStepper />
@@ -231,15 +240,14 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
     <SlideTransition>
       <CardBody px={6} py={4}>
         <VStack spacing={6} align='center' py={6}>
-          <AssetIcon assetId={assetId} size='lg' />
-          <VStack spacing={2}>
-            <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
-              {translate('chainflipLending.withdraw.confirmTitle')}
-            </RawText>
-            <RawText fontSize='sm' color='text.subtle' textAlign='center'>
-              {confirmDescription}
-            </RawText>
-          </VStack>
+          <HStack spacing={3}>
+            <AssetIcon assetId={flipAssetId} size='md' />
+            <ArrowForwardIcon boxSize={5} color='text.subtle' />
+            <AssetIcon assetId={assetId} size='md' />
+          </HStack>
+          <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
+            {translate('chainflipLending.withdraw.confirmTitle')}
+          </RawText>
           <Flex direction='column' gap={1} align='center'>
             <Amount.Crypto
               value={withdrawAmountCryptoPrecision}

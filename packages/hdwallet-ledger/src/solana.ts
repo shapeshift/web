@@ -1,5 +1,5 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
-import { PublicKey } from '@solana/web3.js'
+import { PublicKey, VersionedTransaction } from '@solana/web3.js'
 import bs58 from 'bs58'
 
 import type { LedgerTransport } from './transport'
@@ -45,4 +45,37 @@ export async function solanaSignTx(
     serialized: Buffer.from(transaction.serialize()).toString('base64'),
     signatures: transaction.signatures.map(signature => Buffer.from(signature).toString('base64')),
   }
+}
+
+export async function solanaSignSerializedTx(
+  transport: LedgerTransport,
+  msg: core.SolanaSignSerializedTx,
+): Promise<core.SolanaSignedTx> {
+  const address = await solanaGetAddress(transport, msg)
+
+  const bip32Path = addressNListToBIP32Path(msg.addressNList)
+
+  const txBytes = Buffer.from(msg.serializedTx, 'base64')
+  const transaction = VersionedTransaction.deserialize(txBytes)
+  const txBuffer = Buffer.from(transaction.message.serialize())
+
+  const res = await transport.call('Solana', 'signTransaction', bip32Path, txBuffer)
+  handleError(res, transport, 'Unable to sign Solana transaction')
+
+  transaction.addSignature(new PublicKey(address), res.payload.signature)
+
+  // Extract signatures before serialize - for partially-signed txs (e.g. gasless Bebop),
+  // serialize() throws because not all required signatures are present yet.
+  const signatures = transaction.signatures.map(signature =>
+    Buffer.from(signature).toString('base64'),
+  )
+
+  let serialized: string
+  try {
+    serialized = Buffer.from(transaction.serialize()).toString('base64')
+  } catch {
+    serialized = msg.serializedTx
+  }
+
+  return { serialized, signatures }
 }

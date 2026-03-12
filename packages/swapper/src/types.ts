@@ -198,6 +198,7 @@ type CommonTradeInputBase = {
   buyAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   affiliateBps: string
+  affiliateAddress?: string
   allowMultiHop: boolean
   slippageTolerancePercentageDecimal?: string
 }
@@ -387,6 +388,13 @@ export type SwapperDeps = {
   StarknetSwapperDeps &
   TonSwapperDeps
 
+export type AffiliateFee = {
+  assetId: AssetId
+  amountCryptoBaseUnit: string
+  asset: Asset
+  isEstimate?: boolean
+}
+
 export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string
   buyAmountAfterFeesCryptoBaseUnit: string
@@ -429,10 +437,14 @@ export type TradeQuoteStep = {
     value: Hex
     gas?: string
   }
+  bebopSolanaSerializedTx?: string
+  bebopQuoteId?: string
   jupiterQuoteResponse?: QuoteResponse
   solanaTransactionMetadata?: {
     addressLookupTableAddresses: string[]
     instructions?: TransactionInstruction[]
+    /** True when the serialized tx exceeds the 1232-byte Solana limit and needs Jito bundle splitting */
+    isOversized?: boolean
   }
   cowswapQuoteResponse?: OrderQuoteResponse
   chainflipSpecific?: {
@@ -502,6 +514,7 @@ export type TradeQuoteStep = {
   }
   acrossTransactionMetadata?: AcrossTransactionMetadata
   debridgeTransactionMetadata?: DebridgeTransactionMetadata
+  affiliateFee?: AffiliateFee
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & {
@@ -679,6 +692,17 @@ export type CosmosSdkTransactionExecutionProps = {
 
 export type SolanaTransactionExecutionProps = {
   signAndBroadcastTransaction: (txToSign: SolanaSignTx) => Promise<string>
+  /** Sign-only callback for Jito bundle flow (sign without broadcasting) */
+  signTransaction?: (txToSign: SolanaSignTx) => Promise<string>
+}
+
+export type SolanaMessageToSign = {
+  serializedTx: string
+  quoteId: string
+}
+
+export type SolanaMessageExecutionProps = {
+  signSerializedTransaction: (serializedTx: string) => Promise<string[]>
 }
 
 export type TronTransactionExecutionProps = {
@@ -752,6 +776,7 @@ export type GetUnsignedTonTransactionArgs = CommonGetUnsignedTransactionArgs &
 export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata &
   Omit<EvmSwapperDeps, 'fetchIsSmartContractAddressQuery'>
+export type GetUnsignedSolanaMessageArgs = CommonGetUnsignedTransactionArgs
 export type GetUnsignedUtxoTransactionArgs = CommonGetUnsignedTransactionArgs &
   UtxoAccountMetadata &
   UtxoSwapperDeps
@@ -830,6 +855,11 @@ export type Swapper = {
     txToSign: SolanaSignTx,
     callbacks: SolanaTransactionExecutionProps,
   ) => Promise<string>
+  executeSolanaMessage?: (
+    messageData: SolanaMessageToSign,
+    callbacks: SolanaMessageExecutionProps,
+    config: SwapperConfig,
+  ) => Promise<string>
   executeTronTransaction?: (
     txToSign: tron.TronSignTx,
     callbacks: TronTransactionExecutionProps,
@@ -868,6 +898,7 @@ export type SwapperApi = {
     input: GetUnsignedCosmosSdkTransactionArgs,
   ) => Promise<SignTx<CosmosSdkChainId>>
   getUnsignedSolanaTransaction?: (input: GetUnsignedSolanaTransactionArgs) => Promise<SolanaSignTx>
+  getUnsignedSolanaMessage?: (input: GetUnsignedSolanaMessageArgs) => Promise<SolanaMessageToSign>
   getUnsignedTronTransaction?: (input: GetUnsignedTronTransactionArgs) => Promise<tron.TronSignTx>
   getUnsignedSuiTransaction?: (input: GetUnsignedSuiTransactionArgs) => Promise<SuiSignTx>
   getUnsignedNearTransaction?: (input: GetUnsignedNearTransactionArgs) => Promise<near.NearSignTx>
@@ -925,6 +956,8 @@ export type CosmosSdkTransactionExecutionInput = CommonTradeExecutionInput &
 export type SolanaTransactionExecutionInput = CommonTradeExecutionInput &
   SolanaTransactionExecutionProps &
   SolanaAccountMetadata
+
+export type SolanaMessageExecutionInput = CommonTradeExecutionInput & SolanaMessageExecutionProps
 
 export type TronTransactionExecutionInput = CommonTradeExecutionInput &
   TronTransactionExecutionProps &

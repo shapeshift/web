@@ -8,6 +8,7 @@ import type {
   NearTransactionExecutionInput,
   RelayerTxDetailsArgs,
   SellTxHashArgs,
+  SolanaMessageExecutionInput,
   SolanaTransactionExecutionInput,
   StarknetTransactionExecutionInput,
   StatusArgs,
@@ -22,6 +23,7 @@ import type {
   UtxoTransactionExecutionInput,
 } from '@shapeshiftoss/swapper'
 import {
+  getExecutableTradeStep,
   getHopByIndex,
   isExecutableTradeQuote,
   swappers,
@@ -45,7 +47,9 @@ import { assertGetUtxoChainAdapter } from './utils/utxo'
 
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { readStoredAffiliate } from '@/hooks/useAffiliateTracking/useAffiliateTracking'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+import { getAffiliateBps } from '@/lib/fees/utils'
 import { poll } from '@/lib/poll/poll'
 import { getOrCreateUser } from '@/lib/user/api'
 import { selectCurrentSwap, selectWalletEnabledAccountIds } from '@/state/slices/selectors'
@@ -209,10 +213,15 @@ export class TradeExecution {
             queryClient.fetchQuery({
               queryKey: ['createSwap', swap.id],
               queryFn: () => {
+                const affiliateAddress = readStoredAffiliate() ?? undefined
+                const affiliateBps = getAffiliateBps(updatedSwap.sellAsset, updatedSwap.buyAsset)
                 return axios.post(`${import.meta.env.VITE_SWAPS_SERVER_URL}/swaps`, {
                   swapId: swap.id,
                   sellTxHash,
                   userId: userData?.id,
+                  affiliateAddress,
+                  affiliateBps,
+                  origin: 'web',
                   sellAsset: updatedSwap.sellAsset,
                   buyAsset: updatedSwap.buyAsset,
                   sellAmountCryptoBaseUnit: updatedSwap.sellAmountCryptoBaseUnit,
@@ -525,6 +534,7 @@ export class TradeExecution {
     slippageTolerancePercentageDecimal,
     from,
     signAndBroadcastTransaction,
+    signTransaction,
   }: SolanaTransactionExecutionInput) {
     const buildSignBroadcast = async (
       swapper: Swapper & SwapperApi,
@@ -536,6 +546,33 @@ export class TradeExecution {
         config,
       }: CommonGetUnsignedTransactionArgs,
     ) => {
+      if (!isExecutableTradeQuote(tradeQuote)) {
+        throw new Error('Unable to execute a trade rate quote')
+      }
+
+      const step = getHopByIndex(tradeQuote, stepIndex)
+      const metadata = step?.solanaTransactionMetadata
+
+      // Jito bundle path for oversized Butter Solana transactions
+      if (metadata?.isOversized) {
+        if (!metadata.instructions?.length || !signTransaction) {
+          throw new Error(
+            'Oversized Solana transaction requires instructions and signTransaction for Jito bundle execution',
+          )
+        }
+        const executableStep = getExecutableTradeStep(tradeQuote, stepIndex)
+        const { execSolanaJitoBundle } = await import('@/lib/solanaJitoBundle')
+        return await execSolanaJitoBundle({
+          instructions: metadata.instructions,
+          addressLookupTableAddresses: metadata.addressLookupTableAddresses ?? [],
+          from,
+          accountNumber: executableStep.accountNumber,
+          sellAssetChainId: chainId,
+          signTransaction,
+        })
+      }
+
+      // Standard single-tx path
       if (!swapper.getUnsignedSolanaTransaction) {
         throw Error('missing implementation for getUnsignedSolanaTransaction')
       }
@@ -556,6 +593,56 @@ export class TradeExecution {
       return await swapper.executeSolanaTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
       })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execSolanaMessage({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    signSerializedTransaction,
+  }: SolanaMessageExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        config,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedSolanaMessage) {
+        throw Error('missing implementation for getUnsignedSolanaMessage')
+      }
+      if (!swapper.executeSolanaMessage) {
+        throw Error('missing implementation for executeSolanaMessage')
+      }
+
+      const unsignedMessageResult = await swapper.getUnsignedSolanaMessage({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        config,
+      })
+
+      return await swapper.executeSolanaMessage(
+        unsignedMessageResult,
+        { signSerializedTransaction },
+        config,
+      )
     }
 
     return await this._execWalletAgnostic(

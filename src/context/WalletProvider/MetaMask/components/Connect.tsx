@@ -14,6 +14,7 @@ import { getConfig } from '@/config'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import {
   checkIsMetaMaskDesktop,
   checkIsMetaMaskMobileWebView,
@@ -37,6 +38,7 @@ export const MetaMaskConnect = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const showSnapModal = useSelector(preferences.selectors.selectShowSnapsModal)
+  const isMmNativeMultichain = useFeatureFlag('MmNativeMultichain')
 
   const detectedMipdProviders = useMipdProviders()
   const mipdProviders = useMemo(
@@ -121,6 +123,18 @@ export const MetaMaskConnect = () => {
           // Wallets other than MM desktop don't support MM snaps
           if (!isMetaMaskDesktop || isMetaMaskMobileWebView)
             return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+
+          // With native multichain, show the native multichain choice step instead of snap install
+          // but only if the user hasn't already made a choice (stored preference)
+          if (isMmNativeMultichain) {
+            const storedPref = localStorage.getItem(`nativeMultichainPreference_${deviceId}`)
+            if (!storedPref) return navigate('/metamask/native-multichain')
+            if (storedPref === 'native') {
+              return dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+            }
+            // storedPref === 'snap' - fall through to existing snap install/update flow below
+          }
+
           const isSnapInstalled = await checkIsSnapInstalled()
 
           const snapVersion = await getSnapVersion()
@@ -162,6 +176,7 @@ export const MetaMaskConnect = () => {
     setErrorLoading,
     translate,
     isMetaMaskMobileWebView,
+    isMmNativeMultichain,
     showSnapModal,
     navigate,
   ])

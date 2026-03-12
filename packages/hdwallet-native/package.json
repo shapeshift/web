@@ -28,8 +28,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "pnpm run clean && pnpm exec tsc --build && pnpm run postbuild",
-    "clean": "rm -rf dist",
+    "build": "rm -rf dist && pnpm exec tsc --build && pnpm run postbuild",
+    "clean": "rm -rf dist node_modules",
     "dev": "pnpm exec tsc --build --watch",
     "postbuild": "pnpm run postbuild:esm && pnpm run postbuild:cjs",
     "postbuild:esm": "pnpm exec tsc-esm-fix --target=dist/esm --ext=.js",

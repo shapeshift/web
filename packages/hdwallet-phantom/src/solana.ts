@@ -1,5 +1,6 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
 import type { PublicKey } from '@solana/web3.js'
+import { VersionedTransaction } from '@solana/web3.js'
 
 import type { PhantomSolanaProvider } from './types'
 
@@ -20,6 +21,30 @@ export async function solanaSignTx(
       Buffer.from(signature).toString('base64'),
     ),
   }
+}
+
+export async function solanaSignSerializedTx(
+  msg: core.SolanaSignSerializedTx,
+  provider: PhantomSolanaProvider,
+): Promise<core.SolanaSignedTx | null> {
+  const txBytes = Buffer.from(msg.serializedTx, 'base64')
+  const transaction = VersionedTransaction.deserialize(txBytes)
+  const signedTransaction = await provider.signTransaction(transaction)
+
+  // Extract signatures before serialize - for partially-signed txs (e.g. gasless Bebop),
+  // serialize() throws because not all required signatures are present yet.
+  const signatures = signedTransaction.signatures.map(signature =>
+    Buffer.from(signature).toString('base64'),
+  )
+
+  let serialized: string
+  try {
+    serialized = Buffer.from(signedTransaction.serialize()).toString('base64')
+  } catch {
+    serialized = msg.serializedTx
+  }
+
+  return { serialized, signatures }
 }
 
 export async function solanaSendTx(

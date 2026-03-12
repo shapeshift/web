@@ -136,13 +136,10 @@ export const EgressInput = ({ assetId, onAssetChange }: EgressInputProps) => {
     [freeBalanceCryptoBaseUnit],
   )
 
-  const availableFiat = useMemo(
-    () =>
-      bnOrZero(availableCryptoPrecision)
-        .times(marketData?.price ?? 0)
-        .toFixed(2),
-    [availableCryptoPrecision, marketData?.price],
-  )
+  const availableFiat = useMemo(() => {
+    if (!marketData?.price) return undefined
+    return bnOrZero(availableCryptoPrecision).times(marketData.price).toFixed(2)
+  }, [availableCryptoPrecision, marketData?.price])
 
   const fiatAmount = useMemo(() => {
     if (!marketData?.price) return '0'
@@ -361,7 +358,9 @@ export const EgressInput = ({ assetId, onAssetChange }: EgressInputProps) => {
             </HelperTooltip>
             <Flex alignItems='center' gap={2}>
               <VStack spacing={0} align='flex-end'>
-                <Amount.Fiat value={availableFiat} fontSize='sm' fontWeight='medium' />
+                {availableFiat !== undefined && (
+                  <Amount.Fiat value={availableFiat} fontSize='sm' fontWeight='medium' />
+                )}
                 <Amount.Crypto
                   value={availableCryptoPrecision}
                   symbol={asset.symbol}

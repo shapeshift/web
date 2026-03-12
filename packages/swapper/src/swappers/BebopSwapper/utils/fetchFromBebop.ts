@@ -8,10 +8,10 @@ import { getAddress } from 'viem'
 import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import type { BebopQuoteResponse, BebopSupportedChainId } from '../types'
-import { BEBOP_DUMMY_ADDRESS, chainIdToBebopChain } from '../types'
+import type { BebopQuoteResponse, BebopSolanaQuoteResponse, BebopSupportedChainId } from '../types'
+import { BEBOP_DUMMY_ADDRESS, BEBOP_SOLANA_DUMMY_ADDRESS, chainIdToBebopChain } from '../types'
 import { bebopServiceFactory } from './bebopService'
-import { assetIdToBebopToken } from './helpers/helpers'
+import { assetIdToBebopSolanaToken, assetIdToBebopToken } from './helpers/helpers'
 
 export const fetchBebopQuote = async ({
   buyAsset,
@@ -133,6 +133,147 @@ export const fetchBebopPrice = ({
   const address = (receiveAddress as Address | undefined) || BEBOP_DUMMY_ADDRESS
 
   return fetchBebopQuote({
+    buyAsset,
+    sellAsset,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    takerAddress: address,
+    receiverAddress: address,
+    slippageTolerancePercentageDecimal: '0.01',
+    affiliateBps,
+    apiKey,
+  })
+}
+
+export const fetchBebopSolanaQuote = async ({
+  buyAsset,
+  sellAsset,
+  sellAmountIncludingProtocolFeesCryptoBaseUnit,
+  takerAddress,
+  receiverAddress,
+  slippageTolerancePercentageDecimal,
+  affiliateBps,
+  apiKey,
+}: {
+  buyAsset: Asset
+  sellAsset: Asset
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
+  takerAddress: string
+  receiverAddress: string
+  slippageTolerancePercentageDecimal: string
+  affiliateBps?: string
+  apiKey: string
+}): Promise<Result<BebopSolanaQuoteResponse, SwapErrorRight>> => {
+  try {
+    const sellToken = assetIdToBebopSolanaToken(sellAsset.assetId)
+    const buyToken = assetIdToBebopSolanaToken(buyAsset.assetId)
+    const sellAmountFormatted = bn(sellAmountIncludingProtocolFeesCryptoBaseUnit).toFixed(0)
+    const slippagePercentage = bn(slippageTolerancePercentageDecimal ?? 0.003)
+      .times(100)
+      .toNumber()
+
+    const url = 'https://api.bebop.xyz/pmm/solana/v3/quote'
+
+    const params = new URLSearchParams({
+      sell_tokens: sellToken,
+      buy_tokens: buyToken,
+      sell_amounts: sellAmountFormatted,
+      taker_address: takerAddress,
+      receiver_address: receiverAddress,
+      slippage: slippagePercentage.toString(),
+      approval_type: 'Standard',
+      skip_validation: 'false',
+      gasless: 'true',
+      source: 'shapeshift',
+    })
+
+    if (affiliateBps && affiliateBps !== '0') {
+      params.set('fee', affiliateBps)
+    }
+
+    const bebopService = bebopServiceFactory({ apiKey })
+    const maybeResponse = await bebopService.get<BebopSolanaQuoteResponse>(`${url}?${params}`)
+
+    if (maybeResponse.isErr()) {
+      const err = maybeResponse.unwrapErr()
+      return Err(
+        makeSwapErrorRight({
+          message: 'Failed to fetch quote from Bebop Solana',
+          cause: err.cause,
+          code: TradeQuoteError.QueryFailed,
+        }),
+      )
+    }
+
+    const response = maybeResponse.unwrap()
+
+    if (response.data.status !== 'QUOTE_SUCCESS') {
+      return Err(
+        makeSwapErrorRight({
+          message: `Bebop Solana quote not executable: ${response.data.status}`,
+          code: TradeQuoteError.InvalidResponse,
+        }),
+      )
+    }
+
+    if (!response.data.solana_tx) {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Missing solana_tx in response',
+          code: TradeQuoteError.InvalidResponse,
+        }),
+      )
+    }
+
+    // Reject routes containing ANY AMM/CLMM makers - these produce malformed txs
+    // (wrong signature count in wire format) and require pre-existing ATAs that
+    // Bebop's gasless co-signed flow can't create. This includes mixed routes
+    // like ["raydium clmm-rfqm", "🦊"] where Bebop serializes the tx with fewer
+    // signature slots than the message header requires.
+    // When rejected, other swappers like Jupiter will handle these pairs instead.
+    const hasAmmRoute = response.data.makers.some(
+      maker => maker.toLowerCase().includes('clmm') || maker.toLowerCase().includes('amm'),
+    )
+    if (hasAmmRoute) {
+      return Err(
+        makeSwapErrorRight({
+          message: `Bebop Solana quote contains AMM routing (${response.data.makers.join(
+            ', ',
+          )}), which produces malformed txs`,
+          code: TradeQuoteError.NoRouteFound,
+        }),
+      )
+    }
+
+    return Ok(response.data)
+  } catch (error) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Unexpected error fetching Bebop Solana quote',
+        cause: error,
+        code: TradeQuoteError.QueryFailed,
+      }),
+    )
+  }
+}
+
+export const fetchBebopSolanaPrice = ({
+  buyAsset,
+  sellAsset,
+  sellAmountIncludingProtocolFeesCryptoBaseUnit,
+  receiveAddress,
+  affiliateBps,
+  apiKey,
+}: {
+  buyAsset: Asset
+  sellAsset: Asset
+  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
+  receiveAddress: string | undefined
+  affiliateBps?: string
+  apiKey: string
+}): Promise<Result<BebopSolanaQuoteResponse, SwapErrorRight>> => {
+  const address = receiveAddress || BEBOP_SOLANA_DUMMY_ADDRESS
+
+  return fetchBebopSolanaQuote({
     buyAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,

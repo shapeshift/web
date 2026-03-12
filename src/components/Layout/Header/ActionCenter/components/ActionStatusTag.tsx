@@ -45,6 +45,12 @@ export const ActionStatusTag = ({ status }: ActionStatusTagProps) => {
             {translate('actionCenter.status.confirmed')}
           </Tag>
         )
+      case ActionStatus.Replaced:
+        return (
+          <Tag size='sm' colorScheme='yellow' {...defaultTagProps}>
+            {translate('actionCenter.status.replaced')}
+          </Tag>
+        )
       case ActionStatus.Pending:
         return (
           <Tag size='sm' colorScheme='yellow' {...defaultTagProps}>

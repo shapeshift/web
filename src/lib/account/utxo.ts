@@ -2,7 +2,14 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { toAccountId } from '@shapeshiftoss/caip'
 import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
-import { isMetaMask, isPhantom, isVultisig, supportsBTC } from '@shapeshiftoss/hdwallet-core/wallet'
+import {
+  isMetaMask,
+  isPhantom,
+  isVultisig,
+  isWalletConnectV2,
+  supportsBTC,
+} from '@shapeshiftoss/hdwallet-core/wallet'
+import { isMetaMaskNativeMultichain } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { AccountMetadataById, UtxoChainId } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
@@ -106,12 +113,14 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
       const adapter = assertGetUtxoChainAdapter(chainId)
 
       let supportedAccountTypes = adapter.getSupportedAccountTypes()
-      if (isMetaMask(wallet)) {
+      if (isMetaMaskNativeMultichain(wallet)) {
+        // Native multichain uses native segwit (bip84) via Bitcoin Wallet Standard
+        supportedAccountTypes = [UtxoAccountType.SegwitNative]
+      } else if (isMetaMask(wallet)) {
         // MetaMask snaps adapter only supports legacy for BTC and LTC
         supportedAccountTypes = [UtxoAccountType.P2pkh]
       }
-      if (isPhantom(wallet) || isVultisig(wallet)) {
-        // Phantom supposedly supports more script types, but only supports Segwit Native (bech32 addresses) for now
+      if (isPhantom(wallet) || isVultisig(wallet) || isWalletConnectV2(wallet)) {
         supportedAccountTypes = [UtxoAccountType.SegwitNative]
       }
       for (const accountType of supportedAccountTypes) {

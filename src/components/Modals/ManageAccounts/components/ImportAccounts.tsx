@@ -18,6 +18,7 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { isMetaMaskNativeMultichain } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { Asset } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useInfiniteQuery, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -308,7 +309,8 @@ export const ImportAccounts = forwardRef<ImportAccountsRef, ImportAccountsProps>
 
     useEffect(() => {
       if (queryEnabled) return
-      if (isMetaMaskMultichainWallet && !isSnapInstalled) return
+      if (isMetaMaskMultichainWallet && !isSnapInstalled && !isMetaMaskNativeMultichain(wallet))
+        return
 
       if (!isLedgerWallet) {
         setIsAutoDiscovering(true)
@@ -323,7 +325,14 @@ export const ImportAccounts = forwardRef<ImportAccountsRef, ImportAccountsProps>
         setIsAutoDiscovering(true)
         setQueryEnabled(true)
       })
-    }, [queryEnabled, isLedgerWallet, isMetaMaskMultichainWallet, isSnapInstalled, queryClient])
+    }, [
+      queryEnabled,
+      isLedgerWallet,
+      isMetaMaskMultichainWallet,
+      isSnapInstalled,
+      queryClient,
+      wallet,
+    ])
 
     const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
     const existingAccountIdsForChain = accountIdsByChainId[chainId]

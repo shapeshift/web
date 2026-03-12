@@ -10,6 +10,7 @@ import {
   celoChainId,
   cronosChainId,
   ethChainId,
+  etherealChainId,
   flowEvmChainId,
   gnosisChainId,
   hemiChainId,
@@ -26,6 +27,7 @@ import {
   plumeChainId,
   polygonChainId,
   scrollChainId,
+  seiChainId,
   solanaChainId,
   soneiumChainId,
   sonicChainId,
@@ -34,7 +36,6 @@ import {
   worldChainChainId,
   zkSyncEraChainId,
 } from '@shapeshiftoss/caip'
-import { flowEvmChain } from '@shapeshiftoss/contracts'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
 import {
@@ -47,6 +48,7 @@ import {
   bsc,
   celo,
   cronos,
+  flowMainnet,
   gnosis,
   hemi,
   hyperEvm,
@@ -62,6 +64,7 @@ import {
   plumeMainnet,
   polygon,
   scroll,
+  sei,
   soneium,
   sonic,
   story,
@@ -97,10 +100,11 @@ export const chainIdToRelayChainId = {
   [inkChainId]: ink.id,
   [megaethChainId]: 4326,
   [plasmaChainId]: plasma.id,
-  [plumeChainId]: plumeMainnet.id,
   [katanaChainId]: katana.id,
-  [flowEvmChainId]: flowEvmChain.id,
+  [etherealChainId]: 5064014,
   [celoChainId]: celo.id,
+  [flowEvmChainId]: flowMainnet.id,
+  [plumeChainId]: plumeMainnet.id,
   [storyChainId]: story.id,
   [zkSyncEraChainId]: zksync.id,
   [blastChainId]: blast.id,
@@ -115,6 +119,7 @@ export const chainIdToRelayChainId = {
   [bobChainId]: bob.id,
   [modeChainId]: mode.id,
   [soneiumChainId]: soneium.id,
+  [seiChainId]: sei.id,
 }
 
 export enum RelayStatusMessage {

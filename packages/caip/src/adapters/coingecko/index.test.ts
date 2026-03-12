@@ -297,6 +297,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'token',
         assetReference: '0x33068f6539f8e6e6b131e6b2b814e6c34a5224bc66947c47dab9dfee93b35fb',
       })
+      const usdcOnSei = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.SeiMainnet,
+        assetNamespace: 'erc20',
+        assetReference: '0xe15fc38f6d8c56af07bbcbe3baf5708a2bf42392',
+      })
       const usdcOnInk = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Evm,
         chainReference: CHAIN_REFERENCE.InkMainnet,
@@ -336,6 +342,7 @@ describe('adapters:coingecko', () => {
         usdcOnInk,
         usdcOnSonic,
         usdcOnUnichain,
+        usdcOnSei,
         usdcOnSolana,
         usdcOnStarknet,
         usdcOnSui,

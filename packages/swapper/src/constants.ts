@@ -16,6 +16,8 @@ import { chainflipSwapper } from './swappers/ChainflipSwapper/ChainflipSwapper'
 import { chainflipApi } from './swappers/ChainflipSwapper/endpoints'
 import { cowSwapper } from './swappers/CowSwapper/CowSwapper'
 import { cowApi } from './swappers/CowSwapper/endpoints'
+import { debridgeSwapper } from './swappers/DebridgeSwapper'
+import { debridgeApi } from './swappers/DebridgeSwapper/endpoints'
 import { jupiterApi } from './swappers/JupiterSwapper/endpoints'
 import { jupiterSwapper } from './swappers/JupiterSwapper/JupiterSwapper'
 import { mayachainApi } from './swappers/MayachainSwapper/endpoints'
@@ -116,6 +118,10 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
     ...acrossSwapper,
     ...acrossApi,
   },
+  [SwapperName.Debridge]: {
+    ...debridgeSwapper,
+    ...debridgeApi,
+  },
   [SwapperName.Test]: undefined,
 }
 
@@ -133,6 +139,8 @@ const DEFAULT_SUNIO_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005'
 // Starknet swaps can have more latency, so use higher default slippage
 const DEFAULT_AVNU_SLIPPAGE_DECIMAL_PERCENTAGE = '0.02'
 const DEFAULT_STONFI_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01'
+// deBridge API off-chain simulation overestimates output on some chains (e.g. SEI ~2.4%), so auto slippage (1%) is insufficient
+const DEFAULT_DEBRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0.03'
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
   swapperName: SwapperName | undefined,
@@ -161,6 +169,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       throw new Error('Default slippage not supported by Relay')
     case SwapperName.Across:
       throw new Error('Default slippage not supported by Across')
+    case SwapperName.Debridge:
+      return DEFAULT_DEBRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.ButterSwap:
       return DEFAULT_BUTTERSWAP_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.NearIntents:
@@ -184,6 +194,7 @@ export const isAutoSlippageSupportedBySwapper = (swapperName: SwapperName): bool
       return true
     case SwapperName.Relay:
     case SwapperName.Across:
+    case SwapperName.Debridge:
       return true
     default:
       return false

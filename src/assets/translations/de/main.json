@@ -345,7 +345,7 @@
         "marketCapRank": "Rangliste der Marktkapitalisierung",
         "volume24h": "24h Volumen",
         "volMcap": "Vol/Marktkap.",
-        "about": "Über",
+        "about": "Über %{symbol}",
         "noDescription": "Für diese Wertanlage ist keine Beschreibung verfügbar."
       },
       "receive": {
@@ -1951,7 +1951,7 @@
         "multiChain": {
           "title": "Mehrere Ketten werden gleichzeitig unterstützt ",
           "subTitle": "Sie müssen nie das Netzwerk in der Wallet wechseln, es funktioniert mit jeder nahtlos.",
-          "body": "Wenn eine neues Netzwerk in ShapeShift hinzugefügt wird, wird Ihre Native Wallet es automatisch unterstützen."
+          "body": "Greifen Sie auf Bitcoin, Ethereum, Solana und viele weitere Chains über ein einziges Wallet zu. Handeln und verwalten Sie Ihre Assets nahtlos über verschiedene Netzwerke hinweg."
         },
         "selfCustody": {
           "title": "Ihre ShapeShift Wallet verwalten Sie",
@@ -2589,13 +2589,16 @@
         "body": "rFOX ist ein Begriff, der die Vorteile und Belohnungen beschreibt, die Sie erhalten, wenn Sie Ihre FOX-Token auf Arbitrum einsetzen. Derzeit sperren und entsperren Sie Vanilla-FOX-Token (auf Arbitrum) für das Einsetzen von Emissionen."
       },
       "why": {
-        "title": "Warum sollten Sie Ihren FOX staken?"
+        "title": "Warum sollten Sie Ihren FOX staken?",
+        "body": "Wenn Sie Ihre FOX einsetzen, können Sie regelmäßige USDC-Auszahlungen aus der DAO-Schatzkammer erhalten, was einen stetigen Strom an passivem Einkommen in USDC pro Epoche bietet. Darüber hinaus wird ein Teil der DAO-Einnahmen dazu verwendet, das gesamte FOX-Angebot durch Token-Verbrennungen zu reduzieren. Der Staking-Prozess erfordert eine Mindest-Unstaking-Periode von 28 Tagen, was Engagement und Stabilität innerhalb der Community fördert."
       },
       "stake": {
-        "title": "Wie stake ich meinen FOX?"
+        "title": "Wie stake ich meinen FOX?",
+        "body": "Um Ihre FOX einzusetzen, nutzen Sie die Staking-Oberfläche, um Ihre FOX-Token in den Staking-Vertrag zu sperren. Nach dem Einsetzen beginnen Sie, USDC-Belohnungen pro Block als Teil Ihrer Staking-Vorteile zu verdienen."
       },
       "unstake": {
-        "title": "Was passiert, wenn ich mein Staking zurücknehme?"
+        "title": "Was passiert, wenn ich mein Staking zurücknehme?",
+        "body": "Wenn Sie das Staking beenden möchten, gilt eine Mindest-Unstaking-Periode von 28 Tagen. Während dieser Zeit bleibt Ihr FOX gesperrt, und Sie erhalten keine USDC-Emissionen mehr. Nach der Unstaking-Periode können Sie Ihre regulären FOX-Token entsperren und abrufen."
       },
       "cooldown": {
         "title": "Wie lange ist die Abkühlungsphase?",
@@ -2606,7 +2609,8 @@
         "body": "Ja, Sie können mehrere Beträge aufheben. Für jede Aufhebungsaktion gilt eine Abkühlungsphase von 28 Tagen."
       },
       "connect": {
-        "title": "Welcher Zusammenhang besteht zwischen den insgesamt erhobenen Gebühren, dem gesamten FOX-Einsatz, dem Emissionspool und der FOX-Verbrennungsmenge?"
+        "title": "Welcher Zusammenhang besteht zwischen den insgesamt erhobenen Gebühren, dem gesamten FOX-Einsatz, dem Emissionspool und der FOX-Verbrennungsmenge?",
+        "body": "Die vom DAO erhobenen Gebühren werden in nativen Vermögenswerten pro Swapper berechnet. Ein Teil dieses Einkommens wird umgewandelt und als Belohnungen an FOX-Staker verteilt, während ein anderer Teil zur Reduzierung des gesamten FOX-Angebots durch Token-Verbrennungen verwendet wird. Die Gesamtmenge der eingesetzten FOX beeinflusst die Verteilung der Belohnungen, da diese pro rata auf Basis der eingesetzten FOX-Menge verteilt werden. Der Emissionspool stellt die Menge an FOX dar, die für Staking-Belohnungen verfügbar ist, und die FOX-Verbrennungsmenge ist der Anteil an FOX, der gekauft und verbrannt wird."
       }
     },
     "totals": "rFOX Summen",
@@ -2836,15 +2840,23 @@
     },
     "deposit": {
       "pending": "Ihre Einzahlung von %{amount} %{symbol} wird bearbeitet.",
-      "complete": "Ihre Einzahlung von %{amount} %{symbol} ist abgeschlossen."
+      "complete": "Ihre Einzahlung von %{amount} %{symbol} ist abgeschlossen.",
+      "failed": "Ihre Einzahlung von %{amount} %{symbol} ist fehlgeschlagen."
     },
     "withdrawal": {
       "pending": "Ihre Auszahlung von %{amount} %{symbol} wird bearbeitet.",
-      "complete": "Ihre Auszahlung von %{amount} %{symbol} ist abgeschlossen."
+      "complete": "Ihre Auszahlung von %{amount} %{symbol} ist abgeschlossen.",
+      "failed": "Ihre Auszahlung von %{amount} %{symbol} ist fehlgeschlagen."
     },
     "claim": {
       "pending": "Ihr Anspruch in Höhe von %{amount} %{symbol} wird bearbeitet.",
-      "complete": "Ihr Anspruch in Höhe von %{amount} %{symbol} ist vollständig."
+      "complete": "Ihr Anspruch in Höhe von %{amount} %{symbol} ist vollständig.",
+      "failed": "Das Einfordern von %{amount} %{symbol} ist fehlgeschlagen."
+    },
+    "yield": {
+      "unstakeAvailableIn": "Das Beenden des Stakings für Ihr %{symbol} ist in %{duration} verfügbar.",
+      "unstakeReady": "Das Beenden des Stakings für Ihr %{symbol} ist bereit zum Einfordern.",
+      "unstakeClaimed": "Das Beenden des Stakings für Ihr %{symbol} wurde eingefordert."
     },
     "bridge": {
       "processing": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} wird verarbeitet.",
@@ -2895,8 +2907,7 @@
   "yieldXYZ": {
     "pageTitle": "Erträge",
     "pageSubtitle": "Ertragspotenziale über mehrere Ketten hinweg erkennen und nutzen",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Ertrag",
     "apy": "APY",
     "apr": "APR",
@@ -2988,6 +2999,7 @@
     "providers": "Anbieter",
     "successStaked": "Sie haben erfolgreich %{amount} %{symbol} gestaked.",
     "successUnstaked": "Sie haben %{amount} %{symbol} erfolgreich freigegeben.",
+    "cooldownNotice": "Ihre Auszahlung ist in %{cooldownDuration} verfügbar.",
     "successDeposited": "Sie haben erfolgreich %{amount} %{symbol} eingezahlt.",
     "successWithdrawn": "Sie haben erfolgreich %{amount} %{symbol} abgehoben.",
     "successClaim": "Sie haben erfolgreich %{amount} %{symbol} beansprucht.",

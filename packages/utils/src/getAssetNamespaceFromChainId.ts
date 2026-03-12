@@ -37,6 +37,7 @@ export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNames
     case KnownChainIds.BlastMainnet:
     case KnownChainIds.WorldChainMainnet:
     case KnownChainIds.HemiMainnet:
+    case KnownChainIds.SeiMainnet:
     case KnownChainIds.LineaMainnet:
     case KnownChainIds.ScrollMainnet:
     case KnownChainIds.SonicMainnet:
@@ -44,11 +45,14 @@ export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNames
     case KnownChainIds.BobMainnet:
     case KnownChainIds.ModeMainnet:
     case KnownChainIds.SoneiumMainnet:
+    case KnownChainIds.EtherealMainnet:
     case KnownChainIds.FlowEvmMainnet:
     case KnownChainIds.CeloMainnet:
       return ASSET_NAMESPACE.erc20
     case KnownChainIds.StarknetMainnet:
       return ASSET_NAMESPACE.starknetToken
+    case KnownChainIds.TonMainnet:
+      return ASSET_NAMESPACE.jetton
     case KnownChainIds.CosmosMainnet:
     case KnownChainIds.BitcoinMainnet:
     case KnownChainIds.BitcoinCashMainnet:
@@ -57,7 +61,6 @@ export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNames
     case KnownChainIds.ZcashMainnet:
     case KnownChainIds.ThorchainMainnet:
     case KnownChainIds.MayachainMainnet:
-    case KnownChainIds.TonMainnet:
       throw Error(`Unhandled case '${chainId}'`)
     default:
       return assertUnreachable(chainId)

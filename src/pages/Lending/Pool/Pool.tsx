@@ -325,7 +325,7 @@ export const Pool = () => {
   ])
 
   return (
-    <Main headerComponent={headerComponent} isSubPage>
+    <Main headerComponent={headerComponent} isSubPage data-testid='lending-pool-detail'>
       <Flex gap={4} flexDir={flexDirPool}>
         <Stack gap={6} flex={1}>
           <Card>

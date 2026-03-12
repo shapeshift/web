@@ -345,7 +345,7 @@
         "marketCapRank": "Rang de capitalisation boursière",
         "volume24h": "Volume sur 24h",
         "volMcap": "Vol/Cap",
-        "about": "Informations sur",
+        "about": "À propos de %{symbol}",
         "noDescription": "Aucune description disponible pour cet actif."
       },
       "receive": {
@@ -1951,7 +1951,7 @@
         "multiChain": {
           "title": "Plusieurs chaînes sont prises en charge simultanément",
           "subTitle": "Vous n'avez jamais besoin de changer de chaîne dans le porte-monnaie, il fonctionne avec chaque chaîne de manière transparente.",
-          "body": "Lorsqu'une nouvelle chaîne est ajoutée sur ShapeShift, votre porte-monnaie ShapeShift la prend en charge automatiquement."
+          "body": "Accédez à Bitcoin, Ethereum, Solana et bien d'autres chaînes depuis un seul portefeuille. Échangez et gérez vos actifs sur différents réseaux en toute simplicité."
         },
         "selfCustody": {
           "title": "Votre porte-monnaie ShapeShift est auto-dépositaire",
@@ -2589,13 +2589,16 @@
         "body": "rFOX est un terme utilisé pour décrire les avantages et les récompenses que vous recevez lorsque vous stakez vos jetons FOX sur Arbitrum. Actuellement, vous verrouillez et déverrouillez les jetons « vanilla » FOX (sur Arbitrum) pour les émissions de staking."
       },
       "why": {
-        "title": "Pourquoi staker vos FOX ?"
+        "title": "Pourquoi staker vos FOX ?",
+        "body": "Staker votre FOX vous permet de percevoir des versements réguliers en USDC depuis la trésorerie de la DAO, vous offrant un flux constant de revenus passifs en USDC par époque. De plus, une partie des revenus de la DAO sera allouée à la réduction de l'offre globale de FOX par le biais de brûlages de jetons. Le processus de staking requiert une période minimale de déstaking de 28 jours, ce qui encourage l'engagement et la stabilité au sein de la communauté."
       },
       "stake": {
-        "title": "Comment staker mes FOX ?"
+        "title": "Comment staker mes FOX ?",
+        "body": "Pour staker votre FOX, utilisez l'interface de staking afin de verrouiller vos jetons FOX dans le contrat de staking. Une fois staké, vous commencez à gagner des récompenses en USDC par bloc dans le cadre de vos avantages de staking."
       },
       "unstake": {
-        "title": "Que se passe-t-il lorsque je déstake ?"
+        "title": "Que se passe-t-il lorsque je déstake ?",
+        "body": "Lorsque vous décidez de déstaker, une période minimale de déstaking de 28 jours s'applique. Durant cette période, votre FOX reste verrouillé et vous cessez de recevoir des émissions en USDC. Après la période de déstaking, vous pouvez déverrouiller et récupérer vos jetons FOX."
       },
       "cooldown": {
         "title": "Quelle est la durée de la période de repos ?",
@@ -2606,7 +2609,8 @@
         "body": "Oui, vous pouvez avoir plusieurs montants en cours de déstaking. Chaque action de déstaking aura sa propre période de repos de 28 jours."
       },
       "connect": {
-        "title": "Quel est le rapport entre le total de frais collectés, le total staké en FOX, le pool d'émissions et le montant de FOX brûlés ?"
+        "title": "Quel est le rapport entre le total de frais collectés, le total staké en FOX, le pool d'émissions et le montant de FOX brûlés ?",
+        "body": "Les frais collectés par la DAO sont exprimés en actifs natifs par swapper. Une partie de ces revenus est convertie et distribuée aux stakers de FOX sous forme de récompenses, tandis qu'une autre partie est allouée à la réduction de l'offre globale de FOX par le biais de brûlages de jetons. Le total de FOX staké influence la distribution des récompenses, celles-ci étant distribuées au prorata du montant de FOX staké. Le pool d'émissions représente la quantité de FOX disponible pour les récompenses de staking, et le montant de FOX brûlés correspond à la part de FOX achetée et brûlée."
       }
     },
     "totals": "Totaux rFOX",
@@ -2836,15 +2840,23 @@
     },
     "deposit": {
       "pending": "Votre dépôt de %{amount} %{symbol} est en cours de traitement.",
-      "complete": "Votre dépôt de %{amount} %{symbol} est terminé."
+      "complete": "Votre dépôt de %{amount} %{symbol} est terminé.",
+      "failed": "Votre dépôt de %{amount} %{symbol} a échoué."
     },
     "withdrawal": {
       "pending": "Votre retrait de %{amount} %{symbol} est en cours de traitement.",
-      "complete": "Votre retrait de %{amount} %{symbol} est terminé."
+      "complete": "Votre retrait de %{amount} %{symbol} est terminé.",
+      "failed": "Votre retrait de %{amount} %{symbol} a échoué."
     },
     "claim": {
       "pending": "Votre réclamation de %{amount} %{symbol} est en cours de traitement.",
-      "complete": "Votre réclamation de %{amount} %{symbol} est terminée."
+      "complete": "Votre réclamation de %{amount} %{symbol} est terminée.",
+      "failed": "Votre réclamation de %{amount} %{symbol} a échoué."
+    },
+    "yield": {
+      "unstakeAvailableIn": "Votre déstake en %{symbol} sera disponible dans %{duration}.",
+      "unstakeReady": "Votre déstake en %{symbol} est prêt à être réclamé.",
+      "unstakeClaimed": "Votre déstake en %{symbol} a été réclamé."
     },
     "bridge": {
       "processing": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} vers %{buyAmountAndSymbol}.%{buyChainShortName} est en cours de traitement.",
@@ -2895,8 +2907,7 @@
   "yieldXYZ": {
     "pageTitle": "Rendements",
     "pageSubtitle": "Découvrez et gérez les opportunités de rendements sur plusieurs chaînes.",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Rendement",
     "apy": "APY",
     "apr": "APR",
@@ -2988,6 +2999,7 @@
     "providers": "Fournisseurs",
     "successStaked": "Vous avez staké %{amount} %{symbol} avec succès",
     "successUnstaked": "Vous avez unstaké %{amount} %{symbol} avec succès",
+    "cooldownNotice": "Votre retrait sera disponible dans %{cooldownDuration}.",
     "successDeposited": "Vous avez déposé %{amount} %{symbol} avec succès",
     "successWithdrawn": "Vous avez retiré %{amount} %{symbol} avec succès",
     "successClaim": "Vous avez réclamé %{amount} %{symbol} avec succès",

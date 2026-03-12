@@ -1,5 +1,6 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
+  btcChainId,
   CHAIN_NAMESPACE,
   fromAccountId,
   fromChainId,
@@ -15,12 +16,13 @@ import type {
   GetFeeDataInput,
 } from '@shapeshiftoss/chain-adapters'
 import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet, SolanaTxInstruction } from '@shapeshiftoss/hdwallet-core'
 import { isGridPlus, supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { CosmosSdkChainId, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js'
 
 import type { SendInput } from './Form'
 
@@ -38,6 +40,7 @@ import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { assertGetTonChainAdapter } from '@/lib/utils/ton'
 import { assertGetUtxoChainAdapter, isUtxoChainId } from '@/lib/utils/utxo'
+import type { BtcUtxoRbfTxMetadata } from '@/state/slices/actionSlice/types'
 import {
   selectAssetById,
   selectPortfolioAccountMetadataByAccountId,
@@ -56,6 +59,8 @@ export type EstimateFeesInput = {
   accountId: AccountId
   contractAddress: string | undefined
 }
+
+const SOLANA_MEMO_PROGRAM_ID = 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr'
 
 export const estimateFees = async ({
   amountCryptoPrecision,
@@ -110,8 +115,17 @@ export const estimateFees = async ({
     case CHAIN_NAMESPACE.Solana: {
       const adapter = assertGetSolanaChainAdapter(asset.chainId)
 
+      const memoInstruction: TransactionInstruction | undefined = memo
+        ? new TransactionInstruction({
+            keys: [],
+            programId: new PublicKey(SOLANA_MEMO_PROGRAM_ID),
+            data: Buffer.from(memo, 'utf8'),
+          })
+        : undefined
+
       // For SPL transfers, build complete instruction set including compute budget
-      // For SOL transfers (pure sends i.e not e.g a Jup swap), pass no instructions to get 0 count (avoids blind signing)
+      // For SOL transfers with memo (e.g. THORChain LP), include both memo AND transfer for accurate CU estimation
+      // For pure SOL transfers, pass no instructions to get 0 count (avoids blind signing)
       const instructions = contractAddress
         ? await adapter.buildEstimationInstructions({
             from: account,
@@ -119,6 +133,15 @@ export const estimateFees = async ({
             tokenId: contractAddress,
             value,
           })
+        : memoInstruction
+        ? [
+            memoInstruction,
+            SystemProgram.transfer({
+              fromPubkey: new PublicKey(account),
+              toPubkey: new PublicKey(to),
+              lamports: Number(value),
+            }),
+          ]
         : undefined
 
       const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
@@ -208,6 +231,44 @@ export const handleSend = async ({
   sendInput: SendInput
   wallet: HDWallet
 }): Promise<string> => {
+  const { txHash } = await handleSendWithMetadata({ sendInput, wallet })
+  return txHash
+}
+
+type HandleSendWithMetadataResult = {
+  txHash: string
+  btcUtxoRbfTxMetadata?: BtcUtxoRbfTxMetadata
+}
+
+const getBtcUtxoRbfTxMetadata = (txToSign: unknown): BtcUtxoRbfTxMetadata | undefined => {
+  const maybeBtcTx = txToSign as {
+    inputs?: {
+      addressNList?: number[]
+    }[]
+  }
+
+  const inputs = maybeBtcTx.inputs
+    ?.filter(
+      (
+        input,
+      ): input is {
+        addressNList: number[]
+      } => Array.isArray(input.addressNList),
+    )
+    .map(input => ({ addressNList: input.addressNList }))
+
+  if (!inputs?.length) return undefined
+
+  return { inputs }
+}
+
+export const handleSendWithMetadata = async ({
+  sendInput,
+  wallet,
+}: {
+  sendInput: SendInput
+  wallet: HDWallet
+}): Promise<HandleSendWithMetadataResult> => {
   const { asset, chainId, accountMetadata, adapter } = prepareSendAdapter(sendInput)
   const supportedEvmChainIds = getSupportedEvmChainIds()
   const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
@@ -336,12 +397,23 @@ export const handleSend = async ({
 
       const solanaAdapter = assertGetSolanaChainAdapter(chainId)
       const { account } = fromAccountId(sendInput.accountId)
-      const instructions = await solanaAdapter.buildEstimationInstructions({
+
+      const memoInstruction: SolanaTxInstruction | undefined = memo
+        ? { keys: [], programId: SOLANA_MEMO_PROGRAM_ID, data: Buffer.from(memo, 'utf8') }
+        : undefined
+
+      const estimationInstructions = await solanaAdapter.buildEstimationInstructions({
         from: account,
         to,
         tokenId: contractAddress,
         value,
       })
+
+      const shouldAddComputeBudget = estimationInstructions.length > 1 || Boolean(memoInstruction)
+
+      // Each ComputeBudgetProgram instruction (setComputeUnitLimit, setComputeUnitPrice) costs 150 CU.
+      // Fee estimation doesn't include these, so we add a fixed buffer to cover them.
+      const COMPUTE_BUDGET_INSTRUCTION_OVERHEAD_CU = 300
 
       const input: BuildSendTxInput<KnownChainIds.SolanaMainnet> = {
         to,
@@ -349,16 +421,18 @@ export const handleSend = async ({
         wallet,
         accountNumber: bip44Params.accountNumber,
         pubKey: skipDeviceDerivation ? fromAccountId(sendInput.accountId).account : undefined,
-        chainSpecific:
-          instructions.length <= 1
-            ? {
-                tokenId: contractAddress,
-              }
-            : {
-                tokenId: contractAddress,
-                computeUnitLimit: fees.chainSpecific.computeUnits,
-                computeUnitPrice: fees.chainSpecific.priorityFee,
-              },
+        chainSpecific: shouldAddComputeBudget
+          ? {
+              tokenId: contractAddress,
+              computeUnitLimit: String(
+                Number(fees.chainSpecific.computeUnits) + COMPUTE_BUDGET_INSTRUCTION_OVERHEAD_CU,
+              ),
+              computeUnitPrice: fees.chainSpecific.priorityFee,
+              instructions: memoInstruction ? [memoInstruction] : undefined,
+            }
+          : {
+              tokenId: contractAddress,
+            },
       }
 
       return solanaAdapter.buildSendTransaction(input)
@@ -512,7 +586,10 @@ export const handleSend = async ({
     throw new Error('Broadcast failed')
   }
 
-  return broadcastTXID
+  return {
+    txHash: broadcastTXID,
+    btcUtxoRbfTxMetadata: chainId === btcChainId ? getBtcUtxoRbfTxMetadata(txToSign) : undefined,
+  }
 }
 
 const prepareSendAdapter = (sendInput: SendInput) => {

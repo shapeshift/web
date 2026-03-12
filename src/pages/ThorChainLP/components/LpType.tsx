@@ -48,12 +48,13 @@ const TypeLabel: React.FC<{ assetIds: AssetId[] }> = ({ assetIds }) => {
   )
 }
 
-const TypeRadio: React.FC<RadioProps> = props => {
-  const { getInputProps, getRadioProps } = useRadio(props)
+const TypeRadio: React.FC<RadioProps & { 'data-testid'?: string }> = props => {
+  const { 'data-testid': dataTestId, ...radioProps } = props
+  const { getInputProps, getRadioProps } = useRadio(radioProps)
   const input = getInputProps()
   const checkbox = getRadioProps()
   return (
-    <Box width='33.33%' flex={1} cursor='pointer' as='label'>
+    <Box width='33.33%' flex={1} cursor='pointer' as='label' data-testid={dataTestId}>
       <input {...input} />
       <Box
         bg='background.surface.raised.base'
@@ -280,7 +281,12 @@ export const LpType = ({
       })()
 
       return (
-        <TypeRadio key={`type-${index}`} {...radio} isDisabled={isDisabled}>
+        <TypeRadio
+          key={`type-${index}`}
+          {...radio}
+          isDisabled={isDisabled}
+          data-testid={`lp-type-${option.value}`}
+        >
           <Tooltip
             isDisabled={
               (!isDisabled && !isDeposit) || (isDeposit && !currentSideBalances.tooltipText)
@@ -335,7 +341,7 @@ export const LpType = ({
 
   const group = getRootProps()
   return (
-    <Flex px={4} gap={2} {...group}>
+    <Flex px={4} gap={2} {...group} data-testid='lp-type-selector'>
       {radioOptions}
     </Flex>
   )

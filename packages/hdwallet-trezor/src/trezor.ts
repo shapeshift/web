@@ -297,10 +297,12 @@ export class TrezorHDWallet
   readonly _supportsPlasma = true
   readonly _supportsPlume = true
   readonly _supportsKatana = true
+  readonly _supportsEthereal = true
   readonly _supportsStory = true
   readonly _supportsSonic = true
   readonly _supportsBob = true
   readonly _supportsMode = true
+  readonly _supportsSei = true
   readonly _supportsHyperEvm = true
   readonly _supportsMantle = true
   readonly _supportsInk = true
@@ -640,6 +642,12 @@ export class TrezorHDWallet
 
   public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
     return Sol.solanaSignTx(this.transport, msg)
+  }
+
+  public async solanaSignSerializedTx(
+    msg: core.SolanaSignSerializedTx,
+  ): Promise<core.SolanaSignedTx | null> {
+    return Sol.solanaSignSerializedTx(this.transport, msg)
   }
 
   public solanaGetAccountPaths(msg: core.SolanaGetAccountPaths): core.SolanaAccountPath[] {

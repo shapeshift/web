@@ -430,10 +430,12 @@ export class LedgerHDWallet
   readonly _supportsPlasma = true
   readonly _supportsPlume = true
   readonly _supportsKatana = true
+  readonly _supportsEthereal = true
   readonly _supportsStory = true
   readonly _supportsSonic = true
   readonly _supportsBob = true
   readonly _supportsMode = true
+  readonly _supportsSei = true
   readonly _supportsHyperEvm = true
   readonly _supportsMantle = true
   readonly _supportsInk = true
@@ -694,6 +696,13 @@ export class LedgerHDWallet
   public async solanaSignTx(msg: core.SolanaSignTx): Promise<core.SolanaSignedTx | null> {
     await this.validateCurrentApp('Solana')
     return solana.solanaSignTx(this.transport, msg)
+  }
+
+  public async solanaSignSerializedTx(
+    msg: core.SolanaSignSerializedTx,
+  ): Promise<core.SolanaSignedTx | null> {
+    await this.validateCurrentApp('Solana')
+    return solana.solanaSignSerializedTx(this.transport, msg)
   }
 
   public async suiGetAddress(msg: core.SuiGetAddress): Promise<string> {

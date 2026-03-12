@@ -37,6 +37,7 @@ export enum ActionStatus {
   Pending = 'Pending',
   Initiated = 'Initiated',
   Complete = 'Complete',
+  Replaced = 'Replaced',
   Failed = 'Failed',
   ClaimAvailable = 'ClaimAvailable',
   Claimed = 'Claimed',
@@ -124,6 +125,14 @@ export enum GenericTransactionQueryId {
   TCY = 'TCY',
 }
 
+export type BtcUtxoRbfTxMetadataInput = {
+  addressNList: number[]
+}
+
+export type BtcUtxoRbfTxMetadata = {
+  inputs: BtcUtxoRbfTxMetadataInput[]
+}
+
 type ActionGenericTransactionMetadata = {
   displayType: GenericTransactionDisplayType
   queryId?: GenericTransactionQueryId
@@ -147,6 +156,10 @@ type ActionGenericTransactionMetadata = {
   confirmedQuote?: LpConfirmedWithdrawalQuote | LpConfirmedDepositQuote
   assetAmountsAndSymbols?: string
   poolName?: string
+  replacedByTxHash?: string
+  replacesTxHash?: string
+  isRbfEnabled?: boolean
+  btcUtxoRbfTxMetadata?: BtcUtxoRbfTxMetadata
 }
 
 export type BaseAction = {

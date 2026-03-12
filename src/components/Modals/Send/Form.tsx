@@ -128,17 +128,18 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
         methods.setValue(SendFormFields.ChangeAddress, changeAddress)
       }
 
-      const txHash = await handleFormSend(data, false)
-      if (!txHash) return
+      const sendResult = await handleFormSend(data, false)
+      if (!sendResult?.txHash) return
 
       mixpanel?.track(MixPanelEvent.SendBroadcast)
 
       completeSendFlow({
-        txHash,
+        txHash: sendResult.txHash,
         to: data.to,
         accountId: data.accountId,
         assetId: data.assetId,
         amountCryptoPrecision: data.amountCryptoPrecision,
+        btcUtxoRbfTxMetadata: sendResult.btcUtxoRbfTxMetadata,
       })
     },
     [wallet, methods, handleFormSend, mixpanel, completeSendFlow],

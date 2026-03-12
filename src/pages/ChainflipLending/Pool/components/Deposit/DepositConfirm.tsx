@@ -123,11 +123,13 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
 
   const isLoading = isAllowanceLoading || !asset
 
+  const effectiveRefundAddress = refundAddress || userAddress || ''
+
   const handleStart = useCallback(() => {
     actorRef.send({
       type: 'START',
       depositAmountCryptoBaseUnit,
-      refundAddress: refundAddress || userAddress || '',
+      refundAddress: effectiveRefundAddress,
       flipAllowanceCryptoBaseUnit: flipAllowanceCryptoBaseUnit ?? '0',
       flipFundingAmountCryptoBaseUnit: FLIP_FUNDING_AMOUNT_CRYPTO_BASE_UNIT,
       initialFreeBalanceCryptoBaseUnit,
@@ -135,8 +137,7 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
   }, [
     actorRef,
     depositAmountCryptoBaseUnit,
-    refundAddress,
-    userAddress,
+    effectiveRefundAddress,
     flipAllowanceCryptoBaseUnit,
     initialFreeBalanceCryptoBaseUnit,
   ])
@@ -330,16 +331,16 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
               fontSize='2xl'
             />
           </Flex>
-          {refundAddress && (
+          {effectiveRefundAddress && (
             <>
               <Divider borderColor='border.subtle' />
               <HStack width='full' justifyContent='space-between' px={2}>
                 <RawText fontSize='sm' color='text.subtle'>
                   {translate('chainflipLending.deposit.refundAddress.label')}
                 </RawText>
-                <InlineCopyButton value={refundAddress}>
+                <InlineCopyButton value={effectiveRefundAddress}>
                   <RawText fontSize='sm' fontWeight='medium' color='text.subtle'>
-                    <MiddleEllipsis value={refundAddress} />
+                    <MiddleEllipsis value={effectiveRefundAddress} />
                   </RawText>
                 </InlineCopyButton>
               </HStack>

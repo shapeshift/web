@@ -159,7 +159,7 @@ export const DepositInput = ({ assetId, onAssetChange }: DepositInputProps) => {
             ? bnOrZero(values.value)
                 .div(marketData.price)
                 .decimalPlaces(asset?.precision ?? 18, 1)
-                .toString()
+                .toFixed()
             : ''
         actorRef.send({ type: 'SET_AMOUNT', amount: cryptoAmount })
       } else {

@@ -62,7 +62,7 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
     return bnOrZero(inputValue)
       .div(marketData.price)
       .decimalPlaces(asset?.precision ?? 18, 1)
-      .toString()
+      .toFixed()
   }, [inputValue, marketData?.price, asset?.precision])
 
   const fiatFromCrypto = useMemo(() => {
@@ -131,10 +131,10 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
         return bnOrZero(prev)
           .div(marketData.price)
           .decimalPlaces(asset?.precision ?? 18, 1)
-          .toString()
+          .toFixed()
       } else {
         // switching crypto -> fiat: convert current crypto input to fiat
-        return bnOrZero(prev).times(marketData.price).decimalPlaces(2, 1).toString()
+        return bnOrZero(prev).times(marketData.price).decimalPlaces(2, 1).toFixed()
       }
     })
     setIsFiat()

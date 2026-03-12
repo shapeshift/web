@@ -21,13 +21,19 @@ const balanceQueue = new PQueue({
   intervalCap: CONCURRENCY_LIMIT,
 })
 
-type BalanceResult = {
+export type BalanceResult = {
   assetId: AssetId
   balance: string
   balanceFormatted: string
 }
 
 type BalancesMap = Record<AssetId, BalanceResult>
+
+type SingleBalanceResult = {
+  data: BalanceResult | undefined
+  isLoading: boolean
+  refetch: (() => void) | undefined
+}
 
 type ParsedAssetEvm = {
   chainType: 'evm'
@@ -275,7 +281,7 @@ export const useBitcoinBalance = (
   address: string | undefined,
   assetId: AssetId | undefined,
   precision: number = 8,
-) => {
+): SingleBalanceResult => {
   const parsed = assetId ? parseAssetIdMultiChain(assetId) : null
   const isUtxo = parsed?.chainType === 'utxo'
 
@@ -330,7 +336,7 @@ export const useSolanaBalance = (
   address: string | undefined,
   assetId: AssetId | undefined,
   precision: number = 9,
-) => {
+): SingleBalanceResult => {
   const { connection: walletConnection } = useAppKitConnection()
   const parsed = assetId ? parseAssetIdMultiChain(assetId) : null
   const isSolana = parsed?.chainType === 'solana'
@@ -422,7 +428,7 @@ export const useMultiChainBalance = (
   solanaAddress: string | undefined,
   assetId: AssetId | undefined,
   precision: number = 18,
-) => {
+): SingleBalanceResult => {
   const parsed = assetId ? parseAssetIdMultiChain(assetId) : null
   const chainType = parsed?.chainType ?? 'other'
   const config = useConfig()

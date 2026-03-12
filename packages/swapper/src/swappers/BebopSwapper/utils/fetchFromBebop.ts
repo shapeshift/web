@@ -194,10 +194,11 @@ export const fetchBebopSolanaQuote = async ({
     const maybeResponse = await bebopService.get<BebopSolanaQuoteResponse>(`${url}?${params}`)
 
     if (maybeResponse.isErr()) {
+      const err = maybeResponse.unwrapErr()
       return Err(
         makeSwapErrorRight({
           message: 'Failed to fetch quote from Bebop Solana',
-          cause: maybeResponse.unwrapErr().cause,
+          cause: err.cause,
           code: TradeQuoteError.QueryFailed,
         }),
       )
@@ -219,6 +220,26 @@ export const fetchBebopSolanaQuote = async ({
         makeSwapErrorRight({
           message: 'Missing solana_tx in response',
           code: TradeQuoteError.InvalidResponse,
+        }),
+      )
+    }
+
+    // Reject routes containing ANY AMM/CLMM makers - these produce malformed txs
+    // (wrong signature count in wire format) and require pre-existing ATAs that
+    // Bebop's gasless co-signed flow can't create. This includes mixed routes
+    // like ["raydium clmm-rfqm", "🦊"] where Bebop serializes the tx with fewer
+    // signature slots than the message header requires.
+    // When rejected, other swappers like Jupiter will handle these pairs instead.
+    const hasAmmRoute = response.data.makers.some(
+      maker => maker.toLowerCase().includes('clmm') || maker.toLowerCase().includes('amm'),
+    )
+    if (hasAmmRoute) {
+      return Err(
+        makeSwapErrorRight({
+          message: `Bebop Solana quote contains AMM routing (${response.data.makers.join(
+            ', ',
+          )}), which produces malformed txs`,
+          code: TradeQuoteError.NoRouteFound,
         }),
       )
     }

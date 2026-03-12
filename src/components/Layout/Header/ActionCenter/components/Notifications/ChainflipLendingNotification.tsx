@@ -22,7 +22,6 @@ export const ChainflipLendingNotification = ({
   handleClick,
   actionId,
   onClose,
-  status,
 }: ChainflipLendingNotificationProps) => {
   const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
 
@@ -80,16 +79,5 @@ export const ChainflipLendingNotification = ({
 
   if (!action || !icon || !title) return null
 
-  // Only pass status for error/warning - success uses the subtle dark bg like other notifications
-  const toastStatus = status === 'error' || status === 'warning' ? status : undefined
-
-  return (
-    <StandardToast
-      icon={icon}
-      title={title}
-      status={toastStatus}
-      onClick={handleClick}
-      onClose={onClose}
-    />
-  )
+  return <StandardToast icon={icon} title={title} onClick={handleClick} onClose={onClose} />
 }

@@ -12,6 +12,7 @@ import { VoluntaryLiquidationStepper } from './VoluntaryLiquidationStepper'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { reactQueries } from '@/react-queries'
 
@@ -19,6 +20,8 @@ export const VoluntaryLiquidationConfirm = memo(() => {
   const translate = useTranslate()
   const queryClient = useQueryClient()
   const { scAccount } = useChainflipLendingAccount()
+
+  const { close: closeModal } = useModal('chainflipLending')
 
   const actorRef = VoluntaryLiquidationMachineCtx.useActorRef()
   const isConfirm = VoluntaryLiquidationMachineCtx.useSelector(s => s.matches('confirm'))
@@ -51,8 +54,8 @@ export const VoluntaryLiquidationConfirm = memo(() => {
     if (scAccount) {
       await queryClient.invalidateQueries(reactQueries.chainflipLending.loanAccounts(scAccount))
     }
-    actorRef.send({ type: 'DONE' })
-  }, [scAccount, queryClient, actorRef])
+    closeModal()
+  }, [scAccount, queryClient, closeModal])
 
   const handleBack = useCallback(() => {
     actorRef.send({ type: 'BACK' })
@@ -150,18 +153,24 @@ export const VoluntaryLiquidationConfirm = memo(() => {
     )
   }
 
+  const isAwaitingNativeConfirm = isNativeWallet && !isConfirming && !stepConfirmed
+
   if (!isConfirm) {
     return (
       <SlideTransition>
         <CardBody px={6} py={4}>
           <VStack spacing={6} align='center' py={6}>
-            <CircularProgress isIndeterminate />
+            {!isAwaitingNativeConfirm && <CircularProgress isIndeterminate />}
             <VStack spacing={2}>
               <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
-                {translate('chainflipLending.voluntaryLiquidation.executingTitle')}
+                {isAwaitingNativeConfirm
+                  ? translate('chainflipLending.awaitingConfirmTitle')
+                  : translate('chainflipLending.voluntaryLiquidation.executingTitle')}
               </RawText>
               <RawText fontSize='sm' color='text.subtle' textAlign='center'>
-                {translate('chainflipLending.voluntaryLiquidation.executingDescription')}
+                {isAwaitingNativeConfirm
+                  ? translate('chainflipLending.awaitingConfirmDescription')
+                  : translate('chainflipLending.voluntaryLiquidation.executingDescription')}
               </RawText>
             </VStack>
             <VoluntaryLiquidationStepper />

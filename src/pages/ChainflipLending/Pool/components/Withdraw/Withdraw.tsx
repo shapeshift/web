@@ -1,3 +1,4 @@
+import { Flex } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { lazy, memo, Suspense, useEffect, useMemo, useState } from 'react'
@@ -17,7 +18,11 @@ const WithdrawConfirm = lazy(() =>
   import('./WithdrawConfirm').then(({ WithdrawConfirm }) => ({ default: WithdrawConfirm })),
 )
 
-const suspenseFallback = <CircularProgress />
+const suspenseFallback = (
+  <Flex minHeight='360px' alignItems='center' justifyContent='center'>
+    <CircularProgress />
+  </Flex>
+)
 
 type WithdrawProps = {
   assetId: AssetId

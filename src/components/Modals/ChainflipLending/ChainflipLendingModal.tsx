@@ -1,4 +1,4 @@
-import { Card } from '@chakra-ui/react'
+import { Card, Flex } from '@chakra-ui/react'
 import { lazy, Suspense, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -67,7 +67,11 @@ const VoluntaryLiquidation = lazy(() =>
   ),
 )
 
-const suspenseFallback = <CircularProgress />
+const suspenseFallback = (
+  <Flex minHeight='360px' alignItems='center' justifyContent='center'>
+    <CircularProgress />
+  </Flex>
+)
 
 const MODAL_TITLE_KEYS: Record<ChainflipLendingModalProps['mode'], string> = {
   supply: 'chainflipLending.supply.title',

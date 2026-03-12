@@ -18,6 +18,7 @@ import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/Limi
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { getConfig } from '@/config'
 import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
+import { isLocalDev } from '@/lib/isLocalDev'
 import { Accounts } from '@/pages/Accounts/Accounts'
 import { ExploreCategory } from '@/pages/Explore/ExploreCategory'
 import { FoxEcosystemPage } from '@/pages/Fox/FoxEcosystemPage'
@@ -411,7 +412,7 @@ export const routes: Route[] = [
     path: '/flags',
     label: 'navBar.featureFlags',
     icon: <FaFlag />,
-    hide: window.location.hostname !== 'localhost',
+    hide: !isLocalDev(),
     main: Flags,
   },
   {

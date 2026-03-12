@@ -23,6 +23,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'
 import { fetchPortalsTradeOrder, PortalsError } from '../utils/fetchPortalsTradeOrder'
@@ -276,6 +277,15 @@ export async function getPortalsTradeQuote(
             steps: portalsTradeOrderResponse.context.steps,
             route: portalsTradeOrderResponse.context.route,
           },
+          affiliateFee: buildAffiliateFee({
+            strategy: 'buy_asset',
+            affiliateBps,
+            sellAsset,
+            buyAsset,
+            sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+            isEstimate: true,
+          }),
         },
       ] as SingleHopTradeQuoteSteps,
     }

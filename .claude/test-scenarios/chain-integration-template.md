@@ -16,7 +16,7 @@ This template provides a complete testing workflow for validating new chain inte
 ## Prerequisites
 
 ### Environment
-- **Application:** ShapeShift Web running locally (`http://localhost:3000`)
+- **Application:** ShapeShift Web running locally (`${PORTLESS_URL:-http://localhost:3000}`)
 - **Wallet:** Native ShapeShift wallet with password access
 - **Test Data:** Existing holdings on the target chain (for account derivation testing)
 
@@ -38,7 +38,7 @@ Before starting, gather:
 
 #### 1.1 Access Manage Accounts Modal
 **Steps:**
-1. Navigate to `http://localhost:3000` (or your test environment)
+1. Navigate to `${PORTLESS_URL:-http://localhost:3000}` (or your test environment)
 2. Ensure wallet is connected and unlocked
 3. Click wallet button (top right corner)
 4. Click three-dot menu icon

@@ -8,7 +8,7 @@
 
 ## Prerequisites
 
-- Dev server running on `localhost:3000`
+- Dev server running on `localhost:3000` (or `$PORTLESS_URL` if using Portless)
 - Clean browser session (no cached flags)
 - Knowledge of active feature flags in codebase
 
@@ -21,8 +21,8 @@
 
 **Browser MCP Command**:
 ```javascript
-// Navigate to home
-browser_navigate({ url: "http://localhost:3000" })
+// Navigate to home (use PORTLESS_URL or localhost:3000)
+browser_navigate({ url: "${PORTLESS_URL:-http://localhost:3000}" })
 
 // Open settings modal (click settings icon)
 browser_click({ element: "Settings button", ref: "..." })
@@ -31,7 +31,7 @@ browser_click({ element: "Settings button", ref: "..." })
 // (This is the secret gesture to access /flags)
 ```
 
-**Alternative**: Navigate directly to `http://localhost:3000/flags`
+**Alternative**: Navigate directly to `${PORTLESS_URL:-http://localhost:3000}/flags`
 
 **Validation Points**:
 - [ ] Feature flags panel accessible

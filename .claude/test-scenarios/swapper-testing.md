@@ -3,7 +3,7 @@
 ## Test Environment
 - **Date**: 2025-01-18
 - **Wallet**: Native wallet "awdaw" (password: qwerty123)
-- **Dev Server**: localhost:3000
+- **Dev Server**: localhost:3000 (or `$PORTLESS_URL` if using Portless)
 
 ## Overview
 

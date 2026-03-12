@@ -198,8 +198,9 @@ describe('useLocaleFormatter', () => {
     expect(result.current.number.toFiat(1234.456)).toBe(expected[1])
     expect(result.current.number.toFiat(123456.456)).toBe(expected[2])
     expect(result.current.number.toFiat(123456.656)).toBe(expected[3])
-    // Case-insensitive for compact notation - ICU data differs across platforms (M vs m for millions, B vs bn for billions)
-    const normalizeCompact = (s: string) => s.toLowerCase().replace(/bn$/, 'b')
+    // Normalize only the compact suffix - ICU data differs across platforms (M vs m for millions, B vs bn for billions)
+    const normalizeCompact = (value: string) =>
+      value.replace(/([0-9])[Mm]\b/u, '$1m').replace(/([0-9])[Bb]n?\b/u, '$1b')
     expect(normalizeCompact(result.current.number.toFiat(123456789.456))).toBe(
       normalizeCompact(expected[4]),
     )

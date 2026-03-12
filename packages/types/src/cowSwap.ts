@@ -330,6 +330,13 @@ export type CowChainId =
   | KnownChainIds.EthereumMainnet
   | KnownChainIds.GnosisMainnet
   | KnownChainIds.ArbitrumMainnet
+  | KnownChainIds.BaseMainnet
+  | KnownChainIds.AvalancheMainnet
+  | KnownChainIds.PolygonMainnet
+  | KnownChainIds.BnbSmartChainMainnet
+  | KnownChainIds.PlasmaMainnet
+  | KnownChainIds.LineaMainnet
+  | KnownChainIds.InkMainnet
 
 export type TypedDataTypes = Record<string, TypedDataField[]>
 

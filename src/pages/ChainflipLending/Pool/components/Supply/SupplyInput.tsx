@@ -16,9 +16,11 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useToggle } from '@/hooks/useToggle/useToggle'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
 import { useChainflipMinimumSupply } from '@/pages/ChainflipLending/hooks/useChainflipMinimumSupply'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById, selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -34,7 +36,10 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
     number: { localeParts },
   } = useLocaleFormatter()
 
+  const [isFiat, setIsFiat] = useToggle(false)
+
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   const actorRef = SupplyMachineCtx.useActorRef()
   const freeBalanceCryptoBaseUnit = SupplyMachineCtx.useSelector(
@@ -52,13 +57,34 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
     [freeBalanceCryptoBaseUnit, asset?.precision],
   )
 
+  const cryptoFromFiat = useMemo(() => {
+    if (!inputValue || !marketData?.price) return ''
+    return bnOrZero(inputValue)
+      .div(marketData.price)
+      .decimalPlaces(asset?.precision ?? 18, 1)
+      .toFixed()
+  }, [inputValue, marketData?.price, asset?.precision])
+
+  const fiatFromCrypto = useMemo(() => {
+    if (!inputValue || !marketData?.price) return '0'
+    return bnOrZero(inputValue).times(marketData.price).toString()
+  }, [inputValue, marketData?.price])
+
+  const cryptoValue = isFiat ? cryptoFromFiat : inputValue
+  const fiatValue = isFiat ? inputValue : fiatFromCrypto
+
   const { minSupply, isLoading: isMinSupplyLoading } = useChainflipMinimumSupply(assetId)
 
   const isBelowMinimum = useMemo(() => {
     if (!minSupply) return false
-    const amount = bnOrZero(inputValue)
+    const amount = bnOrZero(cryptoValue)
     return amount.gt(0) && amount.lt(minSupply)
-  }, [inputValue, minSupply])
+  }, [cryptoValue, minSupply])
+
+  const exceedsBalance = useMemo(
+    () => bnOrZero(cryptoValue).gt(availableCryptoPrecision),
+    [cryptoValue, availableCryptoPrecision],
+  )
 
   const hasFreeBalance = useMemo(
     () => bnOrZero(freeBalanceCryptoBaseUnit).gt(0),
@@ -96,33 +122,68 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
     setInputValue(values.value)
   }, [])
 
+  const handleToggleIsFiat = useCallback(() => {
+    if (!marketData?.price) return
+    setInputValue(prev => {
+      if (!prev) return prev
+      if (isFiat) {
+        // switching fiat -> crypto: convert current fiat input to crypto
+        return bnOrZero(prev)
+          .div(marketData.price)
+          .decimalPlaces(asset?.precision ?? 18, 1)
+          .toFixed()
+      } else {
+        // switching crypto -> fiat: convert current crypto input to fiat
+        return bnOrZero(prev).times(marketData.price).decimalPlaces(2, 1).toFixed()
+      }
+    })
+    setIsFiat()
+  }, [isFiat, marketData?.price, asset?.precision, setIsFiat])
+
   const handleMaxClick = useCallback(() => {
-    setInputValue(availableCryptoPrecision)
-  }, [availableCryptoPrecision])
+    if (isFiat && marketData?.price) {
+      const fiatMax = bnOrZero(availableCryptoPrecision).times(marketData.price).toString()
+      setInputValue(fiatMax)
+    } else {
+      setInputValue(availableCryptoPrecision)
+    }
+  }, [availableCryptoPrecision, isFiat, marketData?.price])
 
   const handleSubmit = useCallback(() => {
     if (!asset) return
+    const effectiveCrypto = isFiat ? cryptoFromFiat : inputValue
     const baseUnit = BigAmount.fromPrecision({
-      value: inputValue || '0',
+      value: effectiveCrypto || '0',
       precision: asset.precision,
     }).toBaseUnit()
 
     actorRef.send({
       type: 'SUBMIT',
-      supplyAmountCryptoPrecision: inputValue,
+      supplyAmountCryptoPrecision: effectiveCrypto,
       supplyAmountCryptoBaseUnit: baseUnit,
     })
-  }, [actorRef, inputValue, asset])
+  }, [actorRef, inputValue, isFiat, cryptoFromFiat, asset])
+
+  const isAmountZero = bnOrZero(cryptoValue).isZero()
 
   const isSubmitDisabled = useMemo(
-    () =>
-      isMinSupplyLoading ||
-      bnOrZero(inputValue).isZero() ||
-      bnOrZero(inputValue).gt(availableCryptoPrecision) ||
-      isBelowMinimum ||
-      !hasFreeBalance,
-    [isMinSupplyLoading, inputValue, availableCryptoPrecision, isBelowMinimum, hasFreeBalance],
+    () => isMinSupplyLoading || isAmountZero || exceedsBalance || isBelowMinimum || !hasFreeBalance,
+    [isMinSupplyLoading, isAmountZero, exceedsBalance, isBelowMinimum, hasFreeBalance],
   )
+
+  const submitButtonColorScheme = useMemo(() => {
+    if (!isAmountZero && (exceedsBalance || isBelowMinimum)) return 'red'
+    return 'blue'
+  }, [isAmountZero, exceedsBalance, isBelowMinimum])
+
+  const submitButtonText = useMemo(() => {
+    if (exceedsBalance) return translate('common.insufficientFunds')
+    if (isBelowMinimum && minSupply)
+      return translate('chainflipLending.supply.minimumSupply', {
+        amount: `${bnOrZero(minSupply).decimalPlaces(2).toFixed()} ${asset?.symbol}`,
+      })
+    return translate('chainflipLending.supply.title')
+  }, [exceedsBalance, isBelowMinimum, minSupply, asset?.symbol, translate])
 
   if (!asset) return null
 
@@ -144,29 +205,55 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
             <RawText fontSize='sm' color='text.subtle'>
               {translate('chainflipLending.supply.amount')}
             </RawText>
-            <NumericFormat
-              data-testid='chainflip-supply-amount-input'
-              inputMode='decimal'
-              valueIsNumericString={true}
-              decimalScale={asset.precision}
-              thousandSeparator={localeParts.group}
-              decimalSeparator={localeParts.decimal}
-              allowedDecimalSeparators={allowedDecimalSeparators}
-              allowNegative={false}
-              allowLeadingZeros={false}
-              value={inputValue}
-              placeholder='0.00'
-              onValueChange={handleInputChange}
-              style={{
-                width: '100%',
-                fontSize: '1.25rem',
-                fontWeight: 'bold',
-                background: 'transparent',
-                border: 'none',
-                outline: 'none',
-                padding: '0.5rem 0',
-              }}
-            />
+            <Flex alignItems='center' gap={2}>
+              <NumericFormat
+                data-testid='chainflip-supply-amount-input'
+                inputMode='decimal'
+                valueIsNumericString={true}
+                decimalScale={isFiat ? 2 : asset.precision}
+                thousandSeparator={localeParts.group}
+                decimalSeparator={localeParts.decimal}
+                allowedDecimalSeparators={allowedDecimalSeparators}
+                allowNegative={false}
+                allowLeadingZeros={false}
+                value={inputValue}
+                placeholder='0.00'
+                prefix={isFiat ? localeParts.prefix : ''}
+                suffix={isFiat ? localeParts.postfix : ''}
+                onValueChange={handleInputChange}
+                style={{
+                  flex: 1,
+                  fontSize: '1.25rem',
+                  fontWeight: 'bold',
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  padding: '0.5rem 0',
+                }}
+              />
+              {!isFiat && (
+                <RawText fontSize='lg' fontWeight='bold' color='text.subtle'>
+                  {asset.symbol}
+                </RawText>
+              )}
+            </Flex>
+            {marketData?.price && (
+              <Button
+                variant='link'
+                size='xs'
+                color='text.subtle'
+                fontWeight='medium'
+                onClick={handleToggleIsFiat}
+                alignSelf='flex-start'
+                px={0}
+              >
+                {isFiat ? (
+                  <Amount.Crypto value={cryptoValue || '0'} symbol={asset.symbol} fontSize='xs' />
+                ) : (
+                  <Amount.Fiat value={fiatValue} prefix='≈' fontSize='xs' />
+                )}
+              </Button>
+            )}
           </Stack>
 
           <Flex justifyContent='space-between' alignItems='center'>
@@ -195,14 +282,6 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
             </Flex>
           </Flex>
 
-          {isBelowMinimum && minSupply && (
-            <RawText fontSize='sm' color='red.500'>
-              {translate('chainflipLending.supply.minimumSupply', {
-                amount: `${bnOrZero(minSupply).decimalPlaces(2).toFixed()} ${asset.symbol}`,
-              })}
-            </RawText>
-          )}
-
           {!hasFreeBalance && (
             <RawText fontSize='xs' color='yellow.500'>
               {translate('chainflipLending.supply.noFreeBalance')}
@@ -221,7 +300,7 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
       >
         <Button
           data-testid='chainflip-supply-submit'
-          colorScheme='blue'
+          colorScheme={submitButtonColorScheme}
           size='lg'
           height={12}
           borderRadius='xl'
@@ -230,7 +309,7 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
           onClick={handleSubmit}
           isDisabled={isSubmitDisabled}
         >
-          {translate('chainflipLending.supply.title')}
+          {submitButtonText}
         </Button>
       </CardFooter>
     </SlideTransition>

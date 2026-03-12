@@ -443,6 +443,8 @@ export type TradeQuoteStep = {
   solanaTransactionMetadata?: {
     addressLookupTableAddresses: string[]
     instructions?: TransactionInstruction[]
+    /** True when the serialized tx exceeds the 1232-byte Solana limit and needs Jito bundle splitting */
+    isOversized?: boolean
   }
   cowswapQuoteResponse?: OrderQuoteResponse
   chainflipSpecific?: {
@@ -690,6 +692,8 @@ export type CosmosSdkTransactionExecutionProps = {
 
 export type SolanaTransactionExecutionProps = {
   signAndBroadcastTransaction: (txToSign: SolanaSignTx) => Promise<string>
+  /** Sign-only callback for Jito bundle flow (sign without broadcasting) */
+  signTransaction?: (txToSign: SolanaSignTx) => Promise<string>
 }
 
 export type SolanaMessageToSign = {

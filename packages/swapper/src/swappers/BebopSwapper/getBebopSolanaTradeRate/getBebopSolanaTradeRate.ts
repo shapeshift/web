@@ -13,7 +13,7 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { fetchBebopSolanaPrice } from '../utils/fetchFromBebop'
-import { assertValidTrade, calculateRate } from '../utils/helpers/helpers'
+import { assertValidTrade, calculateRate, isBebopSolanaTxSafe } from '../utils/helpers/helpers'
 
 export async function getBebopSolanaTradeRate(
   input: GetSolanaTradeRateInput,
@@ -58,6 +58,25 @@ export async function getBebopSolanaTradeRate(
         code: TradeQuoteError.InvalidResponse,
       }),
     )
+  }
+
+  if (bebopPriceResponse.solana_tx) {
+    if (!receiveAddress) {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Cannot validate Bebop Solana tx without a taker address',
+          code: TradeQuoteError.NoRouteFound,
+        }),
+      )
+    }
+    if (!isBebopSolanaTxSafe(bebopPriceResponse.solana_tx, receiveAddress)) {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Bebop signer index mismatch - taker not at expected position',
+          code: TradeQuoteError.NoRouteFound,
+        }),
+      )
+    }
   }
 
   const sellAmount = bebopPriceResponse.sellTokens[sellTokenAddress].amount

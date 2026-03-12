@@ -1,5 +1,5 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
-import { Button, CardBody, CardFooter, Flex, VStack } from '@chakra-ui/react'
+import { Button, CardBody, CardFooter, Divider, Flex, HStack, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ethChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
@@ -21,6 +21,8 @@ import { useDepositSend } from './hooks/useDepositSend'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -121,11 +123,13 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
 
   const isLoading = isAllowanceLoading || !asset
 
+  const effectiveRefundAddress = refundAddress || userAddress || ''
+
   const handleStart = useCallback(() => {
     actorRef.send({
       type: 'START',
       depositAmountCryptoBaseUnit,
-      refundAddress: refundAddress || userAddress || '',
+      refundAddress: effectiveRefundAddress,
       flipAllowanceCryptoBaseUnit: flipAllowanceCryptoBaseUnit ?? '0',
       flipFundingAmountCryptoBaseUnit: FLIP_FUNDING_AMOUNT_CRYPTO_BASE_UNIT,
       initialFreeBalanceCryptoBaseUnit,
@@ -133,8 +137,7 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
   }, [
     actorRef,
     depositAmountCryptoBaseUnit,
-    refundAddress,
-    userAddress,
+    effectiveRefundAddress,
     flipAllowanceCryptoBaseUnit,
     initialFreeBalanceCryptoBaseUnit,
   ])
@@ -328,6 +331,21 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
               fontSize='2xl'
             />
           </Flex>
+          {effectiveRefundAddress && (
+            <>
+              <Divider borderColor='border.subtle' />
+              <HStack width='full' justifyContent='space-between' px={2}>
+                <RawText fontSize='sm' color='text.subtle'>
+                  {translate('chainflipLending.deposit.refundAddress.label')}
+                </RawText>
+                <InlineCopyButton value={effectiveRefundAddress}>
+                  <RawText fontSize='sm' fontWeight='medium' color='text.subtle'>
+                    <MiddleEllipsis value={effectiveRefundAddress} />
+                  </RawText>
+                </InlineCopyButton>
+              </HStack>
+            </>
+          )}
         </VStack>
       </CardBody>
       <CardFooter

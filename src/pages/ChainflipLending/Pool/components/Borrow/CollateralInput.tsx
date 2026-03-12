@@ -217,29 +217,34 @@ export const CollateralInput = ({ assetId, onAssetChange }: CollateralInputProps
             <RawText fontSize='sm' color='text.subtle'>
               {translate('chainflipLending.collateral.amount')}
             </RawText>
-            <NumericFormat
-              data-testid='chainflip-collateral-amount-input'
-              inputMode='decimal'
-              valueIsNumericString={true}
-              decimalScale={asset.precision}
-              thousandSeparator={localeParts.group}
-              decimalSeparator={localeParts.decimal}
-              allowedDecimalSeparators={allowedDecimalSeparators}
-              allowNegative={false}
-              allowLeadingZeros={false}
-              value={inputValue}
-              placeholder='0.00'
-              onValueChange={handleInputChange}
-              style={{
-                width: '100%',
-                fontSize: '1.25rem',
-                fontWeight: 'bold',
-                background: 'transparent',
-                border: 'none',
-                outline: 'none',
-                padding: '0.5rem 0',
-              }}
-            />
+            <Flex alignItems='center' gap={2}>
+              <NumericFormat
+                data-testid='chainflip-collateral-amount-input'
+                inputMode='decimal'
+                valueIsNumericString={true}
+                decimalScale={asset.precision}
+                thousandSeparator={localeParts.group}
+                decimalSeparator={localeParts.decimal}
+                allowedDecimalSeparators={allowedDecimalSeparators}
+                allowNegative={false}
+                allowLeadingZeros={false}
+                value={inputValue}
+                placeholder='0.00'
+                onValueChange={handleInputChange}
+                style={{
+                  flex: 1,
+                  fontSize: '1.25rem',
+                  fontWeight: 'bold',
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  padding: '0.5rem 0',
+                }}
+              />
+              <RawText fontSize='lg' fontWeight='bold' color='text.subtle'>
+                {asset.symbol}
+              </RawText>
+            </Flex>
             {!assetPrice.isZero() && bnOrZero(inputValue).gt(0) && (
               <Amount.Fiat value={inputFiat.toFixed(2)} fontSize='sm' color='text.subtle' />
             )}

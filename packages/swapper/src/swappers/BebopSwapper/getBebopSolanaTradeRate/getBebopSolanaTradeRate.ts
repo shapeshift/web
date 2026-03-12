@@ -61,7 +61,11 @@ export async function getBebopSolanaTradeRate(
   }
 
   const takerAddress = receiveAddress || ''
-  if (bebopPriceResponse.solana_tx && takerAddress && !isBebopSolanaTxSafe(bebopPriceResponse.solana_tx, takerAddress)) {
+  if (
+    bebopPriceResponse.solana_tx &&
+    takerAddress &&
+    !isBebopSolanaTxSafe(bebopPriceResponse.solana_tx, takerAddress)
+  ) {
     return Err(
       makeSwapErrorRight({
         message: 'Bebop signer index mismatch - taker not at expected position',

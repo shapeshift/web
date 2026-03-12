@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Row } from '@/components/Row/Row'
 import { showDeveloperModal } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { isMobile } from '@/lib/globals'
+import { isLocalDev } from '@/lib/isLocalDev'
 
 export const Debugging = () => {
   type BuildMetadata = {
@@ -14,7 +15,7 @@ export const Debugging = () => {
   }
 
   const [buildMetadata, setBuildMetadata] = useState<BuildMetadata | undefined>()
-  const isLocalhost = window.location.hostname === 'localhost'
+  const isLocalhost = isLocalDev()
 
   useEffect(() => {
     if (isLocalhost) return

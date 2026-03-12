@@ -3,18 +3,13 @@ import type { NextFunction, Request, Response } from 'express'
 import type { ErrorResponse } from '../types'
 
 const EVM_ADDRESS_REGEX = /^0x[0-9a-fA-F]{40}$/
+const BPS_REGEX = /^\d+$/
 
-// Affiliate address middleware - attaches affiliate info if a valid address is provided
-// The API works without an affiliate address (anonymous access)
 export const affiliateAddress = (req: Request, res: Response, next: NextFunction): void => {
   const address = req.header('X-Affiliate-Address')
+  const bps = req.header('X-Affiliate-Bps')
 
-  if (!address) {
-    next()
-    return
-  }
-
-  if (!EVM_ADDRESS_REGEX.test(address)) {
+  if (address && !EVM_ADDRESS_REGEX.test(address)) {
     const errorResponse: ErrorResponse = {
       error:
         'Invalid affiliate address format. Must be a valid EVM address (0x followed by 40 hex characters).',
@@ -24,7 +19,21 @@ export const affiliateAddress = (req: Request, res: Response, next: NextFunction
     return
   }
 
-  req.affiliateInfo = { affiliateAddress: address }
+  if (bps !== undefined && (!BPS_REGEX.test(bps) || parseInt(bps, 10) > 1000)) {
+    const errorResponse: ErrorResponse = {
+      error: 'Invalid affiliate BPS. Must be an integer between 0 and 1000.',
+      code: 'INVALID_AFFILIATE_BPS',
+    }
+    res.status(400).json(errorResponse)
+    return
+  }
+
+  if (address || bps) {
+    req.affiliateInfo = {
+      ...(address && { affiliateAddress: address }),
+      ...(bps && { affiliateBps: bps }),
+    }
+  }
 
   next()
 }

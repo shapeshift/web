@@ -252,17 +252,17 @@ export default defineConfig(({ mode }) => {
       allowedHosts: true,
       proxy: {
         '/user-api': {
-          target: 'http://localhost:3002',
+          target: env.USER_API_URL || 'http://localhost:3002',
           changeOrigin: true,
           rewrite: path => path.replace(/^\/user-api/, ''),
         },
         '/swaps-api': {
-          target: 'http://localhost:3001',
+          target: env.SWAPS_API_URL || 'http://localhost:3001',
           changeOrigin: true,
           rewrite: path => path.replace(/^\/swaps-api/, ''),
         },
         '/notifications-api': {
-          target: 'http://localhost:3003',
+          target: env.NOTIFICATIONS_API_URL || 'http://localhost:3003',
           changeOrigin: true,
           rewrite: path => path.replace(/^\/notifications-api/, ''),
         },

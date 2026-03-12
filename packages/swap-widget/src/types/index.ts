@@ -139,6 +139,7 @@ export type ThemeConfig = {
 
 export type SwapWidgetProps = {
   affiliateAddress?: string
+  affiliateBps?: string
   apiBaseUrl?: string
   defaultSellAsset?: Asset
   defaultBuyAsset?: Asset

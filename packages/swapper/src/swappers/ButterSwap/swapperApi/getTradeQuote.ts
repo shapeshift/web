@@ -23,6 +23,7 @@ import {
   getInputOutputRate,
   makeSwapErrorRight,
 } from '../../../utils'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { makeButterSwapAffiliate } from '../utils/constants'
 import {
   ButterSwapErrorCode,
@@ -276,6 +277,15 @@ export const getTradeQuote = async (
     },
     ...(solanaTransactionMetadata && {
       solanaTransactionMetadata,
+    }),
+    affiliateFee: buildAffiliateFee({
+      strategy: 'buy_asset',
+      affiliateBps,
+      sellAsset,
+      buyAsset,
+      sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+      isEstimate: true,
     }),
   }
 

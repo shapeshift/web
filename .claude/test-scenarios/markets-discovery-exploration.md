@@ -10,7 +10,7 @@
 ## Test Configuration
 
 ### Test Environment
-- **Application URL:** `http://localhost:3000/#/markets/recommended`
+- **Application URL:** `${PORTLESS_URL:-http://localhost:3000}/#/markets/recommended`
 - **Wallet Required:** No (browse mode)
 - **Network:** Any
 

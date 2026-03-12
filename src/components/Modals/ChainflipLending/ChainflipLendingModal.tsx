@@ -1,11 +1,19 @@
 import { Card } from '@chakra-ui/react'
 import { lazy, Suspense, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import type { ChainflipLendingModalProps } from './types'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { Dialog } from '@/components/Modal/components/Dialog'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
+import {
+  DialogHeader,
+  DialogHeaderMiddle,
+  DialogHeaderRight,
+} from '@/components/Modal/components/DialogHeader'
+import { RawText } from '@/components/Text'
 import { useModal } from '@/hooks/useModal/useModal'
 import { ChainflipLendingAccountProvider } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 
@@ -61,6 +69,18 @@ const VoluntaryLiquidation = lazy(() =>
 
 const suspenseFallback = <CircularProgress />
 
+const MODAL_TITLE_KEYS: Record<ChainflipLendingModalProps['mode'], string> = {
+  supply: 'chainflipLending.supply.title',
+  withdrawSupply: 'chainflipLending.withdraw.title',
+  deposit: 'chainflipLending.depositToChainflip',
+  withdrawFromChainflip: 'chainflipLending.egress.title',
+  addCollateral: 'chainflipLending.collateral.title',
+  removeCollateral: 'chainflipLending.collateral.title',
+  borrow: 'chainflipLending.borrow.title',
+  repay: 'chainflipLending.repay.title',
+  voluntaryLiquidation: 'chainflipLending.manageLoan',
+}
+
 const ChainflipLendingModalContent = ({
   mode,
   assetId,
@@ -68,6 +88,8 @@ const ChainflipLendingModalContent = ({
   liquidationAction,
   onClose,
 }: ChainflipLendingModalProps & { onClose: () => void }) => {
+  const translate = useTranslate()
+
   const content = useMemo(() => {
     switch (mode) {
       case 'supply':
@@ -94,10 +116,21 @@ const ChainflipLendingModalContent = ({
   }, [mode, assetId, loanId, liquidationAction, onClose])
 
   return (
-    <Card position='relative'>
-      <DialogCloseButton />
-      <Suspense fallback={suspenseFallback}>{content}</Suspense>
-    </Card>
+    <>
+      <DialogHeader>
+        <DialogHeaderMiddle>
+          <RawText fontWeight='bold'>{translate(MODAL_TITLE_KEYS[mode])}</RawText>
+        </DialogHeaderMiddle>
+        <DialogHeaderRight>
+          <DialogCloseButton />
+        </DialogHeaderRight>
+      </DialogHeader>
+      <DialogBody p={0}>
+        <Card variant='unstyled'>
+          <Suspense fallback={suspenseFallback}>{content}</Suspense>
+        </Card>
+      </DialogBody>
+    </>
   )
 }
 

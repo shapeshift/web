@@ -80,7 +80,8 @@ export const ChainflipLendingNotification = ({
 
   if (!action || !icon || !title) return null
 
-  const toastStatus = status === 'loading' ? 'info' : status
+  // Only pass status for error/warning - success uses the subtle dark bg like other notifications
+  const toastStatus = status === 'error' || status === 'warning' ? status : undefined
 
   return (
     <StandardToast

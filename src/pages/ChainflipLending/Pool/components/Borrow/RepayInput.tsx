@@ -42,8 +42,9 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
   const outstandingDebtCryptoBaseUnit = RepayMachineCtx.useSelector(
     s => s.context.outstandingDebtCryptoBaseUnit,
   )
+  const savedRepayAmount = RepayMachineCtx.useSelector(s => s.context.repayAmountCryptoPrecision)
 
-  const [inputValue, setInputValue] = useState('')
+  const [inputValue, setInputValue] = useState(savedRepayAmount || '')
   const [isFullRepayment, setIsFullRepayment] = useState(false)
 
   const availableCryptoPrecision = useMemo(
@@ -82,6 +83,11 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
   )
 
   const inputFiat = useMemo(() => bnOrZero(inputValue).times(assetPrice), [inputValue, assetPrice])
+
+  const availableFiat = useMemo(
+    () => bnOrZero(availableCryptoPrecision).times(assetPrice).toFixed(2),
+    [availableCryptoPrecision, assetPrice],
+  )
 
   const outstandingDebtFiat = useMemo(
     () => bnOrZero(outstandingDebtCryptoPrecision).times(assetPrice),
@@ -256,12 +262,15 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
               </RawText>
             </HelperTooltip>
             <Flex alignItems='center' gap={2}>
-              <Amount.Crypto
-                value={availableCryptoPrecision}
-                symbol={asset.symbol}
-                fontSize='sm'
-                fontWeight='medium'
-              />
+              <VStack spacing={0} align='flex-end'>
+                <Amount.Fiat value={availableFiat} fontSize='sm' fontWeight='medium' />
+                <Amount.Crypto
+                  value={availableCryptoPrecision}
+                  symbol={asset.symbol}
+                  fontSize='xs'
+                  color='text.subtle'
+                />
+              </VStack>
               {!isFullRepayment && (
                 <Button
                   data-testid='chainflip-repay-max'

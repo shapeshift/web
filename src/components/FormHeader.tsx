@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react'
+import { Box, Flex } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -13,8 +13,14 @@ type FormHeaderProps = {
   items: FormHeaderItem[]
   setStepIndex: (index: number) => void
   activeIndex: number
+  rightElement?: React.ReactNode
 }
-export const FormHeader: React.FC<FormHeaderProps> = ({ items, setStepIndex, activeIndex }) => {
+export const FormHeader: React.FC<FormHeaderProps> = ({
+  items,
+  setStepIndex,
+  activeIndex,
+  rightElement,
+}) => {
   const translate = useTranslate()
   const handleClick = useCallback(
     (index: number) => {
@@ -23,17 +29,20 @@ export const FormHeader: React.FC<FormHeaderProps> = ({ items, setStepIndex, act
     [setStepIndex],
   )
   return (
-    <Flex px={6} py={4} gap={4} wrap='wrap'>
-      {items.map(item => (
-        <FormHeaderTab
-          key={item.index}
-          index={item.index}
-          onClick={handleClick}
-          isActive={activeIndex === item.index}
-        >
-          {translate(item.label)}
-        </FormHeaderTab>
-      ))}
+    <Flex px={6} py={4} gap={4} wrap='nowrap' alignItems='center' justifyContent='space-between'>
+      <Flex gap={4} wrap='wrap' alignItems='center' flex={1}>
+        {items.map(item => (
+          <FormHeaderTab
+            key={item.index}
+            index={item.index}
+            onClick={handleClick}
+            isActive={activeIndex === item.index}
+          >
+            {translate(item.label)}
+          </FormHeaderTab>
+        ))}
+      </Flex>
+      {rightElement && <Box flexShrink={0}>{rightElement}</Box>}
     </Flex>
   )
 }

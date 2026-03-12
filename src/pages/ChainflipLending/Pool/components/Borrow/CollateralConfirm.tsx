@@ -1,6 +1,7 @@
-import { CheckCircleIcon } from '@chakra-ui/icons'
-import { Button, CardBody, CardFooter, Flex, VStack } from '@chakra-ui/react'
+import { ArrowForwardIcon, CheckCircleIcon } from '@chakra-ui/icons'
+import { Button, CardBody, CardFooter, Flex, HStack, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { flipAssetId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { memo, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -16,6 +17,7 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { reactQueries } from '@/react-queries'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -29,6 +31,7 @@ export const CollateralConfirm = memo(({ assetId }: CollateralConfirmProps) => {
   const translate = useTranslate()
   const queryClient = useQueryClient()
   const { scAccount } = useChainflipLendingAccount()
+  const { close: closeModal } = useModal('chainflipLending')
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
@@ -44,7 +47,6 @@ export const CollateralConfirm = memo(({ assetId }: CollateralConfirmProps) => {
   const isNativeWallet = CollateralMachineCtx.useSelector(s => s.context.isNativeWallet)
   const stepConfirmed = CollateralMachineCtx.useSelector(s => s.context.stepConfirmed)
   const isConfirming = CollateralMachineCtx.useSelector(s => s.matches('confirming'))
-
   useCollateralSign()
   useCollateralConfirmation()
   useCollateralActionCenter()
@@ -68,8 +70,8 @@ export const CollateralConfirm = memo(({ assetId }: CollateralConfirmProps) => {
       await queryClient.invalidateQueries(reactQueries.chainflipLending.freeBalances(scAccount))
       await queryClient.invalidateQueries(reactQueries.chainflipLending.loanAccounts(scAccount))
     }
-    actorRef.send({ type: 'DONE' })
-  }, [scAccount, queryClient, actorRef])
+    closeModal()
+  }, [scAccount, queryClient, closeModal])
 
   const handleBack = useCallback(() => {
     actorRef.send({ type: 'BACK' })
@@ -100,20 +102,22 @@ export const CollateralConfirm = memo(({ assetId }: CollateralConfirmProps) => {
                 )}
               </RawText>
             </VStack>
-            <VStack spacing={1}>
-              <RawText fontSize='xs' color='text.subtle'>
-                {translate(
-                  isAddMode
-                    ? 'chainflipLending.collateral.added'
-                    : 'chainflipLending.collateral.removed',
-                )}
-              </RawText>
-              <Amount.Crypto
-                value={collateralAmountCryptoPrecision}
-                symbol={asset.symbol}
-                fontWeight='bold'
-                fontSize='lg'
-              />
+            <VStack spacing={2} width='full' px={2}>
+              <Flex justifyContent='space-between' alignItems='center' width='full'>
+                <RawText fontSize='sm' color='text.subtle'>
+                  {translate(
+                    isAddMode
+                      ? 'chainflipLending.collateral.added'
+                      : 'chainflipLending.collateral.removed',
+                  )}
+                </RawText>
+                <Amount.Crypto
+                  value={collateralAmountCryptoPrecision}
+                  symbol={asset.symbol}
+                  fontWeight='medium'
+                  fontSize='sm'
+                />
+              </Flex>
             </VStack>
           </VStack>
         </CardBody>
@@ -146,7 +150,11 @@ export const CollateralConfirm = memo(({ assetId }: CollateralConfirmProps) => {
       <SlideTransition>
         <CardBody px={6} py={4}>
           <VStack spacing={6} align='center' py={6}>
-            <AssetIcon assetId={assetId} size='lg' />
+            <HStack spacing={3}>
+              <AssetIcon assetId={isAddMode ? assetId : flipAssetId} size='md' />
+              <ArrowForwardIcon boxSize={5} color='text.subtle' />
+              <AssetIcon assetId={isAddMode ? flipAssetId : assetId} size='md' />
+            </HStack>
             <VStack spacing={2}>
               <RawText fontWeight='bold' fontSize='lg' textAlign='center' color='red.500'>
                 {translate('chainflipLending.collateral.errorTitle')}
@@ -185,18 +193,29 @@ export const CollateralConfirm = memo(({ assetId }: CollateralConfirmProps) => {
     )
   }
 
+  const isAwaitingNativeConfirm = isNativeWallet && !isConfirming && !stepConfirmed
+
   if (!isConfirm) {
     return (
       <SlideTransition>
         <CardBody px={6} py={4}>
           <VStack spacing={6} align='center' py={6}>
-            <CircularProgress isIndeterminate />
+            <HStack spacing={3}>
+              <AssetIcon assetId={isAddMode ? assetId : flipAssetId} size='md' />
+              <ArrowForwardIcon boxSize={5} color='text.subtle' />
+              <AssetIcon assetId={isAddMode ? flipAssetId : assetId} size='md' />
+            </HStack>
+            {!isAwaitingNativeConfirm && <CircularProgress isIndeterminate />}
             <VStack spacing={2}>
               <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
-                {translate('chainflipLending.collateral.executingTitle')}
+                {isAwaitingNativeConfirm
+                  ? translate('chainflipLending.awaitingConfirmTitle')
+                  : translate('chainflipLending.collateral.executingTitle')}
               </RawText>
               <RawText fontSize='sm' color='text.subtle' textAlign='center'>
-                {translate('chainflipLending.collateral.executingDescription')}
+                {isAwaitingNativeConfirm
+                  ? translate('chainflipLending.awaitingConfirmDescription')
+                  : translate('chainflipLending.collateral.executingDescription')}
               </RawText>
             </VStack>
             <CollateralStepper />
@@ -234,7 +253,11 @@ export const CollateralConfirm = memo(({ assetId }: CollateralConfirmProps) => {
     <SlideTransition>
       <CardBody px={6} py={4}>
         <VStack spacing={6} align='center' py={6}>
-          <AssetIcon assetId={assetId} size='lg' />
+          <HStack spacing={3}>
+            <AssetIcon assetId={isAddMode ? assetId : flipAssetId} size='md' />
+            <ArrowForwardIcon boxSize={5} color='text.subtle' />
+            <AssetIcon assetId={isAddMode ? flipAssetId : assetId} size='md' />
+          </HStack>
           <VStack spacing={2}>
             <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
               {translate(

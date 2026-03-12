@@ -45,8 +45,9 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
   const freeBalanceCryptoBaseUnit = SupplyMachineCtx.useSelector(
     s => s.context.freeBalanceCryptoBaseUnit,
   )
+  const savedSupplyAmount = SupplyMachineCtx.useSelector(s => s.context.supplyAmountCryptoPrecision)
 
-  const [inputValue, setInputValue] = useState('')
+  const [inputValue, setInputValue] = useState(savedSupplyAmount || '')
 
   const availableCryptoPrecision = useMemo(
     () =>
@@ -55,6 +56,14 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
         precision: asset?.precision ?? 0,
       }).toPrecision(),
     [freeBalanceCryptoBaseUnit, asset?.precision],
+  )
+
+  const availableFiat = useMemo(
+    () =>
+      bnOrZero(availableCryptoPrecision)
+        .times(marketData?.price ?? 0)
+        .toFixed(2),
+    [availableCryptoPrecision, marketData?.price],
   )
 
   const cryptoFromFiat = useMemo(() => {
@@ -263,12 +272,15 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
               </RawText>
             </HelperTooltip>
             <Flex alignItems='center' gap={2}>
-              <Amount.Crypto
-                value={availableCryptoPrecision}
-                symbol={asset.symbol}
-                fontSize='sm'
-                fontWeight='medium'
-              />
+              <VStack spacing={0} align='flex-end'>
+                <Amount.Fiat value={availableFiat} fontSize='sm' fontWeight='medium' />
+                <Amount.Crypto
+                  value={availableCryptoPrecision}
+                  symbol={asset.symbol}
+                  fontSize='xs'
+                  color='text.subtle'
+                />
+              </VStack>
               <Button
                 data-testid='chainflip-supply-max'
                 size='xs'

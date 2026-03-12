@@ -16,7 +16,7 @@ import {
   Tooltip,
   VStack,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
 import type { Property } from 'csstype'
@@ -48,6 +48,7 @@ import { useChainflipLtvThresholds } from '@/pages/ChainflipLending/hooks/useCha
 import { useChainflipSafeModeStatuses } from '@/pages/ChainflipLending/hooks/useChainflipSafeModeStatuses'
 import { useChainflipSupplyPositions } from '@/pages/ChainflipLending/hooks/useChainflipSupplyPositions'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
 import { selectPortfolioCryptoBalanceByFilter } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -71,9 +72,11 @@ const ACTION_TAB_ITEMS = [
 
 type PoolHeaderProps = {
   assetId: AssetId
+  accountId: AccountId | undefined
+  setAccountId: (accountId: AccountId | undefined) => void
 }
 
-const PoolHeader: React.FC<PoolHeaderProps> = ({ assetId }) => {
+const PoolHeader: React.FC<PoolHeaderProps> = ({ assetId, accountId, setAccountId }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const translate = useTranslate()
   const navigate = useNavigate()
@@ -104,6 +107,17 @@ const PoolHeader: React.FC<PoolHeaderProps> = ({ assetId }) => {
           </PageHeader.Title>
         </PageHeader.Middle>
       </Display.Mobile>
+      {accountId && (
+        <PageHeader.Right>
+          <AccountDropdown
+            assetId={ethAssetId}
+            onChange={setAccountId}
+            defaultAccountId={accountId}
+            autoSelectHighestBalance
+            buttonProps={{ variant: 'ghost', size: 'sm' }}
+          />
+        </PageHeader.Right>
+      )}
     </PageHeader>
   )
 }
@@ -242,12 +256,35 @@ export const Pool = () => {
     }).toPrecision()
   }, [freeBalances, cfAsset, asset])
 
+  const marketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, poolAssetId),
+  )
+
+  const freeBalanceFiat = useMemo(
+    () =>
+      bnOrZero(freeBalanceCryptoPrecision)
+        .times(marketData?.price ?? 0)
+        .toFixed(2),
+    [freeBalanceCryptoPrecision, marketData?.price],
+  )
+
+  const walletBalanceFiat = useMemo(
+    () =>
+      bnOrZero(walletBalanceCryptoPrecision)
+        .times(marketData?.price ?? 0)
+        .toFixed(2),
+    [walletBalanceCryptoPrecision, marketData?.price],
+  )
+
   const hasSupplyPosition = useMemo(
     () => bnOrZero(supplyPosition?.totalAmountCryptoPrecision).gt(0),
     [supplyPosition],
   )
 
-  const headerComponent = useMemo(() => <PoolHeader assetId={poolAssetId} />, [poolAssetId])
+  const headerComponent = useMemo(
+    () => <PoolHeader assetId={poolAssetId} accountId={accountId} setAccountId={setAccountId} />,
+    [poolAssetId, accountId, setAccountId],
+  )
 
   const actionTabHeader = useMemo(
     () => (
@@ -534,19 +571,6 @@ export const Pool = () => {
         >
           <Card data-testid='chainflip-pool-actions'>
             <CardBody px={0} py={0}>
-              {accountId && (
-                <Box px={4} pt={4}>
-                  <Flex justifyContent='flex-end' alignItems='center'>
-                    <AccountDropdown
-                      assetId={ethAssetId}
-                      onChange={setAccountId}
-                      defaultAccountId={accountId}
-                      autoSelectHighestBalance
-                      buttonProps={{ variant: 'ghost', size: 'sm' }}
-                    />
-                  </Flex>
-                </Box>
-              )}
               <Tabs index={actionTabIndex}>
                 {actionTabHeader}
                 <TabPanels>
@@ -556,23 +580,33 @@ export const Pool = () => {
                         <RawText fontSize='sm' color='text.subtle'>
                           {translate('chainflipLending.pool.freeBalance')}
                         </RawText>
-                        <Amount.Crypto
-                          value={freeBalanceCryptoPrecision}
-                          symbol={asset.symbol}
-                          fontSize='sm'
-                          fontWeight='medium'
-                        />
+                        <VStack spacing={0} align='flex-end'>
+                          <Amount.Fiat value={freeBalanceFiat} fontSize='sm' fontWeight='medium' />
+                          <Amount.Crypto
+                            value={freeBalanceCryptoPrecision}
+                            symbol={asset.symbol}
+                            fontSize='xs'
+                            color='text.subtle'
+                          />
+                        </VStack>
                       </Flex>
                       <Flex justifyContent='space-between' alignItems='center'>
                         <RawText fontSize='sm' color='text.subtle'>
                           {translate('chainflipLending.pool.walletBalance')}
                         </RawText>
-                        <Amount.Crypto
-                          value={walletBalanceCryptoPrecision}
-                          symbol={asset.symbol}
-                          fontSize='sm'
-                          fontWeight='medium'
-                        />
+                        <VStack spacing={0} align='flex-end'>
+                          <Amount.Fiat
+                            value={walletBalanceFiat}
+                            fontSize='sm'
+                            fontWeight='medium'
+                          />
+                          <Amount.Crypto
+                            value={walletBalanceCryptoPrecision}
+                            symbol={asset.symbol}
+                            fontSize='xs'
+                            color='text.subtle'
+                          />
+                        </VStack>
                       </Flex>
                       <HStack spacing={3}>
                         <Box flex={1} sx={{ '> span': { display: 'block' } }}>
@@ -636,24 +670,34 @@ export const Pool = () => {
                         <RawText fontSize='sm' color='text.subtle'>
                           {translate('chainflipLending.pool.freeBalance')}
                         </RawText>
-                        <Amount.Crypto
-                          value={freeBalanceCryptoPrecision}
-                          symbol={asset.symbol}
-                          fontSize='sm'
-                          fontWeight='medium'
-                        />
+                        <VStack spacing={0} align='flex-end'>
+                          <Amount.Fiat value={freeBalanceFiat} fontSize='sm' fontWeight='medium' />
+                          <Amount.Crypto
+                            value={freeBalanceCryptoPrecision}
+                            symbol={asset.symbol}
+                            fontSize='xs'
+                            color='text.subtle'
+                          />
+                        </VStack>
                       </Flex>
                       <Flex justifyContent='space-between' alignItems='center'>
                         <RawText fontSize='sm' color='text.subtle'>
                           {translate('chainflipLending.supplied')}
                         </RawText>
                         <Skeleton isLoaded={!isPositionsLoading}>
-                          <Amount.Crypto
-                            value={supplyPosition?.totalAmountCryptoPrecision ?? '0'}
-                            symbol={asset.symbol}
-                            fontSize='sm'
-                            fontWeight='medium'
-                          />
+                          <VStack spacing={0} align='flex-end'>
+                            <Amount.Fiat
+                              value={supplyPosition?.totalAmountFiat ?? '0'}
+                              fontSize='sm'
+                              fontWeight='medium'
+                            />
+                            <Amount.Crypto
+                              value={supplyPosition?.totalAmountCryptoPrecision ?? '0'}
+                              symbol={asset.symbol}
+                              fontSize='xs'
+                              color='text.subtle'
+                            />
+                          </VStack>
                         </Skeleton>
                       </Flex>
                       <HStack spacing={3}>
@@ -862,12 +906,15 @@ export const Pool = () => {
                         <RawText fontSize='sm' color='text.subtle'>
                           {translate('chainflipLending.pool.freeBalance')}
                         </RawText>
-                        <Amount.Crypto
-                          value={freeBalanceCryptoPrecision}
-                          symbol={asset.symbol}
-                          fontSize='sm'
-                          fontWeight='medium'
-                        />
+                        <VStack spacing={0} align='flex-end'>
+                          <Amount.Fiat value={freeBalanceFiat} fontSize='sm' fontWeight='medium' />
+                          <Amount.Crypto
+                            value={freeBalanceCryptoPrecision}
+                            symbol={asset.symbol}
+                            fontSize='xs'
+                            color='text.subtle'
+                          />
+                        </VStack>
                       </Flex>
                       <HStack spacing={3}>
                         <Box flex={1} sx={{ '> span': { display: 'block' } }}>

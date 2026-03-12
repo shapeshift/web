@@ -517,8 +517,9 @@ const SwapWidgetWithExternalWallet = (props: SwapWidgetProps) => {
         baseUrl: props.apiBaseUrl,
         affiliateAddress: props.affiliateAddress,
         affiliateBps: props.affiliateBps,
+        partnerCode: props.partnerCode,
       }),
-    [props.apiBaseUrl, props.affiliateAddress, props.affiliateBps],
+    [props.apiBaseUrl, props.affiliateAddress, props.affiliateBps, props.partnerCode],
   )
 
   return (
@@ -565,8 +566,9 @@ const SwapWidgetWithInternalWallet = (
         baseUrl: props.apiBaseUrl,
         affiliateAddress: props.affiliateAddress,
         affiliateBps: props.affiliateBps,
+        partnerCode: props.partnerCode,
       }),
-    [props.apiBaseUrl, props.affiliateAddress, props.affiliateBps],
+    [props.apiBaseUrl, props.affiliateAddress, props.affiliateBps, props.partnerCode],
   )
 
   return (

@@ -7,6 +7,7 @@ export type ApiClientConfig = {
   baseUrl?: string
   affiliateAddress?: string
   affiliateBps?: string
+  partnerCode?: string
 }
 
 export const createApiClient = (config: ApiClientConfig = {}) => {
@@ -27,6 +28,9 @@ export const createApiClient = (config: ApiClientConfig = {}) => {
     }
     if (config.affiliateBps) {
       headers['x-affiliate-bps'] = config.affiliateBps
+    }
+    if (config.partnerCode) {
+      headers['x-partner-code'] = config.partnerCode
     }
 
     const controller = new AbortController()

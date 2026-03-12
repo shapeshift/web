@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useAccount, useConnect, useDisconnect } from 'wagmi'
 
+import { useAffiliateConfig } from './hooks/useAffiliateConfig'
 import { useAffiliateStats } from './hooks/useAffiliateStats'
 
 const formatUsd = (value: number): string =>
@@ -120,37 +122,52 @@ const ShapeShiftLogo = (): React.JSX.Element => (
   </svg>
 )
 
-const EVM_ADDRESS_REGEX = /^0x[0-9a-fA-F]{40}$/
-
-const isValidEvmAddress = (addr: string): boolean => EVM_ADDRESS_REGEX.test(addr)
+const shortenAddress = (addr: string): string => `${addr.slice(0, 6)}...${addr.slice(-4)}`
 
 export const App = (): React.JSX.Element => {
-  const [address, setAddress] = useState('')
+  const { address, isConnected } = useAccount()
+  const { connect, connectors, isPending: isConnecting } = useConnect()
+  const { disconnect } = useDisconnect()
+
+  const [manualAddress, setManualAddress] = useState('')
   const [selectedPeriod, setSelectedPeriod] = useState(0)
-  const [validationError, setValidationError] = useState<string | null>(null)
-  const { stats, isLoading, error, fetchStats } = useAffiliateStats()
+
+  // Use connected wallet address or manual input
+  const affiliateAddress = isConnected && address ? address : manualAddress
+
+  const { stats, isLoading: statsLoading, error: statsError, fetchStats } = useAffiliateStats()
+  const {
+    config: affiliateConfig,
+    isLoading: configLoading,
+    fetchConfig,
+  } = useAffiliateConfig()
 
   const currentPeriod = periods[selectedPeriod]
 
   const doFetch = useCallback((): void => {
-    const trimmed = address.trim()
+    const trimmed = affiliateAddress.trim()
     if (!trimmed) return
 
-    if (!isValidEvmAddress(trimmed)) {
-      setValidationError('Please enter a valid Ethereum address (0x followed by 40 hex characters)')
-      return
-    }
-
-    setValidationError(null)
     void fetchStats(trimmed, {
       startDate: currentPeriod.startDate,
       endDate: currentPeriod.endDate,
     })
-  }, [fetchStats, address, currentPeriod])
+    void fetchConfig(trimmed)
+  }, [fetchStats, fetchConfig, affiliateAddress, currentPeriod])
 
-  const handleAddressChange = useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
-    setAddress(e.target.value)
-    setValidationError(null)
+  // Auto-fetch when wallet connects
+  useEffect(() => {
+    if (isConnected && address) {
+      doFetch()
+    }
+  }, [isConnected, address]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (affiliateAddress.trim()) doFetch()
+  }, [selectedPeriod]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleManualAddressChange = useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
+    setManualAddress(e.target.value)
   }, [])
 
   const handleViewStats = useCallback((): void => {
@@ -159,34 +176,20 @@ export const App = (): React.JSX.Element => {
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>): void => {
-      if (e.key === 'Enter') {
-        doFetch()
-      }
+      if (e.key === 'Enter') doFetch()
     },
     [doFetch],
   )
 
-  useEffect(() => {
-    if (address.trim()) doFetch()
-  }, [selectedPeriod]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const isButtonDisabled = useMemo(() => isLoading || !address.trim(), [isLoading, address])
+  const isLoading = statsLoading || configLoading
+  const isButtonDisabled = isLoading || !affiliateAddress.trim()
 
   const statCards = useMemo(() => {
     if (!stats) return null
     return [
-      {
-        label: 'Total Swaps',
-        value: formatNumber(stats.totalSwaps),
-      },
-      {
-        label: 'Total Volume USD',
-        value: formatUsd(stats.totalVolumeUsd),
-      },
-      {
-        label: 'Total Fees USD',
-        value: formatUsd(stats.totalFeesUsd),
-      },
+      { label: 'Total Swaps', value: formatNumber(stats.totalSwaps) },
+      { label: 'Total Volume USD', value: formatUsd(stats.totalVolumeUsd) },
+      { label: 'Total Fees USD', value: formatUsd(stats.totalFeesUsd) },
     ]
   }, [stats])
 
@@ -202,31 +205,87 @@ export const App = (): React.JSX.Element => {
           <p style={styles.subtitle}>Track your affiliate performance and earnings</p>
         </header>
 
-        <div style={styles.inputGroup}>
-          <div style={styles.inputWrapper}>
-            <input
-              type='text'
-              value={address}
-              onChange={handleAddressChange}
-              onKeyDown={handleKeyDown}
-              placeholder='Enter affiliate address (0x...)'
-              style={styles.input}
-              spellCheck={false}
-              autoComplete='off'
-            />
-          </div>
-          <button
-            onClick={handleViewStats}
-            disabled={isButtonDisabled}
-            style={{
-              ...styles.button,
-              ...(isButtonDisabled ? styles.buttonDisabled : {}),
-            }}
-          >
-            {isLoading ? 'Loading…' : 'View Stats'}
-          </button>
+        {/* Wallet Connection */}
+        <div style={styles.walletSection}>
+          {isConnected && address ? (
+            <div style={styles.connectedWallet}>
+              <span style={styles.connectedLabel}>Connected:</span>
+              <span style={styles.connectedAddress}>{shortenAddress(address)}</span>
+              <button onClick={() => disconnect()} style={styles.disconnectButton}>
+                Disconnect
+              </button>
+            </div>
+          ) : (
+            <div style={styles.connectButtons}>
+              {connectors.map(connector => (
+                <button
+                  key={connector.uid}
+                  onClick={() => connect({ connector })}
+                  disabled={isConnecting}
+                  style={styles.connectButton}
+                >
+                  {isConnecting ? 'Connecting...' : `Connect ${connector.name}`}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
+        {/* Manual Address Input (when not connected) */}
+        {!isConnected && (
+          <div style={styles.inputGroup}>
+            <div style={styles.inputWrapper}>
+              <input
+                type='text'
+                value={manualAddress}
+                onChange={handleManualAddressChange}
+                onKeyDown={handleKeyDown}
+                placeholder='Or enter affiliate address (0x...)'
+                style={styles.input}
+                spellCheck={false}
+                autoComplete='off'
+              />
+            </div>
+            <button
+              onClick={handleViewStats}
+              disabled={isButtonDisabled}
+              style={{
+                ...styles.button,
+                ...(isButtonDisabled ? styles.buttonDisabled : {}),
+              }}
+            >
+              {isLoading ? 'Loading…' : 'View Stats'}
+            </button>
+          </div>
+        )}
+
+        {/* Affiliate Config (when registered) */}
+        {affiliateConfig && (
+          <div style={styles.configCard}>
+            <h3 style={styles.configTitle}>Your Affiliate Config</h3>
+            <div style={styles.configRow}>
+              <span style={styles.configLabel}>BPS:</span>
+              <span style={styles.configValue}>{affiliateConfig.bps} ({(affiliateConfig.bps / 100).toFixed(2)}%)</span>
+            </div>
+            {affiliateConfig.partnerCode && (
+              <div style={styles.configRow}>
+                <span style={styles.configLabel}>Partner Code:</span>
+                <span style={styles.configValue}>{affiliateConfig.partnerCode}</span>
+              </div>
+            )}
+            <div style={styles.configRow}>
+              <span style={styles.configLabel}>Status:</span>
+              <span style={{
+                ...styles.configValue,
+                color: affiliateConfig.isActive ? '#4ade80' : '#f87171',
+              }}>
+                {affiliateConfig.isActive ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Period Selector */}
         <div style={styles.periodRow}>
           {periods.map((period, i) => (
             <button
@@ -242,9 +301,9 @@ export const App = (): React.JSX.Element => {
           ))}
         </div>
 
-        {validationError ? <div style={styles.error}>{validationError}</div> : null}
-        {error && !validationError ? <div style={styles.error}>{error}</div> : null}
+        {statsError ? <div style={styles.error}>{statsError}</div> : null}
 
+        {/* Stats Cards */}
         {statCards ? (
           <div style={styles.statsGrid}>
             {statCards.map(card => (
@@ -256,13 +315,15 @@ export const App = (): React.JSX.Element => {
           </div>
         ) : null}
 
-        {!stats && !error && !isLoading ? (
+        {!stats && !statsError && !isLoading && (
           <div style={styles.emptyState}>
             <p style={styles.emptyText}>
-              Enter an affiliate address above to view performance stats.
+              {isConnected
+                ? 'Loading your affiliate stats...'
+                : 'Connect your wallet or enter an affiliate address to view stats.'}
             </p>
           </div>
-        ) : null}
+        )}
       </div>
     </div>
   )
@@ -292,7 +353,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   header: {
     textAlign: 'center',
-    marginBottom: 48,
+    marginBottom: 32,
   },
   logo: {
     display: 'flex',
@@ -313,10 +374,85 @@ const styles: Record<string, React.CSSProperties> = {
     margin: 0,
     fontWeight: 400,
   },
+  walletSection: {
+    marginBottom: 24,
+  },
+  connectButtons: {
+    display: 'flex',
+    gap: 12,
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+  },
+  connectButton: {
+    padding: '12px 24px',
+    fontSize: 14,
+    fontWeight: 600,
+    background: '#386ff9',
+    color: '#fff',
+    border: 'none',
+    borderRadius: 10,
+    cursor: 'pointer',
+  },
+  connectedWallet: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+    padding: '12px 20px',
+    background: '#12141a',
+    border: '1px solid #1e2028',
+    borderRadius: 12,
+  },
+  connectedLabel: {
+    color: '#7a7e8a',
+    fontSize: 14,
+  },
+  connectedAddress: {
+    fontFamily: '"DM Mono", monospace',
+    color: '#4ade80',
+    fontSize: 14,
+  },
+  disconnectButton: {
+    padding: '6px 12px',
+    fontSize: 12,
+    fontWeight: 500,
+    background: 'transparent',
+    border: '1px solid #f87171',
+    borderRadius: 6,
+    color: '#f87171',
+    cursor: 'pointer',
+  },
+  configCard: {
+    background: '#12141a',
+    border: '1px solid #1e2028',
+    borderRadius: 12,
+    padding: '20px 24px',
+    marginBottom: 24,
+  },
+  configTitle: {
+    fontSize: 16,
+    fontWeight: 600,
+    color: '#f0f1f4',
+    margin: '0 0 16px',
+  },
+  configRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  configLabel: {
+    color: '#7a7e8a',
+    fontSize: 14,
+  },
+  configValue: {
+    color: '#f0f1f4',
+    fontSize: 14,
+    fontWeight: 500,
+  },
   inputGroup: {
     display: 'flex',
     gap: 12,
-    marginBottom: 32,
+    marginBottom: 24,
   },
   inputWrapper: {
     flex: 1,
@@ -331,20 +467,17 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 12,
     color: '#e2e4e9',
     outline: 'none',
-    transition: 'border-color 0.2s ease',
     boxSizing: 'border-box',
   },
   button: {
     padding: '14px 28px',
     fontSize: 15,
     fontWeight: 600,
-    fontFamily: '"DM Sans", "Söhne", -apple-system, BlinkMacSystemFont, sans-serif',
     background: '#386ff9',
     color: '#fff',
     border: 'none',
     borderRadius: 12,
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
     whiteSpace: 'nowrap',
     flexShrink: 0,
   },
@@ -371,13 +504,11 @@ const styles: Record<string, React.CSSProperties> = {
     padding: '10px 20px',
     fontSize: 14,
     fontWeight: 500,
-    fontFamily: '"DM Sans", "Söhne", -apple-system, BlinkMacSystemFont, sans-serif',
     background: '#12141a',
     border: '1px solid #1e2028',
     borderRadius: 10,
     color: '#7a7e8a',
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
   },
   periodButtonActive: {
     background: 'rgba(56, 111, 249, 0.12)',
@@ -395,7 +526,6 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 16,
     padding: '28px 24px',
     textAlign: 'center',
-    transition: 'border-color 0.2s ease, transform 0.2s ease',
   },
   cardValue: {
     fontSize: 26,
@@ -403,7 +533,7 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#f0f1f4',
     marginBottom: 6,
     letterSpacing: '-0.02em',
-    fontFamily: '"DM Mono", "SF Mono", "Fira Code", monospace',
+    fontFamily: '"DM Mono", monospace',
   },
   cardLabel: {
     fontSize: 13,
@@ -415,11 +545,6 @@ const styles: Record<string, React.CSSProperties> = {
   emptyState: {
     textAlign: 'center',
     padding: '60px 20px',
-  },
-  emptyIcon: {
-    fontSize: 36,
-    color: '#2a2d38',
-    marginBottom: 16,
   },
   emptyText: {
     fontSize: 15,

@@ -18,6 +18,7 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useToggle } from '@/hooks/useToggle/useToggle'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -25,6 +26,7 @@ import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { useChainflipAccount } from '@/pages/ChainflipLending/hooks/useChainflipAccount'
 import { useChainflipMinimumDeposit } from '@/pages/ChainflipLending/hooks/useChainflipMinimumDeposit'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
@@ -48,7 +50,10 @@ export const DepositInput = ({ assetId, onAssetChange }: DepositInputProps) => {
     number: { localeParts },
   } = useLocaleFormatter()
 
+  const [isFiat, toggleIsFiat] = useToggle(false)
+
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const portfolioLoadingStatus = useAppSelector(selectPortfolioLoadingStatus)
   const { accountNumber } = useChainflipLendingAccount()
   const accountIdsByAccountNumberAndChainId = useAppSelector(
@@ -84,6 +89,11 @@ export const DepositInput = ({ assetId, onAssetChange }: DepositInputProps) => {
       }).toPrecision(),
     [balanceCryptoBaseUnit, asset?.precision],
   )
+
+  const fiatAmount = useMemo(() => {
+    if (!marketData?.price) return '0'
+    return bnOrZero(depositAmountCryptoPrecision).times(marketData.price).toString()
+  }, [depositAmountCryptoPrecision, marketData?.price])
 
   const { freeBalances } = useChainflipAccount()
 
@@ -136,12 +146,33 @@ export const DepositInput = ({ assetId, onAssetChange }: DepositInputProps) => {
     return amount.gt(0) && amount.lt(minDeposit)
   }, [depositAmountCryptoPrecision, minDeposit])
 
+  const exceedsBalance = useMemo(
+    () => bnOrZero(depositAmountCryptoPrecision).gt(availableCryptoPrecision),
+    [depositAmountCryptoPrecision, availableCryptoPrecision],
+  )
+
   const handleInputChange = useCallback(
     (values: NumberFormatValues) => {
-      actorRef.send({ type: 'SET_AMOUNT', amount: values.value })
+      if (isFiat) {
+        const cryptoAmount =
+          values.value && marketData?.price
+            ? bnOrZero(values.value)
+                .div(marketData.price)
+                .decimalPlaces(asset?.precision ?? 18, 1)
+                .toString()
+            : ''
+        actorRef.send({ type: 'SET_AMOUNT', amount: cryptoAmount })
+      } else {
+        actorRef.send({ type: 'SET_AMOUNT', amount: values.value })
+      }
     },
-    [actorRef],
+    [actorRef, isFiat, marketData?.price, asset?.precision],
   )
+
+  const inputValue = useMemo(() => {
+    if (isFiat) return fiatAmount === '0' ? '' : fiatAmount
+    return depositAmountCryptoPrecision
+  }, [isFiat, fiatAmount, depositAmountCryptoPrecision])
 
   const handleMaxClick = useCallback(() => {
     actorRef.send({ type: 'SET_AMOUNT', amount: availableCryptoPrecision })
@@ -158,11 +189,26 @@ export const DepositInput = ({ assetId, onAssetChange }: DepositInputProps) => {
     [walletSupportsEth, walletSupportsAssetChain],
   )
 
+  const isAmountZero = bnOrZero(depositAmountCryptoPrecision).isZero()
+
   const isSubmitDisabled = useMemo(() => {
-    const isZero = bnOrZero(depositAmountCryptoPrecision).isZero()
-    const exceedsBalance = bnOrZero(depositAmountCryptoPrecision).gt(availableCryptoPrecision)
-    return isZero || exceedsBalance || isBelowMinimum
-  }, [depositAmountCryptoPrecision, availableCryptoPrecision, isBelowMinimum])
+    return isAmountZero || exceedsBalance || isBelowMinimum
+  }, [isAmountZero, exceedsBalance, isBelowMinimum])
+
+  const submitButtonColorScheme = useMemo(() => {
+    if (!isAmountZero && (exceedsBalance || isBelowMinimum)) return 'red'
+    return 'blue'
+  }, [isAmountZero, exceedsBalance, isBelowMinimum])
+
+  const submitButtonText = useMemo(() => {
+    if (exceedsBalance) return translate('common.insufficientFunds')
+    if (isBelowMinimum && minDeposit)
+      return translate('chainflipLending.deposit.belowMinimumDeposit', {
+        amount: minDeposit,
+        symbol: asset?.symbol,
+      })
+    return translate('chainflipLending.deposit.openChannel')
+  }, [exceedsBalance, isBelowMinimum, minDeposit, asset?.symbol, translate])
 
   if (!asset) return null
 
@@ -184,29 +230,59 @@ export const DepositInput = ({ assetId, onAssetChange }: DepositInputProps) => {
             <RawText fontSize='sm' color='text.subtle'>
               {translate('chainflipLending.deposit.amount')}
             </RawText>
-            <NumericFormat
-              data-testid='chainflip-deposit-amount-input'
-              inputMode='decimal'
-              valueIsNumericString={true}
-              decimalScale={asset.precision}
-              thousandSeparator={localeParts.group}
-              decimalSeparator={localeParts.decimal}
-              allowedDecimalSeparators={allowedDecimalSeparators}
-              allowNegative={false}
-              allowLeadingZeros={false}
-              value={depositAmountCryptoPrecision}
-              placeholder='0.00'
-              onValueChange={handleInputChange}
-              style={{
-                width: '100%',
-                fontSize: '1.25rem',
-                fontWeight: 'bold',
-                background: 'transparent',
-                border: 'none',
-                outline: 'none',
-                padding: '0.5rem 0',
-              }}
-            />
+            <Flex alignItems='center' gap={2}>
+              <NumericFormat
+                data-testid='chainflip-deposit-amount-input'
+                inputMode='decimal'
+                valueIsNumericString={true}
+                decimalScale={isFiat ? 2 : asset.precision}
+                thousandSeparator={localeParts.group}
+                decimalSeparator={localeParts.decimal}
+                allowedDecimalSeparators={allowedDecimalSeparators}
+                allowNegative={false}
+                allowLeadingZeros={false}
+                value={inputValue}
+                placeholder='0.00'
+                prefix={isFiat ? localeParts.prefix : ''}
+                suffix={isFiat ? localeParts.postfix : ''}
+                onValueChange={handleInputChange}
+                style={{
+                  flex: 1,
+                  fontSize: '1.25rem',
+                  fontWeight: 'bold',
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  padding: '0.5rem 0',
+                }}
+              />
+              {!isFiat && (
+                <RawText fontSize='lg' fontWeight='bold' color='text.subtle'>
+                  {asset.symbol}
+                </RawText>
+              )}
+            </Flex>
+            {marketData?.price && (
+              <Button
+                variant='link'
+                size='xs'
+                color='text.subtle'
+                fontWeight='medium'
+                onClick={toggleIsFiat}
+                alignSelf='flex-start'
+                px={0}
+              >
+                {isFiat ? (
+                  <Amount.Crypto
+                    value={depositAmountCryptoPrecision || '0'}
+                    symbol={asset.symbol}
+                    fontSize='xs'
+                  />
+                ) : (
+                  <Amount.Fiat value={fiatAmount} prefix='≈' fontSize='xs' />
+                )}
+              </Button>
+            )}
           </Stack>
 
           <Flex justifyContent='space-between' alignItems='center'>
@@ -285,7 +361,7 @@ export const DepositInput = ({ assetId, onAssetChange }: DepositInputProps) => {
         <ButtonWalletPredicate
           data-testid='chainflip-deposit-submit'
           isValidWallet={isValidWallet}
-          colorScheme='blue'
+          colorScheme={submitButtonColorScheme}
           size='lg'
           height={12}
           borderRadius='xl'
@@ -294,7 +370,7 @@ export const DepositInput = ({ assetId, onAssetChange }: DepositInputProps) => {
           onClick={handleSubmit}
           isDisabled={isSubmitDisabled}
         >
-          {translate('chainflipLending.deposit.openChannel')}
+          {submitButtonText}
         </ButtonWalletPredicate>
       </CardFooter>
     </SlideTransition>

@@ -2496,8 +2496,7 @@
       "currentLtv": "Current LTV",
       "borrowCapacity": "Borrow Capacity",
       "borrowPowerUsed": "Borrow Power Used",
-      "availableToBorrow": "Available to Borrow",
-      "actionPaused": "This action is temporarily paused on Chainflip"
+      "availableToBorrow": "Available to Borrow"
     },
     "supplyApy": "Supply APY",
     "supplyApyTooltip": "Annual percentage yield earned by supplying assets to this pool.",
@@ -2558,7 +2557,7 @@
       "explainer": "Assets will be deposited to your Chainflip State Chain account. Once deposited, you can supply to lending pools to earn yield.",
       "openChannel": "Open Deposit Channel",
       "confirmTitle": "Confirm Deposit",
-      "confirmDescription": "Deposit %{amount} %{asset} to your Chainflip State Chain account. You will be prompted to sign twice: once to open the deposit channel, and once to send the transaction.",
+      "confirmDescription": "Deposit %{amount} %{asset} to your Chainflip State Chain account. You will be guided through each required step and prompted to sign transactions as needed.",
       "confirmingTitle": "Depositing...",
       "confirmingDescription": "Please confirm the transactions in your wallet.",
       "confirmAndDeposit": "Confirm & Deposit",
@@ -2566,6 +2565,7 @@
       "successDescription": "Your %{asset} has been deposited to your Chainflip State Chain account.",
       "deposited": "Deposited",
       "minimumDeposit": "Min. Deposit",
+      "belowMinimumDeposit": "Min. %{amount} %{symbol}",
       "steps": {
         "approvingFlip": "Approve FLIP",
         "fundingAccount": "Fund Account",

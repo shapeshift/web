@@ -319,7 +319,7 @@ export const App = (): React.JSX.Element => {
           <div style={styles.emptyState}>
             <p style={styles.emptyText}>
               {isConnected
-                ? 'Loading your affiliate stats...'
+                ? 'No affiliate stats found for this address.'
                 : 'Connect your wallet or enter an affiliate address to view stats.'}
             </p>
           </div>

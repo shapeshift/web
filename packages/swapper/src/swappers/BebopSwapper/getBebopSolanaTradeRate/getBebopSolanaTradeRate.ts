@@ -60,18 +60,23 @@ export async function getBebopSolanaTradeRate(
     )
   }
 
-  const takerAddress = receiveAddress || ''
-  if (
-    bebopPriceResponse.solana_tx &&
-    takerAddress &&
-    !isBebopSolanaTxSafe(bebopPriceResponse.solana_tx, takerAddress)
-  ) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'Bebop signer index mismatch - taker not at expected position',
-        code: TradeQuoteError.NoRouteFound,
-      }),
-    )
+  if (bebopPriceResponse.solana_tx) {
+    if (!receiveAddress) {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Cannot validate Bebop Solana tx without a taker address',
+          code: TradeQuoteError.NoRouteFound,
+        }),
+      )
+    }
+    if (!isBebopSolanaTxSafe(bebopPriceResponse.solana_tx, receiveAddress)) {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Bebop signer index mismatch - taker not at expected position',
+          code: TradeQuoteError.NoRouteFound,
+        }),
+      )
+    }
   }
 
   const sellAmount = bebopPriceResponse.sellTokens[sellTokenAddress].amount

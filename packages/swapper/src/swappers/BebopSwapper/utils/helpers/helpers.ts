@@ -83,7 +83,7 @@ export const assertValidTrade = ({
  * This causes ghost txs (order returns "Success" but tx silently fails on-chain).
  *
  * Returns true if the taker is at the expected index (safe to execute), false otherwise.
- * Returns true on decode failure (optimistic - let it try).
+ * Returns false on decode failure.
  */
 export const isBebopSolanaTxSafe = (solanaTxBase64: string, takerAddress: string): boolean => {
   try {
@@ -94,9 +94,9 @@ export const isBebopSolanaTxSafe = (solanaTxBase64: string, takerAddress: string
     const takerIndex = signerKeys.findIndex(key => key.equals(takerPubkey))
     const expectedIndex = numSigners - 1 // Bebop hardcodes to last signer slot
 
-    if (takerIndex !== -1 && takerIndex !== expectedIndex) {
+    if (takerIndex !== expectedIndex) {
       console.warn(
-        `[Bebop Solana] Taker at signer index ${takerIndex}, Bebop expects ${expectedIndex}. Rejecting to avoid ghost tx.`,
+        `[Bebop Solana] Taker signer index ${takerIndex}, expected ${expectedIndex}. Rejecting to avoid ghost tx.`,
       )
       return false
     }

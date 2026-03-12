@@ -9,6 +9,7 @@ import {
   isWalletConnectV2,
   supportsBTC,
 } from '@shapeshiftoss/hdwallet-core/wallet'
+import { isMetaMaskNativeMultichain } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { AccountMetadataById, UtxoChainId } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
@@ -112,7 +113,10 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
       const adapter = assertGetUtxoChainAdapter(chainId)
 
       let supportedAccountTypes = adapter.getSupportedAccountTypes()
-      if (isMetaMask(wallet)) {
+      if (isMetaMaskNativeMultichain(wallet)) {
+        // Native multichain uses native segwit (bip84) via Bitcoin Wallet Standard
+        supportedAccountTypes = [UtxoAccountType.SegwitNative]
+      } else if (isMetaMask(wallet)) {
         // MetaMask snaps adapter only supports legacy for BTC and LTC
         supportedAccountTypes = [UtxoAccountType.P2pkh]
       }

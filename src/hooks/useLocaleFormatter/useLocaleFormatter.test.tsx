@@ -198,8 +198,13 @@ describe('useLocaleFormatter', () => {
     expect(result.current.number.toFiat(1234.456)).toBe(expected[1])
     expect(result.current.number.toFiat(123456.456)).toBe(expected[2])
     expect(result.current.number.toFiat(123456.656)).toBe(expected[3])
-    expect(result.current.number.toFiat(123456789.456)).toBe(expected[4])
-    expect(result.current.number.toFiat(123456789876.456)).toBe(expected[5])
+    // Case-insensitive for compact notation - ICU data differs across platforms (M vs m for millions)
+    expect(result.current.number.toFiat(123456789.456).toLowerCase()).toBe(
+      expected[4].toLowerCase(),
+    )
+    expect(result.current.number.toFiat(123456789876.456).toLowerCase()).toBe(
+      expected[5].toLowerCase(),
+    )
     expect(result.current.number.toFiat(123456789.456, { notation: 'standard' })).toBe(expected[6])
     // using ...1239 here to prove truncation instead of rounding
     expect(result.current.number.toFiat(0.1239)).toBe(expected[7])

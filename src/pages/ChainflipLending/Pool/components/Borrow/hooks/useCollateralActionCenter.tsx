@@ -19,8 +19,6 @@ export const useCollateralActionCenter = () => {
   const collateralAmountCryptoPrecision = CollateralMachineCtx.useSelector(
     s => s.context.collateralAmountCryptoPrecision,
   )
-  const txHash = CollateralMachineCtx.useSelector(s => s.context.txHash)
-
   useEffect(() => {
     if (isSigning && !actionIdRef.current && accountId) {
       actionIdRef.current = createAction({
@@ -37,10 +35,10 @@ export const useCollateralActionCenter = () => {
 
   useEffect(() => {
     if (isSuccess && actionIdRef.current) {
-      completeAction(actionIdRef.current, txHash ?? undefined)
+      completeAction(actionIdRef.current)
       actionIdRef.current = null
     }
-  }, [isSuccess, completeAction, txHash])
+  }, [isSuccess, completeAction])
 
   useEffect(() => {
     if (isError && actionIdRef.current) {

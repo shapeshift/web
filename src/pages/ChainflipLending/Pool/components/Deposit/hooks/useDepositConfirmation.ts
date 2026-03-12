@@ -7,8 +7,9 @@ import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { reactQueries } from '@/react-queries'
 
-const POLL_INTERVAL_MS = 6_000
-const MAX_POLL_ATTEMPTS = 20
+const POLL_INTERVAL_MS = 30_000
+// BTC requires ~3 confirmations (~10 min each) before Chainflip credits the LP account
+const MAX_POLL_ATTEMPTS = 120 // 1 hour
 
 export const useDepositConfirmation = () => {
   const queryClient = useQueryClient()

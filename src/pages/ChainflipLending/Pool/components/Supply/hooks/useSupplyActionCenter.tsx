@@ -18,8 +18,6 @@ export const useSupplyActionCenter = () => {
   const supplyAmountCryptoPrecision = SupplyMachineCtx.useSelector(
     s => s.context.supplyAmountCryptoPrecision,
   )
-  const txHash = SupplyMachineCtx.useSelector(s => s.context.txHash)
-
   useEffect(() => {
     if (isSigning && !actionIdRef.current && accountId) {
       actionIdRef.current = createAction({
@@ -33,10 +31,10 @@ export const useSupplyActionCenter = () => {
 
   useEffect(() => {
     if (isSuccess && actionIdRef.current) {
-      completeAction(actionIdRef.current, txHash ?? undefined)
+      completeAction(actionIdRef.current)
       actionIdRef.current = null
     }
-  }, [isSuccess, completeAction, txHash])
+  }, [isSuccess, completeAction])
 
   useEffect(() => {
     if (isError && actionIdRef.current) {

@@ -13,7 +13,7 @@ Start by navigating to the application and capturing the main navigation structu
 ```
 
 **Steps**:
-1. Navigate to `http://localhost:3000`
+1. Navigate to `${PORTLESS_URL:-http://localhost:3000}`
 2. Take snapshot of initial page
 3. Document main navigation items
 4. Document visible features/sections
@@ -272,7 +272,7 @@ Use browser MCP to automate discovery:
 
 async function discoverFeatures() {
   // 1. Navigate to home
-  await browser_navigate({ url: 'http://localhost:3000' })
+  await browser_navigate({ url: process.env.PORTLESS_URL || 'http://localhost:3000' })
 
   // 2. Take snapshot
   const homeSnapshot = await browser_snapshot()

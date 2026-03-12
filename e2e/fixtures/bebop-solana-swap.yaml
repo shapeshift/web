@@ -1,0 +1,71 @@
+name: Bebop Solana Swaps + THORChain LP
+description: >
+  Test Bebop Solana swapper (gasless signing) and THORChain LP asym SOL deposit.
+  Bebop swaps test the partially-signed tx serialize fix across wallet providers.
+  THORChain LP tests the compute budget fix for memo transactions.
+  Upstream Bebop errors (InsufficientLiquidity code 102, TransactionExecutionError code 208)
+  are expected soft_fails, not our bugs.
+route: /trade
+depends_on:
+  - wallet-health.yaml
+steps:
+  - name: Dismiss stale notifications
+    instruction: >
+      Dismiss any lingering toast notifications, feedback dialogs, or pending transaction banners.
+    expected: No stale notifications visible
+    screenshot: true
+
+  - name: SOL to USDC swap via Bebop
+    instruction: >
+      Select SOL as sell asset and USDC (Solana) as buy asset.
+      Toggle to fiat mode if needed, enter $0.50 sell amount. Wait for quotes to load.
+      Verify Bebop is the selected protocol (look for "Bebop" in the quote details).
+      If Bebop is not shown, check alternate protocols or skip with soft_fail.
+      Click Preview Trade, handle any warning dialogs ("Below recommended minimum",
+      "Price impact" -> click "I understand"). Click "Confirm and Trade", sign the transaction.
+      Wait for the tx to broadcast. Bebop gasless txs are co-signed server-side.
+    expected: Swap broadcasts successfully or shows an upstream Bebop error (not a signing/serialize error)
+    soft_fail_on:
+      - InsufficientLiquidity
+      - TransactionExecutionError
+    screenshot: true
+
+  - name: USDC to SOL swap via Bebop
+    instruction: >
+      Dismiss any feedback dialog. Go back to trade page.
+      Select USDC (Solana) as sell asset and SOL as buy asset.
+      Enter $0.50 sell amount. Wait for quotes.
+      Verify Bebop is the selected protocol. Click Preview Trade, confirm, sign.
+    expected: Swap broadcasts successfully or shows upstream Bebop error
+    soft_fail_on:
+      - InsufficientLiquidity
+      - TransactionExecutionError
+    screenshot: true
+
+  - name: SOL to SKR swap via Bebop
+    instruction: >
+      Dismiss any feedback dialog. Go back to trade page.
+      Select SOL as sell asset. For buy asset, search for token address
+      SKRbvo6Gf7GondiT3BbTfuRDPqLWei4j2Qy2NPGZhW3 in the asset picker.
+      Enter $0.50 sell amount. Wait for quotes.
+      Bebop may return TransactionExecutionError (code 208) for low-liquidity pairs.
+      This is expected upstream behavior, not our bug.
+    expected: Swap broadcasts or shows upstream Bebop error (not signing error)
+    soft_fail_on:
+      - InsufficientLiquidity
+      - TransactionExecutionError
+    screenshot: true
+
+  - name: THORChain LP asym SOL deposit
+    instruction: >
+      Navigate to /#/pools. Find and click the SOL/RUNE pool row.
+      Click "Add Liquidity". Select asymmetric SOL deposit (click the first radio
+      button with value="asset" via JS eval). Enter 0.006 in the SOL amount input.
+      Click "Add Liquidity" button. Accept the lockup warning ("I understand").
+      On the confirm page, click "Confirm and Deposit".
+      Click "Sign transaction" when prompted.
+      Wait for the tx to broadcast and confirm on THORChain.
+    expected: >
+      Deposit broadcasts successfully, shows "Waiting for Confirmation" then "Success".
+      A THORChain tx link should appear. The pending count should increment then decrement.
+    screenshot: true

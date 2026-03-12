@@ -55,7 +55,7 @@ agent-browser stores wallet state per profile per origin. You need to import the
 
 ```bash
 # Open a headed browser session
-agent-browser --session qabot --profile ~/.agent-browser/profiles/qabot --headed open http://localhost:3000
+agent-browser --session qabot --profile ~/.agent-browser/profiles/qabot --headed open ${PORTLESS_URL:-http://localhost:3000}
 
 # In the browser:
 # 1. Create or import a native wallet
@@ -79,6 +79,8 @@ For local testing, start the dev server:
 ```bash
 pnpm run dev
 ```
+
+When using [Portless](https://github.com/vercel-labs/portless) (`pnpm run dev:web`), `PORTLESS_URL` is set automatically (e.g. `http://develop.web.localhost:1355`). The wallet profile is stored per-origin, so you'll need to import the wallet separately for each Portless origin.
 
 Or point `BASE_URL` at a staging environment:
 

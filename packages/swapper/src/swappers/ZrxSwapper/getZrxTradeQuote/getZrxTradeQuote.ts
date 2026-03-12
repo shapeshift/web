@@ -20,6 +20,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { fetchZrxQuote } from '../utils/fetchFromZrx'
 import {
@@ -151,6 +152,14 @@ export async function getZrxTradeQuote(
           buyAmountAfterFeesCryptoBaseUnit: buyAmount,
           sellAmountIncludingProtocolFeesCryptoBaseUnit,
           source: SwapperName.Zrx,
+          affiliateFee: buildAffiliateFee({
+            strategy: 'buy_asset',
+            affiliateBps,
+            sellAsset,
+            buyAsset,
+            sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            buyAmountCryptoBaseUnit: buyAmount,
+          }),
           permit2Eip712: permit2Eip712 as unknown as TypedData | undefined,
           zrxTransactionMetadata: transactionMetadata,
         },

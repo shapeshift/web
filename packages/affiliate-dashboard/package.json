@@ -8,11 +8,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@reown/appkit": "^1.8.17",
+    "@reown/appkit-adapter-wagmi": "^1.8.17",
     "@tanstack/react-query": "^5.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "viem": "^2.0.0",
-    "wagmi": "^2.0.0"
+    "viem": "^2.40.0",
+    "wagmi": "^2.19.5"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",

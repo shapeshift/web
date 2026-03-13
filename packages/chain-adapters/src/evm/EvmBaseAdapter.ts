@@ -92,6 +92,7 @@ import type {
   BuildCustomApiTxInput,
   BuildCustomTxInput,
   EstimateGasRequest,
+  GasFeeData,
   GasFeeDataEstimate,
   NetworkFees,
 } from './types'
@@ -966,19 +967,32 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
-  private async getGasFeeDataFallback(viemClient: PublicClient): Promise<GasFeeDataEstimate> {
-    const feeData = await viemClient.estimateFeesPerGas()
+  async getGasFeeDataFallback(viemClient: PublicClient): Promise<GasFeeDataEstimate> {
+    try {
+      const feeData = await viemClient
+        .estimateFeesPerGas({ type: 'eip1559', chain: null })
+        .catch(() => viemClient.estimateFeesPerGas({ type: 'legacy', chain: null }))
 
-    const gasPrice = (feeData.gasPrice ?? 0n).toString()
-    const maxFeePerGas = feeData.maxFeePerGas?.toString()
-    const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas?.toString()
+      const fees: GasFeeData = {
+        gasPrice: (feeData.gasPrice ?? feeData.maxFeePerGas).toString(),
+        ...(feeData.maxFeePerGas && feeData.maxPriorityFeePerGas
+          ? {
+              maxFeePerGas: feeData.maxFeePerGas.toString(),
+              maxPriorityFeePerGas: feeData.maxPriorityFeePerGas.toString(),
+            }
+          : {}),
+      }
 
-    const fees = {
-      gasPrice,
-      ...(maxFeePerGas && maxPriorityFeePerGas ? { maxFeePerGas, maxPriorityFeePerGas } : {}),
+      return {
+        fast: fees,
+        average: fees,
+        slow: fees,
+      }
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getGasFeeData',
+      })
     }
-
-    return { fast: fees, average: fees, slow: fees }
   }
 
   async getGasFeeData(): Promise<GasFeeDataEstimate> {
@@ -1001,9 +1015,30 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   async getFeeData(input: GetFeeDataInput<T>): Promise<FeeDataEstimate<T>> {
     try {
-      const { gasLimit } = await this.providers.http.estimateGas({
-        estimateGasBody: this.buildEstimateGasBody(input),
-      })
+      const gasLimit = await (async () => {
+        const estimateGasBody = this.buildEstimateGasBody(input)
+
+        try {
+          const { gasLimit } = await this.providers.http.estimateGas({ estimateGasBody })
+          return gasLimit
+        } catch (err) {
+          const viemClient = viemClientByChainId[this.chainId]
+          if (!viemClient) throw err
+
+          console.warn(
+            `Unchained estimateGas failed for ${this.chainId}, falling back to direct RPC`,
+          )
+
+          const gasLimit = await viemClient.estimateGas({
+            account: estimateGasBody.from as Hex,
+            to: estimateGasBody.to as Hex,
+            value: BigInt(estimateGasBody.value),
+            data: estimateGasBody.data as Hex,
+          })
+
+          return gasLimit.toString()
+        }
+      })()
 
       const { fast, average, slow } = await this.getGasFeeData()
 

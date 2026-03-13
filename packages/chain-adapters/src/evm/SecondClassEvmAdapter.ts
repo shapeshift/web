@@ -52,7 +52,7 @@ import { CONTRACT_INTERACTION } from '../types'
 import { bn, bnOrZero } from '../utils/bignumber'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import { EvmBaseAdapter } from './EvmBaseAdapter'
-import type { GasFeeData, GasFeeDataEstimate } from './types'
+import type { GasFeeDataEstimate } from './types'
 
 const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [berachainChainId]: '0x6969696969696969696969696969696969696969',
@@ -308,31 +308,8 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     return results.filter((result): result is NonNullable<typeof result> => result !== null)
   }
 
-  async getGasFeeData(): Promise<GasFeeDataEstimate> {
-    try {
-      const [feeDataEipLegcy, feeDataEip1559] = await Promise.all([
-        this.requestQueue.add(() =>
-          this.viemClient.estimateFeesPerGas({ type: 'legacy', chain: null }),
-        ),
-        this.requestQueue.add(() =>
-          this.viemClient.estimateFeesPerGas({ type: 'eip1559', chain: null }),
-        ),
-      ])
-
-      const fees: GasFeeData = {
-        gasPrice: feeDataEipLegcy.gasPrice.toString(),
-        maxFeePerGas: feeDataEip1559.maxFeePerGas.toString(),
-        maxPriorityFeePerGas: feeDataEip1559.maxPriorityFeePerGas.toString(),
-      }
-
-      return {
-        fast: fees,
-        average: fees,
-        slow: fees,
-      }
-    } catch (err) {
-      throw new Error(`Failed to get gas fee data: ${err}`)
-    }
+  getGasFeeData(): Promise<GasFeeDataEstimate> {
+    return this.getGasFeeDataFallback(this.viemClient)
   }
 
   async getFeeData(input: GetFeeDataInput<T>): Promise<FeeDataEstimate<T>> {

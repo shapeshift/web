@@ -4,14 +4,14 @@ import ReactDOM from 'react-dom/client'
 import { WagmiProvider } from 'wagmi'
 
 import { App } from './App'
-import { config } from './config/wagmi'
+import { wagmiAdapter } from './config/wagmi'
 
 const queryClient = new QueryClient()
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <WagmiProvider config={config}>
+    <WagmiProvider config={wagmiAdapter.wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <App />
       </QueryClientProvider>

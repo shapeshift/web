@@ -1,26 +1,26 @@
-import { http, createConfig } from 'wagmi'
-import { arbitrum } from 'wagmi/chains'
-import { injected, walletConnect } from 'wagmi/connectors'
+import { arbitrum } from '@reown/appkit/networks'
+import { createAppKit } from '@reown/appkit/react'
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 
 const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo'
 
-if (projectId === 'demo') {
-  console.warn('[affiliate-dashboard] VITE_WALLETCONNECT_PROJECT_ID is not set — WalletConnect may not work in production.')
+const metadata = {
+  name: 'ShapeShift Affiliate Dashboard',
+  description: 'Manage your ShapeShift affiliate program',
+  url: 'https://app.shapeshift.com',
+  icons: [],
 }
 
-export const config = createConfig({
-  chains: [arbitrum],
-  connectors: [
-    injected(),
-    walletConnect({ projectId }),
-  ],
-  transports: {
-    [arbitrum.id]: http(),
-  },
+export const wagmiAdapter = new WagmiAdapter({
+  networks: [arbitrum],
+  projectId,
 })
 
-declare module 'wagmi' {
-  interface Register {
-    config: typeof config
-  }
-}
+createAppKit({
+  adapters: [wagmiAdapter],
+  networks: [arbitrum],
+  defaultNetwork: arbitrum,
+  projectId,
+  metadata,
+  themeMode: 'dark',
+})

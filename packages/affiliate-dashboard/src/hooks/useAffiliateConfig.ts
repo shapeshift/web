@@ -5,6 +5,7 @@ const API_BASE_URL = '/v1/affiliate'
 export interface AffiliateConfig {
   id: string
   walletAddress: string
+  receiveAddress: string | null
   partnerCode: string | null
   bps: number
   isActive: boolean

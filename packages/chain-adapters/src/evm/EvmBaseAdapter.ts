@@ -596,22 +596,29 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
   }
 
   private async getAccountFallback(pubkey: string, viemClient: PublicClient): Promise<Account<T>> {
-    const [balance, nonce] = await Promise.all([
-      viemClient.getBalance({ address: pubkey as `0x${string}` }),
-      viemClient.getTransactionCount({ address: pubkey as `0x${string}` }),
-    ])
+    try {
+      const [balance, nonce] = await Promise.all([
+        viemClient.getBalance({ address: pubkey as `0x${string}` }),
+        viemClient.getTransactionCount({ address: pubkey as `0x${string}` }),
+      ])
 
-    return {
-      balance: balance.toString(),
-      chainId: this.chainId,
-      assetId: this.assetId,
-      chain: this.getType(),
-      chainSpecific: {
-        nonce,
-        tokens: [],
-      },
-      pubkey,
-    } as Account<T>
+      return {
+        balance: balance.toString(),
+        chainId: this.chainId,
+        assetId: this.assetId,
+        chain: this.getType(),
+        chainSpecific: {
+          nonce,
+          tokens: [],
+        },
+        pubkey,
+      } as Account<T>
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getAccount',
+        options: { pubkey },
+      })
+    }
   }
 
   async getAccount(pubkey: string): Promise<Account<T>> {

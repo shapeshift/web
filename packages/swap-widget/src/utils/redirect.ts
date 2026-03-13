@@ -6,22 +6,38 @@ const SHAPESHIFT_APP_URL = 'https://app.shapeshift.com'
 export type RedirectParams = {
   sellAssetId: AssetId
   buyAssetId: AssetId
-  sellAmount?: string
+  sellAmountBaseUnit?: string
+  affiliateAddress?: string
 }
 
+/**
+ * Build a ShapeShift trade URL using the web app's hash-based route format:
+ * https://app.shapeshift.com/#/trade/{buyChainId}/{buyAssetSubId}/{sellChainId}/{sellAssetSubId}/{sellAmountBaseUnit}?affiliate=0x...
+ *
+ * Asset IDs are CAIP-19 format like "eip155:1/slip44:60" where the first segment is the chainId
+ * and the second segment is the asset sub-identifier.
+ */
 export const buildShapeShiftTradeUrl = (params: RedirectParams): string => {
-  const url = new URL(`${SHAPESHIFT_APP_URL}/trade`)
-  url.searchParams.set('sellAssetId', params.sellAssetId)
-  url.searchParams.set('buyAssetId', params.buyAssetId)
-  if (params.sellAmount) {
-    url.searchParams.set('sellAmount', params.sellAmount)
-  }
-  return url.toString()
+  const { sellAssetId, buyAssetId, sellAmountBaseUnit, affiliateAddress } = params
+
+  // CAIP-19 assetIds have format "chainId/assetSubId" e.g. "eip155:1/slip44:60"
+  // The first "/" separates chainId from assetSubId
+  const buySlashIdx = buyAssetId.indexOf('/')
+  const buyChainId = buyAssetId.substring(0, buySlashIdx)
+  const buyAssetSubId = buyAssetId.substring(buySlashIdx + 1)
+
+  const sellSlashIdx = sellAssetId.indexOf('/')
+  const sellChainId = sellAssetId.substring(0, sellSlashIdx)
+  const sellAssetSubId = sellAssetId.substring(sellSlashIdx + 1)
+
+  const amount = sellAmountBaseUnit || '0'
+  const affiliate = affiliateAddress ? `?affiliate=${encodeURIComponent(affiliateAddress)}` : ''
+
+  return `${SHAPESHIFT_APP_URL}/#/trade/${buyChainId}/${buyAssetSubId}/${sellChainId}/${sellAssetSubId}/${amount}${affiliate}`
 }
 
 export const redirectToShapeShift = (params: RedirectParams): void => {
-  const url = buildShapeShiftTradeUrl(params)
-  window.open(url, '_blank', 'noopener,noreferrer')
+  window.open(buildShapeShiftTradeUrl(params), '_blank', 'noopener,noreferrer')
 }
 
 export type ChainType = 'evm' | 'utxo' | 'cosmos' | 'solana' | 'other'

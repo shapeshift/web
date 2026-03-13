@@ -41,7 +41,7 @@
 **Action:** Navigate to trade page and configure swap pair
 
 **Steps:**
-1. Open ShapeShift at `http://localhost:3000/#/trade`
+1. Open ShapeShift at `${PORTLESS_URL:-http://localhost:3000}/#/trade`
 2. Ensure wallet is connected
 3. Select ETH as source asset
 4. Verify Ethereum is source chain

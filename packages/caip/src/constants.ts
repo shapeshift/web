@@ -69,8 +69,13 @@ export const usdtAssetId: AssetId = 'eip155:1/erc20:0xdac17f958d2ee523a220620699
 export const usdcAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
 export const usdcOnArbitrumOneAssetId: AssetId =
   'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831'
+export const usdtOnArbitrumOneAssetId: AssetId =
+  'eip155:42161/erc20:0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'
 export const usdcOnSolanaAssetId: AssetId =
   'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
+export const usdtOnSolanaAssetId: AssetId =
+  'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB'
+export const wbtcAssetId: AssetId = 'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599'
 export const flipAssetId: AssetId = 'eip155:1/erc20:0x826180541412d574cf1336d22c0c0a287822678a'
 
 export const foxWifHatAssetId: AssetId =

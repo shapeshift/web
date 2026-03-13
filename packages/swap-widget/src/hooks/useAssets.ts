@@ -1,7 +1,10 @@
 import { ASSET_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
+import type { UseQueryResult } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 
 import type { Asset, AssetId, ChainId } from '../types'
+
+type AssetQueryResult<TData> = Omit<UseQueryResult<RawAssetData>, 'data'> & { data: TData }
 
 const SHAPESHIFT_ASSET_CDN = 'https://app.shapeshift.com'
 const ASSET_QUERY_STALE_TIME = 5 * 60 * 1000
@@ -37,7 +40,7 @@ const fetchAssetData = async (): Promise<RawAssetData> => {
   return response.json()
 }
 
-export const useAssetData = () => {
+export const useAssetData = (): UseQueryResult<RawAssetData> => {
   return useQuery({
     queryKey: ['assetData'],
     queryFn: fetchAssetData,
@@ -46,7 +49,7 @@ export const useAssetData = () => {
   })
 }
 
-export const useAssets = () => {
+export const useAssets = (): AssetQueryResult<Asset[]> => {
   const { data, ...rest } = useAssetData()
 
   const assets = data ? data.ids.map(id => data.byId[id]).filter(Boolean) : []
@@ -54,12 +57,12 @@ export const useAssets = () => {
   return { data: assets, ...rest }
 }
 
-export const useAssetsById = () => {
+export const useAssetsById = (): AssetQueryResult<Record<AssetId, Asset>> => {
   const { data, ...rest } = useAssetData()
   return { data: data?.byId ?? {}, ...rest }
 }
 
-export const useAssetById = (assetId: AssetId | undefined) => {
+export const useAssetById = (assetId: AssetId | undefined): AssetQueryResult<Asset | undefined> => {
   const { data: assetsById, ...rest } = useAssetsById()
   return {
     data: assetId ? assetsById[assetId] : undefined,
@@ -84,7 +87,7 @@ const isNativeAsset = (assetId: string): boolean => {
   }
 }
 
-export const useChains = () => {
+export const useChains = (): AssetQueryResult<ChainInfo[]> => {
   const { data: assets, ...rest } = useAssets()
 
   const chains = (() => {
@@ -112,13 +115,15 @@ export const useChains = () => {
   return { data: chains, ...rest }
 }
 
-export const useChainInfo = (chainId: ChainId | undefined) => {
+export const useChainInfo = (
+  chainId: ChainId | undefined,
+): AssetQueryResult<ChainInfo | undefined> => {
   const { data: chains, ...rest } = useChains()
   const chainInfo = chainId ? chains.find(c => c.chainId === chainId) : undefined
   return { data: chainInfo, ...rest }
 }
 
-export const useAssetsByChainId = (chainId: ChainId | undefined) => {
+export const useAssetsByChainId = (chainId: ChainId | undefined): AssetQueryResult<Asset[]> => {
   const { data: assets, ...rest } = useAssets()
 
   const filteredAssets = chainId ? assets.filter(asset => asset.chainId === chainId) : assets
@@ -146,7 +151,7 @@ const scoreAsset = (asset: Asset, query: string): number => {
   return score
 }
 
-export const useAssetSearch = (query: string, chainId?: ChainId) => {
+export const useAssetSearch = (query: string, chainId?: ChainId): AssetQueryResult<Asset[]> => {
   const { data: assets, ...rest } = useAssets()
 
   const searchResults = (() => {

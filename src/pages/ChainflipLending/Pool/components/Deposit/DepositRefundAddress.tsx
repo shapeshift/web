@@ -10,7 +10,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -19,6 +19,7 @@ import { DepositMachineCtx } from './DepositMachineContext'
 
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { useInternalAccountReceiveAddress } from '@/components/Modals/Send/AddressBook/hooks/useInternalAccountReceiveAddress'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
@@ -27,7 +28,7 @@ import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSup
 import { validateAddress } from '@/lib/address/validation'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
-import { selectAccountIdsByChainId } from '@/state/slices/selectors'
+import { selectAccountIdsByChainId, selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const boxProps = { width: 'full', p: 0, m: 0 }
@@ -55,6 +56,7 @@ export const DepositRefundAddress = ({ assetId }: DepositRefundAddressProps) => 
   const refundAddress = DepositMachineCtx.useSelector(s => s.context.refundAddress)
 
   const chainId = useMemo(() => fromAssetId(assetId).chainId, [assetId])
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
 
   const poolChainAccountId = useMemo(() => {
     const byChainId = accountIdsByAccountNumberAndChainId[accountNumber]
@@ -76,6 +78,15 @@ export const DepositRefundAddress = ({ assetId }: DepositRefundAddressProps) => 
   )
   const [isCustomAddress, setIsCustomAddress] = useState(false)
 
+  const selectedAccountId = defaultAccountId ?? poolChainAccountId ?? null
+
+  const { receiveAddress: derivedReceiveAddress, isLoading: isDerivingAddress } =
+    useInternalAccountReceiveAddress({
+      accountId: selectedAccountId,
+      asset,
+      enabled: !isCustomAddress,
+    })
+
   const methods = useForm<AddressFormValues>({
     mode: 'onChange',
     reValidateMode: 'onChange',
@@ -94,18 +105,15 @@ export const DepositRefundAddress = ({ assetId }: DepositRefundAddressProps) => 
   }, [walletSupportsAssetChain])
 
   useEffect(() => {
-    const activeAccountId = defaultAccountId ?? poolChainAccountId
-    if (!isCustomAddress && activeAccountId && !refundAddress) {
-      const address = fromAccountId(activeAccountId).account
-      actorRef.send({ type: 'SET_REFUND_ADDRESS', address })
+    if (!isCustomAddress && derivedReceiveAddress && derivedReceiveAddress !== refundAddress) {
+      actorRef.send({ type: 'SET_REFUND_ADDRESS', address: derivedReceiveAddress })
     }
-  }, [isCustomAddress, defaultAccountId, poolChainAccountId, refundAddress, actorRef])
+  }, [isCustomAddress, derivedReceiveAddress, refundAddress, actorRef])
 
   const handleAccountChange = useCallback(
     (newAccountId: string) => {
-      const address = fromAccountId(newAccountId).account
       setDefaultAccountId(newAccountId)
-      actorRef.send({ type: 'SET_REFUND_ADDRESS', address })
+      actorRef.send({ type: 'SET_REFUND_ADDRESS', address: '' })
     },
     [actorRef],
   )
@@ -153,7 +161,7 @@ export const DepositRefundAddress = ({ assetId }: DepositRefundAddressProps) => 
     actorRef.send({ type: 'BACK' })
   }, [actorRef])
 
-  const isDisabled = !refundAddress
+  const isDisabled = !refundAddress || isDerivingAddress
 
   return (
     <SlideTransition>

@@ -1,8 +1,9 @@
-import { Button, CardBody, CardFooter, Flex, Stack, VStack } from '@chakra-ui/react'
+import { ArrowForwardIcon } from '@chakra-ui/icons'
+import { Button, CardBody, CardFooter, Flex, HStack, Stack, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import { NumericFormat } from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
@@ -17,6 +18,7 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useToggle } from '@/hooks/useToggle/useToggle'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
 import { useChainflipBorrowMinimums } from '@/pages/ChainflipLending/hooks/useChainflipBorrowMinimums'
@@ -50,12 +52,16 @@ export const CollateralInput = ({ assetId, onAssetChange }: CollateralInputProps
   const collateralBalanceCryptoBaseUnit = CollateralMachineCtx.useSelector(
     s => s.context.collateralBalanceCryptoBaseUnit,
   )
+  const savedCollateralAmount = CollateralMachineCtx.useSelector(
+    s => s.context.collateralAmountCryptoPrecision,
+  )
 
   const { totalCollateralFiat, totalBorrowedFiat } = useChainflipLoanAccount()
   const { thresholds } = useChainflipLtvThresholds()
   const { minimumUpdateCollateralAmountUsd } = useChainflipBorrowMinimums()
 
-  const [inputValue, setInputValue] = useState('')
+  const [isFiat, toggleIsFiat] = useToggle(false)
+  const [inputValue, setInputValue] = useState(savedCollateralAmount || '')
 
   const isAddMode = useMemo(() => mode === 'add', [mode])
 
@@ -107,6 +113,25 @@ export const CollateralInput = ({ assetId, onAssetChange }: CollateralInputProps
   )
 
   const inputFiat = useMemo(() => bnOrZero(inputValue).times(assetPrice), [inputValue, assetPrice])
+
+  const displayInputValue = useMemo(() => {
+    if (isFiat) {
+      const fiat = inputFiat.toFixed()
+      return inputFiat.isZero() ? '' : fiat
+    }
+    return inputValue
+  }, [isFiat, inputFiat, inputValue])
+
+  useEffect(() => {
+    if (assetPrice.isZero() && isFiat) {
+      toggleIsFiat()
+    }
+  }, [assetPrice, isFiat, toggleIsFiat])
+
+  const availableFiat = useMemo(
+    () => bnOrZero(availableCryptoPrecision).times(assetPrice).toFixed(2),
+    [availableCryptoPrecision, assetPrice],
+  )
 
   const isBelowMinimum = useMemo(() => {
     if (!minimumUpdateCollateralAmountUsd) return false
@@ -166,9 +191,23 @@ export const CollateralInput = ({ assetId, onAssetChange }: CollateralInputProps
 
   const hasActiveLoans = useMemo(() => bnOrZero(totalBorrowedFiat).gt(0), [totalBorrowedFiat])
 
-  const handleInputChange = useCallback((values: NumberFormatValues) => {
-    setInputValue(values.value)
-  }, [])
+  const handleInputChange = useCallback(
+    (values: NumberFormatValues) => {
+      if (isFiat) {
+        const cryptoAmount =
+          values.value && !assetPrice.isZero()
+            ? bnOrZero(values.value)
+                .div(assetPrice)
+                .decimalPlaces(asset?.precision ?? 18, 1)
+                .toFixed()
+            : ''
+        setInputValue(cryptoAmount)
+      } else {
+        setInputValue(values.value)
+      }
+    },
+    [isFiat, assetPrice, asset?.precision],
+  )
 
   const handleMaxClick = useCallback(() => {
     setInputValue(availableCryptoPrecision)
@@ -217,31 +256,54 @@ export const CollateralInput = ({ assetId, onAssetChange }: CollateralInputProps
             <RawText fontSize='sm' color='text.subtle'>
               {translate('chainflipLending.collateral.amount')}
             </RawText>
-            <NumericFormat
-              data-testid='chainflip-collateral-amount-input'
-              inputMode='decimal'
-              valueIsNumericString={true}
-              decimalScale={asset.precision}
-              thousandSeparator={localeParts.group}
-              decimalSeparator={localeParts.decimal}
-              allowedDecimalSeparators={allowedDecimalSeparators}
-              allowNegative={false}
-              allowLeadingZeros={false}
-              value={inputValue}
-              placeholder='0.00'
-              onValueChange={handleInputChange}
-              style={{
-                width: '100%',
-                fontSize: '1.25rem',
-                fontWeight: 'bold',
-                background: 'transparent',
-                border: 'none',
-                outline: 'none',
-                padding: '0.5rem 0',
-              }}
-            />
-            {!assetPrice.isZero() && bnOrZero(inputValue).gt(0) && (
-              <Amount.Fiat value={inputFiat.toFixed(2)} fontSize='sm' color='text.subtle' />
+            <Flex alignItems='center' gap={2}>
+              <NumericFormat
+                data-testid='chainflip-collateral-amount-input'
+                inputMode='decimal'
+                valueIsNumericString={true}
+                decimalScale={isFiat ? 2 : asset.precision}
+                thousandSeparator={localeParts.group}
+                decimalSeparator={localeParts.decimal}
+                allowedDecimalSeparators={allowedDecimalSeparators}
+                allowNegative={false}
+                allowLeadingZeros={false}
+                value={displayInputValue}
+                placeholder='0.00'
+                prefix={isFiat ? localeParts.prefix : ''}
+                suffix={isFiat ? localeParts.postfix : ''}
+                onValueChange={handleInputChange}
+                style={{
+                  flex: 1,
+                  fontSize: '1.25rem',
+                  fontWeight: 'bold',
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  padding: '0.5rem 0',
+                }}
+              />
+              {!isFiat && (
+                <RawText fontSize='lg' fontWeight='bold' color='text.subtle'>
+                  {asset.symbol}
+                </RawText>
+              )}
+            </Flex>
+            {!assetPrice.isZero() && (
+              <Button
+                variant='link'
+                size='xs'
+                color='text.subtle'
+                fontWeight='medium'
+                onClick={toggleIsFiat}
+                alignSelf='flex-start'
+                px={0}
+              >
+                {isFiat ? (
+                  <Amount.Crypto value={inputValue || '0'} symbol={asset.symbol} fontSize='xs' />
+                ) : (
+                  <Amount.Fiat value={inputFiat.toFixed(2)} prefix='≈' fontSize='xs' />
+                )}
+              </Button>
             )}
           </Stack>
 
@@ -262,12 +324,15 @@ export const CollateralInput = ({ assetId, onAssetChange }: CollateralInputProps
               </RawText>
             </HelperTooltip>
             <Flex alignItems='center' gap={2}>
-              <Amount.Crypto
-                value={availableCryptoPrecision}
-                symbol={asset.symbol}
-                fontSize='sm'
-                fontWeight='medium'
-              />
+              <VStack spacing={0} align='flex-end'>
+                <Amount.Fiat value={availableFiat} fontSize='sm' fontWeight='medium' />
+                <Amount.Crypto
+                  value={availableCryptoPrecision}
+                  symbol={asset.symbol}
+                  fontSize='xs'
+                  color='text.subtle'
+                />
+              </VStack>
               <Button
                 data-testid='chainflip-collateral-max'
                 size='xs'
@@ -280,6 +345,24 @@ export const CollateralInput = ({ assetId, onAssetChange }: CollateralInputProps
               </Button>
             </Flex>
           </Flex>
+
+          {hasActiveLoans && bnOrZero(inputValue).gt(0) && projectedLtvDecimal !== undefined && (
+            <Flex justifyContent='space-between' alignItems='center'>
+              <RawText fontSize='sm' color='text.subtle'>
+                {translate('chainflipLending.pool.currentLtv')}
+              </RawText>
+              <HStack spacing={1}>
+                <Amount.Percent
+                  value={currentLtvDecimal}
+                  color='text.subtle'
+                  fontSize='sm'
+                  fontWeight='medium'
+                />
+                <ArrowForwardIcon color='text.subtle' boxSize={3} />
+                <Amount.Percent value={projectedLtvDecimal} fontSize='sm' fontWeight='medium' />
+              </HStack>
+            </Flex>
+          )}
 
           {hasActiveLoans && (
             <LtvGauge currentLtv={currentLtvDecimal} projectedLtv={projectedLtvDecimal} />

@@ -8,7 +8,7 @@
 
 ## Prerequisites
 
-- Dev server running on `localhost:3000`
+- Dev server running on `localhost:3000` (or `$PORTLESS_URL` if using Portless)
 - [Other prerequisite 1]
 - [Other prerequisite 2]
 - [Required wallet state, test data, etc.]

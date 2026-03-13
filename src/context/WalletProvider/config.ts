@@ -143,6 +143,12 @@ const SnapUpdate = lazy(() =>
   import('./MetaMask/components/SnapUpdate').then(({ SnapUpdate }) => ({ default: SnapUpdate })),
 )
 
+const NativeMultichainStep = lazy(() =>
+  import('./MetaMask/components/NativeMultichainStep').then(({ NativeMultichainStep }) => ({
+    default: NativeMultichainStep,
+  })),
+)
+
 const ChangeLabel = lazy(() =>
   import('@/components/Layout/Header/NavBar/KeepKey/ChangeLabel').then(({ ChangeLabel }) => ({
     default: ChangeLabel,
@@ -459,6 +465,7 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
       { path: '/metamask/connect', component: MetaMaskConnect },
       { path: '/metamask/snap/install', component: SnapInstall },
       { path: '/metamask/snap/update', component: SnapUpdate },
+      { path: '/metamask/native-multichain', component: NativeMultichainStep },
       { path: '/metamask/failure', component: MetaMaskFailure },
     ],
     connectedMenuComponent: MetaMaskMenu,

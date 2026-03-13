@@ -128,7 +128,7 @@ export const useDepositSend = () => {
               const feeData = await adapter.getFeeData({
                 to: depositAddress,
                 value: depositAmountCryptoBaseUnit,
-                chainSpecific: { from, pubkey: from },
+                chainSpecific: { pubkey: from },
                 sendMax: false,
               })
 
@@ -138,7 +138,6 @@ export const useDepositSend = () => {
                 wallet,
                 accountNumber,
                 chainSpecific: {
-                  from,
                   satoshiPerByte: feeData.fast.chainSpecific.satoshiPerByte,
                   accountType: accountMetadata.accountType,
                 },

@@ -22,7 +22,6 @@ export const ChainflipLendingNotification = ({
   handleClick,
   actionId,
   onClose,
-  status,
 }: ChainflipLendingNotificationProps) => {
   const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
 
@@ -80,15 +79,5 @@ export const ChainflipLendingNotification = ({
 
   if (!action || !icon || !title) return null
 
-  const toastStatus = status === 'loading' ? 'info' : status
-
-  return (
-    <StandardToast
-      icon={icon}
-      title={title}
-      status={toastStatus}
-      onClick={handleClick}
-      onClose={onClose}
-    />
-  )
+  return <StandardToast icon={icon} title={title} onClick={handleClick} onClose={onClose} />
 }

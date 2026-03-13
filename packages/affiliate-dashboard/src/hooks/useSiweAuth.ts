@@ -3,8 +3,6 @@ import { useCallback, useEffect, useState } from 'react'
 import { useSignMessage } from 'wagmi'
 
 const API_BASE = '/v1/auth/siwe'
-const TOKEN_KEY = 'siwe_token'
-const ADDRESS_KEY = 'siwe_address'
 
 interface SiweAuthState {
   token: string | null
@@ -20,46 +18,12 @@ interface UseSiweAuthReturn extends SiweAuthState {
   authHeaders: Record<string, string>
 }
 
-const getStoredToken = (): string | null => {
-  try {
-    return localStorage.getItem(TOKEN_KEY)
-  } catch {
-    return null
-  }
-}
-
-const getStoredAddress = (): string | null => {
-  try {
-    return localStorage.getItem(ADDRESS_KEY)
-  } catch {
-    return null
-  }
-}
-
-const storeAuth = (token: string, address: string): void => {
-  try {
-    localStorage.setItem(TOKEN_KEY, token)
-    localStorage.setItem(ADDRESS_KEY, address)
-  } catch {
-    // noop
-  }
-}
-
-const clearAuth = (): void => {
-  try {
-    localStorage.removeItem(TOKEN_KEY)
-    localStorage.removeItem(ADDRESS_KEY)
-  } catch {
-    // noop
-  }
-}
-
 export const useSiweAuth = (): UseSiweAuthReturn => {
   const { address, isConnected } = useAppKitAccount()
   const { signMessageAsync } = useSignMessage()
 
-  const [token, setToken] = useState<string | null>(getStoredToken)
-  const [authenticatedAddress, setAuthenticatedAddress] = useState<string | null>(getStoredAddress)
+  const [token, setToken] = useState<string | null>(null)
+  const [authenticatedAddress, setAuthenticatedAddress] = useState<string | null>(null)
   const [isAuthenticating, setIsAuthenticating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -67,17 +31,14 @@ export const useSiweAuth = (): UseSiweAuthReturn => {
     if (!isConnected || !address) {
       setToken(null)
       setAuthenticatedAddress(null)
-      clearAuth()
       return
     }
 
-    const stored = getStoredAddress()
-    if (stored && stored !== address.toLowerCase()) {
+    if (authenticatedAddress && authenticatedAddress !== address.toLowerCase()) {
       setToken(null)
       setAuthenticatedAddress(null)
-      clearAuth()
     }
-  }, [isConnected, address])
+  }, [isConnected, address, authenticatedAddress])
 
   const signIn = useCallback(async (): Promise<void> => {
     if (!address) return
@@ -126,8 +87,7 @@ export const useSiweAuth = (): UseSiweAuthReturn => {
       }
 
       setToken(jwt)
-      setAuthenticatedAddress(verifiedAddress)
-      storeAuth(jwt, verifiedAddress)
+      setAuthenticatedAddress(verifiedAddress.toLowerCase())
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Authentication failed'
       setError(msg)
@@ -140,7 +100,6 @@ export const useSiweAuth = (): UseSiweAuthReturn => {
     setToken(null)
     setAuthenticatedAddress(null)
     setError(null)
-    clearAuth()
   }, [])
 
   const isAuthenticated =

@@ -85,9 +85,18 @@ export const readStoredPartnerBps = (): string | null => {
   }
 }
 
+const PARTNER_RESOLVE_TIMEOUT_MS = 5000
+
 const resolvePartnerCode = async (code: string): Promise<PartnerData | null> => {
   try {
-    const response = await fetch(`${PARTNER_LOOKUP_URL}/v1/partner/${encodeURIComponent(code)}`)
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), PARTNER_RESOLVE_TIMEOUT_MS)
+
+    const response = await fetch(`${PARTNER_LOOKUP_URL}/v1/partner/${encodeURIComponent(code)}`, {
+      signal: controller.signal,
+    })
+    clearTimeout(timeoutId)
+
     if (!response.ok) return null
 
     const data = (await response.json()) as {

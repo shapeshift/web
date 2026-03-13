@@ -48,10 +48,12 @@ export const useStatusPolling = ({
       if (stopped || !context.txHash) return
 
       if (!registeredWithApi && context.quote?.quoteId) {
-        registeredWithApi = true
-        apiClient.getSwapStatus({ quoteId: context.quote.quoteId, txHash: context.txHash }).catch(
-          () => {}, // best-effort — don't block on-chain polling
-        )
+        try {
+          await apiClient.getSwapStatus({ quoteId: context.quote.quoteId, txHash: context.txHash })
+          registeredWithApi = true
+        } catch {
+          // Retry on next poll cycle — don't block on-chain polling
+        }
       }
 
       try {

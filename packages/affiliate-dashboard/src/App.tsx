@@ -229,7 +229,7 @@ export const App = (): React.JSX.Element => {
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({
           walletAddress: affiliateAddress,
-          bps: parseInt(registerBps, 10) || 30,
+          bps: Number.isNaN(parseInt(registerBps, 10)) ? 30 : parseInt(registerBps, 10),
         }),
       })
       if (!res.ok) {

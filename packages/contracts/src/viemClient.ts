@@ -38,6 +38,8 @@ import {
   zksync,
 } from 'viem/chains'
 
+import { FALLBACK_RPC_URLS } from './fallbackRpcUrls'
+
 const megaeth = defineChain({
   id: 4326,
   name: 'MegaETH',
@@ -60,45 +62,6 @@ const megaeth = defineChain({
 })
 
 export const flowEvmChain = flowMainnet
-
-const FALLBACK_RPC_URLS = {
-  ethereum: ['https://eth.llamarpc.com'],
-  bsc: ['https://binance.llamarpc.com'],
-  avalanche: ['https://api.avax.network/ext/bc/C/rpc', 'https://avalanche.llamarpc.com'],
-  arbitrum: ['https://arb1.arbitrum.io/rpc', 'https://arbitrum.llamarpc.com'],
-  optimism: ['https://mainnet.optimism.io', 'https://optimism.llamarpc.com'],
-  gnosis: ['https://rpc.gnosischain.com', 'https://gnosis.llamarpc.com'],
-  polygon: ['https://polygon-rpc.com', 'https://polygon.llamarpc.com'],
-  base: [
-    'https://mainnet.base.org',
-    'https://base.llamarpc.com',
-    'https://base.blockpi.network/v1/rpc/public',
-  ],
-  monad: ['https://rpc.monad.xyz'],
-  hyperEvm: ['https://rpc.hyperliquid.xyz/evm'],
-  plasma: ['https://rpc.plasma.to'],
-  plume: ['https://rpc.plumenetwork.xyz'],
-  mantle: ['https://rpc.mantle.xyz', 'https://mantle.llamarpc.com'],
-  ink: ['https://rpc-gel.inkonchain.com', 'https://rpc-qnd.inkonchain.com'],
-  megaEth: ['https://mainnet.megaeth.com/rpc'],
-  berachain: ['https://rpc.berachain.com', 'https://berachain.llamarpc.com'],
-  scroll: ['https://rpc.scroll.io', 'https://scroll.llamarpc.com'],
-  cronos: ['https://evm.cronos.org', 'https://cronos.llamarpc.com'],
-  flowEvm: ['https://mainnet.evm.nodes.onflow.org'],
-  celo: ['https://forno.celo.org'],
-  katana: ['https://rpc.katana.network'],
-  story: ['https://mainnet.storyrpc.io'],
-  zkSyncEra: ['https://mainnet.era.zksync.io', 'https://zksync.llamarpc.com'],
-  blast: ['https://rpc.blast.io', 'https://blast.llamarpc.com'],
-  worldChain: ['https://worldchain-mainnet.g.alchemy.com/public'],
-  hemi: ['https://rpc.hemi.network/rpc'],
-  linea: ['https://rpc.linea.build', 'https://linea.llamarpc.com'],
-  sonic: ['https://rpc.soniclabs.com', 'https://sonic.llamarpc.com'],
-  unichain: ['https://mainnet.unichain.org'],
-  bob: ['https://rpc.gobob.xyz'],
-  mode: ['https://mainnet.mode.network', 'https://mode.llamarpc.com'],
-  soneium: ['https://rpc.soneium.org'],
-} as const
 
 const createFallbackTransport = (envUrl: string | undefined, fallbacks: readonly string[]) =>
   fallback([envUrl, ...fallbacks].filter(Boolean).map(url => http(url)))

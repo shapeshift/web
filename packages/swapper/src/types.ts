@@ -705,6 +705,15 @@ export type SolanaMessageExecutionProps = {
   signSerializedTransaction: (serializedTx: string) => Promise<string[]>
 }
 
+export type SolanaMessageToSign = {
+  serializedTx: string
+  quoteId: string
+}
+
+export type SolanaMessageExecutionProps = {
+  signSerializedTransaction: (serializedTx: string) => Promise<string[]>
+}
+
 export type TronTransactionExecutionProps = {
   signAndBroadcastTransaction: (txToSign: tron.TronSignTx) => Promise<string>
 }

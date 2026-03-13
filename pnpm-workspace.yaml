@@ -1,6 +1,5 @@
 nodeLinker: hoisted
 shamefullyHoist: true
-childConcurrency: 1
 strictPeerDependencies: true
 autoInstallPeers: true
 packages:

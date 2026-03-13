@@ -23,6 +23,7 @@ import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWallet
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
 import { useChainflipMinimumSupply } from '@/pages/ChainflipLending/hooks/useChainflipMinimumSupply'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById, selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -41,13 +42,19 @@ export const WithdrawInput = ({ assetId, onAssetChange }: WithdrawInputProps) =>
   } = useLocaleFormatter()
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   const actorRef = WithdrawMachineCtx.useActorRef()
   const supplyPositionCryptoBaseUnit = WithdrawMachineCtx.useSelector(
     s => s.context.supplyPositionCryptoBaseUnit,
   )
+  const savedWithdrawAmount = WithdrawMachineCtx.useSelector(
+    s => s.context.withdrawAmountCryptoPrecision,
+  )
 
-  const [withdrawAmountCryptoPrecision, setWithdrawAmountCryptoPrecision] = useState('')
+  const [withdrawAmountCryptoPrecision, setWithdrawAmountCryptoPrecision] = useState(
+    savedWithdrawAmount || '',
+  )
 
   const availableCryptoPrecision = useMemo(
     () =>
@@ -59,6 +66,11 @@ export const WithdrawInput = ({ assetId, onAssetChange }: WithdrawInputProps) =>
   )
 
   const { minSupply, isLoading: isMinSupplyLoading } = useChainflipMinimumSupply(assetId)
+
+  const availableFiat = useMemo(() => {
+    if (!marketData?.price) return undefined
+    return bnOrZero(availableCryptoPrecision).times(marketData.price).toString()
+  }, [availableCryptoPrecision, marketData?.price])
 
   const hasPosition = useMemo(
     () => bnOrZero(supplyPositionCryptoBaseUnit).gt(0),
@@ -237,12 +249,17 @@ export const WithdrawInput = ({ assetId, onAssetChange }: WithdrawInputProps) =>
                   </RawText>
                 </HelperTooltip>
                 <Flex alignItems='center' gap={2}>
-                  <Amount.Crypto
-                    value={availableCryptoPrecision}
-                    symbol={asset.symbol}
-                    fontSize='sm'
-                    fontWeight='medium'
-                  />
+                  <VStack spacing={0} align='flex-end'>
+                    {availableFiat !== undefined && (
+                      <Amount.Fiat value={availableFiat} fontSize='sm' fontWeight='medium' />
+                    )}
+                    <Amount.Crypto
+                      value={availableCryptoPrecision}
+                      symbol={asset.symbol}
+                      fontSize='xs'
+                      color='text.subtle'
+                    />
+                  </VStack>
                   <Button
                     data-testid='chainflip-withdraw-supply-max'
                     size='xs'

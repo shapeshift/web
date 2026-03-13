@@ -95,6 +95,14 @@ export const DepositInput = ({ assetId, onAssetChange }: DepositInputProps) => {
     return bnOrZero(depositAmountCryptoPrecision).times(marketData.price).toString()
   }, [depositAmountCryptoPrecision, marketData?.price])
 
+  const availableFiat = useMemo(
+    () =>
+      bnOrZero(availableCryptoPrecision)
+        .times(marketData?.price ?? 0)
+        .toFixed(2),
+    [availableCryptoPrecision, marketData?.price],
+  )
+
   const { freeBalances } = useChainflipAccount()
 
   const cfAsset = useMemo(() => CHAINFLIP_LENDING_ASSET_BY_ASSET_ID[assetId], [assetId])
@@ -291,12 +299,15 @@ export const DepositInput = ({ assetId, onAssetChange }: DepositInputProps) => {
             </RawText>
             <Flex alignItems='center' gap={2}>
               <Skeleton isLoaded={isPortfolioLoaded}>
-                <Amount.Crypto
-                  value={availableCryptoPrecision}
-                  symbol={asset.symbol}
-                  fontSize='sm'
-                  fontWeight='medium'
-                />
+                <VStack spacing={0} align='flex-end'>
+                  <Amount.Fiat value={availableFiat} fontSize='sm' fontWeight='medium' />
+                  <Amount.Crypto
+                    value={availableCryptoPrecision}
+                    symbol={asset.symbol}
+                    fontSize='xs'
+                    color='text.subtle'
+                  />
+                </VStack>
               </Skeleton>
               <Button
                 data-testid='chainflip-deposit-max'

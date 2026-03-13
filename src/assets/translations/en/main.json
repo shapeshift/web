@@ -2438,6 +2438,8 @@
     }
   },
   "chainflipLending": {
+    "awaitingConfirmTitle": "Awaiting Confirmation",
+    "awaitingConfirmDescription": "Confirm the transaction in your wallet to proceed",
     "headerDescription": "Supply assets to earn yield or borrow against collateral on Chainflip.",
     "overview": "Overview",
     "myDashboard": "My Dashboard",
@@ -2457,6 +2459,7 @@
       "successTitle": "Supply Successful",
       "successDescription": "Your %{asset} is now earning yield",
       "supplied": "Supplied",
+      "transactionId": "Transaction ID",
       "errorTitle": "Supply Failed",
       "errorDescription": "Something went wrong while supplying",
       "steps": {
@@ -2480,6 +2483,7 @@
       "successTitle": "Borrow Successful",
       "successDescription": "You borrowed %{amount} %{asset}",
       "borrowed": "Borrowed",
+      "transactionId": "Transaction ID",
       "errorTitle": "Borrow Failed",
       "errorDescription": "Something went wrong while borrowing",
       "steps": {
@@ -2546,6 +2550,7 @@
       "successRemoveDescription": "%{asset} collateral removed successfully",
       "added": "Added",
       "removed": "Removed",
+      "transactionId": "Transaction ID",
       "errorTitle": "Collateral Update Failed",
       "errorDescription": "Something went wrong",
       "steps": {
@@ -2580,6 +2585,7 @@
       "successTitle": "Deposit Confirmed",
       "successDescription": "Your %{asset} has been deposited to your Chainflip State Chain account.",
       "deposited": "Deposited",
+      "transactionId": "Transaction ID",
       "minimumDeposit": "Min. Deposit",
       "belowMinimumDeposit": "Min. %{amount} %{symbol}",
       "steps": {
@@ -2641,7 +2647,8 @@
       "fullWithdrawalOnlyTooltip": "Your position is below the minimum required for partial withdrawal. Only full withdrawal is available.",
       "partialBelowMinimum": "Minimum withdrawal is %{amount}",
       "remainingBelowMinimum": "Remaining position must be at least %{amount} or withdraw the full amount",
-      "destinationAddress": "Destination address"
+      "destinationAddress": "Destination address",
+      "transactionId": "Transaction ID"
     },
     "withdrawFromChainflip": {
       "title": "Withdraw from Chainflip",
@@ -2676,6 +2683,7 @@
       "successTitle": "Repayment Successful",
       "successDescription": "You repaid %{amount} %{asset}",
       "repaid": "Repaid",
+      "transactionId": "Transaction ID",
       "errorTitle": "Repayment Failed",
       "errorDescription": "Something went wrong while repaying",
       "steps": {
@@ -2714,6 +2722,7 @@
       "successTitle": "Withdrawal Submitted",
       "successDescription": "Your withdrawal of %{asset} has been submitted and will arrive in your wallet shortly",
       "withdrawn": "Withdrawn",
+      "receiveAddress": "Receive Address",
       "steps": {
         "signing": "Signing withdrawal transaction",
         "confirming": "Confirming withdrawal"

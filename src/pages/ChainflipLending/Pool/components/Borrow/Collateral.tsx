@@ -1,3 +1,4 @@
+import { Flex } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { lazy, memo, Suspense, useEffect, useMemo, useState } from 'react'
@@ -18,7 +19,11 @@ const CollateralConfirm = lazy(() =>
   import('./CollateralConfirm').then(({ CollateralConfirm }) => ({ default: CollateralConfirm })),
 )
 
-const suspenseFallback = <CircularProgress />
+const suspenseFallback = (
+  <Flex minHeight='360px' alignItems='center' justifyContent='center'>
+    <CircularProgress />
+  </Flex>
+)
 
 type CollateralProps = {
   assetId: AssetId

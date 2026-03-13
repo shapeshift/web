@@ -6,6 +6,8 @@
  * For production, use index.ts which integrates with the real swapper package.
  */
 
+import './types'
+
 import cors from 'cors'
 import express from 'express'
 import { v4 as uuidv4 } from 'uuid'
@@ -13,34 +15,25 @@ import { v4 as uuidv4 } from 'uuid'
 const API_PORT = parseInt(process.env.PORT || '3001', 10)
 const API_HOST = process.env.HOST || '0.0.0.0'
 
-const EVM_ADDRESS_REGEX = /^0x[0-9a-fA-F]{40}$/
-
 const app = express()
 
 // Middleware
 app.use(cors())
 app.use(express.json())
 
-const affiliateAddress = (
+const partnerTracking = (
   req: express.Request,
-  res: express.Response,
+  _res: express.Response,
   next: express.NextFunction,
-) => {
-  const address = req.header('X-Affiliate-Address')
+): void => {
+  const partnerCode = req.header('X-Partner-Code')
 
-  if (!address) {
-    return next()
+  if (!partnerCode) {
+    next()
+    return
   }
 
-  if (!EVM_ADDRESS_REGEX.test(address)) {
-    return res.status(400).json({
-      error:
-        'Invalid affiliate address format. Must be a valid EVM address (0x followed by 40 hex characters).',
-      code: 'INVALID_AFFILIATE_ADDRESS',
-    })
-  }
-
-  ;(req as any).affiliateInfo = { affiliateAddress: address }
+  req.affiliateInfo = { partnerCode }
 
   next()
 }
@@ -51,7 +44,7 @@ app.get('/health', (_req, res) => {
 })
 
 // Mock rates endpoint
-app.get('/v1/swap/rates', affiliateAddress, (req, res) => {
+app.get('/v1/swap/rates', partnerTracking, (req, res) => {
   const { sellAssetId, buyAssetId, sellAmountCryptoBaseUnit } = req.query
 
   if (!sellAssetId || !buyAssetId || !sellAmountCryptoBaseUnit) {
@@ -106,7 +99,7 @@ app.get('/v1/swap/rates', affiliateAddress, (req, res) => {
 })
 
 // Mock quote endpoint
-app.post('/v1/swap/quote', affiliateAddress, (req, res) => {
+app.post('/v1/swap/quote', partnerTracking, (req, res) => {
   const { sellAssetId, buyAssetId, sellAmountCryptoBaseUnit, receiveAddress, swapperName } =
     req.body
 
@@ -220,8 +213,8 @@ Endpoints:
   POST /v1/swap/quote           - Get executable quote with tx data
   GET  /v1/assets               - List supported assets
 
-Affiliate Tracking (optional):
-  Include 'X-Affiliate-Address' header with your Arbitrum address for fee attribution.
+Partner Tracking (optional):
+  Include 'X-Partner-Code' header with your registered partner code for fee attribution.
   The API works without it — no authentication required.
 
 Example requests:
@@ -229,12 +222,12 @@ Example requests:
   # Health check
   curl http://localhost:${API_PORT}/health
 
-  # Get rates (with affiliate address)
-  curl -H "X-Affiliate-Address: 0x0000000000000000000000000000000000000001" \\
+  # Get rates (with partner code)
+  curl -H "X-Partner-Code: my-partner" \\
     "http://localhost:${API_PORT}/v1/swap/rates?sellAssetId=eip155:1/slip44:60&buyAssetId=eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&sellAmountCryptoBaseUnit=1000000000000000000"
 
-  # Get quote (with affiliate address)
-  curl -X POST -H "X-Affiliate-Address: 0x0000000000000000000000000000000000000001" -H "Content-Type: application/json" \\
+  # Get quote (with partner code)
+  curl -X POST -H "X-Partner-Code: my-partner" -H "Content-Type: application/json" \\
     -d '{"sellAssetId":"eip155:1/slip44:60","buyAssetId":"eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","sellAmountCryptoBaseUnit":"1000000000000000000","receiveAddress":"0x742d35Cc6634C0532925a3b844Bc9e7595f4EdC3","swapperName":"THORChain"}' \\
     http://localhost:${API_PORT}/v1/swap/quote
 

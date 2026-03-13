@@ -376,29 +376,16 @@ registry.registerPath({
   },
 })
 
-const AffiliateAddressHeaderSchema = z
+const PartnerCodeHeaderSchema = z
   .string()
   .optional()
   .openapi({
     param: {
-      name: 'X-Affiliate-Address',
+      name: 'X-Partner-Code',
       in: 'header',
       description:
-        'Your Arbitrum address for affiliate fee attribution. Optional — endpoints work without it.',
-      example: '0x0000000000000000000000000000000000000001',
-    },
-  })
-
-const AffiliateBpsHeaderSchema = z
-  .string()
-  .optional()
-  .openapi({
-    param: {
-      name: 'X-Affiliate-Bps',
-      in: 'header',
-      description:
-        'Custom affiliate fee in basis points (0-1000). Defaults to 10 (0.1%). Can be used independently of X-Affiliate-Address.',
-      example: '10',
+        'Partner code for affiliate fee attribution. The API resolves the code to the registered affiliate address and BPS. Register a code at the affiliate dashboard.',
+      example: 'vultisig',
     },
   })
 
@@ -413,8 +400,7 @@ registry.registerPath({
   tags: ['Swaps'],
   request: {
     headers: z.object({
-      'X-Affiliate-Address': AffiliateAddressHeaderSchema,
-      'X-Affiliate-Bps': AffiliateBpsHeaderSchema,
+      'X-Partner-Code': PartnerCodeHeaderSchema,
     }),
     query: RatesRequestSchema,
   },
@@ -445,8 +431,7 @@ registry.registerPath({
   tags: ['Swaps'],
   request: {
     headers: z.object({
-      'X-Affiliate-Address': AffiliateAddressHeaderSchema,
-      'X-Affiliate-Bps': AffiliateBpsHeaderSchema,
+      'X-Partner-Code': PartnerCodeHeaderSchema,
     }),
     body: {
       content: {
@@ -500,7 +485,7 @@ registry.registerPath({
     'Look up the current status of a swap by its quote ID. Pass txHash on the first call after broadcasting to bind it to the quote and start tracking. Subsequent calls can omit txHash.',
   tags: ['Swaps'],
   request: {
-    headers: z.object({ 'X-Affiliate-Address': AffiliateAddressHeaderSchema }),
+    headers: z.object({ 'X-Partner-Code': PartnerCodeHeaderSchema }),
     query: StatusRequestSchema,
   },
   responses: {
@@ -580,7 +565,7 @@ There are two ways to integrate:
 2. **REST API** — Build your own swap UI using the endpoints below. Full control over UX.
 
 ## Affiliate Tracking (Optional)
-Include your Arbitrum address in the \`X-Affiliate-Address\` header to attribute swaps for affiliate fee tracking. This is optional — all endpoints work without it.
+Include a \`X-Partner-Code\` header with your registered partner code (e.g. \`vultisig\`, \`venice\`) to attribute swaps for affiliate fee tracking. The API resolves the code to the registered affiliate address and BPS automatically. Register a partner code at the affiliate dashboard. This is optional — all endpoints work without it.
 
 ## Asset IDs
 Assets use CAIP-19 format: \`{chainId}/{assetNamespace}:{assetReference}\`
@@ -625,7 +610,7 @@ import '@shapeshiftoss/swap-widget/style.css'
 function App() {
   return (
     <SwapWidget
-      affiliateAddress="0xYourArbitrumAddress"
+      partnerCode="your-partner-code"
       theme="dark"
       onSwapSuccess={(txHash) => console.log('Success:', txHash)}
     />
@@ -654,7 +639,7 @@ function SwapPage() {
   return (
     <SwapWidget
       walletClient={walletClient}
-      affiliateAddress="0xYourArbitrumAddress"
+      partnerCode="your-partner-code"
       onConnectWallet={() => {
         // Trigger YOUR app's wallet connection modal
         openYourConnectModal()
@@ -686,7 +671,7 @@ function App() {
     <SwapWidget
       enableWalletConnection={true}
       walletConnectProjectId="your-project-id"
-      affiliateAddress="0xYourArbitrumAddress"
+      partnerCode="your-partner-code"
       theme="dark"
     />
   )
@@ -717,8 +702,7 @@ When \`enableWalletConnection\` is true, the widget:
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| \`affiliateAddress\` | \`string\` | — | Your Arbitrum address for affiliate fee attribution |
-| \`affiliateBps\` | \`string\` | \`"10"\` | Affiliate fee in basis points (0.1% default) |
+| \`partnerCode\` | \`string\` | — | Your registered partner code for affiliate fee attribution. Register at the affiliate dashboard. |
 | \`apiBaseUrl\` | \`string\` | — | Custom API base URL |
 | \`theme\` | \`ThemeMode \\| ThemeConfig\` | \`"dark"\` | Theme mode or full theme configuration |
 | \`showPoweredBy\` | \`boolean\` | \`true\` | Show "Powered by ShapeShift" branding |
@@ -823,7 +807,7 @@ import { SwapWidget, EVM_CHAIN_IDS } from '@shapeshiftoss/swap-widget'
 
 <SwapWidget
   allowedChainIds={[EVM_CHAIN_IDS.ethereum, EVM_CHAIN_IDS.polygon]}
-  affiliateAddress="0xYourArbitrumAddress"
+  partnerCode="your-partner-code"
   theme="dark"
 />
 \`\`\`
@@ -843,7 +827,7 @@ const usdcAsset = {
   defaultBuyAsset={usdcAsset}
   isBuyAssetLocked={true}
   defaultReceiveAddress="0xYourTreasuryAddress"
-  affiliateAddress="0xYourArbitrumAddress"
+  partnerCode="your-partner-code"
   theme="dark"
 />
 \`\`\`
@@ -988,13 +972,13 @@ GET /v1/assets
 ## 3. Get Swap Rates
 \`\`\`
 GET /v1/swap/rates?sellAssetId=eip155:1/slip44:60&buyAssetId=eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&sellAmountCryptoBaseUnit=1000000000000000000
-X-Affiliate-Address: 0xYourArbitrumAddress (optional)
+X-Partner-Code: your-partner-code (optional)
 \`\`\`
 
 ## 4. Get Executable Quote
 \`\`\`
 POST /v1/swap/quote
-X-Affiliate-Address: 0xYourArbitrumAddress (optional)
+X-Partner-Code: your-partner-code (optional)
 
 {
   "sellAssetId": "eip155:1/slip44:60",

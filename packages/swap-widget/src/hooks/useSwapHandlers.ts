@@ -9,13 +9,15 @@ import { buildShapeShiftTradeUrl } from '../utils/redirect'
 type UseSwapHandlersParams = {
   onConnectWallet?: () => void
   onAssetSelect?: (type: 'sell' | 'buy', asset: Asset) => void
-  affiliateAddress?: string
+  partnerCode?: string
+  appUrl?: string
 }
 
 export const useSwapHandlers = ({
   onConnectWallet,
   onAssetSelect,
-  affiliateAddress,
+  partnerCode,
+  appUrl,
 }: UseSwapHandlersParams) => {
   const actorRef = SwapMachineCtx.useActorRef()
   const { walletClient, bitcoin, solana } = useSwapWallet()
@@ -75,10 +77,11 @@ export const useSwapHandlers = ({
       sellAssetId: snap.context.sellAsset.assetId,
       buyAssetId: snap.context.buyAsset.assetId,
       sellAmountBaseUnit,
-      affiliateAddress,
+      partnerCode,
+      appUrl,
     })
     window.open(url, '_blank', 'noopener,noreferrer')
-  }, [actorRef, affiliateAddress])
+  }, [actorRef, partnerCode, appUrl])
 
   const handleButtonClick = useCallback(() => {
     const snap = actorRef.getSnapshot()
@@ -104,20 +107,14 @@ export const useSwapHandlers = ({
         sellAssetId: snap.context.sellAsset.assetId,
         buyAssetId: snap.context.buyAsset.assetId,
         sellAmountBaseUnit,
-        affiliateAddress,
+        partnerCode,
+        appUrl,
       })
       window.open(url, '_blank', 'noopener,noreferrer')
       return
     }
     actorRef.send({ type: 'FETCH_QUOTE' })
-  }, [
-    actorRef,
-    bitcoin.isConnected,
-    solana.isConnected,
-    walletClient,
-    onConnectWallet,
-    affiliateAddress,
-  ])
+  }, [actorRef, bitcoin.isConnected, solana.isConnected, walletClient, onConnectWallet, partnerCode, appUrl])
 
   return {
     handleSwapTokens,

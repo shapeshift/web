@@ -5,8 +5,6 @@ const DEFAULT_API_BASE_URL =
 
 export type ApiClientConfig = {
   baseUrl?: string
-  affiliateAddress?: string
-  affiliateBps?: string
   partnerCode?: string
 }
 
@@ -22,12 +20,6 @@ export const createApiClient = (config: ApiClientConfig = {}) => {
     const url = new URL(`${baseUrl}${endpoint}`)
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-    }
-    if (config.affiliateAddress) {
-      headers['x-affiliate-address'] = config.affiliateAddress
-    }
-    if (config.affiliateBps) {
-      headers['x-affiliate-bps'] = config.affiliateBps
     }
     if (config.partnerCode) {
       headers['x-partner-code'] = config.partnerCode
@@ -71,6 +63,12 @@ export const createApiClient = (config: ApiClientConfig = {}) => {
         sellAssetId: params.sellAssetId,
         buyAssetId: params.buyAssetId,
         sellAmountCryptoBaseUnit: params.sellAmountCryptoBaseUnit,
+      }),
+
+    getSwapStatus: (params: { quoteId: string; txHash?: string }) =>
+      fetchWithConfig<Record<string, unknown>>('/v1/swap/status', {
+        quoteId: params.quoteId,
+        ...(params.txHash && { txHash: params.txHash }),
       }),
 
     getQuote: (params: {

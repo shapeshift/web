@@ -6,6 +6,8 @@
  * For production, use index.ts which integrates with the real swapper package.
  */
 
+import './types'
+
 import cors from 'cors'
 import express from 'express'
 import { v4 as uuidv4 } from 'uuid'
@@ -23,14 +25,15 @@ const partnerTracking = (
   req: express.Request,
   _res: express.Response,
   next: express.NextFunction,
-) => {
+): void => {
   const partnerCode = req.header('X-Partner-Code')
 
   if (!partnerCode) {
-    return next()
+    next()
+    return
   }
 
-  ;(req as any).affiliateInfo = { partnerCode }
+  req.affiliateInfo = { partnerCode }
 
   next()
 }

@@ -198,11 +198,11 @@ export const App = (): React.JSX.Element => {
       setSwapPage(0)
       doFetch()
     }
-  }, [isConnected, address]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isConnected, address, doFetch])
 
   useEffect(() => {
     if (affiliateAddress.trim()) doFetch()
-  }, [selectedPeriod]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [selectedPeriod, affiliateAddress, doFetch])
 
   useEffect(() => {
     if (affiliateAddress.trim()) {
@@ -213,7 +213,7 @@ export const App = (): React.JSX.Element => {
         offset: swapPage * SWAPS_PER_PAGE,
       })
     }
-  }, [swapPage]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [swapPage, affiliateAddress, currentPeriod, fetchSwaps])
 
   const clearActionMessage = useCallback((): void => {
     setActionMessage(null)
@@ -274,13 +274,18 @@ export const App = (): React.JSX.Element => {
 
   const handleUpdateBps = useCallback(async (): Promise<void> => {
     if (!affiliateAddress || !updateBps.trim()) return
+    const parsedUpdateBps = parseInt(updateBps, 10)
+    if (Number.isNaN(parsedUpdateBps) || parsedUpdateBps < 0 || parsedUpdateBps > 1000) {
+      setActionMessage({ type: 'error', text: 'BPS must be a number between 0 and 1000' })
+      return
+    }
     setActionLoading(true)
     clearActionMessage()
     try {
       const res = await fetch(`${API_BASE}/${encodeURIComponent(affiliateAddress)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
-        body: JSON.stringify({ bps: parseInt(updateBps, 10) }),
+        body: JSON.stringify({ bps: parsedUpdateBps }),
       })
       if (!res.ok) {
         const body = (await res.json()) as { message?: string }

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 
+import type { ApiClient } from '../api/client'
 import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { CheckStatusParams } from '../services/transactionStatus'
@@ -9,6 +10,7 @@ import { getEvmNetworkId } from '../types'
 const POLL_INTERVAL_MS = 5000
 
 type UseStatusPollingParams = {
+  apiClient: ApiClient
   onSwapSuccess?: (txHash: string) => void
   onSwapError?: (error: Error) => void
   refetchSellBalance?: () => void
@@ -16,6 +18,7 @@ type UseStatusPollingParams = {
 }
 
 export const useStatusPolling = ({
+  apiClient,
   onSwapSuccess,
   onSwapError,
   refetchSellBalance,
@@ -39,9 +42,17 @@ export const useStatusPolling = ({
     pollingRef.current = true
 
     let stopped = false
+    let registeredWithApi = false
 
     const poll = async () => {
       if (stopped || !context.txHash) return
+
+      if (!registeredWithApi && context.quote?.quoteId) {
+        registeredWithApi = true
+        apiClient.getSwapStatus({ quoteId: context.quote.quoteId, txHash: context.txHash }).catch(
+          () => {}, // best-effort — don't block on-chain polling
+        )
+      }
 
       try {
         let statusParams: CheckStatusParams

@@ -495,7 +495,9 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
         chainflipSwapId: firstStep.chainflipSpecific?.chainflipSwapId,
         nearIntentsDepositAddress: firstStep.nearIntentsSpecific?.depositAddress,
         nearIntentsDepositMemo: firstStep.nearIntentsSpecific?.depositMemo,
-        relayId: firstStep.relayTransactionMetadata?.relayId,
+        relayTransactionMetadata: firstStep.relayTransactionMetadata?.relayId
+          ? { relayId: firstStep.relayTransactionMetadata.relayId }
+          : undefined,
       },
       stepChainIds: quote.steps.map(step => step.sellAsset.chainId),
       status: 'pending',

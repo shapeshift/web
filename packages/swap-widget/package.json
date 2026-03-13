@@ -35,9 +35,9 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@shapeshiftoss/caip": "^8.0.0",
-    "@shapeshiftoss/types": "^8.0.0",
-    "@shapeshiftoss/utils": "^1.0.0",
+    "@shapeshiftoss/caip": "workspace:^",
+    "@shapeshiftoss/types": "workspace:^",
+    "@shapeshiftoss/utils": "workspace:^",
     "@xstate/react": "5.0.5",
     "bech32": "^2.0.0",
     "p-queue": "^8.0.1",
@@ -82,9 +82,6 @@
     "@reown/appkit-adapter-bitcoin": "^1.8.17",
     "@reown/appkit-adapter-solana": "^1.8.17",
     "@reown/appkit-adapter-wagmi": "^1.8.17",
-    "@shapeshiftoss/caip": "workspace:^",
-    "@shapeshiftoss/types": "workspace:^",
-    "@shapeshiftoss/utils": "workspace:^",
     "@solana/wallet-adapter-wallets": "^0.19.32",
     "@solana/web3.js": "1.98.0",
     "@tanstack/react-query": "^5.69.0",

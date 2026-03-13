@@ -113,8 +113,8 @@ Available endpoints:
   GET  /v1/assets/count           - Get asset count
   GET  /v1/assets/:assetId        - Get single asset by ID
 
-Affiliate Tracking (optional):
-  Include 'X-Affiliate-Address' header with your Arbitrum address for affiliate fee attribution.
+Partner Tracking (optional):
+  Include 'X-Partner-Code' header with your registered partner code for affiliate fee attribution.
   The API works without it — no authentication required.
     `)
   })

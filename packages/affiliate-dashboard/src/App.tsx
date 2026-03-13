@@ -515,10 +515,18 @@ export const App = (): React.JSX.Element => {
                             <tr key={swap.id} style={styles.tr}>
                               <td style={styles.td}>{formatDate(swap.createdAt)}</td>
                               <td style={styles.td}>
-                                <span style={styles.assetPill}>{typeof swap.sellAsset === 'object' ? swap.sellAsset.symbol ?? 'Unknown' : swap.sellAsset}</span>
+                                <span style={styles.assetPill}>
+                                  {typeof swap.sellAsset === 'object'
+                                    ? swap.sellAsset.symbol ?? 'Unknown'
+                                    : swap.sellAsset}
+                                </span>
                               </td>
                               <td style={styles.td}>
-                                <span style={styles.assetPill}>{typeof swap.buyAsset === 'object' ? swap.buyAsset.symbol ?? 'Unknown' : swap.buyAsset}</span>
+                                <span style={styles.assetPill}>
+                                  {typeof swap.buyAsset === 'object'
+                                    ? swap.buyAsset.symbol ?? 'Unknown'
+                                    : swap.buyAsset}
+                                </span>
                               </td>
                               <td
                                 style={{

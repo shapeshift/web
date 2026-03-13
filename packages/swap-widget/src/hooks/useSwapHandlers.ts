@@ -114,7 +114,15 @@ export const useSwapHandlers = ({
       return
     }
     actorRef.send({ type: 'FETCH_QUOTE' })
-  }, [actorRef, bitcoin.isConnected, solana.isConnected, walletClient, onConnectWallet, partnerCode, appUrl])
+  }, [
+    actorRef,
+    bitcoin.isConnected,
+    solana.isConnected,
+    walletClient,
+    onConnectWallet,
+    partnerCode,
+    appUrl,
+  ])
 
   return {
     handleSwapTokens,

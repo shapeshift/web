@@ -21,7 +21,7 @@ app.use(express.json())
 
 const partnerTracking = (
   req: express.Request,
-  res: express.Response,
+  _res: express.Response,
   next: express.NextFunction,
 ) => {
   const partnerCode = req.header('X-Partner-Code')

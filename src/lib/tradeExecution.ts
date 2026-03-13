@@ -47,10 +47,9 @@ import { assertGetUtxoChainAdapter } from './utils/utxo'
 
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
-
 import { readStoredPartnerCode } from '@/hooks/useAffiliateTracking/useAffiliateTracking'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getAffiliateBps } from '@/lib/fees/utils'
 import { poll } from '@/lib/poll/poll'
 import { getOrCreateUser } from '@/lib/user/api'

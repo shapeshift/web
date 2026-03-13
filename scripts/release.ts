@@ -634,6 +634,12 @@ const doRegularRelease = async () => {
     case 'tagged_private_stale': {
       console.log(chalk.yellow(`${nextVersion} is tagged but private is behind main.`))
 
+      const privateDiff = await git().diff(['origin/main', 'origin/private'])
+      if (!privateDiff) {
+        console.log(chalk.green('Private is already in sync with main content-wise. Nothing to do.'))
+        break
+      }
+
       const existingPrivatePr = await findOpenPr('main', 'private')
       if (existingPrivatePr) {
         console.log(
@@ -795,6 +801,12 @@ const doHotfixRelease = async () => {
 
     case 'tagged_private_stale': {
       console.log(chalk.yellow(`${nextVersion} is tagged but private is behind main.`))
+
+      const privateDiffHotfix = await git().diff(['origin/main', 'origin/private'])
+      if (!privateDiffHotfix) {
+        console.log(chalk.green('Private is already in sync with main content-wise. Nothing to do.'))
+        break
+      }
 
       const existingPrivatePr = await findOpenPr('main', 'private')
       if (existingPrivatePr) {

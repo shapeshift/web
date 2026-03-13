@@ -644,7 +644,9 @@ const doRegularRelease = async () => {
 
       if (!shouldSyncPrivate) {
         console.log(
-          chalk.green('Private is already in sync with main content-wise. Skipping private sync PR.'),
+          chalk.green(
+            'Private is already in sync with main content-wise. Skipping private sync PR.',
+          ),
         )
       } else {
         const existingPrivatePr = await findOpenPr('main', 'private')
@@ -835,7 +837,9 @@ const doHotfixRelease = async () => {
 
       if (!shouldSyncPrivateHotfix) {
         console.log(
-          chalk.green('Private is already in sync with main content-wise. Skipping private sync PR.'),
+          chalk.green(
+            'Private is already in sync with main content-wise. Skipping private sync PR.',
+          ),
         )
       } else {
         const existingPrivatePr = await findOpenPr('main', 'private')

@@ -5,10 +5,7 @@ const DEFAULT_AFFILIATE_BPS = '60'
 // Microservices URL for partner code resolution
 const MICROSERVICES_URL = process.env.MICROSERVICES_URL || 'http://localhost:3001'
 
-/**
- * Resolve partner code to affiliate address and BPS
- */
-const resolvePartnerCode = async (
+const resolvePartnerCodeFromService = async (
   code: string,
 ): Promise<{ affiliateAddress: string; bps: string } | null> => {
   try {
@@ -31,7 +28,7 @@ const resolvePartnerCode = async (
   }
 }
 
-export const affiliateAddress = async (
+export const resolvePartnerCode = async (
   req: Request,
   _res: Response,
   next: NextFunction,
@@ -39,7 +36,7 @@ export const affiliateAddress = async (
   const partnerCode = req.header('X-Partner-Code')
 
   if (partnerCode) {
-    const resolved = await resolvePartnerCode(partnerCode)
+    const resolved = await resolvePartnerCodeFromService(partnerCode)
     if (resolved) {
       req.affiliateInfo = {
         affiliateAddress: resolved.affiliateAddress,

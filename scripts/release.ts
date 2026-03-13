@@ -610,15 +610,24 @@ const doRegularRelease = async () => {
       await git().push(['origin', '--tags'])
       console.log(chalk.green(`Tagged ${nextVersion}.`))
 
-      console.log(chalk.green('Creating PR to sync private to main...'))
-      const privatePrUrl = await createPr({
-        base: 'private',
-        head: 'main',
-        title: `chore: sync private to ${nextVersion}`,
-        body: `Sync private branch to main after release ${nextVersion}.`,
-      })
-      console.log(chalk.green(`Private sync PR created: ${privatePrUrl}`))
-      console.log(chalk.green('Merge it on GitHub to complete the release.'))
+      const existingPrivatePrAfterTag = await findOpenPr('main', 'private')
+      if (existingPrivatePrAfterTag) {
+        console.log(
+          chalk.yellow(
+            `Private sync PR already open: #${existingPrivatePrAfterTag.number}. Merge it on GitHub.`,
+          ),
+        )
+      } else {
+        console.log(chalk.green('Creating PR to sync private to main...'))
+        const privatePrUrl = await createPr({
+          base: 'private',
+          head: 'main',
+          title: `chore: sync private to ${nextVersion}`,
+          body: `Sync private branch to main after release ${nextVersion}.`,
+        })
+        console.log(chalk.green(`Private sync PR created: ${privatePrUrl}`))
+        console.log(chalk.green('Merge it on GitHub to complete the release.'))
+      }
       break
     }
 

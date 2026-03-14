@@ -50,7 +50,7 @@ import type * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
 import PQueue from 'p-queue'
 import type { Hex, PublicClient } from 'viem'
-import { isAddress, toHex } from 'viem'
+import { getAddress, isAddress, isHex, parseUnits, toHex } from 'viem'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
 import {
@@ -1037,10 +1037,10 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           )
 
           const gasLimit = await viemClient.estimateGas({
-            account: estimateGasBody.from as Hex,
-            to: estimateGasBody.to as Hex,
-            value: BigInt(estimateGasBody.value),
-            data: estimateGasBody.data as Hex,
+            account: getAddress(estimateGasBody.from),
+            to: getAddress(estimateGasBody.to),
+            value: parseUnits(estimateGasBody.value, 0),
+            data: isHex(estimateGasBody.data) ? estimateGasBody.data : toHex(estimateGasBody.data),
           })
 
           return gasLimit.toString()

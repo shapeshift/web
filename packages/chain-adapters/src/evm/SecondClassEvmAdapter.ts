@@ -31,7 +31,10 @@ import {
   erc20Abi,
   getAddress,
   isAddressEqual,
+  isHex,
   parseEventLogs,
+  parseUnits,
+  toHex,
   TransactionReceiptNotFoundError,
   zeroAddress,
 } from 'viem'
@@ -154,9 +157,9 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
   async getAccount(pubkey: string): Promise<Account<T>> {
     try {
       const [balance, nonce] = await Promise.all([
-        this.requestQueue.add(() => this.viemClient.getBalance({ address: pubkey as Hex })),
+        this.requestQueue.add(() => this.viemClient.getBalance({ address: getAddress(pubkey) })),
         this.requestQueue.add(() =>
-          this.viemClient.getTransactionCount({ address: pubkey as Hex }),
+          this.viemClient.getTransactionCount({ address: getAddress(pubkey) }),
         ),
       ])
 
@@ -241,10 +244,10 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     const results = await this.requestQueue.add(() =>
       this.viemClient.multicall({
         contracts: tokens.map(token => ({
-          address: token.contractAddress as Hex,
+          address: getAddress(token.contractAddress),
           abi: erc20Abi,
           functionName: 'balanceOf' as const,
-          args: [pubkey as Hex],
+          args: [getAddress(pubkey)],
         })),
         allowFailure: true,
         multicallAddress,
@@ -285,10 +288,10 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
         try {
           const balance = await this.requestQueue.add(() =>
             this.viemClient.readContract({
-              address: token.contractAddress as Hex,
+              address: getAddress(token.contractAddress),
               abi: erc20Abi,
               functionName: 'balanceOf',
-              args: [pubkey as Hex],
+              args: [getAddress(pubkey)],
             }),
           )
 
@@ -318,10 +321,10 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
 
       const gasLimit = await this.requestQueue.add(() =>
         this.viemClient.estimateGas({
-          account: estimateGasBody.from as Hex,
-          to: estimateGasBody.to as Hex,
-          value: estimateGasBody.value ? BigInt(estimateGasBody.value) : undefined,
-          data: estimateGasBody.data as Hex,
+          account: getAddress(estimateGasBody.from),
+          to: getAddress(estimateGasBody.to),
+          value: parseUnits(estimateGasBody.value, 0),
+          data: isHex(estimateGasBody.data) ? estimateGasBody.data : toHex(estimateGasBody.data),
         }),
       )
 

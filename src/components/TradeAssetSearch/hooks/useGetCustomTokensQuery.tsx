@@ -1,21 +1,22 @@
-import { Metaplex } from '@metaplex-foundation/js'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { solanaChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { Connection, PublicKey } from '@solana/web3.js'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useQueries } from '@tanstack/react-query'
-import type { TokenMetadataResponse } from 'alchemy-sdk'
+import axios, { isAxiosError } from 'axios'
 import { useCallback, useMemo } from 'react'
 import { isAddress } from 'viem'
 
 import { getConfig } from '@/config'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import { getAlchemyInstanceByChainId } from '@/lib/alchemySdkInstance'
 import { isSolanaAddress } from '@/lib/utils/isSolanaAddress'
 import { mergeQueryOutputs } from '@/react-queries/helpers'
 
-type TokenMetadata = TokenMetadataResponse & {
+type TokenMetadata = {
+  name?: string
+  symbol?: string
+  decimals?: number
+  logo?: string
   chainId: ChainId
   contractAddress: string
   price: string
@@ -40,35 +41,42 @@ export const useGetCustomTokensQuery = ({
 }: UseGetCustomTokensQueryProps): UseQueryResult<(TokenMetadata | undefined)[], Error[]> => {
   const customTokenImportEnabled = useFeatureFlag('CustomTokenImport')
 
-  const getEvmTokenMetadata = useCallback(
-    async (chainId: ChainId) => {
-      const alchemy = getAlchemyInstanceByChainId(chainId)
-      const tokenMetadataResponse = await alchemy.core.getTokenMetadata(contractAddress)
-      return { ...tokenMetadataResponse, chainId, contractAddress, price: '0' }
-    },
-    [contractAddress],
-  )
+  const getTokenMetadata = useCallback(
+    async (chainId: ChainId): Promise<TokenMetadata | undefined> => {
+      try {
+        const { data } = await axios.get<{
+          chainId: ChainId
+          tokenAddress: string
+          name?: string
+          symbol?: string
+          decimals?: number
+          logo?: string
+        }>(`${getConfig().VITE_PROXY_API_BASE_URL}/api/v1/tokens/metadata`, {
+          params: {
+            chainId,
+            tokenAddress: contractAddress,
+          },
+          timeout: 10_000,
+        })
 
-  const getSolanaTokenMetadata = useCallback(
-    async (mintAddress: string): Promise<TokenMetadata> => {
-      const solanaRpcUrl = `${getConfig().VITE_ALCHEMY_SOLANA_BASE_URL}/${
-        getConfig().VITE_ALCHEMY_API_KEY
-      }`
-      const connection = new Connection(solanaRpcUrl)
-      const metaplex = Metaplex.make(connection)
-      const metadata = await metaplex.nfts().findByMint({ mintAddress: new PublicKey(mintAddress) })
+        return {
+          name: data.name,
+          symbol: data.symbol,
+          decimals: data.decimals,
+          chainId: data.chainId,
+          contractAddress: data.tokenAddress,
+          price: '0',
+          logo: data.logo,
+        }
+      } catch (e) {
+        if (isAxiosError(e) && (e.response?.status === 404 || e.response?.status === 422)) {
+          return undefined
+        }
 
-      return {
-        name: metadata.name,
-        symbol: metadata.symbol,
-        decimals: metadata.mint.currency.decimals,
-        chainId: solanaChainId,
-        contractAddress: mintAddress,
-        price: '0',
-        logo: metadata.json?.image ?? '',
+        throw e
       }
     },
-    [],
+    [contractAddress],
   )
 
   const isValidEvmAddress = useMemo(
@@ -81,20 +89,14 @@ export const useGetCustomTokensQuery = ({
   const getQueryFn = useCallback(
     (chainId: ChainId) => () => {
       if (isValidSolanaAddress && chainId === solanaChainId) {
-        return getSolanaTokenMetadata(contractAddress)
+        return getTokenMetadata(chainId)
       } else if (isValidEvmAddress && isEvmChainId(chainId)) {
-        return getEvmTokenMetadata(chainId)
+        return getTokenMetadata(chainId)
       } else {
         return skipToken
       }
     },
-    [
-      contractAddress,
-      getEvmTokenMetadata,
-      getSolanaTokenMetadata,
-      isValidEvmAddress,
-      isValidSolanaAddress,
-    ],
+    [getTokenMetadata, isValidEvmAddress, isValidSolanaAddress],
   )
 
   const isTokenMetadata = (

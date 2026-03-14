@@ -9,7 +9,7 @@ import {
   useUpdateEffect,
 } from '@chakra-ui/react'
 import { captureException, setContext } from '@sentry/react'
-import { solanaChainId, toAssetId } from '@shapeshiftoss/caip'
+import { toAssetId } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftoss/utils'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -22,7 +22,7 @@ import { AssetSearchResults } from './AssetSearchResults'
 import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
 import { useGetCustomTokensQuery } from '@/components/TradeAssetSearch/hooks/useGetCustomTokensQuery'
 import { useModalRegistration } from '@/context/ModalStackProvider'
-import { ALCHEMY_SDK_SUPPORTED_CHAIN_IDS } from '@/lib/alchemySdkInstance'
+import { CUSTOM_TOKEN_IMPORT_SUPPORTED_CHAIN_IDS } from '@/lib/customTokenImportSupportedChainIds'
 import { isSome } from '@/lib/utils'
 import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
 import { selectAssets, selectAssetsBySearchQuery } from '@/state/slices/selectors'
@@ -61,14 +61,9 @@ export const GlobalSearchModal = memo(
       onClose: handleClose,
     })
 
-    const customTokenSupportedChainIds = useMemo(() => {
-      // Solana _is_ supported by Alchemy, but not by the SDK
-      return [...ALCHEMY_SDK_SUPPORTED_CHAIN_IDS, solanaChainId]
-    }, [])
-
     const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
       contractAddress: searchQuery,
-      chainIds: customTokenSupportedChainIds,
+      chainIds: CUSTOM_TOKEN_IMPORT_SUPPORTED_CHAIN_IDS,
     })
 
     const customAssets = useMemo(() => {

@@ -295,7 +295,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
         </DialogHeaderRight>
       </DialogHeader>
       <CheckboxGroup value={selectedChainIds} onChange={handleChainIdsChange}>
-        <VStack spacing={0} align='stretch' px={4} pb={4} flex={1}>
+        <VStack spacing={0} align='stretch' px={4} pb={4} flex={1} minH={0} overflowY='auto'>
           {networkRows}
         </VStack>
       </CheckboxGroup>

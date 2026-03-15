@@ -1003,6 +1003,7 @@
     "status": "상태",
     "transactionType": "거래 유형",
     "minerFee": "채굴 수수료",
+    "approvalAmount": "Approval Amount",
     "unknownType": "거래",
     "from": "보낸 주소",
     "to": "받은 주소",

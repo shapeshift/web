@@ -947,6 +947,7 @@
     "status": "Status",
     "transactionType": "Tipe Transaksi ",
     "minerFee": "Biaya Penambang ",
+    "approvalAmount": "Approval Amount",
     "unknownType": "Transaksi ",
     "from": "Dari ",
     "to": "Untuk ",

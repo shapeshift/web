@@ -211,7 +211,13 @@ export const chainflipApi: SwapperApi = {
       },
     })
 
-    return fast.txFee
+    // Mirror the same compute budget boost as getUnsignedSolanaTransaction
+    // to avoid underquoting fees for Chainflip deposit addresses
+    const simulatedUnits = Number(fast.chainSpecific.computeUnits)
+    const boostedUnits = Math.ceil(Math.max(simulatedUnits, 50_000) * 1.6)
+    const ratio = simulatedUnits > 0 ? boostedUnits / simulatedUnits : 1
+
+    return String(Math.ceil(Number(fast.txFee) * ratio))
   },
   checkTradeStatus: async ({ config, swap }) => {
     const chainflipSwapId = swap?.metadata.chainflipSwapId

@@ -1,6 +1,7 @@
-import { CheckCircleIcon, ExternalLinkIcon } from '@chakra-ui/icons'
-import { Button, CardBody, CardFooter, Flex, Link, VStack } from '@chakra-ui/react'
+import { ArrowForwardIcon, CheckCircleIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { Button, CardBody, CardFooter, Divider, Flex, HStack, Link, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { flipAssetId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -14,6 +15,7 @@ import { useEgressSign } from './hooks/useEgressSign'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
@@ -100,34 +102,38 @@ export const EgressConfirm = memo(({ assetId }: EgressConfirmProps) => {
                 })}
               </RawText>
             </VStack>
-            <VStack spacing={1}>
-              <RawText fontSize='xs' color='text.subtle'>
-                {translate('chainflipLending.egress.withdrawn')}
-              </RawText>
-              <Amount.Crypto
-                value={egressAmountCryptoPrecision}
-                symbol={asset.symbol}
-                fontWeight='bold'
-                fontSize='lg'
-              />
-            </VStack>
-            {egressTxRef && (
-              <VStack spacing={1}>
-                <RawText fontSize='xs' color='text.subtle'>
-                  {translate('chainflipLending.egress.transactionId')}
+            <VStack spacing={2} width='full' px={2}>
+              <Flex justifyContent='space-between' alignItems='center' width='full'>
+                <RawText fontSize='sm' color='text.subtle'>
+                  {translate('chainflipLending.egress.withdrawn')}
                 </RawText>
-                {egressTxLink ? (
-                  <Link href={egressTxLink} isExternal color='text.link' fontSize='sm'>
-                    <MiddleEllipsis value={egressTxRef} />
-                    <ExternalLinkIcon mx={1} />
-                  </Link>
-                ) : (
-                  <RawText fontSize='sm'>
-                    <MiddleEllipsis value={egressTxRef} />
+                <Amount.Crypto
+                  value={egressAmountCryptoPrecision}
+                  symbol={asset.symbol}
+                  fontWeight='medium'
+                  fontSize='sm'
+                />
+              </Flex>
+              {egressTxRef && (
+                <Flex justifyContent='space-between' alignItems='center' width='full'>
+                  <RawText fontSize='sm' color='text.subtle'>
+                    {translate('chainflipLending.egress.transactionId')}
                   </RawText>
-                )}
-              </VStack>
-            )}
+                  {egressTxLink ? (
+                    <Link href={egressTxLink} isExternal color='text.link' fontSize='sm'>
+                      <HStack spacing={1}>
+                        <MiddleEllipsis value={egressTxRef} />
+                        <ExternalLinkIcon />
+                      </HStack>
+                    </Link>
+                  ) : (
+                    <RawText fontSize='sm'>
+                      <MiddleEllipsis value={egressTxRef} />
+                    </RawText>
+                  )}
+                </Flex>
+              )}
+            </VStack>
           </VStack>
         </CardBody>
         <CardFooter
@@ -159,7 +165,11 @@ export const EgressConfirm = memo(({ assetId }: EgressConfirmProps) => {
       <SlideTransition>
         <CardBody px={6} py={4}>
           <VStack spacing={6} align='center' py={6}>
-            <AssetIcon assetId={assetId} size='lg' />
+            <HStack spacing={3}>
+              <AssetIcon assetId={flipAssetId} size='md' />
+              <ArrowForwardIcon boxSize={5} color='text.subtle' />
+              <AssetIcon assetId={assetId} size='md' />
+            </HStack>
             <VStack spacing={2}>
               <RawText fontWeight='bold' fontSize='lg' textAlign='center' color='red.500'>
                 {translate('chainflipLending.egress.errorTitle')}
@@ -198,18 +208,29 @@ export const EgressConfirm = memo(({ assetId }: EgressConfirmProps) => {
     )
   }
 
+  const isAwaitingNativeConfirm = isNativeWallet && !isConfirming && !stepConfirmed
+
   if (!isConfirm) {
     return (
       <SlideTransition>
         <CardBody px={6} py={4}>
           <VStack spacing={6} align='center' py={6}>
-            <CircularProgress isIndeterminate />
+            <HStack spacing={3}>
+              <AssetIcon assetId={flipAssetId} size='md' />
+              <ArrowForwardIcon boxSize={5} color='text.subtle' />
+              <AssetIcon assetId={assetId} size='md' />
+            </HStack>
+            {!isAwaitingNativeConfirm && <CircularProgress isIndeterminate />}
             <VStack spacing={2}>
               <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
-                {translate('chainflipLending.egress.executingTitle')}
+                {isAwaitingNativeConfirm
+                  ? translate('chainflipLending.awaitingConfirmTitle')
+                  : translate('chainflipLending.egress.executingTitle')}
               </RawText>
               <RawText fontSize='sm' color='text.subtle' textAlign='center'>
-                {translate('chainflipLending.egress.executingDescription')}
+                {isAwaitingNativeConfirm
+                  ? translate('chainflipLending.awaitingConfirmDescription')
+                  : translate('chainflipLending.egress.executingDescription')}
               </RawText>
             </VStack>
             <EgressStepper />
@@ -247,29 +268,35 @@ export const EgressConfirm = memo(({ assetId }: EgressConfirmProps) => {
     <SlideTransition>
       <CardBody px={6} py={4}>
         <VStack spacing={6} align='center' py={6}>
-          <AssetIcon assetId={assetId} size='lg' />
-          <VStack spacing={2}>
-            <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
-              {translate('chainflipLending.egress.confirmTitle')}
-            </RawText>
-            <RawText fontSize='sm' color='text.subtle' textAlign='center'>
-              {translate('chainflipLending.egress.confirmDescription', {
-                amount: egressAmountCryptoPrecision,
-                asset: asset.symbol,
-              })}
-            </RawText>
-          </VStack>
-          <Flex direction='column' gap={1} align='center'>
-            <Amount.Crypto
-              value={egressAmountCryptoPrecision}
-              symbol={asset.symbol}
-              fontWeight='bold'
-              fontSize='2xl'
-            />
-            <RawText fontSize='xs' color='text.subtle' textAlign='center' wordBreak='break-all'>
-              {destinationAddress}
-            </RawText>
-          </Flex>
+          <HStack spacing={3}>
+            <AssetIcon assetId={flipAssetId} size='md' />
+            <ArrowForwardIcon boxSize={5} color='text.subtle' />
+            <AssetIcon assetId={assetId} size='md' />
+          </HStack>
+          <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
+            {translate('chainflipLending.egress.confirmTitle')}
+          </RawText>
+          <Amount.Crypto
+            value={egressAmountCryptoPrecision}
+            symbol={asset.symbol}
+            fontWeight='bold'
+            fontSize='2xl'
+          />
+          {destinationAddress && (
+            <>
+              <Divider borderColor='border.subtle' />
+              <HStack width='full' justifyContent='space-between' px={2}>
+                <RawText fontSize='sm' color='text.subtle'>
+                  {translate('chainflipLending.egress.receiveAddress')}
+                </RawText>
+                <InlineCopyButton value={destinationAddress}>
+                  <RawText fontSize='sm' fontWeight='medium' color='text.subtle'>
+                    <MiddleEllipsis value={destinationAddress} />
+                  </RawText>
+                </InlineCopyButton>
+              </HStack>
+            </>
+          )}
         </VStack>
       </CardBody>
       <CardFooter

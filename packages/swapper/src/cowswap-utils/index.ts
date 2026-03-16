@@ -46,6 +46,12 @@ export const getCowNetwork = (chainId: ChainId): CowNetwork | undefined => {
       return CowNetwork.Polygon
     case KnownChainIds.BnbSmartChainMainnet:
       return CowNetwork.Bnb
+    case KnownChainIds.PlasmaMainnet:
+      return CowNetwork.Plasma
+    case KnownChainIds.LineaMainnet:
+      return CowNetwork.Linea
+    case KnownChainIds.InkMainnet:
+      return CowNetwork.Ink
     default:
       return
   }

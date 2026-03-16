@@ -12,6 +12,7 @@ import {
   optimism,
   plasma,
   polygon,
+  worldchain,
 } from 'viem/chains'
 
 export const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
@@ -21,6 +22,7 @@ export const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
   100: gnosis,
   137: polygon,
   143: monad,
+  480: worldchain,
   999: hyperEvm,
   8453: base,
   9745: plasma,

@@ -1,4 +1,5 @@
 export * from './constants'
+export * from './fallbackRpcUrls'
 export * from './types'
 export * from './contractManager'
 export * from './ethersProviderSingleton'

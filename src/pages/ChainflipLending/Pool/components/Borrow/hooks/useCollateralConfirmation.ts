@@ -59,11 +59,29 @@ export const useCollateralConfirmation = () => {
     if (!isConfirming || !loanAccountsData || !cfAsset || !scAccount) return
 
     const loanAccount = loanAccountsData.find(account => account.account === scAccount)
+
+    // Full collateral removal deletes the loan account or collateral entry entirely
+    if (mode === 'remove' && !loanAccount?.collateral) {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      void invalidateQueries()
+      actorRef.send({ type: 'COLLATERAL_CONFIRMED' })
+      return
+    }
+
     if (!loanAccount?.collateral) return
 
     const matchingCollateral = loanAccount.collateral.find(
       c => c.chain === cfAsset.chain && c.asset === cfAsset.asset,
     )
+
+    // Collateral entry gone entirely counts as confirmed for remove
+    if (mode === 'remove' && !matchingCollateral) {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      void invalidateQueries()
+      actorRef.send({ type: 'COLLATERAL_CONFIRMED' })
+      return
+    }
+
     const currentAmount = matchingCollateral?.amount ?? '0'
 
     try {

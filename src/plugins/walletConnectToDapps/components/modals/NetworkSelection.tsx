@@ -273,7 +273,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
   ])
 
   return (
-    <VStack spacing={0} align='stretch' h='full'>
+    <VStack spacing={0} align='stretch' flex={1} minH={0}>
       <DialogHeader>
         <DialogHeaderLeft>
           <DialogBackButton onClick={onBack} />
@@ -295,7 +295,7 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
           </Button>
         </DialogHeaderRight>
       </DialogHeader>
-      <DialogBody>
+      <DialogBody flex={1} minHeight={0}>
         <CheckboxGroup value={selectedChainIds} onChange={handleChainIdsChange}>
           <VStack spacing={0} align='stretch' pb={4}>
             {networkRows}

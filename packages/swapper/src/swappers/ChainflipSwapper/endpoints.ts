@@ -221,7 +221,7 @@ export const chainflipApi: SwapperApi = {
   },
   checkTradeStatus: async ({ config, swap }) => {
     const chainflipSwapId = swap?.metadata.chainflipSwapId
-    if (!chainflipSwapId) throw Error(`chainflipSwapId is required`)
+    if (chainflipSwapId == null) throw Error(`chainflipSwapId is required`)
 
     const brokerUrl = config.VITE_CHAINFLIP_API_URL
     const apiKey = config.VITE_CHAINFLIP_API_KEY

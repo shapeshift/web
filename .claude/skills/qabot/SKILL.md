@@ -10,6 +10,8 @@ You are running QA tests and reporting results to the qabot dashboard. qabot is 
 
 ## Environment
 
+**Requires agent-browser >= 0.20.0** (native Rust daemon, no more Node.js/Playwright).
+
 Secrets are stored in `~/.secrets` (sourced by `~/.zshrc`). Required env vars:
 
 - `QABOT_API_KEY` - shared API key for write access to qabot
@@ -167,7 +169,12 @@ The native wallet requires a password on each session start. The wallet-health f
 3. Click the wallet name button (e.g. "test", "teest") if wallet selection is shown
 4. Focus the password input via JS eval (click --ref often times out on external origins):
    `eval "document.querySelector('input[type=password], input[placeholder*=Password]')?.focus()"`
-5. Type `$NATIVE_WALLET_PASSWORD` character by character using `press` (NOT `fill` - React controlled inputs need keypress events)
+5. Type the password - use `keyboard type` (preferred) or `press` char-by-char (NOT `fill` - React controlled inputs need keypress events):
+   ```bash
+   # PREFERRED: keyboard type command
+   agent-browser --session qabot keyboard type "$NATIVE_WALLET_PASSWORD"
+   # LEGACY: press char-by-char
+   ```
 6. Click "Next" via JS eval:
    `eval "$(cat /tmp/click-next.js)"`
 7. Wait 8+ seconds for external origins to fully hydrate
@@ -189,12 +196,20 @@ When using qabot for PR review validation on localhost:
 
 #### JS Eval & Smart Quotes (CRITICAL)
 
-- **Smart quotes kill JS eval**: Claude's output produces unicode smart quotes (`"` `"` `'` `'`) which cause `SyntaxError: Invalid or unexpected token` in agent-browser eval. **NEVER write JS inline in eval commands.** Always write JS to a temp file first with `printf`, then `cat` it:
+- **Smart quotes kill JS eval**: Claude's output produces unicode smart quotes (`"` `"` `'` `'`) which cause `SyntaxError: Invalid or unexpected token` in agent-browser eval.
+- **PREFERRED: Use `--stdin` or `--base64`** to avoid smart quote issues entirely (no temp files needed):
   ```bash
-  printf 'var btns=document.querySelectorAll("button"); for(var i=0;i<btns.length;i++){if(btns[i].textContent.trim()==="Preview Trade"){btns[i].click();break;}}' > /tmp/click-preview.js
-  agent-browser --session qabot eval "$(cat /tmp/click-preview.js)"
+  # PREFERRED: pipe JS via stdin (no temp files needed)
+  echo 'document.querySelectorAll("button").forEach(b => { if(b.textContent.includes("Skip")) b.click() })' | agent-browser --session qabot eval --stdin
+
+  # ALTERNATIVE: base64 encode to avoid all escaping issues
+  agent-browser --session qabot eval --base64 $(echo -n 'your JS code' | base64)
+
+  # LEGACY (still works): write to temp file
+  printf 'code here' > /tmp/click.js
+  agent-browser --session qabot eval "$(cat /tmp/click.js)"
   ```
-- **Pre-write common click helpers at session start**: Before executing any steps, create these reusable JS files in `/tmp/`. This avoids smart quote issues and speeds up execution:
+- **Pre-write common click helpers at session start** (can also be done with `--stdin`): Before executing any steps, create these reusable JS files in `/tmp/`. This avoids smart quote issues and speeds up execution:
   ```bash
   # Write all click helpers upfront
   printf 'var btns=document.querySelectorAll("button"); for(var i=0;i<btns.length;i++){if(btns[i].textContent.trim()==="Close"){btns[i].click();}}' > /tmp/click-close.js
@@ -209,6 +224,63 @@ When using qabot for PR review validation on localhost:
   printf 'var btns=document.querySelectorAll("button"); for(var i=0;i<btns.length;i++){if(btns[i].textContent.trim()==="Next"){btns[i].click();break;}}' > /tmp/click-next.js
   ```
   Then use them: `agent-browser --session qabot eval "$(cat /tmp/click-close.js)"`
+
+#### Snapshots
+
+```bash
+# PREFERRED: interactive elements only (clean, flat list)
+agent-browser --session qabot snapshot -i
+
+# Full accessibility tree (verbose, for debugging layout)
+agent-browser --session qabot snapshot
+
+# Scope to specific element subtree
+agent-browser --session qabot snapshot --selector "main"
+
+# Include cursor-interactive elements (onclick, pointer)
+agent-browser --session qabot snapshot -C
+```
+
+#### Wait Commands (prefer over sleep)
+
+Use `wait` commands instead of arbitrary `sleep` calls where possible:
+
+```bash
+# Network idle detection (page fully loaded):
+agent-browser --session qabot wait --load networkidle
+
+# Wait for specific text to appear:
+agent-browser --session qabot wait --text "Preview Trade"
+
+# Wait for text to disappear (loading states):
+agent-browser --session qabot wait --fn "!document.body.innerText.includes('Loading...')"
+
+# Wait for element to appear:
+agent-browser --session qabot wait "[data-testid=trade-form]"
+```
+
+Note: still use `sleep 8-10` for wallet unlock since app hydration isn't detectable via wait.
+
+#### Network Request Capture
+
+Built-in network request capture (no more manual fetch interceptors):
+
+```bash
+# Capture network requests
+agent-browser --session qabot network requests
+agent-browser --session qabot network requests --filter "chaindefuser"
+
+# Clear captured requests
+agent-browser --session qabot network requests --clear
+
+# Route/mock requests
+agent-browser --session qabot network route "**/api/quote" --body '{"error":"test"}'
+agent-browser --session qabot network unroute
+```
+
+#### Clipboard
+
+Clipboard read/write/copy/paste is available via `agent-browser --session qabot clipboard <read|write|copy|paste>`.
 
 #### Clicking on External Origins
 
@@ -233,6 +305,11 @@ When using qabot for PR review validation on localhost:
   ```
 - **Screenshots are temporary**: Screenshots are saved to `/tmp/` only as a temp step before uploading to Vercel Blob. After uploading, `rm` the local file. Do NOT accumulate local screenshots.
 - **Delete after successful push**: The `step-complete` endpoint handles screenshot upload server-side. After a successful curl (HTTP 201), delete the local file with `rm -f`.
+- **Annotated screenshots**: Use `--annotate` to overlay numbered labels on interactive elements - great for qabot reports where reviewers need to see what was clickable:
+  ```bash
+  agent-browser --session qabot screenshot --annotate /tmp/step-0.png
+  # Prints a legend mapping numbers to element refs
+  ```
 - **Screenshots timing**: Always take screenshots AFTER verifying the expected state via snapshot, not before. Early screenshots capture intermediate states.
 
 #### Agent Thought / Action Logging
@@ -256,6 +333,13 @@ When using qabot for PR review validation on localhost:
   sleep 3
   # Then verify Confirm Details screen appeared via snapshot
   ```
+- **Use `wait --text` for swap flow**: Replace polling patterns with deterministic waits where possible:
+  ```bash
+  # Wait for quote to load
+  agent-browser --session qabot wait --text "Preview Trade"
+  # Wait for swap completion
+  agent-browser --session qabot wait --text "Complete" --timeout 120000
+  ```
 - **THORChain swap timing**: SOL->RUNE completes in ~10s, RUNE->SOL can take ~90s. Always poll with 120s timeout.
 - **Feedback dialog after swap**: A "How was your trade experience?" dialog appears after swaps complete. Dismiss with "Maybe Later" button.
 
@@ -264,7 +348,7 @@ When using qabot for PR review validation on localhost:
 When you encounter what looks like a bug, **don't just report it — investigate it**:
 
 1. **Verify identity**: Is this the exact same yield ID, same account ID, same chain? Check the URL params (`yieldId`, `accountId`). A "discrepancy" between two different yields isn't a bug.
-2. **Check network requests**: Open the browser's Network tab (or use JS eval to intercept fetch responses) to see what the API actually returned vs what the UI shows. Include the raw API response in your agentThought.
+2. **Check network requests**: Use `agent-browser --session qabot network requests` (or `--filter` for specific APIs) to see what the API actually returned vs what the UI shows. Include the raw API response in your agentThought.
 3. **Read the codebase**: You have access to `~/Sites/shapeshiftWeb`. `grep` for the relevant component, selector, or API call. Understand WHERE the bug likely originates (frontend rendering? stale cache? API response?).
 4. **Cross-reference surfaces**: Check the same data across multiple views (yield detail page, My Positions list, DeFi drawer, wallet drawer). Note exactly which surfaces show correct vs incorrect data.
 5. **Navigate freely**: You can explore the entire app to verify bugs — click around, check different pages, use filters. Just don't execute transactions outside fixture constraints.

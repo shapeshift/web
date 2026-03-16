@@ -20,8 +20,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "pnpm run clean && pnpm exec tsc --build && pnpm run postbuild",
-    "clean": "rm -rf dist",
+    "build": "rm -rf dist && pnpm exec tsc --build && pnpm run postbuild",
+    "clean": "rm -rf dist node_modules",
     "dev": "pnpm exec tsc --build --watch",
     "postbuild": "pnpm run postbuild:esm && pnpm run postbuild:cjs",
     "postbuild:esm": "pnpm exec tsc-esm-fix --target=dist/esm --ext=.js",
@@ -30,7 +30,7 @@
   "dependencies": {
     "@shapeshiftoss/hdwallet-core": "workspace:^",
     "@shapeshiftoss/hdwallet-keepkey": "workspace:^",
-    "axios": "^0.21.1"
+    "axios": "^1.13.5"
   },
   "sideEffects": false
 }

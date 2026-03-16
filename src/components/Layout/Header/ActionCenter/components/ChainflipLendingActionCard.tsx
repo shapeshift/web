@@ -117,6 +117,11 @@ export const ChainflipLendingActionCard = ({ action }: ChainflipLendingActionCar
     }
   }, [chainflipLendingMetadata.operationType, translate])
 
+  const txHashLink = useMemo(() => {
+    if (!chainflipLendingMetadata.txHash || !asset?.explorerTxLink) return undefined
+    return `${asset.explorerTxLink}${chainflipLendingMetadata.txHash}`
+  }, [chainflipLendingMetadata.txHash, asset?.explorerTxLink])
+
   const egressTxLink = useMemo(() => {
     if (!chainflipLendingMetadata.egressTxRef || !asset?.explorerTxLink) return undefined
     return `${asset.explorerTxLink}${chainflipLendingMetadata.egressTxRef}`
@@ -164,9 +169,22 @@ export const ChainflipLendingActionCard = ({ action }: ChainflipLendingActionCar
               <RawText fontSize='sm' color='text.subtle'>
                 {translate('actionCenter.chainflipLending.details.transactionId')}
               </RawText>
-              <RawText fontSize='sm' fontWeight='medium' textAlign='right'>
-                {middleEllipsis(chainflipLendingMetadata.txHash)}
-              </RawText>
+              {txHashLink ? (
+                <Link
+                  isExternal
+                  href={txHashLink}
+                  fontSize='sm'
+                  fontWeight='medium'
+                  color='text.link'
+                  textAlign='right'
+                >
+                  {middleEllipsis(chainflipLendingMetadata.txHash)}
+                </Link>
+              ) : (
+                <RawText fontSize='sm' fontWeight='medium' textAlign='right'>
+                  {middleEllipsis(chainflipLendingMetadata.txHash)}
+                </RawText>
+              )}
             </HStack>
           )}
           {chainflipLendingMetadata.egressTxRef && (
@@ -205,6 +223,7 @@ export const ChainflipLendingActionCard = ({ action }: ChainflipLendingActionCar
     chainflipLendingMetadata.egressTxRef,
     chainflipLendingMetadata.txHash,
     egressTxLink,
+    txHashLink,
     operationLabel,
     operationTestIdSuffix,
     translate,

@@ -75,13 +75,26 @@ export function MixinNativeSolanaWallet<TBase extends core.Constructor<NativeHDW
       return this.needsMnemonic(!!this.adapter, async () => {
         const txBytes = Buffer.from(msg.serializedTx, 'base64')
         const transaction = VersionedTransaction.deserialize(txBytes)
+
         const signedTransaction = await this.adapter!.signTransaction(transaction, msg.addressNList)
-        return {
-          serialized: Buffer.from(signedTransaction.serialize()).toString('base64'),
-          signatures: signedTransaction.signatures.map(signature =>
-            Buffer.from(signature).toString('base64'),
-          ),
+
+        // Extract signatures before attempting serialize - for partially-signed txs
+        // (e.g. gasless Bebop where Bebop is the fee payer), serialize() throws because
+        // not all required signatures are present yet. The caller may only need signatures.
+        const signatures = signedTransaction.signatures.map(signature =>
+          Buffer.from(signature).toString('base64'),
+        )
+
+        let serialized: string
+        try {
+          serialized = Buffer.from(signedTransaction.serialize()).toString('base64')
+        } catch {
+          // Partial signing - serialize the message without signature verification
+          // For co-signed txs (e.g. gasless Bebop), not all sigs are present yet
+          serialized = msg.serializedTx
         }
+
+        return { serialized, signatures }
       })
     }
   }

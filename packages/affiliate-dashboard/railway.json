@@ -1,0 +1,13 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "packages/affiliate-dashboard/Dockerfile",
+    "watchPatterns": [
+      "packages/affiliate-dashboard/**"
+    ]
+  },
+  "deploy": {
+    "restartPolicyType": "ALWAYS"
+  }
+}

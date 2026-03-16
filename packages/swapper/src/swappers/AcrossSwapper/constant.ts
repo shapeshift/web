@@ -7,11 +7,13 @@ import {
   hyperEvmChainId,
   inkChainId,
   lineaChainId,
+  megaethChainId,
   modeChainId,
   monadChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  scrollChainId,
   solanaChainId,
   soneiumChainId,
   unichainChainId,
@@ -34,6 +36,7 @@ import {
   optimism,
   plasma,
   polygon,
+  scroll,
   soneium,
   unichain,
   worldchain,
@@ -63,6 +66,8 @@ export const chainIdToAcrossChainId: Record<string, number> = {
   [soneiumChainId]: soneium.id,
   // Across uses a custom Solana chain ID
   [solanaChainId]: 34268394551451,
+  [scrollChainId]: scroll.id,
+  [megaethChainId]: 4326,
 }
 
 export const acrossChainIdToChainId = invert(chainIdToAcrossChainId)

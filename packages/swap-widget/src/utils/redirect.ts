@@ -1,27 +1,38 @@
 import type { Asset, AssetId } from '../types'
 import { isEvmChainId } from '../types'
 
-const SHAPESHIFT_APP_URL = 'https://app.shapeshift.com'
+const DEFAULT_APP_URL = 'https://app.shapeshift.com'
 
 export type RedirectParams = {
   sellAssetId: AssetId
   buyAssetId: AssetId
-  sellAmount?: string
+  sellAmountBaseUnit?: string
+  partnerCode?: string
+  appUrl?: string
 }
 
 export const buildShapeShiftTradeUrl = (params: RedirectParams): string => {
-  const url = new URL(`${SHAPESHIFT_APP_URL}/trade`)
-  url.searchParams.set('sellAssetId', params.sellAssetId)
-  url.searchParams.set('buyAssetId', params.buyAssetId)
-  if (params.sellAmount) {
-    url.searchParams.set('sellAmount', params.sellAmount)
-  }
-  return url.toString()
+  const { sellAssetId, buyAssetId, sellAmountBaseUnit, partnerCode, appUrl } = params
+  const baseUrl = appUrl || DEFAULT_APP_URL
+
+  // CAIP-19 assetIds have format "chainId/assetSubId" e.g. "eip155:1/slip44:60"
+  // The first "/" separates chainId from assetSubId
+  const buySlashIdx = buyAssetId.indexOf('/')
+  const buyChainId = buyAssetId.substring(0, buySlashIdx)
+  const buyAssetSubId = buyAssetId.substring(buySlashIdx + 1)
+
+  const sellSlashIdx = sellAssetId.indexOf('/')
+  const sellChainId = sellAssetId.substring(0, sellSlashIdx)
+  const sellAssetSubId = sellAssetId.substring(sellSlashIdx + 1)
+
+  const amount = sellAmountBaseUnit || '0'
+  const partner = partnerCode ? `?partner=${encodeURIComponent(partnerCode)}` : ''
+
+  return `${baseUrl}/#/trade/${buyChainId}/${buyAssetSubId}/${sellChainId}/${sellAssetSubId}/${amount}${partner}`
 }
 
 export const redirectToShapeShift = (params: RedirectParams): void => {
-  const url = buildShapeShiftTradeUrl(params)
-  window.open(url, '_blank', 'noopener,noreferrer')
+  window.open(buildShapeShiftTradeUrl(params), '_blank', 'noopener,noreferrer')
 }
 
 export type ChainType = 'evm' | 'utxo' | 'cosmos' | 'solana' | 'other'

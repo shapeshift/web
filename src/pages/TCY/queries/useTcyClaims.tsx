@@ -1,5 +1,6 @@
 import { fromAccountId, fromAssetId, thorchainChainId } from '@shapeshiftoss/caip'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-core/wallet'
+import { isMetaMaskNativeMultichain } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { isRune, thorPoolAssetIdToAssetId } from '@shapeshiftoss/swapper'
 import { isUtxoChainId } from '@shapeshiftoss/utils'
 import { useSuspenseQueries } from '@tanstack/react-query'
@@ -65,7 +66,13 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
             const isMetaMaskMultichainWallet = isMetaMask(wallet)
 
             // Metamask snap might be uninstalled but UTXO accounts not cleared yet because of reactivity
-            if (isMetaMaskMultichainWallet && !isSnapInstalled) return []
+            // Native multichain wallets don't use snaps, so skip this guard for them
+            if (
+              isMetaMaskMultichainWallet &&
+              !isSnapInstalled &&
+              !isMetaMaskNativeMultichain(wallet)
+            )
+              return []
 
             const accountMetadata = selectPortfolioAccountMetadataByAccountId(store.getState(), {
               accountId,

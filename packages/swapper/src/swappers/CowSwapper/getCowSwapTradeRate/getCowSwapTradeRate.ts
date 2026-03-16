@@ -25,6 +25,7 @@ import {
   getInputOutputRate,
   makeSwapErrorRight,
 } from '../../../utils'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { cowService } from '../utils/cowService'
 import {
@@ -181,6 +182,14 @@ export async function getCowSwapTradeRate(
         buyAmountBeforeFeesCryptoBaseUnit,
         buyAmountAfterFeesCryptoBaseUnit,
         source: SwapperName.CowSwap,
+        affiliateFee: buildAffiliateFee({
+          strategy: 'buy_asset',
+          affiliateBps,
+          sellAsset,
+          buyAsset,
+          sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+        }),
         buyAsset,
         sellAsset,
         accountNumber,

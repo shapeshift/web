@@ -23,6 +23,7 @@ import type {
   UtxoTransactionExecutionInput,
 } from '@shapeshiftoss/swapper'
 import {
+  getExecutableTradeStep,
   getHopByIndex,
   isExecutableTradeQuote,
   swappers,
@@ -46,9 +47,13 @@ import { assertGetUtxoChainAdapter } from './utils/utxo'
 
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { readStoredPartnerCode } from '@/hooks/useAffiliateTracking/useAffiliateTracking'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { getAffiliateBps } from '@/lib/fees/utils'
 import { poll } from '@/lib/poll/poll'
 import { getOrCreateUser } from '@/lib/user/api'
+import { selectUsdRateByAssetId } from '@/state/slices/marketDataSlice/selectors'
 import { selectCurrentSwap, selectWalletEnabledAccountIds } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
@@ -210,10 +215,28 @@ export class TradeExecution {
             queryClient.fetchQuery({
               queryKey: ['createSwap', swap.id],
               queryFn: () => {
+                const affiliateBps = getAffiliateBps(updatedSwap.sellAsset, updatedSwap.buyAsset)
+                const partnerCode = readStoredPartnerCode() ?? undefined
+
+                const sellAssetUsdRate = selectUsdRateByAssetId(
+                  store.getState(),
+                  updatedSwap.sellAsset.assetId,
+                )
+                const sellAmountUsd =
+                  sellAssetUsdRate && updatedSwap.sellAmountCryptoPrecision
+                    ? bnOrZero(updatedSwap.sellAmountCryptoPrecision)
+                        .times(sellAssetUsdRate)
+                        .toFixed(2)
+                    : undefined
+
                 return axios.post(`${import.meta.env.VITE_SWAPS_SERVER_URL}/swaps`, {
                   swapId: swap.id,
                   sellTxHash,
                   userId: userData?.id,
+                  affiliateBps,
+                  partnerCode,
+                  sellAmountUsd,
+                  origin: 'web',
                   sellAsset: updatedSwap.sellAsset,
                   buyAsset: updatedSwap.buyAsset,
                   sellAmountCryptoBaseUnit: updatedSwap.sellAmountCryptoBaseUnit,
@@ -526,6 +549,7 @@ export class TradeExecution {
     slippageTolerancePercentageDecimal,
     from,
     signAndBroadcastTransaction,
+    signTransaction,
   }: SolanaTransactionExecutionInput) {
     const buildSignBroadcast = async (
       swapper: Swapper & SwapperApi,
@@ -537,6 +561,33 @@ export class TradeExecution {
         config,
       }: CommonGetUnsignedTransactionArgs,
     ) => {
+      if (!isExecutableTradeQuote(tradeQuote)) {
+        throw new Error('Unable to execute a trade rate quote')
+      }
+
+      const step = getHopByIndex(tradeQuote, stepIndex)
+      const metadata = step?.solanaTransactionMetadata
+
+      // Jito bundle path for oversized Butter Solana transactions
+      if (metadata?.isOversized) {
+        if (!metadata.instructions?.length || !signTransaction) {
+          throw new Error(
+            'Oversized Solana transaction requires instructions and signTransaction for Jito bundle execution',
+          )
+        }
+        const executableStep = getExecutableTradeStep(tradeQuote, stepIndex)
+        const { execSolanaJitoBundle } = await import('@/lib/solanaJitoBundle')
+        return await execSolanaJitoBundle({
+          instructions: metadata.instructions,
+          addressLookupTableAddresses: metadata.addressLookupTableAddresses ?? [],
+          from,
+          accountNumber: executableStep.accountNumber,
+          sellAssetChainId: chainId,
+          signTransaction,
+        })
+      }
+
+      // Standard single-tx path
       if (!swapper.getUnsignedSolanaTransaction) {
         throw Error('missing implementation for getUnsignedSolanaTransaction')
       }

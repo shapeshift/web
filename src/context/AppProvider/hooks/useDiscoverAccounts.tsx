@@ -1,5 +1,6 @@
 import { isGridPlus, isMetaMask } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { isMetaMaskNativeMultichain } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useQueries } from '@tanstack/react-query'
@@ -50,7 +51,10 @@ export const useDiscoverAccounts = () => {
             !wallet ||
             shouldSkipAutoDiscovery ||
             // Before connecting to MetaMask, isSnapInstalled is null then switch to false when the hook reacts, we would run the discovery 2 times
-            (connectedRdns === METAMASK_RDNS && isSnapInstalled === null)
+            // Native multichain wallets don't use snaps, so skip this guard for them
+            (connectedRdns === METAMASK_RDNS &&
+              isSnapInstalled === null &&
+              !isMetaMaskNativeMultichain(wallet))
           ) {
             return { accountMetadataByAccountId: {}, hasActivity: false }
           }
@@ -68,7 +72,13 @@ export const useDiscoverAccounts = () => {
           while (hasActivity) {
             if (accountNumber > 0) {
               if (!isMultiAccountWallet) break
-              if (isMetaMaskMultichainWallet && !isSnapInstalled) break
+              // Native multichain supports multi-account for BTC/SOL without snaps
+              if (
+                isMetaMaskMultichainWallet &&
+                !isSnapInstalled &&
+                !isMetaMaskNativeMultichain(wallet)
+              )
+                break
             }
 
             try {

@@ -1,4 +1,4 @@
-export const TEST_AFFILIATE_ADDRESS = '0x0000000000000000000000000000000000000001'
+export const TEST_PARTNER_CODE = 'test-partner'
 
 export const ASSET_IDS = {
   // EVM Native Assets

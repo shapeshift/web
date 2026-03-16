@@ -400,14 +400,18 @@ export const useYieldTransactionFlow = ({
   }, [])
 
   const isInsufficientGasError = useCallback((error: unknown): boolean => {
-    const msg = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase()
+    const msg =
+      error instanceof Error
+        ? error.message.toLowerCase()
+        : typeof error === 'string'
+        ? error.toLowerCase()
+        : JSON.stringify(error).toLowerCase()
     return (
       msg.includes('insufficient funds') ||
       msg.includes('insufficient balance') ||
       msg.includes('gas required exceeds allowance') ||
       msg.includes('not enough balance') ||
-      msg.includes('insufficientbalance') ||
-      msg.includes('out of gas')
+      msg.includes('insufficientbalance')
     )
   }, [])
 

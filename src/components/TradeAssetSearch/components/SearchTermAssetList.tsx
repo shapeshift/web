@@ -1,9 +1,8 @@
 import { Box, useMediaQuery } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId, isNft, toAssetId } from '@shapeshiftoss/caip'
-import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
-import type { MinimalAsset } from '@shapeshiftoss/utils'
-import { bnOrZero, getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftoss/utils'
+import { fromAssetId, isNft } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import { bnOrZero, makeAsset } from '@shapeshiftoss/utils'
 import { orderBy } from 'lodash'
 import { useMemo } from 'react'
 
@@ -22,8 +21,8 @@ import {
   selectRelatedAssetIdsByAssetIdInclusive,
   selectWalletConnectedChainIds,
 } from '@/state/slices/common-selectors'
-import { selectPrimaryAssets } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { selectAssets } from '@/state/slices/selectors'
+import { store, useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
 export type SearchTermAssetListProps = {
@@ -53,7 +52,6 @@ export const SearchTermAssetList = ({
   )
   const relatedAssetIdsById = useAppSelector(selectRelatedAssetIdsByAssetIdInclusive)
   const portfolioUserCurrencyBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
-  const assetsById = useAppSelector(selectPrimaryAssets)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
   const chainIds = useMemo(() => {
@@ -109,32 +107,15 @@ export const SearchTermAssetList = ({
   }, [assetsForChain])
 
   const customAssets: Asset[] = useMemo(() => {
-    return (customTokens ?? [])
-      .map(metaData => {
-        if (!metaData) return null
-        const { name, symbol, decimals, logo } = metaData
-        // If we can't get all the information we need to create an Asset, don't allow the custom token
-        if (!name || !symbol || !decimals) return null
-        const assetId = toAssetId({
-          chainId: metaData.chainId,
-          assetNamespace: getAssetNamespaceFromChainId(metaData.chainId as KnownChainIds),
-          assetReference: metaData.contractAddress,
-        })
+    if (!customTokens?.length) return []
 
-        // Skip if we already have this asset
-        if (assetIdMap[assetId] !== undefined) return null
+    // Do not move me to a regular useSelector(), as this is reactive on the *whole* assets set and would make this component extremely reactive for no reason
+    const assetsById = selectAssets(store.getState())
 
-        const minimalAsset: MinimalAsset = {
-          assetId,
-          name,
-          symbol,
-          precision: decimals,
-          icon: logo ?? undefined,
-        }
-        return makeAsset(assetsById, minimalAsset)
-      })
-      .filter(isSome)
-  }, [assetIdMap, assetsById, customTokens])
+    return customTokens
+      .filter(token => !assetsById[token.assetId])
+      .map(token => makeAsset(assetsById, token))
+  }, [customTokens])
 
   const searchTermAssets = useMemo(() => {
     const filteredAssets: Asset[] = (() => {

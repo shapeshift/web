@@ -26,7 +26,12 @@ export const deduplicateAssets = <T extends DeduplicatableAsset>(
     : false
 
   for (const asset of assets) {
-    const familyKey = asset.relatedAssetKey ?? asset.assetId
+    // If the search term appears in the assetId (contract address search), use assetId as the
+    // family key so each chain variant is shown independently. Grouping by relatedAssetKey relies
+    // on isPrimary being correct, which isn't guaranteed (asset generation bugs, or makeAsset
+    // defaulting isPrimary: true for custom imports).
+    const matchedByAddress = searchLower && asset.assetId.toLowerCase().includes(searchLower)
+    const familyKey = matchedByAddress ? asset.assetId : asset.relatedAssetKey ?? asset.assetId
     const existing = familyToAsset.get(familyKey)
 
     const isExact = hasExactSymbolMatch && isExactMatch(searchLower, asset.symbol)

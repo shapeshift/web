@@ -9,9 +9,8 @@ import {
   useUpdateEffect,
 } from '@chakra-ui/react'
 import { captureException, setContext } from '@sentry/react'
-import { toAssetId } from '@shapeshiftoss/caip'
-import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
-import { getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftoss/utils'
+import type { Asset } from '@shapeshiftoss/types'
+import { makeAsset } from '@shapeshiftoss/utils'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import MultiRef from 'react-multi-ref'
 import { useNavigate } from 'react-router-dom'
@@ -23,7 +22,6 @@ import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
 import { useGetCustomTokensQuery } from '@/components/TradeAssetSearch/hooks/useGetCustomTokensQuery'
 import { useModalRegistration } from '@/context/ModalStackProvider'
 import { CUSTOM_TOKEN_IMPORT_SUPPORTED_CHAIN_IDS } from '@/lib/customTokenImportSupportedChainIds'
-import { isSome } from '@/lib/utils'
 import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
 import { selectAssets, selectAssetsBySearchQuery } from '@/state/slices/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
@@ -48,7 +46,6 @@ export const GlobalSearchModal = memo(
     const dispatch = useAppDispatch()
     const searchFilter = useMemo(() => ({ searchQuery, limit: 10 }), [searchQuery])
     const results = useAppSelector(state => selectAssetsBySearchQuery(state, searchFilter))
-    const assetResults = results
     const resultsCount = results.length
     const isMac = useMemo(() => /Mac/.test(navigator.userAgent), [])
     const handleClose = useCallback(() => {
@@ -66,50 +63,15 @@ export const GlobalSearchModal = memo(
       chainIds: CUSTOM_TOKEN_IMPORT_SUPPORTED_CHAIN_IDS,
     })
 
-    const customAssets = useMemo(() => {
-      if (!customTokens?.length) return []
+    useEffect(() => {
+      if (!customTokens?.length) return
 
-      // Do not move me to a regular useSelector(), as this is reactive on the *whole* assets set and would make this component extremely reactive for no reason
       const assetsById = selectAssets(store.getState())
 
-      const assets = customTokens
-        .map(metaData => {
-          if (!metaData) return null
-          const { name, symbol, decimals, logo, chainId, contractAddress } = metaData
-
-          if (!name || !symbol || !decimals) return null
-
-          const assetId = toAssetId({
-            chainId,
-            assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
-            assetReference: contractAddress,
-          })
-
-          const minimalAsset = {
-            assetId,
-            name,
-            symbol,
-            precision: decimals,
-            icon: logo ?? undefined,
-          }
-
-          return makeAsset(assetsById, minimalAsset)
-        })
-        .filter(isSome)
-
-      return assets
-    }, [customTokens])
-
-    useEffect(() => {
-      customAssets.forEach(asset => {
-        // Do not move me to a regular useSelector(), as this is reactive on the *whole* assets set and would make this component extremely reactive for no reason
-        const assetsById = selectAssets(store.getState())
-
-        if (!assetsById[asset.assetId]) {
-          dispatch(assetsSlice.actions.upsertAsset(asset))
-        }
-      })
-    }, [customAssets, dispatch])
+      customTokens
+        .filter(token => !assetsById[token.assetId])
+        .forEach(token => dispatch(assetsSlice.actions.upsertAsset(makeAsset(assetsById, token))))
+    }, [customTokens, dispatch])
 
     useEffect(() => {
       if (!searchQuery) setActiveIndex(0)
@@ -225,7 +187,7 @@ export const GlobalSearchModal = memo(
           </ModalHeader>
           <ModalBody px={0} ref={menuRef}>
             <AssetSearchResults
-              results={assetResults}
+              results={results}
               searchQuery={searchQuery}
               isSearching={isSearching}
               onClickResult={handleClick}

@@ -1,4 +1,4 @@
-import { List } from '@chakra-ui/react'
+import { Flex, List, Spinner } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { memo, useMemo } from 'react'
 
@@ -20,6 +20,14 @@ export const AssetSearchResults = memo(
     }, [results.length])
 
     if (isSearching && noResults) {
+      return (
+        <Flex p={6} justifyContent='center' alignItems='center'>
+          <Spinner />
+        </Flex>
+      )
+    }
+
+    if (!isSearching && noResults && searchQuery) {
       return <SearchEmpty searchQuery={searchQuery} />
     }
 

@@ -1,6 +1,8 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { solanaChainId } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { toAssetId } from '@shapeshiftoss/caip'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import type { MinimalAsset } from '@shapeshiftoss/utils'
+import { getAssetNamespaceFromChainId } from '@shapeshiftoss/utils'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { skipToken, useQueries } from '@tanstack/react-query'
 import axios, { isAxiosError } from 'axios'
@@ -12,14 +14,11 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { isSolanaAddress } from '@/lib/utils/isSolanaAddress'
 import { mergeQueryOutputs } from '@/react-queries/helpers'
 
-type TokenMetadata = {
-  name?: string
-  symbol?: string
-  decimals?: number
-  logo?: string
-  chainId: ChainId
-  contractAddress: string
-  price: string
+type TokenMetadataResponse = {
+  name: string
+  symbol: string
+  decimals: number | null
+  logo: string | null
 }
 
 type UseGetCustomTokensQueryProps = {
@@ -38,42 +37,40 @@ const getCustomTokenQueryKey = (contractAddress: string, chainId: ChainId): Cust
 export const useGetCustomTokensQuery = ({
   contractAddress,
   chainIds,
-}: UseGetCustomTokensQueryProps): UseQueryResult<(TokenMetadata | undefined)[], Error[]> => {
+}: UseGetCustomTokensQueryProps): UseQueryResult<MinimalAsset[], Error[]> => {
   const customTokenImportEnabled = useFeatureFlag('CustomTokenImport')
 
-  const getTokenMetadata = useCallback(
-    async (chainId: ChainId): Promise<TokenMetadata | undefined> => {
+  const getCustomToken = useCallback(
+    async (chainId: ChainId): Promise<MinimalAsset | undefined> => {
       try {
-        const { data } = await axios.get<{
-          chainId: ChainId
-          tokenAddress: string
-          name?: string
-          symbol?: string
-          decimals?: number
-          logo?: string
-        }>(`${getConfig().VITE_PROXY_API_BASE_URL}/api/v1/tokens/metadata`, {
-          params: {
-            chainId,
-            tokenAddress: contractAddress,
+        const { data } = await axios.get<TokenMetadataResponse>(
+          `${getConfig().VITE_PROXY_API_BASE_URL}/api/v1/tokens/metadata`,
+          {
+            params: {
+              chainId,
+              tokenAddress: contractAddress,
+            },
           },
-          timeout: 10_000,
+        )
+
+        if (data.decimals === null) return undefined
+
+        const assetId = toAssetId({
+          chainId,
+          assetNamespace: getAssetNamespaceFromChainId(chainId as KnownChainIds),
+          assetReference: contractAddress,
         })
 
         return {
+          assetId,
           name: data.name,
           symbol: data.symbol,
-          decimals: data.decimals,
-          chainId: data.chainId,
-          contractAddress: data.tokenAddress,
-          price: '0',
-          logo: data.logo,
+          precision: data.decimals,
+          icon: data.logo ?? undefined,
         }
-      } catch (e) {
-        if (isAxiosError(e) && (e.response?.status === 404 || e.response?.status === 422)) {
-          return undefined
-        }
-
-        throw e
+      } catch (err) {
+        if (isAxiosError(err) && (err.response?.status ?? 0) >= 500) throw err
+        return undefined
       }
     },
     [contractAddress],
@@ -88,20 +85,15 @@ export const useGetCustomTokensQuery = ({
 
   const getQueryFn = useCallback(
     (chainId: ChainId) => () => {
-      if (isValidSolanaAddress && chainId === solanaChainId) {
-        return getTokenMetadata(chainId)
-      } else if (isValidEvmAddress && isEvmChainId(chainId)) {
-        return getTokenMetadata(chainId)
-      } else {
-        return skipToken
-      }
+      if (!isValidEvmAddress && !isValidSolanaAddress) return skipToken
+      return getCustomToken(chainId)
     },
-    [getTokenMetadata, isValidEvmAddress, isValidSolanaAddress],
+    [getCustomToken, isValidEvmAddress, isValidSolanaAddress],
   )
 
-  const isTokenMetadata = (
-    result: TokenMetadata | typeof skipToken | undefined,
-  ): result is TokenMetadata => result !== undefined && result !== skipToken
+  const isMinimalAsset = (
+    result: MinimalAsset | typeof skipToken | undefined,
+  ): result is MinimalAsset => result !== undefined && result !== skipToken
 
   const customTokenQueries = useQueries({
     queries: chainIds.map(chainId => ({
@@ -110,7 +102,7 @@ export const useGetCustomTokensQuery = ({
       enabled: customTokenImportEnabled,
       staleTime: Infinity,
     })),
-    combine: queries => mergeQueryOutputs(queries, results => results.filter(isTokenMetadata)),
+    combine: queries => mergeQueryOutputs(queries, results => results.filter(isMinimalAsset)),
   })
 
   return customTokenQueries

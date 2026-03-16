@@ -87,10 +87,10 @@ describe('deduplicateAssets', () => {
 
   it('prefers primary AXLUSDC over non-primary when both have exact match', () => {
     // Create AXLUSDC assets with their own family and a primary
-    const axlusdcFamily = 'eip155:1/erc20:axlusdc-family'
+    const axlusdcFamily = 'eip155:1/erc20:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
     const axlusdcPrimary = {
       ...AXLUSDC_OPTIMISM,
-      assetId: 'eip155:1/erc20:axlusdc-primary' as const,
+      assetId: 'eip155:1/erc20:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' as const,
       relatedAssetKey: axlusdcFamily,
       isPrimary: true,
     }
@@ -109,10 +109,10 @@ describe('deduplicateAssets', () => {
 
   it('returns primary even when non-primary exact match comes first in array', () => {
     // Create AXLUSDC assets with primary coming second in array
-    const axlusdcFamily = 'eip155:1/erc20:axlusdc-family'
+    const axlusdcFamily = 'eip155:1/erc20:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
     const axlusdcPrimary = {
       ...AXLUSDC_OPTIMISM,
-      assetId: 'eip155:1/erc20:axlusdc-primary' as const,
+      assetId: 'eip155:1/erc20:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' as const,
       relatedAssetKey: axlusdcFamily,
       isPrimary: true,
     }
@@ -130,13 +130,13 @@ describe('deduplicateAssets', () => {
 
   it('shows both AXLUSDC and AXLUSDT groups when searching "axlusd"', () => {
     // Create separate families for AXLUSDC and AXLUSDT
-    const axlusdcFamily = 'eip155:1/erc20:axlusdc-family'
-    const axlusdtFamily = 'eip155:1/erc20:axlusdt-family'
+    const axlusdcFamily = 'eip155:1/erc20:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+    const axlusdtFamily = 'eip155:1/erc20:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
     const assets = [
       { ...AXLUSDC_OPTIMISM, relatedAssetKey: axlusdcFamily, isPrimary: false },
       {
         ...AXLUSDC_OPTIMISM,
-        assetId: 'eip155:1/erc20:axlusdc-primary' as const,
+        assetId: 'eip155:1/erc20:0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' as const,
         relatedAssetKey: axlusdcFamily,
         isPrimary: true,
       },
@@ -149,7 +149,7 @@ describe('deduplicateAssets', () => {
       },
       {
         ...AXLUSDC_ARBITRUM,
-        assetId: 'eip155:1/erc20:axlusdt-primary' as const,
+        assetId: 'eip155:1/erc20:0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' as const,
         symbol: 'AXLUSDT',
         name: 'Axelar USDT',
         relatedAssetKey: axlusdtFamily,

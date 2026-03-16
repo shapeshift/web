@@ -10,6 +10,7 @@ import { DepositMachineCtx } from '../DepositMachineContext'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { ethAddressToNodeId } from '@/lib/chainflip/account'
 import {
+  CHAINFLIP_FLIP_TOKEN_ADDRESS,
   CHAINFLIP_GATEWAY_ABI,
   CHAINFLIP_GATEWAY_CONTRACT_ADDRESS,
 } from '@/lib/chainflip/constants'
@@ -17,6 +18,7 @@ import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
   createBuildCustomTxInput,
+  getErc20Allowance,
 } from '@/lib/utils/evm'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 
@@ -43,6 +45,27 @@ export const useDepositFunding = () => {
         if (!accountId) throw new Error('Account not found')
 
         const { account: from } = fromAccountId(accountId)
+
+        // Poll until the FLIP allowance is visible on-chain. Guards against the case where
+        // the approval tx receipt was confirmed but the allowance hasn't propagated to all
+        // RPC nodes yet (can cause the funding tx to fail with insufficient allowance).
+        const POLL_INTERVAL_MS = 2000
+        const POLL_TIMEOUT_MS = 60_000
+        const pollStart = Date.now()
+        while (true) {
+          const allowance = await getErc20Allowance({
+            address: CHAINFLIP_FLIP_TOKEN_ADDRESS,
+            from,
+            spender: CHAINFLIP_GATEWAY_CONTRACT_ADDRESS,
+            chainId: ethChainId,
+          })
+          if (BigInt(allowance) >= BigInt(flipFundingAmountCryptoBaseUnit)) break
+          if (Date.now() - pollStart > POLL_TIMEOUT_MS) {
+            throw new Error('Timed out waiting for FLIP allowance to be confirmed on-chain.')
+          }
+          await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL_MS))
+        }
+
         const adapter = assertGetEvmChainAdapter(ethChainId)
         const nodeId = ethAddressToNodeId(from)
 

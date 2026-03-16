@@ -274,9 +274,9 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     if (quote.swapTx.ecosystem !== 'svm') return Ok(undefined)
 
     try {
-      const versionedTransaction = VersionedTransaction.deserialize(
-        new Uint8Array(Buffer.from(quote.swapTx.data, 'base64')),
-      )
+      const txBytes = Buffer.from(quote.swapTx.data, 'base64')
+      const isOversized = txBytes.length > 1232
+      const versionedTransaction = VersionedTransaction.deserialize(new Uint8Array(txBytes))
 
       const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
 
@@ -308,6 +308,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       return Ok({
         instructions: instructionsWithoutComputeBudget,
         addressLookupTableAddresses: addressLookupTableAccountKeys,
+        isOversized,
       })
     } catch (e) {
       return Err(

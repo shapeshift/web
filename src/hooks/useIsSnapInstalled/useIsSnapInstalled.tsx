@@ -3,11 +3,13 @@ import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-core/wallet'
+import { isMetaMaskNativeMultichain } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { useQuery } from '@tanstack/react-query'
 import pDebounce from 'p-debounce'
 import { useCallback } from 'react'
 
 import { getConfig } from '@/config'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { METAMASK_RDNS } from '@/lib/mipd'
 import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
@@ -43,6 +45,8 @@ export const useIsSnapInstalled = (): {
   isSnapInstalled: boolean | null
   isCorrectVersion: boolean | null
 } => {
+  const isMmNativeMultichain = useFeatureFlag('MmNativeMultichain')
+
   const {
     state: { wallet, isConnected },
   } = useWallet()
@@ -50,6 +54,12 @@ export const useIsSnapInstalled = (): {
   const connectedRdns = useAppSelector(selectWalletRdns)
 
   const checkSnapInstallation = useCallback(async () => {
+    if (isMmNativeMultichain)
+      return {
+        isCorrectVersion: null,
+        isSnapInstalled: null,
+      }
+
     if (connectedRdns !== METAMASK_RDNS || !isConnected)
       return {
         isCorrectVersion: null,
@@ -70,12 +80,12 @@ export const useIsSnapInstalled = (): {
       isCorrectVersion: version === snapVersion,
       isSnapInstalled: _isSnapInstalled,
     }
-  }, [connectedRdns, isConnected, wallet])
+  }, [isMmNativeMultichain, connectedRdns, isConnected, wallet])
 
   const { data: snapInstallation = { isCorrectVersion: null, isSnapInstalled: null } } = useQuery({
-    queryKey: ['snapInstallation', connectedRdns, isConnected],
+    queryKey: ['snapInstallation', connectedRdns, isConnected, isMmNativeMultichain],
     queryFn: checkSnapInstallation,
-    refetchInterval: POLL_INTERVAL,
+    refetchInterval: isMmNativeMultichain ? false : POLL_INTERVAL,
     staleTime: 0,
     gcTime: 0,
   })
@@ -103,6 +113,15 @@ export const canAddMetaMaskAccount = ({
 
   // Can always add 0th account regardless of chain/snap installation
   if (accountNumber === 0) return true
+
+  // Native multichain: multi-account for BTC/SOL via Wallet Standard, not for EVM
+  if (isMetaMaskNativeMultichain(wallet)) {
+    // EVM multi-account still not supported in native mode - MM returns the same address for all EVM account indices
+    if (isEvmChainId(chainId)) return false
+    // For BTC/SOL, we support multiple accounts via Wallet Standard
+    // The actual account count depends on what MM exposes
+    return true
+  }
 
   // MM without snaps never support multi-account, regardless of chain
   if (!isSnapInstalled) return false

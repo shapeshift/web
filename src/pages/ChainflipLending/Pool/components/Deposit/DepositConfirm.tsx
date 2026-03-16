@@ -1,7 +1,7 @@
-import { CheckCircleIcon } from '@chakra-ui/icons'
-import { Button, CardBody, CardFooter, Flex, VStack } from '@chakra-ui/react'
+import { ArrowForwardIcon, CheckCircleIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { Button, CardBody, CardFooter, Divider, Flex, HStack, Link, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ethChainId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, flipAssetId, fromAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query'
 import { memo, useCallback, useMemo } from 'react'
@@ -21,6 +21,9 @@ import { useDepositSend } from './hooks/useDepositSend'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { useInternalAccountReceiveAddress } from '@/components/Modals/Send/AddressBook/hooks/useInternalAccountReceiveAddress'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -61,6 +64,7 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
   const depositAmountCryptoPrecision = DepositMachineCtx.useSelector(
     s => s.context.depositAmountCryptoPrecision,
   )
+  const txHashes = DepositMachineCtx.useSelector(s => s.context.txHashes)
   const refundAddress = DepositMachineCtx.useSelector(s => s.context.refundAddress)
   const error = DepositMachineCtx.useSelector(s => s.context.error)
   const isNativeWallet = DepositMachineCtx.useSelector(s => s.context.isNativeWallet)
@@ -83,10 +87,11 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
     return byChainId?.[poolChainId]?.[0]
   }, [accountIdsByAccountNumberAndChainId, accountNumber, poolChainId])
 
-  const userAddress = useMemo(
-    () => (poolChainAccountId ? fromAccountId(poolChainAccountId).account : undefined),
-    [poolChainAccountId],
-  )
+  const { receiveAddress: userAddress } = useInternalAccountReceiveAddress({
+    accountId: poolChainAccountId ?? null,
+    asset,
+    enabled: true,
+  })
 
   const { data: flipAllowanceCryptoBaseUnit, isLoading: isAllowanceLoading } = useQuery({
     queryKey: ['chainflipFlipAllowance', userAddress],
@@ -119,13 +124,20 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
     return matching?.balance ?? '0'
   }, [freeBalances, cfAsset])
 
-  const isLoading = isAllowanceLoading || !asset
+  const depositTxLink = useMemo(() => {
+    if (!txHashes.deposit || !asset?.explorerTxLink) return undefined
+    return `${asset.explorerTxLink}${txHashes.deposit}`
+  }, [txHashes.deposit, asset?.explorerTxLink])
+
+  const effectiveRefundAddress = refundAddress || userAddress || ''
+
+  const isLoading = isAllowanceLoading || !asset || !effectiveRefundAddress
 
   const handleStart = useCallback(() => {
     actorRef.send({
       type: 'START',
       depositAmountCryptoBaseUnit,
-      refundAddress: refundAddress || userAddress || '',
+      refundAddress: effectiveRefundAddress,
       flipAllowanceCryptoBaseUnit: flipAllowanceCryptoBaseUnit ?? '0',
       flipFundingAmountCryptoBaseUnit: FLIP_FUNDING_AMOUNT_CRYPTO_BASE_UNIT,
       initialFreeBalanceCryptoBaseUnit,
@@ -133,8 +145,7 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
   }, [
     actorRef,
     depositAmountCryptoBaseUnit,
-    refundAddress,
-    userAddress,
+    effectiveRefundAddress,
     flipAllowanceCryptoBaseUnit,
     initialFreeBalanceCryptoBaseUnit,
   ])
@@ -178,16 +189,37 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
                 })}
               </RawText>
             </VStack>
-            <VStack spacing={1}>
-              <RawText fontSize='xs' color='text.subtle'>
-                {translate('chainflipLending.deposit.deposited')}
-              </RawText>
-              <Amount.Crypto
-                value={depositAmountCryptoPrecision}
-                symbol={asset.symbol}
-                fontWeight='bold'
-                fontSize='lg'
-              />
+            <VStack spacing={2} width='full' px={2}>
+              <Flex justifyContent='space-between' alignItems='center' width='full'>
+                <RawText fontSize='sm' color='text.subtle'>
+                  {translate('chainflipLending.deposit.deposited')}
+                </RawText>
+                <Amount.Crypto
+                  value={depositAmountCryptoPrecision}
+                  symbol={asset.symbol}
+                  fontWeight='medium'
+                  fontSize='sm'
+                />
+              </Flex>
+              {txHashes.deposit && (
+                <Flex justifyContent='space-between' alignItems='center' width='full'>
+                  <RawText fontSize='sm' color='text.subtle'>
+                    {translate('chainflipLending.deposit.transactionId')}
+                  </RawText>
+                  {depositTxLink ? (
+                    <Link href={depositTxLink} isExternal color='text.link' fontSize='sm'>
+                      <HStack spacing={1}>
+                        <MiddleEllipsis value={txHashes.deposit} />
+                        <ExternalLinkIcon />
+                      </HStack>
+                    </Link>
+                  ) : (
+                    <RawText fontSize='sm'>
+                      <MiddleEllipsis value={txHashes.deposit} />
+                    </RawText>
+                  )}
+                </Flex>
+              )}
             </VStack>
           </VStack>
         </CardBody>
@@ -220,7 +252,11 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
       <SlideTransition>
         <CardBody px={6} py={4}>
           <VStack spacing={6} align='center' py={6}>
-            <AssetIcon assetId={assetId} size='lg' />
+            <HStack spacing={3}>
+              <AssetIcon assetId={assetId} size='md' />
+              <ArrowForwardIcon boxSize={5} color='text.subtle' />
+              <AssetIcon assetId={flipAssetId} size='md' />
+            </HStack>
             <VStack spacing={2}>
               <RawText fontWeight='bold' fontSize='lg' textAlign='center' color='red.500'>
                 {translate('chainflipLending.deposit.errorTitle')}
@@ -259,18 +295,29 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
     )
   }
 
+  const isAwaitingNativeConfirm = isNativeWallet && !isConfirming && !stepConfirmed
+
   if (!isConfirm) {
     return (
       <SlideTransition>
         <CardBody px={6} py={4}>
           <VStack spacing={6} align='center' py={6}>
-            <CircularProgress isIndeterminate />
+            <HStack spacing={3}>
+              <AssetIcon assetId={assetId} size='md' />
+              <ArrowForwardIcon boxSize={5} color='text.subtle' />
+              <AssetIcon assetId={flipAssetId} size='md' />
+            </HStack>
+            {!isAwaitingNativeConfirm && <CircularProgress isIndeterminate />}
             <VStack spacing={2}>
               <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
-                {translate('chainflipLending.deposit.executingTitle')}
+                {isAwaitingNativeConfirm
+                  ? translate('chainflipLending.awaitingConfirmTitle')
+                  : translate('chainflipLending.deposit.executingTitle')}
               </RawText>
               <RawText fontSize='sm' color='text.subtle' textAlign='center'>
-                {translate('chainflipLending.deposit.executingDescription')}
+                {isAwaitingNativeConfirm
+                  ? translate('chainflipLending.awaitingConfirmDescription')
+                  : translate('chainflipLending.deposit.executingDescription')}
               </RawText>
             </VStack>
             <DepositStepper assetId={assetId} />
@@ -308,18 +355,14 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
     <SlideTransition>
       <CardBody px={6} py={4}>
         <VStack spacing={6} align='center' py={6}>
-          <AssetIcon assetId={assetId} size='lg' />
-          <VStack spacing={2}>
-            <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
-              {translate('chainflipLending.deposit.confirmTitle')}
-            </RawText>
-            <RawText fontSize='sm' color='text.subtle' textAlign='center'>
-              {translate('chainflipLending.deposit.confirmDescription', {
-                amount: depositAmountCryptoPrecision,
-                asset: asset.symbol,
-              })}
-            </RawText>
-          </VStack>
+          <HStack spacing={3}>
+            <AssetIcon assetId={assetId} size='md' />
+            <ArrowForwardIcon boxSize={5} color='text.subtle' />
+            <AssetIcon assetId={flipAssetId} size='md' />
+          </HStack>
+          <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
+            {translate('chainflipLending.deposit.confirmTitle')}
+          </RawText>
           <Flex direction='column' gap={1} align='center'>
             <Amount.Crypto
               value={depositAmountCryptoPrecision}
@@ -328,6 +371,21 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
               fontSize='2xl'
             />
           </Flex>
+          {effectiveRefundAddress && (
+            <>
+              <Divider borderColor='border.subtle' />
+              <HStack width='full' justifyContent='space-between' px={2}>
+                <RawText fontSize='sm' color='text.subtle'>
+                  {translate('chainflipLending.deposit.refundAddress.label')}
+                </RawText>
+                <InlineCopyButton value={effectiveRefundAddress}>
+                  <RawText fontSize='sm' fontWeight='medium' color='text.subtle'>
+                    <MiddleEllipsis value={effectiveRefundAddress} />
+                  </RawText>
+                </InlineCopyButton>
+              </HStack>
+            </>
+          )}
         </VStack>
       </CardBody>
       <CardFooter

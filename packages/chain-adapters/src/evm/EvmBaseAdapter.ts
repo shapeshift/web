@@ -1,5 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
+import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import type {
   ETHSignMessage,
   ETHSignTx,
@@ -48,7 +49,8 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
 import PQueue from 'p-queue'
-import { isAddress, toHex } from 'viem'
+import type { Hex, PublicClient } from 'viem'
+import { getAddress, isAddress, isHex, parseUnits, toHex } from 'viem'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
 import {
@@ -90,6 +92,7 @@ import type {
   BuildCustomApiTxInput,
   BuildCustomTxInput,
   EstimateGasRequest,
+  GasFeeData,
   GasFeeDataEstimate,
   NetworkFees,
 } from './types'
@@ -592,6 +595,32 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
+  private async getAccountFallback(pubkey: string, viemClient: PublicClient): Promise<Account<T>> {
+    try {
+      const [balance, nonce] = await Promise.all([
+        viemClient.getBalance({ address: pubkey as `0x${string}` }),
+        viemClient.getTransactionCount({ address: pubkey as `0x${string}` }),
+      ])
+
+      return {
+        balance: balance.toString(),
+        chainId: this.chainId,
+        assetId: this.assetId,
+        chain: this.getType(),
+        chainSpecific: {
+          nonce,
+          tokens: [],
+        },
+        pubkey,
+      } as Account<T>
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getAccount',
+        options: { pubkey },
+      })
+    }
+  }
+
   async getAccount(pubkey: string): Promise<Account<T>> {
     try {
       const data = await this.providers.http.getAccount({ pubkey })
@@ -620,6 +649,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         pubkey,
       } as Account<T>
     } catch (err) {
+      const viemClient = viemClientByChainId[this.chainId]
+      if (viemClient) {
+        console.warn(`Unchained getAccount failed for ${this.chainId}, falling back to direct RPC`)
+        return this.getAccountFallback(pubkey, viemClient)
+      }
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getAccount',
         options: { pubkey },
@@ -712,9 +746,18 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
       ])
 
-      const txHash = await this.providers.http.sendTx({ sendTxBody: { hex } })
-
-      return txHash
+      try {
+        return await this.providers.http.sendTx({ sendTxBody: { hex } })
+      } catch (unchainedErr) {
+        const viemClient = viemClientByChainId[this.chainId]
+        if (viemClient) {
+          console.warn(
+            `Unchained broadcastTransaction failed for ${this.chainId}, falling back to direct RPC`,
+          )
+          return viemClient.sendRawTransaction({ serializedTransaction: hex as Hex })
+        }
+        throw unchainedErr
+      }
     } catch (err) {
       return handleBroadcastTransactionError(err)
     }
@@ -931,11 +974,46 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
+  async getGasFeeDataFallback(viemClient: PublicClient): Promise<GasFeeDataEstimate> {
+    try {
+      const feeData = await viemClient
+        .estimateFeesPerGas({ type: 'eip1559', chain: null })
+        .catch(() => viemClient.estimateFeesPerGas({ type: 'legacy', chain: null }))
+
+      const fees: GasFeeData = {
+        gasPrice: (feeData.gasPrice ?? feeData.maxFeePerGas).toString(),
+        ...(feeData.maxFeePerGas && feeData.maxPriorityFeePerGas
+          ? {
+              maxFeePerGas: feeData.maxFeePerGas.toString(),
+              maxPriorityFeePerGas: feeData.maxPriorityFeePerGas.toString(),
+            }
+          : {}),
+      }
+
+      return {
+        fast: fees,
+        average: fees,
+        slow: fees,
+      }
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getGasFeeData',
+      })
+    }
+  }
+
   async getGasFeeData(): Promise<GasFeeDataEstimate> {
     try {
       const { fast, average, slow } = await this.providers.http.getGasFees()
       return { fast, average, slow }
     } catch (err) {
+      const viemClient = viemClientByChainId[this.chainId]
+      if (viemClient) {
+        console.warn(
+          `Unchained getGasFeeData failed for ${this.chainId}, falling back to direct RPC`,
+        )
+        return this.getGasFeeDataFallback(viemClient)
+      }
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getGasFeeData',
       })
@@ -944,9 +1022,30 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   async getFeeData(input: GetFeeDataInput<T>): Promise<FeeDataEstimate<T>> {
     try {
-      const { gasLimit } = await this.providers.http.estimateGas({
-        estimateGasBody: this.buildEstimateGasBody(input),
-      })
+      const gasLimit = await (async () => {
+        const estimateGasBody = this.buildEstimateGasBody(input)
+
+        try {
+          const { gasLimit } = await this.providers.http.estimateGas({ estimateGasBody })
+          return gasLimit
+        } catch (err) {
+          const viemClient = viemClientByChainId[this.chainId]
+          if (!viemClient) throw err
+
+          console.warn(
+            `Unchained estimateGas failed for ${this.chainId}, falling back to direct RPC`,
+          )
+
+          const gasLimit = await viemClient.estimateGas({
+            account: getAddress(estimateGasBody.from),
+            to: getAddress(estimateGasBody.to),
+            value: parseUnits(estimateGasBody.value, 0),
+            data: isHex(estimateGasBody.data) ? estimateGasBody.data : toHex(estimateGasBody.data),
+          })
+
+          return gasLimit.toString()
+        }
+      })()
 
       const { fast, average, slow } = await this.getGasFeeData()
 

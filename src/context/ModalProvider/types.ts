@@ -9,6 +9,7 @@ import type { AssetSearchModalProps } from '@/components/Modals/AssetSearch/Asse
 import type { ChainflipLendingModalProps } from '@/components/Modals/ChainflipLending/types'
 import type { FiatRampsModalProps } from '@/components/Modals/FiatRamps/FiatRampsModal'
 import type { LedgerOpenAppModalProps } from '@/components/Modals/LedgerOpenApp/LedgerOpenAppModal'
+import type { NativeMultichainModalProps } from '@/components/Modals/NativeMultichain/NativeMultichainModal'
 import type { NativeOnboardingModalProps } from '@/components/Modals/NativeOnboarding/NativeOnboarding'
 import type { PopupWindowModalProps } from '@/components/Modals/PopupWindowModal'
 import type { QrCodeModalProps } from '@/components/Modals/QrCode/QrCode'
@@ -46,6 +47,7 @@ export type Modals = {
   walletDrawer: FC
   addressBookSave: FC<AddressBookSaveModalProps>
   manageHiddenAssets: FC
+  nativeMultichain: FC<NativeMultichainModalProps>
   chainflipLending: FC<ChainflipLendingModalProps>
 }
 

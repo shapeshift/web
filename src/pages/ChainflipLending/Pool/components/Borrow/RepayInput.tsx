@@ -42,8 +42,9 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
   const outstandingDebtCryptoBaseUnit = RepayMachineCtx.useSelector(
     s => s.context.outstandingDebtCryptoBaseUnit,
   )
+  const savedRepayAmount = RepayMachineCtx.useSelector(s => s.context.repayAmountCryptoPrecision)
 
-  const [inputValue, setInputValue] = useState('')
+  const [inputValue, setInputValue] = useState(savedRepayAmount || '')
   const [isFullRepayment, setIsFullRepayment] = useState(false)
 
   const availableCryptoPrecision = useMemo(
@@ -82,6 +83,11 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
   )
 
   const inputFiat = useMemo(() => bnOrZero(inputValue).times(assetPrice), [inputValue, assetPrice])
+
+  const availableFiat = useMemo(
+    () => bnOrZero(availableCryptoPrecision).times(assetPrice).toFixed(2),
+    [availableCryptoPrecision, assetPrice],
+  )
 
   const outstandingDebtFiat = useMemo(
     () => bnOrZero(outstandingDebtCryptoPrecision).times(assetPrice),
@@ -215,29 +221,34 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
               <RawText fontSize='sm' color='text.subtle'>
                 {translate('chainflipLending.repay.amount')}
               </RawText>
-              <NumericFormat
-                data-testid='chainflip-repay-amount-input'
-                inputMode='decimal'
-                valueIsNumericString={true}
-                decimalScale={asset.precision}
-                thousandSeparator={localeParts.group}
-                decimalSeparator={localeParts.decimal}
-                allowedDecimalSeparators={allowedDecimalSeparators}
-                allowNegative={false}
-                allowLeadingZeros={false}
-                value={inputValue}
-                placeholder='0.00'
-                onValueChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  fontSize: '1.25rem',
-                  fontWeight: 'bold',
-                  background: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  padding: '0.5rem 0',
-                }}
-              />
+              <Flex alignItems='center' gap={2}>
+                <NumericFormat
+                  data-testid='chainflip-repay-amount-input'
+                  inputMode='decimal'
+                  valueIsNumericString={true}
+                  decimalScale={asset.precision}
+                  thousandSeparator={localeParts.group}
+                  decimalSeparator={localeParts.decimal}
+                  allowedDecimalSeparators={allowedDecimalSeparators}
+                  allowNegative={false}
+                  allowLeadingZeros={false}
+                  value={inputValue}
+                  placeholder='0.00'
+                  onValueChange={handleInputChange}
+                  style={{
+                    flex: 1,
+                    fontSize: '1.25rem',
+                    fontWeight: 'bold',
+                    background: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    padding: '0.5rem 0',
+                  }}
+                />
+                <RawText fontSize='lg' fontWeight='bold' color='text.subtle'>
+                  {asset.symbol}
+                </RawText>
+              </Flex>
               {!assetPrice.isZero() && bnOrZero(inputValue).gt(0) && (
                 <Amount.Fiat value={inputFiat.toFixed(2)} fontSize='sm' color='text.subtle' />
               )}
@@ -251,12 +262,15 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
               </RawText>
             </HelperTooltip>
             <Flex alignItems='center' gap={2}>
-              <Amount.Crypto
-                value={availableCryptoPrecision}
-                symbol={asset.symbol}
-                fontSize='sm'
-                fontWeight='medium'
-              />
+              <VStack spacing={0} align='flex-end'>
+                <Amount.Fiat value={availableFiat} fontSize='sm' fontWeight='medium' />
+                <Amount.Crypto
+                  value={availableCryptoPrecision}
+                  symbol={asset.symbol}
+                  fontSize='xs'
+                  color='text.subtle'
+                />
+              </VStack>
               {!isFullRepayment && (
                 <Button
                   data-testid='chainflip-repay-max'

@@ -194,10 +194,11 @@ export const fetchBebopSolanaQuote = async ({
     const maybeResponse = await bebopService.get<BebopSolanaQuoteResponse>(`${url}?${params}`)
 
     if (maybeResponse.isErr()) {
+      const err = maybeResponse.unwrapErr()
       return Err(
         makeSwapErrorRight({
           message: 'Failed to fetch quote from Bebop Solana',
-          cause: maybeResponse.unwrapErr().cause,
+          cause: err.cause,
           code: TradeQuoteError.QueryFailed,
         }),
       )
@@ -223,19 +224,21 @@ export const fetchBebopSolanaQuote = async ({
       )
     }
 
-    // Reject non-PMM routes (e.g. Raydium CLMM) - these AMM-routed swaps require pre-existing
-    // token accounts (ATAs) that Bebop's gasless co-signed flow can't create.
-    // PMM (Private Market Maker) routes handle everything server-side.
+    // Reject routes containing ANY AMM/CLMM makers - these produce malformed txs
+    // (wrong signature count in wire format) and require pre-existing ATAs that
+    // Bebop's gasless co-signed flow can't create. This includes mixed routes
+    // like ["raydium clmm-rfqm", "🦊"] where Bebop serializes the tx with fewer
+    // signature slots than the message header requires.
     // When rejected, other swappers like Jupiter will handle these pairs instead.
-    const hasPmmRoute = response.data.makers.some(
-      maker => !maker.toLowerCase().includes('clmm') && !maker.toLowerCase().includes('amm'),
+    const hasAmmRoute = response.data.makers.some(
+      maker => maker.toLowerCase().includes('clmm') || maker.toLowerCase().includes('amm'),
     )
-    if (!hasPmmRoute) {
+    if (hasAmmRoute) {
       return Err(
         makeSwapErrorRight({
-          message: `Bebop Solana quote uses AMM routing (${response.data.makers.join(
+          message: `Bebop Solana quote contains AMM routing (${response.data.makers.join(
             ', ',
-          )}), which requires pre-existing ATAs`,
+          )}), which produces malformed txs`,
           code: TradeQuoteError.NoRouteFound,
         }),
       )

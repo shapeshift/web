@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import cloneDeep from 'lodash/cloneDeep'
 import merge from 'lodash/merge'
@@ -120,6 +121,47 @@ export const portfolio = createSlice({
       // TODO(gomes): do we also want to clear draftState.accountMetadata entries themselves?
       // Theoretically, not doing so would make reloading these easier?
     }),
+    clearNonEvmAccountsForWallet: create.reducer(
+      (draftState, { payload }: { payload: WalletId }) => {
+        const walletId = payload
+        const walletAccountIds = draftState.wallet.byId[walletId] ?? []
+
+        const nonEvmAccountIds = walletAccountIds.filter(accountId => {
+          const { chainId } = fromAccountId(accountId)
+          return !isEvmChainId(chainId)
+        })
+
+        if (nonEvmAccountIds.length === 0) return
+
+        const nonEvmSet = new Set(nonEvmAccountIds)
+
+        // Remove non-EVM accounts from wallet mapping, keeping EVM ones intact
+        draftState.wallet.byId[walletId] = walletAccountIds.filter(id => !nonEvmSet.has(id))
+
+        // Clear metadata, balances, and account entries for non-EVM accounts
+        nonEvmAccountIds.forEach(accountId => {
+          delete draftState.accountMetadata.byId[accountId]
+          delete draftState.accountBalances.byId[accountId]
+          delete draftState.accounts.byId[accountId]
+          delete draftState.isPortfolioGetAccountLoadingByAccountId[accountId]
+        })
+
+        // Rebuild ids arrays
+        draftState.accountMetadata.ids = draftState.accountMetadata.ids.filter(
+          id => !nonEvmSet.has(id),
+        )
+        draftState.accountBalances.ids = draftState.accountBalances.ids.filter(
+          id => !nonEvmSet.has(id),
+        )
+        draftState.accounts.ids = draftState.accounts.ids.filter(id => !nonEvmSet.has(id))
+
+        // Filter non-EVM accounts out of enabled account ids for this wallet
+        const enabledIds = draftState.enabledAccountIds[walletId]
+        if (enabledIds) {
+          draftState.enabledAccountIds[walletId] = enabledIds.filter(id => !nonEvmSet.has(id))
+        }
+      },
+    ),
     clearWalletPortfolioState: create.reducer((draftState, { payload }: { payload: string }) => {
       const walletId = payload
 

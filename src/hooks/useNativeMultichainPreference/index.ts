@@ -1,0 +1,1 @@
+export { useNativeMultichainPreference } from './useNativeMultichainPreference'

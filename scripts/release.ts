@@ -669,7 +669,15 @@ const doRegularRelease = async () => {
       }
 
       const existingBackmerge = await findOpenPr('main', 'develop')
-      if (!existingBackmerge) {
+      if (existingBackmerge) {
+        console.log(
+          chalk.yellow(`Backmerge PR already open: #${existingBackmerge.number}. Enabling auto-merge...`),
+        )
+        await pify(exec)(`gh pr merge --auto --merge ${existingBackmerge.number}`)
+        console.log(
+          chalk.green('Auto-merge set. Backmerge will merge automatically when CI passes.'),
+        )
+      } else {
         const mainDevelopCommits = await getCommitMessages('origin/develop..origin/main')
         if (mainDevelopCommits.length > 0) {
           console.log(chalk.green('Creating backmerge PR (main -> develop)...'))
@@ -862,7 +870,15 @@ const doHotfixRelease = async () => {
       }
 
       const existingBackmerge = await findOpenPr('main', 'develop')
-      if (!existingBackmerge) {
+      if (existingBackmerge) {
+        console.log(
+          chalk.yellow(`Backmerge PR already open: #${existingBackmerge.number}. Enabling auto-merge...`),
+        )
+        await pify(exec)(`gh pr merge --auto --merge ${existingBackmerge.number}`)
+        console.log(
+          chalk.green('Auto-merge set. Backmerge will merge automatically when CI passes.'),
+        )
+      } else {
         const mainDevelopDiff = await getCommitMessages('origin/develop..origin/main')
         if (mainDevelopDiff.length > 0) {
           console.log(chalk.green('Creating backmerge PR (main -> develop)...'))

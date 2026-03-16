@@ -169,6 +169,10 @@ export const chainflipApi: SwapperApi = {
       chainSpecific: { from, tokenId },
     })
 
+    // Chainflip deposit addresses are program-owned accounts that require more compute
+    // than a regular SOL transfer. Apply a safety margin to avoid "Computational budget exceeded".
+    const computeUnits = Math.ceil(Math.max(Number(fast.chainSpecific.computeUnits), 50_000) * 1.6)
+
     return adapter.buildSendApiTransaction({
       to,
       from,
@@ -176,7 +180,7 @@ export const chainflipApi: SwapperApi = {
       accountNumber,
       chainSpecific: {
         tokenId,
-        computeUnitLimit: fast.chainSpecific.computeUnits,
+        computeUnitLimit: String(computeUnits),
         computeUnitPrice: fast.chainSpecific.priorityFee,
       },
     })

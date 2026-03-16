@@ -24,7 +24,7 @@ const DEFAULT_STREAMING_SWAP_METADATA: StreamingSwapMetadata = {
 }
 
 const getChainflipStreamingSwap = async (
-  swapId: number | undefined,
+  swapId: number | string | undefined,
 ): Promise<ChainflipStreamingSwapResponseSuccess | undefined> => {
   if (!swapId) return
 

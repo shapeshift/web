@@ -448,7 +448,7 @@ export type TradeQuoteStep = {
   }
   cowswapQuoteResponse?: OrderQuoteResponse
   chainflipSpecific?: {
-    chainflipSwapId?: number
+    chainflipSwapId?: number | string
     chainflipDepositAddress?: string
     chainflipNumberOfChunks?: number
     chainflipChunkIntervalBlocks?: number
@@ -567,7 +567,7 @@ export type SwapExecutionMetadata = {
 }
 
 export type SwapperSpecificMetadata = {
-  chainflipSwapId: number | undefined
+  chainflipSwapId: number | string | undefined
   nearIntentsSpecific?: {
     depositAddress: string
     depositMemo?: string
@@ -821,7 +821,7 @@ export type TradeStatus = {
   relayerExplorerTxLink?: string | undefined
   message: string | [string, InterpolationOptions] | undefined
   actualBuyAmountCryptoBaseUnit?: string
-  chainflipSwapId?: number
+  chainflipSwapId?: number | string
 }
 
 // a result containing all routes that were successfully generated, or an error in the case where

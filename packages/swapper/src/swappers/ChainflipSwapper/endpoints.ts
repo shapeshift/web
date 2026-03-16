@@ -244,7 +244,7 @@ export const chainflipApi: SwapperApi = {
         buyTxHash: undefined,
         status: TxStatus.Pending,
         message: getLatestChainflipStatusMessage(statusResponse),
-        chainflipSwapId: swapId ? Number(swapId) : undefined,
+        chainflipSwapId: swapId ?? undefined,
       }
     }
 
@@ -254,7 +254,7 @@ export const chainflipApi: SwapperApi = {
       buyTxHash: swapEgress.transactionReference,
       status: TxStatus.Confirmed,
       message: undefined,
-      chainflipSwapId: swapId ? Number(swapId) : undefined,
+      chainflipSwapId: swapId ?? undefined,
     }
   },
 }

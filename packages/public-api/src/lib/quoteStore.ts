@@ -16,7 +16,7 @@ export type StoredQuote = {
   createdAt: number
   expiresAt: number
   metadata: {
-    chainflipSwapId?: number
+    chainflipSwapId?: number | string
     nearIntentsDepositAddress?: string
     nearIntentsDepositMemo?: string
     relayId?: string

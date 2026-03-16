@@ -1,4 +1,5 @@
-import { Button, CardBody, CardFooter, Flex, Stack, VStack } from '@chakra-ui/react'
+import { ArrowForwardIcon } from '@chakra-ui/icons'
+import { Button, CardBody, CardFooter, Flex, HStack, Stack, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
@@ -44,6 +45,7 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
 
   const actorRef = BorrowMachineCtx.useActorRef()
   const currentLtvBps = BorrowMachineCtx.useSelector(s => s.context.currentLtvBps)
+  const savedBorrowAmount = BorrowMachineCtx.useSelector(s => s.context.borrowAmountCryptoPrecision)
 
   const { totalCollateralFiat, totalBorrowedFiat, loansWithFiat } = useChainflipLoanAccount()
   const { thresholds } = useChainflipLtvThresholds()
@@ -55,7 +57,7 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
     [hasExistingLoans, minimumUpdateLoanAmountUsd, minimumLoanAmountUsd],
   )
 
-  const [inputValue, setInputValue] = useState('')
+  const [inputValue, setInputValue] = useState(savedBorrowAmount || '')
 
   const hasCollateral = useMemo(() => bnOrZero(totalCollateralFiat).gt(0), [totalCollateralFiat])
 
@@ -76,6 +78,11 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
   ])
 
   const inputFiat = useMemo(() => bnOrZero(inputValue).times(assetPrice), [inputValue, assetPrice])
+
+  const availableFiat = useMemo(
+    () => bnOrZero(availableToBorrowCryptoPrecision).times(assetPrice).toFixed(2),
+    [availableToBorrowCryptoPrecision, assetPrice],
+  )
 
   const isBelowMinimum = useMemo(() => {
     if (!effectiveMinimumUsd) return false
@@ -214,12 +221,15 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
               </RawText>
             </HelperTooltip>
             <Flex alignItems='center' gap={2}>
-              <Amount.Crypto
-                value={availableToBorrowCryptoPrecision}
-                symbol={asset.symbol}
-                fontSize='sm'
-                fontWeight='medium'
-              />
+              <VStack spacing={0} align='flex-end'>
+                <Amount.Fiat value={availableFiat} fontSize='sm' fontWeight='medium' />
+                <Amount.Crypto
+                  value={availableToBorrowCryptoPrecision}
+                  symbol={asset.symbol}
+                  fontSize='xs'
+                  color='text.subtle'
+                />
+              </VStack>
               <Button
                 data-testid='chainflip-borrow-max'
                 size='xs'
@@ -232,6 +242,24 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
               </Button>
             </Flex>
           </Flex>
+
+          {hasCollateral && bnOrZero(inputValue).gt(0) && (
+            <Flex justifyContent='space-between' alignItems='center'>
+              <RawText fontSize='sm' color='text.subtle'>
+                {translate('chainflipLending.pool.currentLtv')}
+              </RawText>
+              <HStack spacing={1}>
+                <Amount.Percent
+                  value={currentLtvDecimal}
+                  color='text.subtle'
+                  fontSize='sm'
+                  fontWeight='medium'
+                />
+                <ArrowForwardIcon color='text.subtle' boxSize={3} />
+                <Amount.Percent value={projectedLtvDecimal} fontSize='sm' fontWeight='medium' />
+              </HStack>
+            </Flex>
+          )}
 
           {hasCollateral && (
             <LtvGauge

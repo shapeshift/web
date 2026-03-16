@@ -1,35 +1,34 @@
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { JsonRpcProvider } from 'ethers'
+import { TransactionReceiptNotFoundError } from 'viem'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import * as monad from './monad/MonadChainAdapter'
 
-vi.mock('ethers', () => {
-  class JsonRpcProvider {
-    getTransactionReceipt = vi.fn()
-    getBalance = vi.fn()
-    getTransactionCount = vi.fn()
-    estimateGas = vi.fn()
-    getFeeData = vi.fn()
-    broadcastTransaction = vi.fn()
-    send = vi.fn()
-  }
+const mockViemClient = {
+  getTransactionReceipt: vi.fn(),
+  getBalance: vi.fn(),
+  getTransactionCount: vi.fn(),
+  estimateGas: vi.fn(),
+  getGasPrice: vi.fn(),
+  estimateFeesPerGas: vi.fn(),
+  sendRawTransaction: vi.fn(),
+  request: vi.fn(),
+  multicall: vi.fn(),
+  readContract: vi.fn(),
+  getTransaction: vi.fn(),
+  getBlock: vi.fn(),
+  getBlockNumber: vi.fn(),
+}
 
-  class Contract {
-    aggregate3 = vi.fn()
-  }
-
-  class Interface {
-    encodeFunctionData = vi.fn()
-    decodeFunctionResult = vi.fn()
-  }
-
-  return {
-    Contract,
-    Interface,
-    JsonRpcProvider,
-  }
-})
+vi.mock('@shapeshiftoss/contracts', () => ({
+  MULTICALL3_CONTRACT: '0xcA11bde05977b3631167028862bE2a173976CA11',
+  viemClientByChainId: new Proxy(
+    {},
+    {
+      get: () => mockViemClient,
+    },
+  ),
+}))
 
 const makeAdapter = () =>
   new monad.ChainAdapter({
@@ -37,61 +36,41 @@ const makeAdapter = () =>
     getKnownTokens: () => [],
   })
 
-const getProvider = (adapter: monad.ChainAdapter) =>
-  (adapter as unknown as { provider: JsonRpcProvider }).provider
-
 describe('SecondClassEvmAdapter', () => {
   afterEach(() => {
     vi.restoreAllMocks()
   })
 
-  it('returns confirmed when receipt status is 1', async () => {
+  it('returns confirmed when receipt status is success', async () => {
     const adapter = makeAdapter()
-    const provider = getProvider(adapter)
 
-    vi.spyOn(provider, 'getTransactionReceipt').mockResolvedValue({
-      status: 1,
-    } as unknown as Awaited<ReturnType<JsonRpcProvider['getTransactionReceipt']>>)
+    vi.spyOn(mockViemClient, 'getTransactionReceipt').mockResolvedValue({ status: 'success' })
 
     await expect(adapter.getTransactionStatus('0xabc')).resolves.toBe(TxStatus.Confirmed)
   })
 
-  it('returns failed when receipt status is 0', async () => {
+  it('returns failed when receipt status is reverted', async () => {
     const adapter = makeAdapter()
-    const provider = getProvider(adapter)
 
-    vi.spyOn(provider, 'getTransactionReceipt').mockResolvedValue({
-      status: 0,
-    } as unknown as Awaited<ReturnType<JsonRpcProvider['getTransactionReceipt']>>)
+    vi.spyOn(mockViemClient, 'getTransactionReceipt').mockResolvedValue({ status: 'reverted' })
 
     await expect(adapter.getTransactionStatus('0xdef')).resolves.toBe(TxStatus.Failed)
   })
 
-  it('returns pending when receipt is null', async () => {
+  it('returns pending when receipt is not found', async () => {
     const adapter = makeAdapter()
-    const provider = getProvider(adapter)
 
-    vi.spyOn(provider, 'getTransactionReceipt').mockResolvedValue(null)
+    vi.spyOn(mockViemClient, 'getTransactionReceipt').mockRejectedValue(
+      new TransactionReceiptNotFoundError({ hash: '0x123' }),
+    )
 
     await expect(adapter.getTransactionStatus('0x123')).resolves.toBe(TxStatus.Pending)
   })
 
-  it('returns unknown when receipt status is null', async () => {
+  it('returns unknown when provider throws an unexpected error', async () => {
     const adapter = makeAdapter()
-    const provider = getProvider(adapter)
 
-    vi.spyOn(provider, 'getTransactionReceipt').mockResolvedValue({
-      status: null,
-    } as unknown as Awaited<ReturnType<JsonRpcProvider['getTransactionReceipt']>>)
-
-    await expect(adapter.getTransactionStatus('0x456')).resolves.toBe(TxStatus.Unknown)
-  })
-
-  it('returns unknown when provider throws', async () => {
-    const adapter = makeAdapter()
-    const provider = getProvider(adapter)
-
-    vi.spyOn(provider, 'getTransactionReceipt').mockRejectedValue(new Error('boom'))
+    vi.spyOn(mockViemClient, 'getTransactionReceipt').mockRejectedValue(new Error('boom'))
 
     await expect(adapter.getTransactionStatus('0x789')).resolves.toBe(TxStatus.Unknown)
   })

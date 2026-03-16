@@ -1,5 +1,6 @@
 import { loadEnv } from 'vite'
 
+import { FALLBACK_RPC_URLS } from '../../../packages/contracts/src/fallbackRpcUrls'
 import type { Csp } from '../../types'
 
 const mode = process.env.MODE ?? process.env.NODE_ENV ?? 'development'
@@ -10,8 +11,6 @@ export const csp: Csp = {
     env.VITE_BASE_NODE_URL,
     env.VITE_UNCHAINED_BASE_HTTP_URL,
     env.VITE_UNCHAINED_BASE_WS_URL,
-    'https://mainnet.base.org',
-    'https://base.llamarpc.com',
-    'https://base.blockpi.network',
+    ...FALLBACK_RPC_URLS.base,
   ],
 }

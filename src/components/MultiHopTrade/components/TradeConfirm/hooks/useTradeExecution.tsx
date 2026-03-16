@@ -621,6 +621,9 @@ export const useTradeExecution = (
               trackMixpanelEventOnExecute()
               return output
             },
+            signTransaction: (txToSign: SolanaSignTx) => {
+              return adapter.signTransaction({ txToSign, wallet })
+            },
           })
           cancelPollingRef.current = output?.cancelPolling
           return

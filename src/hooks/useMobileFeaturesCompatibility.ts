@@ -12,7 +12,7 @@ export enum MobileFeature {
 
 export const MOBILE_FEATURE_MINIMUM_VERSIONS: Record<MobileFeature, string> = {
   [MobileFeature.RatingModal]: '3.3.1',
-  [MobileFeature.NativeQrScanner]: '3.4.0',
+  [MobileFeature.NativeQrScanner]: '3.7.2',
 }
 
 type MobileFeatureInfo = {

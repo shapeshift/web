@@ -276,7 +276,22 @@ export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) =>
               network,
             }))
 
-            const response = await fetchAggregateBalances(uniqueQueries)
+            // yield.xyz API enforces a maximum of 25 balance queries per request.
+            // Native wallets can easily exceed this with accounts across many chains.
+            const BATCH_SIZE = 25
+            const batches: (typeof uniqueQueries)[] = []
+            for (let i = 0; i < uniqueQueries.length; i += BATCH_SIZE) {
+              batches.push(uniqueQueries.slice(i, i + BATCH_SIZE))
+            }
+
+            const batchResponses = await Promise.all(
+              batches.map(batch => fetchAggregateBalances(batch)),
+            )
+
+            const response = {
+              items: batchResponses.flatMap(r => r.items),
+              errors: batchResponses.flatMap(r => r.errors),
+            }
             const balanceMap: Record<string, AugmentedYieldBalanceWithAccountId[]> = {}
 
             for (const item of response.items) {

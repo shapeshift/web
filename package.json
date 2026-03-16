@@ -312,6 +312,7 @@
     "msw": "^0.36.5",
     "multiformats": "^9.6.3",
     "pify": "^5.0.0",
+    "portless": "^0.6.0",
     "prettier": "^3.0.3",
     "readline-sync": "^1.4.10",
     "simple-git": "^3.16.0",

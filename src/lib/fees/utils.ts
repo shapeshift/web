@@ -4,6 +4,8 @@ import type BigNumber from 'bignumber.js'
 import { bn, bnOrZero } from '../bignumber/bignumber'
 import { DEFAULT_FEE_BPS } from './constant'
 
+import { readStoredPartnerBps } from '@/hooks/useAffiliateTracking/useAffiliateTracking'
+
 type CalculateFeeUsdArgs = {
   inputAmountUsd: BigNumber.Value
 }
@@ -27,5 +29,8 @@ const isRelatedAssetSwap = (sellAsset: Asset, buyAsset: Asset): boolean => {
 }
 
 export const getAffiliateBps = (sellAsset: Asset, buyAsset: Asset): string => {
-  return isRelatedAssetSwap(sellAsset, buyAsset) ? '0' : DEFAULT_FEE_BPS
+  if (isRelatedAssetSwap(sellAsset, buyAsset)) return '0'
+
+  const partnerBps = readStoredPartnerBps()
+  return partnerBps ?? DEFAULT_FEE_BPS
 }

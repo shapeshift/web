@@ -1,5 +1,6 @@
 import { loadEnv } from 'vite'
 
+import { FALLBACK_RPC_URLS } from '../../../packages/contracts/src/fallbackRpcUrls'
 import type { Csp } from '../../types'
 
 const mode = process.env.MODE ?? process.env.NODE_ENV ?? 'development'
@@ -10,5 +11,6 @@ export const csp: Csp = {
     env.VITE_GNOSIS_NODE_URL,
     env.VITE_UNCHAINED_GNOSIS_HTTP_URL,
     env.VITE_UNCHAINED_GNOSIS_WS_URL,
+    ...FALLBACK_RPC_URLS.gnosis,
   ],
 }

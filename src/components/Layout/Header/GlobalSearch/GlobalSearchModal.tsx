@@ -160,11 +160,6 @@ export const GlobalSearchModal = memo(
       setActiveIndex(0)
     }, [searchQuery])
 
-    const isSearching = useMemo(
-      () => searchQuery.length > 0 || isLoadingCustomTokens,
-      [searchQuery.length, isLoadingCustomTokens],
-    )
-
     return (
       <Modal scrollBehavior='inside' {...modalProps} size='lg'>
         <ModalOverlay {...overlayProps} />
@@ -189,7 +184,7 @@ export const GlobalSearchModal = memo(
             <AssetSearchResults
               results={results}
               searchQuery={searchQuery}
-              isSearching={isSearching}
+              isLoading={isLoadingCustomTokens}
               onClickResult={handleClick}
             />
           </ModalBody>

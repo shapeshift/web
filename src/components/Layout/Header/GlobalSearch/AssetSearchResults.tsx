@@ -9,17 +9,17 @@ import { SearchEmpty } from '@/components/StakingVaults/SearchEmpty'
 export type AssetSearchResultsProps = {
   results: Asset[]
   searchQuery: string
-  isSearching: boolean
+  isLoading: boolean
   onClickResult: (item: Asset) => void
 }
 
 export const AssetSearchResults = memo(
-  ({ results, searchQuery, isSearching, onClickResult }: AssetSearchResultsProps) => {
+  ({ results, searchQuery, isLoading, onClickResult }: AssetSearchResultsProps) => {
     const noResults = useMemo(() => {
       return !results.length
     }, [results.length])
 
-    if (isSearching && noResults) {
+    if (isLoading && noResults) {
       return (
         <Flex p={6} justifyContent='center' alignItems='center'>
           <Spinner />
@@ -27,7 +27,7 @@ export const AssetSearchResults = memo(
       )
     }
 
-    if (!isSearching && noResults && searchQuery) {
+    if (!isLoading && noResults && searchQuery) {
       return <SearchEmpty searchQuery={searchQuery} />
     }
 

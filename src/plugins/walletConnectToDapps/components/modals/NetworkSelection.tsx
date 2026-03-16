@@ -17,6 +17,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
 import {
   DialogHeader,
   DialogHeaderLeft,
@@ -294,11 +295,13 @@ export const NetworkSelection: FC<NetworkSelectionProps> = ({
           </Button>
         </DialogHeaderRight>
       </DialogHeader>
-      <CheckboxGroup value={selectedChainIds} onChange={handleChainIdsChange}>
-        <VStack spacing={0} align='stretch' px={4} pb={4} flex={1} minH={0} overflowY='auto'>
-          {networkRows}
-        </VStack>
-      </CheckboxGroup>
+      <DialogBody>
+        <CheckboxGroup value={selectedChainIds} onChange={handleChainIdsChange}>
+          <VStack spacing={0} align='stretch' pb={4}>
+            {networkRows}
+          </VStack>
+        </CheckboxGroup>
+      </DialogBody>
       <Box p={4}>
         <Button size='lg' colorScheme='blue' w='full' onClick={onDone}>
           {translate('common.done')}

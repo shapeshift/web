@@ -1,9 +1,8 @@
 import { Box, useMediaQuery } from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId, isNft, solanaChainId, toAssetId } from '@shapeshiftoss/caip'
-import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
-import type { MinimalAsset } from '@shapeshiftoss/utils'
-import { bnOrZero, getAssetNamespaceFromChainId, makeAsset } from '@shapeshiftoss/utils'
+import { fromAssetId, isNft } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import { bnOrZero, makeAsset } from '@shapeshiftoss/utils'
 import { orderBy } from 'lodash'
 import { useMemo } from 'react'
 
@@ -12,8 +11,8 @@ import { useGetCustomTokensQuery } from '../hooks/useGetCustomTokensQuery'
 
 import { AssetList } from '@/components/AssetSearch/components/AssetList'
 import { Text } from '@/components/Text'
-import { ALCHEMY_SDK_SUPPORTED_CHAIN_IDS } from '@/lib/alchemySdkInstance'
 import { searchAssets } from '@/lib/assetSearch'
+import { CUSTOM_TOKEN_IMPORT_SUPPORTED_CHAIN_IDS } from '@/lib/customTokenImportSupportedChainIds'
 import { isSome } from '@/lib/utils'
 import { isContractAddress } from '@/lib/utils/isContractAddress'
 import {
@@ -22,8 +21,8 @@ import {
   selectRelatedAssetIdsByAssetIdInclusive,
   selectWalletConnectedChainIds,
 } from '@/state/slices/common-selectors'
-import { selectPrimaryAssets } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { selectAssets } from '@/state/slices/selectors'
+import { store, useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
 export type SearchTermAssetListProps = {
@@ -53,23 +52,17 @@ export const SearchTermAssetList = ({
   )
   const relatedAssetIdsById = useAppSelector(selectRelatedAssetIdsByAssetIdInclusive)
   const portfolioUserCurrencyBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
-  const assetsById = useAppSelector(selectPrimaryAssets)
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
-
-  const customTokenSupportedChainIds = useMemo(() => {
-    // Solana _is_ supported by Alchemy, but not by the SDK
-    return [...ALCHEMY_SDK_SUPPORTED_CHAIN_IDS, solanaChainId]
-  }, [])
 
   const chainIds = useMemo(() => {
     if (activeChainId === 'All') {
-      return customTokenSupportedChainIds
-    } else if (customTokenSupportedChainIds.includes(activeChainId)) {
+      return CUSTOM_TOKEN_IMPORT_SUPPORTED_CHAIN_IDS
+    } else if (CUSTOM_TOKEN_IMPORT_SUPPORTED_CHAIN_IDS.includes(activeChainId)) {
       return [activeChainId]
     } else {
       return []
     }
-  }, [activeChainId, customTokenSupportedChainIds])
+  }, [activeChainId])
 
   const { data: customTokens, isLoading: isLoadingCustomTokens } = useGetCustomTokensQuery({
     contractAddress: searchString,
@@ -114,32 +107,14 @@ export const SearchTermAssetList = ({
   }, [assetsForChain])
 
   const customAssets: Asset[] = useMemo(() => {
-    return (customTokens ?? [])
-      .map(metaData => {
-        if (!metaData) return null
-        const { name, symbol, decimals, logo } = metaData
-        // If we can't get all the information we need to create an Asset, don't allow the custom token
-        if (!name || !symbol || !decimals) return null
-        const assetId = toAssetId({
-          chainId: metaData.chainId,
-          assetNamespace: getAssetNamespaceFromChainId(metaData.chainId as KnownChainIds),
-          assetReference: metaData.contractAddress,
-        })
+    if (!customTokens?.length) return []
 
-        // Skip if we already have this asset
-        if (assetIdMap[assetId] !== undefined) return null
+    const assetsById = selectAssets(store.getState())
 
-        const minimalAsset: MinimalAsset = {
-          assetId,
-          name,
-          symbol,
-          precision: decimals,
-          icon: logo ?? undefined,
-        }
-        return makeAsset(assetsById, minimalAsset)
-      })
-      .filter(isSome)
-  }, [assetIdMap, assetsById, customTokens])
+    return customTokens
+      .filter(token => !assetsById[token.assetId])
+      .map(token => makeAsset(assetsById, token))
+  }, [customTokens])
 
   const searchTermAssets = useMemo(() => {
     const filteredAssets: Asset[] = (() => {

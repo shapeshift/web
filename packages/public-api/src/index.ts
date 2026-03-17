@@ -6,7 +6,7 @@ import express from 'express'
 import { initAssets } from './assets'
 import { API_HOST, API_PORT } from './config'
 import { quoteStore } from './lib/quoteStore'
-import { affiliateAddress } from './middleware/auth'
+import { resolvePartnerCode } from './middleware/auth'
 import {
   affiliateStatsLimiter,
   dataLimiter,
@@ -62,10 +62,10 @@ app.get('/health', (_req, res) => {
 // API v1 routes
 const v1Router = express.Router()
 
-// Swap endpoints (optional affiliate address tracking)
-v1Router.get('/swap/rates', swapRatesLimiter, affiliateAddress, getRates)
-v1Router.post('/swap/quote', swapQuoteLimiter, affiliateAddress, getQuote)
-v1Router.get('/swap/status', swapStatusLimiter, affiliateAddress, getSwapStatus)
+// Swap endpoints (optional partner code tracking)
+v1Router.get('/swap/rates', swapRatesLimiter, resolvePartnerCode, getRates)
+v1Router.post('/swap/quote', swapQuoteLimiter, resolvePartnerCode, getQuote)
+v1Router.get('/swap/status', swapStatusLimiter, resolvePartnerCode, getSwapStatus)
 
 // Affiliate endpoints
 v1Router.get('/affiliate/stats', affiliateStatsLimiter, getAffiliateStats)
@@ -113,8 +113,8 @@ Available endpoints:
   GET  /v1/assets/count           - Get asset count
   GET  /v1/assets/:assetId        - Get single asset by ID
 
-Affiliate Tracking (optional):
-  Include 'X-Affiliate-Address' header with your Arbitrum address for affiliate fee attribution.
+Partner Tracking (optional):
+  Include 'X-Partner-Code' header with your registered partner code for affiliate fee attribution.
   The API works without it — no authentication required.
     `)
   })

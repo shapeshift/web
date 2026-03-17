@@ -1,6 +1,11 @@
+import { useAppKitAccount } from '@reown/appkit/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useAffiliateConfig } from './hooks/useAffiliateConfig'
 import { useAffiliateStats } from './hooks/useAffiliateStats'
+import type { AffiliateSwap } from './hooks/useAffiliateSwaps'
+import { useAffiliateSwaps } from './hooks/useAffiliateSwaps'
+import { useSiweAuth } from './hooks/useSiweAuth'
 
 const formatUsd = (value: number): string =>
   new Intl.NumberFormat('en-US', {
@@ -12,6 +17,13 @@ const formatUsd = (value: number): string =>
 
 const formatNumber = (value: number): string => new Intl.NumberFormat('en-US').format(value)
 
+const shortenAddress = (addr: string): string => `${addr.slice(0, 6)}...${addr.slice(-4)}`
+
+const formatDate = (iso: string): string => {
+  const d = new Date(iso)
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
 interface Period {
   label: string
   startDate?: string
@@ -20,6 +32,7 @@ interface Period {
 
 const PERIOD_DAY = 5
 const PREVIOUS_PERIODS_COUNT = 3
+const SWAPS_PER_PAGE = 10
 
 const formatPeriodLabel = (start: Date, end: Date): string => {
   const monthShort = new Intl.DateTimeFormat('en-US', { month: 'short' })
@@ -120,149 +133,744 @@ const ShapeShiftLogo = (): React.JSX.Element => (
   </svg>
 )
 
-const EVM_ADDRESS_REGEX = /^0x[0-9a-fA-F]{40}$/
+const API_BASE = '/v1/affiliate'
 
-const isValidEvmAddress = (addr: string): boolean => EVM_ADDRESS_REGEX.test(addr)
+type Tab = 'overview' | 'swaps' | 'settings'
 
 export const App = (): React.JSX.Element => {
-  const [address, setAddress] = useState('')
+  const { address, isConnected } = useAppKitAccount()
+  const {
+    isAuthenticated,
+    isAuthenticating,
+    error: authError,
+    signIn,
+    signOut,
+    authHeaders,
+  } = useSiweAuth()
+
   const [selectedPeriod, setSelectedPeriod] = useState(0)
-  const [validationError, setValidationError] = useState<string | null>(null)
-  const { stats, isLoading, error, fetchStats } = useAffiliateStats()
+  const [activeTab, setActiveTab] = useState<Tab>('overview')
+  const [swapPage, setSwapPage] = useState(0)
+
+  const [registerBps, setRegisterBps] = useState('30')
+  const [claimCode, setClaimCode] = useState('')
+  const [updateBps, setUpdateBps] = useState('')
+  const [updateReceiveAddress, setUpdateReceiveAddress] = useState('')
+  const [actionLoading, setActionLoading] = useState(false)
+  const [actionMessage, setActionMessage] = useState<{
+    type: 'success' | 'error'
+    text: string
+  } | null>(null)
+
+  const affiliateAddress = isConnected && address ? address : ''
+
+  const { stats, isLoading: statsLoading, error: statsError, fetchStats } = useAffiliateStats()
+  const { config: affiliateConfig, isLoading: configLoading, fetchConfig } = useAffiliateConfig()
+  const {
+    swaps,
+    total: swapsTotal,
+    isLoading: swapsLoading,
+    error: swapsError,
+    fetchSwaps,
+  } = useAffiliateSwaps()
 
   const currentPeriod = periods[selectedPeriod]
 
   const doFetch = useCallback((): void => {
-    const trimmed = address.trim()
+    const trimmed = affiliateAddress.trim()
     if (!trimmed) return
 
-    if (!isValidEvmAddress(trimmed)) {
-      setValidationError('Please enter a valid Ethereum address (0x followed by 40 hex characters)')
-      return
-    }
-
-    setValidationError(null)
     void fetchStats(trimmed, {
       startDate: currentPeriod.startDate,
       endDate: currentPeriod.endDate,
     })
-  }, [fetchStats, address, currentPeriod])
-
-  const handleAddressChange = useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
-    setAddress(e.target.value)
-    setValidationError(null)
-  }, [])
-
-  const handleViewStats = useCallback((): void => {
-    doFetch()
-  }, [doFetch])
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>): void => {
-      if (e.key === 'Enter') {
-        doFetch()
-      }
-    },
-    [doFetch],
-  )
+    void fetchConfig(trimmed)
+    void fetchSwaps(trimmed, {
+      startDate: currentPeriod.startDate,
+      endDate: currentPeriod.endDate,
+      limit: SWAPS_PER_PAGE,
+      offset: swapPage * SWAPS_PER_PAGE,
+    })
+  }, [fetchStats, fetchConfig, fetchSwaps, affiliateAddress, currentPeriod, swapPage])
 
   useEffect(() => {
-    if (address.trim()) doFetch()
-  }, [selectedPeriod]) // eslint-disable-line react-hooks/exhaustive-deps
+    if (isConnected && address) {
+      setSwapPage(0)
+      doFetch()
+    }
+  }, [isConnected, address, doFetch])
 
-  const isButtonDisabled = useMemo(() => isLoading || !address.trim(), [isLoading, address])
+  useEffect(() => {
+    if (affiliateAddress.trim()) doFetch()
+  }, [selectedPeriod, affiliateAddress, doFetch])
+
+  useEffect(() => {
+    if (affiliateAddress.trim()) {
+      void fetchSwaps(affiliateAddress, {
+        startDate: currentPeriod.startDate,
+        endDate: currentPeriod.endDate,
+        limit: SWAPS_PER_PAGE,
+        offset: swapPage * SWAPS_PER_PAGE,
+      })
+    }
+  }, [swapPage, affiliateAddress, currentPeriod, fetchSwaps])
+
+  const clearActionMessage = useCallback((): void => {
+    setActionMessage(null)
+  }, [])
+
+  const handleRegister = useCallback(async (): Promise<void> => {
+    if (!affiliateAddress) return
+    setActionLoading(true)
+    clearActionMessage()
+    try {
+      const res = await fetch(API_BASE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify({
+          walletAddress: affiliateAddress,
+          bps: Number.isNaN(parseInt(registerBps, 10)) ? 30 : parseInt(registerBps, 10),
+        }),
+      })
+      if (!res.ok) {
+        const body = (await res.json()) as { message?: string }
+        throw new Error(body.message ?? `Failed (${String(res.status)})`)
+      }
+      setActionMessage({ type: 'success', text: 'Affiliate registered successfully' })
+      void fetchConfig(affiliateAddress)
+    } catch (err) {
+      setActionMessage({
+        type: 'error',
+        text: err instanceof Error ? err.message : 'Registration failed',
+      })
+    } finally {
+      setActionLoading(false)
+    }
+  }, [affiliateAddress, registerBps, clearActionMessage, fetchConfig, authHeaders])
+
+  const handleClaimCode = useCallback(async (): Promise<void> => {
+    if (!affiliateAddress || !claimCode.trim()) return
+    setActionLoading(true)
+    clearActionMessage()
+    try {
+      const res = await fetch(`${API_BASE}/claim-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify({ walletAddress: affiliateAddress, partnerCode: claimCode.trim() }),
+      })
+      if (!res.ok) {
+        const body = (await res.json()) as { message?: string }
+        throw new Error(body.message ?? `Failed (${String(res.status)})`)
+      }
+      setActionMessage({ type: 'success', text: `Partner code "${claimCode.trim()}" claimed` })
+      setClaimCode('')
+      void fetchConfig(affiliateAddress)
+    } catch (err) {
+      setActionMessage({ type: 'error', text: err instanceof Error ? err.message : 'Claim failed' })
+    } finally {
+      setActionLoading(false)
+    }
+  }, [affiliateAddress, claimCode, clearActionMessage, fetchConfig, authHeaders])
+
+  const handleUpdateBps = useCallback(async (): Promise<void> => {
+    if (!affiliateAddress || !updateBps.trim()) return
+    const parsedUpdateBps = parseInt(updateBps, 10)
+    if (Number.isNaN(parsedUpdateBps) || parsedUpdateBps < 0 || parsedUpdateBps > 1000) {
+      setActionMessage({ type: 'error', text: 'BPS must be a number between 0 and 1000' })
+      return
+    }
+    setActionLoading(true)
+    clearActionMessage()
+    try {
+      const res = await fetch(`${API_BASE}/${encodeURIComponent(affiliateAddress)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify({ bps: parsedUpdateBps }),
+      })
+      if (!res.ok) {
+        const body = (await res.json()) as { message?: string }
+        throw new Error(body.message ?? `Failed (${String(res.status)})`)
+      }
+      setActionMessage({ type: 'success', text: `BPS updated to ${updateBps}` })
+      setUpdateBps('')
+      void fetchConfig(affiliateAddress)
+    } catch (err) {
+      setActionMessage({
+        type: 'error',
+        text: err instanceof Error ? err.message : 'Update failed',
+      })
+    } finally {
+      setActionLoading(false)
+    }
+  }, [affiliateAddress, updateBps, clearActionMessage, fetchConfig, authHeaders])
+
+  const handleUpdateReceiveAddress = useCallback(async (): Promise<void> => {
+    if (!affiliateAddress || !updateReceiveAddress.trim()) return
+    if (!/^0x[a-fA-F0-9]{40}$/.test(updateReceiveAddress.trim())) {
+      setActionMessage({ type: 'error', text: 'Invalid EVM address' })
+      return
+    }
+    setActionLoading(true)
+    clearActionMessage()
+    try {
+      const res = await fetch(`${API_BASE}/${encodeURIComponent(affiliateAddress)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify({ receiveAddress: updateReceiveAddress.trim() }),
+      })
+      if (!res.ok) {
+        const body = (await res.json()) as { message?: string }
+        throw new Error(body.message ?? `Failed (${String(res.status)})`)
+      }
+      setActionMessage({ type: 'success', text: 'Receive address updated' })
+      setUpdateReceiveAddress('')
+      void fetchConfig(affiliateAddress)
+    } catch (err) {
+      setActionMessage({
+        type: 'error',
+        text: err instanceof Error ? err.message : 'Update failed',
+      })
+    } finally {
+      setActionLoading(false)
+    }
+  }, [affiliateAddress, updateReceiveAddress, clearActionMessage, fetchConfig, authHeaders])
+
+  const isLoading = statsLoading || configLoading
 
   const statCards = useMemo(() => {
     if (!stats) return null
     return [
-      {
-        label: 'Total Swaps',
-        value: formatNumber(stats.totalSwaps),
-      },
-      {
-        label: 'Total Volume USD',
-        value: formatUsd(stats.totalVolumeUsd),
-      },
-      {
-        label: 'Total Fees USD',
-        value: formatUsd(stats.totalFeesUsd),
-      },
+      { label: 'Total Swaps', value: formatNumber(stats.totalSwaps) },
+      { label: 'Total Volume', value: formatUsd(stats.totalVolumeUsd) },
+      { label: 'Fees Earned', value: formatUsd(stats.totalFeesUsd) },
     ]
   }, [stats])
+
+  const totalSwapPages = Math.ceil(swapsTotal / SWAPS_PER_PAGE)
+
+  const tabs: { key: Tab; label: string }[] = [
+    { key: 'overview', label: 'Overview' },
+    { key: 'swaps', label: 'Swap History' },
+    { key: 'settings', label: 'Settings' },
+  ]
 
   return (
     <div style={styles.container}>
       <div style={styles.backdrop} />
       <div style={styles.content}>
         <header style={styles.header}>
-          <div style={styles.logo}>
-            <ShapeShiftLogo />
+          <div style={styles.headerRow}>
+            <div style={styles.logo}>
+              <ShapeShiftLogo />
+            </div>
+            <div>
+              <appkit-button />
+            </div>
           </div>
           <h1 style={styles.title}>Affiliate Dashboard</h1>
-          <p style={styles.subtitle}>Track your affiliate performance and earnings</p>
+          <p style={styles.subtitle}>Manage your affiliate program and track earnings</p>
         </header>
 
-        <div style={styles.inputGroup}>
-          <div style={styles.inputWrapper}>
-            <input
-              type='text'
-              value={address}
-              onChange={handleAddressChange}
-              onKeyDown={handleKeyDown}
-              placeholder='Enter affiliate address (0x...)'
-              style={styles.input}
-              spellCheck={false}
-              autoComplete='off'
-            />
-          </div>
-          <button
-            onClick={handleViewStats}
-            disabled={isButtonDisabled}
-            style={{
-              ...styles.button,
-              ...(isButtonDisabled ? styles.buttonDisabled : {}),
-            }}
-          >
-            {isLoading ? 'Loading…' : 'View Stats'}
-          </button>
-        </div>
-
-        <div style={styles.periodRow}>
-          {periods.map((period, i) => (
-            <button
-              key={period.label}
-              onClick={() => setSelectedPeriod(i)}
-              style={{
-                ...styles.periodButton,
-                ...(selectedPeriod === i ? styles.periodButtonActive : {}),
-              }}
-            >
-              {period.label}
-            </button>
-          ))}
-        </div>
-
-        {validationError ? <div style={styles.error}>{validationError}</div> : null}
-        {error && !validationError ? <div style={styles.error}>{error}</div> : null}
-
-        {statCards ? (
-          <div style={styles.statsGrid}>
-            {statCards.map(card => (
-              <div key={card.label} style={styles.statCard}>
-                <div style={styles.cardValue}>{card.value}</div>
-                <div style={styles.cardLabel}>{card.label}</div>
-              </div>
-            ))}
-          </div>
-        ) : null}
-
-        {!stats && !error && !isLoading ? (
+        {!isConnected && (
           <div style={styles.emptyState}>
-            <p style={styles.emptyText}>
-              Enter an affiliate address above to view performance stats.
-            </p>
+            <p style={styles.emptyText}>Connect your wallet to view your affiliate dashboard.</p>
           </div>
-        ) : null}
+        )}
+
+        {isConnected && affiliateAddress && (
+          <>
+            {affiliateConfig && (
+              <div style={styles.configBar}>
+                <span style={styles.configBarItem}>
+                  <span style={styles.configBarLabel}>BPS</span>
+                  <span style={styles.configBarValue}>
+                    {affiliateConfig.bps} ({(affiliateConfig.bps / 100).toFixed(2)}%)
+                  </span>
+                </span>
+                {affiliateConfig.partnerCode && (
+                  <span style={styles.configBarItem}>
+                    <span style={styles.configBarLabel}>Code</span>
+                    <span style={styles.configBarValue}>{affiliateConfig.partnerCode}</span>
+                  </span>
+                )}
+                <span style={styles.configBarItem}>
+                  <span style={styles.configBarLabel}>Status</span>
+                  <span
+                    style={{
+                      ...styles.configBarValue,
+                      color: affiliateConfig.isActive ? '#4ade80' : '#f87171',
+                    }}
+                  >
+                    {affiliateConfig.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                </span>
+              </div>
+            )}
+
+            <div style={styles.tabRow}>
+              {tabs.map(tab => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  style={{
+                    ...styles.tabButton,
+                    ...(activeTab === tab.key ? styles.tabButtonActive : {}),
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {activeTab === 'overview' && (
+              <>
+                <div style={styles.periodRow}>
+                  {periods.map((period, i) => (
+                    <button
+                      key={period.label}
+                      onClick={() => setSelectedPeriod(i)}
+                      style={{
+                        ...styles.periodButton,
+                        ...(selectedPeriod === i ? styles.periodButtonActive : {}),
+                      }}
+                    >
+                      {period.label}
+                    </button>
+                  ))}
+                </div>
+
+                {statsError ? <div style={styles.error}>{statsError}</div> : null}
+
+                {isLoading && !stats && (
+                  <div style={styles.emptyState}>
+                    <p style={styles.emptyText}>Loading...</p>
+                  </div>
+                )}
+
+                {statCards && (
+                  <div style={styles.statsGrid}>
+                    {statCards.map(card => (
+                      <div key={card.label} style={styles.statCard}>
+                        <div style={styles.cardValue}>{card.value}</div>
+                        <div style={styles.cardLabel}>{card.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {!stats && !statsError && !isLoading && (
+                  <div style={styles.emptyState}>
+                    <p style={styles.emptyText}>No affiliate stats found for this address.</p>
+                  </div>
+                )}
+              </>
+            )}
+
+            {activeTab === 'swaps' && (
+              <>
+                <div style={styles.periodRow}>
+                  {periods.map((period, i) => (
+                    <button
+                      key={period.label}
+                      onClick={() => {
+                        setSelectedPeriod(i)
+                        setSwapPage(0)
+                      }}
+                      style={{
+                        ...styles.periodButton,
+                        ...(selectedPeriod === i ? styles.periodButtonActive : {}),
+                      }}
+                    >
+                      {period.label}
+                    </button>
+                  ))}
+                </div>
+
+                {swapsError ? <div style={styles.error}>{swapsError}</div> : null}
+
+                {swapsLoading && (
+                  <div style={styles.emptyState}>
+                    <p style={styles.emptyText}>Loading swaps...</p>
+                  </div>
+                )}
+
+                {!swapsLoading && swaps.length === 0 && !swapsError && (
+                  <div style={styles.emptyState}>
+                    <p style={styles.emptyText}>No swaps found for this period.</p>
+                  </div>
+                )}
+
+                {swaps.length > 0 && (
+                  <>
+                    <div style={styles.tableWrapper}>
+                      <table style={styles.table}>
+                        <thead>
+                          <tr>
+                            <th style={styles.th}>Date</th>
+                            <th style={styles.th}>Sell</th>
+                            <th style={styles.th}>Buy</th>
+                            <th style={{ ...styles.th, textAlign: 'right' }}>Volume</th>
+                            <th style={{ ...styles.th, textAlign: 'right' }}>Fee</th>
+                            <th style={{ ...styles.th, textAlign: 'right' }}>BPS</th>
+                            <th style={styles.th}>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {swaps.map((swap: AffiliateSwap) => (
+                            <tr key={swap.id} style={styles.tr}>
+                              <td style={styles.td}>{formatDate(swap.createdAt)}</td>
+                              <td style={styles.td}>
+                                <span style={styles.assetPill}>
+                                  {typeof swap.sellAsset === 'object'
+                                    ? swap.sellAsset.symbol ?? 'Unknown'
+                                    : swap.sellAsset}
+                                </span>
+                              </td>
+                              <td style={styles.td}>
+                                <span style={styles.assetPill}>
+                                  {typeof swap.buyAsset === 'object'
+                                    ? swap.buyAsset.symbol ?? 'Unknown'
+                                    : swap.buyAsset}
+                                </span>
+                              </td>
+                              <td
+                                style={{
+                                  ...styles.td,
+                                  textAlign: 'right',
+                                  fontFamily: '"DM Mono", monospace',
+                                }}
+                              >
+                                {formatUsd(parseFloat(swap.sellAmountUsd) || 0)}
+                              </td>
+                              <td
+                                style={{
+                                  ...styles.td,
+                                  textAlign: 'right',
+                                  fontFamily: '"DM Mono", monospace',
+                                  color: '#4ade80',
+                                }}
+                              >
+                                {formatUsd(parseFloat(swap.affiliateFeeUsd) || 0)}
+                              </td>
+                              <td
+                                style={{
+                                  ...styles.td,
+                                  textAlign: 'right',
+                                  fontFamily: '"DM Mono", monospace',
+                                }}
+                              >
+                                {Math.max(0, parseInt(String(swap.affiliateBps ?? '0'), 10) - 10)}
+                              </td>
+                              <td style={styles.td}>
+                                <span
+                                  style={{
+                                    ...styles.statusBadge,
+                                    background:
+                                      swap.status === 'complete'
+                                        ? 'rgba(74, 222, 128, 0.1)'
+                                        : 'rgba(250, 204, 21, 0.1)',
+                                    color: swap.status === 'complete' ? '#4ade80' : '#facc15',
+                                  }}
+                                >
+                                  {swap.status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {totalSwapPages > 1 && (
+                      <div style={styles.pagination}>
+                        <button
+                          onClick={() => setSwapPage(p => Math.max(0, p - 1))}
+                          disabled={swapPage === 0}
+                          style={{
+                            ...styles.pageButton,
+                            ...(swapPage === 0 ? styles.pageButtonDisabled : {}),
+                          }}
+                        >
+                          Previous
+                        </button>
+                        <span style={styles.pageInfo}>
+                          Page {swapPage + 1} of {totalSwapPages}
+                        </span>
+                        <button
+                          onClick={() => setSwapPage(p => Math.min(totalSwapPages - 1, p + 1))}
+                          disabled={swapPage >= totalSwapPages - 1}
+                          style={{
+                            ...styles.pageButton,
+                            ...(swapPage >= totalSwapPages - 1 ? styles.pageButtonDisabled : {}),
+                          }}
+                        >
+                          Next
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </>
+            )}
+
+            {activeTab === 'settings' && (
+              <div style={styles.settingsGrid}>
+                {actionMessage && (
+                  <div
+                    style={{
+                      ...styles.actionMessage,
+                      background:
+                        actionMessage.type === 'success'
+                          ? 'rgba(74, 222, 128, 0.08)'
+                          : 'rgba(239, 68, 68, 0.08)',
+                      borderColor:
+                        actionMessage.type === 'success'
+                          ? 'rgba(74, 222, 128, 0.2)'
+                          : 'rgba(239, 68, 68, 0.2)',
+                      color: actionMessage.type === 'success' ? '#4ade80' : '#f87171',
+                    }}
+                  >
+                    {actionMessage.text}
+                    <button onClick={clearActionMessage} style={styles.dismissButton}>
+                      ×
+                    </button>
+                  </div>
+                )}
+
+                {!isAuthenticated && (
+                  <div style={styles.authBanner}>
+                    <div style={styles.authBannerContent}>
+                      <div>
+                        <h3 style={styles.authBannerTitle}>Sign in to manage settings</h3>
+                        <p style={styles.authBannerDesc}>
+                          Sign a message with your wallet to prove ownership. This does not cost
+                          gas.
+                        </p>
+                        {authError && <p style={styles.authBannerError}>{authError}</p>}
+                      </div>
+                      <button
+                        onClick={() => void signIn()}
+                        disabled={isAuthenticating}
+                        style={{
+                          ...styles.actionButton,
+                          ...(isAuthenticating ? styles.actionButtonDisabled : {}),
+                        }}
+                      >
+                        {isAuthenticating ? 'Signing...' : 'Sign In'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {isAuthenticated && (
+                  <div style={styles.authStatusBar}>
+                    <span style={styles.authStatusText}>Authenticated</span>
+                    <button onClick={signOut} style={styles.authSignOutButton}>
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+
+                {!affiliateConfig && isAuthenticated && (
+                  <div style={styles.settingsCard}>
+                    <h3 style={styles.settingsCardTitle}>Register as Affiliate</h3>
+                    <p style={styles.settingsCardDesc}>
+                      Register your connected wallet to start earning fees on swaps.
+                    </p>
+                    <div style={styles.formRow}>
+                      <span style={{ ...styles.formInput, opacity: 0.6 }}>
+                        {shortenAddress(affiliateAddress)}
+                      </span>
+                    </div>
+                    <div style={styles.formRow}>
+                      <input
+                        type='number'
+                        value={registerBps}
+                        onChange={e => setRegisterBps(e.target.value)}
+                        placeholder='BPS (e.g. 30)'
+                        style={{ ...styles.formInput, maxWidth: 120 }}
+                        min={0}
+                        max={1000}
+                      />
+                      <span style={styles.formHint}>
+                        {(parseInt(registerBps, 10) / 100 || 0).toFixed(2)}%
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => void handleRegister()}
+                      disabled={actionLoading}
+                      style={{
+                        ...styles.actionButton,
+                        ...(actionLoading ? styles.actionButtonDisabled : {}),
+                      }}
+                    >
+                      {actionLoading ? 'Registering...' : 'Register'}
+                    </button>
+                  </div>
+                )}
+
+                {affiliateConfig && (
+                  <>
+                    <div style={styles.settingsCard}>
+                      <h3 style={styles.settingsCardTitle}>Current Configuration</h3>
+                      <div style={styles.configDetail}>
+                        <span style={styles.configDetailLabel}>Wallet</span>
+                        <span style={styles.configDetailValue}>
+                          {shortenAddress(affiliateConfig.walletAddress)}
+                        </span>
+                      </div>
+                      <div style={styles.configDetail}>
+                        <span style={styles.configDetailLabel}>Receive Address</span>
+                        <span style={styles.configDetailValue}>
+                          {shortenAddress(
+                            affiliateConfig.receiveAddress ?? affiliateConfig.walletAddress,
+                          )}
+                        </span>
+                      </div>
+                      <div style={styles.configDetail}>
+                        <span style={styles.configDetailLabel}>BPS</span>
+                        <span style={styles.configDetailValue}>
+                          {affiliateConfig.bps} ({(affiliateConfig.bps / 100).toFixed(2)}%)
+                        </span>
+                      </div>
+                      <div style={styles.configDetail}>
+                        <span style={styles.configDetailLabel}>Partner Code</span>
+                        <span style={styles.configDetailValue}>
+                          {affiliateConfig.partnerCode ?? 'None'}
+                        </span>
+                      </div>
+                      <div style={styles.configDetail}>
+                        <span style={styles.configDetailLabel}>Status</span>
+                        <span
+                          style={{
+                            ...styles.configDetailValue,
+                            color: affiliateConfig.isActive ? '#4ade80' : '#f87171',
+                          }}
+                        >
+                          {affiliateConfig.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </div>
+                      <div style={styles.configDetail}>
+                        <span style={styles.configDetailLabel}>Created</span>
+                        <span style={styles.configDetailValue}>
+                          {formatDate(affiliateConfig.createdAt)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {isAuthenticated && !affiliateConfig.partnerCode && (
+                      <div style={styles.settingsCard}>
+                        <h3 style={styles.settingsCardTitle}>Claim Partner Code</h3>
+                        <p style={styles.settingsCardDesc}>
+                          Claim a unique partner code for your affiliate link.
+                        </p>
+                        <div style={styles.formRow}>
+                          <input
+                            type='text'
+                            value={claimCode}
+                            onChange={e => setClaimCode(e.target.value)}
+                            placeholder='Enter partner code'
+                            style={styles.formInput}
+                            spellCheck={false}
+                          />
+                          <button
+                            onClick={() => void handleClaimCode()}
+                            disabled={actionLoading || !claimCode.trim()}
+                            style={{
+                              ...styles.actionButton,
+                              ...(actionLoading || !claimCode.trim()
+                                ? styles.actionButtonDisabled
+                                : {}),
+                            }}
+                          >
+                            {actionLoading ? 'Claiming...' : 'Claim'}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {isAuthenticated && (
+                      <div style={styles.settingsCard}>
+                        <h3 style={styles.settingsCardTitle}>Update BPS</h3>
+                        <p style={styles.settingsCardDesc}>
+                          Change your affiliate fee basis points (1 BPS = 0.01%).
+                        </p>
+                        <div style={styles.formRow}>
+                          <input
+                            type='number'
+                            value={updateBps}
+                            onChange={e => setUpdateBps(e.target.value)}
+                            placeholder={String(affiliateConfig.bps)}
+                            style={{ ...styles.formInput, maxWidth: 120 }}
+                            min={0}
+                            max={1000}
+                          />
+                          {updateBps && (
+                            <span style={styles.formHint}>
+                              {(parseInt(updateBps, 10) / 100 || 0).toFixed(2)}%
+                            </span>
+                          )}
+                          <button
+                            onClick={() => void handleUpdateBps()}
+                            disabled={actionLoading || !updateBps.trim()}
+                            style={{
+                              ...styles.actionButton,
+                              ...(actionLoading || !updateBps.trim()
+                                ? styles.actionButtonDisabled
+                                : {}),
+                            }}
+                          >
+                            {actionLoading ? 'Updating...' : 'Update'}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {isAuthenticated && (
+                      <div style={styles.settingsCard}>
+                        <h3 style={styles.settingsCardTitle}>Receive Address</h3>
+                        <p style={styles.settingsCardDesc}>
+                          The address where affiliate revenue will be sent. Defaults to your
+                          connected wallet. Useful for multisigs, treasuries, or cold wallets.
+                        </p>
+                        <div style={styles.configDetail}>
+                          <span style={styles.configDetailLabel}>Current</span>
+                          <span style={styles.configDetailValue}>
+                            {affiliateConfig.receiveAddress
+                              ? shortenAddress(affiliateConfig.receiveAddress)
+                              : `${shortenAddress(affiliateConfig.walletAddress)} (wallet)`}
+                          </span>
+                        </div>
+                        <div style={styles.formRow}>
+                          <input
+                            type='text'
+                            value={updateReceiveAddress}
+                            onChange={e => setUpdateReceiveAddress(e.target.value)}
+                            placeholder='0x...'
+                            style={styles.formInput}
+                            spellCheck={false}
+                          />
+                          <button
+                            onClick={() => void handleUpdateReceiveAddress()}
+                            disabled={actionLoading || !updateReceiveAddress.trim()}
+                            style={{
+                              ...styles.actionButton,
+                              ...(actionLoading || !updateReceiveAddress.trim()
+                                ? styles.actionButtonDisabled
+                                : {}),
+                            }}
+                          >
+                            {actionLoading ? 'Updating...' : 'Update'}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   )
@@ -286,18 +894,20 @@ const styles: Record<string, React.CSSProperties> = {
   },
   content: {
     position: 'relative',
-    maxWidth: 720,
+    maxWidth: 960,
     margin: '0 auto',
-    padding: '80px 24px 60px',
+    padding: '48px 24px 60px',
   },
   header: {
-    textAlign: 'center',
-    marginBottom: 48,
+    marginBottom: 32,
+  },
+  headerRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
   },
   logo: {
-    display: 'flex',
-    justifyContent: 'center',
-    marginBottom: 16,
     color: '#f0f1f4',
   },
   title: {
@@ -313,44 +923,75 @@ const styles: Record<string, React.CSSProperties> = {
     margin: 0,
     fontWeight: 400,
   },
-  inputGroup: {
+  configBar: {
     display: 'flex',
-    gap: 12,
-    marginBottom: 32,
-  },
-  inputWrapper: {
-    flex: 1,
-  },
-  input: {
-    width: '100%',
-    padding: '14px 18px',
-    fontSize: 15,
-    fontFamily: '"DM Mono", "SF Mono", "Fira Code", monospace',
+    gap: 24,
+    padding: '14px 20px',
     background: '#12141a',
     border: '1px solid #1e2028',
     borderRadius: 12,
-    color: '#e2e4e9',
-    outline: 'none',
-    transition: 'border-color 0.2s ease',
-    boxSizing: 'border-box',
+    marginBottom: 24,
+    flexWrap: 'wrap',
   },
-  button: {
-    padding: '14px 28px',
-    fontSize: 15,
+  configBarItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+  },
+  configBarLabel: {
+    fontSize: 12,
+    fontWeight: 500,
+    color: '#7a7e8a',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.06em',
+  },
+  configBarValue: {
+    fontSize: 14,
     fontWeight: 600,
-    fontFamily: '"DM Sans", "Söhne", -apple-system, BlinkMacSystemFont, sans-serif',
-    background: '#386ff9',
-    color: '#fff',
-    border: 'none',
-    borderRadius: 12,
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    whiteSpace: 'nowrap',
-    flexShrink: 0,
+    color: '#f0f1f4',
   },
-  buttonDisabled: {
-    opacity: 0.4,
-    cursor: 'not-allowed',
+  tabRow: {
+    display: 'flex',
+    gap: 4,
+    marginBottom: 24,
+    borderBottom: '1px solid #1e2028',
+    paddingBottom: 0,
+  },
+  tabButton: {
+    padding: '12px 20px',
+    fontSize: 14,
+    fontWeight: 500,
+    background: 'transparent',
+    border: 'none',
+    borderBottom: '2px solid transparent',
+    color: '#7a7e8a',
+    cursor: 'pointer',
+    marginBottom: -1,
+  },
+  tabButtonActive: {
+    color: '#f0f1f4',
+    borderBottomColor: '#386ff9',
+  },
+  periodRow: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 24,
+  },
+  periodButton: {
+    padding: '8px 16px',
+    fontSize: 13,
+    fontWeight: 500,
+    background: '#12141a',
+    border: '1px solid #1e2028',
+    borderRadius: 8,
+    color: '#7a7e8a',
+    cursor: 'pointer',
+  },
+  periodButtonActive: {
+    background: 'rgba(56, 111, 249, 0.12)',
+    border: '1px solid #386ff9',
+    color: '#386ff9',
   },
   error: {
     background: 'rgba(239, 68, 68, 0.08)',
@@ -361,33 +1002,11 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 14,
     marginBottom: 24,
   },
-  periodRow: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 24,
-  },
-  periodButton: {
-    padding: '10px 20px',
-    fontSize: 14,
-    fontWeight: 500,
-    fontFamily: '"DM Sans", "Söhne", -apple-system, BlinkMacSystemFont, sans-serif',
-    background: '#12141a',
-    border: '1px solid #1e2028',
-    borderRadius: 10,
-    color: '#7a7e8a',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-  },
-  periodButtonActive: {
-    background: 'rgba(56, 111, 249, 0.12)',
-    border: '1px solid #386ff9',
-    color: '#386ff9',
-  },
   statsGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gridTemplateColumns: 'repeat(3, 1fr)',
     gap: 16,
+    marginBottom: 24,
   },
   statCard: {
     background: '#12141a',
@@ -395,7 +1014,6 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: 16,
     padding: '28px 24px',
     textAlign: 'center',
-    transition: 'border-color 0.2s ease, transform 0.2s ease',
   },
   cardValue: {
     fontSize: 26,
@@ -403,10 +1021,10 @@ const styles: Record<string, React.CSSProperties> = {
     color: '#f0f1f4',
     marginBottom: 6,
     letterSpacing: '-0.02em',
-    fontFamily: '"DM Mono", "SF Mono", "Fira Code", monospace',
+    fontFamily: '"DM Mono", monospace',
   },
   cardLabel: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#7a7e8a',
     fontWeight: 500,
     textTransform: 'uppercase' as const,
@@ -416,15 +1034,237 @@ const styles: Record<string, React.CSSProperties> = {
     textAlign: 'center',
     padding: '60px 20px',
   },
-  emptyIcon: {
-    fontSize: 36,
-    color: '#2a2d38',
-    marginBottom: 16,
-  },
   emptyText: {
     fontSize: 15,
     color: '#4a4e5a',
     margin: 0,
     lineHeight: 1.6,
+  },
+  tableWrapper: {
+    overflowX: 'auto',
+    borderRadius: 12,
+    border: '1px solid #1e2028',
+    marginBottom: 16,
+  },
+  table: {
+    width: '100%',
+    borderCollapse: 'collapse',
+    fontSize: 13,
+  },
+  th: {
+    padding: '12px 16px',
+    textAlign: 'left',
+    fontWeight: 600,
+    fontSize: 11,
+    color: '#7a7e8a',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.06em',
+    background: '#12141a',
+    borderBottom: '1px solid #1e2028',
+    whiteSpace: 'nowrap',
+  },
+  tr: {
+    borderBottom: '1px solid #1a1c24',
+  },
+  td: {
+    padding: '12px 16px',
+    color: '#e2e4e9',
+    whiteSpace: 'nowrap',
+  },
+  assetPill: {
+    display: 'inline-block',
+    padding: '2px 8px',
+    borderRadius: 6,
+    background: 'rgba(56, 111, 249, 0.08)',
+    color: '#8ab4f8',
+    fontSize: 12,
+    fontWeight: 500,
+    maxWidth: 160,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
+  statusBadge: {
+    display: 'inline-block',
+    padding: '2px 10px',
+    borderRadius: 6,
+    fontSize: 12,
+    fontWeight: 500,
+    textTransform: 'capitalize' as const,
+  },
+  pagination: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 16,
+    marginBottom: 24,
+  },
+  pageButton: {
+    padding: '8px 16px',
+    fontSize: 13,
+    fontWeight: 500,
+    background: '#12141a',
+    border: '1px solid #1e2028',
+    borderRadius: 8,
+    color: '#e2e4e9',
+    cursor: 'pointer',
+  },
+  pageButtonDisabled: {
+    opacity: 0.3,
+    cursor: 'not-allowed',
+  },
+  pageInfo: {
+    fontSize: 13,
+    color: '#7a7e8a',
+  },
+  settingsGrid: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 20,
+  },
+  settingsCard: {
+    background: '#12141a',
+    border: '1px solid #1e2028',
+    borderRadius: 12,
+    padding: '24px',
+  },
+  settingsCardTitle: {
+    fontSize: 16,
+    fontWeight: 600,
+    color: '#f0f1f4',
+    margin: '0 0 8px',
+  },
+  settingsCardDesc: {
+    fontSize: 14,
+    color: '#7a7e8a',
+    margin: '0 0 16px',
+    lineHeight: 1.5,
+  },
+  formRow: {
+    display: 'flex',
+    gap: 12,
+    alignItems: 'center',
+    marginBottom: 12,
+    flexWrap: 'wrap',
+  },
+  formInput: {
+    flex: 1,
+    minWidth: 0,
+    padding: '10px 14px',
+    fontSize: 14,
+    fontFamily: '"DM Mono", "SF Mono", monospace',
+    background: '#0a0b0d',
+    border: '1px solid #2a2d38',
+    borderRadius: 8,
+    color: '#e2e4e9',
+    outline: 'none',
+    boxSizing: 'border-box',
+  },
+  formHint: {
+    fontSize: 13,
+    color: '#7a7e8a',
+    fontFamily: '"DM Mono", monospace',
+    minWidth: 50,
+  },
+  actionButton: {
+    padding: '10px 20px',
+    fontSize: 14,
+    fontWeight: 600,
+    background: '#386ff9',
+    color: '#fff',
+    border: 'none',
+    borderRadius: 8,
+    cursor: 'pointer',
+    whiteSpace: 'nowrap',
+    flexShrink: 0,
+  },
+  actionButtonDisabled: {
+    opacity: 0.4,
+    cursor: 'not-allowed',
+  },
+  actionMessage: {
+    padding: '12px 18px',
+    borderRadius: 10,
+    border: '1px solid',
+    fontSize: 14,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  dismissButton: {
+    background: 'transparent',
+    border: 'none',
+    color: 'inherit',
+    fontSize: 18,
+    cursor: 'pointer',
+    padding: '0 4px',
+    lineHeight: 1,
+  },
+  authBanner: {
+    background: 'rgba(56, 111, 249, 0.06)',
+    border: '1px solid rgba(56, 111, 249, 0.2)',
+    borderRadius: 12,
+    padding: '20px 24px',
+  },
+  authBannerContent: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 20,
+    flexWrap: 'wrap' as const,
+  },
+  authBannerTitle: {
+    fontSize: 15,
+    fontWeight: 600,
+    color: '#f0f1f4',
+    margin: '0 0 4px',
+  },
+  authBannerDesc: {
+    fontSize: 13,
+    color: '#7a7e8a',
+    margin: 0,
+    lineHeight: 1.5,
+  },
+  authBannerError: {
+    fontSize: 13,
+    color: '#f87171',
+    margin: '6px 0 0',
+  },
+  authStatusBar: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '10px 16px',
+    background: 'rgba(74, 222, 128, 0.06)',
+    border: '1px solid rgba(74, 222, 128, 0.15)',
+    borderRadius: 8,
+  },
+  authStatusText: {
+    fontSize: 13,
+    fontWeight: 500,
+    color: '#4ade80',
+  },
+  authSignOutButton: {
+    fontSize: 13,
+    fontWeight: 500,
+    background: 'transparent',
+    border: 'none',
+    color: '#7a7e8a',
+    cursor: 'pointer',
+    padding: '4px 8px',
+  },
+  configDetail: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: '8px 0',
+    borderBottom: '1px solid #1a1c24',
+  },
+  configDetailLabel: {
+    fontSize: 14,
+    color: '#7a7e8a',
+  },
+  configDetailValue: {
+    fontSize: 14,
+    fontWeight: 500,
+    color: '#f0f1f4',
   },
 }

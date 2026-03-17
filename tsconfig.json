@@ -56,6 +56,8 @@
     "**/__mocks__",
     "**/*.js",
     "packages/*/dist",
+    "packages/affiliate-dashboard/**",
+    "packages/swap-widget/**",
     "packages/hdwallet-sandbox/**",
     "packages/hdwallet-integration/**",
     "src/lib/asset-service/service/encodedAssetData.json",

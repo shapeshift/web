@@ -112,13 +112,7 @@ if (shouldEnableSentry) {
           [500, 599], // Only server errors, not client errors
         ],
 
-        denyUrls: [
-          'alchemy.com',
-          'snapshot.org',
-          'coingecko.com',
-          'coincap.io',
-          'coinmarketcap.com',
-        ],
+        denyUrls: ['snapshot.org', 'coingecko.com', 'coincap.io', 'coinmarketcap.com'],
       }),
       browserApiErrorsIntegration(),
       breadcrumbsIntegration(),

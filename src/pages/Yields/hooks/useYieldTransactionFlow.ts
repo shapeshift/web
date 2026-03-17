@@ -399,6 +399,18 @@ export const useYieldTransactionFlow = ({
     setTransactionSteps(prev => prev.map((s, i) => (i === index ? { ...s, ...updates } : s)))
   }, [])
 
+  const isInsufficientGasError = useCallback((error: unknown): boolean => {
+    const msg = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase()
+    return (
+      msg.includes('insufficient funds') ||
+      msg.includes('insufficient balance') ||
+      msg.includes('gas required exceeds allowance') ||
+      msg.includes('not enough balance') ||
+      msg.includes('insufficientbalance') ||
+      msg.includes('out of gas')
+    )
+  }, [])
+
   const showErrorToast = useCallback(
     (titleKey: string, descriptionKey: string) => {
       toast({
@@ -559,12 +571,15 @@ export const useYieldTransactionFlow = ({
       setActiveStepIndex(1)
     } catch (error) {
       console.error('Reset allowance failed:', error)
-      const description =
-        error instanceof ChainAdapterError
-          ? translate(error.metadata.translation, error.metadata.options)
-          : error instanceof Error
-          ? error.message
-          : translate('yieldXYZ.errors.transactionFailedDescription')
+      const description = isInsufficientGasError(error)
+        ? translate('yieldXYZ.errors.insufficientAssetForGas', {
+            symbol: feeAsset?.symbol ?? '',
+          })
+        : error instanceof ChainAdapterError
+        ? translate(error.metadata.translation, error.metadata.options)
+        : error instanceof Error
+        ? error.message
+        : translate('yieldXYZ.errors.transactionFailedDescription')
       toast({
         title: translate('yieldXYZ.errors.transactionFailedTitle'),
         description,
@@ -584,6 +599,8 @@ export const useYieldTransactionFlow = ({
     accountMetadata?.bip44Params?.accountNumber,
     userAddress,
     feeAsset?.explorerTxLink,
+    feeAsset?.symbol,
+    isInsufficientGasError,
     translate,
     updateStepStatus,
     toast,
@@ -806,7 +823,17 @@ export const useYieldTransactionFlow = ({
         }
       } catch (error) {
         console.error('Transaction execution failed:', error)
-        if (error instanceof ChainAdapterError) {
+        if (isInsufficientGasError(error)) {
+          toast({
+            title: translate('yieldXYZ.errors.transactionFailedTitle'),
+            description: translate('yieldXYZ.errors.insufficientAssetForGas', {
+              symbol: feeAsset?.symbol ?? '',
+            }),
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          })
+        } else if (error instanceof ChainAdapterError) {
           toast({
             title: translate('yieldXYZ.errors.transactionFailedTitle'),
             description: translate(error.metadata.translation, error.metadata.options),
@@ -832,6 +859,7 @@ export const useYieldTransactionFlow = ({
       userAddress,
       accountMetadata?.bip44Params,
       feeAsset,
+      isInsufficientGasError,
       yieldItem,
       action,
       amount,

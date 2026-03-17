@@ -84,8 +84,6 @@ export const GlobalSearchModal = memo(
       return searchAssets.concat(customAssets.filter(a => !existingIds.has(a.assetId)))
     }, [searchAssets, customAssets])
 
-    console.log({ searchAssets, customAssets, results })
-
     const resultsCount = results.length
 
     useEffect(() => {

@@ -19,7 +19,7 @@ function main() {
 
   const results = runAllCodemods(config)
   printReport(results, config)
-  if (results.some(r => r.status === "error")) {
+  if (results.some(r => r.status === 'error')) {
     process.exit(1)
   }
 }

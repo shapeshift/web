@@ -97,8 +97,13 @@ export function validateConfig(obj: unknown): ChainConfig {
       )}`,
     )
   }
-  if (typeof c.wrappedNativeAddress === 'string' && (c.wrappedNativeAddress as string).trim().length === 0) {
-    throw new Error('"wrappedNativeAddress" must be null or a non-empty string, not an empty string')
+  if (
+    typeof c.wrappedNativeAddress === 'string' &&
+    (c.wrappedNativeAddress as string).trim().length === 0
+  ) {
+    throw new Error(
+      '"wrappedNativeAddress" must be null or a non-empty string, not an empty string',
+    )
   }
 
   if (!c.swappers || typeof c.swappers !== 'object') {

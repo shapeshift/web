@@ -32,12 +32,14 @@ import { RawText } from '@/components/Text'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useToggle } from '@/hooks/useToggle/useToggle'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { validateAddress } from '@/lib/address/validation'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import {
   selectAccountIdsByAccountNumberAndChainId,
   selectAccountIdsByChainId,
@@ -67,11 +69,13 @@ export const EgressInput = ({ assetId, onAssetChange }: EgressInputProps) => {
   } = useLocaleFormatter()
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   const actorRef = EgressMachineCtx.useActorRef()
   const freeBalanceCryptoBaseUnit = EgressMachineCtx.useSelector(
     s => s.context.freeBalanceCryptoBaseUnit,
   )
+  const savedEgressAmount = EgressMachineCtx.useSelector(s => s.context.egressAmountCryptoPrecision)
 
   const { accountNumber } = useChainflipLendingAccount()
   const accountIdsByAccountNumberAndChainId = useAppSelector(
@@ -101,7 +105,8 @@ export const EgressInput = ({ assetId, onAssetChange }: EgressInputProps) => {
     [accountId],
   )
 
-  const [inputValue, setInputValue] = useState('')
+  const [isFiat, toggleIsFiat] = useToggle(false)
+  const [inputValue, setInputValue] = useState(savedEgressAmount || '')
   const [destinationAddress, setDestinationAddress] = useState(defaultAddress)
   const [defaultAccountId, setDefaultAccountId] = useState<AccountId | undefined>(accountId)
   const [isCustomAddress, setIsCustomAddress] = useState(!walletSupportsAssetChain)
@@ -131,6 +136,21 @@ export const EgressInput = ({ assetId, onAssetChange }: EgressInputProps) => {
     [freeBalanceCryptoBaseUnit],
   )
 
+  const availableFiat = useMemo(() => {
+    if (!marketData?.price) return undefined
+    return bnOrZero(availableCryptoPrecision).times(marketData.price).toFixed(2)
+  }, [availableCryptoPrecision, marketData?.price])
+
+  const fiatAmount = useMemo(() => {
+    if (!marketData?.price) return '0'
+    return bnOrZero(inputValue).times(marketData.price).toFixed()
+  }, [inputValue, marketData?.price])
+
+  const displayInputValue = useMemo(() => {
+    if (isFiat) return fiatAmount === '0' ? '' : fiatAmount
+    return inputValue
+  }, [isFiat, fiatAmount, inputValue])
+
   const assetIds = useMemo(() => Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as AssetId[], [])
 
   const assets = useAppSelector(selectAssets)
@@ -158,9 +178,23 @@ export const EgressInput = ({ assetId, onAssetChange }: EgressInputProps) => {
     [onAssetChange],
   )
 
-  const handleInputChange = useCallback((values: NumberFormatValues) => {
-    setInputValue(values.value)
-  }, [])
+  const handleInputChange = useCallback(
+    (values: NumberFormatValues) => {
+      if (isFiat) {
+        const cryptoAmount =
+          values.value && marketData?.price
+            ? bnOrZero(values.value)
+                .div(marketData.price)
+                .decimalPlaces(asset?.precision ?? 18, 1)
+                .toFixed()
+            : ''
+        setInputValue(cryptoAmount)
+      } else {
+        setInputValue(values.value)
+      }
+    },
+    [isFiat, marketData?.price, asset?.precision],
+  )
 
   const handleMaxClick = useCallback(() => {
     setInputValue(availableCryptoPrecision)
@@ -261,29 +295,55 @@ export const EgressInput = ({ assetId, onAssetChange }: EgressInputProps) => {
             <RawText fontSize='sm' color='text.subtle'>
               {translate('chainflipLending.egress.amount')}
             </RawText>
-            <NumericFormat
-              data-testid='chainflip-egress-amount-input'
-              inputMode='decimal'
-              valueIsNumericString={true}
-              decimalScale={asset.precision}
-              thousandSeparator={localeParts.group}
-              decimalSeparator={localeParts.decimal}
-              allowedDecimalSeparators={allowedDecimalSeparators}
-              allowNegative={false}
-              allowLeadingZeros={false}
-              value={inputValue}
-              placeholder='0.00'
-              onValueChange={handleInputChange}
-              style={{
-                width: '100%',
-                fontSize: '1.25rem',
-                fontWeight: 'bold',
-                background: 'transparent',
-                border: 'none',
-                outline: 'none',
-                padding: '0.5rem 0',
-              }}
-            />
+            <Flex alignItems='center' gap={2}>
+              <NumericFormat
+                data-testid='chainflip-egress-amount-input'
+                inputMode='decimal'
+                valueIsNumericString={true}
+                decimalScale={isFiat ? 2 : asset.precision}
+                thousandSeparator={localeParts.group}
+                decimalSeparator={localeParts.decimal}
+                allowedDecimalSeparators={allowedDecimalSeparators}
+                allowNegative={false}
+                allowLeadingZeros={false}
+                value={displayInputValue}
+                placeholder='0.00'
+                prefix={isFiat ? localeParts.prefix : ''}
+                suffix={isFiat ? localeParts.postfix : ''}
+                onValueChange={handleInputChange}
+                style={{
+                  flex: 1,
+                  fontSize: '1.25rem',
+                  fontWeight: 'bold',
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  padding: '0.5rem 0',
+                }}
+              />
+              {!isFiat && (
+                <RawText fontSize='lg' fontWeight='bold' color='text.subtle'>
+                  {asset.symbol}
+                </RawText>
+              )}
+            </Flex>
+            {marketData?.price && (
+              <Button
+                variant='link'
+                size='xs'
+                color='text.subtle'
+                fontWeight='medium'
+                onClick={toggleIsFiat}
+                alignSelf='flex-start'
+                px={0}
+              >
+                {isFiat ? (
+                  <Amount.Crypto value={inputValue || '0'} symbol={asset.symbol} fontSize='xs' />
+                ) : (
+                  <Amount.Fiat value={fiatAmount} prefix='≈' fontSize='xs' />
+                )}
+              </Button>
+            )}
           </Stack>
 
           <Flex justifyContent='space-between' alignItems='center'>
@@ -297,12 +357,17 @@ export const EgressInput = ({ assetId, onAssetChange }: EgressInputProps) => {
               </RawText>
             </HelperTooltip>
             <Flex alignItems='center' gap={2}>
-              <Amount.Crypto
-                value={availableCryptoPrecision}
-                symbol={asset.symbol}
-                fontSize='sm'
-                fontWeight='medium'
-              />
+              <VStack spacing={0} align='flex-end'>
+                {availableFiat !== undefined && (
+                  <Amount.Fiat value={availableFiat} fontSize='sm' fontWeight='medium' />
+                )}
+                <Amount.Crypto
+                  value={availableCryptoPrecision}
+                  symbol={asset.symbol}
+                  fontSize='xs'
+                  color='text.subtle'
+                />
+              </VStack>
               <Button
                 data-testid='chainflip-egress-max'
                 size='xs'

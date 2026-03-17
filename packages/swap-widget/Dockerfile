@@ -48,28 +48,20 @@ COPY packages/types/package.json ./packages/types/
 COPY packages/unchained-client/package.json ./packages/unchained-client/
 COPY packages/utils/package.json ./packages/utils/
 
-# Copy import method avoids hard-link failures from the pnpm store on Docker overlay FS
+# pnpm uses copy instead of hard links, which Docker's overlay filesystem doesn't support
 ENV NPM_CONFIG_PACKAGE_IMPORT_METHOD=copy
 
 # Install dependencies, skipping lifecycle scripts (controlled by onlyBuiltDependencies in package.json)
-# Retry loop: pnpm's hoisted linker intermittently fails with ENOENT on Docker overlay FS (known issue).
 RUN --mount=type=cache,id=s/4cafb297-3349-46e2-bfef-8210504e0583-/root/.local/share/pnpm/store,target=/root/.local/share/pnpm/store \
-    corepack enable && \
-    for i in 1 2 3; do \
-      pnpm install --frozen-lockfile --ignore-scripts && break || \
-      rm -rf node_modules; \
-    done
-
-# Run postinstall for openapi-generator-cli to download the JAR (skipped by --ignore-scripts above)
-RUN --mount=type=cache,id=s/4cafb297-3349-46e2-bfef-8210504e0583-/root/.openapi-generator-cli,target=/root/.openapi-generator-cli \
-    pnpm rebuild @openapitools/openapi-generator-cli
+    corepack enable && pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy unchained-client config and generator files FIRST (rarely changes, enables layer caching)
 COPY packages/unchained-client/openapitools.json ./packages/unchained-client/
 COPY packages/unchained-client/generator/ ./packages/unchained-client/generator/
 
 # Generate unchained-client code (required by tsc --build for workspace packages)
-RUN pnpm --filter @shapeshiftoss/unchained-client generate
+RUN --mount=type=cache,id=s/4cafb297-3349-46e2-bfef-8210504e0583-/root/.openapitools,target=/root/.openapitools \
+    pnpm --filter @shapeshiftoss/unchained-client generate
 
 # Copy remaining source files
 COPY packages/ ./packages/

@@ -1,3 +1,4 @@
+import { Flex } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { lazy, memo, Suspense, useEffect, useMemo, useState } from 'react'
@@ -16,7 +17,11 @@ const BorrowConfirm = lazy(() =>
   import('./BorrowConfirm').then(({ BorrowConfirm }) => ({ default: BorrowConfirm })),
 )
 
-const suspenseFallback = <CircularProgress />
+const suspenseFallback = (
+  <Flex minHeight='360px' alignItems='center' justifyContent='center'>
+    <CircularProgress />
+  </Flex>
+)
 
 type BorrowProps = {
   assetId: AssetId

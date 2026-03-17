@@ -7,10 +7,12 @@ import { isMobile } from '@/lib/globals'
 
 export enum MobileFeature {
   RatingModal = 'rating-modal',
+  NativeQrScanner = 'native-qr-scanner',
 }
 
 export const MOBILE_FEATURE_MINIMUM_VERSIONS: Record<MobileFeature, string> = {
   [MobileFeature.RatingModal]: '3.3.1',
+  [MobileFeature.NativeQrScanner]: '3.7.2',
 }
 
 type MobileFeatureInfo = {

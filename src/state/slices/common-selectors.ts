@@ -595,11 +595,13 @@ export const selectAssetsBySearchQuery = createCachedSelector(
 
     const sortedAssets = useAllAssets ? allAssets : primaryAssets
 
-    // Filter out spam tokens (low market cap) but keep assets with no market data
-    const filteredAssets = sortedAssets.filter(asset => {
-      const marketCap = bnOrZero(marketDataUsd[asset.assetId]?.marketCap)
-      return marketCap.isZero() || marketCap.gte(MINIMUM_MARKET_CAP_THRESHOLD)
-    })
+    // Filter out spam tokens (low market cap) but keep assets with no market data, unless user is searching by contract address
+    const filteredAssets = isContractAddressSearch
+      ? sortedAssets
+      : sortedAssets.filter(asset => {
+          const marketCap = bnOrZero(marketDataUsd[asset.assetId]?.marketCap)
+          return marketCap.isZero() || marketCap.gte(MINIMUM_MARKET_CAP_THRESHOLD)
+        })
 
     const matchedAssets = searchAssets(searchQuery, filteredAssets)
     const deduplicated = deduplicateAssets(matchedAssets, searchQuery)

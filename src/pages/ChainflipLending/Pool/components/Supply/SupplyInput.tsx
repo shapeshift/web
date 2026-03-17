@@ -12,7 +12,6 @@ import { SupplyMachineCtx } from './SupplyMachineContext'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
-import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
@@ -164,11 +163,6 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
     })
   }, [buyAssetSearch, onAssetChange, lendingAssets])
 
-  const handleAssetChange = useCallback(
-    (asset: Asset) => onAssetChange(asset.assetId),
-    [onAssetChange],
-  )
-
   const handleInputChange = useCallback((values: NumberFormatValues) => {
     setInputValue(values.value)
   }, [])
@@ -277,19 +271,6 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
                 <Amount.Fiat value={availableFiat} fontSize='sm' fontWeight='medium' />
               )}
             </Flex>
-          </Box>
-
-          {/* Hidden TradeAssetSelect for asset change handling */}
-          <Box display='none'>
-            <TradeAssetSelect
-              assetId={assetId}
-              assetIds={assetIds}
-              onAssetClick={handleAssetClick}
-              onAssetChange={handleAssetChange}
-              onlyConnectedChains={false}
-              px={0}
-              mb={0}
-            />
           </Box>
 
           {/* Stats row - Pool APY and Current Position in bordered boxes */}

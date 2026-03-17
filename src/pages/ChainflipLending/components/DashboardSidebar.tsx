@@ -186,10 +186,25 @@ export const NextStepsCard = memo(() => {
         descriptionKey: 'chainflipLending.dashboard.nextStepsSupplyOrCollateral',
         actions: (
           <Flex gap={2}>
-            <Button flex={1} colorScheme='blue' onClick={handleSupply}>
+            <Button
+              flex={1}
+              colorScheme='blue'
+              height='40px'
+              borderRadius='xl'
+              fontWeight='semibold'
+              onClick={handleSupply}
+            >
               {translate('chainflipLending.dashboard.supply')}
             </Button>
-            <Button flex={1} variant='outline' onClick={handleAddCollateral}>
+            <Button
+              flex={1}
+              variant='outline'
+              height='40px'
+              borderRadius='xl'
+              fontWeight='semibold'
+              bg='whiteAlpha.50'
+              onClick={handleAddCollateral}
+            >
               {translate('chainflipLending.dashboard.addCollateral')}
             </Button>
           </Flex>
@@ -202,7 +217,14 @@ export const NextStepsCard = memo(() => {
         colorScheme: 'green' as const,
         descriptionKey: 'chainflipLending.dashboard.nextStepsCollateral',
         actions: (
-          <Button width='full' colorScheme='blue' onClick={handleAddCollateral}>
+          <Button
+            width='full'
+            colorScheme='blue'
+            height='40px'
+            borderRadius='xl'
+            fontWeight='semibold'
+            onClick={handleAddCollateral}
+          >
             {translate('chainflipLending.dashboard.addCollateral')}
           </Button>
         ),
@@ -214,7 +236,14 @@ export const NextStepsCard = memo(() => {
         colorScheme: 'purple' as const,
         descriptionKey: 'chainflipLending.dashboard.nextStepsBorrow',
         actions: (
-          <Button width='full' colorScheme='blue' onClick={handleBorrow}>
+          <Button
+            width='full'
+            colorScheme='blue'
+            height='40px'
+            borderRadius='xl'
+            fontWeight='semibold'
+            onClick={handleBorrow}
+          >
             {translate('chainflipLending.dashboard.borrow')}
           </Button>
         ),

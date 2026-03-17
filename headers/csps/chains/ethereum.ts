@@ -11,7 +11,6 @@ export const csp: Csp = {
     env.VITE_ETHEREUM_NODE_URL,
     env.VITE_UNCHAINED_ETHEREUM_HTTP_URL,
     env.VITE_UNCHAINED_ETHEREUM_WS_URL,
-    env.VITE_ALCHEMY_POLYGON_URL,
     ...FALLBACK_RPC_URLS.ethereum,
   ],
 }

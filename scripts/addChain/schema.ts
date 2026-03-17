@@ -97,6 +97,9 @@ export function validateConfig(obj: unknown): ChainConfig {
       )}`,
     )
   }
+  if (typeof c.wrappedNativeAddress === 'string' && (c.wrappedNativeAddress as string).trim().length === 0) {
+    throw new Error('"wrappedNativeAddress" must be null or a non-empty string, not an empty string')
+  }
 
   if (!c.swappers || typeof c.swappers !== 'object') {
     throw new Error(`"swappers" must be an object`)
@@ -111,6 +114,11 @@ export function validateConfig(obj: unknown): ChainConfig {
     if (typeof (entry as Record<string, unknown>).supported !== 'boolean') {
       throw new Error(`"swappers.${key}.supported" must be a boolean`)
     }
+  }
+
+  const relayEntry = (c.swappers as Record<string, unknown>).relay as Record<string, unknown>
+  if (relayEntry.supported === true && typeof relayEntry.relayChainId !== 'number') {
+    throw new Error('"swappers.relay.relayChainId" must be a number when relay is supported')
   }
 
   return c as unknown as ChainConfig

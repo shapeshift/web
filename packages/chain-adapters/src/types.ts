@@ -251,6 +251,7 @@ export type ChainSignTx = {
   [KnownChainIds.ModeMainnet]: ETHSignTx
   [KnownChainIds.SoneiumMainnet]: ETHSignTx
   [KnownChainIds.SeiMainnet]: ETHSignTx
+  [KnownChainIds.AbstractMainnet]: ETHSignTx
   [KnownChainIds.BitcoinMainnet]: BTCSignTx
   [KnownChainIds.BitcoinCashMainnet]: BTCSignTx
   [KnownChainIds.DogecoinMainnet]: BTCSignTx

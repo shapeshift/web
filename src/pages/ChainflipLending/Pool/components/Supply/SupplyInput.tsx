@@ -345,7 +345,7 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
             </Flex>
           </Flex>
 
-          {(estYearlyEarningsFiat !== null && !bnOrZero(cryptoValue).isZero()) && (
+          {estYearlyEarningsFiat !== null && !bnOrZero(cryptoValue).isZero() && (
             <>
               <Divider borderColor='border.subtle' />
               <Flex justifyContent='space-between' alignItems='center' width='full'>

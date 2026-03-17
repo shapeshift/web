@@ -144,15 +144,61 @@ const AssetConstellation = memo(() => {
       overflow='visible'
     >
       {/* Orbital ring SVGs from Figma - ETH blue arc */}
-      <Box as='img' src={orbitalEth} position='absolute' top='-30px' left='40px' width='418px' height='417px' opacity={0.6} />
+      <Box
+        as='img'
+        src={orbitalEth}
+        position='absolute'
+        top='-30px'
+        left='40px'
+        width='418px'
+        height='417px'
+        opacity={0.6}
+      />
       {/* BTC orange arc */}
-      <Box as='img' src={orbitalBtc} position='absolute' top='30px' left='-10px' width='378px' height='377px' opacity={0.6} />
+      <Box
+        as='img'
+        src={orbitalBtc}
+        position='absolute'
+        top='30px'
+        left='-10px'
+        width='378px'
+        height='377px'
+        opacity={0.6}
+      />
       {/* USDC arc */}
-      <Box as='img' src={orbitalUsdc} position='absolute' top='-60px' left='20px' width='218px' height='218px' transform='rotate(180deg)' opacity={0.5} />
+      <Box
+        as='img'
+        src={orbitalUsdc}
+        position='absolute'
+        top='-60px'
+        left='20px'
+        width='218px'
+        height='218px'
+        transform='rotate(180deg)'
+        opacity={0.5}
+      />
       {/* Tether arc */}
-      <Box as='img' src={orbitalTether} position='absolute' top='-40px' right='-30px' width='274px' height='275px' opacity={0.5} />
+      <Box
+        as='img'
+        src={orbitalTether}
+        position='absolute'
+        top='-40px'
+        right='-30px'
+        width='274px'
+        height='275px'
+        opacity={0.5}
+      />
       {/* SOL arc */}
-      <Box as='img' src={orbitalSol} position='absolute' bottom='-20px' right='-20px' width='230px' height='230px' opacity={0.5} />
+      <Box
+        as='img'
+        src={orbitalSol}
+        position='absolute'
+        bottom='-20px'
+        right='-20px'
+        width='230px'
+        height='230px'
+        opacity={0.5}
+      />
       {/* Asset icons - positioned per Figma */}
       {/* USDC - top left */}
       <Box position='absolute' top='15px' left='30px'>
@@ -160,19 +206,39 @@ const AssetConstellation = memo(() => {
       </Box>
       {/* ETH - center, largest */}
       <Box position='absolute' top='25px' left='150px'>
-        <AssetIcon assetId={ethAssetId} size='lg' showNetworkIcon={false} sx={{ width: '110px', height: '110px' }} />
+        <AssetIcon
+          assetId={ethAssetId}
+          size='lg'
+          showNetworkIcon={false}
+          sx={{ width: '110px', height: '110px' }}
+        />
       </Box>
       {/* USDT - top right */}
       <Box position='absolute' top='0px' right='10px'>
-        <AssetIcon assetId={usdtAssetId} size='md' showNetworkIcon={false} sx={{ width: '64px', height: '64px' }} />
+        <AssetIcon
+          assetId={usdtAssetId}
+          size='md'
+          showNetworkIcon={false}
+          sx={{ width: '64px', height: '64px' }}
+        />
       </Box>
       {/* BTC - bottom center-left */}
       <Box position='absolute' bottom='20px' left='100px'>
-        <AssetIcon assetId={btcAssetId} size='md' showNetworkIcon={false} sx={{ width: '80px', height: '80px' }} />
+        <AssetIcon
+          assetId={btcAssetId}
+          size='md'
+          showNetworkIcon={false}
+          sx={{ width: '80px', height: '80px' }}
+        />
       </Box>
       {/* SOL - bottom right */}
       <Box position='absolute' bottom='10px' right='20px'>
-        <AssetIcon assetId={solAssetId} size='sm' showNetworkIcon={false} sx={{ width: '56px', height: '56px' }} />
+        <AssetIcon
+          assetId={solAssetId}
+          size='sm'
+          showNetworkIcon={false}
+          sx={{ width: '56px', height: '56px' }}
+        />
       </Box>
     </Box>
   )
@@ -283,10 +349,42 @@ const InfoCard = memo(
               {isGreen ? (
                 <>
                   {/* Earn Yield art - concentric green arcs */}
-                  <Box as='img' src={earnGlow} position='absolute' top='-40px' right='-50px' width='339px' height='339px' />
-                  <Box as='img' src={earnRingOuter} position='absolute' top='-10px' right='-10px' width='160px' height='160px' />
-                  <Box as='img' src={earnRingMiddle} position='absolute' top='2px' right='2px' width='130px' height='130px' />
-                  <Box as='img' src={earnRingInner} position='absolute' top='16px' right='16px' width='96px' height='96px' />
+                  <Box
+                    as='img'
+                    src={earnGlow}
+                    position='absolute'
+                    top='-40px'
+                    right='-50px'
+                    width='339px'
+                    height='339px'
+                  />
+                  <Box
+                    as='img'
+                    src={earnRingOuter}
+                    position='absolute'
+                    top='-10px'
+                    right='-10px'
+                    width='160px'
+                    height='160px'
+                  />
+                  <Box
+                    as='img'
+                    src={earnRingMiddle}
+                    position='absolute'
+                    top='2px'
+                    right='2px'
+                    width='130px'
+                    height='130px'
+                  />
+                  <Box
+                    as='img'
+                    src={earnRingInner}
+                    position='absolute'
+                    top='16px'
+                    right='16px'
+                    width='96px'
+                    height='96px'
+                  />
                   <Center
                     position='absolute'
                     top='28px'
@@ -303,11 +401,55 @@ const InfoCard = memo(
               ) : (
                 <>
                   {/* Borrow art - purple rings with radiating lines */}
-                  <Box as='img' src={borrowGlow} position='absolute' top='-40px' right='-50px' width='304px' height='304px' />
-                  <Box as='img' src={borrowRing1} position='absolute' top='-5px' right='0px' width='140px' height='140px' transform='rotate(45deg)' />
-                  <Box as='img' src={borrowRing2} position='absolute' top='-30px' right='-25px' width='150px' height='150px' transform='rotate(-135deg)' />
-                  <Box as='img' src={borrowRing3} position='absolute' top='-20px' right='-15px' width='140px' height='140px' transform='rotate(-135deg)' />
-                  <Box as='img' src={borrowRingInner} position='absolute' top='8px' right='14px' width='96px' height='96px' transform='rotate(45deg)' />
+                  <Box
+                    as='img'
+                    src={borrowGlow}
+                    position='absolute'
+                    top='-40px'
+                    right='-50px'
+                    width='304px'
+                    height='304px'
+                  />
+                  <Box
+                    as='img'
+                    src={borrowRing1}
+                    position='absolute'
+                    top='-5px'
+                    right='0px'
+                    width='140px'
+                    height='140px'
+                    transform='rotate(45deg)'
+                  />
+                  <Box
+                    as='img'
+                    src={borrowRing2}
+                    position='absolute'
+                    top='-30px'
+                    right='-25px'
+                    width='150px'
+                    height='150px'
+                    transform='rotate(-135deg)'
+                  />
+                  <Box
+                    as='img'
+                    src={borrowRing3}
+                    position='absolute'
+                    top='-20px'
+                    right='-15px'
+                    width='140px'
+                    height='140px'
+                    transform='rotate(-135deg)'
+                  />
+                  <Box
+                    as='img'
+                    src={borrowRingInner}
+                    position='absolute'
+                    top='8px'
+                    right='14px'
+                    width='96px'
+                    height='96px'
+                    transform='rotate(45deg)'
+                  />
                   <Center
                     position='absolute'
                     top='24px'

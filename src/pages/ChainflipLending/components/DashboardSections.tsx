@@ -466,8 +466,7 @@ const BorrowedRow = ({ loan, borrowRate }: { loan: LoanWithFiat; borrowRate: str
 export const BorrowedSection = memo(() => {
   const translate = useTranslate()
   const chainflipLendingModal = useModal('chainflipLending')
-  const { loansWithFiat, totalBorrowedFiat, collateralWithFiat, isLoading } =
-    useChainflipLoanAccount()
+  const { loansWithFiat, totalBorrowedFiat, isLoading } = useChainflipLoanAccount()
   const { pools } = useChainflipLendingPools()
 
   const poolsByAssetId = useMemo(

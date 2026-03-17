@@ -724,10 +724,7 @@ const doHotfixRelease = async () => {
   const nextVersion = await getNextVersion('patch')
   const latestTag = await getLatestSemverTag()
 
-  const [mainSha, latestTagSha] = await Promise.all([
-    getSha('origin/main'),
-    getTagSha(latestTag),
-  ])
+  const [mainSha, latestTagSha] = await Promise.all([getSha('origin/main'), getTagSha(latestTag)])
 
   const hotfixBranch = `hotfix/${nextVersion}`
   const [openHotfixPr, privateContentMatchesMain] = await Promise.all([

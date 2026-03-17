@@ -11,7 +11,7 @@ import {
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { reactQueries } from '@/react-queries'
 
-const POLL_INTERVAL_MS = 60_000
+const POLL_INTERVAL_MS = 6_000
 const MAX_POLL_ATTEMPTS = 30
 
 export const useEgressConfirmation = () => {

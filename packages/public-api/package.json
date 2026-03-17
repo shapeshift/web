@@ -7,10 +7,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "pnpm run clean && pnpm exec tsc --build",
+    "build": "rm -rf dist && pnpm exec tsc --build",
     "build:bundle": "node esbuild.config.mjs",
     "build:smoke-tests": "node esbuild.smoke-tests.mjs",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist node_modules",
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
     "start:prod": "node dist/server.cjs",

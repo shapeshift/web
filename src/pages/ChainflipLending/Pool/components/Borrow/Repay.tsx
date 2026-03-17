@@ -1,3 +1,4 @@
+import { Flex } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { lazy, memo, Suspense, useEffect, useMemo } from 'react'
@@ -18,7 +19,11 @@ const RepayConfirm = lazy(() =>
   import('./RepayConfirm').then(({ RepayConfirm }) => ({ default: RepayConfirm })),
 )
 
-const suspenseFallback = <CircularProgress />
+const suspenseFallback = (
+  <Flex minHeight='360px' alignItems='center' justifyContent='center'>
+    <CircularProgress />
+  </Flex>
+)
 
 type RepayProps = {
   assetId: AssetId

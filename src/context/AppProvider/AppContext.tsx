@@ -10,6 +10,7 @@ import { useTranslate } from 'react-polyglot'
 import { matchPath, useLocation } from 'react-router-dom'
 
 import { useDiscoverAccounts } from './hooks/useDiscoverAccounts'
+import { useNativeMultichainAutoOpen } from './hooks/useNativeMultichainAutoOpen'
 import { usePortfolioFetch } from './hooks/usePortfolioFetch'
 import { useSnapStatusHandler } from './hooks/useSnapStatusHandler'
 
@@ -93,6 +94,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useTransactionsSubscriber()
   useActionCenterSubscribers()
   useSnapStatusHandler()
+  useNativeMultichainAutoOpen()
   // Handle Ledger device connection state and wallet disconnection
   useLedgerConnectionState()
 

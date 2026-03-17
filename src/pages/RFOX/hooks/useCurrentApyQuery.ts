@@ -1,5 +1,4 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
@@ -10,6 +9,7 @@ import { useEpochHistoryQuery } from './useEpochHistoryQuery'
 import { useTotalStakedQuery } from './useGetTotalStaked'
 
 import { useFetchPriceHistories } from '@/hooks/useFetchPriceHistories/useFetchPriceHistories'
+import { bn } from '@/lib/bignumber/bignumber'
 import { selectAssetById, selectPriceHistoryByAssetTimeframe } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -21,16 +21,12 @@ type useCurrentApyQueryProps = {
  * Get the estimated APY of RFOX
  */
 export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) => {
-  useFetchPriceHistories([thorchainAssetId, stakingAssetId], HistoryTimeframe.MONTH)
+  useFetchPriceHistories([stakingAssetId], HistoryTimeframe.MONTH)
 
-  const runePriceHistory = useAppSelector(state =>
-    selectPriceHistoryByAssetTimeframe(state, thorchainAssetId, HistoryTimeframe.MONTH),
-  )
   const stakingAssetPriceHistory = useAppSelector(state =>
     selectPriceHistoryByAssetTimeframe(state, stakingAssetId, HistoryTimeframe.MONTH),
   )
 
-  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
 
   const totalStakedCryptoCurrencyQuery = useTotalStakedQuery<string>({
@@ -42,9 +38,7 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
 
   const select = useCallback(
     (epochs: EpochWithIpfsHash[]): string | undefined => {
-      if (!runePriceHistory) return
       if (!stakingAssetPriceHistory) return
-      if (!runeAsset) return
       if (!stakingAsset) return
       if (!totalStakedCryptoCurrencyQuery?.data) return
       if (!epochs.length) return
@@ -55,21 +49,11 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
         latestEpoch.detailsByStakingContract[getStakingContract(stakingAsset.assetId)]
           .distributionRate
 
-      const closestRunePrice =
-        runePriceHistory.findLast(price => price.date <= latestEpoch.endTimestamp) ??
-        runePriceHistory[0]
-
       const closestStakingAssetPrice =
         stakingAssetPriceHistory.findLast(price => price.date <= latestEpoch.endTimestamp) ??
         stakingAssetPriceHistory[0]
 
-      const rewardDistributionUsd = BigAmount.fromBaseUnit({
-        value: latestEpoch.totalRevenue,
-        precision: runeAsset.precision,
-      })
-        .toBN()
-        .times(distributionRate)
-        .times(closestRunePrice.price)
+      const rewardDistributionUsd = bn(latestEpoch.totalRevenue).times(distributionRate)
 
       const totalStakedUsd = BigAmount.fromBaseUnit({
         value: totalStakedCryptoCurrencyQuery.data,
@@ -80,13 +64,7 @@ export const useCurrentApyQuery = ({ stakingAssetId }: useCurrentApyQueryProps) 
 
       return rewardDistributionUsd.div(totalStakedUsd).times(12).toFixed(4)
     },
-    [
-      runePriceHistory,
-      stakingAssetPriceHistory,
-      runeAsset,
-      stakingAsset,
-      totalStakedCryptoCurrencyQuery,
-    ],
+    [stakingAssetPriceHistory, stakingAsset, totalStakedCryptoCurrencyQuery],
   )
 
   const query = useEpochHistoryQuery({ select })

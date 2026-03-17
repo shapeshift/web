@@ -58,7 +58,17 @@ export const useRepayConfirmation = () => {
   }, [isConfirming, actorRef])
 
   useEffect(() => {
-    if (!isConfirming || !loanAccount) return
+    if (!isConfirming || !loanAccountsData) return
+
+    // Full repayment may delete the entire loan account from the response
+    if (isFullRepayment && !loanAccount) {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      void invalidateQueries()
+      actorRef.send({ type: 'REPAY_CONFIRMED' })
+      return
+    }
+
+    if (!loanAccount) return
 
     const matchingLoan = loanAccount.loans.find(l => l.loan_id === loanId)
 
@@ -87,6 +97,7 @@ export const useRepayConfirmation = () => {
     }
   }, [
     isConfirming,
+    loanAccountsData,
     loanAccount,
     loanId,
     isFullRepayment,

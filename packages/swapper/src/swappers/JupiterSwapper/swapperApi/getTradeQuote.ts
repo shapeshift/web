@@ -13,7 +13,12 @@ import type { KnownChainIds } from '@shapeshiftoss/types'
 import { bn, bnOrZero, convertDecimalPercentageToBasisPoints } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { PublicKey } from '@solana/web3.js'
+import {
+  AddressLookupTableAccount,
+  MessageV0,
+  PublicKey,
+  VersionedTransaction,
+} from '@solana/web3.js'
 import { v4 as uuid } from 'uuid'
 
 import type {
@@ -25,6 +30,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { COMPUTE_UNIT_MARGIN_MULTIPLIER, TOKEN_2022_PROGRAM_ID } from '../utils/constants'
 import {
   calculateAccountCreationCosts,
@@ -158,6 +164,34 @@ export const getTradeQuote = async (
     jupiterUrl,
   })
 
+  // Build a trial VersionedTransaction to check if it exceeds the 1232-byte Solana tx size limit
+  const isOversized = await (async () => {
+    try {
+      const lookupTableInfos = await adapter.getAddressLookupTableAccounts(
+        addressLookupTableAddresses,
+      )
+      const lookupTableAccounts = lookupTableInfos.map(
+        info =>
+          new AddressLookupTableAccount({
+            key: new PublicKey(info.key),
+            state: AddressLookupTableAccount.deserialize(new Uint8Array(info.data)),
+          }),
+      )
+
+      const messageV0 = MessageV0.compile({
+        payerKey: new PublicKey(sendAddress),
+        instructions,
+        // Blockhash doesn't affect size, use a dummy one
+        recentBlockhash: PublicKey.default.toString(),
+        addressLookupTableAccounts: lookupTableAccounts,
+      })
+      const txBytes = new VersionedTransaction(messageV0).serialize()
+      return txBytes.length > 1232
+    } catch {
+      return false
+    }
+  })()
+
   const getFeeData = async () => {
     const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
     const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
@@ -248,6 +282,7 @@ export const getTradeQuote = async (
         solanaTransactionMetadata: {
           addressLookupTableAddresses,
           instructions,
+          isOversized,
         },
         feeData: {
           protocolFees,
@@ -261,6 +296,14 @@ export const getTradeQuote = async (
         allowanceContract: '0x0',
         // Swap are so fasts on solana that times are under 100ms displaying 0 or very small amount of time is not user friendly
         estimatedExecutionTimeMs: undefined,
+        affiliateFee: buildAffiliateFee({
+          strategy: 'buy_asset',
+          affiliateBps,
+          sellAsset,
+          buyAsset,
+          sellAmountCryptoBaseUnit: priceResponse.inAmount,
+          buyAmountCryptoBaseUnit: priceResponse.outAmount,
+        }),
       },
     ],
   }

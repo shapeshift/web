@@ -89,6 +89,7 @@ const validators = {
   VITE_MODE_NODE_URL: url(),
   VITE_SONEIUM_NODE_URL: url(),
   VITE_SOLANA_NODE_URL: url(),
+  VITE_JITO_BLOCK_ENGINE_URL: url(),
   VITE_STARKNET_NODE_URL: url(),
   VITE_TRON_NODE_URL: url(),
   VITE_SUI_NODE_URL: url(),
@@ -307,6 +308,7 @@ const validators = {
   VITE_FEATURE_YIELD_MULTI_ACCOUNT: bool({ default: false }),
   VITE_FEATURE_PERFORMANCE_PROFILER: bool({ default: false }),
   VITE_FEATURE_AGENTIC_CHAT: bool({ default: false }),
+  VITE_FEATURE_MM_NATIVE_MULTICHAIN: bool({ default: false }),
   VITE_AGENTIC_SERVER_BASE_URL: url({
     default: 'https://shapeshiftossagentic-server-production.up.railway.app',
   }),

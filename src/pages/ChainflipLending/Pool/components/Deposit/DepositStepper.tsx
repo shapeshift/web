@@ -88,19 +88,21 @@ export const DepositStepper = memo(({ assetId }: { assetId: AssetId }) => {
   const {
     isFunded,
     isLpRegistered,
-    hasRefundAddress,
     flipAllowanceCryptoBaseUnit,
     flipFundingAmountCryptoBaseUnit,
     txHashes,
     errorStep,
+    refundAddress,
+    depositAddress,
   } = DepositMachineCtx.useSelector(s => ({
     isFunded: s.context.isFunded,
     isLpRegistered: s.context.isLpRegistered,
-    hasRefundAddress: s.context.hasRefundAddress,
     flipAllowanceCryptoBaseUnit: s.context.flipAllowanceCryptoBaseUnit,
     flipFundingAmountCryptoBaseUnit: s.context.flipFundingAmountCryptoBaseUnit,
     txHashes: s.context.txHashes,
     errorStep: s.context.errorStep,
+    refundAddress: s.context.refundAddress,
+    depositAddress: s.context.depositAddress,
   }))
 
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
@@ -118,9 +120,8 @@ export const DepositStepper = memo(({ assetId }: { assetId: AssetId }) => {
     if (!needsApproval) steps.add('approving_flip')
     if (isFunded) steps.add('funding_account')
     if (isLpRegistered) steps.add('registering')
-    if (hasRefundAddress) steps.add('setting_refund_address')
     return steps
-  }, [needsApproval, isFunded, isLpRegistered, hasRefundAddress])
+  }, [needsApproval, isFunded, isLpRegistered])
 
   const getStepStatus = useMemo(() => {
     const currentIndex = STEP_ORDER.indexOf(stateValue as DepositStep)
@@ -146,9 +147,14 @@ export const DepositStepper = memo(({ assetId }: { assetId: AssetId }) => {
     }
   }, [stateValue, errorStep, preCompletedSteps])
 
+  const visibleSteps = useMemo(
+    () => ALL_STEPS.filter(step => !preCompletedSteps.has(step.id)),
+    [preCompletedSteps],
+  )
+
   return (
     <VStack spacing={3} align='stretch' width='full'>
-      {ALL_STEPS.map(step => {
+      {visibleSteps.map(step => {
         const status = getStepStatus(step.id)
         const txHash = step.txHashKey ? txHashes[step.txHashKey] : undefined
         const explorerTxLink =
@@ -202,6 +208,27 @@ export const DepositStepper = memo(({ assetId }: { assetId: AssetId }) => {
                 ) : (
                   <RawText fontSize='xs' color='text.subtle'>
                     <MiddleEllipsis value={txHash} />
+                  </RawText>
+                )
+              ) : step.id === 'setting_refund_address' &&
+                status === 'completed' &&
+                refundAddress ? (
+                <RawText fontSize='xs' color='text.subtle'>
+                  <MiddleEllipsis value={refundAddress} />
+                </RawText>
+              ) : step.id === 'opening_channel' && status === 'completed' && depositAddress ? (
+                poolAsset?.explorerAddressLink ? (
+                  <Link
+                    isExternal
+                    href={`${poolAsset.explorerAddressLink}${depositAddress}`}
+                    color='text.link'
+                    fontSize='xs'
+                  >
+                    <MiddleEllipsis value={depositAddress} />
+                  </Link>
+                ) : (
+                  <RawText fontSize='xs' color='text.subtle'>
+                    <MiddleEllipsis value={depositAddress} />
                   </RawText>
                 )
               ) : null}

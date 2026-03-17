@@ -23,6 +23,7 @@ import {
   getInputOutputRate,
   makeSwapErrorRight,
 } from '../../../utils'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { makeButterSwapAffiliate } from '../utils/constants'
 import {
   ButterSwapErrorCode,
@@ -192,9 +193,12 @@ export const getTradeQuote = async (
     if (sellAsset.chainId !== solanaChainId) return Ok(undefined)
 
     const txData = buildTx.data.startsWith('0x') ? buildTx.data.slice(2) : buildTx.data
-    const versionedTransaction = VersionedTransaction.deserialize(
-      new Uint8Array(Buffer.from(txData, 'hex')),
-    )
+    const txBytes = Buffer.from(txData, 'hex')
+    // Solana transactions are limited to 1232 bytes. If Butter returns a larger tx,
+    // we need to split it into a Jito bundle (2 txs with tip in the last one).
+    const SOLANA_TX_SIZE_LIMIT = 1232
+    const isOversized = txBytes.length > SOLANA_TX_SIZE_LIMIT
+    const versionedTransaction = VersionedTransaction.deserialize(new Uint8Array(txBytes))
 
     const adapter = _deps.assertGetSolanaChainAdapter(sellAsset.chainId)
 
@@ -226,6 +230,7 @@ export const getTradeQuote = async (
       return Ok({
         instructions,
         addressLookupTableAddresses: addressLookupTableAccountKeys,
+        isOversized,
       })
     } catch (error) {
       return Err(
@@ -272,6 +277,15 @@ export const getTradeQuote = async (
     },
     ...(solanaTransactionMetadata && {
       solanaTransactionMetadata,
+    }),
+    affiliateFee: buildAffiliateFee({
+      strategy: 'buy_asset',
+      affiliateBps,
+      sellAsset,
+      buyAsset,
+      sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+      isEstimate: true,
     }),
   }
 

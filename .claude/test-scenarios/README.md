@@ -80,6 +80,10 @@ Tests for specific bugs that were fixed:
 /test-agent maintenance
 ```
 
+### Portless Support
+
+All test scenarios reference `${PORTLESS_URL:-http://localhost:3000}` for the dev server URL. When using Portless, `PORTLESS_URL` is set automatically (e.g. `http://feat-x.web.localhost:1355`). Without Portless, everything defaults to `http://localhost:3000`.
+
 ### Manual Testing
 
 Each scenario file contains:

@@ -2,15 +2,24 @@ import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
+  berachainChainId,
+  bobChainId,
   bscChainId,
+  cronosChainId,
   ethChainId,
+  flowEvmChainId,
   gnosisChainId,
   hyperEvmChainId,
+  lineaChainId,
+  mantleChainId,
+  megaethChainId,
   monadChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
   seiChainId,
+  sonicChainId,
+  storyChainId,
 } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
@@ -28,6 +37,15 @@ export const chainIdToDebridgeChainId: Record<string, number> = {
   [plasmaChainId]: 100000028,
   [arbitrumChainId]: 42161,
   [avalancheChainId]: 43114,
+  [mantleChainId]: 100000023,
+  [cronosChainId]: 100000019,
+  [berachainChainId]: 100000020,
+  [lineaChainId]: 59144,
+  [bobChainId]: 100000021,
+  [sonicChainId]: 100000014,
+  [storyChainId]: 100000013,
+  [flowEvmChainId]: 100000009,
+  [megaethChainId]: 100000031,
 }
 
 export const debridgeChainIdToChainId = invert(chainIdToDebridgeChainId)

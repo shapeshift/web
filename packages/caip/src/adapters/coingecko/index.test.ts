@@ -125,6 +125,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Mode,
       })
+      const ethOnAbstract = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.AbstractMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Abstract,
+      })
       const ethOnSoneium = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.SoneiumMainnet,
@@ -148,6 +154,7 @@ describe('adapters:coingecko', () => {
         ethOnScroll,
         ethOnUnichain,
         ethOnSoneium,
+        ethOnAbstract,
       ])
     })
 

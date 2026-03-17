@@ -45,7 +45,7 @@ interface HttpClientOptions {
    * This array can contain strings, not regular expressions.
    * If omitted, no filtering by requests blacklist will be applied.
    *
-   * Example: ['snapshot.org', 'alchemy']
+   * Example: ['snapshot.org']
    */
   denyUrls?: string[]
 }

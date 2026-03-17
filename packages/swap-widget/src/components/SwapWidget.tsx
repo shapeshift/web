@@ -44,9 +44,10 @@ type SwapWidgetContentProps = {
   theme: SwapWidgetProps['theme']
   showPoweredBy: boolean
   defaultReceiveAddress?: string
-  affiliateAddress?: string
   enableWalletConnection: boolean
   isBuyAssetLocked: boolean
+  partnerCode?: string
+  appUrl?: string
   onConnectWallet?: () => void
   onSwapSuccess?: (txHash: string) => void
   onSwapError?: (error: Error) => void
@@ -66,9 +67,10 @@ const SwapWidgetContent = ({
   theme = 'dark',
   showPoweredBy,
   defaultReceiveAddress,
-  affiliateAddress,
   enableWalletConnection,
   isBuyAssetLocked,
+  partnerCode,
+  appUrl,
   onConnectWallet,
   onSwapSuccess,
   onSwapError,
@@ -133,7 +135,7 @@ const SwapWidgetContent = ({
     handleSelectRate,
     handleSlippageChange,
     handleButtonClick,
-  } = useSwapHandlers({ onConnectWallet, onAssetSelect, affiliateAddress })
+  } = useSwapHandlers({ onConnectWallet, onAssetSelect, partnerCode, appUrl })
 
   useSwapQuoting({ apiClient, rates, sellAssetBalance })
 
@@ -141,7 +143,7 @@ const SwapWidgetContent = ({
 
   useSwapExecution()
 
-  useStatusPolling({ onSwapSuccess, onSwapError, refetchSellBalance, refetchBuyBalance })
+  useStatusPolling({ apiClient, onSwapSuccess, onSwapError, refetchSellBalance, refetchBuyBalance })
 
   const widgetStyle = useMemo(() => {
     if (!themeConfig) return undefined
@@ -360,12 +362,13 @@ type SwapWidgetCoreProps = {
   defaultBuyAsset: Asset
   defaultSlippage: string
   defaultReceiveAddress?: string
-  affiliateAddress?: string
   apiClient: ReturnType<typeof createApiClient>
   theme: SwapWidgetProps['theme']
   showPoweredBy: boolean
   enableWalletConnection: boolean
   isBuyAssetLocked: boolean
+  partnerCode?: string
+  appUrl?: string
   onConnectWallet?: () => void
   onSwapSuccess?: (txHash: string) => void
   onSwapError?: (error: Error) => void
@@ -386,12 +389,13 @@ const SwapWidgetCore = ({
   defaultBuyAsset,
   defaultSlippage,
   defaultReceiveAddress,
-  affiliateAddress,
   apiClient,
   theme,
   showPoweredBy,
   enableWalletConnection,
   isBuyAssetLocked,
+  partnerCode,
+  appUrl,
   onConnectWallet,
   onSwapSuccess,
   onSwapError,
@@ -490,9 +494,10 @@ const SwapWidgetCore = ({
         theme={theme}
         showPoweredBy={showPoweredBy}
         defaultReceiveAddress={defaultReceiveAddress}
-        affiliateAddress={affiliateAddress}
         enableWalletConnection={enableWalletConnection}
         isBuyAssetLocked={isBuyAssetLocked}
+        partnerCode={partnerCode}
+        appUrl={appUrl}
         onConnectWallet={onConnectWallet}
         onSwapSuccess={onSwapSuccess}
         onSwapError={onSwapError}
@@ -515,10 +520,9 @@ const SwapWidgetWithExternalWallet = (props: SwapWidgetProps) => {
     () =>
       createApiClient({
         baseUrl: props.apiBaseUrl,
-        affiliateAddress: props.affiliateAddress,
-        affiliateBps: props.affiliateBps,
+        partnerCode: props.partnerCode,
       }),
-    [props.apiBaseUrl, props.affiliateAddress, props.affiliateBps],
+    [props.apiBaseUrl, props.partnerCode],
   )
 
   return (
@@ -531,12 +535,13 @@ const SwapWidgetWithExternalWallet = (props: SwapWidgetProps) => {
             defaultBuyAsset={props.defaultBuyAsset ?? DEFAULT_BUY_ASSET}
             defaultSlippage={props.defaultSlippage ?? '0.5'}
             defaultReceiveAddress={props.defaultReceiveAddress}
-            affiliateAddress={props.affiliateAddress}
             apiClient={apiClient}
             theme={props.theme}
             showPoweredBy={props.showPoweredBy ?? true}
             enableWalletConnection={false}
             isBuyAssetLocked={props.isBuyAssetLocked ?? false}
+            partnerCode={props.partnerCode}
+            appUrl={props.appUrl}
             onConnectWallet={props.onConnectWallet}
             onSwapSuccess={props.onSwapSuccess}
             onSwapError={props.onSwapError}
@@ -563,10 +568,9 @@ const SwapWidgetWithInternalWallet = (
     () =>
       createApiClient({
         baseUrl: props.apiBaseUrl,
-        affiliateAddress: props.affiliateAddress,
-        affiliateBps: props.affiliateBps,
+        partnerCode: props.partnerCode,
       }),
-    [props.apiBaseUrl, props.affiliateAddress, props.affiliateBps],
+    [props.apiBaseUrl, props.partnerCode],
   )
 
   return (
@@ -580,11 +584,12 @@ const SwapWidgetWithInternalWallet = (
               defaultBuyAsset={props.defaultBuyAsset ?? DEFAULT_BUY_ASSET}
               defaultSlippage={props.defaultSlippage ?? '0.5'}
               defaultReceiveAddress={props.defaultReceiveAddress}
-              affiliateAddress={props.affiliateAddress}
               apiClient={apiClient}
               theme={props.theme}
               showPoweredBy={props.showPoweredBy ?? true}
               enableWalletConnection={true}
+              partnerCode={props.partnerCode}
+              appUrl={props.appUrl}
               onConnectWallet={props.onConnectWallet}
               onSwapSuccess={props.onSwapSuccess}
               onSwapError={props.onSwapError}

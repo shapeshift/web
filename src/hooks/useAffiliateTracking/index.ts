@@ -1,1 +1,6 @@
-export { useAffiliateTracking, AFFILIATE_STORAGE_KEY } from './useAffiliateTracking'
+export {
+  useAffiliateTracking,
+  readStoredPartnerBps,
+  readStoredPartnerCode,
+  AFFILIATE_STORAGE_KEY,
+} from './useAffiliateTracking'

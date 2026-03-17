@@ -1,5 +1,6 @@
 import { loadEnv } from 'vite'
 
+import { FALLBACK_RPC_URLS } from '../../../packages/contracts/src/fallbackRpcUrls'
 import type { Csp } from '../../types'
 
 const mode = process.env.MODE ?? process.env.NODE_ENV ?? 'development'
@@ -8,11 +9,8 @@ const env = loadEnv(mode, process.cwd(), '')
 export const csp: Csp = {
   'connect-src': [
     env.VITE_BNBSMARTCHAIN_NODE_URL,
-    env.VITE_BNBSMARTCHAIN_NODE_URL_FALLBACK_1,
-    env.VITE_BNBSMARTCHAIN_NODE_URL_FALLBACK_2,
-    env.VITE_BNBSMARTCHAIN_NODE_URL_FALLBACK_3,
     env.VITE_UNCHAINED_BNBSMARTCHAIN_HTTP_URL,
     env.VITE_UNCHAINED_BNBSMARTCHAIN_WS_URL,
-    'https://binance.llamarpc.com',
+    ...FALLBACK_RPC_URLS.bsc,
   ],
 }

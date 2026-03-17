@@ -31,6 +31,8 @@ import { ChainflipLendingHeader } from '@/pages/ChainflipLending/components/Chai
 import { Dashboard } from '@/pages/ChainflipLending/components/Dashboard'
 import type { ChainflipLendingPoolWithFiat } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
 import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
+import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 const marketRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
@@ -47,6 +49,9 @@ type MarketRowProps = {
 }
 
 const MarketRow = ({ pool, onViewMarket }: MarketRowProps) => {
+  const asset = useAppSelector(state =>
+    pool.assetId ? selectAssetById(state, pool.assetId) : undefined,
+  )
   const handleClick = useCallback(() => {
     if (pool.assetId) onViewMarket(pool.assetId)
   }, [pool.assetId, onViewMarket])
@@ -82,6 +87,7 @@ const MarketRow = ({ pool, onViewMarket }: MarketRowProps) => {
       height='auto'
       color='text.base'
       onClick={handleClick}
+      data-testid={`chainflip-lending-market-row-${asset?.symbol?.toLowerCase() ?? 'unknown'}`}
     >
       <AssetCell assetId={pool.assetId} />
       <Flex display={mobileDisplay}>
@@ -210,7 +216,7 @@ export const Markets = () => {
       <Stack spacing={6}>
         {accountId ? (
           <Tabs index={tabIndex} onChange={setTabIndex} variant='soft-rounded' colorScheme='blue'>
-            <TabList>
+            <TabList data-testid='chainflip-lending-tabs'>
               <Tab>{translate('chainflipLending.myDashboard')}</Tab>
               <Tab>{translate('chainflipLending.markets')}</Tab>
             </TabList>
@@ -218,7 +224,7 @@ export const Markets = () => {
               <TabPanel px={0}>
                 <Dashboard />
               </TabPanel>
-              <TabPanel px={0}>
+              <TabPanel px={0} data-testid='chainflip-lending-markets'>
                 <MarketsTable />
               </TabPanel>
             </TabPanels>

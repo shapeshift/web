@@ -43,11 +43,16 @@ export const Dashboard = memo(() => {
   }, [isFunded, isLpRegistered, hasAnyPosition])
 
   if (showInitView) {
-    return <InitView />
+    return <InitView data-testid='chainflip-lending-init-view' />
   }
 
   return (
-    <Flex gap={6} direction={{ base: 'column', lg: 'row' }} alignItems='flex-start'>
+    <Flex
+      gap={6}
+      direction={{ base: 'column', lg: 'row' }}
+      alignItems='flex-start'
+      data-testid='chainflip-lending-dashboard'
+    >
       <Stack spacing={4} flex={1} minWidth={0}>
         <LoanHealth />
         <FreeBalanceSection />

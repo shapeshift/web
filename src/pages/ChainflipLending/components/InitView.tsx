@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   CardBody,
+  Center,
   CircularProgress,
   Flex,
   Heading,
@@ -31,6 +32,8 @@ import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
 import { permillToDecimal } from '@/lib/chainflip/utils'
 import type { ChainflipLendingPoolWithFiat } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
 import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
+import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 const LENDING_ASSET_IDS = Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as AssetId[]
 
@@ -47,6 +50,9 @@ type MarketRowProps = {
 }
 
 const MarketRow = memo(({ pool, onViewMarket }: MarketRowProps) => {
+  const asset = useAppSelector(state =>
+    pool.assetId ? selectAssetById(state, pool.assetId) : undefined,
+  )
   const handleClick = useCallback(() => {
     if (pool.assetId) onViewMarket(pool.assetId)
   }, [pool.assetId, onViewMarket])
@@ -82,6 +88,7 @@ const MarketRow = memo(({ pool, onViewMarket }: MarketRowProps) => {
       height='auto'
       color='text.base'
       onClick={handleClick}
+      data-testid={`chainflip-lending-market-row-${asset?.symbol?.toLowerCase() ?? 'unknown'}`}
     >
       <AssetCell assetId={pool.assetId} />
       <Flex display={mobileDisplay}>
@@ -110,52 +117,57 @@ const MarketRow = memo(({ pool, onViewMarket }: MarketRowProps) => {
 })
 
 const AssetConstellation = memo(() => {
-  // Positions for the orbital arrangement of asset icons
-  // Center is at roughly (120, 100) within a 240x200 box
-  const positions = [
-    { assetId: btcAssetId, top: '10%', left: '50%', size: 'md' },
-    { assetId: ethAssetId, top: '30%', left: '15%', size: 'sm' },
-    { assetId: usdcAssetId, top: '25%', left: '80%', size: 'md' },
-    { assetId: usdtAssetId, top: '65%', left: '25%', size: 'sm' },
-    { assetId: solAssetId, top: '70%', left: '72%', size: 'xs' },
-  ] as const
-
   return (
-    <Box position='relative' width='240px' height='200px' display={{ base: 'none', lg: 'block' }}>
-      {/* Subtle orbital ring */}
+    <Box
+      position='relative'
+      width={{ base: '280px', xl: '420px' }}
+      height='220px'
+      flexShrink={0}
+      display={{ base: 'none', lg: 'block' }}
+      overflow='visible'
+    >
+      {/* Orbital arc - sweeping from top-left to bottom-right (dark blue) */}
       <Box
         position='absolute'
-        top='50%'
-        left='50%'
-        transform='translate(-50%, -50%)'
-        width='180px'
-        height='140px'
+        top='-60px'
+        left='-40px'
+        width='460px'
+        height='340px'
         borderRadius='50%'
-        border='1px solid'
-        borderColor='whiteAlpha.100'
+        border='1.5px solid'
+        borderColor='rgba(55, 97, 249, 0.25)'
       />
+      {/* Orbital arc - bottom arc (green/orange tinted) */}
       <Box
         position='absolute'
-        top='50%'
-        left='50%'
-        transform='translate(-50%, -50%) rotate(30deg)'
-        width='200px'
-        height='120px'
+        bottom='-80px'
+        left='0px'
+        width='400px'
+        height='280px'
         borderRadius='50%'
-        border='1px solid'
-        borderColor='whiteAlpha.50'
+        border='1.5px solid'
+        borderColor='rgba(255, 170, 50, 0.2)'
       />
-      {positions.map(({ assetId, top, left, size }) => (
-        <Box
-          key={assetId}
-          position='absolute'
-          top={top}
-          left={left}
-          transform='translate(-50%, -50%)'
-        >
-          <AssetIcon assetId={assetId} size={size} />
-        </Box>
-      ))}
+      {/* USDC - top left, medium */}
+      <Box position='absolute' top='0%' left='8%'>
+        <AssetIcon assetId={usdcAssetId} size='sm' showNetworkIcon={false} sx={{ width: '52px', height: '52px' }} />
+      </Box>
+      {/* ETH - center, largest */}
+      <Box position='absolute' top='5%' left='38%'>
+        <AssetIcon assetId={ethAssetId} size='lg' showNetworkIcon={false} sx={{ width: '88px', height: '88px' }} />
+      </Box>
+      {/* USDT - top right, medium-large */}
+      <Box position='absolute' top='-5%' left='78%'>
+        <AssetIcon assetId={usdtAssetId} size='md' showNetworkIcon={false} sx={{ width: '60px', height: '60px' }} />
+      </Box>
+      {/* BTC - bottom center-left, large */}
+      <Box position='absolute' top='58%' left='30%'>
+        <AssetIcon assetId={btcAssetId} size='md' showNetworkIcon={false} sx={{ width: '72px', height: '72px' }} />
+      </Box>
+      {/* SOL - bottom right, medium */}
+      <Box position='absolute' top='50%' left='72%'>
+        <AssetIcon assetId={solAssetId} size='sm' showNetworkIcon={false} sx={{ width: '52px', height: '52px' }} />
+      </Box>
     </Box>
   )
 })
@@ -232,34 +244,122 @@ type InfoCardProps = {
   descriptionKey: string
   icon: React.ElementType
   accentColor: string
+  'data-testid'?: string
 }
 
-const InfoCard = memo(({ titleKey, descriptionKey, icon, accentColor }: InfoCardProps) => {
-  return (
-    <Card>
-      <CardBody>
-        <HStack spacing={4} alignItems='flex-start'>
-          <Flex
-            borderRadius='lg'
-            bg={`${accentColor}.900`}
-            p={2}
-            alignItems='center'
-            justifyContent='center'
-            flexShrink={0}
-          >
-            <Icon as={icon} boxSize={5} color={`${accentColor}.400`} />
-          </Flex>
-          <Stack spacing={1}>
-            <Text translation={titleKey} fontWeight='bold' fontSize='md' />
-            <Text translation={descriptionKey} color='text.subtle' fontSize='sm' />
-          </Stack>
-        </HStack>
-      </CardBody>
-    </Card>
-  )
-})
+const InfoCard = memo(
+  ({ titleKey, descriptionKey, icon, accentColor, 'data-testid': testId }: InfoCardProps) => {
+    const iconColor = `${accentColor}.500`
+    const bgGlow = `${accentColor}.900`
+    const ringColor =
+      accentColor === 'green' ? 'rgba(0, 205, 152, 0.2)' : 'rgba(128, 90, 213, 0.2)'
+    const ringColorStrong =
+      accentColor === 'green' ? 'rgba(0, 205, 152, 0.35)' : 'rgba(128, 90, 213, 0.35)'
 
-export const InitView = memo(() => {
+    return (
+      <Card
+        data-testid={testId}
+        overflow='hidden'
+        position='relative'
+        borderRadius='xl'
+      >
+        <CardBody py={8} px={6}>
+          <Flex justifyContent='space-between' alignItems='center' minH='80px'>
+            <Stack spacing={2} flex={1} pr={4} maxW='60%'>
+              <Text translation={titleKey} fontWeight='bold' fontSize='md' />
+              <Text translation={descriptionKey} color='text.subtle' fontSize='sm' lineHeight='tall' />
+            </Stack>
+            {/* Decorative art - concentric arcs with centered icon */}
+            <Box position='relative' width='120px' height='100px' flexShrink={0}>
+              {/* Outer arc */}
+              <Box
+                position='absolute'
+                bottom='-30px'
+                right='-10px'
+                width='160px'
+                height='160px'
+                borderRadius='full'
+                border='1px solid'
+                borderColor={ringColor}
+              />
+              {/* Middle arc */}
+              <Box
+                position='absolute'
+                bottom='-10px'
+                right='10px'
+                width='120px'
+                height='120px'
+                borderRadius='full'
+                border='1px solid'
+                borderColor={ringColorStrong}
+              />
+              {/* Inner circle with icon */}
+              <Center
+                position='absolute'
+                bottom='10px'
+                right='30px'
+                width='56px'
+                height='56px'
+                borderRadius='full'
+                bg={bgGlow}
+                boxShadow={`inset 0 1px 0 0 ${ringColorStrong}`}
+              >
+                <Icon as={icon} boxSize={6} color={iconColor} />
+              </Center>
+              {/* Radial lines for borrow card */}
+              {accentColor === 'purple' && (
+                <>
+                  <Box
+                    position='absolute'
+                    bottom='36px'
+                    right='56px'
+                    width='1px'
+                    height='40px'
+                    bg={ringColor}
+                    transform='rotate(0deg)'
+                    transformOrigin='bottom'
+                  />
+                  <Box
+                    position='absolute'
+                    bottom='36px'
+                    right='56px'
+                    width='1px'
+                    height='40px'
+                    bg={ringColor}
+                    transform='rotate(90deg)'
+                    transformOrigin='bottom'
+                  />
+                  <Box
+                    position='absolute'
+                    bottom='36px'
+                    right='56px'
+                    width='1px'
+                    height='40px'
+                    bg={ringColor}
+                    transform='rotate(45deg)'
+                    transformOrigin='bottom'
+                  />
+                  <Box
+                    position='absolute'
+                    bottom='36px'
+                    right='56px'
+                    width='1px'
+                    height='40px'
+                    bg={ringColor}
+                    transform='rotate(-45deg)'
+                    transformOrigin='bottom'
+                  />
+                </>
+              )}
+            </Box>
+          </Flex>
+        </CardBody>
+      </Card>
+    )
+  },
+)
+
+export const InitView = memo(({ 'data-testid': testId }: { 'data-testid'?: string }) => {
   const translate = useTranslate()
   const chainflipLendingModal = useModal('chainflipLending')
 
@@ -269,31 +369,51 @@ export const InitView = memo(() => {
   }, [chainflipLendingModal])
 
   return (
-    <Stack spacing={8}>
+    <Stack spacing={8} data-testid={testId}>
       {/* Hero Card */}
-      <Card bg='background.surface.raised.base' overflow='hidden'>
-        <CardBody py={8} px={8}>
-          <Flex justifyContent='space-between' alignItems='center'>
-            <Stack spacing={4} alignItems='flex-start' maxW='600px'>
-              <Badge colorScheme='blue' fontSize='xs' px={2} py={1} borderRadius='full'>
+      <Card
+        bg='background.surface.raised.base'
+        overflow='hidden'
+        borderRadius='2xl'
+        data-testid='chainflip-lending-get-started'
+      >
+        <CardBody py={{ base: 6, lg: 10 }} px={{ base: 6, lg: 10 }}>
+          <Flex justifyContent='space-between' alignItems='flex-start' gap={4}>
+            <Stack spacing={5} alignItems='flex-start' maxW='480px'>
+              <Badge
+                colorScheme='blue'
+                fontSize='xs'
+                px={3}
+                py={1}
+                borderRadius='full'
+                fontWeight='semibold'
+              >
                 {translate('chainflipLending.dashboard.getStarted')}
               </Badge>
-              <Heading size='lg'>
+              <Heading size='lg' lineHeight='shorter'>
                 {translate('chainflipLending.dashboard.depositFirstAsset')}
               </Heading>
               <Text
                 translation='chainflipLending.dashboard.depositFirstAssetDescription'
                 color='text.subtle'
-                fontSize='md'
-              />
-              <Button colorScheme='blue' size='lg' onClick={handleDeposit}>
-                + {translate('chainflipLending.dashboard.deposit')}
-              </Button>
-              <Text
-                translation='chainflipLending.dashboard.requiresFlip'
                 fontSize='sm'
-                color='text.subtle'
+                lineHeight='tall'
               />
+              <HStack spacing={4} alignItems='center'>
+                <Button
+                  colorScheme='blue'
+                  size='md'
+                  onClick={handleDeposit}
+                  data-testid='chainflip-lending-init-deposit'
+                >
+                  + {translate('chainflipLending.dashboard.deposit')}
+                </Button>
+                <Text
+                  translation='chainflipLending.dashboard.requiresFlip'
+                  fontSize='xs'
+                  color='text.subtle'
+                />
+              </HStack>
             </Stack>
             <AssetConstellation />
           </Flex>
@@ -310,12 +430,14 @@ export const InitView = memo(() => {
           descriptionKey='chainflipLending.dashboard.earnYieldDescription'
           icon={TbSparkles}
           accentColor='green'
+          data-testid='chainflip-lending-earn-yield-card'
         />
         <InfoCard
           titleKey='chainflipLending.dashboard.borrowAgainstCollateral'
           descriptionKey='chainflipLending.dashboard.borrowAgainstCollateralDescription'
           icon={TbRefresh}
           accentColor='purple'
+          data-testid='chainflip-lending-borrow-card'
         />
       </SimpleGrid>
     </Stack>

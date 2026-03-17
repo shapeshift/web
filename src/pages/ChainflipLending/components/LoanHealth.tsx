@@ -53,7 +53,7 @@ export const LoanHealth = memo(() => {
   if (!hasLoans) return null
 
   return (
-    <Card>
+    <Card data-testid='chainflip-lending-loan-health'>
       <CardBody>
         <Stack spacing={4}>
           {/* Header row: left = icon + label + current LTV, right = liquidation distance */}

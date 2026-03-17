@@ -51,7 +51,7 @@ type SectionHeaderProps = {
   tooltipKey: string
   totalFiat: string
   isLoading: boolean
-  primaryAction?: { labelKey: string; handleClick: () => void }
+  primaryAction?: { labelKey: string; handleClick: () => void; testId?: string }
   secondaryAction?: { labelKey: string; handleClick: () => void }
 }
 
@@ -77,7 +77,12 @@ const SectionHeader = ({
       </HStack>
       <HStack spacing={2}>
         {primaryAction && (
-          <Button size='sm' variant='outline' onClick={primaryAction.handleClick}>
+          <Button
+            size='sm'
+            variant='outline'
+            onClick={primaryAction.handleClick}
+            data-testid={primaryAction.testId}
+          >
             + {translate(primaryAction.labelKey)}
           </Button>
         )}
@@ -96,16 +101,23 @@ type EmptyStateProps = {
   descriptionKey: string
   actionLabelKey: string
   onAction: () => void
+  actionTestId?: string
 }
 
-const EmptyState = ({ titleKey, descriptionKey, actionLabelKey, onAction }: EmptyStateProps) => {
+const EmptyState = ({
+  titleKey,
+  descriptionKey,
+  actionLabelKey,
+  onAction,
+  actionTestId,
+}: EmptyStateProps) => {
   const translate = useTranslate()
 
   return (
     <Stack spacing={3} py={4} alignItems='center' textAlign='center'>
       <Text translation={titleKey} fontWeight='bold' fontSize='md' />
       <Text translation={descriptionKey} color='text.subtle' fontSize='sm' />
-      <Button size='sm' variant='outline' onClick={onAction}>
+      <Button size='sm' variant='outline' onClick={onAction} data-testid={actionTestId}>
         + {translate(actionLabelKey)}
       </Button>
     </Stack>
@@ -154,7 +166,7 @@ export const FreeBalanceSection = memo(() => {
   }, [chainflipLendingModal, nonZeroBalances])
 
   return (
-    <Card>
+    <Card data-testid='chainflip-lending-free-balance'>
       <CardBody>
         <Stack spacing={4}>
           <SectionHeader
@@ -165,6 +177,7 @@ export const FreeBalanceSection = memo(() => {
             primaryAction={{
               labelKey: 'chainflipLending.dashboard.deposit',
               handleClick: handleDeposit,
+              testId: 'chainflip-lending-deposit-action',
             }}
             secondaryAction={
               nonZeroBalances.length > 0
@@ -268,7 +281,7 @@ export const SuppliedSection = memo(() => {
   }, [chainflipLendingModal, supplyPositions])
 
   return (
-    <Card>
+    <Card data-testid='chainflip-lending-supplied'>
       <CardBody>
         <Stack spacing={4}>
           <SectionHeader
@@ -281,6 +294,7 @@ export const SuppliedSection = memo(() => {
                 ? {
                     labelKey: 'chainflipLending.dashboard.deposit',
                     handleClick: handleSupply,
+                    testId: 'chainflip-lending-supply-action',
                   }
                 : undefined
             }
@@ -331,6 +345,7 @@ export const SuppliedSection = memo(() => {
               descriptionKey='chainflipLending.dashboard.noEarningPositionsDescription'
               actionLabelKey='chainflipLending.dashboard.deposit'
               onAction={handleSupply}
+              actionTestId='chainflip-lending-supplied-empty-cta'
             />
           )}
         </Stack>
@@ -374,7 +389,7 @@ export const CollateralSection = memo(() => {
   }, [chainflipLendingModal, collateralWithFiat])
 
   return (
-    <Card>
+    <Card data-testid='chainflip-lending-collateral'>
       <CardBody>
         <Stack spacing={4}>
           <SectionHeader
@@ -387,6 +402,7 @@ export const CollateralSection = memo(() => {
                 ? {
                     labelKey: 'chainflipLending.dashboard.deposit',
                     handleClick: handleAddCollateral,
+                    testId: 'chainflip-lending-collateral-action',
                   }
                 : undefined
             }
@@ -417,6 +433,7 @@ export const CollateralSection = memo(() => {
               descriptionKey='chainflipLending.dashboard.provideCollateralDescription'
               actionLabelKey='chainflipLending.dashboard.addCollateral'
               onAction={handleAddCollateral}
+              actionTestId='chainflip-lending-collateral-empty-cta'
             />
           )}
         </Stack>
@@ -495,7 +512,7 @@ export const BorrowedSection = memo(() => {
   }, [chainflipLendingModal, loansWithFiat])
 
   return (
-    <Card>
+    <Card data-testid='chainflip-lending-borrowed'>
       <CardBody>
         <Stack spacing={4}>
           <SectionHeader
@@ -508,6 +525,7 @@ export const BorrowedSection = memo(() => {
                 ? {
                     labelKey: 'chainflipLending.dashboard.borrow',
                     handleClick: handleBorrow,
+                    testId: 'chainflip-lending-borrow-action',
                   }
                 : undefined
             }
@@ -572,6 +590,7 @@ export const BorrowedSection = memo(() => {
               descriptionKey='chainflipLending.dashboard.noActiveLoansDescription'
               actionLabelKey='chainflipLending.dashboard.addCollateral'
               onAction={handleAddCollateral}
+              actionTestId='chainflip-lending-borrowed-empty-cta'
             />
           )}
         </Stack>

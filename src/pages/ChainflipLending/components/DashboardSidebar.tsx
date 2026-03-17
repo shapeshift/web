@@ -58,7 +58,7 @@ export const BorrowingPowerCard = memo(() => {
   if (!hasCollateral) return null
 
   return (
-    <Card>
+    <Card data-testid='chainflip-lending-borrowing-power'>
       <CardBody>
         <Stack spacing={4} alignItems='center'>
           <HelperTooltip label={translate('chainflipLending.dashboard.borrowingPowerTooltip')}>
@@ -135,13 +135,11 @@ const NextStepsArt = memo(({ colorScheme }: { colorScheme: 'green' | 'purple' })
         height='64px'
         borderRadius='full'
         bg={bgColor}
-        boxShadow={`inset 0 1px 0 0 ${isGreen ? 'rgba(0, 205, 152, 0.25)' : 'rgba(128, 90, 213, 0.25)'}`}
+        boxShadow={`inset 0 1px 0 0 ${
+          isGreen ? 'rgba(0, 205, 152, 0.25)' : 'rgba(128, 90, 213, 0.25)'
+        }`}
       >
-        <Icon
-          as={isGreen ? TbSparkles : TbRefresh}
-          boxSize={6}
-          color={iconColor}
-        />
+        <Icon as={isGreen ? TbSparkles : TbRefresh} boxSize={6} color={iconColor} />
       </Center>
     </Center>
   )
@@ -230,7 +228,7 @@ export const NextStepsCard = memo(() => {
   if (!content) return null
 
   return (
-    <Card overflow='hidden'>
+    <Card overflow='hidden' data-testid='chainflip-lending-next-steps'>
       <CardBody pt={0}>
         <Stack spacing={4}>
           <NextStepsArt colorScheme={content.colorScheme} />

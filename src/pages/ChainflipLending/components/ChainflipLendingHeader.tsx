@@ -28,13 +28,21 @@ type SummaryCardProps = {
   tooltipKey: string
   isLoading: boolean
   labelColor?: string
+  'data-testid'?: string
 }
 
-const SummaryCard = ({ value, labelKey, tooltipKey, isLoading, labelColor }: SummaryCardProps) => {
+const SummaryCard = ({
+  value,
+  labelKey,
+  tooltipKey,
+  isLoading,
+  labelColor,
+  'data-testid': testId,
+}: SummaryCardProps) => {
   const translate = useTranslate()
 
   return (
-    <Card flex={responsiveFlex}>
+    <Card flex={responsiveFlex} data-testid={testId}>
       <CardBody>
         <HelperTooltip label={translate(tooltipKey)}>
           <Text
@@ -128,6 +136,7 @@ export const ChainflipLendingHeader = () => {
                   labelKey='chainflipLending.dashboard.freeBalance'
                   tooltipKey='chainflipLending.dashboard.freeBalanceTooltip'
                   isLoading={isUserDataLoading}
+                  data-testid='chainflip-lending-summary-free-balance'
                 />
                 <SummaryCard
                   value={suppliedTotalFiat}
@@ -135,6 +144,7 @@ export const ChainflipLendingHeader = () => {
                   tooltipKey='chainflipLending.dashboard.suppliedTooltip'
                   isLoading={isUserDataLoading}
                   labelColor='green.400'
+                  data-testid='chainflip-lending-summary-supplied'
                 />
                 <SummaryCard
                   value={totalCollateralFiat}
@@ -142,6 +152,7 @@ export const ChainflipLendingHeader = () => {
                   tooltipKey='chainflipLending.dashboard.collateralTooltip'
                   isLoading={isUserDataLoading}
                   labelColor='blue.300'
+                  data-testid='chainflip-lending-summary-collateral'
                 />
                 <SummaryCard
                   value={userBorrowedFiat}
@@ -149,6 +160,7 @@ export const ChainflipLendingHeader = () => {
                   tooltipKey='chainflipLending.dashboard.borrowedTooltip'
                   isLoading={isUserDataLoading}
                   labelColor='purple.300'
+                  data-testid='chainflip-lending-summary-borrowed'
                 />
               </>
             ) : (
@@ -159,6 +171,7 @@ export const ChainflipLendingHeader = () => {
                   tooltipKey='chainflipLending.totalSuppliedTooltip'
                   isLoading={isPoolsLoading}
                   labelColor='green.400'
+                  data-testid='chainflip-lending-summary-total-supplied'
                 />
                 <SummaryCard
                   value={availableLiquidityFiat}
@@ -166,6 +179,7 @@ export const ChainflipLendingHeader = () => {
                   tooltipKey='chainflipLending.availableLiquidityTooltip'
                   isLoading={isPoolsLoading}
                   labelColor='blue.300'
+                  data-testid='chainflip-lending-summary-available-liquidity'
                 />
                 <SummaryCard
                   value={totalBorrowedFiat}
@@ -173,6 +187,7 @@ export const ChainflipLendingHeader = () => {
                   tooltipKey='chainflipLending.totalBorrowedTooltip'
                   isLoading={isPoolsLoading}
                   labelColor='purple.300'
+                  data-testid='chainflip-lending-summary-total-borrowed'
                 />
               </>
             )}

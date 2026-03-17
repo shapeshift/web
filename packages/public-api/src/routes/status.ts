@@ -106,16 +106,6 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
       return
     }
 
-    const requestAffiliateAddress = req.affiliateInfo?.affiliateAddress?.toLowerCase()
-    const quoteAffiliateAddress = storedQuote.affiliateAddress?.toLowerCase()
-    if (quoteAffiliateAddress && requestAffiliateAddress !== quoteAffiliateAddress) {
-      res.status(403).json({
-        error: 'Quote is not accessible for this affiliate',
-        code: 'AFFILIATE_MISMATCH',
-      } as ErrorResponse)
-      return
-    }
-
     if (txHash && storedQuote.txHash && storedQuote.txHash !== txHash) {
       res.status(409).json({
         error: 'Transaction hash does not match the registered swap',

@@ -1,7 +1,9 @@
 import type { Connection, SignatureStatus } from '@solana/web3.js'
 import type { PublicClient } from 'viem'
 import { createPublicClient, http } from 'viem'
-import { arbitrum, avalanche, base, bsc, gnosis, mainnet, optimism, polygon } from 'viem/chains'
+import { mainnet } from 'viem/chains'
+
+import { VIEM_CHAINS_BY_ID } from '../constants/viemChains'
 
 export type TransactionStatus = 'pending' | 'confirmed' | 'failed'
 
@@ -19,27 +21,6 @@ export type BitcoinTransactionStatus = {
   block_time?: number
 }
 
-type EvmChain =
-  | typeof mainnet
-  | typeof optimism
-  | typeof bsc
-  | typeof gnosis
-  | typeof polygon
-  | typeof base
-  | typeof arbitrum
-  | typeof avalanche
-
-const EVM_CHAINS_BY_ID: Record<number, EvmChain> = {
-  1: mainnet,
-  10: optimism,
-  56: bsc,
-  100: gnosis,
-  137: polygon,
-  8453: base,
-  42161: arbitrum,
-  43114: avalanche,
-}
-
 const MEMPOOL_API_BASE = 'https://mempool.space/api'
 
 export const checkEvmStatus = async (
@@ -48,7 +29,7 @@ export const checkEvmStatus = async (
   existingClient?: PublicClient,
 ): Promise<TransactionStatusResult> => {
   try {
-    const chain = EVM_CHAINS_BY_ID[chainId]
+    const chain = VIEM_CHAINS_BY_ID[chainId]
     const client =
       existingClient ??
       createPublicClient({
@@ -194,7 +175,7 @@ export const waitForEvmConfirmation = async (
   confirmations = 1,
   timeoutMs = 120000,
 ): Promise<TransactionStatusResult> => {
-  const chain = EVM_CHAINS_BY_ID[chainId]
+  const chain = VIEM_CHAINS_BY_ID[chainId]
   const client = createPublicClient({
     chain: chain ?? mainnet,
     transport: http(),

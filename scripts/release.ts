@@ -520,7 +520,12 @@ const doRegularRelease = async () => {
       // Two sub-states within idle:
       // 1. Release branch ahead of main (prerelease merged) -> create release -> main PR
       // 2. Release branch matches main (fresh start) -> create develop -> release PR
-      const prereleaseMerged = releaseSha !== mainSha
+      // Use commit-ahead check (not SHA) to correctly detect if release is ahead of main.
+      // SHA equality breaks with squash merges; content diff alone breaks when release is *behind* main.
+      const releaseMatchesMain = !(await git().diff(['origin/main', 'origin/release']))
+      const releaseHasCommitsNotInMain =
+        (await getCommitMessages('origin/main..origin/release')).length > 0
+      const prereleaseMerged = releaseHasCommitsNotInMain && !releaseMatchesMain
 
       if (prereleaseMerged) {
         const messages = await getCommitMessages(`${latestTag}..origin/release`)
@@ -615,18 +620,27 @@ const doRegularRelease = async () => {
       await git().push(['origin', '--tags'])
       console.log(chalk.green(`Tagged ${nextVersion}.`))
 
-      console.log(chalk.green('Creating PR to sync private to main...'))
-      const privatePrUrl = await createPr({
-        base: 'private',
-        head: 'main',
-        title: `chore: sync private to ${nextVersion}`,
-        body: `Sync private branch to main after release ${nextVersion}.`,
-      })
-      if (privatePrUrl) {
-        console.log(chalk.green(`Private sync PR created: ${privatePrUrl}`))
-        console.log(chalk.green('Merge it on GitHub to complete the release.'))
+      const existingPrivatePrAfterTag = await findOpenPr('main', 'private')
+      if (existingPrivatePrAfterTag) {
+        console.log(
+          chalk.yellow(
+            `Private sync PR already open: #${existingPrivatePrAfterTag.number}. Merge it on GitHub.`,
+          ),
+        )
       } else {
-        console.log(chalk.green('private already in sync with main - nothing to do.'))
+        console.log(chalk.green('Creating PR to sync private to main...'))
+        const privatePrUrl = await createPr({
+          base: 'private',
+          head: 'main',
+          title: `chore: sync private to ${nextVersion}`,
+          body: `Sync private branch to main after release ${nextVersion}.`,
+        })
+        if (privatePrUrl) {
+          console.log(chalk.green(`Private sync PR created: ${privatePrUrl}`))
+          console.log(chalk.green('Merge it on GitHub to complete the release.'))
+        } else {
+          console.log(chalk.green('private already in sync with main - nothing to do.'))
+        }
       }
       break
     }
@@ -653,6 +667,40 @@ const doRegularRelease = async () => {
           console.log(chalk.green(`Private sync PR created: ${privatePrUrl}`))
         } else {
           console.log(chalk.green('private already in sync with main - nothing to do.'))
+        }
+      }
+
+      const existingBackmerge = await findOpenPr('main', 'develop')
+      if (existingBackmerge) {
+        console.log(
+          chalk.yellow(
+            `Backmerge PR already open: #${existingBackmerge.number}. Enabling auto-merge...`,
+          ),
+        )
+        await pify(exec)(`gh pr merge --auto --merge ${existingBackmerge.number}`)
+        console.log(
+          chalk.green('Auto-merge set. Backmerge will merge automatically when CI passes.'),
+        )
+      } else {
+        const mainDevelopCommits = await getCommitMessages('origin/develop..origin/main')
+        if (mainDevelopCommits.length > 0) {
+          console.log(chalk.green('Creating backmerge PR (main -> develop)...'))
+          const backmergeUrl = await createPr({
+            base: 'develop',
+            head: 'main',
+            title: `chore: backmerge ${nextVersion} into develop`,
+            body: `Backmerge main into develop after release ${nextVersion}.`,
+          })
+          if (backmergeUrl) {
+            console.log(chalk.green(`Backmerge PR created: ${backmergeUrl}`))
+            console.log(chalk.green('Setting auto-merge with merge commit strategy...'))
+            await pify(exec)(`gh pr merge --auto --merge ${backmergeUrl}`)
+            console.log(
+              chalk.green('Auto-merge set. Backmerge will merge automatically when CI passes.'),
+            )
+          } else {
+            console.log(chalk.green('develop already in sync with main - nothing to do.'))
+          }
         }
       }
       break
@@ -812,30 +860,51 @@ const doHotfixRelease = async () => {
     case 'tagged_private_stale': {
       console.log(chalk.yellow(`${latestTag} is tagged but private is behind main.`))
 
-      const existingPrivatePr = await findOpenPr('main', 'private')
-      if (existingPrivatePr) {
+      const privateDiffHotfix = await git().diff(['origin/main', 'origin/private'])
+      const shouldSyncPrivateHotfix = Boolean(privateDiffHotfix)
+
+      if (!shouldSyncPrivateHotfix) {
         console.log(
-          chalk.yellow(
-            `Private sync PR already open: #${existingPrivatePr.number}. Merge it on GitHub.`,
+          chalk.green(
+            'Private is already in sync with main content-wise. Skipping private sync PR.',
           ),
         )
       } else {
-        console.log(chalk.green('Creating PR to sync private to main...'))
-        const privatePrUrl = await createPr({
-          base: 'private',
-          head: 'main',
-          title: `chore: sync private to ${nextVersion}`,
-          body: `Sync private branch to main after hotfix ${nextVersion}.`,
-        })
-        if (privatePrUrl) {
-          console.log(chalk.green(`Private sync PR created: ${privatePrUrl}`))
+        const existingPrivatePr = await findOpenPr('main', 'private')
+        if (existingPrivatePr) {
+          console.log(
+            chalk.yellow(
+              `Private sync PR already open: #${existingPrivatePr.number}. Merge it on GitHub.`,
+            ),
+          )
         } else {
-          console.log(chalk.green('private already in sync with main - nothing to do.'))
+          console.log(chalk.green('Creating PR to sync private to main...'))
+          const privatePrUrl = await createPr({
+            base: 'private',
+            head: 'main',
+            title: `chore: sync private to ${nextVersion}`,
+            body: `Sync private branch to main after hotfix ${nextVersion}.`,
+          })
+          if (privatePrUrl) {
+            console.log(chalk.green(`Private sync PR created: ${privatePrUrl}`))
+          } else {
+            console.log(chalk.green('private already in sync with main - nothing to do.'))
+          }
         }
       }
 
       const existingBackmerge = await findOpenPr('main', 'develop')
-      if (!existingBackmerge) {
+      if (existingBackmerge) {
+        console.log(
+          chalk.yellow(
+            `Backmerge PR already open: #${existingBackmerge.number}. Enabling auto-merge...`,
+          ),
+        )
+        await pify(exec)(`gh pr merge --auto --merge ${existingBackmerge.number}`)
+        console.log(
+          chalk.green('Auto-merge set. Backmerge will merge automatically when CI passes.'),
+        )
+      } else {
         const mainDevelopDiff = await getCommitMessages('origin/develop..origin/main')
         if (mainDevelopDiff.length > 0) {
           console.log(chalk.green('Creating backmerge PR (main -> develop)...'))
@@ -847,6 +916,11 @@ const doHotfixRelease = async () => {
           })
           if (backmergeUrl) {
             console.log(chalk.green(`Backmerge PR created: ${backmergeUrl}`))
+            console.log(chalk.green('Setting auto-merge with merge commit strategy...'))
+            await pify(exec)(`gh pr merge --auto --merge ${backmergeUrl}`)
+            console.log(
+              chalk.green('Auto-merge set. Backmerge will merge automatically when CI passes.'),
+            )
           } else {
             console.log(chalk.green('develop already in sync with main - nothing to do.'))
           }

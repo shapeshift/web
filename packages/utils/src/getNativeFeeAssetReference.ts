@@ -72,6 +72,8 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.ZkSyncEra
           case CHAIN_REFERENCE.BlastMainnet:
             return ASSET_REFERENCE.Blast
+          case CHAIN_REFERENCE.AbstractMainnet:
+            return ASSET_REFERENCE.Abstract
           case CHAIN_REFERENCE.WorldChainMainnet:
             return ASSET_REFERENCE.WorldChain
           case CHAIN_REFERENCE.HemiMainnet:

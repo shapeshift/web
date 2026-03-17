@@ -23,6 +23,7 @@ import merge from 'lodash/merge'
 import orderBy from 'lodash/orderBy'
 import path from 'path'
 
+import * as abstract from './abstract'
 import * as arbitrum from './arbitrum'
 import * as avalanche from './avalanche'
 import * as base from './base'
@@ -97,6 +98,7 @@ const generateAssetData = async () => {
   const celoAssets = await celo.getAssets()
   const zksyncEraAssets = await zksyncera.getAssets()
   const blastAssets = await blast.getAssets()
+  const abstractAssets = await abstract.getAssets()
   const hemiAssets = await hemi.getAssets()
   const mantleAssets = await mantle.getAssets()
   const inkAssets = await ink.getAssets()
@@ -151,6 +153,7 @@ const generateAssetData = async () => {
     ...celoAssets,
     ...zksyncEraAssets,
     ...blastAssets,
+    ...abstractAssets,
     ...hemiAssets,
     ...mantleAssets,
     ...inkAssets,

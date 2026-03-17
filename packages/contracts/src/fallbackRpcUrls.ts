@@ -31,4 +31,5 @@ export const FALLBACK_RPC_URLS = {
   bob: ['https://bob.drpc.org', 'https://rpc.gobob.xyz'],
   mode: ['https://mode.drpc.org', 'https://mainnet.mode.network'],
   soneium: ['https://soneium.drpc.org', 'https://rpc.soneium.org'],
+  abstract: ['https://rpc.ankr.com/abstract'],
 } as const

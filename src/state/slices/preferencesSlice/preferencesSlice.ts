@@ -49,6 +49,7 @@ export type FeatureFlags = {
   Story: boolean
   ZkSyncEra: boolean
   Blast: boolean
+  Abstract: boolean
   WorldChain: boolean
   Hemi: boolean
   Sei: boolean
@@ -222,6 +223,7 @@ const initialState: Preferences = {
     Story: getConfig().VITE_FEATURE_STORY,
     ZkSyncEra: getConfig().VITE_FEATURE_ZK_SYNC_ERA,
     Blast: getConfig().VITE_FEATURE_BLAST,
+    Abstract: getConfig().VITE_FEATURE_ABSTRACT,
     WorldChain: getConfig().VITE_FEATURE_WORLDCHAIN,
     Hemi: getConfig().VITE_FEATURE_HEMI,
     Sei: getConfig().VITE_FEATURE_SEI,

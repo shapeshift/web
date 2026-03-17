@@ -4,6 +4,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { assertUnreachable } from '../assertUnreachable'
 import {
+  abstract,
   arbitrum,
   atom,
   avax,
@@ -153,6 +154,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return zcash
     case KnownChainIds.TonMainnet:
       return ton
+    case KnownChainIds.AbstractMainnet:
+      return abstract
     default:
       return assertUnreachable(knownChainId)
   }

@@ -1,4 +1,5 @@
 import {
+  abstractChainId,
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
@@ -120,6 +121,7 @@ export const chainIdToRelayChainId = {
   [modeChainId]: mode.id,
   [soneiumChainId]: soneium.id,
   [seiChainId]: sei.id,
+  [abstractChainId]: 2741,
 }
 
 export enum RelayStatusMessage {

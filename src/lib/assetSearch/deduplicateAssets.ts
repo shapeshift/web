@@ -1,3 +1,6 @@
+import { fromAssetId } from '@shapeshiftoss/caip'
+
+import { isContractAddress } from '../utils/isContractAddress'
 import type { SearchableAsset } from './types'
 import { isExactMatch } from './utils'
 
@@ -26,11 +29,12 @@ export const deduplicateAssets = <T extends DeduplicatableAsset>(
     : false
 
   for (const asset of assets) {
-    // If the search term appears in the assetId (contract address search), use assetId as the
-    // family key so each chain variant is shown independently. Grouping by relatedAssetKey relies
-    // on isPrimary being correct, which isn't guaranteed (asset generation bugs, or makeAsset
-    // defaulting isPrimary: true for custom imports).
-    const matchedByAddress = searchLower && asset.assetId.toLowerCase().includes(searchLower)
+    // When the search is a valid contract address matching this asset's assetReference,
+    // use assetId as the family key so each chain variant is shown independently rather than
+    // collapsed into its family via relatedAssetKey.
+    const matchedByAddress =
+      isContractAddress(searchLower) &&
+      fromAssetId(asset.assetId).assetReference.toLowerCase() === searchLower
     const familyKey = matchedByAddress ? asset.assetId : asset.relatedAssetKey ?? asset.assetId
     const existing = familyToAsset.get(familyKey)
 

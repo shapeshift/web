@@ -207,6 +207,16 @@ describe('deduplicateAssets', () => {
     expect(result[0].isPrimary).toBe(true)
   })
 
+  it('shows each chain variant independently when searching by contract address', () => {
+    // AXLUSDC_OPTIMISM and AXLUSDC_ARBITRUM share address 0xeb466342c4d449bc9f53a865d5cb90586f405215
+    const assets = [AXLUSDC_OPTIMISM, AXLUSDC_ARBITRUM]
+
+    const result = deduplicateAssets(assets, '0xeb466342c4d449bc9f53a865d5cb90586f405215')
+
+    expect(result).toHaveLength(2)
+    expect(result.map(a => a.chainId).sort()).toEqual(['eip155:10', 'eip155:42161'].sort())
+  })
+
   describe('name search grouping', () => {
     it('groups "Axelar Bridged" name search results by family', () => {
       // AXLUSDC and AXLUSDT are in different families (USDC and USDT families)

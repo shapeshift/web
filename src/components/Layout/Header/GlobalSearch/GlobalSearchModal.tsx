@@ -45,8 +45,7 @@ export const GlobalSearchModal = memo(
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
     const searchFilter = useMemo(() => ({ searchQuery, limit: 10 }), [searchQuery])
-    const results = useAppSelector(state => selectAssetsBySearchQuery(state, searchFilter))
-    const resultsCount = results.length
+    const searchAssets = useAppSelector(state => selectAssetsBySearchQuery(state, searchFilter))
     const isMac = useMemo(() => /Mac/.test(navigator.userAgent), [])
     const handleClose = useCallback(() => {
       setSearchQuery('')
@@ -63,15 +62,31 @@ export const GlobalSearchModal = memo(
       chainIds: CUSTOM_TOKEN_IMPORT_SUPPORTED_CHAIN_IDS,
     })
 
-    useEffect(() => {
-      if (!customTokens?.length) return
+    const customAssets = useMemo(() => {
+      if (!customTokens?.length) return []
 
       const assetsById = selectAssets(store.getState())
 
-      customTokens
+      return customTokens
         .filter(token => !assetsById[token.assetId])
-        .forEach(token => dispatch(assetsSlice.actions.upsertAsset(makeAsset(assetsById, token))))
-    }, [customTokens, dispatch])
+        .map(token => makeAsset(assetsById, token))
+    }, [customTokens])
+
+    useEffect(() => {
+      customAssets.forEach(asset => {
+        dispatch(assetsSlice.actions.upsertAsset(asset))
+      })
+    }, [customAssets, dispatch])
+
+    const results = useMemo(() => {
+      if (!customAssets.length) return searchAssets
+      const existingIds = new Set(searchAssets.map(a => a.assetId))
+      return searchAssets.concat(customAssets.filter(a => !existingIds.has(a.assetId)))
+    }, [searchAssets, customAssets])
+
+    console.log({ searchAssets, customAssets, results })
+
+    const resultsCount = results.length
 
     useEffect(() => {
       if (!searchQuery) setActiveIndex(0)

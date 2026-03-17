@@ -109,7 +109,6 @@ export const SearchTermAssetList = ({
   const customAssets: Asset[] = useMemo(() => {
     if (!customTokens?.length) return []
 
-    // Do not move me to a regular useSelector(), as this is reactive on the *whole* assets set and would make this component extremely reactive for no reason
     const assetsById = selectAssets(store.getState())
 
     return customTokens

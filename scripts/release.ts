@@ -671,7 +671,9 @@ const doRegularRelease = async () => {
       const existingBackmerge = await findOpenPr('main', 'develop')
       if (existingBackmerge) {
         console.log(
-          chalk.yellow(`Backmerge PR already open: #${existingBackmerge.number}. Enabling auto-merge...`),
+          chalk.yellow(
+            `Backmerge PR already open: #${existingBackmerge.number}. Enabling auto-merge...`,
+          ),
         )
         await pify(exec)(`gh pr merge --auto --merge ${existingBackmerge.number}`)
         console.log(
@@ -872,7 +874,9 @@ const doHotfixRelease = async () => {
       const existingBackmerge = await findOpenPr('main', 'develop')
       if (existingBackmerge) {
         console.log(
-          chalk.yellow(`Backmerge PR already open: #${existingBackmerge.number}. Enabling auto-merge...`),
+          chalk.yellow(
+            `Backmerge PR already open: #${existingBackmerge.number}. Enabling auto-merge...`,
+          ),
         )
         await pify(exec)(`gh pr merge --auto --merge ${existingBackmerge.number}`)
         console.log(

@@ -1,4 +1,4 @@
-import { Button, CardBody, CardFooter, Flex, Stack, VStack } from '@chakra-ui/react'
+import { Button, CardBody, CardFooter, Divider, Flex, Stack, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
@@ -19,7 +19,9 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { useToggle } from '@/hooks/useToggle/useToggle'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
+import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
 import { useChainflipMinimumSupply } from '@/pages/ChainflipLending/hooks/useChainflipMinimumSupply'
+import { useChainflipSupplyPositions } from '@/pages/ChainflipLending/hooks/useChainflipSupplyPositions'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById, selectAssets } from '@/state/slices/selectors'
@@ -78,6 +80,28 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
 
   const cryptoValue = isFiat ? cryptoFromFiat : inputValue
   const fiatValue = isFiat ? inputValue : fiatFromCrypto
+
+  const { pools } = useChainflipLendingPools()
+  const { supplyPositions } = useChainflipSupplyPositions()
+
+  const poolForAsset = useMemo(() => pools.find(p => p.assetId === assetId), [pools, assetId])
+
+  const currentPositionCrypto = useMemo(() => {
+    const position = supplyPositions.find(p => p.assetId === assetId)
+    return position?.totalAmountCryptoPrecision ?? '0'
+  }, [supplyPositions, assetId])
+
+  const supplyApyPercent = useMemo(
+    () => (poolForAsset ? bnOrZero(poolForAsset.supplyApy).times(100).toFixed(2) : null),
+    [poolForAsset],
+  )
+
+  const estYearlyEarningsFiat = useMemo(() => {
+    if (!poolForAsset || !marketData?.price) return null
+    const apyDecimal = bnOrZero(poolForAsset.supplyApy)
+    if (apyDecimal.isZero()) return null
+    return bnOrZero(cryptoValue).times(marketData.price).times(apyDecimal).toFixed(2)
+  }, [poolForAsset, cryptoValue, marketData?.price])
 
   const { minSupply, isLoading: isMinSupplyLoading } = useChainflipMinimumSupply(assetId)
 
@@ -207,6 +231,34 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
             mb={0}
           />
 
+          {(supplyApyPercent !== null || bnOrZero(currentPositionCrypto).gt(0)) && (
+            <Flex justifyContent='space-between' alignItems='center' width='full'>
+              {supplyApyPercent !== null && (
+                <VStack spacing={0} align='flex-start'>
+                  <RawText fontSize='xs' color='text.subtle'>
+                    {translate('chainflipLending.supply.poolApy')}
+                  </RawText>
+                  <RawText fontSize='sm' fontWeight='bold' color='green.500'>
+                    {supplyApyPercent}%
+                  </RawText>
+                </VStack>
+              )}
+              {bnOrZero(currentPositionCrypto).gt(0) && (
+                <VStack spacing={0} align='flex-end'>
+                  <RawText fontSize='xs' color='text.subtle'>
+                    {translate('chainflipLending.supply.currentPosition')}
+                  </RawText>
+                  <Amount.Crypto
+                    value={currentPositionCrypto}
+                    symbol={asset?.symbol ?? ''}
+                    fontSize='sm'
+                    fontWeight='bold'
+                  />
+                </VStack>
+              )}
+            </Flex>
+          )}
+
           <Stack spacing={1}>
             <RawText fontSize='sm' color='text.subtle'>
               {translate('chainflipLending.supply.amount')}
@@ -292,6 +344,30 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
               </Button>
             </Flex>
           </Flex>
+
+          {supplyApyPercent !== null && (
+            <>
+              <Divider borderColor='border.subtle' />
+              <VStack spacing={2} width='full'>
+                <Flex justifyContent='space-between' alignItems='center' width='full'>
+                  <RawText fontSize='sm' color='text.subtle'>
+                    {translate('chainflipLending.dashboard.apy')}
+                  </RawText>
+                  <RawText fontSize='sm' fontWeight='medium' color='green.500'>
+                    {supplyApyPercent}%
+                  </RawText>
+                </Flex>
+                {estYearlyEarningsFiat !== null && !bnOrZero(cryptoValue).isZero() && (
+                  <Flex justifyContent='space-between' alignItems='center' width='full'>
+                    <RawText fontSize='sm' color='text.subtle'>
+                      {translate('chainflipLending.dashboard.estimatedYearlyEarnings')}
+                    </RawText>
+                    <Amount.Fiat value={estYearlyEarningsFiat} fontSize='sm' fontWeight='medium' />
+                  </Flex>
+                )}
+              </VStack>
+            </>
+          )}
 
           {!hasFreeBalance && (
             <RawText fontSize='xs' color='yellow.500'>

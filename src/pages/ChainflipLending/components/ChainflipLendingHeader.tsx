@@ -1,6 +1,6 @@
 import { Button, Card, CardBody, Container, Flex, Heading, Skeleton, Stack } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
@@ -12,11 +12,45 @@ import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeade
 import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
+import { useChainflipFreeBalances } from '@/pages/ChainflipLending/hooks/useChainflipFreeBalances'
 import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
+import { useChainflipLoanAccount } from '@/pages/ChainflipLending/hooks/useChainflipLoanAccount'
+import { useChainflipSupplyPositions } from '@/pages/ChainflipLending/hooks/useChainflipSupplyPositions'
 
 const responsiveFlex = { base: 'auto', lg: 1 }
 const containerPaddingTop = { base: 0, md: 8 }
+
+type SummaryCardProps = {
+  value: string
+  labelKey: string
+  tooltipKey: string
+  isLoading: boolean
+  labelColor?: string
+}
+
+const SummaryCard = ({ value, labelKey, tooltipKey, isLoading, labelColor }: SummaryCardProps) => {
+  const translate = useTranslate()
+
+  return (
+    <Card flex={responsiveFlex}>
+      <CardBody>
+        <HelperTooltip label={translate(tooltipKey)}>
+          <Text
+            color={labelColor ?? 'text.subtle'}
+            fontWeight='medium'
+            fontSize='sm'
+            translation={labelKey}
+          />
+        </HelperTooltip>
+        <Skeleton isLoaded={!isLoading}>
+          <Amount.Fiat value={value} fontSize='2xl' fontWeight='bold' mt={1} />
+        </Skeleton>
+      </CardBody>
+    </Card>
+  )
+}
 
 export const ChainflipLendingHeader = () => {
   const translate = useTranslate()
@@ -33,8 +67,30 @@ export const ChainflipLendingHeader = () => {
     [walletDispatch],
   )
 
-  const { totalSuppliedFiat, availableLiquidityFiat, totalBorrowedFiat, isLoading } =
-    useChainflipLendingPools()
+  const {
+    totalSuppliedFiat,
+    availableLiquidityFiat,
+    totalBorrowedFiat,
+    isLoading: isPoolsLoading,
+  } = useChainflipLendingPools()
+
+  const { totalFiat: freeBalanceTotalFiat, isLoading: isFreeBalancesLoading } =
+    useChainflipFreeBalances()
+
+  const { supplyPositions, isLoading: isPositionsLoading } = useChainflipSupplyPositions()
+
+  const suppliedTotalFiat = useMemo(
+    () => supplyPositions.reduce((sum, p) => sum.plus(p.totalAmountFiat), bnOrZero(0)).toFixed(2),
+    [supplyPositions],
+  )
+
+  const {
+    totalCollateralFiat,
+    totalBorrowedFiat: userBorrowedFiat,
+    isLoading: isLoanLoading,
+  } = useChainflipLoanAccount()
+
+  const isUserDataLoading = isFreeBalancesLoading || isPositionsLoading || isLoanLoading
 
   return (
     <>
@@ -65,48 +121,61 @@ export const ChainflipLendingHeader = () => {
             </Flex>
           </Display.Desktop>
           <Flex gap={4} my={6} flexWrap='wrap'>
-            <Card flex={responsiveFlex}>
-              <CardBody>
-                <Skeleton isLoaded={!isLoading}>
-                  <Amount.Fiat value={totalSuppliedFiat} fontSize='4xl' fontWeight='bold' />
-                </Skeleton>
-                <HelperTooltip label={translate('chainflipLending.totalSuppliedTooltip')}>
-                  <Text
-                    color='text.success'
-                    fontWeight='medium'
-                    translation='chainflipLending.totalSupplied'
-                  />
-                </HelperTooltip>
-              </CardBody>
-            </Card>
-            <Card flex={responsiveFlex}>
-              <CardBody>
-                <Skeleton isLoaded={!isLoading}>
-                  <Amount.Fiat value={availableLiquidityFiat} fontSize='4xl' fontWeight='bold' />
-                </Skeleton>
-                <HelperTooltip label={translate('chainflipLending.availableLiquidityTooltip')}>
-                  <Text
-                    color='blue.300'
-                    fontWeight='medium'
-                    translation='chainflipLending.availableLiquidity'
-                  />
-                </HelperTooltip>
-              </CardBody>
-            </Card>
-            <Card flex={responsiveFlex}>
-              <CardBody>
-                <Skeleton isLoaded={!isLoading}>
-                  <Amount.Fiat value={totalBorrowedFiat} fontSize='4xl' fontWeight='bold' />
-                </Skeleton>
-                <HelperTooltip label={translate('chainflipLending.totalBorrowedTooltip')}>
-                  <Text
-                    color='purple.300'
-                    fontWeight='medium'
-                    translation='chainflipLending.totalBorrowed'
-                  />
-                </HelperTooltip>
-              </CardBody>
-            </Card>
+            {accountId ? (
+              <>
+                <SummaryCard
+                  value={freeBalanceTotalFiat}
+                  labelKey='chainflipLending.dashboard.freeBalance'
+                  tooltipKey='chainflipLending.dashboard.freeBalanceTooltip'
+                  isLoading={isUserDataLoading}
+                />
+                <SummaryCard
+                  value={suppliedTotalFiat}
+                  labelKey='chainflipLending.dashboard.supplied'
+                  tooltipKey='chainflipLending.dashboard.suppliedTooltip'
+                  isLoading={isUserDataLoading}
+                  labelColor='green.400'
+                />
+                <SummaryCard
+                  value={totalCollateralFiat}
+                  labelKey='chainflipLending.dashboard.collateral'
+                  tooltipKey='chainflipLending.dashboard.collateralTooltip'
+                  isLoading={isUserDataLoading}
+                  labelColor='blue.300'
+                />
+                <SummaryCard
+                  value={userBorrowedFiat}
+                  labelKey='chainflipLending.dashboard.borrowed'
+                  tooltipKey='chainflipLending.dashboard.borrowedTooltip'
+                  isLoading={isUserDataLoading}
+                  labelColor='purple.300'
+                />
+              </>
+            ) : (
+              <>
+                <SummaryCard
+                  value={totalSuppliedFiat}
+                  labelKey='chainflipLending.totalSupplied'
+                  tooltipKey='chainflipLending.totalSuppliedTooltip'
+                  isLoading={isPoolsLoading}
+                  labelColor='green.400'
+                />
+                <SummaryCard
+                  value={availableLiquidityFiat}
+                  labelKey='chainflipLending.availableLiquidity'
+                  tooltipKey='chainflipLending.availableLiquidityTooltip'
+                  isLoading={isPoolsLoading}
+                  labelColor='blue.300'
+                />
+                <SummaryCard
+                  value={totalBorrowedFiat}
+                  labelKey='chainflipLending.totalBorrowed'
+                  tooltipKey='chainflipLending.totalBorrowedTooltip'
+                  isLoading={isPoolsLoading}
+                  labelColor='purple.300'
+                />
+              </>
+            )}
           </Flex>
           {!accountId && (
             <Flex mb={4}>

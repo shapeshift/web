@@ -5,6 +5,7 @@ import { flipAssetId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { EgressMachineCtx } from './EgressMachineContext'
 import { EgressStepper } from './EgressStepper'
@@ -31,6 +32,7 @@ type EgressConfirmProps = {
 
 export const EgressConfirm = memo(({ assetId }: EgressConfirmProps) => {
   const translate = useTranslate()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { scAccount } = useChainflipLendingAccount()
   const { close: closeModal } = useModal('chainflipLending')
@@ -79,6 +81,11 @@ export const EgressConfirm = memo(({ assetId }: EgressConfirmProps) => {
     }
     closeModal()
   }, [scAccount, queryClient, closeModal])
+
+  const handleViewDashboard = useCallback(() => {
+    closeModal()
+    navigate('/chainflip-lending')
+  }, [closeModal, navigate])
 
   const handleBack = useCallback(() => {
     actorRef.send({ type: 'BACK' })
@@ -144,17 +151,29 @@ export const EgressConfirm = memo(({ assetId }: EgressConfirmProps) => {
           px={6}
           py={4}
         >
-          <Button
-            colorScheme='blue'
-            size='lg'
-            height={12}
-            borderRadius='xl'
-            width='full'
-            fontWeight='bold'
-            onClick={handleDone}
-          >
-            {translate('common.done')}
-          </Button>
+          <HStack spacing={3} width='full'>
+            <Button
+              variant='ghost'
+              flex={1}
+              size='lg'
+              height={12}
+              borderRadius='xl'
+              onClick={handleDone}
+            >
+              {translate('common.close')}
+            </Button>
+            <Button
+              colorScheme='blue'
+              flex={1}
+              size='lg'
+              height={12}
+              borderRadius='xl'
+              fontWeight='bold'
+              onClick={handleViewDashboard}
+            >
+              {translate('chainflipLending.dashboard.viewDashboard')}
+            </Button>
+          </HStack>
         </CardFooter>
       </SlideTransition>
     )
@@ -267,59 +286,78 @@ export const EgressConfirm = memo(({ assetId }: EgressConfirmProps) => {
   return (
     <SlideTransition>
       <CardBody px={6} py={4}>
-        <VStack spacing={6} align='center' py={6}>
-          <HStack spacing={3}>
-            <AssetIcon assetId={flipAssetId} size='md' />
-            <ArrowForwardIcon boxSize={5} color='text.subtle' />
-            <AssetIcon assetId={assetId} size='md' />
-          </HStack>
-          <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
-            {translate('chainflipLending.egress.confirmTitle')}
-          </RawText>
+        <VStack spacing={4} align='center' py={4}>
+          <AssetIcon assetId={assetId} size='lg' />
           <Amount.Crypto
             value={egressAmountCryptoPrecision}
             symbol={asset.symbol}
             fontWeight='bold'
             fontSize='2xl'
           />
+        </VStack>
+        <Divider borderColor='border.subtle' />
+        <VStack spacing={3} width='full' py={4}>
+          <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('chainflipLending.egress.asset')}
+            </RawText>
+            <RawText fontSize='sm' fontWeight='medium'>
+              {asset.name}
+            </RawText>
+          </Flex>
+          <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('chainflipLending.egress.amount')}
+            </RawText>
+            <Amount.Crypto
+              value={egressAmountCryptoPrecision}
+              symbol={asset.symbol}
+              fontSize='sm'
+              fontWeight='medium'
+            />
+          </Flex>
           {destinationAddress && (
-            <>
-              <Divider borderColor='border.subtle' />
-              <HStack width='full' justifyContent='space-between' px={2}>
-                <RawText fontSize='sm' color='text.subtle'>
-                  {translate('chainflipLending.egress.receiveAddress')}
+            <Flex justifyContent='space-between' alignItems='center' width='full'>
+              <RawText fontSize='sm' color='text.subtle'>
+                {translate('chainflipLending.egress.receiveAddress')}
+              </RawText>
+              <InlineCopyButton value={destinationAddress}>
+                <RawText fontSize='sm' fontWeight='medium' color='text.subtle'>
+                  <MiddleEllipsis value={destinationAddress} />
                 </RawText>
-                <InlineCopyButton value={destinationAddress}>
-                  <RawText fontSize='sm' fontWeight='medium' color='text.subtle'>
-                    <MiddleEllipsis value={destinationAddress} />
-                  </RawText>
-                </InlineCopyButton>
-              </HStack>
-            </>
+              </InlineCopyButton>
+            </Flex>
           )}
         </VStack>
       </CardBody>
       <CardFooter
         borderTopWidth={1}
         borderColor='border.subtle'
-        flexDir='column'
-        gap={2}
+        flexDir='row'
+        gap={3}
         px={6}
         py={4}
       >
         <Button
-          colorScheme='blue'
+          variant='ghost'
+          flex={1}
           size='lg'
           height={12}
           borderRadius='xl'
-          width='full'
+          onClick={handleBack}
+        >
+          {translate('common.back')}
+        </Button>
+        <Button
+          colorScheme='blue'
+          flex={1}
+          size='lg'
+          height={12}
+          borderRadius='xl'
           fontWeight='bold'
           onClick={handleConfirm}
         >
           {translate('chainflipLending.egress.confirmAndWithdraw')}
-        </Button>
-        <Button variant='ghost' size='sm' width='full' onClick={handleBack}>
-          {translate('common.back')}
         </Button>
       </CardFooter>
     </SlideTransition>

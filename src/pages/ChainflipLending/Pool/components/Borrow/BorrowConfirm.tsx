@@ -1,10 +1,11 @@
 import { ArrowForwardIcon, CheckCircleIcon } from '@chakra-ui/icons'
-import { Button, CardBody, CardFooter, Flex, HStack, VStack } from '@chakra-ui/react'
+import { Button, CardBody, CardFooter, Divider, Flex, HStack, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { flipAssetId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { BorrowMachineCtx } from './BorrowMachineContext'
 import { BorrowStepper } from './BorrowStepper'
@@ -30,6 +31,7 @@ type BorrowConfirmProps = {
 
 export const BorrowConfirm = memo(({ assetId }: BorrowConfirmProps) => {
   const translate = useTranslate()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { scAccount } = useChainflipLendingAccount()
 
@@ -89,6 +91,11 @@ export const BorrowConfirm = memo(({ assetId }: BorrowConfirmProps) => {
     closeModal()
   }, [scAccount, queryClient, closeModal])
 
+  const handleViewDashboard = useCallback(() => {
+    closeModal()
+    navigate('/chainflip-lending')
+  }, [closeModal, navigate])
+
   const handleBack = useCallback(() => {
     actorRef.send({ type: 'BACK' })
   }, [actorRef])
@@ -135,17 +142,29 @@ export const BorrowConfirm = memo(({ assetId }: BorrowConfirmProps) => {
           px={6}
           py={4}
         >
-          <Button
-            colorScheme='blue'
-            size='lg'
-            height={12}
-            borderRadius='xl'
-            width='full'
-            fontWeight='bold'
-            onClick={handleDone}
-          >
-            {translate('common.done')}
-          </Button>
+          <HStack spacing={3} width='full'>
+            <Button
+              variant='ghost'
+              flex={1}
+              size='lg'
+              height={12}
+              borderRadius='xl'
+              onClick={handleDone}
+            >
+              {translate('common.close')}
+            </Button>
+            <Button
+              colorScheme='blue'
+              flex={1}
+              size='lg'
+              height={12}
+              borderRadius='xl'
+              fontWeight='bold'
+              onClick={handleViewDashboard}
+            >
+              {translate('chainflipLending.dashboard.viewDashboard')}
+            </Button>
+          </HStack>
         </CardFooter>
       </SlideTransition>
     )
@@ -258,24 +277,42 @@ export const BorrowConfirm = memo(({ assetId }: BorrowConfirmProps) => {
   return (
     <SlideTransition>
       <CardBody px={6} py={4}>
-        <VStack spacing={6} align='center' py={6}>
-          <HStack spacing={3}>
-            <AssetIcon assetId={flipAssetId} size='md' />
-            <ArrowForwardIcon boxSize={5} color='text.subtle' />
-            <AssetIcon assetId={assetId} size='md' />
-          </HStack>
-          <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
-            {translate('chainflipLending.borrow.confirmTitle')}
-          </RawText>
-          <Flex direction='column' gap={1} align='center'>
+        <VStack spacing={4} align='center' py={4}>
+          <AssetIcon assetId={assetId} size='lg' />
+          <Amount.Crypto
+            value={borrowAmountCryptoPrecision}
+            symbol={asset.symbol}
+            fontWeight='bold'
+            fontSize='2xl'
+          />
+        </VStack>
+        <Divider borderColor='border.subtle' />
+        <VStack spacing={3} width='full' py={4}>
+          <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('chainflipLending.borrow.asset')}
+            </RawText>
+            <RawText fontSize='sm' fontWeight='medium'>
+              {asset.name}
+            </RawText>
+          </Flex>
+          <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('chainflipLending.borrow.amount')}
+            </RawText>
             <Amount.Crypto
               value={borrowAmountCryptoPrecision}
               symbol={asset.symbol}
-              fontWeight='bold'
-              fontSize='2xl'
+              fontSize='sm'
+              fontWeight='medium'
             />
-            <RawText fontSize='sm' color={ltvColor}>
-              {translate('chainflipLending.borrow.projectedLtv')}: {projectedLtvPercent}%
+          </Flex>
+          <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('chainflipLending.borrow.projectedLtv')}
+            </RawText>
+            <RawText fontSize='sm' fontWeight='medium' color={ltvColor}>
+              {projectedLtvPercent}%
             </RawText>
           </Flex>
         </VStack>
@@ -283,24 +320,31 @@ export const BorrowConfirm = memo(({ assetId }: BorrowConfirmProps) => {
       <CardFooter
         borderTopWidth={1}
         borderColor='border.subtle'
-        flexDir='column'
-        gap={2}
+        flexDir='row'
+        gap={3}
         px={6}
         py={4}
       >
         <Button
-          colorScheme='blue'
+          variant='ghost'
+          flex={1}
           size='lg'
           height={12}
           borderRadius='xl'
-          width='full'
+          onClick={handleBack}
+        >
+          {translate('common.back')}
+        </Button>
+        <Button
+          colorScheme='blue'
+          flex={1}
+          size='lg'
+          height={12}
+          borderRadius='xl'
           fontWeight='bold'
           onClick={handleConfirm}
         >
           {translate('chainflipLending.borrow.confirmAndBorrow')}
-        </Button>
-        <Button variant='ghost' size='sm' width='full' onClick={handleBack}>
-          {translate('common.back')}
         </Button>
       </CardFooter>
     </SlideTransition>

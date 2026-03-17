@@ -6,6 +6,7 @@ import { BigAmount } from '@shapeshiftoss/utils'
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { DepositMachineCtx } from './DepositMachineContext'
 import { DepositStepper } from './DepositStepper'
@@ -47,6 +48,7 @@ type DepositConfirmProps = {
 
 export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
   const translate = useTranslate()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { accountNumber, scAccount } = useChainflipLendingAccount()
   const { close: closeModal } = useModal('chainflipLending')
@@ -167,6 +169,11 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
     closeModal()
   }, [scAccount, queryClient, actorRef, closeModal])
 
+  const handleViewDashboard = useCallback(() => {
+    closeModal()
+    navigate('/chainflip-lending')
+  }, [closeModal, navigate])
+
   const handleBack = useCallback(() => {
     actorRef.send({ type: 'BACK' })
   }, [actorRef])
@@ -231,17 +238,29 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
           px={6}
           py={4}
         >
-          <Button
-            colorScheme='blue'
-            size='lg'
-            height={12}
-            borderRadius='xl'
-            width='full'
-            fontWeight='bold'
-            onClick={handleDone}
-          >
-            {translate('common.done')}
-          </Button>
+          <HStack spacing={3} width='full'>
+            <Button
+              variant='ghost'
+              flex={1}
+              size='lg'
+              height={12}
+              borderRadius='xl'
+              onClick={handleDone}
+            >
+              {translate('common.close')}
+            </Button>
+            <Button
+              colorScheme='blue'
+              flex={1}
+              size='lg'
+              height={12}
+              borderRadius='xl'
+              fontWeight='bold'
+              onClick={handleViewDashboard}
+            >
+              {translate('chainflipLending.dashboard.viewDashboard')}
+            </Button>
+          </HStack>
         </CardFooter>
       </SlideTransition>
     )
@@ -354,63 +373,98 @@ export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
   return (
     <SlideTransition>
       <CardBody px={6} py={4}>
-        <VStack spacing={6} align='center' py={6}>
-          <HStack spacing={3}>
-            <AssetIcon assetId={assetId} size='md' />
-            <ArrowForwardIcon boxSize={5} color='text.subtle' />
-            <AssetIcon assetId={flipAssetId} size='md' />
-          </HStack>
-          <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
-            {translate('chainflipLending.deposit.confirmTitle')}
-          </RawText>
-          <Flex direction='column' gap={1} align='center'>
+        <VStack spacing={4} align='center' py={4}>
+          <AssetIcon assetId={assetId} size='lg' />
+          <Amount.Crypto
+            value={depositAmountCryptoPrecision}
+            symbol={asset.symbol}
+            fontWeight='bold'
+            fontSize='2xl'
+          />
+        </VStack>
+        <Divider borderColor='border.subtle' />
+        <VStack spacing={3} width='full' py={4}>
+          <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('chainflipLending.deposit.asset')}
+            </RawText>
+            <RawText fontSize='sm' fontWeight='medium'>
+              {asset.name}
+            </RawText>
+          </Flex>
+          <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('chainflipLending.deposit.amount')}
+            </RawText>
             <Amount.Crypto
               value={depositAmountCryptoPrecision}
               symbol={asset.symbol}
-              fontWeight='bold'
-              fontSize='2xl'
+              fontSize='sm'
+              fontWeight='medium'
+            />
+          </Flex>
+          <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('chainflipLending.deposit.freeBalance')}
+            </RawText>
+            <Amount.Crypto
+              value={
+                asset
+                  ? BigAmount.fromBaseUnit({
+                      value: initialFreeBalanceCryptoBaseUnit,
+                      precision: asset.precision,
+                    }).toPrecision()
+                  : '0'
+              }
+              symbol={asset.symbol}
+              fontSize='sm'
+              fontWeight='medium'
             />
           </Flex>
           {effectiveRefundAddress && (
-            <>
-              <Divider borderColor='border.subtle' />
-              <HStack width='full' justifyContent='space-between' px={2}>
-                <RawText fontSize='sm' color='text.subtle'>
-                  {translate('chainflipLending.deposit.refundAddress.label')}
+            <Flex justifyContent='space-between' alignItems='center' width='full'>
+              <RawText fontSize='sm' color='text.subtle'>
+                {translate('chainflipLending.deposit.recoveryAddress')}
+              </RawText>
+              <InlineCopyButton value={effectiveRefundAddress}>
+                <RawText fontSize='sm' fontWeight='medium' color='text.subtle'>
+                  <MiddleEllipsis value={effectiveRefundAddress} />
                 </RawText>
-                <InlineCopyButton value={effectiveRefundAddress}>
-                  <RawText fontSize='sm' fontWeight='medium' color='text.subtle'>
-                    <MiddleEllipsis value={effectiveRefundAddress} />
-                  </RawText>
-                </InlineCopyButton>
-              </HStack>
-            </>
+              </InlineCopyButton>
+            </Flex>
           )}
         </VStack>
       </CardBody>
       <CardFooter
         borderTopWidth={1}
         borderColor='border.subtle'
-        flexDir='column'
-        gap={2}
+        flexDir='row'
+        gap={3}
         px={6}
         py={4}
       >
         <Button
-          colorScheme='blue'
+          variant='ghost'
+          flex={1}
           size='lg'
           height={12}
           borderRadius='xl'
-          width='full'
+          onClick={handleBack}
+        >
+          {translate('common.back')}
+        </Button>
+        <Button
+          colorScheme='blue'
+          flex={1}
+          size='lg'
+          height={12}
+          borderRadius='xl'
           fontWeight='bold'
           onClick={handleStart}
           isLoading={isLoading}
           isDisabled={isLoading}
         >
           {translate('chainflipLending.deposit.confirmAndDeposit')}
-        </Button>
-        <Button variant='ghost' size='sm' width='full' onClick={handleBack}>
-          {translate('common.back')}
         </Button>
       </CardFooter>
     </SlideTransition>

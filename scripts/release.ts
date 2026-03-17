@@ -664,8 +664,8 @@ const doRegularRelease = async () => {
         const privatePrUrl = await createPr({
           base: 'private',
           head: 'main',
-          title: `chore: sync private to ${nextVersion}`,
-          body: `Sync private branch to main after release ${nextVersion}.`,
+          title: `chore: sync private to ${latestTag}`,
+          body: `Sync private branch to main after release ${latestTag}.`,
         })
         if (privatePrUrl) {
           console.log(chalk.green(`Private sync PR created: ${privatePrUrl}`))
@@ -874,8 +874,8 @@ const doHotfixRelease = async () => {
         const privatePrUrl = await createPr({
           base: 'private',
           head: 'main',
-          title: `chore: sync private to ${nextVersion}`,
-          body: `Sync private branch to main after hotfix ${nextVersion}.`,
+          title: `chore: sync private to ${latestTag}`,
+          body: `Sync private branch to main after hotfix ${latestTag}.`,
         })
         if (privatePrUrl) {
           console.log(chalk.green(`Private sync PR created: ${privatePrUrl}`))

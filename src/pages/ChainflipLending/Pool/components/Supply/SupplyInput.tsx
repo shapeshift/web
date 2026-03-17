@@ -345,27 +345,15 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
             </Flex>
           </Flex>
 
-          {supplyApyPercent !== null && (
+          {(estYearlyEarningsFiat !== null && !bnOrZero(cryptoValue).isZero()) && (
             <>
               <Divider borderColor='border.subtle' />
-              <VStack spacing={2} width='full'>
-                <Flex justifyContent='space-between' alignItems='center' width='full'>
-                  <RawText fontSize='sm' color='text.subtle'>
-                    {translate('chainflipLending.dashboard.apy')}
-                  </RawText>
-                  <RawText fontSize='sm' fontWeight='medium' color='green.500'>
-                    {supplyApyPercent}%
-                  </RawText>
-                </Flex>
-                {estYearlyEarningsFiat !== null && !bnOrZero(cryptoValue).isZero() && (
-                  <Flex justifyContent='space-between' alignItems='center' width='full'>
-                    <RawText fontSize='sm' color='text.subtle'>
-                      {translate('chainflipLending.dashboard.estimatedYearlyEarnings')}
-                    </RawText>
-                    <Amount.Fiat value={estYearlyEarningsFiat} fontSize='sm' fontWeight='medium' />
-                  </Flex>
-                )}
-              </VStack>
+              <Flex justifyContent='space-between' alignItems='center' width='full'>
+                <RawText fontSize='sm' color='text.subtle'>
+                  {translate('chainflipLending.dashboard.estimatedYearlyEarnings')}
+                </RawText>
+                <Amount.Fiat value={estYearlyEarningsFiat} fontSize='sm' fontWeight='medium' />
+              </Flex>
             </>
           )}
 

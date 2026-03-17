@@ -1,4 +1,4 @@
-#!/usr/bin/env npx tsx
+#!/usr/bin/env -S npx tsx
 import fs from 'node:fs'
 
 import { runAllCodemods } from './codemods'

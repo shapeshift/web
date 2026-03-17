@@ -328,6 +328,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'erc20',
         assetReference: '0x078d782b760474a361dda0af3839290b0ef57ad6',
       })
+      const usdcOnCelo = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.CeloMainnet,
+        assetNamespace,
+        assetReference: '0xceba9300f2b948710d2653dd7b07f33a8b32118c',
+      })
       const usdcOnNear = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Near,
         chainReference: CHAIN_REFERENCE.NearMainnet,
@@ -350,6 +356,7 @@ describe('adapters:coingecko', () => {
         usdcOnSonic,
         usdcOnUnichain,
         usdcOnSei,
+        usdcOnCelo,
         usdcOnSolana,
         usdcOnStarknet,
         usdcOnSui,

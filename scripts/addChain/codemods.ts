@@ -217,7 +217,7 @@ export function runAllCodemods(config: ChainConfig): CodemodResult[] {
 
   // 4d) ChainSpecificBuildTxInput - insert before UTXO section (stable separator)
   results.push(
-    wrap(chainAdaptersTypes, 'types-ChainSignTx', () =>
+    wrap(chainAdaptersTypes, 'types-ChainSpecificBuildTxInput', () =>
       insertAtPosition(
         chainAdaptersTypes,
         `\n    [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput`,
@@ -237,6 +237,19 @@ export function runAllCodemods(config: ChainConfig): CodemodResult[] {
         true,
         `    [KnownChainIds.${c.pascalName}Mainnet]: evm.GetFeeDataInput\n`,
         `KnownChainIds.${c.pascalName}Mainnet]: evm.GetFeeDataInput`,
+      ),
+    ),
+  )
+
+  // 4f) ChainSignTx type map — ETHSignTx entry, insert before UTXO section (BTCSignTx)
+  results.push(
+    wrap(chainAdaptersTypes, 'types-ChainSignTx', () =>
+      insertAtPosition(
+        chainAdaptersTypes,
+        `\n  [KnownChainIds.BitcoinMainnet]: BTCSignTx`,
+        true,
+        `  [KnownChainIds.${c.pascalName}Mainnet]: ETHSignTx\n`,
+        `KnownChainIds.${c.pascalName}Mainnet]: ETHSignTx`,
       ),
     ),
   )
@@ -816,6 +829,21 @@ export const ${c.camelName}: Readonly<Asset> = Object.freeze({
       ),
     )
   }
+
+  // 31b. packages/hdwallet-walletconnectv2/src/walletconnectV2.ts - ethSupportsNetwork
+  // The hardcoded numeric array in ethSupportsNetwork must include the new chain's EIP-155 ID
+  const walletConnectV2ImplFile = r('packages/hdwallet-walletconnectv2/src/walletconnectV2.ts')
+  results.push(
+    wrap(walletConnectV2ImplFile, 'hdwallet-walletconnectv2-ethSupportsNetwork', () =>
+      insertAtPosition(
+        walletConnectV2ImplFile,
+        `].includes(chainId)`,
+        true,
+        `, ${c.chainId}`,
+        ` ${c.chainId}`,
+      ),
+    ),
+  )
 
   // ============================================================
   // 32. packages/chain-adapters/src/evm/EvmBaseAdapter.ts

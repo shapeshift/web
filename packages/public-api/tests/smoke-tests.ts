@@ -1,4 +1,4 @@
-import { ASSET_IDS, TEST_AFFILIATE_ADDRESS, TEST_PAIRS } from './test-config'
+import { ASSET_IDS, TEST_PAIRS, TEST_PARTNER_CODE } from './test-config'
 import type { TestResult, TestSuiteResult } from './test-utils'
 import { fetchWithTimeout, runTest } from './test-utils'
 
@@ -132,7 +132,7 @@ export const runSmokeTests = async (): Promise<TestSuiteResult> => {
       const res = await fetchWithTimeout(
         `${API_URL}/v1/swap/rates?${params}`,
         {
-          headers: { 'X-Affiliate-Address': TEST_AFFILIATE_ADDRESS },
+          headers: { 'X-Partner-Code': TEST_PARTNER_CODE },
         },
         30000,
       )
@@ -182,7 +182,7 @@ export const runSmokeTests = async (): Promise<TestSuiteResult> => {
       const res = await fetchWithTimeout(
         `${API_URL}/v1/swap/rates?${params}`,
         {
-          headers: { 'X-Affiliate-Address': TEST_AFFILIATE_ADDRESS },
+          headers: { 'X-Partner-Code': TEST_PARTNER_CODE },
         },
         30000,
       )

@@ -454,7 +454,7 @@ ${formatColors(lightColors, 'light')}
 
             <div className='demo-widget-container'>
               <SwapWidget
-                affiliateAddress='0x0000000000000000000000000000000000000001'
+                partnerCode='your-partner-code'
                 theme={themeConfig}
                 onSwapSuccess={handleSwapSuccess}
                 onSwapError={handleSwapError}

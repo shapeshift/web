@@ -116,7 +116,7 @@ export const RFOXSection = () => {
   const translate = useTranslate()
   const isRFOXLPEnabled = useFeatureFlag('RFOX_LP')
   const { assetAccountNumber } = useFoxPageContext()
-  const { setStakingAssetAccountId } = useRFOXContext()
+  const { setStakingAssetAccountId, setStakingAssetId: setContextStakingAssetId } = useRFOXContext()
   const appDispatch = useAppDispatch()
   const location = useLocation()
   const selectedUnstakingRequest = location.state?.selectedUnstakingRequest as
@@ -274,9 +274,14 @@ export const RFOXSection = () => {
       timeInPoolSeconds === 0n ? 'N/A' : formatSecondsToDuration(Number(timeInPoolSeconds)),
   })
 
-  const handleSelectAssetId = useCallback((filter: Filter) => {
-    setStakingAssetId(filter.assetId ?? foxOnArbitrumOneAssetId)
-  }, [])
+  const handleSelectAssetId = useCallback(
+    (filter: Filter) => {
+      const assetId = filter.assetId ?? foxOnArbitrumOneAssetId
+      setStakingAssetId(assetId)
+      setContextStakingAssetId(assetId)
+    },
+    [setContextStakingAssetId],
+  )
 
   const isTimeInPoolLoading = useMemo(() => {
     return isTimeInPoolQueryLoading || isTimeInPoolFetching

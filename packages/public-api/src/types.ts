@@ -26,6 +26,7 @@ export type {
 export type AffiliateInfo = {
   affiliateAddress?: string
   affiliateBps?: string
+  partnerCode?: string
 }
 
 export type RatesRequest = {

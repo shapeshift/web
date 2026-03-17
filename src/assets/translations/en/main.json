@@ -2477,7 +2477,12 @@
         "signing": "Signing supply transaction",
         "confirming": "Confirming supply"
       },
-      "noFreeBalance": "No free balance. Deposit to Chainflip first."
+      "noFreeBalance": "No free balance. Deposit to Chainflip first.",
+      "assetToSupply": "Asset to supply",
+      "poolShare": "Pool Share",
+      "riskBand": "Risk band",
+      "conservativeStablecoin": "Conservative stablecoin pool",
+      "volatileAsset": "Volatile asset pool"
     },
     "borrow": {
       "title": "Borrow",

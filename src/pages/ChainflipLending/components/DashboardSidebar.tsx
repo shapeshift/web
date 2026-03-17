@@ -7,13 +7,21 @@ import {
   CircularProgress,
   CircularProgressLabel,
   Flex,
-  Icon,
   Stack,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { memo, useCallback, useMemo } from 'react'
-import { TbRefresh, TbSparkles } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
+
+import borrowGlow from '@/assets/chainflip-lending/borrow-glow.svg'
+import borrowRing1 from '@/assets/chainflip-lending/borrow-ring-1.svg'
+import borrowRingInner from '@/assets/chainflip-lending/borrow-ring-inner.svg'
+import earnGlow from '@/assets/chainflip-lending/earn-glow.svg'
+import earnRingInner from '@/assets/chainflip-lending/earn-ring-inner.svg'
+import earnRingMiddle from '@/assets/chainflip-lending/earn-ring-middle.svg'
+import earnRingOuter from '@/assets/chainflip-lending/earn-ring-outer.svg'
+import refreshIcon from '@/assets/chainflip-lending/refresh-icon.svg'
+import sparklesIcon from '@/assets/chainflip-lending/sparkles-icon.svg'
 
 import { Amount } from '@/components/Amount/Amount'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
@@ -95,52 +103,44 @@ export const BorrowingPowerCard = memo(() => {
 
 const NextStepsArt = memo(({ colorScheme }: { colorScheme: 'green' | 'purple' }) => {
   const isGreen = colorScheme === 'green'
-  const ringColor = isGreen ? 'green.500' : 'purple.500'
-  const bgColor = isGreen ? 'rgba(0, 205, 152, 0.05)' : 'rgba(128, 90, 213, 0.05)'
-  const iconColor = isGreen ? 'green.500' : 'purple.500'
 
   return (
-    <Center position='relative' height='120px' overflow='hidden'>
-      {/* Outer decorative rings */}
-      <Box
-        position='absolute'
-        width='200px'
-        height='200px'
-        borderRadius='full'
-        border='1px solid'
-        borderColor={ringColor}
-        opacity={0.15}
-      />
-      <Box
-        position='absolute'
-        width='160px'
-        height='160px'
-        borderRadius='full'
-        border='1px solid'
-        borderColor={ringColor}
-        opacity={0.2}
-      />
-      <Box
-        position='absolute'
-        width='120px'
-        height='120px'
-        borderRadius='full'
-        border='1px solid'
-        borderColor={ringColor}
-        opacity={0.3}
-      />
-      {/* Center circle with icon */}
-      <Center
-        width='64px'
-        height='64px'
-        borderRadius='full'
-        bg={bgColor}
-        boxShadow={`inset 0 1px 0 0 ${
-          isGreen ? 'rgba(0, 205, 152, 0.25)' : 'rgba(128, 90, 213, 0.25)'
-        }`}
-      >
-        <Icon as={isGreen ? TbSparkles : TbRefresh} boxSize={6} color={iconColor} />
-      </Center>
+    <Center position='relative' height='140px' overflow='hidden'>
+      {isGreen ? (
+        <>
+          <Box as='img' src={earnGlow} position='absolute' top='-60px' width='339px' height='339px' />
+          <Box as='img' src={earnRingOuter} position='absolute' width='180px' height='180px' />
+          <Box as='img' src={earnRingMiddle} position='absolute' width='150px' height='150px' />
+          <Box as='img' src={earnRingInner} position='absolute' width='110px' height='110px' />
+          <Center
+            position='absolute'
+            width='64px'
+            height='64px'
+            borderRadius='full'
+            bg='rgba(0, 205, 152, 0.05)'
+            boxShadow='inset 0 1px 0 0 rgba(0, 205, 152, 0.25)'
+          >
+            <Box as='img' src={sparklesIcon} width='28px' height='28px' />
+          </Center>
+        </>
+      ) : (
+        <>
+          <Box as='img' src={borrowGlow} position='absolute' top='-50px' width='304px' height='304px' />
+          <Box as='img' src={borrowRing1} position='absolute' width='160px' height='160px' transform='rotate(45deg)' />
+          <Box as='img' src={borrowRingInner} position='absolute' width='110px' height='110px' transform='rotate(45deg)' />
+          <Center
+            position='absolute'
+            width='64px'
+            height='64px'
+            borderRadius='full'
+            bg='rgba(128, 90, 213, 0.1)'
+            borderWidth='1px'
+            borderColor='blue.500'
+          >
+            <Box as='img' src={refreshIcon} width='28px' height='28px' />
+          </Center>
+        </>
+      )}
     </Center>
   )
 })

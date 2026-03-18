@@ -22,7 +22,6 @@ import earnRingMiddle from '@/assets/chainflip-lending/earn-ring-middle.svg'
 import earnRingOuter from '@/assets/chainflip-lending/earn-ring-outer.svg'
 import refreshIcon from '@/assets/chainflip-lending/refresh-icon.svg'
 import sparklesIcon from '@/assets/chainflip-lending/sparkles-icon.svg'
-
 import { Amount } from '@/components/Amount/Amount'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { Text } from '@/components/Text'
@@ -108,7 +107,14 @@ const NextStepsArt = memo(({ colorScheme }: { colorScheme: 'green' | 'purple' })
     <Center position='relative' height='140px' overflow='hidden'>
       {isGreen ? (
         <>
-          <Box as='img' src={earnGlow} position='absolute' top='-60px' width='339px' height='339px' />
+          <Box
+            as='img'
+            src={earnGlow}
+            position='absolute'
+            top='-60px'
+            width='339px'
+            height='339px'
+          />
           <Box as='img' src={earnRingOuter} position='absolute' width='180px' height='180px' />
           <Box as='img' src={earnRingMiddle} position='absolute' width='150px' height='150px' />
           <Box as='img' src={earnRingInner} position='absolute' width='110px' height='110px' />
@@ -125,9 +131,30 @@ const NextStepsArt = memo(({ colorScheme }: { colorScheme: 'green' | 'purple' })
         </>
       ) : (
         <>
-          <Box as='img' src={borrowGlow} position='absolute' top='-50px' width='304px' height='304px' />
-          <Box as='img' src={borrowRing1} position='absolute' width='160px' height='160px' transform='rotate(45deg)' />
-          <Box as='img' src={borrowRingInner} position='absolute' width='110px' height='110px' transform='rotate(45deg)' />
+          <Box
+            as='img'
+            src={borrowGlow}
+            position='absolute'
+            top='-50px'
+            width='304px'
+            height='304px'
+          />
+          <Box
+            as='img'
+            src={borrowRing1}
+            position='absolute'
+            width='160px'
+            height='160px'
+            transform='rotate(45deg)'
+          />
+          <Box
+            as='img'
+            src={borrowRingInner}
+            position='absolute'
+            width='110px'
+            height='110px'
+            transform='rotate(45deg)'
+          />
           <Center
             position='absolute'
             width='64px'

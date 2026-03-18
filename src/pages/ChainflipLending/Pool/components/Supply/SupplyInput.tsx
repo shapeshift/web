@@ -227,7 +227,7 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
       return translate('chainflipLending.supply.minimumSupply', {
         amount: `${bnOrZero(minSupply).decimalPlaces(2).toFixed()} ${asset?.symbol}`,
       })
-    return translate('chainflipLending.supply.title')
+    return translate('common.next')
   }, [exceedsBalance, isBelowMinimum, minSupply, asset?.symbol, translate])
 
   if (!asset) return null
@@ -405,7 +405,12 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
                 <RawText fontSize='sm' color='text.subtle'>
                   {translate('chainflipLending.dashboard.estimatedYearlyEarnings')}
                 </RawText>
-                <Amount.Fiat value={estYearlyEarningsFiat} fontSize='sm' fontWeight='medium' />
+                <Amount.Fiat
+                  value={estYearlyEarningsFiat}
+                  fontSize='sm'
+                  fontWeight='medium'
+                  suffix=' / year'
+                />
               </Flex>
             )}
 

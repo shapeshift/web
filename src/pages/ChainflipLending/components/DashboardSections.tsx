@@ -79,7 +79,7 @@ const SectionHeader = ({
         {primaryAction && (
           <Button
             size='sm'
-            variant='outline'
+            colorScheme='blue'
             onClick={primaryAction.handleClick}
             data-testid={primaryAction.testId}
           >
@@ -326,7 +326,7 @@ export const SuppliedSection = memo(() => {
                 <RawText>Asset</RawText>
                 <HStack spacing={8}>
                   <Text translation='chainflipLending.dashboard.apy' />
-                  <RawText>Amount</RawText>
+                  <RawText>Supplied</RawText>
                 </HStack>
               </Flex>
               <Stack spacing={0} divider={<Flex borderBottomWidth={1} borderColor='border.base' />}>
@@ -422,10 +422,23 @@ export const CollateralSection = memo(() => {
               ))}
             </Stack>
           ) : collateralWithFiat.length > 0 ? (
-            <Stack spacing={0} divider={<Flex borderBottomWidth={1} borderColor='border.base' />}>
-              {collateralWithFiat.map(collateral => (
-                <CollateralRow key={collateral.assetId} collateral={collateral} />
-              ))}
+            <Stack>
+              <Flex
+                justifyContent='space-between'
+                px={0}
+                py={1}
+                color='text.subtle'
+                fontSize='xs'
+                fontWeight='bold'
+              >
+                <RawText>Asset</RawText>
+                <RawText>Amount</RawText>
+              </Flex>
+              <Stack spacing={0} divider={<Flex borderBottomWidth={1} borderColor='border.base' />}>
+                {collateralWithFiat.map(collateral => (
+                  <CollateralRow key={collateral.assetId} collateral={collateral} />
+                ))}
+              </Stack>
             </Stack>
           ) : (
             <EmptyState

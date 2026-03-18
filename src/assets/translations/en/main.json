@@ -2452,6 +2452,7 @@
     "supply": {
       "title": "Supply",
       "subtitle": "Allocate your free balance into lending pools to earn yield",
+      "asset": "Asset",
       "amount": "Amount",
       "available": "Available to supply",
       "availableTooltip": "Your free balance on Chainflip State Chain available for lending",
@@ -2464,7 +2465,8 @@
       "autoCompounding": "Auto-compounding",
       "enabled": "Enabled",
       "destination": "Destination",
-      "lendingPool": "Lending Pool",
+      "lendingPool": "%{asset} Lending Pool",
+      "yearlyEarningsSuffix": "%{amount} / year",
       "executingTitle": "Supplying...",
       "executingDescription": "Your supply is being processed",
       "successTitle": "Supply Successful",

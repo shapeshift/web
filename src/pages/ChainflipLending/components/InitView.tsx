@@ -53,7 +53,7 @@ const LENDING_ASSET_IDS = Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as As
 
 const marketRowGrid = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
-  md: '200px repeat(4, 1fr)',
+  md: '200px repeat(5, 1fr)',
 }
 
 const mobileDisplay = { base: 'none', md: 'flex' }
@@ -110,6 +110,9 @@ const MarketRow = memo(({ pool, onViewMarket }: MarketRowProps) => {
       </Flex>
       <Flex display={mobileDisplay}>
         <Amount.Fiat value={pool.totalAmountFiat} />
+      </Flex>
+      <Flex display={mobileDisplay}>
+        <Amount.Percent value={pool.borrowRate} autoColor />
       </Flex>
       <Flex display={mobileDisplay}>
         <Amount.Fiat
@@ -275,7 +278,16 @@ const MarketsTable = memo(() => {
 
   return (
     <Stack spacing={4}>
-      <Heading size='md'>{translate('chainflipLending.dashboard.lendingMarkets')}</Heading>
+      <Stack spacing={1}>
+        <HelperTooltip label={translate('chainflipLending.utilisationTooltip')}>
+          <Heading size='md'>{translate('chainflipLending.dashboard.lendingMarkets')}</Heading>
+        </HelperTooltip>
+        <Text
+          translation='chainflipLending.dashboard.lendingMarketsDescription'
+          color='text.subtle'
+          fontSize='sm'
+        />
+      </Stack>
       <Stack>
         <SimpleGrid
           gridTemplateColumns={marketRowGrid}
@@ -294,6 +306,11 @@ const MarketsTable = memo(() => {
           <Flex display={mobileDisplay}>
             <HelperTooltip label={translate('chainflipLending.totalSuppliedTooltip')}>
               <Text translation='chainflipLending.totalSupplied' />
+            </HelperTooltip>
+          </Flex>
+          <Flex display={mobileDisplay}>
+            <HelperTooltip label={translate('chainflipLending.borrowAprTooltip')}>
+              <Text translation='chainflipLending.borrowApr' />
             </HelperTooltip>
           </Flex>
           <Flex display={mobileDisplay}>

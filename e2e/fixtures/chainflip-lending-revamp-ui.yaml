@@ -36,9 +36,9 @@ steps:
   - name: Empty sections display
     instruction: Scroll down on the funded dashboard to see Supplied, Collateral, and Borrowed sections.
     expected: >
-      Supplied section: "$0.00", "No earning positions yet" empty state with "+ Deposit" outline button.
-      Collateral section: "$0.00", "Provide collateral to start borrowing" with "+ Add Collateral" button.
-      Borrowed section: "$0.00", "No Active Loans" with "+ Add Collateral" button.
+      Supplied section: "$0.00", "No earning positions yet" empty state with blue "+ Deposit" button.
+      Collateral section: "$0.00", "Provide collateral to start borrowing" with blue "+ Add Collateral" button.
+      Borrowed section: "$0.00", "No Active Loans" with blue "+ Add Collateral" button.
     screenshot: true
 
   # === Action modals from dashboard ===

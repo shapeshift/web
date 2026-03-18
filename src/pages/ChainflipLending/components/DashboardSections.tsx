@@ -184,6 +184,7 @@ const FreeBalanceRow = ({ balance }: { balance: ChainflipFreeBalanceWithFiat }) 
 }
 
 export const FreeBalanceSection = memo(() => {
+  const translate = useTranslate()
   const chainflipLendingModal = useModal('chainflipLending')
   const { freeBalances, isLoading, totalFiat } = useChainflipFreeBalances()
 
@@ -246,9 +247,9 @@ export const FreeBalanceSection = memo(() => {
                 gridTemplateColumns={dashboardRowGrid}
                 columnGap={4}
               >
-                <RawText>Asset</RawText>
+                <RawText>{translate('chainflipLending.dashboard.asset')}</RawText>
                 <Flex />
-                <RawText textAlign='right'>Balance</RawText>
+                <RawText textAlign='right'>{translate('common.balance')}</RawText>
               </Flex>
               <Stack spacing={0} divider={<Flex borderBottomWidth={1} borderColor='border.base' />}>
                 {nonZeroBalances.map(balance =>
@@ -302,6 +303,7 @@ const SuppliedRow = ({
 }
 
 export const SuppliedSection = memo(() => {
+  const translate = useTranslate()
   const chainflipLendingModal = useModal('chainflipLending')
   const { supplyPositions, isLoading } = useChainflipSupplyPositions()
   const { pools } = useChainflipLendingPools()
@@ -382,9 +384,11 @@ export const SuppliedSection = memo(() => {
                 gridTemplateColumns={dashboardRowGrid}
                 columnGap={4}
               >
-                <RawText>Asset</RawText>
+                <RawText>{translate('chainflipLending.dashboard.asset')}</RawText>
                 <Text translation='chainflipLending.dashboard.apy' textAlign='right' />
-                <RawText textAlign='right'>Supplied</RawText>
+                <RawText textAlign='right'>
+                  {translate('chainflipLending.dashboard.supplied')}
+                </RawText>
               </Flex>
               <Stack spacing={0} divider={<Flex borderBottomWidth={1} borderColor='border.base' />}>
                 {supplyPositions.map(position => (
@@ -453,6 +457,7 @@ const CollateralRow = ({
 }
 
 export const CollateralSection = memo(() => {
+  const translate = useTranslate()
   const chainflipLendingModal = useModal('chainflipLending')
   const { collateralWithFiat, totalCollateralFiat, loanAccount, isLoading } =
     useChainflipLoanAccount()
@@ -524,9 +529,9 @@ export const CollateralSection = memo(() => {
                 gridTemplateColumns={dashboardRowGrid}
                 columnGap={4}
               >
-                <RawText>Asset</RawText>
+                <RawText>{translate('chainflipLending.dashboard.asset')}</RawText>
                 <Flex />
-                <RawText textAlign='right'>Amount</RawText>
+                <RawText textAlign='right'>{translate('common.amount')}</RawText>
               </Flex>
               <Stack spacing={0} divider={<Flex borderBottomWidth={1} borderColor='border.base' />}>
                 {collateralWithFiat.map(collateral => (
@@ -682,9 +687,9 @@ export const BorrowedSection = memo(() => {
                   gridTemplateColumns={dashboardRowGrid}
                   columnGap={4}
                 >
-                  <RawText>Asset</RawText>
+                  <RawText>{translate('chainflipLending.dashboard.asset')}</RawText>
                   <Text translation='chainflipLending.dashboard.borrowRate' textAlign='right' />
-                  <RawText textAlign='right'>Amount</RawText>
+                  <RawText textAlign='right'>{translate('common.amount')}</RawText>
                 </Flex>
                 <Stack
                   spacing={0}

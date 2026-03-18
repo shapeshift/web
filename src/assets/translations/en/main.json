@@ -2844,6 +2844,7 @@
       "borrowRate": "Borrow Rate",
       "viewDashboard": "View Dashboard",
       "lendingMarkets": "Lending Markets",
+      "asset": "Asset",
       "lendingMarketsDescription": "Each pool is isolated per asset. Pick a market to see what you could earn or borrow before you deposit."
     }
   },

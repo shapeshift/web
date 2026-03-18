@@ -205,8 +205,8 @@ export const NextStepsCard = memo(() => {
     if (firstAssetId) chainflipLendingModal.open({ mode: 'borrow', assetId: firstAssetId })
   }, [chainflipLendingModal])
 
-  // Hide when user has everything or no free balance
-  if (!hasFreeBalance || (hasSupply && hasCollateral && hasLoans)) return null
+  // Hide when user has completed all steps
+  if (hasSupply && hasCollateral && hasLoans) return null
 
   const getContent = () => {
     if (hasFreeBalance && !hasSupply && !hasCollateral) {

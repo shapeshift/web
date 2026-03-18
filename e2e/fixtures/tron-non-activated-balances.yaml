@@ -7,7 +7,7 @@ depends_on:
   - wallet-health.yaml
 steps:
   - name: Navigate to Tron USDT asset page
-    instruction: Navigate to the Tron USDT asset page at /assets/eip155:195/slip44:195 or search for USDT on Tron in the asset list
+    instruction: Navigate to the Tron USDT asset page at /assets/tron:0x2b6653dc/trc20:TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t
     expected: The USDT (Tron) asset page is visible
     screenshot: true
 
@@ -35,5 +35,10 @@ steps:
       recipient needs TRX to move them.
     expected: >
       A warning alert is visible saying the recipient address hasn't been activated and they'll
-      need TRX to use the tokens. The Continue/Preview button is still enabled.
+      need TRX to use the tokens.
+    screenshot: true
+
+  - name: Verify send is not blocked
+    instruction: Enter a valid non-zero USDT amount, for example 1.
+    expected: The Preview button is enabled - the warning is informational only and does not block the send flow.
     screenshot: true

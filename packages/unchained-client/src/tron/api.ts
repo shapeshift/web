@@ -109,20 +109,11 @@ export class TronApi {
             }
           }
 
-          const balanceResults = await Promise.all(
-            Array.from(discoveredContracts).map(contractAddress =>
-              this.getTRC20Balance({ address: params.pubkey, contractAddress }).then(balance => ({
-                contractAddress,
-                balance,
-              })),
-            ),
-          )
-
-          balanceResults.forEach(({ contractAddress, balance }) => {
-            if (balance !== '0') {
-              tokens.push({ contractAddress, balance })
-            }
-          })
+          for (const contractAddress of discoveredContracts) {
+            await this.throttle()
+            const balance = await this.getTRC20Balance({ address: params.pubkey, contractAddress })
+            if (balance !== '0') tokens.push({ contractAddress, balance })
+          }
         } catch (_fallbackErr) {
           // Fallback also failed - continue with what we have
         }

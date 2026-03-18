@@ -279,9 +279,7 @@ const MarketsTable = memo(() => {
   return (
     <Stack spacing={4}>
       <Stack spacing={1}>
-        <HelperTooltip label={translate('chainflipLending.utilisationTooltip')}>
-          <Heading size='md'>{translate('chainflipLending.dashboard.lendingMarkets')}</Heading>
-        </HelperTooltip>
+        <Heading size='md'>{translate('chainflipLending.dashboard.lendingMarkets')}</Heading>
         <Text
           translation='chainflipLending.dashboard.lendingMarketsDescription'
           color='text.subtle'

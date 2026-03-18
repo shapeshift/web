@@ -104,7 +104,7 @@ export const LtvGauge = memo(({ currentLtv, projectedLtv }: LtvGaugeProps) => {
           overflow='hidden'
           transition='width 0.3s ease'
         >
-          <Flex height='full' width={`${(100 / thumbPosition) * 100}%`}>
+          <Flex height='full' width={`${thumbPosition > 0 ? (100 / thumbPosition) * 100 : 100}%`}>
             <Box width={`${safeWidth}%`} height='full' bg='green.500' flexShrink={0} />
             <Box width={`${riskyWidth}%`} height='full' bg='yellow.500' flexShrink={0} />
             <Box width={`${liquidationWidth}%`} height='full' bg='red.500' flexShrink={0} />

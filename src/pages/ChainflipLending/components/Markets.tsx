@@ -150,13 +150,11 @@ const MarketsTable = () => {
   return (
     <Stack spacing={4}>
       <Stack spacing={1}>
-        <HelperTooltip label={translate('chainflipLending.utilisationTooltip')}>
-          <Text
-            translation='chainflipLending.dashboard.lendingMarkets'
-            fontWeight='bold'
-            fontSize='lg'
-          />
-        </HelperTooltip>
+        <Text
+          translation='chainflipLending.dashboard.lendingMarkets'
+          fontWeight='bold'
+          fontSize='lg'
+        />
         <Text
           translation='chainflipLending.dashboard.lendingMarketsDescription'
           color='text.subtle'

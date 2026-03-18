@@ -84,10 +84,10 @@ export const RepayConfirm = memo(({ assetId }: RepayConfirmProps) => {
     closeModal()
   }, [scAccount, queryClient, closeModal])
 
-  const handleViewDashboard = useCallback(() => {
-    closeModal()
+  const handleViewDashboard = useCallback(async () => {
+    await handleDone()
     navigate('/chainflip-lending')
-  }, [closeModal, navigate])
+  }, [handleDone, navigate])
 
   const handleBack = useCallback(() => {
     actorRef.send({ type: 'BACK' })
@@ -321,7 +321,7 @@ export const RepayConfirm = memo(({ assetId }: RepayConfirmProps) => {
               </RawText>
               {isFullRepayment && (
                 <Badge colorScheme='green' fontSize='xs'>
-                  Full
+                  {translate('chainflipLending.repay.full')}
                 </Badge>
               )}
             </HStack>

@@ -409,7 +409,7 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
                   value={estYearlyEarningsFiat}
                   fontSize='sm'
                   fontWeight='medium'
-                  suffix=' / year'
+                  suffix={` / ${translate('chainflipLending.supply.year')}`}
                 />
               </Flex>
             )}

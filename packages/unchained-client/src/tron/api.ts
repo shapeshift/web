@@ -92,6 +92,7 @@ export class TronApi {
             'TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8', // USDC
           ]
 
+          const MAX_FALLBACK_CONTRACTS = 20
           const discoveredContracts = new Set<string>(HARDCODED_TOP_TOKENS)
 
           const trc20TxResponse = await fetch(
@@ -109,13 +110,19 @@ export class TronApi {
             }
           }
 
-          for (const contractAddress of discoveredContracts) {
+          for (const contractAddress of Array.from(discoveredContracts).slice(
+            0,
+            MAX_FALLBACK_CONTRACTS,
+          )) {
             await this.throttle()
             const balance = await this.getTRC20Balance({ address: params.pubkey, contractAddress })
             if (balance !== '0') tokens.push({ contractAddress, balance })
           }
-        } catch (_fallbackErr) {
-          // Fallback also failed - continue with what we have
+        } catch (fallbackErr) {
+          console.error('Failed TRC20 fallback discovery for non-activated TRON account', {
+            address: `${params.pubkey.slice(0, 6)}...${params.pubkey.slice(-4)}`,
+            error: fallbackErr,
+          })
         }
       }
     } catch (err) {

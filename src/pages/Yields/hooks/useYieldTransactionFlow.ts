@@ -1029,10 +1029,22 @@ export const useYieldTransactionFlow = ({
     yieldItem,
   ])
 
-  const isAmountLocked = useMemo(
-    () => transactionSteps.some(step => Boolean(step.txHash)),
-    [transactionSteps],
-  )
+  const isAmountLocked = useMemo(() => {
+    const hasLoadingStep = transactionSteps.some(step => step.status === 'loading')
+    const hasFailedStep = transactionSteps.some(step => step.status === 'failed')
+
+    // Lock when a TX is in-flight
+    if (hasLoadingStep) return true
+
+    // Unlock when any step has failed and nothing is in-flight
+    // (user rejected deposit TX or TX failed on-chain - let them adjust amount and retry)
+    if (hasFailedStep) return false
+
+    // Lock if any step has been broadcast (has txHash) - covers:
+    // - approval succeeded, deposit pending (about to prompt)
+    // - all steps succeeded
+    return transactionSteps.some(step => Boolean(step.txHash))
+  }, [transactionSteps])
 
   return useMemo(
     () => ({

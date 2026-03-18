@@ -73,10 +73,10 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
     closeModal()
   }, [scAccount, queryClient, closeModal])
 
-  const handleViewDashboard = useCallback(() => {
-    closeModal()
+  const handleViewDashboard = useCallback(async () => {
+    await handleDone()
     navigate('/chainflip-lending')
-  }, [closeModal, navigate])
+  }, [handleDone, navigate])
 
   const handleBack = useCallback(() => {
     actorRef.send({ type: 'BACK' })

@@ -219,6 +219,7 @@ export const NextStepsCard = memo(() => {
               height='40px'
               borderRadius='xl'
               fontWeight='semibold'
+              fontSize='sm'
               onClick={handleSupply}
             >
               {translate('chainflipLending.dashboard.supply')}
@@ -229,6 +230,7 @@ export const NextStepsCard = memo(() => {
               height='40px'
               borderRadius='xl'
               fontWeight='semibold'
+              fontSize='sm'
               bg='whiteAlpha.50'
               onClick={handleAddCollateral}
             >

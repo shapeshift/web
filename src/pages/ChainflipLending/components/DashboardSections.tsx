@@ -72,7 +72,7 @@ const SectionHeader = ({
           <Text translation={titleKey} fontWeight='bold' fontSize='lg' />
         </HelperTooltip>
         <Skeleton isLoaded={!isLoading}>
-          <Amount.Fiat value={totalFiat} fontSize='lg' fontWeight='bold' color='text.subtle' />
+          <Amount.Fiat value={totalFiat} fontSize='lg' fontWeight='bold' />
         </Skeleton>
       </HStack>
       <HStack spacing={2}>
@@ -87,7 +87,7 @@ const SectionHeader = ({
           </Button>
         )}
         {secondaryAction && (
-          <Button size='sm' variant='ghost' onClick={secondaryAction.handleClick}>
+          <Button size='sm' variant='outline' onClick={secondaryAction.handleClick}>
             ↑ {translate(secondaryAction.labelKey)}
           </Button>
         )}
@@ -281,7 +281,7 @@ export const SuppliedSection = memo(() => {
   }, [chainflipLendingModal, supplyPositions])
 
   return (
-    <Card data-testid='chainflip-lending-supplied'>
+    <Card data-testid='chainflip-lending-supplied' borderStyle={supplyPositions.length === 0 && !isLoading ? 'dashed' : undefined}>
       <CardBody>
         <Stack spacing={4}>
           <SectionHeader
@@ -389,7 +389,7 @@ export const CollateralSection = memo(() => {
   }, [chainflipLendingModal, collateralWithFiat])
 
   return (
-    <Card data-testid='chainflip-lending-collateral'>
+    <Card data-testid='chainflip-lending-collateral' borderStyle={collateralWithFiat.length === 0 && !isLoading ? 'dashed' : undefined}>
       <CardBody>
         <Stack spacing={4}>
           <SectionHeader
@@ -524,7 +524,7 @@ export const BorrowedSection = memo(() => {
   }, [chainflipLendingModal, loansWithFiat])
 
   return (
-    <Card data-testid='chainflip-lending-borrowed'>
+    <Card data-testid='chainflip-lending-borrowed' borderStyle={loansWithFiat.length === 0 && !isLoading ? 'dashed' : undefined}>
       <CardBody>
         <Stack spacing={4}>
           <SectionHeader

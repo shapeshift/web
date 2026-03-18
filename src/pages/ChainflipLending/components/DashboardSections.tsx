@@ -52,7 +52,7 @@ type SectionHeaderProps = {
   totalFiat: string
   isLoading: boolean
   primaryAction?: { labelKey: string; handleClick: () => void; testId?: string }
-  secondaryAction?: { labelKey: string; handleClick: () => void }
+  secondaryAction?: { labelKey: string; handleClick: () => void; prefix?: string }
 }
 
 const SectionHeader = ({
@@ -88,7 +88,7 @@ const SectionHeader = ({
         )}
         {secondaryAction && (
           <Button size='sm' variant='outline' onClick={secondaryAction.handleClick}>
-            ↑ {translate(secondaryAction.labelKey)}
+            {secondaryAction.prefix ?? '↑'} {translate(secondaryAction.labelKey)}
           </Button>
         )}
       </HStack>
@@ -546,6 +546,7 @@ export const BorrowedSection = memo(() => {
                 ? {
                     labelKey: 'chainflipLending.dashboard.repay',
                     handleClick: handleRepay,
+                    prefix: '↻',
                   }
                 : undefined
             }
@@ -593,7 +594,7 @@ export const BorrowedSection = memo(() => {
                 onClick={handleVoluntaryLiquidation}
               >
                 {translate('chainflipLending.dashboard.cantRepay')}{' '}
-                {translate('chainflipLending.dashboard.startLiquidation')}
+                {translate('chainflipLending.dashboard.startLiquidation')} →
               </Button>
             </>
           ) : (

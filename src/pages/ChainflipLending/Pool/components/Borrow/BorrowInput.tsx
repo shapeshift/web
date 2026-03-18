@@ -33,6 +33,8 @@ type BorrowInputProps = {
   onAssetChange: (assetId: AssetId) => void
 }
 
+const DEFAULT_RISKY_LTV = 0.8
+
 export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
   const translate = useTranslate()
   const {
@@ -99,6 +101,12 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
   }, [totalCollateralFiat, totalBorrowedFiat, inputFiat, currentLtvBps])
 
   const projectedLtvDecimal = useMemo(() => projectedLtvBps / 10000, [projectedLtvBps])
+
+  const riskyLtv = thresholds?.target ?? DEFAULT_RISKY_LTV
+  const projectedLtvColor = useMemo(
+    () => (projectedLtvDecimal > riskyLtv ? 'red.500' : 'text.base'),
+    [projectedLtvDecimal, riskyLtv],
+  )
 
   const assetIds = useMemo(() => Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as AssetId[], [])
 
@@ -256,7 +264,12 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
                   fontWeight='medium'
                 />
                 <ArrowForwardIcon color='text.subtle' boxSize={3} />
-                <Amount.Percent value={projectedLtvDecimal} fontSize='sm' fontWeight='medium' />
+                <Amount.Percent
+                  value={projectedLtvDecimal}
+                  fontSize='sm'
+                  fontWeight='bold'
+                  color={projectedLtvColor}
+                />
               </HStack>
             </Flex>
           )}

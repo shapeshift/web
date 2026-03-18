@@ -62,6 +62,8 @@ export const BorrowingPowerCard = memo(() => {
     return bnOrZero(totalBorrowedFiat).div(maxBorrow).times(100).toNumber()
   }, [totalBorrowedFiat, maxBorrow])
 
+  const gaugeColor = useMemo(() => (percentUsed > 80 ? 'red.500' : 'blue.500'), [percentUsed])
+
   if (!hasCollateral) return null
 
   return (
@@ -79,10 +81,10 @@ export const BorrowingPowerCard = memo(() => {
             value={percentUsed}
             size='120px'
             thickness='8px'
-            color={percentUsed > 80 ? 'red.500' : percentUsed > 50 ? 'yellow.500' : 'green.500'}
+            color={gaugeColor}
             trackColor='whiteAlpha.100'
           >
-            <CircularProgressLabel fontSize='lg' fontWeight='bold'>
+            <CircularProgressLabel fontSize='lg' fontWeight='bold' color={gaugeColor}>
               {Math.round(percentUsed)}%
             </CircularProgressLabel>
           </CircularProgress>
@@ -90,9 +92,9 @@ export const BorrowingPowerCard = memo(() => {
             <Text
               translation='chainflipLending.dashboard.available'
               fontSize='sm'
-              color='text.subtle'
+              color={gaugeColor}
             />
-            <Amount.Fiat value={available} fontSize='lg' fontWeight='bold' color='green.500' />
+            <Amount.Fiat value={available} fontSize='lg' fontWeight='bold' color={gaugeColor} />
           </Stack>
         </Stack>
       </CardBody>

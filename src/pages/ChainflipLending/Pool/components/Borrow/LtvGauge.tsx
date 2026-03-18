@@ -45,11 +45,6 @@ export const LtvGauge = memo(({ currentLtv, projectedLtv }: LtvGaugeProps) => {
   const riskyLtv = thresholds?.target ?? DEFAULT_RISKY_LTV
   const hardLiquidationLtv = thresholds?.hardLiquidation ?? DEFAULT_HARD_LIQUIDATION_LTV
 
-  const statusColor = useMemo(
-    () => getStatusColor(currentLtv, riskyLtv, hardLiquidationLtv),
-    [currentLtv, riskyLtv, hardLiquidationLtv],
-  )
-
   const thumbPosition = useMemo(() => ltvToPercent(currentLtv), [currentLtv])
 
   const projectedThumbPosition = useMemo(
@@ -153,12 +148,7 @@ export const LtvGauge = memo(({ currentLtv, projectedLtv }: LtvGaugeProps) => {
           zIndex={4}
           transition='left 0.3s ease'
         >
-          <Circle
-            size={THUMB_SIZE}
-            bg={statusColor}
-            borderWidth='3px'
-            borderColor='background.surface.base'
-          />
+          <Circle size='12px' bg='white' boxShadow='0 0 4px rgba(0,0,0,0.5)' />
         </Box>
       </Box>
 

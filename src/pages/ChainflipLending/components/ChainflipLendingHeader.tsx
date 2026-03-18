@@ -1,6 +1,6 @@
 import { Button, Card, CardBody, Container, Flex, Heading, Skeleton, Stack } from '@chakra-ui/react'
 import { ethAssetId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
@@ -60,7 +60,11 @@ const SummaryCard = ({
   )
 }
 
-export const ChainflipLendingHeader = () => {
+type ChainflipLendingHeaderProps = {
+  tabIndex?: number
+}
+
+export const ChainflipLendingHeader = memo(({ tabIndex }: ChainflipLendingHeaderProps) => {
   const translate = useTranslate()
   const navigate = useNavigate()
   const { dispatch: walletDispatch } = useWallet()
@@ -113,7 +117,7 @@ export const ChainflipLendingHeader = () => {
         </PageHeader>
       </Display.Mobile>
       <Stack mb={4}>
-        <Container pt={containerPaddingTop} pb={4}>
+        <Container pt={containerPaddingTop} pb={4} maxWidth='container.xl'>
           <Display.Desktop>
             <Flex justifyContent='space-between' alignItems='flex-start'>
               <Stack>
@@ -129,7 +133,7 @@ export const ChainflipLendingHeader = () => {
             </Flex>
           </Display.Desktop>
           <Flex gap={4} my={6} flexWrap='wrap'>
-            {accountId ? (
+            {accountId && tabIndex === 0 ? (
               <>
                 <SummaryCard
                   value={freeBalanceTotalFiat}
@@ -143,7 +147,7 @@ export const ChainflipLendingHeader = () => {
                   labelKey='chainflipLending.dashboard.supplied'
                   tooltipKey='chainflipLending.dashboard.suppliedTooltip'
                   isLoading={isUserDataLoading}
-                  labelColor='green.400'
+                  labelColor='blue.200'
                   data-testid='chainflip-lending-summary-supplied'
                 />
                 <SummaryCard
@@ -151,7 +155,7 @@ export const ChainflipLendingHeader = () => {
                   labelKey='chainflipLending.dashboard.collateral'
                   tooltipKey='chainflipLending.dashboard.collateralTooltip'
                   isLoading={isUserDataLoading}
-                  labelColor='blue.300'
+                  labelColor='purple.200'
                   data-testid='chainflip-lending-summary-collateral'
                 />
                 <SummaryCard
@@ -159,7 +163,7 @@ export const ChainflipLendingHeader = () => {
                   labelKey='chainflipLending.dashboard.borrowed'
                   tooltipKey='chainflipLending.dashboard.borrowedTooltip'
                   isLoading={isUserDataLoading}
-                  labelColor='purple.300'
+                  labelColor='red.200'
                   data-testid='chainflip-lending-summary-borrowed'
                 />
               </>
@@ -170,7 +174,7 @@ export const ChainflipLendingHeader = () => {
                   labelKey='chainflipLending.totalSupplied'
                   tooltipKey='chainflipLending.totalSuppliedTooltip'
                   isLoading={isPoolsLoading}
-                  labelColor='green.400'
+                  labelColor='blue.200'
                   data-testid='chainflip-lending-summary-total-supplied'
                 />
                 <SummaryCard
@@ -178,7 +182,7 @@ export const ChainflipLendingHeader = () => {
                   labelKey='chainflipLending.availableLiquidity'
                   tooltipKey='chainflipLending.availableLiquidityTooltip'
                   isLoading={isPoolsLoading}
-                  labelColor='blue.300'
+                  labelColor='purple.200'
                   data-testid='chainflip-lending-summary-available-liquidity'
                 />
                 <SummaryCard
@@ -186,21 +190,25 @@ export const ChainflipLendingHeader = () => {
                   labelKey='chainflipLending.totalBorrowed'
                   tooltipKey='chainflipLending.totalBorrowedTooltip'
                   isLoading={isPoolsLoading}
-                  labelColor='purple.300'
+                  labelColor='red.200'
                   data-testid='chainflip-lending-summary-total-borrowed'
                 />
+                {!accountId && (
+                  <Flex
+                    flex={{ base: '100%', md: 1 }}
+                    justifyContent={{ base: 'flex-start', md: 'flex-end' }}
+                    alignItems='center'
+                  >
+                    <Button colorScheme='blue' size='sm' onClick={handleConnectWallet}>
+                      {translate('common.connectWallet')}
+                    </Button>
+                  </Flex>
+                )}
               </>
             )}
           </Flex>
-          {!accountId && (
-            <Flex mb={4}>
-              <Button colorScheme='blue' size='sm' onClick={handleConnectWallet}>
-                {translate('common.connectWallet')}
-              </Button>
-            </Flex>
-          )}
         </Container>
       </Stack>
     </>
   )
-}
+})

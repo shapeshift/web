@@ -1,7 +1,8 @@
-import { Button, Card, CardBody, Flex, HStack, Skeleton, Stack } from '@chakra-ui/react'
+import { Badge, Button, Card, CardBody, Flex, HStack, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -9,7 +10,10 @@ import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { RawText, Text } from '@/components/Text'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
+import {
+  CHAINFLIP_LENDING_ASSET_BY_ASSET_ID,
+  CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET,
+} from '@/lib/chainflip/constants'
 import type { ChainflipFreeBalanceWithFiat } from '@/pages/ChainflipLending/hooks/useChainflipFreeBalances'
 import { useChainflipFreeBalances } from '@/pages/ChainflipLending/hooks/useChainflipFreeBalances'
 import type { ChainflipLendingPoolWithFiat } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
@@ -26,23 +30,44 @@ import { useAppSelector } from '@/state/store'
 
 const LENDING_ASSET_IDS = Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as AssetId[]
 
+// Shared grid for consistent alignment across dashboard sections
+const dashboardRowGrid = '1fr 100px 120px'
+
 type AssetRowProps = {
   assetId: AssetId
   children: React.ReactNode
+  badge?: React.ReactNode
+  onClick?: () => void
 }
 
-const AssetRow = ({ assetId, children }: AssetRowProps) => {
+const AssetRow = ({ assetId, children, badge, onClick }: AssetRowProps) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) return null
 
   return (
-    <Flex justifyContent='space-between' alignItems='center' py={2}>
+    <Button
+      variant='ghost'
+      display='grid'
+      gridTemplateColumns={dashboardRowGrid}
+      columnGap={4}
+      alignItems='center'
+      textAlign='left'
+      py={4}
+      px={2}
+      width='full'
+      height='auto'
+      color='text.base'
+      onClick={onClick}
+      _hover={onClick ? { bg: 'whiteAlpha.100' } : { bg: 'transparent' }}
+      cursor={onClick ? 'pointer' : 'default'}
+    >
       <HStack spacing={3}>
         <AssetIcon assetId={assetId} size='sm' />
         <RawText fontWeight='medium'>{asset.name}</RawText>
+        {badge}
       </HStack>
       {children}
-    </Flex>
+    </Button>
   )
 }
 
@@ -79,7 +104,8 @@ const SectionHeader = ({
         {primaryAction && (
           <Button
             size='sm'
-            colorScheme='blue'
+            variant='ghost-filled'
+            colorScheme='white'
             onClick={primaryAction.handleClick}
             data-testid={primaryAction.testId}
           >
@@ -87,7 +113,12 @@ const SectionHeader = ({
           </Button>
         )}
         {secondaryAction && (
-          <Button size='sm' variant='outline' onClick={secondaryAction.handleClick}>
+          <Button
+            size='sm'
+            variant='ghost'
+            colorScheme='white'
+            onClick={secondaryAction.handleClick}
+          >
             {secondaryAction.prefix ?? '↑'} {translate(secondaryAction.labelKey)}
           </Button>
         )}
@@ -117,7 +148,7 @@ const EmptyState = ({
     <Stack spacing={3} py={4} alignItems='center' textAlign='center'>
       <Text translation={titleKey} fontWeight='bold' fontSize='md' />
       <Text translation={descriptionKey} color='text.subtle' fontSize='sm' />
-      <Button size='sm' onClick={onAction} data-testid={actionTestId}>
+      <Button size='md' colorScheme='blue' onClick={onAction} data-testid={actionTestId}>
         + {translate(actionLabelKey)}
       </Button>
     </Stack>
@@ -128,10 +159,18 @@ const EmptyState = ({
 const FreeBalanceRow = ({ balance }: { balance: ChainflipFreeBalanceWithFiat }) => {
   const assetId = balance.assetId
   const asset = useAppSelector(state => (assetId ? selectAssetById(state, assetId) : undefined))
+  const navigate = useNavigate()
+
+  const handleRowClick = useCallback(() => {
+    if (!assetId) return
+    navigate(`/chainflip-lending/pool/${assetId}`)
+  }, [navigate, assetId])
+
   if (!assetId || bnOrZero(balance.balanceCryptoPrecision).isZero()) return null
 
   return (
-    <AssetRow assetId={assetId}>
+    <AssetRow assetId={assetId} onClick={handleRowClick}>
+      <Flex />
       <Stack spacing={0} alignItems='flex-end'>
         <Amount.Crypto
           value={balance.balanceCryptoPrecision}
@@ -198,14 +237,18 @@ export const FreeBalanceSection = memo(() => {
             <Stack>
               <Flex
                 justifyContent='space-between'
-                px={0}
+                px={2}
                 py={1}
                 color='text.subtle'
                 fontSize='xs'
                 fontWeight='bold'
+                display='grid'
+                gridTemplateColumns={dashboardRowGrid}
+                columnGap={4}
               >
                 <RawText>Asset</RawText>
-                <RawText>Balance</RawText>
+                <Flex />
+                <RawText textAlign='right'>Balance</RawText>
               </Flex>
               <Stack spacing={0} divider={<Flex borderBottomWidth={1} borderColor='border.base' />}>
                 {nonZeroBalances.map(balance =>
@@ -231,20 +274,29 @@ const SuppliedRow = ({
   apy: string
 }) => {
   const asset = useAppSelector(state => selectAssetById(state, position.assetId))
+  const navigate = useNavigate()
+
+  const handleRowClick = useCallback(() => {
+    navigate(`/chainflip-lending/pool/${position.assetId}`)
+  }, [navigate, position.assetId])
 
   return (
-    <AssetRow assetId={position.assetId}>
-      <HStack spacing={8}>
-        <Amount.Percent value={apy} color='green.500' fontSize='sm' />
-        <Stack spacing={0} alignItems='flex-end'>
-          <Amount.Crypto
-            value={position.totalAmountCryptoPrecision}
-            symbol={asset?.symbol ?? ''}
-            fontSize='sm'
-          />
-          <Amount.Fiat value={position.totalAmountFiat} fontSize='xs' color='text.subtle' />
-        </Stack>
-      </HStack>
+    <AssetRow assetId={position.assetId} onClick={handleRowClick}>
+      <Amount.Percent
+        value={apy}
+        color='blue.500'
+        fontSize='sm'
+        textAlign='right'
+        fontWeight='medium'
+      />
+      <Stack spacing={0} alignItems='flex-end'>
+        <Amount.Crypto
+          value={position.totalAmountCryptoPrecision}
+          symbol={asset?.symbol ?? ''}
+          fontSize='sm'
+        />
+        <Amount.Fiat value={position.totalAmountFiat} fontSize='xs' color='text.subtle' />
+      </Stack>
     </AssetRow>
   )
 }
@@ -281,7 +333,11 @@ export const SuppliedSection = memo(() => {
   }, [chainflipLendingModal, supplyPositions])
 
   return (
-    <Card data-testid='chainflip-lending-supplied' borderStyle={supplyPositions.length === 0 && !isLoading ? 'dashed' : undefined}>
+    <Card
+      data-testid='chainflip-lending-supplied'
+      borderStyle={supplyPositions.length === 0 && !isLoading ? 'dashed' : undefined}
+      borderWidth={supplyPositions.length === 0 && !isLoading ? 1 : undefined}
+    >
       <CardBody>
         <Stack spacing={4}>
           <SectionHeader
@@ -317,17 +373,18 @@ export const SuppliedSection = memo(() => {
             <Stack>
               <Flex
                 justifyContent='space-between'
-                px={0}
+                px={2}
                 py={1}
                 color='text.subtle'
                 fontSize='xs'
                 fontWeight='bold'
+                display='grid'
+                gridTemplateColumns={dashboardRowGrid}
+                columnGap={4}
               >
                 <RawText>Asset</RawText>
-                <HStack spacing={8}>
-                  <Text translation='chainflipLending.dashboard.apy' />
-                  <RawText>Supplied</RawText>
-                </HStack>
+                <Text translation='chainflipLending.dashboard.apy' textAlign='right' />
+                <RawText textAlign='right'>Supplied</RawText>
               </Flex>
               <Stack spacing={0} divider={<Flex borderBottomWidth={1} borderColor='border.base' />}>
                 {supplyPositions.map(position => (
@@ -355,11 +412,34 @@ export const SuppliedSection = memo(() => {
 })
 
 // Collateral Section
-const CollateralRow = ({ collateral }: { collateral: CollateralWithFiat }) => {
+const CollateralRow = ({
+  collateral,
+  isTopupAsset,
+}: {
+  collateral: CollateralWithFiat
+  isTopupAsset: boolean
+}) => {
+  const translate = useTranslate()
   const asset = useAppSelector(state => selectAssetById(state, collateral.assetId))
+  const navigate = useNavigate()
+
+  const handleRowClick = useCallback(() => {
+    navigate(`/chainflip-lending/pool/${collateral.assetId}`)
+  }, [navigate, collateral.assetId])
 
   return (
-    <AssetRow assetId={collateral.assetId}>
+    <AssetRow
+      assetId={collateral.assetId}
+      badge={
+        isTopupAsset && (
+          <Badge colorScheme='green' variant='subtle' borderRadius='full' px={2} fontSize='2xs'>
+            {translate('chainflipLending.dashboard.topupAsset')}
+          </Badge>
+        )
+      }
+      onClick={handleRowClick}
+    >
+      <Flex />
       <Stack spacing={0} alignItems='flex-end'>
         <Amount.Crypto
           value={collateral.amountCryptoPrecision}
@@ -374,7 +454,13 @@ const CollateralRow = ({ collateral }: { collateral: CollateralWithFiat }) => {
 
 export const CollateralSection = memo(() => {
   const chainflipLendingModal = useModal('chainflipLending')
-  const { collateralWithFiat, totalCollateralFiat, isLoading } = useChainflipLoanAccount()
+  const { collateralWithFiat, totalCollateralFiat, loanAccount, isLoading } =
+    useChainflipLoanAccount()
+
+  const topupAssetId = useMemo(() => {
+    if (!loanAccount?.collateral_topup_asset) return undefined
+    return CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET[loanAccount.collateral_topup_asset.asset]
+  }, [loanAccount?.collateral_topup_asset])
 
   const handleAddCollateral = useCallback(() => {
     const firstAssetId = LENDING_ASSET_IDS[0]
@@ -389,7 +475,11 @@ export const CollateralSection = memo(() => {
   }, [chainflipLendingModal, collateralWithFiat])
 
   return (
-    <Card data-testid='chainflip-lending-collateral' borderStyle={collateralWithFiat.length === 0 && !isLoading ? 'dashed' : undefined}>
+    <Card
+      data-testid='chainflip-lending-collateral'
+      borderStyle={collateralWithFiat.length === 0 && !isLoading ? 'dashed' : undefined}
+      borderWidth={collateralWithFiat.length === 0 && !isLoading ? 1 : undefined}
+    >
       <CardBody>
         <Stack spacing={4}>
           <SectionHeader
@@ -425,18 +515,26 @@ export const CollateralSection = memo(() => {
             <Stack>
               <Flex
                 justifyContent='space-between'
-                px={0}
+                px={2}
                 py={1}
                 color='text.subtle'
                 fontSize='xs'
                 fontWeight='bold'
+                display='grid'
+                gridTemplateColumns={dashboardRowGrid}
+                columnGap={4}
               >
                 <RawText>Asset</RawText>
-                <RawText>Amount</RawText>
+                <Flex />
+                <RawText textAlign='right'>Amount</RawText>
               </Flex>
               <Stack spacing={0} divider={<Flex borderBottomWidth={1} borderColor='border.base' />}>
                 {collateralWithFiat.map(collateral => (
-                  <CollateralRow key={collateral.assetId} collateral={collateral} />
+                  <CollateralRow
+                    key={collateral.assetId}
+                    collateral={collateral}
+                    isTopupAsset={collateral.assetId === topupAssetId}
+                  />
                 ))}
               </Stack>
             </Stack>
@@ -458,20 +556,29 @@ export const CollateralSection = memo(() => {
 // Borrowed Section
 const BorrowedRow = ({ loan, borrowRate }: { loan: LoanWithFiat; borrowRate: string }) => {
   const asset = useAppSelector(state => selectAssetById(state, loan.assetId))
+  const navigate = useNavigate()
+
+  const handleRowClick = useCallback(() => {
+    navigate(`/chainflip-lending/pool/${loan.assetId}`)
+  }, [navigate, loan.assetId])
 
   return (
-    <AssetRow assetId={loan.assetId}>
-      <HStack spacing={8}>
-        <Amount.Percent value={borrowRate} color='yellow.500' fontSize='sm' />
-        <Stack spacing={0} alignItems='flex-end'>
-          <Amount.Crypto
-            value={loan.principalAmountCryptoPrecision}
-            symbol={asset?.symbol ?? ''}
-            fontSize='sm'
-          />
-          <Amount.Fiat value={loan.principalAmountFiat} fontSize='xs' color='text.subtle' />
-        </Stack>
-      </HStack>
+    <AssetRow assetId={loan.assetId} onClick={handleRowClick}>
+      <Amount.Percent
+        value={borrowRate}
+        color='yellow.500'
+        fontSize='sm'
+        textAlign='right'
+        fontWeight='medium'
+      />
+      <Stack spacing={0} alignItems='flex-end'>
+        <Amount.Crypto
+          value={loan.principalAmountCryptoPrecision}
+          symbol={asset?.symbol ?? ''}
+          fontSize='sm'
+        />
+        <Amount.Fiat value={loan.principalAmountFiat} fontSize='xs' color='text.subtle' />
+      </Stack>
     </AssetRow>
   )
 }
@@ -524,7 +631,11 @@ export const BorrowedSection = memo(() => {
   }, [chainflipLendingModal, loansWithFiat])
 
   return (
-    <Card data-testid='chainflip-lending-borrowed' borderStyle={loansWithFiat.length === 0 && !isLoading ? 'dashed' : undefined}>
+    <Card
+      data-testid='chainflip-lending-borrowed'
+      borderStyle={loansWithFiat.length === 0 && !isLoading ? 'dashed' : undefined}
+      borderWidth={loansWithFiat.length === 0 && !isLoading ? 1 : undefined}
+    >
       <CardBody>
         <Stack spacing={4}>
           <SectionHeader
@@ -546,7 +657,7 @@ export const BorrowedSection = memo(() => {
                 ? {
                     labelKey: 'chainflipLending.dashboard.repay',
                     handleClick: handleRepay,
-                    prefix: '↻',
+                    prefix: '⟲',
                   }
                 : undefined
             }
@@ -562,17 +673,18 @@ export const BorrowedSection = memo(() => {
               <Stack>
                 <Flex
                   justifyContent='space-between'
-                  px={0}
+                  px={2}
                   py={1}
                   color='text.subtle'
                   fontSize='xs'
                   fontWeight='bold'
+                  display='grid'
+                  gridTemplateColumns={dashboardRowGrid}
+                  columnGap={4}
                 >
                   <RawText>Asset</RawText>
-                  <HStack spacing={8}>
-                    <Text translation='chainflipLending.dashboard.borrowRate' />
-                    <RawText>Amount</RawText>
-                  </HStack>
+                  <Text translation='chainflipLending.dashboard.borrowRate' textAlign='right' />
+                  <RawText textAlign='right'>Amount</RawText>
                 </Flex>
                 <Stack
                   spacing={0}

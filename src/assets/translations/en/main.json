@@ -2818,6 +2818,7 @@
       "noActiveLoansDescription": "Post collateral first, then open borrow against it.",
       "cantRepay": "Can't Repay?",
       "startLiquidation": "Start Liquidation",
+      "topupAsset": "Top-up Asset",
       "getStarted": "Get Started",
       "depositFirstAsset": "Deposit your first asset to get started",
       "depositFirstAssetDescription": "Your first deposit handles everything - account creation, FLIP funding for State Chain gas, and a recovery address for the chain you deposit from. Future deposits skip all of this.",

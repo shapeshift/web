@@ -40,6 +40,17 @@ export const LoanHealth = memo(() => {
     return bnOrZero(totalCollateralFiat).minus(liquidationCollateral).toFixed(2)
   }, [totalCollateralFiat, totalBorrowedFiat, hardLiquidationLtv])
 
+  const liquidationDistancePercent = useMemo(() => {
+    if (bnOrZero(totalCollateralFiat).isZero()) return 0
+    return bnOrZero(liquidationDistance).div(totalCollateralFiat).times(100).toNumber()
+  }, [liquidationDistance, totalCollateralFiat])
+
+  const liquidationDistanceColor = useMemo(() => {
+    if (liquidationDistancePercent > 10) return 'green.500'
+    if (liquidationDistancePercent >= 5) return 'yellow.500'
+    return 'red.500'
+  }, [liquidationDistancePercent])
+
   const ltvColor = useMemo(
     () => getLtvColor(currentLtv, riskyLtv, hardLiquidationLtv),
     [currentLtv, riskyLtv, hardLiquidationLtv],
@@ -88,7 +99,7 @@ export const LoanHealth = memo(() => {
                 value={liquidationDistance}
                 fontSize='sm'
                 fontWeight='bold'
-                color={bnOrZero(liquidationDistance).gt(0) ? 'green.500' : 'red.500'}
+                color={liquidationDistanceColor}
               />
             </Flex>
           </Flex>

@@ -206,17 +206,41 @@ export const Markets = () => {
   const { accountId } = useChainflipLendingAccount()
   const [tabIndex, setTabIndex] = useState(0)
 
-  const headerComponent = useMemo(() => <ChainflipLendingHeader />, [])
+  const headerComponent = useMemo(() => <ChainflipLendingHeader tabIndex={tabIndex} />, [tabIndex])
 
   return (
     <Main headerComponent={headerComponent} isSubPage>
       <SEO title='Chainflip Lending' />
       <Stack spacing={6}>
         {accountId ? (
-          <Tabs index={tabIndex} onChange={setTabIndex} variant='soft-rounded' colorScheme='blue'>
-            <TabList data-testid='chainflip-lending-tabs'>
-              <Tab>{translate('chainflipLending.myDashboard')}</Tab>
-              <Tab>{translate('chainflipLending.markets')}</Tab>
+          <Tabs index={tabIndex} onChange={setTabIndex} variant='unstyled'>
+            <TabList data-testid='chainflip-lending-tabs' gap={6}>
+              <Tab
+                px={0}
+                py={2}
+                color='text.subtle'
+                fontWeight='bold'
+                _selected={{
+                  color: 'text.base',
+                  borderBottomWidth: 2,
+                  borderColor: 'text.base',
+                }}
+              >
+                {translate('chainflipLending.myDashboard')}
+              </Tab>
+              <Tab
+                px={0}
+                py={2}
+                color='text.subtle'
+                fontWeight='bold'
+                _selected={{
+                  color: 'text.base',
+                  borderBottomWidth: 2,
+                  borderColor: 'text.base',
+                }}
+              >
+                {translate('chainflipLending.markets')}
+              </Tab>
             </TabList>
             <TabPanels>
               <TabPanel px={0}>

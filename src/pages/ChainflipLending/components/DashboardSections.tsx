@@ -88,7 +88,7 @@ const SectionHeader = ({
         )}
         {secondaryAction && (
           <Button size='sm' variant='ghost' onClick={secondaryAction.handleClick}>
-            {translate(secondaryAction.labelKey)}
+            ↑ {translate(secondaryAction.labelKey)}
           </Button>
         )}
       </HStack>
@@ -117,7 +117,7 @@ const EmptyState = ({
     <Stack spacing={3} py={4} alignItems='center' textAlign='center'>
       <Text translation={titleKey} fontWeight='bold' fontSize='md' />
       <Text translation={descriptionKey} color='text.subtle' fontSize='sm' />
-      <Button size='sm' variant='outline' onClick={onAction} data-testid={actionTestId}>
+      <Button size='sm' onClick={onAction} data-testid={actionTestId}>
         + {translate(actionLabelKey)}
       </Button>
     </Stack>

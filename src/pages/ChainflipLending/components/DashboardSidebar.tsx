@@ -286,7 +286,7 @@ export const NextStepsCard = memo(() => {
   return (
     <Card overflow='hidden' data-testid='chainflip-lending-next-steps'>
       <CardBody pt={0}>
-        <Stack spacing={4}>
+        <Stack spacing={5}>
           <NextStepsArt colorScheme={content.colorScheme} />
           <Text
             translation='chainflipLending.dashboard.yourNextSteps'

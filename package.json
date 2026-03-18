@@ -156,7 +156,6 @@
     "@walletconnect/utils": "^2.20.2",
     "@xstate/react": "5.0.5",
     "ai": "^6.0.39",
-    "alchemy-sdk": "^3.4.1",
     "axios": "^1.13.5",
     "axios-cache-interceptor": "^1.11.1",
     "bech32": "^2.0.0",

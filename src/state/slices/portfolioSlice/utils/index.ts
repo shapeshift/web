@@ -487,8 +487,10 @@ export const checkAccountHasActivity = (account: Account<ChainId>) => {
       return hasActivity
     }
     case CHAIN_NAMESPACE.Tron: {
-      const hasActivity = bnOrZero(account.balance).gt(0)
-
+      const tronAccount = account as Account<KnownChainIds.TronMainnet>
+      const hasActivity =
+        bnOrZero(tronAccount.balance).gt(0) ||
+        (tronAccount.chainSpecific.tokens ?? []).some(token => bnOrZero(token.balance).gt(0))
       return hasActivity
     }
     case CHAIN_NAMESPACE.Sui: {

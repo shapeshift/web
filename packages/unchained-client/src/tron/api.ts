@@ -81,6 +81,51 @@ export class TronApi {
             })
           }
         })
+      } else if (!trc20Data.data || trc20Data.data.length === 0) {
+        // Non-activated account: /v1/accounts returns data:[] for addresses that have never sent TRX.
+        // Fall back to discovering TRC20 balances via received transactions + hardcoded top tokens.
+        try {
+          await this.throttle()
+
+          const HARDCODED_TOP_TOKENS = [
+            'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t', // USDT
+            'TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8', // USDC
+          ]
+
+          const discoveredContracts = new Set<string>(HARDCODED_TOP_TOKENS)
+
+          const trc20TxResponse = await fetch(
+            `${this.rpcUrl}/v1/accounts/${params.pubkey}/transactions/trc20?limit=200&only_to=true`,
+          )
+
+          if (trc20TxResponse.ok) {
+            const trc20TxData = await trc20TxResponse.json()
+
+            if (trc20TxData.data && Array.isArray(trc20TxData.data)) {
+              trc20TxData.data.forEach((tx: { token_info?: { address?: string } }) => {
+                const contractAddress = tx.token_info?.address
+                if (contractAddress) discoveredContracts.add(contractAddress)
+              })
+            }
+          }
+
+          const balanceResults = await Promise.all(
+            Array.from(discoveredContracts).map(contractAddress =>
+              this.getTRC20Balance({ address: params.pubkey, contractAddress }).then(balance => ({
+                contractAddress,
+                balance,
+              })),
+            ),
+          )
+
+          balanceResults.forEach(({ contractAddress, balance }) => {
+            if (balance !== '0') {
+              tokens.push({ contractAddress, balance })
+            }
+          })
+        } catch (_fallbackErr) {
+          // Fallback also failed - continue with what we have
+        }
       }
     } catch (err) {
       // TRC20 fetch failed, continue with just TRC10 tokens

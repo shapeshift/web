@@ -37,11 +37,11 @@ export class ChainAdapter extends SecondClassEvmAdapter<KnownChainIds.TempoMainn
     })
   }
 
-  getDisplayName() {
+  getDisplayName(): ChainAdapterDisplayName {
     return ChainAdapterDisplayName.Tempo
   }
 
-  getName() {
+  getName(): string {
     return 'Tempo'
   }
 

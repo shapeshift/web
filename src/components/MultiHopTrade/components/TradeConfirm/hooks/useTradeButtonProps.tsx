@@ -74,7 +74,6 @@ export const useTradeButtonProps = ({
 
   const {
     handleSignAllowanceApproval,
-    isAllowanceApprovalLoading,
     isAllowanceApprovalPending,
     handleSignAllowanceReset,
     isAllowanceResetLoading,
@@ -206,13 +205,12 @@ export const useTradeButtonProps = ({
         onSubmit: handleSignAllowanceApproval,
         buttonText,
         isLoading:
-          isAllowanceApprovalLoading ||
           isAllowanceApprovalPending ||
           // If the allowance approval is complete but we're still at allowance approval stage, assume we're pending
           // That's as good as we can do heuristics-wise, and if user decided to manually change the allowance to a lower one in their wallet before submitting the Tx for any reason,
           // then that will be an infinite load
           allowanceApproval.state === TransactionExecutionState.Complete,
-        isDisabled: isAllowanceApprovalLoading,
+        isDisabled: isAllowanceApprovalPending,
       }
     case HopExecutionState.AwaitingPermit2Eip712Sign:
       return {

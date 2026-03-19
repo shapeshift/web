@@ -24,7 +24,6 @@ import type { ApiQuote } from '@/state/apis/swapper/types'
 import { TradeQuoteValidationError } from '@/state/apis/swapper/types'
 import { preferences, QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
-  selectFeeAssetByChainId,
   selectFeeAssetById,
   selectIsAssetWithoutMarketData,
   selectMarketDataByAssetIdUserCurrency,
@@ -131,12 +130,6 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
       dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
       onBack && onBack()
     }, [dispatch, onBack, quoteData])
-
-    const feeAsset = useAppSelector(state =>
-      selectFeeAssetByChainId(state, sellAsset.chainId ?? ''),
-    )
-    if (!feeAsset)
-      throw new Error(`TradeQuoteLoaded: no fee asset found for chainId ${sellAsset.chainId}!`)
 
     const isAmountEntered = bnOrZero(sellAmountCryptoPrecision).gt(0)
     const hasNegativeRatio =

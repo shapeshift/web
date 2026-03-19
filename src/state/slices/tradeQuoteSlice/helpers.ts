@@ -12,6 +12,7 @@ import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
 
 import { initialTradeExecutionState } from './constants'
+import { getEffectiveNetworkFeeAssetId, getEffectiveNetworkFeeCryptoBaseUnit } from './networkFee'
 import type { ActiveQuoteMeta } from './types'
 import { QuoteSortOption } from './types'
 
@@ -19,15 +20,33 @@ import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { isSome } from '@/lib/utils'
 import type { ApiQuote } from '@/state/apis/swapper/types'
-import { selectFeeAssetById, selectMarketDataByFilter } from '@/state/slices/selectors'
+import {
+  selectAssetById,
+  selectFeeAssetById,
+  selectMarketDataByFilter,
+} from '@/state/slices/selectors'
 import { store } from '@/state/store'
 
+const getFeeAssetForStep = ({
+  getFeeAsset,
+  step,
+}: {
+  getFeeAsset: (assetId: AssetId) => Asset
+  step: TradeQuoteStep
+}): Asset => {
+  return getFeeAsset(getEffectiveNetworkFeeAssetId(step))
+}
+
 export const getHopTotalNetworkFeeUserCurrency = (
-  networkFeeCryptoBaseUnit: string | undefined,
+  step: TradeQuoteStep,
   feeAsset: Asset,
   getFeeAssetUserCurrencyRate: (feeAssetId: AssetId) => string | undefined,
 ): BigNumber | undefined => {
   const feeAssetUserCurrencyRate = getFeeAssetUserCurrencyRate(feeAsset.assetId)
+  const networkFeeCryptoBaseUnit = getEffectiveNetworkFeeCryptoBaseUnit({
+    step,
+    feeAssetPrecision: feeAsset.precision,
+  })
 
   if (!networkFeeCryptoBaseUnit) return // network fee is unknown
 
@@ -57,9 +76,9 @@ export const getTotalNetworkFeeUserCurrencyPrecision = (
   if (quote.steps.every(step => !step.feeData.networkFeeCryptoBaseUnit)) return
 
   return quote.steps.reduce((acc, step) => {
-    const feeAsset = getFeeAsset(step.sellAsset.assetId)
+    const feeAsset = getFeeAssetForStep({ getFeeAsset, step })
     const networkFeeFiatPrecision = getHopTotalNetworkFeeUserCurrency(
-      step.feeData.networkFeeCryptoBaseUnit,
+      step,
       feeAsset,
       getFeeAssetRate,
     )
@@ -72,7 +91,7 @@ const getNetworkFeeUserCurrency = (quote: TradeQuote | TradeRate | undefined): B
 
   const state = store.getState()
   const getFeeAsset = (assetId: AssetId) => {
-    const feeAsset = selectFeeAssetById(state, assetId)
+    const feeAsset = selectAssetById(state, assetId) ?? selectFeeAssetById(state, assetId)
     if (feeAsset === undefined) {
       throw Error(`missing fee asset for assetId ${assetId}`)
     }

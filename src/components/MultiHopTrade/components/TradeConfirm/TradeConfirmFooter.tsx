@@ -1,6 +1,13 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { HStack, Icon, Link, Skeleton, Stack, Switch } from '@chakra-ui/react'
-import { mayachainChainId, thorchainChainId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  fromAssetId,
+  mayachainChainId,
+  tempoChainId,
+  tempoPathUsdAssetId,
+  thorchainChainId,
+} from '@shapeshiftoss/caip'
 import { isGridPlus } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
@@ -40,6 +47,10 @@ import {
   selectSellAssetUtxoChangeAddress,
 } from '@/state/slices/tradeInputSlice/selectors'
 import {
+  getEffectiveNetworkFeeAssetId,
+  getEffectiveNetworkFeeCryptoBaseUnit,
+} from '@/state/slices/tradeQuoteSlice/networkFee'
+import {
   selectActiveQuote,
   selectHopExecutionMetadata,
   selectIsActiveSwapperQuoteLoading,
@@ -66,9 +77,20 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   } = useWallet()
   const { currentTradeStep } = useStepperSteps()
   const currentHopIndex = useCurrentHopIndex()
-  const quoteNetworkFeeCryptoBaseUnit = tradeQuoteStep.feeData.networkFeeCryptoBaseUnit
-  const feeAsset = useSelectorWithArgs(selectFeeAssetById, tradeQuoteStep.sellAsset.assetId)
+  const feeAsset = useSelectorWithArgs(
+    state =>
+      selectAssetById(state, getEffectiveNetworkFeeAssetId(tradeQuoteStep)) ??
+      selectFeeAssetById(state, getEffectiveNetworkFeeAssetId(tradeQuoteStep)),
+  )
   const sellAsset = useSelectorWithArgs(selectAssetById, tradeQuoteStep.sellAsset.assetId)
+  const quoteNetworkFeeCryptoBaseUnit = useMemo(
+    () =>
+      getEffectiveNetworkFeeCryptoBaseUnit({
+        step: tradeQuoteStep,
+        feeAssetPrecision: feeAsset?.precision ?? 0,
+      }),
+    [feeAsset?.precision, tradeQuoteStep],
+  )
   const quoteNetworkFeeCryptoPrecision = useMemo(
     () =>
       BigAmount.fromBaseUnit({
@@ -82,9 +104,21 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     feeAsset?.assetId ?? '',
   )
   const isActiveSwapperQuoteLoading = useAppSelector(selectIsActiveSwapperQuoteLoading)
-  const sellChainFeeAsset = useSelectorWithArgs(
-    selectFeeAssetById,
-    tradeQuoteStep.sellAsset.assetId,
+  const sellChainFeeAsset = useSelectorWithArgs(state => {
+    if (tradeQuoteStep.sellAsset.chainId === tempoChainId) {
+      const tempoFeeAssetId =
+        fromAssetId(tradeQuoteStep.sellAsset.assetId).assetNamespace === ASSET_NAMESPACE.erc20
+          ? tradeQuoteStep.sellAsset.assetId
+          : tempoPathUsdAssetId
+
+      return selectAssetById(state, tempoFeeAssetId) ?? selectFeeAssetById(state, tempoFeeAssetId)
+    }
+
+    return selectFeeAssetById(state, tradeQuoteStep.sellAsset.assetId)
+  })
+  const sellChainFeeAssetUserCurrencyRate = useSelectorWithArgs(
+    selectMarketDataByAssetIdUserCurrency,
+    sellChainFeeAsset?.assetId ?? '',
   )
 
   const {
@@ -196,9 +230,9 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   const allowanceResetNetworkFeeUserCurrency = useMemo(
     () =>
       bnOrZero(allowanceResetNetworkFeeCryptoPrecision)
-        .times(bnOrZero(feeAssetUserCurrencyRate?.price))
+        .times(bnOrZero(sellChainFeeAssetUserCurrencyRate?.price))
         .toFixed(),
-    [allowanceResetNetworkFeeCryptoPrecision, feeAssetUserCurrencyRate?.price],
+    [allowanceResetNetworkFeeCryptoPrecision, sellChainFeeAssetUserCurrencyRate?.price],
   )
 
   const approvalNetworkFeeCryptoPrecision = useMemo(
@@ -215,9 +249,9 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   const approvalNetworkFeeUserCurrency = useMemo(
     () =>
       bnOrZero(approvalNetworkFeeCryptoPrecision)
-        .times(bnOrZero(feeAssetUserCurrencyRate?.price))
+        .times(bnOrZero(sellChainFeeAssetUserCurrencyRate?.price))
         .toFixed(),
-    [approvalNetworkFeeCryptoPrecision, feeAssetUserCurrencyRate?.price],
+    [approvalNetworkFeeCryptoPrecision, sellChainFeeAssetUserCurrencyRate?.price],
   )
 
   const tradeResetStepSummary = useMemo(() => {

@@ -23,6 +23,7 @@ export type BuildCustomTxInput = {
   data: string
   value: string
   gasLimit: string
+  feeToken?: string
   pubKey?: string
 } & NetworkFees
 

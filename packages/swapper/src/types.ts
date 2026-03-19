@@ -183,6 +183,7 @@ export type ProtocolFee = { requiresBalance: boolean } & AmountDisplayMeta
 
 export type QuoteFeeData = {
   networkFeeCryptoBaseUnit: string | undefined // fee paid to the network from the fee asset (undefined if unknown)
+  networkFeeAssetId?: AssetId // explicit fee asset if the swapper returns a token-denominated gas fee
   protocolFees: PartialRecord<AssetId, ProtocolFee> | undefined // fee(s) paid to the protocol(s)
   chainSpecific?: UtxoFeeData | CosmosSdkFeeData | SolanaFeeData | SuiFeeData
 }

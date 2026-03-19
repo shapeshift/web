@@ -27,4 +27,12 @@ export const overrideAssets: Record<AssetId, Partial<Asset>> = {
     name: 'USD Coin',
     precision: 6,
   },
+  'eip155:4217/erc20:0x20c0000000000000000000000000000000000000': {
+    name: 'pathUSD',
+    symbol: 'pathUSD',
+    precision: 6,
+    networkName: 'Tempo',
+    networkColor: '#22C55E',
+    networkIcon: 'https://assets.relay.link/icons/4217/light.png',
+  },
 }

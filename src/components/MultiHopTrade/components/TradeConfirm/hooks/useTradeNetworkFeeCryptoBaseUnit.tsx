@@ -1,4 +1,10 @@
-import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
+import {
+  bchAssetId,
+  CHAIN_NAMESPACE,
+  fromAccountId,
+  fromChainId,
+  tempoChainId,
+} from '@shapeshiftoss/caip'
 import { isGridPlus, supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
@@ -33,6 +39,15 @@ import {
   selectTradeSlippagePercentageDecimal,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { useAppSelector } from '@/state/store'
+
+const TEMPO_ATTODOLLARS_TO_MICRODOLLARS_DIVISOR = 1_000_000_000_000n
+
+const normalizeTempoFeeAmountCryptoBaseUnit = (value: string): string => {
+  const quotient = BigInt(value) / TEMPO_ATTODOLLARS_TO_MICRODOLLARS_DIVISOR
+  const remainder = BigInt(value) % TEMPO_ATTODOLLARS_TO_MICRODOLLARS_DIVISOR
+
+  return (remainder === 0n ? quotient : quotient + 1n).toString()
+}
 
 export const useTradeNetworkFeeCryptoBaseUnit = ({
   hopIndex,
@@ -131,7 +146,9 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                   config: getConfig(),
                   assertGetEvmChainAdapter,
                 })
-                return output
+                return hop.sellAsset.chainId === tempoChainId
+                  ? normalizeTempoFeeAmountCryptoBaseUnit(output)
+                  : output
               }
               case CHAIN_NAMESPACE.Utxo: {
                 if (!swapper.getUtxoTransactionFees) throw Error('missing getUtxoTransactionFees')

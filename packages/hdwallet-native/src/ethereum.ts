@@ -1,9 +1,12 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
 import { keccak256, parseTransaction, recoverAddress } from 'ethers/lib/utils.js'
+import { Transaction as TempoTransaction } from 'viem/tempo'
 
 import * as Isolation from './crypto/isolation'
 import SignerAdapter from './crypto/isolation/adapters/ethereum'
 import type { NativeHDWalletBase } from './native'
+
+const TEMPO_CHAIN_ID = 4217
 
 export function MixinNativeETHWalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(
   Base: TBase,
@@ -121,6 +124,54 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
 
     async ethSignTx(msg: core.ETHSignTx): Promise<core.ETHSignedTx | null> {
       return this.needsMnemonic(!!this.#ethSigner, async () => {
+        if (msg.chainId === TEMPO_CHAIN_ID) {
+          const transaction = {
+            chainId: msg.chainId,
+            type: 'tempo' as const,
+            calls: [
+              {
+                to: msg.to,
+                value: BigInt(msg.value),
+                data: msg.data === '0x' ? undefined : msg.data,
+              },
+            ],
+            nonce: Number(BigInt(msg.nonce)),
+            gas: BigInt(msg.gasLimit),
+            ...(msg.feeToken ? { feeToken: msg.feeToken } : {}),
+            ...(msg.maxFeePerGas
+              ? {
+                  maxFeePerGas: BigInt(msg.maxFeePerGas),
+                  maxPriorityFeePerGas: BigInt(msg.maxPriorityFeePerGas ?? '0x0'),
+                }
+              : {
+                  maxFeePerGas: BigInt(msg.gasPrice!),
+                  maxPriorityFeePerGas: 0n,
+                }),
+          }
+
+          const unsignedSerialized = await TempoTransaction.serialize(transaction)
+
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const signature = await this.#ethSigner!.signDigest(
+            keccak256(unsignedSerialized),
+            msg.addressNList,
+          )
+
+          const yParity = signature.recoveryParam ?? (signature.v === 28 ? 1 : 0)
+          const serialized = await TempoTransaction.serialize(transaction, {
+            r: signature.r as `0x${string}`,
+            s: signature.s as `0x${string}`,
+            yParity,
+          })
+
+          return {
+            v: signature.v,
+            r: signature.r,
+            s: signature.s,
+            serialized,
+          }
+        }
+
         const utx = {
           to: msg.to,
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

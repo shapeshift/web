@@ -1,11 +1,20 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, tempoAssetId } from '@shapeshiftoss/caip'
+import {
+  ASSET_REFERENCE,
+  fromAssetId,
+  tempoAssetId,
+  tempoPathUsdAssetId,
+} from '@shapeshiftoss/caip'
+import type { ETHSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { getAddress } from 'viem'
 
+import type { Account, BuildSendApiTxInput } from '../../types'
 import { ChainAdapterDisplayName } from '../../types'
 import type { TokenInfo } from '../SecondClassEvmAdapter'
 import { SecondClassEvmAdapter } from '../SecondClassEvmAdapter'
+import type { BuildCustomApiTxInput } from '../types'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.TempoMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.TempoMainnet
@@ -37,7 +46,7 @@ export class ChainAdapter extends SecondClassEvmAdapter<KnownChainIds.TempoMainn
     })
   }
 
-  getDisplayName(): ChainAdapterDisplayName {
+  getDisplayName(): ChainAdapterDisplayName.Tempo {
     return ChainAdapterDisplayName.Tempo
   }
 
@@ -51,6 +60,61 @@ export class ChainAdapter extends SecondClassEvmAdapter<KnownChainIds.TempoMainn
 
   getFeeAssetId(): AssetId {
     return this.assetId
+  }
+
+  private getTempoFeeTokenAddress({
+    txTo,
+    contractAddress,
+    feeToken,
+  }: {
+    txTo: string
+    contractAddress?: string
+    feeToken?: string
+  }): NonNullable<ETHSignTx['feeToken']> {
+    if (feeToken) return getAddress(feeToken)
+    if (contractAddress) return getAddress(contractAddress)
+
+    const knownToken = this.getKnownTokens().find(
+      token => getAddress(token.contractAddress) === getAddress(txTo),
+    )
+    if (knownToken) return getAddress(knownToken.contractAddress)
+
+    return getAddress(fromAssetId(tempoPathUsdAssetId).assetReference)
+  }
+
+  async buildSendApiTransaction(
+    input: BuildSendApiTxInput<KnownChainIds.TempoMainnet>,
+  ): Promise<ETHSignTx> {
+    const txToSign = await super.buildSendApiTransaction(input)
+
+    return {
+      ...txToSign,
+      feeToken: this.getTempoFeeTokenAddress({
+        txTo: txToSign.to,
+        contractAddress: input.chainSpecific.contractAddress,
+      }),
+    }
+  }
+
+  async buildCustomApiTx(input: BuildCustomApiTxInput): Promise<ETHSignTx> {
+    const txToSign = await super.buildCustomApiTx(input)
+
+    return {
+      ...txToSign,
+      feeToken: this.getTempoFeeTokenAddress({
+        txTo: input.to,
+        feeToken: input.feeToken,
+      }),
+    }
+  }
+
+  async getAccount(pubkey: string): Promise<Account<KnownChainIds.TempoMainnet>> {
+    const account = await super.getAccount(pubkey)
+
+    return {
+      ...account,
+      balance: '0',
+    }
   }
 }
 

@@ -1,18 +1,17 @@
 import type { ResponsiveValue, StackDirection } from '@chakra-ui/react'
 import { Box, Button, Radio, Spinner, Stack, useColorModeValue } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { Property } from 'csstype'
 import { useController, useFormContext, useWatch } from 'react-hook-form'
 
 import type { SendInput } from './Form'
 import { SendFormFields } from './SendCommon'
+import { getSendFeeAssetId } from './utils'
 import type { FeePrice } from './views/Confirm'
 
 import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
-import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
-import { selectFeeAssetById } from '@/state/slices/selectors'
+import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type TxFeeRadioGroupProps = {
@@ -63,8 +62,8 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
   const activeFee = useWatch<SendInput, SendFormFields.FeeType>({ name: SendFormFields.FeeType })
   const bg = useColorModeValue('gray.50', 'gray.850')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const feeAssetId = getChainAdapterManager().get(fromAssetId(assetId).chainId)?.getFeeAssetId()
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, feeAssetId ?? ''))
+  const feeAssetId = getSendFeeAssetId(assetId)
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
 
   if (!fees) {
     return (

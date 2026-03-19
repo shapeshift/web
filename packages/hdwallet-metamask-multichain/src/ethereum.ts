@@ -2,6 +2,30 @@ import type { Address, ETHSignedMessage } from '@shapeshiftoss/hdwallet-core'
 import * as core from '@shapeshiftoss/hdwallet-core'
 import { isHexString } from 'ethers/lib/utils'
 
+const TEMPO_CHAIN_ID = 4217
+
+const getUnsignedTempoTxFromMessage = (msg: core.ETHSignTx, from: string) => ({
+  from,
+  chainId: msg.chainId,
+  nonce: msg.nonce,
+  gas: msg.gasLimit,
+  feeToken: msg.feeToken,
+  type: '0x76',
+  calls: [
+    {
+      to: msg.to,
+      value: msg.value,
+      data: msg.data,
+    },
+  ],
+  ...(msg.maxFeePerGas
+    ? {
+        maxFeePerGas: msg.maxFeePerGas,
+        maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
+      }
+    : { gasPrice: msg.gasPrice }),
+})
+
 export async function ethVerifyMessage(
   _msg: core.ETHVerifyMessage,
   _ethereum: any,
@@ -38,6 +62,17 @@ export async function ethSendTx(
   from: string,
 ): Promise<core.ETHTxHash | null> {
   try {
+    if (msg.chainId === TEMPO_CHAIN_ID && msg.feeToken) {
+      const signedTx = await ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [getUnsignedTempoTxFromMessage(msg, from)],
+      })
+
+      return {
+        hash: signedTx,
+      } as core.ETHTxHash
+    }
+
     const utxBase = {
       from,
       to: msg.to,

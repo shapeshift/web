@@ -1,9 +1,13 @@
 import {
   baseChainId,
   btcChainId,
+  fromAssetId,
   fromChainId,
   monadChainId,
   solanaChainId,
+  tempoAssetId,
+  tempoChainId,
+  tempoPathUsdAssetId,
   tronChainId,
 } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
@@ -321,6 +325,35 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   })()
 
   const protocolAssetId = relayTokenToAssetId(relayToken)
+  const rawNetworkFeeAssetId = (() => {
+    try {
+      return relayTokenToAssetId(quote.fees.gas.currency)
+    } catch {
+      return undefined
+    }
+  })()
+
+  const normalizedTempoNetworkFee = (() => {
+    if (sellAsset.chainId !== tempoChainId) return
+    if (rawNetworkFeeAssetId !== tempoAssetId) return
+
+    const { assetNamespace } = fromAssetId(sellAsset.assetId)
+    const feeAssetId = assetNamespace === 'erc20' ? sellAsset.assetId : tempoPathUsdAssetId
+    const feeAsset = deps.assetsById[feeAssetId]
+
+    if (!feeAsset) return
+
+    return {
+      networkFeeAssetId: feeAsset.assetId,
+      networkFeeCryptoBaseUnit: convertPrecision({
+        value: quote.fees.gas.amount,
+        inputExponent: 18,
+        outputExponent: feeAsset.precision,
+      }).toFixed(0),
+    }
+  })()
+
+  const networkFeeAssetId = normalizedTempoNetworkFee?.networkFeeAssetId ?? rawNetworkFeeAssetId
 
   const maybeProtocolAsset = relayTokenToAsset(relayToken, deps.assetsById)
 
@@ -364,7 +397,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
     if (!appFeesAsset) return false
 
-    if (isEvmChainId(sellAsset.chainId)) {
+    if (isEvmChainId(sellAsset.chainId) && sellAsset.chainId !== tempoChainId) {
       return isNativeEvmAsset(sellAsset.assetId) && sellAsset.chainId === appFeesAsset.chainId
     }
 
@@ -494,6 +527,8 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   })()
 
   const networkFeeCryptoBaseUnit = await (async () => {
+    if (normalizedTempoNetworkFee) return normalizedTempoNetworkFee.networkFeeCryptoBaseUnit
+
     if (sellAsset.chainId === btcChainId) {
       const firstStep = swapSteps[0]
 
@@ -721,6 +756,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
         accountNumber,
         feeData: {
           networkFeeCryptoBaseUnit,
+          networkFeeAssetId,
           protocolFees: {
             [protocolAssetId]: {
               amountCryptoBaseUnit: quote.fees.relayer.amount,

@@ -62,6 +62,8 @@ export type ETHSignTx = {
   data: Hex
   /** mainnet: 1, ropsten: 3, kovan: 42 */
   chainId: number
+  /** Tempo fee token address for type 0x76 transactions */
+  feeToken?: Address
   /**
    * Device must `ethSupportsNativeShapeShift()`
    */

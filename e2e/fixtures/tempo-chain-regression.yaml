@@ -2,9 +2,10 @@ name: Tempo Chain Regression
 description: >
   Regression test for Tempo second-class EVM chain integration. Verifies the
   chain is discoverable/selectable in the trade modal, Tempo tradeable assets
-  and icons render correctly, Tempo account connection works, and a small
-  cross-chain swap into Tempo pathUSD succeeds. Tempo has no real native token
-  balance - pathUSD is the practical gas/tradeable asset on-chain.
+  and icons render correctly, Tempo account connection works, and small
+  cross-chain + same-chain Tempo swap flows succeed. Also verifies a Tempo
+  token self-send works and fee display is sane. Tempo has no normal native gas
+  coin UX - supported Tempo tokens are the practical fee/tradeable assets.
 route: /trade
 depends_on:
   - wallet-health.yaml
@@ -18,15 +19,15 @@ steps:
     expected: Tempo is visible in the chain dropdown, selectable, and filters the asset list
     screenshot: true
 
-  - name: "Tempo: tradeable asset row is visible, selectable, and icon is not borked"
+  - name: "Tempo: tradeable asset rows are visible, selectable, and icons are not borked"
     instruction: >
       While Tempo is selected in the chain filter, look for the Tempo tradeable
-      asset row. The expected swappable/gas asset is pathUSD on Tempo. Verify
-      the row is present, the network/chain attribution clearly says Tempo, and
-      the asset icon/network icon render normally rather than showing a broken
-      image, empty placeholder, or obviously wrong chain icon. Click pathUSD to
-      select it as the buy asset.
-    expected: pathUSD on Tempo is visible with a sane icon/network icon and becomes the selected buy asset
+      asset rows. The expected swappable Tempo assets are pathUSD and USDC.
+      Verify both rows are present, the network/chain attribution clearly says
+      Tempo, and the asset + network icons render normally rather than showing
+      a broken image, empty placeholder, or obviously wrong chain icon. Click
+      USDC to select it as the buy asset.
+    expected: pathUSD and USDC on Tempo are visible with sane icons, and USDC becomes the selected buy asset
     screenshot: true
 
   - name: "Tempo: popular assets are populated under the Tempo filter"
@@ -34,9 +35,9 @@ steps:
       Re-open the buy/receive asset selector if needed, keep Tempo selected in
       the chain filter, and inspect the modal content. Verify there is a
       Popular Assets section or equivalent top section with Tempo assets, and
-      that it is not empty. Confirm pathUSD is present as a selectable Tempo
-      option.
-    expected: Tempo-filtered popular assets are populated and pathUSD is available
+      that it is not empty. Confirm pathUSD and USDC are present as selectable
+      Tempo options.
+    expected: Tempo-filtered popular assets are populated and both pathUSD and USDC are available
     screenshot: true
 
   - name: "Tempo: connect chain account so receive address resolves"
@@ -48,13 +49,43 @@ steps:
     expected: Tempo receive address resolves successfully after connecting a Tempo account
     screenshot: true
 
-  - name: "Tempo: cross-chain swap into pathUSD ($1-ish)"
+  - name: "Tempo: cross-chain swap into USDC ($1-ish)"
     instruction: >
-      Configure a small cross-chain trade into Tempo pathUSD. Use a funded sell
+      Configure a small cross-chain trade into Tempo USDC. Use a funded sell
       asset from another chain - prefer ETH on Ethereum, but if that wallet is
       unfunded use another asset/chain with available balance. Enter roughly
       $1 of sell amount. Wait for a quote, open the trade preview, then confirm
       and sign the trade. Wait for completion and dismiss any success
       notification.
-    expected: A small cross-chain swap into pathUSD on Tempo completes successfully
+    expected: A small cross-chain swap into USDC on Tempo completes successfully
+    screenshot: true
+
+  - name: "Tempo: same-chain USDC to pathUSD swap works"
+    instruction: >
+      Configure a small same-chain Tempo swap from USDC to pathUSD using the
+      Tempo balance received in the previous step. Use a small amount like
+      $0.20 or the closest safe amount available. Wait for a quote, open the
+      trade preview, approve if required, then confirm and sign the swap. Wait
+      for completion and dismiss any success notification.
+    expected: A same-chain Tempo USDC to pathUSD swap completes successfully
+    screenshot: true
+
+  - name: "Tempo: same-chain pathUSD to USDC swap works"
+    instruction: >
+      Configure a small same-chain Tempo swap from pathUSD back to USDC using
+      the Tempo balance now in the wallet. Use a small amount like $0.10 or the
+      closest safe amount available. Wait for a quote, open the trade preview,
+      approve if required, then confirm and sign the swap. Wait for completion
+      and dismiss any success notification.
+    expected: A same-chain Tempo pathUSD to USDC swap completes successfully
+    screenshot: true
+
+  - name: "Tempo: self-send of a Tempo token works and fee display is sane"
+    instruction: >
+      Open the send flow for Tempo USDC and self-send a very small amount such
+      as $0.10 to the currently connected Tempo account address. Verify the
+      confirm screen shows a sane small fee amount in the Tempo token rather
+      than a giant nonsense value. Confirm and sign the transaction, then wait
+      for the send success state or success toast.
+    expected: A Tempo USDC self-send completes successfully and the displayed fee looks sane
     screenshot: true

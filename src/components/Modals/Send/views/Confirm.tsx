@@ -30,6 +30,7 @@ import { SendGasSelection } from '../components/SendGasSelection'
 import type { SendInput } from '../Form'
 import { useSendFees } from '../hooks/useSendFees/useSendFees'
 import { SendFormFields, SendRoutes } from '../SendCommon'
+import { getSendFeeAssetId } from '../utils'
 
 import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
 import { Amount } from '@/components/Amount/Amount'
@@ -65,11 +66,7 @@ import {
   selectInternalAccountIdByAddress,
 } from '@/state/slices/addressBookSlice/selectors'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
-import {
-  selectAssetById,
-  selectFeeAssetById,
-  selectPortfolioAccountMetadata,
-} from '@/state/slices/selectors'
+import { selectAssetById, selectPortfolioAccountMetadata } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export type FeePrice = {
@@ -114,7 +111,9 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
   const allowCustomSendNonce = getConfig().VITE_EXPERIMENTAL_CUSTOM_SEND_NONCE
   const toBg = useColorModeValue('blackAlpha.300', 'whiteAlpha.300')
 
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
+  const feeAsset = useAppSelector(state =>
+    selectAssetById(state, getSendFeeAssetId(assetId ?? '') ?? ''),
+  )
   const networkIcon = feeAsset?.networkIcon ?? feeAsset?.icon
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
   const {

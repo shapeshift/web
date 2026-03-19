@@ -5,6 +5,8 @@ import type { AssetId } from '../../assetId/assetId'
 import { toAssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'
 import {
+  abstractAssetId,
+  abstractChainId,
   arbitrumAssetId,
   arbitrumChainId,
   ASSET_NAMESPACE,
@@ -607,6 +609,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Abstract)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.AbstractMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Abstract],
+          })
+          prev[abstractChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Starknet)) {
         try {
           const assetId = toAssetId({
@@ -684,6 +700,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [bobChainId]: { [bobAssetId]: 'ethereum' },
       [modeChainId]: { [modeAssetId]: 'ethereum' },
       [soneiumChainId]: { [soneiumAssetId]: 'ethereum' },
+      [abstractChainId]: { [abstractAssetId]: 'ethereum' },
       [solanaChainId]: { [solAssetId]: 'solana' },
       [starknetChainId]: { [starknetAssetId]: 'starknet' },
       [tronChainId]: { [tronAssetId]: 'tron' },

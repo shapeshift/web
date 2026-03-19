@@ -39,6 +39,7 @@
     "hdwallet:docker:emulator:stop": "docker ps -q --filter ancestor=kktech/kkemu:latest | xargs -r docker stop",
     "dev:swap-widget": "pnpm --filter @shapeshiftoss/swap-widget dev",
     "generate:all": "pnpm run generate:caip-adapters && pnpm run generate:color-map && pnpm run generate:asset-data && pnpm run generate:tradable-asset-map && pnpm run generate:thor-longtail-tokens",
+    "add-chain": "pnpm exec tsx ./scripts/addChain/index.ts",
     "generate:chain": "pnpm exec tsx ./scripts/generateChainAssetData.ts",
     "generate:caip-adapters": "pnpm --filter @shapeshiftoss/caip generate",
     "generate:asset-data": "pnpm exec tsx ./scripts/generateAssetData/generateAssetData.ts && pnpm run codemod:clear-assets-migration",

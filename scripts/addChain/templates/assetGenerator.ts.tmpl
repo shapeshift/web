@@ -1,0 +1,11 @@
+import { {{camelName}}ChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import { {{camelName}}, unfreeze } from '@shapeshiftoss/utils'
+
+import * as coingecko from '../coingecko'
+
+export const getAssets = async (): Promise<Asset[]> => {
+  const assets = await coingecko.getAssets({{camelName}}ChainId)
+
+  return [...assets, unfreeze({{camelName}})]
+}

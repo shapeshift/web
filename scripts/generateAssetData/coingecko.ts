@@ -1,5 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
+  abstractChainId,
   adapters,
   arbitrumChainId,
   ASSET_NAMESPACE,
@@ -45,6 +46,7 @@ import {
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import {
+  abstract,
   arbitrum,
   avax,
   base,
@@ -308,6 +310,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: blast.explorer,
           explorerAddressLink: blast.explorerAddressLink,
           explorerTxLink: blast.explorerTxLink,
+        }
+      case abstractChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: abstract.explorer,
+          explorerAddressLink: abstract.explorerAddressLink,
+          explorerTxLink: abstract.explorerTxLink,
         }
       case hemiChainId:
         return {

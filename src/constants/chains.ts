@@ -37,6 +37,7 @@ export const SECOND_CLASS_CHAINS: readonly KnownChainIds[] = [
   KnownChainIds.EtherealMainnet,
   KnownChainIds.FlowEvmMainnet,
   KnownChainIds.CeloMainnet,
+  KnownChainIds.AbstractMainnet,
 ]
 
 // returns known ChainIds as an array, excluding the ones that are currently flagged off
@@ -68,6 +69,7 @@ export const knownChainIds = Object.values(KnownChainIds).filter(chainId => {
   if (chainId === KnownChainIds.PlumeMainnet && !enabledFlags.Plume) return false
   if (chainId === KnownChainIds.ZkSyncEraMainnet && !enabledFlags.ZkSyncEra) return false
   if (chainId === KnownChainIds.BlastMainnet && !enabledFlags.Blast) return false
+  if (chainId === KnownChainIds.AbstractMainnet && !enabledFlags.Abstract) return false
   if (chainId === KnownChainIds.HemiMainnet && !enabledFlags.Hemi) return false
   if (chainId === KnownChainIds.BerachainMainnet && !enabledFlags.Berachain) return false
   if (chainId === KnownChainIds.ScrollMainnet && !enabledFlags.Scroll) return false

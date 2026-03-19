@@ -1,5 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
+  abstractAssetId,
   berachainAssetId,
   blastAssetId,
   bobAssetId,
@@ -75,6 +76,7 @@ export const queryFn = async () => {
   if (enabledFlags.Story) assetIds.push(storyAssetId)
   if (enabledFlags.ZkSyncEra) assetIds.push(zkSyncEraAssetId)
   if (enabledFlags.Blast) assetIds.push(blastAssetId)
+  if (enabledFlags.Abstract) assetIds.push(abstractAssetId)
   if (enabledFlags.WorldChain) assetIds.push(worldChainAssetId)
   if (enabledFlags.Hemi) assetIds.push(hemiAssetId)
   if (enabledFlags.Sei) assetIds.push(seiAssetId)

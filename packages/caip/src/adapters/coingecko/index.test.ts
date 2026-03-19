@@ -125,6 +125,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Mode,
       })
+      const ethOnAbstract = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.AbstractMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Abstract,
+      })
       const ethOnSoneium = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.SoneiumMainnet,
@@ -148,6 +154,7 @@ describe('adapters:coingecko', () => {
         ethOnScroll,
         ethOnUnichain,
         ethOnSoneium,
+        ethOnAbstract,
       ])
     })
 
@@ -321,6 +328,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'erc20',
         assetReference: '0x078d782b760474a361dda0af3839290b0ef57ad6',
       })
+      const usdcOnCelo = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.CeloMainnet,
+        assetNamespace,
+        assetReference: '0xceba9300f2b948710d2653dd7b07f33a8b32118c',
+      })
       const usdcOnNear = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Near,
         chainReference: CHAIN_REFERENCE.NearMainnet,
@@ -342,6 +355,7 @@ describe('adapters:coingecko', () => {
         usdcOnInk,
         usdcOnSonic,
         usdcOnUnichain,
+        usdcOnCelo,
         usdcOnSei,
         usdcOnSolana,
         usdcOnStarknet,

@@ -565,6 +565,7 @@ export class KeepKeyHDWallet
   readonly _supportsMegaEth = false
   readonly _supportsZkSyncEra = false
   readonly _supportsBlast = false
+  readonly _supportsAbstract = false
   readonly _supportsWorldChain = false
   readonly _supportsHemi = false
   readonly _supportsFlowEvm = false

@@ -1,0 +1,30 @@
+{
+  "camelName": "abstract",
+  "pascalName": "Abstract",
+  "upperName": "ABSTRACT",
+  "chainId": 2741,
+  "viemChainName": "abstract",
+  "nativeSymbol": "ETH",
+  "nativeName": "Ethereum",
+  "nativePrecision": 18,
+  "isNativeEth": true,
+  "color": "#00D4AA",
+  "networkIconUrl": "https://assets.relay.link/icons/2741/light.png",
+  "nativeIconUrl": "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
+  "explorerUrl": "https://abscan.org",
+  "explorerAddressLink": "https://abscan.org/address/",
+  "explorerTxLink": "https://abscan.org/tx/",
+  "rpcUrl": "https://api.mainnet.abs.xyz",
+  "fallbackRpcUrls": ["https://rpc.ankr.com/abstract"],
+  "coingeckoPlatform": "abstract",
+  "wrappedNativeAddress": null,
+  "relatedAssetKey": "eip155:1/slip44:60",
+  "shortName": "ABS",
+  "swappers": {
+    "relay": { "supported": true, "relayChainId": 2741 },
+    "across": { "supported": false },
+    "portals": { "supported": false },
+    "zerion": { "supported": false },
+    "yieldxyz": { "supported": false }
+  }
+}

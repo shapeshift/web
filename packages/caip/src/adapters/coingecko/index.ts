@@ -5,6 +5,7 @@ import { fromAssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'
 import { fromChainId, toChainId } from '../../chainId/chainId'
 import {
+  abstractChainId,
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
@@ -98,6 +99,7 @@ export enum CoingeckoAssetPlatform {
   Sui = 'sui',
   Ton = 'the-open-network',
   Near = 'near-protocol',
+  Abstract = 'abstract',
 }
 
 type CoinGeckoId = string
@@ -164,6 +166,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.ZkSyncEra
         case CHAIN_REFERENCE.BlastMainnet:
           return CoingeckoAssetPlatform.Blast
+        case CHAIN_REFERENCE.AbstractMainnet:
+          return CoingeckoAssetPlatform.Abstract
         case CHAIN_REFERENCE.WorldChainMainnet:
           return CoingeckoAssetPlatform.WorldChain
         case CHAIN_REFERENCE.HemiMainnet:
@@ -327,6 +331,8 @@ export const coingeckoAssetPlatformToChainId = (
       return zkSyncEraChainId
     case CoingeckoAssetPlatform.Blast:
       return blastChainId
+    case CoingeckoAssetPlatform.Abstract:
+      return abstractChainId
     case CoingeckoAssetPlatform.Hemi:
       return hemiChainId
     case CoingeckoAssetPlatform.Linea:

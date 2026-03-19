@@ -1,0 +1,44 @@
+name: Tron Non-Activated Account Balances
+description: >
+  Verifies fix for #12190 - USDT/TRC20 tokens show in portfolio for non-activated Tron accounts,
+  and send flow shows a warning when sending TRC20 to a non-activated recipient address.
+route: /
+depends_on:
+  - wallet-health.yaml
+steps:
+  - name: Navigate to Tron USDT asset page
+    instruction: Navigate to the Tron USDT asset page at /assets/tron:0x2b6653dc/trc20:TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t
+    expected: The USDT (Tron) asset page is visible
+    screenshot: true
+
+  - name: Verify USDT balance visible for Tron account
+    instruction: Check the account balances shown for USDT on Tron. Look for any TRX/Tron wallet accounts listed.
+    expected: At least one account shows a USDT balance (even if zero TRX balance)
+    screenshot: true
+
+  - name: Open send modal for Tron USDT
+    instruction: Click the Send button on the USDT Tron asset page to open the send flow
+    expected: The send modal opens showing the address input screen
+    screenshot: true
+
+  - name: Enter non-activated Tron recipient address
+    instruction: >
+      In the address input field, type the known non-activated Tron address: TNJ1pzzz8Tzip6Nid6DxMVso3zM4bLFDxu
+      Wait for address validation to complete.
+    expected: The address is accepted and validated (no red error), navigation to amount screen happens
+    screenshot: true
+
+  - name: Verify non-activated recipient warning shows
+    instruction: >
+      On the send amount screen, look for a yellow/orange warning alert about the recipient address
+      not being activated on Tron. The warning should mention that tokens will arrive but the
+      recipient needs TRX to move them.
+    expected: >
+      A warning alert is visible saying the recipient address hasn't been activated and they'll
+      need TRX to use the tokens.
+    screenshot: true
+
+  - name: Verify send is not blocked
+    instruction: Enter a valid non-zero USDT amount, for example 1.
+    expected: The Preview button is enabled - the warning is informational only and does not block the send flow.
+    screenshot: true

@@ -1,5 +1,6 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
+  abstractChainId,
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
@@ -56,6 +57,7 @@ import {
   isMetaMask,
   isPhantom,
   isVultisig,
+  supportsAbstract,
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
@@ -196,6 +198,7 @@ export const walletSupportsChain = ({
   const isFlowEvmEnabled = selectFeatureFlag(store.getState(), 'FlowEvm')
   const isZkSyncEraEnabled = selectFeatureFlag(store.getState(), 'ZkSyncEra')
   const isBlastEnabled = selectFeatureFlag(store.getState(), 'Blast')
+  const isAbstractEnabled = selectFeatureFlag(store.getState(), 'Abstract')
   const isHemiEnabled = selectFeatureFlag(store.getState(), 'Hemi')
   const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
   const isInkEnabled = selectFeatureFlag(store.getState(), 'Ink')
@@ -282,6 +285,8 @@ export const walletSupportsChain = ({
       return isZkSyncEraEnabled && supportsZkSyncEra(wallet)
     case blastChainId:
       return isBlastEnabled && supportsBlast(wallet)
+    case abstractChainId:
+      return isAbstractEnabled && supportsAbstract(wallet)
     case worldChainChainId:
       return isWorldChainEnabled && supportsWorldChain(wallet)
     case hemiChainId:

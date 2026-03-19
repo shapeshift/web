@@ -2182,6 +2182,11 @@
       "deployFailed": "Deployment Failed"
     }
   },
+  "tron": {
+    "recipientNotActivated": {
+      "sendWarning": "This address hasn't been activated on Tron yet. Your tokens will arrive, but the recipient won't be able to move them until they also receive some TRX."
+    }
+  },
   "transactionHistory": {
     "transactionHistory": "Transaction History",
     "recentTransactions": "Recent Transactions",

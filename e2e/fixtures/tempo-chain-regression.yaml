@@ -1,0 +1,65 @@
+name: Tempo Chain Regression
+description: >
+  Regression test for Tempo second-class EVM chain integration. Verifies the
+  chain is discoverable/selectable in the trade modal, the native Tempo asset
+  row and icon render correctly, Tempo popular assets are populated, a small
+  cross-chain swap into Tempo native succeeds, and a small same-chain Tempo
+  swap succeeds.
+route: /trade
+depends_on:
+  - wallet-health.yaml
+steps:
+  - name: "Tempo: chain appears in trade chain filter"
+    instruction: >
+      Open the buy/receive asset selector on the trade page. Open the chain
+      filter dropdown and verify Tempo appears as an available chain option.
+      Select Tempo from the chain filter. Confirm the asset list updates to the
+      Tempo-only view and the selected filter chip/button shows Tempo.
+    expected: Tempo is visible in the chain dropdown, selectable, and filters the asset list
+    screenshot: true
+
+  - name: "Tempo: native asset row is visible, selectable, and icon is not borked"
+    instruction: >
+      While Tempo is selected in the chain filter, look for the Tempo native
+      asset row. The native Tempo asset is USD on Tempo. Verify the row is
+      present, the network/chain attribution clearly says Tempo, and the asset
+      icon/network icon render normally rather than showing a broken image,
+      empty placeholder, or obviously wrong chain icon. Click the Tempo native
+      asset row to select it as the buy asset.
+    expected: USD on Tempo is visible with a sane icon/network icon and becomes the selected buy asset
+    screenshot: true
+
+  - name: "Tempo: popular assets are populated under the Tempo filter"
+    instruction: >
+      Re-open the buy/receive asset selector if needed, keep Tempo selected in
+      the chain filter, and inspect the modal content. Verify there is a
+      Popular Assets section or an equivalent top section with Tempo assets, and
+      that it is not empty. Confirm the list contains at least the Tempo native
+      asset and at least one additional Tempo asset option or otherwise clearly
+      shows multiple Tempo entries available to pick.
+    expected: Tempo-filtered popular assets are populated and not empty
+    screenshot: true
+
+  - name: "Tempo: cross-chain swap into native asset ($1)"
+    instruction: >
+      Configure a small cross-chain trade into the Tempo native asset. Use a
+      funded sell asset from another chain - prefer ETH on Ethereum, but if
+      that wallet is unfunded use another asset/chain with available balance.
+      Set the buy asset to USD on Tempo. Ensure fiat mode is enabled and enter
+      "$1" as the sell amount. Wait for a quote, open the trade preview, then
+      confirm and sign the trade. Wait for completion and dismiss any success
+      notification.
+    expected: A $1 cross-chain swap into USD on Tempo completes successfully
+    screenshot: true
+
+  - name: "Tempo: same-chain swap on Tempo succeeds"
+    instruction: >
+      After the previous step completes, keep the sell asset on Tempo using the
+      newly received USD on Tempo balance. Open the buy/receive selector,
+      filter to Tempo, and choose a different Tempo asset on the same chain
+      (for example USDC or another quoted Tempo token - do not pick USD on
+      Tempo again). Enter a small fiat amount that safely leaves gas behind,
+      around $0.25 to $0.50. Wait for a quote, preview the trade, confirm, and
+      sign it. Wait for completion.
+    expected: A small same-chain swap from USD on Tempo into another Tempo asset completes successfully
+    screenshot: true

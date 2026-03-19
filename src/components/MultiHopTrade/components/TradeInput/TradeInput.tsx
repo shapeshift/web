@@ -1,7 +1,7 @@
 import { useMediaQuery } from '@chakra-ui/react'
 import { QueryStatus, skipToken } from '@reduxjs/toolkit/query'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, tempoAssetId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { ThorTradeQuote } from '@shapeshiftoss/swapper'
 import { isArbitrumBridgeTradeQuoteOrRate, SwapperName } from '@shapeshiftoss/swapper'
@@ -388,6 +388,7 @@ export const TradeInput = ({
   const assetFilterPredicate = useCallback(
     (assetId: AssetId) => {
       const { chainId } = fromAssetId(assetId)
+      if (assetId === tempoAssetId) return false
       if (chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
       if (chainId === KnownChainIds.MayachainMainnet) return isMayaSwapEnabled
 

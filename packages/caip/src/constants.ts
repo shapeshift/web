@@ -9,6 +9,8 @@ export const zecAssetId: AssetId = 'bip122:00040fe8ec8471911baa1db1266ea15d/slip
 
 export const ethAssetId: AssetId = 'eip155:1/slip44:60'
 export const tempoAssetId: AssetId = 'eip155:4217/slip44:60'
+export const tempoPathUsdAssetId: AssetId =
+  'eip155:4217/erc20:0x20c0000000000000000000000000000000000000'
 export const abstractAssetId: AssetId = 'eip155:2741/slip44:60'
 export const avalancheAssetId: AssetId = 'eip155:43114/slip44:60'
 export const optimismAssetId: AssetId = 'eip155:10/slip44:60'

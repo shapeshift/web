@@ -548,7 +548,7 @@ export const ${c.camelName}: Readonly<Asset> = Object.freeze({
   explorer: '${c.explorerUrl}',
   explorerAddressLink: '${c.explorerAddressLink}',
   explorerTxLink: '${c.explorerTxLink}',
-  relatedAssetKey: '${c.relatedAssetKey}',
+  relatedAssetKey: ${c.relatedAssetKey ? `'${c.relatedAssetKey}'` : 'null'},
 })
 `
       return appendAfterLastImport(baseAssetsFile, assetObj, `${c.camelName}: Readonly<Asset>`)

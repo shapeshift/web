@@ -47,6 +47,7 @@ import {
   starknetChainId,
   storyChainId,
   suiChainId,
+  tempoChainId,
   thorchainChainId,
   toAccountId,
   toAssetId,
@@ -100,6 +101,7 @@ import {
   supportsStarknet,
   supportsStory,
   supportsSui,
+  supportsTempo,
   supportsThorchain,
   supportsTron,
   supportsUnichain,
@@ -625,6 +627,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsNear(wallet)
     case tonChainId:
       return supportsTon(wallet)
+    case tempoChainId:
+      return supportsTempo(wallet)
     default:
       return false
   }

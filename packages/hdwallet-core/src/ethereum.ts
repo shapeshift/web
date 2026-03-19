@@ -192,6 +192,7 @@ export interface ETHWalletInfo extends HDWalletInfo {
    * Returns the "next" ETH account, if any.
    */
   ethNextAccountPath(msg: ETHAccountPath): ETHAccountPath | undefined
+  readonly _supportsTempo: boolean
 }
 
 export interface ETHWallet extends ETHWalletInfo, HDWallet {

@@ -16,6 +16,7 @@ export class CoinbaseHDWalletInfo implements core.HDWalletInfo, core.ETHWalletIn
   readonly _supportsSecretInfo = false
   readonly _supportsKavaInfo = false
   readonly _supportsTerraInfo = false
+  readonly _supportsTempo = false
 
   public getVendor(): string {
     return 'Coinbase'
@@ -154,6 +155,7 @@ export class CoinbaseHDWallet implements core.HDWallet, core.ETHWallet {
   readonly _supportsKavaInfo = false
   readonly _supportsTerra = false
   readonly _supportsTerraInfo = false
+  readonly _supportsTempo = false
 
   info: CoinbaseHDWalletInfo & core.HDWalletInfo
   ethAddress?: Address | null

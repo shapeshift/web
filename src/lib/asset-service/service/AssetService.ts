@@ -35,6 +35,7 @@ import {
   starknetChainId,
   storyChainId,
   suiChainId,
+  tempoChainId,
   tonChainId,
   tronChainId,
   unichainChainId,
@@ -172,6 +173,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_ZCASH && asset.chainId === zecChainId) return false
       if (!config.VITE_FEATURE_STARKNET && asset.chainId === starknetChainId) return false
       if (!config.VITE_FEATURE_TON && asset.chainId === tonChainId) return false
+      if (!config.VITE_FEATURE_TEMPO && asset.chainId === tempoChainId) return false
       return true
     })
 

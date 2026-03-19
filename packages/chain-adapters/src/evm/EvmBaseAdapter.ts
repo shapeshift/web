@@ -41,6 +41,7 @@ import {
   supportsSoneium,
   supportsSonic,
   supportsStory,
+  supportsTempo,
   supportsUnichain,
   supportsWorldChain,
   supportsZkSyncEra,
@@ -135,6 +136,7 @@ export const evmChainIds = [
   KnownChainIds.SoneiumMainnet,
   KnownChainIds.SeiMainnet,
   KnownChainIds.AbstractMainnet,
+  KnownChainIds.TempoMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -283,6 +285,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsSoneium(wallet)
         case Number(fromChainId(KnownChainIds.SeiMainnet).chainReference):
           return supportsSei(wallet)
+        case Number(fromChainId(KnownChainIds.TempoMainnet).chainReference):
+          return supportsTempo(wallet)
         default:
           return false
       }
@@ -489,6 +493,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://abscan.org',
+      },
+      [KnownChainIds.TempoMainnet]: {
+        name: 'USD',
+        symbol: 'USD',
+        explorer: 'https://explore.tempo.xyz',
       },
     }[this.chainId]
 

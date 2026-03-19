@@ -139,6 +139,7 @@ export class MetaMaskNativeMultiChainHDWalletInfo
   readonly _supportsRippleInfo = false
   readonly _supportsEosInfo = false
   readonly _supportsThorchainInfo = false
+  readonly _supportsTempo = true
 
   public getVendor(): string {
     return 'MetaMask'
@@ -304,6 +305,7 @@ export class MetaMaskNativeMultiChainHDWallet
   readonly _supportsCronos = true
   readonly _supportsUnichain = true
   readonly _supportsSoneium = true
+  readonly _supportsTempo = true
   readonly _supportsOsmosisInfo = false
   readonly _supportsOsmosis = false
   readonly _supportsBinanceInfo = false

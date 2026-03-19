@@ -147,6 +147,8 @@ export const getNativeFeeAssetReference = (
         switch (chainReference) {
           case CHAIN_REFERENCE.TonMainnet:
             return ASSET_REFERENCE.Ton
+          case CHAIN_REFERENCE.TempoMainnet:
+            return ASSET_REFERENCE.Tempo
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

@@ -36,4 +36,5 @@ export const FALLBACK_RPC_URLS = {
     'https://abstract.drpc.org',
     'https://rpc.ankr.com/abstract',
   ],
+  tempo: ['https://rpc.tempo.xyz'],
 } as const

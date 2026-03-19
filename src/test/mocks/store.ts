@@ -213,6 +213,7 @@ export const mockStore: ReduxState = {
       EarnTab: false,
       AgenticChat: false,
       MmNativeMultichain: false,
+      Tempo: false,
     },
     showTopAssetsCarousel: true,
     quickBuyAmounts: [10, 50, 100],

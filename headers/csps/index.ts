@@ -45,6 +45,7 @@ import { csp as sonic } from './chains/sonic'
 import { csp as starknet } from './chains/starknet'
 import { csp as story } from './chains/story'
 import { csp as sui } from './chains/sui'
+import { csp as tempo } from './chains/tempo'
 import { csp as thorchain } from './chains/thorchain'
 import { csp as ton } from './chains/ton'
 import { csp as tron } from './chains/tron'
@@ -208,4 +209,5 @@ export const csps = [
   railway,
   discord,
   yieldxyz,
+  tempo,
 ]

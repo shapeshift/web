@@ -46,6 +46,7 @@ import {
   starknet,
   story,
   sui,
+  tempo,
   thorchain,
   ton,
   tron,
@@ -156,6 +157,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return ton
     case KnownChainIds.AbstractMainnet:
       return abstract
+    case KnownChainIds.TempoMainnet:
+      return tempo
     default:
       return assertUnreachable(knownChainId)
   }

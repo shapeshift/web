@@ -2,6 +2,23 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import * as caip from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 
+export const tempo: Readonly<Asset> = Object.freeze({
+  assetId: caip.tempoAssetId,
+  chainId: caip.tempoChainId,
+  name: 'USD',
+  networkName: 'Tempo',
+  symbol: 'USD',
+  precision: 18,
+  color: '#22C55E',
+  networkColor: '#22C55E',
+  icon: 'https://assets.relay.link/icons/4217/light.png',
+  networkIcon: 'https://assets.relay.link/icons/4217/light.png',
+  explorer: 'https://explore.tempo.xyz',
+  explorerAddressLink: 'https://explore.tempo.xyz/address/',
+  explorerTxLink: 'https://explore.tempo.xyz/receipt/',
+  relatedAssetKey: null,
+})
+
 export const abstract: Readonly<Asset> = Object.freeze({
   assetId: caip.abstractAssetId,
   chainId: caip.abstractChainId,

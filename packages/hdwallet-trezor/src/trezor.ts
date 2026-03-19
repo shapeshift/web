@@ -133,6 +133,7 @@ export class TrezorHDWalletInfo
   readonly _supportsBTCInfo = true
   readonly _supportsETHInfo = true
   readonly _supportsSolanaInfo = true
+  readonly _supportsTempo = true
 
   public getVendor(): string {
     return 'Trezor'
@@ -324,6 +325,7 @@ export class TrezorHDWallet
   readonly _supportsTerraInfo = true
   readonly _supportsSolana = true
   readonly _supportsSolanaInfo = true
+  readonly _supportsTempo = true
   readonly _isTrezor = true
 
   transport: TrezorTransport

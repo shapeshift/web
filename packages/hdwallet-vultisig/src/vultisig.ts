@@ -36,6 +36,7 @@ export class VultisigHDWalletInfo
   readonly _supportsSolanaInfo = true
   readonly _supportsThorchainInfo = true
   readonly _supportsCosmosInfo = true
+  readonly _supportsTempo = false
 
   public getVendor(): string {
     return 'Vultisig'
@@ -250,6 +251,7 @@ export class VultisigHDWallet
   readonly _supportsCronos = false
   readonly _supportsUnichain = false
   readonly _supportsSoneium = false
+  readonly _supportsTempo = false
   readonly _supportsBSC = true
   readonly _supportsSolana = true
   readonly _supportsThorchain = true

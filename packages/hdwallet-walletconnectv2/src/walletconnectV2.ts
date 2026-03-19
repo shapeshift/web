@@ -80,6 +80,7 @@ export function isWalletConnectV2(wallet: HDWallet): wallet is WalletConnectV2HD
 export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, BTCWalletInfo {
   readonly _supportsETHInfo = true
   readonly _supportsBTCInfo = true
+  readonly _supportsTempo = true
   public getVendor(): string {
     return 'WalletConnectV2'
   }
@@ -136,7 +137,7 @@ export class WalletConnectV2WalletInfo implements HDWalletInfo, ETHWalletInfo, B
   }
 
   public async ethSupportsNetwork(chainId: number): Promise<boolean> {
-    return [1, 10, 56, 100, 137, 43114, 2741].includes(chainId)
+    return [1, 10, 56, 100, 137, 43114, 2741, 4217].includes(chainId)
   }
 
   public async ethSupportsSecureTransfer(): Promise<boolean> {
@@ -234,6 +235,7 @@ export class WalletConnectV2HDWallet implements HDWallet, ETHWallet, BTCWallet {
   readonly _supportsCronos = true
   readonly _supportsUnichain = true
   readonly _supportsSoneium = true
+  readonly _supportsTempo = true
 
   info: WalletConnectV2WalletInfo & HDWalletInfo
   provider: EthereumProvider

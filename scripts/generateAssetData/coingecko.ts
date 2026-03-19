@@ -37,6 +37,7 @@ import {
   starknetChainId,
   storyChainId,
   suiChainId,
+  tempoChainId,
   toAssetId,
   tonChainId,
   tronChainId,
@@ -80,6 +81,7 @@ import {
   sonic,
   story,
   sui,
+  tempo,
   ton,
   tron,
   unichainChain,
@@ -430,6 +432,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: ton.explorer,
           explorerAddressLink: ton.explorerAddressLink,
           explorerTxLink: ton.explorerTxLink,
+        }
+      case tempoChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: tempo.explorer,
+          explorerAddressLink: tempo.explorerAddressLink,
+          explorerTxLink: tempo.explorerTxLink,
         }
       default:
         throw new Error(`no coingecko token support for chainId: ${chainId}`)

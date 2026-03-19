@@ -1,5 +1,5 @@
 import { CHAIN_REFERENCE } from '@shapeshiftoss/caip'
-import { flowEvmChain } from '@shapeshiftoss/contracts'
+import { flowEvmChain, tempoChain } from '@shapeshiftoss/contracts'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { Chain } from 'viem/chains'
 import {
@@ -66,6 +66,8 @@ export const walletConnectV2OptionalChains: AtLeastOneViemChain = (() => {
     sei,
 
     abstract,
+
+    tempoChain,
   ]
   if (optionalViemChains.length === 0) throw new Error('Array must contain at least one element.')
   return optionalViemChains as AtLeastOneViemChain
@@ -90,6 +92,7 @@ const {
   VITE_INK_NODE_URL,
   VITE_FLOWEVM_NODE_URL,
   VITE_ABSTRACT_NODE_URL,
+  VITE_TEMPO_NODE_URL,
 } = getConfig()
 
 export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
@@ -123,6 +126,7 @@ export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
     [CHAIN_REFERENCE.InkMainnet]: VITE_INK_NODE_URL,
     [CHAIN_REFERENCE.FlowEvmMainnet]: VITE_FLOWEVM_NODE_URL,
     [CHAIN_REFERENCE.AbstractMainnet]: VITE_ABSTRACT_NODE_URL,
+    [CHAIN_REFERENCE.TempoMainnet]: VITE_TEMPO_NODE_URL,
   },
 }
 

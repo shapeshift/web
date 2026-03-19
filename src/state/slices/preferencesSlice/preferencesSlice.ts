@@ -60,6 +60,7 @@ export type FeatureFlags = {
   Bob: boolean
   Mode: boolean
   Soneium: boolean
+  Tempo: boolean
   Zcash: boolean
   ThorSwap: boolean
   WalletConnectToDapps: boolean
@@ -314,6 +315,7 @@ const initialState: Preferences = {
     YieldMultiAccount: getConfig().VITE_FEATURE_YIELD_MULTI_ACCOUNT,
     EarnTab: getConfig().VITE_FEATURE_EARN_TAB,
     MmNativeMultichain: getConfig().VITE_FEATURE_MM_NATIVE_MULTICHAIN,
+    Tempo: getConfig().VITE_FEATURE_TEMPO,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

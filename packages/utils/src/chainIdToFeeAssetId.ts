@@ -42,6 +42,7 @@ import {
   starknetAssetId,
   storyAssetId,
   suiAssetId,
+  tempoAssetId,
   thorchainAssetId,
   tonAssetId,
   tronAssetId,
@@ -155,6 +156,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return tonAssetId
     case KnownChainIds.AbstractMainnet:
       return abstractAssetId
+    case KnownChainIds.TempoMainnet:
+      return tempoAssetId
     default:
       return assertUnreachable(chainId)
   }

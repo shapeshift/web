@@ -238,6 +238,7 @@ export class KeepKeyHDWalletInfo
   readonly _supportsEosInfo = true
   readonly _supportsThorchainInfo = true
   readonly _supportsMayachainInfo = true
+  readonly _supportsTempo = false
 
   public getVendor(): string {
     return 'KeepKey'
@@ -576,6 +577,7 @@ export class KeepKeyHDWallet
   readonly _supportsCronos = false
   readonly _supportsUnichain = false
   readonly _supportsSoneium = false
+  readonly _supportsTempo = false
   readonly _supportsBTC = true
   _supportsCosmos = true
   _supportsOsmosis = true

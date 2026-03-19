@@ -33,6 +33,7 @@ export class PhantomHDWalletInfo
   readonly _supportsETHInfo = true
   readonly _supportsSolanaInfo = true
   readonly _supportsSuiInfo = true
+  readonly _supportsTempo = false
 
   evmProvider: PhantomEvmProvider
 
@@ -239,6 +240,7 @@ export class PhantomHDWallet
   readonly _supportsUnichain = false
   readonly _supportsSoneium = false
   readonly _supportsBSC = false
+  readonly _supportsTempo = false
   readonly _supportsSolana = true
   readonly _supportsSui = true
   readonly _isPhantom = true

@@ -257,6 +257,11 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
 
+      case CHAIN_REFERENCE.TempoMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Tempo,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       default:
         throw Error(`chainId '${relayToken.chainId}' not supported`)
     }

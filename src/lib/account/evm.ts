@@ -33,6 +33,7 @@ import {
   soneiumChainId,
   sonicChainId,
   storyChainId,
+  tempoChainId,
   toAccountId,
   unichainChainId,
   worldChainChainId,
@@ -73,6 +74,7 @@ import {
   supportsSoneium,
   supportsSonic,
   supportsStory,
+  supportsTempo,
   supportsUnichain,
   supportsWorldChain,
   supportsZkSyncEra,
@@ -193,6 +195,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === bobChainId && !supportsBob(wallet)) continue
     if (chainId === modeChainId && !supportsMode(wallet)) continue
     if (chainId === soneiumChainId && !supportsSoneium(wallet)) continue
+    if (chainId === tempoChainId && !supportsTempo(wallet)) continue
     if (
       isMetaMask(wallet) &&
       !canAddMetaMaskAccount({ accountNumber, chainId, wallet, isSnapInstalled })

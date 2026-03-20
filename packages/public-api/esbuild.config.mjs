@@ -1,4 +1,7 @@
+import { spawn } from 'child_process'
 import * as esbuild from 'esbuild'
+
+const isWatch = process.argv.includes('--watch')
 
 const ethersCompatPlugin = {
   name: 'ethers-compat',
@@ -12,7 +15,7 @@ const ethersCompatPlugin = {
   },
 }
 
-const result = await esbuild.build({
+const sharedConfig = {
   entryPoints: ['src/index.ts'],
   bundle: true,
   outfile: 'dist/server.cjs',
@@ -25,10 +28,41 @@ const result = await esbuild.build({
     'fsevents',
   ],
   plugins: [ethersCompatPlugin],
-  define: {
-    'process.env.NODE_ENV': '"production"',
-  },
   logLevel: 'info',
-})
+}
 
-console.log('Build complete:', result)
+if (isWatch) {
+  let serverProcess = null
+
+  const restartServer = () => {
+    if (serverProcess) serverProcess.kill()
+    serverProcess = spawn('node', ['--env-file=.env', 'dist/server.cjs'], { stdio: 'inherit' })
+  }
+
+  const ctx = await esbuild.context({
+    ...sharedConfig,
+    plugins: [
+      ...sharedConfig.plugins,
+      {
+        name: 'restart-server',
+        setup(build) {
+          build.onEnd(result => {
+            if (result.errors.length === 0) restartServer()
+          })
+        },
+      },
+    ],
+  })
+
+  await ctx.watch()
+  console.log('Watching for changes...')
+} else {
+  const result = await esbuild.build({
+    ...sharedConfig,
+    define: {
+      'process.env.NODE_ENV': '"production"',
+    },
+  })
+
+  console.log('Build complete:', result)
+}

@@ -1998,9 +1998,6 @@ importers:
       '@types/uuid':
         specifier: ^9.0.5
         version: 9.0.8
-      tsx:
-        specifier: ^4.19.2
-        version: 4.21.0
       typescript:
         specifier: ~5.2.2
         version: 5.2.2

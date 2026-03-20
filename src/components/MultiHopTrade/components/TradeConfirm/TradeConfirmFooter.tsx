@@ -157,6 +157,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     isLoading: isNetworkFeeCryptoBaseUnitLoading,
     isRefetching: isNetworkFeeCryptoBaseUnitRefetching,
     data: networkFeeCryptoBaseUnit,
+    error: networkFeeError,
   } = useTradeNetworkFeeCryptoBaseUnit({
     hopIndex: currentHopIndex,
     enabled:
@@ -441,6 +442,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
         activeTradeId={activeTradeId}
         isExactAllowance={isExactAllowance}
         isLoading={isNetworkFeeCryptoBaseUnitLoading || isNetworkFeeCryptoBaseUnitRefetching}
+        networkFeeError={networkFeeError}
         onSwapTxBroadcast={onSwapTxBroadcast}
       />
     )
@@ -451,6 +453,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     isExactAllowance,
     isNetworkFeeCryptoBaseUnitLoading,
     isNetworkFeeCryptoBaseUnitRefetching,
+    networkFeeError,
     onSwapTxBroadcast,
   ])
 

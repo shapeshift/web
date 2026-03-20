@@ -25,7 +25,7 @@ import { isGridPlus, supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { CosmosSdkChainId, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
-import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import { chainIdToFeeAssetId, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js'
 import BigNumber from 'bignumber.js'
 
@@ -76,7 +76,7 @@ export const getSendFeeAssetId = (assetId: AssetId): AssetId | undefined => {
     return assetNamespace === ASSET_NAMESPACE.erc20 ? assetId : tempoPathUsdAssetId
   }
 
-  return fromChainId(chainId) ? assertGetChainAdapter(chainId).getFeeAssetId() : undefined
+  return fromChainId(chainId) ? chainIdToFeeAssetId(chainId) : undefined
 }
 
 const normalizeTempoFeeAmountCryptoBaseUnit = (value: string): string => {

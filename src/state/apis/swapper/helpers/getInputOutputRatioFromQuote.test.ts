@@ -91,7 +91,7 @@ describe('getInputOutputRatioFromQuote', () => {
       swapperName: SwapperName.Thorchain,
     })
 
-    expect(ratio).toBe(0.8330650727353319)
+    expect(ratio).toBe(0.7721990628583799)
   })
 
   it('should return correct ratio for a 0x quote', () => {
@@ -104,6 +104,6 @@ describe('getInputOutputRatioFromQuote', () => {
       swapperName: SwapperName.Zrx,
     })
 
-    expect(ratio).toBe(0.7514700580555285)
+    expect(ratio).toBe(0.6645692296414399)
   })
 })

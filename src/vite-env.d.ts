@@ -215,7 +215,9 @@ interface ImportMetaEnv {
   readonly VITE_WORLDCHAIN_NODE_URL: string
   readonly VITE_FEATURE_WORLDCHAIN: string
   readonly VITE_BLAST_NODE_URL: string
+  readonly VITE_ABSTRACT_NODE_URL: string
   readonly VITE_FEATURE_BLAST: string
+  readonly VITE_FEATURE_ABSTRACT: string
   readonly VITE_ETHEREAL_NODE_URL: string
   readonly VITE_FEATURE_ETHEREAL: string
   readonly VITE_SEI_NODE_URL: string

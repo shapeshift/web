@@ -3,6 +3,7 @@ import { csp as agenticChat } from './agenticChat'
 import { csp as trustwallet } from './assetService/trustwallet'
 import { csp as base } from './base'
 import { csp as chainflip } from './chainflip'
+import { csp as abstract } from './chains/abstract'
 import { csp as arbitrum } from './chains/arbitrum'
 import { csp as avalanche } from './chains/avalanche'
 import { csp as baseChain } from './chains/base'
@@ -130,6 +131,7 @@ export const csps = [
   bitcoin,
   bitcoincash,
   blast,
+  abstract,
   bnbsmartchain,
   cosmos,
   dogecoin,

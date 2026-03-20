@@ -294,6 +294,7 @@ export class MetaMaskMultiChainHDWallet
   readonly _supportsPlume = true
   readonly _supportsZkSyncEra = true
   readonly _supportsBlast = true
+  readonly _supportsAbstract = true
   readonly _supportsWorldChain = true
   readonly _supportsHemi = true
   readonly _supportsBerachain = true

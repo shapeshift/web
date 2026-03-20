@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { QuoteStore, type StoredQuote } from './quoteStore'
+import type { StoredQuote } from './quoteStore'
+import { QuoteStore } from './quoteStore'
 
 const makeQuote = (overrides: Partial<StoredQuote> = {}): StoredQuote => ({
   quoteId: 'quote-1',

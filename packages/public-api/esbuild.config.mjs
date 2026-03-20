@@ -35,8 +35,14 @@ if (isWatch) {
   let serverProcess = null
 
   const restartServer = () => {
-    if (serverProcess) serverProcess.kill()
-    serverProcess = spawn('node', ['--env-file=.env', 'dist/server.cjs'], { stdio: 'inherit' })
+    if (serverProcess) {
+      serverProcess.once('exit', () => {
+        serverProcess = spawn('node', ['--env-file=.env', 'dist/server.cjs'], { stdio: 'inherit' })
+      })
+      serverProcess.kill()
+    } else {
+      serverProcess = spawn('node', ['--env-file=.env', 'dist/server.cjs'], { stdio: 'inherit' })
+    }
   }
 
   const ctx = await esbuild.context({

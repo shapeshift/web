@@ -4,8 +4,7 @@
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/server.cjs",
   "scripts": {
     "clean": "rm -rf dist node_modules",
     "build": "rm -rf dist && node esbuild.config.mjs",

@@ -1,7 +1,4 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { SwapperName, TradeQuoteError } from '@shapeshiftoss/swapper'
 import type {
-  Asset,
   CosmosTransactionData,
   EvmTransactionData,
   Permit2SignatureRequired,
@@ -11,6 +8,10 @@ import type {
   UtxoPsbtTransactionData,
   UtxoTransactionData,
 } from '@shapeshiftoss/types'
+import { z } from 'zod'
+
+import { RateLimitErrorCode } from './middleware/rateLimit'
+import { registry } from './registry'
 
 export type {
   CosmosTransactionData,
@@ -25,151 +26,8 @@ export type {
 
 export type AffiliateInfo = {
   affiliateAddress?: string
-  affiliateBps?: string
+  affiliateBps: string
   partnerCode?: string
-}
-
-export type RatesRequest = {
-  sellAssetId: AssetId
-  buyAssetId: AssetId
-  sellAmountCryptoBaseUnit: string
-  slippageTolerancePercentageDecimal?: string
-  allowMultiHop?: boolean
-}
-
-export type QuoteRequest = {
-  sellAssetId: AssetId
-  buyAssetId: AssetId
-  sellAmountCryptoBaseUnit: string
-  receiveAddress: string
-  sendAddress?: string
-  swapperName: SwapperName
-  slippageTolerancePercentageDecimal?: string
-  allowMultiHop?: boolean
-  accountNumber?: number
-}
-
-export type StatusRequest = {
-  txHash: string
-  chainId: ChainId
-  swapperName: SwapperName
-}
-
-export type ApiRate = {
-  swapperName: SwapperName
-  rate: string
-  buyAmountCryptoBaseUnit: string
-  sellAmountCryptoBaseUnit: string
-  steps: number
-  estimatedExecutionTimeMs: number | undefined
-  priceImpactPercentageDecimal: string | undefined
-  affiliateBps: string
-  networkFeeCryptoBaseUnit: string | undefined
-  error?: {
-    code: TradeQuoteError
-    message: string
-  }
-}
-
-export type RatesResponse = {
-  rates: ApiRate[]
-  timestamp: number
-  expiresAt: number
-  affiliateAddress?: string
-}
-
-export type ApiQuoteStep = {
-  sellAsset: Asset
-  buyAsset: Asset
-  sellAmountCryptoBaseUnit: string
-  buyAmountAfterFeesCryptoBaseUnit: string
-  allowanceContract: string
-  estimatedExecutionTimeMs: number | undefined
-  source: string
-  transactionData?: TransactionData
-}
-
-export type ApprovalInfo = {
-  isRequired: boolean
-  spender: string
-  approvalTx?: {
-    to: string
-    data: string
-    value: string
-  }
-}
-
-export type QuoteResponse = {
-  quoteId: string
-  swapperName: SwapperName
-  rate: string
-  sellAsset: Asset
-  buyAsset: Asset
-  sellAmountCryptoBaseUnit: string
-  buyAmountBeforeFeesCryptoBaseUnit: string
-  buyAmountAfterFeesCryptoBaseUnit: string
-  affiliateBps: string
-  affiliateAddress?: string
-  slippageTolerancePercentageDecimal: string | undefined
-  networkFeeCryptoBaseUnit: string | undefined
-  steps: ApiQuoteStep[]
-  approval: ApprovalInfo
-  expiresAt: number
-}
-
-export type StatusResponse = {
-  status: 'pending' | 'confirmed' | 'failed' | 'unknown'
-  sellTxHash: string
-  buyTxHash?: string
-  message?: string
-}
-
-export type AssetsResponse = {
-  assets: Asset[]
-  timestamp: number
-}
-
-export type ChainType =
-  | 'evm'
-  | 'utxo'
-  | 'cosmos'
-  | 'solana'
-  | 'tron'
-  | 'sui'
-  | 'near'
-  | 'starknet'
-  | 'ton'
-
-export type Chain = {
-  chainId: ChainId
-  name: string
-  type: ChainType
-  symbol: string
-  precision: number
-  color: string
-  networkColor?: string
-  icon?: string
-  networkIcon?: string
-  explorer: string
-  explorerAddressLink: string
-  explorerTxLink: string
-  nativeAssetId: AssetId
-}
-
-export type ChainsResponse = {
-  chains: Chain[]
-  timestamp: number
-}
-
-export type ChainCountResponse = {
-  count: number
-  timestamp: number
-}
-
-export type ErrorResponse = {
-  error: string
-  code?: string
-  details?: unknown
 }
 
 declare global {
@@ -179,3 +37,57 @@ declare global {
     }
   }
 }
+
+export type ErrorResponse = {
+  error: string
+  code?: string
+  details?: unknown
+}
+
+export const RateLimitErrorSchema = registry.register(
+  'RateLimitError',
+  z.object({
+    error: z.string().openapi({ example: 'Too many requests, please try again later' }),
+    code: z
+      .nativeEnum(RateLimitErrorCode)
+      .openapi({ example: RateLimitErrorCode.RateLimitExceeded }),
+  }),
+)
+
+export const rateLimitResponse = {
+  description: 'Rate limit exceeded. Includes Retry-After header with seconds until reset.',
+  content: { 'application/json': { schema: RateLimitErrorSchema } },
+  headers: {
+    'Retry-After': {
+      description: 'Seconds until the rate limit window resets',
+      schema: { type: 'integer' as const, example: 30 },
+    },
+    'RateLimit-Limit': {
+      description: 'Maximum requests allowed per window',
+      schema: { type: 'integer' as const, example: 60 },
+    },
+    'RateLimit-Remaining': {
+      description: 'Requests remaining in the current window',
+      schema: { type: 'integer' as const, example: 0 },
+    },
+    'RateLimit-Reset': {
+      description: 'Seconds until the rate limit window resets',
+      schema: { type: 'integer' as const, example: 30 },
+    },
+  },
+}
+
+export const PartnerCodeHeaderSchema = z.object({
+  'X-Partner-Code': z
+    .string()
+    .optional()
+    .openapi({
+      param: {
+        name: 'X-Partner-Code',
+        in: 'header',
+        description:
+          'Partner code for affiliate fee attribution. The API resolves the code to the registered affiliate address and BPS. Register a code at the affiliate dashboard.',
+        example: 'vultisig',
+      },
+    }),
+})

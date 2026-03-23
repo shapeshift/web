@@ -12,6 +12,8 @@ let initialized = false
 export const initAssets = (): Promise<void> => {
   if (initialized) return Promise.resolve()
 
+  console.log('Initializing assets...')
+
   try {
     // Try to load from the generated asset data file
     // First check env var, then relative to cwd, then relative to monorepo root

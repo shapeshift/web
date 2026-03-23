@@ -330,11 +330,12 @@ type InfoCardProps = {
   titleKey: string
   descriptionKey: string
   accentColor: string
+  onClick?: () => void
   'data-testid'?: string
 }
 
 const InfoCard = memo(
-  ({ titleKey, descriptionKey, accentColor, 'data-testid': testId }: InfoCardProps) => {
+  ({ titleKey, descriptionKey, accentColor, onClick, 'data-testid': testId }: InfoCardProps) => {
     const isGreen = accentColor === 'green'
 
     return (
@@ -346,6 +347,12 @@ const InfoCard = memo(
         bg='rgba(255, 255, 255, 0.04)'
         borderWidth='1px'
         borderColor='rgba(255, 255, 255, 0.06)'
+        cursor={onClick ? 'pointer' : undefined}
+        onClick={onClick}
+        transition='all 0.2s ease-in-out'
+        _hover={
+          onClick ? { borderColor: 'border.hover', bg: 'rgba(255, 255, 255, 0.06)' } : undefined
+        }
       >
         <CardBody py={10} px={8}>
           <Flex justifyContent='space-between' alignItems='center'>
@@ -508,6 +515,16 @@ export const InitView = memo(({ onCtaClick, ctaLabel, 'data-testid': testId }: I
     if (firstAssetId) chainflipLendingModal.open({ mode: 'deposit', assetId: firstAssetId })
   }, [chainflipLendingModal, onCtaClick])
 
+  const handleSupply = useCallback(() => {
+    const firstAssetId = LENDING_ASSET_IDS[0]
+    if (firstAssetId) chainflipLendingModal.open({ mode: 'supply', assetId: firstAssetId })
+  }, [chainflipLendingModal])
+
+  const handleBorrow = useCallback(() => {
+    const firstAssetId = LENDING_ASSET_IDS[0]
+    if (firstAssetId) chainflipLendingModal.open({ mode: 'borrow', assetId: firstAssetId })
+  }, [chainflipLendingModal])
+
   return (
     <Stack spacing={8} data-testid={testId}>
       {/* Hero Card */}
@@ -569,12 +586,14 @@ export const InitView = memo(({ onCtaClick, ctaLabel, 'data-testid': testId }: I
           titleKey='chainflipLending.dashboard.earnYield'
           descriptionKey='chainflipLending.dashboard.earnYieldDescription'
           accentColor='green'
+          onClick={handleSupply}
           data-testid='chainflip-lending-earn-yield-card'
         />
         <InfoCard
           titleKey='chainflipLending.dashboard.borrowAgainstCollateral'
           descriptionKey='chainflipLending.dashboard.borrowAgainstCollateralDescription'
           accentColor='purple'
+          onClick={handleBorrow}
           data-testid='chainflip-lending-borrow-card'
         />
       </SimpleGrid>

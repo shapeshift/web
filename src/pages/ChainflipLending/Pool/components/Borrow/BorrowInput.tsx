@@ -1,6 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, CardBody, CardFooter, Flex, HStack, Stack, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { ethChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
@@ -13,11 +14,14 @@ import { LtvGauge } from './LtvGauge'
 
 import { Amount } from '@/components/Amount/Amount'
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
+import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
 import { useChainflipBorrowMinimums } from '@/pages/ChainflipLending/hooks/useChainflipBorrowMinimums'
@@ -38,6 +42,8 @@ const DEFAULT_RISKY_LTV = 0.8
 
 export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
   const translate = useTranslate()
+  const wallet = useWallet().state.wallet
+  const walletSupportsEth = useWalletSupportsChain(ethChainId, wallet)
   const {
     number: { localeParts },
   } = useLocaleFormatter()
@@ -365,8 +371,9 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
         px={6}
         py={4}
       >
-        <Button
+        <ButtonWalletPredicate
           data-testid='chainflip-borrow-submit'
+          isValidWallet={Boolean(walletSupportsEth)}
           colorScheme='blue'
           size='lg'
           height={12}
@@ -377,7 +384,7 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
           isDisabled={isSubmitDisabled}
         >
           {translate('chainflipLending.borrow.title')}
-        </Button>
+        </ButtonWalletPredicate>
         <RawText fontSize='sm' color='text.subtle' textAlign='center'>
           {translate('chainflipLending.borrow.needMorePower')}{' '}
           <Button variant='link' colorScheme='blue' fontSize='sm' onClick={handleAddCollateral}>

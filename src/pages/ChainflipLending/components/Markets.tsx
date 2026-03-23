@@ -24,8 +24,6 @@ import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { Text } from '@/components/Text'
-import { WalletActions } from '@/context/WalletProvider/actions'
-import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { permillToDecimal } from '@/lib/chainflip/utils'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
@@ -207,15 +205,9 @@ const MarketsTable = () => {
 export const Markets = () => {
   const translate = useTranslate()
   const { accountId } = useChainflipLendingAccount()
-  const { dispatch: walletDispatch } = useWallet()
   const [tabIndex, setTabIndex] = useState(0)
 
   const headerComponent = useMemo(() => <ChainflipLendingHeader />, [])
-
-  const handleConnectWallet = useCallback(
-    () => walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
-    [walletDispatch],
-  )
 
   return (
     <Main headerComponent={headerComponent} isSubPage>
@@ -261,7 +253,7 @@ export const Markets = () => {
             </TabPanels>
           </Tabs>
         ) : (
-          <InitView onCtaClick={handleConnectWallet} ctaLabel={translate('common.connectWallet')} />
+          <InitView />
         )}
       </Stack>
     </Main>

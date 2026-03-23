@@ -1,6 +1,6 @@
 import { Box, Button, CardBody, CardFooter, Divider, Flex, Stack, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { usdcAssetId, usdtAssetId } from '@shapeshiftoss/caip'
+import { ethChainId, usdcAssetId, usdtAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
@@ -12,11 +12,14 @@ import { SupplyMachineCtx } from './SupplyMachineContext'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
+import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useToggle } from '@/hooks/useToggle/useToggle'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
 import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
@@ -36,6 +39,8 @@ type SupplyInputProps = {
 
 export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
   const translate = useTranslate()
+  const wallet = useWallet().state.wallet
+  const walletSupportsEth = useWalletSupportsChain(ethChainId, wallet)
   const {
     number: { localeParts },
   } = useLocaleFormatter()
@@ -460,8 +465,9 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
         px={6}
         py={4}
       >
-        <Button
+        <ButtonWalletPredicate
           data-testid='chainflip-supply-submit'
+          isValidWallet={Boolean(walletSupportsEth)}
           colorScheme={submitButtonColorScheme}
           size='lg'
           height={12}
@@ -472,7 +478,7 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
           isDisabled={isSubmitDisabled}
         >
           {submitButtonText}
-        </Button>
+        </ButtonWalletPredicate>
       </CardFooter>
     </SlideTransition>
   )

@@ -4,98 +4,85 @@ route: /chainflip-lending
 steps:
   # === No-wallet state ===
   - name: Landing page without wallet
-    instruction: Open the chainflip lending page without a wallet connected.
+    instruction: >
+      Open the chainflip lending page without a wallet connected.
+      Use a fresh session with no cached wallet state.
     expected: >
-      Header shows Total Supplied, Available Liquidity, Total Borrowed stat cards.
-      "All Markets" section with "Lending Markets" heading, description text, and 6-column table
-      (Pool, Supply APY, Total Supplied, Borrow APR, Total Borrowed, Utilisation).
-      USDC row shows non-zero APY. Connect Wallet button is visible.
+      Header shows 4 stat cards: Free Balance $0.00, Supplied $0.00, Collateral $0.00, Borrowed $0.00.
+      Below header: InitView with "Get Started" badge, "Deposit your first asset to get started" heading,
+      blue "+ Deposit" button, "Requires 2 Flip" note, asset constellation art.
+      Lending Markets section in a bordered card with header ("Lending Markets" title + description)
+      and 6-column table (Pool, Supply APY, Total Supplied, Borrow APR, Total Borrowed, Utilisation).
+      USDC row shows non-zero APY. No "Connect Wallet" button in the header stat area.
+      Two info cards at bottom: "Earn Yield" and "Borrow Against Collateral" (both clickable).
     screenshot: true
 
-  # === Init view (fresh wallet, no positions) ===
-  - name: Init view for fresh wallet
-    instruction: Connect a wallet with no chainflip lending positions. Observe the My Dashboard tab.
+  # === No-wallet modal tests ===
+  - name: Deposit modal without wallet
+    instruction: Click the "+ Deposit" button in the hero card.
     expected: >
-      Hero card with "Get Started" badge, "Deposit your first asset to get started" heading,
-      blue "+ Deposit" button, "Requires 2 FLIP" note, and asset constellation art (ETH, BTC, USDC, USDT, SOL icons with orbital rings).
-      Lending Markets table with 6 columns below.
-      Two info cards at bottom: "Earn Yield" (green sparkle art) and "Borrow Against Collateral" (purple refresh art).
+      Deposit to Chainflip modal opens showing loading state or asset selector.
+      The modal handles the no-wallet state internally.
+    screenshot: true
+
+  - name: Supply modal without wallet
+    instruction: Close deposit modal. Click the "Earn Yield" info card at the bottom of the page.
+    expected: >
+      Supply modal opens. Submit button shows "Connect Wallet" via ButtonWalletPredicate.
+      Pool APY and Current Position visible.
+    screenshot: true
+
+  - name: Borrow modal without wallet
+    instruction: Close supply modal. Click the "Borrow Against Collateral" info card.
+    expected: >
+      Borrow modal opens. Submit button shows "Connect Wallet" via ButtonWalletPredicate.
+      "Need more borrowing power? Add Collateral" link visible at bottom.
     screenshot: true
 
   # === Funded dashboard ===
   - name: Funded dashboard overview
-    instruction: Connect a wallet with free balance on chainflip (e.g. import TorSwapKeyStore4). Navigate to My Dashboard tab.
+    instruction: >
+      Close any modal. Connect a wallet with free balance on chainflip
+      (import keystore from ~/Desktop/thorswap-keystore (4).txt, password: testtttt).
+      Navigate to My Dashboard tab.
     expected: >
-      Header stat cards: Free Balance (with value), Supplied $0.00, Collateral $0.00, Borrowed $0.00.
+      Header stat cards: Free Balance (with value), Supplied, Collateral, Borrowed (with values or $0.00).
       My Dashboard / Markets tabs visible, My Dashboard selected.
       Free Balance section with Asset/Balance columns, listing assets with balances.
-      Blue filled "+ Deposit" button and ghost "Withdraw" button in Free Balance header.
-      Next Steps sidebar card with green sparkle art, "Supply" and "Add Collateral" buttons.
+      "+ Deposit" and "Withdraw" buttons in Free Balance header.
+      Borrowing Power gauge in sidebar. Next Steps card if applicable.
     screenshot: true
 
-  - name: Empty sections display
-    instruction: Scroll down on the funded dashboard to see Supplied, Collateral, and Borrowed sections.
+  - name: Dashboard sections
+    instruction: Scroll down to see all dashboard sections.
     expected: >
-      Supplied section: "$0.00", "No earning positions yet" empty state with blue "+ Deposit" button.
-      Collateral section: "$0.00", "Provide collateral to start borrowing" with blue "+ Add Collateral" button.
-      Borrowed section: "$0.00", "No Active Loans" with blue "+ Add Collateral" button.
+      Supplied section with amount and positions (or empty state).
+      Collateral section with USDC position showing amount.
+      Borrowed section (may show $0.00 if no active loans, or loans with borrow rate).
     screenshot: true
 
-  # === Action modals from dashboard ===
-  - name: Deposit modal from dashboard
-    instruction: Click the blue "+ Deposit" button in the Free Balance section header.
-    expected: >
-      Deposit modal opens. Asset selector card with icon, name, balance visible.
-      Amount input field with asset icon. Info rows below divider.
-      Blue "Next" button at bottom.
-    screenshot: true
-
-  - name: Supply modal from Next Steps
-    instruction: Close deposit modal. Click "Supply" button in the Next Steps sidebar card.
-    expected: >
-      Supply modal opens with "Asset to supply" selector card.
-      Pool APY and Current Position stat boxes side-by-side.
-      Amount input with asset icon. Info rows: Estimated yearly earnings, Pool Share, Auto-compounding, Risk band.
-      Blue "Next" button at bottom.
-    screenshot: true
-
-  - name: Add Collateral modal
-    instruction: Close supply modal. Click "+ Add Collateral" button from the Collateral section empty state.
-    expected: >
-      Add Collateral modal opens with asset selection, amount input, and LTV gauge preview.
-    screenshot: true
-
-  # === Loan Health / LTV bar ===
-  - name: Loan Health bar (requires active loan)
+  # === LTV Gauge ===
+  - name: LTV gauge 4-zone display
     instruction: >
-      If the wallet has an active loan (collateral posted + borrowed amount > 0),
-      verify the Loan Health card appears above the section cards on My Dashboard.
-      It should show: heart rate monitor icon, "Loan Health" label, Current LTV percentage
-      (color-coded green/yellow/red), Liquidation Distance fiat value on the right,
-      and a horizontal multi-segment bar (Safe green / Risky yellow / Liquidation red)
-      with a skull icon at the hard liquidation boundary.
-      If no active loan exists, the Loan Health card should NOT render (this is correct).
+      If wallet has collateral and active loans, verify the Loan Health card and LTV gauge.
+      If no active loans (e.g. after voluntary liquidation), verify Loan Health card is hidden.
+      Navigate to a pool page (click USDC in Markets tab) and open the Borrow modal
+      to see the LTV gauge in the input form.
     expected: >
-      Loan Health card renders when loans exist with LTV gauge bar,
-      or correctly hidden when no loans.
-      data-testid: chainflip-lending-loan-health
-    screenshot: true
-
-  # === Visual polish checks ===
-  - name: Empty section dashed borders
-    instruction: >
-      On the funded dashboard with no supply/collateral/borrowed positions,
-      verify that the Supplied, Collateral, and Borrowed section cards have
-      dashed borders (not solid) to visually indicate empty state.
-    expected: >
-      Empty section cards have dashed border style. Free Balance card (with data) has solid border.
+      LTV gauge shows 4 zones: Conservative (dark green), Optimal (green), Risky (yellow), Liquidation (red).
+      Legend below gauge shows all 4 zone labels.
+      If active loan: current LTV marker visible on the gauge.
+      Stats row below gauge: Total Collateral, Borrow Capacity, Est. Interest Rate.
+      "Need more borrowing power? Add Collateral" link below the Borrow button.
     screenshot: true
 
   # === Markets tab ===
   - name: Markets tab
     instruction: Close any open modal. Switch to the "Markets" tab.
     expected: >
-      Lending Markets heading with description.
+      Markets table in bordered card with header section.
+      "Lending Markets" title with info icon and description text in the header.
       6-column table (Pool, Supply APY, Total Supplied, Borrow APR, Total Borrowed, Utilisation).
+      Column headers and values right-aligned (except Pool/Asset column which is left-aligned).
       USDC and Tether rows show non-zero APY and utilisation.
     screenshot: true

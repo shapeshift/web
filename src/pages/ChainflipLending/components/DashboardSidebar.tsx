@@ -24,7 +24,7 @@ import refreshIcon from '@/assets/chainflip-lending/refresh-icon.svg'
 import sparklesIcon from '@/assets/chainflip-lending/sparkles-icon.svg'
 import { Amount } from '@/components/Amount/Amount'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
-import { Text } from '@/components/Text'
+import { RawText, Text } from '@/components/Text'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
@@ -305,6 +305,87 @@ export const NextStepsCard = memo(() => {
   )
 })
 
+const VoluntaryLiquidationActiveCard = memo(() => {
+  const translate = useTranslate()
+  const { loanAccount, totalBorrowedFiat, totalCollateralFiat } = useChainflipLoanAccount()
+  const chainflipLendingModal = useModal('chainflipLending')
+
+  const isVoluntaryLiquidationActive = useMemo(() => {
+    if (!loanAccount?.liquidation_status) return false
+    const status = loanAccount.liquidation_status as Record<string, unknown>
+    return status.liquidation_type === 'Voluntary'
+  }, [loanAccount?.liquidation_status])
+
+  const handleStopLiquidation = useCallback(() => {
+    const firstAssetId = LENDING_ASSET_IDS[0]
+    if (firstAssetId)
+      chainflipLendingModal.open({ mode: 'voluntaryLiquidation', assetId: firstAssetId })
+  }, [chainflipLendingModal])
+
+  if (!isVoluntaryLiquidationActive) return null
+
+  return (
+    <Card
+      bg='rgba(255, 255, 255, 0.04)'
+      borderWidth='1px'
+      borderColor='rgba(255, 255, 255, 0.04)'
+      borderRadius='2xl'
+    >
+      <CardBody p={6}>
+        <Stack spacing={6}>
+          <Flex alignItems='center' gap={2}>
+            <CircularProgress
+              isIndeterminate
+              size='24px'
+              color='blue.500'
+              trackColor='transparent'
+            />
+            <RawText fontSize='sm' fontWeight='medium'>
+              {translate('chainflipLending.dashboard.voluntaryLiquidationActive')}
+            </RawText>
+          </Flex>
+          <Stack spacing={4}>
+            <Flex justifyContent='space-between'>
+              <RawText fontSize='sm' fontWeight='medium' color='rgba(255, 255, 255, 0.36)'>
+                {translate('chainflipLending.dashboard.volLiqMethod')}
+              </RawText>
+              <RawText fontSize='sm' fontWeight='medium'>
+                {translate('chainflipLending.dashboard.volLiqMethodValue')}
+              </RawText>
+            </Flex>
+            <Flex justifyContent='space-between'>
+              <RawText fontSize='sm' fontWeight='medium' color='rgba(255, 255, 255, 0.36)'>
+                {translate('chainflipLending.dashboard.volLiqRemainingDebt')}
+              </RawText>
+              <Amount.Fiat value={totalBorrowedFiat} fontSize='sm' fontWeight='medium' />
+            </Flex>
+            <Flex justifyContent='space-between'>
+              <RawText fontSize='sm' fontWeight='medium' color='rgba(255, 255, 255, 0.36)'>
+                {translate('chainflipLending.dashboard.volLiqCollateralSold')}
+              </RawText>
+              <Amount.Fiat value={totalCollateralFiat} fontSize='sm' fontWeight='medium' />
+            </Flex>
+          </Stack>
+          <RawText fontSize='sm' fontWeight='medium' color='rgba(255, 255, 255, 0.36)'>
+            {translate('chainflipLending.dashboard.volLiqDescription')}
+          </RawText>
+          <Button
+            variant='ghost'
+            bg='rgba(255, 255, 255, 0.04)'
+            width='full'
+            height={10}
+            borderRadius='xl'
+            fontWeight='semibold'
+            onClick={handleStopLiquidation}
+          >
+            {translate('chainflipLending.dashboard.volLiqStop')}
+          </Button>
+        </Stack>
+      </CardBody>
+    </Card>
+  )
+})
+
 export const DashboardSidebar = memo(() => {
   return (
     <Box
@@ -315,6 +396,7 @@ export const DashboardSidebar = memo(() => {
     >
       <Stack spacing={4}>
         <BorrowingPowerCard />
+        <VoluntaryLiquidationActiveCard />
         <NextStepsCard />
       </Stack>
     </Box>

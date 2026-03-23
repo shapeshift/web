@@ -2882,7 +2882,14 @@
       "viewDashboard": "View Dashboard",
       "lendingMarkets": "Lending Markets",
       "asset": "Asset",
-      "lendingMarketsDescription": "Each pool is isolated per asset. Pick a market to see what you could earn or borrow before you deposit."
+      "lendingMarketsDescription": "Each pool is isolated per asset. Pick a market to see what you could earn or borrow before you deposit.",
+      "voluntaryLiquidationActive": "Voluntary Liquidation Active",
+      "volLiqMethod": "Method",
+      "volLiqMethodValue": "DCA at near market rates",
+      "volLiqRemainingDebt": "Remaining Debt",
+      "volLiqCollateralSold": "Collateral sold",
+      "volLiqDescription": "Selling collateral to bring your position back to a healthy LTV. This process stops automatically once your LTV is restored, or you can stop it at any time.",
+      "volLiqStop": "Stop Liquidation"
     }
   },
   "chart": {

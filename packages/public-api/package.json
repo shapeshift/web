@@ -10,8 +10,8 @@
     "build": "rm -rf dist && node esbuild.config.mjs",
     "dev": "node esbuild.config.mjs --watch",
     "start": "node dist/server.cjs",
-    "test": "vitest run --project unit",
-    "test:integration": "vitest run --project integration"
+    "test": "vitest run --workspace vitest.workspace.ts --project unit",
+    "test:integration": "vitest run --workspace vitest.workspace.ts --project integration"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^7.3.4",

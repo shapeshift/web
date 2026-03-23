@@ -75,9 +75,6 @@ RUN pnpm exec tsc --build tsconfig.packages.json && pnpm run postbuild:packages
 WORKDIR /app/packages/public-api
 RUN node esbuild.config.mjs
 
-# Build smoke tests bundle
-RUN node esbuild.smoke-tests.mjs
-
 # Production stage
 FROM node:22-alpine AS runner
 
@@ -85,7 +82,6 @@ WORKDIR /app
 
 # Copy only the bundled server, smoke tests, and asset data (node_modules not needed - esbuild bundles everything)
 COPY --from=builder /app/packages/public-api/dist/server.cjs ./server.cjs
-COPY --from=builder /app/packages/public-api/dist/smoke-tests.cjs ./smoke-tests.cjs
 COPY --from=builder /app/public/generated/generatedAssetData.json ./public/generated/
 
 # Set environment

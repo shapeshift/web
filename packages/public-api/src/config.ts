@@ -53,9 +53,6 @@ export const getServerConfig = (): SwapperConfig => ({
   VITE_DEBRIDGE_API_URL: process.env.DEBRIDGE_API_URL || 'https://dln.debridge.finance/v1.0',
 })
 
-// Default affiliate fee in basis points
-export const DEFAULT_AFFILIATE_BPS = '10'
-
 // Swap service backend URL
 const getSwapServiceBaseUrl = (): string => {
   if (process.env.SWAP_SERVICE_BASE_URL) return process.env.SWAP_SERVICE_BASE_URL

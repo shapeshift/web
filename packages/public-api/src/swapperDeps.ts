@@ -223,7 +223,7 @@ const createStubAdapter = (type: string) => {
   }
 }
 
-export const createServerSwapperDeps = (assetsById: AssetsByIdPartial): SwapperDeps => ({
+const createServerSwapperDeps = (assetsById: AssetsByIdPartial): SwapperDeps => ({
   assetsById,
   config: getServerConfig(),
   mixPanel: undefined,
@@ -274,3 +274,14 @@ export const createServerSwapperDeps = (assetsById: AssetsByIdPartial): SwapperD
 
   fetchIsSmartContractAddressQuery: () => Promise.resolve(false),
 })
+
+let swapperDeps: SwapperDeps | null = null
+
+export const initSwapperDeps = (assetsById: AssetsByIdPartial): void => {
+  swapperDeps = createServerSwapperDeps(assetsById)
+}
+
+export const getSwapperDeps = (): SwapperDeps => {
+  if (!swapperDeps) throw new Error('SwapperDeps not initialized')
+  return swapperDeps
+}

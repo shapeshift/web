@@ -169,6 +169,10 @@ export const chainflipApi: SwapperApi = {
       chainSpecific: { from, tokenId },
     })
 
+    // Chainflip deposit addresses are program-owned accounts that require more compute
+    // than a regular SOL transfer. Apply a safety margin to avoid "Computational budget exceeded".
+    const computeUnits = Math.ceil(Math.max(Number(fast.chainSpecific.computeUnits), 50_000) * 1.6)
+
     return adapter.buildSendApiTransaction({
       to,
       from,
@@ -176,7 +180,7 @@ export const chainflipApi: SwapperApi = {
       accountNumber,
       chainSpecific: {
         tokenId,
-        computeUnitLimit: fast.chainSpecific.computeUnits,
+        computeUnitLimit: String(computeUnits),
         computeUnitPrice: fast.chainSpecific.priorityFee,
       },
     })
@@ -207,11 +211,17 @@ export const chainflipApi: SwapperApi = {
       },
     })
 
-    return fast.txFee
+    // Mirror the same compute budget boost as getUnsignedSolanaTransaction
+    // to avoid underquoting fees for Chainflip deposit addresses
+    const simulatedUnits = Number(fast.chainSpecific.computeUnits)
+    const boostedUnits = Math.ceil(Math.max(simulatedUnits, 50_000) * 1.6)
+    const ratio = simulatedUnits > 0 ? boostedUnits / simulatedUnits : 1
+
+    return String(Math.ceil(Number(fast.txFee) * ratio))
   },
   checkTradeStatus: async ({ config, swap }) => {
     const chainflipSwapId = swap?.metadata.chainflipSwapId
-    if (!chainflipSwapId) throw Error(`chainflipSwapId is required`)
+    if (chainflipSwapId == null) throw Error(`chainflipSwapId is required`)
 
     const brokerUrl = config.VITE_CHAINFLIP_API_URL
     const apiKey = config.VITE_CHAINFLIP_API_KEY
@@ -231,7 +241,7 @@ export const chainflipApi: SwapperApi = {
 
     const { data: statusResponse } = maybeStatusResponse.unwrap()
     const {
-      status: { swapEgress },
+      status: { swapEgress, swapId },
     } = statusResponse
 
     // Assume no outbound Tx is a pending Tx
@@ -240,6 +250,7 @@ export const chainflipApi: SwapperApi = {
         buyTxHash: undefined,
         status: TxStatus.Pending,
         message: getLatestChainflipStatusMessage(statusResponse),
+        chainflipSwapId: swapId ?? undefined,
       }
     }
 
@@ -249,6 +260,7 @@ export const chainflipApi: SwapperApi = {
       buyTxHash: swapEgress.transactionReference,
       status: TxStatus.Confirmed,
       message: undefined,
+      chainflipSwapId: swapId ?? undefined,
     }
   },
 }

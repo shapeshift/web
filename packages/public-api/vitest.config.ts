@@ -5,10 +5,24 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig(({ mode }) => ({
   test: {
     globals: true,
-    environment: 'node',
-    testTimeout: 30000,
-    include: ['src/**/*.test.ts'],
-    exclude: ['src/integration.test.ts', '**/node_modules/**'],
     env: loadEnv(mode, process.cwd(), ''),
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          include: ['src/**/*.test.ts'],
+          exclude: ['src/integration.test.ts'],
+        },
+      },
+      {
+        extends: true,
+        testTimeout: 30000,
+        test: {
+          name: 'integration',
+          include: ['src/integration.test.ts'],
+        },
+      },
+    ],
   },
 }))

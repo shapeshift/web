@@ -1,5 +1,6 @@
 import type { GridProps } from '@chakra-ui/react'
 import {
+  Box,
   Button,
   CircularProgress,
   Flex,
@@ -23,7 +24,7 @@ import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { AssetCell } from '@/components/StakingVaults/Cells'
-import { Text } from '@/components/Text'
+import { RawText, Text } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { permillToDecimal } from '@/lib/chainflip/utils'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
@@ -41,8 +42,6 @@ const marketRowGrid: GridProps['gridTemplateColumns'] = {
 }
 
 const mobileDisplay = { base: 'none', md: 'flex' }
-const mobilePadding = { base: 4, lg: 4, xl: 0 }
-const listMargin = { base: 0, lg: 0, xl: -4 }
 
 type MarketRowProps = {
   pool: ChainflipLendingPoolWithFiat
@@ -91,21 +90,21 @@ const MarketRow = ({ pool, onViewMarket }: MarketRowProps) => {
       data-testid={`chainflip-lending-market-row-${asset?.symbol?.toLowerCase() ?? 'unknown'}`}
     >
       <AssetCell assetId={pool.assetId} />
-      <Flex display={mobileDisplay}>
+      <Flex display={mobileDisplay} justifyContent='flex-end'>
         <Amount.Percent value={pool.supplyApy} autoColor />
       </Flex>
-      <Flex display={mobileDisplay}>
+      <Flex display={mobileDisplay} justifyContent='flex-end'>
         <Amount.Fiat value={pool.totalAmountFiat} />
       </Flex>
-      <Flex display={mobileDisplay}>
+      <Flex display={mobileDisplay} justifyContent='flex-end'>
         <Amount.Percent value={pool.borrowRate} autoColor />
       </Flex>
-      <Flex display={mobileDisplay}>
+      <Flex display={mobileDisplay} justifyContent='flex-end'>
         <Amount.Fiat
           value={bnOrZero(pool.totalAmountFiat).minus(pool.availableAmountFiat).toFixed(2)}
         />
       </Flex>
-      <HStack spacing={2}>
+      <HStack spacing={2} justifyContent='flex-end'>
         <CircularProgress
           value={utilisationNumber}
           size='24px'
@@ -149,56 +148,65 @@ const MarketsTable = () => {
   }, [isLoading, sortedPools, handleViewMarket])
 
   return (
-    <Stack spacing={4}>
-      <Stack spacing={1}>
-        <Text
-          translation='chainflipLending.dashboard.lendingMarkets'
-          fontWeight='bold'
-          fontSize='lg'
-        />
-        <Text
-          translation='chainflipLending.dashboard.lendingMarketsDescription'
-          color='text.subtle'
-          fontSize='sm'
-        />
-      </Stack>
-      <Stack>
-        <SimpleGrid
-          gridTemplateColumns={marketRowGrid}
-          columnGap={4}
-          color='text.subtle'
-          fontWeight='bold'
-          fontSize='sm'
-          px={mobilePadding}
-        >
-          <Text translation='chainflipLending.poolHeader' />
-          <Flex display={mobileDisplay}>
-            <HelperTooltip label={translate('chainflipLending.supplyApyTooltip')}>
-              <Text translation='chainflipLending.supplyApy' />
-            </HelperTooltip>
+    <Box
+      borderWidth='1px'
+      borderColor='rgba(255, 255, 255, 0.08)'
+      borderRadius='2xl'
+      overflow='hidden'
+    >
+      <Box bg='rgba(255, 255, 255, 0.04)' p={4}>
+        <Stack spacing={0}>
+          <Flex alignItems='center' gap={2}>
+            <RawText fontSize='md' fontWeight='medium'>
+              {translate('chainflipLending.dashboard.lendingMarkets')}
+            </RawText>
+            <HelperTooltip
+              label={translate('chainflipLending.dashboard.lendingMarketsDescription')}
+            />
           </Flex>
-          <Flex display={mobileDisplay}>
-            <HelperTooltip label={translate('chainflipLending.totalSuppliedTooltip')}>
-              <Text translation='chainflipLending.totalSupplied' />
-            </HelperTooltip>
-          </Flex>
-          <Flex display={mobileDisplay}>
-            <HelperTooltip label={translate('chainflipLending.borrowAprTooltip')}>
-              <Text translation='chainflipLending.borrowApr' />
-            </HelperTooltip>
-          </Flex>
-          <Flex display={mobileDisplay}>
-            <HelperTooltip label={translate('chainflipLending.totalBorrowedTooltip')}>
-              <Text translation='chainflipLending.totalBorrowed' />
-            </HelperTooltip>
-          </Flex>
+          <RawText fontSize='sm' fontWeight='medium' color='rgba(255, 255, 255, 0.36)'>
+            {translate('chainflipLending.dashboard.lendingMarketsDescription')}
+          </RawText>
+        </Stack>
+      </Box>
+      <SimpleGrid
+        gridTemplateColumns={marketRowGrid}
+        columnGap={4}
+        color='rgba(255, 255, 255, 0.36)'
+        fontWeight='medium'
+        fontSize='sm'
+        px={4}
+        py={2}
+      >
+        <Text translation='chainflipLending.poolHeader' />
+        <Flex display={mobileDisplay} justifyContent='flex-end'>
+          <HelperTooltip label={translate('chainflipLending.supplyApyTooltip')}>
+            <Text translation='chainflipLending.supplyApy' />
+          </HelperTooltip>
+        </Flex>
+        <Flex display={mobileDisplay} justifyContent='flex-end'>
+          <HelperTooltip label={translate('chainflipLending.totalSuppliedTooltip')}>
+            <Text translation='chainflipLending.totalSupplied' />
+          </HelperTooltip>
+        </Flex>
+        <Flex display={mobileDisplay} justifyContent='flex-end'>
+          <HelperTooltip label={translate('chainflipLending.borrowAprTooltip')}>
+            <Text translation='chainflipLending.borrowApr' />
+          </HelperTooltip>
+        </Flex>
+        <Flex display={mobileDisplay} justifyContent='flex-end'>
+          <HelperTooltip label={translate('chainflipLending.totalBorrowedTooltip')}>
+            <Text translation='chainflipLending.totalBorrowed' />
+          </HelperTooltip>
+        </Flex>
+        <Flex justifyContent='flex-end'>
           <HelperTooltip label={translate('chainflipLending.utilisationTooltip')}>
             <Text translation='chainflipLending.utilisation' />
           </HelperTooltip>
-        </SimpleGrid>
-        <Stack mx={listMargin}>{marketRows}</Stack>
-      </Stack>
-    </Stack>
+        </Flex>
+      </SimpleGrid>
+      <Stack spacing={0}>{marketRows}</Stack>
+    </Box>
   )
 }
 

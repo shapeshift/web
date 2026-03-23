@@ -7,7 +7,6 @@ import {
   Center,
   CircularProgress,
   Flex,
-  Heading,
   HStack,
   SimpleGrid,
   Skeleton,
@@ -39,7 +38,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { AssetCell } from '@/components/StakingVaults/Cells'
-import { Text } from '@/components/Text'
+import { RawText, Text } from '@/components/Text'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
@@ -105,21 +104,21 @@ const MarketRow = memo(({ pool, onViewMarket }: MarketRowProps) => {
       data-testid={`chainflip-lending-market-row-${asset?.symbol?.toLowerCase() ?? 'unknown'}`}
     >
       <AssetCell assetId={pool.assetId} />
-      <Flex display={mobileDisplay}>
+      <Flex display={mobileDisplay} justifyContent='flex-end'>
         <Amount.Percent value={pool.supplyApy} autoColor />
       </Flex>
-      <Flex display={mobileDisplay}>
+      <Flex display={mobileDisplay} justifyContent='flex-end'>
         <Amount.Fiat value={pool.totalAmountFiat} />
       </Flex>
-      <Flex display={mobileDisplay}>
+      <Flex display={mobileDisplay} justifyContent='flex-end'>
         <Amount.Percent value={pool.borrowRate} autoColor />
       </Flex>
-      <Flex display={mobileDisplay}>
+      <Flex display={mobileDisplay} justifyContent='flex-end'>
         <Amount.Fiat
           value={bnOrZero(pool.totalAmountFiat).minus(pool.availableAmountFiat).toFixed(2)}
         />
       </Flex>
-      <HStack spacing={2}>
+      <HStack spacing={2} justifyContent='flex-end'>
         <CircularProgress
           value={utilisationNumber}
           size='24px'
@@ -277,52 +276,65 @@ const MarketsTable = memo(() => {
   }, [isLoading, sortedPools, handleViewMarket])
 
   return (
-    <Stack spacing={4}>
-      <Stack spacing={1}>
-        <Heading size='md'>{translate('chainflipLending.dashboard.lendingMarkets')}</Heading>
-        <Text
-          translation='chainflipLending.dashboard.lendingMarketsDescription'
-          color='text.subtle'
-          fontSize='sm'
-        />
-      </Stack>
-      <Stack>
-        <SimpleGrid
-          gridTemplateColumns={marketRowGrid}
-          columnGap={4}
-          color='text.subtle'
-          fontWeight='bold'
-          fontSize='sm'
-          px={4}
-        >
-          <Text translation='chainflipLending.poolHeader' />
-          <Flex display={mobileDisplay}>
-            <HelperTooltip label={translate('chainflipLending.supplyApyTooltip')}>
-              <Text translation='chainflipLending.supplyApy' />
-            </HelperTooltip>
+    <Box
+      borderWidth='1px'
+      borderColor='rgba(255, 255, 255, 0.08)'
+      borderRadius='2xl'
+      overflow='hidden'
+    >
+      <Box bg='rgba(255, 255, 255, 0.04)' p={4}>
+        <Stack spacing={0}>
+          <Flex alignItems='center' gap={2}>
+            <RawText fontSize='md' fontWeight='medium'>
+              {translate('chainflipLending.dashboard.lendingMarkets')}
+            </RawText>
+            <HelperTooltip
+              label={translate('chainflipLending.dashboard.lendingMarketsDescription')}
+            />
           </Flex>
-          <Flex display={mobileDisplay}>
-            <HelperTooltip label={translate('chainflipLending.totalSuppliedTooltip')}>
-              <Text translation='chainflipLending.totalSupplied' />
-            </HelperTooltip>
-          </Flex>
-          <Flex display={mobileDisplay}>
-            <HelperTooltip label={translate('chainflipLending.borrowAprTooltip')}>
-              <Text translation='chainflipLending.borrowApr' />
-            </HelperTooltip>
-          </Flex>
-          <Flex display={mobileDisplay}>
-            <HelperTooltip label={translate('chainflipLending.totalBorrowedTooltip')}>
-              <Text translation='chainflipLending.totalBorrowed' />
-            </HelperTooltip>
-          </Flex>
+          <RawText fontSize='sm' fontWeight='medium' color='rgba(255, 255, 255, 0.36)'>
+            {translate('chainflipLending.dashboard.lendingMarketsDescription')}
+          </RawText>
+        </Stack>
+      </Box>
+      <SimpleGrid
+        gridTemplateColumns={marketRowGrid}
+        columnGap={4}
+        color='rgba(255, 255, 255, 0.36)'
+        fontWeight='medium'
+        fontSize='sm'
+        px={4}
+        py={2}
+      >
+        <Text translation='chainflipLending.poolHeader' />
+        <Flex display={mobileDisplay} justifyContent='flex-end'>
+          <HelperTooltip label={translate('chainflipLending.supplyApyTooltip')}>
+            <Text translation='chainflipLending.supplyApy' />
+          </HelperTooltip>
+        </Flex>
+        <Flex display={mobileDisplay} justifyContent='flex-end'>
+          <HelperTooltip label={translate('chainflipLending.totalSuppliedTooltip')}>
+            <Text translation='chainflipLending.totalSupplied' />
+          </HelperTooltip>
+        </Flex>
+        <Flex display={mobileDisplay} justifyContent='flex-end'>
+          <HelperTooltip label={translate('chainflipLending.borrowAprTooltip')}>
+            <Text translation='chainflipLending.borrowApr' />
+          </HelperTooltip>
+        </Flex>
+        <Flex display={mobileDisplay} justifyContent='flex-end'>
+          <HelperTooltip label={translate('chainflipLending.totalBorrowedTooltip')}>
+            <Text translation='chainflipLending.totalBorrowed' />
+          </HelperTooltip>
+        </Flex>
+        <Flex justifyContent='flex-end'>
           <HelperTooltip label={translate('chainflipLending.utilisationTooltip')}>
             <Text translation='chainflipLending.utilisation' />
           </HelperTooltip>
-        </SimpleGrid>
-        <Stack mx={{ base: 0, lg: 0, xl: -4 }}>{marketRows}</Stack>
-      </Stack>
-    </Stack>
+        </Flex>
+      </SimpleGrid>
+      <Stack spacing={0}>{marketRows}</Stack>
+    </Box>
   )
 })
 
@@ -363,7 +375,7 @@ const InfoCard = memo(
                 color='text.subtle'
                 fontSize='sm'
                 lineHeight='tall'
-                opacity={0.6}
+                opacity={0.4}
               />
             </Stack>
             {/* Art from Figma SVGs */}
@@ -529,47 +541,52 @@ export const InitView = memo(({ onCtaClick, ctaLabel, 'data-testid': testId }: I
     <Stack spacing={8} data-testid={testId}>
       {/* Hero Card */}
       <Card
-        bg='background.surface.raised.base'
+        bg='rgba(255, 255, 255, 0.04)'
+        borderWidth='1px'
+        borderColor='rgba(255, 255, 255, 0.06)'
         overflow='hidden'
         borderRadius='2xl'
         data-testid='chainflip-lending-get-started'
       >
-        <CardBody py={{ base: 6, lg: 10 }} px={{ base: 6, lg: 10 }}>
-          <Flex justifyContent='space-between' alignItems='flex-start' gap={4}>
-            <Stack spacing={5} alignItems='flex-start' maxW='480px'>
-              <Badge
-                colorScheme='blue'
-                fontSize='xs'
-                px={3}
-                py={1}
-                borderRadius='full'
-                fontWeight='semibold'
-              >
-                {translate('chainflipLending.dashboard.getStarted')}
-              </Badge>
-              <Heading size='lg' lineHeight='shorter'>
-                {translate('chainflipLending.dashboard.depositFirstAsset')}
-              </Heading>
-              <Text
-                translation='chainflipLending.dashboard.depositFirstAssetDescription'
-                color='text.subtle'
-                fontSize='sm'
-                lineHeight='tall'
-              />
+        <CardBody py={{ base: 6, lg: 16 }} px={{ base: 6, lg: 8 }}>
+          <Flex justifyContent='space-between' alignItems='center' gap={6}>
+            <Stack spacing={6} alignItems='flex-start' maxW='597px'>
+              <Stack spacing={2} alignItems='flex-start'>
+                <Badge
+                  bg='rgba(255, 255, 255, 0.04)'
+                  borderWidth='1px'
+                  borderColor='rgba(255, 255, 255, 0.04)'
+                  color='white'
+                  fontSize='xs'
+                  px={2}
+                  py={0}
+                  borderRadius='full'
+                  fontWeight='medium'
+                >
+                  {translate('chainflipLending.dashboard.getStarted')}
+                </Badge>
+                <RawText fontSize='lg' fontWeight='medium' lineHeight='7'>
+                  {translate('chainflipLending.dashboard.depositFirstAsset')}
+                </RawText>
+                <RawText fontSize='md' fontWeight='medium' lineHeight='6' opacity={0.4}>
+                  {translate('chainflipLending.dashboard.depositFirstAssetDescription')}
+                </RawText>
+              </Stack>
               <HStack spacing={4} alignItems='center'>
                 <Button
                   colorScheme='blue'
                   size='md'
+                  height={10}
+                  borderRadius='xl'
+                  fontWeight='semibold'
                   onClick={handleDeposit}
                   data-testid='chainflip-lending-init-deposit'
                 >
                   {ctaLabel ?? `+ ${translate('chainflipLending.dashboard.deposit')}`}
                 </Button>
-                <Text
-                  translation='chainflipLending.dashboard.requiresFlip'
-                  fontSize='xs'
-                  color='text.subtle'
-                />
+                <RawText fontSize='xs' fontWeight='medium' opacity={0.4}>
+                  {translate('chainflipLending.dashboard.requiresFlip')}
+                </RawText>
               </HStack>
             </Stack>
             <AssetConstellation />

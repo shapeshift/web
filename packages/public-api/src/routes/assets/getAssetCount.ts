@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express'
 
-import { getAssetIds } from '../../assets'
+import { getAllAssets } from '../../assets'
 import { registry } from '../../registry'
 import type { ErrorResponse } from '../../types'
 import type { AssetCountResponse } from './types'
@@ -24,9 +24,21 @@ registry.registerPath({
   },
 })
 
-export const getAssetCount = (_req: Request, res: Response): void => {
+export const getAssetCount = (req: Request, res: Response): void => {
   try {
-    const count = getAssetIds().length
+    const parseResult = AssetCountRequestSchema.safeParse(req.query)
+    if (!parseResult.success) {
+      const errorResponse: ErrorResponse = {
+        error: 'Invalid request parameters',
+        details: parseResult.error.errors,
+      }
+      res.status(400).json(errorResponse)
+      return
+    }
+
+    const { chainId } = parseResult.data
+    const assets = getAllAssets()
+    const count = chainId ? assets.filter(a => a.chainId === chainId).length : assets.length
 
     const response: AssetCountResponse = {
       count,

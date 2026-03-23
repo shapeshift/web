@@ -345,7 +345,6 @@
         "marketCapRank": "Piyasa Değeri Sıralaması",
         "volume24h": "24sa Hacim",
         "volMcap": "Hacim/MCap",
-        "about": "%{symbol} Hakkında",
         "noDescription": "Bu varlık için herhangi bir açıklama mevcut değil."
       },
       "receive": {

@@ -345,7 +345,6 @@
         "marketCapRank": "時価総額ランキング",
         "volume24h": "24時間ボリューム",
         "volMcap": "出来高/時価総額",
-        "about": "%{symbol}について",
         "noDescription": "このアセットの説明はありません。"
       },
       "receive": {

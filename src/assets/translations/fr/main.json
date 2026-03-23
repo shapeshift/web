@@ -345,7 +345,6 @@
         "marketCapRank": "Rang de capitalisation boursière",
         "volume24h": "Volume sur 24h",
         "volMcap": "Vol/Cap",
-        "about": "À propos de %{symbol}",
         "noDescription": "Aucune description disponible pour cet actif."
       },
       "receive": {

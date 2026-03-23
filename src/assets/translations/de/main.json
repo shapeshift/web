@@ -345,7 +345,6 @@
         "marketCapRank": "Rangliste der Marktkapitalisierung",
         "volume24h": "24h Volumen",
         "volMcap": "Vol/Marktkap.",
-        "about": "Über %{symbol}",
         "noDescription": "Für diese Wertanlage ist keine Beschreibung verfügbar."
       },
       "receive": {

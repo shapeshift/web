@@ -345,7 +345,6 @@
         "marketCapRank": "Classificação de capitalização de mercado",
         "volume24h": "Volume nas últimas 24 horas",
         "volMcap": "Vol/Cap Mercado",
-        "about": "Sobre %{symbol}",
         "noDescription": "Não há descrição disponível para este recurso."
       },
       "receive": {

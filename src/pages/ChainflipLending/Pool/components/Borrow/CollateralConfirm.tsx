@@ -109,8 +109,16 @@ export const CollateralConfirm = memo(({ assetId }: CollateralConfirmProps) => {
                 )}
               </RawText>
             </VStack>
-            <VStack spacing={2} width='full' px={2}>
-              <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <Flex
+              borderWidth={1}
+              borderColor='border.subtle'
+              borderRadius='lg'
+              p={4}
+              width='full'
+              direction='column'
+              gap={2}
+            >
+              <Flex justifyContent='space-between' alignItems='center'>
                 <RawText fontSize='sm' color='text.subtle'>
                   {translate(
                     isAddMode
@@ -125,7 +133,17 @@ export const CollateralConfirm = memo(({ assetId }: CollateralConfirmProps) => {
                   fontSize='sm'
                 />
               </Flex>
-            </VStack>
+              {!isAddMode && (
+                <Flex justifyContent='space-between' alignItems='center'>
+                  <RawText fontSize='sm' color='text.subtle'>
+                    {translate('chainflipLending.confirm.destination')}
+                  </RawText>
+                  <RawText fontSize='sm' fontWeight='medium'>
+                    {translate('chainflipLending.freeBalance')}
+                  </RawText>
+                </Flex>
+              )}
+            </Flex>
           </VStack>
         </CardBody>
         <CardFooter

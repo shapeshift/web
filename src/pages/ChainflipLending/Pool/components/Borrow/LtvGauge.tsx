@@ -13,37 +13,42 @@ type LtvGaugeProps = {
 const GAUGE_HEIGHT = '10px'
 const THUMB_SIZE = '20px'
 
-const DEFAULT_HARD_LIQUIDATION_LTV = 0.93
-
-// Risky threshold sits between soft and hard liquidation - use topup or midpoint
-const DEFAULT_RISKY_LTV = 0.8
+// Fallback thresholds when config hasn't loaded
+const DEFAULT_LOW_LTV = 0.5
+const DEFAULT_TARGET = 0.8
+const DEFAULT_SOFT_LIQUIDATION = 0.9
+const DEFAULT_TOPUP = 0.85
+const DEFAULT_HARD_LIQUIDATION = 0.93
 
 const ltvToPercent = (ltv: number): number => Math.min(Math.max(ltv * 100, 0), 100)
 
-const getStatusColor = (ltv: number, riskyLtv: number, hardLiquidationLtv: number): string => {
-  if (ltv >= hardLiquidationLtv) return 'red.500'
-  if (ltv >= riskyLtv) return 'yellow.500'
-  return 'green.500'
-}
-
-type LegendItem = {
+type Zone = {
   labelKey: string
   color: string
+  width: number
 }
 
-const legendItems: LegendItem[] = [
-  { labelKey: 'chainflipLending.ltv.safe', color: 'green.500' },
-  { labelKey: 'chainflipLending.ltv.risky', color: 'yellow.500' },
-  { labelKey: 'chainflipLending.ltv.liquidation', color: 'red.500' },
-]
+const getStatusColor = (
+  ltv: number,
+  targetLtv: number,
+  softLiqLtv: number,
+  hardLiqLtv: number,
+): string => {
+  if (ltv >= hardLiqLtv) return 'red.500'
+  if (ltv >= softLiqLtv) return 'yellow.500'
+  if (ltv >= targetLtv) return 'yellow.300'
+  return 'green.500'
+}
 
 export const LtvGauge = memo(({ currentLtv, projectedLtv }: LtvGaugeProps) => {
   const translate = useTranslate()
   const { thresholds } = useChainflipLtvThresholds()
 
-  // Zone boundaries: safe (0 -> risky), risky (risky -> hard liq), liquidation (hard liq -> 100%)
-  const riskyLtv = thresholds?.target ?? DEFAULT_RISKY_LTV
-  const hardLiquidationLtv = thresholds?.hardLiquidation ?? DEFAULT_HARD_LIQUIDATION_LTV
+  const lowLtv = thresholds?.lowLtv ?? DEFAULT_LOW_LTV
+  const targetLtv = thresholds?.target ?? DEFAULT_TARGET
+  const topupLtv = thresholds?.topup ?? DEFAULT_TOPUP
+  const softLiqLtv = thresholds?.softLiquidation ?? DEFAULT_SOFT_LIQUIDATION
+  const hardLiqLtv = thresholds?.hardLiquidation ?? DEFAULT_HARD_LIQUIDATION
 
   const thumbPosition = useMemo(() => ltvToPercent(currentLtv), [currentLtv])
 
@@ -52,22 +57,41 @@ export const LtvGauge = memo(({ currentLtv, projectedLtv }: LtvGaugeProps) => {
     [projectedLtv],
   )
 
-  // Segment widths as percentages
-  const safeWidth = useMemo(() => riskyLtv * 100, [riskyLtv])
-  const riskyWidth = useMemo(
-    () => (hardLiquidationLtv - riskyLtv) * 100,
-    [hardLiquidationLtv, riskyLtv],
+  // 4 zones based on protocol thresholds
+  const zones: Zone[] = useMemo(
+    () => [
+      {
+        labelKey: 'chainflipLending.ltv.conservative',
+        color: 'green.700',
+        width: lowLtv * 100,
+      },
+      {
+        labelKey: 'chainflipLending.ltv.optimal',
+        color: 'green.500',
+        width: (targetLtv - lowLtv) * 100,
+      },
+      {
+        labelKey: 'chainflipLending.ltv.risky',
+        color: 'yellow.500',
+        width: (softLiqLtv - targetLtv) * 100,
+      },
+      {
+        labelKey: 'chainflipLending.ltv.liquidation',
+        color: 'red.500',
+        width: (1 - softLiqLtv) * 100,
+      },
+    ],
+    [lowLtv, targetLtv, softLiqLtv],
   )
-  const liquidationWidth = useMemo(() => (1 - hardLiquidationLtv) * 100, [hardLiquidationLtv])
 
-  // Position of skull icon at the hard liquidation boundary
-  const skullPosition = useMemo(() => hardLiquidationLtv * 100, [hardLiquidationLtv])
+  const skullPosition = useMemo(() => hardLiqLtv * 100, [hardLiqLtv])
+  const topupPosition = useMemo(() => topupLtv * 100, [topupLtv])
 
   return (
     <Box width='full'>
       {/* Multi-segment progress bar */}
       <Box position='relative' height='40px'>
-        {/* Bar track */}
+        {/* Bar track - 4 zone segments */}
         <Flex
           position='absolute'
           top='50%'
@@ -78,12 +102,15 @@ export const LtvGauge = memo(({ currentLtv, projectedLtv }: LtvGaugeProps) => {
           borderRadius='full'
           overflow='hidden'
         >
-          {/* Safe segment (green) */}
-          <Box width={`${safeWidth}%`} height='full' bg='green.500' opacity={0.3} />
-          {/* Risky segment (yellow) */}
-          <Box width={`${riskyWidth}%`} height='full' bg='yellow.500' opacity={0.3} />
-          {/* Liquidation segment (red) */}
-          <Box width={`${liquidationWidth}%`} height='full' bg='red.500' opacity={0.3} />
+          {zones.map(zone => (
+            <Box
+              key={zone.labelKey}
+              width={`${zone.width}%`}
+              height='full'
+              bg={zone.color}
+              opacity={0.3}
+            />
+          ))}
         </Flex>
 
         {/* Filled portion up to current LTV */}
@@ -100,11 +127,30 @@ export const LtvGauge = memo(({ currentLtv, projectedLtv }: LtvGaugeProps) => {
           transition='width 0.3s ease'
         >
           <Flex height='full' width={`${thumbPosition > 0 ? (100 / thumbPosition) * 100 : 100}%`}>
-            <Box width={`${safeWidth}%`} height='full' bg='green.500' flexShrink={0} />
-            <Box width={`${riskyWidth}%`} height='full' bg='yellow.500' flexShrink={0} />
-            <Box width={`${liquidationWidth}%`} height='full' bg='red.500' flexShrink={0} />
+            {zones.map(zone => (
+              <Box
+                key={zone.labelKey}
+                width={`${zone.width}%`}
+                height='full'
+                bg={zone.color}
+                flexShrink={0}
+              />
+            ))}
           </Flex>
         </Box>
+
+        {/* Topup threshold marker (subtle tick at 85%) */}
+        <Box
+          position='absolute'
+          top='50%'
+          left={`${topupPosition}%`}
+          transform='translate(-50%, -50%)'
+          height='16px'
+          width='1px'
+          bg='yellow.500'
+          opacity={0.6}
+          zIndex={1}
+        />
 
         {/* Skull icon at hard liquidation boundary */}
         <Box
@@ -133,7 +179,7 @@ export const LtvGauge = memo(({ currentLtv, projectedLtv }: LtvGaugeProps) => {
               size={THUMB_SIZE}
               borderWidth='2px'
               borderStyle='dashed'
-              borderColor={getStatusColor(projectedLtv ?? 0, riskyLtv, hardLiquidationLtv)}
+              borderColor={getStatusColor(projectedLtv ?? 0, targetLtv, softLiqLtv, hardLiqLtv)}
               bg='transparent'
             />
           </Box>
@@ -162,13 +208,13 @@ export const LtvGauge = memo(({ currentLtv, projectedLtv }: LtvGaugeProps) => {
         </Text>
       </Flex>
 
-      {/* Legend */}
+      {/* Legend - 4 zones */}
       <Flex justifyContent='center' alignItems='center' gap={4} mt={2}>
-        {legendItems.map(item => (
-          <Flex key={item.labelKey} alignItems='center' gap={1.5}>
-            <Circle size='8px' bg={item.color} />
+        {zones.map(zone => (
+          <Flex key={zone.labelKey} alignItems='center' gap={1.5}>
+            <Circle size='8px' bg={zone.color} />
             <Text fontSize='xs' color='text.subtle'>
-              {translate(item.labelKey)}
+              {translate(zone.labelKey)}
             </Text>
           </Flex>
         ))}

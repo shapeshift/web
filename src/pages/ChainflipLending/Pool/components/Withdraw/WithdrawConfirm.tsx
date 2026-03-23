@@ -44,6 +44,8 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
   const withdrawAmountCryptoPrecision = WithdrawMachineCtx.useSelector(
     s => s.context.withdrawAmountCryptoPrecision,
   )
+  const withdrawToWallet = WithdrawMachineCtx.useSelector(s => s.context.withdrawToWallet)
+  const withdrawAddress = WithdrawMachineCtx.useSelector(s => s.context.withdrawAddress)
   const error = WithdrawMachineCtx.useSelector(s => s.context.error)
   const isNativeWallet = WithdrawMachineCtx.useSelector(s => s.context.isNativeWallet)
   const stepConfirmed = WithdrawMachineCtx.useSelector(s => s.context.stepConfirmed)
@@ -100,8 +102,16 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
                 })}
               </RawText>
             </VStack>
-            <VStack spacing={2} width='full' px={2}>
-              <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <Flex
+              borderWidth={1}
+              borderColor='border.subtle'
+              borderRadius='lg'
+              p={4}
+              width='full'
+              direction='column'
+              gap={2}
+            >
+              <Flex justifyContent='space-between' alignItems='center'>
                 <RawText fontSize='sm' color='text.subtle'>
                   {translate('chainflipLending.withdraw.withdrawn')}
                 </RawText>
@@ -112,7 +122,23 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
                   fontSize='sm'
                 />
               </Flex>
-            </VStack>
+              <Flex justifyContent='space-between' alignItems='center'>
+                <RawText fontSize='sm' color='text.subtle'>
+                  {translate('chainflipLending.withdraw.destination')}
+                </RawText>
+                <RawText
+                  fontSize='sm'
+                  fontWeight='medium'
+                  maxWidth='200px'
+                  isTruncated
+                  title={withdrawToWallet ? withdrawAddress : undefined}
+                >
+                  {withdrawToWallet && withdrawAddress
+                    ? withdrawAddress
+                    : translate('chainflipLending.freeBalance')}
+                </RawText>
+              </Flex>
+            </Flex>
           </VStack>
         </CardBody>
         <CardFooter
@@ -284,8 +310,16 @@ export const WithdrawConfirm = memo(({ assetId }: WithdrawConfirmProps) => {
             <RawText fontSize='sm' color='text.subtle'>
               {translate('chainflipLending.withdraw.destination')}
             </RawText>
-            <RawText fontSize='sm' fontWeight='medium'>
-              {translate('chainflipLending.freeBalance')}
+            <RawText
+              fontSize='sm'
+              fontWeight='medium'
+              maxWidth='200px'
+              isTruncated
+              title={withdrawToWallet ? withdrawAddress : undefined}
+            >
+              {withdrawToWallet && withdrawAddress
+                ? withdrawAddress
+                : translate('chainflipLending.freeBalance')}
             </RawText>
           </Flex>
         </VStack>

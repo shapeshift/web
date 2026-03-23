@@ -112,8 +112,16 @@ export const RepayConfirm = memo(({ assetId }: RepayConfirmProps) => {
                 })}
               </RawText>
             </VStack>
-            <VStack spacing={2} width='full' px={2}>
-              <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <Flex
+              borderWidth={1}
+              borderColor='border.subtle'
+              borderRadius='lg'
+              p={4}
+              width='full'
+              direction='column'
+              gap={2}
+            >
+              <Flex justifyContent='space-between' alignItems='center'>
                 <RawText fontSize='sm' color='text.subtle'>
                   {translate('chainflipLending.repay.repaid')}
                 </RawText>
@@ -131,7 +139,7 @@ export const RepayConfirm = memo(({ assetId }: RepayConfirmProps) => {
                   )}
                 </HStack>
               </Flex>
-            </VStack>
+            </Flex>
           </VStack>
         </CardBody>
         <CardFooter

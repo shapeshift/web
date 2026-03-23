@@ -2518,7 +2518,17 @@
       },
       "noCollateral": "Add collateral first to borrow",
       "minimumLoan": "Minimum loan: %{amount}",
-      "availableTooltip": "Maximum amount you can borrow based on your collateral value and target LTV"
+      "availableTooltip": "Maximum amount you can borrow based on your collateral value and target LTV",
+      "needMorePower": "Need more borrowing power?",
+      "addCollateral": "Add Collateral"
+    },
+    "stats": {
+      "totalCollateral": "Total Collateral",
+      "totalCollateralTooltip": "Total value of all collateral deposited in your loan account.",
+      "borrowCapacity": "Borrow Capacity",
+      "borrowCapacityTooltip": "Remaining borrowing power based on your collateral and target LTV ratio.",
+      "estInterestRate": "Est. Interest Rate",
+      "estInterestRateTooltip": "Current annualized borrow rate for this pool. Rates adjust based on pool utilisation."
     },
     "totalSupplied": "Total Supplied",
     "totalSuppliedTooltip": "Total value of assets supplied across all Chainflip lending pools.",
@@ -2590,6 +2600,9 @@
       "minimumAmount": "Minimum collateral update: %{amount}",
       "noFreeBalance": "No free balance available to add as collateral",
       "noRemovable": "Cannot remove collateral without reducing LTV below target"
+    },
+    "confirm": {
+      "destination": "Destination"
     },
     "depositToChainflip": "Deposit to Chainflip",
     "depositDescription": "Deposit assets from your wallet to your Chainflip State Chain account to start lending.",
@@ -2745,7 +2758,9 @@
       "risky": "Risky",
       "liquidation": "Liquidation",
       "warning": "Warning",
-      "danger": "Danger"
+      "danger": "Danger",
+      "conservative": "Conservative",
+      "optimal": "Optimal"
     },
     "egress": {
       "title": "Withdraw from Chainflip",
@@ -2781,6 +2796,14 @@
     "collateralHeader": "Collateral",
     "borrowedHeader": "Borrowed",
     "voluntaryLiquidation": {
+      "reduceDebt": "Reduce Debt",
+      "currentCollateral": "Current Collateral",
+      "outstandingDebt": "Outstanding Debt",
+      "currentLtv": "Current LTV",
+      "estimatedDuration": "Estimated Duration",
+      "estimatedDurationValue": "Varies by market",
+      "initiateWarningDetailed": "Collateral will be sold at near-market rates until your LTV is reduced. You can stop this process at any time. There is no fee unless LTV crosses a liquidation threshold.",
+      "confirmLiquidation": "Confirm Liquidation",
       "initiateTitle": "Initiate Voluntary Liquidation",
       "initiateWarning": "This will begin liquidating your entire position. Your collateral will be sold to repay all outstanding loans. This process cannot be undone once confirmed on-chain.",
       "stopTitle": "Stop Voluntary Liquidation",
@@ -2789,13 +2812,22 @@
       "confirmStop": "Stop Liquidation",
       "executingTitle": "Processing...",
       "executingDescription": "Your voluntary liquidation request is being submitted to the Chainflip State Chain.",
-      "initiateSuccessTitle": "Liquidation Initiated",
-      "initiateSuccessDescription": "Your voluntary liquidation has been initiated. Your position will be unwound automatically.",
+      "initiateSuccessTitle": "Voluntary liquidation started",
+      "initiateSuccessDescription": "Your collateral is now being sold via DCA at near-market rates to reduce your debt. You can stop these orders at any time from the dashboard.",
       "stopSuccessTitle": "Liquidation Stopped",
       "stopSuccessDescription": "Voluntary liquidation has been cancelled. Your position remains open.",
       "errorTitle": "Transaction Failed",
       "errorDescription": "The voluntary liquidation transaction failed. Please try again.",
       "inProgress": "Voluntary liquidation in progress",
+      "viewDashboard": "View Dashboard",
+      "summaryStatus": "Status",
+      "summaryInProgress": "In progress",
+      "summaryMethod": "Method",
+      "summaryMethodValue": "DCA",
+      "summaryStopsWhen": "Stops when",
+      "summaryStopsWhenValue": "LTV at 0%",
+      "summaryUnsoldCollateral": "Unsold Collateral",
+      "summaryUnsoldCollateralValue": "Returned to your account",
       "steps": {
         "signing": "Sign transaction",
         "confirming": "Confirming on-chain"

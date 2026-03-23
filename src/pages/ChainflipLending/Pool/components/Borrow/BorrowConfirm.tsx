@@ -119,8 +119,16 @@ export const BorrowConfirm = memo(({ assetId }: BorrowConfirmProps) => {
                 })}
               </RawText>
             </VStack>
-            <VStack spacing={2} width='full' px={2}>
-              <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <Flex
+              borderWidth={1}
+              borderColor='border.subtle'
+              borderRadius='lg'
+              p={4}
+              width='full'
+              direction='column'
+              gap={2}
+            >
+              <Flex justifyContent='space-between' alignItems='center'>
                 <RawText fontSize='sm' color='text.subtle'>
                   {translate('chainflipLending.borrow.borrowed')}
                 </RawText>
@@ -131,7 +139,7 @@ export const BorrowConfirm = memo(({ assetId }: BorrowConfirmProps) => {
                   fontSize='sm'
                 />
               </Flex>
-            </VStack>
+            </Flex>
           </VStack>
         </CardBody>
         <CardFooter

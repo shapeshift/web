@@ -109,8 +109,16 @@ export const EgressConfirm = memo(({ assetId }: EgressConfirmProps) => {
                 })}
               </RawText>
             </VStack>
-            <VStack spacing={2} width='full' px={2}>
-              <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <Flex
+              borderWidth={1}
+              borderColor='border.subtle'
+              borderRadius='lg'
+              p={4}
+              width='full'
+              direction='column'
+              gap={2}
+            >
+              <Flex justifyContent='space-between' alignItems='center'>
                 <RawText fontSize='sm' color='text.subtle'>
                   {translate('chainflipLending.egress.withdrawn')}
                 </RawText>
@@ -122,7 +130,7 @@ export const EgressConfirm = memo(({ assetId }: EgressConfirmProps) => {
                 />
               </Flex>
               {egressTxRef && (
-                <Flex justifyContent='space-between' alignItems='center' width='full'>
+                <Flex justifyContent='space-between' alignItems='center'>
                   <RawText fontSize='sm' color='text.subtle'>
                     {translate('chainflipLending.egress.transactionId')}
                   </RawText>
@@ -140,7 +148,7 @@ export const EgressConfirm = memo(({ assetId }: EgressConfirmProps) => {
                   )}
                 </Flex>
               )}
-            </VStack>
+            </Flex>
           </VStack>
         </CardBody>
         <CardFooter

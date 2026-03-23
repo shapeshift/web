@@ -24,11 +24,14 @@ import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { permillToDecimal } from '@/lib/chainflip/utils'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { ChainflipLendingHeader } from '@/pages/ChainflipLending/components/ChainflipLendingHeader'
 import { Dashboard } from '@/pages/ChainflipLending/components/Dashboard'
+import { InitView } from '@/pages/ChainflipLending/components/InitView'
 import type { ChainflipLendingPoolWithFiat } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
 import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
@@ -204,9 +207,15 @@ const MarketsTable = () => {
 export const Markets = () => {
   const translate = useTranslate()
   const { accountId } = useChainflipLendingAccount()
+  const { dispatch: walletDispatch } = useWallet()
   const [tabIndex, setTabIndex] = useState(0)
 
-  const headerComponent = useMemo(() => <ChainflipLendingHeader tabIndex={tabIndex} />, [tabIndex])
+  const headerComponent = useMemo(() => <ChainflipLendingHeader />, [])
+
+  const handleConnectWallet = useCallback(
+    () => walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
+    [walletDispatch],
+  )
 
   return (
     <Main headerComponent={headerComponent} isSubPage>
@@ -252,15 +261,7 @@ export const Markets = () => {
             </TabPanels>
           </Tabs>
         ) : (
-          <Stack spacing={4}>
-            <Text
-              translation='chainflipLending.allMarkets'
-              fontWeight='bold'
-              fontSize='xl'
-              px={mobilePadding}
-            />
-            <MarketsTable />
-          </Stack>
+          <InitView onCtaClick={handleConnectWallet} ctaLabel={translate('common.connectWallet')} />
         )}
       </Stack>
     </Main>

@@ -489,14 +489,24 @@ const InfoCard = memo(
   },
 )
 
-export const InitView = memo(({ 'data-testid': testId }: { 'data-testid'?: string }) => {
+type InitViewProps = {
+  onCtaClick?: () => void
+  ctaLabel?: string
+  'data-testid'?: string
+}
+
+export const InitView = memo(({ onCtaClick, ctaLabel, 'data-testid': testId }: InitViewProps) => {
   const translate = useTranslate()
   const chainflipLendingModal = useModal('chainflipLending')
 
   const handleDeposit = useCallback(() => {
+    if (onCtaClick) {
+      onCtaClick()
+      return
+    }
     const firstAssetId = LENDING_ASSET_IDS[0]
     if (firstAssetId) chainflipLendingModal.open({ mode: 'deposit', assetId: firstAssetId })
-  }, [chainflipLendingModal])
+  }, [chainflipLendingModal, onCtaClick])
 
   return (
     <Stack spacing={8} data-testid={testId}>
@@ -536,7 +546,7 @@ export const InitView = memo(({ 'data-testid': testId }: { 'data-testid'?: strin
                   onClick={handleDeposit}
                   data-testid='chainflip-lending-init-deposit'
                 >
-                  + {translate('chainflipLending.dashboard.deposit')}
+                  {ctaLabel ?? `+ ${translate('chainflipLending.dashboard.deposit')}`}
                 </Button>
                 <Text
                   translation='chainflipLending.dashboard.requiresFlip'

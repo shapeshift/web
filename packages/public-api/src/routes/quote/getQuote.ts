@@ -40,7 +40,9 @@ registry.registerPath({
     400: {
       description: 'Invalid request or unavailable swapper',
     },
+    404: { description: 'No quote available' },
     429: rateLimitResponse,
+    500: { description: 'Internal server error' },
   },
 })
 

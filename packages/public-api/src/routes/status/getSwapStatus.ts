@@ -4,7 +4,7 @@ import { SWAP_SERVICE_BASE_URL } from '../../config'
 import { quoteStore } from '../../lib/quoteStore'
 import { registry } from '../../registry'
 import type { ErrorResponse } from '../../types'
-import { PartnerCodeHeaderSchema } from '../../types'
+import { PartnerCodeHeaderSchema, rateLimitResponse } from '../../types'
 import { STATUS_TIMEOUT_MS } from './constants'
 import type { SwapServiceStatus, SwapStatusResponse } from './types'
 import { StatusRequestSchema, SwapStatusResponseSchema } from './types'
@@ -27,15 +27,11 @@ registry.registerPath({
       description: 'Swap status',
       content: { 'application/json': { schema: SwapStatusResponseSchema } },
     },
-    400: {
-      description: 'Invalid request parameters',
-    },
-    404: {
-      description: 'Quote not found or expired',
-    },
-    409: {
-      description: 'Transaction hash mismatch',
-    },
+    400: { description: 'Invalid request parameters' },
+    404: { description: 'Quote not found or expired' },
+    409: { description: 'Transaction hash mismatch' },
+    429: rateLimitResponse,
+    500: { description: 'Internal server error' },
   },
 })
 

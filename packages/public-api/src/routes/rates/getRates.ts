@@ -47,6 +47,7 @@ registry.registerPath({
       description: 'Invalid request',
     },
     429: rateLimitResponse,
+    500: { description: 'Internal server error' },
   },
 })
 

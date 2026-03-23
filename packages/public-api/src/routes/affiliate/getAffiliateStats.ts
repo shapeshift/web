@@ -1,12 +1,12 @@
 import type { Request, Response } from 'express'
 
 import { SWAP_SERVICE_BASE_URL } from '../../config'
+import { fetchSwapService } from '../../lib/fetchSwapService'
 import { registry } from '../../registry'
 import type { ErrorResponse } from '../../types'
+import { rateLimitResponse } from '../../types'
 import type { AffiliateStatsResponse } from './types'
 import { AffiliateStatsRequestSchema, AffiliateStatsResponseSchema } from './types'
-
-const AFFILIATE_TIMEOUT_MS = 10_000
 
 // Backend response type from swap-service
 type BackendAffiliateStats = {
@@ -33,12 +33,11 @@ registry.registerPath({
       description: 'Affiliate statistics',
       content: { 'application/json': { schema: AffiliateStatsResponseSchema } },
     },
-    400: {
-      description: 'Invalid address format',
-    },
-    503: {
-      description: 'Swap service unavailable',
-    },
+    400: { description: 'Invalid address format' },
+    429: rateLimitResponse,
+    500: { description: 'Internal server error' },
+    503: { description: 'Swap service unavailable' },
+    504: { description: 'Swap service timed out' },
   },
 })
 
@@ -68,30 +67,8 @@ export const getAffiliateStats = async (req: Request, res: Response): Promise<vo
     }
 
     // Call backend swap-service
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), AFFILIATE_TIMEOUT_MS)
-    let backendResponse: globalThis.Response
-    try {
-      backendResponse = await fetch(backendUrl.toString(), {
-        signal: controller.signal,
-      })
-    } catch (error) {
-      if (error instanceof DOMException && error.name === 'AbortError') {
-        res.status(504).json({
-          error: 'Swap service request timed out',
-          code: 'SERVICE_TIMEOUT',
-        } as ErrorResponse)
-        return
-      }
-      console.error('Failed to connect to swap-service:', error)
-      res.status(503).json({
-        error: 'Swap service unavailable',
-        code: 'SERVICE_UNAVAILABLE',
-      } as ErrorResponse)
-      return
-    } finally {
-      clearTimeout(timeout)
-    }
+    const backendResponse = await fetchSwapService(res, backendUrl.toString())
+    if (!backendResponse) return
 
     // Handle backend errors
     if (!backendResponse.ok) {

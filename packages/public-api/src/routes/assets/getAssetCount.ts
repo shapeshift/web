@@ -3,6 +3,7 @@ import type { Request, Response } from 'express'
 import { getAllAssets } from '../../assets'
 import { registry } from '../../registry'
 import type { ErrorResponse } from '../../types'
+import { rateLimitResponse } from '../../types'
 import type { AssetCountResponse } from './types'
 import { AssetCountRequestSchema, AssetCountResponseSchema } from './types'
 
@@ -21,6 +22,9 @@ registry.registerPath({
       description: 'Asset count',
       content: { 'application/json': { schema: AssetCountResponseSchema } },
     },
+    400: { description: 'Invalid query parameters' },
+    429: rateLimitResponse,
+    500: { description: 'Internal server error' },
   },
 })
 

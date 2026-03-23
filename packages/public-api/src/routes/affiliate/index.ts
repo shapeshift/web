@@ -1,1 +1,6 @@
+export * from './claimPartnerCode'
+export * from './createAffiliate'
+export * from './getAffiliate'
 export * from './getAffiliateStats'
+export * from './getAffiliateSwaps'
+export * from './updateAffiliate'

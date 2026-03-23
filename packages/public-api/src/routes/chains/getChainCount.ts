@@ -20,6 +20,7 @@ registry.registerPath({
       content: { 'application/json': { schema: ChainCountResponseSchema } },
     },
     429: rateLimitResponse,
+    500: { description: 'Internal server error' },
   },
 })
 

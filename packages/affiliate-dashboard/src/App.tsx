@@ -133,7 +133,7 @@ const ShapeShiftLogo = (): React.JSX.Element => (
   </svg>
 )
 
-const API_BASE = '/v1/affiliate'
+const AFFILIATE_URL = `${import.meta.env.VITE_API_URL}/v1/affiliate`
 
 type Tab = 'overview' | 'swaps' | 'settings'
 
@@ -224,7 +224,7 @@ export const App = (): React.JSX.Element => {
     setActionLoading(true)
     clearActionMessage()
     try {
-      const res = await fetch(API_BASE, {
+      const res = await fetch(AFFILIATE_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({
@@ -253,7 +253,7 @@ export const App = (): React.JSX.Element => {
     setActionLoading(true)
     clearActionMessage()
     try {
-      const res = await fetch(`${API_BASE}/claim-code`, {
+      const res = await fetch(`${AFFILIATE_URL}/claim-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({ walletAddress: affiliateAddress, partnerCode: claimCode.trim() }),
@@ -282,7 +282,7 @@ export const App = (): React.JSX.Element => {
     setActionLoading(true)
     clearActionMessage()
     try {
-      const res = await fetch(`${API_BASE}/${encodeURIComponent(affiliateAddress)}`, {
+      const res = await fetch(`${AFFILIATE_URL}/${encodeURIComponent(affiliateAddress)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({ bps: parsedUpdateBps }),
@@ -313,7 +313,7 @@ export const App = (): React.JSX.Element => {
     setActionLoading(true)
     clearActionMessage()
     try {
-      const res = await fetch(`${API_BASE}/${encodeURIComponent(affiliateAddress)}`, {
+      const res = await fetch(`${AFFILIATE_URL}/${encodeURIComponent(affiliateAddress)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({ receiveAddress: updateReceiveAddress.trim() }),
@@ -970,7 +970,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   tabButtonActive: {
     color: '#f0f1f4',
-    borderBottomColor: '#386ff9',
+    borderBottom: '2px solid #386ff9',
   },
   periodRow: {
     display: 'flex',

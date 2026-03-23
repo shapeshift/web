@@ -21,10 +21,10 @@ registry.registerPath({
       description: 'Asset details',
       content: { 'application/json': { schema: AssetSchema } },
     },
-    404: {
-      description: 'Asset not found',
-    },
+    400: { description: 'Invalid asset ID' },
+    404: { description: 'Asset not found' },
     429: rateLimitResponse,
+    500: { description: 'Internal server error' },
   },
 })
 

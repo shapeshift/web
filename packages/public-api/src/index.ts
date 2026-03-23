@@ -8,6 +8,7 @@ import { API_HOST, API_PORT } from './config'
 import { quoteStore } from './lib/quoteStore'
 import { resolvePartnerCode } from './middleware/auth'
 import {
+  affiliateMutationLimiter,
   affiliateStatsLimiter,
   dataLimiter,
   globalLimiter,
@@ -15,8 +16,16 @@ import {
   swapRatesLimiter,
   swapStatusLimiter,
 } from './middleware/rateLimit'
-import { getAffiliateStats } from './routes/affiliate'
+import {
+  claimPartnerCode,
+  createAffiliate,
+  getAffiliate,
+  getAffiliateStats,
+  getAffiliateSwaps,
+  updateAffiliate,
+} from './routes/affiliate'
 import { getAssetById, getAssetCount, getAssets } from './routes/assets'
+import { siweNonce, siweVerify } from './routes/auth'
 import { getChainCount, getChains } from './routes/chains'
 import { getQuote } from './routes/quote'
 import { getRates } from './routes/rates'
@@ -49,7 +58,15 @@ const startServer = async () => {
   v1Router.post('/swap/quote', swapQuoteLimiter, resolvePartnerCode, getQuote)
   v1Router.get('/swap/status', swapStatusLimiter, resolvePartnerCode, getSwapStatus)
 
+  v1Router.get('/affiliate/swaps', dataLimiter, getAffiliateSwaps)
   v1Router.get('/affiliate/stats', affiliateStatsLimiter, getAffiliateStats)
+  v1Router.get('/affiliate/:address', dataLimiter, getAffiliate)
+  v1Router.post('/affiliate/claim-code', affiliateMutationLimiter, claimPartnerCode)
+  v1Router.post('/affiliate', affiliateMutationLimiter, createAffiliate)
+  v1Router.patch('/affiliate/:address', affiliateMutationLimiter, updateAffiliate)
+
+  v1Router.post('/auth/siwe/nonce', affiliateMutationLimiter, siweNonce)
+  v1Router.post('/auth/siwe/verify', affiliateMutationLimiter, siweVerify)
 
   v1Router.get('/chains', dataLimiter, getChains)
   v1Router.get('/chains/count', dataLimiter, getChainCount)

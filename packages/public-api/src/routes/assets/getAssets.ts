@@ -22,7 +22,9 @@ registry.registerPath({
       description: 'List of assets',
       content: { 'application/json': { schema: AssetsListResponseSchema } },
     },
+    400: { description: 'Invalid query parameters' },
     429: rateLimitResponse,
+    500: { description: 'Internal server error' },
   },
 })
 

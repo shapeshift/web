@@ -6,7 +6,9 @@ const resolvePartnerCodeFromService = async (
   code: string,
 ): Promise<{ affiliateAddress: string; bps: string } | null> => {
   try {
-    const response = await fetch(`${env.SWAP_SERVICE_BASE_URL}/v1/partner/${encodeURIComponent(code)}`)
+    const response = await fetch(
+      `${env.SWAP_SERVICE_BASE_URL}/v1/partner/${encodeURIComponent(code)}`,
+    )
 
     if (response.ok) {
       const data = (await response.json()) as {

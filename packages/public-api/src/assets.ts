@@ -15,30 +15,7 @@ export const initAssets = (): Promise<void> => {
   console.log('Initializing assets...')
 
   try {
-    // Try to load from the generated asset data file
-    // First check env var, then relative to cwd, then relative to monorepo root
-    const possiblePaths = [
-      process.env.ASSET_DATA_PATH,
-      path.join(process.cwd(), 'public/generated/generatedAssetData.json'),
-      path.join(process.cwd(), '../../public/generated/generatedAssetData.json'),
-      path.join(process.cwd(), 'generatedAssetData.json'),
-    ].filter(Boolean) as string[]
-
-    let assetDataPath: string | undefined
-    for (const p of possiblePaths) {
-      if (fs.existsSync(p)) {
-        assetDataPath = p
-        break
-      }
-    }
-
-    if (!assetDataPath) {
-      const error = new Error(
-        `Asset data file not found in any of the expected locations: ${possiblePaths.join(', ')}`,
-      )
-      console.warn(error.message)
-      return Promise.reject(error)
-    }
+    const assetDataPath = path.join(__dirname, '../../../public/generated/generatedAssetData.json')
 
     const assetDataJson = JSON.parse(fs.readFileSync(assetDataPath, 'utf8'))
     const localAssetData = assetDataJson.byId

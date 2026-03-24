@@ -4,7 +4,7 @@ import cors from 'cors'
 import express from 'express'
 
 import { getAssetsById, initAssets } from './assets'
-import { API_HOST, API_PORT } from './config'
+import { env } from './env'
 import { quoteStore } from './lib/quoteStore'
 import { resolvePartnerCode } from './middleware/auth'
 import {
@@ -38,7 +38,7 @@ const startServer = async () => {
 
   const app = express()
 
-  app.set('trust proxy', process.env.TRUST_PROXY === '1' ? 1 : false)
+  app.set('trust proxy', 1)
 
   app.use(cors())
   app.use(express.json())
@@ -91,8 +91,8 @@ const startServer = async () => {
     },
   )
 
-  app.listen(API_PORT, API_HOST, () => {
-    console.log(`Public API server running at http://${API_HOST}:${API_PORT}`)
+  app.listen(env.PORT, () => {
+    console.log(`Public API server running on port: ${env.PORT}`)
   })
 }
 

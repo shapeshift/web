@@ -1,11 +1,11 @@
 import { z } from 'zod'
 
 const url = z.string().url()
-const flag = z.string().transform(v => v === 'true')
+const flag = z.enum(['true', 'false']).transform(v => v === 'true')
 
 const envSchema = z.object({
   // Server
-  PORT: z.string().default('3005'),
+  PORT: z.string().regex(/^\d+$/, 'PORT must be numeric').default('3005'),
   NODE_ENV: z.string().default('development'),
 
   // Swap service
@@ -63,16 +63,16 @@ const envSchema = z.object({
   FEATURE_CHAINFLIP_SWAP_DCA: flag,
 
   // Affiliate
-  DEFAULT_AFFILIATE_BPS: z.string(),
+  DEFAULT_AFFILIATE_BPS: z.string().regex(/^\d+$/, 'DEFAULT_AFFILIATE_BPS must be numeric'),
 
   // Rate limiting
-  RATE_LIMIT_GLOBAL_MAX: z.coerce.number(),
-  RATE_LIMIT_DATA_MAX: z.coerce.number(),
-  RATE_LIMIT_SWAP_RATES_MAX: z.coerce.number(),
-  RATE_LIMIT_SWAP_QUOTE_MAX: z.coerce.number(),
-  RATE_LIMIT_SWAP_STATUS_MAX: z.coerce.number(),
-  RATE_LIMIT_AFFILIATE_STATS_MAX: z.coerce.number(),
-  RATE_LIMIT_AFFILIATE_MUTATION_MAX: z.coerce.number(),
+  RATE_LIMIT_GLOBAL_MAX: z.coerce.number().int().min(1),
+  RATE_LIMIT_DATA_MAX: z.coerce.number().int().min(1),
+  RATE_LIMIT_SWAP_RATES_MAX: z.coerce.number().int().min(1),
+  RATE_LIMIT_SWAP_QUOTE_MAX: z.coerce.number().int().min(1),
+  RATE_LIMIT_SWAP_STATUS_MAX: z.coerce.number().int().min(1),
+  RATE_LIMIT_AFFILIATE_STATS_MAX: z.coerce.number().int().min(1),
+  RATE_LIMIT_AFFILIATE_MUTATION_MAX: z.coerce.number().int().min(1),
 })
 
 const result = envSchema.safeParse(process.env)

@@ -1,15 +1,12 @@
 import type { NextFunction, Request, Response } from 'express'
 
-const DEFAULT_AFFILIATE_BPS = '60'
-
-// Microservices URL for partner code resolution
-const MICROSERVICES_URL = process.env.MICROSERVICES_URL || 'http://localhost:3001'
+import { env } from '../env'
 
 const resolvePartnerCodeFromService = async (
   code: string,
 ): Promise<{ affiliateAddress: string; bps: string } | null> => {
   try {
-    const response = await fetch(`${MICROSERVICES_URL}/v1/partner/${encodeURIComponent(code)}`)
+    const response = await fetch(`${env.SWAP_SERVICE_BASE_URL}/v1/partner/${encodeURIComponent(code)}`)
 
     if (response.ok) {
       const data = (await response.json()) as {
@@ -51,7 +48,7 @@ export const resolvePartnerCode = async (
 
   // No partner code provided — use default BPS for unattributed swaps
   req.affiliateInfo = {
-    affiliateBps: DEFAULT_AFFILIATE_BPS,
+    affiliateBps: env.DEFAULT_AFFILIATE_BPS,
   }
 
   next()

@@ -4,6 +4,7 @@ import cors from 'cors'
 import express from 'express'
 
 import { getAssetsById, initAssets } from './assets'
+import { env } from './env'
 import { quoteStore } from './lib/quoteStore'
 import { resolvePartnerCode } from './middleware/auth'
 import {
@@ -21,8 +22,6 @@ import { getQuote } from './routes/quote'
 import { getRates } from './routes/rates'
 import { getSwapStatus } from './routes/status'
 import { initSwapperDeps } from './swapperDeps'
-
-const PORT = process.env.PORT || '3001'
 
 const startServer = async () => {
   await initAssets()
@@ -75,8 +74,8 @@ const startServer = async () => {
     },
   )
 
-  app.listen(PORT, () => {
-    console.log(`Public API server running on port: ${PORT}`)
+  app.listen(env.PORT, () => {
+    console.log(`Public API server running on port: ${env.PORT}`)
   })
 }
 

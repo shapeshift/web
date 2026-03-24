@@ -16,6 +16,7 @@ import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { getServerConfig } from './config'
+import { env } from './env'
 
 type GasFeeData = {
   gasPrice: string
@@ -35,33 +36,23 @@ type UtxoNetworkFees = {
   slow: { satsPerKiloByte: number }
 }
 
-const getEvmUnchainedUrls = (): Record<string, string> => {
-  const config = getServerConfig()
-  return {
-    [KnownChainIds.EthereumMainnet]: config.VITE_UNCHAINED_ETHEREUM_HTTP_URL,
-    [KnownChainIds.ArbitrumMainnet]:
-      process.env.UNCHAINED_ARBITRUM_HTTP_URL || 'https://api.arbitrum.shapeshift.com',
-    [KnownChainIds.OptimismMainnet]:
-      process.env.UNCHAINED_OPTIMISM_HTTP_URL || 'https://api.optimism.shapeshift.com',
-    [KnownChainIds.PolygonMainnet]:
-      process.env.UNCHAINED_POLYGON_HTTP_URL || 'https://api.polygon.shapeshift.com',
-    [KnownChainIds.GnosisMainnet]:
-      process.env.UNCHAINED_GNOSIS_HTTP_URL || 'https://api.gnosis.shapeshift.com',
-    [KnownChainIds.AvalancheMainnet]: config.VITE_UNCHAINED_AVALANCHE_HTTP_URL,
-    [KnownChainIds.BnbSmartChainMainnet]: config.VITE_UNCHAINED_BNBSMARTCHAIN_HTTP_URL,
-    [KnownChainIds.BaseMainnet]: config.VITE_UNCHAINED_BASE_HTTP_URL,
-  }
-}
+const getEvmUnchainedUrls = (): Record<string, string> => ({
+  [KnownChainIds.EthereumMainnet]: env.UNCHAINED_ETHEREUM_HTTP_URL,
+  [KnownChainIds.ArbitrumMainnet]: env.UNCHAINED_ARBITRUM_HTTP_URL,
+  [KnownChainIds.OptimismMainnet]: env.UNCHAINED_OPTIMISM_HTTP_URL,
+  [KnownChainIds.PolygonMainnet]: env.UNCHAINED_POLYGON_HTTP_URL,
+  [KnownChainIds.GnosisMainnet]: env.UNCHAINED_GNOSIS_HTTP_URL,
+  [KnownChainIds.AvalancheMainnet]: env.UNCHAINED_AVALANCHE_HTTP_URL,
+  [KnownChainIds.BnbSmartChainMainnet]: env.UNCHAINED_BNBSMARTCHAIN_HTTP_URL,
+  [KnownChainIds.BaseMainnet]: env.UNCHAINED_BASE_HTTP_URL,
+})
 
-const getUtxoUnchainedUrls = (): Record<string, string> => {
-  const config = getServerConfig()
-  return {
-    [KnownChainIds.BitcoinMainnet]: config.VITE_UNCHAINED_BITCOIN_HTTP_URL,
-    [KnownChainIds.DogecoinMainnet]: config.VITE_UNCHAINED_DOGECOIN_HTTP_URL,
-    [KnownChainIds.LitecoinMainnet]: config.VITE_UNCHAINED_LITECOIN_HTTP_URL,
-    [KnownChainIds.BitcoinCashMainnet]: config.VITE_UNCHAINED_BITCOINCASH_HTTP_URL,
-  }
-}
+const getUtxoUnchainedUrls = (): Record<string, string> => ({
+  [KnownChainIds.BitcoinMainnet]: env.UNCHAINED_BITCOIN_HTTP_URL,
+  [KnownChainIds.DogecoinMainnet]: env.UNCHAINED_DOGECOIN_HTTP_URL,
+  [KnownChainIds.LitecoinMainnet]: env.UNCHAINED_LITECOIN_HTTP_URL,
+  [KnownChainIds.BitcoinCashMainnet]: env.UNCHAINED_BITCOINCASH_HTTP_URL,
+})
 
 const GAS_FEES_TIMEOUT_MS = 10_000
 

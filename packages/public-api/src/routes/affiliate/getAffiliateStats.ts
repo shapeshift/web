@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express'
 
-import { SWAP_SERVICE_BASE_URL } from '../../config'
+import { env } from '../../env'
 import { registry } from '../../registry'
 import type { ErrorResponse } from '../../types'
 import type { AffiliateStatsResponse } from './types'
@@ -59,7 +59,7 @@ export const getAffiliateStats = async (req: Request, res: Response): Promise<vo
     const { address, startDate, endDate } = parseResult.data
 
     // Build backend URL with query params
-    const backendUrl = new URL(`/swaps/affiliate-fees/${address}`, SWAP_SERVICE_BASE_URL)
+    const backendUrl = new URL(`/swaps/affiliate-fees/${address}`, env.SWAP_SERVICE_BASE_URL)
     if (startDate) {
       backendUrl.searchParams.append('startDate', String(startDate))
     }

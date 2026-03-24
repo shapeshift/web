@@ -53,14 +53,12 @@ registry.registerPath({
 
 export const getRates = async (req: Request, res: Response): Promise<void> => {
   try {
-    // Parse and validate request
-    const parseResult = RatesRequestSchema.safeParse(req.query)
-    if (!parseResult.success) {
-      const errorResponse: ErrorResponse = {
+    const queryResult = RatesRequestSchema.safeParse(req.query)
+    if (!queryResult.success) {
+      res.status(400).json({
         error: 'Invalid request parameters',
-        details: parseResult.error.errors,
-      }
-      res.status(400).json(errorResponse)
+        details: queryResult.error.errors,
+      } satisfies ErrorResponse)
       return
     }
 
@@ -70,25 +68,22 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       sellAmountCryptoBaseUnit,
       slippageTolerancePercentageDecimal,
       allowMultiHop,
-    } = parseResult.data
+    } = queryResult.data
 
-    // Get assets
     const sellAsset = getAsset(sellAssetId)
-    const buyAsset = getAsset(buyAssetId)
-
     if (!sellAsset) {
-      res.status(400).json({ error: `Unknown sell asset: ${sellAssetId}` } as ErrorResponse)
-      return
-    }
-    if (!buyAsset) {
-      res.status(400).json({ error: `Unknown buy asset: ${buyAssetId}` } as ErrorResponse)
+      res.status(400).json({ error: `Unknown sell asset: ${sellAssetId}` } satisfies ErrorResponse)
       return
     }
 
-    // Create swapper dependencies
+    const buyAsset = getAsset(buyAssetId)
+    if (!buyAsset) {
+      res.status(400).json({ error: `Unknown buy asset: ${buyAssetId}` } satisfies ErrorResponse)
+      return
+    }
+
     const deps = getSwapperDeps()
 
-    // Build rate input
     const rateInput = {
       sellAsset,
       buyAsset,
@@ -104,13 +99,11 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       chainId: sellAsset.chainId,
     }
 
-    // Map string names to SwapperName enum
     const enabledSwappers = ENABLED_SWAPPER_NAMES.map(name => {
       const swapperName = Object.values(SwapperName).find(v => v === name)
       return swapperName
     }).filter((name): name is (typeof SwapperName)[keyof typeof SwapperName] => name !== undefined)
 
-    // Fetch rates from all enabled swappers in parallel
     const ratePromises = enabledSwappers.map(async (swapperName): Promise<ApiRate | null> => {
       try {
         const swapper = swappers[swapperName]
@@ -190,6 +183,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
     })
 
     const now = Date.now()
+
     const response: RateResponse = {
       rates,
       timestamp: now,
@@ -200,6 +194,6 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
     res.json(response)
   } catch (error) {
     console.error('Error in getRates:', error)
-    res.status(500).json({ error: 'Internal server error' } as ErrorResponse)
+    res.status(500).json({ error: 'Internal server error' } satisfies ErrorResponse)
   }
 }

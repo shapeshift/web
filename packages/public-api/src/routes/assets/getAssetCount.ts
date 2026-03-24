@@ -30,28 +30,22 @@ registry.registerPath({
 
 export const getAssetCount = (req: Request, res: Response): void => {
   try {
-    const parseResult = AssetCountRequestSchema.safeParse(req.query)
-    if (!parseResult.success) {
-      const errorResponse: ErrorResponse = {
+    const queryResult = AssetCountRequestSchema.safeParse(req.query)
+    if (!queryResult.success) {
+      res.status(400).json({
         error: 'Invalid request parameters',
-        details: parseResult.error.errors,
-      }
-      res.status(400).json(errorResponse)
+        details: queryResult.error.errors,
+      } satisfies ErrorResponse)
       return
     }
 
-    const { chainId } = parseResult.data
+    const { chainId } = queryResult.data
     const assets = getAllAssets()
     const count = chainId ? assets.filter(a => a.chainId === chainId).length : assets.length
 
-    const response: AssetCountResponse = {
-      count,
-      timestamp: Date.now(),
-    }
-
-    res.json(response)
+    res.json({ count, timestamp: Date.now() } satisfies AssetCountResponse)
   } catch (error) {
     console.error('Error in getAssetCount:', error)
-    res.status(500).json({ error: 'Internal server error' } as ErrorResponse)
+    res.status(500).json({ error: 'Internal server error' } satisfies ErrorResponse)
   }
 }

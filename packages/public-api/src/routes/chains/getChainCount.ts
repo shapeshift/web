@@ -27,15 +27,9 @@ registry.registerPath({
 export const getChainCount = (_req: Request, res: Response): void => {
   try {
     const count = getChainList().length
-
-    const response: ChainCountResponse = {
-      count,
-      timestamp: Date.now(),
-    }
-
-    res.json(response)
+    res.json({ count, timestamp: Date.now() } satisfies ChainCountResponse)
   } catch (error) {
     console.error('Error in getChainCount:', error)
-    res.status(500).json({ error: 'Internal server error' } as ErrorResponse)
+    res.status(500).json({ error: 'Internal server error' } satisfies ErrorResponse)
   }
 }

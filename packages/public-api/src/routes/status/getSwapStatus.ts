@@ -37,16 +37,16 @@ registry.registerPath({
 
 export const getSwapStatus = async (req: Request, res: Response): Promise<void> => {
   try {
-    const parseResult = StatusRequestSchema.safeParse(req.query)
-    if (!parseResult.success) {
+    const queryResult = StatusRequestSchema.safeParse(req.query)
+    if (!queryResult.success) {
       res.status(400).json({
         error: 'Invalid request parameters',
-        details: parseResult.error.errors,
-      } as ErrorResponse)
+        details: queryResult.error.errors,
+      } satisfies ErrorResponse)
       return
     }
 
-    const { quoteId, txHash } = parseResult.data
+    const { quoteId, txHash } = queryResult.data
 
     const storedQuote = quoteStore.get(quoteId)
 
@@ -54,7 +54,7 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
       res.status(404).json({
         error: 'Quote not found or expired',
         code: 'QUOTE_NOT_FOUND',
-      } as ErrorResponse)
+      } satisfies ErrorResponse)
       return
     }
 
@@ -62,7 +62,7 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
       res.status(409).json({
         error: 'Transaction hash does not match the registered swap',
         code: 'TX_HASH_MISMATCH',
-      } as ErrorResponse)
+      } satisfies ErrorResponse)
       return
     }
 
@@ -94,8 +94,9 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
       await registerSwapInService(storedQuote)
     }
 
-    let swapServiceStatus: SwapServiceStatus | null = null
-    if (storedQuote.txHash) {
+    const swapServiceStatus = await (async () => {
+      if (!storedQuote.txHash) return
+
       const getController = new AbortController()
       const getTimeout = setTimeout(() => getController.abort(), STATUS_TIMEOUT_MS)
       try {
@@ -103,7 +104,7 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
           signal: getController.signal,
         })
         if (swapResponse.ok) {
-          swapServiceStatus = (await swapResponse.json()) as SwapServiceStatus
+          return (await swapResponse.json()) as SwapServiceStatus
         } else if (swapResponse.status === 404) {
           await registerSwapInService(storedQuote)
         }
@@ -112,7 +113,7 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
       } finally {
         clearTimeout(getTimeout)
       }
-    }
+    })()
 
     const status =
       swapServiceStatus?.status === 'SUCCESS'
@@ -140,9 +141,8 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
       registeredAt: storedQuote.registeredAt,
     }
 
-    if (swapServiceStatus?.buyTxHash) {
-      response.buyTxHash = swapServiceStatus.buyTxHash
-    }
+    if (swapServiceStatus?.buyTxHash) response.buyTxHash = swapServiceStatus.buyTxHash
+
     if (swapServiceStatus?.isAffiliateVerified !== undefined) {
       response.isAffiliateVerified = swapServiceStatus.isAffiliateVerified
     }
@@ -150,6 +150,6 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
     res.json(response)
   } catch (error) {
     console.error('Error in getSwapStatus:', error)
-    res.status(500).json({ error: 'Internal server error' } as ErrorResponse)
+    res.status(500).json({ error: 'Internal server error' } satisfies ErrorResponse)
   }
 }

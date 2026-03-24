@@ -2,7 +2,7 @@ import { arbitrum } from '@reown/appkit/networks'
 import { createAppKit } from '@reown/appkit/react'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 
-const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'demo'
+const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
 
 const metadata = {
   name: 'ShapeShift Affiliate Dashboard',

@@ -1,4 +1,4 @@
-import type { GetTradeQuoteInputWithWallet, TradeQuote } from '@shapeshiftoss/swapper'
+import type { GetTradeQuoteInputWithWallet } from '@shapeshiftoss/swapper'
 import {
   getDefaultSlippageDecimalPercentageForSwapper,
   getTradeQuotes,
@@ -48,14 +48,12 @@ registry.registerPath({
 
 export const getQuote = async (req: Request, res: Response): Promise<void> => {
   try {
-    // Parse and validate request
-    const parseResult = QuoteRequestSchema.safeParse(req.body)
-    if (!parseResult.success) {
-      const errorResponse: ErrorResponse = {
+    const bodyResult = QuoteRequestSchema.safeParse(req.body)
+    if (!bodyResult.success) {
+      res.status(400).json({
         error: 'Invalid request parameters',
-        details: parseResult.error.errors,
-      }
-      res.status(400).json(errorResponse)
+        details: bodyResult.error.errors,
+      } satisfies ErrorResponse)
       return
     }
 
@@ -69,53 +67,46 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       slippageTolerancePercentageDecimal,
       allowMultiHop,
       accountNumber,
-    } = parseResult.data
+    } = bodyResult.data
 
-    // Validate swapper name
-    const validSwapperName = Object.values(SwapperName).find(v => v === swapperName) as
-      | SwapperName
-      | undefined
+    const validSwapperName = Object.values(SwapperName).find(v => v === swapperName)
     if (!validSwapperName) {
-      res.status(400).json({ error: `Unknown swapper: ${swapperName}` } as ErrorResponse)
+      res.status(400).json({ error: `Unknown swapper: ${swapperName}` } satisfies ErrorResponse)
       return
     }
 
-    // Validate swapper exists
     const swapper = swappers[validSwapperName]
     if (!swapper) {
       res.status(400).json({
         error: `Swapper not available: ${swapperName}`,
-      } as ErrorResponse)
+      } satisfies ErrorResponse)
       return
     }
 
-    // Get assets
     const sellAsset = getAsset(sellAssetId)
-    const buyAsset = getAsset(buyAssetId)
-
     if (!sellAsset) {
-      res.status(400).json({ error: `Unknown sell asset: ${sellAssetId}` } as ErrorResponse)
-      return
-    }
-    if (!buyAsset) {
-      res.status(400).json({ error: `Unknown buy asset: ${buyAssetId}` } as ErrorResponse)
+      res.status(400).json({ error: `Unknown sell asset: ${sellAssetId}` } satisfies ErrorResponse)
       return
     }
 
-    // Create swapper dependencies
+    const buyAsset = getAsset(buyAssetId)
+    if (!buyAsset) {
+      res.status(400).json({ error: `Unknown buy asset: ${buyAssetId}` } satisfies ErrorResponse)
+      return
+    }
+
     const deps = getSwapperDeps()
 
-    // Get default slippage if not provided
-    let slippage = slippageTolerancePercentageDecimal
-    if (!slippage) {
-      try {
-        slippage = getDefaultSlippageDecimalPercentageForSwapper(validSwapperName)
-      } catch {
-        slippage = '0.01' // 1% default fallback
-      }
-    }
+    const slippage = (() => {
+      if (slippageTolerancePercentageDecimal) return slippageTolerancePercentageDecimal
 
-    // Build quote input
+      try {
+        return getDefaultSlippageDecimalPercentageForSwapper(validSwapperName)
+      } catch {
+        return '0.01' // 1% default fallback
+      }
+    })()
+
     const quoteInput = {
       sellAsset,
       buyAsset,
@@ -129,11 +120,8 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       accountNumber,
       quoteOrRate: 'quote' as const,
       chainId: sellAsset.chainId,
-      // EVM-specific fields
-      supportsEIP1559: true,
     }
 
-    // Fetch quote
     const result = await getTradeQuotes(
       quoteInput as GetTradeQuoteInputWithWallet,
       validSwapperName,
@@ -143,7 +131,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     if (!result) {
       res.status(404).json({
         error: 'No quote available from this swapper',
-      } as ErrorResponse)
+      } satisfies ErrorResponse)
       return
     }
 
@@ -153,18 +141,18 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
         error: error.message,
         code: error.code,
         details: error.details,
-      } as ErrorResponse)
+      } satisfies ErrorResponse)
       return
     }
 
     const quotes = result.unwrap()
     if (quotes.length === 0) {
-      res.status(404).json({ error: 'No quote available' } as ErrorResponse)
+      res.status(404).json({ error: 'No quote available' } satisfies ErrorResponse)
       return
     }
 
     // Use the first/best quote
-    const quote = quotes[0] as TradeQuote
+    const quote = quotes[0]
     const firstStep = quote.steps[0]
 
     // Calculate total buy amount (sum of all steps for multi-hop)
@@ -204,6 +192,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       res.status(depositContextResult.statusCode).json(depositContextResult.error)
       return
     }
+
     const { context: depositContext } = depositContextResult
 
     const response: QuoteResponse = {
@@ -230,6 +219,6 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     res.json(response)
   } catch (error) {
     console.error('Error in getQuote:', error)
-    res.status(500).json({ error: 'Internal server error' } as ErrorResponse)
+    res.status(500).json({ error: 'Internal server error' } satisfies ErrorResponse)
   }
 }

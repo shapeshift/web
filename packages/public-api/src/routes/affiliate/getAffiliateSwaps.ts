@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express'
 
-import { SWAP_SERVICE_BASE_URL } from '../../config'
+import { env } from '../../env'
 import { fetchSwapService } from '../../lib/fetchSwapService'
 import { registry } from '../../registry'
 import type { ErrorResponse } from '../../types'
@@ -33,19 +33,19 @@ registry.registerPath({
 
 export const getAffiliateSwaps = async (req: Request, res: Response): Promise<void> => {
   try {
-    const parseResult = AffiliateSwapsRequestSchema.safeParse(req.query)
-    if (!parseResult.success) {
+    const queryResult = AffiliateSwapsRequestSchema.safeParse(req.query)
+    if (!queryResult.success) {
       res.status(400).json({
         error: 'Invalid request parameters',
         code: 'INVALID_REQUEST',
-        details: parseResult.error.errors,
-      } as ErrorResponse)
+        details: queryResult.error.errors,
+      } satisfies ErrorResponse)
       return
     }
 
-    const { address, startDate, endDate, limit, offset } = parseResult.data
+    const { address, startDate, endDate, limit, offset } = queryResult.data
 
-    const url = new URL('/v1/affiliate/swaps', SWAP_SERVICE_BASE_URL)
+    const url = new URL(`${env.SWAP_SERVICE_BASE_URL}/v1/affiliate/swaps`)
 
     url.searchParams.append('address', address)
     url.searchParams.append('limit', String(limit))
@@ -63,11 +63,24 @@ export const getAffiliateSwaps = async (req: Request, res: Response): Promise<vo
       return
     }
 
-    res.status(200).json(await response.json())
+    const responseResult = AffiliateSwapsResponseSchema.safeParse(await response.json())
+    if (!responseResult.success) {
+      console.error(
+        'Unexpected response shape from swap-service /v1/affiliate/swaps:',
+        responseResult.error.errors,
+      )
+      res.status(503).json({
+        error: 'Invalid response from swap service',
+        code: 'INVALID_RESPONSE',
+      } satisfies ErrorResponse)
+      return
+    }
+
+    res.status(200).json(responseResult.data)
   } catch (error) {
     console.error('Unexpected error in getAffiliateSwaps:', error)
     res
       .status(500)
-      .json({ error: 'Internal server error', code: 'INTERNAL_ERROR' } as ErrorResponse)
+      .json({ error: 'Internal server error', code: 'INTERNAL_ERROR' } satisfies ErrorResponse)
   }
 }

@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express'
 
-import { SWAP_SERVICE_BASE_URL } from '../../config'
+import { env } from '../../env'
 import { fetchSwapService } from '../../lib/fetchSwapService'
 import { registry } from '../../registry'
 import type { ErrorResponse } from '../../types'
@@ -43,13 +43,21 @@ registry.registerPath({
 
 export const updateAffiliate = async (req: Request, res: Response): Promise<void> => {
   try {
-    const addressResult = AffiliateAddressParamsSchema.safeParse(req.params)
-    if (!addressResult.success) {
+    if (typeof req.headers.authorization !== 'string') {
+      res.status(401).json({
+        error: 'Authorization header required',
+        code: 'UNAUTHORIZED',
+      } satisfies ErrorResponse)
+      return
+    }
+
+    const paramsResult = AffiliateAddressParamsSchema.safeParse(req.params)
+    if (!paramsResult.success) {
       res.status(400).json({
         error: 'Invalid address format',
         code: 'INVALID_REQUEST',
-        details: addressResult.error.errors,
-      } as ErrorResponse)
+        details: paramsResult.error.errors,
+      } satisfies ErrorResponse)
       return
     }
 
@@ -59,22 +67,23 @@ export const updateAffiliate = async (req: Request, res: Response): Promise<void
         error: 'Invalid request body',
         code: 'INVALID_REQUEST',
         details: bodyResult.error.errors,
-      } as ErrorResponse)
+      } satisfies ErrorResponse)
       return
     }
 
     const response = await fetchSwapService(
       res,
-      `${SWAP_SERVICE_BASE_URL}/v1/affiliate/${addressResult.data.address}`,
+      `${env.SWAP_SERVICE_BASE_URL}/v1/affiliate/${paramsResult.data.address}`,
       {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          ...(req.headers.authorization ? { Authorization: req.headers.authorization } : {}),
+          Authorization: req.headers.authorization,
         },
         body: JSON.stringify(bodyResult.data),
       },
     )
+
     if (!response) return
 
     if (!response.ok) {
@@ -83,11 +92,24 @@ export const updateAffiliate = async (req: Request, res: Response): Promise<void
       return
     }
 
-    res.status(200).json(await response.json())
+    const responseResult = AffiliateConfigResponseSchema.safeParse(await response.json())
+    if (!responseResult.success) {
+      console.error(
+        'Unexpected response shape from swap-service PATCH /v1/affiliate/:address:',
+        responseResult.error.errors,
+      )
+      res.status(503).json({
+        error: 'Invalid response from swap service',
+        code: 'INVALID_RESPONSE',
+      } satisfies ErrorResponse)
+      return
+    }
+
+    res.status(200).json(responseResult.data)
   } catch (error) {
     console.error('Unexpected error in updateAffiliate:', error)
     res
       .status(500)
-      .json({ error: 'Internal server error', code: 'INTERNAL_ERROR' } as ErrorResponse)
+      .json({ error: 'Internal server error', code: 'INTERNAL_ERROR' } satisfies ErrorResponse)
   }
 }

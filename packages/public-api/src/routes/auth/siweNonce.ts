@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express'
 
-import { SWAP_SERVICE_BASE_URL } from '../../config'
+import { env } from '../../env'
 import { fetchSwapService } from '../../lib/fetchSwapService'
 import { registry } from '../../registry'
 import type { ErrorResponse } from '../../types'
@@ -28,9 +28,11 @@ registry.registerPath({
 
 export const siweNonce = async (_req: Request, res: Response): Promise<void> => {
   try {
-    const response = await fetchSwapService(res, `${SWAP_SERVICE_BASE_URL}/v1/auth/siwe/nonce`, {
-      method: 'POST',
-    })
+    const response = await fetchSwapService(
+      res,
+      `${env.SWAP_SERVICE_BASE_URL}/v1/auth/siwe/nonce`,
+      { method: 'POST' },
+    )
 
     if (!response) return
 
@@ -40,11 +42,24 @@ export const siweNonce = async (_req: Request, res: Response): Promise<void> => 
       return
     }
 
-    res.status(200).json(await response.json())
+    const responseResult = SiweNonceResponseSchema.safeParse(await response.json())
+    if (!responseResult.success) {
+      console.error(
+        'Unexpected response shape from swap-service /siwe/nonce:',
+        responseResult.error.errors,
+      )
+      res.status(503).json({
+        error: 'Invalid response from swap service',
+        code: 'INVALID_RESPONSE',
+      } satisfies ErrorResponse)
+      return
+    }
+
+    res.status(200).json(responseResult.data)
   } catch (error) {
     console.error('Unexpected error in siweNonce:', error)
     res
       .status(500)
-      .json({ error: 'Internal server error', code: 'INTERNAL_ERROR' } as ErrorResponse)
+      .json({ error: 'Internal server error', code: 'INTERNAL_ERROR' } satisfies ErrorResponse)
   }
 }

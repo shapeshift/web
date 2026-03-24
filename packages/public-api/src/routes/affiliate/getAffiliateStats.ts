@@ -6,16 +6,11 @@ import { registry } from '../../registry'
 import type { ErrorResponse } from '../../types'
 import { rateLimitResponse } from '../../types'
 import type { AffiliateStatsResponse } from './types'
-import { AffiliateStatsRequestSchema, AffiliateStatsResponseSchema } from './types'
-
-// Backend response type from swap-service
-type BackendAffiliateStats = {
-  affiliateAddress: string
-  swapCount: number
-  totalSwapVolumeUsd: string
-  totalFeesCollectedUsd: string
-  referrerCommissionUsd: string
-}
+import {
+  AffiliateFeeResponseSchema,
+  AffiliateStatsRequestSchema,
+  AffiliateStatsResponseSchema,
+} from './types'
 
 registry.registerPath({
   method: 'get',
@@ -33,7 +28,7 @@ registry.registerPath({
       description: 'Affiliate statistics',
       content: { 'application/json': { schema: AffiliateStatsResponseSchema } },
     },
-    400: { description: 'Invalid address format' },
+    400: { description: 'Invalid request parameters' },
     429: rateLimitResponse,
     500: { description: 'Internal server error' },
     503: { description: 'Swap service unavailable' },
@@ -43,84 +38,68 @@ registry.registerPath({
 
 export const getAffiliateStats = async (req: Request, res: Response): Promise<void> => {
   try {
-    // Parse and validate request
-    const parseResult = AffiliateStatsRequestSchema.safeParse(req.query)
-    if (!parseResult.success) {
-      const errorResponse: ErrorResponse = {
+    const queryResult = AffiliateStatsRequestSchema.safeParse(req.query)
+    if (!queryResult.success) {
+      res.status(400).json({
         error: 'Invalid request parameters',
         code: 'INVALID_REQUEST',
-        details: parseResult.error.errors,
-      }
-      res.status(400).json(errorResponse)
+        details: queryResult.error.errors,
+      } satisfies ErrorResponse)
       return
     }
 
-    const { address, startDate, endDate } = parseResult.data
+    const { address, startDate, endDate } = queryResult.data
 
-    // Build backend URL with query params
-    const backendUrl = new URL(`${env.SWAP_SERVICE_BASE_URL}/swaps/affiliate-fees/${address}`)
-    if (startDate) {
-      backendUrl.searchParams.append('startDate', String(startDate))
-    }
-    if (endDate) {
-      backendUrl.searchParams.append('endDate', String(endDate))
-    }
+    const url = new URL(`${env.SWAP_SERVICE_BASE_URL}/swaps/affiliate-fees/${address}`)
 
-    // Call backend swap-service
-    const backendResponse = await fetchSwapService(res, backendUrl.toString())
-    if (!backendResponse) return
+    if (startDate) url.searchParams.append('startDate', String(startDate))
+    if (endDate) url.searchParams.append('endDate', String(endDate))
 
-    // Handle backend errors
-    if (!backendResponse.ok) {
-      if (backendResponse.status === 404) {
-        // Non-existent affiliate - return 200 with zero values
-        const response: AffiliateStatsResponse = {
+    const response = await fetchSwapService(res, url.toString())
+    if (!response) return
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        res.status(200).json({
           address,
           totalSwaps: 0,
           totalVolumeUsd: '0.00',
           totalFeesEarnedUsd: '0.00',
           timestamp: Date.now(),
-        }
-        res.status(200).json(response)
+        } satisfies AffiliateStatsResponse)
         return
       }
 
-      console.error(`Backend returned ${backendResponse.status}:`, await backendResponse.text())
-      res.status(503).json({
-        error: 'Swap service error',
-        code: 'SERVICE_ERROR',
-      } as ErrorResponse)
+      const body = await response.json().catch(() => ({ error: 'Upstream error' }))
+      res.status(response.status).json(body)
       return
     }
 
-    // Parse backend response
-    let backendData: BackendAffiliateStats
-    try {
-      backendData = (await backendResponse.json()) as BackendAffiliateStats
-    } catch (error) {
-      console.error('Failed to parse backend response:', error)
+    const responseResult = AffiliateFeeResponseSchema.safeParse(await response.json())
+    if (!responseResult.success) {
+      console.error(
+        'Unexpected response shape from swap-service /swaps/affiliate-fees:',
+        responseResult.error.errors,
+      )
       res.status(503).json({
         error: 'Invalid response from swap service',
         code: 'INVALID_RESPONSE',
-      } as ErrorResponse)
+      } satisfies ErrorResponse)
       return
     }
 
-    // Transform backend response to public API format
-    const response: AffiliateStatsResponse = {
-      address: String(backendData.affiliateAddress),
-      totalSwaps: backendData.swapCount,
-      totalVolumeUsd: backendData.totalSwapVolumeUsd,
-      totalFeesEarnedUsd: backendData.referrerCommissionUsd,
+    res.status(200).json({
+      address: responseResult.data.affiliateAddress,
+      totalSwaps: responseResult.data.swapCount,
+      totalVolumeUsd: responseResult.data.totalSwapVolumeUsd,
+      totalFeesEarnedUsd: responseResult.data.referrerCommissionUsd,
       timestamp: Date.now(),
-    }
-
-    res.status(200).json(response)
+    } satisfies AffiliateStatsResponse)
   } catch (error) {
     console.error('Unexpected error in getAffiliateStats:', error)
     res.status(500).json({
       error: 'Internal server error',
       code: 'INTERNAL_ERROR',
-    } as ErrorResponse)
+    } satisfies ErrorResponse)
   }
 }

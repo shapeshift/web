@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { registry } from '../../registry'
+import { AssetSchema } from '../assets/types'
 
 // --- Shared ---
 
@@ -53,8 +54,8 @@ export const AffiliateSwapItemSchema = registry.register(
   z.object({
     swapId: z.string().openapi({ example: 'swap-uuid-1234' }),
     status: z.string().openapi({ example: 'completed' }),
-    sellAsset: z.unknown(),
-    buyAsset: z.unknown(),
+    sellAsset: AssetSchema,
+    buyAsset: AssetSchema,
     sellAmountCryptoPrecision: z.string().openapi({ example: '1000000000000000000' }),
     expectedBuyAmountCryptoPrecision: z.string().openapi({ example: '950000000' }),
     actualBuyAmountCryptoPrecision: z.string().nullable().openapi({ example: '948000000' }),
@@ -95,6 +96,14 @@ export const AffiliateSwapsResponseSchema = registry.register(
 )
 
 // --- Affiliate Stats ---
+
+export const AffiliateFeeResponseSchema = z.object({
+  affiliateAddress: z.string(),
+  swapCount: z.number(),
+  totalSwapVolumeUsd: z.string(),
+  totalFeesCollectedUsd: z.string(),
+  referrerCommissionUsd: z.string(),
+})
 
 export const AffiliateStatsRequestSchema = z
   .object({

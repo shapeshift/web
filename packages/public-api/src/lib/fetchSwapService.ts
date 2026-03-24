@@ -19,13 +19,13 @@ export const fetchSwapService = async (
       res.status(504).json({
         error: 'Swap service request timed out',
         code: 'SERVICE_TIMEOUT',
-      } as ErrorResponse)
+      } satisfies ErrorResponse)
     } else {
       console.error('Failed to connect to swap-service:', error)
       res.status(503).json({
         error: 'Swap service unavailable',
         code: 'SERVICE_UNAVAILABLE',
-      } as ErrorResponse)
+      } satisfies ErrorResponse)
     }
     return null
   } finally {

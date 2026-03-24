@@ -233,8 +233,8 @@ export const App = (): React.JSX.Element => {
         }),
       })
       if (!res.ok) {
-        const body = (await res.json()) as { message?: string }
-        throw new Error(body.message ?? `Failed (${String(res.status)})`)
+        const body = (await res.json()) as { error?: string }
+        throw new Error(body.error ?? `Failed (${String(res.status)})`)
       }
       setActionMessage({ type: 'success', text: 'Affiliate registered successfully' })
       void fetchConfig(affiliateAddress)
@@ -259,8 +259,8 @@ export const App = (): React.JSX.Element => {
         body: JSON.stringify({ walletAddress: affiliateAddress, partnerCode: claimCode.trim() }),
       })
       if (!res.ok) {
-        const body = (await res.json()) as { message?: string }
-        throw new Error(body.message ?? `Failed (${String(res.status)})`)
+        const body = (await res.json()) as { error?: string }
+        throw new Error(body.error ?? `Failed (${String(res.status)})`)
       }
       setActionMessage({ type: 'success', text: `Partner code "${claimCode.trim()}" claimed` })
       setClaimCode('')
@@ -288,8 +288,8 @@ export const App = (): React.JSX.Element => {
         body: JSON.stringify({ bps: parsedUpdateBps }),
       })
       if (!res.ok) {
-        const body = (await res.json()) as { message?: string }
-        throw new Error(body.message ?? `Failed (${String(res.status)})`)
+        const body = (await res.json()) as { error?: string }
+        throw new Error(body.error ?? `Failed (${String(res.status)})`)
       }
       setActionMessage({ type: 'success', text: `BPS updated to ${updateBps}` })
       setUpdateBps('')
@@ -319,8 +319,8 @@ export const App = (): React.JSX.Element => {
         body: JSON.stringify({ receiveAddress: updateReceiveAddress.trim() }),
       })
       if (!res.ok) {
-        const body = (await res.json()) as { message?: string }
-        throw new Error(body.message ?? `Failed (${String(res.status)})`)
+        const body = (await res.json()) as { error?: string }
+        throw new Error(body.error ?? `Failed (${String(res.status)})`)
       }
       setActionMessage({ type: 'success', text: 'Receive address updated' })
       setUpdateReceiveAddress('')

@@ -1,0 +1,30 @@
+{
+  "camelName": "tempo",
+  "pascalName": "Tempo",
+  "upperName": "TEMPO",
+  "chainId": 4217,
+  "viemChainName": "tempo",
+  "nativeSymbol": "USD",
+  "nativeName": "USD",
+  "nativePrecision": 18,
+  "isNativeEth": false,
+  "color": "#22C55E",
+  "networkIconUrl": "https://assets.relay.link/icons/4217/light.png",
+  "nativeIconUrl": "https://assets.relay.link/icons/4217/light.png",
+  "explorerUrl": "https://explore.tempo.xyz",
+  "explorerAddressLink": "https://explore.tempo.xyz/address/",
+  "explorerTxLink": "https://explore.tempo.xyz/receipt/",
+  "rpcUrl": "https://rpc.tempo.xyz",
+  "fallbackRpcUrls": ["https://rpc.tempo.xyz"],
+  "coingeckoPlatform": "tempo",
+  "wrappedNativeAddress": null,
+  "relatedAssetKey": null,
+  "shortName": "USD",
+  "swappers": {
+    "relay": { "supported": true, "relayChainId": 4217 },
+    "across": { "supported": false },
+    "portals": { "supported": false },
+    "zerion": { "supported": false },
+    "yieldxyz": { "supported": false }
+  }
+}

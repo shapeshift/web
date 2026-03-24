@@ -36,6 +36,7 @@ import flowevm from "./eip155_747/adapter.json";
 import celo from "./eip155_42220/adapter.json";
 import sei from "./eip155_1329/adapter.json";
 import abstract from "./eip155_2741/adapter.json";
+import tempo from "./eip155_4217/adapter.json";
 import cosmos from "./cosmos_cosmoshub-4/adapter.json";
 import thorchain from "./cosmos_thorchain-1/adapter.json";
 import mayachain from "./cosmos_mayachain-mainnet-v1/adapter.json";
@@ -86,6 +87,7 @@ export {
   celo,
   sei,
   abstract,
+  tempo,
   cosmos,
   thorchain,
   mayachain,

@@ -11,14 +11,17 @@ import { useTranslate } from 'react-polyglot'
 import type { SendInput } from '../../Form'
 import { SendFormFields } from '../../SendCommon'
 
-import { estimateFees } from '@/components/Modals/Send/utils'
+import {
+  estimateFees,
+  getSendFeeAssetId,
+  normalizeSendFeeData,
+} from '@/components/Modals/Send/utils'
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import {
   selectAssetById,
-  selectFeeAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByFilter,
@@ -54,7 +57,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
   const price = useMemo(() => marketDataUserCurrency?.price ?? 0, [marketDataUserCurrency])
 
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
+  const feeAssetId = useMemo(() => (assetId ? getSendFeeAssetId(assetId) : undefined), [assetId])
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
 
@@ -109,9 +113,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
         sendMax,
         accountId,
         contractAddress,
-      })
+      }).then(feeData => normalizeSendFeeData(feeData, feeAssetId))
     },
-    [accountId, asset, assetId, contractAddress, to, wallet],
+    [accountId, asset, assetId, contractAddress, feeAssetId, to, wallet],
   )
 
   // * Determines the form's state from debounced input

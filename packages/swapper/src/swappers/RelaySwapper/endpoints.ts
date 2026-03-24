@@ -1,5 +1,7 @@
+import { fromAssetId, tempoChainId } from '@shapeshiftoss/caip'
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import BigNumber from 'bignumber.js'
 
 import { getSolanaTransactionFees } from '../../solana-utils/getSolanaTransactionFees'
@@ -54,7 +56,14 @@ export const relayApi: SwapperApi = {
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
+    const feeData = await evm.getFees({
+      adapter,
+      data,
+      to,
+      value,
+      from,
+      supportsEIP1559,
+    })
 
     return feeData.networkFeeCryptoBaseUnit
   },
@@ -86,7 +95,19 @@ export const relayApi: SwapperApi = {
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
+    const feeData = await evm.getFees({
+      adapter,
+      data,
+      to,
+      value,
+      from,
+      supportsEIP1559,
+    })
+    const explicitFeeToken =
+      sellAsset.chainId === tempoChainId &&
+      fromAssetId(sellAsset.assetId).assetNamespace === 'erc20'
+        ? contractAddressOrUndefined(sellAsset.assetId)
+        : undefined
 
     const unsignedTx = await adapter.buildCustomApiTx({
       accountNumber,
@@ -94,6 +115,7 @@ export const relayApi: SwapperApi = {
       from,
       to,
       value,
+      feeToken: explicitFeeToken,
       ...feeData,
       // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding for total gas used.
       gasLimit: BigNumber.max(gasLimitFromApi ?? '0', feeData.gasLimit).toFixed(),

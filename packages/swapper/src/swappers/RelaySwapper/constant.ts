@@ -33,6 +33,7 @@ import {
   soneiumChainId,
   sonicChainId,
   storyChainId,
+  tempoChainId,
   unichainChainId,
   worldChainChainId,
   zkSyncEraChainId,
@@ -122,6 +123,7 @@ export const chainIdToRelayChainId = {
   [soneiumChainId]: soneium.id,
   [seiChainId]: sei.id,
   [abstractChainId]: 2741,
+  [tempoChainId]: 4217,
 }
 
 export enum RelayStatusMessage {

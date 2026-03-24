@@ -194,6 +194,9 @@ describe('adapters:coingecko:utils', () => {
         'eip155:747': {
           'eip155:747/slip44:60': 'flow',
         },
+        'eip155:4217': {
+          'eip155:4217/slip44:60': 'tempo',
+        },
         'eip155:42220': {
           'eip155:42220/slip44:60': 'celo',
         },

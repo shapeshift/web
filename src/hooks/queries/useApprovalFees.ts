@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId, tronChainId } from '@shapeshiftoss/caip'
+import { fromAssetId, tempoChainId, tronChainId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { maxUint256 } from 'viem'
@@ -13,6 +13,15 @@ export enum AllowanceType {
   Exact,
   Unlimited,
   Reset,
+}
+
+const TEMPO_ATTODOLLARS_TO_MICRODOLLARS_DIVISOR = 1_000_000_000_000n
+
+const normalizeTempoFeeAmountCryptoBaseUnit = (value: string): string => {
+  const quotient = BigInt(value) / TEMPO_ATTODOLLARS_TO_MICRODOLLARS_DIVISOR
+  const remainder = BigInt(value) % TEMPO_ATTODOLLARS_TO_MICRODOLLARS_DIVISOR
+
+  return (remainder === 0n ? quotient : quotient + 1n).toString()
 }
 
 type UseApprovalFeesInput = {
@@ -99,10 +108,23 @@ export const useApprovalFees = ({
 
   // Return unified interface - TRON or EVM fees
   const feesResult = chainId === tronChainId ? tronFeesResult : evmFeesResult
+  const normalizedFeesResult = useMemo(() => {
+    if (chainId !== tempoChainId || !feesResult.data) return feesResult.data
+
+    return {
+      ...feesResult.data,
+      networkFeeCryptoBaseUnit: normalizeTempoFeeAmountCryptoBaseUnit(
+        feesResult.data.networkFeeCryptoBaseUnit,
+      ),
+    }
+  }, [chainId, feesResult.data])
 
   return {
     approveContractData,
-    evmFeesResult: feesResult,
+    evmFeesResult: {
+      ...feesResult,
+      data: normalizedFeesResult,
+    },
   }
 }
 

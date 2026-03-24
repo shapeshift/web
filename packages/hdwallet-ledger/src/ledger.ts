@@ -167,6 +167,7 @@ export class LedgerHDWalletInfo
   readonly _supportsSuiInfo = true
   readonly _supportsTronInfo = true
   readonly _supportsNearInfo = true
+  readonly _supportsTempo = true
 
   public getVendor(): string {
     return 'Ledger'
@@ -460,6 +461,7 @@ export class LedgerHDWallet
   readonly _supportsSui = true
   readonly _supportsTron = true
   readonly _supportsNear = true
+  readonly _supportsTempo = true
 
   _isLedger = true
 

@@ -1,5 +1,9 @@
 import type { SupportedTradeQuoteStepIndex, Swap, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { SwapStatus, TransactionExecutionState } from '@shapeshiftoss/swapper'
+import {
+  isExecutableTradeQuote,
+  SwapStatus,
+  TransactionExecutionState,
+} from '@shapeshiftoss/swapper'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -174,6 +178,7 @@ export const useTradeButtonProps = ({
   }, [dispatch, navigate, confirmedTradeExecutionState])
 
   const buttonText = getHopExecutionStateButtonTranslation(hopExecutionState)
+  const hasExecutableActiveQuote = Boolean(activeQuote && isExecutableTradeQuote(activeQuote))
 
   switch (hopExecutionState) {
     case HopExecutionState.Pending:
@@ -221,7 +226,7 @@ export const useTradeButtonProps = ({
         onSubmit: handleSignTx,
         buttonText,
         isLoading: isFetching,
-        isDisabled: !tradeQuoteQueryData,
+        isDisabled: !tradeQuoteQueryData && !hasExecutableActiveQuote,
       }
     case HopExecutionState.Complete:
       return {

@@ -63,6 +63,7 @@ export enum KnownChainIds {
   StarknetMainnet = 'starknet:SN_MAIN',
   TonMainnet = 'ton:mainnet',
   AbstractMainnet = 'eip155:2741',
+  TempoMainnet = 'eip155:4217',
 }
 
 export type EvmChainId =
@@ -101,6 +102,7 @@ export type EvmChainId =
   | KnownChainIds.ModeMainnet
   | KnownChainIds.SoneiumMainnet
   | KnownChainIds.AbstractMainnet
+  | KnownChainIds.TempoMainnet
 
 export type CosmosSdkChainId =
   | KnownChainIds.CosmosMainnet

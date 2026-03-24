@@ -38,6 +38,7 @@ export const SECOND_CLASS_CHAINS: readonly KnownChainIds[] = [
   KnownChainIds.FlowEvmMainnet,
   KnownChainIds.CeloMainnet,
   KnownChainIds.AbstractMainnet,
+  KnownChainIds.TempoMainnet,
 ]
 
 // returns known ChainIds as an array, excluding the ones that are currently flagged off
@@ -82,6 +83,7 @@ export const knownChainIds = Object.values(KnownChainIds).filter(chainId => {
   if (chainId === KnownChainIds.CeloMainnet && !enabledFlags.Celo) return false
   if (chainId === KnownChainIds.TonMainnet && !enabledFlags.Ton) return false
   if (chainId === KnownChainIds.ZcashMainnet && !enabledFlags.Zcash) return false
+  if (chainId === KnownChainIds.TempoMainnet && !enabledFlags.Tempo) return false
 
   return true
 })

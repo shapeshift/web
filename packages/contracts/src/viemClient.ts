@@ -62,6 +62,16 @@ const megaeth = defineChain({
   },
 })
 
+export const tempoChain = defineChain({
+  id: 4217,
+  name: 'Tempo',
+  nativeCurrency: { name: 'USD', symbol: 'USD', decimals: 18 },
+  rpcUrls: { default: { http: ['https://rpc.tempo.xyz'] } },
+  blockExplorers: {
+    default: { name: 'Tempo Explorer', url: 'https://explore.tempo.xyz' },
+  },
+})
+
 export const flowEvmChain = flowMainnet
 
 const createFallbackTransport = (envUrl: string | undefined, fallbacks: readonly string[]) =>
@@ -244,6 +254,11 @@ export const viemSeiClient = createPublicClient({
   transport: fallback([process.env.VITE_SEI_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemTempoClient = createPublicClient({
+  chain: tempoChain,
+  transport: createFallbackTransport(process.env.VITE_TEMPO_NODE_URL, FALLBACK_RPC_URLS.tempo),
+}) as PublicClient
+
 export const viemAbstractClient = createPublicClient({
   chain: abstract,
   transport: createFallbackTransport(
@@ -321,6 +336,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.SoneiumMainnet]: viemSoneiumClient,
   [KnownChainIds.SeiMainnet]: viemSeiClient,
   [KnownChainIds.AbstractMainnet]: viemAbstractClient,
+  [KnownChainIds.TempoMainnet]: viemTempoClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -359,6 +375,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.SoneiumMainnet]: soneium.id,
   [KnownChainIds.SeiMainnet]: sei.id,
   [KnownChainIds.AbstractMainnet]: abstract.id,
+  [KnownChainIds.TempoMainnet]: tempoChain.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -397,6 +414,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [soneium.id]: viemSoneiumClient,
   [sei.id]: viemSeiClient,
   [abstract.id]: viemAbstractClient,
+  [tempoChain.id]: viemTempoClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

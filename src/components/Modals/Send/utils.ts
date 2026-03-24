@@ -1,11 +1,15 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
+  ASSET_NAMESPACE,
   btcChainId,
   CHAIN_NAMESPACE,
   fromAccountId,
+  fromAssetId,
   fromChainId,
   rujiAssetId,
   tcyAssetId,
+  tempoChainId,
+  tempoPathUsdAssetId,
   thorchainAssetId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
@@ -21,8 +25,9 @@ import { isGridPlus, supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { CosmosSdkChainId, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
-import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import { chainIdToFeeAssetId, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js'
+import BigNumber from 'bignumber.js'
 
 import type { SendInput } from './Form'
 
@@ -61,6 +66,42 @@ export type EstimateFeesInput = {
 }
 
 const SOLANA_MEMO_PROGRAM_ID = 'MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr'
+const TEMPO_ATTODOLLARS_TO_MICRODOLLARS_DIVISOR = '1000000000000'
+
+export const getSendFeeAssetId = (assetId: AssetId): AssetId | undefined => {
+  const { assetNamespace, chainId } = fromAssetId(assetId)
+
+  if (chainId === tempoChainId) {
+    // Tempo docs: TIP-20 `transfer` pays fees in the token itself, otherwise fallback is pathUSD.
+    return assetNamespace === ASSET_NAMESPACE.erc20 ? assetId : tempoPathUsdAssetId
+  }
+
+  return fromChainId(chainId) ? chainIdToFeeAssetId(chainId) : undefined
+}
+
+const normalizeTempoFeeAmountCryptoBaseUnit = (value: string): string => {
+  return bn(value)
+    .div(TEMPO_ATTODOLLARS_TO_MICRODOLLARS_DIVISOR)
+    .integerValue(BigNumber.ROUND_CEIL)
+    .toFixed(0)
+}
+
+export const normalizeSendFeeData = <T extends ChainId>(
+  feeData: FeeDataEstimate<T>,
+  feeAssetId: AssetId | undefined,
+): FeeDataEstimate<T> => {
+  if (!feeAssetId) return feeData
+  if (fromAssetId(feeAssetId).chainId !== tempoChainId) return feeData
+
+  return Object.entries(feeData).reduce<FeeDataEstimate<T>>((acc, [key, fee]) => {
+    acc[key as keyof FeeDataEstimate<T>] = {
+      ...fee,
+      txFee: normalizeTempoFeeAmountCryptoBaseUnit(fee.txFee),
+    }
+
+    return acc
+  }, {} as FeeDataEstimate<T>)
+}
 
 export const estimateFees = async ({
   amountCryptoPrecision,

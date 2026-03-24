@@ -3,11 +3,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 
 import type { SendInput } from '../../Form'
+import { getSendFeeAssetId } from '../../utils'
 import type { FeePrice } from '../../views/Confirm'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-import { selectFeeAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export const useSendFees = () => {
@@ -17,7 +18,9 @@ export const useSendFees = () => {
     control,
   }) as Partial<SendInput>
   if (!assetId) throw new Error(`AssetId not found: ${assetId}`)
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
+  const feeAsset = useAppSelector(state =>
+    selectAssetById(state, getSendFeeAssetId(assetId ?? '') ?? ''),
+  )
 
   const {
     state: { wallet },

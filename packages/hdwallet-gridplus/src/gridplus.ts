@@ -67,6 +67,7 @@ export class GridPlusWalletInfo
   readonly _supportsMayachainInfo = true
   readonly _supportsSolanaInfo = true
   readonly _supportsThorchainInfo = true
+  readonly _supportsTempo = false
 
   getVendor(): string {
     return 'GridPlus'
@@ -390,6 +391,7 @@ export class GridPlusHDWallet
   readonly _supportsCosmos = true
   readonly _supportsETH = true
   readonly _supportsEthSwitchChain = false
+  readonly _supportsTempo = false
   readonly _supportsGnosis = true
   readonly _supportsMayachain = true
   readonly _supportsOptimism = true

@@ -18,7 +18,7 @@ export type ChainConfig = {
   fallbackRpcUrls: string[]
   coingeckoPlatform: string
   wrappedNativeAddress: string | null
-  relatedAssetKey: string
+  relatedAssetKey: string | null
   shortName: string
   swappers: {
     relay: { supported: boolean; relayChainId?: number }
@@ -44,7 +44,6 @@ const requiredStrings = [
   'explorerTxLink',
   'rpcUrl',
   'coingeckoPlatform',
-  'relatedAssetKey',
   'shortName',
 ] as const
 
@@ -104,6 +103,15 @@ export function validateConfig(obj: unknown): ChainConfig {
     throw new Error(
       '"wrappedNativeAddress" must be null or a non-empty string, not an empty string',
     )
+  }
+
+  if (c.relatedAssetKey !== null && typeof c.relatedAssetKey !== 'string') {
+    throw new Error(
+      `"relatedAssetKey" must be a string or null, got: ${JSON.stringify(c.relatedAssetKey)}`,
+    )
+  }
+  if (typeof c.relatedAssetKey === 'string' && (c.relatedAssetKey as string).trim().length === 0) {
+    throw new Error('"relatedAssetKey" must be null or a non-empty string, not an empty string')
   }
 
   if (!c.swappers || typeof c.swappers !== 'object') {

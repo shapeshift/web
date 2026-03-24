@@ -1,4 +1,5 @@
 import { Alert, AlertIcon, useMediaQuery } from '@chakra-ui/react'
+import { tempoChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { SwapperName, TradeQuoteError } from '@shapeshiftoss/swapper'
 import { isToken, isUtxoChainId } from '@shapeshiftoss/utils'
@@ -272,6 +273,8 @@ export const ConfirmSummary = ({
       if (!(sellAsset && buyAsset && buyAssetFeeAsset)) return
 
       const isTokenBridge = isToken(buyAsset.assetId) && sellAsset.chainId !== buyAsset.chainId
+
+      if (buyAsset.chainId === tempoChainId && isTokenBridge) return
 
       if (isTokenBridge)
         return [

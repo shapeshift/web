@@ -25,6 +25,7 @@ import {
 import { preferences } from '../preferencesSlice/preferencesSlice'
 import { tradeQuoteSlice } from '../tradeQuoteSlice/tradeQuoteSlice'
 import { SWAPPER_USER_ERRORS } from './constants'
+import { getEffectiveNetworkFeeAssetId, getEffectiveNetworkFeeCryptoBaseUnit } from './networkFee'
 import type { ActiveQuoteMeta } from './types'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
@@ -40,7 +41,7 @@ import {
   selectHopIndexParamFromRequiredFilter,
   selectTradeIdParamFromRequiredFilter,
 } from '@/state/selectors'
-import { selectFeeAssetById } from '@/state/slices/assetsSlice/selectors'
+import { selectAssetById, selectFeeAssetById } from '@/state/slices/assetsSlice/selectors'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import {
   selectFirstHopSellAccountId,
@@ -353,22 +354,45 @@ export const selectQuoteSellAmountCryptoPrecision: Selector<ReduxState, string |
 
 export const selectFirstHopSellFeeAsset: Selector<ReduxState, Asset | undefined> =
   createDeepEqualOutputSelector(
-    (state: ReduxState) => selectFeeAssetById(state, selectFirstHopSellAsset(state)?.assetId ?? ''),
-    firstHopSellFeeAsset => firstHopSellFeeAsset,
+    selectFirstHop,
+    (state: ReduxState) => state,
+    (firstHop, state) =>
+      firstHop
+        ? selectAssetById(state, getEffectiveNetworkFeeAssetId(firstHop)) ??
+          selectFeeAssetById(state, getEffectiveNetworkFeeAssetId(firstHop))
+        : undefined,
   )
 
 export const selectSecondHopSellFeeAsset: Selector<ReduxState, Asset | undefined> =
   createDeepEqualOutputSelector(
-    (state: ReduxState) =>
-      selectFeeAssetById(state, selectSecondHopSellAsset(state)?.assetId ?? ''),
-    secondHopSellFeeAsset => secondHopSellFeeAsset,
+    selectSecondHop,
+    (state: ReduxState) => state,
+    (secondHop, state) =>
+      secondHop
+        ? selectAssetById(state, getEffectiveNetworkFeeAssetId(secondHop)) ??
+          selectFeeAssetById(state, getEffectiveNetworkFeeAssetId(secondHop))
+        : undefined,
   )
 
 export const selectFirstHopNetworkFeeCryptoBaseUnit: Selector<ReduxState, string | undefined> =
-  createSelector(selectFirstHop, firstHop => firstHop?.feeData.networkFeeCryptoBaseUnit)
+  createSelector(selectFirstHopSellFeeAsset, selectFirstHop, (feeAsset, firstHop) =>
+    firstHop && feeAsset
+      ? getEffectiveNetworkFeeCryptoBaseUnit({
+          step: firstHop,
+          feeAssetPrecision: feeAsset.precision,
+        })
+      : firstHop?.feeData.networkFeeCryptoBaseUnit,
+  )
 
 export const selectSecondHopNetworkFeeCryptoBaseUnit: Selector<ReduxState, string | undefined> =
-  createSelector(selectSecondHop, secondHop => secondHop?.feeData.networkFeeCryptoBaseUnit)
+  createSelector(selectSecondHopSellFeeAsset, selectSecondHop, (feeAsset, secondHop) =>
+    secondHop && feeAsset
+      ? getEffectiveNetworkFeeCryptoBaseUnit({
+          step: secondHop,
+          feeAssetPrecision: feeAsset.precision,
+        })
+      : secondHop?.feeData.networkFeeCryptoBaseUnit,
+  )
 
 export const selectFirstHopNetworkFeeUserCurrency: Selector<ReduxState, string | undefined> =
   createSelector(
@@ -379,7 +403,11 @@ export const selectFirstHopNetworkFeeUserCurrency: Selector<ReduxState, string |
       if (!tradeQuoteStep) return
 
       if (feeAsset === undefined) {
-        throw Error(`missing fee asset for assetId ${tradeQuoteStep.sellAsset.assetId}`)
+        throw Error(
+          `missing fee asset for assetId ${
+            tradeQuoteStep.feeData.networkFeeAssetId ?? tradeQuoteStep.sellAsset.assetId
+          }`,
+        )
       }
 
       const getFeeAssetUserCurrencyRate = () => {
@@ -387,7 +415,7 @@ export const selectFirstHopNetworkFeeUserCurrency: Selector<ReduxState, string |
       }
 
       return getHopTotalNetworkFeeUserCurrency(
-        tradeQuoteStep.feeData.networkFeeCryptoBaseUnit,
+        tradeQuoteStep,
         feeAsset,
         getFeeAssetUserCurrencyRate,
       )?.toString()
@@ -403,14 +431,18 @@ export const selectSecondHopNetworkFeeUserCurrency: Selector<ReduxState, string 
       if (!tradeQuoteStep) return
 
       if (feeAsset === undefined) {
-        throw Error(`missing fee asset for assetId ${tradeQuoteStep.sellAsset.assetId}`)
+        throw Error(
+          `missing fee asset for assetId ${
+            tradeQuoteStep.feeData.networkFeeAssetId ?? tradeQuoteStep.sellAsset.assetId
+          }`,
+        )
       }
       const getFeeAssetUserCurrencyRate = () => {
         return marketData[feeAsset?.assetId ?? '']?.price ?? '0'
       }
 
       return getHopTotalNetworkFeeUserCurrency(
-        tradeQuoteStep.feeData.networkFeeCryptoBaseUnit,
+        tradeQuoteStep,
         feeAsset,
         getFeeAssetUserCurrencyRate,
       )?.toString()

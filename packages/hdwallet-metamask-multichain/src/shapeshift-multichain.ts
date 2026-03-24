@@ -36,6 +36,7 @@ export class MetaMaskMultiChainHDWalletInfo implements core.HDWalletInfo, core.E
   readonly _supportsRippleInfo = false
   readonly _supportsEosInfo = false
   readonly _supportsThorchainInfo = true
+  readonly _supportsTempo = true
 
   public getVendor(): string {
     return 'MetaMask'
@@ -316,6 +317,7 @@ export class MetaMaskMultiChainHDWallet
   readonly _supportsEos = false
   readonly _supportsThorchainInfo = true
   readonly _supportsThorchain = true
+  readonly _supportsTempo = true
 
   info: MetaMaskMultiChainHDWalletInfo & core.HDWalletInfo
   bitcoinAddress?: string | null

@@ -8,8 +8,9 @@ import type { SendInput } from '../Form'
 import { GasSelection } from '@/components/GasSelection/GasSelection'
 import { useSendFees } from '@/components/Modals/Send/hooks/useSendFees/useSendFees'
 import { SendFormFields } from '@/components/Modals/Send/SendCommon'
+import { getSendFeeAssetId } from '@/components/Modals/Send/utils'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { selectFeeAssetById } from '@/state/slices/selectors'
+import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export const SendGasSelection: FC = () => {
@@ -19,7 +20,9 @@ export const SendGasSelection: FC = () => {
     control,
   }) as Partial<SendInput>
 
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, assetId ?? ''))
+  const feeAsset = useAppSelector(state =>
+    selectAssetById(state, getSendFeeAssetId(assetId ?? '') ?? ''),
+  )
 
   const feeAmountUserCurrency = useMemo(() => {
     const { fiatFee } = fees ? fees[feeType as FeeDataKey] : { fiatFee: 0 }

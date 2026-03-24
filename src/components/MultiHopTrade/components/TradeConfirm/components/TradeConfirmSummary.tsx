@@ -16,12 +16,13 @@ import { usePriceImpact } from '@/components/MultiHopTrade/hooks/quoteValidation
 import { ReceiveAddressRow } from '@/components/ReceiveAddressRow'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
-import { selectFeeAssetById } from '@/state/slices/selectors'
+import { selectAssetById, selectFeeAssetById } from '@/state/slices/selectors'
 import {
   selectInputBuyAsset,
   selectInputSellAsset,
   selectIsActiveQuoteMultiHop,
 } from '@/state/slices/tradeInputSlice/selectors'
+import { getEffectiveNetworkFeeAssetId } from '@/state/slices/tradeQuoteSlice/networkFee'
 import {
   selectActiveQuote,
   selectActiveQuoteAffiliateBps,
@@ -44,11 +45,19 @@ export const TradeConfirmSummary = () => {
   const totalNetworkFeeFiatPrecision = useAppSelector(selectTotalNetworkFeeUserCurrency)
   const buyAmountAfterFeesCryptoPrecision = useAppSelector(selectBuyAmountAfterFeesCryptoPrecision)
   const slippagePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
-  const firstHopFeeAsset = useSelectorWithArgs(selectFeeAssetById, sellAsset.assetId)
+  const firstHop = getHopByIndex(activeQuote, 0)
+  const firstHopFeeAsset = useSelectorWithArgs(state =>
+    firstHop
+      ? selectAssetById(state, getEffectiveNetworkFeeAssetId(firstHop)) ??
+        selectFeeAssetById(state, getEffectiveNetworkFeeAssetId(firstHop))
+      : selectFeeAssetById(state, sellAsset.assetId),
+  )
   const secondHop = getHopByIndex(activeQuote, 1)
-  const secondHopFeeAsset = useSelectorWithArgs(
-    selectFeeAssetById,
-    secondHop?.sellAsset.assetId ?? '',
+  const secondHopFeeAsset = useSelectorWithArgs(state =>
+    secondHop
+      ? selectAssetById(state, getEffectiveNetworkFeeAssetId(secondHop)) ??
+        selectFeeAssetById(state, getEffectiveNetworkFeeAssetId(secondHop))
+      : undefined,
   )
   const isMultiHopTrade = useAppSelector(selectIsActiveQuoteMultiHop)
   const firstHopNetworkFeeUserCurrency = useAppSelector(selectFirstHopNetworkFeeUserCurrency)

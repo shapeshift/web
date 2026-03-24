@@ -63,6 +63,7 @@ import * as sonic from './sonic'
 import * as starknet from './starknet'
 import * as story from './story'
 import * as sui from './sui'
+import * as tempo from './tempo'
 import * as tonModule from './ton'
 import * as tronModule from './tron'
 import * as unichain from './unichain'
@@ -123,6 +124,7 @@ const generateAssetData = async () => {
   const suiAssets = await sui.getAssets()
   const tonAssets = await tonModule.getAssets()
   const nearAssets = await near.getAssets()
+  const tempoAssets = await tempo.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -178,6 +180,7 @@ const generateAssetData = async () => {
     ...suiAssets,
     ...tonAssets,
     ...nearAssets,
+    ...tempoAssets,
   ]
 
   // remove blacklisted assets

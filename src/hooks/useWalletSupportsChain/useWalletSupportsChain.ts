@@ -42,6 +42,7 @@ import {
   starknetChainId,
   storyChainId,
   suiChainId,
+  tempoChainId,
   thorchainChainId,
   tonChainId,
   tronChainId,
@@ -95,6 +96,7 @@ import {
   supportsStarknet,
   supportsStory,
   supportsSui,
+  supportsTempo,
   supportsThorchain,
   supportsTron,
   supportsUnichain,
@@ -224,6 +226,7 @@ export const walletSupportsChain = ({
   const isStarknetEnabled = selectFeatureFlag(store.getState(), 'Starknet')
   const isWorldChainEnabled = selectFeatureFlag(store.getState(), 'WorldChain')
   const isTonEnabled = selectFeatureFlag(store.getState(), 'Ton')
+  const isTempoEnabled = selectFeatureFlag(store.getState(), 'Tempo')
 
   switch (chainId) {
     case btcChainId:
@@ -327,6 +330,8 @@ export const walletSupportsChain = ({
       return isStarknetEnabled && supportsStarknet(wallet)
     case tonChainId:
       return isTonEnabled && supportsTon(wallet)
+    case tempoChainId:
+      return isTempoEnabled && supportsTempo(wallet)
     default: {
       return false
     }

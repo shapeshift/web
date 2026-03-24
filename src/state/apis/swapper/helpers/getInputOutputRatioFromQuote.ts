@@ -12,23 +12,34 @@ import { BigAmount } from '@shapeshiftoss/utils'
 import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bn } from '@/lib/bignumber/bignumber'
 import type { ReduxState } from '@/state/reducer'
-import { selectFeeAssetById } from '@/state/slices/assetsSlice/selectors'
-import { marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
+import { selectAssetById, selectFeeAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectUsdRateByAssetId } from '@/state/slices/marketDataSlice/selectors'
+import {
+  getEffectiveNetworkFeeAssetId,
+  getEffectiveNetworkFeeCryptoBaseUnit,
+} from '@/state/slices/tradeQuoteSlice/networkFee'
 
 const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
   state: ReduxState,
   tradeQuoteStep: TradeQuote['steps'][number],
   getFeeAssetRate: (feeAssetId: AssetId) => string,
 ): BigNumber => {
-  const feeAsset = selectFeeAssetById(state, tradeQuoteStep?.sellAsset.assetId)
+  const effectiveNetworkFeeAssetId = tradeQuoteStep
+    ? getEffectiveNetworkFeeAssetId(tradeQuoteStep)
+    : ''
+  const feeAsset =
+    selectAssetById(state, effectiveNetworkFeeAssetId) ??
+    selectFeeAssetById(state, effectiveNetworkFeeAssetId)
 
   if (feeAsset === undefined)
-    throw Error(`missing fee asset for assetId ${tradeQuoteStep.sellAsset.assetId}`)
+    throw Error(`missing fee asset for assetId ${effectiveNetworkFeeAssetId}`)
 
   const feeAssetUserCurrencyRate = getFeeAssetRate(feeAsset.assetId)
 
-  const networkFeeCryptoBaseUnit = tradeQuoteStep.feeData.networkFeeCryptoBaseUnit
+  const networkFeeCryptoBaseUnit = getEffectiveNetworkFeeCryptoBaseUnit({
+    step: tradeQuoteStep,
+    feeAssetPrecision: feeAsset.precision,
+  })
   const networkFeeFiatPrecision = BigAmount.fromBaseUnit({
     value: networkFeeCryptoBaseUnit ?? '0',
     precision: feeAsset.precision,
@@ -63,15 +74,11 @@ const _getTotalNetworkFeeUsdPrecision = (
   state: ReduxState,
   quote: TradeQuote | TradeRate,
 ): BigNumber => {
-  const marketDataUsd = marketData.selectors.selectMarketDataUsd(state)
-
   const getFeeAssetUsdRate = (feeAssetId: AssetId) => {
-    const feeAsset = selectFeeAssetById(state, feeAssetId)
-    if (feeAsset === undefined) throw Error(`missing fee asset for assetId ${feeAssetId}`)
-    const feeAssetMarketData = marketDataUsd[feeAsset.assetId]
-    if (feeAssetMarketData === undefined)
-      throw Error(`missing market data for assetId ${feeAssetId}`)
-    return feeAssetMarketData.price
+    const feeAssetUsdRate = selectUsdRateByAssetId(state, feeAssetId)
+    if (feeAssetUsdRate === undefined)
+      throw Error(`missing market data for effective fee assetId ${feeAssetId}`)
+    return feeAssetUsdRate
   }
 
   return getTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate(state, quote, getFeeAssetUsdRate)

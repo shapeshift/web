@@ -13,7 +13,32 @@ import { addressNListToBIP32, slip44ByCoin } from '@shapeshiftoss/hdwallet-core'
 import type EthereumProvider from '@walletconnect/ethereum-provider'
 import { isHexString } from 'ethers/lib/utils'
 
+const TEMPO_CHAIN_ID = 4217
+
+const getUnsignedTempoTxFromMessage = (msg: ETHSignTx & { from: string }) => ({
+  from: msg.from,
+  nonce: msg.nonce,
+  gas: msg.gasLimit,
+  feeToken: msg.feeToken,
+  type: '0x76',
+  calls: [
+    {
+      to: msg.to,
+      value: msg.value,
+      data: msg.data,
+    },
+  ],
+  ...(msg.maxFeePerGas
+    ? {
+        maxFeePerGas: msg.maxFeePerGas,
+        maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
+      }
+    : { gasPrice: msg.gasPrice }),
+})
+
 const getUnsignedTxFromMessage = (msg: ETHSignTx & { from: string }) => {
+  if (msg.chainId === TEMPO_CHAIN_ID && msg.feeToken) return getUnsignedTempoTxFromMessage(msg)
+
   const utxBase = {
     from: msg.from,
     to: msg.to,

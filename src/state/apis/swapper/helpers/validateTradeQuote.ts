@@ -29,6 +29,7 @@ import {
   selectWalletId,
 } from '@/state/slices/common-selectors'
 import {
+  selectAssetById,
   selectAssets,
   selectFeeAssetById,
   selectPortfolioAccountIdByNumberByChainId,
@@ -39,6 +40,10 @@ import {
   selectSecondHopSellAccountId,
 } from '@/state/slices/tradeInputSlice/selectors'
 import { getTotalProtocolFeeByAssetForStep } from '@/state/slices/tradeQuoteSlice/helpers'
+import {
+  getEffectiveNetworkFeeAssetId,
+  getEffectiveNetworkFeeCryptoBaseUnit,
+} from '@/state/slices/tradeQuoteSlice/networkFee'
 
 export const validateTradeQuote = (
   state: ReduxState,
@@ -91,7 +96,9 @@ export const validateTradeQuote = (
           const { expectedSlippage }: { expectedSlippage?: string | undefined } = errorDetails ?? {}
           return {
             error: errorCode,
-            meta: { expectedSlippage: expectedSlippage ? expectedSlippage : 'Unknown' },
+            meta: {
+              expectedSlippage: expectedSlippage ? expectedSlippage : 'Unknown',
+            },
           }
         }
         case SwapperTradeQuoteError.SellAmountBelowMinimum: {
@@ -154,12 +161,16 @@ export const validateTradeQuote = (
   const buyAmountCryptoBaseUnit = lastHop?.buyAmountBeforeFeesCryptoBaseUnit
 
   // the network fee asset for the first hop in the trade
-  const firstHopSellFeeAsset = selectFeeAssetById(state, firstHop?.sellAsset.assetId ?? '')
+  const firstHopSellFeeAsset = firstHop
+    ? selectAssetById(state, getEffectiveNetworkFeeAssetId(firstHop)) ??
+      selectFeeAssetById(state, getEffectiveNetworkFeeAssetId(firstHop))
+    : undefined
 
   // the network fee asset for the second hop in the trade
   const secondHopSellFeeAsset =
     isMultiHopTrade && secondHop
-      ? selectFeeAssetById(state, secondHop.sellAsset.assetId)
+      ? selectAssetById(state, getEffectiveNetworkFeeAssetId(secondHop)) ??
+        selectFeeAssetById(state, getEffectiveNetworkFeeAssetId(secondHop))
       : undefined
 
   // this is the account we're selling from - network fees are paid from the sell account for the current hop
@@ -183,7 +194,14 @@ export const validateTradeQuote = (
   const firstHopNetworkFeeCrypto =
     networkFeeRequiresBalance && firstHopSellFeeAsset
       ? BigAmount.fromBaseUnit({
-          value: bnOrZero(firstHop?.feeData.networkFeeCryptoBaseUnit),
+          value: bnOrZero(
+            firstHop
+              ? getEffectiveNetworkFeeCryptoBaseUnit({
+                  step: firstHop,
+                  feeAssetPrecision: firstHopSellFeeAsset.precision,
+                })
+              : undefined,
+          ),
           precision: firstHopSellFeeAsset.precision,
         })
       : undefined
@@ -193,7 +211,12 @@ export const validateTradeQuote = (
   const secondHopNetworkFeeCrypto =
     networkFeeRequiresBalance && secondHopSellFeeAsset && secondHop
       ? BigAmount.fromBaseUnit({
-          value: bnOrZero(secondHop.feeData.networkFeeCryptoBaseUnit),
+          value: bnOrZero(
+            getEffectiveNetworkFeeCryptoBaseUnit({
+              step: secondHop,
+              feeAssetPrecision: secondHopSellFeeAsset.precision,
+            }),
+          ),
           precision: secondHopSellFeeAsset.precision,
         })
       : undefined
@@ -344,8 +367,12 @@ export const validateTradeQuote = (
               : '',
           },
         },
-      feesExceedsSellAmount && { error: TradeQuoteValidationError.SellAmountBelowTradeFee },
-      invalidQuoteSellAmount && { error: TradeQuoteValidationError.QuoteSellAmountInvalid },
+      feesExceedsSellAmount && {
+        error: TradeQuoteValidationError.SellAmountBelowTradeFee,
+      },
+      invalidQuoteSellAmount && {
+        error: TradeQuoteValidationError.QuoteSellAmountInvalid,
+      },
 
       ...insufficientBalanceForProtocolFeesErrors,
     ].filter(isTruthy),

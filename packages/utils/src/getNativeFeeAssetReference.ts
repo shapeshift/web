@@ -94,6 +94,8 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.Mode
           case CHAIN_REFERENCE.SoneiumMainnet:
             return ASSET_REFERENCE.Soneium
+          case CHAIN_REFERENCE.TempoMainnet:
+            return ASSET_REFERENCE.Tempo
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

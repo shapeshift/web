@@ -44,6 +44,7 @@ import {
   starknetChainId,
   storyChainId,
   suiChainId,
+  tempoChainId,
   thorchainChainId,
   tonChainId,
   tronChainId,
@@ -100,6 +101,7 @@ export enum CoingeckoAssetPlatform {
   Ton = 'the-open-network',
   Near = 'near-protocol',
   Abstract = 'abstract',
+  Tempo = 'tempo',
 }
 
 type CoinGeckoId = string
@@ -198,6 +200,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Soneium
         case CHAIN_REFERENCE.SeiMainnet:
           return CoingeckoAssetPlatform.Sei
+        case CHAIN_REFERENCE.TempoMainnet:
+          return CoingeckoAssetPlatform.Tempo
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
@@ -367,6 +371,8 @@ export const coingeckoAssetPlatformToChainId = (
       return tonChainId
     case CoingeckoAssetPlatform.Near:
       return nearChainId
+    case CoingeckoAssetPlatform.Tempo:
+      return tempoChainId
     default:
       return undefined
   }

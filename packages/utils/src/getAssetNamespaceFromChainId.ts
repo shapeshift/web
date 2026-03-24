@@ -62,6 +62,7 @@ export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNames
     case KnownChainIds.ZcashMainnet:
     case KnownChainIds.ThorchainMainnet:
     case KnownChainIds.MayachainMainnet:
+    case KnownChainIds.TempoMainnet:
       throw Error(`Unhandled case '${chainId}'`)
     default:
       return assertUnreachable(chainId)

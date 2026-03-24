@@ -28,6 +28,8 @@ import {
   starknetAssetId,
   storyAssetId,
   suiAssetId,
+  tempoPathUsdAssetId,
+  tempoUsdcAssetId,
   thorchainAssetId,
   tronAssetId,
   unichainAssetId,
@@ -91,6 +93,8 @@ export const queryFn = async () => {
   if (enabledFlags.Tron) assetIds.push(tronAssetId)
   if (enabledFlags.Berachain) assetIds.push(berachainAssetId)
   if (enabledFlags.Sui) assetIds.push(suiAssetId)
+  if (enabledFlags.Tempo) assetIds.push(tempoPathUsdAssetId)
+  if (enabledFlags.Tempo) assetIds.push(tempoUsdcAssetId)
 
   for (const assetId of [...new Set(assetIds)]) {
     const asset = primaryAssets[assetId]

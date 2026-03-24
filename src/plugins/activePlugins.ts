@@ -41,6 +41,7 @@ import sonic from '@/plugins/sonic'
 import starknet from '@/plugins/starknet'
 import story from '@/plugins/story'
 import sui from '@/plugins/sui'
+import tempo from '@/plugins/tempo'
 import thorchain from '@/plugins/thorchain'
 import ton from '@/plugins/ton'
 import tron from '@/plugins/tron'
@@ -102,4 +103,5 @@ export const activePlugins = [
   zcash,
   zksyncera,
   abstract,
+  tempo,
 ]

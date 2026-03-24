@@ -64,7 +64,10 @@ export const siweVerify = async (req: Request, res: Response): Promise<void> => 
       return
     }
 
-    const responseResult = SiweVerifyResponseSchema.safeParse(await response.json())
+    const responseResult = SiweVerifyResponseSchema.safeParse(
+      await response.json().catch(() => null),
+    )
+
     if (!responseResult.success) {
       console.error(
         'Unexpected response shape from swap-service /siwe/verify:',

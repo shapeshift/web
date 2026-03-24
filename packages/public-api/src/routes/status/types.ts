@@ -2,18 +2,22 @@ import { z } from 'zod'
 
 import { registry } from '../../registry'
 
-export type SwapServiceStatus = {
-  status: 'IDLE' | 'PENDING' | 'SUCCESS' | 'FAILED'
-  sellTxHash?: string
-  buyTxHash?: string
-  statusMessage: string
-  isAffiliateVerified?: boolean
-  affiliateVerificationDetails?: {
-    hasAffiliate: boolean
-    affiliateBps?: number
-    affiliateAddress?: string
-  }
-}
+export const SwapServiceStatusSchema = z.object({
+  status: z.enum(['IDLE', 'PENDING', 'SUCCESS', 'FAILED']),
+  sellTxHash: z.string().optional(),
+  buyTxHash: z.string().optional(),
+  statusMessage: z.string(),
+  isAffiliateVerified: z.boolean().optional(),
+  affiliateVerificationDetails: z
+    .object({
+      hasAffiliate: z.boolean(),
+      affiliateBps: z.number().optional(),
+      affiliateAddress: z.string().optional(),
+    })
+    .optional(),
+})
+
+export type SwapServiceStatus = z.infer<typeof SwapServiceStatusSchema>
 
 export const StatusRequestSchema = z.object({
   quoteId: z.string().uuid(),

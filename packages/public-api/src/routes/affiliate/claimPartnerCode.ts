@@ -77,7 +77,10 @@ export const claimPartnerCode = async (req: Request, res: Response): Promise<voi
       return
     }
 
-    const responseResult = AffiliateConfigResponseSchema.safeParse(await response.json())
+    const responseResult = AffiliateConfigResponseSchema.safeParse(
+      await response.json().catch(() => null),
+    )
+
     if (!responseResult.success) {
       console.error(
         'Unexpected response shape from swap-service POST /v1/affiliate/claim-code:',

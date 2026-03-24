@@ -63,7 +63,10 @@ export const getAffiliateSwaps = async (req: Request, res: Response): Promise<vo
       return
     }
 
-    const responseResult = AffiliateSwapsResponseSchema.safeParse(await response.json())
+    const responseResult = AffiliateSwapsResponseSchema.safeParse(
+      await response.json().catch(() => null),
+    )
+
     if (!responseResult.success) {
       console.error(
         'Unexpected response shape from swap-service /v1/affiliate/swaps:',

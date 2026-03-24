@@ -75,7 +75,10 @@ export const getAffiliateStats = async (req: Request, res: Response): Promise<vo
       return
     }
 
-    const responseResult = AffiliateFeeResponseSchema.safeParse(await response.json())
+    const responseResult = AffiliateFeeResponseSchema.safeParse(
+      await response.json().catch(() => null),
+    )
+
     if (!responseResult.success) {
       console.error(
         'Unexpected response shape from swap-service /swaps/affiliate-fees:',

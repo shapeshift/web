@@ -33,7 +33,7 @@ export const AffiliateConfigResponseSchema = registry.register(
 export const CreateAffiliateRequestSchema = z.object({
   walletAddress: EVM_ADDRESS,
   receiveAddress: EVM_ADDRESS.optional(),
-  partnerCode: z.string().optional(),
+  partnerCode: z.string().trim().min(1, 'partnerCode must not be empty').optional(),
   bps: z.number().int().min(0).optional(),
 })
 
@@ -44,7 +44,7 @@ export const UpdateAffiliateRequestSchema = z.object({
 
 export const ClaimPartnerCodeRequestSchema = z.object({
   walletAddress: EVM_ADDRESS,
-  partnerCode: z.string(),
+  partnerCode: z.string().trim().min(1, 'partnerCode must not be empty'),
 })
 
 // --- Affiliate Swaps ---
@@ -98,7 +98,7 @@ export const AffiliateSwapsResponseSchema = registry.register(
 // --- Affiliate Stats ---
 
 export const AffiliateFeeResponseSchema = z.object({
-  affiliateAddress: z.string(),
+  affiliateAddress: EVM_ADDRESS,
   swapCount: z.number(),
   totalSwapVolumeUsd: z.string(),
   totalFeesCollectedUsd: z.string(),
@@ -123,7 +123,7 @@ export const AffiliateStatsRequestSchema = z
 export const AffiliateStatsResponseSchema = registry.register(
   'AffiliateStatsResponse',
   z.object({
-    address: z.string().openapi({ example: '0x1234567890123456789012345678901234567890' }),
+    address: EVM_ADDRESS,
     totalSwaps: z.number().openapi({ example: 42 }),
     totalVolumeUsd: z.string().openapi({ example: '12345.67' }),
     totalFeesEarnedUsd: z.string().openapi({ example: '44.44' }),

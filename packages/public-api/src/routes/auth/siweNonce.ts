@@ -42,7 +42,10 @@ export const siweNonce = async (_req: Request, res: Response): Promise<void> => 
       return
     }
 
-    const responseResult = SiweNonceResponseSchema.safeParse(await response.json())
+    const responseResult = SiweNonceResponseSchema.safeParse(
+      await response.json().catch(() => null),
+    )
+
     if (!responseResult.success) {
       console.error(
         'Unexpected response shape from swap-service /siwe/nonce:',

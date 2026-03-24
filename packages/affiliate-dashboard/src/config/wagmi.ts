@@ -4,6 +4,8 @@ import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 
 const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
 
+if (!projectId) throw new Error('VITE_WALLETCONNECT_PROJECT_ID is not set')
+
 const metadata = {
   name: 'ShapeShift Affiliate Dashboard',
   description: 'Manage your ShapeShift affiliate program',

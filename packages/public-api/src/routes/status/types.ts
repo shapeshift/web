@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { registry } from '../../registry'
+import { EVM_ADDRESS } from '../../types'
 
 export const SwapServiceStatusSchema = z.object({
   status: z.enum(['IDLE', 'PENDING', 'SUCCESS', 'FAILED']),
@@ -12,7 +13,7 @@ export const SwapServiceStatusSchema = z.object({
     .object({
       hasAffiliate: z.boolean(),
       affiliateBps: z.number().optional(),
-      affiliateAddress: z.string().optional(),
+      affiliateAddress: EVM_ADDRESS.optional(),
     })
     .optional(),
 })
@@ -35,7 +36,7 @@ export const SwapStatusResponseSchema = registry.register(
     buyAssetId: z.string(),
     sellAmountCryptoBaseUnit: z.string(),
     buyAmountAfterFeesCryptoBaseUnit: z.string(),
-    affiliateAddress: z.string().optional(),
+    affiliateAddress: EVM_ADDRESS.optional(),
     affiliateBps: z.string(),
     registeredAt: z.number().optional(),
     buyTxHash: z.string().optional(),

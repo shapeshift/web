@@ -64,7 +64,3 @@ const getSwapServiceBaseUrl = (): string => {
 }
 
 export const SWAP_SERVICE_BASE_URL = getSwapServiceBaseUrl()
-
-// API server config
-export const API_PORT = parseInt(process.env.PORT || '3001', 10)
-export const API_HOST = process.env.HOST || '0.0.0.0'

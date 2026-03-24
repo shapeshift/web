@@ -1,5 +1,5 @@
 import { getAsset } from '../../assets'
-import { SWAP_SERVICE_BASE_URL } from '../../config'
+import { env } from '../../env'
 import type { quoteStore } from '../../lib/quoteStore'
 import { STATUS_TIMEOUT_MS } from './constants'
 
@@ -53,7 +53,7 @@ export const registerSwapInService = async (
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), STATUS_TIMEOUT_MS)
   try {
-    const postResponse = await fetch(`${SWAP_SERVICE_BASE_URL}/swaps`, {
+    const postResponse = await fetch(`${env.SWAP_SERVICE_BASE_URL}/swaps`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       signal: controller.signal,

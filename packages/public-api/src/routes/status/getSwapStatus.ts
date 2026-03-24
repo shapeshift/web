@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express'
 
-import { SWAP_SERVICE_BASE_URL } from '../../config'
+import { env } from '../../env'
 import { quoteStore } from '../../lib/quoteStore'
 import { registry } from '../../registry'
 import type { ErrorResponse } from '../../types'
@@ -103,7 +103,7 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
       const getController = new AbortController()
       const getTimeout = setTimeout(() => getController.abort(), STATUS_TIMEOUT_MS)
       try {
-        const swapResponse = await fetch(`${SWAP_SERVICE_BASE_URL}/swaps/${quoteId}`, {
+        const swapResponse = await fetch(`${env.SWAP_SERVICE_BASE_URL}/swaps/${quoteId}`, {
           signal: getController.signal,
         })
         if (swapResponse.ok) {

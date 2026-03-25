@@ -10,6 +10,8 @@ type WithdrawMachineContext = {
   withdrawAmountCryptoBaseUnit: string
   supplyPositionCryptoBaseUnit: string
   isFullWithdrawal: boolean
+  withdrawToWallet: boolean
+  withdrawAddress: string
   stepConfirmed: boolean
   txHash: string | null
   lastUsedNonce: number | undefined
@@ -28,6 +30,8 @@ type WithdrawMachineEvent =
       withdrawAmountCryptoPrecision: string
       withdrawAmountCryptoBaseUnit: string
       isFullWithdrawal: boolean
+      withdrawToWallet: boolean
+      withdrawAddress: string
     }
   | { type: 'CONFIRM' }
   | { type: 'BACK' }
@@ -62,6 +66,14 @@ export const withdrawMachine = setup({
         assertEvent(event, 'SUBMIT')
         return event.isFullWithdrawal
       },
+      withdrawToWallet: ({ event }) => {
+        assertEvent(event, 'SUBMIT')
+        return event.withdrawToWallet
+      },
+      withdrawAddress: ({ event }) => {
+        assertEvent(event, 'SUBMIT')
+        return event.withdrawAddress
+      },
     }),
     syncSupplyPosition: assign({
       supplyPositionCryptoBaseUnit: ({ event }) => {
@@ -92,6 +104,8 @@ export const withdrawMachine = setup({
       withdrawAmountCryptoPrecision: '',
       withdrawAmountCryptoBaseUnit: '0',
       isFullWithdrawal: false,
+      withdrawToWallet: false,
+      withdrawAddress: '',
       lastUsedNonce: undefined,
       txHash: null,
       error: null,
@@ -108,6 +122,8 @@ export const withdrawMachine = setup({
     withdrawAmountCryptoBaseUnit: '0',
     supplyPositionCryptoBaseUnit: '0',
     isFullWithdrawal: false,
+    withdrawToWallet: false,
+    withdrawAddress: '',
     stepConfirmed: false,
     txHash: null,
     lastUsedNonce: undefined,

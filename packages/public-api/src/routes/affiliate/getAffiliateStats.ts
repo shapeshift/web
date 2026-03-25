@@ -1,41 +1,12 @@
 import type { Request, Response } from 'express'
-import { z } from 'zod'
 
-import { SWAP_SERVICE_BASE_URL } from '../config'
-import type { ErrorResponse } from '../types'
+import { env } from '../../env'
+import { registry } from '../../registry'
+import type { ErrorResponse } from '../../types'
+import type { AffiliateStatsResponse } from './types'
+import { AffiliateStatsRequestSchema, AffiliateStatsResponseSchema } from './types'
 
 const AFFILIATE_TIMEOUT_MS = 10_000
-
-// Request validation schema
-export const AffiliateStatsRequestSchema = z
-  .object({
-    address: z
-      .string()
-      .regex(
-        /^0x[0-9a-fA-F]{40}$/,
-        'address must be a valid EVM address (0x followed by 40 hex characters)',
-      ),
-    startDate: z.string().datetime().optional(),
-    endDate: z.string().datetime().optional(),
-  })
-  .refine(
-    ({ startDate, endDate }) =>
-      !startDate || !endDate || new Date(startDate).getTime() <= new Date(endDate).getTime(),
-    {
-      message: 'startDate must be before or equal to endDate',
-      path: ['startDate'],
-    },
-  )
-
-export type AffiliateStatsRequest = z.infer<typeof AffiliateStatsRequestSchema>
-
-export type AffiliateStatsResponse = {
-  address: string
-  totalSwaps: number
-  totalVolumeUsd: string
-  totalFeesEarnedUsd: string
-  timestamp: number
-}
 
 // Backend response type from swap-service
 type BackendAffiliateStats = {
@@ -45,6 +16,31 @@ type BackendAffiliateStats = {
   totalFeesCollectedUsd: string
   referrerCommissionUsd: string
 }
+
+registry.registerPath({
+  method: 'get',
+  path: '/v1/affiliate/stats',
+  operationId: 'getAffiliateStats',
+  summary: 'Get affiliate statistics',
+  description:
+    'Retrieve aggregated swap statistics for an affiliate address. Returns total swaps, volume, and fees earned. Supports optional date range filtering.',
+  tags: ['Affiliate'],
+  request: {
+    query: AffiliateStatsRequestSchema,
+  },
+  responses: {
+    200: {
+      description: 'Affiliate statistics',
+      content: { 'application/json': { schema: AffiliateStatsResponseSchema } },
+    },
+    400: {
+      description: 'Invalid address format',
+    },
+    503: {
+      description: 'Swap service unavailable',
+    },
+  },
+})
 
 export const getAffiliateStats = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -63,7 +59,7 @@ export const getAffiliateStats = async (req: Request, res: Response): Promise<vo
     const { address, startDate, endDate } = parseResult.data
 
     // Build backend URL with query params
-    const backendUrl = new URL(`/swaps/affiliate-fees/${address}`, SWAP_SERVICE_BASE_URL)
+    const backendUrl = new URL(`${env.SWAP_SERVICE_BASE_URL}/swaps/affiliate-fees/${address}`)
     if (startDate) {
       backendUrl.searchParams.append('startDate', String(startDate))
     }
@@ -80,7 +76,6 @@ export const getAffiliateStats = async (req: Request, res: Response): Promise<vo
         signal: controller.signal,
       })
     } catch (error) {
-      clearTimeout(timeout)
       if (error instanceof DOMException && error.name === 'AbortError') {
         res.status(504).json({
           error: 'Swap service request timed out',

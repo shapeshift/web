@@ -1,36 +1,15 @@
 import type { GetTradeRateInput } from '@shapeshiftoss/swapper'
-import { TradeQuoteError } from '@shapeshiftoss/swapper'
+import { getTradeRates, SwapperName, swappers, TradeQuoteError } from '@shapeshiftoss/swapper'
 import type { Request, Response } from 'express'
-import { z } from 'zod'
 
-import { getAsset, getAssetsById } from '../assets'
-import { DEFAULT_AFFILIATE_BPS } from '../config'
-import { booleanFromString } from '../lib/zod'
-import { createServerSwapperDeps } from '../swapperDeps'
-import type { ApiRate, ErrorResponse, RatesResponse } from '../types'
+import { getAsset } from '../../assets'
+import { registry } from '../../registry'
+import { getSwapperDeps } from '../../swapperDeps'
+import type { ErrorResponse } from '../../types'
+import { PartnerCodeHeaderSchema, rateLimitResponse } from '../../types'
+import type { ApiRate, RateResponse } from './types'
+import { RateResponseSchema, RatesRequestSchema } from './types'
 
-// Request validation schema
-export const RatesRequestSchema = z.object({
-  sellAssetId: z.string().min(1).openapi({ example: 'eip155:1/slip44:60' }),
-  buyAssetId: z.string().min(1).openapi({
-    example: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  }),
-  sellAmountCryptoBaseUnit: z
-    .string()
-    .regex(/^\d+$/, 'sellAmountCryptoBaseUnit must be a positive integer')
-    .openapi({ example: '1000000000000000000' }),
-  slippageTolerancePercentageDecimal: z
-    .string()
-    .regex(
-      /^(?:\d+)(?:\.\d+)?$/,
-      'slippageTolerancePercentageDecimal must be a non-negative decimal number',
-    )
-    .optional()
-    .openapi({ example: '0.01' }),
-  allowMultiHop: booleanFromString.optional().default(true).openapi({ example: true }),
-})
-
-// Swapper names as strings to avoid import issues
 const ENABLED_SWAPPER_NAMES = [
   'THORChain',
   'MAYAChain',
@@ -47,15 +26,29 @@ const ENABLED_SWAPPER_NAMES = [
 // Rate timeout per swapper (10 seconds)
 const RATE_TIMEOUT_MS = 10_000
 
-// Lazy load swapper to avoid import issues at module load time
-let swapperModule: Awaited<ReturnType<typeof importSwapperModule>> | null = null
-const importSwapperModule = () => import('@shapeshiftoss/swapper')
-const getSwapperModule = async () => {
-  if (!swapperModule) {
-    swapperModule = await importSwapperModule()
-  }
-  return swapperModule
-}
+registry.registerPath({
+  method: 'get',
+  path: '/v1/swap/rates',
+  operationId: 'getSwapRates',
+  summary: 'Get swap rates',
+  description:
+    'Get informative swap rates from all available swappers. This does not create a transaction.',
+  tags: ['Swaps'],
+  request: {
+    headers: PartnerCodeHeaderSchema,
+    query: RatesRequestSchema,
+  },
+  responses: {
+    200: {
+      description: 'Swap rates',
+      content: { 'application/json': { schema: RateResponseSchema } },
+    },
+    400: {
+      description: 'Invalid request',
+    },
+    429: rateLimitResponse,
+  },
+})
 
 export const getRates = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -91,29 +84,16 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    // Lazy load swapper module
-    let swapperModuleResult
-    try {
-      swapperModuleResult = await getSwapperModule()
-    } catch (error) {
-      console.error('Failed to load swapper module:', error)
-      res.status(503).json({
-        error: 'Swap service temporarily unavailable',
-        details: 'Failed to initialize swapper module',
-      } as ErrorResponse)
-      return
-    }
-    const { getTradeRates, swappers, SwapperName } = swapperModuleResult
-
     // Create swapper dependencies
-    const deps = createServerSwapperDeps(getAssetsById())
+    const deps = getSwapperDeps()
 
     // Build rate input
     const rateInput = {
       sellAsset,
       buyAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-      affiliateBps: req.affiliateInfo?.affiliateBps ?? DEFAULT_AFFILIATE_BPS,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      affiliateBps: req.affiliateInfo?.affiliateBps!,
       allowMultiHop,
       slippageTolerancePercentageDecimal,
       receiveAddress: undefined,
@@ -154,7 +134,8 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
             steps: 0,
             estimatedExecutionTimeMs: undefined,
             priceImpactPercentageDecimal: undefined,
-            affiliateBps: req.affiliateInfo?.affiliateBps ?? DEFAULT_AFFILIATE_BPS,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            affiliateBps: req.affiliateInfo?.affiliateBps!,
             networkFeeCryptoBaseUnit: undefined,
             error: {
               code: error.code ?? TradeQuoteError.UnknownError,
@@ -178,7 +159,8 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
           steps: rate.steps.length,
           estimatedExecutionTimeMs: firstStep.estimatedExecutionTimeMs,
           priceImpactPercentageDecimal: rate.priceImpactPercentageDecimal,
-          affiliateBps: req.affiliateInfo?.affiliateBps ?? DEFAULT_AFFILIATE_BPS,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          affiliateBps: req.affiliateInfo?.affiliateBps!,
           networkFeeCryptoBaseUnit: firstStep.feeData.networkFeeCryptoBaseUnit,
         }
       } catch (error) {
@@ -207,7 +189,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
     })
 
     const now = Date.now()
-    const response: RatesResponse = {
+    const response: RateResponse = {
       rates,
       timestamp: now,
       expiresAt: now + 30_000, // 30 second expiry

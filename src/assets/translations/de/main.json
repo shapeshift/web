@@ -1867,6 +1867,8 @@
       "warningBackup": "Stellen Sie sicher, dass Sie Ihre MetaMask-Seed-Phrase gesichert haben. Alle Guthaben, die Sie mit diesem Snap an Nicht-EVM-Ketten senden, werden an das Standardkonto weitergeleitet, das Sie mit MetaMask eingerichtet haben.",
       "agreeIntro": "Bevor Sie fortfahren, lesen Sie bitte Folgendes:",
       "agreeItem1": "Hardware Wallets werden <strong>NICHT</strong> unterstützt",
+      "agreeItem2": "Für die zusätzlichen Ketten, die der ShapeShift Multichain Snap bereitstellt, wird nur Konto Nr. 0 in MetaMask unterstützt",
+      "agreeItem3": "Um die vorhandenen Ethereum-Ketten von MetaMask nutzen zu können, müssen Sie Konto Nr. 0 mit ShapeShift in MetaMask verbinden",
       "agreeItem4": "Indem Sie den ShapeShift Multichain Snap aktivieren, erkennen Sie an, dass Sie ihn auf eigenes Risiko verwenden",
       "readAndUnderstood": "Ich habe es gelesen und verstanden",
       "seedBackedUp": "Ich habe meine MetaMask Seed-Phrase gesichert",

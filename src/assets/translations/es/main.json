@@ -1867,6 +1867,8 @@
       "warningBackup": "Asegúrese tener copia de su frase semilla de MetaMask. Cualquier fondo que envíe a cadenas que no sean EVM usando este Snap se dirigirá a la cuenta predeterminada configurada con MetaMask.",
       "agreeIntro": "Antes de continuar por favor lea lo siguiente:",
       "agreeItem1": "Las Carteras de hardware son <strong>NO</strong> soportado",
+      "agreeItem2": "Solo se admite la cuenta n.° 0 en MetaMask para las cadenas adicionales que proporciona Snap Multicadena ShapeShift",
+      "agreeItem3": "Para utilizar cadenas Ethereum existentes por MetaMask, debe conectar Cuenta n.° 0 a ShapeShift en MetaMask",
       "agreeItem4": "Al habilitar Snap Multicadena ShapeShift, usted reconoce que lo utiliza bajo su propio riesgo.",
       "readAndUnderstood": "He leído y entiendo",
       "seedBackedUp": "Hice copia de seguridad de mi frase semilla de MetaMask",

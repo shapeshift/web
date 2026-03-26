@@ -1,5 +1,6 @@
 {
   "common": {
+    "addressRequired": "必须填写地址",
     "amount": "数量",
     "ascending": "升序",
     "descending": "降序",
@@ -68,6 +69,7 @@
     "rename": "重命名",
     "forget": "忘记？",
     "pending": "待处理",
+    "current": "当前的",
     "preview": "预览",
     "incomplete": "不完整",
     "available": "可用的",
@@ -139,6 +141,7 @@
     "manage": "管理",
     "view": "查看",
     "viewOnly": "仅查看",
+    "deprecated": "已弃用",
     "allChains": "所有的链",
     "wallet": "钱包",
     "feedbackAndSupport": "反馈与支持",
@@ -178,6 +181,7 @@
       "expandRow": "展开行"
     },
     "featureDisabled": "此功能暂时禁用。",
+    "no": "不",
     "yes": "是的",
     "activeAccount": "活跃账户",
     "selectAccount": "选择帐户",
@@ -196,7 +200,8 @@
     "permit2Approval": "Permit2 授权",
     "network": "网络",
     "feeEstimate": "预计费用",
-    "list": "列表"
+    "list": "列表",
+    "retry": "重试"
   },
   "accountSelector": {
     "chooseAccount": "选择帐户"
@@ -345,6 +350,7 @@
         "marketCapRank": "市值排名",
         "volume24h": "24 小时交易量",
         "volMcap": "交易量/市值",
+        "about": "关于 %{symbol}",
         "noDescription": "此资产暂无描述。"
       },
       "receive": {
@@ -716,6 +722,8 @@
     "buyCrypto": "购买/出售 加密货币",
     "buyCryptoShort": "购买/出售",
     "lending": "贷款",
+    "thorchainLending": "THORChain Lending",
+    "chainflipLending": "Chainflip Lending",
     "pools": "流动性池",
     "rFOX": "rFOX",
     "tcy": "TCY",
@@ -1063,7 +1071,7 @@
     "receiveAddressDescription": "未从已连接的钱包中找到 %{chainName} 地址。请手动输入地址",
     "disableThorTaprootReceive": "我们检测到你正在向 taproot 比特币地址发送。由于 THORChain 的限制，目前不支持将 BTC 接收至 taproot 地址。请输入其他地址。",
     "toContinue": "来继续。",
-    "enableMetaMaskSnap": "使用多链快照",
+    "enableMetaMaskSnap": "使用 multichain snap",
     "connectChain": "连接 %{chainName}",
     "doAnotherTrade": "进行另一笔交易",
     "summary": "交易概览",
@@ -1376,6 +1384,32 @@
       },
       "status": {
         "pendingBody": "正在发送 %{amount} %{symbol}"
+      },
+      "speedUp": {
+        "title": "加速交易",
+        "description": "提高费用以加快您的待处理比特币交易。",
+        "currentFee": "当前费用",
+        "currentFeeRate": "当前费率",
+        "previousFee": "先前费用",
+        "newFee": "新费用",
+        "additionalFee": "额外费用",
+        "newFeeRate": "新费率",
+        "feeDifference": "额外费用",
+        "confirm": "确认加速",
+        "cancel": "取消交易",
+        "cancelDescription": "通过提高费用将资金发送给自己，以取消原交易。",
+        "confirmCancel": "确认取消",
+        "insufficientFunds": "资金不足，无法提高费用",
+        "selectFeeRate": "选择更高的费率",
+        "pendingTransaction": "待处理交易",
+        "speedingUp": "加速交易中……",
+        "canceling": "取消交易中...",
+        "fetchError": "无法获取交易数据",
+        "feesTooLow": "当前费用已处于网络标准费率",
+        "alreadySpentOrReplaced": "无法加速此交易，因为其已被替换或确认。",
+        "alreadyConfirmed": "此交易已确认，无法再进行加速。",
+        "speedUpFailed": "无法加速交易",
+        "broadcastNotObserved": "网络尚未接收到替换交易广播，请重试。"
       }
     },
     "receive": {
@@ -1786,40 +1820,55 @@
         "button": "配对"
       }
     },
+    "nativeMultichain": {
+      "title": "MetaMask 现在原生支持 %{chains}",
+      "subtitle": "您现在可以直接通过 MetaMask 使用 %{chains}，而无需使用 ShapeShift Multichain Snap。",
+      "useNative": "使用原生多链",
+      "useNativeRecommended": "推荐",
+      "keepSnap": "继续使用 Snap",
+      "snapChainWarning": "选择原生多链将替换 Snap 提供的链帐户。您可以随时在钱包设置中切换回来。",
+      "switchWarning": "切换操作将重新生成您的非 EVM 帐户。您的 EVM 帐户和余额不受影响。",
+      "nativeActive": "原生多链",
+      "snapActive": "Multichain Snap",
+      "switchToNative": "切换到原生多链",
+      "switchToSnap": "切换回 Snap",
+      "switchConfirmTitle": "切换多链模式",
+      "switchConfirmBody": "此操作将使用新模式重新生成您的非 EVM 帐户。您的 EVM 帐户不受影响。",
+      "switchConfirmAction": "切换"
+    },
     "metaMaskSnap": {
       "title": "MetaMask 现已提供多链支持！",
-      "subtitle": "在 MetaMask 上添加多链快照，即可在以下链上发送、接收、追踪、交易和赚钱：",
-      "multiChainSnap": "多链快照",
+      "subtitle": "在 MetaMask 上添加 Multichain Snap，即可在以下链上发送、接收、追踪、交易和赚钱：",
+      "multiChainSnap": "Multichain Snap",
       "active": "活跃",
       "notActive": "不活跃",
       "addSnap": "添加快照",
-      "installError": "安装 MetaMask 多链快照时发生错误",
+      "installError": "安装 MetaMask Multichain Snap 时发生错误",
       "uninstall": {
         "title": "你已从 MetaMask 中删除了多链支持！",
-        "subtitle": "在 MetaMask 上重新添加多链快照，即可在以下链上发送、接收、追踪、交易和赚钱："
+        "subtitle": "在 MetaMask 上重新添加 Multichain Snap，即可在以下链上发送、接收、追踪、交易和赚钱："
       },
       "update": {
-        "title": "多链快照需要更新",
+        "title": "Multichain Snap 需要更新",
         "subtitle": "单击“更新”以继续使用 ShapeShift 的多链功能和 MetaMask！"
       },
       "snapInstalledToast": "ShapeShift 多链 MetaMask 快照已安装 ",
       "snapUninstalledToast": "ShapeShift 多链 MetaMask 快照已卸载",
       "dontAskAgain": "不要再询问",
-      "multiAccountUnsupported": "在 MetaMask 上使用多链快照时，此链不支持多帐户"
+      "multiAccountUnsupported": "在 MetaMask 上使用 Multichain Snap 时，此链不支持多帐户"
     },
     "coinbaseQR": {
       "name": "Coinbase 连接"
     },
     "metaMaskSnapConfirm": {
-      "title": "安装多链快照",
-      "updateTitle": "更新多链快照",
-      "warningExperimental": "ShapeShift 多链快照是一项全新的实验性功能，“按原样”提供",
+      "title": "安装 Multichain Snap",
+      "updateTitle": "更新 Multichain Snap",
+      "warningExperimental": "ShapeShift Multichain Snap 是一项全新的实验性功能，“按原样”提供",
       "warningBackup": "请确保您已备份您的 MetaMask 助记词。您通过此快照发送到非 EVM 链的任何资金将被发送到您在 MetaMask 中设置的默认账户。",
       "agreeIntro": "在继续之前，请阅读以下内容：",
       "agreeItem1": "硬件钱包 <strong>不</strong> 受支持",
-      "agreeItem2": "只有 MetaMask 中的帐户 #0 支持 ShapeShift 多链快照提供的额外链",
       "agreeItem3": "要使用 MetaMask 提供的现有以太坊链，您必须在 MetaMask 中将帐户 #0 连接到 ShapeShift",
-      "agreeItem4": "启用 ShapeShift 多链快照即表示您承认自行承担使用风险。",
+      "agreeItem4": "启用 ShapeShift Multichain Snap 即表示您承认自行承担使用风险。",
       "readAndUnderstood": "我已阅读并理解",
       "seedBackedUp": "我已备份我的 MetaMask 助记词",
       "acceptInstall": "确认并安装",
@@ -2132,6 +2181,11 @@
       "deployFailed": "部署失败"
     }
   },
+  "tron": {
+    "recipientNotActivated": {
+      "sendWarning": "此地址尚未在 Tron 上激活。您发送的代币将会到达，但收件人必须先收到一些 TRX 才能转移这些代币。"
+    }
+  },
   "transactionHistory": {
     "transactionHistory": "交易记录",
     "recentTransactions": "最近交易",
@@ -2169,13 +2223,22 @@
     "txid": "交易 ID",
     "status": "状态",
     "minerFee": "矿工费",
+    "orderRoute": "订单路径",
+    "transactionType": "交易类型",
+    "fee": "费用",
+    "approvalAmount": "授权数量",
     "date": "日期",
     "sentTo": "发送至 %{address}",
     "receivedFrom": "从 %{address} 收到",
     "today": "今天",
     "yesterday": "昨天",
     "thisWeek": "本周",
-    "thisMonth": "本月"
+    "thisMonth": "本月",
+    "speedUp": "加速",
+    "cancelTransaction": "取消交易",
+    "replaced": "已替换",
+    "replacedBy": "已替换为 %{txHash}",
+    "replaces": "替换 %{txHash}"
   },
   "plugins": {
     "foxPage": {
@@ -2248,7 +2311,14 @@
               "placeholder": "gas 上限...",
               "tooltip": "gas 上限是指用户进行交易时最多可以花费的 gas。"
             }
-          }
+          },
+          "recipientAddress": "接收者地址",
+          "amount": "数量",
+          "amountSats": "%{amount} 聪",
+          "psbt": "PSBT",
+          "broadcast": "广播",
+          "inputs": "输入 (%{count})",
+          "outputs": "输出 (%{count})"
         },
         "connect": {
           "title": "通过 WalletConnect 将你的钱包连接到 dApp 并触发交易",
@@ -2375,6 +2445,326 @@
       "emptyBody": "你目前似乎没有任何贷款。这是金融禅宗还是只是您下一次大型贷款冒险之前的休息？不管怎样，享受平静吧！"
     }
   },
+  "chainflipLending": {
+    "awaitingConfirmTitle": "等待确认中",
+    "awaitingConfirmDescription": "请在您的钱包中确认交易以继续",
+    "headerDescription": "在 Chainflip 上提供资产以赚取收益或以抵押品进行借贷。",
+    "overview": "概述",
+    "myDashboard": "我的仪表板",
+    "allMarkets": "所有市场",
+    "manageLoan": "管理借款",
+    "supply": {
+      "title": "供应",
+      "amount": "数量",
+      "available": "可供应",
+      "availableTooltip": "您在 Chainflip State Chain 上的可用余额可用于借贷",
+      "minimumSupply": "最小供应数量：%{amount}",
+      "confirmTitle": "确认供应",
+      "confirmDescription": "向贷款池供应 %{amount} %{asset}",
+      "confirmAndSupply": "确认并供应",
+      "executingTitle": "供应中...",
+      "executingDescription": "正在处理您的供应",
+      "successTitle": "供应成功",
+      "successDescription": "您的 %{asset} 目前正在赚取收益",
+      "supplied": "已供应",
+      "transactionId": "交易 ID",
+      "errorTitle": "供应失败",
+      "errorDescription": "供应时出现了一些错误",
+      "steps": {
+        "signing": "签署供应交易",
+        "confirming": "确认供应中"
+      },
+      "noFreeBalance": "没有可用余额。请先向 Chainflip 充值。"
+    },
+    "borrow": {
+      "title": "借款",
+      "amount": "数量",
+      "available": "可供借款",
+      "maxLtv": "最大 LTV (80%)",
+      "currentLtv": "当前 LTV",
+      "projectedLtv": "预计 LTV",
+      "confirmTitle": "确认借款",
+      "confirmDescription": "以您的抵押物借入 %{amount} %{asset}",
+      "confirmAndBorrow": "确认并借款",
+      "executingTitle": "借款中……",
+      "executingDescription": "正在处理您的贷款",
+      "successTitle": "借款成功",
+      "successDescription": "您借入了 %{amount} %{asset}",
+      "borrowed": "已借入",
+      "transactionId": "交易 ID",
+      "errorTitle": "借款失败",
+      "errorDescription": "借款时出现了一些错误",
+      "steps": {
+        "signing": "签署贷款申请中",
+        "confirming": "确认贷款中"
+      },
+      "noCollateral": "借款前需要先添加抵押品",
+      "minimumLoan": "最低贷款数量：%{amount}",
+      "availableTooltip": "根据您的抵押品价值和 LTV 能够借入的最大数量"
+    },
+    "totalSupplied": "总供应量",
+    "totalSuppliedTooltip": "所有 Chainflip 借贷池提供的资产总价值。",
+    "availableLiquidity": "可用流动性",
+    "availableLiquidityTooltip": "所有借贷池中目前可供借入的资产总价值。",
+    "totalBorrowed": "总借款额",
+    "totalBorrowedTooltip": "所有 Chainflip 借贷池中未偿还的借款总价值。",
+    "pool": {
+      "actionPaused": "此操作在 Chainflip 上暂时中止",
+      "depositFirst": "请先将资金存入 Chainflip。",
+      "noFreeBalance": "没有可用余额",
+      "noSupplyPosition": "没有可提取的供应仓位",
+      "noCollateral": "未存入抵押品",
+      "noLoans": "无活跃贷款",
+      "supply": "供应",
+      "withdrawSupply": "提取供应",
+      "depositToChainflip": "存入",
+      "withdrawFromChainflip": "从 Chainflip 提现",
+      "freeBalance": "可用余额",
+      "walletBalance": "钱包余额",
+      "currentLtv": "当前 LTV",
+      "borrowCapacity": "借款额度",
+      "borrowPowerUsed": "已使用借款额度",
+      "availableToBorrow": "可供借款"
+    },
+    "supplyApy": "供应 APY",
+    "supplyApyTooltip": "通过向该池供应资产所获得的年收益率。",
+    "borrowRate": "借款利率",
+    "utilisation": "利用率",
+    "utilisationTooltip": "目前借入的资产占已供应资产的百分比。利用率越高，收益率越高，但可用流动性越少。",
+    "market": "市场",
+    "supplyStats": "供应统计",
+    "borrowStats": "借款统计",
+    "yourPosition": "您的仓位",
+    "freeBalance": "可用余额",
+    "supplied": "已供应",
+    "collateral": {
+      "title": "抵押品",
+      "add": "添加抵押品",
+      "remove": "移除抵押品",
+      "amount": "数量",
+      "availableToAdd": "可添加",
+      "availableToRemove": "可移除",
+      "confirmAddTitle": "确认添加抵押品",
+      "confirmRemoveTitle": "确认移除抵押品",
+      "confirmAddDescription": "将 %{amount} %{asset} 添加为抵押品",
+      "confirmRemoveDescription": "从抵押品中移除 %{amount} %{asset}",
+      "confirmAdd": "确认并添加",
+      "confirmRemove": "确认并移除",
+      "executingTitle": "正在处理中...",
+      "executingDescription": "正在处理您的抵押品更新",
+      "successAddTitle": "抵押品已添加",
+      "successRemoveTitle": "抵押品已移除",
+      "successAddDescription": "%{asset} 抵押品已成功添加",
+      "successRemoveDescription": "%{asset} 抵押品已成功移除",
+      "added": "已添加",
+      "removed": "已移除",
+      "transactionId": "交易 ID",
+      "errorTitle": "抵押品更新失败",
+      "errorDescription": "出现了一些错误",
+      "steps": {
+        "signing": "签署抵押品更新中",
+        "confirming": "确认更新中"
+      },
+      "minimumAmount": "最低抵押品更新数量：%{amount}",
+      "noFreeBalance": "没有可用余额可添加为抵押品",
+      "noRemovable": "无法在不将 LTV 降低至目标值以下的情况下移除抵押品"
+    },
+    "depositToChainflip": "向 Chainflip 存款",
+    "depositDescription": "将钱包中的资产存入您的 Chainflip State Chain 帐户即可开始借贷。",
+    "freeBalanceDescription": "在 Chainflip State Chain 上的可用余额。可存入借贷池以赚取收益，或用作抵押品。",
+    "noFreeBalanceHint": "存入资金以开始借贷",
+    "originationFee": "放款手续费",
+    "liquidationFee": "清算费",
+    "yourSupplied": "您供应的",
+    "yourBorrowed": "您借入的",
+    "yourFreeBalance": "您的可用余额",
+    "connectWalletDescription": "连接钱包以查看您的贷款仓位。",
+    "protocolStats": "协议统计",
+    "deposit": {
+      "amount": "数量",
+      "available": "可用",
+      "explainer": "资产将存入您的 Chainflip State Chain 帐户。存入后，您可以将其提供给借贷池以赚取收益。",
+      "openChannel": "开启存款通道",
+      "confirmTitle": "确认存款",
+      "confirmDescription": "将 %{amount} %{asset} 存入您的 Chainflip State Chain 帐户。我们将引导您完成每个必要步骤，并根据需要提示您签署交易。",
+      "confirmingTitle": "存款中……",
+      "confirmingDescription": "请在您钱包中确认交易。",
+      "confirmAndDeposit": "确认并存款",
+      "successTitle": "存款已确认",
+      "successDescription": "您的 %{asset} 已存入 Chainflip State Chain 帐户。",
+      "deposited": "已存入",
+      "transactionId": "交易 ID",
+      "minimumDeposit": "最低存款数量",
+      "belowMinimumDeposit": "最低数量为 %{amount} %{symbol}",
+      "steps": {
+        "approvingFlip": "授权 FLIP",
+        "fundingAccount": "充值帐户",
+        "registering": "注册帐户",
+        "openingChannel": "开启通道",
+        "sendingDeposit": "发送存款",
+        "confirming": "确认中",
+        "settingRefundAddress": "设置退款地址"
+      },
+      "executingTitle": "存入中……",
+      "executingDescription": "请按照提示在您的钱包中确认交易。",
+      "errorTitle": "存入失败",
+      "errorDescription": "存款过程中出现了一些错误。",
+      "freeBalance": "可用余额",
+      "freeBalanceTooltip": "您在 Chainflip State Chain 上的 %{asset} 可用余额",
+      "refundAddress": {
+        "title": "退款地址",
+        "description": "设置存款失败或提款时资金退回的地址。",
+        "useWalletAddress": "使用钱包地址",
+        "useCustomAddress": "使用自定义地址",
+        "label": "退款地址",
+        "continue": "继续",
+        "helperText": "该地址将用于此链上的提款和退款。"
+      }
+    },
+    "myBalances": "我的余额",
+    "walletBalance": "钱包",
+    "stateChainBalance": "State Chain",
+    "deployed": "已部署",
+    "comingSoon": "即将推出",
+    "connectToViewBalances": "连接钱包以查看余额。",
+    "myBalancesTitle": "Chainflip Lending - 我的余额",
+    "withdraw": {
+      "title": "提取",
+      "amount": "数量",
+      "available": "可提取",
+      "availableTooltip": "您在借贷池中的供应仓位",
+      "confirmTitle": "确认提取",
+      "confirmDescription": "从贷款池中提取 %{amount} %{asset}",
+      "confirmAndWithdraw": "确认并提取",
+      "executingTitle": "提取中……",
+      "executingDescription": "正在处理您的提取",
+      "successTitle": "提取成功",
+      "successDescription": "您的 %{asset} 已被提取",
+      "withdrawn": "已提取",
+      "errorTitle": "提取失败",
+      "errorDescription": "提取时出现了一些错误",
+      "noPosition": "未找到该资产的供应仓位",
+      "withdrawAmount": "提取",
+      "steps": {
+        "signing": "签署交易",
+        "confirming": "链上确认中"
+      },
+      "alsoWithdrawToWallet": "同时提取到钱包",
+      "freeBalanceExplainer": "默认情况下，资金会提取到您在 Chainflip State Chain 上的可用余额。勾选下方复选框，即可同时提取到您的钱包。",
+      "fullWithdrawalOnlyTooltip": "您的仓位低于部分提取所需的最低数量，仅支持全额提取。",
+      "partialBelowMinimum": "最低提取数量为 %{amount}",
+      "remainingBelowMinimum": "剩余仓位必须至少为 %{amount}，否则需提取全部数量。",
+      "destinationAddress": "目标地址",
+      "transactionId": "交易 ID"
+    },
+    "withdrawFromChainflip": {
+      "title": "从 Chainflip 提取",
+      "amount": "数量",
+      "destination": "目标地址",
+      "available": "可用余额",
+      "confirmAndWithdraw": "确认提取",
+      "confirmTitle": "确认提取",
+      "confirmDescription": "从您的 Chainflip 可用余额中提取 %{amount} %{symbol} 到您的钱包",
+      "errorTitle": "提取失败",
+      "errorDescription": "在处理您的提取时出现错误，请重试。",
+      "executingTitle": "处理提取中",
+      "executingDescription": "您的提取正在 Chainflip State Chain 上处理",
+      "successTitle": "提取已提交",
+      "successDescription": "您的提取已提交，资金将很快到达您的钱包",
+      "steps": {
+        "signing": "签署提取交易中",
+        "confirming": "确认提取中"
+      }
+    },
+    "repay": {
+      "title": "还款",
+      "amount": "数量",
+      "outstanding": "未偿还债务",
+      "fullRepayment": "全额还款",
+      "partialRepayment": "部分还款",
+      "confirmTitle": "确认还款",
+      "confirmDescription": "偿还 %{amount} %{asset}",
+      "confirmAndRepay": "确认并偿还",
+      "executingTitle": "偿还中……",
+      "executingDescription": "正在处理您的还款",
+      "successTitle": "还款成功",
+      "successDescription": "您已偿还 %{amount} %{asset}",
+      "repaid": "已偿还",
+      "transactionId": "交易 ID",
+      "errorTitle": "还款失败",
+      "errorDescription": "还款过程中出现了一些错误",
+      "steps": {
+        "signing": "签署还款",
+        "confirming": "确认还款"
+      },
+      "availableBalance": "可用余额",
+      "availableTooltip": "您在 Chainflip 上可用于还款的可用余额",
+      "minimumRepayment": "最低还款数量：%{amount}",
+      "remainingBelowMinimum": "剩余贷款数量将低于最低还款数量 %{amount}。请改为全额还款。",
+      "insufficientBalance": "可用余额不足以全额还款",
+      "noFreeBalance": "请先向您的 Chainflip 帐户存入资金"
+    },
+    "ltv": {
+      "target": "目标 LTV",
+      "topup": "自动充值",
+      "softLiquidation": "软清算",
+      "hardLiquidation": "硬清算",
+      "safe": "安全",
+      "warning": "警告",
+      "danger": "高风险"
+    },
+    "egress": {
+      "title": "从 Chainflip 提取",
+      "amount": "数量",
+      "destination": "目标地址",
+      "destinationPlaceholder": "输入目标地址",
+      "available": "可用余额",
+      "confirmAndWithdraw": "确认提取",
+      "confirmTitle": "确认提取",
+      "confirmDescription": "从您的 Chainflip 可用余额中提取 %{amount} %{asset} 到您的钱包",
+      "errorTitle": "提取失败",
+      "errorDescription": "处理您的提款时出现错误，请重试。",
+      "executingTitle": "提款处理中",
+      "executingDescription": "您的提款正在 Chainflip State Chain 上处理",
+      "successTitle": "提款已提交",
+      "successDescription": "您提取 %{asset} 的请求已提交，资金将很快到达您的钱包。",
+      "withdrawn": "已提取",
+      "receiveAddress": "接收地址",
+      "steps": {
+        "signing": "签署提取交易中",
+        "confirming": "确认提取"
+      },
+      "transactionId": "交易 ID",
+      "noFreeBalance": "没有可供提取的可用余额"
+    },
+    "borrowRateTooltip": "目前从该池借款的年利率",
+    "originationFeeTooltip": "创建或增加贷款时收取的一次性费用",
+    "liquidationFeeTooltip": "抵押品清算过程中收取的费用",
+    "suppliedBalance": "已供应",
+    "poolHeader": "池",
+    "collateralHeader": "抵押品",
+    "borrowedHeader": "已借入",
+    "voluntaryLiquidation": {
+      "initiateTitle": "发起自愿清算",
+      "initiateWarning": "此操作将开始清算您的所有仓位。您的抵押品将被出售以偿还所有未偿贷款。一旦在链上确认，将无法撤销。",
+      "stopTitle": "停止自愿清算",
+      "stopDescription": "此操作将取消待处理的自愿清算，您的仓位将继续保留。",
+      "confirmInitiate": "清算我的仓位",
+      "confirmStop": "停止清算",
+      "executingTitle": "处理中...",
+      "executingDescription": "您的自愿清算请求已提交至 Chainflip State Chain。",
+      "initiateSuccessTitle": "清算已发起",
+      "initiateSuccessDescription": "自愿清算已发起。您的仓位将自动平仓。",
+      "stopSuccessTitle": "清算已停止",
+      "stopSuccessDescription": "自愿清算已取消，您的仓位将继续保留。",
+      "errorTitle": "交易失败",
+      "inProgress": "自愿清算进行中",
+      "steps": {
+        "signing": "签署交易",
+        "confirming": "链上确认中"
+      }
+    }
+  },
   "chart": {
     "interval": {
       "5min": "过去五分钟",
@@ -2389,6 +2779,8 @@
   "pools": {
     "pools": "流动性池",
     "pool": "流动性池",
+    "errorFetchingPools": "无法获取池信息，请稍后再试。",
+    "noPoolsAvailable": "目前没有借贷池可用。",
     "positions": "仓位",
     "tvl": "TVL",
     "volume24h": "24 小时成交量",
@@ -2789,6 +3181,8 @@
   "actionCenter": {
     "title": "通知",
     "viewTransaction": "查看交易",
+    "originalTransaction": "原始交易",
+    "replacementTransaction": "替换交易",
     "viewOrder": "查看订单",
     "cancelOrder": "取消订单",
     "pair": "交易对",
@@ -2805,6 +3199,7 @@
       "confirmed": "已确认",
       "failed": "失败",
       "pending": "待处理中",
+      "replaced": "已替换",
       "claimAvailable": "可领取",
       "claimed": "已领取",
       "unknown": "未知",
@@ -2901,12 +3296,61 @@
       "complete": {
         "description": "您领取的 %{amountAndSymbol} 已完成。"
       }
+    },
+    "chainflipLending": {
+      "deposit": {
+        "pending": "您向 Chainflip 存入 %{amountAndSymbol} 的操作正在处理中。",
+        "complete": "您向 Chainflip 存入 %{amountAndSymbol} 的操作已完成。",
+        "failed": "您向 Chainflip 存入 %{amountAndSymbol} 的操作失败。"
+      },
+      "supply": {
+        "pending": "您向借贷池供应 %{amountAndSymbol} 的操作正在处理中。",
+        "complete": "您向借贷池供应 %{amountAndSymbol} 的操作已完成。",
+        "failed": "您向借贷池供应 %{amountAndSymbol} 的操作失败。"
+      },
+      "withdraw": {
+        "pending": "您从借贷池中提取 %{amountAndSymbol} 的操作正在处理中。",
+        "complete": "您从借贷池中提取 %{amountAndSymbol} 的操作已完成。",
+        "failed": "您从借贷池中提取 %{amountAndSymbol} 的操作失败。"
+      },
+      "egress": {
+        "pending": "您从 Chainflip 提取 %{amountAndSymbol} 的操作正在处理中。",
+        "complete": "您从 Chainflip 提取 %{amountAndSymbol} 的操作已完成。",
+        "failed": "您从 Chainflip 提取 %{amountAndSymbol} 的操作失败。"
+      },
+      "addCollateral": {
+        "pending": "您将 %{amountAndSymbol} 从 Chainflip 可用余额转移到抵押品的操作正在处理中。",
+        "complete": "您将 %{amountAndSymbol} 从 Chainflip 可用余额转移到抵押品的操作已完成。",
+        "failed": "您将 %{amountAndSymbol} 从 Chainflip 可用余额转移到抵押品的操作失败。"
+      },
+      "removeCollateral": {
+        "pending": "您将 %{amountAndSymbol} 从 Chainflip 可用余额转移到抵押品的操作正在处理中。",
+        "complete": "您将 %{amountAndSymbol} 从抵押品转移回 Chainflip 可用余额的操作已完成。",
+        "failed": "您将 %{amountAndSymbol} 从抵押品转移回 Chainflip 可用余额的操作失败。"
+      },
+      "borrow": {
+        "pending": "您将 %{amountAndSymbol} 从抵押品转移回 Chainflip 可用余额的操作正在处理中。",
+        "complete": "您向 Chainflip 可用余额借入 %{amountAndSymbol} 的操作已完成。",
+        "failed": "您向 Chainflip 可用余额借入 %{amountAndSymbol} 的操作失败。"
+      },
+      "repay": {
+        "pending": "您从 Chainflip 可用余额中偿还 %{amountAndSymbol} 的操作正在处理中。",
+        "complete": "您从 Chainflip 可用余额中偿还 %{amountAndSymbol} 的操作已完成。",
+        "failed": "您从 Chainflip 可用余额中偿还 %{amountAndSymbol} 的操作失败。"
+      },
+      "details": {
+        "operation": "操作",
+        "amount": "数量",
+        "transactionId": "交易 ID",
+        "egressTransactionId": "Egress 交易 Id"
+      }
     }
   },
   "yieldXYZ": {
     "pageTitle": "收益",
     "pageSubtitle": "发现并管理跨多条链的收益机会",
-    "actions": {},
+    "actions": {
+    },
     "yield": "收益",
     "apy": "APY",
     "apr": "APR",
@@ -3026,7 +3470,9 @@
       "initiateFailedTitle": "错误",
       "initiateFailedDescription": "发起交易序列失败。",
       "quoteFailedTitle": "报价失败",
-      "quoteFailedDescription": "无法为该交易获取报价，请重试。"
+      "quoteFailedDescription": "无法为该交易获取报价，请重试。",
+      "insufficientAssetForGas": "%{symbol} 不足以支付 Gas",
+      "rateLimited": "请求过多"
     },
     "underMaintenance": "正在维护中",
     "underMaintenanceDescription": "收益机会目前正在维护中，可能暂时无法进行充值。",

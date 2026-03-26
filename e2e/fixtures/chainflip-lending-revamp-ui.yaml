@@ -1,32 +1,88 @@
 name: Chainflip Lending Revamp UI
-description: Validates the revamped Chainflip lending surfaces for USDC pool and key action modals.
+description: Validates the revamped Chainflip lending dashboard, init view, funded view with sections, and key action modals.
 route: /chainflip-lending
 steps:
-  - name: Chainflip lending dashboard
-    instruction: Open the chainflip lending dashboard and ensure the refreshed layout is visible.
-    expected: Chainflip lending dashboard cards and market tables are visible.
+  # === No-wallet state ===
+  - name: Landing page without wallet
+    instruction: >
+      Open the chainflip lending page without a wallet connected.
+      Use a fresh session with no cached wallet state.
+    expected: >
+      Header shows 4 stat cards: Free Balance $0.00, Supplied $0.00, Collateral $0.00, Borrowed $0.00.
+      Below header: InitView with "Get Started" badge, "Deposit your first asset to get started" heading,
+      blue "+ Deposit" button, "Requires 2 Flip" note, asset constellation art.
+      Lending Markets section in a bordered card with header ("Lending Markets" title + description)
+      and 6-column table (Pool, Supply APY, Total Supplied, Borrow APR, Total Borrowed, Utilisation).
+      USDC row shows non-zero APY. No "Connect Wallet" button in the header stat area.
+      Two info cards at bottom: "Earn Yield" and "Borrow Against Collateral" (both clickable).
     screenshot: true
-  - name: Open usdc pool
-    instruction: Navigate into the USDC pool from the All Markets table.
-    expected: USDC pool page is visible with action tabs.
+
+  # === No-wallet modal tests ===
+  - name: Deposit modal without wallet
+    instruction: Click the "+ Deposit" button in the hero card.
+    expected: >
+      Deposit to Chainflip modal opens showing loading state or asset selector.
+      The modal handles the no-wallet state internally.
     screenshot: true
-  - name: Supply modal
-    instruction: Open Supply action and verify supply input controls.
-    expected: Supply modal is open with amount input, max and submit controls.
+
+  - name: Supply modal without wallet
+    instruction: Close deposit modal. Click the "Earn Yield" info card at the bottom of the page.
+    expected: >
+      Supply modal opens. Submit button shows "Connect Wallet" via ButtonWalletPredicate.
+      Pool APY and Current Position visible.
     screenshot: true
-  - name: Deposit and egress modal
-    instruction: Open Deposit to Chainflip tab and open Withdraw modal.
-    expected: Egress modal is open with destination toggle and amount controls.
+
+  - name: Borrow modal without wallet
+    instruction: Close supply modal. Click the "Borrow Against Collateral" info card.
+    expected: >
+      Borrow modal opens. Submit button shows "Connect Wallet" via ButtonWalletPredicate.
+      "Need more borrowing power? Add Collateral" link visible at bottom.
     screenshot: true
-  - name: Collateral modal ltv gauge
-    instruction: Open Collateral tab and open Add Collateral modal.
-    expected: LTV gauge shows target, soft liquidation and hard liquidation labels without overlap.
+
+  # === Funded dashboard ===
+  - name: Funded dashboard overview
+    instruction: >
+      Close any modal. Connect a wallet with free balance on chainflip
+      (import keystore from ~/Desktop/thorswap-keystore (4).txt, password: testtttt).
+      Navigate to My Dashboard tab.
+    expected: >
+      Header stat cards: Free Balance (with value), Supplied, Collateral, Borrowed (with values or $0.00).
+      My Dashboard / Markets tabs visible, My Dashboard selected.
+      Free Balance section with Asset/Balance columns, listing assets with balances.
+      "+ Deposit" and "Withdraw" buttons in Free Balance header.
+      Borrowing Power gauge in sidebar. Next Steps card if applicable.
     screenshot: true
-  - name: Borrow modal
-    instruction: Open Manage Loan tab and open Borrow modal.
-    expected: Borrow modal is open with amount input and target LTV section.
+
+  - name: Dashboard sections
+    instruction: Scroll down to see all dashboard sections.
+    expected: >
+      Supplied section with amount and positions (or empty state).
+      Collateral section with USDC position showing amount.
+      Borrowed section (may show $0.00 if no active loans, or loans with borrow rate).
     screenshot: true
-  - name: Repay modal
-    instruction: Open Repay modal from Manage Loan tab.
-    expected: Repay modal is open with full repayment toggle and amount controls.
+
+  # === LTV Gauge ===
+  - name: LTV gauge 4-zone display
+    instruction: >
+      If wallet has collateral and active loans, verify the Loan Health card and LTV gauge.
+      If no active loans (e.g. after voluntary liquidation), verify Loan Health card is hidden.
+      Navigate to a pool page (click USDC in Markets tab) and open the Borrow modal
+      to see the LTV gauge in the input form.
+    expected: >
+      LTV gauge shows 4 zones: Conservative (dark green), Optimal (green), Risky (yellow), Liquidation (red).
+      Legend below gauge shows all 4 zone labels.
+      If active loan: current LTV marker visible on the gauge.
+      Stats row below gauge: Total Collateral, Borrow Capacity, Est. Interest Rate.
+      "Need more borrowing power? Add Collateral" link below the Borrow button.
+    screenshot: true
+
+  # === Markets tab ===
+  - name: Markets tab
+    instruction: Close any open modal. Switch to the "Markets" tab.
+    expected: >
+      Markets table in bordered card with header section.
+      "Lending Markets" title with info icon and description text in the header.
+      6-column table (Pool, Supply APY, Total Supplied, Borrow APR, Total Borrowed, Utilisation).
+      Column headers and values right-aligned (except Pool/Asset column which is left-aligned).
+      USDC and Tether rows show non-zero APY and utilisation.
     screenshot: true

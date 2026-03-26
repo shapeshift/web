@@ -50,3 +50,4 @@ yarn-error.log*
 
 # translation benchmark data
 scripts/translations/benchmark/
+.gemini/

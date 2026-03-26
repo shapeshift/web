@@ -2622,6 +2622,7 @@
         "helperText": "该地址将用于此链上的提款和退款。"
       }
     },
+    "markets": "市场",
     "myBalances": "我的余额",
     "walletBalance": "钱包",
     "stateChainBalance": "State Chain",
@@ -2759,6 +2760,7 @@
       "stopSuccessTitle": "清算已停止",
       "stopSuccessDescription": "自愿清算已取消，您的仓位将继续保留。",
       "errorTitle": "交易失败",
+      "errorDescription": "自愿清算交易失败，请重试。",
       "inProgress": "自愿清算进行中",
       "steps": {
         "signing": "签署交易",

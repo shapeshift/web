@@ -1,10 +1,11 @@
 import { ArrowForwardIcon, CheckCircleIcon } from '@chakra-ui/icons'
-import { Button, CardBody, CardFooter, Flex, HStack, VStack } from '@chakra-ui/react'
+import { Box, Button, CardBody, CardFooter, Divider, Flex, HStack, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { flipAssetId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { useSupplyActionCenter } from './hooks/useSupplyActionCenter'
 import { useSupplyConfirmation } from './hooks/useSupplyConfirmation'
@@ -18,7 +19,9 @@ import { CircularProgress } from '@/components/CircularProgress/CircularProgress
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useModal } from '@/hooks/useModal/useModal'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
+import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
 import { reactQueries } from '@/react-queries'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -29,6 +32,7 @@ type SupplyConfirmProps = {
 
 export const SupplyConfirm = memo(({ assetId }: SupplyConfirmProps) => {
   const translate = useTranslate()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { scAccount } = useChainflipLendingAccount()
   const { close: closeModal } = useModal('chainflipLending')
@@ -46,6 +50,13 @@ export const SupplyConfirm = memo(({ assetId }: SupplyConfirmProps) => {
   const isNativeWallet = SupplyMachineCtx.useSelector(s => s.context.isNativeWallet)
   const stepConfirmed = SupplyMachineCtx.useSelector(s => s.context.stepConfirmed)
   const isConfirming = SupplyMachineCtx.useSelector(s => s.matches('confirming'))
+
+  const { pools } = useChainflipLendingPools()
+
+  const supplyApyPercent = useMemo(() => {
+    const pool = pools.find(p => p.assetId === assetId)
+    return pool ? bnOrZero(pool.supplyApy).times(100).toFixed(2) : null
+  }, [pools, assetId])
 
   useSupplySign()
   useSupplyConfirmation()
@@ -72,6 +83,11 @@ export const SupplyConfirm = memo(({ assetId }: SupplyConfirmProps) => {
     closeModal()
   }, [scAccount, queryClient, actorRef, closeModal])
 
+  const handleViewDashboard = useCallback(async () => {
+    await handleDone()
+    navigate('/chainflip-lending')
+  }, [handleDone, navigate])
+
   const handleBack = useCallback(() => {
     actorRef.send({ type: 'BACK' })
   }, [actorRef])
@@ -94,8 +110,16 @@ export const SupplyConfirm = memo(({ assetId }: SupplyConfirmProps) => {
                 })}
               </RawText>
             </VStack>
-            <VStack spacing={2} width='full' px={2}>
-              <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <Flex
+              borderWidth={1}
+              borderColor='border.subtle'
+              borderRadius='lg'
+              p={4}
+              width='full'
+              direction='column'
+              gap={2}
+            >
+              <Flex justifyContent='space-between' alignItems='center'>
                 <RawText fontSize='sm' color='text.subtle'>
                   {translate('chainflipLending.supply.supplied')}
                 </RawText>
@@ -106,7 +130,17 @@ export const SupplyConfirm = memo(({ assetId }: SupplyConfirmProps) => {
                   fontSize='sm'
                 />
               </Flex>
-            </VStack>
+              {supplyApyPercent !== null && (
+                <Flex justifyContent='space-between' alignItems='center'>
+                  <RawText fontSize='sm' color='text.subtle'>
+                    {translate('chainflipLending.supply.poolApy')}
+                  </RawText>
+                  <RawText fontSize='sm' fontWeight='medium' color='green.500'>
+                    {supplyApyPercent}%
+                  </RawText>
+                </Flex>
+              )}
+            </Flex>
           </VStack>
         </CardBody>
         <CardFooter
@@ -117,17 +151,29 @@ export const SupplyConfirm = memo(({ assetId }: SupplyConfirmProps) => {
           px={6}
           py={4}
         >
-          <Button
-            colorScheme='blue'
-            size='lg'
-            height={12}
-            borderRadius='xl'
-            width='full'
-            fontWeight='bold'
-            onClick={handleDone}
-          >
-            {translate('common.done')}
-          </Button>
+          <HStack spacing={3} width='full'>
+            <Button
+              variant='ghost'
+              flex={1}
+              size='lg'
+              height={12}
+              borderRadius='xl'
+              onClick={handleDone}
+            >
+              {translate('common.close')}
+            </Button>
+            <Button
+              colorScheme='blue'
+              flex={1}
+              size='lg'
+              height={12}
+              borderRadius='xl'
+              fontWeight='bold'
+              onClick={handleViewDashboard}
+            >
+              {translate('chainflipLending.dashboard.viewDashboard')}
+            </Button>
+          </HStack>
         </CardFooter>
       </SlideTransition>
     )
@@ -240,46 +286,100 @@ export const SupplyConfirm = memo(({ assetId }: SupplyConfirmProps) => {
   return (
     <SlideTransition>
       <CardBody px={6} py={4}>
-        <VStack spacing={6} align='center' py={6}>
-          <HStack spacing={3}>
-            <AssetIcon assetId={assetId} size='md' />
-            <ArrowForwardIcon boxSize={5} color='text.subtle' />
-            <AssetIcon assetId={flipAssetId} size='md' />
-          </HStack>
-          <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
-            {translate('chainflipLending.supply.confirmTitle')}
-          </RawText>
-          <Flex direction='column' gap={1} align='center'>
+        <VStack spacing={4} align='center' py={4}>
+          <Box
+            borderWidth={1}
+            borderColor='border.base'
+            borderRadius='xl'
+            px={6}
+            py={4}
+            width='full'
+            display='flex'
+            flexDirection='column'
+            alignItems='center'
+            gap={3}
+          >
+            <AssetIcon assetId={assetId} size='lg' />
             <Amount.Crypto
               value={supplyAmountCryptoPrecision}
               symbol={asset.symbol}
               fontWeight='bold'
               fontSize='2xl'
             />
+          </Box>
+        </VStack>
+        <Divider borderColor='border.subtle' />
+        <VStack spacing={3} width='full' py={4}>
+          <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('chainflipLending.supply.asset')}
+            </RawText>
+            <Flex alignItems='center' gap={2}>
+              <AssetIcon assetId={assetId} size='xs' />
+              <RawText fontSize='sm' fontWeight='medium'>
+                {asset.symbol}
+              </RawText>
+            </Flex>
+          </Flex>
+          <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('chainflipLending.supply.amount')}
+            </RawText>
+            <Amount.Crypto
+              value={supplyAmountCryptoPrecision}
+              symbol={asset.symbol}
+              fontSize='sm'
+              fontWeight='medium'
+            />
+          </Flex>
+          {supplyApyPercent !== null && (
+            <Flex justifyContent='space-between' alignItems='center' width='full'>
+              <RawText fontSize='sm' color='text.subtle'>
+                {translate('chainflipLending.supply.poolApy')}
+              </RawText>
+              <RawText fontSize='sm' fontWeight='medium' color='green.500'>
+                {supplyApyPercent}%
+              </RawText>
+            </Flex>
+          )}
+          <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('chainflipLending.supply.destination')}
+            </RawText>
+            <RawText fontSize='sm' fontWeight='medium'>
+              {translate('chainflipLending.supply.lendingPool', { asset: asset.symbol })}
+            </RawText>
           </Flex>
         </VStack>
       </CardBody>
       <CardFooter
         borderTopWidth={1}
         borderColor='border.subtle'
-        flexDir='column'
-        gap={2}
+        flexDir='row'
+        gap={3}
         px={6}
         py={4}
       >
         <Button
-          colorScheme='blue'
+          variant='ghost'
+          flex={1}
           size='lg'
           height={12}
           borderRadius='xl'
-          width='full'
+          onClick={handleBack}
+        >
+          {translate('common.back')}
+        </Button>
+        <Button
+          colorScheme='blue'
+          flex={1}
+          size='lg'
+          height={12}
+          borderRadius='xl'
           fontWeight='bold'
           onClick={handleConfirm}
         >
           {translate('chainflipLending.supply.confirmAndSupply')}
-        </Button>
-        <Button variant='ghost' size='sm' width='full' onClick={handleBack}>
-          {translate('common.back')}
         </Button>
       </CardFooter>
     </SlideTransition>

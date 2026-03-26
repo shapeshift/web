@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
+import { shallowEqual } from 'react-redux'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET } from '@/lib/chainflip/constants'
@@ -40,13 +41,15 @@ export const useChainflipSupplyPositions = () => {
     [accountInfo?.lending_positions],
   )
 
-  const positionAssetData = useAppSelector(state =>
-    lendingPositions.map(position => {
-      const assetId = CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET[position.asset]
-      if (!assetId) return { assetId: undefined, precision: 0 }
-      const asset = selectAssetById(state, assetId)
-      return { assetId, precision: asset?.precision ?? 0 }
-    }),
+  const positionAssetData = useAppSelector(
+    state =>
+      lendingPositions.map(position => {
+        const assetId = CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET[position.asset]
+        if (!assetId) return { assetId: undefined, precision: 0 }
+        const asset = selectAssetById(state, assetId)
+        return { assetId, precision: asset?.precision ?? 0 }
+      }),
+    shallowEqual,
   )
 
   const supplyPositions: ChainflipSupplyPositionWithFiat[] = useMemo(() => {

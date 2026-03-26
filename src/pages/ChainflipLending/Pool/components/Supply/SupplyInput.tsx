@@ -1,5 +1,6 @@
-import { Button, CardBody, CardFooter, Flex, Stack, VStack } from '@chakra-ui/react'
+import { Box, Button, CardBody, CardFooter, Divider, Flex, Stack, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { ethChainId, usdcAssetId, usdtAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
@@ -10,20 +11,26 @@ import { useTranslate } from 'react-polyglot'
 import { SupplyMachineCtx } from './SupplyMachineContext'
 
 import { Amount } from '@/components/Amount/Amount'
-import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
-import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
+import { AssetIcon } from '@/components/AssetIcon'
+import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useToggle } from '@/hooks/useToggle/useToggle'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
+import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
 import { useChainflipMinimumSupply } from '@/pages/ChainflipLending/hooks/useChainflipMinimumSupply'
+import { useChainflipSupplyPositions } from '@/pages/ChainflipLending/hooks/useChainflipSupplyPositions'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById, selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+
+const STABLECOIN_ASSET_IDS: AssetId[] = [usdcAssetId, usdtAssetId]
 
 type SupplyInputProps = {
   assetId: AssetId
@@ -32,6 +39,8 @@ type SupplyInputProps = {
 
 export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
   const translate = useTranslate()
+  const wallet = useWallet().state.wallet
+  const walletSupportsEth = useWalletSupportsChain(ethChainId, wallet)
   const {
     number: { localeParts },
   } = useLocaleFormatter()
@@ -79,6 +88,46 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
   const cryptoValue = isFiat ? cryptoFromFiat : inputValue
   const fiatValue = isFiat ? inputValue : fiatFromCrypto
 
+  const { pools } = useChainflipLendingPools()
+  const { supplyPositions } = useChainflipSupplyPositions()
+
+  const poolForAsset = useMemo(() => pools.find(p => p.assetId === assetId), [pools, assetId])
+
+  const currentPositionCrypto = useMemo(() => {
+    const position = supplyPositions.find(p => p.assetId === assetId)
+    return position?.totalAmountCryptoPrecision ?? '0'
+  }, [supplyPositions, assetId])
+
+  const currentPositionFiat = useMemo(() => {
+    const position = supplyPositions.find(p => p.assetId === assetId)
+    return position?.totalAmountFiat ?? '0'
+  }, [supplyPositions, assetId])
+
+  const supplyApyPercent = useMemo(
+    () => (poolForAsset ? bnOrZero(poolForAsset.supplyApy).times(100).toFixed(2) : null),
+    [poolForAsset],
+  )
+
+  const poolSharePercent = useMemo(() => {
+    if (!poolForAsset) return '0.00'
+    const totalPoolCrypto = bnOrZero(poolForAsset.totalAmountCryptoPrecision)
+    if (totalPoolCrypto.isZero()) return '0.00'
+    const userCrypto = bnOrZero(currentPositionCrypto).plus(bnOrZero(cryptoValue))
+    return userCrypto
+      .div(totalPoolCrypto.plus(bnOrZero(cryptoValue)))
+      .times(100)
+      .toFixed(2)
+  }, [poolForAsset, currentPositionCrypto, cryptoValue])
+
+  const isStablecoin = useMemo(() => STABLECOIN_ASSET_IDS.includes(assetId), [assetId])
+
+  const estYearlyEarningsFiat = useMemo(() => {
+    if (!poolForAsset || !marketData?.price) return null
+    const apyDecimal = bnOrZero(poolForAsset.supplyApy)
+    if (apyDecimal.isZero()) return null
+    return bnOrZero(cryptoValue).times(marketData.price).times(apyDecimal).toFixed(2)
+  }, [poolForAsset, cryptoValue, marketData?.price])
+
   const { minSupply, isLoading: isMinSupplyLoading } = useChainflipMinimumSupply(assetId)
 
   const isBelowMinimum = useMemo(() => {
@@ -118,11 +167,6 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
       assets: lendingAssets,
     })
   }, [buyAssetSearch, onAssetChange, lendingAssets])
-
-  const handleAssetChange = useCallback(
-    (asset: Asset) => onAssetChange(asset.assetId),
-    [onAssetChange],
-  )
 
   const handleInputChange = useCallback((values: NumberFormatValues) => {
     setInputValue(values.value)
@@ -188,7 +232,7 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
       return translate('chainflipLending.supply.minimumSupply', {
         amount: `${bnOrZero(minSupply).decimalPlaces(2).toFixed()} ${asset?.symbol}`,
       })
-    return translate('chainflipLending.supply.title')
+    return translate('common.next')
   }, [exceedsBalance, isBelowMinimum, minSupply, asset?.symbol, translate])
 
   if (!asset) return null
@@ -197,16 +241,79 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
     <SlideTransition>
       <CardBody px={6} py={4}>
         <VStack spacing={4} align='stretch'>
-          <TradeAssetSelect
-            assetId={assetId}
-            assetIds={assetIds}
-            onAssetClick={handleAssetClick}
-            onAssetChange={handleAssetChange}
-            onlyConnectedChains={false}
-            px={0}
-            mb={0}
-          />
+          {/* Asset to supply label */}
+          <RawText fontSize='sm' fontWeight='medium' color='text.subtle'>
+            {translate('chainflipLending.supply.assetToSupply')}
+          </RawText>
 
+          {/* Asset card */}
+          <Box
+            borderWidth={1}
+            borderColor='border.base'
+            borderRadius='xl'
+            px={4}
+            py={3}
+            cursor='pointer'
+            _hover={{ borderColor: 'border.hover' }}
+            onClick={handleAssetClick}
+          >
+            <Flex justifyContent='space-between' alignItems='center'>
+              <Flex alignItems='center' gap={3}>
+                <AssetIcon assetId={assetId} size='sm' />
+                <VStack spacing={0} align='flex-start'>
+                  <RawText fontSize='md' fontWeight='semibold'>
+                    {asset.name}
+                  </RawText>
+                  <Amount.Crypto
+                    value={availableCryptoPrecision}
+                    symbol={asset.symbol}
+                    fontSize='xs'
+                    color='text.subtle'
+                  />
+                </VStack>
+              </Flex>
+              {availableFiat !== undefined && (
+                <Amount.Fiat value={availableFiat} fontSize='sm' fontWeight='medium' />
+              )}
+            </Flex>
+          </Box>
+
+          {/* Stats row - Pool APY and Current Position in bordered boxes */}
+          <Flex gap={3} width='full'>
+            {supplyApyPercent !== null && (
+              <Box
+                flex={1}
+                borderWidth={1}
+                borderColor='border.base'
+                borderRadius='xl'
+                px={4}
+                py={3}
+              >
+                <VStack spacing={0} align='flex-start'>
+                  <RawText fontSize='xs' color='text.subtle'>
+                    {translate('chainflipLending.supply.poolApy')}
+                  </RawText>
+                  <RawText fontSize='sm' fontWeight='bold' color='green.500'>
+                    {supplyApyPercent}%
+                  </RawText>
+                </VStack>
+              </Box>
+            )}
+            <Box flex={1} borderWidth={1} borderColor='border.base' borderRadius='xl' px={4} py={3}>
+              <VStack spacing={0} align='flex-start'>
+                <RawText fontSize='xs' color='text.subtle'>
+                  {translate('chainflipLending.supply.currentPosition')}
+                </RawText>
+                {bnOrZero(currentPositionCrypto).gt(0) ? (
+                  <Amount.Fiat value={currentPositionFiat} fontSize='sm' fontWeight='bold' />
+                ) : (
+                  <Amount.Fiat value='0' fontSize='sm' fontWeight='bold' />
+                )}
+              </VStack>
+            </Box>
+          </Flex>
+
+          {/* Amount label */}
           <Stack spacing={1}>
             <RawText fontSize='sm' color='text.subtle'>
               {translate('chainflipLending.supply.amount')}
@@ -229,7 +336,7 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
                 onValueChange={handleInputChange}
                 style={{
                   flex: 1,
-                  fontSize: '1.25rem',
+                  fontSize: '1.5rem',
                   fontWeight: 'bold',
                   background: 'transparent',
                   border: 'none',
@@ -238,60 +345,109 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
                 }}
               />
               {!isFiat && (
-                <RawText fontSize='lg' fontWeight='bold' color='text.subtle'>
-                  {asset.symbol}
-                </RawText>
+                <Flex alignItems='center' gap={2}>
+                  <AssetIcon assetId={assetId} size='xs' />
+                  <RawText fontSize='lg' fontWeight='bold' color='text.subtle'>
+                    {asset.symbol}
+                  </RawText>
+                </Flex>
               )}
             </Flex>
-            {marketData?.price && (
-              <Button
-                variant='link'
-                size='xs'
-                color='text.subtle'
-                fontWeight='medium'
-                onClick={handleToggleIsFiat}
-                alignSelf='flex-start'
-                px={0}
-              >
-                {isFiat ? (
-                  <Amount.Crypto value={cryptoValue || '0'} symbol={asset.symbol} fontSize='xs' />
-                ) : (
-                  <Amount.Fiat value={fiatValue} prefix='≈' fontSize='xs' />
-                )}
-              </Button>
-            )}
-          </Stack>
 
-          <Flex justifyContent='space-between' alignItems='center'>
-            <HelperTooltip label={translate('chainflipLending.supply.availableTooltip')}>
-              <RawText fontSize='sm' color='text.subtle'>
-                {translate('chainflipLending.supply.available')}
-              </RawText>
-            </HelperTooltip>
-            <Flex alignItems='center' gap={2}>
-              <VStack spacing={0} align='flex-end'>
-                {availableFiat !== undefined && (
-                  <Amount.Fiat value={availableFiat} fontSize='sm' fontWeight='medium' />
-                )}
+            {/* Fiat estimate + Balance/Max row */}
+            <Flex justifyContent='space-between' alignItems='center'>
+              {marketData?.price ? (
+                <Button
+                  variant='link'
+                  size='xs'
+                  color='text.subtle'
+                  fontWeight='medium'
+                  onClick={handleToggleIsFiat}
+                  px={0}
+                >
+                  {isFiat ? (
+                    <Amount.Crypto value={cryptoValue || '0'} symbol={asset.symbol} fontSize='xs' />
+                  ) : (
+                    <Amount.Fiat value={fiatValue} prefix='≈' fontSize='xs' />
+                  )}
+                </Button>
+              ) : (
+                <Box />
+              )}
+              <Flex alignItems='center' gap={1}>
+                <RawText fontSize='xs' color='text.subtle'>
+                  {translate('common.balance')}:
+                </RawText>
                 <Amount.Crypto
                   value={availableCryptoPrecision}
                   symbol={asset.symbol}
                   fontSize='xs'
                   color='text.subtle'
                 />
-              </VStack>
-              <Button
-                data-testid='chainflip-supply-max'
-                size='xs'
-                variant='ghost'
-                colorScheme='blue'
-                onClick={handleMaxClick}
-                isDisabled={!hasFreeBalance}
-              >
-                {translate('modals.send.sendForm.max')}
-              </Button>
+                <Button
+                  data-testid='chainflip-supply-max'
+                  size='xs'
+                  variant='ghost'
+                  colorScheme='blue'
+                  onClick={handleMaxClick}
+                  isDisabled={!hasFreeBalance}
+                  px={1}
+                  height='auto'
+                  minHeight={0}
+                >
+                  {translate('modals.send.sendForm.max')}
+                </Button>
+              </Flex>
             </Flex>
-          </Flex>
+          </Stack>
+
+          <Divider borderColor='border.subtle' />
+
+          {/* Info rows */}
+          <VStack spacing={3} align='stretch'>
+            {estYearlyEarningsFiat !== null && !bnOrZero(cryptoValue).isZero() && (
+              <Flex justifyContent='space-between' alignItems='center'>
+                <RawText fontSize='sm' color='text.subtle'>
+                  {translate('chainflipLending.dashboard.estimatedYearlyEarnings')}
+                </RawText>
+                <Amount.Fiat
+                  value={estYearlyEarningsFiat}
+                  fontSize='sm'
+                  fontWeight='medium'
+                  suffix={` / ${translate('chainflipLending.supply.year')}`}
+                />
+              </Flex>
+            )}
+
+            <Flex justifyContent='space-between' alignItems='center'>
+              <RawText fontSize='sm' color='text.subtle'>
+                {translate('chainflipLending.supply.poolShare')}
+              </RawText>
+              <RawText fontSize='sm' fontWeight='medium'>
+                {poolSharePercent}%
+              </RawText>
+            </Flex>
+
+            <Flex justifyContent='space-between' alignItems='center'>
+              <RawText fontSize='sm' color='text.subtle'>
+                {translate('chainflipLending.supply.autoCompounding')}
+              </RawText>
+              <RawText fontSize='sm' fontWeight='medium' color='green.500'>
+                {translate('chainflipLending.supply.enabled')}
+              </RawText>
+            </Flex>
+
+            <Flex justifyContent='space-between' alignItems='center'>
+              <RawText fontSize='sm' color='text.subtle'>
+                {translate('chainflipLending.supply.riskBand')}
+              </RawText>
+              <RawText fontSize='sm' fontWeight='medium'>
+                {isStablecoin
+                  ? translate('chainflipLending.supply.conservativeStablecoin')
+                  : translate('chainflipLending.supply.volatileAsset')}
+              </RawText>
+            </Flex>
+          </VStack>
 
           {!hasFreeBalance && (
             <RawText fontSize='xs' color='yellow.500'>
@@ -309,8 +465,9 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
         px={6}
         py={4}
       >
-        <Button
+        <ButtonWalletPredicate
           data-testid='chainflip-supply-submit'
+          isValidWallet={Boolean(walletSupportsEth)}
           colorScheme={submitButtonColorScheme}
           size='lg'
           height={12}
@@ -321,7 +478,7 @@ export const SupplyInput = ({ assetId, onAssetChange }: SupplyInputProps) => {
           isDisabled={isSubmitDisabled}
         >
           {submitButtonText}
-        </Button>
+        </ButtonWalletPredicate>
       </CardFooter>
     </SlideTransition>
   )

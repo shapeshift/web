@@ -2,13 +2,13 @@
   "$schema": "https://railway.com/railway.schema.json",
   "build": {
     "builder": "RAILPACK",
-    "buildCommand": "pnpm build",
+    "buildCommand": "pnpm --filter @shapeshiftoss/affiliate-dashboard build",
     "watchPatterns": [
       "packages/affiliate-dashboard/**"
     ]
   },
   "deploy": {
-    "startCommand": "pnpm start",
+    "startCommand": "pnpm --filter @shapeshiftoss/affiliate-dashboard start",
     "restartPolicyType": "ALWAYS"
   }
 }

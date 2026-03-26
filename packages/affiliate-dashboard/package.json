@@ -2,7 +2,6 @@
   "name": "@shapeshiftoss/affiliate-dashboard",
   "version": "1.0.0",
   "type": "module",
-  "packageManager": "pnpm@10.30.3",
   "scripts": {
     "clean": "rm -rf dist node_modules",
     "dev": "vite",

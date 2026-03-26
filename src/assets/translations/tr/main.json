@@ -1,5 +1,6 @@
 {
   "common": {
+    "addressRequired": "Adres gereklidir.",
     "amount": "Miktar",
     "ascending": "Yükselen",
     "descending": "Azalan",
@@ -68,6 +69,7 @@
     "rename": "İsim Değiştir",
     "forget": "Unut?",
     "pending": "Beklemede",
+    "current": "Mevcut",
     "preview": "Önizleme",
     "incomplete": "Tamamlanmamış",
     "available": "Kullanılabilir",
@@ -139,6 +141,7 @@
     "manage": "Yönet",
     "view": "Görüntüle",
     "viewOnly": "Sadece Görüntüleme",
+    "deprecated": "Kullanımdan kaldırıldı",
     "allChains": "Tüm Zincirler",
     "wallet": "Cüzdan",
     "feedbackAndSupport": "Geribildirim ve Destek",
@@ -178,6 +181,7 @@
       "expandRow": "Satırı Genişlet"
     },
     "featureDisabled": "Bu özellik geçici olarak devre dışıdır.",
+    "no": "Hayır",
     "yes": "Evet",
     "activeAccount": "Aktif Hesap",
     "selectAccount": "Hesap Seç",
@@ -196,7 +200,8 @@
     "permit2Approval": "Permit2 Onayı",
     "network": "Ağ",
     "feeEstimate": "Ücret Tahmini",
-    "list": "Liste"
+    "list": "Liste",
+    "retry": "Tekrar dene"
   },
   "accountSelector": {
     "chooseAccount": "Hesap Seç"
@@ -345,6 +350,7 @@
         "marketCapRank": "Piyasa Değeri Sıralaması",
         "volume24h": "24sa Hacim",
         "volMcap": "Hacim/MCap",
+        "about": "%{symbol} hakkında",
         "noDescription": "Bu varlık için herhangi bir açıklama mevcut değil."
       },
       "receive": {
@@ -716,6 +722,8 @@
     "buyCrypto": "Kripto Al/Sat",
     "buyCryptoShort": "Al/Sat",
     "lending": "Borç Verme",
+    "thorchainLending": "THORChain Lending",
+    "chainflipLending": "Chainflip Lending",
     "pools": "Havuzlar",
     "rFOX": "rFOX",
     "tcy": "TCY",
@@ -1376,6 +1384,32 @@
       },
       "status": {
         "pendingBody": "%{amount} %{symbol} gönderiliyor"
+      },
+      "speedUp": {
+        "title": "İşlemi Hızlandırın",
+        "description": "Bekleyen Bitcoin işleminizi hızlandırmak için işlem ücretini artırın.",
+        "currentFee": "Mevcut Ücret",
+        "currentFeeRate": "Güncel Ücret Oranı",
+        "previousFee": "Önceki Ücret",
+        "newFee": "Yeni Ücret",
+        "additionalFee": "Ek Ücret",
+        "newFeeRate": "Yeni Ücret Oranı",
+        "feeDifference": "Ek Ücret",
+        "confirm": "Hızlandırmayı Onayla",
+        "cancel": "İşlemi İptal Et",
+        "cancelDescription": "Parayı daha yüksek bir işlem ücretiyle kendinize geri gönderin, böylece orijinal işlemi fiilen iptal edilir.",
+        "confirmCancel": "İptali Onayla",
+        "insufficientFunds": "Ücreti artırmak için yeterli fon yok.",
+        "selectFeeRate": "Daha yüksek bir ücret oranı seçin",
+        "pendingTransaction": "Bekleyen İşlem",
+        "speedingUp": "İşlem hızlandırılıyor...",
+        "canceling": "İşlem iptal ediliyor...",
+        "fetchError": "İşlem verileri alınamadı.",
+        "feesTooLow": "Mevcut ücretler zaten ağ tarifeleri üzerinden belirleniyor.",
+        "alreadySpentOrReplaced": "Bu işlem zaten değiştirildiği veya onaylandığı için artık hızlandırılamaz.",
+        "alreadyConfirmed": "Bu işlem zaten onaylandı ve artık hızlandırılamaz.",
+        "speedUpFailed": "İşlem hızlandırılamadı.",
+        "broadcastNotObserved": "Yedek işlem yayını henüz ağ tarafından yayınlanmadı. Lütfen tekrar deneyin."
       }
     },
     "receive": {
@@ -1786,6 +1820,22 @@
         "button": "Pair"
       }
     },
+    "nativeMultichain": {
+      "title": "MetaMask artık %{chains} yerel olarak destekliyor.",
+      "subtitle": "Artık ShapeShift Multichain Snap'e gerek kalmadan %{chains} ifadesini doğrudan MetaMask üzerinden kullanabilirsiniz.",
+      "useNative": "Yerel multichain kullanın",
+      "useNativeRecommended": "Tavsiye edilen",
+      "keepSnap": "Snap'i kullanmaya devam edin.",
+      "snapChainWarning": "Yerel multichain seçeneğini tercih etmek, Snap tarafından sağlanan zincir hesaplarının yerini alacaktır. Cüzdan ayarlarından istediğiniz zaman geri dönebilirsiniz.",
+      "switchWarning": "Geçiş işlemi, EVM dışı hesaplarınızın yeniden türetilmesini sağlayacaktır. EVM hesaplarınız ve bakiyeleriniz etkilenmeyecektir.",
+      "nativeActive": "Yerel Multichain",
+      "snapActive": "Multichain Snap",
+      "switchToNative": "Yerel multichain'e geçin",
+      "switchToSnap": "Snap'e geri dön",
+      "switchConfirmTitle": "Multichain modunu değiştir",
+      "switchConfirmBody": "Bu işlem, EVM olmayan hesaplarınızı yeni modu kullanarak yeniden oluşturacaktır. EVM hesaplarınız etkilenmeyecektir.",
+      "switchConfirmAction": "Değiştir"
+    },
     "metaMaskSnap": {
       "title": "Çoklu zincir desteği artık MetaMask için mevcut!",
       "subtitle": "Aşağıdaki zincirlerle göndermek, almak, takip etmek, ticaret yapmak ve kazanmak için Multichain Snap'i Metamask'a ekleyin:",
@@ -1817,8 +1867,8 @@
       "warningBackup": "MetaMask tohum ifadenizi yedeklediğinizden emin olun. Bu Snap'i kullanarak EVM dışı zincirlere göndereceğiniz tüm fonlar, MetaMask ile kurduğunuz varsayılan hesaba yönlendirilecektir.",
       "agreeIntro": "Devam etmeden önce lütfen aşağıdakileri okuyun:",
       "agreeItem1": "Donanım cüzdanları <strong>DESTEKLENMİYOR</strong> !",
-      "agreeItem2": "ShapeShift Multichain Snap'in sağladığı ekstra zincirler için yalnızca MetaMask'taki Account #1 Hesap desteklenir",
-      "agreeItem3": "MetaMask tarafından sağlanan mevcut Ethereum zincirlerini kullanmak için Account #1'i MetaMask'taki ShapeShift'e bağlamanız gerekir.",
+      "agreeItem2": "ShapeShift Multichain Snap'in sağladığı ekstra zincirler için yalnızca MetaMask'taki Account #0 Hesap desteklenir",
+      "agreeItem3": "MetaMask tarafından sağlanan mevcut Ethereum zincirlerini kullanmak için Account #0'i MetaMask'taki ShapeShift'e bağlamanız gerekir.",
       "agreeItem4": "ShapeShift Multichain Snap'i etkinleştirerek, riski size ait olmak üzere kullandığınızı kabul etmiş olursunuz.",
       "readAndUnderstood": "Okudum Ve Anladım",
       "seedBackedUp": "MetaMask tohum ifademi yedekledim",
@@ -2132,6 +2182,11 @@
       "deployFailed": "Etkinleştirme Başarısız Oldu"
     }
   },
+  "tron": {
+    "recipientNotActivated": {
+      "sendWarning": "Bu adres henüz Tron'da etkinleştirilmedi. Tokenlarınız ulaşacak, ancak alıcı da TRX alana kadar bunları taşıyamayacak."
+    }
+  },
   "transactionHistory": {
     "transactionHistory": "İşlem Geçmişi",
     "recentTransactions": "Son İşlemler",
@@ -2169,13 +2224,22 @@
     "txid": "TX ID",
     "status": "Durum",
     "minerFee": "Madenci Ücreti",
+    "orderRoute": "Sipariş Rotası",
+    "transactionType": "İşlem Türü",
+    "fee": "Ücret",
+    "approvalAmount": "Onaylanan Tutar",
     "date": "Tarih",
     "sentTo": "%{address} adresine gönderildi",
     "receivedFrom": "%{address} adresinden alındı",
     "today": "Bugün",
     "yesterday": "Dün",
     "thisWeek": "Bu Hafta",
-    "thisMonth": "Bu Ay"
+    "thisMonth": "Bu Ay",
+    "speedUp": "Hızlandır",
+    "cancelTransaction": "İşlemi İptal Et",
+    "replaced": "Değiştirildi",
+    "replacedBy": "%{txHash} ile değiştirildi.",
+    "replaces": "%{txHash}'i değiştirir."
   },
   "plugins": {
     "foxPage": {
@@ -2248,7 +2312,14 @@
               "placeholder": "Gaz Limiti...",
               "tooltip": "Gaz limiti, bir kullanıcının bir işlemi gerçekleştirmek için ihtiyacı olan maksimum gaz miktarını ifade eder."
             }
-          }
+          },
+          "recipientAddress": "Alıcı Adresi",
+          "amount": "Miktar",
+          "amountSats": "%{amount} sats",
+          "psbt": "PSBT",
+          "broadcast": "Yayın",
+          "inputs": "Girdiler (%{count})",
+          "outputs": "Çıktılar (%{count})"
         },
         "connect": {
           "title": "Cüzdanınızı WalletConnect aracılığıyla bir dApp'e bağlayın ve işlemleri tetikleyin",
@@ -2375,6 +2446,328 @@
       "emptyBody": "Şu anda herhangi bir krediniz yok gibi görünüyor. Bu finansal zen mi, yoksa bir sonraki büyük borç verme maceranızdan önce sadece bir mola mı? Her iki durumda da sakinliğin tadını çıkarın!"
     }
   },
+  "chainflipLending": {
+    "awaitingConfirmTitle": "Onay bekleniyor",
+    "awaitingConfirmDescription": "İşleme devam etmek için cüzdanınızda işlemi onaylayın.",
+    "headerDescription": "Chainflip'te getiri elde etmek için varlıklarınızı sunun veya teminat karşılığında borç alın.",
+    "overview": "Genel Bakış",
+    "myDashboard": "Gösterge Panelim",
+    "allMarkets": "Tüm Pazarlar",
+    "manageLoan": "Krediyi Yönet",
+    "supply": {
+      "title": "Tedarik",
+      "amount": "Miktar",
+      "available": "Tedarik edilebilir.",
+      "availableTooltip": "Chainflip State Chain'deki ücretsiz bakiyeniz ödünç verilebilir.",
+      "minimumSupply": "Minimum miktar: %{amount}",
+      "confirmTitle": "Tedarik Onayı",
+      "confirmDescription": "Borç verme havuzuna %{amount} %{asset} tutarında kaynak sağlayın.",
+      "confirmAndSupply": "Onayla ve Tedarik Et",
+      "executingTitle": "Tedarik ediliyor...",
+      "executingDescription": "Siparişiniz işleniyor.",
+      "successTitle": "Tedarik Başarılı",
+      "successDescription": "%{asset} Varlığınız artık getiri sağlıyor.",
+      "supplied": "Tedarik edildi",
+      "transactionId": "İşlem ID",
+      "errorTitle": "Tedarik Başarısız Oldu",
+      "errorDescription": "Tedarik sırasında bir sorun oluştu.",
+      "steps": {
+        "signing": "Tedarik sözleşmesinin imzalanması",
+        "confirming": "Tedarikin onaylanıyor"
+      },
+      "noFreeBalance": "Uygun bakiye yok. Önce Chainflip'e para yatırın."
+    },
+    "borrow": {
+      "title": "Borç al",
+      "amount": "Miktar",
+      "available": "Ödünç alınabilir.",
+      "maxLtv": "Maks LTV (80%)",
+      "currentLtv": "Mevcut LTV",
+      "projectedLtv": "Tahmini LTV",
+      "confirmTitle": "Ödünç Almayı Onayla",
+      "confirmDescription": "Teminatınız karşılığında %{amount} %{asset} tutarında borç alın.",
+      "confirmAndBorrow": "Onayla ve Ödünç Al",
+      "executingTitle": "Borç alınıyor...",
+      "executingDescription": "Krediniz işleme alınıyor.",
+      "successTitle": "Borç Başarıyla Alındı",
+      "successDescription": "%{amount} %{asset} tutarında borç aldınız.",
+      "borrowed": "Borç Alındı",
+      "transactionId": "İşlem ID",
+      "errorTitle": "Borçlanma Başarısız Oldu",
+      "errorDescription": "Borç alma işlemi sırasında bir sorun oluştu.",
+      "steps": {
+        "signing": "Kredi talebi imzalanıyor",
+        "confirming": "Kredi onaylanıyor"
+      },
+      "noCollateral": "Borç almak için önce teminat ekleyin.",
+      "minimumLoan": "Minimum kredi tutarı: %{amount}",
+      "availableTooltip": "Teminat değerinize ve hedeflediğiniz kredi-değer oranına (LTV) bağlı olarak ödünç alabileceğiniz maksimum tutar."
+    },
+    "totalSupplied": "Toplam Arz Edilen",
+    "totalSuppliedTooltip": "Chainflip'in tüm kredi havuzlarında sağlanan varlıkların toplam değeri.",
+    "availableLiquidity": "Mevcut Likidite",
+    "availableLiquidityTooltip": "Tüm havuzlarda şu anda ödünç alınabilecek varlıkların toplam değeri.",
+    "totalBorrowed": "Toplam Borç Alınan",
+    "totalBorrowedTooltip": "Chainflip'in tüm kredi havuzlarındaki toplam ödenmemiş borç tutarı.",
+    "pool": {
+      "actionPaused": "Bu işlem Chainflip'te geçici olarak durduruldu.",
+      "depositFirst": "Öncelikle Chainflip'e para yatırın.",
+      "noFreeBalance": "Kullanılabilir uygun bakiye yok.",
+      "noSupplyPosition": "Geri çekilecek pozisyonu yok.",
+      "noCollateral": "Teminat yatırılmadı.",
+      "noLoans": "Aktif kredi yok.",
+      "supply": "Tedarik",
+      "withdrawSupply": "Arzı Geri Çek",
+      "depositToChainflip": "Depozit",
+      "withdrawFromChainflip": "Chainflip'ten para çekme işlemi",
+      "freeBalance": "Uygun Bakiye",
+      "walletBalance": "Cüzdan Bakiyesi",
+      "currentLtv": "Mevcut LTV",
+      "borrowCapacity": "Borçlanma Kapasitesi",
+      "borrowPowerUsed": "Kullanılan Borç Gücü",
+      "availableToBorrow": "Ödünç alınabilir."
+    },
+    "supplyApy": "Tedarik APY",
+    "supplyApyTooltip": "Bu havuza varlık sağlayarak elde edilen yıllık getiri yüzdesi.",
+    "borrowRate": "Borçlanma Oranı",
+    "utilisation": "Kullanım",
+    "utilisationTooltip": "Mevcut varlıkların ne kadarının şu anda borç olarak kullanıldığını gösteren oran. Daha yüksek kullanım oranı, daha yüksek getiri anlamına gelir ancak daha az likidite sağlar.",
+    "market": "Market",
+    "supplyStats": "Tedarik İstatistikleri",
+    "borrowStats": "Borç İstatistikleri",
+    "yourPosition": "Pozisyonunuz",
+    "freeBalance": "Uygun Bakiye",
+    "supplied": "Tedarik edildi",
+    "collateral": {
+      "title": "Teminat",
+      "add": "Teminat Ekle",
+      "remove": "Teminatı Kaldır",
+      "amount": "Miktar",
+      "availableToAdd": "Eklenebilir",
+      "availableToRemove": "Kaldırılabilir",
+      "confirmAddTitle": "Teminat Eklemeyi Onayla",
+      "confirmRemoveTitle": "Teminatı Kaldırmayı Onayla",
+      "confirmAddDescription": "%{amount} %{asset} tutarını teminat olarak ekleyin.",
+      "confirmRemoveDescription": "Teminattan %{amount} %{asset} tutarını kaldırın.",
+      "confirmAdd": "Onayla ve Ekle",
+      "confirmRemove": "Onayla ve Kaldır",
+      "executingTitle": "İşleniyor...",
+      "executingDescription": "Teminat bilgilerinizin güncellenmesi işleniyor.",
+      "successAddTitle": "Teminat Eklendi",
+      "successRemoveTitle": "Teminat Kaldırıldı",
+      "successAddDescription": "%{asset} teminatı başarıyla eklendi.",
+      "successRemoveDescription": "%{asset} teminatı başarıyla kaldırıldı",
+      "added": "Eklendi",
+      "removed": "Kaldırıldı",
+      "transactionId": "İşlem ID",
+      "errorTitle": "Teminat Güncellemesi Başarısız Oldu",
+      "errorDescription": "Bir şeyler ters gitti.",
+      "steps": {
+        "signing": "Teminat imzalama güncellemesi",
+        "confirming": "Güncellemeyi onaylanıyor"
+      },
+      "minimumAmount": "Minimum teminat güncellemesi: %{amount}",
+      "noFreeBalance": "Teminat olarak eklenebilecek uygun bakiye bulunmamaktadır.",
+      "noRemovable": "LTV'yi hedef değerin altına düşürmeden teminatı kaldırmak mümkün değil."
+    },
+    "depositToChainflip": "Chainflip'e Para Yatırma",
+    "depositDescription": "Cüzdanınızdaki varlıkları Chainflip State Chain hesabınıza yatırarak borç vermeye başlayabilirsiniz.",
+    "freeBalanceDescription": "Chainflip State Chain'de mevcut bakiye. Getiri elde etmek veya teminat olarak kullanmak için havuzlara sağlayın.",
+    "noFreeBalanceHint": "Kredi işlemlerine başlamak için depozito",
+    "originationFee": "Başlangıç ​​Ücreti",
+    "liquidationFee": "Tasfiye Ücreti",
+    "yourSupplied": "Sağladığınız",
+    "yourBorrowed": "Ödünç Aldığınız",
+    "yourFreeBalance": "Uygun Bakiyeniz",
+    "connectWalletDescription": "Borç pozisyonlarınızı görüntülemek için cüzdanınızı bağlayın.",
+    "protocolStats": "Protokol İstatistikleri",
+    "deposit": {
+      "amount": "Miktar",
+      "available": "Mevcut",
+      "explainer": "Varlıklar Chainflip State Chain hesabınıza yatırılacaktır. Yatırıldıktan sonra, getiri elde etmek için borç verme havuzlarına sunabilirsiniz.",
+      "openChannel": "Açık Para Yatırma Kanalı",
+      "confirmTitle": "Para Yatırımını Onayla",
+      "confirmDescription": "Chainflip State Chain hesabınıza %{amount} %{asset} tutarında para yatırın. Gerekli her adımda size rehberlik edilecek ve gerektiğinde işlemleri imzalamanız istenecektir.",
+      "confirmingTitle": "Para yatırılıyor...",
+      "confirmingDescription": "Lütfen cüzdanınızdaki işlemleri onaylayın.",
+      "confirmAndDeposit": "Onayla ve Yatır",
+      "successTitle": "Para Yatırma Onaylandı",
+      "successDescription": "%{asset} tutarınız Chainflip State Chain hesabınıza yatırıldı.",
+      "deposited": "Yatırıldı",
+      "transactionId": "İşlem ID",
+      "minimumDeposit": "Min. Depozit",
+      "belowMinimumDeposit": "Min. %{amount} %{symbol}",
+      "steps": {
+        "approvingFlip": "FLIP'i onaylayın",
+        "fundingAccount": "Fon Hesabı",
+        "registering": "Hesap Oluştur",
+        "openingChannel": "Kanal Aç",
+        "sendingDeposit": "Depoziti Gönder",
+        "confirming": "Onaylanıyor",
+        "settingRefundAddress": "Geri Ödeme Adresini Ayarla"
+      },
+      "executingTitle": "Yatırılıyor...",
+      "executingDescription": "Lütfen cüzdanınızdaki işlemleri istendiği şekilde onaylayın.",
+      "errorTitle": "Para Yatırma Başarısız Oldu",
+      "errorDescription": "Para yatırma işlemi sırasında bir sorun oluştu.",
+      "freeBalance": "Uygun Bakiye",
+      "freeBalanceTooltip": "Chainflip State Chain'deki %{asset} tutarındaki uygun bakiyeniz",
+      "refundAddress": {
+        "title": "Geri Ödeme Adresi",
+        "description": "Para yatırma işlemi başarısız olursa veya para çekerseniz, paranın iade edileceği adresi belirleyin.",
+        "useWalletAddress": "Cüzdan Adresini Kullanın",
+        "useCustomAddress": "Özel Adres Kullanın",
+        "label": "Geri Ödeme Adresi",
+        "continue": "Devam et",
+        "helperText": "Bu adres, bu zincirdeki para çekme ve iade işlemleri için kullanılacaktır."
+      }
+    },
+    "markets": "Piyasalar",
+    "myBalances": "Bakiyelerim",
+    "walletBalance": "Cüzdan",
+    "stateChainBalance": "State Chain",
+    "deployed": "Konuşlandırıldı",
+    "comingSoon": "Yakında",
+    "connectToViewBalances": "Bakiyelerinizi görüntülemek için cüzdanınızı bağlayın.",
+    "myBalancesTitle": "Chainflip Lending - Bakiyelerim",
+    "withdraw": {
+      "title": "Çekmek",
+      "amount": "Miktar",
+      "available": "Çekilebilir",
+      "availableTooltip": "Kredi havuzundaki arz pozisyonunuz",
+      "confirmTitle": "Çekme İşlemini Onayla",
+      "confirmDescription": "Borç verme havuzundan %{amount} %{asset} tutarında para çekin.",
+      "confirmAndWithdraw": "Onayla ve Çek",
+      "executingTitle": "Çekiliyor...",
+      "executingDescription": "Çekme işleminiz işleniyor.",
+      "successTitle": "Para çekme işlemi başarılı",
+      "successDescription": "%{asset} tutarındaki paranız çekildi.",
+      "withdrawn": "Çekildi",
+      "errorTitle": "Para Çekme Başarısız Oldu",
+      "errorDescription": "Para çekme işlemi sırasında bir sorun oluştu.",
+      "noPosition": "Bu varlık için herhangi bir tedarik pozisyonu bulunamadı.",
+      "withdrawAmount": "Çekme",
+      "steps": {
+        "signing": "işlemi imzala",
+        "confirming": "Zincir üzerinde onaylanıyor"
+      },
+      "alsoWithdrawToWallet": "Ayrıca cüzdana da para çekin.",
+      "freeBalanceExplainer": "Varsayılan olarak, paralar Chainflip State Chain üzerindeki ücretsiz bakiyenize çekilir. Parayı cüzdanınıza geri çekmek için aşağıdaki kutuyu işaretleyin.",
+      "fullWithdrawalOnlyTooltip": "Pozisyonunuz, kısmi para çekme için gereken minimum tutarın altında. Sadece tam para çekme işlemi mümkündür.",
+      "partialBelowMinimum": "%{amount} minimum çekim tutarı ",
+      "remainingBelowMinimum": "Kalan pozisyon en az %{amount} olmalı, aksi takdirde tutarın tamamı çekilmelidir.",
+      "destinationAddress": "Hedef adres",
+      "transactionId": "İşlem ID"
+    },
+    "withdrawFromChainflip": {
+      "title": "Chainflip'ten para çekme işlemi",
+      "amount": "Miktar",
+      "destination": "Hedef Adresi",
+      "available": "Kullanılabilir Uygun Bakiye",
+      "confirmAndWithdraw": "Çekme İşlemini Onayla",
+      "confirmTitle": "Çekme İşlemini Onayla",
+      "confirmDescription": "Chainflip uygun bakiyenizden %{amount} %{symbol} tutarını cüzdanınıza çekin.",
+      "errorTitle": "Çekme Başarısız Oldu",
+      "errorDescription": "Para çekme işleminiz sırasında bir hata oluştu. Lütfen tekrar deneyin.",
+      "executingTitle": "Çekme İşlemi",
+      "executingDescription": "Çekme işleminiz Chainflip State Chain üzerinde işleniyor.",
+      "successTitle": "Çekme Talebi Gönderildi",
+      "successDescription": "Çekme işleminiz gönderildi ve kısa süre içinde cüzdanınıza ulaşacaktır.",
+      "steps": {
+        "signing": "Çekme işlemini imzalama",
+        "confirming": "Çekme işleminin onaylanıyor"
+      }
+    },
+    "repay": {
+      "title": "Geri öde",
+      "amount": "Miktar",
+      "outstanding": "Ödenmemiş borç",
+      "fullRepayment": "Tam geri ödeme",
+      "partialRepayment": "Kısmi geri ödeme",
+      "confirmTitle": "Geri Ödemeyi Onayla",
+      "confirmDescription": "%{amount} %{asset} tutarını geri ödeyin.",
+      "confirmAndRepay": "Onayla ve Geri Öde",
+      "executingTitle": "Geri ödeniyor...",
+      "executingDescription": "Geri ödemeniz işleme alınıyor.",
+      "successTitle": "Geri ödeme başarılı",
+      "successDescription": "%{amount} %{asset} tutarında geri ödeme yaptınız.",
+      "repaid": "Geri ödendi",
+      "transactionId": "İşlem ID",
+      "errorTitle": "Geri Ödeme Başarısız Oldu",
+      "errorDescription": "Geri ödeme sırasında bir sorun oluştu.",
+      "steps": {
+        "signing": "Geri ödeme imzalanıyor",
+        "confirming": "Geri ödeme onaylanıyor"
+      },
+      "availableBalance": "Uygun bakiye",
+      "availableTooltip": "Chainflip'teki uygun bakiyeniz geri ödeme için kullanılabilir.",
+      "minimumRepayment": "Minimum geri ödeme: %{amount}",
+      "remainingBelowMinimum": "Kalan kredi tutarı minimum %{amount} tutarının altında olacaktır. Bunun yerine tam geri ödemeyi kullanın.",
+      "insufficientBalance": "Tam geri ödeme için yeterli uygun bakiye yok.",
+      "noFreeBalance": "Öncelikle Chainflip hesabınıza para yatırın."
+    },
+    "ltv": {
+      "target": "Hedef LTV",
+      "topup": "Otomatik Doldur",
+      "softLiquidation": "Kontrollü Tasfiye",
+      "hardLiquidation": "Zorunlu Tasfiye",
+      "safe": "Güvenli",
+      "warning": "Uyarı",
+      "danger": "Tehlike"
+    },
+    "egress": {
+      "title": "Chainflip'ten para çekme işlemi",
+      "amount": "Miktar",
+      "destination": "Hedef Adresi",
+      "destinationPlaceholder": "Hedef adresi girin",
+      "available": "Kullanılabilir Uygun Bakiye",
+      "confirmAndWithdraw": "Çekme İşlemini Onayla",
+      "confirmTitle": "Çekme İşlemini Onayla",
+      "confirmDescription": "Chainflip'teki uygun bakiyenizden %{amount} %{asset} tutarını cüzdanınıza çekin.",
+      "errorTitle": "Çekme Başarısız Oldu",
+      "errorDescription": "Çekme işleminiz sırasında bir hata oluştu. Lütfen tekrar deneyin.",
+      "executingTitle": "Para Çekme İşleniyor",
+      "executingDescription": "Çekme işleminiz Chainflip State Chain üzerinde işleniyor.",
+      "successTitle": "Çekme Talebi Gönderildi",
+      "successDescription": "%{asset} tutarındaki çekim talebiniz gönderildi ve kısa süre içinde cüzdanınıza ulaşacaktır.",
+      "withdrawn": "Çekme",
+      "receiveAddress": "Alıcı Adres",
+      "steps": {
+        "signing": "Para çekme işlemi imzalanıyor",
+        "confirming": "Para çekme işleminin onaylanması"
+      },
+      "transactionId": "İşlem ID",
+      "noFreeBalance": "Çekilebilecek kullanılabilir bakiye yok."
+    },
+    "borrowRateTooltip": "Bu havuzdan borçlanmanın mevcut yıllık faiz oranı",
+    "originationFeeTooltip": "Kredi oluşturulurken veya genişletilirken alınan tek seferlik ücret.",
+    "liquidationFeeTooltip": "Teminatın tasfiyesi sırasında alınan ücret",
+    "suppliedBalance": "Tedarik edildi",
+    "poolHeader": "Havuz",
+    "collateralHeader": "Teminat",
+    "borrowedHeader": "Ödünç alınmış",
+    "voluntaryLiquidation": {
+      "initiateTitle": "Gönüllü Tasfiye İşlemini Başlatın",
+      "initiateWarning": "Bu işlem, tüm pozisyonunuzun tasfiyesini başlatacaktır. Teminatınız, tüm ödenmemiş kredileri geri ödemek için satılacaktır. Bu işlem, zincir üzerinde onaylandıktan sonra geri alınamaz.",
+      "stopTitle": "Gönüllü Tasfiye İşlemlerini Durdurun",
+      "stopDescription": "Bu işlem, beklemekte olan gönüllü tasfiyeyi iptal edecektir. Pozisyonunuz açık kalacaktır.",
+      "confirmInitiate": "Pozisyonumu tasfiye et",
+      "confirmStop": "Tasfiyeyi Durdurun",
+      "executingTitle": "İşleniyor...",
+      "executingDescription": "Gönüllü tasfiye talebiniz Chainflip State Chain'e gönderiliyor.",
+      "initiateSuccessTitle": "Tasfiye İşlemleri Başlatıldı",
+      "initiateSuccessDescription": "Gönüllü tasfiye işleminiz başlatıldı. Pozisyonunuz otomatik olarak kapatılacaktır.",
+      "stopSuccessTitle": "Tasfiye Durduruldu",
+      "stopSuccessDescription": "Gönüllü tasfiye iptal edildi. Pozisyonunuz açık kalmaya devam ediyor.",
+      "errorTitle": "İşlem Başarısız",
+      "errorDescription": "Gönüllü tasfiye işlemi başarısız oldu. Lütfen tekrar deneyin.",
+      "inProgress": "Gönüllü tasfiye süreci devam ediyor.",
+      "steps": {
+        "signing": "İşlemi imzala",
+        "confirming": "Zincir üzerinde onaylama"
+      }
+    }
+  },
   "chart": {
     "interval": {
       "5min": "Son beş dakika",
@@ -2389,6 +2782,8 @@
   "pools": {
     "pools": "Havuzlar",
     "pool": "Havuz",
+    "errorFetchingPools": "Havuzlar alınamadı. Lütfen daha sonra tekrar deneyin.",
+    "noPoolsAvailable": "Şu anda müsait havuz bulunmamaktadır.",
     "positions": "Pozisyonlar",
     "tvl": "TVL",
     "volume24h": "Hacim 24S",
@@ -2789,6 +3184,8 @@
   "actionCenter": {
     "title": "Bildirimler",
     "viewTransaction": "İşlemi Görüntüle",
+    "originalTransaction": "Orijinal İşlem",
+    "replacementTransaction": "Değiştirilen İşlem",
     "viewOrder": "Siparişi Görüntüle",
     "cancelOrder": "Siparişi İptal Et",
     "pair": "Çift",
@@ -2805,6 +3202,7 @@
       "confirmed": "Onaylandı",
       "failed": "Hatalı",
       "pending": "Bekliyor",
+      "replaced": "Değiştirildi",
       "claimAvailable": "Talep Mevcuttur",
       "claimed": "Talep edildi",
       "unknown": "Bilinmeyen",
@@ -2901,12 +3299,61 @@
       "complete": {
         "description": "%{amountAndSymbol} tutarındaki ödülünüz tamamlandı."
       }
+    },
+    "chainflipLending": {
+      "deposit": {
+        "pending": "Chainflip'e yatırdığınız %{amountAndSymbol} tutarındaki para yatırma işleminiz işleniyor.",
+        "complete": "Chainflip'e yaptığınız %{amountAndSymbol} tutarındaki para yatırma işlemi tamamlandı.",
+        "failed": "Chainflip'e yaptığınız %{amountAndSymbol} tutarındaki para yatırma işlemi başarısız oldu."
+      },
+      "supply": {
+        "pending": "Borç verme havuzuna yaptığınız %{amountAndSymbol} tutarındaki yatırımınız işleniyor.",
+        "complete": "Borç verme havuzuna %{amountAndSymbol} tutarındaki katkınız tamamlandı.",
+        "failed": "Borç verme havuzuna yaptığınız %{amountAndSymbol} tutarındaki yatırım başarısız oldu."
+      },
+      "withdraw": {
+        "pending": "Kredi havuzundan %{amountAndSymbol} tutarındaki çekme işleminiz gerçekleştiriliyor.",
+        "complete": "Borç havuzundan %{amountAndSymbol} tutarındaki çekme işleminiz tamamlandı.",
+        "failed": "Kredi havuzundan %{amountAndSymbol} tutarındaki çekme işleminiz başarısız oldu."
+      },
+      "egress": {
+        "pending": "Chainflip'ten %{amountAndSymbol} tutarındaki para çekme işleminiz gerçekleştiriliyor.",
+        "complete": "Chainflip'ten %{amountAndSymbol} tutarındaki para çekme işleminiz tamamlandı.",
+        "failed": "Chainflip'ten %{amountAndSymbol} tutarındaki para çekme işleminiz başarısız oldu."
+      },
+      "addCollateral": {
+        "pending": "Chainflip'teki ücretsiz bakiyenizden teminatınıza %{amountAndSymbol} tutarındaki transferiniz işleniyor.",
+        "complete": "Chainflip'teki ücretsiz bakiyenizden teminatınıza %{amountAndSymbol} tutarındaki transferiniz tamamlandı.",
+        "failed": "Chainflip'teki ücretsiz bakiyenizden teminatınıza %{amountAndSymbol} tutarındaki transferiniz başarısız oldu."
+      },
+      "removeCollateral": {
+        "pending": "Teminat hesabınızdan Chainflip ücretsiz bakiyenize %{amountAndSymbol} tutarındaki transferiniz işleniyor.",
+        "complete": "Teminat hesabınızdan Chainflip ücretsiz bakiyenize %{amountAndSymbol} tutarındaki transferiniz tamamlandı.",
+        "failed": "Teminat hesabınızdan Chainflip ücretsiz bakiyenize %{amountAndSymbol} tutarındaki transferiniz başarısız oldu."
+      },
+      "borrow": {
+        "pending": "Chainflip ücretsiz bakiyenize %{amountAndSymbol} tutarındaki borçlanma işleminiz gerçekleştiriliyor.",
+        "complete": "Chainflip ücretsiz bakiyenize %{amountAndSymbol} tutarındaki borç alma işleminiz tamamlandı.",
+        "failed": "Chainflip ücretsiz bakiyenize %{amountAndSymbol} tutarındaki borç alma işleminiz başarısız oldu."
+      },
+      "repay": {
+        "pending": "Chainflip ücretsiz bakiyenizden %{amountAndSymbol} tutarındaki geri ödemeniz işleniyor.",
+        "complete": "Chainflip ücretsiz bakiyenizden %{amountAndSymbol} tutarındaki geri ödemeniz tamamlandı.",
+        "failed": "Chainflip ücretsiz bakiyenizden %{amountAndSymbol} tutarındaki geri ödemeniz başarısız oldu."
+      },
+      "details": {
+        "operation": "Operasyon",
+        "amount": "Miktar",
+        "transactionId": "İşlem ID",
+        "egressTransactionId": "Egress İşlem Id"
+      }
     }
   },
   "yieldXYZ": {
     "pageTitle": "Getiriler",
     "pageSubtitle": "Birden fazla zincirde getiri fırsatlarını keşfedin ve yönetin.",
-    "actions": {},
+    "actions": {
+    },
     "yield": "Getiri",
     "apy": "APY",
     "apr": "APR",
@@ -3026,7 +3473,9 @@
       "initiateFailedTitle": "Hata",
       "initiateFailedDescription": "İşlem dizisi başlatılamadı.",
       "quoteFailedTitle": "Alıntı başarısız oldu.",
-      "quoteFailedDescription": "Bu işlem için fiyat teklifi alınamadı. Lütfen tekrar deneyin."
+      "quoteFailedDescription": "Bu işlem için fiyat teklifi alınamadı. Lütfen tekrar deneyin.",
+      "insufficientAssetForGas": "Yetersiz Gaz %{symbol}",
+      "rateLimited": "Çok Fazla İstek"
     },
     "underMaintenance": "Bakımda",
     "underMaintenanceDescription": "Bu getiri fırsatı şu anda bakımda. Yatırma işlemleri mevcut olmayabilir.",

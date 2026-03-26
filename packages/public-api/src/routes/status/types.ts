@@ -1,19 +1,24 @@
 import { z } from 'zod'
 
 import { registry } from '../../registry'
+import { EVM_ADDRESS } from '../../types'
 
-export type SwapServiceStatus = {
-  status: 'IDLE' | 'PENDING' | 'SUCCESS' | 'FAILED'
-  sellTxHash?: string
-  buyTxHash?: string
-  statusMessage: string
-  isAffiliateVerified?: boolean
-  affiliateVerificationDetails?: {
-    hasAffiliate: boolean
-    affiliateBps?: number
-    affiliateAddress?: string
-  }
-}
+export const SwapServiceStatusSchema = z.object({
+  status: z.enum(['IDLE', 'PENDING', 'SUCCESS', 'FAILED']),
+  sellTxHash: z.string().optional(),
+  buyTxHash: z.string().optional(),
+  statusMessage: z.string(),
+  isAffiliateVerified: z.boolean().optional(),
+  affiliateVerificationDetails: z
+    .object({
+      hasAffiliate: z.boolean(),
+      affiliateBps: z.number().optional(),
+      affiliateAddress: EVM_ADDRESS.optional(),
+    })
+    .optional(),
+})
+
+export type SwapServiceStatus = z.infer<typeof SwapServiceStatusSchema>
 
 export const StatusRequestSchema = z.object({
   quoteId: z.string().uuid(),
@@ -31,7 +36,7 @@ export const SwapStatusResponseSchema = registry.register(
     buyAssetId: z.string(),
     sellAmountCryptoBaseUnit: z.string(),
     buyAmountAfterFeesCryptoBaseUnit: z.string(),
-    affiliateAddress: z.string().optional(),
+    affiliateAddress: EVM_ADDRESS.optional(),
     affiliateBps: z.string(),
     registeredAt: z.number().optional(),
     buyTxHash: z.string().optional(),

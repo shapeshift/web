@@ -77,6 +77,11 @@ export const rateLimitResponse = {
   },
 }
 
+export const EVM_ADDRESS = z
+  .string()
+  .regex(/^0x[0-9a-fA-F]{40}$/, 'must be a valid EVM address')
+  .openapi({ example: '0x1234567890123456789012345678901234567890' })
+
 export const PartnerCodeHeaderSchema = z.object({
   'X-Partner-Code': z
     .string()

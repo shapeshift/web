@@ -18,7 +18,7 @@ export const AssetSchema: z.ZodType<types.Asset> = registry.register(
     explorer: z.string().openapi({ example: 'https://etherscan.io' }),
     explorerAddressLink: z.string().openapi({ example: 'https://etherscan.io/address/' }),
     explorerTxLink: z.string().openapi({ example: 'https://etherscan.io/tx/' }),
-    relatedAssetKey: z.string(),
+    relatedAssetKey: z.string().nullable(),
   }),
 )
 

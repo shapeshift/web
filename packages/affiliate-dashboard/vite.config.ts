@@ -5,12 +5,6 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5175,
-    proxy: {
-      '/v1': {
-        target: process.env.VITE_API_URL || 'http://localhost:3005',
-        changeOrigin: true,
-      },
-    },
+    port: Number(process.env.PORT) || 5175,
   },
 })

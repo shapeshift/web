@@ -50,7 +50,7 @@
     "local-ci": "pnpm run build:packages && pnpm run lint && pnpm run type-check && pnpm run test && pnpm run build:web",
     "lint": "pnpm exec eslint --cache '*/**/*.{ts,tsx}'",
     "lint:fix": "pnpm run lint --fix",
-    "postinstall": "git config --local include.path '.gitconfig'",
+    "postinstall": "[ -d .git ] && git config --local include.path '.gitconfig' || true",
     "release": "pnpm exec tsx ./scripts/release.ts",
     "scrape-walletconnect-dapps": "pnpm exec tsx ./scripts/scrapeWalletConnectRegistry.ts",
     "test": "pnpm run test:packages && pnpm run test:web",

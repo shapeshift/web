@@ -1,5 +1,6 @@
 {
   "common": {
+    "addressRequired": "É necessário um endereço.",
     "amount": "Quantia",
     "ascending": "Ascendente",
     "descending": "Descendente",
@@ -68,6 +69,7 @@
     "rename": "Renomear",
     "forget": "Esqueceu?",
     "pending": "Pendente",
+    "current": "Atual",
     "preview": "Pré-visualização",
     "incomplete": "Incompleto",
     "available": "Disponível",
@@ -139,6 +141,7 @@
     "manage": "Gerenciar",
     "view": "Visualizar",
     "viewOnly": "Somente visualização",
+    "deprecated": "Obsoleto",
     "allChains": "Todas as redes",
     "wallet": "Carteira",
     "feedbackAndSupport": "Feedback & Suporte",
@@ -178,6 +181,7 @@
       "expandRow": "Expandir"
     },
     "featureDisabled": "Este recurso está temporariamente desativado.",
+    "no": "Não",
     "yes": "Sim",
     "activeAccount": "Conta ativa",
     "selectAccount": "Selecionar Conta",
@@ -196,7 +200,8 @@
     "permit2Approval": "Aprovaçõa Permit2 ",
     "network": "Rede",
     "feeEstimate": "Estimativa de Taxa",
-    "list": "Lista"
+    "list": "Lista",
+    "retry": "Tentar novamente"
   },
   "accountSelector": {
     "chooseAccount": "Escolha a Conta"
@@ -345,6 +350,7 @@
         "marketCapRank": "Classificação de capitalização de mercado",
         "volume24h": "Volume nas últimas 24 horas",
         "volMcap": "Vol/Cap Mercado",
+        "about": "Sobre %{symbol}",
         "noDescription": "Não há descrição disponível para este recurso."
       },
       "receive": {
@@ -716,6 +722,8 @@
     "buyCrypto": "Compre Cripto",
     "buyCryptoShort": "Compre/venda",
     "lending": "Empréstimo",
+    "thorchainLending": "THORChain Lending",
+    "chainflipLending": "Chainflip Lending",
     "pools": "Pools",
     "rFOX": "rFOX",
     "tcy": "TCY",
@@ -1376,6 +1384,32 @@
       },
       "status": {
         "pendingBody": "Enviando %{amount} %{symbol}"
+      },
+      "speedUp": {
+        "title": "Acelere a transação",
+        "description": "Aumente a taxa para acelerar sua transação Bitcoin pendente.",
+        "currentFee": "Taxa atual",
+        "currentFeeRate": "Custo da taxa atual",
+        "previousFee": "Taxa anterior",
+        "newFee": "Nova taxa",
+        "additionalFee": "Taxa adicional",
+        "newFeeRate": "Custo da nova taxa",
+        "feeDifference": "Taxa adicional",
+        "confirm": "Confirme o aumento de velocidade",
+        "cancel": "Cancelar transação",
+        "cancelDescription": "Envie os fundos de volta para você mesmo com uma taxa mais alta, cancelando efetivamente a transação original.",
+        "confirmCancel": "Confirmar cancelamento",
+        "insufficientFunds": "Fundos insuficientes para aumentar a taxa.",
+        "selectFeeRate": "Selecione uma taxa mais alta.",
+        "pendingTransaction": "Transação pendente",
+        "speedingUp": "Acelerando a transação...",
+        "canceling": "Cancelando transação...",
+        "fetchError": "Falha ao obter os dados da transação",
+        "feesTooLow": "As taxas atuais já estão de acordo com as taxas da rede.",
+        "alreadySpentOrReplaced": "Esta transação não pode mais ser acelerada porque já foi substituída ou confirmada.",
+        "alreadyConfirmed": "Esta transação já foi confirmada e não pode mais ser acelerada.",
+        "speedUpFailed": "Não foi possível acelerar a transação.",
+        "broadcastNotObserved": "A rede ainda não detectou a transmissão da transação de substituição. Tente novamente."
       }
     },
     "receive": {
@@ -1786,6 +1820,22 @@
         "button": "Parear"
       }
     },
+    "nativeMultichain": {
+      "title": "MetaMask agora oferece suporte nativo a %{chains}",
+      "subtitle": "Agora você pode usar %{chains} diretamente pela MetaMask sem o ShapeShift Multichain Snap.",
+      "useNative": "Use multichain nativo",
+      "useNativeRecommended": "Recomendado",
+      "keepSnap": "Continue usando o Snap",
+      "snapChainWarning": "Escolher a opção multichain nativa substituirá as contas da rede fornecidas pelo Snap. Você pode reverter a mudança nas configurações da carteira a qualquer momento.",
+      "switchWarning": "A mudança irá recalcular suas contas não-EVM. Suas contas e saldos EVM não serão afetados.",
+      "nativeActive": "Multichain nativo",
+      "snapActive": "Multichain Snap",
+      "switchToNative": "Mude para multichain nativa",
+      "switchToSnap": "Volte para o Snap",
+      "switchConfirmTitle": "Alternar modo multichain",
+      "switchConfirmBody": "Isso irá recriar suas contas não-EVM usando o novo modo. Suas contas EVM não serão afetadas.",
+      "switchConfirmAction": "Trocar"
+    },
     "metaMaskSnap": {
       "title": "O suporte multichain agora está disponível para MetaMask!",
       "subtitle": "Adicione o Multichain Snap na Metamask para enviar, receber, rastrear, negociar e ganhar com as seguintes redes:",
@@ -1817,8 +1867,8 @@
       "warningBackup": "Certifique-se de ter feito backup das palavras-chave da sua MetaMask. Qualquer fundos que você enviar para redes não EVM usando este Snap serão direcionados para a conta padrão que você configurou com MetaMask.",
       "agreeIntro": "Antes de continuar, leia o seguinte:",
       "agreeItem1": "Hardware wallets são <strong>NÃO</strong> suportado",
-      "agreeItem2": "Apenas a conta nº 1 no MetaMask é suportada para as redes extras que o ShapeShift Multichain Snap fornece",
-      "agreeItem3": "Para usar as redes Ethereum existentes fornecidas pela MetaMask, você deve conectar a conta nº 1 ao ShapeShift na MetaMask",
+      "agreeItem2": "Apenas a conta nº 0 no MetaMask é suportada para as redes extras que o ShapeShift Multichain Snap fornece",
+      "agreeItem3": "Para usar as redes Ethereum existentes fornecidas pela MetaMask, você deve conectar a conta nº 0 ao ShapeShift na MetaMask",
       "agreeItem4": "Ao ativar o ShapeShift Multichain Snap, você reconhece que o está usando por sua própria conta e risco",
       "readAndUnderstood": "Eu li e entendi",
       "seedBackedUp": "Eu fiz backup das minhas palavras-chave da MetaMask",
@@ -2132,6 +2182,11 @@
       "deployFailed": "Implementação Falhou"
     }
   },
+  "tron": {
+    "recipientNotActivated": {
+      "sendWarning": "Este endereço ainda não foi ativado na Tron. Seus tokens chegarão, mas o destinatário não poderá movimentá-los até que também receba TRX."
+    }
+  },
   "transactionHistory": {
     "transactionHistory": "Histórico de transações",
     "recentTransactions": "Transações recentes",
@@ -2169,13 +2224,22 @@
     "txid": "ID TX",
     "status": "Status",
     "minerFee": "Taxa de Minerador",
+    "orderRoute": "Rota do Pedido",
+    "transactionType": "Tipo de transação",
+    "fee": "Taxa",
+    "approvalAmount": "Quantia aprovada",
     "date": "Data",
     "sentTo": "Enviado para %{address}",
     "receivedFrom": "Recebido de %{address}",
     "today": "Hoje",
     "yesterday": "Ontem",
     "thisWeek": "Essa semana",
-    "thisMonth": "Este mês"
+    "thisMonth": "Este mês",
+    "speedUp": "Acelerar",
+    "cancelTransaction": "Cancelar transação",
+    "replaced": "Substituído",
+    "replacedBy": "Substituído por %{txHash}",
+    "replaces": "Substitui %{txHash}"
   },
   "plugins": {
     "foxPage": {
@@ -2248,7 +2312,14 @@
               "placeholder": "Limite de Gas...",
               "tooltip": "O limite de gás refere-se à quantidade máxima de gás que um usuário pode consumir para realizar uma transação."
             }
-          }
+          },
+          "recipientAddress": "Endereço do destinatário",
+          "amount": "Quantia",
+          "amountSats": "%{amount} sats",
+          "psbt": "PSBT",
+          "broadcast": "Transmissão",
+          "inputs": "Inputs (%{count})",
+          "outputs": "Outputs (%{count})"
         },
         "connect": {
           "title": "Conecte sua carteira a um dApp via WalletConnect e realize transações",
@@ -2375,6 +2446,328 @@
       "emptyBody": "Parece que você não tem nenhum empréstimo no momento. Isso é momento zen das suas finanças ou apenas uma pausa antes de sua próxima grande aventura de empréstimo? De qualquer forma, aproveite a calma!"
     }
   },
+  "chainflipLending": {
+    "awaitingConfirmTitle": "Aguardando confirmação",
+    "awaitingConfirmDescription": "Confirme a transação em sua carteira para prosseguir.",
+    "headerDescription": "Deposite ativos para obter rendimento ou tome empréstimos usando garantias na Chainflip.",
+    "overview": "Visão geral",
+    "myDashboard": "Meu painel",
+    "allMarkets": "Todos os mercados",
+    "manageLoan": "Gerenciar empréstimo",
+    "supply": {
+      "title": "Fornecer",
+      "amount": "Quantia",
+      "available": "Disponível para depositar",
+      "availableTooltip": "Seu saldo disponível na Chainflip State Chain está disponível para empréstimo.",
+      "minimumSupply": "Quantidade mínima: %{amount}",
+      "confirmTitle": "Confirme o depósito",
+      "confirmDescription": "Depositar %{amount} %{asset} no mercado de empréstimos",
+      "confirmAndSupply": "Confirme & Deposite",
+      "executingTitle": "Depositando...",
+      "executingDescription": "Seu depósito está sendo processado.",
+      "successTitle": "Depósito bem-sucedido",
+      "successDescription": "Seu %{asset} agora está gerando rendimentos.",
+      "supplied": "Depositado",
+      "transactionId": "ID da transação",
+      "errorTitle": "O depósito falhou.",
+      "errorDescription": "Algo deu errado durante o depósito.",
+      "steps": {
+        "signing": "Assinando a transação de depósito",
+        "confirming": "Confirmando depósito"
+      },
+      "noFreeBalance": "Nenhum saldo disponível. Deposite primeiro na Chainflip."
+    },
+    "borrow": {
+      "title": "Emprestar",
+      "amount": "Quantia",
+      "available": "Disponível para empréstimo",
+      "maxLtv": "LTV Máximo (80%)",
+      "currentLtv": "LTV Atual",
+      "projectedLtv": "LTV Projetado",
+      "confirmTitle": "Confirmar Empréstimo",
+      "confirmDescription": "Emprestar %{amount} %{asset} com seu colateral",
+      "confirmAndBorrow": "Confirmar & Emprestar",
+      "executingTitle": "Emprestando...",
+      "executingDescription": "Seu empréstimo está sendo processado.",
+      "successTitle": "Empréstimo bem-sucedido",
+      "successDescription": "Você pegou emprestado %{amount} %{asset}",
+      "borrowed": "Emprestado",
+      "transactionId": "ID da transação",
+      "errorTitle": "Empréstimo Falhou",
+      "errorDescription": "Algo deu errado durante o empréstimo.",
+      "steps": {
+        "signing": "Assinando pedido de empréstimo",
+        "confirming": "Confirmando empréstimo"
+      },
+      "noCollateral": "Primeiro, adicione uma garantia para tomar um empréstimo.",
+      "minimumLoan": "Empréstimo mínimo: %{amount}",
+      "availableTooltip": "Valor máximo que você pode tomar emprestado com base no valor da sua garantia e na sua meta de LTV."
+    },
+    "totalSupplied": "Total Depositado",
+    "totalSuppliedTooltip": "Valor total dos ativos fornecidos em todos os mercados de empréstimo da Chainflip.",
+    "availableLiquidity": "Liquidez Disponível",
+    "availableLiquidityTooltip": "Valor total dos ativos atualmente disponíveis para empréstimo em todos os conjuntos de ativos.",
+    "totalBorrowed": "Total emprestado",
+    "totalBorrowedTooltip": "Valor total dos empréstimos pendentes em todos os mercados de empréstimo da Chainflip.",
+    "pool": {
+      "actionPaused": "Esta ação está temporariamente pausada na Chainflip.",
+      "depositFirst": "Deposite fundos primeiro na Chainflip",
+      "noFreeBalance": "Não há saldo disponível",
+      "noSupplyPosition": "Não há posição depositada para saque.",
+      "noCollateral": "Nenhuma garantia foi depositada.",
+      "noLoans": "Nenhum empréstimo ativo",
+      "supply": "Depositar",
+      "withdrawSupply": "Sacar depósito",
+      "depositToChainflip": "Depósito",
+      "withdrawFromChainflip": "Sacar da Chainflip",
+      "freeBalance": "Saldo disponível",
+      "walletBalance": "Saldo da carteira",
+      "currentLtv": "LTV Atual",
+      "borrowCapacity": "Capacidade de Empréstimos",
+      "borrowPowerUsed": "Poder de empréstimo utilizado",
+      "availableToBorrow": "Disponível para Emprestar"
+    },
+    "supplyApy": "APY para Depósito",
+    "supplyApyTooltip": "Rendimento percentual anual obtido ao depositar ativos nesta pool.",
+    "borrowRate": "Taxa do Empréstimo",
+    "utilisation": "Utilização",
+    "utilisationTooltip": "Porcentagem dos ativos depositados que estão atualmente emprestados. Uma utilização mais elevada implica rendimentos mais altos, mas menor liquidez disponível.",
+    "market": "Mercado",
+    "supplyStats": "Depositar Stats",
+    "borrowStats": "Emprestar Stats",
+    "yourPosition": "Sua Posição",
+    "freeBalance": "Saldo Disponível",
+    "supplied": "Depositado",
+    "collateral": {
+      "title": "Colateral",
+      "add": "Adicionar Colateral",
+      "remove": "Remover Colateral",
+      "amount": "Quantia",
+      "availableToAdd": "Disponível para adicionar",
+      "availableToRemove": "Disponível para remover",
+      "confirmAddTitle": "Confirmar Adicionar Colateral",
+      "confirmRemoveTitle": "Confirmar Remover Colateral",
+      "confirmAddDescription": "Adicione %{amount} %{asset} como colateral.",
+      "confirmRemoveDescription": "Remova %{amount} %{asset} do colateral.",
+      "confirmAdd": "Confirmar & Adicionar",
+      "confirmRemove": "Confirmar & Remover",
+      "executingTitle": "Processando...",
+      "executingDescription": "A atualização do seu colateral está sendo processada.",
+      "successAddTitle": "Colateral Adicionado",
+      "successRemoveTitle": "Colateral Removido",
+      "successAddDescription": "Colateral %{asset} adicionado com sucesso",
+      "successRemoveDescription": "Colateral %{asset} removido com sucesso",
+      "added": "Adicionado",
+      "removed": "Removido",
+      "transactionId": "ID da transação",
+      "errorTitle": "Falha na atualização do colateral",
+      "errorDescription": "Algo deu errado",
+      "steps": {
+        "signing": "Assinando atualização do colateral",
+        "confirming": "Confirmando atualização"
+      },
+      "minimumAmount": "Atualização mínima do colateral: %{amount}",
+      "noFreeBalance": "Não há saldo disponível para adicionar como colateral.",
+      "noRemovable": "Não é possível remover colateral sem reduzir o LTV abaixo do valor alvo."
+    },
+    "depositToChainflip": "Deposite no Chainflip",
+    "depositDescription": "Deposite ativos da sua carteira na sua conta Chainflip State Chain para começar a emprestar.",
+    "freeBalanceDescription": "Saldo disponível na Chainflip State Chain. Forneça aos mercados para obter rendimento ou use como colateral.",
+    "noFreeBalanceHint": "Depósito para começar a prover liquidez",
+    "originationFee": "Taxa de Originação",
+    "liquidationFee": "Taxa de Liquidação",
+    "yourSupplied": "Seu Depósito",
+    "yourBorrowed": "Seu Empréstimo",
+    "yourFreeBalance": "Seu Saldo Disponível",
+    "connectWalletDescription": "Conecte sua carteira para visualizar suas posições de empréstimo.",
+    "protocolStats": "Estatísticas do protocolo",
+    "deposit": {
+      "amount": "Quantia",
+      "available": "Disponível",
+      "explainer": "Os ativos serão depositados em sua conta Chainflip State Chain. Após o depósito, você poderá disponibilizá-los em mercados de empréstimo para obter rendimentos.",
+      "openChannel": "Abrir Canal de Depósito",
+      "confirmTitle": "Confirmar depósito",
+      "confirmDescription": "Deposite %{amount} %{asset} na sua conta Chainflip State Chain. Você será guiado por cada etapa necessária e solicitado a assinar as transações conforme necessário.",
+      "confirmingTitle": "Depositando...",
+      "confirmingDescription": "Por favor, confirme as transações em sua carteira.",
+      "confirmAndDeposit": "Confirme & Deposite",
+      "successTitle": "Depósito confirmado",
+      "successDescription": "Seu %{asset} foi depositado em sua conta Chainflip State Chain.",
+      "deposited": "Depositado",
+      "transactionId": "ID da transação",
+      "minimumDeposit": "Depósito mínimo",
+      "belowMinimumDeposit": "Mínimo %{amount} %{symbol}",
+      "steps": {
+        "approvingFlip": "Aprovar FLIP",
+        "fundingAccount": "Conta de Fundos",
+        "registering": "Criar conta",
+        "openingChannel": "Abrir Canal",
+        "sendingDeposit": "Enviar Depósito",
+        "confirming": "Confirmando",
+        "settingRefundAddress": "Definir endereço de reembolso"
+      },
+      "executingTitle": "Depositando...",
+      "executingDescription": "Por favor, confirme as transações em sua carteira conforme solicitado.",
+      "errorTitle": "Depósito falhou",
+      "errorDescription": "Algo deu errado durante o processo de depósito.",
+      "freeBalance": "Saldo disponível",
+      "freeBalanceTooltip": "Seu saldo disponível de %{asset} na Chainflip State Chain",
+      "refundAddress": {
+        "title": "Endereço para reembolso",
+        "description": "Defina o endereço para onde os fundos serão devolvidos caso um depósito falhe ou você faça um saque.",
+        "useWalletAddress": "Usar endereço da carteira",
+        "useCustomAddress": "Usar endereço personalizado",
+        "label": "Endereço para reembolso",
+        "continue": "Continuar",
+        "helperText": "Este endereço será usado para saques e reembolsos nesta rede."
+      }
+    },
+    "markets": "Mercados",
+    "myBalances": "Meus saldos",
+    "walletBalance": "Carteira",
+    "stateChainBalance": "State Chain",
+    "deployed": "Implementado",
+    "comingSoon": "Em breve",
+    "connectToViewBalances": "Conecte sua carteira para visualizar seus saldos.",
+    "myBalancesTitle": "Chainflip Lending - Meus Saldos",
+    "withdraw": {
+      "title": "Sacar",
+      "amount": "Quantia",
+      "available": "Disponível para saque",
+      "availableTooltip": "Sua posição de oferta no mercado de empréstimo",
+      "confirmTitle": "Confirmar Saque",
+      "confirmDescription": "Saque %{amount} %{asset} do pool do mercado de empréstimos",
+      "confirmAndWithdraw": "Confirmar & Sacar",
+      "executingTitle": "Sacando...",
+      "executingDescription": "Seu pedido de saque está sendo processado.",
+      "successTitle": "Saque bem-sucedido",
+      "successDescription": "Seu %{asset} foi sacado",
+      "withdrawn": "Sacado",
+      "errorTitle": "Saque falhou",
+      "errorDescription": "Algo deu errado durante o saque.",
+      "noPosition": "Não foi encontrada nenhuma posição de depósito para este ativo.",
+      "withdrawAmount": "Saque",
+      "steps": {
+        "signing": "Assinar transação",
+        "confirming": "Confirmando on-chain"
+      },
+      "alsoWithdrawToWallet": "Também é possível transferir para a carteira.",
+      "freeBalanceExplainer": "Por padrão, os fundos são transferidos para o seu saldo disponível na Chainflip State Chain. Marque a caixa abaixo para também transferi-los de volta para sua carteira.",
+      "fullWithdrawalOnlyTooltip": "Sua posição está abaixo do mínimo exigido para saque parcial. Somente o saque total está disponível.",
+      "partialBelowMinimum": "O valor mínimo para saque é de %{amount}",
+      "remainingBelowMinimum": "O saldo restante deve ser de pelo menos %{amount} ou o saque deve ser feito integralmente.",
+      "destinationAddress": "Endereço de destino",
+      "transactionId": "ID da transação"
+    },
+    "withdrawFromChainflip": {
+      "title": "Retirar dinheiro do Chainflip",
+      "amount": "Quantia",
+      "destination": "Endereço de destino",
+      "available": "Saldo disponível",
+      "confirmAndWithdraw": "Confirmar Saque",
+      "confirmTitle": "Confirmar Saque",
+      "confirmDescription": "Saque %{amount} %{symbol} do seu saldo gratuito Chainflip para sua carteira.",
+      "errorTitle": "Saque Falhou",
+      "errorDescription": "Ocorreu um erro ao processar seu saque. Por favor, tente novamente.",
+      "executingTitle": "Processando Saque",
+      "executingDescription": "Seu saque está sendo processado na Chainflip State Chain.",
+      "successTitle": "Saque Submetido",
+      "successDescription": "Seu saque foi processado e estará disponível em sua carteira em breve.",
+      "steps": {
+        "signing": "Assinar transação de saque",
+        "confirming": "Confirmando saque"
+      }
+    },
+    "repay": {
+      "title": "Pagar",
+      "amount": "Quantia",
+      "outstanding": "Dívida Total",
+      "fullRepayment": "Pagamento Total",
+      "partialRepayment": "Pagamento Parcial",
+      "confirmTitle": "Confirmar Pagamento",
+      "confirmDescription": "Pagar %{amount} %{asset}",
+      "confirmAndRepay": "Confirmar & Pagar",
+      "executingTitle": "Pagando...",
+      "executingDescription": "Seu pagamento está sendo processado.",
+      "successTitle": "Pagamento bem-sucedido",
+      "successDescription": "Você pagou %{amount} %{asset}",
+      "repaid": "Pago",
+      "transactionId": "ID da transação",
+      "errorTitle": "Pagamento falhou",
+      "errorDescription": "Algo deu errado durante o pagamento.",
+      "steps": {
+        "signing": "Assinando o pagamento",
+        "confirming": "Confirmando o pagamento"
+      },
+      "availableBalance": "Saldo Disponível",
+      "availableTooltip": "Seu saldo na Chainflip está disponível para pagamento.",
+      "minimumRepayment": "Pagamento mínimo: %{amount}",
+      "remainingBelowMinimum": "O saldo devedor será inferior ao mínimo de %{amount}. Utilize o pagamento integral em vez disso.",
+      "insufficientBalance": "Saldo disponível insuficiente para o pagamento integral.",
+      "noFreeBalance": "Primeiro, deposite fundos na sua conta Chainflip."
+    },
+    "ltv": {
+      "target": "LTV alvo",
+      "topup": "Auto-Topup",
+      "softLiquidation": "Soft Liquidation",
+      "hardLiquidation": "Hard Liquidation",
+      "safe": "Seguro",
+      "warning": "Aviso",
+      "danger": "Perigo"
+    },
+    "egress": {
+      "title": "Retirar dinheiro do Chainflip",
+      "amount": "Quantia",
+      "destination": "Endereço de destino",
+      "destinationPlaceholder": "Insira o endereço de destino",
+      "available": "Saldo disponível",
+      "confirmAndWithdraw": "Confirmar saque",
+      "confirmTitle": "Confirmar saque",
+      "confirmDescription": "Retire %{amount} %{asset} do seu saldo do Chainflip para sua carteira.",
+      "errorTitle": "Saque falhou",
+      "errorDescription": "Ocorreu um erro ao processar seu saque. Por favor, tente novamente.",
+      "executingTitle": "Processando o saque",
+      "executingDescription": "Seu saque está sendo processado na Chainflip State Chain.",
+      "successTitle": "Saque Submetido",
+      "successDescription": "Seu saque de %{asset} foi processado e estará disponível em sua carteira em breve.",
+      "withdrawn": "Sacado",
+      "receiveAddress": "Endereço para recebimento",
+      "steps": {
+        "signing": "Assinar transação de saque",
+        "confirming": "Confirmação do saque"
+      },
+      "transactionId": "ID da transação",
+      "noFreeBalance": "Não há saldo disponível para saque."
+    },
+    "borrowRateTooltip": "A taxa de juros anual atual para empréstimos deste mercado.",
+    "originationFeeTooltip": "Taxa única cobrada na criação ou ampliação de um empréstimo.",
+    "liquidationFeeTooltip": "Taxa cobrada durante a liquidação da garantia.",
+    "suppliedBalance": "Depositado",
+    "poolHeader": "Mercado",
+    "collateralHeader": "Colateral",
+    "borrowedHeader": "Emprestado",
+    "voluntaryLiquidation": {
+      "initiateTitle": "Iniciar Liquidação Voluntária",
+      "initiateWarning": "Isso iniciará a liquidação de toda a sua posição. Sua garantia será vendida para quitar todos os empréstimos pendentes. Esse processo não pode ser desfeito após a confirmação na blockchain.",
+      "stopTitle": "Suspender a liquidação voluntária",
+      "stopDescription": "Isso cancelará a liquidação voluntária pendente. Sua posição permanecerá em aberto.",
+      "confirmInitiate": "Liquidar minha posição",
+      "confirmStop": "Suspender a liquidação",
+      "executingTitle": "Processando...",
+      "executingDescription": "Seu pedido de liquidação voluntária está sendo submetido à Chainflip State Chain.",
+      "initiateSuccessTitle": "Iniciada a liquidação",
+      "initiateSuccessDescription": "Seu processo de liquidação voluntária foi iniciado. Sua posição será encerrada automaticamente.",
+      "stopSuccessTitle": "Liquidação interrompida",
+      "stopSuccessDescription": "A liquidação voluntária foi cancelada. Sua posição permanece em aberto.",
+      "errorTitle": "Transação falhou",
+      "errorDescription": "A transação de liquidação voluntária falhou. Por favor, tente novamente.",
+      "inProgress": "Liquidação voluntária em andamento",
+      "steps": {
+        "signing": "Assinar transação",
+        "confirming": "Confirmando on-chain"
+      }
+    }
+  },
   "chart": {
     "interval": {
       "5min": "Passados ​​cinco minutos",
@@ -2389,6 +2782,8 @@
   "pools": {
     "pools": "Pools",
     "pool": "Pool",
+    "errorFetchingPools": "Não foi possível obter os mercados. Tente novamente mais tarde.",
+    "noPoolsAvailable": "Nenhum mercado disponível no momento.",
     "positions": "Posições",
     "tvl": "TVL",
     "volume24h": "Volume 24H",
@@ -2789,6 +3184,8 @@
   "actionCenter": {
     "title": "Notificações",
     "viewTransaction": "Ver transação",
+    "originalTransaction": "Transação original",
+    "replacementTransaction": "Transação de Substituição",
     "viewOrder": "Ver Ordem",
     "cancelOrder": "Cancelar Ordem",
     "pair": "Par",
@@ -2805,6 +3202,7 @@
       "confirmed": "Confirmado",
       "failed": "Falhou",
       "pending": "Pendente",
+      "replaced": "Substituído",
       "claimAvailable": "Resgate Disponível",
       "claimed": "Resgatado",
       "unknown": "Desconhecido",
@@ -2901,12 +3299,61 @@
       "complete": {
         "description": "Sua recompensa de %{amountAndSymbol} foi concluída."
       }
+    },
+    "chainflipLending": {
+      "deposit": {
+        "pending": "Seu depósito de %{amountAndSymbol} na Chainflip está sendo processado.",
+        "complete": "Seu depósito de %{amountAndSymbol} na Chainflip foi concluído.",
+        "failed": "Seu depósito de %{amountAndSymbol} na Chainflip falhou."
+      },
+      "supply": {
+        "pending": "Seu depósito de %{amountAndSymbol} no mercado de empréstimos está sendo processado.",
+        "complete": "Seu depósito de %{amountAndSymbol} no mercado de empréstimos está completo.",
+        "failed": "Seu depósito de %{amountAndSymbol} no mercado de empréstimos falhou."
+      },
+      "withdraw": {
+        "pending": "Seu saque de %{amountAndSymbol} do mercado de empréstimos está sendo processado.",
+        "complete": "Seu saque de %{amountAndSymbol} do mercado de empréstimos foi concluído.",
+        "failed": "Sua tentativa de saque de %{amountAndSymbol} do mercado de empréstimos falhou."
+      },
+      "egress": {
+        "pending": "Seu saque de %{amountAndSymbol} da Chainflip está sendo processado.",
+        "complete": "Seu saque de %{amountAndSymbol} da Chainflip foi concluído.",
+        "failed": "Sua tentativa de saque de %{amountAndSymbol} da Chainflip falhou."
+      },
+      "addCollateral": {
+        "pending": "Sua transferência de %{amountAndSymbol} do seu saldo disponível da Chainflip para colateral está sendo processada.",
+        "complete": "Sua transferência de %{amountAndSymbol} do seu saldo disponível da Chainflip para colateral foi concluída.",
+        "failed": "Sua transferência de %{amountAndSymbol} do seu saldo disponível da Chainflip para colateral falhou."
+      },
+      "removeCollateral": {
+        "pending": "Sua transferência de %{amountAndSymbol} do colateral de volta para seu saldo na Chainflip está sendo processada.",
+        "complete": "Sua transferência de %{amountAndSymbol} do colateral, de volta para seu saldo na Chainflip, foi concluída.",
+        "failed": "Sua transferência de %{amountAndSymbol} do colateral, de volta para seu saldo na Chainflip, falhou."
+      },
+      "borrow": {
+        "pending": "Seu empréstimo de %{amountAndSymbol} para seu saldo disponível na Chainflip está sendo processado.",
+        "complete": "Seu empréstimo de %{amountAndSymbol} para seu saldo disponível na Chainflip foi concluído.",
+        "failed": "Sua solicitação de empréstimo de %{amountAndSymbol} para seu saldo na Chainflip falhou."
+      },
+      "repay": {
+        "pending": "O seu pagamento de %{amountAndSymbol} do seu saldo disponível na Chainflip está sendo processado.",
+        "complete": "O pagamento de %{amountAndSymbol} do seu saldo disponível na Chainflip foi concluído.",
+        "failed": "O seu pagamento de %{amountAndSymbol} do seu saldo disponível na Chainflip falhou."
+      },
+      "details": {
+        "operation": "Operação",
+        "amount": "Quantia",
+        "transactionId": "ID da transação",
+        "egressTransactionId": "ID da transação Egress"
+      }
     }
   },
   "yieldXYZ": {
     "pageTitle": "Yields",
     "pageSubtitle": "Descubra e gerencie oportunidades de rendimento em várias redes.",
-    "actions": {},
+    "actions": {
+    },
     "yield": "Yield",
     "apy": "APY",
     "apr": "APR",
@@ -3026,7 +3473,9 @@
       "initiateFailedTitle": "Erro",
       "initiateFailedDescription": "Falha ao iniciar a sequência de transações.",
       "quoteFailedTitle": "Cotação falhou",
-      "quoteFailedDescription": "Não foi possível obter uma cotação para esta transação. Tente novamente."
+      "quoteFailedDescription": "Não foi possível obter uma cotação para esta transação. Tente novamente.",
+      "insufficientAssetForGas": "%{symbol} insuficiente para taxas",
+      "rateLimited": "Muitos pedidos"
     },
     "underMaintenance": "Em manutenção",
     "underMaintenanceDescription": "Esta oportunidade de investimento está atualmente em manutenção. Os depósitos podem estar indisponíveis.",

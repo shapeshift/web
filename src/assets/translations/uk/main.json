@@ -1,5 +1,6 @@
 {
   "common": {
+    "addressRequired": "Адреса є обов’язковою",
     "amount": "Кількість",
     "ascending": "По зростаючій",
     "descending": "По спадаючій",
@@ -68,6 +69,7 @@
     "rename": "Перейменувати",
     "forget": "Забули?",
     "pending": "Розглядається",
+    "current": "Поточний",
     "preview": "Попередній перегляд",
     "incomplete": "Не завершено",
     "available": "Доступно",
@@ -139,6 +141,7 @@
     "manage": "Управління",
     "view": "Вигляд",
     "viewOnly": "Лише перегляд",
+    "deprecated": "Застарілий",
     "allChains": "Всі мережі",
     "wallet": "Гаманець",
     "feedbackAndSupport": "Зворотній зв'язок та підтримка",
@@ -178,6 +181,7 @@
       "expandRow": "Розгорнути рядок"
     },
     "featureDisabled": "Ця функція тимчасово вимкнена.",
+    "no": "Ні",
     "yes": "Так",
     "activeAccount": "Активний акаунт",
     "selectAccount": "Вибрати обліковий запис",
@@ -196,7 +200,8 @@
     "permit2Approval": "Permit2 Схвалення",
     "network": "Мережа",
     "feeEstimate": "Орієнтовна комісія",
-    "list": "Список"
+    "list": "Список",
+    "retry": "Повторити"
   },
   "accountSelector": {
     "chooseAccount": "Виберіть обліковий запис"
@@ -345,6 +350,7 @@
         "marketCapRank": "Рейтинг за ринковою капіталізацією",
         "volume24h": "24-годинний обсяг",
         "volMcap": "Обсяг/ринкова капіталізація",
+        "about": "Про %{symbol}",
         "noDescription": "Опис для цього ресурсу відсутній."
       },
       "receive": {
@@ -716,6 +722,8 @@
     "buyCrypto": "Купити / продати криптовалюту",
     "buyCryptoShort": "Купити/продати",
     "lending": "Кредитування",
+    "thorchainLending": "THORChain Lending",
+    "chainflipLending": "Chainflip Lending",
     "pools": "Пули",
     "rFOX": "rFOX",
     "tcy": "TCY",
@@ -1376,6 +1384,32 @@
       },
       "status": {
         "pendingBody": "Відправлення %{amount} %{symbol}"
+      },
+      "speedUp": {
+        "title": "Пришвидшити транзакцію",
+        "description": "Збільште комісію, щоб пришвидшити обробку вашої транзакції з біткойнами, яка перебуває в стані очікування.",
+        "currentFee": "Поточна комісія",
+        "currentFeeRate": "Діюча ставка комісії",
+        "previousFee": "Попередня комісія",
+        "newFee": "Нова комісія",
+        "additionalFee": "Додаткова комісія",
+        "newFeeRate": "Новий розмір комісії",
+        "feeDifference": "Додаткова комісія",
+        "confirm": "Підтвердити прискорення",
+        "cancel": "Замість цього скасувати транзакцію",
+        "cancelDescription": "Перекажіть кошти собі з вищою комісією, тим самим фактично скасувавши початкову транзакцію.",
+        "confirmCancel": "Підтвердити скасування",
+        "insufficientFunds": "Недостатньо коштів для оплати комісії",
+        "selectFeeRate": "Виберіть вищу ставку комісії",
+        "pendingTransaction": "Транзакція в процесі обробки",
+        "speedingUp": "Опрацювання транзакції...",
+        "canceling": "Скасування транзакції...",
+        "fetchError": "Не вдалося отримати дані транзакції",
+        "feesTooLow": "Нинішні тарифи вже відповідають мережевим ставкам",
+        "alreadySpentOrReplaced": "Цю транзакцію вже неможливо прискорити, оскільки вона була замінена або підтверджена.",
+        "alreadyConfirmed": "Ця транзакція вже підтверджена, і її неможливо прискорити.",
+        "speedUpFailed": "Не вдалося пришвидшити транзакцію",
+        "broadcastNotObserved": "Мережа ще не зафіксувала транзакцію заміни. Спробуйте ще раз."
       }
     },
     "receive": {
@@ -1786,6 +1820,22 @@
         "button": "Підключити"
       }
     },
+    "nativeMultichain": {
+      "title": "MetaMask тепер вбудовано підтримує %{chains}",
+      "subtitle": "Тепер ви можете використовувати %{chains} безпосередньо через MetaMask без додатка ShapeShift Multichain Snap.",
+      "useNative": "Використовуйте вбудовану підтримку декількох мереж",
+      "useNativeRecommended": "Рекомендовано",
+      "keepSnap": "Продовжуйте користуватися Snap",
+      "snapChainWarning": "Вибір опції «Native Multichain» замінить облікові записи мереж, надані Snap. Ви можете будь-коли повернутися до попередніх налаштувань у налаштуваннях гаманця.",
+      "switchWarning": "Перехід призведе до повторного виведення ваших облікових записів, що не належать до EVM. Це не вплине на ваші облікові записи та залишки в EVM.",
+      "nativeActive": "Native Multichain",
+      "snapActive": "Multichain Snap",
+      "switchToNative": "Перейти на native multichain",
+      "switchToSnap": "Повернутися до Snap",
+      "switchConfirmTitle": "Увімкнути режим multichain ",
+      "switchConfirmBody": "Це призведе до повторного виведення ваших облікових записів, що не належать до EVM, у новому режимі. На ваші облікові записи EVM це не вплине",
+      "switchConfirmAction": "Поміняти"
+    },
     "metaMaskSnap": {
       "title": "У MetaMask з'явилася підтримка мультичейну!",
       "subtitle": "Додайте багатоланцюгову прив'язку на Metamask, щоб відправляти, отримувати, відстежувати, торгувати і заробляти за допомогою наступних ланцюжків:",
@@ -1817,8 +1867,8 @@
       "warningBackup": "Переконайтеся, що ви створили резервну копію початкової фрази MetaMask. Будь-які кошти, які ви відправляєте в не-EVM-ланцюги за допомогою цієї прив'язки, будуть спрямовані на обліковий запис за замовчуванням, який ви створили в MetaMask.",
       "agreeIntro": "Перш ніж продовжити, будь ласка, прочитайте наступне:",
       "agreeItem1": "Апаратні гаманці - це <strong>НЕ</strong> підтримують",
-      "agreeItem2": "Для додаткових ланцюжків, які надає ShapeShift Multichain Snap, підтримується лише обліковий запис №1 у MetaMask",
-      "agreeItem3": "Щоб використовувати існуючі ланцюжки Ethereum, надані MetaMask, ви повинні підключити обліковий запис №1 до ShapeShift в MetaMask",
+      "agreeItem2": "Для додаткових ланцюжків, які надає ShapeShift Multichain Snap, підтримується лише обліковий запис №0 у MetaMask",
+      "agreeItem3": "Щоб використовувати існуючі ланцюжки Ethereum, надані MetaMask, ви повинні підключити обліковий запис №0 до ShapeShift в MetaMask",
       "agreeItem4": "Увімкнувши багатоланцюгову прив'язку ShapeShift, ви визнаєте, що використовуєте її на свій страх і ризик",
       "readAndUnderstood": "Я ознайомився та зрозумів",
       "seedBackedUp": "Я створив резервну копію своєї сід фрази MetaMask",
@@ -2132,6 +2182,11 @@
       "deployFailed": "Розгортання не вдалося"
     }
   },
+  "tron": {
+    "recipientNotActivated": {
+      "sendWarning": "Ця адреса ще не активована в мережі Tron. Ваші токени будуть надіслані, але одержувач не зможе ними розпоряджатися, доки не отримає певну кількість TRX."
+    }
+  },
   "transactionHistory": {
     "transactionHistory": "Історія транзакцій",
     "recentTransactions": "Останні транзакції",
@@ -2169,13 +2224,22 @@
     "txid": "ID транзакції",
     "status": "Статус",
     "minerFee": "Комісія майнерам",
+    "orderRoute": "Маршрут ордеру",
+    "transactionType": "Тип операції",
+    "fee": "Комісія",
+    "approvalAmount": "Сума затвердження",
     "date": "Дата",
     "sentTo": "Надіслати на %{address}",
     "receivedFrom": "Отримано від %{address}",
     "today": "Сьогодні",
     "yesterday": "Вчора",
     "thisWeek": "Цього тижня",
-    "thisMonth": "Цього місяця"
+    "thisMonth": "Цього місяця",
+    "speedUp": "Пришвидшити",
+    "cancelTransaction": "Скасувати транзакцію",
+    "replaced": "Замінено",
+    "replacedBy": "Замінено на %{txHash}",
+    "replaces": "Замінює %{txHash}"
   },
   "plugins": {
     "foxPage": {
@@ -2248,7 +2312,14 @@
               "placeholder": "Ліміт газу..",
               "tooltip": "Ліміт газу — це максимальна кількість газу, яку користувач може спожити для проведення транзакції."
             }
-          }
+          },
+          "recipientAddress": "Адреса одержувача",
+          "amount": "Сума",
+          "amountSats": "%{amount} сат",
+          "psbt": "PSBT",
+          "broadcast": "Трансляція",
+          "inputs": "Вхідні дані (%{count})",
+          "outputs": "Вихідні дані (%{count})"
         },
         "connect": {
           "title": "Підключіть свій гаманець до dApp через WalletConnect і запускайте транзакції",
@@ -2375,6 +2446,328 @@
       "emptyBody": "Схоже, що у вас немає жодних кредитів на даний момент. Це фінансовий дзен чи просто перерва перед наступною великою кредитною пригодою? У будь-якому випадку, насолоджуйтеся спокоєм!"
     }
   },
+  "chainflipLending": {
+    "awaitingConfirmTitle": "Очікується підтвердження",
+    "awaitingConfirmDescription": "Підтвердьте транзакцію у своєму гаманці, щоб продовжити",
+    "headerDescription": "Внесіть активи на Chainflip, щоб отримувати дохід або взяти кредит під заставу.",
+    "overview": "Огляд",
+    "myDashboard": "Моя панель управління",
+    "allMarkets": "Усі ринки",
+    "manageLoan": "Управління кредитом",
+    "supply": {
+      "title": "Постачання",
+      "amount": "Сума",
+      "available": "Можливе постачання",
+      "availableTooltip": "Ваш вільний залишок у мережі Chainflip State Chain доступний для позики",
+      "minimumSupply": "Мінімальна кількість: %{amount}",
+      "confirmTitle": "Підтвердити поставку",
+      "confirmDescription": "Внесіть %{amount} %{asset} до пулу позик",
+      "confirmAndSupply": "Підтвердити та поставити",
+      "executingTitle": "Постачання...",
+      "executingDescription": "Ваше постачання обробляється",
+      "successTitle": "Постачання успішно здійснено",
+      "successDescription": "Ваш %{asset} зараз приносить дохід",
+      "supplied": "Поставляється",
+      "transactionId": "Ідентифікатор транзакції",
+      "errorTitle": "Помилка під час постачання",
+      "errorDescription": "Під час завантаження сталася помилка",
+      "steps": {
+        "signing": "Укладення угоди про постачання",
+        "confirming": "Підтвердження поставки"
+      },
+      "noFreeBalance": "Баланс відсутній. Спочатку внесіть кошти на рахунок Chainflip."
+    },
+    "borrow": {
+      "title": "Позичити",
+      "amount": "Сума",
+      "available": "Доступні для позики",
+      "maxLtv": "Максимальний LTV (80%)",
+      "currentLtv": "Поточний LTV",
+      "projectedLtv": "Прогнозований LTV",
+      "confirmTitle": "Підтвердити позику",
+      "confirmDescription": "Отримайте кредит у розмірі %{amount} %{asset} під заставу вашого майна",
+      "confirmAndBorrow": "Підтвердити та взяти в борг",
+      "executingTitle": "Запозичення..",
+      "executingDescription": "Ваша заявка на кредит знаходиться на розгляді",
+      "successTitle": "Успішне отримання позики",
+      "successDescription": "Ви позичили %{amount} %{asset}",
+      "borrowed": "Запозичене",
+      "transactionId": "Ідентифікатор транзакції",
+      "errorTitle": "Позика не надана",
+      "errorDescription": "Під час отримання позики сталася помилка",
+      "steps": {
+        "signing": "Підписання заявки на кредит",
+        "confirming": "Підтвердження позики"
+      },
+      "noCollateral": "Спочатку надайте заставу, щоб отримати позику",
+      "minimumLoan": "Мінімальна сума позики: %{amount}",
+      "availableTooltip": "Максимальна сума, яку ви можете отримати в кредит, виходячи з вартості вашого застави та цільового коефіцієнта LTV"
+    },
+    "totalSupplied": "Загальна кількість поставленого",
+    "totalSuppliedTooltip": "Загальна вартість активів, розміщених у всіх кредитних пулах Chainflip.",
+    "availableLiquidity": "Доступна ліквідність",
+    "availableLiquidityTooltip": "Загальна вартість активів, доступних для позики у всіх пулах.",
+    "totalBorrowed": "Загальна сума запозичень",
+    "totalBorrowedTooltip": "Загальна сума непогашених позик у всіх кредитних пулах Chainflip.",
+    "pool": {
+      "actionPaused": "Ця операція тимчасово призупинена на Chainflip",
+      "depositFirst": "Спочатку внесіть кошти на рахунок Chainflip",
+      "noFreeBalance": "Вільних коштів немає",
+      "noSupplyPosition": "Немає позиції з постачання, яку можна було б закрити",
+      "noCollateral": "Застава не надана",
+      "noLoans": "Активних кредитів немає",
+      "supply": "Постачання",
+      "withdrawSupply": "Вилучити постачання",
+      "depositToChainflip": "Депозит",
+      "withdrawFromChainflip": "Зняти кошти з Chainflip",
+      "freeBalance": "Безкоштовний баланс",
+      "walletBalance": "Баланс гаманця",
+      "currentLtv": "Поточний LTV",
+      "borrowCapacity": "Кредитна спроможність",
+      "borrowPowerUsed": "Використана позичена потужність",
+      "availableToBorrow": "Доступно для позичання"
+    },
+    "supplyApy": "Річна дохідність за вкладом",
+    "supplyApyTooltip": "Річна процентна дохідність, отримана від передачі активів до цього пулу.",
+    "borrowRate": "Відсоткова ставка за кредитом",
+    "utilisation": "Використання",
+    "utilisationTooltip": "Відсоток наданих активів, які наразі знаходяться у використанні. Більш високий рівень використання означає вищу дохідність, але меншу доступну ліквідність.",
+    "market": "Ринок",
+    "supplyStats": "Статистика поставок",
+    "borrowStats": "Статистика позик",
+    "yourPosition": "Ваша позиція",
+    "freeBalance": "Вільний баланс",
+    "supplied": "Внесено",
+    "collateral": {
+      "title": "Застава",
+      "add": "Додати заставу",
+      "remove": "Вилучити заставу",
+      "amount": "Сума",
+      "availableToAdd": "Можна додати",
+      "availableToRemove": "Можна видалити",
+      "confirmAddTitle": "Підтвердити додавання застави",
+      "confirmRemoveTitle": "Підтвердити видалення застави",
+      "confirmAddDescription": "Додати %{amount} %{asset} як заставу",
+      "confirmRemoveDescription": "Вилучити %{amount} %{asset} із застави",
+      "confirmAdd": "Підтвердити та додати",
+      "confirmRemove": "Підтвердити та видалити",
+      "executingTitle": "Обробка...",
+      "executingDescription": "Ваше оновлення застави обробляється",
+      "successAddTitle": "Додано забезпечення",
+      "successRemoveTitle": "Застава знята",
+      "successAddDescription": "Застава у вигляді %{asset} успішно додана",
+      "successRemoveDescription": "Застава %{asset} успішно знята",
+      "added": "Додано",
+      "removed": "Видалено",
+      "transactionId": "Ідентифікатор транзакції",
+      "errorTitle": "Оновлення застави не вдалося",
+      "errorDescription": "Сталася помилка",
+      "steps": {
+        "signing": "Оновлення інформації про заставу",
+        "confirming": "Підтвердження оновлення"
+      },
+      "minimumAmount": "Оновлення мінімального забезпечення: %{amount}",
+      "noFreeBalance": "Немає вільних коштів на рахунку, які можна було б надати як заставу",
+      "noRemovable": "Неможливо зняти заставу, не знизивши коефіцієнт LTV нижче цільового рівня"
+    },
+    "depositToChainflip": "Внести кошти на Chainflip",
+    "depositDescription": "Перекажіть кошти зі свого гаманця на рахунок у Chainflip State Chain, щоб почати надавати позики.",
+    "freeBalanceDescription": "Доступний баланс на ланцюгу Chainflip State Chain. Внесіть кошти в пули, щоб отримувати дохід, або використовуйте їх як заставу.",
+    "noFreeBalanceHint": "Внесіть депозит, щоб почати надавати позики",
+    "originationFee": "Комісія за оформлення",
+    "liquidationFee": "Комісія за ліквідацію",
+    "yourSupplied": "Ваше постачання",
+    "yourBorrowed": "Ваші позики",
+    "yourFreeBalance": "Ваш вільний залишок",
+    "connectWalletDescription": "Підключіть свій гаманець, щоб переглянути свої позиції з кредитування.",
+    "protocolStats": "Статистика протоколу",
+    "deposit": {
+      "amount": "Сума",
+      "available": "У наявності",
+      "explainer": "Кошти будуть зараховані на ваш рахунок у мережі Chainflip State Chain. Після зарахування ви зможете внести їх у кредитні пули, щоб отримувати дохід.",
+      "openChannel": "Відкрити канал прийому депозитів",
+      "confirmTitle": "Підтвердити депозит",
+      "confirmDescription": "Поповніть свій рахунок у Chainflip State Chain на суму %{amount} у %{asset}. Система проведе вас крізь усі необхідні етапи та запропонує підписати транзакції, коли це буде потрібно.",
+      "confirmingTitle": "Завантаження...",
+      "confirmingDescription": "Будь ласка, підтвердьте транзакції у своєму гаманці.",
+      "confirmAndDeposit": "Підтвердити та внести депозит",
+      "successTitle": "Внесення коштів підтверджено",
+      "successDescription": "Ваш %{asset} було зараховано на ваш рахунок у мережі Chainflip State Chain.",
+      "deposited": "Внесено",
+      "transactionId": "Ідентифікатор транзакції",
+      "minimumDeposit": "Мінімальний депозит",
+      "belowMinimumDeposit": "Мін. %{amount} %{symbol}",
+      "steps": {
+        "approvingFlip": "Затвердити FLIP",
+        "fundingAccount": "Поповнити рахунок",
+        "registering": "Зареєструвати обліковий запис",
+        "openingChannel": "Відкритий канал",
+        "sendingDeposit": "Надіслати депозит",
+        "confirming": "Підтвердження",
+        "settingRefundAddress": "Вказати адресу для повернення коштів"
+      },
+      "executingTitle": "Поповнення...",
+      "executingDescription": "Будь ласка, підтвердьте транзакції у своєму гаманці відповідно до вказівок.",
+      "errorTitle": "Поповнення рахунку не вдалося",
+      "errorDescription": "Під час здійснення переказу сталася помилка.",
+      "freeBalance": "Вільний баланс",
+      "freeBalanceTooltip": "Ваш вільний баланс %{asset} у мережі Chainflip State Chain",
+      "refundAddress": {
+        "title": "Адреса для повернення коштів",
+        "description": "Вкажіть адресу, на яку будуть повернуті кошти у разі невдалого поповнення рахунку або зняття коштів.",
+        "useWalletAddress": "Використовувати адресу гаманця",
+        "useCustomAddress": "Використовувати власну адресу",
+        "label": "Адреса для повернення коштів",
+        "continue": "Продовжити",
+        "helperText": "Ця адреса буде використовуватися для виведення коштів та повернення коштів у цьому ланцюжку."
+      }
+    },
+    "markets": "Ринки",
+    "myBalances": "Мої залишки",
+    "walletBalance": "Гаманець",
+    "stateChainBalance": "State Chain",
+    "deployed": "Розгорнуто",
+    "comingSoon": "Скоро",
+    "connectToViewBalances": "Підключіть гаманець, щоб переглянути свої залишки",
+    "myBalancesTitle": "Chainflip Lending — Мої залишки",
+    "withdraw": {
+      "title": "Вивести кошти",
+      "amount": "Сума",
+      "available": "Доступно для зняття",
+      "availableTooltip": "Ваша позиція щодо пропозиції в пулі кредитів",
+      "confirmTitle": "Підтвердити виведення коштів",
+      "confirmDescription": "Вивести %{amount} %{asset} з пулу кредитування",
+      "confirmAndWithdraw": "Підтвердити та зняти кошти",
+      "executingTitle": "Зняття...",
+      "executingDescription": "Ваш запит на зняття коштів знаходиться в обробці",
+      "successTitle": "Виведення коштів успішно виконано",
+      "successDescription": "Ваш %{asset} було знято",
+      "withdrawn": "Знято",
+      "errorTitle": "Помилка під час зняття коштів",
+      "errorDescription": "Під час зняття коштів сталася помилка",
+      "noPosition": "Не знайдено позицій з пропозицією щодо цього активу",
+      "withdrawAmount": "Вивести кошти",
+      "steps": {
+        "signing": "Підписати транзакцію",
+        "confirming": "Підтвердження в мережі"
+      },
+      "alsoWithdrawToWallet": "Також вивести на гаманець",
+      "freeBalanceExplainer": "За замовчуванням кошти виводяться на ваш вільний баланс у мережі Chainflip State Chain. Поставте галочку нижче, щоб також переказати їх на ваш гаманець.",
+      "fullWithdrawalOnlyTooltip": "Ваш баланс нижчий за мінімальну суму, необхідну для часткового зняття коштів. Доступне лише повне зняття коштів.",
+      "partialBelowMinimum": "Мінімальна сума виведення становить %{amount}",
+      "remainingBelowMinimum": "Залишок на рахунку повинен становити щонайменше %{amount}, інакше можна зняти всю суму",
+      "destinationAddress": "Адреса призначення",
+      "transactionId": "Ідентифікатор транзакції"
+    },
+    "withdrawFromChainflip": {
+      "title": "Зняти кошти з Chainflip",
+      "amount": "Сума",
+      "destination": "Адреса призначення",
+      "available": "Доступний вільний залишок",
+      "confirmAndWithdraw": "Підтвердити виведення коштів",
+      "confirmTitle": "Підтвердити виведення коштів",
+      "confirmDescription": "Перекажіть %{amount} %{symbol} зі свого вільного балансу в Chainflip на свій гаманець",
+      "errorTitle": "Помилка під час зняття коштів",
+      "errorDescription": "Під час обробки вашого запиту на зняття коштів сталася помилка. Спробуйте ще раз.",
+      "executingTitle": "Обробка запиту на зняття коштів",
+      "executingDescription": "Ваш запит на виведення коштів обробляється в мережі Chainflip State Chain",
+      "successTitle": "Заявка на виведення коштів подана",
+      "successDescription": "Ваш запит на виведення коштів відправлено, і кошти незабаром надійдуть на ваш гаманець",
+      "steps": {
+        "signing": "Підписання операції зняття коштів",
+        "confirming": "Підтвердження зняття коштів"
+      }
+    },
+    "repay": {
+      "title": "Погасити",
+      "amount": "Сума",
+      "outstanding": "Заборгованість",
+      "fullRepayment": "Повне погашення",
+      "partialRepayment": "Часткове погашення",
+      "confirmTitle": "Підтвердити погашення",
+      "confirmDescription": "Погасити %{amount} %{asset}",
+      "confirmAndRepay": "Підтвердити та погасити",
+      "executingTitle": "Виконується...",
+      "executingDescription": "Ваш платіж зараз обробляється",
+      "successTitle": "Погашення здійснено успішно",
+      "successDescription": "Ви погасили %{amount} %{asset}",
+      "repaid": "Погашено",
+      "transactionId": "Ідентифікатор транзакції",
+      "errorTitle": "Погашення не відбулося",
+      "errorDescription": "Під час здійснення платежу сталася помилка",
+      "steps": {
+        "signing": "Підписання угоди про погашення",
+        "confirming": "Підтвердження погашення"
+      },
+      "availableBalance": "Вільний залишок",
+      "availableTooltip": "Ваш вільний залишок на Chainflip, доступний для виведення",
+      "minimumRepayment": "Мінімальний платіж: %{amount}",
+      "remainingBelowMinimum": "Залишок кредиту буде меншим за мінімальну суму %{amount}. Краще погасити кредит повністю.",
+      "insufficientBalance": "Недостатній вільний залишок для повного погашення",
+      "noFreeBalance": "Спочатку поповніть свій рахунок у Chainflip"
+    },
+    "ltv": {
+      "target": "Цільова LTV",
+      "topup": "Автоматичне поповнення рахунку",
+      "softLiquidation": "М'яка ліквідація",
+      "hardLiquidation": "Жорстка ліквідація",
+      "safe": "Безпечний",
+      "warning": "Попередження",
+      "danger": "Небезпечно"
+    },
+    "egress": {
+      "title": "Зняти кошти з Chainflip",
+      "amount": "Сума",
+      "destination": "Адреса призначення",
+      "destinationPlaceholder": "Введіть адресу призначення",
+      "available": "Доступний вільний залишок",
+      "confirmAndWithdraw": "Підтвердити виведення коштів",
+      "confirmTitle": "Підтвердити виведення коштів",
+      "confirmDescription": "Перекажіть %{amount} %{asset} зі свого безкоштовного балансу Chainflip на свій гаманець",
+      "errorTitle": "Помилка під час зняття коштів",
+      "errorDescription": "Під час обробки вашого запиту на зняття коштів сталася помилка. Спробуйте ще раз.",
+      "executingTitle": "Обробка запиту на зняття коштів",
+      "executingDescription": "Ваш запит на виведення коштів обробляється в мережі Chainflip State Chain",
+      "successTitle": "Заявка на виведення коштів подана",
+      "successDescription": "Запит на виведення %{asset} було відправлено, і кошти незабаром надійдуть на ваш гаманець",
+      "withdrawn": "Вилучено",
+      "receiveAddress": "Адреса отримання",
+      "steps": {
+        "signing": "Підписання операції зняття коштів",
+        "confirming": "Підтвердження зняття коштів"
+      },
+      "transactionId": "Ідентифікатор транзакції",
+      "noFreeBalance": "На рахунку немає вільних коштів, які можна зняти"
+    },
+    "borrowRateTooltip": "Поточна річна процентна ставка за кредитами з цього фонду",
+    "originationFeeTooltip": "Одноразова комісія, що стягується під час оформлення або збільшення суми кредиту",
+    "liquidationFeeTooltip": "Комісія, що стягується під час реалізації застави",
+    "suppliedBalance": "Поставляється",
+    "poolHeader": "Пул",
+    "collateralHeader": "Забезпечення",
+    "borrowedHeader": "Запозичене",
+    "voluntaryLiquidation": {
+      "initiateTitle": "Почати процедуру добровільної ліквідації",
+      "initiateWarning": "Це призведе до ліквідації всієї вашої позиції. Ваше забезпечення буде продано для погашення всіх непогашених кредитів. Цей процес не можна скасувати після його підтвердження в блокчейні.",
+      "stopTitle": "Припинення добровільної ліквідації",
+      "stopDescription": "Це призведе до скасування розпочатої процедури добровільної ліквідації. Ваша позиція залишиться відкритою.",
+      "confirmInitiate": "Ліквідувати мою позицію",
+      "confirmStop": "Припинити ліквідацію",
+      "executingTitle": "Обробка...",
+      "executingDescription": "Ваша заявка на добровільну ліквідацію надсилається до мережі Chainflip State Chain.",
+      "initiateSuccessTitle": "Розпочато процедуру ліквідації",
+      "initiateSuccessDescription": "Розпочато процедуру добровільної ліквідації. Ваша позиція буде закрита автоматично.",
+      "stopSuccessTitle": "Ліквідація припинена",
+      "stopSuccessDescription": "Добровільна ліквідація скасована. Ваша позиція залишається відкритою.",
+      "errorTitle": "Транзакція не вдалася",
+      "errorDescription": "Операція з добровільної ліквідації не вдалася. Спробуйте ще раз.",
+      "inProgress": "Триває процедура добровільної ліквідації",
+      "steps": {
+        "signing": "Підписати транзакцію",
+        "confirming": "Підтвердження в мережі"
+      }
+    }
+  },
   "chart": {
     "interval": {
       "5min": "Останні п'ять хвилин",
@@ -2389,6 +2782,8 @@
   "pools": {
     "pools": "Пули",
     "pool": "Пул",
+    "errorFetchingPools": "Не вдалося завантажити пули. Спробуйте ще раз пізніше.",
+    "noPoolsAvailable": "Наразі пули недоступні.",
     "positions": "Позиції",
     "tvl": "ТВЛ",
     "volume24h": "Об'єми за 24г",
@@ -2789,6 +3184,8 @@
   "actionCenter": {
     "title": "Сповіщення",
     "viewTransaction": "Переглянути транзакцію",
+    "originalTransaction": "Початкова транзакція",
+    "replacementTransaction": "Операція заміни",
     "viewOrder": "Переглянути замовлення",
     "cancelOrder": "Скасувати замовлення",
     "pair": "Пара",
@@ -2805,6 +3202,7 @@
       "confirmed": "Підтверджено",
       "failed": "Не вдалося",
       "pending": "На розгляді",
+      "replaced": "Замінено",
       "claimAvailable": "Клейм доступний",
       "claimed": "Забрано",
       "unknown": "Невідомо",
@@ -2901,12 +3299,61 @@
       "complete": {
         "description": "Ваша винагорода в розмірі %{amountAndSymbol} отримана."
       }
+    },
+    "chainflipLending": {
+      "deposit": {
+        "pending": "Ваш депозит у розмірі %{amountAndSymbol} на Chainflip зараз обробляється.",
+        "complete": "Ваш депозит у розмірі %{amountAndSymbol} на Chainflip успішно здійснено.",
+        "failed": "Ваш депозит у розмірі %{amountAndSymbol} на Chainflip не вдалося здійснити."
+      },
+      "supply": {
+        "pending": "Ваш внесок у розмірі %{amountAndSymbol} до кредитного пулу зараз обробляється.",
+        "complete": "Ви внесли %{amountAndSymbol} у кредитний пул.",
+        "failed": "Не вдалося внести %{amountAndSymbol} до пулу позик."
+      },
+      "withdraw": {
+        "pending": "Зараз обробляється ваш запит на виведення %{amountAndSymbol} з кредитного пулу.",
+        "complete": "Виведення суми %{amountAndSymbol} з кредитного пулу завершено.",
+        "failed": "Виведення суми %{amountAndSymbol} з пулу кредитування не вдалося."
+      },
+      "egress": {
+        "pending": "Ваш запит на виведення %{amountAndSymbol} з Chainflip знаходиться в обробці.",
+        "complete": "Виведення суми в розмірі %{amountAndSymbol} з Chainflip завершено.",
+        "failed": "Виведення суми %{amountAndSymbol} з Chainflip не вдалося."
+      },
+      "addCollateral": {
+        "pending": "Зараз обробляється переказ суми в розмірі %{amountAndSymbol} з вашого вільного балансу в Chainflip до застави.",
+        "complete": "Переказ суми в розмірі %{amountAndSymbol} з вашого вільного балансу в Chainflip до застави завершено.",
+        "failed": "Переказ суми в розмірі %{amountAndSymbol} з вашого вільного балансу в Chainflip до застави не вдався."
+      },
+      "removeCollateral": {
+        "pending": "Зараз обробляється переказ суми в розмірі %{amountAndSymbol} із застави назад на ваш вільний баланс у Chainflip.",
+        "complete": "Переказ суми в розмірі %{amountAndSymbol} із застави на ваш вільний баланс у Chainflip завершено.",
+        "failed": "Переказ суми в розмірі %{amountAndSymbol} із застави назад на ваш вільний баланс у Chainflip не вдався."
+      },
+      "borrow": {
+        "pending": "Ваше зарахування суми %{amountAndSymbol} на ваш безкоштовний баланс у Chainflip зараз обробляється.",
+        "complete": "Поповнення вашого безкоштовного балансу в Chainflip на суму %{amountAndSymbol} завершено.",
+        "failed": "Не вдалося зарахувати суму в розмірі %{amountAndSymbol} на ваш вільний баланс у Chainflip."
+      },
+      "repay": {
+        "pending": "Зараз обробляється ваша операція з повернення суми %{amountAndSymbol} з вашого вільного балансу Chainflip.",
+        "complete": "Погашення суми в розмірі %{amountAndSymbol} з вашого вільного балансу Chainflip завершено.",
+        "failed": "Повернення суми %{amountAndSymbol} з вашого вільного балансу Chainflip не вдалося."
+      },
+      "details": {
+        "operation": "Експлуатація",
+        "amount": "Сума",
+        "transactionId": "Ідентифікатор транзакції",
+        "egressTransactionId": "Ідентифікатор транзакції виходу"
+      }
     }
   },
   "yieldXYZ": {
     "pageTitle": "Дохідність",
     "pageSubtitle": "Відкривайте та керуйте можливостями отримання прибутку в декількох мережах",
-    "actions": {},
+    "actions": {
+    },
     "yield": "Прибутковість",
     "apy": "APY",
     "apr": "APR",
@@ -3026,7 +3473,9 @@
       "initiateFailedTitle": "Помилка",
       "initiateFailedDescription": "Не вдалося ініціювати послідовність транзакцій.",
       "quoteFailedTitle": "Не вдалося отримати котирування",
-      "quoteFailedDescription": "Неможливо отримати розрахунок вартості цієї операції. Спробуйте ще раз."
+      "quoteFailedDescription": "Неможливо отримати розрахунок вартості цієї операції. Спробуйте ще раз.",
+      "insufficientAssetForGas": "Недостатньо %{symbol} для газу",
+      "rateLimited": "Занадто багато запитів"
     },
     "underMaintenance": "На технічному обслуговуванні",
     "underMaintenanceDescription": "Ця можливість отримання доходу наразі знаходиться на стадії обслуговування. Депозити можуть бути недоступними.",

@@ -20,21 +20,16 @@ registry.registerPath({
       content: { 'application/json': { schema: ChainsListResponseSchema } },
     },
     429: rateLimitResponse,
+    500: { description: 'Internal server error' },
   },
 })
 
 export const getChains = (_req: Request, res: Response): void => {
   try {
     const chains = getChainList()
-
-    const response: ChainsListResponse = {
-      chains,
-      timestamp: Date.now(),
-    }
-
-    res.json(response)
+    res.json({ chains, timestamp: Date.now() } satisfies ChainsListResponse)
   } catch (error) {
     console.error('Error in getChains:', error)
-    res.status(500).json({ error: 'Internal server error' } as ErrorResponse)
+    res.status(500).json({ error: 'Internal server error' } satisfies ErrorResponse)
   }
 }

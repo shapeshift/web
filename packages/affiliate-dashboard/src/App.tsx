@@ -133,7 +133,7 @@ const ShapeShiftLogo = (): React.JSX.Element => (
   </svg>
 )
 
-const API_BASE = '/v1/affiliate'
+const AFFILIATE_URL = `${import.meta.env.VITE_API_URL}/v1/affiliate`
 
 type Tab = 'overview' | 'swaps' | 'settings'
 
@@ -224,7 +224,7 @@ export const App = (): React.JSX.Element => {
     setActionLoading(true)
     clearActionMessage()
     try {
-      const res = await fetch(API_BASE, {
+      const res = await fetch(AFFILIATE_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({
@@ -233,8 +233,8 @@ export const App = (): React.JSX.Element => {
         }),
       })
       if (!res.ok) {
-        const body = (await res.json()) as { message?: string }
-        throw new Error(body.message ?? `Failed (${String(res.status)})`)
+        const body = (await res.json()) as { error?: string }
+        throw new Error(body.error ?? `Failed (${String(res.status)})`)
       }
       setActionMessage({ type: 'success', text: 'Affiliate registered successfully' })
       void fetchConfig(affiliateAddress)
@@ -253,14 +253,14 @@ export const App = (): React.JSX.Element => {
     setActionLoading(true)
     clearActionMessage()
     try {
-      const res = await fetch(`${API_BASE}/claim-code`, {
+      const res = await fetch(`${AFFILIATE_URL}/claim-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({ walletAddress: affiliateAddress, partnerCode: claimCode.trim() }),
       })
       if (!res.ok) {
-        const body = (await res.json()) as { message?: string }
-        throw new Error(body.message ?? `Failed (${String(res.status)})`)
+        const body = (await res.json()) as { error?: string }
+        throw new Error(body.error ?? `Failed (${String(res.status)})`)
       }
       setActionMessage({ type: 'success', text: `Partner code "${claimCode.trim()}" claimed` })
       setClaimCode('')
@@ -282,14 +282,14 @@ export const App = (): React.JSX.Element => {
     setActionLoading(true)
     clearActionMessage()
     try {
-      const res = await fetch(`${API_BASE}/${encodeURIComponent(affiliateAddress)}`, {
+      const res = await fetch(`${AFFILIATE_URL}/${encodeURIComponent(affiliateAddress)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({ bps: parsedUpdateBps }),
       })
       if (!res.ok) {
-        const body = (await res.json()) as { message?: string }
-        throw new Error(body.message ?? `Failed (${String(res.status)})`)
+        const body = (await res.json()) as { error?: string }
+        throw new Error(body.error ?? `Failed (${String(res.status)})`)
       }
       setActionMessage({ type: 'success', text: `BPS updated to ${updateBps}` })
       setUpdateBps('')
@@ -313,14 +313,14 @@ export const App = (): React.JSX.Element => {
     setActionLoading(true)
     clearActionMessage()
     try {
-      const res = await fetch(`${API_BASE}/${encodeURIComponent(affiliateAddress)}`, {
+      const res = await fetch(`${AFFILIATE_URL}/${encodeURIComponent(affiliateAddress)}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({ receiveAddress: updateReceiveAddress.trim() }),
       })
       if (!res.ok) {
-        const body = (await res.json()) as { message?: string }
-        throw new Error(body.message ?? `Failed (${String(res.status)})`)
+        const body = (await res.json()) as { error?: string }
+        throw new Error(body.error ?? `Failed (${String(res.status)})`)
       }
       setActionMessage({ type: 'success', text: 'Receive address updated' })
       setUpdateReceiveAddress('')
@@ -970,7 +970,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   tabButtonActive: {
     color: '#f0f1f4',
-    borderBottomColor: '#386ff9',
+    borderBottom: '2px solid #386ff9',
   },
   periodRow: {
     display: 'flex',

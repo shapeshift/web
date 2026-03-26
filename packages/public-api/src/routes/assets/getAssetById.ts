@@ -21,48 +21,48 @@ registry.registerPath({
       description: 'Asset details',
       content: { 'application/json': { schema: AssetSchema } },
     },
-    404: {
-      description: 'Asset not found',
-    },
+    400: { description: 'Invalid asset ID' },
+    404: { description: 'Asset not found' },
     429: rateLimitResponse,
+    500: { description: 'Internal server error' },
   },
 })
 
 export const getAssetById = (req: Request, res: Response): void => {
   try {
-    const parseResult = AssetRequestSchema.safeParse(req.params)
-    if (!parseResult.success) {
-      const errorResponse: ErrorResponse = {
+    const paramsResult = AssetRequestSchema.safeParse(req.params)
+    if (!paramsResult.success) {
+      res.status(400).json({
         error: 'Invalid request parameters',
-        details: parseResult.error.errors,
-      }
-      res.status(400).json(errorResponse)
+        details: paramsResult.error.errors,
+      } satisfies ErrorResponse)
       return
     }
 
-    const { assetId } = parseResult.data
-    // URL decode the assetId since it contains special characters
-    let decodedAssetId: string
-    try {
-      decodedAssetId = decodeURIComponent(assetId)
-    } catch {
-      const errorResponse: ErrorResponse = {
-        error: 'Invalid URL encoding for assetId',
-        details: { assetId },
+    const { assetId } = paramsResult.data
+
+    const decodedAssetId = (() => {
+      try {
+        return decodeURIComponent(assetId)
+      } catch {
+        res.status(400).json({
+          error: 'Invalid URL encoding for assetId',
+          details: { assetId },
+        } satisfies ErrorResponse)
       }
-      res.status(400).json(errorResponse)
-      return
-    }
+    })()
+
+    if (!decodedAssetId) return
+
     const asset = getAsset(decodedAssetId)
-
     if (!asset) {
-      res.status(404).json({ error: `Asset not found: ${decodedAssetId}` } as ErrorResponse)
+      res.status(404).json({ error: `Asset not found: ${decodedAssetId}` } satisfies ErrorResponse)
       return
     }
 
     res.json(asset)
   } catch (error) {
     console.error('Error in getAssetById:', error)
-    res.status(500).json({ error: 'Internal server error' } as ErrorResponse)
+    res.status(500).json({ error: 'Internal server error' } satisfies ErrorResponse)
   }
 }

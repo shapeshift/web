@@ -25,5 +25,6 @@ export default defineConfig({
   preview: {
     port: Number(process.env.PORT) || 3000,
     host: true,
+    allowedHosts: ['dev-widget.shapeshift.com', 'widget.shapeshift.com'],
   },
 })

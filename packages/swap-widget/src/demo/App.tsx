@@ -83,7 +83,7 @@ type DemoContentProps = {
 const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
   const [showCustomizer, setShowCustomizer] = useState(true)
 
-  const [partnerCode, setPartnerCode] = useState<string | undefined>()
+  const [partnerCode, setPartnerCode] = useState('')
 
   const [darkColors, setDarkColors] = useState<ThemeColors>({
     bg: '#0a0a14',
@@ -468,7 +468,7 @@ ${formatColors(lightColors, 'light')}
 
             <div className='demo-widget-container'>
               <SwapWidget
-                partnerCode={partnerCode}
+                partnerCode={partnerCode || undefined}
                 theme={themeConfig}
                 onSwapSuccess={handleSwapSuccess}
                 onSwapError={handleSwapError}

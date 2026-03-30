@@ -317,8 +317,6 @@ const processRelatedAssetIds = async (
     return
   }
 
-  console.log(`Processing related assetIds for ${assetId}`)
-
   // Check if this asset is already in the relatedAssetIndex
   if (!REGEN_ALL) {
     for (const [key, relatedAssets] of Object.entries(relatedAssetIndex)) {

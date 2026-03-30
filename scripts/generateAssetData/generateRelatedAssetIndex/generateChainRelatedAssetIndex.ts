@@ -308,8 +308,6 @@ const processRelatedAssetIds = async (
     return
   }
 
-  console.log(`Processing related assetIds for ${assetId}`)
-
   for (const [key, relatedAssets] of Object.entries(relatedAssetIndex)) {
     if (relatedAssets.includes(assetId)) {
       if (existingRelatedAssetKey !== key) {

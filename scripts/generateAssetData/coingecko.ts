@@ -87,8 +87,20 @@ import {
   zkSyncEra,
 } from '@shapeshiftoss/utils'
 import axios from 'axios'
+import axiosRetry from 'axios-retry'
 
 import colormap from './color-map.json'
+
+axiosRetry(axios, {
+  retries: 5,
+  retryCondition: err => {
+    return axiosRetry.isNetworkOrIdempotentRequestError(err) || err.response?.status === 429
+  },
+  retryDelay: (retryCount, err) => {
+    const retryAfter = Number(err.response?.headers?.['retry-after'])
+    return isFinite(retryAfter) ? retryAfter * 1000 : axiosRetry.exponentialDelay(retryCount)
+  },
+})
 
 export const colorMap: Record<string, string> = colormap
 

@@ -1,17 +1,17 @@
 import { defineConfig } from 'tsup'
 
 const EXTERNAL_PREFIXES = [
+  '@reown/appkit',
+  '@reown/appkit-adapter-bitcoin',
+  '@reown/appkit-adapter-solana',
+  '@reown/appkit-adapter-wagmi',
+  '@solana/wallet-adapter-wallets',
+  '@solana/web3.js',
+  '@tanstack/react-query',
   'react',
   'react-dom',
   'viem',
   'wagmi',
-  '@reown/appkit',
-  '@reown/appkit-adapter-wagmi',
-  '@reown/appkit-adapter-bitcoin',
-  '@reown/appkit-adapter-solana',
-  '@tanstack/react-query',
-  '@solana/web3.js',
-  '@solana/wallet-adapter-wallets',
 ]
 
 // eslint-disable-next-line import/no-default-export

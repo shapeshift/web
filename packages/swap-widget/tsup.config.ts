@@ -8,6 +8,7 @@ const EXTERNAL_PREFIXES = [
   '@solana/wallet-adapter-wallets',
   '@solana/web3.js',
   '@tanstack/react-query',
+  '@wagmi/core',
   'react',
   'react-dom',
   'viem',

@@ -39,6 +39,7 @@
     "xstate": "5.28.0"
   },
   "peerDependencies": {
+    "@wagmi/core": "^2.0.0",
     "@reown/appkit": "^1.8.17",
     "@reown/appkit-adapter-bitcoin": "^1.8.17",
     "@reown/appkit-adapter-solana": "^1.8.17",
@@ -72,6 +73,7 @@
     }
   },
   "devDependencies": {
+    "@wagmi/core": "^2.0.0",
     "@reown/appkit": "^1.8.17",
     "@reown/appkit-adapter-bitcoin": "^1.8.17",
     "@reown/appkit-adapter-solana": "^1.8.17",

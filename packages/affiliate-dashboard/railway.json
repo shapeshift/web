@@ -4,7 +4,8 @@
     "builder": "RAILPACK",
     "buildCommand": "pnpm --filter @shapeshiftoss/affiliate-dashboard build",
     "watchPatterns": [
-      "packages/affiliate-dashboard/**"
+      "packages/affiliate-dashboard/**",
+      "pnpm-lock.yaml"
     ]
   },
   "deploy": {

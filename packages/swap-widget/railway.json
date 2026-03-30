@@ -4,7 +4,11 @@
     "builder": "RAILPACK",
     "buildCommand": "pnpm --filter @shapeshiftoss/caip build && pnpm --filter @shapeshiftoss/types build && pnpm --filter @shapeshiftoss/utils build && pnpm --filter @shapeshiftoss/swap-widget build:demo",
     "watchPatterns": [
-      "packages/swap-widget/**"
+      "packages/swap-widget/**",
+      "packages/caip/**",
+      "packages/types/**",
+      "packages/utils/**",
+      "pnpm-lock.yaml"
     ]
   },
   "deploy": {

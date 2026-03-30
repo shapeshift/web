@@ -13,7 +13,10 @@ export const setColors = async (assets: Asset[]): Promise<Asset[]> => {
       if (asset.color === '#FFFFFF' && asset.icon) {
         // colorthief passes the argument directly to sharp, which only handles file paths — not URLs.
         // Fetch to a buffer first so sharp can process it.
-        const { data } = await axios.get<ArrayBuffer>(asset.icon, { responseType: 'arraybuffer' })
+        const { data } = await axios.get<ArrayBuffer>(asset.icon, {
+          responseType: 'arraybuffer',
+          timeout: 10_000,
+        })
         const [r, g, b] = await colorThief.getColor(Buffer.from(data))
         const hexColor = `#${toHex(r)}${toHex(g)}${toHex(b)}`
         asset.color = hexColor

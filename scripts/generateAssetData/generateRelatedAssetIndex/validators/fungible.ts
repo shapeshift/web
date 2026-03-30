@@ -51,6 +51,7 @@ const AttributesSchema = z
       .object({
         verified: z.boolean(),
       })
+      .allowUnknownKeys()
       .optional(),
     external_links: z.array(ExternalLinkSchema).optional(),
     implementations: z.array(ImplementationSchema).optional(),

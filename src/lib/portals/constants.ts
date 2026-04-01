@@ -5,6 +5,7 @@ import {
   baseChainId,
   bscChainId,
   ethChainId,
+  gnosisChainId,
   hyperEvmChainId,
   optimismChainId,
   polygonChainId,
@@ -14,6 +15,7 @@ import invert from 'lodash/invert'
 export const CHAIN_ID_TO_PORTALS_NETWORK: Partial<Record<ChainId, string>> = {
   [avalancheChainId]: 'avalanche',
   [ethChainId]: 'ethereum',
+  [gnosisChainId]: 'gnosis',
   [polygonChainId]: 'polygon',
   [bscChainId]: 'bsc',
   [optimismChainId]: 'optimism',

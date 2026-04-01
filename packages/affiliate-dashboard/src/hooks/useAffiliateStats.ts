@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 
-const API_BASE_URL = '/v1/affiliate/stats'
+const AFFILIATE_STATS_URL = `${import.meta.env.VITE_API_URL}/v1/affiliate/stats`
 
 export interface AffiliateStats {
   totalSwaps: number
@@ -52,7 +52,7 @@ export const useAffiliateStats = (): UseAffiliateStatsReturn => {
       if (options?.startDate) params.append('startDate', options.startDate)
       if (options?.endDate) params.append('endDate', options.endDate)
 
-      const response = await fetch(`${API_BASE_URL}?${params.toString()}`)
+      const response = await fetch(`${AFFILIATE_STATS_URL}?${params.toString()}`)
 
       if (!response.ok) {
         let errorMessage = `Request failed (${String(response.status)})`

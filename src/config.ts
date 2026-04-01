@@ -307,7 +307,7 @@ const validators = {
   VITE_FEATURE_AGENTIC_CHAT: bool({ default: false }),
   VITE_FEATURE_MM_NATIVE_MULTICHAIN: bool({ default: false }),
   VITE_AGENTIC_SERVER_BASE_URL: url({
-    default: 'https://shapeshiftossagentic-server-production.up.railway.app',
+    default: 'https://api.agent.shapeshift.com',
   }),
 }
 

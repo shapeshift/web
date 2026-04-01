@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 
-const API_BASE_URL = '/v1/affiliate'
+const AFFILIATE_URL = `${import.meta.env.VITE_API_URL}/v1/affiliate`
 
 export interface AffiliateConfig {
   id: string
@@ -38,7 +38,7 @@ export const useAffiliateConfig = (): UseAffiliateConfigReturn => {
     setError(null)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/${encodeURIComponent(address)}`)
+      const response = await fetch(`${AFFILIATE_URL}/${encodeURIComponent(address)}`)
 
       // Stale response guard — discard if a newer request was fired
       if (currentRequestId !== requestIdRef.current) return

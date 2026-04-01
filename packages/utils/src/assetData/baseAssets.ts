@@ -457,7 +457,7 @@ export const cronos: Readonly<Asset> = Object.freeze({
 export const megaeth: Readonly<Asset> = Object.freeze({
   assetId: caip.megaethAssetId,
   chainId: caip.megaethChainId,
-  name: 'Ether',
+  name: 'Ethereum',
   networkName: 'MegaETH',
   symbol: 'ETH',
   precision: 18,

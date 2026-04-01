@@ -50,7 +50,7 @@
     "local-ci": "pnpm run build:packages && pnpm run lint && pnpm run type-check && pnpm run test && pnpm run build:web",
     "lint": "pnpm exec eslint --cache '*/**/*.{ts,tsx}'",
     "lint:fix": "pnpm run lint --fix",
-    "postinstall": "git config --local include.path '.gitconfig'",
+    "postinstall": "[ -d .git ] && git config --local include.path '.gitconfig' || true",
     "release": "pnpm exec tsx ./scripts/release.ts",
     "scrape-walletconnect-dapps": "pnpm exec tsx ./scripts/scrapeWalletConnectRegistry.ts",
     "test": "pnpm run test:packages && pnpm run test:web",
@@ -332,6 +332,7 @@
   "packageManager": "pnpm@10.30.3",
   "pnpm": {
     "overrides": {
+      "esbuild": "0.25.12",
       "@bithighlander/bitcoin-cash-js-lib@^5.2.1": "5.2.1",
       "friendly-challenge@0.9.2": "0.9.2",
       "react-dom@^18.2.0": "18.2.0",

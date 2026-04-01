@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 
-const API_BASE_URL = '/v1/affiliate/swaps'
+const AFFILIATE_SWAPS_URL = `${import.meta.env.VITE_API_URL}/v1/affiliate/swaps`
 
 export interface AffiliateSwap {
   id: string
@@ -65,7 +65,7 @@ export const useAffiliateSwaps = (): UseAffiliateSwapsReturn => {
       if (options?.limit) params.append('limit', String(options.limit))
       if (options?.offset) params.append('offset', String(options.offset))
 
-      const response = await fetch(`${API_BASE_URL}?${params.toString()}`)
+      const response = await fetch(`${AFFILIATE_SWAPS_URL}?${params.toString()}`)
 
       if (!response.ok) {
         let errorMessage = `Request failed (${String(response.status)})`

@@ -22,42 +22,32 @@ registry.registerPath({
       description: 'List of assets',
       content: { 'application/json': { schema: AssetsListResponseSchema } },
     },
+    400: { description: 'Invalid query parameters' },
     429: rateLimitResponse,
+    500: { description: 'Internal server error' },
   },
 })
 
 export const getAssets = (req: Request, res: Response): void => {
   try {
-    const parseResult = AssetsListRequestSchema.safeParse(req.query)
-    if (!parseResult.success) {
-      const errorResponse: ErrorResponse = {
+    const queryResult = AssetsListRequestSchema.safeParse(req.query)
+    if (!queryResult.success) {
+      res.status(400).json({
         error: 'Invalid request parameters',
-        details: parseResult.error.errors,
-      }
-      res.status(400).json(errorResponse)
+        details: queryResult.error.errors,
+      } satisfies ErrorResponse)
       return
     }
 
-    const { chainId, limit, offset } = parseResult.data
+    const { chainId, limit, offset } = queryResult.data
 
-    let assets = getAllAssets()
+    const assets = getAllAssets()
+    const filteredAssets = chainId ? assets.filter(asset => asset.chainId === chainId) : assets
+    const paginatedAssets = filteredAssets.slice(offset, offset + limit)
 
-    // Filter by chain if specified
-    if (chainId) {
-      assets = assets.filter(asset => asset.chainId === chainId)
-    }
-
-    // Apply pagination
-    const paginatedAssets = assets.slice(offset, offset + limit)
-
-    const response: AssetsListResponse = {
-      assets: paginatedAssets,
-      timestamp: Date.now(),
-    }
-
-    res.json(response)
+    res.json({ assets: paginatedAssets, timestamp: Date.now() } satisfies AssetsListResponse)
   } catch (error) {
     console.error('Error in getAssets:', error)
-    res.status(500).json({ error: 'Internal server error' } as ErrorResponse)
+    res.status(500).json({ error: 'Internal server error' } satisfies ErrorResponse)
   }
 }

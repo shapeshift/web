@@ -261,7 +261,7 @@ export const useTradeExecution = (
       )
       execution.on(
         TradeExecutionEvent.Status,
-        ({ buyTxHash, message, actualBuyAmountCryptoBaseUnit }) => {
+        ({ buyTxHash, message, actualBuyAmountCryptoBaseUnit, chainflipSwapId }) => {
           dispatch(
             tradeQuoteSlice.actions.setSwapTxMessage({
               hopIndex,
@@ -280,9 +280,9 @@ export const useTradeExecution = (
             )
           }
 
-          // Update the swap with the actual buy amount if available
+          // Update the swap with the actual buy amount and/or real Chainflip swap ID if available
           // Read fresh state to avoid stale closure - swapsById captured at render time may have outdated status
-          if (actualBuyAmountCryptoBaseUnit) {
+          if (actualBuyAmountCryptoBaseUnit || chainflipSwapId) {
             const freshActiveSwapId = swapSlice.selectors.selectActiveSwapId(store.getState())
             if (freshActiveSwapId) {
               const currentSwap = swapSlice.selectors.selectSwapsById(store.getState())[
@@ -292,7 +292,10 @@ export const useTradeExecution = (
                 dispatch(
                   swapSlice.actions.upsertSwap({
                     ...currentSwap,
-                    actualBuyAmountCryptoBaseUnit,
+                    ...(actualBuyAmountCryptoBaseUnit && { actualBuyAmountCryptoBaseUnit }),
+                    ...(chainflipSwapId && {
+                      metadata: { ...currentSwap.metadata, chainflipSwapId },
+                    }),
                   }),
                 )
               }

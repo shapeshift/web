@@ -2,6 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 import BigNumber from 'bignumber.js'
 import { useMemo } from 'react'
+import { shallowEqual } from 'react-redux'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAINFLIP_LENDING_ASSET_IDS_BY_ASSET } from '@/lib/chainflip/constants'
@@ -43,8 +44,9 @@ export const useChainflipOraclePrices = () => {
       .filter((id): id is AssetId => Boolean(id))
   }, [oraclePrices])
 
-  const assetPrecisions = useAppSelector(state =>
-    assetIds.map(id => selectAssetById(state, id)?.precision ?? 0),
+  const assetPrecisions = useAppSelector(
+    state => assetIds.map(id => selectAssetById(state, id)?.precision ?? 0),
+    shallowEqual,
   )
 
   const oraclePriceByAssetId = useMemo(() => {

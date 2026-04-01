@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
+  abstractAssetId,
   adapters,
   arbitrumAssetId,
   baseAssetId,
@@ -77,6 +78,7 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
     bobAssetId,
     modeAssetId,
     soneiumAssetId,
+    abstractAssetId,
   ],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
   [starknetAssetId]: [
@@ -314,8 +316,6 @@ const processRelatedAssetIds = async (
   if (!REGEN_ALL && existingRelatedAssetKey) {
     return
   }
-
-  console.log(`Processing related assetIds for ${assetId}`)
 
   // Check if this asset is already in the relatedAssetIndex
   if (!REGEN_ALL) {

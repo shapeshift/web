@@ -1,0 +1,47 @@
+name: Abstract Chain Integration
+description: Verify Abstract chain assets appear in swapper, search works, and ETH->Abstract swap quote can be obtained
+route: /trade
+depends_on:
+  - wallet-health.yaml
+steps:
+  - name: Verify Abstract ETH appears in popular assets
+    instruction: >
+      On the trade/swap page, click the sell asset button (the top asset selector).
+      In the asset search modal, look for "Abstract" in the popular assets section
+      or search for "ETH" and look for an Abstract variant.
+      The Abstract chain's native asset (ETH on Abstract) should be discoverable.
+    expected: Abstract chain ETH asset is visible in asset picker (either via search or popular assets)
+    screenshot: true
+
+  - name: Search for Abstract ETH in asset picker
+    instruction: >
+      In the asset search modal (open the sell asset picker if not already open),
+      type "abstract" in the search input. Look for results showing Abstract chain assets.
+    expected: Searching "abstract" shows Abstract chain assets including ETH on Abstract
+    screenshot: true
+
+  - name: Select ETH as sell asset
+    instruction: >
+      Close the asset search modal (press Escape or click outside).
+      Make sure ETH (Ethereum mainnet) is selected as the sell asset.
+      If it's not, open the sell asset picker and select ETH on Ethereum.
+    expected: Sell asset shows ETH on Ethereum
+    screenshot: true
+
+  - name: Select Abstract ETH as buy asset and get quote
+    instruction: >
+      Click the buy asset button (bottom asset selector).
+      In the asset search modal, search for "abstract".
+      Select the ETH on Abstract result.
+      After selection, enter "0.001" in the sell amount input field.
+      Wait for a swap quote to load.
+    expected: Buy asset shows ETH on Abstract chain, a swap quote is displayed (amount shown or route found)
+    screenshot: true
+
+  - name: Verify Abstract appears in Trade routes
+    instruction: >
+      Check if a swap route/quote is shown for ETH -> Abstract ETH swap.
+      Look for Relay swapper in the route (Abstract is supported by Relay).
+      Note what quote provider appears.
+    expected: A swap quote is available for ETH to Abstract ETH via Relay
+    screenshot: true

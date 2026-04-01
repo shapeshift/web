@@ -1,5 +1,6 @@
 import type { GridProps } from '@chakra-ui/react'
 import {
+  Box,
   Button,
   CircularProgress,
   Flex,
@@ -7,9 +8,14 @@ import {
   SimpleGrid,
   Skeleton,
   Stack,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
@@ -18,22 +24,24 @@ import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { AssetCell } from '@/components/StakingVaults/Cells'
-import { Text } from '@/components/Text'
+import { RawText, Text } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { permillToDecimal } from '@/lib/chainflip/utils'
+import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { ChainflipLendingHeader } from '@/pages/ChainflipLending/components/ChainflipLendingHeader'
-import { MyBalancesList } from '@/pages/ChainflipLending/components/MyBalances'
+import { Dashboard } from '@/pages/ChainflipLending/components/Dashboard'
+import { InitView } from '@/pages/ChainflipLending/components/InitView'
 import type { ChainflipLendingPoolWithFiat } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
 import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
+import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 const marketRowGrid: GridProps['gridTemplateColumns'] = {
   base: 'minmax(150px, 1fr) repeat(1, minmax(40px, max-content))',
-  md: '200px repeat(4, 1fr)',
+  md: '200px repeat(5, 1fr)',
 }
 
 const mobileDisplay = { base: 'none', md: 'flex' }
-const mobilePadding = { base: 4, lg: 4, xl: 0 }
-const listMargin = { base: 0, lg: 0, xl: -4 }
 
 type MarketRowProps = {
   pool: ChainflipLendingPoolWithFiat
@@ -41,6 +49,9 @@ type MarketRowProps = {
 }
 
 const MarketRow = ({ pool, onViewMarket }: MarketRowProps) => {
+  const asset = useAppSelector(state =>
+    pool.assetId ? selectAssetById(state, pool.assetId) : undefined,
+  )
   const handleClick = useCallback(() => {
     if (pool.assetId) onViewMarket(pool.assetId)
   }, [pool.assetId, onViewMarket])
@@ -76,20 +87,24 @@ const MarketRow = ({ pool, onViewMarket }: MarketRowProps) => {
       height='auto'
       color='text.base'
       onClick={handleClick}
+      data-testid={`chainflip-lending-market-row-${asset?.symbol?.toLowerCase() ?? 'unknown'}`}
     >
       <AssetCell assetId={pool.assetId} />
-      <Flex display={mobileDisplay}>
-        <Amount.Fiat value={pool.totalAmountFiat} />
-      </Flex>
-      <Flex display={mobileDisplay}>
+      <Flex display={mobileDisplay} justifyContent='flex-end'>
         <Amount.Percent value={pool.supplyApy} autoColor />
       </Flex>
-      <Flex display={mobileDisplay}>
+      <Flex display={mobileDisplay} justifyContent='flex-end'>
+        <Amount.Fiat value={pool.totalAmountFiat} />
+      </Flex>
+      <Flex display={mobileDisplay} justifyContent='flex-end'>
+        <Amount.Percent value={pool.borrowRate} autoColor />
+      </Flex>
+      <Flex display={mobileDisplay} justifyContent='flex-end'>
         <Amount.Fiat
           value={bnOrZero(pool.totalAmountFiat).minus(pool.availableAmountFiat).toFixed(2)}
         />
       </Flex>
-      <HStack spacing={2}>
+      <HStack spacing={2} justifyContent='flex-end'>
         <CircularProgress
           value={utilisationNumber}
           size='24px'
@@ -103,7 +118,7 @@ const MarketRow = ({ pool, onViewMarket }: MarketRowProps) => {
   )
 }
 
-export const Markets = () => {
+const MarketsTable = () => {
   const translate = useTranslate()
   const navigate = useNavigate()
   const { pools, isLoading } = useChainflipLendingPools()
@@ -114,8 +129,6 @@ export const Markets = () => {
     },
     [navigate],
   )
-
-  const headerComponent = useMemo(() => <ChainflipLendingHeader />, [])
 
   const sortedPools = useMemo(
     () => [...pools].sort((a, b) => bnOrZero(b.supplyApy).minus(a.supplyApy).toNumber()),
@@ -135,58 +148,121 @@ export const Markets = () => {
   }, [isLoading, sortedPools, handleViewMarket])
 
   return (
+    <Box
+      borderWidth='1px'
+      borderColor='rgba(255, 255, 255, 0.08)'
+      borderRadius='2xl'
+      overflow='hidden'
+    >
+      <Box bg='rgba(255, 255, 255, 0.04)' p={4}>
+        <Stack spacing={0}>
+          <Flex alignItems='center' gap={2}>
+            <RawText fontSize='md' fontWeight='medium'>
+              {translate('chainflipLending.dashboard.lendingMarkets')}
+            </RawText>
+            <HelperTooltip
+              label={translate('chainflipLending.dashboard.lendingMarketsDescription')}
+            />
+          </Flex>
+          <RawText fontSize='sm' fontWeight='medium' color='rgba(255, 255, 255, 0.36)'>
+            {translate('chainflipLending.dashboard.lendingMarketsDescription')}
+          </RawText>
+        </Stack>
+      </Box>
+      <SimpleGrid
+        gridTemplateColumns={marketRowGrid}
+        columnGap={4}
+        color='rgba(255, 255, 255, 0.36)'
+        fontWeight='medium'
+        fontSize='sm'
+        px={4}
+        py={2}
+      >
+        <Text translation='chainflipLending.poolHeader' />
+        <Flex display={mobileDisplay} justifyContent='flex-end'>
+          <HelperTooltip label={translate('chainflipLending.supplyApyTooltip')}>
+            <Text translation='chainflipLending.supplyApy' />
+          </HelperTooltip>
+        </Flex>
+        <Flex display={mobileDisplay} justifyContent='flex-end'>
+          <HelperTooltip label={translate('chainflipLending.totalSuppliedTooltip')}>
+            <Text translation='chainflipLending.totalSupplied' />
+          </HelperTooltip>
+        </Flex>
+        <Flex display={mobileDisplay} justifyContent='flex-end'>
+          <HelperTooltip label={translate('chainflipLending.borrowAprTooltip')}>
+            <Text translation='chainflipLending.borrowApr' />
+          </HelperTooltip>
+        </Flex>
+        <Flex display={mobileDisplay} justifyContent='flex-end'>
+          <HelperTooltip label={translate('chainflipLending.totalBorrowedTooltip')}>
+            <Text translation='chainflipLending.totalBorrowed' />
+          </HelperTooltip>
+        </Flex>
+        <Flex justifyContent='flex-end'>
+          <HelperTooltip label={translate('chainflipLending.utilisationTooltip')}>
+            <Text translation='chainflipLending.utilisation' />
+          </HelperTooltip>
+        </Flex>
+      </SimpleGrid>
+      <Stack spacing={0}>{marketRows}</Stack>
+    </Box>
+  )
+}
+
+export const Markets = () => {
+  const translate = useTranslate()
+  const { accountId } = useChainflipLendingAccount()
+  const [tabIndex, setTabIndex] = useState(0)
+
+  const headerComponent = useMemo(() => <ChainflipLendingHeader />, [])
+
+  return (
     <Main headerComponent={headerComponent} isSubPage>
       <SEO title='Chainflip Lending' />
-      <Stack spacing={8}>
-        <Stack spacing={4}>
-          <Text
-            translation='chainflipLending.myDashboard'
-            fontWeight='bold'
-            fontSize='xl'
-            px={mobilePadding}
-          />
-          <MyBalancesList />
-        </Stack>
-
-        <Stack spacing={4}>
-          <Text
-            translation='chainflipLending.allMarkets'
-            fontWeight='bold'
-            fontSize='xl'
-            px={mobilePadding}
-          />
-          <Stack>
-            <SimpleGrid
-              gridTemplateColumns={marketRowGrid}
-              columnGap={4}
-              color='text.subtle'
-              fontWeight='bold'
-              fontSize='sm'
-              px={mobilePadding}
-            >
-              <Text translation='chainflipLending.poolHeader' />
-              <Flex display={mobileDisplay}>
-                <HelperTooltip label={translate('chainflipLending.totalSuppliedTooltip')}>
-                  <Text translation='chainflipLending.totalSupplied' />
-                </HelperTooltip>
-              </Flex>
-              <Flex display={mobileDisplay}>
-                <HelperTooltip label={translate('chainflipLending.supplyApyTooltip')}>
-                  <Text translation='chainflipLending.supplyApy' />
-                </HelperTooltip>
-              </Flex>
-              <Flex display={mobileDisplay}>
-                <HelperTooltip label={translate('chainflipLending.totalBorrowedTooltip')}>
-                  <Text translation='chainflipLending.totalBorrowed' />
-                </HelperTooltip>
-              </Flex>
-              <HelperTooltip label={translate('chainflipLending.utilisationTooltip')}>
-                <Text translation='chainflipLending.utilisation' />
-              </HelperTooltip>
-            </SimpleGrid>
-            <Stack mx={listMargin}>{marketRows}</Stack>
-          </Stack>
-        </Stack>
+      <Stack spacing={6}>
+        {accountId ? (
+          <Tabs index={tabIndex} onChange={setTabIndex} variant='unstyled'>
+            <TabList data-testid='chainflip-lending-tabs' gap={6}>
+              <Tab
+                px={0}
+                py={2}
+                color='text.subtle'
+                fontWeight='bold'
+                _selected={{
+                  color: 'text.base',
+                  borderBottomWidth: 2,
+                  borderColor: 'text.base',
+                }}
+              >
+                {translate('chainflipLending.myDashboard')}
+              </Tab>
+              <Tab
+                px={0}
+                py={2}
+                color='text.subtle'
+                fontWeight='bold'
+                _selected={{
+                  color: 'text.base',
+                  borderBottomWidth: 2,
+                  borderColor: 'text.base',
+                }}
+              >
+                {translate('chainflipLending.markets')}
+              </Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel px={0}>
+                <Dashboard />
+              </TabPanel>
+              <TabPanel px={0} data-testid='chainflip-lending-markets'>
+                <MarketsTable />
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        ) : (
+          <InitView />
+        )}
       </Stack>
     </Main>
   )

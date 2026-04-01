@@ -442,6 +442,7 @@ export class LedgerHDWallet
   readonly _supportsMegaEth = true
   readonly _supportsZkSyncEra = true
   readonly _supportsBlast = true
+  readonly _supportsAbstract = true
   readonly _supportsWorldChain = true
   readonly _supportsHemi = true
   readonly _supportsFlowEvm = true

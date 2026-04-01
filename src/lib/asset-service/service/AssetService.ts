@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
+  abstractChainId,
   adapters,
   arbitrumChainId,
   baseChainId,
@@ -9,6 +10,7 @@ import {
   bscChainId,
   celoChainId,
   cronosChainId,
+  etherealChainId,
   flowEvmChainId,
   gnosisChainId,
   hemiChainId,
@@ -26,6 +28,7 @@ import {
   plumeChainId,
   polygonChainId,
   scrollChainId,
+  seiChainId,
   solanaChainId,
   soneiumChainId,
   sonicChainId,
@@ -146,16 +149,19 @@ class _AssetService {
       if (!config.VITE_FEATURE_PLUME && asset.chainId === plumeChainId) return false
       if (!config.VITE_FEATURE_ZK_SYNC_ERA && asset.chainId === zkSyncEraChainId) return false
       if (!config.VITE_FEATURE_BLAST && asset.chainId === blastChainId) return false
+      if (!config.VITE_FEATURE_ABSTRACT && asset.chainId === abstractChainId) return false
       if (!config.VITE_FEATURE_WORLDCHAIN && asset.chainId === worldChainChainId) return false
       if (!config.VITE_FEATURE_HEMI && asset.chainId === hemiChainId) return false
       if (!config.VITE_FEATURE_MANTLE && asset.chainId === mantleChainId) return false
       if (!config.VITE_FEATURE_INK && asset.chainId === inkChainId) return false
+      if (!config.VITE_FEATURE_ETHEREAL && asset.chainId === etherealChainId) return false
       if (!config.VITE_FEATURE_FLOWEVM && asset.chainId === flowEvmChainId) return false
       if (!config.VITE_FEATURE_SONIC && asset.chainId === sonicChainId) return false
       if (!config.VITE_FEATURE_UNICHAIN && asset.chainId === unichainChainId) return false
       if (!config.VITE_FEATURE_BOB && asset.chainId === bobChainId) return false
       if (!config.VITE_FEATURE_MODE && asset.chainId === modeChainId) return false
       if (!config.VITE_FEATURE_MEGAETH && asset.chainId === megaethChainId) return false
+      if (!config.VITE_FEATURE_SEI && asset.chainId === seiChainId) return false
       if (!config.VITE_FEATURE_LINEA && asset.chainId === lineaChainId) return false
       if (!config.VITE_FEATURE_BERACHAIN && asset.chainId === berachainChainId) return false
       if (!config.VITE_FEATURE_SCROLL && asset.chainId === scrollChainId) return false

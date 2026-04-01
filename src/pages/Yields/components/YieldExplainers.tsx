@@ -73,7 +73,7 @@ const getYieldExplainers = (selectedYield: AugmentedYieldDto): ExplainerItem[] =
 type YieldExplainersProps = {
   selectedYield: AugmentedYieldDto
   sellAssetSymbol?: string
-  action: 'enter' | 'exit' | 'claim'
+  action: 'enter' | 'exit'
 }
 
 export const YieldExplainers = memo(

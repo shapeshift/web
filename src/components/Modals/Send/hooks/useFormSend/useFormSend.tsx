@@ -5,13 +5,19 @@ import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import type { SendInput } from '../../Form'
-import { handleSend } from '../../utils'
+import { handleSendWithMetadata } from '../../utils'
 
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { RawText } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import type { BtcUtxoRbfTxMetadata } from '@/state/slices/actionSlice/types'
 import { selectAssetById } from '@/state/slices/selectors'
 import { store } from '@/state/store'
+
+type HandleFormSendResult = {
+  txHash: string
+  btcUtxoRbfTxMetadata?: BtcUtxoRbfTxMetadata
+}
 
 export const useFormSend = () => {
   const toast = useToast()
@@ -21,13 +27,16 @@ export const useFormSend = () => {
   } = useWallet()
 
   const handleFormSend = useCallback(
-    async (sendInput: SendInput, toastOnBroadcast: boolean): Promise<string | undefined> => {
+    async (
+      sendInput: SendInput,
+      toastOnBroadcast: boolean,
+    ): Promise<HandleFormSendResult | undefined> => {
       try {
         const asset = selectAssetById(store.getState(), sendInput.assetId)
         if (!asset) throw new Error(`No asset found for assetId ${sendInput.assetId}`)
         if (!wallet) throw new Error('No wallet connected')
 
-        const broadcastTXID = await handleSend({ wallet, sendInput })
+        const { txHash, btcUtxoRbfTxMetadata } = await handleSendWithMetadata({ wallet, sendInput })
 
         setTimeout(() => {
           if (!toastOnBroadcast) return
@@ -43,7 +52,7 @@ export const useFormSend = () => {
                   })}
                 </Text>
                 {asset.explorerTxLink && (
-                  <Link href={`${asset.explorerTxLink}${broadcastTXID}`} isExternal>
+                  <Link href={`${asset.explorerTxLink}${txHash}`} isExternal>
                     {translate('modals.status.viewExplorer')} <ExternalLinkIcon mx='2px' />
                   </Link>
                 )}
@@ -56,7 +65,7 @@ export const useFormSend = () => {
           })
         }, 5000)
 
-        return broadcastTXID
+        return { txHash, btcUtxoRbfTxMetadata }
       } catch (e) {
         const asset = selectAssetById(store.getState(), sendInput.assetId)
         console.error(e)
@@ -83,7 +92,7 @@ export const useFormSend = () => {
           position: 'top-right',
         })
 
-        return ''
+        return undefined
       }
     },
     [toast, translate, wallet],

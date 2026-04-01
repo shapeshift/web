@@ -125,6 +125,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Mode,
       })
+      const ethOnAbstract = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.AbstractMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Abstract,
+      })
       const ethOnSoneium = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.SoneiumMainnet,
@@ -148,6 +154,7 @@ describe('adapters:coingecko', () => {
         ethOnScroll,
         ethOnUnichain,
         ethOnSoneium,
+        ethOnAbstract,
       ])
     })
 
@@ -297,6 +304,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'token',
         assetReference: '0x33068f6539f8e6e6b131e6b2b814e6c34a5224bc66947c47dab9dfee93b35fb',
       })
+      const usdcOnSei = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.SeiMainnet,
+        assetNamespace: 'erc20',
+        assetReference: '0xe15fc38f6d8c56af07bbcbe3baf5708a2bf42392',
+      })
       const usdcOnInk = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Evm,
         chainReference: CHAIN_REFERENCE.InkMainnet,
@@ -314,6 +327,12 @@ describe('adapters:coingecko', () => {
         chainReference: CHAIN_REFERENCE.UnichainMainnet,
         assetNamespace: 'erc20',
         assetReference: '0x078d782b760474a361dda0af3839290b0ef57ad6',
+      })
+      const usdcOnCelo = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.CeloMainnet,
+        assetNamespace,
+        assetReference: '0xceba9300f2b948710d2653dd7b07f33a8b32118c',
       })
       const usdcOnNear = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Near,
@@ -336,6 +355,8 @@ describe('adapters:coingecko', () => {
         usdcOnInk,
         usdcOnSonic,
         usdcOnUnichain,
+        usdcOnCelo,
+        usdcOnSei,
         usdcOnSolana,
         usdcOnStarknet,
         usdcOnSui,

@@ -18,6 +18,7 @@ import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/Limi
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { getConfig } from '@/config'
 import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
+import { isLocalDev } from '@/lib/isLocalDev'
 import { Accounts } from '@/pages/Accounts/Accounts'
 import { ExploreCategory } from '@/pages/Explore/ExploreCategory'
 import { FoxEcosystemPage } from '@/pages/Fox/FoxEcosystemPage'
@@ -61,6 +62,16 @@ const Assets = makeSuspenseful(
   lazy(() =>
     import('@/pages/Assets/Assets').then(({ Assets }) => ({
       default: Assets,
+    })),
+  ),
+  {},
+  true,
+)
+
+const ChainflipLending = makeSuspenseful(
+  lazy(() =>
+    import('@/pages/ChainflipLending/ChainflipLending').then(({ ChainflipLending }) => ({
+      default: ChainflipLending,
     })),
   ),
   {},
@@ -216,7 +227,7 @@ export const routes: Route[] = [
     priority: 2,
     main: TradeTab,
     category: RouteCategory.Featured,
-    relatedPaths: ['/trade', '/limit'],
+    relatedPaths: ['/trade', '/limit', '/ramp/trade', '/earn'],
     routes: [
       {
         path: TRADE_ROUTE_ASSET_SPECIFIC,
@@ -364,7 +375,9 @@ export const routes: Route[] = [
   },
   {
     path: '/lending/*',
-    label: 'navBar.lending',
+    label: getConfig().VITE_FEATURE_CHAINFLIP_LENDING
+      ? 'navBar.thorchainLending'
+      : 'navBar.lending',
     icon: <RiExchangeFundsLine />,
     main: LendingPage,
     category: RouteCategory.Thorchain,
@@ -372,6 +385,18 @@ export const routes: Route[] = [
     mobileNav: false,
     disable: !getConfig().VITE_FEATURE_THORCHAIN_LENDING,
     isViewOnly: true,
+    isDeprecated: getConfig().VITE_FEATURE_CHAINFLIP_LENDING,
+  },
+  {
+    path: '/chainflip-lending/*',
+    label: 'navBar.chainflipLending',
+    icon: <RiExchangeFundsLine />,
+    main: ChainflipLending,
+    category: RouteCategory.Chainflip,
+    priority: 3,
+    mobileNav: false,
+    disable: !getConfig().VITE_FEATURE_CHAINFLIP_LENDING,
+    isNew: true,
   },
   {
     path: '/assets',
@@ -387,7 +412,7 @@ export const routes: Route[] = [
     path: '/flags',
     label: 'navBar.featureFlags',
     icon: <FaFlag />,
-    hide: window.location.hostname !== 'localhost',
+    hide: !isLocalDev(),
     main: Flags,
   },
   {

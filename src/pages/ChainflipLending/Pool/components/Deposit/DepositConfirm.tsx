@@ -1,0 +1,480 @@
+import { ArrowForwardIcon, CheckCircleIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { Button, CardBody, CardFooter, Divider, Flex, HStack, Link, VStack } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ethChainId, flipAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { BigAmount } from '@shapeshiftoss/utils'
+import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query'
+import { memo, useCallback, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
+
+import { DepositMachineCtx } from './DepositMachineContext'
+import { DepositStepper } from './DepositStepper'
+import { useDepositActionCenter } from './hooks/useDepositActionCenter'
+import { useDepositApproval } from './hooks/useDepositApproval'
+import { useDepositChannel } from './hooks/useDepositChannel'
+import { useDepositConfirmation } from './hooks/useDepositConfirmation'
+import { useDepositFunding } from './hooks/useDepositFunding'
+import { useDepositRefundAddress } from './hooks/useDepositRefundAddress'
+import { useDepositRegistration } from './hooks/useDepositRegistration'
+import { useDepositSend } from './hooks/useDepositSend'
+
+import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
+import { InlineCopyButton } from '@/components/InlineCopyButton'
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { useInternalAccountReceiveAddress } from '@/components/Modals/Send/AddressBook/hooks/useInternalAccountReceiveAddress'
+import { SlideTransition } from '@/components/SlideTransition'
+import { RawText } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
+import {
+  CHAINFLIP_FLIP_TOKEN_ADDRESS,
+  CHAINFLIP_GATEWAY_CONTRACT_ADDRESS,
+  CHAINFLIP_LENDING_ASSET_BY_ASSET_ID,
+  FLIP_FUNDING_AMOUNT_CRYPTO_BASE_UNIT,
+} from '@/lib/chainflip/constants'
+import { getErc20Allowance } from '@/lib/utils/evm'
+import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
+import { useChainflipAccount } from '@/pages/ChainflipLending/hooks/useChainflipAccount'
+import { reactQueries } from '@/react-queries'
+import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/portfolioSlice/selectors'
+import { selectAssetById } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+
+type DepositConfirmProps = {
+  assetId: AssetId
+}
+
+export const DepositConfirm = memo(({ assetId }: DepositConfirmProps) => {
+  const translate = useTranslate()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const { accountNumber, scAccount } = useChainflipLendingAccount()
+  const { close: closeModal } = useModal('chainflipLending')
+  const { freeBalances } = useChainflipAccount()
+  const accountIdsByAccountNumberAndChainId = useAppSelector(
+    selectAccountIdsByAccountNumberAndChainId,
+  )
+
+  const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  const actorRef = DepositMachineCtx.useActorRef()
+  const isConfirm = DepositMachineCtx.useSelector(s => s.matches('confirm'))
+  const isSuccess = DepositMachineCtx.useSelector(s => s.matches('success'))
+  const isError = DepositMachineCtx.useSelector(s => s.matches('error'))
+  const depositAmountCryptoPrecision = DepositMachineCtx.useSelector(
+    s => s.context.depositAmountCryptoPrecision,
+  )
+  const txHashes = DepositMachineCtx.useSelector(s => s.context.txHashes)
+  const refundAddress = DepositMachineCtx.useSelector(s => s.context.refundAddress)
+  const error = DepositMachineCtx.useSelector(s => s.context.error)
+  const isNativeWallet = DepositMachineCtx.useSelector(s => s.context.isNativeWallet)
+  const stepConfirmed = DepositMachineCtx.useSelector(s => s.context.stepConfirmed)
+  const isConfirming = DepositMachineCtx.useSelector(s => s.matches('confirming'))
+
+  useDepositApproval()
+  useDepositFunding()
+  useDepositRegistration()
+  useDepositRefundAddress()
+  useDepositChannel()
+  useDepositSend()
+  useDepositConfirmation()
+  useDepositActionCenter()
+
+  const poolChainId = useMemo(() => fromAssetId(assetId).chainId, [assetId])
+
+  const poolChainAccountId = useMemo(() => {
+    const byChainId = accountIdsByAccountNumberAndChainId[accountNumber]
+    return byChainId?.[poolChainId]?.[0]
+  }, [accountIdsByAccountNumberAndChainId, accountNumber, poolChainId])
+
+  const { receiveAddress: userAddress } = useInternalAccountReceiveAddress({
+    accountId: poolChainAccountId ?? null,
+    asset,
+    enabled: true,
+  })
+
+  const { data: flipAllowanceCryptoBaseUnit, isLoading: isAllowanceLoading } = useQuery({
+    queryKey: ['chainflipFlipAllowance', userAddress],
+    queryFn: userAddress
+      ? () =>
+          getErc20Allowance({
+            address: CHAINFLIP_FLIP_TOKEN_ADDRESS,
+            from: userAddress,
+            spender: CHAINFLIP_GATEWAY_CONTRACT_ADDRESS,
+            chainId: ethChainId,
+          })
+      : skipToken,
+  })
+
+  const depositAmountCryptoBaseUnit = useMemo(() => {
+    if (!asset) return '0'
+    return BigAmount.fromPrecision({
+      value: depositAmountCryptoPrecision,
+      precision: asset.precision,
+    }).toBaseUnit()
+  }, [depositAmountCryptoPrecision, asset])
+
+  const cfAsset = useMemo(() => CHAINFLIP_LENDING_ASSET_BY_ASSET_ID[assetId], [assetId])
+
+  const initialFreeBalanceCryptoBaseUnit = useMemo(() => {
+    if (!freeBalances || !cfAsset) return '0'
+    const matching = freeBalances.find(
+      b => b.asset.chain === cfAsset.chain && b.asset.asset === cfAsset.asset,
+    )
+    return matching?.balance ?? '0'
+  }, [freeBalances, cfAsset])
+
+  const depositTxLink = useMemo(() => {
+    if (!txHashes.deposit || !asset?.explorerTxLink) return undefined
+    return `${asset.explorerTxLink}${txHashes.deposit}`
+  }, [txHashes.deposit, asset?.explorerTxLink])
+
+  const effectiveRefundAddress = refundAddress || userAddress || ''
+
+  const isLoading = isAllowanceLoading || !asset || !effectiveRefundAddress
+
+  const handleStart = useCallback(() => {
+    actorRef.send({
+      type: 'START',
+      depositAmountCryptoBaseUnit,
+      refundAddress: effectiveRefundAddress,
+      flipAllowanceCryptoBaseUnit: flipAllowanceCryptoBaseUnit ?? '0',
+      flipFundingAmountCryptoBaseUnit: FLIP_FUNDING_AMOUNT_CRYPTO_BASE_UNIT,
+      initialFreeBalanceCryptoBaseUnit,
+    })
+  }, [
+    actorRef,
+    depositAmountCryptoBaseUnit,
+    effectiveRefundAddress,
+    flipAllowanceCryptoBaseUnit,
+    initialFreeBalanceCryptoBaseUnit,
+  ])
+
+  const handleConfirmStep = useCallback(() => {
+    actorRef.send({ type: 'CONFIRM_STEP' })
+  }, [actorRef])
+
+  const handleRetry = useCallback(() => {
+    actorRef.send({ type: 'RETRY' })
+  }, [actorRef])
+
+  const handleDone = useCallback(async () => {
+    if (scAccount) {
+      await queryClient.invalidateQueries(reactQueries.chainflipLending.freeBalances(scAccount))
+      await queryClient.invalidateQueries(reactQueries.chainflipLending.accountInfo(scAccount))
+    }
+    actorRef.send({ type: 'DONE' })
+    closeModal()
+  }, [scAccount, queryClient, actorRef, closeModal])
+
+  const handleViewDashboard = useCallback(async () => {
+    await handleDone()
+    navigate('/chainflip-lending')
+  }, [handleDone, navigate])
+
+  const handleBack = useCallback(() => {
+    actorRef.send({ type: 'BACK' })
+  }, [actorRef])
+
+  if (!asset) return null
+
+  if (isSuccess) {
+    return (
+      <SlideTransition>
+        <CardBody px={6} py={4}>
+          <VStack spacing={6} align='center' py={6}>
+            <CheckCircleIcon boxSize={12} color='green.500' />
+            <VStack spacing={2}>
+              <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
+                {translate('chainflipLending.deposit.successTitle')}
+              </RawText>
+              <RawText fontSize='sm' color='text.subtle' textAlign='center'>
+                {translate('chainflipLending.deposit.successDescription', {
+                  asset: asset.symbol,
+                })}
+              </RawText>
+            </VStack>
+            <Flex
+              borderWidth={1}
+              borderColor='border.subtle'
+              borderRadius='lg'
+              p={4}
+              width='full'
+              direction='column'
+              gap={2}
+            >
+              <Flex justifyContent='space-between' alignItems='center'>
+                <RawText fontSize='sm' color='text.subtle'>
+                  {translate('chainflipLending.deposit.deposited')}
+                </RawText>
+                <Amount.Crypto
+                  value={depositAmountCryptoPrecision}
+                  symbol={asset.symbol}
+                  fontWeight='medium'
+                  fontSize='sm'
+                />
+              </Flex>
+              {txHashes.deposit && (
+                <Flex justifyContent='space-between' alignItems='center'>
+                  <RawText fontSize='sm' color='text.subtle'>
+                    {translate('chainflipLending.deposit.transactionId')}
+                  </RawText>
+                  {depositTxLink ? (
+                    <Link href={depositTxLink} isExternal color='text.link' fontSize='sm'>
+                      <HStack spacing={1}>
+                        <MiddleEllipsis value={txHashes.deposit} />
+                        <ExternalLinkIcon />
+                      </HStack>
+                    </Link>
+                  ) : (
+                    <RawText fontSize='sm'>
+                      <MiddleEllipsis value={txHashes.deposit} />
+                    </RawText>
+                  )}
+                </Flex>
+              )}
+            </Flex>
+          </VStack>
+        </CardBody>
+        <CardFooter
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          gap={4}
+          px={6}
+          py={4}
+        >
+          <HStack spacing={3} width='full'>
+            <Button
+              variant='ghost'
+              flex={1}
+              size='lg'
+              height={12}
+              borderRadius='xl'
+              onClick={handleDone}
+            >
+              {translate('common.close')}
+            </Button>
+            <Button
+              colorScheme='blue'
+              flex={1}
+              size='lg'
+              height={12}
+              borderRadius='xl'
+              fontWeight='bold'
+              onClick={handleViewDashboard}
+            >
+              {translate('chainflipLending.dashboard.viewDashboard')}
+            </Button>
+          </HStack>
+        </CardFooter>
+      </SlideTransition>
+    )
+  }
+
+  if (isError) {
+    return (
+      <SlideTransition>
+        <CardBody px={6} py={4}>
+          <VStack spacing={6} align='center' py={6}>
+            <HStack spacing={3}>
+              <AssetIcon assetId={assetId} size='md' />
+              <ArrowForwardIcon boxSize={5} color='text.subtle' />
+              <AssetIcon assetId={flipAssetId} size='md' />
+            </HStack>
+            <VStack spacing={2}>
+              <RawText fontWeight='bold' fontSize='lg' textAlign='center' color='red.500'>
+                {translate('chainflipLending.deposit.errorTitle')}
+              </RawText>
+              <RawText fontSize='sm' color='text.subtle' textAlign='center'>
+                {error ?? translate('chainflipLending.deposit.errorDescription')}
+              </RawText>
+            </VStack>
+            <DepositStepper assetId={assetId} />
+          </VStack>
+        </CardBody>
+        <CardFooter
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          gap={2}
+          px={6}
+          py={4}
+        >
+          <Button
+            colorScheme='blue'
+            size='lg'
+            height={12}
+            borderRadius='xl'
+            width='full'
+            fontWeight='bold'
+            onClick={handleRetry}
+          >
+            {translate('common.retry')}
+          </Button>
+          <Button variant='ghost' size='sm' width='full' onClick={handleBack}>
+            {translate('common.back')}
+          </Button>
+        </CardFooter>
+      </SlideTransition>
+    )
+  }
+
+  const isAwaitingNativeConfirm = isNativeWallet && !isConfirming && !stepConfirmed
+
+  if (!isConfirm) {
+    return (
+      <SlideTransition>
+        <CardBody px={6} py={4}>
+          <VStack spacing={6} align='center' py={6}>
+            <HStack spacing={3}>
+              <AssetIcon assetId={assetId} size='md' />
+              <ArrowForwardIcon boxSize={5} color='text.subtle' />
+              <AssetIcon assetId={flipAssetId} size='md' />
+            </HStack>
+            {!isAwaitingNativeConfirm && <CircularProgress isIndeterminate />}
+            <VStack spacing={2}>
+              <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
+                {isAwaitingNativeConfirm
+                  ? translate('chainflipLending.awaitingConfirmTitle')
+                  : translate('chainflipLending.deposit.executingTitle')}
+              </RawText>
+              <RawText fontSize='sm' color='text.subtle' textAlign='center'>
+                {isAwaitingNativeConfirm
+                  ? translate('chainflipLending.awaitingConfirmDescription')
+                  : translate('chainflipLending.deposit.executingDescription')}
+              </RawText>
+            </VStack>
+            <DepositStepper assetId={assetId} />
+          </VStack>
+        </CardBody>
+        <CardFooter
+          borderTopWidth={1}
+          borderColor='border.subtle'
+          flexDir='column'
+          gap={2}
+          px={6}
+          py={4}
+        >
+          {isNativeWallet && !isConfirming && (
+            <Button
+              colorScheme='blue'
+              size='lg'
+              height={12}
+              borderRadius='xl'
+              width='full'
+              fontWeight='bold'
+              onClick={handleConfirmStep}
+              isLoading={stepConfirmed}
+              isDisabled={stepConfirmed}
+            >
+              {translate('common.confirm')}
+            </Button>
+          )}
+        </CardFooter>
+      </SlideTransition>
+    )
+  }
+
+  return (
+    <SlideTransition>
+      <CardBody px={6} py={4}>
+        <VStack spacing={4} align='center' py={4}>
+          <AssetIcon assetId={assetId} size='lg' />
+          <Amount.Crypto
+            value={depositAmountCryptoPrecision}
+            symbol={asset.symbol}
+            fontWeight='bold'
+            fontSize='2xl'
+          />
+        </VStack>
+        <Divider borderColor='border.subtle' />
+        <VStack spacing={3} width='full' py={4}>
+          <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('chainflipLending.deposit.asset')}
+            </RawText>
+            <RawText fontSize='sm' fontWeight='medium'>
+              {asset.name}
+            </RawText>
+          </Flex>
+          <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('chainflipLending.deposit.amount')}
+            </RawText>
+            <Amount.Crypto
+              value={depositAmountCryptoPrecision}
+              symbol={asset.symbol}
+              fontSize='sm'
+              fontWeight='medium'
+            />
+          </Flex>
+          <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('chainflipLending.deposit.freeBalance')}
+            </RawText>
+            <Amount.Crypto
+              value={
+                asset
+                  ? BigAmount.fromBaseUnit({
+                      value: initialFreeBalanceCryptoBaseUnit,
+                      precision: asset.precision,
+                    }).toPrecision()
+                  : '0'
+              }
+              symbol={asset.symbol}
+              fontSize='sm'
+              fontWeight='medium'
+            />
+          </Flex>
+          {effectiveRefundAddress && (
+            <Flex justifyContent='space-between' alignItems='center' width='full'>
+              <RawText fontSize='sm' color='text.subtle'>
+                {translate('chainflipLending.deposit.recoveryAddress')}
+              </RawText>
+              <InlineCopyButton value={effectiveRefundAddress}>
+                <RawText fontSize='sm' fontWeight='medium' color='text.subtle'>
+                  <MiddleEllipsis value={effectiveRefundAddress} />
+                </RawText>
+              </InlineCopyButton>
+            </Flex>
+          )}
+        </VStack>
+      </CardBody>
+      <CardFooter
+        borderTopWidth={1}
+        borderColor='border.subtle'
+        flexDir='row'
+        gap={3}
+        px={6}
+        py={4}
+      >
+        <Button
+          variant='ghost'
+          flex={1}
+          size='lg'
+          height={12}
+          borderRadius='xl'
+          onClick={handleBack}
+        >
+          {translate('common.back')}
+        </Button>
+        <Button
+          colorScheme='blue'
+          flex={1}
+          size='lg'
+          height={12}
+          borderRadius='xl'
+          fontWeight='bold'
+          onClick={handleStart}
+          isLoading={isLoading}
+          isDisabled={isLoading}
+        >
+          {translate('chainflipLending.deposit.confirmAndDeposit')}
+        </Button>
+      </CardFooter>
+    </SlideTransition>
+  )
+})

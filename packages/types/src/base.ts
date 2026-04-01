@@ -31,6 +31,7 @@ export enum KnownChainIds {
   BerachainMainnet = 'eip155:80094',
   CronosMainnet = 'eip155:25',
   KatanaMainnet = 'eip155:747474',
+  EtherealMainnet = 'eip155:5064014',
   FlowEvmMainnet = 'eip155:747',
   CeloMainnet = 'eip155:42220',
   PlumeMainnet = 'eip155:98866',
@@ -39,6 +40,7 @@ export enum KnownChainIds {
   BlastMainnet = 'eip155:81457',
   WorldChainMainnet = 'eip155:480',
   HemiMainnet = 'eip155:43111',
+  SeiMainnet = 'eip155:1329',
   LineaMainnet = 'eip155:59144',
   ScrollMainnet = 'eip155:534352',
   SonicMainnet = 'eip155:146',
@@ -60,6 +62,7 @@ export enum KnownChainIds {
   NearMainnet = 'near:mainnet',
   StarknetMainnet = 'starknet:SN_MAIN',
   TonMainnet = 'ton:mainnet',
+  AbstractMainnet = 'eip155:2741',
 }
 
 export type EvmChainId =
@@ -80,6 +83,7 @@ export type EvmChainId =
   | KnownChainIds.BerachainMainnet
   | KnownChainIds.CronosMainnet
   | KnownChainIds.KatanaMainnet
+  | KnownChainIds.EtherealMainnet
   | KnownChainIds.FlowEvmMainnet
   | KnownChainIds.CeloMainnet
   | KnownChainIds.PlumeMainnet
@@ -88,6 +92,7 @@ export type EvmChainId =
   | KnownChainIds.BlastMainnet
   | KnownChainIds.WorldChainMainnet
   | KnownChainIds.HemiMainnet
+  | KnownChainIds.SeiMainnet
   | KnownChainIds.LineaMainnet
   | KnownChainIds.ScrollMainnet
   | KnownChainIds.SonicMainnet
@@ -95,6 +100,7 @@ export type EvmChainId =
   | KnownChainIds.BobMainnet
   | KnownChainIds.ModeMainnet
   | KnownChainIds.SoneiumMainnet
+  | KnownChainIds.AbstractMainnet
 
 export type CosmosSdkChainId =
   | KnownChainIds.CosmosMainnet
@@ -115,6 +121,8 @@ export type TronChainId = KnownChainIds.TronMainnet
 export type SuiChainId = KnownChainIds.SuiMainnet
 
 export type NearChainId = KnownChainIds.NearMainnet
+
+export type SolanaChainId = KnownChainIds.SolanaMainnet
 
 export type StarknetChainId = KnownChainIds.StarknetMainnet
 

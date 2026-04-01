@@ -21,6 +21,7 @@ import { AppProviders } from './AppProviders'
 import { PerformanceProfiler } from './components/PerformanceProfiler'
 import { getConfig } from './config'
 import { renderConsoleArt } from './lib/consoleArt'
+import { isLocalDev } from './lib/isLocalDev'
 import { profiler } from './lib/performanceProfiler'
 import { reportWebVitals } from './lib/reportWebVitals'
 import { httpClientIntegration } from './utils/sentry/httpclient'
@@ -35,12 +36,12 @@ if (enablePerformanceProfiler) {
 const SENTRY_ENABLED = true
 
 scan({
-  enabled: window.location.hostname === 'localhost' && enableReactScan,
+  enabled: isLocalDev() && enableReactScan,
 })
 
 // Sentry is disabled on localhost by default
 // To test locally, set VITE_ENABLE_SENTRY_LOCALHOST=true in your .env.local file
-const isLocalhost = window.location.hostname === 'localhost'
+const isLocalhost = isLocalDev()
 const enableSentryOnLocalhost = import.meta.env.VITE_ENABLE_SENTRY_LOCALHOST === 'true'
 const shouldEnableSentry = SENTRY_ENABLED && (!isLocalhost || enableSentryOnLocalhost)
 
@@ -60,6 +61,7 @@ if (shouldEnableSentry) {
   ] as const
 
   const environment = (() => {
+    if (isLocalhost) return 'localhost'
     if (window.location.hostname.includes('app')) return 'production'
 
     if (VALID_ENVS.some(env => window.location.hostname.includes(env)))
@@ -110,13 +112,7 @@ if (shouldEnableSentry) {
           [500, 599], // Only server errors, not client errors
         ],
 
-        denyUrls: [
-          'alchemy.com',
-          'snapshot.org',
-          'coingecko.com',
-          'coincap.io',
-          'coinmarketcap.com',
-        ],
+        denyUrls: ['snapshot.org', 'coingecko.com', 'coincap.io', 'coinmarketcap.com'],
       }),
       browserApiErrorsIntegration(),
       breadcrumbsIntegration(),

@@ -93,6 +93,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   const isStoryEnabled = useAppSelector(state => selectFeatureFlag(state, 'Story'))
   const isZkSyncEraEnabled = useAppSelector(state => selectFeatureFlag(state, 'ZkSyncEra'))
   const isBlastEnabled = useAppSelector(state => selectFeatureFlag(state, 'Blast'))
+  const isAbstractEnabled = useAppSelector(state => selectFeatureFlag(state, 'Abstract'))
   const isWorldChainEnabled = useAppSelector(state => selectFeatureFlag(state, 'WorldChain'))
   const isHemiEnabled = useAppSelector(state => selectFeatureFlag(state, 'Hemi'))
   const isCronosEnabled = useAppSelector(state => selectFeatureFlag(state, 'Cronos'))
@@ -101,8 +102,10 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   const isBobEnabled = useAppSelector(state => selectFeatureFlag(state, 'Bob'))
   const isModeEnabled = useAppSelector(state => selectFeatureFlag(state, 'Mode'))
   const isSoneiumEnabled = useAppSelector(state => selectFeatureFlag(state, 'Soneium'))
+  const isEtherealEnabled = useAppSelector(state => selectFeatureFlag(state, 'Ethereal'))
   const isFlowEvmEnabled = useAppSelector(state => selectFeatureFlag(state, 'FlowEvm'))
   const isCeloEnabled = useAppSelector(state => selectFeatureFlag(state, 'Celo'))
+  const isSeiEnabled = useAppSelector(state => selectFeatureFlag(state, 'Sei'))
   const [isSmallerThanLg] = useMediaQuery(`(max-width: ${breakpoints.lg})`)
 
   const chainIds = useMemo(() => {
@@ -122,8 +125,10 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
       if (!isStoryEnabled && chainId === KnownChainIds.StoryMainnet) return false
       if (!isZkSyncEraEnabled && chainId === KnownChainIds.ZkSyncEraMainnet) return false
       if (!isBlastEnabled && chainId === KnownChainIds.BlastMainnet) return false
+      if (!isAbstractEnabled && chainId === KnownChainIds.AbstractMainnet) return false
       if (!isWorldChainEnabled && chainId === KnownChainIds.WorldChainMainnet) return false
       if (!isHemiEnabled && chainId === KnownChainIds.HemiMainnet) return false
+      if (!isSeiEnabled && chainId === KnownChainIds.SeiMainnet) return false
       if (!isBerachainEnabled && chainId === KnownChainIds.BerachainMainnet) return false
       if (!isCronosEnabled && chainId === KnownChainIds.CronosMainnet) return false
       if (!isSonicEnabled && chainId === KnownChainIds.SonicMainnet) return false
@@ -131,6 +136,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
       if (!isBobEnabled && chainId === KnownChainIds.BobMainnet) return false
       if (!isModeEnabled && chainId === KnownChainIds.ModeMainnet) return false
       if (!isSoneiumEnabled && chainId === KnownChainIds.SoneiumMainnet) return false
+      if (!isEtherealEnabled && chainId === KnownChainIds.EtherealMainnet) return false
       if (!isFlowEvmEnabled && chainId === KnownChainIds.FlowEvmMainnet) return false
       if (!isCeloEnabled && chainId === KnownChainIds.CeloMainnet) return false
       return true
@@ -151,6 +157,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
     isStoryEnabled,
     isZkSyncEraEnabled,
     isBlastEnabled,
+    isAbstractEnabled,
     isWorldChainEnabled,
     isHemiEnabled,
     isCronosEnabled,
@@ -159,8 +166,10 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
     isBobEnabled,
     isModeEnabled,
     isSoneiumEnabled,
+    isEtherealEnabled,
     isFlowEvmEnabled,
     isCeloEnabled,
+    isSeiEnabled,
   ])
 
   const Title = useMemo(() => {
@@ -215,7 +224,7 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   }, [selectedOrder, selectedSort, showOrderFilter, showSortFilter])
 
   return (
-    <Box mb={12}>
+    <Box mb={12} data-testid={category ? `markets-row-${category}` : undefined}>
       <Flex
         justify='space-between'
         align={flexAlign}

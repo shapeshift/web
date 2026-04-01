@@ -83,6 +83,8 @@ type DemoContentProps = {
 const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
   const [showCustomizer, setShowCustomizer] = useState(true)
 
+  const [partnerCode, setPartnerCode] = useState('')
+
   const [darkColors, setDarkColors] = useState<ThemeColors>({
     bg: '#0a0a14',
     card: '#12121c',
@@ -219,6 +221,18 @@ ${formatColors(lightColors, 'light')}
             {showCustomizer && (
               <div className='demo-customizer'>
                 <h3 className='demo-customizer-title'>Customize Widget</h3>
+
+                <div className='demo-customizer-section'>
+                  <span className='demo-customizer-label'>Partner Code</span>
+                  <input
+                    type='text'
+                    value={partnerCode}
+                    onChange={e => setPartnerCode(e.target.value)}
+                    placeholder='your-partner-code'
+                    className='demo-color-text'
+                    style={{ width: '100%' }}
+                  />
+                </div>
 
                 <div className='demo-customizer-section'>
                   <span className='demo-customizer-label'>Presets</span>
@@ -454,7 +468,7 @@ ${formatColors(lightColors, 'light')}
 
             <div className='demo-widget-container'>
               <SwapWidget
-                affiliateAddress='0x0000000000000000000000000000000000000001'
+                partnerCode={partnerCode || undefined}
                 theme={themeConfig}
                 onSwapSuccess={handleSwapSuccess}
                 onSwapError={handleSwapError}

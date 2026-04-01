@@ -1,5 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
+import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import type {
   ETHSignMessage,
   ETHSignTx,
@@ -8,6 +9,7 @@ import type {
   HDWallet,
 } from '@shapeshiftoss/hdwallet-core'
 import {
+  supportsAbstract,
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
@@ -18,6 +20,7 @@ import {
   supportsCelo,
   supportsCronos,
   supportsETH,
+  supportsEthereal,
   supportsFlowEvm,
   supportsGnosis,
   supportsHemi,
@@ -34,6 +37,7 @@ import {
   supportsPlume,
   supportsPolygon,
   supportsScroll,
+  supportsSei,
   supportsSoneium,
   supportsSonic,
   supportsStory,
@@ -46,7 +50,8 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
 import PQueue from 'p-queue'
-import { isAddress, toHex } from 'viem'
+import type { Hex, PublicClient } from 'viem'
+import { getAddress, isAddress, isHex, parseUnits, toHex } from 'viem'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
 import {
@@ -88,6 +93,7 @@ import type {
   BuildCustomApiTxInput,
   BuildCustomTxInput,
   EstimateGasRequest,
+  GasFeeData,
   GasFeeDataEstimate,
   NetworkFees,
 } from './types'
@@ -112,6 +118,7 @@ export const evmChainIds = [
   KnownChainIds.BerachainMainnet,
   KnownChainIds.CronosMainnet,
   KnownChainIds.KatanaMainnet,
+  KnownChainIds.EtherealMainnet,
   KnownChainIds.FlowEvmMainnet,
   KnownChainIds.CeloMainnet,
   KnownChainIds.StoryMainnet,
@@ -126,6 +133,8 @@ export const evmChainIds = [
   KnownChainIds.BobMainnet,
   KnownChainIds.ModeMainnet,
   KnownChainIds.SoneiumMainnet,
+  KnownChainIds.SeiMainnet,
+  KnownChainIds.AbstractMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -240,6 +249,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsCronos(wallet)
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
+        case Number(fromChainId(KnownChainIds.EtherealMainnet).chainReference):
+          return supportsEthereal(wallet)
         case Number(fromChainId(KnownChainIds.FlowEvmMainnet).chainReference):
           return supportsFlowEvm(wallet)
         case Number(fromChainId(KnownChainIds.CeloMainnet).chainReference):
@@ -250,6 +261,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsZkSyncEra(wallet)
         case Number(fromChainId(KnownChainIds.BlastMainnet).chainReference):
           return supportsBlast(wallet)
+        case Number(fromChainId(KnownChainIds.AbstractMainnet).chainReference):
+          return supportsAbstract(wallet)
         case Number(fromChainId(KnownChainIds.WorldChainMainnet).chainReference):
           return supportsWorldChain(wallet)
         case Number(fromChainId(KnownChainIds.HemiMainnet).chainReference):
@@ -268,6 +281,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsMode(wallet)
         case Number(fromChainId(KnownChainIds.SoneiumMainnet).chainReference):
           return supportsSoneium(wallet)
+        case Number(fromChainId(KnownChainIds.SeiMainnet).chainReference):
+          return supportsSei(wallet)
         default:
           return false
       }
@@ -390,6 +405,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         symbol: 'ETH',
         explorer: 'https://katanascan.com',
       },
+      [KnownChainIds.EtherealMainnet]: {
+        name: 'USDe',
+        symbol: 'USDe',
+        explorer: 'https://explorer.ethereal.global',
+      },
       [KnownChainIds.FlowEvmMainnet]: {
         name: 'Flow',
         symbol: 'FLOW',
@@ -459,6 +479,16 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://soneium.blockscout.com',
+      },
+      [KnownChainIds.SeiMainnet]: {
+        name: 'SEI',
+        symbol: 'SEI',
+        explorer: 'https://seitrace.com',
+      },
+      [KnownChainIds.AbstractMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://abscan.org',
       },
     }[this.chainId]
 
@@ -574,6 +604,32 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
+  private async getAccountFallback(pubkey: string, viemClient: PublicClient): Promise<Account<T>> {
+    try {
+      const [balance, nonce] = await Promise.all([
+        viemClient.getBalance({ address: pubkey as `0x${string}` }),
+        viemClient.getTransactionCount({ address: pubkey as `0x${string}` }),
+      ])
+
+      return {
+        balance: balance.toString(),
+        chainId: this.chainId,
+        assetId: this.assetId,
+        chain: this.getType(),
+        chainSpecific: {
+          nonce,
+          tokens: [],
+        },
+        pubkey,
+      } as Account<T>
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getAccount',
+        options: { pubkey },
+      })
+    }
+  }
+
   async getAccount(pubkey: string): Promise<Account<T>> {
     try {
       const data = await this.providers.http.getAccount({ pubkey })
@@ -602,6 +658,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         pubkey,
       } as Account<T>
     } catch (err) {
+      const viemClient = viemClientByChainId[this.chainId]
+      if (viemClient) {
+        console.warn(`Unchained getAccount failed for ${this.chainId}, falling back to direct RPC`)
+        return this.getAccountFallback(pubkey, viemClient)
+      }
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getAccount',
         options: { pubkey },
@@ -694,9 +755,18 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
       ])
 
-      const txHash = await this.providers.http.sendTx({ sendTxBody: { hex } })
-
-      return txHash
+      try {
+        return await this.providers.http.sendTx({ sendTxBody: { hex } })
+      } catch (unchainedErr) {
+        const viemClient = viemClientByChainId[this.chainId]
+        if (viemClient) {
+          console.warn(
+            `Unchained broadcastTransaction failed for ${this.chainId}, falling back to direct RPC`,
+          )
+          return viemClient.sendRawTransaction({ serializedTransaction: hex as Hex })
+        }
+        throw unchainedErr
+      }
     } catch (err) {
       return handleBroadcastTransactionError(err)
     }
@@ -913,11 +983,46 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
+  async getGasFeeDataFallback(viemClient: PublicClient): Promise<GasFeeDataEstimate> {
+    try {
+      const feeData = await viemClient
+        .estimateFeesPerGas({ type: 'eip1559', chain: null })
+        .catch(() => viemClient.estimateFeesPerGas({ type: 'legacy', chain: null }))
+
+      const fees: GasFeeData = {
+        gasPrice: (feeData.gasPrice ?? feeData.maxFeePerGas).toString(),
+        ...(feeData.maxFeePerGas && feeData.maxPriorityFeePerGas
+          ? {
+              maxFeePerGas: feeData.maxFeePerGas.toString(),
+              maxPriorityFeePerGas: feeData.maxPriorityFeePerGas.toString(),
+            }
+          : {}),
+      }
+
+      return {
+        fast: fees,
+        average: fees,
+        slow: fees,
+      }
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getGasFeeData',
+      })
+    }
+  }
+
   async getGasFeeData(): Promise<GasFeeDataEstimate> {
     try {
       const { fast, average, slow } = await this.providers.http.getGasFees()
       return { fast, average, slow }
     } catch (err) {
+      const viemClient = viemClientByChainId[this.chainId]
+      if (viemClient) {
+        console.warn(
+          `Unchained getGasFeeData failed for ${this.chainId}, falling back to direct RPC`,
+        )
+        return this.getGasFeeDataFallback(viemClient)
+      }
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getGasFeeData',
       })
@@ -926,9 +1031,30 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   async getFeeData(input: GetFeeDataInput<T>): Promise<FeeDataEstimate<T>> {
     try {
-      const { gasLimit } = await this.providers.http.estimateGas({
-        estimateGasBody: this.buildEstimateGasBody(input),
-      })
+      const gasLimit = await (async () => {
+        const estimateGasBody = this.buildEstimateGasBody(input)
+
+        try {
+          const { gasLimit } = await this.providers.http.estimateGas({ estimateGasBody })
+          return gasLimit
+        } catch (err) {
+          const viemClient = viemClientByChainId[this.chainId]
+          if (!viemClient) throw err
+
+          console.warn(
+            `Unchained estimateGas failed for ${this.chainId}, falling back to direct RPC`,
+          )
+
+          const gasLimit = await viemClient.estimateGas({
+            account: getAddress(estimateGasBody.from),
+            to: getAddress(estimateGasBody.to),
+            value: parseUnits(estimateGasBody.value, 0),
+            data: isHex(estimateGasBody.data) ? estimateGasBody.data : toHex(estimateGasBody.data),
+          })
+
+          return gasLimit.toString()
+        }
+      })()
 
       const { fast, average, slow } = await this.getGasFeeData()
 

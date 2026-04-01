@@ -198,6 +198,7 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   [KnownChainIds.ScrollMainnet]: [],
   [KnownChainIds.CronosMainnet]: [],
   [KnownChainIds.KatanaMainnet]: [],
+  [KnownChainIds.EtherealMainnet]: [],
   [KnownChainIds.FlowEvmMainnet]: [],
   [KnownChainIds.CeloMainnet]: [],
   [KnownChainIds.PlumeMainnet]: [],
@@ -208,11 +209,13 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   [KnownChainIds.BobMainnet]: [],
   [KnownChainIds.ModeMainnet]: [],
   [KnownChainIds.SoneiumMainnet]: [],
+  [KnownChainIds.SeiMainnet]: [],
   [KnownChainIds.ZcashMainnet]: [],
   [KnownChainIds.NearMainnet]: [],
   [KnownChainIds.TonMainnet]: [],
   [KnownChainIds.ZkSyncEraMainnet]: [],
   [KnownChainIds.BlastMainnet]: [],
+  [KnownChainIds.AbstractMainnet]: [],
   [KnownChainIds.HemiMainnet]: [],
 }
 

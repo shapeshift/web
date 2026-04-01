@@ -1,5 +1,3 @@
-import type { BitcoinConnector } from '@reown/appkit-adapter-bitcoin'
-import type { Provider as SolanaProvider } from '@reown/appkit-adapter-solana/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
@@ -29,11 +27,12 @@ import {
 import type { TransactionData } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
 import type { WalletClient } from 'viem'
-import { erc20Abi } from 'viem'
 
+export type { BitcoinConnector } from '@reown/appkit-adapter-bitcoin'
+export type { Provider as SolanaProvider } from '@reown/appkit-adapter-solana/react'
 export type { AssetId, ChainId }
-export type { BitcoinConnector }
-export type { SolanaProvider }
+
+export { erc20Abi as ERC20_ABI } from 'viem'
 
 export enum SwapperName {
   Thorchain = 'THORChain',
@@ -138,8 +137,9 @@ export type ThemeConfig = {
 }
 
 export type SwapWidgetProps = {
-  affiliateAddress?: string
+  partnerCode?: string
   apiBaseUrl?: string
+  appUrl?: string
   defaultSellAsset?: Asset
   defaultBuyAsset?: Asset
   disabledChainIds?: ChainId[]
@@ -235,8 +235,6 @@ export type QuoteResponse = {
     steps?: ApiQuoteStep[]
   }
 }
-
-export { erc20Abi as ERC20_ABI }
 
 export type AssetsResponse = {
   byId: Record<AssetId, Asset>

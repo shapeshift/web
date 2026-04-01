@@ -1,5 +1,6 @@
 {
   "common": {
+    "addressRequired": "Adresse erforderlich",
     "amount": "Betrag",
     "ascending": "Aufsteigend",
     "descending": "Absteigend",
@@ -68,6 +69,7 @@
     "rename": "Umbenennen",
     "forget": "Vergessen?",
     "pending": "Ausstehend",
+    "current": "Aktuell",
     "preview": "Vorschau",
     "incomplete": "Unvollständig",
     "available": "Verfügbar",
@@ -139,6 +141,7 @@
     "manage": "Verwalten",
     "view": "Ansicht",
     "viewOnly": "Nur Ansicht",
+    "deprecated": "Veraltet",
     "allChains": "All Blockchains",
     "wallet": "Wallet",
     "feedbackAndSupport": "Feedback & Unterstützung",
@@ -178,6 +181,7 @@
       "expandRow": "Zeile erweitern"
     },
     "featureDisabled": "Diese Funktion ist vorübergehend deaktiviert.",
+    "no": "Nein",
     "yes": "Ja",
     "activeAccount": "Aktives Konto",
     "selectAccount": "Konto auswählen",
@@ -196,7 +200,8 @@
     "permit2Approval": "Permit2 Genehmigung",
     "network": "Netzwerk",
     "feeEstimate": "Voraussichtliche Gebühren",
-    "list": "Liste"
+    "list": "Liste",
+    "retry": "Wiederholen"
   },
   "accountSelector": {
     "chooseAccount": "Konto auswählen"
@@ -345,7 +350,7 @@
         "marketCapRank": "Rangliste der Marktkapitalisierung",
         "volume24h": "24h Volumen",
         "volMcap": "Vol/Marktkap.",
-        "about": "Über",
+        "about": "Über %{symbol}",
         "noDescription": "Für diese Wertanlage ist keine Beschreibung verfügbar."
       },
       "receive": {
@@ -717,6 +722,8 @@
     "buyCrypto": "Krypto kaufen/verkaufen",
     "buyCryptoShort": "Kauf/Verkauf",
     "lending": "Verleihen",
+    "thorchainLending": "THORChain Lending",
+    "chainflipLending": "Chainflip Lending",
     "pools": "Pools",
     "rFOX": "rFOX",
     "tcy": "TCY",
@@ -1377,6 +1384,32 @@
       },
       "status": {
         "pendingBody": "Sende %{amount} %{symbol}"
+      },
+      "speedUp": {
+        "title": "Transaktion beschleunigen",
+        "description": "Erhöhen Sie die Gebühr, um Ihre ausstehende Bitcoin Transaktion zu beschleunigen.",
+        "currentFee": "Aktuelle Gebühr",
+        "currentFeeRate": "Aktueller Gebührensatz",
+        "previousFee": "Vorherige Gebühr",
+        "newFee": "Neue Gebühr",
+        "additionalFee": "Zusätzliche Gebühr",
+        "newFeeRate": "Neuer Gebührensatz",
+        "feeDifference": "Zusätzliche Gebühr",
+        "confirm": "Beschleunigen bestätigen",
+        "cancel": "stattdessen Transaktion stornieren",
+        "cancelDescription": "Senden Sie das Geld mit einer höheren Gebühr an sich selbst zurück und stornieren Sie damit die ursprüngliche Transaktion.",
+        "confirmCancel": "Stornierung bestätigen",
+        "insufficientFunds": "Nicht genügend Guthaben zur Erhöhung der Gebühr",
+        "selectFeeRate": "Wählen Sie einen höheren Gebührensatz",
+        "pendingTransaction": "Ausstehende Transaktion",
+        "speedingUp": "Beschleunigung der Transaktion...",
+        "canceling": "Transaktion wird abgebrochen...",
+        "fetchError": "Fehler beim Abrufen der Transaktionsdaten",
+        "feesTooLow": "Die aktuellen Gebühren entsprechen bereits den Netzwerktarifen.",
+        "alreadySpentOrReplaced": "Diese Transaktion kann nicht mehr beschleunigt werden, da sie bereits ersetzt oder bestätigt wurde.",
+        "alreadyConfirmed": "Diese Transaktion ist bereits bestätigt und kann nicht mehr beschleunigt werden.",
+        "speedUpFailed": "Die Transaktion konnte nicht beschleunigt werden.",
+        "broadcastNotObserved": "Die Ersatztransaktion wurde vom Netzwerk noch nicht empfangen. Bitte versuchen Sie es erneut."
       }
     },
     "receive": {
@@ -1787,6 +1820,22 @@
         "button": "Kopple"
       }
     },
+    "nativeMultichain": {
+      "title": "MetaMask unterstützt jetzt nativ %{chains}.",
+      "subtitle": "Sie können %{chains} jetzt direkt über MetaMask verwenden, ohne den ShapeShift Multichain Snap.",
+      "useNative": "Verwenden Sie native Multichains",
+      "useNativeRecommended": "Empfohlen",
+      "keepSnap": "Verwenden Sie Snap weiterhin.",
+      "snapChainWarning": "Die Auswahl einer nativen Multichain ersetzt die von Snap bereitgestellten Konten. Sie können jederzeit in den Walleteinstellungen zurückwechseln.",
+      "switchWarning": "Durch den Wechsel werden Ihre Nicht-EVM-Konten neu berechnet. Ihre EVM-Konten und -Guthaben bleiben davon unberührt.",
+      "nativeActive": "Native Multichain",
+      "snapActive": "Multichain Snap",
+      "switchToNative": "Wechseln Sie zu nativer Multichain.",
+      "switchToSnap": "Zurück zu Snap wechseln",
+      "switchConfirmTitle": "Multichain Modus umschalten",
+      "switchConfirmBody": "Dadurch werden Ihre Nicht-EVM-Konten im neuen Modus neu berechnet. Ihre EVM-Konten sind davon nicht betroffen.",
+      "switchConfirmAction": "Wechseln"
+    },
     "metaMaskSnap": {
       "title": "Multichain Unterstützung ist jetzt für MetaMask verfügbar!",
       "subtitle": "Fügen Sie den Multichain Snap auf Metamask hinzu, um mit den folgenden Ketten - zu senden, empfangen, verfolgen, handeln und verdienen:",
@@ -1818,8 +1867,8 @@
       "warningBackup": "Stellen Sie sicher, dass Sie Ihre MetaMask-Seed-Phrase gesichert haben. Alle Guthaben, die Sie mit diesem Snap an Nicht-EVM-Ketten senden, werden an das Standardkonto weitergeleitet, das Sie mit MetaMask eingerichtet haben.",
       "agreeIntro": "Bevor Sie fortfahren, lesen Sie bitte Folgendes:",
       "agreeItem1": "Hardware Wallets werden <strong>NICHT</strong> unterstützt",
-      "agreeItem2": "Für die zusätzlichen Ketten, die der ShapeShift Multichain Snap bereitstellt, wird nur Konto Nr. 1 in MetaMask unterstützt",
-      "agreeItem3": "Um die vorhandenen Ethereum-Ketten von MetaMask nutzen zu können, müssen Sie Konto Nr. 1 mit ShapeShift in MetaMask verbinden",
+      "agreeItem2": "Für die zusätzlichen Ketten, die der ShapeShift Multichain Snap bereitstellt, wird nur Konto Nr. 0 in MetaMask unterstützt",
+      "agreeItem3": "Um die vorhandenen Ethereum-Ketten von MetaMask nutzen zu können, müssen Sie Konto Nr. 0 mit ShapeShift in MetaMask verbinden",
       "agreeItem4": "Indem Sie den ShapeShift Multichain Snap aktivieren, erkennen Sie an, dass Sie ihn auf eigenes Risiko verwenden",
       "readAndUnderstood": "Ich habe es gelesen und verstanden",
       "seedBackedUp": "Ich habe meine MetaMask Seed-Phrase gesichert",
@@ -1951,7 +2000,7 @@
         "multiChain": {
           "title": "Mehrere Ketten werden gleichzeitig unterstützt ",
           "subTitle": "Sie müssen nie das Netzwerk in der Wallet wechseln, es funktioniert mit jeder nahtlos.",
-          "body": "Wenn eine neues Netzwerk in ShapeShift hinzugefügt wird, wird Ihre Native Wallet es automatisch unterstützen."
+          "body": "Greifen Sie auf Bitcoin, Ethereum, Solana und viele weitere Chains über ein einziges Wallet zu. Handeln und verwalten Sie Ihre Assets nahtlos über verschiedene Netzwerke hinweg."
         },
         "selfCustody": {
           "title": "Ihre ShapeShift Wallet verwalten Sie",
@@ -2133,6 +2182,11 @@
       "deployFailed": "Bereitstellung fehlgeschlagen"
     }
   },
+  "tron": {
+    "recipientNotActivated": {
+      "sendWarning": "Diese Adresse ist bei Tron noch nicht aktiviert. Ihre Token werden ankommen, aber der Empfänger kann sie erst transferieren, wenn er ebenfalls TRX erhalten hat."
+    }
+  },
   "transactionHistory": {
     "transactionHistory": "bisherige Transaktionen",
     "recentTransactions": "kürzliche Transaktionen",
@@ -2170,13 +2224,22 @@
     "txid": "TX ID",
     "status": "Status",
     "minerFee": "Miner-Gebühr",
+    "orderRoute": "Auftragsroute",
+    "transactionType": "Transaktionstyp",
+    "fee": "Gebühr",
+    "approvalAmount": "Genehmigungsbetrag",
     "date": "Datum",
     "sentTo": "Gesendet an %{address}",
     "receivedFrom": "Erhalten von %{address}",
     "today": "Heute",
     "yesterday": "Gestern",
     "thisWeek": "Diese Woche",
-    "thisMonth": "Diesen Monat"
+    "thisMonth": "Diesen Monat",
+    "speedUp": "Beschleunigen",
+    "cancelTransaction": "Transaktion stornieren",
+    "replaced": "Ersetzt",
+    "replacedBy": "Ersetzt durch %{txHash}",
+    "replaces": "Ersetzt %{txHash}"
   },
   "plugins": {
     "foxPage": {
@@ -2249,7 +2312,14 @@
               "placeholder": "Gas Limit...",
               "tooltip": "Das Gaslimit bezieht sich auf die maximale Menge an Gas, die ein Benutzer verbrauchen kann, um eine Transaktion durchzuführen."
             }
-          }
+          },
+          "recipientAddress": "Empfängeradresse",
+          "amount": "Betrag",
+          "amountSats": "%{amount} sats",
+          "psbt": "PSBT",
+          "broadcast": "Übertragen",
+          "inputs": "Eingänge (%{count})",
+          "outputs": "Ausgänge (%{count})"
         },
         "connect": {
           "title": "Verbinden Sie Ihre Wallet über WalletConnect mit einer dApp und lösen Sie Transaktionen aus",
@@ -2376,6 +2446,328 @@
       "emptyBody": "Offenbar haben Sie im Moment keine Kredite. Ist das ein finanzieller Zen-Zauber oder nur eine Pause vor Ihrem nächsten großen Kreditabenteuer? Wie auch immer, genießen Sie die Ruhe!"
     }
   },
+  "chainflipLending": {
+    "awaitingConfirmTitle": "Bestätigung ausstehend",
+    "awaitingConfirmDescription": "Bestätigen Sie die Transaktion in Ihrer Wallet, um fortzufahren.",
+    "headerDescription": "Biete Vermögenswerte an, um Rendite zu erzielen oder Kredite gegen Sicherheiten auf Chainflip aufzunehmen.",
+    "overview": "Überblick",
+    "myDashboard": "Mein Dashboard",
+    "allMarkets": "Alle Märkte",
+    "manageLoan": "Kredit verwalten",
+    "supply": {
+      "title": "Angebot",
+      "amount": "Menge",
+      "available": "Verfügbar",
+      "availableTooltip": "Ihr verfügbares Guthaben auf der Chainflip State Chain steht für Kredite bereit.",
+      "minimumSupply": "Mindestmenge: %{amount}",
+      "confirmTitle": "Bereitstellung bestätigen",
+      "confirmDescription": "%{amount} %{asset} an den Kreditpool bereitstellen",
+      "confirmAndSupply": "Bestätigen & Bereitstellen",
+      "executingTitle": "Stelle bereit...",
+      "executingDescription": "Ihre Bereitstellung wird bearbeitet",
+      "successTitle": "Erfolgreich bereitgestellt",
+      "successDescription": "Ihr %{asset} erwirtschaftet nun Rendite.",
+      "supplied": "Bereitgestellt",
+      "transactionId": "Transaktions ID",
+      "errorTitle": "Bereitstellung fehlgeschlagen",
+      "errorDescription": "Bei der Bereitstellung ist ein Fehler aufgetreten.",
+      "steps": {
+        "signing": "Unterzeichnung der Bereitstellungstransaktion",
+        "confirming": "Bereitstellung bestätigen"
+      },
+      "noFreeBalance": "Kein verfügbares Guthaben. Zuerst ist eine Einzahlung bei Chainflip erforderlich."
+    },
+    "borrow": {
+      "title": "Ausleihen",
+      "amount": "Betrag",
+      "available": "Zum Ausleihen verfügbar",
+      "maxLtv": "Max LTV (80 %)",
+      "currentLtv": "Aktueller LTV",
+      "projectedLtv": "Prognostizierter LTV",
+      "confirmTitle": "Ausleihe bestätigen",
+      "confirmDescription": "Nehmen Sie einen Kredit in Höhe von %{amount} %{asset} gegen Ihre Sicherheiten auf.",
+      "confirmAndBorrow": "Bestätigen & Ausleihen",
+      "executingTitle": "Ausleihen von...",
+      "executingDescription": "Ihr Kreditantrag wird bearbeitet.",
+      "successTitle": "Erfolgreich ausgeliehen",
+      "successDescription": "Sie haben %{amount} %{asset} ausgeliehen.",
+      "borrowed": "Ausgeliehen",
+      "transactionId": "Transaktions ID",
+      "errorTitle": "Ausleihen fehlgeschlagen",
+      "errorDescription": "Beim Ausleihen ist ein Fehler aufgetreten.",
+      "steps": {
+        "signing": "Unterzeichnung des Kreditantrags",
+        "confirming": "Bestätigung des Darlehens"
+      },
+      "noCollateral": "Zuerst Sicherheiten hinterlegen, um einen Kredit aufzunehmen",
+      "minimumLoan": "Mindestdarlehen: %{amount}",
+      "availableTooltip": "Maximaler Kreditbetrag basierend auf Ihrem Sicherheitenwert und dem angestrebten Beleihungswert"
+    },
+    "totalSupplied": "Gesamtlieferung",
+    "totalSuppliedTooltip": "Gesamtwert der in allen Chainflip Kreditpools bereitgestellten Vermögenswerte.",
+    "availableLiquidity": "Verfügbare Liquidität",
+    "availableLiquidityTooltip": "Gesamtwert der aktuell in allen Pools verfügbaren Vermögenswerte.",
+    "totalBorrowed": "Gesamter Leihbetrag",
+    "totalBorrowedTooltip": "Gesamtwert der ausstehenden Kredite in allen Chainflip Kreditpools.",
+    "pool": {
+      "actionPaused": "Diese Aktion ist auf Chainflip vorübergehend pausiert.",
+      "depositFirst": "Zuerst Geld auf Chainflip einzahlen",
+      "noFreeBalance": "Kein Guthaben verfügbar",
+      "noSupplyPosition": "Keine Angebotsposition zum Abheben",
+      "noCollateral": "Keine Sicherheiten hinterlegt",
+      "noLoans": "Keine aktiven Kredite",
+      "supply": "Angebot",
+      "withdrawSupply": "Angebot zurückziehen",
+      "depositToChainflip": "Einzahlen",
+      "withdrawFromChainflip": "Von Chainflip auszahlen",
+      "freeBalance": "Verfügbares Guthaben",
+      "walletBalance": "Wallet Guthaben",
+      "currentLtv": "Aktueller LTV",
+      "borrowCapacity": "Kreditkapazität",
+      "borrowPowerUsed": "Leihleistung aufgebraucht",
+      "availableToBorrow": "Verfügbar zum Ausleihen"
+    },
+    "supplyApy": "Angebots APY",
+    "supplyApyTooltip": "Jährliche prozentuale Rendite, die durch die Bereitstellung von Vermögenswerten für diesen Pool erzielt wird.",
+    "borrowRate": "Kreditzins",
+    "utilisation": "Verwendung",
+    "utilisationTooltip": "Prozentsatz der aktuell ausgeliehenen Vermögenswerte. Höhere Auslastung bedeutet höhere Renditen, aber geringere verfügbare Liquidität.",
+    "market": "Markt",
+    "supplyStats": "Angebotsstatistik",
+    "borrowStats": "Leihstatistiken",
+    "yourPosition": "Ihre Position",
+    "freeBalance": "Verfügbares Guthaben",
+    "supplied": "Geliefert",
+    "collateral": {
+      "title": "Sicherheit",
+      "add": "Sicherheiten hinzufügen",
+      "remove": "Sicherheiten entfernen",
+      "amount": "Betrag",
+      "availableToAdd": "Verfügbar zum Hinzufügen",
+      "availableToRemove": "Verfügbar zum Entfernen",
+      "confirmAddTitle": "Bestätigen Sie, dass Sicherheiten hinzugefügt werden.",
+      "confirmRemoveTitle": "Bestätigen Sie, dass Sicherheiten entfernt werden.",
+      "confirmAddDescription": "Fügen Sie %{amount} %{asset} als Sicherheit hinzu.",
+      "confirmRemoveDescription": "%{amount} %{asset} aus den Sicherheiten entfernen",
+      "confirmAdd": "Bestätigen & Hinzufügen",
+      "confirmRemove": "Bestätigen & Entfernen",
+      "executingTitle": "Verarbeitung...",
+      "executingDescription": "Ihre Sicherheitenaktualisierung wird bearbeitet",
+      "successAddTitle": "Hinzugefügte Sicherheiten",
+      "successRemoveTitle": "Entfernte Sicherheiten",
+      "successAddDescription": "%{asset} Sicherheiten erfolgreich hinzugefügt",
+      "successRemoveDescription": "%{asset} Sicherheiten erfolgreich entfernt",
+      "added": "Hinzugefügt",
+      "removed": "Entfernt",
+      "transactionId": "Transaktions ID",
+      "errorTitle": "Aktualisierung der Sicherheiten fehlgeschlagen",
+      "errorDescription": "Etwas ist schiefgelaufen.",
+      "steps": {
+        "signing": "Zeichnung der Sicherheiten Aktualisierung",
+        "confirming": "Aktualisierung bestätigen"
+      },
+      "minimumAmount": "Mindestsicherheitenaktualisierung: %{amount}",
+      "noFreeBalance": "Kein freies Guthaben verfügbar, das als Sicherheit hinterlegt werden könnte.",
+      "noRemovable": "Sicherheiten können nicht entfernt werden, ohne den LTV unter das Ziel zu senken."
+    },
+    "depositToChainflip": "Einzahlung bei Chainflip",
+    "depositDescription": "Übertragen Sie Vermögenswerte aus Ihrer Wallet auf Ihr Chainflip State Chain Konto, um mit dem Kreditgeschäft zu beginnen.",
+    "freeBalanceDescription": "Verfügbares Guthaben auf der Chainflip State Chain. Stellen Sie es Pools zur Verfügung, um Rendite zu erzielen oder verwenden Sie es als Sicherheit.",
+    "noFreeBalanceHint": "Einzahlen um Kreditvergabe zu beginnen",
+    "originationFee": "Bearbeitungsgebühr",
+    "liquidationFee": "Liquidationsgebühr",
+    "yourSupplied": "Ihre Bereitstellung",
+    "yourBorrowed": "Ihr Geliehenes",
+    "yourFreeBalance": "Ihr verfügbares Guthaben",
+    "connectWalletDescription": "Verbinden Sie Ihre Wallet, um Ihre Kreditpositionen einzusehen.",
+    "protocolStats": "Protokollstatistik",
+    "deposit": {
+      "amount": "Betrag",
+      "available": "Verfügbar",
+      "explainer": "Die Vermögenswerte werden Ihrem Chainflip State Chain Konto gutgeschrieben. Nach der Gutschrift können Sie sie Kreditpools zur Verfügung stellen, um Rendite zu erzielen.",
+      "openChannel": "Offener Einzahlungskanal",
+      "confirmTitle": "Einzahlung bestätigen",
+      "confirmDescription": "Zahlen Sie %{amount} %{asset} auf Ihr Chainflip State Chain Konto ein. Sie werden durch jeden erforderlichen Schritt geführt und bei Bedarf zur Unterschrift der Transaktionen aufgefordert.",
+      "confirmingTitle": "Einzahlung...",
+      "confirmingDescription": "Bitte bestätigen Sie die Transaktionen in Ihrer Wallet.",
+      "confirmAndDeposit": "Bestätigen & Einzahlen",
+      "successTitle": "Einzahlung bestätigt",
+      "successDescription": "Ihr %{asset} wurde Ihrem Chainflip State Chain Konto gutgeschrieben.",
+      "deposited": "Eingezahlt",
+      "transactionId": "Transaktions ID",
+      "minimumDeposit": "Mindesteinzahlung",
+      "belowMinimumDeposit": "Min. %{amount} %{symbol}",
+      "steps": {
+        "approvingFlip": "FLIP genehmigen",
+        "fundingAccount": "Guthabenkonto",
+        "registering": "Konto registrieren",
+        "openingChannel": "Öffne Kanal",
+        "sendingDeposit": "Einzahlung senden",
+        "confirming": "Bestätige",
+        "settingRefundAddress": "Rückerstattungsadresse festlegen"
+      },
+      "executingTitle": "Einzahlung...",
+      "executingDescription": "Bitte bestätigen Sie die Transaktionen in Ihrer Wallet wie angezeigt.",
+      "errorTitle": "Einzahlung fehlgeschlagen",
+      "errorDescription": "Bei der Einzahlung ist ein Fehler aufgetreten.",
+      "freeBalance": "Verfügbares Guthaben",
+      "freeBalanceTooltip": "Ihr %{asset} verfügbares Guthaben auf Chainflip State Chain",
+      "refundAddress": {
+        "title": "Rückerstattungsadresse",
+        "description": "Legen Sie die Adresse fest, an die das Geld zurückgesendet wird, falls eine Einzahlung fehlschlägt oder Sie eine Abhebung vornehmen.",
+        "useWalletAddress": "Wallet Adresse verwenden",
+        "useCustomAddress": "Benutzerdefinierte Adresse verwenden",
+        "label": "Rückerstattungsadresse",
+        "continue": "Weiter",
+        "helperText": "Diese Adresse wird für Auszahlungen und Rückerstattungen innerhalb dieser Kette verwendet."
+      }
+    },
+    "markets": "Märkte",
+    "myBalances": "Meine Kontostände",
+    "walletBalance": "Wallet",
+    "stateChainBalance": "State Chain",
+    "deployed": "Eingesetzt",
+    "comingSoon": "Demnächst verfügbar",
+    "connectToViewBalances": "Verbinden Sie Ihre Wallet, um Ihre Kontostände anzuzeigen.",
+    "myBalancesTitle": "Chainflip Kredite - Meine Kontostände",
+    "withdraw": {
+      "title": "Abheben",
+      "amount": "Betrag",
+      "available": "Verfügbar zum Abheben",
+      "availableTooltip": "Ihre Angebotsposition im Kreditpool",
+      "confirmTitle": "Auszahlung bestätigen",
+      "confirmDescription": "Entnehmen Sie %{amount} %{asset} aus dem Kreditpool",
+      "confirmAndWithdraw": "Bestätigen & Abheben",
+      "executingTitle": "Auszahlung...",
+      "executingDescription": "Ihre Auszahlung wird bearbeitet.",
+      "successTitle": "Auszahlung erfolgreich",
+      "successDescription": "Ihr %{asset} wurde abgehoben",
+      "withdrawn": "Ausbezahlt",
+      "errorTitle": "Auszahlung fehlgeschlagen",
+      "errorDescription": "Beim Abheben ist ein Fehler aufgetreten.",
+      "noPosition": "Für diesen Vermögenswert wurde keine Angebotsposition gefunden.",
+      "withdrawAmount": "Abheben",
+      "steps": {
+        "signing": "Transaktion unterzeichnen",
+        "confirming": "Bestätigung in der Blockchain"
+      },
+      "alsoWithdrawToWallet": "Auch auf die Wallet auszahlen",
+      "freeBalanceExplainer": "Standardmäßig werden die Werte Ihrem Guthaben auf der Chainflip State Chain gutgeschrieben. Aktivieren Sie das Kontrollkästchen unten, um sie zusätzlich auf Ihre Wallet auszuzahlen.",
+      "fullWithdrawalOnlyTooltip": "Ihr Guthaben liegt unter dem Mindestbetrag für eine Teilentnahme. Nur eine vollständige Entnahme ist möglich.",
+      "partialBelowMinimum": "Der Mindestauszahlungsbetrag beträgt %{amount}",
+      "remainingBelowMinimum": "Die verbleibende Position muss mindestens %{amount} betragen oder der volle Betrag muss abgehoben werden",
+      "destinationAddress": "Zieladresse",
+      "transactionId": "Transaktions ID"
+    },
+    "withdrawFromChainflip": {
+      "title": "Von Chainflip abheben",
+      "amount": "Betrag",
+      "destination": "Zieladresse",
+      "available": "Verfügbares Guthaben",
+      "confirmAndWithdraw": "Auszahlung bestätigen",
+      "confirmTitle": "Auszahlung bestätigen",
+      "confirmDescription": "Heben Sie %{amount} %{symbol} von Ihrem verfügbaren Chainflip Guthaben auf Ihre Wallet ab.",
+      "errorTitle": "Auszahlung fehlgeschlagen",
+      "errorDescription": "Bei der Bearbeitung Ihrer Auszahlung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+      "executingTitle": "Bearbeitung der Auszahlung",
+      "executingDescription": "Ihre Auszahlung wird in der Chainflip State Chain verarbeitet.",
+      "successTitle": "Auszahlung eingereicht",
+      "successDescription": "Ihre Auszahlung wurde veranlasst und wird in Kürze in Ihrer Wallet eingehen.",
+      "steps": {
+        "signing": "Signieren der Auszahlungstransaktion",
+        "confirming": "Auszahlung bestätigen"
+      }
+    },
+    "repay": {
+      "title": "Zurückzahlen",
+      "amount": "Betrag",
+      "outstanding": "Ausstehende Schulden",
+      "fullRepayment": "Vollständige Rückzahlung",
+      "partialRepayment": "Teilrückzahlung",
+      "confirmTitle": "Rückzahlung bestätigen",
+      "confirmDescription": "Rückzahlung %{amount} %{asset}",
+      "confirmAndRepay": "Bestätigen & Zurückzahlen",
+      "executingTitle": "Rückzahlung...",
+      "executingDescription": "Ihre Rückzahlung wird bearbeitet.",
+      "successTitle": "Rückzahlung erfolgreich",
+      "successDescription": "Sie haben %{amount} %{asset} zurückgezahlt.",
+      "repaid": "Zurückgezahlt",
+      "transactionId": "Transaktions ID",
+      "errorTitle": "Rückzahlung fehlgeschlagen",
+      "errorDescription": "Bei der Rückzahlung ist ein Fehler aufgetreten.",
+      "steps": {
+        "signing": "Unterzeichnung der Rückzahlung",
+        "confirming": "Bestätigung der Rückzahlung"
+      },
+      "availableBalance": "Verfügbares Guthaben",
+      "availableTooltip": "Ihr verfügbares Guthaben bei Chainflip steht zur Rückzahlung zur Verfügung.",
+      "minimumRepayment": "Mindestrückzahlung: %{amount}",
+      "remainingBelowMinimum": "Der verbleibende Kreditbetrag läge unter dem Mindestbetrag von %{amount}. Nutzen Sie stattdessen die vollständige Rückzahlung.",
+      "insufficientBalance": "Unzureichendes Guthaben für die vollständige Rückzahlung",
+      "noFreeBalance": "Zahlen Sie zuerst etwas auf Ihr Chainflip Konto ein."
+    },
+    "ltv": {
+      "target": "Ziel LTV",
+      "topup": "Automatische Aufladung",
+      "softLiquidation": "Soft Liquidation",
+      "hardLiquidation": "Hard Liquidation",
+      "safe": "Sicher",
+      "warning": "Warnung",
+      "danger": "Gefahr"
+    },
+    "egress": {
+      "title": "Von Chainflip abheben",
+      "amount": "Betrag",
+      "destination": "Zieladresse",
+      "destinationPlaceholder": "Zieladresse eingeben",
+      "available": "Verfügbares Guthaben",
+      "confirmAndWithdraw": "Auszahlung bestätigen",
+      "confirmTitle": "Auszahlung bestätigen",
+      "confirmDescription": "Überweise %{amount} %{asset} von deinem verfügbaren Chainflip Guthaben auf deine Wallet.",
+      "errorTitle": "Auszahlung fehlgeschlagen",
+      "errorDescription": "Bei der Bearbeitung Ihrer Auszahlung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+      "executingTitle": "Bearbeitung der Auszahlung",
+      "executingDescription": "Ihre Auszahlung wird in der Chainflip State Chain verarbeitet.",
+      "successTitle": "Auszahlung eingereicht",
+      "successDescription": "Ihre Auszahlung von %{asset} wurde veranlasst und wird in Kürze in Ihrer Wallet eingehen.",
+      "withdrawn": "Ausbezahlt",
+      "receiveAddress": "Empfangsadresse",
+      "steps": {
+        "signing": "Signieren der Auszahlungstransaktion",
+        "confirming": "Auszahlung bestätigen"
+      },
+      "transactionId": "Transaktions ID",
+      "noFreeBalance": "Kein freies Guthaben zum Auszahlen verfügbar."
+    },
+    "borrowRateTooltip": "Der aktuelle jährliche Zinssatz für Kredite aus diesem Pool",
+    "originationFeeTooltip": "Einmalige Gebühr bei der Einrichtung oder Erweiterung eines Kredits",
+    "liquidationFeeTooltip": "Gebühr, die bei der Verwertung von Sicherheiten erhoben wird",
+    "suppliedBalance": "Bereitgestellt",
+    "poolHeader": "Pool",
+    "collateralHeader": "Sicherheit",
+    "borrowedHeader": "Geliehen",
+    "voluntaryLiquidation": {
+      "initiateTitle": "Einleitung der freiwilligen Liquidation",
+      "initiateWarning": "Damit wird Ihre gesamte Position liquidiert. Ihre Sicherheiten werden verkauft, um alle ausstehenden Kredite zurückzuzahlen. Dieser Vorgang kann nach der Bestätigung in der Blockchain nicht mehr rückgängig gemacht werden.",
+      "stopTitle": "Abbruch der freiwilligen Liquidation",
+      "stopDescription": "Damit wird die laufende freiwillige Liquidation abgebrochen. Ihre Position bleibt bestehen.",
+      "confirmInitiate": "Liquidiere meine Position",
+      "confirmStop": "Liquidation stoppen",
+      "executingTitle": "Verarbeitung...",
+      "executingDescription": "Ihr Antrag auf freiwillige Liquidation wird an die Chainflip State Chain übermittelt.",
+      "initiateSuccessTitle": "Liquidation eingeleitet",
+      "initiateSuccessDescription": "Ihre freiwillige Liquidation wurde eingeleitet. Ihre Position wird automatisch aufgelöst.",
+      "stopSuccessTitle": "Liquidation gestoppt",
+      "stopSuccessDescription": "Die freiwillige Liquidation wurde abgebrochen. Ihre Position bleibt bestehen.",
+      "errorTitle": "Transaktion fehlgeschlagen",
+      "errorDescription": "Die freiwillige Liquidationstransaktion ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      "inProgress": "Freiwillige Liquidation im Gange",
+      "steps": {
+        "signing": "Transaktion unterzeichnen",
+        "confirming": "Bestätigung in der Blockchain"
+      }
+    }
+  },
   "chart": {
     "interval": {
       "5min": "Letzten fünf Minuten",
@@ -2390,6 +2782,8 @@
   "pools": {
     "pools": "Pools",
     "pool": "Pool",
+    "errorFetchingPools": "Pools konnten nicht abgerufen werden. Bitte versuchen Sie es später erneut.",
+    "noPoolsAvailable": "Derzeit sind keine Pools verfügbar.",
     "positions": "Positionen",
     "tvl": "TVL",
     "volume24h": "Volumen 24h",
@@ -2589,13 +2983,16 @@
         "body": "rFOX ist ein Begriff, der die Vorteile und Belohnungen beschreibt, die Sie erhalten, wenn Sie Ihre FOX-Token auf Arbitrum einsetzen. Derzeit sperren und entsperren Sie Vanilla-FOX-Token (auf Arbitrum) für das Einsetzen von Emissionen."
       },
       "why": {
-        "title": "Warum sollten Sie Ihren FOX staken?"
+        "title": "Warum sollten Sie Ihren FOX staken?",
+        "body": "Wenn Sie Ihre FOX einsetzen, können Sie regelmäßige USDC-Auszahlungen aus der DAO-Schatzkammer erhalten, was einen stetigen Strom an passivem Einkommen in USDC pro Epoche bietet. Darüber hinaus wird ein Teil der DAO-Einnahmen dazu verwendet, das gesamte FOX-Angebot durch Token-Verbrennungen zu reduzieren. Der Staking-Prozess erfordert eine Mindest-Unstaking-Periode von 28 Tagen, was Engagement und Stabilität innerhalb der Community fördert."
       },
       "stake": {
-        "title": "Wie stake ich meinen FOX?"
+        "title": "Wie stake ich meinen FOX?",
+        "body": "Um Ihre FOX einzusetzen, nutzen Sie die Staking-Oberfläche, um Ihre FOX-Token in den Staking-Vertrag zu sperren. Nach dem Einsetzen beginnen Sie, USDC-Belohnungen pro Block als Teil Ihrer Staking-Vorteile zu verdienen."
       },
       "unstake": {
-        "title": "Was passiert, wenn ich mein Staking zurücknehme?"
+        "title": "Was passiert, wenn ich mein Staking zurücknehme?",
+        "body": "Wenn Sie das Staking beenden möchten, gilt eine Mindest-Unstaking-Periode von 28 Tagen. Während dieser Zeit bleibt Ihr FOX gesperrt, und Sie erhalten keine USDC-Emissionen mehr. Nach der Unstaking-Periode können Sie Ihre regulären FOX-Token entsperren und abrufen."
       },
       "cooldown": {
         "title": "Wie lange ist die Abkühlungsphase?",
@@ -2606,7 +3003,8 @@
         "body": "Ja, Sie können mehrere Beträge aufheben. Für jede Aufhebungsaktion gilt eine Abkühlungsphase von 28 Tagen."
       },
       "connect": {
-        "title": "Welcher Zusammenhang besteht zwischen den insgesamt erhobenen Gebühren, dem gesamten FOX-Einsatz, dem Emissionspool und der FOX-Verbrennungsmenge?"
+        "title": "Welcher Zusammenhang besteht zwischen den insgesamt erhobenen Gebühren, dem gesamten FOX-Einsatz, dem Emissionspool und der FOX-Verbrennungsmenge?",
+        "body": "Die vom DAO erhobenen Gebühren werden in nativen Vermögenswerten pro Swapper berechnet. Ein Teil dieses Einkommens wird umgewandelt und als Belohnungen an FOX-Staker verteilt, während ein anderer Teil zur Reduzierung des gesamten FOX-Angebots durch Token-Verbrennungen verwendet wird. Die Gesamtmenge der eingesetzten FOX beeinflusst die Verteilung der Belohnungen, da diese pro rata auf Basis der eingesetzten FOX-Menge verteilt werden. Der Emissionspool stellt die Menge an FOX dar, die für Staking-Belohnungen verfügbar ist, und die FOX-Verbrennungsmenge ist der Anteil an FOX, der gekauft und verbrannt wird."
       }
     },
     "totals": "rFOX Summen",
@@ -2786,6 +3184,8 @@
   "actionCenter": {
     "title": "Benachrichtigungen",
     "viewTransaction": "Transaktion anzeigen",
+    "originalTransaction": "Ursprüngliche Transaktion",
+    "replacementTransaction": "Ersatztransaktion",
     "viewOrder": "Bestellung anzeigen",
     "cancelOrder": "Bestellung stornieren",
     "pair": "Paar",
@@ -2802,6 +3202,7 @@
       "confirmed": "Bestätigt",
       "failed": "Fehlgeschlagen",
       "pending": "Ausstehend",
+      "replaced": "Ersetzt",
       "claimAvailable": "Anspruch verfügbar",
       "claimed": "Beansprucht",
       "unknown": "Unbekannt",
@@ -2836,15 +3237,23 @@
     },
     "deposit": {
       "pending": "Ihre Einzahlung von %{amount} %{symbol} wird bearbeitet.",
-      "complete": "Ihre Einzahlung von %{amount} %{symbol} ist abgeschlossen."
+      "complete": "Ihre Einzahlung von %{amount} %{symbol} ist abgeschlossen.",
+      "failed": "Ihre Einzahlung von %{amount} %{symbol} ist fehlgeschlagen."
     },
     "withdrawal": {
       "pending": "Ihre Auszahlung von %{amount} %{symbol} wird bearbeitet.",
-      "complete": "Ihre Auszahlung von %{amount} %{symbol} ist abgeschlossen."
+      "complete": "Ihre Auszahlung von %{amount} %{symbol} ist abgeschlossen.",
+      "failed": "Ihre Auszahlung von %{amount} %{symbol} ist fehlgeschlagen."
     },
     "claim": {
       "pending": "Ihr Anspruch in Höhe von %{amount} %{symbol} wird bearbeitet.",
-      "complete": "Ihr Anspruch in Höhe von %{amount} %{symbol} ist vollständig."
+      "complete": "Ihr Anspruch in Höhe von %{amount} %{symbol} ist vollständig.",
+      "failed": "Das Einfordern von %{amount} %{symbol} ist fehlgeschlagen."
+    },
+    "yield": {
+      "unstakeAvailableIn": "Das Beenden des Stakings für Ihr %{symbol} ist in %{duration} verfügbar.",
+      "unstakeReady": "Das Beenden des Stakings für Ihr %{symbol} ist bereit zum Einfordern.",
+      "unstakeClaimed": "Das Beenden des Stakings für Ihr %{symbol} wurde eingefordert."
     },
     "bridge": {
       "processing": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} wird verarbeitet.",
@@ -2889,6 +3298,54 @@
       },
       "complete": {
         "description": "Ihre Belohnung von %{amountAndSymbol} ist vollständig."
+      }
+    },
+    "chainflipLending": {
+      "deposit": {
+        "pending": "Ihre Einzahlung von %{amountAndSymbol} an Chainflip wird verarbeitet.",
+        "complete": "Ihre Einzahlung von %{amountAndSymbol} bei Chainflip wurde abgeschlossen.",
+        "failed": "Ihre Einzahlung von %{amountAndSymbol} an Chainflip ist fehlgeschlagen."
+      },
+      "supply": {
+        "pending": "Ihre Einzahlung von %{amountAndSymbol} in den Kreditpool wird verarbeitet.",
+        "complete": "Ihre Einzahlung von %{amountAndSymbol} in den Kreditpool ist abgeschlossen.",
+        "failed": "Ihre Einzahlung von %{amountAndSymbol} in den Kreditpool ist fehlgeschlagen."
+      },
+      "withdraw": {
+        "pending": "Ihre Auszahlung von %{amountAndSymbol} aus dem Kreditpool wird bearbeitet.",
+        "complete": "Ihre Auszahlung von %{amountAndSymbol} aus dem Kreditpool ist abgeschlossen.",
+        "failed": "Ihre Auszahlung von %{amountAndSymbol} aus dem Kreditpool ist fehlgeschlagen."
+      },
+      "egress": {
+        "pending": "Ihre Auszahlung von %{amountAndSymbol} von Chainflip wird bearbeitet.",
+        "complete": "Ihre Auszahlung von %{amountAndSymbol} von Chainflip ist abgeschlossen.",
+        "failed": "Ihre Auszahlung von %{amountAndSymbol} von Chainflip ist fehlgeschlagen."
+      },
+      "addCollateral": {
+        "pending": "Ihre Übertragung von %{amountAndSymbol} von Ihrem Chainflip Guthaben auf Sicherheiten wird verarbeitet.",
+        "complete": "Die Übertragung von %{amountAndSymbol} von Ihrem Chainflip Guthaben auf Sicherheiten ist abgeschlossen.",
+        "failed": "Ihre Übertragung von %{amountAndSymbol} von Ihrem Chainflip Guthaben auf Sicherheiten ist fehlgeschlagen."
+      },
+      "removeCollateral": {
+        "pending": "Ihre Überweisung von %{amountAndSymbol} von den Sicherheiten zurück auf Ihr Chainflip Guthaben wird verarbeitet.",
+        "complete": "Die Übertragung von %{amountAndSymbol} von den Sicherheiten zurück auf Ihr Chainflip Guthaben ist abgeschlossen.",
+        "failed": "Ihre Überweisung von %{amountAndSymbol} von den Sicherheiten zurück auf Ihr Chainflip Guthaben ist fehlgeschlagen."
+      },
+      "borrow": {
+        "pending": "Ihre Auszahlung von %{amountAndSymbol} auf Ihr Chainflip Guthaben wird bearbeitet.",
+        "complete": "Ihre Auszahlung von %{amountAndSymbol} auf Ihr Chainflip Guthaben ist abgeschlossen.",
+        "failed": "Ihre Auszahlung von %{amountAndSymbol} auf Ihr Chainflip Guthaben ist fehlgeschlagen."
+      },
+      "repay": {
+        "pending": "Ihre Rückzahlung von %{amountAndSymbol} aus Ihrem Chainflip Guthaben wird bearbeitet.",
+        "complete": "Die Rückzahlung von %{amountAndSymbol} aus Ihrem Chainflip Guthaben ist abgeschlossen.",
+        "failed": "Ihre Rückzahlung von %{amountAndSymbol} aus Ihrem Chainflip Guthaben ist fehlgeschlagen."
+      },
+      "details": {
+        "operation": "Aktion",
+        "amount": "Betrag",
+        "transactionId": "Transaktions ID",
+        "egressTransactionId": "Egress Transaction Id"
       }
     }
   },
@@ -2988,6 +3445,7 @@
     "providers": "Anbieter",
     "successStaked": "Sie haben erfolgreich %{amount} %{symbol} gestaked.",
     "successUnstaked": "Sie haben %{amount} %{symbol} erfolgreich freigegeben.",
+    "cooldownNotice": "Ihre Auszahlung ist in %{cooldownDuration} verfügbar.",
     "successDeposited": "Sie haben erfolgreich %{amount} %{symbol} eingezahlt.",
     "successWithdrawn": "Sie haben erfolgreich %{amount} %{symbol} abgehoben.",
     "successClaim": "Sie haben erfolgreich %{amount} %{symbol} beansprucht.",
@@ -3015,7 +3473,9 @@
       "initiateFailedTitle": "Fehler",
       "initiateFailedDescription": "Die Transaktionssequenz konnte nicht initiiert werden.",
       "quoteFailedTitle": "Angebot fehlgeschlagen",
-      "quoteFailedDescription": "Für diese Transaktion konnte kein Angebot eingeholt werden. Bitte versuchen Sie es erneut."
+      "quoteFailedDescription": "Für diese Transaktion konnte kein Angebot eingeholt werden. Bitte versuchen Sie es erneut.",
+      "insufficientAssetForGas": "Unzureichendes %{symbol} für Gasgebühr",
+      "rateLimited": "Zu viele Anfragen"
     },
     "underMaintenance": "In Wartung",
     "underMaintenanceDescription": "Diese Anlagemöglichkeit wird derzeit gewartet. Einzahlungen sind wahrscheinlich nicht möglich.",

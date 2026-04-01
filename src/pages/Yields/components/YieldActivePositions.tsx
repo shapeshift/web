@@ -200,6 +200,7 @@ export const YieldActivePositions = memo(
                 validatorAddress: position.validatorAddress,
               })
             }
+            data-testid={`yield-active-position-${position.yieldItem.id}`}
           >
             <Td>
               <HStack spacing={2}>
@@ -268,6 +269,7 @@ export const YieldActivePositions = memo(
                 validatorAddress: position.validatorAddress,
               })
             }
+            data-testid={`yield-active-position-${position.yieldItem.id}`}
           >
             <HStack justifyContent='space-between' alignItems='center' mb={2} spacing={3}>
               <HStack spacing={2} alignItems='center'>

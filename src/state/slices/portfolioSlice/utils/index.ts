@@ -1,5 +1,6 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
+  abstractChainId,
   arbitrumChainId,
   ASSET_NAMESPACE,
   avalancheChainId,
@@ -16,6 +17,7 @@ import {
   cronosChainId,
   dogeChainId,
   ethChainId,
+  etherealChainId,
   flowEvmChainId,
   fromAccountId,
   fromAssetId,
@@ -38,6 +40,7 @@ import {
   plasmaChainId,
   polygonChainId,
   scrollChainId,
+  seiChainId,
   solanaChainId,
   soneiumChainId,
   sonicChainId,
@@ -60,6 +63,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   isGridPlus,
   isPhantom,
+  supportsAbstract,
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
@@ -72,6 +76,7 @@ import {
   supportsCosmos,
   supportsCronos,
   supportsETH,
+  supportsEthereal,
   supportsFlowEvm,
   supportsGnosis,
   supportsHemi,
@@ -88,6 +93,7 @@ import {
   supportsPlasma,
   supportsPolygon,
   supportsScroll,
+  supportsSei,
   supportsSolana,
   supportsSoneium,
   supportsSonic,
@@ -138,18 +144,21 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case baseChainId:
     case zkSyncEraChainId:
     case blastChainId:
+    case abstractChainId:
     case hemiChainId:
     case hyperEvmChainId:
     case mantleChainId:
     case inkChainId:
     case megaethChainId:
     case berachainChainId:
+    case etherealChainId:
     case flowEvmChainId:
     case lineaChainId:
     case cronosChainId:
     case katanaChainId:
     case storyChainId:
     case worldChainChainId:
+    case seiChainId:
     case scrollChainId:
     case sonicChainId:
     case unichainChainId:
@@ -481,8 +490,10 @@ export const checkAccountHasActivity = (account: Account<ChainId>) => {
       return hasActivity
     }
     case CHAIN_NAMESPACE.Tron: {
-      const hasActivity = bnOrZero(account.balance).gt(0)
-
+      const tronAccount = account as Account<KnownChainIds.TronMainnet>
+      const hasActivity =
+        bnOrZero(tronAccount.balance).gt(0) ||
+        (tronAccount.chainSpecific.tokens ?? []).some(token => bnOrZero(token.balance).gt(0))
       return hasActivity
     }
     case CHAIN_NAMESPACE.Sui: {
@@ -562,6 +573,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsMonad(wallet)
     case hyperEvmChainId:
       return supportsHyperEvm(wallet)
+    case etherealChainId:
+      return supportsEthereal(wallet)
     case flowEvmChainId:
       return supportsFlowEvm(wallet)
     case mantleChainId:
@@ -582,10 +595,14 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsZkSyncEra(wallet)
     case blastChainId:
       return supportsBlast(wallet)
+    case abstractChainId:
+      return supportsAbstract(wallet)
     case worldChainChainId:
       return supportsWorldChain(wallet)
     case hemiChainId:
       return supportsHemi(wallet)
+    case seiChainId:
+      return supportsSei(wallet)
     case lineaChainId:
       return supportsLinea(wallet)
     case scrollChainId:

@@ -7,7 +7,7 @@ import type {
   StarknetSignTx,
   SuiSignTx,
 } from '@shapeshiftoss/hdwallet-core'
-import { isGridPlus, supportsETH } from '@shapeshiftoss/hdwallet-core/wallet'
+import { isGridPlus, supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet-core/wallet'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/swapper'
 import {
@@ -261,7 +261,7 @@ export const useTradeExecution = (
       )
       execution.on(
         TradeExecutionEvent.Status,
-        ({ buyTxHash, message, actualBuyAmountCryptoBaseUnit }) => {
+        ({ buyTxHash, message, actualBuyAmountCryptoBaseUnit, chainflipSwapId }) => {
           dispatch(
             tradeQuoteSlice.actions.setSwapTxMessage({
               hopIndex,
@@ -280,9 +280,9 @@ export const useTradeExecution = (
             )
           }
 
-          // Update the swap with the actual buy amount if available
+          // Update the swap with the actual buy amount and/or real Chainflip swap ID if available
           // Read fresh state to avoid stale closure - swapsById captured at render time may have outdated status
-          if (actualBuyAmountCryptoBaseUnit) {
+          if (actualBuyAmountCryptoBaseUnit || chainflipSwapId) {
             const freshActiveSwapId = swapSlice.selectors.selectActiveSwapId(store.getState())
             if (freshActiveSwapId) {
               const currentSwap = swapSlice.selectors.selectSwapsById(store.getState())[
@@ -292,7 +292,10 @@ export const useTradeExecution = (
                 dispatch(
                   swapSlice.actions.upsertSwap({
                     ...currentSwap,
-                    actualBuyAmountCryptoBaseUnit,
+                    ...(actualBuyAmountCryptoBaseUnit && { actualBuyAmountCryptoBaseUnit }),
+                    ...(chainflipSwapId && {
+                      metadata: { ...currentSwap.metadata, chainflipSwapId },
+                    }),
                   }),
                 )
               }
@@ -416,6 +419,35 @@ export const useTradeExecution = (
 
             trackMixpanelEventOnExecute()
             return output
+          },
+        })
+
+        cancelPollingRef.current = output?.cancelPolling
+        return
+      }
+
+      if (swapperName === SwapperName.Bebop && hop?.bebopSolanaSerializedTx && hop?.bebopQuoteId) {
+        const output = await execution.execSolanaMessage({
+          swapperName,
+          tradeQuote,
+          stepIndex: hopIndex,
+          slippageTolerancePercentageDecimal,
+          signSerializedTransaction: async (serializedTx: string) => {
+            if (!wallet || !supportsSolana(wallet) || !wallet.solanaSignSerializedTx) {
+              throw new Error('Wallet does not support signing serialized Solana transactions')
+            }
+
+            const result = await wallet.solanaSignSerializedTx({
+              addressNList: toAddressNList(accountMetadata.bip44Params),
+              serializedTx,
+            })
+
+            if (!result?.signatures) {
+              throw new Error('Failed to sign Bebop Solana transaction')
+            }
+
+            trackMixpanelEventOnExecute()
+            return result.signatures
           },
         })
 
@@ -591,6 +623,9 @@ export const useTradeExecution = (
 
               trackMixpanelEventOnExecute()
               return output
+            },
+            signTransaction: (txToSign: SolanaSignTx) => {
+              return adapter.signTransaction({ txToSign, wallet })
             },
           })
           cancelPollingRef.current = output?.cancelPolling

@@ -18,7 +18,7 @@ An embeddable React widget that enables multi-chain token swaps using ShapeShift
 ## Installation
 
 ```bash
-yarn add @shapeshiftoss/swap-widget
+pnpm add @shapeshiftoss/swap-widget
 # or
 npm install @shapeshiftoss/swap-widget
 ```
@@ -44,7 +44,7 @@ import { SwapWidget } from "@shapeshiftoss/swap-widget";
 function App() {
   return (
     <SwapWidget
-      affiliateAddress="0xYourArbitrumAddress"
+      partnerCode="your-partner-code"
       theme="dark"
       onSwapSuccess={(txHash) => console.log("Success:", txHash)}
       onSwapError={(error) => console.error("Error:", error)}
@@ -59,7 +59,7 @@ function App() {
 
 | Prop                     | Type                                            | Default          | Description                                                                                                |
 | ------------------------ | ----------------------------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------- |
-| `affiliateAddress`       | `string`                                        | -                | Your Arbitrum address for affiliate fee attribution. Optional — the widget works without it.               |
+| `partnerCode`            | `string`                                        | -                | Your registered partner code for affiliate fee attribution. Register at the affiliate dashboard.            |
 | `apiBaseUrl`             | `string`                                        | -                | Custom API base URL. Useful for testing or custom deployments.                                             |
 | `defaultSellAsset`       | `Asset`                                         | ETH on Ethereum  | Initial asset to sell.                                                                                     |
 | `defaultBuyAsset`        | `Asset`                                         | USDC on Ethereum | Initial asset to buy.                                                                                      |
@@ -132,7 +132,7 @@ function App() {
 import { SwapWidget } from "@shapeshiftoss/swap-widget";
 
 function App() {
-  return <SwapWidget affiliateAddress="0xYourArbitrumAddress" theme="dark" />;
+  return <SwapWidget partnerCode="your-partner-code" theme="dark" />;
 }
 ```
 
@@ -149,7 +149,7 @@ function App() {
 
   return (
     <SwapWidget
-      affiliateAddress="0xYourArbitrumAddress"
+      partnerCode="your-partner-code"
       walletClient={walletClient}
       onConnectWallet={() => {
         // Your custom wallet connection logic
@@ -198,7 +198,7 @@ const defaultBuyAsset: Asset = {
 function App() {
   return (
     <SwapWidget
-      affiliateAddress="0xYourArbitrumAddress"
+      partnerCode="your-partner-code"
       defaultSellAsset={defaultSellAsset}
       defaultBuyAsset={defaultBuyAsset}
       theme="dark"
@@ -217,7 +217,7 @@ import { SwapWidget, EVM_CHAIN_IDS } from "@shapeshiftoss/swap-widget";
 function App() {
   return (
     <SwapWidget
-      affiliateAddress="0xYourArbitrumAddress"
+      partnerCode="your-partner-code"
       allowedChainIds={[
         EVM_CHAIN_IDS.ethereum,
         EVM_CHAIN_IDS.polygon,
@@ -242,7 +242,7 @@ import { SwapWidget } from "@shapeshiftoss/swap-widget";
 function App() {
   return (
     <SwapWidget
-      affiliateAddress="0xYourArbitrumAddress"
+      partnerCode="your-partner-code"
       enableWalletConnection={true}
       walletConnectProjectId="your-walletconnect-project-id"
       theme="dark"
@@ -267,7 +267,7 @@ import { SwapWidget } from "@shapeshiftoss/swap-widget";
 function App() {
   return (
     <SwapWidget
-      affiliateAddress="0xYourArbitrumAddress"
+      partnerCode="your-partner-code"
       defaultReceiveAddress="0x1234567890abcdef1234567890abcdef12345678"
       theme="dark"
     />
@@ -481,9 +481,16 @@ The widget supports swaps across multiple blockchain types:
 - **Solana swaps** - Solana transactions can be signed via Phantom, Solflare, or other Solana wallets when using the built-in wallet connection.
 - **Unsupported chains** - Swaps involving chains without wallet support will redirect to [app.shapeshift.com](https://app.shapeshift.com) to complete the transaction.
 
-### Affiliate Address
+### Partner Codes
 
-An affiliate address is optional. Pass your Arbitrum address via the `affiliateAddress` prop to attribute swaps for affiliate fee tracking. The widget works without it — no registration or approval required.
+Register an affiliate account at the affiliate dashboard and claim a partner code (e.g. `vultisig`, `venice`). Pass it via the `partnerCode` prop on the widget, or the `X-Partner-Code` header when using the REST API directly:
+
+```
+GET /v1/swap/rates?...
+X-Partner-Code: your-partner-code
+```
+
+The API resolves the partner code to the registered affiliate address and BPS automatically.
 
 ### Internal QueryClient
 

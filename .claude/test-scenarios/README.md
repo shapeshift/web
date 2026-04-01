@@ -2,6 +2,12 @@
 
 This directory contains automated test scenarios for the ShapeShift Web application. These scenarios are used by the `/test-agent` slash command to validate features and ensure quality.
 
+## Scope Clarification
+
+- This directory is for `@neomaking`'s `/test-agent` workflow and related scenario docs.
+- This is not `qabot` testing.
+- `qabot` has its own fixture-based flow and instructions at `.claude/skills/qabot/SKILL.md`.
+
 ## Directory Structure
 
 ```
@@ -73,6 +79,10 @@ Tests for specific bugs that were fixed:
 # Run maintenance (update all scenarios)
 /test-agent maintenance
 ```
+
+### Portless Support
+
+All test scenarios reference `${PORTLESS_URL:-http://localhost:3000}` for the dev server URL. When using Portless, `PORTLESS_URL` is set automatically (e.g. `http://feat-x.web.localhost:1355`). Without Portless, everything defaults to `http://localhost:3000`.
 
 ### Manual Testing
 

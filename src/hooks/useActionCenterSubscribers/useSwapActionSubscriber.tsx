@@ -213,7 +213,7 @@ export const useSwapActionSubscriber = () => {
       if (!swap.sellTxHash) return
       if (!swap.receiveAddress) return
 
-      const { status, message, buyTxHash, actualBuyAmountCryptoBaseUnit } =
+      const { status, message, buyTxHash, actualBuyAmountCryptoBaseUnit, chainflipSwapId } =
         await queryClient.fetchQuery({
           queryKey: tradeStatusQueryKey(swap.id, swap.sellTxHash),
           queryFn: () =>
@@ -252,7 +252,7 @@ export const useSwapActionSubscriber = () => {
         defaultExplorerBaseUrl,
         maybeSafeTx,
         stepSource: status && status !== TxStatus.Unknown ? swap.source : undefined,
-        maybeChainflipSwapId: `${swap.metadata.chainflipSwapId}`,
+        maybeChainflipSwapId: chainflipSwapId?.toString(),
         maybeNearIntentsDepositAddress: swap.metadata.nearIntentsSpecific?.depositAddress,
         ...(swap.swapperName === SwapperName.CowSwap ? { tradeId: txHash } : { txId: txHash }),
         ...(swap.metadata.relayerTxHash && {
@@ -272,6 +272,9 @@ export const useSwapActionSubscriber = () => {
             buyTxHash,
             txLink,
             actualBuyAmountCryptoBaseUnit,
+            ...(chainflipSwapId && {
+              metadata: { ...swap.metadata, chainflipSwapId },
+            }),
           }),
         )
 
@@ -322,27 +325,25 @@ export const useSwapActionSubscriber = () => {
 
         const { getAccount } = portfolioApi.endpoints
 
-        if (isSellSecondClassChain) {
+        // Always refresh sell account balance after swap completion
+        // This ensures balances are up-to-date even if WebSocket subscriptions miss the update
+        dispatch(
+          getAccount.initiate(
+            { accountId: swap.sellAccountId, upsertOnFetch: true },
+            { forceRefetch: true },
+          ),
+        )
+
+        // Always refresh buy account balance after swap completion (if different from sell)
+        // This fixes cross-chain swaps where the destination chain's balance wasn't updating
+        // See: https://github.com/shapeshift/web/issues/12092
+        if (swap.buyAccountId && swap.buyAccountId !== swap.sellAccountId) {
           dispatch(
             getAccount.initiate(
-              { accountId: swap.sellAccountId, upsertOnFetch: true },
+              { accountId: swap.buyAccountId, upsertOnFetch: true },
               { forceRefetch: true },
             ),
           )
-        }
-
-        if (swap.buyAccountId && swap.buyAccountId !== swap.sellAccountId) {
-          const buyChainId = fromAccountId(swap.buyAccountId).chainId
-          const isBuySecondClassChain = SECOND_CLASS_CHAINS.includes(buyChainId as KnownChainIds)
-
-          if (isBuySecondClassChain) {
-            dispatch(
-              getAccount.initiate(
-                { accountId: swap.buyAccountId, upsertOnFetch: true },
-                { forceRefetch: true },
-              ),
-            )
-          }
         }
 
         if (

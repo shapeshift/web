@@ -51,6 +51,7 @@ export const FoxTokenFilterButton = ({
 
   return (
     <Button
+      data-testid={`fox-chain-filter-${filter.label}`}
       key={filter.label}
       size='sm'
       colorScheme='gray'

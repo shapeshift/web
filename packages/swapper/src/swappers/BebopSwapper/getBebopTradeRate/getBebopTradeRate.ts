@@ -17,6 +17,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { fetchBebopPrice } from '../utils/fetchFromBebop'
 import { assertValidTrade, calculateRate } from '../utils/helpers/helpers'
@@ -123,6 +124,15 @@ export async function getBebopTradeRate(
         buyAmountAfterFeesCryptoBaseUnit,
         sellAmountIncludingProtocolFeesCryptoBaseUnit,
         source: SwapperName.Bebop,
+        affiliateFee: buildAffiliateFee({
+          strategy: 'buy_asset',
+          affiliateBps,
+          sellAsset,
+          buyAsset,
+          sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+          isEstimate: true,
+        }),
       },
     ] as SingleHopTradeRateSteps,
   })

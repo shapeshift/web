@@ -5,6 +5,7 @@ import { fromAssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'
 import { fromChainId, toChainId } from '../../chainId/chainId'
 import {
+  abstractChainId,
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
@@ -36,6 +37,7 @@ import {
   plumeChainId,
   polygonChainId,
   scrollChainId,
+  seiChainId,
   solanaChainId,
   soneiumChainId,
   sonicChainId,
@@ -90,12 +92,14 @@ export enum CoingeckoAssetPlatform {
   Scroll = 'scroll',
   Cronos = 'cronos',
   Soneium = 'soneium',
+  Sei = 'sei-v2',
   Solana = 'solana',
   Starknet = 'starknet',
   Tron = 'tron',
   Sui = 'sui',
   Ton = 'the-open-network',
   Near = 'near-protocol',
+  Abstract = 'abstract',
 }
 
 type CoinGeckoId = string
@@ -162,6 +166,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.ZkSyncEra
         case CHAIN_REFERENCE.BlastMainnet:
           return CoingeckoAssetPlatform.Blast
+        case CHAIN_REFERENCE.AbstractMainnet:
+          return CoingeckoAssetPlatform.Abstract
         case CHAIN_REFERENCE.WorldChainMainnet:
           return CoingeckoAssetPlatform.WorldChain
         case CHAIN_REFERENCE.HemiMainnet:
@@ -190,6 +196,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Cronos
         case CHAIN_REFERENCE.SoneiumMainnet:
           return CoingeckoAssetPlatform.Soneium
+        case CHAIN_REFERENCE.SeiMainnet:
+          return CoingeckoAssetPlatform.Sei
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
@@ -323,6 +331,8 @@ export const coingeckoAssetPlatformToChainId = (
       return zkSyncEraChainId
     case CoingeckoAssetPlatform.Blast:
       return blastChainId
+    case CoingeckoAssetPlatform.Abstract:
+      return abstractChainId
     case CoingeckoAssetPlatform.Hemi:
       return hemiChainId
     case CoingeckoAssetPlatform.Linea:
@@ -337,6 +347,8 @@ export const coingeckoAssetPlatformToChainId = (
       return cronosChainId
     case CoingeckoAssetPlatform.Soneium:
       return soneiumChainId
+    case CoingeckoAssetPlatform.Sei:
+      return seiChainId
     case CoingeckoAssetPlatform.Cosmos:
       return cosmosChainId
     case CoingeckoAssetPlatform.Thorchain:

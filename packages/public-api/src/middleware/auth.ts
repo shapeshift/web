@@ -1,30 +1,57 @@
 import type { NextFunction, Request, Response } from 'express'
 
-import type { ErrorResponse } from '../types'
+import { env } from '../env'
 
-const EVM_ADDRESS_REGEX = /^0x[0-9a-fA-F]{40}$/
+const resolvePartnerCodeFromService = async (
+  code: string,
+): Promise<{ affiliateAddress: string; bps: string } | null> => {
+  try {
+    const response = await fetch(
+      `${env.SWAP_SERVICE_BASE_URL}/v1/partner/${encodeURIComponent(code)}`,
+    )
 
-// Affiliate address middleware - attaches affiliate info if a valid address is provided
-// The API works without an affiliate address (anonymous access)
-export const affiliateAddress = (req: Request, res: Response, next: NextFunction): void => {
-  const address = req.header('X-Affiliate-Address')
-
-  if (!address) {
-    next()
-    return
-  }
-
-  if (!EVM_ADDRESS_REGEX.test(address)) {
-    const errorResponse: ErrorResponse = {
-      error:
-        'Invalid affiliate address format. Must be a valid EVM address (0x followed by 40 hex characters).',
-      code: 'INVALID_AFFILIATE_ADDRESS',
+    if (response.ok) {
+      const data = (await response.json()) as {
+        affiliateAddress: string
+        bps: number
+      }
+      return {
+        affiliateAddress: data.affiliateAddress,
+        bps: String(data.bps),
+      }
     }
-    res.status(400).json(errorResponse)
-    return
+
+    return null
+  } catch {
+    return null
+  }
+}
+
+export const resolvePartnerCode = async (
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  const partnerCode = req.header('X-Partner-Code')
+
+  if (partnerCode) {
+    const resolved = await resolvePartnerCodeFromService(partnerCode)
+    if (resolved) {
+      req.affiliateInfo = {
+        affiliateAddress: resolved.affiliateAddress,
+        affiliateBps: resolved.bps,
+        partnerCode,
+      }
+      next()
+      return
+    }
+    // Partner code not found — continue without affiliate info
   }
 
-  req.affiliateInfo = { affiliateAddress: address }
+  // No partner code provided — use default BPS for unattributed swaps
+  req.affiliateInfo = {
+    affiliateBps: env.DEFAULT_AFFILIATE_BPS,
+  }
 
   next()
 }

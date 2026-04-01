@@ -1,0 +1,119 @@
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
+
+import { CollateralMachineCtx } from '../CollateralMachineContext'
+
+import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
+import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
+import { reactQueries } from '@/react-queries'
+
+const POLL_INTERVAL_MS = 6_000
+const TIMEOUT_MS = 5 * 60 * 1000
+
+export const useCollateralConfirmation = () => {
+  const queryClient = useQueryClient()
+  const actorRef = CollateralMachineCtx.useActorRef()
+  const stateValue = CollateralMachineCtx.useSelector(s => s.value)
+  const { assetId, collateralBalanceCryptoBaseUnit, mode } = CollateralMachineCtx.useSelector(
+    s => ({
+      assetId: s.context.assetId,
+      collateralBalanceCryptoBaseUnit: s.context.collateralBalanceCryptoBaseUnit,
+      mode: s.context.mode,
+    }),
+  )
+  const { scAccount } = useChainflipLendingAccount()
+
+  const isConfirming = stateValue === 'confirming'
+
+  const invalidateQueries = useCallback(async () => {
+    if (!scAccount) return
+    await Promise.all([
+      queryClient.invalidateQueries(reactQueries.chainflipLending.freeBalances(scAccount)),
+      queryClient.invalidateQueries(reactQueries.chainflipLending.accountInfo(scAccount)),
+      queryClient.invalidateQueries(reactQueries.chainflipLending.loanAccounts(scAccount)),
+    ])
+  }, [queryClient, scAccount])
+
+  const { data: loanAccountsData } = useQuery({
+    ...reactQueries.chainflipLending.loanAccounts(scAccount ?? ''),
+    enabled: isConfirming && !!scAccount,
+    refetchInterval: isConfirming ? POLL_INTERVAL_MS : false,
+  })
+
+  const cfAsset = useMemo(() => CHAINFLIP_LENDING_ASSET_BY_ASSET_ID[assetId], [assetId])
+
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    if (isConfirming) {
+      timeoutRef.current = setTimeout(() => {
+        actorRef.send({ type: 'COLLATERAL_TIMEOUT', error: 'Confirmation timed out' })
+      }, TIMEOUT_MS)
+    }
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    }
+  }, [isConfirming, actorRef])
+
+  useEffect(() => {
+    if (!isConfirming || !loanAccountsData || !cfAsset || !scAccount) return
+
+    const loanAccount = loanAccountsData.find(account => account.account === scAccount)
+
+    // Full collateral removal deletes the loan account or collateral entry entirely
+    if (mode === 'remove' && !loanAccount?.collateral) {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      void invalidateQueries()
+      actorRef.send({ type: 'COLLATERAL_CONFIRMED' })
+      return
+    }
+
+    if (!loanAccount?.collateral) return
+
+    const matchingCollateral = loanAccount.collateral.find(
+      c => c.chain === cfAsset.chain && c.asset === cfAsset.asset,
+    )
+
+    // Collateral entry gone entirely counts as confirmed for remove
+    if (mode === 'remove' && !matchingCollateral) {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      void invalidateQueries()
+      actorRef.send({ type: 'COLLATERAL_CONFIRMED' })
+      return
+    }
+
+    const currentAmount = matchingCollateral?.amount ?? '0'
+
+    try {
+      const currentCollateralCryptoBaseUnit = BigInt(currentAmount)
+      const previousCollateralCryptoBaseUnit = BigInt(collateralBalanceCryptoBaseUnit || '0')
+
+      const hasChanged =
+        mode === 'add'
+          ? currentCollateralCryptoBaseUnit > previousCollateralCryptoBaseUnit
+          : currentCollateralCryptoBaseUnit < previousCollateralCryptoBaseUnit
+
+      if (hasChanged) {
+        if (timeoutRef.current) clearTimeout(timeoutRef.current)
+        void invalidateQueries()
+        actorRef.send({ type: 'COLLATERAL_CONFIRMED' })
+      }
+    } catch (error) {
+      console.error('[useCollateralConfirmation] parse failure', {
+        currentAmount,
+        collateralBalanceCryptoBaseUnit,
+        mode,
+        error,
+      })
+    }
+  }, [
+    isConfirming,
+    loanAccountsData,
+    cfAsset,
+    scAccount,
+    collateralBalanceCryptoBaseUnit,
+    mode,
+    actorRef,
+    invalidateQueries,
+  ])
+}

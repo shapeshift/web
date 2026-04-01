@@ -364,16 +364,19 @@ export class GridPlusHDWallet
   readonly _supportsPlasma = true
   readonly _supportsPlume = true
   readonly _supportsKatana = false
+  readonly _supportsEthereal = false
   readonly _supportsStory = false
   readonly _supportsSonic = false
   readonly _supportsBob = false
   readonly _supportsMode = false
+  readonly _supportsSei = false
   readonly _supportsHyperEvm = true
   readonly _supportsMantle = true
   readonly _supportsInk = true
   readonly _supportsMegaEth = true
   readonly _supportsZkSyncEra = true
   readonly _supportsBlast = true
+  readonly _supportsAbstract = false
   readonly _supportsWorldChain = true
   readonly _supportsHemi = true
   readonly _supportsFlowEvm = true
@@ -641,6 +644,16 @@ export class GridPlusHDWallet
 
     await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType)
     return solana.solanaSignTx(this.client, msg)
+  }
+
+  async solanaSignSerializedTx(
+    msg: core.SolanaSignSerializedTx,
+  ): Promise<core.SolanaSignedTx | null> {
+    this.assertSolanaFwSupport()
+    if (!this.expectedActiveWalletId) throw new Error('Expected SafeCard ID not set')
+
+    await this.validateActiveWallet(this.expectedActiveWalletId, this.expectedType)
+    return solana.solanaSignSerializedTx(this.client, msg)
   }
 
   async cosmosGetAddress(msg: core.CosmosGetAddress): Promise<string | null> {

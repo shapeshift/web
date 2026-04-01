@@ -53,7 +53,7 @@ export const YieldRelatedMarkets = memo(
     if (relatedYields.length === 0) return null
 
     return (
-      <Box mt={6}>
+      <Box mt={6} data-testid='yield-related-markets'>
         <Heading as='h3' size='md' mb={4}>
           {translate('yieldXYZ.otherYields', { symbol: tokenSymbol })}
         </Heading>

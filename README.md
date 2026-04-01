@@ -71,14 +71,14 @@ If you are using Linux and macOS it works out of the box following these steps:
 4. Install Dependencies:
 
     ```sh
-    yarn
+    pnpm install
     ```
 
-    > This is short for `yarn install` ; be sure to use `yarn install --immutable` instead if you're setting up a CI pipeline or trying to duplicate a historical build.
+    > Use `pnpm install --frozen-lockfile` instead if you're setting up a CI pipeline or trying to duplicate a historical build.
 5. Build Packages:
 
     ```sh
-    yarn build:packages
+    pnpm run build:packages
     ```
 
 6. Other recommended configurations:
@@ -94,19 +94,21 @@ If you are using Linux and macOS it works out of the box following these steps:
 To run the app in the development mode:
 
 ```sh
-yarn dev
+pnpm run dev
 ```
 
 > It opens [http://localhost:3000](http://localhost:3000) to view it in the browser and the page will reload if you make edits.
 >
-> You will also see any lint errors in the console.  
+> **Portless (optional):** Install [Portless](https://github.com/vercel-labs/portless) globally (`npm i -g portless`), then `dev:web` uses it automatically. The app is available at `http://<branch>.web.localhost:1355`. Without Portless, use `dev:web:localhost` for plain `localhost:3000`.
+>
+> You will also see any lint errors in the console.
 
 <br/>
 
 To launch the test runner in interactive watch mode:
 
 ```sh
-yarn test
+pnpm run test
 ```
 
 > See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
@@ -118,7 +120,7 @@ yarn test
 To build the app for production in the `/build` folder at the root level of the project:
 
 ```sh
-MODE=production yarn build:web
+MODE=production pnpm run build:web
 ```
 
 > It correctly bundles React in production mode and optimizes the build for the best performance.
@@ -138,7 +140,7 @@ MODE=production yarn build:web
 
 ## Releases
 
-The command `yarn release` helps to automate the release process.
+The command `pnpm run release` helps to automate the release process.
 
 Run the command and follow the prompts.
 

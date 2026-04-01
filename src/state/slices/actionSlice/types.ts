@@ -26,6 +26,7 @@ export enum ActionType {
   ChangeAddress = 'ChangeAddress',
   RewardDistribution = 'RewardDistribution',
   ArbitrumBridgeWithdraw = 'ArbitrumBridgeWithdraw',
+  ChainflipLending = 'Chainflip Lending',
 }
 
 export enum ActionStatus {
@@ -36,6 +37,7 @@ export enum ActionStatus {
   Pending = 'Pending',
   Initiated = 'Initiated',
   Complete = 'Complete',
+  Replaced = 'Replaced',
   Failed = 'Failed',
   ClaimAvailable = 'ClaimAvailable',
   Claimed = 'Claimed',
@@ -85,6 +87,27 @@ type ActionArbitrumBridgeWithdrawMetadata = {
   claimDetails?: ClaimDetails
 }
 
+export enum ChainflipLendingOperationType {
+  Deposit = 'deposit',
+  Supply = 'supply',
+  Withdraw = 'withdraw',
+  Egress = 'egress',
+  AddCollateral = 'addCollateral',
+  RemoveCollateral = 'removeCollateral',
+  Borrow = 'borrow',
+  Repay = 'repay',
+}
+
+type ActionChainflipLendingMetadata = {
+  operationType: ChainflipLendingOperationType
+  amountCryptoPrecision: string
+  assetId: AssetId
+  accountId: AccountId
+  message: string
+  txHash?: string
+  egressTxRef?: string
+}
+
 export enum GenericTransactionDisplayType {
   TCY = 'TCY',
   RFOX = 'rFOX',
@@ -100,6 +123,14 @@ export enum GenericTransactionDisplayType {
 export enum GenericTransactionQueryId {
   RFOX = 'rFOX',
   TCY = 'TCY',
+}
+
+export type BtcUtxoRbfTxMetadataInput = {
+  addressNList: number[]
+}
+
+export type BtcUtxoRbfTxMetadata = {
+  inputs: BtcUtxoRbfTxMetadataInput[]
 }
 
 type ActionGenericTransactionMetadata = {
@@ -125,6 +156,10 @@ type ActionGenericTransactionMetadata = {
   confirmedQuote?: LpConfirmedWithdrawalQuote | LpConfirmedDepositQuote
   assetAmountsAndSymbols?: string
   poolName?: string
+  replacedByTxHash?: string
+  replacesTxHash?: string
+  isRbfEnabled?: boolean
+  btcUtxoRbfTxMetadata?: BtcUtxoRbfTxMetadata
 }
 
 export type BaseAction = {
@@ -191,6 +226,11 @@ export type ArbitrumBridgeWithdrawAction = BaseAction & {
   arbitrumBridgeMetadata: ActionArbitrumBridgeWithdrawMetadata
 }
 
+export type ChainflipLendingAction = BaseAction & {
+  type: ActionType.ChainflipLending
+  chainflipLendingMetadata: ActionChainflipLendingMetadata
+}
+
 export type Action =
   | SwapAction
   | LimitOrderAction
@@ -200,6 +240,7 @@ export type Action =
   | TcyClaimAction
   | RewardDistributionAction
   | ArbitrumBridgeWithdrawAction
+  | ChainflipLendingAction
 
 export type ActionState = {
   byId: Record<string, Action>
@@ -258,4 +299,8 @@ export const isArbitrumBridgeWithdrawAction = (
   action: Action,
 ): action is ArbitrumBridgeWithdrawAction => {
   return Boolean(action.type === ActionType.ArbitrumBridgeWithdraw && action.arbitrumBridgeMetadata)
+}
+
+export const isChainflipLendingAction = (action: Action): action is ChainflipLendingAction => {
+  return Boolean(action.type === ActionType.ChainflipLending && action.chainflipLendingMetadata)
 }

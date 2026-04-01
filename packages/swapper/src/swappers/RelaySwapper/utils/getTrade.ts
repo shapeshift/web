@@ -1,4 +1,5 @@
 import {
+  baseChainId,
   btcChainId,
   fromChainId,
   monadChainId,
@@ -10,6 +11,7 @@ import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { UtxoChainId } from '@shapeshiftoss/types'
 import {
   bnOrZero,
+  chainIdToFeeAssetId,
   convertBasisPointsToPercentage,
   convertDecimalPercentageToBasisPoints,
   convertPrecision,
@@ -18,7 +20,12 @@ import {
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { TransactionInstruction } from '@solana/web3.js'
-import { PublicKey } from '@solana/web3.js'
+import {
+  AddressLookupTableAccount,
+  MessageV0,
+  PublicKey,
+  VersionedTransaction,
+} from '@solana/web3.js'
 import axios from 'axios'
 import type { Hex } from 'viem'
 import { getAddress, zeroAddress } from 'viem'
@@ -34,6 +41,7 @@ import type {
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { simulateWithStateOverrides } from '../../../utils/tenderly'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
 import { MAXIMUM_SUPPORTED_RELAY_STEPS, relayErrorCodeToTradeQuoteError } from '../constant'
@@ -581,118 +589,166 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     return quote.fees.gas.amount
   })()
 
-  const steps = swapSteps.map((quoteStep): TradeQuoteStep | TradeRateStep => {
-    const selectedItem = quoteStep.items?.[0]
+  const steps = await Promise.all(
+    swapSteps.map(async (quoteStep): Promise<TradeQuoteStep | TradeRateStep> => {
+      const selectedItem = quoteStep.items?.[0]
 
-    if (!selectedItem) throw new Error('Relay quote step contains no items')
+      if (!selectedItem) throw new Error('Relay quote step contains no items')
 
-    // Add back relayer service and gas fees (relayer is including both) since they are downsides
-    // And add appFees
-    const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(currencyOut.amount)
-      .plus(relayerFeesBuyAssetCryptoBaseUnit)
-      .plus(appFeesBaseUnit)
-      .toFixed()
+      // Add back relayer service and gas fees (relayer is including both) since they are downsides
+      // And add appFees
+      const buyAmountBeforeFeesCryptoBaseUnit = bnOrZero(currencyOut.amount)
+        .plus(relayerFeesBuyAssetCryptoBaseUnit)
+        .plus(appFeesBaseUnit)
+        .toFixed()
 
-    const { allowanceContract, relayTransactionMetadata, solanaTransactionMetadata } = (() => {
-      if (!selectedItem.data) throw new Error('Relay quote step contains no data')
+      const { allowanceContract, relayTransactionMetadata, solanaTransactionMetadata } =
+        await (async () => {
+          if (!selectedItem.data) throw new Error('Relay quote step contains no data')
 
-      if (isRelayQuoteUtxoItemData(selectedItem.data)) {
-        if (!selectedItem.data.psbt) throw new Error('Relay BTC quote step contains no psbt')
+          if (isRelayQuoteUtxoItemData(selectedItem.data)) {
+            if (!selectedItem.data.psbt) throw new Error('Relay BTC quote step contains no psbt')
 
-        const relayer = getRelayPsbtRelayer(
-          selectedItem.data.psbt,
-          sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        )
+            const relayer = getRelayPsbtRelayer(
+              selectedItem.data.psbt,
+              sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            )
 
-        return {
-          allowanceContract: '',
-          relayTransactionMetadata: {
-            from: sendAddress,
-            psbt: selectedItem.data.psbt,
-            opReturnData: orderId,
-            to: relayer,
-            relayId: quote.steps[0].requestId,
-            orderId,
+            return {
+              allowanceContract: '',
+              relayTransactionMetadata: {
+                from: sendAddress,
+                psbt: selectedItem.data.psbt,
+                opReturnData: orderId,
+                to: relayer,
+                relayId: quote.steps[0].requestId,
+                orderId,
+              },
+              solanaTransactionMetadata: undefined,
+            }
+          }
+
+          if (isRelayQuoteEvmItemData(selectedItem.data)) {
+            return {
+              allowanceContract: selectedItem.data?.to ?? '',
+              relayTransactionMetadata: {
+                from: sendAddress,
+                to: selectedItem.data?.to,
+                // v2 API may return value as undefined or empty object for ERC-20 swaps - default to '0'
+                value: typeof selectedItem.data?.value === 'string' ? selectedItem.data.value : '0',
+                data: selectedItem.data?.data,
+                // gas is not documented in the relay docs but refers to gasLimit
+                gasLimit: selectedItem.data?.gas,
+                chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+                relayId: quote.steps[0].requestId,
+                orderId,
+              },
+              solanaTransactionMetadata: undefined,
+            }
+          }
+
+          if (isRelayQuoteSolanaItemData(selectedItem.data)) {
+            const solanaInstructions =
+              selectedItem.data?.instructions?.map(convertSolanaInstruction)
+            const addressLookupTableAddresses = selectedItem.data?.addressLookupTableAddresses
+
+            // Build a trial VersionedTransaction to check if it exceeds the 1232-byte Solana tx size limit
+            const isOversized = await (async () => {
+              if (!solanaInstructions?.length || !sendAddress) return false
+              try {
+                const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+                const lookupTableInfos = await adapter.getAddressLookupTableAccounts(
+                  addressLookupTableAddresses,
+                )
+                const lookupTableAccounts = lookupTableInfos.map(
+                  info =>
+                    new AddressLookupTableAccount({
+                      key: new PublicKey(info.key),
+                      state: AddressLookupTableAccount.deserialize(new Uint8Array(info.data)),
+                    }),
+                )
+
+                const messageV0 = MessageV0.compile({
+                  payerKey: new PublicKey(sendAddress),
+                  instructions: solanaInstructions,
+                  recentBlockhash: PublicKey.default.toString(),
+                  addressLookupTableAccounts: lookupTableAccounts,
+                })
+                const txBytes = new VersionedTransaction(messageV0).serialize()
+                return txBytes.length > 1232
+              } catch {
+                return false
+              }
+            })()
+
+            return {
+              allowanceContract: '',
+              solanaTransactionMetadata: {
+                addressLookupTableAddresses,
+                instructions: solanaInstructions,
+                isOversized,
+              },
+              relayTransactionMetadata: {
+                relayId: quote.steps[0].requestId,
+                orderId,
+              },
+            }
+          }
+
+          if (isRelayQuoteTronItemData(selectedItem.data)) {
+            return {
+              allowanceContract: selectedItem.data?.parameter?.contract_address ?? '',
+              solanaTransactionMetadata: undefined,
+              relayTransactionMetadata: {
+                relayId: quote.steps[0].requestId,
+                orderId,
+                to: selectedItem.data?.parameter?.contract_address,
+                data: selectedItem.data?.parameter?.data,
+              },
+            }
+          }
+
+          throw new Error('Relay quote step contains no data')
+        })()
+
+      return {
+        allowanceContract,
+        rate,
+        buyAmountBeforeFeesCryptoBaseUnit,
+        buyAmountAfterFeesCryptoBaseUnit,
+        sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        buyAsset,
+        sellAsset,
+        accountNumber,
+        feeData: {
+          networkFeeCryptoBaseUnit,
+          protocolFees: {
+            [protocolAssetId]: {
+              amountCryptoBaseUnit: quote.fees.relayer.amount,
+              asset: protocolAsset,
+              requiresBalance: false,
+            },
+            ...appFeesAsProtocolFee,
           },
-          solanaTransactionMetadata: undefined,
-        }
-      }
-
-      if (isRelayQuoteEvmItemData(selectedItem.data)) {
-        return {
-          allowanceContract: selectedItem.data?.to ?? '',
-          relayTransactionMetadata: {
-            from: sendAddress,
-            to: selectedItem.data?.to,
-            // v2 API may return value as undefined or empty object for ERC-20 swaps - default to '0'
-            value: typeof selectedItem.data?.value === 'string' ? selectedItem.data.value : '0',
-            data: selectedItem.data?.data,
-            // gas is not documented in the relay docs but refers to gasLimit
-            gasLimit: selectedItem.data?.gas,
-            chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-            relayId: quote.steps[0].requestId,
-            orderId,
-          },
-          solanaTransactionMetadata: undefined,
-        }
-      }
-
-      if (isRelayQuoteSolanaItemData(selectedItem.data)) {
-        return {
-          allowanceContract: '',
-          solanaTransactionMetadata: {
-            addressLookupTableAddresses: selectedItem.data?.addressLookupTableAddresses,
-            instructions: selectedItem.data?.instructions?.map(convertSolanaInstruction),
-          },
-          relayTransactionMetadata: {
-            relayId: quote.steps[0].requestId,
-            orderId,
-          },
-        }
-      }
-
-      if (isRelayQuoteTronItemData(selectedItem.data)) {
-        return {
-          allowanceContract: selectedItem.data?.parameter?.contract_address ?? '',
-          solanaTransactionMetadata: undefined,
-          relayTransactionMetadata: {
-            relayId: quote.steps[0].requestId,
-            orderId,
-            to: selectedItem.data?.parameter?.contract_address,
-            data: selectedItem.data?.parameter?.data,
-          },
-        }
-      }
-
-      throw new Error('Relay quote step contains no data')
-    })()
-
-    return {
-      allowanceContract,
-      rate,
-      buyAmountBeforeFeesCryptoBaseUnit,
-      buyAmountAfterFeesCryptoBaseUnit,
-      sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      buyAsset,
-      sellAsset,
-      accountNumber,
-      feeData: {
-        networkFeeCryptoBaseUnit,
-        protocolFees: {
-          [protocolAssetId]: {
-            amountCryptoBaseUnit: quote.fees.relayer.amount,
-            asset: protocolAsset,
-            requiresBalance: false,
-          },
-          ...appFeesAsProtocolFee,
         },
-      },
-      source: SwapperName.Relay,
-      estimatedExecutionTimeMs: timeEstimate * 1000,
-      solanaTransactionMetadata,
-      relayTransactionMetadata,
-    }
-  })
+        source: SwapperName.Relay,
+        estimatedExecutionTimeMs: timeEstimate * 1000,
+        solanaTransactionMetadata,
+        relayTransactionMetadata,
+        affiliateFee: buildAffiliateFee({
+          strategy: 'fixed_asset',
+          affiliateBps,
+          sellAsset,
+          buyAsset,
+          sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+          fixedAssetId: chainIdToFeeAssetId(baseChainId),
+          fixedAsset: deps.assetsById[chainIdToFeeAssetId(baseChainId)],
+          isEstimate: true,
+        }),
+      }
+    }),
+  )
 
   const baseQuoteOrRate = {
     id: quote.steps[0].requestId,

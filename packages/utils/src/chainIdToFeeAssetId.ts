@@ -1,5 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
+  abstractAssetId,
   arbitrumAssetId,
   avalancheAssetId,
   baseAssetId,
@@ -14,6 +15,7 @@ import {
   cronosAssetId,
   dogeAssetId,
   ethAssetId,
+  etherealAssetId,
   flowEvmAssetId,
   gnosisAssetId,
   hemiAssetId,
@@ -33,6 +35,7 @@ import {
   plumeAssetId,
   polygonAssetId,
   scrollAssetId,
+  seiAssetId,
   solAssetId,
   soneiumAssetId,
   sonicAssetId,
@@ -112,6 +115,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return cronosAssetId
     case KnownChainIds.KatanaMainnet:
       return katanaAssetId
+    case KnownChainIds.EtherealMainnet:
+      return etherealAssetId
     case KnownChainIds.FlowEvmMainnet:
       return flowEvmAssetId
     case KnownChainIds.CeloMainnet:
@@ -126,6 +131,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return worldChainAssetId
     case KnownChainIds.HemiMainnet:
       return hemiAssetId
+    case KnownChainIds.SeiMainnet:
+      return seiAssetId
     case KnownChainIds.LineaMainnet:
       return lineaAssetId
     case KnownChainIds.ScrollMainnet:
@@ -146,6 +153,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return nearAssetId
     case KnownChainIds.TonMainnet:
       return tonAssetId
+    case KnownChainIds.AbstractMainnet:
+      return abstractAssetId
     default:
       return assertUnreachable(chainId)
   }

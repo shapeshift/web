@@ -164,6 +164,7 @@ export const SharedTradeInputFooter = ({
           colorScheme={isError ? 'red' : 'blue'}
           size='lg-multiline'
           data-test='trade-form-preview-button'
+          data-testid='trade-preview-button'
           isDisabled={shouldDisablePreviewButton}
           isValidWallet={true}
           onClick={handleClick}

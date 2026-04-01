@@ -29,6 +29,7 @@ import type {
   NearChainId,
   OrderQuoteResponse,
   PartialRecord,
+  SolanaChainId,
   TonChainId,
   TronChainId,
   UtxoAccountType,
@@ -45,6 +46,7 @@ import type { Address, Hex } from 'viem'
 
 import type { AcrossTransactionMetadata } from './swappers/AcrossSwapper/utils/types'
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
+import type { DebridgeTransactionMetadata } from './swappers/DebridgeSwapper/utils/types'
 import type { RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
@@ -84,6 +86,7 @@ export type SwapperConfig = {
   VITE_SUI_NODE_URL: string
   VITE_ACROSS_API_URL: string
   VITE_ACROSS_INTEGRATOR_ID: string
+  VITE_DEBRIDGE_API_URL: string
 }
 
 export enum SwapperName {
@@ -105,6 +108,7 @@ export enum SwapperName {
   Avnu = 'AVNU',
   Stonfi = 'STON.fi',
   Across = 'Across',
+  Debridge = 'deBridge',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -194,6 +198,7 @@ type CommonTradeInputBase = {
   buyAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   affiliateBps: string
+  affiliateAddress?: string
   allowMultiHop: boolean
   slippageTolerancePercentageDecimal?: string
 }
@@ -275,6 +280,18 @@ export type GetTonTradeRateInput = CommonTradeRateInput & {
   chainId: TonChainId
 }
 
+export type GetSolanaTradeQuoteInputBase = CommonTradeInput & {
+  chainId: SolanaChainId
+}
+
+export type GetSolanaTradeQuoteInput = CommonTradeInput & {
+  chainId: SolanaChainId
+}
+
+export type GetSolanaTradeRateInput = CommonTradeRateInput & {
+  chainId: SolanaChainId
+}
+
 type GetUtxoTradeQuoteWithWallet = CommonTradeQuoteInput & {
   chainId: UtxoChainId
   accountType: UtxoAccountType
@@ -300,6 +317,7 @@ export type GetTradeQuoteInput =
   | GetTronTradeQuoteInput
   | GetNearTradeQuoteInput
   | GetTonTradeQuoteInput
+  | GetSolanaTradeQuoteInput
 
 export type GetTradeRateInput =
   | GetEvmTradeRateInput
@@ -308,6 +326,7 @@ export type GetTradeRateInput =
   | GetTronTradeRateInput
   | GetNearTradeRateInput
   | GetTonTradeRateInput
+  | GetSolanaTradeRateInput
 
 export type GetTradeQuoteInputWithWallet =
   | GetUtxoTradeQuoteWithWallet
@@ -316,6 +335,7 @@ export type GetTradeQuoteInputWithWallet =
   | GetTronTradeQuoteInputBase
   | GetNearTradeQuoteInputBase
   | GetTonTradeQuoteInputBase
+  | GetSolanaTradeQuoteInputBase
 
 export type EvmSwapperDeps = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
@@ -368,6 +388,13 @@ export type SwapperDeps = {
   StarknetSwapperDeps &
   TonSwapperDeps
 
+export type AffiliateFee = {
+  assetId: AssetId
+  amountCryptoBaseUnit: string
+  asset: Asset
+  isEstimate?: boolean
+}
+
 export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string
   buyAmountAfterFeesCryptoBaseUnit: string
@@ -410,14 +437,18 @@ export type TradeQuoteStep = {
     value: Hex
     gas?: string
   }
+  bebopSolanaSerializedTx?: string
+  bebopQuoteId?: string
   jupiterQuoteResponse?: QuoteResponse
   solanaTransactionMetadata?: {
     addressLookupTableAddresses: string[]
     instructions?: TransactionInstruction[]
+    /** True when the serialized tx exceeds the 1232-byte Solana limit and needs Jito bundle splitting */
+    isOversized?: boolean
   }
   cowswapQuoteResponse?: OrderQuoteResponse
   chainflipSpecific?: {
-    chainflipSwapId?: number
+    chainflipSwapId?: number | string
     chainflipDepositAddress?: string
     chainflipNumberOfChunks?: number
     chainflipChunkIntervalBlocks?: number
@@ -482,6 +513,8 @@ export type TradeQuoteStep = {
     params?: unknown
   }
   acrossTransactionMetadata?: AcrossTransactionMetadata
+  debridgeTransactionMetadata?: DebridgeTransactionMetadata
+  affiliateFee?: AffiliateFee
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & {
@@ -534,7 +567,7 @@ export type SwapExecutionMetadata = {
 }
 
 export type SwapperSpecificMetadata = {
-  chainflipSwapId: number | undefined
+  chainflipSwapId: number | string | undefined
   nearIntentsSpecific?: {
     depositAddress: string
     depositMemo?: string
@@ -543,6 +576,7 @@ export type SwapperSpecificMetadata = {
   }
   relayTransactionMetadata: RelayTransactionMetadata | undefined
   acrossTransactionMetadata: AcrossTransactionMetadata | undefined
+  debridgeTransactionMetadata: DebridgeTransactionMetadata | undefined
   relayerExplorerTxLink: string | undefined
   relayerTxHash: string | undefined
   stepIndex: SupportedTradeQuoteStepIndex
@@ -658,6 +692,17 @@ export type CosmosSdkTransactionExecutionProps = {
 
 export type SolanaTransactionExecutionProps = {
   signAndBroadcastTransaction: (txToSign: SolanaSignTx) => Promise<string>
+  /** Sign-only callback for Jito bundle flow (sign without broadcasting) */
+  signTransaction?: (txToSign: SolanaSignTx) => Promise<string>
+}
+
+export type SolanaMessageToSign = {
+  serializedTx: string
+  quoteId: string
+}
+
+export type SolanaMessageExecutionProps = {
+  signSerializedTransaction: (serializedTx: string) => Promise<string[]>
 }
 
 export type TronTransactionExecutionProps = {
@@ -731,6 +776,7 @@ export type GetUnsignedTonTransactionArgs = CommonGetUnsignedTransactionArgs &
 export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata &
   Omit<EvmSwapperDeps, 'fetchIsSmartContractAddressQuery'>
+export type GetUnsignedSolanaMessageArgs = CommonGetUnsignedTransactionArgs
 export type GetUnsignedUtxoTransactionArgs = CommonGetUnsignedTransactionArgs &
   UtxoAccountMetadata &
   UtxoSwapperDeps
@@ -775,6 +821,7 @@ export type TradeStatus = {
   relayerExplorerTxLink?: string | undefined
   message: string | [string, InterpolationOptions] | undefined
   actualBuyAmountCryptoBaseUnit?: string
+  chainflipSwapId?: number | string
 }
 
 // a result containing all routes that were successfully generated, or an error in the case where
@@ -808,6 +855,11 @@ export type Swapper = {
   executeSolanaTransaction?: (
     txToSign: SolanaSignTx,
     callbacks: SolanaTransactionExecutionProps,
+  ) => Promise<string>
+  executeSolanaMessage?: (
+    messageData: SolanaMessageToSign,
+    callbacks: SolanaMessageExecutionProps,
+    config: SwapperConfig,
   ) => Promise<string>
   executeTronTransaction?: (
     txToSign: tron.TronSignTx,
@@ -847,6 +899,7 @@ export type SwapperApi = {
     input: GetUnsignedCosmosSdkTransactionArgs,
   ) => Promise<SignTx<CosmosSdkChainId>>
   getUnsignedSolanaTransaction?: (input: GetUnsignedSolanaTransactionArgs) => Promise<SolanaSignTx>
+  getUnsignedSolanaMessage?: (input: GetUnsignedSolanaMessageArgs) => Promise<SolanaMessageToSign>
   getUnsignedTronTransaction?: (input: GetUnsignedTronTransactionArgs) => Promise<tron.TronSignTx>
   getUnsignedSuiTransaction?: (input: GetUnsignedSuiTransactionArgs) => Promise<SuiSignTx>
   getUnsignedNearTransaction?: (input: GetUnsignedNearTransactionArgs) => Promise<near.NearSignTx>
@@ -904,6 +957,8 @@ export type CosmosSdkTransactionExecutionInput = CommonTradeExecutionInput &
 export type SolanaTransactionExecutionInput = CommonTradeExecutionInput &
   SolanaTransactionExecutionProps &
   SolanaAccountMetadata
+
+export type SolanaMessageExecutionInput = CommonTradeExecutionInput & SolanaMessageExecutionProps
 
 export type TronTransactionExecutionInput = CommonTradeExecutionInput &
   TronTransactionExecutionProps &

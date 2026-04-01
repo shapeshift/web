@@ -12,31 +12,10 @@ let initialized = false
 export const initAssets = (): Promise<void> => {
   if (initialized) return Promise.resolve()
 
+  console.log('Initializing assets...')
+
   try {
-    // Try to load from the generated asset data file
-    // First check env var, then relative to cwd, then relative to monorepo root
-    const possiblePaths = [
-      process.env.ASSET_DATA_PATH,
-      path.join(process.cwd(), 'public/generated/generatedAssetData.json'),
-      path.join(process.cwd(), '../../public/generated/generatedAssetData.json'),
-      path.join(process.cwd(), 'generatedAssetData.json'),
-    ].filter(Boolean) as string[]
-
-    let assetDataPath: string | undefined
-    for (const p of possiblePaths) {
-      if (fs.existsSync(p)) {
-        assetDataPath = p
-        break
-      }
-    }
-
-    if (!assetDataPath) {
-      const error = new Error(
-        `Asset data file not found in any of the expected locations: ${possiblePaths.join(', ')}`,
-      )
-      console.warn(error.message)
-      return Promise.reject(error)
-    }
+    const assetDataPath = path.join(__dirname, '../../../public/generated/generatedAssetData.json')
 
     const assetDataJson = JSON.parse(fs.readFileSync(assetDataPath, 'utf8'))
     const localAssetData = assetDataJson.byId
@@ -47,13 +26,22 @@ export const initAssets = (): Promise<void> => {
     for (const assetId of sortedAssetIds) {
       const asset = localAssetData[assetId]
       if (asset) {
-        const baseAsset = getBaseAsset(asset.chainId)
-        enrichedAssetsById[assetId] = {
-          ...asset,
-          networkName: baseAsset?.networkName,
-          explorer: baseAsset?.explorer,
-          explorerAddressLink: baseAsset?.explorerAddressLink,
-          explorerTxLink: baseAsset?.explorerTxLink,
+        try {
+          const baseAsset = getBaseAsset(asset.chainId)
+          enrichedAssetsById[assetId] = {
+            ...asset,
+            networkName: baseAsset?.networkName,
+            explorer: baseAsset?.explorer,
+            explorerAddressLink: baseAsset?.explorerAddressLink,
+            explorerTxLink: baseAsset?.explorerTxLink,
+          }
+        } catch (error) {
+          console.warn('Failed to enrich asset with base chain data', {
+            assetId,
+            chainId: asset.chainId,
+            error,
+          })
+          enrichedAssetsById[assetId] = asset
         }
       }
     }

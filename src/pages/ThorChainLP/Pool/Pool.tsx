@@ -183,7 +183,7 @@ export const Pool = () => {
   if (!poolAssetId) return null
 
   return (
-    <Main headerComponent={headerComponent} isSubPage>
+    <Main headerComponent={headerComponent} isSubPage data-testid='pool-detail-page'>
       {maybePoolDisabledAlert}
       <Flex gap={4} flexDir={flexDirPool}>
         <Stack gap={6} flex={1}>

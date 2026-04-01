@@ -1,23 +1,17 @@
 {
   "name": "@shapeshiftoss/public-api",
   "version": "0.1.0",
-  "packageManager": "yarn@3.5.0",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/server.cjs",
   "scripts": {
-    "build": "yarn clean && yarn run -T tsc --build",
-    "build:bundle": "node esbuild.config.mjs",
-    "build:smoke-tests": "node esbuild.smoke-tests.mjs",
-    "clean": "rm -rf dist",
-    "dev": "tsx watch src/index.ts",
-    "start": "node dist/index.js",
-    "start:prod": "node dist/server.cjs",
-    "test:smoke": "tsx tests/run-smoke-tests.ts",
-    "docker:build": "docker build -t shapeshift-public-api -f Dockerfile ../../",
-    "docker:run": "docker run -p 3001:3001 --env-file .env shapeshift-public-api"
+    "clean": "rm -rf dist node_modules",
+    "build": "rm -rf dist && node esbuild.config.mjs",
+    "dev": "node esbuild.config.mjs --watch",
+    "start": "node dist/server.cjs",
+    "test": "vitest run --workspace vitest.workspace.ts --project unit",
+    "test:integration": "vitest run --workspace vitest.workspace.ts --project integration"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^7.3.4",
@@ -31,6 +25,7 @@
     "@types/swagger-ui-express": "^4.1.8",
     "cors": "^2.8.5",
     "express": "^4.21.0",
+    "express-rate-limit": "^7.5.0",
     "uuid": "^9.0.0",
     "yaml": "^2.8.2",
     "zod": "3.23.8"
@@ -40,7 +35,6 @@
     "@types/express": "^4.17.21",
     "@types/node": "^22.10.4",
     "@types/uuid": "^9.0.5",
-    "tsx": "^4.19.2",
     "typescript": "~5.2.2"
   }
 }

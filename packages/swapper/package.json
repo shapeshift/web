@@ -1,7 +1,6 @@
 {
   "name": "@shapeshiftoss/swapper",
-  "version": "17.6.9",
-  "packageManager": "yarn@3.5.0",
+  "version": "17.6.11",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "type": "module",
@@ -22,16 +21,18 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn run -T tsc --build && yarn postbuild",
-    "clean": "rm -rf dist",
-    "dev": "yarn run -T tsc --build --watch",
-    "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",
-    "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
+    "build": "rm -rf dist && pnpm exec tsc --build && pnpm run postbuild",
+    "clean": "rm -rf dist node_modules",
+    "dev": "pnpm exec tsc --build --watch",
+    "postbuild": "pnpm run postbuild:esm && pnpm run postbuild:cjs",
+    "postbuild:esm": "pnpm exec tsc-esm-fix --target=dist/esm --ext=.js",
     "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   },
   "dependencies": {
     "@arbitrum/sdk": "^4.0.1",
     "@avnu/avnu-sdk": "^4.0.1",
+    "@cetusprotocol/aggregator-sdk": "^1.4.2",
+    "@cetusprotocol/cetus-sui-clmm-sdk": "5.4.0",
     "@coral-xyz/anchor": "0.29.0",
     "@cowprotocol/app-data": "^2.3.0",
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.1-0.2",

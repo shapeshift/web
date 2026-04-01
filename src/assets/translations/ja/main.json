@@ -1,5 +1,6 @@
 {
   "common": {
+    "addressRequired": "アドレスは必須です。",
     "amount": "金額",
     "ascending": "上昇",
     "descending": "降順",
@@ -68,6 +69,7 @@
     "rename": "名前の変更",
     "forget": "お忘れですか？",
     "pending": "保留中",
+    "current": "現在",
     "preview": "プレビュー",
     "incomplete": "不完全な",
     "available": "利用可能",
@@ -139,6 +141,7 @@
     "manage": "管理",
     "view": "ビュー",
     "viewOnly": "表示のみ",
+    "deprecated": "非推奨",
     "allChains": "すべてのチェーン",
     "wallet": "ウォレット",
     "feedbackAndSupport": "フィードバックとサポート",
@@ -178,6 +181,7 @@
       "expandRow": "行を広げる"
     },
     "featureDisabled": "この機能は一時的に無効になっています。",
+    "no": "いいえ",
     "yes": "はい",
     "activeAccount": "アクティブアカウント",
     "selectAccount": "アカウントを選択",
@@ -196,7 +200,8 @@
     "permit2Approval": "Permit2の承認",
     "network": "ネットワーク",
     "feeEstimate": "料金見積もり",
-    "list": "リスト"
+    "list": "リスト",
+    "retry": "リトライ"
   },
   "accountSelector": {
     "chooseAccount": "アカウントを選択"
@@ -304,7 +309,7 @@
         "orderCreatedSuccessfully": "注文が正常に作成されました"
       },
       "newCoins": {
-        "title": "最近追加されたもの",
+        "title": "新規追加コイン",
         "subtitle": "CoinGeckoの新しいコイン"
       },
       "trendingTokens": {
@@ -345,7 +350,7 @@
         "marketCapRank": "時価総額ランキング",
         "volume24h": "24時間ボリューム",
         "volMcap": "出来高/時価総額",
-        "about": "について",
+        "about": "%{symbol}について",
         "noDescription": "このアセットの説明はありません。"
       },
       "receive": {
@@ -717,6 +722,8 @@
     "buyCrypto": "暗号通貨の売買",
     "buyCryptoShort": "売買",
     "lending": "貸し出し",
+    "thorchainLending": "THORChainレンディング",
+    "chainflipLending": "チェーンフリップ・レンディング",
     "pools": "プール",
     "rFOX": "rFOX",
     "tcy": "TCY",
@@ -1377,6 +1384,32 @@
       },
       "status": {
         "pendingBody": "%{amount} %{symbol} を送信します"
+      },
+      "speedUp": {
+        "title": "取引を迅速化する",
+        "description": "保留中のビットコイン取引の処理速度を上げるには、手数料を引き上げてください。",
+        "currentFee": "現在のガス単価",
+        "currentFeeRate": "現在のガス単価",
+        "previousFee": "前回のガス単価",
+        "newFee": "新料金",
+        "additionalFee": "追加料金",
+        "newFeeRate": "新料金",
+        "feeDifference": "追加料金",
+        "confirm": "スピードアップを確認する",
+        "cancel": "代わりに取引をキャンセルする",
+        "cancelDescription": "より高い手数料を上乗せして資金を自分宛に送金することで、実質的に元の取引をキャンセルします。",
+        "confirmCancel": "キャンセルを確認する",
+        "insufficientFunds": "料金の値上げに必要な資金が不足しています",
+        "selectFeeRate": "代わりに取引をキャンセルする",
+        "pendingTransaction": "保留中の取引",
+        "speedingUp": "取引をスピードアップ中...",
+        "canceling": "取引をキャンセルしています...",
+        "fetchError": "取引データの取得に失敗しました",
+        "feesTooLow": "現在の料金はすでにネットワーク料金となっています",
+        "alreadySpentOrReplaced": "この取引は既に置換または確認済みのため、これ以上処理を早めることはできません。",
+        "alreadyConfirmed": "この取引は既に確定しており、これ以上早めることはできません。",
+        "speedUpFailed": "取引の高速化に失敗しました",
+        "broadcastNotObserved": "置換トランザクションのブロードキャストはまだネットワークで検出されていません。もう一度お試しください。"
       }
     },
     "receive": {
@@ -1787,6 +1820,22 @@
         "button": "ペア"
       }
     },
+    "nativeMultichain": {
+      "title": "MetaMaskは、%{chains}をネイティブにサポートするようになりました。",
+      "subtitle": "ShapeShift Multichain Snapを使用せずに、MetaMask を介して %{chains} を直接使用できるようになりました。",
+      "useNative": "ネイティブマルチチェーンを使用する",
+      "useNativeRecommended": "推奨",
+      "keepSnap": "Snapを使い続けてください",
+      "snapChainWarning": "ネイティブのマルチチェーンを選択すると、Snapが提供するチェーンアカウントは置き換えられます。ウォレット設定でいつでも元に戻すことができます。",
+      "switchWarning": "切り替えを行うと、EVM以外のアカウントが再生成されます。EVM口座および残高には影響はありません。",
+      "nativeActive": "ネイティブマルチチェーン",
+      "snapActive": "マルチチェーンスナップ",
+      "switchToNative": "ネイティブマルチチェーンに切り替える",
+      "switchToSnap": "Snapに戻す",
+      "switchConfirmTitle": "マルチチェーンモードに切り替える",
+      "switchConfirmBody": "これにより、EVM以外の口座は新しいモードを使用して再計算されます。EVM口座には影響はありません。",
+      "switchConfirmAction": "切り替える"
+    },
     "metaMaskSnap": {
       "title": "MetaMaskでマルチチェーンのサポートが利用できるようになりました。",
       "subtitle": "MetaMaskにマルチチェーンスナップを追加して、次のチェーンを使用して送信、受信、追跡、取引、獲得を行います。",
@@ -1818,8 +1867,8 @@
       "warningBackup": "MetaMaskシードフレーズをバックアップしていることを確認してください。このスナップを使用してnon-EVMチェーンに送金した資金は、MetaMaskで設定したデフォルトのアカウントに送られます。",
       "agreeIntro": "続行する前に、以下をお読みください。",
       "agreeItem1": "ハードウェアウォレットは、 <strong>ない</strong> サポートされてい",
-      "agreeItem2": "ShapeShiftマルチチェーンスナップが提供する追加チェーンでは、MetaMaskのアカウント#1のみがサポートされています。",
-      "agreeItem3": "MetaMaskによって提供される既存のイーサリアムチェーンを使用するには、アカウント#1をMetaMaskのShapeShiftに接続する必要があります",
+      "agreeItem2": "ShapeShiftマルチチェーンスナップが提供する追加チェーンでは、MetaMaskのアカウント#0のみがサポートされています。",
+      "agreeItem3": "MetaMaskによって提供される既存のイーサリアムチェーンを使用するには、アカウント#0をMetaMaskのShapeShiftに接続する必要があります",
       "agreeItem4": "ShapeShiftマルチチェーンスナップを有効にすることにより、ご自身の責任でそれを使用することを認めたものとみなされます",
       "readAndUnderstood": "読んで理解しました",
       "seedBackedUp": "MetaMaskシードフレーズをバックアップしました",
@@ -1951,7 +2000,7 @@
         "multiChain": {
           "title": "複数のチェーンが同時にサポートされます",
           "subTitle": "ウォレット内のチェーンを切り替える必要はなく、各チェーンでシームレスに動作します。",
-          "body": "新しいチェーンがShapeShiftに追加されると、ShapeShiftウォレットは自動的にそれをサポートします。"
+          "body": "1つのウォレットからBitcoin、Ethereum、Solanaなど、多数のチェーンにアクセスできます。異なるネットワーク間でシームレスに取引や資産管理を行えます。"
         },
         "selfCustody": {
           "title": "ShapeShiftウォレットはセルフカストディです",
@@ -2133,6 +2182,11 @@
       "deployFailed": "デプロイに失敗しました"
     }
   },
+  "tron": {
+    "recipientNotActivated": {
+      "sendWarning": "このアドレスはまだTron上で有効化されていません。トークンは届きますが、受取人はTRXを受け取るまでトークンを移動できません。"
+    }
+  },
   "transactionHistory": {
     "transactionHistory": "取引履歴",
     "recentTransactions": "最近の取引",
@@ -2170,13 +2224,22 @@
     "txid": "TX ID",
     "status": "ステータス",
     "minerFee": "マイナー手数料",
+    "orderRoute": "注文ルート",
+    "transactionType": "取引タイプ",
+    "fee": "手数料",
+    "approvalAmount": "承認金額",
     "date": "日付",
     "sentTo": "%{address}に送信",
     "receivedFrom": "%{address} から受信しました",
     "today": "今日",
     "yesterday": "昨日",
     "thisWeek": "今週",
-    "thisMonth": "今月"
+    "thisMonth": "今月",
+    "speedUp": "スピードアップ",
+    "cancelTransaction": "取引をキャンセルする",
+    "replaced": "置換済み",
+    "replacedBy": "%{txHash} に置き換えられました",
+    "replaces": "%{txHash} を置き換えます"
   },
   "plugins": {
     "foxPage": {
@@ -2249,7 +2312,14 @@
               "placeholder": "ガス制限...",
               "tooltip": "ガス制限とは、ユーザーが取引を行うために消費できるガスの最大量を指します。"
             }
-          }
+          },
+          "recipientAddress": "受取人アドレス",
+          "amount": "額",
+          "amountSats": "%{amount}サツ",
+          "psbt": "PSBT",
+          "broadcast": "ブロードキャスト",
+          "inputs": "入力数（%{count}）",
+          "outputs": "出力数（%{count}）"
         },
         "connect": {
           "title": "WalletConnect経由でウォレットをdAppに接続し、トランザクションを始めます",
@@ -2376,6 +2446,328 @@
       "emptyBody": "現在、ローンはありません。この時間をお楽しみください！"
     }
   },
+  "chainflipLending": {
+    "awaitingConfirmTitle": "確認待ち",
+    "awaitingConfirmDescription": "ウォレットで取引を確認して続行してください。",
+    "headerDescription": "Chainflipで資産を提供して利回りを得たり、担保を差し入れて借り入れをしたりできます。",
+    "overview": "概要",
+    "myDashboard": "マイダッシュボード",
+    "allMarkets": "全市場",
+    "manageLoan": "ローンの管理",
+    "supply": {
+      "title": "供給",
+      "amount": "額",
+      "available": "供給可能残高",
+      "availableTooltip": "Chainflip State Chainの貸出可能な残高",
+      "minimumSupply": "最低供給量：%{amount}",
+      "confirmTitle": "供給を確認する",
+      "confirmDescription": "融資プールに%{amount} %{asset}を供給する",
+      "confirmAndSupply": "確認と供給",
+      "executingTitle": "供給中...",
+      "executingDescription": "供給を処理中です",
+      "successTitle": "供給成功",
+      "successDescription": "あなたの資産は現在、利回りを生み出しています。",
+      "supplied": "供給済み",
+      "transactionId": "取引ID",
+      "errorTitle": "供給に失敗しました",
+      "errorDescription": "供給中に問題が発生しました",
+      "steps": {
+        "signing": "供給取引の署名",
+        "confirming": "供給状況を確認中"
+      },
+      "noFreeBalance": "無料残高はありません。まずChainflipに入金してください。"
+    },
+    "borrow": {
+      "title": "借入",
+      "amount": "額",
+      "available": "借入可能",
+      "maxLtv": "最大LTV（80％）",
+      "currentLtv": "現在のLTV",
+      "projectedLtv": "予測LTV",
+      "confirmTitle": "借用を確認する",
+      "confirmDescription": "資産を担保に、金額%{amount} %{asset}を借り入れます。",
+      "confirmAndBorrow": "確認して借りる",
+      "executingTitle": "借入処理中…",
+      "executingDescription": "お客様のローンは処理中です",
+      "successTitle": "借り入れ成功",
+      "successDescription": "あなたは%{amount} %{asset}を借り入れました",
+      "borrowed": "借入済み",
+      "transactionId": "取引ID",
+      "errorTitle": "借入失敗",
+      "errorDescription": "借用中に何らかの問題が発生しました",
+      "steps": {
+        "signing": "借入リクエストに署名中",
+        "confirming": "ローンの確認"
+      },
+      "noCollateral": "借り入れにはまず担保が必要です",
+      "minimumLoan": "最低融資額：%{金額}",
+      "availableTooltip": "担保価値と目標LTVに基づいて借り入れ可能な最大金額"
+    },
+    "totalSupplied": "総供給量",
+    "totalSuppliedTooltip": "Chainflipのすべての融資プールを通じて供給された資産の総額。",
+    "availableLiquidity": "利用可能な流動性",
+    "availableLiquidityTooltip": "現在、全ての資産プールにおいて借入可能な資産の総額。",
+    "totalBorrowed": "借入総額",
+    "totalBorrowedTooltip": "Chainflipのすべての融資プールにおける未返済の借入金の総額。",
+    "pool": {
+      "actionPaused": "Chainflip ではこのアクションは一時的に停止されています",
+      "depositFirst": "まずChainflipに資金を入金してください",
+      "noFreeBalance": "利用可能な無料残高がありません",
+      "noSupplyPosition": "撤退すべき供給ポジションはない",
+      "noCollateral": "担保は預けられていません",
+      "noLoans": "有効なローンはありません",
+      "supply": "供給",
+      "withdrawSupply": "供給を撤回する",
+      "depositToChainflip": "デポジット",
+      "withdrawFromChainflip": "Chainflipから出金する",
+      "freeBalance": "無料バランス",
+      "walletBalance": "ウォレット残高",
+      "currentLtv": "現在のLTV",
+      "borrowCapacity": "借入容量",
+      "borrowPowerUsed": "借入枠使用率",
+      "availableToBorrow": "貸出可能"
+    },
+    "supplyApy": "供給APY",
+    "supplyApyTooltip": "このプールに資産を提供することで得られる年間利回り（パーセント）。",
+    "borrowRate": "借入金利",
+    "utilisation": "利用率",
+    "utilisationTooltip": "供給資産のうち、現在借り入れされている資産の割合。利用率が高いほど利回りは高くなりますが、利用可能な流動性は低下します。",
+    "market": "市場",
+    "supplyStats": "供給統計",
+    "borrowStats": "借入統計",
+    "yourPosition": "あなたのポジション",
+    "freeBalance": "無料バランス",
+    "supplied": "供給済み",
+    "collateral": {
+      "title": "担保",
+      "add": "担保を追加する",
+      "remove": "担保の解除",
+      "amount": "額",
+      "availableToAdd": "追加可能",
+      "availableToRemove": "削除可能",
+      "confirmAddTitle": "担保の追加を確認する",
+      "confirmRemoveTitle": "担保の削除を確認する",
+      "confirmAddDescription": "%{amount} %{asset}を担保として追加します",
+      "confirmRemoveDescription": "担保から%{amount} %{asset}を削除します",
+      "confirmAdd": "確認して追加する",
+      "confirmRemove": "確認して削除する",
+      "executingTitle": "処理...",
+      "executingDescription": "担保情報の更新処理中です。",
+      "successAddTitle": "担保が追加されました",
+      "successRemoveTitle": "担保が撤去されました",
+      "successAddDescription": "%{asset}担保が正常に追加されました",
+      "successRemoveDescription": "%{asset}担保が正常に削除されました",
+      "added": "追加済み",
+      "removed": "解除済み",
+      "transactionId": "取引ID",
+      "errorTitle": "担保の更新に失敗しました",
+      "errorDescription": "何らかの問題が発生しました",
+      "steps": {
+        "signing": "担保更新の署名中",
+        "confirming": "更新内容を確認中"
+      },
+      "minimumAmount": "最低担保額の更新: %{金額}",
+      "noFreeBalance": "担保として追加できる空き残高がありません",
+      "noRemovable": "LTVを目標値以下に引き下げなければ担保を解除することはできません"
+    },
+    "depositToChainflip": "Chainflipへの入金",
+    "depositDescription": "ウォレットからChainflip State Chainアカウントに資産を入金して、融資を開始してください。",
+    "freeBalanceDescription": "Chainflip State Chain上で利用可能な残高。プールに供給して利回りを得るか、担保として使用できます。",
+    "noFreeBalanceHint": "融資開始には預金が必要です",
+    "originationFee": "組成手数料",
+    "liquidationFee": "清算手数料",
+    "yourSupplied": "あなたの供給額",
+    "yourBorrowed": "あなたの借入額",
+    "yourFreeBalance": "無料残高",
+    "connectWalletDescription": "ウォレットを接続して、貸付状況を確認してください。",
+    "protocolStats": "プロトコル統計",
+    "deposit": {
+      "amount": "額",
+      "available": "利用可能",
+      "explainer": "資産はChainflip State Chainアカウントに預け入れられます。預け入れ後、その資産をレンディングプールに提供することで利回りを得ることができます。",
+      "openChannel": "オープンデポジットチャネル",
+      "confirmTitle": "入金確認",
+      "confirmDescription": "Chainflip State Chainアカウントに%{amount} %{asset}を入金してください。必要な手順ごとに案内が表示され、必要に応じて取引に署名するよう求められます。",
+      "confirmingTitle": "入金中...",
+      "confirmingDescription": "ウォレット内の取引内容をご確認ください。",
+      "confirmAndDeposit": "確認と入金",
+      "successTitle": "入金確認済み",
+      "successDescription": "あなたの資産（%{asset}）がChainflip State Chainアカウントに入金されました。",
+      "deposited": "預け入れ済み",
+      "transactionId": "取引ID",
+      "minimumDeposit": "最低預金額",
+      "belowMinimumDeposit": "最小値 %{amount} %{symbol}",
+      "steps": {
+        "approvingFlip": "FLIPを承認する",
+        "fundingAccount": "アカウントへの資金追加",
+        "registering": "アカウント登録",
+        "openingChannel": "オープンチャンネル",
+        "sendingDeposit": "入金する",
+        "confirming": "確認中",
+        "settingRefundAddress": "返金先住所を設定する"
+      },
+      "executingTitle": "入金中...",
+      "executingDescription": "指示に従って、ウォレット内の取引内容を確認してください。",
+      "errorTitle": "入金失敗",
+      "errorDescription": "入金処理中に何らかの問題が発生しました。",
+      "freeBalance": "無料バランス",
+      "freeBalanceTooltip": "Chainflip State Chain 上のあなたの資産残高は %{asset} です。",
+      "refundAddress": {
+        "title": "返金先住所",
+        "description": "入金が失敗した場合、または出金した場合に資金が返金される住所を設定してください。",
+        "useWalletAddress": "ウォレットアドレスを使用する",
+        "useCustomAddress": "カスタムアドレスを使用する",
+        "label": "返金先住所",
+        "continue": "続く",
+        "helperText": "このアドレスは、このチェーンにおける出金および払い戻しに使用されます。"
+      }
+    },
+    "markets": "市場",
+    "myBalances": "残高",
+    "walletBalance": "財布",
+    "stateChainBalance": "ステートチェーン",
+    "deployed": "展開済み",
+    "comingSoon": "近日公開",
+    "connectToViewBalances": "ウォレットを接続して残高を確認してください",
+    "myBalancesTitle": "Chainflip Lending - 残高",
+    "withdraw": {
+      "title": "出金",
+      "amount": "額",
+      "available": "引き出し可能",
+      "availableTooltip": "融資プールにおけるあなたの供給ポジション",
+      "confirmTitle": "出金確認",
+      "confirmDescription": "貸付プールから%{amount} %{asset}を引き出す",
+      "confirmAndWithdraw": "確認して出金する",
+      "executingTitle": "出金処理中...",
+      "executingDescription": "出金処理中です",
+      "successTitle": "出金成功",
+      "successDescription": "あなたの資産（%{asset}）は引き出されました。",
+      "withdrawn": "出金済み",
+      "errorTitle": "引き出しに失敗しました",
+      "errorDescription": "引き出し中に問題が発生しました",
+      "noPosition": "この資産の供給ポジションは見つかりませんでした。",
+      "withdrawAmount": "出金する",
+      "steps": {
+        "signing": "取引に署名中",
+        "confirming": "オンチェーンで確認中"
+      },
+      "alsoWithdrawToWallet": "ウォレットに引き出すこともできます",
+      "freeBalanceExplainer": "デフォルトでは、資金はChainflip State Chain上のフリー残高に引き出されます。ウォレットにも引き出す​​場合は、下のチェックボックスをオンにしてください。",
+      "fullWithdrawalOnlyTooltip": "お客様のポジションは、一部出金に必要な最低残高を下回っています。全額出金のみ可能です。",
+      "partialBelowMinimum": "最低出金額は %{金額} です",
+      "remainingBelowMinimum": "残高は少なくとも%{金額}以上でなければ、全額引き出す必要があります。",
+      "destinationAddress": "宛先住所",
+      "transactionId": "取引ID"
+    },
+    "withdrawFromChainflip": {
+      "title": "チェーンフリップから撤退する",
+      "amount": "額",
+      "destination": "宛先住所",
+      "available": "利用可能な無料残高",
+      "confirmAndWithdraw": "出金確認",
+      "confirmTitle": "出金確認",
+      "confirmDescription": "Chainflipの無料残高から%{amount} %{symbol}をウォレットに引き出します。",
+      "errorTitle": "引き出しに失敗しました",
+      "errorDescription": "出金処理中にエラーが発生しました。もう一度お試しください。",
+      "executingTitle": "出金処理",
+      "executingDescription": "お客様の出金はChainflipステートチェーン上で処理されています。",
+      "successTitle": "退会届を提出しました",
+      "successDescription": "出金申請は完了しました。まもなくウォレットに反映されます。",
+      "steps": {
+        "signing": "出金取引の署名",
+        "confirming": "出金確認"
+      }
+    },
+    "repay": {
+      "title": "返済する",
+      "amount": "額",
+      "outstanding": "未払い債務",
+      "fullRepayment": "全額返済",
+      "partialRepayment": "一部返済",
+      "confirmTitle": "返済を確認する",
+      "confirmDescription": "%{金額} %{資産}を返済する",
+      "confirmAndRepay": "確認して返済する",
+      "executingTitle": "返済中...",
+      "executingDescription": "お客様の返済手続きが進められています。",
+      "successTitle": "返済完了",
+      "successDescription": "あなたは%{金額} %{資産}を返済しました",
+      "repaid": "返済済み",
+      "transactionId": "取引ID",
+      "errorTitle": "返済失敗",
+      "errorDescription": "返済中に何らかの問題が発生しました",
+      "steps": {
+        "signing": "返済の署名",
+        "confirming": "返済の確認"
+      },
+      "availableBalance": "自由残高",
+      "availableTooltip": "Chainflipの無料残高は返済にご利用いただけます",
+      "minimumRepayment": "最低返済額：%{金額}",
+      "remainingBelowMinimum": "残りのローン残高は最低返済額の%{amount}を下回ります。全額返済をご利用ください。",
+      "insufficientBalance": "全額返済に必要な残高が不足しています",
+      "noFreeBalance": "まずChainflipアカウントに資金を入金してください。"
+    },
+    "ltv": {
+      "target": "ターゲットLTV",
+      "topup": "自動チャージ",
+      "softLiquidation": "ソフト清算",
+      "hardLiquidation": "ハード清算",
+      "safe": "安全",
+      "warning": "警告",
+      "danger": "危険"
+    },
+    "egress": {
+      "title": "チェーンフリップから撤退する",
+      "amount": "額",
+      "destination": "宛先住所",
+      "destinationPlaceholder": "目的地住所を入力してください",
+      "available": "利用可能な無料残高",
+      "confirmAndWithdraw": "出金確認",
+      "confirmTitle": "出金確認",
+      "confirmDescription": "Chainflipの無料残高から%{amount} %{asset}をウォレットに引き出します。",
+      "errorTitle": "引き出しに失敗しました",
+      "errorDescription": "出金処理中にエラーが発生しました。もう一度お試しください。",
+      "executingTitle": "出金処理",
+      "executingDescription": "お客様の出金はChainflipステートチェーン上で処理されています。",
+      "successTitle": "退会届を提出しました",
+      "successDescription": "お客様の出金申請（%{asset}）が完了しました。まもなくお客様のウォレットに反映されます。",
+      "withdrawn": "撤回",
+      "receiveAddress": "受取人住所",
+      "steps": {
+        "signing": "出金取引の署名",
+        "confirming": "出金確認"
+      },
+      "transactionId": "取引ID",
+      "noFreeBalance": "引き出し可能な残高がありません"
+    },
+    "borrowRateTooltip": "この資金プールからの借入に対する現在の年間金利",
+    "originationFeeTooltip": "ローンの作成または拡張時に発生する一回限りの手数料",
+    "liquidationFeeTooltip": "担保の清算時に発生する手数料",
+    "suppliedBalance": "供給済み",
+    "poolHeader": "プール",
+    "collateralHeader": "担保",
+    "borrowedHeader": "借り",
+    "voluntaryLiquidation": {
+      "initiateTitle": "任意清算を開始する",
+      "initiateWarning": "これにより、お客様の保有資産全体が清算されます。担保資産は売却され、未払いローン全額の返済に充てられます。この処理は、オンチェーン上で承認されると取り消すことはできません。",
+      "stopTitle": "自主清算を中止する",
+      "stopDescription": "これにより、保留中の任意清算手続きは取り消されます。お客様のポジションは引き続き有効となります。",
+      "confirmInitiate": "ポジションを清算する",
+      "confirmStop": "清算を中止する",
+      "executingTitle": "処理中...",
+      "executingDescription": "お客様の任意清算申請は、Chainflip State Chainに提出されています。",
+      "initiateSuccessTitle": "清算手続き開始",
+      "initiateSuccessDescription": "お客様の任意清算手続きが開始されました。お客様のポジションは自動的に解消されます。",
+      "stopSuccessTitle": "清算が中止されました",
+      "stopSuccessDescription": "任意清算は中止されました。あなたのポジションは引き続き有効です。",
+      "errorTitle": "取引が失敗しました",
+      "errorDescription": "任意清算手続きは失敗しました。もう一度お試しください。",
+      "inProgress": "任意清算手続き進行中",
+      "steps": {
+        "signing": "署名取引",
+        "confirming": "オンチェーンで確認中"
+      }
+    }
+  },
   "chart": {
     "interval": {
       "5min": "過去5分間",
@@ -2390,6 +2782,8 @@
   "pools": {
     "pools": "プール",
     "pool": "プール",
+    "errorFetchingPools": "プールを取得できませんでした。しばらくしてからもう一度お試しください。",
+    "noPoolsAvailable": "現在、プールはご利用いただけません。",
     "positions": "ポジション",
     "tvl": "TVL",
     "volume24h": "ボリューム 24時間",
@@ -2589,13 +2983,16 @@
         "body": "rFOX は、Arbitrum で FOX トークンをステークしたときに受け取る利益と報酬を表すために使用される用語です。現在、ステーク発行のために、(Arbitrum 上の)バニラ FOXトークンをロックおよびロック解除します。"
       },
       "why": {
-        "title": "FOXをステークする理由は何?"
+        "title": "FOXをステークする理由は何?",
+        "body": "FOXをステーキングすることで、DAOの財務からのUSDC定期配当を獲得でき、エポックごとにUSDCによる安定した受動的収入を得られます。また、DAO収益の一部はトークンバーンを通じてFOXの総供給量を削減するために充当されます。ステーキングには最低28日間のステーク解除期間が必要で、コミュニティ内でのコミットメントと安定性を促します。"
       },
       "stake": {
-        "title": "FOXをステークするにはどうすればいいか?"
+        "title": "FOXをステークするにはどうすればいいか?",
+        "body": "FOXをステーキングするには、ステーキングインターフェースを使用してFOXトークンをステーキングコントラクトにロックします。ステーキング後、ステーキング特典の一環としてブロックごとにUSDC報酬の獲得が始まります。"
       },
       "unstake": {
-        "title": "ステークを解除するとどうなるか?"
+        "title": "ステークを解除するとどうなるか?",
+        "body": "ステークを解除する際は、最低28日間のステーク解除期間があります。この期間中、FOXはロックされたままとなり、USDCエミッションの受け取りが停止されます。ステーク解除期間が終了すると、通常のFOXトークンのロックを解除して回収できます。"
       },
       "cooldown": {
         "title": "クールダウン期間はどれくらいか?",
@@ -2606,7 +3003,8 @@
         "body": "はい、ステーキング解除量は複数設定できます。ステーキング解除アクションごとに 28 日間のクールダウン期間があります。"
       },
       "connect": {
-        "title": "徴収された合計手数料、ステークされた FOX の合計、発行プール、FOX バーン量はそれぞれどのように関連していますか?"
+        "title": "徴収された合計手数料、ステークされた FOX の合計、発行プール、FOX バーン量はそれぞれどのように関連していますか?",
+        "body": "DAOが収集する手数料は、スワッパーごとにネイティブ資産で支払われます。この収益の一部はFOXステーカーへの報酬として変換・配分され、別の一部はトークンバーンを通じてFOXの総供給量を削減するために充当されます。ステーキングされたFOXの総量が報酬の配分に影響し、報酬はステーキングされたFOXの量に基づいてプロラータで配分されます。エミッションプールはステーキング報酬として利用可能なFOXの量を表し、FOXバーン量は購入してバーンされたFOXの量です。"
       }
     },
     "totals": "rFOX の合計",
@@ -2786,6 +3184,8 @@
   "actionCenter": {
     "title": "通知",
     "viewTransaction": "取引を表示",
+    "originalTransaction": "元の取引",
+    "replacementTransaction": "交換取引",
     "viewOrder": "注文を表示",
     "cancelOrder": "注文をキャンセルする",
     "pair": "ペア",
@@ -2802,6 +3202,7 @@
       "confirmed": "確認済み",
       "failed": "失敗",
       "pending": "保留中",
+      "replaced": "交換済み",
       "claimAvailable": "請求可能",
       "claimed": "請求済み",
       "unknown": "未知",
@@ -2836,15 +3237,23 @@
     },
     "deposit": {
       "pending": "%{amount} %{symbol} の入金を処理中です。",
-      "complete": "%{amount} %{symbol} の入金が完了しました。"
+      "complete": "%{amount} %{symbol} の入金が完了しました。",
+      "failed": "%{amount} %{symbol} の入金が失敗しました。"
     },
     "withdrawal": {
       "pending": "%{amount} %{symbol} の出金を処理中です。",
-      "complete": "%{amount} %{symbol} の出金が完了しました。"
+      "complete": "%{amount} %{symbol} の出金が完了しました。",
+      "failed": "%{amount} %{symbol} の出金が失敗しました。"
     },
     "claim": {
       "pending": "%{amount} %{symbol} の請求を処理中です。",
-      "complete": "%{amount} %{symbol} の請求が完了しました。"
+      "complete": "%{amount} %{symbol} の請求が完了しました。",
+      "failed": "%{amount} %{symbol} の請求が失敗しました。"
+    },
+    "yield": {
+      "unstakeAvailableIn": "%{symbol} のステーク解除は %{duration} 後に利用可能になります。",
+      "unstakeReady": "%{symbol} のステーク解除の請求が可能になりました。",
+      "unstakeClaimed": "%{symbol} のステーク解除が請求されました。"
     },
     "bridge": {
       "processing": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが処理中です。",
@@ -2889,6 +3298,54 @@
       },
       "complete": {
         "description": "%{amountAndSymbol} の報酬が完了しました。"
+      }
+    },
+    "chainflipLending": {
+      "deposit": {
+        "pending": "Chainflipへの%{amountAndSymbol}の​​入金処理中です。",
+        "complete": "Chainflipへの%{amountAndSymbol}の​​入金が完了しました。",
+        "failed": "Chainflipへの%{amountAndSymbol}の​​入金は失敗しました。"
+      },
+      "supply": {
+        "pending": "お客様から貸付プールに提供された%{amountAndSymbol}の​​資金は処理中です。",
+        "complete": "貸付プールへの%{amountAndSymbol}の​​供給が完了しました。",
+        "failed": "貸付プールへの%{amountAndSymbol}の​​供給が失敗しました。"
+      },
+      "withdraw": {
+        "pending": "貸付プールからの%{amountAndSymbol}の​​引き出し処理中です。",
+        "complete": "貸付プールからの%{amountAndSymbol}の​​引き出しが完了しました。",
+        "failed": "貸付プールからの%{amountAndSymbol}の​​引き出しは失敗しました。"
+      },
+      "egress": {
+        "pending": "Chainflipからの%{amountAndSymbol}の​​出金処理中です。",
+        "complete": "Chainflipからの%{amountAndSymbol}の​​引き出しが完了しました。",
+        "failed": "Chainflipからの%{amountAndSymbol}の​​引き出しは失敗しました。"
+      },
+      "addCollateral": {
+        "pending": "Chainflipのフリー残高から担保へ%{amountAndSymbol}を移動処理中です。",
+        "complete": "Chainflipのフリー残高から担保への%{amountAndSymbol}の​​移動が完了しました。",
+        "failed": "Chainflipのフリー残高から担保への%{amountAndSymbol}の​​移動は失敗しました。"
+      },
+      "removeCollateral": {
+        "pending": "担保からChainflipのフリー残高へ%{amountAndSymbol}を移動させる処理が行われています。",
+        "complete": "担保からChainflipのフリー残高へ%{amountAndSymbol}の​​移動が完了しました。",
+        "failed": "担保からChainflipのフリー残高へ%{amountAndSymbol}を移動しようとしましたが、失敗しました。"
+      },
+      "borrow": {
+        "pending": "Chainflipの無料残高への%{amountAndSymbol}の​​借入が処理されています。",
+        "complete": "Chainflipの無料残高への%{amountAndSymbol}の​​借入が完了しました。",
+        "failed": "Chainflipの無料残高への%{amountAndSymbol}の​​借入は失敗しました。"
+      },
+      "repay": {
+        "pending": "Chainflipの無料残高からの%{amountAndSymbol}の​​返済が処理されています。",
+        "complete": "Chainflipの無料残高からの%{amountAndSymbol}の​​返済が完了しました。",
+        "failed": "Chainflipの無料残高からの%{amountAndSymbol}の​​返済が失敗しました。"
+      },
+      "details": {
+        "operation": "操作",
+        "amount": "額",
+        "transactionId": "取引ID",
+        "egressTransactionId": "送信トランザクションID"
       }
     }
   },
@@ -2988,6 +3445,7 @@
     "providers": "プロバイダー",
     "successStaked": "%{amount} %{symbol} をステークしました",
     "successUnstaked": "%{amount} %{symbol} のステーク解除に成功しました",
+    "cooldownNotice": "出金は %{cooldownDuration} 後に利用可能になります。",
     "successDeposited": "%{amount} %{symbol} を入金しました",
     "successWithdrawn": "%{amount} %{symbol} の引き出しに成功しました",
     "successClaim": "%{amount} %{symbol} の請求に成功しました",
@@ -3015,7 +3473,9 @@
       "initiateFailedTitle": "エラー",
       "initiateFailedDescription": "トランザクション シーケンスを開始できませんでした。",
       "quoteFailedTitle": "見積もりに失敗しました",
-      "quoteFailedDescription": "この取引の見積りを取得できません。もう一度お試しください。"
+      "quoteFailedDescription": "この取引の見積りを取得できません。もう一度お試しください。",
+      "insufficientAssetForGas": "ガスに必要な%{symbol}が不足しています",
+      "rateLimited": "リクエストが多すぎます"
     },
     "underMaintenance": "メンテナンス中",
     "underMaintenanceDescription": "この利回り機会は現在メンテナンス中です。入金できない可能性があります。",

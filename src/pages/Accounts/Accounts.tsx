@@ -1,6 +1,7 @@
 import { EditIcon } from '@chakra-ui/icons'
 import { Button, Heading, Skeleton, Stack } from '@chakra-ui/react'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-core/wallet'
+import { isMetaMaskNativeMultichain } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -36,7 +37,8 @@ const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
   const isMetaMaskMultichainWallet = isMetaMask(wallet)
   useEffect(() => {
     if (!wallet) return
-    if (isMetaMaskMultichainWallet && !isSnapInstalled) return setIsMultiAccountWallet(false)
+    if (isMetaMaskMultichainWallet && !isSnapInstalled && !isMetaMaskNativeMultichain(wallet))
+      return setIsMultiAccountWallet(false)
 
     setIsMultiAccountWallet(wallet.supportsBip44Accounts())
   }, [isMetaMaskMultichainWallet, isSnapInstalled, wallet])

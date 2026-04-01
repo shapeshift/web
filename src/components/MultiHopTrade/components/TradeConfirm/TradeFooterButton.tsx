@@ -9,6 +9,7 @@ import {
   Stack,
 } from '@chakra-ui/react'
 import { fromAccountId, starknetChainId } from '@shapeshiftoss/caip'
+import { ChainAdapterError } from '@shapeshiftoss/chain-adapters'
 import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import { useMutation } from '@tanstack/react-query'
@@ -56,6 +57,7 @@ type TradeFooterButtonProps = {
   activeTradeId: string
   isExactAllowance: boolean
   isLoading?: boolean
+  networkFeeError: Error | null
   onSwapTxBroadcast?: () => void
 }
 
@@ -65,6 +67,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   activeTradeId,
   isExactAllowance,
   isLoading = false,
+  networkFeeError,
   onSwapTxBroadcast,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -324,6 +327,14 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   const activeQuoteErrors = useAppSelector(selectActiveQuoteErrors)
   const activeQuoteError = useMemo(() => activeQuoteErrors?.[0], [activeQuoteErrors])
 
+  const networkFeeErrorMessage = useMemo(() => {
+    if (!networkFeeError) return undefined
+    if (networkFeeError instanceof ChainAdapterError) {
+      return translate(networkFeeError.metadata.translation, networkFeeError.metadata.options)
+    }
+    return translate('trade.errors.networkFeeEstimateFailed')
+  }, [networkFeeError, translate])
+
   const isButtonLoading = useMemo(() => {
     if (!confirmedTradeExecutionState) return true
 
@@ -389,6 +400,14 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
             </AlertDescription>
           </Alert>
         )}
+        {networkFeeErrorMessage && (
+          <Alert status='warning' size='sm'>
+            <AlertIcon />
+            <AlertDescription>
+              <RawText>{networkFeeErrorMessage}</RawText>
+            </AlertDescription>
+          </Alert>
+        )}
         {streamingProgress && streamingProgress.failedSwaps.length > 0 && (
           <Alert status='warning' size='sm'>
             <AlertIcon />
@@ -402,19 +421,25 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
           </Alert>
         )}
         <Button
-          colorScheme={!!activeQuoteError ? 'red' : 'blue'}
+          colorScheme={!!activeQuoteError || !!networkFeeError ? 'red' : 'blue'}
           size='lg'
           width='full'
           onClick={handleClick}
           isLoading={isButtonLoading}
           isDisabled={
-            tradeButtonProps.isDisabled || !!activeQuoteError || deployAccountMutation.isPending
+            tradeButtonProps.isDisabled ||
+            !!activeQuoteError ||
+            !!networkFeeError ||
+            deployAccountMutation.isPending
           }
           loadingText={
             deployAccountMutation.isPending
               ? translate('starknet.deployAccount.deploying')
               : undefined
           }
+          data-testid={`trade-confirm-button-${
+            Array.isArray(translation) ? translation[0] : translation
+          }`}
         >
           <Text translation={translation} />
         </Button>

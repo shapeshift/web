@@ -16,6 +16,7 @@ import {
   convertDecimalPercentageToBasisPoints,
   convertPrecision,
   DAO_TREASURY_BASE,
+  isToken,
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -696,14 +697,26 @@ export async function getTrade<T extends 'quote' | 'rate'>({
           }
 
           if (isRelayQuoteTronItemData(selectedItem.data)) {
+            const contractAddress = selectedItem.data.parameter?.contract_address
+            const callData = selectedItem.data.parameter?.data
+            const isTronToken = isToken(sellAsset.assetId)
+
+            if (isTronToken && !contractAddress) {
+              throw new Error('Missing Relay Tron contract address')
+            }
+
+            if (isTronToken && !callData) {
+              throw new Error('Missing Relay Tron transaction data')
+            }
+
             return {
-              allowanceContract: selectedItem.data?.parameter?.contract_address ?? '',
+              allowanceContract: contractAddress ?? '',
               solanaTransactionMetadata: undefined,
               relayTransactionMetadata: {
                 relayId: quote.steps[0].requestId,
                 orderId,
-                to: selectedItem.data?.parameter?.contract_address,
-                data: selectedItem.data?.parameter?.data,
+                to: contractAddress,
+                data: callData,
               },
             }
           }

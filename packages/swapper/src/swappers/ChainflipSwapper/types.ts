@@ -5,6 +5,7 @@ import type { ChainflipBaasStatusSwap } from './models/ChainflipBaasStatusSwap'
 export type ChainFlipStatus = {
   status: {
     state: 'waiting' | 'receiving' | 'swapping' | 'sending' | 'sent' | 'completed' | 'failed'
+    swapId?: string
     swap?: ChainflipBaasStatusSwap
     swapEgress?: ChainflipBaasStatusEgress
   }

@@ -70,6 +70,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.ModeMainnet]: evm.Account
     [KnownChainIds.SoneiumMainnet]: evm.Account
     [KnownChainIds.SeiMainnet]: evm.Account
+    [KnownChainIds.AbstractMainnet]: evm.Account
     [KnownChainIds.BitcoinMainnet]: utxo.Account
     [KnownChainIds.BitcoinCashMainnet]: utxo.Account
     [KnownChainIds.DogecoinMainnet]: utxo.Account
@@ -143,6 +144,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.ModeMainnet]: evm.FeeData
     [KnownChainIds.SoneiumMainnet]: evm.FeeData
     [KnownChainIds.SeiMainnet]: evm.FeeData
+    [KnownChainIds.AbstractMainnet]: evm.FeeData
     [KnownChainIds.BitcoinMainnet]: utxo.FeeData
     [KnownChainIds.BitcoinCashMainnet]: utxo.FeeData
     [KnownChainIds.DogecoinMainnet]: utxo.FeeData
@@ -249,6 +251,7 @@ export type ChainSignTx = {
   [KnownChainIds.ModeMainnet]: ETHSignTx
   [KnownChainIds.SoneiumMainnet]: ETHSignTx
   [KnownChainIds.SeiMainnet]: ETHSignTx
+  [KnownChainIds.AbstractMainnet]: ETHSignTx
   [KnownChainIds.BitcoinMainnet]: BTCSignTx
   [KnownChainIds.BitcoinCashMainnet]: BTCSignTx
   [KnownChainIds.DogecoinMainnet]: BTCSignTx
@@ -327,6 +330,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.ModeMainnet]: evm.BuildTxInput
     [KnownChainIds.SoneiumMainnet]: evm.BuildTxInput
     [KnownChainIds.SeiMainnet]: evm.BuildTxInput
+    [KnownChainIds.AbstractMainnet]: evm.BuildTxInput
     [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.BuildTxInput
     [KnownChainIds.DogecoinMainnet]: utxo.BuildTxInput
@@ -455,6 +459,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.ModeMainnet]: evm.GetFeeDataInput
     [KnownChainIds.SoneiumMainnet]: evm.GetFeeDataInput
     [KnownChainIds.SeiMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.AbstractMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BitcoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.DogecoinMainnet]: utxo.GetFeeDataInput
@@ -560,6 +565,7 @@ export enum ChainAdapterDisplayName {
   Near = 'NEAR',
   Starknet = 'Starknet',
   Ton = 'TON',
+  Abstract = 'Abstract',
 }
 
 export type BroadcastTransactionInput = {

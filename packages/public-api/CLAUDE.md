@@ -1,14 +1,14 @@
 # Public API - LLM Instructions
 
-## Running the Server Locally (Recommended)
-
-Use bundled mode to avoid ESM/tsx module resolution issues:
+## Development
 
 ```bash
-pnpm run build:bundle && pnpm run start:prod
+pnpm dev              # esbuild watch + auto-restart
+pnpm build            # production bundle (dist/server.cjs)
+pnpm start            # run production bundle
+pnpm test             # unit tests
+pnpm test:integration # integration tests (requires server running)
 ```
-
-This bundles everything with esbuild into `dist/server.cjs` and runs it with plain Node.js.
 
 ## Code Style
 

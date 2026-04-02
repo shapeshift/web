@@ -4,7 +4,7 @@ import { WithdrawMachineCtx } from '../WithdrawMachineContext'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
-import { encodeRemoveLenderFunds } from '@/lib/chainflip/scale'
+import { encodeBatch, encodeRemoveLenderFunds, encodeWithdrawAsset } from '@/lib/chainflip/scale'
 import { useChainflipLendingAccount } from '@/pages/ChainflipLending/ChainflipLendingAccountContext'
 import { useSignChainflipCall } from '@/pages/ChainflipLending/hooks/useSignChainflipCall'
 
@@ -18,6 +18,8 @@ export const useWithdrawSign = () => {
     lastUsedNonce,
     isNativeWallet,
     stepConfirmed,
+    withdrawToWallet,
+    withdrawAddress,
   } = WithdrawMachineCtx.useSelector(s => ({
     assetId: s.context.assetId,
     withdrawAmountCryptoBaseUnit: s.context.withdrawAmountCryptoBaseUnit,
@@ -25,6 +27,8 @@ export const useWithdrawSign = () => {
     lastUsedNonce: s.context.lastUsedNonce,
     isNativeWallet: s.context.isNativeWallet,
     stepConfirmed: s.context.stepConfirmed,
+    withdrawToWallet: s.context.withdrawToWallet,
+    withdrawAddress: s.context.withdrawAddress,
   }))
   const wallet = useWallet().state.wallet
   const { accountId, scAccount } = useChainflipLendingAccount()
@@ -45,10 +49,22 @@ export const useWithdrawSign = () => {
         if (!scAccount) throw new Error('State Chain account not derived')
         if (!cfAsset) throw new Error(`Unsupported asset: ${assetId}`)
 
-        const encodedCall = encodeRemoveLenderFunds(
+        const removeCall = encodeRemoveLenderFunds(
           cfAsset,
           isFullWithdrawal ? null : withdrawAmountCryptoBaseUnit,
         )
+
+        let encodedCall: string
+        if (withdrawToWallet && withdrawAddress) {
+          const egressCall = encodeWithdrawAsset(withdrawAmountCryptoBaseUnit, cfAsset, {
+            chain: cfAsset.chain,
+            address: withdrawAddress,
+          })
+          encodedCall = encodeBatch([removeCall, egressCall])
+        } else {
+          encodedCall = removeCall
+        }
+
         const nonceOrAccount = lastUsedNonce !== undefined ? lastUsedNonce + 1 : scAccount
 
         const { txHash, nonce } = await signAndSubmit({
@@ -81,5 +97,7 @@ export const useWithdrawSign = () => {
     isFullWithdrawal,
     isNativeWallet,
     stepConfirmed,
+    withdrawToWallet,
+    withdrawAddress,
   ])
 }

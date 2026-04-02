@@ -239,6 +239,9 @@ describe('adapters:coingecko:utils', () => {
         'eip155:98866': {
           'eip155:98866/slip44:60': 'plume',
         },
+        'eip155:2741': {
+          'eip155:2741/slip44:60': 'ethereum',
+        },
         'near:mainnet': {
           'near:mainnet/slip44:397': 'near',
         },

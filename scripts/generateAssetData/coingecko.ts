@@ -1,5 +1,6 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
+  abstractChainId,
   adapters,
   arbitrumChainId,
   ASSET_NAMESPACE,
@@ -45,6 +46,7 @@ import {
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import {
+  abstract,
   arbitrum,
   avax,
   base,
@@ -85,8 +87,20 @@ import {
   zkSyncEra,
 } from '@shapeshiftoss/utils'
 import axios from 'axios'
+import axiosRetry from 'axios-retry'
 
 import colormap from './color-map.json'
+
+axiosRetry(axios, {
+  retries: 5,
+  retryCondition: err => {
+    return axiosRetry.isNetworkOrIdempotentRequestError(err) || err.response?.status === 429
+  },
+  retryDelay: (retryCount, err) => {
+    const retryAfter = Number(err.response?.headers?.['retry-after'])
+    return isFinite(retryAfter) ? retryAfter * 1000 : axiosRetry.exponentialDelay(retryCount)
+  },
+})
 
 export const colorMap: Record<string, string> = colormap
 
@@ -308,6 +322,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: blast.explorer,
           explorerAddressLink: blast.explorerAddressLink,
           explorerTxLink: blast.explorerTxLink,
+        }
+      case abstractChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: abstract.explorer,
+          explorerAddressLink: abstract.explorerAddressLink,
+          explorerTxLink: abstract.explorerTxLink,
         }
       case hemiChainId:
         return {

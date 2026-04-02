@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/swapper",
-  "version": "17.6.9",
+  "version": "17.6.11",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "type": "module",
@@ -31,6 +31,8 @@
   "dependencies": {
     "@arbitrum/sdk": "^4.0.1",
     "@avnu/avnu-sdk": "^4.0.1",
+    "@cetusprotocol/aggregator-sdk": "^1.4.2",
+    "@cetusprotocol/cetus-sui-clmm-sdk": "5.4.0",
     "@coral-xyz/anchor": "0.29.0",
     "@cowprotocol/app-data": "^2.3.0",
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.1-0.2",

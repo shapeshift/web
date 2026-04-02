@@ -1,4 +1,4 @@
-import { Button, CardBody, CardFooter, Flex, Stack, Switch, VStack } from '@chakra-ui/react'
+import { Box, Button, CardBody, CardFooter, Flex, Stack, Switch, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
@@ -189,12 +189,19 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
             <RawText fontSize='sm' color='text.subtle'>
               {translate('chainflipLending.repay.outstanding')}
             </RawText>
-            <Amount.Crypto
-              value={outstandingDebtCryptoPrecision}
-              symbol={asset.symbol}
-              fontSize='sm'
-              fontWeight='medium'
-            />
+            <Stack spacing={0} alignItems='flex-end' pr={10}>
+              <Amount.Crypto
+                value={outstandingDebtCryptoPrecision}
+                symbol={asset.symbol}
+                fontSize='sm'
+                fontWeight='medium'
+              />
+              <Amount.Fiat
+                value={outstandingDebtFiat.toFixed(2)}
+                fontSize='xs'
+                color='text.subtle'
+              />
+            </Stack>
           </Flex>
 
           <Flex justifyContent='space-between' alignItems='center'>
@@ -271,18 +278,20 @@ export const RepayInput = ({ assetId }: RepayInputProps) => {
                   color='text.subtle'
                 />
               </VStack>
-              {!isFullRepayment && (
-                <Button
-                  data-testid='chainflip-repay-max'
-                  size='xs'
-                  variant='ghost'
-                  colorScheme='blue'
-                  onClick={handleMaxClick}
-                  isDisabled={!hasFreeBalance}
-                >
-                  {translate('modals.send.sendForm.max')}
-                </Button>
-              )}
+              <Box width='32px' display='flex' justifyContent='center'>
+                {!isFullRepayment && (
+                  <Button
+                    data-testid='chainflip-repay-max'
+                    size='xs'
+                    variant='ghost'
+                    colorScheme='blue'
+                    onClick={handleMaxClick}
+                    isDisabled={!hasFreeBalance}
+                  >
+                    {translate('modals.send.sendForm.max')}
+                  </Button>
+                )}
+              </Box>
             </Flex>
           </Flex>
 

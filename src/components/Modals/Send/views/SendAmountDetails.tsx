@@ -20,6 +20,7 @@ import {
   fromAccountId,
   fromAssetId,
   starknetChainId,
+  tronAssetId,
 } from '@shapeshiftoss/caip'
 import { useMutation } from '@tanstack/react-query'
 import get from 'lodash/get'
@@ -47,6 +48,7 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useIsStarknetAccountDeployed } from '@/hooks/useIsStarknetAccountDeployed/useIsStarknetAccountDeployed'
+import { useIsTronAddressActivated } from '@/hooks/useIsTronAddressActivated/useIsTronAddressActivated'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { parseAddressInputWithChainId } from '@/lib/address/address'
@@ -113,6 +115,8 @@ export const SendAmountDetails = () => {
     isLoading: isCheckingDeployment,
     refetch: refetchDeploymentStatus,
   } = useIsStarknetAccountDeployed(accountId)
+
+  const { data: isTronRecipientActivated } = useIsTronAddressActivated(to, asset?.chainId)
 
   const deployAccountMutation = useMutation({
     mutationFn: async () => {
@@ -401,6 +405,14 @@ export const SendAmountDetails = () => {
               <AlertIcon />
               <AlertDescription>
                 <Text translation='starknet.deployAccount.sendDescription' />
+              </AlertDescription>
+            </Alert>
+          )}
+          {isTronRecipientActivated === false && asset?.assetId !== tronAssetId && (
+            <Alert status='warning' borderRadius='lg' mb={3}>
+              <AlertIcon />
+              <AlertDescription>
+                <Text translation='tron.recipientNotActivated.sendWarning' />
               </AlertDescription>
             </Alert>
           )}

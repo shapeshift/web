@@ -74,6 +74,7 @@ const validators = {
   VITE_STORY_NODE_URL: url(),
   VITE_ZKSYNC_ERA_NODE_URL: url(),
   VITE_BLAST_NODE_URL: url(),
+  VITE_ABSTRACT_NODE_URL: url(),
   VITE_ETHEREAL_NODE_URL: url(),
   VITE_WORLDCHAIN_NODE_URL: url(),
   VITE_HEMI_NODE_URL: url(),
@@ -137,6 +138,7 @@ const validators = {
   VITE_FEATURE_STORY: bool({ default: false }),
   VITE_FEATURE_ZK_SYNC_ERA: bool({ default: false }),
   VITE_FEATURE_BLAST: bool({ default: false }),
+  VITE_FEATURE_ABSTRACT: bool({ default: false }),
   VITE_FEATURE_ETHEREAL: bool({ default: false }),
   VITE_FEATURE_WORLDCHAIN: bool({ default: false }),
   VITE_FEATURE_HEMI: bool({ default: false }),
@@ -305,7 +307,7 @@ const validators = {
   VITE_FEATURE_AGENTIC_CHAT: bool({ default: false }),
   VITE_FEATURE_MM_NATIVE_MULTICHAIN: bool({ default: false }),
   VITE_AGENTIC_SERVER_BASE_URL: url({
-    default: 'https://shapeshiftossagentic-server-production.up.railway.app',
+    default: 'https://api.agent.shapeshift.com',
   }),
 }
 

@@ -233,6 +233,10 @@ export function supportsBlast(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsBlast
 }
 
+export function supportsAbstract(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsAbstract
+}
+
 export function supportsWorldChain(wallet: HDWallet): wallet is ETHWallet {
   return isObject(wallet) && (wallet as any)._supportsWorldChain
 }

@@ -1,10 +1,20 @@
 import { ArrowForwardIcon, CheckCircleIcon } from '@chakra-ui/icons'
-import { Badge, Button, CardBody, CardFooter, Flex, HStack, VStack } from '@chakra-ui/react'
+import {
+  Badge,
+  Button,
+  CardBody,
+  CardFooter,
+  Divider,
+  Flex,
+  HStack,
+  VStack,
+} from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { flipAssetId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import { memo, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { useRepayActionCenter } from './hooks/useRepayActionCenter'
 import { useRepayConfirmation } from './hooks/useRepayConfirmation'
@@ -29,6 +39,7 @@ type RepayConfirmProps = {
 
 export const RepayConfirm = memo(({ assetId }: RepayConfirmProps) => {
   const translate = useTranslate()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { scAccount } = useChainflipLendingAccount()
 
@@ -73,6 +84,11 @@ export const RepayConfirm = memo(({ assetId }: RepayConfirmProps) => {
     closeModal()
   }, [scAccount, queryClient, closeModal])
 
+  const handleViewDashboard = useCallback(async () => {
+    await handleDone()
+    navigate('/chainflip-lending')
+  }, [handleDone, navigate])
+
   const handleBack = useCallback(() => {
     actorRef.send({ type: 'BACK' })
   }, [actorRef])
@@ -96,8 +112,16 @@ export const RepayConfirm = memo(({ assetId }: RepayConfirmProps) => {
                 })}
               </RawText>
             </VStack>
-            <VStack spacing={2} width='full' px={2}>
-              <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <Flex
+              borderWidth={1}
+              borderColor='border.subtle'
+              borderRadius='lg'
+              p={4}
+              width='full'
+              direction='column'
+              gap={2}
+            >
+              <Flex justifyContent='space-between' alignItems='center'>
                 <RawText fontSize='sm' color='text.subtle'>
                   {translate('chainflipLending.repay.repaid')}
                 </RawText>
@@ -115,7 +139,7 @@ export const RepayConfirm = memo(({ assetId }: RepayConfirmProps) => {
                   )}
                 </HStack>
               </Flex>
-            </VStack>
+            </Flex>
           </VStack>
         </CardBody>
         <CardFooter
@@ -126,17 +150,29 @@ export const RepayConfirm = memo(({ assetId }: RepayConfirmProps) => {
           px={6}
           py={4}
         >
-          <Button
-            colorScheme='blue'
-            size='lg'
-            height={12}
-            borderRadius='xl'
-            width='full'
-            fontWeight='bold'
-            onClick={handleDone}
-          >
-            {translate('common.done')}
-          </Button>
+          <HStack spacing={3} width='full'>
+            <Button
+              variant='ghost'
+              flex={1}
+              size='lg'
+              height={12}
+              borderRadius='xl'
+              onClick={handleDone}
+            >
+              {translate('common.close')}
+            </Button>
+            <Button
+              colorScheme='blue'
+              flex={1}
+              size='lg'
+              height={12}
+              borderRadius='xl'
+              fontWeight='bold'
+              onClick={handleViewDashboard}
+            >
+              {translate('chainflipLending.dashboard.viewDashboard')}
+            </Button>
+          </HStack>
         </CardFooter>
       </SlideTransition>
     )
@@ -249,49 +285,85 @@ export const RepayConfirm = memo(({ assetId }: RepayConfirmProps) => {
   return (
     <SlideTransition>
       <CardBody px={6} py={4}>
-        <VStack spacing={6} align='center' py={6}>
-          <HStack spacing={3}>
-            <AssetIcon assetId={assetId} size='md' />
-            <ArrowForwardIcon boxSize={5} color='text.subtle' />
-            <AssetIcon assetId={flipAssetId} size='md' />
-          </HStack>
-          <RawText fontWeight='bold' fontSize='lg' textAlign='center'>
-            {translate('chainflipLending.repay.confirmTitle')}
-          </RawText>
-          <Flex direction='column' gap={1} align='center'>
+        <VStack spacing={4} align='center' py={4}>
+          <AssetIcon assetId={assetId} size='lg' />
+          <Amount.Crypto
+            value={repayAmountCryptoPrecision}
+            symbol={asset.symbol}
+            fontWeight='bold'
+            fontSize='2xl'
+          />
+        </VStack>
+        <Divider borderColor='border.subtle' />
+        <VStack spacing={3} width='full' py={4}>
+          <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('chainflipLending.repay.asset')}
+            </RawText>
+            <RawText fontSize='sm' fontWeight='medium'>
+              {asset.name}
+            </RawText>
+          </Flex>
+          <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('chainflipLending.repay.amount')}
+            </RawText>
             <Amount.Crypto
               value={repayAmountCryptoPrecision}
               symbol={asset.symbol}
-              fontWeight='bold'
-              fontSize='2xl'
+              fontSize='sm'
+              fontWeight='medium'
             />
-            {isFullRepayment && (
-              <Badge colorScheme='blue'>{translate('chainflipLending.repay.fullRepayment')}</Badge>
-            )}
+          </Flex>
+          <Flex justifyContent='space-between' alignItems='center' width='full'>
+            <RawText fontSize='sm' color='text.subtle'>
+              {translate('chainflipLending.repay.repaymentType')}
+            </RawText>
+            <HStack spacing={2}>
+              <RawText fontSize='sm' fontWeight='medium'>
+                {translate(
+                  isFullRepayment
+                    ? 'chainflipLending.repay.fullRepayment'
+                    : 'chainflipLending.repay.partialRepayment',
+                )}
+              </RawText>
+              {isFullRepayment && (
+                <Badge colorScheme='green' fontSize='xs'>
+                  {translate('chainflipLending.repay.full')}
+                </Badge>
+              )}
+            </HStack>
           </Flex>
         </VStack>
       </CardBody>
       <CardFooter
         borderTopWidth={1}
         borderColor='border.subtle'
-        flexDir='column'
-        gap={2}
+        flexDir='row'
+        gap={3}
         px={6}
         py={4}
       >
         <Button
-          colorScheme='blue'
+          variant='ghost'
+          flex={1}
           size='lg'
           height={12}
           borderRadius='xl'
-          width='full'
+          onClick={handleBack}
+        >
+          {translate('common.back')}
+        </Button>
+        <Button
+          colorScheme='blue'
+          flex={1}
+          size='lg'
+          height={12}
+          borderRadius='xl'
           fontWeight='bold'
           onClick={handleConfirm}
         >
           {translate('chainflipLending.repay.confirmAndRepay')}
-        </Button>
-        <Button variant='ghost' size='sm' width='full' onClick={handleBack}>
-          {translate('common.back')}
         </Button>
       </CardFooter>
     </SlideTransition>

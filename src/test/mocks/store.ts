@@ -121,6 +121,7 @@ export const mockStore: ReduxState = {
       Plume: false,
       Story: false,
       ZkSyncEra: false,
+      Abstract: false,
       Blast: false,
       WorldChain: false,
       Hemi: false,

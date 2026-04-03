@@ -9,6 +9,7 @@ import type {
   HDWallet,
 } from '@shapeshiftoss/hdwallet-core'
 import {
+  supportsAbstract,
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
@@ -133,6 +134,7 @@ export const evmChainIds = [
   KnownChainIds.ModeMainnet,
   KnownChainIds.SoneiumMainnet,
   KnownChainIds.SeiMainnet,
+  KnownChainIds.AbstractMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -259,6 +261,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsZkSyncEra(wallet)
         case Number(fromChainId(KnownChainIds.BlastMainnet).chainReference):
           return supportsBlast(wallet)
+        case Number(fromChainId(KnownChainIds.AbstractMainnet).chainReference):
+          return supportsAbstract(wallet)
         case Number(fromChainId(KnownChainIds.WorldChainMainnet).chainReference):
           return supportsWorldChain(wallet)
         case Number(fromChainId(KnownChainIds.HemiMainnet).chainReference):
@@ -480,6 +484,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'SEI',
         symbol: 'SEI',
         explorer: 'https://seitrace.com',
+      },
+      [KnownChainIds.AbstractMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://abscan.org',
       },
     }[this.chainId]
 

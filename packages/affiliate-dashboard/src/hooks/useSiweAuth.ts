@@ -2,7 +2,7 @@ import { useAppKitAccount } from '@reown/appkit/react'
 import { useCallback, useEffect, useState } from 'react'
 import { useSignMessage } from 'wagmi'
 
-const API_BASE = '/v1/auth/siwe'
+const AUTH_SIWE_URL = `${import.meta.env.VITE_API_URL}/v1/auth/siwe`
 
 interface SiweAuthState {
   token: string | null
@@ -47,7 +47,7 @@ export const useSiweAuth = (): UseSiweAuthReturn => {
     setError(null)
 
     try {
-      const nonceRes = await fetch(`${API_BASE}/nonce`, { method: 'POST' })
+      const nonceRes = await fetch(`${AUTH_SIWE_URL}/nonce`, { method: 'POST' })
       if (!nonceRes.ok) throw new Error('Failed to get nonce')
       const { nonce } = (await nonceRes.json()) as { nonce: string }
 
@@ -70,7 +70,7 @@ export const useSiweAuth = (): UseSiweAuthReturn => {
 
       const signature = await signMessageAsync({ message })
 
-      const verifyRes = await fetch(`${API_BASE}/verify`, {
+      const verifyRes = await fetch(`${AUTH_SIWE_URL}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message, signature }),

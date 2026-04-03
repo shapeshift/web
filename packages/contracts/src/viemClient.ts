@@ -4,6 +4,7 @@ import assert from 'assert'
 import type { PublicClient } from 'viem'
 import { createPublicClient, defineChain, fallback, http } from 'viem'
 import {
+  abstract,
   arbitrum,
   avalanche,
   base,
@@ -243,6 +244,14 @@ export const viemSeiClient = createPublicClient({
   transport: fallback([process.env.VITE_SEI_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemAbstractClient = createPublicClient({
+  chain: abstract,
+  transport: createFallbackTransport(
+    process.env.VITE_ABSTRACT_NODE_URL,
+    FALLBACK_RPC_URLS.abstract,
+  ),
+}) as PublicClient
+
 export const viemLineaClient = createPublicClient({
   chain: linea,
   transport: createFallbackTransport(process.env.VITE_LINEA_NODE_URL, FALLBACK_RPC_URLS.linea),
@@ -311,6 +320,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.ModeMainnet]: viemModeClient,
   [KnownChainIds.SoneiumMainnet]: viemSoneiumClient,
   [KnownChainIds.SeiMainnet]: viemSeiClient,
+  [KnownChainIds.AbstractMainnet]: viemAbstractClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -348,6 +358,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.ModeMainnet]: mode.id,
   [KnownChainIds.SoneiumMainnet]: soneium.id,
   [KnownChainIds.SeiMainnet]: sei.id,
+  [KnownChainIds.AbstractMainnet]: abstract.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -385,6 +396,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [mode.id]: viemModeClient,
   [soneium.id]: viemSoneiumClient,
   [sei.id]: viemSeiClient,
+  [abstract.id]: viemAbstractClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

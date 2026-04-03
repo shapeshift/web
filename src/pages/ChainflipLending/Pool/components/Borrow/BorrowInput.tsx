@@ -1,6 +1,7 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
 import { Button, CardBody, CardFooter, Flex, HStack, Stack, VStack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { ethChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
@@ -13,14 +14,18 @@ import { LtvGauge } from './LtvGauge'
 
 import { Amount } from '@/components/Amount/Amount'
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
+import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { SlideTransition } from '@/components/SlideTransition'
 import { RawText } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useModal } from '@/hooks/useModal/useModal'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
 import { useChainflipBorrowMinimums } from '@/pages/ChainflipLending/hooks/useChainflipBorrowMinimums'
+import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
 import { useChainflipLoanAccount } from '@/pages/ChainflipLending/hooks/useChainflipLoanAccount'
 import { useChainflipLtvThresholds } from '@/pages/ChainflipLending/hooks/useChainflipLtvThresholds'
 import { useChainflipOraclePrice } from '@/pages/ChainflipLending/hooks/useChainflipOraclePrices'
@@ -33,8 +38,12 @@ type BorrowInputProps = {
   onAssetChange: (assetId: AssetId) => void
 }
 
+const DEFAULT_RISKY_LTV = 0.8
+
 export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
   const translate = useTranslate()
+  const wallet = useWallet().state.wallet
+  const walletSupportsEth = useWalletSupportsChain(ethChainId, wallet)
   const {
     number: { localeParts },
   } = useLocaleFormatter()
@@ -50,6 +59,16 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
   const { totalCollateralFiat, totalBorrowedFiat, loansWithFiat } = useChainflipLoanAccount()
   const { thresholds } = useChainflipLtvThresholds()
   const { minimumLoanAmountUsd, minimumUpdateLoanAmountUsd } = useChainflipBorrowMinimums()
+  const { pools } = useChainflipLendingPools()
+
+  const poolForAsset = useMemo(() => pools.find(p => p.assetId === assetId), [pools, assetId])
+
+  const borrowCapacityFiat = useMemo(() => {
+    if (!thresholds) return '0'
+    const maxBorrow = bnOrZero(totalCollateralFiat).times(thresholds.target)
+    const capacity = maxBorrow.minus(totalBorrowedFiat)
+    return capacity.gt(0) ? capacity.toFixed(2) : '0'
+  }, [totalCollateralFiat, totalBorrowedFiat, thresholds])
 
   const hasExistingLoans = useMemo(() => loansWithFiat.length > 0, [loansWithFiat])
   const effectiveMinimumUsd = useMemo(
@@ -100,6 +119,12 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
 
   const projectedLtvDecimal = useMemo(() => projectedLtvBps / 10000, [projectedLtvBps])
 
+  const riskyLtv = thresholds?.target ?? DEFAULT_RISKY_LTV
+  const projectedLtvColor = useMemo(
+    () => (projectedLtvDecimal > riskyLtv ? 'red.500' : 'text.base'),
+    [projectedLtvDecimal, riskyLtv],
+  )
+
   const assetIds = useMemo(() => Object.keys(CHAINFLIP_LENDING_ASSET_BY_ASSET_ID) as AssetId[], [])
 
   const assets = useAppSelector(selectAssets)
@@ -113,6 +138,7 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
   }, [assetIds, assets])
 
   const buyAssetSearch = useModal('buyAssetSearch')
+  const chainflipLendingModal = useModal('chainflipLending')
 
   const handleAssetClick = useCallback(() => {
     buyAssetSearch.open({
@@ -134,6 +160,10 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
   const handleMaxClick = useCallback(() => {
     setInputValue(availableToBorrowCryptoPrecision)
   }, [availableToBorrowCryptoPrecision])
+
+  const handleAddCollateral = useCallback(() => {
+    chainflipLendingModal.open({ mode: 'addCollateral', assetId })
+  }, [chainflipLendingModal, assetId])
 
   const handleSubmit = useCallback(() => {
     if (!asset) return
@@ -256,7 +286,12 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
                   fontWeight='medium'
                 />
                 <ArrowForwardIcon color='text.subtle' boxSize={3} />
-                <Amount.Percent value={projectedLtvDecimal} fontSize='sm' fontWeight='medium' />
+                <Amount.Percent
+                  value={projectedLtvDecimal}
+                  fontSize='sm'
+                  fontWeight='bold'
+                  color={projectedLtvColor}
+                />
               </HStack>
             </Flex>
           )}
@@ -266,6 +301,50 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
               currentLtv={currentLtvDecimal}
               projectedLtv={bnOrZero(inputValue).gt(0) ? projectedLtvDecimal : undefined}
             />
+          )}
+
+          {hasCollateral && (
+            <Flex justifyContent='space-between' pt={2}>
+              <VStack spacing={0} align='flex-start'>
+                <Flex alignItems='center' gap={1}>
+                  <RawText fontSize='xs' color='text.subtle'>
+                    {translate('chainflipLending.stats.totalCollateral')}
+                  </RawText>
+                  <HelperTooltip
+                    label={translate('chainflipLending.stats.totalCollateralTooltip')}
+                  />
+                </Flex>
+                <Amount.Fiat value={totalCollateralFiat} fontSize='sm' fontWeight='bold' />
+              </VStack>
+
+              <VStack spacing={0} align='flex-start'>
+                <Flex alignItems='center' gap={1}>
+                  <RawText fontSize='xs' color='text.subtle'>
+                    {translate('chainflipLending.stats.borrowCapacity')}
+                  </RawText>
+                  <HelperTooltip
+                    label={translate('chainflipLending.stats.borrowCapacityTooltip')}
+                  />
+                </Flex>
+                <Amount.Fiat value={borrowCapacityFiat} fontSize='sm' fontWeight='bold' />
+              </VStack>
+
+              <VStack spacing={0} align='flex-start'>
+                <Flex alignItems='center' gap={1}>
+                  <RawText fontSize='xs' color='text.subtle'>
+                    {translate('chainflipLending.stats.estInterestRate')}
+                  </RawText>
+                  <HelperTooltip
+                    label={translate('chainflipLending.stats.estInterestRateTooltip')}
+                  />
+                </Flex>
+                <Amount.Percent
+                  value={poolForAsset?.borrowRate ?? '0'}
+                  fontSize='sm'
+                  fontWeight='bold'
+                />
+              </VStack>
+            </Flex>
           )}
 
           {effectiveMinimumUsd && isBelowMinimum && (
@@ -292,8 +371,9 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
         px={6}
         py={4}
       >
-        <Button
+        <ButtonWalletPredicate
           data-testid='chainflip-borrow-submit'
+          isValidWallet={Boolean(walletSupportsEth)}
           colorScheme='blue'
           size='lg'
           height={12}
@@ -304,7 +384,13 @@ export const BorrowInput = ({ assetId, onAssetChange }: BorrowInputProps) => {
           isDisabled={isSubmitDisabled}
         >
           {translate('chainflipLending.borrow.title')}
-        </Button>
+        </ButtonWalletPredicate>
+        <RawText fontSize='sm' color='text.subtle' textAlign='center'>
+          {translate('chainflipLending.borrow.needMorePower')}{' '}
+          <Button variant='link' colorScheme='blue' fontSize='sm' onClick={handleAddCollateral}>
+            {translate('chainflipLending.borrow.addCollateral')}
+          </Button>
+        </RawText>
       </CardFooter>
     </SlideTransition>
   )

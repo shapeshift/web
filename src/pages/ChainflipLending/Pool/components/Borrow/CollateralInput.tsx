@@ -22,6 +22,7 @@ import { useToggle } from '@/hooks/useToggle/useToggle'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { CHAINFLIP_LENDING_ASSET_BY_ASSET_ID } from '@/lib/chainflip/constants'
 import { useChainflipBorrowMinimums } from '@/pages/ChainflipLending/hooks/useChainflipBorrowMinimums'
+import { useChainflipLendingPools } from '@/pages/ChainflipLending/hooks/useChainflipLendingPools'
 import { useChainflipLoanAccount } from '@/pages/ChainflipLending/hooks/useChainflipLoanAccount'
 import { useChainflipLtvThresholds } from '@/pages/ChainflipLending/hooks/useChainflipLtvThresholds'
 import { useChainflipOraclePrice } from '@/pages/ChainflipLending/hooks/useChainflipOraclePrices'
@@ -59,6 +60,16 @@ export const CollateralInput = ({ assetId, onAssetChange }: CollateralInputProps
   const { totalCollateralFiat, totalBorrowedFiat } = useChainflipLoanAccount()
   const { thresholds } = useChainflipLtvThresholds()
   const { minimumUpdateCollateralAmountUsd } = useChainflipBorrowMinimums()
+  const { pools } = useChainflipLendingPools()
+
+  const poolForAsset = useMemo(() => pools.find(p => p.assetId === assetId), [pools, assetId])
+
+  const borrowCapacityFiat = useMemo(() => {
+    if (!thresholds) return '0'
+    const maxBorrow = bnOrZero(totalCollateralFiat).times(thresholds.target)
+    const capacity = maxBorrow.minus(totalBorrowedFiat)
+    return capacity.gt(0) ? capacity.toFixed(2) : '0'
+  }, [totalCollateralFiat, totalBorrowedFiat, thresholds])
 
   const [isFiat, toggleIsFiat] = useToggle(false)
   const [inputValue, setInputValue] = useState(savedCollateralAmount || '')
@@ -366,6 +377,50 @@ export const CollateralInput = ({ assetId, onAssetChange }: CollateralInputProps
 
           {hasActiveLoans && (
             <LtvGauge currentLtv={currentLtvDecimal} projectedLtv={projectedLtvDecimal} />
+          )}
+
+          {hasActiveLoans && (
+            <Flex justifyContent='space-between' pt={2}>
+              <VStack spacing={0} align='flex-start'>
+                <Flex alignItems='center' gap={1}>
+                  <RawText fontSize='xs' color='text.subtle'>
+                    {translate('chainflipLending.stats.totalCollateral')}
+                  </RawText>
+                  <HelperTooltip
+                    label={translate('chainflipLending.stats.totalCollateralTooltip')}
+                  />
+                </Flex>
+                <Amount.Fiat value={totalCollateralFiat} fontSize='sm' fontWeight='bold' />
+              </VStack>
+
+              <VStack spacing={0} align='flex-start'>
+                <Flex alignItems='center' gap={1}>
+                  <RawText fontSize='xs' color='text.subtle'>
+                    {translate('chainflipLending.stats.borrowCapacity')}
+                  </RawText>
+                  <HelperTooltip
+                    label={translate('chainflipLending.stats.borrowCapacityTooltip')}
+                  />
+                </Flex>
+                <Amount.Fiat value={borrowCapacityFiat} fontSize='sm' fontWeight='bold' />
+              </VStack>
+
+              <VStack spacing={0} align='flex-start'>
+                <Flex alignItems='center' gap={1}>
+                  <RawText fontSize='xs' color='text.subtle'>
+                    {translate('chainflipLending.stats.estInterestRate')}
+                  </RawText>
+                  <HelperTooltip
+                    label={translate('chainflipLending.stats.estInterestRateTooltip')}
+                  />
+                </Flex>
+                <Amount.Percent
+                  value={poolForAsset?.borrowRate ?? '0'}
+                  fontSize='sm'
+                  fontWeight='bold'
+                />
+              </VStack>
+            </Flex>
           )}
 
           {isBelowMinimum && minimumUpdateCollateralAmountUsd && (

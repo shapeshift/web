@@ -215,6 +215,7 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   [KnownChainIds.TonMainnet]: [],
   [KnownChainIds.ZkSyncEraMainnet]: [],
   [KnownChainIds.BlastMainnet]: [],
+  [KnownChainIds.AbstractMainnet]: [],
   [KnownChainIds.HemiMainnet]: [],
 }
 

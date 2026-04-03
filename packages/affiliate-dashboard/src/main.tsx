@@ -8,6 +8,8 @@ import { createConfig, http, WagmiProvider } from 'wagmi'
 
 import { App } from './App'
 
+if (!import.meta.env.VITE_API_URL) throw new Error('VITE_API_URL is not set')
+
 const queryClient = new QueryClient()
 
 const wagmiConfig = createConfig({

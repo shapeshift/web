@@ -1,4 +1,5 @@
 import {
+  abstractChainId,
   adapters,
   arbitrumChainId,
   avalancheChainId,
@@ -239,6 +240,7 @@ export const getCoingeckoSupportedChainIds = () => {
     ...(getConfig().VITE_FEATURE_STORY ? [storyChainId] : []),
     ...(getConfig().VITE_FEATURE_ZK_SYNC_ERA ? [zkSyncEraChainId] : []),
     ...(getConfig().VITE_FEATURE_BLAST ? [blastChainId] : []),
+    ...(getConfig().VITE_FEATURE_ABSTRACT ? [abstractChainId] : []),
     ...(getConfig().VITE_FEATURE_WORLDCHAIN ? [worldChainChainId] : []),
     ...(getConfig().VITE_FEATURE_HEMI ? [hemiChainId] : []),
     ...(getConfig().VITE_FEATURE_MANTLE ? [mantleChainId] : []),

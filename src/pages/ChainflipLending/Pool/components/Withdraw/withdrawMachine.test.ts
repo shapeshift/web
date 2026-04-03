@@ -11,6 +11,8 @@ const defaultSubmitEvent = {
   withdrawAmountCryptoPrecision: '100.5',
   withdrawAmountCryptoBaseUnit: '100500000',
   isFullWithdrawal: false,
+  withdrawToWallet: false,
+  withdrawAddress: '',
 }
 
 const createTestActor = (overrides?: Partial<{ isNativeWallet: boolean }>) => {

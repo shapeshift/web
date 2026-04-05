@@ -2755,8 +2755,6 @@
       "confirmStop": "Liquidation stoppen",
       "executingTitle": "Verarbeitung...",
       "executingDescription": "Ihr Antrag auf freiwillige Liquidation wird an die Chainflip State Chain übermittelt.",
-      "initiateSuccessTitle": "Liquidation eingeleitet",
-      "initiateSuccessDescription": "Ihre freiwillige Liquidation wurde eingeleitet. Ihre Position wird automatisch aufgelöst.",
       "stopSuccessTitle": "Liquidation gestoppt",
       "stopSuccessDescription": "Die freiwillige Liquidation wurde abgebrochen. Ihre Position bleibt bestehen.",
       "errorTitle": "Transaktion fehlgeschlagen",
@@ -3352,8 +3350,6 @@
   "yieldXYZ": {
     "pageTitle": "Erträge",
     "pageSubtitle": "Ertragspotenziale über mehrere Ketten hinweg erkennen und nutzen",
-    "actions": {
-    },
     "yield": "Ertrag",
     "apy": "APY",
     "apr": "APR",

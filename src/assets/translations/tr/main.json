@@ -2755,8 +2755,6 @@
       "confirmStop": "Tasfiyeyi Durdurun",
       "executingTitle": "İşleniyor...",
       "executingDescription": "Gönüllü tasfiye talebiniz Chainflip State Chain'e gönderiliyor.",
-      "initiateSuccessTitle": "Tasfiye İşlemleri Başlatıldı",
-      "initiateSuccessDescription": "Gönüllü tasfiye işleminiz başlatıldı. Pozisyonunuz otomatik olarak kapatılacaktır.",
       "stopSuccessTitle": "Tasfiye Durduruldu",
       "stopSuccessDescription": "Gönüllü tasfiye iptal edildi. Pozisyonunuz açık kalmaya devam ediyor.",
       "errorTitle": "İşlem Başarısız",
@@ -3352,8 +3350,6 @@
   "yieldXYZ": {
     "pageTitle": "Getiriler",
     "pageSubtitle": "Birden fazla zincirde getiri fırsatlarını keşfedin ve yönetin.",
-    "actions": {
-    },
     "yield": "Getiri",
     "apy": "APY",
     "apr": "APR",

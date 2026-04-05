@@ -2755,8 +2755,6 @@
       "confirmStop": "停止清算",
       "executingTitle": "处理中...",
       "executingDescription": "您的自愿清算请求已提交至 Chainflip State Chain。",
-      "initiateSuccessTitle": "清算已发起",
-      "initiateSuccessDescription": "自愿清算已发起。您的仓位将自动平仓。",
       "stopSuccessTitle": "清算已停止",
       "stopSuccessDescription": "自愿清算已取消，您的仓位将继续保留。",
       "errorTitle": "交易失败",
@@ -3352,8 +3350,6 @@
   "yieldXYZ": {
     "pageTitle": "收益",
     "pageSubtitle": "发现并管理跨多条链的收益机会",
-    "actions": {
-    },
     "yield": "收益",
     "apy": "APY",
     "apr": "APR",

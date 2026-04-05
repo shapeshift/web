@@ -2755,8 +2755,6 @@
       "confirmStop": "清算を中止する",
       "executingTitle": "処理中...",
       "executingDescription": "お客様の任意清算申請は、Chainflip State Chainに提出されています。",
-      "initiateSuccessTitle": "清算手続き開始",
-      "initiateSuccessDescription": "お客様の任意清算手続きが開始されました。お客様のポジションは自動的に解消されます。",
       "stopSuccessTitle": "清算が中止されました",
       "stopSuccessDescription": "任意清算は中止されました。あなたのポジションは引き続き有効です。",
       "errorTitle": "取引が失敗しました",
@@ -3352,8 +3350,6 @@
   "yieldXYZ": {
     "pageTitle": "利回り",
     "pageSubtitle": "複数のチェーンにわたる収益機会の発見と管理",
-    "actions": {
-    },
     "yield": "利回り",
     "apy": "年利",
     "apr": "APR",

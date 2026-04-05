@@ -2755,8 +2755,6 @@
       "confirmStop": "Arrêter la liquidation",
       "executingTitle": "Traitement en cours...",
       "executingDescription": "Votre demande de liquidation volontaire est soumise à la Chainflip State Chain.",
-      "initiateSuccessTitle": "Liquidation déclenchée",
-      "initiateSuccessDescription": "Votre liquidation volontaire a été déclenchée. Votre position sera liquidée automatiquement.",
       "stopSuccessTitle": "Liquidation arrêtée",
       "stopSuccessDescription": "La liquidation volontaire a été annulée. Votre position reste ouverte.",
       "errorTitle": "La transaction a échoué",
@@ -3352,8 +3350,6 @@
   "yieldXYZ": {
     "pageTitle": "Rendements",
     "pageSubtitle": "Découvrez et gérez les opportunités de rendements sur plusieurs chaînes",
-    "actions": {
-    },
     "yield": "Rendement",
     "apy": "APY",
     "apr": "APR",

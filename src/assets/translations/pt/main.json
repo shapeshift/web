@@ -2755,8 +2755,6 @@
       "confirmStop": "Suspender a liquidação",
       "executingTitle": "Processando...",
       "executingDescription": "Seu pedido de liquidação voluntária está sendo submetido à Chainflip State Chain.",
-      "initiateSuccessTitle": "Iniciada a liquidação",
-      "initiateSuccessDescription": "Seu processo de liquidação voluntária foi iniciado. Sua posição será encerrada automaticamente.",
       "stopSuccessTitle": "Liquidação interrompida",
       "stopSuccessDescription": "A liquidação voluntária foi cancelada. Sua posição permanece em aberto.",
       "errorTitle": "Transação falhou",
@@ -3352,8 +3350,6 @@
   "yieldXYZ": {
     "pageTitle": "Yields",
     "pageSubtitle": "Descubra e gerencie oportunidades de rendimento em várias redes.",
-    "actions": {
-    },
     "yield": "Yield",
     "apy": "APY",
     "apr": "APR",

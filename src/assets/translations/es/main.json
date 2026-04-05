@@ -2755,8 +2755,6 @@
       "confirmStop": "Detener Liquidación",
       "executingTitle": "Procesando...",
       "executingDescription": "Su solicitud de liquidación voluntaria se está enviando a Chainflip State Chain.",
-      "initiateSuccessTitle": "Liquidación Iniciada",
-      "initiateSuccessDescription": "Se ha iniciado liquidación voluntaria. Su posición se liquidará automáticamente.",
       "stopSuccessTitle": "Liquidación Detenida",
       "stopSuccessDescription": "La liquidación voluntaria ha sido cancelada. Su posición permanece abierta.",
       "errorTitle": "Transacción Fallida",
@@ -3352,8 +3350,6 @@
   "yieldXYZ": {
     "pageTitle": "Rendimientos",
     "pageSubtitle": "Descubra y gestione oportunidades de rendimiento en múltiples cadenas",
-    "actions": {
-    },
     "yield": "Rendimiento",
     "apy": "APY",
     "apr": "APR",

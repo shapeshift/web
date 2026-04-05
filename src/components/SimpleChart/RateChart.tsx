@@ -28,6 +28,11 @@ const ChartDiv = styled.div<{ height?: number }>`
   ${({ height }) => height && `height: ${height}px`};
   width: 100%;
   position: relative;
+
+  /* Hide TradingView attribution */
+  a[href*='tradingview'] {
+    display: none !important;
+  }
 `
 
 type RateChartProps = {
@@ -81,6 +86,7 @@ export const RateChart = ({ data, height, interval }: RateChartProps) => {
         background: { color: 'transparent' },
         textColor,
       },
+      watermark: { visible: false },
       width: chartContainerRef.current.offsetWidth,
       height: chartContainerRef.current.offsetHeight,
       localization: { priceFormatter: percentFormatter },
@@ -92,6 +98,7 @@ export const RateChart = ({ data, height, interval }: RateChartProps) => {
         ticksVisible: false,
         fixLeftEdge: true,
         fixRightEdge: true,
+        minBarSpacing: 4,
       },
       rightPriceScale: {
         borderVisible: false,

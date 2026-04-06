@@ -1987,25 +1987,9 @@
         "yourDecentralizedGateway": "Ihr Gateway zur Dezentralisierung. Handeln und verdienen Sie Bitcoin, Ethereum, Solana und mehr von einer einzigen, sicheren Wallet aus.",
         "crossChainFreedom": "Cross-Chain Freiheit. Greifen Sie auf die besten Kurse mehrerer dezentraler Börsen zu, kein Mittelsmann erforderlich.",
         "easyToUse": {
-          "title": "Einfach zu bedienen!",
-          "subTitle": "Mit ShapeShift Native Wallet können Sie:",
-          "trackBalance": "Verfolgen Sie Ihre Salden",
-          "sendReceive": "Krypto senden/empfangen",
           "buyCrypto": "Krypto kaufen",
           "tradeAssets": "Vermögenswerte handeln",
-          "earnYield": "Verdienen Sie Rendite auf Ihr ungenutztes Vermögen",
-          "cta": "Krypto kaufen",
-          "secondaryCta": "zum Dashboard"
-        },
-        "multiChain": {
-          "title": "Mehrere Ketten werden gleichzeitig unterstützt ",
-          "subTitle": "Sie müssen nie das Netzwerk in der Wallet wechseln, es funktioniert mit jeder nahtlos.",
-          "body": "Greifen Sie auf Bitcoin, Ethereum, Solana und viele weitere Chains über ein einziges Wallet zu. Handeln und verwalten Sie Ihre Assets nahtlos über verschiedene Netzwerke hinweg."
-        },
-        "selfCustody": {
-          "title": "Ihre ShapeShift Wallet verwalten Sie",
-          "subTitle": "Sie haben die Schlüssel und Sie sind der einzige, der darauf zugreifen kann.",
-          "body": "Eine selbstverwaltete Wallet bedeutet, dass Sie sie besitzen und nur Sie Zugriff auf Ihr Geld haben. Ihre geheime Wiederherstellungsphrase ist Ihr Schlüssel zum Zugriff darauf. Niemand kann Sie daran hindern, auf Ihr Geld zuzugreifen."
+          "cta": "Krypto kaufen"
         }
       }
     },

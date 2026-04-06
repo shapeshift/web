@@ -1987,25 +1987,9 @@
         "yourDecentralizedGateway": "Seu gateway de descentralização. Negocie e ganhe Bitcoin, Ethereum, Solana e mais de uma carteira única e segura.",
         "crossChainFreedom": "Liberdade entre redes. Acesse as melhores taxas em várias exchanges descentralizadas, sem necessidade de intermediários.",
         "easyToUse": {
-          "title": "Fácil de usar",
-          "subTitle": "Com a carteira nativa da ShapeShift você pode:",
-          "trackBalance": "Acompanhar seu saldo",
-          "sendReceive": "Enviar/receber cripto",
           "buyCrypto": "Comprar cripto",
           "tradeAssets": "Negociar ativos",
-          "earnYield": "Ganhar recompensas em seu dinheiro parado",
-          "cta": "Comprar cripto",
-          "secondaryCta": "Ir para o meu painel"
-        },
-        "multiChain": {
-          "title": "Multi-chain",
-          "subTitle": "Você nunca precisa trocar de corrente na carteira, funciona perfeitamente com cada rede.",
-          "body": "Acesse Bitcoin, Ethereum, Solana e muitas outras redes a partir de uma única carteira. Negocie e gerencie seus ativos em diferentes redes sem complicações."
-        },
-        "selfCustody": {
-          "title": "Auto-custódia",
-          "subTitle": "Você tem suas chaves e é o único que pode acessá-las.",
-          "body": "Uma carteira de autocustódia significa que você a possui e somente você tem acesso aos seus fundos. Sua frase de recuperação secreta é a chave para acessá-la. Ninguém pode impedir que você acesse seus fundos."
+          "cta": "Comprar cripto"
         }
       }
     },

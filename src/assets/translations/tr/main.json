@@ -1987,25 +1987,9 @@
         "yourDecentralizedGateway": "Merkeziyetsizlik ağ geçidiniz. Tek bir güvenli cüzdandan Bitcoin, Ethereum, Solana ve daha fazlasını alıp satın ve kazanın.",
         "crossChainFreedom": "Zincirler arası özgürlük. Birden fazla merkezi olmayan borsada en iyi oranlara erişin, aracıya gerek yok.",
         "easyToUse": {
-          "title": "Kullanımı kolay!",
-          "subTitle": "ShapeShift Cüzdan ile şunları yapabilirsiniz:",
-          "trackBalance": "Bakiyenizi takip edin",
-          "sendReceive": "Kripto gönder/al",
           "buyCrypto": "Kripto Satın Al",
           "tradeAssets": "Takas varlıkları",
-          "earnYield": "Boştaki varlıklarınızdan getiri elde edin",
-          "cta": "Kripto Satın Al",
-          "secondaryCta": "Kontrol Panelime Git"
-        },
-        "multiChain": {
-          "title": "Aynı anda birden çok zincir desteklenir",
-          "subTitle": "Cüzdandaki zincirleri asla değiştirmenize gerek yoktur, her zincirle sorunsuz bir şekilde çalışır.",
-          "body": "Tek bir cüzdandan Bitcoin, Ethereum, Solana ve daha birçok zincire erişin. Farklı ağlardaki varlıklarınızı sorunsuz bir şekilde takas edin ve yönetin."
-        },
-        "selfCustody": {
-          "title": "ShapeShift Cüzdanınız kişisel velayettir",
-          "subTitle": "Anahtarlar sizde ve ona erişebilecek tek kişi sizsiniz.",
-          "body": "Kişisel velayet cüzdanı, ona sahip olduğunuz ve paranıza yalnızca sizin erişebileceğiniz anlamına gelir. Gizli kurtarma ifadeniz, ona erişmenin anahtarıdır. Paranıza erişmenizi kimse engelleyemez."
+          "cta": "Kripto Satın Al"
         }
       }
     },
@@ -3476,8 +3460,6 @@
   "yieldXYZ": {
     "pageTitle": "Getiriler",
     "pageSubtitle": "Birden fazla zincirde getiri fırsatlarını keşfedin ve yönetin.",
-    "actions": {
-    },
     "yield": "Getiri",
     "apy": "APY",
     "apr": "APR",

@@ -1987,25 +1987,9 @@
         "yourDecentralizedGateway": "Votre passerelle vers la décentralisation. Échangez et gagnez sur Bitcoin, Ethereum, Solana et plus encore à partir d'un seul porte-monnaie sécurisé.",
         "crossChainFreedom": "Liberté inter-chaînes. Accédez aux meilleurs taux sur plusieurs plateformes d'échange décentralisées, sans intermédiaire.",
         "easyToUse": {
-          "title": "Il est facile à utiliser !",
-          "subTitle": "Avec le porte-monnaie ShapeShift, vous pouvez :",
-          "trackBalance": "Suivre vos soldes",
-          "sendReceive": "Envoyer/recevoir des cryptos",
           "buyCrypto": "Acheter des cryptos",
           "tradeAssets": "Échanger des actifs",
-          "earnYield": "Gagnez du rendement sur vos actifs inutilisés",
-          "cta": "Acheter des cryptos",
-          "secondaryCta": "Accéder à mon tableau de bord"
-        },
-        "multiChain": {
-          "title": "Plusieurs chaînes sont prises en charge simultanément",
-          "subTitle": "Vous n'avez jamais besoin de changer de chaîne dans le porte-monnaie, il fonctionne avec chaque chaîne de manière transparente.",
-          "body": "Accédez à Bitcoin, Ethereum, Solana et bien d'autres chaînes depuis un seul portefeuille. Échangez et gérez vos actifs sur différents réseaux en toute simplicité."
-        },
-        "selfCustody": {
-          "title": "Votre porte-monnaie ShapeShift est auto-dépositaire",
-          "subTitle": "Vous détenez les clés et vous êtes seul à pouvoir y accéder",
-          "body": "Un porte-monnaie auto-dépositaire signifie que vous le possédez et qu'uniquement vous avez accès à vos fonds. Votre Phrase de Récupération Secrète est votre clé pour y accéder. Personne ne peut vous empêcher d'accéder à vos fonds."
+          "cta": "Acheter des cryptos"
         }
       }
     },
@@ -3476,8 +3460,6 @@
   "yieldXYZ": {
     "pageTitle": "Rendements",
     "pageSubtitle": "Découvrez et gérez les opportunités de rendements sur plusieurs chaînes",
-    "actions": {
-    },
     "yield": "Rendement",
     "apy": "APY",
     "apr": "APR",

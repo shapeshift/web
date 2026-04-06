@@ -1987,25 +1987,9 @@
         "yourDecentralizedGateway": "Tu portal de descentralización. Intercambia y gana Bitcoin, Ethereum, Solana y más desde una única billetera segura.",
         "crossChainFreedom": "Libertad entre cadenas. Acceda a las mejores tarifas en múltiples exchanges descentralizados, sin necesidad de intermediarios.",
         "easyToUse": {
-          "title": "¡Es fácil de usar!",
-          "subTitle": "Su Billetera ShapeShift puede:",
-          "trackBalance": "Seguir sus saldos",
-          "sendReceive": "Enviar/recibir cripto",
           "buyCrypto": "Comprar cripto",
           "tradeAssets": "Intercambiar activos",
-          "earnYield": "Obtener rendimiento de sus activos inactivos",
-          "cta": "Comprar Cripto",
-          "secondaryCta": "Ir a mi tablero"
-        },
-        "multiChain": {
-          "title": "Se admiten varias cadenas simultáneamente",
-          "subTitle": "Nunca necesita cambiar cadenas en la billetera, funciona con cada cadena sin problemas.",
-          "body": "Accede a Bitcoin, Ethereum, Solana y muchas más cadenas desde una sola billetera. Intercambia y gestiona tus activos en diferentes redes sin problemas."
-        },
-        "selfCustody": {
-          "title": "Su Billetera ShapeShift es auto-custodia",
-          "subTitle": "Tienes las llaves y eres el único que puede acceder a él.",
-          "body": "Una billetera de autocustodia significa que es de su propiedad y solo usted tiene acceso a sus fondos. Su frase de recuperación secreta es su clave para acceder. Nadie puede bloquear acceso a sus fondos."
+          "cta": "Comprar Cripto"
         }
       }
     },
@@ -3476,8 +3460,6 @@
   "yieldXYZ": {
     "pageTitle": "Rendimientos",
     "pageSubtitle": "Descubra y gestione oportunidades de rendimiento en múltiples cadenas",
-    "actions": {
-    },
     "yield": "Rendimiento",
     "apy": "APY",
     "apr": "APR",

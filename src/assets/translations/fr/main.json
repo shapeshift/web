@@ -1987,9 +1987,25 @@
         "yourDecentralizedGateway": "Votre passerelle vers la décentralisation. Échangez et gagnez sur Bitcoin, Ethereum, Solana et plus encore à partir d'un seul porte-monnaie sécurisé.",
         "crossChainFreedom": "Liberté inter-chaînes. Accédez aux meilleurs taux sur plusieurs plateformes d'échange décentralisées, sans intermédiaire.",
         "easyToUse": {
+          "title": "Facile à utiliser",
+          "subTitle": "Tout ce dont vous avez besoin en un seul endroit",
+          "trackBalance": "Suivre vos soldes",
+          "sendReceive": "Envoyer et recevoir des cryptos",
           "buyCrypto": "Acheter des cryptos",
           "tradeAssets": "Échanger des actifs",
-          "cta": "Acheter des cryptos"
+          "earnYield": "Gagner des revenus",
+          "cta": "Acheter des cryptos",
+          "secondaryCta": "Aller au tableau de bord"
+        },
+        "multiChain": {
+          "title": "Support multichaîne",
+          "subTitle": "Échangez sur plusieurs blockchains",
+          "body": "Accédez à Bitcoin, Ethereum, Solana et bien d'autres blockchains depuis un seul porte-monnaie. Gérez et échangez vos actifs en toute simplicité sur différents réseaux."
+        },
+        "selfCustody": {
+          "title": "Auto-dépositaire",
+          "subTitle": "Vous êtes propriétaire de vos clés, vous êtes propriétaire de vos cryptos",
+          "body": "Votre porte-monnaie, vos clés, vos cryptos. ShapeShift n'a jamais accès à vos fonds. Vous conservez le contrôle total de vos actifs à tout moment."
         }
       }
     },
@@ -3460,6 +3476,8 @@
   "yieldXYZ": {
     "pageTitle": "Rendements",
     "pageSubtitle": "Découvrez et gérez les opportunités de rendements sur plusieurs chaînes",
+    "actions": {
+    },
     "yield": "Rendement",
     "apy": "APY",
     "apr": "APR",

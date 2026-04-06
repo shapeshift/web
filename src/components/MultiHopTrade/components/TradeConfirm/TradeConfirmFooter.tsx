@@ -69,13 +69,24 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   const quoteNetworkFeeCryptoBaseUnit = tradeQuoteStep.feeData.networkFeeCryptoBaseUnit
   const feeAsset = useSelectorWithArgs(selectFeeAssetById, tradeQuoteStep.sellAsset.assetId)
   const sellAsset = useSelectorWithArgs(selectAssetById, tradeQuoteStep.sellAsset.assetId)
+
+  // Include requiresBalance protocol fees denominated in the fee asset (e.g. deBridge fixFee)
+  const requiresBalanceProtocolFeeCryptoBaseUnit = useMemo(() => {
+    if (!feeAsset) return '0'
+    const protocolFee = tradeQuoteStep.feeData.protocolFees?.[feeAsset.assetId]
+    if (!protocolFee?.requiresBalance) return '0'
+    return protocolFee.amountCryptoBaseUnit
+  }, [feeAsset, tradeQuoteStep.feeData.protocolFees])
+
   const quoteNetworkFeeCryptoPrecision = useMemo(
     () =>
       BigAmount.fromBaseUnit({
-        value: quoteNetworkFeeCryptoBaseUnit,
+        value: bnOrZero(quoteNetworkFeeCryptoBaseUnit)
+          .plus(requiresBalanceProtocolFeeCryptoBaseUnit)
+          .toString(),
         precision: feeAsset?.precision ?? 0,
       }).toPrecision(),
-    [quoteNetworkFeeCryptoBaseUnit, feeAsset?.precision],
+    [quoteNetworkFeeCryptoBaseUnit, requiresBalanceProtocolFeeCryptoBaseUnit, feeAsset?.precision],
   )
   const feeAssetUserCurrencyRate = useSelectorWithArgs(
     selectMarketDataByAssetIdUserCurrency,
@@ -172,10 +183,17 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     if (!networkFeeCryptoBaseUnit) return quoteNetworkFeeCryptoPrecision
 
     return BigAmount.fromBaseUnit({
-      value: networkFeeCryptoBaseUnit,
+      value: bnOrZero(networkFeeCryptoBaseUnit)
+        .plus(requiresBalanceProtocolFeeCryptoBaseUnit)
+        .toString(),
       precision: feeAsset?.precision ?? 0,
     }).toPrecision()
-  }, [networkFeeCryptoBaseUnit, feeAsset?.precision, quoteNetworkFeeCryptoPrecision])
+  }, [
+    networkFeeCryptoBaseUnit,
+    requiresBalanceProtocolFeeCryptoBaseUnit,
+    feeAsset?.precision,
+    quoteNetworkFeeCryptoPrecision,
+  ])
 
   const networkFeeUserCurrency = useMemo(() => {
     return bnOrZero(networkFeeCryptoPrecision)

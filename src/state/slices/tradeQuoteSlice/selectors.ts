@@ -60,6 +60,7 @@ import {
   getActiveQuoteMetaOrDefault,
   getBuyAmountAfterFeesCryptoPrecision,
   getHopTotalNetworkFeeUserCurrency,
+  getRequiresBalanceProtocolFeeUserCurrency,
   getTotalProtocolFeeByAsset,
   sortTradeQuotes,
 } from '@/state/slices/tradeQuoteSlice/helpers'
@@ -365,10 +366,40 @@ export const selectSecondHopSellFeeAsset: Selector<ReduxState, Asset | undefined
   )
 
 export const selectFirstHopNetworkFeeCryptoBaseUnit: Selector<ReduxState, string | undefined> =
-  createSelector(selectFirstHop, firstHop => firstHop?.feeData.networkFeeCryptoBaseUnit)
+  createSelector(selectFirstHop, selectFirstHopSellFeeAsset, (firstHop, feeAsset) => {
+    if (!firstHop) return
+    const base = bnOrZero(firstHop.feeData.networkFeeCryptoBaseUnit)
+    // Include requiresBalance protocol fees denominated in the same fee asset
+    const protocolFeeInFeeAsset = feeAsset
+      ? bnOrZero(
+          firstHop.feeData.protocolFees?.[feeAsset.assetId]?.requiresBalance
+            ? firstHop.feeData.protocolFees[feeAsset.assetId]?.amountCryptoBaseUnit
+            : undefined,
+        )
+      : bn(0)
+    const total = base.plus(protocolFeeInFeeAsset)
+    return firstHop.feeData.networkFeeCryptoBaseUnit !== undefined || total.gt(0)
+      ? total.toString()
+      : undefined
+  })
 
 export const selectSecondHopNetworkFeeCryptoBaseUnit: Selector<ReduxState, string | undefined> =
-  createSelector(selectSecondHop, secondHop => secondHop?.feeData.networkFeeCryptoBaseUnit)
+  createSelector(selectSecondHop, selectSecondHopSellFeeAsset, (secondHop, feeAsset) => {
+    if (!secondHop) return
+    const base = bnOrZero(secondHop.feeData.networkFeeCryptoBaseUnit)
+    // Include requiresBalance protocol fees denominated in the same fee asset
+    const protocolFeeInFeeAsset = feeAsset
+      ? bnOrZero(
+          secondHop.feeData.protocolFees?.[feeAsset.assetId]?.requiresBalance
+            ? secondHop.feeData.protocolFees[feeAsset.assetId]?.amountCryptoBaseUnit
+            : undefined,
+        )
+      : bn(0)
+    const total = base.plus(protocolFeeInFeeAsset)
+    return secondHop.feeData.networkFeeCryptoBaseUnit !== undefined || total.gt(0)
+      ? total.toString()
+      : undefined
+  })
 
 export const selectFirstHopNetworkFeeUserCurrency: Selector<ReduxState, string | undefined> =
   createSelector(
@@ -386,11 +417,22 @@ export const selectFirstHopNetworkFeeUserCurrency: Selector<ReduxState, string |
         return marketData[feeAsset?.assetId ?? '']?.price ?? '0'
       }
 
-      return getHopTotalNetworkFeeUserCurrency(
+      const getUserCurrencyRate = (assetId: AssetId) => marketData[assetId]?.price
+
+      const networkFee = getHopTotalNetworkFeeUserCurrency(
         tradeQuoteStep.feeData.networkFeeCryptoBaseUnit,
         feeAsset,
         getFeeAssetUserCurrencyRate,
-      )?.toString()
+      )
+
+      const protocolFee = getRequiresBalanceProtocolFeeUserCurrency(
+        tradeQuoteStep,
+        getUserCurrencyRate,
+      )
+
+      if (networkFee === undefined) return protocolFee.gt(0) ? protocolFee.toString() : undefined
+
+      return networkFee.plus(protocolFee).toString()
     },
   )
 
@@ -405,15 +447,27 @@ export const selectSecondHopNetworkFeeUserCurrency: Selector<ReduxState, string 
       if (feeAsset === undefined) {
         throw Error(`missing fee asset for assetId ${tradeQuoteStep.sellAsset.assetId}`)
       }
+
       const getFeeAssetUserCurrencyRate = () => {
         return marketData[feeAsset?.assetId ?? '']?.price ?? '0'
       }
 
-      return getHopTotalNetworkFeeUserCurrency(
+      const getUserCurrencyRate = (assetId: AssetId) => marketData[assetId]?.price
+
+      const networkFee = getHopTotalNetworkFeeUserCurrency(
         tradeQuoteStep.feeData.networkFeeCryptoBaseUnit,
         feeAsset,
         getFeeAssetUserCurrencyRate,
-      )?.toString()
+      )
+
+      const protocolFee = getRequiresBalanceProtocolFeeUserCurrency(
+        tradeQuoteStep,
+        getUserCurrencyRate,
+      )
+
+      if (networkFee === undefined) return protocolFee.gt(0) ? protocolFee.toString() : undefined
+
+      return networkFee.plus(protocolFee).toString()
     },
   )
 

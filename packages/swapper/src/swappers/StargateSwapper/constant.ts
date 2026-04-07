@@ -1,0 +1,105 @@
+import type { ChainId } from '@shapeshiftoss/caip'
+import {
+  arbitrumChainId,
+  avalancheChainId,
+  baseChainId,
+  blastChainId,
+  bscChainId,
+  ethChainId,
+  gnosisChainId,
+  lineaChainId,
+  mantleChainId,
+  optimismChainId,
+  polygonChainId,
+  scrollChainId,
+  sonicChainId,
+} from '@shapeshiftoss/caip'
+
+const metisChainId: ChainId = 'eip155:1088' as ChainId
+
+export const chainIdToStargateEndpointId = {
+  [ethChainId]: 30101,
+  [arbitrumChainId]: 30110,
+  [optimismChainId]: 30111,
+  [baseChainId]: 30184,
+  [polygonChainId]: 30109,
+  [bscChainId]: 30102,
+  [avalancheChainId]: 30106,
+  [scrollChainId]: 30214,
+  [lineaChainId]: 30183,
+  [mantleChainId]: 30181,
+  [gnosisChainId]: 30145,
+  [metisChainId]: 30151,
+  [sonicChainId]: 30332,
+  [blastChainId]: 30243,
+} as const satisfies Record<ChainId, number>
+
+export const STARGATE_SUPPORTED_CHAIN_IDS: ChainId[] = Object.keys(
+  chainIdToStargateEndpointId,
+) as ChainId[]
+
+export const stargateContractsByChainAndAsset: Record<string, Record<string, string>> = {
+  [ethChainId]: {
+    '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': '0xc026395860Db2d07ee33e05fE50ed7bD583189C7',
+    '0xdac17f958d2ee523a2206206994597c13d831ec7': '0x933597a323Eb81cAe705C5bC29985172fd5A3973',
+    '0x0000000000000000000000000000000000000000': '0x77b2043768d28E9C9aB44E1aBfC95944bcE57931',
+    '0x9e32b13ce7f2e80a01932b42553652e053d6ed8e': '0xcDafB1b2dB43f366E48e6F614b8DCCBFeeFEEcD3',
+    '0xd5f7838f5c461feff7fe49ea5ebaf7728bb0adfa': '0x268Ca24DAefF1FaC2ed883c598200CcbB79E931D',
+    '0x1abaea1f7c830bd89acc67ec4af516284b1bc33c': '0x783129E4d7bA0Af0C896c239E57C06DF379aAE8c',
+  },
+  [arbitrumChainId]: {
+    '0xaf88d065e77c8cc2239327c5edb3a432268e5831': '0xe8CDF27AcD73a434D661C84887215F7598e7d0d3',
+    '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9': '0xcE8CcA271Ebc0533920C83d39F417ED6A0abB7D0',
+    '0x0000000000000000000000000000000000000000': '0xA45B5130f36CDcA45667738e2a258AB09f4A5f7F',
+  },
+  [optimismChainId]: {
+    '0x0b2c639c533813f4aa9d7837caf62653d097ff85': '0xcE8CcA271Ebc0533920C83d39F417ED6A0abB7D0',
+    '0x94b008aa00579c1307b0ef2c499ad98a8ce58e58': '0x19cFCE47eD54a88614648DC3f19A5980097007dD',
+    '0x0000000000000000000000000000000000000000': '0xe8CDF27AcD73a434D661C84887215F7598e7d0d3',
+  },
+  [baseChainId]: {
+    '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913': '0x27a16dc786820B16E5c9028b75B99F6f604b5d26',
+    '0x0000000000000000000000000000000000000000': '0xdc181Bd607330aeeBEF6ea62e03e5e1Fb4B6F7C7',
+  },
+  [polygonChainId]: {
+    '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359': '0x9Aa02D4Fae7F58b8E8f34c66E756cC734DAc7fe4',
+    '0xc2132d05d31c914a87c6611c10748aeb04b58e8f': '0xd47b03ee6d86Cf251ee7860FB2ACf9f91B9fD4d7',
+  },
+  [bscChainId]: {
+    '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d': '0x962Bd449E630b0d928f308Ce63f1A21F02576057',
+    '0x55d398326f99059ff775485246999027b3197955': '0x138EB30f73BC423c6455C53df6D89CB01d9eBc63',
+  },
+  [avalancheChainId]: {
+    '0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e': '0x5634c4a5FEd09819E3c46D86A965Dd9447d86e47',
+    '0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7': '0x12dC9256Acc9895B076f6638D628382881e62CeE',
+  },
+  [scrollChainId]: {
+    '0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4': '0x3Fc69CC4A842838bCDC9499178740226062b14E4',
+    '0x0000000000000000000000000000000000000000': '0xC2b638Cb5042c1B3c5d5C969361fB50569840583',
+  },
+  [lineaChainId]: {
+    '0x0000000000000000000000000000000000000000': '0x81F6138153d473E8c5EcebD3DC8Cd4903506B075',
+  },
+  [mantleChainId]: {
+    '0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9': '0xAc290Ad4e0c891FDc295ca4F0a6214cf6dC6acDC',
+    '0x201eba5cc46d216ce6dc03f6a759e8e766e956ae': '0xB715B85682B731dB9D5063187C450095c91C57FC',
+    '0xdeaddeaddeaddeaddeaddeaddeaddeaddead1111': '0x4c1d3Fc3fC3c177c3b633427c2F769276c547463',
+    '0xcda86a272531e8640cd7f1a92c01839911b90bb0': '0xF7628d84a2BbD9bb9c8E686AC95BB5d55169F3F1',
+  },
+  [gnosisChainId]: {
+    '0x2a22f9c3b484c3629090feed35f17ff8f88f76f0': '0xB1EeAD6959cb5bB9B20417d6689922523B2B86C3',
+    '0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1': '0xe9aBA835f813ca05E50A6C0ce65D0D74390F7dE7',
+  },
+  [metisChainId]: {
+    '0xbb06dca3ae6887fabf931640f67cab3e3a16f4dc': '0x4dCBFC0249e8d5032F89D6461218a9D2eFff5125',
+    '0x420000000000000000000000000000000000000a': '0x36ed193dc7160D3858EC250e69D12B03Ca087D08',
+    '0xdeaddeaddeaddeaddeaddeaddeaddeaddead0000': '0xD9050e7043102a0391F81462a3916326F86331F0',
+  },
+  [sonicChainId]: {
+    '0x29219dd400f2bf60e5a23d13be72b486d4038894': '0xA272fFe20cFfe769CdFc4b63088DCD2C82a2D8F9',
+  },
+}
+
+export const STARGATE_NATIVE_ASSET_ADDRESS = '0x0000000000000000000000000000000000000000'
+
+export const DEFAULT_STARGATE_USER_ADDRESS = '0x0000000000000000000000000000000000000dead'

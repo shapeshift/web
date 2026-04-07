@@ -24,6 +24,10 @@ import { mayachainApi } from './swappers/MayachainSwapper/endpoints'
 import { mayachainSwapper } from './swappers/MayachainSwapper/MayachainSwapper'
 import { nearIntentsApi } from './swappers/NearIntentsSwapper/endpoints'
 import { nearIntentsSwapper } from './swappers/NearIntentsSwapper/NearIntentsSwapper'
+import { odosApi } from './swappers/OdosSwapper/endpoints'
+import { odosSwapper } from './swappers/OdosSwapper/OdosSwapper'
+import { stargateApi } from './swappers/StargateSwapper/endpoints'
+import { stargateSwapper } from './swappers/StargateSwapper/StargateSwapper'
 import { portalsApi } from './swappers/PortalsSwapper/endpoints'
 import { portalsSwapper } from './swappers/PortalsSwapper/PortalsSwapper'
 import { relaySwapper } from './swappers/RelaySwapper'
@@ -122,6 +126,14 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
     ...debridgeSwapper,
     ...debridgeApi,
   },
+  [SwapperName.Odos]: {
+    ...odosSwapper,
+    ...odosApi,
+  },
+  [SwapperName.Stargate]: {
+    ...stargateSwapper,
+    ...stargateApi,
+  },
   [SwapperName.Test]: undefined,
 }
 
@@ -141,6 +153,7 @@ const DEFAULT_AVNU_SLIPPAGE_DECIMAL_PERCENTAGE = '0.02'
 const DEFAULT_STONFI_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01'
 // deBridge API off-chain simulation overestimates output on some chains (e.g. SEI ~2.4%), so auto slippage (1%) is insufficient
 const DEFAULT_DEBRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0.03'
+const DEFAULT_STARGATE_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005'
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
   swapperName: SwapperName | undefined,
@@ -175,6 +188,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       return DEFAULT_BUTTERSWAP_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.NearIntents:
       return DEFAULT_NEAR_INTENTS_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.Odos:
+      return '0.003'
     case SwapperName.Cetus:
       return DEFAULT_CETUS_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.Sunio:
@@ -183,6 +198,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       return DEFAULT_AVNU_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.Stonfi:
       return DEFAULT_STONFI_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.Stargate:
+      return DEFAULT_STARGATE_SLIPPAGE_DECIMAL_PERCENTAGE
     default:
       return assertUnreachable(swapperName)
   }
@@ -196,6 +213,9 @@ export const isAutoSlippageSupportedBySwapper = (swapperName: SwapperName): bool
     case SwapperName.Across:
     case SwapperName.Debridge:
       return true
+    case SwapperName.Odos:
+    case SwapperName.Stargate:
+      return false
     default:
       return false
   }

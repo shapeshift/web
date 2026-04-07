@@ -230,9 +230,11 @@ export async function fetchStargateTrade<T extends 'quote' | 'rate'>({
       )
     }
 
-    const messagingFee: StargateMessagingFee = decodeQuoteSendResult(
-      quoteSendResult.data as Hex,
-    ) as unknown as StargateMessagingFee
+    const rawMessagingFee = decodeQuoteSendResult(quoteSendResult.data as Hex)
+    const messagingFee: StargateMessagingFee = {
+      nativeFee: (rawMessagingFee as { nativeFee: bigint; lzTokenFee: bigint }).nativeFee,
+      lzTokenFee: (rawMessagingFee as { nativeFee: bigint; lzTokenFee: bigint }).lzTokenFee,
+    }
 
     const buyAmountAfterFeesCryptoBaseUnit = detailDstAmountLD.toString()
     const buyAmountBeforeFeesCryptoBaseUnit = (detailDstAmountLD + detailFeeAmountLD).toString()

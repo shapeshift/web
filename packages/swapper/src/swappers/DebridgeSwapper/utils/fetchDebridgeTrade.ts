@@ -16,7 +16,7 @@ export type DebridgeFetchQuoteParams = {
   srcChainOrderAuthorityAddress?: string
   dstChainOrderAuthorityAddress?: string
   senderAddress?: string
-  prependOperatingExpenses: 'true'
+  prependOperatingExpenses: 'true' | 'false'
   affiliateFeePercent?: string
   affiliateFeeRecipient?: string
 }

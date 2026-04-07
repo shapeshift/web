@@ -42,6 +42,35 @@ export const getHopTotalNetworkFeeUserCurrency = (
 }
 
 /**
+ * Computes the user-currency value of protocol fees that require a balance (i.e. paid out-of-pocket
+ * like a network fee, not deducted from the trade output) for a single trade step.
+ */
+export const getRequiresBalanceProtocolFeeUserCurrency = (
+  step: TradeQuoteStep,
+  getUserCurrencyRate: (assetId: AssetId) => string | undefined,
+): BigNumber => {
+  if (!step.feeData.protocolFees) return bn(0)
+
+  return Object.entries(step.feeData.protocolFees).reduce<BigNumber>(
+    (acc, [assetId, protocolFee]) => {
+      if (!protocolFee?.requiresBalance) return acc
+      if (bnOrZero(protocolFee?.amountCryptoBaseUnit).isZero()) return acc
+
+      const rate = getUserCurrencyRate(assetId) ?? '0'
+      const feeUserCurrency = BigAmount.fromBaseUnit({
+        value: protocolFee.amountCryptoBaseUnit,
+        precision: protocolFee.asset.precision,
+      })
+        .times(rate)
+        .toBN()
+
+      return acc.plus(feeUserCurrency)
+    },
+    bn(0),
+  )
+}
+
+/**
  * Computes the total network fee across all hops
  * @param quote The trade quote
  * @param getFeeAsset
@@ -53,8 +82,13 @@ export const getTotalNetworkFeeUserCurrencyPrecision = (
   getFeeAsset: (assetId: AssetId) => Asset,
   getFeeAssetRate: (feeAssetId: AssetId) => string | undefined,
 ): BigNumber | undefined => {
-  // network fee is unknown, which is different than it being akschual 0
-  if (quote.steps.every(step => !step.feeData.networkFeeCryptoBaseUnit)) return
+  const hasAnyNetworkFee = quote.steps.some(step => step.feeData.networkFeeCryptoBaseUnit)
+  const hasAnyRequiresBalanceProtocolFee = quote.steps.some(step =>
+    Object.values(step.feeData.protocolFees ?? {}).some(fee => fee?.requiresBalance),
+  )
+
+  // All fees are unknown - bail early. Note this is different than fees being 0.
+  if (!hasAnyNetworkFee && !hasAnyRequiresBalanceProtocolFee) return
 
   return quote.steps.reduce((acc, step) => {
     const feeAsset = getFeeAsset(step.sellAsset.assetId)
@@ -63,7 +97,11 @@ export const getTotalNetworkFeeUserCurrencyPrecision = (
       feeAsset,
       getFeeAssetRate,
     )
-    return acc.plus(networkFeeFiatPrecision ?? '0')
+    const protocolFeeFiatPrecision = getRequiresBalanceProtocolFeeUserCurrency(
+      step,
+      getFeeAssetRate,
+    )
+    return acc.plus(networkFeeFiatPrecision ?? '0').plus(protocolFeeFiatPrecision)
   }, bn(0))
 }
 

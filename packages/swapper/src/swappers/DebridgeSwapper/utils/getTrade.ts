@@ -156,7 +156,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       srcChainOrderAuthorityAddress: senderAddress,
       dstChainOrderAuthorityAddress: recipientAddress,
       senderAddress,
-      prependOperatingExpenses: 'true',
+      prependOperatingExpenses: 'false',
       affiliateFeePercent,
       affiliateFeeRecipient,
     },
@@ -178,9 +178,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     buyAsset,
   })
 
-  const nativePreFee = bnOrZero(quote.fixFee)
-    .plus(bnOrZero(quote.prependedOperatingExpenseCost))
-    .toFixed()
+  const fixFee = bnOrZero(quote.fixFee).toFixed()
 
   const buyAmountBeforeFeesCryptoBaseUnit = buyAmountAfterFeesCryptoBaseUnit
 
@@ -222,10 +220,10 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     feeData: {
       networkFeeCryptoBaseUnit,
       protocolFees:
-        protocolFeeAssetIdForFees && bnOrZero(nativePreFee).gt(0)
+        protocolFeeAssetIdForFees && bnOrZero(fixFee).gt(0)
           ? {
               [protocolFeeAssetIdForFees]: {
-                amountCryptoBaseUnit: nativePreFee,
+                amountCryptoBaseUnit: fixFee,
                 asset: getBaseAsset(sellAsset.chainId),
                 requiresBalance: true,
               },

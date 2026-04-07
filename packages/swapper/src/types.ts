@@ -47,6 +47,7 @@ import type { AcrossTransactionMetadata } from './swappers/AcrossSwapper/utils/t
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { DebridgeTransactionMetadata } from './swappers/DebridgeSwapper/utils/types'
 import type { RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
+import type { StargateTransactionMetadata } from './swappers/StargateSwapper/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
@@ -85,6 +86,7 @@ export type SwapperConfig = {
   VITE_ACROSS_API_URL: string
   VITE_ACROSS_INTEGRATOR_ID: string
   VITE_DEBRIDGE_API_URL: string
+  VITE_ODOS_API_URL: string
 }
 
 export enum SwapperName {
@@ -100,12 +102,14 @@ export enum SwapperName {
   ButterSwap = 'ButterSwap',
   Bebop = 'Bebop',
   NearIntents = 'NEAR Intents',
+  Odos = 'Odos',
   Cetus = 'Cetus',
   Sunio = 'Sun.io',
   Avnu = 'AVNU',
   Stonfi = 'STON.fi',
   Across = 'Across',
   Debridge = 'deBridge',
+  Stargate = 'Stargate',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -510,6 +514,13 @@ export type TradeQuoteStep = {
   }
   acrossTransactionMetadata?: AcrossTransactionMetadata
   debridgeTransactionMetadata?: DebridgeTransactionMetadata
+  stargateTransactionMetadata?: StargateTransactionMetadata
+  odosTransactionMetadata?: {
+    to: string
+    data: string
+    value: string
+    gas: string
+  }
   affiliateFee?: AffiliateFee
 }
 

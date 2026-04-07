@@ -96,7 +96,7 @@ export const stargateApi: SwapperApi = {
     }
 
     const maybeStatusResponse = await stargateService.get<LayerZeroScanResponse>(
-      `https://scan.layerzero-api.com/v1/messages/tx/${txHash}`,
+      `https://api-mainnet.layerzero-scan.com/tx/${txHash}`,
     )
 
     if (maybeStatusResponse.isErr()) {

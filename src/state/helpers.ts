@@ -122,8 +122,7 @@ export const getEnabledSwappers = (
     [SwapperName.Debridge]:
       DebridgeSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Debridge)),
     [SwapperName.Stargate]:
-      StargateSwap &&
-      (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Stargate)),
+      StargateSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Stargate)),
     [SwapperName.Test]: false,
   }
 }

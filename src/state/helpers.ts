@@ -30,7 +30,6 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
     case SwapperName.Test:
     case SwapperName.Avnu:
     case SwapperName.Cetus:
-    case SwapperName.Odos:
       // Technically supported for Arbitrum Bridge, but we disable it for the sake of simplicity for now
       return false
     default:
@@ -57,7 +56,6 @@ export const getEnabledSwappers = (
     StonfiSwap,
     AcrossSwap,
     DebridgeSwap,
-    OdosSwap,
     StargateSwap,
   }: FeatureFlags,
   isCrossAccountTrade: boolean,
@@ -116,8 +114,6 @@ export const getEnabledSwappers = (
       AcrossSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Across)),
     [SwapperName.Debridge]:
       DebridgeSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Debridge)),
-    [SwapperName.Odos]:
-      OdosSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Odos)),
     [SwapperName.Stargate]:
       StargateSwap &&
       (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Stargate)),

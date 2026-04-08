@@ -86,7 +86,6 @@ export type SwapperConfig = {
   VITE_ACROSS_API_URL: string
   VITE_ACROSS_INTEGRATOR_ID: string
   VITE_DEBRIDGE_API_URL: string
-  VITE_ODOS_API_URL: string
 }
 
 export enum SwapperName {
@@ -102,7 +101,6 @@ export enum SwapperName {
   ButterSwap = 'ButterSwap',
   Bebop = 'Bebop',
   NearIntents = 'NEAR Intents',
-  Odos = 'Odos',
   Cetus = 'Cetus',
   Sunio = 'Sun.io',
   Avnu = 'AVNU',
@@ -515,12 +513,6 @@ export type TradeQuoteStep = {
   acrossTransactionMetadata?: AcrossTransactionMetadata
   debridgeTransactionMetadata?: DebridgeTransactionMetadata
   stargateTransactionMetadata?: StargateTransactionMetadata
-  odosTransactionMetadata?: {
-    to: string
-    data: string
-    value: string
-    gas: string
-  }
   affiliateFee?: AffiliateFee
 }
 

@@ -15,7 +15,6 @@ import DebridgeIcon from './debridge-icon.svg'
 import JupiterIcon from './jupiter-icon.svg'
 import MayachainIcon from './maya_logo.png'
 import NearIntentsIcon from './near-intents-icon.png'
-import OdosIcon from './odos-icon.png'
 import PortalsIcon from './portals-icon.png'
 import RelayIcon from './relay-icon.svg'
 import StargateIcon from './stargate-icon.png'
@@ -71,8 +70,6 @@ export const SwapperIcon = ({
         return AcrossIcon
       case SwapperName.Debridge:
         return DebridgeIcon
-      case SwapperName.Odos:
-        return OdosIcon
       case SwapperName.Stargate:
         return StargateIcon
       case SwapperName.Test:

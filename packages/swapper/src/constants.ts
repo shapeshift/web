@@ -24,8 +24,6 @@ import { mayachainApi } from './swappers/MayachainSwapper/endpoints'
 import { mayachainSwapper } from './swappers/MayachainSwapper/MayachainSwapper'
 import { nearIntentsApi } from './swappers/NearIntentsSwapper/endpoints'
 import { nearIntentsSwapper } from './swappers/NearIntentsSwapper/NearIntentsSwapper'
-import { odosApi } from './swappers/OdosSwapper/endpoints'
-import { odosSwapper } from './swappers/OdosSwapper/OdosSwapper'
 import { stargateApi } from './swappers/StargateSwapper/endpoints'
 import { stargateSwapper } from './swappers/StargateSwapper/StargateSwapper'
 import { portalsApi } from './swappers/PortalsSwapper/endpoints'
@@ -126,10 +124,6 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
     ...debridgeSwapper,
     ...debridgeApi,
   },
-  [SwapperName.Odos]: {
-    ...odosSwapper,
-    ...odosApi,
-  },
   [SwapperName.Stargate]: {
     ...stargateSwapper,
     ...stargateApi,
@@ -188,8 +182,6 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       return DEFAULT_BUTTERSWAP_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.NearIntents:
       return DEFAULT_NEAR_INTENTS_SLIPPAGE_DECIMAL_PERCENTAGE
-    case SwapperName.Odos:
-      return '0.003'
     case SwapperName.Cetus:
       return DEFAULT_CETUS_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.Sunio:
@@ -213,7 +205,6 @@ export const isAutoSlippageSupportedBySwapper = (swapperName: SwapperName): bool
     case SwapperName.Across:
     case SwapperName.Debridge:
       return true
-    case SwapperName.Odos:
     case SwapperName.Stargate:
       return false
     default:

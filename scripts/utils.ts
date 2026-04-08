@@ -4,7 +4,10 @@ import chalk from 'chalk'
 import semver from 'semver'
 import { simpleGit as git } from 'simple-git'
 
-export const exit = (reason?: string) => Boolean(reason && console.log(reason)) || process.exit(0)
+export const exit = (reason?: string): never => {
+  if (reason) console.log(reason)
+  process.exit(0)
+}
 
 export const getLatestSemverTag = async (): Promise<string> => {
   const tags = await getSemverTags()

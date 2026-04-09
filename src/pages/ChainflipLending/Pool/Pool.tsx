@@ -4,11 +4,13 @@ import {
   Button,
   Card,
   CardBody,
+  Collapse,
   Divider,
   Flex,
   Heading,
   HStack,
   Icon,
+  IconButton,
   SimpleGrid,
   Skeleton,
   Stack,
@@ -18,6 +20,7 @@ import {
   Tag,
   TagLabel,
   Tooltip,
+  useDisclosure,
   VStack,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
@@ -25,7 +28,7 @@ import { ethAssetId } from '@shapeshiftoss/caip'
 import { BigAmount } from '@shapeshiftoss/utils'
 import type { Property } from 'csstype'
 import React, { useCallback, useMemo, useState } from 'react'
-import { FaInfoCircle } from 'react-icons/fa'
+import { FaChartLine, FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useLocation, useNavigate } from 'react-router-dom'
 
@@ -54,6 +57,7 @@ import { useChainflipLtvThresholds } from '@/pages/ChainflipLending/hooks/useCha
 import { useChainflipSafeModeStatuses } from '@/pages/ChainflipLending/hooks/useChainflipSafeModeStatuses'
 import { useChainflipSupplyPositions } from '@/pages/ChainflipLending/hooks/useChainflipSupplyPositions'
 import { BorrowRateChart } from '@/pages/ChainflipLending/Pool/components/BorrowRateChart'
+import { SupplyRateChart } from '@/pages/ChainflipLending/Pool/components/SupplyRateChart'
 import { LtvGauge } from '@/pages/ChainflipLending/Pool/components/Borrow/LtvGauge'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
@@ -154,6 +158,8 @@ export const Pool = () => {
   const { accountId, setAccountId } = useChainflipLendingAccount()
   const [actionTabIndex, setActionTabIndex] = useState(PoolTabIndex.Supply)
   const chainflipLendingModal = useModal('chainflipLending')
+  const supplyChart = useDisclosure({ defaultIsOpen: true })
+  const borrowChart = useDisclosure({ defaultIsOpen: true })
 
   const handleConnectWallet = useCallback(
     () => walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
@@ -465,6 +471,26 @@ export const Pool = () => {
                   />
                 </StatBox>
               </SimpleGrid>
+              {cfAsset && (
+                <>
+                  <Divider my={4} />
+                  <Flex justifyContent='space-between' alignItems='center' mb={supplyChart.isOpen ? 4 : 0}>
+                    <Heading as='h5' fontSize='sm' textTransform='uppercase' color='text.subtle'>
+                      {translate('chainflipLending.pool.supplyRateHistory')}
+                    </Heading>
+                    <IconButton
+                      aria-label={translate('chainflipLending.pool.supplyRateHistory')}
+                      icon={<Icon as={FaChartLine} />}
+                      size='sm'
+                      variant={supplyChart.isOpen ? 'solid' : 'ghost'}
+                      onClick={supplyChart.onToggle}
+                    />
+                  </Flex>
+                  <Collapse in={supplyChart.isOpen} unmountOnExit>
+                    <SupplyRateChart asset={cfAsset.asset} />
+                  </Collapse>
+                </>
+              )}
             </CardBody>
           </Card>
 
@@ -548,10 +574,28 @@ export const Pool = () => {
                   </RawText>
                 </StatBox>
               </SimpleGrid>
+              {cfAsset && (
+                <>
+                  <Divider my={4} />
+                  <Flex justifyContent='space-between' alignItems='center' mb={borrowChart.isOpen ? 4 : 0}>
+                    <Heading as='h5' fontSize='sm' textTransform='uppercase' color='text.subtle'>
+                      {translate('chainflipLending.pool.borrowRateHistory')}
+                    </Heading>
+                    <IconButton
+                      aria-label={translate('chainflipLending.pool.borrowRateHistory')}
+                      icon={<Icon as={FaChartLine} />}
+                      size='sm'
+                      variant={borrowChart.isOpen ? 'solid' : 'ghost'}
+                      onClick={borrowChart.onToggle}
+                    />
+                  </Flex>
+                  <Collapse in={borrowChart.isOpen} unmountOnExit>
+                    <BorrowRateChart asset={cfAsset.asset} />
+                  </Collapse>
+                </>
+              )}
             </CardBody>
           </Card>
-
-          {cfAsset && <BorrowRateChart asset={cfAsset.asset} />}
         </Stack>
 
         <Stack

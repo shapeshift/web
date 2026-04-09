@@ -2566,7 +2566,9 @@
       "startLiquidation": "Start Liquidation",
       "currentRate": "Current Rate",
       "ofCurrentPool": "Of current pool",
-      "forImmediateSupply": "For immediate supply"
+      "forImmediateSupply": "For immediate supply",
+      "supplyRateHistory": "Supply APY History",
+      "borrowRateHistory": "Borrow Rate History"
     },
     "supplyApy": "Supply APY",
     "supplyApyTooltip": "Annual percentage yield earned by supplying assets to this pool.",

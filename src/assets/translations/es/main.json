@@ -1987,9 +1987,25 @@
         "yourDecentralizedGateway": "Tu portal de descentralización. Intercambia y gana Bitcoin, Ethereum, Solana y más desde una única billetera segura.",
         "crossChainFreedom": "Libertad entre cadenas. Acceda a las mejores tarifas en múltiples exchanges descentralizados, sin necesidad de intermediarios.",
         "easyToUse": {
+          "title": "Fácil de Usar",
+          "subTitle": "Todo lo que necesitas en un solo lugar.",
+          "trackBalance": "Monitorea tu saldo",
+          "sendReceive": "Envía y recibe cripto",
           "buyCrypto": "Comprar cripto",
           "tradeAssets": "Intercambiar activos",
-          "cta": "Comprar Cripto"
+          "earnYield": "Obtenga rendimiento",
+          "cta": "Comprar Cripto",
+          "secondaryCta": "Ir al Panel de Control"
+        },
+        "multiChain": {
+          "title": "Soporte Multicadena",
+          "subTitle": "Intercambia a través de múltiples blockchains",
+          "body": "Accede a Bitcoin, Ethereum, Solana y muchas otras cadenas desde una sola billetera. Opere y gestione fácilmente sus activos en diferentes redes."
+        },
+        "selfCustody": {
+          "title": "Autocustodia",
+          "subTitle": "Dueño de tus claves, dueño de tu cripto.",
+          "body": "Tu billetera, tus claves, tu cripto. ShapeShift nunca tiene acceso a tus fondos. Mantienes control total de tus activos en todo momento."
         }
       }
     },
@@ -3460,6 +3476,8 @@
   "yieldXYZ": {
     "pageTitle": "Rendimientos",
     "pageSubtitle": "Descubra y gestione oportunidades de rendimiento en múltiples cadenas",
+    "actions": {
+    },
     "yield": "Rendimiento",
     "apy": "APY",
     "apr": "APR",

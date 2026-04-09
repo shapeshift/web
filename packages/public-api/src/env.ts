@@ -42,7 +42,6 @@ const envSchema = z.object({
   COWSWAP_BASE_URL: url,
   PORTALS_BASE_URL: url,
   ZRX_BASE_URL: url,
-  JUPITER_API_URL: url,
   RELAY_API_URL: url,
   ACROSS_API_URL: url,
   DEBRIDGE_API_URL: url,

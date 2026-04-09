@@ -1,5 +1,4 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
-import { solAssetId } from '@shapeshiftoss/caip'
 import type { GetTradeRateInput, SwapperName } from '@shapeshiftoss/swapper'
 import { getTradeQuotes, getTradeRates, TradeQuoteError } from '@shapeshiftoss/swapper'
 import { mapValues } from 'lodash'
@@ -41,7 +40,6 @@ export const swapperApi = createApi({
           quoteOrRate,
         } = tradeQuoteInput
 
-        const isSolBuyAssetId = buyAsset.assetId === solAssetId
         const isCrossAccountTrade =
           Boolean(sendAddress && receiveAddress) &&
           sendAddress?.toLowerCase() !== receiveAddress?.toLowerCase()
@@ -50,7 +48,6 @@ export const swapperApi = createApi({
         const isSwapperEnabled = getEnabledSwappers(
           featureFlags,
           isCrossAccountTrade,
-          isSolBuyAssetId,
           walletName,
           sellAsset.assetId,
         )[swapperName]
@@ -133,8 +130,6 @@ export const swapperApi = createApi({
           sellAmountIncludingProtocolFeesCryptoBaseUnit,
         } = batchRequest
 
-        const isSolBuyAssetId = buyAsset.assetId === solAssetId
-
         // No send address so always false
         const isCrossAccountTrade = false
 
@@ -143,7 +138,6 @@ export const swapperApi = createApi({
         const enabledSwappers = getEnabledSwappers(
           featureFlags,
           isCrossAccountTrade,
-          isSolBuyAssetId,
           walletName,
           sellAsset.assetId,
         )

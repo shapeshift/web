@@ -17,19 +17,17 @@ import { exit, getLatestSemverTag } from './utils'
 // ---------------------------------------------------------------------------
 
 export type ReleaseState =
-  | 'idle'
-  | 'prerelease_pr_open'
-  | 'release_pr_open'
-  | 'merged_untagged'
-  | 'tagged_private_stale'
-  | 'done'
+  | 'idle' // no work in progress — merge develop into release if new commits exist
+  | 'release_ready' // release branch has new commits, no release PR — create release PR
+  | 'release_open' // release->main PR open — merge + tag + sync private
+  | 'needs_tag' // main moved past tag — tag + sync private
+  | 'sync_pending' // tagged, private branch still needs to be synced
 
 export type HotfixState =
-  | 'idle'
-  | 'hotfix_pr_open'
-  | 'merged_untagged'
-  | 'tagged_private_stale'
-  | 'done'
+  | 'idle' // no hotfix in progress — cherry-pick + create hotfix PR
+  | 'hotfix_open' // hotfix PR open — merge it
+  | 'needs_tag' // main moved past tag — tag + sync private
+  | 'sync_pending' // tagged, private branch still needs to be synced
 
 type GitHubPr = {
   number: number
@@ -66,54 +64,49 @@ export const extractDescription = (prBody: string): string | undefined => {
 }
 
 export const deriveReleaseState = ({
-  releaseSha,
   mainSha,
-  developSha,
-  privateContentMatchesMain,
   latestTagSha,
-  openPrereleasePr,
+  releaseIsAheadOfMain,
+  privateContentMatchesMain,
   openReleasePr,
 }: {
-  releaseSha: string
   mainSha: string
-  developSha: string
-  privateContentMatchesMain: boolean
   latestTagSha: string
-  openPrereleasePr: GitHubPr | undefined
+  releaseIsAheadOfMain: boolean
+  privateContentMatchesMain: boolean
   openReleasePr: GitHubPr | undefined
 }): ReleaseState => {
-  if (openPrereleasePr) return 'prerelease_pr_open'
-
-  if (openReleasePr) return 'release_pr_open'
-
-  if (mainSha !== latestTagSha) return 'merged_untagged'
-
-  if (!privateContentMatchesMain) return 'tagged_private_stale'
-
-  if (releaseSha === mainSha && developSha === mainSha) return 'done'
-
+  // Open PRs take highest priority — resume in-flight work first.
+  if (openReleasePr) return 'release_open'
+  // Main moved past the latest tag — must tag before anything else.
+  if (mainSha !== latestTagSha) return 'needs_tag'
+  // Tagged but private branch is still behind main.
+  if (!privateContentMatchesMain) return 'sync_pending'
+  // Release branch has new commits but no release PR was created yet.
+  if (releaseIsAheadOfMain) return 'release_ready'
   return 'idle'
 }
 
 export const deriveHotfixState = ({
   mainSha,
-  privateContentMatchesMain,
   latestTagSha,
+  privateContentMatchesMain,
   openHotfixPr,
 }: {
   mainSha: string
-  privateContentMatchesMain: boolean
   latestTagSha: string
+  privateContentMatchesMain: boolean
   openHotfixPr: GitHubPr | undefined
 }): HotfixState => {
-  if (openHotfixPr) return 'hotfix_pr_open'
-  if (mainSha !== latestTagSha) return 'merged_untagged'
-  if (!privateContentMatchesMain) return 'tagged_private_stale'
+  if (openHotfixPr) return 'hotfix_open'
+  if (mainSha !== latestTagSha) return 'needs_tag'
+  // Private branch still behind main after tag.
+  if (!privateContentMatchesMain) return 'sync_pending'
   return 'idle'
 }
 
 // ---------------------------------------------------------------------------
-// AI release notes (kept from v1)
+// AI release notes
 // ---------------------------------------------------------------------------
 
 const CLAUDE_TIMEOUT_MS = 120_000
@@ -167,7 +160,7 @@ For each commit below, check if it relates to a flagged-off-in-prod feature by m
 8. Group by feature domain with brief description only - no testing notes needed since these are not visible in production
 
 ### General rules
-9. Merge/backmerge commits (e.g. "Merge branch 'main' into develop") should be silently dropped
+9. Merge commits (e.g. "Merge branch 'main' into develop", "chore: merge develop into release") should be silently dropped
 10. Keep testing notes brief and actionable - what a QA person should click on, not implementation details
 11. Use present tense for summaries ("Enables TON chain" not "Enabled TON chain")
 12. Do NOT use emdashes. Use regular hyphens.
@@ -279,20 +272,12 @@ const generateReleaseSummary = async (
 }
 
 // ---------------------------------------------------------------------------
-// Git/GitHub helpers (side effects)
+// Git/GitHub helpers
 // ---------------------------------------------------------------------------
 
 const fetchOrigin = async () => {
   console.log(chalk.green('Fetching...'))
   await git().fetch(['origin', '--tags', '--force'])
-}
-
-const assertIsCleanRepo = async () => {
-  const gitStatus = await git().status()
-  if (!gitStatus.isClean()) {
-    console.log(chalk.red('Your repository is not clean. Please commit or stash your changes.'))
-    exit()
-  }
 }
 
 const assertGhInstalled = async () => {
@@ -327,12 +312,6 @@ const getTagSha = async (tag: string): Promise<string> => {
   }
 }
 
-const getCommitMessages = async (range: string): Promise<string[]> => {
-  const result = await pify(exec)(`git log --first-parent --pretty=format:"%s" ${range}`)
-  const stdout = typeof result === 'string' ? result : (result as { stdout: string }).stdout
-  return stdout.trim().split('\n').filter(Boolean)
-}
-
 const fetchPrBodies = async (prNumbers: number[]): Promise<Map<number, string>> => {
   const results = new Map<number, string>()
   const settled = await Promise.allSettled(
@@ -351,18 +330,60 @@ const fetchPrBodies = async (prNumbers: number[]): Promise<Map<number, string>> 
   return results
 }
 
+// Finds an open private sync PR — checks the pre-resolved branch first, then falls back to main.
+const findOpenPrivateSyncPr = async (version: string): Promise<GitHubPr | undefined> => {
+  const resolveBranch = `chore/sync-private-${version}-resolve`
+  return (await findOpenPr(resolveBranch, 'private')) ?? (await findOpenPr('main', 'private'))
+}
+
+// Creates a private sync PR with a single pre-resolved commit (main's tree, private's parent).
+// Uses git commit-tree to produce one clean commit without touching the working tree or
+// switching branches. private ends up content-identical to main after the PR merges.
+const createResolvedPrivateSyncPr = async ({
+  version,
+  title,
+  body,
+}: {
+  version: string
+  title: string
+  body: string
+}): Promise<string | null> => {
+  const resolveBranch = `chore/sync-private-${version}-resolve`
+  console.log(chalk.green(`Creating pre-resolved private sync branch ${resolveBranch}...`))
+
+  const treeResult = await pify(exec)('git rev-parse "origin/main^{tree}"')
+  const mainTree = treeResult.trim()
+
+  const commitResult = await pify(exec)(
+    `git commit-tree ${mainTree} -p origin/private -m "chore: sync private to ${version}"`,
+  )
+  const commitSha = commitResult.trim()
+
+  await pify(exec)(`git branch -f ${resolveBranch} ${commitSha}`)
+  await git().push(['-f', 'origin', resolveBranch])
+
+  if (!(await inquireConfirm('Create private sync PR?'))) return exit('Sync cancelled.')
+  return createPr({ base: 'private', head: resolveBranch, title, body })
+}
+
+// Returns develop commits that haven't yet been shipped to main.
+//
+// `git log --cherry-pick --right-only --no-merges main...develop` lists commits on develop
+// whose patch IDs are not present on main. Because release PRs land as merge commits, develop
+// SHAs are reachable from main directly after a release, so this naturally returns empty.
+// Hotfixes are also handled correctly: cherry-picked commits land on main with new SHAs but
+// matching patch IDs, so the original develop commits are skipped from the unreleased set.
 const getUnreleasedCommits = async (): Promise<UnreleasedCommit[]> => {
   const result = await pify(exec)(
-    'git log --first-parent --pretty=format:"%H %s" origin/main..origin/develop',
-  )
-  const stdout = typeof result === 'string' ? result : (result as { stdout: string }).stdout
+    `git log --cherry-pick --right-only --no-merges --pretty=format:"%H %s" origin/main...origin/develop`,
+  ).catch(() => '')
+  if (!result.trim()) return []
 
-  if (!stdout.trim()) return []
-
-  return stdout
+  return result
     .trim()
     .split('\n')
-    .map(line => {
+    .filter(Boolean)
+    .map((line: string) => {
       const spaceIdx = line.indexOf(' ')
       if (spaceIdx === -1) return { hash: line, message: '' }
       return { hash: line.slice(0, spaceIdx), message: line.slice(spaceIdx + 1) }
@@ -382,8 +403,7 @@ const findOpenPr = async (head: string, base: string): Promise<GitHubPr | undefi
   const result = await pify(exec)(
     `gh pr list --repo shapeshift/web --head ${head} --base ${base} --state open --json number,title --jq '.[0]'`,
   )
-  const stdout = typeof result === 'string' ? result : (result as { stdout: string }).stdout
-  const trimmed = stdout.trim()
+  const trimmed = result.trim()
   if (!trimmed) return undefined
   try {
     return JSON.parse(trimmed) as GitHubPr
@@ -422,8 +442,7 @@ const createPr = async ({
       '--body-file',
       bodyPath,
     ])
-    const stdout = typeof result === 'string' ? result : (result as { stdout: string }).stdout
-    return stdout.trim()
+    return result.trim()
   } catch (err) {
     if (String(err).includes('No commits between')) return null
     throw err
@@ -480,253 +499,298 @@ const inquireSelectCommits = async (commits: UnreleasedCommit[]): Promise<Unrele
 }
 
 // ---------------------------------------------------------------------------
-// Regular release flow (idempotent state machine)
+// Shared release step handlers
+// ---------------------------------------------------------------------------
+
+// sync_pending: sync the private branch with main after a release.
+// Release branch is left alone in both flows. For regular releases, release already matches
+// main's tree (the release PR brought it there). For hotfixes, release lags behind main, but
+// the hotfix commits originated on develop, so the next regular release's develop->release
+// merge brings them onto release naturally and patch-id matching reconciles them with main.
+const handleSyncPending = async (version: string): Promise<void> => {
+  const privateContentMatchesMain = await git()
+    .diff(['origin/main', 'origin/private'])
+    .then(diff => !diff)
+
+  // Private sync: bring private branch to match main.
+  const existingPrivatePr = await findOpenPrivateSyncPr(version)
+  if (privateContentMatchesMain) {
+    console.log(chalk.green('Private already in sync with main.'))
+  } else if (existingPrivatePr) {
+    console.log(
+      chalk.yellow(
+        `Private sync PR already open: #${existingPrivatePr.number}. Enabling auto-merge...`,
+      ),
+    )
+    await pify(exec)(`gh pr merge --auto --squash ${existingPrivatePr.number}`)
+    console.log(chalk.green('Auto-merge enabled. PR will merge once status checks pass.'))
+  } else {
+    console.log(chalk.green('Creating PR to sync private to main...'))
+    const privatePrUrl = await createResolvedPrivateSyncPr({
+      version,
+      title: `chore: sync private to ${version}`,
+      body: `Sync private branch to main after release ${version}.`,
+    })
+    if (privatePrUrl) {
+      console.log(chalk.green(`Private sync PR created: ${privatePrUrl}. Enabling auto-merge...`))
+      await pify(exec)(`gh pr merge --auto --squash ${privatePrUrl}`)
+      console.log(chalk.green('Auto-merge enabled. PR will merge once status checks pass.'))
+    }
+  }
+}
+
+// needs_tag: tag main as nextVersion. With merge-commit releases, main contains the original
+// develop SHAs directly, so no separate develop-side tag is needed to anchor commit detection.
+const handleNeedsTag = async (nextVersion: string): Promise<void> => {
+  console.log(chalk.green(`Tagging ${nextVersion}...`))
+  await git().fetch(['origin'])
+  const tagSha = (await git().revparse(['origin/main'])).trim()
+  await git().tag(['-a', nextVersion, tagSha, '-m', nextVersion])
+  await git().push(['origin', nextVersion])
+  console.log(chalk.green(`Tagged ${nextVersion}.`))
+  await git().fetch(['origin', '--tags', '--force'])
+  await handleSyncPending(nextVersion)
+}
+
+// ---------------------------------------------------------------------------
+// Regular release handlers
+// ---------------------------------------------------------------------------
+
+// idle: if develop has new commits not yet shipped, merge develop into release and create
+// the release PR. Release notes are derived from `main..release` after the merge.
+const handleReleaseIdle = async (nextVersion: string): Promise<void> => {
+  const commits = await getUnreleasedCommits()
+  if (commits.length === 0) {
+    console.log(chalk.green('No new commits on develop. Nothing to do.'))
+    return
+  }
+
+  const commitList = commits.map(c => `- ${c.message}`).join('\n')
+  console.log(chalk.blue(`\nProposed commits:\n${commitList}\n`))
+  if (!(await inquireConfirm(`Merge develop into release for ${nextVersion}?`)))
+    return exit('Release cancelled.')
+
+  // Merge develop into release in a temporary worktree so the user's branch is unchanged.
+  const worktreeDir = path.join(os.tmpdir(), `release-merge-${Date.now()}`)
+  console.log(chalk.green('Merging develop into release...'))
+  try {
+    await pify(exec)(`git worktree add ${worktreeDir} origin/release`)
+    const wt = git().cwd(worktreeDir)
+    await wt.raw([
+      'merge',
+      '--no-ff',
+      'origin/develop',
+      '-m',
+      `chore: merge develop into release for ${nextVersion}`,
+    ])
+    await wt.push(['origin', 'HEAD:refs/heads/release'])
+  } catch (err) {
+    await pify(exec)(`git worktree remove --force ${worktreeDir}`).catch(() => {})
+    return exit(
+      chalk.red(
+        `Merge failed: ${
+          err instanceof Error ? err.message : String(err)
+        }\nResolve manually and re-run.`,
+      ),
+    )
+  }
+  await pify(exec)(`git worktree remove ${worktreeDir}`).catch(() => {})
+
+  console.log(chalk.green('Release branch updated.'))
+  await git().fetch(['origin'])
+  await handleReleaseReady(nextVersion)
+}
+
+// release_ready: release branch has new merged commits — create the release PR (release -> main).
+const handleReleaseReady = async (nextVersion: string): Promise<void> => {
+  // Release notes = commits on release not yet on main, filtered by patch-id so any commits
+  // already shipped via a hotfix (different SHAs but same patch on main) are excluded. With
+  // merge-commit releases, develop SHAs are reachable from main directly after merge, so this
+  // naturally bounds to the current release's window without any tag or marker bookkeeping.
+  const result = await pify(exec)(
+    `git log --cherry-pick --right-only --no-merges --pretty=format:"%s" origin/main...origin/release`,
+  )
+  const messages = result.trim().split('\n').filter(Boolean)
+  if (messages.length === 0) return exit(chalk.red('No commits to release.'))
+
+  console.log(chalk.green(`${messages.length} commits ready on release branch.`))
+  console.log(chalk.green('Generating AI release summary...'))
+  const prNumbers = extractPrNumbers(messages)
+  console.log(chalk.green(`Found ${prNumbers.length} PR references, fetching context...`))
+  const prBodies = prNumbers.length > 0 ? await fetchPrBodies(prNumbers) : new Map<number, string>()
+  console.log(chalk.green(`Fetched ${prBodies.size}/${prNumbers.length} PR descriptions.`))
+
+  const summary = await generateReleaseSummary(nextVersion, messages, prBodies)
+  const releaseBody = summary ?? messages.join('\n')
+  if (summary) console.log(chalk.green('AI summary generated successfully.\n'))
+  console.log(chalk.blue(['', releaseBody, ''].join('\n')))
+
+  if (!(await inquireConfirm('Create release PR with this body?')))
+    return exit('Release cancelled.')
+
+  console.log(chalk.green('Creating release PR (release -> main)...'))
+  const prUrl = await createPr({
+    base: 'main',
+    head: 'release',
+    title: `chore: release ${nextVersion}`,
+    body: releaseBody,
+  })
+  if (!prUrl) return exit(chalk.red('Failed to create release PR — no commits between branches.'))
+  console.log(chalk.green(`Release PR created: ${prUrl}`))
+  console.log(
+    chalk.green(
+      'Release PR is ready for review. Merge it manually after testing, then re-run this script to tag and sync.',
+    ),
+  )
+}
+
+// release_open: a release PR is already open — remind to merge manually.
+const handleReleaseOpen = (pr: GitHubPr): void => {
+  console.log(chalk.yellow(`Release PR open: #${pr.number} - ${pr.title}`))
+  console.log(
+    chalk.green(
+      'Release PR is awaiting review. Merge it manually after testing, then re-run this script to tag and sync.',
+    ),
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Regular release flow (state machine dispatcher)
 // ---------------------------------------------------------------------------
 
 const doRegularRelease = async () => {
-  const nextVersion = await getNextVersion('minor')
   const latestTag = await getLatestSemverTag()
+  const nextVersion = await getNextVersion('minor')
 
-  const [releaseSha, mainSha, developSha, latestTagSha] = await Promise.all([
-    getSha('origin/release'),
-    getSha('origin/main'),
-    getSha('origin/develop'),
-    getTagSha(latestTag),
-  ])
+  const [mainSha, latestTagSha] = await Promise.all([getSha('origin/main'), getTagSha(latestTag)])
 
-  const [openPrereleasePr, openReleasePr, privateContentMatchesMain] = await Promise.all([
-    findOpenPr('develop', 'release'),
+  const [openReleasePr, privateContentMatchesMain, releaseIsAheadOfMain] = await Promise.all([
     findOpenPr('release', 'main'),
     git()
       .diff(['origin/main', 'origin/private'])
       .then(diff => !diff),
+    // Commit-count based, not tree-diff based: after a hotfix, main has commits release doesn't,
+    // so a tree diff would be non-empty in the wrong direction and falsely trigger release_ready.
+    pify(exec)('git rev-list --count origin/main..origin/release').then(
+      (out: string) => parseInt(out.trim(), 10) > 0,
+    ),
   ])
 
   const state = deriveReleaseState({
-    releaseSha,
     mainSha,
-    developSha,
-    privateContentMatchesMain,
     latestTagSha,
-    openPrereleasePr,
+    releaseIsAheadOfMain,
+    privateContentMatchesMain,
     openReleasePr,
   })
 
   console.log(chalk.blue(`Release state: ${state}`))
-  console.log(chalk.blue(`Current: ${latestTag} -> Next: ${nextVersion}`))
+  const showNextVersion = state !== 'sync_pending'
+  console.log(
+    chalk.blue(
+      showNextVersion ? `Current: ${latestTag} -> Next: ${nextVersion}` : `Current: ${latestTag}`,
+    ),
+  )
 
   switch (state) {
-    case 'idle': {
-      // Two sub-states within idle:
-      // 1. Release branch ahead of main (prerelease merged) -> create release -> main PR
-      // 2. Release branch matches main (fresh start) -> create develop -> release PR
-      // Use commit-ahead check (not SHA) to correctly detect if release is ahead of main.
-      // SHA equality breaks with squash merges; content diff alone breaks when release is *behind* main.
-      const releaseMatchesMain = !(await git().diff(['origin/main', 'origin/release']))
-      const releaseHasCommitsNotInMain =
-        (await getCommitMessages('origin/main..origin/release')).length > 0
-      const prereleaseMerged = releaseHasCommitsNotInMain && !releaseMatchesMain
-
-      if (prereleaseMerged) {
-        const messages = await getCommitMessages(`${latestTag}..origin/release`)
-        if (messages.length === 0) exit(chalk.red('No commits to release.'))
-
-        console.log(chalk.green(`${messages.length} commits ready on release branch.`))
-        console.log(chalk.green('Generating AI release summary...'))
-
-        const prNumbers = extractPrNumbers(messages)
-        console.log(chalk.green(`Found ${prNumbers.length} PR references, fetching context...`))
-
-        const prBodies =
-          prNumbers.length > 0 ? await fetchPrBodies(prNumbers) : new Map<number, string>()
-        console.log(chalk.green(`Fetched ${prBodies.size}/${prNumbers.length} PR descriptions.`))
-
-        const summary = await generateReleaseSummary(nextVersion, messages, prBodies)
-        const releaseBody = summary ?? messages.join('\n')
-
-        if (summary) console.log(chalk.green('AI summary generated successfully.\n'))
-        console.log(chalk.blue(['', releaseBody, ''].join('\n')))
-
-        if (!(await inquireConfirm('Create release PR with this body?'))) exit('Release cancelled.')
-
-        console.log(chalk.green('Creating release PR (release -> main)...'))
-        const releasePrUrl = await createPr({
-          base: 'main',
-          head: 'release',
-          title: `chore: release ${nextVersion}`,
-          body: releaseBody,
-        })
-        if (!releasePrUrl)
-          exit(chalk.red('Failed to create release PR - no commits between branches.'))
-        console.log(chalk.green(`Release PR created: ${releasePrUrl}`))
-        console.log(
-          chalk.green(
-            '\nMerge the release PR on GitHub when CI passes, then run this script again.',
-          ),
-        )
-      } else {
-        const messages = await getCommitMessages(`${latestTag}..origin/develop`)
-        if (messages.length === 0) exit(chalk.red('No commits to release.'))
-
-        console.log(chalk.green(`${messages.length} commits to release.`))
-        const commitList = messages.map(m => `- ${m}`).join('\n')
-
-        if (!(await inquireConfirm(`Create prerelease PR with ${messages.length} commits?`)))
-          exit('Release cancelled.')
-
-        console.log(chalk.green('Creating prerelease PR (develop -> release)...'))
-        const prereleasePrUrl = await createPr({
-          base: 'release',
-          head: 'develop',
-          title: `chore: prerelease ${nextVersion}`,
-          body: `## Prerelease ${nextVersion}\n\n${commitList}`,
-        })
-        if (!prereleasePrUrl)
-          exit(chalk.red('Failed to create prerelease PR - no commits between branches.'))
-        console.log(chalk.green(`Prerelease PR created: ${prereleasePrUrl}`))
-        console.log(
-          chalk.green(
-            '\nMerge the prerelease PR on GitHub, then run this script again to create the release PR.',
-          ),
-        )
-      }
-      break
-    }
-
-    case 'prerelease_pr_open': {
-      if (!openPrereleasePr) break
-      console.log(
-        chalk.yellow(
-          `Prerelease PR is open: #${openPrereleasePr.number} - ${openPrereleasePr.title}`,
-        ),
-      )
-      console.log(
-        chalk.yellow('Merge it on GitHub, then run this script again to create the release PR.'),
-      )
-      break
-    }
-
-    case 'release_pr_open': {
-      if (!openReleasePr) break
-      console.log(
-        chalk.yellow(`Release PR is open: #${openReleasePr.number} - ${openReleasePr.title}`),
-      )
-      console.log(chalk.yellow('Merge it on GitHub, then run this script again to finalize.'))
-      break
-    }
-
-    case 'merged_untagged': {
-      console.log(chalk.green(`Release merged to main. Tagging ${nextVersion}...`))
-      await git().checkout(['main'])
-      await git().pull()
-      await git().tag(['-a', nextVersion, '-m', nextVersion])
-      console.log(chalk.green('Pushing tag...'))
-      await git().push(['origin', '--tags'])
-      console.log(chalk.green(`Tagged ${nextVersion}.`))
-
-      const existingPrivatePrAfterTag = await findOpenPr('main', 'private')
-      if (existingPrivatePrAfterTag) {
-        console.log(
-          chalk.yellow(
-            `Private sync PR already open: #${existingPrivatePrAfterTag.number}. Merge it on GitHub.`,
-          ),
-        )
-      } else {
-        console.log(chalk.green('Creating PR to sync private to main...'))
-        const privatePrUrl = await createPr({
-          base: 'private',
-          head: 'main',
-          title: `chore: sync private to ${nextVersion}`,
-          body: `Sync private branch to main after release ${nextVersion}.`,
-        })
-        if (privatePrUrl) {
-          console.log(chalk.green(`Private sync PR created: ${privatePrUrl}`))
-          console.log(chalk.green('Merge it on GitHub to complete the release.'))
-        } else {
-          console.log(chalk.green('private already in sync with main - nothing to do.'))
-        }
-      }
-      break
-    }
-
-    case 'tagged_private_stale': {
-      console.log(chalk.yellow(`${latestTag} is tagged but private is behind main.`))
-
-      const existingPrivatePr = await findOpenPr('main', 'private')
-      if (existingPrivatePr) {
-        console.log(
-          chalk.yellow(
-            `Private sync PR already open: #${existingPrivatePr.number}. Merge it on GitHub.`,
-          ),
-        )
-      } else {
-        console.log(chalk.green('Creating PR to sync private to main...'))
-        const privatePrUrl = await createPr({
-          base: 'private',
-          head: 'main',
-          title: `chore: sync private to ${latestTag}`,
-          body: `Sync private branch to main after release ${latestTag}.`,
-        })
-        if (privatePrUrl) {
-          console.log(chalk.green(`Private sync PR created: ${privatePrUrl}`))
-        } else {
-          console.log(chalk.green('private already in sync with main - nothing to do.'))
-        }
-      }
-
-      const existingBackmerge = await findOpenPr('main', 'develop')
-      if (existingBackmerge) {
-        console.log(
-          chalk.yellow(
-            `Backmerge PR already open: #${existingBackmerge.number}. Enabling auto-merge...`,
-          ),
-        )
-        await pify(exec)(`gh pr merge --auto --merge ${existingBackmerge.number}`)
-        console.log(
-          chalk.green('Auto-merge set. Backmerge will merge automatically when CI passes.'),
-        )
-      } else {
-        const mainDevelopCommits = await getCommitMessages('origin/develop..origin/main')
-        if (mainDevelopCommits.length > 0) {
-          console.log(chalk.green('Creating backmerge PR (main -> develop)...'))
-          const backmergeUrl = await createPr({
-            base: 'develop',
-            head: 'main',
-            title: `chore: backmerge ${nextVersion} into develop`,
-            body: `Backmerge main into develop after release ${nextVersion}.`,
-          })
-          if (backmergeUrl) {
-            console.log(chalk.green(`Backmerge PR created: ${backmergeUrl}`))
-            console.log(chalk.green('Setting auto-merge with merge commit strategy...'))
-            await pify(exec)(`gh pr merge --auto --merge ${backmergeUrl}`)
-            console.log(
-              chalk.green('Auto-merge set. Backmerge will merge automatically when CI passes.'),
-            )
-          } else {
-            console.log(chalk.green('develop already in sync with main - nothing to do.'))
-          }
-        }
-      }
-      break
-    }
-
-    case 'done': {
-      console.log(chalk.green(`Release ${latestTag} is fully complete. Nothing to do.`))
-      break
-    }
-
+    case 'idle':
+      return handleReleaseIdle(nextVersion)
+    case 'release_ready':
+      return handleReleaseReady(nextVersion)
+    case 'release_open':
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return handleReleaseOpen(openReleasePr!)
+    case 'needs_tag':
+      return handleNeedsTag(nextVersion)
+    case 'sync_pending':
+      return handleSyncPending(latestTag)
     default:
-      break
+      return state satisfies never
   }
 }
 
 // ---------------------------------------------------------------------------
-// Hotfix release flow (idempotent state machine)
+// Hotfix handlers
+// ---------------------------------------------------------------------------
+
+// idle: select commits from develop, cherry-pick onto a hotfix branch off main, push, and
+// open the hotfix PR. With merge-commit releases, future regular releases automatically
+// filter out hotfix commits via patch-id matching (see getUnreleasedCommits), so there's no
+// need to also cherry-pick onto release.
+const handleHotfixIdle = async (nextVersion: string): Promise<void> => {
+  const unreleased = await getUnreleasedCommits()
+  if (unreleased.length === 0) return exit(chalk.red('No unreleased commits found.'))
+
+  console.log(chalk.green(`Found ${unreleased.length} unreleased commit(s).\n`))
+  const selected = await inquireSelectCommits(unreleased)
+  if (selected.length === 0) return exit(chalk.yellow('No commits selected. Hotfix cancelled.'))
+
+  console.log(chalk.blue('\nSelected commits:'))
+  for (const c of selected) console.log(chalk.blue(`  ${c.hash.slice(0, 8)} ${c.message}`))
+
+  if (!(await inquireConfirm('Create hotfix branch and PR?'))) return exit('Hotfix cancelled.')
+
+  const hotfixBranch = `hotfix/${nextVersion}`
+  // Reverse to chronological order: getUnreleasedCommits returns reverse-chronological (newest
+  // first) per default git log order, but cherry-pick must apply oldest first when commits
+  // have ordering dependencies.
+  const shas = [...selected].reverse().map(c => c.hash)
+
+  // Cherry-pick onto the hotfix branch (from main) in a worktree. Pre-clean any leftover
+  // local branch from a prior failed run so retries are idempotent.
+  const hotfixWorktree = path.join(os.tmpdir(), `hotfix-cherry-pick-${Date.now()}`)
+  console.log(chalk.green(`Cherry-picking commits onto ${hotfixBranch}...`))
+  try {
+    await pify(exec)(`git branch -D ${hotfixBranch}`).catch(() => {})
+    await pify(exec)(`git worktree add -b ${hotfixBranch} ${hotfixWorktree} origin/main`)
+    const wt = git().cwd(hotfixWorktree)
+    await wt.raw(['cherry-pick', ...shas])
+    await wt.push(['-u', 'origin', hotfixBranch])
+  } catch (err) {
+    await pify(exec)(`git worktree remove --force ${hotfixWorktree}`).catch(() => {})
+    await pify(exec)(`git branch -D ${hotfixBranch}`).catch(() => {})
+    return exit(
+      chalk.red(
+        `Cherry-pick onto ${hotfixBranch} failed: ${
+          err instanceof Error ? err.message : String(err)
+        }\nHotfix branch deleted.`,
+      ),
+    )
+  }
+  await pify(exec)(`git worktree remove ${hotfixWorktree}`).catch(() => {})
+
+  const prUrl = await createPr({
+    base: 'main',
+    head: hotfixBranch,
+    title: `chore: hotfix ${nextVersion}`,
+    body: `## Hotfix ${nextVersion}\n\n${selected.map(c => `- ${c.message}`).join('\n')}`,
+  })
+  if (!prUrl) return exit(chalk.red('Failed to create hotfix PR — no commits between branches.'))
+  console.log(chalk.green(`Hotfix PR created: ${prUrl}`))
+  console.log(
+    chalk.green(
+      'Hotfix PR is ready for review. Merge it manually after testing, then re-run this script to tag and sync.',
+    ),
+  )
+}
+
+// hotfix_open: a hotfix PR is already open — remind to merge manually.
+const handleHotfixOpen = (pr: GitHubPr): void => {
+  console.log(chalk.yellow(`Hotfix PR open: #${pr.number} - ${pr.title}`))
+  console.log(
+    chalk.green(
+      'Hotfix PR is awaiting review. Merge it manually after testing, then re-run this script to tag and sync.',
+    ),
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Hotfix flow (state machine dispatcher)
 // ---------------------------------------------------------------------------
 
 const doHotfixRelease = async () => {
-  const nextVersion = await getNextVersion('patch')
   const latestTag = await getLatestSemverTag()
+  const nextVersion = await getNextVersion('patch')
 
   const [mainSha, latestTagSha] = await Promise.all([getSha('origin/main'), getTagSha(latestTag)])
 
@@ -740,193 +804,31 @@ const doHotfixRelease = async () => {
 
   const state = deriveHotfixState({
     mainSha,
-    privateContentMatchesMain,
     latestTagSha,
+    privateContentMatchesMain,
     openHotfixPr,
   })
 
   console.log(chalk.blue(`Hotfix state: ${state}`))
-  console.log(chalk.blue(`Current: ${latestTag} -> Next: ${nextVersion}`))
+  const showNextVersion = state === 'idle' || state === 'hotfix_open'
+  console.log(
+    chalk.blue(
+      showNextVersion ? `Current: ${latestTag} -> Next: ${nextVersion}` : `Current: ${latestTag}`,
+    ),
+  )
 
   switch (state) {
-    case 'idle': {
-      const unreleased = await getUnreleasedCommits()
-      if (unreleased.length === 0) {
-        exit(chalk.red('No unreleased commits found between origin/main and origin/develop.'))
-      }
-
-      console.log(chalk.green(`Found ${unreleased.length} unreleased commit(s).\n`))
-      const selected = await inquireSelectCommits(unreleased)
-      if (selected.length === 0) exit(chalk.yellow('No commits selected. Hotfix cancelled.'))
-
-      console.log(chalk.blue('\nSelected commits:'))
-      for (const c of selected) {
-        console.log(chalk.blue(`  ${c.hash.slice(0, 8)} ${c.message}`))
-      }
-
-      if (!(await inquireConfirm('Create hotfix branch and PR?'))) exit('Hotfix cancelled.')
-
-      console.log(chalk.green('Checking out main...'))
-      await git().checkout(['main'])
-      await git().pull()
-
-      console.log(chalk.green(`Creating branch ${hotfixBranch}...`))
-      await git().checkout(['-b', hotfixBranch])
-
-      const cherryPickOrder = [...selected].reverse()
-      for (const c of cherryPickOrder) {
-        console.log(chalk.green(`Cherry-picking ${c.hash.slice(0, 8)} ${c.message}...`))
-        try {
-          await pify(exec)(`git cherry-pick ${c.hash}`)
-        } catch (err) {
-          try {
-            await pify(exec)('git cherry-pick --abort')
-          } catch {
-            // no-op
-          }
-          await git().checkout(['main'])
-          await pify(exec)(`git branch -D ${hotfixBranch}`)
-          const message = err instanceof Error ? err.message : String(err)
-          exit(
-            chalk.red(
-              `Cherry-pick failed for ${c.hash.slice(0, 8)}: ${message}\nHotfix branch deleted.`,
-            ),
-          )
-        }
-      }
-
-      console.log(chalk.green(`Pushing ${hotfixBranch}...`))
-      await git().push(['-u', 'origin', hotfixBranch])
-
-      const commitList = selected.map(c => `- ${c.message}`).join('\n')
-      const prUrl = await createPr({
-        base: 'main',
-        head: hotfixBranch,
-        title: `chore: hotfix ${nextVersion}`,
-        body: `## Hotfix ${nextVersion}\n\n${commitList}`,
-      })
-
-      if (!prUrl) exit(chalk.red('Failed to create hotfix PR - no commits between branches.'))
-      console.log(chalk.green(`Hotfix PR created: ${prUrl}`))
-      console.log(chalk.green('Merge it on GitHub, then run this script again to finalize.'))
-      break
-    }
-
-    case 'hotfix_pr_open': {
-      if (!openHotfixPr) break
-      console.log(
-        chalk.yellow(`Hotfix PR is open: #${openHotfixPr.number} - ${openHotfixPr.title}`),
-      )
-      console.log(chalk.yellow('Merge it on GitHub, then run this script again to finalize.'))
-      break
-    }
-
-    case 'merged_untagged': {
-      console.log(chalk.green(`Hotfix merged to main. Tagging ${nextVersion}...`))
-      await git().checkout(['main'])
-      await git().pull()
-      await git().tag(['-a', nextVersion, '-m', nextVersion])
-      console.log(chalk.green('Pushing tag...'))
-      await git().push(['origin', '--tags'])
-      console.log(chalk.green(`Tagged ${nextVersion}.`))
-
-      console.log(chalk.green('Creating PR to sync private to main...'))
-      const privatePrUrl = await createPr({
-        base: 'private',
-        head: 'main',
-        title: `chore: sync private to ${nextVersion}`,
-        body: `Sync private branch to main after hotfix ${nextVersion}.`,
-      })
-      if (privatePrUrl) {
-        console.log(chalk.green(`Private sync PR created: ${privatePrUrl}`))
-      } else {
-        console.log(chalk.green('private already in sync with main - nothing to do.'))
-      }
-
-      console.log(chalk.green('Creating backmerge PR (main -> develop)...'))
-      const backmergeUrl = await createPr({
-        base: 'develop',
-        head: 'main',
-        title: `chore: backmerge ${nextVersion} into develop`,
-        body: `Backmerge main into develop after hotfix ${nextVersion} to sync cherry-picked commits.`,
-      })
-      if (backmergeUrl) {
-        console.log(chalk.green(`Backmerge PR created: ${backmergeUrl}`))
-      } else {
-        console.log(chalk.green('develop already in sync with main - nothing to do.'))
-      }
-      console.log(chalk.green('Merge both PRs on GitHub to complete the hotfix.'))
-      break
-    }
-
-    case 'tagged_private_stale': {
-      console.log(chalk.yellow(`${latestTag} is tagged but private is behind main.`))
-
-      const existingPrivatePr = await findOpenPr('main', 'private')
-      if (existingPrivatePr) {
-        console.log(
-          chalk.yellow(
-            `Private sync PR already open: #${existingPrivatePr.number}. Merge it on GitHub.`,
-          ),
-        )
-      } else {
-        console.log(chalk.green('Creating PR to sync private to main...'))
-        const privatePrUrl = await createPr({
-          base: 'private',
-          head: 'main',
-          title: `chore: sync private to ${latestTag}`,
-          body: `Sync private branch to main after hotfix ${latestTag}.`,
-        })
-        if (privatePrUrl) {
-          console.log(chalk.green(`Private sync PR created: ${privatePrUrl}`))
-        } else {
-          console.log(chalk.green('private already in sync with main - nothing to do.'))
-        }
-      }
-
-      const existingBackmerge = await findOpenPr('main', 'develop')
-      if (existingBackmerge) {
-        console.log(
-          chalk.yellow(
-            `Backmerge PR already open: #${existingBackmerge.number}. Enabling auto-merge...`,
-          ),
-        )
-        await pify(exec)(`gh pr merge --auto --merge ${existingBackmerge.number}`)
-        console.log(
-          chalk.green('Auto-merge set. Backmerge will merge automatically when CI passes.'),
-        )
-      } else {
-        const mainDevelopDiff = await getCommitMessages('origin/develop..origin/main')
-        if (mainDevelopDiff.length > 0) {
-          console.log(chalk.green('Creating backmerge PR (main -> develop)...'))
-          const backmergeUrl = await createPr({
-            base: 'develop',
-            head: 'main',
-            title: `chore: backmerge ${nextVersion} into develop`,
-            body: `Backmerge main into develop after hotfix ${nextVersion}.`,
-          })
-          if (backmergeUrl) {
-            console.log(chalk.green(`Backmerge PR created: ${backmergeUrl}`))
-            console.log(chalk.green('Setting auto-merge with merge commit strategy...'))
-            await pify(exec)(`gh pr merge --auto --merge ${backmergeUrl}`)
-            console.log(
-              chalk.green('Auto-merge set. Backmerge will merge automatically when CI passes.'),
-            )
-          } else {
-            console.log(chalk.green('develop already in sync with main - nothing to do.'))
-          }
-        }
-      }
-      break
-    }
-
-    case 'done': {
-      console.log(chalk.green(`Hotfix ${latestTag} is fully complete. Nothing to do.`))
-      break
-    }
-
+    case 'idle':
+      return handleHotfixIdle(nextVersion)
+    case 'hotfix_open':
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return handleHotfixOpen(openHotfixPr!)
+    case 'needs_tag':
+      return handleNeedsTag(nextVersion)
+    case 'sync_pending':
+      return handleSyncPending(latestTag)
     default:
-      break
+      return state satisfies never
   }
 }
 
@@ -935,7 +837,6 @@ const doHotfixRelease = async () => {
 // ---------------------------------------------------------------------------
 
 const main = async () => {
-  await assertIsCleanRepo()
   await assertGhInstalled()
   await assertGhAuth()
   await fetchOrigin()

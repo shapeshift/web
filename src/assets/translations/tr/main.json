@@ -1987,9 +1987,25 @@
         "yourDecentralizedGateway": "Merkeziyetsizlik ağ geçidiniz. Tek bir güvenli cüzdandan Bitcoin, Ethereum, Solana ve daha fazlasını alıp satın ve kazanın.",
         "crossChainFreedom": "Zincirler arası özgürlük. Birden fazla merkezi olmayan borsada en iyi oranlara erişin, aracıya gerek yok.",
         "easyToUse": {
+          "title": "Kullanımı Kolay",
+          "subTitle": "İhtiyacınız olan her şey tek bir yerde.",
+          "trackBalance": "Bakiyenizi takip edin",
+          "sendReceive": "Kripto para gönder ve al",
           "buyCrypto": "Kripto Satın Al",
           "tradeAssets": "Takas varlıkları",
-          "cta": "Kripto Satın Al"
+          "earnYield": "Getiri kazanın",
+          "cta": "Kripto Satın Al",
+          "secondaryCta": "Kontrol Paneline Git"
+        },
+        "multiChain": {
+          "title": "Çoklu Zincir Desteği",
+          "subTitle": "Birden fazla blok zinciri üzerinden ticaret",
+          "body": "Tek bir cüzdandan Bitcoin, Ethereum, Solana ve daha birçok kripto para birimine erişin. Farklı ağlar arasında varlıklarınızı sorunsuz bir şekilde alıp satabilir ve yönetebilirsiniz."
+        },
+        "selfCustody": {
+          "title": "Öz Gözetim",
+          "subTitle": "Sizin anahtarınız, sizin kriptonuz",
+          "body": "Cüzdanınız, anahtarlarınız, kripto paralarınız. ShapeShift'in fonlarınıza erişimi asla olmaz. Varlıklarınız üzerinde her zaman tam kontrol sizdedir."
         }
       }
     },
@@ -3460,6 +3476,8 @@
   "yieldXYZ": {
     "pageTitle": "Getiriler",
     "pageSubtitle": "Birden fazla zincirde getiri fırsatlarını keşfedin ve yönetin.",
+    "actions": {
+    },
     "yield": "Getiri",
     "apy": "APY",
     "apr": "APR",

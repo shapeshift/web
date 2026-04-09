@@ -1,9 +1,12 @@
 import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import { bnOrZero } from '@shapeshiftoss/utils'
 
-import { COMPUTE_UNIT_MARGIN_MULTIPLIER } from '../swappers/JupiterSwapper'
 import type { GetUnsignedSolanaTransactionArgs } from '../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../utils'
+
+// Jupiter (and Relay which uses Jupiter under the hood) use 40% as a compute unit margin while
+// calculating them, some TX reverts without this. For stability purposes we add 60% margin.
+const COMPUTE_UNIT_MARGIN_MULTIPLIER = 1.6
 
 export const getUnsignedSolanaTransaction = async ({
   stepIndex,

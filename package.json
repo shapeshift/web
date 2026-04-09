@@ -351,7 +351,6 @@
       "@rainbow-me/rainbowkit": "2.1.7",
       "zod": "3.25.76",
       "gridplus-sdk>bs58check": "2.1.2",
-      "@jup-ag/api": "6.0.30",
       "@mysten/ledgerjs-hw-app-sui": "0.7.0",
       "@sentry/types": "8.26.0",
       "@sentry/utils": "8.26.0",

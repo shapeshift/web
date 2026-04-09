@@ -17,8 +17,6 @@ export const SWAPPER_ICONS: Partial<Record<SwapperName, string>> = {
     'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/relay-icon.svg',
   [SwapperName.Bebop]:
     'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/bebop-icon.png',
-  [SwapperName.Jupiter]:
-    'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/jupiter-icon.svg',
   [SwapperName.ButterSwap]:
     'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/butterswap.png',
   [SwapperName.ArbitrumBridge]:
@@ -34,7 +32,6 @@ export const SWAPPER_COLORS: Partial<Record<SwapperName, string>> = {
   [SwapperName.Chainflip]: '#FF4081',
   [SwapperName.Relay]: '#6366F1',
   [SwapperName.Bebop]: '#E91E63',
-  [SwapperName.Jupiter]: '#C4A962',
   [SwapperName.ButterSwap]: '#FFD700',
   [SwapperName.ArbitrumBridge]: '#28A0F0',
 }

@@ -1,4 +1,3 @@
-import type { QuoteResponse } from '@jup-ag/api'
 import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
@@ -76,7 +75,6 @@ export type SwapperConfig = {
   VITE_CHAINFLIP_API_KEY: string
   VITE_CHAINFLIP_API_URL: string
   VITE_FEATURE_CHAINFLIP_SWAP_DCA: boolean
-  VITE_JUPITER_API_URL: string
   VITE_RELAY_API_URL: string
   VITE_BEBOP_API_KEY: string
   VITE_NEAR_INTENTS_API_KEY: string
@@ -98,7 +96,6 @@ export enum SwapperName {
   ArbitrumBridge = 'Arbitrum Bridge',
   Portals = 'Portals',
   Chainflip = 'Chainflip',
-  Jupiter = 'Jupiter',
   Relay = 'Relay',
   ButterSwap = 'ButterSwap',
   Bebop = 'Bebop',
@@ -439,7 +436,6 @@ export type TradeQuoteStep = {
   }
   bebopSolanaSerializedTx?: string
   bebopQuoteId?: string
-  jupiterQuoteResponse?: QuoteResponse
   solanaTransactionMetadata?: {
     addressLookupTableAddresses: string[]
     instructions?: TransactionInstruction[]

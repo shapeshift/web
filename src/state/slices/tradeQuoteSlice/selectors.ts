@@ -77,7 +77,7 @@ export const selectEnabledSwappersIgnoringCrossAccountTrade = createSelector(
   preferences.selectors.selectFeatureFlags,
   featureFlags => {
     // cross account trade logic is irrelevant here, so we can set the flags to false here
-    const enabledSwappers = getEnabledSwappers(featureFlags, false, false)
+    const enabledSwappers = getEnabledSwappers(featureFlags, false)
     return Object.values(SwapperName).filter(
       swapperName => enabledSwappers[swapperName],
     ) as SwapperName[]
@@ -510,7 +510,7 @@ export const selectTradeSlippagePercentageDecimal: Selector<ReduxState, string> 
     try {
       return getDefaultSlippageDecimalPercentageForSwapper(activeSwapperName)
     } catch {
-      // Auto-slippage swappers (Relay, Jupiter) throw when quote fails
+      // Auto-slippage swappers (Relay, Across, etc.) throw when quote fails
       // Return something to prevent crash
       return '0'
     }

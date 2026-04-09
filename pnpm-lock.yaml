@@ -24,7 +24,6 @@ overrides:
   '@rainbow-me/rainbowkit': 2.1.7
   zod: 3.25.76
   gridplus-sdk>bs58check: 2.1.2
-  '@jup-ag/api': 6.0.30
   '@mysten/ledgerjs-hw-app-sui': 0.7.0
   '@sentry/types': 8.26.0
   '@sentry/utils': 8.26.0
@@ -2129,9 +2128,6 @@ importers:
       '@defuse-protocol/one-click-sdk-typescript':
         specifier: ^0.1.1-0.2
         version: 0.1.16
-      '@jup-ag/api':
-        specifier: 6.0.30
-        version: 6.0.30
       '@mysten/sui':
         specifier: 1.45.2
         version: 1.45.2(typescript@5.8.2)
@@ -4272,9 +4268,6 @@ packages:
   '@json-rpc-tools/utils@1.7.6':
     resolution: {integrity: sha512-HjA8x/U/Q78HRRe19yh8HVKoZ+Iaoo3YZjakJYxR+rw52NHo6jM+VE9b8+7ygkCFXl/EHID5wh/MkXaE/jGyYw==}
     deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
-
-  '@jup-ag/api@6.0.30':
-    resolution: {integrity: sha512-+LSo5yXR150kXg+iyVhNCSwK+PSL+MsB9Wvl930zgeeW0LWUTGyMhibz6wcqcViol+F0RMAVOYh6ryJYO1kkZw==}
 
   '@keepkey/device-protocol@7.13.4':
     resolution: {integrity: sha512-ZykDp2NjkHOmekZ3Ak2l1jsobUIkk7HIu/2XCQ5cU1Lx9R9lj2uJGCQE4ONQqD4cbEOUC5xEMsuI+7Tut35jMQ==}
@@ -20452,8 +20445,6 @@ snapshots:
     dependencies:
       '@json-rpc-tools/types': 1.7.6
       '@pedrouid/environment': 1.0.1
-
-  '@jup-ag/api@6.0.30': {}
 
   '@keepkey/device-protocol@7.13.4':
     dependencies:

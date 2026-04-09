@@ -1,3 +1,4 @@
+import { tonChainId } from '@shapeshiftoss/caip'
 import { Err, Ok } from '@sniptt/monads'
 import type { Quote } from '@ston-fi/omniston-sdk'
 import { SettlementMethod } from '@ston-fi/omniston-sdk'
@@ -69,7 +70,7 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
     )
 
     const referrerFeeBps = affiliateBpsToNumber(affiliateBps)
-    const tonTreasuryAddress = getTreasuryAddressFromChainId(sellAsset.chainId)
+    const tonTreasuryAddress = getTreasuryAddressFromChainId(tonChainId)
     const referrerAddress = tonAddressToOmnistonAddress(tonTreasuryAddress)
 
     const quoteResult = await waitForQuote(

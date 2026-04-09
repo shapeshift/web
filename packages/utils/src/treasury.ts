@@ -38,7 +38,7 @@ export const DAO_TREASURY_BASE = '0x9c9aA90363630d4ab1D9dbF416cc3BBC8d3Ed502'
 
 export const DAO_TREASURY_BITCOIN = 'bc1qr2whxtd0gvqnctcxlynwejp6fvntv0mtxkv0dlv02vyale8h69ysm6l32n'
 export const DAO_TREASURY_NEAR = 'shapeshifttokenomics.sputnik-dao.near'
-export const DAO_TREASURY_SOLANA = 'Bh7R3MeJ98D7Ersxh7TgVQVQUSmDMqwrFVHH9DLfb4u3'
+export const DAO_TREASURY_SOLANA = 'DAis9ukYi5g77fWAiXrDWwek94ndP6LXUD5Vs4CUG34p'
 
 export const DAO_TREASURY_MONAD = '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC'
 export const DAO_TREASURY_HYPEREVM = '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC'

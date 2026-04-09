@@ -254,18 +254,6 @@ export const validateTradeQuote = (
               precision: balance.precision,
             })
 
-            if (
-              firstHopSellFeeAsset?.assetId === assetId &&
-              firstHop?.sellAsset.assetId === assetId &&
-              swapperName === SwapperName.Jupiter
-            ) {
-              const sellAmount = BigAmount.fromBaseUnit({
-                value: bnOrZero(sellAmountCryptoBaseUnit).toFixed(),
-                precision: balance.precision,
-              })
-              return balance.minus(sellAmount).minus(protocolFeeAmount).isNegative()
-            }
-
             return balance.lt(protocolFeeAmount)
           })
           .map(([_assetId, protocolFee]: [AssetId, ProtocolFee]) => {

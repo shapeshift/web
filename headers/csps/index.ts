@@ -75,7 +75,6 @@ import { csp as banxa } from './fiatRamps/banxa'
 import { csp as onRamper } from './fiatRamps/onRamper'
 import { csp as hypelab } from './hypelab'
 import { csp as interFont } from './InterFont'
-import { csp as jupiter } from './jupiter'
 import { csp as ledger } from './ledger'
 import { csp as coincap } from './marketService/coincap'
 import { csp as coingecko } from './marketService/coingecko'
@@ -114,7 +113,6 @@ export const csps = [
   userback,
   customTokenImport,
   interFont,
-  jupiter,
   ledger,
   trezor,
   mercle,

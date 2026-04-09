@@ -1,4 +1,5 @@
 import { getQuotes } from '@avnu/avnu-sdk'
+import { starknetChainId } from '@shapeshiftoss/caip'
 import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -90,7 +91,8 @@ export const getTradeQuote = async (
       takerAddress: normalizedSendAddress,
       size: 1,
       integratorFees: affiliateBps ? BigInt(affiliateBps) : undefined,
-      integratorFeeRecipient: getTreasuryAddressFromChainId(sellAsset.chainId),
+      integratorFeeRecipient: getTreasuryAddressFromChainId(starknetChainId),
+      integratorName: 'shapeshift',
     })
 
     if (!quotes || quotes.length === 0) {

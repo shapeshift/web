@@ -51,10 +51,7 @@ export class FoxyMarketService extends CoinGeckoMarketService implements MarketS
 
   async findByAssetId({ assetId }: MarketDataArgs): Promise<MarketData | null> {
     try {
-      if (assetId.toLowerCase() !== FOXY_ASSET_ID.toLowerCase()) {
-        console.warn('FoxyMarketService(findByAssetId): Failed to find by AssetId')
-        return null
-      }
+      if (assetId.toLowerCase() !== FOXY_ASSET_ID.toLowerCase()) return null
 
       const coinGeckoData = await super.findByAssetId({
         assetId: FOX_ASSET_ID,

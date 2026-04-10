@@ -100,7 +100,7 @@ export const limitOrderApi = createApi({
                   // Legacy appdata was used for market orders only
                   if (isLegacyAppData(appData)) return false
 
-                  return appData.metadata.orderClass?.orderClass !== OrderClass.MARKET
+                  return appData.metadata?.orderClass?.orderClass !== OrderClass.MARKET
                 })
 
                 return limitOrders.map(order => {

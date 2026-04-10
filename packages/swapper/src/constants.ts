@@ -8,6 +8,8 @@ import { avnuSwapper } from './swappers/AvnuSwapper/AvnuSwapper'
 import { avnuApi } from './swappers/AvnuSwapper/endpoints'
 import { bebopSwapper } from './swappers/BebopSwapper/BebopSwapper'
 import { bebopApi } from './swappers/BebopSwapper/endpoints'
+import { bobGatewaySwapper } from './swappers/BobGatewaySwapper/BobGatewaySwapper'
+import { bobGatewayApi } from './swappers/BobGatewaySwapper/endpoints'
 import { butterSwap } from './swappers/ButterSwap/ButterSwap'
 import { butterSwapApi } from './swappers/ButterSwap/endpoints'
 import { cetusSwapper } from './swappers/CetusSwapper/CetusSwapper'
@@ -116,6 +118,10 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
     ...debridgeSwapper,
     ...debridgeApi,
   },
+  [SwapperName.BobGateway]: {
+    ...bobGatewaySwapper,
+    ...bobGatewayApi,
+  },
   [SwapperName.Test]: undefined,
 }
 
@@ -135,6 +141,7 @@ const DEFAULT_AVNU_SLIPPAGE_DECIMAL_PERCENTAGE = '0.02'
 const DEFAULT_STONFI_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01'
 // deBridge API off-chain simulation overestimates output on some chains (e.g. SEI ~2.4%), so auto slippage (1%) is insufficient
 const DEFAULT_DEBRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0.03'
+const DEFAULT_BOB_GATEWAY_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005'
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
   swapperName: SwapperName | undefined,
@@ -175,6 +182,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       return DEFAULT_AVNU_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.Stonfi:
       return DEFAULT_STONFI_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.BobGateway:
+      return DEFAULT_BOB_GATEWAY_SLIPPAGE_DECIMAL_PERCENTAGE
     default:
       return assertUnreachable(swapperName)
   }

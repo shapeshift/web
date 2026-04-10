@@ -85,6 +85,7 @@ export type SwapperConfig = {
   VITE_ACROSS_API_URL: string
   VITE_ACROSS_INTEGRATOR_ID: string
   VITE_DEBRIDGE_API_URL: string
+  VITE_BOB_GATEWAY_AFFILIATE_ID: string
 }
 
 export enum SwapperName {
@@ -106,6 +107,7 @@ export enum SwapperName {
   Stonfi = 'STON.fi',
   Across = 'Across',
   Debridge = 'deBridge',
+  BobGateway = 'BOB Gateway',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -510,6 +512,23 @@ export type TradeQuoteStep = {
   }
   acrossTransactionMetadata?: AcrossTransactionMetadata
   debridgeTransactionMetadata?: DebridgeTransactionMetadata
+  /**
+   * BOB Gateway specific metadata.
+   * BOB Gateway internally calls BTC→EVM "onramp" and EVM→BTC "offramp", but we avoid those
+   * fiat-connotation terms. See: https://docs.gobob.xyz/gateway/integration
+   */
+  bobSpecific?: {
+    orderId: string
+    /** btcToEvm only — Bitcoin address the user sends funds to */
+    depositAddress?: string
+    /** evmToBtc only — EVM transaction data to execute the offramp */
+    evmTx?: {
+      to: string
+      data: string
+      value: string
+      chain: string
+    }
+  }
   affiliateFee?: AffiliateFee
 }
 
@@ -573,6 +592,16 @@ export type SwapperSpecificMetadata = {
   relayTransactionMetadata: RelayTransactionMetadata | undefined
   acrossTransactionMetadata: AcrossTransactionMetadata | undefined
   debridgeTransactionMetadata: DebridgeTransactionMetadata | undefined
+  bobSpecific?: {
+    orderId: string
+    depositAddress?: string
+    evmTx?: {
+      to: string
+      data: string
+      value: string
+      chain: string
+    }
+  }
   relayerExplorerTxLink: string | undefined
   relayerTxHash: string | undefined
   stepIndex: SupportedTradeQuoteStepIndex

@@ -36,6 +36,7 @@
     "@coral-xyz/anchor": "0.29.0",
     "@cowprotocol/app-data": "^2.3.0",
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.1-0.2",
+    "@gobob/bob-sdk": "5.3.2",
     "@mysten/sui": "^1.45.2",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",
     "@shapeshiftoss/caip": "workspace:^",

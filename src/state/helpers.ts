@@ -21,6 +21,7 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
     case SwapperName.Sunio:
     case SwapperName.Across:
     case SwapperName.Debridge:
+    case SwapperName.BobGateway:
       return true
     case SwapperName.Zrx:
     case SwapperName.CowSwap:
@@ -55,6 +56,7 @@ export const getEnabledSwappers = (
     StonfiSwap,
     AcrossSwap,
     DebridgeSwap,
+    BobGatewaySwap,
   }: FeatureFlags,
   isCrossAccountTrade: boolean,
   walletName?: string,
@@ -112,6 +114,9 @@ export const getEnabledSwappers = (
       AcrossSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Across)),
     [SwapperName.Debridge]:
       DebridgeSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Debridge)),
+    [SwapperName.BobGateway]:
+      BobGatewaySwap &&
+      (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.BobGateway)),
     [SwapperName.Test]: false,
   }
 }

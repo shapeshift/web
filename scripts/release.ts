@@ -617,13 +617,14 @@ const handleReleaseReady = async (nextVersion: string): Promise<void> => {
     for (const line of lines) {
       const sha = line.split(' ')[0]
       const body = await pify(exec)(`git log -1 --format="%b" ${sha}`).catch(() => '')
-      // Commits from the develop merge don't need trailers — only cherry-picks do.
-      // A cherry-picked commit is one whose patch-id doesn't appear in the merge range.
-      // Simple heuristic: if the commit message doesn't come from the merge and lacks the trailer, warn.
-      const isFromMerge = await pify(exec)(
-        `git log --no-merges --cherry-pick --left-only --pretty=format:"%H" origin/main...${sha}`,
-      ).catch(() => '')
-      if (!isFromMerge.trim() && !body.includes('(cherry picked from commit')) {
+      // Commits reachable from develop came from the merge and don't need trailers.
+      // Only manually cherry-picked commits (not ancestors of develop) need the -x trailer.
+      const isReachableFromDevelop = await pify(exec)(
+        `git merge-base --is-ancestor ${sha} origin/develop`,
+      )
+        .then(() => true)
+        .catch(() => false)
+      if (!isReachableFromDevelop && !body.includes('(cherry picked from commit')) {
         const shortMsg = line.slice(sha.length + 1)
         console.log(
           chalk.yellow(

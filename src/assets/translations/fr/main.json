@@ -74,8 +74,8 @@
     "incomplete": "Incomplet",
     "available": "Disponible",
     "or": "ou",
-    "somethingWentWrong": "Une erreur s’est produite",
-    "somethingWentWrongBody": "Une erreur s’est produite",
+    "somethingWentWrong": "Une erreur s'est produite",
+    "somethingWentWrongBody": "Une erreur s'est produite",
     "accountError": "Temporairement impossible de récupérer les données pour les chaînes suivantes :",
     "accountTxHistoryError": "Temporairement incapable de récupérer l'historique des transactions pour les comptes suivants :",
     "degradedState": "L'app est dans un état dégradé",
@@ -303,7 +303,7 @@
           "description": "Votre ordre à cours limité a été créé avec succès"
         },
         "expires": "Expire",
-        "viewOrder": "Afficher l'ordre →",
+        "viewOrder": "Voir l'ordre →",
         "approvalTx": "Tx. d'autorisation",
         "orderCreationFailed": "La création de l'ordre a échoué",
         "orderCreatedSuccessfully": "L'ordre a été créé avec succès"
@@ -427,7 +427,7 @@
   },
   "errorPage": {
     "title": "Oups !",
-    "body": "Une erreur s’est produite",
+    "body": "Une erreur s'est produite",
     "cta": "Réessayer"
   },
   "errorBoundary": {
@@ -1003,8 +1003,8 @@
       "noRateAvailable": "Cela est souvent dû à une liquidité très limitée ou inexistante sur la paire d'échange.",
       "minerFee": "Il s'agit des frais de traitement de la transaction sur la blockchain, ce ne sont pas des frais facturés par ShapeShift.",
       "protocolFee": "Il s'agit des frais facturés par le protocole sélectionné pour traiter cette transaction, il ne s'agit pas de frais facturés par ShapeShift",
-      "inputOutputDifference": "La différence estimée entre les valeurs en USD des montants d’entrée et de sortie.",
-      "slippageWithAmount": "Si le prix change de telle manière que vous recevrez moins de %{amount}, votre transaction sera annulée. Il s’agit du montant minimum garanti que vous recevrez.",
+      "inputOutputDifference": "La différence estimée entre les valeurs en USD des montants d'entrée et de sortie.",
+      "slippageWithAmount": "Si le prix change de telle manière que vous recevrez moins de %{amount}, votre transaction sera annulée. Il s'agit du montant minimum garanti que vous recevrez.",
       "noRelatedAssets": "Cet actif est uniquement disponible sur %{chainDisplayName}",
       "chainNotSupportedByWallet": "Cette chaîne n'est pas prise en charge par votre porte-monnaie. Utilisez un autre porte-monnaie pour échanger cet actif.",
       "chainNotConnected": "Cette chaîne n'est pas connectée à votre porte-monnaie. Connectez %{chainDisplayName} pour échanger cet actif."
@@ -1029,7 +1029,7 @@
       "tooltip": "Cela accordera une allocation de 5 minutes  à %{swapperName} pour terminer la transaction en votre nom."
     },
     "errors": {
-      "title": "Une erreur s’est produite",
+      "title": "Une erreur s'est produite",
       "amountTooSmall": "Minimum : %{minLimit}",
       "amountTooSmallUnknownMinimum": "Montant insuffisant",
       "sellAmountDoesNotCoverFee": "Montant à vendre inférieur aux frais",
@@ -1056,7 +1056,7 @@
       "tradeFailed": "L'échange a échoué. Actifs restitués, moins les frais de carburant",
       "noQuotesAvailable": "Aucun devis disponible pour cet échange",
       "smartContractWalletNotSupported": "Porte-monnaie pour contrats intelligents non pris en charge",
-      "unsafeQuote": "Ce montant est inférieur au minimum recommandé pour cette paire (%{recommendedMin} %{symbol}). Cela pourrait entraîner l’échec de votre transaction ou une perte de fonds.",
+      "unsafeQuote": "Ce montant est inférieur au minimum recommandé pour cette paire (%{recommendedMin} %{symbol}). Cela pourrait entraîner l'échec de votre transaction ou une perte de fonds.",
       "rateLimitExceeded": "Limite de tentatives dépassée, réessayer plus tard",
       "maxSlippageExceededWithExpectedSlippage": "La tolérance de glissement/slippage maximale autorisée pour cette transaction a été dépassée durant la simulation. Glissement attendu : %{expectedSlippage}%. Réessayez avec une tolérance de glissement plus élevée.",
       "executionRevertedWithExpectedSlippage": "L'exécution a été annulée durant l'exécution. Cela peut être dû à une tolérance de glissement/slippage insuffisante. Glissement attendu : %{expectedSlippage}%. Réessayez avec une tolérance de glissement plus élevée.",
@@ -1096,7 +1096,7 @@
       "cantSetSlippage": "Nous ne parvenons pas à définir un glissement/slippage personnalisé (%{userSlippageFormatted}) pour %{swapperName}",
       "gas": "Le carburant pour compléter la transaction avec cet échange.",
       "slippage": "C'est le glissement/slippage de ce devis.",
-      "timeEstimate": "Il s’agit du temps estimé nécessaire pour que cet échange se termine."
+      "timeEstimate": "Il s'agit du temps estimé nécessaire pour que cet échange se termine."
     },
     "awaitingPermit2Approval": "En attente de transfert de jetons",
     "awaitingSwap": "En attente d'échange via %{swapperName}",
@@ -1314,7 +1314,7 @@
         "skip": {
           "title": "Sauter cette étape ?",
           "description": "Sauter l'étape de sauvegarde signifie que vous ne pourrez pas récupérer votre porte-monnaie si vous perdez l'accès à votre appareil.",
-          "confirmCta": "Oui, j’ai sauvegardé ma phrase de récupération"
+          "confirmCta": "Oui, j'ai sauvegardé ma phrase de récupération"
         }
       }
     },
@@ -1403,7 +1403,7 @@
         "selectFeeRate": "Choisissez un taux de frais plus élevé",
         "pendingTransaction": "Transaction en attente",
         "speedingUp": "Transaction en cours d'accélération...",
-        "canceling": "Transaction en cours d’annulation...",
+        "canceling": "Transaction en cours d'annulation...",
         "fetchError": "Échec de la récupération des données de transaction",
         "feesTooLow": "Les frais actuels correspondent déjà aux tarifs du réseau",
         "alreadySpentOrReplaced": "Cette transaction ne peut plus être accélérée car elle a déjà été remplacée ou confirmée.",
@@ -1714,7 +1714,7 @@
         "pairingCode": "Code d'appairage",
         "pairingCodePlaceholder": "Entrez le code à 8 caractères du Lattice",
         "pairingCodeHelper": "Consultez l'écran de votre Lattice pour obtenir un code d'appairage de 8 caractères.",
-        "button": "Terminer l’appairage",
+        "button": "Terminer l'appairage",
         "cancel": "← Annuler"
       },
       "name": {
@@ -1987,25 +1987,25 @@
         "yourDecentralizedGateway": "Votre passerelle vers la décentralisation. Échangez et gagnez sur Bitcoin, Ethereum, Solana et plus encore à partir d'un seul porte-monnaie sécurisé.",
         "crossChainFreedom": "Liberté inter-chaînes. Accédez aux meilleurs taux sur plusieurs plateformes d'échange décentralisées, sans intermédiaire.",
         "easyToUse": {
-          "title": "Il est facile à utiliser !",
-          "subTitle": "Avec le porte-monnaie ShapeShift, vous pouvez :",
+          "title": "Facile à utiliser",
+          "subTitle": "Tout ce dont vous avez besoin en un seul endroit",
           "trackBalance": "Suivre vos soldes",
-          "sendReceive": "Envoyer/recevoir des cryptos",
+          "sendReceive": "Envoyer et recevoir des cryptos",
           "buyCrypto": "Acheter des cryptos",
           "tradeAssets": "Échanger des actifs",
-          "earnYield": "Gagnez du rendement sur vos actifs inutilisés",
+          "earnYield": "Gagner des revenus",
           "cta": "Acheter des cryptos",
-          "secondaryCta": "Accéder à mon tableau de bord"
+          "secondaryCta": "Aller au tableau de bord"
         },
         "multiChain": {
-          "title": "Plusieurs chaînes sont prises en charge simultanément",
-          "subTitle": "Vous n'avez jamais besoin de changer de chaîne dans le porte-monnaie, il fonctionne avec chaque chaîne de manière transparente.",
-          "body": "Accédez à Bitcoin, Ethereum, Solana et bien d'autres chaînes depuis un seul portefeuille. Échangez et gérez vos actifs sur différents réseaux en toute simplicité."
+          "title": "Support multichaîne",
+          "subTitle": "Échangez sur plusieurs blockchains",
+          "body": "Accédez à Bitcoin, Ethereum, Solana et bien d'autres blockchains depuis un seul porte-monnaie. Gérez et échangez vos actifs en toute simplicité sur différents réseaux."
         },
         "selfCustody": {
-          "title": "Votre porte-monnaie ShapeShift est auto-dépositaire",
-          "subTitle": "Vous détenez les clés et vous êtes seul à pouvoir y accéder",
-          "body": "Un porte-monnaie auto-dépositaire signifie que vous le possédez et qu'uniquement vous avez accès à vos fonds. Votre Phrase de Récupération Secrète est votre clé pour y accéder. Personne ne peut vous empêcher d'accéder à vos fonds."
+          "title": "Auto-dépositaire",
+          "subTitle": "Vous êtes propriétaire de vos clés, vous êtes propriétaire de vos cryptos",
+          "body": "Votre porte-monnaie, vos clés, vos cryptos. ShapeShift n'a jamais accès à vos fonds. Vous conservez le contrôle total de vos actifs à tout moment."
         }
       }
     },
@@ -2049,7 +2049,7 @@
       "nextStep": "Par la suite, il va vous être demandé de confirmer la position de certains mots dans votre Phrase de Récupération Secrète.",
       "button": "Continuer pour confirmer",
       "success": {
-        "title": "C’est fait !",
+        "title": "C'est fait !",
         "description": "Vous avez vérifié votre phrase secrète de récupération. Conservez-la précieusement : c'est le seul moyen de récupérer votre porte-monnaie.",
         "viewWallet": "Voir le porte-monnaie"
       }
@@ -2236,7 +2236,7 @@
     "thisWeek": "Cette semaine",
     "thisMonth": "Ce mois-ci",
     "speedUp": "Accélération",
-    "cancelTransaction": "Transaction d’annulation",
+    "cancelTransaction": "Transaction d'annulation",
     "replaced": "Remplacé",
     "replacedBy": "Remplacé par %{txHash}",
     "replaces": "Remplace %{txHash}"
@@ -2370,7 +2370,7 @@
     "totalCollateral": "Totale des collatéraux",
     "totalCollateralDescription": "Collatéral total ajouté au pool de prêts",
     "estCollateralizationRatio": "Est. du ratio de collatéralisation",
-    "estCollateralizationRatioDescription": "Un ratio de collatéralisation (CR) forfaitaire de 200 % est actuellement en place. À l’avenir, un ratio dynamique s'équilibrera entre le CR maximum et minimum en fonction des conditions du marché.",
+    "estCollateralizationRatioDescription": "Un ratio de collatéralisation (CR) forfaitaire de 200 % est actuellement en place. À l'avenir, un ratio dynamique s'équilibrera entre le CR maximum et minimum en fonction des conditions du marché.",
     "collateralizationRatio": "Ratio de collatéralisation",
     "totalBorrowers": "Total d'emprunteurs",
     "totalBorrowersDescription": "Nombre d'emprunteurs participants",
@@ -2415,7 +2415,7 @@
       },
       "borrowing": {
         "title": "Comment fonctionne l'emprunt ?",
-        "body": "Emprunter avec THORChain implique d’utiliser vos actifs déposés en collatéral pour contracter un prêt. Le prêt est libellé en USD (TOR) et peut être reçu dans divers actifs L1. Avec un ratio de collatéralisation dynamique, vous pouvez emprunter de manière flexible sans vous soucier des intérêts ou de la liquidation"
+        "body": "Emprunter avec THORChain implique d'utiliser vos actifs déposés en collatéral pour contracter un prêt. Le prêt est libellé en USD (TOR) et peut être reçu dans divers actifs L1. Avec un ratio de collatéralisation dynamique, vous pouvez emprunter de manière flexible sans vous soucier des intérêts ou de la liquidation"
       },
       "repayments": {
         "title": "Comment fonctionne le remboursement ?",
@@ -2443,7 +2443,7 @@
     "yourLoans": {
       "yourLoans": "Vos prêts",
       "emptyTitle": "Le pays d'Aucun Prêt !",
-      "emptyBody": "Il semble que vous n'ayez aucun prêt pour le moment. Est-ce le zen financier ou juste une pause avant votre prochaine grande aventure d'emprunt ? Quoi qu’il en soit, profitez du calme !"
+      "emptyBody": "Il semble que vous n'ayez aucun prêt pour le moment. Est-ce le zen financier ou juste une pause avant votre prochaine grande aventure d'emprunt ? Quoi qu'il en soit, profitez du calme !"
     }
   },
   "chainflipLending": {
@@ -2456,6 +2456,8 @@
     "manageLoan": "Gérer le prêt",
     "supply": {
       "title": "Prêter",
+      "subtitle": "Répartissez votre solde libre dans des pools de prêts pour générer des rendements",
+      "asset": "Actif",
       "amount": "Montant",
       "available": "Disponible pour prêter",
       "availableTooltip": "Votre solde libre sur Chainflip State Chain disponible pour le prêt",
@@ -2463,6 +2465,14 @@
       "confirmTitle": "Confirmer le prêt",
       "confirmDescription": "Ajouter %{amount} %{asset} au pool de prêts",
       "confirmAndSupply": "Confirmer et prêter",
+      "poolApy": "APY du pool",
+      "currentPosition": "Position actuelle",
+      "autoCompounding": "Réinvestissement automatique",
+      "enabled": "Activé",
+      "destination": "Destination",
+      "lendingPool": "Pool de prêts %{asset}",
+      "yearlyEarningsSuffix": "%{amount} / année",
+      "year": "année",
       "executingTitle": "Prêt en cours...",
       "executingDescription": "Votre prêt est en cours de traitement",
       "successTitle": "Prêt réussi",
@@ -2470,15 +2480,21 @@
       "supplied": "Prêté",
       "transactionId": "ID de transaction",
       "errorTitle": "Échec du prêt",
-      "errorDescription": "Une erreur s’est produite lors du prêt",
+      "errorDescription": "Une erreur s'est produite lors du prêt",
       "steps": {
         "signing": "Signature de transaction du prêt",
         "confirming": "Confirmation du prêt"
       },
-      "noFreeBalance": "Aucun solde libre. Déposez d'abord des fonds sur Chainflip."
+      "noFreeBalance": "Aucun solde libre. Déposez d'abord des fonds sur Chainflip.",
+      "assetToSupply": "Actif à prêter",
+      "poolShare": "Part du pool",
+      "riskBand": "Classe de risque",
+      "conservativeStablecoin": "Pool de stablecoins conservateur",
+      "volatileAsset": "Pool d'actifs volatils"
     },
     "borrow": {
       "title": "Emprunter",
+      "subtitle": "Empruntez des actifs contre votre collatéral",
       "amount": "Montant",
       "available": "Disponible à l'emprunt",
       "maxLtv": "LTV max. (80%)",
@@ -2487,6 +2503,7 @@
       "confirmTitle": "Confirmer l'emprunt",
       "confirmDescription": "Empruntez %{amount} %{asset} contre votre collatéral",
       "confirmAndBorrow": "Confirmer et emprunter",
+      "asset": "Actif",
       "executingTitle": "Emprunt en cours...",
       "executingDescription": "Votre prêt est en cours de traitement",
       "successTitle": "L'emprunt est réussi",
@@ -2501,7 +2518,17 @@
       },
       "noCollateral": "Ajoutez d'abord un collatéral pour emprunter",
       "minimumLoan": "Prêt minimum : %{amount}",
-      "availableTooltip": "Montant maximal que vous pouvez emprunter en fonction de la valeur de votre collatéral et le LTV cible"
+      "availableTooltip": "Montant maximal que vous pouvez emprunter en fonction de la valeur de votre collatéral et le LTV cible",
+      "needMorePower": "Besoin d'une plus grande capacité d'emprunt ?",
+      "addCollateral": "Ajouter du collatéral"
+    },
+    "stats": {
+      "totalCollateral": "Total de collatéral",
+      "totalCollateralTooltip": "Valeur totale du collatéral déposé sur votre compte de prêt.",
+      "borrowCapacity": "Capacité d'emprunt",
+      "borrowCapacityTooltip": "Capacité d'emprunt restante en fonction de votre collatéral et de votre ratio LTV cible.",
+      "estInterestRate": "Taux d'intérêt estimé",
+      "estInterestRateTooltip": "Taux d'emprunt annualisé actuel pour ce pool. Les taux varient en fonction du taux d'utilisation du pool."
     },
     "totalSupplied": "Total offert",
     "totalSuppliedTooltip": "Valeur totale des actifs offerts sur l'ensemble des pools de prêts Chainflip.",
@@ -2529,6 +2556,8 @@
     },
     "supplyApy": "APY de prêt",
     "supplyApyTooltip": "Rendement annuel en pourcentage obtenu en prêtant des actifs à ce fonds.",
+    "borrowApr": "APR de l'emprunt",
+    "borrowAprTooltip": "Taux annuel en pourcentage appliqué aux emprunts dans ce pool.",
     "borrowRate": "Taux d'emprunt",
     "utilisation": "Utilisation",
     "utilisationTooltip": "Pourcentage des actifs prêtés actuellement empruntés. Un taux d'utilisation plus élevé signifie des rendements plus élevés, mais une liquidité disponible moindre.",
@@ -2543,6 +2572,8 @@
       "add": "Ajouter du collatéral",
       "remove": "Retirer du collatéral",
       "amount": "Montant",
+      "asset": "Actif",
+      "action": "Action",
       "availableToAdd": "Disponible pour ajouter",
       "availableToRemove": "Disponible pour retirer",
       "confirmAddTitle": "Confirmer l'ajout de collatéral",
@@ -2561,7 +2592,7 @@
       "removed": "Retiré",
       "transactionId": "ID de transaction",
       "errorTitle": "Échec de la mise à jour de collatéral",
-      "errorDescription": "Une erreur s’est produite",
+      "errorDescription": "Une erreur s'est produite",
       "steps": {
         "signing": "Signature de la mise à jour de collatéral",
         "confirming": "Confirmation de la mise à jour"
@@ -2569,6 +2600,9 @@
       "minimumAmount": "Mise à jour minimale de collatéral : %{amount}",
       "noFreeBalance": "Aucun solde libre disponible pour ajouter en collatéral",
       "noRemovable": "Impossible de retirer le collatéral sans réduire le LTV en dessous de l'objectif"
+    },
+    "confirm": {
+      "destination": "Destination"
     },
     "depositToChainflip": "Déposer sur Chainflip",
     "depositDescription": "Déposez des actifs de votre porte-monnaie sur votre compte Chainflip State Chain pour commencer à prêter.",
@@ -2582,9 +2616,12 @@
     "connectWalletDescription": "Connectez votre porte-monnaie pour consulter vos positions de prêts.",
     "protocolStats": "Statistiques du protocole",
     "deposit": {
+      "subtitle": "Transférez des actifs de votre porte-monnaie vers votre solde libre",
       "amount": "Montant",
       "available": "Disponible",
       "explainer": "Vos actifs seront déposés sur votre compte Chainflip State Chain. Une fois déposés, vous pourrez les ajouter dans les pools de prêts pour générer des revenus.",
+      "asset": "Actif",
+      "recoveryAddress": "Adresse de récupération",
       "openChannel": "Ouvrir un canal de dépôt",
       "confirmTitle": "Confirmer le dépôt",
       "confirmDescription": "Déposez %{amount} %{asset} sur votre compte Chainflip State Chain. Vous serez guidé à chaque étape et invité à signer les transactions si nécessaire.",
@@ -2609,7 +2646,7 @@
       "executingTitle": "Dépôt en cours...",
       "executingDescription": "Veuillez confirmer les transactions dans votre porte-monnaie comme indiqué.",
       "errorTitle": "Échec du dépôt",
-      "errorDescription": "Une erreur s’est produite lors du processus de dépôt.",
+      "errorDescription": "Une erreur s'est produite lors du processus de dépôt.",
       "freeBalance": "Solde libre",
       "freeBalanceTooltip": "Votre solde libre en %{asset} sur Chainflip State Chain",
       "refundAddress": {
@@ -2632,8 +2669,10 @@
     "myBalancesTitle": "Chainflip Lending - Mes soldes",
     "withdraw": {
       "title": "Retirer",
+      "subtitle": "Retirez des actifs du pool de prêts pour les transférer vers solde libre",
       "amount": "Montant",
       "available": "Disponible pour retirer",
+      "destination": "Destination",
       "availableTooltip": "Votre position dans le pool de prêts",
       "confirmTitle": "Confirmer le retrait",
       "confirmDescription": "Retirer %{amount} %{asset} du pool de prêts",
@@ -2644,7 +2683,7 @@
       "successDescription": "Vos %{asset} ont été retirés",
       "withdrawn": "Retiré",
       "errorTitle": "Le retrait a échoué",
-      "errorDescription": "Une erreur s’est produite lors du retrait",
+      "errorDescription": "Une erreur s'est produite lors du retrait",
       "noPosition": "Aucune position de prêt disponible pour cet actif",
       "withdrawAmount": "Retirer",
       "steps": {
@@ -2680,8 +2719,12 @@
     },
     "repay": {
       "title": "Rembourser",
+      "subtitle": "Remboursez le solde du prêt en cours",
       "amount": "Montant",
+      "asset": "Actif",
       "outstanding": "Dette en cours",
+      "repaymentType": "Type de remboursement",
+      "full": "En entier",
       "fullRepayment": "Remboursement intégral",
       "partialRepayment": "Remboursement partiel",
       "confirmTitle": "Confirmer le remboursement",
@@ -2694,7 +2737,7 @@
       "repaid": "Remboursé",
       "transactionId": "ID de transaction",
       "errorTitle": "Échec du remboursement",
-      "errorDescription": "Une erreur s’est produite lors du remboursement",
+      "errorDescription": "Une erreur s'est produite lors du remboursement",
       "steps": {
         "signing": "Signature du remboursement",
         "confirming": "Confirmation du remboursement"
@@ -2712,12 +2755,18 @@
       "softLiquidation": "Liquidation partielle",
       "hardLiquidation": "Liquidation totale",
       "safe": "Sûr",
+      "risky": "Risqué",
+      "liquidation": "Liquidation",
       "warning": "Avertissement",
-      "danger": "Danger"
+      "danger": "Danger",
+      "conservative": "Conservateur",
+      "optimal": "Optimal"
     },
     "egress": {
       "title": "Retirer de Chainflip",
+      "subtitle": "Retirez de votre solde libre vers votre porte-monnaie",
       "amount": "Montant",
+      "asset": "Actif",
       "destination": "Adresse de destination",
       "destinationPlaceholder": "Entrez l'adresse de destination",
       "available": "Solde libre disponible",
@@ -2747,6 +2796,14 @@
     "collateralHeader": "Collatéral",
     "borrowedHeader": "Emprunté",
     "voluntaryLiquidation": {
+      "reduceDebt": "Réduire la dette",
+      "currentCollateral": "Collatéral actuel",
+      "outstandingDebt": "Dette en cours",
+      "currentLtv": "LTV actuel",
+      "estimatedDuration": "Durée estimée",
+      "estimatedDurationValue": "Varie selon le marché",
+      "initiateWarningDetailed": "Le collatéral sera vendu à des prix proches du marché jusqu'à ce que votre LTV diminue. Vous pouvez interrompre ce processus à tout moment. Aucun frais ne sera facturé, sauf si le LTV dépasse un seuil de liquidation.",
+      "confirmLiquidation": "Confirmer la liquidation",
       "initiateTitle": "Déclencher une liquidation volontaire",
       "initiateWarning": "Cette opération commencera la liquidation de l'intégralité de votre position. Votre collatéral sera vendu afin de rembourser tous les prêts en cours. Ce processus est irréversible une fois confirmé sur la chaîne.",
       "stopTitle": "Arrêter la liquidation volontaire",
@@ -2755,17 +2812,84 @@
       "confirmStop": "Arrêter la liquidation",
       "executingTitle": "Traitement en cours...",
       "executingDescription": "Votre demande de liquidation volontaire est soumise à la Chainflip State Chain.",
-      "initiateSuccessTitle": "Liquidation déclenchée",
-      "initiateSuccessDescription": "Votre liquidation volontaire a été déclenchée. Votre position sera liquidée automatiquement.",
+      "initiateSuccessTitle": "Liquidation volontaire démarrée",
+      "initiateSuccessDescription": "Votre collatéral est actuellement vendu en DCA à taux proches du marché afin de réduire votre dette. Vous pouvez interrompre ces ordres à tout moment depuis votre tableau de bord.",
       "stopSuccessTitle": "Liquidation arrêtée",
       "stopSuccessDescription": "La liquidation volontaire a été annulée. Votre position reste ouverte.",
       "errorTitle": "La transaction a échoué",
       "errorDescription": "L'opération de liquidation volontaire a échoué. Veuillez réessayer.",
       "inProgress": "Liquidation volontaire en cours",
+      "viewDashboard": "Voir le tableau de bord",
+      "summaryStatus": "Statut",
+      "summaryInProgress": "En cours",
+      "summaryMethod": "Méthode",
+      "summaryMethodValue": "DCA",
+      "summaryStopsWhen": "S'arrête lorsque",
+      "summaryStopsWhenValue": "LTV à 0%",
+      "summaryUnsoldCollateral": "Collatéral invendu",
+      "summaryUnsoldCollateralValue": "Retourné sur votre compte",
       "steps": {
         "signing": "Signer la transaction",
         "confirming": "Confirmation sur la chaîne"
       }
+    },
+    "dashboard": {
+      "freeBalance": "Solde libre",
+      "supplied": "Prêté",
+      "collateral": "Collatéral",
+      "borrowed": "Emprunté",
+      "loanHealth": "Santé du prêt",
+      "currentLtv": "LTV actuel %{ltv}",
+      "liquidationDistance": "Distance de liquidation",
+      "borrowingPower": "Pouvoir d'emprunt",
+      "available": "Disponible",
+      "yourNextSteps": "Vos prochaines étapes",
+      "nextStepsSupplyOrCollateral": "Choisissez si vous souhaitez commencer à gagner des intérêts ou mettre à disposition un collatéral pour emprunter.",
+      "nextStepsCollateral": "Fournissez du collatéral pour commencer à emprunter.",
+      "nextStepsBorrow": "Vous pouvez désormais emprunter contre votre collatéral.",
+      "noEarningPositions": "Pas encore de positions rémunérées",
+      "noEarningPositionsDescription": "Prêtez votre solde disponible pour commencer à générer des revenus issus des demandeurs d'emprunts.",
+      "provideCollateral": "Mettez à disposition du collatéral pour commencer à emprunter",
+      "provideCollateralDescription": "Transférez des actifs de votre solde libre vers le collatéral. Votre collatéral détermine le montant que vous pouvez emprunter.",
+      "noActiveLoans": "Aucun prêt actif",
+      "noActiveLoansDescription": "Déposez d'abord un collatéral, puis empruntez contre celui-ci.",
+      "cantRepay": "Vous ne pouvez pas rembourser ?",
+      "startLiquidation": "Commencer la liquidation",
+      "topupAsset": "Recharger un actif",
+      "getStarted": "Commencer",
+      "depositFirstAsset": "Déposez votre premier actif pour commencer",
+      "depositFirstAssetDescription": "Votre premier dépôt couvre tout : création du compte, approvisionnement en FLIP pour les frais de carburant sur la State Chain et adresse de récupération pour la chaîne depuis laquelle vous déposez. Les dépôts futurs sautent toutes ces étapes.",
+      "requiresFlip": "Nécessite 2 FLIP pour un financement unique du compte",
+      "earnYield": "Gagner des rendements",
+      "earnYieldDescription": "Prêtez des actifs à un pool de prêts et gagnez un APY variable. Les intérêts sont automatiquement composés. Aucune action n'est requise après l'apport.",
+      "borrowAgainstCollateral": "Emprunter contre le collatéral",
+      "borrowAgainstCollateralDescription": "Déposez des BTC, des ETH ou des SOL comme collatéral et empruntez des stablecoins jusqu'à la valeur LTV cible.",
+      "estimatedYearlyEarnings": "Revenus annuels estimés",
+      "freeBalanceTooltip": "Votre solde disponible sur Chainflip State Chain. Déposez depuis votre porte-monnaie ou retirez vos fonds.",
+      "suppliedTooltip": "Actifs fournis aux pools de prêts et générant des rendements.",
+      "collateralTooltip": "Actifs déposés en collatéral pour l'emprunt.",
+      "borrowedTooltip": "Soldes des prêts en cours.",
+      "loanHealthTooltip": "Votre ratio prêt-valeur (LTV). Gardez-le en-dessous du LTV cible pour éviter la liquidation.",
+      "borrowingPowerTooltip": "Montant supplémentaire que vous pouvez emprunter selon votre collatéral.",
+      "deposit": "Déposer",
+      "withdraw": "Retirer",
+      "supply": "Prêter",
+      "addCollateral": "Ajouter du collatéral",
+      "borrow": "Emprunter",
+      "repay": "Rembourser",
+      "apy": "APY",
+      "borrowRate": "Taux d'emprunt",
+      "viewDashboard": "Voir le tableau de bord",
+      "lendingMarkets": "Marchés du crédit",
+      "asset": "Actif",
+      "lendingMarketsDescription": "Chaque pool est isolé par actif. Choisissez un marché pour voir ce que vous pourriez gagner ou emprunter avant de déposer.",
+      "voluntaryLiquidationActive": "Liquidation volontaire active",
+      "volLiqMethod": "Méthode",
+      "volLiqMethodValue": "DCA à taux proches du marché",
+      "volLiqRemainingDebt": "Dette restante",
+      "volLiqCollateralSold": "Collatéral vendu",
+      "volLiqDescription": "Vente de collatéral pour ramener votre position à un LTV sain. Ce processus s'arrête automatiquement une fois votre LTV rétabli, ou vous pouvez l'arrêter à tout moment.",
+      "volLiqStop": "Arrêter la liquidation"
     }
   },
   "chart": {
@@ -2831,7 +2955,7 @@
     "faq": {
       "title": "FAQ",
       "what": {
-        "title": "Qu’est-ce qu’un pool de liquidités ?",
+        "title": "Qu'est-ce qu'un pool de liquidités ?",
         "body": "Un pool de liquidité est un pool de fonds décentralisé qui contient des actifs utilisés pour faciliter les échanges sur un réseau blockchain. Il joue un rôle crucial dans la finance décentralisée (DeFi) en fournissant des liquidités à diverses paires pour les échanges."
       },
       "how": {
@@ -2840,7 +2964,7 @@
       },
       "amm": {
         "title": "Market-makers automatisés (Automated Market Makers ou AMM)",
-        "body": "De nombreux pools de liquidité fonctionnent comme des market-makers automatisés (Automated Market Makers ou AMM), utilisant des algorithmes pour déterminer le prix des actifs en fonction du ratio de jetons dans le pool. Cela permet des échanges décentralisés et continus sans avoir besoin d’un carnet d’ordres (order book) traditionnel."
+        "body": "De nombreux pools de liquidité fonctionnent comme des market-makers automatisés (Automated Market Makers ou AMM), utilisant des algorithmes pour déterminer le prix des actifs en fonction du ratio de jetons dans le pool. Cela permet des échanges décentralisés et continus sans avoir besoin d'un carnet d'ordres (order book) traditionnel."
       },
       "rewards": {
         "title": "Gagner des récompenses",
@@ -2859,7 +2983,7 @@
     "highSlippageBorrow": "Cet emprunt présente un glissement/slippage élevé (%{slippagePercentage}%). Procédez avec prudence.",
     "highSlippageTrade": "Cet échange est influencé par les mouvements de cours (%{slippagePercentage}%). Procédez avec prudence.",
     "unsafeTrade": "Cet échange peut être risqué ou inférieur à la taille minimale recommandée, procédez avec prudence.",
-    "customToken": "N’importe qui peut créer des jetons, y compris des imposteurs, il faut donc faire preuve de prudence. Certains jetons peuvent ne pas fonctionner avec ShapeShift. En important ce jeton, vous en acceptez les risques. Ce jeton n'est pas échangé sur les principales bourses américaines ni fréquemment échangé sur ShapeShift. Faites toujours des recherches avant de faire des échanges."
+    "customToken": "N'importe qui peut créer des jetons, y compris des imposteurs, il faut donc faire preuve de prudence. Certains jetons peuvent ne pas fonctionner avec ShapeShift. En important ce jeton, vous en acceptez les risques. Ce jeton n'est pas échangé sur les principales bourses américaines ni fréquemment échangé sur ShapeShift. Faites toujours des recherches avant de faire des échanges."
   },
   "streamingAcknowledgement": {
     "description": "Il s'agit d'un échange en streaming, vous obtenez un meilleur prix, mais cela peut prendre jusqu'à %{estimatedTimeHuman} pour se terminer."
@@ -2969,7 +3093,7 @@
     "myStakedBalance": "Mon solde staké",
     "myStakedBalanceHelper": "Le montant en %{symbol} que vous avez staké",
     "pendingRewardsBalance": "Solde des récompenses en attente",
-    "pendingRewardsBalanceHelper": "Il s'agit uniquement d'une estimation de vos récompenses en attente, basée sur les revenus de l’époque à ce jour. Toute la comptabilité est effectuée à la fin de l'époque et ne peut pas être calculée exactement avant la fin du mois",
+    "pendingRewardsBalanceHelper": "Il s'agit uniquement d'une estimation de vos récompenses en attente, basée sur les revenus de l'époque à ce jour. Toute la comptabilité est effectuée à la fin de l'époque et ne peut pas être calculée exactement avant la fin du mois",
     "lifetimeRewards": "Récompenses cumulées",
     "lifetimeRewardsHelper": "Le total à ce jour des récompenses que vous avez gagnées en stakant vos %{symbol}",
     "timeInPool": "Temps dans le pool",
@@ -2979,7 +3103,7 @@
     "faq": {
       "title": "FAQ",
       "what": {
-        "title": "Qu’est-ce que rFOX ?",
+        "title": "Qu'est-ce que rFOX ?",
         "body": "rFOX est un terme utilisé pour décrire les avantages et les récompenses que vous recevez lorsque vous stakez vos jetons FOX sur Arbitrum. Actuellement, vous verrouillez et déverrouillez les jetons « vanilla » FOX (sur Arbitrum) pour les émissions de staking."
       },
       "why": {
@@ -3037,7 +3161,7 @@
     "claimConfirm": {
       "dustAmountTooltip": "Un petit montant en %{symbol} est nécessaire pour identifier votre adresse sur le réseau THOR",
       "networkFeeTooltip": "Il s'agit des frais en %{symbol} pour traiter la transaction sur la blockchain, ce ne sont pas des frais facturés par ShapeShift",
-      "missingFundsForGasAlert": "Montant en %{symbol} insuffisant, il vous faut au moins %{amount} %{symbol} pour finaliser la transaction. Nous vous recommandons d'envoyer un peu plus afin de couvrir d’éventuelles fluctuations de frais de réseau.",
+      "missingFundsForGasAlert": "Montant en %{symbol} insuffisant, il vous faut au moins %{amount} %{symbol} pour finaliser la transaction. Nous vous recommandons d'envoyer un peu plus afin de couvrir d'éventuelles fluctuations de frais de réseau.",
       "confirmTitle": "Confirmer la réclamation",
       "networkFee": "Frais de réseau",
       "confirmAndClaim": "Réclamer et staker",
@@ -3147,7 +3271,7 @@
     },
     "governance": {
       "title": "Gouvernance",
-      "description": "Rejoignez-nous <link>sur le forum</link> et façonnez l’avenir de la DAO.",
+      "description": "Rejoignez-nous <link>sur le forum</link> et façonnez l'avenir de la DAO.",
       "totalVotingPower": "Pouvoir de vote total",
       "noActiveProposals": "Aucune proposition active disponible",
       "noClosedProposals": "Aucune proposition fermée disponible"

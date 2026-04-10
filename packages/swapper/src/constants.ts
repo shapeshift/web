@@ -18,8 +18,6 @@ import { cowSwapper } from './swappers/CowSwapper/CowSwapper'
 import { cowApi } from './swappers/CowSwapper/endpoints'
 import { debridgeSwapper } from './swappers/DebridgeSwapper'
 import { debridgeApi } from './swappers/DebridgeSwapper/endpoints'
-import { jupiterApi } from './swappers/JupiterSwapper/endpoints'
-import { jupiterSwapper } from './swappers/JupiterSwapper/JupiterSwapper'
 import { mayachainApi } from './swappers/MayachainSwapper/endpoints'
 import { mayachainSwapper } from './swappers/MayachainSwapper/MayachainSwapper'
 import { nearIntentsApi } from './swappers/NearIntentsSwapper/endpoints'
@@ -77,10 +75,6 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
   [SwapperName.Chainflip]: {
     ...chainflipSwapper,
     ...chainflipApi,
-  },
-  [SwapperName.Jupiter]: {
-    ...jupiterSwapper,
-    ...jupiterApi,
   },
   [SwapperName.Relay]: {
     ...relaySwapper,
@@ -163,8 +157,6 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       return DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.Chainflip:
       return DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE
-    case SwapperName.Jupiter:
-      throw new Error('Default slippage not supported by Jupiter')
     case SwapperName.Relay:
       throw new Error('Default slippage not supported by Relay')
     case SwapperName.Across:
@@ -190,8 +182,6 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
 
 export const isAutoSlippageSupportedBySwapper = (swapperName: SwapperName): boolean => {
   switch (swapperName) {
-    case SwapperName.Jupiter:
-      return true
     case SwapperName.Relay:
     case SwapperName.Across:
     case SwapperName.Debridge:

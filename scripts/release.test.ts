@@ -10,143 +10,104 @@ import {
 
 describe('deriveReleaseState', () => {
   const base = {
-    releaseSha: 'aaa',
     mainSha: 'aaa',
-    developSha: 'bbb',
-    privateSha: 'aaa',
     latestTagSha: 'aaa',
-    openPrereleasePr: undefined,
+    releaseIsAheadOfMain: false,
+    privateContentMatchesMain: true,
     openReleasePr: undefined,
   }
 
-  it('returns idle when develop is ahead of main and no PR exists', () => {
+  it('returns idle when everything is synced and release matches main', () => {
     expect(deriveReleaseState(base)).toBe('idle')
   })
 
-  it('returns idle when prerelease was merged (release matches develop, ahead of main)', () => {
-    expect(
-      deriveReleaseState({
-        ...base,
-        releaseSha: 'bbb',
-      }),
-    ).toBe('idle')
+  it('returns release_ready when release is ahead of main and no release PR exists', () => {
+    expect(deriveReleaseState({ ...base, releaseIsAheadOfMain: true })).toBe('release_ready')
   })
 
-  it('returns prerelease_pr_open when develop -> release PR exists', () => {
+  it('returns release_open when release->main PR exists', () => {
     expect(
       deriveReleaseState({
         ...base,
-        openPrereleasePr: { number: 41, title: 'chore: prerelease v1.1016.0' },
-      }),
-    ).toBe('prerelease_pr_open')
-  })
-
-  it('returns release_pr_open when a release -> main PR exists', () => {
-    expect(
-      deriveReleaseState({
-        ...base,
-        releaseSha: 'bbb',
         openReleasePr: { number: 42, title: 'chore: release v1.1016.0' },
       }),
-    ).toBe('release_pr_open')
+    ).toBe('release_open')
   })
 
-  it('returns merged_untagged when main is ahead of latest tag', () => {
+  it('returns needs_tag when main has moved past the latest tag', () => {
+    expect(deriveReleaseState({ ...base, mainSha: 'ccc' })).toBe('needs_tag')
+  })
+
+  it('returns sync_pending when private is behind main', () => {
+    expect(deriveReleaseState({ ...base, privateContentMatchesMain: false })).toBe('sync_pending')
+  })
+
+  it('prioritizes release_open over needs_tag', () => {
     expect(
       deriveReleaseState({
         ...base,
         mainSha: 'ccc',
-        releaseSha: 'ccc',
-      }),
-    ).toBe('merged_untagged')
-  })
-
-  it('returns tagged_private_stale when tagged but private is behind', () => {
-    expect(
-      deriveReleaseState({
-        ...base,
-        privateSha: 'zzz',
-      }),
-    ).toBe('tagged_private_stale')
-  })
-
-  it('returns done when everything is in sync', () => {
-    expect(
-      deriveReleaseState({
-        ...base,
-        developSha: 'aaa',
-      }),
-    ).toBe('done')
-  })
-
-  it('returns tagged_private_stale whenever private is behind main regardless of develop', () => {
-    expect(
-      deriveReleaseState({
-        ...base,
-        privateSha: 'zzz',
-      }),
-    ).toBe('tagged_private_stale')
-  })
-
-  it('prioritizes prerelease_pr_open over everything', () => {
-    expect(
-      deriveReleaseState({
-        ...base,
-        openPrereleasePr: { number: 41, title: 'chore: prerelease v1.1016.0' },
         openReleasePr: { number: 42, title: 'chore: release v1.1016.0' },
       }),
-    ).toBe('prerelease_pr_open')
+    ).toBe('release_open')
   })
 
-  it('prioritizes release_pr_open over merged_untagged', () => {
+  it('prioritizes needs_tag over sync_pending', () => {
+    expect(deriveReleaseState({ ...base, mainSha: 'ccc', privateContentMatchesMain: false })).toBe(
+      'needs_tag',
+    )
+  })
+
+  it('prioritizes sync_pending over release_ready', () => {
     expect(
-      deriveReleaseState({
-        ...base,
-        mainSha: 'ccc',
-        releaseSha: 'bbb',
-        openReleasePr: { number: 42, title: 'chore: release v1.1016.0' },
-      }),
-    ).toBe('release_pr_open')
+      deriveReleaseState({ ...base, privateContentMatchesMain: false, releaseIsAheadOfMain: true }),
+    ).toBe('sync_pending')
   })
 })
 
 describe('deriveHotfixState', () => {
   const base = {
     mainSha: 'aaa',
-    privateSha: 'aaa',
     latestTagSha: 'aaa',
+    privateContentMatchesMain: true,
     openHotfixPr: undefined,
   }
 
-  it('returns idle when no hotfix in progress', () => {
+  it('returns idle when no hotfix in progress and everything is synced', () => {
     expect(deriveHotfixState(base)).toBe('idle')
   })
 
-  it('returns hotfix_pr_open when hotfix PR exists', () => {
+  it('returns hotfix_open when hotfix PR exists', () => {
     expect(
       deriveHotfixState({
         ...base,
         openHotfixPr: { number: 99, title: 'chore: hotfix v1.1015.1' },
       }),
-    ).toBe('hotfix_pr_open')
+    ).toBe('hotfix_open')
   })
 
-  it('returns merged_untagged when main moved past tag', () => {
+  it('returns needs_tag when main moved past tag', () => {
+    expect(deriveHotfixState({ ...base, mainSha: 'bbb' })).toBe('needs_tag')
+  })
+
+  it('returns sync_pending when private is behind main', () => {
+    expect(deriveHotfixState({ ...base, privateContentMatchesMain: false })).toBe('sync_pending')
+  })
+
+  it('prioritizes hotfix_open over needs_tag', () => {
     expect(
       deriveHotfixState({
         ...base,
         mainSha: 'bbb',
+        openHotfixPr: { number: 99, title: 'chore: hotfix v1.1015.1' },
       }),
-    ).toBe('merged_untagged')
+    ).toBe('hotfix_open')
   })
 
-  it('returns tagged_private_stale when tagged but private behind', () => {
-    expect(
-      deriveHotfixState({
-        ...base,
-        privateSha: 'zzz',
-      }),
-    ).toBe('tagged_private_stale')
+  it('prioritizes needs_tag over sync_pending', () => {
+    expect(deriveHotfixState({ ...base, mainSha: 'bbb', privateContentMatchesMain: false })).toBe(
+      'needs_tag',
+    )
   })
 })
 

@@ -36,7 +36,7 @@ type GitHubPr = {
 
 type UnreleasedCommit = { hash: string; message: string }
 
-const releaseType = ['Regular', 'Hotfix'] as const
+const releaseType = ['Regular', 'Hotfix', 'Release fix'] as const
 type ReleaseType = (typeof releaseType)[number]
 
 // ---------------------------------------------------------------------------
@@ -483,12 +483,15 @@ const inquireConfirm = async (message: string): Promise<boolean> => {
   return shouldProceed
 }
 
-const inquireSelectCommits = async (commits: UnreleasedCommit[]): Promise<UnreleasedCommit[]> => {
+const inquireSelectCommits = async (
+  commits: UnreleasedCommit[],
+  message = 'Select commits to cherry-pick:',
+): Promise<UnreleasedCommit[]> => {
   const { selected } = await inquirer.prompt<{ selected: string[] }>([
     {
       type: 'checkbox',
       name: 'selected',
-      message: 'Select commits to cherry-pick into the hotfix:',
+      message,
       choices: commits.map(c => ({
         name: `${c.hash.slice(0, 8)} ${c.message}`,
         value: c.hash,
@@ -603,6 +606,38 @@ const handleReleaseIdle = async (nextVersion: string): Promise<void> => {
 
 // release_ready: release branch has new merged commits — create the release PR (release -> main).
 const handleReleaseReady = async (nextVersion: string): Promise<void> => {
+  // Safety check: warn if any non-merge commit on release (past the merge-base with main)
+  // was cherry-picked without -x, which would cause it to be re-included in a future release.
+  const mergeBase = (await pify(exec)('git merge-base origin/main origin/release')).trim()
+  const cherryPickCheck = await pify(exec)(
+    `git log --no-merges --format="%H %s" ${mergeBase}..origin/release`,
+  ).catch(() => '')
+  if (cherryPickCheck.trim()) {
+    const lines = cherryPickCheck.trim().split('\n').filter(Boolean)
+    for (const line of lines) {
+      const sha = line.split(' ')[0]
+      const body = await pify(exec)(`git log -1 --format="%b" ${sha}`).catch(() => '')
+      // Commits from the develop merge don't need trailers — only cherry-picks do.
+      // A cherry-picked commit is one whose patch-id doesn't appear in the merge range.
+      // Simple heuristic: if the commit message doesn't come from the merge and lacks the trailer, warn.
+      const isFromMerge = await pify(exec)(
+        `git log --no-merges --cherry-pick --left-only --pretty=format:"%H" origin/main...${sha}`,
+      ).catch(() => '')
+      if (!isFromMerge.trim() && !body.includes('(cherry picked from commit')) {
+        const shortMsg = line.slice(sha.length + 1)
+        console.log(
+          chalk.yellow(
+            `⚠ Commit ${sha.slice(
+              0,
+              8,
+            )} "${shortMsg}" was cherry-picked without -x (missing trailer). ` +
+              'This may cause it to be re-included in a future release.',
+          ),
+        )
+      }
+    }
+  }
+
   // Release notes = commits on release not yet on main, filtered by patch-id so any commits
   // already shipped via a hotfix (different SHAs but same patch on main) are excluded. With
   // merge-commit releases, develop SHAs are reachable from main directly after merge, so this
@@ -710,6 +745,73 @@ const doRegularRelease = async () => {
 }
 
 // ---------------------------------------------------------------------------
+// Release fix handlers
+// ---------------------------------------------------------------------------
+
+// Cherry-picks selected develop commits onto the release branch with -x so
+// patch-id matching works correctly for future releases.
+const handleReleaseFix = async (): Promise<void> => {
+  const openReleasePr = await findOpenPr('release', 'main')
+  if (!openReleasePr) {
+    return exit(chalk.red('No open release PR found. Release fix requires an open release PR.'))
+  }
+  console.log(chalk.blue(`Open release PR: #${openReleasePr.number} - ${openReleasePr.title}\n`))
+
+  // Compare develop against release (not main) so commits already merged into release are excluded.
+  const result = await pify(exec)(
+    `git log --cherry-pick --right-only --no-merges --pretty=format:"%H %s" origin/release...origin/develop`,
+  ).catch(() => '')
+  const unreleased: UnreleasedCommit[] = !result.trim()
+    ? []
+    : result
+        .trim()
+        .split('\n')
+        .filter(Boolean)
+        .map((line: string) => {
+          const spaceIdx = line.indexOf(' ')
+          if (spaceIdx === -1) return { hash: line, message: '' }
+          return { hash: line.slice(0, spaceIdx), message: line.slice(spaceIdx + 1) }
+        })
+  if (unreleased.length === 0) return exit(chalk.red('No unreleased commits found on develop.'))
+
+  console.log(chalk.green(`Found ${unreleased.length} unreleased commit(s).\n`))
+  const selected = await inquireSelectCommits(
+    unreleased,
+    'Select commits to cherry-pick onto release:',
+  )
+  if (selected.length === 0)
+    return exit(chalk.yellow('No commits selected. Release fix cancelled.'))
+
+  console.log(chalk.blue('\nSelected commits:'))
+  for (const c of selected) console.log(chalk.blue(`  ${c.hash.slice(0, 8)} ${c.message}`))
+
+  if (!(await inquireConfirm('Cherry-pick these commits onto release?')))
+    return exit('Release fix cancelled.')
+
+  const shas = [...selected].reverse().map(c => c.hash)
+  const worktreeDir = path.join(os.tmpdir(), `release-fix-${Date.now()}`)
+  console.log(chalk.green('Cherry-picking commits onto release with -x...'))
+  try {
+    await pify(exec)(`git worktree add ${worktreeDir} origin/release`)
+    const wt = git().cwd(worktreeDir)
+    await wt.raw(['cherry-pick', '-x', ...shas])
+    await wt.push(['origin', 'HEAD:refs/heads/release'])
+  } catch (err) {
+    await pify(exec)(`git worktree remove --force ${worktreeDir}`).catch(() => {})
+    return exit(
+      chalk.red(
+        `Cherry-pick failed: ${
+          err instanceof Error ? err.message : String(err)
+        }\nResolve manually and re-run.`,
+      ),
+    )
+  }
+  await pify(exec)(`git worktree remove ${worktreeDir}`).catch(() => {})
+
+  console.log(chalk.green('Release branch updated. The open release PR now includes the fix(es).'))
+}
+
+// ---------------------------------------------------------------------------
 // Hotfix handlers
 // ---------------------------------------------------------------------------
 
@@ -722,7 +824,10 @@ const handleHotfixIdle = async (nextVersion: string): Promise<void> => {
   if (unreleased.length === 0) return exit(chalk.red('No unreleased commits found.'))
 
   console.log(chalk.green(`Found ${unreleased.length} unreleased commit(s).\n`))
-  const selected = await inquireSelectCommits(unreleased)
+  const selected = await inquireSelectCommits(
+    unreleased,
+    'Select commits to cherry-pick into the hotfix:',
+  )
   if (selected.length === 0) return exit(chalk.yellow('No commits selected. Hotfix cancelled.'))
 
   console.log(chalk.blue('\nSelected commits:'))
@@ -842,7 +947,16 @@ const main = async () => {
   await fetchOrigin()
 
   const type = await inquireReleaseType()
-  type === 'Regular' ? await doRegularRelease() : await doHotfixRelease()
+  switch (type) {
+    case 'Regular':
+      return doRegularRelease()
+    case 'Hotfix':
+      return doHotfixRelease()
+    case 'Release fix':
+      return handleReleaseFix()
+    default:
+      return type satisfies never
+  }
 }
 
 main()

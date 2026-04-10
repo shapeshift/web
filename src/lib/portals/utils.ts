@@ -285,10 +285,7 @@ export const fetchPortalsAccount = async (
   const network = CHAIN_ID_TO_PORTALS_NETWORK[chainId]
 
   // Return empty object for chains not supported by Portals instead of throwing
-  if (!network) {
-    console.log(`[Portals] Chain ${chainId} not supported by Portals, skipping`)
-    return {}
-  }
+  if (!network) return {}
 
   try {
     const { data } = await axios.get<GetBalancesResponse>(`${PORTALS_BASE_URL}/v2/account`, {

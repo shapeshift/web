@@ -1,4 +1,4 @@
-import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
 
@@ -200,7 +200,7 @@ export const relayApi: SwapperApi = {
     if (
       swap.metadata.relayTransactionMetadata &&
       !txIndexingMap.has(swap.id) &&
-      isEvmChainId(chainId)
+      chainIdToRelayChainId[chainId] !== undefined
     ) {
       const relayTxParam = {
         ...swap.metadata.relayTransactionMetadata,

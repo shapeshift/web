@@ -33,6 +33,7 @@ import {
   soneiumChainId,
   sonicChainId,
   storyChainId,
+  tronChainId,
   unichainChainId,
   worldChainChainId,
   zkSyncEraChainId,
@@ -77,24 +78,19 @@ import {
 import { TradeQuoteError } from '../../types'
 import { RelayErrorCode } from './utils/types'
 
+// https://docs.relay.link/resources/supported-chains
 export const chainIdToRelayChainId = {
-  // https://docs.relay.link/resources/supported-chains
   [btcChainId]: 8253038,
   [ethChainId]: ethereum.id,
   [arbitrumChainId]: arbitrum.id,
   [baseChainId]: base.id,
   [optimismChainId]: optimism.id,
   [polygonChainId]: polygon.id,
-  // https://docs.relay.link/resources/supported-chains
   [solanaChainId]: 792703809,
   [gnosisChainId]: gnosis.id,
   [avalancheChainId]: avalanche.id,
   [bscChainId]: bsc.id,
-  // DISABLED: Tron deposits are built as simple TRC20 transfers instead of depositErc20() vault calls,
-  // and the Relay indexer notification is never sent for non-EVM chains. This causes deposits to be
-  // untracked by Relay, resulting in stuck/lost funds. Re-enable once the Tron transaction building
-  // is verified to use the Relay quote calldata (depositErc20) correctly.
-  // [tronChainId]: 728126428,
+  [tronChainId]: 728126428,
   [monadChainId]: monad.id,
   [hyperEvmChainId]: hyperEvm.id,
   [mantleChainId]: mantle.id,

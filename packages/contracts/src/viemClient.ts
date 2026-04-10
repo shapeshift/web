@@ -205,7 +205,10 @@ export const ethereal = defineChain({
 
 export const viemEtherealClient = createPublicClient({
   chain: ethereal,
-  transport: fallback([process.env.VITE_ETHEREAL_NODE_URL].filter(Boolean).map(url => http(url))),
+  transport: createFallbackTransport(
+    process.env.VITE_ETHEREAL_NODE_URL,
+    FALLBACK_RPC_URLS.ethereal,
+  ),
 }) as PublicClient
 
 export const viemStoryClient = createPublicClient({
@@ -241,7 +244,7 @@ export const viemHemiClient = createPublicClient({
 
 export const viemSeiClient = createPublicClient({
   chain: sei,
-  transport: fallback([process.env.VITE_SEI_NODE_URL].filter(Boolean).map(url => http(url))),
+  transport: createFallbackTransport(process.env.VITE_SEI_NODE_URL, FALLBACK_RPC_URLS.sei),
 }) as PublicClient
 
 export const viemAbstractClient = createPublicClient({

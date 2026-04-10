@@ -17,7 +17,6 @@ const ENABLED_SWAPPER_NAMES = [
   'CoW Swap',
   'Portals',
   'Chainflip',
-  'Jupiter',
   'Relay',
   'ButterSwap',
   'Bebop',

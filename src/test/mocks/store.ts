@@ -180,7 +180,6 @@ export const mockStore: ReduxState = {
       SolanaSwapper: false,
       ChainflipDca: false,
       ChainflipLending: false,
-      JupiterSwap: false,
       NewWalletFlow: false,
       NewLimitFlow: false,
       ThorchainSwapperVolatilityAck: false,

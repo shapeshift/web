@@ -12,7 +12,6 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
   switch (swapperName) {
     case SwapperName.Thorchain:
     case SwapperName.Chainflip:
-    case SwapperName.Jupiter:
     case SwapperName.Relay:
     case SwapperName.Mayachain:
     case SwapperName.ButterSwap:
@@ -45,7 +44,6 @@ export const getEnabledSwappers = (
     ZrxSwap,
     ArbitrumBridge,
     Cowswap,
-    JupiterSwap,
     RelaySwapper,
     MayaSwap,
     ButterSwap,
@@ -59,7 +57,6 @@ export const getEnabledSwappers = (
     DebridgeSwap,
   }: FeatureFlags,
   isCrossAccountTrade: boolean,
-  isSolBuyAssetId: boolean,
   walletName?: string,
   sellAssetId?: AssetId,
 ): Record<SwapperName, boolean> => {
@@ -88,10 +85,6 @@ export const getEnabledSwappers = (
     [SwapperName.Chainflip]:
       ChainflipSwap &&
       (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Chainflip)),
-    [SwapperName.Jupiter]:
-      JupiterSwap &&
-      (!isCrossAccountTrade ||
-        (isCrossAccountTradeSupported(SwapperName.Jupiter) && !isSolBuyAssetId)),
     [SwapperName.Relay]:
       RelaySwapper &&
       (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Relay)) &&

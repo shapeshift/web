@@ -3,8 +3,6 @@ import { bool } from 'envalid'
 import forEach from 'lodash/forEach'
 import memoize from 'lodash/memoize'
 
-import { JUPITER_API_URL } from '@/constants/urls'
-
 const { cleanEnv, str, url } = envalid
 
 // add validators for each .env variable
@@ -256,8 +254,6 @@ const validators = {
   VITE_CHAINFLIP_API_URL: url(),
   VITE_CHAINFLIP_RPC_URL: url({ default: 'https://rpc.mainnet.chainflip.io' }),
   VITE_FEATURE_THOR_FREE_FEES: bool({ default: false }),
-  VITE_FEATURE_JUPITER_SWAP: bool({ default: false }),
-  VITE_JUPITER_API_URL: url({ default: JUPITER_API_URL }),
   VITE_FEATURE_NEW_WALLET_FLOW: bool({ default: false }),
   VITE_FEATURE_NEW_LIMIT_FLOW: bool({ default: false }),
   VITE_FEATURE_THORCHAIN_SWAPPER_ACK: bool({ default: false }),

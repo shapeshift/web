@@ -503,3 +503,10 @@ export const checkStarknetSwapStatus = async ({
     return createDefaultStatusResponse(txHash)
   }
 }
+
+export class SolanaLogsError extends Error {
+  constructor(name: string) {
+    super(name)
+    this.name = name
+  }
+}

@@ -108,7 +108,6 @@ export type FeatureFlags = {
   SolanaSwapper: boolean
   ChainflipDca: boolean
   ChainflipLending: boolean
-  JupiterSwap: boolean
   NewWalletFlow: boolean
   NewLimitFlow: boolean
   ThorchainSwapperVolatilityAck: boolean
@@ -282,7 +281,6 @@ const initialState: Preferences = {
     ChainflipDca: getConfig().VITE_FEATURE_CHAINFLIP_SWAP_DCA,
     ChainflipLending: getConfig().VITE_FEATURE_CHAINFLIP_LENDING,
     SolanaSwapper: getConfig().VITE_FEATURE_SWAPPER_SOLANA,
-    JupiterSwap: getConfig().VITE_FEATURE_JUPITER_SWAP,
     NewWalletFlow: getConfig().VITE_FEATURE_NEW_WALLET_FLOW,
     NewLimitFlow: getConfig().VITE_FEATURE_NEW_LIMIT_FLOW,
     ThorchainSwapperVolatilityAck: getConfig().VITE_FEATURE_THORCHAIN_SWAPPER_ACK,

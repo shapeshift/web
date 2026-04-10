@@ -42,7 +42,6 @@ export enum SwapperName {
   ArbitrumBridge = 'Arbitrum Bridge',
   Portals = 'Portals',
   Chainflip = 'Chainflip',
-  Jupiter = 'Jupiter',
   Relay = 'Relay',
   ButterSwap = 'ButterSwap',
   Bebop = 'Bebop',

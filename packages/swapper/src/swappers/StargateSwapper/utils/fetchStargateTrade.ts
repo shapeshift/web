@@ -238,11 +238,10 @@ export async function fetchStargateTrade<T extends 'quote' | 'rate'>({
       )
     }
 
-    const rawMessagingFee = decodeQuoteSendResult(quoteSendResult.data as Hex)
-    const messagingFee: StargateMessagingFee = {
-      nativeFee: (rawMessagingFee as { nativeFee: bigint; lzTokenFee: bigint }).nativeFee,
-      lzTokenFee: (rawMessagingFee as { nativeFee: bigint; lzTokenFee: bigint }).lzTokenFee,
-    }
+    const { nativeFee, lzTokenFee } = decodeQuoteSendResult(
+      quoteSendResult.data as Hex,
+    ) as { nativeFee: bigint; lzTokenFee: bigint }
+    const messagingFee: StargateMessagingFee = { nativeFee, lzTokenFee }
 
     const buyAmountAfterFeesCryptoBaseUnit = detailDstAmountLD.toString()
     const buyAmountBeforeFeesCryptoBaseUnit = (detailDstAmountLD + detailFeeAmountLD).toString()
@@ -273,6 +272,7 @@ export async function fetchStargateTrade<T extends 'quote' | 'rate'>({
     const { average } = await adapter.getGasFeeData()
     const supportsEIP1559 = 'maxFeePerGas' in average
 
+    let gasLimit = '500000'
     const networkFeeCryptoBaseUnit = await (async () => {
       try {
         const feeData = await evm.getFees({
@@ -283,12 +283,17 @@ export async function fetchStargateTrade<T extends 'quote' | 'rate'>({
           from: sendAddress,
           supportsEIP1559,
         })
+        gasLimit = feeData.gasLimit ?? gasLimit
         return feeData.networkFeeCryptoBaseUnit
-      } catch {
+      } catch (e) {
+        console.warn('[Stargate] Fee estimation failed, using fallback gas limit', {
+          error: e instanceof Error ? e.message : String(e),
+          sellAsset: sellAsset.assetId,
+        })
         return evm.calcNetworkFeeCryptoBaseUnit({
           ...average,
           supportsEIP1559,
-          gasLimit: '500000',
+          gasLimit,
         })
       }
     })()
@@ -297,7 +302,7 @@ export async function fetchStargateTrade<T extends 'quote' | 'rate'>({
       to: contractAddress,
       data: sendCalldata,
       value: txValue,
-      gasLimit: '500000',
+      gasLimit,
     }
 
     const protocolFees: Record<

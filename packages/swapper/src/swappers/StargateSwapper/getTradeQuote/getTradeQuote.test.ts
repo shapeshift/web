@@ -4,12 +4,15 @@ import { describe, expect, it, vi } from 'vitest'
 
 import type { GetEvmTradeQuoteInputBase, SwapperDeps } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { ETH, USDC_ARBITRUM, USDC_MAINNET } from '../../utils/test-data/assets'
+import { ETH, ETH_ARBITRUM, FOX_MAINNET, USDC_ARBITRUM, USDC_MAINNET } from '../../utils/test-data/assets'
 import { getTradeQuote } from './getTradeQuote'
 
 vi.mock('@shapeshiftoss/contracts', () => ({
   viemClientByChainId: {
     [ethChainId]: {
+      call: vi.fn().mockResolvedValue({ data: '0xdeadbeef' }),
+    },
+    [arbitrumChainId]: {
       call: vi.fn().mockResolvedValue({ data: '0xdeadbeef' }),
     },
   },
@@ -163,5 +166,57 @@ describe('Stargate getTradeQuote', () => {
     // encodeSend should have been called with sendParam.minAmountLD = 990_000_000 * 0.995 = 985_050_000
     const sendParamArg = vi.mocked(encodeSend).mock.calls[0][0]
     expect(sendParamArg.minAmountLD).toBe(985_050_000n)
+  })
+
+  it('returns UnsupportedChain error for unsupported buy chain', async () => {
+    const result = await getTradeQuote(
+      {
+        ...commonInput,
+        buyAsset: { ...USDC_ARBITRUM, chainId: 'eip155:5' as const }, // Goerli (not supported)
+      },
+      deps,
+    )
+    expect(result.isErr()).toBe(true)
+    expect(result.unwrapErr().code).toBe(TradeQuoteError.UnsupportedChain)
+  })
+
+  it('returns UnsupportedTradePair error when sell asset has no Stargate contract', async () => {
+    // FOX has no Stargate pool on mainnet
+    const result = await getTradeQuote(
+      { ...commonInput, sellAsset: FOX_MAINNET },
+      deps,
+    )
+    expect(result.isErr()).toBe(true)
+    expect(result.unwrapErr().code).toBe(TradeQuoteError.UnsupportedTradePair)
+  })
+
+  it('returns a valid quote for ETH (mainnet) → ETH (Arbitrum) native bridge', async () => {
+    const result = await getTradeQuote(
+      { ...commonInput, sellAsset: ETH, buyAsset: ETH_ARBITRUM },
+      deps,
+    )
+    expect(result.isOk()).toBe(true)
+
+    const step = result.unwrap()[0].steps[0]
+    expect(step.sellAsset.chainId).toBe(ethChainId)
+    expect(step.buyAsset.chainId).toBe(arbitrumChainId)
+    // native sell: txValue = nativeFee + sellAmount
+    // mocked nativeFee = 1_000_000_000_000_000, sellAmount = 1_000_000_000
+    expect(step.stargateTransactionMetadata.value).toBe('1000001000000000')
+  })
+
+  it('returns a valid quote for USDC (Arbitrum) → USDC (Mainnet) reverse direction', async () => {
+    const result = await getTradeQuote(
+      { ...commonInput, sellAsset: USDC_ARBITRUM, buyAsset: USDC_MAINNET },
+      deps,
+    )
+    expect(result.isOk()).toBe(true)
+
+    const step = result.unwrap()[0].steps[0]
+    expect(step.sellAsset.chainId).toBe(arbitrumChainId)
+    expect(step.buyAsset.chainId).toBe(ethChainId)
+    expect(step.source).toBe(SwapperName.Stargate)
+    // non-native sell: txValue = nativeFee only
+    expect(step.stargateTransactionMetadata.value).toBe('1000000000000000')
   })
 })

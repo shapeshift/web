@@ -214,6 +214,14 @@ export async function fetchStargateTrade<T extends 'quote' | 'rate'>({
     const detailDstAmountLD = receipt.amountReceivedLD
     const detailFeeAmountLD = receipt.amountSentLD - receipt.amountReceivedLD
 
+    // Apply slippage to minAmountLD so the on-chain send() will revert if the
+    // fill is worse than the quoted amount minus user-selected (or default) slippage.
+    const DEFAULT_SLIPPAGE_BPS = 50n // 0.5%
+    const slippageBps = input.slippageTolerancePercentageDecimal
+      ? BigInt(Math.round(parseFloat(input.slippageTolerancePercentageDecimal) * 10000))
+      : DEFAULT_SLIPPAGE_BPS
+    sendParam.minAmountLD = (detailDstAmountLD * (10000n - slippageBps)) / 10000n
+
     const quoteSendCalldata = encodeQuoteSend(sendParam, false)
 
     const quoteSendResult = await publicClient.call({

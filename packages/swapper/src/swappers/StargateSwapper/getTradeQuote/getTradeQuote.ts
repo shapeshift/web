@@ -2,6 +2,7 @@ import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
+import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { fetchStargateTrade } from '../utils/fetchStargateTrade'
 
@@ -14,6 +15,8 @@ export const getTradeQuote = (
       Err(
         makeSwapErrorRight({
           message: 'sendAddress is required',
+          code: TradeQuoteError.InternalError,
+          details: { field: 'sendAddress' },
         }),
       ),
     )
@@ -24,6 +27,8 @@ export const getTradeQuote = (
       Err(
         makeSwapErrorRight({
           message: 'receiveAddress is required',
+          code: TradeQuoteError.InternalError,
+          details: { field: 'receiveAddress' },
         }),
       ),
     )

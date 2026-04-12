@@ -16,12 +16,9 @@ steps:
   - name: Fill wallet password
     instruction: >
       Wait for the "Enter Your Password" dialog to appear.
-      Click on the native wallet button (e.g. "teest" or "test") to select it if not already selected.
-      Once the password input and "Next" button appear, focus the password input using JS eval
-      (click --ref often times out on external origins):
-      eval "document.querySelector('input[type=password], input[placeholder*=Password]')?.focus()"
-      Then type $NATIVE_WALLET_PASSWORD character by character using press
-      (agent-browser fill does not trigger React onChange - use press for each char).
+      Click on the native wallet button (e.g. "test-wallet") to select it if not already selected.
+      Once the password input and "Next" button appear, use fill to enter the password:
+      fill "input[placeholder='Enter Password']" "$NATIVE_WALLET_PASSWORD"
     expected: Password field is filled (shows masked dots), Next button is enabled and clickable
     screenshot: true
   - name: Unlock wallet

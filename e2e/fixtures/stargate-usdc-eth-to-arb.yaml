@@ -1,0 +1,102 @@
+name: Stargate USDC Ethereum → Arbitrum
+description: >
+  Cross-chain USDC swap via Stargate V2 swapper: sell USDC on Ethereum mainnet,
+  receive USDC on Arbitrum One. Verifies that Stargate appears as a quote source,
+  that slippage is respected, and that the transaction builds and signs correctly.
+route: /trade
+depends_on:
+  - wallet-health.yaml
+
+steps:
+  - name: Dismiss stale notifications
+    instruction: >
+      Dismiss any lingering notifications, toasts, or feedback dialogs from
+      previous tests (close buttons, "Maybe Later", etc.).
+    expected: Clean trade page with no overlays
+    screenshot: true
+
+  - name: Select USDC (Ethereum) as sell asset
+    instruction: >
+      Click the sell asset selector. Search for "USDC". From the results,
+      select "USD Coin (USDC)" on the Ethereum chain (not Arbitrum, not Base).
+      Verify USDC Ethereum is selected as the sell asset.
+    expected: USDC on Ethereum mainnet is the sell asset
+    screenshot: true
+
+  - name: Select USDC (Arbitrum) as buy asset
+    instruction: >
+      Click the buy/receive asset selector. Search for "USDC". From the results,
+      expand USDC if needed and select "USD Coin (USDC)" on the Arbitrum One chain.
+      Verify USDC on Arbitrum is selected as the buy asset.
+    expected: USDC on Arbitrum One is the buy asset
+    screenshot: true
+
+  - name: Toggle to fiat input mode
+    instruction: >
+      Click the "≈ $0.00" button below the sell amount to toggle to fiat/USD input mode.
+      If already in fiat mode (placeholder shows "$0"), skip this step.
+    expected: Sell input is in fiat/USD mode
+    screenshot: false
+
+  - name: Enter swap amount ($1)
+    instruction: >
+      Click the sell amount input and type "1" character by character using press
+      (NOT fill). Wait for the value to register.
+    expected: $1.00 entered as sell amount
+    screenshot: true
+
+  - name: Wait for Stargate quote
+    instruction: >
+      Wait up to 15 seconds for a quote to appear. Verify that:
+      1. The "You Get" field shows a USDC amount close to $1 (slightly less due to fees)
+      2. Stargate appears as the swapper source (look for "Stargate" label)
+      3. The "Preview Trade" button is enabled
+      If multiple swappers are shown, check that Stargate is one of them.
+    expected: >
+      Quote shown with receive amount ~$0.98-$1.00 USDC, Stargate visible as source,
+      Preview Trade button enabled
+    screenshot: true
+
+  - name: Verify protocol fee is displayed
+    instruction: >
+      In the quote view, look for a fee breakdown section. Verify that a protocol fee
+      is shown (the Stargate OFT fee, typically 0.5-1% of the swap amount).
+      Note the fee amount shown.
+    expected: Protocol fee visible, roughly $0.005-$0.01 for a $1 swap
+    screenshot: true
+
+  - name: Preview trade
+    instruction: >
+      Click the "Preview Trade" button. Wait for the "Confirm Details" screen to appear
+      showing: sell amount (USDC Ethereum), receive amount (USDC Arbitrum), swapper name
+      (Stargate), estimated fees, and a "Confirm and Trade" button.
+    expected: >
+      Confirm Details screen visible with cross-chain summary:
+      sell = USDC on Ethereum, receive = USDC on Arbitrum, swapper = Stargate
+    screenshot: true
+
+  - name: Confirm and sign
+    instruction: >
+      Click the "Confirm and Trade" button. Wait up to 30 seconds for the
+      "Sign & Swap" button to become enabled (not loading/disabled).
+      Then click "Sign & Swap". The native wallet signs automatically.
+    expected: Transaction submitted, cross-chain swap in progress
+    screenshot: true
+
+  - name: Wait for Stargate bridge completion
+    instruction: >
+      Cross-chain Stargate bridges take 1-3 minutes (LayerZero messaging).
+      Wait up to 180 seconds for the swap to complete. Check every 10 seconds.
+      Look for: trade page reappearing, success notification, Arbitrum USDC
+      balance increased, or "Awaiting swap" disappearing.
+      A feedback dialog may appear — dismiss it with "Maybe Later".
+    expected: >
+      Swap completed — back on trade page, USDC balance on Arbitrum increased,
+      no "Awaiting swap" visible
+    screenshot: true
+
+  - name: Clean up notifications
+    instruction: >
+      Dismiss any remaining notifications, feedback dialogs, or toasts.
+    expected: Clean trade page, ready for next test
+    screenshot: true

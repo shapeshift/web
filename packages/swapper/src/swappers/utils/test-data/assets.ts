@@ -2,6 +2,8 @@ import {
   arbitrumChainId,
   avalancheAssetId,
   avalancheChainId,
+  baseAssetId,
+  baseChainId,
   bscAssetId,
   bscChainId,
   ethAssetId,
@@ -13,6 +15,8 @@ import {
   gnosisChainId,
   optimismAssetId,
   optimismChainId,
+  polygonAssetId,
+  polygonChainId,
   thorchainAssetId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
@@ -250,5 +254,121 @@ export const RUNE: Asset = {
   explorer: 'https://viewblock.io/thorchain',
   explorerAddressLink: 'https://viewblock.io/thorchain/address/',
   explorerTxLink: 'https://viewblock.io/thorchain/tx/',
+  relatedAssetKey: null,
+}
+
+// Stargate-supported assets
+
+export const USDT_MAINNET: Asset = {
+  assetId: 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7',
+  chainId: ethChainId,
+  symbol: 'USDT',
+  name: 'Tether USD',
+  precision: 6,
+  color: '#26A17B',
+  icon: 'https://assets.coingecko.com/coins/images/325/thumb/Tether.png?1668148663',
+  explorer: 'https://etherscan.io',
+  explorerAddressLink: 'https://etherscan.io/address/',
+  explorerTxLink: 'https://etherscan.io/tx/',
+  relatedAssetKey: null,
+}
+
+export const USDT_ARBITRUM: Asset = {
+  assetId: 'eip155:42161/erc20:0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9',
+  chainId: arbitrumChainId,
+  symbol: 'USDT',
+  name: 'Tether USD on Arbitrum',
+  precision: 6,
+  color: '#26A17B',
+  icon: 'https://assets.coingecko.com/coins/images/325/thumb/Tether.png?1668148663',
+  explorer: 'https://arbiscan.io',
+  explorerAddressLink: 'https://arbiscan.io/address/',
+  explorerTxLink: 'https://arbiscan.io/tx/',
+  relatedAssetKey: null,
+}
+
+export const USDC_OPTIMISM: Asset = {
+  assetId: 'eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85',
+  chainId: optimismChainId,
+  symbol: 'USDC',
+  name: 'USD Coin on Optimism',
+  precision: 6,
+  color: '#2373CB',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
+  explorer: 'https://optimistic.etherscan.io',
+  explorerAddressLink: 'https://optimistic.etherscan.io/address/',
+  explorerTxLink: 'https://optimistic.etherscan.io/tx/',
+  relatedAssetKey: null,
+}
+
+export const USDC_BASE: Asset = {
+  assetId: 'eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913',
+  chainId: baseChainId,
+  symbol: 'USDC',
+  name: 'USD Coin on Base',
+  precision: 6,
+  color: '#2373CB',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
+  explorer: 'https://basescan.org',
+  explorerAddressLink: 'https://basescan.org/address/',
+  explorerTxLink: 'https://basescan.org/tx/',
+  relatedAssetKey: null,
+}
+
+export const USDC_POLYGON: Asset = {
+  assetId: 'eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359',
+  chainId: polygonChainId,
+  symbol: 'USDC',
+  name: 'USD Coin on Polygon',
+  precision: 6,
+  color: '#2373CB',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
+  explorer: 'https://polygonscan.com',
+  explorerAddressLink: 'https://polygonscan.com/address/',
+  explorerTxLink: 'https://polygonscan.com/tx/',
+  relatedAssetKey: null,
+}
+
+export const ETH_BASE: Asset = {
+  assetId: baseAssetId,
+  chainId: baseChainId,
+  name: 'Ethereum on Base',
+  networkName: 'Base',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#5C6BC0',
+  networkColor: '#0052FF',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  explorer: 'https://basescan.org',
+  explorerAddressLink: 'https://basescan.org/address/',
+  explorerTxLink: 'https://basescan.org/tx/',
+  relatedAssetKey: null,
+}
+
+export const MATIC: Asset = {
+  assetId: polygonAssetId,
+  chainId: polygonChainId,
+  name: 'Polygon',
+  symbol: 'MATIC',
+  precision: 18,
+  color: '#8247E5',
+  icon: 'https://assets.coingecko.com/coins/images/4713/thumb/polygon.png?1698233745',
+  explorer: 'https://polygonscan.com',
+  explorerAddressLink: 'https://polygonscan.com/address/',
+  explorerTxLink: 'https://polygonscan.com/tx/',
+  relatedAssetKey: null,
+}
+
+export const BSC_USDC: Asset = {
+  assetId: 'eip155:56/erc20:0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
+  chainId: bscChainId,
+  symbol: 'USDC',
+  name: 'USD Coin on BNB Smart Chain',
+  precision: 18,
+  color: '#2373CB',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
+  explorer: 'https://bscscan.com',
+  explorerAddressLink: 'https://bscscan.com/address/',
+  explorerTxLink: 'https://bscscan.com/tx/',
   relatedAssetKey: null,
 }

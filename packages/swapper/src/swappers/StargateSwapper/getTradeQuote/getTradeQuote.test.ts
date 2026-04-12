@@ -1,10 +1,22 @@
-import { arbitrumChainId, ethChainId } from '@shapeshiftoss/caip'
+import { arbitrumChainId, baseChainId, ethChainId, optimismChainId, polygonChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { GetEvmTradeQuoteInputBase, SwapperDeps } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { ETH, ETH_ARBITRUM, FOX_MAINNET, USDC_ARBITRUM, USDC_MAINNET } from '../../utils/test-data/assets'
+import {
+  ETH,
+  ETH_ARBITRUM,
+  ETH_BASE,
+  FOX_MAINNET,
+  USDC_ARBITRUM,
+  USDC_BASE,
+  USDC_MAINNET,
+  USDC_OPTIMISM,
+  USDC_POLYGON,
+  USDT_ARBITRUM,
+  USDT_MAINNET,
+} from '../../utils/test-data/assets'
 import { getTradeQuote } from './getTradeQuote'
 
 vi.mock('@shapeshiftoss/contracts', () => ({
@@ -13,6 +25,15 @@ vi.mock('@shapeshiftoss/contracts', () => ({
       call: vi.fn().mockResolvedValue({ data: '0xdeadbeef' }),
     },
     [arbitrumChainId]: {
+      call: vi.fn().mockResolvedValue({ data: '0xdeadbeef' }),
+    },
+    [optimismChainId]: {
+      call: vi.fn().mockResolvedValue({ data: '0xdeadbeef' }),
+    },
+    [baseChainId]: {
+      call: vi.fn().mockResolvedValue({ data: '0xdeadbeef' }),
+    },
+    [polygonChainId]: {
       call: vi.fn().mockResolvedValue({ data: '0xdeadbeef' }),
     },
   },
@@ -218,5 +239,75 @@ describe('Stargate getTradeQuote', () => {
     expect(step.source).toBe(SwapperName.Stargate)
     // non-native sell: txValue = nativeFee only
     expect(step.stargateTransactionMetadata.value).toBe('1000000000000000')
+  })
+
+  it('returns a valid quote for USDC (Mainnet) → USDC (Optimism)', async () => {
+    const result = await getTradeQuote(
+      { ...commonInput, sellAsset: USDC_MAINNET, buyAsset: USDC_OPTIMISM },
+      deps,
+    )
+    expect(result.isOk()).toBe(true)
+    const step = result.unwrap()[0].steps[0]
+    expect(step.sellAsset.chainId).toBe(ethChainId)
+    expect(step.buyAsset.chainId).toBe(optimismChainId)
+  })
+
+  it('returns a valid quote for USDC (Mainnet) → USDC (Base)', async () => {
+    const result = await getTradeQuote(
+      { ...commonInput, sellAsset: USDC_MAINNET, buyAsset: USDC_BASE },
+      deps,
+    )
+    expect(result.isOk()).toBe(true)
+    const step = result.unwrap()[0].steps[0]
+    expect(step.sellAsset.chainId).toBe(ethChainId)
+    expect(step.buyAsset.chainId).toBe(baseChainId)
+  })
+
+  it('returns a valid quote for USDC (Mainnet) → USDC (Polygon)', async () => {
+    const result = await getTradeQuote(
+      { ...commonInput, sellAsset: USDC_MAINNET, buyAsset: USDC_POLYGON },
+      deps,
+    )
+    expect(result.isOk()).toBe(true)
+    const step = result.unwrap()[0].steps[0]
+    expect(step.sellAsset.chainId).toBe(ethChainId)
+    expect(step.buyAsset.chainId).toBe(polygonChainId)
+  })
+
+  it('returns a valid quote for USDT (Mainnet) → USDT (Arbitrum)', async () => {
+    const result = await getTradeQuote(
+      { ...commonInput, sellAsset: USDT_MAINNET, buyAsset: USDT_ARBITRUM },
+      deps,
+    )
+    expect(result.isOk()).toBe(true)
+    const step = result.unwrap()[0].steps[0]
+    expect(step.sellAsset.chainId).toBe(ethChainId)
+    expect(step.buyAsset.chainId).toBe(arbitrumChainId)
+    expect(step.sellAsset.symbol).toBe('USDT')
+  })
+
+  it('returns a valid quote for ETH (Mainnet) → ETH (Base) native bridge', async () => {
+    const result = await getTradeQuote(
+      { ...commonInput, sellAsset: ETH, buyAsset: ETH_BASE },
+      deps,
+    )
+    expect(result.isOk()).toBe(true)
+    const step = result.unwrap()[0].steps[0]
+    expect(step.sellAsset.chainId).toBe(ethChainId)
+    expect(step.buyAsset.chainId).toBe(baseChainId)
+    // native sell: txValue = nativeFee + sellAmount
+    expect(step.stargateTransactionMetadata.value).toBe('1000001000000000')
+  })
+
+  it('returns a valid quote for USDC (Base) → USDC (Arbitrum) L2-to-L2', async () => {
+    const result = await getTradeQuote(
+      { ...commonInput, sellAsset: USDC_BASE, buyAsset: USDC_ARBITRUM },
+      deps,
+    )
+    expect(result.isOk()).toBe(true)
+    const step = result.unwrap()[0].steps[0]
+    expect(step.sellAsset.chainId).toBe(baseChainId)
+    expect(step.buyAsset.chainId).toBe(arbitrumChainId)
+    expect(step.source).toBe(SwapperName.Stargate)
   })
 })

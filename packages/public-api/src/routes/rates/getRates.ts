@@ -3,6 +3,7 @@ import { getTradeRates, SwapperName, swappers, TradeQuoteError } from '@shapeshi
 import type { Request, Response } from 'express'
 
 import { getAsset } from '../../assets'
+import { env } from '../../env'
 import { registry } from '../../registry'
 import { getSwapperDeps } from '../../swapperDeps'
 import type { ErrorResponse } from '../../types'
@@ -87,8 +88,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       sellAsset,
       buyAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      affiliateBps: req.affiliateInfo?.affiliateBps!,
+      affiliateBps: req.affiliateInfo?.affiliateBps ?? env.DEFAULT_AFFILIATE_BPS,
       allowMultiHop,
       slippageTolerancePercentageDecimal,
       receiveAddress: undefined,
@@ -127,8 +127,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
             steps: 0,
             estimatedExecutionTimeMs: undefined,
             priceImpactPercentageDecimal: undefined,
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            affiliateBps: req.affiliateInfo?.affiliateBps!,
+            affiliateBps: req.affiliateInfo?.affiliateBps ?? env.DEFAULT_AFFILIATE_BPS,
             networkFeeCryptoBaseUnit: undefined,
             error: {
               code: error.code ?? TradeQuoteError.UnknownError,
@@ -152,8 +151,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
           steps: rate.steps.length,
           estimatedExecutionTimeMs: firstStep.estimatedExecutionTimeMs,
           priceImpactPercentageDecimal: rate.priceImpactPercentageDecimal,
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          affiliateBps: req.affiliateInfo?.affiliateBps!,
+          affiliateBps: req.affiliateInfo?.affiliateBps ?? env.DEFAULT_AFFILIATE_BPS,
           networkFeeCryptoBaseUnit: firstStep.feeData.networkFeeCryptoBaseUnit,
         }
       } catch (error) {

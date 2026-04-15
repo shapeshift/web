@@ -1,10 +1,9 @@
-import { fromChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { SwapperName, TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import {
-  getDaemonUrl,
-  getInboundAddressDataForChain,
-  isNativeEvmAsset,
-} from '@shapeshiftoss/swapper'
+import { getDaemonUrl, getInboundAddressDataForChain } from '@shapeshiftoss/swapper'
+import { isToken } from '@shapeshiftoss/utils'
+import { erc20Abi, getAddress } from 'viem'
 
 import { getServerConfig } from '../../config'
 import { extractTransactionData } from './extractTransactionData'
@@ -41,25 +40,32 @@ export const getEvmChainIdNumber = (chainId: string): number => {
   return parseInt(chainReference, 10)
 }
 
-export const buildApprovalInfo = (step: TradeQuoteStep): ApprovalInfo => {
+export const buildApprovalInfo = async (
+  step: TradeQuoteStep,
+  owner: string,
+): Promise<ApprovalInfo> => {
   const { chainNamespace } = fromChainId(step.sellAsset.chainId)
 
-  if (chainNamespace !== 'eip155') {
-    return { isRequired: false, spender: '' }
-  }
+  const needsAllowanceCheck =
+    chainNamespace === CHAIN_NAMESPACE.Evm &&
+    isToken(step.sellAsset.assetId) &&
+    Boolean(step.allowanceContract)
 
-  if (isNativeEvmAsset(step.sellAsset.assetId)) {
-    return { isRequired: false, spender: '' }
-  }
+  if (!needsAllowanceCheck) return { isRequired: false, spender: '' }
 
-  if (step.allowanceContract) {
-    return {
-      isRequired: true,
-      spender: step.allowanceContract,
-    }
-  }
+  const spender = step.allowanceContract
+  const client = viemClientByChainId[step.sellAsset.chainId]
 
-  return { isRequired: false, spender: '' }
+  const allowance = await client.readContract({
+    address: getAddress(fromAssetId(step.sellAsset.assetId).assetReference),
+    abi: erc20Abi,
+    functionName: 'allowance',
+    args: [getAddress(owner), getAddress(spender)],
+  })
+
+  const requiredAmount = BigInt(step.sellAmountIncludingProtocolFeesCryptoBaseUnit)
+
+  return { isRequired: allowance < requiredAmount, spender }
 }
 
 // Transform quote step to API format

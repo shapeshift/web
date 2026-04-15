@@ -1,3 +1,5 @@
+import { fromChainId } from '@shapeshiftoss/caip'
+import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { GetTradeQuoteInputWithWallet } from '@shapeshiftoss/swapper'
 import {
   getDefaultSlippageDecimalPercentageForSwapper,
@@ -9,6 +11,7 @@ import type { Request, Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 
 import { getAsset } from '../../assets'
+import { env } from '../../env'
 import { QuoteStore, quoteStore } from '../../lib/quoteStore'
 import { registry } from '../../registry'
 import { getSwapperDeps } from '../../swapperDeps'
@@ -95,6 +98,23 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
+    const isEvmSell = fromChainId(sellAsset.chainId).chainNamespace === 'eip155'
+    if (isEvmSell && !sendAddress) {
+      res.status(400).json({
+        error: 'sendAddress is required for EVM sell assets',
+        code: 'MISSING_SEND_ADDRESS',
+      } satisfies ErrorResponse)
+      return
+    }
+
+    if (isEvmSell && !viemClientByChainId[sellAsset.chainId]) {
+      res.status(400).json({
+        error: `Unsupported EVM chain: ${sellAsset.chainId}`,
+        code: 'UNSUPPORTED_CHAIN',
+      } satisfies ErrorResponse)
+      return
+    }
+
     const deps = getSwapperDeps()
 
     const slippage = (() => {
@@ -111,8 +131,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       sellAsset,
       buyAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      affiliateBps: req.affiliateInfo?.affiliateBps!,
+      affiliateBps: req.affiliateInfo?.affiliateBps ?? env.DEFAULT_AFFILIATE_BPS,
       allowMultiHop,
       slippageTolerancePercentageDecimal: slippage,
       receiveAddress,
@@ -169,8 +188,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAmountAfterFeesCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
       affiliateAddress: req.affiliateInfo?.affiliateAddress,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      affiliateBps: req.affiliateInfo?.affiliateBps!,
+      affiliateBps: req.affiliateInfo?.affiliateBps ?? env.DEFAULT_AFFILIATE_BPS,
       sellChainId: sellAsset.chainId,
       receiveAddress,
       sendAddress,
@@ -204,14 +222,15 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAmountBeforeFeesCryptoBaseUnit: lastStep.buyAmountBeforeFeesCryptoBaseUnit,
       buyAmountAfterFeesCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      affiliateBps: req.affiliateInfo?.affiliateBps!,
+      affiliateBps: req.affiliateInfo?.affiliateBps ?? env.DEFAULT_AFFILIATE_BPS,
       slippageTolerancePercentageDecimal: quote.slippageTolerancePercentageDecimal,
       networkFeeCryptoBaseUnit: firstStep.feeData.networkFeeCryptoBaseUnit,
       steps: quote.steps.map((step, index) =>
         transformQuoteStep(step, index === 0 ? depositContext : {}),
       ),
-      approval: buildApprovalInfo(firstStep),
+      approval: sendAddress
+        ? await buildApprovalInfo(firstStep, sendAddress)
+        : { isRequired: false, spender: '' },
       expiresAt: now + 60_000,
       affiliateAddress: req.affiliateInfo?.affiliateAddress,
     }

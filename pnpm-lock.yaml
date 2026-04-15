@@ -1955,6 +1955,9 @@ importers:
       '@shapeshiftoss/chain-adapters':
         specifier: workspace:^
         version: link:../chain-adapters
+      '@shapeshiftoss/contracts':
+        specifier: workspace:^
+        version: link:../contracts
       '@shapeshiftoss/swapper':
         specifier: workspace:^
         version: link:../swapper
@@ -1982,6 +1985,9 @@ importers:
       uuid:
         specifier: ^9.0.0
         version: 9.0.1
+      viem:
+        specifier: 2.43.5
+        version: 2.43.5(bufferutil@4.1.0)(typescript@5.2.2)(utf-8-validate@6.0.6)(zod@3.25.76)
       yaml:
         specifier: ^2.8.2
         version: 2.8.2

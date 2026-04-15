@@ -39,21 +39,9 @@ export const PUBLIC_RPC_URLS = {
   flowEvm: ['https://mainnet.evm.nodes.onflow.org', 'https://flow-mainnet.gateway.tatum.io'],
   hemi: ['https://rpc.hemi.network/rpc', 'https://hemi.drpc.org'],
   hyperEvm: ['https://rpc.hyperliquid.xyz/evm', 'https://hyperliquid.drpc.org'],
-  ink: [
-    'https://rpc-gel.inkonchain.com',
-    'https://rpc-qnd.inkonchain.com',
-    'https://ink.drpc.org',
-  ],
-  katana: [
-    'https://rpc.katana.network',
-    'https://rpc.katanarpc.com',
-    'https://katana.drpc.org',
-  ],
-  linea: [
-    'https://rpc.linea.build',
-    'https://linea-rpc.publicnode.com',
-    'https://linea.drpc.org',
-  ],
+  ink: ['https://rpc-gel.inkonchain.com', 'https://rpc-qnd.inkonchain.com', 'https://ink.drpc.org'],
+  katana: ['https://rpc.katana.network', 'https://rpc.katanarpc.com', 'https://katana.drpc.org'],
+  linea: ['https://rpc.linea.build', 'https://linea-rpc.publicnode.com', 'https://linea.drpc.org'],
   mantle: [
     'https://rpc.mantle.xyz',
     'https://mantle-rpc.publicnode.com',

@@ -39,7 +39,7 @@ import {
   zksync,
 } from 'viem/chains'
 
-import { FALLBACK_RPC_URLS } from './fallbackRpcUrls'
+import { PUBLIC_RPC_URLS } from './publicRpcUrls'
 
 const megaeth = defineChain({
   id: 4326,
@@ -64,133 +64,117 @@ const megaeth = defineChain({
 
 export const flowEvmChain = flowMainnet
 
-const createFallbackTransport = (envUrl: string | undefined, fallbacks: readonly string[]) =>
-  fallback([envUrl, ...fallbacks].filter(Boolean).map(url => http(url)))
+// Builds a viem fallback transport. `privateUrl` is the preferred source (e.g. ShapeShift proxy)
+// and is tried first; `publicUrls` are public endpoints used as backups. Pass `undefined` for
+// `privateUrl` when the chain has no private RPC (second-class chains).
+const createRpcTransport = (privateUrl: string | undefined, publicUrls: readonly string[]) =>
+  fallback([privateUrl, ...publicUrls].filter(Boolean).map(url => http(url)))
 
+// First-class EVM chains
 export const viemEthMainnetClient = createPublicClient({
   chain: mainnet,
-  transport: createFallbackTransport(
-    process.env.VITE_ETHEREUM_NODE_URL,
-    FALLBACK_RPC_URLS.ethereum,
-  ),
+  transport: createRpcTransport(process.env.VITE_ETHEREUM_NODE_URL, PUBLIC_RPC_URLS.ethereum),
 }) as PublicClient
 
 export const viemBscClient = createPublicClient({
   chain: bsc,
-  transport: createFallbackTransport(
-    process.env.VITE_BNBSMARTCHAIN_NODE_URL,
-    FALLBACK_RPC_URLS.bsc,
-  ),
+  transport: createRpcTransport(process.env.VITE_BNBSMARTCHAIN_NODE_URL, PUBLIC_RPC_URLS.bsc),
 }) as PublicClient
 
 export const viemAvalancheClient = createPublicClient({
   chain: avalanche,
-  transport: createFallbackTransport(
-    process.env.VITE_AVALANCHE_NODE_URL,
-    FALLBACK_RPC_URLS.avalanche,
-  ),
+  transport: createRpcTransport(process.env.VITE_AVALANCHE_NODE_URL, PUBLIC_RPC_URLS.avalanche),
 }) as PublicClient
 
 export const viemArbitrumClient = createPublicClient({
   chain: arbitrum,
-  transport: createFallbackTransport(
-    process.env.VITE_ARBITRUM_NODE_URL,
-    FALLBACK_RPC_URLS.arbitrum,
-  ),
+  transport: createRpcTransport(process.env.VITE_ARBITRUM_NODE_URL, PUBLIC_RPC_URLS.arbitrum),
 }) as PublicClient
 
 export const viemOptimismClient = createPublicClient({
   chain: optimism,
-  transport: createFallbackTransport(
-    process.env.VITE_OPTIMISM_NODE_URL,
-    FALLBACK_RPC_URLS.optimism,
-  ),
+  transport: createRpcTransport(process.env.VITE_OPTIMISM_NODE_URL, PUBLIC_RPC_URLS.optimism),
 }) as PublicClient
 
 export const viemGnosisClient = createPublicClient({
   chain: gnosis,
-  transport: createFallbackTransport(process.env.VITE_GNOSIS_NODE_URL, FALLBACK_RPC_URLS.gnosis),
+  transport: createRpcTransport(process.env.VITE_GNOSIS_NODE_URL, PUBLIC_RPC_URLS.gnosis),
 }) as PublicClient
 
 export const viemPolygonClient = createPublicClient({
   chain: polygon,
-  transport: createFallbackTransport(process.env.VITE_POLYGON_NODE_URL, FALLBACK_RPC_URLS.polygon),
+  transport: createRpcTransport(process.env.VITE_POLYGON_NODE_URL, PUBLIC_RPC_URLS.polygon),
 }) as PublicClient
 
 export const viemBaseClient = createPublicClient({
   chain: base,
-  transport: createFallbackTransport(undefined, FALLBACK_RPC_URLS.base),
+  transport: createRpcTransport(process.env.VITE_BASE_NODE_URL, PUBLIC_RPC_URLS.base),
 }) as PublicClient
 
+// Second-class EVM chains (public RPCs only)
 export const viemMonadClient = createPublicClient({
   chain: monad,
-  transport: createFallbackTransport(process.env.VITE_MONAD_NODE_URL, FALLBACK_RPC_URLS.monad),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.monad),
 }) as PublicClient
 
 export const viemHyperEvmClient = createPublicClient({
   chain: hyperEvm,
-  transport: createFallbackTransport(
-    process.env.VITE_HYPEREVM_NODE_URL,
-    FALLBACK_RPC_URLS.hyperEvm,
-  ),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.hyperEvm),
 }) as PublicClient
 
 export const viemPlasmaClient = createPublicClient({
   chain: plasma,
-  transport: createFallbackTransport(process.env.VITE_PLASMA_NODE_URL, FALLBACK_RPC_URLS.plasma),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.plasma),
 }) as PublicClient
 
 export const viemPlumeClient = createPublicClient({
   chain: plumeMainnet,
-  transport: createFallbackTransport(process.env.VITE_PLUME_NODE_URL, FALLBACK_RPC_URLS.plume),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.plume),
 }) as PublicClient
 
 export const viemMantleClient = createPublicClient({
   chain: mantle,
-  transport: createFallbackTransport(process.env.VITE_MANTLE_NODE_URL, FALLBACK_RPC_URLS.mantle),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.mantle),
 }) as PublicClient
 
 export const viemInkClient = createPublicClient({
   chain: ink,
-  transport: createFallbackTransport(process.env.VITE_INK_NODE_URL, FALLBACK_RPC_URLS.ink),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.ink),
 }) as PublicClient
 
 export const viemMegaEthClient = createPublicClient({
   chain: megaeth,
-  transport: createFallbackTransport(process.env.VITE_MEGAETH_NODE_URL, FALLBACK_RPC_URLS.megaEth),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.megaEth),
 }) as PublicClient
 
 export const viemBerachainClient = createPublicClient({
   chain: berachain,
-  transport: createFallbackTransport(
-    process.env.VITE_BERACHAIN_NODE_URL,
-    FALLBACK_RPC_URLS.berachain,
-  ),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.berachain),
 }) as PublicClient
 
 export const viemScrollClient = createPublicClient({
   chain: scroll,
-  transport: createFallbackTransport(process.env.VITE_SCROLL_NODE_URL, FALLBACK_RPC_URLS.scroll),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.scroll),
 }) as PublicClient
 
 export const viemCronosClient = createPublicClient({
   chain: cronos,
-  transport: createFallbackTransport(process.env.VITE_CRONOS_NODE_URL, FALLBACK_RPC_URLS.cronos),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.cronos),
 }) as PublicClient
 
 export const viemFlowEvmClient = createPublicClient({
   chain: flowMainnet,
-  transport: createFallbackTransport(process.env.VITE_FLOWEVM_NODE_URL, FALLBACK_RPC_URLS.flowEvm),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.flowEvm),
 }) as PublicClient
 
 export const viemCeloClient = createPublicClient({
   chain: celo,
-  transport: createFallbackTransport(process.env.VITE_CELO_NODE_URL, FALLBACK_RPC_URLS.celo),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.celo),
 }) as PublicClient
 
 export const viemKatanaClient = createPublicClient({
   chain: katana,
-  transport: createFallbackTransport(process.env.VITE_KATANA_NODE_URL, FALLBACK_RPC_URLS.katana),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.katana),
 }) as PublicClient
 
 export const ethereal = defineChain({
@@ -205,87 +189,72 @@ export const ethereal = defineChain({
 
 export const viemEtherealClient = createPublicClient({
   chain: ethereal,
-  transport: createFallbackTransport(
-    process.env.VITE_ETHEREAL_NODE_URL,
-    FALLBACK_RPC_URLS.ethereal,
-  ),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.ethereal),
 }) as PublicClient
 
 export const viemStoryClient = createPublicClient({
   chain: story,
-  transport: createFallbackTransport(process.env.VITE_STORY_NODE_URL, FALLBACK_RPC_URLS.story),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.story),
 }) as PublicClient
 
 export const viemZkSyncEraClient = createPublicClient({
   chain: zksync,
-  transport: createFallbackTransport(
-    process.env.VITE_ZKSYNC_ERA_NODE_URL,
-    FALLBACK_RPC_URLS.zkSyncEra,
-  ),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.zkSyncEra),
 }) as PublicClient
 
 export const viemBlastClient = createPublicClient({
   chain: blast,
-  transport: createFallbackTransport(process.env.VITE_BLAST_NODE_URL, FALLBACK_RPC_URLS.blast),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.blast),
 }) as PublicClient
 
 export const viemWorldChainClient = createPublicClient({
   chain: worldchain,
-  transport: createFallbackTransport(
-    process.env.VITE_WORLDCHAIN_NODE_URL,
-    FALLBACK_RPC_URLS.worldChain,
-  ),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.worldChain),
 }) as PublicClient
 
 export const viemHemiClient = createPublicClient({
   chain: hemi,
-  transport: createFallbackTransport(process.env.VITE_HEMI_NODE_URL, FALLBACK_RPC_URLS.hemi),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.hemi),
 }) as PublicClient
 
 export const viemSeiClient = createPublicClient({
   chain: sei,
-  transport: createFallbackTransport(process.env.VITE_SEI_NODE_URL, FALLBACK_RPC_URLS.sei),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.sei),
 }) as PublicClient
 
 export const viemAbstractClient = createPublicClient({
   chain: abstract,
-  transport: createFallbackTransport(
-    process.env.VITE_ABSTRACT_NODE_URL,
-    FALLBACK_RPC_URLS.abstract,
-  ),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.abstract),
 }) as PublicClient
 
 export const viemLineaClient = createPublicClient({
   chain: linea,
-  transport: createFallbackTransport(process.env.VITE_LINEA_NODE_URL, FALLBACK_RPC_URLS.linea),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.linea),
 }) as PublicClient
 
 export const viemSonicClient = createPublicClient({
   chain: sonic,
-  transport: createFallbackTransport(process.env.VITE_SONIC_NODE_URL, FALLBACK_RPC_URLS.sonic),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.sonic),
 }) as PublicClient
 
 export const viemUnichainClient = createPublicClient({
   chain: unichain,
-  transport: createFallbackTransport(
-    process.env.VITE_UNICHAIN_NODE_URL,
-    FALLBACK_RPC_URLS.unichain,
-  ),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.unichain),
 }) as PublicClient
 
 export const viemBobClient = createPublicClient({
   chain: bob,
-  transport: createFallbackTransport(process.env.VITE_BOB_NODE_URL, FALLBACK_RPC_URLS.bob),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.bob),
 }) as PublicClient
 
 export const viemModeClient = createPublicClient({
   chain: mode,
-  transport: createFallbackTransport(process.env.VITE_MODE_NODE_URL, FALLBACK_RPC_URLS.mode),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.mode),
 }) as PublicClient
 
 export const viemSoneiumClient = createPublicClient({
   chain: soneium,
-  transport: createFallbackTransport(process.env.VITE_SONEIUM_NODE_URL, FALLBACK_RPC_URLS.soneium),
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.soneium),
 }) as PublicClient
 
 export const viemClientByChainId: Record<ChainId, PublicClient> = {

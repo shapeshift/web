@@ -28,7 +28,8 @@ const resolvePartnerCodeFromService = async (
     }
 
     return null
-  } catch {
+  } catch (error) {
+    console.error('Failed to resolve partner code:', error)
     return null
   } finally {
     clearTimeout(timeout)

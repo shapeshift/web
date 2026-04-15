@@ -5,79 +5,83 @@ import { assertUnreachable } from '@shapeshiftoss/utils'
 import { JsonRpcProvider } from 'ethers'
 import { ethers as ethersV5 } from 'ethers5'
 
+import { PUBLIC_RPC_URLS } from './publicRpcUrls'
+
 export const rpcUrlByChainId = (chainId: EvmChainId): string => {
   const url = (() => {
     switch (chainId) {
+      // First-class chains: env-driven with public fallback
       case KnownChainIds.AvalancheMainnet:
-        return process.env.VITE_AVALANCHE_NODE_URL
+        return process.env.VITE_AVALANCHE_NODE_URL ?? PUBLIC_RPC_URLS.avalanche[0]
       case KnownChainIds.OptimismMainnet:
-        return process.env.VITE_OPTIMISM_NODE_URL
+        return process.env.VITE_OPTIMISM_NODE_URL ?? PUBLIC_RPC_URLS.optimism[0]
       case KnownChainIds.BnbSmartChainMainnet:
-        return process.env.VITE_BNBSMARTCHAIN_NODE_URL
+        return process.env.VITE_BNBSMARTCHAIN_NODE_URL ?? PUBLIC_RPC_URLS.bsc[0]
       case KnownChainIds.PolygonMainnet:
-        return process.env.VITE_POLYGON_NODE_URL
+        return process.env.VITE_POLYGON_NODE_URL ?? PUBLIC_RPC_URLS.polygon[0]
       case KnownChainIds.GnosisMainnet:
-        return process.env.VITE_GNOSIS_NODE_URL
+        return process.env.VITE_GNOSIS_NODE_URL ?? PUBLIC_RPC_URLS.gnosis[0]
       case KnownChainIds.EthereumMainnet:
-        return process.env.VITE_ETHEREUM_NODE_URL
+        return process.env.VITE_ETHEREUM_NODE_URL ?? PUBLIC_RPC_URLS.ethereum[0]
       case KnownChainIds.ArbitrumMainnet:
-        return process.env.VITE_ARBITRUM_NODE_URL
+        return process.env.VITE_ARBITRUM_NODE_URL ?? PUBLIC_RPC_URLS.arbitrum[0]
       case KnownChainIds.BaseMainnet:
-        return process.env.VITE_BASE_NODE_URL
+        return process.env.VITE_BASE_NODE_URL ?? PUBLIC_RPC_URLS.base[0]
+      // Second-class chains: fallback-only
       case KnownChainIds.MonadMainnet:
-        return process.env.VITE_MONAD_NODE_URL
+        return PUBLIC_RPC_URLS.monad[0]
       case KnownChainIds.HyperEvmMainnet:
-        return process.env.VITE_HYPEREVM_NODE_URL
+        return PUBLIC_RPC_URLS.hyperEvm[0]
       case KnownChainIds.PlasmaMainnet:
-        return process.env.VITE_PLASMA_NODE_URL
+        return PUBLIC_RPC_URLS.plasma[0]
       case KnownChainIds.MantleMainnet:
-        return process.env.VITE_MANTLE_NODE_URL
+        return PUBLIC_RPC_URLS.mantle[0]
       case KnownChainIds.InkMainnet:
-        return process.env.VITE_INK_NODE_URL
+        return PUBLIC_RPC_URLS.ink[0]
       case KnownChainIds.MegaEthMainnet:
-        return process.env.VITE_MEGAETH_NODE_URL
+        return PUBLIC_RPC_URLS.megaEth[0]
       case KnownChainIds.BerachainMainnet:
-        return process.env.VITE_BERACHAIN_NODE_URL
+        return PUBLIC_RPC_URLS.berachain[0]
       case KnownChainIds.CronosMainnet:
-        return process.env.VITE_CRONOS_NODE_URL
+        return PUBLIC_RPC_URLS.cronos[0]
       case KnownChainIds.KatanaMainnet:
-        return process.env.VITE_KATANA_NODE_URL
+        return PUBLIC_RPC_URLS.katana[0]
       case KnownChainIds.EtherealMainnet:
-        return process.env.VITE_ETHEREAL_NODE_URL
+        return PUBLIC_RPC_URLS.ethereal[0]
       case KnownChainIds.FlowEvmMainnet:
-        return process.env.VITE_FLOWEVM_NODE_URL
+        return PUBLIC_RPC_URLS.flowEvm[0]
       case KnownChainIds.CeloMainnet:
-        return process.env.VITE_CELO_NODE_URL
+        return PUBLIC_RPC_URLS.celo[0]
       case KnownChainIds.PlumeMainnet:
-        return process.env.VITE_PLUME_NODE_URL
+        return PUBLIC_RPC_URLS.plume[0]
       case KnownChainIds.StoryMainnet:
-        return process.env.VITE_STORY_NODE_URL
+        return PUBLIC_RPC_URLS.story[0]
       case KnownChainIds.ZkSyncEraMainnet:
-        return process.env.VITE_ZKSYNC_ERA_NODE_URL
+        return PUBLIC_RPC_URLS.zkSyncEra[0]
       case KnownChainIds.BlastMainnet:
-        return process.env.VITE_BLAST_NODE_URL
+        return PUBLIC_RPC_URLS.blast[0]
       case KnownChainIds.WorldChainMainnet:
-        return process.env.VITE_WORLDCHAIN_NODE_URL
+        return PUBLIC_RPC_URLS.worldChain[0]
       case KnownChainIds.HemiMainnet:
-        return process.env.VITE_HEMI_NODE_URL
+        return PUBLIC_RPC_URLS.hemi[0]
       case KnownChainIds.LineaMainnet:
-        return process.env.VITE_LINEA_NODE_URL
+        return PUBLIC_RPC_URLS.linea[0]
       case KnownChainIds.ScrollMainnet:
-        return process.env.VITE_SCROLL_NODE_URL
+        return PUBLIC_RPC_URLS.scroll[0]
       case KnownChainIds.SonicMainnet:
-        return process.env.VITE_SONIC_NODE_URL
+        return PUBLIC_RPC_URLS.sonic[0]
       case KnownChainIds.UnichainMainnet:
-        return process.env.VITE_UNICHAIN_NODE_URL
+        return PUBLIC_RPC_URLS.unichain[0]
       case KnownChainIds.BobMainnet:
-        return process.env.VITE_BOB_NODE_URL
+        return PUBLIC_RPC_URLS.bob[0]
       case KnownChainIds.ModeMainnet:
-        return process.env.VITE_MODE_NODE_URL
+        return PUBLIC_RPC_URLS.mode[0]
       case KnownChainIds.SoneiumMainnet:
-        return process.env.VITE_SONEIUM_NODE_URL
+        return PUBLIC_RPC_URLS.soneium[0]
       case KnownChainIds.SeiMainnet:
-        return process.env.VITE_SEI_NODE_URL
+        return PUBLIC_RPC_URLS.sei[0]
       case KnownChainIds.AbstractMainnet:
-        return process.env.VITE_ABSTRACT_NODE_URL
+        return PUBLIC_RPC_URLS.abstract[0]
       default:
         return assertUnreachable(chainId)
     }

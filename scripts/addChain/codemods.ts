@@ -274,7 +274,7 @@ export function runAllCodemods(config: ChainConfig): CodemodResult[] {
         viemClientFile,
         `transport: fallback([process.env.VITE_SEI_NODE_URL].filter(Boolean).map(url => http(url))),\n}) as PublicClient`,
         false,
-        `\n\nexport const viem${c.pascalName}Client = createPublicClient({\n  chain: ${c.viemChainName},\n  transport: createFallbackTransport(process.env.VITE_${c.upperName}_NODE_URL, FALLBACK_RPC_URLS.${c.camelName}),\n}) as PublicClient`,
+        `\n\nexport const viem${c.pascalName}Client = createPublicClient({\n  chain: ${c.viemChainName},\n  transport: createFallbackTransport(process.env.VITE_${c.upperName}_NODE_URL, PUBLIC_RPC_URLS.${c.camelName}),\n}) as PublicClient`,
         `viem${c.pascalName}Client`,
       ),
     ),
@@ -317,16 +317,16 @@ export function runAllCodemods(config: ChainConfig): CodemodResult[] {
   )
 
   // ============================================================
-  // 6. packages/contracts/src/fallbackRpcUrls.ts
+  // 6. packages/contracts/src/publicRpcUrls.ts
   // ============================================================
-  const fallbackRpcFile = r('packages/contracts/src/fallbackRpcUrls.ts')
+  const fallbackRpcFile = r('packages/contracts/src/publicRpcUrls.ts')
 
   results.push(
-    wrap(fallbackRpcFile, 'fallbackRpcUrls', () =>
+    wrap(fallbackRpcFile, 'publicRpcUrls', () =>
       insertIntoNamedNode(
         fallbackRpcFile,
-        'FALLBACK_RPC_URLS',
-        `  ${c.camelName}: ${JSON.stringify(c.fallbackRpcUrls)},\n`,
+        'PUBLIC_RPC_URLS',
+        `  ${c.camelName}: ${JSON.stringify(c.publicRpcUrls)},\n`,
         `${c.camelName}:`,
       ),
     ),

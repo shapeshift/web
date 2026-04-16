@@ -63,6 +63,7 @@ const envSchema = z.object({
   CHAINFLIP_API_KEY: z.string().default(''),
   BEBOP_API_KEY: z.string().default(''),
   NEAR_INTENTS_API_KEY: z.string().default(''),
+  BOB_GATEWAY_AFFILIATE_ID: z.string().default(''),
   TENDERLY_API_KEY: z.string().default(''),
   TENDERLY_ACCOUNT_SLUG: z.string().default(''),
   TENDERLY_PROJECT_SLUG: z.string().default(''),

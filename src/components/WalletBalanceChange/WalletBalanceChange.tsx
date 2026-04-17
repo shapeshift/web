@@ -6,14 +6,11 @@ import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
 import { TooltipWithTouch } from '@/components/TooltipWithTouch'
-import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useBalanceChartData } from '@/hooks/useBalanceChartData/useBalanceChartData'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
 import { bn } from '@/lib/bignumber/bignumber'
 import { calculateFiatChange, calculatePercentChange } from '@/lib/charts'
 import { ErroredTxHistoryAccounts } from '@/pages/Dashboard/components/ErroredTxHistoryAccounts'
-import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import {
   selectIsPortfolioLoading,
   selectPortfolioTotalUserCurrencyBalance,
@@ -26,13 +23,7 @@ type WalletBalanceChangeProps = {
 
 export const WalletBalanceChange = memo(
   ({ showErroredAccounts = true, ...flexProps }: WalletBalanceChangeProps) => {
-    const {
-      state: { isConnected: isWalletConnected },
-    } = useWallet()
-    const walletType = useAppSelector(selectWalletType)
-    const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
-    const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
-    const isConnected = isWalletConnected || isLedgerReadOnly
+    const isConnected = useIsWalletConnected()
 
     const translate = useTranslate()
     const portfolioTotalUserCurrencyBalance = useAppSelector(state =>

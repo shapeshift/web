@@ -30,13 +30,10 @@ import type { AccountIdsByNumberAndType } from '@/components/AccountDropdown/typ
 import { utxoAccountTypeToDisplayPriority } from '@/components/AccountDropdown/utils'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { useModalChildZIndex } from '@/context/ModalStackProvider'
-import { KeyManager } from '@/context/WalletProvider/KeyManager'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
 import { isValidAccountNumber } from '@/lib/utils/accounts'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import type { ReduxState } from '@/state/reducer'
-import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 import {
   selectAssetById,
@@ -179,13 +176,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     showLabel = true,
     label,
   }) => {
-    const {
-      state: { isConnected: isWalletConnected },
-    } = useWallet()
-    const walletType = useAppSelector(selectWalletType)
-    const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
-    const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
-    const isConnected = isWalletConnected || isLedgerReadOnly
+    const isConnected = useIsWalletConnected()
 
     const modalChildZIndex = useModalChildZIndex()
     const filter = useMemo(() => ({ assetId }), [assetId])

@@ -28,13 +28,12 @@ import { useFoxPageContext } from '../hooks/useFoxPageContext'
 import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
-import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { foxEthLpAssetId } from '@/state/slices/opportunitiesSlice/constants'
 import { opportunitiesApi } from '@/state/slices/opportunitiesSlice/opportunitiesApiSlice'
@@ -79,14 +78,8 @@ export const FoxFarming = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const appDispatch = useAppDispatch()
-  const {
-    state: { isConnected: isWalletConnected },
-    dispatch,
-  } = useWallet()
-  const walletType = useAppSelector(selectWalletType)
-  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
-  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
-  const isConnected = isWalletConnected || isLedgerReadOnly
+  const { dispatch } = useWallet()
+  const isConnected = useIsWalletConnected()
   const queryClient = useQueryClient()
 
   const handleWalletModalOpen = useCallback(

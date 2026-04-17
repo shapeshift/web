@@ -23,8 +23,7 @@ import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { useTradeNavigation } from '@/components/MultiHopTrade/hooks/useTradeNavigation'
 import { WalletActions } from '@/context/WalletProvider/actions'
-import { KeyManager } from '@/context/WalletProvider/KeyManager'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
@@ -33,7 +32,6 @@ import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { vibrate } from '@/lib/vibrate'
 import { selectSupportsFiatRampByAssetId } from '@/state/apis/fiatRamps/selectors'
-import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectRelatedAssetIdsInclusive } from '@/state/slices/related-assets-selectors'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -92,9 +90,10 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const {
-    state: { isConnected, wallet },
+    state: { wallet },
     dispatch,
   } = useWallet()
+  const canDisplayAssetActions = useIsWalletConnected()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
 
@@ -111,16 +110,6 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   const canHideAsset = !isPrimaryWithRelatedVariants
   const canToggleSpam = canHideAsset || isSpamMarked
   const hideTooltipLabel = isPrimaryWithRelatedVariants && !isSpamMarked
-
-  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
-  const walletType = useAppSelector(selectWalletType)
-  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
-
-  // Either wallet is physically connected, or it's a Ledger in read-only mode
-  const canDisplayAssetActions = useMemo(
-    () => isConnected || isLedgerReadOnly,
-    [isConnected, isLedgerReadOnly],
-  )
 
   const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
   const watchlistAssetIds = useAppSelector(preferences.selectors.selectWatchedAssetIds)

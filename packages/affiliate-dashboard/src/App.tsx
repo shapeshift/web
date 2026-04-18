@@ -20,7 +20,7 @@ import { periods } from './lib/periods'
 export const App = (): React.JSX.Element => {
   const [activeTab, setActiveTab] = useState<TabKey>('overview')
   const [selectedPeriod, setSelectedPeriod] = useState(0)
-  const [swapPage, setSwapPage] = useState(0)
+  const [cursorStack, setCursorStack] = useState<(string | undefined)[]>([undefined])
 
   const { address, isConnected } = useAppKitAccount()
 
@@ -35,15 +35,26 @@ export const App = (): React.JSX.Element => {
 
   const affiliateAddress = isConnected && address ? address : ''
   const currentPeriod = periods[selectedPeriod]
+  const currentCursor = cursorStack[cursorStack.length - 1]
+  const pageNumber = cursorStack.length
 
   const statsQuery = useAffiliateStats(affiliateAddress, currentPeriod)
   const configQuery = useAffiliateConfig(affiliateAddress)
-  const swapsQuery = useAffiliateSwaps(affiliateAddress, currentPeriod, swapPage)
+  const swapsQuery = useAffiliateSwaps(affiliateAddress, currentPeriod, currentCursor)
   const actions = useAffiliateActions({ affiliateAddress, authHeaders })
 
   const handleSelectPeriod = (index: number): void => {
     setSelectedPeriod(index)
-    setSwapPage(0)
+    setCursorStack([undefined])
+  }
+
+  const handleNextPage = (): void => {
+    const next = swapsQuery.data?.nextCursor
+    if (next) setCursorStack(stack => [...stack, next])
+  }
+
+  const handlePreviousPage = (): void => {
+    setCursorStack(stack => (stack.length > 1 ? stack.slice(0, -1) : stack))
   }
 
   return (
@@ -69,14 +80,15 @@ export const App = (): React.JSX.Element => {
           {activeTab === 'swaps' && (
             <SwapsTab
               swaps={swapsQuery.data?.swaps ?? []}
-              total={swapsQuery.data?.total ?? 0}
+              nextCursor={swapsQuery.data?.nextCursor ?? null}
+              pageNumber={pageNumber}
               isFetching={swapsQuery.isFetching}
               error={swapsQuery.error?.message}
               periods={periods}
               selectedPeriod={selectedPeriod}
               onSelectPeriod={handleSelectPeriod}
-              page={swapPage}
-              onPageChange={setSwapPage}
+              onPreviousPage={handlePreviousPage}
+              onNextPage={handleNextPage}
             />
           )}
           {activeTab === 'settings' && (

@@ -1,74 +1,85 @@
+import type { Asset } from '@shapeshiftoss/types'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { z } from 'zod'
 
-import { NullableNumericString, parseResponse } from '../lib/api'
-import { AFFILIATE_URL, SWAPS_PER_PAGE } from '../lib/constants'
+import { parseResponse } from '../lib/api'
+import { SWAPS_PER_PAGE } from '../lib/constants'
 import type { Period } from '../lib/periods'
 
-const AFFILIATE_SWAPS_URL = `${AFFILIATE_URL}/swaps`
+const AFFILIATE_SWAPS_URL = `${import.meta.env.VITE_API_URL}/v1/affiliate/swaps`
 
+// Loose runtime shape — relies on the API returning a valid Asset object.
+// Typed as Asset at the TS boundary for downstream consumers.
 const AssetSchema = z
   .object({
     symbol: z.string(),
+    name: z.string(),
   })
   .passthrough()
+  .transform(v => v as unknown as Asset)
 
 const AffiliateSwapSchema = z
   .object({
-    id: z.string(),
+    swapId: z.string(),
     createdAt: z.string(),
     status: z.string(),
     sellAsset: AssetSchema,
     buyAsset: AssetSchema,
-    sellAmountUsd: NullableNumericString,
-    affiliateFeeUsd: NullableNumericString,
-    affiliateBps: z.string().nullable(),
+    sellAmountCryptoPrecision: z.string(),
+    expectedBuyAmountCryptoPrecision: z.string(),
+    actualBuyAmountCryptoPrecision: z.string().nullable(),
+    sellAmountUsd: z.string().nullable(),
+    affiliateBps: z.number().nullable(),
+    shapeshiftBps: z.number(),
+    affiliateFeeUsd: z.string().nullable(),
+    swapperName: z.string(),
+    sellTxHash: z.string().nullable(),
+    buyTxHash: z.string().nullable(),
+    isAffiliateVerified: z.boolean().nullable(),
   })
   .passthrough()
 
 const ApiResponseSchema = z
   .object({
     swaps: z.array(AffiliateSwapSchema),
-    total: z.number(),
+    nextCursor: z.string().nullable(),
   })
   .passthrough()
 
 export type AffiliateSwap = z.infer<typeof AffiliateSwapSchema>
 
-interface AffiliateSwapsPage {
+export interface AffiliateSwapsPage {
   swaps: AffiliateSwap[]
-  total: number
+  nextCursor: string | null
 }
 
 const fetchSwaps = async (
   address: string,
   period: Period,
-  page: number,
+  cursor: string | undefined,
 ): Promise<AffiliateSwapsPage> => {
   const params = new URLSearchParams({
     address,
     limit: String(SWAPS_PER_PAGE),
-    offset: String(page * SWAPS_PER_PAGE),
   })
 
   if (period.startDate) params.append('startDate', period.startDate)
   if (period.endDate) params.append('endDate', period.endDate)
+  if (cursor) params.append('cursor', cursor)
 
   const response = await fetch(`${AFFILIATE_SWAPS_URL}?${params.toString()}`)
-  const data = await parseResponse(response, ApiResponseSchema)
-
-  return { swaps: data.swaps, total: data.total }
+  return parseResponse(response, ApiResponseSchema)
 }
 
 export const useAffiliateSwaps = (
   address: string,
   period: Period,
-  page: number,
+  cursor: string | undefined,
 ): UseQueryResult<AffiliateSwapsPage, Error> =>
   useQuery({
-    queryKey: ['affiliate', 'swaps', address, period.startDate, period.endDate, page],
-    queryFn: () => fetchSwaps(address, period, page),
+    queryKey: ['affiliate', 'swaps', address, period.startDate, period.endDate, cursor ?? null],
+    queryFn: () => fetchSwaps(address, period, cursor),
     enabled: Boolean(address),
     placeholderData: keepPreviousData,
   })

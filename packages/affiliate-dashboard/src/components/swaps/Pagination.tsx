@@ -1,18 +1,24 @@
 import { Button, Flex, Text } from '@chakra-ui/react'
 
 interface PaginationProps {
-  page: number
-  totalPages: number
-  onChange: (page: number) => void
+  pageNumber: number
+  hasNext: boolean
+  onPrevious: () => void
+  onNext: () => void
 }
 
-export const Pagination = ({ page, totalPages, onChange }: PaginationProps): React.JSX.Element => (
+export const Pagination = ({
+  pageNumber,
+  hasNext,
+  onPrevious,
+  onNext,
+}: PaginationProps): React.JSX.Element => (
   <Flex justify='center' align='center' gap={4} mb={6} wrap='wrap'>
     <Button
       size='sm'
       variant='outline'
-      onClick={() => onChange(Math.max(0, page - 1))}
-      isDisabled={page === 0}
+      onClick={onPrevious}
+      isDisabled={pageNumber === 1}
       bg='bg.surface'
       borderColor='border.subtle'
       color='fg.default'
@@ -21,13 +27,13 @@ export const Pagination = ({ page, totalPages, onChange }: PaginationProps): Rea
       Previous
     </Button>
     <Text fontSize='sm' color='fg.muted'>
-      Page {page + 1} of {totalPages}
+      Page {pageNumber}
     </Text>
     <Button
       size='sm'
       variant='outline'
-      onClick={() => onChange(Math.min(totalPages - 1, page + 1))}
-      isDisabled={page >= totalPages - 1}
+      onClick={onNext}
+      isDisabled={!hasNext}
       bg='bg.surface'
       borderColor='border.subtle'
       color='fg.default'

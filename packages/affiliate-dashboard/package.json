@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "@reown/appkit": "^1.8.17",
-    "@reown/appkit-adapter-wagmi": "^1.8.17"
+    "@reown/appkit-adapter-wagmi": "^1.8.17",
+    "@shapeshiftoss/types": "workspace:^"
   },
   "devDependencies": {
     "serve": "^14.2.6"

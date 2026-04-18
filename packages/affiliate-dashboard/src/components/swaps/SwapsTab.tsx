@@ -1,7 +1,6 @@
 import { Box } from '@chakra-ui/react'
 
 import type { AffiliateSwap } from '../../hooks/useAffiliateSwaps'
-import { SWAPS_PER_PAGE } from '../../lib/constants'
 import type { Period } from '../../lib/periods'
 import { EmptyState } from '../EmptyState'
 import { ErrorBanner } from '../ErrorBanner'
@@ -11,28 +10,30 @@ import { SwapsTable } from './SwapsTable'
 
 interface SwapsTabProps {
   swaps: AffiliateSwap[]
-  total: number
+  nextCursor: string | null
+  pageNumber: number
   isFetching: boolean
   error: string | undefined
   periods: Period[]
   selectedPeriod: number
   onSelectPeriod: (index: number) => void
-  page: number
-  onPageChange: (page: number) => void
+  onPreviousPage: () => void
+  onNextPage: () => void
 }
 
 export const SwapsTab = ({
   swaps,
-  total,
+  nextCursor,
+  pageNumber,
   isFetching,
   error,
   periods,
   selectedPeriod,
   onSelectPeriod,
-  page,
-  onPageChange,
+  onPreviousPage,
+  onNextPage,
 }: SwapsTabProps): React.JSX.Element => {
-  const totalPages = Math.ceil(total / SWAPS_PER_PAGE)
+  const showPagination = pageNumber > 1 || Boolean(nextCursor)
 
   return (
     <>
@@ -45,8 +46,13 @@ export const SwapsTab = ({
       {swaps.length > 0 && (
         <Box opacity={isFetching ? 0.6 : 1} transition='opacity 150ms ease' aria-busy={isFetching}>
           <SwapsTable swaps={swaps} />
-          {totalPages > 1 && (
-            <Pagination page={page} totalPages={totalPages} onChange={onPageChange} />
+          {showPagination && (
+            <Pagination
+              pageNumber={pageNumber}
+              hasNext={Boolean(nextCursor)}
+              onPrevious={onPreviousPage}
+              onNext={onNextPage}
+            />
           )}
         </Box>
       )}

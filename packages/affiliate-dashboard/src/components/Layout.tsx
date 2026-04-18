@@ -15,7 +15,7 @@ export const Layout = ({ children }: LayoutProps): React.JSX.Element => (
     />
     <Container
       position='relative'
-      maxW='960px'
+      maxW='1200px'
       px={{ base: 4, md: 6 }}
       py={{ base: 8, md: 12 }}
       pb={{ base: 12, md: 16 }}

@@ -5,6 +5,7 @@
     "buildCommand": "pnpm --filter @shapeshiftoss/affiliate-dashboard build",
     "watchPatterns": [
       "packages/affiliate-dashboard/**",
+      "packages/types/**",
       "pnpm-lock.yaml"
     ]
   },

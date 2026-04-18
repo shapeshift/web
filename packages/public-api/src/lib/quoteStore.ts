@@ -1,4 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import type { SwapperSpecificMetadata } from '@shapeshiftoss/swapper'
 
 export type StoredQuote = {
   quoteId: string
@@ -15,14 +16,7 @@ export type StoredQuote = {
   rate: string
   createdAt: number
   expiresAt: number
-  metadata: {
-    chainflipSwapId?: number | string
-    nearIntentsDepositAddress?: string
-    nearIntentsDepositMemo?: string
-    relayId?: string
-    cowswapOrderUid?: string
-    acrossDepositId?: string
-  }
+  metadata: SwapperSpecificMetadata
   stepChainIds: ChainId[]
   txHash?: string
   registeredAt?: number

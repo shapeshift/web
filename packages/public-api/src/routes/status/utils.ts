@@ -3,16 +3,12 @@ import { env } from '../../env'
 import type { quoteStore } from '../../lib/quoteStore'
 import { STATUS_TIMEOUT_MS } from './constants'
 
-const toHumanAmount = (baseUnit: string, precision: number): string => {
-  if (precision === 0) return baseUnit
-  const padded = baseUnit.padStart(precision + 1, '0')
-  return `${padded.slice(0, -precision)}.${padded.slice(-precision)}`
-}
-
 const buildSwapRegistrationBody = (storedQuote: ReturnType<typeof quoteStore.get> & object) => {
   const sellAsset = getAsset(storedQuote.sellAssetId)
   const buyAsset = getAsset(storedQuote.buyAssetId)
   if (!sellAsset || !buyAsset) return undefined
+
+  const parsedBps = Number.parseInt(storedQuote.affiliateBps, 10)
 
   return {
     body: JSON.stringify({
@@ -21,26 +17,16 @@ const buildSwapRegistrationBody = (storedQuote: ReturnType<typeof quoteStore.get
       buyAsset,
       sellAmountCryptoBaseUnit: storedQuote.sellAmountCryptoBaseUnit,
       expectedBuyAmountCryptoBaseUnit: storedQuote.buyAmountAfterFeesCryptoBaseUnit,
-      sellAmountCryptoPrecision: toHumanAmount(
-        storedQuote.sellAmountCryptoBaseUnit,
-        sellAsset.precision,
-      ),
-      expectedBuyAmountCryptoPrecision: toHumanAmount(
-        storedQuote.buyAmountAfterFeesCryptoBaseUnit,
-        buyAsset.precision,
-      ),
       sellTxHash: storedQuote.txHash,
       source: storedQuote.swapperName,
       swapperName: storedQuote.swapperName,
       sellAccountId: storedQuote.sendAddress,
       receiveAddress: storedQuote.receiveAddress,
       affiliateAddress: storedQuote.affiliateAddress,
-      affiliateBps: storedQuote.affiliateBps,
+      affiliateBps: Number.isFinite(parsedBps) ? parsedBps : undefined,
       origin: 'api',
       metadata: storedQuote.metadata,
     }),
-    sellAsset,
-    buyAsset,
   }
 }
 

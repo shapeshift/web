@@ -1,3 +1,4 @@
+import { BigAmount } from '@shapeshiftoss/utils'
 import type { Request, Response } from 'express'
 
 import { env } from '../../env'
@@ -5,7 +6,17 @@ import { fetchSwapService } from '../../lib/fetchSwapService'
 import { registry } from '../../registry'
 import type { ErrorResponse } from '../../types'
 import { rateLimitResponse } from '../../types'
-import { AffiliateSwapsRequestSchema, AffiliateSwapsResponseSchema } from './types'
+import type { AffiliateSwapsResponse } from './types'
+import {
+  AffiliateSwapsRequestSchema,
+  AffiliateSwapsResponseSchema,
+  SwapServiceAffiliateSwapsResponseSchema,
+} from './types'
+
+const baseUnitToPrecision = (value: string | null, precision: number): string | null => {
+  if (value === null) return null
+  return BigAmount.fromBaseUnit({ value, precision }).toPrecision()
+}
 
 registry.registerPath({
   method: 'get',
@@ -43,14 +54,14 @@ export const getAffiliateSwaps = async (req: Request, res: Response): Promise<vo
       return
     }
 
-    const { address, startDate, endDate, limit, offset } = queryResult.data
+    const { address, startDate, endDate, limit, cursor } = queryResult.data
 
     const url = new URL(`${env.SWAP_SERVICE_BASE_URL}/v1/affiliate/swaps`)
 
     url.searchParams.append('address', address)
     url.searchParams.append('limit', String(limit))
-    url.searchParams.append('offset', String(offset))
 
+    if (cursor) url.searchParams.append('cursor', cursor)
     if (startDate) url.searchParams.append('startDate', startDate)
     if (endDate) url.searchParams.append('endDate', endDate)
 
@@ -63,18 +74,55 @@ export const getAffiliateSwaps = async (req: Request, res: Response): Promise<vo
       return
     }
 
-    const responseResult = AffiliateSwapsResponseSchema.safeParse(
+    const upstreamResult = SwapServiceAffiliateSwapsResponseSchema.safeParse(
       await response.json().catch(() => null),
     )
 
-    if (!responseResult.success) {
+    if (!upstreamResult.success) {
       console.error(
         'Unexpected response shape from swap-service /v1/affiliate/swaps:',
-        responseResult.error.errors,
+        upstreamResult.error.errors,
       )
       res.status(503).json({
         error: 'Invalid response from swap service',
         code: 'INVALID_RESPONSE',
+      } satisfies ErrorResponse)
+      return
+    }
+
+    const payload: AffiliateSwapsResponse = {
+      swaps: upstreamResult.data.swaps.map(swap => ({
+        swapId: swap.swapId,
+        status: swap.status,
+        sellAsset: swap.sellAsset,
+        buyAsset: swap.buyAsset,
+        sellAmountCryptoPrecision:
+          baseUnitToPrecision(swap.sellAmountCryptoBaseUnit, swap.sellAsset.precision) ?? '0',
+        expectedBuyAmountCryptoPrecision:
+          baseUnitToPrecision(swap.expectedBuyAmountCryptoBaseUnit, swap.buyAsset.precision) ?? '0',
+        actualBuyAmountCryptoPrecision: baseUnitToPrecision(
+          swap.actualBuyAmountCryptoBaseUnit,
+          swap.buyAsset.precision,
+        ),
+        sellAmountUsd: swap.sellAmountUsd,
+        affiliateBps: swap.affiliateBps,
+        shapeshiftBps: swap.shapeshiftBps,
+        affiliateFeeUsd: swap.affiliateFeeUsd,
+        swapperName: swap.swapperName,
+        sellTxHash: swap.sellTxHash,
+        buyTxHash: swap.buyTxHash,
+        isAffiliateVerified: swap.isAffiliateVerified,
+        createdAt: swap.createdAt,
+      })),
+      nextCursor: upstreamResult.data.nextCursor,
+    }
+
+    const responseResult = AffiliateSwapsResponseSchema.safeParse(payload)
+    if (!responseResult.success) {
+      console.error('Failed to shape affiliate swaps response:', responseResult.error.errors)
+      res.status(500).json({
+        error: 'Internal server error',
+        code: 'INTERNAL_ERROR',
       } satisfies ErrorResponse)
       return
     }

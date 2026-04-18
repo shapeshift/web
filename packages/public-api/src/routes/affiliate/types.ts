@@ -50,17 +50,47 @@ export const AffiliateSwapItemSchema = registry.register(
     status: z.string().openapi({ example: 'completed' }),
     sellAsset: AssetSchema,
     buyAsset: AssetSchema,
-    sellAmountCryptoPrecision: z.string().openapi({ example: '1000000000000000000' }),
-    expectedBuyAmountCryptoPrecision: z.string().openapi({ example: '950000000' }),
-    actualBuyAmountCryptoPrecision: z.string().nullable().openapi({ example: '948000000' }),
+    sellAmountCryptoPrecision: z.string().openapi({ example: '1.0' }),
+    expectedBuyAmountCryptoPrecision: z.string().openapi({ example: '950.0' }),
+    actualBuyAmountCryptoPrecision: z.string().nullable().openapi({ example: '948.0' }),
     sellAmountUsd: z.string().nullable().openapi({ example: '1234.56' }),
-    affiliateBps: z.string().nullable().openapi({ example: '30' }),
+    affiliateBps: z.number().nullable().openapi({ example: 30 }),
+    shapeshiftBps: z.number().openapi({ example: 10 }),
     affiliateFeeUsd: z.string().nullable().openapi({ example: '3.70' }),
     swapperName: z.string().openapi({ example: 'THORChain' }),
     sellTxHash: z.string().nullable().openapi({ example: '0xabc123' }),
+    buyTxHash: z.string().nullable().openapi({ example: '0xdef456' }),
+    isAffiliateVerified: z.boolean().nullable().openapi({ example: true }),
     createdAt: z.string().openapi({ example: '2024-01-01T00:00:00.000Z' }),
   }),
 )
+
+// Upstream response shape from swap-service — base units, cursor pagination.
+// The public-api converts base units → precision before returning to clients.
+export const SwapServiceAffiliateSwapSchema = z.object({
+  swapId: z.string(),
+  status: z.string(),
+  sellAsset: AssetSchema,
+  buyAsset: AssetSchema,
+  sellAmountCryptoBaseUnit: z.string(),
+  expectedBuyAmountCryptoBaseUnit: z.string(),
+  actualBuyAmountCryptoBaseUnit: z.string().nullable(),
+  sellAmountUsd: z.string().nullable(),
+  buyAssetUsd: z.string().nullable(),
+  affiliateBps: z.number().nullable(),
+  shapeshiftBps: z.number(),
+  affiliateFeeUsd: z.string().nullable(),
+  swapperName: z.string(),
+  sellTxHash: z.string().nullable(),
+  buyTxHash: z.string().nullable(),
+  isAffiliateVerified: z.boolean().nullable(),
+  createdAt: z.string().or(z.date()).transform(v => (v instanceof Date ? v.toISOString() : v)),
+})
+
+export const SwapServiceAffiliateSwapsResponseSchema = z.object({
+  swaps: z.array(SwapServiceAffiliateSwapSchema),
+  nextCursor: z.string().nullable(),
+})
 
 export const AffiliateSwapsRequestSchema = z
   .object({
@@ -68,7 +98,7 @@ export const AffiliateSwapsRequestSchema = z
     startDate: z.string().datetime().optional(),
     endDate: z.string().datetime().optional(),
     limit: z.coerce.number().int().min(1).max(100).default(50),
-    offset: z.coerce.number().int().min(0).default(0),
+    cursor: z.string().optional(),
   })
   .refine(
     ({ startDate, endDate }) =>
@@ -83,21 +113,11 @@ export const AffiliateSwapsResponseSchema = registry.register(
   'AffiliateSwapsResponse',
   z.object({
     swaps: z.array(AffiliateSwapItemSchema),
-    total: z.number().openapi({ example: 100 }),
-    limit: z.number().openapi({ example: 50 }),
-    offset: z.number().openapi({ example: 0 }),
+    nextCursor: z.string().nullable().openapi({ example: 'swap-uuid-1234' }),
   }),
 )
 
 // --- Affiliate Stats ---
-
-export const AffiliateFeeResponseSchema = z.object({
-  affiliateAddress: EVM_ADDRESS,
-  swapCount: z.number(),
-  totalSwapVolumeUsd: z.string(),
-  totalFeesCollectedUsd: z.string(),
-  referrerCommissionUsd: z.string(),
-})
 
 export const AffiliateStatsRequestSchema = z
   .object({
@@ -117,11 +137,9 @@ export const AffiliateStatsRequestSchema = z
 export const AffiliateStatsResponseSchema = registry.register(
   'AffiliateStatsResponse',
   z.object({
-    address: EVM_ADDRESS,
     totalSwaps: z.number().openapi({ example: 42 }),
     totalVolumeUsd: z.string().openapi({ example: '12345.67' }),
     totalFeesEarnedUsd: z.string().openapi({ example: '44.44' }),
-    timestamp: z.number().openapi({ example: 1708700000000 }),
   }),
 )
 

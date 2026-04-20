@@ -16,15 +16,13 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { GroupedAssetRow } from '@/components/AssetSearch/components/GroupedAssetRow'
 import { PriceChangeTag } from '@/components/PriceChangeTag/PriceChangeTag'
 import { defaultLongPressConfig } from '@/constants/longPress'
-import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from '@/lib/math'
 import { chainIdToChainDisplayName, middleEllipsis } from '@/lib/utils'
 import { vibrate } from '@/lib/vibrate'
-import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
 import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
@@ -82,15 +80,9 @@ export const AssetRow: FC<AssetRowProps> = memo(
     const { copyToClipboard, isCopied } = useCopyToClipboard({ timeout: 2000 })
     const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
     const {
-      state: { isConnected, wallet },
+      state: { wallet },
     } = useWallet()
-    const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
-    const walletType = useAppSelector(selectWalletType)
-    const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
-    const canDisplayBalances = useMemo(
-      () => isConnected || isLedgerReadOnly,
-      [isConnected, isLedgerReadOnly],
-    )
+    const canDisplayBalances = useIsWalletConnected()
 
     const assetId = asset?.assetId
     const relatedAssetIdsFilter = useMemo(

@@ -10,11 +10,13 @@ import type { Period } from '../lib/periods'
 const AFFILIATE_SWAPS_URL = `${import.meta.env.VITE_API_URL}/v1/affiliate/swaps`
 
 // Loose runtime shape — relies on the API returning a valid Asset object.
-// Typed as Asset at the TS boundary for downstream consumers.
+// Typed as Asset at the TS boundary for downstream consumers. explorerTxLink
+// is validated explicitly because TxLinks builds href URLs from it.
 const AssetSchema = z
   .object({
     symbol: z.string(),
     name: z.string(),
+    explorerTxLink: z.string(),
   })
   .passthrough()
   .transform(v => v as unknown as Asset)

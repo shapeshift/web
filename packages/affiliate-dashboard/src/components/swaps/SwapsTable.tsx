@@ -14,8 +14,10 @@ interface SwapsTableProps {
 
 const parseUsd = (v: string | null): number => parseFloat(v ?? '') || 0
 
-const partnerBps = (swap: AffiliateSwap): number =>
-  Math.max(0, (swap.affiliateBps ?? 0) - swap.shapeshiftBps)
+const partnerBps = (swap: AffiliateSwap): number | null =>
+  swap.affiliateBps == null ? null : Math.max(0, swap.affiliateBps - swap.shapeshiftBps)
+
+const formatBps = (value: number | null): string => (value == null ? '—' : String(value))
 
 const SwapRow = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
   <Tr>
@@ -38,7 +40,7 @@ const SwapRow = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
       {formatUsd(parseUsd(swap.affiliateFeeUsd))}
     </Td>
     <Td fontFamily='mono' color='fg.default' textAlign='center'>
-      {partnerBps(swap)}
+      {formatBps(partnerBps(swap))}
     </Td>
     <Td fontFamily='mono' color='fg.default' textAlign='center'>
       {swap.shapeshiftBps}
@@ -106,7 +108,7 @@ const SwapCard = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
           color='success'
         />
         <Stat label='ShapeShift BPS' value={swap.shapeshiftBps} />
-        <Stat label='Partner BPS' value={partnerBps(swap)} align='right' />
+        <Stat label='Partner BPS' value={formatBps(partnerBps(swap))} align='right' />
       </SimpleGrid>
 
       <Box>

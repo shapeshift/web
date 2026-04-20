@@ -54,8 +54,8 @@ export const AffiliateSwapItemSchema = registry.register(
     expectedBuyAmountCryptoPrecision: z.string().openapi({ example: '950.0' }),
     actualBuyAmountCryptoPrecision: z.string().nullable().openapi({ example: '948.0' }),
     sellAmountUsd: z.string().nullable().openapi({ example: '1234.56' }),
-    affiliateBps: z.number().nullable().openapi({ example: 30 }),
-    shapeshiftBps: z.number().openapi({ example: 10 }),
+    affiliateBps: z.number().int().min(0).nullable().openapi({ example: 30 }),
+    shapeshiftBps: z.number().int().min(0).openapi({ example: 10 }),
     affiliateFeeUsd: z.string().nullable().openapi({ example: '3.70' }),
     swapperName: z.string().openapi({ example: 'THORChain' }),
     sellTxHash: z.string().nullable().openapi({ example: '0xabc123' }),
@@ -77,17 +77,18 @@ export const SwapServiceAffiliateSwapSchema = z.object({
   actualBuyAmountCryptoBaseUnit: z.string().nullable(),
   sellAmountUsd: z.string().nullable(),
   buyAssetUsd: z.string().nullable(),
-  affiliateBps: z.number().nullable(),
-  shapeshiftBps: z.number(),
+  affiliateBps: z.number().int().min(0).nullable(),
+  shapeshiftBps: z.number().int().min(0),
   affiliateFeeUsd: z.string().nullable(),
   swapperName: z.string(),
   sellTxHash: z.string().nullable(),
   buyTxHash: z.string().nullable(),
   isAffiliateVerified: z.boolean().nullable(),
   createdAt: z
-    .string()
-    .or(z.date())
-    .transform(v => (v instanceof Date ? v.toISOString() : v)),
+    .union([z.string().datetime(), z.date()])
+    .transform((createdAt: string | Date): string =>
+      createdAt instanceof Date ? createdAt.toISOString() : createdAt,
+    ),
 })
 
 export const SwapServiceAffiliateSwapsResponseSchema = z.object({
@@ -101,7 +102,7 @@ export const AffiliateSwapsRequestSchema = z
     startDate: z.string().datetime().optional(),
     endDate: z.string().datetime().optional(),
     limit: z.coerce.number().int().min(1).max(100).default(50),
-    cursor: z.string().optional(),
+    cursor: z.string().trim().min(1, 'cursor must not be empty').optional(),
   })
   .refine(
     ({ startDate, endDate }) =>

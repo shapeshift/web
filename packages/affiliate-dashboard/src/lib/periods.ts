@@ -32,9 +32,11 @@ export const generatePeriods = (createdAt: string | undefined): Period[] => {
   const firstMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
 
   const createdDate = createdAt ? new Date(createdAt) : firstMonth
-  const oldestMonth = Number.isNaN(createdDate.getTime())
+  const candidate = Number.isNaN(createdDate.getTime())
     ? firstMonth
     : new Date(Date.UTC(createdDate.getUTCFullYear(), createdDate.getUTCMonth(), 1))
+  // Clamp future createdAt to current month so the dropdown isn't reduced to All Time only.
+  const oldestMonth = candidate.getTime() > firstMonth.getTime() ? firstMonth : candidate
 
   const months: Period[] = []
   const cursor = new Date(firstMonth)

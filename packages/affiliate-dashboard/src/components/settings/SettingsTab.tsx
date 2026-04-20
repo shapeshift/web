@@ -6,13 +6,13 @@ import type {
 } from '../../hooks/useAffiliateActions'
 import type { AffiliateConfig } from '../../hooks/useAffiliateConfig'
 import { ActionMessage } from './ActionMessage'
+import { AffiliateBpsCard } from './AffiliateBpsCard'
 import { AuthBanner } from './AuthBanner'
 import { AuthStatusBar } from './AuthStatusBar'
 import { ClaimCodeCard } from './ClaimCodeCard'
 import { ConfigSummaryCard } from './ConfigSummaryCard'
 import { ReceiveAddressCard } from './ReceiveAddressCard'
 import { RegisterCard } from './RegisterCard'
-import { AffiliateBpsCard } from './AffiliateBpsCard'
 
 interface SettingsTabProps {
   affiliateAddress: string

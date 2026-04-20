@@ -22,8 +22,7 @@ interface SwapsTableProps {
 }
 
 const parseNum = (v: string | null): number => parseFloat(v ?? '') || 0
-const parseBpsDisplay = (bps: string | null): number =>
-  Math.max(0, parseInt(bps ?? '0', 10) - 10)
+const parseBpsDisplay = (bps: string | null): number => Math.max(0, parseInt(bps ?? '0', 10) - 10)
 
 const SwapRow = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
   <Tr _hover={{ bg: 'bg.raised' }} transition='background 120ms ease'>

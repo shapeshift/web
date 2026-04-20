@@ -1,7 +1,8 @@
 import { Button, HStack, Input, InputGroup, InputRightAddon, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 
-import { shortenAddress } from '../../lib/format'
+import { DEFAULT_BPS, MAX_BPS, MIN_BPS } from '../../lib/constants'
+import { bpsToPercent, parseBps, shortenAddress } from '../../lib/format'
 import { SettingsCard } from './SettingsCard'
 
 interface RegisterCardProps {
@@ -10,18 +11,13 @@ interface RegisterCardProps {
   onRegister: (bps: number) => void
 }
 
-const parseBps = (v: string): number => {
-  const n = parseInt(v, 10)
-  return Number.isNaN(n) ? 30 : n
-}
-
 export const RegisterCard = ({
   address,
   isLoading,
   onRegister,
 }: RegisterCardProps): React.JSX.Element => {
-  const [bps, setBps] = useState('30')
-  const percent = ((parseInt(bps, 10) || 0) / 100).toFixed(2)
+  const [bps, setBps] = useState(String(DEFAULT_BPS))
+  const parsedBps = parseBps(bps)
 
   return (
     <SettingsCard
@@ -37,9 +33,9 @@ export const RegisterCard = ({
             type='number'
             value={bps}
             onChange={e => setBps(e.target.value)}
-            placeholder='30'
-            min={0}
-            max={1000}
+            placeholder={String(DEFAULT_BPS)}
+            min={MIN_BPS}
+            max={MAX_BPS}
           />
           <InputRightAddon
             bg='bg.surface'
@@ -47,11 +43,11 @@ export const RegisterCard = ({
             fontFamily='mono'
             fontSize='xs'
           >
-            {percent}%
+            {bpsToPercent(parsedBps ?? 0)}
           </InputRightAddon>
         </InputGroup>
         <Button
-          onClick={() => onRegister(parseBps(bps))}
+          onClick={() => onRegister(parsedBps ?? DEFAULT_BPS)}
           isLoading={isLoading}
           loadingText='Registering...'
         >

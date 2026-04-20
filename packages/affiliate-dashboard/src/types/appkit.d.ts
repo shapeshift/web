@@ -1,9 +1,9 @@
-import type React from 'react'
+import type { DetailedHTMLProps, HTMLAttributes } from 'react'
 
-declare global {
+declare module 'react/jsx-runtime' {
   namespace JSX {
     interface IntrinsicElements {
-      'appkit-button': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>
+      'appkit-button': DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>
     }
   }
 }

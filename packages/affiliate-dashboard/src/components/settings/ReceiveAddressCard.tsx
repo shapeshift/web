@@ -31,8 +31,12 @@ export const ReceiveAddressCard = ({
       onValidationError({ type: 'error', text: 'Invalid EVM address' })
       return
     }
-    await onUpdate(trimmed)
-    setAddress('')
+    try {
+      await onUpdate(trimmed)
+      setAddress('')
+    } catch {
+      // error surfaced via useAffiliateActions.onError; preserve input for retry
+    }
   }
 
   return (

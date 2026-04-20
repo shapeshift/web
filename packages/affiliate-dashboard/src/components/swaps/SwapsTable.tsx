@@ -21,7 +21,7 @@ interface SwapsTableProps {
   swaps: AffiliateSwap[]
 }
 
-const parseNum = (v: string | null): number => parseFloat(v ?? '') || 0
+const formatUsdOrDash = (v: number | null): string => (v === null ? '—' : formatUsd(v))
 const parseBpsDisplay = (bps: string | null): number => Math.max(0, parseInt(bps ?? '0', 10) - 10)
 
 const SwapRow = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
@@ -36,10 +36,10 @@ const SwapRow = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
       <AssetPill asset={swap.buyAsset} />
     </Td>
     <Td isNumeric fontFamily='mono' color='fg.default' whiteSpace='nowrap'>
-      {formatUsd(parseNum(swap.sellAmountUsd))}
+      {formatUsdOrDash(swap.sellAmountUsd)}
     </Td>
     <Td isNumeric fontFamily='mono' color='success' whiteSpace='nowrap'>
-      {formatUsd(parseNum(swap.affiliateFeeUsd))}
+      {formatUsdOrDash(swap.affiliateFeeUsd)}
     </Td>
     <Td isNumeric fontFamily='mono' color='fg.default'>
       {parseBpsDisplay(swap.affiliateBps)}
@@ -72,7 +72,7 @@ const MobileSwapCard = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element =>
             Volume
           </Text>
           <Text fontFamily='mono' fontSize='sm' color='fg.default'>
-            {formatUsd(parseNum(swap.sellAmountUsd))}
+            {formatUsdOrDash(swap.sellAmountUsd)}
           </Text>
         </Box>
         <Box textAlign='right'>
@@ -80,7 +80,7 @@ const MobileSwapCard = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element =>
             Fee ({parseBpsDisplay(swap.affiliateBps)} bps)
           </Text>
           <Text fontFamily='mono' fontSize='sm' color='success'>
-            {formatUsd(parseNum(swap.affiliateFeeUsd))}
+            {formatUsdOrDash(swap.affiliateFeeUsd)}
           </Text>
         </Box>
       </Box>

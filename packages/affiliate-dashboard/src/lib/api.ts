@@ -1,4 +1,17 @@
-import type { z } from 'zod'
+import { z } from 'zod'
+
+// Strictly validates a numeric string (non-empty, finite) and transforms to number.
+// A malformed value fails parsing and surfaces via parseResponse as a thrown error.
+export const NumericString = z
+  .string()
+  .trim()
+  .refine(v => v !== '' && Number.isFinite(Number(v)), { message: 'Expected a numeric string' })
+  .transform(v => Number(v))
+
+// Soft-fail variant: malformed or missing value becomes null (display as "—") rather
+// than failing the whole response. Use for per-row fields where one bad cell should
+// not take down the page.
+export const NullableNumericString = NumericString.nullable().catch(null)
 
 interface ErrorBody {
   error?: string
@@ -12,7 +25,10 @@ const throwFromResponse = async (response: Response): Promise<never> => {
   )
 }
 
-export const parseResponse = async <T>(response: Response, schema: z.ZodSchema<T>): Promise<T> => {
+export const parseResponse = async <T extends z.ZodTypeAny>(
+  response: Response,
+  schema: T,
+): Promise<z.infer<T>> => {
   if (!response.ok) await throwFromResponse(response)
 
   const json = await response.json().catch(() => null)

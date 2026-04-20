@@ -13,8 +13,12 @@ export const ClaimCodeCard = ({ isLoading, onClaim }: ClaimCodeCardProps): React
   const disabled = !code.trim()
 
   const handleClaim = async (): Promise<void> => {
-    await onClaim(code.trim())
-    setCode('')
+    try {
+      await onClaim(code.trim())
+      setCode('')
+    } catch {
+      // error surfaced via useAffiliateActions.onError; preserve input for retry
+    }
   }
 
   return (

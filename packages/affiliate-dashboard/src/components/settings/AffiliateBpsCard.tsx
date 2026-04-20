@@ -2,6 +2,8 @@ import { Button, HStack, Input, InputGroup, InputRightAddon } from '@chakra-ui/r
 import { useState } from 'react'
 
 import type { ActionMessage } from '../../hooks/useAffiliateActions'
+import { MAX_BPS, MIN_BPS } from '../../lib/constants'
+import { bpsToPercent, parseBps } from '../../lib/format'
 import { SettingsCard } from './SettingsCard'
 
 interface AffiliateBpsCardProps {
@@ -19,17 +21,23 @@ export const AffiliateBpsCard = ({
 }: AffiliateBpsCardProps): React.JSX.Element => {
   const [value, setValue] = useState('')
   const disabled = !value.trim()
-  const displayBps = value ? parseInt(value, 10) || 0 : currentBps
-  const percent = (displayBps / 100).toFixed(2)
+  const parsed = parseBps(value)
+  const displayBps = value ? parsed ?? 0 : currentBps
 
   const handleUpdate = async (): Promise<void> => {
-    const parsed = parseInt(value, 10)
-    if (Number.isNaN(parsed) || parsed < 0 || parsed > 1000) {
-      onValidationError({ type: 'error', text: 'BPS must be a number between 0 and 1000' })
+    if (parsed === null) {
+      onValidationError({
+        type: 'error',
+        text: `BPS must be a number between ${MIN_BPS} and ${MAX_BPS}`,
+      })
       return
     }
-    await onUpdate(parsed)
-    setValue('')
+    try {
+      await onUpdate(parsed)
+      setValue('')
+    } catch {
+      // error surfaced via useAffiliateActions.onError; preserve input for retry
+    }
   }
 
   return (
@@ -44,8 +52,8 @@ export const AffiliateBpsCard = ({
             value={value}
             onChange={e => setValue(e.target.value)}
             placeholder={String(currentBps)}
-            min={0}
-            max={1000}
+            min={MIN_BPS}
+            max={MAX_BPS}
           />
           <InputRightAddon
             bg='bg.surface'
@@ -54,7 +62,7 @@ export const AffiliateBpsCard = ({
             fontSize='sm'
             color='fg.muted'
           >
-            {percent}%
+            {bpsToPercent(displayBps)}
           </InputRightAddon>
         </InputGroup>
         <Button

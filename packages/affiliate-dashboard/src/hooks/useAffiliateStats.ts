@@ -2,10 +2,11 @@ import type { UseQueryResult } from '@tanstack/react-query'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { z } from 'zod'
 
-import { parseResponse } from '../lib/api'
+import { NumericString, parseResponse } from '../lib/api'
+import { AFFILIATE_URL } from '../lib/constants'
 import type { Period } from '../lib/periods'
 
-const AFFILIATE_STATS_URL = `${import.meta.env.VITE_API_URL}/v1/affiliate/stats`
+const AFFILIATE_STATS_URL = `${AFFILIATE_URL}/stats`
 
 export interface AffiliateStats {
   totalSwaps: number
@@ -15,8 +16,8 @@ export interface AffiliateStats {
 
 const ApiResponseSchema = z.object({
   totalSwaps: z.number(),
-  totalVolumeUsd: z.string(),
-  totalFeesEarnedUsd: z.string(),
+  totalVolumeUsd: NumericString,
+  totalFeesEarnedUsd: NumericString,
 })
 
 const fetchStats = async (address: string, period: Period): Promise<AffiliateStats> => {
@@ -30,8 +31,8 @@ const fetchStats = async (address: string, period: Period): Promise<AffiliateSta
 
   return {
     totalSwaps: data.totalSwaps,
-    totalVolumeUsd: parseFloat(data.totalVolumeUsd) || 0,
-    totalFeesUsd: parseFloat(data.totalFeesEarnedUsd) || 0,
+    totalVolumeUsd: data.totalVolumeUsd,
+    totalFeesUsd: data.totalFeesEarnedUsd,
   }
 }
 

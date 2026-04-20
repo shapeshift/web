@@ -111,15 +111,15 @@ export const useAffiliateActions = ({
     },
     claimCode: async code => {
       setMessage(null)
-      await claimCodeMutation.mutateAsync(code).catch(() => undefined)
+      await claimCodeMutation.mutateAsync(code)
     },
     updateBps: async bps => {
       setMessage(null)
-      await updateBpsMutation.mutateAsync(bps).catch(() => undefined)
+      await updateBpsMutation.mutateAsync(bps)
     },
     updateReceiveAddress: async addr => {
       setMessage(null)
-      await updateReceiveAddressMutation.mutateAsync(addr).catch(() => undefined)
+      await updateReceiveAddressMutation.mutateAsync(addr)
     },
   }
 }

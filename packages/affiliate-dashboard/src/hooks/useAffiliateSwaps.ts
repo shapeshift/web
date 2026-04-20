@@ -2,21 +2,17 @@ import type { UseQueryResult } from '@tanstack/react-query'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { z } from 'zod'
 
-import { parseResponse } from '../lib/api'
-import { SWAPS_PER_PAGE } from '../lib/constants'
+import { NullableNumericString, parseResponse } from '../lib/api'
+import { AFFILIATE_URL, SWAPS_PER_PAGE } from '../lib/constants'
 import type { Period } from '../lib/periods'
 
-const AFFILIATE_SWAPS_URL = `${import.meta.env.VITE_API_URL}/v1/affiliate/swaps`
+const AFFILIATE_SWAPS_URL = `${AFFILIATE_URL}/swaps`
 
-const AssetSchema = z.union([
-  z.string(),
-  z
-    .object({
-      symbol: z.string().optional(),
-      name: z.string().optional(),
-    })
-    .passthrough(),
-])
+const AssetSchema = z
+  .object({
+    symbol: z.string(),
+  })
+  .passthrough()
 
 const AffiliateSwapSchema = z
   .object({
@@ -25,8 +21,8 @@ const AffiliateSwapSchema = z
     status: z.string(),
     sellAsset: AssetSchema,
     buyAsset: AssetSchema,
-    sellAmountUsd: z.string().nullable(),
-    affiliateFeeUsd: z.string().nullable(),
+    sellAmountUsd: NullableNumericString,
+    affiliateFeeUsd: NullableNumericString,
     affiliateBps: z.string().nullable(),
   })
   .passthrough()
@@ -38,7 +34,7 @@ const ApiResponseSchema = z
   })
   .passthrough()
 
-type AffiliateSwap = z.infer<typeof AffiliateSwapSchema>
+export type AffiliateSwap = z.infer<typeof AffiliateSwapSchema>
 
 interface AffiliateSwapsPage {
   swaps: AffiliateSwap[]

@@ -4,8 +4,9 @@ import { useSignMessage } from 'wagmi'
 import { z } from 'zod'
 
 import { parseResponse } from '../lib/api'
+import { API_BASE_URL } from '../lib/constants'
 
-const AUTH_SIWE_URL = `${import.meta.env.VITE_API_URL}/v1/auth/siwe`
+const AUTH_SIWE_URL = `${API_BASE_URL}/auth/siwe`
 
 const NonceResponseSchema = z.object({ nonce: z.string() })
 const VerifyResponseSchema = z.object({

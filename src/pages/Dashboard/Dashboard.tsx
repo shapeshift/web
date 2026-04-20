@@ -121,8 +121,6 @@ export const Dashboard = memo(() => {
     if (isConnected) return
 
     walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-    // walletType intentionally excluded to prevent race condition that would reopen the wallet modal after connection on refresh
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoadingLocalWallet, isConnected, walletDispatch])
 
   const mobileHome = useMemo(() => <MobileHome />, [])

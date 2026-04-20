@@ -1,107 +1,74 @@
-import { useCallback, useRef, useState } from 'react'
+import type { UseQueryResult } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { z } from 'zod'
 
-const AFFILIATE_SWAPS_URL = `${import.meta.env.VITE_API_URL}/v1/affiliate/swaps`
+import { NullableNumericString, parseResponse } from '../lib/api'
+import { AFFILIATE_URL, SWAPS_PER_PAGE } from '../lib/constants'
+import type { Period } from '../lib/periods'
 
-export interface AffiliateSwap {
-  id: string
-  sellAsset: string | { symbol?: string; name?: string }
-  buyAsset: string | { symbol?: string; name?: string }
-  sellAmount: string
-  buyAmount: string
-  sellAmountUsd: string
-  buyAmountUsd: string
-  affiliateBps: string
-  affiliateFeeUsd: string
-  status: string
-  createdAt: string
-}
+const AFFILIATE_SWAPS_URL = `${AFFILIATE_URL}/swaps`
 
-interface ApiResponse {
+const AssetSchema = z
+  .object({
+    symbol: z.string(),
+  })
+  .passthrough()
+
+const AffiliateSwapSchema = z
+  .object({
+    id: z.string(),
+    createdAt: z.string(),
+    status: z.string(),
+    sellAsset: AssetSchema,
+    buyAsset: AssetSchema,
+    sellAmountUsd: NullableNumericString,
+    affiliateFeeUsd: NullableNumericString,
+    affiliateBps: z.string().nullable(),
+  })
+  .passthrough()
+
+const ApiResponseSchema = z
+  .object({
+    swaps: z.array(AffiliateSwapSchema),
+    total: z.number(),
+  })
+  .passthrough()
+
+export type AffiliateSwap = z.infer<typeof AffiliateSwapSchema>
+
+interface AffiliateSwapsPage {
   swaps: AffiliateSwap[]
   total: number
-  limit: number
-  offset: number
 }
 
-interface AffiliateSwapsState {
-  swaps: AffiliateSwap[]
-  total: number
-  isLoading: boolean
-  error: string | null
+const fetchSwaps = async (
+  address: string,
+  period: Period,
+  page: number,
+): Promise<AffiliateSwapsPage> => {
+  const params = new URLSearchParams({
+    address,
+    limit: String(SWAPS_PER_PAGE),
+    offset: String(page * SWAPS_PER_PAGE),
+  })
+
+  if (period.startDate) params.append('startDate', period.startDate)
+  if (period.endDate) params.append('endDate', period.endDate)
+
+  const response = await fetch(`${AFFILIATE_SWAPS_URL}?${params.toString()}`)
+  const data = await parseResponse(response, ApiResponseSchema)
+
+  return { swaps: data.swaps, total: data.total }
 }
 
-interface FetchOptions {
-  startDate?: string
-  endDate?: string
-  limit?: number
-  offset?: number
-}
-
-interface UseAffiliateSwapsReturn extends AffiliateSwapsState {
-  fetchSwaps: (address: string, options?: FetchOptions) => Promise<void>
-}
-
-export const useAffiliateSwaps = (): UseAffiliateSwapsReturn => {
-  const [swaps, setSwaps] = useState<AffiliateSwap[]>([])
-  const [total, setTotal] = useState(0)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const requestIdRef = useRef(0)
-
-  const fetchSwaps = useCallback(async (address: string, options?: FetchOptions): Promise<void> => {
-    const requestId = ++requestIdRef.current
-    if (!address.trim()) {
-      setError('Please enter a valid affiliate address.')
-      return
-    }
-
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      const params = new URLSearchParams({ address })
-      if (options?.startDate) params.append('startDate', options.startDate)
-      if (options?.endDate) params.append('endDate', options.endDate)
-      if (options?.limit) params.append('limit', String(options.limit))
-      if (options?.offset) params.append('offset', String(options.offset))
-
-      const response = await fetch(`${AFFILIATE_SWAPS_URL}?${params.toString()}`)
-
-      if (!response.ok) {
-        let errorMessage = `Request failed (${String(response.status)})`
-        try {
-          const errorBody = (await response.json()) as {
-            error?: string
-            details?: { message: string }[]
-          }
-          if (errorBody.error) {
-            errorMessage = errorBody.error
-          }
-          if (errorBody.details?.[0]?.message) {
-            errorMessage = errorBody.details[0].message
-          }
-        } catch {
-          // Response wasn't JSON, use generic message
-        }
-        throw new Error(errorMessage)
-      }
-
-      const data = (await response.json()) as ApiResponse
-      if (requestId !== requestIdRef.current) return
-      setSwaps(data.swaps)
-      setTotal(data.total)
-    } catch (err) {
-      if (requestId !== requestIdRef.current) return
-      const message = err instanceof Error ? err.message : 'Failed to fetch affiliate swaps.'
-      setError(message)
-      setSwaps([])
-      setTotal(0)
-    } finally {
-      if (requestId === requestIdRef.current) {
-        setIsLoading(false)
-      }
-    }
-  }, [])
-
-  return { swaps, total, isLoading, error, fetchSwaps }
-}
+export const useAffiliateSwaps = (
+  address: string,
+  period: Period,
+  page: number,
+): UseQueryResult<AffiliateSwapsPage, Error> =>
+  useQuery({
+    queryKey: ['affiliate', 'swaps', address, period.startDate, period.endDate, page],
+    queryFn: () => fetchSwaps(address, period, page),
+    enabled: Boolean(address),
+    placeholderData: keepPreviousData,
+  })

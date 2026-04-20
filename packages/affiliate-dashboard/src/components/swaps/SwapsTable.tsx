@@ -1,5 +1,6 @@
 import {
   Box,
+  SimpleGrid,
   Stack,
   Table,
   TableContainer,
@@ -28,23 +29,12 @@ const parseUsd = (v: string | null): number => parseFloat(v ?? '') || 0
 const partnerBps = (swap: AffiliateSwap): number =>
   Math.max(0, (swap.affiliateBps ?? 0) - swap.shapeshiftBps)
 
-// Responsive visibility for progressive column reveal.
-// < md: mobile card layout (not table)
-// md: essentials only — Date, pair, volume, fee, status
-// lg: + swapper, verified badge
-// xl: + Partner/ShapeShift BPS split
-// 2xl: + Tx links
-const showSwapper = { base: 'none', lg: 'table-cell' }
-const showVerified = { base: 'none', lg: 'table-cell' }
-const showBps = { base: 'none', xl: 'table-cell' }
-const showTx = { base: 'none', '2xl': 'table-cell' }
-
 const SwapRow = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
   <Tr _hover={{ bg: 'bg.raised' }} transition='background 120ms ease'>
     <Td color='fg.default' whiteSpace='nowrap'>
       {formatDate(swap.createdAt)}
     </Td>
-    <Td color='fg.default' whiteSpace='nowrap' display={showSwapper}>
+    <Td color='fg.default' whiteSpace='nowrap'>
       {swap.swapperName}
     </Td>
     <Td>
@@ -59,16 +49,16 @@ const SwapRow = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
     <Td isNumeric fontFamily='mono' color='success' whiteSpace='nowrap'>
       {formatUsd(parseUsd(swap.affiliateFeeUsd))}
     </Td>
-    <Td isNumeric fontFamily='mono' color='fg.default' display={showBps}>
+    <Td fontFamily='mono' color='fg.default' textAlign='center'>
       {partnerBps(swap)}
     </Td>
-    <Td isNumeric fontFamily='mono' color='fg.default' display={showBps}>
+    <Td fontFamily='mono' color='fg.default' textAlign='center'>
       {swap.shapeshiftBps}
     </Td>
-    <Td display={showTx}>
+    <Td>
       <TxLinks swap={swap} />
     </Td>
-    <Td display={showVerified}>
+    <Td textAlign='center'>
       <VerifiedBadge isAffiliateVerified={swap.isAffiliateVerified} />
     </Td>
     <Td>
@@ -77,78 +67,92 @@ const SwapRow = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
   </Tr>
 )
 
-const MobileSwapCard = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
+const Stat = ({
+  label,
+  value,
+  align = 'left',
+  color = 'fg.default',
+}: {
+  label: string
+  value: React.ReactNode
+  align?: 'left' | 'right'
+  color?: string
+}): React.JSX.Element => (
+  <Box textAlign={align}>
+    <Text fontSize='xs' color='fg.muted'>
+      {label}
+    </Text>
+    <Text fontFamily='mono' fontSize='sm' color={color}>
+      {value}
+    </Text>
+  </Box>
+)
+
+const SwapCard = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
   <Box bg='bg.surface' border='1px solid' borderColor='border.subtle' borderRadius='xl' p={4}>
     <Stack spacing={3}>
       <Box display='flex' justifyContent='space-between' alignItems='center' gap={2}>
         <Text fontSize='xs' color='fg.muted' textTransform='uppercase' letterSpacing='0.06em'>
-          {formatDate(swap.createdAt)}
+          {formatDate(swap.createdAt)} · {swap.swapperName}
         </Text>
-        <Box display='flex' gap={2}>
+        <Box display='flex' gap={2} alignItems='center'>
           <VerifiedBadge isAffiliateVerified={swap.isAffiliateVerified} />
           <StatusBadge status={swap.status} />
         </Box>
       </Box>
+
       <Box display='flex' gap={2} alignItems='center' flexWrap='wrap'>
         <AssetPill asset={swap.sellAsset} />
         <Text color='fg.muted' fontSize='sm'>
           →
         </Text>
         <AssetPill asset={swap.buyAsset} />
-        <Text fontSize='xs' color='fg.muted' ml='auto'>
-          {swap.swapperName}
+      </Box>
+
+      <SimpleGrid columns={2} spacing={3}>
+        <Stat label='Volume' value={formatUsd(parseUsd(swap.sellAmountUsd))} />
+        <Stat
+          label='Fee'
+          value={formatUsd(parseUsd(swap.affiliateFeeUsd))}
+          align='right'
+          color='success'
+        />
+        <Stat label='ShapeShift BPS' value={swap.shapeshiftBps} />
+        <Stat label='Partner BPS' value={partnerBps(swap)} align='right' />
+      </SimpleGrid>
+
+      <Box>
+        <Text fontSize='xs' color='fg.muted' mb={1.5}>
+          Transactions
         </Text>
+        <TxLinks swap={swap} />
       </Box>
-      <Box display='flex' justifyContent='space-between' gap={4}>
-        <Box>
-          <Text fontSize='xs' color='fg.muted'>
-            Volume
-          </Text>
-          <Text fontFamily='mono' fontSize='sm' color='fg.default'>
-            {formatUsd(parseUsd(swap.sellAmountUsd))}
-          </Text>
-        </Box>
-        <Box textAlign='right'>
-          <Text fontSize='xs' color='fg.muted'>
-            Fee ({partnerBps(swap)} / {swap.shapeshiftBps} BPS)
-          </Text>
-          <Text fontFamily='mono' fontSize='sm' color='success'>
-            {formatUsd(parseUsd(swap.affiliateFeeUsd))}
-          </Text>
-        </Box>
-      </Box>
-      <TxLinks swap={swap} />
     </Stack>
   </Box>
 )
 
 export const SwapsTable = ({ swaps }: SwapsTableProps): React.JSX.Element => {
-  const isMobile = useBreakpointValue({ base: true, md: false })
+  // Full table only when there's enough width for all 11 columns comfortably.
+  // Otherwise use the card layout — it shows everything, just stacked.
+  const useCardLayout = useBreakpointValue({ base: true, xl: false })
 
-  if (isMobile) {
+  if (useCardLayout) {
     return (
       <Stack spacing={3} mb={4}>
         {swaps.map(swap => (
-          <MobileSwapCard key={swap.swapId} swap={swap} />
+          <SwapCard key={swap.swapId} swap={swap} />
         ))}
       </Stack>
     )
   }
 
   return (
-    <TableContainer
-      border='1px solid'
-      borderColor='border.subtle'
-      borderRadius='xl'
-      mb={4}
-    >
+    <TableContainer border='1px solid' borderColor='border.subtle' borderRadius='xl' mb={4}>
       <Table variant='simple' size='sm' sx={{ tableLayout: 'auto' }}>
         <Thead bg='bg.surface'>
           <Tr>
             <Th borderColor='border.subtle'>Date</Th>
-            <Th borderColor='border.subtle' display={showSwapper}>
-              Swapper
-            </Th>
+            <Th borderColor='border.subtle'>Swapper</Th>
             <Th borderColor='border.subtle'>Sell</Th>
             <Th borderColor='border.subtle'>Buy</Th>
             <Th borderColor='border.subtle' isNumeric>
@@ -157,16 +161,14 @@ export const SwapsTable = ({ swaps }: SwapsTableProps): React.JSX.Element => {
             <Th borderColor='border.subtle' isNumeric>
               Fee
             </Th>
-            <Th borderColor='border.subtle' isNumeric display={showBps}>
+            <Th borderColor='border.subtle' textAlign='center'>
               Partner BPS
             </Th>
-            <Th borderColor='border.subtle' isNumeric display={showBps}>
-              SS BPS
+            <Th borderColor='border.subtle' textAlign='center'>
+              ShapeShift BPS
             </Th>
-            <Th borderColor='border.subtle' display={showTx}>
-              Tx
-            </Th>
-            <Th borderColor='border.subtle' display={showVerified}>
+            <Th borderColor='border.subtle'>Tx</Th>
+            <Th borderColor='border.subtle' textAlign='center'>
               Verified
             </Th>
             <Th borderColor='border.subtle'>Status</Th>

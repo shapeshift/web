@@ -1,62 +1,28 @@
-import { Badge, Tooltip } from '@chakra-ui/react'
+import { CheckCircleIcon, TimeIcon, WarningIcon } from '@chakra-ui/icons'
+import { Icon, Tooltip } from '@chakra-ui/react'
 
 interface VerifiedBadgeProps {
   isAffiliateVerified: boolean | null
 }
 
-export const VerifiedBadge = ({
-  isAffiliateVerified,
-}: VerifiedBadgeProps): React.JSX.Element => {
+export const VerifiedBadge = ({ isAffiliateVerified }: VerifiedBadgeProps): React.JSX.Element => {
   if (isAffiliateVerified === null) {
     return (
       <Tooltip label='Verification pending' hasArrow>
-        <Badge
-          px={2.5}
-          py={0.5}
-          borderRadius='md'
-          bg='rgba(122, 126, 138, 0.1)'
-          color='fg.muted'
-          fontSize='xs'
-          fontWeight={500}
-          textTransform='none'
-        >
-          Pending
-        </Badge>
+        <Icon as={TimeIcon} color='fg.muted' boxSize={5} aria-label='Verification pending' />
       </Tooltip>
     )
   }
   if (isAffiliateVerified) {
     return (
       <Tooltip label='Affiliate fee verified on-chain — you are getting paid' hasArrow>
-        <Badge
-          px={2.5}
-          py={0.5}
-          borderRadius='md'
-          bg='rgba(74, 222, 128, 0.1)'
-          color='success'
-          fontSize='xs'
-          fontWeight={500}
-          textTransform='none'
-        >
-          Verified
-        </Badge>
+        <Icon as={CheckCircleIcon} color='success' boxSize={5} aria-label='Verified' />
       </Tooltip>
     )
   }
   return (
     <Tooltip label='Affiliate fee NOT verified — payout not guaranteed' hasArrow>
-      <Badge
-        px={2.5}
-        py={0.5}
-        borderRadius='md'
-        bg='rgba(239, 68, 68, 0.1)'
-        color='danger'
-        fontSize='xs'
-        fontWeight={500}
-        textTransform='none'
-      >
-        Unverified
-      </Badge>
+      <Icon as={WarningIcon} color='danger' boxSize={5} aria-label='Unverified' />
     </Tooltip>
   )
 }

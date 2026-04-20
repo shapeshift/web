@@ -11,13 +11,8 @@ import {
   WrapItem,
 } from '@chakra-ui/react'
 
-import {
-  ALL_TIME_INDEX,
-  olderByYear,
-  RECENT_MONTHS_COUNT,
-  recentPeriods,
-  type Period,
-} from '../lib/periods'
+import type { Period } from '../lib/periods'
+import { ALL_TIME_INDEX, olderByYear, RECENT_MONTHS_COUNT, recentPeriods } from '../lib/periods'
 
 interface PeriodSelectorProps {
   periods: Period[]
@@ -59,8 +54,7 @@ export const PeriodSelector = ({
   selectedIndex,
   onSelect,
 }: PeriodSelectorProps): React.JSX.Element => {
-  const selectedIsOlder =
-    selectedIndex >= RECENT_MONTHS_COUNT && selectedIndex < ALL_TIME_INDEX
+  const selectedIsOlder = selectedIndex >= RECENT_MONTHS_COUNT && selectedIndex < ALL_TIME_INDEX
   const olderLabel = selectedIsOlder ? periods[selectedIndex].label : 'Older'
 
   return (
@@ -79,11 +73,7 @@ export const PeriodSelector = ({
       {olderByYear.length > 0 && (
         <WrapItem>
           <Menu>
-            <MenuButton
-              as={Button}
-              rightIcon={<ChevronDownIcon />}
-              {...pillStyle(selectedIsOlder)}
-            >
+            <MenuButton as={Button} rightIcon={<ChevronDownIcon />} {...pillStyle(selectedIsOlder)}>
               {olderLabel}
             </MenuButton>
             <MenuList

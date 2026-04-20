@@ -84,7 +84,10 @@ export const SwapServiceAffiliateSwapSchema = z.object({
   sellTxHash: z.string().nullable(),
   buyTxHash: z.string().nullable(),
   isAffiliateVerified: z.boolean().nullable(),
-  createdAt: z.string().or(z.date()).transform(v => (v instanceof Date ? v.toISOString() : v)),
+  createdAt: z
+    .string()
+    .or(z.date())
+    .transform(v => (v instanceof Date ? v.toISOString() : v)),
 })
 
 export const SwapServiceAffiliateSwapsResponseSchema = z.object({

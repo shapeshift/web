@@ -1,19 +1,7 @@
-import {
-  Box,
-  SimpleGrid,
-  Stack,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tr,
-  useBreakpointValue,
-} from '@chakra-ui/react'
+import { Box, SimpleGrid, Stack, Table, Tbody, Td, Text, Th, Thead, Tr } from '@chakra-ui/react'
 
 import type { AffiliateSwap } from '../../hooks/useAffiliateSwaps'
+import { useMediaQuery } from '../../hooks/useMediaQuery'
 import { formatDate, formatUsd } from '../../lib/format'
 import { AssetPill } from './AssetPill'
 import { StatusBadge } from './StatusBadge'
@@ -30,7 +18,7 @@ const partnerBps = (swap: AffiliateSwap): number =>
   Math.max(0, (swap.affiliateBps ?? 0) - swap.shapeshiftBps)
 
 const SwapRow = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
-  <Tr _hover={{ bg: 'bg.raised' }} transition='background 120ms ease'>
+  <Tr>
     <Td color='fg.default' whiteSpace='nowrap'>
       {formatDate(swap.createdAt)}
     </Td>
@@ -132,9 +120,7 @@ const SwapCard = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
 )
 
 export const SwapsTable = ({ swaps }: SwapsTableProps): React.JSX.Element => {
-  // Full table only when there's enough width for all 11 columns comfortably.
-  // Otherwise use the card layout — it shows everything, just stacked.
-  const useCardLayout = useBreakpointValue({ base: true, xl: false })
+  const useCardLayout = !useMediaQuery('(min-width: 80em)')
 
   if (useCardLayout) {
     return (
@@ -147,39 +133,51 @@ export const SwapsTable = ({ swaps }: SwapsTableProps): React.JSX.Element => {
   }
 
   return (
-    <TableContainer border='1px solid' borderColor='border.subtle' borderRadius='xl' mb={4}>
-      <Table variant='simple' size='sm' sx={{ tableLayout: 'auto' }}>
-        <Thead bg='bg.surface'>
-          <Tr>
-            <Th borderColor='border.subtle'>Date</Th>
-            <Th borderColor='border.subtle'>Swapper</Th>
-            <Th borderColor='border.subtle'>Sell</Th>
-            <Th borderColor='border.subtle'>Buy</Th>
-            <Th borderColor='border.subtle' isNumeric>
-              Volume
-            </Th>
-            <Th borderColor='border.subtle' isNumeric>
-              Fee
-            </Th>
-            <Th borderColor='border.subtle' textAlign='center'>
-              Partner BPS
-            </Th>
-            <Th borderColor='border.subtle' textAlign='center'>
-              ShapeShift BPS
-            </Th>
-            <Th borderColor='border.subtle'>Tx</Th>
-            <Th borderColor='border.subtle' textAlign='center'>
-              Verified
-            </Th>
-            <Th borderColor='border.subtle'>Status</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {swaps.map(swap => (
-            <SwapRow key={swap.swapId} swap={swap} />
-          ))}
-        </Tbody>
-      </Table>
-    </TableContainer>
+    <Table
+      variant='simple'
+      size='sm'
+      sx={{
+        tableLayout: 'auto',
+        '& thead th': {
+          position: 'sticky',
+          top: 0,
+          zIndex: 1,
+          bg: 'bg.surface',
+          py: 4,
+        },
+        '& tbody td': { py: 4 },
+      }}
+    >
+      <Thead>
+        <Tr>
+          <Th borderColor='border.subtle'>Date</Th>
+          <Th borderColor='border.subtle'>Swapper</Th>
+          <Th borderColor='border.subtle'>Sell</Th>
+          <Th borderColor='border.subtle'>Buy</Th>
+          <Th borderColor='border.subtle' isNumeric>
+            Volume
+          </Th>
+          <Th borderColor='border.subtle' isNumeric>
+            Fee
+          </Th>
+          <Th borderColor='border.subtle' textAlign='center'>
+            Partner BPS
+          </Th>
+          <Th borderColor='border.subtle' textAlign='center'>
+            ShapeShift BPS
+          </Th>
+          <Th borderColor='border.subtle'>Tx</Th>
+          <Th borderColor='border.subtle' textAlign='center'>
+            Verified
+          </Th>
+          <Th borderColor='border.subtle'>Status</Th>
+        </Tr>
+      </Thead>
+      <Tbody>
+        {swaps.map(swap => (
+          <SwapRow key={swap.swapId} swap={swap} />
+        ))}
+      </Tbody>
+    </Table>
   )
 }

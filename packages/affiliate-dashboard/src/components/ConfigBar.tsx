@@ -41,7 +41,7 @@ export const ConfigBar = ({ config }: ConfigBarProps): React.JSX.Element => (
     border='1px solid'
     borderColor='border.subtle'
     borderRadius='xl'
-    mb={6}
+    mb={2}
   >
     <HStack spacing={2}>
       <Label>BPS</Label>

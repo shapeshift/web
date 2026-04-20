@@ -1,6 +1,6 @@
 import type { Asset } from '@shapeshiftoss/types'
-import type { UseQueryResult } from '@tanstack/react-query'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import type { InfiniteData, UseInfiniteQueryResult } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
 import { z } from 'zod'
 
 import { parseResponse } from '../lib/api'
@@ -75,11 +75,12 @@ const fetchSwaps = async (
 export const useAffiliateSwaps = (
   address: string,
   period: Period,
-  cursor: string | undefined,
-): UseQueryResult<AffiliateSwapsPage, Error> =>
-  useQuery({
-    queryKey: ['affiliate', 'swaps', address, period.startDate, period.endDate, cursor ?? null],
-    queryFn: () => fetchSwaps(address, period, cursor),
+): UseInfiniteQueryResult<InfiniteData<AffiliateSwapsPage, string | undefined>, Error> =>
+  useInfiniteQuery({
+    queryKey: ['affiliate', 'swaps', address, period.startDate, period.endDate],
+    queryFn: ({ pageParam }) => fetchSwaps(address, period, pageParam),
     enabled: Boolean(address),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: lastPage => lastPage.nextCursor ?? undefined,
     placeholderData: keepPreviousData,
   })

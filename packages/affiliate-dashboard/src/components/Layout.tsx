@@ -6,7 +6,15 @@ interface LayoutProps {
 }
 
 export const Layout = ({ children }: LayoutProps): React.JSX.Element => (
-  <Box minH='100vh' bg='bg.canvas' color='fg.default' position='relative' overflow='hidden'>
+  <Box
+    h='100vh'
+    bg='bg.canvas'
+    color='fg.default'
+    position='relative'
+    overflow='hidden'
+    display='flex'
+    flexDirection='column'
+  >
     <Box
       position='fixed'
       inset={0}
@@ -15,10 +23,14 @@ export const Layout = ({ children }: LayoutProps): React.JSX.Element => (
     />
     <Container
       position='relative'
-      maxW='960px'
+      maxW='1440px'
       px={{ base: 4, md: 6 }}
       py={{ base: 8, md: 12 }}
       pb={{ base: 12, md: 16 }}
+      flex={1}
+      minH={0}
+      display='flex'
+      flexDirection='column'
     >
       {children}
     </Container>

@@ -1,7 +1,8 @@
 import { Badge } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/types'
 
 interface AssetPillProps {
-  asset: { symbol: string }
+  asset: Asset
 }
 
 export const AssetPill = ({ asset }: AssetPillProps): React.JSX.Element => (

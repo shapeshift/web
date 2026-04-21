@@ -16,12 +16,10 @@ const tabs: { key: TabKey; label: string }[] = [
 export const TabBar = ({ active, onChange }: TabBarProps): React.JSX.Element => (
   <HStack
     spacing={1}
-    mb={6}
-    borderBottom='1px solid'
-    borderColor='border.subtle'
     role='tablist'
+    flex={1}
+    minW={0}
     overflowX='auto'
-    overflowY='hidden'
     sx={{
       scrollbarWidth: 'none',
       '&::-webkit-scrollbar': { display: 'none' },
@@ -38,14 +36,12 @@ export const TabBar = ({ active, onChange }: TabBarProps): React.JSX.Element => 
           variant='ghost'
           size='md'
           px={{ base: 4, md: 5 }}
-          py={3}
+          py={5}
           fontSize='sm'
           fontWeight={500}
           color={isActive ? 'fg.bright' : 'fg.muted'}
           borderRadius={0}
-          borderBottom='2px solid'
-          borderBottomColor={isActive ? 'brand.500' : 'transparent'}
-          mb='-1px'
+          boxShadow={isActive ? 'inset 0 -2px 0 0 var(--chakra-colors-brand-500)' : 'none'}
           _hover={{ bg: 'transparent', color: 'fg.bright' }}
           _active={{ bg: 'transparent' }}
         >

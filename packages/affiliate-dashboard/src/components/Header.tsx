@@ -1,4 +1,4 @@
-import { Flex, Heading, Stack, Text } from '@chakra-ui/react'
+import { Flex, Heading, Stack } from '@chakra-ui/react'
 
 import { ShapeShiftLogo } from './ShapeShiftLogo'
 
@@ -18,9 +18,6 @@ export const Header = (): React.JSX.Element => (
       >
         Affiliate Dashboard
       </Heading>
-      <Text fontSize={{ base: 'sm', md: 'md' }} color='fg.muted'>
-        Manage your affiliate program and track earnings
-      </Text>
     </Stack>
   </Stack>
 )

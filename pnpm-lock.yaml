@@ -811,6 +811,9 @@ importers:
       '@reown/appkit-adapter-wagmi':
         specifier: ^1.8.17
         version: 1.8.18(28a1733d524a75cde997b10ac762474d)
+      '@shapeshiftoss/types':
+        specifier: workspace:^
+        version: link:../types
     devDependencies:
       serve:
         specifier: ^14.2.6

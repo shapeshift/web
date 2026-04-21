@@ -6,11 +6,7 @@ import { registry } from '../../registry'
 import type { ErrorResponse } from '../../types'
 import { rateLimitResponse } from '../../types'
 import type { AffiliateStatsResponse } from './types'
-import {
-  AffiliateFeeResponseSchema,
-  AffiliateStatsRequestSchema,
-  AffiliateStatsResponseSchema,
-} from './types'
+import { AffiliateStatsRequestSchema, AffiliateStatsResponseSchema } from './types'
 
 registry.registerPath({
   method: 'get',
@@ -50,7 +46,8 @@ export const getAffiliateStats = async (req: Request, res: Response): Promise<vo
 
     const { address, startDate, endDate } = queryResult.data
 
-    const url = new URL(`${env.SWAP_SERVICE_BASE_URL}/swaps/affiliate-fees/${address}`)
+    const url = new URL(`${env.SWAP_SERVICE_BASE_URL}/v1/affiliate/stats`)
+    url.searchParams.append('address', address)
 
     if (startDate) url.searchParams.append('startDate', String(startDate))
     if (endDate) url.searchParams.append('endDate', String(endDate))
@@ -61,11 +58,9 @@ export const getAffiliateStats = async (req: Request, res: Response): Promise<vo
     if (!response.ok) {
       if (response.status === 404) {
         res.status(200).json({
-          address,
           totalSwaps: 0,
           totalVolumeUsd: '0.00',
           totalFeesEarnedUsd: '0.00',
-          timestamp: Date.now(),
         } satisfies AffiliateStatsResponse)
         return
       }
@@ -75,13 +70,13 @@ export const getAffiliateStats = async (req: Request, res: Response): Promise<vo
       return
     }
 
-    const responseResult = AffiliateFeeResponseSchema.safeParse(
+    const responseResult = AffiliateStatsResponseSchema.safeParse(
       await response.json().catch(() => null),
     )
 
     if (!responseResult.success) {
       console.error(
-        'Unexpected response shape from swap-service /swaps/affiliate-fees:',
+        'Unexpected response shape from swap-service /v1/affiliate/stats:',
         responseResult.error.errors,
       )
       res.status(503).json({
@@ -91,13 +86,7 @@ export const getAffiliateStats = async (req: Request, res: Response): Promise<vo
       return
     }
 
-    res.status(200).json({
-      address: responseResult.data.affiliateAddress,
-      totalSwaps: responseResult.data.swapCount,
-      totalVolumeUsd: responseResult.data.totalSwapVolumeUsd,
-      totalFeesEarnedUsd: responseResult.data.referrerCommissionUsd,
-      timestamp: Date.now(),
-    } satisfies AffiliateStatsResponse)
+    res.status(200).json(responseResult.data satisfies AffiliateStatsResponse)
   } catch (error) {
     console.error('Unexpected error in getAffiliateStats:', error)
     res.status(500).json({

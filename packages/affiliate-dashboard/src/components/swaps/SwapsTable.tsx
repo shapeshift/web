@@ -122,9 +122,9 @@ const SwapCard = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
 )
 
 export const SwapsTable = ({ swaps }: SwapsTableProps): React.JSX.Element => {
-  const useCardLayout = !useMediaQuery('(min-width: 80em)')
+  const isCardLayout = !useMediaQuery('(min-width: 80em)')
 
-  if (useCardLayout) {
+  if (isCardLayout) {
     return (
       <Stack spacing={3} mb={4}>
         {swaps.map(swap => (

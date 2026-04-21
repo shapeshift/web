@@ -79,10 +79,13 @@ export const useAffiliateSwaps = (
   period: Period,
 ): UseInfiniteQueryResult<InfiniteData<AffiliateSwapsPage, string | undefined>, Error> =>
   useInfiniteQuery({
-    queryKey: ['affiliate', 'swaps', address, period.startDate, period.endDate],
+    queryKey: ['affiliate', 'swaps', address, period.key],
     queryFn: ({ pageParam }) => fetchSwaps(address, period, pageParam),
     enabled: Boolean(address),
     initialPageParam: undefined as string | undefined,
-    getNextPageParam: lastPage => lastPage.nextCursor ?? undefined,
+    getNextPageParam: lastPage => {
+      const next = lastPage.nextCursor?.trim()
+      return next ? next : undefined
+    },
     placeholderData: keepPreviousData,
   })

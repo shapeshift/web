@@ -2552,7 +2552,23 @@
       "currentLtv": "Current LTV",
       "borrowCapacity": "Borrow Capacity",
       "borrowPowerUsed": "Borrow Power Used",
-      "availableToBorrow": "Available to Borrow"
+      "availableToBorrow": "Available to Borrow",
+      "addFunds": "Add Funds",
+      "addFundsDescription": "Add funds to your state chain balance to get started with Chainflip Lending.",
+      "noEarningPositions": "No earning positions yet",
+      "noEarningPositionsDescription": "Supply from your free balance to start earning yield from borrower demand.",
+      "noActiveLoans": "No Active Loans",
+      "noActiveLoansDescription": "Provide collateral first, then open a loan to borrow against it.",
+      "provideCollateral": "Provide collateral to start borrowing",
+      "provideCollateralDescription": "Move assets from your free balance into collateral. Your collateral determines how much you can borrow.",
+      "topUpAsset": "Top-up Asset",
+      "cantRepay": "Can't Repay?",
+      "startLiquidation": "Start Liquidation",
+      "currentRate": "Current Rate",
+      "ofCurrentPool": "Of current pool",
+      "forImmediateSupply": "For immediate supply",
+      "supplyRateHistory": "Supply APY History",
+      "borrowRateHistory": "Borrow Rate History"
     },
     "supplyApy": "Supply APY",
     "supplyApyTooltip": "Annual percentage yield earned by supplying assets to this pool.",
@@ -2890,7 +2906,11 @@
       "volLiqCollateralSold": "Collateral sold",
       "volLiqDescription": "Selling collateral to bring your position back to a healthy LTV. This process stops automatically once your LTV is restored, or you can stop it at any time.",
       "volLiqStop": "Stop Liquidation"
-    }
+    },
+    "liquidationLtv": "Liquidation LTV",
+    "liquidationLtvTooltip": "LTV ratio at which a position will be liquidated",
+    "maxLtv": "Max LTV",
+    "maxLtvTooltip": "Maximum loan-to-value ratio at which new loans can be created"
   },
   "chart": {
     "interval": {

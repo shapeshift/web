@@ -28,7 +28,11 @@ import {
 } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
+import {
+  DEFAULT_QUOTE_DEADLINE_MS,
+  DEFAULT_SLIPPAGE_BPS,
+  NEAR_INTENTS_EXTRA_BPS,
+} from '../constants'
 import type { QuoteResponse } from '../types'
 import { QuoteRequest } from '../types'
 import { assetToNearIntentsAsset, calculateAccountCreationCosts } from '../utils/helpers/helpers'
@@ -125,7 +129,7 @@ export const getTradeQuote = async (
       appFees: [
         {
           recipient: DAO_TREASURY_NEAR,
-          fee: Number(affiliateBps),
+          fee: Number(affiliateBps) + NEAR_INTENTS_EXTRA_BPS,
         },
       ],
     }

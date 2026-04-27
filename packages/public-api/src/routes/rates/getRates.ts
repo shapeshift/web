@@ -12,15 +12,16 @@ import type { ApiRate, RateResponse } from './types'
 import { RateResponseSchema, RatesRequestSchema } from './types'
 
 const ENABLED_SWAPPER_NAMES = [
-  'THORChain',
-  'MAYAChain',
-  '0x',
-  'CoW Swap',
-  'Portals',
-  'Chainflip',
-  'Relay',
-  'ButterSwap',
-  'Bebop',
+  SwapperName.Bebop,
+  SwapperName.ButterSwap,
+  SwapperName.Chainflip,
+  SwapperName.CowSwap,
+  SwapperName.Mayachain,
+  SwapperName.NearIntents,
+  SwapperName.Portals,
+  SwapperName.Relay,
+  SwapperName.Thorchain,
+  SwapperName.Zrx,
 ] as const
 
 // Rate timeout per swapper (10 seconds)

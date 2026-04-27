@@ -99,12 +99,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       chainId: sellAsset.chainId,
     }
 
-    const enabledSwappers = ENABLED_SWAPPER_NAMES.map(name => {
-      const swapperName = Object.values(SwapperName).find(v => v === name)
-      return swapperName
-    }).filter((name): name is (typeof SwapperName)[keyof typeof SwapperName] => name !== undefined)
-
-    const ratePromises = enabledSwappers.map(async (swapperName): Promise<ApiRate | null> => {
+    const ratePromises = ENABLED_SWAPPER_NAMES.map(async (swapperName): Promise<ApiRate | null> => {
       try {
         const swapper = swappers[swapperName]
         if (!swapper) return null

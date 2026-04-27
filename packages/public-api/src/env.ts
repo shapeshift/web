@@ -28,23 +28,22 @@ const envSchema = z.object({
   UNCHAINED_LITECOIN_HTTP_URL: url,
   UNCHAINED_BITCOINCASH_HTTP_URL: url,
 
+  // First-class EVM node URLs — passed to chain adapter constructors and
+  // consumed by @shapeshiftoss/contracts via process.env.VITE_*_NODE_URL.
+  VITE_ETHEREUM_NODE_URL: url,
+  VITE_BNBSMARTCHAIN_NODE_URL: url,
+  VITE_AVALANCHE_NODE_URL: url,
+  VITE_ARBITRUM_NODE_URL: url,
+  VITE_OPTIMISM_NODE_URL: url,
+  VITE_GNOSIS_NODE_URL: url,
+  VITE_POLYGON_NODE_URL: url,
+  VITE_BASE_NODE_URL: url,
+
   // Node URLs
   THORCHAIN_NODE_URL: url,
   MAYACHAIN_NODE_URL: url,
   TRON_NODE_URL: url,
   SUI_NODE_URL: url,
-
-  // First-class EVM node URLs (optional — consumed by @shapeshiftoss/contracts via
-  // process.env.VITE_*_NODE_URL; falls back to public RPCs in PUBLIC_RPC_URLS when unset).
-  // Second-class EVM chains are fallback-only and don't have env vars.
-  VITE_ETHEREUM_NODE_URL: url.optional(),
-  VITE_BNBSMARTCHAIN_NODE_URL: url.optional(),
-  VITE_AVALANCHE_NODE_URL: url.optional(),
-  VITE_ARBITRUM_NODE_URL: url.optional(),
-  VITE_OPTIMISM_NODE_URL: url.optional(),
-  VITE_GNOSIS_NODE_URL: url.optional(),
-  VITE_POLYGON_NODE_URL: url.optional(),
-  VITE_BASE_NODE_URL: url.optional(),
 
   // Midgard URLs
   THORCHAIN_MIDGARD_URL: url,

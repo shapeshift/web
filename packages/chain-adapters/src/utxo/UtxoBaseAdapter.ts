@@ -481,10 +481,11 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         assetId: this.assetId,
       }
 
-      // We have to round because coinselect library uses sats per byte which cant be decimals
-      const fastPerByte = String(Math.round(data.fast.satsPerKiloByte / 1000))
-      const averagePerByte = String(Math.round(data.average.satsPerKiloByte / 1000))
-      const slowPerByte = String(Math.round(data.slow.satsPerKiloByte / 1000))
+      // We have to round because coinselect library uses sats per byte which cant be decimals.
+      // Use ceil with a 1 sat/byte floor so sub-1000 sats/kB rates don't collapse to 0.
+      const fastPerByte = String(Math.max(1, Math.ceil(data.fast.satsPerKiloByte / 1000)))
+      const averagePerByte = String(Math.max(1, Math.ceil(data.average.satsPerKiloByte / 1000)))
+      const slowPerByte = String(Math.max(1, Math.ceil(data.slow.satsPerKiloByte / 1000)))
 
       const { fee: fastFee } = utxoSelect({ ...utxoSelectInput, satoshiPerByte: fastPerByte })
       const { fee: averageFee } = utxoSelect({ ...utxoSelectInput, satoshiPerByte: averagePerByte })

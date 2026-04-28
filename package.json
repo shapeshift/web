@@ -393,7 +393,8 @@
         "utf-8-validate": "6.0.6",
         "@ton/core": "0.62.1",
         "eslint": "8.57.1",
-        "@solana/sysvars": "*"
+        "@solana/sysvars": "*",
+        "@wagmi/core": "*"
       },
       "ignoreMissing": [
         "@solana/sysvars"

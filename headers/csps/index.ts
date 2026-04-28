@@ -67,6 +67,7 @@ import { csp as cowSwap } from './defi/swappers/CowSwap'
 import { csp as nearIntents } from './defi/swappers/NearIntents'
 import { csp as oneInch } from './defi/swappers/OneInch'
 import { csp as portals } from './defi/swappers/Portals'
+import { csp as stargate } from './defi/swappers/Stargate'
 import { csp as stonfi } from './defi/swappers/Stonfi'
 import { csp as sunio } from './defi/swappers/Sunio'
 import { csp as thor } from './defi/swappers/Thor'
@@ -193,6 +194,7 @@ export const csps = [
   sunio,
   thor,
   butterSwap,
+  stargate,
   foxPage,
   walletConnectToDapps,
   coinbase,

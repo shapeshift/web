@@ -26,6 +26,8 @@ import { portalsApi } from './swappers/PortalsSwapper/endpoints'
 import { portalsSwapper } from './swappers/PortalsSwapper/PortalsSwapper'
 import { relaySwapper } from './swappers/RelaySwapper'
 import { relayApi } from './swappers/RelaySwapper/endpoints'
+import { stargateApi } from './swappers/StargateSwapper/endpoints'
+import { stargateSwapper } from './swappers/StargateSwapper/StargateSwapper'
 import { stonfiApi } from './swappers/StonfiSwapper/endpoints'
 import { stonfiSwapper } from './swappers/StonfiSwapper/StonfiSwapper'
 import { sunioApi } from './swappers/SunioSwapper/endpoints'
@@ -116,6 +118,10 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
     ...debridgeSwapper,
     ...debridgeApi,
   },
+  [SwapperName.Stargate]: {
+    ...stargateSwapper,
+    ...stargateApi,
+  },
   [SwapperName.Test]: undefined,
 }
 
@@ -135,6 +141,7 @@ const DEFAULT_AVNU_SLIPPAGE_DECIMAL_PERCENTAGE = '0.02'
 const DEFAULT_STONFI_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01'
 // deBridge API off-chain simulation overestimates output on some chains (e.g. SEI ~2.4%), so auto slippage (1%) is insufficient
 const DEFAULT_DEBRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0.03'
+const DEFAULT_STARGATE_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005'
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
   swapperName: SwapperName | undefined,
@@ -175,6 +182,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       return DEFAULT_AVNU_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.Stonfi:
       return DEFAULT_STONFI_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.Stargate:
+      return DEFAULT_STARGATE_SLIPPAGE_DECIMAL_PERCENTAGE
     default:
       return assertUnreachable(swapperName)
   }
@@ -186,6 +195,8 @@ export const isAutoSlippageSupportedBySwapper = (swapperName: SwapperName): bool
     case SwapperName.Across:
     case SwapperName.Debridge:
       return true
+    case SwapperName.Stargate:
+      return false
     default:
       return false
   }

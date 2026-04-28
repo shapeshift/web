@@ -47,6 +47,7 @@ import type { AcrossTransactionMetadata } from './swappers/AcrossSwapper/utils/t
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { DebridgeTransactionMetadata } from './swappers/DebridgeSwapper/utils/types'
 import type { RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
+import type { StargateTransactionMetadata } from './swappers/StargateSwapper/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
@@ -106,6 +107,7 @@ export enum SwapperName {
   Stonfi = 'STON.fi',
   Across = 'Across',
   Debridge = 'deBridge',
+  Stargate = 'Stargate',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -510,6 +512,7 @@ export type TradeQuoteStep = {
   }
   acrossTransactionMetadata?: AcrossTransactionMetadata
   debridgeTransactionMetadata?: DebridgeTransactionMetadata
+  stargateTransactionMetadata?: StargateTransactionMetadata
   affiliateFee?: AffiliateFee
 }
 

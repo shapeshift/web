@@ -21,6 +21,12 @@ This file is the canonical instruction entrypoint for local agent tooling in thi
 - Prefer `origin` for new feature/fix branch pushes when permissions allow.
 - If a PR branch is already on `fork`, keep using that existing `fork` branch.
 - Run `pnpm run lint --fix` and `pnpm run type-check` after code changes.
+- **Before running tests**: generate `unchained-client` OpenAPI clients first (requires Java). Tests fail with `./generated/ethereum/runtime not found` without this step:
+  ```bash
+  JAVA_HOME=/tmp/jdk-21.0.10+7-jre/Contents/Home PATH="$JAVA_HOME/bin:$PATH" \
+    pnpm --filter @shapeshiftoss/unchained-client generate
+  ```
+- **Test mock pattern**: always use `vi.importActual` for real packages, only override specific functions.
 - Use `.github/PULL_REQUEST_TEMPLATE.md` for PR bodies.
 
 ## Routing

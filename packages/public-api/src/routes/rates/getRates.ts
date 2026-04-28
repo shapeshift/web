@@ -12,15 +12,16 @@ import type { ApiRate, RateResponse } from './types'
 import { RateResponseSchema, RatesRequestSchema } from './types'
 
 const ENABLED_SWAPPER_NAMES = [
-  'THORChain',
-  'MAYAChain',
-  '0x',
-  'CoW Swap',
-  'Portals',
-  'Chainflip',
-  'Relay',
-  'ButterSwap',
-  'Bebop',
+  SwapperName.Bebop,
+  SwapperName.ButterSwap,
+  SwapperName.Chainflip,
+  SwapperName.CowSwap,
+  SwapperName.Mayachain,
+  SwapperName.NearIntents,
+  SwapperName.Portals,
+  SwapperName.Relay,
+  SwapperName.Thorchain,
+  SwapperName.Zrx,
 ] as const
 
 // Rate timeout per swapper (10 seconds)
@@ -98,12 +99,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       chainId: sellAsset.chainId,
     }
 
-    const enabledSwappers = ENABLED_SWAPPER_NAMES.map(name => {
-      const swapperName = Object.values(SwapperName).find(v => v === name)
-      return swapperName
-    }).filter((name): name is (typeof SwapperName)[keyof typeof SwapperName] => name !== undefined)
-
-    const ratePromises = enabledSwappers.map(async (swapperName): Promise<ApiRate | null> => {
+    const ratePromises = ENABLED_SWAPPER_NAMES.map(async (swapperName): Promise<ApiRate | null> => {
       try {
         const swapper = swappers[swapperName]
         if (!swapper) return null

@@ -1,7 +1,10 @@
 import react from '@vitejs/plugin-react'
 import * as fs from 'fs'
+// @ts-expect-error multiformats package.json exports omit types
 import { CID } from 'multiformats/cid'
+// @ts-expect-error multiformats package.json exports omit types
 import * as raw from 'multiformats/codecs/raw'
+// @ts-expect-error multiformats package.json exports omit types
 import { sha256 } from 'multiformats/hashes/sha2'
 import * as path from 'path'
 import { dirname, resolve } from 'path'
@@ -10,7 +13,6 @@ import { fileURLToPath } from 'url'
 import type { PluginOption } from 'vite'
 import { defineConfig, loadEnv } from 'vite'
 import { analyzer } from 'vite-bundle-analyzer'
-import checker from 'vite-plugin-checker'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
@@ -21,7 +23,7 @@ const __dirname = dirname(__filename)
 
 const VITE_CSP_META = serializeCsp(cspMeta)
 
-const publicFilesEnvVars = {
+const publicFilesEnvVars: Record<string, string> = {
   VITE_CSP_META: JSON.stringify(VITE_CSP_META),
 }
 
@@ -57,7 +59,7 @@ for (const dirent of fs.readdirSync(publicPath, { withFileTypes: true })) {
 const resolveEthersV5ForHdwallet: PluginOption = {
   name: 'resolve-ethers-v5-hdwallet',
   enforce: 'pre',
-  async resolveId(source, importer) {
+  resolveId(source, importer) {
     if (source === 'ethers' && importer && /\/packages\/hdwallet-/.test(importer)) {
       return this.resolve('ethers5', importer, { skipSelf: true })
     }
@@ -72,7 +74,7 @@ const resolveEthersV5ForHdwallet: PluginOption = {
 const resolveBech32V1ForHdwallet: PluginOption = {
   name: 'resolve-bech32-v1-hdwallet',
   enforce: 'pre',
-  async resolveId(source, importer) {
+  resolveId(source, importer) {
     if (source === 'bech32' && importer && /\/packages\/hdwallet-/.test(importer)) {
       return this.resolve('bech32-v1', importer, { skipSelf: true })
     }
@@ -218,12 +220,6 @@ export default defineConfig(({ mode }) => {
         },
       }),
       tsconfigPaths(),
-      checker({
-        typescript: {
-          typescriptPath: path.join(__dirname, './node_modules/typescript/lib/tsc.js'),
-        },
-        overlay: true,
-      }),
       process.env.ANALYZE === 'true' &&
         analyzer({
           analyzerMode: 'server',
@@ -283,8 +279,14 @@ export default defineConfig(({ mode }) => {
         'ethers/lib/utils': 'ethers5/lib/utils.js',
         'ethers/lib/utils.js': 'ethers5/lib/utils.js',
         'dayjs/locale': resolve(__dirname, 'node_modules/dayjs/locale'),
-        '@shapeshiftoss/hdwallet-native/nativeEvents': resolve(__dirname, './packages/hdwallet-native/src/nativeEvents.ts'),
-        '@shapeshiftoss/hdwallet-native/crypto/revocable': resolve(__dirname, './packages/hdwallet-native/src/crypto/isolation/engines/default/revocable.ts'),
+        '@shapeshiftoss/hdwallet-native/nativeEvents': resolve(
+          __dirname,
+          './packages/hdwallet-native/src/nativeEvents.ts',
+        ),
+        '@shapeshiftoss/hdwallet-native/crypto/revocable': resolve(
+          __dirname,
+          './packages/hdwallet-native/src/crypto/isolation/engines/default/revocable.ts',
+        ),
         '@shapeshiftoss/hdwallet-core': resolve(__dirname, './packages/hdwallet-core/src'),
         '@shapeshiftoss/caip': resolve(__dirname, './packages/caip/src'),
         '@shapeshiftoss/types': resolve(__dirname, './packages/types/src'),
@@ -307,7 +309,8 @@ export default defineConfig(({ mode }) => {
               // buffer polyfill must be in its own chunk to avoid circular deps between ui↔sdk in pnpm
               // Matches: node_modules/buffer/, node_modules/base64-js/, node_modules/ieee754/,
               // and also vite-plugin-node-polyfills/shims/buffer/ and safe-buffer
-              if (/\/node_modules\/(buffer|base64-js|ieee754|safe-buffer)\//.test(id)) return 'polyfills'
+              if (/\/node_modules\/(buffer|base64-js|ieee754|safe-buffer)\//.test(id))
+                return 'polyfills'
               if (/vite-plugin-node-polyfills\/shims\/buffer\//.test(id)) return 'polyfills'
               if (id.match(/(framer-motion|@visx|@coral-xyz)/)) return 'ui'
               if (id.match(/(react-icons|@react-spring|react-datepicker|react-dom)/)) return 'react'

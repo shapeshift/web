@@ -1,6 +1,7 @@
-import { Badge, Box, Link, Stack, Text } from '@chakra-ui/react'
+import { Box, Link, Stack, Text } from '@chakra-ui/react'
 
 import type { AffiliateSwap } from '../../hooks/useAffiliateSwaps'
+import { AssetPill } from './AssetPill'
 
 const shortenHash = (hash: string): string => {
   const prefix = hash.startsWith('0x') ? '0x' : ''
@@ -24,23 +25,10 @@ export const TxLinks = ({ swap }: TxLinksProps): React.JSX.Element => {
   }
 
   return (
-    <Stack spacing={1} fontFamily='mono' fontSize='xs'>
+    <Stack spacing={1.5} fontFamily='mono' fontSize='sm'>
       {sellTxHash && (
-        <Box display='inline-flex' alignItems='center' gap={2}>
-          <Badge
-            px={1.5}
-            py={0.5}
-            borderRadius='sm'
-            bg='pill.asset'
-            color='pill.assetFg'
-            fontSize='10px'
-            fontWeight={600}
-            textTransform='none'
-            minW='36px'
-            textAlign='center'
-          >
-            {sellAsset.symbol}
-          </Badge>
+        <Box display='inline-flex' alignItems='center' gap={3}>
+          <AssetPill asset={sellAsset} size='sm' showNetworkIcon={false} />
           <Link
             href={`${sellAsset.explorerTxLink}${sellTxHash}`}
             isExternal
@@ -52,21 +40,8 @@ export const TxLinks = ({ swap }: TxLinksProps): React.JSX.Element => {
         </Box>
       )}
       {buyTxHash && (
-        <Box display='inline-flex' alignItems='center' gap={2}>
-          <Badge
-            px={1.5}
-            py={0.5}
-            borderRadius='sm'
-            bg='pill.asset'
-            color='pill.assetFg'
-            fontSize='10px'
-            fontWeight={600}
-            textTransform='none'
-            minW='36px'
-            textAlign='center'
-          >
-            {buyAsset.symbol}
-          </Badge>
+        <Box display='inline-flex' alignItems='center' gap={3}>
+          <AssetPill asset={buyAsset} size='sm' showNetworkIcon={false} />
           <Link
             href={`${buyAsset.explorerTxLink}${buyTxHash}`}
             isExternal

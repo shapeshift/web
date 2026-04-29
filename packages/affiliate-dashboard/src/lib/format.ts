@@ -5,8 +5,20 @@ export const formatUsd = (value: number): string =>
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    maximumFractionDigits: 4,
   }).format(value)
+
+export const formatUsdFull = (raw: string | null): string => {
+  if (!raw) return '—'
+  const n = parseFloat(raw)
+  if (Number.isNaN(n)) return '—'
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 18,
+  }).format(n)
+}
 
 export const formatNumber = (value: number): string => new Intl.NumberFormat('en-US').format(value)
 

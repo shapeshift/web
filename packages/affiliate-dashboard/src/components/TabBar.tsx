@@ -37,7 +37,7 @@ export const TabBar = ({ active, onChange }: TabBarProps): React.JSX.Element => 
           size='md'
           px={{ base: 4, md: 5 }}
           py={5}
-          fontSize='sm'
+          fontSize='md'
           fontWeight={500}
           color={isActive ? 'fg.bright' : 'fg.muted'}
           borderRadius={0}

@@ -46,12 +46,13 @@ export const AffiliateBpsCard = ({
       description='Update your affiliate fee in basis points (BPS).'
     >
       <HStack spacing={3} wrap='wrap'>
-        <InputGroup maxW='220px'>
+        <InputGroup w='auto'>
           <Input
             type='number'
             value={value}
             onChange={e => setValue(e.target.value)}
             placeholder={String(currentBps)}
+            w='8ch'
             min={MIN_BPS}
             max={MAX_BPS}
           />

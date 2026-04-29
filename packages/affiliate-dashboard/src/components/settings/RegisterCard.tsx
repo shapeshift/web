@@ -1,8 +1,8 @@
-import { Button, HStack, Input, InputGroup, InputRightAddon, Text } from '@chakra-ui/react'
+import { Button, Flex, Input, InputGroup, InputRightAddon, Stack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 
 import { DEFAULT_BPS, MAX_BPS, MIN_BPS } from '../../lib/constants'
-import { bpsToPercent, parseBps, shortenAddress } from '../../lib/format'
+import { bpsToPercent, parseBps } from '../../lib/format'
 import { SettingsCard } from './SettingsCard'
 
 interface RegisterCardProps {
@@ -10,6 +10,29 @@ interface RegisterCardProps {
   isLoading: boolean
   onRegister: (bps: number) => void
 }
+
+const Row = ({
+  label,
+  children,
+}: {
+  label: string
+  children: React.ReactNode
+}): React.JSX.Element => (
+  <Flex
+    justify='space-between'
+    align='center'
+    gap={4}
+    py={2}
+    borderBottom='1px solid'
+    borderColor='border.muted'
+    _last={{ borderBottom: 'none' }}
+  >
+    <Text fontSize='sm' color='fg.muted' flexShrink={0}>
+      {label}
+    </Text>
+    {children}
+  </Flex>
+)
 
 export const RegisterCard = ({
   address,
@@ -21,31 +44,9 @@ export const RegisterCard = ({
 
   return (
     <SettingsCard
-      title='Register as Affiliate'
-      description='Register your connected wallet to start earning fees on swaps.'
-    >
-      <Text fontSize='sm' fontFamily='mono' color='fg.muted' mb={3} opacity={0.8}>
-        {shortenAddress(address)}
-      </Text>
-      <HStack spacing={3} wrap='wrap'>
-        <InputGroup maxW='180px'>
-          <Input
-            type='number'
-            value={bps}
-            onChange={e => setBps(e.target.value)}
-            placeholder={String(DEFAULT_BPS)}
-            min={MIN_BPS}
-            max={MAX_BPS}
-          />
-          <InputRightAddon
-            bg='bg.surface'
-            borderColor='border.input'
-            fontFamily='mono'
-            fontSize='xs'
-          >
-            {bpsToPercent(parsedBps ?? 0)}
-          </InputRightAddon>
-        </InputGroup>
+      title='Affiliate Registration'
+      description='Earn a share of swap fees whenever a user trades through your partner code.'
+      headerRight={
         <Button
           onClick={() => onRegister(parsedBps ?? DEFAULT_BPS)}
           isLoading={isLoading}
@@ -53,7 +54,37 @@ export const RegisterCard = ({
         >
           Register
         </Button>
-      </HStack>
+      }
+    >
+      <Stack spacing={2}>
+        <Row label='Wallet'>
+          <Text fontSize='sm' fontWeight={500} fontFamily='mono' color='fg.bright'>
+            {address}
+          </Text>
+        </Row>
+        <Row label='Affiliate BPS'>
+          <InputGroup w='auto'>
+            <Input
+              type='number'
+              value={bps}
+              onChange={e => setBps(e.target.value)}
+              placeholder={String(DEFAULT_BPS)}
+              w='8ch'
+              min={MIN_BPS}
+              max={MAX_BPS}
+            />
+            <InputRightAddon
+              bg='bg.surface'
+              borderColor='border.input'
+              fontFamily='mono'
+              fontSize='sm'
+              color='fg.muted'
+            >
+              {bpsToPercent(parsedBps ?? 0)}
+            </InputRightAddon>
+          </InputGroup>
+        </Row>
+      </Stack>
     </SettingsCard>
   )
 }

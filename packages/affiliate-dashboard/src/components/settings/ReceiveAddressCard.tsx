@@ -50,8 +50,8 @@ export const ReceiveAddressCard = ({
           onChange={e => setAddress(e.target.value)}
           placeholder={currentAddress}
           spellCheck={false}
-          flex='1'
-          minW='180px'
+          w='46ch'
+          maxW='100%'
         />
         <Button
           onClick={() => void handleUpdate()}

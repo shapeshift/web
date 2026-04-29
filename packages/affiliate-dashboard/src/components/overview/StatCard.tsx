@@ -27,7 +27,7 @@ export const StatCard = ({ label, value }: StatCardProps): React.JSX.Element => 
         {value}
       </StatNumber>
       <StatLabel
-        fontSize='xs'
+        fontSize='sm'
         fontWeight={500}
         color='fg.muted'
         textTransform='uppercase'

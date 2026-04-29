@@ -21,8 +21,8 @@ export const StatusBadge = ({ status }: StatusBadgeProps): React.JSX.Element => 
   const { bg, color } = getStyle(status)
   return (
     <Badge
-      px={2.5}
-      py={0.5}
+      px={2}
+      py={2}
       borderRadius='md'
       bg={bg}
       color={color}

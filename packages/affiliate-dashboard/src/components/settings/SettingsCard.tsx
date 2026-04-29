@@ -22,13 +22,7 @@ export const SettingsCard = ({
   >
     <Box display='flex' justifyContent='space-between' alignItems='center' gap={4} mb={4}>
       <Box>
-        <Heading
-          as='h3'
-          fontSize='md'
-          fontWeight={600}
-          color='fg.bright'
-          mb={description ? 2 : 0}
-        >
+        <Heading as='h3' fontSize='md' fontWeight={600} color='fg.bright' mb={description ? 2 : 0}>
           {title}
         </Heading>
         {description && (

@@ -1,20 +1,8 @@
-import {
-  Box,
-  SimpleGrid,
-  Stack,
-  Table,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tooltip,
-  Tr,
-} from '@chakra-ui/react'
+import { Box, SimpleGrid, Stack, Table, Tbody, Td, Text, Th, Thead, Tr } from '@chakra-ui/react'
 
 import type { AffiliateSwap } from '../../hooks/useAffiliateSwaps'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
-import { formatDate, formatUsd, formatUsdFull } from '../../lib/format'
+import { formatDate, formatUsd } from '../../lib/format'
 import { AssetPill } from './AssetPill'
 import { StatusBadge } from './StatusBadge'
 import { SwapperIcon } from './SwapperIcon/SwapperIcon'
@@ -50,14 +38,10 @@ const SwapRow = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
       <AssetPill asset={swap.buyAsset} />
     </Td>
     <Td isNumeric fontFamily='mono' color='fg.default' whiteSpace='nowrap'>
-      <Tooltip label={formatUsdFull(swap.sellAmountUsd)} hasArrow openDelay={200}>
-        <Box as='span'>{formatUsd(parseUsd(swap.sellAmountUsd))}</Box>
-      </Tooltip>
+      {formatUsd(parseUsd(swap.sellAmountUsd))}
     </Td>
     <Td isNumeric fontFamily='mono' color='success' whiteSpace='nowrap'>
-      <Tooltip label={formatUsdFull(swap.affiliateFeeUsd)} hasArrow openDelay={200}>
-        <Box as='span'>{formatUsd(parseUsd(swap.affiliateFeeUsd))}</Box>
-      </Tooltip>
+      {formatUsd(parseUsd(swap.affiliateFeeUsd))}
     </Td>
     <Td fontFamily='mono' color='fg.default' textAlign='center' px={2} width='1%'>
       {formatBps(partnerBps(swap))}
@@ -120,21 +104,10 @@ const SwapCard = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
       </Box>
 
       <SimpleGrid columns={2} spacing={3}>
-        <Stat
-          label='Volume'
-          value={
-            <Tooltip label={formatUsdFull(swap.sellAmountUsd)} hasArrow openDelay={200}>
-              <Box as='span'>{formatUsd(parseUsd(swap.sellAmountUsd))}</Box>
-            </Tooltip>
-          }
-        />
+        <Stat label='Volume' value={formatUsd(parseUsd(swap.sellAmountUsd))} />
         <Stat
           label='Fee'
-          value={
-            <Tooltip label={formatUsdFull(swap.affiliateFeeUsd)} hasArrow openDelay={200}>
-              <Box as='span'>{formatUsd(parseUsd(swap.affiliateFeeUsd))}</Box>
-            </Tooltip>
-          }
+          value={formatUsd(parseUsd(swap.affiliateFeeUsd))}
           align='right'
           color='success'
         />

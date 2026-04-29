@@ -104,15 +104,15 @@ const getTransactionMockResponse = {
 const getNetworkFeesMockedResponse = {
   fast: {
     blocksUntilConfirmation: 1,
-    satsPerKiloByte: 1024,
+    satsPerKiloByte: 1000,
   },
   average: {
     blocksUntilConfirmation: 1,
-    satsPerKiloByte: 1024,
+    satsPerKiloByte: 1000,
   },
   slow: {
     blocksUntilConfirmation: 1,
-    satsPerKiloByte: 1024,
+    satsPerKiloByte: 1000,
   },
 }
 

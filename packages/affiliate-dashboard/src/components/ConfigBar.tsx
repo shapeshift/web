@@ -8,13 +8,7 @@ interface ConfigBarProps {
 }
 
 const Label = ({ children }: { children: React.ReactNode }): React.JSX.Element => (
-  <Text
-    fontSize='xs'
-    fontWeight={500}
-    color='fg.muted'
-    textTransform='uppercase'
-    letterSpacing='0.06em'
-  >
+  <Text fontSize='sm' fontWeight={500} color='fg.muted' textTransform='uppercase'>
     {children}
   </Text>
 )
@@ -36,7 +30,7 @@ export const ConfigBar = ({ config }: ConfigBarProps): React.JSX.Element => (
     wrap='wrap'
     gap={{ base: 4, md: 6 }}
     px={{ base: 4, md: 5 }}
-    py={3.5}
+    py={4}
     bg='bg.surface'
     border='1px solid'
     borderColor='border.subtle'

@@ -21,10 +21,10 @@ export const AuthBanner = ({
   >
     <Flex justify='space-between' align='center' gap={5} wrap='wrap'>
       <Stack spacing={1} flex='1'>
-        <Heading as='h3' fontSize='sm' fontWeight={600} color='fg.bright'>
+        <Heading as='h3' fontSize='md' fontWeight={600} color='fg.bright'>
           Sign in to manage settings
         </Heading>
-        <Text fontSize='xs' color='fg.muted' lineHeight={1.5}>
+        <Text fontSize='sm' color='fg.muted' lineHeight={1.5}>
           Sign a message with your wallet to prove ownership. This does not cost gas.
         </Text>
         {error && (

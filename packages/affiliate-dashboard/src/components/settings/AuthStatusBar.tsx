@@ -15,10 +15,10 @@ export const AuthStatusBar = ({ onSignOut }: AuthStatusBarProps): React.JSX.Elem
   >
     <Flex justify='space-between' align='center' gap={5} wrap='wrap'>
       <Stack spacing={1} flex='1'>
-        <Heading as='h3' fontSize='sm' fontWeight={600} color='success'>
+        <Heading as='h3' fontSize='md' fontWeight={600} color='success'>
           Authenticated
         </Heading>
-        <Text fontSize='xs' color='fg.muted' lineHeight={1.5}>
+        <Text fontSize='sm' color='fg.muted' lineHeight={1.5}>
           You&apos;re signed in and can manage settings for this wallet.
         </Text>
       </Stack>

@@ -5,6 +5,7 @@ import { useMediaQuery } from '../../hooks/useMediaQuery'
 import { formatDate, formatUsd } from '../../lib/format'
 import { AssetPill } from './AssetPill'
 import { StatusBadge } from './StatusBadge'
+import { SwapperIcon } from './SwapperIcon/SwapperIcon'
 import { TxLinks } from './TxLinks'
 import { VerifiedBadge } from './VerifiedBadge'
 
@@ -25,7 +26,10 @@ const SwapRow = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
       {formatDate(swap.createdAt)}
     </Td>
     <Td color='fg.default' whiteSpace='nowrap'>
-      {swap.swapperName}
+      <Box display='inline-flex' alignItems='center' gap={2}>
+        <SwapperIcon swapperName={swap.swapperName} />
+        {swap.swapperName}
+      </Box>
     </Td>
     <Td>
       <AssetPill asset={swap.sellAsset} />
@@ -39,19 +43,19 @@ const SwapRow = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
     <Td isNumeric fontFamily='mono' color='success' whiteSpace='nowrap'>
       {formatUsd(parseUsd(swap.affiliateFeeUsd))}
     </Td>
-    <Td fontFamily='mono' color='fg.default' textAlign='center'>
+    <Td fontFamily='mono' color='fg.default' textAlign='center' px={2} width='1%'>
       {formatBps(partnerBps(swap))}
     </Td>
-    <Td fontFamily='mono' color='fg.default' textAlign='center'>
+    <Td fontFamily='mono' color='fg.default' textAlign='center' px={2} width='1%'>
       {swap.shapeshiftBps}
     </Td>
-    <Td>
+    <Td width='1%'>
       <TxLinks swap={swap} />
     </Td>
-    <Td textAlign='center'>
+    <Td textAlign='center' width='1%'>
       <VerifiedBadge isAffiliateVerified={swap.isAffiliateVerified} />
     </Td>
-    <Td>
+    <Td width='1%'>
       <StatusBadge status={swap.status} />
     </Td>
   </Tr>
@@ -137,7 +141,7 @@ export const SwapsTable = ({ swaps }: SwapsTableProps): React.JSX.Element => {
   return (
     <Table
       variant='simple'
-      size='sm'
+      size='md'
       sx={{
         tableLayout: 'auto',
         '& thead th': {
@@ -146,33 +150,42 @@ export const SwapsTable = ({ swaps }: SwapsTableProps): React.JSX.Element => {
           zIndex: 1,
           bg: 'bg.surface',
           py: 4,
+          px: 4,
         },
-        '& tbody td': { py: 4 },
+        '& tbody td': { py: 4, px: 4, fontSize: 'md' },
+        '& thead th:first-of-type, & tbody td:first-of-type': { pl: 8 },
+        '& thead th:last-of-type, & tbody td:last-of-type': { pr: 8 },
       }}
     >
       <Thead>
         <Tr>
-          <Th borderColor='border.subtle'>Date</Th>
+          <Th borderColor='border.subtle' width='1%'>
+            Date
+          </Th>
           <Th borderColor='border.subtle'>Swapper</Th>
           <Th borderColor='border.subtle'>Sell</Th>
           <Th borderColor='border.subtle'>Buy</Th>
-          <Th borderColor='border.subtle' isNumeric>
+          <Th borderColor='border.subtle' textAlign='center'>
             Volume
           </Th>
-          <Th borderColor='border.subtle' isNumeric>
+          <Th borderColor='border.subtle' textAlign='center'>
             Fee
           </Th>
-          <Th borderColor='border.subtle' textAlign='center'>
+          <Th borderColor='border.subtle' textAlign='center' px={2} width='1%'>
             Partner BPS
           </Th>
-          <Th borderColor='border.subtle' textAlign='center'>
+          <Th borderColor='border.subtle' textAlign='center' px={2} width='1%'>
             ShapeShift BPS
           </Th>
-          <Th borderColor='border.subtle'>Tx</Th>
-          <Th borderColor='border.subtle' textAlign='center'>
+          <Th borderColor='border.subtle' textAlign='center' width='1%'>
+            Transactions
+          </Th>
+          <Th borderColor='border.subtle' textAlign='center' width='1%'>
             Verified
           </Th>
-          <Th borderColor='border.subtle'>Status</Th>
+          <Th borderColor='border.subtle' width='1%'>
+            Status
+          </Th>
         </Tr>
       </Thead>
       <Tbody>

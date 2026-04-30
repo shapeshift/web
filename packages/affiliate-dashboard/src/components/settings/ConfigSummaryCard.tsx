@@ -26,6 +26,7 @@ const Row = ({
     py={2}
     borderBottom='1px solid'
     borderColor='border.muted'
+    _last={{ borderBottom: 'none' }}
   >
     <Text fontSize='sm' color='fg.muted' flexShrink={0}>
       {label}

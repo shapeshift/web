@@ -43,20 +43,20 @@ export const ClaimPartnerCodeRequestSchema = z.object({
 
 // --- Affiliate Swaps ---
 
-export const AffiliateSwapItemSchema = registry.register(
-  'AffiliateSwapItem',
+export const AffiliateSwapSchema = registry.register(
+  'AffiliateSwap',
   z.object({
     swapId: z.string().openapi({ example: 'swap-uuid-1234' }),
     status: z.string().openapi({ example: 'completed' }),
     sellAsset: AssetSchema,
     buyAsset: AssetSchema,
     sellAmountCryptoPrecision: z.string().openapi({ example: '1.0' }),
-    expectedBuyAmountCryptoPrecision: z.string().openapi({ example: '950.0' }),
-    actualBuyAmountCryptoPrecision: z.string().nullable().openapi({ example: '948.0' }),
     sellAmountUsd: z.string().nullable().openapi({ example: '1234.56' }),
+    buyAmountCryptoPrecision: z.string().nullable().openapi({ example: '948.0' }),
+    buyAmountUsd: z.string().nullable().openapi({ example: '1234.56' }),
+    affiliateFeeAmountUsd: z.string().nullable().openapi({ example: '3.70' }),
     affiliateBps: z.number().int().min(0).nullable().openapi({ example: 30 }),
     shapeshiftBps: z.number().int().min(0).openapi({ example: 10 }),
-    affiliateFeeUsd: z.string().nullable().openapi({ example: '3.70' }),
     swapperName: z.string().openapi({ example: 'THORChain' }),
     sellTxHash: z.string().nullable().openapi({ example: '0xabc123' }),
     buyTxHash: z.string().nullable().openapi({ example: '0xdef456' }),
@@ -65,21 +65,29 @@ export const AffiliateSwapItemSchema = registry.register(
   }),
 )
 
-// Upstream response shape from swap-service — base units, cursor pagination.
-// The public-api converts base units → precision before returning to clients.
 export const SwapServiceAffiliateSwapSchema = z.object({
   swapId: z.string(),
   status: z.string(),
   sellAsset: AssetSchema,
   buyAsset: AssetSchema,
   sellAmountCryptoBaseUnit: z.string(),
+  sellAssetUsd: z.string().nullable(),
   expectedBuyAmountCryptoBaseUnit: z.string(),
   actualBuyAmountCryptoBaseUnit: z.string().nullable(),
-  sellAmountUsd: z.string().nullable(),
   buyAssetUsd: z.string().nullable(),
+  actualAffiliateFeeAmountCryptoBaseUnit: z.string().nullable(),
+  affiliateAssetUsd: z.string().nullable(),
+  affiliateFeeAssetId: z.string().nullable(),
   affiliateBps: z.number().int().min(0).nullable(),
   shapeshiftBps: z.number().int().min(0),
-  affiliateFeeUsd: z.string().nullable(),
+  affiliateVerificationDetails: z
+    .object({
+      hasAffiliate: z.boolean(),
+      affiliateBps: z.number().int().min(0).optional(),
+      affiliateAddress: z.string().optional(),
+      verifiedSellAmountCryptoBaseUnit: z.string().optional(),
+    })
+    .nullable(),
   swapperName: z.string(),
   sellTxHash: z.string().nullable(),
   buyTxHash: z.string().nullable(),
@@ -116,7 +124,7 @@ export const AffiliateSwapsRequestSchema = z
 export const AffiliateSwapsResponseSchema = registry.register(
   'AffiliateSwapsResponse',
   z.object({
-    swaps: z.array(AffiliateSwapItemSchema),
+    swaps: z.array(AffiliateSwapSchema),
     nextCursor: z.string().nullable().openapi({ example: 'swap-uuid-1234' }),
   }),
 )
@@ -154,7 +162,8 @@ export type AffiliateConfig = z.infer<typeof AffiliateConfigResponseSchema>
 export type CreateAffiliateRequest = z.infer<typeof CreateAffiliateRequestSchema>
 export type UpdateAffiliateRequest = z.infer<typeof UpdateAffiliateRequestSchema>
 export type ClaimPartnerCodeRequest = z.infer<typeof ClaimPartnerCodeRequestSchema>
-export type AffiliateSwapItem = z.infer<typeof AffiliateSwapItemSchema>
+export type AffiliateSwap = z.infer<typeof AffiliateSwapSchema>
+export type SwapServiceAffiliateSwap = z.infer<typeof SwapServiceAffiliateSwapSchema>
 export type AffiliateSwapsRequest = z.infer<typeof AffiliateSwapsRequestSchema>
 export type AffiliateSwapsResponse = z.infer<typeof AffiliateSwapsResponseSchema>
 export type AffiliateStatsRequest = z.infer<typeof AffiliateStatsRequestSchema>

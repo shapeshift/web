@@ -15,8 +15,10 @@ interface SwapsTableProps {
 
 const parseUsd = (v: string | null): number => parseFloat(v ?? '') || 0
 
-const partnerBps = (swap: AffiliateSwap): number | null =>
-  swap.affiliateBps == null ? null : Math.max(0, swap.affiliateBps - swap.shapeshiftBps)
+const partnerBps = (swap: AffiliateSwap): number | null => {
+  if (swap.affiliateBps == null) return null
+  return Math.max(0, swap.affiliateBps - swap.shapeshiftBps)
+}
 
 const formatBps = (value: number | null): string => (value == null ? '—' : String(value))
 
@@ -41,7 +43,7 @@ const SwapRow = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
       {formatUsd(parseUsd(swap.sellAmountUsd))}
     </Td>
     <Td isNumeric fontFamily='mono' color='success' whiteSpace='nowrap'>
-      {formatUsd(parseUsd(swap.affiliateFeeUsd))}
+      {formatUsd(parseUsd(swap.affiliateFeeAmountUsd))}
     </Td>
     <Td fontFamily='mono' color='fg.default' textAlign='center' px={2} width='1%'>
       {formatBps(partnerBps(swap))}
@@ -107,7 +109,7 @@ const SwapCard = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
         <Stat label='Volume' value={formatUsd(parseUsd(swap.sellAmountUsd))} />
         <Stat
           label='Fee'
-          value={formatUsd(parseUsd(swap.affiliateFeeUsd))}
+          value={formatUsd(parseUsd(swap.affiliateFeeAmountUsd))}
           align='right'
           color='success'
         />

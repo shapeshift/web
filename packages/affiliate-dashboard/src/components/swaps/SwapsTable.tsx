@@ -15,13 +15,6 @@ interface SwapsTableProps {
 
 const parseUsd = (v: string | null): number => parseFloat(v ?? '') || 0
 
-const partnerBps = (swap: AffiliateSwap): number | null => {
-  if (swap.affiliateBps == null) return null
-  return Math.max(0, swap.affiliateBps - swap.shapeshiftBps)
-}
-
-const formatBps = (value: number | null): string => (value == null ? '—' : String(value))
-
 const SwapRow = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
   <Tr>
     <Td color='fg.default' whiteSpace='nowrap'>
@@ -39,25 +32,25 @@ const SwapRow = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
     <Td>
       <AssetPill asset={swap.buyAsset} />
     </Td>
-    <Td isNumeric fontFamily='mono' color='fg.default' whiteSpace='nowrap'>
+    <Td fontFamily='mono' color='fg.default' textAlign='center'>
       {formatUsd(parseUsd(swap.sellAmountUsd))}
     </Td>
-    <Td isNumeric fontFamily='mono' color='success' whiteSpace='nowrap'>
+    <Td fontFamily='mono' color='success' textAlign='center'>
       {formatUsd(parseUsd(swap.affiliateFeeAmountUsd))}
     </Td>
-    <Td fontFamily='mono' color='fg.default' textAlign='center' px={2} width='1%'>
-      {formatBps(partnerBps(swap))}
+    <Td fontFamily='mono' color='fg.default' textAlign='center'>
+      {swap.partnerBps}
     </Td>
-    <Td fontFamily='mono' color='fg.default' textAlign='center' px={2} width='1%'>
+    <Td fontFamily='mono' color='fg.default' textAlign='center'>
       {swap.shapeshiftBps}
     </Td>
-    <Td width='1%'>
+    <Td>
       <TxLinks swap={swap} />
     </Td>
-    <Td textAlign='center' width='1%'>
+    <Td textAlign='center'>
       <VerifiedBadge isAffiliateVerified={swap.isAffiliateVerified} />
     </Td>
-    <Td width='1%'>
+    <Td>
       <StatusBadge status={swap.status} />
     </Td>
   </Tr>
@@ -114,7 +107,7 @@ const SwapCard = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
           color='success'
         />
         <Stat label='ShapeShift BPS' value={swap.shapeshiftBps} />
-        <Stat label='Partner BPS' value={formatBps(partnerBps(swap))} align='right' />
+        <Stat label='Partner BPS' value={swap.partnerBps} align='right' />
       </SimpleGrid>
 
       <Box>
@@ -173,16 +166,16 @@ export const SwapsTable = ({ swaps }: SwapsTableProps): React.JSX.Element => {
           <Th borderColor='border.subtle' textAlign='center'>
             Fee
           </Th>
-          <Th borderColor='border.subtle' textAlign='center' px={2} width='1%'>
+          <Th borderColor='border.subtle' textAlign='center' width='1%'>
             Partner BPS
           </Th>
-          <Th borderColor='border.subtle' textAlign='center' px={2} width='1%'>
+          <Th borderColor='border.subtle' textAlign='center' width='1%'>
             ShapeShift BPS
           </Th>
-          <Th borderColor='border.subtle' textAlign='center' width='1%'>
+          <Th borderColor='border.subtle' textAlign='center'>
             Transactions
           </Th>
-          <Th borderColor='border.subtle' textAlign='center' width='1%'>
+          <Th borderColor='border.subtle' textAlign='center'>
             Verified
           </Th>
           <Th borderColor='border.subtle' width='1%'>

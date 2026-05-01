@@ -101,10 +101,13 @@ export const getAffiliateSwaps = async (req: Request, res: Response): Promise<vo
           precision: swap.buyAsset.precision,
         }).toBN()
 
-        const affiliateBps = swap.affiliateVerificationDetails?.affiliateBps ?? swap.affiliateBps
+        const affiliateBps =
+          swap.affiliateVerificationDetails?.affiliateBps ?? swap.affiliateBps ?? 0
+
+        const partnerBps = Math.max(0, affiliateBps - swap.shapeshiftBps)
 
         const affiliateFeeAmountUsd = calculateAffiliateFeeAmountUsd(
-          affiliateBps,
+          partnerBps,
           swap,
           getAsset(swap.affiliateFeeAssetId ?? ''),
         )
@@ -120,6 +123,7 @@ export const getAffiliateSwaps = async (req: Request, res: Response): Promise<vo
           buyAmountUsd: swap.buyAssetUsd ? buyAmount.times(swap.buyAssetUsd).toString() : null,
           affiliateFeeAmountUsd,
           affiliateBps,
+          partnerBps,
           shapeshiftBps: swap.shapeshiftBps,
           swapperName: swap.swapperName,
           sellTxHash: swap.sellTxHash,

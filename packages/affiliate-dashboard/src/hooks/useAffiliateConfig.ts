@@ -12,8 +12,8 @@ const AffiliateConfigSchema = z.object({
   partnerCode: z.string().nullable(),
   bps: z.number(),
   isActive: z.boolean(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
 })
 
 export type AffiliateConfig = z.infer<typeof AffiliateConfigSchema>

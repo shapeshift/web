@@ -19,8 +19,8 @@ export const AffiliateConfigResponseSchema = registry.register(
     partnerCode: z.string().nullable().openapi({ example: 'mypartner' }),
     bps: z.number().openapi({ example: 30 }),
     isActive: z.boolean().openapi({ example: true }),
-    createdAt: z.string().openapi({ example: '2024-01-01T00:00:00.000Z' }),
-    updatedAt: z.string().openapi({ example: '2024-01-01T00:00:00.000Z' }),
+    createdAt: z.string().datetime().openapi({ example: '2024-01-01T00:00:00.000Z' }),
+    updatedAt: z.string().datetime().openapi({ example: '2024-01-01T00:00:00.000Z' }),
   }),
 )
 

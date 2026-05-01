@@ -31,6 +31,8 @@ export const initAssets = (): Promise<void> => {
           enrichedAssetsById[assetId] = {
             ...asset,
             networkName: baseAsset?.networkName,
+            networkIcon: baseAsset?.networkIcon ?? baseAsset?.icon,
+            networkColor: baseAsset?.networkColor ?? baseAsset?.color,
             explorer: baseAsset?.explorer,
             explorerAddressLink: baseAsset?.explorerAddressLink,
             explorerTxLink: baseAsset?.explorerTxLink,

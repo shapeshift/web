@@ -9,12 +9,9 @@ import type { Filter } from './FoxTokenFilterButton'
 import { FoxTokenFilterButton } from './FoxTokenFilterButton'
 
 import { Text } from '@/components/Text'
-import { KeyManager } from '@/context/WalletProvider/KeyManager'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
 import { chainIdToChainDisplayName } from '@/lib/utils'
 import { AccountEntryRow } from '@/pages/Accounts/components/AccountEntryRow'
-import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { selectRelatedAssetIds } from '@/state/slices/related-assets-selectors'
 import { selectAccountIdsByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -38,13 +35,7 @@ const accountRowButtonProps = {
 const ALL_FILTER_KEY = 'All'
 
 export const FoxTokenBalances = () => {
-  const {
-    state: { isConnected: isWalletConnected },
-  } = useWallet()
-  const walletType = useAppSelector(selectWalletType)
-  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
-  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
-  const isConnected = isWalletConnected || isLedgerReadOnly
+  const isConnected = useIsWalletConnected()
 
   const { assetId, assetAccountId, assetAccountNumber } = useFoxPageContext()
   const [selectedFilters, setSelectedFilters] = useState([ALL_FILTER_KEY])

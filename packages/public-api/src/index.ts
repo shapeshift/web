@@ -3,7 +3,7 @@ import './setupZod'
 import cors from 'cors'
 import express from 'express'
 
-import { getAssetsById, initAssets } from './assets'
+import { initAssets } from './assets'
 import { env } from './env'
 import { quoteStore } from './lib/quoteStore'
 import { resolvePartnerCode } from './middleware/auth'
@@ -30,11 +30,9 @@ import { getChainCount, getChains } from './routes/chains'
 import { getQuote } from './routes/quote'
 import { getRates } from './routes/rates'
 import { getSwapStatus } from './routes/status'
-import { initSwapperDeps } from './swapperDeps'
 
 const startServer = async () => {
   await initAssets()
-  initSwapperDeps(getAssetsById())
 
   const app = express()
 

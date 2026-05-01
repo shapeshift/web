@@ -11,10 +11,7 @@ import { Display } from '@/components/Display'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Text } from '@/components/Text'
-import { KeyManager } from '@/context/WalletProvider/KeyManager'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import { useWallet } from '@/hooks/useWallet/useWallet'
-import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
+import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
 import { selectPortfolioAccountIdsByAssetIdFilter } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -23,13 +20,7 @@ const accountDropdownButtonProps = { variant: 'solid', width: 'full' }
 const accountDropdownBoxProps = { px: 0, my: 0 }
 
 export const FoxHeader = () => {
-  const {
-    state: { isConnected: isWalletConnected },
-  } = useWallet()
-  const walletType = useAppSelector(selectWalletType)
-  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
-  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
-  const isConnected = isWalletConnected || isLedgerReadOnly
+  const isConnected = useIsWalletConnected()
 
   const translate = useTranslate()
   const { assetId, setAssetAccountId, assetAccountId } = useFoxPageContext()

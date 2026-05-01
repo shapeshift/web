@@ -13,12 +13,9 @@ import { Display } from '@/components/Display'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { WalletActions } from '@/context/WalletProvider/actions'
-import { KeyManager } from '@/context/WalletProvider/KeyManager'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { Accounts } from '@/pages/Accounts/Accounts'
-import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
-import { useAppSelector } from '@/state/store'
 
 const pageProps = { paddingTop: 0, pb: 0 }
 
@@ -115,20 +112,16 @@ export const Dashboard = memo(() => {
 
   const {
     dispatch: walletDispatch,
-    state: { isLoadingLocalWallet, isConnected },
+    state: { isLoadingLocalWallet },
   } = useWallet()
-  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
-  const walletType = useAppSelector(selectWalletType)
+  const isConnected = useIsWalletConnected()
 
   useEffect(() => {
     if (isLoadingLocalWallet) return
     if (isConnected) return
-    if (isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger) return
 
     walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-    // walletType intentionally excluded to prevent race condition that would reopen the wallet modal after connection on refresh
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoadingLocalWallet, isConnected, isLedgerReadOnlyEnabled, walletDispatch])
+  }, [isLoadingLocalWallet, isConnected, walletDispatch])
 
   const mobileHome = useMemo(() => <MobileHome />, [])
   const mobileEarn = useMemo(() => <ScrollView>{earnDashboard}</ScrollView>, [])

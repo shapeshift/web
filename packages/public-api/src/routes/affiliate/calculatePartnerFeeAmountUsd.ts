@@ -5,23 +5,33 @@ import type { SwapServiceAffiliateSwap } from './types'
 
 const BPS_DENOMINATOR = 10000
 
-export const calculateAffiliateFeeAmountUsd = (
+export const calculatePartnerFeeAmountUsd = (
+  partnerBps: number | null,
   affiliateBps: number | null,
   swap: SwapServiceAffiliateSwap,
   feeAsset: Asset | undefined,
 ): string | null => {
-  // 1. Actual amount paid in the affiliate fee asset
-  if (feeAsset && swap.affiliateAssetUsd && swap.actualAffiliateFeeAmountCryptoBaseUnit) {
+  // 1. Actual amount captured on-chain, scaled to the partner's share of the affiliate split
+  if (
+    feeAsset &&
+    swap.affiliateAssetUsd &&
+    swap.actualAffiliateFeeAmountCryptoBaseUnit &&
+    affiliateBps != null &&
+    affiliateBps > 0 &&
+    partnerBps != null
+  ) {
     return BigAmount.fromBaseUnit({
       value: swap.actualAffiliateFeeAmountCryptoBaseUnit,
       precision: feeAsset.precision,
     })
       .times(swap.affiliateAssetUsd)
+      .times(partnerBps)
+      .div(affiliateBps)
       .toFixed()
   }
 
-  // 2. Inferred from volume × bps / 10000
-  if (affiliateBps == null) return null
+  // 2. Inferred from volume × partnerBps / 10000
+  if (partnerBps == null) return null
 
   const { volumeAsset, volumeBaseUnit, volumePriceUsd } = (() => {
     if (swap.affiliateFeeAssetId === swap.buyAsset.assetId) {
@@ -42,7 +52,7 @@ export const calculateAffiliateFeeAmountUsd = (
 
   if (!volumePriceUsd) return null
 
-  const value = bnOrZero(volumeBaseUnit).times(affiliateBps).div(BPS_DENOMINATOR).toFixed(0)
+  const value = bnOrZero(volumeBaseUnit).times(partnerBps).div(BPS_DENOMINATOR).toFixed(0)
 
   return BigAmount.fromBaseUnit({
     value,

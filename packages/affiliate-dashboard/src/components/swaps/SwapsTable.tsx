@@ -14,6 +14,8 @@ interface SwapsTableProps {
 }
 
 const parseUsd = (v: string | null): number => parseFloat(v ?? '') || 0
+const formatUsdOrDash = (v: string | null): string => (v == null ? '—' : formatUsd(parseUsd(v)))
+const formatBpsOrDash = (v: number | null): string => (v == null ? '—' : String(v))
 
 const SwapRow = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
   <Tr>
@@ -33,13 +35,13 @@ const SwapRow = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
       <AssetPill asset={swap.buyAsset} />
     </Td>
     <Td fontFamily='mono' color='fg.default' textAlign='center'>
-      {formatUsd(parseUsd(swap.sellAmountUsd))}
+      {formatUsdOrDash(swap.sellAmountUsd)}
     </Td>
     <Td fontFamily='mono' color='success' textAlign='center'>
-      {formatUsd(parseUsd(swap.affiliateFeeAmountUsd))}
+      {formatUsdOrDash(swap.affiliateFeeAmountUsd)}
     </Td>
     <Td fontFamily='mono' color='fg.default' textAlign='center'>
-      {swap.partnerBps}
+      {formatBpsOrDash(swap.partnerBps)}
     </Td>
     <Td fontFamily='mono' color='fg.default' textAlign='center'>
       {swap.shapeshiftBps}
@@ -99,15 +101,15 @@ const SwapCard = ({ swap }: { swap: AffiliateSwap }): React.JSX.Element => (
       </Box>
 
       <SimpleGrid columns={2} spacing={3}>
-        <Stat label='Volume' value={formatUsd(parseUsd(swap.sellAmountUsd))} />
+        <Stat label='Volume' value={formatUsdOrDash(swap.sellAmountUsd)} />
         <Stat
           label='Fee'
-          value={formatUsd(parseUsd(swap.affiliateFeeAmountUsd))}
+          value={formatUsdOrDash(swap.affiliateFeeAmountUsd)}
           align='right'
           color='success'
         />
         <Stat label='ShapeShift BPS' value={swap.shapeshiftBps} />
-        <Stat label='Partner BPS' value={swap.partnerBps} align='right' />
+        <Stat label='Partner BPS' value={formatBpsOrDash(swap.partnerBps)} align='right' />
       </SimpleGrid>
 
       <Box>

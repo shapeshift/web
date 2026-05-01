@@ -7,7 +7,7 @@ import { fetchSwapService } from '../../lib/fetchSwapService'
 import { registry } from '../../registry'
 import type { ErrorResponse } from '../../types'
 import { rateLimitResponse } from '../../types'
-import { calculateAffiliateFeeAmountUsd } from './calculateAffiliateFeeAmountUsd'
+import { calculatePartnerFeeAmountUsd } from './calculatePartnerFeeAmountUsd'
 import type { AffiliateSwapsResponse } from './types'
 import {
   AffiliateSwapsRequestSchema,
@@ -101,15 +101,16 @@ export const getAffiliateSwaps = async (req: Request, res: Response): Promise<vo
           precision: swap.buyAsset.precision,
         }).toBN()
 
-        const affiliateBps =
-          swap.affiliateVerificationDetails?.affiliateBps ?? swap.affiliateBps ?? 0
+        const affiliateBps = swap.affiliateVerificationDetails?.affiliateBps ?? swap.affiliateBps
 
-        const partnerBps = Math.max(0, affiliateBps - swap.shapeshiftBps)
+        const partnerBps =
+          affiliateBps == null ? null : Math.max(0, affiliateBps - swap.shapeshiftBps)
 
-        const affiliateFeeAmountUsd = calculateAffiliateFeeAmountUsd(
+        const affiliateFeeAmountUsd = calculatePartnerFeeAmountUsd(
           partnerBps,
+          affiliateBps,
           swap,
-          getAsset(swap.affiliateFeeAssetId ?? ''),
+          swap.affiliateFeeAssetId ? getAsset(swap.affiliateFeeAssetId) : undefined,
         )
 
         return {
@@ -118,11 +119,10 @@ export const getAffiliateSwaps = async (req: Request, res: Response): Promise<vo
           sellAsset: swap.sellAsset,
           buyAsset: swap.buyAsset,
           sellAmountCryptoPrecision: sellAmount.toPrecision(),
-          sellAmountUsd: swap.sellAssetUsd ? sellAmount.times(swap.sellAssetUsd).toString() : null,
+          sellAmountUsd: swap.sellAssetUsd ? sellAmount.times(swap.sellAssetUsd).toFixed() : null,
           buyAmountCryptoPrecision: buyAmount.toPrecision(),
-          buyAmountUsd: swap.buyAssetUsd ? buyAmount.times(swap.buyAssetUsd).toString() : null,
+          buyAmountUsd: swap.buyAssetUsd ? buyAmount.times(swap.buyAssetUsd).toFixed() : null,
           affiliateFeeAmountUsd,
-          affiliateBps,
           partnerBps,
           shapeshiftBps: swap.shapeshiftBps,
           swapperName: swap.swapperName,

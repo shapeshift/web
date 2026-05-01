@@ -18,27 +18,24 @@ const AssetSchema = z
   .passthrough()
   .transform(v => v as unknown as Asset)
 
-const AffiliateSwapSchema = z
-  .object({
-    swapId: z.string(),
-    createdAt: z.string(),
-    status: z.string(),
-    sellAsset: AssetSchema,
-    buyAsset: AssetSchema,
-    sellAmountCryptoPrecision: z.string(),
-    sellAmountUsd: z.string().nullable(),
-    buyAmountCryptoPrecision: z.string().nullable(),
-    buyAmountUsd: z.string().nullable(),
-    affiliateFeeAmountUsd: z.string().nullable(),
-    affiliateBps: z.number(),
-    partnerBps: z.number(),
-    shapeshiftBps: z.number(),
-    swapperName: z.string(),
-    sellTxHash: z.string().nullable(),
-    buyTxHash: z.string().nullable(),
-    isAffiliateVerified: z.boolean().nullable(),
-  })
-  .passthrough()
+const AffiliateSwapSchema = z.object({
+  swapId: z.string(),
+  createdAt: z.string(),
+  status: z.string(),
+  sellAsset: AssetSchema,
+  buyAsset: AssetSchema,
+  sellAmountCryptoPrecision: z.string(),
+  sellAmountUsd: z.string().nullable(),
+  buyAmountCryptoPrecision: z.string().nullable(),
+  buyAmountUsd: z.string().nullable(),
+  affiliateFeeAmountUsd: z.string().nullable(),
+  partnerBps: z.number().nullable(),
+  shapeshiftBps: z.number(),
+  swapperName: z.string(),
+  sellTxHash: z.string().nullable(),
+  buyTxHash: z.string().nullable(),
+  isAffiliateVerified: z.boolean().nullable(),
+})
 
 const ApiResponseSchema = z.object({
   swaps: z.array(AffiliateSwapSchema),

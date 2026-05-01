@@ -15,7 +15,7 @@ export type ChainConfig = {
   explorerAddressLink: string
   explorerTxLink: string
   rpcUrl: string
-  fallbackRpcUrls: string[]
+  publicRpcUrls: string[]
   coingeckoPlatform: string
   wrappedNativeAddress: string | null
   relatedAssetKey: string
@@ -81,12 +81,12 @@ export function validateConfig(obj: unknown): ChainConfig {
     throw new Error(`"isNativeEth" must be a boolean, got: ${JSON.stringify(c.isNativeEth)}`)
   }
 
-  if (!Array.isArray(c.fallbackRpcUrls)) {
-    throw new Error(`"fallbackRpcUrls" must be an array, got: ${JSON.stringify(c.fallbackRpcUrls)}`)
+  if (!Array.isArray(c.publicRpcUrls)) {
+    throw new Error(`"publicRpcUrls" must be an array, got: ${JSON.stringify(c.publicRpcUrls)}`)
   }
-  for (const url of c.fallbackRpcUrls) {
+  for (const url of c.publicRpcUrls) {
     if (typeof url !== 'string') {
-      throw new Error(`"fallbackRpcUrls" entries must be strings, got: ${JSON.stringify(url)}`)
+      throw new Error(`"publicRpcUrls" entries must be strings, got: ${JSON.stringify(url)}`)
     }
   }
 

@@ -15,6 +15,11 @@ export const AssetSchema: z.ZodType<types.Asset> = registry.register(
     icon: z.string().openapi({
       example: 'https://assets.coincap.io/assets/icons/eth@2x.png',
     }),
+    networkName: z.string().optional().openapi({ example: 'Ethereum' }),
+    networkColor: z.string().optional().openapi({ example: '#5C6BC0' }),
+    networkIcon: z.string().optional().openapi({
+      example: 'https://assets.coincap.io/assets/icons/eth@2x.png',
+    }),
     explorer: z.string().openapi({ example: 'https://etherscan.io' }),
     explorerAddressLink: z.string().openapi({ example: 'https://etherscan.io/address/' }),
     explorerTxLink: z.string().openapi({ example: 'https://etherscan.io/tx/' }),

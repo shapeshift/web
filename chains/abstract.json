@@ -15,7 +15,7 @@
   "explorerAddressLink": "https://abscan.org/address/",
   "explorerTxLink": "https://abscan.org/tx/",
   "rpcUrl": "https://api.mainnet.abs.xyz",
-  "fallbackRpcUrls": ["https://rpc.ankr.com/abstract"],
+  "publicRpcUrls": ["https://rpc.ankr.com/abstract"],
   "coingeckoPlatform": "abstract",
   "wrappedNativeAddress": null,
   "relatedAssetKey": "eip155:1/slip44:60",

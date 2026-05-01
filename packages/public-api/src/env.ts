@@ -28,6 +28,17 @@ const envSchema = z.object({
   UNCHAINED_LITECOIN_HTTP_URL: url,
   UNCHAINED_BITCOINCASH_HTTP_URL: url,
 
+  // First-class EVM node URLs — passed to chain adapter constructors and
+  // consumed by @shapeshiftoss/contracts via process.env.VITE_*_NODE_URL.
+  VITE_ETHEREUM_NODE_URL: url,
+  VITE_BNBSMARTCHAIN_NODE_URL: url,
+  VITE_AVALANCHE_NODE_URL: url,
+  VITE_ARBITRUM_NODE_URL: url,
+  VITE_OPTIMISM_NODE_URL: url,
+  VITE_GNOSIS_NODE_URL: url,
+  VITE_POLYGON_NODE_URL: url,
+  VITE_BASE_NODE_URL: url,
+
   // Node URLs
   THORCHAIN_NODE_URL: url,
   MAYACHAIN_NODE_URL: url,

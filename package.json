@@ -321,7 +321,6 @@
     "typescript": "~5.2.2",
     "vite": "6.4.1",
     "vite-bundle-analyzer": "^0.18.1",
-    "vite-plugin-checker": "^0.9.1",
     "vite-plugin-node-polyfills": "^0.23.0",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "3.0.9"
@@ -394,7 +393,8 @@
         "utf-8-validate": "6.0.6",
         "@ton/core": "0.62.1",
         "eslint": "8.57.1",
-        "@solana/sysvars": "*"
+        "@solana/sysvars": "*",
+        "@wagmi/core": "*"
       },
       "ignoreMissing": [
         "@solana/sysvars"

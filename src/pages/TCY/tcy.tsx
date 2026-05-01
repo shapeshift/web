@@ -15,12 +15,11 @@ import { useTcyStaker } from './queries/useTcyStaker'
 import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { Main } from '@/components/Layout/Main'
 import { ResultsEmpty } from '@/components/ResultsEmpty'
-import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
 import { useLocalStorage } from '@/hooks/useLocalStorage/useLocalStorage'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
-import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import type { WalletId } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
 import {
@@ -45,13 +44,9 @@ export const TCY = () => {
   const [userSelectedAccountNumber, setUserSelectedAccountNumber] = useState<number | undefined>()
 
   const {
-    state: { walletInfo, isConnected: isWalletConnected },
+    state: { walletInfo },
   } = useWallet()
-
-  const walletType = useAppSelector(selectWalletType)
-  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
-  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
-  const isConnected = isWalletConnected || isLedgerReadOnly
+  const isConnected = useIsWalletConnected()
 
   const [walletIdToDefaultTcyAccountId, setWalletIdToDefaultTcyAccountId] = useLocalStorage<
     Record<WalletId, AccountId>

@@ -302,7 +302,7 @@ describe('adapters:coingecko', () => {
         chainNamespace: CHAIN_NAMESPACE.Starknet,
         chainReference: CHAIN_REFERENCE.StarknetMainnet,
         assetNamespace: 'token',
-        assetReference: '0x33068f6539f8e6e6b131e6b2b814e6c34a5224bc66947c47dab9dfee93b35fb',
+        assetReference: '0x033068f6539f8e6e6b131e6b2b814e6c34a5224bc66947c47dab9dfee93b35fb',
       })
       const usdcOnSei = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Evm,

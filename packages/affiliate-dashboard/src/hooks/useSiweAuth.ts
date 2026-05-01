@@ -1,8 +1,18 @@
 import { useAppKitAccount } from '@reown/appkit/react'
 import { useCallback, useEffect, useState } from 'react'
 import { useSignMessage } from 'wagmi'
+import { z } from 'zod'
 
-const AUTH_SIWE_URL = `${import.meta.env.VITE_API_URL}/v1/auth/siwe`
+import { parseResponse } from '../lib/api'
+import { API_BASE_URL } from '../lib/constants'
+
+const AUTH_SIWE_URL = `${API_BASE_URL}/auth/siwe`
+
+const NonceResponseSchema = z.object({ nonce: z.string() })
+const VerifyResponseSchema = z.object({
+  token: z.string(),
+  address: z.string(),
+})
 
 interface SiweAuthState {
   token: string | null
@@ -48,8 +58,7 @@ export const useSiweAuth = (): UseSiweAuthReturn => {
 
     try {
       const nonceRes = await fetch(`${AUTH_SIWE_URL}/nonce`, { method: 'POST' })
-      if (!nonceRes.ok) throw new Error('Failed to get nonce')
-      const { nonce } = (await nonceRes.json()) as { nonce: string }
+      const { nonce } = await parseResponse(nonceRes, NonceResponseSchema)
 
       const domain = window.location.host
       const uri = window.location.origin
@@ -75,16 +84,10 @@ export const useSiweAuth = (): UseSiweAuthReturn => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message, signature }),
       })
-
-      if (!verifyRes.ok) {
-        const body = (await verifyRes.json()) as { message?: string }
-        throw new Error(body.message ?? 'Verification failed')
-      }
-
-      const { token: jwt, address: verifiedAddress } = (await verifyRes.json()) as {
-        token: string
-        address: string
-      }
+      const { token: jwt, address: verifiedAddress } = await parseResponse(
+        verifyRes,
+        VerifyResponseSchema,
+      )
 
       setToken(jwt)
       setAuthenticatedAddress(verifiedAddress.toLowerCase())

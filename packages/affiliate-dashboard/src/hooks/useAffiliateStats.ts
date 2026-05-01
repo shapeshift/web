@@ -1,6 +1,12 @@
-import { useCallback, useRef, useState } from 'react'
+import type { UseQueryResult } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { z } from 'zod'
 
-const AFFILIATE_STATS_URL = `${import.meta.env.VITE_API_URL}/v1/affiliate/stats`
+import { NumericString, parseResponse } from '../lib/api'
+import { AFFILIATE_URL } from '../lib/constants'
+import type { Period } from '../lib/periods'
+
+const AFFILIATE_STATS_URL = `${AFFILIATE_URL}/stats`
 
 export interface AffiliateStats {
   totalSwaps: number
@@ -8,88 +14,35 @@ export interface AffiliateStats {
   totalFeesUsd: number
 }
 
-// Raw API response shape (strings from backend)
-interface ApiResponse {
-  totalSwaps: number
-  totalVolumeUsd: string
-  totalFeesEarnedUsd: string
+const ApiResponseSchema = z.object({
+  totalSwaps: z.number(),
+  totalVolumeUsd: NumericString,
+  totalFeesEarnedUsd: NumericString,
+})
+
+const fetchStats = async (address: string, period: Period): Promise<AffiliateStats> => {
+  const params = new URLSearchParams({ address })
+
+  if (period.startDate) params.append('startDate', period.startDate)
+  if (period.endDate) params.append('endDate', period.endDate)
+
+  const response = await fetch(`${AFFILIATE_STATS_URL}?${params.toString()}`)
+  const data = await parseResponse(response, ApiResponseSchema)
+
+  return {
+    totalSwaps: data.totalSwaps,
+    totalVolumeUsd: data.totalVolumeUsd,
+    totalFeesUsd: data.totalFeesEarnedUsd,
+  }
 }
 
-interface AffiliateStatsState {
-  stats: AffiliateStats | null
-  isLoading: boolean
-  error: string | null
-}
-
-interface FetchOptions {
-  startDate?: string
-  endDate?: string
-}
-
-interface UseAffiliateStatsReturn extends AffiliateStatsState {
-  fetchStats: (address: string, options?: FetchOptions) => Promise<void>
-}
-
-export const useAffiliateStats = (): UseAffiliateStatsReturn => {
-  const [stats, setStats] = useState<AffiliateStats | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const requestIdRef = useRef(0)
-
-  const fetchStats = useCallback(async (address: string, options?: FetchOptions): Promise<void> => {
-    const requestId = ++requestIdRef.current
-    if (!address.trim()) {
-      setError('Please enter a valid affiliate address.')
-      return
-    }
-
-    setIsLoading(true)
-    setError(null)
-    setStats(null)
-
-    try {
-      const params = new URLSearchParams({ address })
-      if (options?.startDate) params.append('startDate', options.startDate)
-      if (options?.endDate) params.append('endDate', options.endDate)
-
-      const response = await fetch(`${AFFILIATE_STATS_URL}?${params.toString()}`)
-
-      if (!response.ok) {
-        let errorMessage = `Request failed (${String(response.status)})`
-        try {
-          const errorBody = (await response.json()) as {
-            error?: string
-            details?: { message: string }[]
-          }
-          if (errorBody.error) {
-            errorMessage = errorBody.error
-          }
-          if (errorBody.details?.[0]?.message) {
-            errorMessage = errorBody.details[0].message
-          }
-        } catch {
-          // Response wasn't JSON, use generic message
-        }
-        throw new Error(errorMessage)
-      }
-
-      const data = (await response.json()) as ApiResponse
-      if (requestId !== requestIdRef.current) return
-      setStats({
-        totalSwaps: data.totalSwaps,
-        totalVolumeUsd: parseFloat(data.totalVolumeUsd) || 0,
-        totalFeesUsd: parseFloat(data.totalFeesEarnedUsd) || 0,
-      })
-    } catch (err) {
-      if (requestId !== requestIdRef.current) return
-      const message = err instanceof Error ? err.message : 'Failed to fetch affiliate stats.'
-      setError(message)
-    } finally {
-      if (requestId === requestIdRef.current) {
-        setIsLoading(false)
-      }
-    }
-  }, [])
-
-  return { stats, isLoading, error, fetchStats }
-}
+export const useAffiliateStats = (
+  address: string,
+  period: Period,
+): UseQueryResult<AffiliateStats, Error> =>
+  useQuery({
+    queryKey: ['affiliate', 'stats', address, period.startDate, period.endDate],
+    queryFn: () => fetchStats(address, period),
+    enabled: Boolean(address),
+    placeholderData: keepPreviousData,
+  })

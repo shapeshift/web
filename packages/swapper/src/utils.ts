@@ -328,8 +328,7 @@ export const checkEvmSwapStatus = async ({
       buyTxHash: txHash,
       message: undefined,
     }
-  } catch (e) {
-    console.error(e)
+  } catch {
     return createDefaultStatusResponse(txHash)
   }
 }

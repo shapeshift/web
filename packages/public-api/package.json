@@ -18,6 +18,7 @@
     "@scalar/express-api-reference": "^0.8.30",
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/chain-adapters": "workspace:^",
+    "@shapeshiftoss/contracts": "workspace:^",
     "@shapeshiftoss/swapper": "workspace:^",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^",
@@ -27,6 +28,7 @@
     "express": "^4.21.0",
     "express-rate-limit": "^7.5.0",
     "uuid": "^9.0.0",
+    "viem": "2.43.5",
     "yaml": "^2.8.2",
     "zod": "3.23.8"
   },

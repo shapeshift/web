@@ -12,11 +12,8 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { PriceChangeTag } from '@/components/PriceChangeTag/PriceChangeTag'
-import { KeyManager } from '@/context/WalletProvider/KeyManager'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
   selectAssets,
@@ -48,16 +45,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
 }) => {
   const { isOpen, onToggle } = useDisclosure()
   const assets = useAppSelector(selectAssets)
-  const {
-    state: { isConnected },
-  } = useWallet()
-  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
-  const walletType = useAppSelector(selectWalletType)
-  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
-  const canDisplayBalances = useMemo(
-    () => isConnected || isLedgerReadOnly,
-    [isConnected, isLedgerReadOnly],
-  )
+  const canDisplayBalances = useIsWalletConnected()
   const groupedAssetBalances = useAppSelector(state =>
     selectGroupedAssetsWithBalances(state, asset.assetId),
   )

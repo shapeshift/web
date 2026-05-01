@@ -1,4 +1,3 @@
-import type { ButtonProps } from '@chakra-ui/react'
 import { Button, Flex } from '@chakra-ui/react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -7,12 +6,11 @@ import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 import { vibrate } from '@/lib/vibrate'
 import type { Route } from '@/Routes/helpers'
 
-type MobileNavLinkProps = ButtonProps &
-  Route & {
-    order?: number
-  }
+type MobileNavLinkProps = Route & {
+  order?: number
+}
 export const MobileNavLink = memo((props: MobileNavLinkProps) => {
-  const { label, shortLabel, path, icon, order, disable: _disable, relatedPaths, ...rest } = props
+  const { label, shortLabel, path, icon, order, relatedPaths } = props
   const translate = useTranslate()
   const location = useLocation()
   const navigate = useNavigate()
@@ -72,7 +70,6 @@ export const MobileNavLink = memo((props: MobileNavLinkProps) => {
       py={3}
       flex={1}
       zIndex='sticky'
-      {...rest}
     >
       {icon}
       <Flex flexDir='column' fontSize='11px' letterSpacing='-0.020em'>

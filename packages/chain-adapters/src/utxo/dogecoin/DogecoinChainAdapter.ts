@@ -92,10 +92,11 @@ export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.DogecoinMainnet>
 
     const utxoSelectInput = { from, to, value, opReturnData, utxos, sendMax, assetId: this.assetId }
 
-    // We have to round because coinselect library uses sats per byte which cant be decimals
-    const fastPerByte = String(Math.round(fast.satsPerKiloByte / 1000))
-    const averagePerByte = String(Math.round(average.satsPerKiloByte / 1000))
-    const slowPerByte = String(Math.round(slow.satsPerKiloByte / 1000))
+    // We have to round because coinselect library uses sats per byte which cant be decimals.
+    // Use ceil with a 1 sat/byte floor so sub-1000 sats/kB rates don't collapse to 0.
+    const fastPerByte = String(Math.max(1, Math.ceil(fast.satsPerKiloByte / 1000)))
+    const averagePerByte = String(Math.max(1, Math.ceil(average.satsPerKiloByte / 1000)))
+    const slowPerByte = String(Math.max(1, Math.ceil(slow.satsPerKiloByte / 1000)))
 
     const { fee: fastFee } = utxoSelect({ ...utxoSelectInput, satoshiPerByte: fastPerByte })
     const { fee: averageFee } = utxoSelect({ ...utxoSelectInput, satoshiPerByte: averagePerByte })

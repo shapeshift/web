@@ -129,7 +129,6 @@ export class CoinGeckoMarketService implements MarketService {
           marketData.max_supply?.toString() ?? marketData.total_supply?.toString() ?? undefined,
       }
     } catch (e) {
-      console.warn(e, '')
       throw new Error('CoinGeckoMarketService(findByAssetId): error fetching market data')
     }
   }

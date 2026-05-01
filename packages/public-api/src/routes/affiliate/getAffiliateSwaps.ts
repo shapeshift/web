@@ -1,22 +1,19 @@
 import { BigAmount } from '@shapeshiftoss/utils'
 import type { Request, Response } from 'express'
 
+import { getAsset } from '../../assets'
 import { env } from '../../env'
 import { fetchSwapService } from '../../lib/fetchSwapService'
 import { registry } from '../../registry'
 import type { ErrorResponse } from '../../types'
 import { rateLimitResponse } from '../../types'
+import { calculatePartnerFeeAmountUsd } from './calculatePartnerFeeAmountUsd'
 import type { AffiliateSwapsResponse } from './types'
 import {
   AffiliateSwapsRequestSchema,
   AffiliateSwapsResponseSchema,
   SwapServiceAffiliateSwapsResponseSchema,
 } from './types'
-
-const baseUnitToPrecision = (value: string | null, precision: number): string | null => {
-  if (value === null) return null
-  return BigAmount.fromBaseUnit({ value, precision }).toPrecision()
-}
 
 registry.registerPath({
   method: 'get',
@@ -91,29 +88,50 @@ export const getAffiliateSwaps = async (req: Request, res: Response): Promise<vo
     }
 
     const payload: AffiliateSwapsResponse = {
-      swaps: upstreamResult.data.swaps.map(swap => ({
-        swapId: swap.swapId,
-        status: swap.status,
-        sellAsset: swap.sellAsset,
-        buyAsset: swap.buyAsset,
-        sellAmountCryptoPrecision:
-          baseUnitToPrecision(swap.sellAmountCryptoBaseUnit, swap.sellAsset.precision) ?? '0',
-        expectedBuyAmountCryptoPrecision:
-          baseUnitToPrecision(swap.expectedBuyAmountCryptoBaseUnit, swap.buyAsset.precision) ?? '0',
-        actualBuyAmountCryptoPrecision: baseUnitToPrecision(
-          swap.actualBuyAmountCryptoBaseUnit,
-          swap.buyAsset.precision,
-        ),
-        sellAmountUsd: swap.sellAmountUsd,
-        affiliateBps: swap.affiliateBps,
-        shapeshiftBps: swap.shapeshiftBps,
-        affiliateFeeUsd: swap.affiliateFeeUsd,
-        swapperName: swap.swapperName,
-        sellTxHash: swap.sellTxHash,
-        buyTxHash: swap.buyTxHash,
-        isAffiliateVerified: swap.isAffiliateVerified,
-        createdAt: swap.createdAt,
-      })),
+      swaps: upstreamResult.data.swaps.map(swap => {
+        const sellAmount = BigAmount.fromBaseUnit({
+          value:
+            swap.affiliateVerificationDetails?.verifiedSellAmountCryptoBaseUnit ||
+            swap.sellAmountCryptoBaseUnit,
+          precision: swap.sellAsset.precision,
+        }).toBN()
+
+        const buyAmount = BigAmount.fromBaseUnit({
+          value: swap.actualBuyAmountCryptoBaseUnit || swap.expectedBuyAmountCryptoBaseUnit,
+          precision: swap.buyAsset.precision,
+        }).toBN()
+
+        const affiliateBps = swap.affiliateVerificationDetails?.affiliateBps ?? swap.affiliateBps
+
+        const partnerBps =
+          affiliateBps == null ? null : Math.max(0, affiliateBps - swap.shapeshiftBps)
+
+        const affiliateFeeAmountUsd = calculatePartnerFeeAmountUsd(
+          partnerBps,
+          affiliateBps,
+          swap,
+          swap.affiliateFeeAssetId ? getAsset(swap.affiliateFeeAssetId) : undefined,
+        )
+
+        return {
+          swapId: swap.swapId,
+          status: swap.status,
+          sellAsset: swap.sellAsset,
+          buyAsset: swap.buyAsset,
+          sellAmountCryptoPrecision: sellAmount.toPrecision(),
+          sellAmountUsd: swap.sellAssetUsd ? sellAmount.times(swap.sellAssetUsd).toFixed() : null,
+          buyAmountCryptoPrecision: buyAmount.toPrecision(),
+          buyAmountUsd: swap.buyAssetUsd ? buyAmount.times(swap.buyAssetUsd).toFixed() : null,
+          affiliateFeeAmountUsd,
+          partnerBps,
+          shapeshiftBps: swap.shapeshiftBps,
+          swapperName: swap.swapperName,
+          sellTxHash: swap.sellTxHash,
+          buyTxHash: swap.buyTxHash,
+          isAffiliateVerified: swap.isAffiliateVerified,
+          createdAt: swap.createdAt,
+        }
+      }),
       nextCursor: upstreamResult.data.nextCursor,
     }
 

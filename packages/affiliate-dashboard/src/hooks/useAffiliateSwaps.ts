@@ -9,9 +9,6 @@ import type { Period } from '../lib/periods'
 
 const AFFILIATE_SWAPS_URL = `${import.meta.env.VITE_API_URL}/v1/affiliate/swaps`
 
-// Loose runtime shape — relies on the API returning a valid Asset object.
-// Typed as Asset at the TS boundary for downstream consumers. explorerTxLink
-// is validated explicitly because TxLinks builds href URLs from it.
 const AssetSchema = z
   .object({
     symbol: z.string(),
@@ -21,33 +18,29 @@ const AssetSchema = z
   .passthrough()
   .transform(v => v as unknown as Asset)
 
-const AffiliateSwapSchema = z
-  .object({
-    swapId: z.string(),
-    createdAt: z.string(),
-    status: z.string(),
-    sellAsset: AssetSchema,
-    buyAsset: AssetSchema,
-    sellAmountCryptoPrecision: z.string(),
-    expectedBuyAmountCryptoPrecision: z.string(),
-    actualBuyAmountCryptoPrecision: z.string().nullable(),
-    sellAmountUsd: z.string().nullable(),
-    affiliateBps: z.number().nullable(),
-    shapeshiftBps: z.number(),
-    affiliateFeeUsd: z.string().nullable(),
-    swapperName: z.string(),
-    sellTxHash: z.string().nullable(),
-    buyTxHash: z.string().nullable(),
-    isAffiliateVerified: z.boolean().nullable(),
-  })
-  .passthrough()
+const AffiliateSwapSchema = z.object({
+  swapId: z.string(),
+  createdAt: z.string(),
+  status: z.string(),
+  sellAsset: AssetSchema,
+  buyAsset: AssetSchema,
+  sellAmountCryptoPrecision: z.string(),
+  sellAmountUsd: z.string().nullable(),
+  buyAmountCryptoPrecision: z.string().nullable(),
+  buyAmountUsd: z.string().nullable(),
+  affiliateFeeAmountUsd: z.string().nullable(),
+  partnerBps: z.number().nullable(),
+  shapeshiftBps: z.number(),
+  swapperName: z.string(),
+  sellTxHash: z.string().nullable(),
+  buyTxHash: z.string().nullable(),
+  isAffiliateVerified: z.boolean().nullable(),
+})
 
-const ApiResponseSchema = z
-  .object({
-    swaps: z.array(AffiliateSwapSchema),
-    nextCursor: z.string().nullable(),
-  })
-  .passthrough()
+const ApiResponseSchema = z.object({
+  swaps: z.array(AffiliateSwapSchema),
+  nextCursor: z.string().nullable(),
+})
 
 export type AffiliateSwap = z.infer<typeof AffiliateSwapSchema>
 

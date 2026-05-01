@@ -5,7 +5,7 @@ export const formatUsd = (value: number): string =>
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    maximumFractionDigits: 4,
   }).format(value)
 
 export const formatNumber = (value: number): string => new Intl.NumberFormat('en-US').format(value)

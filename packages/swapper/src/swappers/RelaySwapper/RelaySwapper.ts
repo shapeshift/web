@@ -5,6 +5,8 @@ import {
   executeTronTransaction,
 } from '../../utils'
 
+export * from './utils/relayTokenToAssetId'
+
 export const relaySwapper: Swapper = {
   executeEvmTransaction,
   executeSolanaTransaction,

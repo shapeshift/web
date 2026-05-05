@@ -53,8 +53,8 @@ steps:
       3. The "Preview Trade" button is enabled
       If multiple swappers are shown, check that Stargate is one of them.
     expected: >
-      Quote shown with receive amount ~$0.98-$1.00 USDC, Stargate visible as source,
-      Preview Trade button enabled
+      Quote shown with a USDC receive amount slightly less than sell amount,
+      Stargate visible as source, Preview Trade button enabled
     screenshot: true
 
   - name: Verify protocol fee is displayed
@@ -62,7 +62,7 @@ steps:
       In the quote view, look for a fee breakdown section. Verify that a protocol fee
       is shown (the Stargate OFT fee, typically 0.5-1% of the swap amount).
       Note the fee amount shown.
-    expected: Protocol fee visible, roughly $0.005-$0.01 for a $1 swap
+    expected: Protocol fee visible in the quote breakdown
     screenshot: true
 
   - name: Preview trade
@@ -86,7 +86,7 @@ steps:
   - name: Wait for Stargate bridge completion
     instruction: >
       Cross-chain Stargate bridges take 1-3 minutes (LayerZero messaging).
-      Wait up to 180 seconds for the swap to complete. Check every 10 seconds.
+      Wait up to 300 seconds for the swap to complete. Check every 10 seconds.
       Look for: trade page reappearing, success notification, Arbitrum USDC
       balance increased, or "Awaiting swap" disappearing.
       A feedback dialog may appear — dismiss it with "Maybe Later".

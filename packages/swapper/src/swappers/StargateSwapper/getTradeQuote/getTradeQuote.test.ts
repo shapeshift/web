@@ -1,4 +1,10 @@
-import { arbitrumChainId, baseChainId, ethChainId, optimismChainId, polygonChainId } from '@shapeshiftoss/caip'
+import {
+  arbitrumChainId,
+  baseChainId,
+  ethChainId,
+  optimismChainId,
+  polygonChainId,
+} from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -52,11 +58,9 @@ vi.mock('@shapeshiftoss/chain-adapters', async () => {
 
 vi.mock('../utils/helpers', () => ({
   encodeQuoteOFT: vi.fn().mockReturnValue('0x11'),
-  decodeQuoteOFTResult: vi.fn().mockReturnValue([
-    {},
-    [],
-    { amountReceivedLD: 990_000_000n, amountSentLD: 1_000_000_000n },
-  ]),
+  decodeQuoteOFTResult: vi
+    .fn()
+    .mockReturnValue([{}, [], { amountReceivedLD: 990_000_000n, amountSentLD: 1_000_000_000n }]),
   encodeQuoteSend: vi.fn().mockReturnValue('0x22'),
   decodeQuoteSendResult: vi.fn().mockReturnValue({
     nativeFee: 1_000_000_000_000_000n,
@@ -96,7 +100,10 @@ describe('Stargate getTradeQuote', () => {
   })
 
   it('returns error when receiveAddress is missing', async () => {
-    const result = await getTradeQuote({ ...commonInput, receiveAddress: undefined }, deps)
+    const result = await getTradeQuote(
+      { ...commonInput, receiveAddress: undefined as unknown as string },
+      deps,
+    )
     expect(result.isErr()).toBe(true)
     const err = result.unwrapErr()
     expect(err.message).toBe('receiveAddress is required')
@@ -104,10 +111,7 @@ describe('Stargate getTradeQuote', () => {
   })
 
   it('returns UnsupportedTradePair error for same-chain swap', async () => {
-    const result = await getTradeQuote(
-      { ...commonInput, buyAsset: USDC_MAINNET },
-      deps,
-    )
+    const result = await getTradeQuote({ ...commonInput, buyAsset: USDC_MAINNET }, deps)
     expect(result.isErr()).toBe(true)
     expect(result.unwrapErr().code).toBe(TradeQuoteError.UnsupportedTradePair)
   })
@@ -155,10 +159,10 @@ describe('Stargate getTradeQuote', () => {
 
     expect(step.feeData.networkFeeCryptoBaseUnit).toBeDefined()
     expect(step.feeData.protocolFees).toBeDefined()
-    const protocolFee = step.feeData.protocolFees[USDC_MAINNET.assetId]
+    const protocolFee = step.feeData.protocolFees?.[USDC_MAINNET.assetId]
     expect(protocolFee).toBeDefined()
     // fee = amountSentLD - amountReceivedLD = 1_000_000_000 - 990_000_000 = 10_000_000
-    expect(protocolFee.amountCryptoBaseUnit).toBe('10000000')
+    expect(protocolFee?.amountCryptoBaseUnit).toBe('10000000')
   })
 
   it('quote step has stargateTransactionMetadata', async () => {
@@ -166,8 +170,8 @@ describe('Stargate getTradeQuote', () => {
     const step = result.unwrap()[0].steps[0]
 
     expect(step.stargateTransactionMetadata).toBeDefined()
-    expect(step.stargateTransactionMetadata.to).toBeDefined()
-    expect(step.stargateTransactionMetadata.data).toBe('0x33')
+    expect(step.stargateTransactionMetadata?.to).toBeDefined()
+    expect(step.stargateTransactionMetadata?.data).toBe('0x33')
   })
 
   it('buyAmountAfterFees reflects the received amount from quoteOFT', async () => {
@@ -203,10 +207,7 @@ describe('Stargate getTradeQuote', () => {
 
   it('returns UnsupportedTradePair error when sell asset has no Stargate contract', async () => {
     // FOX has no Stargate pool on mainnet
-    const result = await getTradeQuote(
-      { ...commonInput, sellAsset: FOX_MAINNET },
-      deps,
-    )
+    const result = await getTradeQuote({ ...commonInput, sellAsset: FOX_MAINNET }, deps)
     expect(result.isErr()).toBe(true)
     expect(result.unwrapErr().code).toBe(TradeQuoteError.UnsupportedTradePair)
   })
@@ -223,7 +224,7 @@ describe('Stargate getTradeQuote', () => {
     expect(step.buyAsset.chainId).toBe(arbitrumChainId)
     // native sell: txValue = nativeFee + sellAmount
     // mocked nativeFee = 1_000_000_000_000_000, sellAmount = 1_000_000_000
-    expect(step.stargateTransactionMetadata.value).toBe('1000001000000000')
+    expect(step.stargateTransactionMetadata?.value).toBe('1000001000000000')
   })
 
   it('returns a valid quote for USDC (Arbitrum) → USDC (Mainnet) reverse direction', async () => {
@@ -238,7 +239,7 @@ describe('Stargate getTradeQuote', () => {
     expect(step.buyAsset.chainId).toBe(ethChainId)
     expect(step.source).toBe(SwapperName.Stargate)
     // non-native sell: txValue = nativeFee only
-    expect(step.stargateTransactionMetadata.value).toBe('1000000000000000')
+    expect(step.stargateTransactionMetadata?.value).toBe('1000000000000000')
   })
 
   it('returns a valid quote for USDC (Mainnet) → USDC (Optimism)', async () => {
@@ -287,16 +288,13 @@ describe('Stargate getTradeQuote', () => {
   })
 
   it('returns a valid quote for ETH (Mainnet) → ETH (Base) native bridge', async () => {
-    const result = await getTradeQuote(
-      { ...commonInput, sellAsset: ETH, buyAsset: ETH_BASE },
-      deps,
-    )
+    const result = await getTradeQuote({ ...commonInput, sellAsset: ETH, buyAsset: ETH_BASE }, deps)
     expect(result.isOk()).toBe(true)
     const step = result.unwrap()[0].steps[0]
     expect(step.sellAsset.chainId).toBe(ethChainId)
     expect(step.buyAsset.chainId).toBe(baseChainId)
     // native sell: txValue = nativeFee + sellAmount
-    expect(step.stargateTransactionMetadata.value).toBe('1000001000000000')
+    expect(step.stargateTransactionMetadata?.value).toBe('1000001000000000')
   })
 
   it('returns a valid quote for USDC (Base) → USDC (Arbitrum) L2-to-L2', async () => {

@@ -21,6 +21,7 @@ import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import {
   chainIdToStargateEndpointId,
+  DEFAULT_STARGATE_GAS_LIMIT,
   DEFAULT_STARGATE_USER_ADDRESS,
   STARGATE_NATIVE_ASSET_ADDRESS,
   STARGATE_SUPPORTED_CHAIN_IDS,
@@ -238,9 +239,10 @@ export async function fetchStargateTrade<T extends 'quote' | 'rate'>({
       )
     }
 
-    const { nativeFee, lzTokenFee } = decodeQuoteSendResult(
-      quoteSendResult.data as Hex,
-    ) as { nativeFee: bigint; lzTokenFee: bigint }
+    const { nativeFee, lzTokenFee } = decodeQuoteSendResult(quoteSendResult.data as Hex) as {
+      nativeFee: bigint
+      lzTokenFee: bigint
+    }
     const messagingFee: StargateMessagingFee = { nativeFee, lzTokenFee }
 
     const buyAmountAfterFeesCryptoBaseUnit = detailDstAmountLD.toString()
@@ -272,7 +274,7 @@ export async function fetchStargateTrade<T extends 'quote' | 'rate'>({
     const { average } = await adapter.getGasFeeData()
     const supportsEIP1559 = 'maxFeePerGas' in average
 
-    let gasLimit = '500000'
+    let gasLimit = DEFAULT_STARGATE_GAS_LIMIT
     const networkFeeCryptoBaseUnit = await (async () => {
       try {
         const feeData = await evm.getFees({

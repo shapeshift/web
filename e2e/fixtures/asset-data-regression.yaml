@@ -4,7 +4,7 @@ description: >
   Tests USDC, USDT, and FOX search with grouped multi-chain variants via global search,
   plus markets recently added section.
   Does NOT require wallet connection - no depends_on smoke-test.
-route: /trade?lang=en
+route: /trade
 
 # ============================================================
 # IMPLEMENTATION NOTES (for agent-browser execution):

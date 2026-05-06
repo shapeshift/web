@@ -52,7 +52,7 @@ description: >
   3. FIAT $0.20 (enough for a yield deposit). Max $3.
   4. Preview, confirm, sign, wait 120s. Navigate back.
 
-route: /earn?lang=en
+route: /earn
 depends_on:
   - wallet-health.yaml
 

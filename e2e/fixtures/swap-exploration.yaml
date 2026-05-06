@@ -40,7 +40,7 @@ description: >
   - Track which pairs worked and which failed
 
 mode: exploratory
-route: /trade?lang=en
+route: /trade
 depends_on:
   - wallet-health.yaml
 

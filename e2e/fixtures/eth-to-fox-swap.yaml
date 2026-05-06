@@ -1,6 +1,6 @@
 name: ETH to FOX Swap
 description: Full ETH to FOX swap - select assets, enter amount, preview, sign, wait for completion
-route: /trade?lang=en
+route: /trade
 depends_on:
   - wallet-health.yaml
 steps:

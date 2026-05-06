@@ -79,7 +79,7 @@ description: >
   - Total steps = wallet-health deps + (chains * steps_per_chain)
   - If a chain fails, log the failure and CONTINUE to the next chain.
 
-route: /trade?lang=en
+route: /trade
 depends_on:
   - wallet-health.yaml
 

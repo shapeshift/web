@@ -1,6 +1,6 @@
 name: THORChain Solana Swapper
 description: Test THORChain Solana swapper integration - SOL to RUNE and RUNE to SOL swaps, specifically selecting THORChain quotes
-route: /trade?lang=en
+route: /trade
 depends_on:
   - wallet-health.yaml
 steps:

@@ -4,7 +4,7 @@ description: >
   already executed Chainflip lending USDC operations and the Action Center
   contains the resulting cards. Focuses only on notification center copy,
   expanded details, and egress transaction affordances.
-route: /#/chainflip-lending/pool/eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48?lang=en
+route: /#/chainflip-lending/pool/eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
 steps:
   - name: Verify confirmed Chainflip lending cards
     instruction: >

@@ -1,6 +1,6 @@
 name: fox-ecosystem
 description: Fox Ecosystem page - rFOX staking/unstaking/claiming, simulator, FOX token, farming, governance, action center notifications
-route: /fox-ecosystem?lang=en
+route: /fox-ecosystem
 depends_on:
   - wallet-health.yaml
 

@@ -63,7 +63,7 @@ description: >
   - window.location.hash for navigation
   - Native wallet signs automatically
 
-route: /earn
+route: /earn?lang=en
 depends_on:
   - wallet-health.yaml
 

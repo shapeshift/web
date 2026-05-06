@@ -78,7 +78,7 @@ description: >
   At each signing step, a "Confirm" button may appear for hardware
   wallets. Click it. If password prompt: enter $NATIVE_WALLET_PASSWORD.
 
-route: /chainflip-lending
+route: /chainflip-lending?lang=en
 depends_on:
   - wallet-health.yaml
 

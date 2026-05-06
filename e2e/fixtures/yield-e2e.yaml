@@ -165,7 +165,7 @@ description: >
   Compare APY, TVL, provider name, asset name against what the UI shows.
   Any mismatch is a SOFT FAIL bug worth reporting.
 
-route: /earn
+route: /earn?lang=en
 depends_on:
   - wallet-health.yaml
 

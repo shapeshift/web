@@ -3,7 +3,7 @@ description: >
   Cross-chain USDC swap via Stargate V2 swapper: sell USDC on Ethereum mainnet,
   receive USDC on Arbitrum One. Verifies that Stargate appears as a quote source,
   that slippage is respected, and that the transaction builds and signs correctly.
-route: /trade
+route: /trade?lang=en
 depends_on:
   - wallet-health.yaml
 

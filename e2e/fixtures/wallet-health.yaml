@@ -1,6 +1,6 @@
 name: Wallet Health
 description: Dismiss onboarding, unlock native wallet, verify trade page loads with swap inputs and button
-route: /trade
+route: /trade?lang=en
 steps:
   - name: Dismiss onboarding and banners
     instruction: >

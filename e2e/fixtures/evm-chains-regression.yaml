@@ -4,7 +4,7 @@ description: >
   on each chain (native -> any token) and verifies the swap completes.
   Detects node failures, RPC issues, and swapper regressions.
   Chains: Ethereum, Base, Gnosis, Avalanche, Arbitrum, BSC, Optimism.
-route: /trade
+route: /trade?lang=en
 depends_on:
   - wallet-health.yaml
 steps:

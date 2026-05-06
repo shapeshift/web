@@ -66,7 +66,7 @@ description: >
   4. Preview, confirm, sign, wait 120s. Navigate back.
   5. Report: "FUNDING SWAP: $0.20 {source} → {target}"
 
-route: /earn
+route: /earn?lang=en
 depends_on:
   - wallet-health.yaml
 

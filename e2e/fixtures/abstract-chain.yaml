@@ -1,6 +1,6 @@
 name: Abstract Chain Integration
 description: Verify Abstract chain assets appear in swapper, search works, and ETH->Abstract swap quote can be obtained
-route: /trade
+route: /trade?lang=en
 depends_on:
   - wallet-health.yaml
 steps:

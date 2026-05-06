@@ -5,7 +5,7 @@ description: >
   THORChain LP tests the compute budget fix for memo transactions.
   Upstream Bebop errors (InsufficientLiquidity code 102, TransactionExecutionError code 208)
   are expected soft_fails, not our bugs.
-route: /trade
+route: /trade?lang=en
 depends_on:
   - wallet-health.yaml
 steps:

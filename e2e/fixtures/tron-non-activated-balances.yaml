@@ -2,7 +2,7 @@ name: Tron Non-Activated Account Balances
 description: >
   Verifies fix for #12190 - USDT/TRC20 tokens show in portfolio for non-activated Tron accounts,
   and send flow shows a warning when sending TRC20 to a non-activated recipient address.
-route: /
+route: /?lang=en
 depends_on:
   - wallet-health.yaml
 steps:

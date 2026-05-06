@@ -9,7 +9,7 @@ description: >
   "Found: infinite loading when switching assets rapidly"
 
 mode: exploratory
-route: /trade
+route: /trade?lang=en
 depends_on:
   - wallet-health.yaml
 

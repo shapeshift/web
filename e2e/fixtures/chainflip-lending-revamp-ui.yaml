@@ -1,6 +1,6 @@
 name: Chainflip Lending Revamp UI
 description: Validates the revamped Chainflip lending dashboard, init view, funded view with sections, and key action modals.
-route: /chainflip-lending
+route: /chainflip-lending?lang=en
 steps:
   # === No-wallet state ===
   - name: Landing page without wallet

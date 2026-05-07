@@ -35,20 +35,20 @@ export type { AssetId, ChainId }
 export { erc20Abi as ERC20_ABI } from 'viem'
 
 export enum SwapperName {
-  Thorchain = 'THORChain',
-  Mayachain = 'MAYAChain',
-  CowSwap = 'CoW Swap',
-  Zrx = '0x',
-  ArbitrumBridge = 'Arbitrum Bridge',
-  Portals = 'Portals',
-  Chainflip = 'Chainflip',
-  Relay = 'Relay',
-  ButterSwap = 'ButterSwap',
-  Bebop = 'Bebop',
   NearIntents = 'NEAR Intents',
-  Cetus = 'Cetus',
-  Sunio = 'Sun.io',
-  Avnu = 'AVNU',
+  Relay = 'Relay',
+  //Thorchain = 'THORChain',
+  //Mayachain = 'MAYAChain',
+  //ArbitrumBridge = 'Arbitrum Bridge',
+  //Avnu = 'AVNU',
+  //Bebop = 'Bebop',
+  //ButterSwap = 'ButterSwap',
+  //Cetus = 'Cetus',
+  //Chainflip = 'Chainflip',
+  //CowSwap = 'CoW Swap',
+  //Portals = 'Portals',
+  //Sunio = 'Sun.io',
+  //Zrx = '0x',
 }
 
 export type Chain = {

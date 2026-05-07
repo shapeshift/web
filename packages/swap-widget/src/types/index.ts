@@ -192,15 +192,6 @@ export type ApiQuoteStep = {
   estimatedExecutionTimeMs: number | undefined
   source: string
   transactionData?: TransactionData
-  relayTransactionMetadata?: TransactionData
-  butterSwapTransactionMetadata?: TransactionData
-  solanaTransactionMetadata?: {
-    instructions: {
-      programId: string
-      keys: { pubkey: string; isSigner: boolean; isWritable: boolean }[]
-      data: { data: number[] }
-    }[]
-  }
 }
 
 export type ApprovalInfo = {
@@ -223,16 +214,12 @@ export type QuoteResponse = {
   buyAmountBeforeFeesCryptoBaseUnit: string
   buyAmountAfterFeesCryptoBaseUnit: string
   affiliateBps: string
+  affiliateAddress?: string
   slippageTolerancePercentageDecimal: string | undefined
   networkFeeCryptoBaseUnit: string | undefined
-  /** @deprecated Use `quote.steps` instead. Top-level `steps` is kept for backward compatibility. */
   steps: ApiQuoteStep[]
   approval: ApprovalInfo
   expiresAt: number
-  transactionData?: TransactionData
-  quote?: {
-    steps?: ApiQuoteStep[]
-  }
 }
 
 export type AssetsResponse = {

@@ -37,7 +37,7 @@ export { erc20Abi as ERC20_ABI } from 'viem'
 export enum SwapperName {
   NearIntents = 'NEAR Intents',
   Relay = 'Relay',
-  //Thorchain = 'THORChain',
+  Thorchain = 'THORChain',
   //Mayachain = 'MAYAChain',
   //ArbitrumBridge = 'Arbitrum Bridge',
   //Avnu = 'AVNU',

@@ -5,7 +5,8 @@ export const SWAPPER_ICONS: Partial<Record<SwapperName, string>> = {
     'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/near-intents-icon.png',
   [SwapperName.Relay]:
     'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/relay-icon.svg',
-  //[SwapperName.Thorchain]: 'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/thorchain-icon.png',
+  [SwapperName.Thorchain]:
+    'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/thorchain-icon.png',
   //[SwapperName.Mayachain]: 'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/maya_logo.png',
   //[SwapperName.ArbitrumBridge]: 'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/arbitrum-bridge-icon.png',
   //[SwapperName.Bebop]: 'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/bebop-icon.png',
@@ -19,7 +20,7 @@ export const SWAPPER_ICONS: Partial<Record<SwapperName, string>> = {
 export const SWAPPER_COLORS: Partial<Record<SwapperName, string>> = {
   [SwapperName.NearIntents]: '#000000',
   [SwapperName.Relay]: '#6366F1',
-  //[SwapperName.Thorchain]: '#00CCFF',
+  [SwapperName.Thorchain]: '#00CCFF',
   //[SwapperName.Mayachain]: '#4169E1',
   //[SwapperName.ArbitrumBridge]: '#28A0F0',
   //[SwapperName.Bebop]: '#E91E63',

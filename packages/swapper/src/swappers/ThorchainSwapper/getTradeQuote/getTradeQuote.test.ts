@@ -92,6 +92,11 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
         thorchainSpecific: {
           maxStreamingQuantity: undefined,
         },
+        thorchainTransactionMetadata: {
+          to: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
+          data: '0x',
+          value: '0',
+        },
       },
     ],
   },
@@ -134,6 +139,11 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
         accountNumber: 0,
         thorchainSpecific: {
           maxStreamingQuantity: undefined,
+        },
+        thorchainTransactionMetadata: {
+          to: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
+          data: '0x',
+          value: '0',
         },
       },
     ],

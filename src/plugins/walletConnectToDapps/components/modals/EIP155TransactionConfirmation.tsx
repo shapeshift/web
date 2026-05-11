@@ -12,7 +12,7 @@ import type {
   CustomTransactionData,
   EthSignTransactionCallRequest,
 } from '@/plugins/walletConnectToDapps/types'
-import { convertHexToNumber } from '@/plugins/walletConnectToDapps/utils'
+import { toNumberString } from '@/plugins/walletConnectToDapps/utils'
 import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
 
 export const EIP155TransactionConfirmation: FC<
@@ -23,19 +23,21 @@ export const EIP155TransactionConfirmation: FC<
 
   const form = useForm<CustomTransactionData>({
     defaultValues: {
-      nonce: transaction?.nonce ? convertHexToNumber(transaction.nonce).toString() : undefined,
-      gasLimit: (() => {
-        // i.e input or actual (used) gas
-        const gasValue = transaction?.gasLimit ?? transaction?.gas
-        return gasValue ? convertHexToNumber(gasValue).toString() : undefined
-      })(),
+      nonce: toNumberString(transaction?.nonce),
+      gasLimit: toNumberString(transaction?.gasLimit ?? transaction?.gas),
       speed: FeeDataKey.Fast,
     },
   })
 
   const handleFormSubmit = useCallback(
-    (formData?: CustomTransactionData) => handleConfirm(formData),
-    [handleConfirm],
+    (formData?: CustomTransactionData) =>
+      handleConfirm(
+        formData && {
+          ...formData,
+          isUserDefinedNonce: !!form.formState.dirtyFields.nonce,
+        },
+      ),
+    [form.formState.dirtyFields.nonce, handleConfirm],
   )
 
   // if the transaction is missing the dapp sent invalid params

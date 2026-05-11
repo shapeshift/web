@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { bnOrZero, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import BigNumber from 'bignumber.js'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -33,6 +34,10 @@ const SPEED_OPTIONS = [
   { value: FeeDataKey.Fast, emoji: '⚡', text: 'Fast' },
 ]
 
+// 1.5x headroom on simulated gas to cover state drift between sim and broadcast.
+// Matches the defaults used by MetaMask / Rabby / Frame.
+const GAS_LIMIT_BUFFER_MULTIPLIER = 1.5
+
 const tooltipIconSx = { boxSize: '12px', color: 'text.subtle' }
 const chevronIcon = <ChevronDownIcon />
 
@@ -50,15 +55,18 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
     speed: selectedSpeed,
   })
 
-  // Ensure no failures by trusting too low gas limit e.g wc demo dApp enforces 21000 gas limit for ETH.ARB sends, but actual gas may be e.g 23322
   useEffect(() => {
+    // Defer to the dApp / user value when one is already set; Tenderly only fills the gap.
+    if (gasLimit) return
+
     const maybeGasUsed = gasEstimateQuery.data?.simulation?.transaction?.gas_used
     if (!maybeGasUsed) return
 
-    // Only update gasLimit if simulation shows we need MORE gas than currently set
-    if (bnOrZero(maybeGasUsed).lte(gasLimit ?? 0)) return
+    const bufferedGas = bnOrZero(maybeGasUsed)
+      .times(GAS_LIMIT_BUFFER_MULTIPLIER)
+      .integerValue(BigNumber.ROUND_CEIL)
 
-    setValue('gasLimit', maybeGasUsed.toString())
+    setValue('gasLimit', bufferedGas.toString())
   }, [gasEstimateQuery.data?.simulation?.transaction?.gas_used, setValue, gasLimit])
 
   const handleSpeedChange = useCallback(

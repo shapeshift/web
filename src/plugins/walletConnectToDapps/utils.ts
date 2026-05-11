@@ -1,23 +1,12 @@
 import type { AccountId, ChainId, ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId, toChainId } from '@shapeshiftoss/caip'
-import type {
-  EvmChainAdapter,
-  FeeDataEstimate,
-  FeeDataKey,
-  GetFeeDataInput,
-} from '@shapeshiftoss/chain-adapters'
-import type { EvmChainId } from '@shapeshiftoss/types'
 import type { SessionTypes } from '@walletconnect/types'
-import type { Hex } from 'viem'
-import { hexToString, isAddress, isHex, toHex, validateTypedData } from 'viem'
+import { hexToBigInt, hexToString, isAddress, isHex, validateTypedData } from 'viem'
 
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { isSome } from '@/lib/utils'
 import type {
-  ConfirmData,
   CosmosSignAminoCallRequestParams,
   CosmosSignDirectCallRequestParams,
-  CustomTransactionData,
   EthSignParams,
   TransactionParams,
   WalletConnectState,
@@ -35,34 +24,17 @@ export const maybeConvertHexEncodedMessageToUtf8 = (value: string) => {
   }
 }
 
-export const convertNumberToHex = (value: number | string): Hex =>
-  typeof value === 'number' ? toHex(value) : toHex(parseInt(value))
-
-export const convertHexToNumber = (value: string): number => parseInt(value, 16)
-
-export const getFeesForTx = async (
-  tx: TransactionParams,
-  evmChainAdapter: EvmChainAdapter,
-  wcAccountId: AccountId,
-) => {
-  const getFeeDataInput: GetFeeDataInput<EvmChainId> = {
-    to: tx.to,
-    value: bnOrZero(tx.value).toFixed(0),
-    chainSpecific: {
-      from: fromAccountId(wcAccountId).account,
-      data: tx.data,
-    },
+/**
+ * Coerces a hex- or decimal-encoded string into a base-10 number string.
+ * Returns undefined for empty or invalid input.
+ */
+export const toNumberString = (value: string | undefined): string | undefined => {
+  if (!value) return undefined
+  try {
+    return (isHex(value) ? hexToBigInt(value) : BigInt(value)).toString()
+  } catch {
+    return undefined
   }
-  return await evmChainAdapter.getFeeData(getFeeDataInput)
-}
-
-export const getGasData = (
-  customTransactionData: ConfirmData | CustomTransactionData,
-  fees: FeeDataEstimate<EvmChainId>,
-) => {
-  const { speed } = customTransactionData
-
-  return { gasPrice: convertNumberToHex(fees[speed as FeeDataKey].chainSpecific.gasPrice) }
 }
 
 /**

@@ -34,9 +34,8 @@ const SPEED_OPTIONS = [
   { value: FeeDataKey.Fast, emoji: '⚡', text: 'Fast' },
 ]
 
-// 1.5x headroom on simulated gas to cover state drift between sim and broadcast.
-// Matches the defaults used by MetaMask / Rabby / Frame.
-const GAS_LIMIT_BUFFER_MULTIPLIER = 1.5
+// 20% headroom on simulated gas to cover state drift between sim and broadcast.
+const GAS_LIMIT_BUFFER_MULTIPLIER = 1.2
 
 const tooltipIconSx = { boxSize: '12px', color: 'text.subtle' }
 const chevronIcon = <ChevronDownIcon />

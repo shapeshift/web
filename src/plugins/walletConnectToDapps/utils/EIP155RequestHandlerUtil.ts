@@ -3,13 +3,14 @@ import { formatJsonRpcResult } from '@json-rpc-tools/utils'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
-import { toAddressNList } from '@shapeshiftoss/chain-adapters'
+import { FeeDataKey, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignedTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { AccountMetadata } from '@shapeshiftoss/types'
 import { getSdkError } from '@walletconnect/utils'
+import { toHex } from 'viem'
 
 import { assertIsDefined } from '@/lib/utils'
 import type {
@@ -17,12 +18,7 @@ import type {
   SupportedSessionRequest,
 } from '@/plugins/walletConnectToDapps/types'
 import { EIP155_SigningMethod } from '@/plugins/walletConnectToDapps/types'
-import {
-  convertNumberToHex,
-  getFeesForTx,
-  getGasData,
-  getSignParamsMessage,
-} from '@/plugins/walletConnectToDapps/utils'
+import { getSignParamsMessage } from '@/plugins/walletConnectToDapps/utils'
 
 type ApproveEIP155RequestArgs = {
   requestEvent: SupportedSessionRequest
@@ -84,66 +80,42 @@ export const approveEIP155Request = async ({
       assertIsDefined(accountId)
 
       const sendTransaction = request.params[0]
-      const maybeAdvancedParamsNonce = customTransactionData.nonce
-        ? convertNumberToHex(customTransactionData.nonce)
-        : null
-      const fees = await getFeesForTx(sendTransaction, chainAdapter, accountId)
+
+      const gasLimit = customTransactionData.gasLimit
+      if (!gasLimit) throw new Error('approveEIP155Request: missing gasLimit')
+
+      const feeData = await chainAdapter.getGasFeeData()
+
       const senderAddress = await chainAdapter.getAddress({
         accountNumber,
         wallet,
         pubKey: isTrezor(wallet) && accountId ? fromAccountId(accountId).account : undefined,
       })
-      const gasData = getGasData(customTransactionData, fees)
-      const gasLimit = (() => {
-        if (customTransactionData.gasLimit) return customTransactionData.gasLimit
-        if (sendTransaction.gasLimit) return sendTransaction.gasLimit
-      })()
 
-      // This shouldn't happen but it may as far as types are concerned - if we have neither of Tenderly-simulated gas limit (we should)
-      // nor Tx-enforced gas limit (not all provide it) then something is most definitely wrong, no point in trying with a super high gas limit e.g 90000
-
-      if (!gasLimit) throw new Error('approveEIP155Request: missing gasLimit')
-
-      const { txToSign: txToSignWithPossibleWrongNonce } = await chainAdapter.buildCustomTx({
+      const { txToSign } = await chainAdapter.buildCustomTx({
         wallet,
         accountNumber,
         to: sendTransaction.to,
         data: sendTransaction.data,
         value: sendTransaction.value ?? '0',
-        // https://docs.walletconnect.com/2.0/advanced/rpc-reference/ethereum-rpc#eth_sendtransaction
         gasLimit,
-        ...gasData,
+        gasPrice: toHex(BigInt(feeData[customTransactionData.speed ?? FeeDataKey.Fast].gasPrice)),
         pubKey: isTrezor(wallet) && accountId ? fromAccountId(accountId).account : undefined,
       })
 
-      // Determine which nonce to use:
-      // 1. If dApp provided a nonce and user's form nonce differs from it, user manually changed it
-      // 2. If dApp didn't provide a nonce, check if user's nonce differs from what chain adapter fetched
-      // 3. Otherwise use the fresh nonce from buildCustomTx
-      const didUserManuallyChangeNonce = (() => {
-        if (!maybeAdvancedParamsNonce) return false
+      const nonce =
+        customTransactionData.isUserDefinedNonce && customTransactionData.nonce
+          ? customTransactionData.nonce
+          : txToSign.nonce
 
-        // If dApp provided a nonce, check if user changed it from that
-        if (sendTransaction.nonce) {
-          return maybeAdvancedParamsNonce !== sendTransaction.nonce
-        }
-
-        // If no dApp nonce, check if user's nonce differs from the fresh chain nonce
-        // This prevents using stale cached values
-        return maybeAdvancedParamsNonce !== txToSignWithPossibleWrongNonce.nonce
-      })()
-
-      const txToSign = {
-        ...txToSignWithPossibleWrongNonce,
-        nonce:
-          didUserManuallyChangeNonce && maybeAdvancedParamsNonce
-            ? maybeAdvancedParamsNonce
-            : txToSignWithPossibleWrongNonce.nonce,
-      }
       const signedTx = await chainAdapter.signTransaction({
-        txToSign,
+        txToSign: {
+          ...txToSign,
+          nonce: toHex(BigInt(nonce)),
+        },
         wallet,
       })
+
       const txHash = await chainAdapter.broadcastTransaction({
         senderAddress,
         receiverAddress: txToSign.to,
@@ -158,26 +130,26 @@ export const approveEIP155Request = async ({
       assertIsDefined(accountId)
 
       const signTransaction = request.params[0]
-      const nonce = customTransactionData.nonce
-        ? convertNumberToHex(customTransactionData.nonce)
-        : signTransaction.nonce
+
+      const nonce =
+        customTransactionData.isUserDefinedNonce && customTransactionData.nonce
+          ? customTransactionData.nonce
+          : signTransaction.nonce
+
       if (!nonce) throw new Error('approveEIP155Request: missing nonce')
-      const gasLimit =
-        (customTransactionData.gasLimit
-          ? convertNumberToHex(customTransactionData.gasLimit)
-          : signTransaction.gasLimit) ?? convertNumberToHex(90000) // https://docs.walletconnect.com/2.0/advanced/rpc-reference/ethereum-rpc#eth_sendtransaction
-      const fees = await getFeesForTx(signTransaction, chainAdapter, accountId)
-      const gasData = getGasData(customTransactionData, fees)
+
+      const feeData = await chainAdapter.getGasFeeData()
+
       const signature = await chainAdapter.signTransaction({
         txToSign: {
           addressNList,
           chainId: parseInt(fromAccountId(accountId).chainReference),
           data: signTransaction.data,
-          gasLimit,
-          nonce,
+          gasLimit: toHex(BigInt(customTransactionData.gasLimit || 90000)),
+          gasPrice: toHex(BigInt(feeData[customTransactionData.speed ?? FeeDataKey.Fast].gasPrice)),
+          nonce: toHex(BigInt(nonce)),
           to: signTransaction.to,
-          value: signTransaction.value ?? convertNumberToHex(0),
-          ...gasData,
+          value: signTransaction.value ?? toHex(0),
         },
         wallet,
       })

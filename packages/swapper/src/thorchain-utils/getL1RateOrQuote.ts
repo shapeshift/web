@@ -20,6 +20,7 @@ import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../index'
 import { buildAffiliateFee } from '../swappers/utils/affiliateFee'
+import { isNativeEvmAsset } from '../swappers/utils/helpers/helpers'
 import type {
   CommonTradeQuoteInput,
   GetEvmTradeQuoteInput,
@@ -34,6 +35,7 @@ import type {
 } from '../types'
 import { TradeQuoteError } from '../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../utils'
+import * as cosmossdk from './cosmossdk'
 import * as evm from './evm'
 import { getLimitWithManualSlippage } from './getLimitWithManualSlippage/getLimitWithManualSlippage'
 import { getQuote } from './getQuote'
@@ -71,6 +73,7 @@ type MakeThorTradeInputBase = {
   memo: string
   allowanceContract: string
   feeData: QuoteFeeData
+  thorchainTransactionMetadata?: ThorTradeRateOrQuote['steps']['0']['thorchainTransactionMetadata']
 }
 
 type MakeThorTradeInput<T extends ThorTradeRateOrQuote> = T extends ThorEvmTradeRateOrQuote
@@ -258,6 +261,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     data,
     router,
     vault,
+    thorchainTransactionMetadata,
   }: MakeThorTradeInput<U>): T => {
     const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
       value: route.expectedAmountOutThorBaseUnit,
@@ -314,6 +318,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
           thorchainSpecific: {
             maxStreamingQuantity: route.quote.max_streaming_quantity,
           },
+          thorchainTransactionMetadata,
         },
       ],
     } as T
@@ -353,6 +358,11 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
             data,
             router,
             vault,
+            thorchainTransactionMetadata: {
+              to: router,
+              data,
+              value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
+            },
             feeData: {
               protocolFees: getProtocolFees(route.quote),
               networkFeeCryptoBaseUnit,
@@ -414,6 +424,11 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
             route,
             allowanceContract: '0x0', // not applicable to UTXOs
             memo,
+            thorchainTransactionMetadata: {
+              to: vault,
+              memo,
+              value: sellAmountCryptoBaseUnit,
+            },
             feeData,
           })
         }),
@@ -436,13 +451,20 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
       const cosmosChainAdapter = assertGetCosmosSdkChainAdapter(sellAsset.chainId)
 
       const { fast } = await cosmosChainAdapter.getFeeData({})
+      const { vault } = await cosmossdk.getThorTxData({ sellAsset, config, swapperName })
 
       return Ok(
         perRouteValues.map((route): T => {
+          const memo = getMemo(route)
           return makeThorTradeRateOrQuote<ThorUtxoOrCosmosTradeRateOrQuote>({
             route,
-            memo: getMemo(route),
+            memo,
             allowanceContract: '0x0', // not applicable to cosmossdk
+            thorchainTransactionMetadata: {
+              to: vault,
+              memo,
+              value: sellAmountCryptoBaseUnit,
+            },
             feeData: {
               networkFeeCryptoBaseUnit: fast.txFee,
               protocolFees: getProtocolFees(route.quote),
@@ -458,6 +480,8 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
       const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
       const sendAddress = (input as CommonTradeQuoteInput).sendAddress
 
+      const { vault } = await solana.getThorTxData({ sellAsset, config, swapperName })
+
       const maybeRoutes = await Promise.allSettled(
         perRouteValues.map(async (route): Promise<T> => {
           const memo = getMemo(route)
@@ -465,7 +489,6 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
 
           const feeData = await (async (): Promise<QuoteFeeData> => {
             if (!sendAddress) return { networkFeeCryptoBaseUnit: undefined, protocolFees }
-            const { vault } = await solana.getThorTxData({ sellAsset, config, swapperName })
             const memoInstruction = new TransactionInstruction({
               keys: [],
               programId: new PublicKey(SOLANA_MEMO_PROGRAM_ID),
@@ -492,6 +515,11 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
             route,
             allowanceContract: '0x0',
             memo,
+            thorchainTransactionMetadata: {
+              to: vault,
+              memo,
+              value: sellAmountCryptoBaseUnit,
+            },
             feeData,
           })
         }),
@@ -509,23 +537,18 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
       return Ok(routes)
     }
     case CHAIN_NAMESPACE.Tron: {
+      const { vault } = await tron.getThorTxData({ sellAsset, config, swapperName })
+
       const maybeRoutes = await Promise.allSettled(
         perRouteValues.map(async (route): Promise<T> => {
           const memo = getMemo(route)
           let networkFeeCryptoBaseUnit: string | undefined = undefined
 
           // Calculate fees for rates when we have a receive address (wallet connected)
-          if (input.quoteOrRate === 'rate' && input.receiveAddress) {
+          if (input.quoteOrRate === 'rate' && input.receiveAddress && vault) {
             try {
               const { sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input
               const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-
-              // Get vault address
-              const { vault } = await tron.getThorTxData({
-                sellAsset,
-                config,
-                swapperName,
-              })
 
               // Estimate fees using the receive address for accurate energy calculation
               const tronWeb = new TronWeb({
@@ -584,6 +607,11 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
               route,
               allowanceContract: '0x0', // not applicable to TRON
               memo,
+              thorchainTransactionMetadata: {
+                to: vault,
+                memo,
+                value: sellAmountCryptoBaseUnit,
+              },
               feeData: {
                 networkFeeCryptoBaseUnit,
                 protocolFees: getProtocolFees(route.quote),

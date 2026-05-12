@@ -459,6 +459,12 @@ export type TradeQuoteStep = {
   thorchainSpecific?: {
     maxStreamingQuantity?: number
   }
+  thorchainTransactionMetadata?: {
+    to: string
+    data?: string
+    value?: string
+    memo?: string
+  }
   relayTransactionMetadata?: RelayTransactionMetadata
   butterSwapTransactionMetadata?: {
     to: string

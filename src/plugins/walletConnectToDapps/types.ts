@@ -123,6 +123,7 @@ export type CustomTransactionData = {
   gasLimit?: string
   speed?: FeeDataKey
   accountId?: AccountId
+  isUserDefinedNonce?: boolean
 }
 
 export type TransactionParams = {

@@ -3,7 +3,10 @@ import type { UseQueryResult } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 
 import type { ApiClient } from '../api/client'
-import type { AssetId, SwapperName, TradeRate } from '../types'
+import type { AssetId, TradeRate } from '../types'
+import { SwapperName } from '../types'
+
+const ENABLED_SWAPPER_NAMES = new Set<string>(Object.values(SwapperName))
 
 export type UseSwapRatesParams = {
   sellAssetId: AssetId | undefined
@@ -40,7 +43,10 @@ export const useSwapRates = (
       })
 
       let filteredRates = response.rates.filter(
-        rate => !rate.error && rate.buyAmountCryptoBaseUnit !== '0',
+        rate =>
+          !rate.error &&
+          rate.buyAmountCryptoBaseUnit !== '0' &&
+          ENABLED_SWAPPER_NAMES.has(rate.swapperName),
       )
 
       if (allowedSwapperNames?.length) {

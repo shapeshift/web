@@ -19,7 +19,7 @@ import type { ErrorResponse } from '../../types'
 import { PartnerCodeHeaderSchema, rateLimitResponse } from '../../types'
 import type { QuoteResponse } from './types'
 import { QuoteRequestSchema, QuoteResponseSchema } from './types'
-import { buildApprovalInfo, resolveDepositContext, transformQuoteStep } from './utils'
+import { buildApprovalInfo, transformQuoteStep } from './utils'
 
 registry.registerPath({
   method: 'post',
@@ -211,14 +211,6 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       status: 'pending',
     })
 
-    const depositContextResult = await resolveDepositContext(quote, firstStep, validSwapperName)
-    if (!depositContextResult.ok) {
-      res.status(depositContextResult.statusCode).json(depositContextResult.error)
-      return
-    }
-
-    const { context: depositContext } = depositContextResult
-
     const response: QuoteResponse = {
       quoteId,
       swapperName: validSwapperName,
@@ -231,9 +223,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       affiliateBps: req.affiliateInfo?.affiliateBps ?? env.DEFAULT_AFFILIATE_BPS,
       slippageTolerancePercentageDecimal: quote.slippageTolerancePercentageDecimal,
       networkFeeCryptoBaseUnit: firstStep.feeData.networkFeeCryptoBaseUnit,
-      steps: quote.steps.map((step, index) =>
-        transformQuoteStep(step, index === 0 ? depositContext : {}),
-      ),
+      steps: quote.steps.map(transformQuoteStep),
       approval: sendAddress
         ? await buildApprovalInfo(firstStep, sendAddress)
         : { isRequired: false, spender: '' },

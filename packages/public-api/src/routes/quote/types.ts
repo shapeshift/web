@@ -1,21 +1,8 @@
-import type { TradeQuote } from '@shapeshiftoss/swapper'
 import { z } from 'zod'
 
 import { booleanFromString } from '../../lib/zod'
 import { registry } from '../../registry'
-import type { ErrorResponse } from '../../types'
 import { AssetSchema } from '../assets/types'
-
-export type ThorLikeQuote = TradeQuote & { memo?: string }
-
-export type DepositExtractionContext = {
-  memo?: string
-  depositAddress?: string
-}
-
-export type DepositContextResult =
-  | { ok: true; context: DepositExtractionContext }
-  | { ok: false; error: ErrorResponse; statusCode: number }
 
 const EvmTransactionDataSchema = z.object({
   type: z.literal('evm').openapi({ example: 'evm' }),

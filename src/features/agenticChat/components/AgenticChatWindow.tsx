@@ -86,7 +86,7 @@ export const AgenticChatWindow = ({ isOpen, onClose }: AgenticChatWindowProps) =
         width='400px'
         height='600px'
         bg={bg}
-        borderRadius='xl'
+        borderRadius='2xl'
         boxShadow='2xl'
         border='1px solid'
         borderColor={borderColor}

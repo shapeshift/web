@@ -45,7 +45,7 @@ const MessageItem = memo(({ message, userBg }: MessageItemProps) => {
         bg: userBg,
         px: 3,
         py: 2,
-        borderRadius: 'lg',
+        borderRadius: 'xl',
       }
     : {}
 

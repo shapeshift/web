@@ -10,7 +10,7 @@ const DisplayToolCardRoot = ({ children }: DisplayToolCardRootProps) => {
   const bgColor = useColorModeValue('white', 'gray.800')
 
   return (
-    <Box w='full' borderRadius='lg' borderWidth={1} borderColor={borderColor} bg={bgColor} mt={2}>
+    <Box w='full' borderRadius='xl' borderWidth={1} borderColor={borderColor} bg={bgColor} mt={2}>
       {children}
     </Box>
   )

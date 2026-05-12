@@ -102,7 +102,7 @@ export const Markdown = ({ children }: MarkdownProps) => {
           width='100%'
           borderWidth='1px'
           borderColor={tableBorderColor}
-          borderRadius='md'
+          borderRadius='lg'
           overflow='hidden'
         >
           {children}
@@ -140,7 +140,7 @@ export const Markdown = ({ children }: MarkdownProps) => {
           bg={codeBlockBg}
           color={codeBlockText}
           p={4}
-          borderRadius='md'
+          borderRadius='lg'
           overflowX='auto'
           my={4}
         >

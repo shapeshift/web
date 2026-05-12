@@ -22,7 +22,7 @@ export const DrawerChatButton = memo(() => {
   if (!isEnabled) return null
 
   return (
-    <Button flex='1' height='80px' borderRadius='xl' alignItems='center' onClick={handleClick}>
+    <Button flex='1' height='80px' borderRadius='2xl' alignItems='center' onClick={handleClick}>
       <VStack spacing={2} justify='center' align='center'>
         {chatIcon}
         <Text fontSize='sm' fontWeight='medium' color='text.subtle'>

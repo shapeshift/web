@@ -19,7 +19,7 @@ const TxStepCardRoot = ({ children }: TxStepCardRootProps) => {
     <Box
       borderWidth={1}
       borderColor={borderColor}
-      borderRadius='lg'
+      borderRadius='xl'
       bg={bgColor}
       maxW='512px'
       w='full'
@@ -169,7 +169,7 @@ const TxStepCardStep = ({
       position='relative'
       h={10}
       alignItems='center'
-      borderRadius='md'
+      borderRadius='lg'
       px={2}
       mx={-2}
       bg={status === StepStatus.IN_PROGRESS ? inProgressBg : 'transparent'}

@@ -138,7 +138,7 @@ export const DrawerChatHistory = memo(() => {
               type='text'
               placeholder={translate('agenticChat.searchChats')}
               variant='filled'
-              borderRadius='lg'
+              borderRadius='xl'
             />
           </InputGroup>
         </Box>
@@ -158,8 +158,8 @@ export const DrawerChatHistory = memo(() => {
                 <Box key={conversation.id}>
                   <Flex
                     bg={conversation.id === activeConversationId ? activeBg : 'transparent'}
-                    borderTopRadius={index === 0 ? 'md' : 0}
-                    borderBottomRadius={index === filteredConversations.length - 1 ? 'md' : 0}
+                    borderTopRadius={index === 0 ? 'lg' : 0}
+                    borderBottomRadius={index === filteredConversations.length - 1 ? 'lg' : 0}
                     p={3}
                     cursor='pointer'
                     onClick={() => handleSelectConversation(conversation.id)}

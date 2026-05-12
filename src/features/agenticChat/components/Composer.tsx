@@ -35,7 +35,7 @@ export const Composer = ({ chat }: ComposerProps) => {
   return (
     <Box
       bg={composerBg}
-      borderRadius='xl'
+      borderRadius='2xl'
       border='1px solid'
       borderColor={borderColor}
       p={2}

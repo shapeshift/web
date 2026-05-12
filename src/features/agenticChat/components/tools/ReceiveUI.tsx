@@ -71,7 +71,7 @@ export const ReceiveUI = ({ toolPart }: ToolUIProps<'receiveTool'>) => {
         <Flex direction='column' gap={4} alignItems='center'>
           <LogoQRCode text={address} asset={asset} size={256} />
 
-          <Flex direction='column' gap={2} w='full' bg={bgColor} p={3} borderRadius='md'>
+          <Flex direction='column' gap={2} w='full' bg={bgColor} p={3} borderRadius='lg'>
             <Text fontSize='xs' color={mutedColor} textAlign='center' fontWeight='medium'>
               {translate('agenticChat.agenticChatTools.receive.copyAddress')}
             </Text>
@@ -98,7 +98,7 @@ export const ReceiveUI = ({ toolPart }: ToolUIProps<'receiveTool'>) => {
             </Flex>
           </Flex>
 
-          <Box w='full' bg={warningBg} p={3} borderRadius='md'>
+          <Box w='full' bg={warningBg} p={3} borderRadius='lg'>
             <Text fontSize='xs' color={warningColor} textAlign='center'>
               {translate('agenticChat.agenticChatTools.receive.warning', {
                 network: chainName ?? network,

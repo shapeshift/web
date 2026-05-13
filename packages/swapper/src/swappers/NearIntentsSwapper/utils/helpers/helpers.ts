@@ -64,6 +64,7 @@ export const getNearIntentsAsset = ({
 const NEP245_CHAINS = ['bsc', 'pol', 'avax', 'op', 'tron', 'monad', 'plasma'] as const
 const TOKEN_LOOKUP_CHAINS = ['sui', 'starknet', 'ton'] as const
 const NEAR_CHAIN = 'near' as const
+const BTC_CHAIN = 'btc' as const
 const WNEAR_CONTRACT_ADDRESS = 'wrap.near' as const
 
 type Nep245Chain = (typeof NEP245_CHAINS)[number]
@@ -82,6 +83,9 @@ export const assetToNearIntentsAsset = async (asset: Asset): Promise<string | nu
     chainIdToNearIntentsChain[asset.chainId as keyof typeof chainIdToNearIntentsChain]
 
   if (!nearNetwork) return null
+
+  // https://partners.near-intents.org/omni-migration#partners
+  if (nearNetwork === BTC_CHAIN) return `1cs_v1:btc:native:coin`
 
   // NEAR chain requires special handling
   // Native NEAR maps to wNEAR (wrap.near)
@@ -127,7 +131,7 @@ export const assetToNearIntentsAsset = async (asset: Asset): Promise<string | nu
     return match.assetId
   }
 
-  // NEP-141 chains (ETH, ARB, BASE, GNOSIS, BTC, DOGE): use predictable format
+  // NEP-141 chains (ETH, ARB, BASE, GNOSIS, DOGE): use predictable format
   const contractAddress = isToken(asset.assetId)
     ? fromAssetId(asset.assetId).assetReference
     : zeroAddress

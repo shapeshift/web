@@ -60,12 +60,12 @@ const envSchema = z.object({
 
   // Swapper API keys
   ACROSS_INTEGRATOR_ID: z.string().default(''),
-  BEBOP_API_KEY: z.string(),
-  CHAINFLIP_API_KEY: z.string(),
-  NEAR_INTENTS_API_KEY: z.string(),
-  TENDERLY_API_KEY: z.string(),
-  TENDERLY_ACCOUNT_SLUG: z.string(),
-  TENDERLY_PROJECT_SLUG: z.string(),
+  BEBOP_API_KEY: z.string().min(1),
+  CHAINFLIP_API_KEY: z.string().min(1),
+  NEAR_INTENTS_API_KEY: z.string().min(1),
+  TENDERLY_API_KEY: z.string().min(1),
+  TENDERLY_ACCOUNT_SLUG: z.string().min(1),
+  TENDERLY_PROJECT_SLUG: z.string().min(1),
 
   // Feature flags
   FEATURE_THORCHAINSWAP_LONGTAIL: flag,

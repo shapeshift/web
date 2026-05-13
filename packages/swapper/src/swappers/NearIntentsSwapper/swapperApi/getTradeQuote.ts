@@ -111,7 +111,9 @@ export const getTradeQuote = async (
     }
 
     const quoteDeadline =
-      sellAsset.chainId === btcChainId ? BTC_QUOTE_DEADLINE_MS : DEFAULT_QUOTE_DEADLINE_MS
+      sellAsset.chainId === btcChainId || buyAsset.chainId === btcChainId
+        ? BTC_QUOTE_DEADLINE_MS
+        : DEFAULT_QUOTE_DEADLINE_MS
 
     const quoteRequest: QuoteRequest = {
       dry: false,

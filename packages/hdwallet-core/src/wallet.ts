@@ -18,6 +18,7 @@ import type { SuiWallet, SuiWalletInfo } from './sui'
 import type { TerraWallet, TerraWalletInfo } from './terra'
 import type { ThorchainWallet, ThorchainWalletInfo } from './thorchain'
 import type { TonWallet, TonWalletInfo } from './ton'
+import type { AptosWallet, AptosWalletInfo } from './aptos'
 import type { Transport } from './transport'
 import type { TronWallet, TronWalletInfo } from './tron'
 
@@ -401,8 +402,12 @@ export function infoTon(info: HDWalletInfo): info is TonWalletInfo {
   return isObject(info) && (info as any)._supportsTonInfo
 }
 
-export function supportsDebugLink(wallet: HDWallet): wallet is DebugLinkWallet {
-  return isObject(wallet) && (wallet as any)._supportsDebugLink
+export function supportsAptos(wallet: HDWallet): wallet is AptosWallet {
+  return isObject(wallet) && (wallet as any)._supportsAptos
+}
+
+export function infoAptos(info: HDWalletInfo): info is AptosWalletInfo {
+  return isObject(info) && (info as any)._supportsAptosInfo
 }
 
 export function isMetaMask(wallet: HDWallet | null): boolean {

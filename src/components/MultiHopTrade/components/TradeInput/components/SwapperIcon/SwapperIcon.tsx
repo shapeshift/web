@@ -17,6 +17,7 @@ import FyndIcon from './fynd-icon.png'
 import KyberSwapIcon from './kyberswap-icon.png'
 import MayachainIcon from './maya_logo.png'
 import NearIntentsIcon from './near-intents-icon.png'
+import PanoraIcon from './panora-icon.jpg'
 import PortalsIcon from './portals-icon.png'
 import RelayIcon from './relay-icon.svg'
 import StonfiIcon from './stonfi-icon.png'
@@ -78,6 +79,8 @@ export const SwapperIcon = ({
         return BobGatewayIcon
       case SwapperName.Symbiosis:
         return SymbiosisIcon
+      case SwapperName.Panora:
+        return PanoraIcon
       case SwapperName.Test:
         return ''
       default:

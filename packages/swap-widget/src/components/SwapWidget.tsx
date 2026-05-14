@@ -36,10 +36,8 @@ type SwapWidgetContentProps = {
   isBuyAssetLocked: boolean
   partnerCode?: string
   allowShapeshiftRedirect: boolean
-  onConnectWallet?: () => void
   onSwapSuccess?: (txHash: string) => void
   onSwapError?: (error: Error) => void
-  onAssetSelect?: (type: 'sell' | 'buy', asset: Asset) => void
   sellFilters: SwapWidgetFilters
   buyFilters: SwapWidgetFilters
   allowedSwapperNames?: SwapWidgetProps['allowedSwapperNames']
@@ -54,10 +52,8 @@ const SwapWidgetContent = ({
   isBuyAssetLocked,
   partnerCode,
   allowShapeshiftRedirect,
-  onConnectWallet,
   onSwapSuccess,
   onSwapError,
-  onAssetSelect,
   sellFilters,
   buyFilters,
   allowedSwapperNames,
@@ -113,7 +109,7 @@ const SwapWidgetContent = ({
     handleSelectRate,
     handleSlippageChange,
     handleButtonClick,
-  } = useSwapHandlers({ onConnectWallet, onAssetSelect, partnerCode, allowShapeshiftRedirect })
+  } = useSwapHandlers({ partnerCode, allowShapeshiftRedirect })
 
   useSwapQuoting({ apiClient, rates, sellAssetBalance })
 
@@ -230,7 +226,6 @@ const SwapWidgetContent = ({
             onOpenTokenModal={setTokenModalType}
             onOpenAddressModal={openAddressModal}
             showConnectButton={showConnectButton}
-            onConnectWallet={onConnectWallet}
             bitcoinState={bitcoin.state}
             solanaState={solana.state}
             isQuoting={state.matches('quoting')}
@@ -351,10 +346,8 @@ type SwapWidgetCoreProps = {
   isBuyAssetLocked: boolean
   partnerCode?: string
   allowShapeshiftRedirect: boolean
-  onConnectWallet?: () => void
   onSwapSuccess?: (txHash: string) => void
   onSwapError?: (error: Error) => void
-  onAssetSelect?: (type: 'sell' | 'buy', asset: Asset) => void
   sellFilters: SwapWidgetFilters
   buyFilters: SwapWidgetFilters
   allowedSwapperNames?: SwapWidgetProps['allowedSwapperNames']
@@ -372,10 +365,8 @@ const SwapWidgetCore = ({
   isBuyAssetLocked,
   partnerCode,
   allowShapeshiftRedirect,
-  onConnectWallet,
   onSwapSuccess,
   onSwapError,
-  onAssetSelect,
   sellFilters,
   buyFilters,
   allowedSwapperNames,
@@ -467,10 +458,8 @@ const SwapWidgetCore = ({
         isBuyAssetLocked={isBuyAssetLocked}
         partnerCode={partnerCode}
         allowShapeshiftRedirect={allowShapeshiftRedirect}
-        onConnectWallet={onConnectWallet}
         onSwapSuccess={onSwapSuccess}
         onSwapError={onSwapError}
-        onAssetSelect={onAssetSelect}
         sellFilters={sellFilters}
         buyFilters={buyFilters}
         allowedSwapperNames={allowedSwapperNames}
@@ -504,10 +493,8 @@ export const SwapWidget = (props: SwapWidgetProps) => {
           isBuyAssetLocked={props.isBuyAssetLocked ?? false}
           partnerCode={props.partnerCode}
           allowShapeshiftRedirect={props.allowShapeshiftRedirect ?? true}
-          onConnectWallet={props.onConnectWallet}
           onSwapSuccess={props.onSwapSuccess}
           onSwapError={props.onSwapError}
-          onAssetSelect={props.onAssetSelect}
           sellFilters={props.sellFilters ?? {}}
           buyFilters={props.buyFilters ?? {}}
           allowedSwapperNames={props.allowedSwapperNames}

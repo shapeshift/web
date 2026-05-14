@@ -150,10 +150,8 @@ export type SwapWidgetProps = {
   sellFilters?: SwapWidgetFilters
   buyFilters?: SwapWidgetFilters
   allowedSwapperNames?: SwapperName[]
-  onConnectWallet?: () => void
   onSwapSuccess?: (txHash: string) => void
   onSwapError?: (error: Error) => void
-  onAssetSelect?: (type: 'sell' | 'buy', asset: Asset) => void
   theme?: ThemeMode | ThemeConfig
   defaultSlippage?: string
   showPoweredBy?: boolean

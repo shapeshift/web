@@ -1,3 +1,4 @@
+import { useAppKit } from '@reown/appkit/react'
 import { useCallback } from 'react'
 
 import { useSwapWallet } from '../contexts/SwapWalletContext'
@@ -7,20 +8,17 @@ import { parseAmount } from '../types'
 import { buildShapeShiftTradeUrl } from '../utils/redirect'
 
 type UseSwapHandlersParams = {
-  onConnectWallet?: () => void
-  onAssetSelect?: (type: 'sell' | 'buy', asset: Asset) => void
   partnerCode?: string
   allowShapeshiftRedirect: boolean
 }
 
 export const useSwapHandlers = ({
-  onConnectWallet,
-  onAssetSelect,
   partnerCode,
   allowShapeshiftRedirect,
 }: UseSwapHandlersParams) => {
   const actorRef = SwapMachineCtx.useActorRef()
   const { walletClient, bitcoin, solana } = useSwapWallet()
+  const { open: openAppKit } = useAppKit()
 
   const handleSwapTokens = useCallback(() => {
     const snap = actorRef.getSnapshot()
@@ -32,17 +30,15 @@ export const useSwapHandlers = ({
   const handleSellAssetSelect = useCallback(
     (asset: Asset) => {
       actorRef.send({ type: 'SET_SELL_ASSET', asset })
-      onAssetSelect?.('sell', asset)
     },
-    [actorRef, onAssetSelect],
+    [actorRef],
   )
 
   const handleBuyAssetSelect = useCallback(
     (asset: Asset) => {
       actorRef.send({ type: 'SET_BUY_ASSET', asset })
-      onAssetSelect?.('buy', asset)
     },
-    [actorRef, onAssetSelect],
+    [actorRef],
   )
 
   const handleSellAmountChange = useCallback(
@@ -90,8 +86,8 @@ export const useSwapHandlers = ({
     if (snap.context.isSellAssetSolana && !solana.isConnected) {
       return
     }
-    if (!walletClient && snap.context.isSellAssetEvm && onConnectWallet) {
-      onConnectWallet()
+    if (!walletClient && snap.context.isSellAssetEvm) {
+      openAppKit()
       return
     }
     if (
@@ -118,7 +114,7 @@ export const useSwapHandlers = ({
     bitcoin.isConnected,
     solana.isConnected,
     walletClient,
-    onConnectWallet,
+    openAppKit,
     partnerCode,
     allowShapeshiftRedirect,
   ])

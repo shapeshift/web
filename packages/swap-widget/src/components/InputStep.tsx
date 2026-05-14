@@ -28,7 +28,6 @@ type InputStepProps = {
   onOpenTokenModal: (type: 'sell' | 'buy') => void
   onOpenAddressModal: () => void
   showConnectButton: boolean
-  onConnectWallet?: () => void
   bitcoinState: { isLoading: boolean }
   solanaState: { isLoading: boolean }
   isQuoting: boolean
@@ -71,7 +70,6 @@ export const InputStep = ({
   onOpenTokenModal,
   onOpenAddressModal,
   showConnectButton: _showConnectButton,
-  onConnectWallet: _onConnectWallet,
   bitcoinState,
   solanaState,
   isQuoting,
@@ -159,31 +157,29 @@ export const InputStep = ({
 
   const isButtonDisabled = useMemo(() => {
     if (isUnsupportedChain) return !allowShapeshiftRedirect
+    if (!sellAmount) return true
 
-    if (!sellAmount || isLoadingRates || ratesError || !rates?.length || isExecuting) {
-      return true
-    }
+    // "Needs connect" states — button triggers the connect flow; keep enabled.
+    if (isSellAssetEvm && !walletAddress) return false
+    if (isSellAssetUtxo && !isBitcoinConnected) return false
+    if (isSellAssetSolana && !isSolanaConnected) return false
 
-    if (!effectiveReceiveAddress) {
-      return true
-    }
+    if (isLoadingRates || ratesError || !rates?.length || isExecuting) return true
+    if (!effectiveReceiveAddress) return true
 
-    if (isSellAssetUtxo && canExecuteUtxo) {
-      return !isBitcoinConnected || bitcoinState.isLoading
-    }
-
-    if (isSellAssetSolana && canExecuteSolana) {
-      return !isSolanaConnected || solanaState.isLoading
-    }
+    if (isSellAssetUtxo && canExecuteUtxo) return bitcoinState.isLoading
+    if (isSellAssetSolana && canExecuteSolana) return solanaState.isLoading
 
     return false
   }, [
     isUnsupportedChain,
     allowShapeshiftRedirect,
+    isSellAssetEvm,
     isSellAssetUtxo,
     isSellAssetSolana,
     canExecuteUtxo,
     canExecuteSolana,
+    walletAddress,
     isBitcoinConnected,
     isSolanaConnected,
     bitcoinState.isLoading,

@@ -164,6 +164,7 @@ export const slip44Table = Object.freeze({
   Sui: 784,
   Near: 397,
   Ton: 607,
+  Aptos: 637,
   // EVM chains all use the same SLIP44
   Ethereum: 60,
   Avalanche: 60,

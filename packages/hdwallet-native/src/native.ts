@@ -22,6 +22,7 @@ import { MixinNativeSuiWallet, MixinNativeSuiWalletInfo } from './sui'
 import { MixinNativeTerraWallet, MixinNativeTerraWalletInfo } from './terra'
 import { MixinNativeThorchainWallet, MixinNativeThorchainWalletInfo } from './thorchain'
 import { MixinNativeTonWallet, MixinNativeTonWalletInfo } from './ton'
+import { MixinNativeAptosWallet, MixinNativeAptosWalletInfo } from './aptos'
 import { MixinNativeTronWallet, MixinNativeTronWalletInfo } from './tron'
 export { NativeEvents } from './nativeEvents'
 
@@ -133,6 +134,7 @@ class NativeHDWalletInfo
           MixinNativeStarknetWalletInfo(
             MixinNativeTronWalletInfo(
               MixinNativeTonWalletInfo(
+                MixinNativeAptosWalletInfo(
                 MixinNativeSuiWalletInfo(
                   MixinNativeNearWalletInfo(
                     MixinNativeThorchainWalletInfo(
@@ -166,6 +168,7 @@ class NativeHDWalletInfo
     core.StarknetWalletInfo,
     core.TronWalletInfo,
     core.TonWalletInfo,
+    core.AptosWalletInfo,
     core.SuiWalletInfo,
     core.NearWalletInfo,
     core.ThorchainWalletInfo,
@@ -232,6 +235,8 @@ class NativeHDWalletInfo
         return core.tronDescribePath(msg.path)
       case 'ton':
         return core.tonDescribePath(msg.path)
+      case 'aptos':
+        return core.aptosDescribePath(msg.path)
       default:
         throw new Error('Unsupported path')
     }
@@ -246,6 +251,7 @@ export class NativeHDWallet
           MixinNativeStarknetWallet(
             MixinNativeTronWallet(
               MixinNativeTonWallet(
+                MixinNativeAptosWallet(
                 MixinNativeSuiWallet(
                   MixinNativeNearWallet(
                     MixinNativeThorchainWallet(
@@ -277,6 +283,7 @@ export class NativeHDWallet
     core.StarknetWallet,
     core.TronWallet,
     core.TonWallet,
+    core.AptosWallet,
     core.SuiWallet,
     core.NearWallet,
     core.ThorchainWallet,
@@ -453,6 +460,7 @@ export class NativeHDWallet
             super.solanaInitializeWallet(ed25519MasterKey),
             super.suiInitializeWallet(ed25519MasterKey),
             super.nearInitializeWallet(ed25519MasterKey),
+            super.aptosInitializeWallet(ed25519MasterKey),
           ]
 
           if (this.#tonMasterKey) {
@@ -505,6 +513,7 @@ export class NativeHDWallet
     super.suiWipe()
     super.nearWipe()
     super.tonWipe()
+    super.aptosWipe()
     super.btcWipe()
     super.ethWipe()
     super.cosmosWipe()

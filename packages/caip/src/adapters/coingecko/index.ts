@@ -44,6 +44,7 @@ import {
   starknetChainId,
   storyChainId,
   suiChainId,
+  aptosChainId,
   thorchainChainId,
   tonChainId,
   tronChainId,
@@ -97,6 +98,7 @@ export enum CoingeckoAssetPlatform {
   Starknet = 'starknet',
   Tron = 'tron',
   Sui = 'sui',
+  Aptos = 'aptos-network',
   Ton = 'the-open-network',
   Near = 'near-protocol',
   Abstract = 'abstract',
@@ -243,6 +245,15 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
           )
       }
+    case CHAIN_NAMESPACE.Aptos:
+      switch (chainReference) {
+        case CHAIN_REFERENCE.AptosMainnet:
+          return CoingeckoAssetPlatform.Aptos
+        default:
+          throw new Error(
+            `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
+          )
+      }
     case CHAIN_NAMESPACE.Near:
       switch (chainReference) {
         case CHAIN_REFERENCE.NearMainnet:
@@ -363,6 +374,8 @@ export const coingeckoAssetPlatformToChainId = (
       return tronChainId
     case CoingeckoAssetPlatform.Sui:
       return suiChainId
+    case CoingeckoAssetPlatform.Aptos:
+      return aptosChainId
     case CoingeckoAssetPlatform.Ton:
       return tonChainId
     case CoingeckoAssetPlatform.Near:

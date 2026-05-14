@@ -64,6 +64,7 @@ export enum KnownChainIds {
   TonMainnet = 'ton:mainnet',
   AbstractMainnet = 'eip155:2741',
   RobinhoodMainnet = 'eip155:4663',
+  AptosMainnet = 'aptos:861fb8e6',
 }
 
 export type EvmChainId =
@@ -129,6 +130,8 @@ export type SolanaChainId = KnownChainIds.SolanaMainnet
 export type StarknetChainId = KnownChainIds.StarknetMainnet
 
 export type TonChainId = KnownChainIds.TonMainnet
+
+export type AptosChainId = KnownChainIds.AptosMainnet
 
 export enum WithdrawType {
   DELAYED,

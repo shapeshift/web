@@ -51,6 +51,7 @@ export const suiAssetId: AssetId = 'sui:35834a8a/slip44:784'
 export const nearAssetId: AssetId = 'near:mainnet/slip44:397'
 export const starknetAssetId: AssetId = 'starknet:SN_MAIN/slip44:9004'
 export const tonAssetId: AssetId = 'ton:mainnet/slip44:607'
+export const aptosAssetId: AssetId = 'aptos:861fb8e6/slip44:637'
 export const uniV2EthFoxArbitrumAssetId: AssetId =
   'eip155:42161/erc20:0x5f6ce0ca13b87bd738519545d3e018e70e339c24'
 
@@ -145,6 +146,7 @@ export const suiChainId: ChainId = 'sui:35834a8a'
 export const nearChainId: ChainId = 'near:mainnet'
 export const starknetChainId: ChainId = 'starknet:SN_MAIN'
 export const tonChainId: ChainId = 'ton:mainnet'
+export const aptosChainId: ChainId = 'aptos:861fb8e6'
 
 export const CHAIN_NAMESPACE = {
   Evm: 'eip155',
@@ -156,6 +158,7 @@ export const CHAIN_NAMESPACE = {
   Near: 'near',
   Starknet: 'starknet',
   Ton: 'ton',
+  Aptos: 'aptos',
 } as const
 
 type ValidChainMap = {
@@ -214,6 +217,7 @@ export const CHAIN_REFERENCE = {
   TonMainnet: 'mainnet', // TON Mainnet
   AbstractMainnet: '2741', // https://abscan.org
   RobinhoodMainnet: '4663', // https://chainlist.org/chain/4663
+  AptosMainnet: '861fb8e6', // First 8 chars of Aptos mainnet genesis hash
 } as const
 
 export const ASSET_NAMESPACE = {
@@ -228,6 +232,7 @@ export const ASSET_NAMESPACE = {
   nep141: 'nep141', // NEAR fungible token standard: https://nomicon.io/Standards/Tokens/FungibleToken/Core
   starknetToken: 'token',
   jetton: 'jetton', // TON fungible token standard (TEP-74)
+  aptosCoin: 'coin', // Aptos native coin type
 } as const
 
 export const ASSET_REFERENCE = {
@@ -282,6 +287,7 @@ export const ASSET_REFERENCE = {
   Ton: '607',
   Abstract: '60', // evm chain which uses ethereum derivation path as common practice
   Robinhood: '60', // evm chain which uses ethereum derivation path as common practice
+  Aptos: '637',
 } as const
 
 export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
@@ -342,6 +348,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
   [CHAIN_NAMESPACE.Near]: [CHAIN_REFERENCE.NearMainnet],
   [CHAIN_NAMESPACE.Starknet]: [CHAIN_REFERENCE.StarknetMainnet],
   [CHAIN_NAMESPACE.Ton]: [CHAIN_REFERENCE.TonMainnet],
+  [CHAIN_NAMESPACE.Aptos]: [CHAIN_REFERENCE.AptosMainnet],
 })
 
 type ValidAssetNamespace = {
@@ -363,6 +370,7 @@ export const VALID_ASSET_NAMESPACE: ValidAssetNamespace = Object.freeze({
   [CHAIN_NAMESPACE.Near]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.nep141],
   [CHAIN_NAMESPACE.Starknet]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.starknetToken],
   [CHAIN_NAMESPACE.Ton]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.jetton],
+  [CHAIN_NAMESPACE.Aptos]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.aptosCoin],
 })
 
 // We should prob change this once we add more chains
@@ -413,4 +421,5 @@ export const FEE_ASSET_IDS = [
   katanaAssetId,
   etherealAssetId,
   flowEvmAssetId,
+  aptosAssetId,
 ]

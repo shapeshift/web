@@ -223,6 +223,7 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_SEI: string
   readonly VITE_FEATURE_NOTIFICATIONS_WEBSERVICES: string
   readonly VITE_FEATURE_APTOS: string
+  readonly VITE_FEATURE_PANORA_SWAP: string
   readonly VITE_APTOS_NODE_URL: string
   readonly VITE_APTOS_INDEXER_URL: string
 

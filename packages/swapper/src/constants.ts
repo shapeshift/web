@@ -24,6 +24,8 @@ import { mayachainApi } from './swappers/MayachainSwapper/endpoints'
 import { mayachainSwapper } from './swappers/MayachainSwapper/MayachainSwapper'
 import { nearIntentsApi } from './swappers/NearIntentsSwapper/endpoints'
 import { nearIntentsSwapper } from './swappers/NearIntentsSwapper/NearIntentsSwapper'
+import { panoraApi } from './swappers/PanoraSwapper/endpoints'
+import { panoraSwapper } from './swappers/PanoraSwapper/PanoraSwapper'
 import { portalsApi } from './swappers/PortalsSwapper/endpoints'
 import { portalsSwapper } from './swappers/PortalsSwapper/PortalsSwapper'
 import { relaySwapper } from './swappers/RelaySwapper'
@@ -122,6 +124,10 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
     ...bobGatewaySwapper,
     ...bobGatewayApi,
   },
+  [SwapperName.Panora]: {
+    ...panoraSwapper,
+    ...panoraApi,
+  },
   [SwapperName.Test]: undefined,
 }
 
@@ -142,6 +148,7 @@ const DEFAULT_STONFI_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01'
 // deBridge API off-chain simulation overestimates output on some chains (e.g. SEI ~2.4%), so auto slippage (1%) is insufficient
 const DEFAULT_DEBRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0.03'
 const DEFAULT_BOB_GATEWAY_SLIPPAGE_DECIMAL_PERCENTAGE = '0.03'
+const DEFAULT_PANORA_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005'
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
   swapperName: SwapperName | undefined,
@@ -170,6 +177,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       throw new Error('Default slippage not supported by Across')
     case SwapperName.Debridge:
       return DEFAULT_DEBRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.Panora:
+      return DEFAULT_PANORA_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.ButterSwap:
       return DEFAULT_BUTTERSWAP_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.NearIntents:

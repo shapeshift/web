@@ -90,6 +90,7 @@ export type SwapperConfig = {
   VITE_ACROSS_INTEGRATOR_ID: string
   VITE_DEBRIDGE_API_URL: string
   VITE_BOB_GATEWAY_API_KEY: string
+  VITE_PANORA_API_KEY: string
 }
 
 export enum SwapperName {
@@ -112,6 +113,7 @@ export enum SwapperName {
   Across = 'Across',
   Debridge = 'deBridge',
   BobGateway = 'BOB Gateway',
+  Panora = 'Panora',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`

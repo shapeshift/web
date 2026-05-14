@@ -26,7 +26,6 @@ import {
 } from '@shapeshiftoss/caip'
 import type { TransactionData } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
-import type { WalletClient } from 'viem'
 
 export type { BitcoinConnector } from '@reown/appkit-adapter-bitcoin'
 export type { Provider as SolanaProvider } from '@reown/appkit-adapter-solana/react'
@@ -138,7 +137,7 @@ export type ThemeConfig = {
 export type SwapWidgetProps = {
   partnerCode?: string
   apiBaseUrl?: string
-  appUrl?: string
+  allowShapeshiftRedirect?: boolean
   defaultSellAsset?: Asset
   defaultBuyAsset?: Asset
   disabledChainIds?: ChainId[]
@@ -153,7 +152,6 @@ export type SwapWidgetProps = {
   sellAllowedAssetIds?: AssetId[]
   buyAllowedAssetIds?: AssetId[]
   allowedSwapperNames?: SwapperName[]
-  walletClient?: WalletClient
   onConnectWallet?: () => void
   onSwapSuccess?: (txHash: string) => void
   onSwapError?: (error: Error) => void
@@ -161,7 +159,7 @@ export type SwapWidgetProps = {
   theme?: ThemeMode | ThemeConfig
   defaultSlippage?: string
   showPoweredBy?: boolean
-  enableWalletConnection?: boolean
+  showConnectButton?: boolean
   walletConnectProjectId?: string
   defaultReceiveAddress?: string
   ratesRefetchInterval?: number

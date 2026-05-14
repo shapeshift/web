@@ -27,7 +27,7 @@ type InputStepProps = {
   buyAssetUsdPrice: string | undefined
   onOpenTokenModal: (type: 'sell' | 'buy') => void
   onOpenAddressModal: () => void
-  enableWalletConnection: boolean
+  showConnectButton: boolean
   onConnectWallet?: () => void
   bitcoinState: { isLoading: boolean }
   solanaState: { isLoading: boolean }
@@ -45,6 +45,7 @@ type InputStepProps = {
   sellBalanceFiatValue: string | undefined
   buyBalanceFiatValue: string | undefined
   isBuyAssetLocked: boolean
+  allowShapeshiftRedirect: boolean
 }
 
 export const InputStep = ({
@@ -69,7 +70,7 @@ export const InputStep = ({
   buyAssetUsdPrice,
   onOpenTokenModal,
   onOpenAddressModal,
-  enableWalletConnection: _enableWalletConnection,
+  showConnectButton: _showConnectButton,
   onConnectWallet: _onConnectWallet,
   bitcoinState,
   solanaState,
@@ -87,6 +88,7 @@ export const InputStep = ({
   sellBalanceFiatValue,
   buyBalanceFiatValue,
   isBuyAssetLocked,
+  allowShapeshiftRedirect,
 }: InputStepProps) => {
   const { sellAsset, buyAsset, selectedRate, isSellAssetEvm, isSellAssetUtxo, isSellAssetSolana } =
     context
@@ -122,7 +124,9 @@ export const InputStep = ({
       if (!rates?.length) return 'No routes found'
       return 'Swap'
     }
-    if (!isSellAssetEvm) return 'Proceed on ShapeShift'
+    if (isUnsupportedChain) {
+      return allowShapeshiftRedirect ? 'Proceed on ShapeShift' : 'Route not supported'
+    }
     if (!sellAmount) return 'Enter an amount'
     if (!walletAddress && canExecuteDirectly) return 'Connect Wallet'
     if (!effectiveReceiveAddress) return 'Enter receive address'
@@ -139,6 +143,8 @@ export const InputStep = ({
     isSellAssetEvm,
     isSellAssetUtxo,
     isSellAssetSolana,
+    isUnsupportedChain,
+    allowShapeshiftRedirect,
     isBitcoinConnected,
     isSolanaConnected,
     bitcoinState.isLoading,
@@ -152,7 +158,7 @@ export const InputStep = ({
   ])
 
   const isButtonDisabled = useMemo(() => {
-    if (isUnsupportedChain) return false
+    if (isUnsupportedChain) return !allowShapeshiftRedirect
 
     if (!sellAmount || isLoadingRates || ratesError || !rates?.length || isExecuting) {
       return true
@@ -173,6 +179,7 @@ export const InputStep = ({
     return false
   }, [
     isUnsupportedChain,
+    allowShapeshiftRedirect,
     isSellAssetUtxo,
     isSellAssetSolana,
     canExecuteUtxo,

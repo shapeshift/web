@@ -99,7 +99,7 @@ const InternalDemoBody = ({ theme, setTheme }: InternalDemoBodyProps) => {
                 onSwapSuccess={handleSwapSuccess}
                 onSwapError={handleSwapError}
                 showPoweredBy={true}
-                enableWalletConnection={true}
+                showConnectButton={true}
                 walletConnectProjectId={PROJECT_ID}
               />
             </div>

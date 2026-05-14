@@ -1,26 +1,14 @@
 import './App.css'
 
 import { useAppKit, useAppKitAccount } from '@reown/appkit/react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import type { Config } from 'wagmi'
-import { useWalletClient, WagmiProvider } from 'wagmi'
+import { useCallback, useEffect, useState } from 'react'
 
 import { SwapWidget } from '../components/SwapWidget'
-import { getWagmiAdapter, initializeAppKit } from '../config/appkit'
+import { initializeAppKit } from '../config/appkit'
 import { truncateAddress } from '../types'
 import { DemoCustomizer, useDemoTheme } from './DemoCustomizer'
 
 const PROJECT_ID = 'f58c0242def84c3b9befe9b1e6086bbd'
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 30_000,
-      refetchOnWindowFocus: false,
-    },
-  },
-})
 
 const switchToInternal = () => {
   window.location.hash = ''
@@ -73,7 +61,6 @@ type ExternalDemoBodyProps = {
 
 const ExternalDemoBody = ({ theme, setTheme }: ExternalDemoBodyProps) => {
   const { address, isConnected } = useAppKitAccount()
-  const { data: walletClient } = useWalletClient()
 
   const [showCustomizer, setShowCustomizer] = useState(true)
 
@@ -143,7 +130,7 @@ const ExternalDemoBody = ({ theme, setTheme }: ExternalDemoBodyProps) => {
           <div className='demo-hero'>
             <h1 className='demo-title'>External Wallet Demo</h1>
             <p className='demo-subtitle'>
-              Host page owns Reown AppKit and feeds <code>walletClient</code> into the widget
+              Host page owns Reown AppKit; the widget reads it from the singleton
             </p>
           </div>
 
@@ -154,13 +141,12 @@ const ExternalDemoBody = ({ theme, setTheme }: ExternalDemoBodyProps) => {
 
             <div className='demo-widget-container'>
               <SwapWidget
-                walletClient={walletClient}
                 partnerCode={partnerCode || undefined}
                 theme={themeConfig}
                 onSwapSuccess={handleSwapSuccess}
                 onSwapError={handleSwapError}
                 showPoweredBy={true}
-                enableWalletConnection={false}
+                showConnectButton={false}
               />
             </div>
           </div>
@@ -172,25 +158,13 @@ const ExternalDemoBody = ({ theme, setTheme }: ExternalDemoBodyProps) => {
 
 export const ExternalWalletApp = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark')
-  const [isInitialized, setIsInitialized] = useState(false)
+  const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
     initializeAppKit(PROJECT_ID)
-    setIsInitialized(true)
+    setIsReady(true)
   }, [])
 
-  const wagmiConfig = useMemo((): Config | undefined => {
-    if (!isInitialized) return undefined
-    return getWagmiAdapter()?.wagmiConfig as unknown as Config | undefined
-  }, [isInitialized])
-
-  if (!wagmiConfig) return null
-
-  return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <ExternalDemoBody theme={theme} setTheme={setTheme} />
-      </QueryClientProvider>
-    </WagmiProvider>
-  )
+  if (!isReady) return null
+  return <ExternalDemoBody theme={theme} setTheme={setTheme} />
 }

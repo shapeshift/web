@@ -10,14 +10,14 @@ type UseSwapHandlersParams = {
   onConnectWallet?: () => void
   onAssetSelect?: (type: 'sell' | 'buy', asset: Asset) => void
   partnerCode?: string
-  appUrl?: string
+  allowShapeshiftRedirect: boolean
 }
 
 export const useSwapHandlers = ({
   onConnectWallet,
   onAssetSelect,
   partnerCode,
-  appUrl,
+  allowShapeshiftRedirect,
 }: UseSwapHandlersParams) => {
   const actorRef = SwapMachineCtx.useActorRef()
   const { walletClient, bitcoin, solana } = useSwapWallet()
@@ -78,10 +78,9 @@ export const useSwapHandlers = ({
       buyAssetId: snap.context.buyAsset.assetId,
       sellAmountBaseUnit,
       partnerCode,
-      appUrl,
     })
     window.open(url, '_blank', 'noopener,noreferrer')
-  }, [actorRef, partnerCode, appUrl])
+  }, [actorRef, partnerCode])
 
   const handleButtonClick = useCallback(() => {
     const snap = actorRef.getSnapshot()
@@ -100,6 +99,7 @@ export const useSwapHandlers = ({
       !snap.context.isSellAssetUtxo &&
       !snap.context.isSellAssetSolana
     ) {
+      if (!allowShapeshiftRedirect) return
       const sellAmountBaseUnit = snap.context.sellAmount
         ? parseAmount(snap.context.sellAmount, snap.context.sellAsset.precision)
         : undefined
@@ -108,7 +108,6 @@ export const useSwapHandlers = ({
         buyAssetId: snap.context.buyAsset.assetId,
         sellAmountBaseUnit,
         partnerCode,
-        appUrl,
       })
       window.open(url, '_blank', 'noopener,noreferrer')
       return
@@ -121,7 +120,7 @@ export const useSwapHandlers = ({
     walletClient,
     onConnectWallet,
     partnerCode,
-    appUrl,
+    allowShapeshiftRedirect,
   ])
 
   return {

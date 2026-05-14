@@ -4,6 +4,7 @@ import { csp as trustwallet } from './assetService/trustwallet'
 import { csp as base } from './base'
 import { csp as chainflip } from './chainflip'
 import { csp as abstract } from './chains/abstract'
+import { csp as aptos } from './chains/aptos'
 import { csp as arbitrum } from './chains/arbitrum'
 import { csp as avalanche } from './chains/avalanche'
 import { csp as baseChain } from './chains/base'
@@ -131,6 +132,7 @@ export const csps = [
   bitcoincash,
   blast,
   abstract,
+  aptos,
   bnbsmartchain,
   cosmos,
   dogecoin,

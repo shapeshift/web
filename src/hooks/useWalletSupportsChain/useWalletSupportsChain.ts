@@ -44,6 +44,7 @@ import {
   storyChainId,
   suiChainId,
   thorchainChainId,
+  aptosChainId,
   tonChainId,
   tronChainId,
   unichainChainId,
@@ -95,6 +96,7 @@ import {
   supportsSonic,
   supportsStarknet,
   supportsStory,
+  supportsAptos,
   supportsSui,
   supportsThorchain,
   supportsTron,
@@ -323,6 +325,8 @@ export const walletSupportsChain = ({
       return supportsTron(wallet)
     case suiChainId:
       return supportsSui(wallet)
+    case aptosChainId:
+      return supportsAptos(wallet)
     case nearChainId:
       return isNearEnabled && supportsNear(wallet)
     case starknetChainId:

@@ -134,23 +134,21 @@ export type ThemeConfig = {
   buttonVariant?: 'filled' | 'outline'
 }
 
+export type SwapWidgetFilters = {
+  allowedChainIds?: ChainId[]
+  disabledChainIds?: ChainId[]
+  allowedAssetIds?: AssetId[]
+  disabledAssetIds?: AssetId[]
+}
+
 export type SwapWidgetProps = {
   partnerCode?: string
   apiBaseUrl?: string
   allowShapeshiftRedirect?: boolean
   defaultSellAsset?: Asset
   defaultBuyAsset?: Asset
-  disabledChainIds?: ChainId[]
-  disabledAssetIds?: AssetId[]
-  allowedChainIds?: ChainId[]
-  sellDisabledChainIds?: ChainId[]
-  buyDisabledChainIds?: ChainId[]
-  sellDisabledAssetIds?: AssetId[]
-  buyDisabledAssetIds?: AssetId[]
-  sellAllowedChainIds?: ChainId[]
-  buyAllowedChainIds?: ChainId[]
-  sellAllowedAssetIds?: AssetId[]
-  buyAllowedAssetIds?: AssetId[]
+  sellFilters?: SwapWidgetFilters
+  buyFilters?: SwapWidgetFilters
   allowedSwapperNames?: SwapperName[]
   onConnectWallet?: () => void
   onSwapSuccess?: (txHash: string) => void

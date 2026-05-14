@@ -5,7 +5,7 @@ import type { ApiClient } from '../api/client'
 import { getBaseAsset } from '../constants/chains'
 import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
-import type { TradeRate } from '../types'
+import type { SwapperName, TradeRate } from '../types'
 import { formatAmount, getChainType } from '../types'
 import type { ChainInfo } from './useAssets'
 import { useChainInfo } from './useAssets'
@@ -16,6 +16,7 @@ import { useSwapRates } from './useSwapRates'
 
 type UseSwapDisplayValuesParams = {
   apiClient: ApiClient
+  allowedSwapperNames?: SwapperName[]
 }
 
 type SwapDisplayValues = {
@@ -44,6 +45,7 @@ type SwapDisplayValues = {
 
 export const useSwapDisplayValues = ({
   apiClient,
+  allowedSwapperNames,
 }: UseSwapDisplayValuesParams): SwapDisplayValues => {
   const sellAsset = SwapMachineCtx.useSelector(s => s.context.sellAsset)
   const buyAsset = SwapMachineCtx.useSelector(s => s.context.buyAsset)
@@ -67,6 +69,7 @@ export const useSwapDisplayValues = ({
     sellAssetId: sellAsset.assetId,
     buyAssetId: buyAsset.assetId,
     sellAmountCryptoBaseUnit: sellAmountBaseUnit,
+    allowedSwapperNames,
     enabled:
       !!sellAmountBaseUnit &&
       sellAmountBaseUnit !== '0' &&

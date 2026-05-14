@@ -16,7 +16,7 @@ import { useSwapExecution } from '../hooks/useSwapExecution'
 import { useSwapHandlers } from '../hooks/useSwapHandlers'
 import { useSwapQuoting } from '../hooks/useSwapQuoting'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
-import type { Asset, SwapWidgetProps, ThemeMode } from '../types'
+import type { Asset, SwapWidgetFilters, SwapWidgetProps, ThemeMode } from '../types'
 import { getChainType } from '../types'
 import { AddressInputModal } from './AddressInputModal'
 import { ApprovalStep } from './ApprovalStep'
@@ -40,14 +40,9 @@ type SwapWidgetContentProps = {
   onSwapSuccess?: (txHash: string) => void
   onSwapError?: (error: Error) => void
   onAssetSelect?: (type: 'sell' | 'buy', asset: Asset) => void
-  sellDisabledAssetIds: string[]
-  buyDisabledAssetIds: string[]
-  sellDisabledChainIds: string[]
-  buyDisabledChainIds: string[]
-  sellAllowedChainIds?: string[]
-  buyAllowedChainIds?: string[]
-  sellAllowedAssetIds?: string[]
-  buyAllowedAssetIds?: string[]
+  sellFilters: SwapWidgetFilters
+  buyFilters: SwapWidgetFilters
+  allowedSwapperNames?: SwapWidgetProps['allowedSwapperNames']
 }
 
 const SwapWidgetContent = ({
@@ -63,14 +58,9 @@ const SwapWidgetContent = ({
   onSwapSuccess,
   onSwapError,
   onAssetSelect,
-  sellDisabledAssetIds,
-  buyDisabledAssetIds,
-  sellDisabledChainIds,
-  buyDisabledChainIds,
-  sellAllowedChainIds,
-  buyAllowedChainIds,
-  sellAllowedAssetIds,
-  buyAllowedAssetIds,
+  sellFilters,
+  buyFilters,
+  allowedSwapperNames,
 }: SwapWidgetContentProps) => {
   const state = SwapMachineCtx.useSelector(s => s)
   const actorRef = SwapMachineCtx.useActorRef()
@@ -113,7 +103,7 @@ const SwapWidgetContent = ({
     buyAssetUsdPrice,
     sellBalanceFiatValue,
     buyBalanceFiatValue,
-  } = useSwapDisplayValues({ apiClient })
+  } = useSwapDisplayValues({ apiClient, allowedSwapperNames })
 
   const {
     handleSwapTokens,
@@ -307,10 +297,14 @@ const SwapWidgetContent = ({
         isOpen={tokenModalType !== null}
         onClose={() => setTokenModalType(null)}
         onSelect={tokenModalType === 'sell' ? handleSellAssetSelect : handleBuyAssetSelect}
-        disabledAssetIds={tokenModalType === 'buy' ? buyDisabledAssetIds : sellDisabledAssetIds}
-        disabledChainIds={tokenModalType === 'buy' ? buyDisabledChainIds : sellDisabledChainIds}
-        allowedChainIds={tokenModalType === 'buy' ? buyAllowedChainIds : sellAllowedChainIds}
-        allowedAssetIds={tokenModalType === 'buy' ? buyAllowedAssetIds : sellAllowedAssetIds}
+        disabledAssetIds={
+          (tokenModalType === 'buy' ? buyFilters : sellFilters).disabledAssetIds ?? []
+        }
+        disabledChainIds={
+          (tokenModalType === 'buy' ? buyFilters : sellFilters).disabledChainIds ?? []
+        }
+        allowedChainIds={(tokenModalType === 'buy' ? buyFilters : sellFilters).allowedChainIds}
+        allowedAssetIds={(tokenModalType === 'buy' ? buyFilters : sellFilters).allowedAssetIds}
         walletAddress={walletAddress}
         currentAssetIds={[state.context.sellAsset.assetId, state.context.buyAsset.assetId]}
       />
@@ -361,14 +355,9 @@ type SwapWidgetCoreProps = {
   onSwapSuccess?: (txHash: string) => void
   onSwapError?: (error: Error) => void
   onAssetSelect?: (type: 'sell' | 'buy', asset: Asset) => void
-  sellDisabledAssetIds: string[]
-  buyDisabledAssetIds: string[]
-  sellDisabledChainIds: string[]
-  buyDisabledChainIds: string[]
-  sellAllowedChainIds?: string[]
-  buyAllowedChainIds?: string[]
-  sellAllowedAssetIds?: string[]
-  buyAllowedAssetIds?: string[]
+  sellFilters: SwapWidgetFilters
+  buyFilters: SwapWidgetFilters
+  allowedSwapperNames?: SwapWidgetProps['allowedSwapperNames']
 }
 
 const SwapWidgetCore = ({
@@ -387,14 +376,9 @@ const SwapWidgetCore = ({
   onSwapSuccess,
   onSwapError,
   onAssetSelect,
-  sellDisabledAssetIds,
-  buyDisabledAssetIds,
-  sellDisabledChainIds,
-  buyDisabledChainIds,
-  sellAllowedChainIds,
-  buyAllowedChainIds,
-  sellAllowedAssetIds,
-  buyAllowedAssetIds,
+  sellFilters,
+  buyFilters,
+  allowedSwapperNames,
 }: SwapWidgetCoreProps) => {
   const actorRef = SwapMachineCtx.useActorRef()
 
@@ -487,14 +471,9 @@ const SwapWidgetCore = ({
         onSwapSuccess={onSwapSuccess}
         onSwapError={onSwapError}
         onAssetSelect={onAssetSelect}
-        sellDisabledAssetIds={sellDisabledAssetIds}
-        buyDisabledAssetIds={buyDisabledAssetIds}
-        sellDisabledChainIds={sellDisabledChainIds}
-        buyDisabledChainIds={buyDisabledChainIds}
-        sellAllowedChainIds={sellAllowedChainIds}
-        buyAllowedChainIds={buyAllowedChainIds}
-        sellAllowedAssetIds={sellAllowedAssetIds}
-        buyAllowedAssetIds={buyAllowedAssetIds}
+        sellFilters={sellFilters}
+        buyFilters={buyFilters}
+        allowedSwapperNames={allowedSwapperNames}
       />
     </SwapWalletProvider>
   )
@@ -529,14 +508,9 @@ export const SwapWidget = (props: SwapWidgetProps) => {
           onSwapSuccess={props.onSwapSuccess}
           onSwapError={props.onSwapError}
           onAssetSelect={props.onAssetSelect}
-          sellDisabledAssetIds={props.sellDisabledAssetIds ?? props.disabledAssetIds ?? []}
-          buyDisabledAssetIds={props.buyDisabledAssetIds ?? props.disabledAssetIds ?? []}
-          sellDisabledChainIds={props.sellDisabledChainIds ?? props.disabledChainIds ?? []}
-          buyDisabledChainIds={props.buyDisabledChainIds ?? props.disabledChainIds ?? []}
-          sellAllowedChainIds={props.sellAllowedChainIds ?? props.allowedChainIds}
-          buyAllowedChainIds={props.buyAllowedChainIds ?? props.allowedChainIds}
-          sellAllowedAssetIds={props.sellAllowedAssetIds}
-          buyAllowedAssetIds={props.buyAllowedAssetIds}
+          sellFilters={props.sellFilters ?? {}}
+          buyFilters={props.buyFilters ?? {}}
+          allowedSwapperNames={props.allowedSwapperNames}
         />
       </SwapMachineCtx.Provider>
     </AppKitWalletProvider>

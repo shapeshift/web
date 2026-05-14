@@ -8,6 +8,7 @@ import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } f
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
+import { PANORA_INTEGRATOR_FEE_ADDRESS } from '../utils/constants'
 import { getPanoraTradeData } from './getPanoraTradeData'
 
 export const getTradeQuote = async (
@@ -49,12 +50,16 @@ export const getTradeQuote = async (
     .times(100)
     .toNumber()
 
+  // No integrator fee address is configured yet, so Panora cannot route an affiliate fee
+  // to the DAO; zero it out rather than displaying a fee that is not collected.
+  const appliedAffiliateBps = PANORA_INTEGRATOR_FEE_ADDRESS ? affiliateBps : '0'
+
   const tradeDataResult = await getPanoraTradeData({
     sellAsset,
     buyAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
     receiveAddress,
-    affiliateBps,
+    affiliateBps: appliedAffiliateBps,
     slippagePercentage,
     config: deps.config,
   })
@@ -71,7 +76,7 @@ export const getTradeQuote = async (
       id: uuid(),
       quoteOrRate: 'quote',
       rate,
-      affiliateBps,
+      affiliateBps: appliedAffiliateBps,
       receiveAddress,
       slippageTolerancePercentageDecimal,
       swapperName: SwapperName.Panora,
@@ -97,7 +102,7 @@ export const getTradeQuote = async (
           estimatedExecutionTimeMs: undefined,
           affiliateFee: buildAffiliateFee({
             strategy: 'buy_asset',
-            affiliateBps,
+            affiliateBps: appliedAffiliateBps,
             sellAsset,
             buyAsset,
             sellAmountCryptoBaseUnit: sellAmount,

@@ -1,16 +1,16 @@
-import { bnOrZero } from '@shapeshiftoss/utils'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import { bnOrZero, fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
 import type { ProtocolFee, SwapErrorRight, SwapperConfig } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { isSupportedChainId } from '../utils/constants'
+import type { PanoraSwapResponse } from '../types'
+import { isSupportedChainId, PANORA_INTEGRATOR_FEE_ADDRESS } from '../utils/constants'
 import { getTokenAddress } from '../utils/helpers'
 import { getPanoraService } from '../utils/panoraService'
-import type { PanoraSwapResponse } from '../types'
 
 type PanoraTradeDataInput = {
   sellAsset: Asset
@@ -79,13 +79,24 @@ export const getPanoraTradeData = async (
   const requestBody: Record<string, unknown> = {
     fromTokenAddress,
     toTokenAddress,
-    fromTokenAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    // The Panora API deals in human-readable token amounts, not base units
+    fromTokenAmount: fromBaseUnit(
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      sellAsset.precision,
+    ),
     toWalletAddress: receiveAddress,
     slippagePercentage,
   }
 
-  if (integratorFeePercentage !== undefined && integratorFeePercentage > 0) {
+  // Panora deducts integratorFeePercentage from the user even without integratorFeeAddress,
+  // but only routes it on-chain when the address is present. Never send the percentage alone.
+  if (
+    PANORA_INTEGRATOR_FEE_ADDRESS &&
+    integratorFeePercentage !== undefined &&
+    integratorFeePercentage > 0
+  ) {
     requestBody.integratorFeePercentage = integratorFeePercentage
+    requestBody.integratorFeeAddress = PANORA_INTEGRATOR_FEE_ADDRESS
   }
 
   try {
@@ -110,7 +121,7 @@ export const getPanoraTradeData = async (
     // Take the best quote (first one)
     const bestQuote = data.quotes[0]
 
-    const buyAmountAfterFeesCryptoBaseUnit = bestQuote.toTokenAmount
+    const buyAmountAfterFeesCryptoBaseUnit = toBaseUnit(bestQuote.toTokenAmount, buyAsset.precision)
 
     const rate = getInputOutputRate({
       sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,

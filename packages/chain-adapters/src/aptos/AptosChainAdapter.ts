@@ -234,18 +234,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     return recommended > MIN_MAX_GAS_AMOUNT ? recommended : MIN_MAX_GAS_AMOUNT
   }
 
-  async buildSendApiTransaction(
-    input: BuildSendApiTxInput<KnownChainIds.AptosMainnet>,
-  ): Promise<SignTx<KnownChainIds.AptosMainnet>> {
+  async buildEntryFunctionApiTransaction(input: {
+    from: string
+    accountNumber: number
+    data: InputEntryFunctionData
+  }): Promise<SignTx<KnownChainIds.AptosMainnet>> {
     try {
-      const { from, accountNumber, to, value, chainSpecific } = input
-      const coinType = chainSpecific?.coinType ?? APT_COIN_TYPE
+      const { from, accountNumber, data } = input
 
-      const data: InputEntryFunctionData = {
-        function: '0x1::aptos_account::transfer_coins',
-        typeArguments: [coinType],
-        functionArguments: [to, BigInt(value)],
-      }
       const maxGasAmount = Number(await this.estimateMaxGasAmount(from, data))
 
       const transaction = await this.client.transaction.build.simple({
@@ -267,6 +263,21 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
         translation: 'chainAdapters.errors.buildTransaction',
       })
     }
+  }
+
+  buildSendApiTransaction(
+    input: BuildSendApiTxInput<KnownChainIds.AptosMainnet>,
+  ): Promise<SignTx<KnownChainIds.AptosMainnet>> {
+    const { from, accountNumber, to, value, chainSpecific } = input
+    const coinType = chainSpecific?.coinType ?? APT_COIN_TYPE
+
+    const data: InputEntryFunctionData = {
+      function: '0x1::aptos_account::transfer_coins',
+      typeArguments: [coinType],
+      functionArguments: [to, BigInt(value)],
+    }
+
+    return this.buildEntryFunctionApiTransaction({ from, accountNumber, data })
   }
 
   async buildSendTransaction(input: BuildSendTxInput<KnownChainIds.AptosMainnet>): Promise<{

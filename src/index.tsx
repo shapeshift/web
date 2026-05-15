@@ -55,9 +55,6 @@ if (shouldEnableSentry) {
     'yeet',
     'beard',
     'juice',
-    'gome',
-    'neo',
-    'jib',
   ] as const
 
   const environment = (() => {

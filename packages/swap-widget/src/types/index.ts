@@ -38,7 +38,7 @@ export enum SwapperName {
   NearIntents = 'NEAR Intents',
   Relay = 'Relay',
   Thorchain = 'THORChain',
-  //Mayachain = 'MAYAChain',
+  Mayachain = 'MAYAChain',
   //ArbitrumBridge = 'Arbitrum Bridge',
   //Avnu = 'AVNU',
   //Bebop = 'Bebop',

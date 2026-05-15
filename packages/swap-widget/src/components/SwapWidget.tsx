@@ -31,7 +31,6 @@ type SwapWidgetContentProps = {
   apiClient: ReturnType<typeof createApiClient>
   theme: SwapWidgetProps['theme']
   showPoweredBy: boolean
-  defaultReceiveAddress?: string
   showConnectButton: boolean
   isBuyAssetLocked: boolean
   partnerCode?: string
@@ -47,7 +46,6 @@ const SwapWidgetContent = ({
   apiClient,
   theme = 'dark',
   showPoweredBy,
-  defaultReceiveAddress,
   showConnectButton,
   isBuyAssetLocked,
   partnerCode,
@@ -221,7 +219,6 @@ const SwapWidgetContent = ({
             walletAddress={walletAddress}
             bitcoinAddress={bitcoin.address}
             solanaAddress={solana.address}
-            defaultReceiveAddress={defaultReceiveAddress}
             buyAssetUsdPrice={buyAssetUsdPrice}
             onOpenTokenModal={setTokenModalType}
             onOpenAddressModal={openAddressModal}
@@ -338,7 +335,6 @@ type SwapWidgetCoreProps = {
   defaultSellAsset: Asset
   defaultBuyAsset: Asset
   defaultSlippage: string
-  defaultReceiveAddress?: string
   apiClient: ReturnType<typeof createApiClient>
   theme: SwapWidgetProps['theme']
   showPoweredBy: boolean
@@ -357,7 +353,6 @@ const SwapWidgetCore = ({
   defaultSellAsset,
   defaultBuyAsset,
   defaultSlippage,
-  defaultReceiveAddress,
   apiClient,
   theme,
   showPoweredBy,
@@ -386,21 +381,13 @@ const SwapWidgetCore = ({
 
   const effectiveReceiveAddress = useMemo(() => {
     if (customReceiveAddress) return customReceiveAddress
-    if (defaultReceiveAddress) return defaultReceiveAddress
 
     if (buyChainType === 'utxo') return bitcoin.address ?? ''
     if (buyChainType === 'solana') return solana.address ?? ''
     if (buyChainType === 'evm') return walletAddress ?? ''
 
     return ''
-  }, [
-    customReceiveAddress,
-    defaultReceiveAddress,
-    buyChainType,
-    bitcoin.address,
-    solana.address,
-    walletAddress,
-  ])
+  }, [customReceiveAddress, buyChainType, bitcoin.address, solana.address, walletAddress])
 
   const isCustomAddress = useMemo(
     () => !!customReceiveAddress && customReceiveAddress !== walletAddress,
@@ -453,7 +440,6 @@ const SwapWidgetCore = ({
         apiClient={apiClient}
         theme={theme}
         showPoweredBy={showPoweredBy}
-        defaultReceiveAddress={defaultReceiveAddress}
         showConnectButton={showConnectButton}
         isBuyAssetLocked={isBuyAssetLocked}
         partnerCode={partnerCode}
@@ -485,7 +471,6 @@ export const SwapWidget = (props: SwapWidgetProps) => {
           defaultSellAsset={props.defaultSellAsset ?? DEFAULT_SELL_ASSET}
           defaultBuyAsset={props.defaultBuyAsset ?? DEFAULT_BUY_ASSET}
           defaultSlippage={props.defaultSlippage ?? '0.5'}
-          defaultReceiveAddress={props.defaultReceiveAddress}
           apiClient={apiClient}
           theme={props.theme}
           showPoweredBy={props.showPoweredBy ?? true}

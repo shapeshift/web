@@ -157,7 +157,6 @@ export type SwapWidgetProps = {
   showPoweredBy?: boolean
   showConnectButton?: boolean
   walletConnectProjectId?: string
-  defaultReceiveAddress?: string
   ratesRefetchInterval?: number
   isBuyAssetLocked?: boolean
 }

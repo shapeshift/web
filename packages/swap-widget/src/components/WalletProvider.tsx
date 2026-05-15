@@ -17,22 +17,11 @@ type AppKitWalletProviderProps = {
 }
 
 export const AppKitWalletProvider = ({ projectId, children }: AppKitWalletProviderProps) => {
-  const [isReady, setIsReady] = useState(() => isAppKitInitialized())
+  const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
     if (projectId) initializeAppKit(projectId)
-    if (isAppKitInitialized()) {
-      setIsReady(true)
-      return
-    }
-    // Host may initialize AppKit in their own effect — poll briefly until it shows up.
-    const intervalId = setInterval(() => {
-      if (isAppKitInitialized()) {
-        setIsReady(true)
-        clearInterval(intervalId)
-      }
-    }, 50)
-    return () => clearInterval(intervalId)
+    if (isAppKitInitialized()) setIsReady(true)
   }, [projectId])
 
   const wagmiConfig = useMemo((): Config | undefined => {

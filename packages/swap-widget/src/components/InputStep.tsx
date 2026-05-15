@@ -23,7 +23,6 @@ type InputStepProps = {
   walletAddress: string | undefined
   bitcoinAddress: string | undefined
   solanaAddress: string | undefined
-  defaultReceiveAddress: string | undefined
   buyAssetUsdPrice: string | undefined
   onOpenTokenModal: (type: 'sell' | 'buy') => void
   onOpenAddressModal: () => void
@@ -65,7 +64,6 @@ export const InputStep = ({
   walletAddress,
   bitcoinAddress,
   solanaAddress,
-  defaultReceiveAddress,
   buyAssetUsdPrice,
   onOpenTokenModal,
   onOpenAddressModal,
@@ -290,36 +288,28 @@ export const InputStep = ({
         <div className='ssw-token-section ssw-buy'>
           <div className='ssw-section-header'>
             <span className='ssw-section-label'>Buy</span>
-            {defaultReceiveAddress ? (
-              <span className='ssw-receive-address-btn ssw-receive-address-readonly'>
-                <span className='ssw-receive-address-text'>
-                  {truncateAddress(defaultReceiveAddress, 4)}
-                </span>
+            <button
+              className={`ssw-receive-address-btn ${isCustomAddress ? 'ssw-custom' : ''}`}
+              onClick={() => onOpenAddressModal()}
+              type='button'
+            >
+              <span className='ssw-receive-address-text'>
+                {effectiveReceiveAddress
+                  ? truncateAddress(effectiveReceiveAddress, 4)
+                  : 'Enter address'}
               </span>
-            ) : (
-              <button
-                className={`ssw-receive-address-btn ${isCustomAddress ? 'ssw-custom' : ''}`}
-                onClick={() => onOpenAddressModal()}
-                type='button'
+              <svg
+                width='12'
+                height='12'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                strokeWidth='2'
               >
-                <span className='ssw-receive-address-text'>
-                  {effectiveReceiveAddress
-                    ? truncateAddress(effectiveReceiveAddress, 4)
-                    : 'Enter address'}
-                </span>
-                <svg
-                  width='12'
-                  height='12'
-                  viewBox='0 0 24 24'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeWidth='2'
-                >
-                  <path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7' />
-                  <path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z' />
-                </svg>
-              </button>
-            )}
+                <path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7' />
+                <path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z' />
+              </svg>
+            </button>
           </div>
 
           <div className='ssw-input-row'>

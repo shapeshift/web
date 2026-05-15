@@ -1,20 +1,12 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import {
-  Card,
-  Center,
-  Circle,
-  Collapse,
-  ListItem,
-  Skeleton,
-  Stack,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { Card, Center, Collapse, ListItem, Skeleton, Stack, useDisclosure } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
 import { AccountNumberRow } from './AccountNumberRow'
 
 import { Amount } from '@/components/Amount/Amount'
+import { ChainIcon } from '@/components/ChainMenu'
 import { NestedList } from '@/components/NestedList'
 import { RawText } from '@/components/Text'
 import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
@@ -92,7 +84,7 @@ export const ChainRow: React.FC<ChainRowProps> = ({ chainId, isSimpleMenu = fals
         py={2}
       >
         <Stack direction='row' alignItems='center' spacing={4}>
-          <Circle size={8} borderWidth={2} borderColor={asset.networkColor ?? asset.color} />
+          <ChainIcon chainId={chainId} size='sm' />
           <RawText>{asset.networkName ?? asset.name}</RawText>
         </Stack>
         <Stack direction='row' alignItems='center' spacing={6}>

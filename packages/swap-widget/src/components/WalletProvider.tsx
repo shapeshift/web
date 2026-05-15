@@ -41,10 +41,10 @@ export const AppKitWalletProvider = ({ projectId, children }: AppKitWalletProvid
 export const ConnectWalletButton = () => {
   const { open } = useAppKit()
   const { address: appKitAddress, isConnected: appKitConnected } = useAppKitAccount()
-  const { walletAddress } = useSwapWallet()
+  const { evm } = useSwapWallet()
 
-  const connectedAddress = walletAddress ?? appKitAddress
-  const isConnected = !!walletAddress || appKitConnected
+  const connectedAddress = evm.address ?? appKitAddress
+  const isConnected = evm.isConnected || appKitConnected
 
   const handleClick = useCallback(() => {
     open()

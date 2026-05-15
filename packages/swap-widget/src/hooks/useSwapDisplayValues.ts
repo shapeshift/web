@@ -55,7 +55,8 @@ export const useSwapDisplayValues = ({
   const isSellAssetSolana = SwapMachineCtx.useSelector(s => s.context.isSellAssetSolana)
   const selectedRate = SwapMachineCtx.useSelector(s => s.context.selectedRate)
 
-  const { walletAddress, effectiveReceiveAddress, bitcoin, solana } = useSwapWallet()
+  const { receiveAddress, evm, bitcoin, solana } = useSwapWallet()
+  const evmAddress = evm.address
   const bitcoinAddress = bitcoin.address
   const solanaAddress = solana.address
 
@@ -81,7 +82,7 @@ export const useSwapDisplayValues = ({
     isLoading: isSellBalanceLoading,
     refetch: refetchSellBalance,
   } = useMultiChainBalance(
-    walletAddress,
+    evmAddress,
     bitcoinAddress,
     solanaAddress,
     sellAsset.assetId,
@@ -89,18 +90,18 @@ export const useSwapDisplayValues = ({
   )
 
   const buyAssetAddressForBalance = useMemo(() => {
-    if (buyChainType === 'evm') return effectiveReceiveAddress || walletAddress
-    if (buyChainType === 'utxo') return effectiveReceiveAddress || bitcoinAddress
-    if (buyChainType === 'solana') return effectiveReceiveAddress || solanaAddress
-    return effectiveReceiveAddress
-  }, [buyChainType, effectiveReceiveAddress, walletAddress, bitcoinAddress, solanaAddress])
+    if (buyChainType === 'evm') return receiveAddress || evmAddress
+    if (buyChainType === 'utxo') return receiveAddress || bitcoinAddress
+    if (buyChainType === 'solana') return receiveAddress || solanaAddress
+    return receiveAddress
+  }, [buyChainType, receiveAddress, evmAddress, bitcoinAddress, solanaAddress])
 
   const {
     data: buyAssetBalance,
     isLoading: isBuyBalanceLoading,
     refetch: refetchBuyBalance,
   } = useMultiChainBalance(
-    buyChainType === 'evm' ? buyAssetAddressForBalance : walletAddress,
+    buyChainType === 'evm' ? buyAssetAddressForBalance : evmAddress,
     buyChainType === 'utxo' ? buyAssetAddressForBalance : bitcoinAddress,
     buyChainType === 'solana' ? buyAssetAddressForBalance : solanaAddress,
     buyAsset.assetId,

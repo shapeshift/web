@@ -5,8 +5,8 @@ import {
   canRetry,
   hasQuote,
   hasReceiveAddress,
+  hasSendAddress,
   hasValidInput,
-  hasWallet,
   isApprovalRequired,
   isEvmChain,
   isSolanaChain,
@@ -40,8 +40,8 @@ const createTestContext = (overrides?: Partial<SwapMachineContext>): SwapMachine
   retryCount: 0,
   chainType: 'evm',
   slippage: '0.5',
-  walletAddress: '0x1234567890abcdef1234567890abcdef12345678',
-  effectiveReceiveAddress: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd',
+  sendAddress: '0x1234567890abcdef1234567890abcdef12345678',
+  receiveAddress: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd',
   isSellAssetEvm: true,
   isSellAssetUtxo: false,
   isSellAssetSolana: false,
@@ -202,27 +202,27 @@ describe('guards', () => {
     })
   })
 
-  describe('hasWallet', () => {
-    it('returns true when walletAddress is set', () => {
-      expect(hasWallet(createTestContext())).toBe(true)
+  describe('hasSendAddress', () => {
+    it('returns true when sendAddress is set', () => {
+      expect(hasSendAddress(createTestContext())).toBe(true)
     })
 
-    it('returns false when walletAddress is undefined', () => {
-      expect(hasWallet(createTestContext({ walletAddress: undefined }))).toBe(false)
+    it('returns false when sendAddress is undefined', () => {
+      expect(hasSendAddress(createTestContext({ sendAddress: undefined }))).toBe(false)
     })
 
-    it('returns false when walletAddress is empty string', () => {
-      expect(hasWallet(createTestContext({ walletAddress: '' }))).toBe(false)
+    it('returns false when sendAddress is empty string', () => {
+      expect(hasSendAddress(createTestContext({ sendAddress: '' }))).toBe(false)
     })
   })
 
   describe('hasReceiveAddress', () => {
-    it('returns true when effectiveReceiveAddress is set', () => {
+    it('returns true when receiveAddress is set', () => {
       expect(hasReceiveAddress(createTestContext())).toBe(true)
     })
 
-    it('returns false when effectiveReceiveAddress is empty', () => {
-      expect(hasReceiveAddress(createTestContext({ effectiveReceiveAddress: '' }))).toBe(false)
+    it('returns false when receiveAddress is undefined', () => {
+      expect(hasReceiveAddress(createTestContext({ receiveAddress: undefined }))).toBe(false)
     })
   })
 })

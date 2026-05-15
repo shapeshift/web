@@ -1,13 +1,13 @@
 import './SwapWidget.css'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useWalletClient } from 'wagmi'
 
 import { createApiClient } from '../api/client'
 import { DEFAULT_BUY_ASSET, DEFAULT_SELL_ASSET } from '../constants/defaults'
 import type { SwapWalletContextValue } from '../contexts/SwapWalletContext'
 import { SwapWalletProvider, useSwapWallet } from '../contexts/SwapWalletContext'
 import { useBitcoinSigning } from '../hooks/useBitcoinSigning'
+import { useEvmSigning } from '../hooks/useEvmSigning'
 import { useSolanaSigning } from '../hooks/useSolanaSigning'
 import { useStatusPolling } from '../hooks/useStatusPolling'
 import { useSwapApproval } from '../hooks/useSwapApproval'
@@ -60,11 +60,12 @@ const SwapWidgetContent = ({
   const actorRef = SwapMachineCtx.useActorRef()
 
   const {
-    walletAddress,
-    effectiveReceiveAddress,
-    isCustomAddress,
+    sendAddress,
+    receiveAddress,
+    isCustomReceiveAddress,
     customReceiveAddress,
     setCustomReceiveAddress,
+    evm,
     bitcoin,
     solana,
   } = useSwapWallet()
@@ -216,7 +217,8 @@ const SwapWidgetContent = ({
             sellChainInfo={sellChainInfo}
             buyChainInfo={buyChainInfo}
             displayRate={displayRate}
-            walletAddress={walletAddress}
+            sendAddress={sendAddress}
+            evmAddress={evm.address}
             bitcoinAddress={bitcoin.address}
             solanaAddress={solana.address}
             buyAssetUsdPrice={buyAssetUsdPrice}
@@ -227,8 +229,8 @@ const SwapWidgetContent = ({
             solanaState={solana.state}
             isQuoting={state.matches('quoting')}
             isExecuting={false}
-            effectiveReceiveAddress={effectiveReceiveAddress}
-            isCustomAddress={isCustomAddress}
+            receiveAddress={receiveAddress}
+            isCustomReceiveAddress={isCustomReceiveAddress}
             sellAmount={state.context.sellAmount}
             onSellAmountChange={handleSellAmountChange}
             onSwapTokens={handleSwapTokens}
@@ -297,7 +299,7 @@ const SwapWidgetContent = ({
         }
         allowedChainIds={(tokenModalType === 'buy' ? buyFilters : sellFilters).allowedChainIds}
         allowedAssetIds={(tokenModalType === 'buy' ? buyFilters : sellFilters).allowedAssetIds}
-        walletAddress={walletAddress}
+        evmAddress={evm.address}
         currentAssetIds={[state.context.sellAsset.assetId, state.context.buyAsset.assetId]}
       />
 
@@ -315,11 +317,11 @@ const SwapWidgetContent = ({
         chainName={
           buyChainInfo?.name ?? state.context.buyAsset.networkName ?? state.context.buyAsset.name
         }
-        currentAddress={customReceiveAddress || effectiveReceiveAddress || ''}
+        currentAddress={customReceiveAddress || receiveAddress || ''}
         onAddressChange={setCustomReceiveAddress}
-        walletAddress={
+        walletReceiveAddress={
           buyChainType === 'evm'
-            ? walletAddress
+            ? evm.address
             : buyChainType === 'utxo'
             ? bitcoin.address
             : buyChainType === 'solana'
@@ -368,30 +370,45 @@ const SwapWidgetCore = ({
 }: SwapWidgetCoreProps) => {
   const actorRef = SwapMachineCtx.useActorRef()
 
-  const { data: walletClient } = useWalletClient()
+  const evm = useEvmSigning()
   const bitcoin = useBitcoinSigning()
   const solana = useSolanaSigning()
 
   const [customReceiveAddress, setCustomReceiveAddress] = useState<string>('')
 
-  const walletAddress = walletClient?.account?.address
-
+  const sellChainId = SwapMachineCtx.useSelector(s => s.context.sellAsset.chainId)
   const buyChainId = SwapMachineCtx.useSelector(s => s.context.buyAsset.chainId)
+  const sellChainType = getChainType(sellChainId)
   const buyChainType = getChainType(buyChainId)
 
-  const effectiveReceiveAddress = useMemo(() => {
-    if (customReceiveAddress) return customReceiveAddress
+  const addressForChain = useCallback(
+    (chainType: ReturnType<typeof getChainType>): string | undefined => {
+      if (chainType === 'evm') return evm.address
+      if (chainType === 'utxo') return bitcoin.address
+      if (chainType === 'solana') return solana.address
+      return undefined
+    },
+    [evm.address, bitcoin.address, solana.address],
+  )
 
-    if (buyChainType === 'utxo') return bitcoin.address ?? ''
-    if (buyChainType === 'solana') return solana.address ?? ''
-    if (buyChainType === 'evm') return walletAddress ?? ''
+  const sendAddress = useMemo(
+    () => addressForChain(sellChainType),
+    [addressForChain, sellChainType],
+  )
 
-    return ''
-  }, [customReceiveAddress, buyChainType, bitcoin.address, solana.address, walletAddress])
+  const walletReceiveAddress = useMemo(
+    () => addressForChain(buyChainType),
+    [addressForChain, buyChainType],
+  )
 
-  const isCustomAddress = useMemo(
-    () => !!customReceiveAddress && customReceiveAddress !== walletAddress,
-    [customReceiveAddress, walletAddress],
+  const receiveAddress = useMemo(
+    () => customReceiveAddress || walletReceiveAddress,
+    [customReceiveAddress, walletReceiveAddress],
+  )
+
+  const isCustomReceiveAddress = useMemo(
+    () => !!customReceiveAddress && customReceiveAddress !== walletReceiveAddress,
+    [customReceiveAddress, walletReceiveAddress],
   )
 
   const initialSyncRef = useRef(false)
@@ -405,30 +422,30 @@ const SwapWidgetCore = ({
   }, [actorRef])
 
   useEffect(() => {
-    actorRef.send({ type: 'SET_WALLET_ADDRESS', address: walletAddress })
-  }, [walletAddress, actorRef])
+    actorRef.send({ type: 'SET_SEND_ADDRESS', address: sendAddress })
+  }, [sendAddress, actorRef])
 
   useEffect(() => {
-    actorRef.send({ type: 'SET_RECEIVE_ADDRESS', address: effectiveReceiveAddress })
-  }, [effectiveReceiveAddress, actorRef])
+    actorRef.send({ type: 'SET_RECEIVE_ADDRESS', address: receiveAddress })
+  }, [receiveAddress, actorRef])
 
   const walletValue: SwapWalletContextValue = useMemo(
     () => ({
-      walletClient,
-      walletAddress,
-      effectiveReceiveAddress,
-      isCustomAddress,
+      sendAddress,
+      receiveAddress,
+      isCustomReceiveAddress,
       customReceiveAddress,
       setCustomReceiveAddress,
+      evm,
       bitcoin,
       solana,
     }),
     [
-      walletClient,
-      walletAddress,
-      effectiveReceiveAddress,
-      isCustomAddress,
+      sendAddress,
+      receiveAddress,
+      isCustomReceiveAddress,
       customReceiveAddress,
+      evm,
       bitcoin,
       solana,
     ],

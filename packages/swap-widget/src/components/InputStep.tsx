@@ -20,7 +20,8 @@ type InputStepProps = {
   sellChainInfo: { name: string } | undefined
   buyChainInfo: { name: string } | undefined
   displayRate: TradeRate | undefined
-  walletAddress: string | undefined
+  sendAddress: string | undefined
+  evmAddress: string | undefined
   bitcoinAddress: string | undefined
   solanaAddress: string | undefined
   buyAssetUsdPrice: string | undefined
@@ -31,8 +32,8 @@ type InputStepProps = {
   solanaState: { isLoading: boolean }
   isQuoting: boolean
   isExecuting: boolean
-  effectiveReceiveAddress: string
-  isCustomAddress: boolean
+  receiveAddress: string | undefined
+  isCustomReceiveAddress: boolean
   sellAmount: string
   onSellAmountChange: (value: string) => void
   onSwapTokens: () => void
@@ -61,7 +62,8 @@ export const InputStep = ({
   sellChainInfo,
   buyChainInfo,
   displayRate,
-  walletAddress,
+  sendAddress,
+  evmAddress,
   bitcoinAddress,
   solanaAddress,
   buyAssetUsdPrice,
@@ -72,8 +74,8 @@ export const InputStep = ({
   solanaState,
   isQuoting,
   isExecuting,
-  effectiveReceiveAddress,
-  isCustomAddress,
+  receiveAddress,
+  isCustomReceiveAddress,
   sellAmount,
   onSellAmountChange,
   onSwapTokens,
@@ -94,16 +96,15 @@ export const InputStep = ({
   const canExecuteSolana = isSellAssetSolana
   const isUnsupportedChain = !isSellAssetEvm && !isSellAssetUtxo && !isSellAssetSolana
 
-  const isBitcoinConnected = !!bitcoinAddress
-  const isSolanaConnected = !!solanaAddress
+  const hasAnyWalletAddress = !!evmAddress || !!bitcoinAddress || !!solanaAddress
 
   const buyAmount = displayRate?.buyAmountCryptoBaseUnit
 
   const buttonText = useMemo(() => {
     if (isSellAssetUtxo && canExecuteUtxo) {
       if (!sellAmount) return 'Enter an amount'
-      if (!isBitcoinConnected) return 'Connect Bitcoin Wallet'
-      if (!effectiveReceiveAddress) return 'Enter receive address'
+      if (!sendAddress) return 'Connect Bitcoin Wallet'
+      if (!receiveAddress) return 'Enter receive address'
       if (bitcoinState.isLoading || isExecuting) return 'Executing...'
       if (isLoadingRates) return 'Finding rates...'
       if (ratesError) return 'No routes available'
@@ -112,8 +113,8 @@ export const InputStep = ({
     }
     if (isSellAssetSolana && canExecuteSolana) {
       if (!sellAmount) return 'Enter an amount'
-      if (!isSolanaConnected) return 'Connect Solana Wallet'
-      if (!effectiveReceiveAddress) return 'Enter receive address'
+      if (!sendAddress) return 'Connect Solana Wallet'
+      if (!receiveAddress) return 'Enter receive address'
       if (solanaState.isLoading || isExecuting) return 'Executing...'
       if (isLoadingRates) return 'Finding rates...'
       if (ratesError) return 'No routes available'
@@ -124,25 +125,22 @@ export const InputStep = ({
       return allowShapeshiftRedirect ? 'Proceed on ShapeShift' : 'Route not supported'
     }
     if (!sellAmount) return 'Enter an amount'
-    if (!walletAddress && canExecuteDirectly) return 'Connect Wallet'
-    if (!effectiveReceiveAddress) return 'Enter receive address'
+    if (!sendAddress && canExecuteDirectly) return 'Connect Wallet'
+    if (!receiveAddress) return 'Enter receive address'
     if (isLoadingRates) return 'Finding rates...'
     if (ratesError) return 'No routes available'
     if (!rates?.length) return 'No routes found'
     if (isExecuting) return 'Executing...'
     return 'Swap'
   }, [
-    walletAddress,
+    sendAddress,
     canExecuteDirectly,
     canExecuteUtxo,
     canExecuteSolana,
-    isSellAssetEvm,
     isSellAssetUtxo,
     isSellAssetSolana,
     isUnsupportedChain,
     allowShapeshiftRedirect,
-    isBitcoinConnected,
-    isSolanaConnected,
     bitcoinState.isLoading,
     solanaState.isLoading,
     sellAmount,
@@ -150,7 +148,7 @@ export const InputStep = ({
     ratesError,
     rates,
     isExecuting,
-    effectiveReceiveAddress,
+    receiveAddress,
   ])
 
   const isButtonDisabled = useMemo(() => {
@@ -158,12 +156,10 @@ export const InputStep = ({
     if (!sellAmount) return true
 
     // "Needs connect" states — button triggers the connect flow; keep enabled.
-    if (isSellAssetEvm && !walletAddress) return false
-    if (isSellAssetUtxo && !isBitcoinConnected) return false
-    if (isSellAssetSolana && !isSolanaConnected) return false
+    if (!sendAddress) return false
 
     if (isLoadingRates || ratesError || !rates?.length || isExecuting) return true
-    if (!effectiveReceiveAddress) return true
+    if (!receiveAddress) return true
 
     if (isSellAssetUtxo && canExecuteUtxo) return bitcoinState.isLoading
     if (isSellAssetSolana && canExecuteSolana) return solanaState.isLoading
@@ -172,14 +168,11 @@ export const InputStep = ({
   }, [
     isUnsupportedChain,
     allowShapeshiftRedirect,
-    isSellAssetEvm,
     isSellAssetUtxo,
     isSellAssetSolana,
     canExecuteUtxo,
     canExecuteSolana,
-    walletAddress,
-    isBitcoinConnected,
-    isSolanaConnected,
+    sendAddress,
     bitcoinState.isLoading,
     solanaState.isLoading,
     sellAmount,
@@ -187,7 +180,7 @@ export const InputStep = ({
     ratesError,
     rates,
     isExecuting,
-    effectiveReceiveAddress,
+    receiveAddress,
   ])
 
   return (
@@ -196,14 +189,8 @@ export const InputStep = ({
         <div className='ssw-token-section ssw-sell'>
           <div className='ssw-section-header'>
             <span className='ssw-section-label'>Sell</span>
-            {walletAddress && isSellAssetEvm && (
-              <span className='ssw-wallet-badge'>{truncateAddress(walletAddress)}</span>
-            )}
-            {bitcoinAddress && isSellAssetUtxo && (
-              <span className='ssw-wallet-badge'>{truncateAddress(bitcoinAddress)}</span>
-            )}
-            {solanaAddress && isSellAssetSolana && (
-              <span className='ssw-wallet-badge'>{truncateAddress(solanaAddress)}</span>
+            {sendAddress && (
+              <span className='ssw-wallet-badge'>{truncateAddress(sendAddress)}</span>
             )}
           </div>
 
@@ -251,7 +238,7 @@ export const InputStep = ({
 
           <div className='ssw-section-footer'>
             <span className='ssw-usd-value'>{sellUsdValue}</span>
-            {(walletAddress || bitcoinAddress || solanaAddress) &&
+            {hasAnyWalletAddress &&
               (isSellBalanceLoading ? (
                 <span className='ssw-balance-skeleton' />
               ) : sellAssetBalance ? (
@@ -289,14 +276,12 @@ export const InputStep = ({
           <div className='ssw-section-header'>
             <span className='ssw-section-label'>Buy</span>
             <button
-              className={`ssw-receive-address-btn ${isCustomAddress ? 'ssw-custom' : ''}`}
+              className={`ssw-receive-address-btn ${isCustomReceiveAddress ? 'ssw-custom' : ''}`}
               onClick={() => onOpenAddressModal()}
               type='button'
             >
               <span className='ssw-receive-address-text'>
-                {effectiveReceiveAddress
-                  ? truncateAddress(effectiveReceiveAddress, 4)
-                  : 'Enter address'}
+                {receiveAddress ? truncateAddress(receiveAddress, 4) : 'Enter address'}
               </span>
               <svg
                 width='12'
@@ -354,7 +339,7 @@ export const InputStep = ({
 
           <div className='ssw-section-footer'>
             <span className='ssw-usd-value'>{buyUsdValue}</span>
-            {(walletAddress || bitcoinAddress || solanaAddress) &&
+            {hasAnyWalletAddress &&
               (isBuyBalanceLoading ? (
                 <span className='ssw-balance-skeleton' />
               ) : buyAssetBalance ? (

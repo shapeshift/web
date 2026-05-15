@@ -17,7 +17,7 @@ export const useSwapHandlers = ({
   allowShapeshiftRedirect,
 }: UseSwapHandlersParams) => {
   const actorRef = SwapMachineCtx.useActorRef()
-  const { walletClient, bitcoin, solana } = useSwapWallet()
+  const { evm, bitcoin, solana } = useSwapWallet()
   const { open: openAppKit } = useAppKit()
 
   const handleSwapTokens = useCallback(() => {
@@ -86,7 +86,7 @@ export const useSwapHandlers = ({
     if (snap.context.isSellAssetSolana && !solana.isConnected) {
       return
     }
-    if (!walletClient && snap.context.isSellAssetEvm) {
+    if (!evm.walletClient && snap.context.isSellAssetEvm) {
       openAppKit()
       return
     }
@@ -113,7 +113,7 @@ export const useSwapHandlers = ({
     actorRef,
     bitcoin.isConnected,
     solana.isConnected,
-    walletClient,
+    evm.walletClient,
     openAppKit,
     partnerCode,
     allowShapeshiftRedirect,

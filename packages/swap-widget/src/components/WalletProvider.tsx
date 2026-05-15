@@ -1,4 +1,4 @@
-import { useAppKit, useAppKitAccount } from '@reown/appkit/react'
+import { useAppKit } from '@reown/appkit/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -40,17 +40,13 @@ export const AppKitWalletProvider = ({ projectId, children }: AppKitWalletProvid
 
 export const ConnectWalletButton = () => {
   const { open } = useAppKit()
-  const { address: appKitAddress, isConnected: appKitConnected } = useAppKitAccount()
-  const { evm } = useSwapWallet()
-
-  const connectedAddress = evm.address ?? appKitAddress
-  const isConnected = evm.isConnected || appKitConnected
+  const { sendAddress } = useSwapWallet()
 
   const handleClick = useCallback(() => {
     open()
   }, [open])
 
-  if (!isConnected) {
+  if (!sendAddress) {
     return (
       <button onClick={handleClick} type='button' className='ssw-connect-btn'>
         <svg
@@ -71,7 +67,7 @@ export const ConnectWalletButton = () => {
 
   return (
     <button onClick={handleClick} type='button' className='ssw-connect-btn ssw-connected'>
-      {connectedAddress ? truncateAddress(connectedAddress) : 'Connected'}
+      {truncateAddress(sendAddress)}
     </button>
   )
 }

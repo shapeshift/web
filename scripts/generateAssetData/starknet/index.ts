@@ -23,8 +23,6 @@ const starknetBaseAsset: Asset = {
   relatedAssetKey: null,
 }
 
-// strkBTC — Starknet's privacy-enabled wrapped Bitcoin (launched 2026-05-12).
-// Hardcoded here because CoinGecko has not yet indexed it as of integration.
 const strkbtcAsset: Asset = {
   assetId:
     'starknet:SN_MAIN/token:0x0787150e306e6eae6e3f79dea881770e8bbff2c1b8eb490f969669ee945b3135',

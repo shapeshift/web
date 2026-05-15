@@ -1,6 +1,7 @@
 export * from './constants'
 export * from './cowswap-utils'
 export * from './safe-utils'
+export * from './starknet-utils'
 export * from './swapper'
 export * from './swappers/ArbitrumBridgeSwapper'
 export * from './swappers/AvnuSwapper'

@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero } from '@shapeshiftoss/utils'
 
@@ -14,7 +14,19 @@ export const slippageDecimalToBps = (slippageDecimal: string | undefined): numbe
 export const assetIdToGardenAssetId = (assetId: AssetId): string | undefined =>
   lookupGardenAssetByAssetId(assetId)?.id
 
+const GARDEN_SUPPORTED_SOURCE_NAMESPACES: ReadonlySet<string> = new Set([
+  CHAIN_NAMESPACE.Utxo,
+  CHAIN_NAMESPACE.Evm,
+  CHAIN_NAMESPACE.Starknet,
+])
+
+export const isGardenSourceChainSupported = (sellAssetId: AssetId): boolean => {
+  const { chainNamespace } = fromAssetId(sellAssetId)
+  return GARDEN_SUPPORTED_SOURCE_NAMESPACES.has(chainNamespace)
+}
+
 export const isSupportedGardenPair = (sellAssetId: AssetId, buyAssetId: AssetId): boolean => {
+  if (!isGardenSourceChainSupported(sellAssetId)) return false
   const sell = assetIdToGardenAssetId(sellAssetId)
   const buy = assetIdToGardenAssetId(buyAssetId)
   if (!sell || !buy) return false
@@ -34,10 +46,6 @@ export const mapGardenOrderToTxStatus = (
 
   if (order.source_swap.refund_tx_hash || order.destination_swap.refund_tx_hash) {
     return { status: TxStatus.Failed, message: 'Swap refunded' }
-  }
-
-  if (order.deadline && order.deadline > 0 && Date.now() / 1000 > order.deadline) {
-    return { status: TxStatus.Failed, message: 'Order expired' }
   }
 
   return { status: TxStatus.Pending }

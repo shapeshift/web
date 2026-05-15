@@ -1,11 +1,3 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-
-import { gardenAssetRegistry } from './gardenAssetRegistry'
-
-export const gardenSupportedChainIds: readonly ChainId[] = Array.from(
-  new Set(gardenAssetRegistry.map(a => a.chainId)),
-)
-
 export type GardenAssetId = string
 
 export type GardenAffiliateFeeAsset = 'base:cbbtc' | 'ethereum:cbbtc' | 'ethereum:usdc'
@@ -93,9 +85,8 @@ export type GardenCreateOrderResponse = GardenResponseEnvelope<GardenCreateOrder
 
 export const isGardenBitcoinInitiate = (
   result: GardenCreateOrderResult,
-): result is GardenBitcoinInitiateResult => {
-  return 'to' in result && typeof result.to === 'string' && !('initiate_transaction' in result)
-}
+): result is GardenBitcoinInitiateResult =>
+  'to' in result && typeof result.to === 'string' && 'amount' in result
 
 export const isGardenStarknetInitiate = (
   result: GardenCreateOrderResult,
@@ -103,7 +94,8 @@ export const isGardenStarknetInitiate = (
   if (!('initiate_transaction' in result)) return false
   const initiate = (result as GardenStarknetInitiateResult).initiate_transaction
   return (
-    initiate !== undefined &&
+    typeof initiate === 'object' &&
+    initiate !== null &&
     'selector' in initiate &&
     Array.isArray((initiate as GardenStarknetCall).calldata)
   )
@@ -115,7 +107,9 @@ export const isGardenEvmInitiate = (
   if (!('initiate_transaction' in result)) return false
   const initiate = (result as GardenEvmInitiateResult).initiate_transaction
   return (
-    initiate !== undefined && typeof (initiate as GardenEvmTransactionData).chain_id === 'number'
+    typeof initiate === 'object' &&
+    initiate !== null &&
+    typeof (initiate as GardenEvmTransactionData).chain_id === 'number'
   )
 }
 
@@ -153,7 +147,6 @@ export type GardenOrder = {
   source_swap: GardenSwapState
   destination_swap: GardenSwapState
   nonce: string
-  deadline: number
   affiliate_fees: GardenAffiliateFeeEntry[]
   integrator?: string
   version?: string
@@ -170,8 +163,6 @@ export type GardenSpecificMetadata = {
     to: string
     data: string
     value: string
-    gasLimit: string
     allowanceContract: string
   }
-  estimatedTimeMs: number
 }

@@ -1,7 +1,8 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
-import type { EvmChainId } from '@shapeshiftoss/types'
-import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import type { Asset, EvmChainId } from '@shapeshiftoss/types'
+import { bn, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -13,6 +14,7 @@ import type {
   CommonTradeQuoteInput,
   GetEvmTradeQuoteInput,
   GetUtxoTradeQuoteInput,
+  ProtocolFee,
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
@@ -20,7 +22,7 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { GARDEN_AFFILIATE_FEE_ASSET, GARDEN_AFFILIATE_FEE_RECIPIENT } from '../constants'
-import type { GardenSpecificMetadata } from '../types'
+import type { GardenCreateOrderResult, GardenSpecificMetadata } from '../types'
 import { isGardenBitcoinInitiate, isGardenEvmInitiate, isGardenStarknetInitiate } from '../types'
 import {
   buildGardenAffiliateFees,
@@ -33,6 +35,47 @@ const hexToDecimalString = (hex: string | undefined): string => {
   if (!hex) return '0'
   if (!hex.startsWith('0x')) return hex
   return fromHex(hex as Hex, 'bigint').toString()
+}
+
+const buildAffiliateProtocolFees = (
+  buyAmountAfterFeesCryptoBaseUnit: string,
+  buyAsset: Asset,
+  affiliateBps: string,
+): Record<AssetId, ProtocolFee> => {
+  if (!affiliateBps || affiliateBps === '0') return {}
+  return {
+    [buyAsset.assetId]: {
+      amountCryptoBaseUnit: bn(buyAmountAfterFeesCryptoBaseUnit)
+        .times(affiliateBps)
+        .div(10000)
+        .toFixed(0),
+      requiresBalance: false,
+      asset: buyAsset,
+    },
+  }
+}
+
+const buildGardenSpecific = (order: GardenCreateOrderResult): GardenSpecificMetadata => {
+  const base = { orderId: order.order_id }
+  if (isGardenBitcoinInitiate(order)) return { ...base, bitcoinDepositAddress: order.to }
+  if (isGardenStarknetInitiate(order)) {
+    return {
+      ...base,
+      starknetCalls: [order.approval_transaction, order.initiate_transaction],
+    }
+  }
+  if (isGardenEvmInitiate(order)) {
+    return {
+      ...base,
+      evmInitiate: {
+        to: order.initiate_transaction.to,
+        data: order.initiate_transaction.data,
+        value: hexToDecimalString(order.initiate_transaction.value),
+        allowanceContract: order.initiate_transaction.to,
+      },
+    }
+  }
+  return base
 }
 
 export const getTradeQuote = async (
@@ -139,23 +182,7 @@ export const getTradeQuote = async (
   if (orderResult.isErr()) return Err(orderResult.unwrapErr())
   const order = orderResult.unwrap()
 
-  const gardenSpecific: GardenSpecificMetadata = {
-    orderId: order.order_id,
-    estimatedTimeMs: quote.estimated_time * 1000,
-    ...(isGardenBitcoinInitiate(order) && { bitcoinDepositAddress: order.to }),
-    ...(isGardenStarknetInitiate(order) && {
-      starknetCalls: [order.approval_transaction, order.initiate_transaction],
-    }),
-    ...(isGardenEvmInitiate(order) && {
-      evmInitiate: {
-        to: order.initiate_transaction.to,
-        data: order.initiate_transaction.data,
-        value: hexToDecimalString(order.initiate_transaction.value),
-        gasLimit: hexToDecimalString(order.initiate_transaction.gas_limit),
-        allowanceContract: order.initiate_transaction.to,
-      },
-    }),
-  }
+  const gardenSpecific = buildGardenSpecific(order)
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
@@ -239,7 +266,11 @@ export const getTradeQuote = async (
         buyAmountAfterFeesCryptoBaseUnit: quote.destination.amount,
         buyAsset,
         feeData: {
-          protocolFees: {},
+          protocolFees: buildAffiliateProtocolFees(
+            quote.destination.amount,
+            buyAsset,
+            affiliateBps,
+          ),
           networkFeeCryptoBaseUnit: feeData.networkFeeCryptoBaseUnit,
           ...(feeData.chainSpecific && { chainSpecific: feeData.chainSpecific }),
         },

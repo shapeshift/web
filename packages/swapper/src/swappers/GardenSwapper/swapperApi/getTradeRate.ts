@@ -1,7 +1,9 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
-import type { EvmChainId } from '@shapeshiftoss/types'
+import type { Asset, EvmChainId } from '@shapeshiftoss/types'
 import {
+  bn,
   contractAddressOrUndefined,
   DAO_TREASURY_BASE,
   DAO_TREASURY_BITCOIN,
@@ -16,6 +18,7 @@ import type {
   GetEvmTradeRateInput,
   GetTradeRateInput,
   GetUtxoTradeRateInput,
+  ProtocolFee,
   SwapErrorRight,
   SwapperDeps,
   TradeRate,
@@ -24,6 +27,24 @@ import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { fetchGardenQuote } from '../utils/fetchFromGarden'
 import { assetIdToGardenAssetId, isSupportedGardenPair } from '../utils/helpers/helpers'
+
+const buildAffiliateProtocolFees = (
+  buyAmountAfterFeesCryptoBaseUnit: string,
+  buyAsset: Asset,
+  affiliateBps: string,
+): Record<AssetId, ProtocolFee> => {
+  if (!affiliateBps || affiliateBps === '0') return {}
+  return {
+    [buyAsset.assetId]: {
+      amountCryptoBaseUnit: bn(buyAmountAfterFeesCryptoBaseUnit)
+        .times(affiliateBps)
+        .div(10000)
+        .toFixed(0),
+      requiresBalance: false,
+      asset: buyAsset,
+    },
+  }
+}
 
 const FEE_PLACEHOLDER_ADDRESS_BY_NAMESPACE: Record<string, string> = {
   [CHAIN_NAMESPACE.Utxo]: DAO_TREASURY_BITCOIN,
@@ -163,7 +184,11 @@ export const getTradeRate = async (
         buyAmountAfterFeesCryptoBaseUnit: quote.destination.amount,
         buyAsset,
         feeData: {
-          protocolFees: {},
+          protocolFees: buildAffiliateProtocolFees(
+            quote.destination.amount,
+            buyAsset,
+            affiliateBps,
+          ),
           networkFeeCryptoBaseUnit,
         },
         rate,

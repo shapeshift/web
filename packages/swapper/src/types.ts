@@ -466,10 +466,8 @@ export type TradeQuoteStep = {
       to: string
       data: string
       value: string
-      gasLimit: string
       allowanceContract: string
     }
-    estimatedTimeMs: number
   }
   thorchainSpecific?: {
     maxStreamingQuantity?: number
@@ -599,10 +597,8 @@ export type SwapperSpecificMetadata = {
       to: string
       data: string
       value: string
-      gasLimit: string
       allowanceContract: string
     }
-    estimatedTimeMs: number
   }
   relayTransactionMetadata: RelayTransactionMetadata | undefined
   acrossTransactionMetadata: AcrossTransactionMetadata | undefined

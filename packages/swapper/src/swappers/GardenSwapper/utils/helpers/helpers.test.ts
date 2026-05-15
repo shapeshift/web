@@ -1,6 +1,6 @@
 import { btcAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { strkbtcAssetId } from '../../constants'
 import type { GardenOrder, GardenSwapState } from '../../types'
@@ -51,7 +51,6 @@ const buildOrder = (
   source_swap: emptySwap(source),
   destination_swap: emptySwap({ chain: 'bitcoin', asset: 'bitcoin:btc', ...destination }),
   nonce: '1',
-  deadline: 0,
   affiliate_fees: [],
   ...overrides,
 })
@@ -114,16 +113,25 @@ describe('GardenSwapper helpers', () => {
       expect(isSupportedGardenPair(btcAssetId, eth)).toBe(false)
       expect(isSupportedGardenPair(eth, strkbtcAssetId)).toBe(false)
     })
+
+    it('rejects Solana as the source chain even when the registry has the asset', () => {
+      const solanaSol = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501'
+      expect(isSupportedGardenPair(solanaSol, btcAssetId)).toBe(false)
+    })
+
+    it('rejects Tron as the source chain even when the registry has the asset', () => {
+      const tronUsdt = 'tron:0x2b6653dc/trc20:TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'
+      expect(isSupportedGardenPair(tronUsdt, btcAssetId)).toBe(false)
+    })
+
+    it('still accepts Solana as the destination chain', () => {
+      const solanaCbbtc =
+        'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:cbbtcf3aa214zXHbiAZQwf4122FBYbraNdFqgw4iMij'
+      expect(isSupportedGardenPair(btcAssetId, solanaCbbtc)).toBe(true)
+    })
   })
 
   describe('mapGardenOrderToTxStatus', () => {
-    beforeEach(() => {
-      vi.useFakeTimers().setSystemTime(new Date('2026-05-15T12:00:00Z'))
-    })
-    afterEach(() => {
-      vi.useRealTimers()
-    })
-
     it('returns Confirmed with buyTxHash when destination_swap.redeem_tx_hash is set', () => {
       const order = buildOrder({}, { redeem_tx_hash: '0xredeem' })
       expect(mapGardenOrderToTxStatus(order)).toEqual({
@@ -148,22 +156,9 @@ describe('GardenSwapper helpers', () => {
       })
     })
 
-    it('returns Failed with "Order expired" when deadline is in the past', () => {
-      const order = buildOrder({}, {}, { deadline: 1000 })
-      expect(mapGardenOrderToTxStatus(order)).toEqual({
-        status: TxStatus.Failed,
-        message: 'Order expired',
-      })
-    })
-
     it('returns Pending when nothing has settled yet', () => {
       const order = buildOrder({}, {})
       expect(mapGardenOrderToTxStatus(order)).toEqual({ status: TxStatus.Pending })
-    })
-
-    it('prioritises Confirmed over expired deadline', () => {
-      const order = buildOrder({}, { redeem_tx_hash: '0xredeem' }, { deadline: 1000 })
-      expect(mapGardenOrderToTxStatus(order).status).toBe(TxStatus.Confirmed)
     })
   })
 

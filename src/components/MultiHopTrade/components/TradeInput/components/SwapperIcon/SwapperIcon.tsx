@@ -12,6 +12,7 @@ import CetusIcon from './cetus-icon.jpg'
 import ChainflipIcon from './chainflip-icon.png'
 import CowIcon from './cow-icon.png'
 import DebridgeIcon from './debridge-icon.svg'
+import GardenIcon from './garden-icon.png'
 import MayachainIcon from './maya_logo.png'
 import NearIntentsIcon from './near-intents-icon.png'
 import PortalsIcon from './portals-icon.png'
@@ -66,6 +67,8 @@ export const SwapperIcon = ({
         return AcrossIcon
       case SwapperName.Debridge:
         return DebridgeIcon
+      case SwapperName.Garden:
+        return GardenIcon
       case SwapperName.Test:
         return ''
       default:

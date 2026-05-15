@@ -119,6 +119,7 @@ export const useTradeButtonProps = ({
       metadata: {
         chainflipSwapId: firstStep?.chainflipSpecific?.chainflipSwapId,
         nearIntentsSpecific: firstStep?.nearIntentsSpecific,
+        gardenSpecific: firstStep?.gardenSpecific,
         relayerExplorerTxLink,
         relayerTxHash,
         relayTransactionMetadata: firstStep?.relayTransactionMetadata,

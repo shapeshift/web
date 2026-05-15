@@ -1,4 +1,4 @@
-import { starknetAssetId, starknetChainId } from '@shapeshiftoss/caip'
+import { btcAssetId, starknetAssetId, starknetChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import chunk from 'lodash/chunk'
@@ -21,6 +21,23 @@ const starknetBaseAsset: Asset = {
   explorerAddressLink: 'https://starkscan.co/contract/',
   explorerTxLink: 'https://starkscan.co/tx/',
   relatedAssetKey: null,
+}
+
+// strkBTC — Starknet's privacy-enabled wrapped Bitcoin (launched 2026-05-12).
+// Hardcoded here because CoinGecko has not yet indexed it as of integration.
+const strkbtcAsset: Asset = {
+  assetId:
+    'starknet:SN_MAIN/token:0x0787150e306e6eae6e3f79dea881770e8bbff2c1b8eb490f969669ee945b3135',
+  chainId: starknetChainId,
+  name: 'Starknet Bitcoin',
+  symbol: 'strkBTC',
+  precision: 8,
+  color: '#F7931A',
+  icon: 'https://serve.garden.finance/chain_images/strkb.png',
+  explorer: 'https://starkscan.co',
+  explorerAddressLink: 'https://starkscan.co/contract/',
+  explorerTxLink: 'https://starkscan.co/tx/',
+  relatedAssetKey: btcAssetId,
 }
 
 export const getAssets = async (): Promise<Asset[]> => {
@@ -61,5 +78,5 @@ export const getAssets = async (): Promise<Asset[]> => {
     /^starknet:SN_MAIN\/token:0x0*4718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d$/i
   const tokensOnly = modifiedAssets.filter(asset => !nativeStrkTokenPattern.test(asset.assetId))
 
-  return [starknetBaseAsset, ...tokensOnly]
+  return [starknetBaseAsset, strkbtcAsset, ...tokensOnly]
 }

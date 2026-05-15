@@ -62,6 +62,7 @@ const envSchema = z.object({
   ACROSS_INTEGRATOR_ID: z.string().default(''),
   BEBOP_API_KEY: z.string().min(1),
   CHAINFLIP_API_KEY: z.string().min(1),
+  GARDEN_API_KEY: z.string().default(''),
   NEAR_INTENTS_API_KEY: z.string().min(1),
   TENDERLY_API_KEY: z.string().min(1),
   TENDERLY_ACCOUNT_SLUG: z.string().min(1),

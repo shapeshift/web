@@ -199,14 +199,8 @@ ${formatColors(lightColors, 'light')}
                 title={preset.name}
                 type='button'
               >
-                <div
-                  className='demo-preset-preview'
-                  style={{ background: previewColors.bg }}
-                >
-                  <div
-                    className='demo-preset-card'
-                    style={{ background: previewColors.card }}
-                  />
+                <div className='demo-preset-preview' style={{ background: previewColors.bg }}>
+                  <div className='demo-preset-card' style={{ background: previewColors.card }} />
                   <div
                     className='demo-preset-accent'
                     style={{ background: previewColors.accent }}

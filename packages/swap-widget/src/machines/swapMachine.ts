@@ -136,7 +136,8 @@ export const swapMachine = setup({
       sendAddress: (event as { type: 'SET_SEND_ADDRESS'; address: string | undefined }).address,
     })),
     assignReceiveAddress: assign(({ event }) => ({
-      receiveAddress: (event as { type: 'SET_RECEIVE_ADDRESS'; address: string | undefined }).address,
+      receiveAddress: (event as { type: 'SET_RECEIVE_ADDRESS'; address: string | undefined })
+        .address,
     })),
     assignChainInfo: assign(({ event }) => {
       const e = event as Extract<SwapMachineEvent, { type: 'UPDATE_CHAIN_INFO' }>

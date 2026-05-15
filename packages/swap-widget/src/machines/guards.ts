@@ -29,5 +29,4 @@ export const isSolanaChain = (context: SwapMachineContext): boolean =>
 
 export const hasSendAddress = (context: SwapMachineContext): boolean => !!context.sendAddress
 
-export const hasReceiveAddress = (context: SwapMachineContext): boolean =>
-  !!context.receiveAddress
+export const hasReceiveAddress = (context: SwapMachineContext): boolean => !!context.receiveAddress

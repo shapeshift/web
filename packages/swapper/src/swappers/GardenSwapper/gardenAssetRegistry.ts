@@ -71,11 +71,7 @@ const starknetToken = (address: string): AssetId =>
     assetReference: address,
   })
 
-// Snapshot of Garden's live /v2/assets at 2026-05-15.
-// Botanix (evm:3637) and Citrea (evm:4114) are present in Garden but ShapeShift has no
-// chain adapter for them, so we omit them rather than synthesise a broken AssetId.
 export const gardenAssetRegistry: readonly GardenAssetEntry[] = [
-  // Bitcoin (UTXO)
   {
     id: 'bitcoin:btc',
     assetId: btcAssetId,
@@ -83,8 +79,6 @@ export const gardenAssetRegistry: readonly GardenAssetEntry[] = [
     decimals: 8,
     contractAddress: null,
   },
-
-  // Litecoin (UTXO) — Garden labels its `chain` as "bitcoin" but the asset id keeps `litecoin:`.
   {
     id: 'litecoin:ltc',
     assetId: ltcAssetId,
@@ -92,8 +86,6 @@ export const gardenAssetRegistry: readonly GardenAssetEntry[] = [
     decimals: 8,
     contractAddress: null,
   },
-
-  // Ethereum
   {
     id: 'ethereum:usdt',
     assetId: erc20(ethChainId, '0xdAC17F958D2ee523a2206206994597C13D831ec7'),
@@ -122,8 +114,6 @@ export const gardenAssetRegistry: readonly GardenAssetEntry[] = [
     decimals: 6,
     contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
   },
-
-  // Base
   {
     id: 'base:cbbtc',
     assetId: erc20(baseChainId, '0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf'),
@@ -138,8 +128,6 @@ export const gardenAssetRegistry: readonly GardenAssetEntry[] = [
     decimals: 8,
     contractAddress: '0xcb17C9Db87B595717C857a08468793f5bAb6445F',
   },
-
-  // BNB Chain
   {
     id: 'bnbchain:btcb',
     assetId: erc20(bscChainId, '0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c'),
@@ -147,8 +135,6 @@ export const gardenAssetRegistry: readonly GardenAssetEntry[] = [
     decimals: 18,
     contractAddress: '0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c',
   },
-
-  // Arbitrum
   {
     id: 'arbitrum:wbtc',
     assetId: erc20(arbitrumChainId, '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f'),
@@ -163,8 +149,6 @@ export const gardenAssetRegistry: readonly GardenAssetEntry[] = [
     decimals: 8,
     contractAddress: '0x050C24dBf1eEc17babE5fc585F06116A259CC77A',
   },
-
-  // Monad
   {
     id: 'monad:mon',
     assetId: monadNativeAssetId,
@@ -179,8 +163,6 @@ export const gardenAssetRegistry: readonly GardenAssetEntry[] = [
     decimals: 6,
     contractAddress: '0x754704Bc059F8C67012fEd69BC8A327a5aafb603',
   },
-
-  // HyperEVM
   {
     id: 'hyperevm:ubtc',
     assetId: erc20(hyperEvmChainId, '0x9FDBdA0A5e284c32744D2f17Ee5c74B284993463'),
@@ -188,8 +170,6 @@ export const gardenAssetRegistry: readonly GardenAssetEntry[] = [
     decimals: 8,
     contractAddress: '0x9FDBdA0A5e284c32744D2f17Ee5c74B284993463',
   },
-
-  // MegaETH
   {
     id: 'megaeth:btc.b',
     assetId: erc20(megaethChainId, '0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072'),
@@ -197,8 +177,6 @@ export const gardenAssetRegistry: readonly GardenAssetEntry[] = [
     decimals: 8,
     contractAddress: '0xB0F70C0bD6FD87dbEb7C10dC692a2a6106817072',
   },
-
-  // Starknet
   {
     id: 'starknet:wbtc',
     assetId: starknetToken('0x3fe2b97c1fd336e750087d68b9b867997fd64a2661ff3ca5a7c771641e8e7ac'),
@@ -213,8 +191,6 @@ export const gardenAssetRegistry: readonly GardenAssetEntry[] = [
     decimals: 8,
     contractAddress: '0x0787150e306e6eae6e3f79dea881770e8bbff2c1b8eb490f969669ee945b3135',
   },
-
-  // Solana
   {
     id: 'solana:sol',
     assetId: solanaNativeAssetId,
@@ -243,8 +219,6 @@ export const gardenAssetRegistry: readonly GardenAssetEntry[] = [
     decimals: 6,
     contractAddress: 'CASHx9KJUStyftLFWGvEVf59SGeG9sh5FfcnZMVPCASH',
   },
-
-  // Tron
   {
     id: 'tron:usdt',
     assetId: trc20('TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'),
@@ -254,9 +228,6 @@ export const gardenAssetRegistry: readonly GardenAssetEntry[] = [
   },
 ] as const
 
-// Snapshot of Garden's live /v2/policy at 2026-05-15.
-// Default open with ~36 explicit pair denials, mostly to gate the new strkbtc/wbtc
-// Starknet assets to BTC-denominated routes only.
 export const GARDEN_BLACKLIST_PAIRS: readonly string[] = [
   'starknet:wbtc <-> arbitrum:wbtc',
   'starknet:wbtc <-> megaeth:btc.b',

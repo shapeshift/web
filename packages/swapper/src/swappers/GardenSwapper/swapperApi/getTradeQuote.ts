@@ -219,9 +219,6 @@ export const getTradeQuote = async (
     buyAsset,
   })
 
-  // EVM source needs HTLC contract pre-approved before the initiate call. For
-  // other chain types there is no separate approval (BTC has none, Starknet
-  // bundles approve+initiate in one INVOKE).
   const allowanceContract = gardenSpecific.evmInitiate?.allowanceContract ?? '0x0'
 
   const tradeQuote: TradeQuote = {

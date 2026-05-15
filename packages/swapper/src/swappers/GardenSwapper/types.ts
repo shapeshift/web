@@ -6,9 +6,6 @@ export const gardenSupportedChainIds: readonly ChainId[] = Array.from(
   new Set(gardenAssetRegistry.map(a => a.chainId)),
 )
 
-// Garden's asset id format is `<chain>:<symbol>`. We accept any string here so
-// that the registry stays the source of truth instead of a manually-maintained
-// union type.
 export type GardenAssetId = string
 
 export type GardenAffiliateFeeAsset = 'base:cbbtc' | 'ethereum:cbbtc' | 'ethereum:usdc'

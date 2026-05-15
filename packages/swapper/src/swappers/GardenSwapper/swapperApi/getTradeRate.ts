@@ -25,10 +25,6 @@ import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { fetchGardenQuote } from '../utils/fetchFromGarden'
 import { assetIdToGardenAssetId, isSupportedGardenPair } from '../utils/helpers/helpers'
 
-// Placeholder destination addresses for fee estimation when no real deposit
-// address is available yet (rates run before /v2/orders is called).
-// UTXO fee depends mostly on inputs, EVM/Starknet fee on calldata, so the
-// destination address barely affects the estimate.
 const FEE_PLACEHOLDER_ADDRESS_BY_NAMESPACE: Record<string, string> = {
   [CHAIN_NAMESPACE.Utxo]: DAO_TREASURY_BITCOIN,
   [CHAIN_NAMESPACE.Evm]: DAO_TREASURY_BASE,

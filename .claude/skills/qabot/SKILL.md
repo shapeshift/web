@@ -17,12 +17,14 @@ Secrets are stored in `~/.secrets` (sourced by `~/.zshrc`). Required env vars:
 - `QABOT_API_KEY` - shared API key for write access to qabot
 - `QABOT_OPERATOR` - your operator name (e.g. "gomes", "clawdbot") - labels who ran what
 - `NATIVE_WALLET_PASSWORD` - native wallet password for agent-browser wallet unlock
+- `QABOT_KEYSTORE_PATH` - absolute path to a keystore JSON file used for keystore-based wallet import (e.g. `~/Desktop/thorswap-keystore-*.txt`)
 
 ```bash
-# Verify env is set - all three MUST be present
+# Verify env is set - all four MUST be present
 echo "QABOT_API_KEY: ${QABOT_API_KEY:+set}"
 echo "QABOT_OPERATOR: ${QABOT_OPERATOR:+set}"
 echo "NATIVE_WALLET_PASSWORD: ${NATIVE_WALLET_PASSWORD:+set}"
+echo "QABOT_KEYSTORE_PATH: ${QABOT_KEYSTORE_PATH:+set}"
 ```
 
 If any of these are missing, tell the user to add them to `~/.secrets`. The API key is shared among trusted operators.
@@ -88,7 +90,7 @@ Example: `eth-to-fox-swap.yaml` depends on `wallet-health.yaml`. When you run et
 
 ### Onboarding Dialog
 
-On first visit to any origin (gome.shapeshift.com, release.shapeshift.com, etc.), ShapeShift shows an onboarding splash dialog ("Self-Custody", "You own your keys") with "Skip" and "Next" buttons. The wallet-health fixture handles dismissing this. Always run wallet-health as a dependency for other fixtures.
+On first visit to any origin (yeet.shapeshift.com, release.shapeshift.com, etc.), ShapeShift shows an onboarding splash dialog ("Self-Custody", "You own your keys") with "Skip" and "Next" buttons. The wallet-health fixture handles dismissing this. Always run wallet-health as a dependency for other fixtures.
 
 ## agent-browser Session
 
@@ -130,14 +132,14 @@ Only use `--headed` if the user explicitly wants to import via seed phrase (whic
 
 **Keystore import flow** (when no native wallet exists for the origin):
 
-There should be a keystore file on the Desktop (e.g. `thorswap-keystore*.txt` or similar). The exact filename may change - look for a keystore/json file on `~/Desktop/`.
+The keystore file path comes from `$QABOT_KEYSTORE_PATH`. If unset, ask the operator to export a keystore from their wallet and point that env var at it.
 
 1. Click "Connect Wallet" button (use JS eval if click times out):
    `eval "document.querySelectorAll('button').forEach(b => { if(b.textContent.includes('Connect Wallet')) b.click() })"`
 2. Click "Import existing"
 3. Click "Keystore" (the "Import Keystore File" option)
 4. Upload the keystore file to the hidden file input:
-   `upload "input[type=file]" "/Users/gomes/Desktop/<keystore-filename>"`
+   `upload "input[type=file]" "$QABOT_KEYSTORE_PATH"`
 5. Fill the keystore password:
    `fill "input[placeholder*=Password]" "$NATIVE_WALLET_PASSWORD"`
 6. Click "Import Keystore"
@@ -152,7 +154,6 @@ There should be a keystore file on the Desktop (e.g. `thorswap-keystore*.txt` or
 Origins where the wallet has been imported:
 - `http://localhost:3000` (local dev, legacy)
 - `http://<branch>.web.localhost:1355` (local dev via Portless - origin varies per branch, e.g. `develop.web.localhost:1355`)
-- `https://gome.shapeshift.com` (gome staging)
 - `https://release.shapeshift.com` (release staging)
 
 ### Wallet Unlock
@@ -284,7 +285,7 @@ Clipboard read/write/copy/paste is available via `agent-browser --session qabot 
 
 #### Clicking on External Origins
 
-- **Clicking on external origins**: `click --ref` and `click --text` frequently time out on gome/release.shapeshift.com (elements blocked by overlays or slow hydration). **Always prefer JS eval for clicking on external origins**.
+- **Clicking on external origins**: `click --ref` and `click --text` frequently time out on release.shapeshift.com (elements blocked by overlays or slow hydration). **Always prefer JS eval for clicking on external origins**.
 - **`.click()` vs `dispatchEvent`**: Some buttons on external origins don't respond to `.click()` (e.g. asset picker avatars). Use `dispatchEvent(new MouseEvent("click",{bubbles:true,cancelable:true}))` as a more reliable fallback. Example for asset avatar buttons:
   ```js
   var btn=document.querySelector("button[class*=avatar]"); if(btn) btn.dispatchEvent(new MouseEvent("click",{bubbles:true,cancelable:true}));
@@ -325,7 +326,7 @@ Clipboard read/write/copy/paste is available via `agent-browser --session qabot 
 - **Warning dialogs during swap**: Two common warnings appear after clicking Preview Trade or Confirm and Trade:
   1. "Below recommended minimum" - for small amounts. Click "I understand" to proceed.
   2. "Price impact" - for high slippage (common with small THORChain trades). Click "I understand" to proceed.
-- **Preview Trade loading loop**: On gome/release origins, clicking "Preview Trade" sometimes shows "Loading... Preview Trade" indefinitely then bounces back to enabled. The fix: click Preview Trade, then immediately (within 2-3s) check for and click "I understand" on the below-minimum warning. The warning appearing while loading causes the loop. Sequence:
+- **Preview Trade loading loop**: On release origins, clicking "Preview Trade" sometimes shows "Loading... Preview Trade" indefinitely then bounces back to enabled. The fix: click Preview Trade, then immediately (within 2-3s) check for and click "I understand" on the below-minimum warning. The warning appearing while loading causes the loop. Sequence:
   ```bash
   agent-browser --session qabot eval "$(cat /tmp/click-preview.js)"
   sleep 2
@@ -359,7 +360,7 @@ When you encounter what looks like a bug, **don't just report it — investigate
 - **zsh gotchas**: `$VAR` as command doesn't work in zsh. `!` negation in inline scripts causes "command not found: !". Use `grep -v` or numeric comparison instead. macOS `date` doesn't support `%3N` for milliseconds - use `python3 -c 'import time; print(int(time.time()*1000))'`. `status` is a read-only variable in zsh - use `result_status` instead.
 - Use `snapshot` after every action to verify state
 - Close the session when done: `agent-browser --session qabot close`
-- External origins (gome, release) are slower than localhost - use longer waits (8-10s after wallet unlock)
+- External origins (release) are slower than localhost - use longer waits (8-10s after wallet unlock)
 
 ## Execution Flow
 
@@ -430,11 +431,9 @@ GITHUB_REPO="shapeshift/web"
 # Origin-to-branch mapping (CloudFlare Pages deployments):
 #   localhost:3000                → local branch (detected from dev server process)
 #   *.web.localhost:1355          → local branch (Portless, detected from dev process)
-#   gome.shapeshift.com          → gome
 #   release.shapeshift.com       → release
 #   develop.shapeshift.com       → develop
 #   app.shapeshift.com           → main
-#   neo.shapeshift.com           → neo
 
 if [[ "$BASE_URL" == *"localhost"* ]]; then
   # Local dev: detect web repo from the process serving the dev server
@@ -460,10 +459,8 @@ else
   # (any local clone of shapeshift/web works - agent should find it)
   # Remote origin: map URL to branch, fetch latest upstream commit
   case "$BASE_URL" in
-    *gome.*)    BRANCH="gome" ;;
     *release.*) BRANCH="release" ;;
     *develop.*) BRANCH="develop" ;;
-    *neo.*)     BRANCH="neo" ;;
     *)          BRANCH="main" ;;  # app.shapeshift.com or unknown
   esac
   git -C "$WEB_REPO" fetch origin "$BRANCH" --quiet 2>/dev/null
@@ -494,7 +491,7 @@ RUN_ID=$(curl -s -X POST "$QABOT/api/runs" \
 # URL is a run-level arg, NOT per-fixture. Fixtures define a `route` (e.g. /trade).
 # The full URL = $BASE_URL + fixture route.
 # For local dev: BASE_URL=http://localhost:3000
-# For staging: BASE_URL=https://gome.shapeshift.com or https://release.shapeshift.com
+# For staging: BASE_URL=https://release.shapeshift.com
 #
 # For PR runs, also add: prNumber, prTitle, triggerType: "pr"
 # For release runs, add: releaseTag, triggerType: "release"

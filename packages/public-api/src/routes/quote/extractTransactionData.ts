@@ -1,5 +1,7 @@
 import { fromChainId } from '@shapeshiftoss/caip'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import type {
   CosmosTransactionData,
@@ -80,12 +82,26 @@ const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | u
     }
 
     if (step.nearIntentsSpecific?.depositAddress) {
+      const depositAddress = step.nearIntentsSpecific.depositAddress
+      const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
+      const contractAddress = contractAddressOrUndefined(step.sellAsset.assetId)
+
+      if (contractAddress) {
+        return {
+          type: 'evm' as const,
+          chainId,
+          to: contractAddress,
+          data: evm.getErc20Data(depositAddress, value, contractAddress),
+          value: '0',
+        }
+      }
+
       return {
         type: 'evm' as const,
         chainId,
-        to: step.nearIntentsSpecific.depositAddress,
+        to: depositAddress,
         data: '0x',
-        value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        value,
       }
     }
 

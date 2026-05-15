@@ -10,8 +10,8 @@ import { SwapperName } from '../../types'
 import { thorService } from '../service'
 import type { MidgardPoolResponse } from '../types'
 import {
-  getExpectedAffiliateFeeSellAssetThorUnit,
-  getOutboundFeeInSellAssetThorBaseUnit,
+  getExpectedAffiliateFeeSellAssetThorBaseUnit,
+  getOutboundFeeSellAssetThorBaseUnit,
   getThresholdedAffiliateBps,
 } from './getThresholdedAffiliateBps'
 
@@ -37,24 +37,41 @@ vi.mock('../service', () => {
   }
 })
 
-describe('getOutboundFeeInSellAssetThorBaseUnit', () => {
+describe('getOutboundFeeSellAssetThorBaseUnit', () => {
   it('should return 0.02 rune denominated in the target asset, in thor units', () => {
     const assetPricePrecision = '4.00000' // 1 token is 4x as valuable as 1 rune
     expect(
-      getOutboundFeeInSellAssetThorBaseUnit(assetPricePrecision, SwapperName.Thorchain).toNumber(),
+      getOutboundFeeSellAssetThorBaseUnit(
+        assetPricePrecision,
+        ETH.assetId,
+        SwapperName.Thorchain,
+      ).toNumber(),
     ).toEqual(
       Number(thorchain.NATIVE_FEE) / 4, // .005 of the sell asset in THOR base unit
     )
   })
+
+  it('should scale CACAO 10-dec native fee down to non-CACAO 8-dec sell asset precision on MAYA', () => {
+    // 1 eth = 100 cacao, NATIVE_FEE = 2e9 (10-dec CACAO = 0.2 CACAO)
+    // 0.2 CACAO / 100 (CACAO/ETH) = 0.002 ETH = 200_000 at 8-dec ETH
+    const assetPrice = '100'
+    expect(
+      getOutboundFeeSellAssetThorBaseUnit(
+        assetPrice,
+        ETH.assetId,
+        SwapperName.Mayachain,
+      ).toNumber(),
+    ).toEqual(200_000)
+  })
 })
 
-describe('getExpectedAffiliateFeeSellAssetThorUnit', () => {
+describe('getExpectedAffiliateFeeSellAssetThorBaseUnit', () => {
   it('should return the correct affiliate fee in thor base units', () => {
     const sellAmountCryptoBaseUnit = '1000000000000000000' // 1 eth
     const affiliateBps = '35'
     const sellAsset = ETH
 
-    const result = getExpectedAffiliateFeeSellAssetThorUnit(
+    const result = getExpectedAffiliateFeeSellAssetThorBaseUnit(
       sellAmountCryptoBaseUnit,
       sellAsset,
       affiliateBps,
@@ -71,7 +88,7 @@ describe('getExpectedAffiliateFeeSellAssetThorUnit', () => {
     const affiliateBps = '0'
     const sellAsset = ETH
 
-    const result = getExpectedAffiliateFeeSellAssetThorUnit(
+    const result = getExpectedAffiliateFeeSellAssetThorBaseUnit(
       sellAmountCryptoBaseUnit,
       sellAsset,
       affiliateBps,

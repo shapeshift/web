@@ -1,10 +1,23 @@
+import type { InputEntryFunctionData } from '@aptos-labs/ts-sdk'
+import {
+  AccountAuthenticatorEd25519,
+  Aptos,
+  AptosConfig,
+  Deserializer,
+  Ed25519PublicKey,
+  Ed25519Signature,
+  Network,
+  SimpleTransaction,
+} from '@aptos-labs/ts-sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
-  ASSET_REFERENCE,
   aptosAssetId,
   aptosChainId,
+  ASSET_NAMESPACE,
+  ASSET_REFERENCE,
+  toAssetId,
 } from '@shapeshiftoss/caip'
-import type { AptosSignTx, AptosWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { AptosWallet, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsAptos } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -29,10 +42,15 @@ import type {
 } from '../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../types'
 import { toAddressNList, verifyLedgerAppOpen } from '../utils'
+import type { AptosToken } from './types'
 
 export interface ChainAdapterArgs {
   rpcUrl: string
+  indexerUrl: string
 }
+
+const APT_COIN_TYPE = '0x1::aptos_coin::AptosCoin'
+const MIN_MAX_GAS_AMOUNT = 12_000n
 
 export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   static readonly rootBip44Params: RootBip44Params = {
@@ -44,9 +62,19 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   protected readonly chainId = aptosChainId
   protected readonly assetId = aptosAssetId
   protected readonly rpcUrl: string
+  protected readonly indexerUrl: string
+  protected readonly client: Aptos
 
   constructor(args: ChainAdapterArgs) {
     this.rpcUrl = args.rpcUrl
+    this.indexerUrl = args.indexerUrl
+    this.client = new Aptos(
+      new AptosConfig({
+        network: Network.MAINNET,
+        fullnode: args.rpcUrl,
+        indexer: args.indexerUrl,
+      }),
+    )
   }
 
   private assertSupportsChain(wallet: HDWallet): asserts wallet is AptosWallet {
@@ -64,6 +92,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
 
   getDisplayName() {
     return ChainAdapterDisplayName.Aptos
+  }
+
+  getRpcUrl() {
+    return this.rpcUrl
   }
 
   getType(): KnownChainIds.AptosMainnet {
@@ -116,34 +148,42 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
 
   async getAccount(pubkey: string): Promise<Account<KnownChainIds.AptosMainnet>> {
     try {
-      const response = await fetch(`${this.rpcUrl}/accounts/${pubkey}`)
+      const balances = await this.client.getAccountCoinsData({
+        accountAddress: pubkey,
+      })
 
-      if (!response.ok) {
-        throw new Error(`Aptos account request failed: ${response.status}`)
-      }
+      let nativeBalance = '0'
+      const tokens: AptosToken[] = []
 
-      const accountData = await response.json()
+      for (const entry of balances) {
+        if (!entry.asset_type || BigInt(entry.amount ?? 0) === 0n) continue
 
-      // Aptos returns coin balances as an array of { coin: { type: string }, coin?: { value: string } }
-      // The native APT balance is under 0x1::aptos_coin::AptosCoin
-      let balance = '0'
-
-      if (Array.isArray(accountData)) {
-        // Some endpoints return array of coin resources
-        for (const resource of accountData) {
-          if (resource.type === '0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>') {
-            balance = resource.data?.coin?.value ?? '0'
-            break
-          }
+        if (entry.asset_type === APT_COIN_TYPE) {
+          nativeBalance = String(entry.amount)
+          continue
         }
+
+        const assetId = toAssetId({
+          chainId: this.chainId,
+          assetNamespace: ASSET_NAMESPACE.aptosCoin,
+          assetReference: entry.asset_type,
+        })
+
+        tokens.push({
+          assetId,
+          balance: String(entry.amount),
+          symbol: entry.metadata?.symbol ?? 'UNKNOWN',
+          name: entry.metadata?.name ?? entry.asset_type,
+          precision: entry.metadata?.decimals ?? 0,
+        })
       }
 
       return {
-        balance,
+        balance: nativeBalance,
         chainId: this.chainId,
         assetId: this.assetId,
         chain: this.getType(),
-        chainSpecific: {},
+        chainSpecific: { tokens },
         pubkey,
       }
     } catch (err) {
@@ -179,41 +219,51 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     throw new Error('Aptos transaction history not yet implemented')
   }
 
+  private async estimateMaxGasAmount(
+    sender: string,
+    data: InputEntryFunctionData,
+  ): Promise<bigint> {
+    const tx = await this.client.transaction.build.simple({
+      sender,
+      data,
+      options: { maxGasAmount: 2_000_000 },
+    })
+    const dummyPubKey = new Ed25519PublicKey('0x' + '00'.repeat(32))
+    const [sim] = await this.client.transaction.simulate.simple({
+      signerPublicKey: dummyPubKey,
+      transaction: tx,
+      options: { estimateGasUnitPrice: true, estimateMaxGasAmount: true },
+    })
+    const recommended = BigInt(sim?.max_gas_amount ?? sim?.gas_used ?? 0)
+    return recommended > MIN_MAX_GAS_AMOUNT ? recommended : MIN_MAX_GAS_AMOUNT
+  }
+
   async buildSendApiTransaction(
     input: BuildSendApiTxInput<KnownChainIds.AptosMainnet>,
   ): Promise<SignTx<KnownChainIds.AptosMainnet>> {
     try {
       const { from, accountNumber, to, value } = input
 
-      // Build a raw Aptos transaction for signing
-      // We construct the BCS-encoded transaction payload for 0x1::coin::transfer
-      const sequenceNumber = await this.getSequenceNumber(from)
-      const gasEstimate = await this.getGasPrice()
-      const chainId = 1 // Aptos mainnet chain ID
-
-      // Build the raw transaction structure
-      const txData = {
-        sender: from,
-        sequence_number: sequenceNumber,
-        max_gas_amount: '2000',
-        gas_unit_price: gasEstimate,
-        expiration_timestamp_secs: String(Math.floor(Date.now() / 1000) + 3600),
-        chain_id: chainId,
-        payload: {
-          type: 'entry_function_payload',
-          function: '0x1::coin::transfer',
-          type_arguments: ['0x1::aptos_coin::AptosCoin'],
-          arguments: [to, value],
-        },
+      const data: InputEntryFunctionData = {
+        function: '0x1::aptos_account::transfer_coins',
+        typeArguments: [APT_COIN_TYPE],
+        functionArguments: [to, BigInt(value)],
       }
+      const maxGasAmount = Number(await this.estimateMaxGasAmount(from, data))
 
-      // Serialize the transaction for the hardware wallet to sign
-      // The wallet expects raw BCS bytes via aptosSignTx
-      const txBytes = new TextEncoder().encode(JSON.stringify(txData))
+      const transaction = await this.client.transaction.build.simple({
+        sender: from,
+        data,
+        options: { maxGasAmount },
+      })
+
+      const signingMessageBytes = this.client.getSigningMessage({ transaction })
+      const rawTransactionBytes = transaction.bcsToBytes()
 
       return {
         addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
-        txBytes,
+        signingMessageBytes,
+        rawTransactionBytes,
       }
     } catch (err) {
       return ErrorHandler(err, {
@@ -250,7 +300,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
 
       const signedTx = await wallet.aptosSignTx({
         addressNList: txToSign.addressNList,
-        txBytes: txToSign.txBytes,
+        signingMessageBytes: txToSign.signingMessageBytes,
+        rawTransactionBytes: txToSign.rawTransactionBytes,
       })
 
       if (!signedTx?.signature || !signedTx?.publicKey) {
@@ -260,7 +311,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
       return JSON.stringify({
         signature: signedTx.signature,
         publicKey: signedTx.publicKey,
-        txBytes: Array.from(signedTx.txBytes),
+        rawTransactionBytes: Array.from(signedTx.rawTransactionBytes),
       })
     } catch (err) {
       return ErrorHandler(err, {
@@ -270,11 +321,13 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   }
 
   async signAndBroadcastTransaction({
+    senderAddress,
+    receiverAddress,
     signTxInput,
   }: SignAndBroadcastTransactionInput<KnownChainIds.AptosMainnet>): Promise<string> {
     try {
       const signedTxHex = await this.signTransaction(signTxInput)
-      return this.broadcastTransaction({ hex: signedTxHex })
+      return this.broadcastTransaction({ senderAddress, receiverAddress, hex: signedTxHex })
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.signAndBroadcastTransaction',
@@ -285,31 +338,25 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   async broadcastTransaction(input: BroadcastTransactionInput): Promise<string> {
     try {
       const { hex } = input
-      const parsed = JSON.parse(hex)
-
-      // Submit the signed transaction to the Aptos REST API
-      // The signed transaction needs to be submitted as a BCS-encoded body
-      const response = await fetch(`${this.rpcUrl}/transactions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sender: `0x${parsed.publicKey}`,
-          signature: {
-            type: 'ed25519_signature',
-            public_key: `0x${parsed.publicKey}`,
-            signature: `0x${parsed.signature}`,
-          },
-          payload: JSON.parse(new TextDecoder().decode(new Uint8Array(parsed.txBytes))).payload,
-        }),
-      })
-
-      if (!response.ok) {
-        const errorBody = await response.text()
-        throw new Error(`Aptos broadcast failed: ${response.status} - ${errorBody}`)
+      const parsed = JSON.parse(hex) as {
+        signature: string
+        publicKey: string
+        rawTransactionBytes: number[]
       }
 
-      const result = await response.json()
-      return result.hash ?? result.version?.toString() ?? ''
+      const rawBytes = new Uint8Array(parsed.rawTransactionBytes)
+      const transaction = SimpleTransaction.deserialize(new Deserializer(rawBytes))
+
+      const publicKey = new Ed25519PublicKey(parsed.publicKey)
+      const signature = new Ed25519Signature(parsed.signature)
+      const senderAuthenticator = new AccountAuthenticatorEd25519(publicKey, signature)
+
+      const pending = await this.client.transaction.submit.simple({
+        transaction,
+        senderAuthenticator,
+      })
+
+      return pending.hash
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.broadcastTransaction',
@@ -321,20 +368,54 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     input: GetFeeDataInput<KnownChainIds.AptosMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.AptosMainnet>> {
     try {
-      const gasPrice = await this.getGasPrice()
-      const maxGasAmount = '2000'
-      const txFee = (BigInt(maxGasAmount) * BigInt(gasPrice)).toString()
+      const { chainSpecific } = input
+      const { from } = chainSpecific
 
-      const feeData = {
-        gasEstimate: txFee,
-        gasUnitPrice: gasPrice,
-        maxGasAmount,
+      const { gas_estimate, prioritized_gas_estimate, deprioritized_gas_estimate } =
+        await this.client.getGasPriceEstimation()
+
+      let maxGasAmount: string
+      try {
+        const estimate = await this.estimateMaxGasAmount(from, {
+          function: '0x1::aptos_account::transfer_coins',
+          typeArguments: [APT_COIN_TYPE],
+          functionArguments: [from, 0n],
+        })
+        maxGasAmount = estimate.toString()
+      } catch {
+        maxGasAmount = MIN_MAX_GAS_AMOUNT.toString()
       }
 
+      const slowPrice = String(deprioritized_gas_estimate ?? gas_estimate ?? 100)
+      const averagePrice = String(gas_estimate ?? 100)
+      const fastPrice = String(prioritized_gas_estimate ?? gas_estimate ?? 100)
+      const calcTxFee = (price: string) => (BigInt(maxGasAmount) * BigInt(price)).toString()
+
       return {
-        fast: { txFee, chainSpecific: feeData },
-        average: { txFee, chainSpecific: feeData },
-        slow: { txFee, chainSpecific: feeData },
+        fast: {
+          txFee: calcTxFee(fastPrice),
+          chainSpecific: {
+            gasEstimate: calcTxFee(fastPrice),
+            gasUnitPrice: fastPrice,
+            maxGasAmount,
+          },
+        },
+        average: {
+          txFee: calcTxFee(averagePrice),
+          chainSpecific: {
+            gasEstimate: calcTxFee(averagePrice),
+            gasUnitPrice: averagePrice,
+            maxGasAmount,
+          },
+        },
+        slow: {
+          txFee: calcTxFee(slowPrice),
+          chainSpecific: {
+            gasEstimate: calcTxFee(slowPrice),
+            gasUnitPrice: slowPrice,
+            maxGasAmount,
+          },
+        },
       }
     } catch (err) {
       return ErrorHandler(err, {
@@ -355,23 +436,65 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     return
   }
 
+  private getPayloadAssetId(payload: {
+    function?: string
+    type_arguments?: string[]
+    arguments?: unknown[]
+  }): AssetId | undefined {
+    const fn = payload?.function
+    if (!fn) return undefined
+
+    if (fn === '0x1::coin::transfer' || fn === '0x1::aptos_account::transfer_coins') {
+      const coinType = payload.type_arguments?.[0]
+      if (!coinType) return undefined
+      if (coinType === APT_COIN_TYPE) return this.assetId
+      return toAssetId({
+        chainId: this.chainId,
+        assetNamespace: ASSET_NAMESPACE.aptosCoin,
+        assetReference: coinType,
+      })
+    }
+
+    if (fn === '0x1::primary_fungible_store::transfer') {
+      const metadata = payload.arguments?.[0]
+      const ref = typeof metadata === 'string' ? metadata : (metadata as { inner?: string })?.inner
+      if (!ref) return undefined
+      return toAssetId({
+        chainId: this.chainId,
+        assetNamespace: ASSET_NAMESPACE.aptosCoin,
+        assetReference: ref,
+      })
+    }
+
+    if (fn === '0x1::aptos_account::transfer') {
+      return this.assetId
+    }
+
+    return undefined
+  }
+
   async parseTx(txHashOrTx: unknown, pubkey: string): Promise<Transaction> {
     try {
-      const txHash = typeof txHashOrTx === 'string' ? txHashOrTx : ''
-
-      const response = await fetch(`${this.rpcUrl}/transactions/by_hash/${txHash}`)
-      if (!response.ok) {
-        throw new Error(`Aptos tx lookup failed: ${response.status}`)
+      const tx = (
+        typeof txHashOrTx === 'string'
+          ? await this.client.transaction.getTransactionByHash({ transactionHash: txHashOrTx })
+          : txHashOrTx
+      ) as {
+        hash?: string
+        version?: string | number
+        timestamp?: string | number
+        success?: boolean
+        gas_used?: string
+        gas_unit_price?: string
+        sender?: string
+        payload?: { function?: string; type_arguments?: string[]; arguments?: unknown[] }
       }
 
-      const tx = await response.json()
-
-      const txid = tx.hash ?? txHash
+      const txid = tx.hash ?? (typeof txHashOrTx === 'string' ? txHashOrTx : '')
       const blockHeight = Number(tx.version ?? 0)
-      const blockTime = tx.timestamp ? Math.floor(Number(tx.timestamp) / 1000) : 0
+      const blockTime = tx.timestamp ? Math.floor(Number(tx.timestamp) / 1_000_000) : 0
 
-      const success = tx.success !== false
-      const status = success ? TxStatus.Confirmed : TxStatus.Failed
+      const status = tx.success === false ? TxStatus.Failed : TxStatus.Confirmed
 
       const gasUsed = tx.gas_used ?? '0'
       const gasUnitPrice = tx.gas_unit_price ?? '0'
@@ -381,67 +504,33 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
       }
 
       const transfers: Transaction['transfers'] = []
+      const payload = tx.payload ?? {}
+      const transferAssetId = this.getPayloadAssetId(payload)
 
-      // Parse events for transfers
-      const events = tx.events ?? []
-      for (const event of events) {
-        if (event.type === '0x1::coin::WithdrawEvent' || event.type === '0x1::coin::DepositEvent') {
-          // These are coin module events, skip in favor of ChangeEvent
-          continue
-        }
+      if (transferAssetId) {
+        const args = payload.arguments ?? []
+        const fn = payload.function ?? ''
+        const isFaTransfer = fn === '0x1::primary_fungible_store::transfer'
+        const recipient = String(args[isFaTransfer ? 1 : 0] ?? '')
+        const amount = String(args[isFaTransfer ? 2 : 1] ?? '0')
+        const sender = tx.sender ?? ''
 
-        if (event.type?.includes('::CoinTransfer') || event.type?.includes('::Withdraw') || event.type?.includes('::Deposit')) {
-          const amount = event.data?.amount ?? event.data?.value ?? '0'
-          const isFromSender = event.guid?.account_address === pubkey || event.data?.from === pubkey
-          const isToSender = event.data?.to === pubkey
-
-          if (isFromSender) {
-            transfers.push({
-              assetId: this.assetId,
-              from: [event.data?.from ?? event.guid?.account_address ?? pubkey],
-              to: [event.data?.to ?? ''],
-              type: TransferType.Send,
-              value: amount,
-            })
-          }
-          if (isToSender) {
-            transfers.push({
-              assetId: this.assetId,
-              from: [event.data?.from ?? ''],
-              to: [event.data?.to ?? pubkey],
-              type: TransferType.Receive,
-              value: amount,
-            })
-          }
-        }
-      }
-
-      // If no transfers found from events, try to parse from the payload
-      if (transfers.length === 0 && tx.payload?.function === '0x1::coin::transfer') {
-        const args = tx.payload.arguments ?? []
-        const recipient = args[0] ?? ''
-        const amount = args[1] ?? '0'
-        const sender = tx.sender ?? pubkey
-
-        const isSend = sender === pubkey
-        const isReceive = recipient === pubkey
-
-        if (isSend) {
+        if (sender === pubkey) {
           transfers.push({
-            assetId: this.assetId,
+            assetId: transferAssetId,
             from: [sender],
             to: [recipient],
             type: TransferType.Send,
-            value: String(amount),
+            value: amount,
           })
         }
-        if (isReceive) {
+        if (recipient === pubkey) {
           transfers.push({
-            assetId: this.assetId,
+            assetId: transferAssetId,
             from: [sender],
             to: [recipient],
             type: TransferType.Receive,
-            value: String(amount),
+            value: amount,
           })
         }
       }
@@ -462,28 +551,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.parseTx',
       })
-    }
-  }
-
-  private async getSequenceNumber(address: string): Promise<string> {
-    try {
-      const response = await fetch(`${this.rpcUrl}/accounts/${address}`)
-      if (!response.ok) return '0'
-      const data = await response.json()
-      return data.sequence_number ?? '0'
-    } catch {
-      return '0'
-    }
-  }
-
-  private async getGasPrice(): Promise<string> {
-    try {
-      const response = await fetch(`${this.rpcUrl}/transactions/estimate_gas_price`)
-      if (!response.ok) return '100'
-      const data = await response.json()
-      return data.gas_estimate?.toString() ?? '100'
-    } catch {
-      return '100'
     }
   }
 }

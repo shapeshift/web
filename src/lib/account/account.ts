@@ -1,6 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import type { ChainNamespace } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import merge from 'lodash/merge'

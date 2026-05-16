@@ -5,6 +5,7 @@ import * as eventemitter2 from 'eventemitter2'
 import isObject from 'lodash/isObject'
 
 import type { NativeAdapterArgs } from './adapter'
+import { MixinNativeAptosWallet, MixinNativeAptosWalletInfo } from './aptos'
 import { MixinNativeArkeoWallet, MixinNativeArkeoWalletInfo } from './arkeo'
 import { MixinNativeBTCWallet, MixinNativeBTCWalletInfo } from './bitcoin'
 import { MixinNativeCosmosWallet, MixinNativeCosmosWalletInfo } from './cosmos'
@@ -22,7 +23,6 @@ import { MixinNativeSuiWallet, MixinNativeSuiWalletInfo } from './sui'
 import { MixinNativeTerraWallet, MixinNativeTerraWalletInfo } from './terra'
 import { MixinNativeThorchainWallet, MixinNativeThorchainWalletInfo } from './thorchain'
 import { MixinNativeTonWallet, MixinNativeTonWalletInfo } from './ton'
-import { MixinNativeAptosWallet, MixinNativeAptosWalletInfo } from './aptos'
 import { MixinNativeTronWallet, MixinNativeTronWalletInfo } from './tron'
 export { NativeEvents } from './nativeEvents'
 
@@ -135,15 +135,16 @@ class NativeHDWalletInfo
             MixinNativeTronWalletInfo(
               MixinNativeTonWalletInfo(
                 MixinNativeAptosWalletInfo(
-                MixinNativeSuiWalletInfo(
-                  MixinNativeNearWalletInfo(
-                    MixinNativeThorchainWalletInfo(
-                      MixinNativeMayachainWalletInfo(
-                        MixinNativeSecretWalletInfo(
-                          MixinNativeTerraWalletInfo(
-                            MixinNativeKavaWalletInfo(
-                              MixinNativeArkeoWalletInfo(
-                                MixinNativeOsmosisWalletInfo(NativeHDWalletBase),
+                  MixinNativeSuiWalletInfo(
+                    MixinNativeNearWalletInfo(
+                      MixinNativeThorchainWalletInfo(
+                        MixinNativeMayachainWalletInfo(
+                          MixinNativeSecretWalletInfo(
+                            MixinNativeTerraWalletInfo(
+                              MixinNativeKavaWalletInfo(
+                                MixinNativeArkeoWalletInfo(
+                                  MixinNativeOsmosisWalletInfo(NativeHDWalletBase),
+                                ),
                               ),
                             ),
                           ),
@@ -168,7 +169,6 @@ class NativeHDWalletInfo
     core.StarknetWalletInfo,
     core.TronWalletInfo,
     core.TonWalletInfo,
-    core.AptosWalletInfo,
     core.SuiWalletInfo,
     core.NearWalletInfo,
     core.ThorchainWalletInfo,
@@ -177,7 +177,8 @@ class NativeHDWalletInfo
     core.TerraWalletInfo,
     core.KavaWalletInfo,
     core.ArkeoWalletInfo,
-    core.OsmosisWalletInfo
+    core.OsmosisWalletInfo,
+    core.AptosWalletInfo
 {
   describePath(msg: core.DescribePath): core.PathDescription {
     switch (msg.coin.toLowerCase()) {
@@ -252,14 +253,17 @@ export class NativeHDWallet
             MixinNativeTronWallet(
               MixinNativeTonWallet(
                 MixinNativeAptosWallet(
-                MixinNativeSuiWallet(
-                  MixinNativeNearWallet(
-                    MixinNativeThorchainWallet(
-                      MixinNativeMayachainWallet(
-                        MixinNativeSecretWallet(
-                          MixinNativeTerraWallet(
-                            MixinNativeKavaWallet(
-                              MixinNativeOsmosisWallet(MixinNativeArkeoWallet(NativeHDWalletInfo)),
+                  MixinNativeSuiWallet(
+                    MixinNativeNearWallet(
+                      MixinNativeThorchainWallet(
+                        MixinNativeMayachainWallet(
+                          MixinNativeSecretWallet(
+                            MixinNativeTerraWallet(
+                              MixinNativeKavaWallet(
+                                MixinNativeOsmosisWallet(
+                                  MixinNativeArkeoWallet(NativeHDWalletInfo),
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -283,7 +287,6 @@ export class NativeHDWallet
     core.StarknetWallet,
     core.TronWallet,
     core.TonWallet,
-    core.AptosWallet,
     core.SuiWallet,
     core.NearWallet,
     core.ThorchainWallet,
@@ -292,7 +295,8 @@ export class NativeHDWallet
     core.TerraWallet,
     core.KavaWallet,
     core.OsmosisWallet,
-    core.ArkeoWallet
+    core.ArkeoWallet,
+    core.AptosWallet
 {
   readonly _isNative = true
 
@@ -513,7 +517,6 @@ export class NativeHDWallet
     super.suiWipe()
     super.nearWipe()
     super.tonWipe()
-    super.aptosWipe()
     super.btcWipe()
     super.ethWipe()
     super.cosmosWipe()
@@ -526,6 +529,7 @@ export class NativeHDWallet
     super.terraWipe()
     super.kavaWipe()
     super.arkeoWipe()
+    super.aptosWipe()
     ;(await oldSecp256k1MasterKey)?.revoke?.()
     ;(await oldEd25519MasterKey)?.revoke?.()
   }

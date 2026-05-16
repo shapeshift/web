@@ -27,7 +27,7 @@ export const assertGetAptosChainAdapter = (
 export const getAptosTransactionStatus = async (txHash: string): Promise<TxStatus> => {
   try {
     const adapter = assertGetAptosChainAdapter(aptosChainId)
-    const rpcUrl = (adapter as unknown as { rpcUrl: string }).rpcUrl
+    const rpcUrl = adapter.getRpcUrl()
 
     const response = await fetch(`${rpcUrl}/transactions/by_hash/${txHash}`)
     if (!response.ok) return TxStatus.Unknown

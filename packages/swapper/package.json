@@ -29,6 +29,7 @@
     "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   },
   "dependencies": {
+    "@aptos-labs/ts-sdk": "6.3.1",
     "@arbitrum/sdk": "^4.0.1",
     "@avnu/avnu-sdk": "^4.0.1",
     "@cetusprotocol/aggregator-sdk": "^1.4.2",

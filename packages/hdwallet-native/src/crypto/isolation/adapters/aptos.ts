@@ -1,6 +1,7 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
+import { createSHA3 } from 'hash-wasm'
 
-import { Isolation } from './crypto'
+import type { Isolation } from '../..'
 
 const ED25519_PUBLIC_KEY_SIZE = 32
 
@@ -19,11 +20,15 @@ export class AptosAdapter {
   async getAddress(addressNList: core.BIP32Path): Promise<string> {
     const publicKey = await this.getPublicKeyRaw(addressNList)
 
-    // Aptos address = SHA3-256 of the public key, prefixed with 0x
-    // For single-key accounts, the address is 0x + sha3_256(publicKey)
-    const { createHash } = await import('crypto')
-    const hash = createHash('sha3-256').update(publicKey).digest('hex')
-    return `0x${hash}`
+    const SIGNATURE_SCHEME_FLAG_ED25519 = 0x00
+    const flaggedPublicKey = new Uint8Array(publicKey.length + 1)
+    flaggedPublicKey.set(publicKey, 0)
+    flaggedPublicKey[publicKey.length] = SIGNATURE_SCHEME_FLAG_ED25519
+
+    const sha3 = await createSHA3(256)
+    sha3.init()
+    sha3.update(flaggedPublicKey)
+    return `0x${sha3.digest('hex')}`
   }
 
   async getPublicKey(addressNList: core.BIP32Path): Promise<string> {

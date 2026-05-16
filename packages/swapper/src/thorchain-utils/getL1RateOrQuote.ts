@@ -669,6 +669,14 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
         }),
       )
     }
+    case CHAIN_NAMESPACE.Aptos: {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Aptos is not supported',
+          code: TradeQuoteError.UnsupportedTradePair,
+        }),
+      )
+    }
     default:
       return assertUnreachable(chainNamespace)
   }

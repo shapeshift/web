@@ -1,6 +1,7 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { solanaChainId, starknetChainId, suiChainId } from '@shapeshiftoss/caip'
+import { aptosChainId, solanaChainId, starknetChainId, suiChainId } from '@shapeshiftoss/caip'
 import type {
+  aptos,
   EvmChainAdapter,
   near,
   SignTx,
@@ -11,9 +12,14 @@ import type {
 } from '@shapeshiftoss/chain-adapters'
 import { isSecondClassEvmAdapter } from '@shapeshiftoss/chain-adapters'
 import type { TronSignTx } from '@shapeshiftoss/chain-adapters/src/tron/types'
-import type { AptosSignTx, SolanaSignTx, StarknetSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
+import type {
+  AptosSignTx,
+  SolanaSignTx,
+  StarknetSignTx,
+  SuiSignTx,
+} from '@shapeshiftoss/hdwallet-core'
 import type { Asset, EvmChainId } from '@shapeshiftoss/types'
-import { evm, TxStatus } from '@shapeshiftoss/unchained-client'
+import { evm, TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { BigAmount, bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -507,6 +513,38 @@ export const checkStarknetSwapStatus = async ({
     }
   } catch (e) {
     // Don't log expected errors during status polling (tx might still be pending)
+    return createDefaultStatusResponse(txHash)
+  }
+}
+
+export const checkAptosSwapStatus = async ({
+  txHash,
+  address,
+  assertGetAptosChainAdapter,
+}: {
+  txHash: string
+  address: string | undefined
+  assertGetAptosChainAdapter: (chainId: ChainId) => aptos.ChainAdapter
+}): Promise<TradeStatus> => {
+  try {
+    if (!address) throw new Error('Missing address')
+
+    const adapter = assertGetAptosChainAdapter(aptosChainId)
+    const tx = await adapter.parseTx(txHash, address)
+
+    const receiveTransfer = tx.transfers.find(
+      t => t.type === TransferType.Receive && t.to.includes(address),
+    )
+    const actualBuyAmountCryptoBaseUnit = receiveTransfer?.value
+
+    return {
+      status: tx.status,
+      buyTxHash: txHash,
+      message: undefined,
+      actualBuyAmountCryptoBaseUnit,
+    }
+  } catch (e) {
+    console.error(e)
     return createDefaultStatusResponse(txHash)
   }
 }

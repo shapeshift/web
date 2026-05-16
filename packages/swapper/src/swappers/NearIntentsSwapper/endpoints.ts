@@ -5,6 +5,7 @@ import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
 import { getUnsignedTronTransaction } from '../../tron-utils/getUnsignedTronTransaction'
 import type {
+  GetUnsignedAptosTransactionArgs,
   GetUnsignedNearTransactionArgs,
   GetUnsignedSuiTransactionArgs,
   GetUnsignedTonTransactionArgs,
@@ -368,6 +369,43 @@ export const nearIntentsApi: SwapperApi = {
   },
 
   getTonTransactionFees: ({ tradeQuote, stepIndex }: GetUnsignedTonTransactionArgs) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+    if (!step.feeData.networkFeeCryptoBaseUnit) {
+      throw new Error('Missing network fee in quote')
+    }
+    return Promise.resolve(step.feeData.networkFeeCryptoBaseUnit)
+  },
+
+  getUnsignedAptosTransaction: ({
+    stepIndex,
+    tradeQuote,
+    from,
+    assertGetAptosChainAdapter,
+  }: GetUnsignedAptosTransactionArgs) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+
+    const { accountNumber, sellAsset, nearIntentsSpecific } = step
+    if (!nearIntentsSpecific) throw new Error('nearIntentsSpecific is required')
+
+    const adapter = assertGetAptosChainAdapter(sellAsset.chainId)
+
+    const to = nearIntentsSpecific.depositAddress
+    const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
+
+    return adapter.buildSendApiTransaction({
+      to,
+      from,
+      value,
+      accountNumber,
+      chainSpecific: {},
+    })
+  },
+
+  getAptosTransactionFees: ({ tradeQuote, stepIndex }: GetUnsignedAptosTransactionArgs) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)

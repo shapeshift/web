@@ -1,5 +1,6 @@
 import isObject from 'lodash/isObject'
 
+import type { AptosWallet, AptosWalletInfo } from './aptos'
 import type { ArkeoWallet, ArkeoWalletInfo } from './arkeo'
 import type { BinanceWallet, BinanceWalletInfo } from './binance'
 import type { BTCInputScriptType, BTCWallet, BTCWalletInfo } from './bitcoin'
@@ -18,7 +19,6 @@ import type { SuiWallet, SuiWalletInfo } from './sui'
 import type { TerraWallet, TerraWalletInfo } from './terra'
 import type { ThorchainWallet, ThorchainWalletInfo } from './thorchain'
 import type { TonWallet, TonWalletInfo } from './ton'
-import type { AptosWallet, AptosWalletInfo } from './aptos'
 import type { Transport } from './transport'
 import type { TronWallet, TronWalletInfo } from './tron'
 
@@ -400,6 +400,10 @@ export function supportsTon(wallet: HDWallet): wallet is TonWallet {
 
 export function infoTon(info: HDWalletInfo): info is TonWalletInfo {
   return isObject(info) && (info as any)._supportsTonInfo
+}
+
+export function supportsDebugLink(wallet: HDWallet): wallet is DebugLinkWallet {
+  return isObject(wallet) && (wallet as any)._supportsDebugLink
 }
 
 export function supportsAptos(wallet: HDWallet): wallet is AptosWallet {

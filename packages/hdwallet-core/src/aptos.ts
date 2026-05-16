@@ -8,14 +8,16 @@ export interface AptosGetAddress {
 
 export interface AptosSignTx {
   addressNList: BIP32Path
-  /** Raw transaction bytes to sign (BCS serialized) */
-  txBytes: Uint8Array
+  /** Signing message bytes (sha3-256 prefix + BCS raw transaction) for off-device signers */
+  signingMessageBytes: Uint8Array
+  /** BCS-serialized SimpleTransaction for on-device signers and broadcast reconstruction */
+  rawTransactionBytes: Uint8Array
 }
 
 export interface AptosSignedTx {
   signature: string
   publicKey: string
-  txBytes: Uint8Array
+  rawTransactionBytes: Uint8Array
 }
 
 export interface AptosGetAccountPaths {
@@ -108,12 +110,6 @@ export function aptosNextAccountPath(msg: AptosAccountPath): AptosAccountPath | 
 
   const nextIndex = (msg.addressNList[4] & 0x7fffffff) + 1
   return {
-    addressNList: [
-      0x80000000 + 44,
-      0x80000000 + slip44,
-      0x80000000 + 0,
-      0x80000000 + 0,
-      nextIndex,
-    ],
+    addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + 0, 0x80000000 + 0, nextIndex],
   }
 }

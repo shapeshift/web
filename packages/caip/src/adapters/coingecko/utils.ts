@@ -7,6 +7,8 @@ import type { ChainId } from '../../chainId/chainId'
 import {
   abstractAssetId,
   abstractChainId,
+  aptosAssetId,
+  aptosChainId,
   arbitrumAssetId,
   arbitrumChainId,
   ASSET_NAMESPACE,
@@ -81,8 +83,6 @@ import {
   storyAssetId,
   storyChainId,
   suiAssetId,
-  aptosAssetId,
-  aptosChainId,
   suiChainId,
   thorchainChainId,
   tonAssetId,

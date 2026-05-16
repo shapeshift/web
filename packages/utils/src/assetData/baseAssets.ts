@@ -867,7 +867,7 @@ export const aptos: Readonly<Asset> = Object.freeze({
   precision: 8,
   color: '#2CD5E5',
   networkColor: '#2CD5E5',
-  icon: 'https://assets.coingecko.com/coins/images/25788/large/aptos.png?1696520069',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/aptos/info/logo.png',
   explorer: 'https://explorer.aptoslabs.com',
   explorerAddressLink: 'https://explorer.aptoslabs.com/account/',
   explorerTxLink: 'https://explorer.aptoslabs.com/txn/',

@@ -1,4 +1,10 @@
-import { starknetAssetId, starknetChainId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  ethChainId,
+  starknetAssetId,
+  starknetChainId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import chunk from 'lodash/chunk'
@@ -23,11 +29,15 @@ const starknetBaseAsset: Asset = {
   relatedAssetKey: null,
 }
 
-const strkbtcAssetId =
-  'starknet:SN_MAIN/token:0x0787150e306e6eae6e3f79dea881770e8bbff2c1b8eb490f969669ee945b3135'
+const wbtcEthAssetId = toAssetId({
+  chainId: ethChainId,
+  assetNamespace: ASSET_NAMESPACE.erc20,
+  assetReference: '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599',
+})
 
 const strkbtcAsset: Asset = {
-  assetId: strkbtcAssetId,
+  assetId:
+    'starknet:SN_MAIN/token:0x0787150e306e6eae6e3f79dea881770e8bbff2c1b8eb490f969669ee945b3135',
   chainId: starknetChainId,
   name: 'Starknet Bitcoin',
   symbol: 'strkBTC',
@@ -37,7 +47,7 @@ const strkbtcAsset: Asset = {
   explorer: 'https://starkscan.co',
   explorerAddressLink: 'https://starkscan.co/contract/',
   explorerTxLink: 'https://starkscan.co/tx/',
-  relatedAssetKey: strkbtcAssetId,
+  relatedAssetKey: wbtcEthAssetId,
 }
 
 export const getAssets = async (): Promise<Asset[]> => {

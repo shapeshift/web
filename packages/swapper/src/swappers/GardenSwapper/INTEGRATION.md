@@ -48,6 +48,12 @@ remote `/policy` errors mapped to `TradeQuoteError.NoRouteFound`.
 }
 ```
 
+Per the Garden OpenAPI spec (`docs.garden.finance/api-reference/openapi.json`):
+- `fee` (integer) — **In BIPS**, where 100 bips = 1%
+- `fixed_fee` (string) — **In USD** (decimal string)
+- `slippage` (integer) — **In BIPS**
+- `estimated_time` (integer) — In seconds
+
 ### `POST /orders` — Bitcoin source
 ```json
 {
@@ -72,6 +78,36 @@ remote `/policy` errors mapped to `TradeQuoteError.NoRouteFound`.
   }
 }
 ```
+
+## Fee model (verified against `api.garden.finance` live)
+
+Garden returns **two additive fee components per route**, both set by the
+winning solver:
+
+- `fee` (BIPS) — percentage cut on the destination amount
+- `fixed_fee` (USD string) — fixed amount added on top
+
+Effective fee = `amount × fee/10000 + fixed_fee_in_destination_units`.
+
+The split varies per route (solver competition + destination-chain gas
+cost + asset liquidity premium). Snapshot 2026-05-15:
+
+| Route | `fee` | `fixed_fee` | Effective on $1,558 trade |
+| --- | --- | --- | --- |
+| `BTC → strkBTC` | 30 bps | $0 | $4.68 (30 bps) |
+| `BTC → cbBTC.base` | 21 bps | $0 | $3.27 (21 bps) |
+| `BTC → WBTC.eth` | 0 bps | $2 | $2.00 (13 bps) |
+| `WBTC.eth → cbBTC.base` | 35 bps | $2 | $7.46 (48 bps) |
+
+Values are not hard-coded by Garden — they reflect solver economics
+(capital lockup during HTLC settlement, destination-chain gas absorption,
+inventory premium for new assets). They drift over time as liquidity
+shifts.
+
+This fee is **already baked into the displayed rate** (`destination.amount`
+is the net amount the user receives). The ShapeShift `protocolFees` field
+on `TradeQuoteStep` surfaces only the affiliate cut on top, not Garden's
+own fee — mirroring the AvnuSwapper convention.
 
 ## Implementation notes
 

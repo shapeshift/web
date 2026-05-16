@@ -179,20 +179,21 @@ selector strings as-is.
 Garden does not expose a single canonical status enum at the order level.
 We derive the ShapeShift `TxStatus` from the order shape:
 - `destination_swap.redeem_tx_hash` populated → `Confirmed`
-  (use that hash as `buyTxHash`)
+  (use that hash as `buyTxHash`; `filled_amount` becomes
+  `actualBuyAmountCryptoBaseUnit`)
 - `source_swap.refund_tx_hash` or `destination_swap.refund_tx_hash` populated
-  → `Failed`
-- `deadline` in the past → `Failed`
+  → `Failed` with "Swap refunded"
 - Otherwise → `Pending`
 
 The Garden docs' definition matches: *"The swap is complete once the
 `order.destination_swap.redeem_tx_hash` field is populated."*
 
 ### Quote staleness
-Garden quotes expire — the order's `deadline` (Unix seconds) is short
-(typically minutes). Order creation happens inside `getTradeQuote` to
-minimise the gap. If the user delays execution past the deadline, the
-order will move to `expired` and our status mapping surfaces it as
+Garden quotes expire — the underlying HTLC `timelock` (per-swap) is
+short (typically minutes-to-hours). Order creation happens inside
+`getTradeQuote` to minimise the gap between quote and on-chain
+initiate. If the user delays past the HTLC timeout, the solver will
+issue a `refund_tx_hash` and our status mapping surfaces it as
 `Failed`.
 
 ### Min / max amounts and liquidity caps

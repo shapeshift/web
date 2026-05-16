@@ -1,8 +1,7 @@
-import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
-import type { Asset, EvmChainId } from '@shapeshiftoss/types'
-import { bn, contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import type { EvmChainId } from '@shapeshiftoss/types'
+import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -14,13 +13,13 @@ import type {
   CommonTradeQuoteInput,
   GetEvmTradeQuoteInput,
   GetUtxoTradeQuoteInput,
-  ProtocolFee,
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { GARDEN_AFFILIATE_FEE_ASSET, GARDEN_AFFILIATE_FEE_RECIPIENT } from '../constants'
 import type { GardenCreateOrderResult, GardenSpecificMetadata } from '../types'
 import { isGardenBitcoinInitiate, isGardenEvmInitiate, isGardenStarknetInitiate } from '../types'
@@ -30,30 +29,6 @@ import {
   fetchGardenQuote,
 } from '../utils/fetchFromGarden'
 import { assetIdToGardenAssetId, isSupportedGardenPair } from '../utils/helpers/helpers'
-
-const hexToDecimalString = (hex: string | undefined): string => {
-  if (!hex) return '0'
-  if (!hex.startsWith('0x')) return hex
-  return fromHex(hex as Hex, 'bigint').toString()
-}
-
-const buildAffiliateProtocolFees = (
-  buyAmountAfterFeesCryptoBaseUnit: string,
-  buyAsset: Asset,
-  affiliateBps: string,
-): Record<AssetId, ProtocolFee> => {
-  if (!affiliateBps || affiliateBps === '0') return {}
-  return {
-    [buyAsset.assetId]: {
-      amountCryptoBaseUnit: bn(buyAmountAfterFeesCryptoBaseUnit)
-        .times(affiliateBps)
-        .div(10000)
-        .toFixed(0),
-      requiresBalance: false,
-      asset: buyAsset,
-    },
-  }
-}
 
 const buildGardenSpecific = (order: GardenCreateOrderResult): GardenSpecificMetadata => {
   const base = { orderId: order.order_id }
@@ -70,7 +45,7 @@ const buildGardenSpecific = (order: GardenCreateOrderResult): GardenSpecificMeta
       evmInitiate: {
         to: order.initiate_transaction.to,
         data: order.initiate_transaction.data,
-        value: hexToDecimalString(order.initiate_transaction.value),
+        value: fromHex(order.initiate_transaction.value as Hex, 'bigint').toString(),
         allowanceContract: order.initiate_transaction.to,
       },
     }
@@ -266,14 +241,18 @@ export const getTradeQuote = async (
         buyAmountAfterFeesCryptoBaseUnit: quote.destination.amount,
         buyAsset,
         feeData: {
-          protocolFees: buildAffiliateProtocolFees(
-            quote.destination.amount,
-            buyAsset,
-            affiliateBps,
-          ),
+          protocolFees: {},
           networkFeeCryptoBaseUnit: feeData.networkFeeCryptoBaseUnit,
           ...(feeData.chainSpecific && { chainSpecific: feeData.chainSpecific }),
         },
+        affiliateFee: buildAffiliateFee({
+          strategy: 'buy_asset',
+          affiliateBps,
+          sellAsset,
+          buyAsset,
+          sellAmountCryptoBaseUnit: quote.source.amount,
+          buyAmountCryptoBaseUnit: quote.destination.amount,
+        }),
         rate,
         sellAmountIncludingProtocolFeesCryptoBaseUnit: quote.source.amount,
         sellAsset,

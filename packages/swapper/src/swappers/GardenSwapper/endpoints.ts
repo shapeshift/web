@@ -1,3 +1,4 @@
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import { validateAndParseAddress } from 'starknet'
@@ -184,7 +185,10 @@ export const gardenApi: SwapperApi = {
     const orderId = swap?.metadata.gardenSpecific?.orderId
 
     if (!orderId) {
-      if (swap?.sellTxHash && swap.sellAsset?.chainId?.startsWith('starknet:')) {
+      const isStarknetSource =
+        swap?.sellAsset?.assetId !== undefined &&
+        fromAssetId(swap.sellAsset.assetId).chainNamespace === CHAIN_NAMESPACE.Starknet
+      if (swap?.sellTxHash && isStarknetSource) {
         return checkStarknetSwapStatus({
           txHash: swap.sellTxHash,
           assertGetStarknetChainAdapter,

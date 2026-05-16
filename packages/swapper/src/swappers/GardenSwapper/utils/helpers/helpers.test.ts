@@ -11,7 +11,6 @@ import {
   isOutOfRangeError,
   isSupportedGardenPair,
   mapGardenOrderToTxStatus,
-  slippageDecimalToBps,
 } from './helpers'
 
 const emptySwap = (overrides: Partial<GardenSwapState> = {}): GardenSwapState => ({
@@ -56,24 +55,6 @@ const buildOrder = (
 })
 
 describe('GardenSwapper helpers', () => {
-  describe('slippageDecimalToBps', () => {
-    it('converts undefined to 0', () => {
-      expect(slippageDecimalToBps(undefined)).toBe(0)
-    })
-
-    it('converts 0.005 (0.5%) to 50 bps', () => {
-      expect(slippageDecimalToBps('0.005')).toBe(50)
-    })
-
-    it('converts 0.01 (1%) to 100 bps', () => {
-      expect(slippageDecimalToBps('0.01')).toBe(100)
-    })
-
-    it('converts 0 to 0', () => {
-      expect(slippageDecimalToBps('0')).toBe(0)
-    })
-  })
-
   describe('assetIdToGardenAssetId', () => {
     it('maps native BTC to bitcoin:btc', () => {
       expect(assetIdToGardenAssetId(btcAssetId)).toBe('bitcoin:btc')

@@ -1,13 +1,9 @@
-import type { AxiosRequestConfig } from 'axios'
-
-import type { MonadicSwapperAxiosService } from '../../../types'
 import { createCache, makeSwapperAxiosServiceMonadic } from '../../../utils'
-import { GARDEN_API_KEY_HEADER } from '../constants'
 
-const cachedUrls = ['/quote']
 const maxAge = 5 * 1000
+const cachedUrls = ['/quote']
 
-const axiosConfig: AxiosRequestConfig = {
+const axiosConfig = {
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -15,19 +11,6 @@ const axiosConfig: AxiosRequestConfig = {
   },
 }
 
-export const gardenServiceFactory = ({
-  apiKey,
-}: {
-  apiKey: string
-}): MonadicSwapperAxiosService => {
-  const configWithAuth: AxiosRequestConfig = {
-    ...axiosConfig,
-    headers: {
-      ...axiosConfig.headers,
-      [GARDEN_API_KEY_HEADER]: apiKey,
-    },
-  }
+const gardenServiceBase = createCache(maxAge, cachedUrls, axiosConfig)
 
-  const cache = createCache(maxAge, cachedUrls, configWithAuth)
-  return makeSwapperAxiosServiceMonadic(cache)
-}
+export const gardenService = makeSwapperAxiosServiceMonadic(gardenServiceBase)

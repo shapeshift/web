@@ -1,14 +1,7 @@
-import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
-import type { Asset, EvmChainId } from '@shapeshiftoss/types'
-import {
-  bn,
-  contractAddressOrUndefined,
-  DAO_TREASURY_BASE,
-  DAO_TREASURY_BITCOIN,
-  DAO_TREASURY_STARKNET,
-} from '@shapeshiftoss/utils'
+import type { EvmChainId } from '@shapeshiftoss/types'
+import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -18,39 +11,16 @@ import type {
   GetEvmTradeRateInput,
   GetTradeRateInput,
   GetUtxoTradeRateInput,
-  ProtocolFee,
   SwapErrorRight,
   SwapperDeps,
   TradeRate,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import { buildAffiliateFee } from '../../utils/affiliateFee'
+import { GARDEN_DEAD_ADDRESS_BY_NAMESPACE } from '../constants'
 import { fetchGardenQuote } from '../utils/fetchFromGarden'
 import { assetIdToGardenAssetId, isSupportedGardenPair } from '../utils/helpers/helpers'
-
-const buildAffiliateProtocolFees = (
-  buyAmountAfterFeesCryptoBaseUnit: string,
-  buyAsset: Asset,
-  affiliateBps: string,
-): Record<AssetId, ProtocolFee> => {
-  if (!affiliateBps || affiliateBps === '0') return {}
-  return {
-    [buyAsset.assetId]: {
-      amountCryptoBaseUnit: bn(buyAmountAfterFeesCryptoBaseUnit)
-        .times(affiliateBps)
-        .div(10000)
-        .toFixed(0),
-      requiresBalance: false,
-      asset: buyAsset,
-    },
-  }
-}
-
-const FEE_PLACEHOLDER_ADDRESS_BY_NAMESPACE: Record<string, string> = {
-  [CHAIN_NAMESPACE.Utxo]: DAO_TREASURY_BITCOIN,
-  [CHAIN_NAMESPACE.Evm]: DAO_TREASURY_BASE,
-  [CHAIN_NAMESPACE.Starknet]: DAO_TREASURY_STARKNET,
-}
 
 export const getTradeRate = async (
   input: GetTradeRateInput,
@@ -107,7 +77,7 @@ export const getTradeRate = async (
   const quote = quoteResult.unwrap()
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
-  const placeholderTo = FEE_PLACEHOLDER_ADDRESS_BY_NAMESPACE[chainNamespace]
+  const placeholderTo = GARDEN_DEAD_ADDRESS_BY_NAMESPACE[chainNamespace]
 
   const networkFeeCryptoBaseUnit: string | undefined = await (async () => {
     try {
@@ -184,11 +154,7 @@ export const getTradeRate = async (
         buyAmountAfterFeesCryptoBaseUnit: quote.destination.amount,
         buyAsset,
         feeData: {
-          protocolFees: buildAffiliateProtocolFees(
-            quote.destination.amount,
-            buyAsset,
-            affiliateBps,
-          ),
+          protocolFees: {},
           networkFeeCryptoBaseUnit,
         },
         rate,
@@ -196,6 +162,14 @@ export const getTradeRate = async (
         sellAsset,
         source: SwapperName.Garden,
         estimatedExecutionTimeMs: quote.estimated_time * 1000,
+        affiliateFee: buildAffiliateFee({
+          strategy: 'buy_asset',
+          affiliateBps,
+          sellAsset,
+          buyAsset,
+          sellAmountCryptoBaseUnit: quote.source.amount,
+          buyAmountCryptoBaseUnit: quote.destination.amount,
+        }),
       },
     ],
   }

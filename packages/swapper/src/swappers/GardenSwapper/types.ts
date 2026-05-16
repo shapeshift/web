@@ -1,12 +1,11 @@
 export type GardenAssetId = string
 
-export type GardenAffiliateFeeAsset = 'base:cbbtc' | 'ethereum:cbbtc' | 'ethereum:usdc'
+export type GardenAffiliateFeeAsset = 'base:cbbtc'
 
 export type GardenAccount = {
   asset: GardenAssetId
   owner: string
   amount: string
-  delegate?: string
 }
 
 export type GardenAffiliateFeeEntry = {
@@ -37,8 +36,6 @@ export type GardenOrderRequest = {
   source: GardenAccount
   destination: GardenAccount
   solver_id?: string
-  slippage?: number
-  nonce?: string
   affiliate_fees?: GardenAffiliateFeeEntry[]
 }
 
@@ -64,7 +61,6 @@ export type GardenStarknetInitiateResult = {
 export type GardenEvmTransactionData = {
   chain_id: number
   data: string
-  gas_limit: string
   to: string
   value: string
 }
@@ -148,8 +144,6 @@ export type GardenOrder = {
   destination_swap: GardenSwapState
   nonce: string
   affiliate_fees: GardenAffiliateFeeEntry[]
-  integrator?: string
-  version?: string
   solver_id?: string
 }
 

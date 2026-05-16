@@ -342187,7 +342187,7 @@
       "explorer": "https://starkscan.co",
       "explorerAddressLink": "https://starkscan.co/contract/",
       "explorerTxLink": "https://starkscan.co/tx/",
-      "relatedAssetKey": "bip122:000000000019d6689c085ae165831e93/slip44:0"
+      "relatedAssetKey": "starknet:SN_MAIN/token:0x0787150e306e6eae6e3f79dea881770e8bbff2c1b8eb490f969669ee945b3135"
     }
   },
   "ids": [

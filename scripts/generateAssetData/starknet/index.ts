@@ -1,4 +1,4 @@
-import { btcAssetId, starknetAssetId, starknetChainId } from '@shapeshiftoss/caip'
+import { starknetAssetId, starknetChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import axios from 'axios'
 import chunk from 'lodash/chunk'
@@ -23,9 +23,11 @@ const starknetBaseAsset: Asset = {
   relatedAssetKey: null,
 }
 
+const strkbtcAssetId =
+  'starknet:SN_MAIN/token:0x0787150e306e6eae6e3f79dea881770e8bbff2c1b8eb490f969669ee945b3135'
+
 const strkbtcAsset: Asset = {
-  assetId:
-    'starknet:SN_MAIN/token:0x0787150e306e6eae6e3f79dea881770e8bbff2c1b8eb490f969669ee945b3135',
+  assetId: strkbtcAssetId,
   chainId: starknetChainId,
   name: 'Starknet Bitcoin',
   symbol: 'strkBTC',
@@ -35,7 +37,7 @@ const strkbtcAsset: Asset = {
   explorer: 'https://starkscan.co',
   explorerAddressLink: 'https://starkscan.co/contract/',
   explorerTxLink: 'https://starkscan.co/tx/',
-  relatedAssetKey: btcAssetId,
+  relatedAssetKey: strkbtcAssetId,
 }
 
 export const getAssets = async (): Promise<Asset[]> => {

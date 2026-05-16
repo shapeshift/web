@@ -50,7 +50,7 @@ export interface ChainAdapterArgs {
 }
 
 const APT_COIN_TYPE = '0x1::aptos_coin::AptosCoin'
-const MIN_MAX_GAS_AMOUNT = 12_000n
+const MIN_MAX_GAS_AMOUNT = 20_000n
 
 export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
   static readonly rootBip44Params: RootBip44Params = {
@@ -234,7 +234,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
       transaction: tx,
       options: { estimateGasUnitPrice: true, estimateMaxGasAmount: true },
     })
-    const recommended = BigInt(sim?.max_gas_amount ?? sim?.gas_used ?? 0)
+    // sim.max_gas_amount with estimateMaxGasAmount=true is the AFFORDABILITY ceiling
+    // (sender balance / gas_unit_price), NOT a recommendation. The real consumption is
+    // sim.gas_used. Apply the Aptos CLI 1.5x safety factor, capped by affordability.
+    const gasUsed = BigInt(sim?.gas_used ?? 0)
+    if (gasUsed === 0n) return MIN_MAX_GAS_AMOUNT
+    const ceiling = BigInt(sim?.max_gas_amount ?? 0)
+    const withBuffer = (gasUsed * 3n) / 2n
+    const recommended = ceiling > 0n && ceiling < withBuffer ? ceiling : withBuffer
     return recommended > MIN_MAX_GAS_AMOUNT ? recommended : MIN_MAX_GAS_AMOUNT
   }
 

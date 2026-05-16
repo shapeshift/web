@@ -203,12 +203,14 @@ export const gardenApi: SwapperApi = {
     }
 
     const order = orderResult.unwrap()
-    const { status, buyTxHash, message } = mapGardenOrderToTxStatus(order)
+    const { status, buyTxHash, message, actualBuyAmountCryptoBaseUnit } =
+      mapGardenOrderToTxStatus(order)
 
     return {
       status,
       buyTxHash: buyTxHash ?? swap?.buyTxHash,
       message,
+      actualBuyAmountCryptoBaseUnit,
     }
   },
 }

@@ -132,11 +132,12 @@ describe('GardenSwapper helpers', () => {
   })
 
   describe('mapGardenOrderToTxStatus', () => {
-    it('returns Confirmed with buyTxHash when destination_swap.redeem_tx_hash is set', () => {
-      const order = buildOrder({}, { redeem_tx_hash: '0xredeem' })
+    it('returns Confirmed with buyTxHash + actualBuyAmount when destination_swap.redeem_tx_hash is set', () => {
+      const order = buildOrder({}, { redeem_tx_hash: '0xredeem', filled_amount: '99500' })
       expect(mapGardenOrderToTxStatus(order)).toEqual({
         status: TxStatus.Confirmed,
         buyTxHash: '0xredeem',
+        actualBuyAmountCryptoBaseUnit: '99500',
       })
     })
 

@@ -36,11 +36,17 @@ export const isSupportedGardenPair = (sellAssetId: AssetId, buyAssetId: AssetId)
 
 export const mapGardenOrderToTxStatus = (
   order: GardenOrder,
-): { status: TxStatus; buyTxHash?: string; message?: string } => {
+): {
+  status: TxStatus
+  buyTxHash?: string
+  message?: string
+  actualBuyAmountCryptoBaseUnit?: string
+} => {
   if (order.destination_swap.redeem_tx_hash) {
     return {
       status: TxStatus.Confirmed,
       buyTxHash: order.destination_swap.redeem_tx_hash,
+      actualBuyAmountCryptoBaseUnit: order.destination_swap.filled_amount,
     }
   }
 

@@ -1,7 +1,7 @@
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import type { EvmChainId } from '@shapeshiftoss/types'
-import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import { bnOrZero, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -27,6 +27,7 @@ import {
   buildGardenAffiliateFees,
   createGardenOrder,
   fetchGardenQuote,
+  getGardenAssetInfo,
 } from '../utils/fetchFromGarden'
 import { assetIdToGardenAssetId, isSupportedGardenPair } from '../utils/helpers/helpers'
 
@@ -123,6 +124,34 @@ export const getTradeQuote = async (
         code: TradeQuoteError.UnsupportedTradePair,
       }),
     )
+  }
+
+  const sourceAssetInfoResult = await getGardenAssetInfo({ apiKey, gardenAssetId: fromGardenAsset })
+  if (sourceAssetInfoResult.isErr()) return Err(sourceAssetInfoResult.unwrapErr())
+  const sourceAssetInfo = sourceAssetInfoResult.unwrap()
+
+  if (sourceAssetInfo) {
+    if (bnOrZero(sellAmount).lt(sourceAssetInfo.min_amount)) {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Sell amount below Garden minimum',
+          code: TradeQuoteError.SellAmountBelowMinimum,
+          details: {
+            minAmountCryptoBaseUnit: sourceAssetInfo.min_amount,
+            assetId: sellAsset.assetId,
+          },
+        }),
+      )
+    }
+    if (bnOrZero(sellAmount).gt(sourceAssetInfo.max_amount)) {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Sell amount above Garden maximum',
+          code: TradeQuoteError.NoRouteFound,
+          details: { maxAmountCryptoBaseUnit: sourceAssetInfo.max_amount },
+        }),
+      )
+    }
   }
 
   const quoteResult = await fetchGardenQuote({

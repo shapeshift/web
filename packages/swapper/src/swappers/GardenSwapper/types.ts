@@ -32,6 +32,14 @@ export type GardenResponseEnvelope<T> = {
 
 export type GardenQuoteResponse = GardenResponseEnvelope<GardenQuoteResultItem[]>
 
+export type GardenAssetInfo = {
+  id: string
+  min_amount: string
+  max_amount: string
+}
+
+export type GardenAssetsResponse = GardenResponseEnvelope<GardenAssetInfo[]>
+
 export type GardenOrderRequest = {
   source: GardenAccount
   destination: GardenAccount

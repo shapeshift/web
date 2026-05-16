@@ -109,6 +109,31 @@ is the net amount the user receives). The ShapeShift `protocolFees` field
 on `TradeQuoteStep` surfaces only the affiliate cut on top, not Garden's
 own fee — mirroring the AvnuSwapper convention.
 
+## Source-chain support is asymmetric (buy-only Solana/Tron)
+
+`gardenAssetRegistry.ts` enumerates every Garden-listed asset (24 entries
+across 11 chains) so they all work as **destinations**:
+
+  `BTC → solana:cbbtc`, `BTC → solana:sol`, `BTC → tron:usdt`, etc.
+
+`GardenSupportedSourceChainIds` in `utils/helpers/helpers.ts` is the
+narrower list of chains we have execution wired for:
+
+  Bitcoin, Litecoin, Ethereum, Base, BNB Chain, Arbitrum, Monad,
+  HyperEVM, MegaETH, Starknet
+
+Solana and Tron are **deliberately omitted** from the source list — Garden
+returns valid quotes for them, but their `executeSolanaTransaction` /
+`executeTronTransaction` paths aren't implemented yet in `GardenSwapper.ts`
+(no `getUnsignedSolanaTransaction` / `getUnsignedTronTransaction` either).
+`isSupportedGardenPair` rejects them upstream of `getTradeQuote` so the
+user gets `UnsupportedTradePair` rather than a runtime crash.
+
+Follow-up to enable: implement Garden's gasless `typed_data` flow for
+Solana SPL / Tron / Starknet sources (Garden docs: PATCH
+`/v2/orders/{id}?action=initiate` with signed payload). Tracked as
+`web-c68.6`.
+
 ## Implementation notes
 
 ### Slippage format

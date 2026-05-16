@@ -63,7 +63,6 @@ export type GardenStarknetInitiateResult = {
   order_id: string
   approval_transaction: GardenStarknetCall
   initiate_transaction: GardenStarknetCall
-  typed_data?: unknown
 }
 
 export type GardenEvmTransactionData = {
@@ -77,7 +76,6 @@ export type GardenEvmInitiateResult = {
   order_id: string
   approval_transaction: GardenEvmTransactionData
   initiate_transaction: GardenEvmTransactionData
-  typed_data?: unknown
 }
 
 export type GardenCreateOrderResult =

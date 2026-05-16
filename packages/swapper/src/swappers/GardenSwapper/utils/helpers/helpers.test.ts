@@ -2,7 +2,6 @@ import { btcAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { describe, expect, it } from 'vitest'
 
-import { strkbtcAssetId } from '../../constants'
 import type { GardenOrder, GardenSwapState } from '../../types'
 import {
   assetIdToGardenAssetId,
@@ -12,6 +11,9 @@ import {
   isSupportedGardenPair,
   mapGardenOrderToTxStatus,
 } from './helpers'
+
+const strkbtcAssetId =
+  'starknet:SN_MAIN/token:0x0787150e306e6eae6e3f79dea881770e8bbff2c1b8eb490f969669ee945b3135'
 
 const emptySwap = (overrides: Partial<GardenSwapState> = {}): GardenSwapState => ({
   created_at: '2026-05-15T00:00:00Z',

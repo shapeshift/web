@@ -136,35 +136,46 @@ export const fetchGardenOrder = async ({
 const ASSETS_CACHE_TTL_MS = 60 * 60 * 1000
 
 let assetsCache: { data: GardenAssetInfo[]; expiresAt: number } | null = null
+let inFlightAssetsRequest: Promise<Result<GardenAssetInfo[], SwapErrorRight>> | null = null
 
-const fetchGardenAssets = async ({
+const fetchGardenAssets = ({
   apiKey,
 }: {
   apiKey: string
 }): Promise<Result<GardenAssetInfo[], SwapErrorRight>> => {
-  if (assetsCache && Date.now() < assetsCache.expiresAt) return Ok(assetsCache.data)
+  if (assetsCache && Date.now() < assetsCache.expiresAt)
+    return Promise.resolve(Ok(assetsCache.data))
+  if (inFlightAssetsRequest) return inFlightAssetsRequest
 
-  const result = await gardenService.get<GardenAssetsResponse>(
-    `${GARDEN_API_BASE_URL}/assets`,
-    authHeaders(apiKey),
-  )
+  inFlightAssetsRequest = (async () => {
+    try {
+      const result = await gardenService.get<GardenAssetsResponse>(
+        `${GARDEN_API_BASE_URL}/assets`,
+        authHeaders(apiKey),
+      )
 
-  if (result.isErr()) return Err(result.unwrapErr())
+      if (result.isErr()) return Err(result.unwrapErr())
 
-  const { data } = result.unwrap()
+      const { data } = result.unwrap()
 
-  if (data.status !== 'Ok' || !data.result) {
-    return Err(
-      makeSwapErrorRight({
-        message: data.error ?? 'Garden assets fetch failed',
-        code: TradeQuoteError.QueryFailed,
-        details: { error: data.error },
-      }),
-    )
-  }
+      if (data.status !== 'Ok' || !data.result) {
+        return Err(
+          makeSwapErrorRight({
+            message: data.error ?? 'Garden assets fetch failed',
+            code: TradeQuoteError.QueryFailed,
+            details: { error: data.error },
+          }),
+        )
+      }
 
-  assetsCache = { data: data.result, expiresAt: Date.now() + ASSETS_CACHE_TTL_MS }
-  return Ok(data.result)
+      assetsCache = { data: data.result, expiresAt: Date.now() + ASSETS_CACHE_TTL_MS }
+      return Ok(data.result)
+    } finally {
+      inFlightAssetsRequest = null
+    }
+  })()
+
+  return inFlightAssetsRequest
 }
 
 export const getGardenAssetInfo = async ({

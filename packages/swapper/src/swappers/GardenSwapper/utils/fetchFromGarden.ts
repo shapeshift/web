@@ -25,7 +25,7 @@ import {
 
 const errorMessageToTradeQuoteError = (message: string | undefined): TradeQuoteError => {
   if (isNoRouteFoundError(message)) return TradeQuoteError.NoRouteFound
-  if (isInsufficientLiquidityError(message)) return TradeQuoteError.SellAmountBelowTradeFee
+  if (isInsufficientLiquidityError(message)) return TradeQuoteError.NoRouteFound
   if (isOutOfRangeError(message)) return TradeQuoteError.SellAmountBelowMinimum
   return TradeQuoteError.QueryFailed
 }

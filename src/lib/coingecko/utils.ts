@@ -1,6 +1,7 @@
 import {
   abstractChainId,
   adapters,
+  aptosChainId,
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
@@ -256,5 +257,6 @@ export const getCoingeckoSupportedChainIds = () => {
     ...(getConfig().VITE_FEATURE_FLOWEVM ? [flowEvmChainId] : []),
     ...(getConfig().VITE_FEATURE_CELO ? [celoChainId] : []),
     ...(getConfig().VITE_FEATURE_ROBINHOOD ? [robinhoodChainId] : []),
+    ...(getConfig().VITE_FEATURE_APTOS ? [aptosChainId] : []),
   ]
 }

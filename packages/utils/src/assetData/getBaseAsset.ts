@@ -4,8 +4,8 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { assertUnreachable } from '../assertUnreachable'
 import {
-  aptos,
   abstract,
+  aptos,
   arbitrum,
   atom,
   avax,

@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import {
   abstractAssetId,
+  aptosAssetId,
   berachainAssetId,
   blastAssetId,
   bobAssetId,
@@ -93,6 +94,7 @@ export const queryFn = async () => {
   if (enabledFlags.Berachain) assetIds.push(berachainAssetId)
   if (enabledFlags.Sui) assetIds.push(suiAssetId)
   if (enabledFlags.Robinhood) assetIds.push(robinhoodAssetId)
+  if (enabledFlags.Aptos) assetIds.push(aptosAssetId)
 
   for (const assetId of [...new Set(assetIds)]) {
     const asset = primaryAssets[assetId]

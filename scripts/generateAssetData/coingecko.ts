@@ -2,6 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import {
   abstractChainId,
   adapters,
+  aptosChainId,
   arbitrumChainId,
   ASSET_NAMESPACE,
   avalancheChainId,
@@ -48,6 +49,7 @@ import {
 import type { Asset } from '@shapeshiftoss/types'
 import {
   abstract,
+  aptos,
   arbitrum,
   avax,
   base,
@@ -452,6 +454,13 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: robinhood.explorer,
           explorerAddressLink: robinhood.explorerAddressLink,
           explorerTxLink: robinhood.explorerTxLink,
+      case aptosChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.aptosCoin,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: aptos.explorer,
+          explorerAddressLink: aptos.explorerAddressLink,
+          explorerTxLink: aptos.explorerTxLink,
         }
       default:
         throw new Error(`no coingecko token support for chainId: ${chainId}`)

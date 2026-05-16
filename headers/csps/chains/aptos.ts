@@ -8,6 +8,8 @@ const env = loadEnv(mode, process.cwd(), '')
 export const csp: Csp = {
   'connect-src': [
     env.VITE_APTOS_NODE_URL,
+    env.VITE_APTOS_INDEXER_URL,
     'https://fullnode.mainnet.aptoslabs.com/',
+    'https://api.mainnet.aptoslabs.com/',
   ],
 }

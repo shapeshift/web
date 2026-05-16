@@ -49,14 +49,14 @@ export function MixinNativeAptosWallet<TBase extends core.Constructor<NativeHDWa
     async aptosSignTx(msg: core.AptosSignTx): Promise<core.AptosSignedTx | null> {
       return this.needsMnemonic(!!this.aptosAdapter, async () => {
         const { signature, publicKey } = await this.aptosAdapter!.signTransaction(
-          msg.txBytes,
+          msg.signingMessageBytes,
           msg.addressNList,
         )
 
         return {
           signature,
           publicKey,
-          txBytes: msg.txBytes,
+          rawTransactionBytes: msg.rawTransactionBytes,
         }
       })
     }

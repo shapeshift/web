@@ -1,7 +1,7 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
-  aptosAssetId,
   abstractAssetId,
+  aptosAssetId,
   arbitrumAssetId,
   avalancheAssetId,
   baseAssetId,

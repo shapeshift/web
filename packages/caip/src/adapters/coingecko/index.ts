@@ -6,6 +6,7 @@ import type { ChainId } from '../../chainId/chainId'
 import { fromChainId, toChainId } from '../../chainId/chainId'
 import {
   abstractChainId,
+  aptosChainId,
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
@@ -45,7 +46,6 @@ import {
   starknetChainId,
   storyChainId,
   suiChainId,
-  aptosChainId,
   thorchainChainId,
   tonChainId,
   tronChainId,

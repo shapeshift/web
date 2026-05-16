@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import {
   adapters,
+  aptosAssetId,
   baseAssetId,
   bchAssetId,
   bscAssetId,
@@ -40,4 +41,5 @@ export const COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID: Partial<Record<string, Asset
   tron: tronAssetId,
   sui: suiAssetId,
   zcash: zecAssetId,
+  aptos: aptosAssetId,
 }

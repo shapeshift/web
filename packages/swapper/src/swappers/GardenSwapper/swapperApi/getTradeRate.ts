@@ -18,7 +18,7 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
-import { GARDEN_DEAD_ADDRESS_BY_NAMESPACE } from '../constants'
+import { GARDEN_FEE_PLACEHOLDER_BY_NAMESPACE } from '../constants'
 import { fetchGardenQuote, getGardenAssetInfo } from '../utils/fetchFromGarden'
 import { assetIdToGardenAssetId, isSupportedGardenPair } from '../utils/helpers/helpers'
 
@@ -105,7 +105,7 @@ export const getTradeRate = async (
   const quote = quoteResult.unwrap()
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
-  const placeholderTo = GARDEN_DEAD_ADDRESS_BY_NAMESPACE[chainNamespace]
+  const placeholderTo = GARDEN_FEE_PLACEHOLDER_BY_NAMESPACE[chainNamespace]
 
   const networkFeeCryptoBaseUnit: string | undefined = await (async () => {
     try {

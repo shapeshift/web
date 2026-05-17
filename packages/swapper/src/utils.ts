@@ -1,3 +1,4 @@
+import { AccountAddress } from '@aptos-labs/ts-sdk'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { aptosChainId, solanaChainId, starknetChainId, suiChainId } from '@shapeshiftoss/caip'
 import type {
@@ -532,8 +533,19 @@ export const checkAptosSwapStatus = async ({
     const adapter = assertGetAptosChainAdapter(aptosChainId)
     const tx = await adapter.parseTx(txHash, address)
 
+    // Aptos addresses can differ in casing/length but refer to the same account.
+    // Normalize via AccountAddress for reliable equality.
+    const target = AccountAddress.fromString(address)
+    const isTargetAddress = (candidate: string) => {
+      try {
+        return AccountAddress.fromString(candidate).equals(target)
+      } catch {
+        return false
+      }
+    }
+
     const receiveTransfer = tx.transfers.find(
-      t => t.type === TransferType.Receive && t.to.includes(address),
+      t => t.type === TransferType.Receive && t.to.some(isTargetAddress),
     )
     const actualBuyAmountCryptoBaseUnit = receiveTransfer?.value
 

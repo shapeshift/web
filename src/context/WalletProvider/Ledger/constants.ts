@@ -1,5 +1,4 @@
 import {
-  aptosAssetId,
   bchAssetId,
   btcAssetId,
   cosmosAssetId,
@@ -42,7 +41,6 @@ export const availableLedgerAppAssetIds = [
   mayachainAssetId,
   ...(getConfig().VITE_FEATURE_TRON ? [tronAssetId] : []),
   ...(getConfig().VITE_FEATURE_NEAR ? [nearAssetId] : []),
-  ...(getConfig().VITE_FEATURE_APTOS ? [aptosAssetId] : []),
 ]
 
 export const availableLedgerAppChainIds = availableLedgerAppAssetIds.map(

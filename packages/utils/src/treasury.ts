@@ -20,7 +20,6 @@ export const treasuryChainIds = [
   KnownChainIds.MonadMainnet,
   KnownChainIds.HyperEvmMainnet,
   KnownChainIds.BobMainnet,
-  KnownChainIds.AptosMainnet,
 ] as const
 
 export type TreasuryChainId = (typeof treasuryChainIds)[number]
@@ -48,7 +47,3 @@ export const DAO_TREASURY_BOB = '0xF5AA59151bE6515C4Ca68A0282CF68B3eA4846fC'
 export const DAO_TREASURY_STARKNET =
   '0x07ac2252f2da7cbf085e7a5ddc1318243aa818607cdd430dd2e17dd5d487606a'
 export const DAO_TREASURY_TON = 'UQAHHeOhXst-zSGGigQ8KgDzz89nACBR4TxXwXNjU4DsriLb'
-// TODO: replace with the real ShapeShift DAO Aptos multisig address before shipping to prod.
-// See https://forum.shapeshift.com/thread/dao-treasuries-and-multisigs-43646
-export const DAO_TREASURY_APTOS =
-  '0xdeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddeaddead'

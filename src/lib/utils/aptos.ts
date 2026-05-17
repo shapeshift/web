@@ -8,7 +8,13 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 
 export const isAptosChainAdapter = (chainAdapter: unknown): chainAdapter is aptos.ChainAdapter => {
   if (!chainAdapter || typeof chainAdapter !== 'object') return false
-  return (chainAdapter as aptos.ChainAdapter).getChainId() === aptosChainId
+  const candidate = chainAdapter as { getChainId?: unknown }
+  if (typeof candidate.getChainId !== 'function') return false
+  try {
+    return (chainAdapter as aptos.ChainAdapter).getChainId() === aptosChainId
+  } catch {
+    return false
+  }
 }
 
 export const assertGetAptosChainAdapter = (

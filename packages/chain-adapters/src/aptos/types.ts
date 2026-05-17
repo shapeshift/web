@@ -15,6 +15,9 @@ export type AptosAccount = {
 
 export type BuildTxInput = {
   memo?: string
+  // Aptos CoinStore-style coin type to transfer (e.g. '0x1::aptos_coin::AptosCoin').
+  // Defaults to APT when omitted.
+  coinType?: string
 }
 
 export type AptosGetFeeDataInput = {

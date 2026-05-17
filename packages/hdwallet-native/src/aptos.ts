@@ -15,9 +15,8 @@ export function MixinNativeAptosWalletInfo<TBase extends core.Constructor<core.H
       return core.aptosGetAccountPaths(msg)
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    aptosNextAccountPath(_msg: core.AptosAccountPath): core.AptosAccountPath | undefined {
-      throw new Error('Method not implemented')
+    aptosNextAccountPath(msg: core.AptosAccountPath): core.AptosAccountPath | undefined {
+      return core.aptosNextAccountPath(msg)
     }
   }
 }

@@ -1,3 +1,4 @@
+import type * as AptosSdkActual from '@aptos-labs/ts-sdk'
 import { aptosAssetId, aptosChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
@@ -6,8 +7,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ValidAddressResultType } from '../types'
 import { ChainAdapter } from './AptosChainAdapter'
 
-vi.mock('@aptos-labs/ts-sdk', () => {
+vi.mock('@aptos-labs/ts-sdk', async () => {
+  // Keep real exports (AccountAddress, Ed25519PublicKey, BCS helpers, etc.) and only
+  // mock the network-using Aptos client + AptosConfig + Network enum.
+  const actual = await vi.importActual<typeof AptosSdkActual>('@aptos-labs/ts-sdk')
   return {
+    ...actual,
     Aptos: vi.fn().mockImplementation(() => ({
       getAccountCoinsData: vi.fn(),
       getGasPriceEstimation: vi.fn(),
@@ -71,18 +76,23 @@ describe('AptosChainAdapter', () => {
       expect(r).toEqual({ valid: true, result: ValidAddressResultType.Valid })
     })
 
-    it('rejects addresses without 0x prefix', async () => {
+    it('accepts 64-hex address without 0x prefix (Aptos SDK normalizes)', async () => {
       const r = await adapter.validateAddress(ADDR.slice(2))
-      expect(r.valid).toBe(false)
+      expect(r).toEqual({ valid: true, result: ValidAddressResultType.Valid })
     })
 
-    it('rejects addresses of wrong length', async () => {
-      const r = await adapter.validateAddress('0xabcd')
-      expect(r.valid).toBe(false)
+    it('accepts Aptos special short-form addresses (e.g. 0x1)', async () => {
+      const r = await adapter.validateAddress('0x1')
+      expect(r).toEqual({ valid: true, result: ValidAddressResultType.Valid })
     })
 
     it('rejects non-hex content', async () => {
       const r = await adapter.validateAddress('0x' + 'z'.repeat(64))
+      expect(r.valid).toBe(false)
+    })
+
+    it('rejects garbage strings', async () => {
+      const r = await adapter.validateAddress('not-an-address')
       expect(r.valid).toBe(false)
     })
   })

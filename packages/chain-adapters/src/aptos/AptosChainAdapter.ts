@@ -1,5 +1,6 @@
 import type { InputEntryFunctionData } from '@aptos-labs/ts-sdk'
 import {
+  AccountAddress,
   AccountAuthenticatorEd25519,
   Aptos,
   AptosConfig,
@@ -196,19 +197,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
 
   validateAddress(address: string): Promise<ValidAddressResult> {
     try {
-      if (!address.startsWith('0x')) {
-        return Promise.resolve({ valid: false, result: ValidAddressResultType.Invalid })
-      }
-
-      const hexPart = address.slice(2)
-      if (hexPart.length !== 64) {
-        return Promise.resolve({ valid: false, result: ValidAddressResultType.Invalid })
-      }
-
-      if (!/^[0-9a-fA-F]{64}$/.test(hexPart)) {
-        return Promise.resolve({ valid: false, result: ValidAddressResultType.Invalid })
-      }
-
+      AccountAddress.fromString(address)
       return Promise.resolve({ valid: true, result: ValidAddressResultType.Valid })
     } catch {
       return Promise.resolve({ valid: false, result: ValidAddressResultType.Invalid })
@@ -249,11 +238,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
     input: BuildSendApiTxInput<KnownChainIds.AptosMainnet>,
   ): Promise<SignTx<KnownChainIds.AptosMainnet>> {
     try {
-      const { from, accountNumber, to, value } = input
+      const { from, accountNumber, to, value, chainSpecific } = input
+      const coinType = chainSpecific?.coinType ?? APT_COIN_TYPE
 
       const data: InputEntryFunctionData = {
         function: '0x1::aptos_account::transfer_coins',
-        typeArguments: [APT_COIN_TYPE],
+        typeArguments: [coinType],
         functionArguments: [to, BigInt(value)],
       }
       const maxGasAmount = Number(await this.estimateMaxGasAmount(from, data))
@@ -501,7 +491,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
       const blockHeight = Number(tx.version ?? 0)
       const blockTime = tx.timestamp ? Math.floor(Number(tx.timestamp) / 1_000_000) : 0
 
-      const status = tx.success === false ? TxStatus.Failed : TxStatus.Confirmed
+      // Pending Aptos txs have undefined `success` until executed on-chain.
+      // Only mark Confirmed/Failed when we have a definitive answer.
+      const status =
+        tx.success === true
+          ? TxStatus.Confirmed
+          : tx.success === false
+          ? TxStatus.Failed
+          : TxStatus.Pending
 
       const gasUsed = tx.gas_used ?? '0'
       const gasUnitPrice = tx.gas_unit_price ?? '0'
@@ -522,7 +519,17 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
         const amount = String(args[isFaTransfer ? 2 : 1] ?? '0')
         const sender = tx.sender ?? ''
 
-        if (sender === pubkey) {
+        // Aptos addresses may differ in casing/length but refer to the same account.
+        // Use SDK normalization via AccountAddress for reliable equality.
+        const eq = (a: string, b: string) => {
+          try {
+            return AccountAddress.fromString(a).equals(AccountAddress.fromString(b))
+          } catch {
+            return false
+          }
+        }
+
+        if (eq(sender, pubkey)) {
           transfers.push({
             assetId: transferAssetId,
             from: [sender],
@@ -531,7 +538,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.AptosMainnet> {
             value: amount,
           })
         }
-        if (recipient === pubkey) {
+        if (eq(recipient, pubkey)) {
           transfers.push({
             assetId: transferAssetId,
             from: [sender],

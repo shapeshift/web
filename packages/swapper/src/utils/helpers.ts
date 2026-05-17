@@ -4,7 +4,6 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import type { TreasuryChainId } from '@shapeshiftoss/utils'
 import {
   chainIdToFeeAssetId,
-  DAO_TREASURY_APTOS,
   DAO_TREASURY_ARBITRUM,
   DAO_TREASURY_AVALANCHE,
   DAO_TREASURY_BASE,
@@ -70,7 +69,6 @@ const DAO_TREASURY_BY_CHAIN_ID: Record<TreasuryChainId, string> = {
   [KnownChainIds.RobinhoodMainnet]: DAO_TREASURY_ROBINHOOD,
   [KnownChainIds.PlasmaMainnet]: DAO_TREASURY_PLASMA,
   [KnownChainIds.MegaEthMainnet]: DAO_TREASURY_MEGAETH,
-  [KnownChainIds.AptosMainnet]: DAO_TREASURY_APTOS,
 }
 
 export const getTreasuryAddressFromChainId = (chainId: ChainId): string => {

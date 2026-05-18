@@ -26,7 +26,6 @@ import {
 } from '@shapeshiftoss/caip'
 import type { TransactionData } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
-import type { WalletClient } from 'viem'
 
 export type { BitcoinConnector } from '@reown/appkit-adapter-bitcoin'
 export type { Provider as SolanaProvider } from '@reown/appkit-adapter-solana/react'
@@ -135,35 +134,29 @@ export type ThemeConfig = {
   buttonVariant?: 'filled' | 'outline'
 }
 
+export type SwapWidgetFilters = {
+  allowedChainIds?: ChainId[]
+  disabledChainIds?: ChainId[]
+  allowedAssetIds?: AssetId[]
+  disabledAssetIds?: AssetId[]
+}
+
 export type SwapWidgetProps = {
   partnerCode?: string
   apiBaseUrl?: string
-  appUrl?: string
+  allowShapeshiftRedirect?: boolean
   defaultSellAsset?: Asset
   defaultBuyAsset?: Asset
-  disabledChainIds?: ChainId[]
-  disabledAssetIds?: AssetId[]
-  allowedChainIds?: ChainId[]
-  sellDisabledChainIds?: ChainId[]
-  buyDisabledChainIds?: ChainId[]
-  sellDisabledAssetIds?: AssetId[]
-  buyDisabledAssetIds?: AssetId[]
-  sellAllowedChainIds?: ChainId[]
-  buyAllowedChainIds?: ChainId[]
-  sellAllowedAssetIds?: AssetId[]
-  buyAllowedAssetIds?: AssetId[]
+  sellFilters?: SwapWidgetFilters
+  buyFilters?: SwapWidgetFilters
   allowedSwapperNames?: SwapperName[]
-  walletClient?: WalletClient
-  onConnectWallet?: () => void
   onSwapSuccess?: (txHash: string) => void
   onSwapError?: (error: Error) => void
-  onAssetSelect?: (type: 'sell' | 'buy', asset: Asset) => void
   theme?: ThemeMode | ThemeConfig
   defaultSlippage?: string
   showPoweredBy?: boolean
-  enableWalletConnection?: boolean
+  showConnectButton?: boolean
   walletConnectProjectId?: string
-  defaultReceiveAddress?: string
   ratesRefetchInterval?: number
   isBuyAssetLocked?: boolean
 }

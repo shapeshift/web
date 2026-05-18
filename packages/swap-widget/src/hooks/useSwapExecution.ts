@@ -108,7 +108,8 @@ export const useSwapExecution = () => {
   const stateValue = SwapMachineCtx.useSelector(s => s.value)
   const actorRef = SwapMachineCtx.useActorRef()
 
-  const { walletClient, walletAddress, bitcoin, solana } = useSwapWallet()
+  const { evm, bitcoin, solana } = useSwapWallet()
+  const { walletClient, address: walletAddress } = evm
 
   const executingRef = useRef(false)
 

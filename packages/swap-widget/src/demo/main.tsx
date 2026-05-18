@@ -1,25 +1,29 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 
-import { App } from './App'
+import { ExternalWalletApp } from './ExternalWalletApp'
+import { InternalWalletApp } from './InternalWalletApp'
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 30_000,
-      refetchOnWindowFocus: false,
-    },
-  },
-})
+const getRoute = () => window.location.hash.replace(/^#/, '') || 'internal'
+
+const Router = () => {
+  const [route, setRoute] = useState(getRoute)
+
+  useEffect(() => {
+    const onHashChange = () => setRoute(getRoute())
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  }, [])
+
+  if (route === 'external') return <ExternalWalletApp />
+  return <InternalWalletApp />
+}
 
 const rootElement = document.getElementById('root')
 if (!rootElement) throw new Error('Root element not found')
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <App />
-    </QueryClientProvider>
+    <Router />
   </React.StrictMode>,
 )

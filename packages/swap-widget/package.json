@@ -34,6 +34,8 @@
     "@shapeshiftoss/utils": "workspace:^",
     "@xstate/react": "5.0.5",
     "bech32": "^2.0.0",
+    "bs58check": "^4.0.0",
+    "cashaddrjs": "^0.3.12",
     "p-queue": "^8.0.1",
     "react-virtuoso": "^4.7.11",
     "xstate": "5.28.0"
@@ -83,6 +85,7 @@
     "@tanstack/react-query": "^5.69.0",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.2",
+    "@types/bs58check": "^2.1.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

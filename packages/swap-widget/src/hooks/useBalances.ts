@@ -8,7 +8,6 @@ import { useCallback, useMemo } from 'react'
 import { erc20Abi } from 'viem'
 import { useConfig } from 'wagmi'
 
-import type { SupportedChainId } from '../config/wagmi'
 import type { AssetId } from '../types'
 import { formatAmount, getChainType, UTXO_CHAIN_IDS } from '../types'
 
@@ -148,7 +147,7 @@ export const useEvmBalances = (
         if (!parsed) return null
         return {
           assetId,
-          chainId: parsed.chainId as SupportedChainId,
+          chainId: parsed.chainId as number,
           tokenAddress: parsed.tokenAddress,
           precision: assetPrecisions[assetId] ?? 18,
           isNative: !parsed.tokenAddress,
@@ -156,7 +155,7 @@ export const useEvmBalances = (
       })
       .filter(Boolean) as {
       assetId: AssetId
-      chainId: SupportedChainId
+      chainId: number
       tokenAddress?: `0x${string}`
       precision: number
       isNative: boolean

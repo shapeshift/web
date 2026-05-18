@@ -1,15 +1,16 @@
 import { createContext, useContext } from 'react'
 
 import type { UseBitcoinSigningResult } from '../hooks/useBitcoinSigning'
+import type { UseEvmSigningResult } from '../hooks/useEvmSigning'
 import type { UseSolanaSigningResult } from '../hooks/useSolanaSigning'
 
 export type SwapWalletContextValue = {
-  walletClient: unknown
-  walletAddress: string | undefined
-  effectiveReceiveAddress: string
-  isCustomAddress: boolean
+  sendAddress: string | undefined
+  receiveAddress: string | undefined
+  isCustomReceiveAddress: boolean
   customReceiveAddress: string
   setCustomReceiveAddress: (address: string) => void
+  evm: UseEvmSigningResult
   bitcoin: UseBitcoinSigningResult
   solana: UseSolanaSigningResult
 }

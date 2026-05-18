@@ -23,9 +23,7 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
   const context = SwapMachineCtx.useSelector(s => s.context)
   const actorRef = SwapMachineCtx.useActorRef()
 
-  const { walletAddress, effectiveReceiveAddress, bitcoin, solana } = useSwapWallet()
-  const bitcoinAddress = bitcoin.address
-  const solanaAddress = solana.address
+  const { sendAddress, receiveAddress } = useSwapWallet()
 
   const quotingRef = useRef(false)
 
@@ -57,22 +55,14 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
           return
         }
 
-        const sendAddress = context.isSellAssetEvm
-          ? walletAddress
-          : context.isSellAssetUtxo
-          ? bitcoinAddress
-          : context.isSellAssetSolana
-          ? solanaAddress
-          : undefined
-
         if (!sendAddress) {
           actorRef.send({ type: 'QUOTE_ERROR', error: 'No wallet address available' })
           return
         }
 
-        const receiveAddr = effectiveReceiveAddress || sendAddress
+        const resolvedReceiveAddress = receiveAddress || sendAddress
 
-        if (!receiveAddr) {
+        if (!resolvedReceiveAddress) {
           actorRef.send({ type: 'QUOTE_ERROR', error: 'No receive address available' })
           return
         }
@@ -82,7 +72,7 @@ export const useSwapQuoting = ({ apiClient, rates, sellAssetBalance }: UseSwapQu
           buyAssetId: context.buyAsset.assetId,
           sellAmountCryptoBaseUnit: context.sellAmountBaseUnit,
           sendAddress,
-          receiveAddress: receiveAddr,
+          receiveAddress: resolvedReceiveAddress,
           swapperName: rateToUse.swapperName,
           slippageTolerancePercentageDecimal: slippageDecimal,
         })

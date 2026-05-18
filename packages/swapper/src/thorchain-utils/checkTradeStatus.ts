@@ -95,7 +95,12 @@ export const checkTradeStatus = async ({
 
     return { buyTxHash, status: TxStatus.Pending, message }
   } catch (e) {
-    console.error(e)
+    const message = (() => {
+      if (axios.isAxiosError(e)) return e.response?.data?.message ?? e.message
+      if (e instanceof Error) return e.message
+      return String(e)
+    })()
+    console.error(`checkTradeStatus(${nativeChain}, ${txHash}): ${message}`)
     return { buyTxHash: undefined, status: TxStatus.Unknown, message: undefined }
   }
 }

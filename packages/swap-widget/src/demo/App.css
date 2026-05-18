@@ -97,6 +97,36 @@ body,
   gap: 12px;
 }
 
+.demo-header-separator {
+  width: 1px;
+  height: 24px;
+  background: var(--demo-border);
+}
+
+.demo-connect-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--demo-border);
+  background: var(--demo-bg-secondary);
+  border-radius: 10px;
+  color: var(--demo-text);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.demo-connect-btn:hover {
+  border-color: var(--demo-accent);
+}
+
+.demo-connect-btn.demo-connected {
+  background: color-mix(in srgb, var(--demo-accent) 15%, var(--demo-bg-secondary));
+  border-color: color-mix(in srgb, var(--demo-accent) 40%, transparent);
+}
+
 .demo-customize-btn {
   display: flex;
   align-items: center;

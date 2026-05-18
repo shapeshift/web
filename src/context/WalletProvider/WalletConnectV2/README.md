@@ -85,7 +85,7 @@ Bypass the WalletConnect modal and open specific wallets directly via deep links
 
 **Feature Flag**: `VITE_FEATURE_WC_DIRECT_CONNECTION`
 - OFF in production
-- ON in development environments (gome, develop, etc.)
+- ON in development environments
 
 ### How It Works
 
@@ -194,7 +194,7 @@ export const WALLET_CONFIGS: WalletConfig[] = [
 ### Step 4: Test
 - **Desktop**: Use `localhost` (WalletConnect QR code flow works fine)
 - **Mobile deep links**: Requires real mobile device + deployed environment
-- Deploy to ephemeral environment (e.g., `gome.shapeshift.com`)
+- Deploy to ephemeral environment
 - Test on iOS Safari and Android Chrome
 - Verify deep link opens wallet app and connection completes
 
@@ -209,7 +209,7 @@ export const WALLET_CONFIGS: WalletConfig[] = [
 Deep links require actual mobile devices with wallet apps installed. Testing requires:
 - ✅ Deploy to remote domain (`*.shapeshift.com`)
 - ❌ Local IP addresses (`192.168.x.x`) - WalletConnect relay rejects them
-- Must use ephemeral environment (gome, private, etc.) to test on phone
+- Must use ephemeral environment to test on phone
 
 ## Resources
 

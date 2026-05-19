@@ -108,11 +108,11 @@ export const getTradeRate = async (
   const placeholderTo = GARDEN_FEE_PLACEHOLDER_BY_NAMESPACE[chainNamespace]
 
   const networkFeeCryptoBaseUnit: string | undefined = await (async () => {
-    try {
-      if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
-        const adapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
-        const pubkey = (input as GetUtxoTradeRateInput).xpub
-        if (!pubkey || !placeholderTo) return undefined
+    if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
+      const adapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
+      const pubkey = (input as GetUtxoTradeRateInput).xpub
+      if (!pubkey || !placeholderTo) return undefined
+      try {
         const utxoFee = await adapter.getFeeData({
           to: placeholderTo,
           value: sellAmount,
@@ -120,12 +120,16 @@ export const getTradeRate = async (
           sendMax: false,
         })
         return utxoFee.fast.txFee
+      } catch {
+        return '0'
       }
+    }
 
-      if (chainNamespace === CHAIN_NAMESPACE.Starknet) {
-        if (!sendAddress || !placeholderTo) return undefined
-        const adapter = deps.assertGetStarknetChainAdapter(sellAsset.chainId)
-        const tokenContractAddress = contractAddressOrUndefined(sellAsset.assetId)
+    if (chainNamespace === CHAIN_NAMESPACE.Starknet) {
+      if (!sendAddress || !placeholderTo) return undefined
+      const adapter = deps.assertGetStarknetChainAdapter(sellAsset.chainId)
+      const tokenContractAddress = contractAddressOrUndefined(sellAsset.assetId)
+      try {
         const starknetFee = await adapter.getFeeData({
           to: placeholderTo,
           value: sellAmount,
@@ -133,13 +137,17 @@ export const getTradeRate = async (
           sendMax: false,
         })
         return starknetFee.fast.txFee
+      } catch {
+        return '0'
       }
+    }
 
-      if (chainNamespace === CHAIN_NAMESPACE.Evm) {
-        if (!sendAddress || !placeholderTo) return undefined
-        const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId as EvmChainId)
-        const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-        const data = evm.getErc20Data(placeholderTo, sellAmount, contractAddress)
+    if (chainNamespace === CHAIN_NAMESPACE.Evm) {
+      if (!sendAddress || !placeholderTo) return undefined
+      const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId as EvmChainId)
+      const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+      const data = evm.getErc20Data(placeholderTo, sellAmount, contractAddress)
+      try {
         const feeData = await evm.getFees({
           adapter,
           data: data || '0x',
@@ -149,12 +157,12 @@ export const getTradeRate = async (
           supportsEIP1559: (input as GetEvmTradeRateInput).supportsEIP1559,
         })
         return feeData.networkFeeCryptoBaseUnit
+      } catch {
+        return '0'
       }
-
-      return undefined
-    } catch {
-      return undefined
     }
+
+    return undefined
   })()
 
   const rate = getInputOutputRate({

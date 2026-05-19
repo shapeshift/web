@@ -1,4 +1,4 @@
-import { CHAIN_NAMESPACE, fromAssetId, nearChainId } from '@shapeshiftoss/caip'
+import { btcChainId, CHAIN_NAMESPACE, fromAssetId, nearChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import {
   bn,
@@ -28,7 +28,11 @@ import {
 } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
+import {
+  BTC_QUOTE_DEADLINE_MS,
+  DEFAULT_QUOTE_DEADLINE_MS,
+  DEFAULT_SLIPPAGE_BPS,
+} from '../constants'
 import type { QuoteResponse } from '../types'
 import { QuoteRequest } from '../types'
 import { assetToNearIntentsAsset, calculateAccountCreationCosts } from '../utils/helpers/helpers'
@@ -106,6 +110,11 @@ export const getTradeQuote = async (
       )
     }
 
+    const quoteDeadline =
+      sellAsset.chainId === btcChainId || buyAsset.chainId === btcChainId
+        ? BTC_QUOTE_DEADLINE_MS
+        : DEFAULT_QUOTE_DEADLINE_MS
+
     const quoteRequest: QuoteRequest = {
       dry: false,
       swapType: QuoteRequest.swapType.EXACT_INPUT,
@@ -120,7 +129,7 @@ export const getTradeQuote = async (
       refundType: QuoteRequest.refundType.ORIGIN_CHAIN,
       recipient: receiveAddress,
       recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
-      deadline: new Date(Date.now() + DEFAULT_QUOTE_DEADLINE_MS).toISOString(),
+      deadline: new Date(Date.now() + quoteDeadline).toISOString(),
       referral: 'shapeshift',
       appFees: [
         {
@@ -350,7 +359,7 @@ export const getTradeQuote = async (
       steps: [
         {
           accountNumber,
-          allowanceContract: quote.depositAddress,
+          allowanceContract: '',
           buyAmountBeforeFeesCryptoBaseUnit: quote.amountOut,
           buyAmountAfterFeesCryptoBaseUnit: quote.amountOut,
           buyAsset,

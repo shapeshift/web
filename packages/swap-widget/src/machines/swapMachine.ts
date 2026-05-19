@@ -30,8 +30,8 @@ export const createInitialContext = (input?: {
     retryCount: 0,
     chainType: sellChainType,
     slippage: input?.slippage ?? '0.5',
-    walletAddress: undefined,
-    effectiveReceiveAddress: '',
+    sendAddress: undefined,
+    receiveAddress: undefined,
     isSellAssetEvm: sellChainType === 'evm',
     isSellAssetUtxo: sellChainType === 'utxo',
     isSellAssetSolana: sellChainType === 'solana',
@@ -60,7 +60,7 @@ export const swapMachine = setup({
     isEvmChain: ({ context }) => guardFns.isEvmChain(context),
     isUtxoChain: ({ context }) => guardFns.isUtxoChain(context),
     isSolanaChain: ({ context }) => guardFns.isSolanaChain(context),
-    hasWallet: ({ context }) => guardFns.hasWallet(context),
+    hasSendAddress: ({ context }) => guardFns.hasSendAddress(context),
     hasReceiveAddress: ({ context }) => guardFns.hasReceiveAddress(context),
   },
   actions: {
@@ -132,11 +132,12 @@ export const swapMachine = setup({
       error: (event as { type: 'STATUS_FAILED'; error: string }).error,
       errorSource: 'STATUS_FAILED' as const,
     })),
-    assignWalletAddress: assign(({ event }) => ({
-      walletAddress: (event as { type: 'SET_WALLET_ADDRESS'; address: string | undefined }).address,
+    assignSendAddress: assign(({ event }) => ({
+      sendAddress: (event as { type: 'SET_SEND_ADDRESS'; address: string | undefined }).address,
     })),
     assignReceiveAddress: assign(({ event }) => ({
-      effectiveReceiveAddress: (event as { type: 'SET_RECEIVE_ADDRESS'; address: string }).address,
+      receiveAddress: (event as { type: 'SET_RECEIVE_ADDRESS'; address: string | undefined })
+        .address,
     })),
     assignChainInfo: assign(({ event }) => {
       const e = event as Extract<SwapMachineEvent, { type: 'UPDATE_CHAIN_INFO' }>
@@ -166,8 +167,8 @@ export const swapMachine = setup({
       sellAmount: context.sellAmount,
       sellAmountBaseUnit: context.sellAmountBaseUnit,
       slippage: context.slippage,
-      walletAddress: context.walletAddress,
-      effectiveReceiveAddress: context.effectiveReceiveAddress,
+      sendAddress: context.sendAddress,
+      receiveAddress: context.receiveAddress,
     })),
   },
 }).createMachine({
@@ -185,7 +186,7 @@ export const swapMachine = setup({
         SET_SELL_AMOUNT: { actions: 'assignSellAmount' },
         SET_SLIPPAGE: { actions: 'assignSlippage' },
         SELECT_RATE: { actions: 'assignSelectedRate' },
-        SET_WALLET_ADDRESS: { actions: 'assignWalletAddress' },
+        SET_SEND_ADDRESS: { actions: 'assignSendAddress' },
         SET_RECEIVE_ADDRESS: { actions: 'assignReceiveAddress' },
         UPDATE_CHAIN_INFO: { actions: 'assignChainInfo' },
         FETCH_QUOTE: {

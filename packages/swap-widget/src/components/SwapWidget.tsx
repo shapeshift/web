@@ -1,16 +1,13 @@
 import './SwapWidget.css'
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { WalletClient } from 'viem'
-import { WagmiProvider } from 'wagmi'
 
 import { createApiClient } from '../api/client'
-import { standaloneWagmiConfig } from '../config/standaloneWagmi'
 import { DEFAULT_BUY_ASSET, DEFAULT_SELL_ASSET } from '../constants/defaults'
 import type { SwapWalletContextValue } from '../contexts/SwapWalletContext'
 import { SwapWalletProvider, useSwapWallet } from '../contexts/SwapWalletContext'
 import { useBitcoinSigning } from '../hooks/useBitcoinSigning'
+import { useEvmSigning } from '../hooks/useEvmSigning'
 import { useSolanaSigning } from '../hooks/useSolanaSigning'
 import { useStatusPolling } from '../hooks/useStatusPolling'
 import { useSwapApproval } from '../hooks/useSwapApproval'
@@ -19,7 +16,7 @@ import { useSwapExecution } from '../hooks/useSwapExecution'
 import { useSwapHandlers } from '../hooks/useSwapHandlers'
 import { useSwapQuoting } from '../hooks/useSwapQuoting'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
-import type { Asset, SwapWidgetProps, ThemeMode } from '../types'
+import type { Asset, SwapWidgetFilters, SwapWidgetProps, ThemeMode } from '../types'
 import { getChainType } from '../types'
 import { AddressInputModal } from './AddressInputModal'
 import { ApprovalStep } from './ApprovalStep'
@@ -28,71 +25,47 @@ import { InputStep } from './InputStep'
 import { SettingsModal } from './SettingsModal'
 import { StatusStep } from './StatusStep'
 import { TokenSelectModal } from './TokenSelectModal'
-import { ConnectWalletButton, InternalWalletProvider } from './WalletProvider'
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      staleTime: 30_000,
-    },
-  },
-})
+import { AppKitWalletProvider, ConnectWalletButton } from './WalletProvider'
 
 type SwapWidgetContentProps = {
   apiClient: ReturnType<typeof createApiClient>
   theme: SwapWidgetProps['theme']
   showPoweredBy: boolean
-  defaultReceiveAddress?: string
-  enableWalletConnection: boolean
+  showConnectButton: boolean
   isBuyAssetLocked: boolean
   partnerCode?: string
-  appUrl?: string
-  onConnectWallet?: () => void
+  allowShapeshiftRedirect: boolean
   onSwapSuccess?: (txHash: string) => void
   onSwapError?: (error: Error) => void
-  onAssetSelect?: (type: 'sell' | 'buy', asset: Asset) => void
-  sellDisabledAssetIds: string[]
-  buyDisabledAssetIds: string[]
-  sellDisabledChainIds: string[]
-  buyDisabledChainIds: string[]
-  sellAllowedChainIds?: string[]
-  buyAllowedChainIds?: string[]
-  sellAllowedAssetIds?: string[]
-  buyAllowedAssetIds?: string[]
+  sellFilters: SwapWidgetFilters
+  buyFilters: SwapWidgetFilters
+  allowedSwapperNames?: SwapWidgetProps['allowedSwapperNames']
 }
 
 const SwapWidgetContent = ({
   apiClient,
   theme = 'dark',
   showPoweredBy,
-  defaultReceiveAddress,
-  enableWalletConnection,
+  showConnectButton,
   isBuyAssetLocked,
   partnerCode,
-  appUrl,
-  onConnectWallet,
+  allowShapeshiftRedirect,
   onSwapSuccess,
   onSwapError,
-  onAssetSelect,
-  sellDisabledAssetIds,
-  buyDisabledAssetIds,
-  sellDisabledChainIds,
-  buyDisabledChainIds,
-  sellAllowedChainIds,
-  buyAllowedChainIds,
-  sellAllowedAssetIds,
-  buyAllowedAssetIds,
+  sellFilters,
+  buyFilters,
+  allowedSwapperNames,
 }: SwapWidgetContentProps) => {
   const state = SwapMachineCtx.useSelector(s => s)
   const actorRef = SwapMachineCtx.useActorRef()
 
   const {
-    walletAddress,
-    effectiveReceiveAddress,
-    isCustomAddress,
+    sendAddress,
+    receiveAddress,
+    isCustomReceiveAddress,
     customReceiveAddress,
     setCustomReceiveAddress,
+    evm,
     bitcoin,
     solana,
   } = useSwapWallet()
@@ -125,7 +98,7 @@ const SwapWidgetContent = ({
     buyAssetUsdPrice,
     sellBalanceFiatValue,
     buyBalanceFiatValue,
-  } = useSwapDisplayValues({ apiClient })
+  } = useSwapDisplayValues({ apiClient, allowedSwapperNames })
 
   const {
     handleSwapTokens,
@@ -135,7 +108,7 @@ const SwapWidgetContent = ({
     handleSelectRate,
     handleSlippageChange,
     handleButtonClick,
-  } = useSwapHandlers({ onConnectWallet, onAssetSelect, partnerCode, appUrl })
+  } = useSwapHandlers({ partnerCode, allowShapeshiftRedirect })
 
   useSwapQuoting({ apiClient, rates, sellAssetBalance })
 
@@ -205,7 +178,7 @@ const SwapWidgetContent = ({
       <div className='ssw-header'>
         <span className='ssw-header-title'>Swap</span>
         <div className='ssw-header-actions'>
-          {enableWalletConnection && <ConnectWalletButton />}
+          {showConnectButton && <ConnectWalletButton />}
           <button
             className='ssw-settings-btn'
             onClick={() => setIsSettingsOpen(true)}
@@ -244,21 +217,20 @@ const SwapWidgetContent = ({
             sellChainInfo={sellChainInfo}
             buyChainInfo={buyChainInfo}
             displayRate={displayRate}
-            walletAddress={walletAddress}
+            sendAddress={sendAddress}
+            evmAddress={evm.address}
             bitcoinAddress={bitcoin.address}
             solanaAddress={solana.address}
-            defaultReceiveAddress={defaultReceiveAddress}
             buyAssetUsdPrice={buyAssetUsdPrice}
             onOpenTokenModal={setTokenModalType}
             onOpenAddressModal={openAddressModal}
-            enableWalletConnection={enableWalletConnection}
-            onConnectWallet={onConnectWallet}
+            showConnectButton={showConnectButton}
             bitcoinState={bitcoin.state}
             solanaState={solana.state}
             isQuoting={state.matches('quoting')}
             isExecuting={false}
-            effectiveReceiveAddress={effectiveReceiveAddress}
-            isCustomAddress={isCustomAddress}
+            receiveAddress={receiveAddress}
+            isCustomReceiveAddress={isCustomReceiveAddress}
             sellAmount={state.context.sellAmount}
             onSellAmountChange={handleSellAmountChange}
             onSwapTokens={handleSwapTokens}
@@ -269,6 +241,7 @@ const SwapWidgetContent = ({
             sellBalanceFiatValue={sellBalanceFiatValue}
             buyBalanceFiatValue={buyBalanceFiatValue}
             isBuyAssetLocked={isBuyAssetLocked}
+            allowShapeshiftRedirect={allowShapeshiftRedirect}
           />
         )}
 
@@ -318,11 +291,15 @@ const SwapWidgetContent = ({
         isOpen={tokenModalType !== null}
         onClose={() => setTokenModalType(null)}
         onSelect={tokenModalType === 'sell' ? handleSellAssetSelect : handleBuyAssetSelect}
-        disabledAssetIds={tokenModalType === 'buy' ? buyDisabledAssetIds : sellDisabledAssetIds}
-        disabledChainIds={tokenModalType === 'buy' ? buyDisabledChainIds : sellDisabledChainIds}
-        allowedChainIds={tokenModalType === 'buy' ? buyAllowedChainIds : sellAllowedChainIds}
-        allowedAssetIds={tokenModalType === 'buy' ? buyAllowedAssetIds : sellAllowedAssetIds}
-        walletAddress={walletAddress}
+        disabledAssetIds={
+          (tokenModalType === 'buy' ? buyFilters : sellFilters).disabledAssetIds ?? []
+        }
+        disabledChainIds={
+          (tokenModalType === 'buy' ? buyFilters : sellFilters).disabledChainIds ?? []
+        }
+        allowedChainIds={(tokenModalType === 'buy' ? buyFilters : sellFilters).allowedChainIds}
+        allowedAssetIds={(tokenModalType === 'buy' ? buyFilters : sellFilters).allowedAssetIds}
+        evmAddress={evm.address}
         currentAssetIds={[state.context.sellAsset.assetId, state.context.buyAsset.assetId]}
       />
 
@@ -340,11 +317,11 @@ const SwapWidgetContent = ({
         chainName={
           buyChainInfo?.name ?? state.context.buyAsset.networkName ?? state.context.buyAsset.name
         }
-        currentAddress={customReceiveAddress || effectiveReceiveAddress || ''}
+        currentAddress={customReceiveAddress || receiveAddress || ''}
         onAddressChange={setCustomReceiveAddress}
-        walletAddress={
+        walletReceiveAddress={
           buyChainType === 'evm'
-            ? walletAddress
+            ? evm.address
             : buyChainType === 'utxo'
             ? bitcoin.address
             : buyChainType === 'solana'
@@ -357,94 +334,81 @@ const SwapWidgetContent = ({
 }
 
 type SwapWidgetCoreProps = {
-  walletClient: unknown
   defaultSellAsset: Asset
   defaultBuyAsset: Asset
   defaultSlippage: string
-  defaultReceiveAddress?: string
   apiClient: ReturnType<typeof createApiClient>
   theme: SwapWidgetProps['theme']
   showPoweredBy: boolean
-  enableWalletConnection: boolean
+  showConnectButton: boolean
   isBuyAssetLocked: boolean
   partnerCode?: string
-  appUrl?: string
-  onConnectWallet?: () => void
+  allowShapeshiftRedirect: boolean
   onSwapSuccess?: (txHash: string) => void
   onSwapError?: (error: Error) => void
-  onAssetSelect?: (type: 'sell' | 'buy', asset: Asset) => void
-  sellDisabledAssetIds: string[]
-  buyDisabledAssetIds: string[]
-  sellDisabledChainIds: string[]
-  buyDisabledChainIds: string[]
-  sellAllowedChainIds?: string[]
-  buyAllowedChainIds?: string[]
-  sellAllowedAssetIds?: string[]
-  buyAllowedAssetIds?: string[]
+  sellFilters: SwapWidgetFilters
+  buyFilters: SwapWidgetFilters
+  allowedSwapperNames?: SwapWidgetProps['allowedSwapperNames']
 }
 
 const SwapWidgetCore = ({
-  walletClient,
   defaultSellAsset,
   defaultBuyAsset,
   defaultSlippage,
-  defaultReceiveAddress,
   apiClient,
   theme,
   showPoweredBy,
-  enableWalletConnection,
+  showConnectButton,
   isBuyAssetLocked,
   partnerCode,
-  appUrl,
-  onConnectWallet,
+  allowShapeshiftRedirect,
   onSwapSuccess,
   onSwapError,
-  onAssetSelect,
-  sellDisabledAssetIds,
-  buyDisabledAssetIds,
-  sellDisabledChainIds,
-  buyDisabledChainIds,
-  sellAllowedChainIds,
-  buyAllowedChainIds,
-  sellAllowedAssetIds,
-  buyAllowedAssetIds,
+  sellFilters,
+  buyFilters,
+  allowedSwapperNames,
 }: SwapWidgetCoreProps) => {
   const actorRef = SwapMachineCtx.useActorRef()
 
+  const evm = useEvmSigning()
   const bitcoin = useBitcoinSigning()
   const solana = useSolanaSigning()
 
   const [customReceiveAddress, setCustomReceiveAddress] = useState<string>('')
 
-  const walletAddress = useMemo(() => {
-    if (!walletClient) return undefined
-    return (walletClient as WalletClient).account?.address
-  }, [walletClient])
-
+  const sellChainId = SwapMachineCtx.useSelector(s => s.context.sellAsset.chainId)
   const buyChainId = SwapMachineCtx.useSelector(s => s.context.buyAsset.chainId)
+  const sellChainType = getChainType(sellChainId)
   const buyChainType = getChainType(buyChainId)
 
-  const effectiveReceiveAddress = useMemo(() => {
-    if (customReceiveAddress) return customReceiveAddress
-    if (defaultReceiveAddress) return defaultReceiveAddress
+  const addressForChain = useCallback(
+    (chainType: ReturnType<typeof getChainType>): string | undefined => {
+      if (chainType === 'evm') return evm.address
+      if (chainType === 'utxo') return bitcoin.address
+      if (chainType === 'solana') return solana.address
+      return undefined
+    },
+    [evm.address, bitcoin.address, solana.address],
+  )
 
-    if (buyChainType === 'utxo') return bitcoin.address ?? ''
-    if (buyChainType === 'solana') return solana.address ?? ''
-    if (buyChainType === 'evm') return walletAddress ?? ''
+  const sendAddress = useMemo(
+    () => addressForChain(sellChainType),
+    [addressForChain, sellChainType],
+  )
 
-    return ''
-  }, [
-    customReceiveAddress,
-    defaultReceiveAddress,
-    buyChainType,
-    bitcoin.address,
-    solana.address,
-    walletAddress,
-  ])
+  const walletReceiveAddress = useMemo(
+    () => addressForChain(buyChainType),
+    [addressForChain, buyChainType],
+  )
 
-  const isCustomAddress = useMemo(
-    () => !!customReceiveAddress && customReceiveAddress !== walletAddress,
-    [customReceiveAddress, walletAddress],
+  const receiveAddress = useMemo(
+    () => customReceiveAddress || walletReceiveAddress,
+    [customReceiveAddress, walletReceiveAddress],
+  )
+
+  const isCustomReceiveAddress = useMemo(
+    () => !!customReceiveAddress && customReceiveAddress !== walletReceiveAddress,
+    [customReceiveAddress, walletReceiveAddress],
   )
 
   const initialSyncRef = useRef(false)
@@ -458,30 +422,30 @@ const SwapWidgetCore = ({
   }, [actorRef])
 
   useEffect(() => {
-    actorRef.send({ type: 'SET_WALLET_ADDRESS', address: walletAddress })
-  }, [walletAddress, actorRef])
+    actorRef.send({ type: 'SET_SEND_ADDRESS', address: sendAddress })
+  }, [sendAddress, actorRef])
 
   useEffect(() => {
-    actorRef.send({ type: 'SET_RECEIVE_ADDRESS', address: effectiveReceiveAddress })
-  }, [effectiveReceiveAddress, actorRef])
+    actorRef.send({ type: 'SET_RECEIVE_ADDRESS', address: receiveAddress })
+  }, [receiveAddress, actorRef])
 
   const walletValue: SwapWalletContextValue = useMemo(
     () => ({
-      walletClient,
-      walletAddress,
-      effectiveReceiveAddress,
-      isCustomAddress,
+      sendAddress,
+      receiveAddress,
+      isCustomReceiveAddress,
       customReceiveAddress,
       setCustomReceiveAddress,
+      evm,
       bitcoin,
       solana,
     }),
     [
-      walletClient,
-      walletAddress,
-      effectiveReceiveAddress,
-      isCustomAddress,
+      sendAddress,
+      receiveAddress,
+      isCustomReceiveAddress,
       customReceiveAddress,
+      evm,
       bitcoin,
       solana,
     ],
@@ -493,133 +457,51 @@ const SwapWidgetCore = ({
         apiClient={apiClient}
         theme={theme}
         showPoweredBy={showPoweredBy}
-        defaultReceiveAddress={defaultReceiveAddress}
-        enableWalletConnection={enableWalletConnection}
+        showConnectButton={showConnectButton}
         isBuyAssetLocked={isBuyAssetLocked}
         partnerCode={partnerCode}
-        appUrl={appUrl}
-        onConnectWallet={onConnectWallet}
+        allowShapeshiftRedirect={allowShapeshiftRedirect}
         onSwapSuccess={onSwapSuccess}
         onSwapError={onSwapError}
-        onAssetSelect={onAssetSelect}
-        sellDisabledAssetIds={sellDisabledAssetIds}
-        buyDisabledAssetIds={buyDisabledAssetIds}
-        sellDisabledChainIds={sellDisabledChainIds}
-        buyDisabledChainIds={buyDisabledChainIds}
-        sellAllowedChainIds={sellAllowedChainIds}
-        buyAllowedChainIds={buyAllowedChainIds}
-        sellAllowedAssetIds={sellAllowedAssetIds}
-        buyAllowedAssetIds={buyAllowedAssetIds}
+        sellFilters={sellFilters}
+        buyFilters={buyFilters}
+        allowedSwapperNames={allowedSwapperNames}
       />
     </SwapWalletProvider>
   )
 }
 
-const SwapWidgetWithExternalWallet = (props: SwapWidgetProps) => {
-  const apiClient = useMemo(
-    () =>
-      createApiClient({
-        baseUrl: props.apiBaseUrl,
-        partnerCode: props.partnerCode,
-      }),
-    [props.apiBaseUrl, props.partnerCode],
-  )
-
-  return (
-    <WagmiProvider config={standaloneWagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <SwapMachineCtx.Provider>
-          <SwapWidgetCore
-            walletClient={props.walletClient}
-            defaultSellAsset={props.defaultSellAsset ?? DEFAULT_SELL_ASSET}
-            defaultBuyAsset={props.defaultBuyAsset ?? DEFAULT_BUY_ASSET}
-            defaultSlippage={props.defaultSlippage ?? '0.5'}
-            defaultReceiveAddress={props.defaultReceiveAddress}
-            apiClient={apiClient}
-            theme={props.theme}
-            showPoweredBy={props.showPoweredBy ?? true}
-            enableWalletConnection={false}
-            isBuyAssetLocked={props.isBuyAssetLocked ?? false}
-            partnerCode={props.partnerCode}
-            appUrl={props.appUrl}
-            onConnectWallet={props.onConnectWallet}
-            onSwapSuccess={props.onSwapSuccess}
-            onSwapError={props.onSwapError}
-            onAssetSelect={props.onAssetSelect}
-            sellDisabledAssetIds={props.sellDisabledAssetIds ?? props.disabledAssetIds ?? []}
-            buyDisabledAssetIds={props.buyDisabledAssetIds ?? props.disabledAssetIds ?? []}
-            sellDisabledChainIds={props.sellDisabledChainIds ?? props.disabledChainIds ?? []}
-            buyDisabledChainIds={props.buyDisabledChainIds ?? props.disabledChainIds ?? []}
-            sellAllowedChainIds={props.sellAllowedChainIds ?? props.allowedChainIds}
-            buyAllowedChainIds={props.buyAllowedChainIds ?? props.allowedChainIds}
-            sellAllowedAssetIds={props.sellAllowedAssetIds}
-            buyAllowedAssetIds={props.buyAllowedAssetIds}
-          />
-        </SwapMachineCtx.Provider>
-      </QueryClientProvider>
-    </WagmiProvider>
-  )
-}
-
-const SwapWidgetWithInternalWallet = (
-  props: SwapWidgetProps & { walletConnectProjectId: string },
-) => {
-  const apiClient = useMemo(
-    () =>
-      createApiClient({
-        baseUrl: props.apiBaseUrl,
-        partnerCode: props.partnerCode,
-      }),
-    [props.apiBaseUrl, props.partnerCode],
-  )
-
-  return (
-    <InternalWalletProvider projectId={props.walletConnectProjectId}>
-      {walletClient => (
-        <QueryClientProvider client={queryClient}>
-          <SwapMachineCtx.Provider>
-            <SwapWidgetCore
-              walletClient={walletClient}
-              defaultSellAsset={props.defaultSellAsset ?? DEFAULT_SELL_ASSET}
-              defaultBuyAsset={props.defaultBuyAsset ?? DEFAULT_BUY_ASSET}
-              defaultSlippage={props.defaultSlippage ?? '0.5'}
-              defaultReceiveAddress={props.defaultReceiveAddress}
-              apiClient={apiClient}
-              theme={props.theme}
-              showPoweredBy={props.showPoweredBy ?? true}
-              enableWalletConnection={true}
-              partnerCode={props.partnerCode}
-              appUrl={props.appUrl}
-              onConnectWallet={props.onConnectWallet}
-              onSwapSuccess={props.onSwapSuccess}
-              onSwapError={props.onSwapError}
-              onAssetSelect={props.onAssetSelect}
-              sellDisabledAssetIds={props.sellDisabledAssetIds ?? props.disabledAssetIds ?? []}
-              buyDisabledAssetIds={props.buyDisabledAssetIds ?? props.disabledAssetIds ?? []}
-              sellDisabledChainIds={props.sellDisabledChainIds ?? props.disabledChainIds ?? []}
-              buyDisabledChainIds={props.buyDisabledChainIds ?? props.disabledChainIds ?? []}
-              sellAllowedChainIds={props.sellAllowedChainIds ?? props.allowedChainIds}
-              buyAllowedChainIds={props.buyAllowedChainIds ?? props.allowedChainIds}
-              sellAllowedAssetIds={props.sellAllowedAssetIds}
-              buyAllowedAssetIds={props.buyAllowedAssetIds}
-              isBuyAssetLocked={props.isBuyAssetLocked ?? false}
-            />
-          </SwapMachineCtx.Provider>
-        </QueryClientProvider>
-      )}
-    </InternalWalletProvider>
-  )
-}
-
 export const SwapWidget = (props: SwapWidgetProps) => {
-  if (props.enableWalletConnection && props.walletConnectProjectId) {
-    return (
-      <SwapWidgetWithInternalWallet
-        {...props}
-        walletConnectProjectId={props.walletConnectProjectId}
-      />
-    )
-  }
+  const apiClient = useMemo(
+    () =>
+      createApiClient({
+        baseUrl: props.apiBaseUrl,
+        partnerCode: props.partnerCode,
+      }),
+    [props.apiBaseUrl, props.partnerCode],
+  )
 
-  return <SwapWidgetWithExternalWallet {...props} />
+  return (
+    <AppKitWalletProvider projectId={props.walletConnectProjectId}>
+      <SwapMachineCtx.Provider>
+        <SwapWidgetCore
+          defaultSellAsset={props.defaultSellAsset ?? DEFAULT_SELL_ASSET}
+          defaultBuyAsset={props.defaultBuyAsset ?? DEFAULT_BUY_ASSET}
+          defaultSlippage={props.defaultSlippage ?? '0.5'}
+          apiClient={apiClient}
+          theme={props.theme}
+          showPoweredBy={props.showPoweredBy ?? true}
+          showConnectButton={props.showConnectButton ?? true}
+          isBuyAssetLocked={props.isBuyAssetLocked ?? false}
+          partnerCode={props.partnerCode}
+          allowShapeshiftRedirect={props.allowShapeshiftRedirect ?? true}
+          onSwapSuccess={props.onSwapSuccess}
+          onSwapError={props.onSwapError}
+          sellFilters={props.sellFilters ?? {}}
+          buyFilters={props.buyFilters ?? {}}
+          allowedSwapperNames={props.allowedSwapperNames}
+        />
+      </SwapMachineCtx.Provider>
+    </AppKitWalletProvider>
+  )
 }

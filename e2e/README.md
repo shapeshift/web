@@ -66,7 +66,6 @@ agent-browser --session qabot --profile ~/.agent-browser/profiles/qabot --headed
 Repeat for any other origin you want to test:
 
 ```bash
-agent-browser --session qabot --profile ~/.agent-browser/profiles/qabot --headed open https://gome.shapeshift.com
 agent-browser --session qabot --profile ~/.agent-browser/profiles/qabot --headed open https://release.shapeshift.com
 ```
 
@@ -85,7 +84,7 @@ When using [Portless](https://github.com/vercel-labs/portless) (`pnpm run dev:we
 Or point `BASE_URL` at a staging environment:
 
 ```bash
-BASE_URL=https://gome.shapeshift.com
+BASE_URL=https://release.shapeshift.com
 ```
 
 ## Running Tests

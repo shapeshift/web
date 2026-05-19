@@ -27,7 +27,6 @@ export const isUtxoChain = (context: SwapMachineContext): boolean => context.cha
 export const isSolanaChain = (context: SwapMachineContext): boolean =>
   context.chainType === 'solana'
 
-export const hasWallet = (context: SwapMachineContext): boolean => !!context.walletAddress
+export const hasSendAddress = (context: SwapMachineContext): boolean => !!context.sendAddress
 
-export const hasReceiveAddress = (context: SwapMachineContext): boolean =>
-  !!context.effectiveReceiveAddress
+export const hasReceiveAddress = (context: SwapMachineContext): boolean => !!context.receiveAddress

@@ -1,19 +1,17 @@
 import type { Asset, AssetId } from '../types'
 import { isEvmChainId } from '../types'
 
-const DEFAULT_APP_URL = 'https://app.shapeshift.com'
+const SHAPESHIFT_APP_URL = 'https://app.shapeshift.com'
 
 export type RedirectParams = {
   sellAssetId: AssetId
   buyAssetId: AssetId
   sellAmountBaseUnit?: string
   partnerCode?: string
-  appUrl?: string
 }
 
 export const buildShapeShiftTradeUrl = (params: RedirectParams): string => {
-  const { sellAssetId, buyAssetId, sellAmountBaseUnit, partnerCode, appUrl } = params
-  const baseUrl = appUrl || DEFAULT_APP_URL
+  const { sellAssetId, buyAssetId, sellAmountBaseUnit, partnerCode } = params
 
   // CAIP-19 assetIds have format "chainId/assetSubId" e.g. "eip155:1/slip44:60"
   // The first "/" separates chainId from assetSubId
@@ -28,7 +26,7 @@ export const buildShapeShiftTradeUrl = (params: RedirectParams): string => {
   const amount = sellAmountBaseUnit || '0'
   const partner = partnerCode ? `?partner=${encodeURIComponent(partnerCode)}` : ''
 
-  return `${baseUrl}/#/trade/${buyChainId}/${buyAssetSubId}/${sellChainId}/${sellAssetSubId}/${amount}${partner}`
+  return `${SHAPESHIFT_APP_URL}/#/trade/${buyChainId}/${buyAssetSubId}/${sellChainId}/${sellAssetSubId}/${amount}${partner}`
 }
 
 export const redirectToShapeShift = (params: RedirectParams): void => {

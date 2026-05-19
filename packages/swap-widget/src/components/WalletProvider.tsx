@@ -1,71 +1,52 @@
-import { useAppKit, useAppKitAccount } from '@reown/appkit/react'
+import { useAppKit } from '@reown/appkit/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import type { WalletClient } from 'viem'
 import type { Config } from 'wagmi'
-import { useWalletClient, WagmiProvider } from 'wagmi'
+import { WagmiProvider } from 'wagmi'
 
-import { getWagmiAdapter, initializeAppKit } from '../config/appkit'
+import { getWagmiAdapter, initializeAppKit, isAppKitInitialized } from '../config/appkit'
 import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { truncateAddress } from '../types'
 
 const queryClient = new QueryClient()
 
-type InternalWalletProviderProps = {
-  projectId: string
-  children: (walletClient: WalletClient | undefined) => ReactNode
+type AppKitWalletProviderProps = {
+  projectId?: string
+  children: ReactNode
 }
 
-const InternalWalletContent = ({
-  children,
-}: {
-  children: (walletClient: WalletClient | undefined) => ReactNode
-}) => {
-  const { data: walletClient } = useWalletClient()
-  return <>{children(walletClient)}</>
-}
-
-export const InternalWalletProvider = ({ projectId, children }: InternalWalletProviderProps) => {
-  const [isInitialized, setIsInitialized] = useState(false)
+export const AppKitWalletProvider = ({ projectId, children }: AppKitWalletProviderProps) => {
+  const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
-    initializeAppKit(projectId)
-    setIsInitialized(true)
+    if (projectId) initializeAppKit(projectId)
+    if (isAppKitInitialized()) setIsReady(true)
   }, [projectId])
 
   const wagmiConfig = useMemo((): Config | undefined => {
-    if (!isInitialized) return undefined
-    const adapter = getWagmiAdapter()
-    return adapter?.wagmiConfig
-  }, [isInitialized])
+    if (!isReady) return undefined
+    return getWagmiAdapter()?.wagmiConfig as unknown as Config | undefined
+  }, [isReady])
 
-  if (!wagmiConfig) {
-    return null
-  }
+  if (!wagmiConfig) return null
 
   return (
     <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <InternalWalletContent>{children}</InternalWalletContent>
-      </QueryClientProvider>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </WagmiProvider>
   )
 }
 
 export const ConnectWalletButton = () => {
   const { open } = useAppKit()
-  const { address: appKitAddress, isConnected: appKitConnected } = useAppKitAccount()
-  const { walletAddress } = useSwapWallet()
-
-  const connectedAddress = walletAddress ?? appKitAddress
-  const isConnected = !!walletAddress || appKitConnected
+  const { sendAddress } = useSwapWallet()
 
   const handleClick = useCallback(() => {
     open()
   }, [open])
 
-  if (!isConnected) {
+  if (!sendAddress) {
     return (
       <button onClick={handleClick} type='button' className='ssw-connect-btn'>
         <svg
@@ -86,7 +67,7 @@ export const ConnectWalletButton = () => {
 
   return (
     <button onClick={handleClick} type='button' className='ssw-connect-btn ssw-connected'>
-      {connectedAddress ? truncateAddress(connectedAddress) : 'Connected'}
+      {truncateAddress(sendAddress)}
     </button>
   )
 }

@@ -33,6 +33,7 @@ import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import fs from 'fs'
 import { isNull } from 'lodash'
+import chunk from 'lodash/chunk'
 import isUndefined from 'lodash/isUndefined'
 
 import { ASSET_DATA_PATH, RELATED_ASSET_INDEX_PATH } from '../constants'
@@ -163,15 +164,6 @@ const fetchBridgedCategoryMappings = async (): Promise<Record<string, string[]>>
   return categoryToCoinIds
 }
 
-const chunkArray = <T>(array: T[], chunkSize: number) => {
-  const result = []
-  for (let i = 0; i < array.length; i += chunkSize) {
-    const chunk = array.slice(i, i + chunkSize)
-    result.push(chunk)
-  }
-  return result
-}
-
 const getZerionRelatedAssetIds = async (
   assetId: AssetId,
   assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
@@ -197,12 +189,6 @@ const getZerionRelatedAssetIds = async (
 
   // exit if any request fails
   if (status !== 200) throw Error(`Zerion request failed: ${statusText}`)
-
-  try {
-    zerionFungiblesSchema.parse(res)
-  } catch (e) {
-    console.log(JSON.stringify(res, null, 2))
-  }
 
   const validationResult = zerionFungiblesSchema.parse(res)
   const firstEntry = validationResult.data[0]
@@ -513,7 +499,7 @@ export const generateRelatedAssetIndex = async () => {
     intervalMs: 2000,
   })
 
-  const chunks = chunkArray(Object.keys(generatedAssetData), BATCH_SIZE)
+  const chunks = chunk(Object.keys(generatedAssetData), BATCH_SIZE)
   for (const [i, batch] of chunks.entries()) {
     console.log(`Processing chunk: ${i} of ${chunks.length}`)
     await Promise.all(

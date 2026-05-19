@@ -31,6 +31,12 @@ import {
 } from '../utils/fetchFromGarden'
 import { assetIdToGardenAssetId, isSupportedGardenPair } from '../utils/helpers/helpers'
 
+const parseGardenEvmValue = (value: string): string => {
+  if (value.startsWith('0x')) return fromHex(value as Hex, 'bigint').toString()
+  if (/^\d+$/.test(value)) return BigInt(value).toString()
+  throw new Error(`Garden EVM initiate value has unexpected format: ${JSON.stringify(value)}`)
+}
+
 const buildGardenSpecific = (order: GardenCreateOrderResult): GardenSpecificMetadata => {
   const base = { orderId: order.order_id }
   if (isGardenBitcoinInitiate(order)) return { ...base, bitcoinDepositAddress: order.to }
@@ -46,7 +52,7 @@ const buildGardenSpecific = (order: GardenCreateOrderResult): GardenSpecificMeta
       evmInitiate: {
         to: order.initiate_transaction.to,
         data: order.initiate_transaction.data,
-        value: fromHex(order.initiate_transaction.value as Hex, 'bigint').toString(),
+        value: parseGardenEvmValue(order.initiate_transaction.value),
         allowanceContract: order.initiate_transaction.to,
       },
     }
@@ -186,7 +192,18 @@ export const getTradeQuote = async (
   if (orderResult.isErr()) return Err(orderResult.unwrapErr())
   const order = orderResult.unwrap()
 
-  const gardenSpecific = buildGardenSpecific(order)
+  let gardenSpecific: GardenSpecificMetadata
+  try {
+    gardenSpecific = buildGardenSpecific(order)
+  } catch (error) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Garden order payload failed to parse',
+        code: TradeQuoteError.InvalidResponse,
+        details: { error: error instanceof Error ? error.message : String(error) },
+      }),
+    )
+  }
 
   const { chainNamespace } = fromAssetId(sellAsset.assetId)
 

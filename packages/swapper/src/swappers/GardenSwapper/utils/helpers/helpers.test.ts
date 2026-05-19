@@ -144,6 +144,24 @@ describe('GardenSwapper helpers', () => {
       const order = buildOrder({}, {})
       expect(mapGardenOrderToTxStatus(order)).toEqual({ status: TxStatus.Pending })
     })
+
+    it('omits actualBuyAmountCryptoBaseUnit when filled_amount is "0" but redeem_tx_hash is set', () => {
+      const order = buildOrder({}, { redeem_tx_hash: '0xredeem', filled_amount: '0' })
+      expect(mapGardenOrderToTxStatus(order)).toEqual({
+        status: TxStatus.Confirmed,
+        buyTxHash: '0xredeem',
+        actualBuyAmountCryptoBaseUnit: undefined,
+      })
+    })
+
+    it('omits actualBuyAmountCryptoBaseUnit when filled_amount is empty string', () => {
+      const order = buildOrder({}, { redeem_tx_hash: '0xredeem', filled_amount: '' })
+      expect(mapGardenOrderToTxStatus(order)).toEqual({
+        status: TxStatus.Confirmed,
+        buyTxHash: '0xredeem',
+        actualBuyAmountCryptoBaseUnit: undefined,
+      })
+    })
   })
 
   describe('error pattern matchers', () => {

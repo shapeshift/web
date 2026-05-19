@@ -53,10 +53,12 @@ export const mapGardenOrderToTxStatus = (
   actualBuyAmountCryptoBaseUnit?: string
 } => {
   if (order.destination_swap.redeem_tx_hash) {
+    const filledAmount = order.destination_swap.filled_amount
     return {
       status: TxStatus.Confirmed,
       buyTxHash: order.destination_swap.redeem_tx_hash,
-      actualBuyAmountCryptoBaseUnit: order.destination_swap.filled_amount,
+      actualBuyAmountCryptoBaseUnit:
+        filledAmount && filledAmount !== '0' ? filledAmount : undefined,
     }
   }
 

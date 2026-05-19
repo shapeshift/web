@@ -3,16 +3,17 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { hash, num } from 'starknet'
 
 export const toHexString = (value: unknown): string => {
-  const strValue = String(value)
-  if (strValue.startsWith('0x')) return strValue
-  if (/^[0-9a-fA-F]+$/.test(strValue) && /[a-fA-F]/.test(strValue)) {
-    return `0x${strValue}`
+  if (typeof value !== 'string') {
+    throw new Error(`toHexString: expected string, got ${typeof value}`)
   }
-  try {
-    return num.toHex(strValue)
-  } catch {
-    return `0x${strValue}`
+  if (value.startsWith('0x')) return value
+  if (/^[0-9a-fA-F]+$/.test(value) && /[a-fA-F]/.test(value)) {
+    return `0x${value}`
   }
+  if (/^\d+$/.test(value)) {
+    return num.toHex(value)
+  }
+  throw new Error(`toHexString: ambiguous input ${JSON.stringify(value)}`)
 }
 
 type StarknetEstimateResult = {
@@ -61,18 +62,29 @@ export const buildStarknetInvokeTx = async ({
     fee_data_availability_mode: 'L1',
   }
 
-  const estimateResponse = await adapter
-    .getStarknetProvider()
-    .fetch('starknet_estimateFee', [[estimateTx], ['SKIP_VALIDATE'], 'latest'])
-  const estimateResult: StarknetEstimateResult = await estimateResponse.json()
+  const estimateResult: StarknetEstimateResult = await (async () => {
+    try {
+      const response = await adapter
+        .getStarknetProvider()
+        .fetch('starknet_estimateFee', [[estimateTx], ['SKIP_VALIDATE'], 'latest'])
+      return (await response.json()) as StarknetEstimateResult
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      throw new Error(`starknet_estimateFee RPC call failed for ${normalizedFrom}: ${message}`)
+    }
+  })()
 
   if (estimateResult.error) {
-    throw new Error(`Fee estimation failed: ${JSON.stringify(estimateResult.error)}`)
+    throw new Error(
+      `starknet_estimateFee returned error for ${normalizedFrom}: ${JSON.stringify(
+        estimateResult.error,
+      )}`,
+    )
   }
 
   const feeEstimate = estimateResult.result?.[0]
   if (!feeEstimate) {
-    throw new Error('Fee estimation failed: no estimate returned')
+    throw new Error(`starknet_estimateFee returned no estimate for ${normalizedFrom}`)
   }
 
   const l1GasConsumed = feeEstimate.l1_gas_consumed

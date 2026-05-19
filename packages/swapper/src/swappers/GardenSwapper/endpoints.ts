@@ -39,7 +39,10 @@ export const gardenApi: SwapperApi = {
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
-    const satoshiPerByte = (feeData.chainSpecific as UtxoFeeData | undefined)?.satsPerByte ?? '0'
+    const satoshiPerByte = (feeData.chainSpecific as UtxoFeeData | undefined)?.satsPerByte
+    if (!satoshiPerByte) {
+      throw new Error('Missing satsPerByte in quote fee data')
+    }
 
     return adapter.buildSendApiTransaction({
       accountNumber,

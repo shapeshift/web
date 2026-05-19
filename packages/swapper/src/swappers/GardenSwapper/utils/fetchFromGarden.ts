@@ -36,6 +36,9 @@ const authHeaders = (apiKey: string) => ({
   headers: { [GARDEN_API_KEY_HEADER]: apiKey },
 })
 
+const toErrorMessage = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error)
+
 export const fetchGardenQuote = async ({
   apiKey,
   from,
@@ -49,29 +52,39 @@ export const fetchGardenQuote = async ({
   fromAmount: string
   affiliateBps: string
 }): Promise<Result<GardenQuoteResultItem, SwapErrorRight>> => {
-  const params: Record<string, string> = { from, to, from_amount: fromAmount }
-  if (affiliateBps && affiliateBps !== '0') params.affiliate_fee = affiliateBps
+  try {
+    const params: Record<string, string> = { from, to, from_amount: fromAmount }
+    if (affiliateBps && affiliateBps !== '0') params.affiliate_fee = affiliateBps
 
-  const result = await gardenService.get<GardenQuoteResponse>(`${GARDEN_API_BASE_URL}/quote`, {
-    params,
-    ...authHeaders(apiKey),
-  })
+    const result = await gardenService.get<GardenQuoteResponse>(`${GARDEN_API_BASE_URL}/quote`, {
+      params,
+      ...authHeaders(apiKey),
+    })
 
-  if (result.isErr()) return Err(result.unwrapErr())
+    if (result.isErr()) return Err(result.unwrapErr())
 
-  const { data } = result.unwrap()
+    const { data } = result.unwrap()
 
-  if (data.status !== 'Ok' || !data.result || data.result.length === 0) {
+    if (data.status !== 'Ok' || !data.result || data.result.length === 0) {
+      return Err(
+        makeSwapErrorRight({
+          message: data.error ?? 'Garden quote failed',
+          code: errorMessageToTradeQuoteError(data.error),
+          details: { error: data.error },
+        }),
+      )
+    }
+
+    return Ok(data.result[0])
+  } catch (error) {
     return Err(
       makeSwapErrorRight({
-        message: data.error ?? 'Garden quote failed',
-        code: errorMessageToTradeQuoteError(data.error),
-        details: { error: data.error },
+        message: 'Garden quote request threw',
+        code: TradeQuoteError.QueryFailed,
+        details: { error: toErrorMessage(error) },
       }),
     )
   }
-
-  return Ok(data.result[0])
 }
 
 export const createGardenOrder = async ({
@@ -81,27 +94,37 @@ export const createGardenOrder = async ({
   apiKey: string
   request: GardenOrderRequest
 }): Promise<Result<GardenCreateOrderResult, SwapErrorRight>> => {
-  const result = await gardenService.post<GardenCreateOrderResponse>(
-    `${GARDEN_API_BASE_URL}/orders`,
-    request,
-    authHeaders(apiKey),
-  )
+  try {
+    const result = await gardenService.post<GardenCreateOrderResponse>(
+      `${GARDEN_API_BASE_URL}/orders`,
+      request,
+      authHeaders(apiKey),
+    )
 
-  if (result.isErr()) return Err(result.unwrapErr())
+    if (result.isErr()) return Err(result.unwrapErr())
 
-  const { data } = result.unwrap()
+    const { data } = result.unwrap()
 
-  if (data.status !== 'Ok' || !data.result) {
+    if (data.status !== 'Ok' || !data.result) {
+      return Err(
+        makeSwapErrorRight({
+          message: data.error ?? 'Garden order creation failed',
+          code: errorMessageToTradeQuoteError(data.error),
+          details: { error: data.error },
+        }),
+      )
+    }
+
+    return Ok(data.result)
+  } catch (error) {
     return Err(
       makeSwapErrorRight({
-        message: data.error ?? 'Garden order creation failed',
-        code: errorMessageToTradeQuoteError(data.error),
-        details: { error: data.error },
+        message: 'Garden order creation threw',
+        code: TradeQuoteError.QueryFailed,
+        details: { error: toErrorMessage(error) },
       }),
     )
   }
-
-  return Ok(data.result)
 }
 
 export const fetchGardenOrder = async ({
@@ -111,26 +134,36 @@ export const fetchGardenOrder = async ({
   apiKey: string
   orderId: string
 }): Promise<Result<GardenOrder, SwapErrorRight>> => {
-  const result = await gardenService.get<GardenOrderResponse>(
-    `${GARDEN_API_BASE_URL}/orders/${orderId}`,
-    authHeaders(apiKey),
-  )
+  try {
+    const result = await gardenService.get<GardenOrderResponse>(
+      `${GARDEN_API_BASE_URL}/orders/${orderId}`,
+      authHeaders(apiKey),
+    )
 
-  if (result.isErr()) return Err(result.unwrapErr())
+    if (result.isErr()) return Err(result.unwrapErr())
 
-  const { data } = result.unwrap()
+    const { data } = result.unwrap()
 
-  if (data.status !== 'Ok' || !data.result) {
+    if (data.status !== 'Ok' || !data.result) {
+      return Err(
+        makeSwapErrorRight({
+          message: data.error ?? 'Garden order fetch failed',
+          code: TradeQuoteError.QueryFailed,
+          details: { error: data.error },
+        }),
+      )
+    }
+
+    return Ok(data.result)
+  } catch (error) {
     return Err(
       makeSwapErrorRight({
-        message: data.error ?? 'Garden order fetch failed',
+        message: 'Garden order fetch threw',
         code: TradeQuoteError.QueryFailed,
-        details: { error: data.error },
+        details: { error: toErrorMessage(error) },
       }),
     )
   }
-
-  return Ok(data.result)
 }
 
 const ASSETS_CACHE_TTL_MS = 60 * 60 * 1000

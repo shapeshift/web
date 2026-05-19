@@ -88,17 +88,24 @@ export type GardenCreateOrderResponse = GardenResponseEnvelope<GardenCreateOrder
 export const isGardenBitcoinInitiate = (
   result: GardenCreateOrderResult,
 ): result is GardenBitcoinInitiateResult =>
-  'to' in result && typeof result.to === 'string' && 'amount' in result
+  typeof result === 'object' &&
+  result !== null &&
+  typeof (result as GardenBitcoinInitiateResult).order_id === 'string' &&
+  typeof (result as GardenBitcoinInitiateResult).to === 'string' &&
+  typeof (result as GardenBitcoinInitiateResult).amount === 'string'
 
 export const isGardenStarknetInitiate = (
   result: GardenCreateOrderResult,
 ): result is GardenStarknetInitiateResult => {
+  if (typeof result !== 'object' || result === null) return false
+  if (typeof (result as GardenStarknetInitiateResult).order_id !== 'string') return false
   if (!('initiate_transaction' in result)) return false
   const initiate = (result as GardenStarknetInitiateResult).initiate_transaction
   return (
     typeof initiate === 'object' &&
     initiate !== null &&
-    'selector' in initiate &&
+    typeof (initiate as GardenStarknetCall).to === 'string' &&
+    typeof (initiate as GardenStarknetCall).selector === 'string' &&
     Array.isArray((initiate as GardenStarknetCall).calldata)
   )
 }
@@ -106,12 +113,17 @@ export const isGardenStarknetInitiate = (
 export const isGardenEvmInitiate = (
   result: GardenCreateOrderResult,
 ): result is GardenEvmInitiateResult => {
+  if (typeof result !== 'object' || result === null) return false
+  if (typeof (result as GardenEvmInitiateResult).order_id !== 'string') return false
   if (!('initiate_transaction' in result)) return false
   const initiate = (result as GardenEvmInitiateResult).initiate_transaction
   return (
     typeof initiate === 'object' &&
     initiate !== null &&
-    typeof (initiate as GardenEvmTransactionData).chain_id === 'number'
+    typeof (initiate as GardenEvmTransactionData).chain_id === 'number' &&
+    typeof (initiate as GardenEvmTransactionData).to === 'string' &&
+    typeof (initiate as GardenEvmTransactionData).data === 'string' &&
+    typeof (initiate as GardenEvmTransactionData).value === 'string'
   )
 }
 

@@ -196,51 +196,55 @@ export const getTradeQuote = async (
   }
 
   const feeData: FeeDataResult = await (async (): Promise<FeeDataResult> => {
-    if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
-      const adapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
-      const pubkey = (input as GetUtxoTradeQuoteInput).xpub
-      if (!pubkey || !gardenSpecific.bitcoinDepositAddress) {
-        return { networkFeeCryptoBaseUnit: undefined }
+    try {
+      if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
+        const adapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
+        const pubkey = (input as GetUtxoTradeQuoteInput).xpub
+        if (!pubkey || !gardenSpecific.bitcoinDepositAddress) {
+          return { networkFeeCryptoBaseUnit: undefined }
+        }
+        const utxoFee = await adapter.getFeeData({
+          to: gardenSpecific.bitcoinDepositAddress,
+          value: sellAmount,
+          chainSpecific: { pubkey },
+          sendMax: false,
+        })
+        return {
+          networkFeeCryptoBaseUnit: utxoFee.fast.txFee,
+          chainSpecific: { satsPerByte: utxoFee.fast.chainSpecific.satoshiPerByte },
+        }
       }
-      const utxoFee = await adapter.getFeeData({
-        to: gardenSpecific.bitcoinDepositAddress,
-        value: sellAmount,
-        chainSpecific: { pubkey },
-        sendMax: false,
-      })
-      return {
-        networkFeeCryptoBaseUnit: utxoFee.fast.txFee,
-        chainSpecific: { satsPerByte: utxoFee.fast.chainSpecific.satoshiPerByte },
+
+      if (chainNamespace === CHAIN_NAMESPACE.Starknet) {
+        const adapter = deps.assertGetStarknetChainAdapter(sellAsset.chainId)
+        const tokenContractAddress = contractAddressOrUndefined(sellAsset.assetId)
+        const starknetFee = await adapter.getFeeData({
+          to: gardenSpecific.starknetCalls?.[1]?.to ?? sendAddress,
+          value: sellAmount,
+          chainSpecific: { from: sendAddress, tokenContractAddress },
+          sendMax: false,
+        })
+        return { networkFeeCryptoBaseUnit: starknetFee.fast.txFee }
       }
-    }
 
-    if (chainNamespace === CHAIN_NAMESPACE.Starknet) {
-      const adapter = deps.assertGetStarknetChainAdapter(sellAsset.chainId)
-      const tokenContractAddress = contractAddressOrUndefined(sellAsset.assetId)
-      const starknetFee = await adapter.getFeeData({
-        to: gardenSpecific.starknetCalls?.[1]?.to ?? sendAddress,
-        value: sellAmount,
-        chainSpecific: { from: sendAddress, tokenContractAddress },
-        sendMax: false,
-      })
-      return { networkFeeCryptoBaseUnit: starknetFee.fast.txFee }
-    }
+      if (chainNamespace === CHAIN_NAMESPACE.Evm) {
+        if (!gardenSpecific.evmInitiate) return { networkFeeCryptoBaseUnit: undefined }
+        const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId as EvmChainId)
+        const evmFee = await evm.getFees({
+          adapter,
+          data: gardenSpecific.evmInitiate.data,
+          to: gardenSpecific.evmInitiate.to,
+          value: gardenSpecific.evmInitiate.value,
+          from: sendAddress,
+          supportsEIP1559: (input as GetEvmTradeQuoteInput).supportsEIP1559,
+        })
+        return { networkFeeCryptoBaseUnit: evmFee.networkFeeCryptoBaseUnit }
+      }
 
-    if (chainNamespace === CHAIN_NAMESPACE.Evm) {
-      if (!gardenSpecific.evmInitiate) return { networkFeeCryptoBaseUnit: undefined }
-      const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId as EvmChainId)
-      const evmFee = await evm.getFees({
-        adapter,
-        data: gardenSpecific.evmInitiate.data,
-        to: gardenSpecific.evmInitiate.to,
-        value: gardenSpecific.evmInitiate.value,
-        from: sendAddress,
-        supportsEIP1559: (input as GetEvmTradeQuoteInput).supportsEIP1559,
-      })
-      return { networkFeeCryptoBaseUnit: evmFee.networkFeeCryptoBaseUnit }
+      return { networkFeeCryptoBaseUnit: undefined }
+    } catch {
+      return { networkFeeCryptoBaseUnit: undefined }
     }
-
-    return { networkFeeCryptoBaseUnit: undefined }
   })()
 
   const rate = getInputOutputRate({

@@ -93,6 +93,9 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7': [
     'eip155:146/erc20:0x6047828dc181963ba44974801ff68e538da5eaf9',
   ],
+  'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599': [
+    'starknet:SN_MAIN/token:0x0787150e306e6eae6e3f79dea881770e8bbff2c1b8eb490f969669ee945b3135',
+  ],
 }
 
 // Category → Canonical Asset mapping for bridged tokens

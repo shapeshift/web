@@ -1400,7 +1400,8 @@
     "eip155:42220/erc20:0xd629eb00deced2a080b7ec630ef6ac117e614f1b",
     "eip155:534352/erc20:0x3c1bca5a656e69edcd0d4e36bebb3fcdaca60cf1",
     "eip155:8453/erc20:0x0555e30da8f98308edb960aa94c0db47230d2b9c",
-    "starknet:SN_MAIN/token:0x03fe2b97c1fd336e750087d68b9b867997fd64a2661ff3ca5a7c771641e8e7ac"
+    "starknet:SN_MAIN/token:0x03fe2b97c1fd336e750087d68b9b867997fd64a2661ff3ca5a7c771641e8e7ac",
+    "starknet:SN_MAIN/token:0x0787150e306e6eae6e3f79dea881770e8bbff2c1b8eb490f969669ee945b3135"
   ],
   "eip155:8453/erc20:0xc5fed7c8ccc75d8a72b601a66dffd7a489073f0b": [
     "eip155:56/erc20:0x6ef2ffb38d64afe18ce782da280b300e358cfeaf",

@@ -384,6 +384,7 @@ export const clearAssetsMigrations = {
   335: clearAssets,
   336: clearAssets,
   337: clearAssets,
+  338: clearAssets,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearMarketDataMigrations = {

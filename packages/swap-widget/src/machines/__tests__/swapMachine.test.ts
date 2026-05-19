@@ -153,19 +153,19 @@ describe('swapMachine', () => {
       actor.stop()
     })
 
-    it('SET_WALLET_ADDRESS updates walletAddress', () => {
+    it('SET_SEND_ADDRESS updates sendAddress', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_WALLET_ADDRESS', address: '0xWallet' })
-      expect(actor.getSnapshot().context.walletAddress).toBe('0xWallet')
+      actor.send({ type: 'SET_SEND_ADDRESS', address: '0xWallet' })
+      expect(actor.getSnapshot().context.sendAddress).toBe('0xWallet')
       actor.stop()
     })
 
-    it('SET_RECEIVE_ADDRESS updates effectiveReceiveAddress', () => {
+    it('SET_RECEIVE_ADDRESS updates receiveAddress', () => {
       const actor = createActor(swapMachine)
       actor.start()
       actor.send({ type: 'SET_RECEIVE_ADDRESS', address: '0xReceiver' })
-      expect(actor.getSnapshot().context.effectiveReceiveAddress).toBe('0xReceiver')
+      expect(actor.getSnapshot().context.receiveAddress).toBe('0xReceiver')
       actor.stop()
     })
 

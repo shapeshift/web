@@ -13,7 +13,8 @@ export const useSwapApproval = () => {
   const stateValue = SwapMachineCtx.useSelector(s => s.value)
   const actorRef = SwapMachineCtx.useActorRef()
 
-  const { walletClient, walletAddress } = useSwapWallet()
+  const { evm } = useSwapWallet()
+  const { walletClient, address: walletAddress } = evm
 
   const approvingRef = useRef(false)
 

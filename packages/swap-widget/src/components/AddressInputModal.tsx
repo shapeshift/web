@@ -23,7 +23,7 @@ type AddressInputModalProps = {
   chainName: string
   currentAddress: string
   onAddressChange: (address: string) => void
-  walletAddress?: string
+  walletReceiveAddress?: string
 }
 
 export const AddressInputModal = ({
@@ -33,7 +33,7 @@ export const AddressInputModal = ({
   chainName,
   currentAddress,
   onAddressChange,
-  walletAddress,
+  walletReceiveAddress,
 }: AddressInputModalProps) => {
   useLockBodyScroll(isOpen)
   const [inputValue, setInputValue] = useState(currentAddress)
@@ -72,11 +72,11 @@ export const AddressInputModal = ({
   }, [])
 
   const handleUseWalletAddress = useCallback(() => {
-    if (walletAddress) {
-      setInputValue(walletAddress)
+    if (walletReceiveAddress) {
+      setInputValue(walletReceiveAddress)
       setHasInteracted(true)
     }
-  }, [walletAddress])
+  }, [walletReceiveAddress])
 
   const handleConfirm = useCallback(() => {
     const result = validateAddress(inputValue, chainId)
@@ -209,7 +209,7 @@ export const AddressInputModal = ({
             </div>
           )}
 
-          {walletAddress && (
+          {walletReceiveAddress && (
             <button className='ssw-use-wallet-btn' onClick={handleUseWalletAddress} type='button'>
               <svg
                 width='16'

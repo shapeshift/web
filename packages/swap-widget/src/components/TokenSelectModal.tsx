@@ -33,7 +33,7 @@ type TokenSelectModalProps = {
   disabledChainIds?: ChainId[]
   allowedChainIds?: ChainId[]
   allowedAssetIds?: AssetId[]
-  walletAddress?: string
+  evmAddress?: string
   currentAssetIds?: AssetId[]
 }
 
@@ -69,7 +69,7 @@ export const TokenSelectModal = ({
   disabledChainIds = [],
   allowedChainIds,
   allowedAssetIds,
-  walletAddress,
+  evmAddress,
   currentAssetIds = [],
 }: TokenSelectModalProps) => {
   useLockBodyScroll(isOpen)
@@ -189,7 +189,7 @@ export const TokenSelectModal = ({
     loadingAssetIds,
     refetchSpecific,
   } = useMultiChainBalances(
-    walletAddress,
+    evmAddress,
     bitcoinAddress,
     solanaAddress,
     initialAssetIds,
@@ -449,7 +449,7 @@ export const TokenSelectModal = ({
                           </span>
                         </div>
                         <div className='ssw-token-right'>
-                          {(walletAddress || bitcoinAddress || solanaAddress) &&
+                          {(evmAddress || bitcoinAddress || solanaAddress) &&
                             (loadingAssetIds.has(asset.assetId) ? (
                               <span className='ssw-token-balance-skeleton' />
                             ) : balance && balance.balance !== '0' ? (

@@ -16,8 +16,8 @@ export type SwapMachineContext = {
   retryCount: number
   chainType: 'evm' | 'utxo' | 'solana' | 'cosmos' | 'other'
   slippage: string
-  walletAddress: string | undefined
-  effectiveReceiveAddress: string
+  sendAddress: string | undefined
+  receiveAddress: string | undefined
   isSellAssetEvm: boolean
   isSellAssetUtxo: boolean
   isSellAssetSolana: boolean
@@ -42,8 +42,8 @@ export type SwapMachineEvent =
   | { type: 'STATUS_FAILED'; error: string }
   | { type: 'RETRY' }
   | { type: 'RESET' }
-  | { type: 'SET_WALLET_ADDRESS'; address: string | undefined }
-  | { type: 'SET_RECEIVE_ADDRESS'; address: string }
+  | { type: 'SET_SEND_ADDRESS'; address: string | undefined }
+  | { type: 'SET_RECEIVE_ADDRESS'; address: string | undefined }
   | {
       type: 'UPDATE_CHAIN_INFO'
       chainType: SwapMachineContext['chainType']

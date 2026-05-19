@@ -141,10 +141,12 @@ type ExecuteEvmTransactionInput = {
   bip44Params?: { purpose: number; coinType: number; accountNumber: number }
 }
 
+// Always normalizes through BigInt so the output is EIP-1474 compact hex (no leading zeros, except
+// 0x0 itself). yield.xyz returns padded hex like 0x054e0840 that Phantom rejects as invalid; viem's
+// isHex would short-circuit and pass that through unchanged.
 export const toHexOrDefault = (value: string | number | undefined, fallback: Hex): Hex => {
   if (value === undefined || value === null || value === '') return fallback
   if (typeof value === 'number') return toHex(value)
-  if (isHex(value)) return value as Hex
   try {
     return toHex(BigInt(value))
   } catch {

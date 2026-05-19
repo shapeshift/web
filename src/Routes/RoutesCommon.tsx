@@ -138,6 +138,26 @@ const MarketsPage = makeSuspenseful(
   true,
 )
 
+const WorkflowsPage = makeSuspenseful(
+  lazy(() =>
+    import('@/pages/Workflows/WorkflowCatalog').then(({ WorkflowCatalog }) => ({
+      default: WorkflowCatalog,
+    })),
+  ),
+  {},
+  true,
+)
+
+const WorkflowRunnerPage = makeSuspenseful(
+  lazy(() =>
+    import('@/pages/Workflows/WorkflowRunner').then(({ WorkflowRunner }) => ({
+      default: WorkflowRunner,
+    })),
+  ),
+  {},
+  true,
+)
+
 const YieldsPage = makeSuspenseful(
   lazy(() =>
     import('@/pages/Yields/Yields').then(({ Yields }) => ({
@@ -281,6 +301,18 @@ export const routes: Route[] = [
     priority: 3,
     mobileNav: false,
     disable: !getConfig().VITE_FEATURE_YIELD_XYZ || !getConfig().VITE_FEATURE_YIELDS_PAGE,
+  },
+  {
+    path: '/workflows',
+    label: 'navBar.workflows',
+    icon: <RiExchangeFundsLine />,
+    main: WorkflowsPage,
+    hide: true,
+  },
+  {
+    path: '/workflows/:templateId',
+    main: WorkflowRunnerPage,
+    hide: true,
   },
   {
     path: '/ramp/*',

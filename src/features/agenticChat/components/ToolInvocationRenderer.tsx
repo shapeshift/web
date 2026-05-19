@@ -14,6 +14,7 @@ import { SendUI } from './tools/SendUI'
 import { SwapUI } from './tools/SwapUI'
 import { TopGainersLosersUI } from './tools/TopGainersLosersUI'
 import { TrendingTokensUI } from './tools/TrendingTokensUI'
+import { WorkflowUI } from './tools/WorkflowUI'
 
 type ToolUIComponentMap = {
   [K in ToolName]: ComponentType<ToolUIProps<K>> | null
@@ -33,6 +34,7 @@ const TOOL_UI_MAP: ToolUIComponentMap = {
   receiveTool: ReceiveUI,
   getTopGainersLosersTool: TopGainersLosersUI,
   getTrendingTokensTool: TrendingTokensUI,
+  planWorkflowTool: WorkflowUI,
 }
 
 export const ToolInvocationRenderer = memo(({ toolPart }: ToolRendererProps) => {

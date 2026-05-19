@@ -305,4 +305,19 @@ export type ToolOutputMap = {
   getTopGainersLosersTool: TopGainersLosersOutput
   getTrendingTokensTool: TrendingTokensOutput
   mathCalculatorTool: never
+  planWorkflowTool: WorkflowPlanOutput
+}
+
+export type WorkflowPlanStep = {
+  id: string
+  label: string
+  type: string
+}
+
+export type WorkflowPlanOutput = {
+  templateId: string
+  templateName: string
+  description: string
+  parameterValues: Record<string, unknown>
+  steps: WorkflowPlanStep[]
 }

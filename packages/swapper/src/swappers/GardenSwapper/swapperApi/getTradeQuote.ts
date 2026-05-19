@@ -21,7 +21,7 @@ import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { GARDEN_AFFILIATE_FEE_ASSET, GARDEN_AFFILIATE_FEE_RECIPIENT } from '../constants'
-import type { GardenCreateOrderResult, GardenSpecificMetadata } from '../types'
+import type { GardenCreateOrderResult, GardenSpecificMetadata, GardenStarknetCall } from '../types'
 import { isGardenBitcoinInitiate, isGardenEvmInitiate, isGardenStarknetInitiate } from '../types'
 import {
   buildGardenAffiliateFees,
@@ -41,9 +41,12 @@ const buildGardenSpecific = (order: GardenCreateOrderResult): GardenSpecificMeta
   const base = { orderId: order.order_id }
   if (isGardenBitcoinInitiate(order)) return { ...base, bitcoinDepositAddress: order.to }
   if (isGardenStarknetInitiate(order)) {
+    const starknetCalls = [order.approval_transaction, order.initiate_transaction].filter(
+      (call): call is GardenStarknetCall => call !== null,
+    )
     return {
       ...base,
-      starknetCalls: [order.approval_transaction, order.initiate_transaction],
+      starknetCalls,
     }
   }
   if (isGardenEvmInitiate(order)) {

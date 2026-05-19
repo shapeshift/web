@@ -61,7 +61,7 @@ export type GardenStarknetCall = {
 
 export type GardenStarknetInitiateResult = {
   order_id: string
-  approval_transaction: GardenStarknetCall
+  approval_transaction: GardenStarknetCall | null
   initiate_transaction: GardenStarknetCall
 }
 

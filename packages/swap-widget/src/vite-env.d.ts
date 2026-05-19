@@ -6,11 +6,7 @@ declare module 'cashaddrjs' {
     type: 'P2PKH' | 'P2SH'
     hash: Uint8Array
   }
-  export function encode(
-    prefix: string,
-    type: 'P2PKH' | 'P2SH',
-    hash: Uint8Array,
-  ): string
+  export function encode(prefix: string, type: 'P2PKH' | 'P2SH', hash: Uint8Array): string
 }
 
 interface EthereumProvider {

@@ -1,7 +1,7 @@
 import { quoteToCalls } from '@avnu/avnu-sdk'
-import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import { CallData, hash, num, validateAndParseAddress } from 'starknet'
+import { CallData, hash, validateAndParseAddress } from 'starknet'
 
+import { buildStarknetInvokeTx, toHexString } from '../../starknet-utils'
 import type { SwapperApi, TradeStatus } from '../../types'
 import {
   checkStarknetSwapStatus,
@@ -11,33 +11,6 @@ import {
 } from '../../utils'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
-
-/**
- * Normalize a value to hex format for Starknet RPC
- * Handles various input types: decimal strings, hex strings (with/without 0x), numbers, BigInts
- */
-const toHexString = (value: unknown): string => {
-  const strValue = String(value)
-
-  // Already a proper hex string with 0x prefix
-  if (strValue.startsWith('0x')) {
-    return strValue
-  }
-
-  // Check if it looks like a hex string without 0x prefix (contains a-f characters)
-  // Starknet addresses and felts often come as hex without 0x prefix
-  if (/^[0-9a-fA-F]+$/.test(strValue) && /[a-fA-F]/.test(strValue)) {
-    return `0x${strValue}`
-  }
-
-  // Otherwise treat as decimal and convert to hex
-  try {
-    return num.toHex(strValue)
-  } catch {
-    // If conversion fails, assume it's already hex and add prefix
-    return `0x${strValue}`
-  }
-}
 
 export const avnuApi: SwapperApi = {
   getTradeQuote,
@@ -102,139 +75,14 @@ export const avnuApi: SwapperApi = {
       )
     }
 
-    // Format calldata for RPC (convert all values to proper hex format)
     const formattedCalldata = fullCalldata.map(toHexString)
 
-    // Get nonce using adapter method (checks deployment status and returns appropriate nonce)
-    const chainIdHex = await adapter.getStarknetProvider().getChainId()
-    const nonce = await adapter.getNonce(normalizedFrom)
-
-    // Estimate fees for the multi-call swap transaction
-    const version = '0x3' as const
-    const estimateTx = {
-      type: 'INVOKE',
-      version,
-      sender_address: normalizedFrom,
-      calldata: formattedCalldata,
-      signature: [],
-      nonce,
-      resource_bounds: {
-        l1_gas: { max_amount: '0x186a0', max_price_per_unit: '0x5f5e100' },
-        l2_gas: { max_amount: '0x0', max_price_per_unit: '0x0' },
-        l1_data_gas: { max_amount: '0x186a0', max_price_per_unit: '0x1' },
-      },
-      tip: '0x0',
-      paymaster_data: [],
-      account_deployment_data: [],
-      nonce_data_availability_mode: 'L1',
-      fee_data_availability_mode: 'L1',
-    }
-
-    const estimateResponse = await adapter
-      .getStarknetProvider()
-      .fetch('starknet_estimateFee', [[estimateTx], ['SKIP_VALIDATE'], 'latest'])
-    const estimateResult: {
-      result?: {
-        l1_gas_consumed?: string
-        l1_gas_price?: string
-        l2_gas_consumed?: string
-        l2_gas_price?: string
-        l1_data_gas_consumed?: string
-        l1_data_gas_price?: string
-      }[]
-      error?: unknown
-    } = await estimateResponse.json()
-
-    if (estimateResult.error) {
-      throw new Error(`Fee estimation failed: ${JSON.stringify(estimateResult.error)}`)
-    }
-
-    const feeEstimate = estimateResult.result?.[0]
-    if (!feeEstimate) {
-      throw new Error('Fee estimation failed: no estimate returned')
-    }
-
-    // Calculate resource bounds with buffer (5x gas amount, 2x gas price)
-    const l1GasConsumed = feeEstimate.l1_gas_consumed
-      ? BigInt(feeEstimate.l1_gas_consumed)
-      : BigInt('0x186a0')
-    const l1GasPrice = feeEstimate.l1_gas_price
-      ? BigInt(feeEstimate.l1_gas_price)
-      : BigInt('0x5f5e100')
-    const l2GasConsumed = feeEstimate.l2_gas_consumed
-      ? BigInt(feeEstimate.l2_gas_consumed)
-      : BigInt('0x0')
-    const l2GasPrice = feeEstimate.l2_gas_price ? BigInt(feeEstimate.l2_gas_price) : BigInt('0x0')
-    const l1DataGasConsumed = feeEstimate.l1_data_gas_consumed
-      ? BigInt(feeEstimate.l1_data_gas_consumed)
-      : BigInt('0x186a0')
-    const l1DataGasPrice = feeEstimate.l1_data_gas_price
-      ? BigInt(feeEstimate.l1_data_gas_price)
-      : BigInt('0x1')
-
-    const resourceBounds = {
-      l1_gas: {
-        max_amount: (l1GasConsumed * BigInt(500)) / BigInt(100),
-        max_price_per_unit: (l1GasPrice * BigInt(200)) / BigInt(100),
-      },
-      l2_gas: {
-        max_amount: (l2GasConsumed * BigInt(500)) / BigInt(100),
-        max_price_per_unit: (l2GasPrice * BigInt(200)) / BigInt(100),
-      },
-      l1_data_gas: {
-        max_amount: (l1DataGasConsumed * BigInt(500)) / BigInt(100),
-        max_price_per_unit: (l1DataGasPrice * BigInt(200)) / BigInt(100),
-      },
-    }
-
-    // Calculate transaction hash for signing
-    const invokeHashInputs = {
-      senderAddress: normalizedFrom,
-      version,
-      compiledCalldata: formattedCalldata,
-      chainId: chainIdHex,
-      nonce,
-      nonceDataAvailabilityMode: 0 as const, // L1
-      feeDataAvailabilityMode: 0 as const, // L1
-      resourceBounds: {
-        l1_gas: {
-          max_amount: resourceBounds.l1_gas.max_amount,
-          max_price_per_unit: resourceBounds.l1_gas.max_price_per_unit,
-        },
-        l2_gas: {
-          max_amount: resourceBounds.l2_gas.max_amount,
-          max_price_per_unit: resourceBounds.l2_gas.max_price_per_unit,
-        },
-        l1_data_gas: {
-          max_amount: resourceBounds.l1_data_gas.max_amount,
-          max_price_per_unit: resourceBounds.l1_data_gas.max_price_per_unit,
-        },
-      },
-      tip: '0x0',
-      paymasterData: [],
-      accountDeploymentData: [],
-    }
-
-    const txHash = hash.calculateInvokeTransactionHash(invokeHashInputs)
-
-    // Return transaction ready for signing
-    return {
-      addressNList: toAddressNList(adapter.getBip44Params({ accountNumber })),
-      txHash,
-      _txDetails: {
-        fromAddress: normalizedFrom,
-        calldata: formattedCalldata,
-        nonce,
-        version,
-        resourceBounds,
-        chainId: chainIdHex,
-        nonceDataAvailabilityMode: 0 as const,
-        feeDataAvailabilityMode: 0 as const,
-        tip: '0x0',
-        paymasterData: [],
-        accountDeploymentData: [],
-      },
-    }
+    return buildStarknetInvokeTx({
+      formattedCalldata,
+      normalizedFrom,
+      accountNumber,
+      adapter,
+    })
   },
 
   getStarknetTransactionFees: ({ tradeQuote, stepIndex }) => {

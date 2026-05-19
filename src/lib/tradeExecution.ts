@@ -195,6 +195,7 @@ export class TradeExecution {
           ...swap.metadata,
           chainflipSwapId: tradeQuote.steps[0]?.chainflipSpecific?.chainflipSwapId,
           nearIntentsSpecific: tradeQuote.steps[0]?.nearIntentsSpecific,
+          gardenSpecific: tradeQuote.steps[0]?.gardenSpecific,
           relayTransactionMetadata: tradeQuote.steps[0]?.relayTransactionMetadata,
           quoteId: tradeQuote.steps[0]?.stonfiSpecific?.quoteId ?? swap.metadata.quoteId,
           stepIndex,

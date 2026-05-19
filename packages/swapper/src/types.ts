@@ -78,6 +78,7 @@ export type SwapperConfig = {
   VITE_RELAY_API_URL: string
   VITE_BEBOP_API_KEY: string
   VITE_NEAR_INTENTS_API_KEY: string
+  VITE_GARDEN_API_KEY: string
   VITE_TENDERLY_API_KEY: string
   VITE_TENDERLY_ACCOUNT_SLUG: string
   VITE_TENDERLY_PROJECT_SLUG: string
@@ -106,6 +107,7 @@ export enum SwapperName {
   Stonfi = 'STON.fi',
   Across = 'Across',
   Debridge = 'deBridge',
+  Garden = 'Garden',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -456,6 +458,17 @@ export type TradeQuoteStep = {
     timeEstimate: number
     deadline: string
   }
+  gardenSpecific?: {
+    orderId: string
+    bitcoinDepositAddress?: string
+    starknetCalls?: { to: string; selector: string; calldata: string[] }[]
+    evmInitiate?: {
+      to: string
+      data: string
+      value: string
+      allowanceContract: string
+    }
+  }
   thorchainSpecific?: {
     maxStreamingQuantity?: number
   }
@@ -575,6 +588,17 @@ export type SwapperSpecificMetadata = {
     depositMemo?: string
     timeEstimate: number
     deadline: string
+  }
+  gardenSpecific?: {
+    orderId: string
+    bitcoinDepositAddress?: string
+    starknetCalls?: { to: string; selector: string; calldata: string[] }[]
+    evmInitiate?: {
+      to: string
+      data: string
+      value: string
+      allowanceContract: string
+    }
   }
   relayTransactionMetadata: RelayTransactionMetadata | undefined
   acrossTransactionMetadata: AcrossTransactionMetadata | undefined

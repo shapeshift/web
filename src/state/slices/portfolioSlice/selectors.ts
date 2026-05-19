@@ -867,7 +867,12 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
         return row
       })
       .filter(isSome)
-      .sort((a, b) => bnOrZero(b.fiatAmount).minus(bnOrZero(a.fiatAmount)).toNumber())
+      .sort((a, b) => {
+        const aHas = bnOrZero(a.cryptoAmount).gt(0) ? 1 : 0
+        const bHas = bnOrZero(b.cryptoAmount).gt(0) ? 1 : 0
+        if (aHas !== bHas) return bHas - aHas
+        return bnOrZero(b.fiatAmount).minus(bnOrZero(a.fiatAmount)).toNumber()
+      })
 
     if (relatedAssets.length === 0) return null
 

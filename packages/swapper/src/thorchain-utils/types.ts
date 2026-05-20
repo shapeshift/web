@@ -78,7 +78,7 @@ export type ThornodeQuoteResponseSuccess = {
   warning: string
 }
 
-type ThornodeResponseError = { error: string }
+export type ThornodeResponseError = { error: string }
 export type ThornodeQuoteResponse = ThornodeQuoteResponseSuccess | ThornodeResponseError
 
 type MidgardCoins = {

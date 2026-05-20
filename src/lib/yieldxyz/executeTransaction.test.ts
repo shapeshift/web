@@ -64,8 +64,14 @@ describe('toHexOrDefault', () => {
     expect(toHexOrDefault('', '0x0')).toBe('0x0')
   })
 
-  it('should return hex value as-is when already hex', () => {
+  it('should preserve already-compact hex', () => {
     expect(toHexOrDefault('0x30d40', '0x0')).toBe('0x30d40')
+  })
+
+  it('should strip leading zeros from hex to satisfy EIP-1474', () => {
+    expect(toHexOrDefault('0x054e0840', '0x0')).toBe('0x54e0840')
+    expect(toHexOrDefault('0x036bd6', '0x0')).toBe('0x36bd6')
+    expect(toHexOrDefault('0x00', '0x0')).toBe('0x0')
   })
 
   it('should convert number to hex', () => {
@@ -141,7 +147,9 @@ describe('EVM transaction parsing - ETH rETH liquid staking', () => {
 
   it('should produce valid hex values from tx fields', () => {
     const parsed = JSON.parse(ETH_RETH_UNSIGNED_TX)
-    expect(toHexOrDefault(parsed.gasLimit, '0x0')).toBe('0x036bd6')
+    expect(toHexOrDefault(parsed.gasLimit, '0x0')).toBe('0x36bd6')
+    expect(toHexOrDefault(parsed.maxFeePerGas, '0x0')).toBe('0xa21fe80')
+    expect(toHexOrDefault(parsed.maxPriorityFeePerGas, '0x0')).toBe('0x54e0840')
     expect(toHexOrDefault(parsed.value, '0x0')).toBe('0xde78bc6ce42d1a')
     expect(toHexData(parsed.data)).toBe('0x5bcb2fc6')
   })
@@ -159,7 +167,7 @@ describe('EVM transaction parsing - AVAX sAVAX liquid staking', () => {
     const parsed = JSON.parse(AVAX_SAVAX_UNSIGNED_TX)
     expect(toHexOrDefault(parsed.gasLimit, '0x0')).toBe('0xde93')
     expect(toHexOrDefault(parsed.maxFeePerGas, '0x0')).toBe('0xcaa808')
-    expect(toHexOrDefault(parsed.maxPriorityFeePerGas, '0x0')).toBe('0x03e8')
+    expect(toHexOrDefault(parsed.maxPriorityFeePerGas, '0x0')).toBe('0x3e8')
     expect(toHexOrDefault(parsed.value, '0x0')).toBe('0xde78bc6ce42d1a')
   })
 })

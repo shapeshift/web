@@ -1,6 +1,6 @@
 import type { ETHSignedMessage } from '@shapeshiftoss/hdwallet-core'
 import * as core from '@shapeshiftoss/hdwallet-core'
-import { isHexString } from 'ethers/lib/utils'
+import { hexValue, isHexString } from 'ethers/lib/utils'
 
 import type { PhantomEvmProvider } from './types'
 
@@ -26,19 +26,19 @@ export async function ethSendTx(
     const utxBase = {
       from,
       to: msg.to,
-      value: msg.value,
-      chainId: msg.chainId,
+      value: hexValue(msg.value),
       data: msg.data,
-      gasLimit: msg.gasLimit,
+      gasLimit: hexValue(msg.gasLimit),
     }
 
-    const utx = msg.maxFeePerGas
-      ? {
-          ...utxBase,
-          maxFeePerGas: msg.maxFeePerGas,
-          maxPriorityFeePerGas: msg.maxPriorityFeePerGas,
-        }
-      : { ...utxBase, gasPrice: msg.gasPrice }
+    const utx =
+      msg.maxFeePerGas && msg.maxPriorityFeePerGas
+        ? {
+            ...utxBase,
+            maxFeePerGas: hexValue(msg.maxFeePerGas),
+            maxPriorityFeePerGas: hexValue(msg.maxPriorityFeePerGas),
+          }
+        : { ...utxBase, gasPrice: hexValue(msg.gasPrice) }
 
     const signedTx = await phantom.request?.({
       method: 'eth_sendTransaction',

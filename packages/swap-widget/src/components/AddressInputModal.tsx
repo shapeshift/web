@@ -57,12 +57,14 @@ export const AddressInputModal = ({
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, onClose])
 
+  const trimmedInput = useMemo(() => inputValue.trim(), [inputValue])
+
   const validation = useMemo(() => {
-    if (!inputValue || !hasInteracted) {
+    if (!trimmedInput || !hasInteracted) {
       return { valid: true, error: undefined }
     }
-    return validateAddress(inputValue, chainId)
-  }, [inputValue, chainId, hasInteracted])
+    return validateAddress(trimmedInput, chainId)
+  }, [trimmedInput, chainId, hasInteracted])
 
   const formatHint = useMemo(() => getAddressFormatHint(chainId), [chainId])
 
@@ -79,12 +81,11 @@ export const AddressInputModal = ({
   }, [walletReceiveAddress])
 
   const handleConfirm = useCallback(() => {
-    const result = validateAddress(inputValue, chainId)
-    if (result.valid) {
-      onAddressChange(inputValue)
+    if (validateAddress(trimmedInput, chainId).valid) {
+      onAddressChange(trimmedInput)
       onClose()
     }
-  }, [inputValue, chainId, onAddressChange, onClose])
+  }, [trimmedInput, chainId, onAddressChange, onClose])
 
   const handleClear = useCallback(() => {
     setInputValue('')
@@ -112,9 +113,9 @@ export const AddressInputModal = ({
   )
 
   const isConfirmDisabled = useMemo(() => {
-    if (!inputValue) return true
-    return !validateAddress(inputValue, chainId).valid
-  }, [inputValue, chainId])
+    if (!trimmedInput) return true
+    return !validateAddress(trimmedInput, chainId).valid
+  }, [trimmedInput, chainId])
 
   if (!isOpen) return null
 

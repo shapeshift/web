@@ -94,6 +94,8 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.Mode
           case CHAIN_REFERENCE.SoneiumMainnet:
             return ASSET_REFERENCE.Soneium
+          case CHAIN_REFERENCE.CitreaMainnet:
+            return ASSET_REFERENCE.Citrea
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

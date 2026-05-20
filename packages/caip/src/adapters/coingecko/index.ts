@@ -16,6 +16,7 @@ import {
   celoChainId,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
+  citreaChainId,
   cosmosChainId,
   cronosChainId,
   ethChainId,
@@ -100,6 +101,7 @@ export enum CoingeckoAssetPlatform {
   Ton = 'the-open-network',
   Near = 'near-protocol',
   Abstract = 'abstract',
+  Citrea = 'citrea',
 }
 
 type CoinGeckoId = string
@@ -198,6 +200,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Soneium
         case CHAIN_REFERENCE.SeiMainnet:
           return CoingeckoAssetPlatform.Sei
+        case CHAIN_REFERENCE.CitreaMainnet:
+          return CoingeckoAssetPlatform.Citrea
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
@@ -367,6 +371,8 @@ export const coingeckoAssetPlatformToChainId = (
       return tonChainId
     case CoingeckoAssetPlatform.Near:
       return nearChainId
+    case CoingeckoAssetPlatform.Citrea:
+      return citreaChainId
     default:
       return undefined
   }

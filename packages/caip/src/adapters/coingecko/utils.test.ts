@@ -242,6 +242,9 @@ describe('adapters:coingecko:utils', () => {
         'eip155:2741': {
           'eip155:2741/slip44:60': 'ethereum',
         },
+        'eip155:4114': {
+          'eip155:4114/slip44:60': 'citrea-bridged-bitcoin',
+        },
         'near:mainnet': {
           'near:mainnet/slip44:397': 'near',
         },

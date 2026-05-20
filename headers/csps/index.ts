@@ -14,6 +14,7 @@ import { csp as blast } from './chains/blast'
 import { csp as bnbsmartchain } from './chains/bnbsmartchain'
 import { csp as bob } from './chains/bob'
 import { csp as celo } from './chains/celo'
+import { csp as citrea } from './chains/citrea'
 import { csp as cosmos } from './chains/cosmos'
 import { csp as cronos } from './chains/cronos'
 import { csp as dogecoin } from './chains/dogecoin'
@@ -206,4 +207,5 @@ export const csps = [
   railway,
   discord,
   yieldxyz,
+  citrea,
 ]

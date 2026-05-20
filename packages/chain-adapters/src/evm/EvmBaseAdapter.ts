@@ -18,6 +18,7 @@ import {
   supportsBob,
   supportsBSC,
   supportsCelo,
+  supportsCitrea,
   supportsCronos,
   supportsETH,
   supportsEthereal,
@@ -135,6 +136,7 @@ export const evmChainIds = [
   KnownChainIds.SoneiumMainnet,
   KnownChainIds.SeiMainnet,
   KnownChainIds.AbstractMainnet,
+  KnownChainIds.CitreaMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -283,6 +285,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsSoneium(wallet)
         case Number(fromChainId(KnownChainIds.SeiMainnet).chainReference):
           return supportsSei(wallet)
+        case Number(fromChainId(KnownChainIds.CitreaMainnet).chainReference):
+          return supportsCitrea(wallet)
         default:
           return false
       }
@@ -489,6 +493,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://abscan.org',
+      },
+      [KnownChainIds.CitreaMainnet]: {
+        name: 'Citrea Bitcoin',
+        symbol: 'cBTC',
+        explorer: 'https://explorer.mainnet.citrea.xyz',
       },
     }[this.chainId]
 

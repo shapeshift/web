@@ -11,6 +11,7 @@ import {
   bscChainId,
   btcChainId,
   celoChainId,
+  citreaChainId,
   cosmosChainId,
   cronosChainId,
   dogeChainId,
@@ -67,6 +68,7 @@ import {
   supportsBSC,
   supportsBTC,
   supportsCelo,
+  supportsCitrea,
   supportsCosmos,
   supportsCronos,
   supportsETH,
@@ -224,6 +226,7 @@ export const walletSupportsChain = ({
   const isStarknetEnabled = selectFeatureFlag(store.getState(), 'Starknet')
   const isWorldChainEnabled = selectFeatureFlag(store.getState(), 'WorldChain')
   const isTonEnabled = selectFeatureFlag(store.getState(), 'Ton')
+  const isCitreaEnabled = selectFeatureFlag(store.getState(), 'Citrea')
 
   switch (chainId) {
     case btcChainId:
@@ -327,6 +330,8 @@ export const walletSupportsChain = ({
       return isStarknetEnabled && supportsStarknet(wallet)
     case tonChainId:
       return isTonEnabled && supportsTon(wallet)
+    case citreaChainId:
+      return isCitreaEnabled && supportsCitrea(wallet)
     default: {
       return false
     }

@@ -19,6 +19,7 @@ import { ZerionMarketService } from './zerion/zerion'
 
 import type { AssetService } from '@/lib/asset-service'
 import { getAssetService } from '@/lib/asset-service'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 export type ProviderUrls = {
   jsonRpcProviderUrl: string
@@ -91,10 +92,12 @@ export class MarketServiceManager {
         : this.marketProviders
 
       // Loop through market providers and look for asset market data. Once found, exit loop.
+      // Treat price=0 as not-found so we fall through to related-asset lookup; some providers
+      // surface partial data (changePercent, marketCap) with a zero price.
       for (const provider of prioritizedProviders) {
         try {
           const data = await provider.findByAssetId({ assetId })
-          if (data) return data
+          if (data && bnOrZero(data.price).gt(0)) return data
         } catch (e) {
           // Swallow error, not every asset will be with every provider.
         }

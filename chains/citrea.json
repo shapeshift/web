@@ -1,0 +1,30 @@
+{
+  "camelName": "citrea",
+  "pascalName": "Citrea",
+  "upperName": "CITREA",
+  "chainId": 4114,
+  "viemChainName": "citrea",
+  "nativeSymbol": "cBTC",
+  "nativeName": "Citrea Bitcoin",
+  "nativePrecision": 18,
+  "isNativeEth": false,
+  "color": "#F7931A",
+  "networkIconUrl": "https://assets.coingecko.com/asset_platforms/images/102132293/small/citrea.jpg",
+  "nativeIconUrl": "https://assets.coingecko.com/coins/images/102172844/large/cBTC.png",
+  "explorerUrl": "https://explorer.mainnet.citrea.xyz",
+  "explorerAddressLink": "https://explorer.mainnet.citrea.xyz/address/",
+  "explorerTxLink": "https://explorer.mainnet.citrea.xyz/tx/",
+  "rpcUrl": "https://rpc.mainnet.citrea.xyz",
+  "publicRpcUrls": ["https://rpc.mainnet.citrea.xyz"],
+  "coingeckoPlatform": "citrea",
+  "wrappedNativeAddress": "0x3100000000000000000000000000000000000006",
+  "relatedAssetKey": "eip155:4114/slip44:60",
+  "shortName": "citrea",
+  "swappers": {
+    "relay": { "supported": false },
+    "across": { "supported": false },
+    "portals": { "supported": false },
+    "zerion": { "supported": false },
+    "yieldxyz": { "supported": false }
+  }
+}

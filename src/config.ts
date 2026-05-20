@@ -91,6 +91,7 @@ const validators = {
   VITE_SUI_NODE_URL: url(),
   VITE_TON_NODE_URL: url(),
   VITE_NEAR_NODE_URL: url(),
+  VITE_CITREA_NODE_URL: url(),
   VITE_NEAR_NODE_URL_FALLBACK_1: url({ default: '' }),
   VITE_NEAR_NODE_URL_FALLBACK_2: url({ default: '' }),
   VITE_FASTNEAR_API_URL: url(),
@@ -302,6 +303,7 @@ const validators = {
   VITE_FEATURE_PERFORMANCE_PROFILER: bool({ default: false }),
   VITE_FEATURE_AGENTIC_CHAT: bool({ default: false }),
   VITE_FEATURE_MM_NATIVE_MULTICHAIN: bool({ default: false }),
+  VITE_FEATURE_CITREA: bool({ default: false }),
   VITE_AGENTIC_SERVER_BASE_URL: url({
     default: 'https://api.agent.shapeshift.com',
   }),

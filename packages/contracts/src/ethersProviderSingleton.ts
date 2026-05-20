@@ -82,6 +82,8 @@ export const rpcUrlByChainId = (chainId: EvmChainId): string => {
         return PUBLIC_RPC_URLS.sei[0]
       case KnownChainIds.AbstractMainnet:
         return PUBLIC_RPC_URLS.abstract[0]
+      case KnownChainIds.CitreaMainnet:
+        return process.env.VITE_CITREA_NODE_URL
       default:
         return assertUnreachable(chainId)
     }

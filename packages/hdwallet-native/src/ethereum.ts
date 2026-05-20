@@ -92,6 +92,7 @@ export function MixinNativeETHWallet<TBase extends core.Constructor<NativeHDWall
     readonly _supportsCronos = true
     readonly _supportsUnichain = true
     readonly _supportsSoneium = true
+    readonly _supportsCitrea = true
     readonly _supportsEthSwitchChain = false
 
     #ethSigner: SignerAdapter | undefined

@@ -28,6 +28,8 @@ import {
   celoChainId,
   CHAIN_NAMESPACE,
   CHAIN_REFERENCE,
+  citreaAssetId,
+  citreaChainId,
   cosmosChainId,
   cronosAssetId,
   cronosChainId,
@@ -665,6 +667,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Citrea)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.CitreaMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Citrea],
+          })
+          prev[citreaChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
@@ -707,6 +723,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [suiChainId]: { [suiAssetId]: 'sui' },
       [nearChainId]: { [nearAssetId]: 'near' },
       [tonChainId]: { [tonAssetId]: 'the-open-network' },
+      [citreaChainId]: { [citreaAssetId]: 'citrea-bridged-bitcoin' },
     },
   )
 

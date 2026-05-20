@@ -32,6 +32,7 @@ import * as blast from './blast'
 import * as bnbsmartchain from './bnbsmartchain'
 import * as bob from './bob'
 import * as celo from './celo'
+import * as citrea from './citrea'
 import { compressGeneratedAssets } from './compressAssets'
 import { ASSET_DATA_PATH, GENERATED_DIR, RELATED_ASSET_INDEX_PATH } from './constants'
 import * as cronos from './cronos'
@@ -123,6 +124,7 @@ const generateAssetData = async () => {
   const suiAssets = await sui.getAssets()
   const tonAssets = await tonModule.getAssets()
   const nearAssets = await near.getAssets()
+  const citreaAssets = await citrea.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -178,6 +180,7 @@ const generateAssetData = async () => {
     ...suiAssets,
     ...tonAssets,
     ...nearAssets,
+    ...citreaAssets,
   ]
 
   // remove blacklisted assets

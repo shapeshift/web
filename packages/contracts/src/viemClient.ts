@@ -187,6 +187,19 @@ export const ethereal = defineChain({
   },
 })
 
+export const citrea = defineChain({
+  id: 4114,
+  name: 'Citrea Mainnet',
+  nativeCurrency: { name: 'Citrea Bitcoin', symbol: 'cBTC', decimals: 18 },
+  rpcUrls: { default: { http: ['https://rpc.mainnet.citrea.xyz'] } },
+  blockExplorers: {
+    default: {
+      name: 'Citrea Explorer',
+      url: 'https://explorer.mainnet.citrea.xyz',
+    },
+  },
+})
+
 export const viemEtherealClient = createPublicClient({
   chain: ethereal,
   transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.ethereal),
@@ -257,6 +270,11 @@ export const viemSoneiumClient = createPublicClient({
   transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.soneium),
 }) as PublicClient
 
+export const viemCitreaClient = createPublicClient({
+  chain: citrea,
+  transport: createRpcTransport(undefined, PUBLIC_RPC_URLS.citrea),
+}) as PublicClient
+
 export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,
   [KnownChainIds.BnbSmartChainMainnet]: viemBscClient,
@@ -293,6 +311,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.SoneiumMainnet]: viemSoneiumClient,
   [KnownChainIds.SeiMainnet]: viemSeiClient,
   [KnownChainIds.AbstractMainnet]: viemAbstractClient,
+  [KnownChainIds.CitreaMainnet]: viemCitreaClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -331,6 +350,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.SoneiumMainnet]: soneium.id,
   [KnownChainIds.SeiMainnet]: sei.id,
   [KnownChainIds.AbstractMainnet]: abstract.id,
+  [KnownChainIds.CitreaMainnet]: citrea.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -369,6 +389,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [soneium.id]: viemSoneiumClient,
   [sei.id]: viemSeiClient,
   [abstract.id]: viemAbstractClient,
+  [citrea.id]: viemCitreaClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

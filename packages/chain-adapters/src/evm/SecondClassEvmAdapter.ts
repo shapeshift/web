@@ -5,6 +5,7 @@ import {
   blastChainId,
   bobChainId,
   celoChainId,
+  citreaChainId,
   cronosChainId,
   flowEvmChainId,
   hemiChainId,
@@ -75,6 +76,7 @@ const WRAPPED_NATIVE_CONTRACT_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [storyChainId]: '0x1514000000000000000000000000000000000000',
   [plumeChainId]: '0xea237441c92cae6fc17caaf9a7acb3f953be4bd1',
   [seiChainId]: '0xE30feDd158A2e3b13e9badaeABaFc5516e95e8C7',
+  [citreaChainId]: '0x3100000000000000000000000000000000000006',
 }
 const BATCH_SIZE = 500
 

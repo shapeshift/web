@@ -5,6 +5,7 @@ import {
   baseAssetId,
   blastAssetId,
   bobAssetId,
+  citreaAssetId,
   cronosAssetId,
   ethAssetId,
   FEE_ASSET_IDS,
@@ -103,6 +104,8 @@ const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   // Native chain tokens as keys (isPrimary=true) with their Ethereum ERC20 counterparts as values
   [sonicAssetId]: ['eip155:1/erc20:0x4e15361fd6b4bb609fa63c81a2be19d873717870'],
   [cronosAssetId]: ['eip155:1/erc20:0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b'],
+  // cBTC (Citrea native, BTC-pegged via Clementine BitVM) <-> WBTC on Ethereum for pricing
+  [citreaAssetId]: ['eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599'],
 }
 
 const getManualRelatedAssetIds = (

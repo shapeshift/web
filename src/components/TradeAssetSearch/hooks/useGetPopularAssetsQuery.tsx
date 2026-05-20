@@ -5,6 +5,7 @@ import {
   blastAssetId,
   bobAssetId,
   celoAssetId,
+  citreaAssetId,
   cronosAssetId,
   etherealAssetId,
   flowEvmAssetId,
@@ -91,6 +92,7 @@ export const queryFn = async () => {
   if (enabledFlags.Tron) assetIds.push(tronAssetId)
   if (enabledFlags.Berachain) assetIds.push(berachainAssetId)
   if (enabledFlags.Sui) assetIds.push(suiAssetId)
+  if (enabledFlags.Citrea) assetIds.push(citreaAssetId)
 
   for (const assetId of [...new Set(assetIds)]) {
     const asset = primaryAssets[assetId]

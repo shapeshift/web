@@ -13,6 +13,7 @@ import {
   btcChainId,
   celoChainId,
   CHAIN_NAMESPACE,
+  citreaChainId,
   cosmosChainId,
   cronosChainId,
   dogeChainId,
@@ -73,6 +74,7 @@ import {
   supportsBSC,
   supportsBTC,
   supportsCelo,
+  supportsCitrea,
   supportsCosmos,
   supportsCronos,
   supportsETH,
@@ -625,6 +627,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsNear(wallet)
     case tonChainId:
       return supportsTon(wallet)
+    case citreaChainId:
+      return supportsCitrea(wallet)
     default:
       return false
   }

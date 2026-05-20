@@ -857,3 +857,20 @@ export const ton: Readonly<Asset> = Object.freeze({
   explorerTxLink: 'https://tonscan.org/tx/',
   relatedAssetKey: null,
 })
+
+export const citrea: Readonly<Asset> = Object.freeze({
+  assetId: caip.citreaAssetId,
+  chainId: caip.citreaChainId,
+  name: 'Citrea Bitcoin',
+  networkName: 'Citrea',
+  symbol: 'cBTC',
+  precision: 18,
+  color: '#F7931A',
+  networkColor: '#F7931A',
+  icon: 'https://assets.coingecko.com/coins/images/102172844/large/cBTC.png',
+  networkIcon: 'https://assets.coingecko.com/asset_platforms/images/102132293/small/citrea.jpg',
+  explorer: 'https://explorer.mainnet.citrea.xyz',
+  explorerAddressLink: 'https://explorer.mainnet.citrea.xyz/address/',
+  explorerTxLink: 'https://explorer.mainnet.citrea.xyz/tx/',
+  relatedAssetKey: null,
+})

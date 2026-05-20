@@ -9,6 +9,7 @@ import blast from '@/plugins/blast'
 import bnbsmartchain from '@/plugins/bnbsmartchain'
 import bob from '@/plugins/bob'
 import celo from '@/plugins/celo'
+import citrea from '@/plugins/citrea'
 import cosmos from '@/plugins/cosmos'
 import cronos from '@/plugins/cronos'
 import dogecoin from '@/plugins/dogecoin'
@@ -102,4 +103,5 @@ export const activePlugins = [
   zcash,
   zksyncera,
   abstract,
+  citrea,
 ]

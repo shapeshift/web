@@ -11,6 +11,7 @@ import {
   bobChainId,
   bscChainId,
   celoChainId,
+  citreaChainId,
   cronosChainId,
   ethChainId,
   flowEvmChainId,
@@ -55,6 +56,7 @@ import {
   bnbsmartchain,
   bobChain,
   celo,
+  citrea,
   cronos,
   ethereum,
   flowEvm,
@@ -442,6 +444,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: ton.explorer,
           explorerAddressLink: ton.explorerAddressLink,
           explorerTxLink: ton.explorerTxLink,
+        }
+      case citreaChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: citrea.explorer,
+          explorerAddressLink: citrea.explorerAddressLink,
+          explorerTxLink: citrea.explorerTxLink,
         }
       default:
         throw new Error(`no coingecko token support for chainId: ${chainId}`)

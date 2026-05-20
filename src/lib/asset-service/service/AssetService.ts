@@ -9,6 +9,7 @@ import {
   bobChainId,
   bscChainId,
   celoChainId,
+  citreaChainId,
   cronosChainId,
   etherealChainId,
   flowEvmChainId,
@@ -172,6 +173,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_ZCASH && asset.chainId === zecChainId) return false
       if (!config.VITE_FEATURE_STARKNET && asset.chainId === starknetChainId) return false
       if (!config.VITE_FEATURE_TON && asset.chainId === tonChainId) return false
+      if (!config.VITE_FEATURE_CITREA && asset.chainId === citreaChainId) return false
       return true
     })
 

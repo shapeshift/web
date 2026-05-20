@@ -11,6 +11,7 @@ import {
   bscAssetId,
   btcAssetId,
   celoAssetId,
+  citreaAssetId,
   cosmosAssetId,
   cronosAssetId,
   dogeAssetId,
@@ -155,6 +156,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return tonAssetId
     case KnownChainIds.AbstractMainnet:
       return abstractAssetId
+    case KnownChainIds.CitreaMainnet:
+      return citreaAssetId
     default:
       return assertUnreachable(chainId)
   }

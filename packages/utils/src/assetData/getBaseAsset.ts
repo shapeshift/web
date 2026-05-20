@@ -16,6 +16,7 @@ import {
   bnbsmartchain,
   bobChain,
   celo,
+  citrea,
   cronos,
   dogecoin,
   ethereal,
@@ -156,6 +157,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return ton
     case KnownChainIds.AbstractMainnet:
       return abstract
+    case KnownChainIds.CitreaMainnet:
+      return citrea
     default:
       return assertUnreachable(knownChainId)
   }

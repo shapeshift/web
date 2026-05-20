@@ -50,6 +50,7 @@ export const suiAssetId: AssetId = 'sui:35834a8a/slip44:784'
 export const nearAssetId: AssetId = 'near:mainnet/slip44:397'
 export const starknetAssetId: AssetId = 'starknet:SN_MAIN/slip44:9004'
 export const tonAssetId: AssetId = 'ton:mainnet/slip44:607'
+export const citreaAssetId: AssetId = 'eip155:4114/slip44:60'
 export const uniV2EthFoxArbitrumAssetId: AssetId =
   'eip155:42161/erc20:0x5f6ce0ca13b87bd738519545d3e018e70e339c24'
 
@@ -142,6 +143,7 @@ export const suiChainId: ChainId = 'sui:35834a8a'
 export const nearChainId: ChainId = 'near:mainnet'
 export const starknetChainId: ChainId = 'starknet:SN_MAIN'
 export const tonChainId: ChainId = 'ton:mainnet'
+export const citreaChainId: ChainId = 'eip155:4114'
 
 export const CHAIN_NAMESPACE = {
   Evm: 'eip155',
@@ -210,6 +212,7 @@ export const CHAIN_REFERENCE = {
   StarknetMainnet: 'SN_MAIN', // https://namespaces.chainagnostic.org/starknet/caip2
   TonMainnet: 'mainnet', // TON Mainnet
   AbstractMainnet: '2741', // https://abscan.org
+  CitreaMainnet: '4114', // https://explorer.mainnet.citrea.xyz
 } as const
 
 export const ASSET_NAMESPACE = {
@@ -277,6 +280,7 @@ export const ASSET_REFERENCE = {
   Starknet: '9004',
   Ton: '607',
   Abstract: '60', // evm chain which uses ethereum derivation path as common practice
+  Citrea: '60', // evm chain which uses ethereum derivation path as common practice
 } as const
 
 export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
@@ -323,6 +327,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.SeiMainnet,
     CHAIN_REFERENCE.CeloMainnet,
     CHAIN_REFERENCE.AbstractMainnet,
+    CHAIN_REFERENCE.CitreaMainnet,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
     CHAIN_REFERENCE.CosmosHubMainnet,
@@ -407,4 +412,5 @@ export const FEE_ASSET_IDS = [
   katanaAssetId,
   etherealAssetId,
   flowEvmAssetId,
+  citreaAssetId,
 ]

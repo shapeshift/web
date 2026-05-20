@@ -324,6 +324,7 @@ export class TrezorHDWallet
   readonly _supportsTerraInfo = true
   readonly _supportsSolana = true
   readonly _supportsSolanaInfo = true
+  readonly _supportsCitrea = true
   readonly _isTrezor = true
 
   transport: TrezorTransport

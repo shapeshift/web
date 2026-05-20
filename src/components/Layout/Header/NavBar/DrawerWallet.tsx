@@ -72,30 +72,10 @@ export const DrawerWallet: FC = memo(() => {
     onClose,
   })
 
-  const handleContainerClick = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      if (event.target === event.currentTarget) onClose()
-    },
-    [onClose],
-  )
-
-  const containerProps = useMemo(
-    () => ({
-      ...modalContentProps?.containerProps,
-      onClick: handleContainerClick,
-    }),
-    [modalContentProps, handleContainerClick],
-  )
-
   return (
     <Drawer placement='right' size='sm' {...modalProps}>
       <DrawerOverlay {...overlayProps} />
-      <DrawerContent
-        width='full'
-        maxWidth='512px'
-        {...modalContentProps}
-        containerProps={containerProps}
-      >
+      <DrawerContent width='full' maxWidth='512px' {...modalContentProps}>
         <MemoryRouter initialEntries={initialEntries} initialIndex={0}>
           <DrawerWalletInner onClose={onClose} isOpen={isOpen} />
         </MemoryRouter>

@@ -45,6 +45,7 @@ import {
 } from './speedUpUtils'
 
 import { Amount } from '@/components/Amount/Amount'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn } from '@/lib/bignumber/bignumber'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
@@ -696,12 +697,17 @@ export const SpeedUpModal = ({
     },
   })
 
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
+    isOpen,
+    onClose,
+  })
+
   if (!btcAsset) return null
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
-      <ModalOverlay />
-      <ModalContent maxW='560px'>
+    <Modal isCentered {...modalProps}>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent maxW='560px' pointerEvents='all' {...modalContentProps}>
         <ModalHeader>{translate('modals.send.speedUp.title')}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>

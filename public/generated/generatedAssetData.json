@@ -341504,7 +341504,7 @@
       "explorer": "https://explorer.mainnet.citrea.xyz",
       "explorerAddressLink": "https://explorer.mainnet.citrea.xyz/address/",
       "explorerTxLink": "https://explorer.mainnet.citrea.xyz/tx/",
-      "relatedAssetKey": "eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7"
+      "relatedAssetKey": "eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
     },
     "eip155:4114/erc20:0xe045e6c36cf77faa2cfb54466d71a3aef7bbe839": {
       "assetId": "eip155:4114/erc20:0xe045e6c36cf77faa2cfb54466d71a3aef7bbe839",
@@ -341533,7 +341533,7 @@
       "explorer": "https://explorer.mainnet.citrea.xyz",
       "explorerAddressLink": "https://explorer.mainnet.citrea.xyz/address/",
       "explorerTxLink": "https://explorer.mainnet.citrea.xyz/tx/",
-      "relatedAssetKey": "eip155:4114/slip44:60"
+      "relatedAssetKey": null
     }
   },
   "ids": [

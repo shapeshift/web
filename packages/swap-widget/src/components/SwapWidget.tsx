@@ -18,6 +18,7 @@ import { useSwapQuoting } from '../hooks/useSwapQuoting'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { Asset, SwapWidgetFilters, SwapWidgetProps, ThemeMode } from '../types'
 import { getChainType } from '../types'
+import { validateAddress } from '../utils/addressValidation'
 import { AddressInputModal } from './AddressInputModal'
 import { ApprovalStep } from './ApprovalStep'
 import { ExecutionStep } from './ExecutionStep'
@@ -401,14 +402,19 @@ const SwapWidgetCore = ({
     [addressForChain, buyChainType],
   )
 
+  const isCustomReceiveAddressValid = useMemo(
+    () => !!customReceiveAddress && validateAddress(customReceiveAddress, buyChainId).valid,
+    [customReceiveAddress, buyChainId],
+  )
+
   const receiveAddress = useMemo(
-    () => customReceiveAddress || walletReceiveAddress,
-    [customReceiveAddress, walletReceiveAddress],
+    () => (isCustomReceiveAddressValid ? customReceiveAddress : walletReceiveAddress),
+    [isCustomReceiveAddressValid, customReceiveAddress, walletReceiveAddress],
   )
 
   const isCustomReceiveAddress = useMemo(
-    () => !!customReceiveAddress && customReceiveAddress !== walletReceiveAddress,
-    [customReceiveAddress, walletReceiveAddress],
+    () => isCustomReceiveAddressValid && customReceiveAddress !== walletReceiveAddress,
+    [isCustomReceiveAddressValid, customReceiveAddress, walletReceiveAddress],
   )
 
   const initialSyncRef = useRef(false)
@@ -428,6 +434,11 @@ const SwapWidgetCore = ({
   useEffect(() => {
     actorRef.send({ type: 'SET_RECEIVE_ADDRESS', address: receiveAddress })
   }, [receiveAddress, actorRef])
+
+  useEffect(() => {
+    if (!customReceiveAddress) return
+    if (!validateAddress(customReceiveAddress, buyChainId).valid) setCustomReceiveAddress('')
+  }, [buyChainId, customReceiveAddress])
 
   const walletValue: SwapWalletContextValue = useMemo(
     () => ({

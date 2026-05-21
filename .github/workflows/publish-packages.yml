@@ -66,10 +66,11 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # Trusted Publisher OIDC support landed in npm 11.5.1. The Node version
-      # in .nvmrc may ship an older npm; force a recent one for the publish
-      # step. pnpm shells out to this npm for the actual upload.
+      # in .nvmrc may ship an older npm; pin a known-good version here so the
+      # publish behavior stays deterministic across runs. pnpm shells out to
+      # this npm for the actual upload.
       - name: Upgrade npm for trusted publishing
-        run: npm install -g npm@latest
+        run: npm install -g npm@11.5.1
 
       - name: Build Packages
         run: pnpm run build:packages
@@ -105,7 +106,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
-          tagged=0
+          new_tags=()
           for pkg_json in packages/*/package.json; do
             name=$(node -p "require('./$pkg_json').name")
             version=$(node -p "require('./$pkg_json').version")
@@ -128,11 +129,11 @@ jobs:
 
             echo "Tagging $tag at $(git rev-parse --short HEAD)"
             git tag -a "$tag" -m "$tag"
-            tagged=$((tagged + 1))
+            new_tags+=("$tag")
           done
 
-          if [ "$tagged" -gt 0 ]; then
-            git push origin --tags
+          if [ "${#new_tags[@]}" -gt 0 ]; then
+            git push origin "${new_tags[@]}"
           else
             echo "No new tags to push."
           fi

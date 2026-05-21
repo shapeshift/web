@@ -81,6 +81,7 @@ describe('PhantomHDWallet', () => {
         nonce: '0xDEADBEEF',
         gasLimit: '0xDEADBEEF',
         maxFeePerGas: '0xDEADBEEF',
+        maxPriorityFeePerGas: '0xDEADBEEF',
         to: '0xDEADBEEFDEADBEEFDEADBEEFDEADBEEFDEADBEEF',
         value: '0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF',
         data: '0xDEADBEEFDEADBEEFDEADBEEFDEADBEEF',

@@ -7,9 +7,7 @@ import {
   getTxFeeRateSatPerVb,
   getTxFeeRateSatPerVbPrecise,
   getTxFeeSats,
-  getTxIdFromHex,
   getTxVsize,
-  isLikelyBitcoinTxId,
   resolveVinVoutIndex,
   toSats,
 } from './speedUpUtils'
@@ -215,20 +213,4 @@ describe('speedUpUtils', () => {
     })
   })
 
-  describe('txid helpers', () => {
-    it('extracts txid from signed tx hex', () => {
-      const txid = getTxIdFromHex(
-        '0100000000010105abd41ac558c186429b77a2344106bdd978955fc407e3363239864cb479b9ad0000000000fdffffff02900100000000000016001408450440a15ea38314c52d5c9ae6201857d7cf7a677a000000000000160014bf44db911ae5acc9cffcc1bbb9622ddda4a1112b024730440220261bd026ab75ed19ee9b537204c38953593d37b1f1819fdcedfc9e494ae8503902204f38ac8cbf3145e83bc0578866fd4508fcc97bb57d70b6688253558639a8a4a50121029dc27a53da073b1fea5601cf370d02d3b33cf572156c3a6df9d5c03c5dbcdcd700000000',
-      )
-
-      expect(txid).toBe('04a551347291f60a37a632243ed4d4b5320e1269148a02bb55fdc678d7c84a0f')
-    })
-
-    it('validates bitcoin txid format', () => {
-      expect(
-        isLikelyBitcoinTxId('35f171f3008a45a9071c4f1a8a75c95debc4ad438dc8453b93f25ea43d7ab1e4'),
-      ).toBe(true)
-      expect(isLikelyBitcoinTxId('not-a-txid')).toBe(false)
-    })
-  })
 })

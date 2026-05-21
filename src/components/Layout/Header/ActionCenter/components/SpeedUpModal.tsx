@@ -20,28 +20,32 @@ import {
   Text,
   useToast,
 } from '@chakra-ui/react'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { btcChainId, fromAccountId } from '@shapeshiftoss/caip'
 import {
   accountTypeToOutputScriptType,
   accountTypeToScriptType,
   toAddressNList,
 } from '@shapeshiftoss/chain-adapters'
-import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
-import { bip32ToAddressNList, BTCOutputAddressType } from '@shapeshiftoss/hdwallet-core'
+import type {
+  BTCSignTx,
+  BTCSignTxOutput,
+  BTCSignTxOutputChange,
+  BTCSignTxOutputSpend,
+} from '@shapeshiftoss/hdwallet-core'
+import { BTCOutputAddressType } from '@shapeshiftoss/hdwallet-core'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
-import { BigAmount } from '@shapeshiftoss/utils'
-import { useMutation } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { BigAmount, bitcoin } from '@shapeshiftoss/utils'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import type { OriginalTxSummary, ReconstructedInput, ReconstructedOutput } from './speedUpUtils'
 import {
-  getDisplayFeeRateSatPerVbPrecise,
-  getTxFeeSats,
-  getTxIdFromHex,
-  getTxVsize,
-  isLikelyBitcoinTxId,
-  resolveVinVoutIndex,
+  buildOwnedAddressNListMap,
+  classifyOriginalOutputs,
+  reconstructReplacementInputs,
+  summarizeOriginalTx,
 } from './speedUpUtils'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -57,17 +61,19 @@ import {
   GenericTransactionDisplayType,
   isGenericTransactionAction,
 } from '@/state/slices/actionSlice/types'
-import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-const BTC_ASSET_ID: AssetId = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
+const BTC_DUST_THRESHOLD = 546
+const FETCH_RETRIES = 1
+const RETRY_DELAY_MS = 300
+const MIN_REPLACEMENT_RELAY_FEE_RATE_SATS_PER_VB = 1
+const FEE_MULTIPLIERS = [2, 3, 5] as const
 
 type SpeedUpModalProps = {
   txHash: string
   accountId: AccountId
-  assetId?: AssetId
   amountCryptoPrecision?: string
   accountIdsToRefetch?: AccountId[]
   btcUtxoRbfTxMetadata?: BtcUtxoRbfTxMetadata
@@ -75,32 +81,16 @@ type SpeedUpModalProps = {
   onClose: () => void
 }
 
-const BTC_DUST_THRESHOLD = 546
-const FETCH_RETRIES = 1
-const RETRY_DELAY_MS = 300
-const BROADCAST_VERIFY_RETRIES = 10
-const BROADCAST_VERIFY_DELAY_MS = 1000
-const MIN_REPLACEMENT_RELAY_FEE_RATE_SATS_PER_VB = 1
-
-type ReconstructedInput = {
-  txid: string
-  vout: number
-  amount: string
-  addressNList: number[]
-  alternateAddressNList?: number[]
-  hex: string
-}
-
-type ReconstructedOutput = {
-  address?: string
-  amount: string
-  isChange: boolean
+type SpeedUpQueryData = {
+  summary: OriginalTxSummary
+  inputs: ReconstructedInput[]
+  outputs: ReconstructedOutput[]
+  confirmed: boolean
 }
 
 export const SpeedUpModal = ({
   txHash,
   accountId,
-  assetId = BTC_ASSET_ID,
   amountCryptoPrecision,
   accountIdsToRefetch,
   btcUtxoRbfTxMetadata,
@@ -109,329 +99,140 @@ export const SpeedUpModal = ({
 }: SpeedUpModalProps) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
+
   const toast = useToast()
-  const {
-    state: { wallet },
-  } = useWallet()
+  const wallet = useWallet().state.wallet
 
   const pubkey = fromAccountId(accountId).account
 
-  const btcAsset = useAppSelector(state => selectAssetById(state, BTC_ASSET_ID))
   const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
   const btcMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, BTC_ASSET_ID),
+    selectMarketDataByAssetIdUserCurrency(state, bitcoin.assetId),
   )
   const accountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, { accountId }),
   )
-  const btcPrecision = btcAsset?.precision ?? 8
 
   const [selectedFeeRate, setSelectedFeeRate] = useState<string>('0')
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [originalFeeRate, setOriginalFeeRate] = useState<string>('0')
-  const [originalVsize, setOriginalVsize] = useState<string>('0')
-  const [originalFeeSats, setOriginalFeeSats] = useState<string>('0')
+  const [mutationError, setMutationError] = useState<string | null>(null)
 
-  const [reconstructedInputs, setReconstructedInputs] = useState<ReconstructedInput[]>([])
-  const [reconstructedOutputs, setReconstructedOutputs] = useState<ReconstructedOutput[]>([])
-  const [isAlreadyConfirmed, setIsAlreadyConfirmed] = useState(false)
-  const fetchedTxRef = useRef<string | null>(null)
   const intendedSendSats = useMemo(() => {
     if (!amountCryptoPrecision) return undefined
-    if (!btcPrecision) return undefined
-    return bn(amountCryptoPrecision).times(bn(10).pow(btcPrecision)).integerValue().toFixed(0)
-  }, [amountCryptoPrecision, btcPrecision])
+    return bn(amountCryptoPrecision).times(bn(10).pow(bitcoin.precision)).toFixed(0)
+  }, [amountCryptoPrecision])
 
-  const sleep = useCallback((ms: number) => {
-    return new Promise(resolve => setTimeout(resolve, ms))
-  }, [])
+  const speedUpQuery = useQuery<SpeedUpQueryData, Error>({
+    queryKey: [
+      'speedUp',
+      txHash,
+      pubkey,
+      accountMetadata?.accountType,
+      accountMetadata?.bip44Params,
+      btcUtxoRbfTxMetadata,
+      intendedSendSats,
+    ],
+    enabled: Boolean(isOpen && accountMetadata),
+    staleTime: 0,
+    retry: FETCH_RETRIES,
+    retryDelay: attempt => RETRY_DELAY_MS * (attempt + 1),
+    queryFn: async () => {
+      const adapter = assertGetUtxoChainAdapter(btcChainId)
+      const httpProvider = adapter.httpProvider
 
-  const withRetry = useCallback(
-    async <T,>(fetcher: () => Promise<T>): Promise<T> => {
-      let lastError: unknown
-      for (let i = 0; i <= FETCH_RETRIES; i++) {
-        try {
-          return await fetcher()
-        } catch (e) {
-          lastError = e
-          if (i === FETCH_RETRIES) break
-          await sleep(RETRY_DELAY_MS * (i + 1))
-        }
-      }
-      throw lastError
+      const [originalTx, utxos, account] = await Promise.all([
+        httpProvider.getTransaction({ txid: txHash }),
+        httpProvider.getUtxos({ pubkey }),
+        adapter.getAccount(pubkey),
+      ])
+
+      const summary = summarizeOriginalTx(originalTx)
+      const confirmed = (originalTx.confirmations ?? 0) > 0
+
+      const ownedAddresses = new Set(
+        utxos.map(u => u.address).filter((a): a is string => Boolean(a)),
+      )
+
+      const outputs = classifyOriginalOutputs({
+        vouts: originalTx.vout,
+        intendedSendSats,
+        ownedAddresses,
+      })
+
+      if (confirmed) return { summary, outputs, inputs: [], confirmed: true }
+
+      const addressMap = buildOwnedAddressNListMap({
+        utxos,
+        accountAddresses: account.chainSpecific.addresses,
+      })
+
+      const vinsWithTxid = originalTx.vin.filter((vin): vin is typeof vin & { txid: string } =>
+        Boolean(vin.txid),
+      )
+
+      const prevTxs = await Promise.all(
+        vinsWithTxid.map(vin => httpProvider.getTransaction({ txid: vin.txid })),
+      )
+
+      const inputs = reconstructReplacementInputs({
+        vins: vinsWithTxid,
+        prevTxs,
+        addressMap,
+        metadata: btcUtxoRbfTxMetadata,
+      })
+
+      return { summary, outputs, inputs, confirmed: false }
     },
-    [sleep],
-  )
+  })
 
   useEffect(() => {
-    if (!isOpen) {
-      fetchedTxRef.current = null
-      return
-    }
-    if (!accountMetadata) return
-    if (fetchedTxRef.current === txHash) return
-    let cancelled = false
+    const feeRate = speedUpQuery.data?.summary.feeRate
+    if (feeRate) setSelectedFeeRate(feeRate)
+  }, [speedUpQuery.data?.summary.feeRate])
 
-    const fetchTxData = async () => {
-      setIsLoading(true)
-      setError(null)
-      setIsAlreadyConfirmed(false)
+  useEffect(() => {
+    if (!speedUpQuery.error) return
+    console.error('Failed to fetch transaction data:', speedUpQuery.error)
+    toast({
+      title: translate('common.error'),
+      description: translate('modals.send.speedUp.fetchError'),
+      status: 'error',
+      duration: 9000,
+      isClosable: true,
+      position: 'top-right',
+    })
+  }, [speedUpQuery.error, toast, translate])
 
-      try {
-        const adapter = assertGetUtxoChainAdapter(btcChainId)
-        const httpProvider = adapter.httpProvider
-
-        const [originalTx, utxos] = await Promise.all([
-          withRetry(() => httpProvider.getTransaction({ txid: txHash })),
-          withRetry(() => httpProvider.getUtxos({ pubkey })),
-        ])
-
-        if (cancelled) return
-        const confirmed = Boolean((originalTx.confirmations ?? 0) > 0)
-
-        const feeSats = getTxFeeSats(originalTx)
-        const txSize = getTxVsize(originalTx)
-        const feeRate = getDisplayFeeRateSatPerVbPrecise({
-          tx: {
-            ...originalTx,
-            fee: feeSats.toFixed(0),
-          },
-        })
-
-        setOriginalFeeRate(feeRate.toFixed(2))
-        setOriginalVsize(txSize.toFixed(0))
-        setOriginalFeeSats(feeSats.toFixed(0))
-        setSelectedFeeRate(feeRate.toFixed(2))
-
-        const { bip44Params } = accountMetadata
-        const accountType = accountMetadata.accountType as UtxoAccountType
-        const account = await adapter.getAccount(pubkey)
-        const accountAddressIndexByAddress = new Map<string, number>()
-        account.chainSpecific.addresses?.forEach((entry, index) => {
-          if (entry.pubkey) accountAddressIndexByAddress.set(entry.pubkey, index)
-        })
-
-        const utxoByAddress = new Map<string, { path?: string }>()
-        for (const utxo of utxos) {
-          if (utxo.address) {
-            utxoByAddress.set(utxo.address, { path: utxo.path })
-          }
-        }
-
-        const ownAddresses = new Set(utxos.map(u => u.address).filter(Boolean))
-        const intendedPaymentIndices =
-          intendedSendSats !== undefined
-            ? originalTx.vout
-                .map((vout, index) => ({ index, value: String(vout.value ?? '0') }))
-                .filter(({ value }) => value === intendedSendSats)
-                .map(({ index }) => index)
-            : []
-        const hasUniqueIntendedPaymentIndex = intendedPaymentIndices.length === 1
-        const outputs: ReconstructedOutput[] = originalTx.vout.map((vout, index) => {
-          const address = vout.addresses?.[0]
-          const isChange = hasUniqueIntendedPaymentIndex
-            ? index !== intendedPaymentIndices[0]
-            : Boolean(address && ownAddresses.has(address))
-          return {
-            address,
-            amount: vout.value,
-            isChange,
-          }
-        })
-
-        if (cancelled) return
-        setReconstructedOutputs(outputs)
-        setReconstructedInputs([])
-
-        if (confirmed) {
-          setIsAlreadyConfirmed(true)
-          return
-        }
-
-        const reconstructInputs = async () => {
-          try {
-            const inputs: ReconstructedInput[] = await Promise.all(
-              originalTx.vin
-                .filter((vin): vin is typeof vin & { txid: string } => Boolean(vin.txid))
-                .map(async (vin, index) => {
-                  const metadataInput = btcUtxoRbfTxMetadata?.inputs[index]
-                  const prevTx = await httpProvider.getTransaction({ txid: vin.txid })
-                  const vinAddress = vin.addresses?.[0]
-                  const voutIndex = resolveVinVoutIndex({
-                    vinVout: vin.vout,
-                    vinValue: vin.value,
-                    vinAddress,
-                    prevTxVouts: prevTx.vout,
-                  })
-                  if (voutIndex === undefined) {
-                    throw new Error(`Unable to resolve vin.vout for ${vin.txid}`)
-                  }
-                  const prevOutputAmount = prevTx.vout[voutIndex]?.value
-                  const inputAmount = vin.value ?? prevOutputAmount ?? '0'
-
-                  const utxoInfo = vinAddress ? utxoByAddress.get(vinAddress) : undefined
-                  const accountAddressIndex = vinAddress
-                    ? accountAddressIndexByAddress.get(vinAddress)
-                    : undefined
-                  const receivePath =
-                    accountAddressIndex !== undefined
-                      ? toAddressNList(
-                          adapter.getBip44Params({
-                            accountNumber: bip44Params.accountNumber,
-                            accountType,
-                            isChange: false,
-                            addressIndex: accountAddressIndex,
-                          }),
-                        )
-                      : undefined
-                  const changePath =
-                    accountAddressIndex !== undefined
-                      ? toAddressNList(
-                          adapter.getBip44Params({
-                            accountNumber: bip44Params.accountNumber,
-                            accountType,
-                            isChange: true,
-                            addressIndex: accountAddressIndex,
-                          }),
-                        )
-                      : undefined
-
-                  const metadataAddressNList = metadataInput?.addressNList
-                  let addressNList = metadataAddressNList?.length
-                    ? metadataAddressNList
-                    : utxoInfo?.path
-                    ? bip32ToAddressNList(utxoInfo.path)
-                    : receivePath ?? toAddressNList(bip44Params)
-                  let alternateAddressNList =
-                    metadataAddressNList?.length ||
-                    utxoInfo?.path ||
-                    accountAddressIndex === undefined
-                      ? undefined
-                      : changePath
-                  const walletWithBtcGetAddress = wallet as unknown as {
-                    btcGetAddress?: (input: {
-                      addressNList: number[]
-                      coin: string
-                      scriptType: BTCSignTx['inputs'][number]['scriptType']
-                      showDisplay: boolean
-                    }) => Promise<string>
-                  }
-
-                  if (
-                    !utxoInfo?.path &&
-                    walletWithBtcGetAddress?.btcGetAddress &&
-                    vinAddress &&
-                    receivePath &&
-                    changePath
-                  ) {
-                    const [derivedReceiveAddress, derivedChangeAddress] = await Promise.all([
-                      walletWithBtcGetAddress.btcGetAddress({
-                        addressNList: receivePath,
-                        coin: 'Bitcoin',
-                        scriptType: accountTypeToScriptType[accountType],
-                        showDisplay: false,
-                      }),
-                      walletWithBtcGetAddress.btcGetAddress({
-                        addressNList: changePath,
-                        coin: 'Bitcoin',
-                        scriptType: accountTypeToScriptType[accountType],
-                        showDisplay: false,
-                      }),
-                    ])
-
-                    if (derivedReceiveAddress === vinAddress) {
-                      addressNList = receivePath
-                      alternateAddressNList = changePath
-                    } else if (derivedChangeAddress === vinAddress) {
-                      addressNList = changePath
-                      alternateAddressNList = receivePath
-                    }
-                  }
-
-                  return {
-                    txid: vin.txid,
-                    vout: voutIndex,
-                    amount: inputAmount,
-                    addressNList,
-                    alternateAddressNList,
-                    hex: prevTx.hex,
-                  }
-                }),
-            )
-
-            if (cancelled) return
-            setReconstructedInputs(inputs)
-          } catch (inputError) {
-            console.error('Failed to reconstruct replacement tx inputs:', inputError)
-            if (cancelled) return
-            setError(translate('modals.send.speedUp.fetchError'))
-          }
-        }
-        await reconstructInputs()
-        fetchedTxRef.current = txHash
-      } catch (e) {
-        console.error('Failed to fetch transaction data:', e)
-        if (cancelled) return
-        setOriginalFeeRate(prev => (bn(prev).gt(0) ? prev : '1'))
-        setSelectedFeeRate(prev => (bn(prev).gt(0) ? prev : '1'))
-        setError(translate('modals.send.speedUp.fetchError'))
-        toast({
-          title: translate('common.error'),
-          description: translate('modals.send.speedUp.fetchError'),
-          status: 'error',
-          duration: 9000,
-          isClosable: true,
-          position: 'top-right',
-        })
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false)
-        }
-      }
-    }
-
-    fetchTxData()
-
-    return () => {
-      cancelled = true
-    }
-  }, [
-    accountMetadata,
-    btcUtxoRbfTxMetadata,
-    isOpen,
-    onClose,
-    pubkey,
-    toast,
-    translate,
-    txHash,
-    wallet,
-    withRetry,
-    intendedSendSats,
-  ])
-
-  const quickMultiplierMarks = useMemo(() => {
-    const current = Number(originalFeeRate)
-    return [2, 3, 5]
-      .map(multiplier => ({
-        value: current * multiplier,
-        label: `${multiplier}x`,
-      }))
-      .filter(mark => Number.isFinite(mark.value))
-  }, [originalFeeRate])
+  const queryData = speedUpQuery.data
+  const isLoading = speedUpQuery.isFetching
+  const reconstructedInputs = useMemo(() => queryData?.inputs ?? [], [queryData?.inputs])
+  const reconstructedOutputs = useMemo(() => queryData?.outputs ?? [], [queryData?.outputs])
+  const isAlreadyConfirmed = queryData?.confirmed ?? false
+  const originalFeeRate = queryData?.summary.feeRate ?? '0'
+  const originalVsize = queryData?.summary.vsize ?? '0'
+  const originalFeeSats = queryData?.summary.feeSats ?? '0'
+  const error =
+    mutationError ?? (speedUpQuery.error ? translate('modals.send.speedUp.fetchError') : null)
 
   const sliderMarks = useMemo(() => {
     const current = Number(originalFeeRate)
-    const multiplierMarks = [2, 3, 5].map(multiplier => ({
-      value: current * multiplier,
-      label: `${multiplier}x`,
-    }))
-    const marks = [{ value: current, label: translate('common.current') }, ...multiplierMarks]
+    const marks = [
+      { value: current, label: translate('common.current') },
+      ...FEE_MULTIPLIERS.map(multiplier => ({
+        value: current * multiplier,
+        label: `${multiplier}x`,
+      })),
+    ]
     return marks
       .filter(mark => Number.isFinite(mark.value))
       .sort((a, b) => a.value - b.value)
       .filter((mark, index, arr) => index === 0 || mark.value !== arr[index - 1].value)
   }, [originalFeeRate, translate])
+
+  const currentMarkLabel = translate('common.current')
+  const quickMultiplierMarks = useMemo(
+    () => sliderMarks.filter(mark => mark.label !== currentMarkLabel),
+    [sliderMarks, currentMarkLabel],
+  )
 
   const sliderMin = useMemo(() => Number(originalFeeRate), [originalFeeRate])
   const sliderMax = useMemo(() => {
@@ -439,9 +240,10 @@ export const SpeedUpModal = ({
     return Math.max(sliderMin + 1, maxMark)
   }, [sliderMarks, sliderMin])
 
-  const newFeeRate = useMemo(() => {
-    return selectedFeeRate || originalFeeRate
-  }, [selectedFeeRate, originalFeeRate])
+  const newFeeRate = useMemo(
+    () => selectedFeeRate || originalFeeRate,
+    [selectedFeeRate, originalFeeRate],
+  )
 
   const effectiveNewFeeSats = useMemo(() => {
     if (!originalVsize || originalVsize === '0') return bn(0)
@@ -460,36 +262,35 @@ export const SpeedUpModal = ({
     return bn(
       BigAmount.fromBaseUnit({
         value: originalFeeSats,
-        precision: btcPrecision,
+        precision: bitcoin.precision,
       }).toPrecision(),
     )
-  }, [btcPrecision, originalFeeSats])
+  }, [originalFeeSats])
 
   const newFeeCrypto = useMemo(() => {
     if (effectiveNewFeeSats.lte(0)) return bn(0)
     return bn(
       BigAmount.fromBaseUnit({
         value: effectiveNewFeeSats.toFixed(0),
-        precision: btcPrecision,
+        precision: bitcoin.precision,
       }).toPrecision(),
     )
-  }, [btcPrecision, effectiveNewFeeSats])
+  }, [effectiveNewFeeSats])
 
-  const additionalFeeCrypto = useMemo(() => {
-    return newFeeCrypto.minus(previousFeeCrypto)
-  }, [newFeeCrypto, previousFeeCrypto])
+  const additionalFeeCrypto = useMemo(
+    () => newFeeCrypto.minus(previousFeeCrypto),
+    [newFeeCrypto, previousFeeCrypto],
+  )
 
+  const btcPriceUsd = btcMarketData?.price ?? 0
   const previousFeeFiat = useMemo(
-    () => previousFeeCrypto.times(btcMarketData?.price ?? 0),
-    [btcMarketData?.price, previousFeeCrypto],
+    () => previousFeeCrypto.times(btcPriceUsd),
+    [btcPriceUsd, previousFeeCrypto],
   )
-  const newFeeFiat = useMemo(
-    () => newFeeCrypto.times(btcMarketData?.price ?? 0),
-    [btcMarketData?.price, newFeeCrypto],
-  )
+  const newFeeFiat = useMemo(() => newFeeCrypto.times(btcPriceUsd), [btcPriceUsd, newFeeCrypto])
   const additionalFeeFiat = useMemo(
-    () => additionalFeeCrypto.times(btcMarketData?.price ?? 0),
-    [additionalFeeCrypto, btcMarketData?.price],
+    () => additionalFeeCrypto.times(btcPriceUsd),
+    [additionalFeeCrypto, btcPriceUsd],
   )
 
   const hasInsufficientFunds = useMemo(() => {
@@ -501,139 +302,75 @@ export const SpeedUpModal = ({
     const totalPaymentValue = reconstructedOutputs
       .filter(o => !o.isChange)
       .reduce((sum, o) => sum.plus(o.amount), bn(0))
-    const newFee = effectiveNewFeeSats
-    return totalInputValue.minus(totalPaymentValue).minus(newFee).lt(0)
+    return totalInputValue.minus(totalPaymentValue).minus(effectiveNewFeeSats).lt(0)
   }, [effectiveNewFeeSats, reconstructedInputs, reconstructedOutputs])
 
   const speedUpMutation = useMutation({
-    onMutate: () => setError(null),
+    onMutate: () => setMutationError(null),
     mutationFn: async () => {
-      if (!wallet || !accountMetadata || reconstructedInputs.length === 0) return
+      if (!wallet || !accountMetadata || !queryData || queryData.inputs.length === 0) return
 
-      const adapter = assertGetUtxoChainAdapter(btcChainId)
       const accountType = accountMetadata.accountType as UtxoAccountType
+      const adapter = assertGetUtxoChainAdapter(btcChainId)
+
       const latestTx = await adapter.httpProvider.getTransaction({ txid: txHash }).catch(() => null)
       if (!latestTx || (latestTx.confirmations ?? 0) > 0) {
         throw new Error(translate('modals.send.speedUp.alreadySpentOrReplaced'))
       }
 
-      const totalInputValue = reconstructedInputs.reduce(
-        (sum, input) => sum.plus(input.amount),
-        bn(0),
-      )
-      const paymentOutputs = reconstructedOutputs.filter(o => !o.isChange)
+      // Inputs and payment outputs stay fixed; change absorbs the fee bump and disappears below dust.
+      const totalInputValue = queryData.inputs.reduce((sum, input) => sum.plus(input.amount), bn(0))
+      const paymentOutputs = queryData.outputs.filter(o => !o.isChange)
       const totalPaymentValue = paymentOutputs.reduce((sum, o) => sum.plus(o.amount), bn(0))
+      const newChangeSats = totalInputValue.minus(totalPaymentValue).minus(effectiveNewFeeSats)
 
-      const newFee = effectiveNewFeeSats
-      const newChange = totalInputValue.minus(totalPaymentValue).minus(newFee)
-
+      // Refetch the account for a current `nextChangeAddressIndex` — the user may have made other
+      // tx activity since opening the modal.
       const account = await adapter.getAccount(pubkey)
-      const changeBip44Params = adapter.getBip44Params({
-        accountNumber: accountMetadata.bip44Params.accountNumber,
-        accountType,
-        isChange: true,
-        addressIndex: account.chainSpecific.nextChangeAddressIndex,
-      })
+      const changeAddressNList = toAddressNList(
+        adapter.getBip44Params({
+          accountNumber: accountMetadata.bip44Params.accountNumber,
+          accountType,
+          isChange: true,
+          addressIndex: account.chainSpecific.nextChangeAddressIndex,
+        }),
+      )
 
-      const outputs: BTCSignTx['outputs'] = paymentOutputs
+      const spendOutputs: BTCSignTxOutputSpend[] = paymentOutputs
         .filter((o): o is typeof o & { address: string } => Boolean(o.address))
         .map(o => ({
           addressType: BTCOutputAddressType.Spend,
           address: o.address,
           amount: o.amount,
-        })) as BTCSignTx['outputs']
+        }))
 
-      if (newChange.gte(BTC_DUST_THRESHOLD)) {
-        ;(outputs as unknown as unknown[]).push({
-          addressType: BTCOutputAddressType.Change,
-          addressNList: toAddressNList(changeBip44Params),
-          scriptType: accountTypeToOutputScriptType[accountType],
-          amount: newChange.toFixed(0),
-          isChange: true,
-        })
-      }
-
-      const ambiguousInputIndices = reconstructedInputs.reduce<number[]>((acc, input, index) => {
-        if (input.alternateAddressNList) acc.push(index)
-        return acc
-      }, [])
-
-      const maxAttempts = Math.min(1 << ambiguousInputIndices.length, 16)
-      let replacementTxHash: string | undefined
-      let replacementBtcUtxoRbfTxMetadata: BtcUtxoRbfTxMetadata | undefined
-      let lastError: unknown
-
-      for (let attempt = 0; attempt < maxAttempts; attempt++) {
-        const txInputs = reconstructedInputs.map((input, index) => {
-          const ambiguousIndex = ambiguousInputIndices.indexOf(index)
-          const useAlternate =
-            ambiguousIndex >= 0 && input.alternateAddressNList
-              ? Boolean((attempt >> ambiguousIndex) & 1)
-              : false
-
-          return {
-            addressNList:
-              useAlternate && input.alternateAddressNList
-                ? input.alternateAddressNList
-                : input.addressNList,
-            scriptType: accountTypeToScriptType[accountType],
-            amount: input.amount,
-            vout: input.vout,
-            txid: input.txid,
-            hex: input.hex,
-            sequence: 0xfffffffd,
+      const changeOutput: BTCSignTxOutputChange | undefined = newChangeSats.gte(BTC_DUST_THRESHOLD)
+        ? {
+            addressType: BTCOutputAddressType.Change,
+            addressNList: changeAddressNList,
+            scriptType: accountTypeToOutputScriptType[accountType],
+            amount: newChangeSats.toFixed(0),
+            isChange: true,
           }
-        }) as BTCSignTx['inputs']
-        replacementBtcUtxoRbfTxMetadata = {
-          inputs: txInputs.map(input => ({ addressNList: input.addressNList })),
-        }
+        : undefined
 
-        const txToSign: BTCSignTx = {
-          coin: 'Bitcoin',
-          inputs: txInputs,
-          outputs,
-          version: 1,
-          locktime: 0,
-        }
-        try {
-          const signedTx = await adapter.signTransaction({ txToSign, wallet })
-          const signedTxId = getTxIdFromHex(signedTx)
+      const outputs: BTCSignTxOutput[] = changeOutput
+        ? [...spendOutputs, changeOutput]
+        : spendOutputs
 
-          const broadcastResult = await adapter.broadcastTransaction({ hex: signedTx })
-          const broadcastTxId = String(broadcastResult).trim()
+      const inputs = queryData.inputs.map(input => ({
+        addressNList: input.addressNList,
+        scriptType: accountTypeToScriptType[accountType],
+        amount: input.amount,
+        vout: input.vout,
+        txid: input.txid,
+        hex: input.hex,
+        sequence: 0xfffffffd,
+      })) as BTCSignTx['inputs']
 
-          const candidateTxIds = [
-            ...new Set([broadcastTxId, signedTxId].filter(isLikelyBitcoinTxId)),
-          ]
-          if (!candidateTxIds.length) {
-            throw new Error(`Unexpected broadcast txid response: ${broadcastResult}`)
-          }
-
-          let resolvedTxId: string | undefined
-          for (const candidateTxId of candidateTxIds) {
-            for (let i = 0; i <= BROADCAST_VERIFY_RETRIES; i++) {
-              const observedTx = await adapter.httpProvider
-                .getTransaction({ txid: candidateTxId })
-                .catch(() => null)
-              if (observedTx) {
-                resolvedTxId = candidateTxId
-                break
-              }
-              if (i < BROADCAST_VERIFY_RETRIES) await sleep(BROADCAST_VERIFY_DELAY_MS)
-            }
-            if (resolvedTxId) break
-          }
-
-          if (!resolvedTxId) throw new Error(translate('modals.send.speedUp.broadcastNotObserved'))
-
-          replacementTxHash = resolvedTxId
-          break
-        } catch (signError) {
-          lastError = signError
-        }
-      }
-
-      if (!replacementTxHash) throw lastError ?? new Error('Failed to sign replacement transaction')
+      const txToSign: BTCSignTx = { coin: 'Bitcoin', inputs, outputs, version: 1, locktime: 0 }
+      const signedTx = await adapter.signTransaction({ txToSign, wallet })
+      const replacementTxHash = await adapter.broadcastTransaction({ hex: signedTx })
 
       dispatch(
         actionSlice.actions.upsertAction({
@@ -645,12 +382,14 @@ export const SpeedUpModal = ({
             chainId: btcChainId,
             accountId,
             accountIdsToRefetch,
-            assetId,
+            assetId: bitcoin.assetId,
             amountCryptoPrecision,
             message: 'modals.send.status.pendingBody',
             replacesTxHash: txHash,
             isRbfEnabled: true,
-            btcUtxoRbfTxMetadata: replacementBtcUtxoRbfTxMetadata,
+            btcUtxoRbfTxMetadata: {
+              inputs: inputs.map(input => ({ addressNList: input.addressNList })),
+            },
           },
           status: ActionStatus.Pending,
           createdAt: Date.now(),
@@ -684,8 +423,7 @@ export const SpeedUpModal = ({
       console.error('Speed up failed:', e)
       const message =
         e instanceof Error ? e.message : translate('modals.send.speedUp.speedUpFailed')
-
-      setError(message)
+      setMutationError(message)
       toast({
         title: translate('common.error'),
         description: message,
@@ -697,12 +435,7 @@ export const SpeedUpModal = ({
     },
   })
 
-  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
-    isOpen,
-    onClose,
-  })
-
-  if (!btcAsset) return null
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({ isOpen, onClose })
 
   return (
     <Modal isCentered {...modalProps}>
@@ -782,7 +515,7 @@ export const SpeedUpModal = ({
                   {translate('modals.send.speedUp.previousFee')}
                 </Text>
                 <Stack gap={0} alignItems='flex-end'>
-                  <Amount.Crypto value={previousFeeCrypto.toFixed(8)} symbol={btcAsset.symbol} />
+                  <Amount.Crypto value={previousFeeCrypto.toFixed(8)} symbol={bitcoin.symbol} />
                   <Amount.Fiat value={previousFeeFiat.toFixed(2)} color='text.subtle' />
                 </Stack>
               </Flex>
@@ -791,7 +524,7 @@ export const SpeedUpModal = ({
                   {translate('modals.send.speedUp.newFee')}
                 </Text>
                 <Stack gap={0} alignItems='flex-end'>
-                  <Amount.Crypto value={newFeeCrypto.toFixed(8)} symbol={btcAsset.symbol} />
+                  <Amount.Crypto value={newFeeCrypto.toFixed(8)} symbol={bitcoin.symbol} />
                   <Amount.Fiat value={newFeeFiat.toFixed(2)} color='text.subtle' />
                 </Stack>
               </Flex>
@@ -802,7 +535,7 @@ export const SpeedUpModal = ({
                 <Stack gap={0} alignItems='flex-end'>
                   <Amount.Crypto
                     value={additionalFeeCrypto.toFixed(8)}
-                    symbol={btcAsset.symbol}
+                    symbol={bitcoin.symbol}
                     prefix='+'
                   />
                   <Amount.Fiat

@@ -14,6 +14,9 @@ export type Account = {
 export type Address = {
   pubkey: string
   balance: string
+  // BIP44 derivation path (e.g. `m/84'/0'/0'/0/3`) for xpub-derived addresses.
+  // Returned by unchained for xpub accounts; absent for single-address accounts.
+  path?: string
 }
 
 export type GetAddressInput = GetAddressInputBase & {

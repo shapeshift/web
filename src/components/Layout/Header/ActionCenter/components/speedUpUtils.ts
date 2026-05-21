@@ -1,4 +1,5 @@
 import { Transaction } from '@shapeshiftoss/bitcoinjs-lib'
+import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
 import BigNumber from 'bignumber.js'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
@@ -170,17 +171,161 @@ export const resolveVinVoutIndex = ({
   return undefined
 }
 
-export const getTxIdFromHex = (hex?: string) => {
-  if (!hex) return undefined
+export type ReconstructedInput = {
+  txid: string
+  vout: number
+  amount: string
+  addressNList: number[]
+  hex: string
+}
 
-  try {
-    return Transaction.fromHex(hex).getId()
-  } catch {
-    return undefined
+export type ReconstructedOutput = {
+  address?: string
+  amount: string
+  isChange: boolean
+}
+
+export type OriginalTxSummary = {
+  // Sat-value of the original tx fee, fixed integer string.
+  feeSats: string
+  // Virtual size in vbytes, fixed integer string.
+  vsize: string
+  // Effective fee rate in sat/vB, 2-decimal precise string.
+  feeRate: string
+}
+
+export const summarizeOriginalTx = (tx: SpeedUpTxLike): OriginalTxSummary => {
+  const feeSats = getTxFeeSats(tx)
+  const vsize = getTxVsize(tx)
+  const feeRate = getDisplayFeeRateSatPerVbPrecise({
+    tx: { ...tx, fee: feeSats.toFixed(0) },
+  })
+  return {
+    feeSats: feeSats.toFixed(0),
+    vsize: vsize.toFixed(0),
+    feeRate: feeRate.toFixed(2),
   }
 }
 
-export const isLikelyBitcoinTxId = (value: unknown): value is string => {
-  if (typeof value !== 'string') return false
-  return /^[a-fA-F0-9]{64}$/.test(value.trim())
+export const buildOwnedAddressNListMap = ({
+  utxos,
+  accountAddresses,
+}: {
+  utxos: { address?: string; path?: string }[]
+  accountAddresses?: { pubkey: string; path?: string }[]
+}): Map<string, number[]> => {
+  const map = new Map<string, number[]>()
+  for (const utxo of utxos) {
+    if (utxo.address && utxo.path) {
+      map.set(utxo.address, bip32ToAddressNList(utxo.path))
+    }
+  }
+  accountAddresses?.forEach(entry => {
+    if (entry.pubkey && entry.path && !map.has(entry.pubkey)) {
+      map.set(entry.pubkey, bip32ToAddressNList(entry.path))
+    }
+  })
+  return map
+}
+
+// Classifies each output of the original tx as a payment vs. change output.
+//
+// Heuristic:
+//   - If exactly one vout matches `intendedSendSats`, that one is the payment
+//     and every other vout is change.
+//   - Otherwise fall back to ownership-based detection: an output is "change"
+//     iff its address belongs to us.
+//
+// KNOWN LIMITATIONS (revisit if a user reports a wrong fee math):
+//   - Self-sends (sending BTC to your own xpub): every output is owned →
+//     classified as change → totalPaymentValue=0. Speed-up will reissue as a
+//     consolidation, which is probably what the user wants for a self-send
+//     anyway but is worth flagging.
+//   - Sends where the payment amount equals the change amount (two equal-
+//     value vouts): ambiguous, falls back to ownership. Usually OK because
+//     the recipient address is not owned.
+export const classifyOriginalOutputs = ({
+  vouts,
+  intendedSendSats,
+  ownedAddresses,
+}: {
+  vouts: { value?: TxValue; addresses?: string[] }[]
+  intendedSendSats?: string
+  ownedAddresses: Set<string>
+}): ReconstructedOutput[] => {
+  const intendedIndices =
+    intendedSendSats !== undefined
+      ? vouts.flatMap((vout, index) =>
+          String(vout.value ?? '0') === intendedSendSats ? [index] : [],
+        )
+      : []
+  const uniqueIntendedIndex = intendedIndices.length === 1 ? intendedIndices[0] : undefined
+
+  return vouts.map((vout, index) => {
+    const address = vout.addresses?.[0]
+    const isChange =
+      uniqueIntendedIndex !== undefined
+        ? index !== uniqueIntendedIndex
+        : Boolean(address && ownedAddresses.has(address))
+    return {
+      address,
+      amount: String(vout.value ?? '0'),
+      isChange,
+    }
+  })
+}
+
+// Resolves the inputs needed to sign the replacement tx. Each input's
+// addressNList is taken from (in priority order):
+//   1. Stored metadata captured at original signing time
+//   2. The owned-address map (UTXO paths + xpub addresses)
+// Throws if any vin cannot be matched.
+export const reconstructReplacementInputs = ({
+  vins,
+  prevTxs,
+  addressMap,
+  metadata,
+}: {
+  vins: {
+    txid: string
+    vout?: string | number | null
+    value?: TxValue
+    addresses?: string[]
+  }[]
+  prevTxs: { hex: string; vout: VoutLike[] }[]
+  addressMap: Map<string, number[]>
+  metadata?: { inputs: { addressNList?: number[] }[] }
+}): ReconstructedInput[] => {
+  return vins.map((vin, index) => {
+    const prevTx = prevTxs[index]
+    const vinAddress = vin.addresses?.[0]
+    const voutIndex = resolveVinVoutIndex({
+      vinVout: vin.vout,
+      vinValue: vin.value,
+      vinAddress,
+      prevTxVouts: prevTx.vout,
+    })
+
+    if (voutIndex === undefined) throw new Error(`Unable to resolve vin.vout for ${vin.txid}`)
+
+    const prevOutputAmount = prevTx.vout[voutIndex]?.value
+    const inputAmount = String(vin.value ?? prevOutputAmount ?? '0')
+
+    const metadataAddressNList = metadata?.inputs[index]?.addressNList
+    const addressNList =
+      (metadataAddressNList?.length ? metadataAddressNList : undefined) ??
+      (vinAddress ? addressMap.get(vinAddress) : undefined)
+
+    if (!addressNList) {
+      throw new Error(`Unable to determine BIP44 path for vin address ${vinAddress ?? '(unknown)'}`)
+    }
+
+    return {
+      txid: vin.txid,
+      vout: voutIndex,
+      amount: inputAmount,
+      addressNList,
+      hex: prevTx.hex,
+    }
+  })
 }

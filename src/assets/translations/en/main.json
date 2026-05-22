@@ -2237,7 +2237,7 @@
     "thisMonth": "This Month",
     "speedUp": "Speed Up",
     "cancelTransaction": "Cancel Transaction",
-    "replaced": "Replaced",
+    "replaced": "You sped up your send of %{amount} %{symbol}",
     "replacedBy": "Replaced by %{txHash}",
     "replaces": "Replaces %{txHash}"
   },

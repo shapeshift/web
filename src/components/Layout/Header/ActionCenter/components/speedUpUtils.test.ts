@@ -2,15 +2,21 @@ import { Transaction } from '@shapeshiftoss/bitcoinjs-lib'
 import { describe, expect, it, vi } from 'vitest'
 
 import {
+  classifyOriginalOutputs,
   getDisplayFeeRateSatPerVb,
   getDisplayFeeRateSatPerVbPrecise,
   getTxFeeRateSatPerVb,
   getTxFeeRateSatPerVbPrecise,
   getTxFeeSats,
   getTxVsize,
+  reconstructReplacementInputs,
   resolveVinVoutIndex,
   toSats,
 } from './speedUpUtils'
+
+const RECEIVE_PATH_13 = [2147483732, 2147483648, 2147483648, 0, 13] // m/84'/0'/0'/0/13
+const CHANGE_PATH_10 = [2147483732, 2147483648, 2147483648, 1, 10] // m/84'/0'/0'/1/10
+const CHANGE_PATH_11 = [2147483732, 2147483648, 2147483648, 1, 11] // m/84'/0'/0'/1/11
 
 describe('speedUpUtils', () => {
   describe('toSats', () => {
@@ -213,4 +219,206 @@ describe('speedUpUtils', () => {
     })
   })
 
+  describe('classifyOriginalOutputs', () => {
+    it('classifies external send + change correctly', () => {
+      const result = classifyOriginalOutputs({
+        vouts: [
+          { value: '1317', addresses: ['bc1qexternal'] },
+          { value: '3295', addresses: ['bc1qchange'] },
+        ],
+        ownedAddressMap: new Map([['bc1qchange', CHANGE_PATH_11]]),
+      })
+
+      expect(result).toEqual([
+        { address: 'bc1qexternal', amount: '1317', isChange: false },
+        { address: 'bc1qchange', amount: '3295', isChange: true },
+      ])
+    })
+
+    it('treats owned receive-chain address as a payment (self-send)', () => {
+      const result = classifyOriginalOutputs({
+        vouts: [
+          { value: '1317', addresses: ['bc1qownreceive'] },
+          { value: '3295', addresses: ['bc1qownchange'] },
+        ],
+        ownedAddressMap: new Map([
+          ['bc1qownreceive', RECEIVE_PATH_13],
+          ['bc1qownchange', CHANGE_PATH_11],
+        ]),
+      })
+
+      expect(result).toEqual([
+        { address: 'bc1qownreceive', amount: '1317', isChange: false },
+        { address: 'bc1qownchange', amount: '3295', isChange: true },
+      ])
+    })
+
+    it('marks vouts with no address as not change (e.g. OP_RETURN)', () => {
+      const result = classifyOriginalOutputs({
+        vouts: [{ value: '0', addresses: undefined }],
+        ownedAddressMap: new Map(),
+      })
+
+      expect(result).toEqual([{ address: undefined, amount: '0', isChange: false }])
+    })
+
+    it('treats every vout as a payment when the owned map is empty', () => {
+      const result = classifyOriginalOutputs({
+        vouts: [
+          { value: '1000', addresses: ['bc1qa'] },
+          { value: '2000', addresses: ['bc1qb'] },
+        ],
+        ownedAddressMap: new Map(),
+      })
+
+      expect(result.every(r => r.isChange === false)).toBe(true)
+    })
+
+    it('classifies multiple change outputs as change', () => {
+      const result = classifyOriginalOutputs({
+        vouts: [
+          { value: '1000', addresses: ['bc1qchange1'] },
+          { value: '2000', addresses: ['bc1qchange2'] },
+        ],
+        ownedAddressMap: new Map([
+          ['bc1qchange1', CHANGE_PATH_10],
+          ['bc1qchange2', CHANGE_PATH_11],
+        ]),
+      })
+
+      expect(result.map(r => r.isChange)).toEqual([true, true])
+    })
+
+    it('defaults missing vout value to "0"', () => {
+      const result = classifyOriginalOutputs({
+        vouts: [{ addresses: ['bc1qa'] }],
+        ownedAddressMap: new Map(),
+      })
+
+      expect(result[0].amount).toBe('0')
+    })
+  })
+
+  describe('reconstructReplacementInputs', () => {
+    const prevTx = {
+      hex: 'deadbeef',
+      vout: [
+        { value: '1000', addresses: ['bc1qotheroutput'] },
+        { value: '4838', addresses: ['bc1qchange'] },
+      ],
+    }
+
+    it('uses metadata addressNList when present', () => {
+      const result = reconstructReplacementInputs({
+        vins: [{ txid: 'abc', vout: 1, value: '4838', addresses: ['bc1qchange'] }],
+        prevTxs: [prevTx],
+        ownedAddressMap: new Map([['bc1qchange', CHANGE_PATH_11]]),
+        metadata: { inputs: [{ addressNList: CHANGE_PATH_10 }] },
+      })
+
+      expect(result[0].addressNList).toEqual(CHANGE_PATH_10)
+    })
+
+    it('falls back to owned-address map when metadata is absent', () => {
+      const result = reconstructReplacementInputs({
+        vins: [{ txid: 'abc', vout: 1, value: '4838', addresses: ['bc1qchange'] }],
+        prevTxs: [prevTx],
+        ownedAddressMap: new Map([['bc1qchange', CHANGE_PATH_10]]),
+      })
+
+      expect(result[0].addressNList).toEqual(CHANGE_PATH_10)
+    })
+
+    it('falls back to owned-address map when metadata input has no addressNList', () => {
+      const result = reconstructReplacementInputs({
+        vins: [{ txid: 'abc', vout: 1, value: '4838', addresses: ['bc1qchange'] }],
+        prevTxs: [prevTx],
+        ownedAddressMap: new Map([['bc1qchange', CHANGE_PATH_10]]),
+        metadata: { inputs: [{}] },
+      })
+
+      expect(result[0].addressNList).toEqual(CHANGE_PATH_10)
+    })
+
+    it('throws when neither metadata nor the owned-address map covers the vin', () => {
+      expect(() =>
+        reconstructReplacementInputs({
+          vins: [{ txid: 'abc', vout: 1, value: '4838', addresses: ['bc1qunknown'] }],
+          prevTxs: [prevTx],
+          ownedAddressMap: new Map(),
+        }),
+      ).toThrow(/bc1qunknown/)
+    })
+
+    it('throws when vin.vout cannot be resolved', () => {
+      expect(() =>
+        reconstructReplacementInputs({
+          vins: [{ txid: 'abc', value: '9999' }],
+          prevTxs: [prevTx],
+          ownedAddressMap: new Map(),
+        }),
+      ).toThrow(/abc/)
+    })
+
+    it('uses vin.value when present, otherwise falls back to prevTx vout value', () => {
+      const result = reconstructReplacementInputs({
+        vins: [
+          { txid: 'abc', vout: 1, addresses: ['bc1qchange'] },
+          { txid: 'def', vout: 0, value: '7777', addresses: ['bc1qchange'] },
+        ],
+        prevTxs: [prevTx, prevTx],
+        ownedAddressMap: new Map([['bc1qchange', CHANGE_PATH_10]]),
+      })
+
+      expect(result[0].amount).toBe('4838') // from prevTx.vout[1].value
+      expect(result[1].amount).toBe('7777') // from vin.value
+    })
+
+    it('preserves txid and previous-tx hex on each input', () => {
+      const result = reconstructReplacementInputs({
+        vins: [{ txid: 'abc', vout: 1, value: '4838', addresses: ['bc1qchange'] }],
+        prevTxs: [prevTx],
+        ownedAddressMap: new Map([['bc1qchange', CHANGE_PATH_10]]),
+      })
+
+      expect(result[0].txid).toBe('abc')
+      expect(result[0].vout).toBe(1)
+      expect(result[0].hex).toBe('deadbeef')
+    })
+
+    it('resolves each vin independently across multiple inputs (metadata indexed by vin position)', () => {
+      const prevTxA = {
+        hex: 'aaaa',
+        vout: [{ value: '1000', addresses: ['bc1qa'] }],
+      }
+      const prevTxB = {
+        hex: 'bbbb',
+        vout: [{ value: '2000', addresses: ['bc1qb'] }],
+      }
+
+      const result = reconstructReplacementInputs({
+        vins: [
+          { txid: 'tx-a', vout: 0, value: '1000', addresses: ['bc1qa'] },
+          { txid: 'tx-b', vout: 0, value: '2000', addresses: ['bc1qb'] },
+        ],
+        prevTxs: [prevTxA, prevTxB],
+        ownedAddressMap: new Map([['bc1qb', CHANGE_PATH_11]]),
+        metadata: { inputs: [{ addressNList: CHANGE_PATH_10 }, {}] },
+      })
+
+      expect(result[0]).toMatchObject({ txid: 'tx-a', hex: 'aaaa', addressNList: CHANGE_PATH_10 })
+      expect(result[1]).toMatchObject({ txid: 'tx-b', hex: 'bbbb', addressNList: CHANGE_PATH_11 })
+    })
+
+    it('falls back to the owned map when metadata addressNList is an empty array', () => {
+      const result = reconstructReplacementInputs({
+        vins: [{ txid: 'abc', vout: 1, value: '4838', addresses: ['bc1qchange'] }],
+        prevTxs: [prevTx],
+        ownedAddressMap: new Map([['bc1qchange', CHANGE_PATH_10]]),
+        metadata: { inputs: [{ addressNList: [] }] },
+      })
+
+      expect(result[0].addressNList).toEqual(CHANGE_PATH_10)
+    })
+  })
 })

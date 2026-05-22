@@ -207,83 +207,43 @@ export const summarizeOriginalTx = (tx: SpeedUpTxLike): OriginalTxSummary => {
   }
 }
 
-export const buildOwnedAddressNListMap = ({
-  utxos,
-  accountAddresses,
-}: {
-  utxos: { address?: string; path?: string }[]
-  accountAddresses?: { pubkey: string; path?: string }[]
-}): Map<string, number[]> => {
+export const buildOwnedAddressNListMap = (
+  accountAddresses: { pubkey: string; path?: string }[] = [],
+): Map<string, number[]> => {
   const map = new Map<string, number[]>()
-  for (const utxo of utxos) {
-    if (utxo.address && utxo.path) {
-      map.set(utxo.address, bip32ToAddressNList(utxo.path))
-    }
-  }
-  accountAddresses?.forEach(entry => {
-    if (entry.pubkey && entry.path && !map.has(entry.pubkey)) {
+  for (const entry of accountAddresses) {
+    if (entry.pubkey && entry.path) {
       map.set(entry.pubkey, bip32ToAddressNList(entry.path))
     }
-  })
+  }
   return map
 }
 
-// Classifies each output of the original tx as a payment vs. change output.
-//
-// Heuristic:
-//   - If exactly one vout matches `intendedSendSats`, that one is the payment
-//     and every other vout is change.
-//   - Otherwise fall back to ownership-based detection: an output is "change"
-//     iff its address belongs to us.
-//
-// KNOWN LIMITATIONS (revisit if a user reports a wrong fee math):
-//   - Self-sends (sending BTC to your own xpub): every output is owned →
-//     classified as change → totalPaymentValue=0. Speed-up will reissue as a
-//     consolidation, which is probably what the user wants for a self-send
-//     anyway but is worth flagging.
-//   - Sends where the payment amount equals the change amount (two equal-
-//     value vouts): ambiguous, falls back to ownership. Usually OK because
-//     the recipient address is not owned.
+// A vout is "change" if its address is owned and its BIP44 change index is 1
+// (addressNList[3] === 1). The speed-up reissues change outputs at the new fee
+// and preserves everything else as-is.
 export const classifyOriginalOutputs = ({
   vouts,
-  intendedSendSats,
-  ownedAddresses,
+  ownedAddressMap,
 }: {
   vouts: { value?: TxValue; addresses?: string[] }[]
-  intendedSendSats?: string
-  ownedAddresses: Set<string>
+  ownedAddressMap: Map<string, number[]>
 }): ReconstructedOutput[] => {
-  const intendedIndices =
-    intendedSendSats !== undefined
-      ? vouts.flatMap((vout, index) =>
-          String(vout.value ?? '0') === intendedSendSats ? [index] : [],
-        )
-      : []
-  const uniqueIntendedIndex = intendedIndices.length === 1 ? intendedIndices[0] : undefined
-
-  return vouts.map((vout, index) => {
+  return vouts.map(vout => {
     const address = vout.addresses?.[0]
-    const isChange =
-      uniqueIntendedIndex !== undefined
-        ? index !== uniqueIntendedIndex
-        : Boolean(address && ownedAddresses.has(address))
+    const addressNList = address ? ownedAddressMap.get(address) : undefined
     return {
       address,
       amount: String(vout.value ?? '0'),
-      isChange,
+      isChange: addressNList?.[3] === 1,
     }
   })
 }
 
-// Resolves the inputs needed to sign the replacement tx. Each input's
-// addressNList is taken from (in priority order):
-//   1. Stored metadata captured at original signing time
-//   2. The owned-address map (UTXO paths + xpub addresses)
-// Throws if any vin cannot be matched.
 export const reconstructReplacementInputs = ({
   vins,
   prevTxs,
-  addressMap,
+  ownedAddressMap,
   metadata,
 }: {
   vins: {
@@ -293,7 +253,7 @@ export const reconstructReplacementInputs = ({
     addresses?: string[]
   }[]
   prevTxs: { hex: string; vout: VoutLike[] }[]
-  addressMap: Map<string, number[]>
+  ownedAddressMap: Map<string, number[]>
   metadata?: { inputs: { addressNList?: number[] }[] }
 }): ReconstructedInput[] => {
   return vins.map((vin, index) => {
@@ -314,7 +274,7 @@ export const reconstructReplacementInputs = ({
     const metadataAddressNList = metadata?.inputs[index]?.addressNList
     const addressNList =
       (metadataAddressNList?.length ? metadataAddressNList : undefined) ??
-      (vinAddress ? addressMap.get(vinAddress) : undefined)
+      (vinAddress ? ownedAddressMap.get(vinAddress) : undefined)
 
     if (!addressNList) {
       throw new Error(`Unable to determine BIP44 path for vin address ${vinAddress ?? '(unknown)'}`)

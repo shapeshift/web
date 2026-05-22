@@ -116,11 +116,6 @@ export const SpeedUpModal = ({
   const [selectedFeeRate, setSelectedFeeRate] = useState<string>('0')
   const [mutationError, setMutationError] = useState<string | null>(null)
 
-  const intendedSendSats = useMemo(() => {
-    if (!amountCryptoPrecision) return undefined
-    return bn(amountCryptoPrecision).times(bn(10).pow(bitcoin.precision)).toFixed(0)
-  }, [amountCryptoPrecision])
-
   const speedUpQuery = useQuery<SpeedUpQueryData, Error>({
     queryKey: [
       'speedUp',
@@ -129,7 +124,6 @@ export const SpeedUpModal = ({
       accountMetadata?.accountType,
       accountMetadata?.bip44Params,
       btcUtxoRbfTxMetadata,
-      intendedSendSats,
     ],
     enabled: Boolean(isOpen && accountMetadata),
     staleTime: 0,
@@ -139,31 +133,22 @@ export const SpeedUpModal = ({
       const adapter = assertGetUtxoChainAdapter(btcChainId)
       const httpProvider = adapter.httpProvider
 
-      const [originalTx, utxos, account] = await Promise.all([
+      const [originalTx, account] = await Promise.all([
         httpProvider.getTransaction({ txid: txHash }),
-        httpProvider.getUtxos({ pubkey }),
         adapter.getAccount(pubkey),
       ])
 
       const summary = summarizeOriginalTx(originalTx)
       const confirmed = (originalTx.confirmations ?? 0) > 0
 
-      const ownedAddresses = new Set(
-        utxos.map(u => u.address).filter((a): a is string => Boolean(a)),
-      )
+      const ownedAddressMap = buildOwnedAddressNListMap(account.chainSpecific.addresses)
 
       const outputs = classifyOriginalOutputs({
         vouts: originalTx.vout,
-        intendedSendSats,
-        ownedAddresses,
+        ownedAddressMap,
       })
 
       if (confirmed) return { summary, outputs, inputs: [], confirmed: true }
-
-      const addressMap = buildOwnedAddressNListMap({
-        utxos,
-        accountAddresses: account.chainSpecific.addresses,
-      })
 
       const vinsWithTxid = originalTx.vin.filter((vin): vin is typeof vin & { txid: string } =>
         Boolean(vin.txid),
@@ -176,7 +161,7 @@ export const SpeedUpModal = ({
       const inputs = reconstructReplacementInputs({
         vins: vinsWithTxid,
         prevTxs,
-        addressMap,
+        ownedAddressMap,
         metadata: btcUtxoRbfTxMetadata,
       })
 
@@ -372,6 +357,27 @@ export const SpeedUpModal = ({
       const signedTx = await adapter.signTransaction({ txToSign, wallet })
       const replacementTxHash = await adapter.broadcastTransaction({ hex: signedTx })
 
+      // Mark the replaced action first so the new Pending insert gets the newer
+      // `updatedAt` from the reducer and sorts above it in the action list.
+      const replacedAction = actionsById[txHash]
+      if (
+        replacedAction &&
+        isGenericTransactionAction(replacedAction) &&
+        replacedAction.status === ActionStatus.Pending
+      ) {
+        dispatch(
+          actionSlice.actions.upsertAction({
+            ...replacedAction,
+            status: ActionStatus.Replaced,
+            transactionMetadata: {
+              ...replacedAction.transactionMetadata,
+              message: 'transactionHistory.replaced',
+              replacedByTxHash: replacementTxHash,
+            },
+          }),
+        )
+      }
+
       dispatch(
         actionSlice.actions.upsertAction({
           id: replacementTxHash,
@@ -396,26 +402,6 @@ export const SpeedUpModal = ({
           updatedAt: Date.now(),
         }),
       )
-
-      const replacedAction = actionsById[txHash]
-      if (
-        replacedAction &&
-        isGenericTransactionAction(replacedAction) &&
-        replacedAction.status === ActionStatus.Pending
-      ) {
-        dispatch(
-          actionSlice.actions.upsertAction({
-            ...replacedAction,
-            status: ActionStatus.Replaced,
-            updatedAt: Date.now(),
-            transactionMetadata: {
-              ...replacedAction.transactionMetadata,
-              message: 'transactionHistory.replaced',
-              replacedByTxHash: replacementTxHash,
-            },
-          }),
-        )
-      }
 
       onClose()
     },

@@ -27,13 +27,7 @@ import {
   accountTypeToScriptType,
   toAddressNList,
 } from '@shapeshiftoss/chain-adapters'
-import type {
-  BTCSignTx,
-  BTCSignTxOutput,
-  BTCSignTxOutputChange,
-  BTCSignTxOutputSpend,
-} from '@shapeshiftoss/hdwallet-core'
-import { BTCOutputAddressType } from '@shapeshiftoss/hdwallet-core'
+import type { BTCSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { UtxoAccountType } from '@shapeshiftoss/types'
 import { BigAmount, bitcoin } from '@shapeshiftoss/utils'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -43,6 +37,7 @@ import { useTranslate } from 'react-polyglot'
 import type { OriginalTxSummary, ReconstructedInput, ReconstructedOutput } from './speedUpUtils'
 import {
   buildOwnedAddressNListMap,
+  buildReplacementOutputs,
   classifyOriginalOutputs,
   reconstructReplacementInputs,
   summarizeOriginalTx,
@@ -242,6 +237,29 @@ export const SpeedUpModal = ({
     return computedNewFee.lte(minimumReplacementFee) ? minimumReplacementFee : computedNewFee
   }, [newFeeRate, originalFeeSats, originalVsize])
 
+  const newChangeSats = useMemo(() => {
+    if (reconstructedInputs.length === 0 || reconstructedOutputs.length === 0) return bn(0)
+
+    const totalInputValue = reconstructedInputs.reduce(
+      (sum, input) => sum.plus(input.amount),
+      bn(0),
+    )
+
+    const totalNonChangeValue = reconstructedOutputs
+      .filter(o => !o.isChange)
+      .reduce((sum, o) => sum.plus(o.amount), bn(0))
+
+    return totalInputValue.minus(totalNonChangeValue).minus(effectiveNewFeeSats)
+  }, [effectiveNewFeeSats, reconstructedInputs, reconstructedOutputs])
+
+  // Below-dust change is dropped and absorbed into fee; show what's actually paid.
+  const actualNewFeeSats = useMemo(() => {
+    if (newChangeSats.gte(0) && newChangeSats.lt(BTC_DUST_THRESHOLD)) {
+      return effectiveNewFeeSats.plus(newChangeSats)
+    }
+    return effectiveNewFeeSats
+  }, [effectiveNewFeeSats, newChangeSats])
+
   const previousFeeCrypto = useMemo(() => {
     if (!originalFeeSats || originalFeeSats === '0') return bn(0)
     return bn(
@@ -253,14 +271,14 @@ export const SpeedUpModal = ({
   }, [originalFeeSats])
 
   const newFeeCrypto = useMemo(() => {
-    if (effectiveNewFeeSats.lte(0)) return bn(0)
+    if (actualNewFeeSats.lte(0)) return bn(0)
     return bn(
       BigAmount.fromBaseUnit({
-        value: effectiveNewFeeSats.toFixed(0),
+        value: actualNewFeeSats.toFixed(0),
         precision: bitcoin.precision,
       }).toPrecision(),
     )
-  }, [effectiveNewFeeSats])
+  }, [actualNewFeeSats])
 
   const additionalFeeCrypto = useMemo(
     () => newFeeCrypto.minus(previousFeeCrypto),
@@ -280,15 +298,8 @@ export const SpeedUpModal = ({
 
   const hasInsufficientFunds = useMemo(() => {
     if (reconstructedInputs.length === 0 || reconstructedOutputs.length === 0) return false
-    const totalInputValue = reconstructedInputs.reduce(
-      (sum, input) => sum.plus(input.amount),
-      bn(0),
-    )
-    const totalPaymentValue = reconstructedOutputs
-      .filter(o => !o.isChange)
-      .reduce((sum, o) => sum.plus(o.amount), bn(0))
-    return totalInputValue.minus(totalPaymentValue).minus(effectiveNewFeeSats).lt(0)
-  }, [effectiveNewFeeSats, reconstructedInputs, reconstructedOutputs])
+    return newChangeSats.lt(0)
+  }, [newChangeSats, reconstructedInputs.length, reconstructedOutputs.length])
 
   const speedUpMutation = useMutation({
     onMutate: () => setMutationError(null),
@@ -303,12 +314,6 @@ export const SpeedUpModal = ({
         throw new Error(translate('modals.send.speedUp.alreadySpentOrReplaced'))
       }
 
-      // Inputs and payment outputs stay fixed; change absorbs the fee bump and disappears below dust.
-      const totalInputValue = queryData.inputs.reduce((sum, input) => sum.plus(input.amount), bn(0))
-      const paymentOutputs = queryData.outputs.filter(o => !o.isChange)
-      const totalPaymentValue = paymentOutputs.reduce((sum, o) => sum.plus(o.amount), bn(0))
-      const newChangeSats = totalInputValue.minus(totalPaymentValue).minus(effectiveNewFeeSats)
-
       // Refetch the account for a current `nextChangeAddressIndex` — the user may have made other
       // tx activity since opening the modal.
       const account = await adapter.getAccount(pubkey)
@@ -321,39 +326,23 @@ export const SpeedUpModal = ({
         }),
       )
 
-      const spendOutputs: BTCSignTxOutputSpend[] = paymentOutputs
-        .filter((o): o is typeof o & { address: string } => Boolean(o.address))
-        .map(o => ({
-          addressType: BTCOutputAddressType.Spend,
-          address: o.address,
-          amount: o.amount,
-        }))
-
-      const changeOutput: BTCSignTxOutputChange | undefined = newChangeSats.gte(BTC_DUST_THRESHOLD)
-        ? {
-            addressType: BTCOutputAddressType.Change,
-            addressNList: changeAddressNList,
-            scriptType: accountTypeToOutputScriptType[accountType],
-            amount: newChangeSats.toFixed(0),
-            isChange: true,
-          }
-        : undefined
-
-      const outputs: BTCSignTxOutput[] = changeOutput
-        ? [...spendOutputs, changeOutput]
-        : spendOutputs
+      const buildResult = buildReplacementOutputs({
+        outputs: queryData.outputs,
+        newChangeSats,
+        changeAddressNList,
+        changeScriptType: accountTypeToOutputScriptType[accountType],
+        dustThreshold: BTC_DUST_THRESHOLD,
+      })
+      if ('error' in buildResult) throw new Error(translate(buildResult.error))
+      const { outputs, opReturnData } = buildResult
 
       const inputs = queryData.inputs.map(input => ({
-        addressNList: input.addressNList,
+        ...input,
         scriptType: accountTypeToScriptType[accountType],
-        amount: input.amount,
-        vout: input.vout,
-        txid: input.txid,
-        hex: input.hex,
         sequence: 0xfffffffd,
       })) as BTCSignTx['inputs']
 
-      const txToSign: BTCSignTx = { coin: 'Bitcoin', inputs, outputs, version: 1, locktime: 0 }
+      const txToSign: BTCSignTx = { coin: 'Bitcoin', inputs, outputs, opReturnData }
       const signedTx = await adapter.signTransaction({ txToSign, wallet })
       const replacementTxHash = await adapter.broadcastTransaction({ hex: signedTx })
 

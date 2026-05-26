@@ -1,7 +1,10 @@
 import { Transaction } from '@shapeshiftoss/bitcoinjs-lib'
+import { BTCOutputAddressType, BTCOutputScriptType } from '@shapeshiftoss/hdwallet-core'
 import { describe, expect, it, vi } from 'vitest'
 
+import type { ReconstructedOutput } from './speedUpUtils'
 import {
+  buildReplacementOutputs,
   classifyOriginalOutputs,
   getDisplayFeeRateSatPerVb,
   getDisplayFeeRateSatPerVbPrecise,
@@ -13,6 +16,8 @@ import {
   resolveVinVoutIndex,
   toSats,
 } from './speedUpUtils'
+
+import { bn } from '@/lib/bignumber/bignumber'
 
 const RECEIVE_PATH_13 = [2147483732, 2147483648, 2147483648, 0, 13] // m/84'/0'/0'/0/13
 const CHANGE_PATH_10 = [2147483732, 2147483648, 2147483648, 1, 10] // m/84'/0'/0'/1/10
@@ -262,6 +267,20 @@ describe('speedUpUtils', () => {
       expect(result).toEqual([{ address: undefined, amount: '0', isChange: false }])
     })
 
+    it('preserves OP_RETURN data on the vout', () => {
+      const result = classifyOriginalOutputs({
+        vouts: [
+          { value: '1000', addresses: ['bc1qpayment'] },
+          { value: '0', opReturn: 's:ETH.USDC:0xabc:42' },
+        ],
+        ownedAddressMap: new Map(),
+      })
+
+      expect(result[0].opReturn).toBeUndefined()
+      expect(result[1].opReturn).toBe('s:ETH.USDC:0xabc:42')
+      expect(result[1].address).toBeUndefined()
+    })
+
     it('treats every vout as a payment when the owned map is empty', () => {
       const result = classifyOriginalOutputs({
         vouts: [
@@ -419,6 +438,198 @@ describe('speedUpUtils', () => {
       })
 
       expect(result[0].addressNList).toEqual(CHANGE_PATH_10)
+    })
+  })
+
+  describe('buildReplacementOutputs', () => {
+    const CHANGE_NLIST = [2147483732, 2147483648, 2147483648, 1, 12]
+    const DUST = 546
+
+    const spend = (overrides: Partial<ReconstructedOutput> = {}): ReconstructedOutput => ({
+      address: 'bc1qpayment',
+      amount: '10000',
+      isChange: false,
+      ...overrides,
+    })
+    const change = (overrides: Partial<ReconstructedOutput> = {}): ReconstructedOutput => ({
+      address: 'bc1qchange',
+      amount: '5000',
+      isChange: true,
+      ...overrides,
+    })
+    const opReturn = (data = 'memo'): ReconstructedOutput => ({
+      amount: '0',
+      isChange: false,
+      opReturn: data,
+    })
+
+    const baseArgs = {
+      newChangeSats: bn(4500),
+      changeAddressNList: CHANGE_NLIST,
+      changeScriptType: BTCOutputScriptType.PayToWitness,
+      dustThreshold: DUST,
+    }
+
+    const expectSuccess = (result: ReturnType<typeof buildReplacementOutputs>) => {
+      if ('error' in result) {
+        throw new Error(`expected success, got error: ${result.error}`)
+      }
+      return result
+    }
+
+    it('emits Spend and Change in original order with the new change amount', () => {
+      const result = expectSuccess(
+        buildReplacementOutputs({
+          ...baseArgs,
+          outputs: [spend(), change()],
+        }),
+      )
+
+      expect(result.opReturnData).toBeUndefined()
+      expect(result.outputs).toEqual([
+        { addressType: BTCOutputAddressType.Spend, address: 'bc1qpayment', amount: '10000' },
+        {
+          addressType: BTCOutputAddressType.Change,
+          addressNList: CHANGE_NLIST,
+          scriptType: BTCOutputScriptType.PayToWitness,
+          amount: '4500',
+          isChange: true,
+        },
+      ])
+    })
+
+    it('preserves order when change is first', () => {
+      const result = expectSuccess(
+        buildReplacementOutputs({
+          ...baseArgs,
+          outputs: [change(), spend()],
+        }),
+      )
+
+      expect(result.outputs[0].addressType).toBe(BTCOutputAddressType.Change)
+      expect(result.outputs[1].addressType).toBe(BTCOutputAddressType.Spend)
+    })
+
+    it('lifts a single OP_RETURN to opReturnData and omits it from outputs', () => {
+      const result = expectSuccess(
+        buildReplacementOutputs({
+          ...baseArgs,
+          outputs: [spend({ address: 'bc1qvault' }), opReturn('s:ETH.USDC:0xabc'), change()],
+        }),
+      )
+
+      expect(result.opReturnData).toBe('s:ETH.USDC:0xabc')
+      expect(result.outputs).toHaveLength(2)
+      expect(result.outputs[0]).toMatchObject({ address: 'bc1qvault' })
+      expect(result.outputs[1]).toMatchObject({ isChange: true })
+    })
+
+    it('drops change below the dust threshold', () => {
+      const result = expectSuccess(
+        buildReplacementOutputs({
+          ...baseArgs,
+          newChangeSats: bn(545),
+          outputs: [spend(), change()],
+        }),
+      )
+
+      expect(result.outputs).toEqual([
+        { addressType: BTCOutputAddressType.Spend, address: 'bc1qpayment', amount: '10000' },
+      ])
+    })
+
+    it('drops change when newChangeSats is exactly at dust - 1', () => {
+      const result = expectSuccess(
+        buildReplacementOutputs({
+          ...baseArgs,
+          newChangeSats: bn(DUST - 1),
+          outputs: [change()],
+        }),
+      )
+
+      expect(result.outputs).toEqual([])
+    })
+
+    it('keeps change at exactly the dust threshold', () => {
+      const result = expectSuccess(
+        buildReplacementOutputs({
+          ...baseArgs,
+          newChangeSats: bn(DUST),
+          outputs: [change()],
+        }),
+      )
+
+      expect(result.outputs).toHaveLength(1)
+      expect(result.outputs[0]).toMatchObject({ amount: String(DUST), isChange: true })
+    })
+
+    it('drops change when newChangeSats is negative', () => {
+      const result = expectSuccess(
+        buildReplacementOutputs({
+          ...baseArgs,
+          newChangeSats: bn(-100),
+          outputs: [spend(), change()],
+        }),
+      )
+
+      expect(result.outputs).toHaveLength(1)
+      expect(result.outputs[0].addressType).toBe(BTCOutputAddressType.Spend)
+    })
+
+    it('returns the multipleChange translation key when the original tx has multiple change outputs', () => {
+      const result = buildReplacementOutputs({
+        ...baseArgs,
+        outputs: [change({ address: 'bc1qchange1' }), change({ address: 'bc1qchange2' })],
+      })
+
+      expect(result).toEqual({ error: 'modals.send.speedUp.errors.multipleChange' })
+    })
+
+    it('returns the multipleOpReturn translation key when the original tx has multiple OP_RETURN outputs', () => {
+      const result = buildReplacementOutputs({
+        ...baseArgs,
+        outputs: [spend(), opReturn('memo-a'), opReturn('memo-b'), change()],
+      })
+
+      expect(result).toEqual({ error: 'modals.send.speedUp.errors.multipleOpReturn' })
+    })
+
+    it('returns the addresslessOutput translation key on a non-OP_RETURN addressless output', () => {
+      const result = buildReplacementOutputs({
+        ...baseArgs,
+        outputs: [spend({ address: undefined }), change()],
+      })
+
+      expect(result).toEqual({ error: 'modals.send.speedUp.errors.addresslessOutput' })
+    })
+
+    it('emits no change branch when the original tx has no change output', () => {
+      const result = expectSuccess(
+        buildReplacementOutputs({
+          ...baseArgs,
+          outputs: [
+            spend({ address: 'bc1qa', amount: '1000' }),
+            spend({ address: 'bc1qb', amount: '2000' }),
+          ],
+        }),
+      )
+
+      expect(result.outputs).toEqual([
+        { addressType: BTCOutputAddressType.Spend, address: 'bc1qa', amount: '1000' },
+        { addressType: BTCOutputAddressType.Spend, address: 'bc1qb', amount: '2000' },
+      ])
+    })
+
+    it('preserves the original spend amount and ignores newChangeSats for non-change outputs', () => {
+      const result = expectSuccess(
+        buildReplacementOutputs({
+          ...baseArgs,
+          newChangeSats: bn(99999),
+          outputs: [spend({ amount: '7777' })],
+        }),
+      )
+
+      expect(result.outputs[0]).toMatchObject({ amount: '7777' })
     })
   })
 })

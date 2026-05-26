@@ -1,5 +1,11 @@
 import { Transaction } from '@shapeshiftoss/bitcoinjs-lib'
-import { bip32ToAddressNList } from '@shapeshiftoss/hdwallet-core'
+import type {
+  BTCOutputScriptType,
+  BTCSignTxOutput,
+  BTCSignTxOutputChange,
+  BTCSignTxOutputSpend,
+} from '@shapeshiftoss/hdwallet-core'
+import { bip32ToAddressNList, BTCOutputAddressType } from '@shapeshiftoss/hdwallet-core'
 import BigNumber from 'bignumber.js'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
@@ -14,6 +20,7 @@ type VinLike = {
 type VoutLike = {
   value?: TxValue
   addresses?: string[]
+  opReturn?: string
 }
 
 export type SpeedUpTxLike = {
@@ -183,6 +190,7 @@ export type ReconstructedOutput = {
   address?: string
   amount: string
   isChange: boolean
+  opReturn?: string
 }
 
 export type OriginalTxSummary = {
@@ -226,7 +234,7 @@ export const classifyOriginalOutputs = ({
   vouts,
   ownedAddressMap,
 }: {
-  vouts: { value?: TxValue; addresses?: string[] }[]
+  vouts: { value?: TxValue; addresses?: string[]; opReturn?: string }[]
   ownedAddressMap: Map<string, number[]>
 }): ReconstructedOutput[] => {
   return vouts.map(vout => {
@@ -236,6 +244,7 @@ export const classifyOriginalOutputs = ({
       address,
       amount: String(vout.value ?? '0'),
       isChange: addressNList?.[3] === 1,
+      opReturn: vout.opReturn,
     }
   })
 }
@@ -288,4 +297,66 @@ export const reconstructReplacementInputs = ({
       hex: prevTx.hex,
     }
   })
+}
+
+// Rebuilds the wallet's `txToSign.outputs` from the original tx: payments
+// stay as-is, change is reissued at `newChangeSats` (dropped if below dust),
+// and OP_RETURN is lifted to tx-level `opReturnData`.
+export const buildReplacementOutputs = ({
+  outputs,
+  newChangeSats,
+  changeAddressNList,
+  changeScriptType,
+  dustThreshold,
+}: {
+  outputs: ReconstructedOutput[]
+  newChangeSats: BigNumber
+  changeAddressNList: number[]
+  changeScriptType: BTCOutputScriptType
+  dustThreshold: number
+}): { outputs: BTCSignTxOutput[]; opReturnData?: string } | { error: string } => {
+  if (outputs.filter(o => o.isChange).length > 1) {
+    return { error: 'modals.send.speedUp.errors.multipleChange' }
+  }
+  if (outputs.filter(o => o.opReturn).length > 1) {
+    return { error: 'modals.send.speedUp.errors.multipleOpReturn' }
+  }
+  if (outputs.some(o => !o.address && !o.opReturn)) {
+    return { error: 'modals.send.speedUp.errors.addresslessOutput' }
+  }
+
+  let opReturnData: string | undefined
+  const signOutputs: BTCSignTxOutput[] = []
+
+  for (const output of outputs) {
+    if (output.opReturn) {
+      opReturnData = output.opReturn
+      continue
+    }
+
+    if (output.isChange) {
+      // Below-dust change disappears entirely; the dust sats get absorbed into the fee.
+      if (newChangeSats.lt(dustThreshold)) continue
+      const change: BTCSignTxOutputChange = {
+        addressType: BTCOutputAddressType.Change,
+        addressNList: changeAddressNList,
+        scriptType: changeScriptType,
+        amount: newChangeSats.toFixed(0),
+        isChange: true,
+      }
+      signOutputs.push(change)
+      continue
+    }
+
+    if (!output.address) continue
+
+    const spend: BTCSignTxOutputSpend = {
+      addressType: BTCOutputAddressType.Spend,
+      address: output.address,
+      amount: output.amount,
+    }
+    signOutputs.push(spend)
+  }
+
+  return { outputs: signOutputs, opReturnData }
 }

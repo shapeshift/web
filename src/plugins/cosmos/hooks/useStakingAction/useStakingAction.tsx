@@ -1,5 +1,6 @@
 import type { cosmossdk } from '@shapeshiftoss/chain-adapters'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
+import { isWalletConnectV2 } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { Asset, Bip44Params } from '@shapeshiftoss/types'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
@@ -49,7 +50,8 @@ export const useStakingAction = () => {
       const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
       if (
         !wallet.supportsOfflineSigning() &&
-        (!isMetaMaskDesktop || (isMetaMaskDesktop && !(await checkIsSnapInstalled())))
+        (!isMetaMaskDesktop || (isMetaMaskDesktop && !(await checkIsSnapInstalled()))) &&
+        !isWalletConnectV2(wallet)
       ) {
         throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
       }

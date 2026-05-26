@@ -184,7 +184,10 @@ export const RFOXSection = () => {
     )
   }, [allUnstakingRequestsQuery.data?.byAccountId, stakingAssetAccountId])
 
-  const hasLpPosition = hasLpStakingBalance || hasLpUnstakingRequests
+  const hasLpPosition = useMemo(
+    () => hasLpStakingBalance || hasLpUnstakingRequests,
+    [hasLpStakingBalance, hasLpUnstakingRequests],
+  )
 
   const filters = useMemo<Filter[]>(() => {
     const foxFilter: Filter = {

@@ -76,31 +76,20 @@ jobs:
         run: pnpm run build:packages
 
       # `pnpm -r publish` skips packages whose current version is already on the
-      # registry, so this is a safe no-op when no bumps have landed. Filters
-      # exclude the root web package and the hdwallet-* family (versioned by a
-      # separate process). --workspace-concurrency=1 keeps publishes sequential
-      # so workspace:^ deps resolve against just-published versions in order.
-      # Authentication happens via the OIDC token GHA injects from the
-      # id-token: write permission above — no env-var token needed.
+      # registry, so this is a safe no-op when no bumps have landed.
+      # Authentication happens via the OIDC token GHA injects from the id-token:
+      # write permission above — no env-var token needed.
       - name: Publish
         run: |
           pnpm -r publish \
             --access public \
             --no-git-checks \
-            --workspace-concurrency=1 \
             --filter './packages/*' \
-            --filter '!@shapeshiftoss/web' \
-            --filter '!@shapeshiftoss/hdwallet-*'
+            --filter '!@shapeshiftoss/web'
 
-      # Tag HEAD with <name>-v<version> for each public, non-hdwallet package
-      # whose current version is on npm but doesn't yet have a local tag.
-      # Assumes the set of pre-existing versions has been backfilled with tags
-      # (one-time bootstrap) — without that, this step would incorrectly tag
-      # HEAD for any historically-published version that's missing a tag.
-      # Off-CI manual publishes must be tagged manually (see workflow docs).
+      # Tag HEAD with <name>-v<version> for each public package whose current
+      # version is on npm but doesn't yet have a local tag.
       - name: Tag published versions
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
@@ -114,7 +103,6 @@ jobs:
 
             if [ "$private" = "true" ]; then continue; fi
             if [ "$name" = "@shapeshiftoss/web" ]; then continue; fi
-            case "$name" in @shapeshiftoss/hdwallet-*) continue ;; esac
 
             short_name="${name#@shapeshiftoss/}"
             tag="${short_name}-v${version}"

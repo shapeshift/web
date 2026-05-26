@@ -173,6 +173,22 @@ export const RFOXSection = () => {
     [lpStakingBalanceQuery.data],
   )
 
+  const allUnstakingRequestsQuery = useGetUnstakingRequestsQuery()
+
+  // LP unstaking requests (cooldown pending or claimable) also count as an
+  // LP position — until the user claims, they still need the legacy UI.
+  const hasLpUnstakingRequests = useMemo(() => {
+    const accountRequests = allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? '']
+    return Boolean(
+      accountRequests?.some(request => request.stakingAssetId === uniV2EthFoxArbitrumAssetId),
+    )
+  }, [allUnstakingRequestsQuery.data?.byAccountId, stakingAssetAccountId])
+
+  const hasLpPosition = useMemo(
+    () => hasLpStakingBalance || hasLpUnstakingRequests,
+    [hasLpStakingBalance, hasLpUnstakingRequests],
+  )
+
   const filters = useMemo<Filter[]>(() => {
     const foxFilter: Filter = {
       label: foxOnArbAsset?.symbol ?? '',
@@ -181,7 +197,7 @@ export const RFOXSection = () => {
       asset: foxOnArbAsset,
     }
 
-    if (!hasLpStakingBalance) return [foxFilter]
+    if (!hasLpPosition) return [foxFilter]
 
     return [
       foxFilter,
@@ -192,9 +208,7 @@ export const RFOXSection = () => {
         asset: foxLpAsset,
       },
     ]
-  }, [foxLpAsset, foxOnArbAsset, hasLpStakingBalance])
-
-  const allUnstakingRequestsQuery = useGetUnstakingRequestsQuery()
+  }, [foxLpAsset, foxOnArbAsset, hasLpPosition])
 
   const hasClaimableRequests = useMemo(() => {
     const accountRequests = allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? '']
@@ -366,7 +380,7 @@ export const RFOXSection = () => {
   return (
     <Box>
       <Divider mt={2} mb={6} />
-      {hasLpStakingBalance && (
+      {hasLpPosition && (
         <Card bg='yellow.500' borderColor='yellow.600' borderWidth={1} borderRadius='lg'>
           <CardBody py={2} px={4}>
             <Flex alignItems='center' gap={2}>

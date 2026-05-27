@@ -45,7 +45,7 @@ export const RegisterCard = ({
   return (
     <SettingsCard
       title='Affiliate Registration'
-      description='Earn a share of swap fees whenever a user trades through your partner code.'
+      description='Earn swap fees whenever a user trades through your partner code.'
       headerRight={
         <Button
           onClick={() => onRegister(parsedBps ?? DEFAULT_BPS)}

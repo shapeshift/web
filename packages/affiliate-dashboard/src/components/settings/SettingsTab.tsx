@@ -64,7 +64,7 @@ export const SettingsTab = ({
         )}
         {isAuthenticated && (
           <AffiliateBpsCard
-            currentBps={config.bps}
+            currentBps={config.partnerBps}
             isLoading={actions.isLoading}
             onUpdate={bps => actions.updateBps(bps)}
             onValidationError={onValidationError}

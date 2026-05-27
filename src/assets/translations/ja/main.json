@@ -2237,7 +2237,6 @@
     "thisMonth": "今月",
     "speedUp": "スピードアップ",
     "cancelTransaction": "取引をキャンセルする",
-    "replaced": "置換済み",
     "replacedBy": "%{txHash} に置き換えられました",
     "replaces": "%{txHash} を置き換えます"
   },
@@ -3476,8 +3475,7 @@
   "yieldXYZ": {
     "pageTitle": "利回り",
     "pageSubtitle": "複数のチェーンにわたる収益機会の発見と管理",
-    "actions": {
-    },
+    "actions": {},
     "yield": "利回り",
     "apy": "年利",
     "apr": "APR",

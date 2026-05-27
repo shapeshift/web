@@ -2237,7 +2237,6 @@
     "thisMonth": "Цього місяця",
     "speedUp": "Пришвидшити",
     "cancelTransaction": "Скасувати транзакцію",
-    "replaced": "Замінено",
     "replacedBy": "Замінено на %{txHash}",
     "replaces": "Замінює %{txHash}"
   },
@@ -3476,8 +3475,7 @@
   "yieldXYZ": {
     "pageTitle": "Дохідність",
     "pageSubtitle": "Відкривайте та керуйте можливостями отримання прибутку в декількох мережах",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Прибутковість",
     "apy": "APY",
     "apr": "APR",

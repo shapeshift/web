@@ -2237,7 +2237,6 @@
     "thisMonth": "Diesen Monat",
     "speedUp": "Beschleunigen",
     "cancelTransaction": "Transaktion stornieren",
-    "replaced": "Ersetzt",
     "replacedBy": "Ersetzt durch %{txHash}",
     "replaces": "Ersetzt %{txHash}"
   },
@@ -3476,8 +3475,7 @@
   "yieldXYZ": {
     "pageTitle": "Erträge",
     "pageSubtitle": "Ertragspotenziale über mehrere Ketten hinweg erkennen und nutzen",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Ertrag",
     "apy": "APY",
     "apr": "APR",

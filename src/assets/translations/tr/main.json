@@ -2237,7 +2237,6 @@
     "thisMonth": "Bu Ay",
     "speedUp": "Hızlandır",
     "cancelTransaction": "İşlemi İptal Et",
-    "replaced": "Değiştirildi",
     "replacedBy": "%{txHash} ile değiştirildi.",
     "replaces": "%{txHash}'i değiştirir."
   },
@@ -3476,8 +3475,7 @@
   "yieldXYZ": {
     "pageTitle": "Getiriler",
     "pageSubtitle": "Birden fazla zincirde getiri fırsatlarını keşfedin ve yönetin.",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Getiri",
     "apy": "APY",
     "apr": "APR",

@@ -2237,7 +2237,6 @@
     "thisMonth": "В этом месяце",
     "speedUp": "Ускорить",
     "cancelTransaction": "Отменить транзакцию",
-    "replaced": "Заменено",
     "replacedBy": "Заменено на %{txHash}",
     "replaces": "Заменяет %{txHash}"
   },
@@ -3476,8 +3475,7 @@
   "yieldXYZ": {
     "pageTitle": "Прибыль",
     "pageSubtitle": "Обнаруживайте и управляйте возможностями получения дохода в нескольких сетях",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Доходность",
     "apy": "APY",
     "apr": "APR",

@@ -2237,7 +2237,6 @@
     "thisMonth": "Este mês",
     "speedUp": "Acelerar",
     "cancelTransaction": "Cancelar transação",
-    "replaced": "Substituído",
     "replacedBy": "Substituído por %{txHash}",
     "replaces": "Substitui %{txHash}"
   },
@@ -3476,8 +3475,7 @@
   "yieldXYZ": {
     "pageTitle": "Yields",
     "pageSubtitle": "Descubra e gerencie oportunidades de rendimento em várias redes.",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Yield",
     "apy": "APY",
     "apr": "APR",

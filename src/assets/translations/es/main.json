@@ -2237,7 +2237,6 @@
     "thisMonth": "Este Mes",
     "speedUp": "Acelerar",
     "cancelTransaction": "Cancelar Transacción",
-    "replaced": "Reemplazada",
     "replacedBy": "Reemplazada por %{txHash}",
     "replaces": "Reemplaza %{txHash}"
   },
@@ -3476,8 +3475,7 @@
   "yieldXYZ": {
     "pageTitle": "Rendimientos",
     "pageSubtitle": "Descubra y gestione oportunidades de rendimiento en múltiples cadenas",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Rendimiento",
     "apy": "APY",
     "apr": "APR",

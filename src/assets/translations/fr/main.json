@@ -2237,7 +2237,6 @@
     "thisMonth": "Ce mois-ci",
     "speedUp": "Accélération",
     "cancelTransaction": "Transaction d'annulation",
-    "replaced": "Remplacé",
     "replacedBy": "Remplacé par %{txHash}",
     "replaces": "Remplace %{txHash}"
   },
@@ -3476,8 +3475,7 @@
   "yieldXYZ": {
     "pageTitle": "Rendements",
     "pageSubtitle": "Découvrez et gérez les opportunités de rendements sur plusieurs chaînes",
-    "actions": {
-    },
+    "actions": {},
     "yield": "Rendement",
     "apy": "APY",
     "apr": "APR",

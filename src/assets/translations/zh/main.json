@@ -2237,7 +2237,6 @@
     "thisMonth": "本月",
     "speedUp": "加速",
     "cancelTransaction": "取消交易",
-    "replaced": "已替换",
     "replacedBy": "已替换为 %{txHash}",
     "replaces": "替换 %{txHash}"
   },
@@ -3476,8 +3475,7 @@
   "yieldXYZ": {
     "pageTitle": "收益",
     "pageSubtitle": "发现并管理跨多条链的收益机会",
-    "actions": {
-    },
+    "actions": {},
     "yield": "收益",
     "apy": "APY",
     "apr": "APR",

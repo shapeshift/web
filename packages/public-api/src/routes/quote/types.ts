@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
-import { booleanFromString } from '../../lib/zod'
 import { registry } from '../../registry'
+import { BpsFields } from '../../types'
 import { AssetSchema } from '../assets/types'
 
 const EvmTransactionDataSchema = z.object({
@@ -106,13 +106,10 @@ export const QuoteRequestSchema = z.object({
     .string()
     .min(1)
     .openapi({ example: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq' }),
-  sendAddress: z
-    .string()
-    .optional()
-    .openapi({ example: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' }),
+  // For UTXO chains, use the account's receive address at index 0/0 (e.g. m/84'/0'/0'/0/0).
+  sendAddress: z.string().min(1).openapi({ example: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' }),
   swapperName: z.string().min(1).openapi({ example: 'Relay' }),
   slippageTolerancePercentageDecimal: z.string().optional().openapi({ example: '0.01' }),
-  allowMultiHop: booleanFromString.optional().default(true).openapi({ example: true }),
   accountNumber: z.coerce.number().optional().default(0).openapi({ example: 0 }),
 })
 
@@ -127,11 +124,7 @@ export const QuoteResponseSchema = registry.register(
     sellAmountCryptoBaseUnit: z.string(),
     buyAmountBeforeFeesCryptoBaseUnit: z.string(),
     buyAmountAfterFeesCryptoBaseUnit: z.string(),
-    affiliateBps: z.string().openapi({ example: '10' }),
-    affiliateAddress: z
-      .string()
-      .optional()
-      .openapi({ example: '0x0000000000000000000000000000000000000001' }),
+    ...BpsFields,
     slippageTolerancePercentageDecimal: z.string().optional().openapi({ example: '0.01' }),
     networkFeeCryptoBaseUnit: z.string().optional().openapi({ example: '23000' }),
     approval: ApprovalInfoSchema,

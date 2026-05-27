@@ -25,9 +25,11 @@ export type {
 }
 
 export type AffiliateInfo = {
-  affiliateAddress?: string
-  affiliateBps: string
+  partnerAddress?: string
   partnerCode?: string
+  partnerBps?: string
+  shapeshiftBps: string
+  affiliateBps: string
 }
 
 declare global {
@@ -75,6 +77,17 @@ export const rateLimitResponse = {
       schema: { type: 'integer' as const, example: 30 },
     },
   },
+}
+
+export const BpsFields = {
+  affiliateBps: z.string().openapi({
+    example: '60',
+    description: 'Total on-chain fee in bps (partnerBps + shapeshiftBps).',
+  }),
+  partnerBps: z.string().optional().openapi({ example: '50', description: 'Partner share in bps.' }),
+  shapeshiftBps: z
+    .string()
+    .openapi({ example: '10', description: 'ShapeShift platform fee in bps.' }),
 }
 
 export const EVM_ADDRESS = z

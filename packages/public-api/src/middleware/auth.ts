@@ -4,9 +4,15 @@ import { env } from '../env'
 
 const PARTNER_CODE_RESOLUTION_TIMEOUT_MS = 5_000
 
+type PartnerCodeResponse = {
+  partnerAddress: string
+  partnerBps: number
+  shapeshiftBps: number
+}
+
 const resolvePartnerCodeFromService = async (
   code: string,
-): Promise<{ affiliateAddress: string; bps: string } | null> => {
+): Promise<{ partnerAddress: string; partnerBps: string; shapeshiftBps: string } | null> => {
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), PARTNER_CODE_RESOLUTION_TIMEOUT_MS)
 
@@ -17,13 +23,11 @@ const resolvePartnerCodeFromService = async (
     )
 
     if (response.ok) {
-      const data = (await response.json()) as {
-        affiliateAddress: string
-        bps: number
-      }
+      const data = (await response.json()) as PartnerCodeResponse
       return {
-        affiliateAddress: data.affiliateAddress,
-        bps: String(data.bps),
+        partnerAddress: data.partnerAddress,
+        partnerBps: String(data.partnerBps),
+        shapeshiftBps: String(data.shapeshiftBps),
       }
     }
 
@@ -47,8 +51,10 @@ export const resolvePartnerCode = async (
     const resolved = await resolvePartnerCodeFromService(partnerCode)
     if (resolved) {
       req.affiliateInfo = {
-        affiliateAddress: resolved.affiliateAddress,
-        affiliateBps: resolved.bps,
+        partnerAddress: resolved.partnerAddress,
+        partnerBps: resolved.partnerBps,
+        shapeshiftBps: resolved.shapeshiftBps,
+        affiliateBps: String(Number(resolved.partnerBps) + Number(resolved.shapeshiftBps)),
         partnerCode,
       }
       next()
@@ -58,6 +64,7 @@ export const resolvePartnerCode = async (
 
   // No partner code provided — use default BPS for unattributed swaps
   req.affiliateInfo = {
+    shapeshiftBps: env.DEFAULT_AFFILIATE_BPS,
     affiliateBps: env.DEFAULT_AFFILIATE_BPS,
   }
 

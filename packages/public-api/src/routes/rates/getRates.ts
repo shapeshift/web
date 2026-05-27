@@ -68,7 +68,6 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       buyAssetId,
       sellAmountCryptoBaseUnit,
       slippageTolerancePercentageDecimal,
-      allowMultiHop,
     } = queryResult.data
 
     const sellAsset = getAsset(sellAssetId)
@@ -90,7 +89,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       buyAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
       affiliateBps: req.affiliateInfo?.affiliateBps ?? env.DEFAULT_AFFILIATE_BPS,
-      allowMultiHop,
+      allowMultiHop: false,
       slippageTolerancePercentageDecimal,
       receiveAddress: undefined,
       sendAddress: undefined,
@@ -123,6 +122,8 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
             steps: 0,
             estimatedExecutionTimeMs: undefined,
             priceImpactPercentageDecimal: undefined,
+            partnerBps: req.affiliateInfo?.partnerBps,
+            shapeshiftBps: req.affiliateInfo?.shapeshiftBps ?? env.DEFAULT_AFFILIATE_BPS,
             affiliateBps: req.affiliateInfo?.affiliateBps ?? env.DEFAULT_AFFILIATE_BPS,
             networkFeeCryptoBaseUnit: undefined,
             error: {
@@ -135,20 +136,21 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
         const rates = result.unwrap()
         if (rates.length === 0) return null
 
-        // Return the first/best rate
         const rate = rates[0]
-        const firstStep = rate.steps[0]
+        const step = rate.steps[0]
 
         return {
           swapperName,
           rate: rate.rate,
-          buyAmountCryptoBaseUnit: firstStep.buyAmountAfterFeesCryptoBaseUnit,
-          sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          buyAmountCryptoBaseUnit: step.buyAmountAfterFeesCryptoBaseUnit,
+          sellAmountCryptoBaseUnit: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
           steps: rate.steps.length,
-          estimatedExecutionTimeMs: firstStep.estimatedExecutionTimeMs,
+          estimatedExecutionTimeMs: step.estimatedExecutionTimeMs,
           priceImpactPercentageDecimal: rate.priceImpactPercentageDecimal,
-          affiliateBps: req.affiliateInfo?.affiliateBps ?? env.DEFAULT_AFFILIATE_BPS,
-          networkFeeCryptoBaseUnit: firstStep.feeData.networkFeeCryptoBaseUnit,
+          partnerBps: req.affiliateInfo?.partnerBps,
+          shapeshiftBps: req.affiliateInfo?.shapeshiftBps ?? env.DEFAULT_AFFILIATE_BPS,
+          affiliateBps: rate.affiliateBps,
+          networkFeeCryptoBaseUnit: step.feeData.networkFeeCryptoBaseUnit,
         }
       } catch (error) {
         console.error(`Error fetching rate from ${swapperName}:`, error)
@@ -180,8 +182,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
     const response: RateResponse = {
       rates,
       timestamp: now,
-      expiresAt: now + 30_000, // 30 second expiry
-      affiliateAddress: req.affiliateInfo?.affiliateAddress,
+      expiresAt: now + 30_000,
     }
 
     res.json(response)

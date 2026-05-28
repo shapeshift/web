@@ -9,7 +9,6 @@ import { ActionMessage } from './ActionMessage'
 import { AffiliateBpsCard } from './AffiliateBpsCard'
 import { AuthBanner } from './AuthBanner'
 import { AuthStatusBar } from './AuthStatusBar'
-import { ClaimCodeCard } from './ClaimCodeCard'
 import { ConfigSummaryCard } from './ConfigSummaryCard'
 import { ReceiveAddressCard } from './ReceiveAddressCard'
 import { RegisterCard } from './RegisterCard'
@@ -52,16 +51,14 @@ export const SettingsTab = ({
       <RegisterCard
         address={affiliateAddress}
         isLoading={actions.isLoading}
-        onRegister={bps => void actions.register(bps)}
+        onRegister={args => actions.register(args)}
+        onValidationError={onValidationError}
       />
     )}
 
     {config && (
       <>
         <ConfigSummaryCard config={config} />
-        {isAuthenticated && !config.partnerCode && (
-          <ClaimCodeCard isLoading={actions.isLoading} onClaim={code => actions.claimCode(code)} />
-        )}
         {isAuthenticated && (
           <AffiliateBpsCard
             currentBps={config.partnerBps}

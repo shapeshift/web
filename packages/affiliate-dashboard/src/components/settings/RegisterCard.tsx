@@ -1,14 +1,16 @@
 import { Button, Flex, Input, InputGroup, InputRightAddon, Stack, Text } from '@chakra-ui/react'
 import { useState } from 'react'
 
+import type { ActionMessage } from '../../hooks/useAffiliateActions'
 import { DEFAULT_BPS, MAX_BPS, MIN_BPS } from '../../lib/constants'
-import { bpsToPercent, parseBps } from '../../lib/format'
+import { bpsToPercent, parseBps, parsePartnerCode } from '../../lib/format'
 import { SettingsCard } from './SettingsCard'
 
 interface RegisterCardProps {
   address: string
   isLoading: boolean
-  onRegister: (bps: number) => void
+  onRegister: (args: { bps: number; partnerCode: string }) => void
+  onValidationError: (message: ActionMessage) => void
 }
 
 const Row = ({
@@ -38,9 +40,31 @@ export const RegisterCard = ({
   address,
   isLoading,
   onRegister,
+  onValidationError,
 }: RegisterCardProps): React.JSX.Element => {
   const [bps, setBps] = useState(String(DEFAULT_BPS))
+  const [partnerCode, setPartnerCode] = useState('')
+
   const parsedBps = parseBps(bps)
+  const parsedCode = parsePartnerCode(partnerCode)
+
+  const disabled = partnerCode === '' || bps === ''
+
+  const handleClick = (): void => {
+    if (parsedCode === null) {
+      return onValidationError({
+        type: 'error',
+        text: `Partner code must be 3–32 lowercase letters or numbers (e.g. mypartnercode)`,
+      })
+    }
+    if (parsedBps === null) {
+      return onValidationError({
+        type: 'error',
+        text: `Affiliate BPS must be a number between ${MIN_BPS} and ${MAX_BPS}`,
+      })
+    }
+    onRegister({ bps: parsedBps, partnerCode: parsedCode })
+  }
 
   return (
     <SettingsCard
@@ -48,7 +72,8 @@ export const RegisterCard = ({
       description='Earn swap fees whenever a user trades through your partner code.'
       headerRight={
         <Button
-          onClick={() => onRegister(parsedBps ?? DEFAULT_BPS)}
+          onClick={handleClick}
+          isDisabled={disabled}
           isLoading={isLoading}
           loadingText='Registering...'
         >
@@ -62,6 +87,15 @@ export const RegisterCard = ({
             {address}
           </Text>
         </Row>
+        <Row label='Partner Code'>
+          <Input
+            value={partnerCode}
+            onChange={e => setPartnerCode(e.target.value)}
+            placeholder='e.g. mypartnercode'
+            spellCheck={false}
+            w='20ch'
+          />
+        </Row>
         <Row label='Affiliate BPS'>
           <InputGroup w='auto'>
             <Input
@@ -70,8 +104,6 @@ export const RegisterCard = ({
               onChange={e => setBps(e.target.value)}
               placeholder={String(DEFAULT_BPS)}
               w='8ch'
-              min={MIN_BPS}
-              max={MAX_BPS}
             />
             <InputRightAddon
               bg='bg.surface'
@@ -80,7 +112,7 @@ export const RegisterCard = ({
               fontSize='sm'
               color='fg.muted'
             >
-              {bpsToPercent(parsedBps ?? 0)}
+              {bpsToPercent(Number(bps) ?? 0)}
             </InputRightAddon>
           </InputGroup>
         </Row>

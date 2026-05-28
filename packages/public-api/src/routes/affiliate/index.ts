@@ -1,4 +1,3 @@
-export * from './claimPartnerCode'
 export * from './createAffiliate'
 export * from './getAffiliate'
 export * from './getAffiliateStats'

@@ -10,6 +10,11 @@ export interface ActionMessage {
   text: string
 }
 
+export interface RegisterArgs {
+  bps: number
+  partnerCode: string
+}
+
 interface UseAffiliateActionsArgs {
   affiliateAddress: string
   authHeaders: Record<string, string>
@@ -20,8 +25,7 @@ interface UseAffiliateActionsReturn {
   message: ActionMessage | null
   setMessage: (message: ActionMessage | null) => void
   clearMessage: () => void
-  register: (bps: number) => void
-  claimCode: (code: string) => Promise<void>
+  register: (args: RegisterArgs) => void
   updateBps: (bps: number) => Promise<void>
   updateReceiveAddress: (address: string) => Promise<void>
 }
@@ -40,25 +44,15 @@ export const useAffiliateActions = ({
   }, [queryClient, affiliateAddress])
 
   const registerMutation = useMutation({
-    mutationFn: (bps: number) =>
-      postJson(AFFILIATE_URL, 'POST', { walletAddress: affiliateAddress, bps }, authHeaders),
-    onSuccess: () => {
-      setMessage({ type: 'success', text: 'Affiliate registered successfully' })
-      invalidateConfig()
-    },
-    onError: (err: Error) => setMessage({ type: 'error', text: err.message }),
-  })
-
-  const claimCodeMutation = useMutation({
-    mutationFn: (code: string) =>
+    mutationFn: (args: RegisterArgs) =>
       postJson(
-        `${AFFILIATE_URL}/claim-code`,
+        AFFILIATE_URL,
         'POST',
-        { walletAddress: affiliateAddress, partnerCode: code },
+        { walletAddress: affiliateAddress, bps: args.bps, partnerCode: args.partnerCode },
         authHeaders,
       ),
-    onSuccess: (_, code) => {
-      setMessage({ type: 'success', text: `Partner code "${code}" claimed` })
+    onSuccess: (_, args) => {
+      setMessage({ type: 'success', text: `Affiliate registered as "${args.partnerCode}"` })
       invalidateConfig()
     },
     onError: (err: Error) => setMessage({ type: 'error', text: err.message }),
@@ -96,7 +90,6 @@ export const useAffiliateActions = ({
 
   const isLoading =
     registerMutation.isPending ||
-    claimCodeMutation.isPending ||
     updateBpsMutation.isPending ||
     updateReceiveAddressMutation.isPending
 
@@ -105,13 +98,9 @@ export const useAffiliateActions = ({
     message,
     setMessage,
     clearMessage,
-    register: bps => {
+    register: args => {
       setMessage(null)
-      registerMutation.mutate(bps)
-    },
-    claimCode: async code => {
-      setMessage(null)
-      await claimCodeMutation.mutateAsync(code)
+      registerMutation.mutate(args)
     },
     updateBps: async bps => {
       setMessage(null)

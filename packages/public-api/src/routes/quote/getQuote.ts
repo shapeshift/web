@@ -165,6 +165,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
 
     const quote = quotes[0]
     const step = quote.steps[0]
+    const lastStep = quote.steps[quote.steps.length - 1]
 
     const quoteId = uuidv4()
     const now = Date.now()
@@ -173,7 +174,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       quoteId,
       swapperName: validSwapperName,
       sellAmountCryptoBaseUnit: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      buyAmountAfterFeesCryptoBaseUnit: step.buyAmountAfterFeesCryptoBaseUnit,
+      buyAmountAfterFeesCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
       partnerBps: req.affiliateInfo?.partnerBps,
       shapeshiftBps: req.affiliateInfo?.shapeshiftBps ?? env.DEFAULT_AFFILIATE_BPS,
       affiliateBps: quote.affiliateBps,
@@ -208,7 +209,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       ...baseQuote,
       sellAsset,
       buyAsset,
-      buyAmountBeforeFeesCryptoBaseUnit: step.buyAmountBeforeFeesCryptoBaseUnit,
+      buyAmountBeforeFeesCryptoBaseUnit: lastStep.buyAmountBeforeFeesCryptoBaseUnit,
       slippageTolerancePercentageDecimal: quote.slippageTolerancePercentageDecimal,
       networkFeeCryptoBaseUnit: step.feeData.networkFeeCryptoBaseUnit,
       steps: quote.steps.map(transformQuoteStep),

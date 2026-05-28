@@ -82,9 +82,12 @@ export const rateLimitResponse = {
 export const BpsFields = {
   affiliateBps: z.string().openapi({
     example: '60',
-    description: 'Total on-chain fee in bps (partnerBps + shapeshiftBps).',
+    description: 'Total on-chain fee in bps.',
   }),
-  partnerBps: z.string().optional().openapi({ example: '50', description: 'Partner share in bps.' }),
+  partnerBps: z
+    .string()
+    .optional()
+    .openapi({ example: '50', description: 'Partner share in bps.' }),
   shapeshiftBps: z
     .string()
     .openapi({ example: '10', description: 'ShapeShift platform fee in bps.' }),

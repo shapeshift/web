@@ -8,7 +8,24 @@ const PARTNER_CODE_KEY = 'shapeshift_partner_code'
 const PARTNER_TIMESTAMP_KEY = 'shapeshift_partner_timestamp'
 const PARTNER_TTL_MS = 30 * 24 * 60 * 60 * 1000
 const SHAPESHIFT_BPS_KEY = 'shapeshift_bps'
-const AFFILIATE_BPS_KEY = 'shapeshift_affiliate_bps'
+const VERSION_KEY = 'shapeshift_version'
+
+if (typeof window !== 'undefined') {
+  try {
+    if (!window.localStorage.getItem(VERSION_KEY)) {
+      ;[
+        PARTNER_ADDRESS_KEY,
+        PARTNER_BPS_KEY,
+        PARTNER_CODE_KEY,
+        PARTNER_TIMESTAMP_KEY,
+        SHAPESHIFT_BPS_KEY,
+      ].forEach(k => window.localStorage.removeItem(k))
+      window.localStorage.setItem(VERSION_KEY, '1')
+    }
+  } catch {
+    // noop
+  }
+}
 
 const SWAP_SERVICE_BASE_URL = import.meta.env.VITE_SWAPS_SERVER_URL || 'http://localhost:3001'
 
@@ -33,7 +50,6 @@ const clearPartnerStorage = (): void => {
     window.localStorage.removeItem(PARTNER_CODE_KEY)
     window.localStorage.removeItem(PARTNER_TIMESTAMP_KEY)
     window.localStorage.removeItem(SHAPESHIFT_BPS_KEY)
-    window.localStorage.removeItem(AFFILIATE_BPS_KEY)
   } catch {
     // noop
   }
@@ -46,7 +62,6 @@ const storePartnerData = (data: PartnerData): void => {
     window.localStorage.setItem(PARTNER_CODE_KEY, data.partnerCode)
     window.localStorage.setItem(PARTNER_TIMESTAMP_KEY, String(Date.now()))
     window.localStorage.setItem(SHAPESHIFT_BPS_KEY, String(data.shapeshiftBps))
-    window.localStorage.setItem(AFFILIATE_BPS_KEY, String(data.partnerBps + data.shapeshiftBps))
   } catch {
     // noop
   }
@@ -96,104 +111,35 @@ const getPartnerCode = (): string | null => {
   return null
 }
 
-export const readStoredPartnerAddress = (): string | null => {
+const readStored = (key: string): string | null => {
   if (typeof window === 'undefined') return null
 
   try {
-    const address = window.localStorage.getItem(PARTNER_ADDRESS_KEY)
+    const value = window.localStorage.getItem(key)
     const timestamp = window.localStorage.getItem(PARTNER_TIMESTAMP_KEY)
 
-    if (!address) return null
+    if (!value) return null
 
     if (isPartnerExpired(timestamp)) {
       clearPartnerStorage()
       return null
     }
 
-    return address
+    return value
   } catch {
     return null
   }
 }
 
-export const readStoredPartnerBps = (): string | null => {
-  if (typeof window === 'undefined') return null
-
-  try {
-    const bps = window.localStorage.getItem(PARTNER_BPS_KEY)
-    const timestamp = window.localStorage.getItem(PARTNER_TIMESTAMP_KEY)
-
-    if (!bps) return null
-
-    if (isPartnerExpired(timestamp)) {
-      clearPartnerStorage()
-      return null
-    }
-
-    return bps
-  } catch {
-    return null
-  }
-}
-
-export const readStoredPartnerCode = (): string | null => {
-  if (typeof window === 'undefined') return null
-
-  try {
-    const code = window.localStorage.getItem(PARTNER_CODE_KEY)
-    const timestamp = window.localStorage.getItem(PARTNER_TIMESTAMP_KEY)
-
-    if (!code) return null
-
-    if (isPartnerExpired(timestamp)) {
-      clearPartnerStorage()
-      return null
-    }
-
-    return code
-  } catch {
-    return null
-  }
-}
-
-export const readStoredShapeshiftBps = (): string | null => {
-  if (typeof window === 'undefined') return null
-
-  try {
-    const bps = window.localStorage.getItem(SHAPESHIFT_BPS_KEY)
-    const timestamp = window.localStorage.getItem(PARTNER_TIMESTAMP_KEY)
-
-    if (!bps) return null
-
-    if (isPartnerExpired(timestamp)) {
-      clearPartnerStorage()
-      return null
-    }
-
-    return bps
-  } catch {
-    return null
-  }
-}
-
+export const readStoredPartnerAddress = (): string | null => readStored(PARTNER_ADDRESS_KEY)
+export const readStoredPartnerBps = (): string | null => readStored(PARTNER_BPS_KEY)
+export const readStoredPartnerCode = (): string | null => readStored(PARTNER_CODE_KEY)
+export const readStoredShapeshiftBps = (): string | null => readStored(SHAPESHIFT_BPS_KEY)
 export const readStoredAffiliateBps = (): string => {
-  if (typeof window === 'undefined') return DEFAULT_FEE_BPS
-
-  try {
-    const bps = window.localStorage.getItem(AFFILIATE_BPS_KEY)
-    const timestamp = window.localStorage.getItem(PARTNER_TIMESTAMP_KEY)
-
-    if (!bps) return DEFAULT_FEE_BPS
-
-    if (isPartnerExpired(timestamp)) {
-      clearPartnerStorage()
-      return DEFAULT_FEE_BPS
-    }
-
-    return bps
-  } catch {
-    return DEFAULT_FEE_BPS
-  }
+  const partnerBps = readStored(PARTNER_BPS_KEY)
+  const shapeshiftBps = readStored(SHAPESHIFT_BPS_KEY)
+  if (!partnerBps || !shapeshiftBps) return DEFAULT_FEE_BPS
+  return String(Number(partnerBps) + Number(shapeshiftBps))
 }
 
 export const useAffiliateTracking = (): string | null => {

@@ -138,11 +138,12 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
 
         const rate = rates[0]
         const step = rate.steps[0]
+        const lastStep = rate.steps[rate.steps.length - 1]
 
         return {
           swapperName,
           rate: rate.rate,
-          buyAmountCryptoBaseUnit: step.buyAmountAfterFeesCryptoBaseUnit,
+          buyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
           sellAmountCryptoBaseUnit: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
           steps: rate.steps.length,
           estimatedExecutionTimeMs: step.estimatedExecutionTimeMs,

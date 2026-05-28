@@ -236,7 +236,7 @@ export class TradeExecution {
                   receiveAddress: updatedSwap.receiveAddress,
                   partnerAddress: readStoredPartnerAddress() ?? undefined,
                   partnerBps: storedPartnerBps ? Number(storedPartnerBps) : undefined,
-                  affiliateBps,
+                  affiliateBps: Number(affiliateBps),
                   shapeshiftBps: Number(readStoredShapeshiftBps() ?? affiliateBps),
                   userId: userData?.id,
                   origin: 'web',

@@ -86,6 +86,7 @@ export const getSwapStatus = async (req: Request, res: Response): Promise<void> 
       buyAssetId: storedQuote.buyAssetId,
       sellAmountCryptoBaseUnit: storedQuote.sellAmountCryptoBaseUnit,
       buyAmountAfterFeesCryptoBaseUnit: storedQuote.buyAmountAfterFeesCryptoBaseUnit,
+      partnerAddress: storedQuote.partnerAddress,
       partnerBps: storedQuote.partnerBps,
       shapeshiftBps: storedQuote.shapeshiftBps,
       affiliateBps: storedQuote.affiliateBps,

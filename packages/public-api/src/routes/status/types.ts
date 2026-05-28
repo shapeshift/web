@@ -36,6 +36,7 @@ export const SwapStatusResponseSchema = registry.register(
     buyAssetId: z.string(),
     sellAmountCryptoBaseUnit: z.string(),
     buyAmountAfterFeesCryptoBaseUnit: z.string(),
+    partnerAddress: EVM_ADDRESS.optional(),
     ...BpsFields,
     registeredAt: z.number().optional(),
     buyTxHash: z.string().optional(),

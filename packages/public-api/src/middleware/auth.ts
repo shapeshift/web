@@ -1,14 +1,16 @@
 import type { NextFunction, Request, Response } from 'express'
+import { z } from 'zod'
 
 import { env } from '../env'
+import { EVM_ADDRESS } from '../types'
 
 const PARTNER_CODE_RESOLUTION_TIMEOUT_MS = 5_000
 
-type PartnerCodeResponse = {
-  partnerAddress: string
-  partnerBps: number
-  shapeshiftBps: number
-}
+const PartnerCodeResponseSchema = z.object({
+  partnerAddress: EVM_ADDRESS,
+  partnerBps: z.number().int().min(0),
+  shapeshiftBps: z.number().int().min(0),
+})
 
 const resolvePartnerCodeFromService = async (
   code: string,
@@ -22,16 +24,19 @@ const resolvePartnerCodeFromService = async (
       { signal: controller.signal },
     )
 
-    if (response.ok) {
-      const data = (await response.json()) as PartnerCodeResponse
-      return {
-        partnerAddress: data.partnerAddress,
-        partnerBps: String(data.partnerBps),
-        shapeshiftBps: String(data.shapeshiftBps),
-      }
+    if (!response.ok) return null
+
+    const parsed = PartnerCodeResponseSchema.safeParse(await response.json())
+    if (!parsed.success) {
+      console.error('Malformed /v1/partner response:', parsed.error.errors)
+      return null
     }
 
-    return null
+    return {
+      partnerAddress: parsed.data.partnerAddress,
+      partnerBps: String(parsed.data.partnerBps),
+      shapeshiftBps: String(parsed.data.shapeshiftBps),
+    }
   } catch (error) {
     console.error('Failed to resolve partner code:', error)
     return null

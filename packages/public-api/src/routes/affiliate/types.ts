@@ -34,8 +34,8 @@ export const CreateAffiliateRequestSchema = z.object({
     .min(3)
     .max(32)
     .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      'partnerCode must be lowercase kebab-case (e.g. my-partner-code)',
+      /^[a-z0-9]+$/,
+      'partnerCode must be 3–32 lowercase letters or numbers (e.g. mypartnercode)',
     ),
   bps: z.number().int().min(0).max(1000),
 })

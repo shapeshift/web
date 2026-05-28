@@ -3,12 +3,8 @@ import { useState } from 'react'
 
 import type { ActionMessage } from '../../hooks/useAffiliateActions'
 import { DEFAULT_BPS, MAX_BPS, MIN_BPS } from '../../lib/constants'
-import { bpsToPercent, parseBps } from '../../lib/format'
+import { bpsToPercent, parseBps, parsePartnerCode } from '../../lib/format'
 import { SettingsCard } from './SettingsCard'
-
-const PARTNER_CODE_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
-const PARTNER_CODE_MIN_LENGTH = 3
-const PARTNER_CODE_MAX_LENGTH = 32
 
 interface RegisterCardProps {
   address: string
@@ -48,33 +44,26 @@ export const RegisterCard = ({
 }: RegisterCardProps): React.JSX.Element => {
   const [bps, setBps] = useState(String(DEFAULT_BPS))
   const [partnerCode, setPartnerCode] = useState('')
+
   const parsedBps = parseBps(bps)
-  const trimmedCode = partnerCode.trim()
+  const parsedCode = parsePartnerCode(partnerCode)
 
-  const codeIsValid =
-    trimmedCode.length >= PARTNER_CODE_MIN_LENGTH &&
-    trimmedCode.length <= PARTNER_CODE_MAX_LENGTH &&
-    PARTNER_CODE_REGEX.test(trimmedCode)
-  const bpsIsValid = parsedBps !== null
-
-  const disabled = trimmedCode === '' || bps === ''
+  const disabled = partnerCode === '' || bps === ''
 
   const handleClick = (): void => {
-    if (!codeIsValid) {
-      onValidationError({
+    if (parsedCode === null) {
+      return onValidationError({
         type: 'error',
-        text: `Partner code must be lowercase kebab-case, ${PARTNER_CODE_MIN_LENGTH}–${PARTNER_CODE_MAX_LENGTH} characters (e.g. my-partner-code)`,
+        text: `Partner code must be 3–32 lowercase letters or numbers (e.g. mypartnercode)`,
       })
-      return
     }
     if (parsedBps === null) {
-      onValidationError({
+      return onValidationError({
         type: 'error',
-        text: `BPS must be a number between ${MIN_BPS} and ${MAX_BPS}`,
+        text: `Affiliate BPS must be a number between ${MIN_BPS} and ${MAX_BPS}`,
       })
-      return
     }
-    onRegister({ bps: parsedBps, partnerCode: trimmedCode })
+    onRegister({ bps: parsedBps, partnerCode: parsedCode })
   }
 
   return (
@@ -102,7 +91,7 @@ export const RegisterCard = ({
           <Input
             value={partnerCode}
             onChange={e => setPartnerCode(e.target.value)}
-            placeholder='e.g. my-partner-code'
+            placeholder='e.g. mypartnercode'
             spellCheck={false}
             w='20ch'
           />
@@ -115,8 +104,6 @@ export const RegisterCard = ({
               onChange={e => setBps(e.target.value)}
               placeholder={String(DEFAULT_BPS)}
               w='8ch'
-              min={MIN_BPS}
-              max={MAX_BPS}
             />
             <InputRightAddon
               bg='bg.surface'
@@ -125,7 +112,7 @@ export const RegisterCard = ({
               fontSize='sm'
               color='fg.muted'
             >
-              {bpsToPercent(parsedBps ?? 0)}
+              {bpsToPercent(Number(bps) ?? 0)}
             </InputRightAddon>
           </InputGroup>
         </Row>

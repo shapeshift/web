@@ -11,28 +11,19 @@ export const calculatePartnerFeeAmountUsd = (
   swap: SwapServiceAffiliateSwap,
   feeAsset: Asset | undefined,
 ): string | null => {
-  // 1. Actual amount captured on-chain, scaled to the partner's share of the affiliate split
-  if (
-    feeAsset &&
-    swap.affiliateAssetUsd &&
-    swap.actualAffiliateFeeAmountCryptoBaseUnit &&
-    affiliateBps != null &&
-    affiliateBps > 0 &&
-    partnerBps != null
-  ) {
-    return BigAmount.fromBaseUnit({
+  if (!partnerBps || !affiliateBps) return null
+
+  // 1. Actual amount captured on-chain, scaled to the partner's share.
+  if (feeAsset && swap.affiliateAssetUsd && swap.actualAffiliateFeeAmountCryptoBaseUnit) {
+    const capture = BigAmount.fromBaseUnit({
       value: swap.actualAffiliateFeeAmountCryptoBaseUnit,
       precision: feeAsset.precision,
-    })
-      .times(swap.affiliateAssetUsd)
-      .times(partnerBps)
-      .div(affiliateBps)
-      .toFixed()
+    }).times(swap.affiliateAssetUsd)
+    if (partnerBps >= affiliateBps) return capture.toFixed()
+    return capture.times(partnerBps).div(affiliateBps).toFixed()
   }
 
-  // 2. Inferred from volume × partnerBps / 10000
-  if (partnerBps == null) return null
-
+  // 2. Inferred from volume × partnerBps / 10000.
   const { volumeAsset, volumeBaseUnit, volumePriceUsd } = (() => {
     if (swap.affiliateFeeAssetId === swap.buyAsset.assetId) {
       return {

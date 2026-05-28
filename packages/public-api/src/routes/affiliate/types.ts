@@ -17,7 +17,8 @@ export const AffiliateConfigResponseSchema = registry.register(
     walletAddress: EVM_ADDRESS,
     receiveAddress: EVM_ADDRESS.nullable(),
     partnerCode: z.string().nullable().openapi({ example: 'mypartner' }),
-    bps: z.number().openapi({ example: 30 }),
+    partnerBps: z.number().openapi({ example: 50 }),
+    shapeshiftBps: z.number().openapi({ example: 10 }),
     isActive: z.boolean().openapi({ example: true }),
     createdAt: z.string().datetime().openapi({ example: '2024-01-01T00:00:00.000Z' }),
     updatedAt: z.string().datetime().openapi({ example: '2024-01-01T00:00:00.000Z' }),
@@ -55,6 +56,7 @@ export const AffiliateSwapSchema = registry.register(
     buyAmountCryptoPrecision: z.string().nullable().openapi({ example: '948.0' }),
     buyAmountUsd: z.string().nullable().openapi({ example: '1234.56' }),
     affiliateFeeAmountUsd: z.string().nullable().openapi({ example: '3.70' }),
+    affiliateBps: z.number().int().min(0).openapi({ example: 60 }),
     partnerBps: z.number().int().min(0).nullable().openapi({ example: 20 }),
     shapeshiftBps: z.number().int().min(0).openapi({ example: 10 }),
     swapperName: z.string().openapi({ example: 'THORChain' }),
@@ -78,7 +80,8 @@ export const SwapServiceAffiliateSwapSchema = z.object({
   actualAffiliateFeeAmountCryptoBaseUnit: z.string().nullable(),
   affiliateAssetUsd: z.string().nullable(),
   affiliateFeeAssetId: z.string().nullable(),
-  affiliateBps: z.number().int().min(0).nullable(),
+  affiliateBps: z.number().int().min(0),
+  partnerBps: z.number().int().min(0),
   shapeshiftBps: z.number().int().min(0),
   affiliateVerificationDetails: z
     .object({

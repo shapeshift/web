@@ -1,5 +1,5 @@
 import { Button, Flex, Input, InputGroup, InputRightAddon, Stack, Text } from '@chakra-ui/react'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 
 import type { ActionMessage } from '../../hooks/useAffiliateActions'
 import { DEFAULT_BPS, MAX_BPS, MIN_BPS } from '../../lib/constants'
@@ -49,9 +49,8 @@ export const RegisterCard = ({
   const parsedBps = parseBps(bps)
   const trimmedCode = partnerCode.trim()
 
-  const codeIsValid = useMemo(() => PARTNER_CODE_REGEX.test(trimmedCode), [trimmedCode])
-  const bpsIsValid =
-    parsedBps !== null && parsedBps >= MIN_BPS && parsedBps <= MAX_BPS
+  const codeIsValid = PARTNER_CODE_REGEX.test(trimmedCode)
+  const bpsIsValid = parsedBps !== null
 
   const disabled = !codeIsValid || !bpsIsValid
 
@@ -63,10 +62,10 @@ export const RegisterCard = ({
       })
       return
     }
-    if (!bpsIsValid || parsedBps === null) {
+    if (parsedBps === null) {
       onValidationError({
         type: 'error',
-        text: `BPS must be between ${MIN_BPS} and ${MAX_BPS}`,
+        text: `BPS must be a number between ${MIN_BPS} and ${MAX_BPS}`,
       })
       return
     }

@@ -1,14 +1,18 @@
 import { Button, Flex, Input, InputGroup, InputRightAddon, Stack, Text } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
+import type { ActionMessage } from '../../hooks/useAffiliateActions'
 import { DEFAULT_BPS, MAX_BPS, MIN_BPS } from '../../lib/constants'
 import { bpsToPercent, parseBps } from '../../lib/format'
 import { SettingsCard } from './SettingsCard'
 
+const PARTNER_CODE_REGEX = /^[a-zA-Z0-9-]{3,32}$/
+
 interface RegisterCardProps {
   address: string
   isLoading: boolean
-  onRegister: (bps: number) => void
+  onRegister: (args: { bps: number; partnerCode: string }) => void
+  onValidationError: (message: ActionMessage) => void
 }
 
 const Row = ({
@@ -38,9 +42,36 @@ export const RegisterCard = ({
   address,
   isLoading,
   onRegister,
+  onValidationError,
 }: RegisterCardProps): React.JSX.Element => {
   const [bps, setBps] = useState(String(DEFAULT_BPS))
+  const [partnerCode, setPartnerCode] = useState('')
   const parsedBps = parseBps(bps)
+  const trimmedCode = partnerCode.trim()
+
+  const codeIsValid = useMemo(() => PARTNER_CODE_REGEX.test(trimmedCode), [trimmedCode])
+  const bpsIsValid =
+    parsedBps !== null && parsedBps >= MIN_BPS && parsedBps <= MAX_BPS
+
+  const disabled = !codeIsValid || !bpsIsValid
+
+  const handleClick = (): void => {
+    if (!codeIsValid) {
+      onValidationError({
+        type: 'error',
+        text: 'Partner code must be 3–32 alphanumeric characters or hyphens',
+      })
+      return
+    }
+    if (!bpsIsValid || parsedBps === null) {
+      onValidationError({
+        type: 'error',
+        text: `BPS must be between ${MIN_BPS} and ${MAX_BPS}`,
+      })
+      return
+    }
+    onRegister({ bps: parsedBps, partnerCode: trimmedCode })
+  }
 
   return (
     <SettingsCard
@@ -48,7 +79,8 @@ export const RegisterCard = ({
       description='Earn swap fees whenever a user trades through your partner code.'
       headerRight={
         <Button
-          onClick={() => onRegister(parsedBps ?? DEFAULT_BPS)}
+          onClick={handleClick}
+          isDisabled={disabled}
           isLoading={isLoading}
           loadingText='Registering...'
         >
@@ -61,6 +93,15 @@ export const RegisterCard = ({
           <Text fontSize='sm' fontWeight={500} fontFamily='mono' color='fg.bright'>
             {address}
           </Text>
+        </Row>
+        <Row label='Partner Code'>
+          <Input
+            value={partnerCode}
+            onChange={e => setPartnerCode(e.target.value)}
+            placeholder='e.g. mypartner'
+            spellCheck={false}
+            w='20ch'
+          />
         </Row>
         <Row label='Affiliate BPS'>
           <InputGroup w='auto'>

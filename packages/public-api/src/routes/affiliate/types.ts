@@ -42,7 +42,7 @@ export const CreateAffiliateRequestSchema = z.object({
 
 export const UpdateAffiliateRequestSchema = z.object({
   receiveAddress: EVM_ADDRESS.optional(),
-  bps: z.number().int().min(0).optional(),
+  bps: z.number().int().min(0).max(1000).optional(),
 })
 
 // --- Affiliate Swaps ---

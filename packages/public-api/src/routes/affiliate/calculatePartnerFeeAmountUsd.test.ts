@@ -36,7 +36,8 @@ const makeSwap = (overrides: Partial<SwapServiceAffiliateSwap> = {}): SwapServic
   actualAffiliateFeeAmountCryptoBaseUnit: null,
   affiliateAssetUsd: null,
   affiliateFeeAssetId: null,
-  affiliateBps: null,
+  affiliateBps: 0,
+  partnerBps: 0,
   shapeshiftBps: 10,
   affiliateVerificationDetails: null,
   swapperName: '0x',
@@ -68,21 +69,21 @@ describe('calculatePartnerFeeAmountUsd', () => {
       expect(calculatePartnerFeeAmountUsd(20, 30, swap, USDC)).toBe('6')
     })
 
-    it('returns 0 when partnerBps is 0 (no partner cut)', () => {
+    it('returns null when partnerBps is 0 (no partner cut)', () => {
       const swap = makeSwap({
         actualAffiliateFeeAmountCryptoBaseUnit: '9000000',
         affiliateAssetUsd: '1',
       })
-      expect(calculatePartnerFeeAmountUsd(0, 10, swap, USDC)).toBe('0')
+      expect(calculatePartnerFeeAmountUsd(0, 10, swap, USDC)).toBeNull()
     })
 
-    it('falls through to inferred when affiliateBps is null', () => {
-      // No affiliateBps → can't compute ratio; fall back to sell side: 1 ETH × 30bps × $2000 = $6
+    it('returns null when affiliateBps is null', () => {
+      // No affiliateBps → no on-chain fee context; nothing meaningful to compute.
       const swap = makeSwap({
         actualAffiliateFeeAmountCryptoBaseUnit: '9000000',
         affiliateAssetUsd: '1',
       })
-      expect(calculatePartnerFeeAmountUsd(30, null, swap, USDC)).toBe('6')
+      expect(calculatePartnerFeeAmountUsd(30, null, swap, USDC)).toBeNull()
     })
 
     it('falls through to inferred when affiliateAssetUsd is missing', () => {
@@ -155,6 +156,27 @@ describe('calculatePartnerFeeAmountUsd', () => {
   describe('priority 3: no fee data', () => {
     it('returns null when partnerBps is null and no actual amount', () => {
       expect(calculatePartnerFeeAmountUsd(null, null, makeSwap(), undefined)).toBeNull()
+    })
+  })
+
+  describe('fee-exempt swaps', () => {
+    it('returns null when affiliateBps is 0, regardless of configured partnerBps', () => {
+      // Same-asset bridge: on-chain fee was waived, so the partner earns nothing
+      // even though their configured share is non-zero.
+      const swap = makeSwap({ affiliateFeeAssetId: USDC.assetId })
+      expect(calculatePartnerFeeAmountUsd(50, 0, swap, USDC)).toBeNull()
+    })
+  })
+
+  describe('verified affiliateBps below configured partnerBps', () => {
+    it('caps partner share at 100% of capture (matches settlement getPartnerFeeRate)', () => {
+      // THORChain outbound-fee min: configured partnerBps=50 but verified affiliateBps=40.
+      // partnerBps/affiliateBps = 1.25 → cap at 1. Partner gets full capture, SS gets 0.
+      const swap = makeSwap({
+        actualAffiliateFeeAmountCryptoBaseUnit: '4000000',
+        affiliateAssetUsd: '1',
+      })
+      expect(calculatePartnerFeeAmountUsd(50, 40, swap, USDC)).toBe('4')
     })
   })
 })

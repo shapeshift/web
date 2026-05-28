@@ -11,13 +11,16 @@ export const calculatePartnerFeeAmountUsd = (
   swap: SwapServiceAffiliateSwap,
   feeAsset: Asset | undefined,
 ): string | null => {
+  // Fee-exempt swap (e.g. same-asset bridge) — no on-chain fee was charged, so
+  // no partner share to compute regardless of the configured partnerBps.
+  if (affiliateBps === 0) return null
+
   // 1. Actual amount captured on-chain, scaled to the partner's share of the affiliate split
   if (
     feeAsset &&
     swap.affiliateAssetUsd &&
     swap.actualAffiliateFeeAmountCryptoBaseUnit &&
     affiliateBps != null &&
-    affiliateBps > 0 &&
     partnerBps != null
   ) {
     return BigAmount.fromBaseUnit({

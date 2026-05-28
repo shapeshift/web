@@ -157,4 +157,13 @@ describe('calculatePartnerFeeAmountUsd', () => {
       expect(calculatePartnerFeeAmountUsd(null, null, makeSwap(), undefined)).toBeNull()
     })
   })
+
+  describe('fee-exempt swaps', () => {
+    it('returns null when affiliateBps is 0, regardless of configured partnerBps', () => {
+      // Same-asset bridge: on-chain fee was waived, so the partner earns nothing
+      // even though their configured share is non-zero.
+      const swap = makeSwap({ affiliateFeeAssetId: USDC.assetId })
+      expect(calculatePartnerFeeAmountUsd(50, 0, swap, USDC)).toBeNull()
+    })
+  })
 })

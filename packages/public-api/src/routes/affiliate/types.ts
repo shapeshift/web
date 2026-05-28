@@ -56,6 +56,7 @@ export const AffiliateSwapSchema = registry.register(
     buyAmountCryptoPrecision: z.string().nullable().openapi({ example: '948.0' }),
     buyAmountUsd: z.string().nullable().openapi({ example: '1234.56' }),
     affiliateFeeAmountUsd: z.string().nullable().openapi({ example: '3.70' }),
+    affiliateBps: z.number().int().min(0).openapi({ example: 60 }),
     partnerBps: z.number().int().min(0).nullable().openapi({ example: 20 }),
     shapeshiftBps: z.number().int().min(0).openapi({ example: 10 }),
     swapperName: z.string().openapi({ example: 'THORChain' }),

@@ -121,6 +121,7 @@ export const getAffiliateSwaps = async (req: Request, res: Response): Promise<vo
           buyAmountCryptoPrecision: buyAmount.toPrecision(),
           buyAmountUsd: swap.buyAssetUsd ? buyAmount.times(swap.buyAssetUsd).toFixed() : null,
           affiliateFeeAmountUsd,
+          affiliateBps,
           partnerBps,
           shapeshiftBps: swap.shapeshiftBps,
           swapperName: swap.swapperName,

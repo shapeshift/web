@@ -51,8 +51,8 @@ export const useAffiliateActions = ({
         { walletAddress: affiliateAddress, bps: args.bps, partnerCode: args.partnerCode },
         authHeaders,
       ),
-    onSuccess: (_, args) => {
-      setMessage({ type: 'success', text: `Affiliate registered as "${args.partnerCode}"` })
+    onSuccess: () => {
+      setMessage({ type: 'success', text: `Affiliate registered successfully` })
       invalidateConfig()
     },
     onError: (err: Error) => setMessage({ type: 'error', text: err.message }),

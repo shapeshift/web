@@ -1,18 +1,22 @@
 import { useEffect, useState } from 'react'
 
+import { DEFAULT_FEE_BPS } from '@/lib/fees/constant'
+
 const PARTNER_ADDRESS_KEY = 'shapeshift_partner_address'
 const PARTNER_BPS_KEY = 'shapeshift_partner_bps'
 const PARTNER_CODE_KEY = 'shapeshift_partner_code'
 const PARTNER_TIMESTAMP_KEY = 'shapeshift_partner_timestamp'
 const PARTNER_TTL_MS = 30 * 24 * 60 * 60 * 1000
-const SHAPESHIFT_CUT_BPS = 10
+const SHAPESHIFT_BPS_KEY = 'shapeshift_bps'
+const AFFILIATE_BPS_KEY = 'shapeshift_affiliate_bps'
 
-const PARTNER_LOOKUP_URL = import.meta.env.VITE_SWAPS_SERVER_URL || 'http://localhost:3001'
+const SWAP_SERVICE_BASE_URL = import.meta.env.VITE_SWAPS_SERVER_URL || 'http://localhost:3001'
 
 type PartnerData = {
-  affiliateAddress: string
-  bps: number
+  partnerAddress: string
+  partnerBps: number
   partnerCode: string
+  shapeshiftBps: number
 }
 
 const isPartnerExpired = (timestamp: string | null): boolean => {
@@ -28,6 +32,8 @@ const clearPartnerStorage = (): void => {
     window.localStorage.removeItem(PARTNER_BPS_KEY)
     window.localStorage.removeItem(PARTNER_CODE_KEY)
     window.localStorage.removeItem(PARTNER_TIMESTAMP_KEY)
+    window.localStorage.removeItem(SHAPESHIFT_BPS_KEY)
+    window.localStorage.removeItem(AFFILIATE_BPS_KEY)
   } catch {
     // noop
   }
@@ -35,17 +41,62 @@ const clearPartnerStorage = (): void => {
 
 const storePartnerData = (data: PartnerData): void => {
   try {
-    const totalBps = String(data.bps + SHAPESHIFT_CUT_BPS)
-    window.localStorage.setItem(PARTNER_ADDRESS_KEY, data.affiliateAddress)
-    window.localStorage.setItem(PARTNER_BPS_KEY, totalBps)
+    window.localStorage.setItem(PARTNER_ADDRESS_KEY, data.partnerAddress)
+    window.localStorage.setItem(PARTNER_BPS_KEY, String(data.partnerBps))
     window.localStorage.setItem(PARTNER_CODE_KEY, data.partnerCode)
     window.localStorage.setItem(PARTNER_TIMESTAMP_KEY, String(Date.now()))
+    window.localStorage.setItem(SHAPESHIFT_BPS_KEY, String(data.shapeshiftBps))
+    window.localStorage.setItem(AFFILIATE_BPS_KEY, String(data.partnerBps + data.shapeshiftBps))
   } catch {
     // noop
   }
 }
 
-export const readStoredAffiliate = (): string | null => {
+const PARTNER_RESOLVE_TIMEOUT_MS = 5000
+
+const resolvePartnerCode = async (code: string): Promise<PartnerData | null> => {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), PARTNER_RESOLVE_TIMEOUT_MS)
+
+  try {
+    const response = await fetch(
+      `${SWAP_SERVICE_BASE_URL}/v1/partner/${encodeURIComponent(code)}`,
+      { signal: controller.signal },
+    )
+
+    if (!response.ok) return null
+
+    return (await response.json()) as PartnerData
+  } catch {
+    return null
+  } finally {
+    clearTimeout(timeoutId)
+  }
+}
+
+const getPartnerCode = (): string | null => {
+  if (typeof window === 'undefined') return null
+
+  const hash = window.location.hash
+  const hashQueryIdx = hash.indexOf('?')
+  const searchStr = hashQueryIdx !== -1 ? hash.substring(hashQueryIdx) : window.location.search
+  const params = new URLSearchParams(searchStr)
+  const partnerParam = params.get('partner')
+
+  if (partnerParam) return partnerParam
+
+  try {
+    const storedCode = window.localStorage.getItem(PARTNER_CODE_KEY)
+    const timestamp = window.localStorage.getItem(PARTNER_TIMESTAMP_KEY)
+    if (storedCode && !isPartnerExpired(timestamp)) return storedCode
+  } catch {
+    // noop
+  }
+
+  return null
+}
+
+export const readStoredPartnerAddress = (): string | null => {
   if (typeof window === 'undefined') return null
 
   try {
@@ -85,71 +136,6 @@ export const readStoredPartnerBps = (): string | null => {
   }
 }
 
-const PARTNER_RESOLVE_TIMEOUT_MS = 5000
-
-const resolvePartnerCode = async (code: string): Promise<PartnerData | null> => {
-  try {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), PARTNER_RESOLVE_TIMEOUT_MS)
-
-    const response = await fetch(`${PARTNER_LOOKUP_URL}/v1/partner/${encodeURIComponent(code)}`, {
-      signal: controller.signal,
-    })
-    clearTimeout(timeoutId)
-
-    if (!response.ok) return null
-
-    const data = (await response.json()) as {
-      affiliateAddress: string
-      bps: number
-      partnerCode: string
-    }
-
-    return data
-  } catch {
-    return null
-  }
-}
-
-const getPartnerCode = (): string | null => {
-  if (typeof window === 'undefined') return null
-
-  const hash = window.location.hash
-  const hashQueryIdx = hash.indexOf('?')
-  const searchStr = hashQueryIdx !== -1 ? hash.substring(hashQueryIdx) : window.location.search
-  const params = new URLSearchParams(searchStr)
-  const partnerParam = params.get('partner')
-
-  if (partnerParam) return partnerParam
-
-  try {
-    const storedCode = window.localStorage.getItem(PARTNER_CODE_KEY)
-    const timestamp = window.localStorage.getItem(PARTNER_TIMESTAMP_KEY)
-    if (storedCode && !isPartnerExpired(timestamp)) return storedCode
-  } catch {
-    // noop
-  }
-
-  return null
-}
-
-export const useAffiliateTracking = (): string | null => {
-  const [storedAddress, setStoredAddress] = useState<string | null>(readStoredAffiliate)
-
-  useEffect(() => {
-    const code = getPartnerCode()
-    if (!code) return
-
-    void resolvePartnerCode(code).then(data => {
-      if (!data) return
-      storePartnerData(data)
-      setStoredAddress(data.affiliateAddress)
-    })
-  }, [])
-
-  return storedAddress
-}
-
 export const readStoredPartnerCode = (): string | null => {
   if (typeof window === 'undefined') return null
 
@@ -168,6 +154,63 @@ export const readStoredPartnerCode = (): string | null => {
   } catch {
     return null
   }
+}
+
+export const readStoredShapeshiftBps = (): string | null => {
+  if (typeof window === 'undefined') return null
+
+  try {
+    const bps = window.localStorage.getItem(SHAPESHIFT_BPS_KEY)
+    const timestamp = window.localStorage.getItem(PARTNER_TIMESTAMP_KEY)
+
+    if (!bps) return null
+
+    if (isPartnerExpired(timestamp)) {
+      clearPartnerStorage()
+      return null
+    }
+
+    return bps
+  } catch {
+    return null
+  }
+}
+
+export const readStoredAffiliateBps = (): string => {
+  if (typeof window === 'undefined') return DEFAULT_FEE_BPS
+
+  try {
+    const bps = window.localStorage.getItem(AFFILIATE_BPS_KEY)
+    const timestamp = window.localStorage.getItem(PARTNER_TIMESTAMP_KEY)
+
+    if (!bps) return DEFAULT_FEE_BPS
+
+    if (isPartnerExpired(timestamp)) {
+      clearPartnerStorage()
+      return DEFAULT_FEE_BPS
+    }
+
+    return bps
+  } catch {
+    return DEFAULT_FEE_BPS
+  }
+}
+
+export const useAffiliateTracking = (): string | null => {
+  const [storedAddress, setStoredAddress] = useState<string | null>(readStoredPartnerAddress)
+
+  useEffect(() => {
+    const code = getPartnerCode()
+    if (!code) return
+
+    void resolvePartnerCode(code).then(data => {
+      if (!data) return
+      storePartnerData(data)
+      setStoredAddress(data.partnerAddress)
+    })
+  }, [])
+
+  return storedAddress
 }
 
 export { PARTNER_ADDRESS_KEY as AFFILIATE_STORAGE_KEY }

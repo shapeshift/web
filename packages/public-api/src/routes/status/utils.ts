@@ -19,6 +19,7 @@ const buildSwapRegistrationBody = (storedQuote: ReturnType<typeof quoteStore.get
       source: storedQuote.swapperName,
       swapperName: storedQuote.swapperName,
       sellAccountId: storedQuote.sendAddress,
+      buyAccountId: storedQuote.receiveAddress,
       receiveAddress: storedQuote.receiveAddress,
       partnerAddress: storedQuote.partnerAddress,
       partnerBps: storedQuote.partnerBps ? Number(storedQuote.partnerBps) : undefined,

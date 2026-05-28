@@ -102,9 +102,7 @@ export const getAffiliateSwaps = async (req: Request, res: Response): Promise<vo
         }).toBN()
 
         const affiliateBps = swap.affiliateVerificationDetails?.affiliateBps ?? swap.affiliateBps
-
-        const partnerBps =
-          affiliateBps == null ? null : Math.max(0, affiliateBps - swap.shapeshiftBps)
+        const partnerBps = swap.partnerBps
 
         const affiliateFeeAmountUsd = calculatePartnerFeeAmountUsd(
           partnerBps,

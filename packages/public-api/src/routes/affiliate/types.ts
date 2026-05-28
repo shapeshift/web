@@ -79,7 +79,8 @@ export const SwapServiceAffiliateSwapSchema = z.object({
   actualAffiliateFeeAmountCryptoBaseUnit: z.string().nullable(),
   affiliateAssetUsd: z.string().nullable(),
   affiliateFeeAssetId: z.string().nullable(),
-  affiliateBps: z.number().int().min(0).nullable(),
+  affiliateBps: z.number().int().min(0),
+  partnerBps: z.number().int().min(0),
   shapeshiftBps: z.number().int().min(0),
   affiliateVerificationDetails: z
     .object({

@@ -6,7 +6,9 @@ import { DEFAULT_BPS, MAX_BPS, MIN_BPS } from '../../lib/constants'
 import { bpsToPercent, parseBps } from '../../lib/format'
 import { SettingsCard } from './SettingsCard'
 
-const PARTNER_CODE_REGEX = /^[a-zA-Z0-9-]{3,32}$/
+const PARTNER_CODE_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+const PARTNER_CODE_MIN_LENGTH = 3
+const PARTNER_CODE_MAX_LENGTH = 32
 
 interface RegisterCardProps {
   address: string
@@ -49,7 +51,10 @@ export const RegisterCard = ({
   const parsedBps = parseBps(bps)
   const trimmedCode = partnerCode.trim()
 
-  const codeIsValid = PARTNER_CODE_REGEX.test(trimmedCode)
+  const codeIsValid =
+    trimmedCode.length >= PARTNER_CODE_MIN_LENGTH &&
+    trimmedCode.length <= PARTNER_CODE_MAX_LENGTH &&
+    PARTNER_CODE_REGEX.test(trimmedCode)
   const bpsIsValid = parsedBps !== null
 
   const disabled = !codeIsValid || !bpsIsValid
@@ -58,7 +63,7 @@ export const RegisterCard = ({
     if (!codeIsValid) {
       onValidationError({
         type: 'error',
-        text: 'Partner code must be 3–32 alphanumeric characters or hyphens',
+        text: `Partner code must be lowercase kebab-case, ${PARTNER_CODE_MIN_LENGTH}–${PARTNER_CODE_MAX_LENGTH} characters (e.g. my-partner-code)`,
       })
       return
     }
@@ -97,7 +102,7 @@ export const RegisterCard = ({
           <Input
             value={partnerCode}
             onChange={e => setPartnerCode(e.target.value)}
-            placeholder='e.g. mypartner'
+            placeholder='e.g. my-partner-code'
             spellCheck={false}
             w='20ch'
           />

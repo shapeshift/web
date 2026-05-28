@@ -31,7 +31,12 @@ export const CreateAffiliateRequestSchema = z.object({
   partnerCode: z
     .string()
     .trim()
-    .regex(/^[a-zA-Z0-9-]{3,32}$/, 'partnerCode must be 3-32 alphanumeric characters or hyphens'),
+    .min(3)
+    .max(32)
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      'partnerCode must be lowercase kebab-case (e.g. my-partner-code)',
+    ),
   bps: z.number().int().min(0).max(1000),
 })
 

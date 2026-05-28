@@ -1,6 +1,7 @@
 {
   "name": "@shapeshiftoss/hdwallet-walletconnectv2",
   "version": "1.62.41",
+  "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "type": "module",
   "main": "dist/cjs/index.js",

@@ -1,4 +1,11 @@
 import { Transaction } from '@shapeshiftoss/bitcoinjs-lib'
+import type {
+  BTCOutputScriptType,
+  BTCSignTxOutput,
+  BTCSignTxOutputChange,
+  BTCSignTxOutputSpend,
+} from '@shapeshiftoss/hdwallet-core'
+import { bip32ToAddressNList, BTCOutputAddressType } from '@shapeshiftoss/hdwallet-core'
 import BigNumber from 'bignumber.js'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
@@ -13,6 +20,7 @@ type VinLike = {
 type VoutLike = {
   value?: TxValue
   addresses?: string[]
+  opReturn?: string
 }
 
 export type SpeedUpTxLike = {
@@ -170,17 +178,185 @@ export const resolveVinVoutIndex = ({
   return undefined
 }
 
-export const getTxIdFromHex = (hex?: string) => {
-  if (!hex) return undefined
+export type ReconstructedInput = {
+  txid: string
+  vout: number
+  amount: string
+  addressNList: number[]
+  hex: string
+}
 
-  try {
-    return Transaction.fromHex(hex).getId()
-  } catch {
-    return undefined
+export type ReconstructedOutput = {
+  address?: string
+  amount: string
+  isChange: boolean
+  opReturn?: string
+}
+
+export type OriginalTxSummary = {
+  // Sat-value of the original tx fee, fixed integer string.
+  feeSats: string
+  // Virtual size in vbytes, fixed integer string.
+  vsize: string
+  // Effective fee rate in sat/vB, 2-decimal precise string.
+  feeRate: string
+}
+
+export const summarizeOriginalTx = (tx: SpeedUpTxLike): OriginalTxSummary => {
+  const feeSats = getTxFeeSats(tx)
+  const vsize = getTxVsize(tx)
+  const feeRate = getDisplayFeeRateSatPerVbPrecise({
+    tx: { ...tx, fee: feeSats.toFixed(0) },
+  })
+  return {
+    feeSats: feeSats.toFixed(0),
+    vsize: vsize.toFixed(0),
+    feeRate: feeRate.toFixed(2),
   }
 }
 
-export const isLikelyBitcoinTxId = (value: unknown): value is string => {
-  if (typeof value !== 'string') return false
-  return /^[a-fA-F0-9]{64}$/.test(value.trim())
+export const buildOwnedAddressNListMap = (
+  accountAddresses: { pubkey: string; path?: string }[] = [],
+): Map<string, number[]> => {
+  const map = new Map<string, number[]>()
+  for (const entry of accountAddresses) {
+    if (entry.pubkey && entry.path) {
+      map.set(entry.pubkey, bip32ToAddressNList(entry.path))
+    }
+  }
+  return map
+}
+
+// A vout is "change" if its address is owned and its BIP44 change index is 1
+// (addressNList[3] === 1). The speed-up reissues change outputs at the new fee
+// and preserves everything else as-is.
+export const classifyOriginalOutputs = ({
+  vouts,
+  ownedAddressMap,
+}: {
+  vouts: { value?: TxValue; addresses?: string[]; opReturn?: string }[]
+  ownedAddressMap: Map<string, number[]>
+}): ReconstructedOutput[] => {
+  return vouts.map(vout => {
+    const address = vout.addresses?.[0]
+    const addressNList = address ? ownedAddressMap.get(address) : undefined
+    return {
+      address,
+      amount: String(vout.value ?? '0'),
+      isChange: addressNList?.[3] === 1,
+      opReturn: vout.opReturn,
+    }
+  })
+}
+
+export const reconstructReplacementInputs = ({
+  vins,
+  prevTxs,
+  ownedAddressMap,
+  metadata,
+}: {
+  vins: {
+    txid: string
+    vout?: string | number | null
+    value?: TxValue
+    addresses?: string[]
+  }[]
+  prevTxs: { hex: string; vout: VoutLike[] }[]
+  ownedAddressMap: Map<string, number[]>
+  metadata?: { inputs: { addressNList?: number[] }[] }
+}): ReconstructedInput[] => {
+  return vins.map((vin, index) => {
+    const prevTx = prevTxs[index]
+    const vinAddress = vin.addresses?.[0]
+    const voutIndex = resolveVinVoutIndex({
+      vinVout: vin.vout,
+      vinValue: vin.value,
+      vinAddress,
+      prevTxVouts: prevTx.vout,
+    })
+
+    if (voutIndex === undefined) throw new Error(`Unable to resolve vin.vout for ${vin.txid}`)
+
+    const prevOutputAmount = prevTx.vout[voutIndex]?.value
+    const inputAmount = String(vin.value ?? prevOutputAmount ?? '0')
+
+    const metadataAddressNList = metadata?.inputs[index]?.addressNList
+    const addressNList =
+      (metadataAddressNList?.length ? metadataAddressNList : undefined) ??
+      (vinAddress ? ownedAddressMap.get(vinAddress) : undefined)
+
+    if (!addressNList) {
+      throw new Error(`Unable to determine BIP44 path for vin address ${vinAddress ?? '(unknown)'}`)
+    }
+
+    return {
+      txid: vin.txid,
+      vout: voutIndex,
+      amount: inputAmount,
+      addressNList,
+      hex: prevTx.hex,
+    }
+  })
+}
+
+// Rebuilds the wallet's `txToSign.outputs` from the original tx: payments
+// stay as-is, change is reissued at `newChangeSats` (dropped if below dust),
+// and OP_RETURN is lifted to tx-level `opReturnData`.
+export const buildReplacementOutputs = ({
+  outputs,
+  newChangeSats,
+  changeAddressNList,
+  changeScriptType,
+  dustThreshold,
+}: {
+  outputs: ReconstructedOutput[]
+  newChangeSats: BigNumber
+  changeAddressNList: number[]
+  changeScriptType: BTCOutputScriptType
+  dustThreshold: number
+}): { outputs: BTCSignTxOutput[]; opReturnData?: string } | { error: string } => {
+  if (outputs.filter(o => o.isChange).length > 1) {
+    return { error: 'modals.send.speedUp.errors.multipleChange' }
+  }
+  if (outputs.filter(o => o.opReturn).length > 1) {
+    return { error: 'modals.send.speedUp.errors.multipleOpReturn' }
+  }
+  if (outputs.some(o => !o.address && !o.opReturn)) {
+    return { error: 'modals.send.speedUp.errors.addresslessOutput' }
+  }
+
+  let opReturnData: string | undefined
+  const signOutputs: BTCSignTxOutput[] = []
+
+  for (const output of outputs) {
+    if (output.opReturn) {
+      opReturnData = output.opReturn
+      continue
+    }
+
+    if (output.isChange) {
+      // Below-dust change disappears entirely; the dust sats get absorbed into the fee.
+      if (newChangeSats.lt(dustThreshold)) continue
+      const change: BTCSignTxOutputChange = {
+        addressType: BTCOutputAddressType.Change,
+        addressNList: changeAddressNList,
+        scriptType: changeScriptType,
+        amount: newChangeSats.toFixed(0),
+        isChange: true,
+      }
+      signOutputs.push(change)
+      continue
+    }
+
+    if (!output.address) continue
+
+    const spend: BTCSignTxOutputSpend = {
+      addressType: BTCOutputAddressType.Spend,
+      address: output.address,
+      amount: output.amount,
+    }
+    signOutputs.push(spend)
+  }
+
+  return { outputs: signOutputs, opReturnData }
 }

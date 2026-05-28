@@ -54,9 +54,9 @@ export const ConfigSummaryCard = ({ config }: ConfigSummaryCardProps): React.JSX
         {config.receiveAddress ?? config.walletAddress}
       </Row>
       <Row label='BPS'>
-        {config.bps} ({bpsToPercent(config.bps)})
+        {config.partnerBps} ({bpsToPercent(config.partnerBps)})
       </Row>
-      <Row label='Partner Code'>{config.partnerCode ?? 'None'}</Row>
+      <Row label='Code'>{config.partnerCode ?? 'None'}</Row>
       <Row label='Status' color={config.isActive ? 'success' : 'danger'}>
         {config.isActive ? 'Active' : 'Inactive'}
       </Row>

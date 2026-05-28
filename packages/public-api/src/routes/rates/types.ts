@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
-import { booleanFromString } from '../../lib/zod'
 import { registry } from '../../registry'
+import { BpsFields } from '../../types'
 
 export const RatesRequestSchema = z.object({
   sellAssetId: z.string().min(1).openapi({ example: 'eip155:1/slip44:60' }),
@@ -20,7 +20,6 @@ export const RatesRequestSchema = z.object({
     )
     .optional()
     .openapi({ example: '0.01' }),
-  allowMultiHop: booleanFromString.optional().default(true).openapi({ example: true }),
 })
 
 const ApiRateSchema = z.object({
@@ -31,7 +30,7 @@ const ApiRateSchema = z.object({
   steps: z.number(),
   estimatedExecutionTimeMs: z.number().optional(),
   priceImpactPercentageDecimal: z.string().optional(),
-  affiliateBps: z.string(),
+  ...BpsFields,
   networkFeeCryptoBaseUnit: z.string().optional(),
   error: z
     .object({
@@ -47,10 +46,6 @@ export const RateResponseSchema = registry.register(
     rates: z.array(ApiRateSchema),
     timestamp: z.number(),
     expiresAt: z.number(),
-    affiliateAddress: z
-      .string()
-      .optional()
-      .openapi({ example: '0x0000000000000000000000000000000000000001' }),
   }),
 )
 

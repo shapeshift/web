@@ -1,3 +1,4 @@
+import type { GatewayQuoteV2 } from '@gobob/bob-sdk'
 import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
@@ -86,6 +87,7 @@ export type SwapperConfig = {
   VITE_ACROSS_INTEGRATOR_ID: string
   VITE_DEBRIDGE_API_URL: string
   VITE_BOB_GATEWAY_AFFILIATE_ID: string
+  VITE_BOB_GATEWAY_API_KEY: string
 }
 
 export enum SwapperName {
@@ -394,6 +396,28 @@ export type AffiliateFee = {
   isEstimate?: boolean
 }
 
+type BobGatewayEvmTxMetadata = {
+  to: string
+  data: string
+  value: string
+  chain: string
+}
+
+type BobGatewayMetadataBase = {
+  orderId?: string
+  depositAddress?: string
+  opReturnData?: string | null
+  evmTx?: BobGatewayEvmTxMetadata
+}
+
+type BobGatewayTradeQuoteMetadata = BobGatewayMetadataBase & {
+  gatewayQuote: GatewayQuoteV2
+}
+
+type BobGatewaySwapMetadata = BobGatewayMetadataBase & {
+  gatewayQuote?: GatewayQuoteV2
+}
+
 export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string
   buyAmountAfterFeesCryptoBaseUnit: string
@@ -512,23 +536,7 @@ export type TradeQuoteStep = {
   }
   acrossTransactionMetadata?: AcrossTransactionMetadata
   debridgeTransactionMetadata?: DebridgeTransactionMetadata
-  /**
-   * BOB Gateway specific metadata.
-   * BOB Gateway internally calls BTC→EVM "onramp" and EVM→BTC "offramp", but we avoid those
-   * fiat-connotation terms. See: https://docs.gobob.xyz/gateway/integration
-   */
-  bobSpecific?: {
-    orderId: string
-    /** btcToEvm only — Bitcoin address the user sends funds to */
-    depositAddress?: string
-    /** evmToBtc only — EVM transaction data to execute the offramp */
-    evmTx?: {
-      to: string
-      data: string
-      value: string
-      chain: string
-    }
-  }
+  bobSpecific?: BobGatewayTradeQuoteMetadata
   affiliateFee?: AffiliateFee
 }
 
@@ -592,16 +600,7 @@ export type SwapperSpecificMetadata = {
   relayTransactionMetadata: RelayTransactionMetadata | undefined
   acrossTransactionMetadata: AcrossTransactionMetadata | undefined
   debridgeTransactionMetadata: DebridgeTransactionMetadata | undefined
-  bobSpecific?: {
-    orderId: string
-    depositAddress?: string
-    evmTx?: {
-      to: string
-      data: string
-      value: string
-      chain: string
-    }
-  }
+  bobSpecific?: BobGatewaySwapMetadata
   relayerExplorerTxLink: string | undefined
   relayerTxHash: string | undefined
   stepIndex: SupportedTradeQuoteStepIndex

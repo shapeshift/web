@@ -1,4 +1,10 @@
-import { Configuration, V1Api } from '@gobob/bob-sdk'
+import {
+  instanceOfGatewayCreateOrderOneOf,
+  instanceOfGatewayCreateOrderOneOf1,
+  instanceOfGatewayOrderStatusV2OneOf1,
+  instanceOfGatewayOrderStatusV2OneOf2,
+  isGatewayError,
+} from '@gobob/bob-sdk'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
@@ -6,18 +12,21 @@ import type { SwapperApi, UtxoFeeData } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
-import { BOB_GATEWAY_BASE_URL } from './utils/constants'
-import { mapBobGatewayOrderStatusToTxStatus } from './utils/helpers/helpers'
+import {
+  getBobGatewayClient,
+  mapBobGatewayOrderStatusToTxStatus,
+} from './utils/helpers/helpers'
 
 export const bobGatewayApi: SwapperApi = {
   getTradeQuote,
   getTradeRate,
 
-  getUnsignedUtxoTransaction: ({
+  getUnsignedUtxoTransaction: async ({
     stepIndex,
     tradeQuote,
     xpub,
     accountType,
+    config,
     assertGetUtxoChainAdapter,
   }) => {
     if (!isExecutableTradeQuote(tradeQuote))
@@ -26,11 +35,34 @@ export const bobGatewayApi: SwapperApi = {
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
     const { accountNumber, bobSpecific, sellAsset } = step
 
-    if (!bobSpecific?.depositAddress)
-      throw new Error('[BobGateway] missing depositAddress in step metadata')
-    if (!bobSpecific?.orderId) throw new Error('[BobGateway] missing orderId in step metadata')
+    if (!bobSpecific?.gatewayQuote) throw new Error('[BobGateway] missing quote in step metadata')
+
+    if (!bobSpecific.depositAddress) {
+      const orderResponse = await getBobGatewayClient(config).api.createOrderV2({
+        gatewayQuoteV2: bobSpecific.gatewayQuote,
+      })
+      if (!instanceOfGatewayCreateOrderOneOf(orderResponse)) {
+        throw new Error('[BobGateway] unexpected order response type')
+      }
+      bobSpecific.orderId = orderResponse.onramp.orderId
+      bobSpecific.depositAddress = orderResponse.onramp.address
+      bobSpecific.opReturnData = orderResponse.onramp.opReturnData ?? undefined
+    }
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
+    const satoshiPerByte = (step.feeData.chainSpecific as UtxoFeeData | undefined)?.satsPerByte
+
+    if (!satoshiPerByte) {
+      const { fast } = await adapter.getFeeData({
+        to: bobSpecific.depositAddress,
+        value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        chainSpecific: { pubkey: xpub, opReturnData: bobSpecific.opReturnData ?? undefined },
+        sendMax: false,
+      })
+
+      step.feeData.networkFeeCryptoBaseUnit = fast.txFee
+      step.feeData.chainSpecific = { satsPerByte: fast.chainSpecific.satoshiPerByte }
+    }
 
     return adapter.buildSendApiTransaction({
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -40,6 +72,7 @@ export const bobGatewayApi: SwapperApi = {
       skipToAddressValidation: true,
       chainSpecific: {
         accountType,
+        opReturnData: bobSpecific.opReturnData ?? undefined,
         satoshiPerByte: (step.feeData.chainSpecific as UtxoFeeData).satsPerByte,
       },
     })
@@ -52,16 +85,24 @@ export const bobGatewayApi: SwapperApi = {
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
     const { bobSpecific, sellAsset } = step
 
-    if (!bobSpecific?.depositAddress)
-      throw new Error('[BobGateway] missing depositAddress in step metadata')
+    if (!bobSpecific?.depositAddress) {
+      if (!step.feeData.networkFeeCryptoBaseUnit) {
+        throw new Error('[BobGateway] missing network fee in quote')
+      }
+
+      return step.feeData.networkFeeCryptoBaseUnit
+    }
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
     const { fast } = await adapter.getFeeData({
       to: bobSpecific.depositAddress,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      chainSpecific: { pubkey: xpub },
+      chainSpecific: { pubkey: xpub, opReturnData: bobSpecific.opReturnData ?? undefined },
       sendMax: false,
     })
+
+    step.feeData.networkFeeCryptoBaseUnit = fast.txFee
+    step.feeData.chainSpecific = { satsPerByte: fast.chainSpecific.satoshiPerByte }
 
     return fast.txFee
   },
@@ -71,6 +112,7 @@ export const bobGatewayApi: SwapperApi = {
     stepIndex,
     tradeQuote,
     assertGetEvmChainAdapter,
+    config,
     supportsEIP1559,
   }) => {
     if (!isExecutableTradeQuote(tradeQuote))
@@ -79,8 +121,23 @@ export const bobGatewayApi: SwapperApi = {
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
     const { accountNumber, bobSpecific, sellAsset } = step
 
-    if (!bobSpecific?.evmTx) throw new Error('[BobGateway] missing evmTx in step metadata')
-    if (!bobSpecific?.orderId) throw new Error('[BobGateway] missing orderId in step metadata')
+    if (!bobSpecific?.gatewayQuote) throw new Error('[BobGateway] missing quote in step metadata')
+
+    if (!bobSpecific.evmTx) {
+      const orderResponse = await getBobGatewayClient(config).api.createOrderV2({
+        gatewayQuoteV2: bobSpecific.gatewayQuote,
+      })
+      if (!instanceOfGatewayCreateOrderOneOf1(orderResponse)) {
+        throw new Error('[BobGateway] unexpected order response type')
+      }
+      bobSpecific.orderId = orderResponse.offramp.orderId
+      bobSpecific.evmTx = {
+        to: orderResponse.offramp.tx.to,
+        data: orderResponse.offramp.tx.data,
+        value: orderResponse.offramp.tx.value,
+        chain: orderResponse.offramp.tx.chain,
+      }
+    }
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
     const { to, data, value } = bobSpecific.evmTx
@@ -134,28 +191,42 @@ export const bobGatewayApi: SwapperApi = {
     return networkFeeCryptoBaseUnit
   },
 
-  checkTradeStatus: async ({ swap }) => {
+  checkTradeStatus: async ({ swap, config }) => {
     const orderId = swap?.metadata.bobSpecific?.orderId
     if (!orderId) throw new Error('[BobGateway] orderId is required for status check')
 
-    const api = new V1Api(new Configuration({ basePath: BOB_GATEWAY_BASE_URL }))
-
     let orderInfo
     try {
-      orderInfo = await api.getOrder({ id: orderId })
-    } catch {
-      return {
-        buyTxHash: undefined,
-        status: TxStatus.Unknown,
-        message: 'Waiting for deposit...',
+      orderInfo = await getBobGatewayClient(config).getOrder(orderId)
+    } catch (err) {
+      if (isGatewayError(err)) {
+        // err is fully typed, code is a descriminator field
+        switch (err.code) {
+          case 'ORDER_NOT_FOUND': {
+            return {
+              buyTxHash: undefined,
+              status: TxStatus.Unknown,
+              message: 'Waiting for deposit...',
+            }
+          }
+        }
+
       }
+
+      throw err
     }
 
     const status = mapBobGatewayOrderStatusToTxStatus(orderInfo.status)
-    const buyTxHash = orderInfo.dstInfo.txHash ?? undefined
+    const buyTxHash = instanceOfGatewayOrderStatusV2OneOf1(orderInfo.status)
+      ? orderInfo.status.success.receivedTokens[0]?.txHash
+      : undefined
+
+    const refundTxHash = instanceOfGatewayOrderStatusV2OneOf2(orderInfo.status)
+      ? orderInfo.status.refunded.refundedTokens[0]?.txHash
+      : undefined
 
     return {
-      buyTxHash,
+      buyTxHash: status === TxStatus.Confirmed ? buyTxHash : refundTxHash,
       status,
       message: undefined,
     }

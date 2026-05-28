@@ -1,23 +1,31 @@
-import type { GatewayOrderStatus } from '@gobob/bob-sdk'
+import type {
+  GatewayOrderStatusV2,
+  GatewayQuoteV2,
+  GetQuoteParams
+} from '@gobob/bob-sdk'
+import {
+  GatewaySDK,
+  instanceOfGatewayOrderStatusV2OneOf,
+  instanceOfGatewayOrderStatusV2OneOf1,
+  instanceOfGatewayOrderStatusV2OneOf2,
+  instanceOfGatewayQuoteV2OneOf,
+  instanceOfGatewayQuoteV2OneOf1,
+} from '@gobob/bob-sdk'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { isToken } from '@shapeshiftoss/utils'
+import { getAddress, isAddress } from 'viem'
 
-import type { SwapErrorRight } from '../../../../types'
+import type { SwapErrorRight, SwapperConfig } from '../../../../types'
 import { TradeQuoteError } from '../../../../types'
 import { makeSwapErrorRight } from '../../../../utils'
 import type { BobGatewayChainName } from '../constants'
 import {
-  BOB_GATEWAY_SUPPORTED_CHAIN_IDS,
+  BOB_GATEWAY_AFFILIATE_BPS,
+  BOB_GATEWAY_BASE_URL,
   BTC_TOKEN_ADDRESS,
   CHAIN_ID_TO_BOB_GATEWAY_CHAIN_NAME,
 } from '../constants'
-
-export const isSupportedChainId = (
-  chainId: string,
-): chainId is (typeof BOB_GATEWAY_SUPPORTED_CHAIN_IDS)[number] => {
-  return (BOB_GATEWAY_SUPPORTED_CHAIN_IDS as readonly string[]).includes(chainId)
-}
 
 export const chainIdToBobGatewayChainName = (chainId: string): BobGatewayChainName | undefined => {
   return CHAIN_ID_TO_BOB_GATEWAY_CHAIN_NAME[chainId]
@@ -37,37 +45,41 @@ export const assetIdToBobGatewayToken = (assetId: string): string => {
   return assetReference
 }
 
-/**
- * Maps a BOB Gateway order status to a ShapeShift TxStatus.
- * GatewayOrderStatus is a discriminated union of:
- *   - 'success' | 'refunded' (string literals)
- *   - GatewayOrderStatusOneOf (inProgress object)
- *   - GatewayOrderStatusOneOf1 (failed object)
- */
-export const mapBobGatewayOrderStatusToTxStatus = (status: GatewayOrderStatus): TxStatus => {
-  if (status === 'success') return TxStatus.Confirmed
-  if (status === 'refunded') return TxStatus.Failed
+export const getBobGatewayClient = (config: SwapperConfig): GatewaySDK => {
+  const apiKey = config.VITE_BOB_GATEWAY_API_KEY
 
-  // inProgress: { inProgress: { ... } }
-  if (typeof status === 'object' && status !== null && 'inProgress' in status) {
-    return TxStatus.Pending
-  }
+  return new GatewaySDK({
+    basePath: BOB_GATEWAY_BASE_URL,
+    apiKey: apiKey || undefined,
+  })
+}
 
-  // failed: { failed: { ... } }
-  if (typeof status === 'object' && status !== null && 'failed' in status) {
-    return TxStatus.Failed
-  }
+export const getBobGatewayAffiliates = (config: SwapperConfig): GetQuoteParams['affiliates'] => {
+  const affiliateAddress = config.VITE_BOB_GATEWAY_AFFILIATE_ID.trim()
+  if (!isAddress(affiliateAddress)) return undefined
+
+  return [{ address: getAddress(affiliateAddress), bps: BOB_GATEWAY_AFFILIATE_BPS }]
+}
+
+export const mapBobGatewayOrderStatusToTxStatus = (status: GatewayOrderStatusV2): TxStatus => {
+  if (instanceOfGatewayOrderStatusV2OneOf(status)) return TxStatus.Pending
+  if (instanceOfGatewayOrderStatusV2OneOf1(status)) return TxStatus.Confirmed
+  if (instanceOfGatewayOrderStatusV2OneOf2(status)) return TxStatus.Failed
 
   return TxStatus.Unknown
 }
 
-/**
- * Validates that a BTC ↔ BOB route is supported.
- * For PR 1, supported routes are:
- *   - BTC (bitcoin) → BOB chain token  (btcToEvm)
- *   - BOB chain token → BTC (bitcoin)  (evmToBtc)
- * Cross-chain LayerZero routes (SS-5639) are not included here.
- */
+export const getBobGatewayQuoteMetadata = (quote: GatewayQuoteV2) => {
+  const quoteDetails = instanceOfGatewayQuoteV2OneOf(quote) ? quote.onramp : instanceOfGatewayQuoteV2OneOf1(quote) ? quote.offramp : quote.tokenSwap
+  const estimatedExecutionTimeMs =
+    quoteDetails.estimatedTimeInSecs != null ? quoteDetails.estimatedTimeInSecs * 1000 : undefined
+
+  return {
+    outputAmount: quoteDetails.outputAmount.amount,
+    estimatedExecutionTimeMs,
+  }
+}
+
 export const validateBobGatewayRoute = (
   sellChainId: string,
   buyChainId: string,

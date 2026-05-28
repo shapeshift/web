@@ -99,6 +99,7 @@ export const ethChainId: ChainId = 'eip155:1'
 export const abstractChainId: ChainId = 'eip155:2741'
 export const avalancheChainId: ChainId = 'eip155:43114'
 export const optimismChainId: ChainId = 'eip155:10'
+export const telosChainId: ChainId = 'eip155:40'
 export const bscChainId: ChainId = 'eip155:56'
 export const polygonChainId: ChainId = 'eip155:137'
 export const gnosisChainId: ChainId = 'eip155:100'
@@ -106,6 +107,7 @@ export const arbitrumChainId: ChainId = 'eip155:42161'
 export const baseChainId: ChainId = 'eip155:8453'
 export const monadChainId: ChainId = 'eip155:143'
 export const hyperEvmChainId: ChainId = 'eip155:999'
+export const swellChainId: ChainId = 'eip155:1923'
 export const plasmaChainId: ChainId = 'eip155:9745'
 export const mantleChainId: ChainId = 'eip155:5000'
 export const inkChainId: ChainId = 'eip155:57073'
@@ -172,6 +174,7 @@ export const CHAIN_REFERENCE = {
   BinanceMainnet: 'binance-chain-tigris', // https://docs.bnbchain.org/docs/wallet_api/#chain-ids
   AvalancheCChain: '43114', // https://docs.avax.network/apis/avalanchego/apis/c-chain
   OptimismMainnet: '10', //https://community.optimism.io/docs/useful-tools/networks/#optimism-mainnet
+  TelosMainnet: '40', // https://docs.telos.net/build/network-info
   BnbSmartChainMainnet: '56', // https://docs.bnbchain.org/docs/wallet_api/#chain-ids
   PolygonMainnet: '137', // https://wiki.polygon.technology/docs/develop/metamask/config-polygon-on-metamask/
   GnosisMainnet: '100', // https://docs.gnosischain.com/tools/wallets/metamask/
@@ -179,6 +182,7 @@ export const CHAIN_REFERENCE = {
   BaseMainnet: '8453', // https://chainlist.org/chain/8453
   MonadMainnet: '143', // https://docs.monad.xyz/developer-essentials/network-information
   HyperEvmMainnet: '999', // https://chainlist.org/chain/999
+  SwellMainnet: '1923', // https://build.swellnetwork.io/docs/guides/getting-started#network-configuration
   PlasmaMainnet: '9745', // https://chainlist.org/chain/9745
   MantleMainnet: '5000', // https://chainlist.org/chain/5000
   InkMainnet: '57073',
@@ -323,6 +327,8 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.SeiMainnet,
     CHAIN_REFERENCE.CeloMainnet,
     CHAIN_REFERENCE.AbstractMainnet,
+    CHAIN_REFERENCE.TelosMainnet,
+    CHAIN_REFERENCE.SwellMainnet,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
     CHAIN_REFERENCE.CosmosHubMainnet,

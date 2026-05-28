@@ -1,9 +1,3 @@
-import {
-  Configuration,
-  instanceOfGatewayQuoteOneOf,
-  instanceOfGatewayQuoteOneOf1,
-  V1Api,
-} from '@gobob/bob-sdk'
 import { btcChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -19,7 +13,6 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import {
-  BOB_GATEWAY_BASE_URL,
   decimalSlippageToBobBps,
   DEFAULT_BOB_GATEWAY_SLIPPAGE_DECIMAL_PERCENTAGE,
   DUMMY_BTC_ADDRESS,
@@ -28,8 +21,12 @@ import {
 import {
   assetIdToBobGatewayToken,
   chainIdToBobGatewayChainName,
+  getBobGatewayAffiliates,
+  getBobGatewayClient,
+  getBobGatewayQuoteMetadata,
   validateBobGatewayRoute,
 } from '../utils/helpers/helpers'
+import { GatewayQuoteV2 } from '@gobob/bob-sdk'
 
 export const getTradeRate = async (
   input: GetTradeRateInput,
@@ -73,29 +70,25 @@ const _getTradeRate = async (
     slippageTolerancePercentageDecimal ?? DEFAULT_BOB_GATEWAY_SLIPPAGE_DECIMAL_PERCENTAGE,
   )
 
-  // For rates (no wallet connected), use dummy addresses.
-  // recipient is required by the API; sender is optional.
   const isBtcToEvm = sellAsset.chainId === btcChainId
   const recipient = isBtcToEvm
     ? receiveAddress ?? DUMMY_EVM_ADDRESS
     : receiveAddress ?? DUMMY_BTC_ADDRESS
   const sender = isBtcToEvm ? DUMMY_BTC_ADDRESS : DUMMY_EVM_ADDRESS
 
-  const api = new V1Api(new Configuration({ basePath: BOB_GATEWAY_BASE_URL }))
-
-  let quoteResponse
+  let quoteResponseResult: GatewayQuoteV2;
   try {
-    quoteResponse = await api.getQuote({
-      srcChain: sellChainName,
-      dstChain: buyChainName,
-      srcToken: assetIdToBobGatewayToken(sellAsset.assetId),
-      dstToken: assetIdToBobGatewayToken(buyAsset.assetId),
-      recipient,
-      sender,
+    quoteResponseResult = await getBobGatewayClient(config).getQuote({
+      fromChain: sellChainName,
+      toChain: buyChainName,
+      fromToken: assetIdToBobGatewayToken(sellAsset.assetId),
+      toToken: assetIdToBobGatewayToken(buyAsset.assetId),
+      fromUserAddress: sender,
+      toUserAddress: recipient,
       amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      slippage,
-      affiliateId: config.VITE_BOB_GATEWAY_AFFILIATE_ID || undefined,
-    })
+      maxSlippage: Number(slippage),
+      affiliates: getBobGatewayAffiliates(config),
+    });
   } catch (err) {
     return Err(
       makeSwapErrorRight({
@@ -106,25 +99,7 @@ const _getTradeRate = async (
     )
   }
 
-  // Unwrap the discriminated union to get outputAmount.
-  // outputAmount is GatewayTokenAmount ({ address, amount, chain }), not a plain string.
-  // BOB Gateway docs refer to these as "onramp"/"offramp" — we call them btcToEvm/evmToBtc.
-  let outputAmount: string
-  if (instanceOfGatewayQuoteOneOf(quoteResponse)) {
-    // btcToEvm (BOB calls this "onramp")
-    outputAmount = quoteResponse.onramp.outputAmount.amount
-  } else if (instanceOfGatewayQuoteOneOf1(quoteResponse)) {
-    // evmToBtc (BOB calls this "offramp")
-    outputAmount = quoteResponse.offramp.outputAmount.amount
-  } else {
-    // layerZero quote — not handled in PR 1 (SS-5639)
-    return Err(
-      makeSwapErrorRight({
-        message: '[BobGateway] LayerZero routes not yet supported',
-        code: TradeQuoteError.UnsupportedTradePair,
-      }),
-    )
-  }
+  const { outputAmount, estimatedExecutionTimeMs } = getBobGatewayQuoteMetadata(quoteResponseResult)
 
   const rate = getInputOutputRate({
     sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -147,8 +122,6 @@ const _getTradeRate = async (
         buyAmountAfterFeesCryptoBaseUnit: outputAmount,
         sellAmountIncludingProtocolFeesCryptoBaseUnit,
         feeData: {
-          // Network fee is unknown at rate time (no deposit address yet).
-          // Precise fees are calculated in getTradeQuote after createOrder.
           networkFeeCryptoBaseUnit: undefined,
           protocolFees: {},
         },
@@ -158,7 +131,7 @@ const _getTradeRate = async (
         sellAsset,
         accountNumber: undefined,
         allowanceContract: '',
-        estimatedExecutionTimeMs: undefined,
+        estimatedExecutionTimeMs,
       },
     ],
   }

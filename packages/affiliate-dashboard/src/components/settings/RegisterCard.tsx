@@ -57,7 +57,7 @@ export const RegisterCard = ({
     PARTNER_CODE_REGEX.test(trimmedCode)
   const bpsIsValid = parsedBps !== null
 
-  const disabled = !codeIsValid || !bpsIsValid
+  const disabled = trimmedCode === '' || bps === ''
 
   const handleClick = (): void => {
     if (!codeIsValid) {

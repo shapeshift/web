@@ -31,6 +31,7 @@ import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
+import { useThorchainMimir } from '@/lib/utils/thorchain/hooks/useThorchainMimir'
 import { isUtxoChainId } from '@/lib/utils/utxo'
 import { useIsSweepNeededQuery } from '@/pages/Lending/hooks/useIsSweepNeededQuery'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
@@ -78,7 +79,16 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     state: { isConnected },
   } = useWallet()
   const dispatch = useAppDispatch()
-  const { isChainHalted, isFetching: isChainHaltedFetching } = useIsChainHalted(thorchainChainId)
+
+  const { isChainHalted, isFetching: isChainHaltedFetching } = useIsChainHalted(
+    fromAssetId(claim.assetId).chainId,
+  )
+  const { data: isTcyClaimingHalted, isFetching: isTcyClaimingHaltedFetching } = useThorchainMimir({
+    chainId: thorchainChainId,
+    select: mimir => mimir.TCYCLAIMINGHALT === 1,
+  })
+
+  const isHalted = Boolean(isChainHalted) || Boolean(isTcyClaimingHalted)
   const [runeAddress, setRuneAddress] = useState<string>()
   const methods = useForm<AddressFormValues>()
 
@@ -228,14 +238,15 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   ])
 
   const isError = useMemo(() => {
-    return estimatedFeesData && !hasEnoughBalanceForDustAndFees
-  }, [hasEnoughBalanceForDustAndFees, estimatedFeesData])
+    return (estimatedFeesData && !hasEnoughBalanceForDustAndFees) || isHalted
+  }, [hasEnoughBalanceForDustAndFees, estimatedFeesData, isHalted])
 
   const confirmCopy = useMemo(() => {
+    if (isTcyClaimingHalted) return translate('TCY.claimingHalted')
     if (isChainHalted) return translate('common.chainHalted')
     if (isError) return translate('common.insufficientFunds')
     return translate('TCY.claimConfirm.confirmAndClaim')
-  }, [isError, translate, isChainHalted])
+  }, [isError, translate, isChainHalted, isTcyClaimingHalted])
 
   const confirmAlert = useMemo(() => {
     if (hasEnoughBalanceForDustAndFees) return null
@@ -316,13 +327,14 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
           isSweepNeededFeching ||
           !estimatedFeesData ||
           !hasEnoughBalanceForDustAndFees ||
-          Boolean(isChainHalted)
+          isHalted
         }
         isLoading={
           isClaimMutationPending ||
           isSweepNeededFeching ||
           isEstimatedFeesDataLoading ||
-          isChainHaltedFetching
+          isChainHaltedFetching ||
+          isTcyClaimingHaltedFetching
         }
         dustAmountUserCurrency={dustAmountUserCurrency}
         isError={isError}

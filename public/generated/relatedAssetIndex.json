@@ -388,13 +388,7 @@
     "eip155:100/erc20:0xb7d311e2eb55f2f68a9440da38e7989210b9a05e",
     "eip155:1/erc20:0x0ae055097c6d159879521c384f1d2123d1f195e6"
   ],
-  "eip155:42161/erc20:0x641441c631e2f909700d2f41fd87f0aa6a6b4edb": [
-    "eip155:56/erc20:0xb5102cee1528ce2c760893034a4603663495fd72",
-    "eip155:1/erc20:0x0a5e677a6a24b2f1a2bf4f3bffc443231d2fdec8",
-    "eip155:10/erc20:0xbfd291da8a403daaf7e5e9dc1ec0aceacd4848b9",
-    "eip155:137/erc20:0xcf66eb3d546f0415b368d98a95eaf56ded7aa752",
-    "eip155:42161/erc20:0x641441c631e2f909700d2f41fd87f0aa6a6b4edb"
-  ],
+  "eip155:42161/erc20:0x641441c631e2f909700d2f41fd87f0aa6a6b4edb": [],
   "eip155:42161/erc20:0xe10d4a4255d2d35c9e23e2c4790e073046fbaf5c": [
     "eip155:1/erc20:0x08a1c30bbb26425c1031ee9e43fa0b9960742539",
     "eip155:42161/erc20:0xe10d4a4255d2d35c9e23e2c4790e073046fbaf5c"
@@ -7370,7 +7364,8 @@
   "eip155:56/erc20:0xa9d72f6c1490647df20e8fad3c136ca6ac42c2fc": [
     "eip155:1/erc20:0xc311fd6da9686507f33991543d8158ef5fadd5e7",
     "eip155:56/erc20:0xa9d72f6c1490647df20e8fad3c136ca6ac42c2fc",
-    "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:AbzXS6NfGvCtg5B1rqZ1JSfoDHkwTAeEYJkWkHhCe38W"
+    "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:AbzXS6NfGvCtg5B1rqZ1JSfoDHkwTAeEYJkWkHhCe38W",
+    "eip155:8453/erc20:0x1d4cea73e212829d06b9a774d2e06be9dee5aab0"
   ],
   "eip155:8453/erc20:0x4eb92702ba4cfbf80561bad64d89c706ac824960": [
     "eip155:1/erc20:0xc43c6bfeda065fe2c4c11765bf838789bd0bb5de",
@@ -9151,10 +9146,7 @@
     "eip155:137/erc20:0xb75bbd79985a8092b05224f62d7fed25924b075d",
     "eip155:1/erc20:0xf80d589b3dbe130c270a69f1a69d050f268786df"
   ],
-  "eip155:56/erc20:0x7ce4bfc3a66d0fcf5d91dd846911c15c3ff82ecc": [
-    "eip155:1/erc20:0xf5207ac91c9e7ec7ebb03e93cbcbcad10878ac79",
-    "eip155:56/erc20:0x7ce4bfc3a66d0fcf5d91dd846911c15c3ff82ecc"
-  ],
+  "eip155:56/erc20:0x7ce4bfc3a66d0fcf5d91dd846911c15c3ff82ecc": [],
   "eip155:42161/erc20:0x569deb225441fd18bde18aed53e2ec7eb4e10d93": [],
   "eip155:42161/erc20:0xf8a80d1cb9cfd70d03d655d9df42339846f3b3c8": [
     "eip155:56/erc20:0xf8a80d1cb9cfd70d03d655d9df42339846f3b3c8",
@@ -13537,5 +13529,34 @@
   "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:xcUwiJe4cfb6VKKyoMkhyqaCeEW8YexXSSxPuswytRm": [
     "eip155:8453/erc20:0xb18f8cede9445487ec478c0b77f82c7314c9b0ab",
     "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:xcUwiJe4cfb6VKKyoMkhyqaCeEW8YexXSSxPuswytRm"
+  ],
+  "eip155:1329/erc20:0x78e26e8b953c7c78a58d69d8b9a91745c2bbb258": [
+    "eip155:1868/erc20:0x61f2993a644762a345b483adf0d6351c5edfb3b5",
+    "eip155:43111/erc20:0x78e26e8b953c7c78a58d69d8b9a91745c2bbb258",
+    "eip155:1329/erc20:0x78e26e8b953c7c78a58d69d8b9a91745c2bbb258"
+  ],
+  "eip155:137/erc20:0x7b12598e3616261df1c05ec28de0d2fb10c1f206": [
+    "eip155:8453/erc20:0x959fc04dbf97a27073f89237cd62605f4d1b906d",
+    "eip155:137/erc20:0x7b12598e3616261df1c05ec28de0d2fb10c1f206"
+  ],
+  "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:6VdpC1hcx7byFtJ5M6Xhspa6Uup5rZHruzXvuJhXAyXm": [
+    "eip155:8453/erc20:0xb46357d8ed050d35d3a24154c39d7236dae86187",
+    "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:6VdpC1hcx7byFtJ5M6Xhspa6Uup5rZHruzXvuJhXAyXm"
+  ],
+  "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:8vuNVRq1MuEtEyPcWXWpciXQRuD1BP8ZvoersHyBeb5": [
+    "eip155:8453/erc20:0x49c8ddd9a7c9f2fa6d1b9393b1f0a136c3bb3d4b",
+    "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:8vuNVRq1MuEtEyPcWXWpciXQRuD1BP8ZvoersHyBeb5"
+  ],
+  "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:BUYgeUDgnRxnu9G5sPyoHwigTL4PrqMSd4LURwH1KE4G": [
+    "eip155:8453/erc20:0x5bfde298f8dd600783eed0bfb10ccf3bf5426847",
+    "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:BUYgeUDgnRxnu9G5sPyoHwigTL4PrqMSd4LURwH1KE4G"
+  ],
+  "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:Dqb6YKsEHq6agB5FbMCBnmF3RkthDrC7izBpeSArgXxb": [
+    "eip155:8453/erc20:0x8644d43161be15689f4730b258ad152019224075",
+    "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:Dqb6YKsEHq6agB5FbMCBnmF3RkthDrC7izBpeSArgXxb"
+  ],
+  "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:HzC7pNJ1TGZeEvXMu9mb5r3ynsvKt9VKVq3gX4bsVac5": [
+    "eip155:8453/erc20:0x7f2f0f3dc03b621645d29b3be369acca9c8cddbf",
+    "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:HzC7pNJ1TGZeEvXMu9mb5r3ynsvKt9VKVq3gX4bsVac5"
   ]
 }

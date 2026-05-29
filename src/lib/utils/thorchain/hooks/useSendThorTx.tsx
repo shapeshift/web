@@ -125,7 +125,7 @@ export const useSendThorTx = ({
   )
 
   const { data: inboundAddressData } = useQuery({
-    ...reactQueries.thornode.inboundAddresses(),
+    ...reactQueries.thornode.inboundAddresses(true),
     staleTime: 60_000,
     select: data => selectInboundAddressData(data, assetId, SwapperName.Thorchain),
     enabled: Boolean(assetId && assetId !== thorchainAssetId),
@@ -133,6 +133,10 @@ export const useSendThorTx = ({
 
   const inboundAddress = useMemo(() => {
     if (!transactionType) return
+    // Never expose a halted inbound vault to consumers (e.g. an approval spender). Mirrors the
+    // executeTransaction halt guard so callers can't act on a halted vault out-of-band. Internal
+    // fee estimation reads inboundAddressData directly, so it's unaffected by this.
+    if (inboundAddressData?.halted) return
 
     switch (transactionType) {
       case 'MsgDeposit':
@@ -297,6 +301,10 @@ export const useSendThorTx = ({
     if (!estimateFeesArgs) return
     if (accountNumber === undefined) return
     if (isToken(asset.assetId) && !inboundAddressData) return
+    // Never broadcast to a halted inbound vault. Pairs with the inboundAddress halt guard above as a
+    // second layer: even if a consumer obtained an address out-of-band, execution still bails here.
+    // We intentionally fetch halted inbounds so fees still estimate (read only) during a halt.
+    if (inboundAddressData?.halted) return
 
     if (
       action !== 'withdrawRunepool' &&

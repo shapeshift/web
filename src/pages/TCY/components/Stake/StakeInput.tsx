@@ -23,6 +23,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
+import { useThorchainMimir } from '@/lib/utils/thorchain/hooks/useThorchainMimir'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectPortfolioCryptoBalanceByFilter } from '@/state/slices/common-selectors'
 import { selectMarketDataByFilter } from '@/state/slices/marketDataSlice/selectors'
@@ -68,6 +69,11 @@ export const StakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAccou
 
   const selectedStakingAsset = useAppSelector(state => selectAssetById(state, tcyAssetId))
   const { isChainHalted, isFetching: isChainHaltedFetching } = useIsChainHalted(thorchainChainId)
+  const { data: isTcyStakingHalted, isFetching: isTcyStakingHaltedFetching } = useThorchainMimir({
+    chainId: thorchainChainId,
+    select: mimir => mimir.TCYSTAKINGHALT === 1,
+  })
+  const isHalted = Boolean(isChainHalted) || Boolean(isTcyStakingHalted)
   const {
     register,
     setValue,
@@ -165,13 +171,14 @@ export const StakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAccou
     isEstimatedFeesDataError ||
     !amountCryptoPrecision ||
     !fiatAmount ||
-    isChainHalted
+    isHalted
 
   const confirmCopy = useMemo(() => {
+    if (isTcyStakingHalted) return translate('TCY.stakingHalted')
     if (isChainHalted) return translate('common.chainHalted')
     if (errors.amountCryptoPrecision) return errors.amountCryptoPrecision.message
     return translate('TCY.stakeInput.stake')
-  }, [errors.amountCryptoPrecision, translate, isChainHalted])
+  }, [errors.amountCryptoPrecision, translate, isChainHalted, isTcyStakingHalted])
 
   useEffect(() => {
     setValue('accountId', accountId ?? '')
@@ -222,12 +229,14 @@ export const StakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAccou
         )}
         <ButtonWalletPredicate
           isValidWallet={true}
-          colorScheme={isValid ? 'blue' : 'red'}
+          colorScheme={isValid && !isHalted ? 'blue' : 'red'}
           size='lg'
           width='full'
           onClick={handleStake}
           isDisabled={isDisabled}
-          isLoading={isChainHaltedFetching || isEstimatedFeesDataLoading}
+          isLoading={
+            isChainHaltedFetching || isTcyStakingHaltedFetching || isEstimatedFeesDataLoading
+          }
         >
           {confirmCopy}
         </ButtonWalletPredicate>

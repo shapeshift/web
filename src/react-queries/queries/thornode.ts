@@ -53,9 +53,9 @@ export const createThornodeQueries = <T extends string>(key: T, baseUrl: string)
     // so it never clobbers the filtered cache entry that everything else relies on.
     inboundAddresses: (includeHalted = false) => {
       return {
-        queryKey: (includeHalted
-          ? [`${key}InboundAddressIncludingHalted`]
-          : [`${key}InboundAddress`]) as const,
+        queryKey: includeHalted
+          ? ([`${key}InboundAddressIncludingHalted`] as const)
+          : ([`${key}InboundAddress`] as const),
         queryFn: async () => {
           const { data } = await axios.get<InboundAddressResponse[]>(`${baseUrl}/inbound_addresses`)
           return includeHalted ? data : data.filter(v => !v.halted)

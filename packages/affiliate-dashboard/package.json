@@ -1,6 +1,7 @@
 {
   "name": "@shapeshiftoss/affiliate-dashboard",
   "version": "1.0.0",
+  "private": true,
   "type": "module",
   "scripts": {
     "clean": "rm -rf dist node_modules",

@@ -1,7 +1,9 @@
 {
   "name": "@shapeshiftoss/swap-widget",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Embeddable swap widget using ShapeShift API",
+  "repository": "https://github.com/shapeshift/web",
+  "license": "MIT",
   "type": "module",
   "types": "dist/index.d.ts",
   "style": "dist/index.css",

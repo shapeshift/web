@@ -78,6 +78,7 @@ describe('SwapMachine Types', () => {
           sellAmountCryptoBaseUnit: '1000000000000000000',
           steps: 1,
           affiliateBps: '0',
+          shapeshiftBps: '0',
         },
       },
       { type: 'FETCH_QUOTE' },

@@ -265,7 +265,6 @@ export const ActionCenter = memo(() => {
         <SpeedUpModal
           txHash={speedUpAction.transactionMetadata.txHash}
           accountId={speedUpAction.transactionMetadata.accountId}
-          assetId={speedUpAction.transactionMetadata.assetId}
           amountCryptoPrecision={speedUpAction.transactionMetadata.amountCryptoPrecision}
           accountIdsToRefetch={speedUpAction.transactionMetadata.accountIdsToRefetch}
           btcUtxoRbfTxMetadata={speedUpAction.transactionMetadata.btcUtxoRbfTxMetadata}

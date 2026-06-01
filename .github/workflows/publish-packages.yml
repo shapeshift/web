@@ -1,0 +1,127 @@
+name: Publish Packages
+
+# Publishes any public package in packages/* whose version in package.json
+# is not yet on the npm registry. Re-running is a safe no-op when nothing
+# was bumped (pnpm publish skips already-published versions).
+#
+# Bumps are driven by manual PRs that edit packages/<name>/package.json — this
+# workflow only ships what's already been bumped on the main branch.
+#
+# Authentication: npm Trusted Publishers (OIDC). No long-lived NPM_TOKEN
+# needed — npm verifies the GHA OIDC token against a per-package trusted
+# publisher config naming this repo + workflow filename. Provenance is
+# attached automatically by the OIDC publish flow.
+#
+# Prerequisites (one-time, per package, on npmjs.com):
+#   - Each @shapeshiftoss/* package this workflow can publish must have a
+#     Trusted Publisher configured: org=shapeshift, repo=web,
+#     workflow=publish-packages.yml. Without that config a publish will
+#     fail with "Trusted publisher configuration not found".
+#   - If this file is renamed, every package's trusted publisher config
+#     must be updated to match.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Only one publish run at a time — prevents two pushes racing to publish the
+# same version and one of them failing the registry's "already exists" check.
+concurrency:
+  group: publish-packages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # push per-package git tags
+      id-token: write # mint OIDC token for npm Trusted Publisher auth
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Need full history so we can check whether tags already exist.
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        run: corepack enable && corepack prepare pnpm@10.30.3 --activate
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-node-modules-
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Trusted Publisher OIDC support landed in npm 11.5.1. The Node version
+      # in .nvmrc may ship an older npm; pin a known-good version here so the
+      # publish behavior stays deterministic across runs. pnpm shells out to
+      # this npm for the actual upload.
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@11.5.1
+
+      - name: Build Packages
+        run: pnpm run build:packages
+
+      # `pnpm -r publish` skips packages whose current version is already on the
+      # registry, so this is a safe no-op when no bumps have landed.
+      # Authentication happens via the OIDC token GHA injects from the id-token:
+      # write permission above — no env-var token needed.
+      - name: Publish
+        run: |
+          pnpm -r publish \
+            --access public \
+            --no-git-checks \
+            --filter './packages/*' \
+            --filter '!@shapeshiftoss/web'
+
+      # Tag HEAD with <name>-v<version> for each public package whose current
+      # version is on npm but doesn't yet have a local tag.
+      - name: Tag published versions
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          new_tags=()
+          for pkg_json in packages/*/package.json; do
+            name=$(node -p "require('./$pkg_json').name")
+            version=$(node -p "require('./$pkg_json').version")
+            private=$(node -p "require('./$pkg_json').private === true")
+
+            if [ "$private" = "true" ]; then continue; fi
+            if [ "$name" = "@shapeshiftoss/web" ]; then continue; fi
+
+            short_name="${name#@shapeshiftoss/}"
+            tag="${short_name}-v${version}"
+
+            if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+              continue
+            fi
+
+            if ! npm view "$name@$version" version >/dev/null 2>&1; then
+              continue
+            fi
+
+            echo "Tagging $tag at $(git rev-parse --short HEAD)"
+            git tag -a "$tag" -m "$tag"
+            new_tags+=("$tag")
+          done
+
+          if [ "${#new_tags[@]}" -gt 0 ]; then
+            git push origin "${new_tags[@]}"
+          else
+            echo "No new tags to push."
+          fi

@@ -1,5 +1,7 @@
 import { MAX_BPS, MIN_BPS } from './constants'
 
+export const PARTNER_CODE_REGEX = /^[a-z0-9]{3,32}$/
+
 export const formatUsd = (value: number): string =>
   new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -26,4 +28,10 @@ export const parseBps = (v: string): number | null => {
   const n = parseInt(v, 10)
   if (Number.isNaN(n) || n < MIN_BPS || n > MAX_BPS) return null
   return n
+}
+
+// Returns the trimmed partner code if valid, else null.
+export const parsePartnerCode = (v: string): string | null => {
+  const trimmed = v.trim()
+  return PARTNER_CODE_REGEX.test(trimmed) ? trimmed : null
 }

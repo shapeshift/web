@@ -14,6 +14,7 @@ export const NumericString = z
 export const NullableNumericString = NumericString.nullable().catch(null)
 
 interface ErrorBody {
+  message?: string
   error?: string
   details?: { message: string }[]
 }
@@ -21,7 +22,10 @@ interface ErrorBody {
 const throwFromResponse = async (response: Response): Promise<never> => {
   const body = (await response.json().catch(() => ({}))) as ErrorBody
   throw new Error(
-    body.details?.[0]?.message ?? body.error ?? `Request failed (${String(response.status)})`,
+    body.details?.[0]?.message ??
+      body.message ??
+      body.error ??
+      `Request failed (${String(response.status)})`,
   )
 }
 

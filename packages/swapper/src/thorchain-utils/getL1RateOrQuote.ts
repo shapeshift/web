@@ -223,7 +223,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
 
     if (!buyAssetTradeFeeBuyAssetCryptoBaseUnit.isZero()) {
       protocolFees[buyAsset.assetId] = {
-        amountCryptoBaseUnit: buyAssetTradeFeeBuyAssetCryptoBaseUnit.toString(),
+        amountCryptoBaseUnit: buyAssetTradeFeeBuyAssetCryptoBaseUnit.toFixed(0),
         requiresBalance: false,
         asset: buyAsset,
       }
@@ -267,7 +267,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
       value: route.expectedAmountOutThorBaseUnit,
       inputExponent: buyAssetNativePrecision,
       outputExponent: buyAsset.precision,
-    }).toFixed()
+    }).toFixed(0)
 
     const rate = getInputOutputRate({
       sellAmountCryptoBaseUnit,

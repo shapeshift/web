@@ -35,16 +35,17 @@ const TEST_RATE: TradeRate = {
   sellAmountCryptoBaseUnit: '1000000000000000000',
   steps: 1,
   affiliateBps: '0',
+  shapeshiftBps: '0',
 }
 
 const TEST_QUOTE_NO_APPROVAL = {
   transactionData: { to: '0xRouter', data: '0xSwapData', value: '1000000000000000000' },
-} as QuoteResponse
+} as unknown as QuoteResponse
 
 const TEST_QUOTE_WITH_APPROVAL = {
   transactionData: { to: '0xRouter', data: '0xSwapData', value: '1000000000000000000' },
   approval: { isRequired: true, spender: '0xSpender' },
-} as QuoteResponse
+} as unknown as QuoteResponse
 
 describe('swapMachine', () => {
   describe('initial state', () => {

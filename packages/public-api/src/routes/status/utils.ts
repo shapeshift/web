@@ -8,8 +8,6 @@ const buildSwapRegistrationBody = (storedQuote: ReturnType<typeof quoteStore.get
   const buyAsset = getAsset(storedQuote.buyAssetId)
   if (!sellAsset || !buyAsset) return undefined
 
-  const parsedBps = Number.parseInt(storedQuote.affiliateBps, 10)
-
   return {
     body: JSON.stringify({
       swapId: storedQuote.quoteId,
@@ -21,9 +19,12 @@ const buildSwapRegistrationBody = (storedQuote: ReturnType<typeof quoteStore.get
       source: storedQuote.swapperName,
       swapperName: storedQuote.swapperName,
       sellAccountId: storedQuote.sendAddress,
+      buyAccountId: storedQuote.receiveAddress,
       receiveAddress: storedQuote.receiveAddress,
-      affiliateAddress: storedQuote.affiliateAddress,
-      affiliateBps: Number.isFinite(parsedBps) ? parsedBps : undefined,
+      partnerAddress: storedQuote.partnerAddress,
+      partnerBps: storedQuote.partnerBps ? Number(storedQuote.partnerBps) : undefined,
+      affiliateBps: Number(storedQuote.affiliateBps),
+      shapeshiftBps: Number(storedQuote.shapeshiftBps),
       origin: 'api',
       metadata: storedQuote.metadata,
     }),

@@ -14,7 +14,7 @@
     "@reown/appkit": "^1.8.17",
     "@reown/appkit-adapter-wagmi": "^1.8.17",
     "@shapeshiftoss/types": "workspace:^",
-    "wagmi": "3.3.2"
+    "wagmi": "^3.3.0"
   },
   "devDependencies": {
     "serve": "^14.2.6"

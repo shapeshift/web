@@ -1408,6 +1408,11 @@
         "feesTooLow": "当前费用已处于网络标准费率",
         "alreadySpentOrReplaced": "无法加速此交易，因为其已被替换或确认。",
         "alreadyConfirmed": "此交易已确认，无法再进行加速。",
+        "errors": {
+          "multipleChange": "无法加速带有多个退款输出的交易。",
+          "multipleOpReturn": "无法加速带有 OP_RETURN 输出的交易。",
+          "addresslessOutput": "无法加速包含非标准输出的交易。"
+        },
         "speedUpFailed": "无法加速交易",
         "broadcastNotObserved": "网络尚未接收到替换交易广播，请重试。"
       }
@@ -2237,6 +2242,7 @@
     "thisMonth": "本月",
     "speedUp": "加速",
     "cancelTransaction": "取消交易",
+    "replaced": "您已加速发送 %{amount} %{symbol} 的交易",
     "replacedBy": "已替换为 %{txHash}",
     "replaces": "替换 %{txHash}"
   },
@@ -3475,7 +3481,8 @@
   "yieldXYZ": {
     "pageTitle": "收益",
     "pageSubtitle": "发现并管理跨多条链的收益机会",
-    "actions": {},
+    "actions": {
+    },
     "yield": "收益",
     "apy": "APY",
     "apr": "APR",

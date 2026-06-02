@@ -2,6 +2,8 @@ import './SettingsModal.css'
 
 import { useCallback, useEffect, useState } from 'react'
 
+import { SwapMachineCtx } from '../machines/SwapMachineContext'
+
 const SLIPPAGE_PRESETS = ['0.1', '0.5', '1.0']
 
 const useLockBodyScroll = (isLocked: boolean) => {
@@ -18,16 +20,11 @@ const useLockBodyScroll = (isLocked: boolean) => {
 type SettingsModalProps = {
   isOpen: boolean
   onClose: () => void
-  slippage: string
   onSlippageChange: (slippage: string) => void
 }
 
-export const SettingsModal = ({
-  isOpen,
-  onClose,
-  slippage,
-  onSlippageChange,
-}: SettingsModalProps) => {
+export const SettingsModal = ({ isOpen, onClose, onSlippageChange }: SettingsModalProps) => {
+  const slippage = SwapMachineCtx.useSelector(s => s.context.slippage)
   useLockBodyScroll(isOpen)
   const [customSlippage, setCustomSlippage] = useState('')
   const [isCustom, setIsCustom] = useState(!SLIPPAGE_PRESETS.includes(slippage))

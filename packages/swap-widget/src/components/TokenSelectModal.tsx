@@ -8,8 +8,10 @@ import type { ChainInfo } from '../hooks/useAssets'
 import { useAssets, useChains } from '../hooks/useAssets'
 import { useMultiChainBalances } from '../hooks/useBalances'
 import { useBitcoinSigning } from '../hooks/useBitcoinSigning'
+import { useEvmSigning } from '../hooks/useEvmSigning'
 import { useAllMarketData } from '../hooks/useMarketData'
 import { useSolanaSigning } from '../hooks/useSolanaSigning'
+import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { Asset, AssetId, ChainId } from '../types'
 
 const VISIBLE_BUFFER = 10
@@ -33,8 +35,6 @@ type TokenSelectModalProps = {
   disabledChainIds?: ChainId[]
   allowedChainIds?: ChainId[]
   allowedAssetIds?: AssetId[]
-  evmAddress?: string
-  currentAssetIds?: AssetId[]
 }
 
 const isNativeAsset = (assetId: string): boolean => {
@@ -69,8 +69,6 @@ export const TokenSelectModal = ({
   disabledChainIds = [],
   allowedChainIds,
   allowedAssetIds,
-  evmAddress,
-  currentAssetIds = [],
 }: TokenSelectModalProps) => {
   useLockBodyScroll(isOpen)
   const [searchQuery, setSearchQuery] = useState('')
@@ -83,6 +81,15 @@ export const TokenSelectModal = ({
 
   const { data: allAssets, isLoading: isLoadingAssets } = useAssets()
   const { data: chains, isLoading: isLoadingChains } = useChains()
+
+  const { address: evmAddress } = useEvmSigning()
+  const { address: bitcoinAddress } = useBitcoinSigning()
+  const { address: solanaAddress } = useSolanaSigning()
+
+  const sellAssetId = SwapMachineCtx.useSelector(s => s.context.sellAsset.assetId)
+  const buyAssetId = SwapMachineCtx.useSelector(s => s.context.buyAsset.assetId)
+
+  const currentAssetIds = useMemo(() => [sellAssetId, buyAssetId], [sellAssetId, buyAssetId])
 
   const chainInfoMap = useMemo(() => {
     const map = new Map<ChainId, ChainInfo>()
@@ -167,9 +174,6 @@ export const TokenSelectModal = ({
     allowedAssetIds,
     allowedChainIds,
   ])
-
-  const { address: bitcoinAddress } = useBitcoinSigning()
-  const { address: solanaAddress } = useSolanaSigning()
 
   const initialAssetPrecisions = useMemo(() => {
     const precisions: Record<AssetId, number> = {}

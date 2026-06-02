@@ -19,7 +19,7 @@ type UseSwapDisplayValuesParams = {
   allowedSwapperNames?: SwapperName[]
 }
 
-type SwapDisplayValues = {
+export type SwapDisplayValues = {
   rates: TradeRate[] | undefined
   isLoadingRates: boolean
   ratesError: Error | null
@@ -165,27 +165,52 @@ export const useSwapDisplayValues = ({
     return formatUsdValue(buyAssetBalance.balance, buyAsset.precision, buyAssetUsdPrice)
   }, [buyAssetBalance?.balance, buyAsset.precision, buyAssetUsdPrice])
 
-  return {
-    rates,
-    isLoadingRates,
-    ratesError,
-    sellAssetBalance,
-    isSellBalanceLoading,
-    refetchSellBalance,
-    buyAssetBalance,
-    isBuyBalanceLoading,
-    refetchBuyBalance,
-    sellChainInfo,
-    buyChainInfo,
-    displayRate,
-    buyAmount,
-    sellChainNativeAsset,
-    networkFeeDisplay,
-    sellUsdValue,
-    buyUsdValue,
-    sellAssetUsdPrice,
-    buyAssetUsdPrice,
-    sellBalanceFiatValue,
-    buyBalanceFiatValue,
-  }
+  return useMemo(
+    () => ({
+      rates,
+      isLoadingRates,
+      ratesError,
+      sellAssetBalance,
+      isSellBalanceLoading,
+      refetchSellBalance,
+      buyAssetBalance,
+      isBuyBalanceLoading,
+      refetchBuyBalance,
+      sellChainInfo,
+      buyChainInfo,
+      displayRate,
+      buyAmount,
+      sellChainNativeAsset,
+      networkFeeDisplay,
+      sellUsdValue,
+      buyUsdValue,
+      sellAssetUsdPrice,
+      buyAssetUsdPrice,
+      sellBalanceFiatValue,
+      buyBalanceFiatValue,
+    }),
+    [
+      rates,
+      isLoadingRates,
+      ratesError,
+      sellAssetBalance,
+      isSellBalanceLoading,
+      refetchSellBalance,
+      buyAssetBalance,
+      isBuyBalanceLoading,
+      refetchBuyBalance,
+      sellChainInfo,
+      buyChainInfo,
+      displayRate,
+      buyAmount,
+      sellChainNativeAsset,
+      networkFeeDisplay,
+      sellUsdValue,
+      buyUsdValue,
+      sellAssetUsdPrice,
+      buyAssetUsdPrice,
+      sellBalanceFiatValue,
+      buyBalanceFiatValue,
+    ],
+  )
 }

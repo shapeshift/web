@@ -25,4 +25,6 @@ createAppKit({
   projectId,
   metadata,
   themeMode: 'dark',
+  enableNetworkSwitch: false,
+  allowUnsupportedChain: true,
 })

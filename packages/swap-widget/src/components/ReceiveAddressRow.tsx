@@ -136,6 +136,7 @@ export const ReceiveAddressRow = ({
           onChange={e => handleChange(e.target.value)}
           spellCheck={false}
           autoComplete='off'
+          aria-label='Receive address'
         />
         <div className='ssw-receive-inline-actions'>
           <button

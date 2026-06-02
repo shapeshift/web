@@ -1,11 +1,4 @@
-import type { SwapMachineContext, SwapMachineEvent } from '../machines/types'
-
-type ExecutionStepProps = {
-  context: SwapMachineContext
-  send: (event: SwapMachineEvent) => void
-}
-
-export const ExecutionStep = ({ context: _context, send: _send }: ExecutionStepProps) => (
+export const ExecutionStep = () => (
   <div className='ssw-step-screen'>
     <div className='ssw-step-icon-circle ssw-ic-accent'>
       <svg

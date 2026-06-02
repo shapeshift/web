@@ -17,7 +17,6 @@ import {
   swapStatusLimiter,
 } from './middleware/rateLimit'
 import {
-  claimPartnerCode,
   createAffiliate,
   getAffiliate,
   getAffiliateStats,
@@ -59,7 +58,6 @@ const startServer = async () => {
   v1Router.get('/affiliate/swaps', dataLimiter, getAffiliateSwaps)
   v1Router.get('/affiliate/stats', affiliateStatsLimiter, getAffiliateStats)
   v1Router.get('/affiliate/:address', dataLimiter, getAffiliate)
-  v1Router.post('/affiliate/claim-code', affiliateMutationLimiter, claimPartnerCode)
   v1Router.post('/affiliate', affiliateMutationLimiter, createAffiliate)
   v1Router.patch('/affiliate/:address', affiliateMutationLimiter, updateAffiliate)
 

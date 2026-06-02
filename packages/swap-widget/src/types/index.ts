@@ -95,6 +95,8 @@ export type TradeQuote = {
   swapperName: SwapperName
   steps: TradeQuoteStep[]
   receiveAddress: string
+  partnerBps?: string
+  shapeshiftBps: string
   affiliateBps: string
   slippageTolerancePercentageDecimal?: string
   isStreaming?: boolean
@@ -107,6 +109,8 @@ export type TradeRate = {
   sellAmountCryptoBaseUnit: string
   steps: number
   estimatedExecutionTimeMs?: number
+  partnerBps?: string
+  shapeshiftBps: string
   affiliateBps: string
   networkFeeCryptoBaseUnit?: string
   error?: {
@@ -206,8 +210,9 @@ export type QuoteResponse = {
   sellAmountCryptoBaseUnit: string
   buyAmountBeforeFeesCryptoBaseUnit: string
   buyAmountAfterFeesCryptoBaseUnit: string
+  partnerBps?: string
+  shapeshiftBps: string
   affiliateBps: string
-  affiliateAddress?: string
   slippageTolerancePercentageDecimal: string | undefined
   networkFeeCryptoBaseUnit: string | undefined
   steps: ApiQuoteStep[]

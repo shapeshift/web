@@ -29,6 +29,7 @@ const AffiliateSwapSchema = z.object({
   buyAmountCryptoPrecision: z.string().nullable(),
   buyAmountUsd: z.string().nullable(),
   affiliateFeeAmountUsd: z.string().nullable(),
+  affiliateBps: z.number(),
   partnerBps: z.number().nullable(),
   shapeshiftBps: z.number(),
   swapperName: z.string(),

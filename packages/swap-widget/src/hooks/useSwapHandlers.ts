@@ -81,13 +81,15 @@ export const useSwapHandlers = ({
   const handleButtonClick = useCallback(() => {
     const snap = actorRef.getSnapshot()
     if (snap.context.isSellAssetUtxo && !bitcoin.isConnected) {
+      openAppKit({ namespace: 'bip122' })
       return
     }
     if (snap.context.isSellAssetSolana && !solana.isConnected) {
+      openAppKit({ namespace: 'solana' })
       return
     }
-    if (!evm.walletClient && snap.context.isSellAssetEvm) {
-      openAppKit()
+    if (snap.context.isSellAssetEvm && !evm.isConnected) {
+      openAppKit({ namespace: 'eip155' })
       return
     }
     if (
@@ -113,7 +115,7 @@ export const useSwapHandlers = ({
     actorRef,
     bitcoin.isConnected,
     solana.isConnected,
-    evm.walletClient,
+    evm.isConnected,
     openAppKit,
     partnerCode,
     allowShapeshiftRedirect,

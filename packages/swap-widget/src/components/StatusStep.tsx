@@ -1,14 +1,6 @@
 import { useMemo } from 'react'
 
-import type { SwapMachineContext, SwapMachineEvent } from '../machines/types'
-
-type StatusStepProps = {
-  context: SwapMachineContext
-  send: (event: SwapMachineEvent) => void
-  isPolling: boolean
-  isComplete: boolean
-  isError: boolean
-}
+import { SwapMachineCtx } from '../machines/SwapMachineContext'
 
 const ExplorerLink = ({ url }: { url: string }) => (
   <a href={url} target='_blank' rel='noopener noreferrer' className='ssw-step-explorer-link'>
@@ -26,7 +18,12 @@ const ExplorerLink = ({ url }: { url: string }) => (
   </a>
 )
 
-export const StatusStep = ({ context, send, isPolling, isComplete, isError }: StatusStepProps) => {
+export const StatusStep = () => {
+  const context = SwapMachineCtx.useSelector(s => s.context)
+  const isPolling = SwapMachineCtx.useSelector(s => s.matches('polling_status'))
+  const isComplete = SwapMachineCtx.useSelector(s => s.matches('complete'))
+  const isError = SwapMachineCtx.useSelector(s => s.matches('error'))
+  const { send } = SwapMachineCtx.useActorRef()
   const { sellAsset, buyAsset, txHash, error, retryCount, isSellAssetUtxo, isSellAssetSolana } =
     context
 

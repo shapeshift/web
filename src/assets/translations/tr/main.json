@@ -1408,6 +1408,11 @@
         "feesTooLow": "Mevcut ücretler zaten ağ tarifeleri üzerinden belirleniyor.",
         "alreadySpentOrReplaced": "Bu işlem zaten değiştirildiği veya onaylandığı için artık hızlandırılamaz.",
         "alreadyConfirmed": "Bu işlem zaten onaylandı ve artık hızlandırılamaz.",
+        "errors": {
+          "multipleChange": "Birden fazla para üstü çıktısı olan işlemleri hızlandırmak mümkün değildir.",
+          "multipleOpReturn": "Birden fazla OP_RETURN çıktısı içeren işlemleri hızlandırmak mümkün değildir.",
+          "addresslessOutput": "Standart dışı çıktılar içeren işlemleri hızlandırmak mümkün değildir."
+        },
         "speedUpFailed": "İşlem hızlandırılamadı.",
         "broadcastNotObserved": "Yedek işlem yayını henüz ağ tarafından yayınlanmadı. Lütfen tekrar deneyin."
       }
@@ -2237,7 +2242,7 @@
     "thisMonth": "Bu Ay",
     "speedUp": "Hızlandır",
     "cancelTransaction": "İşlemi İptal Et",
-    "replaced": "Değiştirildi",
+    "replaced": "%{amount} %{symbol} gönderim hızınızı artırdınız.",
     "replacedBy": "%{txHash} ile değiştirildi.",
     "replaces": "%{txHash}'i değiştirir."
   },

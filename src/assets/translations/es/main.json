@@ -1408,6 +1408,11 @@
         "feesTooLow": "Las tarifas actuales están ajustadas a las de la red.",
         "alreadySpentOrReplaced": "Esta transacción no se puede agilizar porque fue reemplazada o confirmada.",
         "alreadyConfirmed": "Transacción confirmada, no se puede agilizar.",
+        "errors": {
+          "multipleChange": "No es posible acelerar las transacciones con múltiples salidas con cambios.",
+          "multipleOpReturn": "No se pueden acelerar las transacciones con múltiples salidas OP_RETURN.",
+          "addresslessOutput": "No se pueden acelerar las transacciones que contienen resultados no estándar."
+        },
         "speedUpFailed": "No se pudo agilizar la transacción.",
         "broadcastNotObserved": "La transmisión de la transacción para reemplazo aún no ha sido detectada por la red. Inténtelo de nuevo."
       }
@@ -2237,7 +2242,7 @@
     "thisMonth": "Este Mes",
     "speedUp": "Acelerar",
     "cancelTransaction": "Cancelar Transacción",
-    "replaced": "Reemplazada",
+    "replaced": "Has acelerado el envío de %{amount} %{symbol}",
     "replacedBy": "Reemplazada por %{txHash}",
     "replaces": "Reemplaza %{txHash}"
   },

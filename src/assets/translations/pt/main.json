@@ -1408,6 +1408,11 @@
         "feesTooLow": "As taxas atuais já estão de acordo com as taxas da rede.",
         "alreadySpentOrReplaced": "Esta transação não pode mais ser acelerada porque já foi substituída ou confirmada.",
         "alreadyConfirmed": "Esta transação já foi confirmada e não pode mais ser acelerada.",
+        "errors": {
+          "multipleChange": "Não é possível acelerar transações com múltiplas saídas de troco.",
+          "multipleOpReturn": "Não é possível acelerar transações com múltiplas saídas OP_RETURN.",
+          "addresslessOutput": "Não é possível acelerar transações que contenham saídas não padronizadas."
+        },
         "speedUpFailed": "Não foi possível acelerar a transação.",
         "broadcastNotObserved": "A rede ainda não detectou a transmissão da transação de substituição. Tente novamente."
       }
@@ -2237,6 +2242,7 @@
     "thisMonth": "Este mês",
     "speedUp": "Acelerar",
     "cancelTransaction": "Cancelar transação",
+    "replaced": "Você acelerou o envio de %{amount} %{symbol}",
     "replacedBy": "Substituído por %{txHash}",
     "replaces": "Substitui %{txHash}"
   },
@@ -3475,7 +3481,8 @@
   "yieldXYZ": {
     "pageTitle": "Yields",
     "pageSubtitle": "Descubra e gerencie oportunidades de rendimento em várias redes.",
-    "actions": {},
+    "actions": {
+    },
     "yield": "Yield",
     "apy": "APY",
     "apr": "APR",

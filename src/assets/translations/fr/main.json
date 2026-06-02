@@ -1408,6 +1408,11 @@
         "feesTooLow": "Les frais actuels correspondent déjà aux tarifs du réseau",
         "alreadySpentOrReplaced": "Cette transaction ne peut plus être accélérée car elle a déjà été remplacée ou confirmée.",
         "alreadyConfirmed": "Cette transaction est déjà confirmée et ne peut plus être accélérée.",
+        "errors": {
+          "multipleChange": "Impossible d'accélérer les transactions avec plusieurs sorties de change.",
+          "multipleOpReturn": "Impossible d'accélérer les transactions comportant plusieurs sorties OP_RETURN.",
+          "addresslessOutput": "Impossible d'accélérer les transactions contenant des sorties non standard."
+        },
         "speedUpFailed": "Échec de l'accélération de la transaction",
         "broadcastNotObserved": "La diffusion de la transaction de remplacement n'a pas encore été observée par le réseau. Veuillez réessayer."
       }
@@ -2237,6 +2242,7 @@
     "thisMonth": "Ce mois-ci",
     "speedUp": "Accélération",
     "cancelTransaction": "Transaction d'annulation",
+    "replaced": "Vous avez accéléré l'envoi de %{amount} %{symbol}",
     "replacedBy": "Remplacé par %{txHash}",
     "replaces": "Remplace %{txHash}"
   },
@@ -3475,7 +3481,8 @@
   "yieldXYZ": {
     "pageTitle": "Rendements",
     "pageSubtitle": "Découvrez et gérez les opportunités de rendements sur plusieurs chaînes",
-    "actions": {},
+    "actions": {
+    },
     "yield": "Rendement",
     "apy": "APY",
     "apr": "APR",

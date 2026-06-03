@@ -1,6 +1,6 @@
 import './App.css'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { SwapWidget } from '../components/SwapWidget'
 import { DemoCustomizer, useDemoTheme } from './DemoCustomizer'
@@ -110,8 +110,26 @@ const InternalDemoBody = ({ theme, setTheme }: InternalDemoBodyProps) => {
   )
 }
 
+const MODE_STORAGE_KEY = 'ssw-demo-mode'
+
+const loadThemeMode = (): 'light' | 'dark' => {
+  try {
+    return localStorage.getItem(MODE_STORAGE_KEY) === 'light' ? 'light' : 'dark'
+  } catch {
+    return 'dark'
+  }
+}
+
 export const InternalWalletApp = () => {
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
+  const [theme, setTheme] = useState<'light' | 'dark'>(loadThemeMode)
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(MODE_STORAGE_KEY, theme)
+    } catch {
+      // ignore write failures (e.g. storage unavailable)
+    }
+  }, [theme])
 
   return <InternalDemoBody theme={theme} setTheme={setTheme} />
 }

@@ -156,9 +156,27 @@ const ExternalDemoBody = ({ theme, setTheme }: ExternalDemoBodyProps) => {
   )
 }
 
+const MODE_STORAGE_KEY = 'ssw-demo-mode'
+
+const loadThemeMode = (): 'light' | 'dark' => {
+  try {
+    return localStorage.getItem(MODE_STORAGE_KEY) === 'light' ? 'light' : 'dark'
+  } catch {
+    return 'dark'
+  }
+}
+
 export const ExternalWalletApp = () => {
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
+  const [theme, setTheme] = useState<'light' | 'dark'>(loadThemeMode)
   const [isReady, setIsReady] = useState(false)
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(MODE_STORAGE_KEY, theme)
+    } catch {
+      // ignore write failures (e.g. storage unavailable)
+    }
+  }, [theme])
 
   useEffect(() => {
     initializeAppKit(PROJECT_ID)

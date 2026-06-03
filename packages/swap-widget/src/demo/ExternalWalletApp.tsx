@@ -10,6 +10,8 @@ import { DemoCustomizer, useDemoTheme } from './DemoCustomizer'
 
 const PROJECT_ID = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
 
+if (!PROJECT_ID) throw new Error('VITE_WALLETCONNECT_PROJECT_ID is not set')
+
 const switchToInternal = () => {
   window.location.hash = ''
   window.location.reload()

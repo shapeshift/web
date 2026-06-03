@@ -19,4 +19,8 @@ createAppKit({
   themeMode: 'dark',
   enableNetworkSwitch: false,
   allowUnsupportedChain: true,
+  features: {
+    send: false,
+    receive: false,
+  },
 })

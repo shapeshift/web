@@ -8,7 +8,7 @@ import { initializeAppKit } from '../config/appkit'
 import { truncateAddress } from '../types'
 import { DemoCustomizer, useDemoTheme } from './DemoCustomizer'
 
-const PROJECT_ID = 'f58c0242def84c3b9befe9b1e6086bbd'
+const PROJECT_ID = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
 
 const switchToInternal = () => {
   window.location.hash = ''

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { SwapWidget } from '../components/SwapWidget'
 import { DemoCustomizer, useDemoTheme } from './DemoCustomizer'
 
-const PROJECT_ID = 'f58c0242def84c3b9befe9b1e6086bbd'
+const PROJECT_ID = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
 
 type InternalDemoBodyProps = {
   theme: 'light' | 'dark'

@@ -1,10 +1,11 @@
-import { GatewayQuoteV2, instanceOfGatewayQuoteV2OneOf1, instanceOfGatewayQuoteV2OneOf2 } from '@gobob/bob-sdk'
+import type { GatewayQuoteV2 } from '@gobob/bob-sdk'
 import { btcChainId } from '@shapeshiftoss/caip'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
   CommonTradeQuoteInput,
   GetUtxoTradeQuoteInput,
@@ -17,18 +18,17 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import {
+  chainIdToBobGatewayChainName,
   decimalSlippageToBobBps,
-  DEFAULT_BOB_GATEWAY_SLIPPAGE_DECIMAL_PERCENTAGE,
   DUMMY_BTC_ADDRESS,
 } from '../utils/constants'
 import {
   assetIdToBobGatewayToken,
-  chainIdToBobGatewayChainName,
   getBobGatewayAffiliates,
   getBobGatewayClient,
   getBobGatewayQuoteMetadata,
   validateBobGatewayRoute,
-} from '../utils/helpers/helpers'
+} from '../utils/helpers'
 
 const BOB_GATEWAY_ESTIMATED_GAS_LIMIT = 200_000n
 
@@ -131,8 +131,8 @@ const _getTradeQuote = async (
   const routeError = validateBobGatewayRoute(sellAsset.chainId, buyAsset.chainId)
   if (routeError) return Err(routeError)
 
-  const sellChainName = chainIdToBobGatewayChainName(sellAsset.chainId)
-  const buyChainName = chainIdToBobGatewayChainName(buyAsset.chainId)
+  const sellChainName = chainIdToBobGatewayChainName[sellAsset.chainId]
+  const buyChainName = chainIdToBobGatewayChainName[buyAsset.chainId]
 
   if (!sellChainName || !buyChainName) {
     return Err(
@@ -146,10 +146,11 @@ const _getTradeQuote = async (
   const isBtcToEvm = sellAsset.chainId === btcChainId
 
   const slippage = decimalSlippageToBobBps(
-    slippageTolerancePercentageDecimal ?? DEFAULT_BOB_GATEWAY_SLIPPAGE_DECIMAL_PERCENTAGE,
+    slippageTolerancePercentageDecimal ??
+      getDefaultSlippageDecimalPercentageForSwapper(SwapperName.BobGateway),
   )
 
-  let quoteResponseResult: GatewayQuoteV2;
+  let quoteResponseResult: GatewayQuoteV2
   try {
     quoteResponseResult = await getBobGatewayClient(config).getQuote({
       fromChain: sellChainName,
@@ -160,8 +161,8 @@ const _getTradeQuote = async (
       toUserAddress: receiveAddress,
       amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       maxSlippage: Number(slippage),
-      affiliates: getBobGatewayAffiliates(),
-    });
+      affiliates: getBobGatewayAffiliates(affiliateBps),
+    })
   } catch (err) {
     return Err(
       makeSwapErrorRight({
@@ -184,11 +185,11 @@ const _getTradeQuote = async (
 
   const allowanceContract =
     !isBtcToEvm && contractAddressOrUndefined(sellAsset.assetId)
-      ? instanceOfGatewayQuoteV2OneOf1(quoteResponseResult)
+      ? 'offramp' in quoteResponseResult
         ? quoteResponseResult.offramp.txTo
-        : instanceOfGatewayQuoteV2OneOf2(quoteResponseResult)
-          ? quoteResponseResult.tokenSwap.txTo
-          : ''
+        : 'tokenSwap' in quoteResponseResult
+        ? quoteResponseResult.tokenSwap.txTo
+        : ''
       : ''
 
   const tradeQuote: TradeQuote = {

@@ -1,10 +1,4 @@
-import {
-  instanceOfGatewayCreateOrderOneOf,
-  instanceOfGatewayCreateOrderOneOf1,
-  instanceOfGatewayOrderStatusV2OneOf1,
-  instanceOfGatewayOrderStatusV2OneOf2,
-  isGatewayError,
-} from '@gobob/bob-sdk'
+import { isGatewayError } from '@gobob/bob-sdk'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
@@ -12,15 +6,11 @@ import type { SwapperApi, UtxoFeeData } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
-import {
-  getBobGatewayClient,
-  mapBobGatewayOrderStatusToTxStatus,
-} from './utils/helpers/helpers'
+import { getBobGatewayClient, mapBobGatewayOrderStatusToTxStatus } from './utils/helpers'
 
 export const bobGatewayApi: SwapperApi = {
   getTradeQuote,
   getTradeRate,
-
   getUnsignedUtxoTransaction: async ({
     stepIndex,
     tradeQuote,
@@ -41,7 +31,7 @@ export const bobGatewayApi: SwapperApi = {
       const orderResponse = await getBobGatewayClient(config).api.createOrderV2({
         gatewayQuoteV2: bobSpecific.gatewayQuote,
       })
-      if (!instanceOfGatewayCreateOrderOneOf(orderResponse)) {
+      if (!('onramp' in orderResponse)) {
         throw new Error('[BobGateway] unexpected order response type')
       }
       bobSpecific.orderId = orderResponse.onramp.orderId
@@ -77,7 +67,6 @@ export const bobGatewayApi: SwapperApi = {
       },
     })
   },
-
   getUtxoTransactionFees: async ({ stepIndex, tradeQuote, xpub, assertGetUtxoChainAdapter }) => {
     if (!isExecutableTradeQuote(tradeQuote))
       throw new Error('[BobGateway] unable to execute a trade rate')
@@ -106,7 +95,6 @@ export const bobGatewayApi: SwapperApi = {
 
     return fast.txFee
   },
-
   getUnsignedEvmTransaction: async ({
     from,
     stepIndex,
@@ -127,15 +115,17 @@ export const bobGatewayApi: SwapperApi = {
       const orderResponse = await getBobGatewayClient(config).api.createOrderV2({
         gatewayQuoteV2: bobSpecific.gatewayQuote,
       })
-      if (!instanceOfGatewayCreateOrderOneOf1(orderResponse)) {
+      if (!('offramp' in orderResponse) && !('tokenSwap' in orderResponse)) {
         throw new Error('[BobGateway] unexpected order response type')
       }
-      bobSpecific.orderId = orderResponse.offramp.orderId
+      // offramp (EVM→BTC) and tokenSwap (EVM→EVM) orders share the same shape
+      const order = 'offramp' in orderResponse ? orderResponse.offramp : orderResponse.tokenSwap
+      bobSpecific.orderId = order.orderId
       bobSpecific.evmTx = {
-        to: orderResponse.offramp.tx.to,
-        data: orderResponse.offramp.tx.data,
-        value: orderResponse.offramp.tx.value,
-        chain: orderResponse.offramp.tx.chain,
+        to: order.tx.to,
+        data: order.tx.data,
+        value: order.tx.value,
+        chain: order.tx.chain,
       }
     }
 
@@ -160,7 +150,6 @@ export const bobGatewayApi: SwapperApi = {
       ...feeData,
     })
   },
-
   getEvmTransactionFees: async ({
     from,
     stepIndex,
@@ -190,7 +179,6 @@ export const bobGatewayApi: SwapperApi = {
 
     return networkFeeCryptoBaseUnit
   },
-
   checkTradeStatus: async ({ swap, config }) => {
     const orderId = swap?.metadata.bobSpecific?.orderId
     if (!orderId) throw new Error('[BobGateway] orderId is required for status check')
@@ -200,30 +188,26 @@ export const bobGatewayApi: SwapperApi = {
       orderInfo = await getBobGatewayClient(config).getOrder(orderId)
     } catch (err) {
       if (isGatewayError(err)) {
-        // err is fully typed, code is a descriminator field
-        switch (err.code) {
-          case 'ORDER_NOT_FOUND': {
-            return {
-              buyTxHash: undefined,
-              status: TxStatus.Unknown,
-              message: 'Waiting for deposit...',
-            }
+        if (err.code === 'ORDER_NOT_FOUND') {
+          return {
+            buyTxHash: undefined,
+            status: TxStatus.Unknown,
+            message: 'Waiting for deposit...',
           }
         }
-
       }
 
       throw err
     }
 
     const status = mapBobGatewayOrderStatusToTxStatus(orderInfo.status)
-    const buyTxHash = instanceOfGatewayOrderStatusV2OneOf1(orderInfo.status)
-      ? orderInfo.status.success.receivedTokens[0]?.txHash
-      : undefined
+    const buyTxHash =
+      'success' in orderInfo.status ? orderInfo.status.success.receivedTokens[0]?.txHash : undefined
 
-    const refundTxHash = instanceOfGatewayOrderStatusV2OneOf2(orderInfo.status)
-      ? orderInfo.status.refunded.refundedTokens[0]?.txHash
-      : undefined
+    const refundTxHash =
+      'refunded' in orderInfo.status
+        ? orderInfo.status.refunded.refundedTokens[0]?.txHash
+        : undefined
 
     return {
       buyTxHash: status === TxStatus.Confirmed ? buyTxHash : refundTxHash,

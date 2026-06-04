@@ -1,8 +1,10 @@
+import type { GatewayQuoteV2 } from '@gobob/bob-sdk'
 import { btcChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
   GetTradeRateInput,
   SwapErrorRight,
@@ -13,20 +15,18 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import {
+  chainIdToBobGatewayChainName,
   decimalSlippageToBobBps,
-  DEFAULT_BOB_GATEWAY_SLIPPAGE_DECIMAL_PERCENTAGE,
   DUMMY_BTC_ADDRESS,
   DUMMY_EVM_ADDRESS,
 } from '../utils/constants'
 import {
   assetIdToBobGatewayToken,
-  chainIdToBobGatewayChainName,
   getBobGatewayAffiliates,
   getBobGatewayClient,
   getBobGatewayQuoteMetadata,
   validateBobGatewayRoute,
-} from '../utils/helpers/helpers'
-import { GatewayQuoteV2 } from '@gobob/bob-sdk'
+} from '../utils/helpers'
 
 export const getTradeRate = async (
   input: GetTradeRateInput,
@@ -54,8 +54,8 @@ const _getTradeRate = async (
   const routeError = validateBobGatewayRoute(sellAsset.chainId, buyAsset.chainId)
   if (routeError) return Err(routeError)
 
-  const sellChainName = chainIdToBobGatewayChainName(sellAsset.chainId)
-  const buyChainName = chainIdToBobGatewayChainName(buyAsset.chainId)
+  const sellChainName = chainIdToBobGatewayChainName[sellAsset.chainId]
+  const buyChainName = chainIdToBobGatewayChainName[buyAsset.chainId]
 
   if (!sellChainName || !buyChainName) {
     return Err(
@@ -67,16 +67,15 @@ const _getTradeRate = async (
   }
 
   const slippage = decimalSlippageToBobBps(
-    slippageTolerancePercentageDecimal ?? DEFAULT_BOB_GATEWAY_SLIPPAGE_DECIMAL_PERCENTAGE,
+    slippageTolerancePercentageDecimal ??
+      getDefaultSlippageDecimalPercentageForSwapper(SwapperName.BobGateway),
   )
 
-  const isBtcToEvm = sellAsset.chainId === btcChainId
-  const recipient = isBtcToEvm
-    ? receiveAddress ?? DUMMY_EVM_ADDRESS
-    : receiveAddress ?? DUMMY_BTC_ADDRESS
-  const sender = isBtcToEvm ? DUMMY_BTC_ADDRESS : DUMMY_EVM_ADDRESS
+  const recipient =
+    receiveAddress ?? (buyAsset.chainId === btcChainId ? DUMMY_BTC_ADDRESS : DUMMY_EVM_ADDRESS)
+  const sender = sellAsset.chainId === btcChainId ? DUMMY_BTC_ADDRESS : DUMMY_EVM_ADDRESS
 
-  let quoteResponseResult: GatewayQuoteV2;
+  let quoteResponseResult: GatewayQuoteV2
   try {
     quoteResponseResult = await getBobGatewayClient(config).getQuote({
       fromChain: sellChainName,
@@ -87,8 +86,8 @@ const _getTradeRate = async (
       toUserAddress: recipient,
       amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       maxSlippage: Number(slippage),
-      affiliates: getBobGatewayAffiliates(),
-    });
+      affiliates: getBobGatewayAffiliates(affiliateBps),
+    })
   } catch (err) {
     return Err(
       makeSwapErrorRight({

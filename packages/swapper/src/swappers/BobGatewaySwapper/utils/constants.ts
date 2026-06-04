@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { bobChainId, btcChainId } from '@shapeshiftoss/caip'
+import { bobChainId, btcChainId, ethChainId, baseChainId, berachainChainId, unichainChainId, seiChainId, optimismChainId, avalancheChainId, sonicChainId, bscChainId, soneiumChainId, telosChainId, swellChainId } from '@shapeshiftoss/caip'
 import type { Address } from 'viem'
 
 export const BOB_GATEWAY_BASE_URL = 'https://gateway-api-mainnet.gobob.xyz'
@@ -11,22 +11,68 @@ export const BOB_GATEWAY_BASE_URL = 'https://gateway-api-mainnet.gobob.xyz'
  * We use btcToEvm / evmToBtc terminology instead.
  * See: https://docs.gobob.xyz/gateway/integration
  */
+
+// in UI code we map gateway chain to specific %chain%.name from `viem/chains`
 export const BOB_GATEWAY_CHAIN_NAME = {
   bitcoin: 'bitcoin',
   bob: 'bob',
+  ethereum: 'ethereum',
+  base: 'base',
+  bera: 'bera',
+  unichain: 'unichain',
+  avalanche: 'avalanche',
+  sonic: 'sonic',
+  bsc: 'bsc',
+  soneium: 'soneium',
+  telos: 'telos',
+  swell: 'swell',
+  optimism: 'optimism',
+  sei: 'sei',
+  arbitrum: 'arbitrum',
 } as const
 
-export type BobGatewayChainName =
-  (typeof BOB_GATEWAY_CHAIN_NAME)[keyof typeof BOB_GATEWAY_CHAIN_NAME]
+type ValueOf<T> = T[keyof T]
 
-export const CHAIN_ID_TO_BOB_GATEWAY_CHAIN_NAME: Partial<Record<ChainId, BobGatewayChainName>> = {
+export type BobGatewayChainName = ValueOf<typeof BOB_GATEWAY_CHAIN_NAME>
+
+export const CHAIN_ID_TO_BOB_GATEWAY_CHAIN_NAME = {
   [btcChainId]: BOB_GATEWAY_CHAIN_NAME.bitcoin,
   [bobChainId]: BOB_GATEWAY_CHAIN_NAME.bob,
-}
+  [ethChainId]: BOB_GATEWAY_CHAIN_NAME.ethereum,
+  [baseChainId]: BOB_GATEWAY_CHAIN_NAME.base,
+  [berachainChainId]: BOB_GATEWAY_CHAIN_NAME.bera,
+  [unichainChainId]: BOB_GATEWAY_CHAIN_NAME.unichain,
+  [avalancheChainId]: BOB_GATEWAY_CHAIN_NAME.avalanche,
+  [sonicChainId]: BOB_GATEWAY_CHAIN_NAME.sonic,
+  [bscChainId]: BOB_GATEWAY_CHAIN_NAME.bsc,
+  [soneiumChainId]: BOB_GATEWAY_CHAIN_NAME.soneium,
+  [telosChainId]: BOB_GATEWAY_CHAIN_NAME.telos,
+  [swellChainId]: BOB_GATEWAY_CHAIN_NAME.swell,
+  [optimismChainId]: BOB_GATEWAY_CHAIN_NAME.optimism,
+  [seiChainId]: BOB_GATEWAY_CHAIN_NAME.sei,
+} as const satisfies Partial<Record<ChainId, BobGatewayChainName>>
 
 // Supported chain IDs for PR 1 (BTC ↔ BOB). LayerZero cross-chain routes are SS-5639.
-export const BOB_GATEWAY_SUPPORTED_CHAIN_IDS = [btcChainId, bobChainId] as const
+export const BOB_GATEWAY_SUPPORTED_CHAIN_IDS = [
+  btcChainId,
+  bobChainId,
+  ethChainId,
+  baseChainId,
+  berachainChainId,
+  unichainChainId,
+  avalancheChainId,
+  sonicChainId,
+  bscChainId,
+  soneiumChainId,
+  telosChainId,
+  swellChainId,
+  optimismChainId,
+  seiChainId,
+] as const
 export type BobGatewaySupportedChainId = (typeof BOB_GATEWAY_SUPPORTED_CHAIN_IDS)[number]
+
+// not sure about correctness of this value
+export const BOB_GATEWAY_AFFILIATE_BPS = 5
 
 // BOB Gateway represents native BTC as the zero address
 export const BTC_TOKEN_ADDRESS: Address = '0x0000000000000000000000000000000000000000'

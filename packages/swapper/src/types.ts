@@ -1,4 +1,3 @@
-import type { GatewayQuoteV2 } from '@gobob/bob-sdk'
 import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
   ChainAdapter,
@@ -45,6 +44,10 @@ import type { InterpolationOptions } from 'node-polyglot'
 import type { Address, Hex } from 'viem'
 
 import type { AcrossTransactionMetadata } from './swappers/AcrossSwapper/utils/types'
+import type {
+  BobGatewaySwapMetadata,
+  BobGatewayTradeQuoteMetadata,
+} from './swappers/BobGatewaySwapper/types'
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { DebridgeTransactionMetadata } from './swappers/DebridgeSwapper/utils/types'
 import type { RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
@@ -395,28 +398,6 @@ export type AffiliateFee = {
   amountCryptoBaseUnit: string
   asset: Asset
   isEstimate?: boolean
-}
-
-type BobGatewayEvmTxMetadata = {
-  to: string
-  data: string
-  value: string
-  chain: string
-}
-
-type BobGatewayMetadataBase = {
-  orderId?: string
-  depositAddress?: string
-  opReturnData?: string | null
-  evmTx?: BobGatewayEvmTxMetadata
-}
-
-type BobGatewayTradeQuoteMetadata = BobGatewayMetadataBase & {
-  gatewayQuote: GatewayQuoteV2
-}
-
-type BobGatewaySwapMetadata = BobGatewayMetadataBase & {
-  gatewayQuote?: GatewayQuoteV2
 }
 
 export type TradeQuoteStep = {

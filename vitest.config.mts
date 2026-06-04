@@ -15,7 +15,7 @@ export default defineConfig({
           environment: 'happy-dom',
           setupFiles: ['src/setupVitest'],
           clearMocks: true,
-          include: ['src/**/*.test.ts', 'src/**/*test.tsx'],
+          include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
           exclude: [
             // Temporarily skipped until https://github.com/shapeshift/hdwallet/pull/666 goes in
             'src/components/Modals/Send/hooks/useSendDetails/useSendDetails.test.tsx',

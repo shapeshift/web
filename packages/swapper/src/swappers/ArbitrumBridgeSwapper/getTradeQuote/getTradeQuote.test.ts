@@ -61,7 +61,9 @@ describe('getTradeQuote', () => {
         },
       }),
     }
-    vi.mocked(EthBridger).mockReturnValue(ethBridgerMock as unknown as EthBridger)
+    vi.mocked(EthBridger).mockImplementation(function () {
+      return ethBridgerMock as unknown as EthBridger
+    })
 
     const maybeQuote = await getTradeQuote(commonInput, {
       assertGetEvmChainAdapter,
@@ -87,7 +89,9 @@ describe('getTradeQuote', () => {
         },
       }),
     }
-    vi.mocked(EthBridger).mockReturnValue(ethBridgerMock as unknown as EthBridger)
+    vi.mocked(EthBridger).mockImplementation(function () {
+      return ethBridgerMock as unknown as EthBridger
+    })
 
     const withdrawInput = {
       ...commonInput,
@@ -126,7 +130,9 @@ describe('getTradeQuote', () => {
         .fn()
         .mockResolvedValue('0x0c66f315542fdec1d312c415b14eef614b0910ef'),
     }
-    vi.mocked(Erc20Bridger).mockReturnValue(Erc20BridgerMock as unknown as Erc20Bridger)
+    vi.mocked(Erc20Bridger).mockImplementation(function () {
+      return Erc20BridgerMock as unknown as Erc20Bridger
+    })
 
     const erc20DepositInput = {
       ...commonInput,
@@ -165,7 +171,9 @@ describe('getTradeQuote', () => {
         .fn()
         .mockResolvedValue('0x0c66f315542fdec1d312c415b14eef614b0910ef'),
     }
-    vi.mocked(Erc20Bridger).mockReturnValue(Erc20BridgerMock as unknown as Erc20Bridger)
+    vi.mocked(Erc20Bridger).mockImplementation(function () {
+      return Erc20BridgerMock as unknown as Erc20Bridger
+    })
 
     const erc20WithdrawInput = {
       ...commonInput,

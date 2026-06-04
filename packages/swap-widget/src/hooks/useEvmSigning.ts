@@ -26,9 +26,12 @@ export const useEvmSigning = (): UseEvmSigningResult => {
     })
   }, [walletProvider, checksummedAddress])
 
-  return {
-    walletClient,
-    address: checksummedAddress,
-    isConnected: !!(isConnected && checksummedAddress),
-  }
+  return useMemo(
+    () => ({
+      walletClient,
+      address: checksummedAddress,
+      isConnected: !!(isConnected && checksummedAddress),
+    }),
+    [walletClient, checksummedAddress, isConnected],
+  )
 }

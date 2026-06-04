@@ -47,10 +47,12 @@ vi.mock('axios-cache-interceptor', () => ({
 const mockTotalSupply = vi.fn().mockReturnValue(bn('502526240759422886301171305'))
 const mockTvl = vi.fn().mockReturnValue(bn('52018758965754575223841191'))
 vi.mock('@/lib/investor/investor-foxy', () => ({
-  FoxyApi: vi.fn().mockImplementation(() => ({
-    totalSupply: mockTotalSupply,
-    tvl: mockTvl,
-  })),
+  FoxyApi: vi.fn().mockImplementation(function () {
+    return {
+      totalSupply: mockTotalSupply,
+      tvl: mockTvl,
+    }
+  }),
   foxyAddresses: [{ foxy: '0xAddress' }],
 }))
 

@@ -53,6 +53,7 @@ describe('rate limiters utilities', () => {
 
     it(
       'using createRateLimiter',
+      { retry: 2 },
       async () => {
         const totalCalls = 200
 
@@ -90,13 +91,13 @@ describe('rate limiters utilities', () => {
         expect(errorStatus).toEqual(429)
         expect(successCount).toBeLessThan(totalCalls)
       },
-      { retry: 2 },
     )
   })
 
   describe('should not get rate limited', () => {
     it(
       'using createRateLimiter',
+      { retry: 2, timeout: 10000 },
       async () => {
         const totalCalls = 200
 
@@ -147,7 +148,6 @@ describe('rate limiters utilities', () => {
           (totalCalls / rateLimiterRate - 1) * rateLimiterInterval,
         )
       },
-      { retry: 2, timeout: 10000 },
     )
   })
 })

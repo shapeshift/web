@@ -19,13 +19,5 @@ export default defineConfig({
     setupFiles: ['fake-indexeddb/auto'],
     testTimeout: 60_000,
     clearMocks: true,
-    poolOptions: {
-      threads: {
-        singleThread: true,
-      },
-      forks: {
-        isolate: false,
-      },
-    },
   },
 })

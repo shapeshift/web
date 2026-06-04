@@ -23,8 +23,5 @@
     "msw": "^0.27.1",
     "whatwg-fetch": "^3.6.2"
   },
-  "devDependencies": {
-    "vitest": "4.1.0"
-  },
   "sideEffects": false
 }

@@ -40,13 +40,6 @@ const EVM_NETWORKS: readonly AppKitNetwork[] = [
 
 const ALL_NETWORKS: readonly AppKitNetwork[] = [...EVM_NETWORKS, bitcoin, solana]
 
-const APP_METADATA = {
-  name: 'ShapeShift Swap Widget',
-  description: 'Multi-chain swap widget powered by ShapeShift',
-  url: 'https://shapeshift.com',
-  icons: ['https://shapeshift.com/icon.png'],
-}
-
 let wagmiAdapter: WagmiAdapter | null = null
 let appKitInitialized = false
 
@@ -71,7 +64,9 @@ export const initializeAppKit = (projectId: string): void => {
     adapters: [wagmiAdapter, bitcoinAdapter, solanaAdapter],
     projectId,
     networks: [...ALL_NETWORKS] as [AppKitNetwork, ...AppKitNetwork[]],
-    metadata: APP_METADATA,
+    features: {
+      send: false,
+    },
   })
 
   appKitInitialized = true

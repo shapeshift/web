@@ -1,11 +1,13 @@
 import './App.css'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { SwapWidget } from '../components/SwapWidget'
 import { DemoCustomizer, useDemoTheme } from './DemoCustomizer'
 
-const PROJECT_ID = 'f58c0242def84c3b9befe9b1e6086bbd'
+const PROJECT_ID = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
+
+if (!PROJECT_ID) throw new Error('VITE_WALLETCONNECT_PROJECT_ID is not set')
 
 type InternalDemoBodyProps = {
   theme: 'light' | 'dark'
@@ -110,8 +112,26 @@ const InternalDemoBody = ({ theme, setTheme }: InternalDemoBodyProps) => {
   )
 }
 
+const MODE_STORAGE_KEY = 'ssw-demo-mode'
+
+const loadThemeMode = (): 'light' | 'dark' => {
+  try {
+    return localStorage.getItem(MODE_STORAGE_KEY) === 'light' ? 'light' : 'dark'
+  } catch {
+    return 'dark'
+  }
+}
+
 export const InternalWalletApp = () => {
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
+  const [theme, setTheme] = useState<'light' | 'dark'>(loadThemeMode)
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(MODE_STORAGE_KEY, theme)
+    } catch {
+      // ignore write failures (e.g. storage unavailable)
+    }
+  }, [theme])
 
   return <InternalDemoBody theme={theme} setTheme={setTheme} />
 }

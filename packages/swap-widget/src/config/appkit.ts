@@ -64,6 +64,9 @@ export const initializeAppKit = (projectId: string): void => {
     adapters: [wagmiAdapter, bitcoinAdapter, solanaAdapter],
     projectId,
     networks: [...ALL_NETWORKS] as [AppKitNetwork, ...AppKitNetwork[]],
+    features: {
+      send: false,
+    },
   })
 
   appKitInitialized = true

@@ -7,7 +7,7 @@ import type { UseSolanaSigningResult } from '../hooks/useSolanaSigning'
 export type SwapWalletContextValue = {
   sendAddress: string | undefined
   receiveAddress: string | undefined
-  isCustomReceiveAddress: boolean
+  isReceiveAddressResolving: boolean
   customReceiveAddress: string
   setCustomReceiveAddress: (address: string) => void
   evm: UseEvmSigningResult

@@ -36,12 +36,17 @@ import { useLimitOrders } from '@/components/MultiHopTrade/components/LimitOrder
 import type { OrderToCancel } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import {
   selectWalletActionsSorted,
   selectWalletPendingActions,
 } from '@/state/slices/actionSlice/selectors'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
-import { ActionType, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
+import {
+  ActionType,
+  GenericTransactionDisplayType,
+  isGenericTransactionAction,
+} from '@/state/slices/actionSlice/types'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { useAppSelector } from '@/state/store'
 
@@ -70,12 +75,19 @@ export const ActionCenter = memo(() => {
 
   const translate = useTranslate()
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
-  const [speedUpAction, setSpeedUpAction] = useState<GenericTransactionAction | undefined>(
-    undefined,
-  )
+  const [speedUpActionId, setSpeedUpActionId] = useState<string | undefined>(undefined)
+
+  const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
+
+  const speedUpAction = useMemo(() => {
+    if (!speedUpActionId) return
+    const action = actionsById[speedUpActionId]
+    return action && isGenericTransactionAction(action) ? action : undefined
+  }, [actionsById, speedUpActionId])
+
   const handleOpenSpeedUp = useCallback(
     (action: GenericTransactionAction) => {
-      setSpeedUpAction(action)
+      setSpeedUpActionId(action.id)
       closeDrawer()
     },
     [closeDrawer],
@@ -269,7 +281,7 @@ export const ActionCenter = memo(() => {
           accountIdsToRefetch={speedUpAction.transactionMetadata.accountIdsToRefetch}
           btcUtxoRbfTxMetadata={speedUpAction.transactionMetadata.btcUtxoRbfTxMetadata}
           isOpen={Boolean(speedUpAction)}
-          onClose={() => setSpeedUpAction(undefined)}
+          onClose={() => setSpeedUpActionId(undefined)}
         />
       )}
     </>

@@ -1408,6 +1408,11 @@
         "feesTooLow": "現在の料金はすでにネットワーク料金となっています",
         "alreadySpentOrReplaced": "この取引は既に置換または確認済みのため、これ以上処理を早めることはできません。",
         "alreadyConfirmed": "この取引は既に確定しており、これ以上早めることはできません。",
+        "errors": {
+          "multipleChange": "複数のお釣り（Change）出力を持つトランザクションは高速化できません。",
+          "multipleOpReturn": "複数のOP_RETURN出力を含むトランザクションを高速化することはできません。",
+          "addresslessOutput": "非標準出力を含むトランザクションは高速化できません。"
+        },
         "speedUpFailed": "取引の高速化に失敗しました",
         "broadcastNotObserved": "置換トランザクションのブロードキャストはまだネットワークで検出されていません。もう一度お試しください。"
       }
@@ -2237,7 +2242,7 @@
     "thisMonth": "今月",
     "speedUp": "スピードアップ",
     "cancelTransaction": "取引をキャンセルする",
-    "replaced": "置換済み",
+    "replaced": "%{amount} %{symbol} の送金を高速化しました",
     "replacedBy": "%{txHash} に置き換えられました",
     "replaces": "%{txHash} を置き換えます"
   },

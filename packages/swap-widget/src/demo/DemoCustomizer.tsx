@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import type { ThemeConfig } from '../types'
 
@@ -19,50 +19,46 @@ const THEME_PRESETS: {
   {
     name: 'Blue',
     dark: { bg: '#0a0a14', card: '#12121c', accent: '#3861fb' },
-    light: { bg: '#f8f9fc', card: '#ffffff', accent: '#3861fb' },
+    light: { bg: '#e4e9ff', card: '#eef2ff', accent: '#3861fb' },
   },
   {
     name: 'Rose',
     dark: { bg: '#140a0f', card: '#1c1218', accent: '#f43f5e' },
-    light: { bg: '#fef2f4', card: '#ffffff', accent: '#f43f5e' },
+    light: { bg: '#ffe6ea', card: '#fff0f2', accent: '#f43f5e' },
   },
   {
     name: 'Purple',
     dark: { bg: '#0e0a14', card: '#1a1424', accent: '#a855f7' },
-    light: { bg: '#faf5ff', card: '#ffffff', accent: '#a855f7' },
+    light: { bg: '#f1e6ff', card: '#f7f0ff', accent: '#a855f7' },
   },
   {
     name: 'Cyan',
     dark: { bg: '#0a1214', card: '#141d20', accent: '#06b6d4' },
-    light: { bg: '#f0fdff', card: '#ffffff', accent: '#06b6d4' },
+    light: { bg: '#ddf5fb', card: '#ebf9fd', accent: '#06b6d4' },
   },
   {
     name: 'Green',
     dark: { bg: '#0a140e', card: '#141c18', accent: '#10b981' },
-    light: { bg: '#f0fdf6', card: '#ffffff', accent: '#10b981' },
+    light: { bg: '#ddf6e9', card: '#eafaf1', accent: '#10b981' },
   },
   {
     name: 'Orange',
     dark: { bg: '#14100a', card: '#1c1814', accent: '#f97316' },
-    light: { bg: '#fff8f3', card: '#ffffff', accent: '#f97316' },
+    light: { bg: '#ffe9d8', card: '#fff2e8', accent: '#f97316' },
   },
   {
     name: 'Stucco',
     dark: {
       bg: '#0d1117',
-      card: '#0d1117',
+      card: '#161b22',
       accent: '#bea989',
       borderColor: '#2a2520',
-      borderRadius: '6',
-      buttonVariant: 'outline' as const,
     },
     light: {
       bg: '#f5f3ee',
-      card: '#f5f3ee',
+      card: '#fbf9f4',
       accent: '#b8941f',
       borderColor: '#d4cfc7',
-      borderRadius: '6',
-      buttonVariant: 'outline' as const,
     },
   },
 ]
@@ -70,10 +66,41 @@ const THEME_PRESETS: {
 const DEFAULT_DARK: ThemeColors = { bg: '#0a0a14', card: '#12121c', accent: '#3861fb' }
 const DEFAULT_LIGHT: ThemeColors = { bg: '#f8f9fc', card: '#ffffff', accent: '#3861fb' }
 
+const STORAGE_KEY = 'ssw-demo-config'
+
+type StoredConfig = {
+  partnerCode?: string
+  darkColors?: ThemeColors
+  lightColors?: ThemeColors
+  selectedPreset?: string | null
+}
+
+const loadConfig = (): StoredConfig => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? (JSON.parse(raw) as StoredConfig) : {}
+  } catch {
+    return {}
+  }
+}
+
 export const useDemoTheme = (theme: 'light' | 'dark') => {
-  const [partnerCode, setPartnerCode] = useState('')
-  const [darkColors, setDarkColors] = useState<ThemeColors>(DEFAULT_DARK)
-  const [lightColors, setLightColors] = useState<ThemeColors>(DEFAULT_LIGHT)
+  const [stored] = useState(loadConfig)
+  const [partnerCode, setPartnerCode] = useState(stored.partnerCode ?? '')
+  const [darkColors, setDarkColors] = useState<ThemeColors>(stored.darkColors ?? DEFAULT_DARK)
+  const [lightColors, setLightColors] = useState<ThemeColors>(stored.lightColors ?? DEFAULT_LIGHT)
+  const [selectedPreset, setSelectedPreset] = useState<string | null>(stored.selectedPreset ?? null)
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ partnerCode, darkColors, lightColors, selectedPreset }),
+      )
+    } catch {
+      // ignore write failures (e.g. storage unavailable)
+    }
+  }, [partnerCode, darkColors, lightColors, selectedPreset])
 
   const currentColors = theme === 'dark' ? darkColors : lightColors
 
@@ -106,6 +133,8 @@ export const useDemoTheme = (theme: 'light' | 'dark') => {
     setDarkColors,
     lightColors,
     setLightColors,
+    selectedPreset,
+    setSelectedPreset,
     themeConfig,
     demoStyle,
   }
@@ -120,18 +149,45 @@ type DemoCustomizerProps = {
 }
 
 export const DemoCustomizer = ({ theme, setTheme, state }: DemoCustomizerProps) => {
-  const { partnerCode, setPartnerCode, darkColors, setDarkColors, lightColors, setLightColors } =
-    state
+  const {
+    partnerCode,
+    setPartnerCode,
+    darkColors,
+    setDarkColors,
+    lightColors,
+    setLightColors,
+    selectedPreset,
+    setSelectedPreset,
+  } = state
 
   const currentColors = theme === 'dark' ? darkColors : lightColors
   const setCurrentColors = theme === 'dark' ? setDarkColors : setLightColors
 
   const applyPreset = useCallback(
     (preset: (typeof THEME_PRESETS)[number]) => {
-      setDarkColors(preset.dark)
-      setLightColors(preset.light)
+      // Preserve non-color config (border radius, button style) across preset changes
+      setDarkColors(prev => ({
+        ...preset.dark,
+        borderRadius: prev.borderRadius,
+        buttonVariant: prev.buttonVariant,
+      }))
+      setLightColors(prev => ({
+        ...preset.light,
+        borderRadius: prev.borderRadius,
+        buttonVariant: prev.buttonVariant,
+      }))
+      setSelectedPreset(preset.name)
     },
-    [setDarkColors, setLightColors],
+    [setDarkColors, setLightColors, setSelectedPreset],
+  )
+
+  // Manual color edits diverge from the preset, so clear the active-preset highlight
+  const handleColorChange = useCallback(
+    (patch: Partial<ThemeColors>) => {
+      setCurrentColors(c => ({ ...c, ...patch }))
+      setSelectedPreset(null)
+    },
+    [setCurrentColors, setSelectedPreset],
   )
 
   const [copied, setCopied] = useState(false)
@@ -194,7 +250,7 @@ ${formatColors(lightColors, 'light')}
             return (
               <button
                 key={preset.name}
-                className='demo-preset-btn'
+                className={`demo-preset-btn${selectedPreset === preset.name ? ' active' : ''}`}
                 onClick={() => applyPreset(preset)}
                 title={preset.name}
                 type='button'
@@ -260,13 +316,13 @@ ${formatColors(lightColors, 'light')}
           <input
             type='color'
             value={currentColors.bg}
-            onChange={e => setCurrentColors(c => ({ ...c, bg: e.target.value }))}
+            onChange={e => handleColorChange({ bg: e.target.value })}
             className='demo-color-picker'
           />
           <input
             type='text'
             value={currentColors.bg}
-            onChange={e => setCurrentColors(c => ({ ...c, bg: e.target.value }))}
+            onChange={e => handleColorChange({ bg: e.target.value })}
             className='demo-color-text'
           />
         </div>
@@ -278,13 +334,13 @@ ${formatColors(lightColors, 'light')}
           <input
             type='color'
             value={currentColors.card}
-            onChange={e => setCurrentColors(c => ({ ...c, card: e.target.value }))}
+            onChange={e => handleColorChange({ card: e.target.value })}
             className='demo-color-picker'
           />
           <input
             type='text'
             value={currentColors.card}
-            onChange={e => setCurrentColors(c => ({ ...c, card: e.target.value }))}
+            onChange={e => handleColorChange({ card: e.target.value })}
             className='demo-color-text'
           />
         </div>
@@ -296,13 +352,13 @@ ${formatColors(lightColors, 'light')}
           <input
             type='color'
             value={currentColors.accent}
-            onChange={e => setCurrentColors(c => ({ ...c, accent: e.target.value }))}
+            onChange={e => handleColorChange({ accent: e.target.value })}
             className='demo-color-picker'
           />
           <input
             type='text'
             value={currentColors.accent}
-            onChange={e => setCurrentColors(c => ({ ...c, accent: e.target.value }))}
+            onChange={e => handleColorChange({ accent: e.target.value })}
             className='demo-color-text'
           />
         </div>

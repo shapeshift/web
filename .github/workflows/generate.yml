@@ -4,7 +4,7 @@ on:
   # Allows manual triggering if we ever want to
   workflow_dispatch:
   schedule:
-  - cron: '0 9 * * *' # 9AM UTC every day
+  - cron: '0 9 * * 1' # 9AM UTC every Monday
 
 permissions:
   contents: write

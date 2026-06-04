@@ -1408,6 +1408,11 @@
         "feesTooLow": "Current fees are already at network rates",
         "alreadySpentOrReplaced": "This transaction can no longer be sped up because it was already replaced or confirmed.",
         "alreadyConfirmed": "This transaction is already confirmed and can no longer be sped up.",
+        "errors": {
+          "multipleChange": "Cannot speed up transactions with multiple change outputs.",
+          "multipleOpReturn": "Cannot speed up transactions with multiple OP_RETURN outputs.",
+          "addresslessOutput": "Cannot speed up transactions containing non-standard outputs."
+        },
         "speedUpFailed": "Failed to speed up transaction",
         "broadcastNotObserved": "Replacement transaction broadcast was not observed by the network yet. Please try again."
       }
@@ -2237,7 +2242,7 @@
     "thisMonth": "This Month",
     "speedUp": "Speed Up",
     "cancelTransaction": "Cancel Transaction",
-    "replaced": "Replaced",
+    "replaced": "You sped up your send of %{amount} %{symbol}",
     "replacedBy": "Replaced by %{txHash}",
     "replaces": "Replaces %{txHash}"
   },
@@ -3147,6 +3152,9 @@
     "stake": "Stake",
     "unstake": "Unstake",
     "staking": "TCY Staking",
+    "claimingHalted": "TCY Claiming Halted",
+    "stakingHalted": "TCY Staking Halted",
+    "unstakingHalted": "TCY Unstaking Halted",
     "myPosition": "My Position",
     "myStakedBalance": "My Staked Balance",
     "myStakedBalanceHelper": "The amount of %{symbol} you have staked",

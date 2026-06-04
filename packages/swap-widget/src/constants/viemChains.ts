@@ -16,19 +16,46 @@ import {
 } from 'viem/chains'
 
 export const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
-  1: mainnet,
-  10: optimism,
-  56: bsc,
-  100: gnosis,
-  137: polygon,
-  143: monad,
-  480: worldchain,
-  999: hyperEvm,
-  8453: base,
-  9745: plasma,
-  42161: arbitrum,
-  43114: avalanche,
-  747474: katana,
+  1: {
+    ...mainnet,
+    rpcUrls: { default: { http: ['https://api.ethereum.shapeshift.com/api/v1/jsonrpc'] } },
+  },
+  10: {
+    ...optimism,
+    rpcUrls: { default: { http: ['https://api.optimism.shapeshift.com/api/v1/jsonrpc'] } },
+  },
+  56: {
+    ...bsc,
+    rpcUrls: { default: { http: ['https://api.bnbsmartchain.shapeshift.com/api/v1/jsonrpc'] } },
+  },
+  100: {
+    ...gnosis,
+    rpcUrls: { default: { http: ['https://api.gnosis.shapeshift.com/api/v1/jsonrpc'] } },
+  },
+  137: {
+    ...polygon,
+    rpcUrls: { default: { http: ['https://api.polygon.shapeshift.com/api/v1/jsonrpc'] } },
+  },
+  143: { ...monad, rpcUrls: { default: { http: ['https://rpc.monad.xyz'] } } },
+  480: {
+    ...worldchain,
+    rpcUrls: { default: { http: ['https://worldchain-mainnet.g.alchemy.com/public'] } },
+  },
+  999: { ...hyperEvm, rpcUrls: { default: { http: ['https://rpc.hyperliquid.xyz/evm'] } } },
+  8453: {
+    ...base,
+    rpcUrls: { default: { http: ['https://api.base.shapeshift.com/api/v1/jsonrpc'] } },
+  },
+  9745: { ...plasma, rpcUrls: { default: { http: ['https://rpc.plasma.to'] } } },
+  42161: {
+    ...arbitrum,
+    rpcUrls: { default: { http: ['https://api.arbitrum.shapeshift.com/api/v1/jsonrpc'] } },
+  },
+  43114: {
+    ...avalanche,
+    rpcUrls: { default: { http: ['https://api.avalanche.shapeshift.com/api/v1/jsonrpc'] } },
+  },
+  747474: { ...katana, rpcUrls: { default: { http: ['https://rpc.katana.network'] } } },
 }
 
 export const addChainToWallet = async (client: WalletClient, chain: Chain): Promise<void> => {

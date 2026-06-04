@@ -47,13 +47,15 @@ import { assertGetUtxoChainAdapter } from './utils/utxo'
 
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
-import { readStoredPartnerCode } from '@/hooks/useAffiliateTracking/useAffiliateTracking'
+import {
+  readStoredPartnerAddress,
+  readStoredPartnerBps,
+  readStoredShapeshiftBps,
+} from '@/hooks/useAffiliateTracking/useAffiliateTracking'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getAffiliateBps } from '@/lib/fees/utils'
 import { poll } from '@/lib/poll/poll'
 import { getOrCreateUser } from '@/lib/user/api'
-import { selectUsdRateByAssetId } from '@/state/slices/marketDataSlice/selectors'
 import { selectCurrentSwap, selectWalletEnabledAccountIds } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
@@ -219,38 +221,26 @@ export class TradeExecution {
               queryKey: ['createSwap', swap.id],
               queryFn: () => {
                 const affiliateBps = getAffiliateBps(updatedSwap.sellAsset, updatedSwap.buyAsset)
-                const partnerCode = readStoredPartnerCode() ?? undefined
-
-                const sellAssetUsdRate = selectUsdRateByAssetId(
-                  store.getState(),
-                  updatedSwap.sellAsset.assetId,
-                )
-                const sellAmountUsd =
-                  sellAssetUsdRate && updatedSwap.sellAmountCryptoPrecision
-                    ? bnOrZero(updatedSwap.sellAmountCryptoPrecision)
-                        .times(sellAssetUsdRate)
-                        .toFixed(2)
-                    : undefined
+                const storedPartnerBps = readStoredPartnerBps()
 
                 return axios.post(`${import.meta.env.VITE_SWAPS_SERVER_URL}/swaps`, {
                   swapId: swap.id,
-                  sellTxHash,
-                  userId: userData?.id,
-                  affiliateBps,
-                  partnerCode,
-                  sellAmountUsd,
-                  origin: 'web',
                   sellAsset: updatedSwap.sellAsset,
                   buyAsset: updatedSwap.buyAsset,
                   sellAmountCryptoBaseUnit: updatedSwap.sellAmountCryptoBaseUnit,
                   expectedBuyAmountCryptoBaseUnit: updatedSwap.expectedBuyAmountCryptoBaseUnit,
-                  sellAmountCryptoPrecision: updatedSwap.sellAmountCryptoPrecision,
-                  expectedBuyAmountCryptoPrecision: updatedSwap.expectedBuyAmountCryptoPrecision,
+                  sellTxHash,
                   source: updatedSwap.source,
                   swapperName: updatedSwap.swapperName,
                   sellAccountId: accountId,
                   buyAccountId: accountId,
                   receiveAddress: updatedSwap.receiveAddress,
+                  partnerAddress: readStoredPartnerAddress() ?? undefined,
+                  partnerBps: storedPartnerBps ? Number(storedPartnerBps) : undefined,
+                  affiliateBps: Number(affiliateBps),
+                  shapeshiftBps: Number(readStoredShapeshiftBps() ?? affiliateBps),
+                  userId: userData?.id,
+                  origin: 'web',
                   isStreaming: updatedSwap.isStreaming,
                   metadata: updatedSwap.metadata,
                 })

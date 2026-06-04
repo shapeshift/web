@@ -48,15 +48,29 @@ body,
 }
 
 .demo-app.light {
-  --demo-bg: #f5f5f7;
-  --demo-bg-secondary: #ffffff;
+  --demo-bg: var(--demo-page-bg, #f5f5f7);
+  --demo-bg-secondary: color-mix(
+    in srgb,
+    var(--demo-page-bg, #f5f5f7),
+    white 25%
+  );
   --demo-text: #1a1a2e;
   --demo-text-secondary: #5c5c70;
   --demo-text-muted: #9090a0;
   --demo-border: rgba(0, 0, 0, 0.08);
-  --demo-accent: #3861fb;
+  --demo-accent: var(--demo-page-accent, #3861fb);
 
   background: var(--demo-bg);
+  background-image: radial-gradient(
+      ellipse 80% 50% at 50% -20%,
+      color-mix(in srgb, var(--demo-page-accent, #3861fb), transparent 94%),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 80% 100%,
+      color-mix(in srgb, var(--demo-page-accent, #6366f1), transparent 96%),
+      transparent
+    );
   color: var(--demo-text);
 }
 
@@ -95,6 +109,36 @@ body,
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.demo-header-separator {
+  width: 1px;
+  height: 24px;
+  background: var(--demo-border);
+}
+
+.demo-connect-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--demo-border);
+  background: var(--demo-bg-secondary);
+  border-radius: 10px;
+  color: var(--demo-text);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.demo-connect-btn:hover {
+  border-color: var(--demo-accent);
+}
+
+.demo-connect-btn.demo-connected {
+  background: color-mix(in srgb, var(--demo-accent) 15%, var(--demo-bg-secondary));
+  border-color: color-mix(in srgb, var(--demo-accent) 40%, transparent);
 }
 
 .demo-customize-btn {
@@ -273,6 +317,11 @@ body,
 .demo-preset-btn:hover {
   border-color: var(--demo-accent);
   transform: translateY(-1px);
+}
+
+.demo-preset-btn.active {
+  border-color: var(--demo-accent);
+  box-shadow: 0 0 0 1px var(--demo-accent);
 }
 
 .demo-preset-preview {

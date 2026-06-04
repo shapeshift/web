@@ -103,7 +103,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   })()
 
   const affiliateFeePercent = (() => {
-    if (!isTreasuryChainId(buyAsset.chainId)) return undefined
+    if (!isTreasuryChainId(sellAsset.chainId)) return undefined
     const bps = bnOrZero(affiliateBps)
     if (!bps.isFinite() || bps.lte(0)) return undefined
     return bps.div(100).toFixed()
@@ -112,10 +112,10 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   const affiliateFeeRecipient = (() => {
     if (affiliateFeePercent === undefined) return undefined
     try {
-      return getTreasuryAddressFromChainId(buyAsset.chainId).toLowerCase()
+      return getTreasuryAddressFromChainId(sellAsset.chainId).toLowerCase()
     } catch (e) {
       console.error(
-        `[getTrade] Failed to get treasury address for chainId ${buyAsset.chainId}, affiliate fee will not be applied`,
+        `[getTrade] Failed to get treasury address for chainId ${sellAsset.chainId}, affiliate fee will not be applied`,
         e,
       )
       return undefined

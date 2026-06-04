@@ -35,16 +35,17 @@ const TEST_RATE: TradeRate = {
   sellAmountCryptoBaseUnit: '1000000000000000000',
   steps: 1,
   affiliateBps: '0',
+  shapeshiftBps: '0',
 }
 
 const TEST_QUOTE_NO_APPROVAL = {
   transactionData: { to: '0xRouter', data: '0xSwapData', value: '1000000000000000000' },
-} as QuoteResponse
+} as unknown as QuoteResponse
 
 const TEST_QUOTE_WITH_APPROVAL = {
   transactionData: { to: '0xRouter', data: '0xSwapData', value: '1000000000000000000' },
   approval: { isRequired: true, spender: '0xSpender' },
-} as QuoteResponse
+} as unknown as QuoteResponse
 
 describe('swapMachine', () => {
   describe('initial state', () => {
@@ -153,19 +154,19 @@ describe('swapMachine', () => {
       actor.stop()
     })
 
-    it('SET_WALLET_ADDRESS updates walletAddress', () => {
+    it('SET_SEND_ADDRESS updates sendAddress', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_WALLET_ADDRESS', address: '0xWallet' })
-      expect(actor.getSnapshot().context.walletAddress).toBe('0xWallet')
+      actor.send({ type: 'SET_SEND_ADDRESS', address: '0xWallet' })
+      expect(actor.getSnapshot().context.sendAddress).toBe('0xWallet')
       actor.stop()
     })
 
-    it('SET_RECEIVE_ADDRESS updates effectiveReceiveAddress', () => {
+    it('SET_RECEIVE_ADDRESS updates receiveAddress', () => {
       const actor = createActor(swapMachine)
       actor.start()
       actor.send({ type: 'SET_RECEIVE_ADDRESS', address: '0xReceiver' })
-      expect(actor.getSnapshot().context.effectiveReceiveAddress).toBe('0xReceiver')
+      expect(actor.getSnapshot().context.receiveAddress).toBe('0xReceiver')
       actor.stop()
     })
 

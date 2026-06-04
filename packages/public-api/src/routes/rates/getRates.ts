@@ -3,6 +3,7 @@ import { getTradeRates, SwapperName, swappers, TradeQuoteError } from '@shapeshi
 import type { Request, Response } from 'express'
 
 import { getAsset } from '../../assets'
+import { env } from '../../env'
 import { registry } from '../../registry'
 import { getSwapperDeps } from '../../swapperDeps'
 import type { ErrorResponse } from '../../types'
@@ -11,15 +12,16 @@ import type { ApiRate, RateResponse } from './types'
 import { RateResponseSchema, RatesRequestSchema } from './types'
 
 const ENABLED_SWAPPER_NAMES = [
-  'THORChain',
-  'MAYAChain',
-  '0x',
-  'CoW Swap',
-  'Portals',
-  'Chainflip',
-  'Relay',
-  'ButterSwap',
-  'Bebop',
+  SwapperName.Bebop,
+  SwapperName.ButterSwap,
+  SwapperName.Chainflip,
+  SwapperName.CowSwap,
+  SwapperName.Mayachain,
+  SwapperName.NearIntents,
+  SwapperName.Portals,
+  SwapperName.Relay,
+  SwapperName.Thorchain,
+  SwapperName.Zrx,
 ] as const
 
 // Rate timeout per swapper (10 seconds)
@@ -66,7 +68,6 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       buyAssetId,
       sellAmountCryptoBaseUnit,
       slippageTolerancePercentageDecimal,
-      allowMultiHop,
     } = queryResult.data
 
     const sellAsset = getAsset(sellAssetId)
@@ -87,9 +88,8 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       sellAsset,
       buyAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      affiliateBps: req.affiliateInfo?.affiliateBps!,
-      allowMultiHop,
+      affiliateBps: req.affiliateInfo?.affiliateBps ?? env.DEFAULT_AFFILIATE_BPS,
+      allowMultiHop: false,
       slippageTolerancePercentageDecimal,
       receiveAddress: undefined,
       sendAddress: undefined,
@@ -98,12 +98,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       chainId: sellAsset.chainId,
     }
 
-    const enabledSwappers = ENABLED_SWAPPER_NAMES.map(name => {
-      const swapperName = Object.values(SwapperName).find(v => v === name)
-      return swapperName
-    }).filter((name): name is (typeof SwapperName)[keyof typeof SwapperName] => name !== undefined)
-
-    const ratePromises = enabledSwappers.map(async (swapperName): Promise<ApiRate | null> => {
+    const ratePromises = ENABLED_SWAPPER_NAMES.map(async (swapperName): Promise<ApiRate | null> => {
       try {
         const swapper = swappers[swapperName]
         if (!swapper) return null
@@ -127,8 +122,9 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
             steps: 0,
             estimatedExecutionTimeMs: undefined,
             priceImpactPercentageDecimal: undefined,
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            affiliateBps: req.affiliateInfo?.affiliateBps!,
+            partnerBps: req.affiliateInfo?.partnerBps,
+            shapeshiftBps: req.affiliateInfo?.shapeshiftBps ?? env.DEFAULT_AFFILIATE_BPS,
+            affiliateBps: req.affiliateInfo?.affiliateBps ?? env.DEFAULT_AFFILIATE_BPS,
             networkFeeCryptoBaseUnit: undefined,
             error: {
               code: error.code ?? TradeQuoteError.UnknownError,
@@ -140,21 +136,22 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
         const rates = result.unwrap()
         if (rates.length === 0) return null
 
-        // Return the first/best rate
         const rate = rates[0]
-        const firstStep = rate.steps[0]
+        const step = rate.steps[0]
+        const lastStep = rate.steps[rate.steps.length - 1]
 
         return {
           swapperName,
           rate: rate.rate,
-          buyAmountCryptoBaseUnit: firstStep.buyAmountAfterFeesCryptoBaseUnit,
-          sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          buyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+          sellAmountCryptoBaseUnit: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
           steps: rate.steps.length,
-          estimatedExecutionTimeMs: firstStep.estimatedExecutionTimeMs,
+          estimatedExecutionTimeMs: step.estimatedExecutionTimeMs,
           priceImpactPercentageDecimal: rate.priceImpactPercentageDecimal,
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          affiliateBps: req.affiliateInfo?.affiliateBps!,
-          networkFeeCryptoBaseUnit: firstStep.feeData.networkFeeCryptoBaseUnit,
+          partnerBps: req.affiliateInfo?.partnerBps,
+          shapeshiftBps: req.affiliateInfo?.shapeshiftBps ?? env.DEFAULT_AFFILIATE_BPS,
+          affiliateBps: rate.affiliateBps,
+          networkFeeCryptoBaseUnit: step.feeData.networkFeeCryptoBaseUnit,
         }
       } catch (error) {
         console.error(`Error fetching rate from ${swapperName}:`, error)
@@ -186,8 +183,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
     const response: RateResponse = {
       rates,
       timestamp: now,
-      expiresAt: now + 30_000, // 30 second expiry
-      affiliateAddress: req.affiliateInfo?.affiliateAddress,
+      expiresAt: now + 30_000,
     }
 
     res.json(response)

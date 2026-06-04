@@ -17,15 +17,12 @@ import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { WalletBalanceChange } from '@/components/WalletBalanceChange/WalletBalanceChange'
-import { KeyManager } from '@/context/WalletProvider/KeyManager'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useRouteAccountId } from '@/hooks/useRouteAccountId/useRouteAccountId'
 import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
-import { useWallet } from '@/hooks/useWallet/useWallet'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
-import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -93,21 +90,10 @@ const MobileActionButton = ({ icon, label, onClick, isDisabled }: MobileActionBu
 export const DashboardHeaderTop = memo(() => {
   const mixpanel = getMixPanel()
   const translate = useTranslate()
-  const {
-    state: { isConnected },
-  } = useWallet()
+  const canDisplayWalletActions = useIsWalletConnected()
   const assetId = useRouteAssetId()
   const accountId = useRouteAccountId()
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
-  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
-  const walletType = useAppSelector(selectWalletType)
-  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
-
-  // Either wallet is physically connected, or it's a Ledger in read-only mode
-  const canDisplayWalletActions = useMemo(
-    () => isConnected || isLedgerReadOnly,
-    [isConnected, isLedgerReadOnly],
-  )
 
   const navigate = useNavigate()
   const send = useModal('send')

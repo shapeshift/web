@@ -25,23 +25,19 @@ import { InfiniteTable } from '@/components/ReactTable/InfiniteTable'
 import { ResultsEmpty } from '@/components/ResultsEmpty'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { Text } from '@/components/Text'
-import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll/useInfiniteScroll'
+import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
 import { useModal } from '@/hooks/useModal/useModal'
-import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { isSome } from '@/lib/utils'
 import { vibrate } from '@/lib/vibrate'
-import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import type { AccountRowData, AccountRowProps } from '@/state/slices/selectors'
 import {
   selectAssets,
   selectIsPortfolioLoading,
   selectPrimaryPortfolioAccountRowsSortedByBalance,
 } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
 const emptyContainerProps: FlexProps = {
@@ -54,13 +50,7 @@ type AccountTableProps = {
 }
 
 export const AccountTable = memo(({ forceCompactView = false }: AccountTableProps) => {
-  const {
-    state: { isConnected: isWalletConnected },
-  } = useWallet()
-  const walletType = useAppSelector(selectWalletType)
-  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
-  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
-  const isConnected = isWalletConnected || isLedgerReadOnly
+  const isConnected = useIsWalletConnected()
 
   const loading = useSelector(selectIsPortfolioLoading)
   const rowData = useSelector((state: any) =>

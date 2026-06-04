@@ -1,12 +1,9 @@
-import type { SwapMachineContext, SwapMachineEvent } from '../machines/types'
+import { SwapMachineCtx } from '../machines/SwapMachineContext'
 
-type ApprovalStepProps = {
-  context: SwapMachineContext
-  send: (event: SwapMachineEvent) => void
-  isApproving: boolean
-}
-
-export const ApprovalStep = ({ context, send, isApproving }: ApprovalStepProps) => {
+export const ApprovalStep = () => {
+  const context = SwapMachineCtx.useSelector(s => s.context)
+  const isApproving = SwapMachineCtx.useSelector(s => s.matches('approving'))
+  const { send } = SwapMachineCtx.useActorRef()
   const { sellAsset, approvalTxHash } = context
 
   const explorerUrl = approvalTxHash

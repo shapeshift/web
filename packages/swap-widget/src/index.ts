@@ -8,6 +8,7 @@ export type {
   TradeRate,
   TradeQuote,
   SwapWidgetProps,
+  SwapWidgetFilters,
   ThemeMode,
   ThemeConfig,
 } from './types'

@@ -1,7 +1,6 @@
 /**
  * @vitest-environment node
  */
-import { inspect } from 'util'
 import { describe, expect, it } from 'vitest'
 
 import { createErrorClass } from './createErrorClass'
@@ -10,7 +9,8 @@ describe('createErrorClass', () => {
   it('should create a new Error based on ErrorWithDetails', () => {
     const TestError = createErrorClass('TestError')
     expect(TestError).toBeInstanceOf(Function)
-    expect(inspect(TestError)).toBe('[class TestError extends ErrorWithDetails]')
+    expect(TestError.name).toBe('TestError')
+    expect(Object.getPrototypeOf(TestError).name).toBe('ErrorWithDetails')
     expect(new TestError('message')).toBeInstanceOf(TestError)
   })
 

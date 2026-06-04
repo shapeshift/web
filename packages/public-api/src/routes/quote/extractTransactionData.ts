@@ -1,5 +1,7 @@
 import { fromChainId } from '@shapeshiftoss/caip'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
+import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import type {
   CosmosTransactionData,
@@ -8,7 +10,6 @@ import type {
   TransactionData,
   UtxoTransactionData,
 } from '../../types'
-import type { DepositExtractionContext } from './types'
 import { getEvmChainIdNumber } from './utils'
 
 const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | undefined => {
@@ -81,12 +82,36 @@ const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | u
     }
 
     if (step.nearIntentsSpecific?.depositAddress) {
+      const depositAddress = step.nearIntentsSpecific.depositAddress
+      const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
+      const contractAddress = contractAddressOrUndefined(step.sellAsset.assetId)
+
+      if (contractAddress) {
+        return {
+          type: 'evm' as const,
+          chainId,
+          to: contractAddress,
+          data: evm.getErc20Data(depositAddress, value, contractAddress),
+          value: '0',
+        }
+      }
+
       return {
         type: 'evm' as const,
         chainId,
-        to: step.nearIntentsSpecific.depositAddress,
+        to: depositAddress,
         data: '0x',
-        value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        value,
+      }
+    }
+
+    if (step.thorchainTransactionMetadata?.data) {
+      return {
+        type: 'evm' as const,
+        chainId,
+        to: step.thorchainTransactionMetadata.to,
+        data: step.thorchainTransactionMetadata.data,
+        value: step.thorchainTransactionMetadata.value ?? '0',
       }
     }
 
@@ -124,10 +149,7 @@ const extractSolanaTransactionData = (step: TradeQuoteStep): SolanaTransactionDa
   }
 }
 
-const extractUtxoTransactionData = (
-  step: TradeQuoteStep,
-  context: DepositExtractionContext = {},
-): UtxoTransactionData | undefined => {
+const extractUtxoTransactionData = (step: TradeQuoteStep): UtxoTransactionData | undefined => {
   if (step.relayTransactionMetadata?.to) {
     return {
       type: 'utxo_deposit',
@@ -146,39 +168,37 @@ const extractUtxoTransactionData = (
     }
   }
 
-  if (context.depositAddress && context.memo !== undefined) {
+  if (step.thorchainTransactionMetadata?.to) {
     return {
       type: 'utxo_deposit',
-      depositAddress: context.depositAddress,
-      memo: context.memo,
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      depositAddress: step.thorchainTransactionMetadata.to,
+      memo: step.thorchainTransactionMetadata.memo ?? '',
+      value:
+        step.thorchainTransactionMetadata.value ??
+        step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
     }
   }
 
   return undefined
 }
 
-const extractCosmosTransactionData = (
-  step: TradeQuoteStep,
-  context: DepositExtractionContext = {},
-): CosmosTransactionData | undefined => {
-  if (context.depositAddress && context.memo !== undefined) {
+const extractCosmosTransactionData = (step: TradeQuoteStep): CosmosTransactionData | undefined => {
+  if (step.thorchainTransactionMetadata?.to) {
     return {
       type: 'cosmos',
       chainId: step.sellAsset.chainId,
-      to: context.depositAddress,
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      memo: context.memo,
+      to: step.thorchainTransactionMetadata.to,
+      value:
+        step.thorchainTransactionMetadata.value ??
+        step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      memo: step.thorchainTransactionMetadata.memo ?? '',
     }
   }
 
   return undefined
 }
 
-export const extractTransactionData = (
-  step: TradeQuoteStep,
-  context: DepositExtractionContext = {},
-): TransactionData | undefined => {
+export const extractTransactionData = (step: TradeQuoteStep): TransactionData | undefined => {
   const { chainNamespace } = fromChainId(step.sellAsset.chainId)
 
   if (chainNamespace === 'eip155') {
@@ -190,11 +210,11 @@ export const extractTransactionData = (
   }
 
   if (chainNamespace === 'bip122') {
-    return extractUtxoTransactionData(step, context)
+    return extractUtxoTransactionData(step)
   }
 
   if (chainNamespace === 'cosmos') {
-    return extractCosmosTransactionData(step, context)
+    return extractCosmosTransactionData(step)
   }
 
   return undefined

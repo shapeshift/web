@@ -7,19 +7,19 @@ import { switchOrAddChain, VIEM_CHAINS_BY_ID } from '../constants/viemChains'
 import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import { getEvmNetworkId } from '../types'
+import { getErrorMessage } from '../utils/errors'
 
 export const useSwapApproval = () => {
   const stateValue = SwapMachineCtx.useSelector(s => s.value)
-  const context = SwapMachineCtx.useSelector(s => s.context)
   const actorRef = SwapMachineCtx.useActorRef()
 
-  const { walletClient, walletAddress } = useSwapWallet()
+  const { evm } = useSwapWallet()
+  const { walletClient, address: walletAddress } = evm
 
   const approvingRef = useRef(false)
 
   useEffect(() => {
-    const snap = actorRef.getSnapshot()
-    if (!snap.matches('approving') || approvingRef.current) return
+    if (stateValue !== 'approving' || approvingRef.current) return
     approvingRef.current = true
 
     const executeApproval = async () => {
@@ -29,13 +29,14 @@ export const useSwapApproval = () => {
           return
         }
 
-        const quote = context.quote
+        const { quote, sellAsset, sellAmountBaseUnit } = actorRef.getSnapshot().context
+
         if (!quote?.approval?.spender) {
           actorRef.send({ type: 'APPROVAL_ERROR', error: 'No approval data in quote' })
           return
         }
 
-        const sellAssetAddress = context.sellAsset.assetId.split('/')[1]?.split(':')[1]
+        const sellAssetAddress = sellAsset.assetId.split('/')[1]?.split(':')[1]
         if (!sellAssetAddress || !/^0x[a-fA-F0-9]{40}$/.test(sellAssetAddress)) {
           actorRef.send({
             type: 'APPROVAL_ERROR',
@@ -44,7 +45,7 @@ export const useSwapApproval = () => {
           return
         }
 
-        const requiredChainId = getEvmNetworkId(context.sellAsset.chainId)
+        const requiredChainId = getEvmNetworkId(sellAsset.chainId)
         const client = walletClient as WalletClient
 
         const currentChainId = await client.getChainId()
@@ -52,7 +53,7 @@ export const useSwapApproval = () => {
           await switchOrAddChain(client, requiredChainId)
         }
 
-        const baseAsset = getBaseAsset(context.sellAsset.chainId)
+        const baseAsset = getBaseAsset(sellAsset.chainId)
         const nativeCurrency = baseAsset
           ? { name: baseAsset.name, symbol: baseAsset.symbol, decimals: baseAsset.precision }
           : { name: 'ETH', symbol: 'ETH', decimals: 18 }
@@ -65,7 +66,7 @@ export const useSwapApproval = () => {
           rpcUrls: { default: { http: [] } },
         }
 
-        if (!context.sellAmountBaseUnit || context.sellAmountBaseUnit === '0') {
+        if (!sellAmountBaseUnit || sellAmountBaseUnit === '0') {
           actorRef.send({ type: 'APPROVAL_ERROR', error: 'No sell amount specified' })
           return
         }
@@ -73,7 +74,7 @@ export const useSwapApproval = () => {
         const approvalData = encodeFunctionData({
           abi: erc20Abi,
           functionName: 'approve',
-          args: [quote.approval.spender as `0x${string}`, BigInt(context.sellAmountBaseUnit)],
+          args: [quote.approval.spender as `0x${string}`, BigInt(sellAmountBaseUnit)],
         })
 
         const approvalHash = await client.sendTransaction({
@@ -93,14 +94,16 @@ export const useSwapApproval = () => {
 
         actorRef.send({ type: 'APPROVAL_SUCCESS', txHash: approvalHash })
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Approval failed'
-        actorRef.send({ type: 'APPROVAL_ERROR', error: errorMessage })
+        actorRef.send({
+          type: 'APPROVAL_ERROR',
+          error: getErrorMessage(error, 'Approval failed'),
+        })
       } finally {
         approvingRef.current = false
       }
     }
 
     executeApproval()
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- stateValue is the sole trigger; other deps are stable refs read from snapshot
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-fire on state machine transitions; wallet handles close over the latest render
   }, [stateValue])
 }

@@ -47,7 +47,7 @@ export const ActionStatusTag = ({ status }: ActionStatusTagProps) => {
         )
       case ActionStatus.Replaced:
         return (
-          <Tag size='sm' colorScheme='yellow' {...defaultTagProps}>
+          <Tag size='sm' colorScheme='gray' {...defaultTagProps}>
             {translate('actionCenter.status.replaced')}
           </Tag>
         )

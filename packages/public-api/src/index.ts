@@ -3,7 +3,7 @@ import './setupZod'
 import cors from 'cors'
 import express from 'express'
 
-import { getAssetsById, initAssets } from './assets'
+import { initAssets } from './assets'
 import { env } from './env'
 import { quoteStore } from './lib/quoteStore'
 import { resolvePartnerCode } from './middleware/auth'
@@ -17,7 +17,6 @@ import {
   swapStatusLimiter,
 } from './middleware/rateLimit'
 import {
-  claimPartnerCode,
   createAffiliate,
   getAffiliate,
   getAffiliateStats,
@@ -30,11 +29,9 @@ import { getChainCount, getChains } from './routes/chains'
 import { getQuote } from './routes/quote'
 import { getRates } from './routes/rates'
 import { getSwapStatus } from './routes/status'
-import { initSwapperDeps } from './swapperDeps'
 
 const startServer = async () => {
   await initAssets()
-  initSwapperDeps(getAssetsById())
 
   const app = express()
 
@@ -61,7 +58,6 @@ const startServer = async () => {
   v1Router.get('/affiliate/swaps', dataLimiter, getAffiliateSwaps)
   v1Router.get('/affiliate/stats', affiliateStatsLimiter, getAffiliateStats)
   v1Router.get('/affiliate/:address', dataLimiter, getAffiliate)
-  v1Router.post('/affiliate/claim-code', affiliateMutationLimiter, claimPartnerCode)
   v1Router.post('/affiliate', affiliateMutationLimiter, createAffiliate)
   v1Router.patch('/affiliate/:address', affiliateMutationLimiter, updateAffiliate)
 

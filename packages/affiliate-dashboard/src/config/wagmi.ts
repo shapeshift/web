@@ -6,13 +6,6 @@ const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
 
 if (!projectId) throw new Error('VITE_WALLETCONNECT_PROJECT_ID is not set')
 
-const metadata = {
-  name: 'ShapeShift Affiliate Dashboard',
-  description: 'Manage your ShapeShift affiliate program',
-  url: 'https://app.shapeshift.com',
-  icons: [],
-}
-
 export const wagmiAdapter = new WagmiAdapter({
   networks: [arbitrum],
   projectId,
@@ -23,6 +16,11 @@ createAppKit({
   networks: [arbitrum],
   defaultNetwork: arbitrum,
   projectId,
-  metadata,
   themeMode: 'dark',
+  enableNetworkSwitch: false,
+  allowUnsupportedChain: true,
+  features: {
+    send: false,
+    receive: false,
+  },
 })

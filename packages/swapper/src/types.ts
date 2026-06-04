@@ -155,6 +155,8 @@ export enum TradeQuoteError {
   Timeout = 'Timeout',
   // catch-all for unknown issues
   UnknownError = 'UnknownError',
+  // the swapper performed on chain balance checks and determined the user didn't have the funds to perform the swap
+  InsufficientFunds = 'InsufficientFunds',
 }
 
 export type UtxoFeeData = {
@@ -484,6 +486,12 @@ export type TradeQuoteStep = {
   }
   thorchainSpecific?: {
     maxStreamingQuantity?: number
+  }
+  thorchainTransactionMetadata?: {
+    to: string
+    data?: string
+    value?: string
+    memo?: string
   }
   relayTransactionMetadata?: RelayTransactionMetadata
   butterSwapTransactionMetadata?: {

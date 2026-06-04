@@ -49,6 +49,7 @@ export const initialState: TradeQuoteSliceState = {
 export const SWAPPER_USER_ERRORS = [
   TradeQuoteError.SellAmountBelowTradeFee,
   TradeQuoteError.SellAmountBelowMinimum,
+  TradeQuoteError.InsufficientFunds,
   TradeQuoteValidationError.SellAmountBelowTradeFee,
   TradeQuoteValidationError.InsufficientFirstHopAssetBalance,
   TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,

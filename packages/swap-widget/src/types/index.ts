@@ -26,7 +26,6 @@ import {
 } from '@shapeshiftoss/caip'
 import type { TransactionData } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
-import type { WalletClient } from 'viem'
 
 export type { BitcoinConnector } from '@reown/appkit-adapter-bitcoin'
 export type { Provider as SolanaProvider } from '@reown/appkit-adapter-solana/react'
@@ -35,20 +34,20 @@ export type { AssetId, ChainId }
 export { erc20Abi as ERC20_ABI } from 'viem'
 
 export enum SwapperName {
+  NearIntents = 'NEAR Intents',
+  Relay = 'Relay',
   Thorchain = 'THORChain',
   Mayachain = 'MAYAChain',
-  CowSwap = 'CoW Swap',
-  Zrx = '0x',
-  ArbitrumBridge = 'Arbitrum Bridge',
-  Portals = 'Portals',
-  Chainflip = 'Chainflip',
-  Relay = 'Relay',
-  ButterSwap = 'ButterSwap',
-  Bebop = 'Bebop',
-  NearIntents = 'NEAR Intents',
-  Cetus = 'Cetus',
-  Sunio = 'Sun.io',
-  Avnu = 'AVNU',
+  //ArbitrumBridge = 'Arbitrum Bridge',
+  //Avnu = 'AVNU',
+  //Bebop = 'Bebop',
+  //ButterSwap = 'ButterSwap',
+  //Cetus = 'Cetus',
+  //Chainflip = 'Chainflip',
+  //CowSwap = 'CoW Swap',
+  //Portals = 'Portals',
+  //Sunio = 'Sun.io',
+  //Zrx = '0x',
 }
 
 export type Chain = {
@@ -96,6 +95,8 @@ export type TradeQuote = {
   swapperName: SwapperName
   steps: TradeQuoteStep[]
   receiveAddress: string
+  partnerBps?: string
+  shapeshiftBps: string
   affiliateBps: string
   slippageTolerancePercentageDecimal?: string
   isStreaming?: boolean
@@ -108,6 +109,8 @@ export type TradeRate = {
   sellAmountCryptoBaseUnit: string
   steps: number
   estimatedExecutionTimeMs?: number
+  partnerBps?: string
+  shapeshiftBps: string
   affiliateBps: string
   networkFeeCryptoBaseUnit?: string
   error?: {
@@ -135,35 +138,29 @@ export type ThemeConfig = {
   buttonVariant?: 'filled' | 'outline'
 }
 
+export type SwapWidgetFilters = {
+  allowedChainIds?: ChainId[]
+  disabledChainIds?: ChainId[]
+  allowedAssetIds?: AssetId[]
+  disabledAssetIds?: AssetId[]
+}
+
 export type SwapWidgetProps = {
   partnerCode?: string
   apiBaseUrl?: string
-  appUrl?: string
+  allowShapeshiftRedirect?: boolean
   defaultSellAsset?: Asset
   defaultBuyAsset?: Asset
-  disabledChainIds?: ChainId[]
-  disabledAssetIds?: AssetId[]
-  allowedChainIds?: ChainId[]
-  sellDisabledChainIds?: ChainId[]
-  buyDisabledChainIds?: ChainId[]
-  sellDisabledAssetIds?: AssetId[]
-  buyDisabledAssetIds?: AssetId[]
-  sellAllowedChainIds?: ChainId[]
-  buyAllowedChainIds?: ChainId[]
-  sellAllowedAssetIds?: AssetId[]
-  buyAllowedAssetIds?: AssetId[]
+  sellFilters?: SwapWidgetFilters
+  buyFilters?: SwapWidgetFilters
   allowedSwapperNames?: SwapperName[]
-  walletClient?: WalletClient
-  onConnectWallet?: () => void
   onSwapSuccess?: (txHash: string) => void
   onSwapError?: (error: Error) => void
-  onAssetSelect?: (type: 'sell' | 'buy', asset: Asset) => void
   theme?: ThemeMode | ThemeConfig
   defaultSlippage?: string
   showPoweredBy?: boolean
-  enableWalletConnection?: boolean
+  showConnectButton?: boolean
   walletConnectProjectId?: string
-  defaultReceiveAddress?: string
   ratesRefetchInterval?: number
   isBuyAssetLocked?: boolean
 }
@@ -192,15 +189,6 @@ export type ApiQuoteStep = {
   estimatedExecutionTimeMs: number | undefined
   source: string
   transactionData?: TransactionData
-  relayTransactionMetadata?: TransactionData
-  butterSwapTransactionMetadata?: TransactionData
-  solanaTransactionMetadata?: {
-    instructions: {
-      programId: string
-      keys: { pubkey: string; isSigner: boolean; isWritable: boolean }[]
-      data: { data: number[] }
-    }[]
-  }
 }
 
 export type ApprovalInfo = {
@@ -222,17 +210,14 @@ export type QuoteResponse = {
   sellAmountCryptoBaseUnit: string
   buyAmountBeforeFeesCryptoBaseUnit: string
   buyAmountAfterFeesCryptoBaseUnit: string
+  partnerBps?: string
+  shapeshiftBps: string
   affiliateBps: string
   slippageTolerancePercentageDecimal: string | undefined
   networkFeeCryptoBaseUnit: string | undefined
-  /** @deprecated Use `quote.steps` instead. Top-level `steps` is kept for backward compatibility. */
   steps: ApiQuoteStep[]
   approval: ApprovalInfo
   expiresAt: number
-  transactionData?: TransactionData
-  quote?: {
-    steps?: ApiQuoteStep[]
-  }
 }
 
 export type AssetsResponse = {

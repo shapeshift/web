@@ -1,3 +1,5 @@
+import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { GetTradeQuoteInputWithWallet } from '@shapeshiftoss/swapper'
 import {
   getDefaultSlippageDecimalPercentageForSwapper,
@@ -9,6 +11,7 @@ import type { Request, Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 
 import { getAsset } from '../../assets'
+import { env } from '../../env'
 import { QuoteStore, quoteStore } from '../../lib/quoteStore'
 import { registry } from '../../registry'
 import { getSwapperDeps } from '../../swapperDeps'
@@ -16,7 +19,7 @@ import type { ErrorResponse } from '../../types'
 import { PartnerCodeHeaderSchema, rateLimitResponse } from '../../types'
 import type { QuoteResponse } from './types'
 import { QuoteRequestSchema, QuoteResponseSchema } from './types'
-import { buildApprovalInfo, resolveDepositContext, transformQuoteStep } from './utils'
+import { buildApprovalInfo, transformQuoteStep } from './utils'
 
 registry.registerPath({
   method: 'post',
@@ -65,7 +68,6 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       sendAddress,
       swapperName,
       slippageTolerancePercentageDecimal,
-      allowMultiHop,
       accountNumber,
     } = bodyResult.data
 
@@ -95,6 +97,17 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
+    if (
+      fromChainId(sellAsset.chainId).chainNamespace === CHAIN_NAMESPACE.Evm &&
+      !viemClientByChainId[sellAsset.chainId]
+    ) {
+      res.status(400).json({
+        error: `Unsupported EVM chain: ${sellAsset.chainId}`,
+        code: 'UNSUPPORTED_CHAIN',
+      } satisfies ErrorResponse)
+      return
+    }
+
     const deps = getSwapperDeps()
 
     const slippage = (() => {
@@ -111,9 +124,8 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       sellAsset,
       buyAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmountCryptoBaseUnit,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      affiliateBps: req.affiliateInfo?.affiliateBps!,
-      allowMultiHop,
+      affiliateBps: req.affiliateInfo?.affiliateBps ?? env.DEFAULT_AFFILIATE_BPS,
+      allowMultiHop: false,
       slippageTolerancePercentageDecimal: slippage,
       receiveAddress,
       sendAddress,
@@ -151,69 +163,58 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       return
     }
 
-    // Use the first/best quote
     const quote = quotes[0]
-    const firstStep = quote.steps[0]
-
-    // Calculate total buy amount (sum of all steps for multi-hop)
+    const step = quote.steps[0]
     const lastStep = quote.steps[quote.steps.length - 1]
 
     const quoteId = uuidv4()
     const now = Date.now()
 
-    quoteStore.set(quoteId, {
+    const baseQuote = {
       quoteId,
       swapperName: validSwapperName,
+      sellAmountCryptoBaseUnit: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      buyAmountAfterFeesCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+      partnerBps: req.affiliateInfo?.partnerBps,
+      shapeshiftBps: req.affiliateInfo?.shapeshiftBps ?? env.DEFAULT_AFFILIATE_BPS,
+      affiliateBps: quote.affiliateBps,
+      rate: quote.rate,
+    }
+
+    quoteStore.set(quoteId, {
+      ...baseQuote,
       sellAssetId: sellAsset.assetId,
       buyAssetId: buyAsset.assetId,
-      sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      buyAmountAfterFeesCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
-      affiliateAddress: req.affiliateInfo?.affiliateAddress,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      affiliateBps: req.affiliateInfo?.affiliateBps!,
-      sellChainId: sellAsset.chainId,
       receiveAddress,
       sendAddress,
-      rate: quote.rate,
+      partnerAddress: req.affiliateInfo?.partnerAddress,
       createdAt: now,
       expiresAt: now + QuoteStore.QUOTE_TTL_MS,
       metadata: {
-        chainflipSwapId: firstStep.chainflipSpecific?.chainflipSwapId,
-        nearIntentsDepositAddress: firstStep.nearIntentsSpecific?.depositAddress,
-        nearIntentsDepositMemo: firstStep.nearIntentsSpecific?.depositMemo,
-        relayId: firstStep.relayTransactionMetadata?.relayId,
+        chainflipSwapId: step.chainflipSpecific?.chainflipSwapId,
+        nearIntentsSpecific: step.nearIntentsSpecific,
+        relayTransactionMetadata: step.relayTransactionMetadata,
+        acrossTransactionMetadata: step.acrossTransactionMetadata,
+        debridgeTransactionMetadata: step.debridgeTransactionMetadata,
+        relayerExplorerTxLink: undefined,
+        relayerTxHash: undefined,
+        stepIndex: 0,
+        quoteId,
+        streamingSwapMetadata: undefined,
       },
-      stepChainIds: quote.steps.map(step => step.sellAsset.chainId),
       status: 'pending',
     })
 
-    const depositContextResult = await resolveDepositContext(quote, firstStep, validSwapperName)
-    if (!depositContextResult.ok) {
-      res.status(depositContextResult.statusCode).json(depositContextResult.error)
-      return
-    }
-
-    const { context: depositContext } = depositContextResult
-
     const response: QuoteResponse = {
-      quoteId,
-      swapperName: validSwapperName,
-      rate: quote.rate,
+      ...baseQuote,
       sellAsset,
       buyAsset,
-      sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAmountBeforeFeesCryptoBaseUnit: lastStep.buyAmountBeforeFeesCryptoBaseUnit,
-      buyAmountAfterFeesCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      affiliateBps: req.affiliateInfo?.affiliateBps!,
       slippageTolerancePercentageDecimal: quote.slippageTolerancePercentageDecimal,
-      networkFeeCryptoBaseUnit: firstStep.feeData.networkFeeCryptoBaseUnit,
-      steps: quote.steps.map((step, index) =>
-        transformQuoteStep(step, index === 0 ? depositContext : {}),
-      ),
-      approval: buildApprovalInfo(firstStep),
+      networkFeeCryptoBaseUnit: step.feeData.networkFeeCryptoBaseUnit,
+      steps: quote.steps.map(transformQuoteStep),
+      approval: await buildApprovalInfo(step, sendAddress),
       expiresAt: now + 60_000,
-      affiliateAddress: req.affiliateInfo?.affiliateAddress,
     }
 
     res.json(response)

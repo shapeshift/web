@@ -147,7 +147,7 @@ export const relayErrorCodeToTradeQuoteError: Record<RelayErrorCode, TradeQuoteE
   [RelayErrorCode.ChainDisabled]: TradeQuoteError.TradingHalted,
   [RelayErrorCode.Erc20RouterAddressNotFound]: TradeQuoteError.UnsupportedTradePair,
   [RelayErrorCode.ExtraTransactionsNotSupported]: TradeQuoteError.UnsupportedTradePair,
-  [RelayErrorCode.InsufficientFunds]: TradeQuoteError.SellAmountBelowTradeFee,
+  [RelayErrorCode.InsufficientFunds]: TradeQuoteError.InsufficientFunds,
   [RelayErrorCode.InsufficientLiquidity]: TradeQuoteError.SellAmountBelowTradeFee,
   [RelayErrorCode.InvalidAddress]: TradeQuoteError.UnsupportedTradePair,
   [RelayErrorCode.InvalidExtraTransactions]: TradeQuoteError.UnsupportedTradePair,

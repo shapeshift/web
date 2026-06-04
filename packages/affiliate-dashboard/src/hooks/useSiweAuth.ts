@@ -1,8 +1,19 @@
-import { useAppKitAccount } from '@reown/appkit/react'
+import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react'
 import { useCallback, useEffect, useState } from 'react'
-import { useSignMessage } from 'wagmi'
+import type { EIP1193Provider } from 'viem'
+import { getAddress, stringToHex } from 'viem'
+import { z } from 'zod'
 
-const AUTH_SIWE_URL = `${import.meta.env.VITE_API_URL}/v1/auth/siwe`
+import { parseResponse } from '../lib/api'
+import { API_BASE_URL } from '../lib/constants'
+
+const AUTH_SIWE_URL = `${API_BASE_URL}/auth/siwe`
+
+const NonceResponseSchema = z.object({ nonce: z.string() })
+const VerifyResponseSchema = z.object({
+  token: z.string(),
+  address: z.string(),
+})
 
 interface SiweAuthState {
   token: string | null
@@ -20,7 +31,7 @@ interface UseSiweAuthReturn extends SiweAuthState {
 
 export const useSiweAuth = (): UseSiweAuthReturn => {
   const { address, isConnected } = useAppKitAccount()
-  const { signMessageAsync } = useSignMessage()
+  const { walletProvider } = useAppKitProvider<EIP1193Provider>('eip155')
 
   const [token, setToken] = useState<string | null>(null)
   const [authenticatedAddress, setAuthenticatedAddress] = useState<string | null>(null)
@@ -41,15 +52,14 @@ export const useSiweAuth = (): UseSiweAuthReturn => {
   }, [isConnected, address, authenticatedAddress])
 
   const signIn = useCallback(async (): Promise<void> => {
-    if (!address) return
+    if (!address || !walletProvider) return
 
     setIsAuthenticating(true)
     setError(null)
 
     try {
       const nonceRes = await fetch(`${AUTH_SIWE_URL}/nonce`, { method: 'POST' })
-      if (!nonceRes.ok) throw new Error('Failed to get nonce')
-      const { nonce } = (await nonceRes.json()) as { nonce: string }
+      const { nonce } = await parseResponse(nonceRes, NonceResponseSchema)
 
       const domain = window.location.host
       const uri = window.location.origin
@@ -68,23 +78,20 @@ export const useSiweAuth = (): UseSiweAuthReturn => {
         `Issued At: ${issuedAt}`,
       ].join('\n')
 
-      const signature = await signMessageAsync({ message })
+      const signature = (await walletProvider.request({
+        method: 'personal_sign',
+        params: [stringToHex(message), getAddress(address)],
+      })) as string
 
       const verifyRes = await fetch(`${AUTH_SIWE_URL}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message, signature }),
       })
-
-      if (!verifyRes.ok) {
-        const body = (await verifyRes.json()) as { message?: string }
-        throw new Error(body.message ?? 'Verification failed')
-      }
-
-      const { token: jwt, address: verifiedAddress } = (await verifyRes.json()) as {
-        token: string
-        address: string
-      }
+      const { token: jwt, address: verifiedAddress } = await parseResponse(
+        verifyRes,
+        VerifyResponseSchema,
+      )
 
       setToken(jwt)
       setAuthenticatedAddress(verifiedAddress.toLowerCase())
@@ -94,7 +101,7 @@ export const useSiweAuth = (): UseSiweAuthReturn => {
     } finally {
       setIsAuthenticating(false)
     }
-  }, [address, signMessageAsync])
+  }, [address, walletProvider])
 
   const signOut = useCallback((): void => {
     setToken(null)

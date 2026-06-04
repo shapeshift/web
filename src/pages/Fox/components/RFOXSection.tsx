@@ -32,9 +32,8 @@ import { useLocation } from 'react-router-dom'
 import { Amount } from '@/components/Amount/Amount'
 import { RFOXIcon } from '@/components/Icons/RFOX'
 import { Text } from '@/components/Text'
-import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useIsWalletConnected } from '@/hooks/useIsWalletConnected/useIsWalletConnected'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { formatSecondsToDuration } from '@/lib/utils/time'
 import type { Filter } from '@/pages/Fox/components/FoxTokenFilterButton'
@@ -56,7 +55,6 @@ import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { useTimeInPoolQuery } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
 import type { AbiStakingInfo } from '@/pages/RFOX/types'
-import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAccountIdByAccountNumberAndChainId,
@@ -105,13 +103,7 @@ const rfoxIconStyles = {
 }
 
 export const RFOXSection = () => {
-  const {
-    state: { isConnected: isWalletConnected },
-  } = useWallet()
-  const walletType = useAppSelector(selectWalletType)
-  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
-  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
-  const isConnected = isWalletConnected || isLedgerReadOnly
+  const isConnected = useIsWalletConnected()
 
   const translate = useTranslate()
   const isRFOXLPEnabled = useFeatureFlag('RFOX_LP')
@@ -164,14 +156,51 @@ export const RFOXSection = () => {
   const foxOnArbAsset = useAppSelector(state => selectAssetById(state, foxOnArbitrumOneAssetId))
   const foxLpAsset = useAppSelector(state => selectAssetById(state, uniV2EthFoxArbitrumAssetId))
 
+  const stakingAssetAccountId = useMemo(() => {
+    const accountNumberAccountIds = accountIdsByAccountNumberAndChainId[assetAccountNumber]
+    const matchingAccountId = accountNumberAccountIds?.[fromAssetId(stakingAssetId).chainId]
+    return matchingAccountId
+  }, [accountIdsByAccountNumberAndChainId, assetAccountNumber, stakingAssetId])
+
+  const lpStakingBalanceQuery = useStakingInfoQuery({
+    stakingAssetId: uniV2EthFoxArbitrumAssetId,
+    accountId: isConnected ? stakingAssetAccountId : undefined,
+    select: selectStakingBalance,
+  })
+
+  const hasLpStakingBalance = useMemo(
+    () => bnOrZero(lpStakingBalanceQuery.data).gt(0),
+    [lpStakingBalanceQuery.data],
+  )
+
+  const allUnstakingRequestsQuery = useGetUnstakingRequestsQuery()
+
+  // LP unstaking requests (cooldown pending or claimable) also count as an
+  // LP position — until the user claims, they still need the legacy UI.
+  const hasLpUnstakingRequests = useMemo(() => {
+    const accountRequests = allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? '']
+    return Boolean(
+      accountRequests?.some(request => request.stakingAssetId === uniV2EthFoxArbitrumAssetId),
+    )
+  }, [allUnstakingRequestsQuery.data?.byAccountId, stakingAssetAccountId])
+
+  const hasLpPosition = useMemo(
+    () => hasLpStakingBalance || hasLpUnstakingRequests,
+    [hasLpStakingBalance, hasLpUnstakingRequests],
+  )
+
   const filters = useMemo<Filter[]>(() => {
+    const foxFilter: Filter = {
+      label: foxOnArbAsset?.symbol ?? '',
+      chainId: foxOnArbAsset?.chainId,
+      assetId: foxOnArbitrumOneAssetId,
+      asset: foxOnArbAsset,
+    }
+
+    if (!hasLpPosition) return [foxFilter]
+
     return [
-      {
-        label: foxOnArbAsset?.symbol ?? '',
-        chainId: foxOnArbAsset?.chainId,
-        assetId: foxOnArbitrumOneAssetId,
-        asset: foxOnArbAsset,
-      },
+      foxFilter,
       {
         label: foxLpAsset?.symbol ?? '',
         chainId: foxLpAsset?.chainId,
@@ -179,15 +208,7 @@ export const RFOXSection = () => {
         asset: foxLpAsset,
       },
     ]
-  }, [foxLpAsset, foxOnArbAsset])
-
-  const stakingAssetAccountId = useMemo(() => {
-    const accountNumberAccountIds = accountIdsByAccountNumberAndChainId[assetAccountNumber]
-    const matchingAccountId = accountNumberAccountIds?.[fromAssetId(stakingAssetId).chainId]
-    return matchingAccountId
-  }, [accountIdsByAccountNumberAndChainId, assetAccountNumber, stakingAssetId])
-
-  const allUnstakingRequestsQuery = useGetUnstakingRequestsQuery()
+  }, [foxLpAsset, foxOnArbAsset, hasLpPosition])
 
   const hasClaimableRequests = useMemo(() => {
     const accountRequests = allUnstakingRequestsQuery.data?.byAccountId[stakingAssetAccountId ?? '']
@@ -359,21 +380,23 @@ export const RFOXSection = () => {
   return (
     <Box>
       <Divider mt={2} mb={6} />
-      <Card bg='yellow.500' borderColor='yellow.600' borderWidth={1} borderRadius='lg'>
-        <CardBody py={2} px={4}>
-          <Flex alignItems='center' gap={2}>
-            <Icon as={TbAlertTriangle} boxSize={6} color='black' />
-            <Box>
-              <CText fontWeight='bold' color='black'>
-                {translate('RFOX.lpSunsetWarningTitle')}
-              </CText>
-              <CText fontSize='sm' color='black'>
-                {translate('RFOX.lpSunsetWarningDescription')}
-              </CText>
-            </Box>
-          </Flex>
-        </CardBody>
-      </Card>
+      {hasLpPosition && (
+        <Card bg='yellow.500' borderColor='yellow.600' borderWidth={1} borderRadius='lg'>
+          <CardBody py={2} px={4}>
+            <Flex alignItems='center' gap={2}>
+              <Icon as={TbAlertTriangle} boxSize={6} color='black' />
+              <Box>
+                <CText fontWeight='bold' color='black'>
+                  {translate('RFOX.lpSunsetWarningTitle')}
+                </CText>
+                <CText fontSize='sm' color='black'>
+                  {translate('RFOX.lpSunsetWarningDescription')}
+                </CText>
+              </Box>
+            </Flex>
+          </CardBody>
+        </Card>
+      )}
       <Box py={4} px={containerPaddingX} id='rfox' data-testid='rfox-section'>
         <Flex sx={headerSx}>
           <Box mb={headerTitleMb}>

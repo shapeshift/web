@@ -1,3 +1,4 @@
+import { useAppKit } from '@reown/appkit/react'
 import { useCallback } from 'react'
 
 import { useSwapWallet } from '../contexts/SwapWalletContext'
@@ -7,20 +8,17 @@ import { parseAmount } from '../types'
 import { buildShapeShiftTradeUrl } from '../utils/redirect'
 
 type UseSwapHandlersParams = {
-  onConnectWallet?: () => void
-  onAssetSelect?: (type: 'sell' | 'buy', asset: Asset) => void
   partnerCode?: string
-  appUrl?: string
+  allowShapeshiftRedirect: boolean
 }
 
 export const useSwapHandlers = ({
-  onConnectWallet,
-  onAssetSelect,
   partnerCode,
-  appUrl,
+  allowShapeshiftRedirect,
 }: UseSwapHandlersParams) => {
   const actorRef = SwapMachineCtx.useActorRef()
-  const { walletClient, bitcoin, solana } = useSwapWallet()
+  const { evm, bitcoin, solana } = useSwapWallet()
+  const { open: openAppKit } = useAppKit()
 
   const handleSwapTokens = useCallback(() => {
     const snap = actorRef.getSnapshot()
@@ -32,17 +30,15 @@ export const useSwapHandlers = ({
   const handleSellAssetSelect = useCallback(
     (asset: Asset) => {
       actorRef.send({ type: 'SET_SELL_ASSET', asset })
-      onAssetSelect?.('sell', asset)
     },
-    [actorRef, onAssetSelect],
+    [actorRef],
   )
 
   const handleBuyAssetSelect = useCallback(
     (asset: Asset) => {
       actorRef.send({ type: 'SET_BUY_ASSET', asset })
-      onAssetSelect?.('buy', asset)
     },
-    [actorRef, onAssetSelect],
+    [actorRef],
   )
 
   const handleSellAmountChange = useCallback(
@@ -78,21 +74,22 @@ export const useSwapHandlers = ({
       buyAssetId: snap.context.buyAsset.assetId,
       sellAmountBaseUnit,
       partnerCode,
-      appUrl,
     })
     window.open(url, '_blank', 'noopener,noreferrer')
-  }, [actorRef, partnerCode, appUrl])
+  }, [actorRef, partnerCode])
 
   const handleButtonClick = useCallback(() => {
     const snap = actorRef.getSnapshot()
     if (snap.context.isSellAssetUtxo && !bitcoin.isConnected) {
+      openAppKit({ namespace: 'bip122' })
       return
     }
     if (snap.context.isSellAssetSolana && !solana.isConnected) {
+      openAppKit({ namespace: 'solana' })
       return
     }
-    if (!walletClient && snap.context.isSellAssetEvm && onConnectWallet) {
-      onConnectWallet()
+    if (snap.context.isSellAssetEvm && !evm.isConnected) {
+      openAppKit({ namespace: 'eip155' })
       return
     }
     if (
@@ -100,6 +97,7 @@ export const useSwapHandlers = ({
       !snap.context.isSellAssetUtxo &&
       !snap.context.isSellAssetSolana
     ) {
+      if (!allowShapeshiftRedirect) return
       const sellAmountBaseUnit = snap.context.sellAmount
         ? parseAmount(snap.context.sellAmount, snap.context.sellAsset.precision)
         : undefined
@@ -108,7 +106,6 @@ export const useSwapHandlers = ({
         buyAssetId: snap.context.buyAsset.assetId,
         sellAmountBaseUnit,
         partnerCode,
-        appUrl,
       })
       window.open(url, '_blank', 'noopener,noreferrer')
       return
@@ -118,10 +115,10 @@ export const useSwapHandlers = ({
     actorRef,
     bitcoin.isConnected,
     solana.isConnected,
-    walletClient,
-    onConnectWallet,
+    evm.isConnected,
+    openAppKit,
     partnerCode,
-    appUrl,
+    allowShapeshiftRedirect,
   ])
 
   return {

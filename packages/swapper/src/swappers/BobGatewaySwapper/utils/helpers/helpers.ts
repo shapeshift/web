@@ -1,8 +1,4 @@
-import type {
-  GatewayOrderStatusV2,
-  GatewayQuoteV2,
-  GetQuoteParams
-} from '@gobob/bob-sdk'
+import type { GatewayOrderStatusV2, GatewayQuoteV2, GetQuoteParams } from '@gobob/bob-sdk'
 import {
   GatewaySDK,
   instanceOfGatewayOrderStatusV2OneOf,
@@ -11,14 +7,15 @@ import {
   instanceOfGatewayQuoteV2OneOf,
   instanceOfGatewayQuoteV2OneOf1,
 } from '@gobob/bob-sdk'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { bobChainId, fromAssetId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { isToken } from '@shapeshiftoss/utils'
-import { getAddress, isAddress } from 'viem'
+import { getAddress } from 'viem'
 
 import type { SwapErrorRight, SwapperConfig } from '../../../../types'
 import { TradeQuoteError } from '../../../../types'
 import { makeSwapErrorRight } from '../../../../utils'
+import { getTreasuryAddressFromChainId } from '../../../utils/helpers/helpers'
 import type { BobGatewayChainName } from '../constants'
 import {
   BOB_GATEWAY_AFFILIATE_BPS,
@@ -54,9 +51,9 @@ export const getBobGatewayClient = (config: SwapperConfig): GatewaySDK => {
   })
 }
 
-export const getBobGatewayAffiliates = (config: SwapperConfig): GetQuoteParams['affiliates'] => {
-  const affiliateAddress = config.VITE_BOB_GATEWAY_AFFILIATE_ID.trim()
-  if (!isAddress(affiliateAddress)) return undefined
+// Affiliate fees are deducted from the swap output at settlement and paid to an EVM address on BOB chain
+export const getBobGatewayAffiliates = (): GetQuoteParams['affiliates'] => {
+  const affiliateAddress = getTreasuryAddressFromChainId(bobChainId)
 
   return [{ address: getAddress(affiliateAddress), bps: BOB_GATEWAY_AFFILIATE_BPS }]
 }
@@ -70,7 +67,11 @@ export const mapBobGatewayOrderStatusToTxStatus = (status: GatewayOrderStatusV2)
 }
 
 export const getBobGatewayQuoteMetadata = (quote: GatewayQuoteV2) => {
-  const quoteDetails = instanceOfGatewayQuoteV2OneOf(quote) ? quote.onramp : instanceOfGatewayQuoteV2OneOf1(quote) ? quote.offramp : quote.tokenSwap
+  const quoteDetails = instanceOfGatewayQuoteV2OneOf(quote)
+    ? quote.onramp
+    : instanceOfGatewayQuoteV2OneOf1(quote)
+    ? quote.offramp
+    : quote.tokenSwap
   const estimatedExecutionTimeMs =
     quoteDetails.estimatedTimeInSecs != null ? quoteDetails.estimatedTimeInSecs * 1000 : undefined
 

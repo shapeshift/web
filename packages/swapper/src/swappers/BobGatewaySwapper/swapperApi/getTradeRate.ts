@@ -87,7 +87,7 @@ const _getTradeRate = async (
       toUserAddress: recipient,
       amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       maxSlippage: Number(slippage),
-      affiliates: getBobGatewayAffiliates(config),
+      affiliates: getBobGatewayAffiliates(),
     });
   } catch (err) {
     return Err(

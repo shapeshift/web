@@ -86,7 +86,6 @@ export type SwapperConfig = {
   VITE_ACROSS_API_URL: string
   VITE_ACROSS_INTEGRATOR_ID: string
   VITE_DEBRIDGE_API_URL: string
-  VITE_BOB_GATEWAY_AFFILIATE_ID: string
   VITE_BOB_GATEWAY_API_KEY: string
 }
 

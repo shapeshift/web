@@ -1,15 +1,30 @@
 import type { GatewayOrderStatusV2, GatewayQuoteV2, GetQuoteParams } from '@gobob/bob-sdk'
 import { GatewaySDK } from '@gobob/bob-sdk'
-import { bobChainId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, bobChainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { bnOrZero, isToken } from '@shapeshiftoss/utils'
+import {
+  bnOrZero,
+  chainIdToFeeAssetId,
+  contractAddressOrUndefined,
+  isToken,
+} from '@shapeshiftoss/utils'
+import type { Result } from '@sniptt/monads'
+import { Err, Ok } from '@sniptt/monads'
 import { getAddress, zeroAddress } from 'viem'
 
-import type { SwapErrorRight, SwapperConfig } from '../../../types'
+import type { QuoteFeeData, SwapErrorRight, SwapperConfig } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
-import { BOB_GATEWAY_BASE_URL, chainIdToBobGatewayChainName } from './constants'
+import type { BobGatewayChainName } from './constants'
+import {
+  BOB_GATEWAY_BASE_URL,
+  bobGatewayChainNameToChainId,
+  chainIdToBobGatewayChainName,
+} from './constants'
 
 export const getBobGatewayClient = (config: SwapperConfig): GatewaySDK =>
   new GatewaySDK({ basePath: BOB_GATEWAY_BASE_URL, apiKey: config.VITE_BOB_GATEWAY_API_KEY })
@@ -37,37 +52,122 @@ export const mapBobGatewayOrderStatusToTxStatus = (status: GatewayOrderStatusV2)
   return TxStatus.Unknown
 }
 
-export const getBobGatewayQuoteMetadata = (quote: GatewayQuoteV2) => {
-  const { outputAmount, estimatedTimeInSecs } =
-    'onramp' in quote ? quote.onramp : 'offramp' in quote ? quote.offramp : quote.tokenSwap
+const bobGatewayFeeToAssetId = (fee: { address: string; chain: string }): AssetId | undefined => {
+  const chainId = bobGatewayChainNameToChainId[fee.chain as BobGatewayChainName]
+  if (!chainId) return
+
+  if (fee.address.toLowerCase() === zeroAddress) return chainIdToFeeAssetId(chainId)
+
+  return toAssetId({
+    chainId,
+    assetNamespace: ASSET_NAMESPACE.erc20,
+    assetReference: fee.address,
+  })
+}
+
+// Normalize the three quote variants into the common fields we consume
+const getBobGatewayQuoteDetails = (quote: GatewayQuoteV2) => {
+  if ('onramp' in quote) {
+    const { outputAmount, estimatedTimeInSecs, fees } = quote.onramp
+    return { outputAmount, estimatedTimeInSecs, fees: [fees] }
+  }
+
+  if ('offramp' in quote) {
+    const { outputAmount, estimatedTimeInSecs, feeBreakdown } = quote.offramp
+    const { affiliateFee, inclusionFee, protocolFee, solverFee } = feeBreakdown
+
+    return {
+      outputAmount,
+      estimatedTimeInSecs,
+      fees: [affiliateFee, inclusionFee, protocolFee, solverFee],
+    }
+  }
+
+  const { outputAmount, estimatedTimeInSecs, fees } = quote.tokenSwap
+  return { outputAmount, estimatedTimeInSecs, fees: [fees] }
+}
+
+export const parseBobGatewayQuote = (
+  quote: GatewayQuoteV2,
+  buyAsset: Asset,
+  assetsById: AssetsByIdPartial,
+) => {
+  const { outputAmount, estimatedTimeInSecs, fees } = getBobGatewayQuoteDetails(quote)
+
+  const protocolFees = fees.reduce<NonNullable<QuoteFeeData['protocolFees']>>((acc, fee) => {
+    const amountCryptoBaseUnit = bnOrZero(fee.amount)
+    if (amountCryptoBaseUnit.lte(0)) return acc
+
+    const assetId = bobGatewayFeeToAssetId(fee)
+    if (!assetId) return acc
+
+    const asset = assetId === buyAsset.assetId ? buyAsset : assetsById[assetId]
+    if (!asset) return acc
+
+    acc[assetId] = {
+      amountCryptoBaseUnit: bnOrZero(acc[assetId]?.amountCryptoBaseUnit)
+        .plus(amountCryptoBaseUnit)
+        .toFixed(),
+      asset,
+      requiresBalance: false,
+    }
+    return acc
+  }, {})
+
+  // buyAmountBeforeFees is denominated in the buy asset, so only add back buy-asset-denominated fees
+  const buyAssetFeeCryptoBaseUnit = bnOrZero(protocolFees[buyAsset.assetId]?.amountCryptoBaseUnit)
 
   return {
-    outputAmount: outputAmount.amount,
+    buyAmountBeforeFeesCryptoBaseUnit: buyAssetFeeCryptoBaseUnit
+      .plus(bnOrZero(outputAmount.amount))
+      .toFixed(),
+    buyAmountAfterFeesCryptoBaseUnit: outputAmount.amount,
+    protocolFees,
     estimatedExecutionTimeMs:
       typeof estimatedTimeInSecs === 'number' ? estimatedTimeInSecs * 1000 : undefined,
   }
 }
 
-export const validateBobGatewayRoute = (
-  sellChainId: string,
-  buyChainId: string,
-): SwapErrorRight | undefined => {
-  const sellChainName = chainIdToBobGatewayChainName[sellChainId]
-  const buyChainName = chainIdToBobGatewayChainName[buyChainId]
+export const getBobGatewayAllowanceContract = (quote: GatewayQuoteV2, sellAsset: Asset): string => {
+  if (!isEvmChainId(sellAsset.chainId)) return ''
+  if (!contractAddressOrUndefined(sellAsset.assetId)) return ''
+  if ('offramp' in quote) return quote.offramp.txTo
+  if ('tokenSwap' in quote) return quote.tokenSwap.txTo
+  return ''
+}
+
+export const assertValidTrade = ({
+  sellAsset,
+  buyAsset,
+}: {
+  sellAsset: Asset
+  buyAsset: Asset
+}): Result<
+  { sellChainName: BobGatewayChainName; buyChainName: BobGatewayChainName },
+  SwapErrorRight
+> => {
+  const sellChainName = chainIdToBobGatewayChainName[sellAsset.chainId]
+  const buyChainName = chainIdToBobGatewayChainName[buyAsset.chainId]
 
   if (!sellChainName) {
-    return makeSwapErrorRight({
-      message: `[BobGateway] unsupported sell chain: ${sellChainId}`,
-      code: TradeQuoteError.UnsupportedChain,
-      details: { chainId: sellChainId },
-    })
+    return Err(
+      makeSwapErrorRight({
+        message: `[BobGateway] unsupported sell chain: ${sellAsset.chainId}`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId: sellAsset.chainId },
+      }),
+    )
   }
 
   if (!buyChainName) {
-    return makeSwapErrorRight({
-      message: `[BobGateway] unsupported buy chain: ${buyChainId}`,
-      code: TradeQuoteError.UnsupportedChain,
-      details: { chainId: buyChainId },
-    })
+    return Err(
+      makeSwapErrorRight({
+        message: `[BobGateway] unsupported buy chain: ${buyAsset.chainId}`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId: buyAsset.chainId },
+      }),
+    )
   }
+
+  return Ok({ sellChainName, buyChainName })
 }

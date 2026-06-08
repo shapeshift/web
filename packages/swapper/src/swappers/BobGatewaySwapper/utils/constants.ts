@@ -1,3 +1,4 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   avalancheChainId,
@@ -30,6 +31,13 @@ export const chainIdToBobGatewayChainName = {
   [sonicChainId]: 'sonic',
   [unichainChainId]: 'unichain',
 } as const
+
+export const bobGatewayChainNameToChainId = Object.fromEntries(
+  Object.entries(chainIdToBobGatewayChainName).map(([chainId, chainName]) => [chainName, chainId]),
+) as Record<BobGatewayChainName, ChainId>
+
+export type BobGatewayChainName =
+  (typeof chainIdToBobGatewayChainName)[keyof typeof chainIdToBobGatewayChainName]
 
 export const DUMMY_EVM_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' as Address
 export const DUMMY_BTC_ADDRESS = 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq'

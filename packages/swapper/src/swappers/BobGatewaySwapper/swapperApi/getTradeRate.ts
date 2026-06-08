@@ -14,18 +14,14 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import { decimalSlippageToBobBps, DUMMY_BTC_ADDRESS, DUMMY_EVM_ADDRESS } from '../utils/constants'
 import {
-  chainIdToBobGatewayChainName,
-  decimalSlippageToBobBps,
-  DUMMY_BTC_ADDRESS,
-  DUMMY_EVM_ADDRESS,
-} from '../utils/constants'
-import {
+  assertValidTrade,
   assetIdToBobGatewayToken,
   getBobGatewayAffiliates,
+  getBobGatewayAllowanceContract,
   getBobGatewayClient,
-  getBobGatewayQuoteMetadata,
-  validateBobGatewayRoute,
+  parseBobGatewayQuote,
 } from '../utils/helpers'
 
 export const getTradeRate = async (
@@ -51,20 +47,10 @@ const _getTradeRate = async (
 
   const { config } = deps
 
-  const routeError = validateBobGatewayRoute(sellAsset.chainId, buyAsset.chainId)
-  if (routeError) return Err(routeError)
+  const assertion = assertValidTrade({ sellAsset, buyAsset })
+  if (assertion.isErr()) return Err(assertion.unwrapErr())
 
-  const sellChainName = chainIdToBobGatewayChainName[sellAsset.chainId]
-  const buyChainName = chainIdToBobGatewayChainName[buyAsset.chainId]
-
-  if (!sellChainName || !buyChainName) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[BobGateway] unsupported chain after route validation',
-        code: TradeQuoteError.UnsupportedChain,
-      }),
-    )
-  }
+  const { sellChainName, buyChainName } = assertion.unwrap()
 
   const slippage = decimalSlippageToBobBps(
     slippageTolerancePercentageDecimal ??
@@ -98,14 +84,21 @@ const _getTradeRate = async (
     )
   }
 
-  const { outputAmount, estimatedExecutionTimeMs } = getBobGatewayQuoteMetadata(quoteResponseResult)
+  const {
+    buyAmountBeforeFeesCryptoBaseUnit,
+    buyAmountAfterFeesCryptoBaseUnit,
+    protocolFees,
+    estimatedExecutionTimeMs,
+  } = parseBobGatewayQuote(quoteResponseResult, buyAsset, deps.assetsById)
 
   const rate = getInputOutputRate({
     sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    buyAmountCryptoBaseUnit: outputAmount,
+    buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
     sellAsset,
     buyAsset,
   })
+
+  const allowanceContract = getBobGatewayAllowanceContract(quoteResponseResult, sellAsset)
 
   const tradeRate: TradeRate = {
     id: uuid(),
@@ -117,19 +110,19 @@ const _getTradeRate = async (
     swapperName: SwapperName.BobGateway,
     steps: [
       {
-        buyAmountBeforeFeesCryptoBaseUnit: outputAmount,
-        buyAmountAfterFeesCryptoBaseUnit: outputAmount,
+        buyAmountBeforeFeesCryptoBaseUnit,
+        buyAmountAfterFeesCryptoBaseUnit,
         sellAmountIncludingProtocolFeesCryptoBaseUnit,
         feeData: {
           networkFeeCryptoBaseUnit: undefined,
-          protocolFees: {},
+          protocolFees,
         },
         rate,
         source: SwapperName.BobGateway,
         buyAsset,
         sellAsset,
         accountNumber: undefined,
-        allowanceContract: '',
+        allowanceContract,
         estimatedExecutionTimeMs,
       },
     ],

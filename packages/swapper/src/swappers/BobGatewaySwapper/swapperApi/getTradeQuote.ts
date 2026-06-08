@@ -1,6 +1,5 @@
 import type { GatewayQuoteV2 } from '@gobob/bob-sdk'
 import { btcChainId } from '@shapeshiftoss/caip'
-import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -17,17 +16,14 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import { decimalSlippageToBobBps, DUMMY_BTC_ADDRESS } from '../utils/constants'
 import {
-  chainIdToBobGatewayChainName,
-  decimalSlippageToBobBps,
-  DUMMY_BTC_ADDRESS,
-} from '../utils/constants'
-import {
+  assertValidTrade,
   assetIdToBobGatewayToken,
   getBobGatewayAffiliates,
+  getBobGatewayAllowanceContract,
   getBobGatewayClient,
-  getBobGatewayQuoteMetadata,
-  validateBobGatewayRoute,
+  parseBobGatewayQuote,
 } from '../utils/helpers'
 
 const BOB_GATEWAY_ESTIMATED_GAS_LIMIT = 200_000n
@@ -128,20 +124,9 @@ const _getTradeQuote = async (
     )
   }
 
-  const routeError = validateBobGatewayRoute(sellAsset.chainId, buyAsset.chainId)
-  if (routeError) return Err(routeError)
-
-  const sellChainName = chainIdToBobGatewayChainName[sellAsset.chainId]
-  const buyChainName = chainIdToBobGatewayChainName[buyAsset.chainId]
-
-  if (!sellChainName || !buyChainName) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[BobGateway] unsupported chain after route validation',
-        code: TradeQuoteError.UnsupportedChain,
-      }),
-    )
-  }
+  const assertion = assertValidTrade({ sellAsset, buyAsset })
+  if (assertion.isErr()) return Err(assertion.unwrapErr())
+  const { sellChainName, buyChainName } = assertion.unwrap()
 
   const isBtcToEvm = sellAsset.chainId === btcChainId
 
@@ -173,24 +158,22 @@ const _getTradeQuote = async (
     )
   }
 
-  const { outputAmount, estimatedExecutionTimeMs } = getBobGatewayQuoteMetadata(quoteResponseResult)
+  const {
+    buyAmountBeforeFeesCryptoBaseUnit,
+    buyAmountAfterFeesCryptoBaseUnit,
+    protocolFees,
+    estimatedExecutionTimeMs,
+  } = parseBobGatewayQuote(quoteResponseResult, buyAsset, deps.assetsById)
   const feeData = await getOptimisticQuoteFeeData(input, deps, isBtcToEvm)
 
   const rate = getInputOutputRate({
     sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    buyAmountCryptoBaseUnit: outputAmount,
+    buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
     sellAsset,
     buyAsset,
   })
 
-  const allowanceContract =
-    !isBtcToEvm && contractAddressOrUndefined(sellAsset.assetId)
-      ? 'offramp' in quoteResponseResult
-        ? quoteResponseResult.offramp.txTo
-        : 'tokenSwap' in quoteResponseResult
-        ? quoteResponseResult.tokenSwap.txTo
-        : ''
-      : ''
+  const allowanceContract = getBobGatewayAllowanceContract(quoteResponseResult, sellAsset)
 
   const tradeQuote: TradeQuote = {
     id: uuid(),
@@ -202,10 +185,10 @@ const _getTradeQuote = async (
     swapperName: SwapperName.BobGateway,
     steps: [
       {
-        buyAmountBeforeFeesCryptoBaseUnit: outputAmount,
-        buyAmountAfterFeesCryptoBaseUnit: outputAmount,
+        buyAmountBeforeFeesCryptoBaseUnit,
+        buyAmountAfterFeesCryptoBaseUnit,
         sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        feeData,
+        feeData: { ...feeData, protocolFees },
         rate,
         source: SwapperName.BobGateway,
         buyAsset,

@@ -1,7 +1,12 @@
-import type { GatewayOrderStatusV2, GatewayQuoteV2, GetQuoteParams } from '@gobob/bob-sdk'
-import { GatewaySDK } from '@gobob/bob-sdk'
+import type {
+  GatewayOrderStatusV2,
+  GatewayQuoteV2,
+  GetQuoteParams,
+  RegisterTxV2,
+} from '@gobob/bob-sdk'
+import { GatewayErrorCode, GatewaySDK, isGatewayError } from '@gobob/bob-sdk'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, ethChainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, /**ethChainId,**/ fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -24,8 +29,8 @@ import type {
   SwapperDeps,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
-import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
+import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
+//import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
 import type { BobGatewayMetadata } from '../types'
 import type { BobGatewayChainName } from './constants'
 import {
@@ -49,7 +54,8 @@ export const getBobGatewayAffiliates = (affiliateBps: string): GetQuoteParams['a
   const bps = bnOrZero(affiliateBps)
   if (!bps.isFinite() || bps.lte(0)) return undefined
 
-  const affiliateAddress = getTreasuryAddressFromChainId(ethChainId)
+  //const affiliateAddress = getTreasuryAddressFromChainId(ethChainId)
+  const affiliateAddress = '0x41b4D81dD40c6c91d21f686Bb0596E37e4C8cb90'
 
   return [{ address: getAddress(affiliateAddress), bps: bps.toNumber() }]
 }
@@ -97,6 +103,44 @@ export const getBobGatewayQuote = async ({
 
     return Ok(quote)
   } catch (err) {
+    if (isGatewayError(err)) {
+      switch (err.code) {
+        case GatewayErrorCode.QuoteAmountTooLow:
+          return Err(
+            createTradeAmountTooSmallErr({
+              minAmountCryptoBaseUnit: err.details.minimum,
+              assetId: sellAsset.assetId,
+            }),
+          )
+        case GatewayErrorCode.UnableToCoverFees:
+          return Err(
+            makeSwapErrorRight({
+              message: '[BobGateway] sell amount does not cover fees',
+              code: TradeQuoteError.SellAmountBelowTradeFee,
+              cause: err,
+            }),
+          )
+        case GatewayErrorCode.NoRoute:
+          return Err(
+            makeSwapErrorRight({
+              message: '[BobGateway] no route found for trade pair',
+              code: TradeQuoteError.NoRouteFound,
+              cause: err,
+            }),
+          )
+        case GatewayErrorCode.DisabledChain:
+          return Err(
+            makeSwapErrorRight({
+              message: '[BobGateway] trading is temporarily halted for this chain',
+              code: TradeQuoteError.TradingHalted,
+              cause: err,
+            }),
+          )
+        default:
+          break
+      }
+    }
+
     return Err(
       makeSwapErrorRight({
         message: '[BobGateway] failed to fetch quote',
@@ -147,6 +191,37 @@ export const createBobGatewayOrderMetadata = async (
       }),
     )
   }
+}
+
+export const registerBobGatewayTx = async ({
+  config,
+  orderId,
+  txHash,
+  sellAsset,
+  buyAsset,
+}: {
+  config: SwapperConfig
+  orderId: string
+  txHash: string
+  sellAsset: Asset
+  buyAsset: Asset
+}): Promise<void> => {
+  const registerTxV2: RegisterTxV2 = (() => {
+    // BTC→EVM
+    if (chainIdToBobGatewayChainName[sellAsset.chainId] === 'bitcoin') {
+      return { onramp: { orderId, bitcoinTxid: txHash } }
+    }
+
+    // EVM→BTC
+    if (chainIdToBobGatewayChainName[buyAsset.chainId] === 'bitcoin') {
+      return { offramp: { orderId, evmTxhash: txHash } }
+    }
+
+    // EVM→EVM
+    return { tokenSwap: { orderId, evmTxhash: txHash } }
+  })()
+
+  await getBobGatewayClient(config).api.registerTxV2({ registerTxV2 })
 }
 
 export const getBobGatewayQuoteFeeData = async (
@@ -203,6 +278,7 @@ export const getBobGatewayQuoteFeeData = async (
 export const mapBobGatewayOrderStatusToTxStatus = (status: GatewayOrderStatusV2): TxStatus => {
   if ('inProgress' in status) return TxStatus.Pending
   if ('success' in status) return TxStatus.Confirmed
+  if ('failed' in status) return TxStatus.Failed
   if ('refunded' in status) return TxStatus.Failed
   return TxStatus.Unknown
 }

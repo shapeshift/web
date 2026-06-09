@@ -23,6 +23,7 @@ export const getBobGatewayTradeRate = async (
     buyAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     receiveAddress,
+    accountNumber,
     affiliateBps,
     slippageTolerancePercentageDecimal,
   } = input
@@ -91,7 +92,7 @@ export const getBobGatewayTradeRate = async (
         source: SwapperName.BobGateway,
         buyAsset,
         sellAsset,
-        accountNumber: undefined,
+        accountNumber,
         allowanceContract,
         estimatedExecutionTimeMs,
       },

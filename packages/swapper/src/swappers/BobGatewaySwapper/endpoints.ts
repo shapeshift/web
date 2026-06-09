@@ -6,7 +6,13 @@ import type { SwapperApi, UtxoFeeData } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { getBobGatewayTradeQuote } from './swapperApi/getTradeQuote'
 import { getBobGatewayTradeRate } from './swapperApi/getTradeRate'
-import { getBobGatewayClient, mapBobGatewayOrderStatusToTxStatus } from './utils/helpers'
+import {
+  getBobGatewayClient,
+  mapBobGatewayOrderStatusToTxStatus,
+  registerBobGatewayTx,
+} from './utils/helpers'
+
+const registeredSwapIds = new Set<string>()
 
 export const bobGatewayApi: SwapperApi = {
   getTradeRate: async (input, deps) => {
@@ -122,9 +128,24 @@ export const bobGatewayApi: SwapperApi = {
 
     return feeData.networkFeeCryptoBaseUnit
   },
-  checkTradeStatus: async ({ swap, config }) => {
-    const orderId = swap?.metadata.bobSpecific?.orderId
+  checkTradeStatus: async ({ swap, config, txHash }) => {
+    if (!swap) throw new Error('[BobGateway] swap is required for status check')
+
+    const orderId = swap.metadata.bobSpecific?.orderId
     if (!orderId) throw new Error('[BobGateway] orderId is required for status check')
+
+    if (txHash && !registeredSwapIds.has(swap.id)) {
+      try {
+        await registerBobGatewayTx({
+          config,
+          orderId,
+          txHash,
+          sellAsset: swap.sellAsset,
+          buyAsset: swap.buyAsset,
+        })
+        registeredSwapIds.add(swap.id)
+      } catch {}
+    }
 
     let orderInfo
     try {

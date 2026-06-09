@@ -1,86 +1,26 @@
-import type { GatewayQuoteV2 } from '@gobob/bob-sdk'
-import { btcChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
   CommonTradeQuoteInput,
-  GetUtxoTradeQuoteInput,
-  QuoteFeeData,
+  GetTradeQuoteInput,
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
-  TradeQuoteResult,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { decimalSlippageToBobBps, DUMMY_BTC_ADDRESS } from '../utils/constants'
 import {
   assertValidTrade,
-  assetIdToBobGatewayToken,
-  getBobGatewayAffiliates,
+  createBobGatewayOrderMetadata,
   getBobGatewayAllowanceContract,
-  getBobGatewayClient,
+  getBobGatewayQuote,
+  getBobGatewayQuoteFeeData,
   parseBobGatewayQuote,
 } from '../utils/helpers'
 
-const BOB_GATEWAY_ESTIMATED_GAS_LIMIT = 200_000n
-
-export const getTradeQuote = async (
-  input: CommonTradeQuoteInput,
-  deps: SwapperDeps,
-): Promise<TradeQuoteResult> => {
-  const result = await _getTradeQuote(input, deps)
-  return result.map(quote => [quote])
-}
-
-const getEmptyFeeData = (): QuoteFeeData => ({
-  networkFeeCryptoBaseUnit: undefined,
-  protocolFees: {},
-})
-
-const getOptimisticQuoteFeeData = async (
-  input: CommonTradeQuoteInput,
-  deps: SwapperDeps,
-  isBtcToEvm: boolean,
-): Promise<QuoteFeeData> => {
-  const { sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input
-
-  try {
-    if (isBtcToEvm) {
-      const xpub = (input as GetUtxoTradeQuoteInput).xpub
-      if (!xpub) return getEmptyFeeData()
-
-      const { fast } = await deps.assertGetUtxoChainAdapter(sellAsset.chainId).getFeeData({
-        to: DUMMY_BTC_ADDRESS,
-        value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        chainSpecific: { pubkey: xpub },
-        sendMax: false,
-      })
-
-      return {
-        networkFeeCryptoBaseUnit: fast.txFee,
-        protocolFees: {},
-        chainSpecific: { satsPerByte: fast.chainSpecific.satoshiPerByte },
-      }
-    }
-
-    const { average } = await deps.assertGetEvmChainAdapter(sellAsset.chainId).getGasFeeData()
-
-    return {
-      networkFeeCryptoBaseUnit: (
-        BigInt(average.gasPrice ?? '0') * BOB_GATEWAY_ESTIMATED_GAS_LIMIT
-      ).toString(),
-      protocolFees: {},
-    }
-  } catch {
-    return getEmptyFeeData()
-  }
-}
-
-const _getTradeQuote = async (
+export const getBobGatewayTradeQuote = async (
   input: CommonTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote, SwapErrorRight>> => {
@@ -96,15 +36,6 @@ const _getTradeQuote = async (
   } = input
 
   const { config } = deps
-
-  if (accountNumber === undefined) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[BobGateway] accountNumber is required for quote',
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
 
   if (!sendAddress) {
     return Err(
@@ -126,45 +57,45 @@ const _getTradeQuote = async (
 
   const assertion = assertValidTrade({ sellAsset, buyAsset })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
+
   const { sellChainName, buyChainName } = assertion.unwrap()
 
-  const isBtcToEvm = sellAsset.chainId === btcChainId
+  const maybeQuote = await getBobGatewayQuote({
+    config,
+    sellAsset,
+    buyAsset,
+    sellChainName,
+    buyChainName,
+    sender: sendAddress,
+    recipient: receiveAddress,
+    amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    affiliateBps,
+    slippageTolerancePercentageDecimal,
+  })
 
-  const slippage = decimalSlippageToBobBps(
-    slippageTolerancePercentageDecimal ??
-      getDefaultSlippageDecimalPercentageForSwapper(SwapperName.BobGateway),
+  if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
+  const quote = maybeQuote.unwrap()
+
+  const maybeOrderMetadata = await createBobGatewayOrderMetadata(config, quote)
+  if (maybeOrderMetadata.isErr()) return Err(maybeOrderMetadata.unwrapErr())
+
+  const orderMetadata = maybeOrderMetadata.unwrap()
+
+  const maybeFeeData = await getBobGatewayQuoteFeeData(
+    input as GetTradeQuoteInput,
+    deps,
+    orderMetadata,
   )
 
-  let quoteResponseResult: GatewayQuoteV2
-  try {
-    quoteResponseResult = await getBobGatewayClient(config).getQuote({
-      fromChain: sellChainName,
-      toChain: buyChainName,
-      fromToken: assetIdToBobGatewayToken(sellAsset.assetId),
-      toToken: assetIdToBobGatewayToken(buyAsset.assetId),
-      fromUserAddress: sendAddress,
-      toUserAddress: receiveAddress,
-      amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      maxSlippage: Number(slippage),
-      affiliates: getBobGatewayAffiliates(affiliateBps),
-    })
-  } catch (err) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[BobGateway] failed to fetch quote',
-        code: TradeQuoteError.QueryFailed,
-        cause: err,
-      }),
-    )
-  }
+  if (maybeFeeData.isErr()) return Err(maybeFeeData.unwrapErr())
+  const feeData = maybeFeeData.unwrap()
 
   const {
     buyAmountBeforeFeesCryptoBaseUnit,
     buyAmountAfterFeesCryptoBaseUnit,
     protocolFees,
     estimatedExecutionTimeMs,
-  } = parseBobGatewayQuote(quoteResponseResult, buyAsset, deps.assetsById)
-  const feeData = await getOptimisticQuoteFeeData(input, deps, isBtcToEvm)
+  } = parseBobGatewayQuote(quote, buyAsset, deps.assetsById)
 
   const rate = getInputOutputRate({
     sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -173,7 +104,7 @@ const _getTradeQuote = async (
     buyAsset,
   })
 
-  const allowanceContract = getBobGatewayAllowanceContract(quoteResponseResult, sellAsset)
+  const allowanceContract = getBobGatewayAllowanceContract(quote, sellAsset)
 
   const tradeQuote: TradeQuote = {
     id: uuid(),
@@ -196,7 +127,7 @@ const _getTradeQuote = async (
         accountNumber,
         allowanceContract,
         estimatedExecutionTimeMs,
-        bobSpecific: { gatewayQuote: quoteResponseResult },
+        bobSpecific: orderMetadata,
       },
     ],
   }

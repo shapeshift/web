@@ -1,38 +1,20 @@
-import type { GatewayQuoteV2 } from '@gobob/bob-sdk'
 import { btcChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type {
-  GetTradeRateInput,
-  SwapErrorRight,
-  SwapperDeps,
-  TradeRate,
-  TradeRateResult,
-} from '../../../types'
-import { SwapperName, TradeQuoteError } from '../../../types'
-import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { decimalSlippageToBobBps, DUMMY_BTC_ADDRESS, DUMMY_EVM_ADDRESS } from '../utils/constants'
+import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
+import { SwapperName } from '../../../types'
+import { getInputOutputRate } from '../../../utils'
+import { DUMMY_BTC_ADDRESS, DUMMY_EVM_ADDRESS } from '../utils/constants'
 import {
   assertValidTrade,
-  assetIdToBobGatewayToken,
-  getBobGatewayAffiliates,
   getBobGatewayAllowanceContract,
-  getBobGatewayClient,
+  getBobGatewayQuote,
   parseBobGatewayQuote,
 } from '../utils/helpers'
 
-export const getTradeRate = async (
-  input: GetTradeRateInput,
-  deps: SwapperDeps,
-): Promise<TradeRateResult> => {
-  const result = await _getTradeRate(input, deps)
-  return result.map(rate => [rate])
-}
-
-const _getTradeRate = async (
+export const getBobGatewayTradeRate = async (
   input: GetTradeRateInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeRate, SwapErrorRight>> => {
@@ -52,44 +34,32 @@ const _getTradeRate = async (
 
   const { sellChainName, buyChainName } = assertion.unwrap()
 
-  const slippage = decimalSlippageToBobBps(
-    slippageTolerancePercentageDecimal ??
-      getDefaultSlippageDecimalPercentageForSwapper(SwapperName.BobGateway),
-  )
-
   const recipient =
     receiveAddress ?? (buyAsset.chainId === btcChainId ? DUMMY_BTC_ADDRESS : DUMMY_EVM_ADDRESS)
   const sender = sellAsset.chainId === btcChainId ? DUMMY_BTC_ADDRESS : DUMMY_EVM_ADDRESS
 
-  let quoteResponseResult: GatewayQuoteV2
-  try {
-    quoteResponseResult = await getBobGatewayClient(config).getQuote({
-      fromChain: sellChainName,
-      toChain: buyChainName,
-      fromToken: assetIdToBobGatewayToken(sellAsset.assetId),
-      toToken: assetIdToBobGatewayToken(buyAsset.assetId),
-      fromUserAddress: sender,
-      toUserAddress: recipient,
-      amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      maxSlippage: Number(slippage),
-      affiliates: getBobGatewayAffiliates(affiliateBps),
-    })
-  } catch (err) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[BobGateway] failed to fetch rate',
-        code: TradeQuoteError.QueryFailed,
-        cause: err,
-      }),
-    )
-  }
+  const maybeQuote = await getBobGatewayQuote({
+    config,
+    sellAsset,
+    buyAsset,
+    sellChainName,
+    buyChainName,
+    sender,
+    recipient,
+    amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    affiliateBps,
+    slippageTolerancePercentageDecimal,
+  })
+
+  if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
+  const quote = maybeQuote.unwrap()
 
   const {
     buyAmountBeforeFeesCryptoBaseUnit,
     buyAmountAfterFeesCryptoBaseUnit,
     protocolFees,
     estimatedExecutionTimeMs,
-  } = parseBobGatewayQuote(quoteResponseResult, buyAsset, deps.assetsById)
+  } = parseBobGatewayQuote(quote, buyAsset, deps.assetsById)
 
   const rate = getInputOutputRate({
     sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -98,7 +68,7 @@ const _getTradeRate = async (
     buyAsset,
   })
 
-  const allowanceContract = getBobGatewayAllowanceContract(quoteResponseResult, sellAsset)
+  const allowanceContract = getBobGatewayAllowanceContract(quote, sellAsset)
 
   const tradeRate: TradeRate = {
     id: uuid(),

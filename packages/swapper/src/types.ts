@@ -44,10 +44,7 @@ import type { InterpolationOptions } from 'node-polyglot'
 import type { Address, Hex } from 'viem'
 
 import type { AcrossTransactionMetadata } from './swappers/AcrossSwapper/utils/types'
-import type {
-  BobGatewaySwapMetadata,
-  BobGatewayTradeQuoteMetadata,
-} from './swappers/BobGatewaySwapper/types'
+import type { BobGatewayMetadata } from './swappers/BobGatewaySwapper/types'
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { DebridgeTransactionMetadata } from './swappers/DebridgeSwapper/utils/types'
 import type { RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
@@ -524,7 +521,7 @@ export type TradeQuoteStep = {
   }
   acrossTransactionMetadata?: AcrossTransactionMetadata
   debridgeTransactionMetadata?: DebridgeTransactionMetadata
-  bobSpecific?: BobGatewayTradeQuoteMetadata
+  bobSpecific?: BobGatewayMetadata
   affiliateFee?: AffiliateFee
 }
 
@@ -588,7 +585,7 @@ export type SwapperSpecificMetadata = {
   relayTransactionMetadata: RelayTransactionMetadata | undefined
   acrossTransactionMetadata: AcrossTransactionMetadata | undefined
   debridgeTransactionMetadata: DebridgeTransactionMetadata | undefined
-  bobSpecific?: BobGatewaySwapMetadata
+  bobSpecific?: BobGatewayMetadata
   relayerExplorerTxLink: string | undefined
   relayerTxHash: string | undefined
   stepIndex: SupportedTradeQuoteStepIndex

@@ -42,6 +42,10 @@ export type BobGatewayChainName =
 export const DUMMY_EVM_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' as Address
 export const DUMMY_BTC_ADDRESS = 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq'
 
+export const BOB_GATEWAY_TOKENSWAP_DEFAULT_GAS_LIMIT = '350000' // EVM→EVM
+export const BOB_GATEWAY_OFFRAMP_DEFAULT_GAS_LIMIT = '550000' // EVM→BTC
+export const BOB_GATEWAY_ONRAMP_DEFAULT_TX_VSIZE = '200' // BTC→EVM
+
 // https://docs.gobob.xyz/api-reference/v2/get-a-gateway-quote#parameter-slippage
 export const decimalSlippageToBobBps = (slippageDecimal: string): string => {
   return String(Math.round(parseFloat(slippageDecimal) * 10_000))

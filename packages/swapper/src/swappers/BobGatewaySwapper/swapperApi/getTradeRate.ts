@@ -11,6 +11,7 @@ import {
   assertValidTrade,
   getBobGatewayAllowanceContract,
   getBobGatewayQuote,
+  getBobGatewayRateNetworkFeeCryptoBaseUnit,
   parseBobGatewayQuote,
 } from '../utils/helpers'
 
@@ -71,6 +72,12 @@ export const getBobGatewayTradeRate = async (
 
   const allowanceContract = getBobGatewayAllowanceContract(quote, sellAsset)
 
+  const networkFeeCryptoBaseUnit = await getBobGatewayRateNetworkFeeCryptoBaseUnit(
+    quote,
+    sellAsset,
+    deps,
+  )
+
   const tradeRate: TradeRate = {
     id: uuid(),
     quoteOrRate: 'rate',
@@ -85,7 +92,7 @@ export const getBobGatewayTradeRate = async (
         buyAmountAfterFeesCryptoBaseUnit,
         sellAmountIncludingProtocolFeesCryptoBaseUnit,
         feeData: {
-          networkFeeCryptoBaseUnit: undefined,
+          networkFeeCryptoBaseUnit,
           protocolFees,
         },
         rate,

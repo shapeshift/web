@@ -6,7 +6,7 @@ import type {
 } from '@gobob/bob-sdk'
 import { GatewayErrorCode, GatewaySDK, isGatewayError } from '@gobob/bob-sdk'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, /**ethChainId,**/ fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, bobChainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -30,11 +30,14 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
-//import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
+import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
 import type { BobGatewayMetadata } from '../types'
 import type { BobGatewayChainName } from './constants'
 import {
   BOB_GATEWAY_BASE_URL,
+  BOB_GATEWAY_OFFRAMP_DEFAULT_GAS_LIMIT,
+  BOB_GATEWAY_ONRAMP_DEFAULT_TX_VSIZE,
+  BOB_GATEWAY_TOKENSWAP_DEFAULT_GAS_LIMIT,
   bobGatewayChainNameToChainId,
   chainIdToBobGatewayChainName,
   decimalSlippageToBobBps,
@@ -54,8 +57,9 @@ export const getBobGatewayAffiliates = (affiliateBps: string): GetQuoteParams['a
   const bps = bnOrZero(affiliateBps)
   if (!bps.isFinite() || bps.lte(0)) return undefined
 
-  //const affiliateAddress = getTreasuryAddressFromChainId(ethChainId)
-  const affiliateAddress = '0x41b4D81dD40c6c91d21f686Bb0596E37e4C8cb90'
+  // TODO: affiliate fees are to be paid out on ethChainId, but that address must first be
+  // whitelisted with BOB Gateway. Until then use BOB EOA.
+  const affiliateAddress = getTreasuryAddressFromChainId(bobChainId)
 
   return [{ address: getAddress(affiliateAddress), bps: bps.toNumber() }]
 }
@@ -183,6 +187,16 @@ export const createBobGatewayOrderMetadata = async (
       },
     })
   } catch (err) {
+    if (isGatewayError(err) && err.code === GatewayErrorCode.InsufficientConfirmedFunds) {
+      return Err(
+        makeSwapErrorRight({
+          message: '[BobGateway] insufficient confirmed balance',
+          code: TradeQuoteError.InsufficientFundsUnconfirmed,
+          cause: err,
+        }),
+      )
+    }
+
     return Err(
       makeSwapErrorRight({
         message: '[BobGateway] failed to create order',
@@ -272,6 +286,37 @@ export const getBobGatewayQuoteFeeData = async (
         cause: err,
       }),
     )
+  }
+}
+
+export const getBobGatewayRateNetworkFeeCryptoBaseUnit = async (
+  quote: GatewayQuoteV2,
+  sellAsset: Asset,
+  { assertGetEvmChainAdapter, assertGetUtxoChainAdapter }: SwapperDeps,
+): Promise<string | undefined> => {
+  try {
+    if ('onramp' in quote) {
+      const { fast } = await assertGetUtxoChainAdapter(
+        sellAsset.chainId,
+      ).httpProvider.getNetworkFees()
+
+      if (!fast?.satsPerKiloByte) return undefined
+      const satsPerByte = Math.max(1, Math.ceil(fast.satsPerKiloByte / 1000))
+
+      return bnOrZero(satsPerByte).times(BOB_GATEWAY_ONRAMP_DEFAULT_TX_VSIZE).toFixed(0)
+    }
+
+    const defaultGasLimit =
+      'offramp' in quote
+        ? BOB_GATEWAY_OFFRAMP_DEFAULT_GAS_LIMIT
+        : BOB_GATEWAY_TOKENSWAP_DEFAULT_GAS_LIMIT
+
+    const { average } = await assertGetEvmChainAdapter(sellAsset.chainId).getGasFeeData()
+    const feePerGas = bnOrZero(average.maxFeePerGas).gt(0) ? average.maxFeePerGas : average.gasPrice
+
+    return bnOrZero(defaultGasLimit).times(bnOrZero(feePerGas)).toFixed(0)
+  } catch {
+    return undefined
   }
 }
 

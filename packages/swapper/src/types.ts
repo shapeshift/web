@@ -156,6 +156,8 @@ export enum TradeQuoteError {
   UnknownError = 'UnknownError',
   // the swapper performed on chain balance checks and determined the user didn't have the funds to perform the swap
   InsufficientFunds = 'InsufficientFunds',
+  // the user's confirmed balance is insufficient — funds may exist but are still confirming on chain (e.g. unconfirmed UTXO deposits)
+  InsufficientFundsUnconfirmed = 'InsufficientFundsUnconfirmed',
 }
 
 export type UtxoFeeData = {

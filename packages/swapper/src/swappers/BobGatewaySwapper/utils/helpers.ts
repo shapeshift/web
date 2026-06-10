@@ -6,10 +6,19 @@ import type {
 } from '@gobob/bob-sdk'
 import { GatewayErrorCode, GatewaySDK, isGatewayError } from '@gobob/bob-sdk'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, bobChainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  CHAIN_NAMESPACE,
+  ethChainId,
+  fromAssetId,
+  fromChainId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
+import type { UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import type { BN } from '@shapeshiftoss/utils'
 import {
   bnOrZero,
   chainIdToFeeAssetId,
@@ -57,11 +66,82 @@ export const getBobGatewayAffiliates = (affiliateBps: string): GetQuoteParams['a
   const bps = bnOrZero(affiliateBps)
   if (!bps.isFinite() || bps.lte(0)) return undefined
 
-  // TODO: affiliate fees are to be paid out on ethChainId, but that address must first be
-  // whitelisted with BOB Gateway. Until then use BOB EOA.
-  const affiliateAddress = getTreasuryAddressFromChainId(bobChainId)
+  const affiliateAddress = getTreasuryAddressFromChainId(ethChainId)
 
   return [{ address: getAddress(affiliateAddress), bps: bps.toNumber() }]
+}
+
+const getBobGatewayOnrampNetworkFeeCryptoBaseUnit = async (
+  adapter: UtxoChainAdapter,
+): Promise<string | undefined> => {
+  const { fast } = await adapter.httpProvider.getNetworkFees()
+
+  if (!fast?.satsPerKiloByte) return undefined
+  const satsPerByte = Math.max(1, Math.ceil(fast.satsPerKiloByte / 1000))
+
+  return bnOrZero(satsPerByte).times(BOB_GATEWAY_ONRAMP_DEFAULT_TX_VSIZE).toFixed(0)
+}
+
+export const getBobGatewaySender = async ({
+  sellAsset,
+  sellAmount,
+  sendAddress,
+  xpub,
+  deps: { assertGetUtxoChainAdapter },
+}: {
+  sellAsset: Asset
+  sellAmount: string
+  sendAddress: string
+  xpub?: string
+  deps: SwapperDeps
+}): Promise<Result<string, SwapErrorRight>> => {
+  if (fromChainId(sellAsset.chainId).chainNamespace === CHAIN_NAMESPACE.Evm) {
+    return Ok(sendAddress)
+  }
+
+  if (!xpub) {
+    return Err(
+      makeSwapErrorRight({
+        message: '[BobGateway] xpub is required for quote',
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
+  }
+
+  try {
+    const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
+    const utxos = await adapter.getUtxos({ pubkey: xpub })
+
+    const balanceByAddress = utxos.reduce<Record<string, BN>>((acc, utxo) => {
+      if (!utxo.address) return acc
+      acc[utxo.address] = bnOrZero(acc[utxo.address]).plus(utxo.value)
+      return acc
+    }, {})
+
+    // the richest address is the one best able to fund the send
+    const [sender, balance] = Object.entries(balanceByAddress).sort(
+      ([, a], [, b]) => b.comparedTo(a) ?? 0,
+    )[0] ?? [sendAddress, bnOrZero(0)]
+
+    if (balance.lt(sellAmount)) {
+      return Err(
+        makeSwapErrorRight({
+          message: '[BobGateway] no single address holds enough funds to cover the trade',
+          code: TradeQuoteError.FundsFragmented,
+        }),
+      )
+    }
+
+    return Ok(sender)
+  } catch (err) {
+    return Err(
+      makeSwapErrorRight({
+        message: '[BobGateway] failed to select sender address',
+        code: TradeQuoteError.QueryFailed,
+        cause: err,
+      }),
+    )
+  }
 }
 
 export const getBobGatewayQuote = async ({
@@ -158,6 +238,7 @@ export const getBobGatewayQuote = async ({
 export const createBobGatewayOrderMetadata = async (
   config: SwapperConfig,
   gatewayQuote: GatewayQuoteV2,
+  sender: string,
 ): Promise<Result<BobGatewayMetadata, SwapErrorRight>> => {
   try {
     const orderResponse = await getBobGatewayClient(config).api.createOrderV2({
@@ -171,6 +252,7 @@ export const createBobGatewayOrderMetadata = async (
         utxoTx: {
           depositAddress: orderResponse.onramp.address,
           opReturnData: orderResponse.onramp.opReturnData ?? undefined,
+          sender,
         },
       })
     }
@@ -247,12 +329,12 @@ export const getBobGatewayQuoteFeeData = async (
 
   try {
     if (orderMetadata.utxoTx && 'xpub' in input) {
-      const { depositAddress, opReturnData } = orderMetadata.utxoTx
+      const { depositAddress, opReturnData, sender } = orderMetadata.utxoTx
 
       const { fast } = await assertGetUtxoChainAdapter(sellAsset.chainId).getFeeData({
         to: depositAddress,
         value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        chainSpecific: { pubkey: input.xpub, opReturnData },
+        chainSpecific: { pubkey: input.xpub, opReturnData, from: sender },
         sendMax: false,
       })
 
@@ -296,14 +378,8 @@ export const getBobGatewayRateNetworkFeeCryptoBaseUnit = async (
 ): Promise<string | undefined> => {
   try {
     if ('onramp' in quote) {
-      const { fast } = await assertGetUtxoChainAdapter(
-        sellAsset.chainId,
-      ).httpProvider.getNetworkFees()
-
-      if (!fast?.satsPerKiloByte) return undefined
-      const satsPerByte = Math.max(1, Math.ceil(fast.satsPerKiloByte / 1000))
-
-      return bnOrZero(satsPerByte).times(BOB_GATEWAY_ONRAMP_DEFAULT_TX_VSIZE).toFixed(0)
+      const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
+      return await getBobGatewayOnrampNetworkFeeCryptoBaseUnit(adapter)
     }
 
     const defaultGasLimit =

@@ -5,6 +5,7 @@ import { v4 as uuid } from 'uuid'
 import type {
   CommonTradeQuoteInput,
   GetTradeQuoteInput,
+  GetUtxoTradeQuoteInput,
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
@@ -17,6 +18,7 @@ import {
   getBobGatewayAllowanceContract,
   getBobGatewayQuote,
   getBobGatewayQuoteFeeData,
+  getBobGatewaySender,
   parseBobGatewayQuote,
 } from '../utils/helpers'
 
@@ -60,13 +62,24 @@ export const getBobGatewayTradeQuote = async (
 
   const { sellChainName, buyChainName } = assertion.unwrap()
 
+  const maybeSender = await getBobGatewaySender({
+    sellAsset,
+    sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    sendAddress,
+    xpub: (input as GetUtxoTradeQuoteInput).xpub,
+    deps,
+  })
+
+  if (maybeSender.isErr()) return Err(maybeSender.unwrapErr())
+  const sender = maybeSender.unwrap()
+
   const maybeQuote = await getBobGatewayQuote({
     config,
     sellAsset,
     buyAsset,
     sellChainName,
     buyChainName,
-    sender: sendAddress,
+    sender,
     recipient: receiveAddress,
     amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     affiliateBps,
@@ -76,7 +89,7 @@ export const getBobGatewayTradeQuote = async (
   if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
   const quote = maybeQuote.unwrap()
 
-  const maybeOrderMetadata = await createBobGatewayOrderMetadata(config, quote)
+  const maybeOrderMetadata = await createBobGatewayOrderMetadata(config, quote, sender)
   if (maybeOrderMetadata.isErr()) return Err(maybeOrderMetadata.unwrapErr())
 
   const orderMetadata = maybeOrderMetadata.unwrap()

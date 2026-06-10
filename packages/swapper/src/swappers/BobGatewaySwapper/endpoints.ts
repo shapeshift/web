@@ -38,7 +38,7 @@ export const bobGatewayApi: SwapperApi = {
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
     if (!bobSpecific?.utxoTx) throw new Error('[BobGateway] invalid utxo transaction')
-    const { depositAddress, opReturnData } = bobSpecific.utxoTx
+    const { depositAddress, opReturnData, sender } = bobSpecific.utxoTx
 
     return adapter.buildSendApiTransaction({
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -47,6 +47,7 @@ export const bobGatewayApi: SwapperApi = {
       accountNumber: step.accountNumber,
       skipToAddressValidation: true,
       chainSpecific: {
+        from: sender,
         accountType,
         opReturnData,
         satoshiPerByte: (step.feeData.chainSpecific as UtxoFeeData).satsPerByte,
@@ -64,12 +65,12 @@ export const bobGatewayApi: SwapperApi = {
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
     if (!bobSpecific?.utxoTx) throw new Error('[BobGateway] invalid utxo transaction')
-    const { depositAddress, opReturnData } = bobSpecific.utxoTx
+    const { depositAddress, opReturnData, sender } = bobSpecific.utxoTx
 
     const { fast } = await adapter.getFeeData({
       to: depositAddress,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      chainSpecific: { pubkey: xpub, opReturnData },
+      chainSpecific: { pubkey: xpub, opReturnData, from: sender },
       sendMax: false,
     })
 

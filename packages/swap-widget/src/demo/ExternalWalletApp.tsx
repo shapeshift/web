@@ -1,7 +1,7 @@
 import './App.css'
 
 import { useAppKit, useAppKitAccount } from '@reown/appkit/react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { SwapWidget } from '../components/SwapWidget'
 import { initializeAppKit } from '../config/appkit'
@@ -78,15 +78,18 @@ const ExternalDemoBody = ({ theme, setTheme }: ExternalDemoBodyProps) => {
     console.error('Swap failed:', error)
   }, [])
 
-  const widget = (
-    <SwapWidget
-      partnerCode={partnerCode || undefined}
-      theme={themeConfig}
-      onSwapSuccess={handleSwapSuccess}
-      onSwapError={handleSwapError}
-      showPoweredBy={true}
-      showConnectButton={false}
-    />
+  const widget = useMemo(
+    () => (
+      <SwapWidget
+        partnerCode={partnerCode || undefined}
+        theme={themeConfig}
+        onSwapSuccess={handleSwapSuccess}
+        onSwapError={handleSwapError}
+        showPoweredBy={true}
+        showConnectButton={false}
+      />
+    ),
+    [partnerCode, themeConfig, handleSwapSuccess, handleSwapError],
   )
 
   return (

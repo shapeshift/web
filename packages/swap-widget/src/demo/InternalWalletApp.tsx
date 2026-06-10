@@ -1,6 +1,6 @@
 import './App.css'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { SwapWidget } from '../components/SwapWidget'
 import { DemoCustomizer, useDemoTheme } from './DemoCustomizer'
@@ -29,16 +29,19 @@ const InternalDemoBody = ({ theme, setTheme }: InternalDemoBodyProps) => {
     console.error('Swap failed:', error)
   }, [])
 
-  const widget = (
-    <SwapWidget
-      partnerCode={partnerCode || undefined}
-      theme={themeConfig}
-      onSwapSuccess={handleSwapSuccess}
-      onSwapError={handleSwapError}
-      showPoweredBy={true}
-      showConnectButton={true}
-      walletConnectProjectId={PROJECT_ID}
-    />
+  const widget = useMemo(
+    () => (
+      <SwapWidget
+        partnerCode={partnerCode || undefined}
+        theme={themeConfig}
+        onSwapSuccess={handleSwapSuccess}
+        onSwapError={handleSwapError}
+        showPoweredBy={true}
+        showConnectButton={true}
+        walletConnectProjectId={PROJECT_ID}
+      />
+    ),
+    [partnerCode, themeConfig, handleSwapSuccess, handleSwapError],
   )
 
   return (

@@ -14,7 +14,7 @@ export const WidgetModal = ({ children }: WidgetModalProps) => {
   useEffect(() => {
     if (!isOpen) return
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsOpen(false)
+      if (e.key === 'Escape') close()
     }
     window.addEventListener('keydown', onKeyDown)
     document.body.style.overflow = 'hidden'
@@ -22,7 +22,7 @@ export const WidgetModal = ({ children }: WidgetModalProps) => {
       window.removeEventListener('keydown', onKeyDown)
       document.body.style.overflow = ''
     }
-  }, [isOpen])
+  }, [isOpen, close])
 
   return (
     <>

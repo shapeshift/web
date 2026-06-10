@@ -85,6 +85,8 @@ export const validateTradeQuote = (
         case SwapperTradeQuoteError.Timeout:
         case SwapperTradeQuoteError.InvalidResponse:
         case SwapperTradeQuoteError.InsufficientFunds:
+        case SwapperTradeQuoteError.InsufficientFundsUnconfirmed:
+        case SwapperTradeQuoteError.FundsFragmented:
           // no metadata associated with this error
           return { error: errorCode }
         case SwapperTradeQuoteError.FinalQuoteMaxSlippageExceeded:

@@ -27,6 +27,8 @@ export const getQuoteErrorTranslation = (
       case TradeQuoteValidationError.InsufficientFirstHopAssetBalance:
       case SwapperTradeQuoteError.InsufficientFunds:
         return 'common.insufficientFundsForTrade'
+      case SwapperTradeQuoteError.InsufficientFundsUnconfirmed:
+        return 'trade.errors.insufficientFundsUnconfirmed'
       case TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance:
         return 'common.insufficientAmountForGas'
       case TradeQuoteValidationError.InsufficientSecondHopFeeAssetBalance:
@@ -39,6 +41,8 @@ export const getQuoteErrorTranslation = (
         return tradeQuoteError.meta
           ? 'trade.errors.amountTooSmall'
           : 'trade.errors.amountTooSmallUnknownMinimum'
+      case SwapperTradeQuoteError.FundsFragmented:
+        return 'trade.errors.fundsFragmented'
       case SwapperTradeQuoteError.UnsupportedChain:
         return 'trade.errors.quoteUnsupportedChain'
       case SwapperTradeQuoteError.CrossChainNotSupported:

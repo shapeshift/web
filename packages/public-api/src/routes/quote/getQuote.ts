@@ -11,6 +11,7 @@ import type { Request, Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 
 import { getAsset } from '../../assets'
+import { ENABLED_SWAPPER_NAMES } from '../../constants'
 import { env } from '../../env'
 import { QuoteStore, quoteStore } from '../../lib/quoteStore'
 import { registry } from '../../registry'
@@ -78,7 +79,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     }
 
     const swapper = swappers[validSwapperName]
-    if (!swapper) {
+    if (!swapper || !ENABLED_SWAPPER_NAMES.includes(validSwapperName)) {
       res.status(400).json({
         error: `Swapper not available: ${swapperName}`,
       } satisfies ErrorResponse)

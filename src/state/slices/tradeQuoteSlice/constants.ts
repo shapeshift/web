@@ -50,6 +50,8 @@ export const SWAPPER_USER_ERRORS = [
   TradeQuoteError.SellAmountBelowTradeFee,
   TradeQuoteError.SellAmountBelowMinimum,
   TradeQuoteError.InsufficientFunds,
+  TradeQuoteError.InsufficientFundsUnconfirmed,
+  TradeQuoteError.FundsFragmented,
   TradeQuoteValidationError.SellAmountBelowTradeFee,
   TradeQuoteValidationError.InsufficientFirstHopAssetBalance,
   TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,

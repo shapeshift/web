@@ -14,7 +14,6 @@ import {
   fromChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
-import type { UtxoChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -71,17 +70,6 @@ export const getBobGatewayAffiliates = (affiliateBps: string): GetQuoteParams['a
   return [{ address: getAddress(affiliateAddress), bps: bps.toNumber() }]
 }
 
-const getBobGatewayOnrampNetworkFeeCryptoBaseUnit = async (
-  adapter: UtxoChainAdapter,
-): Promise<string | undefined> => {
-  const { fast } = await adapter.httpProvider.getNetworkFees()
-
-  if (!fast?.satsPerKiloByte) return undefined
-  const satsPerByte = Math.max(1, Math.ceil(fast.satsPerKiloByte / 1000))
-
-  return bnOrZero(satsPerByte).times(BOB_GATEWAY_ONRAMP_DEFAULT_TX_VSIZE).toFixed(0)
-}
-
 export const getBobGatewaySender = async ({
   sellAsset,
   sellAmount,
@@ -123,7 +111,16 @@ export const getBobGatewaySender = async ({
       ([, a], [, b]) => b.comparedTo(a) ?? 0,
     )[0] ?? [sendAddress, bnOrZero(0)]
 
-    if (balance.lt(sellAmount)) {
+    // real coinselect fee for the send constrained to the sender address (the deposit address is
+    // not known pre-order, but the to address does not meaningfully affect the fee estimate)
+    const { fast } = await adapter.getFeeData({
+      to: sender,
+      value: sellAmount,
+      chainSpecific: { pubkey: xpub, from: sender },
+      sendMax: false,
+    })
+
+    if (balance.lt(bnOrZero(sellAmount).plus(fast.txFee))) {
       return Err(
         makeSwapErrorRight({
           message: '[BobGateway] no single address holds enough funds to cover the trade',
@@ -379,7 +376,13 @@ export const getBobGatewayRateNetworkFeeCryptoBaseUnit = async (
   try {
     if ('onramp' in quote) {
       const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
-      return await getBobGatewayOnrampNetworkFeeCryptoBaseUnit(adapter)
+
+      const { fast } = await adapter.httpProvider.getNetworkFees()
+
+      if (!fast?.satsPerKiloByte) return undefined
+      const satsPerByte = Math.max(1, Math.ceil(fast.satsPerKiloByte / 1000))
+
+      return bnOrZero(satsPerByte).times(BOB_GATEWAY_ONRAMP_DEFAULT_TX_VSIZE).toFixed(0)
     }
 
     const defaultGasLimit =

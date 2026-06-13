@@ -24,7 +24,6 @@ export const isExpectedError = (error: unknown): boolean => {
     TradeQuoteError.RateLimitExceeded,
     TradeQuoteError.SellAmountBelowMinimum,
     TradeQuoteError.TradingHalted,
-    TradeQuoteError.FundsFragmented,
   ]
 
   if (tradeQuoteErrors.some(errorType => errorMessage.includes(errorType))) {

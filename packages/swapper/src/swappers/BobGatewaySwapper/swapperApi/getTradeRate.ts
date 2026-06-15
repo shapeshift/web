@@ -38,7 +38,7 @@ export const getBobGatewayTradeRate = async (
 
   const recipient =
     receiveAddress ?? (buyAsset.chainId === btcChainId ? DUMMY_BTC_ADDRESS : DUMMY_EVM_ADDRESS)
-  const sender = sellAsset.chainId === btcChainId ? DUMMY_BTC_ADDRESS : DUMMY_EVM_ADDRESS
+  const sender = sellAsset.chainId === btcChainId ? undefined : DUMMY_EVM_ADDRESS
 
   const maybeQuote = await getBobGatewayQuote({
     config,

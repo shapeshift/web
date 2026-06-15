@@ -1,5 +1,4 @@
 import type { AxiosStatic } from 'axios'
-import type { Awaitable, HookCleanupCallback } from 'vitest'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { getFullAppData } from '../../../../cowswap-utils'
@@ -19,12 +18,9 @@ describe('utils', () => {
     const mockDay = '2020-12-31'
     const mockTime = 'T23:59:59.000Z'
     const mockDate = `${mockDay}${mockTime}`
-    beforeEach(
-      () =>
-        vi
-          .useFakeTimers()
-          .setSystemTime(new Date(mockDate)) as unknown as Awaitable<HookCleanupCallback>,
-    )
+    beforeEach(() => {
+      vi.useFakeTimers().setSystemTime(new Date(mockDate))
+    })
     afterEach(() => {
       vi.restoreAllMocks()
       vi.useRealTimers()

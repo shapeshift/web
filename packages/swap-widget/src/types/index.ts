@@ -12,17 +12,12 @@ import {
   ethChainId,
   fromChainId,
   gnosisChainId,
-  hyperEvmChainId,
-  katanaChainId,
   ltcChainId,
   mayachainChainId,
-  monadChainId,
   optimismChainId,
-  plasmaChainId,
   polygonChainId,
   solanaChainId,
   thorchainChainId,
-  worldChainChainId,
 } from '@shapeshiftoss/caip'
 import type { TransactionData } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
@@ -234,11 +229,6 @@ export const EVM_CHAIN_IDS = {
   avalanche: avalancheChainId,
   bsc: bscChainId,
   gnosis: gnosisChainId,
-  monad: monadChainId,
-  hyperEvm: hyperEvmChainId,
-  plasma: plasmaChainId,
-  worldChain: worldChainChainId,
-  katana: katanaChainId,
 } as const
 
 export const UTXO_CHAIN_IDS = {

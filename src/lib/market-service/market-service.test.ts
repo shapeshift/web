@@ -22,11 +22,13 @@ const mockCoingeckoFindPriceHistoryByAssetId = vi
   .mockImplementation(() => mockCGPriceHistoryData)
 
 vi.mock('./coingecko/coingecko', () => ({
-  CoinGeckoMarketService: vi.fn().mockImplementation(() => ({
-    findAll: mockCoingeckoFindAll,
-    findByAssetId: mockCoingeckoFindByAssetId,
-    findPriceHistoryByAssetId: mockCoingeckoFindPriceHistoryByAssetId,
-  })),
+  CoinGeckoMarketService: vi.fn().mockImplementation(function () {
+    return {
+      findAll: mockCoingeckoFindAll,
+      findByAssetId: mockCoingeckoFindByAssetId,
+      findPriceHistoryByAssetId: mockCoingeckoFindPriceHistoryByAssetId,
+    }
+  }),
 }))
 
 const coingeckoMock = vi.mocked(CoinGeckoMarketService)
@@ -38,7 +40,7 @@ const mockCoincapFindPriceHistoryByAssetId = vi
   .mockImplementation(() => mockCGPriceHistoryData)
 
 vi.mock('./coincap/coincap', () => ({
-  CoinCapMarketService: vi.fn().mockImplementation(() => {
+  CoinCapMarketService: vi.fn().mockImplementation(function () {
     return {
       findAll: mockCoincapFindAll,
       findByAssetId: mockCoincapFindByAssetId,
@@ -54,7 +56,7 @@ const mockPortalsFindPriceHistoryByAssetId = vi
   .mockImplementation(() => mockCGPriceHistoryData)
 
 vi.mock('./portals/portals', () => ({
-  PortalsMarketService: vi.fn().mockImplementation(() => {
+  PortalsMarketService: vi.fn().mockImplementation(function () {
     return {
       findAll: mockPortalsFindAll,
       findByAssetId: mockPortalsFindByAssetId,
@@ -68,7 +70,7 @@ const mockZerionFindAll = vi.fn().mockImplementation(() => mockCGFindAllData)
 const mockZerionFindPriceHistoryByAssetId = vi.fn().mockImplementation(() => mockCGPriceHistoryData)
 
 vi.mock('./zerion/zerion', () => ({
-  ZerionMarketService: vi.fn().mockImplementation(() => {
+  ZerionMarketService: vi.fn().mockImplementation(function () {
     return {
       findAll: mockZerionFindAll,
       findByAssetId: mockZerionFindByAssetId,
@@ -82,7 +84,7 @@ const mockFoxyFindByAssetId = vi.fn().mockImplementation(() => mockFoxyMarketDat
 const mockFoxyFindPriceHistoryByAssetId = vi.fn().mockImplementation(() => mockFoxyPriceHistoryData)
 
 vi.mock('./foxy/foxy', () => ({
-  FoxyMarketService: vi.fn().mockImplementation(() => {
+  FoxyMarketService: vi.fn().mockImplementation(function () {
     return {
       findAll: mockFoxyFindAll,
       findByAssetId: mockFoxyFindByAssetId,
@@ -98,7 +100,7 @@ const mockThorchainAssetsFindPriceHistoryByAssetId = vi
   .mockImplementation(() => mockTcyPriceHistoryData)
 
 vi.mock('./thorchainAssets/thorchainAssets', () => ({
-  ThorchainAssetsMarketService: vi.fn().mockImplementation(() => {
+  ThorchainAssetsMarketService: vi.fn().mockImplementation(function () {
     return {
       findAll: mockThorchainAssetsFindAll,
       findByAssetId: mockThorchainAssetsFindByAssetId,

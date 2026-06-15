@@ -1,34 +1,30 @@
-import { fromChainId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
+import type { ChainNamespace } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { getBaseAsset } from '@shapeshiftoss/utils'
 
+import { SUPPORTED_CHAIN_IDS } from '../../constants'
 import type { Chain, ChainType } from './types'
 
-const chainNamespaceToType: Record<string, ChainType> = {
-  eip155: 'evm',
-  bip122: 'utxo',
-  cosmos: 'cosmos',
-  solana: 'solana',
-  tron: 'tron',
-  sui: 'sui',
-  near: 'near',
-  starknet: 'starknet',
-  ton: 'ton',
+const chainNamespaceToType: Record<ChainNamespace, ChainType> = {
+  [CHAIN_NAMESPACE.Evm]: 'evm',
+  [CHAIN_NAMESPACE.Utxo]: 'utxo',
+  [CHAIN_NAMESPACE.CosmosSdk]: 'cosmos',
+  [CHAIN_NAMESPACE.Solana]: 'solana',
+  [CHAIN_NAMESPACE.Tron]: 'tron',
+  [CHAIN_NAMESPACE.Sui]: 'sui',
+  [CHAIN_NAMESPACE.Near]: 'near',
+  [CHAIN_NAMESPACE.Starknet]: 'starknet',
+  [CHAIN_NAMESPACE.Ton]: 'ton',
 }
 
 const buildChainList = (): Chain[] => {
   const chains: Chain[] = []
 
-  for (const chainId of Object.values(KnownChainIds)) {
+  for (const chainId of SUPPORTED_CHAIN_IDS) {
     try {
       const baseAsset = getBaseAsset(chainId)
       const { chainNamespace } = fromChainId(chainId)
       const chainType = chainNamespaceToType[chainNamespace]
-
-      if (!chainType) {
-        console.warn(`Unknown chain namespace: ${chainNamespace} for chainId: ${chainId}`)
-        continue
-      }
 
       chains.push({
         chainId,

@@ -1034,6 +1034,7 @@
       "amountTooSmallUnknownMinimum": "Amount too low",
       "sellAmountDoesNotCoverFee": "Sell amount lower than fee",
       "insufficientFunds": "Insufficient funds for miner fee and amount",
+      "insufficientFundsUnconfirmed": "Funds still confirming. Try again once confirmed.",
       "transactionRejected": "User has rejected the transaction",
       "insufficientFundsForProtocolFee": "Insufficient %{symbol} on %{chainName} for fees",
       "unsupportedTradePair": "Unsupported Trade Pair",

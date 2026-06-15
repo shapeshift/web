@@ -460,6 +460,117 @@ body,
   justify-content: center;
 }
 
+.demo-widget-container.demo-widget-container-modal {
+  align-self: stretch;
+  align-items: center;
+}
+
+.demo-launch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 420px;
+  max-width: 100%;
+  min-height: 320px;
+  padding: 24px;
+}
+
+.demo-launch-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 32px;
+  border: none;
+  border-radius: 14px;
+  background: var(--demo-accent);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--demo-accent), transparent 65%);
+}
+
+.demo-launch-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--demo-accent), transparent 55%);
+}
+
+.demo-launch-btn:active {
+  transform: scale(0.98);
+}
+
+.demo-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  animation: demo-modal-fade-in 0.15s ease;
+}
+
+.demo-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  padding: 0;
+  background: transparent;
+  cursor: default;
+}
+
+.demo-modal {
+  position: relative;
+  margin: auto;
+  animation: demo-modal-pop-in 0.2s ease;
+}
+
+.demo-modal-close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.demo-modal-close:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+@keyframes demo-modal-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes demo-modal-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .demo-footer {
   padding: 20px;
   text-align: center;

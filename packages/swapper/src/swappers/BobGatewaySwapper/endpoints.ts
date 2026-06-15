@@ -1,6 +1,7 @@
 import { isGatewayError } from '@gobob/bob-sdk'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { bnOrZero } from '@shapeshiftoss/utils'
 
 import type { SwapperApi, UtxoFeeData } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
@@ -96,6 +97,9 @@ export const bobGatewayApi: SwapperApi = {
 
     const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
 
+    // Pad the gas limit of the tx we actually broadcast to reduce the risk of out-of-gas reverts.
+    const gasLimit = bnOrZero(feeData.gasLimit).times(1.2).toFixed(0)
+
     return adapter.buildCustomApiTx({
       accountNumber,
       from,
@@ -103,6 +107,7 @@ export const bobGatewayApi: SwapperApi = {
       value,
       data,
       ...feeData,
+      gasLimit,
     })
   },
   getEvmTransactionFees: async ({

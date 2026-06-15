@@ -99,7 +99,6 @@
     "viem": "2.43.5",
     "vite": "^5.0.0",
     "vite-plugin-node-polyfills": "0.23.0",
-    "vitest": "4.0.18",
     "wagmi": "2.19.5"
   },
   "publishConfig": {

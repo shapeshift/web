@@ -6,7 +6,7 @@ import { FiatMarketProviders } from './fiat-market-providers'
 import { findByFiatSymbol, findPriceHistoryByFiatSymbol } from './fiat-market-service-manager'
 
 vi.mock('./exchange-rates-host/exchange-rates-host', () => ({
-  ExchangeRateHostService: vi.fn().mockImplementation(() => {
+  ExchangeRateHostService: vi.fn().mockImplementation(function () {
     return {
       findByFiatSymbol: vi.fn(() => mockERHFindByFiatSymbol),
       findPriceHistoryByFiatSymbol: vi.fn(() => mockERHPriceHistoryData),

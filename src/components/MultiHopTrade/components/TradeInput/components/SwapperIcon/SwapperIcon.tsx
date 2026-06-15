@@ -7,6 +7,7 @@ import AcrossIcon from './across-icon.svg'
 import ArbitrumBridgeIcon from './arbitrum-bridge-icon.png'
 import AvnuIcon from './avnu-icon.jpg'
 import BebopIcon from './bebop-icon.png'
+import BobGatewayIcon from './bob-gateway-icon.png'
 import ButterSwapIcon from './butterswap.png'
 import CetusIcon from './cetus-icon.jpg'
 import ChainflipIcon from './chainflip-icon.png'
@@ -66,6 +67,8 @@ export const SwapperIcon = ({
         return AcrossIcon
       case SwapperName.Debridge:
         return DebridgeIcon
+      case SwapperName.BobGateway:
+        return BobGatewayIcon
       case SwapperName.Test:
         return ''
       default:

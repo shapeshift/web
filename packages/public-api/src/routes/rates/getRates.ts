@@ -1,8 +1,9 @@
 import type { GetTradeRateInput } from '@shapeshiftoss/swapper'
-import { getTradeRates, SwapperName, swappers, TradeQuoteError } from '@shapeshiftoss/swapper'
+import { getTradeRates, swappers, TradeQuoteError } from '@shapeshiftoss/swapper'
 import type { Request, Response } from 'express'
 
 import { getAsset } from '../../assets'
+import { ENABLED_SWAPPER_NAMES } from '../../constants'
 import { env } from '../../env'
 import { registry } from '../../registry'
 import { getSwapperDeps } from '../../swapperDeps'
@@ -10,19 +11,6 @@ import type { ErrorResponse } from '../../types'
 import { PartnerCodeHeaderSchema, rateLimitResponse } from '../../types'
 import type { ApiRate, RateResponse } from './types'
 import { RateResponseSchema, RatesRequestSchema } from './types'
-
-const ENABLED_SWAPPER_NAMES = [
-  SwapperName.Bebop,
-  SwapperName.ButterSwap,
-  SwapperName.Chainflip,
-  SwapperName.CowSwap,
-  SwapperName.Mayachain,
-  SwapperName.NearIntents,
-  SwapperName.Portals,
-  SwapperName.Relay,
-  SwapperName.Thorchain,
-  SwapperName.Zrx,
-] as const
 
 // Rate timeout per swapper (10 seconds)
 const RATE_TIMEOUT_MS = 10_000

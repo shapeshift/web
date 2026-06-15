@@ -44,6 +44,7 @@ import type { InterpolationOptions } from 'node-polyglot'
 import type { Address, Hex } from 'viem'
 
 import type { AcrossTransactionMetadata } from './swappers/AcrossSwapper/utils/types'
+import type { BobGatewayMetadata } from './swappers/BobGatewaySwapper/types'
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { DebridgeTransactionMetadata } from './swappers/DebridgeSwapper/utils/types'
 import type { RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
@@ -85,6 +86,7 @@ export type SwapperConfig = {
   VITE_ACROSS_API_URL: string
   VITE_ACROSS_INTEGRATOR_ID: string
   VITE_DEBRIDGE_API_URL: string
+  VITE_BOB_GATEWAY_API_KEY: string
 }
 
 export enum SwapperName {
@@ -106,6 +108,7 @@ export enum SwapperName {
   Stonfi = 'STON.fi',
   Across = 'Across',
   Debridge = 'deBridge',
+  BobGateway = 'BOB Gateway',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -153,6 +156,8 @@ export enum TradeQuoteError {
   UnknownError = 'UnknownError',
   // the swapper performed on chain balance checks and determined the user didn't have the funds to perform the swap
   InsufficientFunds = 'InsufficientFunds',
+  // the user's confirmed balance is insufficient — funds may exist but are still confirming on chain (e.g. unconfirmed UTXO deposits)
+  InsufficientFundsUnconfirmed = 'InsufficientFundsUnconfirmed',
 }
 
 export type UtxoFeeData = {
@@ -518,6 +523,7 @@ export type TradeQuoteStep = {
   }
   acrossTransactionMetadata?: AcrossTransactionMetadata
   debridgeTransactionMetadata?: DebridgeTransactionMetadata
+  bobSpecific?: BobGatewayMetadata
   affiliateFee?: AffiliateFee
 }
 
@@ -581,6 +587,7 @@ export type SwapperSpecificMetadata = {
   relayTransactionMetadata: RelayTransactionMetadata | undefined
   acrossTransactionMetadata: AcrossTransactionMetadata | undefined
   debridgeTransactionMetadata: DebridgeTransactionMetadata | undefined
+  bobSpecific?: BobGatewayMetadata
   relayerExplorerTxLink: string | undefined
   relayerTxHash: string | undefined
   stepIndex: SupportedTradeQuoteStepIndex

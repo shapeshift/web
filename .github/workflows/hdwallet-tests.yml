@@ -5,11 +5,11 @@ on:
     branches: [main, develop, release]
     paths:
       - 'packages/hdwallet-*/**'
-      - 'vitest.hdwallet.config.mts'
+      - 'vitest.config.mts'
   pull_request:
     paths:
       - 'packages/hdwallet-*/**'
-      - 'vitest.hdwallet.config.mts'
+      - 'vitest.config.mts'
 
 jobs:
   unit:

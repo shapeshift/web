@@ -1,9 +1,10 @@
 import './App.css'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { SwapWidget } from '../components/SwapWidget'
 import { DemoCustomizer, useDemoTheme } from './DemoCustomizer'
+import { WidgetModal } from './WidgetModal'
 
 const PROJECT_ID = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
 
@@ -18,7 +19,7 @@ const InternalDemoBody = ({ theme, setTheme }: InternalDemoBodyProps) => {
   const [showCustomizer, setShowCustomizer] = useState(true)
 
   const themeState = useDemoTheme(theme)
-  const { themeConfig, partnerCode, demoStyle } = themeState
+  const { themeConfig, partnerCode, demoStyle, displayMode } = themeState
 
   const handleSwapSuccess = useCallback((txHash: string) => {
     console.log('Swap successful:', txHash)
@@ -27,6 +28,21 @@ const InternalDemoBody = ({ theme, setTheme }: InternalDemoBodyProps) => {
   const handleSwapError = useCallback((error: Error) => {
     console.error('Swap failed:', error)
   }, [])
+
+  const widget = useMemo(
+    () => (
+      <SwapWidget
+        partnerCode={partnerCode || undefined}
+        theme={themeConfig}
+        onSwapSuccess={handleSwapSuccess}
+        onSwapError={handleSwapError}
+        showPoweredBy={true}
+        showConnectButton={true}
+        walletConnectProjectId={PROJECT_ID}
+      />
+    ),
+    [partnerCode, themeConfig, handleSwapSuccess, handleSwapError],
+  )
 
   return (
     <div className={`demo-app ${theme}`} style={demoStyle}>
@@ -94,16 +110,12 @@ const InternalDemoBody = ({ theme, setTheme }: InternalDemoBodyProps) => {
               <DemoCustomizer theme={theme} setTheme={setTheme} state={themeState} />
             )}
 
-            <div className='demo-widget-container'>
-              <SwapWidget
-                partnerCode={partnerCode || undefined}
-                theme={themeConfig}
-                onSwapSuccess={handleSwapSuccess}
-                onSwapError={handleSwapError}
-                showPoweredBy={true}
-                showConnectButton={true}
-                walletConnectProjectId={PROJECT_ID}
-              />
+            <div
+              className={`demo-widget-container${
+                displayMode === 'modal' ? ' demo-widget-container-modal' : ''
+              }`}
+            >
+              {displayMode === 'modal' ? <WidgetModal>{widget}</WidgetModal> : widget}
             </div>
           </div>
         </div>

@@ -8,6 +8,7 @@ export default mergeConfig(
   viteConfig,
   defineConfig({
     test: {
+      name: 'swap-widget',
       globals: true,
       environment: 'jsdom',
       root: resolve(__dirname),

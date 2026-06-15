@@ -20,6 +20,7 @@ import {
   DAO_TREASURY_AVALANCHE,
   DAO_TREASURY_BASE,
   DAO_TREASURY_BITCOIN,
+  DAO_TREASURY_BOB,
   DAO_TREASURY_BSC,
   DAO_TREASURY_ETHEREUM_MAINNET,
   DAO_TREASURY_GNOSIS,
@@ -78,6 +79,7 @@ const DAO_TREASURY_BY_CHAIN_ID: Record<TreasuryChainId, string> = {
   [KnownChainIds.TonMainnet]: DAO_TREASURY_TON,
   [KnownChainIds.MonadMainnet]: DAO_TREASURY_MONAD,
   [KnownChainIds.HyperEvmMainnet]: DAO_TREASURY_HYPEREVM,
+  [KnownChainIds.BobMainnet]: DAO_TREASURY_BOB,
 }
 
 export const getTreasuryAddressFromChainId = (chainId: ChainId): string => {

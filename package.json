@@ -33,8 +33,8 @@
     "dev:packages": "pnpm exec tsc --build --watch --preserveWatchOutput tsconfig.packages.json",
     "hdwallet:build": "pnpm exec tsc --build tsconfig.hdwallet.json && pnpm -r --filter=\"@shapeshiftoss/hdwallet-*\" postbuild",
     "hdwallet:sandbox": "pnpm run hdwallet:build && pnpm --filter @shapeshiftoss/hdwallet-sandbox dev",
-    "hdwallet:test:integration": "pnpm --filter @shapeshiftoss/hdwallet-integration test",
-    "hdwallet:test": "pnpm exec vitest run -c vitest.hdwallet.config.mts",
+    "hdwallet:test:integration": "pnpm exec vitest run --project hdwallet-integration",
+    "hdwallet:test": "pnpm exec vitest run --project hdwallet",
     "hdwallet:docker:emulator:run": "docker run -p 5000:5000 kktech/kkemu:latest",
     "hdwallet:docker:emulator:stop": "docker ps -q --filter ancestor=kktech/kkemu:latest | xargs -r docker stop",
     "dev:swap-widget": "pnpm --filter @shapeshiftoss/swap-widget dev",
@@ -53,9 +53,9 @@
     "postinstall": "[ -d .git ] && git config --local include.path '.gitconfig' || true",
     "release": "pnpm exec tsx ./scripts/release.ts",
     "scrape-walletconnect-dapps": "pnpm exec tsx ./scripts/scrapeWalletConnectRegistry.ts",
-    "test": "pnpm run test:packages && pnpm run test:web",
-    "test:web": "pnpm exec vitest run -c vitest-web.config.mts && pnpm exec vitest run -c vitest-side-effects.config.mts",
-    "test:packages": "pnpm exec vitest run -c vitest-packages.config.mts",
+    "test": "pnpm exec vitest run --project packages --project web --project swap-widget",
+    "test:web": "pnpm exec vitest run --project web",
+    "test:packages": "pnpm exec vitest run --project packages",
     "translations:count-words-invalidate-since": "pnpm exec tsx ./scripts/translations/countWordsInvalidateSince.ts",
     "translations:update-path": "pnpm exec tsx ./scripts/translations/updateTranslationPath.ts",
     "type-check": "NODE_OPTIONS=--max-old-space-size=8192 pnpm exec tsc --noEmit",
@@ -323,7 +323,7 @@
     "vite-bundle-analyzer": "^0.18.1",
     "vite-plugin-node-polyfills": "^0.23.0",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "3.0.9"
+    "vitest": "4.1.0"
   },
   "peerDependencies": {
     "lit-html": "^2.6.1"

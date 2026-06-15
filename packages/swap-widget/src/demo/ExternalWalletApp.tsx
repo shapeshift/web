@@ -1,12 +1,13 @@
 import './App.css'
 
 import { useAppKit, useAppKitAccount } from '@reown/appkit/react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { SwapWidget } from '../components/SwapWidget'
 import { initializeAppKit } from '../config/appkit'
 import { truncateAddress } from '../types'
 import { DemoCustomizer, useDemoTheme } from './DemoCustomizer'
+import { WidgetModal } from './WidgetModal'
 
 const PROJECT_ID = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
 
@@ -67,7 +68,7 @@ const ExternalDemoBody = ({ theme, setTheme }: ExternalDemoBodyProps) => {
   const [showCustomizer, setShowCustomizer] = useState(true)
 
   const themeState = useDemoTheme(theme)
-  const { themeConfig, partnerCode, demoStyle } = themeState
+  const { themeConfig, partnerCode, demoStyle, displayMode } = themeState
 
   const handleSwapSuccess = useCallback((txHash: string) => {
     console.log('Swap successful:', txHash)
@@ -76,6 +77,20 @@ const ExternalDemoBody = ({ theme, setTheme }: ExternalDemoBodyProps) => {
   const handleSwapError = useCallback((error: Error) => {
     console.error('Swap failed:', error)
   }, [])
+
+  const widget = useMemo(
+    () => (
+      <SwapWidget
+        partnerCode={partnerCode || undefined}
+        theme={themeConfig}
+        onSwapSuccess={handleSwapSuccess}
+        onSwapError={handleSwapError}
+        showPoweredBy={true}
+        showConnectButton={false}
+      />
+    ),
+    [partnerCode, themeConfig, handleSwapSuccess, handleSwapError],
+  )
 
   return (
     <div className={`demo-app ${theme}`} style={demoStyle}>
@@ -141,15 +156,12 @@ const ExternalDemoBody = ({ theme, setTheme }: ExternalDemoBodyProps) => {
               <DemoCustomizer theme={theme} setTheme={setTheme} state={themeState} />
             )}
 
-            <div className='demo-widget-container'>
-              <SwapWidget
-                partnerCode={partnerCode || undefined}
-                theme={themeConfig}
-                onSwapSuccess={handleSwapSuccess}
-                onSwapError={handleSwapError}
-                showPoweredBy={true}
-                showConnectButton={false}
-              />
+            <div
+              className={`demo-widget-container${
+                displayMode === 'modal' ? ' demo-widget-container-modal' : ''
+              }`}
+            >
+              {displayMode === 'modal' ? <WidgetModal>{widget}</WidgetModal> : widget}
             </div>
           </div>
         </div>

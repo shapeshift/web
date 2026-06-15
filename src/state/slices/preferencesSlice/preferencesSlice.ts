@@ -126,6 +126,7 @@ export type FeatureFlags = {
   StonfiSwap: boolean
   AcrossSwap: boolean
   DebridgeSwap: boolean
+  BobGatewaySwap: boolean
   LazyTxHistory: boolean
   LedgerReadOnly: boolean
   QuickBuy: boolean
@@ -299,6 +300,7 @@ const initialState: Preferences = {
     StonfiSwap: getConfig().VITE_FEATURE_STONFI_SWAP,
     AcrossSwap: getConfig().VITE_FEATURE_ACROSS_SWAP,
     DebridgeSwap: getConfig().VITE_FEATURE_DEBRIDGE_SWAP,
+    BobGatewaySwap: getConfig().VITE_FEATURE_BOB_GATEWAY_SWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
     LedgerReadOnly: getConfig().VITE_FEATURE_LEDGER_READ_ONLY,
     QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,

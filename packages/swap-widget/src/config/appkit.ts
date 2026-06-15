@@ -6,15 +6,10 @@ import {
   bitcoin,
   bsc,
   gnosis,
-  hyperEvm,
-  katana,
   mainnet,
-  monad,
   optimism,
-  plasma,
   polygon,
   solana,
-  worldchain,
 } from '@reown/appkit/networks'
 import { createAppKit } from '@reown/appkit/react'
 import { BitcoinAdapter } from '@reown/appkit-adapter-bitcoin'
@@ -31,11 +26,6 @@ const EVM_NETWORKS: readonly AppKitNetwork[] = [
   avalanche,
   bsc,
   gnosis,
-  monad,
-  hyperEvm,
-  plasma,
-  worldchain,
-  katana,
 ]
 
 const ALL_NETWORKS: readonly AppKitNetwork[] = [...EVM_NETWORKS, bitcoin, solana]

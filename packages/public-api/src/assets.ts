@@ -4,6 +4,8 @@ import { getBaseAsset } from '@shapeshiftoss/utils'
 import fs from 'fs'
 import path from 'path'
 
+import { SUPPORTED_CHAIN_IDS_SET } from './constants'
+
 let assetsById: AssetsById = {}
 let assetIds: AssetId[] = []
 let assets: Asset[] = []
@@ -49,8 +51,10 @@ export const initAssets = (): Promise<void> => {
     }
 
     assetsById = enrichedAssetsById
-    assetIds = sortedAssetIds
-    assets = sortedAssetIds.map((id: AssetId) => enrichedAssetsById[id]).filter(Boolean) as Asset[]
+    assetIds = sortedAssetIds.filter(id =>
+      SUPPORTED_CHAIN_IDS_SET.has(enrichedAssetsById[id]?.chainId),
+    )
+    assets = assetIds.map((id: AssetId) => enrichedAssetsById[id]).filter(Boolean) as Asset[]
 
     console.log(`Loaded ${assetIds.length} assets from ${assetDataPath}`)
     initialized = true
@@ -61,7 +65,15 @@ export const initAssets = (): Promise<void> => {
   }
 }
 
+// Full asset map (all chains) for swapper deps only — e.g. NearIntents denominates
+// its affiliate fee in NEAR's fee asset (buildAffiliateFee silently returns undefined
+// if the asset is missing), so filtering this to supported chains would drop
+// affiliate fee metadata from NearIntents rates/quotes
 export const getAssetsById = (): AssetsById => assetsById
 export const getAssetIds = (): AssetId[] => assetIds
 export const getAllAssets = (): Asset[] => assets
-export const getAsset = (assetId: AssetId): Asset | undefined => assetsById[assetId]
+export const getAsset = (assetId: AssetId): Asset | undefined => {
+  const asset = assetsById[assetId]
+  if (!asset || !SUPPORTED_CHAIN_IDS_SET.has(asset.chainId)) return undefined
+  return asset
+}

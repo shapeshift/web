@@ -68,11 +68,14 @@ const DEFAULT_LIGHT: ThemeColors = { bg: '#f8f9fc', card: '#ffffff', accent: '#3
 
 const STORAGE_KEY = 'ssw-demo-config'
 
+export type DisplayMode = 'inline' | 'modal'
+
 type StoredConfig = {
   partnerCode?: string
   darkColors?: ThemeColors
   lightColors?: ThemeColors
   selectedPreset?: string | null
+  displayMode?: DisplayMode
 }
 
 const loadConfig = (): StoredConfig => {
@@ -90,17 +93,18 @@ export const useDemoTheme = (theme: 'light' | 'dark') => {
   const [darkColors, setDarkColors] = useState<ThemeColors>(stored.darkColors ?? DEFAULT_DARK)
   const [lightColors, setLightColors] = useState<ThemeColors>(stored.lightColors ?? DEFAULT_LIGHT)
   const [selectedPreset, setSelectedPreset] = useState<string | null>(stored.selectedPreset ?? null)
+  const [displayMode, setDisplayMode] = useState<DisplayMode>(stored.displayMode ?? 'inline')
 
   useEffect(() => {
     try {
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify({ partnerCode, darkColors, lightColors, selectedPreset }),
+        JSON.stringify({ partnerCode, darkColors, lightColors, selectedPreset, displayMode }),
       )
     } catch {
       // ignore write failures (e.g. storage unavailable)
     }
-  }, [partnerCode, darkColors, lightColors, selectedPreset])
+  }, [partnerCode, darkColors, lightColors, selectedPreset, displayMode])
 
   const currentColors = theme === 'dark' ? darkColors : lightColors
 
@@ -135,6 +139,8 @@ export const useDemoTheme = (theme: 'light' | 'dark') => {
     setLightColors,
     selectedPreset,
     setSelectedPreset,
+    displayMode,
+    setDisplayMode,
     themeConfig,
     demoStyle,
   }
@@ -158,6 +164,8 @@ export const DemoCustomizer = ({ theme, setTheme, state }: DemoCustomizerProps) 
     setLightColors,
     selectedPreset,
     setSelectedPreset,
+    displayMode,
+    setDisplayMode,
   } = state
 
   const currentColors = theme === 'dark' ? darkColors : lightColors
@@ -306,6 +314,48 @@ ${formatColors(lightColors, 'light')}
               <path d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z' />
             </svg>
             Dark
+          </button>
+        </div>
+      </div>
+
+      <div className='demo-customizer-section'>
+        <span className='demo-customizer-label'>Display</span>
+        <div className='demo-theme-toggle'>
+          <button
+            className={`demo-theme-btn ${displayMode === 'inline' ? 'active' : ''}`}
+            onClick={() => setDisplayMode('inline')}
+            type='button'
+          >
+            <svg
+              width='16'
+              height='16'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              strokeWidth='2'
+            >
+              <rect x='3' y='3' width='18' height='18' rx='2' />
+              <rect x='8' y='8' width='8' height='8' rx='1' />
+            </svg>
+            Inline
+          </button>
+          <button
+            className={`demo-theme-btn ${displayMode === 'modal' ? 'active' : ''}`}
+            onClick={() => setDisplayMode('modal')}
+            type='button'
+          >
+            <svg
+              width='16'
+              height='16'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              strokeWidth='2'
+            >
+              <rect x='3' y='3' width='18' height='18' rx='2' opacity='0.4' />
+              <rect x='7' y='9' width='10' height='8' rx='1' />
+            </svg>
+            Modal
           </button>
         </div>
       </div>

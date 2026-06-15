@@ -158,8 +158,6 @@ export enum TradeQuoteError {
   InsufficientFunds = 'InsufficientFunds',
   // the user's confirmed balance is insufficient — funds may exist but are still confirming on chain (e.g. unconfirmed UTXO deposits)
   InsufficientFundsUnconfirmed = 'InsufficientFundsUnconfirmed',
-  // the account has enough total balance, but no single address holds enough to fund the trade (utxo fragmentation)
-  FundsFragmented = 'FundsFragmented',
 }
 
 export type UtxoFeeData = {

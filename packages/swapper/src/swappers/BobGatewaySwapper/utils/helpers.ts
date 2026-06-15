@@ -6,18 +6,10 @@ import type {
 } from '@gobob/bob-sdk'
 import { GatewayErrorCode, GatewaySDK, isGatewayError } from '@gobob/bob-sdk'
 import type { AssetId } from '@shapeshiftoss/caip'
-import {
-  ASSET_NAMESPACE,
-  CHAIN_NAMESPACE,
-  ethChainId,
-  fromAssetId,
-  fromChainId,
-  toAssetId,
-} from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, ethChainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import type { BN } from '@shapeshiftoss/utils'
 import {
   bnOrZero,
   chainIdToFeeAssetId,
@@ -70,77 +62,6 @@ export const getBobGatewayAffiliates = (affiliateBps: string): GetQuoteParams['a
   return [{ address: getAddress(affiliateAddress), bps: bps.toNumber() }]
 }
 
-export const getBobGatewaySender = async ({
-  sellAsset,
-  sellAmount,
-  sendAddress,
-  xpub,
-  deps: { assertGetUtxoChainAdapter },
-}: {
-  sellAsset: Asset
-  sellAmount: string
-  sendAddress: string
-  xpub?: string
-  deps: SwapperDeps
-}): Promise<Result<string, SwapErrorRight>> => {
-  if (fromChainId(sellAsset.chainId).chainNamespace === CHAIN_NAMESPACE.Evm) {
-    return Ok(sendAddress)
-  }
-
-  if (!xpub) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[BobGateway] xpub is required for quote',
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
-
-  try {
-    const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
-    const utxos = await adapter.getUtxos({ pubkey: xpub })
-
-    const balanceByAddress = utxos.reduce<Record<string, BN>>((acc, utxo) => {
-      if (!utxo.address) return acc
-      acc[utxo.address] = bnOrZero(acc[utxo.address]).plus(utxo.value)
-      return acc
-    }, {})
-
-    // the richest address is the one best able to fund the send
-    const [sender, balance] = Object.entries(balanceByAddress).sort(
-      ([, a], [, b]) => b.comparedTo(a) ?? 0,
-    )[0] ?? [sendAddress, bnOrZero(0)]
-
-    // real coinselect fee for the send constrained to the sender address (the deposit address is
-    // not known pre-order, but the to address does not meaningfully affect the fee estimate)
-    const { fast } = await adapter.getFeeData({
-      to: sender,
-      value: sellAmount,
-      chainSpecific: { pubkey: xpub, from: sender },
-      sendMax: false,
-    })
-
-    if (balance.lt(bnOrZero(sellAmount).plus(fast.txFee))) {
-      return Err(
-        makeSwapErrorRight({
-          message: '[BobGateway] no single address holds enough funds to cover the trade',
-          code: TradeQuoteError.FundsFragmented,
-        }),
-      )
-    }
-
-    return Ok(sender)
-  } catch (err) {
-    return Err(
-      makeSwapErrorRight({
-        message: '[BobGateway] failed to select sender address',
-        code: TradeQuoteError.QueryFailed,
-        cause: err,
-      }),
-    )
-  }
-}
-
 export const getBobGatewayQuote = async ({
   config,
   sellAsset,
@@ -158,7 +79,7 @@ export const getBobGatewayQuote = async ({
   buyAsset: Asset
   sellChainName: BobGatewayChainName
   buyChainName: BobGatewayChainName
-  sender: string
+  sender: string | undefined
   recipient: string
   amount: string
   affiliateBps: string
@@ -235,7 +156,6 @@ export const getBobGatewayQuote = async ({
 export const createBobGatewayOrderMetadata = async (
   config: SwapperConfig,
   gatewayQuote: GatewayQuoteV2,
-  sender: string,
 ): Promise<Result<BobGatewayMetadata, SwapErrorRight>> => {
   try {
     const orderResponse = await getBobGatewayClient(config).api.createOrderV2({
@@ -249,7 +169,6 @@ export const createBobGatewayOrderMetadata = async (
         utxoTx: {
           depositAddress: orderResponse.onramp.address,
           opReturnData: orderResponse.onramp.opReturnData ?? undefined,
-          sender,
         },
       })
     }
@@ -326,12 +245,12 @@ export const getBobGatewayQuoteFeeData = async (
 
   try {
     if (orderMetadata.utxoTx && 'xpub' in input) {
-      const { depositAddress, opReturnData, sender } = orderMetadata.utxoTx
+      const { depositAddress, opReturnData } = orderMetadata.utxoTx
 
       const { fast } = await assertGetUtxoChainAdapter(sellAsset.chainId).getFeeData({
         to: depositAddress,
         value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        chainSpecific: { pubkey: input.xpub, opReturnData, from: sender },
+        chainSpecific: { pubkey: input.xpub, opReturnData },
         sendMax: false,
       })
 

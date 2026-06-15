@@ -8,7 +8,6 @@ type BobGatewayEvmTxMetadata = {
 type BobGatewayUtxoTxMetadata = {
   depositAddress: string
   opReturnData?: string
-  sender: string
 }
 
 export type BobGatewayMetadata = { orderId: string } & (

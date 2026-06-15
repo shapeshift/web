@@ -1,3 +1,4 @@
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -5,7 +6,6 @@ import { v4 as uuid } from 'uuid'
 import type {
   CommonTradeQuoteInput,
   GetTradeQuoteInput,
-  GetUtxoTradeQuoteInput,
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
@@ -18,7 +18,6 @@ import {
   getBobGatewayAllowanceContract,
   getBobGatewayQuote,
   getBobGatewayQuoteFeeData,
-  getBobGatewaySender,
   parseBobGatewayQuote,
 } from '../utils/helpers'
 
@@ -62,16 +61,9 @@ export const getBobGatewayTradeQuote = async (
 
   const { sellChainName, buyChainName } = assertion.unwrap()
 
-  const maybeSender = await getBobGatewaySender({
-    sellAsset,
-    sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    sendAddress,
-    xpub: (input as GetUtxoTradeQuoteInput).xpub,
-    deps,
-  })
-
-  if (maybeSender.isErr()) return Err(maybeSender.unwrapErr())
-  const sender = maybeSender.unwrap()
+  // omit the sender for utxo sells so order creation does not enforce a per-address confirmed
+  // funds check (deposits are matched via op_return, not the sending address)
+  const sender = isEvmChainId(sellAsset.chainId) ? sendAddress : undefined
 
   const maybeQuote = await getBobGatewayQuote({
     config,
@@ -89,7 +81,7 @@ export const getBobGatewayTradeQuote = async (
   if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
   const quote = maybeQuote.unwrap()
 
-  const maybeOrderMetadata = await createBobGatewayOrderMetadata(config, quote, sender)
+  const maybeOrderMetadata = await createBobGatewayOrderMetadata(config, quote)
   if (maybeOrderMetadata.isErr()) return Err(maybeOrderMetadata.unwrapErr())
 
   const orderMetadata = maybeOrderMetadata.unwrap()

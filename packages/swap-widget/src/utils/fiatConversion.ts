@@ -1,5 +1,6 @@
 import { BigAmount, bn } from '@shapeshiftoss/utils'
 
+import type { SwapMachineEvent } from '../machines/types'
 import { parseAmount } from '../types'
 
 // Convert a human-readable fiat (USD) amount into the equivalent crypto amount,
@@ -31,4 +32,32 @@ export const cryptoToFiatInput = (
   }
   const cryptoAmount = BigAmount.fromBaseUnit({ value: amountBaseUnit, precision }).toPrecision()
   return bn(cryptoAmount).times(priceBn).toFixed(2)
+}
+
+// Pure decision for useSellFiatSync: given the current fiat state and the (async) price,
+// returns the machine event to dispatch, or null when nothing needs to change.
+export const computeSellFiatSyncAction = (params: {
+  isSellAmountFiat: boolean
+  sellAmountFiat: string
+  sellAmountBaseUnit: string | undefined
+  sellAssetUsdPrice: string | undefined
+  sellPrecision: number
+}): SwapMachineEvent | null => {
+  const { isSellAmountFiat, sellAmountFiat, sellAmountBaseUnit, sellAssetUsdPrice, sellPrecision } =
+    params
+  if (!isSellAmountFiat) return null
+  // Switched to a price-less asset while in fiat mode: fall back to crypto mode.
+  if (!sellAssetUsdPrice) {
+    return {
+      type: 'SET_SELL_FIAT_MODE',
+      isFiat: false,
+      fiatValue: '',
+      amount: '',
+      amountBaseUnit: undefined,
+    }
+  }
+  if (!sellAmountFiat) return null
+  const { amount, amountBaseUnit } = fiatToCrypto(sellAmountFiat, sellAssetUsdPrice, sellPrecision)
+  if (amountBaseUnit === sellAmountBaseUnit) return null // idempotent
+  return { type: 'SET_SELL_AMOUNT', amount, amountBaseUnit }
 }

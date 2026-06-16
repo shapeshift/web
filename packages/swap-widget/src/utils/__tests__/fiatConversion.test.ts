@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { cryptoToFiatInput, fiatToCrypto } from '../fiatConversion'
+import { computeSellFiatSyncAction, cryptoToFiatInput, fiatToCrypto } from '../fiatConversion'
 
 describe('fiatToCrypto', () => {
   it('converts fiat to crypto amount and base unit (18 decimals)', () => {
@@ -46,5 +46,47 @@ describe('cryptoToFiatInput', () => {
     expect(cryptoToFiatInput(undefined, '3200', 18)).toBe('')
     expect(cryptoToFiatInput('0', '3200', 18)).toBe('')
     expect(cryptoToFiatInput('31250000000000000', '0', 18)).toBe('')
+  })
+})
+
+describe('computeSellFiatSyncAction', () => {
+  const base = {
+    isSellAmountFiat: true,
+    sellAmountFiat: '100',
+    sellAmountBaseUnit: undefined as string | undefined,
+    sellAssetUsdPrice: '3200' as string | undefined,
+    sellPrecision: 18,
+  }
+
+  it('returns null when not in fiat mode', () => {
+    expect(computeSellFiatSyncAction({ ...base, isSellAmountFiat: false })).toBeNull()
+  })
+
+  it('falls back to crypto mode when price is missing in fiat mode', () => {
+    expect(computeSellFiatSyncAction({ ...base, sellAssetUsdPrice: undefined })).toEqual({
+      type: 'SET_SELL_FIAT_MODE',
+      isFiat: false,
+      fiatValue: '',
+      amount: '',
+      amountBaseUnit: undefined,
+    })
+  })
+
+  it('returns null when there is no fiat amount entered', () => {
+    expect(computeSellFiatSyncAction({ ...base, sellAmountFiat: '' })).toBeNull()
+  })
+
+  it('emits a recomputed SET_SELL_AMOUNT when crypto differs from stored', () => {
+    expect(computeSellFiatSyncAction(base)).toEqual({
+      type: 'SET_SELL_AMOUNT',
+      amount: '0.031250000000000000',
+      amountBaseUnit: '31250000000000000',
+    })
+  })
+
+  it('returns null (idempotent) when recomputed crypto already matches stored', () => {
+    expect(
+      computeSellFiatSyncAction({ ...base, sellAmountBaseUnit: '31250000000000000' }),
+    ).toBeNull()
   })
 })

@@ -9,7 +9,13 @@ import { erc20Abi } from 'viem'
 import { useConfig } from 'wagmi'
 
 import type { AssetId } from '../types'
-import { formatAmount, getChainType, UTXO_CHAIN_IDS } from '../types'
+import {
+  formatAmount,
+  isWidgetNativeEvmChainId,
+  isWidgetNativeSolanaChainId,
+  isWidgetNativeUtxoChainId,
+  UTXO_CHAIN_IDS,
+} from '../types'
 
 const CONCURRENCY_LIMIT = 5
 const DELAY_BETWEEN_BATCHES_MS = 50
@@ -58,7 +64,17 @@ const SOLANA_PUBLIC_RPC = 'https://api.mainnet-beta.solana.com'
 const parseAssetIdMultiChain = (assetId: AssetId): ParsedAsset => {
   try {
     const { chainNamespace, chainReference, assetNamespace, assetReference } = fromAssetId(assetId)
-    const chainType = getChainType(assetId.split('/')[0] as string)
+    // Capability-gated: only resolve balances for chains the widget natively supports. Chains
+    // that are display/redirect-only (e.g. Zcash) must not fall through to a native balance
+    // path — otherwise a bip122 chain would wrongly hit the Bitcoin-only mempool endpoint.
+    const chainId = assetId.split('/')[0] as string
+    const chainType = isWidgetNativeEvmChainId(chainId)
+      ? 'evm'
+      : isWidgetNativeUtxoChainId(chainId)
+        ? 'utxo'
+        : isWidgetNativeSolanaChainId(chainId)
+          ? 'solana'
+          : 'other'
 
     if (chainType === 'evm' && chainNamespace === CHAIN_NAMESPACE.Evm) {
       const evmChainId = Number(chainReference)

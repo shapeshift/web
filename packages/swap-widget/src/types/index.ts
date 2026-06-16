@@ -12,12 +12,23 @@ import {
   ethChainId,
   fromChainId,
   gnosisChainId,
+  hyperEvmChainId,
+  katanaChainId,
   ltcChainId,
   mayachainChainId,
+  megaethChainId,
+  monadChainId,
+  nearChainId,
   optimismChainId,
+  plasmaChainId,
   polygonChainId,
   solanaChainId,
+  starknetChainId,
+  suiChainId,
   thorchainChainId,
+  tonChainId,
+  tronChainId,
+  zecChainId,
 } from '@shapeshiftoss/caip'
 import type { TransactionData } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
@@ -229,6 +240,11 @@ export const EVM_CHAIN_IDS = {
   avalanche: avalancheChainId,
   bsc: bscChainId,
   gnosis: gnosisChainId,
+  monad: monadChainId,
+  megaEth: megaethChainId,
+  hyperEvm: hyperEvmChainId,
+  plasma: plasmaChainId,
+  katana: katanaChainId,
 } as const
 
 export const UTXO_CHAIN_IDS = {
@@ -246,6 +262,18 @@ export const COSMOS_CHAIN_IDS = {
 
 export const OTHER_CHAIN_IDS = {
   solana: solanaChainId,
+} as const
+
+// Chains the web app / public API support in production but the widget cannot execute
+// natively (no wallet adapter). These are displayed and routed to the ShapeShift app via
+// allowShapeshiftRedirect. Cosmos SDK chains (COSMOS_CHAIN_IDS) are likewise redirect-only.
+export const REDIRECT_ONLY_CHAIN_IDS = {
+  zcash: zecChainId,
+  tron: tronChainId,
+  sui: suiChainId,
+  ton: tonChainId,
+  near: nearChainId,
+  starknet: starknetChainId,
 } as const
 
 export const isEvmChainId = (chainId: string): boolean => {
@@ -273,6 +301,43 @@ export const getChainType = (chainId: string): 'evm' | 'utxo' | 'cosmos' | 'sola
       return 'other'
   }
 }
+
+// Capability gating: which chains the widget can execute natively, based on its actual
+// wallet adapters (configured EVM chains via wagmi, Bitcoin, Solana) rather than chain
+// namespace. Anything not natively supported is displayed (sourced from the web app asset
+// CDN) and routed to the ShapeShift app via allowShapeshiftRedirect instead. This is why
+// e.g. Zcash (bip122) or an unconfigured EVM chain are treated as non-native here.
+const NATIVE_EVM_CHAIN_ID_SET: ReadonlySet<string> = new Set(Object.values(EVM_CHAIN_IDS))
+const NATIVE_UTXO_CHAIN_ID_SET: ReadonlySet<string> = new Set(Object.values(UTXO_CHAIN_IDS))
+
+export const isWidgetNativeEvmChainId = (chainId: string): boolean =>
+  NATIVE_EVM_CHAIN_ID_SET.has(chainId)
+
+export const isWidgetNativeUtxoChainId = (chainId: string): boolean =>
+  NATIVE_UTXO_CHAIN_ID_SET.has(chainId)
+
+export const isWidgetNativeSolanaChainId = (chainId: string): boolean =>
+  chainId === OTHER_CHAIN_IDS.solana
+
+export const isWidgetNativeChainId = (chainId: string): boolean =>
+  isWidgetNativeEvmChainId(chainId) ||
+  isWidgetNativeUtxoChainId(chainId) ||
+  isWidgetNativeSolanaChainId(chainId)
+
+// Full production allowlist the widget will display, composed from the chain groups above:
+// natively-executable chains plus redirect-only chains. The asset CDN contains every chain
+// regardless of production status, so display is gated on this set. Keep in sync with the
+// public API's SUPPORTED_CHAIN_IDS (packages/public-api/src/constants.ts).
+const SUPPORTED_CHAIN_ID_SET: ReadonlySet<string> = new Set([
+  ...Object.values(EVM_CHAIN_IDS),
+  ...Object.values(UTXO_CHAIN_IDS),
+  ...Object.values(COSMOS_CHAIN_IDS),
+  ...Object.values(OTHER_CHAIN_IDS),
+  ...Object.values(REDIRECT_ONLY_CHAIN_IDS),
+])
+
+export const isWidgetSupportedChainId = (chainId: string): boolean =>
+  SUPPORTED_CHAIN_ID_SET.has(chainId)
 
 export const formatAmount = (amount: string, decimals: number, maxDecimals?: number): string => {
   const effectiveMaxDecimals = maxDecimals ?? Math.min(decimals, 8)

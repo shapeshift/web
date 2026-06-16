@@ -1,5 +1,29 @@
 import type { Chain, WalletClient } from 'viem'
-import { arbitrum, avalanche, base, bsc, gnosis, mainnet, optimism, polygon } from 'viem/chains'
+import { defineChain } from 'viem'
+import {
+  arbitrum,
+  avalanche,
+  base,
+  bsc,
+  gnosis,
+  hyperEvm,
+  katana,
+  mainnet,
+  monad,
+  optimism,
+  plasma,
+  polygon,
+} from 'viem/chains'
+
+const megaeth = defineChain({
+  id: 4326,
+  name: 'MegaETH',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { default: { http: ['https://mainnet.megaeth.com/rpc'] } },
+  blockExplorers: {
+    default: { name: 'MegaETH Explorer', url: 'https://megaeth.blockscout.com' },
+  },
+})
 
 export const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
   [mainnet.id]: {
@@ -34,6 +58,11 @@ export const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
     ...avalanche,
     rpcUrls: { default: { http: ['https://api.avalanche.shapeshift.com/api/v1/jsonrpc'] } },
   },
+  [monad.id]: { ...monad, rpcUrls: { default: { http: ['https://rpc.monad.xyz'] } } },
+  [megaeth.id]: megaeth,
+  [hyperEvm.id]: { ...hyperEvm, rpcUrls: { default: { http: ['https://rpc.hyperliquid.xyz/evm'] } } },
+  [plasma.id]: { ...plasma, rpcUrls: { default: { http: ['https://rpc.plasma.to'] } } },
+  [katana.id]: { ...katana, rpcUrls: { default: { http: ['https://rpc.katana.network'] } } },
 }
 
 export const addChainToWallet = async (client: WalletClient, chain: Chain): Promise<void> => {

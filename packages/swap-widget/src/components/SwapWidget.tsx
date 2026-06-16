@@ -215,6 +215,7 @@ const SwapWidgetContent = ({
         }
         allowedChainIds={(tokenModalType === 'buy' ? buyFilters : sellFilters).allowedChainIds}
         allowedAssetIds={(tokenModalType === 'buy' ? buyFilters : sellFilters).allowedAssetIds}
+        allowShapeshiftRedirect={allowShapeshiftRedirect}
       />
 
       <SettingsModal

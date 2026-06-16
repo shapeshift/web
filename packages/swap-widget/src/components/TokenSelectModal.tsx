@@ -13,6 +13,7 @@ import { useAllMarketData } from '../hooks/useMarketData'
 import { useSolanaSigning } from '../hooks/useSolanaSigning'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { Asset, AssetId, ChainId } from '../types'
+import { isWidgetNativeChainId, isWidgetSupportedChainId } from '../types'
 
 const VISIBLE_BUFFER = 10
 
@@ -35,6 +36,7 @@ type TokenSelectModalProps = {
   disabledChainIds?: ChainId[]
   allowedChainIds?: ChainId[]
   allowedAssetIds?: AssetId[]
+  allowShapeshiftRedirect: boolean
 }
 
 const isNativeAsset = (assetId: string): boolean => {
@@ -69,6 +71,7 @@ export const TokenSelectModal = ({
   disabledChainIds = [],
   allowedChainIds,
   allowedAssetIds,
+  allowShapeshiftRedirect,
 }: TokenSelectModalProps) => {
   useLockBodyScroll(isOpen)
   const [searchQuery, setSearchQuery] = useState('')
@@ -111,7 +114,16 @@ export const TokenSelectModal = ({
   }, [allowedAssetIds, allAssets])
 
   const filteredChains = useMemo(() => {
-    let enabledChains = chains.filter(chain => !disabledChainIds.includes(chain.chainId))
+    // Gate display on the production allowlist — the asset CDN contains every chain regardless
+    // of production status, so restrict to what the web app / public API actually support
+    let enabledChains = chains.filter(
+      chain => isWidgetSupportedChainId(chain.chainId) && !disabledChainIds.includes(chain.chainId),
+    )
+
+    // Without redirect there's nothing to do with non-natively-supported chains, so hide them
+    if (!allowShapeshiftRedirect) {
+      enabledChains = enabledChains.filter(chain => isWidgetNativeChainId(chain.chainId))
+    }
 
     if (allowedChainIds && allowedChainIds.length > 0) {
       enabledChains = enabledChains.filter(chain => allowedChainIds.includes(chain.chainId))
@@ -125,13 +137,29 @@ export const TokenSelectModal = ({
 
     const lowerQuery = chainSearchQuery.toLowerCase()
     return enabledChains.filter(chain => chain.name.toLowerCase().includes(lowerQuery))
-  }, [chains, chainSearchQuery, disabledChainIds, allowedChainIds, allowedAssetChainIds])
+  }, [
+    chains,
+    chainSearchQuery,
+    disabledChainIds,
+    allowedChainIds,
+    allowedAssetChainIds,
+    allowShapeshiftRedirect,
+  ])
 
   const filteredAssets = useMemo(() => {
+    // Gate display on the production allowlist — the asset CDN contains every chain regardless
+    // of production status, so restrict to what the web app / public API actually support
     let assets = allAssets.filter(
       asset =>
-        !disabledAssetIds.includes(asset.assetId) && !disabledChainIds.includes(asset.chainId),
+        isWidgetSupportedChainId(asset.chainId) &&
+        !disabledAssetIds.includes(asset.assetId) &&
+        !disabledChainIds.includes(asset.chainId),
     )
+
+    // Without redirect there's nothing to do with non-natively-supported chains, so hide them
+    if (!allowShapeshiftRedirect) {
+      assets = assets.filter(asset => isWidgetNativeChainId(asset.chainId))
+    }
 
     if (allowedAssetIds && allowedAssetIds.length > 0) {
       assets = assets.filter(asset => allowedAssetIds.includes(asset.assetId))
@@ -173,6 +201,7 @@ export const TokenSelectModal = ({
     disabledChainIds,
     allowedAssetIds,
     allowedChainIds,
+    allowShapeshiftRedirect,
   ])
 
   const initialAssetPrecisions = useMemo(() => {

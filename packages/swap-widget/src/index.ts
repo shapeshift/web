@@ -25,6 +25,9 @@ export {
   UTXO_CHAIN_IDS,
   COSMOS_CHAIN_IDS,
   OTHER_CHAIN_IDS,
+  REDIRECT_ONLY_CHAIN_IDS,
+  isWidgetNativeChainId,
+  isWidgetSupportedChainId,
 } from './types'
 
 export {

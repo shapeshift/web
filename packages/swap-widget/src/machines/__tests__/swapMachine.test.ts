@@ -542,4 +542,50 @@ describe('swapMachine', () => {
       actor.stop()
     })
   })
+
+  describe('fiat sell mode', () => {
+    it('initial context defaults to crypto mode', () => {
+      const ctx = createInitialContext()
+      expect(ctx.isSellAmountFiat).toBe(false)
+      expect(ctx.sellAmountFiat).toBe('')
+    })
+
+    it('SET_SELL_FIAT_MODE stores fiat string and crypto values together', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({
+        type: 'SET_SELL_FIAT_MODE',
+        isFiat: true,
+        fiatValue: '100',
+        amount: '0.03125',
+        amountBaseUnit: '31250000000000000',
+      })
+      const { context } = actor.getSnapshot()
+      expect(context.isSellAmountFiat).toBe(true)
+      expect(context.sellAmountFiat).toBe('100')
+      expect(context.sellAmount).toBe('0.03125')
+      expect(context.sellAmountBaseUnit).toBe('31250000000000000')
+      actor.stop()
+    })
+
+    it('clears stale crypto on sell asset change while in fiat mode, keeping the fiat string', () => {
+      const actor = createActor(swapMachine)
+      actor.start()
+      actor.send({
+        type: 'SET_SELL_FIAT_MODE',
+        isFiat: true,
+        fiatValue: '100',
+        amount: '0.03125',
+        amountBaseUnit: '31250000000000000',
+      })
+      actor.send({ type: 'SET_SELL_ASSET', asset: TEST_BTC })
+      const { context } = actor.getSnapshot()
+      expect(context.sellAsset.symbol).toBe('BTC')
+      expect(context.isSellAmountFiat).toBe(true)
+      expect(context.sellAmountFiat).toBe('100')
+      expect(context.sellAmount).toBe('')
+      expect(context.sellAmountBaseUnit).toBeUndefined()
+      actor.stop()
+    })
+  })
 })

@@ -7,6 +7,8 @@ export type SwapMachineContext = {
   buyAsset: Asset
   sellAmount: string
   sellAmountBaseUnit: string | undefined
+  isSellAmountFiat: boolean
+  sellAmountFiat: string
   selectedRate: TradeRate | null
   quote: QuoteResponse | null
   txHash: string | null
@@ -28,6 +30,13 @@ export type SwapMachineEvent =
   | { type: 'SET_SELL_ASSET'; asset: Asset }
   | { type: 'SET_BUY_ASSET'; asset: Asset }
   | { type: 'SET_SELL_AMOUNT'; amount: string; amountBaseUnit: string | undefined }
+  | {
+      type: 'SET_SELL_FIAT_MODE'
+      isFiat: boolean
+      fiatValue: string
+      amount: string
+      amountBaseUnit: string | undefined
+    }
   | { type: 'SET_SLIPPAGE'; slippage: string }
   | { type: 'SELECT_RATE'; rate: TradeRate }
   | { type: 'FETCH_QUOTE' }

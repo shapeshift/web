@@ -21,6 +21,8 @@ export const createInitialContext = (input?: {
     buyAsset,
     sellAmount: '',
     sellAmountBaseUnit: undefined,
+    isSellAmountFiat: false,
+    sellAmountFiat: '',
     selectedRate: null,
     quote: null,
     txHash: null,
@@ -67,11 +69,20 @@ export const swapMachine = setup({
     assignSellAsset: assign(({ context, event }) => {
       const { asset } = event as { type: 'SET_SELL_ASSET'; asset: Asset }
       const chainType = getChainType(asset.chainId)
+      // In fiat mode the durable fiat amount (sellAmountFiat) is asset-independent; the
+      // crypto equivalent is recomputed by useSellFiatSync once the new asset's price loads.
+      // Clear the stale crypto so a wrong amount can't be quoted in the gap.
+      const cryptoFields = context.isSellAmountFiat
+        ? { sellAmount: '', sellAmountBaseUnit: undefined }
+        : {
+            sellAmount: context.sellAmount,
+            sellAmountBaseUnit: context.sellAmount
+              ? parseAmount(context.sellAmount, asset.precision)
+              : undefined,
+          }
       return {
         sellAsset: asset,
-        sellAmountBaseUnit: context.sellAmount
-          ? parseAmount(context.sellAmount, asset.precision)
-          : undefined,
+        ...cryptoFields,
         chainType,
         isSellAssetEvm: chainType === 'evm',
         isSellAssetUtxo: chainType === 'utxo',
@@ -97,6 +108,21 @@ export const swapMachine = setup({
         amountBaseUnit: string | undefined
       }
       return {
+        sellAmount: amount,
+        sellAmountBaseUnit: amountBaseUnit,
+      }
+    }),
+    assignSellFiatMode: assign(({ event }) => {
+      const { isFiat, fiatValue, amount, amountBaseUnit } = event as {
+        type: 'SET_SELL_FIAT_MODE'
+        isFiat: boolean
+        fiatValue: string
+        amount: string
+        amountBaseUnit: string | undefined
+      }
+      return {
+        isSellAmountFiat: isFiat,
+        sellAmountFiat: fiatValue,
         sellAmount: amount,
         sellAmountBaseUnit: amountBaseUnit,
       }
@@ -184,6 +210,7 @@ export const swapMachine = setup({
         SET_SELL_ASSET: { actions: 'assignSellAsset' },
         SET_BUY_ASSET: { actions: 'assignBuyAsset' },
         SET_SELL_AMOUNT: { actions: 'assignSellAmount' },
+        SET_SELL_FIAT_MODE: { actions: 'assignSellFiatMode' },
         SET_SLIPPAGE: { actions: 'assignSlippage' },
         SELECT_RATE: { actions: 'assignSelectedRate' },
         SET_SEND_ADDRESS: { actions: 'assignSendAddress' },

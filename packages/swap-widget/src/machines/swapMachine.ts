@@ -2,7 +2,13 @@ import { assign, setup } from 'xstate'
 
 import { DEFAULT_BUY_ASSET, DEFAULT_SELL_ASSET } from '../constants/defaults'
 import type { Asset, QuoteResponse, TradeRate } from '../types'
-import { getChainType, parseAmount } from '../types'
+import {
+  getChainType,
+  isWidgetExecutableEvmChainId,
+  isWidgetExecutableSolanaChainId,
+  isWidgetExecutableUtxoChainId,
+  parseAmount,
+} from '../types'
 import * as guardFns from './guards'
 import type { SwapMachineContext, SwapMachineEvent } from './types'
 
@@ -32,9 +38,9 @@ export const createInitialContext = (input?: {
     slippage: input?.slippage ?? '0.5',
     sendAddress: undefined,
     receiveAddress: undefined,
-    isSellAssetEvm: sellChainType === 'evm',
-    isSellAssetUtxo: sellChainType === 'utxo',
-    isSellAssetSolana: sellChainType === 'solana',
+    isSellAssetEvm: isWidgetExecutableEvmChainId(sellAsset.chainId),
+    isSellAssetUtxo: isWidgetExecutableUtxoChainId(sellAsset.chainId),
+    isSellAssetSolana: isWidgetExecutableSolanaChainId(sellAsset.chainId),
     isBuyAssetEvm: buyChainType === 'evm',
   }
 }
@@ -73,9 +79,9 @@ export const swapMachine = setup({
           ? parseAmount(context.sellAmount, asset.precision)
           : undefined,
         chainType,
-        isSellAssetEvm: chainType === 'evm',
-        isSellAssetUtxo: chainType === 'utxo',
-        isSellAssetSolana: chainType === 'solana',
+        isSellAssetEvm: isWidgetExecutableEvmChainId(asset.chainId),
+        isSellAssetUtxo: isWidgetExecutableUtxoChainId(asset.chainId),
+        isSellAssetSolana: isWidgetExecutableSolanaChainId(asset.chainId),
         selectedRate: null,
         quote: null,
       }

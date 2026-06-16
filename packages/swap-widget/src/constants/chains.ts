@@ -49,6 +49,14 @@ const BASE_ASSETS_BY_CHAIN_ID: Record<ChainId, Asset> = {
   [solana.chainId]: solana,
 }
 
+export const SUPPORTED_CHAIN_IDS_SET: ReadonlySet<ChainId> = new Set(
+  Object.keys(BASE_ASSETS_BY_CHAIN_ID),
+)
+
+export const isSupportedChainId = (chainId: ChainId): boolean => {
+  return SUPPORTED_CHAIN_IDS_SET.has(chainId)
+}
+
 export const getBaseAsset = (chainId: ChainId): Asset | undefined => {
   return BASE_ASSETS_BY_CHAIN_ID[chainId]
 }

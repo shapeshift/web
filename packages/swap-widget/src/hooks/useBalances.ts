@@ -11,9 +11,9 @@ import { useConfig } from 'wagmi'
 import type { AssetId } from '../types'
 import {
   formatAmount,
-  isWidgetNativeEvmChainId,
-  isWidgetNativeSolanaChainId,
-  isWidgetNativeUtxoChainId,
+  isWidgetExecutableEvmChainId,
+  isWidgetExecutableSolanaChainId,
+  isWidgetExecutableUtxoChainId,
   UTXO_CHAIN_IDS,
 } from '../types'
 
@@ -64,17 +64,14 @@ const SOLANA_PUBLIC_RPC = 'https://api.mainnet-beta.solana.com'
 const parseAssetIdMultiChain = (assetId: AssetId): ParsedAsset => {
   try {
     const { chainNamespace, chainReference, assetNamespace, assetReference } = fromAssetId(assetId)
-    // Capability-gated: only resolve balances for chains the widget natively supports. Chains
-    // that are display/redirect-only (e.g. Zcash) must not fall through to a native balance
-    // path — otherwise a bip122 chain would wrongly hit the Bitcoin-only mempool endpoint.
     const chainId = assetId.split('/')[0] as string
-    const chainType = isWidgetNativeEvmChainId(chainId)
+    const chainType = isWidgetExecutableEvmChainId(chainId)
       ? 'evm'
-      : isWidgetNativeUtxoChainId(chainId)
-        ? 'utxo'
-        : isWidgetNativeSolanaChainId(chainId)
-          ? 'solana'
-          : 'other'
+      : isWidgetExecutableUtxoChainId(chainId)
+      ? 'utxo'
+      : isWidgetExecutableSolanaChainId(chainId)
+      ? 'solana'
+      : undefined
 
     if (chainType === 'evm' && chainNamespace === CHAIN_NAMESPACE.Evm) {
       const evmChainId = Number(chainReference)

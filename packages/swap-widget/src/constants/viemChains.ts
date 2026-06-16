@@ -60,7 +60,10 @@ export const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
   },
   [monad.id]: { ...monad, rpcUrls: { default: { http: ['https://rpc.monad.xyz'] } } },
   [megaeth.id]: megaeth,
-  [hyperEvm.id]: { ...hyperEvm, rpcUrls: { default: { http: ['https://rpc.hyperliquid.xyz/evm'] } } },
+  [hyperEvm.id]: {
+    ...hyperEvm,
+    rpcUrls: { default: { http: ['https://rpc.hyperliquid.xyz/evm'] } },
+  },
   [plasma.id]: { ...plasma, rpcUrls: { default: { http: ['https://rpc.plasma.to'] } } },
   [katana.id]: { ...katana, rpcUrls: { default: { http: ['https://rpc.katana.network'] } } },
 }

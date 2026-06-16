@@ -26,7 +26,7 @@ export {
   COSMOS_CHAIN_IDS,
   OTHER_CHAIN_IDS,
   REDIRECT_ONLY_CHAIN_IDS,
-  isWidgetNativeChainId,
+  isWidgetExecutableChainId,
   isWidgetSupportedChainId,
 } from './types'
 

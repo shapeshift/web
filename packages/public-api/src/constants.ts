@@ -9,19 +9,35 @@ export const SUPPORTED_CHAIN_IDS: readonly KnownChainIds[] = [
   KnownChainIds.BnbSmartChainMainnet,
   KnownChainIds.EthereumMainnet,
   KnownChainIds.GnosisMainnet,
+  KnownChainIds.HyperEvmMainnet,
+  KnownChainIds.KatanaMainnet,
+  KnownChainIds.MegaEthMainnet,
+  KnownChainIds.MonadMainnet,
   KnownChainIds.OptimismMainnet,
+  KnownChainIds.PlasmaMainnet,
   KnownChainIds.PolygonMainnet,
   // UTXO
   KnownChainIds.BitcoinCashMainnet,
   KnownChainIds.BitcoinMainnet,
   KnownChainIds.DogecoinMainnet,
   KnownChainIds.LitecoinMainnet,
+  KnownChainIds.ZcashMainnet,
   // Cosmos SDK
   KnownChainIds.CosmosMainnet,
   KnownChainIds.MayachainMainnet,
   KnownChainIds.ThorchainMainnet,
   // Solana
   KnownChainIds.SolanaMainnet,
+  // Tron
+  KnownChainIds.TronMainnet,
+  // Sui
+  KnownChainIds.SuiMainnet,
+  // TON
+  KnownChainIds.TonMainnet,
+  // NEAR
+  KnownChainIds.NearMainnet,
+  // Starknet
+  KnownChainIds.StarknetMainnet,
 ]
 
 export const SUPPORTED_CHAIN_IDS_SET: ReadonlySet<string> = new Set(SUPPORTED_CHAIN_IDS)

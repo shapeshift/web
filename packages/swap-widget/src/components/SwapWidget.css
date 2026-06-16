@@ -285,6 +285,29 @@
   color: var(--ssw-text-muted);
 }
 
+.ssw-usd-value-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ssw-text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ssw-usd-value-toggle:hover {
+  color: var(--ssw-text-secondary);
+}
+
+.ssw-fiat-prefix {
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--ssw-text-primary);
+}
+
 .ssw-swap-divider {
   display: flex;
   justify-content: center;

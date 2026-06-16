@@ -9,6 +9,7 @@ import type { SwapWalletContextValue } from '../contexts/SwapWalletContext'
 import { SwapWalletProvider } from '../contexts/SwapWalletContext'
 import { useBitcoinSigning } from '../hooks/useBitcoinSigning'
 import { useEvmSigning } from '../hooks/useEvmSigning'
+import { useSellFiatSync } from '../hooks/useSellFiatSync'
 import { useSolanaSigning } from '../hooks/useSolanaSigning'
 import { useStatusPolling } from '../hooks/useStatusPolling'
 import { useSwapApproval } from '../hooks/useSwapApproval'
@@ -73,6 +74,7 @@ const SwapWidgetContent = ({
     handleSellAssetSelect,
     handleBuyAssetSelect,
     handleSellAmountChange,
+    handleToggleSellFiat,
     handleSelectRate,
     handleSlippageChange,
     handleButtonClick,
@@ -82,6 +84,7 @@ const SwapWidgetContent = ({
   useSwapApproval()
   useSwapExecution()
   useStatusPolling({ apiClient, onSwapSuccess, onSwapError, refetchSellBalance, refetchBuyBalance })
+  useSellFiatSync(displayValues.sellAssetUsdPrice)
 
   const widgetStyle = useMemo(() => {
     if (!themeConfig) return undefined
@@ -169,6 +172,7 @@ const SwapWidgetContent = ({
             displayValues={displayValues}
             onOpenTokenModal={setTokenModalType}
             onSellAmountChange={handleSellAmountChange}
+            onToggleSellFiat={handleToggleSellFiat}
             onSwapTokens={handleSwapTokens}
             onSelectRate={handleSelectRate}
             onButtonClick={handleButtonClick}

@@ -83,7 +83,6 @@ export const useSwapHandlers = ({
       const snap = actorRef.getSnapshot()
       const { sellAmount, sellAmountBaseUnit, sellAsset, isSellAmountFiat } = snap.context
       if (isSellAmountFiat) {
-        // Exit fiat -> crypto. Crypto values are already current; just flip the flag.
         actorRef.send({
           type: 'SET_SELL_FIAT_MODE',
           isFiat: false,
@@ -93,7 +92,6 @@ export const useSwapHandlers = ({
         })
         return
       }
-      // Enter crypto -> fiat. Seed the fiat input from the current crypto value.
       const fiatValue = cryptoToFiatInput(sellAmountBaseUnit, sellAssetUsdPrice, sellAsset.precision)
       actorRef.send({
         type: 'SET_SELL_FIAT_MODE',

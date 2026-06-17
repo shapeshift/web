@@ -306,6 +306,8 @@
   font-size: 32px;
   font-weight: 500;
   color: var(--ssw-text-primary);
+  /* Counteract the row's 12px gap so the $ sits snug against the amount */
+  margin-right: -8px;
 }
 
 .ssw-swap-divider {

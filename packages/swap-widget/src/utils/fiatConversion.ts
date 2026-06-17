@@ -3,8 +3,6 @@ import { BigAmount, bn } from '@shapeshiftoss/utils'
 import type { SwapMachineEvent } from '../machines/types'
 import { parseAmount } from '../types'
 
-// Convert a human-readable fiat (USD) amount into the equivalent crypto amount,
-// returning both the human crypto string and the base-unit string used for quoting.
 export const fiatToCrypto = (
   fiat: string,
   price: string,
@@ -19,8 +17,7 @@ export const fiatToCrypto = (
   return { amount, amountBaseUnit: parseAmount(amount, precision) }
 }
 
-// Convert a crypto base-unit amount into a raw, editable fiat input string
-// (no $/K/M formatting — distinct from the display-only formatUsdValue).
+// Raw editable fiat string, distinct from the display-formatted formatUsdValue.
 export const cryptoToFiatInput = (
   amountBaseUnit: string | undefined,
   price: string,
@@ -34,8 +31,6 @@ export const cryptoToFiatInput = (
   return bn(cryptoAmount).times(priceBn).toFixed(2)
 }
 
-// Pure decision for useSellFiatSync: given the current fiat state and the (async) price,
-// returns the machine event to dispatch, or null when nothing needs to change.
 export const computeSellFiatSyncAction = (params: {
   isSellAmountFiat: boolean
   sellAmountFiat: string
@@ -46,7 +41,7 @@ export const computeSellFiatSyncAction = (params: {
   const { isSellAmountFiat, sellAmountFiat, sellAmountBaseUnit, sellAssetUsdPrice, sellPrecision } =
     params
   if (!isSellAmountFiat) return null
-  // Switched to a price-less asset while in fiat mode: fall back to crypto mode.
+  // No price to convert against: fall back to crypto entry.
   if (!sellAssetUsdPrice) {
     return {
       type: 'SET_SELL_FIAT_MODE',
@@ -58,6 +53,6 @@ export const computeSellFiatSyncAction = (params: {
   }
   if (!sellAmountFiat) return null
   const { amount, amountBaseUnit } = fiatToCrypto(sellAmountFiat, sellAssetUsdPrice, sellPrecision)
-  if (amountBaseUnit === sellAmountBaseUnit) return null // idempotent
+  if (amountBaseUnit === sellAmountBaseUnit) return null
   return { type: 'SET_SELL_AMOUNT', amount, amountBaseUnit }
 }

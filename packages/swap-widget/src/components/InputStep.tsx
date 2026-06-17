@@ -190,7 +190,8 @@ export const InputStep = ({
                 </svg>
               </button>
             ) : (
-              <span className='ssw-usd-value'>{sellUsdValue}</span>
+              // No price: omit fiat (a $0.00 would mislead); empty slot keeps balance right-aligned.
+              <span className='ssw-usd-value' />
             )}
             {hasAnyWalletAddress &&
               (isSellBalanceLoading ? (

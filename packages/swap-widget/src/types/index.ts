@@ -12,12 +12,23 @@ import {
   ethChainId,
   fromChainId,
   gnosisChainId,
+  hyperEvmChainId,
+  katanaChainId,
   ltcChainId,
   mayachainChainId,
+  megaethChainId,
+  monadChainId,
+  nearChainId,
   optimismChainId,
+  plasmaChainId,
   polygonChainId,
   solanaChainId,
+  starknetChainId,
+  suiChainId,
   thorchainChainId,
+  tonChainId,
+  tronChainId,
+  zecChainId,
 } from '@shapeshiftoss/caip'
 import type { TransactionData } from '@shapeshiftoss/types'
 import { BigAmount } from '@shapeshiftoss/utils'
@@ -229,6 +240,11 @@ export const EVM_CHAIN_IDS = {
   avalanche: avalancheChainId,
   bsc: bscChainId,
   gnosis: gnosisChainId,
+  monad: monadChainId,
+  megaEth: megaethChainId,
+  hyperEvm: hyperEvmChainId,
+  plasma: plasmaChainId,
+  katana: katanaChainId,
 } as const
 
 export const UTXO_CHAIN_IDS = {
@@ -246,6 +262,15 @@ export const COSMOS_CHAIN_IDS = {
 
 export const OTHER_CHAIN_IDS = {
   solana: solanaChainId,
+} as const
+
+export const REDIRECT_ONLY_CHAIN_IDS = {
+  zcash: zecChainId,
+  tron: tronChainId,
+  sui: suiChainId,
+  ton: tonChainId,
+  near: nearChainId,
+  starknet: starknetChainId,
 } as const
 
 export const isEvmChainId = (chainId: string): boolean => {
@@ -273,6 +298,34 @@ export const getChainType = (chainId: string): 'evm' | 'utxo' | 'cosmos' | 'sola
       return 'other'
   }
 }
+
+const EXECUTABLE_EVM_CHAIN_ID_SET: ReadonlySet<string> = new Set(Object.values(EVM_CHAIN_IDS))
+const EXECUTABLE_UTXO_CHAIN_ID_SET: ReadonlySet<string> = new Set(Object.values(UTXO_CHAIN_IDS))
+
+export const isWidgetExecutableEvmChainId = (chainId: string): boolean =>
+  EXECUTABLE_EVM_CHAIN_ID_SET.has(chainId)
+
+export const isWidgetExecutableUtxoChainId = (chainId: string): boolean =>
+  EXECUTABLE_UTXO_CHAIN_ID_SET.has(chainId)
+
+export const isWidgetExecutableSolanaChainId = (chainId: string): boolean =>
+  chainId === OTHER_CHAIN_IDS.solana
+
+export const isWidgetExecutableChainId = (chainId: string): boolean =>
+  isWidgetExecutableEvmChainId(chainId) ||
+  isWidgetExecutableUtxoChainId(chainId) ||
+  isWidgetExecutableSolanaChainId(chainId)
+
+const SUPPORTED_CHAIN_ID_SET: ReadonlySet<string> = new Set([
+  ...Object.values(EVM_CHAIN_IDS),
+  ...Object.values(UTXO_CHAIN_IDS),
+  ...Object.values(COSMOS_CHAIN_IDS),
+  ...Object.values(OTHER_CHAIN_IDS),
+  ...Object.values(REDIRECT_ONLY_CHAIN_IDS),
+])
+
+export const isWidgetSupportedChainId = (chainId: string): boolean =>
+  SUPPORTED_CHAIN_ID_SET.has(chainId)
 
 export const formatAmount = (amount: string, decimals: number, maxDecimals?: number): string => {
   const effectiveMaxDecimals = maxDecimals ?? Math.min(decimals, 8)

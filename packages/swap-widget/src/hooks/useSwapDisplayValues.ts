@@ -1,4 +1,5 @@
 import type { Asset as ShapeshiftAsset } from '@shapeshiftoss/types'
+import { bn } from '@shapeshiftoss/utils'
 import { useMemo } from 'react'
 
 import type { ApiClient } from '../api/client'
@@ -125,7 +126,11 @@ export const useSwapDisplayValues = ({
   }, [sellAsset.assetId, buyAsset.assetId, sellChainNativeAsset])
 
   const { data: marketData } = useMarketData(assetIdsForPrices)
-  const sellAssetUsdPrice = marketData?.[sellAsset.assetId]?.price
+  const sellAssetMarketDataPrice = marketData?.[sellAsset.assetId]?.price
+  const sellAssetUsdPrice =
+    sellAssetMarketDataPrice && bn(sellAssetMarketDataPrice).gt(0)
+      ? sellAssetMarketDataPrice
+      : undefined
   const buyAssetUsdPrice = marketData?.[buyAsset.assetId]?.price
   const nativeAssetUsdPrice = sellChainNativeAsset
     ? marketData?.[sellChainNativeAsset.assetId]?.price

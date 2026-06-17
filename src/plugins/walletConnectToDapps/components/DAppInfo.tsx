@@ -18,7 +18,7 @@ export const DAppInfo: FC<IProps> = ({ metadata }) => {
   return (
     <Grid templateRows='repeat(2, 1fr)' templateColumns='repeat(5, 1fr)' gap={4}>
       <GridItem rowSpan={3} colSpan={1}>
-        {icon && <Avatar src={icon} icon={foxIcon} />}
+        {icon && <Avatar src={icon} icon={foxIcon} borderRadius='none' />}
       </GridItem>
       <GridItem colSpan={4}>{name}</GridItem>
       <GridItem colSpan={4}>{url}</GridItem>

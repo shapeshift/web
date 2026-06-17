@@ -73,7 +73,13 @@ describe('computeSellFiatSyncAction', () => {
     expect(computeSellFiatSyncAction({ ...base, sellAmountFiat: '' })).toBeNull()
   })
 
-  it('emits a recomputed SET_SELL_AMOUNT when crypto differs from stored', () => {
+  it('reverts to crypto mode on a price-less asset even with no fiat entered', () => {
+    expect(
+      computeSellFiatSyncAction({ ...base, sellAmountFiat: '', sellAssetUsdPrice: undefined }),
+    ).toEqual({ type: 'SET_SELL_FIAT_MODE', isFiat: false })
+  })
+
+  it('fills crypto from fiat when the crypto amount is missing', () => {
     expect(computeSellFiatSyncAction(base)).toEqual({
       type: 'SET_SELL_AMOUNT',
       amount: '0.031250000000000000',
@@ -82,9 +88,8 @@ describe('computeSellFiatSyncAction', () => {
     })
   })
 
-  it('returns null (idempotent) when recomputed crypto already matches stored', () => {
-    expect(
-      computeSellFiatSyncAction({ ...base, sellAmountBaseUnit: '31250000000000000' }),
-    ).toBeNull()
+  it('does not overwrite an existing crypto amount (no snapping to rounded fiat)', () => {
+    // crypto present but not the exact fiat/price round-trip — must be left untouched
+    expect(computeSellFiatSyncAction({ ...base, sellAmountBaseUnit: '999' })).toBeNull()
   })
 })

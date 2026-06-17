@@ -69,7 +69,6 @@ export const swapMachine = setup({
     assignSellAsset: assign(({ context, event }) => {
       const { asset } = event as { type: 'SET_SELL_ASSET'; asset: Asset }
       const chainType = getChainType(asset.chainId)
-      // Fiat amount is asset-independent; useSellFiatSync recomputes crypto for the new price.
       const cryptoFields = context.isSellAmountFiat
         ? { sellAmount: '', sellAmountBaseUnit: undefined }
         : {

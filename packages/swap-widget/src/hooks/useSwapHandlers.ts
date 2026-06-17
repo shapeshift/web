@@ -76,6 +76,8 @@ export const useSwapHandlers = ({
         return
       }
 
+      // Seed the fiat input for display but keep the exact crypto, so a round-trip toggle
+      // doesn't snap the amount to its 2-decimal fiat value.
       const fiatValue = cryptoToFiat(sellAmountBaseUnit, sellAssetUsdPrice, sellAsset.precision)
 
       actorRef.send({

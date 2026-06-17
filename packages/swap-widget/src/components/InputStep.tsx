@@ -11,7 +11,8 @@ import { ReceiveAddressRow } from './ReceiveAddressRow'
 type InputStepProps = {
   displayValues: SwapDisplayValues
   onOpenTokenModal: (type: 'sell' | 'buy') => void
-  onSellAmountChange: (value: string) => void
+  onSellAmountChange: (value: string, sellAssetUsdPrice?: string) => void
+  onToggleSellFiat: (sellAssetUsdPrice?: string) => void
   onSwapTokens: () => void
   onSelectRate: (rate: TradeRate) => void
   onButtonClick: () => void
@@ -23,6 +24,7 @@ export const InputStep = ({
   displayValues,
   onOpenTokenModal,
   onSellAmountChange,
+  onToggleSellFiat,
   onSwapTokens,
   onSelectRate,
   onButtonClick,
@@ -41,6 +43,7 @@ export const InputStep = ({
     isSellBalanceLoading,
     isBuyBalanceLoading,
     sellUsdValue,
+    sellAssetUsdPrice,
     buyUsdValue,
     sellChainInfo,
     buyChainInfo,
@@ -67,6 +70,8 @@ export const InputStep = ({
     selectedRate,
     sellAmount,
     sellAmountBaseUnit,
+    isSellAmountFiat,
+    sellAmountFiat,
     isSellAssetEvm,
     isSellAssetUtxo,
     isSellAssetSolana,
@@ -114,16 +119,17 @@ export const InputStep = ({
           </div>
 
           <div className='ssw-input-row'>
+            {isSellAmountFiat && <span className='ssw-fiat-prefix'>$</span>}
             <input
               type='text'
               className='ssw-amount-input'
               placeholder='0'
-              value={sellAmount}
+              value={isSellAmountFiat ? sellAmountFiat : sellAmount}
               onChange={e => {
                 const raw = e.target.value.replace(/[^0-9.]/g, '')
                 const parts = raw.split('.')
                 const sanitized = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : raw
-                onSellAmountChange(sanitized)
+                onSellAmountChange(sanitized, sellAssetUsdPrice)
               }}
             />
             <button
@@ -156,7 +162,36 @@ export const InputStep = ({
           </div>
 
           <div className='ssw-section-footer'>
-            <span className='ssw-usd-value'>{sellUsdValue}</span>
+            {sellAssetUsdPrice ? (
+              <button
+                type='button'
+                className='ssw-usd-value ssw-usd-value-toggle'
+                onClick={() => onToggleSellFiat(sellAssetUsdPrice)}
+              >
+                <span>
+                  {isSellAmountFiat
+                    ? `≈ ${
+                        sellAmountBaseUnit
+                          ? formatAmount(sellAmountBaseUnit, sellAsset.precision, 6)
+                          : '0'
+                      } ${sellAsset.symbol}`
+                    : sellUsdValue}
+                </span>
+                <svg
+                  width='12'
+                  height='12'
+                  viewBox='0 0 24 24'
+                  fill='none'
+                  stroke='currentColor'
+                  strokeWidth='2'
+                  aria-hidden='true'
+                >
+                  <path d='M7 16V4M7 4L3 8M7 4l4 4M17 8v12M17 20l4-4M17 20l-4-4' />
+                </svg>
+              </button>
+            ) : (
+              <span className='ssw-usd-value' />
+            )}
             {hasAnyWalletAddress &&
               (isSellBalanceLoading ? (
                 <span className='ssw-balance-skeleton' />

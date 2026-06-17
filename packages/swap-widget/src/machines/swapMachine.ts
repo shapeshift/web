@@ -113,15 +113,8 @@ export const swapMachine = setup({
       }
     }),
     assignSellFiatMode: assign(({ event }) => {
-      const { isFiat, fiatValue } = event as {
-        type: 'SET_SELL_FIAT_MODE'
-        isFiat: boolean
-        fiatValue: string
-      }
-      return {
-        isSellAmountFiat: isFiat,
-        sellAmountFiat: fiatValue,
-      }
+      const { isFiat } = event as { type: 'SET_SELL_FIAT_MODE'; isFiat: boolean }
+      return { isSellAmountFiat: isFiat }
     }),
     assignSlippage: assign(({ event }) => ({
       slippage: (event as { type: 'SET_SLIPPAGE'; slippage: string }).slippage,

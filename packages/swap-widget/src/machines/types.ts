@@ -35,7 +35,7 @@ export type SwapMachineEvent =
       amountBaseUnit: string | undefined
       fiatValue: string
     }
-  | { type: 'SET_SELL_FIAT_MODE'; isFiat: boolean; fiatValue: string }
+  | { type: 'SET_SELL_FIAT_MODE'; isFiat: boolean }
   | { type: 'SET_SLIPPAGE'; slippage: string }
   | { type: 'SELECT_RATE'; rate: TradeRate }
   | { type: 'FETCH_QUOTE' }

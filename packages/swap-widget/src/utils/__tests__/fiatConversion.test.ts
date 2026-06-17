@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { computeSellFiatSyncAction, cryptoToFiatInput, fiatToCrypto } from '../fiatConversion'
+import { computeSellFiatSyncAction, cryptoToFiat, fiatToCrypto } from '../fiatConversion'
 
 describe('fiatToCrypto', () => {
   it('converts fiat to crypto amount and base unit (18 decimals)', () => {
@@ -37,15 +37,15 @@ describe('fiatToCrypto', () => {
   })
 })
 
-describe('cryptoToFiatInput', () => {
+describe('cryptoToFiat', () => {
   it('converts base unit to a 2-decimal fiat string', () => {
-    expect(cryptoToFiatInput('31250000000000000', '3200', 18)).toBe('100.00')
+    expect(cryptoToFiat('31250000000000000', '3200', 18)).toBe('100.00')
   })
 
   it('returns empty for missing amount, zero amount, or missing price', () => {
-    expect(cryptoToFiatInput(undefined, '3200', 18)).toBe('')
-    expect(cryptoToFiatInput('0', '3200', 18)).toBe('')
-    expect(cryptoToFiatInput('31250000000000000', '0', 18)).toBe('')
+    expect(cryptoToFiat(undefined, '3200', 18)).toBe('')
+    expect(cryptoToFiat('0', '3200', 18)).toBe('')
+    expect(cryptoToFiat('31250000000000000', '0', 18)).toBe('')
   })
 })
 
@@ -66,7 +66,6 @@ describe('computeSellFiatSyncAction', () => {
     expect(computeSellFiatSyncAction({ ...base, sellAssetUsdPrice: undefined })).toEqual({
       type: 'SET_SELL_FIAT_MODE',
       isFiat: false,
-      fiatValue: '',
     })
   })
 

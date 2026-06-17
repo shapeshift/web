@@ -630,21 +630,21 @@ describe('swapMachine', () => {
       expect(ctx.sellAmountFiat).toBe('')
     })
 
-    it('SET_SELL_FIAT_MODE flips the mode and sets the fiat string, leaving crypto untouched', () => {
+    it('SET_SELL_FIAT_MODE flips only the mode, leaving the amount untouched', () => {
       const actor = createActor(swapMachine)
       actor.start()
       actor.send({
         type: 'SET_SELL_AMOUNT',
         amount: '1',
         amountBaseUnit: '1000000000000000000',
-        fiatValue: '',
+        fiatValue: '100',
       })
-      actor.send({ type: 'SET_SELL_FIAT_MODE', isFiat: true, fiatValue: '100' })
+      actor.send({ type: 'SET_SELL_FIAT_MODE', isFiat: true })
       const { context } = actor.getSnapshot()
       expect(context.isSellAmountFiat).toBe(true)
-      expect(context.sellAmountFiat).toBe('100')
       expect(context.sellAmount).toBe('1')
       expect(context.sellAmountBaseUnit).toBe('1000000000000000000')
+      expect(context.sellAmountFiat).toBe('100')
       actor.stop()
     })
 
@@ -667,7 +667,7 @@ describe('swapMachine', () => {
     it('clears stale crypto on sell asset change while in fiat mode, keeping the fiat string', () => {
       const actor = createActor(swapMachine)
       actor.start()
-      actor.send({ type: 'SET_SELL_FIAT_MODE', isFiat: true, fiatValue: '100' })
+      actor.send({ type: 'SET_SELL_FIAT_MODE', isFiat: true })
       actor.send({
         type: 'SET_SELL_AMOUNT',
         amount: '0.03125',

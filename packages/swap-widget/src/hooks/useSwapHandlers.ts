@@ -5,7 +5,7 @@ import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { SwapMachineCtx } from '../machines/SwapMachineContext'
 import type { Asset, TradeRate } from '../types'
 import { parseAmount } from '../types'
-import { cryptoToFiatInput, fiatToCrypto } from '../utils/fiatConversion'
+import { cryptoToFiat, fiatToCrypto } from '../utils/fiatConversion'
 import { buildShapeShiftTradeUrl } from '../utils/redirect'
 
 type UseSwapHandlersParams = {
@@ -69,24 +69,22 @@ export const useSwapHandlers = ({
       if (!sellAssetUsdPrice) return
 
       const snap = actorRef.getSnapshot()
-      const { sellAmountBaseUnit, sellAsset, isSellAmountFiat } = snap.context
+      const { sellAmount, sellAmountBaseUnit, sellAsset, isSellAmountFiat } = snap.context
 
       if (isSellAmountFiat) {
-        actorRef.send({ type: 'SET_SELL_FIAT_MODE', isFiat: false, fiatValue: '' })
+        actorRef.send({ type: 'SET_SELL_FIAT_MODE', isFiat: false })
         return
       }
 
-      const fiatValue = cryptoToFiatInput(
-        sellAmountBaseUnit,
-        sellAssetUsdPrice,
-        sellAsset.precision,
-      )
+      const fiatValue = cryptoToFiat(sellAmountBaseUnit, sellAssetUsdPrice, sellAsset.precision)
 
       actorRef.send({
-        type: 'SET_SELL_FIAT_MODE',
-        isFiat: true,
+        type: 'SET_SELL_AMOUNT',
+        amount: sellAmount,
+        amountBaseUnit: sellAmountBaseUnit,
         fiatValue,
       })
+      actorRef.send({ type: 'SET_SELL_FIAT_MODE', isFiat: true })
     },
     [actorRef],
   )

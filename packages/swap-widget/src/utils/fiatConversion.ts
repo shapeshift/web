@@ -17,8 +17,7 @@ export const fiatToCrypto = (
   return { amount, amountBaseUnit: parseAmount(amount, precision) }
 }
 
-// Raw editable fiat string, distinct from the display-formatted formatUsdValue.
-export const cryptoToFiatInput = (
+export const cryptoToFiat = (
   amountBaseUnit: string | undefined,
   price: string,
   precision: number,
@@ -43,7 +42,7 @@ export const computeSellFiatSyncAction = (params: {
   if (!isSellAmountFiat) return null
   // No price to convert against: fall back to crypto entry.
   if (!sellAssetUsdPrice) {
-    return { type: 'SET_SELL_FIAT_MODE', isFiat: false, fiatValue: '' }
+    return { type: 'SET_SELL_FIAT_MODE', isFiat: false }
   }
   if (!sellAmountFiat) return null
   const { amount, amountBaseUnit } = fiatToCrypto(sellAmountFiat, sellAssetUsdPrice, sellPrecision)

@@ -43,16 +43,10 @@ export const computeSellFiatSyncAction = (params: {
   if (!isSellAmountFiat) return null
   // No price to convert against: fall back to crypto entry.
   if (!sellAssetUsdPrice) {
-    return {
-      type: 'SET_SELL_FIAT_MODE',
-      isFiat: false,
-      fiatValue: '',
-      amount: '',
-      amountBaseUnit: undefined,
-    }
+    return { type: 'SET_SELL_FIAT_MODE', isFiat: false, fiatValue: '' }
   }
   if (!sellAmountFiat) return null
   const { amount, amountBaseUnit } = fiatToCrypto(sellAmountFiat, sellAssetUsdPrice, sellPrecision)
   if (amountBaseUnit === sellAmountBaseUnit) return null
-  return { type: 'SET_SELL_AMOUNT', amount, amountBaseUnit }
+  return { type: 'SET_SELL_AMOUNT', amount, amountBaseUnit, fiatValue: sellAmountFiat }
 }

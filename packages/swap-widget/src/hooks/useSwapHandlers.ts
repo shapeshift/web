@@ -25,17 +25,7 @@ export const useSwapHandlers = ({
     const snap = actorRef.getSnapshot()
     actorRef.send({ type: 'SET_SELL_ASSET', asset: snap.context.buyAsset })
     actorRef.send({ type: 'SET_BUY_ASSET', asset: snap.context.sellAsset })
-    if (snap.context.isSellAmountFiat) {
-      actorRef.send({
-        type: 'SET_SELL_FIAT_MODE',
-        isFiat: true,
-        fiatValue: '',
-        amount: '',
-        amountBaseUnit: undefined,
-      })
-    } else {
-      actorRef.send({ type: 'SET_SELL_AMOUNT', amount: '', amountBaseUnit: undefined })
-    }
+    actorRef.send({ type: 'SET_SELL_AMOUNT', amount: '', amountBaseUnit: undefined, fiatValue: '' })
   }, [actorRef])
 
   const handleSellAssetSelect = useCallback(
@@ -56,23 +46,20 @@ export const useSwapHandlers = ({
     (value: string, sellAssetUsdPrice?: string) => {
       const snap = actorRef.getSnapshot()
       const { sellAsset, isSellAmountFiat } = snap.context
+
       if (isSellAmountFiat) {
         const { amount, amountBaseUnit } = fiatToCrypto(
           value,
           sellAssetUsdPrice ?? '',
           sellAsset.precision,
         )
-        actorRef.send({
-          type: 'SET_SELL_FIAT_MODE',
-          isFiat: true,
-          fiatValue: value,
-          amount,
-          amountBaseUnit,
-        })
+
+        actorRef.send({ type: 'SET_SELL_AMOUNT', amount, amountBaseUnit, fiatValue: value })
         return
       }
-      const baseUnit = value ? parseAmount(value, sellAsset.precision) : undefined
-      actorRef.send({ type: 'SET_SELL_AMOUNT', amount: value, amountBaseUnit: baseUnit })
+
+      const amountBaseUnit = value ? parseAmount(value, sellAsset.precision) : undefined
+      actorRef.send({ type: 'SET_SELL_AMOUNT', amount: value, amountBaseUnit, fiatValue: '' })
     },
     [actorRef],
   )
@@ -80,25 +67,25 @@ export const useSwapHandlers = ({
   const handleToggleSellFiat = useCallback(
     (sellAssetUsdPrice?: string) => {
       if (!sellAssetUsdPrice) return
+
       const snap = actorRef.getSnapshot()
-      const { sellAmount, sellAmountBaseUnit, sellAsset, isSellAmountFiat } = snap.context
+      const { sellAmountBaseUnit, sellAsset, isSellAmountFiat } = snap.context
+
       if (isSellAmountFiat) {
-        actorRef.send({
-          type: 'SET_SELL_FIAT_MODE',
-          isFiat: false,
-          fiatValue: '',
-          amount: sellAmount,
-          amountBaseUnit: sellAmountBaseUnit,
-        })
+        actorRef.send({ type: 'SET_SELL_FIAT_MODE', isFiat: false, fiatValue: '' })
         return
       }
-      const fiatValue = cryptoToFiatInput(sellAmountBaseUnit, sellAssetUsdPrice, sellAsset.precision)
+
+      const fiatValue = cryptoToFiatInput(
+        sellAmountBaseUnit,
+        sellAssetUsdPrice,
+        sellAsset.precision,
+      )
+
       actorRef.send({
         type: 'SET_SELL_FIAT_MODE',
         isFiat: true,
         fiatValue,
-        amount: sellAmount,
-        amountBaseUnit: sellAmountBaseUnit,
       })
     },
     [actorRef],

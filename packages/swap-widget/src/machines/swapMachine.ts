@@ -100,29 +100,27 @@ export const swapMachine = setup({
       }
     }),
     assignSellAmount: assign(({ event }) => {
-      const { amount, amountBaseUnit } = event as {
+      const { amount, amountBaseUnit, fiatValue } = event as {
         type: 'SET_SELL_AMOUNT'
         amount: string
         amountBaseUnit: string | undefined
+        fiatValue: string
       }
       return {
         sellAmount: amount,
         sellAmountBaseUnit: amountBaseUnit,
+        sellAmountFiat: fiatValue,
       }
     }),
     assignSellFiatMode: assign(({ event }) => {
-      const { isFiat, fiatValue, amount, amountBaseUnit } = event as {
+      const { isFiat, fiatValue } = event as {
         type: 'SET_SELL_FIAT_MODE'
         isFiat: boolean
         fiatValue: string
-        amount: string
-        amountBaseUnit: string | undefined
       }
       return {
         isSellAmountFiat: isFiat,
         sellAmountFiat: fiatValue,
-        sellAmount: amount,
-        sellAmountBaseUnit: amountBaseUnit,
       }
     }),
     assignSlippage: assign(({ event }) => ({

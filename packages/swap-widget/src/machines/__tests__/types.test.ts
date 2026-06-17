@@ -69,7 +69,12 @@ describe('SwapMachine Types', () => {
           precision: 6,
         },
       },
-      { type: 'SET_SELL_AMOUNT', amount: '1.0', amountBaseUnit: '1000000000000000000' },
+      {
+        type: 'SET_SELL_AMOUNT',
+        amount: '1.0',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '',
+      },
       { type: 'SET_SLIPPAGE', slippage: '1.0' },
       {
         type: 'SELECT_RATE',

@@ -67,8 +67,6 @@ describe('computeSellFiatSyncAction', () => {
       type: 'SET_SELL_FIAT_MODE',
       isFiat: false,
       fiatValue: '',
-      amount: '',
-      amountBaseUnit: undefined,
     })
   })
 
@@ -81,6 +79,7 @@ describe('computeSellFiatSyncAction', () => {
       type: 'SET_SELL_AMOUNT',
       amount: '0.031250000000000000',
       amountBaseUnit: '31250000000000000',
+      fiatValue: '100',
     })
   })
 

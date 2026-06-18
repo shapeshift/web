@@ -23,7 +23,7 @@ const getYieldExplainers = (selectedYield: AugmentedYieldDto): ExplainerItem[] =
   const outputTokenSymbol = selectedYield.outputToken?.symbol
 
   switch (yieldType) {
-    case 'liquid-staking':
+    case 'liquid_staking':
       return [
         {
           icon: swapIcon,
@@ -39,8 +39,8 @@ const getYieldExplainers = (selectedYield: AugmentedYieldDto): ExplainerItem[] =
           relevance: 'both' as const,
         },
       ]
-    case 'native-staking':
-    case 'pooled-staking':
+    case 'native_staking':
+    case 'pooled_staking':
     case 'staking':
       return [
         { icon: giftIcon, textKey: 'earn.explainers.rewardsSchedule', relevance: 'enter' as const },

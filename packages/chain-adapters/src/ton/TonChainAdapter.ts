@@ -305,68 +305,71 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
   }
 
   private rpcRequest<T>(method: string, params: Record<string, unknown> = {}): Promise<T> {
-    return this.requestQueue.add(async () => {
-      const maxRetries = 5
-      let lastError: Error | undefined
+    return this.requestQueue.add(
+      async () => {
+        const maxRetries = 5
+        let lastError: Error | undefined
 
-      for (let attempt = 0; attempt < maxRetries; attempt++) {
-        try {
-          const response = await fetch(this.rpcUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              id: 1,
-              jsonrpc: '2.0',
-              method,
-              params,
-            }),
-          })
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
+          try {
+            const response = await fetch(this.rpcUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                id: 1,
+                jsonrpc: '2.0',
+                method,
+                params,
+              }),
+            })
 
-          if (response.status === 429) {
-            const retryAfter = parseInt(response.headers.get('Retry-After') || '2', 10)
-            const backoffDelay = Math.min(retryAfter * 1000, 10000) * Math.pow(1.5, attempt)
-            await new Promise(resolve => setTimeout(resolve, backoffDelay))
-            continue
-          }
+            if (response.status === 429) {
+              const retryAfter = parseInt(response.headers.get('Retry-After') || '2', 10)
+              const backoffDelay = Math.min(retryAfter * 1000, 10000) * Math.pow(1.5, attempt)
+              await new Promise(resolve => setTimeout(resolve, backoffDelay))
+              continue
+            }
 
-          if (response.status === 500 || response.status === 502 || response.status === 503) {
-            lastError = new Error(`TON RPC server error: ${response.status}`)
-            const backoffDelay = 1000 * Math.pow(2, attempt)
-            await new Promise(resolve => setTimeout(resolve, backoffDelay))
-            continue
-          }
-
-          const data = (await response.json()) as TonRpcResponse<T>
-
-          if (!data.ok && data.error) {
-            lastError = new Error(this.formatTonError(data.error))
-            if (this.isRetryableError(data.error)) {
+            if (response.status === 500 || response.status === 502 || response.status === 503) {
+              lastError = new Error(`TON RPC server error: ${response.status}`)
               const backoffDelay = 1000 * Math.pow(2, attempt)
               await new Promise(resolve => setTimeout(resolve, backoffDelay))
               continue
             }
-            throw lastError
-          }
 
-          if (data.result === undefined) {
-            throw new Error('TON RPC returned success but no result data')
-          }
+            const data = (await response.json()) as TonRpcResponse<T>
 
-          return data.result
-        } catch (err) {
-          if (err instanceof Error && err.message.includes('TON RPC')) {
-            throw err
-          }
-          lastError = err instanceof Error ? err : new Error(String(err))
-          if (attempt < maxRetries - 1) {
-            const backoffDelay = 1000 * Math.pow(2, attempt)
-            await new Promise(resolve => setTimeout(resolve, backoffDelay))
+            if (!data.ok && data.error) {
+              lastError = new Error(this.formatTonError(data.error))
+              if (this.isRetryableError(data.error)) {
+                const backoffDelay = 1000 * Math.pow(2, attempt)
+                await new Promise(resolve => setTimeout(resolve, backoffDelay))
+                continue
+              }
+              throw lastError
+            }
+
+            if (data.result === undefined) {
+              throw new Error('TON RPC returned success but no result data')
+            }
+
+            return data.result
+          } catch (err) {
+            if (err instanceof Error && err.message.includes('TON RPC')) {
+              throw err
+            }
+            lastError = err instanceof Error ? err : new Error(String(err))
+            if (attempt < maxRetries - 1) {
+              const backoffDelay = 1000 * Math.pow(2, attempt)
+              await new Promise(resolve => setTimeout(resolve, backoffDelay))
+            }
           }
         }
-      }
 
-      throw lastError || new Error('Max retries exceeded for TON RPC request')
-    }) as Promise<T>
+        throw lastError || new Error('Max retries exceeded for TON RPC request')
+      },
+      { throwOnTimeout: true },
+    )
   }
 
   private formatTonError(error: string): string {
@@ -417,36 +420,39 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
   }
 
   private httpApiRequest<T>(endpoint: string): Promise<T> {
-    return this.requestQueue.add(async () => {
-      const maxRetries = 3
-      let lastError: Error | undefined
+    return this.requestQueue.add(
+      async () => {
+        const maxRetries = 3
+        let lastError: Error | undefined
 
-      for (let attempt = 0; attempt < maxRetries; attempt++) {
-        const isV3Endpoint = endpoint.startsWith('/api/v3')
-        const baseUrl = isV3Endpoint
-          ? this.rpcUrl.replace(/\/api\/v2\/jsonRPC$/, '')
-          : this.rpcUrl.replace('/jsonRPC', '')
-        const response = await fetch(`${baseUrl}${endpoint}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-        })
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
+          const isV3Endpoint = endpoint.startsWith('/api/v3')
+          const baseUrl = isV3Endpoint
+            ? this.rpcUrl.replace(/\/api\/v2\/jsonRPC$/, '')
+            : this.rpcUrl.replace('/jsonRPC', '')
+          const response = await fetch(`${baseUrl}${endpoint}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+          })
 
-        if (response.status === 429) {
-          const retryAfter = parseInt(response.headers.get('Retry-After') || '2', 10)
-          await new Promise(resolve => setTimeout(resolve, retryAfter * 1000))
-          continue
+          if (response.status === 429) {
+            const retryAfter = parseInt(response.headers.get('Retry-After') || '2', 10)
+            await new Promise(resolve => setTimeout(resolve, retryAfter * 1000))
+            continue
+          }
+
+          if (!response.ok) {
+            lastError = new Error(`HTTP API error: ${response.status}`)
+            continue
+          }
+
+          return response.json() as Promise<T>
         }
 
-        if (!response.ok) {
-          lastError = new Error(`HTTP API error: ${response.status}`)
-          continue
-        }
-
-        return response.json() as Promise<T>
-      }
-
-      throw lastError || new Error('Max retries exceeded')
-    }) as Promise<T>
+        throw lastError || new Error('Max retries exceeded')
+      },
+      { throwOnTimeout: true },
+    )
   }
 
   getName() {
@@ -634,7 +640,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
         return response
       }
 
-      const data = requestQueue ? await requestQueue.add(fetchTxHistory) : await fetchTxHistory()
+      const data = requestQueue
+        ? await requestQueue.add(fetchTxHistory, { throwOnTimeout: true })
+        : await fetchTxHistory()
 
       if (!data?.transactions || data.transactions.length === 0) {
         return {
@@ -653,7 +661,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
 
       const bufferedMaxLt = (BigInt(maxLt) + TRACE_LT_SEARCH_RANGE).toString()
       const fetchJettons = () => this.fetchJettonTransfers(pubkey, minLt, bufferedMaxLt)
-      const jettonData = requestQueue ? await requestQueue.add(fetchJettons) : await fetchJettons()
+      const jettonData = requestQueue
+        ? await requestQueue.add(fetchJettons, { throwOnTimeout: true })
+        : await fetchJettons()
 
       const jettonAddrBook = { ...addressBook, ...jettonData.address_book }
 

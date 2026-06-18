@@ -197,7 +197,7 @@ export const YieldAssetDetails = memo(() => {
     () =>
       Array.from(new Set(assetYields.map(y => y.mechanics.type))).map(type => ({
         id: type,
-        name: type.charAt(0).toUpperCase() + type.slice(1).replace(/-/g, ' '),
+        name: type.charAt(0).toUpperCase() + type.slice(1).replace(/[-_]/g, ' '),
       })),
     [assetYields],
   )

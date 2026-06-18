@@ -20,7 +20,13 @@ const ZCASH_VERSION_GROUP_ID: Record<number, number> = {
   5: 0x26a7270a,
 }
 
-const ZCASH_CONSENSUS_BRANCH_ID = 0x4dec4df0
+// Consensus branch ID of the currently-active Zcash network upgrade.
+// On each network upgrade, bump this together with ZCASH_UPGRADE_ACTIVATION_HEIGHT.
+const ZCASH_CONSENSUS_BRANCH_ID = 0x5437f330
+
+// Activation height of the upgrade above. Used as a fallback block height so Ledger
+// derives the matching consensus branch ID when every input is still unconfirmed.
+const ZCASH_UPGRADE_ACTIVATION_HEIGHT = 3364600
 
 type ZcashInput = core.BTCSignTxInputLedger & {
   txid?: string
@@ -399,11 +405,14 @@ export async function btcSignTx(
     segwit,
     useTrustedInputForSegwit: Boolean(segwit),
     // For Zcash, pass the current network blockHeight so Ledger uses correct consensus branch ID.
-    // Use the highest confirmed input blockHeight, or fallback to a height above NU6.1 activation (3146400).
-    // This ensures correct consensus branch ID (0x4dec4df0) even when spending unconfirmed outputs.
+    // Use the highest confirmed input blockHeight, or fall back to the active upgrade's activation
+    // height so Ledger derives ZCASH_CONSENSUS_BRANCH_ID even when spending unconfirmed outputs.
     blockHeight:
       msg.coin === 'Zcash'
-        ? Math.max(...blockHeights.filter((h): h is number => h !== undefined && h > 0), 3150000)
+        ? Math.max(
+            ...blockHeights.filter((h): h is number => h !== undefined && h > 0),
+            ZCASH_UPGRADE_ACTIVATION_HEIGHT,
+          )
         : undefined,
     expiryHeight: msg.coin === 'Zcash' ? Buffer.alloc(4) : undefined,
   }

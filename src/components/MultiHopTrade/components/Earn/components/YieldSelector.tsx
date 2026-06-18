@@ -42,7 +42,7 @@ type YieldSelectorProps = {
 }
 
 const isNativeStaking = (type: string | undefined): boolean =>
-  ['native-staking', 'staking'].includes(type ?? '')
+  ['native_staking', 'staking'].includes(type ?? '')
 
 const getDisplayInfo = (
   yieldItem: AugmentedYieldDto,
@@ -157,7 +157,7 @@ const YieldItem = memo(
 )
 
 const isStakingType = (type: string | undefined): boolean =>
-  ['native-staking', 'pooled-staking', 'staking'].includes(type ?? '')
+  ['native_staking', 'pooled_staking', 'staking'].includes(type ?? '')
 
 export const YieldSelector = memo(
   ({

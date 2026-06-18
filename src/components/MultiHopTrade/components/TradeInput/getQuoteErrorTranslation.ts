@@ -41,8 +41,6 @@ export const getQuoteErrorTranslation = (
         return tradeQuoteError.meta
           ? 'trade.errors.amountTooSmall'
           : 'trade.errors.amountTooSmallUnknownMinimum'
-      case SwapperTradeQuoteError.FundsFragmented:
-        return 'trade.errors.fundsFragmented'
       case SwapperTradeQuoteError.UnsupportedChain:
         return 'trade.errors.quoteUnsupportedChain'
       case SwapperTradeQuoteError.CrossChainNotSupported:

@@ -24,7 +24,7 @@ export const DappAvatar: React.FC<DappAvatarProps> = ({
   const menuBg = useColorModeValue('gray.100', 'gray.700')
 
   return (
-    <Avatar size={size} src={image} icon={foxIcon}>
+    <Avatar size={size} src={image} icon={foxIcon} borderRadius='none'>
       {connected && (
         <CircleIcon
           color={connectedIconColor}

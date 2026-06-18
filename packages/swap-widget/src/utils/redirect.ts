@@ -1,5 +1,4 @@
-import type { Asset, AssetId } from '../types'
-import { isEvmChainId } from '../types'
+import type { AssetId } from '../types'
 
 const SHAPESHIFT_APP_URL = 'https://app.shapeshift.com'
 
@@ -27,28 +26,4 @@ export const buildShapeShiftTradeUrl = (params: RedirectParams): string => {
   const partner = partnerCode ? `?partner=${encodeURIComponent(partnerCode)}` : ''
 
   return `${SHAPESHIFT_APP_URL}/#/trade/${buyChainId}/${buyAssetSubId}/${sellChainId}/${sellAssetSubId}/${amount}${partner}`
-}
-
-export const redirectToShapeShift = (params: RedirectParams): void => {
-  window.open(buildShapeShiftTradeUrl(params), '_blank', 'noopener,noreferrer')
-}
-
-export type ChainType = 'evm' | 'utxo' | 'cosmos' | 'solana' | 'other'
-
-export const getChainTypeFromAsset = (asset: Asset): ChainType => {
-  const chainId = asset.chainId
-
-  if (isEvmChainId(chainId)) return 'evm'
-  if (chainId.startsWith('bip122:')) return 'utxo'
-  if (chainId.startsWith('cosmos:')) return 'cosmos'
-  if (chainId.startsWith('solana:')) return 'solana'
-
-  return 'other'
-}
-
-export const canExecuteInWidget = (sellAsset: Asset, buyAsset: Asset): boolean => {
-  const sellChainType = getChainTypeFromAsset(sellAsset)
-  const buyChainType = getChainTypeFromAsset(buyAsset)
-
-  return sellChainType === 'evm' && buyChainType === 'evm'
 }

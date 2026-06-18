@@ -10,9 +10,14 @@ import {
   dogecoin,
   ethereum,
   gnosis,
+  hyperevm,
+  katana,
   litecoin,
   mayachain,
+  megaeth,
+  monad,
   optimism,
+  plasma,
   polygon,
   solana,
   thorchain,
@@ -29,6 +34,11 @@ const BASE_ASSETS_BY_CHAIN_ID: Record<ChainId, Asset> = {
   [avax.chainId]: avax,
   [bnbsmartchain.chainId]: bnbsmartchain,
   [gnosis.chainId]: gnosis,
+  [monad.chainId]: monad,
+  [megaeth.chainId]: megaeth,
+  [hyperevm.chainId]: hyperevm,
+  [plasma.chainId]: plasma,
+  [katana.chainId]: katana,
   [bitcoin.chainId]: bitcoin,
   [bitcoincash.chainId]: bitcoincash,
   [dogecoin.chainId]: dogecoin,
@@ -37,6 +47,14 @@ const BASE_ASSETS_BY_CHAIN_ID: Record<ChainId, Asset> = {
   [thorchain.chainId]: thorchain,
   [mayachain.chainId]: mayachain,
   [solana.chainId]: solana,
+}
+
+export const SUPPORTED_CHAIN_IDS_SET: ReadonlySet<ChainId> = new Set(
+  Object.keys(BASE_ASSETS_BY_CHAIN_ID),
+)
+
+export const isSupportedChainId = (chainId: ChainId): boolean => {
+  return SUPPORTED_CHAIN_IDS_SET.has(chainId)
 }
 
 export const getBaseAsset = (chainId: ChainId): Asset | undefined => {

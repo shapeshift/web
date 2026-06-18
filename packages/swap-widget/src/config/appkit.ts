@@ -6,8 +6,13 @@ import {
   bitcoin,
   bsc,
   gnosis,
+  hyperEvm,
+  katana,
   mainnet,
+  megaeth,
+  monad,
   optimism,
+  plasma,
   polygon,
   solana,
 } from '@reown/appkit/networks'
@@ -26,6 +31,11 @@ const EVM_NETWORKS: readonly AppKitNetwork[] = [
   avalanche,
   bsc,
   gnosis,
+  monad,
+  megaeth,
+  hyperEvm,
+  plasma,
+  katana,
 ]
 
 const ALL_NETWORKS: readonly AppKitNetwork[] = [...EVM_NETWORKS, bitcoin, solana]

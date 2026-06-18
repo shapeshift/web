@@ -2,7 +2,13 @@ import { assign, setup } from 'xstate'
 
 import { DEFAULT_BUY_ASSET, DEFAULT_SELL_ASSET } from '../constants/defaults'
 import type { Asset, QuoteResponse, TradeRate } from '../types'
-import { getChainType, parseAmount } from '../types'
+import {
+  getChainType,
+  isWidgetExecutableEvmChainId,
+  isWidgetExecutableSolanaChainId,
+  isWidgetExecutableUtxoChainId,
+  parseAmount,
+} from '../types'
 import * as guardFns from './guards'
 import type { SwapMachineContext, SwapMachineEvent } from './types'
 
@@ -21,6 +27,8 @@ export const createInitialContext = (input?: {
     buyAsset,
     sellAmount: '',
     sellAmountBaseUnit: undefined,
+    isSellAmountFiat: false,
+    sellAmountFiat: '',
     selectedRate: null,
     quote: null,
     txHash: null,
@@ -32,9 +40,9 @@ export const createInitialContext = (input?: {
     slippage: input?.slippage ?? '0.5',
     sendAddress: undefined,
     receiveAddress: undefined,
-    isSellAssetEvm: sellChainType === 'evm',
-    isSellAssetUtxo: sellChainType === 'utxo',
-    isSellAssetSolana: sellChainType === 'solana',
+    isSellAssetEvm: isWidgetExecutableEvmChainId(sellAsset.chainId),
+    isSellAssetUtxo: isWidgetExecutableUtxoChainId(sellAsset.chainId),
+    isSellAssetSolana: isWidgetExecutableSolanaChainId(sellAsset.chainId),
     isBuyAssetEvm: buyChainType === 'evm',
   }
 }
@@ -67,15 +75,21 @@ export const swapMachine = setup({
     assignSellAsset: assign(({ context, event }) => {
       const { asset } = event as { type: 'SET_SELL_ASSET'; asset: Asset }
       const chainType = getChainType(asset.chainId)
+      const cryptoFields = context.isSellAmountFiat
+        ? { sellAmount: '', sellAmountBaseUnit: undefined }
+        : {
+            sellAmount: context.sellAmount,
+            sellAmountBaseUnit: context.sellAmount
+              ? parseAmount(context.sellAmount, asset.precision)
+              : undefined,
+          }
       return {
         sellAsset: asset,
-        sellAmountBaseUnit: context.sellAmount
-          ? parseAmount(context.sellAmount, asset.precision)
-          : undefined,
+        ...cryptoFields,
         chainType,
-        isSellAssetEvm: chainType === 'evm',
-        isSellAssetUtxo: chainType === 'utxo',
-        isSellAssetSolana: chainType === 'solana',
+        isSellAssetEvm: isWidgetExecutableEvmChainId(asset.chainId),
+        isSellAssetUtxo: isWidgetExecutableUtxoChainId(asset.chainId),
+        isSellAssetSolana: isWidgetExecutableSolanaChainId(asset.chainId),
         selectedRate: null,
         quote: null,
       }
@@ -91,15 +105,21 @@ export const swapMachine = setup({
       }
     }),
     assignSellAmount: assign(({ event }) => {
-      const { amount, amountBaseUnit } = event as {
+      const { amount, amountBaseUnit, fiatValue } = event as {
         type: 'SET_SELL_AMOUNT'
         amount: string
         amountBaseUnit: string | undefined
+        fiatValue: string
       }
       return {
         sellAmount: amount,
         sellAmountBaseUnit: amountBaseUnit,
+        sellAmountFiat: fiatValue,
       }
+    }),
+    assignSellFiatMode: assign(({ event }) => {
+      const { isFiat } = event as { type: 'SET_SELL_FIAT_MODE'; isFiat: boolean }
+      return { isSellAmountFiat: isFiat }
     }),
     assignSlippage: assign(({ event }) => ({
       slippage: (event as { type: 'SET_SLIPPAGE'; slippage: string }).slippage,
@@ -184,6 +204,7 @@ export const swapMachine = setup({
         SET_SELL_ASSET: { actions: 'assignSellAsset' },
         SET_BUY_ASSET: { actions: 'assignBuyAsset' },
         SET_SELL_AMOUNT: { actions: 'assignSellAmount' },
+        SET_SELL_FIAT_MODE: { actions: 'assignSellFiatMode' },
         SET_SLIPPAGE: { actions: 'assignSlippage' },
         SELECT_RATE: { actions: 'assignSelectedRate' },
         SET_SEND_ADDRESS: { actions: 'assignSendAddress' },

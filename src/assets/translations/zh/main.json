@@ -1035,7 +1035,6 @@
       "sellAmountDoesNotCoverFee": "卖出数量低于手续费",
       "insufficientFunds": "矿工费及金额数量不足",
       "insufficientFundsUnconfirmed": "资金仍在确认中。请在确认后重试。",
-      "fundsFragmented": "此提供者要求资金集中在单个地址。请将全部余额转移到您自己的地址进行汇总，并在交易确认后重试。",
       "transactionRejected": "用户已拒绝交易",
       "insufficientFundsForProtocolFee": "没有足够的 %{symbol} 来支付%{chainName} 上的费用",
       "unsupportedTradePair": "不支持的交易对",

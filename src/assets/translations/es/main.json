@@ -1035,7 +1035,6 @@
       "sellAmountDoesNotCoverFee": "Cantidad de venta inferior a la tarifa",
       "insufficientFunds": "Fondos insuficientes para la tarifa y el monto del minero",
       "insufficientFundsUnconfirmed": "Fondos aún se están confirmando. Inténtelo nuevamente una vez se hayan confirmado.",
-      "fundsFragmented": "Este proveedor requiere fondos en una sola dirección. Consolida tus fondos enviándote el saldo completo a ti mismo y vuelve a intentarlo una vez que se confirme la transacción.",
       "transactionRejected": "Usuario ha rechazado la transacción.",
       "insufficientFundsForProtocolFee": "%{symbol} insuficiente en %{chainName} para las tarifas",
       "unsupportedTradePair": "Par No Compatible",

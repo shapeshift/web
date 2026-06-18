@@ -1035,7 +1035,6 @@
       "sellAmountDoesNotCoverFee": "Quantidade muito pequena. O valor de venda para este par é menor do que a taxa.",
       "insufficientFunds": "Saldo insuficiente para efetivar as taxas da rede.",
       "insufficientFundsUnconfirmed": "Fundos ainda confirmando. Tente novamente quando for confirmado. ",
-      "fundsFragmented": "Este provedor exige fundos em um único endereço. Consolide enviando seu saldo total para você mesmo e tente novamente após a confirmação.",
       "transactionRejected": "O usuário rejeitou a transação",
       "insufficientFundsForProtocolFee": "Insuficiente %{symbol} na %{chainName} para taxas",
       "unsupportedTradePair": "Par Não Suportado",

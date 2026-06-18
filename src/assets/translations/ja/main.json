@@ -1035,7 +1035,6 @@
       "sellAmountDoesNotCoverFee": "手数料よりも低い金額で売却する",
       "insufficientFunds": "マイナーの手数料と金額に対して資金が不十分です",
       "insufficientFundsUnconfirmed": "資金の確認中です。承認され次第、再度お試しください。",
-      "fundsFragmented": "このプロバイダーは、単一のアドレスに資金があることを要求します。残高全額を自分宛てに送金して資金を集約し、承認されたら再度お試しください。",
       "transactionRejected": "ユーザーが取引を拒否しました",
       "insufficientFundsForProtocolFee": "%{chainName} の %{symbol} が手数料として不十分です",
       "unsupportedTradePair": "サポートされていないトレードペア",

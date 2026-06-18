@@ -58,8 +58,8 @@ const envSchema = z.object({
   TON_NODE_URL: url,
   STARKNET_NODE_URL: url,
   NEAR_NODE_URL: url,
-  NEAR_NODE_URL_FALLBACK_1: z.string().default(''),
-  NEAR_NODE_URL_FALLBACK_2: z.string().default(''),
+  NEAR_NODE_URL_FALLBACK_1: z.union([url, z.literal('')]).default(''),
+  NEAR_NODE_URL_FALLBACK_2: z.union([url, z.literal('')]).default(''),
   FASTNEAR_API_URL: url,
 
   // Midgard URLs

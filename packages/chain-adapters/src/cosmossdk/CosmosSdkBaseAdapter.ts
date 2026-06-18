@@ -291,7 +291,9 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
       const transactions = await Promise.all(
         data.txs.reduce<Promise<Transaction>[]>((prev, tx) => {
           if (input.knownTxIds?.has(tx.txid)) return prev
-          prev.push(requestQueue.add(() => this.parseTx(tx, input.pubkey), { throwOnTimeout: true }))
+          prev.push(
+            requestQueue.add(() => this.parseTx(tx, input.pubkey), { throwOnTimeout: true }),
+          )
           return prev
         }, []),
       )

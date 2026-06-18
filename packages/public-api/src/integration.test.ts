@@ -368,27 +368,23 @@ describe('/v1/swap/rates', () => {
 })
 
 describe('/v1/swap/quote', () => {
-  it(
-    'does not require authentication',
-    { retry: 2 },
-    async () => {
-      const res = await fetch(`${API_URL}/v1/swap/quote`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sellAssetId: ASSET_IDS.ETH,
-          buyAssetId: ASSET_IDS.USDC_ETH,
-          sellAmountCryptoBaseUnit: '100000000000000000',
-          sendAddress: ADDRESS.evm,
-          receiveAddress: ADDRESS.evm,
-          swapperName: '0x',
-        }),
-      })
-      expect(res.status).not.toBe(401)
-      const data = (await res.json()) as QuoteResponse
-      expect(data).toMatchObject({ quoteId: expect.any(String), swapperName: expect.any(String) })
-    },
-  )
+  it('does not require authentication', { retry: 2 }, async () => {
+    const res = await fetch(`${API_URL}/v1/swap/quote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sellAssetId: ASSET_IDS.ETH,
+        buyAssetId: ASSET_IDS.USDC_ETH,
+        sellAmountCryptoBaseUnit: '100000000000000000',
+        sendAddress: ADDRESS.evm,
+        receiveAddress: ADDRESS.evm,
+        swapperName: '0x',
+      }),
+    })
+    expect(res.status).not.toBe(401)
+    const data = (await res.json()) as QuoteResponse
+    expect(data).toMatchObject({ quoteId: expect.any(String), swapperName: expect.any(String) })
+  })
 
   it.each(QUOTES)(
     'returns a quote $label via $swapperName',

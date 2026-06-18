@@ -22,6 +22,8 @@ describe('SwapMachine Types', () => {
       },
       sellAmount: '1.0',
       sellAmountBaseUnit: '1000000000000000000',
+      isSellAmountFiat: false,
+      sellAmountFiat: '',
       selectedRate: null,
       quote: null,
       txHash: null,
@@ -67,7 +69,13 @@ describe('SwapMachine Types', () => {
           precision: 6,
         },
       },
-      { type: 'SET_SELL_AMOUNT', amount: '1.0', amountBaseUnit: '1000000000000000000' },
+      {
+        type: 'SET_SELL_AMOUNT',
+        amount: '1.0',
+        amountBaseUnit: '1000000000000000000',
+        fiatValue: '',
+      },
+      { type: 'SET_SELL_FIAT_MODE', isFiat: true },
       { type: 'SET_SLIPPAGE', slippage: '1.0' },
       {
         type: 'SELECT_RATE',
@@ -105,7 +113,7 @@ describe('SwapMachine Types', () => {
       },
     ]
 
-    expect(events).toHaveLength(20)
+    expect(events).toHaveLength(21)
     const eventTypes = events.map(e => e.type)
     expect(eventTypes).toContain('SET_SELL_ASSET')
     expect(eventTypes).toContain('RESET')

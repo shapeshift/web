@@ -9,7 +9,13 @@ import { erc20Abi } from 'viem'
 import { useConfig } from 'wagmi'
 
 import type { AssetId } from '../types'
-import { formatAmount, getChainType, UTXO_CHAIN_IDS } from '../types'
+import {
+  formatAmount,
+  isWidgetExecutableEvmChainId,
+  isWidgetExecutableSolanaChainId,
+  isWidgetExecutableUtxoChainId,
+  UTXO_CHAIN_IDS,
+} from '../types'
 
 const CONCURRENCY_LIMIT = 5
 const DELAY_BETWEEN_BATCHES_MS = 50
@@ -58,7 +64,14 @@ const SOLANA_PUBLIC_RPC = 'https://api.mainnet-beta.solana.com'
 const parseAssetIdMultiChain = (assetId: AssetId): ParsedAsset => {
   try {
     const { chainNamespace, chainReference, assetNamespace, assetReference } = fromAssetId(assetId)
-    const chainType = getChainType(assetId.split('/')[0] as string)
+    const chainId = assetId.split('/')[0] as string
+    const chainType = isWidgetExecutableEvmChainId(chainId)
+      ? 'evm'
+      : isWidgetExecutableUtxoChainId(chainId)
+      ? 'utxo'
+      : isWidgetExecutableSolanaChainId(chainId)
+      ? 'solana'
+      : undefined
 
     if (chainType === 'evm' && chainNamespace === CHAIN_NAMESPACE.Evm) {
       const evmChainId = Number(chainReference)

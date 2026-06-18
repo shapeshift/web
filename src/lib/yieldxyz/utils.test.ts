@@ -35,9 +35,9 @@ describe('getTransactionButtonText', () => {
   it('should use staking terminology when yieldType is staking', () => {
     expect(getTransactionButtonText('STAKE', undefined, 'staking')).toBe('Stake')
     expect(getTransactionButtonText('UNSTAKE', undefined, 'staking')).toBe('Unstake')
-    expect(getTransactionButtonText('DEPOSIT', undefined, 'liquid-staking')).toBe('Stake')
-    expect(getTransactionButtonText('WITHDRAW', undefined, 'liquid-staking')).toBe('Unstake')
-    expect(getTransactionButtonText(undefined, 'Deposit ETH', 'native-staking')).toBe('Stake')
+    expect(getTransactionButtonText('DEPOSIT', undefined, 'liquid_staking')).toBe('Stake')
+    expect(getTransactionButtonText('WITHDRAW', undefined, 'liquid_staking')).toBe('Unstake')
+    expect(getTransactionButtonText(undefined, 'Deposit ETH', 'native_staking')).toBe('Stake')
   })
 
   it('should return Confirm as final fallback', () => {
@@ -301,15 +301,15 @@ describe('getYieldActionLabelKeys', () => {
       enter: 'defi.stake',
       exit: 'defi.unstake',
     })
-    expect(getYieldActionLabelKeys('native-staking')).toEqual({
+    expect(getYieldActionLabelKeys('native_staking')).toEqual({
       enter: 'defi.stake',
       exit: 'defi.unstake',
     })
-    expect(getYieldActionLabelKeys('pooled-staking')).toEqual({
+    expect(getYieldActionLabelKeys('pooled_staking')).toEqual({
       enter: 'defi.stake',
       exit: 'defi.unstake',
     })
-    expect(getYieldActionLabelKeys('liquid-staking')).toEqual({
+    expect(getYieldActionLabelKeys('liquid_staking')).toEqual({
       enter: 'defi.stake',
       exit: 'defi.unstake',
     })
@@ -340,9 +340,9 @@ describe('getYieldActionLabelKeys', () => {
 describe('isStakingYieldType', () => {
   it('should return true for staking-related yield types', () => {
     expect(isStakingYieldType('staking')).toBe(true)
-    expect(isStakingYieldType('native-staking')).toBe(true)
-    expect(isStakingYieldType('pooled-staking')).toBe(true)
-    expect(isStakingYieldType('liquid-staking')).toBe(true)
+    expect(isStakingYieldType('native_staking')).toBe(true)
+    expect(isStakingYieldType('pooled_staking')).toBe(true)
+    expect(isStakingYieldType('liquid_staking')).toBe(true)
     expect(isStakingYieldType('restaking')).toBe(true)
   })
 
@@ -361,9 +361,9 @@ describe('formatYieldTxTitle', () => {
 
   it('should use staking terminology when yieldType is staking', () => {
     expect(formatYieldTxTitle('Deposit ETH', 'ETH', 'staking')).toBe('Stake ETH')
-    expect(formatYieldTxTitle('Withdraw ETH', 'ETH', 'liquid-staking')).toBe('Unstake ETH')
-    expect(formatYieldTxTitle('Exit ETH', 'ETH', 'native-staking')).toBe('Unstake ETH')
-    expect(formatYieldTxTitle('Unstake ETH', 'ETH', 'pooled-staking')).toBe('Unstake ETH')
+    expect(formatYieldTxTitle('Withdraw ETH', 'ETH', 'liquid_staking')).toBe('Unstake ETH')
+    expect(formatYieldTxTitle('Exit ETH', 'ETH', 'native_staking')).toBe('Unstake ETH')
+    expect(formatYieldTxTitle('Unstake ETH', 'ETH', 'pooled_staking')).toBe('Unstake ETH')
   })
 
   it('should preserve unknown titles', () => {
@@ -376,9 +376,9 @@ describe('getYieldSuccessMessageKey', () => {
   it('should return staking success keys for staking yield types', () => {
     expect(getYieldSuccessMessageKey('staking', 'enter')).toBe('successStaked')
     expect(getYieldSuccessMessageKey('staking', 'exit')).toBe('successUnstaked')
-    expect(getYieldSuccessMessageKey('native-staking', 'enter')).toBe('successStaked')
-    expect(getYieldSuccessMessageKey('liquid-staking', 'exit')).toBe('successUnstaked')
-    expect(getYieldSuccessMessageKey('pooled-staking', 'enter')).toBe('successStaked')
+    expect(getYieldSuccessMessageKey('native_staking', 'enter')).toBe('successStaked')
+    expect(getYieldSuccessMessageKey('liquid_staking', 'exit')).toBe('successUnstaked')
+    expect(getYieldSuccessMessageKey('pooled_staking', 'enter')).toBe('successStaked')
   })
 
   it('should return staking success key for restaking yield types', () => {

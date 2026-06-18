@@ -366,7 +366,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       }
 
       throw lastError || new Error('Max retries exceeded for TON RPC request')
-    }) as Promise<T>
+    }, { throwOnTimeout: true })
   }
 
   private formatTonError(error: string): string {
@@ -446,7 +446,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       }
 
       throw lastError || new Error('Max retries exceeded')
-    }) as Promise<T>
+    }, { throwOnTimeout: true })
   }
 
   getName() {
@@ -634,7 +634,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
         return response
       }
 
-      const data = requestQueue ? await requestQueue.add(fetchTxHistory) : await fetchTxHistory()
+      const data = requestQueue
+        ? await requestQueue.add(fetchTxHistory, { throwOnTimeout: true })
+        : await fetchTxHistory()
 
       if (!data?.transactions || data.transactions.length === 0) {
         return {
@@ -653,7 +655,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
 
       const bufferedMaxLt = (BigInt(maxLt) + TRACE_LT_SEARCH_RANGE).toString()
       const fetchJettons = () => this.fetchJettonTransfers(pubkey, minLt, bufferedMaxLt)
-      const jettonData = requestQueue ? await requestQueue.add(fetchJettons) : await fetchJettons()
+      const jettonData = requestQueue
+        ? await requestQueue.add(fetchJettons, { throwOnTimeout: true })
+        : await fetchJettons()
 
       const jettonAddrBook = { ...addressBook, ...jettonData.address_book }
 

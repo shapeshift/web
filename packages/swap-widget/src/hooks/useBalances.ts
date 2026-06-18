@@ -199,7 +199,7 @@ export const useEvmBalances = (
           } catch {
             return null
           }
-        })
+        }, { throwOnTimeout: true })
       },
       enabled: !!address,
       staleTime: 60_000,
@@ -231,7 +231,7 @@ export const useEvmBalances = (
           } catch {
             return null
           }
-        })
+        }, { throwOnTimeout: true })
       },
       enabled: !!address,
       staleTime: 60_000,

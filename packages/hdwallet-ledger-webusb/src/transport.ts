@@ -21,7 +21,7 @@ import {
   openApp,
   Thorchain,
 } from '@shapeshiftoss/hdwallet-ledger'
-import PQueue from 'p-queue/dist'
+import PQueue from 'p-queue'
 
 import { VENDOR_ID } from './adapter'
 

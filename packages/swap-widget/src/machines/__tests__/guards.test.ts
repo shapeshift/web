@@ -31,6 +31,8 @@ const createTestContext = (overrides?: Partial<SwapMachineContext>): SwapMachine
   },
   sellAmount: '1.0',
   sellAmountBaseUnit: '1000000000000000000',
+  isSellAmountFiat: false,
+  sellAmountFiat: '',
   selectedRate: null,
   quote: null,
   txHash: null,

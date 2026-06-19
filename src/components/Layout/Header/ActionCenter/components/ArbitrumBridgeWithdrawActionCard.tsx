@@ -4,13 +4,12 @@ import { BigAmount } from '@shapeshiftoss/utils'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { ActionCard } from './ActionCard'
 import { ActionStatusIcon } from './ActionStatusIcon'
 import { ActionStatusTag } from './ActionStatusTag'
-import { ArbitrumBridgeClaimModal } from './ArbitrumBridgeClaimModal'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
@@ -28,14 +27,14 @@ dayjs.extend(duration)
 
 type ArbitrumBridgeWithdrawActionCardProps = {
   action: ArbitrumBridgeWithdrawAction
+  onClaimClick: (action: ArbitrumBridgeWithdrawAction) => void
 }
 
 export const ArbitrumBridgeWithdrawActionCard = ({
   action,
+  onClaimClick,
 }: ArbitrumBridgeWithdrawActionCardProps) => {
   const translate = useTranslate()
-  const [isClaimModalOpen, setIsClaimModalOpen] = useState(false)
-  const handleCloseModal = useCallback(() => setIsClaimModalOpen(false), [])
 
   const sellAsset = useAppSelector(state =>
     selectAssetById(state, action.arbitrumBridgeMetadata.assetId),
@@ -60,11 +59,14 @@ export const ArbitrumBridgeWithdrawActionCard = ({
     defaultIsOpen: action.status === ActionStatus.ClaimAvailable,
   })
 
-  const handleClaimClick = useCallback((e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsClaimModalOpen(true)
-  }, [])
+  const handleClaimClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      onClaimClick(action)
+    },
+    [action, onClaimClick],
+  )
 
   const buyAmountCryptoPrecision = useMemo(() => {
     if (!buyAsset) return '0'
@@ -200,27 +202,18 @@ export const ArbitrumBridgeWithdrawActionCard = ({
   if (!sellAsset || !buyAsset || !action.arbitrumBridgeMetadata) return null
 
   return (
-    <>
-      <ActionCard
-        type={action.type}
-        displayType={GenericTransactionDisplayType.Bridge}
-        formattedDate={formattedDate}
-        isCollapsable={isCollapsable}
-        isOpen={isOpen}
-        onToggle={onToggle}
-        description={description}
-        icon={icon}
-        footer={footer}
-      >
-        {details}
-      </ActionCard>
-      {isClaimModalOpen && (
-        <ArbitrumBridgeClaimModal
-          action={action}
-          isOpen={isClaimModalOpen}
-          onClose={handleCloseModal}
-        />
-      )}
-    </>
+    <ActionCard
+      type={action.type}
+      displayType={GenericTransactionDisplayType.Bridge}
+      formattedDate={formattedDate}
+      isCollapsable={isCollapsable}
+      isOpen={isOpen}
+      onToggle={onToggle}
+      description={description}
+      icon={icon}
+      footer={footer}
+    >
+      {details}
+    </ActionCard>
   )
 }

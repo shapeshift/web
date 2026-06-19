@@ -335,7 +335,6 @@
       "@bithighlander/bitcoin-cash-js-lib@^5.2.1": "5.2.1",
       "friendly-challenge@0.9.2": "0.9.2",
       "react-dom@^18.2.0": "18.2.0",
-      "p-queue": "^6.6.2",
       "web3": "4.2.1-dev.a0d6730.0",
       "@shapeshiftoss/bitcoinjs-lib@5.2.0-shapeshift.2": "5.2.0-shapeshift.2",
       "@typescript-eslint/parser": "^8.16.0",

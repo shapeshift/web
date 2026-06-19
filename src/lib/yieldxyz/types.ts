@@ -32,9 +32,9 @@ export enum ActionIntent {
 
 export type YieldType =
   | 'staking'
-  | 'native-staking'
-  | 'pooled-staking'
-  | 'liquid-staking'
+  | 'native_staking'
+  | 'pooled_staking'
+  | 'liquid_staking'
   | 'restaking'
   | 'vault'
   | 'lending'

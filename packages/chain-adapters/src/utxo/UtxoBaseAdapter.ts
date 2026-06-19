@@ -547,21 +547,23 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     const requestQueue = input.requestQueue ?? new PQueue()
 
     if (!this.accountAddresses[input.pubkey]) {
-      await requestQueue.add(() => this.getAccount(input.pubkey))
+      await requestQueue.add(() => this.getAccount(input.pubkey), { throwOnTimeout: true })
     }
 
-    const data = await requestQueue.add(() =>
-      this.providers.http.getTxHistory({
-        pubkey: input.pubkey,
-        pageSize: input.pageSize,
-        cursor: input.cursor,
-      }),
+    const data = await requestQueue.add(
+      () =>
+        this.providers.http.getTxHistory({
+          pubkey: input.pubkey,
+          pageSize: input.pageSize,
+          cursor: input.cursor,
+        }),
+      { throwOnTimeout: true },
     )
 
     const transactions = await Promise.all(
       data.txs.reduce<Promise<Transaction>[]>((prev, tx) => {
         if (input.knownTxIds?.has(tx.txid)) return prev
-        prev.push(requestQueue.add(() => this.parseTx(tx, input.pubkey)))
+        prev.push(requestQueue.add(() => this.parseTx(tx, input.pubkey), { throwOnTimeout: true }))
         return prev
       }, []),
     )

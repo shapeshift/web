@@ -18,6 +18,7 @@ import { Virtuoso } from 'react-virtuoso'
 
 import { useActionCenterContext } from './ActionCenterContext'
 import { AppUpdateActionCard } from './components/AppUpdateActionCard'
+import { ArbitrumBridgeClaimModal } from './components/ArbitrumBridgeClaimModal'
 import { ArbitrumBridgeWithdrawActionCard } from './components/ArbitrumBridgeWithdrawActionCard'
 import { ChainflipLendingActionCard } from './components/ChainflipLendingActionCard'
 import { EmptyState } from './components/EmptyState'
@@ -41,10 +42,14 @@ import {
   selectWalletActionsSorted,
   selectWalletPendingActions,
 } from '@/state/slices/actionSlice/selectors'
-import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
+import type {
+  ArbitrumBridgeWithdrawAction,
+  GenericTransactionAction,
+} from '@/state/slices/actionSlice/types'
 import {
   ActionType,
   GenericTransactionDisplayType,
+  isArbitrumBridgeWithdrawAction,
   isGenericTransactionAction,
 } from '@/state/slices/actionSlice/types'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
@@ -76,6 +81,7 @@ export const ActionCenter = memo(() => {
   const translate = useTranslate()
   const [orderToCancel, setOrderToCancel] = useState<OrderToCancel | undefined>(undefined)
   const [speedUpActionId, setSpeedUpActionId] = useState<string | undefined>(undefined)
+  const [arbitrumClaimActionId, setArbitrumClaimActionId] = useState<string | undefined>(undefined)
 
   const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
 
@@ -85,6 +91,12 @@ export const ActionCenter = memo(() => {
     return action && isGenericTransactionAction(action) ? action : undefined
   }, [actionsById, speedUpActionId])
 
+  const arbitrumClaimAction = useMemo(() => {
+    if (!arbitrumClaimActionId) return
+    const action = actionsById[arbitrumClaimActionId]
+    return action && isArbitrumBridgeWithdrawAction(action) ? action : undefined
+  }, [actionsById, arbitrumClaimActionId])
+
   const handleOpenSpeedUp = useCallback(
     (action: GenericTransactionAction) => {
       setSpeedUpActionId(action.id)
@@ -92,6 +104,12 @@ export const ActionCenter = memo(() => {
     },
     [closeDrawer],
   )
+
+  const handleOpenArbitrumClaim = useCallback((action: ArbitrumBridgeWithdrawAction) => {
+    setArbitrumClaimActionId(action.id)
+  }, [])
+
+  const handleCloseArbitrumClaim = useCallback(() => setArbitrumClaimActionId(undefined), [])
 
   const actions = useAppSelector(state => (isConnected ? selectWalletActionsSorted(state) : []))
 
@@ -166,7 +184,13 @@ export const ActionCenter = memo(() => {
             return <RewardDistributionActionCard key={action.id} action={action} />
           }
           case ActionType.ArbitrumBridgeWithdraw: {
-            return <ArbitrumBridgeWithdrawActionCard key={action.id} action={action} />
+            return (
+              <ArbitrumBridgeWithdrawActionCard
+                key={action.id}
+                action={action}
+                onClaimClick={handleOpenArbitrumClaim}
+              />
+            )
           }
           case ActionType.ChainflipLending: {
             return <ChainflipLendingActionCard key={action.id} action={action} />
@@ -178,7 +202,7 @@ export const ActionCenter = memo(() => {
 
       return actionsCards
     }
-  }, [actions, handleOpenSpeedUp, ordersByActionId, swapsById])
+  }, [actions, handleOpenArbitrumClaim, handleOpenSpeedUp, ordersByActionId, swapsById])
 
   const actionCenterButton = useMemo(() => {
     if (pendingActions.length) {
@@ -282,6 +306,13 @@ export const ActionCenter = memo(() => {
           btcUtxoRbfTxMetadata={speedUpAction.transactionMetadata.btcUtxoRbfTxMetadata}
           isOpen={Boolean(speedUpAction)}
           onClose={() => setSpeedUpActionId(undefined)}
+        />
+      )}
+      {arbitrumClaimAction && (
+        <ArbitrumBridgeClaimModal
+          action={arbitrumClaimAction}
+          isOpen={Boolean(arbitrumClaimAction)}
+          onClose={handleCloseArbitrumClaim}
         />
       )}
     </>

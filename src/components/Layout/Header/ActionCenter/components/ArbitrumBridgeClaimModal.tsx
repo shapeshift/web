@@ -21,6 +21,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { useArbitrumClaimTx } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/hooks/useArbitrumClaimTx'
 import { Row } from '@/components/Row/Row'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { middleEllipsis } from '@/lib/utils'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
@@ -175,6 +176,11 @@ export const ArbitrumBridgeClaimModal = ({
     onClose()
   }, [isClaimCompleted, onClose])
 
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
+    isOpen,
+    onClose,
+  })
+
   if (!asset || !destinationAsset || !destinationFeeAsset) return null
 
   // Shouldn't happen but it may for a few renders after claim - handle gracefully to avoid us crashing in a disgusting way
@@ -183,9 +189,9 @@ export const ArbitrumBridgeClaimModal = ({
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size='md'>
-      <ModalOverlay />
-      <ModalContent>
+    <Modal size='md' {...modalProps}>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent pointerEvents='all' {...modalContentProps}>
         <ModalHeader>{translate('common.confirm')}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>

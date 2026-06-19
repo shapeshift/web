@@ -1,6 +1,8 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import * as adapters from '@shapeshiftoss/chain-adapters'
 import type { SwapperDeps } from '@shapeshiftoss/swapper'
+import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
@@ -11,6 +13,34 @@ import { env } from './env'
 // ws is required by chain-adapter constructors but the public-api never
 // subscribes to txs, so the URL is never dialed.
 const wsPlaceholderUrl = 'ws://localhost'
+
+// Second-class EVM and Starknet adapters resolve their token list lazily from the
+// loaded asset data, mirroring the main web app's per-chain getKnownTokens closures.
+const makeGetKnownTokens =
+  (chainId: ChainId, assetNamespace: string, normalizeAddress?: (reference: string) => string) =>
+  () =>
+    Object.values(getAssetsById())
+      .filter((asset): asset is Asset => {
+        if (!asset) return false
+        const { chainId: assetChainId, assetNamespace: namespace } = fromAssetId(asset.assetId)
+        return assetChainId === chainId && namespace === assetNamespace
+      })
+      .map(asset => {
+        const { assetReference } = fromAssetId(asset.assetId)
+        return {
+          assetId: asset.assetId,
+          contractAddress: normalizeAddress ? normalizeAddress(assetReference) : assetReference,
+          symbol: asset.symbol,
+          name: asset.name,
+          precision: asset.precision,
+        }
+      })
+
+// Starknet contract addresses are stored unpadded; the adapter matches on 64-char hex.
+const normalizeStarknetAddress = (reference: string) =>
+  reference.startsWith('0x')
+    ? `0x${reference.slice(2).padStart(64, '0')}`
+    : `0x${reference.padStart(64, '0')}`
 
 const evmAdapters: Record<ChainId, adapters.EvmChainAdapter> = {
   [KnownChainIds.EthereumMainnet]: new adapters.ethereum.ChainAdapter({
@@ -92,6 +122,27 @@ const evmAdapters: Record<ChainId, adapters.EvmChainAdapter> = {
     },
     rpcUrl: env.VITE_BASE_NODE_URL,
   }),
+  // Second-class EVM chains — rpcUrl + lazily-resolved known tokens, no unchained http/ws.
+  [KnownChainIds.HyperEvmMainnet]: new adapters.hyperevm.ChainAdapter({
+    rpcUrl: env.VITE_HYPEREVM_NODE_URL,
+    getKnownTokens: makeGetKnownTokens(KnownChainIds.HyperEvmMainnet, 'erc20'),
+  }),
+  [KnownChainIds.KatanaMainnet]: new adapters.katana.ChainAdapter({
+    rpcUrl: env.VITE_KATANA_NODE_URL,
+    getKnownTokens: makeGetKnownTokens(KnownChainIds.KatanaMainnet, 'erc20'),
+  }),
+  [KnownChainIds.MegaEthMainnet]: new adapters.megaeth.ChainAdapter({
+    rpcUrl: env.VITE_MEGAETH_NODE_URL,
+    getKnownTokens: makeGetKnownTokens(KnownChainIds.MegaEthMainnet, 'erc20'),
+  }),
+  [KnownChainIds.MonadMainnet]: new adapters.monad.ChainAdapter({
+    rpcUrl: env.VITE_MONAD_NODE_URL,
+    getKnownTokens: makeGetKnownTokens(KnownChainIds.MonadMainnet, 'erc20'),
+  }),
+  [KnownChainIds.PlasmaMainnet]: new adapters.plasma.ChainAdapter({
+    rpcUrl: env.VITE_PLASMA_NODE_URL,
+    getKnownTokens: makeGetKnownTokens(KnownChainIds.PlasmaMainnet, 'erc20'),
+  }),
 }
 
 const utxoAdapters: Record<ChainId, adapters.UtxoChainAdapter> = {
@@ -136,10 +187,98 @@ const utxoAdapters: Record<ChainId, adapters.UtxoChainAdapter> = {
     coinName: 'BitcoinCash',
     thorMidgardUrl: env.THORCHAIN_MIDGARD_URL,
   }),
+  [KnownChainIds.ZcashMainnet]: new adapters.zcash.ChainAdapter({
+    providers: {
+      http: new unchained.zcash.V1Api(
+        new unchained.zcash.Configuration({ basePath: env.UNCHAINED_ZCASH_HTTP_URL }),
+      ),
+      ws: new unchained.ws.Client<unchained.utxo.Tx>(wsPlaceholderUrl),
+    },
+    coinName: 'Zcash',
+    thorMidgardUrl: env.THORCHAIN_MIDGARD_URL,
+    mayaMidgardUrl: env.MAYACHAIN_MIDGARD_URL,
+  }),
 }
 
-const notImplemented = (type: string) => () => {
-  throw new Error(`Chain adapter ${type} not implemented in public API`)
+const cosmosSdkAdapters: Record<ChainId, adapters.CosmosSdkChainAdapter> = {
+  [KnownChainIds.CosmosMainnet]: new adapters.cosmos.ChainAdapter({
+    providers: {
+      http: new unchained.cosmos.V1Api(
+        new unchained.cosmos.Configuration({ basePath: env.UNCHAINED_COSMOS_HTTP_URL }),
+      ),
+      ws: new unchained.ws.Client<unchained.cosmossdk.Tx>(wsPlaceholderUrl),
+    },
+    coinName: 'Cosmos',
+    midgardUrl: env.THORCHAIN_MIDGARD_URL,
+  }),
+  [KnownChainIds.ThorchainMainnet]: new adapters.thorchain.ChainAdapter({
+    providers: {
+      http: new unchained.thorchain.V1Api(
+        new unchained.thorchain.Configuration({ basePath: env.UNCHAINED_THORCHAIN_HTTP_URL }),
+      ),
+      ws: new unchained.ws.Client<unchained.cosmossdk.Tx>(wsPlaceholderUrl),
+    },
+    coinName: 'Thorchain',
+    thorMidgardUrl: env.THORCHAIN_MIDGARD_URL,
+    mayaMidgardUrl: env.MAYACHAIN_MIDGARD_URL,
+    httpV1: new unchained.thorchainV1.V1Api(
+      new unchained.thorchainV1.Configuration({ basePath: env.UNCHAINED_THORCHAIN_V1_HTTP_URL }),
+    ),
+  }),
+  [KnownChainIds.MayachainMainnet]: new adapters.mayachain.ChainAdapter({
+    providers: {
+      http: new unchained.mayachain.V1Api(
+        new unchained.mayachain.Configuration({ basePath: env.UNCHAINED_MAYACHAIN_HTTP_URL }),
+      ),
+      ws: new unchained.ws.Client<unchained.cosmossdk.Tx>(wsPlaceholderUrl),
+    },
+    coinName: 'Mayachain',
+    midgardUrl: env.MAYACHAIN_MIDGARD_URL,
+  }),
+}
+
+const solanaAdapter = new adapters.solana.ChainAdapter({
+  providers: {
+    http: new unchained.solana.V1Api(
+      new unchained.solana.Configuration({ basePath: env.UNCHAINED_SOLANA_HTTP_URL }),
+    ),
+    ws: new unchained.ws.Client<unchained.solana.Tx>(wsPlaceholderUrl),
+  },
+  rpcUrl: env.SOLANA_NODE_URL,
+})
+
+const tronAdapter = new adapters.tron.ChainAdapter({
+  providers: { http: new unchained.tron.TronApi({ rpcUrl: env.TRON_NODE_URL }) },
+  rpcUrl: env.TRON_NODE_URL,
+})
+
+const suiAdapter = new adapters.sui.ChainAdapter({ rpcUrl: env.SUI_NODE_URL })
+
+const tonAdapter = new adapters.ton.ChainAdapter({ rpcUrl: env.TON_NODE_URL })
+
+const nearAdapter = new adapters.near.ChainAdapter({
+  rpcUrls: [env.NEAR_NODE_URL, env.NEAR_NODE_URL_FALLBACK_1, env.NEAR_NODE_URL_FALLBACK_2].filter(
+    Boolean,
+  ),
+  fastNearApiUrl: env.FASTNEAR_API_URL,
+})
+
+const starknetAdapter = new adapters.starknet.ChainAdapter({
+  rpcUrl: env.STARKNET_NODE_URL,
+  getKnownTokens: makeGetKnownTokens(
+    KnownChainIds.StarknetMainnet,
+    'token',
+    normalizeStarknetAddress,
+  ),
+})
+
+const otherAdaptersById: Record<ChainId, unknown> = {
+  [KnownChainIds.SolanaMainnet]: solanaAdapter,
+  [KnownChainIds.TronMainnet]: tronAdapter,
+  [KnownChainIds.SuiMainnet]: suiAdapter,
+  [KnownChainIds.TonMainnet]: tonAdapter,
+  [KnownChainIds.NearMainnet]: nearAdapter,
+  [KnownChainIds.StarknetMainnet]: starknetAdapter,
 }
 
 export const getSwapperDeps = (): SwapperDeps => ({
@@ -147,9 +286,13 @@ export const getSwapperDeps = (): SwapperDeps => ({
   config: getServerConfig(),
   mixPanel: undefined,
   assertGetChainAdapter: (chainId: ChainId) => {
-    const adapter = evmAdapters[chainId] ?? utxoAdapters[chainId]
+    const adapter =
+      evmAdapters[chainId] ??
+      utxoAdapters[chainId] ??
+      cosmosSdkAdapters[chainId] ??
+      otherAdaptersById[chainId]
     if (!adapter) throw new Error(`No chain adapter registered for ${chainId}`)
-    return adapter as unknown as adapters.ChainAdapter<KnownChainIds>
+    return adapter as adapters.ChainAdapter<KnownChainIds>
   },
   assertGetEvmChainAdapter: (chainId: ChainId) => {
     const adapter = evmAdapters[chainId]
@@ -161,26 +304,16 @@ export const getSwapperDeps = (): SwapperDeps => ({
     if (!adapter) throw new Error(`No UTXO chain adapter registered for ${chainId}`)
     return adapter
   },
-  assertGetCosmosSdkChainAdapter: notImplemented('CosmosSdk') as unknown as (
-    chainId: ChainId,
-  ) => adapters.CosmosSdkChainAdapter,
-  assertGetSolanaChainAdapter: notImplemented('Solana') as unknown as (
-    chainId: ChainId,
-  ) => adapters.solana.ChainAdapter,
-  assertGetTronChainAdapter: notImplemented('Tron') as unknown as (
-    chainId: ChainId,
-  ) => adapters.tron.ChainAdapter,
-  assertGetSuiChainAdapter: notImplemented('Sui') as unknown as (
-    chainId: ChainId,
-  ) => adapters.sui.ChainAdapter,
-  assertGetNearChainAdapter: notImplemented('Near') as unknown as (
-    chainId: ChainId,
-  ) => adapters.near.ChainAdapter,
-  assertGetStarknetChainAdapter: notImplemented('Starknet') as unknown as (
-    chainId: ChainId,
-  ) => adapters.starknet.ChainAdapter,
-  assertGetTonChainAdapter: notImplemented('Ton') as unknown as (
-    chainId: ChainId,
-  ) => adapters.ton.ChainAdapter,
+  assertGetCosmosSdkChainAdapter: (chainId: ChainId) => {
+    const adapter = cosmosSdkAdapters[chainId]
+    if (!adapter) throw new Error(`No CosmosSdk chain adapter registered for ${chainId}`)
+    return adapter
+  },
+  assertGetSolanaChainAdapter: () => solanaAdapter,
+  assertGetTronChainAdapter: () => tronAdapter,
+  assertGetSuiChainAdapter: () => suiAdapter,
+  assertGetNearChainAdapter: () => nearAdapter,
+  assertGetStarknetChainAdapter: () => starknetAdapter,
+  assertGetTonChainAdapter: () => tonAdapter,
   fetchIsSmartContractAddressQuery: () => Promise.resolve(false),
 })

@@ -264,7 +264,7 @@ export const YieldsList = memo(() => {
     const uniqueTypes = [...new Set(sourceYields.map(y => y.mechanics.type))]
     return uniqueTypes.map(type => ({
       id: type,
-      name: type.charAt(0).toUpperCase() + type.slice(1).replace(/-/g, ' '),
+      name: type.charAt(0).toUpperCase() + type.slice(1).replace(/[-_]/g, ' '),
     }))
   }, [filterSourceYields, yields?.all])
 

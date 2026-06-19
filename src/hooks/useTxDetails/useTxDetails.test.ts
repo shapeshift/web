@@ -140,21 +140,21 @@ describe('yieldActionToMethod', () => {
       ).toBe(Method.Stake)
     })
 
-    it('should return Stake for native-staking yield deposits', () => {
+    it('should return Stake for native_staking yield deposits', () => {
       expect(
-        yieldActionToMethod(makeYieldAction(ActionType.Deposit, { yieldType: 'native-staking' })),
+        yieldActionToMethod(makeYieldAction(ActionType.Deposit, { yieldType: 'native_staking' })),
       ).toBe(Method.Stake)
     })
 
-    it('should return Stake for liquid-staking yield deposits', () => {
+    it('should return Stake for liquid_staking yield deposits', () => {
       expect(
-        yieldActionToMethod(makeYieldAction(ActionType.Deposit, { yieldType: 'liquid-staking' })),
+        yieldActionToMethod(makeYieldAction(ActionType.Deposit, { yieldType: 'liquid_staking' })),
       ).toBe(Method.Stake)
     })
 
-    it('should return Stake for pooled-staking yield deposits', () => {
+    it('should return Stake for pooled_staking yield deposits', () => {
       expect(
-        yieldActionToMethod(makeYieldAction(ActionType.Deposit, { yieldType: 'pooled-staking' })),
+        yieldActionToMethod(makeYieldAction(ActionType.Deposit, { yieldType: 'pooled_staking' })),
       ).toBe(Method.Stake)
     })
 
@@ -186,7 +186,7 @@ describe('yieldActionToMethod', () => {
       expect(
         yieldActionToMethod(
           makeYieldAction(ActionType.Withdraw, {
-            yieldType: 'liquid-staking',
+            yieldType: 'liquid_staking',
             cooldownPeriodSeconds: 86400,
           }),
         ),
@@ -203,7 +203,7 @@ describe('yieldActionToMethod', () => {
       expect(
         yieldActionToMethod(
           makeYieldAction(ActionType.Withdraw, {
-            yieldType: 'native-staking',
+            yieldType: 'native_staking',
             cooldownPeriodSeconds: 0,
           }),
         ),

@@ -73,9 +73,9 @@ const assertNever = (value: never): never => {
 
 const YIELD_TYPES: YieldType[] = [
   'staking',
-  'native-staking',
-  'pooled-staking',
-  'liquid-staking',
+  'native_staking',
+  'pooled_staking',
+  'liquid_staking',
   'restaking',
   'vault',
   'lending',
@@ -87,9 +87,9 @@ export const isValidYieldType = (value: string): value is YieldType =>
 export const isStakingYieldType = (yieldType: YieldType): boolean => {
   switch (yieldType) {
     case 'staking':
-    case 'native-staking':
-    case 'pooled-staking':
-    case 'liquid-staking':
+    case 'native_staking':
+    case 'pooled_staking':
+    case 'liquid_staking':
     case 'restaking':
       return true
     case 'vault':
@@ -250,15 +250,15 @@ export type YieldActionLabelKeys = {
  * Gets the appropriate translation keys for yield actions based on yield type.
  *
  * Yield types and their terminology:
- * - staking, native-staking, pooled-staking, liquid-staking, restaking → Stake/Unstake
+ * - staking, native_staking, pooled_staking, liquid_staking, restaking → Stake/Unstake
  * - vault, lending → Deposit/Withdraw
  */
 export const getYieldActionLabelKeys = (yieldType: YieldType): YieldActionLabelKeys => {
   switch (yieldType) {
     case 'staking':
-    case 'native-staking':
-    case 'pooled-staking':
-    case 'liquid-staking':
+    case 'native_staking':
+    case 'pooled_staking':
+    case 'liquid_staking':
     case 'restaking':
       return { enter: 'defi.stake', exit: 'defi.unstake' }
     case 'vault':
@@ -277,9 +277,9 @@ export type YieldLoadingStateKeys = {
 export const getYieldLoadingStateKeys = (yieldType: YieldType): YieldLoadingStateKeys => {
   switch (yieldType) {
     case 'staking':
-    case 'native-staking':
-    case 'pooled-staking':
-    case 'liquid-staking':
+    case 'native_staking':
+    case 'pooled_staking':
+    case 'liquid_staking':
     case 'restaking':
       return { enter: 'yieldXYZ.staking', exit: 'yieldXYZ.unstaking' }
     case 'vault':
@@ -298,9 +298,9 @@ export type YieldHeadingKeys = {
 export const getYieldHeadingKeys = (yieldType: YieldType): YieldHeadingKeys => {
   switch (yieldType) {
     case 'staking':
-    case 'native-staking':
-    case 'pooled-staking':
-    case 'liquid-staking':
+    case 'native_staking':
+    case 'pooled_staking':
+    case 'liquid_staking':
     case 'restaking':
       return { enter: 'yieldXYZ.stakeSymbol', exit: 'yieldXYZ.unstakeSymbol' }
     case 'vault':
@@ -319,9 +319,9 @@ export type YieldPendingStatusKeys = {
 export const getYieldPendingStatusKeys = (yieldType: YieldType): YieldPendingStatusKeys => {
   switch (yieldType) {
     case 'staking':
-    case 'native-staking':
-    case 'pooled-staking':
-    case 'liquid-staking':
+    case 'native_staking':
+    case 'pooled_staking':
+    case 'liquid_staking':
     case 'restaking':
       return { enter: 'yieldXYZ.stakingPending', exit: 'yieldXYZ.unstakingPending' }
     case 'vault':
@@ -335,9 +335,9 @@ export const getYieldPendingStatusKeys = (yieldType: YieldType): YieldPendingSta
 export const getYieldMinAmountKey = (yieldType: YieldType): string => {
   switch (yieldType) {
     case 'staking':
-    case 'native-staking':
-    case 'pooled-staking':
-    case 'liquid-staking':
+    case 'native_staking':
+    case 'pooled_staking':
+    case 'liquid_staking':
     case 'restaking':
       return 'yieldXYZ.minStake'
     case 'vault':
@@ -364,9 +364,9 @@ export const getYieldSuccessMessageKey = (
 
   switch (yieldType) {
     case 'staking':
-    case 'native-staking':
-    case 'pooled-staking':
-    case 'liquid-staking':
+    case 'native_staking':
+    case 'pooled_staking':
+    case 'liquid_staking':
     case 'restaking':
       return action === 'enter' ? 'successStaked' : 'successUnstaked'
     case 'vault':

@@ -184,22 +184,25 @@ export const useEvmBalances = (
       queryKey: ['nativeBalance', address, asset.chainId],
       queryFn: () => {
         if (!address) return Promise.resolve(null)
-        return balanceQueue.add(async () => {
-          try {
-            const result = await getBalance(config, {
-              address: address as `0x${string}`,
-              // @ts-ignore - swap-widget supports more chains than main app's wagmi type registration
-              chainId: asset.chainId,
-            })
-            return {
-              assetId: asset.assetId,
-              balance: result.value.toString(),
-              precision: asset.precision,
+        return balanceQueue.add(
+          async () => {
+            try {
+              const result = await getBalance(config, {
+                address: address as `0x${string}`,
+                // @ts-ignore - swap-widget supports more chains than main app's wagmi type registration
+                chainId: asset.chainId,
+              })
+              return {
+                assetId: asset.assetId,
+                balance: result.value.toString(),
+                precision: asset.precision,
+              }
+            } catch {
+              return null
             }
-          } catch {
-            return null
-          }
-        })
+          },
+          { throwOnTimeout: true },
+        )
       },
       enabled: !!address,
       staleTime: 60_000,
@@ -212,26 +215,29 @@ export const useEvmBalances = (
       queryKey: ['erc20Balance', address, asset.chainId, asset.tokenAddress],
       queryFn: () => {
         if (!address) return Promise.resolve(null)
-        return balanceQueue.add(async () => {
-          try {
-            if (!asset.tokenAddress) return null
-            const result = await readContract(config, {
-              address: asset.tokenAddress,
-              abi: erc20Abi,
-              functionName: 'balanceOf',
-              args: [address as `0x${string}`],
-              // @ts-ignore - swap-widget supports more chains than main app's wagmi type registration
-              chainId: asset.chainId,
-            })
-            return {
-              assetId: asset.assetId,
-              balance: (result as bigint).toString(),
-              precision: asset.precision,
+        return balanceQueue.add(
+          async () => {
+            try {
+              if (!asset.tokenAddress) return null
+              const result = await readContract(config, {
+                address: asset.tokenAddress,
+                abi: erc20Abi,
+                functionName: 'balanceOf',
+                args: [address as `0x${string}`],
+                // @ts-ignore - swap-widget supports more chains than main app's wagmi type registration
+                chainId: asset.chainId,
+              })
+              return {
+                assetId: asset.assetId,
+                balance: (result as bigint).toString(),
+                precision: asset.precision,
+              }
+            } catch {
+              return null
             }
-          } catch {
-            return null
-          }
-        })
+          },
+          { throwOnTimeout: true },
+        )
       },
       enabled: !!address,
       staleTime: 60_000,

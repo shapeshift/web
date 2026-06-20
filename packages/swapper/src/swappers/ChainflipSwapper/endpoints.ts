@@ -2,6 +2,7 @@ import { evm } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
+import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
 import type { SwapperApi, UtxoFeeData } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
@@ -219,6 +220,32 @@ export const chainflipApi: SwapperApi = {
 
     return String(Math.ceil(Number(fast.txFee) * ratio))
   },
+  getUnsignedTronTransaction: ({ stepIndex, tradeQuote, from, assertGetTronChainAdapter }) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+
+    const { accountNumber, chainflipSpecific, sellAsset } = step
+
+    if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
+    if (!chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
+
+    const adapter = assertGetTronChainAdapter(sellAsset.chainId)
+
+    const to = chainflipSpecific.chainflipDepositAddress
+    const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
+    // undefined for native TRX, TRC20 contract address (e.g. USDT) otherwise
+    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+
+    return adapter.buildSendApiTransaction({
+      to,
+      from,
+      value,
+      accountNumber,
+      chainSpecific: { contractAddress },
+    })
+  },
+  getTronTransactionFees,
   checkTradeStatus: async ({ config, swap }) => {
     const chainflipSwapId = swap?.metadata.chainflipSwapId
     if (chainflipSwapId == null) throw Error(`chainflipSwapId is required`)

@@ -39,7 +39,7 @@ export async function getBebopSolanaTradeRate(
 
   const address = receiveAddress ?? BEBOP_SOLANA_DUMMY_ADDRESS
 
-  const maybeBebopPriceResponse = await fetchBebopSolanaQuote({
+  const maybeBebopQuoteResponse = await fetchBebopSolanaQuote({
     buyAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -50,8 +50,8 @@ export async function getBebopSolanaTradeRate(
     apiKey,
   })
 
-  if (maybeBebopPriceResponse.isErr()) return Err(maybeBebopPriceResponse.unwrapErr())
-  const bebopPriceResponse = maybeBebopPriceResponse.unwrap()
+  if (maybeBebopQuoteResponse.isErr()) return Err(maybeBebopQuoteResponse.unwrapErr())
+  const bebopPriceResponse = maybeBebopQuoteResponse.unwrap()
 
   const sellTokenAddress = Object.keys(bebopPriceResponse.sellTokens)[0]
   const buyTokenAddress = Object.keys(bebopPriceResponse.buyTokens)[0]

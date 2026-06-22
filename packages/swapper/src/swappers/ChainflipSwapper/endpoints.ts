@@ -232,17 +232,12 @@ export const chainflipApi: SwapperApi = {
 
     const adapter = assertGetTronChainAdapter(sellAsset.chainId)
 
-    const to = chainflipSpecific.chainflipDepositAddress
-    const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
-    // undefined for native TRX, TRC20 contract address (e.g. USDT) otherwise
-    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-
     return adapter.buildSendApiTransaction({
-      to,
+      to: chainflipSpecific.chainflipDepositAddress,
       from,
-      value,
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       accountNumber,
-      chainSpecific: { contractAddress },
+      chainSpecific: { contractAddress: contractAddressOrUndefined(sellAsset.assetId) },
     })
   },
   getTronTransactionFees,

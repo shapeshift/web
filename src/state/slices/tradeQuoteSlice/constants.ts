@@ -56,4 +56,5 @@ export const SWAPPER_USER_ERRORS = [
   TradeQuoteValidationError.InsufficientFirstHopFeeAssetBalance,
   TradeQuoteValidationError.InsufficientSecondHopFeeAssetBalance,
   TradeQuoteValidationError.InsufficientFundsForProtocolFee,
+  TradeQuoteValidationError.CrossAccountNotSupported,
 ]

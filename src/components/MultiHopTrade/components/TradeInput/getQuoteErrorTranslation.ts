@@ -37,6 +37,8 @@ export const getQuoteErrorTranslation = (
         return 'trade.errors.insufficientFundsForProtocolFee'
       case TradeQuoteValidationError.IntermediaryAssetNotNotSupportedByWallet:
         return 'trade.errors.intermediaryAssetNotSupportedByWallet'
+      case TradeQuoteValidationError.CrossAccountNotSupported:
+        return 'trade.errors.crossAccountNotSupported'
       case SwapperTradeQuoteError.SellAmountBelowMinimum:
         return tradeQuoteError.meta
           ? 'trade.errors.amountTooSmall'

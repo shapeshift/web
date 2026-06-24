@@ -4,7 +4,6 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { TronWeb } from 'tronweb'
 
-import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
 import type {
   CommonTradeQuoteInput,
   GetTradeRateInput,
@@ -28,6 +27,7 @@ import {
 } from './utils/buildSwapContractCall'
 import { buildSwapRouteParameters } from './utils/buildSwapRouteParameters'
 import { SUNIO_SMART_ROUTER_CONTRACT } from './utils/constants'
+import { getSunioTransactionFees } from './utils/getSunioTransactionFees'
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -54,6 +54,7 @@ export const sunioApi: SwapperApi = {
       from,
       slippageTolerancePercentageDecimal,
       assertGetTronChainAdapter,
+      config,
     } = args
 
     if (!isExecutableTradeQuote(tradeQuote)) {
@@ -73,6 +74,9 @@ export const sunioApi: SwapperApi = {
 
     const tronWeb = new TronWeb({
       fullHost: rpcUrl,
+      headers: config.VITE_TRON_GRID_API_KEY
+        ? { 'TRON-PRO-API-KEY': config.VITE_TRON_GRID_API_KEY }
+        : {},
     })
 
     const routeParams = buildSwapRouteParameters(
@@ -139,7 +143,7 @@ export const sunioApi: SwapperApi = {
     }
   },
 
-  getTronTransactionFees,
+  getTronTransactionFees: getSunioTransactionFees,
 
   checkTradeStatus: async ({ txHash, assertGetTronChainAdapter }) => {
     try {

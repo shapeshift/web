@@ -28,7 +28,9 @@ export const buildSwapRouteParameters = (
 
   // The SmartExchangeRouter expects sum(versionLen) === path.length: the first
   // pool segment consumes 2 tokens (input + output) and each subsequent pool
-  // reuses the previous output, consuming 1 new token.
+  // reuses the previous output, consuming 1 new token. This relies on the Sun.io
+  // API returning poolVersions per-hop (poolVersions.length === tokens.length - 1),
+  // which it does — the router also accepts this un-collapsed form for same-version hops.
   const versionLen = poolVersion.map((_, index) => (index === 0 ? 2 : 1))
 
   const fees = route.poolFees.map(fee => Number(fee))

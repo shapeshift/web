@@ -26,12 +26,10 @@ export const buildSwapRouteParameters = (
 
   const poolVersion = route.poolVersions
 
-  const versionLen = poolVersion.map((_, index) => {
-    if (index === poolVersion.length - 1) {
-      return path.length - index
-    }
-    return 2
-  })
+  // The SmartExchangeRouter expects sum(versionLen) === path.length: the first
+  // pool segment consumes 2 tokens (input + output) and each subsequent pool
+  // reuses the previous output, consuming 1 new token.
+  const versionLen = poolVersion.map((_, index) => (index === 0 ? 2 : 1))
 
   const fees = route.poolFees.map(fee => Number(fee))
 

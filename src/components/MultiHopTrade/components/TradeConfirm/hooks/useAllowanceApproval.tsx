@@ -7,6 +7,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
 import type { Hash } from 'viem'
 
+import { getConfig } from '@/config'
 import type { AllowanceType } from '@/hooks/queries/useApprovalFees'
 import { getApprovalAmountCryptoBaseUnit, useApprovalFees } from '@/hooks/queries/useApprovalFees'
 import { useIsAllowanceApprovalRequired } from '@/hooks/queries/useIsAllowanceApprovalRequired'
@@ -120,6 +121,7 @@ export const useAllowanceApproval = (
           m.assertGetTronChainAdapter(tronChainId),
         )
         const rpcUrl = adapter.httpProvider.getRpcUrl()
+        const apiKey = getConfig().VITE_TRON_GRID_API_KEY
 
         // Poll for transaction confirmation (TRON doesn't have waitForTransactionReceipt)
         let confirmed = false
@@ -133,7 +135,10 @@ export const useAllowanceApproval = (
               attempts < 20 ? '/wallet/gettransactionbyid' : '/walletsolidity/gettransactionbyid'
             const response = await fetch(`${rpcUrl}${endpoint}`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {
+                'Content-Type': 'application/json',
+                ...(apiKey ? { 'TRON-PRO-API-KEY': apiKey } : {}),
+              },
               body: JSON.stringify({ value: txHash }),
             })
 

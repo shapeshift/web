@@ -88,6 +88,7 @@ const validators = {
   VITE_JITO_BLOCK_ENGINE_URL: url(),
   VITE_STARKNET_NODE_URL: url(),
   VITE_TRON_NODE_URL: url(),
+  VITE_TRON_GRID_API_KEY: str({ default: '' }),
   VITE_SUI_NODE_URL: url(),
   VITE_TON_NODE_URL: url(),
   VITE_NEAR_NODE_URL: url(),

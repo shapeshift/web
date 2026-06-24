@@ -18,13 +18,15 @@ export default function register(): Plugins {
             [
               KnownChainIds.TronMainnet,
               () => {
-                const http = new unchained.tron.TronApi({
-                  rpcUrl: getConfig().VITE_TRON_NODE_URL,
-                })
+                const rpcUrl = getConfig().VITE_TRON_NODE_URL
+                const apiKey = getConfig().VITE_TRON_GRID_API_KEY
+
+                const http = new unchained.tron.TronApi({ rpcUrl, apiKey })
 
                 return new tron.ChainAdapter({
                   providers: { http },
-                  rpcUrl: getConfig().VITE_TRON_NODE_URL,
+                  rpcUrl,
+                  apiKey,
                 })
               },
             ],

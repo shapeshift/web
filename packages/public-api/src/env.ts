@@ -84,6 +84,7 @@ const envSchema = z.object({
   TENDERLY_API_KEY: z.string().min(1),
   TENDERLY_ACCOUNT_SLUG: z.string().min(1),
   TENDERLY_PROJECT_SLUG: z.string().min(1),
+  TRON_GRID_API_KEY: z.string().default(''),
 
   // Feature flags
   FEATURE_THORCHAINSWAP_LONGTAIL: flag,

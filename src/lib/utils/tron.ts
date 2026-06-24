@@ -4,6 +4,7 @@ import type { tron } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
+import { getConfig } from '@/config'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
 export const isTronChainAdapter = (chainAdapter: unknown): chainAdapter is tron.ChainAdapter => {
@@ -29,10 +30,14 @@ export const assertGetTronChainAdapter = (chainId: ChainId | KnownChainIds): tro
 export const getTronTransactionStatus = async (txHash: string): Promise<TxStatus> => {
   const adapter = assertGetTronChainAdapter(tronChainId)
   const rpcUrl = adapter.httpProvider.getRpcUrl()
+  const apiKey = getConfig().VITE_TRON_GRID_API_KEY
 
   const response = await fetch(`${rpcUrl}/walletsolidity/gettransactionbyid`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(apiKey ? { 'TRON-PRO-API-KEY': apiKey } : {}),
+    },
     body: JSON.stringify({
       value: txHash,
     }),

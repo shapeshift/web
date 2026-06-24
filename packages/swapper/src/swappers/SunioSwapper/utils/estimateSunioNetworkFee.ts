@@ -12,6 +12,7 @@ import {
   SUNIO_FALLBACK_SWAP_ENERGY_NATIVE,
   SUNIO_FALLBACK_SWAP_ENERGY_TRC20,
   SUNIO_SMART_ROUTER_CONTRACT,
+  SUNIO_TRON_NATIVE_ADDRESS,
 } from './constants'
 
 type EstimateSunioNetworkFeeArgs = {
@@ -55,9 +56,12 @@ export const estimateSunioNetworkFeeCryptoBaseUnit = async ({
     }
   })()
 
-  // Recipient activation can only be checked with an address
+  // Account activation (1 TRX) is only charged when the recipient receives native TRX, mirroring
+  // the chain adapter. A TRC20 buy doesn't incur the flat activation fee (its account-creation
+  // cost is folded into energy). Only checkable with an address.
+  const isBuyingNativeTrx = route.tokens[route.tokens.length - 1] === SUNIO_TRON_NATIVE_ADDRESS
   const accountActivationFee = await (async () => {
-    if (!address) return 0
+    if (!address || !isBuyingNativeTrx) return 0
     try {
       const recipientInfoResponse = await fetch(`${rpcUrl}/wallet/getaccount`, {
         method: 'POST',
@@ -96,7 +100,10 @@ export const estimateSunioNetworkFeeCryptoBaseUnit = async ({
         buildSwapExactInputParameters(routeParams),
         address,
       )
-      return result?.energy_used || fallbackEnergy
+      // A reverted simulation (e.g. TRC20 sell pre-approval) can still return a small energy_used;
+      // only trust it when the call actually succeeded, otherwise use the conservative fallback.
+      if (result?.result?.result !== true || result.energy_used == null) return fallbackEnergy
+      return result.energy_used
     } catch {
       return fallbackEnergy
     }

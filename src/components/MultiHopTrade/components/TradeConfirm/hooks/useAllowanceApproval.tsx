@@ -153,6 +153,8 @@ export const useAllowanceApproval = (
               }
               // If no contractRet yet, continue polling
             }
+            // Non-OK responses (incl. 403/429 rate-limit, which TronGrid also uses for auth) are
+            // intentionally swallowed so transient throttling keeps polling rather than failing.
           } catch (err) {
             // Continue polling on errors unless it's a failure
             if (err instanceof Error && err.message.includes('Transaction failed')) {

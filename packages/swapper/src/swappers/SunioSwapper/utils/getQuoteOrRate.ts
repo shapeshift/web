@@ -16,7 +16,17 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
-import { DEFAULT_SLIPPAGE_PERCENTAGE, SUNIO_SMART_ROUTER_CONTRACT } from './constants'
+import {
+  buildSwapExactInputParameters,
+  SUNIO_SWAP_EXACT_INPUT_SELECTOR,
+} from './buildSwapContractCall'
+import { buildSwapRouteParameters } from './buildSwapRouteParameters'
+import {
+  DEFAULT_SLIPPAGE_PERCENTAGE,
+  SUNIO_FALLBACK_SWAP_ENERGY_NATIVE,
+  SUNIO_FALLBACK_SWAP_ENERGY_TRC20,
+  SUNIO_SMART_ROUTER_CONTRACT,
+} from './constants'
 import { fetchSunioQuote } from './fetchFromSunio'
 import { isSupportedChainId } from './helpers/helpers'
 import { sunioServiceFactory } from './sunioService'
@@ -115,89 +125,98 @@ export async function getQuoteOrRate(
       )
     }
 
-    // Fetch network fees for both quotes and rates (when wallet connected)
-    let networkFeeCryptoBaseUnit: string | undefined = undefined
-
-    // Estimate fees when we have an address to estimate from
-    if (receiveAddress) {
+    // Estimate the network fee for both rates and quotes. We always produce a value: with an
+    // address we simulate the real swap for accurate energy; without one (e.g. a rate preview
+    // before a wallet is connected) we fall back to a conservative energy constant so the fee
+    // is still realistic rather than missing.
+    const networkFeeCryptoBaseUnit: string | undefined = await (async () => {
       try {
-        const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-        const isSellingNativeTrx = !contractAddress
+        const isSellingNativeTrx = !contractAddressOrUndefined(sellAsset.assetId)
 
         const tronWeb = new TronWeb({ fullHost: deps.config.VITE_TRON_NODE_URL })
 
-        // Get chain parameters for pricing
-        const params = await tronWeb.trx.getChainParameters()
-        const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
-        const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
-
-        // Check if recipient needs activation (applies to all swaps)
-        let accountActivationFee = 0
-        try {
-          const recipientInfoResponse = await fetch(
-            `${deps.config.VITE_TRON_NODE_URL}/wallet/getaccount`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ address: receiveAddress, visible: true }),
-            },
-          )
-          const recipientInfo = await recipientInfoResponse.json()
-          const recipientExists = recipientInfo && Object.keys(recipientInfo).length > 1
-          if (!recipientExists) {
-            accountActivationFee = 1_000_000 // 1 TRX
-          }
-        } catch {
-          // Ignore activation check errors
-        }
-
-        // For native TRX swaps, Sun.io uses a contract call with value
-        // We need to estimate energy for the swap contract, not just bandwidth
-        if (isSellingNativeTrx) {
+        // Live network prices, defaulting if the node is unavailable so we still produce a fee
+        const { bandwidthPrice, energyPrice } = await (async () => {
           try {
-            // Sun.io contract owner provides most energy (~117k), users only pay ~2k
-            // Use fixed 2k energy estimate instead of querying (which returns total 120k)
-            const energyUsed = 2000 // User pays ~2k energy, contract covers the rest
-            const energyFee = energyUsed * energyPrice // No multiplier - contract provides energy
-
-            // Estimate bandwidth for contract call (much larger than simple transfer)
-            const bandwidthFee = 1100 * bandwidthPrice // ~1100 bytes for contract call (with safety buffer)
-
-            networkFeeCryptoBaseUnit = bn(energyFee)
-              .plus(bandwidthFee)
-              .plus(accountActivationFee)
-              .toFixed(0)
-          } catch (estimationError) {
-            // Fallback estimate: ~2k energy + ~1100 bytes bandwidth + activation fee
-            const fallbackEnergyFee = 2000 * energyPrice
-            const fallbackBandwidthFee = 1100 * bandwidthPrice
-            networkFeeCryptoBaseUnit = bn(fallbackEnergyFee)
-              .plus(fallbackBandwidthFee)
-              .plus(accountActivationFee)
-              .toFixed(0)
+            const params = await tronWeb.trx.getChainParameters()
+            return {
+              bandwidthPrice: params.find(p => p.key === 'getTransactionFee')?.value ?? 1000,
+              energyPrice: params.find(p => p.key === 'getEnergyFee')?.value ?? 100,
+            }
+          } catch {
+            return { bandwidthPrice: 1000, energyPrice: 100 }
           }
-        } else {
-          // For TRC-20 swaps through Sun.io router
-          // Same as TRX: contract owner provides most energy, user pays ~2k
-          // Sun.io provides ~217k energy, user pays ~2k
-          const energyFee = 2000 * energyPrice
-          const bandwidthFee = 1100 * bandwidthPrice
+        })()
 
-          networkFeeCryptoBaseUnit = bn(energyFee)
-            .plus(bandwidthFee)
-            .plus(accountActivationFee)
-            .toFixed(0)
-        }
+        // Recipient activation can only be checked with an address
+        const accountActivationFee = await (async () => {
+          if (!receiveAddress) return 0
+          try {
+            const recipientInfoResponse = await fetch(
+              `${deps.config.VITE_TRON_NODE_URL}/wallet/getaccount`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ address: receiveAddress, visible: true }),
+              },
+            )
+            const recipientInfo = await recipientInfoResponse.json()
+            const recipientExists = recipientInfo && Object.keys(recipientInfo).length > 1
+            return recipientExists ? 0 : 1_000_000 // 1 TRX
+          } catch {
+            // Ignore activation check errors
+            return 0
+          }
+        })()
+
+        // The router sponsors only ~1% of energy (origin_energy_usage); the user pays the rest, so
+        // a realistic estimate is required to avoid OUT_OF_ENERGY reverts and misleading fees.
+        // Simulate the real swap when we have an address; otherwise use the conservative fallback.
+        const energyUsed = await (async () => {
+          // TRC20 sells cost far more energy than native sells (the extra transferFrom token pull)
+          const fallbackEnergy = isSellingNativeTrx
+            ? SUNIO_FALLBACK_SWAP_ENERGY_NATIVE
+            : SUNIO_FALLBACK_SWAP_ENERGY_TRC20
+          if (!receiveAddress) return fallbackEnergy
+          try {
+            const routeParams = buildSwapRouteParameters(
+              bestRoute,
+              sellAmountIncludingProtocolFeesCryptoBaseUnit,
+              '0',
+              receiveAddress,
+              slippageTolerancePercentageDecimal ?? DEFAULT_SLIPPAGE_PERCENTAGE,
+            )
+
+            const callValue = isSellingNativeTrx
+              ? Number(sellAmountIncludingProtocolFeesCryptoBaseUnit)
+              : 0
+
+            const result = await tronWeb.transactionBuilder.triggerConstantContract(
+              SUNIO_SMART_ROUTER_CONTRACT,
+              SUNIO_SWAP_EXACT_INPUT_SELECTOR,
+              { callValue },
+              buildSwapExactInputParameters(routeParams),
+              receiveAddress,
+            )
+            // The simulation reverts before approval for TRC20 sells; keep the fallback then
+            return result?.energy_used || fallbackEnergy
+          } catch {
+            // Keep the conservative fallback
+            return fallbackEnergy
+          }
+        })()
+
+        // 1.2x safety margin for energy price/usage variance between estimate and execution
+        const energyFee = Math.ceil(energyUsed * energyPrice * 1.2)
+        const bandwidthFee = 1100 * bandwidthPrice
+
+        return bn(energyFee).plus(bandwidthFee).plus(accountActivationFee).toFixed(0)
       } catch (error) {
-        // For rates, fall back to '0' on estimation failure
-        // For quotes, let it error (required for accurate swap)
-        if (!isQuote) {
-          networkFeeCryptoBaseUnit = '0'
-        } else {
-          throw error
-        }
+        // For rates, fall back to '0' on unexpected failure; quotes require an accurate fee
+        if (!isQuote) return '0'
+        throw error
       }
-    }
+    })()
 
     const buyAmountCryptoBaseUnit = BigAmount.fromPrecision({
       value: bestRoute.amountOut,

@@ -22,23 +22,14 @@ import {
 } from '../../utils'
 import { getSunioTradeQuote } from './getSunioTradeQuote/getSunioTradeQuote'
 import { getSunioTradeRate } from './getSunioTradeRate/getSunioTradeRate'
+import {
+  buildSwapExactInputParameters,
+  SUNIO_SWAP_EXACT_INPUT_SELECTOR,
+} from './utils/buildSwapContractCall'
 import { buildSwapRouteParameters } from './utils/buildSwapRouteParameters'
 import { SUNIO_SMART_ROUTER_CONTRACT } from './utils/constants'
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
-
-const convertAddressesToEvmFormat = (value: unknown): unknown => {
-  if (Array.isArray(value)) {
-    return value.map(v => convertAddressesToEvmFormat(v))
-  }
-
-  if (typeof value === 'string' && value.startsWith('T') && TronWeb.isAddress(value)) {
-    const hex = TronWeb.address.toHex(value)
-    return hex.replace(/^41/, '0x')
-  }
-
-  return value
-}
 
 export const sunioApi: SwapperApi = {
   getTradeQuote: async (
@@ -92,24 +83,7 @@ export const sunioApi: SwapperApi = {
       slippageTolerancePercentageDecimal,
     )
 
-    const parameters = [
-      { type: 'address[]', value: routeParams.path },
-      { type: 'string[]', value: routeParams.poolVersion },
-      { type: 'uint256[]', value: routeParams.versionLen },
-      { type: 'uint24[]', value: routeParams.fees },
-      {
-        type: 'tuple(uint256,uint256,address,uint256)',
-        value: convertAddressesToEvmFormat([
-          routeParams.swapData.amountIn,
-          routeParams.swapData.amountOutMin,
-          routeParams.swapData.recipient,
-          routeParams.swapData.deadline,
-        ]),
-      },
-    ]
-
-    const functionSelector =
-      'swapExactInput(address[],string[],uint256[],uint24[],(uint256,uint256,address,uint256))'
+    const parameters = buildSwapExactInputParameters(routeParams)
 
     const isSellingNativeTrx = step.sellAsset.assetId === tronAssetId
     const callValue = isSellingNativeTrx
@@ -123,7 +97,7 @@ export const sunioApi: SwapperApi = {
 
     const txData = await tronWeb.transactionBuilder.triggerSmartContract(
       SUNIO_SMART_ROUTER_CONTRACT,
-      functionSelector,
+      SUNIO_SWAP_EXACT_INPUT_SELECTOR,
       options,
       parameters,
       from,

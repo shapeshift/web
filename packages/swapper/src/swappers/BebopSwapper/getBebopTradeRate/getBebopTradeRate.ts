@@ -6,6 +6,7 @@ import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
+import type { Address } from 'viem'
 import { isAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
@@ -19,7 +20,8 @@ import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { fetchBebopPrice } from '../utils/fetchFromBebop'
+import { BEBOP_DUMMY_ADDRESS } from '../types'
+import { fetchBebopQuote } from '../utils/fetchFromBebop'
 import { assertValidTrade, calculateRate } from '../utils/helpers/helpers'
 
 export async function getBebopTradeRate(
@@ -44,29 +46,21 @@ export async function getBebopTradeRate(
     input.slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Bebop)
 
-  const maybeBebopPriceResponse = await fetchBebopPrice({
+  const address = (receiveAddress as Address | undefined) ?? BEBOP_DUMMY_ADDRESS
+
+  const maybeBebopQuoteResponse = await fetchBebopQuote({
     buyAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    receiveAddress,
+    takerAddress: address,
+    receiverAddress: address,
+    slippageTolerancePercentageDecimal,
     affiliateBps,
     apiKey,
   })
 
-  if (maybeBebopPriceResponse.isErr()) return Err(maybeBebopPriceResponse.unwrapErr())
-  const bebopPriceResponse = maybeBebopPriceResponse.unwrap()
-
-  const bestRoute = bebopPriceResponse.routes.find(r => r.type === bebopPriceResponse.bestPrice)
-  if (!bestRoute || !bestRoute.quote) {
-    return Err(
-      makeSwapErrorRight({
-        message: 'No best route found',
-        code: TradeQuoteError.NoRouteFound,
-      }),
-    )
-  }
-
-  const quote = bestRoute.quote
+  if (maybeBebopQuoteResponse.isErr()) return Err(maybeBebopQuoteResponse.unwrapErr())
+  const quote = maybeBebopQuoteResponse.unwrap()
 
   const sellTokenAddress = Object.keys(quote.sellTokens)[0]
   const buyTokenAddress = Object.keys(quote.buyTokens)[0]

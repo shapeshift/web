@@ -5,12 +5,14 @@ import {
   ethAssetId,
   flipAssetId,
   solAssetId,
+  tronAssetId,
   usdcAssetId,
   usdcOnArbitrumOneAssetId,
   usdcOnSolanaAssetId,
   usdtAssetId,
   usdtOnArbitrumOneAssetId,
   usdtOnSolanaAssetId,
+  usdtOnTronAssetId,
   wbtcAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
@@ -28,6 +30,7 @@ export const ChainflipSupportedChainIds = [
   KnownChainIds.ArbitrumMainnet,
   KnownChainIds.BitcoinMainnet,
   KnownChainIds.SolanaMainnet,
+  KnownChainIds.TronMainnet,
 ] as const
 
 export type ChainflipSupportedChainId = (typeof ChainflipSupportedChainIds)[number]
@@ -41,6 +44,7 @@ export const ChainflipSupportedAssetIdsByChainId: Partial<Record<KnownChainIds, 
   ],
   [KnownChainIds.BitcoinMainnet]: [btcAssetId],
   [KnownChainIds.SolanaMainnet]: [solAssetId, usdcOnSolanaAssetId, usdtOnSolanaAssetId],
+  [KnownChainIds.TronMainnet]: [tronAssetId, usdtOnTronAssetId],
 }
 
 export const chainIdToChainflipNetwork: Partial<Record<ChainId, ChainflipNetwork>> = {
@@ -48,6 +52,7 @@ export const chainIdToChainflipNetwork: Partial<Record<ChainId, ChainflipNetwork
   [KnownChainIds.ArbitrumMainnet]: ChainflipNetwork.Arbitrum,
   [KnownChainIds.BitcoinMainnet]: ChainflipNetwork.Bitcoin,
   [KnownChainIds.SolanaMainnet]: ChainflipNetwork.Solana,
+  [KnownChainIds.TronMainnet]: ChainflipNetwork.Tron,
 }
 
 export const CHAINFLIP_SWAP_SOURCE: SwapSource = SwapperName.Chainflip

@@ -1,5 +1,6 @@
+import { solAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { bn } from '@shapeshiftoss/utils'
+import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { Address } from 'viem'
@@ -8,8 +9,9 @@ import { getAddress } from 'viem'
 import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
 import type { BebopQuoteResponse, BebopSolanaQuoteResponse, BebopSupportedChainId } from '../types'
-import { BEBOP_DUMMY_ADDRESS, BEBOP_SOLANA_DUMMY_ADDRESS, chainIdToBebopChain } from '../types'
+import { chainIdToBebopChain } from '../types'
 import { bebopServiceFactory } from './bebopService'
 import { assetIdToBebopSolanaToken, assetIdToBebopToken } from './helpers/helpers'
 
@@ -39,15 +41,9 @@ export const fetchBebopQuote = async ({
     const checksummedReceiverAddress = getAddress(receiverAddress)
     const chainName = chainIdToBebopChain[sellAsset.chainId as BebopSupportedChainId]
     const sellAmountFormatted = bn(sellAmountIncludingProtocolFeesCryptoBaseUnit).toFixed(0)
-    // Bebop API expects slippage as percentage (not basis points like other APIs)
-    // e.g. 0.3% → send as 0.3, not 30
-    // See: https://api.bebop.xyz/pmm/ethereum/docs#/v3/quote_v3_quote_get
-    const slippagePercentage = bn(slippageTolerancePercentageDecimal ?? 0.003)
-      .times(100)
-      .toNumber()
-    const url = `https://api.bebop.xyz/router/${chainName}/v1/quote`
+    const slippagePercentage = bn(slippageTolerancePercentageDecimal).times(100).toNumber()
 
-    const params = new URLSearchParams({
+    const baseParams = {
       sell_tokens: sellToken,
       buy_tokens: buyToken,
       sell_amounts: sellAmountFormatted,
@@ -58,52 +54,65 @@ export const fetchBebopQuote = async ({
       skip_validation: 'true',
       gasless: 'false',
       source: 'shapeshift',
-    })
-
-    if (affiliateBps && affiliateBps !== '0') {
-      params.set('fee', affiliateBps)
     }
 
-    const bebopService = bebopServiceFactory({ apiKey })
-    const maybeResponse = await bebopService.get<BebopQuoteResponse>(`${url}?${params}`)
+    const jamParams = new URLSearchParams(baseParams)
+    const pmmParams = new URLSearchParams(baseParams)
 
-    if (maybeResponse.isErr()) {
+    if (affiliateBps && affiliateBps !== '0') {
+      // JAM collects the fee on-chain and requires a recipient
+      jamParams.set('fee', affiliateBps)
+      jamParams.set('fee_recipient', getAddress(getTreasuryAddressFromChainId(buyAsset.chainId)))
+
+      // PMM attributes the fee off-chain via source
+      pmmParams.set('fee', affiliateBps)
+    }
+
+    const service = bebopServiceFactory({ apiKey })
+
+    const [maybeJam, maybePmm] = await Promise.all([
+      service.get<BebopQuoteResponse>(`https://api.bebop.xyz/jam/${chainName}/v2/quote`, {
+        params: jamParams,
+      }),
+      service.get<BebopQuoteResponse>(`https://api.bebop.xyz/pmm/${chainName}/v3/quote`, {
+        params: pmmParams,
+      }),
+    ])
+
+    const maybeResponses = [maybeJam, maybePmm]
+
+    if (maybeResponses.every(maybeResponse => maybeResponse.isErr())) {
       return Err(
         makeSwapErrorRight({
           message: 'Failed to fetch quote from Bebop',
-          cause: maybeResponse.unwrapErr().cause,
+          cause: maybeResponses[0].unwrapErr().cause,
           code: TradeQuoteError.QueryFailed,
         }),
       )
     }
 
-    const response = maybeResponse.unwrap()
+    const quotes = maybeResponses
+      .filter(maybeResponse => maybeResponse.isOk())
+      .map(maybeResponse => maybeResponse.unwrap().data)
+      .filter(quote => Boolean(quote.tx?.data))
 
-    // Log partial route failures for debugging (these are normal and don't indicate quote failure)
-    if (response.data.errors && Object.keys(response.data.errors).length > 0) {
-      console.debug('[Bebop] Some routes failed (this is normal):', response.data.errors)
-    }
-
-    // Validate response has routes - only fail if there are NO valid routes
-    if (!response.data.routes || response.data.routes.length === 0) {
+    if (!quotes.length) {
       return Err(
         makeSwapErrorRight({
-          message: 'No routes available',
+          message: 'No route available',
           code: TradeQuoteError.NoRouteFound,
         }),
       )
     }
 
-    if (!response.data.bestPrice) {
-      return Err(
-        makeSwapErrorRight({
-          message: 'No best price route specified',
-          code: TradeQuoteError.InvalidResponse,
-        }),
-      )
-    }
+    const getBuyAmount = (quote: BebopQuoteResponse) =>
+      bnOrZero(Object.values(quote.buyTokens)[0]?.amount)
 
-    return Ok(response.data)
+    const bestQuote = quotes.reduce((best, quote) =>
+      getBuyAmount(quote).gt(getBuyAmount(best)) ? quote : best,
+    )
+
+    return Ok(bestQuote)
   } catch (error) {
     return Err(
       makeSwapErrorRight({
@@ -113,35 +122,6 @@ export const fetchBebopQuote = async ({
       }),
     )
   }
-}
-
-export const fetchBebopPrice = ({
-  buyAsset,
-  sellAsset,
-  sellAmountIncludingProtocolFeesCryptoBaseUnit,
-  receiveAddress,
-  affiliateBps,
-  apiKey,
-}: {
-  buyAsset: Asset
-  sellAsset: Asset
-  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  receiveAddress: string | undefined
-  affiliateBps?: string
-  apiKey: string
-}): Promise<Result<BebopQuoteResponse, SwapErrorRight>> => {
-  const address = (receiveAddress as Address | undefined) || BEBOP_DUMMY_ADDRESS
-
-  return fetchBebopQuote({
-    buyAsset,
-    sellAsset,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    takerAddress: address,
-    receiverAddress: address,
-    slippageTolerancePercentageDecimal: '0.01',
-    affiliateBps,
-    apiKey,
-  })
 }
 
 export const fetchBebopSolanaQuote = async ({
@@ -164,14 +144,21 @@ export const fetchBebopSolanaQuote = async ({
   apiKey: string
 }): Promise<Result<BebopSolanaQuoteResponse, SwapErrorRight>> => {
   try {
+    // Bebop's Solana routes don't wrap native SOL on the input side, so selling native SOL
+    // always fails on-chain. Reject up front instead of returning an unexecutable quote.
+    if (sellAsset.assetId === solAssetId) {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Bebop Solana cannot sell native SOL',
+          code: TradeQuoteError.NoRouteFound,
+        }),
+      )
+    }
+
     const sellToken = assetIdToBebopSolanaToken(sellAsset.assetId)
     const buyToken = assetIdToBebopSolanaToken(buyAsset.assetId)
     const sellAmountFormatted = bn(sellAmountIncludingProtocolFeesCryptoBaseUnit).toFixed(0)
-    const slippagePercentage = bn(slippageTolerancePercentageDecimal ?? 0.003)
-      .times(100)
-      .toNumber()
-
-    const url = 'https://api.bebop.xyz/pmm/solana/v3/quote'
+    const slippagePercentage = bn(slippageTolerancePercentageDecimal).times(100).toNumber()
 
     const params = new URLSearchParams({
       sell_tokens: sellToken,
@@ -190,8 +177,10 @@ export const fetchBebopSolanaQuote = async ({
       params.set('fee', affiliateBps)
     }
 
-    const bebopService = bebopServiceFactory({ apiKey })
-    const maybeResponse = await bebopService.get<BebopSolanaQuoteResponse>(`${url}?${params}`)
+    const maybeResponse = await bebopServiceFactory({ apiKey }).get<BebopSolanaQuoteResponse>(
+      'https://api.bebop.xyz/pmm/solana/v3/quote',
+      { params },
+    )
 
     if (maybeResponse.isErr()) {
       const err = maybeResponse.unwrapErr()
@@ -224,26 +213,6 @@ export const fetchBebopSolanaQuote = async ({
       )
     }
 
-    // Reject routes containing ANY AMM/CLMM makers - these produce malformed txs
-    // (wrong signature count in wire format) and require pre-existing ATAs that
-    // Bebop's gasless co-signed flow can't create. This includes mixed routes
-    // like ["raydium clmm-rfqm", "🦊"] where Bebop serializes the tx with fewer
-    // signature slots than the message header requires.
-    // When rejected, other swappers like Jupiter will handle these pairs instead.
-    const hasAmmRoute = response.data.makers.some(
-      maker => maker.toLowerCase().includes('clmm') || maker.toLowerCase().includes('amm'),
-    )
-    if (hasAmmRoute) {
-      return Err(
-        makeSwapErrorRight({
-          message: `Bebop Solana quote contains AMM routing (${response.data.makers.join(
-            ', ',
-          )}), which produces malformed txs`,
-          code: TradeQuoteError.NoRouteFound,
-        }),
-      )
-    }
-
     return Ok(response.data)
   } catch (error) {
     return Err(
@@ -254,33 +223,4 @@ export const fetchBebopSolanaQuote = async ({
       }),
     )
   }
-}
-
-export const fetchBebopSolanaPrice = ({
-  buyAsset,
-  sellAsset,
-  sellAmountIncludingProtocolFeesCryptoBaseUnit,
-  receiveAddress,
-  affiliateBps,
-  apiKey,
-}: {
-  buyAsset: Asset
-  sellAsset: Asset
-  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  receiveAddress: string | undefined
-  affiliateBps?: string
-  apiKey: string
-}): Promise<Result<BebopSolanaQuoteResponse, SwapErrorRight>> => {
-  const address = receiveAddress || BEBOP_SOLANA_DUMMY_ADDRESS
-
-  return fetchBebopSolanaQuote({
-    buyAsset,
-    sellAsset,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    takerAddress: address,
-    receiverAddress: address,
-    slippageTolerancePercentageDecimal: '0.01',
-    affiliateBps,
-    apiKey,
-  })
 }

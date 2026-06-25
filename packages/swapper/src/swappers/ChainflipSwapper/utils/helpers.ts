@@ -126,7 +126,8 @@ export const getChainFlipSwap = ({
     swapUrl += `&chunkIntervalBlocks=${chunkIntervalBlocks}`
   }
 
-  return chainflipService.get<ChainflipBaasSwapDepositAddress>(swapUrl)
+  // Opening a deposit channel can spike past the default 10s timeout (notably on Tron).
+  return chainflipService.get<ChainflipBaasSwapDepositAddress>(swapUrl, { timeout: 30_000 })
 }
 
 const fetchChainFlipAssets = async ({

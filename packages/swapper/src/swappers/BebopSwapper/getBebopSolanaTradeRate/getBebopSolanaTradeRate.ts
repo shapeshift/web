@@ -12,7 +12,8 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { fetchBebopSolanaPrice } from '../utils/fetchFromBebop'
+import { BEBOP_SOLANA_DUMMY_ADDRESS } from '../types'
+import { fetchBebopSolanaQuote } from '../utils/fetchFromBebop'
 import { assertValidTrade, calculateRate, isBebopSolanaTxSafe } from '../utils/helpers/helpers'
 
 export async function getBebopSolanaTradeRate(
@@ -36,17 +37,21 @@ export async function getBebopSolanaTradeRate(
     input.slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Bebop)
 
-  const maybeBebopPriceResponse = await fetchBebopSolanaPrice({
+  const address = receiveAddress ?? BEBOP_SOLANA_DUMMY_ADDRESS
+
+  const maybeBebopQuoteResponse = await fetchBebopSolanaQuote({
     buyAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    receiveAddress,
+    takerAddress: address,
+    receiverAddress: address,
+    slippageTolerancePercentageDecimal,
     affiliateBps,
     apiKey,
   })
 
-  if (maybeBebopPriceResponse.isErr()) return Err(maybeBebopPriceResponse.unwrapErr())
-  const bebopPriceResponse = maybeBebopPriceResponse.unwrap()
+  if (maybeBebopQuoteResponse.isErr()) return Err(maybeBebopQuoteResponse.unwrapErr())
+  const bebopPriceResponse = maybeBebopQuoteResponse.unwrap()
 
   const sellTokenAddress = Object.keys(bebopPriceResponse.sellTokens)[0]
   const buyTokenAddress = Object.keys(bebopPriceResponse.buyTokens)[0]

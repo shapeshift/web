@@ -2,7 +2,12 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { assertUnreachable, BigAmount, bnOrZero } from '@shapeshiftoss/utils'
+import {
+  assertUnreachable,
+  BigAmount,
+  bnOrZero,
+  contractAddressOrUndefined,
+} from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosError } from 'axios'
@@ -130,14 +135,16 @@ export const getQuoteOrRate = async (
     const error = maybeQuoteResponse.unwrapErr()
     const cause = error.cause as AxiosError<any, any> | undefined
 
-    if (
-      cause?.message?.includes('code 400') &&
-      cause?.response?.data?.detail?.includes('Amount outside asset bounds')
-    ) {
+    // Chainflip returns a 400 with `errors.minimalAmountNative` when the sell amount is below the
+    // route minimum. The `detail` wording varies ("Amount outside asset bounds", "Amount below
+    // minimum. Min: ..."), so key off the field rather than string-matching the message.
+    const minAmountCryptoBaseUnit = cause?.response?.data?.errors?.minimalAmountNative?.[0]
+
+    if (cause?.response?.status === 400 && minAmountCryptoBaseUnit !== undefined) {
       return Err(
         createTradeAmountTooSmallErr({
           assetId: sellAsset.assetId,
-          minAmountCryptoBaseUnit: cause.response?.data?.errors?.minimalAmountNative?.[0],
+          minAmountCryptoBaseUnit,
         }),
       )
     }
@@ -194,6 +201,24 @@ export const getQuoteOrRate = async (
           },
         }
         const { fast } = await sellAdapter.getFeeData(getFeeDataInput)
+        return { networkFeeCryptoBaseUnit: fast.txFee }
+      }
+
+      case CHAIN_NAMESPACE.Tron: {
+        if (!input.sendAddress) return { networkFeeCryptoBaseUnit: undefined }
+
+        const sellAdapter = deps.assertGetTronChainAdapter(sellAsset.chainId)
+
+        const { fast } = await sellAdapter.getFeeData({
+          // Simulates a self-send, since we don't know the 'to' just yet at this stage
+          to: input.sendAddress,
+          value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          chainSpecific: {
+            from: input.sendAddress,
+            contractAddress: contractAddressOrUndefined(sellAsset.assetId),
+          },
+        })
+
         return { networkFeeCryptoBaseUnit: fast.txFee }
       }
 
@@ -280,6 +305,9 @@ export const getQuoteOrRate = async (
         return 10
 
       case CHAIN_NAMESPACE.Solana:
+        return 0
+
+      case CHAIN_NAMESPACE.Tron:
         return 0
 
       default:

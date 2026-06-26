@@ -80,7 +80,7 @@ export const useGetTradeRateInput = ({
   const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
 
   const affiliateBps = useMemo(() => getAffiliateBps(sellAsset, buyAsset), [sellAsset, buyAsset])
-  const affiliateAddress = useAffiliateTracking()
+  useAffiliateTracking()
 
   const walletType = useAppSelector(selectWalletType)
 
@@ -108,12 +108,10 @@ export const useGetTradeRateInput = ({
       sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
       allowMultiHop: true,
       affiliateBps,
-      affiliateAddress: affiliateAddress ?? undefined,
       slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
       pubKey,
     }),
     [
-      affiliateAddress,
       affiliateBps,
       buyAsset,
       pubKey,
@@ -129,7 +127,6 @@ export const useGetTradeRateInput = ({
 
   const tradeInputQueryKey = useMemo(
     () => ({
-      affiliateAddress,
       buyAsset,
       sellAmountCryptoPrecision,
       sellAsset,
@@ -144,7 +141,6 @@ export const useGetTradeRateInput = ({
       receiveAddress,
     }),
     [
-      affiliateAddress,
       buyAsset,
       isBuyAssetChainSupported,
       receiveAccountMetadata,

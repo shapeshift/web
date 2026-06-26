@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 import { DEFAULT_FEE_BPS } from '@/lib/fees/constant'
 
@@ -143,9 +143,7 @@ export const readStoredAffiliateBps = (): string => {
   return String(Number(partnerBps) + Number(shapeshiftBps))
 }
 
-export const useAffiliateTracking = (): string | null => {
-  const [storedAddress, setStoredAddress] = useState<string | null>(readStoredPartnerAddress)
-
+export const useAffiliateTracking = (): void => {
   useEffect(() => {
     const code = getPartnerCode()
     if (!code) return
@@ -153,11 +151,8 @@ export const useAffiliateTracking = (): string | null => {
     void resolvePartnerCode(code).then(data => {
       if (!data) return
       storePartnerData(data)
-      setStoredAddress(data.partnerAddress)
     })
   }, [])
-
-  return storedAddress
 }
 
 export { PARTNER_ADDRESS_KEY as AFFILIATE_STORAGE_KEY }

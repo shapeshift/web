@@ -21,7 +21,7 @@ const resolvePartnerCodeFromService = async (
   try {
     const response = await fetch(
       `${env.SWAP_SERVICE_BASE_URL}/v1/partner/${encodeURIComponent(code)}`,
-      { signal: controller.signal },
+      { headers: { 'x-api-key': env.SWAP_SERVICE_API_KEY }, signal: controller.signal },
     )
 
     if (!response.ok) return null

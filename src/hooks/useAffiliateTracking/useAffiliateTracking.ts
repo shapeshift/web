@@ -27,7 +27,7 @@ if (typeof window !== 'undefined') {
   }
 }
 
-const SWAP_SERVICE_BASE_URL = import.meta.env.VITE_SWAPS_SERVER_URL || 'http://localhost:3001'
+const PUBLIC_API_BASE_URL = import.meta.env.VITE_PUBLIC_API_URL || 'http://localhost:3005'
 
 type PartnerData = {
   partnerAddress: string
@@ -75,7 +75,7 @@ const resolvePartnerCode = async (code: string): Promise<PartnerData | null> => 
 
   try {
     const response = await fetch(
-      `${SWAP_SERVICE_BASE_URL}/v1/partner/${encodeURIComponent(code)}`,
+      `${PUBLIC_API_BASE_URL}/v1/partner/${encodeURIComponent(code)}`,
       { signal: controller.signal },
     )
 

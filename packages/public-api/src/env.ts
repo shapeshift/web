@@ -10,6 +10,7 @@ const envSchema = z.object({
 
   // Swap service
   SWAP_SERVICE_BASE_URL: url,
+  SWAP_SERVICE_API_KEY: z.string().min(1),
 
   // Unchained URLs
   UNCHAINED_ETHEREUM_HTTP_URL: url,

@@ -581,13 +581,9 @@
         "emptyWithdraws": "保留中のステーキング解除のリクエストはここに表示されます。",
         "availableDate": "利用可能 %{date}"
       },
-      "foxyOverview": {
+      "foxFarmingOverview": {
         "withdrawals": "出金",
         "emptyWithdraws": "保留中の出金またはアクティブな出金はここに表示されます。",
-        "availableDate": "利用可能 %{date}",
-        "disabledTitle": "FOXyデポジットは無効になっています"
-      },
-      "foxFarmingOverview": {
         "header": "ETH-FOX LP トークンを %{opportunity} に入金して獲得する",
         "body": "流動性トークンを承認してステーキングして、ボーナスFOX報酬を獲得する",
         "rewards": "獲得した報酬は自動的に蓄積されます。",
@@ -856,12 +852,6 @@
         "swapOut": "スワップ受領",
         "swap": "トレード",
         "swapRefund": "スワップ払い戻し"
-      },
-      "foxy": {
-        "stake": "ステーク",
-        "unstake": "ステークを解除する",
-        "instantUnstake": "一時的にステークを解除する",
-        "claimWithdraw": "出金の獲得"
       },
       "erc20": {
         "approve": "承認する",

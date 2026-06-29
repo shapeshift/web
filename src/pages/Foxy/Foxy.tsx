@@ -46,6 +46,11 @@ import { useAppSelector } from '@/state/store'
 
 const FOXY_TOKEN = '0xDc49108ce5C57bc3408c3A5E95F3d864eC386Ed3'
 
+// FOXy is a rebasing token, so a fully-recovered position leaves sub-display dust (a few wei of
+// gons rounding) rather than an exact 0. Treat anything below this as "nothing to recover" so we
+// don't strand a stray "0 FOX" card with an active button after a successful claim.
+const DUST_THRESHOLD = 10n ** 14n // 0.0001 FOX
+
 // Minimal ABI — only what recovery needs.
 const stakingAbi = [
   {
@@ -247,7 +252,10 @@ export const Foxy = () => {
   )
 
   const displayAccounts = useMemo(
-    () => accounts.filter(a => recovered[a.accountId] !== undefined || a.staked + a.pending > 0n),
+    () =>
+      accounts.filter(
+        a => recovered[a.accountId] !== undefined || a.staked + a.pending >= DUST_THRESHOLD,
+      ),
     [accounts, recovered],
   )
 
@@ -261,7 +269,7 @@ export const Foxy = () => {
         {displayAccounts.map(account => {
           const recoveredEntry = recovered[account.accountId]
           const remaining = account.staked + account.pending
-          const isRecovered = recoveredEntry !== undefined && remaining === 0n
+          const isRecovered = recoveredEntry !== undefined && remaining < DUST_THRESHOLD
           const recoveredTxLink = isRecovered ? txLink(recoveredEntry.txHash) : undefined
           const busy = busyAccountId === account.accountId
           const error = status[account.accountId]

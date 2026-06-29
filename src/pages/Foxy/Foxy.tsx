@@ -1,4 +1,4 @@
-import { CheckCircleIcon } from '@chakra-ui/icons'
+import { CheckCircleIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import {
   Box,
   Button,
@@ -8,11 +8,12 @@ import {
   Flex,
   Heading,
   HStack,
+  Link,
   Stack,
   Text,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
-import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { ethAssetId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import {
   ContractType,
@@ -37,6 +38,7 @@ import {
 } from '@/lib/utils/evm'
 import {
   selectAccountIdsByChainIdFilter,
+  selectAssetById,
   selectPortfolioAccountMetadata,
   selectPortfolioLoadingStatus,
 } from '@/state/slices/selectors'
@@ -120,8 +122,14 @@ export const Foxy = () => {
   const [loaded, setLoaded] = useState(false)
   const [busyAccountId, setBusyAccountId] = useState<AccountId>()
   const [status, setStatus] = useState<Record<AccountId, string>>({})
-  const [recovered, setRecovered] = useState<Record<AccountId, bigint>>({})
+  const [recovered, setRecovered] = useState<
+    Record<AccountId, { amount: bigint; txHash?: string }>
+  >({})
   const reqRef = useRef(0)
+
+  const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  const txLink = (txHash: string | undefined) =>
+    txHash && ethAsset ? `${ethAsset.explorerTxLink}${txHash}` : undefined
 
   const refresh = useCallback(async () => {
     const reqId = ++reqRef.current
@@ -211,7 +219,7 @@ export const Foxy = () => {
 
         // 3. Claim — sends the FOX to the wallet.
         setMsg('Claiming FOX…')
-        await send(
+        const claimTxHash = await send(
           account,
           FOXY_STAKING_CONTRACT,
           encodeFunctionData({
@@ -223,7 +231,10 @@ export const Foxy = () => {
 
         // Refetch on-chain state so the position reflects the completed recovery.
         await refresh()
-        setRecovered(prev => ({ ...prev, [account.accountId]: total }))
+        setRecovered(prev => ({
+          ...prev,
+          [account.accountId]: { amount: total, txHash: claimTxHash },
+        }))
         setMsg('')
       } catch (err) {
         console.error(err)
@@ -248,9 +259,10 @@ export const Foxy = () => {
     return (
       <Stack spacing={3}>
         {displayAccounts.map(account => {
-          const recoveredAmount = recovered[account.accountId]
+          const recoveredEntry = recovered[account.accountId]
           const remaining = account.staked + account.pending
-          const isRecovered = recoveredAmount !== undefined && remaining === 0n
+          const isRecovered = recoveredEntry !== undefined && remaining === 0n
+          const recoveredTxLink = isRecovered ? txLink(recoveredEntry.txHash) : undefined
           const busy = busyAccountId === account.accountId
           const error = status[account.accountId]
           return (
@@ -280,11 +292,16 @@ export const Foxy = () => {
                   fontSize='2xl'
                   fontWeight='bold'
                   color={isRecovered ? 'text.subtle' : undefined}
-                  value={formatUnits(isRecovered ? recoveredAmount : remaining, 18)}
+                  value={formatUnits(isRecovered ? recoveredEntry.amount : remaining, 18)}
                   symbol='FOX'
                   maximumFractionDigits={4}
                   omitDecimalTrailingZeros
                 />
+                {recoveredTxLink && (
+                  <Link href={recoveredTxLink} isExternal color='blue.500' fontSize='sm'>
+                    View transaction <ExternalLinkIcon boxSize={3} mb='2px' />
+                  </Link>
+                )}
                 {!isRecovered && (
                   <Button
                     colorScheme='blue'

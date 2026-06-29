@@ -7,6 +7,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
 import type { Hash } from 'viem'
 
+import { getConfig } from '@/config'
 import type { AllowanceType } from '@/hooks/queries/useApprovalFees'
 import { getApprovalAmountCryptoBaseUnit, useApprovalFees } from '@/hooks/queries/useApprovalFees'
 import { useIsAllowanceApprovalRequired } from '@/hooks/queries/useIsAllowanceApprovalRequired'
@@ -120,6 +121,7 @@ export const useAllowanceApproval = (
           m.assertGetTronChainAdapter(tronChainId),
         )
         const rpcUrl = adapter.httpProvider.getRpcUrl()
+        const apiKey = getConfig().VITE_TRON_GRID_API_KEY
 
         // Poll for transaction confirmation (TRON doesn't have waitForTransactionReceipt)
         let confirmed = false
@@ -133,7 +135,10 @@ export const useAllowanceApproval = (
               attempts < 20 ? '/wallet/gettransactionbyid' : '/walletsolidity/gettransactionbyid'
             const response = await fetch(`${rpcUrl}${endpoint}`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {
+                'Content-Type': 'application/json',
+                ...(apiKey ? { 'TRON-PRO-API-KEY': apiKey } : {}),
+              },
               body: JSON.stringify({ value: txHash }),
             })
 
@@ -148,6 +153,8 @@ export const useAllowanceApproval = (
               }
               // If no contractRet yet, continue polling
             }
+            // Non-OK responses (incl. 403/429 rate-limit, which TronGrid also uses for auth) are
+            // intentionally swallowed so transient throttling keeps polling rather than failing.
           } catch (err) {
             // Continue polling on errors unless it's a failure
             if (err instanceof Error && err.message.includes('Transaction failed')) {

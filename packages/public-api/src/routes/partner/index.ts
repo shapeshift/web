@@ -1,0 +1,1 @@
+export { getPartner } from './getPartner'

@@ -10,7 +10,6 @@ import qs from 'qs'
 import type { SwapErrorRight, SwapperDeps, SwapperName } from '../types'
 import { TradeQuoteError } from '../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../utils'
-import { getThresholdedAffiliateBps } from './getThresholdedAffiliateBps/getThresholdedAffiliateBps'
 import { getAffiliate, getDaemonUrl, getNativePrecision, getPoolAssetId } from './index'
 import { thorService } from './service'
 import type {
@@ -53,15 +52,6 @@ export const getQuote = async (
     swapperName,
   } = input
 
-  // don't apply an affiliate fee if it's below the outbound fee for the inbound pool
-  const thresholdedAffiliateBps = await getThresholdedAffiliateBps({
-    sellAsset,
-    sellAmountCryptoBaseUnit,
-    affiliateBps,
-    config: deps.config,
-    swapperName,
-  })
-
   const buyPoolId = getPoolAssetId({ assetId: buyAssetId, swapperName })
   const sellPoolId = getPoolAssetId({ assetId: sellAsset.assetId, swapperName })
 
@@ -89,7 +79,7 @@ export const getQuote = async (
     from_asset: sellPoolId,
     to_asset: buyPoolId,
     destination: parsedReceiveAddress,
-    affiliate_bps: thresholdedAffiliateBps,
+    affiliate_bps: affiliateBps,
     affiliate: getAffiliate(swapperName),
     ...(streaming && { streaming_interval: streamingInterval }),
   })

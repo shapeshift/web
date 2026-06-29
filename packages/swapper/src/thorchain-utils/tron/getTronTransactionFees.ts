@@ -8,9 +8,10 @@ import { getThorTxData } from './getThorTxData'
 
 const getChainPrices = async (
   rpcUrl: string,
+  headers: Record<string, string>,
 ): Promise<{ bandwidthPrice: number; energyPrice: number }> => {
   try {
-    const tronWeb = new TronWeb({ fullHost: rpcUrl })
+    const tronWeb = new TronWeb({ fullHost: rpcUrl, headers })
     const params = await tronWeb.trx.getChainParameters()
     const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
     const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 420
@@ -38,13 +39,16 @@ export const getTronTransactionFees = async (
 
   const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
   const rpcUrl = config.VITE_TRON_NODE_URL
+  const tronGridHeaders: Record<string, string> = config.VITE_TRON_GRID_API_KEY
+    ? { 'TRON-PRO-API-KEY': config.VITE_TRON_GRID_API_KEY }
+    : {}
 
   try {
-    const tronWeb = new TronWeb({ fullHost: rpcUrl })
+    const tronWeb = new TronWeb({ fullHost: rpcUrl, headers: tronGridHeaders })
 
     if (contractAddress) {
       // TRC20 transfer - estimate energy cost
-      const { energyPrice } = await getChainPrices(rpcUrl)
+      const { energyPrice } = await getChainPrices(rpcUrl, tronGridHeaders)
 
       const result = await tronWeb.transactionBuilder.triggerConstantContract(
         contractAddress,
@@ -63,7 +67,7 @@ export const getTronTransactionFees = async (
       return String(feeInSun)
     } else {
       // TRX transfer with memo - build transaction to get accurate size
-      const { bandwidthPrice } = await getChainPrices(rpcUrl)
+      const { bandwidthPrice } = await getChainPrices(rpcUrl, tronGridHeaders)
 
       let tx = await tronWeb.transactionBuilder.sendTrx(
         vault,

@@ -21,6 +21,7 @@ import {
   fromAssetId,
   starknetChainId,
   tronAssetId,
+  tronChainId,
 } from '@shapeshiftoss/caip'
 import { useMutation } from '@tanstack/react-query'
 import get from 'lodash/get'
@@ -57,6 +58,7 @@ import { isStarknetChainAdapter } from '@/lib/utils/starknet'
 import {
   selectAssetById,
   selectPortfolioAccountMetadataByAccountId,
+  selectWalletAccountIds,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -117,6 +119,19 @@ export const SendAmountDetails = () => {
   } = useIsStarknetAccountDeployed(accountId)
 
   const { data: isTronRecipientActivated } = useIsTronAddressActivated(to, asset?.chainId)
+
+  const walletAccountIds = useAppSelector(selectWalletAccountIds)
+  // The activation warning is only actionable when funding your own fresh Tron account - it tells
+  // you that you'll need TRX before you can move/swap the tokens out. Sending to third-party
+  // addresses (incl. exchange/bridge deposit addresses like Chainflip, which sweep funds
+  // regardless of activation) would only produce false alarms, so scope it to self-sends.
+  const isToOwnTronAccount = useMemo(() => {
+    if (!to) return false
+    return walletAccountIds.some(walletAccountId => {
+      const { chainId, account } = fromAccountId(walletAccountId)
+      return chainId === tronChainId && account === to
+    })
+  }, [walletAccountIds, to])
 
   const deployAccountMutation = useMutation({
     mutationFn: async () => {
@@ -408,14 +423,16 @@ export const SendAmountDetails = () => {
               </AlertDescription>
             </Alert>
           )}
-          {isTronRecipientActivated === false && asset?.assetId !== tronAssetId && (
-            <Alert status='warning' borderRadius='lg' mb={3}>
-              <AlertIcon />
-              <AlertDescription>
-                <Text translation='tron.recipientNotActivated.sendWarning' />
-              </AlertDescription>
-            </Alert>
-          )}
+          {isTronRecipientActivated === false &&
+            asset?.assetId !== tronAssetId &&
+            isToOwnTronAccount && (
+              <Alert status='warning' borderRadius='lg' mb={3}>
+                <AlertIcon />
+                <AlertDescription>
+                  <Text translation='tron.recipientNotActivated.sendWarning' />
+                </AlertDescription>
+              </Alert>
+            )}
           {!hasNoAccountForAsset && (
             <Flex alignItems='center' justifyContent='space-between' mb={4}>
               <Flex alignItems='center'>

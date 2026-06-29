@@ -42,7 +42,7 @@ export const registerSwapInService = async (
   try {
     const postResponse = await fetch(`${env.SWAP_SERVICE_BASE_URL}/swaps`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-api-key': env.SWAP_SERVICE_API_KEY },
       signal: controller.signal,
       body: registration.body,
     })

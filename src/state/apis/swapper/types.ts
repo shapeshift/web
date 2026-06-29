@@ -30,6 +30,7 @@ export enum TradeQuoteValidationError {
   InsufficientSecondHopFeeAssetBalance = 'InsufficientSecondHopFeeAssetBalance',
   InsufficientFundsForProtocolFee = 'InsufficientFundsForProtocolFee',
   IntermediaryAssetNotNotSupportedByWallet = 'IntermediaryAssetNotNotSupportedByWallet',
+  CrossAccountNotSupported = 'CrossAccountNotSupported',
   QuoteSellAmountInvalid = 'QuoteSellAmountInvalid',
   QueryFailed = 'QueryFailed',
   UnknownError = 'UnknownError',

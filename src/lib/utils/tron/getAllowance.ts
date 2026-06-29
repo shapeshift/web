@@ -4,6 +4,8 @@ import { TronWeb } from 'tronweb'
 
 import { assertGetTronChainAdapter } from '..'
 
+import { getConfig } from '@/config'
+
 type GetTrc20AllowanceArgs = {
   address: string
   spender: string
@@ -29,9 +31,14 @@ export const getTrc20Allowance = async ({
   // Pad to 32 bytes (64 hex chars) each
   const parameter = ownerHex.padStart(64, '0') + spenderHex.padStart(64, '0')
 
+  const apiKey = getConfig().VITE_TRON_GRID_API_KEY
+
   const response = await fetch(`${rpcUrl}/wallet/triggerconstantcontract`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(apiKey ? { 'TRON-PRO-API-KEY': apiKey } : {}),
+    },
     body: JSON.stringify({
       owner_address: from,
       contract_address: address,

@@ -4,7 +4,6 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { TronWeb } from 'tronweb'
 
-import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
 import type {
   CommonTradeQuoteInput,
   GetTradeRateInput,
@@ -22,23 +21,15 @@ import {
 } from '../../utils'
 import { getSunioTradeQuote } from './getSunioTradeQuote/getSunioTradeQuote'
 import { getSunioTradeRate } from './getSunioTradeRate/getSunioTradeRate'
+import {
+  buildSwapExactInputParameters,
+  SUNIO_SWAP_EXACT_INPUT_SELECTOR,
+} from './utils/buildSwapContractCall'
 import { buildSwapRouteParameters } from './utils/buildSwapRouteParameters'
 import { SUNIO_SMART_ROUTER_CONTRACT } from './utils/constants'
+import { getSunioTransactionFees } from './utils/getSunioTransactionFees'
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
-
-const convertAddressesToEvmFormat = (value: unknown): unknown => {
-  if (Array.isArray(value)) {
-    return value.map(v => convertAddressesToEvmFormat(v))
-  }
-
-  if (typeof value === 'string' && value.startsWith('T') && TronWeb.isAddress(value)) {
-    const hex = TronWeb.address.toHex(value)
-    return hex.replace(/^41/, '0x')
-  }
-
-  return value
-}
 
 export const sunioApi: SwapperApi = {
   getTradeQuote: async (
@@ -63,6 +54,7 @@ export const sunioApi: SwapperApi = {
       from,
       slippageTolerancePercentageDecimal,
       assertGetTronChainAdapter,
+      config,
     } = args
 
     if (!isExecutableTradeQuote(tradeQuote)) {
@@ -82,6 +74,9 @@ export const sunioApi: SwapperApi = {
 
     const tronWeb = new TronWeb({
       fullHost: rpcUrl,
+      headers: config.VITE_TRON_GRID_API_KEY
+        ? { 'TRON-PRO-API-KEY': config.VITE_TRON_GRID_API_KEY }
+        : {},
     })
 
     const routeParams = buildSwapRouteParameters(
@@ -92,24 +87,7 @@ export const sunioApi: SwapperApi = {
       slippageTolerancePercentageDecimal,
     )
 
-    const parameters = [
-      { type: 'address[]', value: routeParams.path },
-      { type: 'string[]', value: routeParams.poolVersion },
-      { type: 'uint256[]', value: routeParams.versionLen },
-      { type: 'uint24[]', value: routeParams.fees },
-      {
-        type: 'tuple(uint256,uint256,address,uint256)',
-        value: convertAddressesToEvmFormat([
-          routeParams.swapData.amountIn,
-          routeParams.swapData.amountOutMin,
-          routeParams.swapData.recipient,
-          routeParams.swapData.deadline,
-        ]),
-      },
-    ]
-
-    const functionSelector =
-      'swapExactInput(address[],string[],uint256[],uint24[],(uint256,uint256,address,uint256))'
+    const parameters = buildSwapExactInputParameters(routeParams)
 
     const isSellingNativeTrx = step.sellAsset.assetId === tronAssetId
     const callValue = isSellingNativeTrx
@@ -123,7 +101,7 @@ export const sunioApi: SwapperApi = {
 
     const txData = await tronWeb.transactionBuilder.triggerSmartContract(
       SUNIO_SMART_ROUTER_CONTRACT,
-      functionSelector,
+      SUNIO_SWAP_EXACT_INPUT_SELECTOR,
       options,
       parameters,
       from,
@@ -165,7 +143,7 @@ export const sunioApi: SwapperApi = {
     }
   },
 
-  getTronTransactionFees,
+  getTronTransactionFees: getSunioTransactionFees,
 
   checkTradeStatus: async ({ txHash, assertGetTronChainAdapter }) => {
     try {
@@ -181,13 +159,15 @@ export const sunioApi: SwapperApi = {
 
       const contractRet = tx.ret?.[0]?.contractRet
 
-      // Only mark as confirmed if SUCCESS AND has confirmations (in a block)
-      const status =
-        contractRet === 'SUCCESS' && tx.confirmations > 0
-          ? TxStatus.Confirmed
-          : contractRet === 'REVERT'
-          ? TxStatus.Failed
-          : TxStatus.Pending
+      // Tron reports many failure codes (REVERT, OUT_OF_ENERGY, OUT_OF_TIME, ...). A missing
+      // contractRet means it isn't mined yet; any non-SUCCESS value is a terminal failure.
+      const status = (() => {
+        if (!contractRet) return TxStatus.Pending
+        if (contractRet === 'SUCCESS') {
+          return tx.confirmations > 0 ? TxStatus.Confirmed : TxStatus.Pending
+        }
+        return TxStatus.Failed
+      })()
 
       return {
         status,

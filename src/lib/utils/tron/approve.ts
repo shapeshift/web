@@ -6,6 +6,8 @@ import { TronWeb } from 'tronweb'
 import { assertGetTronChainAdapter } from '..'
 import type { ApproveTronInputWithWallet } from './types'
 
+import { getConfig } from '@/config'
+
 export const approveTron = async ({
   assetId,
   spender,
@@ -18,8 +20,10 @@ export const approveTron = async ({
 
   const adapter = assertGetTronChainAdapter(chainId)
   const rpcUrl = adapter.httpProvider.getRpcUrl()
+  const apiKey = getConfig().VITE_TRON_GRID_API_KEY
+  const tronGridHeaders: Record<string, string> = apiKey ? { 'TRON-PRO-API-KEY': apiKey } : {}
 
-  const tronWeb = new TronWeb({ fullHost: rpcUrl })
+  const tronWeb = new TronWeb({ fullHost: rpcUrl, headers: tronGridHeaders })
 
   // Build approve transaction
   const parameters = [
@@ -91,7 +95,7 @@ export const approveTron = async ({
 
   const broadcastResponse = await fetch(`${rpcUrl}/wallet/broadcasttransaction`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...tronGridHeaders },
     body: JSON.stringify(broadcastTx),
   })
 

@@ -26,6 +26,7 @@ import {
 import { getAssetById, getAssetCount, getAssets } from './routes/assets'
 import { siweNonce, siweVerify } from './routes/auth'
 import { getChainCount, getChains } from './routes/chains'
+import { getPartner } from './routes/partner'
 import { getQuote } from './routes/quote'
 import { getRates } from './routes/rates'
 import { getSwapStatus } from './routes/status'
@@ -54,6 +55,8 @@ const startServer = async () => {
   v1Router.get('/swap/rates', swapRatesLimiter, resolvePartnerCode, getRates)
   v1Router.post('/swap/quote', swapQuoteLimiter, resolvePartnerCode, getQuote)
   v1Router.get('/swap/status', swapStatusLimiter, resolvePartnerCode, getSwapStatus)
+
+  v1Router.get('/partner/:code', dataLimiter, getPartner)
 
   v1Router.get('/affiliate/swaps', dataLimiter, getAffiliateSwaps)
   v1Router.get('/affiliate/stats', affiliateStatsLimiter, getAffiliateStats)

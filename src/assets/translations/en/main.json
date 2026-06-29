@@ -1042,6 +1042,7 @@
       "quoteExpired": "Quote expired, try again.",
       "quoteUnsupportedChain": "Chain not supported",
       "quoteCrossChainNotSupported": "Cross chain not supported",
+      "crossAccountNotSupported": "Cross-account not supported",
       "networkFeeEstimateFailed": "Failed to estimate network fee",
       "assetNotSupportedByWallet": "%{assetSymbol}.%{chainSymbol} not supported by wallet",
       "intermediaryAssetNotSupportedByWallet": "Intermediary asset %{assetSymbol}.%{chainSymbol} not supported by wallet",
@@ -2190,7 +2191,7 @@
   },
   "tron": {
     "recipientNotActivated": {
-      "sendWarning": "This address hasn't been activated on Tron yet. Your tokens will arrive, but the recipient won't be able to move them until they also receive some TRX."
+      "sendWarning": "This account hasn't been activated on Tron yet. Your tokens will arrive, but you won't be able to move or swap them out until the account holds some TRX to cover fees."
     }
   },
   "transactionHistory": {

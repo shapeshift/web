@@ -2,6 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { tronChainId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 
+import { getConfig } from '@/config'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 
 const checkTronAddressActivated = async (
@@ -14,10 +15,14 @@ const checkTronAddressActivated = async (
   try {
     const adapter = assertGetTronChainAdapter(chainId)
     const rpcUrl = adapter.httpProvider.getRpcUrl()
+    const apiKey = getConfig().VITE_TRON_GRID_API_KEY
 
     const response = await fetch(`${rpcUrl}/wallet/getaccount`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(apiKey ? { 'TRON-PRO-API-KEY': apiKey } : {}),
+      },
       body: JSON.stringify({ address: to, visible: true }),
     })
 

@@ -58,6 +58,7 @@ export type SwapperConfig = {
   VITE_THORCHAIN_NODE_URL: string
   VITE_MAYACHAIN_NODE_URL: string
   VITE_TRON_NODE_URL: string
+  VITE_TRON_GRID_API_KEY: string
   VITE_FEATURE_THORCHAINSWAP_LONGTAIL: boolean
   VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL: boolean
   VITE_THORCHAIN_MIDGARD_URL: string
@@ -202,7 +203,6 @@ type CommonTradeInputBase = {
   buyAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
   affiliateBps: string
-  affiliateAddress?: string
   allowMultiHop: boolean
   slippageTolerancePercentageDecimal?: string
 }

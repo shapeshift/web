@@ -40,6 +40,7 @@ export interface ChainAdapterArgs {
     http: unchained.tron.TronApi
   }
   rpcUrl: string
+  apiKey?: string
 }
 
 export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
@@ -57,16 +58,22 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
   }
 
   protected readonly rpcUrl: string
+  private readonly apiKey: string
   private requestQueue: PQueue
 
   constructor(args: ChainAdapterArgs) {
     this.providers = args.providers
     this.rpcUrl = args.rpcUrl
+    this.apiKey = args.apiKey ?? ''
     this.requestQueue = new PQueue({
       intervalCap: 1,
       interval: 400,
       concurrency: 1,
     })
+  }
+
+  private get tronGridHeaders(): Record<string, string> {
+    return this.apiKey ? { 'TRON-PRO-API-KEY': this.apiKey } : {}
   }
 
   private assertSupportsChain(wallet: HDWallet): asserts wallet is TronWallet {
@@ -192,6 +199,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       // Create TronWeb instance once and reuse
       const tronWeb = new TronWeb({
         fullHost: this.rpcUrl,
+        headers: this.tronGridHeaders,
       })
 
       let txData: TronUnsignedTx
@@ -239,7 +247,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
           () =>
             fetch(`${this.rpcUrl}/wallet/createtransaction`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 'Content-Type': 'application/json', ...this.tronGridHeaders },
               body: JSON.stringify(requestBody),
             }),
           { throwOnTimeout: true },
@@ -324,7 +332,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         () =>
           fetch(`${this.rpcUrl}/wallet/triggersmartcontract`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...this.tronGridHeaders },
             body: JSON.stringify(requestBody),
           }),
         { throwOnTimeout: true },
@@ -456,22 +464,17 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     }
   }
 
-  // TODO: CRITICAL - Fix fee estimation for TRC20 tokens
-  // Current implementation returns FIXED 0.268 TRX for all transactions
-  // Reality: TRC20 transfers cost 6-15 TRX (energy + bandwidth + memo)
-  // This causes UI to show wrong fees and transactions to fail on-chain
-  // See TRON_FEE_ESTIMATION_ISSUES.md for detailed analysis and fix
   async getFeeData(
     input: GetFeeDataInput<KnownChainIds.TronMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.TronMainnet>> {
     try {
       const { to, value, chainSpecific: { from, contractAddress, memo } = {} } = input
 
-      // Get live network prices from chain parameters
-      const tronWeb = new TronWeb({ fullHost: this.rpcUrl })
+      const tronWeb = new TronWeb({ fullHost: this.rpcUrl, headers: this.tronGridHeaders })
       const params = await this.requestQueue.add(() => tronWeb.trx.getChainParameters(), {
         throwOnTimeout: true,
       })
+
       const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
       const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
 
@@ -540,7 +543,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
           () =>
             fetch(`${this.rpcUrl}/wallet/getaccount`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 'Content-Type': 'application/json', ...this.tronGridHeaders },
               body: JSON.stringify({
                 address: to,
                 visible: true,
@@ -731,7 +734,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     const TRANSFER_EVENT_SIGNATURE =
       'ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
     const ZERO_ADDRESS = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'
-    const tronWeb = new TronWeb({ fullHost: this.rpcUrl })
+    const tronWeb = new TronWeb({ fullHost: this.rpcUrl, headers: this.tronGridHeaders })
 
     for (const log of tx.log) {
       try {

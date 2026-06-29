@@ -4,20 +4,30 @@ import type { TronAccount, TronBlock, TronTx } from './types'
 
 export interface TronApiConfig {
   rpcUrl: string
+  apiKey?: string
 }
 
 export class TronApi {
   private readonly rpcUrl: string
+  private readonly apiKey: string
   private tronWeb: TronWeb | null = null
   private requestQueue: Promise<void> = Promise.resolve()
   private readonly minRequestInterval = 1_500
 
   constructor(config: TronApiConfig) {
     this.rpcUrl = config.rpcUrl
+    this.apiKey = config.apiKey ?? ''
   }
 
   getRpcUrl(): string {
     return this.rpcUrl
+  }
+
+  private get tronGridHeaders(): Record<string, string> {
+    return {
+      'Content-Type': 'application/json',
+      ...(this.apiKey ? { 'TRON-PRO-API-KEY': this.apiKey } : {}),
+    }
   }
 
   private async throttle(): Promise<void> {
@@ -32,7 +42,10 @@ export class TronApi {
 
   private getTronWeb(): TronWeb {
     if (!this.tronWeb) {
-      this.tronWeb = new TronWeb({ fullHost: this.rpcUrl })
+      this.tronWeb = new TronWeb({
+        fullHost: this.rpcUrl,
+        headers: this.apiKey ? { 'TRON-PRO-API-KEY': this.apiKey } : {},
+      })
     }
     return this.tronWeb
   }
@@ -46,7 +59,7 @@ export class TronApi {
 
     const response = await fetch(`${this.rpcUrl}/wallet/getaccount`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.tronGridHeaders,
       body: JSON.stringify({ address: params.pubkey, visible: true }),
     })
 
@@ -68,7 +81,9 @@ export class TronApi {
     try {
       await this.throttle()
 
-      const trc20Response = await fetch(`${this.rpcUrl}/v1/accounts/${params.pubkey}`)
+      const trc20Response = await fetch(`${this.rpcUrl}/v1/accounts/${params.pubkey}`, {
+        headers: this.tronGridHeaders,
+      })
       const trc20Data = await trc20Response.json()
 
       if (trc20Data.data?.[0]?.trc20 && Array.isArray(trc20Data.data[0].trc20)) {
@@ -97,6 +112,7 @@ export class TronApi {
 
           const trc20TxResponse = await fetch(
             `${this.rpcUrl}/v1/accounts/${params.pubkey}/transactions/trc20?limit=200&only_to=true`,
+            { headers: this.tronGridHeaders },
           )
 
           if (trc20TxResponse.ok) {
@@ -161,12 +177,12 @@ export class TronApi {
     const [txResponse, infoResponse] = await Promise.all([
       fetch(`${this.rpcUrl}/wallet/gettransactionbyid`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: this.tronGridHeaders,
         body: JSON.stringify({ value: params.txid, visible: true }),
       }),
       fetch(`${this.rpcUrl}/wallet/gettransactioninfobyid`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: this.tronGridHeaders,
         body: JSON.stringify({ value: params.txid, visible: true }),
       }),
     ])
@@ -222,7 +238,7 @@ export class TronApi {
 
     const response = await fetch(`${this.rpcUrl}/wallet/getblockbynum`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.tronGridHeaders,
       body: JSON.stringify({ num: params.height }),
     })
 

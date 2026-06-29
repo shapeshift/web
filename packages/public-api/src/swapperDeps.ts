@@ -248,8 +248,14 @@ const solanaAdapter = new adapters.solana.ChainAdapter({
 })
 
 const tronAdapter = new adapters.tron.ChainAdapter({
-  providers: { http: new unchained.tron.TronApi({ rpcUrl: env.TRON_NODE_URL }) },
+  providers: {
+    http: new unchained.tron.TronApi({
+      rpcUrl: env.TRON_NODE_URL,
+      apiKey: env.TRON_GRID_API_KEY,
+    }),
+  },
   rpcUrl: env.TRON_NODE_URL,
+  apiKey: env.TRON_GRID_API_KEY,
 })
 
 const suiAdapter = new adapters.sui.ChainAdapter({ rpcUrl: env.SUI_NODE_URL })

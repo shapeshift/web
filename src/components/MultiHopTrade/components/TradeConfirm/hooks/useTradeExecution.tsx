@@ -30,6 +30,7 @@ import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/
 import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
 import { getMixpanelEventData } from '@/components/MultiHopTrade/helpers'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -367,6 +368,10 @@ export const useTradeExecution = (
             id: confirmedTradeId,
           }),
         )
+
+        // Drop cached allowances so the next swap's approval/balance check reads fresh on-chain
+        // state rather than a stale pre-swap value.
+        queryClient.removeQueries({ queryKey: ['allowanceCryptoBaseUnit'] })
 
         const isLastHop = hopIndex === tradeQuote.steps.length - 1
         if (isLastHop && !hasMixpanelSuccessOrFailFiredRef.current) {

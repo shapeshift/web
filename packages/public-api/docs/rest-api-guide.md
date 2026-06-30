@@ -59,7 +59,7 @@ GET /v1/swap/status?quoteId=<quoteId>&txHash=0x...
 ```
 
 - On the **first call after broadcasting**, include `txHash` to bind it to the quote and begin tracking. This sets status to `submitted`. Subsequent polls can omit `txHash`.
-- `status` is one of `pending`, `submitted`, `confirmed`, `failed`. Poll until `confirmed` or `failed`; a `buyTxHash` appears once the destination transaction is known.
+- `status` is one of `submitted`, `confirmed`, `failed`. Poll until `confirmed` or `failed`; a `buyTxHash` appears once the destination transaction is known.
 - Poll at a modest interval (e.g. every 5–15s) and respect rate-limit headers. Stop polling on a terminal status.
 
 ### Status errors

@@ -42,6 +42,7 @@ type SwapWidgetContentProps = {
   sellFilters: SwapWidgetFilters
   buyFilters: SwapWidgetFilters
   allowedSwapperNames?: SwapWidgetProps['allowedSwapperNames']
+  ratesRefetchInterval?: SwapWidgetProps['ratesRefetchInterval']
 }
 
 const SwapWidgetContent = ({
@@ -57,6 +58,7 @@ const SwapWidgetContent = ({
   sellFilters,
   buyFilters,
   allowedSwapperNames,
+  ratesRefetchInterval,
 }: SwapWidgetContentProps) => {
   const state = SwapMachineCtx.useSelector(s => s)
 
@@ -66,7 +68,11 @@ const SwapWidgetContent = ({
   const themeMode: ThemeMode = typeof theme === 'string' ? theme : theme.mode
   const themeConfig = typeof theme === 'object' ? theme : undefined
 
-  const displayValues = useSwapDisplayValues({ apiClient, allowedSwapperNames })
+  const displayValues = useSwapDisplayValues({
+    apiClient,
+    allowedSwapperNames,
+    ratesRefetchInterval,
+  })
   const { rates, sellAssetBalance, refetchSellBalance, refetchBuyBalance } = displayValues
 
   const {
@@ -247,6 +253,7 @@ type SwapWidgetCoreProps = {
   sellFilters: SwapWidgetFilters
   buyFilters: SwapWidgetFilters
   allowedSwapperNames?: SwapWidgetProps['allowedSwapperNames']
+  ratesRefetchInterval?: SwapWidgetProps['ratesRefetchInterval']
 }
 
 const SwapWidgetCore = ({
@@ -265,6 +272,7 @@ const SwapWidgetCore = ({
   sellFilters,
   buyFilters,
   allowedSwapperNames,
+  ratesRefetchInterval,
 }: SwapWidgetCoreProps) => {
   const actorRef = SwapMachineCtx.useActorRef()
 
@@ -383,6 +391,7 @@ const SwapWidgetCore = ({
         sellFilters={sellFilters}
         buyFilters={buyFilters}
         allowedSwapperNames={allowedSwapperNames}
+        ratesRefetchInterval={ratesRefetchInterval}
       />
     </SwapWalletProvider>
   )
@@ -417,6 +426,7 @@ export const SwapWidget = (props: SwapWidgetProps) => {
           sellFilters={props.sellFilters ?? {}}
           buyFilters={props.buyFilters ?? {}}
           allowedSwapperNames={props.allowedSwapperNames}
+          ratesRefetchInterval={props.ratesRefetchInterval}
         />
       </SwapMachineCtx.Provider>
     </AppKitWalletProvider>

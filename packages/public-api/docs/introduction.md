@@ -1,17 +1,49 @@
-The ShapeShift Public API enables developers to integrate multi-chain swap functionality into their applications. Access rates from multiple DEX aggregators and execute swaps across supported blockchains.
+The ShapeShift Public API lets you integrate multi-chain swap functionality into your application. Fetch rates from multiple DEX aggregators and bridges, build executable quotes, and track swaps across supported blockchains.
 
-There are two ways to integrate:
+## Base URL
 
-1. **Swap Widget SDK** — Drop-in React component with built-in UI, wallet connection, and multi-chain support. Fastest way to integrate.
-2. **REST API** — Build your own swap UI using the endpoints below. Full control over UX.
+```
+https://api.shapeshift.com
+```
 
-## Affiliate Tracking (Optional)
+All endpoints are versioned under `/v1` (e.g. `https://api.shapeshift.com/v1/swap/rates`). This interactive reference is served at `https://api.shapeshift.com/docs`, and the raw OpenAPI document at `https://api.shapeshift.com/docs/json`.
 
-Include a `X-Partner-Code` header with your registered partner code (e.g. `vultisig`, `venice`) to attribute swaps for affiliate fee tracking. The API resolves the code to the registered affiliate address and BPS automatically. Register a partner code at the affiliate dashboard. This is optional — all endpoints work without it.
+## Two ways to integrate
 
-## Asset IDs
+1. **Swap Widget SDK** — a drop-in React component with built-in UI, wallet connection, and multi-chain support. The fastest path. See the **Swap Widget SDK** section.
+2. **REST API** — call the endpoints directly and build your own UI for full control over UX. See the **REST API Guide** section, then the per-endpoint reference below.
 
-Assets use CAIP-19 format: `{chainId}/{assetNamespace}:{assetReference}`
+## Affiliate tracking (optional)
+
+Send an `X-Partner-Code` header with your registered partner code (e.g. `your-partner-code`) on the swap endpoints to attribute swaps for affiliate revenue share. The API attributes the swap to your affiliate account and applies your configured fee (bps) automatically. All endpoints work without it — unattributed swaps use the default fee. See the [Affiliate Program guide](https://github.com/shapeshift/web/blob/develop/docs/affiliates.md) for how to obtain a code.
+
+## Asset IDs (CAIP-19)
+
+Assets are identified with [CAIP-19](https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-19.md): `{chainId}/{assetNamespace}:{assetReference}`
+
 - Native ETH: `eip155:1/slip44:60`
 - USDC on Ethereum: `eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48`
 - Native BTC: `bip122:000000000019d6689c085ae165831e93/slip44:0`
+
+Chains use [CAIP-2](https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md) (e.g. `eip155:1`). Use `GET /v1/chains` and `GET /v1/assets` to discover supported values.
+
+## Errors
+
+Errors return the appropriate HTTP status and a JSON body:
+
+```json
+{ "error": "Human-readable message", "code": "MACHINE_CODE", "details": [] }
+```
+
+`code` and `details` are present where applicable (e.g. `QUOTE_NOT_FOUND`, `TX_HASH_REQUIRED`, `TX_HASH_MISMATCH`, `RATE_LIMIT_EXCEEDED`, validation `details`).
+
+## Rate limiting
+
+Endpoints are rate limited per IP on a fixed 60-second window. A global limit applies across all endpoints, and individual endpoint groups (data, rates, quote, status, affiliate) have their own independent limits on top of it — so a request counts against both. When either is exceeded, the API returns `429` with code `RATE_LIMIT_EXCEEDED` and these headers:
+
+- `Retry-After` — seconds until the window resets
+- `RateLimit-Limit` — max requests allowed per window
+- `RateLimit-Remaining` — requests remaining in the current window
+- `RateLimit-Reset` — seconds until the window resets
+
+Back off using `Retry-After` and avoid polling faster than necessary (see the REST API Guide for polling guidance).

@@ -18,6 +18,7 @@ import { useSwapRates } from './useSwapRates'
 type UseSwapDisplayValuesParams = {
   apiClient: ApiClient
   allowedSwapperNames?: SwapperName[]
+  ratesRefetchInterval?: number
 }
 
 export type SwapDisplayValues = {
@@ -47,6 +48,7 @@ export type SwapDisplayValues = {
 export const useSwapDisplayValues = ({
   apiClient,
   allowedSwapperNames,
+  ratesRefetchInterval,
 }: UseSwapDisplayValuesParams): SwapDisplayValues => {
   const sellAsset = SwapMachineCtx.useSelector(s => s.context.sellAsset)
   const buyAsset = SwapMachineCtx.useSelector(s => s.context.buyAsset)
@@ -72,6 +74,7 @@ export const useSwapDisplayValues = ({
     buyAssetId: buyAsset.assetId,
     sellAmountCryptoBaseUnit: sellAmountBaseUnit,
     allowedSwapperNames,
+    refetchInterval: ratesRefetchInterval,
     enabled:
       !!sellAmountBaseUnit &&
       sellAmountBaseUnit !== '0' &&

@@ -61,7 +61,8 @@ import { SwapWidget } from '@shapeshiftoss/swap-widget'
 function App() {
   return (
     <SwapWidget
-      // Required: enables the built-in wallet connection (see "Wallet Connection" below).
+      // Initializes the built-in wallet connection. Optional if your app already
+      // initializes Reown AppKit — see "Wallet Connection" below.
       walletConnectProjectId="your-walletconnect-project-id"
       // Optional: attribute swaps to your affiliate account.
       partnerCode="your-partner-code"
@@ -75,20 +76,24 @@ function App() {
 
 ## Wallet Connection
 
-The widget manages wallet connection **internally** using [Reown AppKit](https://reown.com/appkit)
-(formerly WalletConnect). It creates and owns its own AppKit instance and the `WagmiProvider` /
-`QueryClient` it needs — you don't wrap it in your own, and it does not hook into a wallet setup your
-app may already have.
+The widget connects wallets through [Reown AppKit](https://reown.com/appkit)
+and provides the `WagmiProvider` / `QueryClient` it needs — you don't wrap it in your own.
 
-### `walletConnectProjectId` is required
+### Initializing AppKit
 
-AppKit only initializes when a `walletConnectProjectId` is supplied, and **the widget renders nothing
-until AppKit is initialized**. So `walletConnectProjectId` is required for the widget to mount. Get a
-free project ID at <https://dashboard.reown.com>.
+**The widget renders nothing until AppKit is initialized.** There are two ways to satisfy this:
 
-```tsx
-<SwapWidget walletConnectProjectId="your-walletconnect-project-id" />
-```
+- **Let the widget initialize AppKit (default).** Pass `walletConnectProjectId` and the widget creates
+  and owns its own AppKit instance. Get a free project ID at <https://dashboard.reown.com>.
+
+  ```tsx
+  <SwapWidget walletConnectProjectId="your-walletconnect-project-id" />
+  ```
+
+- **Reuse your app's AppKit instance.** If your host app already initializes Reown AppKit, the widget
+  reads that shared instance from the AppKit singleton — omit `walletConnectProjectId` and just make
+  sure AppKit is initialized before the widget mounts. Pair this with `showConnectButton={false}` to
+  drive connection entirely from your own UI. See `src/demo/ExternalWalletApp.tsx` for a full example.
 
 The header shows a built-in **Connect** button by default; set `showConnectButton={false}` if you
 want to hide it and drive connection from your own UI (the widget still owns the underlying AppKit
@@ -115,7 +120,7 @@ when `allowShapeshiftRedirect` is enabled.
 
 | Prop                     | Type                                            | Default            | Description                                                                                              |
 | ------------------------ | ----------------------------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------- |
-| `walletConnectProjectId` | `string`                                        | –                  | Reown AppKit / WalletConnect project ID. **Required** for the widget to initialize and render.           |
+| `walletConnectProjectId` | `string`                                        | –                  | Reown AppKit / WalletConnect project ID. The widget uses it to initialize AppKit. Required unless your host app already initializes AppKit (see [Wallet Connection](#wallet-connection)). |
 | `partnerCode`            | `string`                                        | –                  | Your registered partner code for affiliate fee attribution. See [Partner Codes](#partner-codes--affiliate-revenue). |
 | `apiBaseUrl`             | `string`                                        | ShapeShift Public API | Override the API base URL. Useful for testing or custom deployments.                                  |
 | `defaultSellAsset`       | `Asset`                                         | ETH on Ethereum    | Initial asset to sell.                                                                                    |
@@ -503,8 +508,8 @@ revenue attribution works.
 ## Notes and Limitations
 
 - **Self-contained providers.** The widget renders its own `WagmiProvider` and React Query
-  `QueryClient`. Don't wrap it in your own — and remember it renders nothing until
-  `walletConnectProjectId` initializes AppKit.
+  `QueryClient`. Don't wrap it in your own — and remember it renders nothing until AppKit is
+  initialized, whether by `walletConnectProjectId` or by your host app (see [Wallet Connection](#wallet-connection)).
 - **Balances and USD prices.** When a wallet is connected, the widget shows balances and USD prices
   for the selected assets.
 - **Redirects.** Assets on non-executable chains (Cosmos, Zcash, Tron, Sui, TON, NEAR, Starknet)

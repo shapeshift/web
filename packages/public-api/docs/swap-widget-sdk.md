@@ -44,8 +44,8 @@ function App() {
 
 ## Key things to know
 
-- **Wallet connection is built in.** The widget manages wallets internally via Reown AppKit (EVM, Bitcoin, and Solana).
-- **`walletConnectProjectId` is required.** The widget renders nothing until AppKit initializes, which requires a project ID. Get one free at [dashboard.reown.com](https://dashboard.reown.com).
+- **Wallet connection is built in.** The widget connects wallets via Reown AppKit (EVM, Bitcoin, and Solana).
+- **AppKit must be initialized for the widget to render.** Either pass `walletConnectProjectId` and the widget initializes AppKit for you (get a free project ID at [dashboard.reown.com](https://dashboard.reown.com)), or initialize AppKit yourself in the host app and the widget reads the shared instance — pair that with `showConnectButton={false}` to drive connection from your own UI. See the [README](https://github.com/shapeshift/web/blob/develop/packages/swap-widget/README.md#wallet-connection).
 - **`partnerCode` drives affiliate attribution.** It is forwarded to this API as the `X-Partner-Code` header. See the [Affiliate Program guide](https://github.com/shapeshift/web/blob/develop/docs/affiliates.md).
 - **Chain/asset filtering** uses the `sellFilters` and `buyFilters` props (objects with `allowedChainIds` / `disabledChainIds` / `allowedAssetIds` / `disabledAssetIds`). See the README for the full prop list and examples.
 

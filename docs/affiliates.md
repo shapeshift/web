@@ -18,8 +18,10 @@ use this code everywhere below.
 
 ### 2. Using the Swap Widget
 
-Pass your `partnerCode` prop. (`walletConnectProjectId` is required for the widget to render — see
-the [widget README](../packages/swap-widget/README.md).)
+Pass your `partnerCode` prop. The widget renders once Reown AppKit is initialized: either pass
+`walletConnectProjectId` and the widget initializes AppKit for you (shown below), or initialize AppKit
+yourself in the host app and the widget reads the shared instance — see the
+[widget README](../packages/swap-widget/README.md).
 
 ```tsx
 import { SwapWidget } from '@shapeshiftoss/swap-widget'

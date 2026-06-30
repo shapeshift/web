@@ -180,7 +180,12 @@ export const Foxy = () => {
         buildCustomTxInput,
         receiverAddress: CONTRACT_INTERACTION,
       })
-      await viemEthMainnetClient.waitForTransactionReceipt({ hash: txid as `0x${string}` })
+      // waitForTransactionReceipt does not throw on a mined-but-reverted tx — surface it so a
+      // failed approve/unstake shows an error instead of silently continuing the flow.
+      const receipt = await viemEthMainnetClient.waitForTransactionReceipt({
+        hash: txid as `0x${string}`,
+      })
+      if (receipt.status === 'reverted') throw new Error('Transaction reverted')
       return txid
     },
     [adapter, wallet],

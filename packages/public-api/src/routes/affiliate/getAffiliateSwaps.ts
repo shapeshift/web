@@ -51,11 +51,12 @@ export const getAffiliateSwaps = async (req: Request, res: Response): Promise<vo
       return
     }
 
-    const { address, startDate, endDate, limit, cursor } = queryResult.data
+    const { address, partnerCode, startDate, endDate, limit, cursor } = queryResult.data
 
     const url = new URL(`${env.SWAP_SERVICE_BASE_URL}/v1/affiliate/swaps`)
 
-    url.searchParams.append('address', address)
+    if (partnerCode) url.searchParams.append('partnerCode', partnerCode)
+    else if (address) url.searchParams.append('address', address)
     url.searchParams.append('limit', String(limit))
 
     if (cursor) url.searchParams.append('cursor', cursor)

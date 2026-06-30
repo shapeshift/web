@@ -44,10 +44,11 @@ export const getAffiliateStats = async (req: Request, res: Response): Promise<vo
       return
     }
 
-    const { address, startDate, endDate } = queryResult.data
+    const { address, partnerCode, startDate, endDate } = queryResult.data
 
     const url = new URL(`${env.SWAP_SERVICE_BASE_URL}/v1/affiliate/stats`)
-    url.searchParams.append('address', address)
+    if (partnerCode) url.searchParams.append('partnerCode', partnerCode)
+    else if (address) url.searchParams.append('address', address)
 
     if (startDate) url.searchParams.append('startDate', String(startDate))
     if (endDate) url.searchParams.append('endDate', String(endDate))

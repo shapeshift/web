@@ -121,8 +121,7 @@ settled (see `routes/status/utils.ts`).
 
 Only the total `affiliateBps` (partner + ShapeShift) reaches the swapper. Each swapper applies it as
 **ShapeShift's own** affiliate fee using that protocol's mechanism; the partner address is not
-involved at this layer. Protocol-specific affiliate constants live under
-`packages/swapper/src/swappers/*/`.
+involved at this layer.
 
 ### 4. Microservices (`shapeshift/microservices`)
 
@@ -167,12 +166,6 @@ POST  /v1/auth/siwe/verify                     # SIWE: verify signature
 - `packages/swap-widget/src/types/index.ts` — `SwapWidgetProps.partnerCode`
 - `packages/swap-widget/src/api/client.ts` — sends `X-Partner-Code`
 - `packages/affiliate-dashboard/src/`
-
-### Swapper affiliate constants
-
-- `packages/swapper/src/swappers/ThorchainSwapper/constants.ts` (`THORCHAIN_AFFILIATE_NAME`)
-- `packages/swapper/src/swappers/MayachainSwapper/constants.ts`
-- `packages/swapper/src/swappers/CowSwapper/constants.ts`
 
 ### Microservices (separate repo: `shapeshift/microservices`)
 

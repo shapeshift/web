@@ -1,95 +1,75 @@
 # ShapeShift Affiliate Program
 
-Earn revenue share on swaps executed through your integration.
+Earn revenue share on swaps executed through your integration — whether you embed the
+[Swap Widget](../packages/swap-widget/README.md) or call the
+[Public API](../packages/public-api/docs/introduction.md) directly.
+
+Attribution is driven by a **partner code**: a short identifier registered to an EVM wallet address.
+Pass it to the widget or the API, and ShapeShift attributes each swap to your affiliate account and
+applies your configured fee automatically.
 
 ## Quick Start
 
-### 1. Using the Swap Widget
+### 1. Get a partner code
+
+Register at the [Affiliate Dashboard](https://dashboard.affiliate.shapeshift.com/): connect your wallet, sign
+in (a wallet signature — no gas), and you'll be issued a partner code mapped to your wallet. You'll
+use this code everywhere below.
+
+### 2. Using the Swap Widget
+
+Pass your `partnerCode` prop. (`walletConnectProjectId` is required for the widget to render — see
+the [widget README](../packages/swap-widget/README.md).)
 
 ```tsx
 import { SwapWidget } from '@shapeshiftoss/swap-widget'
 
 <SwapWidget
-  affiliateAddress="0xYourWalletAddress"
-  // Optional: use a partner code instead
-  partnerCode="yourcode"
-  // Optional: override BPS (if registered)
-  affiliateBps="100"
+  walletConnectProjectId="your-walletconnect-project-id"
+  partnerCode="your-partner-code"
 />
 ```
 
-### 2. Using the Public API
+### 3. Using the Public API
 
-Include these headers in your API requests:
+Send the `X-Partner-Code` header on the swap endpoints (`/v1/swap/rates`, `/v1/swap/quote`,
+`/v1/swap/status`). The API attributes the swap to your affiliate account and applies your configured fee.
 
 ```bash
-curl https://api.shapeshift.com/v1/swap/rates \
-  -H "X-Affiliate-Address: 0xYourWalletAddress" \
-  -H "Content-Type: application/json" \
-  -d '{"sellAssetId": "...", "buyAssetId": "...", "sellAmountCryptoBaseUnit": "..."}'
+curl "https://api.shapeshift.com/v1/swap/rates?sellAssetId=eip155:1/slip44:60&buyAssetId=eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&sellAmountCryptoBaseUnit=1000000000000000000" \
+  -H "X-Partner-Code: your-partner-code"
 ```
 
-Or use a partner code:
+## The `X-Partner-Code` header
+
+| Header           | Description                                                              |
+| ---------------- | ------------------------------------------------------------------------ |
+| `X-Partner-Code` | Your registered partner code. Attributes the swap to your affiliate account and applies your fee. |
+
+The partner code is the attribution mechanism: it maps to the affiliate parameters (payout address
+and fee) configured for your account, so there's no separate address or bps header to send. Requests
+without a partner code still succeed, but the swap is unattributed and uses the default fee.
+
+## Fees
+
+Fees are expressed in **basis points (bps)** — 1 bps = 0.01%, so 60 bps = 0.6%. The fee that applies
+to swaps attributed to your partner code is configured at registration; swaps with no partner code
+use ShapeShift's default fee.
+
+The API surfaces the fee breakdown for each rate/quote via the `affiliateBps` (total), `partnerBps`,
+and `shapeshiftBps` fields — these reflect the fee that will actually be applied, so read them per
+quote rather than assuming a fixed rate.
+
+## Revenue Attribution & Reporting
+
+Every swap carrying your partner code is attributed to you. Review your activity in the dashboard, or
+query the API by partner code:
 
 ```bash
-curl https://api.shapeshift.com/v1/swap/rates \
-  -H "X-Partner-Code: yourcode" \
-  -H "Content-Type: application/json" \
-  -d '...'
-```
+# Aggregate stats (optional startDate / endDate)
+curl "https://api.shapeshift.com/v1/affiliate/stats?partnerCode=your-partner-code"
 
-## Headers
-
-| Header | Description |
-|--------|-------------|
-| `X-Affiliate-Address` | Your EVM wallet address (0x...) |
-| `X-Partner-Code` | Your partner code (if registered) |
-| `X-Affiliate-Bps` | Override BPS (optional, 0-1000) |
-
-## Registering as an Affiliate
-
-1. Go to the [Affiliate Dashboard](https://affiliate.shapeshift.com)
-2. Connect your wallet
-3. Your address is automatically registered with default BPS
-4. Optionally claim a partner code
-
-### Partner Codes
-
-Partner codes are short identifiers (3-32 alphanumeric characters) that map to your wallet. Benefits:
-
-- Easier to share than a wallet address
-- Can be used in place of `X-Affiliate-Address`
-- One code per affiliate
-
-Reserved codes: `shapeshift`, `ss`, `admin`, `api`, `test`, `demo`
-
-## Fee Structure
-
-| BPS | Percentage | Description |
-|-----|------------|-------------|
-| 10 | 0.1% | Minimum (API base) |
-| 60 | 0.6% | Default |
-| 100 | 1.0% | Example custom |
-
-- **BPS** = Basis Points (1 BPS = 0.01%)
-- Fees are taken from the sell amount
-- Related asset swaps (e.g., ETH → WETH) have 0% fee
-
-## Revenue Attribution
-
-Every swap executed through your integration is tracked:
-
-- Your affiliate address is recorded
-- Volume and fees are calculated
-- Stats available in the affiliate dashboard
-
-### Viewing Your Stats
-
-```bash
-# Get your stats
-curl "https://api.shapeshift.com/v1/affiliate/stats?address=0xYour..."
-
-# Response
+# Example response
 {
   "totalSwaps": 1234,
   "totalVolumeUsd": "1234567.89",
@@ -97,25 +77,24 @@ curl "https://api.shapeshift.com/v1/affiliate/stats?address=0xYour..."
 }
 ```
 
+```bash
+# Paginated swap history (optional startDate / endDate / limit / cursor)
+curl "https://api.shapeshift.com/v1/affiliate/swaps?partnerCode=your-partner-code"
+```
+
 ## API Endpoints
 
-### Public Endpoints
+| Method | Endpoint                                  | Auth            | Description                              |
+| ------ | ----------------------------------------- | --------------- | ---------------------------------------- |
+| GET    | `/v1/affiliate/stats?partnerCode=...`     | none            | Aggregate swap stats for a partner code  |
+| GET    | `/v1/affiliate/swaps?partnerCode=...`     | none            | Paginated swap history for a partner code |
+| GET    | `/v1/partner/{code}`                      | none            | Resolve a partner code to its attribution details (address, bps split) |
+| GET    | `/v1/affiliate/{address}`                 | none            | Look up an affiliate by wallet address   |
+| POST   | `/v1/affiliate`                           | wallet (SIWE)   | Register as an affiliate                 |
+| PATCH  | `/v1/affiliate/{address}`                 | wallet (SIWE)   | Update affiliate settings                |
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/v1/affiliate/stats?address=...` | Get swap stats |
-| GET | `/v1/partner/:code` | Resolve partner code |
+Wallet-authenticated endpoints use Sign-In With Ethereum (`POST /v1/auth/siwe/nonce` →
+`POST /v1/auth/siwe/verify`). Most partners never call these directly — the
+[Affiliate Dashboard](https://dashboard.affiliate.shapeshift.com/) handles registration for you.
 
-### Authenticated Endpoints (requires wallet signature)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/v1/affiliate` | Register as affiliate |
-| PATCH | `/v1/affiliate/:address` | Update settings |
-| POST | `/v1/affiliate/claim-code` | Claim partner code |
-
-## Support
-
-- **Dashboard**: https://affiliate.shapeshift.com
-- **Discord**: https://discord.gg/shapeshift
-- **Email**: affiliates@shapeshift.com
+See the full request/response schemas in the [Public API reference](https://api.shapeshift.com/docs).

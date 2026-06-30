@@ -1,278 +1,286 @@
 # @shapeshiftoss/swap-widget
 
-An embeddable React widget that enables multi-chain token swaps using ShapeShift's aggregation API. Integrate swaps into your application with minimal configuration.
+An embeddable React widget that enables multi-chain token swaps using ShapeShift's aggregation API. Drop it into your app to offer EVM, UTXO, and Solana swaps with minimal configuration.
+
+> **This README is the canonical reference for the swap widget.** Other docs (including the ShapeShift Public API docs) link here.
 
 ## Table of Contents
 
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [Wallet Connection](#wallet-connection)
 - [Props Reference](#props-reference)
+- [Filtering Chains and Assets](#filtering-chains-and-assets)
 - [Theming](#theming)
 - [Examples](#examples)
 - [Exported Types](#exported-types)
 - [Exported Utilities](#exported-utilities)
 - [Exported Hooks](#exported-hooks)
 - [Supported Chains](#supported-chains)
+- [Supported Swappers](#supported-swappers)
+- [Partner Codes & Affiliate Revenue](#partner-codes--affiliate-revenue)
 - [Notes and Limitations](#notes-and-limitations)
 
 ## Installation
 
 ```bash
-pnpm add @shapeshiftoss/swap-widget
-# or
 npm install @shapeshiftoss/swap-widget
 ```
 
 ### Peer Dependencies
 
-This package requires React 18 or later:
+The widget relies on React, wagmi/viem, React Query, and Reown AppKit (used internally for wallet
+connection). Install the peers alongside the package:
 
-```json
-{
-  "peerDependencies": {
-    "react": ">=18.0.0",
-    "react-dom": ">=18.0.0"
-  }
-}
+```bash
+npm install react react-dom \
+  wagmi @wagmi/core viem \
+  @tanstack/react-query \
+  @reown/appkit @reown/appkit-adapter-wagmi
+```
+
+- **React 18 or 19** is supported (`^18.0.0 || ^19.0.0`).
+- To support **Bitcoin / UTXO** wallets, also install `@reown/appkit-adapter-bitcoin`.
+- To support **Solana** wallets, also install `@reown/appkit-adapter-solana`, `@solana/wallet-adapter-wallets`, and `@solana/web3.js`.
+
+### Import the stylesheet
+
+The widget ships a stylesheet that **must** be imported once for it to render correctly:
+
+```tsx
+import '@shapeshiftoss/swap-widget/style.css'
 ```
 
 ## Quick Start
 
 ```tsx
-import { SwapWidget } from "@shapeshiftoss/swap-widget";
+import '@shapeshiftoss/swap-widget/style.css'
+
+import { SwapWidget } from '@shapeshiftoss/swap-widget'
 
 function App() {
   return (
     <SwapWidget
+      // Required: enables the built-in wallet connection (see "Wallet Connection" below).
+      walletConnectProjectId="your-walletconnect-project-id"
+      // Optional: attribute swaps to your affiliate account.
       partnerCode="your-partner-code"
       theme="dark"
-      onSwapSuccess={(txHash) => console.log("Success:", txHash)}
-      onSwapError={(error) => console.error("Error:", error)}
+      onSwapSuccess={txHash => console.log('Success:', txHash)}
+      onSwapError={error => console.error('Error:', error)}
     />
-  );
+  )
 }
 ```
+
+## Wallet Connection
+
+The widget manages wallet connection **internally** using [Reown AppKit](https://reown.com/appkit)
+(formerly WalletConnect). It creates and owns its own AppKit instance and the `WagmiProvider` /
+`QueryClient` it needs — you don't wrap it in your own, and it does not hook into a wallet setup your
+app may already have.
+
+### `walletConnectProjectId` is required
+
+AppKit only initializes when a `walletConnectProjectId` is supplied, and **the widget renders nothing
+until AppKit is initialized**. So `walletConnectProjectId` is required for the widget to mount. Get a
+free project ID at <https://dashboard.reown.com>.
+
+```tsx
+<SwapWidget walletConnectProjectId="your-walletconnect-project-id" />
+```
+
+The header shows a built-in **Connect** button by default; set `showConnectButton={false}` if you
+want to hide it and drive connection from your own UI (the widget still owns the underlying AppKit
+instance).
+
+### Supported wallet namespaces
+
+Once connected, the widget can sign and broadcast transactions for three wallet namespaces:
+
+| Namespace | Chains                          | Example wallets                  |
+| --------- | ------------------------------- | -------------------------------- |
+| `eip155`  | All supported EVM chains        | MetaMask, WalletConnect, Rabby   |
+| `bip122`  | Bitcoin and other UTXO chains   | WalletConnect-compatible wallets |
+| `solana`  | Solana                          | Phantom, Solflare                |
+
+The header shows a **Connect** button by default (toggle with `showConnectButton`) that opens the
+AppKit modal. Swaps whose sell asset is not in an executable namespace (see
+[Supported Chains](#supported-chains)) redirect to [app.shapeshift.com](https://app.shapeshift.com)
+when `allowShapeshiftRedirect` is enabled.
 
 ## Props Reference
 
-### SwapWidgetProps
+### `SwapWidgetProps`
 
-| Prop                     | Type                                            | Default          | Description                                                                                                |
-| ------------------------ | ----------------------------------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------- |
-| `partnerCode`            | `string`                                        | -                | Your registered partner code for affiliate fee attribution. Register at the affiliate dashboard.            |
-| `apiBaseUrl`             | `string`                                        | -                | Custom API base URL. Useful for testing or custom deployments.                                             |
-| `defaultSellAsset`       | `Asset`                                         | ETH on Ethereum  | Initial asset to sell.                                                                                     |
-| `defaultBuyAsset`        | `Asset`                                         | USDC on Ethereum | Initial asset to buy.                                                                                      |
-| `disabledChainIds`       | `ChainId[]`                                     | `[]`             | Chain IDs to hide from the asset selector.                                                                 |
-| `disabledAssetIds`       | `AssetId[]`                                     | `[]`             | Asset IDs to hide from the asset selector.                                                                 |
-| `allowedChainIds`        | `ChainId[]`                                     | -                | If provided, only show assets from these chains. Use this to restrict the widget to specific chains.       |
-| `allowedAssetIds`        | `AssetId[]`                                     | -                | If provided, only show these specific assets.                                                              |
-| `walletClient`           | `WalletClient`                                  | -                | Viem wallet client for executing EVM transactions.                                                         |
-| `onConnectWallet`        | `() => void`                                    | -                | Callback when user clicks "Connect Wallet" button.                                                         |
-| `onSwapSuccess`          | `(txHash: string) => void`                      | -                | Callback when a swap transaction succeeds.                                                                 |
-| `onSwapError`            | `(error: Error) => void`                        | -                | Callback when a swap transaction fails.                                                                    |
-| `onAssetSelect`          | `(type: "sell" \| "buy", asset: Asset) => void` | -                | Callback when user selects an asset.                                                                       |
-| `theme`                  | `ThemeMode \| ThemeConfig`                      | `"dark"`         | Theme mode (`"light"` or `"dark"`) or full theme configuration.                                            |
-| `defaultSlippage`        | `string`                                        | `"0.5"`          | Default slippage tolerance percentage.                                                                     |
-| `showPoweredBy`          | `boolean`                                       | `true`           | Show "Powered by ShapeShift" branding.                                                                     |
-| `enableWalletConnection` | `boolean`                                       | `false`          | Enable built-in wallet connection UI using Reown AppKit. Supports EVM, Bitcoin, and Solana wallets. Requires `walletConnectProjectId`. |
-| `walletConnectProjectId` | `string`                                        | -                | WalletConnect project ID for the built-in wallet connection. Get one at <https://cloud.walletconnect.com>. |
-| `defaultReceiveAddress`  | `string`                                        | -                | Fixed receive address for swaps. When set, users cannot change the receive address.                        |
+| Prop                     | Type                                            | Default            | Description                                                                                              |
+| ------------------------ | ----------------------------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------- |
+| `walletConnectProjectId` | `string`                                        | –                  | Reown AppKit / WalletConnect project ID. **Required** for the widget to initialize and render.           |
+| `partnerCode`            | `string`                                        | –                  | Your registered partner code for affiliate fee attribution. See [Partner Codes](#partner-codes--affiliate-revenue). |
+| `apiBaseUrl`             | `string`                                        | ShapeShift Public API | Override the API base URL. Useful for testing or custom deployments.                                  |
+| `defaultSellAsset`       | `Asset`                                         | ETH on Ethereum    | Initial asset to sell.                                                                                    |
+| `defaultBuyAsset`        | `Asset`                                         | USDC on Ethereum   | Initial asset to buy.                                                                                     |
+| `sellFilters`            | `SwapWidgetFilters`                             | `{}`               | Restrict which chains/assets are selectable for the **sell** side. See [Filtering](#filtering-chains-and-assets). |
+| `buyFilters`             | `SwapWidgetFilters`                             | `{}`               | Restrict which chains/assets are selectable for the **buy** side.                                        |
+| `allowedSwapperNames`    | `SwapperName[]`                                 | all enabled        | Limit quotes to specific swappers. See [Supported Swappers](#supported-swappers).                        |
+| `allowShapeshiftRedirect`| `boolean`                                       | `true`             | When a swap isn't executable in-widget, redirect to app.shapeshift.com instead of hiding it.             |
+| `isBuyAssetLocked`       | `boolean`                                       | `false`            | Prevent the user from changing the buy asset.                                                            |
+| `theme`                  | `ThemeMode \| ThemeConfig`                      | `"dark"`           | Theme mode (`"light"` or `"dark"`) or a full theme configuration object. See [Theming](#theming).        |
+| `defaultSlippage`        | `string`                                        | `"0.5"`            | Default slippage tolerance, as a percentage string.                                                      |
+| `showPoweredBy`          | `boolean`                                       | `true`             | Show the "Powered by ShapeShift" footer.                                                                  |
+| `showConnectButton`      | `boolean`                                       | `true`             | Show the built-in Connect button in the widget header.                                                   |
+| `ratesRefetchInterval`   | `number`                                        | `15000`            | How often (ms) to refetch swap rates.                                                                    |
+| `onSwapSuccess`          | `(txHash: string) => void`                      | –                  | Called when a swap transaction succeeds.                                                                  |
+| `onSwapError`            | `(error: Error) => void`                        | –                  | Called when a swap transaction fails.                                                                     |
+
+## Filtering Chains and Assets
+
+Restrict the sell and/or buy asset selectors independently via the `sellFilters` and `buyFilters`
+props. Both accept the same shape:
+
+```typescript
+type SwapWidgetFilters = {
+  allowedChainIds?: ChainId[] // If set, only these chains are selectable
+  disabledChainIds?: ChainId[] // Hide these chains
+  allowedAssetIds?: AssetId[] // If set, only these assets are selectable
+  disabledAssetIds?: AssetId[] // Hide these assets
+}
+```
+
+```tsx
+import { EVM_CHAIN_IDS, SwapWidget } from '@shapeshiftoss/swap-widget'
+
+function App() {
+  return (
+    <SwapWidget
+      walletConnectProjectId="your-walletconnect-project-id"
+      partnerCode="your-partner-code"
+      // Only allow selling ETH-chain, Polygon, and Arbitrum assets
+      sellFilters={{
+        allowedChainIds: [EVM_CHAIN_IDS.ethereum, EVM_CHAIN_IDS.polygon, EVM_CHAIN_IDS.arbitrum],
+      }}
+      // Hide a specific buy token
+      buyFilters={{
+        disabledAssetIds: ['eip155:1/erc20:0x...'],
+      }}
+      theme="dark"
+    />
+  )
+}
+```
 
 ## Theming
 
-The widget supports both simple theme modes and full customization.
+The widget supports a simple light/dark mode or a full theme configuration object.
 
-### Simple Theme Mode
+### Simple theme mode
 
 ```tsx
-<SwapWidget theme="dark" />
+<SwapWidget walletConnectProjectId="..." theme="dark" />
 // or
-<SwapWidget theme="light" />
+<SwapWidget walletConnectProjectId="..." theme="light" />
 ```
 
-### Custom Theme Configuration
+### Custom theme configuration
 
 ```tsx
-import { SwapWidget } from "@shapeshiftoss/swap-widget";
-import type { ThemeConfig } from "@shapeshiftoss/swap-widget";
+import { SwapWidget } from '@shapeshiftoss/swap-widget'
+import type { ThemeConfig } from '@shapeshiftoss/swap-widget'
 
 const customTheme: ThemeConfig = {
-  mode: "dark",
-  accentColor: "#3861fb", // Primary accent color (buttons, focus states)
-  backgroundColor: "#0a0a14", // Widget background
-  cardColor: "#12121c", // Card/panel background
-  textColor: "#ffffff", // Primary text color
-  borderRadius: "12px", // Border radius for elements
-  fontFamily: "Inter, sans-serif",
-};
+  mode: 'dark', // required
+  accentColor: '#3861fb',
+  backgroundColor: '#0a0a14',
+  cardColor: '#12121c',
+  textColor: '#ffffff',
+  borderRadius: '12px',
+  fontFamily: 'Inter, sans-serif',
+  buttonVariant: 'filled',
+}
 
 function App() {
-  return <SwapWidget theme={customTheme} />;
+  return <SwapWidget walletConnectProjectId="..." theme={customTheme} />
 }
 ```
 
-### ThemeConfig Properties
+### `ThemeConfig` properties
 
-| Property          | Type                | Description                                        |
-| ----------------- | ------------------- | -------------------------------------------------- |
-| `mode`            | `"light" \| "dark"` | Base theme mode. Required.                         |
-| `accentColor`     | `string`            | Primary accent color for buttons and focus states. |
-| `backgroundColor` | `string`            | Widget background color.                           |
-| `cardColor`       | `string`            | Card and panel background color.                   |
-| `textColor`       | `string`            | Primary text color.                                |
-| `borderRadius`    | `string`            | Border radius for UI elements.                     |
-| `fontFamily`      | `string`            | Font family for the widget.                        |
+| Property             | Type                     | Description                                          |
+| -------------------- | ------------------------ | ---------------------------------------------------- |
+| `mode`               | `"light" \| "dark"`      | Base theme mode. **Required.**                       |
+| `accentColor`        | `string`                 | Primary accent color (buttons, focus states).        |
+| `backgroundColor`    | `string`                 | Widget background color.                              |
+| `cardColor`          | `string`                 | Card / panel background color.                        |
+| `textColor`          | `string`                 | Primary text color.                                  |
+| `secondaryTextColor` | `string`                 | Secondary text color.                                |
+| `mutedTextColor`     | `string`                 | Muted/tertiary text color.                            |
+| `inputColor`         | `string`                 | Input field background color.                         |
+| `hoverColor`         | `string`                 | Hover background color.                               |
+| `borderColor`        | `string`                 | Border color.                                        |
+| `borderRadius`       | `string`                 | Base border radius for UI elements (e.g. `"12px"`).   |
+| `fontFamily`         | `string`                 | Font family for the widget.                           |
+| `buttonVariant`      | `"filled" \| "outline"`  | Primary button style.                                 |
 
 ## Examples
 
-### Basic Usage
+### Basic usage
 
 ```tsx
-import { SwapWidget } from "@shapeshiftoss/swap-widget";
+import { SwapWidget } from '@shapeshiftoss/swap-widget'
 
 function App() {
-  return <SwapWidget partnerCode="your-partner-code" theme="dark" />;
+  return <SwapWidget walletConnectProjectId="..." partnerCode="your-partner-code" theme="dark" />
 }
 ```
 
-### With External Wallet Connection (wagmi/viem)
-
-If you already have wagmi set up in your application, you can pass the wallet client directly:
+### Custom default assets
 
 ```tsx
-import { SwapWidget } from "@shapeshiftoss/swap-widget";
-import { useWalletClient } from "wagmi";
-
-function App() {
-  const { data: walletClient } = useWalletClient();
-
-  return (
-    <SwapWidget
-      partnerCode="your-partner-code"
-      walletClient={walletClient}
-      onConnectWallet={() => {
-        // Your custom wallet connection logic
-      }}
-      onSwapSuccess={(txHash) => {
-        console.log("Swap successful:", txHash);
-      }}
-      onSwapError={(error) => {
-        console.error("Swap failed:", error);
-      }}
-      theme={{
-        mode: "dark",
-        accentColor: "#3861fb",
-        backgroundColor: "#0a0a14",
-        cardColor: "#12121c",
-      }}
-    />
-  );
-}
-```
-
-### With Custom Default Assets
-
-```tsx
-import { SwapWidget } from "@shapeshiftoss/swap-widget";
-import type { Asset } from "@shapeshiftoss/swap-widget";
+import { SwapWidget } from '@shapeshiftoss/swap-widget'
+import type { Asset } from '@shapeshiftoss/swap-widget'
 
 const defaultSellAsset: Asset = {
-  assetId: "eip155:137/slip44:966",
-  chainId: "eip155:137",
-  symbol: "MATIC",
-  name: "Polygon",
+  assetId: 'eip155:137/slip44:966',
+  chainId: 'eip155:137',
+  symbol: 'POL',
+  name: 'Polygon',
   precision: 18,
-  icon: "https://example.com/matic.png",
-};
+}
 
 const defaultBuyAsset: Asset = {
-  assetId: "eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
-  chainId: "eip155:137",
-  symbol: "USDC",
-  name: "USD Coin",
+  assetId: 'eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+  chainId: 'eip155:137',
+  symbol: 'USDC',
+  name: 'USD Coin',
   precision: 6,
-  icon: "https://example.com/usdc.png",
-};
+}
 
 function App() {
   return (
     <SwapWidget
+      walletConnectProjectId="..."
       partnerCode="your-partner-code"
       defaultSellAsset={defaultSellAsset}
       defaultBuyAsset={defaultBuyAsset}
       theme="dark"
     />
-  );
+  )
 }
 ```
 
-### Restricting Available Chains and Assets
+### Locking the buy asset
 
-Use `allowedChainIds` to restrict the widget to only show specific chains. This is useful when you want to limit swaps to certain networks.
-
-```tsx
-import { SwapWidget, EVM_CHAIN_IDS } from "@shapeshiftoss/swap-widget";
-
-function App() {
-  return (
-    <SwapWidget
-      partnerCode="your-partner-code"
-      allowedChainIds={[
-        EVM_CHAIN_IDS.ethereum,
-        EVM_CHAIN_IDS.polygon,
-        EVM_CHAIN_IDS.arbitrum,
-      ]}
-      disabledAssetIds={[
-        "eip155:1/erc20:0x...", // Hide specific tokens
-      ]}
-      theme="dark"
-    />
-  );
-}
-```
-
-### With Built-in Wallet Connection (Multi-Chain)
-
-The widget can manage wallet connections internally using Reown AppKit, which supports EVM chains, Bitcoin, and Solana. This is useful when you don't have an existing wallet connection setup.
+Use `isBuyAssetLocked` so users can only change the sell side — useful when you want all swaps to
+end in a specific token.
 
 ```tsx
-import { SwapWidget } from "@shapeshiftoss/swap-widget";
-
-function App() {
-  return (
-    <SwapWidget
-      partnerCode="your-partner-code"
-      enableWalletConnection={true}
-      walletConnectProjectId="your-walletconnect-project-id"
-      theme="dark"
-    />
-  );
-}
-```
-
-When `enableWalletConnection` is true, the widget will:
-- Show a "Connect" button that opens the AppKit modal
-- Support connecting EVM wallets (MetaMask, WalletConnect, etc.)
-- Support connecting Bitcoin wallets via WalletConnect
-- Support connecting Solana wallets (Phantom, Solflare, etc.)
-
-### With Fixed Receive Address
-
-Use `defaultReceiveAddress` to lock the receive address. When set, users cannot change the destination address. This is useful for integrations where you want all swaps to go to a specific address.
-
-```tsx
-import { SwapWidget } from "@shapeshiftoss/swap-widget";
-
-function App() {
-  return (
-    <SwapWidget
-      partnerCode="your-partner-code"
-      defaultReceiveAddress="0x1234567890abcdef1234567890abcdef12345678"
-      theme="dark"
-    />
-  );
-}
+<SwapWidget
+  walletConnectProjectId="..."
+  partnerCode="your-partner-code"
+  defaultBuyAsset={defaultBuyAsset}
+  isBuyAssetLocked
+  theme="dark"
+/>
 ```
 
 ## Exported Types
@@ -281,246 +289,224 @@ function App() {
 import type {
   Asset,
   AssetId,
-  ChainId,
   Chain,
-  TradeRate,
-  TradeQuote,
-  SwapperName,
+  ChainId,
+  SwapWidgetFilters,
   SwapWidgetProps,
-  ThemeMode,
   ThemeConfig,
-} from "@shapeshiftoss/swap-widget";
+  ThemeMode,
+  TradeQuote,
+  TradeRate,
+} from '@shapeshiftoss/swap-widget'
 ```
 
-### Asset
+`SwapperName` is exported as a runtime value (an `enum`) — import it from the value position, not as
+a type.
+
+### `Asset`
 
 ```typescript
 type Asset = {
-  assetId: AssetId; // CAIP-19 format: "eip155:1/slip44:60"
-  chainId: ChainId; // CAIP-2 format: "eip155:1"
-  symbol: string; // e.g., "ETH"
-  name: string; // e.g., "Ethereum"
-  precision: number; // e.g., 18
-  icon?: string; // URL to asset icon
-  color?: string; // Brand color
-  networkName?: string; // Display name for the network
-  networkIcon?: string; // URL to network icon
-  explorer?: string; // Block explorer URL
-  explorerTxLink?: string; // Transaction explorer link template
-  explorerAddressLink?: string; // Address explorer link template
-  relatedAssetKey?: AssetId | null; // Related asset for bridged tokens
-};
-```
-
-### SwapperName
-
-```typescript
-type SwapperName =
-  | "THORChain"
-  | "MAYAChain"
-  | "CoW Swap"
-  | "0x"
-  | "Portals"
-  | "Chainflip"
-  | "Relay"
-  | "Bebop"
-  | "Jupiter"
-  | "1inch"
-  | "ButterSwap"
-  | "ArbitrumBridge";
-```
-
-### TradeRate
-
-```typescript
-type TradeRate = {
-  swapperName: SwapperName;
-  rate: string;
-  buyAmountCryptoBaseUnit: string;
-  sellAmountCryptoBaseUnit: string;
-  steps: number;
-  estimatedExecutionTimeMs?: number;
-  affiliateBps: string;
-  networkFeeCryptoBaseUnit?: string;
-  error?: {
-    code: string;
-    message: string;
-  };
-  id?: string;
-};
+  assetId: AssetId // CAIP-19, e.g. "eip155:1/slip44:60"
+  chainId: ChainId // CAIP-2, e.g. "eip155:1"
+  symbol: string // e.g. "ETH"
+  name: string // e.g. "Ethereum"
+  precision: number // e.g. 18
+  icon?: string
+  color?: string
+  networkName?: string
+  networkIcon?: string
+  explorer?: string
+  explorerTxLink?: string
+  explorerAddressLink?: string
+  relatedAssetKey?: AssetId | null
+}
 ```
 
 ## Exported Utilities
 
 ```typescript
 import {
-  isEvmChainId,
-  getEvmChainIdNumber,
-  getChainType,
+  COSMOS_CHAIN_IDS,
+  EVM_CHAIN_IDS,
+  OTHER_CHAIN_IDS,
+  REDIRECT_ONLY_CHAIN_IDS,
+  SwapperName,
+  UTXO_CHAIN_IDS,
   formatAmount,
+  getBaseAsset,
+  getChainColor,
+  getChainIcon,
+  getChainName,
+  getChainType,
+  getEvmNetworkId,
+  getExplorerTxLink,
+  isEvmChainId,
+  isWidgetExecutableChainId,
+  isWidgetSupportedChainId,
   parseAmount,
   truncateAddress,
-  EVM_CHAIN_IDS,
-  UTXO_CHAIN_IDS,
-  COSMOS_CHAIN_IDS,
-  OTHER_CHAIN_IDS,
-  CHAIN_METADATA,
-  getChainMeta,
-  getChainName,
-  getChainIcon,
-  getChainColor,
-} from "@shapeshiftoss/swap-widget";
+} from '@shapeshiftoss/swap-widget'
 ```
 
-### Chain Type Utilities
+### Chain helpers
 
-| Function              | Signature                                                                 | Description                                          |
-| --------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------- |
-| `isEvmChainId`        | `(chainId: string) => boolean`                                            | Check if a chain ID is an EVM chain.                 |
-| `getEvmChainIdNumber` | `(chainId: string) => number`                                             | Extract the numeric chain ID from a CAIP-2 chain ID. |
-| `getChainType`        | `(chainId: string) => "evm" \| "utxo" \| "cosmos" \| "solana" \| "other"` | Get the chain type from a chain ID.                  |
+| Function                    | Signature                                                                 | Description                                                  |
+| --------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `isEvmChainId`              | `(chainId: string) => boolean`                                            | Whether a chain ID is an EVM chain.                          |
+| `getEvmNetworkId`           | `(chainId: string) => number`                                             | Extract the numeric network ID from a CAIP-2 EVM chain ID.   |
+| `getChainType`              | `(chainId: string) => "evm" \| "utxo" \| "cosmos" \| "solana" \| "other"` | Classify a chain by namespace.                               |
+| `isWidgetSupportedChainId`  | `(chainId: string) => boolean`                                            | Whether the widget lists assets on this chain.               |
+| `isWidgetExecutableChainId` | `(chainId: string) => boolean`                                            | Whether the widget can sign/execute swaps on this chain in-app. |
+| `getChainName`              | `(chainId: ChainId) => string`                                            | Display name for a chain.                                    |
+| `getChainIcon`              | `(chainId: ChainId) => string \| undefined`                               | Icon URL for a chain.                                        |
+| `getChainColor`            | `(chainId: ChainId) => string`                                            | Brand color for a chain.                                     |
+| `getBaseAsset`              | `(chainId: ChainId) => Asset \| undefined`                                | Native asset for a chain.                                    |
+| `getExplorerTxLink`         | `(chainId: ChainId) => string \| undefined`                               | Block-explorer transaction link template.                   |
 
-### Amount Formatting
+### Amount and address formatting
 
-| Function          | Signature                                                            | Description                                              |
-| ----------------- | -------------------------------------------------------------------- | -------------------------------------------------------- |
-| `formatAmount`    | `(amount: string, decimals: number, maxDecimals?: number) => string` | Format a base unit amount for display.                   |
-| `parseAmount`     | `(amount: string, decimals: number) => string`                       | Parse a human-readable amount to base units.             |
-| `truncateAddress` | `(address: string, chars?: number) => string`                        | Truncate an address for display (e.g., `0x1234...5678`). |
+| Function          | Signature                                                            | Description                                          |
+| ----------------- | -------------------------------------------------------------------- | ---------------------------------------------------- |
+| `formatAmount`    | `(amount: string, decimals: number, maxDecimals?: number) => string` | Format a base-unit amount for display.               |
+| `parseAmount`     | `(amount: string, decimals: number) => string`                       | Parse a human-readable amount into base units.       |
+| `truncateAddress` | `(address: string, chars?: number) => string`                        | Truncate an address (e.g. `0x1234...5678`).          |
 
-### Chain Metadata
-
-| Function        | Signature                                      | Description                       |
-| --------------- | ---------------------------------------------- | --------------------------------- |
-| `getChainMeta`  | `(chainId: ChainId) => ChainMeta \| undefined` | Get full metadata for a chain.    |
-| `getChainName`  | `(chainId: ChainId) => string`                 | Get the display name for a chain. |
-| `getChainIcon`  | `(chainId: ChainId) => string \| undefined`    | Get the icon URL for a chain.     |
-| `getChainColor` | `(chainId: ChainId) => string`                 | Get the brand color for a chain.  |
-
-### Chain ID Constants
+### Chain ID constants
 
 ```typescript
 const EVM_CHAIN_IDS = {
-  ethereum: "eip155:1",
-  arbitrum: "eip155:42161",
-  optimism: "eip155:10",
-  polygon: "eip155:137",
-  base: "eip155:8453",
-  avalanche: "eip155:43114",
-  bsc: "eip155:56",
-  gnosis: "eip155:100",
-};
+  ethereum: 'eip155:1',
+  arbitrum: 'eip155:42161',
+  optimism: 'eip155:10',
+  polygon: 'eip155:137',
+  base: 'eip155:8453',
+  avalanche: 'eip155:43114',
+  bsc: 'eip155:56',
+  gnosis: 'eip155:100',
+  monad: 'eip155:143',
+  megaEth: 'eip155:4326',
+  hyperEvm: 'eip155:999',
+  plasma: 'eip155:9745',
+  katana: 'eip155:747474',
+}
 
 const UTXO_CHAIN_IDS = {
-  bitcoin: "bip122:000000000019d6689c085ae165831e93",
-  bitcoinCash: "bip122:000000000000000000651ef99cb9fcbe",
-  dogecoin: "bip122:00000000001a91e3dace36e2be3bf030",
-  litecoin: "bip122:12a765e31ffd4059bada1e25190f6e98",
-};
+  bitcoin: 'bip122:000000000019d6689c085ae165831e93',
+  bitcoinCash: 'bip122:000000000000000000651ef99cb9fcbe',
+  dogecoin: 'bip122:00000000001a91e3dace36e2be3bf030',
+  litecoin: 'bip122:12a765e31ffd4059bada1e25190f6e98',
+}
 
 const COSMOS_CHAIN_IDS = {
-  cosmos: "cosmos:cosmoshub-4",
-  thorchain: "cosmos:thorchain-1",
-  mayachain: "cosmos:mayachain-mainnet-v1",
-};
+  cosmos: 'cosmos:cosmoshub-4',
+  thorchain: 'cosmos:thorchain-1',
+  mayachain: 'cosmos:mayachain-mainnet-v1',
+}
 
 const OTHER_CHAIN_IDS = {
-  solana: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
-};
+  solana: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
+}
+
+// Listed in the asset selector, but swaps redirect to app.shapeshift.com (not executed in-widget)
+const REDIRECT_ONLY_CHAIN_IDS = {
+  zcash: 'bip122:00040fe8ec8471911baa1db1266ea15d',
+  tron: 'tron:0x2b6653dc',
+  sui: 'sui:35834a8a',
+  ton: 'ton:mainnet',
+  near: 'near:mainnet',
+  starknet: 'starknet:SN_MAIN',
+}
 ```
 
 ## Exported Hooks
 
 ```typescript
 import {
-  useAssets,
   useAssetById,
-  useChains,
-  useAssetsByChainId,
   useAssetSearch,
-} from "@shapeshiftoss/swap-widget";
+  useAssets,
+  useAssetsByChainId,
+  useChains,
+} from '@shapeshiftoss/swap-widget'
 ```
 
-| Hook                              | Return Type                                | Description                                                    |
-| --------------------------------- | ------------------------------------------ | -------------------------------------------------------------- |
-| `useAssets()`                     | `{ data: Asset[], isLoading, error, ... }` | Fetch all available assets.                                    |
-| `useAssetById(assetId)`           | `{ data: Asset \| undefined, ... }`        | Fetch a specific asset by ID.                                  |
-| `useChains()`                     | `{ data: ChainInfo[], ... }`               | Fetch all available chains with their native assets.           |
-| `useAssetsByChainId(chainId)`     | `{ data: Asset[], ... }`                   | Fetch all assets for a specific chain.                         |
-| `useAssetSearch(query, chainId?)` | `{ data: Asset[], ... }`                   | Search assets by symbol or name, optionally filtered by chain. |
+| Hook                              | Description                                                     |
+| --------------------------------- | -------------------------------------------------------------- |
+| `useAssets()`                     | Fetch all available assets.                                    |
+| `useAssetById(assetId)`           | Fetch a single asset by ID.                                    |
+| `useChains()`                     | Fetch all available chains with their native assets.           |
+| `useAssetsByChainId(chainId)`     | Fetch all assets for a specific chain.                         |
+| `useAssetSearch(query, chainId?)` | Search assets by symbol or name, optionally filtered by chain. |
+
+These hooks must be used within a mounted `<SwapWidget />` tree (they rely on the widget's internal
+React Query client).
 
 ## Supported Chains
 
-| Chain             | Chain ID                                  | Type   |
-| ----------------- | ----------------------------------------- | ------ |
-| Ethereum          | `eip155:1`                                | EVM    |
-| Arbitrum One      | `eip155:42161`                            | EVM    |
-| Optimism          | `eip155:10`                               | EVM    |
-| Polygon           | `eip155:137`                              | EVM    |
-| Base              | `eip155:8453`                             | EVM    |
-| Avalanche C-Chain | `eip155:43114`                            | EVM    |
-| BNB Smart Chain   | `eip155:56`                               | EVM    |
-| Gnosis            | `eip155:100`                              | EVM    |
-| Bitcoin           | `bip122:000000000019d6689c085ae165831e93` | UTXO   |
-| Bitcoin Cash      | `bip122:000000000000000000651ef99cb9fcbe` | UTXO   |
-| Dogecoin          | `bip122:00000000001a91e3dace36e2be3bf030` | UTXO   |
-| Litecoin          | `bip122:12a765e31ffd4059bada1e25190f6e98` | UTXO   |
-| Cosmos Hub        | `cosmos:cosmoshub-4`                      | Cosmos |
-| THORChain         | `cosmos:thorchain-1`                      | Cosmos |
-| MAYAChain         | `cosmos:mayachain-mainnet-v1`             | Cosmos |
-| Solana            | `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp` | Solana |
+Assets on the following chains appear in the selector. Swaps are **executed in-widget** only for EVM,
+UTXO, and Solana assets (`isWidgetExecutableChainId` returns `true`). Cosmos-SDK and redirect-only
+chains are selectable but route the user to [app.shapeshift.com](https://app.shapeshift.com) to
+complete the swap (when `allowShapeshiftRedirect` is enabled).
+
+| Chain             | Chain ID                                  | Type   | Executable in-widget |
+| ----------------- | ----------------------------------------- | ------ | -------------------- |
+| Ethereum          | `eip155:1`                                | EVM    | ✅                   |
+| Arbitrum One      | `eip155:42161`                            | EVM    | ✅                   |
+| Optimism          | `eip155:10`                               | EVM    | ✅                   |
+| Polygon           | `eip155:137`                              | EVM    | ✅                   |
+| Base              | `eip155:8453`                             | EVM    | ✅                   |
+| Avalanche C-Chain | `eip155:43114`                            | EVM    | ✅                   |
+| BNB Smart Chain   | `eip155:56`                               | EVM    | ✅                   |
+| Gnosis            | `eip155:100`                              | EVM    | ✅                   |
+| Monad             | `eip155:143`                              | EVM    | ✅                   |
+| MegaETH           | `eip155:4326`                             | EVM    | ✅                   |
+| HyperEVM          | `eip155:999`                              | EVM    | ✅                   |
+| Plasma            | `eip155:9745`                             | EVM    | ✅                   |
+| Katana            | `eip155:747474`                           | EVM    | ✅                   |
+| Bitcoin           | `bip122:000000000019d6689c085ae165831e93` | UTXO   | ✅                   |
+| Bitcoin Cash      | `bip122:000000000000000000651ef99cb9fcbe` | UTXO   | ✅                   |
+| Dogecoin          | `bip122:00000000001a91e3dace36e2be3bf030` | UTXO   | ✅                   |
+| Litecoin          | `bip122:12a765e31ffd4059bada1e25190f6e98` | UTXO   | ✅                   |
+| Solana            | `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp` | Solana | ✅                   |
+| Cosmos Hub        | `cosmos:cosmoshub-4`                      | Cosmos | ↗ redirect           |
+| THORChain         | `cosmos:thorchain-1`                      | Cosmos | ↗ redirect           |
+| MAYAChain         | `cosmos:mayachain-mainnet-v1`             | Cosmos | ↗ redirect           |
+| Zcash, Tron, Sui, TON, NEAR, Starknet | _see `REDIRECT_ONLY_CHAIN_IDS`_ | Other | ↗ redirect    |
+
+## Supported Swappers
+
+The widget aggregates quotes across the protocols below and surfaces the best rate. Use
+`allowedSwapperNames` to restrict which are used.
+
+- **NEAR Intents** (`SwapperName.NearIntents`)
+- **Relay** (`SwapperName.Relay`)
+- **THORChain** (`SwapperName.Thorchain`)
+- **MAYAChain** (`SwapperName.Mayachain`)
+
+> The set of enabled swappers changes over time. Treat this list as current-at-publish; the
+> authoritative source is the `SwapperName` enum exported by this package.
+
+## Partner Codes & Affiliate Revenue
+
+Pass your registered `partnerCode` to attribute swaps to your affiliate account and earn revenue
+share. The widget forwards it to the ShapeShift Public API as the `X-Partner-Code` header, and the
+API applies your configured fee automatically.
+
+```tsx
+<SwapWidget walletConnectProjectId="..." partnerCode="your-partner-code" />
+```
+
+See the [Affiliate Program guide](../../docs/affiliates.md) for how to obtain a partner code and how
+revenue attribution works.
 
 ## Notes and Limitations
 
-### Multi-Chain Swap Support
-
-The widget supports swaps across multiple blockchain types:
-
-- **EVM swaps** (e.g., ETH to USDC, MATIC to WETH) can be executed directly within the widget when a wallet is connected via the `walletClient` prop or through the built-in AppKit wallet connection.
-- **Bitcoin/UTXO swaps** - When using the built-in wallet connection (`enableWalletConnection={true}`), Bitcoin and other UTXO chains can be signed directly via WalletConnect-compatible wallets.
-- **Solana swaps** - Solana transactions can be signed via Phantom, Solflare, or other Solana wallets when using the built-in wallet connection.
-- **Unsupported chains** - Swaps involving chains without wallet support will redirect to [app.shapeshift.com](https://app.shapeshift.com) to complete the transaction.
-
-### Partner Codes
-
-Register an affiliate account at the affiliate dashboard and claim a partner code (e.g. `vultisig`, `venice`). Pass it via the `partnerCode` prop on the widget, or the `X-Partner-Code` header when using the REST API directly:
-
-```
-GET /v1/swap/rates?...
-X-Partner-Code: your-partner-code
-```
-
-The API resolves the partner code to the registered affiliate address and BPS automatically.
-
-### Internal QueryClient
-
-The widget manages its own React Query `QueryClient` internally. You do not need to wrap it in a `QueryClientProvider`.
-
-### Swap Aggregation
-
-The widget fetches quotes from multiple DEXs and aggregators including:
-
-- THORChain
-- MAYAChain
-- CoW Swap
-- 0x
-- 1inch
-- Portals
-- Chainflip
-- Jupiter (Solana)
-- Bebop
-- Relay
-- ButterSwap
-- Arbitrum Bridge
-
-### Wallet Balance Display
-
-When a wallet is connected (`walletClient` prop), the widget displays the user's balance for the selected sell and buy assets. This only works for EVM chains where the connected wallet has assets.
-
-### USD Price Display
-
-The widget automatically fetches and displays USD prices for selected assets.
-
-### Mobile Responsive
-
-The widget is designed to be responsive and works well on mobile devices.
+- **Self-contained providers.** The widget renders its own `WagmiProvider` and React Query
+  `QueryClient`. Don't wrap it in your own — and remember it renders nothing until
+  `walletConnectProjectId` initializes AppKit.
+- **Balances and USD prices.** When a wallet is connected, the widget shows balances and USD prices
+  for the selected assets.
+- **Redirects.** Assets on non-executable chains (Cosmos, Zcash, Tron, Sui, TON, NEAR, Starknet)
+  send the user to app.shapeshift.com to finish the swap, unless `allowShapeshiftRedirect={false}`.
+- **Mobile responsive.** The widget is designed to work on mobile as well as desktop.

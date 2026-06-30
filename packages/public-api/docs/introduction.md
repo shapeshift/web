@@ -39,7 +39,7 @@ Errors return the appropriate HTTP status and a JSON body:
 
 ## Rate limiting
 
-Endpoints are rate limited per IP on a 60-second sliding window (data, rates, quote, status, and affiliate endpoints have independent limits). When exceeded, the API returns `429` with code `RATE_LIMIT_EXCEEDED` and these headers:
+Endpoints are rate limited per IP on a fixed 60-second window. A global limit applies across all endpoints, and individual endpoint groups (data, rates, quote, status, affiliate) have their own independent limits on top of it — so a request counts against both. When either is exceeded, the API returns `429` with code `RATE_LIMIT_EXCEEDED` and these headers:
 
 - `Retry-After` — seconds until the window resets
 - `RateLimit-Limit` — max requests allowed per window

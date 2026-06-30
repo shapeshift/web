@@ -14,7 +14,10 @@ Install the peer dependencies alongside it (React, wagmi/viem, React Query, and 
 
 ```bash
 npm install react react-dom wagmi @wagmi/core viem \
-  @tanstack/react-query @reown/appkit @reown/appkit-adapter-wagmi
+  @tanstack/react-query \
+  @reown/appkit @reown/appkit-adapter-wagmi \
+  @reown/appkit-adapter-bitcoin @reown/appkit-adapter-solana \
+  @solana/wallet-adapter-wallets @solana/web3.js
 ```
 
 Import the stylesheet once (required for the widget to render correctly):

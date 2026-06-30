@@ -30,18 +30,19 @@ npm install @shapeshiftoss/swap-widget
 ### Peer Dependencies
 
 The widget relies on React, wagmi/viem, React Query, and Reown AppKit (used internally for wallet
-connection). Install the peers alongside the package:
+connection). The widget initializes AppKit with the EVM, Bitcoin, and Solana adapters at load, so all
+of these peers are required — install them alongside the package:
 
 ```bash
 npm install react react-dom \
   wagmi @wagmi/core viem \
   @tanstack/react-query \
-  @reown/appkit @reown/appkit-adapter-wagmi
+  @reown/appkit @reown/appkit-adapter-wagmi \
+  @reown/appkit-adapter-bitcoin @reown/appkit-adapter-solana \
+  @solana/wallet-adapter-wallets @solana/web3.js
 ```
 
 - **React 18 or 19** is supported (`^18.0.0 || ^19.0.0`).
-- To support **Bitcoin / UTXO** wallets, also install `@reown/appkit-adapter-bitcoin`.
-- To support **Solana** wallets, also install `@reown/appkit-adapter-solana`, `@solana/wallet-adapter-wallets`, and `@solana/web3.js`.
 
 ### Import the stylesheet
 
@@ -122,7 +123,7 @@ when `allowShapeshiftRedirect` is enabled.
 | ------------------------ | ----------------------------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------- |
 | `walletConnectProjectId` | `string`                                        | –                  | Reown AppKit / WalletConnect project ID. The widget uses it to initialize AppKit. Required unless your host app already initializes AppKit (see [Wallet Connection](#wallet-connection)). |
 | `partnerCode`            | `string`                                        | –                  | Your registered partner code for affiliate fee attribution. See [Partner Codes](#partner-codes--affiliate-revenue). |
-| `apiBaseUrl`             | `string`                                        | ShapeShift Public API | Override the API base URL. Useful for testing or custom deployments.                                  |
+| `apiBaseUrl`             | `string`                                        | `https://api.shapeshift.com` | Override the API base URL. Useful for testing or custom deployments.                           |
 | `defaultSellAsset`       | `Asset`                                         | ETH on Ethereum    | Initial asset to sell.                                                                                    |
 | `defaultBuyAsset`        | `Asset`                                         | USDC on Ethereum   | Initial asset to buy.                                                                                     |
 | `sellFilters`            | `SwapWidgetFilters`                             | `{}`               | Restrict which chains/assets are selectable for the **sell** side. See [Filtering](#filtering-chains-and-assets). |

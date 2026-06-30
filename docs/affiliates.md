@@ -13,8 +13,8 @@ applies your configured fee automatically.
 ### 1. Get a partner code
 
 Register at the [Affiliate Dashboard](https://dashboard.affiliate.shapeshift.com/): connect your wallet, sign
-in (a wallet signature — no gas), and you'll be issued a partner code mapped to your wallet. You'll
-use this code everywhere below.
+in (a wallet signature — no gas), then choose your partner code and fee. The code is mapped to your
+wallet, and you'll use it everywhere below.
 
 ### 2. Using the Swap Widget
 
@@ -58,9 +58,9 @@ Fees are expressed in **basis points (bps)** — 1 bps = 0.01%, so 60 bps = 0.6%
 to swaps attributed to your partner code is configured at registration; swaps with no partner code
 use ShapeShift's default fee.
 
-The API surfaces the fee breakdown for each rate/quote via the `affiliateBps` (total), `partnerBps`,
-and `shapeshiftBps` fields — these reflect the fee that will actually be applied, so read them per
-quote rather than assuming a fixed rate.
+The API surfaces the fee breakdown for each rate/quote via the `affiliateBps` (total) and
+`shapeshiftBps` fields, plus `partnerBps` when the swap is attributed to a partner code — these
+reflect the fee that will actually be applied, so read them per quote rather than assuming a fixed rate.
 
 ## Revenue Attribution & Reporting
 
@@ -84,7 +84,7 @@ curl "https://api.shapeshift.com/v1/affiliate/stats?partnerCode=your-partner-cod
 curl "https://api.shapeshift.com/v1/affiliate/swaps?partnerCode=your-partner-code"
 ```
 
-## API Endpoints
+## Affiliate API Endpoints
 
 | Method | Endpoint                                  | Auth            | Description                              |
 | ------ | ----------------------------------------- | --------------- | ---------------------------------------- |

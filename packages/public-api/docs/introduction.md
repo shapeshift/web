@@ -15,7 +15,7 @@ All endpoints are versioned under `/v1` (e.g. `https://api.shapeshift.com/v1/swa
 
 ## Affiliate tracking (optional)
 
-Send an `X-Partner-Code` header with your registered partner code (e.g. `vultisig`) on the swap endpoints to attribute swaps for affiliate revenue share. The API attributes the swap to your affiliate account and applies your configured fee (bps) automatically. All endpoints work without it — unattributed swaps use the default fee. See the [Affiliate Program guide](https://github.com/shapeshift/web/blob/develop/docs/affiliates.md) for how to obtain a code.
+Send an `X-Partner-Code` header with your registered partner code (e.g. `your-partner-code`) on the swap endpoints to attribute swaps for affiliate revenue share. The API attributes the swap to your affiliate account and applies your configured fee (bps) automatically. All endpoints work without it — unattributed swaps use the default fee. See the [Affiliate Program guide](https://github.com/shapeshift/web/blob/develop/docs/affiliates.md) for how to obtain a code.
 
 ## Asset IDs (CAIP-19)
 

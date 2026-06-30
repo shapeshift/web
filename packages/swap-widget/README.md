@@ -91,14 +91,22 @@ and provides the `WagmiProvider` / `QueryClient` it needs — you don't wrap it 
   <SwapWidget walletConnectProjectId="your-walletconnect-project-id" />
   ```
 
-- **Reuse your app's AppKit instance.** If your host app already initializes Reown AppKit, the widget
-  reads that shared instance from the AppKit singleton — omit `walletConnectProjectId` and just make
-  sure AppKit is initialized before the widget mounts. Pair this with `showConnectButton={false}` to
-  drive connection entirely from your own UI. See `src/demo/ExternalWalletApp.tsx` for a full example.
+- **Reuse your app's existing AppKit.** If your host app already calls `createAppKit()` (with a wagmi
+  EVM adapter), omit `walletConnectProjectId`. The widget detects the shared AppKit singleton, reads the
+  wagmi config off it, and provides its own `WagmiProvider` / `QueryClient` from that config — **you wrap
+  the widget in no providers of your own.** Pair this with `showConnectButton={false}` to drive
+  connection entirely from your own UI. See `src/demo/ExternalWalletApp.tsx` for a full host example.
 
-The header shows a built-in **Connect** button by default; set `showConnectButton={false}` if you
-want to hide it and drive connection from your own UI (the widget still owns the underlying AppKit
-instance).
+  Two requirements for this mode:
+
+  - **Initialize AppKit _before_ the widget mounts.** The widget reads the AppKit singleton when it
+    mounts and does not poll for late initialization — if AppKit isn't up yet, the widget renders nothing.
+  - **Dedupe the AppKit/wagmi packages.** `@reown/appkit*`, `wagmi`, and `viem` must resolve to a single
+    shared copy in your app, so the widget and your app share one AppKit instance and one wagmi state. A
+    duplicated copy means the widget reads an empty store and shows no connection.
+
+The header shows a built-in **Connect** button by default; set `showConnectButton={false}` to hide it
+and drive connection from your own UI.
 
 ### Supported wallet namespaces
 

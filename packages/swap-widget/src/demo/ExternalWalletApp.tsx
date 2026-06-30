@@ -1,10 +1,31 @@
 import './App.css'
 
-import { useAppKit, useAppKitAccount } from '@reown/appkit/react'
+import type { AppKitNetwork } from '@reown/appkit/networks'
+import {
+  arbitrum,
+  avalanche,
+  base,
+  bitcoin,
+  bsc,
+  gnosis,
+  hyperEvm,
+  katana,
+  mainnet,
+  megaeth,
+  monad,
+  optimism,
+  plasma,
+  polygon,
+  solana,
+} from '@reown/appkit/networks'
+import { createAppKit, useAppKit, useAppKitAccount } from '@reown/appkit/react'
+import { BitcoinAdapter } from '@reown/appkit-adapter-bitcoin'
+import { SolanaAdapter } from '@reown/appkit-adapter-solana/react'
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
+import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { SwapWidget } from '../components/SwapWidget'
-import { initializeAppKit } from '../config/appkit'
 import { truncateAddress } from '../types'
 import { DemoCustomizer, useDemoTheme } from './DemoCustomizer'
 import { WidgetModal } from './WidgetModal'
@@ -180,9 +201,54 @@ const loadThemeMode = (): 'light' | 'dark' => {
   }
 }
 
+const EVM_NETWORKS: readonly AppKitNetwork[] = [
+  mainnet,
+  polygon,
+  arbitrum,
+  optimism,
+  base,
+  avalanche,
+  bsc,
+  gnosis,
+  monad,
+  megaeth,
+  hyperEvm,
+  plasma,
+  katana,
+]
+
+const ALL_NETWORKS: readonly AppKitNetwork[] = [...EVM_NETWORKS, bitcoin, solana]
+
+let appKitInitialized = false
+
+const initAppKit = (projectId: string): void => {
+  if (appKitInitialized) return
+  appKitInitialized = true
+
+  const wagmiAdapter = new WagmiAdapter({
+    networks: [...EVM_NETWORKS],
+    projectId,
+  })
+
+  const bitcoinAdapter = new BitcoinAdapter()
+  const solanaAdapter = new SolanaAdapter({
+    wallets: [new PhantomWalletAdapter(), new SolflareWalletAdapter()] as any,
+  })
+
+  createAppKit({
+    adapters: [wagmiAdapter, bitcoinAdapter, solanaAdapter],
+    projectId,
+    networks: [...ALL_NETWORKS] as [AppKitNetwork, ...AppKitNetwork[]],
+    features: {
+      send: false,
+    },
+  })
+}
+
 export const ExternalWalletApp = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>(loadThemeMode)
-  const [isReady, setIsReady] = useState(false)
+
+  useState(() => initAppKit(PROJECT_ID))
 
   useEffect(() => {
     try {
@@ -192,11 +258,5 @@ export const ExternalWalletApp = () => {
     }
   }, [theme])
 
-  useEffect(() => {
-    initializeAppKit(PROJECT_ID)
-    setIsReady(true)
-  }, [])
-
-  if (!isReady) return null
   return <ExternalDemoBody theme={theme} setTheme={setTheme} />
 }

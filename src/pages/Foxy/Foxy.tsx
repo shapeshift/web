@@ -348,7 +348,7 @@ export const Foxy = () => {
           <CardBody>
             <Stack spacing={5}>
               <Stack spacing={1} pb={4} borderBottomWidth={1} borderColor='border.base'>
-                <Heading size='md'>FOXy staking</Heading>
+                <Heading size='md'>FOXy</Heading>
                 <Text color='text.subtle' fontSize='sm'>
                   This staking program has ended. Withdraw your staked FOX below.
                 </Text>

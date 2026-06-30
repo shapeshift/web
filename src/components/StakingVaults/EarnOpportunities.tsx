@@ -1,6 +1,6 @@
 import { Box, Card, CardBody, CardHeader, Heading, HStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { foxAssetId, foxyAssetId, fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
@@ -56,13 +56,13 @@ export const EarnOpportunitiesContent = ({ assetId, accountId }: EarnOpportuniti
     () =>
       !asset
         ? []
-        : lpOpportunities.concat(stakingOpportunities).filter(
-            row =>
-              row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||
-              (row.underlyingAssetIds.length && row.underlyingAssetIds.includes(asset.assetId)) ||
-              // show foxy opportunity in the foxy asset page
-              (row.assetId === foxAssetId && asset.assetId === foxyAssetId),
-          ),
+        : lpOpportunities
+            .concat(stakingOpportunities)
+            .filter(
+              row =>
+                row.assetId.toLowerCase() === asset.assetId.toLowerCase() ||
+                (row.underlyingAssetIds.length && row.underlyingAssetIds.includes(asset.assetId)),
+            ),
     [asset, lpOpportunities, stakingOpportunities],
   )
 

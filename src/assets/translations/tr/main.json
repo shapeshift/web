@@ -581,13 +581,9 @@
         "emptyWithdraws": "Bekleyen staking istekleri burada gösterilir.",
         "availableDate": "kullanılabilir %{date}"
       },
-      "foxyOverview": {
+      "foxFarmingOverview": {
         "withdrawals": "Para Çekme",
         "emptyWithdraws": "Bekleyen veya etkin para çekme işlemleri burada gösterilir.",
-        "availableDate": "kullanılabilir %{date}",
-        "disabledTitle": "FOXy para yatırma işlemleri devre dışı bırakıldı"
-      },
-      "foxFarmingOverview": {
         "header": "Kazanmak için ETH-FOX LP jetonlarını %{opportunity}'e yatırın",
         "body": "Bonus FOX ödülleri kazanmak için likidite jetonlarınızı onaylayın ve stake edin.",
         "rewards": "Kazandığınız ödüller otomatik olarak tahakkuk edecektir.",
@@ -856,12 +852,6 @@
         "swapOut": "Takas Alındı",
         "swap": "Takas",
         "swapRefund": "Takas İadesi"
-      },
-      "foxy": {
-        "stake": "Stake Et",
-        "unstake": "Stake Kaldır",
-        "instantUnstake": "Stake'i Anında Geri Al",
-        "claimWithdraw": "Ödülleri Topla"
       },
       "erc20": {
         "approve": "Onayla",

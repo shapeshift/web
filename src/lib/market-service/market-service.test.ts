@@ -9,7 +9,6 @@ import {
   mockCGFindByAssetIdData,
   mockCGPriceHistoryData,
 } from './coingecko/coingeckoMockData'
-import { mockFoxyMarketData, mockFoxyPriceHistoryData } from './foxy/foxyMockData'
 import { MarketServiceManager } from './market-service-manager'
 import { mockTcyMarketData, mockTcyPriceHistoryData } from './tcy/tcyMockData'
 
@@ -79,20 +78,6 @@ vi.mock('./zerion/zerion', () => ({
   }),
 }))
 
-const mockFoxyFindAll = vi.fn().mockImplementation(() => mockFoxyMarketData)
-const mockFoxyFindByAssetId = vi.fn().mockImplementation(() => mockFoxyMarketData)
-const mockFoxyFindPriceHistoryByAssetId = vi.fn().mockImplementation(() => mockFoxyPriceHistoryData)
-
-vi.mock('./foxy/foxy', () => ({
-  FoxyMarketService: vi.fn().mockImplementation(function () {
-    return {
-      findAll: mockFoxyFindAll,
-      findByAssetId: mockFoxyFindByAssetId,
-      findPriceHistoryByAssetId: mockFoxyFindPriceHistoryByAssetId,
-    }
-  }),
-}))
-
 const mockThorchainAssetsFindAll = vi.fn().mockImplementation(() => mockTcyMarketData)
 const mockThorchainAssetsFindByAssetId = vi.fn().mockImplementation(() => mockTcyMarketData)
 const mockThorchainAssetsFindPriceHistoryByAssetId = vi
@@ -149,7 +134,6 @@ describe('market service', () => {
       mockCoingeckoFindAll.mockRejectedValueOnce({ error: 'error' })
       mockCoincapFindAll.mockRejectedValueOnce({ error: 'error' })
       mockPortalsFindAll.mockRejectedValueOnce({ error: 'error' })
-      mockFoxyFindAll.mockRejectedValueOnce({ error: 'error' })
       mockThorchainAssetsFindAll.mockRejectedValueOnce({ error: 'error' })
       mockZerionFindAll.mockRejectedValueOnce({ error: 'error' })
       await expect(marketServiceManager.findAll({ count: Number() })).rejects.toEqual(
@@ -170,7 +154,7 @@ describe('market service', () => {
       mockZerionFindAll.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
       const result = await marketServiceManager.findAll({ count: Number() })
-      expect(result).toEqual(mockFoxyMarketData)
+      expect(result).toEqual(mockTcyMarketData)
     })
   })
 
@@ -191,14 +175,13 @@ describe('market service', () => {
       mockZerionFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
       const result = await marketServiceManager.findByAssetId(ethArgs)
-      expect(result).toEqual(mockFoxyMarketData)
+      expect(result).toEqual(mockTcyMarketData)
     })
 
     it('can return null if no data found', async () => {
       mockCoingeckoFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockCoincapFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockPortalsFindByAssetId.mockRejectedValueOnce({ error: 'error' })
-      mockFoxyFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockThorchainAssetsFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockZerionFindByAssetId.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)
@@ -230,14 +213,14 @@ describe('market service', () => {
       const result = await marketServiceManager.findPriceHistoryByAssetId(
         findPriceHistoryByAssetIdArgs,
       )
-      expect(result).toEqual(mockFoxyPriceHistoryData)
+      expect(mockThorchainAssetsFindPriceHistoryByAssetId).toHaveBeenCalled()
+      expect(result).toEqual([])
     })
 
     it('can return null if no data found', async () => {
       mockCoingeckoFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockCoincapFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockPortalsFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
-      mockFoxyFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockThorchainAssetsFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       mockZerionFindPriceHistoryByAssetId.mockRejectedValueOnce({ error: 'error' })
       const marketServiceManager = new MarketServiceManager(marketServiceManagerArgs)

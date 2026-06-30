@@ -48,6 +48,16 @@ const Dashboard = makeSuspenseful(
   true,
 )
 
+const Foxy = makeSuspenseful(
+  lazy(() =>
+    import('@/pages/Foxy/Foxy').then(({ Foxy }) => ({
+      default: Foxy,
+    })),
+  ),
+  {},
+  true,
+)
+
 const Asset = makeSuspenseful(
   lazy(() =>
     import('@/pages/Assets/Asset').then(({ Asset }) => ({
@@ -418,6 +428,11 @@ export const routes: Route[] = [
   {
     path: '/wc',
     main: WalletConnectDeepLink,
+    hide: true,
+  },
+  {
+    path: '/foxy',
+    main: Foxy,
     hide: true,
   },
   {

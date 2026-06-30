@@ -265,10 +265,10 @@ export const Foxy = () => {
   )
 
   const body = (() => {
-    if (!wallet) return <Text color='text.subtle'>Connect a wallet to recover your FOX.</Text>
+    if (!wallet) return <Text color='text.subtle'>Connect a wallet to withdraw your FOX.</Text>
     if (!isPortfolioLoaded || !loaded) return <Text color='text.subtle'>Loading…</Text>
     if (!displayAccounts.length)
-      return <Text color='text.subtle'>Nothing to recover for this wallet.</Text>
+      return <Text color='text.subtle'>No staked FOX to withdraw for this wallet.</Text>
     return (
       <Stack spacing={3}>
         {displayAccounts.map(account => {
@@ -296,7 +296,7 @@ export const Foxy = () => {
                     <HStack spacing={1.5} color='green.500'>
                       <CheckCircleIcon boxSize={3.5} />
                       <RawText fontSize='sm' fontWeight='semibold'>
-                        Recovered
+                        Withdrawn
                       </RawText>
                     </HStack>
                   )}
@@ -325,7 +325,7 @@ export const Foxy = () => {
                     isDisabled={!!busyAccountId}
                     onClick={() => recover(account)}
                   >
-                    Recover FOX
+                    Withdraw FOX
                   </Button>
                 )}
                 {!isRecovered && !busy && error && (
@@ -348,9 +348,9 @@ export const Foxy = () => {
           <CardBody>
             <Stack spacing={5}>
               <Stack spacing={1} pb={4} borderBottomWidth={1} borderColor='border.base'>
-                <Heading size='md'>FOXy Recovery</Heading>
+                <Heading size='md'>FOXy staking</Heading>
                 <Text color='text.subtle' fontSize='sm'>
-                  FOXy staking has ended. Withdraw your staked FOX.
+                  This staking program has ended. Withdraw your staked FOX below.
                 </Text>
               </Stack>
               {body}

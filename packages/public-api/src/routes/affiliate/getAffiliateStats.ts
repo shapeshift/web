@@ -14,7 +14,7 @@ registry.registerPath({
   operationId: 'getAffiliateStats',
   summary: 'Get affiliate statistics',
   description:
-    'Retrieve aggregated swap statistics for an affiliate address. Returns total swaps, volume, and fees earned. Supports optional date range filtering.',
+    'Retrieve aggregated swap statistics for an affiliate by partnerCode. Returns total swaps, volume, and fees earned. Supports optional date range filtering.',
   tags: ['Affiliate'],
   request: {
     query: AffiliateStatsRequestSchema,
@@ -44,11 +44,10 @@ export const getAffiliateStats = async (req: Request, res: Response): Promise<vo
       return
     }
 
-    const { address, partnerCode, startDate, endDate } = queryResult.data
+    const { partnerCode, startDate, endDate } = queryResult.data
 
     const url = new URL(`${env.SWAP_SERVICE_BASE_URL}/v1/affiliate/stats`)
-    if (partnerCode) url.searchParams.append('partnerCode', partnerCode)
-    else if (address) url.searchParams.append('address', address)
+    url.searchParams.append('partnerCode', partnerCode)
 
     if (startDate) url.searchParams.append('startDate', String(startDate))
     if (endDate) url.searchParams.append('endDate', String(endDate))

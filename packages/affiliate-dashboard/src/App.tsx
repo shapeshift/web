@@ -36,8 +36,6 @@ export const App = (): React.JSX.Element => {
 
   const affiliateAddress = isConnected && address ? address : ''
   const configQuery = useAffiliateConfig(affiliateAddress)
-  // Attribution reads key on the stable partnerCode (resolved from the connected wallet's
-  // affiliate config), not the wallet address.
   const partnerCode = configQuery.data?.partnerCode ?? ''
 
   const periods = useMemo(

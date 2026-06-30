@@ -114,16 +114,11 @@ export const SwapServiceAffiliateSwapsResponseSchema = z.object({
 
 export const AffiliateSwapsRequestSchema = z
   .object({
-    address: EVM_ADDRESS.optional(),
-    partnerCode: PartnerCodeSchema.optional(),
+    partnerCode: PartnerCodeSchema,
     startDate: z.string().datetime().optional(),
     endDate: z.string().datetime().optional(),
     limit: z.coerce.number().int().min(1).max(100).default(50),
     cursor: z.string().trim().min(1, 'cursor must not be empty').optional(),
-  })
-  .refine(({ address, partnerCode }) => Boolean(address || partnerCode), {
-    message: 'address or partnerCode is required',
-    path: ['partnerCode'],
   })
   .refine(
     ({ startDate, endDate }) =>
@@ -146,14 +141,9 @@ export const AffiliateSwapsResponseSchema = registry.register(
 
 export const AffiliateStatsRequestSchema = z
   .object({
-    address: EVM_ADDRESS.optional(),
-    partnerCode: PartnerCodeSchema.optional(),
+    partnerCode: PartnerCodeSchema,
     startDate: z.string().datetime().optional(),
     endDate: z.string().datetime().optional(),
-  })
-  .refine(({ address, partnerCode }) => Boolean(address || partnerCode), {
-    message: 'address or partnerCode is required',
-    path: ['partnerCode'],
   })
   .refine(
     ({ startDate, endDate }) =>

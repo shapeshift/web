@@ -20,8 +20,8 @@ const ApiResponseSchema = z.object({
   totalFeesEarnedUsd: NumericString,
 })
 
-const fetchStats = async (address: string, period: Period): Promise<AffiliateStats> => {
-  const params = new URLSearchParams({ address })
+const fetchStats = async (partnerCode: string, period: Period): Promise<AffiliateStats> => {
+  const params = new URLSearchParams({ partnerCode })
 
   if (period.startDate) params.append('startDate', period.startDate)
   if (period.endDate) params.append('endDate', period.endDate)
@@ -37,12 +37,12 @@ const fetchStats = async (address: string, period: Period): Promise<AffiliateSta
 }
 
 export const useAffiliateStats = (
-  address: string,
+  partnerCode: string,
   period: Period,
 ): UseQueryResult<AffiliateStats, Error> =>
   useQuery({
-    queryKey: ['affiliate', 'stats', address, period.startDate, period.endDate],
-    queryFn: () => fetchStats(address, period),
-    enabled: Boolean(address),
+    queryKey: ['affiliate', 'stats', partnerCode, period.startDate, period.endDate],
+    queryFn: () => fetchStats(partnerCode, period),
+    enabled: Boolean(partnerCode),
     placeholderData: keepPreviousData,
   })

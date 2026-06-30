@@ -189,6 +189,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       receiveAddress,
       sendAddress,
       partnerAddress: req.affiliateInfo?.partnerAddress,
+      partnerCode: req.affiliateInfo?.partnerCode,
       createdAt: now,
       expiresAt: now + QuoteStore.QUOTE_TTL_MS,
       metadata: {

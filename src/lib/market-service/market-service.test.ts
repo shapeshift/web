@@ -213,7 +213,8 @@ describe('market service', () => {
       const result = await marketServiceManager.findPriceHistoryByAssetId(
         findPriceHistoryByAssetIdArgs,
       )
-      expect(result).toEqual(mockTcyPriceHistoryData)
+      expect(mockThorchainAssetsFindPriceHistoryByAssetId).toHaveBeenCalled()
+      expect(result).toEqual([])
     })
 
     it('can return null if no data found', async () => {

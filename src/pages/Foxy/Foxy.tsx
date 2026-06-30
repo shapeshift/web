@@ -23,7 +23,7 @@ import {
 } from '@shapeshiftoss/contracts'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Address } from 'viem'
-import { encodeFunctionData, formatUnits, getAddress, maxUint256 } from 'viem'
+import { encodeFunctionData, formatUnits, getAddress } from 'viem'
 
 import { Amount } from '@/components/Amount/Amount'
 import { Main } from '@/components/Layout/Main'
@@ -125,6 +125,7 @@ export const Foxy = () => {
 
   const [accounts, setAccounts] = useState<FoxyAccount[]>([])
   const [loaded, setLoaded] = useState(false)
+  const [loadError, setLoadError] = useState<string>()
   const [busyAccountId, setBusyAccountId] = useState<AccountId>()
   const [status, setStatus] = useState<Record<AccountId, string>>({})
   const [recovered, setRecovered] = useState<
@@ -136,26 +137,34 @@ export const Foxy = () => {
   const txLink = (txHash: string | undefined) =>
     txHash && ethAsset ? `${ethAsset.explorerTxLink}${txHash}` : undefined
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (): Promise<void> => {
     const reqId = ++reqRef.current
-    const next = await Promise.all(
-      baseAccounts.map(async base => {
-        const [staked, allowance, cd] = await Promise.all([
-          foxyToken.read.balanceOf([base.address]),
-          foxyToken.read.allowance([base.address, getAddress(FOXY_STAKING_CONTRACT)]),
-          viemEthMainnetClient.readContract({
-            address: getAddress(FOXY_STAKING_CONTRACT),
-            abi: stakingAbi,
-            functionName: 'coolDownInfo',
-            args: [base.address],
-          }),
-        ])
-        return { ...base, staked, allowance, pending: cd[0] }
-      }),
-    )
-    if (reqId !== reqRef.current) return // a newer refresh superseded this one
-    setAccounts(next)
-    setLoaded(true)
+    try {
+      setLoadError(undefined)
+      const next = await Promise.all(
+        baseAccounts.map(async base => {
+          const [staked, allowance, cd] = await Promise.all([
+            foxyToken.read.balanceOf([base.address]),
+            foxyToken.read.allowance([base.address, getAddress(FOXY_STAKING_CONTRACT)]),
+            viemEthMainnetClient.readContract({
+              address: getAddress(FOXY_STAKING_CONTRACT),
+              abi: stakingAbi,
+              functionName: 'coolDownInfo',
+              args: [base.address],
+            }),
+          ])
+          return { ...base, staked, allowance, pending: cd[0] }
+        }),
+      )
+      if (reqId !== reqRef.current) return // a newer refresh superseded this one
+      setAccounts(next)
+    } catch (err) {
+      console.error(err)
+      if (reqId !== reqRef.current) return
+      setLoadError('Unable to load FOXy balances. Please try again.')
+    } finally {
+      if (reqId === reqRef.current) setLoaded(true)
+    }
   }, [baseAccounts, foxyToken])
 
   useEffect(() => {
@@ -164,8 +173,8 @@ export const Foxy = () => {
   }, [isPortfolioLoaded, refresh])
 
   const send = useCallback(
-    async (account: BaseAccount, to: string, data: string) => {
-      if (!wallet) return
+    async (account: BaseAccount, to: string, data: string): Promise<string> => {
+      if (!wallet) throw new Error('Wallet not connected')
       const buildCustomTxInput = await createBuildCustomTxInput({
         accountNumber: account.accountNumber,
         from: account.address,
@@ -205,7 +214,7 @@ export const Foxy = () => {
             account,
             FOXY_TOKEN,
             getApproveContractData({
-              approvalAmountCryptoBaseUnit: maxUint256.toString(),
+              approvalAmountCryptoBaseUnit: account.staked.toString(),
               to: FOXY_TOKEN,
               spender: FOXY_STAKING_CONTRACT,
               chainId: ethChainId,
@@ -267,6 +276,7 @@ export const Foxy = () => {
   const body = (() => {
     if (!wallet) return <Text color='text.subtle'>Connect a wallet to withdraw your FOX.</Text>
     if (!isPortfolioLoaded || !loaded) return <Text color='text.subtle'>Loading…</Text>
+    if (loadError) return <Text color='red.500'>{loadError}</Text>
     if (!displayAccounts.length)
       return <Text color='text.subtle'>No staked FOX to withdraw for this wallet.</Text>
     return (

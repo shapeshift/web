@@ -17,8 +17,8 @@ const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | u
 
   const txData: EvmTransactionData | undefined = (() => {
     if (step.transactionData?.type === 'evm') {
-      const { chainId: _chainId, ...evm } = step.transactionData
-      return { ...evm, type: 'evm' as const, chainId }
+      const { to, data, value, gasLimit } = step.transactionData
+      return { type: 'evm' as const, chainId, to, data, value, gasLimit }
     }
 
     if (step.zrxTransactionMetadata) {

@@ -160,7 +160,9 @@ export const relayApi: SwapperApi = {
       fetchIsSmartContractAddressQuery,
     })
 
-    if (!swap?.metadata.relayTransactionMetadata) throw new Error('Missing swap metadata')
+    const relayMetadata =
+      swap?.metadata.swapperMetadata?.swapper === 'relay' ? swap.metadata.swapperMetadata : undefined
+    if (!relayMetadata) throw new Error('Missing swap metadata')
 
     if (maybeSafeTransactionStatus) {
       // return any safe transaction status that has not yet executed on chain (no buyTxHash)
@@ -171,21 +173,13 @@ export const relayApi: SwapperApi = {
       txHash = maybeSafeTransactionStatus.buyTxHash
     }
 
-    if (
-      swap.metadata.relayTransactionMetadata &&
-      !txIndexingMap.has(swap.id) &&
-      chainIdToRelayChainId[chainId] !== undefined
-    ) {
-      const relayTxParam = {
-        ...swap.metadata.relayTransactionMetadata,
-        txHash,
-      }
-      // We don't need to handle the response here, we just want to notify the relay indexer
+    if (relayMetadata && !txIndexingMap.has(swap.id) && chainIdToRelayChainId[chainId] !== undefined) {
+      // relay's /transactions/single indexer `tx` param is the EVM calldata (see spec)
       await notifyTransactionIndexing(
         {
-          requestId: swap.metadata.relayTransactionMetadata.relayId,
+          requestId: relayMetadata.relayId,
           chainId: chainIdToRelayChainId[chainId].toString(),
-          tx: JSON.stringify(relayTxParam),
+          tx: relayMetadata.data ?? '',
         },
         config,
       )
@@ -194,7 +188,7 @@ export const relayApi: SwapperApi = {
     }
 
     const maybeStatusResponse = await relayService.get<RelayStatus>(
-      `${config.VITE_RELAY_API_URL}/intents/status/v2?requestId=${swap.metadata.relayTransactionMetadata.relayId}`,
+      `${config.VITE_RELAY_API_URL}/intents/status/v2?requestId=${relayMetadata.relayId}`,
     )
 
     if (maybeStatusResponse.isErr()) {

@@ -60,6 +60,7 @@ import {
 import { fetchRelayTrade } from './fetchRelayTrade'
 import { getRelayDefaultUserAddress } from './getRelayDefaultUserAddress'
 import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
+import { evmTxBuildData, utxoTxBuildData } from './toRelayTxBuildData'
 
 export async function getTrade(args: {
   input: RelayTradeInputParams<'quote'>
@@ -603,7 +604,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
         .plus(appFeesBaseUnit)
         .toFixed()
 
-      const { allowanceContract, relayTransactionMetadata, solanaTransactionMetadata } =
+      const { allowanceContract, transactionData, relayTransactionMetadata, solanaTransactionMetadata } =
         await (async () => {
           if (!selectedItem.data) throw new Error('Relay quote step contains no data')
 
@@ -617,6 +618,11 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
             return {
               allowanceContract: '',
+              transactionData: utxoTxBuildData({
+                to: relayer,
+                opReturnData: orderId,
+                value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+              }),
               relayTransactionMetadata: {
                 from: sendAddress,
                 psbt: selectedItem.data.psbt,
@@ -630,17 +636,27 @@ export async function getTrade<T extends 'quote' | 'rate'>({
           }
 
           if (isRelayQuoteEvmItemData(selectedItem.data)) {
+            const chainId = Number(fromChainId(sellAsset.chainId).chainReference)
+            // v2 API may return value as undefined or empty object for ERC-20 swaps - default to '0'
+            const value = typeof selectedItem.data?.value === 'string' ? selectedItem.data.value : '0'
+
             return {
               allowanceContract: selectedItem.data?.to ?? '',
+              transactionData: evmTxBuildData({
+                chainId,
+                to: selectedItem.data?.to ?? '',
+                value,
+                data: selectedItem.data?.data ?? '0x',
+                gasLimit: selectedItem.data?.gas,
+              }),
               relayTransactionMetadata: {
                 from: sendAddress,
                 to: selectedItem.data?.to,
-                // v2 API may return value as undefined or empty object for ERC-20 swaps - default to '0'
-                value: typeof selectedItem.data?.value === 'string' ? selectedItem.data.value : '0',
+                value,
                 data: selectedItem.data?.data,
                 // gas is not documented in the relay docs but refers to gasLimit
                 gasLimit: selectedItem.data?.gas,
-                chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+                chainId,
                 relayId: quote.steps[0].requestId,
                 orderId,
               },
@@ -684,6 +700,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
             return {
               allowanceContract: '',
+              transactionData: undefined,
               solanaTransactionMetadata: {
                 addressLookupTableAddresses,
                 instructions: solanaInstructions,
@@ -711,6 +728,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
             return {
               allowanceContract: contractAddress ?? '',
+              transactionData: undefined,
               solanaTransactionMetadata: undefined,
               relayTransactionMetadata: {
                 relayId: quote.steps[0].requestId,
@@ -746,6 +764,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
         },
         source: SwapperName.Relay,
         estimatedExecutionTimeMs: timeEstimate * 1000,
+        transactionData,
         solanaTransactionMetadata,
         relayTransactionMetadata,
         affiliateFee: buildAffiliateFee({

@@ -1,19 +1,6 @@
 import type { TxBuildData } from '../../../types'
 
-export const evmTxBuildData = (params: {
-  chainId: number
-  to: string
-  value: string
-  data: string
-  gasLimit?: string
-}): Extract<TxBuildData, { type: 'evm' }> => ({
-  type: 'evm',
-  chainId: params.chainId,
-  to: params.to,
-  data: params.data,
-  value: params.value,
-  gasLimit: params.gasLimit,
-})
+export { evmTxBuildData } from '../../utils/toTxBuildData'
 
 export const utxoTxBuildData = (params: {
   to: string

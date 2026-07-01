@@ -16,6 +16,11 @@ const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | u
   const chainId = getEvmChainIdNumber(step.sellAsset.chainId)
 
   const txData: EvmTransactionData | undefined = (() => {
+    if (step.transactionData?.type === 'evm') {
+      const { chainId: _chainId, ...evm } = step.transactionData
+      return { ...evm, type: 'evm' as const, chainId }
+    }
+
     if (step.zrxTransactionMetadata) {
       return {
         type: 'evm' as const,
@@ -57,17 +62,6 @@ const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | u
         data: step.butterSwapTransactionMetadata.data,
         value: step.butterSwapTransactionMetadata.value,
         gasLimit: step.butterSwapTransactionMetadata.gasLimit,
-      }
-    }
-
-    if (step.relayTransactionMetadata?.to && step.relayTransactionMetadata?.data) {
-      return {
-        type: 'evm' as const,
-        chainId,
-        to: step.relayTransactionMetadata.to,
-        data: step.relayTransactionMetadata.data,
-        value: step.relayTransactionMetadata.value ?? '0',
-        gasLimit: step.relayTransactionMetadata.gasLimit,
       }
     }
 
@@ -150,12 +144,12 @@ const extractSolanaTransactionData = (step: TradeQuoteStep): SolanaTransactionDa
 }
 
 const extractUtxoTransactionData = (step: TradeQuoteStep): UtxoTransactionData | undefined => {
-  if (step.relayTransactionMetadata?.to) {
+  if (step.transactionData?.type === 'utxo') {
     return {
       type: 'utxo_deposit',
-      depositAddress: step.relayTransactionMetadata.to,
-      memo: step.relayTransactionMetadata.opReturnData ?? '',
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      depositAddress: step.transactionData.depositAddress,
+      memo: step.transactionData.memo,
+      value: step.transactionData.value,
     }
   }
 

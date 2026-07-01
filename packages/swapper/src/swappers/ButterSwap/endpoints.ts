@@ -26,10 +26,10 @@ export const butterSwapApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { butterSwapTransactionMetadata, sellAsset } = step
-    if (!butterSwapTransactionMetadata) throw new Error('Transaction metadata is required')
+    const { transactionData, sellAsset } = step
+    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
 
-    const { to, data, gasLimit, value } = butterSwapTransactionMetadata
+    const { to, data, value, gasLimit: gasLimitFromApi } = transactionData
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
@@ -37,13 +37,13 @@ export const butterSwapApi: SwapperApi = {
       adapter,
       data,
       to,
-      value: BigInt(value).toString(),
+      value,
       from,
       supportsEIP1559,
     })
 
     const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
-      gasLimit,
+      gasLimit: gasLimitFromApi ?? '0',
       gasPrice: feeData.gasPrice ?? '0',
       maxFeePerGas: feeData.maxFeePerGas,
       maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
@@ -59,10 +59,10 @@ export const butterSwapApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { accountNumber, sellAsset, butterSwapTransactionMetadata } = step
-    if (!butterSwapTransactionMetadata) throw new Error('Transaction metadata is required')
+    const { accountNumber, sellAsset, transactionData } = step
+    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
 
-    const { to, data, gasLimit, value } = butterSwapTransactionMetadata
+    const { to, data, value, gasLimit: gasLimitFromApi } = transactionData
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
@@ -70,7 +70,7 @@ export const butterSwapApi: SwapperApi = {
       adapter,
       data,
       to,
-      value: BigInt(value).toString(),
+      value,
       from,
       supportsEIP1559,
     })
@@ -80,9 +80,9 @@ export const butterSwapApi: SwapperApi = {
       data,
       from,
       to,
-      value: BigInt(value).toString(),
+      value,
       ...feeData,
-      gasLimit: BigNumber.max(feeData.gasLimit, gasLimit).toFixed(),
+      gasLimit: BigNumber.max(feeData.gasLimit, gasLimitFromApi ?? '0').toFixed(),
     })
   },
   getUnsignedUtxoTransaction: async ({

@@ -21,17 +21,6 @@ const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | u
       return { type: 'evm' as const, chainId, to, data, value, gasLimit }
     }
 
-    if (step.butterSwapTransactionMetadata) {
-      return {
-        type: 'evm' as const,
-        chainId,
-        to: step.butterSwapTransactionMetadata.to,
-        data: step.butterSwapTransactionMetadata.data,
-        value: step.butterSwapTransactionMetadata.value,
-        gasLimit: step.butterSwapTransactionMetadata.gasLimit,
-      }
-    }
-
     if (step.chainflipSpecific?.chainflipDepositAddress) {
       return {
         type: 'evm' as const,

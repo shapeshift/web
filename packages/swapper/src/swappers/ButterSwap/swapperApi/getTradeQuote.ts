@@ -1,4 +1,4 @@
-import { btcChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
+import { btcChainId, fromChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   BigAmount,
@@ -14,6 +14,7 @@ import {
   TransactionMessage,
   VersionedTransaction,
 } from '@solana/web3.js'
+import { fromHex } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
@@ -24,6 +25,7 @@ import {
   makeSwapErrorRight,
 } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
+import { evmTxBuildData } from '../../utils/toTxBuildData'
 import { makeButterSwapAffiliate } from '../utils/constants'
 import {
   ButterSwapErrorCode,
@@ -275,6 +277,15 @@ export const getTradeQuote = async (
       args: buildTx.args,
       memo: buildTx.memo,
     },
+    ...(isEvmChainId(sellAsset.chainId) && {
+      transactionData: evmTxBuildData({
+        chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+        to: buildTx.to,
+        data: buildTx.data,
+        value: fromHex(buildTx.value, 'bigint').toString(),
+        gasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
+      }),
+    }),
     ...(solanaTransactionMetadata && {
       solanaTransactionMetadata,
     }),

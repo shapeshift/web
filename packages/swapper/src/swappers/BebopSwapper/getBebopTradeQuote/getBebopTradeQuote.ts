@@ -7,7 +7,7 @@ import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
-import type { Address } from 'viem'
+import type { Address, Hex } from 'viem'
 import { fromHex, isAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
@@ -16,7 +16,6 @@ import type {
   SingleHopTradeQuoteSteps,
   SwapErrorRight,
   TradeQuote,
-  TradeQuoteStep,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
@@ -92,7 +91,12 @@ export async function getBebopTradeQuote(
   const sellAmount = quote.sellTokens[sellTokenAddress].amount
   const buyAmount = quote.buyTokens[buyTokenAddress].amount
 
-  const transactionMetadata: TradeQuoteStep['bebopTransactionMetadata'] = {
+  const transactionMetadata: {
+    to: Address
+    data: Hex
+    value: Hex
+    gas?: string
+  } = {
     to: quote.tx.to,
     data: quote.tx.data,
     value: quote.tx.value,
@@ -141,7 +145,6 @@ export async function getBebopTradeQuote(
           buyAmountAfterFeesCryptoBaseUnit,
           sellAmountIncludingProtocolFeesCryptoBaseUnit,
           source: SwapperName.Bebop,
-          bebopTransactionMetadata: transactionMetadata,
           transactionData: evmTxBuildData({
             chainId: Number(fromChainId(sellAsset.chainId).chainReference),
             to: transactionMetadata.to,

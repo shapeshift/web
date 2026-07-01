@@ -268,16 +268,6 @@ export async function getPortalsTradeQuote(
           },
           source: SwapperName.Portals,
           estimatedExecutionTimeMs: isCrossChain ? 300000 : 0,
-          portalsTransactionMetadata: {
-            ...tx,
-            isCrossChain,
-            buyAssetChainId: isCrossChain ? buyAssetChainId : undefined,
-            expiry: portalsTradeOrderResponse.context.expiry
-              ? Number(portalsTradeOrderResponse.context.expiry)
-              : undefined,
-            steps: portalsTradeOrderResponse.context.steps,
-            route: portalsTradeOrderResponse.context.route,
-          },
           transactionData: evmTxBuildData({
             chainId: Number(fromChainId(sellAsset.chainId).chainReference),
             to: tx.to,

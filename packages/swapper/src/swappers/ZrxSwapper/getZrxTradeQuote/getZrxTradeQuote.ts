@@ -9,7 +9,6 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { TypedData } from 'eip-712'
 import { v4 as uuid } from 'uuid'
-import type { Address } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
@@ -17,7 +16,6 @@ import type {
   SingleHopTradeQuoteSteps,
   SwapErrorRight,
   TradeQuote,
-  TradeQuoteStep,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
@@ -98,14 +96,6 @@ export async function getZrxTradeQuote(
     )
   }
 
-  const transactionMetadata: TradeQuoteStep['zrxTransactionMetadata'] = {
-    to: transaction.to,
-    data: transaction.data as Address,
-    gasPrice: transaction.gasPrice || undefined,
-    gas: transaction.gas || undefined,
-    value: transaction.value,
-  }
-
   const rate = calculateRate({ buyAmount, sellAmount, buyAsset, sellAsset })
 
   const buyAmountBeforeFeesCryptoBaseUnit = calculateBuyAmountBeforeFeesCryptoBaseUnit({
@@ -163,7 +153,6 @@ export async function getZrxTradeQuote(
             buyAmountCryptoBaseUnit: buyAmount,
           }),
           permit2Eip712: permit2Eip712 as unknown as TypedData | undefined,
-          zrxTransactionMetadata: transactionMetadata,
           transactionData: evmTxBuildData({
             chainId: Number(fromChainId(sellAsset.chainId).chainReference),
             to: transaction.to,

@@ -41,10 +41,10 @@ import type { TypedData } from 'eip-712'
 import type { Mixpanel } from 'mixpanel-browser'
 import type Polyglot from 'node-polyglot'
 import type { InterpolationOptions } from 'node-polyglot'
-import type { Address, Hex } from 'viem'
 
 import type { AcrossTransactionMetadata } from './swappers/AcrossSwapper/utils/types'
 import type { BobGatewayMetadata } from './swappers/BobGatewaySwapper/types'
+import type { ButterSwapTransactionMetadata } from './swappers/ButterSwap/types'
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { DebridgeTransactionMetadata } from './swappers/DebridgeSwapper/utils/types'
 import type { RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
@@ -437,31 +437,6 @@ export type TradeQuoteStep = {
   // Generic, chain-tx-kind-keyed build payload. New home for build data; per-swapper
   // *TransactionMetadata fields remain during migration. See metadata-split spec.
   transactionData?: TxBuildData
-  zrxTransactionMetadata?: {
-    to: Address
-    data: Address
-    gasPrice: string | undefined
-    gas: string | undefined
-    value: string
-  }
-  portalsTransactionMetadata?: {
-    to: Address
-    from: Address
-    data: string
-    value: string
-    gasLimit: string
-    isCrossChain?: boolean
-    buyAssetChainId?: ChainId
-    expiry?: number
-    steps?: string[]
-    route?: string[]
-  }
-  bebopTransactionMetadata?: {
-    to: Address
-    data: Hex
-    value: Hex
-    gas?: string
-  }
   bebopSolanaSerializedTx?: string
   bebopQuoteId?: string
   solanaTransactionMetadata?: {
@@ -494,16 +469,7 @@ export type TradeQuoteStep = {
     memo?: string
   }
   relayTransactionMetadata?: RelayTransactionMetadata
-  butterSwapTransactionMetadata?: {
-    to: string
-    data: string
-    value: Hex
-    gasLimit: string
-    method?: string
-    args?: { type: string; value: unknown }[]
-    memo?: string
-    serializedSolanaTransaction?: string
-  }
+  butterSwapTransactionMetadata?: ButterSwapTransactionMetadata
   sunioTransactionMetadata?: {
     route: {
       amountIn: string

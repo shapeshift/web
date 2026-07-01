@@ -132,6 +132,17 @@ export const useTradeButtonProps = ({
           attemptedSwapCount: 0,
           failedSwaps: [],
         },
+        swapperMetadata: firstStep?.relayTransactionMetadata
+          ? {
+              swapper: 'relay' as const,
+              relayId: firstStep.relayTransactionMetadata.relayId,
+              orderId: firstStep.relayTransactionMetadata.orderId,
+              data:
+                firstStep.transactionData?.type === 'evm'
+                  ? firstStep.transactionData.data
+                  : undefined,
+            }
+          : undefined,
       },
       isStreaming: activeQuote.isStreaming,
       status: SwapStatus.Idle,

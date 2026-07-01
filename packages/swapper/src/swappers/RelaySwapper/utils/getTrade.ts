@@ -616,6 +616,9 @@ export async function getTrade<T extends 'quote' | 'rate'>({
               sellAmountIncludingProtocolFeesCryptoBaseUnit,
             )
 
+            if (!relayer) throw new Error('Relay BTC quote step contains no relayer')
+            if (!orderId) throw new Error('Relay BTC quote step contains no orderId')
+
             return {
               allowanceContract: '',
               transactionData: utxoTxBuildData({

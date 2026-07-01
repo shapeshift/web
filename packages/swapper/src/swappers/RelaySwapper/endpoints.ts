@@ -160,8 +160,10 @@ export const relayApi: SwapperApi = {
       fetchIsSmartContractAddressQuery,
     })
 
+    if (!swap) throw new Error('Missing swap')
+
     const relayMetadata =
-      swap?.metadata.swapperMetadata?.swapper === 'relay' ? swap.metadata.swapperMetadata : undefined
+      swap.metadata.swapperMetadata?.swapper === 'relay' ? swap.metadata.swapperMetadata : undefined
     if (!relayMetadata) throw new Error('Missing swap metadata')
 
     if (maybeSafeTransactionStatus) {

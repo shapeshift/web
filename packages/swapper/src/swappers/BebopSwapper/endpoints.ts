@@ -1,7 +1,6 @@
 import { solanaChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import BigNumber from 'bignumber.js'
-import { fromHex } from 'viem'
 
 import type {
   GetEvmTradeQuoteInputBase,
@@ -72,17 +71,16 @@ export const bebopApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { accountNumber, sellAsset, bebopTransactionMetadata } = step
-    if (!bebopTransactionMetadata) throw new Error('Transaction metadata is required')
+    const { accountNumber, sellAsset, transactionData } = step
+    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
 
-    const { value: hexValue, to, data, gas } = bebopTransactionMetadata
-    const value = fromHex(hexValue, 'bigint').toString()
+    const { to, value, data, gasLimit: gasLimitFromApi } = transactionData
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
     const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
 
-    if (!gas) {
+    if (!gasLimitFromApi) {
       throw new Error('Bebop API did not provide gas estimate - cannot execute trade safely')
     }
 
@@ -93,7 +91,7 @@ export const bebopApi: SwapperApi = {
       to,
       value,
       ...feeData,
-      gasLimit: BigNumber.max(feeData.gasLimit, gas).toFixed(),
+      gasLimit: BigNumber.max(feeData.gasLimit, gasLimitFromApi).toFixed(),
     })
   },
   getUnsignedSolanaMessage: ({ tradeQuote, stepIndex }) => {
@@ -122,11 +120,10 @@ export const bebopApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { sellAsset, bebopTransactionMetadata } = step
-    if (!bebopTransactionMetadata) throw new Error('Transaction metadata is required')
+    const { sellAsset, transactionData } = step
+    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
 
-    const { value: hexValue, to, data } = bebopTransactionMetadata
-    const value = fromHex(hexValue, 'bigint').toString()
+    const { to, value, data } = transactionData
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 

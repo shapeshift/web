@@ -21,17 +21,6 @@ const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | u
       return { type: 'evm' as const, chainId, to, data, value, gasLimit }
     }
 
-    if (step.bebopTransactionMetadata) {
-      return {
-        type: 'evm' as const,
-        chainId,
-        to: step.bebopTransactionMetadata.to,
-        data: step.bebopTransactionMetadata.data,
-        value: step.bebopTransactionMetadata.value,
-        gasLimit: step.bebopTransactionMetadata.gas,
-      }
-    }
-
     if (step.butterSwapTransactionMetadata) {
       return {
         type: 'evm' as const,

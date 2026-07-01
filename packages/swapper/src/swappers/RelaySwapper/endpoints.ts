@@ -92,13 +92,10 @@ export const relayApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { accountNumber, sellAsset, relayTransactionMetadata } = step
-    if (!relayTransactionMetadata) throw new Error('Missing relay transaction metadata')
+    const { accountNumber, sellAsset, transactionData } = step
+    if (transactionData?.type !== 'utxo') throw new Error('Missing utxo transactionData')
 
-    const { to, opReturnData } = relayTransactionMetadata
-
-    if (!to) throw new Error('Missing transaction destination')
-    if (!opReturnData) throw new Error('Missing opReturnData')
+    const { depositAddress: to, memo: opReturnData } = transactionData
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
@@ -126,13 +123,10 @@ export const relayApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { sellAsset, relayTransactionMetadata } = step
-    if (!relayTransactionMetadata?.psbt) throw new Error('Missing psbt')
+    const { sellAsset, transactionData } = step
+    if (transactionData?.type !== 'utxo') throw new Error('Missing utxo transactionData')
 
-    const { to, opReturnData } = relayTransactionMetadata
-
-    if (!to) throw new Error('Missing transaction destination')
-    if (!opReturnData) throw new Error('Missing opReturnData')
+    const { depositAddress: to, memo: opReturnData } = transactionData
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 

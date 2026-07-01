@@ -123,7 +123,6 @@ export const useTradeButtonProps = ({
         relayerExplorerTxLink,
         relayerTxHash,
         relayTransactionMetadata: firstStep?.relayTransactionMetadata,
-        acrossTransactionMetadata: firstStep?.acrossTransactionMetadata,
         debridgeTransactionMetadata: firstStep?.debridgeTransactionMetadata,
         stepIndex: currentHopIndex,
         quoteId: firstStep?.stonfiSpecific?.quoteId ?? activeQuote.id,

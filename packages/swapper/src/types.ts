@@ -614,7 +614,6 @@ export type SwapperSpecificMetadata = {
     deadline: string
   }
   relayTransactionMetadata: RelayTransactionMetadata | undefined
-  acrossTransactionMetadata: AcrossTransactionMetadata | undefined
   debridgeTransactionMetadata: DebridgeTransactionMetadata | undefined
   bobSpecific?: BobGatewayMetadata
   relayerExplorerTxLink: string | undefined

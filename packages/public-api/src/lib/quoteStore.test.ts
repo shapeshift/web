@@ -22,7 +22,6 @@ const makeQuote = (overrides: Partial<StoredQuote> = {}): StoredQuote => ({
   metadata: {
     chainflipSwapId: undefined,
     relayTransactionMetadata: undefined,
-    acrossTransactionMetadata: undefined,
     debridgeTransactionMetadata: undefined,
     relayerExplorerTxLink: undefined,
     relayerTxHash: undefined,

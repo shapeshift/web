@@ -197,7 +197,6 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
         chainflipSwapId: step.chainflipSpecific?.chainflipSwapId,
         nearIntentsSpecific: step.nearIntentsSpecific,
         relayTransactionMetadata: step.relayTransactionMetadata,
-        acrossTransactionMetadata: step.acrossTransactionMetadata,
         debridgeTransactionMetadata: step.debridgeTransactionMetadata,
         swapperMetadata: buildSwapperMetadata(step),
         relayerExplorerTxLink: undefined,

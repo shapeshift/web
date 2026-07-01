@@ -25,10 +25,10 @@ export const acrossApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { acrossTransactionMetadata, sellAsset } = step
-    if (!acrossTransactionMetadata) throw new Error('Missing Across transaction metadata')
+    const { transactionData, sellAsset } = step
+    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
 
-    const { to, value, data } = acrossTransactionMetadata
+    const { to, value, data } = transactionData
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
@@ -47,10 +47,10 @@ export const acrossApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { accountNumber, acrossTransactionMetadata, sellAsset } = step
-    if (!acrossTransactionMetadata) throw new Error('Missing Across transaction metadata')
+    const { accountNumber, transactionData, sellAsset } = step
+    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
 
-    const { to, value, data, gasLimit: gasLimitFromApi } = acrossTransactionMetadata
+    const { to, value, data, gasLimit: gasLimitFromApi } = transactionData
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 

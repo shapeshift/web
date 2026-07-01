@@ -153,14 +153,17 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
       return hopExecutionMetadata?.swap?.inboundAddress
     }
 
+    const transactionDataAddress =
+      tradeQuoteStep.transactionData?.type === 'evm'
+        ? tradeQuoteStep.transactionData.to
+        : tradeQuoteStep.transactionData?.type === 'utxo'
+          ? tradeQuoteStep.transactionData.depositAddress
+          : undefined
+
     return (
       tradeQuoteStep.chainflipSpecific?.chainflipDepositAddress ??
       tradeQuoteStep.nearIntentsSpecific?.depositAddress ??
-      tradeQuoteStep.relayTransactionMetadata?.to ??
-      tradeQuoteStep.bebopTransactionMetadata?.to ??
-      tradeQuoteStep.butterSwapTransactionMetadata?.to ??
-      tradeQuoteStep.portalsTransactionMetadata?.to ??
-      tradeQuoteStep.zrxTransactionMetadata?.to
+      transactionDataAddress
     )
   }, [isHardwareWallet, tradeQuoteStep, hopExecutionMetadata?.swap?.inboundAddress])
 

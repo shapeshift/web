@@ -18,6 +18,7 @@ import { registry } from '../../registry'
 import { getSwapperDeps } from '../../swapperDeps'
 import type { ErrorResponse } from '../../types'
 import { PartnerCodeHeaderSchema, rateLimitResponse } from '../../types'
+import { buildSwapperMetadata } from './buildSwapperMetadata'
 import type { QuoteResponse } from './types'
 import { QuoteRequestSchema, QuoteResponseSchema } from './types'
 import { buildApprovalInfo, transformQuoteStep } from './utils'
@@ -198,6 +199,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
         relayTransactionMetadata: step.relayTransactionMetadata,
         acrossTransactionMetadata: step.acrossTransactionMetadata,
         debridgeTransactionMetadata: step.debridgeTransactionMetadata,
+        swapperMetadata: buildSwapperMetadata(step),
         relayerExplorerTxLink: undefined,
         relayerTxHash: undefined,
         stepIndex: 0,

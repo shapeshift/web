@@ -1,4 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import { fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import { PERMIT2_CONTRACT } from '@shapeshiftoss/contracts'
@@ -22,6 +23,7 @@ import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { evmTxBuildData } from '../../utils/toTxBuildData'
 import { fetchZrxQuote } from '../utils/fetchFromZrx'
 import {
   assertValidTrade,
@@ -162,6 +164,13 @@ export async function getZrxTradeQuote(
           }),
           permit2Eip712: permit2Eip712 as unknown as TypedData | undefined,
           zrxTransactionMetadata: transactionMetadata,
+          transactionData: evmTxBuildData({
+            chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+            to: transaction.to,
+            data: transaction.data,
+            value: transaction.value,
+            gasLimit: transaction.gas || undefined,
+          }),
         },
       ] as SingleHopTradeQuoteSteps,
     })

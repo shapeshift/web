@@ -40,13 +40,13 @@ export const zrxApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { accountNumber, sellAsset, zrxTransactionMetadata } = step
-    if (!zrxTransactionMetadata) throw new Error('Transaction metadata is required')
+    const { accountNumber, sellAsset, transactionData } = step
+    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
 
-    const { value, to } = zrxTransactionMetadata
+    const { to, value, gasLimit: gasLimitFromApi } = transactionData
 
     const data = (() => {
-      if (!permit2Signature) return zrxTransactionMetadata.data
+      if (!permit2Signature) return transactionData.data
 
       // Append the signature to the calldata
       // https://0x.org/docs/0x-swap-api/guides/swap-tokens-with-0x-swap-api#5-append-signature-length-and-signature-data-to-transactiondata
@@ -55,7 +55,7 @@ export const zrxApi: SwapperApi = {
         size: 32,
       })
 
-      return concat([zrxTransactionMetadata.data, signatureLengthInHex, permit2Signature] as Hex[])
+      return concat([transactionData.data as Hex, signatureLengthInHex, permit2Signature] as Hex[])
     })()
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
@@ -70,7 +70,7 @@ export const zrxApi: SwapperApi = {
       value,
       ...feeData,
       // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding for total gas used.
-      gasLimit: BigNumber.max(feeData.gasLimit, zrxTransactionMetadata.gas ?? '0').toFixed(),
+      gasLimit: BigNumber.max(feeData.gasLimit, gasLimitFromApi ?? '0').toFixed(),
     })
   },
   getEvmTransactionFees: async ({
@@ -85,13 +85,13 @@ export const zrxApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { sellAsset, zrxTransactionMetadata } = step
-    if (!zrxTransactionMetadata) throw new Error('Transaction metadata is required')
+    const { sellAsset, transactionData } = step
+    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
 
-    const { value, to } = zrxTransactionMetadata
+    const { to, value } = transactionData
 
     const data = (() => {
-      if (!permit2Signature) return zrxTransactionMetadata.data
+      if (!permit2Signature) return transactionData.data
 
       // Append the signature to the calldata
       // https://0x.org/docs/0x-swap-api/guides/swap-tokens-with-0x-swap-api#5-append-signature-length-and-signature-data-to-transactiondata
@@ -100,7 +100,7 @@ export const zrxApi: SwapperApi = {
         size: 32,
       })
 
-      return concat([zrxTransactionMetadata.data, signatureLengthInHex, permit2Signature] as Hex[])
+      return concat([transactionData.data as Hex, signatureLengthInHex, permit2Signature] as Hex[])
     })()
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)

@@ -597,6 +597,14 @@ export type SwapExecutionMetadata = {
   inboundAddress?: string
 }
 
+export type SwapperTrackingMetadata = {
+  swapper: 'relay'
+  relayId: string
+  orderId?: string
+  // EVM calldata, preserved solely for relay's /transactions/single indexer `tx` param.
+  data?: string
+}
+
 export type SwapperSpecificMetadata = {
   chainflipSwapId: number | string | undefined
   nearIntentsSpecific?: {
@@ -614,6 +622,7 @@ export type SwapperSpecificMetadata = {
   stepIndex: SupportedTradeQuoteStepIndex
   quoteId: string
   streamingSwapMetadata: StreamingSwapMetadata | undefined
+  swapperMetadata?: SwapperTrackingMetadata
 }
 
 export enum SwapStatus {

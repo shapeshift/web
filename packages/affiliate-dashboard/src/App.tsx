@@ -36,6 +36,7 @@ export const App = (): React.JSX.Element => {
 
   const affiliateAddress = isConnected && address ? address : ''
   const configQuery = useAffiliateConfig(affiliateAddress)
+  const partnerCode = configQuery.data?.partnerCode ?? ''
 
   const periods = useMemo(
     () => generatePeriods(configQuery.data?.createdAt),
@@ -44,8 +45,8 @@ export const App = (): React.JSX.Element => {
 
   const currentPeriod = periods.find(p => p.key === selectedKey) ?? periods[0]
 
-  const statsQuery = useAffiliateStats(affiliateAddress, currentPeriod)
-  const swapsQuery = useAffiliateSwaps(affiliateAddress, currentPeriod)
+  const statsQuery = useAffiliateStats(partnerCode, currentPeriod)
+  const swapsQuery = useAffiliateSwaps(partnerCode, currentPeriod)
   const actions = useAffiliateActions({ affiliateAddress, authHeaders })
 
   const swaps = useMemo(

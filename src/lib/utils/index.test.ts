@@ -5,7 +5,6 @@ import {
   ethAssetId,
   ethChainId,
   foxAssetId,
-  foxyAssetId,
   fromAssetId,
 } from '@shapeshiftoss/caip'
 import { contractAddressOrUndefined, isToken } from '@shapeshiftoss/utils'
@@ -27,12 +26,7 @@ import {
 } from '.'
 
 import { fauxmesAccountId } from '@/state/slices/opportunitiesSlice/mocks'
-import type {
-  LpId,
-  OpportunityId,
-  StakingId,
-  ValidatorId,
-} from '@/state/slices/opportunitiesSlice/types'
+import type { LpId, OpportunityId, ValidatorId } from '@/state/slices/opportunitiesSlice/types'
 import { opportunityIdToChainId } from '@/state/slices/opportunitiesSlice/utils'
 
 describe('@/lib/utils', () => {
@@ -40,12 +34,6 @@ describe('@/lib/utils', () => {
     test('returns the correct chain ID for an LpId', () => {
       const lpId: LpId = foxAssetId as LpId
       const result: ChainId = opportunityIdToChainId(lpId)
-      expect(result).toEqual(ethChainId)
-    })
-
-    test('returns the correct chain ID for a StakingId', () => {
-      const stakingId: StakingId = foxyAssetId as StakingId
-      const result: ChainId = opportunityIdToChainId(stakingId)
       expect(result).toEqual(ethChainId)
     })
 

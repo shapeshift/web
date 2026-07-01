@@ -581,13 +581,9 @@
         "emptyWithdraws": "Ausstehende Stake Beendigungs-Anfragen werden hier angezeigt.",
         "availableDate": "verfügbar %{date}"
       },
-      "foxyOverview": {
+      "foxFarmingOverview": {
         "withdrawals": "Abhebungen",
         "emptyWithdraws": "Ausstehende oder aktive Auszahlungen werden hier angezeigt.",
-        "availableDate": "Verfügbar %{date}",
-        "disabledTitle": "FOXy Einzahlungen sind deaktiviert"
-      },
-      "foxFarmingOverview": {
         "header": "Zahlen Sie ETH-FOX LP Tokens bei %{opportunity} ein, um zu verdienen",
         "body": "Genehmigen und Staken Sie Ihre Liquiditätstoken, um Ihre FOX Bonusprämien zu erhalten.",
         "rewards": "Die Belohnungen, die Sie verdienen, fallen automatisch an.",
@@ -856,12 +852,6 @@
         "swapOut": "Swap erhalten",
         "swap": "Handel",
         "swapRefund": "Swap Rückerstattung"
-      },
-      "foxy": {
-        "stake": "Stake",
-        "unstake": "Staking beenden",
-        "instantUnstake": "Staking sofort beenden",
-        "claimWithdraw": "Abhebung anfordern"
       },
       "erc20": {
         "approve": "Genehmigen",

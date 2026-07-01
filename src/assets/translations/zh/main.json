@@ -581,13 +581,9 @@
         "emptyWithdraws": "此处将显示待处理的取消质押请求。",
         "availableDate": "在 %{date} 可用"
       },
-      "foxyOverview": {
+      "foxFarmingOverview": {
         "withdrawals": "提现",
         "emptyWithdraws": "此处将显示待处理或进行的提现。",
-        "availableDate": "在 %{date} 可用",
-        "disabledTitle": "FOXy 充值已被禁用"
-      },
-      "foxFarmingOverview": {
         "header": "充值 ETH-FOX LP 代币 %{opportunity} 来赚取收益",
         "body": "授权并质押你的流动性代币以获得额外的 FOX 奖励。",
         "rewards": "你获得的奖励将自动累积。",
@@ -856,12 +852,6 @@
         "swapOut": "交换已收到",
         "swap": "交易",
         "swapRefund": "交换退款"
-      },
-      "foxy": {
-        "stake": "质押",
-        "unstake": "取消质押",
-        "instantUnstake": "立即取消质押",
-        "claimWithdraw": "领取提款"
       },
       "erc20": {
         "approve": "授权",

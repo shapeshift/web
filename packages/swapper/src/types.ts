@@ -399,6 +399,24 @@ export type AffiliateFee = {
   isEstimate?: boolean
 }
 
+export type TxBuildData =
+  | {
+      type: 'evm'
+      chainId: number
+      to: string
+      data: string
+      value: string
+      gasLimit?: string
+      signatureRequired?: { type: 'permit2'; eip712: TypedData }
+    }
+  | { type: 'utxo'; depositAddress: string; memo: string; value: string }
+  | {
+      type: 'solana'
+      instructions: TransactionInstruction[]
+      addressLookupTableAddresses: string[]
+    }
+  | { type: 'cosmos'; chainId: string; to: string; value: string; memo?: string }
+
 export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string
   buyAmountAfterFeesCryptoBaseUnit: string
@@ -416,6 +434,9 @@ export type TradeQuoteStep = {
   allowanceContract: string
   estimatedExecutionTimeMs: number | undefined
   permit2Eip712?: TypedData
+  // Generic, chain-tx-kind-keyed build payload. New home for build data; per-swapper
+  // *TransactionMetadata fields remain during migration. See metadata-split spec.
+  transactionData?: TxBuildData
   zrxTransactionMetadata?: {
     to: Address
     data: Address

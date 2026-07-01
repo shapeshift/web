@@ -48,10 +48,10 @@ export const portalsApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { portalsTransactionMetadata, sellAsset } = step
-    if (!portalsTransactionMetadata) throw new Error('Transaction metadata is required')
+    const { transactionData, sellAsset } = step
+    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
 
-    const { value, to, data } = portalsTransactionMetadata
+    const { to, value, data } = transactionData
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
@@ -70,11 +70,11 @@ export const portalsApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { accountNumber, portalsTransactionMetadata, sellAsset } = step
-    if (!portalsTransactionMetadata) throw new Error('Transaction metadata is required')
+    const { accountNumber, transactionData, sellAsset } = step
+    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
 
     // Portals has a 15% buffer on gas estimations, which may or may not turn out to be more reliable than our "pure" simulations
-    const { value, to, data, gasLimit: estimatedGas } = portalsTransactionMetadata
+    const { to, value, data, gasLimit: gasLimitFromApi } = transactionData
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
@@ -88,7 +88,7 @@ export const portalsApi: SwapperApi = {
       value,
       ...feeData,
       // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding for total gas used.
-      gasLimit: BigNumber.max(feeData.gasLimit, estimatedGas).toFixed(),
+      gasLimit: BigNumber.max(feeData.gasLimit, gasLimitFromApi ?? '0').toFixed(),
     })
   },
   checkTradeStatus: async (input: CheckTradeStatusInput): Promise<TradeStatus> => {

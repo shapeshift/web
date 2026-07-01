@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
@@ -25,6 +25,7 @@ import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { evmTxBuildData } from '../../utils/toTxBuildData'
 import { chainIdToPortalsNetwork } from '../constants'
 import { fetchPortalsTradeOrder, PortalsError } from '../utils/fetchPortalsTradeOrder'
 import { getPortalsRouterAddressByChainId, isSupportedChainId } from '../utils/helpers'
@@ -277,6 +278,13 @@ export async function getPortalsTradeQuote(
             steps: portalsTradeOrderResponse.context.steps,
             route: portalsTradeOrderResponse.context.route,
           },
+          transactionData: evmTxBuildData({
+            chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+            to: tx.to,
+            data: tx.data,
+            value: tx.value,
+            gasLimit: tx.gasLimit,
+          }),
           affiliateFee: buildAffiliateFee({
             strategy: 'buy_asset',
             affiliateBps,

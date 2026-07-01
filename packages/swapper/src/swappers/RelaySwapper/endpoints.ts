@@ -37,20 +37,10 @@ export const relayApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { relayTransactionMetadata, sellAsset } = step
-    if (!relayTransactionMetadata) throw Error('Missing relay transaction metadata')
+    const { transactionData, sellAsset } = step
+    if (transactionData?.type !== 'evm') throw Error('Missing evm transactionData')
 
-    const { to, value, data } = relayTransactionMetadata
-
-    if (to === undefined || value === undefined || data === undefined) {
-      const undefinedRequiredValues = [to, value, data].filter(value => value === undefined)
-
-      throw Error('undefined required values in transactionRequest', {
-        cause: {
-          undefinedRequiredValues,
-        },
-      })
-    }
+    const { to, value, data } = transactionData
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
@@ -69,20 +59,10 @@ export const relayApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { accountNumber, relayTransactionMetadata, sellAsset } = step
-    if (!relayTransactionMetadata) throw Error('Transaction metadata is required')
+    const { accountNumber, transactionData, sellAsset } = step
+    if (transactionData?.type !== 'evm') throw Error('evm transactionData is required')
 
-    const { to, value, data, gasLimit: gasLimitFromApi } = relayTransactionMetadata
-
-    if (to === undefined || value === undefined || data === undefined) {
-      const undefinedRequiredValues = [to, value, data].filter(value => value === undefined)
-
-      throw Error('undefined required values in swap step', {
-        cause: {
-          undefinedRequiredValues,
-        },
-      })
-    }
+    const { to, value, data, gasLimit: gasLimitFromApi } = transactionData
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 

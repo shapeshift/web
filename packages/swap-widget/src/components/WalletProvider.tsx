@@ -1,11 +1,11 @@
 import { useAppKit } from '@reown/appkit/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { Config } from 'wagmi'
 import { WagmiProvider } from 'wagmi'
 
-import { getWagmiAdapter, initializeAppKit, isAppKitInitialized } from '../config/appkit'
+import { getActiveWagmiConfig, initializeAppKit, isAppKitInitialized } from '../config/appkit'
 import { useSwapWallet } from '../contexts/SwapWalletContext'
 import { truncateAddress } from '../types'
 
@@ -17,20 +17,24 @@ type AppKitWalletProviderProps = {
 }
 
 export const AppKitWalletProvider = ({ projectId, children }: AppKitWalletProviderProps) => {
-  const [isReady, setIsReady] = useState(false)
+  // Seed from the SDK singleton so a host-initialized AppKit is picked up on the
+  // first render (no flash of null) when it was created before the widget mounts.
+  const [wagmiConfig, setWagmiConfig] = useState<Config | undefined>(() =>
+    isAppKitInitialized() ? getActiveWagmiConfig() : undefined,
+  )
 
   useEffect(() => {
-    if (projectId) initializeAppKit(projectId)
-    if (isAppKitInitialized()) setIsReady(true)
+    // Self-init only when no AppKit exists yet. If the host already called
+    // createAppKit, we hook into that shared instance rather than creating a second.
+    if (projectId && !isAppKitInitialized()) initializeAppKit(projectId)
+    if (isAppKitInitialized()) setWagmiConfig(getActiveWagmiConfig())
   }, [projectId])
-
-  const wagmiConfig = useMemo((): Config | undefined => {
-    if (!isReady) return undefined
-    return getWagmiAdapter()?.wagmiConfig as unknown as Config | undefined
-  }, [isReady])
 
   if (!wagmiConfig) return null
 
+  // We always own the WagmiProvider / QueryClient — built from the wagmi config we
+  // read off the shared AppKit singleton (whether self-init or host-owned). This is
+  // what lets a host integrate by calling createAppKit() alone, wrapping nothing.
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>

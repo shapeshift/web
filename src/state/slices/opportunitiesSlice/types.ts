@@ -2,7 +2,6 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { PartialRecord } from '@shapeshiftoss/types'
 
 import type { CosmosSdkStakingSpecificUserStakingOpportunity } from './resolvers/cosmosSdk/types'
-import type { FoxySpecificUserStakingOpportunity } from './resolvers/foxy/types'
 import type { ThorchainSaversStakingSpecificMetadata } from './resolvers/thorchainsavers/types'
 import type {
   OpportunitiesMetadataResolverInput,
@@ -20,7 +19,6 @@ export enum DefiType {
 }
 
 export enum DefiProvider {
-  ShapeShift = 'ShapeShift',
   rFOX = 'rFOX',
   EthFoxStaking = 'ETH/FOX Staking',
   CosmosSdk = 'Cosmos SDK',
@@ -63,7 +61,7 @@ export type OpportunityMetadataBase = {
   underlyingAssetId: AssetId
   // The AssetId or AssetIds this opportunity represents
   // For LP tokens, that's an asset pair
-  // For opportunities a la FOXy, that's the asset the opportunity wraps
+  // For other opportunities, that is the asset the opportunity wraps
   underlyingAssetIds: AssetId[]
   // The underlying amount of underlyingAssetId per 1 LP token, in base unit
   underlyingAssetRatiosBaseUnit: readonly string[]
@@ -109,7 +107,6 @@ export type UserStakingOpportunity =
   | UserStakingOpportunityBase
   | SaversUserStakingOpportunity
   | CosmosSdkStakingSpecificUserStakingOpportunity
-  | FoxySpecificUserStakingOpportunity
 
 export type UserStakingOpportunityWithMetadata = UserStakingOpportunity & OpportunityMetadata
 

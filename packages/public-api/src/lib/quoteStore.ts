@@ -10,6 +10,7 @@ export type StoredQuote = {
   sendAddress: string
   receiveAddress: string
   partnerAddress?: string
+  partnerCode?: string
   partnerBps?: string
   shapeshiftBps: string
   affiliateBps: string

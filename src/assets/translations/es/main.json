@@ -581,13 +581,9 @@
         "emptyWithdraws": "Aquí se mostrarán las solicitudes pendientes de retirar Staking.",
         "availableDate": "disponible %{date}"
       },
-      "foxyOverview": {
+      "foxFarmingOverview": {
         "withdrawals": "Retiros",
         "emptyWithdraws": "Los retiros pendientes o activos se mostrarán aquí.",
-        "availableDate": "disponible %{date}",
-        "disabledTitle": "Depósitos FOXy inhabilitados"
-      },
-      "foxFarmingOverview": {
         "header": "Deposite tokens LP ETH-FOX en %{opportunity} para ganar",
         "body": "Aprueba y Stake tus tokens de liquidez para ganar recompensas adicionales en FOX.",
         "rewards": "Las recompensas se acumulan automáticamente.",
@@ -856,12 +852,6 @@
         "swapOut": "Intercambio Recibido",
         "swap": "Intercambio",
         "swapRefund": "Reembolso de Intercambio"
-      },
-      "foxy": {
-        "stake": "Stake",
-        "unstake": "Retirar de Stake",
-        "instantUnstake": "Retirar de Stake al instante",
-        "claimWithdraw": "Retirar monto a reclamar"
       },
       "erc20": {
         "approve": "Aprobar",

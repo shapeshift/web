@@ -581,13 +581,9 @@
         "emptyWithdraws": "Pending unstaking requests will show here.",
         "availableDate": "available %{date}"
       },
-      "foxyOverview": {
+      "foxFarmingOverview": {
         "withdrawals": "Withdrawals",
         "emptyWithdraws": "Pending or active withdrawals will show here.",
-        "availableDate": "available %{date}",
-        "disabledTitle": "FOXy deposits are disabled"
-      },
-      "foxFarmingOverview": {
         "header": "Deposit ETH-FOX LP tokens to %{opportunity} to earn",
         "body": "Approve and stake your liquidity tokens to earn bonus FOX rewards.",
         "rewards": "The rewards you earn will accrue automatically.",
@@ -856,12 +852,6 @@
         "swapOut": "Swap Received",
         "swap": "Trade",
         "swapRefund": "Swap Refund"
-      },
-      "foxy": {
-        "stake": "Stake",
-        "unstake": "Unstake",
-        "instantUnstake": "Instant Unstake",
-        "claimWithdraw": "Claim Withdraw"
       },
       "erc20": {
         "approve": "Approve",

@@ -581,13 +581,9 @@
         "emptyWithdraws": "Les demandes de déstaking en attente s'affichent ici.",
         "availableDate": "disponible %{date}"
       },
-      "foxyOverview": {
+      "foxFarmingOverview": {
         "withdrawals": "Retraits",
         "emptyWithdraws": "Les retraits en attente ou actifs s'afficheront ici.",
-        "availableDate": "disponible %{date}",
-        "disabledTitle": "Les dépôts FOXy sont désactivés"
-      },
-      "foxFarmingOverview": {
         "header": "Déposer des jetons LP ETH-FOX dans %{opportunity} pour gagner",
         "body": "Autorisez et stakez vos jetons de liquidité pour gagner des récompenses bonus en FOX.",
         "rewards": "Les récompenses que vous gagnez s'accumuleront automatiquement.",
@@ -856,12 +852,6 @@
         "swapOut": "Échange reçu",
         "swap": "Échange",
         "swapRefund": "Remboursement d'échange"
-      },
-      "foxy": {
-        "stake": "Stake",
-        "unstake": "Déstake",
-        "instantUnstake": "Déstake instantané",
-        "claimWithdraw": "Réclamation de retrait"
       },
       "erc20": {
         "approve": "Autorisation",

@@ -8,7 +8,6 @@ import { setGlobalDevModeChecks } from 'reselect'
 
 import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
-import { foxyApi } from './apis/foxy/foxyApi'
 import { limitOrderApi } from './apis/limit-orders/limitOrderApi'
 import { portalsApi } from './apis/portals/portalsApi'
 import { snapshotApi } from './apis/snapshot/snapshot'
@@ -39,7 +38,6 @@ const apiMiddleware = [
   marketApi.middleware,
   assetApi.middleware,
   txHistoryApi.middleware,
-  foxyApi.middleware,
   swapperApi.middleware,
   fiatRampApi.middleware,
   snapshotApi.middleware,

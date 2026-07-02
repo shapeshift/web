@@ -143,16 +143,6 @@
           "learnMore": "Pelajari Lebih Lanjut "
         }
       },
-      "foxyOverview": {
-        "header": "Setor FOX untuk mendapatkan FOXy untuk menghasilkan",
-        "body": "FOXy adalah token rebasing yang dipatok dengan harga FOX. Staked FOX bekerja di berbagai protokol DeFi untuk mendapatkan hasil terbaik.",
-        "rewards": "Imbalan yang Anda peroleh akan bertambah secara otomatis.",
-        "cta": "Setor FOX Sekarang ",
-        "foxyBalance": "Saldo FOXy",
-        "withdrawals": "Penarikan",
-        "emptyWithdraws": "Penarikan tertunda atau aktif akan ditampilkan di sini.",
-        "availableDate": "tersedia %{date}"
-      },
       "claim": {
         "rewardDepositInfo": "Hadiah Anda akan disimpan ke dompet utama Anda.",
         "title": "Klaim Hadiah Staking",
@@ -301,12 +291,6 @@
       },
       "thor": {
         "transferOut": "Transfer keluar"
-      },
-      "foxy": {
-        "stake": "Stake",
-        "unstake": "Unstake",
-        "instantUnstake": "Unstake Instan",
-        "claimWithdraw": "Klaim Penarikan"
       }
     },
     "unknown": "Transaksi"

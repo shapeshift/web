@@ -144,16 +144,6 @@
           "learnMore": "더 알아보기"
         }
       },
-      "foxyOverview": {
-        "header": "FOXy를 적립하려면 FOX를 입금하세요.",
-        "body": "FOXy는 FOX 가격에 페깅되어 있는 리베이스 토큰입니다. 스테이크된 FOX는 다양한 DeFi 프로토콜에 연동되어 가능한 한 최고의 수익을 얻을 수 있게 합니다.",
-        "rewards": "획득한 보상은 자동으로 적립됩니다.",
-        "cta": "FOX 입금하기",
-        "foxyBalance": "FOXy 밸런스",
-        "withdrawals": "출금",
-        "emptyWithdraws": "보류 중이거나 활성인 출금이 여기에 표시됩니다.",
-        "availableDate": "가능한 날짜 %{date}"
-      },
       "claim": {
         "rewardDepositInfo": "보상은 기본 지갑에 입금됩니다.",
         "title": "스테이킹 보상 청구",
@@ -297,12 +287,6 @@
       },
       "thor": {
         "transferOut": "출금"
-      },
-      "foxy": {
-        "stake": "스테이크",
-        "unstake": "언스테이크",
-        "instantUnstake": "즉시 언스테이크",
-        "claimWithdraw": "출금 요청"
       },
       "erc20": {
         "approve": "승인"
@@ -1028,12 +1012,10 @@
       "tradingUnavailable": "아직 ShapeShift에서는 %{assetSymbol} 거래가 불가능합니다. 대신 Elastic Swap에서 %{assetSymbol} 거래가 가능합니다.",
       "tradeOnElasticSwap": "ElasticSwap에서 %{assetSymbol} 거래하기",
       "otherOpportunitiesTitle": {
-        "FOX": "다른 수익 기회",
-        "FOXy": "수익 기회"
+        "FOX": "다른 수익 기회"
       },
       "otherOpportunitiesDescription": {
-        "FOX": "유동성 공급, 이자 농사, 대출 및 차입 등의 다양한 기회를 확인하세요. 아래의 시작하기 링크를 클릭하여 관심있는 외부 사이트를 방문하여 자세히 알아보시고, FOX를 사용해보세요.",
-        "FOXy": "이자 농사와 비용 수익을 제공하는, 업계 첫 DAO 리베이스 토큰인 FOXy를 빠르고 쉽게 구매해보세요!"
+        "FOX": "유동성 공급, 이자 농사, 대출 및 차입 등의 다양한 기회를 확인하세요. 아래의 시작하기 링크를 클릭하여 관심있는 외부 사이트를 방문하여 자세히 알아보시고, FOX를 사용해보세요."
       },
       "liquidityPools": "유동성 풀",
       "farming": "이자 농사",

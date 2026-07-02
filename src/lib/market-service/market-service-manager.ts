@@ -12,7 +12,6 @@ import type { ethers } from 'ethers'
 import type { MarketService } from './api'
 import { CoinCapMarketService } from './coincap/coincap'
 import { CoinGeckoMarketService } from './coingecko/coingecko'
-import { FoxyMarketService } from './foxy/foxy'
 import { PortalsMarketService } from './portals/portals'
 import { ThorchainAssetsMarketService } from './thorchainAssets/thorchainAssets'
 import { ZerionMarketService } from './zerion/zerion'
@@ -35,16 +34,13 @@ export class MarketServiceManager {
   marketProviders: MarketService[]
   assetService: AssetService
 
-  constructor(args: MarketServiceManagerArgs) {
-    const { providerUrls, provider } = args
-
+  constructor(_args: MarketServiceManagerArgs) {
     this.marketProviders = [
       // Order of this MarketProviders array constitutes the order of providers we will be checking first.
       // More reliable providers should be listed first.
       new CoinGeckoMarketService(),
       new CoinCapMarketService(),
       new PortalsMarketService(),
-      new FoxyMarketService({ providerUrls, provider }),
       new ThorchainAssetsMarketService(),
       new ZerionMarketService(),
       // TODO: Debank market provider

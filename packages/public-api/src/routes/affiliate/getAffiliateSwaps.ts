@@ -21,7 +21,7 @@ registry.registerPath({
   operationId: 'getAffiliateSwaps',
   summary: 'Get affiliate swaps',
   description:
-    'Retrieve paginated swap history for an affiliate address. Supports optional date range filtering.',
+    'Retrieve paginated swap history for an affiliate by partnerCode. Supports optional date range filtering.',
   tags: ['Affiliate'],
   request: {
     query: AffiliateSwapsRequestSchema,
@@ -51,11 +51,11 @@ export const getAffiliateSwaps = async (req: Request, res: Response): Promise<vo
       return
     }
 
-    const { address, startDate, endDate, limit, cursor } = queryResult.data
+    const { partnerCode, startDate, endDate, limit, cursor } = queryResult.data
 
     const url = new URL(`${env.SWAP_SERVICE_BASE_URL}/v1/affiliate/swaps`)
 
-    url.searchParams.append('address', address)
+    url.searchParams.append('partnerCode', partnerCode)
     url.searchParams.append('limit', String(limit))
 
     if (cursor) url.searchParams.append('cursor', cursor)

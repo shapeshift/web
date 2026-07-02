@@ -4,6 +4,16 @@ import { registry } from '../../registry'
 import { EVM_ADDRESS } from '../../types'
 import { AssetSchema } from '../assets/types'
 
+const PartnerCodeSchema = z
+  .string()
+  .trim()
+  .min(3)
+  .max(32)
+  .regex(
+    /^[a-z0-9]+$/,
+    'partnerCode must be 3–32 lowercase letters or numbers (e.g. mypartnercode)',
+  )
+
 // --- Affiliate Config ---
 
 export const AffiliateAddressParamsSchema = z.object({
@@ -16,7 +26,7 @@ export const AffiliateConfigResponseSchema = registry.register(
     id: z.string().openapi({ example: 'abc123' }),
     walletAddress: EVM_ADDRESS,
     receiveAddress: EVM_ADDRESS.nullable(),
-    partnerCode: z.string().nullable().openapi({ example: 'mypartner' }),
+    partnerCode: z.string().openapi({ example: 'mypartner' }),
     partnerBps: z.number().openapi({ example: 50 }),
     shapeshiftBps: z.number().openapi({ example: 10 }),
     isActive: z.boolean().openapi({ example: true }),
@@ -28,15 +38,7 @@ export const AffiliateConfigResponseSchema = registry.register(
 export const CreateAffiliateRequestSchema = z.object({
   walletAddress: EVM_ADDRESS,
   receiveAddress: EVM_ADDRESS.optional(),
-  partnerCode: z
-    .string()
-    .trim()
-    .min(3)
-    .max(32)
-    .regex(
-      /^[a-z0-9]+$/,
-      'partnerCode must be 3–32 lowercase letters or numbers (e.g. mypartnercode)',
-    ),
+  partnerCode: PartnerCodeSchema,
   bps: z.number().int().min(0).max(1000),
 })
 
@@ -112,7 +114,7 @@ export const SwapServiceAffiliateSwapsResponseSchema = z.object({
 
 export const AffiliateSwapsRequestSchema = z
   .object({
-    address: EVM_ADDRESS,
+    partnerCode: PartnerCodeSchema,
     startDate: z.string().datetime().optional(),
     endDate: z.string().datetime().optional(),
     limit: z.coerce.number().int().min(1).max(100).default(50),
@@ -139,7 +141,7 @@ export const AffiliateSwapsResponseSchema = registry.register(
 
 export const AffiliateStatsRequestSchema = z
   .object({
-    address: EVM_ADDRESS,
+    partnerCode: PartnerCodeSchema,
     startDate: z.string().datetime().optional(),
     endDate: z.string().datetime().optional(),
   })

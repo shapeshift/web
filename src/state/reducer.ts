@@ -3,7 +3,6 @@ import { createMigrate, persistReducer } from 'redux-persist'
 
 import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
-import { foxyApi } from './apis/foxy/foxyApi'
 import { limitOrderApi } from './apis/limit-orders/limitOrderApi'
 import { portalsApi } from './apis/portals/portalsApi'
 import type { SnapshotState } from './apis/snapshot/snapshot'
@@ -232,7 +231,6 @@ export const apiSlices = {
   marketApi,
   txHistoryApi,
   swappersApi: swapperApi,
-  foxyApi,
   fiatRampApi,
   snapshotApi,
   portalsApi,
@@ -247,7 +245,6 @@ export const apiReducers = {
   [marketApi.reducerPath]: marketApi.reducer,
   [txHistoryApi.reducerPath]: txHistoryApi.reducer,
   [swapperApi.reducerPath]: swapperApi.reducer,
-  [foxyApi.reducerPath]: foxyApi.reducer,
   [fiatRampApi.reducerPath]: fiatRampApi.reducer,
   [snapshotApi.reducerPath]: snapshotApi.reducer,
   [portalsApi.reducerPath]: portalsApi.reducer,

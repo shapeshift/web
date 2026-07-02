@@ -9,7 +9,7 @@ const AffiliateConfigSchema = z.object({
   id: z.string(),
   walletAddress: z.string(),
   receiveAddress: z.string().nullable(),
-  partnerCode: z.string().nullable(),
+  partnerCode: z.string(),
   partnerBps: z.number(),
   shapeshiftBps: z.number(),
   isActive: z.boolean(),

@@ -22,6 +22,7 @@ const buildSwapRegistrationBody = (storedQuote: ReturnType<typeof quoteStore.get
       buyAccountId: storedQuote.receiveAddress,
       receiveAddress: storedQuote.receiveAddress,
       partnerAddress: storedQuote.partnerAddress,
+      partnerCode: storedQuote.partnerCode,
       partnerBps: storedQuote.partnerBps ? Number(storedQuote.partnerBps) : undefined,
       affiliateBps: Number(storedQuote.affiliateBps),
       shapeshiftBps: Number(storedQuote.shapeshiftBps),

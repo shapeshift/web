@@ -16,11 +16,12 @@ import {
   polygon,
   solana,
 } from '@reown/appkit/networks'
-import { createAppKit } from '@reown/appkit/react'
+import { createAppKit, modal } from '@reown/appkit/react'
 import { BitcoinAdapter } from '@reown/appkit-adapter-bitcoin'
 import { SolanaAdapter } from '@reown/appkit-adapter-solana/react'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets'
+import type { Config } from 'wagmi'
 
 const EVM_NETWORKS: readonly AppKitNetwork[] = [
   mainnet,
@@ -40,17 +41,28 @@ const EVM_NETWORKS: readonly AppKitNetwork[] = [
 
 const ALL_NETWORKS: readonly AppKitNetwork[] = [...EVM_NETWORKS, bitcoin, solana]
 
-let wagmiAdapter: WagmiAdapter | null = null
-let appKitInitialized = false
+// AppKit keeps a module-level `modal` singleton, set by `createAppKit` whether
+// it's called by this widget (self-init) or by the host app. Reading it lets the
+// widget detect — and hook into — an AppKit the host already initialized, as long
+// as `@reown/appkit*` is deduped to a single shared copy in the consumer's tree.
+export const isAppKitInitialized = (): boolean => modal !== undefined
 
-export const getWagmiAdapter = (): WagmiAdapter | null => wagmiAdapter
-
-export const isAppKitInitialized = (): boolean => appKitInitialized
+// The active wagmi Config, read off the AppKit singleton's EVM adapter. Works in
+// both modes — self-init (we registered the adapter via createAppKit) and
+// host-owned (the host's adapter). Because the widget can pull the shared config
+// from the singleton, it builds its own WagmiProvider from it — so a host only
+// needs to call `createAppKit()`, with no WagmiProvider/QueryClient wrapping.
+export const getActiveWagmiConfig = (): Config | undefined => {
+  const evmAdapter = modal?.chainAdapters?.eip155 as WagmiAdapter | undefined
+  return evmAdapter?.wagmiConfig
+}
 
 export const initializeAppKit = (projectId: string): void => {
-  if (appKitInitialized) return
+  // Already initialized — either by a previous call here, or by the host app. In
+  // the latter case we skip entirely and reuse the host's AppKit + wagmi config.
+  if (modal) return
 
-  wagmiAdapter = new WagmiAdapter({
+  const wagmiAdapter = new WagmiAdapter({
     networks: [...EVM_NETWORKS],
     projectId,
   })
@@ -68,6 +80,4 @@ export const initializeAppKit = (projectId: string): void => {
       send: false,
     },
   })
-
-  appKitInitialized = true
 }

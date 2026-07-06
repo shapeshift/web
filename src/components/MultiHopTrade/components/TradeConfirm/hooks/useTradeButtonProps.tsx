@@ -1,6 +1,6 @@
 import type { SupportedTradeQuoteStepIndex, Swap, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import {
-  buildSwapperTrackingMetadata,
+  buildSwapperMetadata,
   SwapStatus,
   TransactionExecutionState,
 } from '@shapeshiftoss/swapper'
@@ -120,7 +120,7 @@ export const useTradeButtonProps = ({
       expectedBuyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
       sellAmountCryptoPrecision: sellAmountCrypto.toPrecision(),
       expectedBuyAmountCryptoPrecision: expectedBuyAmountCrypto.toPrecision(),
-      metadata: buildSwapperTrackingMetadata(firstStep, {
+      metadata: buildSwapperMetadata(firstStep, {
         stepIndex: currentHopIndex,
         quoteId: firstStep?.stonfiSpecific?.quoteId ?? activeQuote.id,
         relayerTxHash,

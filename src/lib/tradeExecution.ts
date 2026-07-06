@@ -23,7 +23,7 @@ import type {
   UtxoTransactionExecutionInput,
 } from '@shapeshiftoss/swapper'
 import {
-  buildSwapperTrackingMetadata,
+  buildSwapperMetadata,
   getExecutableTradeStep,
   getHopByIndex,
   isExecutableTradeQuote,
@@ -197,7 +197,7 @@ export class TradeExecution {
         receiveAddress: tradeQuote.receiveAddress,
         status: SwapStatus.Pending,
         metadata: firstStep
-          ? buildSwapperTrackingMetadata(firstStep, {
+          ? buildSwapperMetadata(firstStep, {
               stepIndex,
               quoteId: firstStep.stonfiSpecific?.quoteId ?? swap.metadata.quoteId,
               relayerTxHash: swap.metadata.relayerTxHash,

@@ -15,7 +15,7 @@ export type BobGatewayMetadata = { orderId: string } & (
   | { utxoTx: BobGatewayUtxoTxMetadata; evmTx?: never }
 )
 
-export type BobTrackingMetadata = {
+export type BobMetadata = {
   swapper: 'bob'
   orderId: string
 }

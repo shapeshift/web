@@ -1,4 +1,4 @@
-import type { SwapperTrackingMetadata } from '@shapeshiftoss/swapper'
+import type { SwapperMetadata } from '@shapeshiftoss/swapper'
 
 export type StoredQuote = {
   quoteId: string
@@ -17,7 +17,7 @@ export type StoredQuote = {
   rate: string
   createdAt: number
   expiresAt: number
-  metadata: SwapperTrackingMetadata
+  metadata: SwapperMetadata
   txHash?: string
   registeredAt?: number
   status: 'pending' | 'submitted' | 'confirmed' | 'failed'

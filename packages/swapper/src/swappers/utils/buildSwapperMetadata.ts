@@ -1,13 +1,13 @@
 import { SwapperName } from '../../types'
-import type { CommonTrackingMetadata, SwapperTrackingMetadata, TradeQuoteStep } from '../../types'
+import type { CommonSwapperMetadata, SwapperMetadata, TradeQuoteStep } from '../../types'
 
 // Builds a swap's flat tracking metadata from its (first) step: common fields intersected with the
 // swapper-specific tracking variant. Shared by the public-api quote store and the web app so the
 // two stay in lockstep. Swappers with no swapper-specific tracking fall through to common-only.
-export const buildSwapperTrackingMetadata = (
+export const buildSwapperMetadata = (
   step: TradeQuoteStep,
-  common: CommonTrackingMetadata,
-): SwapperTrackingMetadata => {
+  common: CommonSwapperMetadata,
+): SwapperMetadata => {
   if (step.relayTransactionMetadata) {
     const data = step.transactionData?.type === 'evm' ? step.transactionData.data : undefined
 

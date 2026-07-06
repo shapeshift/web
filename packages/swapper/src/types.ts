@@ -43,14 +43,14 @@ import type Polyglot from 'node-polyglot'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import type { AcrossTransactionMetadata } from './swappers/AcrossSwapper/utils/types'
-import type { BobGatewayMetadata, BobTrackingMetadata } from './swappers/BobGatewaySwapper/types'
+import type { BobGatewayMetadata, BobMetadata } from './swappers/BobGatewaySwapper/types'
 import type { ButterSwapTransactionMetadata } from './swappers/ButterSwap/types'
-import type { ChainflipTrackingMetadata } from './swappers/ChainflipSwapper/types'
+import type { ChainflipMetadata } from './swappers/ChainflipSwapper/types'
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
-import type { DebridgeTrackingMetadata } from './swappers/DebridgeSwapper/utils/types'
-import type { NearIntentsTrackingMetadata } from './swappers/NearIntentsSwapper/types'
+import type { DebridgeMetadata } from './swappers/DebridgeSwapper/utils/types'
+import type { NearIntentsMetadata } from './swappers/NearIntentsSwapper/types'
 import type {
-  RelayTrackingMetadata,
+  RelayMetadata,
   RelayTransactionMetadata,
 } from './swappers/RelaySwapper/utils/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
@@ -567,25 +567,21 @@ export type SwapExecutionMetadata = {
   inboundAddress?: string
 }
 
-export type CommonTrackingMetadata = {
-  // Identity — every swap has these.
+export type CommonSwapperMetadata = {
   stepIndex: SupportedTradeQuoteStepIndex
   quoteId: string
-  // Runtime-discovered, subset-of-swappers tracking. Orthogonal to `swapper` (e.g. a Chainflip
-  // streaming swap has both `chainflipSwapId` and `streamingSwapMetadata`), so they live here as
-  // optionals rather than inside the discriminated variants.
-  relayerTxHash?: string // bridged/relayer swaps only (ButterSwap, Portals, ...)
-  relayerExplorerTxLink?: string // bridged/relayer swaps only
-  streamingSwapMetadata?: StreamingSwapMetadata // THORChain + Chainflip streaming only
+  relayerTxHash?: string
+  relayerExplorerTxLink?: string
+  streamingSwapMetadata?: StreamingSwapMetadata
 }
 
-export type SwapperTrackingMetadata = CommonTrackingMetadata &
+export type SwapperMetadata = CommonSwapperMetadata &
   (
-    | RelayTrackingMetadata
-    | DebridgeTrackingMetadata
-    | BobTrackingMetadata
-    | ChainflipTrackingMetadata
-    | NearIntentsTrackingMetadata
+    | RelayMetadata
+    | DebridgeMetadata
+    | BobMetadata
+    | ChainflipMetadata
+    | NearIntentsMetadata
     | { swapper?: undefined }
   )
 
@@ -617,7 +613,7 @@ export type Swap = {
   sellAmountCryptoPrecision: string
   expectedBuyAmountCryptoPrecision: string
   txLink?: string
-  metadata: SwapperTrackingMetadata
+  metadata: SwapperMetadata
   isStreaming?: boolean
 }
 

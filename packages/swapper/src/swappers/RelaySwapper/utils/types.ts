@@ -28,7 +28,7 @@ export type RelayTransactionMetadata = {
   orderId: string | undefined
 }
 
-export type RelayTrackingMetadata = {
+export type RelayMetadata = {
   swapper: 'relay'
   relayId: string
   orderId?: string

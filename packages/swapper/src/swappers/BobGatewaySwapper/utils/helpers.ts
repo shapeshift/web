@@ -174,26 +174,36 @@ export const createBobGatewayOrderMetadata = async (
       })
     }
 
-    // offramp (EVM→BTC) and tokenSwap (EVM→EVM) orders share the same tx shape
-    const order = 'offramp' in orderResponse ? orderResponse.offramp : orderResponse.tokenSwap
-    if (
-      !('to' in order.tx) ||
-      !('data' in order.tx) ||
-      !('value' in order.tx) ||
-      !('chain' in order.tx)
-    ) {
-      throw new Error('[BobGateway] unsupported order transaction type')
+    // offramp (EVM→BTC)
+    if ('offramp' in orderResponse) {
+      if (orderResponse.offramp.tx.type === 'evm') {
+        return Ok({
+          orderId: orderResponse.offramp.orderId,
+          evmTx: {
+            to: orderResponse.offramp.tx.to,
+            data: orderResponse.offramp.tx.data,
+            value: orderResponse.offramp.tx.value,
+            chain: orderResponse.offramp.tx.chain,
+          },
+        })
+      }
     }
 
-    return Ok({
-      orderId: order.orderId,
-      evmTx: {
-        to: order.tx.to,
-        data: order.tx.data,
-        value: order.tx.value,
-        chain: order.tx.chain,
-      },
-    })
+    if ('tokenSwap' in orderResponse) {
+      if (orderResponse.tokenSwap.tx.type === 'evm') {
+        return Ok({
+          orderId: orderResponse.tokenSwap.orderId,
+          evmTx: {
+            to: orderResponse.tokenSwap.tx.to,
+            data: orderResponse.tokenSwap.tx.data,
+            value: orderResponse.tokenSwap.tx.value,
+            chain: orderResponse.tokenSwap.tx.chain,
+          },
+        })
+      }
+    }
+
+    throw new Error('Unknown order type')
   } catch (err) {
     if (isGatewayError(err) && err.code === GatewayErrorCode.InsufficientConfirmedFunds) {
       return Err(

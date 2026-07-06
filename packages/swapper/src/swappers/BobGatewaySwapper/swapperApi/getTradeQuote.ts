@@ -1,3 +1,4 @@
+import { fromChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -12,6 +13,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import { evmTxBuildData, utxoTxBuildData } from '../../utils/toTxBuildData'
 import {
   assertValidTrade,
   createBobGatewayOrderMetadata,
@@ -133,6 +135,20 @@ export const getBobGatewayTradeQuote = async (
         allowanceContract,
         estimatedExecutionTimeMs,
         bobSpecific: orderMetadata,
+        transactionData: orderMetadata.evmTx
+          ? evmTxBuildData({
+              chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+              to: orderMetadata.evmTx.to,
+              data: orderMetadata.evmTx.data,
+              value: orderMetadata.evmTx.value,
+            })
+          : orderMetadata.utxoTx
+          ? utxoTxBuildData({
+              to: orderMetadata.utxoTx.depositAddress,
+              opReturnData: orderMetadata.utxoTx.opReturnData ?? '',
+              value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            })
+          : undefined,
       },
     ],
   }

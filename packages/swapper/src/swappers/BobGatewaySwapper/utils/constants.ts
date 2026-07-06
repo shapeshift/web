@@ -8,6 +8,9 @@ import {
   bscChainId,
   btcChainId,
   ethChainId,
+  hyperEvmChainId,
+  plasmaChainId,
+  polygonChainId,
   seiChainId,
   sonicChainId,
   unichainChainId,
@@ -30,6 +33,9 @@ export const chainIdToBobGatewayChainName = {
   [seiChainId]: 'sei',
   [sonicChainId]: 'sonic',
   [unichainChainId]: 'unichain',
+  [plasmaChainId]: 'plasma',
+  [polygonChainId]: 'polygon',
+  [hyperEvmChainId]: 'hyperevm',
 } as const
 
 export const bobGatewayChainNameToChainId = Object.fromEntries(

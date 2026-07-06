@@ -47,10 +47,8 @@ import type { BobGatewayMetadata, BobTrackingMetadata } from './swappers/BobGate
 import type { ButterSwapTransactionMetadata } from './swappers/ButterSwap/types'
 import type { ChainflipTrackingMetadata } from './swappers/ChainflipSwapper/types'
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
-import type {
-  DebridgeTrackingMetadata,
-  DebridgeTransactionMetadata,
-} from './swappers/DebridgeSwapper/utils/types'
+import type { NearIntentsTrackingMetadata } from './swappers/NearIntentsSwapper/types'
+import type { DebridgeTrackingMetadata } from './swappers/DebridgeSwapper/utils/types'
 import type {
   RelayTrackingMetadata,
   RelayTransactionMetadata,
@@ -516,7 +514,6 @@ export type TradeQuoteStep = {
     params?: unknown
   }
   acrossTransactionMetadata?: AcrossTransactionMetadata
-  debridgeTransactionMetadata?: DebridgeTransactionMetadata
   bobSpecific?: BobGatewayMetadata
   affiliateFee?: AffiliateFee
 }
@@ -570,30 +567,27 @@ export type SwapExecutionMetadata = {
   inboundAddress?: string
 }
 
-export type SwapperTrackingMetadata =
-  | RelayTrackingMetadata
-  | DebridgeTrackingMetadata
-  | BobTrackingMetadata
-  | ChainflipTrackingMetadata
-
-export type SwapperSpecificMetadata = {
-  chainflipSwapId: number | string | undefined
-  nearIntentsSpecific?: {
-    depositAddress: string
-    depositMemo?: string
-    timeEstimate: number
-    deadline: string
-  }
-  relayTransactionMetadata: RelayTransactionMetadata | undefined
-  debridgeTransactionMetadata: DebridgeTransactionMetadata | undefined
-  bobSpecific?: BobGatewayMetadata
-  relayerExplorerTxLink: string | undefined
-  relayerTxHash: string | undefined
+// Fields common to every swap's tracking metadata, independent of swapper.
+export type CommonTrackingMetadata = {
   stepIndex: SupportedTradeQuoteStepIndex
   quoteId: string
+  relayerTxHash: string | undefined
+  relayerExplorerTxLink: string | undefined
   streamingSwapMetadata: StreamingSwapMetadata | undefined
-  swapperMetadata?: SwapperTrackingMetadata
 }
+
+// A swap's `metadata` IS this flat discriminated union: common fields intersected with the
+// per-swapper tracking variant (narrow on `metadata.swapper`). Swappers with no swapper-specific
+// tracking (thorchain, zrx, ...) use the `{ swapper?: undefined }` member.
+export type SwapperTrackingMetadata = CommonTrackingMetadata &
+  (
+    | RelayTrackingMetadata
+    | DebridgeTrackingMetadata
+    | BobTrackingMetadata
+    | ChainflipTrackingMetadata
+    | NearIntentsTrackingMetadata
+    | { swapper?: undefined }
+  )
 
 export enum SwapStatus {
   Idle = 'idle',
@@ -623,7 +617,7 @@ export type Swap = {
   sellAmountCryptoPrecision: string
   expectedBuyAmountCryptoPrecision: string
   txLink?: string
-  metadata: SwapperSpecificMetadata
+  metadata: SwapperTrackingMetadata
   isStreaming?: boolean
 }
 

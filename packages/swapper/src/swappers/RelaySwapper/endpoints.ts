@@ -162,8 +162,7 @@ export const relayApi: SwapperApi = {
 
     if (!swap) throw new Error('Missing swap')
 
-    const relayMetadata =
-      swap.metadata.swapperMetadata?.swapper === 'relay' ? swap.metadata.swapperMetadata : undefined
+    const relayMetadata = swap.metadata.swapper === 'relay' ? swap.metadata : undefined
     if (!relayMetadata) throw new Error('Missing swap metadata')
 
     if (maybeSafeTransactionStatus) {

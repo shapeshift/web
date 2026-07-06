@@ -242,7 +242,8 @@ export const chainflipApi: SwapperApi = {
   },
   getTronTransactionFees,
   checkTradeStatus: async ({ config, swap }) => {
-    const chainflipSwapId = swap?.metadata.chainflipSwapId
+    const chainflipSwapId =
+      swap?.metadata.swapper === 'chainflip' ? swap.metadata.chainflipSwapId : undefined
     if (chainflipSwapId == null) throw Error(`chainflipSwapId is required`)
 
     const brokerUrl = config.VITE_CHAINFLIP_API_URL

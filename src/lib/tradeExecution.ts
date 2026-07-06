@@ -23,6 +23,7 @@ import type {
   UtxoTransactionExecutionInput,
 } from '@shapeshiftoss/swapper'
 import {
+  buildSwapperTrackingMetadata,
   getExecutableTradeStep,
   getHopByIndex,
   isExecutableTradeQuote,
@@ -188,20 +189,22 @@ export class TradeExecution {
         throw new Error('Swap not found')
       }
 
+      const firstStep = tradeQuote.steps[0]
+
       const updatedSwap = {
         ...swap,
         sellTxHash,
         receiveAddress: tradeQuote.receiveAddress,
         status: SwapStatus.Pending,
-        metadata: {
-          ...swap.metadata,
-          chainflipSwapId: tradeQuote.steps[0]?.chainflipSpecific?.chainflipSwapId,
-          nearIntentsSpecific: tradeQuote.steps[0]?.nearIntentsSpecific,
-          bobSpecific: tradeQuote.steps[0]?.bobSpecific,
-          relayTransactionMetadata: tradeQuote.steps[0]?.relayTransactionMetadata,
-          quoteId: tradeQuote.steps[0]?.stonfiSpecific?.quoteId ?? swap.metadata.quoteId,
-          stepIndex,
-        },
+        metadata: firstStep
+          ? buildSwapperTrackingMetadata(firstStep, {
+              stepIndex,
+              quoteId: firstStep.stonfiSpecific?.quoteId ?? swap.metadata.quoteId,
+              relayerTxHash: swap.metadata.relayerTxHash,
+              relayerExplorerTxLink: swap.metadata.relayerExplorerTxLink,
+              streamingSwapMetadata: swap.metadata.streamingSwapMetadata,
+            })
+          : swap.metadata,
       }
 
       store.dispatch(swapSlice.actions.upsertSwap(updatedSwap))

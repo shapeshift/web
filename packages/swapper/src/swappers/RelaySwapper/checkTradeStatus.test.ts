@@ -20,11 +20,11 @@ import { relayApi } from './endpoints'
 import { notifyTransactionIndexing } from './utils/notifyTransactionIndexing'
 
 describe('relay checkTradeStatus', () => {
-  it('reads swapperMetadata and posts calldata to the indexer', async () => {
+  it('reads relay tracking metadata and posts calldata to the indexer', async () => {
     await relayApi.checkTradeStatus!({
       swap: {
         id: 's1',
-        metadata: { swapperMetadata: { swapper: 'relay', relayId: 'req_9', data: '0xcalldata' } },
+        metadata: { swapper: 'relay', relayId: 'req_9', data: '0xcalldata' },
       } as any,
       txHash: '0xhash',
       chainId: 'eip155:1',

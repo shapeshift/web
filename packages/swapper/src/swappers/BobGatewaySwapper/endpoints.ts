@@ -136,7 +136,7 @@ export const bobGatewayApi: SwapperApi = {
   checkTradeStatus: async ({ swap, config, txHash }) => {
     if (!swap) throw new Error('[BobGateway] swap is required for status check')
 
-    const orderId = swap.metadata.bobSpecific?.orderId
+    const orderId = swap.metadata.swapper === 'bob' ? swap.metadata.orderId : undefined
     if (!orderId) throw new Error('[BobGateway] orderId is required for status check')
 
     if (txHash && !registeredSwapIds.has(swap.id)) {

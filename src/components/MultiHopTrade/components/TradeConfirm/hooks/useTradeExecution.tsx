@@ -295,7 +295,11 @@ export const useTradeExecution = (
                     ...currentSwap,
                     ...(actualBuyAmountCryptoBaseUnit && { actualBuyAmountCryptoBaseUnit }),
                     ...(chainflipSwapId && {
-                      metadata: { ...currentSwap.metadata, chainflipSwapId },
+                      metadata: {
+                        ...currentSwap.metadata,
+                        swapper: 'chainflip' as const,
+                        chainflipSwapId,
+                      },
                     }),
                   }),
                 )

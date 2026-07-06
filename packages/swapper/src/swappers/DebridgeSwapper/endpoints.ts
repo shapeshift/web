@@ -29,10 +29,10 @@ export const debridgeApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { debridgeTransactionMetadata, sellAsset } = step
-    if (!debridgeTransactionMetadata) throw new Error('Missing deBridge transaction metadata')
+    const { transactionData, sellAsset } = step
+    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
 
-    const { to, value, data, gasLimit: gasLimitFromApi } = debridgeTransactionMetadata
+    const { to, value, data, gasLimit: gasLimitFromApi } = transactionData
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
@@ -66,10 +66,10 @@ export const debridgeApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { accountNumber, debridgeTransactionMetadata, sellAsset } = step
-    if (!debridgeTransactionMetadata) throw new Error('Missing deBridge transaction metadata')
+    const { accountNumber, transactionData, sellAsset } = step
+    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
 
-    const { to, value, data, gasLimit: gasLimitFromApi } = debridgeTransactionMetadata
+    const { to, value, data, gasLimit: gasLimitFromApi } = transactionData
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
@@ -137,7 +137,8 @@ export const debridgeApi: SwapperApi = {
     fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
   }) => {
-    const isSameChainSwap = swap?.metadata.debridgeTransactionMetadata?.isSameChainSwap === true
+    const isSameChainSwap =
+      swap?.metadata.swapper === 'debridge' && swap.metadata.isSameChainSwap === true
 
     if (isSameChainSwap) {
       return checkEvmSwapStatus({

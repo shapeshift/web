@@ -2,6 +2,7 @@ import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { GetTradeQuoteInputWithWallet } from '@shapeshiftoss/swapper'
 import {
+  buildSwapperTrackingMetadata,
   getDefaultSlippageDecimalPercentageForSwapper,
   getTradeQuotes,
   SwapperName,
@@ -18,7 +19,6 @@ import { registry } from '../../registry'
 import { getSwapperDeps } from '../../swapperDeps'
 import type { ErrorResponse } from '../../types'
 import { PartnerCodeHeaderSchema, rateLimitResponse } from '../../types'
-import { buildSwapperMetadata } from './buildSwapperMetadata'
 import type { QuoteResponse } from './types'
 import { QuoteRequestSchema, QuoteResponseSchema } from './types'
 import { buildApprovalInfo, transformQuoteStep } from './utils'
@@ -193,18 +193,13 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       partnerCode: req.affiliateInfo?.partnerCode,
       createdAt: now,
       expiresAt: now + QuoteStore.QUOTE_TTL_MS,
-      metadata: {
-        chainflipSwapId: step.chainflipSpecific?.chainflipSwapId,
-        nearIntentsSpecific: step.nearIntentsSpecific,
-        relayTransactionMetadata: step.relayTransactionMetadata,
-        debridgeTransactionMetadata: step.debridgeTransactionMetadata,
-        swapperMetadata: buildSwapperMetadata(step),
-        relayerExplorerTxLink: undefined,
-        relayerTxHash: undefined,
+      metadata: buildSwapperTrackingMetadata(step, {
         stepIndex: 0,
         quoteId,
+        relayerTxHash: undefined,
+        relayerExplorerTxLink: undefined,
         streamingSwapMetadata: undefined,
-      },
+      }),
       status: 'pending',
     })
 

@@ -1,5 +1,13 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
 
+export type NearIntentsTrackingMetadata = {
+  swapper: 'nearIntents'
+  depositAddress: string
+  depositMemo?: string
+  timeEstimate: number
+  deadline: string
+}
+
 export { QuoteRequest } from '@defuse-protocol/one-click-sdk-typescript'
 export type {
   GetExecutionStatusResponse,

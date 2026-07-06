@@ -1,5 +1,9 @@
 import type { SupportedTradeQuoteStepIndex, Swap, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { SwapStatus, TransactionExecutionState } from '@shapeshiftoss/swapper'
+import {
+  buildSwapperTrackingMetadata,
+  SwapStatus,
+  TransactionExecutionState,
+} from '@shapeshiftoss/swapper'
 import { BigAmount } from '@shapeshiftoss/utils'
 import { useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -116,33 +120,17 @@ export const useTradeButtonProps = ({
       expectedBuyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
       sellAmountCryptoPrecision: sellAmountCrypto.toPrecision(),
       expectedBuyAmountCryptoPrecision: expectedBuyAmountCrypto.toPrecision(),
-      metadata: {
-        chainflipSwapId: firstStep?.chainflipSpecific?.chainflipSwapId,
-        nearIntentsSpecific: firstStep?.nearIntentsSpecific,
-        bobSpecific: firstStep?.bobSpecific,
-        relayerExplorerTxLink,
-        relayerTxHash,
-        relayTransactionMetadata: firstStep?.relayTransactionMetadata,
-        debridgeTransactionMetadata: firstStep?.debridgeTransactionMetadata,
+      metadata: buildSwapperTrackingMetadata(firstStep, {
         stepIndex: currentHopIndex,
         quoteId: firstStep?.stonfiSpecific?.quoteId ?? activeQuote.id,
+        relayerTxHash,
+        relayerExplorerTxLink,
         streamingSwapMetadata: {
           maxSwapCount: firstStep.thorchainSpecific?.maxStreamingQuantity ?? 0,
           attemptedSwapCount: 0,
           failedSwaps: [],
         },
-        swapperMetadata: firstStep?.relayTransactionMetadata
-          ? {
-              swapper: 'relay' as const,
-              relayId: firstStep.relayTransactionMetadata.relayId,
-              orderId: firstStep.relayTransactionMetadata.orderId,
-              data:
-                firstStep.transactionData?.type === 'evm'
-                  ? firstStep.transactionData.data
-                  : undefined,
-            }
-          : undefined,
-      },
+      }),
       isStreaming: activeQuote.isStreaming,
       status: SwapStatus.Idle,
     }

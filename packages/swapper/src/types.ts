@@ -47,8 +47,8 @@ import type { BobGatewayMetadata, BobTrackingMetadata } from './swappers/BobGate
 import type { ButterSwapTransactionMetadata } from './swappers/ButterSwap/types'
 import type { ChainflipTrackingMetadata } from './swappers/ChainflipSwapper/types'
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
-import type { NearIntentsTrackingMetadata } from './swappers/NearIntentsSwapper/types'
 import type { DebridgeTrackingMetadata } from './swappers/DebridgeSwapper/utils/types'
+import type { NearIntentsTrackingMetadata } from './swappers/NearIntentsSwapper/types'
 import type {
   RelayTrackingMetadata,
   RelayTransactionMetadata,
@@ -567,18 +567,18 @@ export type SwapExecutionMetadata = {
   inboundAddress?: string
 }
 
-// Fields common to every swap's tracking metadata, independent of swapper.
 export type CommonTrackingMetadata = {
+  // Identity — every swap has these.
   stepIndex: SupportedTradeQuoteStepIndex
   quoteId: string
-  relayerTxHash: string | undefined
-  relayerExplorerTxLink: string | undefined
-  streamingSwapMetadata: StreamingSwapMetadata | undefined
+  // Runtime-discovered, subset-of-swappers tracking. Orthogonal to `swapper` (e.g. a Chainflip
+  // streaming swap has both `chainflipSwapId` and `streamingSwapMetadata`), so they live here as
+  // optionals rather than inside the discriminated variants.
+  relayerTxHash?: string // bridged/relayer swaps only (ButterSwap, Portals, ...)
+  relayerExplorerTxLink?: string // bridged/relayer swaps only
+  streamingSwapMetadata?: StreamingSwapMetadata // THORChain + Chainflip streaming only
 }
 
-// A swap's `metadata` IS this flat discriminated union: common fields intersected with the
-// per-swapper tracking variant (narrow on `metadata.swapper`). Swappers with no swapper-specific
-// tracking (thorchain, zrx, ...) use the `{ swapper?: undefined }` member.
 export type SwapperTrackingMetadata = CommonTrackingMetadata &
   (
     | RelayTrackingMetadata

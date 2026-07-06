@@ -193,13 +193,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       partnerCode: req.affiliateInfo?.partnerCode,
       createdAt: now,
       expiresAt: now + QuoteStore.QUOTE_TTL_MS,
-      metadata: buildSwapperTrackingMetadata(step, {
-        stepIndex: 0,
-        quoteId,
-        relayerTxHash: undefined,
-        relayerExplorerTxLink: undefined,
-        streamingSwapMetadata: undefined,
-      }),
+      metadata: buildSwapperTrackingMetadata(step, { stepIndex: 0, quoteId }),
       status: 'pending',
     })
 

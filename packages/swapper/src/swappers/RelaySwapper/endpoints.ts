@@ -12,6 +12,7 @@ import {
   getExecutableTradeStep,
   isExecutableTradeQuote,
 } from '../../utils'
+import { getSwapperMetadata } from '../utils/getSwapperMetadata'
 import { chainIdToRelayChainId } from './constant'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
@@ -162,8 +163,7 @@ export const relayApi: SwapperApi = {
 
     if (!swap) throw new Error('Missing swap')
 
-    const relayMetadata = swap.metadata.swapper === 'relay' ? swap.metadata : undefined
-    if (!relayMetadata) throw new Error('Missing swap metadata')
+    const relayMetadata = getSwapperMetadata(swap.metadata, 'relay')
 
     if (maybeSafeTransactionStatus) {
       // return any safe transaction status that has not yet executed on chain (no buyTxHash)

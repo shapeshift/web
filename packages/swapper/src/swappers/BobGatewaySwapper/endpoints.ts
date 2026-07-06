@@ -5,6 +5,7 @@ import { bnOrZero } from '@shapeshiftoss/utils'
 
 import type { SwapperApi, UtxoFeeData } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
+import { getSwapperMetadata } from '../utils/getSwapperMetadata'
 import { getBobGatewayTradeQuote } from './swapperApi/getTradeQuote'
 import { getBobGatewayTradeRate } from './swapperApi/getTradeRate'
 import {
@@ -140,8 +141,7 @@ export const bobGatewayApi: SwapperApi = {
   checkTradeStatus: async ({ swap, config, txHash }) => {
     if (!swap) throw new Error('[BobGateway] swap is required for status check')
 
-    const orderId = swap.metadata.swapper === 'bob' ? swap.metadata.orderId : undefined
-    if (!orderId) throw new Error('[BobGateway] orderId is required for status check')
+    const { orderId } = getSwapperMetadata(swap.metadata, 'bob')
 
     if (txHash && !registeredSwapIds.has(swap.id)) {
       try {

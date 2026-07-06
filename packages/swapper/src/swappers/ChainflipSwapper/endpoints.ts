@@ -5,6 +5,7 @@ import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
 import type { SwapperApi, UtxoFeeData } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
+import { getSwapperMetadata } from '../utils/getSwapperMetadata'
 import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { ChainflipStatusMessage } from './constants'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
@@ -242,9 +243,9 @@ export const chainflipApi: SwapperApi = {
   },
   getTronTransactionFees,
   checkTradeStatus: async ({ config, swap }) => {
-    const chainflipSwapId =
-      swap?.metadata.swapper === 'chainflip' ? swap.metadata.chainflipSwapId : undefined
-    if (chainflipSwapId == null) throw Error(`chainflipSwapId is required`)
+    if (!swap) throw new Error('Missing swap')
+
+    const { chainflipSwapId } = getSwapperMetadata(swap.metadata, 'chainflip')
 
     const brokerUrl = config.VITE_CHAINFLIP_API_URL
     const apiKey = config.VITE_CHAINFLIP_API_KEY

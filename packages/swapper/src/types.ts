@@ -43,16 +43,14 @@ import type Polyglot from 'node-polyglot'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import type { AcrossTransactionMetadata } from './swappers/AcrossSwapper/utils/types'
+import type { ArbitrumBridgeMetadata } from './swappers/ArbitrumBridgeSwapper/types'
 import type { BobGatewayMetadata, BobMetadata } from './swappers/BobGatewaySwapper/types'
 import type { ButterSwapTransactionMetadata } from './swappers/ButterSwap/types'
 import type { ChainflipMetadata } from './swappers/ChainflipSwapper/types'
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { DebridgeMetadata } from './swappers/DebridgeSwapper/utils/types'
 import type { NearIntentsMetadata } from './swappers/NearIntentsSwapper/types'
-import type {
-  RelayMetadata,
-  RelayTransactionMetadata,
-} from './swappers/RelaySwapper/utils/types'
+import type { RelayMetadata, RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
@@ -439,9 +437,10 @@ export type TradeQuoteStep = {
   allowanceContract: string
   estimatedExecutionTimeMs: number | undefined
   permit2Eip712?: TypedData
-  // Generic, chain-tx-kind-keyed build payload. New home for build data; per-swapper
-  // *TransactionMetadata fields remain during migration. See metadata-split spec.
+  // Generic build payload (per-tx). Swapper-specific tracking metadata goes on `swapperMetadata`.
   transactionData?: TxBuildData
+  // Swapper-specific tracking metadata (same union as Swap.metadata, minus the common fields).
+  swapperMetadata?: SwapperMetadataVariant
   bebopSolanaSerializedTx?: string
   bebopQuoteId?: string
   solanaTransactionMetadata?: {
@@ -575,15 +574,18 @@ export type CommonSwapperMetadata = {
   streamingSwapMetadata?: StreamingSwapMetadata
 }
 
-export type SwapperMetadata = CommonSwapperMetadata &
-  (
-    | RelayMetadata
-    | DebridgeMetadata
-    | BobMetadata
-    | ChainflipMetadata
-    | NearIntentsMetadata
-    | { swapper?: undefined }
-  )
+// The single swapper-specific metadata union, discriminated on `swapper`. Lives on both
+// TradeQuoteStep (`swapperMetadata`) and Swap (`metadata`, intersected with the common fields).
+export type SwapperMetadataVariant =
+  | RelayMetadata
+  | DebridgeMetadata
+  | BobMetadata
+  | ChainflipMetadata
+  | NearIntentsMetadata
+  | ArbitrumBridgeMetadata
+  | { swapper?: undefined }
+
+export type SwapperMetadata = CommonSwapperMetadata & SwapperMetadataVariant
 
 export enum SwapStatus {
   Idle = 'idle',

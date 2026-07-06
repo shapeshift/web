@@ -1,18 +1,18 @@
 import { SwapperName } from '../../types'
-import type { CommonSwapperMetadata, SwapperMetadata, TradeQuoteStep } from '../../types'
+import type {
+  CommonSwapperMetadata,
+  SwapperMetadata,
+  SwapperMetadataVariant,
+  TradeQuoteStep,
+} from '../../types'
 
-// Builds a swap's flat tracking metadata from its (first) step: common fields intersected with the
-// swapper-specific tracking variant. Shared by the public-api quote store and the web app so the
-// two stay in lockstep. Swappers with no swapper-specific tracking fall through to common-only.
-export const buildSwapperMetadata = (
-  step: TradeQuoteStep,
-  common: CommonSwapperMetadata,
-): SwapperMetadata => {
+// Derives the swapper-specific variant from a step's legacy per-swapper fields. Transitional
+// fallback for swappers that don't yet emit `step.swapperMetadata` directly — remove once all do.
+const deriveLegacyStepSwapperMetadata = (step: TradeQuoteStep): SwapperMetadataVariant => {
   if (step.relayTransactionMetadata) {
     const data = step.transactionData?.type === 'evm' ? step.transactionData.data : undefined
 
     return {
-      ...common,
       swapper: 'relay',
       relayId: step.relayTransactionMetadata.relayId,
       orderId: step.relayTransactionMetadata.orderId,
@@ -21,24 +21,17 @@ export const buildSwapperMetadata = (
   }
 
   if (step.source === SwapperName.Debridge) {
-    return {
-      ...common,
-      swapper: 'debridge',
-      isSameChainSwap: step.sellAsset.chainId === step.buyAsset.chainId,
-    }
+    return { swapper: 'debridge', isSameChainSwap: step.sellAsset.chainId === step.buyAsset.chainId }
   }
 
-  if (step.bobSpecific) {
-    return { ...common, swapper: 'bob', orderId: step.bobSpecific.orderId }
-  }
+  if (step.bobSpecific) return { swapper: 'bob', orderId: step.bobSpecific.orderId }
 
   if (step.chainflipSpecific?.chainflipSwapId != null) {
-    return { ...common, swapper: 'chainflip', chainflipSwapId: step.chainflipSpecific.chainflipSwapId }
+    return { swapper: 'chainflip', chainflipSwapId: step.chainflipSpecific.chainflipSwapId }
   }
 
   if (step.nearIntentsSpecific) {
     return {
-      ...common,
       swapper: 'nearIntents',
       depositAddress: step.nearIntentsSpecific.depositAddress,
       depositMemo: step.nearIntentsSpecific.depositMemo,
@@ -47,5 +40,16 @@ export const buildSwapperMetadata = (
     }
   }
 
-  return { ...common }
+  return {}
 }
+
+// Builds a swap's metadata from its (first) step: the swapper-specific variant (preferring the
+// step's own `swapperMetadata`, falling back to the legacy fields) intersected with the common
+// fields. Shared by the public-api quote store and the web app so the two stay in lockstep.
+export const buildSwapperMetadata = (
+  step: TradeQuoteStep,
+  common: CommonSwapperMetadata,
+): SwapperMetadata => ({
+  ...common,
+  ...(step.swapperMetadata ?? deriveLegacyStepSwapperMetadata(step)),
+})

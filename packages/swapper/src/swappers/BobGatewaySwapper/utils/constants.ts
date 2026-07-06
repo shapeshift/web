@@ -35,7 +35,7 @@ export const chainIdToBobGatewayChainName = {
   [unichainChainId]: 'unichain',
   [plasmaChainId]: 'plasma',
   [polygonChainId]: 'polygon',
-  [hyperEvmChainId]: 'hyperevm',
+  [hyperEvmChainId]: 'hyperliquid',
 } as const
 
 export const bobGatewayChainNameToChainId = Object.fromEntries(

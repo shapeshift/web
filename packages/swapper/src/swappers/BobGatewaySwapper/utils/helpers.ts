@@ -100,7 +100,7 @@ export const getBobGatewayQuote = async ({
       toUserAddress: recipient,
       amount,
       maxSlippage: Number(slippage),
-      ownerAddress: sender ?? recipient,
+      ownerAddress: sellChainName === 'bitcoin' ? recipient : (sender as string),
       affiliates: getBobGatewayAffiliates(affiliateBps),
     })
 

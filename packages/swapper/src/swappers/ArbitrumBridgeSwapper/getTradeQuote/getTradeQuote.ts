@@ -16,14 +16,16 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import type { ArbitrumBridgeTradeQuote, ArbitrumBridgeTradeRate } from '../types'
 import type { FetchArbitrumBridgeQuoteInput } from '../utils/fetchArbitrumBridgeSwap'
 import { fetchArbitrumBridgeQuote } from '../utils/fetchArbitrumBridgeSwap'
 import { assertValidTrade } from '../utils/helpers'
 
-export const isArbitrumBridgeTradeQuoteOrRate = (
+export const isArbitrumBridgeWithdrawal = (
   quote: TradeQuote | TradeRate | undefined,
-): quote is ArbitrumBridgeTradeQuote | ArbitrumBridgeTradeRate => !!quote && 'direction' in quote
+): boolean => {
+  const swapperMetadata = quote?.steps[0]?.swapperMetadata
+  return swapperMetadata?.swapper === 'arbitrumBridge' && swapperMetadata.direction === 'withdrawal'
+}
 
 export const getTradeQuoteWithWallet = async (
   inputWithWallet: GetEvmTradeQuoteInputWithWallet,
@@ -44,7 +46,7 @@ export const getTradeQuoteWithWallet = async (
 export async function getTradeQuote(
   input: GetEvmTradeQuoteInputBase,
   { assertGetEvmChainAdapter }: SwapperDeps,
-): Promise<Result<ArbitrumBridgeTradeQuote, SwapErrorRight>> {
+): Promise<Result<TradeQuote, SwapErrorRight>> {
   const {
     chainId,
     sellAsset,
@@ -110,9 +112,12 @@ export async function getTradeQuote(
             networkFeeCryptoBaseUnit: swap.networkFeeCryptoBaseUnit,
           },
           source: SwapperName.ArbitrumBridge,
+          swapperMetadata: {
+            swapper: 'arbitrumBridge' as const,
+            direction: isDeposit ? ('deposit' as const) : ('withdrawal' as const),
+          },
         },
       ] as SingleHopTradeQuoteSteps,
-      direction: isDeposit ? ('deposit' as const) : ('withdrawal' as const),
     })
   } catch (err) {
     return Err(

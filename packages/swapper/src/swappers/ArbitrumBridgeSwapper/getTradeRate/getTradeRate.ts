@@ -9,17 +9,17 @@ import type {
   SingleHopTradeRateSteps,
   SwapErrorRight,
   SwapperDeps,
+  TradeRate,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import type { ArbitrumBridgeTradeRate } from '../types'
 import { fetchArbitrumBridgePrice } from '../utils/fetchArbitrumBridgeSwap'
 import { assertValidTrade } from '../utils/helpers'
 
 export async function getTradeRate(
   input: GetEvmTradeRateInput,
   { assertGetEvmChainAdapter }: SwapperDeps,
-): Promise<Result<ArbitrumBridgeTradeRate, SwapErrorRight>> {
+): Promise<Result<TradeRate, SwapErrorRight>> {
   const {
     chainId,
     sellAsset,
@@ -86,9 +86,12 @@ export async function getTradeRate(
             networkFeeCryptoBaseUnit: swap.networkFeeCryptoBaseUnit,
           },
           source: SwapperName.ArbitrumBridge,
+          swapperMetadata: {
+            swapper: 'arbitrumBridge' as const,
+            direction: isDeposit ? ('deposit' as const) : ('withdrawal' as const),
+          },
         },
       ] as SingleHopTradeRateSteps,
-      direction: isDeposit ? ('deposit' as const) : ('withdrawal' as const),
     })
   } catch (err) {
     return Err(

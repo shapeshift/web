@@ -1,8 +1,8 @@
 import type {
-  GatewayOrderStatusV2,
-  GatewayQuoteV2,
+  GatewayOrderStatusV3,
+  GatewayQuoteV3,
   GetQuoteParams,
-  RegisterTxV2,
+  RegisterTxV3,
 } from '@gobob/bob-sdk'
 import { GatewayErrorCode, GatewaySDK, isGatewayError } from '@gobob/bob-sdk'
 import type { AssetId } from '@shapeshiftoss/caip'
@@ -84,7 +84,7 @@ export const getBobGatewayQuote = async ({
   amount: string
   affiliateBps: string
   slippageTolerancePercentageDecimal: string | undefined
-}): Promise<Result<GatewayQuoteV2, SwapErrorRight>> => {
+}): Promise<Result<GatewayQuoteV3, SwapErrorRight>> => {
   const slippage = decimalSlippageToBobBps(
     slippageTolerancePercentageDecimal ??
       getDefaultSlippageDecimalPercentageForSwapper(SwapperName.BobGateway),
@@ -100,6 +100,7 @@ export const getBobGatewayQuote = async ({
       toUserAddress: recipient,
       amount,
       maxSlippage: Number(slippage),
+      ownerAddress: sender ?? recipient,
       affiliates: getBobGatewayAffiliates(affiliateBps),
     })
 
@@ -155,11 +156,11 @@ export const getBobGatewayQuote = async ({
 
 export const createBobGatewayOrderMetadata = async (
   config: SwapperConfig,
-  gatewayQuote: GatewayQuoteV2,
+  gatewayQuote: GatewayQuoteV3,
 ): Promise<Result<BobGatewayMetadata, SwapErrorRight>> => {
   try {
-    const orderResponse = await getBobGatewayClient(config).api.createOrderV2({
-      gatewayQuoteV2: gatewayQuote,
+    const orderResponse = await getBobGatewayClient(config).api.createOrderV3({
+      gatewayQuoteV3: gatewayQuote,
     })
 
     // onramp (BTC→EVM)
@@ -175,6 +176,15 @@ export const createBobGatewayOrderMetadata = async (
 
     // offramp (EVM→BTC) and tokenSwap (EVM→EVM) orders share the same tx shape
     const order = 'offramp' in orderResponse ? orderResponse.offramp : orderResponse.tokenSwap
+    if (
+      !('to' in order.tx) ||
+      !('data' in order.tx) ||
+      !('value' in order.tx) ||
+      !('chain' in order.tx)
+    ) {
+      throw new Error('[BobGateway] unsupported order transaction type')
+    }
+
     return Ok({
       orderId: order.orderId,
       evmTx: {
@@ -218,22 +228,24 @@ export const registerBobGatewayTx = async ({
   sellAsset: Asset
   buyAsset: Asset
 }): Promise<void> => {
-  const registerTxV2: RegisterTxV2 = (() => {
+  const registerTxV3: RegisterTxV3 = (() => {
+    const sellChainName = chainIdToBobGatewayChainName[sellAsset.chainId]
+
     // BTC→EVM
-    if (chainIdToBobGatewayChainName[sellAsset.chainId] === 'bitcoin') {
+    if (sellChainName === 'bitcoin') {
       return { onramp: { orderId, bitcoinTxid: txHash } }
     }
 
     // EVM→BTC
     if (chainIdToBobGatewayChainName[buyAsset.chainId] === 'bitcoin') {
-      return { offramp: { orderId, evmTxhash: txHash } }
+      return { offramp: { orderId, srcChain: sellChainName, srcTxHash: txHash } }
     }
 
     // EVM→EVM
-    return { tokenSwap: { orderId, evmTxhash: txHash } }
+    return { tokenSwap: { orderId, srcChain: sellChainName, srcTxHash: txHash } }
   })()
 
-  await getBobGatewayClient(config).api.registerTxV2({ registerTxV2 })
+  await getBobGatewayClient(config).api.registerTxV3({ registerTxV3 })
 }
 
 export const getBobGatewayQuoteFeeData = async (
@@ -288,7 +300,7 @@ export const getBobGatewayQuoteFeeData = async (
 }
 
 export const getBobGatewayRateNetworkFeeCryptoBaseUnit = async (
-  quote: GatewayQuoteV2,
+  quote: GatewayQuoteV3,
   sellAsset: Asset,
   { assertGetEvmChainAdapter, assertGetUtxoChainAdapter }: SwapperDeps,
 ): Promise<string | undefined> => {
@@ -318,7 +330,7 @@ export const getBobGatewayRateNetworkFeeCryptoBaseUnit = async (
   }
 }
 
-export const mapBobGatewayOrderStatusToTxStatus = (status: GatewayOrderStatusV2): TxStatus => {
+export const mapBobGatewayOrderStatusToTxStatus = (status: GatewayOrderStatusV3): TxStatus => {
   if ('inProgress' in status) return TxStatus.Pending
   if ('success' in status) return TxStatus.Confirmed
   if ('failed' in status) return TxStatus.Failed
@@ -340,7 +352,7 @@ const bobGatewayFeeToAssetId = (fee: { address: string; chain: string }): AssetI
 }
 
 export const parseBobGatewayQuote = (
-  quote: GatewayQuoteV2,
+  quote: GatewayQuoteV3,
   buyAsset: Asset,
   assetsById: AssetsByIdPartial,
 ) => {
@@ -399,7 +411,7 @@ export const parseBobGatewayQuote = (
   }
 }
 
-export const getBobGatewayAllowanceContract = (quote: GatewayQuoteV2, sellAsset: Asset): string => {
+export const getBobGatewayAllowanceContract = (quote: GatewayQuoteV3, sellAsset: Asset): string => {
   if (!isEvmChainId(sellAsset.chainId)) return ''
   if (!contractAddressOrUndefined(sellAsset.assetId)) return ''
   if ('offramp' in quote) return quote.offramp.txTo

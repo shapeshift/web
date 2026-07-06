@@ -24,6 +24,11 @@ export type DebridgeTransactionMetadata = {
   isSameChainSwap?: boolean
 }
 
+export type DebridgeTrackingMetadata = {
+  swapper: 'debridge'
+  isSameChainSwap: boolean
+}
+
 export type DebridgeTokenInfo = {
   address: string
   chainId: number

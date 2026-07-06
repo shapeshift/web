@@ -1,6 +1,11 @@
 import type { ChainflipBaasStatusEgress } from './models/ChainflipBaasStatusEgress'
 import type { ChainflipBaasStatusSwap } from './models/ChainflipBaasStatusSwap'
 
+export type ChainflipTrackingMetadata = {
+  swapper: 'chainflip'
+  chainflipSwapId: number | string
+}
+
 // Non-exhaustive
 export type ChainFlipStatus = {
   status: {

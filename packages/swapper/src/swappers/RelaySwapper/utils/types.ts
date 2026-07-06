@@ -28,6 +28,14 @@ export type RelayTransactionMetadata = {
   orderId: string | undefined
 }
 
+export type RelayTrackingMetadata = {
+  swapper: 'relay'
+  relayId: string
+  orderId?: string
+  // EVM calldata, preserved solely for relay's /transactions/single indexer `tx` param.
+  data?: string
+}
+
 export type RelayStatus = {
   status: 'success' | 'failed' | 'pending' | 'refund' | 'delayed' | 'waiting'
   details?: string

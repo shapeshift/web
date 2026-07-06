@@ -43,11 +43,18 @@ import type Polyglot from 'node-polyglot'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import type { AcrossTransactionMetadata } from './swappers/AcrossSwapper/utils/types'
-import type { BobGatewayMetadata } from './swappers/BobGatewaySwapper/types'
+import type { BobGatewayMetadata, BobTrackingMetadata } from './swappers/BobGatewaySwapper/types'
 import type { ButterSwapTransactionMetadata } from './swappers/ButterSwap/types'
+import type { ChainflipTrackingMetadata } from './swappers/ChainflipSwapper/types'
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
-import type { DebridgeTransactionMetadata } from './swappers/DebridgeSwapper/utils/types'
-import type { RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
+import type {
+  DebridgeTrackingMetadata,
+  DebridgeTransactionMetadata,
+} from './swappers/DebridgeSwapper/utils/types'
+import type {
+  RelayTrackingMetadata,
+  RelayTransactionMetadata,
+} from './swappers/RelaySwapper/utils/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
@@ -563,13 +570,11 @@ export type SwapExecutionMetadata = {
   inboundAddress?: string
 }
 
-export type SwapperTrackingMetadata = {
-  swapper: 'relay'
-  relayId: string
-  orderId?: string
-  // EVM calldata, preserved solely for relay's /transactions/single indexer `tx` param.
-  data?: string
-}
+export type SwapperTrackingMetadata =
+  | RelayTrackingMetadata
+  | DebridgeTrackingMetadata
+  | BobTrackingMetadata
+  | ChainflipTrackingMetadata
 
 export type SwapperSpecificMetadata = {
   chainflipSwapId: number | string | undefined

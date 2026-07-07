@@ -470,7 +470,7 @@ async function getSameChainTrade<T extends 'quote' | 'rate'>({
     },
     source: SwapperName.Debridge,
     estimatedExecutionTimeMs: 15_000,
-    swapperMetadata: { swapper: 'debridge', isSameChainSwap },
+    swapperMetadata: { swapper: 'debridge', isSameChainSwap: true },
     transactionData: {
       type: 'evm',
       chainId: Number(fromChainId(sellAsset.chainId).chainReference),

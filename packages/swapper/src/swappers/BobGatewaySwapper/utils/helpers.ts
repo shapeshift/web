@@ -257,10 +257,10 @@ export const getBobGatewayQuoteFeeData = async (
 
   try {
     if (transactionData.type === 'utxo' && 'xpub' in input) {
-      const { depositAddress, memo: opReturnData } = transactionData
+      const { to, opReturnData } = transactionData
 
       const { fast } = await assertGetUtxoChainAdapter(sellAsset.chainId).getFeeData({
-        to: depositAddress,
+        to,
         value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
         chainSpecific: { pubkey: input.xpub, opReturnData },
         sendMax: false,

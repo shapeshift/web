@@ -439,6 +439,8 @@ export type TradeQuoteStep = {
   permit2Eip712?: TypedData
   transactionData?: TxBuildData
   swapperMetadata?: SwapperMetadata
+
+  // To be collapsed into transactionData and swapperMetadata
   bebopSolanaSerializedTx?: string
   bebopQuoteId?: string
   solanaTransactionMetadata?: {

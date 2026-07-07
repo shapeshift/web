@@ -51,3 +51,6 @@ yarn-error.log*
 # translation benchmark data
 scripts/translations/benchmark/
 .gemini/
+
+# agent tooling working docs (superpowers specs/plans, local notes)
+docs/superpowers/

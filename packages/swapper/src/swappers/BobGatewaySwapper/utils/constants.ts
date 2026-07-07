@@ -13,6 +13,7 @@ import {
   polygonChainId,
   seiChainId,
   sonicChainId,
+  tronChainId,
   unichainChainId,
 } from '@shapeshiftoss/caip'
 import type { Address } from 'viem'
@@ -36,6 +37,7 @@ export const chainIdToBobGatewayChainName = {
   [plasmaChainId]: 'plasma',
   [polygonChainId]: 'polygon',
   [hyperEvmChainId]: 'hyperliquid',
+  [tronChainId]: 'tron',
 } as const
 
 export const bobGatewayChainNameToChainId = Object.fromEntries(
@@ -47,6 +49,7 @@ export type BobGatewayChainName =
 
 export const DUMMY_EVM_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' as Address
 export const DUMMY_BTC_ADDRESS = 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq'
+export const DUMMY_TRON_ADDRESS = 'TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N'
 
 export const BOB_GATEWAY_TOKENSWAP_DEFAULT_GAS_LIMIT = '350000' // EVM→EVM
 export const BOB_GATEWAY_OFFRAMP_DEFAULT_GAS_LIMIT = '550000' // EVM→BTC

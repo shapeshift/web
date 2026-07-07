@@ -14,7 +14,7 @@ import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import {
   assertValidTrade,
-  createBobGatewayOrderMetadata,
+  createBobGatewayOrder,
   getBobGatewayAllowanceContract,
   getBobGatewayQuote,
   getBobGatewayQuoteFeeData,
@@ -81,20 +81,20 @@ export const getBobGatewayTradeQuote = async (
   if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
   const quote = maybeQuote.unwrap()
 
-  const maybeOrderMetadata = await createBobGatewayOrderMetadata(
+  const maybeOrder = await createBobGatewayOrder(
     config,
     quote,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   )
-  if (maybeOrderMetadata.isErr()) return Err(maybeOrderMetadata.unwrapErr())
+  if (maybeOrder.isErr()) return Err(maybeOrder.unwrapErr())
 
-  const orderMetadata = maybeOrderMetadata.unwrap()
+  const order = maybeOrder.unwrap()
 
   const maybeFeeData = await getBobGatewayQuoteFeeData(
     input as GetTradeQuoteInput,
     deps,
-    orderMetadata,
+    order.transactionData,
   )
 
   if (maybeFeeData.isErr()) return Err(maybeFeeData.unwrapErr())
@@ -137,8 +137,8 @@ export const getBobGatewayTradeQuote = async (
         accountNumber,
         allowanceContract,
         estimatedExecutionTimeMs,
-        swapperMetadata: { swapper: 'bob', orderId: orderMetadata.orderId },
-        transactionData: orderMetadata.transactionData,
+        swapperMetadata: { swapper: 'bob', orderId: order.orderId },
+        transactionData: order.transactionData,
       },
     ],
   }

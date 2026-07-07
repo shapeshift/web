@@ -135,6 +135,7 @@ export const getBobGatewayTradeQuote = async (
         allowanceContract,
         estimatedExecutionTimeMs,
         bobSpecific: orderMetadata,
+        swapperMetadata: { swapper: 'bob', orderId: orderMetadata.orderId },
         transactionData: orderMetadata.evmTx
           ? evmTxBuildData({
               chainId: Number(fromChainId(sellAsset.chainId).chainReference),

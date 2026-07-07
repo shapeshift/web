@@ -770,6 +770,12 @@ export async function getTrade<T extends 'quote' | 'rate'>({
         transactionData,
         solanaTransactionMetadata,
         relayTransactionMetadata,
+        swapperMetadata: {
+          swapper: 'relay',
+          relayId: relayTransactionMetadata.relayId,
+          orderId: relayTransactionMetadata.orderId,
+          data: transactionData?.type === 'evm' ? transactionData.data : undefined,
+        },
         affiliateFee: buildAffiliateFee({
           strategy: 'fixed_asset',
           affiliateBps,

@@ -379,6 +379,13 @@ export const getTradeQuote = async (
             timeEstimate: quote.timeEstimate,
             deadline: quote.deadline ?? '',
           },
+          swapperMetadata: {
+            swapper: 'nearIntents',
+            depositAddress: quote.depositAddress ?? '',
+            depositMemo: quote.depositMemo,
+            timeEstimate: quote.timeEstimate,
+            deadline: quote.deadline ?? '',
+          },
           affiliateFee: buildAffiliateFee({
             strategy: 'fixed_asset',
             affiliateBps,

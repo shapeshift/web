@@ -233,6 +233,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     },
     source: SwapperName.Debridge,
     estimatedExecutionTimeMs: quote.order.approximateFulfillmentDelay * 1000,
+    swapperMetadata: { swapper: 'debridge', isSameChainSwap },
     transactionData: evmTxBuildData({
       chainId: Number(fromChainId(sellAsset.chainId).chainReference),
       to: quote.tx.to,
@@ -469,6 +470,7 @@ async function getSameChainTrade<T extends 'quote' | 'rate'>({
     },
     source: SwapperName.Debridge,
     estimatedExecutionTimeMs: 15_000,
+    swapperMetadata: { swapper: 'debridge', isSameChainSwap },
     transactionData: evmTxBuildData({
       chainId: Number(fromChainId(sellAsset.chainId).chainReference),
       to: quote.tx.to,

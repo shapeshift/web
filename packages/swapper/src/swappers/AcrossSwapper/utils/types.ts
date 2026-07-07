@@ -15,15 +15,6 @@ export type AcrossTradeInputParams<T extends 'rate' | 'quote'> = AcrossTradeBase
   slippageTolerancePercentageDecimal?: string
 }
 
-export type AcrossTransactionMetadata = {
-  to: string
-  data: string
-  value: string
-  gasLimit?: string
-  ecosystem: 'evm' | 'svm'
-  quoteId: string
-}
-
 export type AcrossTokenInfo = {
   address: string
   decimals: number

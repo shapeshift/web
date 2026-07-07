@@ -42,7 +42,6 @@ import type { Mixpanel } from 'mixpanel-browser'
 import type Polyglot from 'node-polyglot'
 import type { InterpolationOptions } from 'node-polyglot'
 
-import type { AcrossTransactionMetadata } from './swappers/AcrossSwapper/utils/types'
 import type { ArbitrumBridgeMetadata } from './swappers/ArbitrumBridgeSwapper/types'
 import type { BobGatewayMetadata } from './swappers/BobGatewaySwapper/types'
 import type { ButterSwapTransactionMetadata } from './swappers/ButterSwap/types'
@@ -509,7 +508,6 @@ export type TradeQuoteStep = {
     estimatedGasConsumption: string
     params?: unknown
   }
-  acrossTransactionMetadata?: AcrossTransactionMetadata
   affiliateFee?: AffiliateFee
 }
 

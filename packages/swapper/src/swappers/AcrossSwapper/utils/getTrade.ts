@@ -32,12 +32,12 @@ import type {
   TradeQuoteStep,
   TradeRate,
   TradeRateStep,
+  TxBuildData,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
-import type { TxBuildData } from '../../../types'
 import {
   ACROSS_SOLANA_TOKEN_ADDRESS,
   acrossChainIdToChainId,
@@ -48,7 +48,7 @@ import {
   DEFAULT_ACROSS_SOLANA_USER_ADDRESS,
 } from '../constant'
 import { fetchAcrossTrade } from './fetchAcrossTrade'
-import type { AcrossTradeInputParams, AcrossTransactionMetadata } from './types'
+import type { AcrossTradeInputParams } from './types'
 import { isAcrossError } from './types'
 
 const getAcrossAssetAddress = (assetId: string): string => {
@@ -261,25 +261,17 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   const allowanceContract = isEvmChainId(sellAsset.chainId) ? quote.checks.allowance.spender : ''
 
-  const acrossTransactionMetadata: AcrossTransactionMetadata = {
-    to: quote.swapTx.to,
-    data: quote.swapTx.data,
-    value: quote.swapTx.value ?? '0',
-    gasLimit: quote.swapTx.gas,
-    ecosystem: quote.swapTx.ecosystem,
-    quoteId: quote.id,
-  }
-
-  const transactionData: TxBuildData | undefined = isEvmChainId(sellAsset.chainId)
-    ? {
-        type: 'evm',
-        chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-        to: acrossTransactionMetadata.to,
-        data: acrossTransactionMetadata.data,
-        value: acrossTransactionMetadata.value,
-        gasLimit: acrossTransactionMetadata.gasLimit,
-      }
-    : undefined
+  const transactionData: TxBuildData | undefined =
+    quote.swapTx.ecosystem === 'evm'
+      ? {
+          type: 'evm',
+          chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+          to: quote.swapTx.to,
+          data: quote.swapTx.data,
+          value: quote.swapTx.value ?? '0',
+          gasLimit: quote.swapTx.gas,
+        }
+      : undefined
 
   // For SVM transactions, decompile the pre-built base64 blob into instructions
   // so getUnsignedSolanaTransaction can rebuild it at execution time
@@ -352,25 +344,27 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       return fast.txFee
     }
 
-    if (isEvmChainId(sellAsset.chainId)) {
+    if (transactionData?.type === 'evm') {
+      const { data, to, value, gasLimit } = transactionData
+
       const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
       const { average } = await adapter.getGasFeeData()
       const supportsEIP1559 = 'maxFeePerGas' in average
 
-      if (bnOrZero(acrossTransactionMetadata.gasLimit).gt(0)) {
+      if (bnOrZero(gasLimit).gt(0)) {
         return evm.calcNetworkFeeCryptoBaseUnit({
           ...average,
           supportsEIP1559,
-          gasLimit: acrossTransactionMetadata.gasLimit ?? '0',
+          gasLimit: gasLimit ?? '0',
         })
       }
 
       try {
         const feeData = await evm.getFees({
           adapter,
-          data: acrossTransactionMetadata.data,
-          to: acrossTransactionMetadata.to,
-          value: acrossTransactionMetadata.value,
+          data,
+          to,
+          value,
           from: depositor,
           supportsEIP1559,
         })
@@ -436,7 +430,6 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     source: SwapperName.Across,
     estimatedExecutionTimeMs: quote.expectedFillTime * 1000,
     transactionData,
-    acrossTransactionMetadata,
     solanaTransactionMetadata,
     affiliateFee:
       appFee !== undefined && appFeeRecipient !== undefined

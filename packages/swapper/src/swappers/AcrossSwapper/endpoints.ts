@@ -26,7 +26,7 @@ export const acrossApi: SwapperApi = {
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
     const { transactionData, sellAsset } = step
-    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
+    if (transactionData?.type !== 'evm') throw new Error('[Across] invalid evm transaction')
 
     const { to, value, data } = transactionData
 
@@ -48,9 +48,9 @@ export const acrossApi: SwapperApi = {
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
     const { accountNumber, transactionData, sellAsset } = step
-    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
+    if (transactionData?.type !== 'evm') throw new Error('[Across] invalid evm transaction')
 
-    const { to, value, data, gasLimit: gasLimitFromApi } = transactionData
+    const { to, value, data } = transactionData
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
@@ -63,7 +63,7 @@ export const acrossApi: SwapperApi = {
       to,
       value,
       ...feeData,
-      gasLimit: BigNumber.max(gasLimitFromApi ?? '0', feeData.gasLimit).toFixed(),
+      gasLimit: BigNumber.max(transactionData.gasLimit ?? '0', feeData.gasLimit).toFixed(),
     })
 
     return unsignedTx

@@ -42,7 +42,6 @@ import type { Mixpanel } from 'mixpanel-browser'
 import type Polyglot from 'node-polyglot'
 import type { InterpolationOptions } from 'node-polyglot'
 
-import type { ArbitrumBridgeMetadata } from './swappers/ArbitrumBridgeSwapper/types'
 import type { BobGatewayMetadata } from './swappers/BobGatewaySwapper/types'
 import type { ButterSwapTransactionMetadata } from './swappers/ButterSwap/types'
 import type { ChainflipMetadata } from './swappers/ChainflipSwapper/types'
@@ -574,7 +573,6 @@ export type SwapperMetadata =
   | BobGatewayMetadata
   | ChainflipMetadata
   | NearIntentsMetadata
-  | ArbitrumBridgeMetadata
   | { swapper?: undefined }
 
 export type SwapMetadata = CommonSwapMetadata & SwapperMetadata

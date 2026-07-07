@@ -86,10 +86,6 @@ export async function getTradeRate(
             networkFeeCryptoBaseUnit: swap.networkFeeCryptoBaseUnit,
           },
           source: SwapperName.ArbitrumBridge,
-          swapperMetadata: {
-            swapper: 'arbitrumBridge' as const,
-            direction: isDeposit ? ('deposit' as const) : ('withdrawal' as const),
-          },
         },
       ] as SingleHopTradeRateSteps,
     })

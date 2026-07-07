@@ -4,8 +4,3 @@ export enum BRIDGE_TYPE {
   ETH_WITHDRAWAL = 'ETH Withdrawal',
   ERC20_WITHDRAWAL = 'ERC20 Withdrawal',
 }
-
-export type ArbitrumBridgeMetadata = {
-  swapper: 'arbitrumBridge'
-  direction: 'deposit' | 'withdrawal'
-}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import type { SwapperSpecificMetadata, TxBuildData } from './types'
+import type { SwapperMetadata, TxBuildData } from './types'
 
 describe('TxBuildData', () => {
   it('is a discriminated union narrowable by the `type` key', () => {
@@ -28,15 +28,15 @@ describe('TxBuildData', () => {
   })
 })
 
-describe('SwapperSpecificMetadata.swapperMetadata', () => {
-  it('carries a keyed relay tracking variant', () => {
-    const m: SwapperSpecificMetadata['swapperMetadata'] = {
+describe('SwapperMetadata', () => {
+  it('is a keyed union narrowable by the `swapper` key', () => {
+    const m: SwapperMetadata = {
       swapper: 'relay',
       relayId: 'req_1',
       orderId: 'ord_1',
       data: '0xcalldata',
     }
-    expect(m?.swapper).toBe('relay')
-    if (m?.swapper === 'relay') expect(m.relayId).toBe('req_1')
+    expect(m.swapper).toBe('relay')
+    if (m.swapper === 'relay') expect(m.relayId).toBe('req_1')
   })
 })

@@ -437,10 +437,8 @@ export type TradeQuoteStep = {
   allowanceContract: string
   estimatedExecutionTimeMs: number | undefined
   permit2Eip712?: TypedData
-  // Generic build payload (per-tx). Swapper-specific tracking metadata goes on `swapperMetadata`.
   transactionData?: TxBuildData
-  // Swapper-specific tracking metadata (same union as Swap.metadata, minus the common fields).
-  swapperMetadata?: SwapperMetadataVariant
+  swapperMetadata?: SwapperMetadata
   bebopSolanaSerializedTx?: string
   bebopQuoteId?: string
   solanaTransactionMetadata?: {
@@ -566,7 +564,7 @@ export type SwapExecutionMetadata = {
   inboundAddress?: string
 }
 
-export type CommonSwapperMetadata = {
+export type CommonSwapMetadata = {
   stepIndex: SupportedTradeQuoteStepIndex
   quoteId: string
   relayerTxHash?: string
@@ -574,9 +572,7 @@ export type CommonSwapperMetadata = {
   streamingSwapMetadata?: StreamingSwapMetadata
 }
 
-// The single swapper-specific metadata union, discriminated on `swapper`. Lives on both
-// TradeQuoteStep (`swapperMetadata`) and Swap (`metadata`, intersected with the common fields).
-export type SwapperMetadataVariant =
+export type SwapperMetadata =
   | RelayMetadata
   | DebridgeMetadata
   | BobMetadata
@@ -585,7 +581,7 @@ export type SwapperMetadataVariant =
   | ArbitrumBridgeMetadata
   | { swapper?: undefined }
 
-export type SwapperMetadata = CommonSwapperMetadata & SwapperMetadataVariant
+export type SwapMetadata = CommonSwapMetadata & SwapperMetadata
 
 export enum SwapStatus {
   Idle = 'idle',
@@ -615,7 +611,7 @@ export type Swap = {
   sellAmountCryptoPrecision: string
   expectedBuyAmountCryptoPrecision: string
   txLink?: string
-  metadata: SwapperMetadata
+  metadata: SwapMetadata
   isStreaming?: boolean
 }
 

@@ -1,14 +1,14 @@
 import { SwapperName } from '../../types'
 import type {
-  CommonSwapperMetadata,
+  CommonSwapMetadata,
+  SwapMetadata,
   SwapperMetadata,
-  SwapperMetadataVariant,
   TradeQuoteStep,
 } from '../../types'
 
 // Derives the swapper-specific variant from a step's legacy per-swapper fields. Transitional
 // fallback for swappers that don't yet emit `step.swapperMetadata` directly — remove once all do.
-const deriveLegacyStepSwapperMetadata = (step: TradeQuoteStep): SwapperMetadataVariant => {
+const deriveLegacyStepSwapperMetadata = (step: TradeQuoteStep): SwapperMetadata => {
   if (step.relayTransactionMetadata) {
     const data = step.transactionData?.type === 'evm' ? step.transactionData.data : undefined
 
@@ -48,8 +48,8 @@ const deriveLegacyStepSwapperMetadata = (step: TradeQuoteStep): SwapperMetadataV
 // fields. Shared by the public-api quote store and the web app so the two stay in lockstep.
 export const buildSwapperMetadata = (
   step: TradeQuoteStep,
-  common: CommonSwapperMetadata,
-): SwapperMetadata => ({
+  common: CommonSwapMetadata,
+): SwapMetadata => ({
   ...common,
   ...(step.swapperMetadata ?? deriveLegacyStepSwapperMetadata(step)),
 })

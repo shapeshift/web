@@ -2,7 +2,7 @@ import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { GetTradeQuoteInputWithWallet } from '@shapeshiftoss/swapper'
 import {
-  buildSwapperMetadata,
+  buildSwapMetadata,
   getDefaultSlippageDecimalPercentageForSwapper,
   getTradeQuotes,
   SwapperName,
@@ -193,7 +193,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       partnerCode: req.affiliateInfo?.partnerCode,
       createdAt: now,
       expiresAt: now + QuoteStore.QUOTE_TTL_MS,
-      metadata: buildSwapperMetadata(step, { stepIndex: 0, quoteId }),
+      metadata: buildSwapMetadata(step, { stepIndex: 0, quoteId }),
       status: 'pending',
     })
 

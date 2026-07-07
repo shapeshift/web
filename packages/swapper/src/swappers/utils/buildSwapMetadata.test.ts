@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { buildSwapperMetadata } from './buildSwapperMetadata'
+import { buildSwapMetadata } from './buildSwapMetadata'
 
 const common = {
   stepIndex: 0 as const,
@@ -10,10 +10,10 @@ const common = {
   streamingSwapMetadata: undefined,
 }
 
-describe('buildSwapperMetadata', () => {
+describe('buildSwapMetadata', () => {
   it("layers the common fields onto the step's swapperMetadata variant", () => {
     expect(
-      buildSwapperMetadata(
+      buildSwapMetadata(
         { swapperMetadata: { swapper: 'relay', relayId: 'r', orderId: 'o', data: '0xcd' } } as any,
         common,
       ),
@@ -22,7 +22,7 @@ describe('buildSwapperMetadata', () => {
 
   it('carries a chainflip variant', () => {
     expect(
-      buildSwapperMetadata(
+      buildSwapMetadata(
         { swapperMetadata: { swapper: 'chainflip', chainflipSwapId: 42 } } as any,
         common,
       ),
@@ -30,6 +30,6 @@ describe('buildSwapperMetadata', () => {
   })
 
   it('is common-only for swappers with no swapperMetadata variant', () => {
-    expect(buildSwapperMetadata({} as any, common)).toEqual(common)
+    expect(buildSwapMetadata({} as any, common)).toEqual(common)
   })
 })

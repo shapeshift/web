@@ -6,7 +6,7 @@ import type {
 } from '@gobob/bob-sdk'
 import { GatewayErrorCode, GatewaySDK, isGatewayError } from '@gobob/bob-sdk'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, ethChainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, ethChainId, fromAssetId, fromChainId, toAssetId } from '@shapeshiftoss/caip'
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -31,7 +31,8 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { createTradeAmountTooSmallErr, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
-import type { BobGatewayMetadata } from '../types'
+import { evmTxBuildData, utxoTxBuildData } from '../../utils/toTxBuildData'
+import type { BobGatewayOrder } from '../types'
 import type { BobGatewayChainName } from './constants'
 import {
   BOB_GATEWAY_BASE_URL,
@@ -156,7 +157,9 @@ export const getBobGatewayQuote = async ({
 export const createBobGatewayOrderMetadata = async (
   config: SwapperConfig,
   gatewayQuote: GatewayQuoteV2,
-): Promise<Result<BobGatewayMetadata, SwapErrorRight>> => {
+  sellAsset: Asset,
+  value: string,
+): Promise<Result<BobGatewayOrder, SwapErrorRight>> => {
   try {
     const orderResponse = await getBobGatewayClient(config).api.createOrderV2({
       gatewayQuoteV2: gatewayQuote,
@@ -166,10 +169,11 @@ export const createBobGatewayOrderMetadata = async (
     if ('onramp' in orderResponse) {
       return Ok({
         orderId: orderResponse.onramp.orderId,
-        utxoTx: {
-          depositAddress: orderResponse.onramp.address,
-          opReturnData: orderResponse.onramp.opReturnData ?? undefined,
-        },
+        transactionData: utxoTxBuildData({
+          to: orderResponse.onramp.address,
+          opReturnData: orderResponse.onramp.opReturnData ?? '',
+          value,
+        }),
       })
     }
 
@@ -177,12 +181,12 @@ export const createBobGatewayOrderMetadata = async (
     const order = 'offramp' in orderResponse ? orderResponse.offramp : orderResponse.tokenSwap
     return Ok({
       orderId: order.orderId,
-      evmTx: {
+      transactionData: evmTxBuildData({
+        chainId: Number(fromChainId(sellAsset.chainId).chainReference),
         to: order.tx.to,
         data: order.tx.data,
         value: order.tx.value,
-        chain: order.tx.chain,
-      },
+      }),
     })
   } catch (err) {
     if (isGatewayError(err) && err.code === GatewayErrorCode.InsufficientConfirmedFunds) {
@@ -239,13 +243,13 @@ export const registerBobGatewayTx = async ({
 export const getBobGatewayQuoteFeeData = async (
   input: GetTradeQuoteInput,
   { assertGetUtxoChainAdapter, assertGetEvmChainAdapter }: SwapperDeps,
-  orderMetadata: BobGatewayMetadata,
+  order: BobGatewayOrder,
 ): Promise<Result<Omit<QuoteFeeData, 'protocolFees'>, SwapErrorRight>> => {
   const { sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input
 
   try {
-    if (orderMetadata.utxoTx && 'xpub' in input) {
-      const { depositAddress, opReturnData } = orderMetadata.utxoTx
+    if (order.transactionData.type === 'utxo' && 'xpub' in input) {
+      const { depositAddress, memo: opReturnData } = order.transactionData
 
       const { fast } = await assertGetUtxoChainAdapter(sellAsset.chainId).getFeeData({
         to: depositAddress,
@@ -260,8 +264,8 @@ export const getBobGatewayQuoteFeeData = async (
       })
     }
 
-    if (orderMetadata.evmTx && input.sendAddress && 'supportsEIP1559' in input) {
-      const { to, data, value } = orderMetadata.evmTx
+    if (order.transactionData.type === 'evm' && input.sendAddress && 'supportsEIP1559' in input) {
+      const { to, data, value } = order.transactionData
 
       const { networkFeeCryptoBaseUnit } = await evm.getFees({
         adapter: assertGetEvmChainAdapter(sellAsset.chainId),

@@ -44,7 +44,7 @@ import type { InterpolationOptions } from 'node-polyglot'
 
 import type { AcrossTransactionMetadata } from './swappers/AcrossSwapper/utils/types'
 import type { ArbitrumBridgeMetadata } from './swappers/ArbitrumBridgeSwapper/types'
-import type { BobMetadata } from './swappers/BobGatewaySwapper/types'
+import type { BobGatewayMetadata } from './swappers/BobGatewaySwapper/types'
 import type { ButterSwapTransactionMetadata } from './swappers/ButterSwap/types'
 import type { ChainflipMetadata } from './swappers/ChainflipSwapper/types'
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
@@ -571,7 +571,7 @@ export type CommonSwapMetadata = {
 export type SwapperMetadata =
   | RelayMetadata
   | DebridgeMetadata
-  | BobMetadata
+  | BobGatewayMetadata
   | ChainflipMetadata
   | NearIntentsMetadata
   | ArbitrumBridgeMetadata

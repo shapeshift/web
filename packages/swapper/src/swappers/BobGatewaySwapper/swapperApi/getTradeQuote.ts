@@ -1,4 +1,3 @@
-import { fromChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -13,7 +12,6 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { evmTxBuildData, utxoTxBuildData } from '../../utils/toTxBuildData'
 import {
   assertValidTrade,
   createBobGatewayOrderMetadata,
@@ -83,7 +81,12 @@ export const getBobGatewayTradeQuote = async (
   if (maybeQuote.isErr()) return Err(maybeQuote.unwrapErr())
   const quote = maybeQuote.unwrap()
 
-  const maybeOrderMetadata = await createBobGatewayOrderMetadata(config, quote)
+  const maybeOrderMetadata = await createBobGatewayOrderMetadata(
+    config,
+    quote,
+    sellAsset,
+    sellAmountIncludingProtocolFeesCryptoBaseUnit,
+  )
   if (maybeOrderMetadata.isErr()) return Err(maybeOrderMetadata.unwrapErr())
 
   const orderMetadata = maybeOrderMetadata.unwrap()
@@ -135,20 +138,7 @@ export const getBobGatewayTradeQuote = async (
         allowanceContract,
         estimatedExecutionTimeMs,
         swapperMetadata: { swapper: 'bob', orderId: orderMetadata.orderId },
-        transactionData: orderMetadata.evmTx
-          ? evmTxBuildData({
-              chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-              to: orderMetadata.evmTx.to,
-              data: orderMetadata.evmTx.data,
-              value: orderMetadata.evmTx.value,
-            })
-          : orderMetadata.utxoTx
-          ? utxoTxBuildData({
-              to: orderMetadata.utxoTx.depositAddress,
-              opReturnData: orderMetadata.utxoTx.opReturnData ?? '',
-              value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-            })
-          : undefined,
+        transactionData: orderMetadata.transactionData,
       },
     ],
   }

@@ -1,21 +1,11 @@
-type BobGatewayEvmTxMetadata = {
-  to: string
-  data: string
-  value: string
-  chain: string
+import type { TxBuildData } from '../../types'
+
+export type BobGatewayOrder = {
+  orderId: string
+  transactionData: TxBuildData
 }
 
-type BobGatewayUtxoTxMetadata = {
-  depositAddress: string
-  opReturnData?: string
-}
-
-export type BobGatewayMetadata = { orderId: string } & (
-  | { evmTx: BobGatewayEvmTxMetadata; utxoTx?: never }
-  | { utxoTx: BobGatewayUtxoTxMetadata; evmTx?: never }
-)
-
-export type BobMetadata = {
+export type BobGatewayMetadata = {
   swapper: 'bob'
   orderId: string
 }

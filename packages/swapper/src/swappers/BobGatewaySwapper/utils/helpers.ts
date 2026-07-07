@@ -177,8 +177,8 @@ export const createBobGatewayOrder = async (
         orderId: orderResponse.onramp.orderId,
         transactionData: {
           type: 'utxo' as const,
-          depositAddress: orderResponse.onramp.address,
-          memo: orderResponse.onramp.opReturnData ?? '',
+          to: orderResponse.onramp.address,
+          opReturnData: orderResponse.onramp.opReturnData ?? '',
           value,
         },
       })

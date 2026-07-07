@@ -622,8 +622,8 @@ export async function getTrade<T extends 'quote' | 'rate'>({
               allowanceContract: '',
               transactionData: {
                 type: 'utxo' as const,
-                depositAddress: relayer,
-                memo: orderId,
+                to: relayer,
+                opReturnData: orderId,
                 value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
               },
               relayTransactionMetadata: {

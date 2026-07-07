@@ -96,7 +96,7 @@ export const relayApi: SwapperApi = {
     const { accountNumber, sellAsset, transactionData } = step
     if (transactionData?.type !== 'utxo') throw new Error('Missing utxo transactionData')
 
-    const { depositAddress: to, memo: opReturnData } = transactionData
+    const { to, opReturnData } = transactionData
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
@@ -127,7 +127,7 @@ export const relayApi: SwapperApi = {
     const { sellAsset, transactionData } = step
     if (transactionData?.type !== 'utxo') throw new Error('Missing utxo transactionData')
 
-    const { depositAddress: to, memo: opReturnData } = transactionData
+    const { to, opReturnData } = transactionData
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 

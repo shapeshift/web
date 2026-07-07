@@ -19,7 +19,7 @@ describe('extractTransactionData — relay via transactionData', () => {
     const step = {
       ...base,
       sellAsset: { chainId: 'bip122:000000000019d6689c085ae165831e93', assetId: 'bip122:.../slip44:0' },
-      transactionData: { type: 'utxo', depositAddress: 'bc1', memo: 'ab', value: '5' },
+      transactionData: { type: 'utxo', to: 'bc1', opReturnData: 'ab', value: '5' },
       relayTransactionMetadata: { relayId: 'r' },
     } as any
     expect(extractTransactionData(step)).toEqual({ type: 'utxo_deposit', depositAddress: 'bc1', memo: 'ab', value: '5' })

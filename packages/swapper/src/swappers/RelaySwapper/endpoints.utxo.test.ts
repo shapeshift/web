@@ -22,8 +22,8 @@ describe('relay getUnsignedUtxoTransaction', () => {
           sellAmountIncludingProtocolFeesCryptoBaseUnit: '1000',
           transactionData: {
             type: 'utxo',
-            depositAddress: 'bc1relayer',
-            memo: 'deadbeef',
+            to: 'bc1relayer',
+            opReturnData: 'deadbeef',
             value: '1000',
           },
         },

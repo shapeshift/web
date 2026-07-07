@@ -154,11 +154,10 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     }
 
     const transactionDataAddress =
-      tradeQuoteStep.transactionData?.type === 'evm'
+      tradeQuoteStep.transactionData?.type === 'evm' ||
+      tradeQuoteStep.transactionData?.type === 'utxo'
         ? tradeQuoteStep.transactionData.to
-        : tradeQuoteStep.transactionData?.type === 'utxo'
-          ? tradeQuoteStep.transactionData.depositAddress
-          : undefined
+        : undefined
 
     return (
       tradeQuoteStep.chainflipSpecific?.chainflipDepositAddress ??

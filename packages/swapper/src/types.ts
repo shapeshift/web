@@ -412,7 +412,7 @@ export type TxBuildData =
       gasLimit?: string
       signatureRequired?: { type: 'permit2'; eip712: TypedData }
     }
-  | { type: 'utxo'; depositAddress: string; memo: string; value: string }
+  | { type: 'utxo'; to: string; opReturnData: string; value: string }
   | {
       type: 'solana'
       instructions: TransactionInstruction[]

@@ -103,8 +103,8 @@ const extractUtxoTransactionData = (step: TradeQuoteStep): UtxoTransactionData |
   if (step.transactionData?.type === 'utxo') {
     return {
       type: 'utxo_deposit',
-      depositAddress: step.transactionData.depositAddress,
-      memo: step.transactionData.memo,
+      depositAddress: step.transactionData.to,
+      memo: step.transactionData.opReturnData,
       value: step.transactionData.value,
     }
   }

@@ -42,12 +42,12 @@ export const bobGatewayApi: SwapperApi = {
       throw new Error('[BobGateway] invalid utxo transaction')
     }
 
-    const { depositAddress, memo: opReturnData } = step.transactionData
+    const { to, opReturnData } = step.transactionData
 
     return adapter.buildSendApiTransaction({
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       xpub,
-      to: depositAddress,
+      to,
       accountNumber: step.accountNumber,
       skipToAddressValidation: true,
       chainSpecific: {
@@ -71,10 +71,10 @@ export const bobGatewayApi: SwapperApi = {
       throw new Error('[BobGateway] invalid utxo transaction')
     }
 
-    const { depositAddress, memo: opReturnData } = step.transactionData
+    const { to, opReturnData } = step.transactionData
 
     const { fast } = await adapter.getFeeData({
-      to: depositAddress,
+      to,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       chainSpecific: { pubkey: xpub, opReturnData },
       sendMax: false,

@@ -25,7 +25,6 @@ import {
   makeSwapErrorRight,
 } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
-import { evmTxBuildData } from '../../utils/toTxBuildData'
 import { makeButterSwapAffiliate } from '../utils/constants'
 import {
   ButterSwapErrorCode,
@@ -278,13 +277,14 @@ export const getTradeQuote = async (
       memo: buildTx.memo,
     },
     ...(isEvmChainId(sellAsset.chainId) && {
-      transactionData: evmTxBuildData({
+      transactionData: {
+        type: 'evm' as const,
         chainId: Number(fromChainId(sellAsset.chainId).chainReference),
         to: buildTx.to,
         data: buildTx.data,
         value: fromHex(buildTx.value, 'bigint').toString(),
         gasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
-      }),
+      },
     }),
     ...(solanaTransactionMetadata && {
       solanaTransactionMetadata,

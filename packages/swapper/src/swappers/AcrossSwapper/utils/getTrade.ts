@@ -37,7 +37,7 @@ import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { evmTxBuildData } from '../../utils/toTxBuildData'
+import type { TxBuildData } from '../../../types'
 import {
   ACROSS_SOLANA_TOKEN_ADDRESS,
   acrossChainIdToChainId,
@@ -270,14 +270,15 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     quoteId: quote.id,
   }
 
-  const transactionData = isEvmChainId(sellAsset.chainId)
-    ? evmTxBuildData({
+  const transactionData: TxBuildData | undefined = isEvmChainId(sellAsset.chainId)
+    ? {
+        type: 'evm',
         chainId: Number(fromChainId(sellAsset.chainId).chainReference),
         to: acrossTransactionMetadata.to,
         data: acrossTransactionMetadata.data,
         value: acrossTransactionMetadata.value,
         gasLimit: acrossTransactionMetadata.gasLimit,
-      })
+      }
     : undefined
 
   // For SVM transactions, decompile the pre-built base64 blob into instructions

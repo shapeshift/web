@@ -21,7 +21,6 @@ import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { evmTxBuildData } from '../../utils/toTxBuildData'
 import { BEBOP_DUMMY_ADDRESS } from '../types'
 import { fetchBebopQuote } from '../utils/fetchFromBebop'
 import { assertValidTrade, calculateRate } from '../utils/helpers/helpers'
@@ -145,13 +144,14 @@ export async function getBebopTradeQuote(
           buyAmountAfterFeesCryptoBaseUnit,
           sellAmountIncludingProtocolFeesCryptoBaseUnit,
           source: SwapperName.Bebop,
-          transactionData: evmTxBuildData({
+          transactionData: {
+            type: 'evm',
             chainId: Number(fromChainId(sellAsset.chainId).chainReference),
             to: transactionMetadata.to,
             data: transactionMetadata.data,
             value: fromHex(transactionMetadata.value, 'bigint').toString(),
             gasLimit: transactionMetadata.gas,
-          }),
+          },
           affiliateFee: buildAffiliateFee({
             strategy: 'buy_asset',
             affiliateBps,

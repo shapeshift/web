@@ -24,7 +24,6 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { evmTxBuildData } from '../../utils/toTxBuildData'
 import {
   chainIdToDebridgeChainId,
   debridgeChainIdToChainId,
@@ -234,13 +233,14 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     source: SwapperName.Debridge,
     estimatedExecutionTimeMs: quote.order.approximateFulfillmentDelay * 1000,
     swapperMetadata: { swapper: 'debridge', isSameChainSwap },
-    transactionData: evmTxBuildData({
+    transactionData: {
+      type: 'evm',
       chainId: Number(fromChainId(sellAsset.chainId).chainReference),
       to: quote.tx.to,
       data: quote.tx.data,
       value: quote.tx.value,
       gasLimit: quote.estimatedTransactionFee?.details.gasLimit,
-    }),
+    },
   }
 
   const baseQuoteOrRate = {
@@ -471,13 +471,14 @@ async function getSameChainTrade<T extends 'quote' | 'rate'>({
     source: SwapperName.Debridge,
     estimatedExecutionTimeMs: 15_000,
     swapperMetadata: { swapper: 'debridge', isSameChainSwap },
-    transactionData: evmTxBuildData({
+    transactionData: {
+      type: 'evm',
       chainId: Number(fromChainId(sellAsset.chainId).chainReference),
       to: quote.tx.to,
       data: quote.tx.data,
       value: quote.tx.value,
       gasLimit: quote.estimatedTransactionFee?.details.gasLimit,
-    }),
+    },
   }
 
   const baseQuoteOrRate = {

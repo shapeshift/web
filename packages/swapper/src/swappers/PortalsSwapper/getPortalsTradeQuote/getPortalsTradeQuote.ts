@@ -25,7 +25,6 @@ import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { evmTxBuildData } from '../../utils/toTxBuildData'
 import { chainIdToPortalsNetwork } from '../constants'
 import { fetchPortalsTradeOrder, PortalsError } from '../utils/fetchPortalsTradeOrder'
 import { getPortalsRouterAddressByChainId, isSupportedChainId } from '../utils/helpers'
@@ -268,13 +267,14 @@ export async function getPortalsTradeQuote(
           },
           source: SwapperName.Portals,
           estimatedExecutionTimeMs: isCrossChain ? 300000 : 0,
-          transactionData: evmTxBuildData({
+          transactionData: {
+            type: 'evm',
             chainId: Number(fromChainId(sellAsset.chainId).chainReference),
             to: tx.to,
             data: tx.data,
             value: tx.value,
             gasLimit: tx.gasLimit,
-          }),
+          },
           affiliateFee: buildAffiliateFee({
             strategy: 'buy_asset',
             affiliateBps,

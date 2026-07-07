@@ -21,7 +21,6 @@ import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { evmTxBuildData } from '../../utils/toTxBuildData'
 import { fetchZrxQuote } from '../utils/fetchFromZrx'
 import {
   assertValidTrade,
@@ -153,13 +152,14 @@ export async function getZrxTradeQuote(
             buyAmountCryptoBaseUnit: buyAmount,
           }),
           permit2Eip712: permit2Eip712 as unknown as TypedData | undefined,
-          transactionData: evmTxBuildData({
+          transactionData: {
+            type: 'evm',
             chainId: Number(fromChainId(sellAsset.chainId).chainReference),
             to: transaction.to,
             data: transaction.data,
             value: transaction.value,
             gasLimit: transaction.gas || undefined,
-          }),
+          },
         },
       ] as SingleHopTradeQuoteSteps,
     })

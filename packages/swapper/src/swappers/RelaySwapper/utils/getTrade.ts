@@ -60,7 +60,6 @@ import {
 import { fetchRelayTrade } from './fetchRelayTrade'
 import { getRelayDefaultUserAddress } from './getRelayDefaultUserAddress'
 import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
-import { evmTxBuildData, utxoTxBuildData } from './toRelayTxBuildData'
 
 export async function getTrade(args: {
   input: RelayTradeInputParams<'quote'>
@@ -621,11 +620,12 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
             return {
               allowanceContract: '',
-              transactionData: utxoTxBuildData({
-                to: relayer,
-                opReturnData: orderId,
+              transactionData: {
+                type: 'utxo' as const,
+                depositAddress: relayer,
+                memo: orderId,
                 value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-              }),
+              },
               relayTransactionMetadata: {
                 from: sendAddress,
                 psbt: selectedItem.data.psbt,
@@ -645,13 +645,14 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
             return {
               allowanceContract: selectedItem.data?.to ?? '',
-              transactionData: evmTxBuildData({
+              transactionData: {
+                type: 'evm' as const,
                 chainId,
                 to: selectedItem.data?.to ?? '',
                 value,
                 data: selectedItem.data?.data ?? '0x',
                 gasLimit: selectedItem.data?.gas,
-              }),
+              },
               relayTransactionMetadata: {
                 from: sendAddress,
                 to: selectedItem.data?.to,

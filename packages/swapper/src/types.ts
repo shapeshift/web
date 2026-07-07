@@ -44,7 +44,7 @@ import type { InterpolationOptions } from 'node-polyglot'
 
 import type { AcrossTransactionMetadata } from './swappers/AcrossSwapper/utils/types'
 import type { ArbitrumBridgeMetadata } from './swappers/ArbitrumBridgeSwapper/types'
-import type { BobGatewayMetadata, BobMetadata } from './swappers/BobGatewaySwapper/types'
+import type { BobMetadata } from './swappers/BobGatewaySwapper/types'
 import type { ButterSwapTransactionMetadata } from './swappers/ButterSwap/types'
 import type { ChainflipMetadata } from './swappers/ChainflipSwapper/types'
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
@@ -449,7 +449,6 @@ export type TradeQuoteStep = {
   }
   cowswapQuoteResponse?: OrderQuoteResponse
   chainflipSpecific?: {
-    chainflipSwapId?: number | string
     chainflipDepositAddress?: string
     chainflipNumberOfChunks?: number
     chainflipChunkIntervalBlocks?: number
@@ -458,8 +457,6 @@ export type TradeQuoteStep = {
   nearIntentsSpecific?: {
     depositAddress: string
     depositMemo?: string
-    timeEstimate: number
-    deadline: string
   }
   thorchainSpecific?: {
     maxStreamingQuantity?: number
@@ -511,7 +508,6 @@ export type TradeQuoteStep = {
     params?: unknown
   }
   acrossTransactionMetadata?: AcrossTransactionMetadata
-  bobSpecific?: BobGatewayMetadata
   affiliateFee?: AffiliateFee
 }
 

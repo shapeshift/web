@@ -376,8 +376,6 @@ export const getTradeQuote = async (
           nearIntentsSpecific: {
             depositAddress: quote.depositAddress ?? '',
             depositMemo: quote.depositMemo,
-            timeEstimate: quote.timeEstimate,
-            deadline: quote.deadline ?? '',
           },
           swapperMetadata: {
             swapper: 'nearIntents',

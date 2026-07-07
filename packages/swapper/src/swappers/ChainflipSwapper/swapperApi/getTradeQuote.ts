@@ -167,11 +167,9 @@ export const getTradeQuote = async (
 
       if (!step.chainflipSpecific)
         step.chainflipSpecific = {
-          chainflipSwapId: swapResponse.id,
           chainflipDepositAddress: depositAddress,
         }
 
-      step.chainflipSpecific.chainflipSwapId = swapResponse.id
       step.chainflipSpecific.chainflipDepositAddress = swapResponse.address
       step.swapperMetadata = { swapper: 'chainflip', chainflipSwapId: swapResponse.id }
       step.feeData = await getFeeData()

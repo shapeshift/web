@@ -31,7 +31,6 @@ export const chainflipApi: SwapperApi = {
     const { accountNumber, chainflipSpecific, sellAsset } = step
 
     if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
-    if (!chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
@@ -71,7 +70,6 @@ export const chainflipApi: SwapperApi = {
     const { chainflipSpecific, sellAsset } = step
 
     if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
-    if (!chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
@@ -107,7 +105,6 @@ export const chainflipApi: SwapperApi = {
     const { accountNumber, chainflipSpecific, sellAsset } = step
 
     if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
-    if (!chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
@@ -131,7 +128,6 @@ export const chainflipApi: SwapperApi = {
     const { chainflipSpecific, sellAsset } = step
 
     if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
-    if (!chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
@@ -157,7 +153,6 @@ export const chainflipApi: SwapperApi = {
     const { accountNumber, chainflipSpecific, sellAsset } = step
 
     if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
-    if (!chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
 
     const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
 
@@ -200,7 +195,6 @@ export const chainflipApi: SwapperApi = {
     const { chainflipSpecific, sellAsset } = step
 
     if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
-    if (!chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
 
     const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
 
@@ -229,7 +223,6 @@ export const chainflipApi: SwapperApi = {
     const { accountNumber, chainflipSpecific, sellAsset } = step
 
     if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
-    if (!chainflipSpecific?.chainflipSwapId) throw Error('Missing swap id')
 
     const adapter = assertGetTronChainAdapter(sellAsset.chainId)
 

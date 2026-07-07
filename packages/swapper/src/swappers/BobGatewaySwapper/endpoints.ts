@@ -4,8 +4,7 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero } from '@shapeshiftoss/utils'
 
 import type { SwapperApi, UtxoFeeData } from '../../types'
-import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
-import { getSwapperMetadata } from '../utils/getSwapperMetadata'
+import { getExecutableTradeStep, getSwapMetadata, isExecutableTradeQuote } from '../../utils'
 import { getBobGatewayTradeQuote } from './swapperApi/getTradeQuote'
 import { getBobGatewayTradeRate } from './swapperApi/getTradeRate'
 import {
@@ -39,8 +38,10 @@ export const bobGatewayApi: SwapperApi = {
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
-    if (step.transactionData?.type !== 'utxo')
+    if (step.transactionData?.type !== 'utxo') {
       throw new Error('[BobGateway] invalid utxo transaction')
+    }
+
     const { depositAddress, memo: opReturnData } = step.transactionData
 
     return adapter.buildSendApiTransaction({
@@ -66,8 +67,10 @@ export const bobGatewayApi: SwapperApi = {
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
-    if (step.transactionData?.type !== 'utxo')
+    if (step.transactionData?.type !== 'utxo') {
       throw new Error('[BobGateway] invalid utxo transaction')
+    }
+
     const { depositAddress, memo: opReturnData } = step.transactionData
 
     const { fast } = await adapter.getFeeData({
@@ -95,8 +98,10 @@ export const bobGatewayApi: SwapperApi = {
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-    if (step.transactionData?.type !== 'evm')
+    if (step.transactionData?.type !== 'evm') {
       throw new Error('[BobGateway] invalid evm transaction')
+    }
+
     const { to, data, value } = step.transactionData
 
     const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
@@ -130,8 +135,10 @@ export const bobGatewayApi: SwapperApi = {
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-    if (step.transactionData?.type !== 'evm')
+    if (step.transactionData?.type !== 'evm') {
       throw new Error('[BobGateway] invalid evm transaction')
+    }
+
     const { to, data, value } = step.transactionData
 
     const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
@@ -141,7 +148,7 @@ export const bobGatewayApi: SwapperApi = {
   checkTradeStatus: async ({ swap, config, txHash }) => {
     if (!swap) throw new Error('[BobGateway] swap is required for status check')
 
-    const { orderId } = getSwapperMetadata(swap.metadata, 'bob')
+    const { orderId } = getSwapMetadata(swap.metadata, 'bob')
 
     if (txHash && !registeredSwapIds.has(swap.id)) {
       try {

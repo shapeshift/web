@@ -23,6 +23,7 @@ import { setupCache } from 'axios-cache-interceptor'
 
 import { fetchSafeTransactionInfo } from './safe-utils'
 import type {
+  CommonSwapMetadata,
   EvmTransactionExecutionProps,
   ExecutableTradeStep,
   NearTransactionExecutionProps,
@@ -31,6 +32,7 @@ import type {
   SuiTransactionExecutionProps,
   SupportedTradeQuoteStepIndex,
   SwapErrorRight,
+  SwapMetadata,
   TonTransactionExecutionProps,
   TradeQuote,
   TradeQuoteStep,
@@ -508,4 +510,20 @@ export class SolanaLogsError extends Error {
     super(name)
     this.name = name
   }
+}
+
+export const buildSwapMetadata = (
+  step: TradeQuoteStep,
+  common: CommonSwapMetadata,
+): SwapMetadata => ({
+  ...common,
+  ...step.swapperMetadata,
+})
+
+export const getSwapMetadata = <S extends Exclude<SwapMetadata['swapper'], undefined>>(
+  metadata: SwapMetadata,
+  swapper: S,
+): Extract<SwapMetadata, { swapper: S }> => {
+  if (metadata.swapper !== swapper) throw new Error(`Expected ${swapper} swap metadata`)
+  return metadata as Extract<SwapMetadata, { swapper: S }>
 }

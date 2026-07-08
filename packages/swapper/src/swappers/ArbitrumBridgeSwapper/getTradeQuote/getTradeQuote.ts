@@ -8,7 +8,6 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constant
 import type {
   GetEvmTradeQuoteInputBase,
   GetEvmTradeQuoteInputWithWallet,
-  SingleHopTradeQuoteSteps,
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
@@ -78,7 +77,7 @@ export async function getTradeQuote(
     const buyAmountBeforeFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
     const buyAmountAfterFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
 
-    return Ok({
+    const tradeQuote: TradeQuote = {
       id: uuid(),
       quoteOrRate: 'quote' as const,
       receiveAddress,
@@ -105,8 +104,10 @@ export async function getTradeQuote(
           },
           source: SwapperName.ArbitrumBridge,
         },
-      ] as SingleHopTradeQuoteSteps,
-    })
+      ],
+    }
+
+    return Ok(tradeQuote)
   } catch (err) {
     return Err(
       makeSwapErrorRight({

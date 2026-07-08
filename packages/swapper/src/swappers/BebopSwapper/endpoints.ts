@@ -13,6 +13,7 @@ import {
   checkEvmSwapStatus,
   checkSolanaSwapStatus,
   getExecutableTradeStep,
+  getSwapMetadata,
   isExecutableTradeQuote,
 } from '../../utils'
 import { getBebopSolanaTradeQuote } from './getBebopSolanaTradeQuote/getBebopSolanaTradeQuote'
@@ -72,7 +73,7 @@ export const bebopApi: SwapperApi = {
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
     const { accountNumber, sellAsset, transactionData } = step
-    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
+    if (transactionData?.type !== 'evm') throw new Error('[Bebop] invalid evm transaction')
 
     const { to, value, data, gasLimit: gasLimitFromApi } = transactionData
 
@@ -99,14 +100,15 @@ export const bebopApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { bebopSolanaSerializedTx, bebopQuoteId } = step
-    if (!bebopSolanaSerializedTx || !bebopQuoteId) {
+    const { bebopSolanaSerializedTx } = step
+    const { quoteId } = getSwapMetadata(step.swapperMetadata, 'bebop')
+    if (!bebopSolanaSerializedTx || !quoteId) {
       throw new Error('Bebop Solana transaction metadata is required')
     }
 
     return Promise.resolve({
       serializedTx: bebopSolanaSerializedTx,
-      quoteId: bebopQuoteId,
+      quoteId,
     })
   },
   getEvmTransactionFees: async ({
@@ -121,7 +123,7 @@ export const bebopApi: SwapperApi = {
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
     const { sellAsset, transactionData } = step
-    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
+    if (transactionData?.type !== 'evm') throw new Error('[Bebop] invalid evm transaction')
 
     const { to, value, data } = transactionData
 

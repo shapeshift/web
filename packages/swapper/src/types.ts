@@ -43,6 +43,7 @@ import type Polyglot from 'node-polyglot'
 import type { InterpolationOptions } from 'node-polyglot'
 
 import type { AvnuMetadata } from './swappers/AvnuSwapper/types'
+import type { BebopMetadata } from './swappers/BebopSwapper/types'
 import type { BobGatewayMetadata } from './swappers/BobGatewaySwapper/types'
 import type { ButterSwapTransactionMetadata } from './swappers/ButterSwap/types'
 import type { ChainflipMetadata } from './swappers/ChainflipSwapper/types'
@@ -441,7 +442,6 @@ export type TradeQuoteStep = {
 
   // To be collapsed into transactionData and swapperMetadata
   bebopSolanaSerializedTx?: string
-  bebopQuoteId?: string
   solanaTransactionMetadata?: {
     addressLookupTableAddresses: string[]
     instructions?: TransactionInstruction[]
@@ -571,6 +571,7 @@ export type SwapperMetadata =
   | ChainflipMetadata
   | NearIntentsMetadata
   | AvnuMetadata
+  | BebopMetadata
 
 export type SwapMetadata = CommonSwapMetadata & { swapperMetadata?: SwapperMetadata }
 

@@ -10,12 +10,7 @@ import type { Address } from 'viem'
 import { isAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type {
-  GetEvmTradeRateInput,
-  SingleHopTradeRateSteps,
-  SwapErrorRight,
-  TradeRate,
-} from '../../../types'
+import type { GetEvmTradeRateInput, SwapErrorRight, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
@@ -93,10 +88,9 @@ export async function getBebopTradeRate(
     gasLimit,
   })
 
-  return Ok({
+  const tradeRate: TradeRate = {
     id: uuid(),
-    quoteOrRate: 'rate' as const,
-    accountNumber: undefined,
+    quoteOrRate: 'rate',
     receiveAddress,
     affiliateBps,
     slippageTolerancePercentageDecimal,
@@ -105,7 +99,7 @@ export async function getBebopTradeRate(
     steps: [
       {
         estimatedExecutionTimeMs: 0,
-        allowanceContract: isNativeEvmAsset(sellAsset.assetId) ? undefined : quote.approvalTarget,
+        allowanceContract: isNativeEvmAsset(sellAsset.assetId) ? '' : quote.approvalTarget,
         buyAsset,
         sellAsset,
         accountNumber,
@@ -128,6 +122,8 @@ export async function getBebopTradeRate(
           isEstimate: true,
         }),
       },
-    ] as SingleHopTradeRateSteps,
-  })
+    ],
+  }
+
+  return Ok(tradeRate)
 }

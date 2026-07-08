@@ -18,6 +18,11 @@ export const bebopSupportedChainIds = [
 
 export type BebopSupportedChainId = (typeof bebopSupportedChainIds)[number]
 
+export type BebopMetadata = {
+  name: 'bebop'
+  quoteId: string
+}
+
 export type BebopQuoteResponse = {
   requestId: string
   type: string

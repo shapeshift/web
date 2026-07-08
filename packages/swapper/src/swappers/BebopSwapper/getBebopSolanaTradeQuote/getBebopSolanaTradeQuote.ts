@@ -4,12 +4,7 @@ import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type {
-  GetSolanaTradeQuoteInput,
-  SingleHopTradeQuoteSteps,
-  SwapErrorRight,
-  TradeQuote,
-} from '../../../types'
+import type { GetSolanaTradeQuoteInput, SwapErrorRight, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { fetchBebopSolanaQuote } from '../utils/fetchFromBebop'
@@ -95,12 +90,9 @@ export async function getBebopSolanaTradeQuote(
   const buyAmountBeforeFeesCryptoBaseUnit = buyTokenData.amountBeforeFee || buyAmount
   const buyAmountAfterFeesCryptoBaseUnit = buyAmount
 
-  // Bebop Solana is gasless - Bebop pays the network fees via co-signing
-  const networkFeeCryptoBaseUnit = '0'
-
-  return Ok({
+  const tradeQuote: TradeQuote = {
     id: uuid(),
-    quoteOrRate: 'quote' as const,
+    quoteOrRate: 'quote',
     receiveAddress: receiveAddress ?? takerAddress,
     affiliateBps,
     slippageTolerancePercentageDecimal,
@@ -116,15 +108,17 @@ export async function getBebopSolanaTradeQuote(
         rate,
         feeData: {
           protocolFees: {},
-          networkFeeCryptoBaseUnit,
+          networkFeeCryptoBaseUnit: '0', // Bebop Solana is gasless - Bebop pays the network fees via co-signing
         },
         buyAmountBeforeFeesCryptoBaseUnit,
         buyAmountAfterFeesCryptoBaseUnit,
         sellAmountIncludingProtocolFeesCryptoBaseUnit,
         source: SwapperName.Bebop,
         bebopSolanaSerializedTx: bebopQuoteResponse.solana_tx,
-        bebopQuoteId: bebopQuoteResponse.quoteId,
+        swapperMetadata: { name: 'bebop', quoteId: bebopQuoteResponse.quoteId },
       },
-    ] as SingleHopTradeQuoteSteps,
-  })
+    ],
+  }
+
+  return Ok(tradeQuote)
 }

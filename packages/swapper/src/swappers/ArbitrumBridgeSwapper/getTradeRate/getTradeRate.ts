@@ -4,13 +4,7 @@ import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type {
-  GetEvmTradeRateInput,
-  SingleHopTradeRateSteps,
-  SwapErrorRight,
-  SwapperDeps,
-  TradeRate,
-} from '../../../types'
+import type { GetEvmTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { fetchArbitrumBridgePrice } from '../utils/fetchArbitrumBridgeSwap'
@@ -59,10 +53,9 @@ export async function getTradeRate(
     const buyAmountBeforeFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
     const buyAmountAfterFeesCryptoBaseUnit = sellAmountIncludingProtocolFeesCryptoBaseUnit
 
-    return Ok({
+    const tradeRate: TradeRate = {
       id: uuid(),
-      quoteOrRate: 'rate' as const,
-      accountNumber: undefined,
+      quoteOrRate: 'rate',
       receiveAddress,
       affiliateBps: '0',
       rate,
@@ -87,8 +80,10 @@ export async function getTradeRate(
           },
           source: SwapperName.ArbitrumBridge,
         },
-      ] as SingleHopTradeRateSteps,
-    })
+      ],
+    }
+
+    return Ok(tradeRate)
   } catch (err) {
     return Err(
       makeSwapErrorRight({

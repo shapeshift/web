@@ -7,16 +7,11 @@ import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
-import type { Address, Hex } from 'viem'
+import type { Address } from 'viem'
 import { fromHex, isAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type {
-  GetEvmTradeQuoteInputBase,
-  SingleHopTradeQuoteSteps,
-  SwapErrorRight,
-  TradeQuote,
-} from '../../../types'
+import type { GetEvmTradeQuoteInputBase, SwapErrorRight, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
@@ -90,18 +85,6 @@ export async function getBebopTradeQuote(
   const sellAmount = quote.sellTokens[sellTokenAddress].amount
   const buyAmount = quote.buyTokens[buyTokenAddress].amount
 
-  const transactionMetadata: {
-    to: Address
-    data: Hex
-    value: Hex
-    gas?: string
-  } = {
-    to: quote.tx.to,
-    data: quote.tx.data,
-    value: quote.tx.value,
-    gas: quote.tx.gas?.toString(),
-  }
-
   const rate = calculateRate({ buyAmount, sellAmount, buyAsset, sellAsset })
 
   const buyTokenData = quote.buyTokens[buyTokenAddress]
@@ -112,17 +95,17 @@ export async function getBebopTradeQuote(
     const adapter = assertGetEvmChainAdapter(chainId)
     const { fast } = await adapter.getGasFeeData()
 
-    const gasLimitFromQuote = bnOrZero(quote.tx.gas).toString()
+    const gasLimit = bnOrZero(quote.tx.gas).toString()
 
     const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
       ...fast,
-      supportsEIP1559: Boolean(supportsEIP1559),
-      gasLimit: gasLimitFromQuote,
+      supportsEIP1559,
+      gasLimit,
     })
 
-    return Ok({
+    const tradeQuote: TradeQuote = {
       id: uuid(),
-      quoteOrRate: 'quote' as const,
+      quoteOrRate: 'quote',
       receiveAddress,
       affiliateBps,
       slippageTolerancePercentageDecimal,
@@ -131,7 +114,7 @@ export async function getBebopTradeQuote(
       steps: [
         {
           estimatedExecutionTimeMs: 0,
-          allowanceContract: isNativeEvmAsset(sellAsset.assetId) ? undefined : quote.approvalTarget,
+          allowanceContract: isNativeEvmAsset(sellAsset.assetId) ? '' : quote.approvalTarget,
           buyAsset,
           sellAsset,
           accountNumber,
@@ -147,10 +130,10 @@ export async function getBebopTradeQuote(
           transactionData: {
             type: 'evm',
             chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-            to: transactionMetadata.to,
-            data: transactionMetadata.data,
-            value: fromHex(transactionMetadata.value, 'bigint').toString(),
-            gasLimit: transactionMetadata.gas,
+            to: quote.tx.to,
+            data: quote.tx.data,
+            value: fromHex(quote.tx.value, 'bigint').toString(),
+            gasLimit: quote.tx.gas?.toString(),
           },
           affiliateFee: buildAffiliateFee({
             strategy: 'buy_asset',
@@ -162,8 +145,10 @@ export async function getBebopTradeQuote(
             isEstimate: true,
           }),
         },
-      ] as SingleHopTradeQuoteSteps,
-    })
+      ],
+    }
+
+    return Ok(tradeQuote)
   } catch (err) {
     return Err(
       makeSwapErrorRight({

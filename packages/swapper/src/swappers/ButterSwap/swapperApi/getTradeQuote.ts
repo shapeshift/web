@@ -249,56 +249,33 @@ export const getTradeQuote = async (
 
   const solanaTransactionMetadata = maybeSolanaTransactionMetadata?.unwrap()
 
-  const step = {
-    buyAmountBeforeFeesCryptoBaseUnit: BigAmount.fromPrecision({
-      value: outputAmount,
-      precision: buyAsset.precision,
-    }).toBaseUnit(),
-    buyAmountAfterFeesCryptoBaseUnit,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    feeData: {
-      networkFeeCryptoBaseUnit,
-      protocolFees: undefined,
-    },
-    rate,
-    source: SwapperName.ButterSwap,
-    buyAsset,
-    sellAsset,
-    accountNumber,
-    allowanceContract: sellAsset.chainId === tronChainId ? buildTx.to : route.contract ?? '0x0',
-    estimatedExecutionTimeMs: route.timeEstimated * 1000,
-    butterSwapTransactionMetadata: {
-      to: buildTx.to,
-      data: buildTx.data,
-      value: buildTx.value,
-      gasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
-      method: buildTx.method,
-      args: buildTx.args,
-      memo: buildTx.memo,
-    },
-    ...(isEvmChainId(sellAsset.chainId) && {
-      transactionData: {
-        type: 'evm' as const,
-        chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+  const transactionData = (() => {
+    if (solanaTransactionMetadata) return { solanaTransactionMetadata }
+
+    if (isEvmChainId(sellAsset.chainId)) {
+      return {
+        transactionData: {
+          type: 'evm' as const,
+          chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+          to: buildTx.to,
+          data: buildTx.data,
+          value: fromHex(buildTx.value, 'bigint').toString(),
+          gasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
+        },
+      }
+    }
+
+    return {
+      butterSwapTransactionMetadata: {
         to: buildTx.to,
         data: buildTx.data,
-        value: fromHex(buildTx.value, 'bigint').toString(),
-        gasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
+        value: buildTx.value,
+        method: buildTx.method,
+        args: buildTx.args,
+        memo: buildTx.memo,
       },
-    }),
-    ...(solanaTransactionMetadata && {
-      solanaTransactionMetadata,
-    }),
-    affiliateFee: buildAffiliateFee({
-      strategy: 'buy_asset',
-      affiliateBps,
-      sellAsset,
-      buyAsset,
-      sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-      isEstimate: true,
-    }),
-  }
+    }
+  })()
 
   const tradeQuote: TradeQuote = {
     id: route.hash,
@@ -309,7 +286,37 @@ export const getTradeQuote = async (
     quoteOrRate: 'quote',
     swapperName: SwapperName.ButterSwap,
     slippageTolerancePercentageDecimal: slippageDecimal,
-    steps: [step],
+    steps: [
+      {
+        buyAmountBeforeFeesCryptoBaseUnit: BigAmount.fromPrecision({
+          value: outputAmount,
+          precision: buyAsset.precision,
+        }).toBaseUnit(),
+        buyAmountAfterFeesCryptoBaseUnit,
+        sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        feeData: {
+          networkFeeCryptoBaseUnit,
+          protocolFees: undefined,
+        },
+        rate,
+        source: SwapperName.ButterSwap,
+        buyAsset,
+        sellAsset,
+        accountNumber,
+        allowanceContract: sellAsset.chainId === tronChainId ? buildTx.to : route.contract ?? '0x0',
+        estimatedExecutionTimeMs: route.timeEstimated * 1000,
+        ...transactionData,
+        affiliateFee: buildAffiliateFee({
+          strategy: 'buy_asset',
+          affiliateBps,
+          sellAsset,
+          buyAsset,
+          sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+          isEstimate: true,
+        }),
+      },
+    ],
   }
 
   return Ok([tradeQuote])

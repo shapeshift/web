@@ -146,36 +146,6 @@ export const getTradeRate = async (
       }).toBaseUnit()
     : '0'
 
-  // Always a single step
-  const step = {
-    rate,
-    buyAmountBeforeFeesCryptoBaseUnit: BigAmount.fromPrecision({
-      value: outputAmount,
-      precision: buyAsset.precision,
-    }).toBaseUnit(),
-    buyAmountAfterFeesCryptoBaseUnit,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    feeData: {
-      networkFeeCryptoBaseUnit,
-      protocolFees: undefined,
-    },
-    source: SwapperName.ButterSwap,
-    buyAsset,
-    sellAsset,
-    accountNumber,
-    allowanceContract: route.contract ?? '0x0',
-    estimatedExecutionTimeMs: route.timeEstimated * 1000,
-    affiliateFee: buildAffiliateFee({
-      strategy: 'buy_asset',
-      affiliateBps,
-      sellAsset,
-      buyAsset,
-      sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
-      isEstimate: true,
-    }),
-  }
-
   const tradeRate: TradeRate = {
     id: route.hash,
     rate,
@@ -184,7 +154,36 @@ export const getTradeRate = async (
     affiliateBps,
     slippageTolerancePercentageDecimal,
     quoteOrRate: 'rate',
-    steps: [step],
+    steps: [
+      {
+        rate,
+        buyAmountBeforeFeesCryptoBaseUnit: BigAmount.fromPrecision({
+          value: outputAmount,
+          precision: buyAsset.precision,
+        }).toBaseUnit(),
+        buyAmountAfterFeesCryptoBaseUnit,
+        sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        feeData: {
+          networkFeeCryptoBaseUnit,
+          protocolFees: undefined,
+        },
+        source: SwapperName.ButterSwap,
+        buyAsset,
+        sellAsset,
+        accountNumber,
+        allowanceContract: route.contract ?? '0x0',
+        estimatedExecutionTimeMs: route.timeEstimated * 1000,
+        affiliateFee: buildAffiliateFee({
+          strategy: 'buy_asset',
+          affiliateBps,
+          sellAsset,
+          buyAsset,
+          sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+          isEstimate: true,
+        }),
+      },
+    ],
   }
 
   return Ok([tradeRate])

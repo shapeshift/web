@@ -4,11 +4,9 @@ export type ButterSwapTransactionMetadata = {
   to: string
   data: string
   value: Hex
-  gasLimit: string
   method?: string
   args?: { type: string; value: unknown }[]
   memo?: string
-  serializedSolanaTransaction?: string
 }
 
 export type ErrorType = {

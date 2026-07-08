@@ -27,7 +27,7 @@ export const butterSwapApi: SwapperApi = {
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
     const { transactionData, sellAsset } = step
-    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
+    if (transactionData?.type !== 'evm') throw new Error('[ButterSwap] invalid evm transaction')
 
     const { to, data, value, gasLimit: gasLimitFromApi } = transactionData
 
@@ -60,7 +60,7 @@ export const butterSwapApi: SwapperApi = {
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
     const { accountNumber, sellAsset, transactionData } = step
-    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
+    if (transactionData?.type !== 'evm') throw new Error('[ButterSwap] invalid evm transaction')
 
     const { to, data, value, gasLimit: gasLimitFromApi } = transactionData
 

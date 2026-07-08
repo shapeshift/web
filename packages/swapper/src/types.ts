@@ -42,6 +42,7 @@ import type { Mixpanel } from 'mixpanel-browser'
 import type Polyglot from 'node-polyglot'
 import type { InterpolationOptions } from 'node-polyglot'
 
+import type { AvnuMetadata } from './swappers/AvnuSwapper/types'
 import type { BobGatewayMetadata } from './swappers/BobGatewaySwapper/types'
 import type { ButterSwapTransactionMetadata } from './swappers/ButterSwap/types'
 import type { ChainflipMetadata } from './swappers/ChainflipSwapper/types'
@@ -484,10 +485,6 @@ export type TradeQuoteStep = {
       stepAmountsOut: string[]
     }
   }
-  avnuSpecific?: {
-    quoteId: string
-    routes: any[]
-  }
   stonfiSpecific?: {
     quoteId: string
     resolverId: string
@@ -573,9 +570,9 @@ export type SwapperMetadata =
   | BobGatewayMetadata
   | ChainflipMetadata
   | NearIntentsMetadata
-  | { swapper?: undefined }
+  | AvnuMetadata
 
-export type SwapMetadata = CommonSwapMetadata & SwapperMetadata
+export type SwapMetadata = CommonSwapMetadata & { swapperMetadata?: SwapperMetadata }
 
 export enum SwapStatus {
   Idle = 'idle',

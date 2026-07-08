@@ -140,7 +140,7 @@ export const bobGatewayApi: SwapperApi = {
   checkTradeStatus: async ({ swap, config, txHash }) => {
     if (!swap) throw new Error('[BobGateway] swap is required for status check')
 
-    const { orderId } = getSwapMetadata(swap.metadata, 'bob')
+    const { orderId } = getSwapMetadata(swap.metadata.swapperMetadata, 'bob')
 
     if (txHash && !registeredSwapIds.has(swap.id)) {
       try {

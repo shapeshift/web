@@ -6,6 +6,6 @@ export type BobGatewayOrder = {
 }
 
 export type BobGatewayMetadata = {
-  swapper: 'bob'
+  name: 'bob'
   orderId: string
 }

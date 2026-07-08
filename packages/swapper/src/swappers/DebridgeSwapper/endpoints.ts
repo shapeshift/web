@@ -138,7 +138,8 @@ export const debridgeApi: SwapperApi = {
     assertGetEvmChainAdapter,
   }) => {
     const isSameChainSwap =
-      swap?.metadata.swapper === 'debridge' && swap.metadata.isSameChainSwap === true
+      swap?.metadata.swapperMetadata?.name === 'debridge' &&
+      swap.metadata.swapperMetadata.isSameChainSwap === true
 
     if (isSameChainSwap) {
       return checkEvmSwapStatus({

@@ -2,7 +2,7 @@ import type { ChainflipBaasStatusEgress } from './models/ChainflipBaasStatusEgre
 import type { ChainflipBaasStatusSwap } from './models/ChainflipBaasStatusSwap'
 
 export type ChainflipMetadata = {
-  swapper: 'chainflip'
+  name: 'chainflip'
   chainflipSwapId: number | string
 }
 

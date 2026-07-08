@@ -163,7 +163,7 @@ export const relayApi: SwapperApi = {
 
     if (!swap) throw new Error('Missing swap')
 
-    const relayMetadata = getSwapMetadata(swap.metadata, 'relay')
+    const relayMetadata = getSwapMetadata(swap.metadata.swapperMetadata, 'relay')
 
     if (maybeSafeTransactionStatus) {
       // return any safe transaction status that has not yet executed on chain (no buyTxHash)

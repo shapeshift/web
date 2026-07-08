@@ -33,6 +33,7 @@ import type {
   SupportedTradeQuoteStepIndex,
   SwapErrorRight,
   SwapMetadata,
+  SwapperMetadata,
   TonTransactionExecutionProps,
   TradeQuote,
   TradeQuoteStep,
@@ -517,13 +518,13 @@ export const buildSwapMetadata = (
   common: CommonSwapMetadata,
 ): SwapMetadata => ({
   ...common,
-  ...step.swapperMetadata,
+  swapperMetadata: step.swapperMetadata,
 })
 
-export const getSwapMetadata = <S extends Exclude<SwapMetadata['swapper'], undefined>>(
-  metadata: SwapMetadata,
-  swapper: S,
-): Extract<SwapMetadata, { swapper: S }> => {
-  if (metadata.swapper !== swapper) throw new Error(`Expected ${swapper} swap metadata`)
-  return metadata as Extract<SwapMetadata, { swapper: S }>
+export const getSwapMetadata = <S extends SwapperMetadata['name']>(
+  metadata: SwapperMetadata | undefined,
+  name: S,
+): Extract<SwapperMetadata, { name: S }> => {
+  if (metadata?.name !== name) throw new Error(`Expected ${name} swap metadata`)
+  return metadata as Extract<SwapperMetadata, { name: S }>
 }

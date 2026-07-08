@@ -297,8 +297,7 @@ export const useTradeExecution = (
                     ...(chainflipSwapId && {
                       metadata: {
                         ...currentSwap.metadata,
-                        swapper: 'chainflip' as const,
-                        chainflipSwapId,
+                        swapperMetadata: { name: 'chainflip', chainflipSwapId },
                       },
                     }),
                   }),

@@ -1,7 +1,7 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 export type NearIntentsMetadata = {
-  swapper: 'nearIntents'
+  name: 'nearIntents'
   depositAddress: string
   depositMemo?: string
   timeEstimate: number

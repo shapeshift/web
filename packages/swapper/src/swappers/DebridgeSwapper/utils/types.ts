@@ -25,7 +25,7 @@ export type DebridgeTransactionMetadata = {
 }
 
 export type DebridgeMetadata = {
-  swapper: 'debridge'
+  name: 'debridge'
   isSameChainSwap: boolean
 }
 

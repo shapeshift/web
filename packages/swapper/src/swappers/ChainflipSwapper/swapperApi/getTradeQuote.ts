@@ -171,7 +171,7 @@ export const getTradeQuote = async (
         }
 
       step.chainflipSpecific.chainflipDepositAddress = swapResponse.address
-      step.swapperMetadata = { swapper: 'chainflip', chainflipSwapId: swapResponse.id }
+      step.swapperMetadata = { name: 'chainflip', chainflipSwapId: swapResponse.id }
       step.feeData = await getFeeData()
     }
   }

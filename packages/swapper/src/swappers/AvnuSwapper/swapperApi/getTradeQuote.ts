@@ -175,9 +175,9 @@ export const getTradeQuote = async (
           sellAsset,
           source: SwapperName.Avnu,
           estimatedExecutionTimeMs: undefined,
-          avnuSpecific: {
+          swapperMetadata: {
+            name: 'avnu',
             quoteId: bestQuote.quoteId,
-            routes: bestQuote.routes,
           },
           affiliateFee: buildAffiliateFee({
             strategy: 'buy_asset',

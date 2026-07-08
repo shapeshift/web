@@ -24,7 +24,7 @@ describe('relay checkTradeStatus', () => {
     await relayApi.checkTradeStatus!({
       swap: {
         id: 's1',
-        metadata: { swapper: 'relay', relayId: 'req_9', data: '0xcalldata' },
+        metadata: { swapperMetadata: { name: 'relay', relayId: 'req_9', data: '0xcalldata' } },
       } as any,
       txHash: '0xhash',
       chainId: 'eip155:1',

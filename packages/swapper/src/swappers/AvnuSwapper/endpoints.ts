@@ -7,6 +7,7 @@ import {
   checkStarknetSwapStatus,
   createDefaultStatusResponse,
   getExecutableTradeStep,
+  getSwapMetadata,
   isExecutableTradeQuote,
 } from '../../utils'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
@@ -56,9 +57,10 @@ export const avnuApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { accountNumber, sellAsset, avnuSpecific } = step
-    if (!avnuSpecific) throw new Error('avnuSpecific is required')
-    if (!avnuSpecific.quoteId) throw new Error('quoteId is required in avnuSpecific')
+    const { accountNumber, sellAsset } = step
+
+    const { quoteId } = getSwapMetadata(step.swapperMetadata, 'avnu')
+    if (!quoteId) throw new Error('quoteId is required in avnu swapper metadata')
 
     const adapter = assertGetStarknetChainAdapter(sellAsset.chainId)
 
@@ -74,7 +76,7 @@ export const avnuApi: SwapperApi = {
 
     // Get the swap calls from AVNU SDK
     const { calls: avnuCalls } = await quoteToCalls({
-      quoteId: avnuSpecific.quoteId,
+      quoteId,
       slippage,
       takerAddress: normalizedFrom,
     })

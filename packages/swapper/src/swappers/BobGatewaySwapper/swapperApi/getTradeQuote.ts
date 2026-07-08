@@ -137,7 +137,7 @@ export const getBobGatewayTradeQuote = async (
         accountNumber,
         allowanceContract,
         estimatedExecutionTimeMs,
-        swapperMetadata: { swapper: 'bob', orderId: order.orderId },
+        swapperMetadata: { name: 'bob', orderId: order.orderId },
         transactionData: order.transactionData,
       },
     ],

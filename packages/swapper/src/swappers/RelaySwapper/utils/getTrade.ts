@@ -772,7 +772,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
         solanaTransactionMetadata,
         relayTransactionMetadata,
         swapperMetadata: {
-          swapper: 'relay',
+          name: 'relay',
           relayId: relayTransactionMetadata.relayId,
           orderId: relayTransactionMetadata.orderId,
           data: transactionData?.type === 'evm' ? transactionData.data : undefined,

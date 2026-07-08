@@ -379,7 +379,9 @@ export const nearIntentsApi: SwapperApi = {
 
   checkTradeStatus: async ({ config, swap }): Promise<TradeStatus> => {
     const nearIntentsMetadata =
-      swap?.metadata.swapper === 'nearIntents' ? swap.metadata : undefined
+      swap?.metadata.swapperMetadata?.name === 'nearIntents'
+        ? swap.metadata.swapperMetadata
+        : undefined
 
     if (!nearIntentsMetadata?.depositAddress) {
       return createDefaultStatusResponse(swap?.buyTxHash)

@@ -254,7 +254,9 @@ export const useSwapActionSubscriber = () => {
         stepSource: status && status !== TxStatus.Unknown ? swap.source : undefined,
         maybeChainflipSwapId: chainflipSwapId?.toString(),
         maybeNearIntentsDepositAddress:
-          swap.metadata.swapper === 'nearIntents' ? swap.metadata.depositAddress : undefined,
+          swap.metadata.swapperMetadata?.name === 'nearIntents'
+            ? swap.metadata.swapperMetadata.depositAddress
+            : undefined,
         ...(swap.swapperName === SwapperName.CowSwap ? { tradeId: txHash } : { txId: txHash }),
         ...(swap.metadata.relayerTxHash && {
           isRelayer: true,
@@ -274,7 +276,7 @@ export const useSwapActionSubscriber = () => {
             txLink,
             actualBuyAmountCryptoBaseUnit,
             ...(chainflipSwapId && {
-              metadata: { ...swap.metadata, swapper: 'chainflip' as const, chainflipSwapId },
+              metadata: { ...swap.metadata, swapperMetadata: { name: 'chainflip', chainflipSwapId } },
             }),
           }),
         )

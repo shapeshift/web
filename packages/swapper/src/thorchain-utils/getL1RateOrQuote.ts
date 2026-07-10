@@ -422,7 +422,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
 
           return makeThorTradeRateOrQuote<ThorUtxoOrCosmosTradeRateOrQuote>({
             route,
-            allowanceContract: '0x0', // not applicable to UTXOs
+            allowanceContract: '', // not applicable to UTXOs
             memo,
             thorchainTransactionMetadata: {
               to: vault,
@@ -459,7 +459,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
           return makeThorTradeRateOrQuote<ThorUtxoOrCosmosTradeRateOrQuote>({
             route,
             memo,
-            allowanceContract: '0x0', // not applicable to cosmossdk
+            allowanceContract: '', // not applicable to cosmossdk
             thorchainTransactionMetadata: {
               to: vault,
               memo,
@@ -513,7 +513,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
 
           return makeThorTradeRateOrQuote<ThorUtxoOrCosmosTradeRateOrQuote>({
             route,
-            allowanceContract: '0x0',
+            allowanceContract: '',
             memo,
             thorchainTransactionMetadata: {
               to: vault,
@@ -608,7 +608,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
           return Promise.resolve(
             makeThorTradeRateOrQuote<ThorUtxoOrCosmosTradeRateOrQuote>({
               route,
-              allowanceContract: '0x0', // not applicable to TRON
+              allowanceContract: '', // not applicable to TRON
               memo,
               thorchainTransactionMetadata: {
                 to: vault,

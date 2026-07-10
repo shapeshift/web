@@ -117,7 +117,7 @@ const fetchArbitrumBridgeSwap = async <T extends 'quote' | 'rate'>({
         adapter,
       })
 
-      return { request: maybeRequest, networkFeeCryptoBaseUnit, allowanceContract: '0x0' }
+      return { request: maybeRequest, networkFeeCryptoBaseUnit, allowanceContract: '' }
     }
     case BRIDGE_TYPE.ETH_WITHDRAWAL: {
       const bridger = new EthBridger(l2Network)
@@ -145,7 +145,7 @@ const fetchArbitrumBridgeSwap = async <T extends 'quote' | 'rate'>({
         adapter,
       })
 
-      return { request: maybeRequest, networkFeeCryptoBaseUnit, allowanceContract: '0x0' }
+      return { request: maybeRequest, networkFeeCryptoBaseUnit, allowanceContract: '' }
     }
     case BRIDGE_TYPE.ERC20_DEPOSIT: {
       const bridger = new Erc20Bridger(l2Network)
@@ -216,7 +216,7 @@ const fetchArbitrumBridgeSwap = async <T extends 'quote' | 'rate'>({
         adapter,
       })
 
-      return { request: maybeRequest, networkFeeCryptoBaseUnit, allowanceContract: '0x0' }
+      return { request: maybeRequest, networkFeeCryptoBaseUnit, allowanceContract: '' }
     }
     default:
       return assertUnreachable(bridgeType)

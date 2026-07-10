@@ -171,7 +171,7 @@ export const getTradeRate = async (
         buyAsset,
         sellAsset,
         accountNumber,
-        allowanceContract: route.contract ?? '0x0',
+        allowanceContract: route.contract ?? '',
         estimatedExecutionTimeMs: route.timeEstimated * 1000,
         affiliateFee: buildAffiliateFee({
           strategy: 'buy_asset',

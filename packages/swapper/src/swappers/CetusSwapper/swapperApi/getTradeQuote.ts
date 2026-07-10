@@ -120,7 +120,7 @@ export const getTradeQuote = async (
           source: SwapperName.Cetus,
           buyAsset,
           sellAsset,
-          allowanceContract: '0x0',
+          allowanceContract: '',
           estimatedExecutionTimeMs: undefined,
           affiliateFee: buildAffiliateFee({
             strategy: 'buy_asset',

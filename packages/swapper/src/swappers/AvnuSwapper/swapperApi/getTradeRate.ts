@@ -130,7 +130,7 @@ export const getTradeRate = async (
       steps: [
         {
           accountNumber: undefined,
-          allowanceContract: '0x0',
+          allowanceContract: '',
           buyAmountBeforeFeesCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
           buyAmountAfterFeesCryptoBaseUnit,
           buyAsset,

@@ -101,7 +101,7 @@ export async function getBebopSolanaTradeQuote(
     steps: [
       {
         estimatedExecutionTimeMs: 0,
-        allowanceContract: '0x0',
+        allowanceContract: '',
         buyAsset,
         sellAsset,
         accountNumber,

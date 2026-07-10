@@ -132,7 +132,7 @@ export const getTradeRate = async (input: GetTradeRateInput): Promise<TradeRateR
           buyAsset,
           sellAsset,
           accountNumber: undefined,
-          allowanceContract: '0x0000000000000000000000000000000000000000',
+          allowanceContract: '',
           estimatedExecutionTimeMs: 30000,
           stonfiSpecific: buildStonfiSpecific(quote, bidAssetAddress, askAssetAddress),
           affiliateFee: buildAffiliateFee({

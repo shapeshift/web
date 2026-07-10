@@ -162,7 +162,7 @@ export const getTradeQuote = async (
       steps: [
         {
           accountNumber,
-          allowanceContract: '0x0',
+          allowanceContract: '',
           buyAmountBeforeFeesCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
           buyAmountAfterFeesCryptoBaseUnit,
           buyAsset,

@@ -99,7 +99,7 @@ export async function getBebopSolanaTradeRate(
     steps: [
       {
         estimatedExecutionTimeMs: 0,
-        allowanceContract: '0x0',
+        allowanceContract: '',
         buyAsset,
         sellAsset,
         accountNumber,

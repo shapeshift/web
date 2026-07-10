@@ -74,7 +74,7 @@ describe('getTradeQuote', () => {
 
     expect(quote.receiveAddress).toBe(commonInput.receiveAddress)
     expect(quote.rate).toBe('1')
-    expect(quote.steps[0].allowanceContract).toBe('0x0')
+    expect(quote.steps[0].allowanceContract).toBe('')
     expect(quote.steps[0].source).toBe(SwapperName.ArbitrumBridge)
   })
 
@@ -108,7 +108,7 @@ describe('getTradeQuote', () => {
 
     expect(quote.receiveAddress).toBe(withdrawInput.receiveAddress)
     expect(quote.rate).toBe('1')
-    expect(quote.steps[0].allowanceContract).toBe('0x0')
+    expect(quote.steps[0].allowanceContract).toBe('')
     expect(quote.steps[0].source).toBe(SwapperName.ArbitrumBridge)
   })
 
@@ -190,7 +190,7 @@ describe('getTradeQuote', () => {
 
     expect(quote.receiveAddress).toBe(erc20WithdrawInput.receiveAddress)
     expect(quote.rate).toBe('1')
-    expect(quote.steps[0].allowanceContract).toBe('0x0')
+    expect(quote.steps[0].allowanceContract).toBe('')
     expect(quote.steps[0].source).toBe(SwapperName.ArbitrumBridge)
   })
 

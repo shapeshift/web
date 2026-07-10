@@ -303,7 +303,7 @@ export const getTradeQuote = async (
         buyAsset,
         sellAsset,
         accountNumber,
-        allowanceContract: sellAsset.chainId === tronChainId ? buildTx.to : route.contract ?? '0x0',
+        allowanceContract: sellAsset.chainId === tronChainId ? buildTx.to : route.contract ?? '',
         estimatedExecutionTimeMs: route.timeEstimated * 1000,
         ...transactionData,
         affiliateFee: buildAffiliateFee({

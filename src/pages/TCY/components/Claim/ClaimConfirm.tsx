@@ -96,9 +96,15 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
     assetId: claim.assetId,
     swapperName: SwapperName.Thorchain,
   })
-  const isInboundHalted = !isTradingActiveLoading && isTradingActive === false
+  const isInboundHalted = useMemo(
+    () => !isTradingActiveLoading && isTradingActive === false,
+    [isTradingActive, isTradingActiveLoading],
+  )
 
-  const isHalted = Boolean(isChainHalted) || Boolean(isTcyClaimingHalted) || isInboundHalted
+  const isHalted = useMemo(
+    () => Boolean(isChainHalted) || Boolean(isTcyClaimingHalted) || isInboundHalted,
+    [isChainHalted, isInboundHalted, isTcyClaimingHalted],
+  )
   const [runeAddress, setRuneAddress] = useState<string>()
   const methods = useForm<AddressFormValues>()
 

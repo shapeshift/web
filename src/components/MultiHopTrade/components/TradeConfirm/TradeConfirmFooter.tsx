@@ -160,7 +160,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
         : undefined
 
     return (
-      tradeQuoteStep.chainflipSpecific?.chainflipDepositAddress ??
+      tradeQuoteStep.chainflipSpecific?.depositAddress ??
       tradeQuoteStep.nearIntentsSpecific?.depositAddress ??
       transactionDataAddress
     )

@@ -5,7 +5,6 @@ import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
 import type { SwapperApi, UtxoFeeData } from '../../types'
 import { getExecutableTradeStep, getSwapMetadata, isExecutableTradeQuote } from '../../utils'
-import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { ChainflipStatusMessage } from './constants'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
@@ -27,32 +26,22 @@ export const chainflipApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { accountNumber, chainflipSpecific, sellAsset } = step
+    const { accountNumber, sellAsset, transactionData } = step
+    if (transactionData?.type !== 'evm') throw new Error('[Chainflip] invalid evm transaction')
 
-    if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
+    const { to, data, value } = transactionData
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-    const to = chainflipSpecific.chainflipDepositAddress
-    const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
-    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-    const data = evm.getErc20Data(to, value, contractAddress)
+    const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
 
-    const feeData = await evm.getFees({
-      adapter,
-      data: data || '0x',
-      to: contractAddress ?? to,
-      value: isNativeEvmAsset(sellAsset.assetId) ? value : '0',
-      from,
-      supportsEIP1559,
-    })
-
-    return adapter.buildSendApiTransaction({
+    return adapter.buildCustomApiTx({
       accountNumber,
       from,
       to,
       value,
-      chainSpecific: { contractAddress, ...feeData },
+      data,
+      ...feeData,
     })
   },
   getEvmTransactionFees: async ({
@@ -66,24 +55,18 @@ export const chainflipApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { chainflipSpecific, sellAsset } = step
+    const { sellAsset, transactionData } = step
+    if (transactionData?.type !== 'evm') throw new Error('[Chainflip] invalid evm transaction')
 
-    if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
+    const { to, data, value } = transactionData
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-
-    const to = chainflipSpecific.chainflipDepositAddress
-    const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
-
-    const data = evm.getErc20Data(to, value, contractAddress)
-
     const { networkFeeCryptoBaseUnit } = await evm.getFees({
       adapter,
-      data: data || '0x',
-      to: contractAddress ?? to,
-      value: isNativeEvmAsset(sellAsset.assetId) ? value : '0',
+      data,
+      to,
+      value,
       from,
       supportsEIP1559,
     })
@@ -103,14 +86,14 @@ export const chainflipApi: SwapperApi = {
 
     const { accountNumber, chainflipSpecific, sellAsset } = step
 
-    if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
+    if (!chainflipSpecific?.depositAddress) throw Error('Missing deposit address')
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
     return adapter.buildSendApiTransaction({
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       xpub,
-      to: chainflipSpecific.chainflipDepositAddress,
+      to: chainflipSpecific.depositAddress,
       accountNumber,
       skipToAddressValidation: true,
       chainSpecific: {
@@ -126,12 +109,12 @@ export const chainflipApi: SwapperApi = {
 
     const { chainflipSpecific, sellAsset } = step
 
-    if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
+    if (!chainflipSpecific?.depositAddress) throw Error('Missing deposit address')
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
     const { fast } = await adapter.getFeeData({
-      to: chainflipSpecific.chainflipDepositAddress,
+      to: chainflipSpecific.depositAddress,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       chainSpecific: { pubkey: xpub },
       sendMax: false,
@@ -151,11 +134,11 @@ export const chainflipApi: SwapperApi = {
 
     const { accountNumber, chainflipSpecific, sellAsset } = step
 
-    if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
+    if (!chainflipSpecific?.depositAddress) throw Error('Missing deposit address')
 
     const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
 
-    const to = chainflipSpecific.chainflipDepositAddress
+    const to = chainflipSpecific.depositAddress
     const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
     const tokenId = contractAddressOrUndefined(sellAsset.assetId)
 
@@ -193,12 +176,12 @@ export const chainflipApi: SwapperApi = {
 
     const { chainflipSpecific, sellAsset } = step
 
-    if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
+    if (!chainflipSpecific?.depositAddress) throw Error('Missing deposit address')
 
     const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
 
     const { fast } = await adapter.getFeeData({
-      to: chainflipSpecific.chainflipDepositAddress,
+      to: chainflipSpecific.depositAddress,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       chainSpecific: {
         from,
@@ -221,12 +204,12 @@ export const chainflipApi: SwapperApi = {
 
     const { accountNumber, chainflipSpecific, sellAsset } = step
 
-    if (!chainflipSpecific?.chainflipDepositAddress) throw Error('Missing deposit address')
+    if (!chainflipSpecific?.depositAddress) throw Error('Missing deposit address')
 
     const adapter = assertGetTronChainAdapter(sellAsset.chainId)
 
     return adapter.buildSendApiTransaction({
-      to: chainflipSpecific.chainflipDepositAddress,
+      to: chainflipSpecific.depositAddress,
       from,
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       accountNumber,
@@ -237,13 +220,13 @@ export const chainflipApi: SwapperApi = {
   checkTradeStatus: async ({ config, swap }) => {
     if (!swap) throw new Error('Missing swap')
 
-    const { chainflipSwapId } = getSwapMetadata(swap.metadata.swapperMetadata, 'chainflip')
+    const { swapId } = getSwapMetadata(swap.metadata.swapperMetadata, 'chainflip')
 
     const brokerUrl = config.VITE_CHAINFLIP_API_URL
     const apiKey = config.VITE_CHAINFLIP_API_KEY
 
     const maybeStatusResponse = await chainflipService.get<ChainFlipStatus>(
-      `${brokerUrl}/status-by-id?apiKey=${apiKey}&swapId=${chainflipSwapId}`,
+      `${brokerUrl}/status-by-id?apiKey=${apiKey}&swapId=${swapId}`,
     )
 
     if (maybeStatusResponse.isErr()) {
@@ -257,7 +240,7 @@ export const chainflipApi: SwapperApi = {
 
     const { data: statusResponse } = maybeStatusResponse.unwrap()
     const {
-      status: { swapEgress, swapId },
+      status: { swapEgress },
     } = statusResponse
 
     // Assume no outbound Tx is a pending Tx
@@ -266,7 +249,6 @@ export const chainflipApi: SwapperApi = {
         buyTxHash: undefined,
         status: TxStatus.Pending,
         message: getLatestChainflipStatusMessage(statusResponse),
-        chainflipSwapId: swapId ?? undefined,
       }
     }
 
@@ -276,7 +258,6 @@ export const chainflipApi: SwapperApi = {
       buyTxHash: swapEgress.transactionReference,
       status: TxStatus.Confirmed,
       message: undefined,
-      chainflipSwapId: swapId ?? undefined,
     }
   },
 }

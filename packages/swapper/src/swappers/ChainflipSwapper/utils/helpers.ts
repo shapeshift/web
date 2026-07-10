@@ -1,23 +1,51 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
+import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
-import { BigAmount, bn, bnOrZero, isToken } from '@shapeshiftoss/utils'
+import {
+  assertUnreachable,
+  BigAmount,
+  bn,
+  bnOrZero,
+  contractAddressOrUndefined,
+  isToken,
+} from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { AxiosResponse } from 'axios'
 
-import type { SwapErrorRight } from '../../../types'
+import type {
+  CommonTradeQuoteInput,
+  GetEvmTradeRateInput,
+  GetTradeRateInput,
+  GetUtxoTradeQuoteInput,
+  ProtocolFee,
+  SwapErrorRight,
+  SwapperDeps,
+  SwapSource,
+  TxBuildData,
+} from '../../../types'
 import { TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { ChainflipSupportedChainId } from '../constants'
 import {
+  CHAINFLIP_BOOST_SWAP_SOURCE,
+  CHAINFLIP_DCA_BOOST_SWAP_SOURCE,
+  CHAINFLIP_DCA_QUOTE,
+  CHAINFLIP_DCA_SWAP_SOURCE,
+  CHAINFLIP_REGULAR_QUOTE,
+  CHAINFLIP_SWAP_SOURCE,
   ChainflipSupportedAssetIdsByChainId,
   ChainflipSupportedChainIds,
   chainIdToChainflipNetwork,
+  usdcAsset,
 } from '../constants'
-import type { ChainflipBaasSwapDepositAddress } from '../models'
+import type { ChainflipBaasQuoteQuote, ChainflipBaasSwapDepositAddress } from '../models'
 import type { ChainflipNetwork } from '../types'
 import { chainflipService } from './chainflipService'
+
+const SAFE_GAS_LIMIT = '100000'
 
 type ChainFlipBrokerBaseArgs = {
   brokerUrl: string
@@ -58,6 +86,56 @@ export const isSupportedAssetId = (
   if (!supportedAssetIds) return false
 
   return supportedAssetIds.includes(assetId)
+}
+
+export const assertValidTrade = ({
+  sellAsset,
+  buyAsset,
+}: {
+  sellAsset: Asset
+  buyAsset: Asset
+}): Result<boolean, SwapErrorRight> => {
+  if (!isSupportedChainId(sellAsset.chainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `unsupported chainId`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId: sellAsset.chainId },
+      }),
+    )
+  }
+
+  if (!isSupportedChainId(buyAsset.chainId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `unsupported chainId`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId: buyAsset.chainId },
+      }),
+    )
+  }
+
+  if (!isSupportedAssetId(sellAsset.chainId, sellAsset.assetId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `asset '${sellAsset.name}' on chainId '${sellAsset.chainId}' not supported`,
+        code: TradeQuoteError.UnsupportedTradePair,
+        details: { chainId: sellAsset.chainId, assetId: sellAsset.assetId },
+      }),
+    )
+  }
+
+  if (!isSupportedAssetId(buyAsset.chainId, buyAsset.assetId)) {
+    return Err(
+      makeSwapErrorRight({
+        message: `asset '${buyAsset.name}' on chainId '${buyAsset.chainId}' not supported`,
+        code: TradeQuoteError.UnsupportedTradePair,
+        details: { chainId: buyAsset.chainId, assetId: buyAsset.assetId },
+      }),
+    )
+  }
+
+  return Ok(true)
 }
 
 export const calculateChainflipMinPrice = ({
@@ -181,4 +259,224 @@ export const getChainFlipIdFromAssetId = async ({
     )
 
   return Ok(chainflipAsset.id)
+}
+
+export const getChainflipRate = ({
+  sellAmountCryptoBaseUnit,
+  buyAmountCryptoBaseUnit,
+  sellAsset,
+  buyAsset,
+}: {
+  sellAmountCryptoBaseUnit: string | null | undefined
+  buyAmountCryptoBaseUnit: string | null | undefined
+  sellAsset: Asset
+  buyAsset: Asset
+}): string => {
+  if (!sellAmountCryptoBaseUnit || !buyAmountCryptoBaseUnit) return '0'
+
+  return getInputOutputRate({
+    sellAmountCryptoBaseUnit,
+    buyAmountCryptoBaseUnit,
+    sellAsset,
+    buyAsset,
+  })
+}
+
+export const getSwapSource = (
+  swapType: typeof CHAINFLIP_REGULAR_QUOTE | typeof CHAINFLIP_DCA_QUOTE,
+  isBoosted: boolean,
+): SwapSource => {
+  if (swapType === CHAINFLIP_REGULAR_QUOTE) {
+    return isBoosted ? CHAINFLIP_BOOST_SWAP_SOURCE : CHAINFLIP_SWAP_SOURCE
+  }
+
+  if (swapType === CHAINFLIP_DCA_QUOTE) {
+    return isBoosted ? CHAINFLIP_DCA_BOOST_SWAP_SOURCE : CHAINFLIP_DCA_SWAP_SOURCE
+  }
+
+  return assertUnreachable(swapType)
+}
+
+export const getMaxBoostFee = (assetId: AssetId): number => {
+  const { chainNamespace } = fromAssetId(assetId)
+
+  switch (chainNamespace) {
+    case CHAIN_NAMESPACE.Utxo:
+      return 10
+    case CHAIN_NAMESPACE.Evm:
+    case CHAIN_NAMESPACE.Solana:
+    case CHAIN_NAMESPACE.Tron:
+      return 0
+    default:
+      throw new Error('Unsupported chainNamespace')
+  }
+}
+
+export const getEvmTransactionData = ({
+  sellAsset,
+  depositAddress,
+  sellAmountCryptoBaseUnit,
+}: {
+  sellAsset: Asset
+  depositAddress: string
+  sellAmountCryptoBaseUnit: string
+}): TxBuildData | undefined => {
+  if (!isEvmChainId(sellAsset.chainId)) return
+
+  const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+  const data = evm.getErc20Data(depositAddress, sellAmountCryptoBaseUnit, contractAddress)
+
+  return {
+    type: 'evm',
+    chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+    to: contractAddress ?? depositAddress,
+    data: data || '0x',
+    value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
+  }
+}
+
+export const getProtocolFees = ({
+  quote,
+  sellAsset,
+  buyAsset,
+  sourceAsset,
+  destinationAsset,
+}: {
+  quote: ChainflipBaasQuoteQuote
+  sellAsset: Asset
+  buyAsset: Asset
+  sourceAsset: string
+  destinationAsset: string
+}): Record<AssetId, ProtocolFee> => {
+  const protocolFees: Record<AssetId, ProtocolFee> = {}
+
+  for (const fee of quote.includedFees ?? []) {
+    if (fee.type === 'broker') continue
+
+    const asset = (() => {
+      if (fee.type === 'ingress' || fee.type === 'boost') return sellAsset
+      if (fee.type === 'egress') return buyAsset
+      if (fee.type === 'liquidity' && fee.asset === sourceAsset) return sellAsset
+      if (fee.type === 'liquidity' && fee.asset === destinationAsset) return buyAsset
+      if (fee.type === 'liquidity' && fee.asset === 'usdc.eth') return usdcAsset
+      if (fee.type === 'network') return usdcAsset
+    })()
+
+    if (!asset) continue
+
+    if (!(asset.assetId in protocolFees)) {
+      protocolFees[asset.assetId] = {
+        amountCryptoBaseUnit: '0',
+        requiresBalance: false,
+        asset,
+      }
+    }
+
+    protocolFees[asset.assetId].amountCryptoBaseUnit = (
+      BigInt(protocolFees[asset.assetId].amountCryptoBaseUnit) + BigInt(fee.amountNative ?? '0')
+    ).toString()
+  }
+
+  return protocolFees
+}
+
+export const getStepFeeData = async ({
+  deps,
+  input,
+  sellAsset,
+  sellAmountCryptoBaseUnit,
+  to,
+  transactionData,
+}: {
+  deps: SwapperDeps
+  input: GetTradeRateInput | CommonTradeQuoteInput
+  sellAsset: Asset
+  sellAmountCryptoBaseUnit: string
+  to: string | undefined
+  transactionData: TxBuildData | undefined
+}): Promise<{
+  networkFeeCryptoBaseUnit: string | undefined
+  chainSpecific?: { satsPerByte: string }
+}> => {
+  const { chainNamespace } = fromAssetId(sellAsset.assetId)
+
+  switch (chainNamespace) {
+    case CHAIN_NAMESPACE.Evm: {
+      const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+      const supportsEIP1559 = (input as GetEvmTradeRateInput).supportsEIP1559
+
+      if (transactionData?.type === 'evm' && input.sendAddress) {
+        const { networkFeeCryptoBaseUnit } = await evm.getFees({
+          adapter,
+          data: transactionData.data,
+          to: transactionData.to,
+          value: transactionData.value,
+          from: input.sendAddress,
+          supportsEIP1559,
+        })
+        return { networkFeeCryptoBaseUnit }
+      }
+
+      const { average } = await adapter.getGasFeeData()
+
+      const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
+        ...average,
+        supportsEIP1559,
+        gasLimit: SAFE_GAS_LIMIT,
+      })
+
+      return { networkFeeCryptoBaseUnit }
+    }
+    case CHAIN_NAMESPACE.Utxo: {
+      const pubkey = (input as GetUtxoTradeQuoteInput).xpub
+
+      if (!pubkey) return { networkFeeCryptoBaseUnit: undefined }
+
+      const adapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
+
+      const { fast } = await adapter.getFeeData({
+        // Placeholder vault address for rates without a `to` — fee simulation requires one or it throws
+        to: to ?? 'bc1pfh5x55a3v92klcrdy5yv6yrt7fzr0g929klkdtapp3njfyu4qsyq8qacyf',
+        value: sellAmountCryptoBaseUnit,
+        chainSpecific: { pubkey },
+      })
+
+      return {
+        networkFeeCryptoBaseUnit: fast.txFee,
+        chainSpecific: { satsPerByte: fast.chainSpecific.satoshiPerByte },
+      }
+    }
+    case CHAIN_NAMESPACE.Solana: {
+      if (!to || !input.sendAddress) return { networkFeeCryptoBaseUnit: undefined }
+
+      const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+
+      const { fast } = await adapter.getFeeData({
+        to,
+        value: sellAmountCryptoBaseUnit,
+        chainSpecific: {
+          from: input.sendAddress,
+          tokenId: contractAddressOrUndefined(sellAsset.assetId),
+        },
+      })
+
+      return { networkFeeCryptoBaseUnit: fast.txFee }
+    }
+    case CHAIN_NAMESPACE.Tron: {
+      if (!to || !input.sendAddress) return { networkFeeCryptoBaseUnit: undefined }
+
+      const { fast } = await deps.assertGetTronChainAdapter(sellAsset.chainId).getFeeData({
+        to,
+        value: sellAmountCryptoBaseUnit,
+        chainSpecific: {
+          from: input.sendAddress,
+          contractAddress: contractAddressOrUndefined(sellAsset.assetId),
+        },
+      })
+
+      return { networkFeeCryptoBaseUnit: fast.txFee }
+    }
+    default:
+      throw new Error('Unsupported chainNamespace')
+  }
 }

@@ -3,7 +3,7 @@ import type { ChainflipBaasStatusSwap } from './models/ChainflipBaasStatusSwap'
 
 export type ChainflipMetadata = {
   name: 'chainflip'
-  chainflipSwapId: number | string
+  swapId: number | string
 }
 
 // Non-exhaustive

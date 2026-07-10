@@ -21,11 +21,11 @@ const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | u
       return { type: 'evm' as const, chainId, to, data, value, gasLimit }
     }
 
-    if (step.chainflipSpecific?.chainflipDepositAddress) {
+    if (step.chainflipSpecific?.depositAddress) {
       return {
         type: 'evm' as const,
         chainId,
-        to: step.chainflipSpecific.chainflipDepositAddress,
+        to: step.chainflipSpecific.depositAddress,
         data: '0x',
         value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       }
@@ -109,10 +109,10 @@ const extractUtxoTransactionData = (step: TradeQuoteStep): UtxoTransactionData |
     }
   }
 
-  if (step.chainflipSpecific?.chainflipDepositAddress) {
+  if (step.chainflipSpecific?.depositAddress) {
     return {
       type: 'utxo_deposit',
-      depositAddress: step.chainflipSpecific.chainflipDepositAddress,
+      depositAddress: step.chainflipSpecific.depositAddress,
       memo: '',
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
     }

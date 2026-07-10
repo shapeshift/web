@@ -91,7 +91,6 @@ export const fetchTradeStatus = async ({
     relayerTxHash,
     relayerExplorerTxLink,
     actualBuyAmountCryptoBaseUnit,
-    chainflipSwapId,
   } = await swapper.checkTradeStatus({
     txHash: sellTxHash,
     chainId: sellAssetChainId,
@@ -118,7 +117,6 @@ export const fetchTradeStatus = async ({
     relayerTxHash,
     relayerExplorerTxLink,
     actualBuyAmountCryptoBaseUnit,
-    chainflipSwapId,
   }
 }
 

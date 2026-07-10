@@ -213,7 +213,7 @@ export const useSwapActionSubscriber = () => {
       if (!swap.sellTxHash) return
       if (!swap.receiveAddress) return
 
-      const { status, message, buyTxHash, actualBuyAmountCryptoBaseUnit, chainflipSwapId } =
+      const { status, message, buyTxHash, actualBuyAmountCryptoBaseUnit } =
         await queryClient.fetchQuery({
           queryKey: tradeStatusQueryKey(swap.id, swap.sellTxHash),
           queryFn: () =>
@@ -252,7 +252,10 @@ export const useSwapActionSubscriber = () => {
         defaultExplorerBaseUrl,
         maybeSafeTx,
         stepSource: status && status !== TxStatus.Unknown ? swap.source : undefined,
-        maybeChainflipSwapId: chainflipSwapId?.toString(),
+        maybeChainflipSwapId:
+          swap.metadata.swapperMetadata?.name === 'chainflip'
+            ? swap.metadata.swapperMetadata.swapId?.toString()
+            : undefined,
         maybeNearIntentsDepositAddress:
           swap.metadata.swapperMetadata?.name === 'nearIntents'
             ? swap.metadata.swapperMetadata.depositAddress
@@ -275,9 +278,6 @@ export const useSwapActionSubscriber = () => {
             buyTxHash,
             txLink,
             actualBuyAmountCryptoBaseUnit,
-            ...(chainflipSwapId && {
-              metadata: { ...swap.metadata, swapperMetadata: { name: 'chainflip', chainflipSwapId } },
-            }),
           }),
         )
 

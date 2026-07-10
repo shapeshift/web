@@ -313,8 +313,15 @@ export const RepayConfirm = ({
 
     mixpanel?.track(MixPanelEvent.RepayConfirm, eventData)
 
-    const _txId = await executeTransaction()
-    if (!_txId) throw new Error('failed to broadcast transaction')
+    const _txId = await executeTransaction().catch((err: unknown) => {
+      console.error('[lending repay] executeTransaction failed:', err)
+      return undefined
+    })
+
+    if (!_txId) {
+      setIsLoanPending(false)
+      throw new Error('failed to broadcast transaction')
+    }
 
     setTxid(_txId)
   }, [

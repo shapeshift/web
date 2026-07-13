@@ -269,6 +269,8 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
   }, [isError, translate, isChainHalted, isInboundHalted, isTcyClaimingHalted])
 
   const confirmAlert = useMemo(() => {
+    if (isHalted) return null
+
     if (claimError) {
       return (
         <Alert status='error' variant='subtle' mt={2}>
@@ -278,24 +280,24 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
       )
     }
 
-    if (hasEnoughBalanceForDustAndFees) return null
-    if (!feeAsset) return null
-
-    return (
-      <Alert status='error' variant='subtle' mt={2}>
-        <AlertIcon />
-        <RawText fontSize='sm'>
-          {translate('TCY.claimConfirm.missingFundsForGasAlert', {
-            symbol: feeAsset.symbol,
-            amount: requiredAmountCryptoPrecision,
-          })}
-        </RawText>
-      </Alert>
-    )
+    if (!hasEnoughBalanceForDustAndFees && feeAsset) {
+      return (
+        <Alert status='error' variant='subtle' mt={2}>
+          <AlertIcon />
+          <RawText fontSize='sm'>
+            {translate('TCY.claimConfirm.missingFundsForGasAlert', {
+              symbol: feeAsset.symbol,
+              amount: requiredAmountCryptoPrecision,
+            })}
+          </RawText>
+        </Alert>
+      )
+    }
   }, [
     claimError,
     feeAsset,
     hasEnoughBalanceForDustAndFees,
+    isHalted,
     requiredAmountCryptoPrecision,
     translate,
   ])

@@ -1,3 +1,4 @@
+import type { Types } from 'tronweb'
 import { TronWeb } from 'tronweb'
 
 import type { TronAccount, TronBlock, TronTx } from './types'
@@ -275,7 +276,7 @@ export class TronApi {
     }
   }
 
-  private async getChainPrices(): Promise<{
+  async getChainPrices(): Promise<{
     bandwidthPrice: number
     energyPrice: number
   }> {
@@ -310,29 +311,54 @@ export class TronApi {
     to: string
     amount: string
   }): Promise<string> {
-    try {
-      const tronWeb = await this.getTronWeb()
-      const { energyPrice } = await this.getChainPrices()
+    const tronWeb = this.getTronWeb()
+    const { energyPrice } = await this.getChainPrices()
 
-      const result = await tronWeb.transactionBuilder.triggerConstantContract(
-        params.contractAddress,
-        'transfer(address,uint256)',
-        {},
-        [
-          { type: 'address', value: params.to },
-          { type: 'uint256', value: params.amount },
-        ],
-        params.from,
-      )
+    const result = await tronWeb.transactionBuilder.triggerConstantContract(
+      params.contractAddress,
+      'transfer(address,uint256)',
+      {},
+      [
+        { type: 'address', value: params.to },
+        { type: 'uint256', value: params.amount },
+      ],
+      params.from,
+    )
 
-      const energyUsed = result.energy_used ?? 0
-      const feeInSun = energyUsed * energyPrice
+    const energyUsed = result.energy_used ?? 0
+    const feeInSun = energyUsed * energyPrice
 
-      return String(feeInSun)
-    } catch (_err) {
-      // Fallback: Worst case 130k energy at current 100 sun/energy
-      return '13000000' // 13 TRX (more realistic than 31 TRX)
-    }
+    return String(feeInSun)
+  }
+
+  // Estimates the energy fee (in sun) for a contract call by simulating its raw calldata. Throws on
+  // failure rather than guessing - an underestimate could burn the user's TRX on an OUT_OF_ENERGY revert.
+  async estimateContractCallFee(params: {
+    contractAddress: string
+    from: string
+    data: string
+    callValue?: string
+  }): Promise<string> {
+    const { energyPrice } = await this.getChainPrices()
+
+    const response = await fetch(`${this.rpcUrl}/wallet/triggerconstantcontract`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...this.tronGridHeaders },
+      body: JSON.stringify({
+        owner_address: params.from,
+        contract_address: params.contractAddress,
+        data: params.data.startsWith('0x') ? params.data.slice(2) : params.data,
+        call_value: Number(params.callValue) || 0,
+        visible: true,
+      }),
+    })
+
+    const result: Types.TransactionWrapper = await response.json()
+
+    const energyUsed = result.energy_used ?? 0
+    if (!energyUsed) throw new Error('[tron] contract call energy estimate unavailable')
+
+    return String(energyUsed * energyPrice)
   }
 
   async getPriorityFees(): Promise<{

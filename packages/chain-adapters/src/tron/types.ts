@@ -25,6 +25,9 @@ export type GetFeeDataInput = {
   from?: string
   contractAddress?: string
   memo?: string
+  // raw calldata for a contract call - when present, the fee is estimated by simulating this call
+  // rather than assuming a plain transfer (swap/router calls are far more energy-intensive)
+  data?: string
 }
 
 export interface TronUnsignedTx {

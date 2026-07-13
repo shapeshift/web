@@ -1,4 +1,4 @@
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { btcChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -16,6 +16,7 @@ import {
   assertValidTrade,
   createBobGatewayOrderMetadata,
   getBobGatewayAllowanceContract,
+  getBobGatewayOwnerAddress,
   getBobGatewayQuote,
   getBobGatewayQuoteFeeData,
   parseBobGatewayQuote,
@@ -63,7 +64,8 @@ export const getBobGatewayTradeQuote = async (
 
   // omit the sender for utxo sells so order creation does not enforce a per-address confirmed
   // funds check (deposits are matched via op_return, not the sending address)
-  const sender = isEvmChainId(sellAsset.chainId) ? sendAddress : undefined
+  const sender = sellAsset.chainId === btcChainId ? undefined : sendAddress
+  const recipient = receiveAddress
 
   const maybeQuote = await getBobGatewayQuote({
     config,
@@ -72,7 +74,9 @@ export const getBobGatewayTradeQuote = async (
     sellChainName,
     buyChainName,
     sender,
-    recipient: receiveAddress,
+    recipient,
+    ownerAddress: getBobGatewayOwnerAddress({ sellAsset, sender, recipient }),
+    refundAddress: sellAsset.chainId === btcChainId ? sender : undefined,
     amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     affiliateBps,
     slippageTolerancePercentageDecimal,

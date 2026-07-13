@@ -13,7 +13,7 @@ import {
   polygonChainId,
   seiChainId,
   sonicChainId,
-  // tronChainId,
+  tronChainId,
   unichainChainId,
 } from '@shapeshiftoss/caip'
 import type { Address } from 'viem'
@@ -37,7 +37,7 @@ export const chainIdToBobGatewayChainName = {
   [plasmaChainId]: 'plasma',
   [polygonChainId]: 'polygon',
   [hyperEvmChainId]: 'hyperliquid',
-  // [tronChainId]: 'tron',
+  [tronChainId]: 'tron',
 } as const
 
 export const bobGatewayChainNameToChainId = Object.fromEntries(
@@ -54,6 +54,8 @@ export const DUMMY_TRON_ADDRESS = 'TT2T17KZhoDu47i2E4FWxfG79zdkEWkU9N'
 export const BOB_GATEWAY_TOKENSWAP_DEFAULT_GAS_LIMIT = '350000' // EVM→EVM
 export const BOB_GATEWAY_OFFRAMP_DEFAULT_GAS_LIMIT = '550000' // EVM→BTC
 export const BOB_GATEWAY_ONRAMP_DEFAULT_TX_VSIZE = '200' // BTC→EVM
+export const BOB_GATEWAY_TRON_OFFRAMP_DEFAULT_ENERGY = '250000' // TRON→BTC
+export const BOB_GATEWAY_TRON_OFFRAMP_DEFAULT_BANDWIDTH = '1250' // TRON→BTC
 
 // https://docs.gobob.xyz/api-reference/v2/get-a-gateway-quote#parameter-slippage
 export const decimalSlippageToBobBps = (slippageDecimal: string): string => {

@@ -10,6 +10,7 @@ import {
   assertValidTrade,
   dummyAddressForChainId,
   getBobGatewayAllowanceContract,
+  getBobGatewayOwnerAddress,
   getBobGatewayQuote,
   getBobGatewayRateNetworkFeeCryptoBaseUnit,
   parseBobGatewayQuote,
@@ -36,9 +37,9 @@ export const getBobGatewayTradeRate = async (
 
   const { sellChainName, buyChainName } = assertion.unwrap()
 
-  const recipient = receiveAddress ?? dummyAddressForChainId(buyAsset.chainId)
   const sender =
     sellAsset.chainId === btcChainId ? undefined : dummyAddressForChainId(sellAsset.chainId)
+  const recipient = receiveAddress ?? dummyAddressForChainId(buyAsset.chainId)
 
   const maybeQuote = await getBobGatewayQuote({
     config,
@@ -48,6 +49,7 @@ export const getBobGatewayTradeRate = async (
     buyChainName,
     sender,
     recipient,
+    ownerAddress: getBobGatewayOwnerAddress({ sellAsset, sender, recipient }),
     amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     affiliateBps,
     slippageTolerancePercentageDecimal,

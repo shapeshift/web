@@ -46,6 +46,8 @@ import {
   BOB_GATEWAY_OFFRAMP_DEFAULT_GAS_LIMIT,
   BOB_GATEWAY_ONRAMP_DEFAULT_TX_VSIZE,
   BOB_GATEWAY_TOKENSWAP_DEFAULT_GAS_LIMIT,
+  BOB_GATEWAY_TRON_OFFRAMP_DEFAULT_BANDWIDTH,
+  BOB_GATEWAY_TRON_OFFRAMP_DEFAULT_ENERGY,
   bobGatewayChainNameToChainId,
   chainIdToBobGatewayChainName,
   decimalSlippageToBobBps,
@@ -60,13 +62,31 @@ export const dummyAddressForChainId = (chainId: ChainId): string => {
   return DUMMY_EVM_ADDRESS
 }
 
+// BobGateway ownerAddress (order lookup + refunds) is the sender - except BTC sells, which have none, so use the recipient.
+export const getBobGatewayOwnerAddress = ({
+  sellAsset,
+  sender,
+  recipient,
+}: {
+  sellAsset: Asset
+  sender: string | undefined
+  recipient: string
+}): string => {
+  const owner = sellAsset.chainId === btcChainId ? recipient : (sender as string)
+  if (!TronWeb.isAddress(owner)) return owner
+  // Converts a Tron address to its 20-byte EVM hex body (BobGateway ownerAddress format)
+  return `0x${TronWeb.address.toHex(owner).slice(2)}`
+}
+
 export const getBobGatewayClient = (config: SwapperConfig): GatewaySDK => {
   return new GatewaySDK({ basePath: BOB_GATEWAY_BASE_URL, apiKey: config.VITE_BOB_GATEWAY_API_KEY })
 }
 
+// Normalizes an address to Tron base58: base58 passes through; a 0x-hex address is the 20-byte body
+// under Tron's 0x41 prefix, so prepend it before decoding; a raw hex string decodes as-is.
 export const toTronBase58 = (address: string): string => {
   if (address.startsWith('T')) return address
-  if (address.startsWith('0x')) return TronWeb.address.fromHex(address.slice(2))
+  if (address.startsWith('0x')) return TronWeb.address.fromHex(`41${address.slice(2)}`)
   return TronWeb.address.fromHex(address)
 }
 
@@ -93,6 +113,8 @@ export const getBobGatewayQuote = async ({
   buyChainName,
   sender,
   recipient,
+  ownerAddress,
+  refundAddress,
   amount,
   affiliateBps,
   slippageTolerancePercentageDecimal,
@@ -104,6 +126,8 @@ export const getBobGatewayQuote = async ({
   buyChainName: BobGatewayChainName
   sender: string | undefined
   recipient: string
+  ownerAddress: string
+  refundAddress?: string
   amount: string
   affiliateBps: string
   slippageTolerancePercentageDecimal: string | undefined
@@ -123,7 +147,8 @@ export const getBobGatewayQuote = async ({
       toUserAddress: recipient,
       amount,
       maxSlippage: Number(slippage),
-      ownerAddress: sellChainName === 'bitcoin' ? recipient : (sender as string),
+      ownerAddress,
+      refundAddress,
       affiliates: getBobGatewayAffiliates(affiliateBps),
     })
 
@@ -186,7 +211,7 @@ export const createBobGatewayOrderMetadata = async (
       gatewayQuoteV3: gatewayQuote,
     })
 
-    // onramp (BTC→EVM)
+    // onramp (BTC→EVM/Tron)
     if ('onramp' in orderResponse) {
       return Ok({
         orderId: orderResponse.onramp.orderId,
@@ -201,7 +226,6 @@ export const createBobGatewayOrderMetadata = async (
     const order = (() => {
       if ('offramp' in orderResponse) return orderResponse.offramp
       if ('tokenSwap' in orderResponse) return orderResponse.tokenSwap
-      return undefined
     })()
 
     if (order) {
@@ -266,17 +290,17 @@ export const registerBobGatewayTx = async ({
   const registerTxV3: RegisterTxV3 = (() => {
     const sellChainName = chainIdToBobGatewayChainName[sellAsset.chainId]
 
-    // BTC→EVM
+    // BTC→EVM/Tron
     if (sellChainName === 'bitcoin') {
       return { onramp: { orderId, bitcoinTxid: txHash } }
     }
 
-    // EVM→BTC
+    // EVM/Tron→BTC
     if (chainIdToBobGatewayChainName[buyAsset.chainId] === 'bitcoin') {
       return { offramp: { orderId, srcChain: sellChainName, srcTxHash: txHash } }
     }
 
-    // EVM→EVM
+    // EVM/Tron→EVM/Tron
     return { tokenSwap: { orderId, srcChain: sellChainName, srcTxHash: txHash } }
   })()
 
@@ -324,11 +348,12 @@ export const getBobGatewayQuoteFeeData = async (
 
     if (orderMetadata.tronTx && input.sendAddress) {
       const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+      const { to, data, value } = orderMetadata.tronTx
 
       const { fast } = await assertGetTronChainAdapter(sellAsset.chainId).getFeeData({
-        to: toTronBase58(orderMetadata.tronTx.to),
-        value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        chainSpecific: { from: input.sendAddress, contractAddress },
+        to: toTronBase58(to),
+        value,
+        chainSpecific: { from: input.sendAddress, contractAddress, data },
       })
 
       return Ok({ networkFeeCryptoBaseUnit: fast.txFee })
@@ -364,22 +389,14 @@ export const getBobGatewayRateNetworkFeeCryptoBaseUnit = async (
     }
 
     if (sellAsset.chainId === tronChainId) {
-      const order = (() => {
-        if ('offramp' in quote) return quote.offramp
-        if ('tokenSwap' in quote) return quote.tokenSwap
-        return undefined
-      })()
-      if (!order) return undefined
+      const adapter = assertGetTronChainAdapter(sellAsset.chainId)
 
-      const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+      const { energyPrice, bandwidthPrice } = await adapter.httpProvider.getChainPrices()
 
-      const { fast } = await assertGetTronChainAdapter(sellAsset.chainId).getFeeData({
-        to: toTronBase58(order.txTo),
-        value: order.inputAmount.amount,
-        chainSpecific: { contractAddress },
-      })
-
-      return fast.txFee
+      return bnOrZero(BOB_GATEWAY_TRON_OFFRAMP_DEFAULT_ENERGY)
+        .times(energyPrice)
+        .plus(bnOrZero(BOB_GATEWAY_TRON_OFFRAMP_DEFAULT_BANDWIDTH).times(bandwidthPrice))
+        .toFixed(0)
     }
 
     const defaultGasLimit =
@@ -487,18 +504,18 @@ export const parseBobGatewayQuote = (
 
 export const getBobGatewayAllowanceContract = (quote: GatewayQuoteV3, sellAsset: Asset): string => {
   const isTron = sellAsset.chainId === tronChainId
+
   if (!isEvmChainId(sellAsset.chainId) && !isTron) return ''
   if (!contractAddressOrUndefined(sellAsset.assetId)) return ''
 
   const txTo = (() => {
     if ('offramp' in quote) return quote.offramp.txTo
     if ('tokenSwap' in quote) return quote.tokenSwap.txTo
-    return ''
   })()
+
   if (!txTo) return ''
 
-  if (isTron) return toTronBase58(txTo)
-  return txTo
+  return isTron ? toTronBase58(txTo) : txTo
 }
 
 export const assertValidTrade = ({

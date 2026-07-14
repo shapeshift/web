@@ -133,7 +133,6 @@ export const relayChainIdToChainId = invert(chainIdToRelayChainId)
 export const DEFAULT_RELAY_EVM_TOKEN_ADDRESS = zeroAddress
 export const RELAY_BTC_TOKEN_ADDRESS = 'bc1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqmql8k8'
 export const RELAY_SOLANA_TOKEN_ADDRESS = '11111111111111111111111111111111'
-export const RELAY_TRON_TOKEN_ADDRESS = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'
 
 export const DEFAULT_RELAY_EVM_USER_ADDRESS = '0x000000000000000000000000000000000000dead'
 export const DEFAULT_RELAY_BTC_USER_ADDRESS = 'bc1q4vxn43l44h30nkluqfxd9eckf45vr2awz38lwa'

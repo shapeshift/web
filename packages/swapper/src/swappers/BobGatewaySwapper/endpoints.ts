@@ -1,5 +1,5 @@
 import { isGatewayError } from '@gobob/bob-sdk'
-import { evm } from '@shapeshiftoss/chain-adapters'
+import { evm, tron } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero } from '@shapeshiftoss/utils'
 
@@ -12,7 +12,6 @@ import {
   getBobGatewayClient,
   mapBobGatewayOrderStatusToTxStatus,
   registerBobGatewayTx,
-  toTronBase58,
 } from './utils/helpers'
 
 const registeredSwapIds = new Set<string>()
@@ -151,7 +150,7 @@ export const bobGatewayApi: SwapperApi = {
     return adapter.buildCustomApiTx({
       accountNumber,
       from,
-      to: toTronBase58(to),
+      to: tron.toTronBase58(to),
       value,
       data,
     })

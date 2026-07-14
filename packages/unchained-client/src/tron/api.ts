@@ -156,7 +156,7 @@ export class TronApi {
 
   async getTRC20Balance(params: { address: string; contractAddress: string }): Promise<string> {
     try {
-      const tronWeb = await this.getTronWeb()
+      const tronWeb = this.getTronWeb()
       const contract = await tronWeb.contract().at(params.contractAddress)
       const balance = await contract.balanceOf(params.address).call()
       return balance.toString()
@@ -188,15 +188,10 @@ export class TronApi {
       }),
     ])
 
-    if (!txResponse.ok) {
-      return null
-    }
+    if (!txResponse.ok) return null
 
     const tx = await txResponse.json()
-
-    if (!tx || !tx.txID) {
-      return null
-    }
+    if (!tx || !tx.txID) return null
 
     let blockNumber = 0
     let blockTimeStamp = 0
@@ -243,9 +238,7 @@ export class TronApi {
       body: JSON.stringify({ num: params.height }),
     })
 
-    if (!response.ok) {
-      return null
-    }
+    if (!response.ok) return null
 
     return await response.json()
   }
@@ -257,7 +250,6 @@ export class TronApi {
       const signedTxJson = JSON.parse(params.sendTxBody.hex)
 
       const result = await tronWeb.trx.sendRawTransaction(signedTxJson)
-
       if (!result.result) {
         throw new Error(
           result.message || JSON.stringify(result) || 'Failed to broadcast transaction',
@@ -265,10 +257,7 @@ export class TronApi {
       }
 
       const txid = result.txid || result.transaction?.txID
-
-      if (!txid) {
-        throw new Error('Transaction ID not found in broadcast result')
-      }
+      if (!txid) throw new Error('Transaction ID not found in broadcast result')
 
       return txid
     } catch (error) {
@@ -281,7 +270,7 @@ export class TronApi {
     energyPrice: number
   }> {
     try {
-      const tronWeb = await this.getTronWeb()
+      const tronWeb = this.getTronWeb()
       const params = await tronWeb.trx.getChainParameters()
       const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
       const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 420
@@ -291,21 +280,7 @@ export class TronApi {
     }
   }
 
-  async estimateFees(params: { estimateFeesBody: { serializedTx: string } }): Promise<string> {
-    try {
-      const { bandwidthPrice } = await this.getChainPrices()
-      const rawDataBytes = Buffer.from(params.estimateFeesBody.serializedTx, 'hex').length
-      const signatureBytes = 65
-      const totalBytes = rawDataBytes + signatureBytes
-
-      const feeInSun = totalBytes * bandwidthPrice
-      return String(feeInSun)
-    } catch (err) {
-      throw new Error(`Failed to estimate fees: ${err}`)
-    }
-  }
-
-  async estimateTRC20TransferFee(params: {
+  async estimateTrc20TransferFee(params: {
     contractAddress: string
     from: string
     to: string
@@ -325,14 +300,15 @@ export class TronApi {
       params.from,
     )
 
-    const energyUsed = result.energy_used ?? 0
-    const feeInSun = energyUsed * energyPrice
+    if (result.result?.result !== true || !result.energy_used) {
+      throw new Error(
+        `[tron] trc20 transfer simulation failed: ${result.result?.message ?? 'unknown error'}`,
+      )
+    }
 
-    return String(feeInSun)
+    return String(result.energy_used * energyPrice)
   }
 
-  // Estimates the energy fee (in sun) for a contract call by simulating its raw calldata. Throws on
-  // failure rather than guessing - an underestimate could burn the user's TRX on an OUT_OF_ENERGY revert.
   async estimateContractCallFee(params: {
     contractAddress: string
     from: string
@@ -355,40 +331,15 @@ export class TronApi {
 
     const result: Types.TransactionWrapper = await response.json()
 
-    const energyUsed = result.energy_used ?? 0
-    if (!energyUsed) throw new Error('[tron] contract call energy estimate unavailable')
-
-    return String(energyUsed * energyPrice)
-  }
-
-  async getPriorityFees(): Promise<{
-    baseFee: string
-    fast: string
-    average: string
-    slow: string
-    estimatedBandwidth: string
-  }> {
-    try {
-      const { bandwidthPrice } = await this.getChainPrices()
-      const estimatedBytes = 268
-      const baseFee = String(estimatedBytes * bandwidthPrice)
-
-      return {
-        baseFee,
-        fast: baseFee,
-        average: baseFee,
-        slow: baseFee,
-        estimatedBandwidth: String(estimatedBytes),
-      }
-    } catch (_err) {
-      const defaultFee = '268000'
-      return {
-        baseFee: defaultFee,
-        fast: defaultFee,
-        average: defaultFee,
-        slow: defaultFee,
-        estimatedBandwidth: '268',
-      }
+    // A reverted simulation (e.g. a swap whose TRC20 allowance isn't granted yet) still returns the
+    // partial energy burned up to the revert. Trusting it would underestimate and risk an
+    // OUT_OF_ENERGY revert that burns the user's TRX at execution, so only trust a successful call.
+    if (result.result?.result !== true || !result.energy_used) {
+      throw new Error(
+        `[tron] contract call simulation failed: ${result.result?.message ?? 'unknown error'}`,
+      )
     }
+
+    return String(result.energy_used * energyPrice)
   }
 }

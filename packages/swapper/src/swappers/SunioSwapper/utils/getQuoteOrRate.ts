@@ -1,5 +1,5 @@
-import { tronChainId } from '@shapeshiftoss/caip'
-import { BigAmount, bn, contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import { tronAssetId, tronChainId } from '@shapeshiftoss/caip'
+import { BigAmount, bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -17,7 +17,7 @@ import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { DEFAULT_SLIPPAGE_PERCENTAGE, SUNIO_SMART_ROUTER_CONTRACT } from './constants'
 import { estimateSunioNetworkFeeCryptoBaseUnit } from './estimateSunioNetworkFee'
-import { fetchSunioQuote } from './fetchFromSunio'
+import { fetchSunioQuote } from './fetchSunioQuote'
 import { isSupportedChainId } from './helpers/helpers'
 import { sunioServiceFactory } from './sunioService'
 
@@ -46,7 +46,7 @@ export async function getQuoteOrRate(
       slippageTolerancePercentageDecimal,
     } = input
 
-    const { assertGetTronChainAdapter: _assertGetTronChainAdapter } = deps
+    const { assertGetTronChainAdapter } = deps
 
     if (!isSupportedChainId(sellAsset.chainId)) {
       return Err(
@@ -116,13 +116,16 @@ export async function getQuoteOrRate(
     }
 
     const networkFeeCryptoBaseUnit = await (async () => {
+      // Rates without a receiveAddress can't simulate the swap; fall back to '0'. Quotes always have
+      // one (guarded above) and must produce an accurate fee.
+      if (!receiveAddress) return '0'
+
       try {
         return await estimateSunioNetworkFeeCryptoBaseUnit({
-          rpcUrl: deps.config.VITE_TRON_NODE_URL,
-          apiKey: deps.config.VITE_TRON_GRID_API_KEY,
+          adapter: assertGetTronChainAdapter(tronChainId),
           route: bestRoute,
           sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          isSellingNativeTrx: !contractAddressOrUndefined(sellAsset.assetId),
+          isSellingNativeTrx: sellAsset.assetId === tronAssetId,
           address: receiveAddress,
           slippageTolerancePercentageDecimal,
         })

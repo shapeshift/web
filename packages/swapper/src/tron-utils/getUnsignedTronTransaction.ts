@@ -1,6 +1,6 @@
 import { tronAssetId } from '@shapeshiftoss/caip'
+import { tron } from '@shapeshiftoss/chain-adapters'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
-import { TronWeb } from 'tronweb'
 
 import type { GetUnsignedTronTransactionArgs } from '../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../utils'
@@ -52,7 +52,7 @@ export const getUnsignedTronTransaction = ({
       throw new Error('Missing Relay transaction destination address')
     }
 
-    const to = TronWeb.address.fromHex(relayTransactionMetadata.to)
+    const to = tron.toTronBase58(relayTransactionMetadata.to)
     const isNativeTron = sellAsset.assetId === tronAssetId
     const value = isNativeTron ? step.sellAmountIncludingProtocolFeesCryptoBaseUnit : '0'
 

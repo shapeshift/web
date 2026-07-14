@@ -1,4 +1,5 @@
 import { fromAssetId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
+import { tron } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { chainIdToFeeAssetId } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
@@ -39,7 +40,6 @@ export type GetButterRouteArgs = {
 }
 
 const SOLANA_NATIVE_ADDRESS = 'So11111111111111111111111111111111111111112'
-const TRON_NATIVE_ADDRESS = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'
 
 export const getButterRoute = async ({
   sellAsset,
@@ -68,14 +68,14 @@ export const getButterRoute = async ({
 
   const sellAssetAddress = (() => {
     if (sellAsset.chainId === solanaChainId && sellAssetIsNative) return SOLANA_NATIVE_ADDRESS
-    if (sellAsset.chainId === tronChainId && sellAssetIsNative) return TRON_NATIVE_ADDRESS
+    if (sellAsset.chainId === tronChainId && sellAssetIsNative) return tron.TRON_ZERO_ADDRESS
     if (sellAssetIsNative) return zeroAddress
     return sellAssetAddressRaw
   })()
 
   const buyAssetAddress = (() => {
     if (buyAsset.chainId === solanaChainId && buyAssetIsNative) return SOLANA_NATIVE_ADDRESS
-    if (buyAsset.chainId === tronChainId && buyAssetIsNative) return TRON_NATIVE_ADDRESS
+    if (buyAsset.chainId === tronChainId && buyAssetIsNative) return tron.TRON_ZERO_ADDRESS
     if (buyAssetIsNative) return zeroAddress
     return buyAssetAddressRaw
   })()

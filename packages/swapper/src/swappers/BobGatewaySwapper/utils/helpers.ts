@@ -14,7 +14,7 @@ import {
   toAssetId,
   tronChainId,
 } from '@shapeshiftoss/caip'
-import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evm, isEvmChainId, tron } from '@shapeshiftoss/chain-adapters'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import {
@@ -25,7 +25,6 @@ import {
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { TronWeb } from 'tronweb'
 import { getAddress, zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
@@ -80,14 +79,6 @@ export const getBobGatewayOwnerAddress = ({
 
 export const getBobGatewayClient = (config: SwapperConfig): GatewaySDK => {
   return new GatewaySDK({ basePath: BOB_GATEWAY_BASE_URL, apiKey: config.VITE_BOB_GATEWAY_API_KEY })
-}
-
-// Normalizes an address to Tron base58: base58 passes through; a 0x-hex address is the 20-byte body
-// under Tron's 0x41 prefix, so prepend it before decoding; a raw hex string decodes as-is.
-export const toTronBase58 = (address: string): string => {
-  if (address.startsWith('T')) return address
-  if (address.startsWith('0x')) return TronWeb.address.fromHex(`41${address.slice(2)}`)
-  return TronWeb.address.fromHex(address)
 }
 
 export const assetIdToBobGatewayToken = (assetId: string): string => {
@@ -351,7 +342,7 @@ export const getBobGatewayQuoteFeeData = async (
       const { to, data, value } = orderMetadata.tronTx
 
       const { fast } = await assertGetTronChainAdapter(sellAsset.chainId).getFeeData({
-        to: toTronBase58(to),
+        to: tron.toTronBase58(to),
         value,
         chainSpecific: { from: input.sendAddress, contractAddress, data },
       })
@@ -436,7 +427,7 @@ const bobGatewayFeeToAssetId = (fee: { address: string; chain: string }): AssetI
     return toAssetId({
       chainId,
       assetNamespace: ASSET_NAMESPACE.trc20,
-      assetReference: toTronBase58(fee.address),
+      assetReference: tron.toTronBase58(fee.address),
     })
   }
 
@@ -520,7 +511,7 @@ export const getBobGatewayAllowanceContract = (quote: GatewayQuoteV3, sellAsset:
 
   if (!txTo) return ''
 
-  return isTron ? toTronBase58(txTo) : txTo
+  return isTron ? tron.toTronBase58(txTo) : txTo
 }
 
 export const assertValidTrade = ({

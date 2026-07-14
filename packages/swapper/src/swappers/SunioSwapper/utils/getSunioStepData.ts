@@ -1,4 +1,4 @@
-import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import { tronAssetId, tronChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -29,19 +29,19 @@ export async function getSunioStepData(
   const { type, route, sellAsset, sellAmountCryptoBaseUnit, from, input, deps } = args
 
   const estimateArgs = {
-    rpcUrl: deps.config.VITE_TRON_NODE_URL,
-    apiKey: deps.config.VITE_TRON_GRID_API_KEY,
+    adapter: deps.assertGetTronChainAdapter(tronChainId),
     route,
     sellAmountCryptoBaseUnit,
-    isSellingNativeTrx: !contractAddressOrUndefined(sellAsset.assetId),
-    address: from,
+    isSellingNativeTrx: sellAsset.assetId === tronAssetId,
     slippageTolerancePercentageDecimal: input.slippageTolerancePercentageDecimal,
   }
 
   if (type === 'rate') {
     const networkFeeCryptoBaseUnit = await (async () => {
+      if (!from) return undefined
+
       try {
-        return await estimateSunioNetworkFeeCryptoBaseUnit(estimateArgs)
+        return await estimateSunioNetworkFeeCryptoBaseUnit({ ...estimateArgs, address: from })
       } catch {
         return undefined
       }
@@ -53,7 +53,10 @@ export async function getSunioStepData(
   }
 
   try {
-    const networkFeeCryptoBaseUnit = await estimateSunioNetworkFeeCryptoBaseUnit(estimateArgs)
+    const networkFeeCryptoBaseUnit = await estimateSunioNetworkFeeCryptoBaseUnit({
+      ...estimateArgs,
+      address: from,
+    })
 
     const stepData: SunioQuoteStepData = {
       networkFeeCryptoBaseUnit,

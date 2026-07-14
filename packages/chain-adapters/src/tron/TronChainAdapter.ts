@@ -35,6 +35,10 @@ import { verifyLedgerAppOpen } from '../utils/ledgerAppGate'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import type { TronSignTx, TronUnsignedTx } from './types'
 
+// Tron zero address (0x41 + 20 zero bytes, base58). Doubles as the native-TRX sentinel in DEX token
+// paths and marks mints/burns in TRC20 transfer logs.
+export const TRON_ZERO_ADDRESS = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'
+
 // Safety margin over the simulated energy estimate, covering the dynamic energy penalty drifting
 // between quote and execution. Underestimating burns the user's TRX on an OUT_OF_ENERGY revert.
 const TRON_ENERGY_SAFETY_MARGIN = 1.5
@@ -550,7 +554,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
     // TRC20 transfer: predictable and cheap, so a conservative fallback is safe if estimation fails.
     try {
-      const feeInSun = await this.providers.http.estimateTRC20TransferFee({
+      const feeInSun = await this.providers.http.estimateTrc20TransferFee({
         contractAddress: contractAddress as string,
         from: from || to,
         to,
@@ -782,7 +786,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
     const TRANSFER_EVENT_SIGNATURE =
       'ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
-    const ZERO_ADDRESS = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'
     const tronWeb = new TronWeb({ fullHost: this.rpcUrl, headers: this.tronGridHeaders })
 
     for (const log of tx.log) {
@@ -797,7 +800,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         // Skip mints (from zero address) but allow burns (to zero address) — a burn is a valid
         // deduction e.g. unstaking sTRX burns the token on behalf of the user
         // https://tronscan.org/#/transaction/1aac271797fe4344ff71f33368085073ea22e560815794811f7336120736d77c
-        if (fromAddress === ZERO_ADDRESS) continue
+        if (fromAddress === TRON_ZERO_ADDRESS) continue
 
         if (fromAddress === toAddress) continue
 

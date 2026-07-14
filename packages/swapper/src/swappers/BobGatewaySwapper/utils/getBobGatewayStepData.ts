@@ -1,5 +1,6 @@
 import type { GatewayQuoteV4 } from '@gobob/bob-sdk'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import { tron } from '@shapeshiftoss/chain-adapters'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
@@ -17,7 +18,7 @@ import {
   BOB_GATEWAY_OFFRAMP_DEFAULT_GAS_LIMIT,
   BOB_GATEWAY_TOKENSWAP_DEFAULT_GAS_LIMIT,
 } from './constants'
-import { createBobGatewayOrder, toTronBase58 } from './helpers'
+import { createBobGatewayOrder } from './helpers'
 
 type BaseArgs = {
   quote: GatewayQuoteV4
@@ -208,7 +209,7 @@ export async function getBobGatewayStepData(
             const order = 'offramp' in quote ? quote.offramp : quote.tokenSwap
 
             const { fast } = await adapter.getFeeData({
-              to: toTronBase58(order.txTo),
+              to: tron.toTronBase58(order.txTo),
               value: order.inputAmount.amount,
               chainSpecific: { contractAddress },
             })
@@ -241,7 +242,7 @@ export async function getBobGatewayStepData(
 
       try {
         const { fast } = await adapter.getFeeData({
-          to: toTronBase58(tx.to),
+          to: tron.toTronBase58(tx.to),
           value: sellAmountCryptoBaseUnit,
           chainSpecific: { from, contractAddress },
         })

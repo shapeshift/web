@@ -13,15 +13,5 @@ export const SUNIO_SMART_ROUTER_CONTRACT = 'TCFNp179Lg46D16zKoumd4Poa2WFFdtqYj' 
 
 export const DEFAULT_SLIPPAGE_PERCENTAGE = '0.005'
 
-// Energy fallbacks for when we can't simulate a swap (no address, or the simulation reverts
-// pre-approval for TRC20 sells). Set to observed average energy so the 1.2x margin applied at
-// estimate time lifts them to cover the worst case (native ~245k, TRC20 ~415k due to the extra
-// transferFrom token pull) without double-counting safety.
-export const SUNIO_FALLBACK_SWAP_ENERGY_NATIVE = 215_000
-export const SUNIO_FALLBACK_SWAP_ENERGY_TRC20 = 375_000
-
 export const SUNIO_DEX_TYPES =
   'PSM,CURVE,CURVE_COMBINATION,WTRX,SUNSWAP_V1,SUNSWAP_V2,SUNSWAP_V3' as const
-
-// Native TRX token address (used when assetId is not a TRC-20 token)
-export const SUNIO_TRON_NATIVE_ADDRESS = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb' as const

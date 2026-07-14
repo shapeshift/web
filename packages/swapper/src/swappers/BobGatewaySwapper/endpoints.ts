@@ -1,4 +1,5 @@
 import { isGatewayError } from '@gobob/bob-sdk'
+import { tron } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
 import type { SwapperApi } from '../../types'
@@ -9,11 +10,7 @@ import { getUnsignedUtxoTransaction, getUtxoTransactionFees } from '../../utils/
 import { getBobGatewayTradeQuote } from './swapperApi/getTradeQuote'
 import { getBobGatewayTradeRate } from './swapperApi/getTradeRate'
 import type { BobGatewayTradeQuoteInput, BobGatewayTradeRateInput } from './types'
-import {
-  getBobGatewayClient,
-  mapBobGatewayOrderStatusToTxStatus,
-  toTronBase58,
-} from './utils/helpers'
+import { getBobGatewayClient, mapBobGatewayOrderStatusToTxStatus } from './utils/helpers'
 
 export const bobGatewayApi: SwapperApi = {
   getTradeRate: (input, deps) => getBobGatewayTradeRate(input as BobGatewayTradeRateInput, deps),
@@ -39,7 +36,7 @@ export const bobGatewayApi: SwapperApi = {
     return adapter.buildCustomApiTx({
       accountNumber,
       from,
-      to: toTronBase58(to),
+      to: tron.toTronBase58(to),
       value,
       data,
     })

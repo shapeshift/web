@@ -485,7 +485,11 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
       return
     }
 
-    const _txId = await executeTransaction()
+    const _txId = await executeTransaction().catch((err: unknown) => {
+      console.error('[thorchain lp] executeTransaction failed:', err)
+      return undefined
+    })
+
     if (!_txId) {
       setIsSubmitting(false)
       throw new Error('failed to broadcast transaction')

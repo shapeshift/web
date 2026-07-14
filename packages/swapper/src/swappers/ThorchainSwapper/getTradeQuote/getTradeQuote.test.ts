@@ -89,10 +89,13 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
         buyAsset: ETH,
         sellAsset: FOX_MAINNET,
         accountNumber: 0,
-        thorchainSpecific: {
+        swapperMetadata: {
+          name: 'thorchain',
           maxStreamingQuantity: undefined,
         },
-        thorchainTransactionMetadata: {
+        transactionData: {
+          type: 'evm',
+          chainId: 1,
           to: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
           data: '0x',
           value: '0',
@@ -137,10 +140,13 @@ const expectedQuoteResponse: Omit<ThorEvmTradeQuote, 'id'>[] = [
         buyAsset: ETH,
         sellAsset: FOX_MAINNET,
         accountNumber: 0,
-        thorchainSpecific: {
+        swapperMetadata: {
+          name: 'thorchain',
           maxStreamingQuantity: undefined,
         },
-        thorchainTransactionMetadata: {
+        transactionData: {
+          type: 'evm',
+          chainId: 1,
           to: '0x3624525075b88B24ecc29CE226b0CEc1fFcB6976',
           data: '0x',
           value: '0',

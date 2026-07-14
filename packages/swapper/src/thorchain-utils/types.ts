@@ -282,6 +282,16 @@ export type ThorEvmTradeRate = TradeRate &
 export type ThorTradeUtxoOrCosmosRate = TradeRate & ThorTradeQuoteSpecificMetadata
 export type ThorTradeRate = ThorEvmTradeRate | ThorTradeUtxoOrCosmosRate
 
+export type ThorchainMetadata = {
+  name: 'thorchain'
+  maxStreamingQuantity: number | undefined
+}
+
+export type MayachainMetadata = {
+  name: 'mayachain'
+  maxStreamingQuantity: number | undefined
+}
+
 export type ThorTradeRoute = {
   source: SwapSource
   quote: ThornodeQuoteResponseSuccess

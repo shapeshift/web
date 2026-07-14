@@ -51,6 +51,7 @@ import type { CowMessageToSign } from './swappers/CowSwapper/types'
 import type { DebridgeMetadata } from './swappers/DebridgeSwapper/utils/types'
 import type { NearIntentsMetadata } from './swappers/NearIntentsSwapper/types'
 import type { RelayMetadata, RelayTransactionMetadata } from './swappers/RelaySwapper/utils/types'
+import type { MayachainMetadata, ThorchainMetadata } from './thorchain-utils/types'
 import type { makeSwapperAxiosServiceMonadic } from './utils'
 
 // TODO: Rename all properties in this type to be camel case and not react specific
@@ -456,9 +457,6 @@ export type TradeQuoteStep = {
     depositAddress: string
     depositMemo?: string
   }
-  thorchainSpecific?: {
-    maxStreamingQuantity?: number
-  }
   thorchainTransactionMetadata?: {
     to: string
     data?: string
@@ -569,6 +567,8 @@ export type SwapperMetadata =
   | NearIntentsMetadata
   | AvnuMetadata
   | BebopMetadata
+  | ThorchainMetadata
+  | MayachainMetadata
 
 export type SwapMetadata = CommonSwapMetadata & { swapperMetadata?: SwapperMetadata }
 

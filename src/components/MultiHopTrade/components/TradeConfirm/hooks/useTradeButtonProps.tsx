@@ -121,11 +121,6 @@ export const useTradeButtonProps = ({
         quoteId: firstStep?.stonfiSpecific?.quoteId ?? activeQuote.id,
         relayerTxHash,
         relayerExplorerTxLink,
-        streamingSwapMetadata: {
-          maxSwapCount: firstStep.thorchainSpecific?.maxStreamingQuantity ?? 0,
-          attemptedSwapCount: 0,
-          failedSwaps: [],
-        },
       }),
       isStreaming: activeQuote.isStreaming,
       status: SwapStatus.Idle,

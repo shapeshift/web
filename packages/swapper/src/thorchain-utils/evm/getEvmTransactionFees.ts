@@ -17,9 +17,13 @@ export const getEvmTransactionFees = async (
 
   const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-  const { sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = step
+  const { transactionData, sellAmountIncludingProtocolFeesCryptoBaseUnit, sellAsset } = step
 
-  const { data, to } = await getEvmData({ config, step, tradeQuote, swapperName })
+  // L1ToL1 quotes carry the executable tx directly; longtail rebuilds it at execution time
+  const { data, to } =
+    transactionData?.type === 'evm'
+      ? transactionData
+      : await getEvmData({ config, step, tradeQuote, swapperName })
 
   const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 

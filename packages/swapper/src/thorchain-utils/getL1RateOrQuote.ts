@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId, fromChainId } from '@shapeshiftoss/caip'
 import * as adapters from '@shapeshiftoss/chain-adapters'
 import {
   assertUnreachable,
@@ -31,9 +31,9 @@ import type {
   QuoteFeeData,
   SwapErrorRight,
   SwapperDeps,
-  SwapperName,
+  TxBuildData,
 } from '../types'
-import { TradeQuoteError } from '../types'
+import { SwapperName, TradeQuoteError } from '../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../utils'
 import * as cosmossdk from './cosmossdk'
 import * as evm from './evm'
@@ -57,8 +57,8 @@ import type {
   ThorTradeRoute,
   ThorTradeUtxoOrCosmosQuote,
   ThorTradeUtxoOrCosmosRate,
-  TradeType,
 } from './types'
+import { TradeType } from './types'
 import * as utxo from './utxo'
 
 const SAFE_GAS_LIMIT = '100000' // depositWithExpiry()
@@ -81,11 +81,13 @@ type MakeThorTradeInput<T extends ThorTradeRateOrQuote> = T extends ThorEvmTrade
       data: string
       router: string
       vault: string
+      transactionData?: TxBuildData
     }
   : MakeThorTradeInputBase & {
       data?: never
       router?: never
       vault?: never
+      transactionData?: never
     }
 
 export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
@@ -261,6 +263,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     data,
     router,
     vault,
+    transactionData,
     thorchainTransactionMetadata,
   }: MakeThorTradeInput<U>): T => {
     const buyAmountAfterFeesCryptoBaseUnit = convertPrecision({
@@ -315,9 +318,17 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
             sellAmountCryptoBaseUnit,
             buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
           }),
-          thorchainSpecific: {
-            maxStreamingQuantity: route.quote.max_streaming_quantity,
-          },
+          swapperMetadata:
+            swapperName === SwapperName.Mayachain
+              ? {
+                  name: 'mayachain' as const,
+                  maxStreamingQuantity: route.quote.max_streaming_quantity,
+                }
+              : {
+                  name: 'thorchain' as const,
+                  maxStreamingQuantity: route.quote.max_streaming_quantity,
+                },
+          transactionData,
           thorchainTransactionMetadata,
         },
       ],
@@ -358,11 +369,26 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
             data,
             router,
             vault,
-            thorchainTransactionMetadata: {
-              to: router,
-              data,
-              value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
-            },
+            // Only L1ToL1 quotes are executable directly from the stored tx; longtail rebuilds the
+            // aggregator/slippage-guarded calldata at execution via getEvmData, so keep it on the
+            // legacy thorchainTransactionMetadata (consumed only by the public-api snapshot).
+            ...(tradeType === TradeType.L1ToL1
+              ? {
+                  transactionData: {
+                    type: 'evm' as const,
+                    chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+                    to: router,
+                    data,
+                    value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
+                  },
+                }
+              : {
+                  thorchainTransactionMetadata: {
+                    to: router,
+                    data,
+                    value: isNativeEvmAsset(sellAsset.assetId) ? sellAmountCryptoBaseUnit : '0',
+                  },
+                }),
             feeData: {
               protocolFees: getProtocolFees(route.quote),
               networkFeeCryptoBaseUnit,

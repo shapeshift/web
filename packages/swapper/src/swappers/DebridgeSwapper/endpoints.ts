@@ -1,12 +1,16 @@
-import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import BigNumber from 'bignumber.js'
 
-import type { SwapperApi } from '../../types'
-import { checkEvmSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
+import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput, SwapperApi } from '../../types'
+import {
+  checkEvmSwapStatus,
+  getExecutableTradeStep,
+  getSwapMetadata,
+  isExecutableTradeQuote,
+} from '../../utils'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
 import { debridgeService } from './utils/debridgeService'
+import { getEvmFeeData } from './utils/getEvmFeeData'
 import type {
   DebridgeOrderDetail,
   DebridgeOrderIdsResponse,
@@ -16,8 +20,8 @@ import type {
 const DEBRIDGE_STATS_API_URL = 'https://stats-api.dln.trade'
 
 export const debridgeApi: SwapperApi = {
-  getTradeQuote: (input, deps) => getTradeQuote(input, deps),
-  getTradeRate: (input, deps) => getTradeRate(input, deps),
+  getTradeQuote: (input, deps) => getTradeQuote(input as GetEvmTradeQuoteInputBase, deps),
+  getTradeRate: (input, deps) => getTradeRate(input as GetEvmTradeRateInput, deps),
   getEvmTransactionFees: async ({
     from,
     stepIndex,
@@ -30,30 +34,18 @@ export const debridgeApi: SwapperApi = {
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
     const { transactionData, sellAsset } = step
-    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
-
-    const { to, value, data, gasLimit: gasLimitFromApi } = transactionData
+    if (transactionData?.type !== 'evm') throw new Error('[deBridge] invalid evm transaction')
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-    try {
-      const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
-      return feeData.networkFeeCryptoBaseUnit
-    } catch (e) {
-      console.error('[deBridge] getEvmTransactionFees: gas estimation failed, using API fallback', {
-        error: e,
-        chainId: sellAsset.chainId,
-        to,
-        value,
-      })
-      if (!gasLimitFromApi) throw new Error('Gas estimation failed and no API gas limit fallback')
-      const { average } = await adapter.getGasFeeData()
-      return evm.calcNetworkFeeCryptoBaseUnit({
-        ...average,
-        supportsEIP1559,
-        gasLimit: gasLimitFromApi,
-      })
-    }
+    const { networkFeeCryptoBaseUnit } = await getEvmFeeData({
+      transactionData,
+      from,
+      supportsEIP1559,
+      adapter,
+    })
+
+    return networkFeeCryptoBaseUnit
   },
   getUnsignedEvmTransaction: async ({
     from,
@@ -67,55 +59,13 @@ export const debridgeApi: SwapperApi = {
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
     const { accountNumber, transactionData, sellAsset } = step
-    if (transactionData?.type !== 'evm') throw new Error('Missing evm transactionData')
+    if (transactionData?.type !== 'evm') throw new Error('[deBridge] invalid evm transaction')
 
-    const { to, value, data, gasLimit: gasLimitFromApi } = transactionData
+    const { to, value, data } = transactionData
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
-    const feeData = await (async () => {
-      try {
-        const fees = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
-        const result = {
-          ...fees,
-          gasLimit: BigNumber(fees.gasLimit).times('1.2').toFixed(0),
-        }
-        console.log(
-          '[deBridge] getUnsignedEvmTransaction feeData',
-          JSON.stringify({
-            chainId: sellAsset.chainId,
-            to,
-            value,
-            supportsEIP1559,
-            feesFromEstimate: fees,
-            gasLimitWithBuffer: result.gasLimit,
-          }),
-        )
-        return result
-      } catch (e) {
-        console.error(
-          '[deBridge] getUnsignedEvmTransaction: gas estimation failed, using API fallback',
-          { error: e, chainId: sellAsset.chainId, to, value },
-        )
-        if (!gasLimitFromApi) throw new Error('Gas estimation failed and no API gas limit fallback')
-        const { average } = await adapter.getGasFeeData()
-        const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
-          ...average,
-          supportsEIP1559,
-          gasLimit: gasLimitFromApi,
-        })
-        const { gasPrice, maxFeePerGas, maxPriorityFeePerGas } = average
-        if (supportsEIP1559 && maxFeePerGas && maxPriorityFeePerGas) {
-          return {
-            networkFeeCryptoBaseUnit,
-            gasLimit: gasLimitFromApi,
-            maxFeePerGas,
-            maxPriorityFeePerGas,
-          }
-        }
-        return { networkFeeCryptoBaseUnit, gasLimit: gasLimitFromApi, gasPrice }
-      }
-    })()
+    const feeData = await getEvmFeeData({ transactionData, from, supportsEIP1559, adapter })
 
     const unsignedTx = await adapter.buildCustomApiTx({
       accountNumber,
@@ -137,9 +87,9 @@ export const debridgeApi: SwapperApi = {
     fetchIsSmartContractAddressQuery,
     assertGetEvmChainAdapter,
   }) => {
-    const isSameChainSwap =
-      swap?.metadata.swapperMetadata?.name === 'debridge' &&
-      swap.metadata.swapperMetadata.isSameChainSwap === true
+    if (!swap) throw new Error('[deBridge] swap is required for status check')
+
+    const { isSameChainSwap } = getSwapMetadata(swap.metadata.swapperMetadata, 'debridge')
 
     if (isSameChainSwap) {
       return checkEvmSwapStatus({
@@ -151,32 +101,23 @@ export const debridgeApi: SwapperApi = {
       })
     }
 
-    let resolvedTxHash = txHash
+    const sourceTxStatus = await checkEvmSwapStatus({
+      txHash,
+      chainId,
+      address,
+      assertGetEvmChainAdapter,
+      fetchIsSmartContractAddressQuery,
+    })
 
-    if (isEvmChainId(chainId)) {
-      const sourceTxStatus = await checkEvmSwapStatus({
-        txHash,
-        chainId,
-        address,
-        assertGetEvmChainAdapter,
-        fetchIsSmartContractAddressQuery,
-      })
+    if (sourceTxStatus.status !== TxStatus.Confirmed) return sourceTxStatus
 
-      if (sourceTxStatus.status !== TxStatus.Confirmed) return sourceTxStatus
-
-      resolvedTxHash = sourceTxStatus.buyTxHash ?? txHash
-    }
+    const resolvedTxHash = sourceTxStatus.buyTxHash ?? txHash
 
     const maybeOrderIdsResponse = await debridgeService.get<DebridgeOrderIdsResponse>(
       `${DEBRIDGE_STATS_API_URL}/api/Transaction/${resolvedTxHash}/orderIds`,
     )
 
     if (maybeOrderIdsResponse.isErr()) {
-      console.error('[deBridge] checkTradeStatus: failed to fetch orderIds', {
-        error: maybeOrderIdsResponse.unwrapErr(),
-        txHash: resolvedTxHash,
-        chainId,
-      })
       return {
         buyTxHash: undefined,
         status: TxStatus.Pending,
@@ -201,12 +142,6 @@ export const debridgeApi: SwapperApi = {
     )
 
     if (maybeStatusResponse.isErr()) {
-      console.error('[deBridge] checkTradeStatus: failed to fetch order status', {
-        error: maybeStatusResponse.unwrapErr(),
-        orderId,
-        txHash: resolvedTxHash,
-        chainId,
-      })
       return {
         buyTxHash: undefined,
         status: TxStatus.Unknown,

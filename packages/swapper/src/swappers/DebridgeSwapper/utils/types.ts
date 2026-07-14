@@ -1,29 +1,3 @@
-import type { Asset } from '@shapeshiftoss/types'
-
-export type DebridgeTradeBaseParams = {
-  buyAsset: Asset
-  sellAsset: Asset
-  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  affiliateBps: string
-}
-
-export type DebridgeTradeInputParams<T extends 'rate' | 'quote'> = DebridgeTradeBaseParams & {
-  quoteOrRate: T
-  receiveAddress: T extends 'rate' ? string | undefined : string
-  sendAddress: T extends 'rate' ? undefined : string
-  accountNumber: T extends 'rate' ? undefined : number
-  slippageTolerancePercentageDecimal?: string
-}
-
-export type DebridgeTransactionMetadata = {
-  to: string
-  data: string
-  value: string
-  gasLimit?: string
-  orderId?: string
-  isSameChainSwap?: boolean
-}
-
 export type DebridgeMetadata = {
   name: 'debridge'
   isSameChainSwap: boolean

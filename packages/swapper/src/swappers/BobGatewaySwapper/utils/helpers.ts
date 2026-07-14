@@ -62,20 +62,20 @@ export const dummyAddressForChainId = (chainId: ChainId): string => {
   return DUMMY_EVM_ADDRESS
 }
 
-// BobGateway ownerAddress (order lookup + refunds) is the sender - except BTC sells, which have none, so use the recipient.
 export const getBobGatewayOwnerAddress = ({
   sellAsset,
+  buyAsset,
   sender,
   recipient,
 }: {
   sellAsset: Asset
+  buyAsset: Asset
   sender: string | undefined
   recipient: string
 }): string => {
-  const owner = sellAsset.chainId === btcChainId ? recipient : (sender as string)
-  if (!TronWeb.isAddress(owner)) return owner
-  // Converts a Tron address to its 20-byte EVM hex body (BobGateway ownerAddress format)
-  return `0x${TronWeb.address.toHex(owner).slice(2)}`
+  if (isEvmChainId(sellAsset.chainId)) return sender as string
+  if (isEvmChainId(buyAsset.chainId)) return recipient
+  throw new Error('[BobGateway] no EVM owner/refund address available for this route (unsupported)')
 }
 
 export const getBobGatewayClient = (config: SwapperConfig): GatewaySDK => {
@@ -389,6 +389,11 @@ export const getBobGatewayRateNetworkFeeCryptoBaseUnit = async (
     }
 
     if (sellAsset.chainId === tronChainId) {
+      if (!('offramp' in quote)) {
+        console.warn('[BobGateway] unknown tron network fee for non-offramp order type')
+        return undefined
+      }
+
       const adapter = assertGetTronChainAdapter(sellAsset.chainId)
 
       const { energyPrice, bandwidthPrice } = await adapter.httpProvider.getChainPrices()

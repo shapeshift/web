@@ -13,7 +13,7 @@ import {
   polygonChainId,
   seiChainId,
   sonicChainId,
-  tronChainId,
+  // tronChainId,
   unichainChainId,
 } from '@shapeshiftoss/caip'
 import type { Address } from 'viem'
@@ -37,7 +37,7 @@ export const chainIdToBobGatewayChainName = {
   [plasmaChainId]: 'plasma',
   [polygonChainId]: 'polygon',
   [hyperEvmChainId]: 'hyperliquid',
-  [tronChainId]: 'tron',
+  // [tronChainId]: 'tron',
 } as const
 
 export const bobGatewayChainNameToChainId = Object.fromEntries(

@@ -75,7 +75,7 @@ export const getBobGatewayTradeQuote = async (
     buyChainName,
     sender,
     recipient,
-    ownerAddress: getBobGatewayOwnerAddress({ sellAsset, sender, recipient }),
+    ownerAddress: getBobGatewayOwnerAddress({ sellAsset, buyAsset, sender, recipient }),
     refundAddress: sellAsset.chainId === btcChainId ? sender : undefined,
     amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     affiliateBps,

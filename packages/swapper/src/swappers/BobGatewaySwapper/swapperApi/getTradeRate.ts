@@ -49,7 +49,7 @@ export const getBobGatewayTradeRate = async (
     buyChainName,
     sender,
     recipient,
-    ownerAddress: getBobGatewayOwnerAddress({ sellAsset, sender, recipient }),
+    ownerAddress: getBobGatewayOwnerAddress({ sellAsset, buyAsset, sender, recipient }),
     amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
     affiliateBps,
     slippageTolerancePercentageDecimal,

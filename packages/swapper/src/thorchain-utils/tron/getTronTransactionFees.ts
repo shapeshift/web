@@ -1,31 +1,15 @@
-import { bnOrZero, contractAddressOrUndefined } from '@shapeshiftoss/utils'
-import { TronWeb } from 'tronweb'
+import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import type { GetUnsignedTronTransactionArgs, SwapperName } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import type { ThorTradeQuote } from '../types'
 import { getThorTxData } from './getThorTxData'
 
-const getChainPrices = async (
-  rpcUrl: string,
-  headers: Record<string, string>,
-): Promise<{ bandwidthPrice: number; energyPrice: number }> => {
-  try {
-    const tronWeb = new TronWeb({ fullHost: rpcUrl, headers })
-    const params = await tronWeb.trx.getChainParameters()
-    const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
-    const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 420
-    return { bandwidthPrice, energyPrice }
-  } catch (_err) {
-    return { bandwidthPrice: 1000, energyPrice: 420 }
-  }
-}
-
 export const getTronTransactionFees = async (
   args: GetUnsignedTronTransactionArgs,
   swapperName: SwapperName,
 ): Promise<string> => {
-  const { tradeQuote, stepIndex, config, from } = args
+  const { tradeQuote, stepIndex, config, from, assertGetTronChainAdapter } = args
 
   if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
@@ -37,58 +21,18 @@ export const getTronTransactionFees = async (
 
   const { vault } = await getThorTxData({ sellAsset, config, swapperName })
 
+  const adapter = assertGetTronChainAdapter(sellAsset.chainId)
   const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-  const rpcUrl = config.VITE_TRON_NODE_URL
-  const tronGridHeaders: Record<string, string> = config.VITE_TRON_GRID_API_KEY
-    ? { 'TRON-PRO-API-KEY': config.VITE_TRON_GRID_API_KEY }
-    : {}
 
-  try {
-    const tronWeb = new TronWeb({ fullHost: rpcUrl, headers: tronGridHeaders })
+  const feeData = await adapter.getFeeData({
+    to: vault,
+    value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    chainSpecific: {
+      from,
+      contractAddress,
+      memo,
+    },
+  })
 
-    if (contractAddress) {
-      // TRC20 transfer - estimate energy cost
-      const { energyPrice } = await getChainPrices(rpcUrl, tronGridHeaders)
-
-      const result = await tronWeb.transactionBuilder.triggerConstantContract(
-        contractAddress,
-        'transfer(address,uint256)',
-        {},
-        [
-          { type: 'address', value: vault },
-          { type: 'uint256', value: sellAmountIncludingProtocolFeesCryptoBaseUnit },
-        ],
-        from,
-      )
-
-      const energyUsed = result.energy_used ?? 65000 // Conservative default for TRC20 transfer
-      const feeInSun = energyUsed * energyPrice
-
-      return String(feeInSun)
-    } else {
-      // TRX transfer with memo - build transaction to get accurate size
-      const { bandwidthPrice } = await getChainPrices(rpcUrl, tronGridHeaders)
-
-      let tx = await tronWeb.transactionBuilder.sendTrx(
-        vault,
-        bnOrZero(sellAmountIncludingProtocolFeesCryptoBaseUnit).toNumber(),
-        from,
-      )
-
-      // Add memo to get accurate size with memo overhead
-      const txWithMemo = await tronWeb.transactionBuilder.addUpdateData(tx, memo, 'utf8')
-
-      // Calculate bandwidth fee from transaction size
-      const rawDataBytes = txWithMemo.raw_data_hex ? txWithMemo.raw_data_hex.length / 2 : 268
-      const signatureBytes = 65
-      const totalBytes = rawDataBytes + signatureBytes
-
-      const feeInSun = totalBytes * bandwidthPrice
-      return String(feeInSun)
-    }
-  } catch (err) {
-    // Fallback to conservative estimate if fee estimation fails
-    // TRX transfer: ~1 TRX, TRC20: ~10 TRX
-    return contractAddress ? '10000000' : '1000000'
-  }
+  return feeData.fast.txFee
 }

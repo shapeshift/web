@@ -15,7 +15,6 @@ import {
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { PublicKey, SystemProgram, TransactionInstruction } from '@solana/web3.js'
-import { TronWeb } from 'tronweb'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../index'
@@ -549,56 +548,20 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
             try {
               const { sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input
               const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+              const adapter = deps.assertGetTronChainAdapter(sellAsset.chainId)
 
-              // Estimate fees using the receive address for accurate energy calculation
-              const tronWeb = new TronWeb({
-                fullHost: deps.config.VITE_TRON_NODE_URL,
-                headers: deps.config.VITE_TRON_GRID_API_KEY
-                  ? { 'TRON-PRO-API-KEY': deps.config.VITE_TRON_GRID_API_KEY }
-                  : {},
+              // Simulate the transfer to the vault from the receive address for an accurate estimate
+              const feeData = await adapter.getFeeData({
+                to: vault,
+                value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+                chainSpecific: {
+                  from: input.receiveAddress,
+                  contractAddress,
+                  memo,
+                },
               })
-              const params = await tronWeb.trx.getChainParameters()
-              const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
-              const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
 
-              let totalFee = 0
-
-              if (contractAddress) {
-                // TRC20: Estimate energy with actual recipient
-                try {
-                  const result = await tronWeb.transactionBuilder.triggerConstantContract(
-                    contractAddress,
-                    'transfer(address,uint256)',
-                    {},
-                    [
-                      { type: 'address', value: vault }, // Use vault as recipient
-                      {
-                        type: 'uint256',
-                        value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-                      },
-                    ],
-                    input.receiveAddress, // Use user's address as sender for estimation
-                  )
-
-                  const energyUsed = result.energy_used ?? 65000
-                  const energyFee = energyUsed * energyPrice * 1.5 // 1.5x safety margin
-                  const bandwidthFee = 276 * bandwidthPrice // TRC20 bandwidth
-                  totalFee = Math.ceil(energyFee + bandwidthFee)
-                } catch {
-                  // Fallback: Conservative estimate
-                  totalFee = 13_000_000 // 13 TRX worst case
-                }
-              } else {
-                // TRX transfer bandwidth: Base tx + memo bytes
-                const baseBytes = 198
-                const memoBytes = route.quote.memo
-                  ? Buffer.from(route.quote.memo, 'utf8').length
-                  : 0
-                const totalBandwidth = baseBytes + memoBytes
-                totalFee = totalBandwidth * bandwidthPrice
-              }
-
-              networkFeeCryptoBaseUnit = String(totalFee)
+              networkFeeCryptoBaseUnit = feeData.fast.txFee
             } catch {
               // Leave as undefined if estimation fails
             }

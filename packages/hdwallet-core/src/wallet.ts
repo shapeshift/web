@@ -1,5 +1,6 @@
 import isObject from 'lodash/isObject'
 
+import type { AptosWallet, AptosWalletInfo } from './aptos'
 import type { ArkeoWallet, ArkeoWalletInfo } from './arkeo'
 import type { BinanceWallet, BinanceWalletInfo } from './binance'
 import type { BTCInputScriptType, BTCWallet, BTCWalletInfo } from './bitcoin'
@@ -403,6 +404,14 @@ export function infoTon(info: HDWalletInfo): info is TonWalletInfo {
 
 export function supportsDebugLink(wallet: HDWallet): wallet is DebugLinkWallet {
   return isObject(wallet) && (wallet as any)._supportsDebugLink
+}
+
+export function supportsAptos(wallet: HDWallet): wallet is AptosWallet {
+  return isObject(wallet) && (wallet as any)._supportsAptos
+}
+
+export function infoAptos(info: HDWalletInfo): info is AptosWalletInfo {
+  return isObject(info) && (info as any)._supportsAptosInfo
 }
 
 export function isMetaMask(wallet: HDWallet | null): boolean {

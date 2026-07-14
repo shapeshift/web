@@ -4,6 +4,7 @@ import { csp as trustwallet } from './assetService/trustwallet'
 import { csp as base } from './base'
 import { csp as chainflip } from './chainflip'
 import { csp as abstract } from './chains/abstract'
+import { csp as aptos } from './chains/aptos'
 import { csp as arbitrum } from './chains/arbitrum'
 import { csp as avalanche } from './chains/avalanche'
 import { csp as baseChain } from './chains/base'
@@ -67,6 +68,7 @@ import { csp as butterSwap } from './defi/swappers/ButterSwap'
 import { csp as cowSwap } from './defi/swappers/CowSwap'
 import { csp as nearIntents } from './defi/swappers/NearIntents'
 import { csp as oneInch } from './defi/swappers/OneInch'
+import { csp as panora } from './defi/swappers/Panora'
 import { csp as portals } from './defi/swappers/Portals'
 import { csp as stonfi } from './defi/swappers/Stonfi'
 import { csp as sunio } from './defi/swappers/Sunio'
@@ -131,6 +133,7 @@ export const csps = [
   bitcoincash,
   blast,
   abstract,
+  aptos,
   bnbsmartchain,
   cosmos,
   dogecoin,
@@ -208,4 +211,5 @@ export const csps = [
   railway,
   discord,
   yieldxyz,
+  panora,
 ]

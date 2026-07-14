@@ -15,6 +15,7 @@ import CowIcon from './cow-icon.png'
 import DebridgeIcon from './debridge-icon.svg'
 import MayachainIcon from './maya_logo.png'
 import NearIntentsIcon from './near-intents-icon.png'
+import PanoraIcon from './panora-icon.jpg'
 import PortalsIcon from './portals-icon.png'
 import RelayIcon from './relay-icon.svg'
 import StonfiIcon from './stonfi-icon.png'
@@ -69,6 +70,8 @@ export const SwapperIcon = ({
         return DebridgeIcon
       case SwapperName.BobGateway:
         return BobGatewayIcon
+      case SwapperName.Panora:
+        return PanoraIcon
       case SwapperName.Test:
         return ''
       default:

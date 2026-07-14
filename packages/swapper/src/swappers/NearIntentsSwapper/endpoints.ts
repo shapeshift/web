@@ -1,3 +1,4 @@
+import { ASSET_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
@@ -5,6 +6,7 @@ import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
 import { getUnsignedTronTransaction } from '../../tron-utils/getUnsignedTronTransaction'
 import type {
+  GetUnsignedAptosTransactionArgs,
   GetUnsignedNearTransactionArgs,
   GetUnsignedSuiTransactionArgs,
   GetUnsignedTonTransactionArgs,
@@ -368,6 +370,50 @@ export const nearIntentsApi: SwapperApi = {
   },
 
   getTonTransactionFees: ({ tradeQuote, stepIndex }: GetUnsignedTonTransactionArgs) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+    if (!step.feeData.networkFeeCryptoBaseUnit) {
+      throw new Error('Missing network fee in quote')
+    }
+    return Promise.resolve(step.feeData.networkFeeCryptoBaseUnit)
+  },
+
+  getUnsignedAptosTransaction: ({
+    stepIndex,
+    tradeQuote,
+    from,
+    assertGetAptosChainAdapter,
+  }: GetUnsignedAptosTransactionArgs) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+
+    const { accountNumber, sellAsset, nearIntentsSpecific } = step
+    if (!nearIntentsSpecific) throw new Error('nearIntentsSpecific is required')
+
+    const adapter = assertGetAptosChainAdapter(sellAsset.chainId)
+
+    const to = nearIntentsSpecific.depositAddress
+    const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
+
+    // Native APT lives at the slip44 namespace; non-native Aptos coins encode
+    // their Move CoinStore type as the asset reference and must be passed
+    // through to the adapter so the typeArguments target the right coin.
+    const { assetNamespace, assetReference } = fromAssetId(sellAsset.assetId)
+    const chainSpecific =
+      assetNamespace === ASSET_NAMESPACE.slip44 ? {} : { coinType: assetReference }
+
+    return adapter.buildSendApiTransaction({
+      to,
+      from,
+      value,
+      accountNumber,
+      chainSpecific,
+    })
+  },
+
+  getAptosTransactionFees: ({ tradeQuote, stepIndex }: GetUnsignedAptosTransactionArgs) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)

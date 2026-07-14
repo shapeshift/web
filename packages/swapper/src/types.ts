@@ -1,5 +1,6 @@
 import type { AccountId, AssetId, ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
+  aptos,
   ChainAdapter,
   CosmosSdkChainAdapter,
   EvmChainAdapter,
@@ -13,6 +14,7 @@ import type {
   UtxoChainAdapter,
 } from '@shapeshiftoss/chain-adapters'
 import type {
+  AptosSignTx,
   HDWallet,
   SolanaSignTx,
   StarknetSignTx,
@@ -88,6 +90,7 @@ export type SwapperConfig = {
   VITE_ACROSS_INTEGRATOR_ID: string
   VITE_DEBRIDGE_API_URL: string
   VITE_BOB_GATEWAY_API_KEY: string
+  VITE_PANORA_API_KEY: string
 }
 
 export enum SwapperName {
@@ -110,6 +113,7 @@ export enum SwapperName {
   Across = 'Across',
   Debridge = 'deBridge',
   BobGateway = 'BOB Gateway',
+  Panora = 'Panora',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -179,6 +183,11 @@ export type SuiFeeData = {
   gasPrice: string
 }
 
+export type AptosFeeData = {
+  gasUnitPrice: string
+  maxGasAmount: string
+}
+
 export type AmountDisplayMeta = {
   amountCryptoBaseUnit: string
   asset: Partial<Asset> & Pick<Asset, 'symbol' | 'chainId' | 'precision'>
@@ -189,7 +198,7 @@ export type ProtocolFee = { requiresBalance: boolean } & AmountDisplayMeta
 export type QuoteFeeData = {
   networkFeeCryptoBaseUnit: string | undefined // fee paid to the network from the fee asset (undefined if unknown)
   protocolFees: PartialRecord<AssetId, ProtocolFee> | undefined // fee(s) paid to the protocol(s)
-  chainSpecific?: UtxoFeeData | CosmosSdkFeeData | SolanaFeeData | SuiFeeData
+  chainSpecific?: UtxoFeeData | CosmosSdkFeeData | SolanaFeeData | SuiFeeData | AptosFeeData
 }
 
 export type BuyAssetBySellIdInput = {
@@ -377,6 +386,10 @@ export type TonSwapperDeps = {
   assertGetTonChainAdapter: (chainId: ChainId) => ton.ChainAdapter
 }
 
+export type AptosSwapperDeps = {
+  assertGetAptosChainAdapter: (chainId: ChainId) => aptos.ChainAdapter
+}
+
 export type SwapperDeps = {
   assetsById: AssetsByIdPartial
   config: SwapperConfig
@@ -390,7 +403,8 @@ export type SwapperDeps = {
   SuiSwapperDeps &
   NearSwapperDeps &
   StarknetSwapperDeps &
-  TonSwapperDeps
+  TonSwapperDeps &
+  AptosSwapperDeps
 
 export type AffiliateFee = {
   assetId: AssetId
@@ -734,6 +748,10 @@ export type TonTransactionExecutionProps = {
   signAndBroadcastTransaction: (txToSign: ton.TonSignTx) => Promise<string>
 }
 
+export type AptosTransactionExecutionProps = {
+  signAndBroadcastTransaction: (txToSign: AptosSignTx) => Promise<string>
+}
+
 type EvmAccountMetadata = { from: string }
 type SolanaAccountMetadata = { from: string }
 type TronAccountMetadata = { from: string }
@@ -784,6 +802,11 @@ export type GetUnsignedTonTransactionArgs = CommonGetUnsignedTransactionArgs &
   TonAccountMetadata &
   TonSwapperDeps
 
+type AptosAccountMetadata = { from: string }
+export type GetUnsignedAptosTransactionArgs = CommonGetUnsignedTransactionArgs &
+  AptosAccountMetadata &
+  AptosSwapperDeps
+
 export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata &
   Omit<EvmSwapperDeps, 'fetchIsSmartContractAddressQuery'>
@@ -823,7 +846,8 @@ export type CheckTradeStatusInput = {
   SuiSwapperDeps &
   NearSwapperDeps &
   StarknetSwapperDeps &
-  TonSwapperDeps
+  TonSwapperDeps &
+  AptosSwapperDeps
 
 export type TradeStatus = {
   status: TxStatus
@@ -892,6 +916,10 @@ export type Swapper = {
     txToSign: ton.TonSignTx,
     callbacks: TonTransactionExecutionProps,
   ) => Promise<string>
+  executeAptosTransaction?: (
+    txToSign: AptosSignTx,
+    callbacks: AptosTransactionExecutionProps,
+  ) => Promise<string>
 }
 
 export type SwapperApi = {
@@ -918,6 +946,7 @@ export type SwapperApi = {
     input: GetUnsignedStarknetTransactionArgs,
   ) => Promise<StarknetSignTx>
   getUnsignedTonTransaction?: (input: GetUnsignedTonTransactionArgs) => Promise<ton.TonSignTx>
+  getUnsignedAptosTransaction?: (input: GetUnsignedAptosTransactionArgs) => Promise<AptosSignTx>
 
   getEvmTransactionFees?: (input: GetUnsignedEvmTransactionArgs) => Promise<string>
   getSolanaTransactionFees?: (input: GetUnsignedSolanaTransactionArgs) => Promise<string>
@@ -928,6 +957,7 @@ export type SwapperApi = {
   getNearTransactionFees?: (input: GetUnsignedNearTransactionArgs) => Promise<string>
   getStarknetTransactionFees?: (input: GetUnsignedStarknetTransactionArgs) => Promise<string>
   getTonTransactionFees?: (input: GetUnsignedTonTransactionArgs) => Promise<string>
+  getAptosTransactionFees?: (input: GetUnsignedAptosTransactionArgs) => Promise<string>
 }
 
 export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {
@@ -988,6 +1018,10 @@ export type StarknetTransactionExecutionInput = CommonTradeExecutionInput &
 export type TonTransactionExecutionInput = CommonTradeExecutionInput &
   TonTransactionExecutionProps &
   TonAccountMetadata
+
+export type AptosTransactionExecutionInput = CommonTradeExecutionInput &
+  AptosTransactionExecutionProps &
+  AptosAccountMetadata
 
 export enum TradeExecutionEvent {
   SellTxHash = 'sellTxHash',

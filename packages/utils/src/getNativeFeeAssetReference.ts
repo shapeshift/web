@@ -150,6 +150,13 @@ export const getNativeFeeAssetReference = (
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
+      case CHAIN_NAMESPACE.Aptos:
+        switch (chainReference) {
+          case CHAIN_REFERENCE.AptosMainnet:
+            return ASSET_REFERENCE.Aptos
+          default:
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
+        }
       default:
         throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
     }

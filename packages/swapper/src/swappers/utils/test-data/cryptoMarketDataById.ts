@@ -1,3 +1,5 @@
+import type { AssetId } from '@shapeshiftoss/caip'
+
 import {
   AVAX,
   BSC,
@@ -13,7 +15,7 @@ import {
   WETH,
 } from './assets'
 
-export const marketDataByAssetIdUsd = {
+export const marketDataByAssetIdUsd: Record<AssetId, { price: string }> = {
   [FOX_MAINNET.assetId]: { price: '0.04' },
   [FOX_GNOSIS.assetId]: { price: '0.04' },
   [ETH.assetId]: { price: '1300' },

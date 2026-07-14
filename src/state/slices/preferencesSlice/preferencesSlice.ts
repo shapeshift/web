@@ -127,6 +127,7 @@ export type FeatureFlags = {
   AcrossSwap: boolean
   DebridgeSwap: boolean
   BobGatewaySwap: boolean
+  PanoraSwap: boolean
   LazyTxHistory: boolean
   LedgerReadOnly: boolean
   QuickBuy: boolean
@@ -140,6 +141,7 @@ export type FeatureFlags = {
   YieldMultiAccount: boolean
   EarnTab: boolean
   MmNativeMultichain: boolean
+  Aptos: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -301,6 +303,7 @@ const initialState: Preferences = {
     AcrossSwap: getConfig().VITE_FEATURE_ACROSS_SWAP,
     DebridgeSwap: getConfig().VITE_FEATURE_DEBRIDGE_SWAP,
     BobGatewaySwap: getConfig().VITE_FEATURE_BOB_GATEWAY_SWAP,
+    PanoraSwap: getConfig().VITE_FEATURE_PANORA_SWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
     LedgerReadOnly: getConfig().VITE_FEATURE_LEDGER_READ_ONLY,
     QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,
@@ -314,6 +317,7 @@ const initialState: Preferences = {
     YieldMultiAccount: getConfig().VITE_FEATURE_YIELD_MULTI_ACCOUNT,
     EarnTab: getConfig().VITE_FEATURE_EARN_TAB,
     MmNativeMultichain: getConfig().VITE_FEATURE_MM_NATIVE_MULTICHAIN,
+    Aptos: getConfig().VITE_FEATURE_APTOS,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

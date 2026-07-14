@@ -46,6 +46,7 @@ import tron from "./tron_0x2b6653dc/adapter.json";
 import zcash from "./bip122_00040fe8ec8471911baa1db1266ea15d/adapter.json";
 import near from "./near_mainnet/adapter.json";
 import ton from "./ton_mainnet/adapter.json";
+import aptos from "./aptos_861fb8e6/adapter.json";
 
 export {
   bitcoin,
@@ -96,4 +97,5 @@ export {
   zcash,
   near,
   ton,
+  aptos,
 };

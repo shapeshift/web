@@ -1,6 +1,7 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
   abstractChainId,
+  aptosChainId,
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
@@ -58,6 +59,7 @@ import {
   isPhantom,
   isVultisig,
   supportsAbstract,
+  supportsAptos,
   supportsArbitrum,
   supportsAvalanche,
   supportsBase,
@@ -224,6 +226,7 @@ export const walletSupportsChain = ({
   const isStarknetEnabled = selectFeatureFlag(store.getState(), 'Starknet')
   const isWorldChainEnabled = selectFeatureFlag(store.getState(), 'WorldChain')
   const isTonEnabled = selectFeatureFlag(store.getState(), 'Ton')
+  const isAptosEnabled = selectFeatureFlag(store.getState(), 'Aptos')
 
   switch (chainId) {
     case btcChainId:
@@ -321,6 +324,8 @@ export const walletSupportsChain = ({
       return supportsTron(wallet)
     case suiChainId:
       return supportsSui(wallet)
+    case aptosChainId:
+      return isAptosEnabled && supportsAptos(wallet)
     case nearChainId:
       return isNearEnabled && supportsNear(wallet)
     case starknetChainId:

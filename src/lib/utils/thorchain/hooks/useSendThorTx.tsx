@@ -293,18 +293,17 @@ export const useSendThorTx = ({
   })
 
   const executeTransaction = useCallback(async () => {
-    if (!memo) return
-    if (!asset) return
-    if (!wallet) return
-    if (!accountId) return
-    if (!transactionType) return
-    if (!estimateFeesArgs) return
-    if (accountNumber === undefined) return
-    if (isToken(asset.assetId) && !inboundAddressData) return
-    // Never broadcast to a halted inbound vault. Pairs with the inboundAddress halt guard above as a
-    // second layer: even if a consumer obtained an address out-of-band, execution still bails here.
-    // We intentionally fetch halted inbounds so fees still estimate (read only) during a halt.
-    if (inboundAddressData?.halted) return
+    if (!memo) throw new Error('Missing transaction memo')
+    if (!asset) throw new Error('Missing asset')
+    if (!wallet) throw new Error('No wallet connected')
+    if (!accountId) throw new Error('Missing account')
+    if (!transactionType) throw new Error('Unable to determine transaction type')
+    if (!estimateFeesArgs) throw new Error('Fee estimation data not ready')
+    if (accountNumber === undefined) throw new Error('Unable to resolve account number')
+    if (isToken(asset.assetId) && !inboundAddressData)
+      throw new Error('Missing inbound address data for token send')
+    // Never broadcast to a halted inbound vault; we intentionally fetch halted inbounds so fees still estimate (read only) during a halt.
+    if (inboundAddressData?.halted) throw new Error('Inbound vault is halted')
 
     if (
       action !== 'withdrawRunepool' &&

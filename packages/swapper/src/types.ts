@@ -457,12 +457,6 @@ export type TradeQuoteStep = {
   bebopSolanaSerializedTx?: string
   cowswapQuoteResponse?: OrderQuoteResponse
 
-  solanaTransactionMetadata?: {
-    addressLookupTableAddresses: string[]
-    instructions?: TransactionInstruction[]
-    /** True when the serialized tx exceeds the 1232-byte Solana limit and needs Jito bundle splitting */
-    isOversized?: boolean
-  }
   affiliateFee?: AffiliateFee
 }
 

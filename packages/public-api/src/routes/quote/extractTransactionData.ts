@@ -48,24 +48,22 @@ const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | u
 }
 
 const extractSolanaTransactionData = (step: TradeQuoteStep): SolanaTransactionData | undefined => {
-  if (!step.solanaTransactionMetadata?.instructions) {
-    return undefined
-  }
+  if (step.transactionData?.type !== 'solana') return undefined
 
-  const instructions = step.solanaTransactionMetadata.instructions.map(ix => ({
-    programId: ix.programId.toBase58(),
-    keys: ix.keys.map(key => ({
+  const instructions = step.transactionData.instructions.map(instruction => ({
+    programId: instruction.programId.toBase58(),
+    keys: instruction.keys.map(key => ({
       pubkey: key.pubkey.toBase58(),
       isSigner: key.isSigner,
       isWritable: key.isWritable,
     })),
-    data: Buffer.from(ix.data).toString('base64'),
+    data: Buffer.from(instruction.data).toString('base64'),
   }))
 
   return {
     type: 'solana',
     instructions,
-    addressLookupTableAddresses: step.solanaTransactionMetadata.addressLookupTableAddresses,
+    addressLookupTableAddresses: step.transactionData.addressLookupTableAddresses,
   }
 }
 

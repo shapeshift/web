@@ -18,7 +18,10 @@ export const getUnsignedSolanaTransaction = async ({
 
   const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-  const { accountNumber, solanaTransactionMetadata, sellAsset } = step
+  const { accountNumber, transactionData, sellAsset } = step
+  if (transactionData?.type !== 'solana') throw new Error('Missing solana transactionData')
+
+  const { instructions, addressLookupTableAddresses } = transactionData
 
   const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
 
@@ -27,12 +30,12 @@ export const getUnsignedSolanaTransaction = async ({
     value: '0',
     chainSpecific: {
       from,
-      addressLookupTableAccounts: solanaTransactionMetadata?.addressLookupTableAddresses,
-      instructions: solanaTransactionMetadata?.instructions,
+      addressLookupTableAccounts: addressLookupTableAddresses,
+      instructions,
     },
   })
 
-  const solanaInstructions = solanaTransactionMetadata?.instructions?.map(instruction =>
+  const solanaInstructions = instructions.map(instruction =>
     adapter.convertInstruction(instruction),
   )
 
@@ -42,7 +45,7 @@ export const getUnsignedSolanaTransaction = async ({
     value: '0',
     accountNumber,
     chainSpecific: {
-      addressLookupTableAccounts: solanaTransactionMetadata?.addressLookupTableAddresses,
+      addressLookupTableAccounts: addressLookupTableAddresses,
       instructions: solanaInstructions,
       // As always, as relay uses jupiter under the hood, we need to add the compute unit safety margin
       computeUnitLimit: bnOrZero(fast.chainSpecific.computeUnits)

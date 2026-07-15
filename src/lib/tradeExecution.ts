@@ -27,6 +27,7 @@ import {
   getExecutableTradeStep,
   getHopByIndex,
   isExecutableTradeQuote,
+  isSolanaTransactionOversized,
   swappers,
   SwapStatus,
   TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
@@ -560,25 +561,37 @@ export class TradeExecution {
       }
 
       const step = getHopByIndex(tradeQuote, stepIndex)
-      const metadata = step?.solanaTransactionMetadata
+      const transactionData = step?.transactionData
 
-      // Jito bundle path for oversized Butter Solana transactions
-      if (metadata?.isOversized) {
-        if (!metadata.instructions?.length || !signTransaction) {
-          throw new Error(
-            'Oversized Solana transaction requires instructions and signTransaction for Jito bundle execution',
-          )
-        }
-        const executableStep = getExecutableTradeStep(tradeQuote, stepIndex)
-        const { execSolanaJitoBundle } = await import('@/lib/solanaJitoBundle')
-        return await execSolanaJitoBundle({
-          instructions: metadata.instructions,
-          addressLookupTableAddresses: metadata.addressLookupTableAddresses ?? [],
+      // Solana caps a single tx at 1232 bytes; oversized swaps must be split into a Jito bundle.
+      // Derived here (as any public-api consumer would) rather than carried on transactionData.
+      if (transactionData?.type === 'solana') {
+        const { instructions, addressLookupTableAddresses } = transactionData
+
+        const isOversized = await isSolanaTransactionOversized({
+          adapter: assertGetSolanaChainAdapter(chainId),
           from,
-          accountNumber: executableStep.accountNumber,
-          sellAssetChainId: chainId,
-          signTransaction,
+          instructions,
+          addressLookupTableAddresses,
         })
+
+        if (isOversized) {
+          if (!instructions.length || !signTransaction) {
+            throw new Error(
+              'Oversized Solana transaction requires instructions and signTransaction for Jito bundle execution',
+            )
+          }
+          const executableStep = getExecutableTradeStep(tradeQuote, stepIndex)
+          const { execSolanaJitoBundle } = await import('@/lib/solanaJitoBundle')
+          return await execSolanaJitoBundle({
+            instructions,
+            addressLookupTableAddresses,
+            from,
+            accountNumber: executableStep.accountNumber,
+            sellAssetChainId: chainId,
+            signTransaction,
+          })
+        }
       }
 
       // Standard single-tx path

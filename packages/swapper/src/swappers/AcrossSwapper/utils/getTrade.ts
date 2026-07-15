@@ -1,6 +1,5 @@
 import {
   fromAssetId,
-  fromChainId,
   isAssetReference,
   solanaChainId,
   usdcOnSolanaAssetId,
@@ -15,13 +14,6 @@ import {
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import {
-  AddressLookupTableAccount,
-  ComputeBudgetProgram,
-  PublicKey,
-  TransactionMessage,
-  VersionedTransaction,
-} from '@solana/web3.js'
 import axios from 'axios'
 import { zeroAddress } from 'viem'
 
@@ -32,7 +24,6 @@ import type {
   TradeQuoteStep,
   TradeRate,
   TradeRateStep,
-  TxBuildData,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
@@ -48,6 +39,7 @@ import {
   DEFAULT_ACROSS_SOLANA_USER_ADDRESS,
 } from '../constant'
 import { fetchAcrossTrade } from './fetchAcrossTrade'
+import { getAcrossTransactionData } from './getAcrossTransactionData'
 import type { AcrossTradeQuoteInput, AcrossTradeRateInput } from './types'
 import { isAcrossError } from './types'
 
@@ -248,84 +240,25 @@ export async function getTrade({
 
   const allowanceContract = isEvmChainId(sellAsset.chainId) ? quote.checks.allowance.spender : ''
 
-  const transactionData: TxBuildData | undefined =
-    quote.swapTx.ecosystem === 'evm'
-      ? {
-          type: 'evm',
-          chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-          to: quote.swapTx.to,
-          data: quote.swapTx.data,
-          value: quote.swapTx.value ?? '0',
-          gasLimit: quote.swapTx.gas,
-        }
-      : undefined
+  const maybeTransactionData = await getAcrossTransactionData(
+    quote.swapTx,
+    sellAsset,
+    deps.assertGetSolanaChainAdapter,
+  )
 
-  // For SVM transactions, decompile the pre-built base64 blob into instructions
-  // so getUnsignedSolanaTransaction can rebuild it at execution time
-  const maybeSolanaTransactionMetadata = await (async () => {
-    if (quote.swapTx.ecosystem !== 'svm') return Ok(undefined)
-
-    try {
-      const txBytes = Buffer.from(quote.swapTx.data, 'base64')
-      const isOversized = txBytes.length > 1232
-      const versionedTransaction = VersionedTransaction.deserialize(new Uint8Array(txBytes))
-
-      const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
-
-      const addressLookupTableAccountKeys = versionedTransaction.message.addressTableLookups.map(
-        lookup => lookup.accountKey.toString(),
-      )
-
-      const addressLookupTableAccountsInfos = await adapter.getAddressLookupTableAccounts(
-        addressLookupTableAccountKeys,
-      )
-
-      const addressLookupTableAccounts = addressLookupTableAccountsInfos.map(
-        info =>
-          new AddressLookupTableAccount({
-            key: new PublicKey(info.key),
-            state: AddressLookupTableAccount.deserialize(new Uint8Array(info.data)),
-          }),
-      )
-
-      const instructions = TransactionMessage.decompile(versionedTransaction.message, {
-        addressLookupTableAccounts,
-      }).instructions
-
-      const computeBudgetProgramId = ComputeBudgetProgram.programId.toString()
-      const instructionsWithoutComputeBudget = instructions.filter(
-        instruction => instruction.programId.toString() !== computeBudgetProgramId,
-      )
-
-      return Ok({
-        instructions: instructionsWithoutComputeBudget,
-        addressLookupTableAddresses: addressLookupTableAccountKeys,
-        isOversized,
-      })
-    } catch (e) {
-      return Err(
-        makeSwapErrorRight({
-          message: `[getTrade] Failed to decompile Solana transaction: ${e}`,
-          code: TradeQuoteError.UnknownError,
-        }),
-      )
-    }
-  })()
-
-  if (maybeSolanaTransactionMetadata.isErr()) return Err(maybeSolanaTransactionMetadata.unwrapErr())
-
-  const solanaTransactionMetadata = maybeSolanaTransactionMetadata.unwrap()
+  if (maybeTransactionData.isErr()) return Err(maybeTransactionData.unwrapErr())
+  const transactionData = maybeTransactionData.unwrap()
 
   const networkFeeCryptoBaseUnit = await (async () => {
-    if (solanaTransactionMetadata) {
+    if (transactionData?.type === 'solana') {
       const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
       const { fast } = await adapter.getFeeData({
         to: '',
         value: '0',
         chainSpecific: {
           from: depositor,
-          addressLookupTableAccounts: solanaTransactionMetadata.addressLookupTableAddresses,
-          instructions: solanaTransactionMetadata.instructions,
+          addressLookupTableAccounts: transactionData.addressLookupTableAddresses,
+          instructions: transactionData.instructions,
         },
       })
       return fast.txFee
@@ -417,7 +350,6 @@ export async function getTrade({
     source: SwapperName.Across,
     estimatedExecutionTimeMs: quote.expectedFillTime * 1000,
     transactionData,
-    solanaTransactionMetadata,
     affiliateFee:
       appFee !== undefined && appFeeRecipient !== undefined
         ? buildAffiliateFee({

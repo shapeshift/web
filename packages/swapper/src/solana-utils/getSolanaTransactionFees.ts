@@ -11,7 +11,8 @@ export const getSolanaTransactionFees = async ({
 
   const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-  const { solanaTransactionMetadata, sellAsset } = step
+  const { transactionData, sellAsset } = step
+  if (transactionData?.type !== 'solana') throw new Error('Missing solana transactionData')
 
   const adapter = assertGetSolanaChainAdapter(sellAsset.chainId)
 
@@ -20,8 +21,8 @@ export const getSolanaTransactionFees = async ({
     value: '0',
     chainSpecific: {
       from,
-      addressLookupTableAccounts: solanaTransactionMetadata?.addressLookupTableAddresses,
-      instructions: solanaTransactionMetadata?.instructions,
+      addressLookupTableAccounts: transactionData.addressLookupTableAddresses,
+      instructions: transactionData.instructions,
     },
   })
 

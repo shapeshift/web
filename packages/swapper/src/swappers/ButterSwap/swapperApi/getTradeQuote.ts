@@ -1,4 +1,4 @@
-import { btcChainId, fromChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
+import { btcChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   BigAmount,
@@ -8,13 +8,6 @@ import {
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import {
-  AddressLookupTableAccount,
-  PublicKey,
-  TransactionMessage,
-  VersionedTransaction,
-} from '@solana/web3.js'
-import { fromHex } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
@@ -26,6 +19,7 @@ import {
 } from '../../../utils'
 import { buildAffiliateFee } from '../../utils/affiliateFee'
 import { makeButterSwapAffiliate } from '../utils/constants'
+import { getButterSwapTransactionData } from '../utils/getButterSwapTransactionData'
 import {
   ButterSwapErrorCode,
   butterSwapErrorToTradeQuoteError,
@@ -189,93 +183,15 @@ export const getTradeQuote = async (
     buyAsset,
   })
 
-  // Extract Solana transaction metadata from versioned transaction, to allow building an unsigned Tx later on at getUnsignedSolanaTransaction time
-  const maybeSolanaTransactionMetadata = await (async () => {
-    if (sellAsset.chainId !== solanaChainId) return Ok(undefined)
+  const maybeTransactionData = await getButterSwapTransactionData(
+    buildTx,
+    route,
+    sellAsset,
+    _deps.assertGetSolanaChainAdapter,
+  )
 
-    const txData = buildTx.data.startsWith('0x') ? buildTx.data.slice(2) : buildTx.data
-    const txBytes = Buffer.from(txData, 'hex')
-    // Solana transactions are limited to 1232 bytes. If Butter returns a larger tx,
-    // we need to split it into a Jito bundle (2 txs with tip in the last one).
-    const SOLANA_TX_SIZE_LIMIT = 1232
-    const isOversized = txBytes.length > SOLANA_TX_SIZE_LIMIT
-    const versionedTransaction = VersionedTransaction.deserialize(new Uint8Array(txBytes))
-
-    const adapter = _deps.assertGetSolanaChainAdapter(sellAsset.chainId)
-
-    try {
-      const addressLookupTableAccountKeys = versionedTransaction.message.addressTableLookups.map(
-        lookup => lookup.accountKey.toString(),
-      )
-
-      const addressLookupTableAccountsInfos = await adapter.getAddressLookupTableAccounts(
-        addressLookupTableAccountKeys,
-      )
-
-      const addressLookupTableAccounts = addressLookupTableAccountsInfos.map(
-        info =>
-          new AddressLookupTableAccount({
-            key: new PublicKey(info.key),
-            state: AddressLookupTableAccount.deserialize(new Uint8Array(info.data)),
-          }),
-      )
-
-      // Decompile VersionedMessage with address lookup tables to get instructions
-      // This is required to properly resolve all account addresses in the transaction
-      // Without lookup tables, the transaction would fail during execution
-      // Reference: https://dev.jup.ag/docs/old/additional-topics/composing-with-versioned-transaction
-      const instructions = TransactionMessage.decompile(versionedTransaction.message, {
-        addressLookupTableAccounts,
-      }).instructions
-
-      return Ok({
-        instructions,
-        addressLookupTableAddresses: addressLookupTableAccountKeys,
-        isOversized,
-      })
-    } catch (error) {
-      return Err(
-        makeSwapErrorRight({
-          message: `[getTradeQuote] Error decompiling VersionedMessage: ${error}`,
-          code: TradeQuoteError.UnknownError,
-        }),
-      )
-    }
-  })()
-
-  if (sellAsset.chainId === solanaChainId && maybeSolanaTransactionMetadata?.isErr()) {
-    return Err(maybeSolanaTransactionMetadata.unwrapErr())
-  }
-
-  const solanaTransactionMetadata = maybeSolanaTransactionMetadata?.unwrap()
-
-  const transactionData = (() => {
-    if (solanaTransactionMetadata) return { solanaTransactionMetadata }
-
-    if (isEvmChainId(sellAsset.chainId)) {
-      return {
-        transactionData: {
-          type: 'evm' as const,
-          chainId: Number(fromChainId(sellAsset.chainId).chainReference),
-          to: buildTx.to,
-          data: buildTx.data,
-          value: fromHex(buildTx.value, 'bigint').toString(),
-          gasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
-        },
-      }
-    }
-
-    return {
-      butterSwapTransactionMetadata: {
-        to: buildTx.to,
-        data: buildTx.data,
-        value: buildTx.value,
-        method: buildTx.method,
-        args: buildTx.args,
-        memo: buildTx.memo,
-      },
-    }
-  })()
+  if (maybeTransactionData.isErr()) return Err(maybeTransactionData.unwrapErr())
+  const transactionData = maybeTransactionData.unwrap()
 
   const tradeQuote: TradeQuote = {
     id: route.hash,

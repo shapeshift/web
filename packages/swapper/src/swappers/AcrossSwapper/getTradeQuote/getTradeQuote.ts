@@ -1,46 +1,22 @@
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 
-import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
+import type { SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { getTrade } from '../utils/getTrade'
+import type { AcrossTradeQuoteInput } from '../utils/types'
 
 export const getTradeQuote = (
-  input: CommonTradeQuoteInput,
+  input: AcrossTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
   if (!input.sendAddress) {
-    return Promise.resolve(
-      Err(
-        makeSwapErrorRight({
-          message: 'sendAddress is required',
-        }),
-      ),
-    )
+    return Promise.resolve(Err(makeSwapErrorRight({ message: 'sendAddress is required' })))
   }
 
   if (!input.receiveAddress) {
-    return Promise.resolve(
-      Err(
-        makeSwapErrorRight({
-          message: 'receiveAddress is required',
-        }),
-      ),
-    )
+    return Promise.resolve(Err(makeSwapErrorRight({ message: 'receiveAddress is required' })))
   }
 
-  const args = {
-    buyAsset: input.buyAsset,
-    receiveAddress: input.receiveAddress,
-    sellAmountIncludingProtocolFeesCryptoBaseUnit:
-      input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    sellAsset: input.sellAsset,
-    sendAddress: input.sendAddress,
-    quoteOrRate: 'quote' as const,
-    accountNumber: input.accountNumber,
-    affiliateBps: input.affiliateBps,
-    slippageTolerancePercentageDecimal: input.slippageTolerancePercentageDecimal,
-  }
-
-  return getTrade({ input: args, deps })
+  return getTrade({ input, deps })
 }

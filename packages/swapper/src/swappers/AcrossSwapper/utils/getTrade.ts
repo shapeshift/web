@@ -48,7 +48,7 @@ import {
   DEFAULT_ACROSS_SOLANA_USER_ADDRESS,
 } from '../constant'
 import { fetchAcrossTrade } from './fetchAcrossTrade'
-import type { AcrossTradeInputParams } from './types'
+import type { AcrossTradeQuoteInput, AcrossTradeRateInput } from './types'
 import { isAcrossError } from './types'
 
 const getAcrossAssetAddress = (assetId: string): string => {
@@ -67,20 +67,20 @@ const getDefaultUserAddress = (chainId: string): string => {
 }
 
 export async function getTrade(args: {
-  input: AcrossTradeInputParams<'quote'>
+  input: AcrossTradeQuoteInput
   deps: SwapperDeps
 }): Promise<Result<TradeQuote[], SwapErrorRight>>
 
 export async function getTrade(args: {
-  input: AcrossTradeInputParams<'rate'>
+  input: AcrossTradeRateInput
   deps: SwapperDeps
 }): Promise<Result<TradeRate[], SwapErrorRight>>
 
-export async function getTrade<T extends 'quote' | 'rate'>({
+export async function getTrade({
   input,
   deps,
 }: {
-  input: AcrossTradeInputParams<T>
+  input: AcrossTradeQuoteInput | AcrossTradeRateInput
   deps: SwapperDeps
 }): Promise<Result<TradeQuote[] | TradeRate[], SwapErrorRight>> {
   const { sellAsset, buyAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit, affiliateBps } = input
@@ -125,21 +125,8 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     )
   }
 
-  const depositor = (() => {
-    if (input.quoteOrRate === 'rate') {
-      if (input.sendAddress) return input.sendAddress
-      return getDefaultUserAddress(sellAsset.chainId)
-    }
-    return input.sendAddress ?? getDefaultUserAddress(sellAsset.chainId)
-  })()
-
-  const recipient = (() => {
-    if (input.quoteOrRate === 'rate') {
-      if (input.receiveAddress) return input.receiveAddress
-      return getDefaultUserAddress(buyAsset.chainId)
-    }
-    return input.receiveAddress
-  })()
+  const depositor = input.sendAddress ?? getDefaultUserAddress(sellAsset.chainId)
+  const recipient = input.receiveAddress ?? getDefaultUserAddress(buyAsset.chainId)
 
   const isSolanaRoute = sellAsset.chainId === solanaChainId || buyAsset.chainId === solanaChainId
 
@@ -348,10 +335,10 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       const { data, to, value, gasLimit } = transactionData
 
       const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
-      const { average } = await adapter.getGasFeeData()
-      const supportsEIP1559 = 'maxFeePerGas' in average
+      const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
 
       if (bnOrZero(gasLimit).gt(0)) {
+        const { average } = await adapter.getGasFeeData()
         return evm.calcNetworkFeeCryptoBaseUnit({
           ...average,
           supportsEIP1559,

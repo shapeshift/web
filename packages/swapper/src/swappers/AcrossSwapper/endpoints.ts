@@ -9,11 +9,15 @@ import { checkEvmSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } fr
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
 import { acrossService } from './utils/acrossService'
-import type { AcrossDepositStatus } from './utils/types'
+import type {
+  AcrossDepositStatus,
+  AcrossTradeQuoteInput,
+  AcrossTradeRateInput,
+} from './utils/types'
 
 export const acrossApi: SwapperApi = {
-  getTradeQuote: (input, deps) => getTradeQuote(input, deps),
-  getTradeRate: (input, deps) => getTradeRate(input, deps),
+  getTradeQuote: (input, deps) => getTradeQuote(input as AcrossTradeQuoteInput, deps),
+  getTradeRate: (input, deps) => getTradeRate(input as AcrossTradeRateInput, deps),
   getEvmTransactionFees: async ({
     from,
     stepIndex,

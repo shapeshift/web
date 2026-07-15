@@ -1,19 +1,12 @@
-import type { Asset } from '@shapeshiftoss/types'
+import type {
+  GetEvmTradeQuoteInputBase,
+  GetEvmTradeRateInput,
+  GetSolanaTradeQuoteInput,
+  GetSolanaTradeRateInput,
+} from '../../../types'
 
-export type AcrossTradeBaseParams = {
-  buyAsset: Asset
-  sellAsset: Asset
-  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  affiliateBps: string
-}
-
-export type AcrossTradeInputParams<T extends 'rate' | 'quote'> = AcrossTradeBaseParams & {
-  quoteOrRate: T
-  receiveAddress: T extends 'rate' ? string | undefined : string
-  sendAddress: T extends 'rate' ? undefined : string
-  accountNumber: T extends 'rate' ? undefined : number
-  slippageTolerancePercentageDecimal?: string
-}
+export type AcrossTradeQuoteInput = GetEvmTradeQuoteInputBase | GetSolanaTradeQuoteInput
+export type AcrossTradeRateInput = GetEvmTradeRateInput | GetSolanaTradeRateInput
 
 export type AcrossTokenInfo = {
   address: string

@@ -19,14 +19,16 @@ import { getTradeRate } from './getTradeRate/getTradeRate'
 import { getLatestRelayStatusMessage } from './utils/getLatestRelayStatusMessage'
 import { notifyTransactionIndexing } from './utils/notifyTransactionIndexing'
 import { relayService } from './utils/relayService'
-import type { RelayStatus } from './utils/types'
+import type { RelayStatus, RelayTradeQuoteInput, RelayTradeRateInput } from './utils/types'
 
 // Keep track of the trades we already notified the relay indexer about
 const txIndexingMap: Map<string, boolean> = new Map()
 
 export const relayApi: SwapperApi = {
-  getTradeQuote: (input, deps) => getTradeQuote(input, deps, chainIdToRelayChainId),
-  getTradeRate: (input, deps) => getTradeRate(input, deps, chainIdToRelayChainId),
+  getTradeQuote: (input, deps) =>
+    getTradeQuote(input as RelayTradeQuoteInput, deps, chainIdToRelayChainId),
+  getTradeRate: (input, deps) =>
+    getTradeRate(input as RelayTradeRateInput, deps, chainIdToRelayChainId),
   getEvmTransactionFees: async ({
     from,
     stepIndex,
@@ -39,7 +41,7 @@ export const relayApi: SwapperApi = {
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
     const { transactionData, sellAsset } = step
-    if (transactionData?.type !== 'evm') throw Error('Missing evm transactionData')
+    if (transactionData?.type !== 'evm') throw new Error('[Relay] invalid evm transaction')
 
     const { to, value, data } = transactionData
 
@@ -61,7 +63,7 @@ export const relayApi: SwapperApi = {
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
     const { accountNumber, transactionData, sellAsset } = step
-    if (transactionData?.type !== 'evm') throw Error('evm transactionData is required')
+    if (transactionData?.type !== 'evm') throw new Error('[Relay] invalid evm transaction')
 
     const { to, value, data, gasLimit: gasLimitFromApi } = transactionData
 
@@ -94,7 +96,7 @@ export const relayApi: SwapperApi = {
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
     const { accountNumber, sellAsset, transactionData } = step
-    if (transactionData?.type !== 'utxo') throw new Error('Missing utxo transactionData')
+    if (transactionData?.type !== 'utxo') throw new Error('[Relay] invalid utxo transaction')
 
     const { to, opReturnData } = transactionData
 
@@ -125,7 +127,7 @@ export const relayApi: SwapperApi = {
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
     const { sellAsset, transactionData } = step
-    if (transactionData?.type !== 'utxo') throw new Error('Missing utxo transactionData')
+    if (transactionData?.type !== 'utxo') throw new Error('[Relay] invalid utxo transaction')
 
     const { to, opReturnData } = transactionData
 
@@ -174,7 +176,11 @@ export const relayApi: SwapperApi = {
       txHash = maybeSafeTransactionStatus.buyTxHash
     }
 
-    if (relayMetadata && !txIndexingMap.has(swap.id) && chainIdToRelayChainId[chainId] !== undefined) {
+    if (
+      relayMetadata &&
+      !txIndexingMap.has(swap.id) &&
+      chainIdToRelayChainId[chainId] !== undefined
+    ) {
       // relay's /transactions/single indexer `tx` param is the EVM calldata (see spec)
       await notifyTransactionIndexing(
         {

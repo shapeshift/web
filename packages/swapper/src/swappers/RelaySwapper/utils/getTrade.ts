@@ -38,6 +38,7 @@ import type {
   TradeQuoteStep,
   TradeRate,
   TradeRateStep,
+  TxBuildData,
 } from '../../../types'
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
@@ -49,7 +50,12 @@ import { MAXIMUM_SUPPORTED_RELAY_STEPS, relayErrorCodeToTradeQuoteError } from '
 import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
 import { relayTokenToAsset } from '../utils/relayTokenToAsset'
 import { relayTokenToAssetId } from '../utils/relayTokenToAssetId'
-import type { RelaySolanaInstruction, RelayTradeInputParams } from '../utils/types'
+import type {
+  RelaySolanaInstruction,
+  RelayTradeQuoteInput,
+  RelayTradeRateInput,
+  RelayTransactionMetadata,
+} from '../utils/types'
 import {
   isRelayError,
   isRelayQuoteEvmItemData,
@@ -62,23 +68,23 @@ import { getRelayDefaultUserAddress } from './getRelayDefaultUserAddress'
 import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
 
 export async function getTrade(args: {
-  input: RelayTradeInputParams<'quote'>
+  input: RelayTradeQuoteInput
   deps: SwapperDeps
   relayChainMap: typeof relayChainMapImplementation
 }): Promise<Result<TradeQuote[], SwapErrorRight>>
 
 export async function getTrade(args: {
-  input: RelayTradeInputParams<'rate'>
+  input: RelayTradeRateInput
   deps: SwapperDeps
   relayChainMap: typeof relayChainMapImplementation
 }): Promise<Result<TradeRate[], SwapErrorRight>>
 
-export async function getTrade<T extends 'quote' | 'rate'>({
+export async function getTrade({
   input,
   deps,
   relayChainMap,
 }: {
-  input: RelayTradeInputParams<T>
+  input: RelayTradeQuoteInput | RelayTradeRateInput
   deps: SwapperDeps
   relayChainMap: typeof relayChainMapImplementation
 }): Promise<Result<TradeQuote[] | TradeRate[], SwapErrorRight>> {
@@ -89,8 +95,9 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     receiveAddress,
     accountNumber,
     affiliateBps,
-    xpub,
   } = input
+
+  const xpub = 'xpub' in input ? input.xpub : undefined
 
   const slippageToleranceBps = input.slippageTolerancePercentageDecimal
     ? convertDecimalPercentageToBasisPoints(input.slippageTolerancePercentageDecimal).toFixed()
@@ -149,14 +156,10 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     // We absolutely need to use the default user address for BTC swaps
     // or relay quote endpoint will fail at estimation time because we don't necessarily
     // send an address with enough funds but use multiple UTXOs to fund the swap
-    if (sellAsset.chainId === btcChainId) {
-      return getRelayDefaultUserAddress(sellAsset.chainId)
-    }
+    if (sellAsset.chainId === btcChainId) return getRelayDefaultUserAddress(sellAsset.chainId)
 
     if (input.quoteOrRate === 'rate') {
-      if (input.sendAddress) return input.sendAddress
-
-      return getRelayDefaultUserAddress(sellAsset.chainId)
+      return input.sendAddress ?? getRelayDefaultUserAddress(sellAsset.chainId)
     }
 
     return input.sendAddress
@@ -164,9 +167,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   const recipient = (() => {
     if (input.quoteOrRate === 'rate') {
-      if (input.receiveAddress) return input.receiveAddress
-
-      return getRelayDefaultUserAddress(buyAsset.chainId)
+      return input.receiveAddress ?? getRelayDefaultUserAddress(buyAsset.chainId)
     }
 
     return input.receiveAddress
@@ -174,9 +175,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   const refundTo = (() => {
     if (input.quoteOrRate === 'rate') {
-      if (input.sendAddress) return input.sendAddress
-
-      return getRelayDefaultUserAddress(sellAsset.chainId)
+      return input.sendAddress ?? getRelayDefaultUserAddress(sellAsset.chainId)
     }
 
     if (!input.sendAddress) throw new Error('Send address is required for refund')
@@ -570,7 +569,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
             const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
             const { average } = await adapter.getGasFeeData()
 
-            const supportsEIP1559 = 'maxFeePerGas' in average
+            const supportsEIP1559 = 'supportsEIP1559' in input ? input.supportsEIP1559 : false
 
             const tenderlyNetworkFee = evm.calcNetworkFeeCryptoBaseUnit({
               ...average,
@@ -603,148 +602,134 @@ export async function getTrade<T extends 'quote' | 'rate'>({
         .plus(appFeesBaseUnit)
         .toFixed()
 
-      const { allowanceContract, transactionData, relayTransactionMetadata, solanaTransactionMetadata } =
-        await (async () => {
-          if (!selectedItem.data) throw new Error('Relay quote step contains no data')
+      const {
+        allowanceContract,
+        transactionData,
+        relayTransactionMetadata,
+        solanaTransactionMetadata,
+      } = await (async (): Promise<{
+        allowanceContract: string
+        transactionData: TxBuildData | undefined
+        relayTransactionMetadata?: RelayTransactionMetadata
+        solanaTransactionMetadata?: TradeQuoteStep['solanaTransactionMetadata']
+      }> => {
+        if (!selectedItem.data) throw new Error('Relay quote step contains no data')
 
-          if (isRelayQuoteUtxoItemData(selectedItem.data)) {
-            if (!selectedItem.data.psbt) throw new Error('Relay BTC quote step contains no psbt')
+        if (isRelayQuoteUtxoItemData(selectedItem.data)) {
+          if (!selectedItem.data.psbt) throw new Error('Relay BTC quote step contains no psbt')
 
-            const relayer = getRelayPsbtRelayer(
-              selectedItem.data.psbt,
-              sellAmountIncludingProtocolFeesCryptoBaseUnit,
-            )
+          const relayer = getRelayPsbtRelayer(
+            selectedItem.data.psbt,
+            sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          )
 
-            if (!relayer) throw new Error('Relay BTC quote step contains no relayer')
-            if (!orderId) throw new Error('Relay BTC quote step contains no orderId')
+          if (!relayer) throw new Error('Relay BTC quote step contains no relayer')
+          if (!orderId) throw new Error('Relay BTC quote step contains no orderId')
 
-            return {
-              allowanceContract: '',
-              transactionData: {
-                type: 'utxo' as const,
-                to: relayer,
-                opReturnData: orderId,
-                value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-              },
-              relayTransactionMetadata: {
-                from: sendAddress,
-                psbt: selectedItem.data.psbt,
-                opReturnData: orderId,
-                to: relayer,
-                relayId: quote.steps[0].requestId,
-                orderId,
-              },
-              solanaTransactionMetadata: undefined,
-            }
+          return {
+            allowanceContract: '',
+            transactionData: {
+              type: 'utxo' as const,
+              to: relayer,
+              opReturnData: orderId,
+              value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            },
           }
+        }
 
-          if (isRelayQuoteEvmItemData(selectedItem.data)) {
-            const chainId = Number(fromChainId(sellAsset.chainId).chainReference)
-            // v2 API may return value as undefined or empty object for ERC-20 swaps - default to '0'
-            const value = typeof selectedItem.data?.value === 'string' ? selectedItem.data.value : '0'
+        if (isRelayQuoteEvmItemData(selectedItem.data)) {
+          const { data, gas: gasLimit, to, value: _value } = selectedItem.data
 
-            return {
-              allowanceContract: selectedItem.data?.to ?? '',
-              transactionData: {
-                type: 'evm' as const,
-                chainId,
-                to: selectedItem.data?.to ?? '',
-                value,
-                data: selectedItem.data?.data ?? '0x',
-                gasLimit: selectedItem.data?.gas,
-              },
-              relayTransactionMetadata: {
-                from: sendAddress,
-                to: selectedItem.data?.to,
-                value,
-                data: selectedItem.data?.data,
-                // gas is not documented in the relay docs but refers to gasLimit
-                gasLimit: selectedItem.data?.gas,
-                chainId,
-                relayId: quote.steps[0].requestId,
-                orderId,
-              },
-              solanaTransactionMetadata: undefined,
-            }
+          if (!to) throw new Error('Missing Relay EVM transaction target address')
+
+          const isTokenSell = isToken(sellAsset.assetId)
+          if (isTokenSell && !data) throw new Error('Missing Relay EVM transaction data')
+
+          const value = isTokenSell ? '0' : _value
+          if (typeof value !== 'string') throw new Error('Missing Relay EVM transaction value')
+
+          return {
+            allowanceContract: to,
+            transactionData: {
+              type: 'evm' as const,
+              chainId: Number(fromChainId(sellAsset.chainId).chainReference),
+              to,
+              value,
+              data: data ?? '0x',
+              gasLimit,
+            },
           }
+        }
 
-          if (isRelayQuoteSolanaItemData(selectedItem.data)) {
-            const solanaInstructions =
-              selectedItem.data?.instructions?.map(convertSolanaInstruction)
-            const addressLookupTableAddresses = selectedItem.data?.addressLookupTableAddresses
+        if (isRelayQuoteSolanaItemData(selectedItem.data)) {
+          const solanaInstructions = selectedItem.data?.instructions?.map(convertSolanaInstruction)
+          const addressLookupTableAddresses = selectedItem.data?.addressLookupTableAddresses
 
-            // Build a trial VersionedTransaction to check if it exceeds the 1232-byte Solana tx size limit
-            const isOversized = await (async () => {
-              if (!solanaInstructions?.length || !sendAddress) return false
-              try {
-                const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
-                const lookupTableInfos = await adapter.getAddressLookupTableAccounts(
-                  addressLookupTableAddresses,
-                )
-                const lookupTableAccounts = lookupTableInfos.map(
-                  info =>
-                    new AddressLookupTableAccount({
-                      key: new PublicKey(info.key),
-                      state: AddressLookupTableAccount.deserialize(new Uint8Array(info.data)),
-                    }),
-                )
-
-                const messageV0 = MessageV0.compile({
-                  payerKey: new PublicKey(sendAddress),
-                  instructions: solanaInstructions,
-                  recentBlockhash: PublicKey.default.toString(),
-                  addressLookupTableAccounts: lookupTableAccounts,
-                })
-                const txBytes = new VersionedTransaction(messageV0).serialize()
-                return txBytes.length > 1232
-              } catch {
-                return false
-              }
-            })()
-
-            return {
-              allowanceContract: '',
-              transactionData: undefined,
-              solanaTransactionMetadata: {
+          // Build a trial VersionedTransaction to check if it exceeds the 1232-byte Solana tx size limit
+          const isOversized = await (async () => {
+            if (!solanaInstructions?.length || !sendAddress) return false
+            try {
+              const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+              const lookupTableInfos = await adapter.getAddressLookupTableAccounts(
                 addressLookupTableAddresses,
+              )
+              const lookupTableAccounts = lookupTableInfos.map(
+                info =>
+                  new AddressLookupTableAccount({
+                    key: new PublicKey(info.key),
+                    state: AddressLookupTableAccount.deserialize(new Uint8Array(info.data)),
+                  }),
+              )
+
+              const messageV0 = MessageV0.compile({
+                payerKey: new PublicKey(sendAddress),
                 instructions: solanaInstructions,
-                isOversized,
-              },
-              relayTransactionMetadata: {
-                relayId: quote.steps[0].requestId,
-                orderId,
-              },
+                recentBlockhash: PublicKey.default.toString(),
+                addressLookupTableAccounts: lookupTableAccounts,
+              })
+              const txBytes = new VersionedTransaction(messageV0).serialize()
+              return txBytes.length > 1232
+            } catch {
+              return false
             }
+          })()
+
+          return {
+            allowanceContract: '',
+            transactionData: undefined,
+            solanaTransactionMetadata: {
+              addressLookupTableAddresses,
+              instructions: solanaInstructions,
+              isOversized,
+            },
+          }
+        }
+
+        if (isRelayQuoteTronItemData(selectedItem.data)) {
+          const contractAddress = selectedItem.data.parameter?.contract_address
+          const callData = selectedItem.data.parameter?.data
+          const isTronToken = isToken(sellAsset.assetId)
+
+          if (isTronToken && !contractAddress) {
+            throw new Error('Missing Relay Tron contract address')
           }
 
-          if (isRelayQuoteTronItemData(selectedItem.data)) {
-            const contractAddress = selectedItem.data.parameter?.contract_address
-            const callData = selectedItem.data.parameter?.data
-            const isTronToken = isToken(sellAsset.assetId)
-
-            if (isTronToken && !contractAddress) {
-              throw new Error('Missing Relay Tron contract address')
-            }
-
-            if (isTronToken && !callData) {
-              throw new Error('Missing Relay Tron transaction data')
-            }
-
-            return {
-              allowanceContract: contractAddress ?? '',
-              transactionData: undefined,
-              solanaTransactionMetadata: undefined,
-              relayTransactionMetadata: {
-                relayId: quote.steps[0].requestId,
-                orderId,
-                to: contractAddress,
-                data: callData,
-              },
-            }
+          if (isTronToken && !callData) {
+            throw new Error('Missing Relay Tron transaction data')
           }
 
-          throw new Error('Relay quote step contains no data')
-        })()
+          return {
+            allowanceContract: contractAddress ?? '',
+            transactionData: undefined,
+            relayTransactionMetadata: {
+              to: contractAddress,
+              data: callData,
+            },
+          }
+        }
+
+        throw new Error('Relay quote step contains no data')
+      })()
 
       return {
         allowanceContract,
@@ -773,8 +758,8 @@ export async function getTrade<T extends 'quote' | 'rate'>({
         relayTransactionMetadata,
         swapperMetadata: {
           name: 'relay',
-          relayId: relayTransactionMetadata.relayId,
-          orderId: relayTransactionMetadata.orderId,
+          relayId: quote.steps[0].requestId,
+          orderId,
           data: transactionData?.type === 'evm' ? transactionData.data : undefined,
         },
         affiliateFee: buildAffiliateFee({

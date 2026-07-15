@@ -1,31 +1,31 @@
-import type { Asset } from '@shapeshiftoss/types'
+import type {
+  GetEvmTradeQuoteInputBase,
+  GetEvmTradeRateInput,
+  GetSolanaTradeQuoteInput,
+  GetSolanaTradeRateInput,
+  GetTronTradeQuoteInput,
+  GetTronTradeRateInput,
+  GetUtxoTradeQuoteInput,
+  GetUtxoTradeRateInput,
+} from '../../../types'
 
-export type RelayTradeBaseParams = {
-  buyAsset: Asset
-  sellAsset: Asset
-  sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  affiliateBps: string
-}
+export type RelayTradeQuoteInput =
+  | GetEvmTradeQuoteInputBase
+  | GetUtxoTradeQuoteInput
+  | GetSolanaTradeQuoteInput
+  | GetTronTradeQuoteInput
 
-export type RelayTradeInputParams<T extends 'rate' | 'quote'> = RelayTradeBaseParams & {
-  quoteOrRate: T
-  receiveAddress: T extends 'rate' ? string | undefined : string
-  sendAddress: T extends 'rate' ? undefined : string
-  accountNumber: T extends 'rate' ? undefined : number
-  slippageTolerancePercentageDecimal?: string
-  xpub: string | undefined
-}
+export type RelayTradeRateInput =
+  | GetEvmTradeRateInput
+  | GetUtxoTradeRateInput
+  | GetSolanaTradeRateInput
+  | GetTronTradeRateInput
 
+// Only the Tron unsigned-tx builder consumes this (to + calldata); every other
+// ecosystem's build data lives on transactionData
 export type RelayTransactionMetadata = {
   to?: string
-  from?: string
-  value?: string
   data?: string
-  gasLimit?: string
-  psbt?: string
-  opReturnData?: string
-  relayId: string
-  orderId: string | undefined
 }
 
 export type RelayMetadata = {

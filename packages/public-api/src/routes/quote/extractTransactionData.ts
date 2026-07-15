@@ -15,8 +15,8 @@ const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | u
 
   const txData: EvmTransactionData | undefined = (() => {
     if (step.transactionData?.type === 'evm') {
-      const { to, data, value, gasLimit } = step.transactionData
-      return { type: 'evm' as const, chainId, to, data, value, gasLimit }
+      const { to, data, value, gasLimit, signatureRequired } = step.transactionData
+      return { type: 'evm' as const, chainId, to, data, value, gasLimit, signatureRequired }
     }
 
     if (step.chainflipSpecific?.depositAddress) {
@@ -43,10 +43,6 @@ const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | u
   })()
 
   if (!txData) return undefined
-
-  if (step.permit2Eip712 && !txData.signatureRequired) {
-    return { ...txData, signatureRequired: { type: 'permit2', eip712: step.permit2Eip712 } }
-  }
 
   return txData
 }

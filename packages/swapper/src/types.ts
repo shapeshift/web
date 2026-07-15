@@ -441,7 +441,6 @@ export type TradeQuoteStep = {
   intermediaryTransactionOutputs?: AmountDisplayMeta[]
   allowanceContract: string
   estimatedExecutionTimeMs: number | undefined
-  permit2Eip712?: TypedData
   transactionData?: TxBuildData
   swapperMetadata?: SwapperMetadata
 

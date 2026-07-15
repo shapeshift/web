@@ -20,6 +20,7 @@ import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
+import type { TypedData } from 'eip-712'
 
 import { fetchSafeTransactionInfo } from './safe-utils'
 import type {
@@ -38,10 +39,19 @@ import type {
   TradeQuote,
   TradeQuoteStep,
   TradeRate,
+  TradeRateStep,
   TradeStatus,
   TronTransactionExecutionProps,
 } from './types'
 import { TradeQuoteError } from './types'
+
+export const getPermit2Eip712 = (
+  step: TradeQuoteStep | TradeRateStep | undefined,
+): TypedData | undefined => {
+  return step?.transactionData?.type === 'evm'
+    ? step.transactionData.signatureRequired?.eip712
+    : undefined
+}
 
 export const makeSwapErrorRight = ({
   details,

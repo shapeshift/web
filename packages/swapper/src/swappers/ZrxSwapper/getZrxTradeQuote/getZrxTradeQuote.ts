@@ -151,7 +151,6 @@ export async function getZrxTradeQuote(
             sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
             buyAmountCryptoBaseUnit: buyAmount,
           }),
-          permit2Eip712: permit2Eip712 as unknown as TypedData | undefined,
           transactionData: {
             type: 'evm',
             chainId: Number(fromChainId(sellAsset.chainId).chainReference),
@@ -159,6 +158,12 @@ export async function getZrxTradeQuote(
             data: transaction.data,
             value: transaction.value,
             gasLimit: transaction.gas || undefined,
+            ...(permit2Eip712 && {
+              signatureRequired: {
+                type: 'permit2' as const,
+                eip712: permit2Eip712 as unknown as TypedData,
+              },
+            }),
           },
         },
       ] as SingleHopTradeQuoteSteps,
